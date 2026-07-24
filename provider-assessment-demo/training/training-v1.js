@@ -62,7 +62,7 @@
     els.modules.innerHTML = modules.length ? modules.map(item => {
       const state = moduleProgress(item.id);
       const percent = completionPercent(item.id);
-      return `<article class="module-card"><div class="meta"><span class="tag${state.completed ? " complete" : ""}">${state.completed ? "مكتمل" : item.level}</span><span class="tag">${esc(item.duration)}</span></div><h2>${esc(item.title)}</h2><p>${esc(item.objectives[0])}</p><p><strong>الفئة:</strong> ${esc(item.audience.join("، "))}</p><div class="progress-track" aria-label="نسبة تقدم المساق"><div class="progress-bar" style="width:${percent}%"></div></div><p>${percent}% من متطلبات المساق</p><div class="module-actions"><button class="button" type="button" data-open-module="${esc(item.id)}">${state.completed ? "مراجعة المساق" : percent ? "متابعة المساق" : "بدء المساق"}</button></div></article>`;
+      return `<article class="module-card"><div class="meta"><span class="tag${state.completed ? " complete" : ""}">${state.completed ? "مكتمل" : item.level}</span><span class="tag">${esc(item.duration)}</span></div><h2>${esc(item.title)}</h2><p>${esc(item.objectives[0])}</p><p><strong>الفئة:</strong> ${esc(item.audience.join("، "))}</p><div class="progress-track" role="progressbar" aria-label="نسبة تقدم المساق" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}"><div class="progress-bar" style="width:${percent}%"></div></div><p>${percent}% من متطلبات المساق</p><div class="module-actions"><button class="button" type="button" data-open-module="${esc(item.id)}">${state.completed ? "مراجعة المساق" : percent ? "متابعة المساق" : "بدء المساق"}</button></div></article>`;
     }).join("") : '<div class="panel">لا توجد مساقات مطابقة.</div>';
     renderStats();
   };
