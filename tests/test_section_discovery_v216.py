@@ -83,6 +83,9 @@ class SectionDiscoveryV216Tests(unittest.TestCase):
         directory = (self.site / "sections" / "index.html").read_text(encoding="utf-8")
         self.assertIn("مكتبة المقارنات النفسية", directory)
         self.assertIn("المكتبة الأكاديمية", directory)
+        self.assertIn(f'href="{BASE}comparisons/"', directory)
+        self.assertIn(f'href="{BASE}library/"', directory)
+        self.assertNotIn('href="library/"', directory)
         payload = json.loads((self.site / "api" / "v1" / "sections.json").read_text(encoding="utf-8"))
         self.assertEqual(payload["section_count"], 7)
         self.assertEqual(payload["html_page_count"], 17)
@@ -92,12 +95,14 @@ class SectionDiscoveryV216Tests(unittest.TestCase):
         self.assertEqual(report["featured_on_home"], 6)
 
     def test_sitemap_openapi_and_idempotency(self) -> None:
-        self.run_script()
-        self.run_script()
+        first = self.run_script()
+        second = self.run_script()
         homepage = (self.site / "index.html").read_text(encoding="utf-8")
         self.assertEqual(homepage.count('id="platform-directory-v216"'), 1)
         self.assertEqual(homepage.count('id="directory-style-v216"'), 1)
         self.assertEqual(homepage.count('href="sections/"'), 2)
+        self.assertEqual(first["sections"], second["sections"])
+        self.assertEqual(first["pages"], second["pages"])
         refs = [(node.text or "").strip() for node in ET.parse(self.site / "sitemap.xml").getroot().findall("{*}sitemap/{*}loc")]
         self.assertEqual(refs.count(BASE + "sitemap-sections-v216.xml"), 1)
         openapi = json.loads((self.site / "api" / "v1" / "openapi.json").read_text(encoding="utf-8"))
