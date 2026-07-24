@@ -132,6 +132,20 @@ class SitewideSeoV216Tests(unittest.TestCase):
         self.assertEqual(payload["@type"], "Article")
         self.assertGreaterEqual(len(payload["keywords"]), 5)
 
+    def test_production_pipeline_wires_enricher_and_verifier(self):
+        pipeline = (ROOT / "scripts" / "apply_homepage_v20.py").read_text(
+            encoding="utf-8"
+        )
+        enhancer = 'run_publisher("enhance_sitewide_seo_v216.py")'
+        verifier = 'run_publisher("verify_sitewide_seo_v216.py")'
+        health_gate = 'run_publisher("enforce_health_publication_gate_v192.py")'
+        self.assertIn('"sitewide_seo_publisher": 216', pipeline)
+        self.assertIn(enhancer, pipeline)
+        self.assertIn(verifier, pipeline)
+        self.assertIn(health_gate, pipeline)
+        self.assertLess(pipeline.index(enhancer), pipeline.index(verifier))
+        self.assertLess(pipeline.index(verifier), pipeline.index(health_gate))
+
 
 if __name__ == "__main__":
     unittest.main()
