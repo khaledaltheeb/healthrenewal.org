@@ -1,8 +1,8 @@
 orCloseness:stage+1};
  }
  if(mode==='semantic_fluency'){
-  const entry=pick(categories),size=[3,3,4,5,6][stage],correct=shuffle(entry[2],rnd).slice(0,size).join('، '),related=categories.filter(x=>x!==entry&&x[1]===entry[1]),unrelated=categories.filter(x=>x!==entry&&x[1]!==entry[1]),source=stage<2?unrelated:[...related,...unrelated],wrong=shuffle(source,rnd).slice(0,3).map((x,i)=>{const words=shuffle(x[2],rnd).slice(0,Math.max(1,size-1));words.push(entry[2][i%entry[2].length]);return shuffle(words,rnd).join('، ')});
-  return{...base,prompt:`أي مجموعة تتكون جميع كلماتها من فئة «${entry[0]}»؟`,answer:correct,options:[correct,...wrong],explanation:`كل كلمات المجموعة الصحيحة تنتمي إلى ${entry[0]}.`,semanticSetSize:size,semanticDistractorCloseness:stage+1};
+  const entry=pick(categories),size=[3,3,4,5,6][stage],correct=shuffle(entry[2],rnd).slice(0,size).join('، '),related=categories.filter(x=>x!==entry&&x[1]===entry[1]),unrelated=categories.filter(x=>x!==entry&&x[1]!==entry[1]),source=stage<2?unrelated:[...related,...unrelated],wrong=shuffle(source,rnd).slice(0,3).map((x,i)=>{const words=shuffle(x[2],rnd).slice(0,Math.max(1,size-1));words.push(entry[2][i%entry[2].length]);return shuffle(words,rnd).join('، ')}),frame=pick(['فحص الفئة','تمييز المجموعة','الطلاقة الدلالية','المجموعة المتجانسة']);
+  return{...base,prompt:`${frame}: أي مجموعة تتكون جميع كلماتها من فئة «${entry[0]}»؟`,answer:correct,options:[correct,...wrong],explanation:`كل كلمات المجموعة الصحيحة تنتمي إلى ${entry[0]}.`,semanticSetSize:size,semanticDistractorCloseness:stage+1};
  }
  if(mode==='social_scenarios'){
   const tiers=[
