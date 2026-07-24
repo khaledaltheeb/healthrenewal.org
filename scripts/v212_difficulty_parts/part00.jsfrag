@@ -1,0 +1,26 @@
+
+function v212DifficultyData(d,stage,index,sessionSeed,rnd,ri,pick,symbols,arrows){
+ const mode=d.mode||d.category||'', colors=[['أحمر','#b42318'],['أزرق','#175cd3'],['أخضر','#067647'],['برتقالي','#b54708'],['بنفسجي','#6941c6'],['تركواز','#087e8b']], positions=['الوسط','اليمين','اليسار','الأعلى','الأسفل'];
+ const names=['ليلى','عمر','سارة','يزن','مريم','نور','آدم','هند','سليم','رنا','كريم','جنى'];
+ const optionsFor=(answer,pool,count=4)=>[answer,...shuffle([...new Set(pool.map(String))].filter(x=>x!==String(answer)),rnd).slice(0,Math.max(1,count-1))];
+ const base={difficultyLoad:stage+1,difficultyDescriptor:`المستوى ${stage+1} من خمسة`};
+ if(mode==='choice_reaction'||mode==='visual_reaction'){
+  const symbol=pick(symbols),color=pick(colors),position=pick(positions),domains=stage<3?[[['symbol']],[['color']],[['position']]][stage][0]:stage===3?['symbol','color']:['symbol','color','position'],domain=pick(domains);
+  const answer=domain==='symbol'?symbol:domain==='color'?color[0]:position,all=[...symbols,...colors.map(x=>x[0]),...positions],choiceCount=[4,5,5,6,7][stage],opts=optionsFor(answer,stage<3?(domain==='symbol'?symbols:domain==='color'?colors.map(x=>x[0]):positions):all,choiceCount);
+  const cue=stage<3?'قاعدة ثابتة':`إشارة القاعدة: ${domain==='symbol'?'رمز':domain==='color'?'لون':'موضع'}`;
+  return{...base,kind:'reaction',delay:Math.max(180,520-stage*65+ri(0,240)),prompt:`${cue}. ظهر <span style="color:${color[1]};font-size:2em;font-weight:900">${symbol}</span> في ${position}. اختر ${domain==='symbol'?'الرمز':domain==='color'?'اللون':'الموضع'} بسرعة.`,answer,options:opts,explanation:`طُبقت قاعدة ${domain==='symbol'?'الرمز':domain==='color'?'اللون':'الموضع'}؛ الإجابة ${answer}.`,ruleSwitchSetSize:domains.length,choiceCount:opts.length,ruleDomain:domain};
+ }
+ if(mode==='response_inhibition'){
+  const shownSymbol=pick(symbols),shownColor=pick(colors),target=pick(symbols),second=pick(symbols.filter(x=>x!==target)),targetColor=pick(colors),cue=pick(['أ','ب']);let answer,prompt,explanation,ruleClauses;
+  if(stage===0){answer=shownSymbol===target?'استجب':'امتنع';prompt=`استجب فقط عند ${target}. ظهر ${shownSymbol}.`;explanation=shownSymbol===target?'ظهر الهدف.':'ظهر مشتت.';ruleClauses=1}
+  else if(stage===1){const go=shownSymbol===target||shownSymbol===second;answer=go?'استجب':'امتنع';prompt=`استجب عند ${target} أو ${second}. ظهر ${shownSymbol}.`;explanation=go?'المثير ضمن هدفي الاستجابة.':'المثير خارج الهدفين.';ruleClauses=2}
+  else if(stage===2){const go=shownColor[0]===targetColor[0];answer=go?'استجب':'امتنع';prompt=`استجب فقط للون ${targetColor[0]}. ظهر <span style="color:${shownColor[1]};font-size:2em;font-weight:900">${shownSymbol}</span>.`;explanation=go?'لون المثير مطابق.':'لون المثير غير مطابق.';ruleClauses=2}
+  else if(stage===3){const go=shownSymbol===target&&shownColor[0]===targetColor[0];answer=go?'استجب':'امتنع';prompt=`استجب فقط إذا اجتمع الرمز ${target} واللون ${targetColor[0]}. ظهر <span style="color:${shownColor[1]};font-size:2em;font-weight:900">${shownSymbol}</span>.`;explanation=go?'تحقق الشرطان معًا.':'لم يتحقق الشرطان معًا.';ruleClauses=3}
+  else{const useSymbol=cue==='أ',go=useSymbol?shownSymbol===target:shownColor[0]===targetColor[0];answer=go?'استجب':'امتنع';prompt=`الإشارة ${cue}: عند «أ» طبّق قاعدة الرمز ${target}، وعند «ب» طبّق قاعدة اللون ${targetColor[0]}. ظهر <span style="color:${shownColor[1]};font-size:2em;font-weight:900">${shownSymbol}</span>.`;explanation=`طُبقت قاعدة ${useSymbol?'الرمز':'اللون'}؛ ${go?'تحقق الهدف':'لم يتحقق الهدف'}.`;ruleClauses=4}
+  return{...base,prompt,answer,options:['استجب','امتنع'],explanation,inhibitionRuleComplexity:stage+1,ruleClauses};
+ }
+ if(mode==='conditional_reasoning'){
+  const facts=[['أضاء المؤشر الأخضر','بدأ النظام'],['وصل رمز التحقق','أمكن متابعة التسجيل'],['اكتمل الدفع','صدر الإيصال'],['هطل المطر','ابتلت الساحة'],['شُحن الجهاز','أمكن تشغيله'],['حُفظ الملف','بقيت التعديلات'],['انتهى الفحص','ظهر التقرير'],['أُغلق الصمام','توقف تدفق الماء'],['وصلت الحافلة','فُتح باب الصعود'],['اكتمل الحجز','وصل التأكيد'],['سُجل الحضور','ظهر الاسم في القائمة'],['انخفضت الحرارة تحت الصفر','تجمد الماء المكشوف'],['وُصل الكابل الصحيح','انتقلت الإشارة'],['اكتملت المتطلبات','قُبل الطلب آليًا'],['فُعّل المنبه','صدر الصوت في موعده'],['أُدخل المفتاح الصحيح','فُتح القفل'],['اكتمل النسخ الاحتياطي','أمكن استعادة الملفات'],['نُشر الإعلان','ظهر في الصفحة'],['تطابق الرمز','قُبلت العملية'],['أُرسلت الدعوة','وصل إشعار الاجتماع'],['اكتمل التنزيل','أصبح الملف متاحًا'],['حُدد الموعد','ظهر في التقويم'],['اكتمل التحقق','فُعّل الحساب'],['وصلت الشحنة','تحدثت حالة الطلب']],s=pick(facts),extra=pick(facts.filter(x=>x!==s)),frame=pick(['في تجربة مضبوطة','في سجل النظام','وفق تقرير المتابعة']);let statement,answer,options,explanation,type;
+  if(stage===0){statement=`وقد ${s[0]}`;answer=s[1];options=[answer,`لم يحدث: ${s[1]}`,'لا يمكن الجزم بالنتيجة','الشرط معكوس'];explanation='تحقق الشرط فتَلزم النتيجة.';type='modus-ponens'}
+  else if(stage===1){statement=`ولم يحدث: ${s[1]}`;answer=`لم يحدث: ${s[0]}`;options=[answer,s[0],'لا يمكن الجزم بالسبب',s[1]];explanation='نفي النتيجة يسمح بنفي الشرط.';type='modus-tollens'}
+  else if(stage===2){statement=`وقد ${s[1]}`;answer='لا يمكن الجزم با

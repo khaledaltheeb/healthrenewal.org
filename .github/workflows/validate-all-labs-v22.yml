@@ -35,7 +35,7 @@ jobs:
       - name: Compile every audit and upgrade script
         run: |
           set -euxo pipefail
-          for f in scripts/audit_all_labs_v22.py scripts/audit_content_quality_v32.py scripts/upgrade_cognitive_batch1_v22.py scripts/upgrade_cognitive_batch2_v22.py scripts/fix_initial_cognitive_variation_v25.py scripts/fix_stroop_and_variation_v23.py scripts/complete_cognitive_remaining_v24.py scripts/fix_cognitive_quality_v26.py scripts/finalize_pwa_v14.py scripts/stamp_deployment_v29.py scripts/publish_daily_tools_v24.py scripts/verify_daily_tools_v24.py scripts/publish_sleep_log_v49.py scripts/verify_sleep_log_v49.py scripts/enforce_platform_identity_v201.py; do python -m py_compile "$f"; done
+          for f in scripts/audit_all_labs_v22.py scripts/audit_content_quality_v32.py scripts/upgrade_cognitive_batch1_v22.py scripts/upgrade_cognitive_batch2_v22.py scripts/fix_initial_cognitive_variation_v25.py scripts/fix_stroop_and_variation_v23.py scripts/complete_cognitive_remaining_v24.py scripts/fix_cognitive_quality_v26.py scripts/finalize_cognitive_lab_v202.py scripts/harden_cognitive_lab_v203.py scripts/publish_provider_assessment_route_v204.py scripts/publish_working_memory_updating_v205.py scripts/publish_prospective_memory_v206.py scripts/publish_associative_binding_v207.py scripts/publish_temporal_order_memory_v208.py scripts/publish_visual_change_detection_v210.py scripts/harden_cognitive_copy_v209.py scripts/finalize_pwa_v14.py scripts/stamp_deployment_v29.py scripts/publish_daily_tools_v24.py scripts/verify_daily_tools_v24.py scripts/publish_sleep_log_v49.py scripts/verify_sleep_log_v49.py scripts/enforce_platform_identity_v201.py; do python -m py_compile "$f"; done
           python -m py_compile tests/test_platform_identity_v201.py
           node --check scripts/e2e_all_labs_v22.mjs
           node --check scripts/test_cognitive_variation_v23.mjs
@@ -198,7 +198,7 @@ jobs:
           npm install --no-save playwright
           npx playwright install --with-deps chromium
 
-      - name: Complete all 88 tools on mobile and desktop
+      - name: Complete all 93 tools on mobile and desktop
         run: |
           set -euxo pipefail
           mkdir -p preview
@@ -222,15 +222,33 @@ jobs:
           daily=json.loads(Path('_site/api/daily-tools-v24.json').read_text())
           quality=json.loads(Path('_site/api/content-quality-v32.json').read_text())
           identity=json.loads(Path('_site/api/platform-identity-v201.json').read_text())
-          assert complete['completed']==48 and complete['remaining']==0,complete
-          assert variation['tools']==48 and variation['errorCount']==0,variation
-          assert static['assessment_count']==40 and static['cognitive_count']==48 and static['error_count']==0,static
-          assert e2e['expectedRuns']==176 and e2e['completedRuns']==176 and e2e['passedRuns']==176 and e2e['failedRuns']==0 and e2e['errorCount']==0,e2e
+          updating=json.loads(Path('_site/api/working-memory-updating-v205.json').read_text())
+          prospective=json.loads(Path('_site/api/prospective-memory-v206.json').read_text())
+          binding=json.loads(Path('_site/api/associative-binding-v207.json').read_text())
+          temporal=json.loads(Path('_site/api/temporal-order-v208.json').read_text())
+          visual=json.loads(Path('_site/api/visual-change-v210.json').read_text())
+          copy=json.loads(Path('_site/api/cognitive-copy-v209.json').read_text())
+          homepage=json.loads(Path('_site/api/homepage-v20.json').read_text())
+          assert complete['completed']==53 and complete['remaining']==0,complete
+          assert variation['tools']==53 and variation['errorCount']==0,variation
+          assert static['assessment_count']==40 and static['cognitive_count']==53 and static['error_count']==0,static
+          assert e2e['expectedRuns']==186 and e2e['completedRuns']==186 and e2e['passedRuns']==186 and e2e['failedRuns']==0 and e2e['errorCount']==0,e2e
+          assert updating['cognitive_pages']==49 and updating['total_lab_tools']==89 and updating['diagnostic'] is False,updating
+          assert prospective['cognitive_pages']==50 and prospective['total_lab_tools']==90 and prospective['diagnostic'] is False and prospective['delayed_intention_display'] is True,prospective
+          assert prospective['cue_action_combinations']>=144 and prospective['multiple_choice'] is True,prospective
+          assert binding['cognitive_pages']==51 and binding['total_lab_tools']==91 and binding['diagnostic'] is False,binding
+          assert binding['minimum_pairs']==2 and binding['maximum_pairs']==6 and binding['bidirectional_retrieval'] is True and binding['study_then_test'] is True,binding
+          assert temporal['cognitive_pages']==52 and temporal['total_lab_tools']==92 and temporal['diagnostic'] is False,temporal
+          assert temporal['minimum_sequence_length']==3 and temporal['maximum_sequence_length']==7 and temporal['bidirectional_queries'] is True and temporal['study_then_test'] is True,temporal
+          assert visual['cognitive_pages']==53 and visual['total_lab_tools']==93 and visual['diagnostic'] is False,visual
+          assert visual['minimum_set_size']==3 and visual['maximum_set_size']==7 and visual['change_features']==['shape','color'] and visual['study_then_test'] is True,visual
+          assert copy['cognitive_pages']==53 and copy['error_count']==0 and copy['adjacent_phrase_guard'] is True,copy
           assert pwa['registration_verified'] and pwa['pages_scanned'] > 0,pwa
           assert daily['tools']==8 and daily['paths']==4 and daily['pages']==14 and daily['local_only'] is True,daily
           assert quality['pages_scanned'] > 0 and quality['critical_error_count']==0,quality
           assert identity['remaining_banned_pages']==[] and identity['missing_header_pages']==[] and identity['missing_footer_pages']==[],identity
-          print({'site':'passed','cognitive':'48/48','assessments':'40/40','browser':'176/176','daily_tools':'8/8','learning_paths':'4/4','quality_pages':quality['pages_scanned'],'thin_candidates':quality['thin_page_candidates'],'pwa_pages':pwa['pages_scanned'],'identity_pages':identity['pages']})
+          assert homepage['lab_tool_count']==93 and homepage['lab_inventory_metadata_updated'] is True,homepage
+          print({'site':'passed','cognitive':'53/53','assessments':'40/40','browser':'186/186','daily_tools':'8/8','learning_paths':'4/4','quality_pages':quality['pages_scanned'],'thin_candidates':quality['thin_page_candidates'],'pwa_pages':pwa['pages_scanned'],'identity_pages':identity['pages'],'homepage_lab_tools':homepage['lab_tool_count']})
           PY
 
       - name: Stamp validated production build with SHA-256 evidence

@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 SOURCE = ROOT / "index.html"
 TARGET = SITE / "index.html"
+LAB_TOOL_COUNT = 93
 
 
 def run_publisher(script: str) -> None:
@@ -32,6 +33,36 @@ def restore_static_route(route: str) -> int:
     if not pages:
         raise SystemExit(f"Restored static route has no HTML pages: {route}")
     return len(pages)
+
+
+def synchronize_homepage_lab_inventory(text: str) -> str:
+    replacements = (
+        (
+            '<meta name="description" content="منصة عربية شاملة للصحة النفسية وذوي الاحتياجات الخاصة تجمع موسوعة موثقة وأدلة عملية للأسرة والطفل والعائلة والتربية الدامجة وأدوات تقييم استكشافية بحدود مهنية واضحة.">',
+            f'<meta name="description" content="منصة عربية شاملة للصحة النفسية وذوي الاحتياجات الخاصة تجمع موسوعة موثقة وأدلة عملية للأسرة والطفل والعائلة والتربية الدامجة و{LAB_TOOL_COUNT} مقياسًا وأداة معرفية وتقييمًا استكشافيًا بحدود مهنية واضحة.">',
+        ),
+        (
+            '<meta property="og:description" content="معرفة تحترم الإنسان، وأدلة عملية تساعد الأسرة والمختص ومقدم الخدمة على الوصول إلى المعلومة والمسار المناسب.">',
+            f'<meta property="og:description" content="معرفة تحترم الإنسان، وأدلة عملية و{LAB_TOOL_COUNT} مقياسًا وأداة معرفية تساعد الأسرة والمختص ومقدم الخدمة على الوصول إلى المعلومة والمسار المناسب.">',
+        ),
+        (
+            '<meta name="twitter:description" content="موسوعة عربية وأدلة عملية وتربية دامجة ومنصة تقييم استكشافية ضمن بنية موثوقة ومتاحة.">',
+            f'<meta name="twitter:description" content="موسوعة عربية وأدلة عملية وتربية دامجة و{LAB_TOOL_COUNT} مقياسًا وأداة معرفية ومنصة تقييم استكشافية ضمن بنية موثوقة ومتاحة.">',
+        ),
+        (
+            '"description":"بوابة عربية للموسوعة النفسية والأدلة العملية والأسرة والطفل والعائلة وذوي الاحتياجات الخاصة والتربية الدامجة والمقاييس والاستكشاف المهني."',
+            f'"description":"بوابة عربية للموسوعة النفسية والأدلة العملية والأسرة والطفل والعائلة وذوي الاحتياجات الخاصة والتربية الدامجة و{LAB_TOOL_COUNT} مقياسًا وأداة معرفية والاستكشاف المهني."',
+        ),
+        (
+            '<article class="stat"><strong>88</strong><span>مقياسًا وأداة وقدرة معرفية في المختبرات الحالية بحدود استخدام واضحة.</span></article>',
+            f'<article class="stat"><strong>{LAB_TOOL_COUNT}</strong><span>مقياسًا وأداة وقدرة معرفية في المختبرات الحالية بحدود استخدام واضحة.</span></article>',
+        ),
+    )
+    for old, new in replacements:
+        if old not in text:
+            raise SystemExit(f"Homepage laboratory inventory marker missing: {old[:80]}")
+        text = text.replace(old, new, 1)
+    return text
 
 
 def synchronize_care_guides_report() -> None:
@@ -91,7 +122,8 @@ def main() -> None:
         raise SystemExit("Missing source homepage index.html")
     if not SITE.exists():
         raise SystemExit(f"Missing site output: {SITE}")
-    text = SOURCE.read_text(encoding="utf-8")
+    source_text = SOURCE.read_text(encoding="utf-8")
+    text = synchronize_homepage_lab_inventory(source_text)
     required = [
         '<html lang="ar" dir="rtl">',
         '<h1>',
@@ -107,6 +139,7 @@ def main() -> None:
         'color-scheme" content="light"',
         'منصة الصحة النفسية وذوي الاحتياجات الخاصة',
         'معرفة تحترم الإنسان. دعم يوسّع الإمكانات.',
+        f'<strong>{LAB_TOOL_COUNT}</strong><span>مقياسًا وأداة وقدرة معرفية',
     ]
     missing = [item for item in required if item not in text]
     if missing:
@@ -119,6 +152,8 @@ def main() -> None:
         '2000+',
         'قيد الإعداد',
         'قيد التوسع',
+        '<strong>88</strong><span>مقياسًا وأداة وقدرة معرفية',
+        '<strong>92</strong><span>مقياسًا وأداة وقدرة معرفية',
     ]
     found = [item for item in forbidden if item in text]
     if found:
@@ -130,12 +165,16 @@ def main() -> None:
     if len(re.findall(r'<h3\b', text)) < 12:
         raise SystemExit("Homepage must contain at least twelve H3 cards")
     TARGET.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(SOURCE, TARGET)
+    TARGET.write_text(text, encoding="utf-8")
     restored_routes = {"provider-assessment-demo": restore_static_route("provider-assessment-demo")}
+    expected_target_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
     report = {
-        "version": 201,
+        "version": 210,
         "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         "target_sha256": hashlib.sha256(TARGET.read_bytes()).hexdigest(),
+        "source_transformed": True,
+        "lab_tool_count": LAB_TOOL_COUNT,
+        "lab_inventory_metadata_updated": True,
         "h1": text.count('<h1>'),
         "h2": len(re.findall(r'<h2\b', text)),
         "h3": len(re.findall(r'<h3\b', text)),
@@ -163,9 +202,10 @@ def main() -> None:
         "accessible_arabic_content_sitemap_sync": 191,
         "health_publication_gate": 192,
         "internal_base_path_normalizer": 198,
+        "cognitive_lab_inventory_publisher": 210,
     }
-    if report["source_sha256"] != report["target_sha256"]:
-        raise SystemExit("Homepage copy hash mismatch")
+    if report["target_sha256"] != expected_target_sha:
+        raise SystemExit("Homepage transformed output hash mismatch")
     api = SITE / "api"
     api.mkdir(parents=True, exist_ok=True)
     (api / "homepage-v20.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
