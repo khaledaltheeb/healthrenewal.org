@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
+  <desc id="desc">بطاقة مشاركة عربية مؤسسية تحمل شعار المنصة ورسالتها.</desc>
+  <defs>
+    <linearGradient id="bg" x1="80" y1="40" x2="1120" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#e5faf7"/>
+      <stop offset="0.52" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f1edff"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="100" y1="90" x2="360" y2="350" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0b6b66"/>
+      <stop offset="1" stop-color="#7f3659"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="70" y="70" width="310" height="310" rx="82" fill="url(#mark)"/>
+  <circle cx="225" cy="155" r="28" fill="#fff"/>
+  <path d="M135 205c40 0 70 15 90 46 20-31 50-46 90-46v112c-40 0-70 10-90 35-20-25-50-35-90-35V205Z" fill="none" stroke="#fff" stroke-width="18" stroke-linejoin="round"/>
+  <path d="M225 247v105" stroke="#fff" stroke-width="18" stroke-linecap="round"/>
+  <text x="1110" y="190" text-anchor="end" font-family="Tahoma, Arial, sans-serif" font-size="54" font-weight="700" fill="#143f44">منصة الصحة النفسية</text>
+  <text x="1110" y="265" text-anchor="end" font-family="Tahoma, Arial, sans-serif" font-size="54" font-weight="700" fill="#143f44">وذوي الاحتياجات الخاصة</text>
+  <text x="1110" y="355" text-anchor="end" font-family="Tahoma, Arial, sans-serif" font-size="31" font-weight="700" fill="#0b6b66">معرفة تحترم الإنسان. دعم يوسّع الإمكانات.</text>
+  <text x="1110" y="430" text-anchor="end" font-family="Tahoma, Arial, sans-serif" font-size="27" fill="#527275">موسوعة عربية موثوقة، أدلة عملية، تربية دامجة،</text>
+  <text x="1110" y="475" text-anchor="end" font-family="Tahoma, Arial, sans-serif" font-size="27" fill="#527275">مقاييس استكشافية ومسارات دعم للأسرة والمختص.</text>
+  <rect x="70" y="535" width="1060" height="4" rx="2" fill="#c7e6e2"/>
+</svg>
