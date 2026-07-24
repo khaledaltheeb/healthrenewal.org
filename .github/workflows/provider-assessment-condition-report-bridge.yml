@@ -8,6 +8,13 @@ on:
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/conditions/conditions-data-v1.js"
       - ".github/workflows/provider-assessment-condition-report-bridge.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/case-report-condition-decision-v3.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/conditions/conditions-data-v1.js"
+      - ".github/workflows/provider-assessment-condition-report-bridge.yml"
   workflow_dispatch:
 
 permissions:
@@ -39,6 +46,7 @@ jobs:
         run: |
           set -euxo pipefail
           node - <<'NODE'
+          const fs = require('fs');
           global.window = {};
           require('./provider-assessment-demo/conditions/conditions-data-v1.js');
           const registry = global.window.PA_CONDITION_PATHWAYS;
@@ -54,11 +62,17 @@ jobs:
               }
             }
           }
-          console.log({conditions: registry.conditions.length, uniqueSlugs: true});
+          const loader = fs.readFileSync('provider-assessment-demo/institutional-live-v2.js', 'utf8');
+          const interpretation = loader.indexOf('case-report-interpretation-v2.js');
+          const bridge = loader.indexOf('case-report-condition-decision-v3.js');
+          const exporter = loader.indexOf('case-report-export-v2.js');
+          if (!(interpretation >= 0 && bridge > interpretation && exporter > bridge)) {
+            throw new Error({ interpretation, bridge, exporter });
+          }
+          console.log({conditions: registry.conditions.length, uniqueSlugs: true, loadingOrder: true});
           NODE
-          grep -q 'case-report-interpretation-v2.js.*case-report-condition-decision-v3.js.*case-report-export-v2.js' provider-assessment-demo/institutional-live-v2.js
 
-      - name: Enforce decision support and non-diagnostic boundaries
+      - name: Enforce case binding full audit and non-diagnostic boundaries
         run: |
           set -euxo pipefail
           FILE=provider-assessment-demo/case-report-condition-decision-v3.js
@@ -69,17 +83,23 @@ jobs:
           grep -q 'أدلة مقدم الخدمة' "$FILE"
           grep -q 'معيار إغلاق المسار' "$FILE"
           grep -q 'pa-condition-report-template-audit-v3' "$FILE"
-          grep -q 'setIfEmpty(form.elements.purpose' "$FILE"
-          grep -q 'setIfEmpty(form.elements.evidenceSources' "$FILE"
-          grep -q 'setIfEmpty(form.elements.functionalContexts' "$FILE"
-          grep -q 'setIfEmpty(form.elements.followUpIndicators' "$FILE"
-          grep -q 'setIfEmpty(form.elements.decision' "$FILE"
-          ! grep -q 'setIfEmpty(form.elements.assessmentType' "$FILE"
-          ! grep -q 'setIfEmpty(form.elements.resultValidity' "$FILE"
-          ! grep -q 'setIfEmpty(form.elements.interpretationLimitations' "$FILE"
-          ! grep -q 'setIfEmpty(form.elements.baselineIndicator' "$FILE"
-          ! grep -q 'setIfEmpty(form.elements.measurementMethod' "$FILE"
-          ! grep -q 'setIfEmpty(form.elements.measurableGoal' "$FILE"
+          grep -q 'caseRecord?.conditionPathway?.slug' "$FILE"
+          grep -q 'conditionReportTemplateAudit' "$FILE"
+          grep -q 'appliedValues' "$FILE"
+          grep -q 'persistAudit(caseRecord, entry)' "$FILE"
+          grep -q 'proposal(form.elements.purpose' "$FILE"
+          grep -q 'proposal(form.elements.evidenceSources' "$FILE"
+          grep -q 'proposal(form.elements.functionalContexts' "$FILE"
+          grep -q 'proposal(form.elements.followUpIndicators' "$FILE"
+          grep -q 'proposal(form.elements.decision' "$FILE"
+          ! grep -q 'pa-selected-condition-v1' "$FILE"
+          ! grep -Eq 'slice\(0, *100\)|conditionReportTemplateAudit.*slice' "$FILE"
+          ! grep -q 'proposal(form.elements.assessmentType' "$FILE"
+          ! grep -q 'proposal(form.elements.resultValidity' "$FILE"
+          ! grep -q 'proposal(form.elements.interpretationLimitations' "$FILE"
+          ! grep -q 'proposal(form.elements.baselineIndicator' "$FILE"
+          ! grep -q 'proposal(form.elements.measurementMethod' "$FILE"
+          ! grep -q 'proposal(form.elements.measurableGoal' "$FILE"
           ! grep -Eq 'fetch\(|XMLHttpRequest|WebSocket|sendBeacon|eval\(|new Function' "$FILE"
 
       - name: Protect proprietary assessment content
