@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 260" role="img" aria-labelledby="title desc">
+  <title id="title">منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
+  <desc id="desc">الشعار الرسمي للمنصة مع رمز الدماغ والورقة</desc>
+  <rect width="980" height="260" rx="36" fill="#ffffff"/>
+  <g transform="translate(18 10) scale(.94)">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#075f5b"/><stop offset="1" stop-color="#119287"/></linearGradient>
+      <linearGradient id="leaf" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#f1c96f"/><stop offset="1" stop-color="#fff3bd"/></linearGradient>
+    </defs>
+    <rect x="8" y="8" width="240" height="240" rx="68" fill="url(#bg)"/>
+    <path d="M127 49c-28 0-51 21-53 48-20 7-34 26-34 48 0 29 23 52 52 52 12 0 23-4 32-11 9 7 20 11 32 11 29 0 52-23 52-52 0-22-14-41-34-48-2-27-25-48-53-48z" fill="#fff" opacity=".97"/>
+    <path d="M126 67v118M95 80c-13 9-19 22-17 37M159 80c13 9 19 22 17 37M78 124c8-6 18-8 28-5M176 124c-8-6-18-8-28-5M88 165c10-2 20 1 27 8M166 165c-10-2-20 1-27 8" fill="none" stroke="#0b6b66" stroke-width="9" stroke-linecap="round"/>
+    <path d="M128 142c18-30 43-39 64-31-4 28-25 49-61 54" fill="url(#leaf)" stroke="#a87924" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M131 161c13-17 28-29 46-40" fill="none" stroke="#8b6826" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <text x="940" y="104" text-anchor="end" direction="rtl" font-family="Tahoma, Arial, sans-serif" font-weight="700" font-size="47" fill="#103e43">منصة الصحة النفسية</text>
+  <text x="940" y="163" text-anchor="end" direction="rtl" font-family="Tahoma, Arial, sans-serif" font-weight="700" font-size="42" fill="#075f5b">وذوي الاحتياجات الخاصة</text>
+  <text x="940" y="211" text-anchor="end" direction="rtl" font-family="Tahoma, Arial, sans-serif" font-size="25" fill="#6b7779">معرفة تحترم الإنسان · دعم يوسّع الإمكانات</text>
+</svg>
