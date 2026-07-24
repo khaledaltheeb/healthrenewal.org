@@ -29,6 +29,7 @@ JSONLD_RE = re.compile(
 )
 STRIP_TAGS_RE = re.compile(r"<[^>]+>")
 SPACE_RE = re.compile(r"\s+")
+KEYWORD_DELIMITER_RE = re.compile(r"[,،]+")
 
 LOCALE = {"ar": "ar_AR", "en": "en_US", "es": "es_ES"}
 BRAND = {
@@ -186,8 +187,13 @@ def route_key(relative: str) -> str:
     return parts[0]
 
 
+def keyword_phrase(value: str) -> str:
+    """Remove list delimiters from one phrase before serializing meta keywords."""
+    return SPACE_RE.sub(" ", KEYWORD_DELIMITER_RE.sub(" ", clean_text(value))).strip()
+
+
 def normalized_keyword(value: str) -> str:
-    return SPACE_RE.sub(" ", value).strip(" |—–-،,.;:").casefold()
+    return keyword_phrase(value).strip(" |—–-.;:").casefold()
 
 
 def title_topic(title: str, language: str) -> str:
@@ -213,7 +219,7 @@ def build_keywords(
     candidates: list[str] = []
     if existing:
         candidates.extend(
-            part.strip() for part in re.split(r"[,،]", existing) if part.strip()
+            part.strip() for part in KEYWORD_DELIMITER_RE.split(existing) if part.strip()
         )
     topic = title_topic(title, language)
     if 3 <= len(topic) <= 120:
@@ -226,7 +232,7 @@ def build_keywords(
     result: list[str] = []
     seen: set[str] = set()
     for candidate in candidates:
-        candidate = clean_text(candidate)
+        candidate = keyword_phrase(candidate)
         normalized = normalized_keyword(candidate)
         proposed = result + [candidate]
         if (
@@ -271,13 +277,14 @@ def inject_before_head_end(source: str, additions: list[str]) -> str:
 
 def enrich_page(path: Path) -> tuple[bool, dict[str, int | str | bool]]:
     relative = path.relative_to(SITE).as_posix()
-    source = path.read_text(encoding="utf-8")
+    original_source = path.read_text(encoding="utf-8")
     if relative in SKIP_FILES or relative.startswith(SKIP_PREFIXES):
         return False, {"status": "skipped_special"}
 
-    head_match = HEAD_RE.search(source)
+    head_match = HEAD_RE.search(original_source)
     if not head_match:
         raise ValueError("missing head")
+    source = original_source
     original_head = head_match.group(1)
     head = original_head
 
@@ -440,7 +447,7 @@ def enrich_page(path: Path) -> tuple[bool, dict[str, int | str | bool]]:
             + source[head_match.end(1) :]
         )
     enriched = inject_before_head_end(source, additions)
-    changed = enriched != path.read_text(encoding="utf-8")
+    changed = enriched != original_source
     if changed:
         path.write_text(enriched, encoding="utf-8")
 
