@@ -85,8 +85,14 @@ def normalize_title(text: str, raw_title: str) -> tuple[str, str, str]:
         raise SystemExit("Sleep-log base title is empty")
     institutional_title = f"{base_title} | {SITE_NAME}"
     replacement = f"<title>{html.escape(institutional_title)}</title>"
-    text, count = re.subn(r"<title\b[^>]*>.*?</title>", replacement, text, count=1, flags=re.I | re.S)
-    if count != 1 or len(re.findall(r"<title\b", text, re.I)) != 1:
+    text, count = re.subn(
+        r"<title\b[^>]*>.*?</title>",
+        replacement,
+        text,
+        count=1,
+        flags=re.I | re.S,
+    )
+    if count != 1:
         raise SystemExit("Sleep-log title normalization failed")
     return text, base_title, institutional_title
 
@@ -196,7 +202,10 @@ def enrich_metadata(text: str) -> str:
         ensure_ascii=False,
         separators=(",", ":"),
     ).replace("</", "<\\/")
-    script_pattern = re.compile(r'<script\b[^>]*type="application/ld\+json"[^>]*>.*?</script>', re.I | re.S)
+    script_pattern = re.compile(
+        r'<script\b[^>]*type="application/ld\+json"[^>]*>.*?</script>',
+        re.I | re.S,
+    )
     scripts = list(script_pattern.finditer(text))
     script_tag = f'<script type="application/ld+json">{schema}</script>'
     if len(scripts) > 1:
@@ -210,6 +219,10 @@ def enrich_metadata(text: str) -> str:
 
 
 def validate_metadata(text: str) -> None:
+    head_match = re.search(r"<head\b[^>]*>(.*?)</head>", text, re.I | re.S)
+    if not head_match:
+        raise SystemExit("Sleep-log head is missing after normalization")
+    head = head_match.group(1)
     required = (
         f'data-design="marshmallow-v{DESIGN_CONTRACT}"',
         f'data-seo="institutional-v{SEO_CONTRACT}"',
@@ -225,7 +238,10 @@ def validate_metadata(text: str) -> None:
         'type="application/ld+json"',
         SITE_NAME,
     )
-    missing = [marker for marker in required if marker not in text]
+    missing = [
+        marker for marker in required
+        if marker not in (text if marker.startswith("data-") else head)
+    ]
     if missing:
         raise SystemExit(f"Missing post-publication contract markers: {missing}")
     for marker in (
@@ -239,17 +255,17 @@ def validate_metadata(text: str) -> None:
         '<meta name="twitter:card"',
         '<script type="application/ld+json"',
     ):
-        if text.count(marker) != 1:
-            raise SystemExit(f"Sleep-log metadata must occur exactly once: {marker}")
+        if head.count(marker) != 1:
+            raise SystemExit(f"Sleep-log head metadata must occur exactly once: {marker}")
     keyword_value = first_group(
-        text,
+        head,
         r'<meta\b[^>]*\bname="keywords"[^>]*\bcontent="([^"]*)"[^>]*>',
         "keywords",
     )
     keywords = [item.strip() for item in keyword_value.split(",") if item.strip()]
     if not 4 <= len(keywords) <= 8 or len(keywords) != len(set(keywords)):
         raise SystemExit(f"Sleep-log keyword contract failed: {keywords}")
-    if f"| {FOUNDING_NAME}</title>" in text:
+    if f"| {FOUNDING_NAME}</title>" in head:
         raise SystemExit("Founding name remains the primary sleep-log title identity")
 
 
