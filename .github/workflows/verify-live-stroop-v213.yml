@@ -8,51 +8,96 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
   issues: write
 
 jobs:
   verify-live-stroop:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     env:
       BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
-      EVIDENCE_ISSUE: "181"
+      EVIDENCE_ISSUE: "187"
+      V214_MERGE_SHA: a08e3092352ba786c74ab01d647260ad531b8d55
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch live files without cache
+      - name: Wait for a validated v214-or-later live deployment
         run: |
-          set -euxo pipefail
-          token="$(date +%s)"
-          curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o /tmp/deployment.json
-          curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}cognitive-lab/stroop-basic/?v=${token}" -o /tmp/stroop-basic.html
-          curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}assets/js/lab-v12.js?v=213&probe=${token}" -o /tmp/lab-v12.js
-          python - <<'PY'
-          import json
+          set -euo pipefail
+          rm -f /tmp/deployment.json /tmp/stroop-basic.html /tmp/lab-v12.js
+          matched=0
+          for attempt in $(seq 1 100); do
+            token="$(date +%s)-${attempt}"
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o /tmp/deployment.json \
+              && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}cognitive-lab/stroop-basic/?v=${token}" -o /tmp/stroop-basic.html \
+              && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}assets/js/lab-v12.js?v=213&probe=${token}" -o /tmp/lab-v12.js; then
+              if V214_MERGE_SHA="${V214_MERGE_SHA}" GH_TOKEN="${GH_TOKEN}" GITHUB_REPOSITORY="${GITHUB_REPOSITORY}" ATTEMPT="${attempt}" python - <<'PY'
+          import json, os, urllib.request
           from pathlib import Path
           deployment=json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
           html=Path('/tmp/stroop-basic.html').read_text(encoding='utf-8')
           runtime=Path('/tmp/lab-v12.js').read_text(encoding='utf-8')
+          live=deployment.get('commit')
+          base=os.environ['V214_MERGE_SHA']
+          descendant=False
+          compare_status=None
+          if live:
+              if live==base:
+                  descendant=True
+                  compare_status='identical'
+              else:
+                  headers={
+                      'Authorization':f"Bearer {os.environ['GH_TOKEN']}",
+                      'Accept':'application/vnd.github+json',
+                      'X-GitHub-Api-Version':'2022-11-28',
+                      'User-Agent':'pterminology-live-stroop-v214',
+                  }
+                  request=urllib.request.Request(f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/compare/{base}...{live}",headers=headers)
+                  try:
+                      with urllib.request.urlopen(request,timeout=30) as response:
+                          compare_status=json.loads(response.read().decode('utf-8')).get('status')
+                      descendant=compare_status in {'ahead','identical'}
+                  except Exception:
+                      descendant=False
           evidence={
-            'live_commit':deployment.get('commit'),
-            'page_uses_v213':'assets/js/lab-v12.js?v=213' in html,
-            'page_is_stroop_basic':'"mode":"stroop_basic"' in html,
-            'runtime_has_inline_ink':'class="stroop-word"' in runtime and 'style="color:' in runtime,
-            'runtime_has_stimulus_metadata':'stimulusInk' in runtime and 'stimulusWord' in runtime,
-            'runtime_has_six_color_palette':all(x in runtime for x in ['#b42318','#175cd3','#067647','#b54708','#6941c6','#087e8b']),
+              'attempt':int(os.environ['ATTEMPT']),
+              'live_commit':live,
+              'contains_v214_merge':descendant,
+              'v214_to_live_compare':compare_status,
+              'schema_version':deployment.get('schema_version'),
+              'page_uses_v213':html.count('assets/js/lab-v12.js?v=213')==1,
+              'page_has_no_unversioned_runtime':'assets/js/lab-v12.js"' not in html and "assets/js/lab-v12.js'" not in html,
+              'page_is_stroop_basic':'"mode":"stroop_basic"' in html,
+              'runtime_has_inline_ink':'class="stroop-word"' in runtime and 'style="color:' in runtime,
+              'runtime_has_stimulus_metadata':'stimulusInk' in runtime and 'stimulusWord' in runtime,
+              'runtime_has_six_color_palette':all(x in runtime for x in ['#b42318','#175cd3','#067647','#b54708','#6941c6','#087e8b']),
           }
           Path('/tmp/live-stroop-static-v213.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2),encoding='utf-8')
           print(json.dumps(evidence,ensure_ascii=False,indent=2))
-          assert all(evidence[k] for k in evidence if k!='live_commit'), evidence
+          required=[
+              'contains_v214_merge','page_uses_v213','page_has_no_unversioned_runtime','page_is_stroop_basic',
+              'runtime_has_inline_ink','runtime_has_stimulus_metadata','runtime_has_six_color_palette'
+          ]
+          raise SystemExit(0 if all(evidence[key] for key in required) else 1)
           PY
+              then
+                matched=1
+                break
+              fi
+            fi
+            sleep 15
+          done
+          test "${matched}" -eq 1
 
       - name: Install Chromium
         run: |
           npm install --no-save playwright
           npx playwright install --with-deps chromium
 
-      - name: Measure live computed ink colors in a clean browser
+      - name: Measure live computed ink colors after clearing all caches
         run: |
           cat > /tmp/live-stroop-v213.mjs <<'NODE'
           import fs from 'node:fs';
@@ -78,12 +123,13 @@ jobs:
               await Promise.all(keys.map(key=>caches.delete(key)));
             }
           });
+          await context.clearCookies();
           await page.goto(`${base}cognitive-lab/stroop-basic/?v=${token+1}`,{waitUntil:'networkidle',timeout:60000});
           const scriptSrc=await page.locator('script[src*="assets/js/lab-v12.js"]').getAttribute('src');
           if(!scriptSrc?.includes('lab-v12.js?v=213'))throw new Error(`Live page is not using v213: ${scriptSrc}`);
           const inks=new Set(),words=new Set(),computed=new Set();
           const trials=[];
-          for(let index=0;index<25;index++){
+          for(let index=0;index<30;index++){
             const start=page.locator('button.start');
             if(await start.count())await start.click();
             await page.waitForSelector('.stroop-word',{timeout:10000});
@@ -124,7 +170,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: live-stroop-evidence-v213
+          name: live-stroop-evidence-v214
           path: |
             /tmp/deployment.json
             /tmp/live-stroop-static-v213.json
@@ -142,11 +188,10 @@ jobs:
             const staticEvidence = read('/tmp/live-stroop-static-v213.json');
             const browserEvidence = read('/tmp/live-stroop-browser-v213.json');
             const body = [
-              `## Live Stroop v213 probe — run ${context.runId}`,
-              `Workflow result: **${process.env.GITHUB_JOB} / ${process.env.GITHUB_RUN_ATTEMPT}**`,
-              '### Static live evidence',
+              `## Final live Stroop v214 probe — run ${context.runId}`,
+              '### Static deployment evidence',
               '```json', staticEvidence, '```',
-              '### Clean-browser evidence',
+              '### Clean-browser computed-color evidence',
               '```json', browserEvidence, '```'
             ].join('\n');
             await github.rest.issues.createComment({
