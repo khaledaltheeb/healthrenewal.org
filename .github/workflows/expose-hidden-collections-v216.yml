@@ -1,5 +1,6 @@
 name: Expose hidden collections v216
 
+# Operational retrigger: apply the merged homepage discovery contract on main.
 on:
   pull_request:
     branches: ["main"]
