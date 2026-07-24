@@ -8,6 +8,7 @@ on:
       - "provider-assessment-demo/condition-entry-v1.js"
       - "provider-assessment-demo/professional-templates-v1.js"
       - "provider-assessment-demo/case-report-v1.js"
+      - "provider-assessment-demo/case-report-interpretation-v2.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/sw-live-v2.js"
       - "sitemap.xml"
@@ -19,6 +20,7 @@ on:
       - "provider-assessment-demo/condition-entry-v1.js"
       - "provider-assessment-demo/professional-templates-v1.js"
       - "provider-assessment-demo/case-report-v1.js"
+      - "provider-assessment-demo/case-report-interpretation-v2.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/sw-live-v2.js"
       - "sitemap.xml"
@@ -46,6 +48,7 @@ jobs:
           node --check provider-assessment-demo/condition-entry-v1.js
           node --check provider-assessment-demo/professional-templates-v1.js
           node --check provider-assessment-demo/case-report-v1.js
+          node --check provider-assessment-demo/case-report-interpretation-v2.js
           node --check provider-assessment-demo/institutional-live-v2.js
           node --check provider-assessment-demo/sw-live-v2.js
 
@@ -104,17 +107,24 @@ jobs:
           const reports = read('provider-assessment-demo/case-report-v1.js');
           for (const marker of ['view-reports','case-report-dialog','caseRecord.reports','versionNumber','export-case-report-html','export-case-report-json']) if (!reports.includes(marker)) throw new Error(`Case report engine missing ${marker}`);
 
+          const interpretation = read('provider-assessment-demo/case-report-interpretation-v2.js');
+          for (const marker of ['assessmentType','resultValidity','validityLimitations','baseline','measurableTarget','measurementMethod','remeasureDate','familySummary','revisionReason','parentReportId','changedFields','conditionPathwaySlug','PA_CASE_REPORT_INTERPRETATION_V2']) if (!interpretation.includes(marker)) throw new Error(`Report interpretation contract missing ${marker}`);
+          for (const marker of ['screening','diagnostic','functional','progress']) if (!interpretation.includes(marker)) throw new Error(`Assessment type contract missing ${marker}`);
+          if (!interpretation.includes('type === "progress"') || !interpretation.includes('form.reportValidity()')) throw new Error('Progress report validation missing');
+          if (!interpretation.includes('form.elements.reportId.value = ""')) throw new Error('Immutable report versioning missing');
+          if (!interpretation.includes('المسح لا يثبت التشخيص')) throw new Error('Diagnostic overclaim safeguard missing');
+
           const institutional = read('provider-assessment-demo/institutional-live-v2.js');
-          for (const marker of ['2026.07.24-live.6','loadConditionPathways','loadProfessionalTemplates','loadCaseReports','conditions/conditions-data-v1.js','condition-entry-v1.js','professional-templates-v1.js','case-report-v1.js']) if (!institutional.includes(marker)) throw new Error(`Institutional release missing ${marker}`);
-          if (!read('provider-assessment-demo/sw-live-v2.js').includes('2026.07.24-live.6')) throw new Error('Service worker release mismatch');
+          for (const marker of ['2026.07.24-live.7','loadConditionPathways','loadProfessionalTemplates','loadCaseReports','conditions/conditions-data-v1.js','condition-entry-v1.js','professional-templates-v1.js','case-report-v1.js','case-report-interpretation-v2.js']) if (!institutional.includes(marker)) throw new Error(`Institutional release missing ${marker}`);
+          if (!read('provider-assessment-demo/sw-live-v2.js').includes('2026.07.24-live.7')) throw new Error('Service worker release mismatch');
 
           const sitemap = read('sitemap.xml');
           const sitemapConditionUrls = [...sitemap.matchAll(/provider-assessment-demo\/conditions\//g)].length;
           if (sitemapConditionUrls !== 21) throw new Error(`Expected 21 condition sitemap URLs, found ${sitemapConditionUrls}`);
           for (const item of registry.conditions) if (!sitemap.includes(`/conditions/${item.slug}/`)) throw new Error(`Sitemap missing ${item.slug}`);
 
-          const combined = [read('provider-assessment-demo/conditions/conditions-data-v1.js'),ui,education,bridge,templates,reports].join('\n');
+          const combined = [read('provider-assessment-demo/conditions/conditions-data-v1.js'),ui,education,bridge,templates,reports,interpretation].join('\n');
           for (const token of ['fetch(','XMLHttpRequest','WebSocket','sendBeacon(','EventSource(','eval(','new Function(']) if (combined.includes(token)) throw new Error(`Network or unsafe API forbidden: ${token}`);
 
-          console.log({conditionPages:20, assessmentTypes:4, conditionProgressSets:20, familyGuide:true, course:true, officialSources:3, commonDomains:registry.commonDomains.length, workflowStages:registry.workflowStages.length, templateFamilies:7, reports:true, sitemapConditionUrls, release:'2026.07.24-live.6', status:'passed'});
+          console.log({conditionPages:20, assessmentTypes:4, conditionProgressSets:20, familyGuide:true, course:true, officialSources:3, commonDomains:registry.commonDomains.length, workflowStages:registry.workflowStages.length, templateFamilies:7, reports:true, reportInterpretationContract:true, immutableRevisions:true, sitemapConditionUrls, release:'2026.07.24-live.7', status:'passed'});
           NODE
