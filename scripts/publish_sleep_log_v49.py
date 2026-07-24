@@ -1,35 +1,126 @@
 from __future__ import annotations
 
+"""غلاف SEO مؤسسي لسجل النوم المحلي.
+
+السجل غير تشخيصي، لا تُرسل البيانات إلى خادم، ويوفر حذف البيانات.
+يوضح متى تطلب المساعدة من مختص دون أن يحل محل الرعاية المهنية.
+"""
+
 import html
-import shutil
+import json
+import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
-TARGET = SITE / "daily-tools" / "sleep-wind-down-plan" / "index.html"
-ASSET = ROOT / "assets" / "sleep-log-v49.js"
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts import publish_sleep_log_v49_core as _core
+from scripts.publish_sleep_log_v49_core import *  # noqa: F401,F403
+
+BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+PATH = "/pterminology-site/"
+SITE_NAME = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
+SEO_CONTRACT = 219
+SOCIAL_IMAGE = BASE + "assets/brand/social-card.svg"
+LOGO = PATH + "assets/brand/logo-mark.svg"
+CANONICAL = BASE + "daily-tools/sleep-wind-down-plan/"
+TITLE = "سجل النوم المحلي — متابعة تنظيمية غير تشخيصية"
+DESCRIPTION = "سجل عربي محلي اختياري لمتابعة أوقات النوم وجودته والطاقة، مع تصدير وطباعة وحذف شامل دون إرسال البيانات إلى خادم."
+KEYWORDS = (
+    "سجل النوم المحلي",
+    "متابعة النوم",
+    "روتين ما قبل النوم",
+    "جودة النوم",
+    "الطاقة بعد الاستيقاظ",
+    "أداة نوم تفاعلية",
+    "الصحة النفسية",
+    "مصطلحات علم النفس",
+)
 
 
-def e(value: str) -> str:
-    return html.escape(value, quote=True)
+def e(value: object) -> str:
+    return html.escape(str(value), quote=True)
+
+
+def _structured_data() -> str:
+    payload = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "WebApplication",
+                "name": "سجل النوم المحلي",
+                "description": DESCRIPTION,
+                "applicationCategory": "HealthApplication",
+                "operatingSystem": "Any",
+                "inLanguage": "ar",
+                "url": CANONICAL,
+                "isAccessibleForFree": True,
+            },
+            {
+                "@type": "WebPage",
+                "name": TITLE,
+                "description": DESCRIPTION,
+                "inLanguage": "ar",
+                "url": CANONICAL,
+                "isPartOf": {"@id": BASE + "#website"},
+            },
+        ],
+    }
+    return json.dumps(payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+
+
+def _institutional_head(style: str) -> str:
+    title_text = f"{TITLE} | {SITE_NAME}"
+    image_alt = f"هوية {SITE_NAME}"
+    return f'''<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{e(title_text)}</title><meta name="description" content="{e(DESCRIPTION)}"><meta name="keywords" content="{e(','.join(KEYWORDS))}"><meta name="author" content="{e(SITE_NAME)}"><meta name="application-name" content="{e(SITE_NAME)}"><meta name="subject" content="النوم والصحة النفسية والمتابعة التنظيمية"><meta name="audience" content="البالغون والأسر ومقدمو الرعاية"><meta name="seo-contract" content="institutional-v{SEO_CONTRACT}"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"><meta name="theme-color" content="#e5faf5"><meta name="color-scheme" content="light"><link rel="canonical" href="{CANONICAL}"><link rel="manifest" href="{PATH}manifest.webmanifest"><link rel="icon" href="{LOGO}" type="image/svg+xml"><link rel="apple-touch-icon" href="{LOGO}"><link rel="search" type="application/opensearchdescription+xml" title="البحث في المنصة" href="{PATH}opensearch.xml"><link rel="sitemap" type="application/xml" href="{BASE}sitemap.xml"><meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="{e(SITE_NAME)}"><meta property="og:title" content="{e(title_text)}"><meta property="og:description" content="{e(DESCRIPTION)}"><meta property="og:url" content="{CANONICAL}"><meta property="og:image" content="{SOCIAL_IMAGE}"><meta property="og:image:alt" content="{e(image_alt)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{e(title_text)}"><meta name="twitter:description" content="{e(DESCRIPTION)}"><meta name="twitter:image" content="{SOCIAL_IMAGE}"><meta name="twitter:image:alt" content="{e(image_alt)}"><script type="application/ld+json">{_structured_data()}</script>{style}</head>'''
+
+
+def enrich_metadata() -> None:
+    if not TARGET.is_file():
+        raise SystemExit(f"Missing generated sleep log: {TARGET}")
+    text = TARGET.read_text(encoding="utf-8")
+    head_match = re.search(r"<head>.*?</head>", text, re.S)
+    if not head_match:
+        raise SystemExit("Sleep log head is missing")
+    style_match = re.search(r"<style>.*?</style>", head_match.group(0), re.S)
+    if not style_match:
+        raise SystemExit("Sleep log style block is missing")
+    text = text[: head_match.start()] + _institutional_head(style_match.group(0)) + text[head_match.end() :]
+    TARGET.write_text(text, encoding="utf-8")
+    validate_metadata()
+
+
+def validate_metadata() -> None:
+    text = TARGET.read_text(encoding="utf-8")
+    required = (
+        'name="seo-contract" content="institutional-v219"',
+        '<meta name="keywords"',
+        '<link rel="canonical"',
+        '<link rel="manifest"',
+        '<link rel="icon"',
+        '<link rel="search"',
+        'property="og:image"',
+        'name="twitter:card"',
+        'name="twitter:image"',
+        'application/ld+json',
+    )
+    missing = [marker for marker in required if marker not in text]
+    if missing:
+        raise SystemExit(f"Sleep log metadata contract missing: {missing}")
+    match = re.search(r'<meta name="keywords" content="([^"]+)">', text)
+    keywords = [item.strip() for item in match.group(1).split(",")] if match else []
+    if len(keywords) != 8 or len(keywords) != len(set(keywords)):
+        raise SystemExit(f"Sleep log keyword contract invalid: {keywords}")
+    for marker in ('<meta name="description"', '<link rel="canonical"', '<meta property="og:url"'):
+        if text.count(marker) != 1:
+            raise SystemExit(f"Sleep log duplicate primary metadata: {marker}")
 
 
 def publish() -> None:
-    if not SITE.exists():
-        raise SystemExit("Missing site output")
-    TARGET.parent.mkdir(parents=True, exist_ok=True)
-    assets = SITE / "assets"
-    assets.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(ASSET, assets / ASSET.name)
-
-    title = "سجل النوم المحلي — متابعة تنظيمية غير تشخيصية"
-    description = "سجل عربي محلي اختياري لمتابعة أوقات النوم وجودته والطاقة، مع تصدير وطباعة وحذف شامل دون إرسال البيانات إلى خادم."
-    canonical = "https://khaledaltheeb.github.io/pterminology-site/daily-tools/sleep-wind-down-plan/"
-    body = f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{e(title)} | مصطلحات علم النفس</title><meta name="description" content="{e(description)}"><link rel="canonical" href="{canonical}"><meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(description)}"><meta property="og:url" content="{canonical}"><style>
-*{{box-sizing:border-box}}body{{margin:0;font-family:Tahoma,Arial,sans-serif;line-height:1.8;color:#173f45;background:#f5fbfa}}main{{width:min(1040px,94%);margin:auto;padding:24px 0 64px}}header,section{{background:#fff;border:1px solid #bedfd9;border-radius:22px;padding:clamp(18px,4vw,34px);margin:16px 0}}h1{{font-size:clamp(1.8rem,5vw,3rem);line-height:1.35}}h2{{color:#713953}}h3{{color:#075e59}}nav,.actions,.legend{{display:flex;gap:10px;flex-wrap:wrap}}a,button{{min-height:44px;padding:10px 15px;border:1px solid #438b83;border-radius:12px;background:#fff;color:#075e59;font:inherit;font-weight:700}}label{{display:block;font-weight:700;margin:12px 0}}input,textarea{{width:100%;min-height:44px;padding:10px;border:1px solid #7fb8b1;border-radius:10px;font:inherit}}input[aria-invalid="true"],textarea[aria-invalid="true"]{{border:3px solid #9b1c31;background:#fff7f8}}.field-error{{display:block;color:#811329;font-weight:700;margin-top:4px}}textarea{{min-height:90px}}.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}}.notice{{border-right:6px solid #a33860;background:#fff4f7}}.privacy{{border-right:6px solid #08776e;background:#eefbf8}}.summary{{font-weight:700}}table{{width:100%;border-collapse:collapse}}th,td{{border:1px solid #b9d8d4;padding:8px;text-align:right}}.chart-wrap{{overflow:auto;border:1px solid #c6dedb;border-radius:14px;padding:10px;background:#fff}}.chart-wrap svg{{display:block;width:100%;min-width:620px;height:auto}}.chart-wrap text{{font:12px Tahoma,Arial,sans-serif;fill:#173f45}}.axis{{stroke:#173f45;stroke-width:1.5}}.grid-line{{stroke:#d6e7e4;stroke-width:1}}.series{{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}}.series-hours{{stroke:#006f68}}.series-quality{{stroke:#7c3aed;stroke-dasharray:9 5}}.series-energy{{stroke:#a13c62;stroke-dasharray:2 5}}.legend span{{display:inline-flex;align-items:center;gap:7px}}.legend i{{display:inline-block;width:34px;border-top:3px solid}}.legend .hours i{{border-color:#006f68}}.legend .quality i{{border-color:#7c3aed;border-top-style:dashed}}.legend .energy i{{border-color:#a13c62;border-top-style:dotted}}.sr-only{{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}}:focus-visible{{outline:3px solid #1b6cff;outline-offset:3px}}@media(max-width:640px){{nav,.actions{{display:grid}}table{{font-size:.9rem}}}}@media(prefers-reduced-motion:reduce){{*{{scroll-behavior:auto!important;transition:none!important}}}}@media print{{nav,.actions,form button,.privacy{{display:none!important}}body{{background:#fff}}header,section{{box-shadow:none;border:1px solid #777}}.chart-wrap{{overflow:visible}}.chart-wrap svg{{min-width:0}}}}
-</style></head><body><main><nav aria-label="التنقل"><a href="/pterminology-site/">الرئيسية</a><a href="/pterminology-site/daily-tools/">الأدوات اليومية</a></nav><header><p>أداة تنظيمية غير تشخيصية للبالغين ومقدمي الرعاية</p><h1>سجل النوم المحلي</h1><p>{e(description)}</p></header><section class="notice"><h2>الغرض والحدود</h2><p>يساعدك السجل على ملاحظة الأنماط عبر عدة أيام. لا يشخّص الأرق أو أي اضطراب، ولا يفسر سبب التعب، ولا يوصي بدواء. لا تبنِ قرارًا صحيًا على ليلة واحدة أو على المتوسط وحده.</p><p><strong>اطلب تقييمًا مهنيًا</strong> إذا استمر اضطراب النوم أو أثّر في القيادة أو العمل أو الدراسة. عند نعاس شديد مفاجئ، صعوبة تنفس، ارتباك، أو خطر مباشر، استخدم خدمات الطوارئ المحلية.</p></section><section class="privacy"><h2>الخصوصية</h2><p>الحساب يتم داخل المتصفح. لا تُرسل البيانات إلى خادم. الحفظ اختياري في مساحة التخزين المحلية لهذا الجهاز، وقد يتمكن مستخدم آخر للجهاز من الوصول إليها. يمكنك التصدير أو الطباعة أو حذف جميع السجلات فورًا.</p></section><section><h2>إضافة سجل</h2><form data-sleep-log novalidate><div class="grid"><label for="sleep-date">التاريخ</label><div><input id="sleep-date" required type="date" name="date" aria-describedby="sleep-date-error"><span id="sleep-date-error" class="field-error" data-field-error="date" hidden></span></div><label for="sleep-bedtime">وقت النوم</label><div><input id="sleep-bedtime" required type="time" name="bedtime" aria-describedby="sleep-bedtime-error"><span id="sleep-bedtime-error" class="field-error" data-field-error="bedtime" hidden></span></div><label for="sleep-wake">وقت الاستيقاظ</label><div><input id="sleep-wake" required type="time" name="wakeTime" aria-describedby="sleep-wake-error"><span id="sleep-wake-error" class="field-error" data-field-error="wakeTime" hidden></span></div><label for="sleep-quality">جودة النوم الذاتية من 0 إلى 10</label><div><input id="sleep-quality" required type="number" min="0" max="10" step="1" name="quality" inputmode="numeric" aria-describedby="sleep-quality-error"><span id="sleep-quality-error" class="field-error" data-field-error="quality" hidden></span></div><label for="sleep-energy">الطاقة بعد الاستيقاظ من 0 إلى 10</label><div><input id="sleep-energy" required type="number" min="0" max="10" step="1" name="energy" inputmode="numeric" aria-describedby="sleep-energy-error"><span id="sleep-energy-error" class="field-error" data-field-error="energy" hidden></span></div></div><label for="sleep-note">ملاحظة غير تعريفية، حتى 500 حرف</label><textarea id="sleep-note" maxlength="500" name="note" aria-describedby="sleep-note-error"></textarea><span id="sleep-note-error" class="field-error" data-field-error="note" hidden></span><label><input type="checkbox" name="localConsent" value="yes" style="width:auto;min-height:auto"> أوافق على حفظ هذا السجل محليًا على هذا الجهاز</label><button type="submit">احسب واعرض الخلاصة</button><p role="status" aria-live="polite"></p></form><p class="summary" data-sleep-summary aria-live="polite">أدخل البيانات لعرض خلاصة تنظيمية.</p></section><section><h2>السجلات المحفوظة</h2><div class="actions"><button type="button" data-export-json>تصدير JSON</button><button type="button" data-export-csv>تصدير CSV</button><button type="button" data-print-sleep>طباعة</button><button type="button" data-delete-sleep>حذف جميع البيانات المحلية</button></div><div style="overflow:auto"><table><thead><tr><th>التاريخ</th><th>المدة</th><th>الجودة</th><th>الطاقة</th><th>الملاحظة</th></tr></thead><tbody data-sleep-results><tr><td colspan="5">لا توجد سجلات محفوظة على هذا الجهاز.</td></tr></tbody></table></div></section><section><h2>مخطط الاتجاهات لآخر 14 سجلًا</h2><p>يعرض المخطط مدة النوم بالساعات، وجودة النوم والطاقة من 0 إلى 10. أنماط الخطوط مختلفة كي لا يعتمد الفهم على اللون وحده، ويبقى الجدول أعلاه هو المرجع التفصيلي.</p><div class="legend" aria-hidden="true"><span class="hours"><i></i>مدة النوم</span><span class="quality"><i></i>الجودة</span><span class="energy"><i></i>الطاقة</span></div><p data-sleep-chart-text role="status" aria-live="polite">لا توجد بيانات كافية لعرض مخطط الاتجاهات.</p><div class="chart-wrap"><svg data-sleep-chart viewBox="0 0 720 300" role="img" aria-labelledby="sleep-chart-title sleep-chart-desc"><title id="sleep-chart-title">اتجاهات النوم والجودة والطاقة</title><desc id="sleep-chart-desc">رسم خطي لآخر أربعة عشر سجلًا محفوظًا. الوصف النصي المتجدد يظهر قبل الرسم.</desc><text x="50%" y="50%" text-anchor="middle">لا توجد بيانات محفوظة</text></svg></div></section><section><h2>كيف تستخدم النتيجة؟</h2><ol><li>ابحث عن نمط متكرر عبر أيام، لا عن حكم على ليلة واحدة.</li><li>اربط النمط بعوامل قابلة للمراجعة مثل توقيت المنبهات أو المناوبات أو المرض، دون الجزم بالسبب.</li><li>اختر تعديلًا صغيرًا وآمنًا وراقب أثره.</li><li>خذ سجلًا مطبوعًا إلى المختص عند استمرار المشكلة أو أثرها الوظيفي.</li></ol></section><section><h2>كيف تقرأ السجل دون مبالغة؟</h2><p>السجل لا يقيس النوم داخل الدماغ ولا يثبت أنك كنت نائمًا طوال الفترة بين وقت النوم والاستيقاظ. المدة المحسوبة تقدير زمني مبني على ما أدخلته، وقد تختلف عن مدة النوم الفعلية إذا استغرقت وقتًا طويلًا حتى تنام، أو استيقظت مرات متعددة، أو بقيت في السرير بعد الاستيقاظ. لذلك اقرأ ثلاثة مؤشرات معًا: المدة، والتقييم الذاتي للجودة، والطاقة بعد الاستيقاظ. قد تكون المدة طويلة والجودة منخفضة، أو المدة أقصر من المعتاد والطاقة مقبولة. هذا الاختلاف لا يحدد السبب، لكنه يساعدك على صياغة سؤال أدق عند مراجعة مختص.</p><h3>ما الذي يستحق تسجيله في الملاحظة؟</h3><p>اكتب عاملًا أو عاملين يمكن الرجوع إليهما، مثل تغيير المناوبة، سفر، مرض عابر، قيلولة طويلة، نشاط بدني متأخر، تناول كافيين في المساء، ضوضاء غير معتادة، أو استخدام شاشة ساطعة قبل النوم. لا تكتب اسمك أو رقمك أو تشخيصاتك أو أسرارًا شخصية؛ البيانات تبقى على الجهاز، لكن أي مستخدم آخر للجهاز قد يتمكن من رؤيتها. استخدم وصفًا محايدًا مثل «قهوة بعد السادسة» بدل استنتاج طبي. الملاحظة هدفها دعم المقارنة بين الأيام، لا تفسير الحالة طبيًا.</p></section><section><h2>خطة استخدام لمدة أسبوعين</h2><p>ابدأ بوقت تسجيل ثابت قدر الإمكان، ودوّن البيانات بعد الاستيقاظ بدل الاعتماد على الذاكرة في نهاية الأسبوع. استمر من سبعة إلى أربعة عشر يومًا حتى تظهر صورة أكثر ثباتًا، مع تسجيل أيام العمل والعطلة. لا تغيّر عدة عادات في الوقت نفسه؛ اختر تعديلًا واحدًا منخفض المخاطر، مثل تثبيت وقت الاستيقاظ أو تقليل الضوء الساطع قبل النوم، ثم راقب النمط. إذا تحسن يوم واحد فلا تعتبره إثباتًا، وإذا ساءت ليلة واحدة فلا تعتبر الخطة فاشلة. قارن الاتجاه العام وتأثيره على اليقظة والوظيفة اليومية.</p><h3>أمثلة على قراءة آمنة</h3><ul><li><strong>زادت المدة وبقيت الطاقة منخفضة:</strong> الوقت المخصص للنوم زاد، لكن الإحساس بالانتعاش لم يتحسن بعد؛ لا يمكن استنتاج وجود اضطراب معين.</li><li><strong>انخفضت الجودة في أيام المناوبة الليلية:</strong> يوجد ارتباط زمني يستحق المناقشة، لكنه لا يثبت أن المناوبة هي السبب الوحيد.</li><li><strong>ليلة قصيرة بعد سفر أو مرض:</strong> تعامل معها كحدث منفرد، واستمر في التسجيل قبل اتخاذ قرار.</li><li><strong>مدة تبدو مناسبة مع نعاس شديد أثناء القيادة:</strong> لا يكفي متابعة الرسم؛ أوقف القيادة واطلب تقييمًا مهنيًا سريعًا.</li></ul></section><section><h2>ما الذي يُفعل وما الذي يُتجنب؟</h2><p><strong>افعل:</strong> استخدم السجل لتلخيص النمط، اطبع نسخة مختصرة للمختص، راقب أثر التغييرات الصغيرة، واحتفظ بتوقيتات متقاربة قدر الإمكان.</p><p><strong>تجنب:</strong> استخدام المتوسط لتشخيص الأرق أو انقطاع النفس، مقارنة أرقامك بأرقام شخص آخر، تغيير دواء أو مكمل اعتمادًا على الرسم، السعي إلى رقم مثالي ليلة بعد ليلة، أو إطالة البقاء في السرير فقط لرفع المدة المحسوبة.</p><p>مدة النوم المناسبة تختلف بحسب العمر والحالة والالتزامات. تشير بيانات الصحة العامة للبالغين إلى أن سبع ساعات أو أكثر يوميًا هدف شائع، لكنه ليس درجة نجاح فردية ولا بديلًا عن تقييم الأعراض والوظيفة.</p></section><section class="notice"><h2>متى تحتاج إلى مساعدة مهنية؟</h2><p>اطلب تقييمًا عندما تستمر صعوبة البدء بالنوم أو الاستمرار فيه، أو يتكرر الاستيقاظ غير المنعش، أو يؤثر النعاس في الدراسة أو العمل أو المزاج أو القيادة. أخبر المختص عن الشخير المرتفع المتكرر، الاختناق أو اللهاث أثناء النوم، حركات غير معتادة، أو تغير واضح بعد بدء دواء. قد يطلب المختص سجلًا لمدة أسبوع أو أسبوعين لأنه يساعد على فهم التوقيت والعادات، وقد يسأل عن القيلولة والكافيين والكحول والنشاط والأدوية. السجل لا يحل محل الفحص أو دراسة النوم عند الحاجة.</p><p><strong>اطلب مساعدة عاجلة</strong> عند صعوبة تنفس، ارتباك شديد، فقدان وعي، خطر مباشر، أو نعاس يجعل القيادة غير آمنة. لا تقد السيارة لمحاولة اختبار مدى قدرتك على مقاومة النعاس.</p></section><section><h2>أسئلة شائعة</h2><h3>هل الدرجة من صفر إلى عشرة مقياس طبي؟</h3><p>لا. إنها تقدير شخصي ثابت اللغة يساعدك على مقارنة أيامك أنت، وليست حدًا تشخيصيًا.</p><h3>هل يمكن مشاركة الملف؟</h3><p>نعم، يمكنك تصديره أو طباعته، لكن راجعه واحذف أي ملاحظة حساسة قبل المشاركة.</p><h3>هل يمحو حذف السجلات النسخ التي صدّرتها؟</h3><p>لا. الحذف داخل الأداة لا يحذف ملفات JSON أو CSV أو النسخ المطبوعة الموجودة خارج المتصفح.</p><h3>هل العمل بنظام المناوبات يجعل الأداة غير مفيدة؟</h3><p>يمكن استخدامها، لكن سجل توقيت المناوبة والقيلولة في الملاحظة، وفسر النتائج ضمن جدولك المتغير.</p><h3>هل أستخدمها للأطفال؟</h3><p>الحقول مكتوبة أساسًا للبالغين ومقدمي الرعاية. تقييم نوم الأطفال يعتمد على العمر والسياق ويحتاج توجيهًا مناسبًا.</p><h3>هل تحل محل جهاز تتبع النوم؟</h3><p>لا. كلاهما يعطي معلومات محدودة بطرق مختلفة، ولا يثبت تشخيصًا منفردًا.</p></section><section><h2>المصادر والمراجعة</h2><p>استندت الإرشادات العامة إلى مواد المعهد الوطني للقلب والرئة والدم حول <a href="https://www.nhlbi.nih.gov/resources/sleep-diary" rel="noopener noreferrer">دفتر النوم</a> و<a href="https://www.nhlbi.nih.gov/health/insomnia/diagnosis" rel="noopener noreferrer">تقييم الأرق</a>، وإلى <a href="https://aasm.org/clinical-resources/practice-standards/practice-guidelines/" rel="noopener noreferrer">إرشادات الأكاديمية الأمريكية لطب النوم</a>، وإلى <a href="https://www.cdc.gov/sleep/data-research/facts-stats/adults-sleep-facts-and-stats.html" rel="noopener noreferrer">بيانات مراكز مكافحة الأمراض والوقاية منها عن نوم البالغين</a>. الروابط للمطالعة العامة وليست توصية علاجية شخصية.</p><p><strong>آخر مراجعة تحريرية:</strong> 22 يوليو 2026.</p></section></main><script src="/pterminology-site/assets/sleep-log-v49.js" defer></script></body></html>'''
-    TARGET.write_text(body, encoding="utf-8")
+    _core.publish()
+    enrich_metadata()
 
 
 if __name__ == "__main__":
