@@ -1,0 +1,50 @@
+name: Extract Stroop probe error v214
+
+on:
+  push:
+    branches: ["ops/verify-live-stroop-v213"]
+    paths: [".github/workflows/extract-stroop-probe-error-v214.yml"]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      JOB_ID: "89586047224"
+      ISSUE_NUMBER: "189"
+    steps:
+      - name: Download failed job log and extract error context
+        run: |
+          set -euxo pipefail
+          curl -L --retry 4 --retry-delay 2 \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/jobs/${JOB_ID}/logs" \
+            -o /tmp/job.log
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          text=Path('/tmp/job.log').read_text(encoding='utf-8-sig',errors='replace')
+          lines=text.splitlines()
+          clean=[re.sub(r'\x1b\[[0-9;]*m','',line) for line in lines]
+          needles=('##[error]','Error:','SyntaxError','ReferenceError','TimeoutError','TypeError','ERR_','failed','Failure')
+          indices=[i for i,line in enumerate(clean) if any(n in line for n in needles)]
+          start=max(0,(indices[-1]-30) if indices else len(clean)-120)
+          excerpt='\n'.join(clean[start:min(len(clean),start+180)])
+          Path('/tmp/error-excerpt.txt').write_text(excerpt,encoding='utf-8')
+          print(excerpt)
+          PY
+      - name: Publish exact error excerpt
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const excerpt=fs.readFileSync('/tmp/error-excerpt.txt','utf8');
+            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.ISSUE_NUMBER),body:`## Exact failed browser-probe log excerpt\n\n\`\`\`text\n${excerpt.slice(0,60000)}\n\`\`\``});
