@@ -8,6 +8,11 @@ on:
       - "provider-assessment-demo/professional-console.html"
       - "provider-assessment-demo/app.js"
       - "provider-assessment-demo/activation.js"
+      - "provider-assessment-demo/activation-guard.js"
+      - "provider-assessment-demo/professional-record-lifecycle.js"
+      - "provider-assessment-demo/professional-record-integrity.js"
+      - "provider-assessment-demo/backup-integrity.js"
+      - "provider-assessment-demo/backup-large-file-patch.js"
       - "provider-assessment-demo/condition-entry-v1.js"
       - "provider-assessment-demo/case-report-v1.js"
       - "provider-assessment-demo/case-report-interpretation-v2.js"
@@ -22,6 +27,11 @@ on:
       - "provider-assessment-demo/professional-console.html"
       - "provider-assessment-demo/app.js"
       - "provider-assessment-demo/activation.js"
+      - "provider-assessment-demo/activation-guard.js"
+      - "provider-assessment-demo/professional-record-lifecycle.js"
+      - "provider-assessment-demo/professional-record-integrity.js"
+      - "provider-assessment-demo/backup-integrity.js"
+      - "provider-assessment-demo/backup-large-file-patch.js"
       - "provider-assessment-demo/condition-entry-v1.js"
       - "provider-assessment-demo/case-report-v1.js"
       - "provider-assessment-demo/case-report-interpretation-v2.js"
@@ -39,9 +49,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  report-browser-flow:
+  provider-assessment-browser-flow:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -53,13 +63,14 @@ jobs:
         run: |
           node --check provider-assessment-demo/tests/playwright.config.cjs
           node --check provider-assessment-demo/tests/report-flow.spec.cjs
+          node --check provider-assessment-demo/tests/professional-record-backup-flow.spec.cjs
 
       - name: Install Playwright test runner and Chromium
         run: |
           npm install --no-save --no-package-lock @playwright/test@1.61.0
           npx playwright install --with-deps chromium
 
-      - name: Run complete report workflow in Chromium
+      - name: Run complete professional workflows in Chromium
         run: |
           set -euo pipefail
           python3 -m http.server 4173 --directory . >/tmp/provider-assessment-http.log 2>&1 &
@@ -75,7 +86,7 @@ jobs:
             fi
             sleep 1
           done
-          npx playwright test provider-assessment-demo/tests/report-flow.spec.cjs \
+          npx playwright test provider-assessment-demo/tests/*.spec.cjs \
             --config=provider-assessment-demo/tests/playwright.config.cjs
 
       - name: Upload browser diagnostics
