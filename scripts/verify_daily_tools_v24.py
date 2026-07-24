@@ -16,6 +16,44 @@ API_SECTION_CONTRACT = 220
 SITE = _core.SITE
 
 
+def write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    temporary.replace(path)
+
+
+def synchronize_reports(site: Path, section_report: dict) -> None:
+    build_report = ROOT / ".build" / "reports" / "verified-public-api-v220.json"
+    if build_report.is_file():
+        payload = json.loads(build_report.read_text(encoding="utf-8"))
+        payload.update(
+            {
+                "sections": section_report["sections"],
+                "verified_routes": section_report["verified_routes"],
+                "all_routes_verified": section_report["all_routes_verified"],
+                "final_section_refresh_after_daily_tools": True,
+            }
+        )
+        write_json(build_report, payload)
+
+    health_report = site / "api" / "health-publication-gate-v192.json"
+    if health_report.is_file():
+        payload = json.loads(health_report.read_text(encoding="utf-8"))
+        payload.update(
+            {
+                "public_api_contract": API_SECTION_CONTRACT,
+                "public_api_sections": section_report["sections"],
+                "public_api_routes_verified": section_report["all_routes_verified"],
+                "public_api_refreshed_after_daily_tools": True,
+            }
+        )
+        write_json(health_report, payload)
+
+
 def main() -> None:
     _core.SITE = SITE
     _core.main()
@@ -34,6 +72,7 @@ def main() -> None:
         )
         return
     report = verify_and_expand_sections(site)
+    synchronize_reports(site, report)
     print(
         json.dumps(
             {
@@ -42,6 +81,7 @@ def main() -> None:
                 "sections": report["sections"],
                 "optional_sections_added": report["optional_sections_added"],
                 "all_routes_verified": report["all_routes_verified"],
+                "reports_synchronized": True,
             },
             ensure_ascii=False,
         )
