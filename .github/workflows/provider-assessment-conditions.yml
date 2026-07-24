@@ -55,42 +55,48 @@ jobs:
           node --check provider-assessment-demo/institutional-live-v2.js
           node --check provider-assessment-demo/sw-live-v2.js
 
+      - name: Validate registry completeness
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const vm = require('vm');
+          const context = { window: {} };
+          vm.runInNewContext(fs.readFileSync('provider-assessment-demo/conditions/conditions-data-v1.js','utf8'), context);
+          const registry = context.window.PA_CONDITION_PATHWAYS;
+          const errors = [];
+          if (!registry || !Array.isArray(registry.conditions) || registry.conditions.length !== 20) errors.push(`expected 20 conditions, found ${registry?.conditions?.length}`);
+          if (registry && new Set(registry.conditions.map(item => item.slug)).size !== 20) errors.push('duplicate condition slugs');
+          if (registry && new Set(registry.conditions.map(item => item.title)).size !== 20) errors.push('duplicate condition titles');
+          if (!Array.isArray(registry?.workflowStages) || registry.workflowStages.length < 7) errors.push('common workflow incomplete');
+          if (!Array.isArray(registry?.commonDomains) || registry.commonDomains.length < 9) errors.push('common domains incomplete');
+          for (const item of registry?.conditions || []) {
+            if (!item.summary || item.summary.length < 50) errors.push(`${item.slug}: thin summary (${item.summary?.length || 0})`);
+            for (const key of ['team','primary','supporting','external','focus','deliverables','alerts']) if (!Array.isArray(item[key]) || item[key].length < 2) errors.push(`${item.slug}: incomplete ${key}`);
+          }
+          if (errors.length) throw new Error(errors.join('\n'));
+          console.log({conditions:20, workflowStages:registry.workflowStages.length, commonDomains:registry.commonDomains.length});
+          NODE
+
       - name: Validate twenty Arabic condition pages and RTL
         run: |
           node <<'NODE'
           const fs = require('fs');
           const path = require('path');
           const vm = require('vm');
-          const read = file => fs.readFileSync(file, 'utf8');
           const context = { window: {} };
-          vm.runInNewContext(read('provider-assessment-demo/conditions/conditions-data-v1.js'), context);
-          const registry = context.window.PA_CONDITION_PATHWAYS;
-          if (!registry || !Array.isArray(registry.conditions) || registry.conditions.length !== 20) throw new Error('Expected exactly 20 condition pathways');
-          if (new Set(registry.conditions.map(item => item.slug)).size !== 20) throw new Error('Duplicate condition slugs');
-          if (new Set(registry.conditions.map(item => item.title)).size !== 20) throw new Error('Duplicate condition titles');
-          if (!Array.isArray(registry.workflowStages) || registry.workflowStages.length < 7) throw new Error('Common workflow is incomplete');
-          if (!Array.isArray(registry.commonDomains) || registry.commonDomains.length < 9) throw new Error('Common assessment domains are incomplete');
-
-          for (const item of registry.conditions) {
-            if (!item.summary || item.summary.length < 50) throw new Error(`${item.slug}: thin summary`);
-            for (const key of ['team','primary','supporting','external','focus','deliverables','alerts']) {
-              if (!Array.isArray(item[key]) || item[key].length < 2) throw new Error(`${item.slug}: incomplete ${key}`);
-            }
+          vm.runInNewContext(fs.readFileSync('provider-assessment-demo/conditions/conditions-data-v1.js','utf8'), context);
+          const errors = [];
+          for (const item of context.window.PA_CONDITION_PATHWAYS.conditions) {
             const file = path.join('provider-assessment-demo/conditions', item.slug, 'index.html');
-            if (!fs.existsSync(file)) throw new Error(`${item.slug}: page missing`);
-            const html = read(file);
-            for (const marker of ['<html lang="ar" dir="rtl"','<title>','meta name="description"','rel="canonical"','application/ld+json',`data-condition="${item.slug}"`,'<main','id="condition-root"','../conditions-data-v1.js','../conditions-ui-v1.js']) {
-              if (!html.includes(marker)) throw new Error(`${item.slug}: missing ${marker}`);
-            }
-            for (const forbidden of ['>مقفل<','>دليل فقط<','النسخة التجريبية المنشورة']) {
-              if (html.includes(forbidden)) throw new Error(`${item.slug}: forbidden wording ${forbidden}`);
-            }
+            if (!fs.existsSync(file)) { errors.push(`${item.slug}: page missing`); continue; }
+            const html = fs.readFileSync(file,'utf8');
+            for (const marker of ['<html lang="ar" dir="rtl"','<title>','meta name="description"','rel="canonical"','application/ld+json',`data-condition="${item.slug}"`,'<main','id="condition-root"','../conditions-data-v1.js','../conditions-ui-v1.js']) if (!html.includes(marker)) errors.push(`${item.slug}: missing ${marker}`);
+            for (const forbidden of ['>مقفل<','>دليل فقط<','النسخة التجريبية المنشورة']) if (html.includes(forbidden)) errors.push(`${item.slug}: forbidden wording ${forbidden}`);
           }
-          const index = read('provider-assessment-demo/conditions/index.html');
-          for (const marker of ['<html lang="ar" dir="rtl"','conditions-grid','condition-search','team-filter','CollectionPage']) {
-            if (!index.includes(marker)) throw new Error(`Conditions index missing ${marker}`);
-          }
-          console.log({conditions:20, rtl:true, metadata:true, accessibility:true});
+          const index = fs.readFileSync('provider-assessment-demo/conditions/index.html','utf8');
+          for (const marker of ['<html lang="ar" dir="rtl"','conditions-grid','condition-search','team-filter','CollectionPage']) if (!index.includes(marker)) errors.push(`conditions index missing ${marker}`);
+          if (errors.length) throw new Error(errors.join('\n'));
+          console.log({conditionPages:20, rtl:true, metadata:true, accessibility:true});
           NODE
 
       - name: Validate education, family guidance and official sources
@@ -98,23 +104,14 @@ jobs:
           node <<'NODE'
           const fs = require('fs');
           const vm = require('vm');
-          const read = file => fs.readFileSync(file, 'utf8');
           const context = { window: {} };
-          vm.runInNewContext(read('provider-assessment-demo/conditions/conditions-data-v1.js'), context);
-          const registry = context.window.PA_CONDITION_PATHWAYS;
-          const education = read('provider-assessment-demo/conditions/condition-education-v1.js');
-          for (const marker of [
-            'المسح أو الفرز','التقييم التشخيصي','التقييم الوظيفي','متابعة التقدم',
-            'progressByCondition','قائمة توثيق الحالة المهنية','دليل الأسرة ومقدم الخدمة',
-            'مراجعة جودة خطة التقييم','pa-condition-course-v1','aria-pressed','data-assessment-education',
-            'النتيجة المرتفعة في أداة مسح','لا تعني ثبوت الحالة','الدرجة دليل واحد ضمن مصادر متعددة','العوامل البيئية'
-          ]) if (!education.includes(marker)) throw new Error(`Education contract missing ${marker}`);
-          for (const item of registry.conditions) if (!education.includes(`"${item.slug}"`)) throw new Error(`Progress indicators missing ${item.slug}`);
-          for (const source of [
-            'https://www.who.int/standards/classifications/international-classification-of-functioning-disability-and-health',
-            'https://www.aap.org/en/patient-care/developmental-surveillance-and-screening-patient-care/',
-            'https://www.cdc.gov/act-early/about/developmental-monitoring-and-screening.html'
-          ]) if (!education.includes(source)) throw new Error(`Official source missing ${source}`);
+          vm.runInNewContext(fs.readFileSync('provider-assessment-demo/conditions/conditions-data-v1.js','utf8'), context);
+          const education = fs.readFileSync('provider-assessment-demo/conditions/condition-education-v1.js','utf8');
+          const errors = [];
+          for (const marker of ['المسح أو الفرز','التقييم التشخيصي','التقييم الوظيفي','متابعة التقدم','progressByCondition','قائمة توثيق الحالة المهنية','دليل الأسرة ومقدم الخدمة','مراجعة جودة خطة التقييم','pa-condition-course-v1','aria-pressed','data-assessment-education','النتيجة المرتفعة في أداة مسح','لا تعني ثبوت الحالة','الدرجة دليل واحد ضمن مصادر متعددة','العوامل البيئية']) if (!education.includes(marker)) errors.push(`education missing ${marker}`);
+          for (const item of context.window.PA_CONDITION_PATHWAYS.conditions) if (!education.includes(`"${item.slug}"`)) errors.push(`progress indicators missing ${item.slug}`);
+          for (const source of ['https://www.who.int/standards/classifications/international-classification-of-functioning-disability-and-health','https://www.aap.org/en/patient-care/developmental-surveillance-and-screening-patient-care/','https://www.cdc.gov/act-early/about/developmental-monitoring-and-screening.html']) if (!education.includes(source)) errors.push(`official source missing ${source}`);
+          if (errors.length) throw new Error(errors.join('\n'));
           console.log({assessmentTypes:4, progressSets:20, familyGuide:true, course:true, officialSources:3});
           NODE
 
@@ -122,42 +119,19 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('fs');
-          const read = file => fs.readFileSync(file, 'utf8');
+          const read = file => fs.readFileSync(file,'utf8');
           const reports = read('provider-assessment-demo/case-report-v1.js');
           const interpretation = read('provider-assessment-demo/case-report-interpretation-v2.js');
           const bridge = read('provider-assessment-demo/condition-entry-v1.js');
           const templates = read('provider-assessment-demo/professional-templates-v1.js');
-
-          for (const marker of ['view-reports','case-report-dialog','caseRecord.reports','versionNumber','export-case-report-html','export-case-report-json']) {
-            if (!reports.includes(marker)) throw new Error(`Base report engine missing ${marker}`);
-          }
-          for (const marker of [
-            'assessmentType','evidenceSources','decisionAuthority','functionalContexts','resultValidity',
-            'interpretationLimitations','baselineIndicator','measurementMethod','measurableGoal',
-            'remeasurementDate','providerInterpretation','familySummary','revisionReason',
-            'supersedesReportId','sourceVersionNumber','reviewAuditTrail','interpretationContractVersion',
-            'screening','diagnostic','functional','progress','computeChangedFields',
-            'form.elements.reportId.value = ""','PA_REPORT_INTERPRETATION_CONTRACT',
-            'fieldset','legend','role="note"','required-by-contract','data-screening-confirmation',
-            'data.assessmentType === "screening"','form.reportValidity()'
-          ]) if (!interpretation.includes(marker)) throw new Error(`Interpretation contract missing ${marker}`);
-          for (const safeguard of [
-            'لا يثبت التشخيص أو الأهلية',
-            'لا تُنسخ البنود أو مفاتيح التصحيح أو المعايير',
-            'ملخص موجه للأسرة أو الشخص',
-            'خط الأساس والهدف وإعادة القياس',
-            'external-results-and-official-integrations-only-for-protected-instruments'
-          ]) if (!interpretation.includes(safeguard)) throw new Error(`Safety wording missing ${safeguard}`);
-          for (const marker of ['professional-search','open-condition-professional','conditions-hub-link','pa-selected-condition-v1','requestedView','professional-records']) {
-            if (!bridge.includes(marker)) throw new Error(`Condition bridge missing ${marker}`);
-          }
-          for (const marker of ['ratingTemplate','performanceTemplate','interviewTemplate','externalTemplate','classificationTemplate','behaviorTemplate','communicationTemplate','commonFields','informants','accommodations']) {
-            if (!templates.includes(marker)) throw new Error(`Professional template contract missing ${marker}`);
-          }
-          const combined = [reports, interpretation, bridge, templates].join('\n');
-          for (const token of ['XMLHttpRequest','WebSocket','sendBeacon(','EventSource(','eval(','new Function(']) {
-            if (combined.includes(token)) throw new Error(`Unsafe API forbidden: ${token}`);
-          }
+          const errors = [];
+          for (const marker of ['view-reports','case-report-dialog','caseRecord.reports','versionNumber','export-case-report-html','export-case-report-json']) if (!reports.includes(marker)) errors.push(`base report missing ${marker}`);
+          for (const marker of ['assessmentType','evidenceSources','decisionAuthority','functionalContexts','resultValidity','interpretationLimitations','baselineIndicator','measurementMethod','measurableGoal','remeasurementDate','providerInterpretation','familySummary','revisionReason','supersedesReportId','sourceVersionNumber','reviewAuditTrail','interpretationContractVersion','screening','diagnostic','functional','progress','computeChangedFields','form.elements.reportId.value = ""','PA_REPORT_INTERPRETATION_CONTRACT','fieldset','legend','role="note"','required-by-contract','data-screening-confirmation','data.assessmentType === "screening"','form.reportValidity()']) if (!interpretation.includes(marker)) errors.push(`interpretation missing ${marker}`);
+          for (const safeguard of ['لا يثبت التشخيص أو الأهلية','لا تُنسخ البنود أو مفاتيح التصحيح أو المعايير','ملخص موجه للأسرة أو الشخص','خط الأساس والهدف وإعادة القياس','external-results-and-official-integrations-only-for-protected-instruments']) if (!interpretation.includes(safeguard)) errors.push(`safeguard missing ${safeguard}`);
+          for (const marker of ['professional-search','open-condition-professional','conditions-hub-link','pa-selected-condition-v1','requestedView','professional-records']) if (!bridge.includes(marker)) errors.push(`bridge missing ${marker}`);
+          for (const marker of ['ratingTemplate','performanceTemplate','interviewTemplate','externalTemplate','classificationTemplate','behaviorTemplate','communicationTemplate','commonFields','informants','accommodations']) if (!templates.includes(marker)) errors.push(`template contract missing ${marker}`);
+          for (const token of ['XMLHttpRequest','WebSocket','sendBeacon(','EventSource(','eval(','new Function(']) if ([reports,interpretation,bridge,templates].join('\n').includes(token)) errors.push(`unsafe API ${token}`);
+          if (errors.length) throw new Error(errors.join('\n'));
           console.log({reportInterpretation:true, immutableVersions:true, familySummary:true, auditTrail:true, rightsGated:true});
           NODE
 
@@ -166,24 +140,20 @@ jobs:
           node <<'NODE'
           const fs = require('fs');
           const vm = require('vm');
-          const read = file => fs.readFileSync(file, 'utf8');
+          const read = file => fs.readFileSync(file,'utf8');
           const context = { window: {} };
           vm.runInNewContext(read('provider-assessment-demo/conditions/conditions-data-v1.js'), context);
-          const registry = context.window.PA_CONDITION_PATHWAYS;
           const institutional = read('provider-assessment-demo/institutional-live-v2.js');
           const worker = read('provider-assessment-demo/sw-live-v2.js');
           const platformIndex = read('provider-assessment-demo/index.html');
           const sitemap = read('sitemap.xml');
-
-          for (const marker of ['2026.07.24-live.7','loadConditionPathways','loadProfessionalTemplates','loadCaseReports','case-report-interpretation-v2.js']) {
-            if (!institutional.includes(marker)) throw new Error(`Institutional release missing ${marker}`);
-          }
-          if (!worker.includes('2026.07.24-live.7')) throw new Error('Service worker release mismatch');
-          for (const marker of ['<html lang="ar" dir="rtl"','2026.07.24-live.7','case-report-v1.js?v=20260724-live7','case-report-interpretation-v2.js?v=20260724-live7']) {
-            if (!platformIndex.includes(marker)) throw new Error(`Platform index missing ${marker}`);
-          }
+          const errors = [];
+          for (const marker of ['2026.07.24-live.7','loadConditionPathways','loadProfessionalTemplates','loadCaseReports','case-report-interpretation-v2.js']) if (!institutional.includes(marker)) errors.push(`institutional missing ${marker}`);
+          if (!worker.includes('2026.07.24-live.7')) errors.push('service worker release mismatch');
+          for (const marker of ['<html lang="ar" dir="rtl"','2026.07.24-live.7','case-report-v1.js?v=20260724-live7','case-report-interpretation-v2.js?v=20260724-live7']) if (!platformIndex.includes(marker)) errors.push(`platform index missing ${marker}`);
           const conditionUrls = [...sitemap.matchAll(/provider-assessment-demo\/conditions\//g)].length;
-          if (conditionUrls !== 21) throw new Error(`Expected 21 condition sitemap URLs, found ${conditionUrls}`);
-          for (const item of registry.conditions) if (!sitemap.includes(`/conditions/${item.slug}/`)) throw new Error(`Sitemap missing ${item.slug}`);
+          if (conditionUrls !== 21) errors.push(`expected 21 condition sitemap URLs, found ${conditionUrls}`);
+          for (const item of context.window.PA_CONDITION_PATHWAYS.conditions) if (!sitemap.includes(`/conditions/${item.slug}/`)) errors.push(`sitemap missing ${item.slug}`);
+          if (errors.length) throw new Error(errors.join('\n'));
           console.log({release:'2026.07.24-live.7', sitemapConditionUrls:conditionUrls, status:'passed'});
           NODE
