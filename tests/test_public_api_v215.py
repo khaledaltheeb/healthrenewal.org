@@ -121,7 +121,9 @@ class PublicApiV215Tests(unittest.TestCase):
             source = self.approved_source()
             source["allowed_hosts"] = [host]
             source["feed_url"] = feed_url
-            with self.subTest(host=host), self.assertRaises(IMPORTER.CourseImportError):
+            with self.subTest(host=host), self.assertRaises(
+                IMPORTER.CourseImportError
+            ):
                 IMPORTER.validate_source(source)
 
     def test_importer_rejects_private_dns_and_redirect_escape(self) -> None:
@@ -129,9 +131,13 @@ class PublicApiV215Tests(unittest.TestCase):
         private_answer = [
             (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("10.0.0.8", 443))
         ]
-        with mock.patch.object(IMPORTER.socket, "getaddrinfo", return_value=private_answer):
+        with mock.patch.object(
+            IMPORTER.socket, "getaddrinfo", return_value=private_answer
+        ):
             with self.assertRaises(IMPORTER.CourseImportError):
-                IMPORTER.validate_network_target(source.feed_url, source, "feed URL")
+                IMPORTER.validate_network_target(
+                    source.feed_url, source, "feed URL"
+                )
 
         handler = IMPORTER.SafeRedirectHandler(source)
         with self.assertRaises(IMPORTER.CourseImportError):
@@ -143,6 +149,74 @@ class PublicApiV215Tests(unittest.TestCase):
                 {},
                 "https://unapproved.example.net/feed.json",
             )
+
+    def test_dns_answers_are_pinned_for_the_connection(self) -> None:
+        public_answer = [
+            (
+                socket.AF_INET,
+                socket.SOCK_STREAM,
+                socket.IPPROTO_TCP,
+                "",
+                ("93.184.216.34", 443),
+            )
+        ]
+        private_answer = [
+            (
+                socket.AF_INET,
+                socket.SOCK_STREAM,
+                socket.IPPROTO_TCP,
+                "",
+                ("10.0.0.8", 443),
+            )
+        ]
+        with mock.patch.object(
+            IMPORTER.socket,
+            "getaddrinfo",
+            side_effect=[public_answer, private_answer],
+        ) as dns:
+            resolver = IMPORTER.PinnedDnsResolver()
+            self.assertEqual(
+                resolver.pin("courses.example.org"),
+                ("93.184.216.34",),
+            )
+            with resolver.active():
+                first = IMPORTER.socket.getaddrinfo(
+                    "courses.example.org",
+                    443,
+                    type=socket.SOCK_STREAM,
+                )
+                second = IMPORTER.socket.getaddrinfo(
+                    "courses.example.org",
+                    443,
+                    type=socket.SOCK_STREAM,
+                )
+            self.assertEqual(dns.call_count, 1)
+            self.assertEqual(first[0][4][0], "93.184.216.34")
+            self.assertEqual(second[0][4][0], "93.184.216.34")
+
+    def test_pinned_resolver_blocks_unvalidated_host(self) -> None:
+        public_answer = [
+            (
+                socket.AF_INET,
+                socket.SOCK_STREAM,
+                socket.IPPROTO_TCP,
+                "",
+                ("93.184.216.34", 443),
+            )
+        ]
+        with mock.patch.object(
+            IMPORTER.socket,
+            "getaddrinfo",
+            return_value=public_answer,
+        ):
+            resolver = IMPORTER.PinnedDnsResolver()
+            resolver.pin("courses.example.org")
+            with resolver.active(), self.assertRaises(socket.gaierror):
+                IMPORTER.socket.getaddrinfo(
+                    "other.example.org",
+                    443,
+                    type=socket.SOCK_STREAM,
+                )
 
     def test_empty_manifest_writes_hardened_security_contract(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -163,18 +237,24 @@ class PublicApiV215Tests(unittest.TestCase):
             self.assertEqual(result["status"], "no-approved-sources")
             self.assertEqual(result["security_contract_version"], 218)
             self.assertTrue(result["security"]["dns_public_addresses_only"])
-            self.assertTrue(result["security"]["redirects_checked_before_request"])
+            self.assertTrue(
+                result["security"]["dns_answers_pinned_during_connection"]
+            )
+            self.assertTrue(
+                result["security"]["redirects_checked_before_request"]
+            )
             self.assertTrue(output.is_file())
 
-    def test_course_normalization_strips_html_and_enforces_hosts(self) -> None:
+    def test_course_normalization_strips_html_controls_and_enforces_hosts(self) -> None:
         source = IMPORTER.validate_source(self.approved_source())
         course = IMPORTER.normalize_course(
             {
                 "id": "course-1",
-                "title_ar": "<b>دورة دعم الأسرة</b>",
+                "title_ar": "<b>دورة\u202e دعم الأسرة</b>",
                 "description_ar": "<p>محتوى تعليمي منظم.</p>",
                 "url": "https://courses.example.org/course-1",
                 "language": "ar",
+                "updated_at": "2026-07-20T10:00:00Z",
             },
             source,
         )
@@ -182,6 +262,62 @@ class PublicApiV215Tests(unittest.TestCase):
         self.assertEqual(course["permission_status"], "approved")
         self.assertEqual(course["permission_expires_at"], "2027-12-31")
         self.assertNotIn("<", course["description_ar"])
+        self.assertNotIn("\u202e", course["title_ar"])
+
+    def test_course_normalization_rejects_bad_id_and_naive_timestamp(self) -> None:
+        source = IMPORTER.validate_source(self.approved_source())
+        base = {
+            "title_ar": "دورة دعم الأسرة",
+            "url": "https://courses.example.org/course-1",
+        }
+        with self.assertRaisesRegex(
+            IMPORTER.CourseImportError, "course id must use"
+        ):
+            IMPORTER.normalize_course({**base, "id": "bad/id"}, source)
+        with self.assertRaisesRegex(
+            IMPORTER.CourseImportError, "must include a timezone"
+        ):
+            IMPORTER.normalize_course(
+                {
+                    **base,
+                    "id": "course-1",
+                    "updated_at": "2026-07-20T10:00:00",
+                },
+                source,
+            )
+
+    def test_json_feed_rejects_non_object_records(self) -> None:
+        with self.assertRaisesRegex(
+            IMPORTER.CourseImportError,
+            "each JSON course record must be an object",
+        ):
+            IMPORTER.parse_feed(b'{"courses":[{"id":"one"},"bad"]}', "json")
+
+    def test_duplicate_enabled_source_ids_are_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            manifest = root / "manifest.json"
+            output = root / "courses.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 215,
+                        "policy": "deny-by-default",
+                        "sources": [
+                            self.approved_source(),
+                            self.approved_source(),
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with mock.patch.object(
+                IMPORTER, "fetch_feed", return_value=b"[]"
+            ), self.assertRaisesRegex(
+                IMPORTER.CourseImportError,
+                "duplicate enabled source id",
+            ):
+                IMPORTER.import_courses(manifest, output)
 
     def test_publisher_preserves_existing_api_contract(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -197,13 +333,20 @@ class PublicApiV215Tests(unittest.TestCase):
                 json.dumps(
                     {
                         "openapi": "3.1.0",
-                        "info": {"title": "Original API", "version": "0.9.0"},
+                        "info": {
+                            "title": "Original API",
+                            "version": "0.9.0",
+                        },
                         "paths": {
                             "/api/v1/platform.json": {
-                                "get": {"summary": "Existing platform endpoint"}
+                                "get": {
+                                    "summary": "Existing platform endpoint"
+                                }
                             }
                         },
-                        "components": {"schemas": {"Platform": {"type": "object"}}},
+                        "components": {
+                            "schemas": {"Platform": {"type": "object"}}
+                        },
                     }
                 ),
                 encoding="utf-8",
@@ -233,13 +376,17 @@ class PublicApiV215Tests(unittest.TestCase):
                                 "title": "Family Support",
                                 "description_ar": "وصف عربي.",
                                 "description": "English description.",
-                                "url": "https://courses.example.org/course-1",
+                                "url": (
+                                    "https://courses.example.org/course-1"
+                                ),
                                 "language": "ar",
                                 "format": "online",
                                 "duration": "4 hours",
                                 "price_text": "",
                                 "updated_at": None,
-                                "license_url": "https://courses.example.org/license",
+                                "license_url": (
+                                    "https://courses.example.org/license"
+                                ),
                                 "permission_status": "approved",
                                 "permission_expires_at": "2027-12-31",
                             }
@@ -254,14 +401,20 @@ class PublicApiV215Tests(unittest.TestCase):
                 manifest_path=manifest,
                 import_path=imported,
             )
-            openapi = json.loads((api / "openapi.json").read_text(encoding="utf-8"))
+            openapi = json.loads(
+                (api / "openapi.json").read_text(encoding="utf-8")
+            )
             self.assertIn("/api/v1/platform.json", openapi["paths"])
             self.assertIn("/api/v1/health.json", openapi["paths"])
             self.assertIn("Platform", openapi["components"]["schemas"])
             self.assertIn("Course", openapi["components"]["schemas"])
             self.assertTrue(report["preserved_existing_paths"])
-            self.assertTrue((site / "developers" / "index.html").is_file())
-            self.assertTrue((site / "sitemap-developers.xml").is_file())
+            self.assertTrue(
+                (site / "developers" / "index.html").is_file()
+            )
+            self.assertTrue(
+                (site / "sitemap-developers.xml").is_file()
+            )
 
 
 if __name__ == "__main__":
