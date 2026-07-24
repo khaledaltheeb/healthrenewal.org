@@ -34,17 +34,30 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check provider-assessment-demo/catalog.js
+          node --check provider-assessment-demo/catalog-extra.js
+          node --check provider-assessment-demo/catalog-contract-fix.js
+          node --check provider-assessment-demo/professional-master-registry.js
           node --check provider-assessment-demo/app.js
-      - name: Validate published files and catalog
+          node --check provider-assessment-demo/activation.js
+          node --check provider-assessment-demo/activation-guard.js
+          node --check provider-assessment-demo/enhancements.js
+      - name: Validate published files and operational catalog
         run: |
           node <<'NODE'
           const fs = require('fs');
           const vm = require('vm');
-          for (const file of ['index.html','styles.css','catalog.js','app.js']) {
+          const requiredFiles = [
+            'index.html', 'styles.css', 'enhancements.css', 'catalog.js', 'catalog-extra.js',
+            'catalog-contract-fix.js', 'professional-master-registry.js', 'app.js',
+            'activation.js', 'activation-guard.js', 'enhancements.js'
+          ];
+          for (const file of requiredFiles) {
             if (!fs.existsSync(`provider-assessment-demo/${file}`)) throw new Error(`Missing ${file}`);
           }
           const html = fs.readFileSync('provider-assessment-demo/index.html','utf8');
           const app = fs.readFileSync('provider-assessment-demo/app.js','utf8');
+          const activation = fs.readFileSync('provider-assessment-demo/activation.js','utf8');
+          const guard = fs.readFileSync('provider-assessment-demo/activation-guard.js','utf8');
           const home = fs.readFileSync('index.html','utf8');
           const sitemap = fs.readFileSync('sitemap.xml','utf8');
           for (const marker of ['current-uid','case-dialog','assessment-dialog','professional-list']) {
@@ -53,12 +66,22 @@ jobs:
           for (const marker of ['localStorage','UID-PROV','UID-VIS','sessions','providerDecision']) {
             if (!app.includes(marker)) throw new Error(`Missing app behavior ${marker}`);
           }
+          for (const marker of ['professionalAssessments','professional-record-dialog','rightsConfirmed','recordedByUid']) {
+            if (!activation.includes(marker)) throw new Error(`Missing professional workflow ${marker}`);
+          }
+          for (const marker of ['professional-', 'emo-context-factors']) {
+            if (!guard.includes(marker)) throw new Error(`Missing runtime contract ${marker}`);
+          }
           if (!home.includes('provider-assessment-demo/')) throw new Error('Homepage link is missing');
           if (!sitemap.includes('/provider-assessment-demo/')) throw new Error('Sitemap URL is missing');
           const context = {window:{}};
           vm.runInNewContext(fs.readFileSync('provider-assessment-demo/catalog.js','utf8'), context);
+          vm.runInNewContext(fs.readFileSync('provider-assessment-demo/catalog-extra.js','utf8'), context);
+          vm.runInNewContext(fs.readFileSync('provider-assessment-demo/catalog-contract-fix.js','utf8'), context);
+          vm.runInNewContext(fs.readFileSync('provider-assessment-demo/professional-master-registry.js','utf8'), context);
           const data = context.window.PA_DEMO_DATA;
-          if (data.categories.length !== 8 || data.explorers.length !== 8) throw new Error('Unexpected exploratory catalog size');
-          if (data.professional.length < 20) throw new Error('Professional guide is incomplete');
-          console.log(`Validated ${data.explorers.length} exploratory tools and ${data.professional.length} professional guide entries.`);
+          if (data.categories.length !== 8 || data.explorers.length !== 20) throw new Error('Unexpected exploratory catalog size');
+          if (data.professional.length < 100) throw new Error(`Professional registry is incomplete: ${data.professional.length}`);
+          if (data.professional.some(item => item.status === 'locked')) throw new Error('Locked professional states remain');
+          console.log(`Validated ${data.explorers.length} exploratory tools and ${data.professional.length} operational professional entries.`);
           NODE
