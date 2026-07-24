@@ -92,10 +92,37 @@ class ContentDiscoveryTests(unittest.TestCase):
             autism_item = next(item for item in index["items"] if item["path"] == "/special-needs/autism/")
             self.assertIn("التوحد", " ".join(autism_item["tags"]))
 
+            taxonomy = json.loads((site / "api" / "v1" / "taxonomy.json").read_text(encoding="utf-8"))
+            self.assertEqual(taxonomy["totalPages"], 2)
+            self.assertIsInstance(taxonomy["languages"], list)
+            self.assertIsInstance(taxonomy["sections"], list)
+            self.assertIsInstance(taxonomy["tags"], list)
+
             before = autism.read_text(encoding="utf-8")
             second = seo.publish(site)
             self.assertEqual(second["pages_changed"], 0)
             self.assertEqual(before, autism.read_text(encoding="utf-8"))
+
+    def test_repository_api_placeholders_match_public_contract(self):
+        content_index = json.loads((ROOT / "api" / "v1" / "content-index.json").read_text(encoding="utf-8"))
+        taxonomy = json.loads((ROOT / "api" / "v1" / "taxonomy.json").read_text(encoding="utf-8"))
+        catalog = json.loads((ROOT / "api" / "v1" / "courses.json").read_text(encoding="utf-8"))
+
+        self.assertIsInstance(content_index["total"], int)
+        self.assertIsInstance(content_index["items"], list)
+
+        self.assertIsInstance(taxonomy["totalPages"], int)
+        self.assertIsInstance(taxonomy["languages"], list)
+        self.assertIsInstance(taxonomy["sections"], list)
+        self.assertIsInstance(taxonomy["tags"], list)
+        self.assertNotIn("topics", taxonomy)
+
+        self.assertIsInstance(catalog["totalProviders"], int)
+        self.assertIsInstance(catalog["totalCourses"], int)
+        self.assertIsInstance(catalog["providers"], list)
+        self.assertIsInstance(catalog["courses"], list)
+        self.assertTrue(catalog["integrationPolicy"]["authorizationRequired"])
+        self.assertTrue(catalog["integrationPolicy"]["protectedCourseContentExcluded"])
 
 
 class AuthorizedCoursesTests(unittest.TestCase):
