@@ -13,7 +13,7 @@ jobs:
   open-pr:
     runs-on: ubuntu-latest
     steps:
-      - name: Create draft PR
+      - name: Create draft PR v2
         uses: actions/github-script@v7
         with:
           script: |
