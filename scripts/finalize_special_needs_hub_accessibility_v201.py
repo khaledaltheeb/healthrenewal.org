@@ -28,11 +28,9 @@ def finalize(site: Path) -> dict[str, object]:
     page = site / "special-needs" / "index.html"
     if not page.is_file():
         raise SystemExit(f"Missing generated special-needs hub: {page}")
-
     text = page.read_text(encoding="utf-8")
     if text.count('id="hub-search"') != 1:
         raise SystemExit("Expected exactly one special-needs hub search input")
-
     label_changed = False
     input_changed = False
     if 'for="hub-search"' not in text:
@@ -40,30 +38,20 @@ def finalize(site: Path) -> dict[str, object]:
             raise SystemExit("Special-needs search label marker changed; refusing unsafe accessibility patch")
         text = text.replace(LABEL_OLD, LABEL_NEW, 1)
         label_changed = True
-
     if 'aria-label="البحث داخل مركز ذوي الاحتياجات الخاصة"' not in text:
         if INPUT_OLD not in text:
             raise SystemExit("Special-needs search input marker changed; refusing unsafe accessibility patch")
         text = text.replace(INPUT_OLD, INPUT_NEW, 1)
         input_changed = True
-
     if text.count('for="hub-search"') != 1:
         raise SystemExit("Search input must have exactly one explicit label association")
     if text.count('aria-label="البحث داخل مركز ذوي الاحتياجات الخاصة"') != 1:
         raise SystemExit("Search input must have exactly one accessible name")
-
     page.write_text(text, encoding="utf-8")
 
     report_path = site / "api" / "special-needs-hub-v201.json"
-    if report_path.is_file():
-        report = json.loads(report_path.read_text(encoding="utf-8"))
-    else:
-        report = {"version": 201, "output": "special-needs/index.html"}
-    report["search_accessibility"] = {
-        "explicit_label_for": True,
-        "accessible_name": True,
-        "input_id": "hub-search",
-    }
+    report = json.loads(report_path.read_text(encoding="utf-8")) if report_path.is_file() else {"version": 201, "output": "special-needs/index.html"}
+    report["search_accessibility"] = {"explicit_label_for": True, "accessible_name": True, "input_id": "hub-search"}
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
@@ -72,9 +60,9 @@ def finalize(site: Path) -> dict[str, object]:
         run_batch(site, 210, "publish_special_needs_guides_v210.py"),
         run_batch(site, 211, "publish_special_needs_guides_v211.py"),
         run_batch(site, 212, "publish_special_needs_guides_v212.py"),
+        run_batch(site, 214, "publish_special_needs_guides_v214.py"),
     ]
     total_guides = sum(int(batch["guide_count"]) for batch in batches)
-
     result = {
         "version": 201,
         "page": "special-needs/index.html",
@@ -82,7 +70,7 @@ def finalize(site: Path) -> dict[str, object]:
         "input_changed": input_changed,
         "explicit_label_for": True,
         "accessible_name": True,
-        "special_needs_guides_versions": [209, 210, 211, 212],
+        "special_needs_guides_versions": [209, 210, 211, 212, 214],
         "special_needs_guides": total_guides,
         "special_needs_batches": len(batches),
     }
