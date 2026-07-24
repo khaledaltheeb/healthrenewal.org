@@ -1,0 +1,61 @@
+name: One-shot institutional compatibility v215
+
+on:
+  push:
+    branches: ["agent/institutional-home-api-brand-v215"]
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-remove-self:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/institutional-home-api-brand-v215
+          fetch-depth: 0
+      - name: Patch institutional compatibility and API authorization contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          index_path = Path("index.html")
+          index = index_path.read_text(encoding="utf-8")
+          old = '<article class="card"><h3>ذوو الاحتياجات الخاصة والتربية الدامجة</h3>'
+          new = '<article class="card" data-special-needs-v73><h3>ذوو الاحتياجات الخاصة والتربية الدامجة</h3>'
+          if new not in index:
+              if index.count(old) != 1:
+                  raise SystemExit("Institutional special-needs card marker is missing or ambiguous")
+              index = index.replace(old, new, 1)
+              index_path.write_text(index, encoding="utf-8")
+
+          schema_path = Path("api/v1/courses.schema.json")
+          schema = json.loads(schema_path.read_text(encoding="utf-8"))
+          course = schema["properties"]["courses"]["items"]
+          required = course["required"]
+          if "rights" not in required:
+              required.append("rights")
+          schema_path.write_text(json.dumps(schema, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+          publisher_path = Path("scripts/publish_special_needs_v73.py")
+          publisher = publisher_path.read_text(encoding="utf-8")
+          publisher = publisher.replace("ذوي الإعاقة", "ذوي الاحتياجات الخاصة")
+          publisher_path.write_text(publisher, encoding="utf-8")
+
+          workflow = Path(".github/workflows/one-shot-institutional-compat-v215.yml")
+          workflow.unlink()
+          PY
+      - name: Verify targeted contracts
+        run: |
+          python -m unittest tests/test_institutional_home_api.py
+          python -m py_compile scripts/publish_special_needs_v73.py scripts/apply_homepage_v20.py
+      - name: Commit compatibility fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html api/v1/courses.schema.json scripts/publish_special_needs_v73.py .github/workflows/one-shot-institutional-compat-v215.yml
+          git commit -m "إصلاح تكامل الصفحة المؤسسية وتشديد إذن الدورات"
+          git push origin HEAD:agent/institutional-home-api-brand-v215
