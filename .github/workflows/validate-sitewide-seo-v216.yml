@@ -8,6 +8,7 @@ on:
       - "scripts/verify_sitewide_seo_v216.py"
       - "scripts/apply_homepage_v20.py"
       - "tests/test_sitewide_seo_v216.py"
+      - "tests/test_sitewide_seo_verifier_diagnostics_v216.py"
       - ".github/workflows/validate-sitewide-seo-v216.yml"
   workflow_dispatch:
 
@@ -24,6 +25,10 @@ jobs:
           python -m py_compile \
             scripts/enhance_sitewide_seo_v216.py \
             scripts/verify_sitewide_seo_v216.py \
-            tests/test_sitewide_seo_v216.py
+            tests/test_sitewide_seo_v216.py \
+            tests/test_sitewide_seo_verifier_diagnostics_v216.py
       - name: Run deterministic SEO unit tests
-        run: python -m unittest tests/test_sitewide_seo_v216.py
+        run: |
+          python -m unittest \
+            tests/test_sitewide_seo_v216.py \
+            tests/test_sitewide_seo_verifier_diagnostics_v216.py
