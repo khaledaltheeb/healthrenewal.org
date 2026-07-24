@@ -1,7 +1,7 @@
 "use strict";
 
 (() => {
-  const RELEASE = "2026.07.24-live.6";
+  const RELEASE = "2026.07.24-live.7";
   const PATH = "/pterminology-site/provider-assessment-demo/";
 
   const replaceText = (root = document) => {
@@ -29,7 +29,7 @@
     document.documentElement.dataset.release = RELEASE;
     document.title = "منصة التقييم والسجل المهني | منصة الصحة النفسية وذوي الاحتياجات الخاصة";
     const description = document.querySelector('meta[name="description"]');
-    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية ومسارات تطبيق المقاييس المهنية، مع 20 دليل حالة وتقارير متعددة الإصدارات تتضمن نوع التقييم وصلاحية النتيجة وخط الأساس والهدف والمتابعة داخل UID مستقل.";
+    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية ومسارات تطبيق المقاييس المهنية، مع 20 دليل حالة وتقارير متعددة الإصدارات تتضمن نوع التقييم وصلاحية النتيجة وخط الأساس والهدف والملخص الأسري داخل UID مستقل.";
     const applicationVersion = document.querySelector('meta[name="application-version"]');
     if (applicationVersion) applicationVersion.content = RELEASE;
 
