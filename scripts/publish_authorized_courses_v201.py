@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import re
 import sys
@@ -34,7 +35,8 @@ def require(condition: bool, message: str) -> None:
 def require_https(value: object, field: str) -> str:
     text = str(value or "").strip()
     parsed = urlparse(text)
-    require(parsed.scheme == "https" and bool(parsed.netloc), f"{field}:https_url_required")
+    require(parsed.scheme == "https" and bool(parsed.hostname), f"{field}:https_url_required")
+    require(parsed.username is None and parsed.password is None, f"{field}:credentials_forbidden")
     return text
 
 
@@ -45,13 +47,14 @@ def parse_date(value: object, field: str) -> date:
         raise ValueError(f"{field}:invalid_date") from error
 
 
-def parse_datetime(value: object, field: str) -> str:
+def parse_datetime(value: object, field: str) -> tuple[str, datetime]:
     text = str(value or "").strip()
     try:
-        datetime.fromisoformat(text.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
     except ValueError as error:
         raise ValueError(f"{field}:invalid_datetime") from error
-    return text
+    require(parsed.tzinfo is not None and parsed.utcoffset() is not None, f"{field}:timezone_required")
+    return text, parsed
 
 
 def validate_provider(provider: object, source: str) -> dict[str, str]:
@@ -67,7 +70,7 @@ def validate_provider(provider: object, source: str) -> dict[str, str]:
 def validate_authorization(authorization: object, source: str, today: date) -> dict[str, object]:
     require(isinstance(authorization, dict), f"{source}:authorization_object_required")
     require(authorization.get("status") == "authorized", f"{source}:authorization.status_invalid")
-    evidence_url = require_https(authorization.get("evidenceUrl"), f"{source}:authorization.evidenceUrl")
+    require_https(authorization.get("evidenceUrl"), f"{source}:authorization.evidenceUrl")
     license_name = str(authorization.get("license", "")).strip()
     require(2 <= len(license_name) <= 200, f"{source}:authorization.license_invalid")
     verified_at = parse_date(authorization.get("verifiedAt"), f"{source}:authorization.verifiedAt")
@@ -79,11 +82,28 @@ def validate_authorization(authorization: object, source: str, today: date) -> d
         require(expires_at >= today, f"{source}:authorization.expired")
     return {
         "status": "authorized",
-        "evidenceUrl": evidence_url,
+        "evidenceVerified": True,
         "license": license_name,
         "verifiedAt": verified_at.isoformat(),
         "expiresAt": expires_at.isoformat() if expires_at else None,
     }
+
+
+def normalize_string_list(
+    value: object,
+    source: str,
+    course_id: str,
+    field: str,
+    max_items: int,
+    max_length: int,
+) -> list[str]:
+    require(isinstance(value, list) and len(value) <= max_items, f"{source}:{course_id}.{field}_invalid")
+    normalized: list[str] = []
+    for index, item in enumerate(value):
+        text = str(item).strip()
+        require(1 <= len(text) <= max_length, f"{source}:{course_id}.{field}[{index}]_invalid")
+        normalized.append(text)
+    return normalized
 
 
 def validate_course(course: object, source: str, provider: dict[str, str]) -> dict[str, object]:
@@ -102,7 +122,10 @@ def validate_course(course: object, source: str, provider: dict[str, str]) -> di
     rights = course.get("rights")
     require(isinstance(rights, dict), f"{source}:{course_id}.rights_object_required")
     require(rights.get("metadataReuse") is True, f"{source}:{course_id}.metadata_reuse_not_authorized")
+    attribution = str(rights.get("attributionText", "")).strip()
+    require(2 <= len(attribution) <= 500, f"{source}:{course_id}.attribution_required")
 
+    updated_at, _ = parse_datetime(course.get("updatedAt"), f"{source}:{course_id}.updatedAt")
     normalized: dict[str, object] = {
         "id": course_id,
         "provider": provider,
@@ -112,11 +135,11 @@ def validate_course(course: object, source: str, provider: dict[str, str]) -> di
         "enrollmentUrl": require_https(course.get("enrollmentUrl"), f"{source}:{course_id}.enrollmentUrl"),
         "deliveryMode": delivery,
         "status": status,
-        "updatedAt": parse_datetime(course.get("updatedAt"), f"{source}:{course_id}.updatedAt"),
+        "updatedAt": updated_at,
         "rights": {
             "metadataReuse": True,
             "contentReuse": rights.get("contentReuse") is True,
-            "attributionText": str(rights.get("attributionText", "")).strip(),
+            "attributionText": attribution,
         },
     }
 
@@ -129,34 +152,55 @@ def validate_course(course: object, source: str, provider: dict[str, str]) -> di
         value = course.get(field)
         if value not in (None, ""):
             text = str(value).strip()
-            require(len(text) <= limit, f"{source}:{course_id}.{field}_too_long")
+            require(1 <= len(text) <= limit, f"{source}:{course_id}.{field}_invalid")
             normalized[field] = text
 
-    for field in ("imageUrl",):
-        value = course.get(field)
-        if value not in (None, ""):
-            normalized[field] = require_https(value, f"{source}:{course_id}.{field}")
+    image_url = course.get("imageUrl")
+    if image_url not in (None, ""):
+        normalized["imageUrl"] = require_https(image_url, f"{source}:{course_id}.imageUrl")
 
-    for field, limit in (("instructors", 50), ("categories", 30), ("audience", 20)):
+    list_contracts = {
+        "instructors": (50, 160),
+        "categories": (30, 100),
+        "audience": (20, 120),
+    }
+    for field, (max_items, max_length) in list_contracts.items():
         value = course.get(field)
         if value is not None:
-            require(isinstance(value, list) and len(value) <= limit, f"{source}:{course_id}.{field}_invalid")
-            normalized[field] = [str(item).strip() for item in value if str(item).strip()]
+            normalized[field] = normalize_string_list(
+                value,
+                source,
+                course_id,
+                field,
+                max_items,
+                max_length,
+            )
 
     price = course.get("price")
     currency = course.get("currency")
     if price is not None:
-        require(isinstance(price, (int, float)) and not isinstance(price, bool) and price >= 0, f"{source}:{course_id}.price_invalid")
+        require(
+            isinstance(price, (int, float))
+            and not isinstance(price, bool)
+            and math.isfinite(float(price))
+            and price >= 0,
+            f"{source}:{course_id}.price_invalid",
+        )
         require(bool(CURRENCY.fullmatch(str(currency or ""))), f"{source}:{course_id}.currency_invalid")
         normalized["price"] = price
         normalized["currency"] = str(currency)
     elif currency not in (None, ""):
         raise ValueError(f"{source}:{course_id}.currency_without_price")
 
+    parsed_dates: dict[str, datetime] = {}
     for field in ("startsAt", "endsAt"):
         value = course.get(field)
         if value not in (None, ""):
-            normalized[field] = parse_datetime(value, f"{source}:{course_id}.{field}")
+            text, parsed = parse_datetime(value, f"{source}:{course_id}.{field}")
+            normalized[field] = text
+            parsed_dates[field] = parsed
+    if "startsAt" in parsed_dates and "endsAt" in parsed_dates:
+        require(parsed_dates["endsAt"] >= parsed_dates["startsAt"], f"{source}:{course_id}.date_range_invalid")
 
     return normalized
 
@@ -174,7 +218,10 @@ def load_feeds(feed_dir: Path, today: date | None = None) -> tuple[list[dict[str
 
     for path in sorted(feed_dir.glob("*.json")):
         source = path.name
-        data = json.loads(path.read_text(encoding="utf-8"))
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as error:
+            raise ValueError(f"{source}:invalid_json:{error.msg}") from error
         require(isinstance(data, dict), f"{source}:feed_object_required")
         require(data.get("feedVersion") == "1.0", f"{source}:feedVersion_invalid")
         provider = validate_provider(data.get("provider"), source)
@@ -211,6 +258,7 @@ def publish(site: Path, feed_dir: Path | None = None, today: date | None = None)
             "metadataOnlyByDefault": True,
             "canonicalSourceRequired": True,
             "protectedCourseContentExcluded": True,
+            "authorizationEvidenceRedacted": True,
         },
         "providers": sorted(providers, key=lambda item: str(item["id"])),
         "courses": sorted(courses, key=lambda item: str(item["uid"])),
@@ -218,7 +266,7 @@ def publish(site: Path, feed_dir: Path | None = None, today: date | None = None)
     api_dir = site / "api" / "v1"
     api_dir.mkdir(parents=True, exist_ok=True)
     (api_dir / "courses.json").write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+        json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False) + "\n",
         encoding="utf-8",
     )
     return {
