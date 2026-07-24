@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">شعار منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
+  <desc id="desc">علامة هندسية تجمع مسارات مترابطة وشخصًا في المركز للدلالة على المعرفة والدعم والدمج.</desc>
+  <defs>
+    <linearGradient id="bg" x1="52" y1="38" x2="460" y2="474" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#08766f"/>
+      <stop offset="1" stop-color="#6f4bb8"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="120" y1="84" x2="388" y2="430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9be6db"/>
+      <stop offset="1" stop-color="#f4d7e5"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#143f44" flood-opacity=".2"/>
+    </filter>
+  </defs>
+  <rect x="28" y="28" width="456" height="456" rx="132" fill="url(#bg)" filter="url(#shadow)"/>
+  <path d="M157 147c-44 29-70 78-70 130 0 93 75 168 168 168 52 0 101-24 133-65" fill="none" stroke="url(#ring)" stroke-width="34" stroke-linecap="round"/>
+  <path d="M355 365c44-29 70-78 70-130 0-93-75-168-168-168-52 0-101 24-133 65" fill="none" stroke="#fff" stroke-opacity=".92" stroke-width="34" stroke-linecap="round"/>
+  <circle cx="256" cy="198" r="48" fill="#fff"/>
+  <path d="M166 354c16-58 49-88 90-88s74 30 90 88" fill="none" stroke="#fff" stroke-width="42" stroke-linecap="round"/>
+  <path d="M198 315c19 18 38 27 58 27s39-9 58-27" fill="none" stroke="#9be6db" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="120" cy="128" r="18" fill="#f6d66d"/>
+  <circle cx="393" cy="389" r="18" fill="#f6d66d"/>
+</svg>
