@@ -13,11 +13,13 @@ from scripts.verify_daily_tools_v24_core import *  # noqa: F401,F403
 from scripts.publish_verified_public_api_v220 import verify_and_expand_sections
 
 API_SECTION_CONTRACT = 220
+SITE = _core.SITE
 
 
 def main() -> None:
+    _core.SITE = SITE
     _core.main()
-    site = _core.SITE
+    site = SITE
     sections_path = site / "api" / "v1" / "sections.json" if site else None
     if not site or not sections_path or not sections_path.is_file():
         print(
