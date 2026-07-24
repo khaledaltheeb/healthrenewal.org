@@ -22,7 +22,7 @@ jobs:
       EVIDENCE_ISSUE: "187"
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Query post-merge main validation and Pages state v2
+      - name: Query post-merge main validation and Pages state v3
         run: |
           python - <<'PY'
           import json, os, urllib.request
@@ -49,7 +49,7 @@ jobs:
               deployments.append(item)
           live={}
           try:
-              with urllib.request.urlopen('https://khaledaltheeb.github.io/pterminology-site/deployment.json?probe=v214',timeout=30) as response:
+              with urllib.request.urlopen('https://khaledaltheeb.github.io/pterminology-site/deployment.json?probe=v214-3',timeout=30) as response:
                   live=json.loads(response.read().decode('utf-8'))
           except Exception as exc:
               live={'error':repr(exc)}
@@ -57,10 +57,10 @@ jobs:
           Path('/tmp/post-merge-pages-v214.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
           print(json.dumps(report,ensure_ascii=False,indent=2))
           PY
-      - name: Publish post-merge diagnostics
+      - name: Publish post-merge diagnostics v3
         uses: actions/github-script@v7
         with:
           script: |
             const fs=require('fs');
             const report=fs.readFileSync('/tmp/post-merge-pages-v214.json','utf8');
-            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## Post-merge Pages v214 diagnostic — run ${context.runId}\n\n\`\`\`json\n${report}\n\`\`\``});
+            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## Post-merge Pages v214 diagnostic v3 — run ${context.runId}\n\n\`\`\`json\n${report}\n\`\`\``});
