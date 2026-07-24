@@ -13,6 +13,7 @@ SCRIPT = ROOT / "scripts" / "publish_section_directory_v217.py"
 BANNED = (
     "مولدة أثناء البناء", "مولّد أثناء البناء", "لا تظهر في القوائم",
     "خطة العمل", "ما تم إنجازه", "سيتم إنجازه", "قيد التطوير",
+    "قيد الإعداد", "قيد التوسع", "لا نشر قبل البوابات",
 )
 
 
@@ -63,10 +64,17 @@ class SectionDirectoryV217Tests(unittest.TestCase):
     def write_page(self, relative: str, title: str, description: str, nav: bool = False) -> None:
         path = self.temp / relative
         path.parent.mkdir(parents=True, exist_ok=True)
-        navigation = '<nav><a href="encyclopedia/">الموسوعة</a></nav>' if nav else ""
+        navigation = '<nav class="nav"><a href="encyclopedia/">الموسوعة</a></nav>' if nav else ""
+        metadata = (
+            '<meta name="keywords" content="الصحة النفسية,علم النفس,التربية الدامجة">'
+            '<meta property="og:title" content="الرئيسية">'
+            '<meta property="og:description" content="بوابة المنصة">'
+            '<meta name="twitter:title" content="الرئيسية">'
+            '<meta name="twitter:description" content="بوابة المنصة">'
+        ) if nav else ""
         path.write_text(
             '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">'
-            f'<title>{title}</title><meta name="description" content="{description}"></head>'
+            f'<title>{title}</title><meta name="description" content="{description}">{metadata}</head>'
             f'<body>{navigation}<main><h1>{title}</h1><p>{description}</p></main></body></html>',
             encoding="utf-8",
         )
@@ -87,19 +95,39 @@ class SectionDirectoryV217Tests(unittest.TestCase):
         self.assertGreaterEqual(report["html_page_count"], 12)
         self.assertEqual(report["featured_on_home"], 8)
         self.assertTrue(report["operational_copy_absent"])
+        self.assertTrue(report["comparisons_linked"])
+        self.assertTrue(report["library_linked"])
+        self.assertGreaterEqual(report["homepage_keyword_count"], 20)
+        self.assertTrue(all(report["direct_navigation"].values()))
 
         homepage = (self.temp / "index.html").read_text(encoding="utf-8")
         directory = (self.temp / "sections" / "index.html").read_text(encoding="utf-8")
         for marker in (
             'href="sections/"', 'id="institutional-section-directory-v217"',
             'href="encyclopedia/"', 'href="special-needs/"',
-            'href="care-guides/"', 'href="library/"',
+            'href="care-guides/"', 'href="library/"', 'href="comparisons/"',
+            '<title>منصة الصحة النفسية وذوي الاحتياجات الخاصة | موسوعة ومكتبة ومقارنات عربية</title>',
+            'title="دليل أقسام المنصة"',
         ):
             self.assertIn(marker, homepage)
+        nav = re.search(r'<nav class="nav">(.*?)</nav>', homepage, re.S)
+        self.assertIsNotNone(nav)
+        for marker in ('href="comparisons/"', 'href="library/"', 'href="sections/"'):
+            self.assertIn(marker, nav.group(1))
+        keywords = re.search(r'<meta name="keywords" content="([^"]+)"', homepage)
+        self.assertIsNotNone(keywords)
+        keyword_items = [item.strip() for item in keywords.group(1).split(",") if item.strip()]
+        self.assertGreaterEqual(len(keyword_items), 20)
+        self.assertEqual(len(keyword_items), len(set(keyword_items)))
+        self.assertIn("المكتبة الأكاديمية", keyword_items)
+        self.assertIn("مقارنات نفسية", keyword_items)
+
         for marker in (
             '<h1>دليل جميع أقسام المنصة</h1>', 'application/ld+json',
             'name="keywords"', 'property="og:image"', 'name="twitter:image"',
             'href="https://khaledaltheeb.github.io/pterminology-site/encyclopedia/"',
+            'href="https://khaledaltheeb.github.io/pterminology-site/comparisons/"',
+            'href="https://khaledaltheeb.github.io/pterminology-site/library/"',
         ):
             self.assertIn(marker, directory)
         for phrase in BANNED:
@@ -110,9 +138,15 @@ class SectionDirectoryV217Tests(unittest.TestCase):
         self.assertEqual(payload["release"], 217)
         self.assertEqual(payload["section_count"], report["section_count"])
         routes = {item["route"] for item in payload["items"]}
-        self.assertTrue({"encyclopedia/", "special-needs/", "care-guides/", "api/"} <= routes)
+        self.assertTrue({
+            "encyclopedia/", "special-needs/", "care-guides/", "api/",
+            "comparisons/", "library/", "assessment-lab/", "cognitive-lab/",
+        } <= routes)
         encyclopedia = next(item for item in payload["items"] if item["route"] == "encyclopedia/")
         self.assertEqual(encyclopedia["page_count"], 2)
+        comparisons = next(item for item in payload["items"] if item["route"] == "comparisons/")
+        library = next(item for item in payload["items"] if item["route"] == "library/")
+        self.assertTrue(comparisons["featured"] and library["featured"])
 
         openapi = json.loads((self.temp / "api" / "v1" / "openapi.json").read_text(encoding="utf-8"))
         self.assertIn("/api/v1/sections.json", openapi["paths"])
@@ -138,6 +172,11 @@ class SectionDirectoryV217Tests(unittest.TestCase):
         self.assertEqual(sections_before, sections_after)
         self.assertEqual(homepage_after.count('id="institutional-section-directory-v217"'), 1)
         self.assertEqual(homepage_after.count('href="sections/"'), 2)
+        nav = re.search(r'<nav class="nav">(.*?)</nav>', homepage_after, re.S)
+        self.assertIsNotNone(nav)
+        self.assertEqual(nav.group(1).count('href="comparisons/"'), 1)
+        self.assertEqual(nav.group(1).count('href="library/"'), 1)
+        self.assertEqual(nav.group(1).count('href="sections/"'), 1)
         sitemap = (self.temp / "sitemap.xml").read_text(encoding="utf-8")
         self.assertEqual(sitemap.count("sitemap-sections-v217.xml"), 1)
 
