@@ -77,6 +77,49 @@ def expand_description(text: str, page_title: str) -> tuple[str, bool]:
     return text, True
 
 
+def has_meta_key(text: str, key: str, *, attribute: str) -> bool:
+    return bool(
+        re.search(
+            rf'<meta\b[^>]*\b{attribute}\s*=\s*["\']{re.escape(key)}["\'][^>]*>',
+            text,
+            re.I | re.S,
+        )
+    )
+
+
+def inject_social_metadata(text: str, page_title: str) -> tuple[str, int]:
+    description_match = re.search(
+        r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']\s*/?>',
+        text,
+        re.I | re.S,
+    )
+    description = (
+        html.unescape(description_match.group(1)).strip()
+        if description_match
+        else f"{page_title} — محتوى عربي منظم وموثوق."
+    )
+    additions: list[str] = []
+    fields = (
+        ("property", "og:title", page_title),
+        ("property", "og:description", description),
+        ("property", "og:type", "website"),
+        ("name", "twitter:card", "summary"),
+        ("name", "twitter:title", page_title),
+        ("name", "twitter:description", description),
+    )
+    for attribute, key, value in fields:
+        if has_meta_key(text, key, attribute=attribute):
+            continue
+        additions.append(
+            f'<meta {attribute}="{key}" content="{html.escape(value, quote=True)}">'
+        )
+    if not additions:
+        return text, 0
+    if "</head>" not in text:
+        raise SystemExit(f"HTML head is not closed while adding social metadata: {page_title}")
+    return text.replace("</head>", "".join(additions) + "</head>", 1), len(additions)
+
+
 def inject_robots(text: str) -> tuple[str, bool]:
     if re.search(r'<meta\s+name=["\']robots["\']', text, re.I):
         return text, False
@@ -202,13 +245,14 @@ def main() -> None:
     make_icon(512, icons / "icon-512.png")
 
     comparison_titles = fix_duplicate_comparison_titles()
-    stats = {"descriptions": 0, "robots": 0, "inputs": 0, "image_links": 0, "deferred_scripts": 0, "app_links": 0, "comparison_titles": comparison_titles}
+    stats = {"descriptions": 0, "social_metadata": 0, "robots": 0, "inputs": 0, "image_links": 0, "deferred_scripts": 0, "app_links": 0, "comparison_titles": comparison_titles}
     for page in SITE.rglob("*.html"):
         if page.name == VERIFY:
             continue
         text = page.read_text(encoding="utf-8")
         page_title = title_from_html(text)
         text, changed = expand_description(text, page_title); stats["descriptions"] += int(changed)
+        text, count = inject_social_metadata(text, page_title); stats["social_metadata"] += count
         text, changed = inject_robots(text); stats["robots"] += int(changed)
         text, count = label_inputs(text, page_title); stats["inputs"] += count
         text, count = label_image_links(text); stats["image_links"] += count
