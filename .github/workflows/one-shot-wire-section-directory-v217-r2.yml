@@ -1,14 +1,26 @@
-name: One-shot wire section directory v217 r2
+name: Wire section directory v217
 
 on:
-  push:
-    branches: ["agent/institutional-section-directory-v217-r2"]
+  pull_request:
+    branches: ["main"]
     paths:
+      - "scripts/publish_section_directory_v217.py"
+      - "tests/test_section_directory_v217.py"
+      - ".github/workflows/one-shot-wire-section-directory-v217-r2.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_section_directory_v217.py"
+      - "tests/test_section_directory_v217.py"
       - ".github/workflows/one-shot-wire-section-directory-v217-r2.yml"
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: wire-section-directory-v217-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   wire:
@@ -17,7 +29,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: agent/institutional-section-directory-v217-r2
           fetch-depth: 0
 
       - name: Wire directory before sitewide SEO and health gates
@@ -47,13 +58,19 @@ jobs:
           PY
           python -m py_compile scripts/apply_homepage_v20.py scripts/publish_section_directory_v217.py tests/test_section_directory_v217.py
           python -m unittest tests.test_section_directory_v217
-          rm .github/workflows/one-shot-wire-section-directory-v217-r2.yml
+          git diff --check
 
       - name: Commit durable production wiring and remove this workflow
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           set -euxo pipefail
+          rm .github/workflows/one-shot-wire-section-directory-v217-r2.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add scripts/apply_homepage_v20.py scripts/publish_section_directory_v217.py tests/test_section_directory_v217.py .github/workflows/one-shot-wire-section-directory-v217-r2.yml
+          git add scripts/apply_homepage_v20.py .github/workflows/one-shot-wire-section-directory-v217-r2.yml
+          if git diff --cached --quiet; then
+            echo "Section directory wiring is already current."
+            exit 0
+          fi
           git commit -m "ربط دليل الأقسام والمكتبة والمقارنات بخط الإنتاج v217"
-          git push origin HEAD:agent/institutional-section-directory-v217-r2
+          git push origin HEAD:main
