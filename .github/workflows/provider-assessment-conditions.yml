@@ -83,7 +83,7 @@ jobs:
           for (const marker of ['<html lang="ar" dir="rtl"','conditions-grid','condition-search','team-filter','CollectionPage']) if (!index.includes(marker)) throw new Error(`Conditions index missing ${marker}`);
 
           const ui = read('provider-assessment-demo/conditions/conditions-ui-v1.js');
-          for (const marker of ['pa-selected-condition-v1','pa-condition-pathway-history-v1','data-start-condition','?condition=','condition-education-v1.js?v=20260724-content1','data-module = "condition-education-v1"']) if (!ui.includes(marker)) throw new Error(`Condition UI missing ${marker}`);
+          for (const marker of ['pa-selected-condition-v1','pa-condition-pathway-history-v1','data-start-condition','?condition=','condition-education-v1.js?v=20260724-content1','script.dataset.module = "condition-education-v1"']) if (!ui.includes(marker)) throw new Error(`Condition UI missing ${marker}`);
 
           const education = read('provider-assessment-demo/conditions/condition-education-v1.js');
           const typeMarkers = ['المسح أو الفرز','التقييم التشخيصي','التقييم الوظيفي','متابعة التقدم'];
