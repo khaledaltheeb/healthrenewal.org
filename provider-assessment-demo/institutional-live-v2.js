@@ -44,7 +44,7 @@
       card.innerHTML = `
         <li>UID مستقل لكل مستخدم أو مقدم خدمة.</li>
         <li>سجل حالات وجلسات ونتائج متكررة محفوظ محليًا.</li>
-        <li>20 أداة استكشافية أصلية تعمل مباشرة.</li>
+        <li>20 أداة استكشافية أصلية تعمل مباشرة مع متابعة وصفية طولية.</li>
         <li>${count} مقياسًا وفحصًا في دليل الوصول المهني مع حالة حقوق واضحة.</li>
         <li>20 دليل حالة مؤسسيًا مع فريق وحزمة مقاييس وكورس ومخرجات تقرير.</li>
         <li>سجل خدمات ونتائج خارجية دون نسخ بنود أو مفاتيح تصحيح محمية.</li>
@@ -112,6 +112,7 @@
   const loadAssessmentPathways = () => addScript("assessment-pathways-content.js", "assessment-pathways");
   const loadConditionPathways = () => addScript("conditions/conditions-data-v1.js", "condition-pathways", () => addScript("condition-entry-v1.js", "condition-entry"));
   const loadProfessionalTemplates = () => addScript("professional-templates-v1.js", "professional-templates");
+  const loadOriginalProgress = () => addScript("original-tools-progress-v1.js", "original-tools-progress-v1");
   const loadCaseReports = () => addScript("case-report-v1.js", "case-reports", () =>
     addScript("case-report-interpretation-v2.js", "case-report-interpretation-v2", () =>
       addScript("case-report-export-v2.js", "case-report-export-v2")));
@@ -140,6 +141,7 @@
     loadAssessmentPathways();
     loadConditionPathways();
     loadProfessionalTemplates();
+    loadOriginalProgress();
     loadCaseReports();
     refreshOldCaches();
     requestAnimationFrame(() => requestAnimationFrame(() => {
