@@ -1,59 +1,107 @@
 {
-  "apiVersion": "1.0.0",
-  "generatedAt": "2026-07-24",
+  "apiVersion": "1.1.0",
+  "generatedAt": "2026-07-25",
   "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
   "alternateName": "مصطلحات علم النفس",
   "baseUrl": "https://khaledaltheeb.github.io/pterminology-site/",
   "language": "ar",
+  "supportedLanguages": [
+    "ar",
+    "en",
+    "es"
+  ],
   "direction": "rtl",
   "licenseNotice": "تختلف حقوق المحتوى والأدوات والدورات حسب المصدر. لا يُعاد نشر محتوى خارجي أو استيراده إلا بإذن موثق وترخيص متوافق.",
   "disclaimer": "البيانات للتثقيف والتكامل المعلوماتي ولا تثبت تشخيصًا ولا تستبدل التقييم أو العلاج الفردي.",
+  "capabilities": [
+    "content_discovery",
+    "topic_taxonomy",
+    "authorized_course_catalog",
+    "openapi_contract",
+    "course_feed_schema"
+  ],
   "resources": [
     {
       "id": "encyclopedia",
       "type": "collection",
       "title": "الموسوعة النفسية العربية",
       "url": "https://khaledaltheeb.github.io/pterminology-site/encyclopedia/",
-      "tags": ["علم النفس", "الصحة النفسية", "مصطلحات"]
+      "tags": [
+        "علم النفس",
+        "الصحة النفسية",
+        "مصطلحات علم النفس"
+      ]
     },
     {
       "id": "special-needs",
       "type": "collection",
       "title": "ذوو الاحتياجات الخاصة والتربية الدامجة",
       "url": "https://khaledaltheeb.github.io/pterminology-site/special-needs/",
-      "tags": ["التربية الدامجة", "التدخل المبكر", "الدعم الأسري"]
+      "tags": [
+        "الأشخاص ذوو الاحتياجات الخاصة",
+        "التربية الدامجة",
+        "التدخل المبكر"
+      ]
     },
     {
       "id": "care-guides",
       "type": "collection",
       "title": "أدلة التعامل العملي",
       "url": "https://khaledaltheeb.github.io/pterminology-site/care-guides/",
-      "tags": ["أدلة عملية", "الأسرة", "مقدم الخدمة"]
+      "tags": [
+        "أدلة التعامل",
+        "الدعم الأسري",
+        "مقدم الخدمة"
+      ]
     },
     {
       "id": "assessment",
       "type": "application",
       "title": "منصة التقييم والاستكشاف",
       "url": "https://khaledaltheeb.github.io/pterminology-site/provider-assessment-demo/",
-      "tags": ["التقييم", "الاستكشاف", "التقارير"]
+      "tags": [
+        "التقييم النفسي",
+        "الاستكشاف المهني",
+        "التقارير"
+      ]
     },
     {
       "id": "magazine",
       "type": "collection",
       "title": "المجلة والأبحاث",
       "url": "https://khaledaltheeb.github.io/pterminology-site/magazine/",
-      "tags": ["أبحاث", "دراسات", "تحليل"]
+      "tags": [
+        "أبحاث الصحة النفسية",
+        "دراسات علم النفس",
+        "تحليل الأدلة"
+      ]
     }
   ],
   "endpoints": {
     "platform": "https://khaledaltheeb.github.io/pterminology-site/api/v1/platform.json",
     "openapi": "https://khaledaltheeb.github.io/pterminology-site/api/v1/openapi.json",
+    "contentIndex": "https://khaledaltheeb.github.io/pterminology-site/api/v1/content-index.json",
+    "taxonomy": "https://khaledaltheeb.github.io/pterminology-site/api/v1/taxonomy.json",
+    "courses": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.json",
     "courseSchema": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.schema.json",
     "courseExample": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.example.json"
   },
   "integrationPolicy": {
     "externalCourseImport": "permission_required",
-    "requiredEvidence": ["source authorization", "content license", "provider identity", "canonical source URL"],
-    "prohibited": ["circumventing access controls", "copying protected course materials", "removing attribution", "publishing unverified provider claims"]
+    "metadataOnlyByDefault": true,
+    "requiredEvidence": [
+      "source authorization",
+      "content license",
+      "provider identity",
+      "canonical source URL",
+      "authorization validity date"
+    ],
+    "prohibited": [
+      "circumventing access controls",
+      "copying protected course materials",
+      "removing attribution",
+      "publishing unverified provider claims",
+      "exposing personal or clinical records"
+    ]
   }
 }
