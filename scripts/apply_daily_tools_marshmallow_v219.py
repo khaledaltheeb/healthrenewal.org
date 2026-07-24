@@ -10,6 +10,7 @@ from pathlib import Path
 from publish_daily_tools_v24 import (
     BASE,
     DESIGN_CONTRACT,
+    FOUNDING_NAME,
     LOGO,
     MANIFEST,
     SEARCH,
@@ -56,12 +57,44 @@ def first_group(text: str, pattern: str, label: str) -> str:
     return html.unescape(match.group(1)).strip()
 
 
-def add_head_once(text: str, identity: str, tag: str) -> str:
-    if identity in text:
-        return text
+def add_head_once(text: str, tag: str) -> str:
     if "</head>" not in text:
         raise SystemExit("Sleep-log head is not closed")
     return text.replace("</head>", tag + "</head>", 1)
+
+
+def upsert_head_tag(text: str, identity: str, tag: str) -> str:
+    pattern = re.compile(rf'<(?:meta|link)\b(?=[^>]*{re.escape(identity)})[^>]*>', re.I)
+    matches = list(pattern.finditer(text))
+    if len(matches) > 1:
+        raise SystemExit(f"Duplicate sleep-log metadata before normalization: {identity}")
+    if matches:
+        match = matches[0]
+        return text[: match.start()] + tag + text[match.end() :]
+    return add_head_once(text, tag)
+
+
+def normalize_title(text: str, raw_title: str) -> tuple[str, str, str]:
+    base_title = re.sub(
+        rf"\s*\|\s*(?:{re.escape(FOUNDING_NAME)}|{re.escape(SITE_NAME)})\s*$",
+        "",
+        raw_title,
+        flags=re.I,
+    ).strip()
+    if not base_title:
+        raise SystemExit("Sleep-log base title is empty")
+    institutional_title = f"{base_title} | {SITE_NAME}"
+    replacement = f"<title>{html.escape(institutional_title)}</title>"
+    text, count = re.subn(
+        r"<title\b[^>]*>.*?</title>",
+        replacement,
+        text,
+        count=1,
+        flags=re.I | re.S,
+    )
+    if count != 1:
+        raise SystemExit("Sleep-log title normalization failed")
+    return text, base_title, institutional_title
 
 
 def normalize_html_contract(text: str) -> str:
@@ -81,7 +114,7 @@ def normalize_html_contract(text: str) -> str:
 
 
 def enrich_metadata(text: str) -> str:
-    title = first_group(text, r"<title\b[^>]*>(.*?)</title>", "title")
+    raw_title = first_group(text, r"<title\b[^>]*>(.*?)</title>", "title")
     description = first_group(
         text,
         r'<meta\b[^>]*\bname="description"[^>]*\bcontent="([^"]*)"[^>]*>',
@@ -92,10 +125,15 @@ def enrich_metadata(text: str) -> str:
         r'<link\b[^>]*\brel="canonical"[^>]*\bhref="([^"]+)"[^>]*>',
         "canonical",
     )
+    text, base_title, title = normalize_title(text, raw_title)
     image_alt = f"هوية {SITE_NAME} — سجل النوم المحلي"
-    keywords = ",".join(topic_keywords(title, description, canonical))
+    keyword_items = topic_keywords(base_title, description, canonical)
+    if not 4 <= len(keyword_items) <= 8 or len(keyword_items) != len(set(keyword_items)):
+        raise SystemExit(f"Invalid sleep-log topic keyword set: {keyword_items}")
+    keywords = ",".join(keyword_items)
 
     tags = (
+        ('rel="canonical"', f'<link rel="canonical" href="{html.escape(canonical, quote=True)}">'),
         ('name="keywords"', f'<meta name="keywords" content="{html.escape(keywords, quote=True)}">'),
         ('name="author"', f'<meta name="author" content="{html.escape(SITE_NAME, quote=True)}">'),
         ('name="application-name"', f'<meta name="application-name" content="{html.escape(SITE_NAME, quote=True)}">'),
@@ -109,7 +147,12 @@ def enrich_metadata(text: str) -> str:
         ('rel="apple-touch-icon"', f'<link rel="apple-touch-icon" href="{LOGO}">'),
         ('rel="search"', f'<link rel="search" type="application/opensearchdescription+xml" title="البحث في المنصة" href="{SEARCH}">'),
         ('rel="sitemap"', f'<link rel="sitemap" type="application/xml" href="{BASE}sitemap.xml">'),
+        ('property="og:type"', '<meta property="og:type" content="website">'),
+        ('property="og:locale"', '<meta property="og:locale" content="ar_AR">'),
         ('property="og:site_name"', f'<meta property="og:site_name" content="{html.escape(SITE_NAME, quote=True)}">'),
+        ('property="og:title"', f'<meta property="og:title" content="{html.escape(title, quote=True)}">'),
+        ('property="og:description"', f'<meta property="og:description" content="{html.escape(description, quote=True)}">'),
+        ('property="og:url"', f'<meta property="og:url" content="{html.escape(canonical, quote=True)}">'),
         ('property="og:image"', f'<meta property="og:image" content="{SOCIAL_IMAGE}">'),
         ('property="og:image:alt"', f'<meta property="og:image:alt" content="{html.escape(image_alt, quote=True)}">'),
         ('name="twitter:card"', '<meta name="twitter:card" content="summary_large_image">'),
@@ -119,42 +162,111 @@ def enrich_metadata(text: str) -> str:
         ('name="twitter:image:alt"', f'<meta name="twitter:image:alt" content="{html.escape(image_alt, quote=True)}">'),
     )
     for identity, tag in tags:
-        text = add_head_once(text, identity, tag)
+        text = upsert_head_tag(text, identity, tag)
 
-    if 'type="application/ld+json"' not in text:
-        schema = json.dumps(
-            {
-                "@context": "https://schema.org",
-                "@graph": [
-                    {
-                        "@type": "WebApplication",
-                        "name": "سجل النوم المحلي",
-                        "description": description,
-                        "applicationCategory": "HealthApplication",
-                        "operatingSystem": "Any",
-                        "inLanguage": "ar",
-                        "url": canonical,
-                        "isAccessibleForFree": True,
+    schema = json.dumps(
+        {
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "WebApplication",
+                    "name": base_title,
+                    "description": description,
+                    "applicationCategory": "HealthApplication",
+                    "operatingSystem": "Any",
+                    "inLanguage": "ar",
+                    "url": canonical,
+                    "isAccessibleForFree": True,
+                    "publisher": {
+                        "@type": "Organization",
+                        "name": SITE_NAME,
+                        "alternateName": FOUNDING_NAME,
+                        "url": BASE,
                     },
-                    {
-                        "@type": "WebPage",
-                        "name": title,
-                        "description": description,
-                        "inLanguage": "ar",
-                        "url": canonical,
-                        "isPartOf": {"@type": "WebSite", "name": SITE_NAME, "url": BASE},
+                },
+                {
+                    "@type": "WebPage",
+                    "name": title,
+                    "description": description,
+                    "inLanguage": "ar",
+                    "url": canonical,
+                    "isPartOf": {
+                        "@type": "WebSite",
+                        "name": SITE_NAME,
+                        "alternateName": FOUNDING_NAME,
+                        "url": BASE,
                     },
-                ],
-            },
-            ensure_ascii=False,
-            separators=(",", ":"),
-        ).replace("</", "<\\/")
-        text = add_head_once(
-            text,
-            'type="application/ld+json"',
-            f'<script type="application/ld+json">{schema}</script>',
-        )
+                },
+            ],
+        },
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ).replace("</", "<\\/")
+    script_pattern = re.compile(
+        r'<script\b[^>]*type="application/ld\+json"[^>]*>.*?</script>',
+        re.I | re.S,
+    )
+    scripts = list(script_pattern.finditer(text))
+    script_tag = f'<script type="application/ld+json">{schema}</script>'
+    if len(scripts) > 1:
+        raise SystemExit("Duplicate sleep-log JSON-LD blocks before normalization")
+    if scripts:
+        match = scripts[0]
+        text = text[: match.start()] + script_tag + text[match.end() :]
+    else:
+        text = add_head_once(text, script_tag)
     return text
+
+
+def validate_metadata(text: str) -> None:
+    head_match = re.search(r"<head\b[^>]*>(.*?)</head>", text, re.I | re.S)
+    if not head_match:
+        raise SystemExit("Sleep-log head is missing after normalization")
+    head = head_match.group(1)
+    required = (
+        f'data-design="marshmallow-v{DESIGN_CONTRACT}"',
+        f'data-seo="institutional-v{SEO_CONTRACT}"',
+        'name="keywords"',
+        'name="robots"',
+        'rel="manifest"',
+        'rel="icon"',
+        'rel="search"',
+        'rel="sitemap"',
+        'property="og:image"',
+        'name="twitter:card"',
+        'name="twitter:image"',
+        'type="application/ld+json"',
+        SITE_NAME,
+    )
+    missing = [
+        marker for marker in required
+        if marker not in (text if marker.startswith("data-") else head)
+    ]
+    if missing:
+        raise SystemExit(f"Missing post-publication contract markers: {missing}")
+    for marker in (
+        '<title',
+        '<meta name="description"',
+        '<meta name="keywords"',
+        '<link rel="canonical"',
+        '<meta property="og:title"',
+        '<meta property="og:url"',
+        '<meta property="og:image"',
+        '<meta name="twitter:card"',
+        '<script type="application/ld+json"',
+    ):
+        if head.count(marker) != 1:
+            raise SystemExit(f"Sleep-log head metadata must occur exactly once: {marker}")
+    keyword_value = first_group(
+        head,
+        r'<meta\b[^>]*\bname="keywords"[^>]*\bcontent="([^"]*)"[^>]*>',
+        "keywords",
+    )
+    keywords = [item.strip() for item in keyword_value.split(",") if item.strip()]
+    if not 4 <= len(keywords) <= 8 or len(keywords) != len(set(keywords)):
+        raise SystemExit(f"Sleep-log keyword contract failed: {keywords}")
+    if f"| {FOUNDING_NAME}</title>" in head:
+        raise SystemExit("Founding name remains the primary sleep-log title identity")
 
 
 def main() -> None:
@@ -192,14 +304,10 @@ def main() -> None:
         "--lilac:#f2edff",
         "--peach:#fff0e8",
         "--butter:#fff8d8",
-        f'data-design="marshmallow-v{DESIGN_CONTRACT}"',
-        f'data-seo="institutional-v{SEO_CONTRACT}"',
-        'name="twitter:card"',
-        'property="og:image"',
-        'type="application/ld+json"',
     ):
         if marker not in text:
-            raise SystemExit(f"Missing post-publication contract marker: {marker}")
+            raise SystemExit(f"Missing marshmallow palette marker: {marker}")
+    validate_metadata(text)
 
     TARGET.write_text(text, encoding="utf-8")
     print(
@@ -207,6 +315,7 @@ def main() -> None:
             "status": "passed",
             "design_contract": DESIGN_CONTRACT,
             "seo_contract": SEO_CONTRACT,
+            "institutional_identity": SITE_NAME,
             "page": TARGET.relative_to(SITE).as_posix(),
         }
     )
