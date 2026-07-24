@@ -36,6 +36,12 @@ jobs:
           node --check provider-assessment-demo/professional-record-integrity.js
           node --check provider-assessment-demo/backup-integrity.js
           node --check provider-assessment-demo/backup-large-file-patch.js
+          node --check provider-assessment-demo/conditions/conditions-data-v1.js
+          node --check provider-assessment-demo/condition-entry-v1.js
+          node --check provider-assessment-demo/professional-templates-v1.js
+          node --check provider-assessment-demo/case-report-v1.js
+          node --check provider-assessment-demo/case-report-interpretation-v2.js
+
       - name: Validate operational registry and release assets
         run: |
           node <<'NODE'
@@ -46,13 +52,16 @@ jobs:
             'index.html','catalog.js','catalog-extra.js','professional-master-registry.js',
             'catalog-operational-v2.js','app.js','activation.js','activation-guard.js',
             'professional-record-lifecycle.js','professional-record-integrity.js','backup-integrity.js',
-            'backup-large-file-patch.js','enhancements.js','institutional-live-v2.js','sw-live-v2.js'
+            'backup-large-file-patch.js','enhancements.js','conditions/conditions-data-v1.js',
+            'condition-entry-v1.js','professional-templates-v1.js','case-report-v1.js',
+            'case-report-interpretation-v2.js','institutional-live-v2.js','sw-live-v2.js'
           ];
           for (const file of required) if (!fs.existsSync(base + file)) throw new Error(`Missing ${file}`);
           const html = fs.readFileSync(base + 'index.html','utf8');
           for (const marker of [
-            '2026.07.24-live.2','catalog-operational-v2.js?v=20260724-live2',
-            'institutional-live-v2.js?v=20260724-live2','المقاييس والفحوص والبروتوكولات المهنية الفعّالة'
+            '<html lang="ar" dir="rtl"','2026.07.24-live.7','catalog-operational-v2.js?v=20260724-live7',
+            'case-report-v1.js?v=20260724-live7','case-report-interpretation-v2.js?v=20260724-live7',
+            'institutional-live-v2.js?v=20260724-live7','المقاييس والفحوص والبروتوكولات المهنية الفعّالة'
           ]) if (!html.includes(marker)) throw new Error(`Missing live marker ${marker}`);
           for (const forbidden of ['مقفل','دليل فقط','النسخة التجريبية المنشورة']) {
             if (html.includes(forbidden)) throw new Error(`Forbidden stale UI text: ${forbidden}`);
@@ -68,16 +77,21 @@ jobs:
           if (data.professional.some(item => !item.operational)) throw new Error('Non-operational professional entries remain');
           if (data.professional.some(item => item.status === 'locked')) throw new Error('Locked source registry states remain');
           if (data.professional.some(item => !['workflow','external'].includes(item.status))) throw new Error('Unexpected source registry status remains');
-          console.log({explorers:data.explorers.length, professional:data.professional.length, release:context.window.PA_OPERATIONAL_RELEASE});
+          const conditionContext = { window: {} };
+          vm.runInNewContext(fs.readFileSync(base + 'conditions/conditions-data-v1.js','utf8'), conditionContext);
+          if (conditionContext.window.PA_CONDITION_PATHWAYS?.conditions?.length !== 20) throw new Error('Twenty-condition registry missing');
+          console.log({explorers:data.explorers.length, professional:data.professional.length, conditions:20, release:'2026.07.24-live.7'});
           NODE
-      - name: Validate UID, rights, audit, and backup-integrity contracts
+
+      - name: Validate UID, rights, audit, backup and report contracts
         run: |
           python - <<'PY'
           from pathlib import Path
           files = [
               'app.js','activation.js','activation-guard.js','institutional-live-v2.js',
               'professional-record-lifecycle.js','professional-record-integrity.js',
-              'backup-integrity.js','backup-large-file-patch.js'
+              'backup-integrity.js','backup-large-file-patch.js','condition-entry-v1.js',
+              'professional-templates-v1.js','case-report-v1.js','case-report-interpretation-v2.js'
           ]
           text='\n'.join(Path('provider-assessment-demo',p).read_text(encoding='utf-8') for p in files)
           required=[
@@ -90,7 +104,10 @@ jobs:
               'pa-demo-uid-backup-encrypted-v1','PBKDF2_ITERATIONS','AES-GCM',
               'SHA-256','stableStringify','integrity_mismatch','createRollbackSnapshot',
               'conflictReport','transferConfirmation','importHistory','backup-integrity.js?v=20260724-backup1',
-              'backup-large-file-patch.js?v=20260724-backup2','CHUNK_SIZE','bytesToBase64Chunked'
+              'backup-large-file-patch.js?v=20260724-backup2','CHUNK_SIZE','bytesToBase64Chunked',
+              'case-report-interpretation-v2.js','PA_REPORT_INTERPRETATION_CONTRACT',
+              'assessmentType','resultValidity','interpretationLimitations','baselineIndicator',
+              'measurableGoal','remeasurementDate','familySummary','reviewAuditTrail','supersedesReportId'
           ]
           missing=[x for x in required if x not in text]
           if missing: raise SystemExit({'missing':missing})
@@ -107,10 +124,13 @@ jobs:
           backup=Path('provider-assessment-demo/backup-integrity.js').read_text(encoding='utf-8')
           for gate in ['payload.integrity?.digest','actual !== expected','sourceUid !== identity.uid','typed !== identity.uid','createRollbackSnapshot()','mode === "merge"']:
               if gate not in backup: raise SystemExit({'missing_backup_gate':gate})
+          report=Path('provider-assessment-demo/case-report-interpretation-v2.js').read_text(encoding='utf-8')
+          for gate in ['data.assessmentType === "screening"','form.reportValidity()','form.elements.reportId.value = ""','computeChangedFields','reviewAuditTrail','external-results-and-official-integrations-only-for-protected-instruments']:
+              if gate not in report: raise SystemExit({'missing_report_gate':gate})
           patch=Path('provider-assessment-demo/backup-large-file-patch.js').read_text(encoding='utf-8')
           if 'String.fromCharCode(...bytes)' in patch:
               raise SystemExit('Large encrypted backup patch still spreads the full byte array')
           for gate in ['CHUNK_SIZE = 0x8000','bytes.subarray(offset','event.stopImmediatePropagation()','crypto.subtle.encrypt']:
               if gate not in patch: raise SystemExit({'missing_large_backup_gate':gate})
-          print({'uid':'isolated','rights':'gated','lifecycle':'audited','metadata_edits':'audited','backup_digest':'sha256','backup_encryption':'aes-gcm','large_backup_encoding':'chunked','import_preview':'required','uid_transfer':'explicit','rollback':'enabled'})
+          print({'uid':'isolated','rights':'gated','lifecycle':'audited','metadata_edits':'audited','backup_digest':'sha256','report_types':4,'report_revisions':'immutable','family_summary':'required_for_reviewed','release':'live.7'})
           PY

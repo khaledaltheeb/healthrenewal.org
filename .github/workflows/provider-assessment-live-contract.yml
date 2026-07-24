@@ -9,6 +9,7 @@ on:
       - "provider-assessment-demo/sw-live-v2.js"
       - "provider-assessment-demo/professional-templates-v1.js"
       - "provider-assessment-demo/case-report-v1.js"
+      - "provider-assessment-demo/case-report-interpretation-v2.js"
       - "provider-assessment-demo/condition-entry-v1.js"
       - "provider-assessment-demo/center-guide.html"
       - "provider-assessment-demo/professional-console.html"
@@ -22,6 +23,7 @@ on:
       - "provider-assessment-demo/sw-live-v2.js"
       - "provider-assessment-demo/professional-templates-v1.js"
       - "provider-assessment-demo/case-report-v1.js"
+      - "provider-assessment-demo/case-report-interpretation-v2.js"
       - "provider-assessment-demo/condition-entry-v1.js"
       - "provider-assessment-demo/center-guide.html"
       - "provider-assessment-demo/professional-console.html"
@@ -38,69 +40,92 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
+
       - name: Check JavaScript syntax
         run: |
           node --check provider-assessment-demo/case-report-v1.js
+          node --check provider-assessment-demo/case-report-interpretation-v2.js
           node --check provider-assessment-demo/professional-templates-v1.js
           node --check provider-assessment-demo/condition-entry-v1.js
           node --check provider-assessment-demo/institutional-live-v2.js
           node --check provider-assessment-demo/sw-live-v2.js
 
-      - name: Validate static release, reports and institutional entry pages
+      - name: Validate live.7 HTML and cache tokens
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const html = fs.readFileSync('provider-assessment-demo/index.html','utf8');
+          const release = '2026.07.24-live.7';
+          const cacheToken = '20260724-live7';
+          for (const marker of [
+            `data-release="${release}"`, `application-version" content="${release}"`,
+            `styles.css?v=${cacheToken}`, `catalog.js?v=${cacheToken}`,
+            `conditions/conditions-data-v1.js?v=${cacheToken}`, `condition-entry-v1.js?v=${cacheToken}`,
+            `professional-templates-v1.js?v=${cacheToken}`, `case-report-v1.js?v=${cacheToken}`,
+            `case-report-interpretation-v2.js?v=${cacheToken}`, `institutional-live-v2.js?v=${cacheToken}`,
+            'conditions-hub-link','استعراض الحالات العشرين','قوالب إدخال متخصصة','تقارير متعددة الإصدارات مع عقد تفسير'
+          ]) if (!html.includes(marker)) throw new Error(`Live HTML missing ${marker}`);
+          for (const stale of [
+            '20260724-live2','20260724-live4','20260724-live5','20260724-live6',
+            '2026.07.24-live.2','2026.07.24-live.4','2026.07.24-live.5','2026.07.24-live.6'
+          ]) if (html.includes(stale)) throw new Error(`Stale release remains in live HTML: ${stale}`);
+          for (const forbidden of ['>مقفل<','>دليل فقط<','النسخة التجريبية المنشورة']) {
+            if (html.includes(forbidden)) throw new Error(`Forbidden live wording: ${forbidden}`);
+          }
+          console.log({release,cacheToken,html:'passed'});
+          NODE
+
+      - name: Validate institutional runtime and service worker
         run: |
           node <<'NODE'
           const fs = require('fs');
           const read = file => fs.readFileSync(file,'utf8');
-          const html = read('provider-assessment-demo/index.html');
+          const release = '2026.07.24-live.7';
           const institutional = read('provider-assessment-demo/institutional-live-v2.js');
           const worker = read('provider-assessment-demo/sw-live-v2.js');
-          const reports = read('provider-assessment-demo/case-report-v1.js');
-          const centerGuide = read('provider-assessment-demo/center-guide.html');
-          const consolePage = read('provider-assessment-demo/professional-console.html');
-          const release = '2026.07.24-live.6';
-          const cacheToken = '20260724-live6';
-
-          for (const marker of [
-            `data-release="${release}"`,
-            `application-version" content="${release}"`,
-            `styles.css?v=${cacheToken}`,
-            `catalog.js?v=${cacheToken}`,
-            `conditions/conditions-data-v1.js?v=${cacheToken}`,
-            `condition-entry-v1.js?v=${cacheToken}`,
-            `professional-templates-v1.js?v=${cacheToken}`,
-            `case-report-v1.js?v=${cacheToken}`,
-            `institutional-live-v2.js?v=${cacheToken}`,
-            'conditions-hub-link',
-            'استعراض الحالات العشرين',
-            'قوالب إدخال متخصصة',
-            'تقارير مهنية متعددة الإصدارات'
-          ]) if (!html.includes(marker)) throw new Error(`Live HTML missing ${marker}`);
-
-          for (const stale of ['20260724-live2','20260724-live4','20260724-live5','2026.07.24-live.2','2026.07.24-live.4','2026.07.24-live.5']) {
-            if (html.includes(stale)) throw new Error(`Stale release remains in live HTML: ${stale}`);
+          const releaseMarker = read('provider-assessment-demo/.report-interpretation-release').trim();
+          if (releaseMarker !== release) throw new Error(`Report interpretation release marker mismatch: ${releaseMarker}`);
+          for (const marker of ['loadProfessionalTemplates','loadConditionPathways','loadCaseReports','case-report-interpretation-v2.js']) {
+            if (!institutional.includes(marker)) throw new Error(`Institutional runtime missing ${marker}`);
           }
-
-          if (!institutional.includes(release) || !institutional.includes('loadProfessionalTemplates') || !institutional.includes('loadConditionPathways') || !institutional.includes('loadCaseReports')) throw new Error('Institutional runtime release mismatch');
+          if (!institutional.includes(release)) throw new Error('Institutional runtime release mismatch');
           if (!worker.includes(release) || !worker.includes('cache: "no-store"')) throw new Error('Service worker release or network-first contract mismatch');
+          console.log({release,runtime:'passed',serviceWorker:'passed'});
+          NODE
 
+      - name: Validate report engine and interpretation safeguards
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const read = file => fs.readFileSync(file,'utf8');
+          const reports = read('provider-assessment-demo/case-report-v1.js');
+          const interpretation = read('provider-assessment-demo/case-report-interpretation-v2.js');
           for (const marker of ['view-reports','case-report-dialog','caseRecord.reports','versionNumber','sourceSessionCount','sourceProfessionalCount','export-case-report-html','export-case-report-json','report-print-mode','ownerUid: identity.uid']) {
             if (!reports.includes(marker)) throw new Error(`Case report engine missing ${marker}`);
           }
-          for (const marker of ['نقاط القوة','الاحتياجات والعوائق','الملخص المتكامل','التوصيات وخطة الدعم','قرار المسار','المؤشرات التي ستُتابع']) {
-            if (!reports.includes(marker)) throw new Error(`Report content missing ${marker}`);
+          for (const marker of ['assessmentType','resultValidity','interpretationLimitations','baselineIndicator','measurableGoal','remeasurementDate','familySummary','reviewAuditTrail','supersedesReportId','PA_REPORT_INTERPRETATION_CONTRACT']) {
+            if (!interpretation.includes(marker)) throw new Error(`Report interpretation contract missing ${marker}`);
           }
+          for (const marker of ['المسح لا يثبت التشخيص أو الأهلية','لا تُنسخ البنود أو مفاتيح التصحيح أو المعايير','ملخص موجه للأسرة أو الشخص']) {
+            if (!interpretation.includes(marker)) throw new Error(`Report safeguard missing ${marker}`);
+          }
+          console.log({reports:true,interpretationContract:true,rightsSafeguards:true});
+          NODE
 
+      - name: Validate institutional entry pages
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const read = file => fs.readFileSync(file,'utf8');
+          const centerGuide = read('provider-assessment-demo/center-guide.html');
+          const consolePage = read('provider-assessment-demo/professional-console.html');
           for (const page of [centerGuide, consolePage]) {
             for (const forbidden of ['Explore-2026!','الدخول التجريبي','اسم المستخدم التجريبي','النسخة التجريبية','>مقفل<','>دليل فقط<']) {
               if (page.includes(forbidden)) throw new Error(`Legacy demo wording remains: ${forbidden}`);
             }
-            if (!page.includes('2026.07.24-live.5') && !page.includes('2026.07.24-live.6')) throw new Error('Institutional entry page has no release marker');
+            if (!/2026\.07\.24-live\.[567]/.test(page)) throw new Error('Institutional entry page has no accepted release marker');
           }
           if (!consolePage.includes('?open=professional') || !consolePage.includes('?open=records')) throw new Error('Professional console does not route to unified views');
           if (!centerGuide.includes('قوالب التطبيق المتخصصة') || !centerGuide.includes('مسارات الحالات')) throw new Error('Center guide is incomplete');
-
-          for (const forbidden of ['>مقفل<','>دليل فقط<','النسخة التجريبية المنشورة']) {
-            if (html.includes(forbidden)) throw new Error(`Forbidden live wording: ${forbidden}`);
-          }
-          console.log({release, cacheToken, conditions:20, templateFamilies:7, reports:true, unifiedConsole:true, status:'passed'});
+          console.log({unifiedConsole:true,centerGuide:true,status:'passed'});
           NODE

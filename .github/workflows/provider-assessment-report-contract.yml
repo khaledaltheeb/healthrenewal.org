@@ -1,0 +1,105 @@
+name: Validate Provider Assessment Report Contract
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/case-report-v1.js"
+      - "provider-assessment-demo/case-report-interpretation-v2.js"
+      - "provider-assessment-demo/case-report-export-v2.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/index.html"
+      - ".github/workflows/provider-assessment-report-contract.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/case-report-v1.js"
+      - "provider-assessment-demo/case-report-interpretation-v2.js"
+      - "provider-assessment-demo/case-report-export-v2.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/index.html"
+      - ".github/workflows/provider-assessment-report-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-assessment-report-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-report-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check report JavaScript syntax
+        run: |
+          node --check provider-assessment-demo/case-report-v1.js
+          node --check provider-assessment-demo/case-report-interpretation-v2.js
+          node --check provider-assessment-demo/case-report-export-v2.js
+          node --check provider-assessment-demo/institutional-live-v2.js
+
+      - name: Validate report fields and assessment types
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          base=Path('provider-assessment-demo')
+          core=(base/'case-report-v1.js').read_text(encoding='utf-8')
+          interpretation=(base/'case-report-interpretation-v2.js').read_text(encoding='utf-8')
+          for marker in ['view-reports','case-report-dialog','caseRecord.reports','versionNumber','export-case-report-html','export-case-report-json']:
+              if marker not in core: raise SystemExit({'base_report_missing':marker})
+          fields=[
+              'assessmentType','evidenceSources','decisionAuthority','functionalContexts','resultValidity',
+              'interpretationLimitations','baselineIndicator','measurementMethod','measurableGoal',
+              'remeasurementDate','providerInterpretation','familySummary','revisionReason',
+              'supersedesReportId','sourceVersionNumber','reviewAuditTrail','interpretationContractVersion'
+          ]
+          missing=[marker for marker in fields if marker not in interpretation]
+          if missing: raise SystemExit({'interpretation_fields_missing':missing})
+          for marker in ['screening','diagnostic','functional','progress']:
+              if marker not in interpretation: raise SystemExit({'assessment_type_missing':marker})
+          print({'assessment_types':4,'core_fields':len(fields),'status':'passed'})
+          PY
+
+      - name: Validate immutable revisions, family summary and rights gates
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text=Path('provider-assessment-demo/case-report-interpretation-v2.js').read_text(encoding='utf-8')
+          gates=[
+              'data.assessmentType === "screening"','form.reportValidity()',
+              'form.elements.reportId.value = ""','computeChangedFields','reviewAuditTrail',
+              'supersedesReportId','required-by-contract','data-screening-confirmation',
+              'الملخص الموجه للأسرة مطلوب قبل اعتماد التقرير كمراجع أو نهائي',
+              'لا يثبت التشخيص أو الأهلية','لا تُنسخ البنود أو مفاتيح التصحيح أو المعايير',
+              'external-results-and-official-integrations-only-for-protected-instruments',
+              'PA_REPORT_INTERPRETATION_CONTRACT'
+          ]
+          missing=[gate for gate in gates if gate not in text]
+          if missing: raise SystemExit({'report_gate_missing':missing})
+          print({'immutable_revisions':True,'family_summary':True,'screening_overclaim_blocked':True,'rights_gated':True})
+          PY
+
+      - name: Validate complete HTML export and offline behavior
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          export=Path('provider-assessment-demo/case-report-export-v2.js').read_text(encoding='utf-8')
+          institutional=Path('provider-assessment-demo/institutional-live-v2.js').read_text(encoding='utf-8')
+          required=[
+              'data-report-preview','data-report-contract-sections','article.outerHTML',
+              'family-facing-summary','report-audit-list','export-case-report-html',
+              'PA_CASE_REPORT_EXPORT_V2','includesInterpretationContract: true',
+              'includesFamilySummary: true','includesReviewAudit: true','networkTransfer: false'
+          ]
+          missing=[marker for marker in required if marker not in export]
+          if missing: raise SystemExit({'complete_export_missing':missing})
+          if 'case-report-export-v2.js' not in institutional: raise SystemExit('Complete report export is not wired')
+          combined=export+'\n'+Path('provider-assessment-demo/case-report-interpretation-v2.js').read_text(encoding='utf-8')
+          for token in ['fetch(','XMLHttpRequest','WebSocket','sendBeacon(','EventSource(','eval(','new Function(']:
+              if token in combined: raise SystemExit({'unsafe_or_network_api':token})
+          print({'html_export':'complete','offline':True,'audit_included':True,'family_summary_included':True})
+          PY
