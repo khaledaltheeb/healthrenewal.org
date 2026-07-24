@@ -59,6 +59,63 @@ def verify_boolean_attribute_contract(module) -> None:
         )
 
 
+def install_accessible_anchor_parser(module):
+    """Upgrade legacy empty-link detection to use the accessible-name inputs it omitted."""
+    legacy_parser = module.AuditParser
+
+    class AccessibleAuditParser(legacy_parser):
+        def __init__(self) -> None:
+            super().__init__()
+            self._accessible_anchor_stack: list[dict[str, object]] = []
+
+        def handle_starttag(self, tag, attrs) -> None:
+            values = dict(attrs)
+            if tag == "a":
+                self._accessible_anchor_stack.append({"attrs": values, "image_alts": []})
+            elif tag == "img" and self._accessible_anchor_stack:
+                alt = values.get("alt")
+                if alt:
+                    self._accessible_anchor_stack[-1]["image_alts"].append(str(alt))
+            super().handle_starttag(tag, attrs)
+
+        def handle_endtag(self, tag: str) -> None:
+            super().handle_endtag(tag)
+            if tag != "a" or not self._accessible_anchor_stack or not self.anchor_texts:
+                return
+            record = self._accessible_anchor_stack.pop()
+            if self.anchor_texts[-1]:
+                return
+            attrs = record["attrs"]
+            image_alts = record["image_alts"]
+            accessible_name = (
+                attrs.get("aria-label")
+                or (f"aria-labelledby:{attrs['aria-labelledby']}" if attrs.get("aria-labelledby") else "")
+                or attrs.get("title")
+                or " ".join(image_alts)
+            )
+            if accessible_name:
+                self.anchor_texts[-1] = str(accessible_name).strip()
+
+    module.AuditParser = AccessibleAuditParser
+    return AccessibleAuditParser
+
+
+def verify_accessible_link_contract(parser_class) -> None:
+    parser = parser_class()
+    parser.feed(
+        '<a href="/text">رابط نصي</a>'
+        '<a href="/aria" aria-label="الرئيسية"></a>'
+        '<a href="/labelled" aria-labelledby="label-id"></a>'
+        '<a href="/title" title="الدليل"></a>'
+        '<a href="/image"><img src="logo.png" alt="شعار المنصة"></a>'
+        '<a href="/unnamed"></a>'
+    )
+    observed = [bool(value.strip()) for value in parser.anchor_texts]
+    expected = [True, True, True, True, True, False]
+    if observed != expected:
+        raise SystemExit(f"Accessible link-name contract failed: {observed} != {expected}")
+
+
 def main() -> int:
     spec = importlib.util.spec_from_file_location("audit_full_site_v16_legacy", LEGACY)
     if spec is None or spec.loader is None:
@@ -66,6 +123,8 @@ def main() -> int:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     verify_boolean_attribute_contract(module)
+    accessible_parser = install_accessible_anchor_parser(module)
+    verify_accessible_link_contract(accessible_parser)
 
     original_parse_page = module.parse_page
     locale_page_counts: Counter[str] = Counter()
@@ -112,6 +171,8 @@ def main() -> int:
     report["locale_contract_error_count"] = 0
     report["render_blocking_detection"] = "boolean-attribute-presence-v25"
     report["render_blocking_boolean_attribute_contract"] = True
+    report["accessible_link_detection"] = "text-or-aria-label-labelledby-title-image-alt-v26"
+    report["accessible_link_name_contract"] = True
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(
         json.dumps(
@@ -122,6 +183,8 @@ def main() -> int:
                 "locale_contract_error_count": 0,
                 "render_blocking_detection": report["render_blocking_detection"],
                 "blocking_scripts": report.get("blocking_scripts", 0),
+                "accessible_link_detection": report["accessible_link_detection"],
+                "empty_links": report.get("empty_links", 0),
             },
             ensure_ascii=False,
             indent=2,

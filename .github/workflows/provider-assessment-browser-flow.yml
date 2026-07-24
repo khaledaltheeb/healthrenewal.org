@@ -18,6 +18,7 @@ on:
       - "provider-assessment-demo/case-report-v1.js"
       - "provider-assessment-demo/case-report-interpretation-v2.js"
       - "provider-assessment-demo/case-report-export-v2.js"
+      - "provider-assessment-demo/original-tools-session-context-v2.js"
       - "provider-assessment-demo/original-tools-progress-v1.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/tests/**"
@@ -39,6 +40,7 @@ on:
       - "provider-assessment-demo/case-report-v1.js"
       - "provider-assessment-demo/case-report-interpretation-v2.js"
       - "provider-assessment-demo/case-report-export-v2.js"
+      - "provider-assessment-demo/original-tools-session-context-v2.js"
       - "provider-assessment-demo/original-tools-progress-v1.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/tests/**"
@@ -70,11 +72,16 @@ jobs:
           node --check provider-assessment-demo/tests/report-flow.spec.cjs
           node --check provider-assessment-demo/tests/professional-record-backup-flow.spec.cjs
           node --check provider-assessment-demo/tests/original-tools-progress.spec.cjs
+          node --check provider-assessment-demo/original-tools-session-context-v2.js
           node --check provider-assessment-demo/original-tools-progress-v1.js
           grep -q 'href="../?release=2026.07.24-live.7"' provider-assessment-demo/training/index.html
           ! grep -q 'release=2026.07.24-live.6' provider-assessment-demo/training/index.html
+          grep -q 'original-tools-session-context-v2.js' provider-assessment-demo/institutional-live-v2.js
           grep -q 'loadOriginalProgress' provider-assessment-demo/institutional-live-v2.js
-          grep -q 'descriptive-longitudinal-comparison-not-diagnostic-not-norm-referenced' provider-assessment-demo/original-tools-progress-v1.js
+          grep -q 'pa-original-session-context-v2' provider-assessment-demo/original-tools-session-context-v2.js
+          grep -q 'same-respondent-setting-administration-mode-and-support' provider-assessment-demo/original-tools-progress-v1.js
+          grep -q 'descriptive-comparison-only-when-context-comparable-not-diagnostic-not-norm-referenced' provider-assessment-demo/original-tools-progress-v1.js
+          ! grep -Eq 'XMLHttpRequest|WebSocket|sendBeacon\(|EventSource\(|eval\(|new Function\(' provider-assessment-demo/original-tools-session-context-v2.js provider-assessment-demo/original-tools-progress-v1.js
 
       - name: Install Playwright test runner and Chromium
         run: |
@@ -124,7 +131,7 @@ jobs:
           payload = json.dumps({
               'state': 'success',
               'context': 'provider-assessment/browser-flows',
-              'description': 'Chromium report, record, progress, encrypted restore and rollback flows passed',
+              'description': 'Chromium report, record, contextual progress, encrypted restore and rollback flows passed',
               'target_url': run_url,
           }).encode()
           request = urllib.request.Request(
