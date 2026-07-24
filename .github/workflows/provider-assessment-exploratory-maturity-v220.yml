@@ -1,6 +1,15 @@
 name: Validate exploratory tool maturity v220
 
 on:
+  push:
+    branches: ["agent/exploratory-tools-maturity-v220"]
+    paths:
+      - "provider-assessment-demo/catalog.js"
+      - "provider-assessment-demo/catalog-extra.js"
+      - "provider-assessment-demo/exploratory-tools-maturity-*-v220.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/tests/exploratory-tools-maturity-v220.spec.cjs"
+      - ".github/workflows/provider-assessment-exploratory-maturity-v220.yml"
   pull_request:
     branches: ["main"]
     paths:
