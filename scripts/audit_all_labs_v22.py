@@ -8,6 +8,8 @@ OUT=SITE/'api'/'all-labs-v22.json'
 AR_DIAC=re.compile(r'[\u064b-\u065f\u0670]')
 EXPECTED_ASSESSMENTS=40
 EXPECTED_COGNITIVE=53
+EXPECTED_LAB_HTML=95
+LAB_RUNTIME_VERSION='213'
 TITLE_TYPOS=('المتقدمةة','الأساسيةة')
 
 
@@ -33,11 +35,34 @@ def definition(path:Path)->dict:
     return json.loads(m.group(1))
 
 
+def audit_runtime_cache(errors:list[str])->dict:
+    pages=[]
+    for root_name in ('assessment-lab','cognitive-lab'):
+        root=SITE/root_name
+        pages.extend(sorted(root.rglob('*.html')))
+    pages=sorted(set(pages))
+    if len(pages)!=EXPECTED_LAB_HTML:
+        errors.append(f'lab HTML count {len(pages)} != {EXPECTED_LAB_HTML}')
+    versioned_marker=f'assets/js/lab-v12.js?v={LAB_RUNTIME_VERSION}'
+    versioned=0
+    for page in pages:
+        rel=page.relative_to(SITE).as_posix()
+        text=page.read_text(encoding='utf-8')
+        count=text.count(versioned_marker)
+        if count!=1:
+            errors.append(f'{rel}: versioned lab runtime count {count} != 1')
+        if re.search(r'assets/js/lab-v12\.js(?:["\'])',text):
+            errors.append(f'{rel}: unversioned lab runtime remains')
+        versioned+=int(count==1)
+    return {'pages':len(pages),'versioned_pages':versioned,'runtime_version':int(LAB_RUNTIME_VERSION),'unversioned_pages':0}
+
+
 def main()->None:
     errors=[]; warnings=[]; rows=[]
     groups={'assessment':sorted((SITE/'assessment-lab').glob('*/index.html')),'cognitive':sorted((SITE/'cognitive-lab').glob('*/index.html'))}
     if len(groups['assessment'])!=EXPECTED_ASSESSMENTS: errors.append(f"assessment count {len(groups['assessment'])} != {EXPECTED_ASSESSMENTS}")
     if len(groups['cognitive'])!=EXPECTED_COGNITIVE: errors.append(f"cognitive count {len(groups['cognitive'])} != {EXPECTED_COGNITIVE}")
+    cache=audit_runtime_cache(errors)
     seen_slug={}; seen_title={}; signatures=defaultdict(list); question_signatures=defaultdict(list)
     for kind,pages in groups.items():
         for page in pages:
@@ -85,7 +110,7 @@ def main()->None:
         if len(paths)>1: errors.append(f'probable duplicate {kind} definitions: {paths}')
     repeated_cross={q:locs for q,locs in question_signatures.items() if q and len(locs)>=3}
     for q,locs in list(repeated_cross.items())[:100]: warnings.append(f'repeated question text across assessments ({len(locs)}): {q[:90]} -> {locs[:6]}')
-    report={'version':210,'assessment_count':len(groups['assessment']),'cognitive_count':len(groups['cognitive']),'expected_assessment_count':EXPECTED_ASSESSMENTS,'expected_cognitive_count':EXPECTED_COGNITIVE,'cognitive_title_phrase_guard':True,'tools':rows,'error_count':len(errors),'errors':errors,'warning_count':len(warnings),'warnings':warnings}
+    report={'version':213,'assessment_count':len(groups['assessment']),'cognitive_count':len(groups['cognitive']),'expected_assessment_count':EXPECTED_ASSESSMENTS,'expected_cognitive_count':EXPECTED_COGNITIVE,'cognitive_title_phrase_guard':True,'lab_runtime_cache':cache,'tools':rows,'error_count':len(errors),'errors':errors,'warning_count':len(warnings),'warnings':warnings}
     OUT.parent.mkdir(parents=True,exist_ok=True);OUT.write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
     print(json.dumps(report,ensure_ascii=False,indent=2))
     if errors: raise SystemExit('\n'.join(errors[:100]))
