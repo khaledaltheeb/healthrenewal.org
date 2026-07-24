@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "واجهة منصة الصحة النفسية وذوي الاحتياجات الخاصة",
-    "version": "1.0.0",
-    "description": "واجهة قراءة عامة ثابتة لاكتشاف أقسام المنصة وعقد استيراد بيانات الدورات المخولة. لا تتضمن تشخيصًا أو بيانات شخصية.",
+    "version": "1.1.0",
+    "description": "واجهة قراءة عامة ثابتة لاكتشاف أقسام المنصة وكتالوج بيانات الدورات المخولة وعقود الاستيراد. لا تتضمن تشخيصًا أو بيانات شخصية أو محتوى دورات منسوخًا.",
     "license": {"name": "Rights vary by resource"}
   },
   "servers": [
@@ -17,11 +17,20 @@
         "responses": {
           "200": {
             "description": "بيانات المنصة",
-            "content": {
-              "application/json": {
-                "schema": {"$ref": "#/components/schemas/Platform"}
-              }
-            }
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Platform"}}}
+          }
+        }
+      }
+    },
+    "/api/v1/courses.json": {
+      "get": {
+        "summary": "قراءة كتالوج بيانات الدورات المخولة",
+        "description": "يعرض بيانات وصفية وروابط أصلية فقط من مزودين ذوي إذن موثق. لا يعرض محتوى الدورات أو ملفاتها أو اختباراتـها.",
+        "operationId": "getAuthorizedCourseCatalog",
+        "responses": {
+          "200": {
+            "description": "كتالوج الدورات المخولة أو استجابة فارغة آمنة عند عدم وجود مزود مخول",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CourseCatalog"}}}
           }
         }
       }
@@ -30,18 +39,21 @@
       "get": {
         "summary": "مخطط تغذية الدورات المخولة",
         "operationId": "getCourseSchema",
-        "responses": {
-          "200": {"description": "JSON Schema لاستيراد الدورات"}
-        }
+        "responses": {"200": {"description": "JSON Schema لاستيراد بيانات الدورات"}}
+      }
+    },
+    "/api/v1/course-provider-registry.schema.json": {
+      "get": {
+        "summary": "مخطط سجل مزودي الدورات المخولين",
+        "operationId": "getCourseProviderRegistrySchema",
+        "responses": {"200": {"description": "JSON Schema لهوية المزود والإذن والترخيص والقيود التقنية"}}
       }
     },
     "/api/v1/courses.example.json": {
       "get": {
         "summary": "مثال غير إنتاجي لتغذية الدورات",
         "operationId": "getCourseExample",
-        "responses": {
-          "200": {"description": "مثال توضيحي لا يمثل شراكة فعلية"}
-        }
+        "responses": {"200": {"description": "مثال توضيحي لا يمثل شراكة فعلية"}}
       }
     }
   },
@@ -56,6 +68,20 @@
           "baseUrl": {"type": "string", "format": "uri"},
           "resources": {"type": "array", "items": {"type": "object"}},
           "endpoints": {"type": "object"}
+        }
+      },
+      "CourseCatalog": {
+        "type": "object",
+        "required": ["apiVersion", "generatedAt", "status", "providerCount", "courseCount", "policy", "contentReuse", "courses"],
+        "properties": {
+          "apiVersion": {"type": "string", "const": "1.0.0"},
+          "generatedAt": {"type": "string", "format": "date-time"},
+          "status": {"type": "string", "enum": ["published", "no-authorized-feeds"]},
+          "providerCount": {"type": "integer", "minimum": 0},
+          "courseCount": {"type": "integer", "minimum": 0},
+          "policy": {"type": "string", "const": "permission_required"},
+          "contentReuse": {"type": "boolean", "const": false},
+          "courses": {"type": "array", "items": {"type": "object"}}
         }
       }
     }
