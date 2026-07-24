@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>واجهة API والتكامل | منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
+<meta name="description" content="توثيق واجهة البيانات العامة للمنصة، ومواصفة OpenAPI، ومخطط استيراد بيانات الدورات من مصادر مخولة بعد التحقق من الإذن والترخيص.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/api/">
+<link rel="icon" href="/pterminology-site/assets/brand/logo-mark.svg" type="image/svg+xml">
+<style>
+:root{--ink:#103e43;--muted:#526f73;--brand:#075f5b;--line:#c6e3df;--paper:#fff;--mist:#effaf8}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#fff,var(--mist));color:var(--ink);font-family:Tahoma,Arial,sans-serif;line-height:1.8}.wrap{width:min(1000px,92%);margin:auto}header,footer{background:#fff;border-bottom:1px solid var(--line)}header .wrap,footer .wrap{padding:18px 0}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);font-weight:900}.brand img{width:52px;height:52px}main{padding:50px 0}.hero,.card,.warning{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;margin:16px 0;box-shadow:0 16px 45px rgba(16,76,76,.1)}h1{font-size:clamp(2rem,6vw,4rem);line-height:1.2}h2{color:var(--brand)}code,pre{direction:ltr;text-align:left;background:#f6fbfa;border:1px solid var(--line);border-radius:10px;padding:10px;overflow:auto}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}.warning{border-right:6px solid #a33f6a;background:#fff3f7}.button{display:inline-block;padding:10px 15px;border-radius:12px;background:var(--brand);color:#fff;text-decoration:none;font-weight:900;margin:4px}.secondary{background:#fff;color:var(--brand);border:1px solid var(--line)}@media(max-width:700px){.grid{grid-template-columns:1fr}}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"واجهة API والتكامل لمنصة الصحة النفسية وذوي الاحتياجات الخاصة","inLanguage":"ar","url":"https://khaledaltheeb.github.io/pterminology-site/api/","about":["OpenAPI","JSON Schema","تكامل بيانات الدورات"]}</script>
+</head>
+<body>
+<header><div class="wrap"><a class="brand" href="../"><img src="/pterminology-site/assets/brand/logo-mark.svg" alt=""><span>منصة الصحة النفسية وذوي الاحتياجات الخاصة<br><small>واجهة البيانات والتكامل</small></span></a></div></header>
+<main><div class="wrap">
+<section class="hero">
+<p>API v1</p>
+<h1>واجهة قراءة عامة وعقد تكامل واضح</h1>
+<p>تتيح هذه الواجهة اكتشاف أقسام المنصة وقراءة المواصفة التقنية ومخطط بيانات الدورات. جميع النقاط الحالية ثابتة للقراءة ولا تستقبل بيانات شخصية أو نتائج صحية.</p>
+<a class="button" href="v1/platform.json">بيانات المنصة</a>
+<a class="button secondary" href="v1/openapi.json">OpenAPI</a>
+<a class="button secondary" href="v1/courses.schema.json">مخطط الدورات</a>
+</section>
+<section class="warning">
+<h2>شرط استيراد الدورات</h2>
+<p>لا يُسحب أي محتوى أو وصف دورة من جهة خارجية قبل وجود إذن موثق وترخيص يسمح بإعادة استخدام البيانات. يجب الحفاظ على الرابط الأصلي والإسناد، ولا يجوز تجاوز تسجيل الدخول أو القيود التقنية أو إزالة حقوق صاحب المحتوى.</p>
+</section>
+<section>
+<h2>النقاط المتاحة</h2>
+<div class="grid">
+<article class="card"><h3>GET /api/v1/platform.json</h3><p>اسم المنصة، الموارد، الأقسام، الروابط، وسياسة التكامل.</p><a href="v1/platform.json">عرض الاستجابة</a></article>
+<article class="card"><h3>GET /api/v1/openapi.json</h3><p>مواصفة OpenAPI 3.1 لتوليد عميل أو التحقق الآلي من العقد.</p><a href="v1/openapi.json">عرض المواصفة</a></article>
+<article class="card"><h3>GET /api/v1/courses.schema.json</h3><p>JSON Schema يفرض بيانات مقدم الخدمة والإذن والترخيص والروابط الأصلية.</p><a href="v1/courses.schema.json">عرض المخطط</a></article>
+<article class="card"><h3>GET /api/v1/courses.example.json</h3><p>مثال توضيحي فقط؛ لا يمثل دورة حقيقية أو شراكة أو إذنًا قائمًا.</p><a href="v1/courses.example.json">عرض المثال</a></article>
+</div>
+</section>
+<section class="card">
+<h2>مثال قراءة</h2>
+<pre><code>fetch("https://khaledaltheeb.github.io/pterminology-site/api/v1/platform.json")
+  .then(response =&gt; {
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  })
+  .then(platform =&gt; console.log(platform.resources))
+  .catch(console.error);</code></pre>
+</section>
+<section class="card">
+<h2>قواعد الاستقرار</h2>
+<ul>
+<li>الإصدار الرئيسي في المسار: <code>/api/v1/</code>.</li>
+<li>تُضاف الحقول الجديدة بصورة متوافقة ما أمكن.</li>
+<li>أي تغيير غير متوافق ينتقل إلى إصدار رئيسي جديد.</li>
+<li>لا تحتوي الاستجابات العامة على بيانات مستخدمين أو حالات أو جلسات.</li>
+<li>لا تُقدَّم الأدوات المحمية أو مفاتيح التصحيح أو المواد التدريبية الخارجية عبر الواجهة.</li>
+</ul>
+</section>
+</div></main>
+<footer><div class="wrap"><a href="../">العودة إلى الصفحة الرئيسية</a> · <a href="../trust/">الثقة والمنهجية</a> · <a href="../sitemap.xml">خريطة الموقع</a></div></footer>
+</body>
+</html>
