@@ -142,7 +142,8 @@ def audit_page(path: Path, site: Path, taxonomy: dict[str, Any]) -> dict[str, An
         warnings.append("thin_visible_content")
     if parser.internal_links < policy["minimum_internal_links"]:
         warnings.append("few_internal_links")
-    if parser.meta_keywords and len([part for part in parser.meta_keywords.split(",") if part.strip()]) > 20:
+    keyword_count = len([part for part in parser.meta_keywords.split(",") if part.strip()])
+    if keyword_count > int(policy.get("maximum_meta_keywords", 15)):
         warnings.append("meta_keywords_stuffing")
 
     critical: list[str] = []
@@ -151,6 +152,10 @@ def audit_page(path: Path, site: Path, taxonomy: dict[str, Any]) -> dict[str, An
             if phrase in visible:
                 critical.append(f"public_internal_language:{phrase}")
         required = [parser.title, parser.description, parser.canonical, parser.og_title, parser.og_description]
+        if policy.get("meta_keywords_required_on_core_pages") and not parser.meta_keywords:
+            critical.append("missing_controlled_meta_keywords")
+        if keyword_count > int(policy.get("maximum_meta_keywords", 15)):
+            critical.append("meta_keywords_limit_exceeded")
         if not all(required) or parser.headings["h1"] != 1 or parser.json_ld < 1:
             critical.append("critical_metadata_contract")
 
@@ -200,7 +205,7 @@ def audit_site(site: Path = SITE, report_path: Path = REPORT_PATH, taxonomy_path
         "duplicate_title_groups": len(duplicate_titles),
         "duplicate_description_groups": len(duplicate_descriptions),
         "cluster_coverage": dict(sorted(cluster_counts.items())),
-        "meta_keywords_policy": "not-required-no-stuffing",
+        "meta_keywords_policy": "controlled-compatibility-tag-semantic-seo-primary",
         "pages_without_clusters": sum(1 for page in pages if not page["clusters"]),
         "sample_warnings": [page for page in pages if page["warnings"]][:100],
     }
