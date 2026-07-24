@@ -1,0 +1,40 @@
+name: One-shot wire SEO verifier v216
+
+on:
+  push:
+    branches: ["agent/sitewide-seo-v216"]
+    paths:
+      - ".github/workflows/one-shot-wire-seo-verifier-v216.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/sitewide-seo-v216
+          fetch-depth: 0
+      - name: Wire final SEO verification
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("scripts/apply_homepage_v20.py")
+          text = path.read_text(encoding="utf-8")
+          old = '    run_publisher("enhance_sitewide_seo_v216.py")\n    run_publisher("enforce_health_publication_gate_v192.py")'
+          new = '    run_publisher("enhance_sitewide_seo_v216.py")\n    run_publisher("verify_sitewide_seo_v216.py")\n    run_publisher("enforce_health_publication_gate_v192.py")'
+          if old not in text and 'run_publisher("verify_sitewide_seo_v216.py")' not in text:
+              raise SystemExit("SEO verifier insertion point not found")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+          PY
+          rm .github/workflows/one-shot-wire-seo-verifier-v216.yml
+      - name: Commit verifier wiring
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/apply_homepage_v20.py .github/workflows/one-shot-wire-seo-verifier-v216.yml
+          git commit -m "Build: enforce sitewide SEO verification v216"
+          git push origin HEAD:agent/sitewide-seo-v216
