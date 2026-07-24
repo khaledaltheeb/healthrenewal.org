@@ -1,0 +1,117 @@
+name: Final live Stroop v214 browser proof
+
+on:
+  push:
+    branches: ["ops/verify-live-stroop-v213"]
+    paths: [".github/workflows/final-live-stroop-v214.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  prove-live-stroop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      EVIDENCE_ISSUE: "189"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify live static v214 and six-color contract
+        run: |
+          set -euxo pipefail
+          token="$(date +%s)"
+          curl --retry 5 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o /tmp/deployment.json
+          curl --retry 5 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}cognitive-lab/stroop-basic/?v=${token}" -o /tmp/stroop.html
+          curl --retry 5 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}assets/js/lab-v12.js?v=213&probe=${token}" -o /tmp/runtime.js
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          deployment=json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          html=Path('/tmp/stroop.html').read_text(encoding='utf-8')
+          runtime=Path('/tmp/runtime.js').read_text(encoding='utf-8')
+          evidence={
+              'live_commit':deployment.get('commit'),
+              'schema_version':deployment.get('schema_version'),
+              'page_uses_v213_exactly_once':html.count('assets/js/lab-v12.js?v=213')==1,
+              'page_is_stroop_basic':'"mode":"stroop_basic"' in html,
+              'runtime_has_stimulus_metadata':'stimulusInk' in runtime and 'stimulusWord' in runtime,
+              'runtime_has_inline_ink':'class="stroop-word"' in runtime and 'style="color:' in runtime,
+              'runtime_has_six_color_palette':all(color in runtime for color in ['#b42318','#175cd3','#067647','#b54708','#6941c6','#087e8b']),
+          }
+          Path('/tmp/static.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(evidence,ensure_ascii=False,indent=2))
+          assert evidence['live_commit']=='a08e3092352ba786c74ab01d647260ad531b8d55', evidence
+          assert all(value for key,value in evidence.items() if key not in {'live_commit','schema_version'}), evidence
+          PY
+
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Clear all caches and measure computed live colors
+        run: |
+          cat > /tmp/probe.mjs <<'NODE'
+          import fs from 'node:fs';
+          import { chromium } from 'playwright';
+          const base=process.env.BASE_URL;
+          const browser=await chromium.launch({headless:true});
+          const context=await browser.newContext({viewport:{width:390,height:844},locale:'ar-JO'});
+          const page=await context.newPage();
+          const errors=[];
+          page.on('pageerror',e=>errors.push(String(e)));
+          page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+          const token=Date.now();
+          await page.goto(`${base}cognitive-lab/stroop-basic/?v=${token}`,{waitUntil:'networkidle',timeout:60000});
+          await page.evaluate(async()=>{
+            localStorage.clear(); sessionStorage.clear();
+            if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}
+            if('caches' in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}
+          });
+          await context.clearCookies();
+          await page.goto(`${base}cognitive-lab/stroop-basic/?v=${token+1}`,{waitUntil:'networkidle',timeout:60000});
+          const scriptSrc=await page.locator('script[src*="assets/js/lab-v12.js"]').getAttribute('src');
+          const inks=new Set(), words=new Set(), computed=new Set();
+          const trials=[];
+          for(let i=0;i<30;i++){
+            const start=page.locator('button.start'); if(await start.count()) await start.click();
+            await page.waitForSelector('.stroop-word',{timeout:10000});
+            const s=await page.locator('.stroop-word').evaluate(node=>({ink:node.dataset.ink||'',word:node.dataset.word||'',computed:getComputedStyle(node).color,inline:node.getAttribute('style')||''}));
+            if(!s.ink||!s.word||!s.inline.includes('color:'))throw new Error(`Invalid trial ${i}: ${JSON.stringify(s)}`);
+            inks.add(s.ink);words.add(s.word);computed.add(s.computed);trials.push(s);
+            await page.locator('button.choice-button').first().click();
+          }
+          const deployment=await page.evaluate(async base=>await (await fetch(`${base}deployment.json?v=${Date.now()}`,{cache:'no-store'})).json(),base);
+          const report={liveCommit:deployment.commit,scriptSrc,sampledTrials:trials.length,inkValues:[...inks],wordValues:[...words],computedColors:[...computed],distinctInkValues:inks.size,distinctWordValues:words.size,distinctComputedColors:computed.size,errors,trials};
+          fs.writeFileSync('/tmp/browser.json',JSON.stringify(report,null,2));
+          console.log(JSON.stringify(report,null,2));
+          await browser.close();
+          if(!scriptSrc?.includes('lab-v12.js?v=213'))process.exit(2);
+          if(errors.length||inks.size<6||words.size<6||computed.size<6)process.exit(3);
+          NODE
+          node /tmp/probe.mjs
+
+      - name: Publish final evidence
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const read=p=>fs.existsSync(p)?fs.readFileSync(p,'utf8'):'{"status":"missing"}';
+            const body=[`## Final live Stroop browser proof — run ${context.runId}`,'### Static','```json',read('/tmp/static.json'),'```','### Browser','```json',read('/tmp/browser.json'),'```'].join('\n');
+            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body});
+
+      - name: Upload proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-live-stroop-v214-proof
+          path: |
+            /tmp/static.json
+            /tmp/browser.json
+          if-no-files-found: warn
+          retention-days: 7
