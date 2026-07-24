@@ -63,6 +63,9 @@ class PublicApiPermissionRevalidationV218Tests(unittest.TestCase):
             "permission_expires_at": expires_at,
         }
 
+    def activate_source(self) -> None:
+        PUBLISHER.public_sources({"sources": [self.approved_source()]})
+
     def test_public_sources_revalidate_permission_and_hide_private_evidence(self) -> None:
         sources = PUBLISHER.public_sources({"sources": [self.approved_source()]})
         self.assertEqual(len(sources), 1)
@@ -75,16 +78,18 @@ class PublicApiPermissionRevalidationV218Tests(unittest.TestCase):
                 {"sources": [self.approved_source("2026-01-01")]}
             )
 
-    def test_publisher_rejects_missing_or_expired_course_permission(self) -> None:
+    def test_publisher_rejects_missing_expired_or_mismatched_permission(self) -> None:
         imported = {
             "schema_version": 215,
             "status": "ready",
             "sources_processed": 1,
             "courses": [self.course()],
         }
+        self.activate_source()
         validated = PUBLISHER.validate_courses(imported, {"example-provider"})
         self.assertEqual(len(validated), 1)
 
+        self.activate_source()
         missing = self.course()
         missing.pop("permission_expires_at")
         with self.assertRaises(PUBLISHER.PublicApiError):
@@ -93,17 +98,37 @@ class PublicApiPermissionRevalidationV218Tests(unittest.TestCase):
                 {"example-provider"},
             )
 
+        self.activate_source()
         with self.assertRaises(PUBLISHER.PublicApiError):
             PUBLISHER.validate_courses(
                 {**imported, "courses": [self.course("2026-01-01")]},
                 {"example-provider"},
             )
 
+        self.activate_source()
+        with self.assertRaises(PUBLISHER.PublicApiError):
+            PUBLISHER.validate_courses(
+                {**imported, "courses": [self.course("2028-12-31")]},
+                {"example-provider"},
+            )
+
+    def test_publisher_rejects_course_without_current_source_revalidation(self) -> None:
+        PUBLISHER.public_sources({"sources": []})
+        imported = {
+            "schema_version": 215,
+            "status": "ready",
+            "sources_processed": 1,
+            "courses": [self.course()],
+        }
+        with self.assertRaises(PUBLISHER.PublicApiError):
+            PUBLISHER.validate_courses(imported, {"example-provider"})
+
     def test_openapi_course_schema_exposes_permission_expiry(self) -> None:
         schema = PUBLISHER.course_schema()
         field = schema["properties"]["permission_expires_at"]
         self.assertEqual(field["format"], "date")
         self.assertEqual(field["type"], ["string", "null"])
+        self.assertIn("permission_expires_at", schema["required"])
 
 
 if __name__ == "__main__":
