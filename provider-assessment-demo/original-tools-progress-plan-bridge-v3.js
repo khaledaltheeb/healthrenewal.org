@@ -18,10 +18,18 @@
     const store = read(`pa-demo-store-v${STORE_VERSION}:${identity.uid}`, null);
     return store?.uid === identity.uid ? store : null;
   };
+  const persistStore = (store) => {
+    const identity = activeIdentity();
+    if (!identity?.uid || !store || store.uid !== identity.uid) throw new Error("uid_store_mismatch");
+    localStorage.setItem(`pa-demo-store-v${STORE_VERSION}:${identity.uid}`, JSON.stringify(store));
+    return store;
+  };
   const findCase = (caseId) => activeStore()?.cases?.find((item) => item.caseId === caseId) || null;
   const progress = window.PA_ORIGINAL_PROGRESS;
   if (!progress?.buildSeries) return;
+  progress.activeIdentity = activeIdentity;
   progress.activeStore = activeStore;
+  progress.persistStore = persistStore;
   progress.findCase = findCase;
   progress.buildSeriesByCaseId = (caseId) => {
     const record = findCase(caseId);
