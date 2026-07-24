@@ -7,8 +7,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 HOME = ROOT / "index.html"
-LOGO = ROOT / "assets" / "brand" / "platform-logo.svg"
-SOCIAL_CARD = ROOT / "assets" / "brand" / "platform-social-card.svg"
+LOGO = ROOT / "assets" / "brand" / "logo-mark.svg"
+SOCIAL_CARD = ROOT / "assets" / "brand" / "social-card.svg"
 TAXONOMY = ROOT / "content" / "seo" / "keyword-taxonomy-v215.json"
 
 
@@ -27,12 +27,15 @@ class HomepagePublicContentV215Tests(unittest.TestCase):
     def test_homepage_has_institutional_information_architecture(self) -> None:
         self.assertEqual(len(re.findall(r"<h1\b", self.text)), 1)
         self.assertGreaterEqual(len(re.findall(r"<h2\b", self.text)), 5)
-        self.assertGreaterEqual(len(re.findall(r"<h3\b", self.text)), 12)
-        for route in ("encyclopedia/", "special-needs/", "care-guides/", "assessment-lab/", "cognitive-lab/", "developers/"):
+        self.assertGreaterEqual(len(re.findall(r"<h3\b", self.text)), 16)
+        for route in ("encyclopedia/", "special-needs/", "care-guides/", "assessment-lab/", "cognitive-lab/", "api/", "developers/"):
             self.assertIn(f'href="{route}"', self.text)
 
     def test_semantic_seo_replaces_keyword_stuffing(self) -> None:
-        self.assertNotIn('<meta name="keywords"', self.text)
+        match = re.search(r'<meta name="keywords" content="([^"]+)">', self.text)
+        self.assertIsNotNone(match)
+        keywords = [item.strip() for item in match.group(1).split(",") if item.strip()]
+        self.assertLessEqual(len(keywords), self.taxonomy["policy"]["maximum_meta_keywords"])
         self.assertIn('"keywords":[', self.text)
         self.assertIn('"about":[', self.text)
         self.assertIn('"@type":"FAQPage"', self.text)
@@ -44,8 +47,8 @@ class HomepagePublicContentV215Tests(unittest.TestCase):
     def test_brand_assets_exist_and_are_referenced(self) -> None:
         self.assertTrue(LOGO.is_file())
         self.assertTrue(SOCIAL_CARD.is_file())
-        self.assertIn("assets/brand/platform-logo.svg", self.text)
-        self.assertIn("assets/brand/platform-social-card.svg", self.text)
+        self.assertIn("assets/brand/logo-mark.svg", self.text)
+        self.assertIn("assets/brand/social-card.svg", self.text)
 
     def test_inclusive_language_contract(self) -> None:
         self.assertNotIn("معاقين", self.text)
