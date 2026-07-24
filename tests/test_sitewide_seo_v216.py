@@ -107,6 +107,43 @@ class SitewideSeoV216Tests(unittest.TestCase):
         self.assertGreaterEqual(len(keywords), 5)
         self.assertIn("التثقيف النفسي", keywords)
 
+    def test_arabic_comma_headlines_are_serialization_stable(self):
+        cases = (
+            (
+                "provider-assessment-demo/index.html",
+                "منصة التقييم والسجل المهني | منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+                "منصة تقييم ذوي الاحتياجات الخاصة, المقاييس النفسية, التقييم المهني, سجل الحالات, التقارير المهنية, السلوك التكيفي, تقييم التوحد, صعوبات التعلم, التربية الخاصة",
+                "أنشئ حالة، نفّذ جلسات، وسجّل التقييمات والفحوص والتقارير المهنية في مسار واحد.",
+            ),
+            (
+                "provider-assessment-demo/professional-console.html",
+                "السجل المهني للمقاييس والفحوص | منصة التقييم",
+                "السجل المهني, المقاييس النفسية, تقييم ذوي الاحتياجات الخاصة, توثيق نتائج الاختبارات, التقارير المهنية",
+                "اختر المقياس أو الفحص، اربطه بالحالة، ووثّق التطبيق والنتيجة والتقرير.",
+            ),
+        )
+        for relative, title, existing_keywords, h1 in cases:
+            with self.subTest(relative=relative):
+                page = self.write_page(
+                    relative,
+                    f"<title>{title}</title>"
+                    "<meta name=\"description\" content=\"وصف مهني منظم للصفحة.\">"
+                    f"<meta name=\"keywords\" content=\"{existing_keywords}\">",
+                    f"<h1>{h1}</h1>",
+                )
+                changed, _ = self.module.enrich_page(page)
+                self.assertTrue(changed)
+                first_output = page.read_text(encoding="utf-8")
+                changed_again, result_again = self.module.enrich_page(page)
+                self.assertFalse(changed_again)
+                self.assertEqual(result_again["status"], "unchanged")
+                self.assertEqual(page.read_text(encoding="utf-8"), first_output)
+                keyword_match = re.search(
+                    r'<meta name="keywords" content="([^"]+)"', first_output
+                )
+                self.assertIsNotNone(keyword_match)
+                self.assertNotIn("،", keyword_match.group(1))
+
     def test_repairs_missing_title_description_and_canonical(self):
         page = self.write_page(
             "care-guides/sleep/index.html",
