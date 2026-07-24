@@ -9,6 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DESIGN_CONTRACT = 219
+SEO_CONTRACT = 219
 
 
 def require(text: str, pattern: str, message: str) -> None:
@@ -61,8 +62,27 @@ def verify_generated_page(site: Path) -> int:
     js = (ROOT / "assets/sleep-log-v49.js").read_text(encoding="utf-8")
     require(text, r'<html[^>]+lang="ar"[^>]+dir="rtl"', "Arabic RTL root missing")
     require(text, rf'data-design="marshmallow-v{DESIGN_CONTRACT}"', "marshmallow design contract missing")
+    require(text, rf'data-seo="institutional-v{SEO_CONTRACT}"', "institutional SEO contract missing")
     for marker in ("--mint:#e5faf5", "--rose:#fff0f5", "--lilac:#f2edff", "--peach:#fff0e8", "--butter:#fff8d8"):
         require(text, re.escape(marker), f"marshmallow palette marker missing: {marker}")
+    for marker, message in (
+        (r'<meta name="keywords"', "topic keywords missing"),
+        (r'<meta name="robots"', "robots metadata missing"),
+        (r'<link rel="manifest"', "manifest discovery missing"),
+        (r'<link rel="icon"', "icon discovery missing"),
+        (r'<link rel="search"', "OpenSearch discovery missing"),
+        (r'<link rel="sitemap"', "sitemap discovery missing"),
+        (r'property="og:image"', "Open Graph image missing"),
+        (r'name="twitter:card"', "Twitter card missing"),
+        (r'name="twitter:image"', "Twitter image missing"),
+        (r'type="application/ld\+json"', "structured data missing"),
+        (r'"@type":"WebApplication"', "WebApplication schema missing"),
+    ):
+        require(text, marker, message)
+    if text.count('<meta name="description"') != 1:
+        raise AssertionError("sleep log must keep exactly one description")
+    if text.count('<link rel="canonical"') != 1:
+        raise AssertionError("sleep log must keep exactly one canonical")
     if "text-shadow" in text.lower() or "rgba(0,0,0" in text.replace(" ", "").lower():
         raise AssertionError("dark text-box shadow regression detected")
     require(text, r"data-sleep-log", "interactive form missing")
@@ -143,7 +163,10 @@ def main() -> None:
         words = verify_generated_page(site)
 
     subprocess.run(["node", str(ROOT / "tests/test_sleep_log_v49.mjs")], check=True)
-    print(f"sleep-log-v49 verification passed with {words} visible words and marshmallow-v{DESIGN_CONTRACT}")
+    print(
+        f"sleep-log-v49 verification passed with {words} visible words, "
+        f"marshmallow-v{DESIGN_CONTRACT}, and institutional SEO v{SEO_CONTRACT}"
+    )
 
 
 if __name__ == "__main__":
