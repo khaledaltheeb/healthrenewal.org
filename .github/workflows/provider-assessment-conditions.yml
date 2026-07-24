@@ -7,6 +7,7 @@ on:
       - "provider-assessment-demo/conditions/**"
       - "provider-assessment-demo/condition-entry-v1.js"
       - "provider-assessment-demo/professional-templates-v1.js"
+      - "provider-assessment-demo/case-report-v1.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/sw-live-v2.js"
       - "sitemap.xml"
@@ -17,6 +18,7 @@ on:
       - "provider-assessment-demo/conditions/**"
       - "provider-assessment-demo/condition-entry-v1.js"
       - "provider-assessment-demo/professional-templates-v1.js"
+      - "provider-assessment-demo/case-report-v1.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/sw-live-v2.js"
       - "sitemap.xml"
@@ -38,10 +40,11 @@ jobs:
           node --check provider-assessment-demo/conditions/conditions-ui-v1.js
           node --check provider-assessment-demo/condition-entry-v1.js
           node --check provider-assessment-demo/professional-templates-v1.js
+          node --check provider-assessment-demo/case-report-v1.js
           node --check provider-assessment-demo/institutional-live-v2.js
           node --check provider-assessment-demo/sw-live-v2.js
 
-      - name: Validate registry, pages, SEO, templates and operational links
+      - name: Validate registry, pages, SEO, templates, reports and links
         run: |
           node <<'NODE'
           const fs = require('fs');
@@ -66,40 +69,37 @@ jobs:
             const file = path.join('provider-assessment-demo/conditions', item.slug, 'index.html');
             if (!fs.existsSync(file)) throw new Error(`Missing condition page: ${file}`);
             const html = read(file);
-            for (const marker of ['<title>','meta name="description"','rel="canonical"','application/ld+json',`data-condition="${item.slug}"`,'../conditions-data-v1.js','../conditions-ui-v1.js']) {
-              if (!html.includes(marker)) throw new Error(`${item.slug} missing ${marker}`);
-            }
+            for (const marker of ['<title>','meta name="description"','rel="canonical"','application/ld+json',`data-condition="${item.slug}"`,'../conditions-data-v1.js','../conditions-ui-v1.js']) if (!html.includes(marker)) throw new Error(`${item.slug} missing ${marker}`);
             for (const pattern of forbidden) if (pattern.test(html)) throw new Error(`Forbidden wording in ${item.slug}`);
           }
 
           const index = read('provider-assessment-demo/conditions/index.html');
-          for (const marker of ['conditions-grid','condition-search','team-filter','CollectionPage','2026.07.24-live.5']) if (!index.includes(marker)) throw new Error(`Conditions index missing ${marker}`);
+          for (const marker of ['conditions-grid','condition-search','team-filter','CollectionPage']) if (!index.includes(marker)) throw new Error(`Conditions index missing ${marker}`);
 
           const ui = read('provider-assessment-demo/conditions/conditions-ui-v1.js');
           for (const marker of ['pa-selected-condition-v1','pa-condition-pathway-history-v1','data-start-condition','?condition=']) if (!ui.includes(marker)) throw new Error(`Condition UI missing ${marker}`);
 
           const bridge = read('provider-assessment-demo/condition-entry-v1.js');
-          for (const marker of ['professional-search','open-condition-professional','conditions-hub-link','pa-selected-condition-v1']) if (!bridge.includes(marker)) throw new Error(`Condition bridge missing ${marker}`);
+          for (const marker of ['professional-search','open-condition-professional','conditions-hub-link','pa-selected-condition-v1','requestedView','professional-records']) if (!bridge.includes(marker)) throw new Error(`Condition bridge missing ${marker}`);
 
           const templates = read('provider-assessment-demo/professional-templates-v1.js');
-          for (const marker of ['ratingTemplate','performanceTemplate','interviewTemplate','externalTemplate','classificationTemplate','behaviorTemplate','communicationTemplate','commonFields','informants','accommodations','بيانات القالب المهني']) {
-            if (!templates.includes(marker)) throw new Error(`Professional templates missing ${marker}`);
-          }
-          if (!templates.includes('key.startsWith("detail_")')) throw new Error('Dynamic template fields are not serialized');
-          if (!templates.includes('notesField.value')) throw new Error('Template details are not persisted into the professional record');
+          for (const marker of ['ratingTemplate','performanceTemplate','interviewTemplate','externalTemplate','classificationTemplate','behaviorTemplate','communicationTemplate','commonFields','informants','accommodations','بيانات القالب المهني']) if (!templates.includes(marker)) throw new Error(`Professional templates missing ${marker}`);
+          if (!templates.includes('key.startsWith("detail_")') || !templates.includes('notesField.value')) throw new Error('Dynamic template persistence is incomplete');
+
+          const reports = read('provider-assessment-demo/case-report-v1.js');
+          for (const marker of ['view-reports','case-report-dialog','caseRecord.reports','versionNumber','export-case-report-html','export-case-report-json']) if (!reports.includes(marker)) throw new Error(`Case report engine missing ${marker}`);
 
           const institutional = read('provider-assessment-demo/institutional-live-v2.js');
-          for (const marker of ['2026.07.24-live.5','loadConditionPathways','loadProfessionalTemplates','conditions/conditions-data-v1.js','condition-entry-v1.js','professional-templates-v1.js']) if (!institutional.includes(marker)) throw new Error(`Institutional release missing ${marker}`);
-
-          if (!read('provider-assessment-demo/sw-live-v2.js').includes('2026.07.24-live.5')) throw new Error('Service worker release mismatch');
+          for (const marker of ['2026.07.24-live.6','loadConditionPathways','loadProfessionalTemplates','loadCaseReports','conditions/conditions-data-v1.js','condition-entry-v1.js','professional-templates-v1.js','case-report-v1.js']) if (!institutional.includes(marker)) throw new Error(`Institutional release missing ${marker}`);
+          if (!read('provider-assessment-demo/sw-live-v2.js').includes('2026.07.24-live.6')) throw new Error('Service worker release mismatch');
 
           const sitemap = read('sitemap.xml');
           const sitemapConditionUrls = [...sitemap.matchAll(/provider-assessment-demo\/conditions\//g)].length;
           if (sitemapConditionUrls !== 21) throw new Error(`Expected 21 condition sitemap URLs, found ${sitemapConditionUrls}`);
           for (const item of registry.conditions) if (!sitemap.includes(`/conditions/${item.slug}/`)) throw new Error(`Sitemap missing ${item.slug}`);
 
-          const combined = [read('provider-assessment-demo/conditions/conditions-data-v1.js'),ui,bridge,templates].join('\n');
+          const combined = [read('provider-assessment-demo/conditions/conditions-data-v1.js'),ui,bridge,templates,reports].join('\n');
           for (const token of ['fetch(','XMLHttpRequest','WebSocket','sendBeacon(','EventSource(']) if (combined.includes(token)) throw new Error(`Network API forbidden: ${token}`);
 
-          console.log({conditionPages:20, commonDomains:registry.commonDomains.length, workflowStages:registry.workflowStages.length, templateFamilies:7, sitemapConditionUrls, release:'2026.07.24-live.5', status:'passed'});
+          console.log({conditionPages:20, commonDomains:registry.commonDomains.length, workflowStages:registry.workflowStages.length, templateFamilies:7, reports:true, sitemapConditionUrls, release:'2026.07.24-live.6', status:'passed'});
           NODE
