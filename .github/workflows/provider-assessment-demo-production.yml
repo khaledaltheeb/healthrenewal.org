@@ -127,7 +127,6 @@ jobs:
               'enhancements.css',
               'catalog.js',
               'catalog-extra.js',
-              'catalog-contract-fix.js',
               'professional-master-registry.js',
               'app.js',
               'activation.js',
