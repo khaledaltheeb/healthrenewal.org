@@ -9,6 +9,14 @@ const definitions=(root)=>fs.readdirSync(path.join('_site',root),{withFileTypes:
 const assessments=definitions('assessment-lab'),cognitive=definitions('cognitive-lab');
 const errors=[],rows=[];
 const HEADLESS_AUDIO_RENDERER=/The AudioContext encountered an error from the audio device or the WebAudio renderer\.?/i;
+const STROOP_RGB={
+  'أحمر':'rgb(180, 35, 24)',
+  'أزرق':'rgb(23, 92, 211)',
+  'أخضر':'rgb(6, 118, 71)',
+  'برتقالي':'rgb(181, 71, 8)',
+  'بنفسجي':'rgb(105, 65, 198)',
+  'تركواز':'rgb(8, 126, 139)'
+};
 
 async function contextFor(browser,profile){
   return browser.newContext({
@@ -74,14 +82,69 @@ async function runCognitive(browser,slug,profile){
     const signals=await common(page,route,profile);
     const def=await page.locator('#lab-definition').evaluate(n=>JSON.parse(n.textContent));
     const stages=def.stages||5,per=def.trials_per_stage||6,total=stages*per;
+    let correctUiChecks=0,wrongUiChecks=0,stroopChecks=0,visualChangeChecks=0;
+    const stroopRules=new Set(),stroopInks=new Set(),stroopWords=new Set(),visualChangeFeatures=new Set(),visualChangeSizes=new Set();
     for(let i=0;i<total;i++){
       const start=page.locator('button.start');if(await start.count())await start.click();
       await page.waitForSelector('button.choice-button',{timeout:5000});
-      const answer=await page.evaluate(({stage,trial})=>globalThis.__PTERMINOLOGY_LAB_V15__.makeTrial(JSON.parse(document.querySelector('#lab-definition').textContent),stage,trial).answer,{stage:Math.floor(i/per),trial:i%per});
-      const choice=page.locator(`button.choice-button[data-value=${JSON.stringify(String(answer))}]`);
-      if(await choice.count()!==1)throw new Error(`answer option count ${await choice.count()} at ${i}`);
-      await choice.click();await page.waitForTimeout(15);
+      const choices=page.locator('button.choice-button');
+      const count=await choices.count();if(count<2)throw new Error(`fewer than two choices at ${i}`);
+      if(slug.startsWith('stroop')){
+        const visual=await page.locator('.stroop-word').evaluate(node=>({
+          word:node.dataset.word||'',ink:node.dataset.ink||'',computed:getComputedStyle(node).color,
+          prompt:node.closest('.prompt,.question,.trial-card')?.textContent||node.parentElement?.textContent||''
+        }));
+        const expected=STROOP_RGB[visual.ink];
+        if(!visual.word||!visual.ink||visual.word===visual.ink)throw new Error(`invalid Stroop stimulus at ${i}: ${JSON.stringify(visual)}`);
+        if(!expected||visual.computed!==expected)throw new Error(`Stroop ink mismatch at ${i}: expected ${expected}, got ${visual.computed}`);
+        const rule=visual.prompt.includes('لون الحبر')?'ink':visual.prompt.includes('معنى الكلمة')?'word':'';
+        if(!rule)throw new Error(`missing Stroop rule at ${i}`);
+        const optionTexts=await choices.allTextContents();
+        const expectedAnswer=rule==='ink'?visual.ink:visual.word;
+        if(optionTexts.filter(x=>x.trim()===expectedAnswer).length!==1)throw new Error(`Stroop answer option mismatch at ${i}`);
+        stroopRules.add(rule);stroopInks.add(visual.ink);stroopWords.add(visual.word);stroopChecks++;
+      }
+      if(slug==='visual-change-detection'){
+        const visual=await page.evaluate(()=>{
+          const probe=document.querySelector('[data-visual-change-probe]');
+          const grid=probe?.querySelector('[data-visual-change-grid]');
+          const items=[...(grid?.querySelectorAll('.visual-change-item')||[])];
+          return{
+            probePresent:Boolean(probe),setSize:Number(grid?.dataset.setSize||0),items:items.length,
+            ariaComplete:items.every(node=>Boolean(node.getAttribute('aria-label'))),prompt:probe?.textContent||''
+          };
+        });
+        if(!visual.probePresent||visual.setSize<3||visual.items!==visual.setSize||!visual.ariaComplete)throw new Error(`invalid visual-change rendering at ${i}: ${JSON.stringify(visual)}`);
+        const stage=Math.floor(i/per);
+        if(visual.setSize!==3+stage)throw new Error(`visual-change rendered set size ${visual.setSize} at stage ${stage}`);
+        const optionTexts=(await choices.allTextContents()).map(x=>x.trim());
+        if(new Set(optionTexts).size!==optionTexts.length)throw new Error(`visual-change duplicate rendered choices at ${i}`);
+        visualChangeSizes.add(visual.setSize);visualChangeChecks++;
+      }
+      const snapshot=await choices.nth(i%count).evaluate(node=>{
+        node.click();
+        const buttons=[...document.querySelectorAll('button.choice-button')];
+        const feedback=document.querySelector('.trial-feedback')?.textContent||'';
+        return{
+          correctCount:buttons.filter(x=>x.classList.contains('is-correct')).length,
+          selectedCorrect:node.classList.contains('is-correct'),
+          selectedWrong:node.classList.contains('is-wrong'),
+          feedback
+        };
+      });
+      if(snapshot.correctCount!==1)throw new Error(`correct marker count ${snapshot.correctCount} at ${i}`);
+      if(snapshot.selectedCorrect===snapshot.selectedWrong)throw new Error(`selected option classification invalid at ${i}`);
+      if(snapshot.selectedCorrect)correctUiChecks++;else wrongUiChecks++;
+      if(!snapshot.feedback.trim())throw new Error(`missing feedback at ${i}`);
+      if(slug==='visual-change-detection'){
+        const feature=snapshot.feedback.includes('الشكل')?'shape':snapshot.feedback.includes('اللون')?'color':'';
+        if(feature)visualChangeFeatures.add(feature);
+      }
+      await page.waitForTimeout(10);
     }
+    if(slug==='stroop-advanced'&&stroopRules.size<2)throw new Error(`advanced Stroop did not exercise both rules: ${[...stroopRules]}`);
+    if(slug.startsWith('stroop')&&(stroopChecks!==total||stroopInks.size<3||stroopWords.size<3))throw new Error(`insufficient rendered Stroop coverage: checks=${stroopChecks}, inks=${stroopInks.size}, words=${stroopWords.size}`);
+    if(slug==='visual-change-detection'&&(visualChangeChecks!==total||visualChangeSizes.size!==5||!visualChangeFeatures.has('shape')||!visualChangeFeatures.has('color')))throw new Error(`insufficient visual-change coverage: checks=${visualChangeChecks}, sizes=${[...visualChangeSizes]}, features=${[...visualChangeFeatures]}`);
     await page.waitForTimeout(30);
     const result=await page.locator('.result-card').innerText();
     if(!result.includes('النتيجة النهائية')||!result.includes(`المحاولات:</strong> ${total}`)&&!result.includes(`المحاولات: ${total}`))throw new Error(`final result incomplete: ${result.slice(0,180)}`);
@@ -93,7 +156,7 @@ async function runCognitive(browser,slug,profile){
       if(!accessiblePrompt)throw new Error('auditory task has no accessible prompt fallback');
     }
     const allSignals=[...signals.consoleErrors,...signals.pageErrors,...signals.failed];if(allSignals.length)throw new Error(allSignals.join(' | '));
-    rows.push({...baseRow,status:'passed',stages,trialsPerStage:per,totalTrials:total,resultChars:result.length,ignoredEnvironmentSignals:signals.ignoredEnvironmentSignals.length});
+    rows.push({...baseRow,status:'passed',stages,trialsPerStage:per,totalTrials:total,resultChars:result.length,correctUiChecks,wrongUiChecks,stroopChecks,stroopRules:[...stroopRules],stroopInks:stroopInks.size,stroopWords:stroopWords.size,visualChangeChecks,visualChangeSizes:[...visualChangeSizes],visualChangeFeatures:[...visualChangeFeatures],ignoredEnvironmentSignals:signals.ignoredEnvironmentSignals.length});
   }catch(e){errors.push(`${profile}:${route} ${e}`);rows.push({...baseRow,status:'failed',error:String(e)});}finally{await ctx.close();}
 }
 
@@ -105,7 +168,7 @@ try{
   }
 }finally{await browser.close();}
 
-const report={version:26,profiles:2,assessmentDefinitions:assessments.length,cognitiveDefinitions:cognitive.length,expectedRuns:(assessments.length+cognitive.length)*2,completedRuns:rows.length,passedRuns:rows.filter(x=>x.status==='passed').length,failedRuns:rows.filter(x=>x.status==='failed').length,errorCount:errors.length,errors,tools:rows};
+const report={version:30,profiles:2,assessmentDefinitions:assessments.length,cognitiveDefinitions:cognitive.length,expectedRuns:(assessments.length+cognitive.length)*2,completedRuns:rows.length,passedRuns:rows.filter(x=>x.status==='passed').length,failedRuns:rows.filter(x=>x.status==='failed').length,errorCount:errors.length,errors,tools:rows};
 fs.writeFileSync(path.join(outDir,'all-labs-e2e-v22.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
 if(errors.length)process.exit(1);
