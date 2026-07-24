@@ -5,7 +5,11 @@
   if (!root || document.body.dataset.depth !== "detail" || document.body.dataset.layoutStable !== "true") return;
 
   let revealed = false;
-  const ready = () => Boolean(root.querySelector(".layout") && root.querySelector("[data-assessment-education]"));
+  const ready = () => Boolean(
+    root.querySelector(".layout")
+    && root.querySelector("[data-assessment-education]")
+    && (root.querySelector("[data-condition-decision-guide]") || root.querySelector("[data-module-load-error]"))
+  );
   const reveal = (reason) => {
     if (revealed) return;
     revealed = true;
