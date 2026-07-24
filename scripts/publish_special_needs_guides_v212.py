@@ -36,6 +36,7 @@ def load_data() -> dict[str, Any]:
         guide = json.loads(path.read_text(encoding="utf-8"))
         if guide.get("slug") != slug:
             raise SystemExit(f"Guide slug mismatch in {path}: {guide.get('slug')} != {slug}")
+        guide["reviewed_at"] = manifest["reviewed_at"]
         guides.append(guide)
     return {**manifest, "guides": guides}
 
@@ -56,7 +57,7 @@ def validate(data: dict[str, Any]) -> None:
         for key in (
             "slug", "title", "description", "category", "audiences", "review_status",
             "external_review", "professional_limits", "when_to_seek_help", "intro",
-            "sections", "checklist", "common_mistakes", "template", "source_ids"
+            "sections", "checklist", "common_mistakes", "template", "source_ids", "reviewed_at"
         ):
             if key not in guide:
                 raise SystemExit(f"Missing {key} in {guide.get('slug')}")
@@ -64,6 +65,8 @@ def validate(data: dict[str, Any]) -> None:
             raise SystemExit(f"Dishonest review state in {guide['slug']}")
         if guide["external_review"] != "recommended-not-completed":
             raise SystemExit(f"Dishonest external-review state in {guide['slug']}")
+        if guide["reviewed_at"] != data["reviewed_at"]:
+            raise SystemExit(f"Review date mismatch in {guide['slug']}")
         if not 90 <= len(guide["description"]) <= 180:
             raise SystemExit(f"Meta description length invalid in {guide['slug']}")
         if shared.words(guide) < 900:
