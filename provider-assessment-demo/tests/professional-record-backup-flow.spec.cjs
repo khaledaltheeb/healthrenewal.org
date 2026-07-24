@@ -64,23 +64,13 @@ test("professional record lifecycle, encrypted backup merge, and rollback remain
   await expect(page.locator("#professional-record-list .professional-record")).toHaveCount(1);
   await expect(page.locator("#professional-record-list")).toContainText("EXT-REPORT-2026-001");
 
-  await updateLifecycle(
-    page,
-    "in_progress",
-    "بدأت مراجعة التقرير الخارجي والتحقق من الجهة والإصدار واللغة.",
-    "قيد المراجعة المهنية متعددة المصادر"
-  );
-  await updateLifecycle(
-    page,
-    "result_imported",
-    "اكتملت مراجعة التقرير الخارجي وسُجل المرجع دون نسخ محتواه المحمي.",
-    "تقرير خارجي مستلم ومراجع ضمن حدود المصدر"
-  );
+  await updateLifecycle(page, "in_progress", "بدأت مراجعة التقرير الخارجي والتحقق من الجهة والإصدار واللغة.", "قيد المراجعة المهنية متعددة المصادر");
+  await updateLifecycle(page, "result_imported", "اكتملت مراجعة التقرير الخارجي وسُجل المرجع دون نسخ محتواه المحمي.", "تقرير خارجي مستلم ومراجع ضمن حدود المصدر");
 
   await expect(page.locator("#professional-record-list")).toContainText("تقرير خارجي مستلم");
   await expect(page.locator("#professional-record-list details.audit-details")).toContainText("سجل تغيرات الحالة (2)");
 
-  await page.locator('button.tab[data-view="dashboard"]').click();
+  await page.locator('button.tab[data-view="analytics"]').click();
   await expect(page.locator("#export-space")).toBeVisible();
   const downloadPromise = page.waitForEvent("download");
   await page.locator("#export-space").click();
@@ -117,7 +107,7 @@ test("professional record lifecycle, encrypted backup merge, and rollback remain
   await expect(page.locator("#professional-record-list .professional-record")).toHaveCount(2);
 
   page.once("dialog", (dialog) => dialog.accept());
-  await page.locator('button.tab[data-view="dashboard"]').click();
+  await page.locator('button.tab[data-view="analytics"]').click();
   await page.locator("#rollback-space-import").click();
   await page.locator('button.tab[data-view="professional-records"]').click();
   await expect(page.locator("#professional-record-list .professional-record")).toHaveCount(1);
