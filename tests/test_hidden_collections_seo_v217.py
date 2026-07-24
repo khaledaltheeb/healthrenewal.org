@@ -98,7 +98,9 @@ class HiddenCollectionsSeoV217Tests(unittest.TestCase):
         source = (ROOT / "scripts" / "enhance_sitewide_seo_v216.py").read_text(encoding="utf-8")
         self.assertIn("HIDDEN_COLLECTIONS_ENHANCER", source)
         self.assertIn("HIDDEN_COLLECTIONS_VERIFIER", source)
-        self.assertLess(source.index("status = main()"), source.index("HIDDEN_COLLECTIONS_ENHANCER"))
+        core_call = source.index("status = main()")
+        hidden_call = source.index("    enhance_hidden_collections()", core_call)
+        self.assertLess(core_call, hidden_call)
 
 
 if __name__ == "__main__":
