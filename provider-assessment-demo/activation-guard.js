@@ -163,5 +163,6 @@
   loadModule("professional-record-lifecycle.js?v=20260724-integrity1", "professional-record-lifecycle")
     .then(() => loadModule("professional-record-integrity.js?v=20260724-integrity1", "professional-record-integrity"))
     .then(() => loadModule("backup-integrity.js?v=20260724-backup1", "backup-integrity"))
+    .then(() => loadModule("backup-large-file-patch.js?v=20260724-backup2", "backup-large-file-patch"))
     .catch((error) => console.error("Provider assessment module failed to load", error));
 })();
