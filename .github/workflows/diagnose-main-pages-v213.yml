@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      EVIDENCE_ISSUE: "181"
+      EVIDENCE_ISSUE: "183"
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Query concise main and Pages state
