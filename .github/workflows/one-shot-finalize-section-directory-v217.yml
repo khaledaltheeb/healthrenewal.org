@@ -1,3 +1,4 @@
+# one-shot trigger after PR creation
 name: One-shot finalize section directory v217
 
 on:
