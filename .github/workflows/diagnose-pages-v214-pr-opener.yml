@@ -20,7 +20,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       EVIDENCE_ISSUE: "184"
     steps:
-      - name: Query opener workflow and pull requests
+      - name: Query opener workflow and pull requests v2
         run: |
           python - <<'PY'
           import json, os, urllib.parse, urllib.request
@@ -50,4 +50,4 @@ jobs:
           script: |
             const fs=require('fs');
             const report=fs.readFileSync('/tmp/pages-v214-pr-opener.json','utf8');
-            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## v214 PR opener diagnostic\n\n\`\`\`json\n${report}\n\`\`\``});
+            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## v214 PR opener diagnostic v2\n\n\`\`\`json\n${report}\n\`\`\``});
