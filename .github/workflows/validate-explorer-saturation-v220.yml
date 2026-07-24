@@ -1,0 +1,64 @@
+name: Validate exploratory tool saturation v220
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/catalog.js"
+      - "provider-assessment-demo/catalog-extra.js"
+      - "provider-assessment-demo/explorer-saturation-v1.js"
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/tests/explorer-saturation-v1.spec.cjs"
+      - ".github/workflows/validate-explorer-saturation-v220.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/catalog.js"
+      - "provider-assessment-demo/catalog-extra.js"
+      - "provider-assessment-demo/explorer-saturation-v1.js"
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/tests/explorer-saturation-v1.spec.cjs"
+      - ".github/workflows/validate-explorer-saturation-v220.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: explorer-saturation-v220-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate JavaScript syntax
+        run: |
+          set -euxo pipefail
+          node --check provider-assessment-demo/catalog.js
+          node --check provider-assessment-demo/catalog-extra.js
+          node --check provider-assessment-demo/explorer-saturation-v1.js
+          node --check provider-assessment-demo/institutional-live-v2.js
+          node --check provider-assessment-demo/tests/explorer-saturation-v1.spec.cjs
+
+      - name: Test all twenty institutional protocols
+        run: node provider-assessment-demo/tests/explorer-saturation-v1.spec.cjs
+
+      - name: Verify production wiring and safety boundaries
+        run: |
+          set -euxo pipefail
+          grep -F 'explorer-saturation-v1.js' provider-assessment-demo/index.html
+          grep -F 'pa-explorer-saturation-v1' provider-assessment-demo/explorer-saturation-v1.js
+          grep -F 'minimumQuestionCount: 14' provider-assessment-demo/explorer-saturation-v1.js
+          grep -F 'professionalRecordLinkage: true' provider-assessment-demo/explorer-saturation-v1.js
+          grep -F 'longitudinalComparabilityRequired: true' provider-assessment-demo/explorer-saturation-v1.js
+          grep -F 'exploratory-non-diagnostic' provider-assessment-demo/explorer-saturation-v1.js
+          ! grep -E 'diagnosisScore|diagnosticConclusion|eligibilityDecision|normTable|answerKey|cutoffDiagnosis' provider-assessment-demo/explorer-saturation-v1.js
