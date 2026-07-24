@@ -2,14 +2,22 @@
   "schema_version": 215,
   "language": "ar",
   "policy": {
-    "meta_keywords_required": false,
-    "reason": "تعتمد البنية على نية البحث والعنوان والوصف والعناوين الداخلية والروابط والبيانات المنظمة، لا على حشو وسم meta keywords.",
+    "reason": "يُسمح بوسم كلمات مختصر في الصفحات الأساسية للتوافق والتنظيم، لكنه ليس أساس الترتيب؛ يعتمد SEO فعليًا على نية البحث والعنوان والوصف والعناوين الداخلية والروابط والبيانات المنظمة.",
     "primary_keyword_limit": 1,
     "secondary_keyword_limit": 8,
     "minimum_internal_links": 3,
     "minimum_visible_words": 350,
-    "preferred_title_characters": [30, 68],
-    "preferred_description_characters": [90, 180]
+    "preferred_title_characters": [
+      30,
+      68
+    ],
+    "preferred_description_characters": [
+      90,
+      180
+    ],
+    "meta_keywords_required_on_core_pages": true,
+    "meta_keywords_role": "compatibility-only",
+    "maximum_meta_keywords": 15
   },
   "clusters": [
     {
