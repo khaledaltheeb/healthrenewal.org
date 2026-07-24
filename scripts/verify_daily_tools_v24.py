@@ -13,6 +13,7 @@ BANNED = ("يشخص", "تشخيصك", "يعالج نهائيًا", "مضمون",
 NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 SLEEP_SLUG = "sleep-wind-down-plan"
 DESIGN_CONTRACT = 219
+SEO_CONTRACT = 219
 
 
 def norm(value: str) -> str:
@@ -75,18 +76,33 @@ def main() -> None:
         )
         assert all(path.exists() for path in expected), [str(path) for path in expected if not path.exists()]
 
+        required_metadata = (
+            'rel="canonical"',
+            'name="keywords"',
+            'name="robots"',
+            'rel="manifest"',
+            'rel="icon"',
+            'rel="search"',
+            'rel="sitemap"',
+            'property="og:image"',
+            'name="twitter:card"',
+            'name="twitter:image"',
+            "application/ld+json",
+        )
         for page in expected:
             text = page.read_text(encoding="utf-8")
-            assert text.count("<h1>") == 1
-            assert 'rel="canonical"' in text
-            assert "application/ld+json" in text
-            assert 'dir="rtl"' in text
-            assert f'data-design="marshmallow-v{DESIGN_CONTRACT}"' in text
-            assert "--mint:#e5faf5" in text and "--rose:#fff0f5" in text and "--lilac:#f2edff" in text
-            assert "--peach:#fff0e8" in text and "--butter:#fff8d8" in text
-            assert "text-shadow" not in text.lower()
-            assert "rgba(0,0,0" not in text.replace(" ", "").lower()
-            assert not any(item in text.lower() for item in BANNED)
+            assert text.count("<h1>") == 1, page
+            assert 'dir="rtl"' in text, page
+            assert f'data-design="marshmallow-v{DESIGN_CONTRACT}"' in text, page
+            assert f'data-seo="institutional-v{SEO_CONTRACT}"' in text, page
+            assert all(marker in text for marker in required_metadata), page
+            assert text.count('<meta name="description"') == 1, page
+            assert text.count('<link rel="canonical"') == 1, page
+            assert "--mint:#e5faf5" in text and "--rose:#fff0f5" in text and "--lilac:#f2edff" in text, page
+            assert "--peach:#fff0e8" in text and "--butter:#fff8d8" in text, page
+            assert "text-shadow" not in text.lower(), page
+            assert "rgba(0,0,0" not in text.replace(" ", "").lower(), page
+            assert not any(item in text.lower() for item in BANNED), page
 
         for tool in tools:
             text = (SITE / "daily-tools" / tool["slug"] / "index.html").read_text(encoding="utf-8")
@@ -158,6 +174,7 @@ def main() -> None:
                 "sources": len(sources),
                 "sleep_context_paths": len(sleep_context_paths),
                 "design_contract": DESIGN_CONTRACT,
+                "seo_contract": SEO_CONTRACT,
                 "minimum_contrast_ratio": min(ratios.values()),
                 "contrast_ratios": ratios,
                 "production_checked": bool(SITE),
