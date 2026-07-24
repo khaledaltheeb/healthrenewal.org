@@ -1,0 +1,37 @@
+name: Validate special-needs practical guides v211
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/v211/**'
+      - 'scripts/publish_special_needs_guides_v211.py'
+      - 'scripts/finalize_special_needs_hub_accessibility_v201.py'
+      - 'tests/test_special_needs_guides_v211.py'
+      - 'tests/test_special_needs_hub_v201.py'
+      - '.github/workflows/validate-special-needs-guides-v211.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile publishers and tests
+        run: |
+          python -m py_compile scripts/publish_special_needs_guides_v209.py scripts/publish_special_needs_guides_v209_compat.py scripts/publish_special_needs_guides_v210.py scripts/publish_special_needs_guides_v211.py scripts/finalize_special_needs_hub_accessibility_v201.py tests/test_special_needs_guides_v211.py tests/test_special_needs_hub_v201.py
+      - name: Validate all v211 JSON files
+        run: |
+          python -m json.tool content/v211/special-needs-guides-manifest-ar.json >/dev/null
+          for file in content/v211/special-needs-guides/*.json; do python -m json.tool "$file" >/dev/null; done
+      - name: Test v211 depth SEO sources links and idempotence
+        run: python -m unittest -v tests/test_special_needs_guides_v211.py
+      - name: Test hub integration after all three batches
+        run: python -m unittest -v tests/test_special_needs_hub_v201.py
