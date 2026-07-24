@@ -101,11 +101,14 @@
     const wrapper = document.createElement("div"); wrapper.innerHTML = formHtml(plan.caseId, assessmentOptions(plan.caseId), plan);
     host.querySelector("[data-progress-plan-form]")?.replaceWith(wrapper.firstElementChild);
   });
-  const inject = () => document.querySelectorAll("[data-original-progress]").forEach((panel) => renderPlans(panel.dataset.originalProgress));
-  new MutationObserver(inject).observe(document.body, { childList: true, subtree: true });
-  window.addEventListener("pa-original-progress-plan-saved", inject);
-  window.addEventListener("pa-original-session-context-saved", inject);
-  inject();
+  const injectNew = () => document.querySelectorAll("[data-original-progress]").forEach((panel) => {
+    if (!panel.querySelector("[data-original-progress-plans]")) renderPlans(panel.dataset.originalProgress);
+  });
+  const refreshAll = () => document.querySelectorAll("[data-original-progress]").forEach((panel) => renderPlans(panel.dataset.originalProgress));
+  new MutationObserver(injectNew).observe(document.body, { childList: true, subtree: true });
+  window.addEventListener("pa-original-progress-plan-saved", refreshAll);
+  window.addEventListener("pa-original-session-context-saved", refreshAll);
+  injectNew();
   const style = document.createElement("style");
   style.textContent = `.progress-plan-section{margin-top:18px;border-top:1px solid var(--line,#c5e4e0);padding-top:16px}.progress-plan-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.progress-plan-card,.progress-plan-form{border:1px solid var(--line,#c5e4e0);border-radius:14px;padding:12px;background:#fff}.progress-plan-card>div{display:flex;gap:8px;justify-content:space-between;align-items:start}.progress-plan-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.progress-plan-form label{display:grid;gap:5px;font-weight:700}.progress-plan-form textarea,.progress-plan-form input,.progress-plan-form select{width:100%;font:inherit;padding:8px;border:1px solid var(--line,#c5e4e0);border-radius:9px}.progress-plan-form label:nth-child(2),.progress-plan-form label:nth-child(5),.progress-plan-form .dialog-actions,.progress-plan-form .muted{grid-column:1/-1}.comparability-badge.review_ready{background:#dff7ef;color:#075a46}.comparability-badge.context_blocked{background:#fff2d8;color:#704500}@media(max-width:700px){.progress-plan-grid,.progress-plan-form{grid-template-columns:1fr}}`;
   document.head.appendChild(style);
