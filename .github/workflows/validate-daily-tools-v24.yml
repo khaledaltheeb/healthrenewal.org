@@ -1,50 +1,95 @@
-name: Validate daily tools and learning paths v24
+name: Validate daily tools learning paths and marshmallow discovery v219
 
 on:
   pull_request:
+    branches: ["main"]
     paths:
-      - 'content/v24/**'
-      - 'scripts/publish_daily_tools_v24.py'
-      - 'scripts/verify_daily_tools_v24.py'
-      - '.github/workflows/validate-daily-tools-v24.yml'
+      - "content/v24/**"
+      - "scripts/publish_daily_tools_v24.py"
+      - "scripts/verify_daily_tools_v24.py"
+      - "scripts/apply_daily_tools_marshmallow_v219.py"
+      - ".github/workflows/validate-daily-tools-v24.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: daily-tools-v219-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Compile and validate source content
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/publish_daily_tools_v24.py scripts/verify_daily_tools_v24.py
+          python -m py_compile \
+            scripts/publish_daily_tools_v24.py \
+            scripts/verify_daily_tools_v24.py \
+            scripts/apply_daily_tools_marshmallow_v219.py
           python scripts/verify_daily_tools_v24.py
-      - name: Generate production pages in an isolated site fixture
+
+      - name: Generate production pages in an isolated homepage fixture
         run: |
           set -euxo pipefail
+          rm -rf _site
           mkdir -p _site
           cat > _site/sitemap.xml <<'XML'
-          <?xml version='1.0' encoding='utf-8'?>
+          <?xml version="1.0" encoding="utf-8"?>
           <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>
           XML
+          cat > _site/index.html <<'HTML'
+          <!doctype html><html lang="ar" dir="rtl"><head><title>منصة اختبار</title>
+          <meta name="keywords" content="الصحة النفسية">
+          <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"CollectionPage","@id":"https://khaledaltheeb.github.io/pterminology-site/#home","hasPart":[]}]}</script>
+          </head><body><nav><a href="provider-assessment-demo/">منصة التقييم</a></nav>
+          <article><a href="cognitive-tests/">فتح المهام</a></article></body></html>
+          HTML
           python scripts/publish_daily_tools_v24.py _site
           python scripts/verify_daily_tools_v24.py _site
-      - name: Check privacy and prohibited claims
+
+      - name: Check contrast discovery privacy and prohibited claims
         run: |
           set -euxo pipefail
           test "$(find _site/daily-tools -name index.html | wc -l)" -eq 9
           test "$(find _site/learning-paths -name index.html | wc -l)" -eq 5
           test "$(grep -o '<url>' _site/sitemap-tools-paths.xml | wc -l)" -eq 14
-          ! grep -R -Eqi 'fetch\(|XMLHttpRequest|navigator\.sendBeacon|تشخيصك|يعالج نهائيًا|بديل عن الطبيب' _site/daily-tools _site/learning-paths
+          grep -R -q 'data-design="marshmallow-v219"' _site/daily-tools _site/learning-paths
+          grep -q 'data-daily-tools-v219' _site/index.html
+          grep -q 'data-learning-paths-v219' _site/index.html
+          ! grep -R -Eqi 'text-shadow|rgba\(0[[:space:]]*,[[:space:]]*0[[:space:]]*,[[:space:]]*0|fetch\(|XMLHttpRequest|navigator\.sendBeacon|تشخيصك|يعالج نهائيًا|بديل عن الطبيب' \
+            _site/daily-tools _site/learning-paths
           grep -R -q 'لا تُرسل البيانات إلى خادم' _site/daily-tools
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/daily-tools-v24.json').read_text(encoding='utf-8'))
+          assert report['design_contract']==219,report
+          assert report['marshmallow_palette'] is True,report
+          assert report['dark_text_box_shadow'] is False,report
+          assert report['homepage_linked'] is True,report
+          assert report['tools']==8 and report['paths']==4 and report['pages']==14,report
+          print(report)
+          PY
+
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: daily-tools-v24-preview
+          name: daily-tools-v219-preview
           path: |
+            _site/index.html
             _site/daily-tools
             _site/learning-paths
             _site/sitemap-tools-paths.xml
             _site/api/daily-tools-v24.json
+          if-no-files-found: warn
+          retention-days: 14
