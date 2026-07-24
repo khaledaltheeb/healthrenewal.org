@@ -6,6 +6,7 @@ on:
     paths:
       - "provider-assessment-demo/conditions/**"
       - "provider-assessment-demo/condition-entry-v1.js"
+      - "provider-assessment-demo/professional-templates-v1.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/sw-live-v2.js"
       - "sitemap.xml"
@@ -15,6 +16,7 @@ on:
     paths:
       - "provider-assessment-demo/conditions/**"
       - "provider-assessment-demo/condition-entry-v1.js"
+      - "provider-assessment-demo/professional-templates-v1.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/sw-live-v2.js"
       - "sitemap.xml"
@@ -36,10 +38,11 @@ jobs:
           node --check provider-assessment-demo/conditions/conditions-data-v1.js
           node --check provider-assessment-demo/conditions/conditions-ui-v1.js
           node --check provider-assessment-demo/condition-entry-v1.js
+          node --check provider-assessment-demo/professional-templates-v1.js
           node --check provider-assessment-demo/institutional-live-v2.js
           node --check provider-assessment-demo/sw-live-v2.js
 
-      - name: Validate registry, pages, SEO and operational links
+      - name: Validate registry, pages, SEO, templates and operational links
         run: |
           node <<'NODE'
           const fs = require('fs');
@@ -81,7 +84,7 @@ jobs:
           }
 
           const index = fs.readFileSync('provider-assessment-demo/conditions/index.html', 'utf8');
-          for (const marker of ['conditions-grid', 'condition-search', 'team-filter', 'CollectionPage']) {
+          for (const marker of ['conditions-grid', 'condition-search', 'team-filter', 'CollectionPage', '2026.07.24-live.5']) {
             if (!index.includes(marker)) throw new Error(`Conditions index missing ${marker}`);
           }
 
@@ -95,10 +98,23 @@ jobs:
             if (!bridge.includes(marker)) throw new Error(`Condition bridge missing ${marker}`);
           }
 
+          const templates = fs.readFileSync('provider-assessment-demo/professional-templates-v1.js', 'utf8');
+          const templateMarkers = [
+            'ratingTemplate', 'performanceTemplate', 'interviewTemplate', 'externalTemplate',
+            'classificationTemplate', 'behaviorTemplate', 'communicationTemplate',
+            'detail_informants', 'detail_accommodations', 'بيانات القالب المهني'
+          ];
+          for (const marker of templateMarkers) {
+            if (!templates.includes(marker)) throw new Error(`Professional templates missing ${marker}`);
+          }
+
           const institutional = fs.readFileSync('provider-assessment-demo/institutional-live-v2.js', 'utf8');
-          for (const marker of ['2026.07.24-live.4', 'loadConditionPathways', 'conditions/conditions-data-v1.js', 'condition-entry-v1.js']) {
+          for (const marker of ['2026.07.24-live.5', 'loadConditionPathways', 'loadProfessionalTemplates', 'conditions/conditions-data-v1.js', 'condition-entry-v1.js', 'professional-templates-v1.js']) {
             if (!institutional.includes(marker)) throw new Error(`Institutional release missing ${marker}`);
           }
+
+          const worker = fs.readFileSync('provider-assessment-demo/sw-live-v2.js', 'utf8');
+          if (!worker.includes('2026.07.24-live.5')) throw new Error('Service worker release mismatch');
 
           const sitemap = fs.readFileSync('sitemap.xml', 'utf8');
           const sitemapConditionUrls = [...sitemap.matchAll(/provider-assessment-demo\/conditions\//g)].length;
@@ -110,7 +126,8 @@ jobs:
           const combined = [
             fs.readFileSync('provider-assessment-demo/conditions/conditions-data-v1.js', 'utf8'),
             fs.readFileSync('provider-assessment-demo/conditions/conditions-ui-v1.js', 'utf8'),
-            fs.readFileSync('provider-assessment-demo/condition-entry-v1.js', 'utf8')
+            fs.readFileSync('provider-assessment-demo/condition-entry-v1.js', 'utf8'),
+            templates
           ].join('\n');
           for (const token of ['fetch(', 'XMLHttpRequest', 'WebSocket', 'sendBeacon(', 'EventSource(']) {
             if (combined.includes(token)) throw new Error(`Network API forbidden in local pathways: ${token}`);
@@ -120,8 +137,9 @@ jobs:
             conditionPages: registry.conditions.length,
             commonDomains: registry.commonDomains.length,
             workflowStages: registry.workflowStages.length,
+            templateFamilies: 7,
             sitemapConditionUrls,
-            release: '2026.07.24-live.4',
+            release: '2026.07.24-live.5',
             status: 'passed'
           });
           NODE
