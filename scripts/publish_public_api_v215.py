@@ -17,10 +17,12 @@ from scripts.publish_public_api_v215_core import *  # noqa: F401,F403
 SECURITY_CONTRACT_VERSION = 218
 _core_validate_courses = _core.validate_courses
 _core_course_schema = _core.course_schema
+_ACTIVE_SOURCE_EXPIRY: dict[str, str | None] = {}
 
 
 def public_sources(manifest: dict[str, Any]) -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
+    _ACTIVE_SOURCE_EXPIRY.clear()
     for raw in manifest.get("sources") or []:
         if not isinstance(raw, dict) or not raw.get("enabled"):
             continue
@@ -28,6 +30,7 @@ def public_sources(manifest: dict[str, Any]) -> list[dict[str, Any]]:
             source = _importer.validate_source(raw)
         except _importer.CourseImportError as exc:
             raise PublicApiError(f"inactive or invalid course source: {exc}") from exc
+        _ACTIVE_SOURCE_EXPIRY[source.source_id] = source.permission_expires_at
         result.append(
             {
                 "id": source.source_id,
@@ -48,11 +51,21 @@ def validate_courses(
 ) -> list[dict[str, Any]]:
     courses = _core_validate_courses(imported, approved_ids)
     for item in courses:
+        source_id = str(item.get("source_id") or "")
+        if source_id not in _ACTIVE_SOURCE_EXPIRY:
+            raise PublicApiError(
+                "published course source permission was not revalidated in this publication run"
+            )
         if "permission_expires_at" not in item:
             raise PublicApiError(
                 "published course is missing permission_expires_at from security contract v218"
             )
         expires_at = item.get("permission_expires_at")
+        expected_expiry = _ACTIVE_SOURCE_EXPIRY[source_id]
+        if expires_at != expected_expiry:
+            raise PublicApiError(
+                "published course permission window does not match its active source permission"
+            )
         if expires_at in {None, ""}:
             continue
         try:
@@ -72,6 +85,9 @@ def course_schema() -> dict[str, Any]:
         "format": "date",
         "description": "Expiry date for fixed permission, or null for perpetual permission.",
     }
+    required = schema.setdefault("required", [])
+    if "permission_expires_at" not in required:
+        required.append("permission_expires_at")
     return schema
 
 
@@ -92,6 +108,7 @@ def publish(
     )
     report["security_contract_version"] = SECURITY_CONTRACT_VERSION
     report["permission_expiry_revalidated"] = True
+    report["course_source_windows_matched"] = True
     report_path = ROOT / ".build" / "reports" / "public-api-v215.json"
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(
