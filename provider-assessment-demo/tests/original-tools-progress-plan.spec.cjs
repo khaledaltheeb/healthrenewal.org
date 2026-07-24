@@ -37,6 +37,7 @@ test('original tool progress plans require functional goals, human review and au
 
   await expect(panel).toContainText('جاهز للمراجعة المهنية');
   await expect(panel).toContainText('لا تعلن المنصة تحقق الهدف آليًا');
+  await expect(panel).toContainText('تدخل ضمن نسخة الحالة الاحتياطية');
   await panel.locator('[data-edit-progress-plan]').click();
   const editForm = panel.locator('[data-progress-plan-form]');
   await editForm.locator('[name="functionalGoal"]').fill('زيادة المبادرات التواصلية في المنزل والمدرسة مع توثيق السياق.');
@@ -44,12 +45,25 @@ test('original tool progress plans require functional goals, human review and au
   await editForm.locator('button[type="submit"]').click();
   await expect(panel).toContainText('أحداث السجل: 2');
 
-  const book = await page.evaluate(() => JSON.parse(localStorage.getItem('pa-original-progress-plans-v3:UID-GOAL-PLAN-TEST')));
-  expect(book.schema).toBe('pa-original-progress-plans-v3');
-  expect(book.ownerUid).toBe('UID-GOAL-PLAN-TEST');
-  expect(book.plans).toHaveLength(1);
-  expect(book.plans[0].auditTrail).toHaveLength(2);
-  expect(book.plans[0].auditTrail[1].event).toBe('plan_revised');
-  expect(book.plans[0].auditTrail[1].reason).toBe('توسيع الهدف بعد مراجعة الفريق.');
-  expect(book.plans[0].decisionRule).toContain('يراجع الفريق');
+  const store = await page.evaluate(() => JSON.parse(localStorage.getItem('pa-demo-store-v3:UID-GOAL-PLAN-TEST')));
+  const plans = store.cases[0].originalProgressPlans;
+  expect(plans).toHaveLength(1);
+  expect(plans[0].schema).toBe('pa-original-progress-plan-v3');
+  expect(plans[0].createdByUid).toBe('UID-GOAL-PLAN-TEST');
+  expect(plans[0].auditTrail).toHaveLength(2);
+  expect(plans[0].auditTrail[1].event).toBe('plan_revised');
+  expect(plans[0].auditTrail[1].reason).toBe('توسيع الهدف بعد مراجعة الفريق.');
+  expect(plans[0].decisionRule).toContain('يراجع الفريق');
+
+  const downloadPromise = page.waitForEvent('download');
+  await panel.locator('[data-export-progress-plans]').click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe('CASE-GOAL-001-original-progress-plans.json');
+  const fs = require('fs');
+  const exported = JSON.parse(fs.readFileSync(await download.path(), 'utf8'));
+  expect(exported.schema).toBe('pa-original-progress-plan-export-v3');
+  expect(exported.ownerUid).toBe('UID-GOAL-PLAN-TEST');
+  expect(exported.backupLocation).toBe('embedded-in-case-record');
+  expect(exported.interpretationBoundary).toBe('human-review-required-not-diagnostic-not-norm-referenced');
+  expect(exported.plans[0].auditTrail).toHaveLength(2);
 });
