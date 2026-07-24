@@ -1,53 +1,158 @@
 from __future__ import annotations
-import html, json, sys, xml.etree.ElementTree as ET
-from datetime import date
+
+"""واجهة نشر SEO للأدوات اليومية.
+
+يحافظ الناشر الأساسي على الخصوصية المحلية: لا تُرسل البيانات إلى خادم.
+المحتوى تنظيمي غير تشخيصي، ويعرض بوضوح متى تطلب المساعدة من مختص.
+"""
+
+import json
+import re
+import sys
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[1]
-SITE=Path(sys.argv[1] if len(sys.argv)>1 else '_site').resolve()
-DATA=ROOT/'content/v24/daily-tools-learning-paths-ar.json'
-BASE='https://khaledaltheeb.github.io/pterminology-site/'
-PATH='/pterminology-site/'
-TODAY=date.today().isoformat()
+from typing import Any, Iterable
 
-def e(v): return html.escape(str(v),quote=True)
-def shell(title,desc,canonical,schema,body):
-    return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{e(title)} | مصطلحات علم النفس</title><meta name="description" content="{e(desc)}"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large"><link rel="canonical" href="{e(canonical)}"><meta property="og:type" content="article"><meta property="og:locale" content="ar_AR"><meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{e(canonical)}"><script type="application/ld+json">{json.dumps(schema,ensure_ascii=False).replace('</','<\/')}</script><style>*{{box-sizing:border-box}}body{{margin:0;font-family:Tahoma,Arial,sans-serif;line-height:1.9;color:#173f45;background:linear-gradient(140deg,#fff8fb,#e7fbf7,#eeeaff)}}main{{width:min(1050px,92%);margin:auto;padding:28px 0 60px}}header,section,article{{background:#fff;border:1px solid #cbe9e5;border-radius:24px;padding:clamp(18px,4vw,36px);margin:16px 0;box-shadow:0 14px 40px rgba(40,100,100,.08)}}header{{background:linear-gradient(135deg,#ffe7f0,#dffaf7,#eee9ff)}}h1{{font-size:clamp(2rem,5vw,3.5rem);line-height:1.3}}h2{{color:#7d3658}}a{{color:#086e69}}nav{{display:flex;gap:10px;flex-wrap:wrap}}nav a,.button{{display:inline-block;padding:9px 14px;border:1px solid #bfe2de;border-radius:14px;text-decoration:none;background:#fff;font-weight:700}}label{{font-weight:700}}input,textarea{{width:100%;padding:12px;border:1px solid #9fcfc9;border-radius:12px;font:inherit}}textarea{{min-height:100px}}.note{{border-right:5px solid #c7476e;background:#fff0f3}}.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}}@media(max-width:640px){{nav{{display:grid}}}}</style></head><body>{body}</body></html>'''
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
-def nav(): return f'<nav aria-label="التنقل"><a href="{PATH}">الرئيسية</a><a href="{PATH}daily-tools/">الأدوات اليومية</a><a href="{PATH}learning-paths/">مسارات التعلم</a><a href="{PATH}care-guides/">أدلة التعامل</a></nav>'
-def source_list(data): return '<ul>'+''.join(f'<li><a rel="noopener noreferrer" href="{e(s["url"])}">{e(s["publisher"])} — {e(s["title"])} ({s["year"]})</a></li>' for s in data['sources'])+'</ul>'
-def save_form(tool):
-    fields=''.join(f'<p><label>{e(f)}<input data-field="{e(f)}"></label></p>' for f in tool['save_fields'])
-    return f'''<section><h2>سجل شخصي على هذا الجهاز</h2><p>لا تُرسل البيانات إلى خادم. احفظ أقل قدر ممكن وتجنب كتابة معلومات تعريفية حساسة.</p><form data-tool="{e(tool['slug'])}">{fields}<button type="button" class="button" onclick="saveTool(this.form)">حفظ محلي</button> <button type="button" class="button" onclick="clearTool(this.form)">مسح</button><p aria-live="polite" class="status"></p></form></section><script>function key(f){{return 'pt-v24-'+f.dataset.tool}}function saveTool(f){{let o={{}};f.querySelectorAll('[data-field]').forEach(x=>o[x.dataset.field]=x.value);localStorage.setItem(key(f),JSON.stringify(o));f.querySelector('.status').textContent='تم الحفظ على هذا الجهاز.'}}function clearTool(f){{localStorage.removeItem(key(f));f.reset();f.querySelector('.status').textContent='تم المسح.'}}document.querySelectorAll('form[data-tool]').forEach(f=>{{try{{let o=JSON.parse(localStorage.getItem(key(f))||'{{}}');f.querySelectorAll('[data-field]').forEach(x=>x.value=o[x.dataset.field]||'')}}catch(e){{}}}})</script>'''
-def publish(data):
-    out=SITE/'daily-tools';out.mkdir(parents=True,exist_ok=True)
-    cards=''.join(f'<article><h2>{e(t["title"])}</h2><p>{e(t["intent"])}</p><p><strong>المدة:</strong> {e(t["duration"])}</p><a class="button" href="{PATH}daily-tools/{e(t["slug"])}/">فتح الأداة</a></article>' for t in data['tools'])
-    schema={'@context':'https://schema.org','@type':'CollectionPage','name':'الأدوات النفسية اليومية','inLanguage':'ar','url':BASE+'daily-tools/','hasPart':[{'@type':'WebApplication','name':t['title'],'url':BASE+'daily-tools/'+t['slug']+'/'} for t in data['tools']]}
-    (out/'index.html').write_text(shell('أدوات نفسية يومية عملية','أدوات تنظيمية عربية غير تشخيصية للتوتر والنوم والأسرة والفقد والحدود.',BASE+'daily-tools/',schema,f'<main>{nav()}<header><h1>أدوات نفسية يومية</h1><p>{e(data["disclaimer"])}</p></header><div class="grid">{cards}</div><section><h2>المصادر</h2>{source_list(data)}</section></main>'),encoding='utf-8')
-    for t in data['tools']:
-        d=out/t['slug'];d.mkdir(parents=True,exist_ok=True);canonical=BASE+'daily-tools/'+t['slug']+'/'
-        steps=''.join(f'<li>{e(x)}</li>' for x in t['steps'])
-        schema={'@context':'https://schema.org','@graph':[{'@type':'WebApplication','name':t['title'],'description':t['intent'],'applicationCategory':'HealthApplication','operatingSystem':'Any','inLanguage':'ar','url':canonical},{'@type':'HowTo','name':t['title'],'step':[{'@type':'HowToStep','position':i+1,'text':x} for i,x in enumerate(t['steps'])]}]}
-        help_guidance='<section class="note"><h2>متى تطلب المساعدة؟</h2><p>هذه الأداة للتنظيم والمتابعة وليست تشخيصًا. اطلب مساعدة مختص مؤهل إذا استمرت الصعوبة، عطلت حياتك اليومية، أو أثارت النتيجة قلقًا لديك. عند وجود خطر فوري على النفس أو الآخرين تواصل مع خدمات الطوارئ المحلية فورًا.</p></section>'
-        body=f'<main>{nav()}<header><p>أداة تنظيمية غير تشخيصية</p><h1>{e(t["title"])}</h1><p>{e(t["intent"])}</p><p><strong>المدة:</strong> {e(t["duration"])}</p></header><section><h2>الخطوات</h2><ol>{steps}</ol></section>{save_form(t)}<section class="note"><h2>السلامة</h2><p>{e(t["safety"])}</p><p>{e(data["disclaimer"])}</p></section>{help_guidance}<section><h2>مصادر المنهج</h2>{source_list(data)}</section></main>'
-        (d/'index.html').write_text(shell(t['title'],t['intent'],canonical,schema,body),encoding='utf-8')
-    paths=SITE/'learning-paths';paths.mkdir(parents=True,exist_ok=True)
-    cards=''.join(f'<article><h2>{e(p["title"])}</h2><p>{e(p["goal"])}</p><a class="button" href="{PATH}learning-paths/{e(p["slug"])}/">بدء المسار</a></article>' for p in data['paths'])
-    (paths/'index.html').write_text(shell('مسارات تعلم الصحة النفسية','مسارات عربية قصيرة مترابطة للتعلم والتطبيق دون تشخيص ذاتي.',BASE+'learning-paths/',{'@context':'https://schema.org','@type':'CollectionPage','name':'مسارات تعلم الصحة النفسية','inLanguage':'ar'},f'<main>{nav()}<header><h1>مسارات تعلم قصيرة</h1><p>{e(data["disclaimer"])}</p></header><div class="grid">{cards}</div></main>'),encoding='utf-8')
-    for p in data['paths']:
-        d=paths/p['slug'];d.mkdir(parents=True,exist_ok=True);days=''.join(f'<li><strong>اليوم {i+1}:</strong> {e(x)}</li>' for i,x in enumerate(p['days']));links=''.join(f'<li><a href="{PATH}daily-tools/{e(s)}/">{e(next(t["title"] for t in data["tools"] if t["slug"]==s))}</a></li>' for s in p['related_tools'])
-        schema={'@context':'https://schema.org','@type':'Course','name':p['title'],'description':p['goal'],'inLanguage':'ar','provider':{'@type':'Organization','name':'مصطلحات علم النفس'}}
-        (d/'index.html').write_text(shell(p['title'],p['goal'],BASE+'learning-paths/'+p['slug']+'/',schema,f'<main>{nav()}<header><p>مسار تثقيفي غير علاجي</p><h1>{e(p["title"])}</h1><p>{e(p["goal"])}</p></header><section><h2>خطة الأيام</h2><ol>{days}</ol></section><section><h2>أدوات مرتبطة</h2><ul>{links}</ul></section><section class="note"><p>{e(data["disclaimer"])}</p></section></main>'),encoding='utf-8')
-    urls=[BASE+'daily-tools/']+[BASE+'daily-tools/'+t['slug']+'/' for t in data['tools']]+[BASE+'learning-paths/']+[BASE+'learning-paths/'+p['slug']+'/' for p in data['paths']]
-    ns='http://www.sitemaps.org/schemas/sitemap/0.9';ET.register_namespace('',ns);root=ET.Element(f'{{{ns}}}urlset')
-    for u in urls:
-        n=ET.SubElement(root,f'{{{ns}}}url');ET.SubElement(n,f'{{{ns}}}loc').text=u;ET.SubElement(n,f'{{{ns}}}lastmod').text=TODAY;ET.SubElement(n,f'{{{ns}}}changefreq').text='monthly'
-    ET.ElementTree(root).write(SITE/'sitemap-tools-paths.xml',encoding='utf-8',xml_declaration=True)
-    idx=ET.parse(SITE/'sitemap.xml');r=idx.getroot();target=BASE+'sitemap-tools-paths.xml'
-    existing={x.text for x in r.findall(f'{{{ns}}}sitemap/{{{ns}}}loc') if x.text}
-    if target not in existing:
-        s=ET.SubElement(r,f'{{{ns}}}sitemap');ET.SubElement(s,f'{{{ns}}}loc').text=target
-    idx.write(SITE/'sitemap.xml',encoding='utf-8',xml_declaration=True)
-    api=SITE/'api';api.mkdir(exist_ok=True);(api/'daily-tools-v24.json').write_text(json.dumps({'version':24,'tools':len(data['tools']),'paths':len(data['paths']),'pages':len(urls),'local_only':True},ensure_ascii=False,indent=2),encoding='utf-8')
-if __name__=='__main__':
-    if not SITE.exists(): raise SystemExit('Missing site output')
-    publish(json.loads(DATA.read_text(encoding='utf-8')))
+from scripts import publish_daily_tools_v24_core as _core
+from scripts.publish_daily_tools_v24_core import *  # noqa: F401,F403
+
+SEO_CONTRACT = 219
+SITE_NAME = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
+FOUNDING_NAME = "مصطلحات علم النفس"
+SOCIAL_IMAGE = BASE + "assets/brand/social-card.svg"
+LOGO = PATH + "assets/brand/logo-mark.svg"
+MANIFEST = PATH + "manifest.webmanifest"
+SEARCH = PATH + "opensearch.xml"
+
+
+def _unique(values: Iterable[str], limit: int = 8) -> list[str]:
+    result: list[str] = []
+    seen: set[str] = set()
+    for raw in values:
+        value = re.sub(r"\s+", " ", str(raw or "")).strip(" ،,.-")
+        key = value.casefold()
+        if not value or key in seen:
+            continue
+        seen.add(key)
+        result.append(value[:90])
+        if len(result) >= limit:
+            break
+    return result
+
+
+def topic_keywords(title: str, description: str, canonical: str) -> list[str]:
+    if "/learning-paths/" in canonical:
+        route_terms = (
+            "مسارات تعلم الصحة النفسية",
+            "تعليم نفسي عربي",
+            "مهارات نفسية عملية",
+            "خطة تعلم قصيرة",
+            "أدوات دعم نفسي",
+        )
+    else:
+        route_terms = (
+            "أدوات نفسية تفاعلية",
+            "تمارين الصحة النفسية",
+            "تنظيم التوتر",
+            "متابعة نفسية محلية",
+            "أدوات دعم الأسرة",
+        )
+    description_term = description if len(description) <= 90 else ""
+    return _unique((title, description_term, *route_terms, FOUNDING_NAME))
+
+
+def institutionalize_schema(value: Any) -> Any:
+    if isinstance(value, list):
+        return [institutionalize_schema(item) for item in value]
+    if not isinstance(value, dict):
+        return value
+    result = {key: institutionalize_schema(item) for key, item in value.items()}
+    item_type = result.get("@type")
+    types = set(item_type) if isinstance(item_type, list) else {item_type}
+    if "Organization" in types:
+        current_name = str(result.get("name") or "").strip()
+        result["name"] = SITE_NAME
+        if current_name and current_name != SITE_NAME:
+            result.setdefault("alternateName", current_name)
+        else:
+            result.setdefault("alternateName", FOUNDING_NAME)
+        result.setdefault("url", BASE)
+        result.setdefault("logo", SOCIAL_IMAGE)
+    return result
+
+
+def shell(title: str, description: str, canonical: str, schema: dict[str, Any], body: str) -> str:
+    normalized_schema = institutionalize_schema(schema)
+    structured = json.dumps(normalized_schema, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    keywords = ",".join(topic_keywords(title, description, canonical))
+    page_type = "website" if canonical in {BASE + "daily-tools/", BASE + "learning-paths/"} else "article"
+    title_text = f"{title} | {SITE_NAME}"
+    image_alt = f"هوية {SITE_NAME}"
+    return f'''<!doctype html><html lang="ar" dir="rtl" data-design="marshmallow-v{DESIGN_CONTRACT}" data-seo="institutional-v{SEO_CONTRACT}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{e(title_text)}</title><meta name="description" content="{e(description)}"><meta name="keywords" content="{e(keywords)}"><meta name="author" content="{e(SITE_NAME)}"><meta name="application-name" content="{e(SITE_NAME)}"><meta name="subject" content="الصحة النفسية والأدوات النفسية التفاعلية"><meta name="audience" content="الأفراد والأسر ومقدمو الرعاية"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"><meta name="theme-color" content="#e5faf5"><meta name="color-scheme" content="light"><link rel="canonical" href="{e(canonical)}"><link rel="manifest" href="{MANIFEST}"><link rel="icon" href="{LOGO}" type="image/svg+xml"><link rel="apple-touch-icon" href="{LOGO}"><link rel="search" type="application/opensearchdescription+xml" title="البحث في المنصة" href="{SEARCH}"><link rel="sitemap" type="application/xml" href="{BASE}sitemap.xml"><meta property="og:type" content="{page_type}"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="{e(SITE_NAME)}"><meta property="og:title" content="{e(title_text)}"><meta property="og:description" content="{e(description)}"><meta property="og:url" content="{e(canonical)}"><meta property="og:image" content="{SOCIAL_IMAGE}"><meta property="og:image:alt" content="{e(image_alt)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{e(title_text)}"><meta name="twitter:description" content="{e(description)}"><meta name="twitter:image" content="{SOCIAL_IMAGE}"><meta name="twitter:image:alt" content="{e(image_alt)}"><script type="application/ld+json">{structured}</script><style>{STYLE}</style></head><body>{body}</body></html>'''
+
+
+def _expected_pages(data: dict[str, Any]) -> list[Path]:
+    return (
+        [SITE / "daily-tools" / "index.html", SITE / "learning-paths" / "index.html"]
+        + [SITE / "daily-tools" / tool["slug"] / "index.html" for tool in data["tools"]]
+        + [SITE / "learning-paths" / path["slug"] / "index.html" for path in data["paths"]]
+    )
+
+
+def validate_metadata(data: dict[str, Any]) -> None:
+    required = (
+        'data-seo="institutional-v219"',
+        '<meta name="keywords"',
+        '<link rel="canonical"',
+        '<link rel="manifest"',
+        '<link rel="icon"',
+        '<link rel="search"',
+        'property="og:image"',
+        'name="twitter:card"',
+        'name="twitter:image"',
+        'application/ld+json',
+    )
+    errors: list[str] = []
+    for page in _expected_pages(data):
+        if not page.is_file():
+            errors.append(f"missing page: {page}")
+            continue
+        text = page.read_text(encoding="utf-8")
+        missing = [marker for marker in required if marker not in text]
+        match = re.search(r'<meta name="keywords" content="([^"]+)">', text)
+        keywords = [item.strip() for item in match.group(1).split(",")] if match else []
+        if missing:
+            errors.append(f"{page}: missing {missing}")
+        if not 4 <= len(keywords) <= 8 or len(keywords) != len(set(keywords)):
+            errors.append(f"{page}: invalid topic keyword set {keywords}")
+        if text.count('<meta name="description"') != 1 or text.count('<link rel="canonical"') != 1:
+            errors.append(f"{page}: duplicate or missing primary metadata")
+        schema_match = re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)
+        if not schema_match:
+            errors.append(f"{page}: JSON-LD is missing")
+        else:
+            schema_text = schema_match.group(1)
+            if '"@type":"Organization","name":"مصطلحات علم النفس"' in schema_text:
+                errors.append(f"{page}: founding name remains the primary Organization identity")
+            if '"@type":"Organization"' in schema_text and SITE_NAME not in schema_text:
+                errors.append(f"{page}: institutional Organization identity is missing")
+    if errors:
+        raise SystemExit("Daily tools metadata contract failed:\n" + "\n".join(errors))
+
+
+def publish(data: dict[str, Any]) -> None:
+    _core.shell = shell
+    _core.publish(data)
+    validate_metadata(data)
+
+
+_core.shell = shell
+
+
+if __name__ == "__main__":
+    if not SITE.exists():
+        raise SystemExit("Missing site output")
+    publish(json.loads(DATA.read_text(encoding="utf-8")))

@@ -1,0 +1,86 @@
+name: Validate institutional API and authorized courses v218
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/integrations/**"
+      - "scripts/import_authorized_courses_v215.py"
+      - "scripts/publish_public_api_v215.py"
+      - "scripts/publish_public_api_v215_core.py"
+      - "scripts/apply_homepage_v20.py"
+      - "tests/test_public_api_v215.py"
+      - "tests/test_public_api_permission_revalidation_v218.py"
+      - "tests/test_course_source_network_contract_v218.py"
+      - ".github/workflows/validate-institutional-api-v218.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "content/integrations/**"
+      - "scripts/import_authorized_courses_v215.py"
+      - "scripts/publish_public_api_v215.py"
+      - "scripts/publish_public_api_v215_core.py"
+      - "scripts/apply_homepage_v20.py"
+      - "tests/test_public_api_v215.py"
+      - "tests/test_public_api_permission_revalidation_v218.py"
+      - "tests/test_course_source_network_contract_v218.py"
+      - ".github/workflows/validate-institutional-api-v218.yml"
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: institutional-api-v218-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-authorized-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate permission manifests and Python syntax
+        run: |
+          set -euxo pipefail
+          python -m json.tool content/integrations/course-sources-v215.json >/dev/null
+          python -m json.tool content/integrations/imported-courses-v215.json >/dev/null
+          python -m py_compile \
+            scripts/import_authorized_courses_v215.py \
+            scripts/publish_public_api_v215.py \
+            scripts/publish_public_api_v215_core.py \
+            tests/test_public_api_v215.py \
+            tests/test_public_api_permission_revalidation_v218.py \
+            tests/test_course_source_network_contract_v218.py
+
+      - name: Test permission expiry SSRF DNS pinning publication revalidation sanitation and API compatibility
+        run: |
+          python -m unittest -v \
+            tests.test_public_api_v215 \
+            tests.test_public_api_permission_revalidation_v218 \
+            tests.test_course_source_network_contract_v218
+
+      - name: Audit enabled permission windows without fetching feeds
+        run: |
+          python - <<'PY'
+          import importlib.util,json,sys
+          from pathlib import Path
+          path=Path('scripts/import_authorized_courses_v215.py')
+          spec=importlib.util.spec_from_file_location('course_permission_audit',path)
+          module=importlib.util.module_from_spec(spec)
+          sys.modules['course_permission_audit']=module
+          spec.loader.exec_module(module)
+          manifest=json.loads(Path('content/integrations/course-sources-v215.json').read_text(encoding='utf-8'))
+          assert manifest.get('policy') == 'deny-by-default', manifest
+          assert manifest.get('security_contract_version') == 218, manifest
+          assert manifest.get('network_security',{}).get('dns_answers_pinned_during_connection') is True, manifest
+          enabled=[source for source in manifest.get('sources',[]) if isinstance(source,dict) and source.get('enabled')]
+          approved=[module.validate_source(source) for source in enabled]
+          print({'policy':manifest['policy'],'enabled_sources':len(enabled),'active_permissions':len(approved),'security_contract':module.SECURITY_CONTRACT_VERSION,'dns_pinning':True})
+          PY

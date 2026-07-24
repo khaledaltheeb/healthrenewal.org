@@ -8,6 +8,7 @@ from html import unescape
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+DESIGN_CONTRACT = 219
 
 
 def require(text: str, pattern: str, message: str) -> None:
@@ -29,11 +30,24 @@ def write_minimal_sitemap(site: Path) -> None:
         '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>\n',
         encoding="utf-8",
     )
+    (site / "index.html").write_text(
+        '<!doctype html><html lang="ar" dir="rtl"><head><title>منصة اختبار</title>'
+        '<meta name="keywords" content="الصحة النفسية">'
+        '<script type="application/ld+json">'
+        '{"@context":"https://schema.org","@graph":[{"@type":"CollectionPage","@id":"https://khaledaltheeb.github.io/pterminology-site/#home","hasPart":[]}]}'
+        '</script></head><body><nav><a href="provider-assessment-demo/">منصة التقييم</a></nav>'
+        '<article><a href="cognitive-tests/">فتح المهام</a></article></body></html>',
+        encoding="utf-8",
+    )
 
 
-def validate_generated_shell(site: Path) -> None:
+def finalize_generated_shell(site: Path) -> None:
     subprocess.run(
         [sys.executable, str(ROOT / "scripts/patch_sleep_svg_export_v65.py"), str(site)],
+        check=True,
+    )
+    subprocess.run(
+        [sys.executable, str(ROOT / "scripts/apply_daily_tools_marshmallow_v219.py"), str(site)],
         check=True,
     )
 
@@ -46,6 +60,11 @@ def verify_generated_page(site: Path) -> int:
     text = page.read_text(encoding="utf-8")
     js = (ROOT / "assets/sleep-log-v49.js").read_text(encoding="utf-8")
     require(text, r'<html[^>]+lang="ar"[^>]+dir="rtl"', "Arabic RTL root missing")
+    require(text, rf'data-design="marshmallow-v{DESIGN_CONTRACT}"', "marshmallow design contract missing")
+    for marker in ("--mint:#e5faf5", "--rose:#fff0f5", "--lilac:#f2edff", "--peach:#fff0e8", "--butter:#fff8d8"):
+        require(text, re.escape(marker), f"marshmallow palette marker missing: {marker}")
+    if "text-shadow" in text.lower() or "rgba(0,0,0" in text.replace(" ", "").lower():
+        raise AssertionError("dark text-box shadow regression detected")
     require(text, r"data-sleep-log", "interactive form missing")
     require(text, r'role="status"[^>]+aria-live="polite"', "live status missing")
     require(text, r"غير تشخيص", "non-diagnostic boundary missing")
@@ -101,7 +120,7 @@ def main() -> None:
     production_site = ROOT / "_site"
     production_page = production_site / "daily-tools/sleep-wind-down-plan/index.html"
     if production_page.is_file():
-        validate_generated_shell(production_site)
+        finalize_generated_shell(production_site)
         verify_generated_page(production_site)
 
     with tempfile.TemporaryDirectory(prefix="sleep-log-v49-") as tmp:
@@ -116,11 +135,15 @@ def main() -> None:
             [sys.executable, str(ROOT / "scripts/publish_sleep_log_v49.py"), str(site)],
             check=True,
         )
-        validate_generated_shell(site)
+        finalize_generated_shell(site)
+        subprocess.run(
+            [sys.executable, str(ROOT / "scripts/verify_daily_tools_v24.py"), str(site)],
+            check=True,
+        )
         words = verify_generated_page(site)
 
     subprocess.run(["node", str(ROOT / "tests/test_sleep_log_v49.mjs")], check=True)
-    print(f"sleep-log-v49 verification passed with {words} visible words")
+    print(f"sleep-log-v49 verification passed with {words} visible words and marshmallow-v{DESIGN_CONTRACT}")
 
 
 if __name__ == "__main__":
