@@ -120,6 +120,7 @@
     record.nextAction = String(data.get("nextAction") || "review");
     record.lastUpdatedAt = now;
     record.lastUpdatedByUid = identity.uid;
+    record.lastUpdatedByRole = identity.role;
     caseRecord.updatedAt = now;
     save();
     render();
@@ -127,16 +128,23 @@
     toast("تم تحديث السجل مع حفظ أثر التدقيق.");
   }
 
+  function cardRecordId(card) {
+    if (card.dataset.recordId) return card.dataset.recordId;
+    const codes = card.querySelectorAll(".code.small");
+    return codes.length ? codes[codes.length - 1].textContent.trim() : "";
+  }
+
   function enhanceCards() {
     document.querySelectorAll(".professional-record").forEach((card) => {
       if (card.querySelector("[data-lifecycle-record]")) return;
-      const recordId = card.querySelector(".code.small")?.textContent?.trim();
+      const recordId = cardRecordId(card);
       const found = findRecord(recordId);
       if (!found) return;
+      card.dataset.recordId = recordId;
       const actions = document.createElement("div");
       actions.className = "professional-card-actions";
       actions.innerHTML = `<button class="button secondary small-button" type="button" data-lifecycle-record="${esc(recordId)}">تحديث الحالة</button>
-        <details class="audit-details"><summary>سجل التدقيق (${found.record.auditTrail?.length || 0})</summary><ol>${(found.record.auditTrail || []).slice().reverse().map((entry) => `<li><strong>${esc(STATUS[entry.fromStatus] || entry.fromStatus)} ← ${esc(STATUS[entry.toStatus] || entry.toStatus)}</strong><br><span>${esc(entry.reason)}</span><br><time>${esc(entry.changedAt)}</time></li>`).join("") || "<li>لا توجد تحديثات لاحقة.</li>"}</ol></details>`;
+        <details class="audit-details"><summary>سجل تغيرات الحالة (${found.record.auditTrail?.length || 0})</summary><ol>${(found.record.auditTrail || []).slice().reverse().map((entry) => `<li><strong>${esc(STATUS[entry.fromStatus] || entry.fromStatus)} ← ${esc(STATUS[entry.toStatus] || entry.toStatus)}</strong><br><span>${esc(entry.reason)}</span><br><time>${esc(entry.changedAt)}</time></li>`).join("") || "<li>لا توجد تحديثات لاحقة.</li>"}</ol></details>`;
       card.appendChild(actions);
     });
   }
