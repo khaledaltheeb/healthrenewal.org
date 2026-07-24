@@ -1,0 +1,53 @@
+name: Diagnose Pages v214 PR opener
+
+on:
+  push:
+    branches: ["ops/verify-live-stroop-v213"]
+    paths:
+      - ".github/workflows/diagnose-pages-v214-pr-opener.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      EVIDENCE_ISSUE: "184"
+    steps:
+      - name: Query opener workflow and pull requests
+        run: |
+          python - <<'PY'
+          import json, os, urllib.parse, urllib.request
+          from pathlib import Path
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'pages-v214-pr-diagnostic'}
+          def get(path):
+              request=urllib.request.Request(f'https://api.github.com/repos/{repo}{path}',headers=headers)
+              with urllib.request.urlopen(request,timeout=30) as response:
+                  return json.loads(response.read().decode('utf-8'))
+          branch=urllib.parse.quote('fix/pages-deployment-starvation-v214',safe='')
+          runs=get(f'/actions/runs?branch={branch}&per_page=30')['workflow_runs']
+          selected=[{key:run.get(key) for key in ('id','name','event','head_sha','status','conclusion','run_number','html_url')} for run in runs if run.get('name')=='Open Pages v214 PR']
+          jobs=[]
+          for run in selected[:3]:
+              raw=get(f"/actions/runs/{run['id']}/jobs?per_page=30")['jobs']
+              jobs.extend([{'run_id':run['id'],'job_id':job.get('id'),'name':job.get('name'),'status':job.get('status'),'conclusion':job.get('conclusion'),'steps':[{key:step.get(key) for key in ('name','status','conclusion','number')} for step in job.get('steps',[])]} for job in raw])
+          pulls=get('/pulls?state=all&base=main&per_page=100')
+          matching=[{'number':p.get('number'),'title':p.get('title'),'state':p.get('state'),'draft':p.get('draft'),'head':p.get('head',{}).get('ref'),'html_url':p.get('html_url')} for p in pulls if p.get('head',{}).get('ref')=='fix/pages-deployment-starvation-v214']
+          report={'opener_runs':selected,'jobs':jobs,'matching_pull_requests':matching}
+          Path('/tmp/pages-v214-pr-opener.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(report,ensure_ascii=False,indent=2))
+          PY
+      - name: Publish result
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const report=fs.readFileSync('/tmp/pages-v214-pr-opener.json','utf8');
+            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## v214 PR opener diagnostic\n\n\`\`\`json\n${report}\n\`\`\``});
