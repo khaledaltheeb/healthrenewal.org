@@ -1,12 +1,22 @@
 name: Validate Lighthouse WCAG and production parity v23
 
 on:
+  push:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/**"
+      - ".github/workflows/validate-global-quality-v20.yml"
   pull_request:
     branches: ["main"]
   workflow_dispatch:
 
 permissions:
   contents: read
+  statuses: write
+
+concurrency:
+  group: global-quality-v23-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   global-quality:
@@ -15,6 +25,20 @@ jobs:
       SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
     steps:
       - uses: actions/checkout@v4
+      - name: Publish pending global-quality status
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request
+          repo=os.environ['GITHUB_REPOSITORY']; sha=os.environ['GITHUB_SHA']
+          run_url=f"{os.environ['GITHUB_SERVER_URL']}/{repo}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+          payload=json.dumps({'state':'pending','context':'site/global-quality-v23','description':'Production build, Lighthouse and WCAG are running','target_url':run_url}).encode()
+          request=urllib.request.Request(f"https://api.github.com/repos/{repo}/statuses/{sha}",data=payload,method='POST',headers={'Accept':'application/vnd.github+json','Authorization':f"Bearer {os.environ['GH_TOKEN']}",'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'})
+          with urllib.request.urlopen(request) as response:
+              if response.status != 201: raise SystemExit(response.status)
+          PY
       - name: Restore and compile platform sources
         run: |
           set -euxo pipefail
@@ -134,3 +158,31 @@ jobs:
             /tmp/pterminology-v23-http.log
           if-no-files-found: warn
           retention-days: 14
+      - name: Publish successful global-quality status
+        if: success() && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request
+          repo=os.environ['GITHUB_REPOSITORY']; sha=os.environ['GITHUB_SHA']
+          run_url=f"{os.environ['GITHUB_SERVER_URL']}/{repo}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+          payload=json.dumps({'state':'success','context':'site/global-quality-v23','description':'Production build, PWA, Lighthouse and WCAG passed','target_url':run_url}).encode()
+          request=urllib.request.Request(f"https://api.github.com/repos/{repo}/statuses/{sha}",data=payload,method='POST',headers={'Accept':'application/vnd.github+json','Authorization':f"Bearer {os.environ['GH_TOKEN']}",'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'})
+          with urllib.request.urlopen(request) as response:
+              if response.status != 201: raise SystemExit(response.status)
+          PY
+      - name: Publish failed global-quality status
+        if: failure() && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request
+          repo=os.environ['GITHUB_REPOSITORY']; sha=os.environ['GITHUB_SHA']
+          run_url=f"{os.environ['GITHUB_SERVER_URL']}/{repo}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+          payload=json.dumps({'state':'failure','context':'site/global-quality-v23','description':'Production build, Lighthouse or WCAG regression detected','target_url':run_url}).encode()
+          request=urllib.request.Request(f"https://api.github.com/repos/{repo}/statuses/{sha}",data=payload,method='POST',headers={'Accept':'application/vnd.github+json','Authorization':f"Bearer {os.environ['GH_TOKEN']}",'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'})
+          with urllib.request.urlopen(request) as response:
+              if response.status != 201: raise SystemExit(response.status)
+          PY
