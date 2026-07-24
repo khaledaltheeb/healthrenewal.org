@@ -1,0 +1,60 @@
+{
+  "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+  "short_name": "الصحة النفسية",
+  "description": "موسوعة عربية للصحة النفسية والأشخاص ذوي الاحتياجات الخاصة والأدلة العملية والتربية الدامجة.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/pterminology-site/",
+  "scope": "/pterminology-site/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#075f5b",
+  "categories": [
+    "education",
+    "health",
+    "medical"
+  ],
+  "icons": [
+    {
+      "src": "/pterminology-site/assets/brand/logo-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "الموسوعة",
+      "url": "/pterminology-site/encyclopedia/",
+      "icons": [
+        {
+          "src": "/pterminology-site/assets/brand/logo-mark.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "ذوو الاحتياجات الخاصة",
+      "url": "/pterminology-site/special-needs/",
+      "icons": [
+        {
+          "src": "/pterminology-site/assets/brand/logo-mark.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "منصة التقييم",
+      "url": "/pterminology-site/provider-assessment-demo/",
+      "icons": [
+        {
+          "src": "/pterminology-site/assets/brand/logo-mark.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

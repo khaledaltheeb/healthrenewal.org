@@ -1,0 +1,59 @@
+{
+  "apiVersion": "1.0.0",
+  "generatedAt": "2026-07-24",
+  "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+  "alternateName": "مصطلحات علم النفس",
+  "baseUrl": "https://khaledaltheeb.github.io/pterminology-site/",
+  "language": "ar",
+  "direction": "rtl",
+  "licenseNotice": "تختلف حقوق المحتوى والأدوات والدورات حسب المصدر. لا يُعاد نشر محتوى خارجي أو استيراده إلا بإذن موثق وترخيص متوافق.",
+  "disclaimer": "البيانات للتثقيف والتكامل المعلوماتي ولا تثبت تشخيصًا ولا تستبدل التقييم أو العلاج الفردي.",
+  "resources": [
+    {
+      "id": "encyclopedia",
+      "type": "collection",
+      "title": "الموسوعة النفسية العربية",
+      "url": "https://khaledaltheeb.github.io/pterminology-site/encyclopedia/",
+      "tags": ["علم النفس", "الصحة النفسية", "مصطلحات"]
+    },
+    {
+      "id": "special-needs",
+      "type": "collection",
+      "title": "ذوو الاحتياجات الخاصة والتربية الدامجة",
+      "url": "https://khaledaltheeb.github.io/pterminology-site/special-needs/",
+      "tags": ["التربية الدامجة", "التدخل المبكر", "الدعم الأسري"]
+    },
+    {
+      "id": "care-guides",
+      "type": "collection",
+      "title": "أدلة التعامل العملي",
+      "url": "https://khaledaltheeb.github.io/pterminology-site/care-guides/",
+      "tags": ["أدلة عملية", "الأسرة", "مقدم الخدمة"]
+    },
+    {
+      "id": "assessment",
+      "type": "application",
+      "title": "منصة التقييم والاستكشاف",
+      "url": "https://khaledaltheeb.github.io/pterminology-site/provider-assessment-demo/",
+      "tags": ["التقييم", "الاستكشاف", "التقارير"]
+    },
+    {
+      "id": "magazine",
+      "type": "collection",
+      "title": "المجلة والأبحاث",
+      "url": "https://khaledaltheeb.github.io/pterminology-site/magazine/",
+      "tags": ["أبحاث", "دراسات", "تحليل"]
+    }
+  ],
+  "endpoints": {
+    "platform": "https://khaledaltheeb.github.io/pterminology-site/api/v1/platform.json",
+    "openapi": "https://khaledaltheeb.github.io/pterminology-site/api/v1/openapi.json",
+    "courseSchema": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.schema.json",
+    "courseExample": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.example.json"
+  },
+  "integrationPolicy": {
+    "externalCourseImport": "permission_required",
+    "requiredEvidence": ["source authorization", "content license", "provider identity", "canonical source URL"],
+    "prohibited": ["circumventing access controls", "copying protected course materials", "removing attribution", "publishing unverified provider claims"]
+  }
+}

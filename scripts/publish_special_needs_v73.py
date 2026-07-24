@@ -110,7 +110,7 @@ def common_schema(data: dict[str, Any], canonical: str, name: str, page_type: st
 def render_center(data: dict[str, Any]) -> str:
     canonical = BASE + "/special-needs/"
     title = "ذوو الاحتياجات الخاصة والتربية الدامجة | مصطلحات علم النفس"
-    description = "مركز عربي منظم للمعلومات والأدلة والأدوات الموجهة للأشخاص ذوي الإعاقة وأسرهم ومعلميهم ومقدمي الخدمات، مع قواعد للكرامة والسلامة والمصادر."
+    description = "مركز عربي منظم للمعلومات والأدلة والأدوات الموجهة للأشخاص ذوي الاحتياجات الخاصة وأسرهم ومعلميهم ومقدمي الخدمات، مع قواعد للكرامة والسلامة والمصادر."
     schema = {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
@@ -124,13 +124,13 @@ def render_center(data: dict[str, Any]) -> str:
     return f'''<!doctype html><html lang="ar" dir="rtl">{head(title, description, canonical, schema)}<body>
 <a class="skip" href="#main">انتقل إلى المحتوى الرئيسي</a><div class="wrap">{nav()}<main id="main">
 <header><p><strong>قسم أساسي في المنصة</strong></p><h1>ذوو الاحتياجات الخاصة والتربية الدامجة</h1>
-<p class="lead">معلومات عملية للأشخاص ذوي الإعاقة أو الاحتياجات الإضافية، وللأسر والمعلمين ومقدمي الرعاية والخدمات. يبنى القسم على الكرامة والمشاركة واللغة غير الوصمية وإزالة الحواجز، لا على الشفقة أو اختزال الإنسان في تشخيص.</p>
+<p class="lead">معلومات عملية للأشخاص ذوي الاحتياجات الخاصة وذوي احتياجات الدعم الإضافية، وللأسر والمعلمين ومقدمي الرعاية والخدمات. يبنى القسم على الكرامة والمشاركة واللغة غير الوصمية وإزالة الحواجز، لا على الشفقة أو اختزال الإنسان في تشخيص.</p>
 <p><strong>آخر مراجعة:</strong> <time datetime="{e(data["reviewed_at"])}">{e(data["reviewed_at"])}</time></p></header>
 <section class="notice"><h2>الحدود المهنية</h2><p>{e(data["professional_limits"])}</p><p>حالة المادة الحالية: تحتاج مراجعة خارجية متخصصة، ولا توجد دعوى اعتماد أو مراجعة سريرية.</p></section>
 <section><h2>المسارات التي سيغطيها المركز</h2><div class="cards">
 <article class="card"><h3>التربية الدامجة</h3><p>تكييف التعليمات والواجبات والبيئة الصفية وطرق المشاركة، مع قياس الأثر بدل الحكم على شخصية الطالب.</p><a href="{BASE_PATH}special-needs/{e(data["slug"])}/">فتح الوحدة المنشورة</a></article>
-<article class="card"><h3>التواصل والإتاحة</h3><p>التواصل البديل والمعزز، السمع والبصر، اللغة المبسطة، المواد القابلة للقراءة، واحترام طريقة التواصل المفضلة.</p><span>قيد الإعداد المنظم</span></article>
-<article class="card"><h3>الأسرة ومقدم الرعاية</h3><p>خطط يومية، انتقالات، نوم، تعليم، حماية من الاستغلال، دعم الإخوة، وتوزيع المسؤوليات دون إلقاء العبء على شخص واحد.</p><span>قيد التوسع</span></article>
+<article class="card"><h3>التواصل والإتاحة</h3><p>التواصل البديل والمعزز، السمع والبصر، اللغة المبسطة، المواد القابلة للقراءة، واحترام طريقة التواصل المفضلة.</p><a href="{BASE_PATH}special-needs/">استكشاف موارد التواصل والإتاحة</a></article>
+<article class="card"><h3>الأسرة ومقدم الرعاية</h3><p>خطط يومية، انتقالات، نوم، تعليم، حماية من الاستغلال، دعم الإخوة، وتوزيع المسؤوليات دون إلقاء العبء على شخص واحد.</p><a href="{BASE_PATH}care-guides/">فتح الأدلة الأسرية العملية</a></article>
 <article class="card"><h3>الحقوق والحماية</h3><p>مبادئ عامة للسلامة والموافقة والخصوصية والتنمر والإساءة، مع تجنب تقديم تفسير قانوني موحد لجميع البلدان.</p><a href="{BASE_PATH}trust/">قراءة منهج الثقة</a></article>
 </div></section>
 <section class="review"><h2>أول وحدة منشورة</h2><h3>{e(data["title_ar"])}</h3><p>{e(data["summary"])}</p><p><a class="button" href="{BASE_PATH}special-needs/{e(data["slug"])}/">الدخول إلى الوحدة</a></p></section>
@@ -253,7 +253,7 @@ def patch_homepage(site: Path, data: dict[str, Any]) -> dict[str, bool]:
         pattern = re.compile(r'(<article class="card"><h3>الأسرة والطفل</h3>.*?</article>)', re.S)
         card = (
             '<article class="card" data-special-needs-v73><h3>ذوو الاحتياجات الخاصة</h3>'
-            '<p>مركز أساسي للأشخاص ذوي الإعاقة وأسرهم ومعلميهم ومقدمي الخدمات: تعليم دامج، تواصل، حماية، أدوات وأدلة عملية.</p>'
+            '<p>مركز أساسي للأشخاص ذوي الاحتياجات الخاصة وأسرهم ومعلميهم ومقدمي الخدمات: تعليم دامج، تواصل، حماية، أدوات وأدلة عملية.</p>'
             '<a href="special-needs/">دخول المركز</a></article>'
         )
         text, count = pattern.subn(r"\1" + card, text, count=1)
