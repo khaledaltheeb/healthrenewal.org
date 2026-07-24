@@ -1,4 +1,4 @@
-name: Validate institutional API and authorized courses v218
+name: Validate institutional API authorized courses and production routes v220
 
 on:
   pull_request:
@@ -8,10 +8,15 @@ on:
       - "scripts/import_authorized_courses_v215.py"
       - "scripts/publish_public_api_v215.py"
       - "scripts/publish_public_api_v215_core.py"
-      - "scripts/apply_homepage_v20.py"
+      - "scripts/publish_verified_public_api_v220.py"
+      - "scripts/enforce_health_publication_gate_v192.py"
+      - "scripts/enforce_health_publication_gate_v192_core.py"
+      - "scripts/verify_daily_tools_v24.py"
+      - "scripts/verify_daily_tools_v24_core.py"
       - "tests/test_public_api_v215.py"
       - "tests/test_public_api_permission_revalidation_v218.py"
       - "tests/test_course_source_network_contract_v218.py"
+      - "tests/test_verified_public_api_v220.py"
       - ".github/workflows/validate-institutional-api-v218.yml"
   push:
     branches: ["main"]
@@ -20,10 +25,15 @@ on:
       - "scripts/import_authorized_courses_v215.py"
       - "scripts/publish_public_api_v215.py"
       - "scripts/publish_public_api_v215_core.py"
-      - "scripts/apply_homepage_v20.py"
+      - "scripts/publish_verified_public_api_v220.py"
+      - "scripts/enforce_health_publication_gate_v192.py"
+      - "scripts/enforce_health_publication_gate_v192_core.py"
+      - "scripts/verify_daily_tools_v24.py"
+      - "scripts/verify_daily_tools_v24_core.py"
       - "tests/test_public_api_v215.py"
       - "tests/test_public_api_permission_revalidation_v218.py"
       - "tests/test_course_source_network_contract_v218.py"
+      - "tests/test_verified_public_api_v220.py"
       - ".github/workflows/validate-institutional-api-v218.yml"
   schedule:
     - cron: "17 * * * *"
@@ -33,13 +43,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: institutional-api-v218-${{ github.ref }}
+  group: institutional-api-v220-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate-authorized-api:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -55,16 +65,23 @@ jobs:
             scripts/import_authorized_courses_v215.py \
             scripts/publish_public_api_v215.py \
             scripts/publish_public_api_v215_core.py \
+            scripts/publish_verified_public_api_v220.py \
+            scripts/enforce_health_publication_gate_v192.py \
+            scripts/enforce_health_publication_gate_v192_core.py \
+            scripts/verify_daily_tools_v24.py \
+            scripts/verify_daily_tools_v24_core.py \
             tests/test_public_api_v215.py \
             tests/test_public_api_permission_revalidation_v218.py \
-            tests/test_course_source_network_contract_v218.py
+            tests/test_course_source_network_contract_v218.py \
+            tests/test_verified_public_api_v220.py
 
-      - name: Test permission expiry SSRF DNS pinning publication revalidation sanitation and API compatibility
+      - name: Test permission expiry SSRF DNS pinning route verification sanitation and API compatibility
         run: |
           python -m unittest -v \
             tests.test_public_api_v215 \
             tests.test_public_api_permission_revalidation_v218 \
-            tests.test_course_source_network_contract_v218
+            tests.test_course_source_network_contract_v218 \
+            tests.test_verified_public_api_v220
 
       - name: Audit enabled permission windows without fetching feeds
         run: |
@@ -82,5 +99,5 @@ jobs:
           assert manifest.get('network_security',{}).get('dns_answers_pinned_during_connection') is True, manifest
           enabled=[source for source in manifest.get('sources',[]) if isinstance(source,dict) and source.get('enabled')]
           approved=[module.validate_source(source) for source in enabled]
-          print({'policy':manifest['policy'],'enabled_sources':len(enabled),'active_permissions':len(approved),'security_contract':module.SECURITY_CONTRACT_VERSION,'dns_pinning':True})
+          print({'policy':manifest['policy'],'enabled_sources':len(enabled),'active_permissions':len(approved),'security_contract':module.SECURITY_CONTRACT_VERSION,'dns_pinning':True,'route_contract':220})
           PY
