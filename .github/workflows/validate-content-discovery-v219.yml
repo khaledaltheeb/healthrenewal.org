@@ -9,8 +9,10 @@ on:
       - "scripts/content_discovery_v219.py"
       - "scripts/prepare_content_discovery_v219.py"
       - "scripts/publish_content_catalog_v219.py"
+      - "scripts/sync_public_api_discovery_v219.py"
       - "scripts/apply_homepage_v20.py"
       - "tests/test_content_discovery_v219.py"
+      - "tests/test_public_api_discovery_sync_v219.py"
       - ".github/workflows/validate-content-discovery-v219.yml"
   workflow_dispatch:
 
@@ -32,14 +34,20 @@ jobs:
             scripts/content_discovery_v219.py \
             scripts/prepare_content_discovery_v219.py \
             scripts/publish_content_catalog_v219.py \
+            scripts/sync_public_api_discovery_v219.py \
             scripts/apply_homepage_v20.py \
-            tests/test_content_discovery_v219.py
+            tests/test_content_discovery_v219.py \
+            tests/test_public_api_discovery_sync_v219.py
       - name: Run deterministic content discovery tests
-        run: python -m unittest -v tests.test_content_discovery_v219
+        run: |
+          python -m unittest -v \
+            tests.test_content_discovery_v219 \
+            tests.test_public_api_discovery_sync_v219
       - name: Validate public-language and privacy guards
         run: |
           grep -F 'personal_data": False' scripts/content_discovery_v219.py
           grep -F 'clinical_records": False' scripts/content_discovery_v219.py
           grep -F 'لا تتضمن بيانات شخصية' scripts/content_discovery_v219.py
+          grep -F 'content_discovery_stage' scripts/sync_public_api_discovery_v219.py
           ! grep -F 'قيد الإعداد' scripts/content_discovery_v219.py
           ! grep -F 'ما سيتم إنجازه' scripts/content_discovery_v219.py
