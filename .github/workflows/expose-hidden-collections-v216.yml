@@ -1,6 +1,11 @@
 name: Expose hidden collections v216
 
 on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/expose_hidden_collections_v216.py"
+      - ".github/workflows/expose-hidden-collections-v216.yml"
   push:
     branches: ["main"]
     paths:
@@ -12,8 +17,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: expose-hidden-collections-v216
-  cancel-in-progress: false
+  group: expose-hidden-collections-v216-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   apply:
@@ -38,6 +43,7 @@ jobs:
           git diff --check
 
       - name: Commit durable source and regression gate
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           set -euxo pipefail
           if git diff --quiet -- index.html scripts/verify_homepage_v19.py; then
