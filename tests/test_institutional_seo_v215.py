@@ -10,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "upgrade_institutional_seo_v215.py"
+GENERIC_KEYWORDS = {"مصطلحات علم النفس", "الصحة النفسية", "علم النفس بالعربي"}
 
 
 class InstitutionalSeoV215Tests(unittest.TestCase):
@@ -59,9 +60,13 @@ class InstitutionalSeoV215Tests(unittest.TestCase):
             'width="640" height="360"', 'class="visually-hidden-v215"',
         ):
             self.assertIn(marker, page)
-        keywords = re.search(r'name="keywords" content="([^"]+)"', page).group(1).split(", ")
+        keyword_content = re.search(r'name="keywords" content="([^"]+)"', page).group(1)
+        keywords = keyword_content.split(", ")
         self.assertLessEqual(len(keywords), 12)
+        self.assertLessEqual(len(keyword_content), 330)
         self.assertEqual(len(keywords), len(set(keywords)))
+        self.assertIn("مكتبة علم النفس", keywords)
+        self.assertTrue(set(keywords) - GENERIC_KEYWORDS, keywords)
         self.assertEqual(report["pages"], 2)
         self.assertGreaterEqual(report["og"], 1)
         self.assertGreaterEqual(report["twitter"], 1)
@@ -69,6 +74,9 @@ class InstitutionalSeoV215Tests(unittest.TestCase):
         self.assertGreaterEqual(report["empty_link_names"], 1)
         self.assertGreaterEqual(report["image_dimensions"], 1)
         self.assertEqual(report["operational_copy_pages"], 1)
+        operational = report["operational_copy_examples"][0]
+        self.assertEqual(operational["page"], "library/index.html")
+        self.assertIn("خارطة الطريق", operational["tokens"])
         self.assertTrue(report["content_expansion_required"])
 
     def test_404_is_noindex_and_processing_is_idempotent(self) -> None:
