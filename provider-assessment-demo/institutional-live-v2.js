@@ -36,7 +36,7 @@
     const product = document.querySelector(".product-name");
     if (product) product.textContent = "منصة التقييم والسجل المهني";
     const notice = document.querySelector(".notice-bar");
-    if (notice) notice.textContent = "الأدوات الاستكشافية الأصلية متاحة للاستخدام غير التشخيصي مع بروتوكولات موسعة وحدود تفسير وسلامة. المقاييس المهنية المحمية تبقى مقفلة حتى اكتمال الترخيص وحق الرقمنة والمراجعة العلمية والأمنية والمؤسسية.";
+    if (notice && document.documentElement.dataset.exploratoryMaturity !== "failed") notice.textContent = "الأدوات الاستكشافية الأصلية متاحة للاستخدام غير التشخيصي مع بروتوكولات موسعة وحدود تفسير وسلامة. المقاييس المهنية المحمية تبقى مقفلة حتى اكتمال الترخيص وحق الرقمنة والمراجعة العلمية والأمنية والمؤسسية.";
 
     const count = window.PA_OPERATIONAL_COUNT || window.PA_DEMO_DATA?.professional?.length || 0;
     const maturity = window.PA_EXPLORATORY_MATURITY_V220;
@@ -97,7 +97,35 @@
     observer.observe(target, { childList: true, subtree: true, characterData: true });
   };
 
-  const addScript = (src, datasetName, onload) => {
+  const announce = (message) => {
+    const live = document.getElementById("live-region");
+    if (live) live.textContent = message;
+  };
+
+  const setMaturityState = (state, message = "") => {
+    document.documentElement.dataset.exploratoryMaturity = state;
+    if (message) announce(message);
+    if (state === "failed") {
+      const notice = document.querySelector(".notice-bar");
+      if (notice) {
+        notice.setAttribute("role", "alert");
+        notice.textContent = "تعذر تحميل عقد الأدوات الاستكشافية الموسع. أُوقف بدء الأدوات لمنع تشغيل نسخة جزئية؛ أعد تحميل الصفحة أو استخدم السجل المهني فقط.";
+      }
+    }
+  };
+
+  const guardMaturityStart = () => {
+    document.addEventListener("click", (event) => {
+      const trigger = event.target.closest?.("[data-start], [data-guide]");
+      if (!trigger || window.PA_EXPLORATORY_MATURITY_V220) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const failed = document.documentElement.dataset.exploratoryMaturity === "failed";
+      announce(failed ? "الأداة غير متاحة لأن عقدها الموسع لم يكتمل تحميله." : "يكتمل الآن تحميل بروتوكول الأداة الموسع؛ أعد المحاولة بعد لحظات.");
+    }, true);
+  };
+
+  const addScript = (src, datasetName, onload, onerror) => {
     if (document.querySelector(`script[data-${datasetName}]`)) {
       if (onload) onload();
       return;
@@ -107,23 +135,36 @@
     script.defer = true;
     script.dataset[datasetName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())] = RELEASE;
     if (onload) script.addEventListener("load", onload, { once: true });
+    script.addEventListener("error", () => {
+      console.error(`Failed to load ${src}`);
+      if (onerror) onerror(src);
+    }, { once: true });
     document.head.appendChild(script);
   };
 
+  const maturityFailure = (src) => setMaturityState("failed", `تعذر تحميل ${src}`);
+
   const refreshExplorers = () => {
+    if (!window.PA_EXPLORATORY_MATURITY_V220 || window.PA_EXPLORATORY_MATURITY_V220.toolCount !== 20) {
+      maturityFailure("عقد الأدوات العشرين");
+      return;
+    }
+    setMaturityState("ready", "اكتمل تحميل الأدوات الاستكشافية الموسعة.");
     document.getElementById("explorer-search")?.dispatchEvent(new Event("input", { bubbles: true }));
     window.PA_EXPLORATORY_V220_REFRESH?.();
     applyInstitutionalCopy();
   };
 
-  const loadExploratoryMaturity = () =>
+  const loadExploratoryMaturity = () => {
+    setMaturityState("loading", "يتم تحميل بروتوكولات الأدوات الاستكشافية الموسعة.");
     addScript("exploratory-tools-maturity-runtime-v220.js", "exploratory-maturity-runtime-v220", () =>
       addScript("exploratory-tools-maturity-specs-1-v220.js", "exploratory-maturity-specs-1-v220", () =>
         addScript("exploratory-tools-maturity-specs-2-v220.js", "exploratory-maturity-specs-2-v220", () =>
           addScript("exploratory-tools-maturity-specs-3-v220.js", "exploratory-maturity-specs-3-v220", () =>
             addScript("exploratory-tools-maturity-specs-4-v220.js", "exploratory-maturity-specs-4-v220", () =>
               addScript("exploratory-tools-maturity-finalize-v220.js", "exploratory-maturity-finalize-v220", () =>
-                addScript("exploratory-tools-maturity-ui-v220.js", "exploratory-maturity-ui-v220", refreshExplorers)))))));
+                addScript("exploratory-tools-maturity-ui-v220.js", "exploratory-maturity-ui-v220", refreshExplorers, maturityFailure), maturityFailure), maturityFailure), maturityFailure), maturityFailure), maturityFailure), maturityFailure);
+  };
 
   const loadAssessmentPathways = () => addScript("assessment-pathways-content.js", "assessment-pathways");
   const loadConditionPathways = () => addScript("conditions/conditions-data-v1.js", "condition-pathways", () => addScript("condition-entry-v1.js", "condition-entry"));
@@ -154,6 +195,7 @@
     applyInstitutionalCopy();
     applyTabSemantics();
     observeOperationalUi();
+    guardMaturityStart();
     loadExploratoryMaturity();
     loadAssessmentPathways();
     loadConditionPathways();
