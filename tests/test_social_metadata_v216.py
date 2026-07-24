@@ -52,6 +52,35 @@ class SocialMetadataTests(unittest.TestCase):
         self.assertEqual(result.count('property="og:title"'), 1)
         self.assertIn('property="og:title" content="عنوان مخصص"', result)
 
+    def test_adds_webpage_json_ld_once(self):
+        module = load_polisher()
+        source = (
+            '<html lang="ar" dir="rtl"><head><title>صفحة منظمة</title>'
+            '<meta name="description" content="وصف دقيق للصفحة المنظمة.">'
+            '</head><body></body></html>'
+        )
+        result, changed = module.inject_json_ld(source, "صفحة منظمة")
+        self.assertTrue(changed)
+        self.assertIn('type="application/ld+json"', result)
+        self.assertIn('"@type":"WebPage"', result)
+        self.assertIn('"inLanguage":"ar"', result)
+
+        repeated, repeated_changed = module.inject_json_ld(result, "صفحة منظمة")
+        self.assertFalse(repeated_changed)
+        self.assertEqual(repeated, result)
+
+    def test_404_robots_are_noindex_follow(self):
+        module = load_polisher()
+        source = (
+            '<html><head><title>الصفحة غير موجودة</title>'
+            '<meta name="robots" content="index,follow">'
+            '</head><body></body></html>'
+        )
+        result, changed = module.inject_robots(source, noindex=True)
+        self.assertTrue(changed)
+        self.assertIn('name="robots" content="noindex,follow"', result)
+        self.assertNotIn('name="robots" content="index,follow"', result)
+
 
 if __name__ == "__main__":
     unittest.main()
