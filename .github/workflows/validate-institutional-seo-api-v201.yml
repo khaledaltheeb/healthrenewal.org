@@ -1,0 +1,62 @@
+name: Validate institutional SEO and API v201
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/publish_content_discovery_v201.py"
+      - "scripts/publish_authorized_courses_v201.py"
+      - "scripts/publish_global_metadata_v27.py"
+      - "tests/test_institutional_seo_api_v201.py"
+      - "api/index.html"
+      - "api/v1/platform.json"
+      - "api/v1/openapi.json"
+      - "api/v1/courses.schema.json"
+      - "api/v1/courses.example.json"
+      - "content/authorized-course-feeds/**"
+      - ".github/workflows/validate-institutional-seo-api-v201.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/publish_content_discovery_v201.py"
+      - "scripts/publish_authorized_courses_v201.py"
+      - "scripts/publish_global_metadata_v27.py"
+      - "tests/test_institutional_seo_api_v201.py"
+      - "api/**"
+      - "content/authorized-course-feeds/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publishers and tests
+        run: |
+          python -m py_compile \
+            scripts/publish_content_discovery_v201.py \
+            scripts/publish_authorized_courses_v201.py \
+            scripts/publish_global_metadata_v27.py \
+            tests/test_institutional_seo_api_v201.py
+      - name: Run SEO, taxonomy and authorized-course tests
+        run: python -m unittest -v tests.test_institutional_seo_api_v201
+      - name: Validate API source documents
+        run: |
+          python -m json.tool api/v1/platform.json >/dev/null
+          python -m json.tool api/v1/openapi.json >/dev/null
+          python -m json.tool api/v1/courses.schema.json >/dev/null
+          python -m json.tool api/v1/courses.example.json >/dev/null
+      - name: Validate public API documentation contract
+        run: |
+          grep -F '/api/v1/content-index.json' api/index.html
+          grep -F '/api/v1/taxonomy.json' api/index.html
+          grep -F '/api/v1/courses.json' api/index.html
+          grep -F 'data-topical-seo-v201' scripts/publish_content_discovery_v201.py
+          grep -F 'authorizationRequired' scripts/publish_authorized_courses_v201.py
