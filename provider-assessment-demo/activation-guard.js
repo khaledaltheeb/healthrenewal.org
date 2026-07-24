@@ -135,7 +135,7 @@
     }
 
     const cancelButton = event.target.closest(
-      "#account-form button[value='cancel'], #professional-record-form button[value='cancel'], #professional-lifecycle-form button[value='cancel'], #professional-record-edit-form button[value='cancel']"
+      "#account-form button[value='cancel'], #professional-record-form button[value='cancel'], #professional-lifecycle-form button[value='cancel'], #professional-record-edit-form button[value='cancel'], #backup-export-form button[value='cancel'], #backup-import-preview-form button[value='cancel'], #backup-unlock-form button[value='cancel']"
     );
     if (!cancelButton) return;
     event.preventDefault();
@@ -162,5 +162,6 @@
 
   loadModule("professional-record-lifecycle.js?v=20260724-integrity1", "professional-record-lifecycle")
     .then(() => loadModule("professional-record-integrity.js?v=20260724-integrity1", "professional-record-integrity"))
-    .catch((error) => console.error("Professional record module failed to load", error));
+    .then(() => loadModule("backup-integrity.js?v=20260724-backup1", "backup-integrity"))
+    .catch((error) => console.error("Provider assessment module failed to load", error));
 })();
