@@ -1,0 +1,72 @@
+name: Validate provider assessment institutional live v2
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/**"
+      - ".github/workflows/provider-assessment-institutional-live-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-live-v2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: |
+          node --check provider-assessment-demo/catalog-operational-v2.js
+          node --check provider-assessment-demo/institutional-live-v2.js
+          node --check provider-assessment-demo/sw-live-v2.js
+          node --check provider-assessment-demo/activation.js
+          node --check provider-assessment-demo/activation-guard.js
+      - name: Validate operational registry and release assets
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const vm = require('vm');
+          const base = 'provider-assessment-demo/';
+          const required = [
+            'index.html','catalog.js','catalog-extra.js','professional-master-registry.js',
+            'catalog-operational-v2.js','app.js','activation.js','activation-guard.js',
+            'enhancements.js','institutional-live-v2.js','sw-live-v2.js'
+          ];
+          for (const file of required) if (!fs.existsSync(base + file)) throw new Error(`Missing ${file}`);
+          const html = fs.readFileSync(base + 'index.html','utf8');
+          for (const marker of [
+            '2026.07.24-live.2','catalog-operational-v2.js?v=20260724-live2',
+            'institutional-live-v2.js?v=20260724-live2','المقاييس والفحوص والبروتوكولات المهنية الفعّالة'
+          ]) if (!html.includes(marker)) throw new Error(`Missing live marker ${marker}`);
+          for (const forbidden of ['مقفل','دليل فقط','النسخة التجريبية المنشورة']) {
+            if (html.includes(forbidden)) throw new Error(`Forbidden stale UI text: ${forbidden}`);
+          }
+          const context = { window: {} };
+          vm.runInNewContext(fs.readFileSync(base + 'catalog.js','utf8'), context);
+          vm.runInNewContext(fs.readFileSync(base + 'catalog-extra.js','utf8'), context);
+          vm.runInNewContext(fs.readFileSync(base + 'professional-master-registry.js','utf8'), context);
+          vm.runInNewContext(fs.readFileSync(base + 'catalog-operational-v2.js','utf8'), context);
+          const data = context.window.PA_DEMO_DATA;
+          if (!data || data.explorers.length !== 20) throw new Error(`Expected 20 exploratory tools, found ${data?.explorers?.length}`);
+          if (data.professional.length < 150) throw new Error(`Professional registry too small: ${data.professional.length}`);
+          if (data.professional.some(item => !item.operational)) throw new Error('Non-operational professional entries remain');
+          if (data.professional.some(item => item.status === 'locked')) throw new Error('Locked runtime states remain');
+          if (data.professional.some(item => !['workflow','external'].includes(item.status))) throw new Error('Unexpected runtime status remains');
+          console.log({explorers:data.explorers.length, professional:data.professional.length, release:context.window.PA_OPERATIONAL_RELEASE});
+          NODE
+      - name: Validate UID and professional record contracts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text='\n'.join(Path('provider-assessment-demo',p).read_text(encoding='utf-8') for p in ['app.js','activation.js','institutional-live-v2.js'])
+          required=['storeKey=u=>`pa-demo-store-v${V}:${u}`','professionalAssessments','recordedByUid: identity.uid','rightsConfirmed','MutationObserver','serviceWorker.register']
+          missing=[x for x in required if x not in text]
+          if missing: raise SystemExit({'missing':missing})
+          forbidden=['fetch("http','fetch(\'http','XMLHttpRequest','WebSocket','sendBeacon(']
+          found=[x for x in forbidden if x in text]
+          if found: raise SystemExit({'unexpected_network_api':found})
+          print({'uid':'isolated','professional_records':'enabled','cache_refresh':'enabled'})
+          PY
