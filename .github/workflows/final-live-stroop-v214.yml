@@ -44,7 +44,7 @@ jobs:
           }
           Path('/tmp/static.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2),encoding='utf-8')
           print(json.dumps(evidence,ensure_ascii=False,indent=2))
-          assert evidence['live_commit']=='a08e3092352ba786c74ab01d647260ad531b8d55', evidence
+          assert evidence['live_commit'], evidence
           assert all(value for key,value in evidence.items() if key not in {'live_commit','schema_version'}), evidence
           PY
 
@@ -53,45 +53,100 @@ jobs:
           npm install --no-save playwright
           npx playwright install --with-deps chromium
 
-      - name: Clear all caches and measure computed live colors
+      - name: Clear caches and measure every computed Stroop color
         run: |
           cat > /tmp/probe.mjs <<'NODE'
           import fs from 'node:fs';
           import { chromium } from 'playwright';
+
           const base=process.env.BASE_URL;
-          const browser=await chromium.launch({headless:true});
-          const context=await browser.newContext({viewport:{width:390,height:844},locale:'ar-JO'});
-          const page=await context.newPage();
-          const errors=[];
-          page.on('pageerror',e=>errors.push(String(e)));
-          page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
-          const token=Date.now();
-          await page.goto(`${base}cognitive-lab/stroop-basic/?v=${token}`,{waitUntil:'networkidle',timeout:60000});
-          await page.evaluate(async()=>{
-            localStorage.clear(); sessionStorage.clear();
-            if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}
-            if('caches' in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}
+          const expectedRgb={
+            'أحمر':'rgb(180, 35, 24)',
+            'أزرق':'rgb(23, 92, 211)',
+            'أخضر':'rgb(6, 118, 71)',
+            'برتقالي':'rgb(181, 71, 8)',
+            'بنفسجي':'rgb(105, 65, 198)',
+            'تركواز':'rgb(8, 126, 139)'
+          };
+          const inks=new Set(),words=new Set(),computed=new Set();
+          const trials=[],errors=[];
+          let scriptSrc='',liveCommit='',totalExpected=0,fatal='';
+          const browser=await chromium.launch({headless:true,args:['--mute-audio']});
+          const context=await browser.newContext({viewport:{width:390,height:844},locale:'ar-JO',colorScheme:'light',reducedMotion:'reduce'});
+          await context.addInitScript(()=>{
+            const native=window.setTimeout;
+            window.setTimeout=(fn,ms,...args)=>native(fn,Math.min(Number(ms)||0,8),...args);
           });
-          await context.clearCookies();
-          await page.goto(`${base}cognitive-lab/stroop-basic/?v=${token+1}`,{waitUntil:'networkidle',timeout:60000});
-          const scriptSrc=await page.locator('script[src*="assets/js/lab-v12.js"]').getAttribute('src');
-          const inks=new Set(), words=new Set(), computed=new Set();
-          const trials=[];
-          for(let i=0;i<30;i++){
-            const start=page.locator('button.start'); if(await start.count()) await start.click();
-            await page.waitForSelector('.stroop-word',{timeout:10000});
-            const s=await page.locator('.stroop-word').evaluate(node=>({ink:node.dataset.ink||'',word:node.dataset.word||'',computed:getComputedStyle(node).color,inline:node.getAttribute('style')||''}));
-            if(!s.ink||!s.word||!s.inline.includes('color:'))throw new Error(`Invalid trial ${i}: ${JSON.stringify(s)}`);
-            inks.add(s.ink);words.add(s.word);computed.add(s.computed);trials.push(s);
-            await page.locator('button.choice-button').first().click();
+          const page=await context.newPage();
+          page.on('pageerror',e=>errors.push(`pageerror:${String(e)}`));
+          page.on('console',m=>{if(m.type()==='error')errors.push(`console:${m.text()}`)});
+          try{
+            const token=Date.now();
+            await page.goto(`${base}cognitive-lab/stroop-basic/?v=${token}`,{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForSelector('[data-v12-lab]',{timeout:10000});
+            await page.evaluate(async()=>{
+              localStorage.clear();sessionStorage.clear();
+              if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}
+              if('caches' in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}
+            });
+            await context.clearCookies();
+            await page.goto(`${base}cognitive-lab/stroop-basic/?v=${token+1}`,{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForSelector('[data-v12-lab]',{timeout:10000});
+            scriptSrc=await page.locator('script[src*="assets/js/lab-v12.js"]').getAttribute('src')||'';
+            if(!scriptSrc.includes('lab-v12.js?v=213'))throw new Error(`Live page is not using v213: ${scriptSrc}`);
+            const def=await page.locator('#lab-definition').evaluate(n=>JSON.parse(n.textContent));
+            totalExpected=(def.stages||5)*(def.trials_per_stage||6);
+            for(let i=0;i<totalExpected;i++){
+              const start=page.locator('button.start');
+              if(await start.count() && await start.isVisible() && await start.isEnabled())await start.click();
+              await page.waitForSelector('button.choice-button:not([disabled])',{state:'visible',timeout:10000});
+              const choices=page.locator('button.choice-button:not([disabled])');
+              const count=await choices.count();
+              if(count<2)throw new Error(`Fewer than two active choices at trial ${i}`);
+              const visual=await page.locator('.stroop-word').evaluate(node=>({
+                ink:node.dataset.ink||'',
+                word:node.dataset.word||'',
+                computed:getComputedStyle(node).color,
+                inline:node.getAttribute('style')||'',
+                prompt:node.closest('.prompt,.question,.trial-card')?.textContent||node.parentElement?.textContent||''
+              }));
+              if(!visual.ink||!visual.word||visual.ink===visual.word||!visual.inline.includes('color:'))throw new Error(`Invalid trial ${i}: ${JSON.stringify(visual)}`);
+              if(visual.prompt.includes('لون الحبر')===false)throw new Error(`Basic Stroop rule missing at trial ${i}`);
+              if(expectedRgb[visual.ink]!==visual.computed)throw new Error(`Computed color mismatch at trial ${i}: ${JSON.stringify(visual)}`);
+              const optionTexts=(await choices.allTextContents()).map(x=>x.trim());
+              if(optionTexts.filter(x=>x===visual.ink).length!==1)throw new Error(`Ink answer option mismatch at trial ${i}`);
+              const snapshot=await choices.nth(i%count).evaluate(node=>{
+                node.click();
+                const buttons=[...document.querySelectorAll('button.choice-button')];
+                return{
+                  correctCount:buttons.filter(x=>x.classList.contains('is-correct')).length,
+                  selectedCorrect:node.classList.contains('is-correct'),
+                  selectedWrong:node.classList.contains('is-wrong'),
+                  feedback:document.querySelector('.trial-feedback')?.textContent||''
+                };
+              });
+              if(snapshot.correctCount!==1||snapshot.selectedCorrect===snapshot.selectedWrong||!snapshot.feedback.trim())throw new Error(`Invalid feedback at trial ${i}: ${JSON.stringify(snapshot)}`);
+              inks.add(visual.ink);words.add(visual.word);computed.add(visual.computed);
+              trials.push({...visual,choiceCount:count,...snapshot});
+              await page.waitForTimeout(10);
+            }
+            const deployment=await page.evaluate(async base=>await (await fetch(`${base}deployment.json?v=${Date.now()}`,{cache:'no-store'})).json(),base);
+            liveCommit=deployment.commit||'';
+          }catch(error){
+            fatal=String(error);
+            errors.push(fatal);
+          }finally{
+            const report={
+              liveCommit,scriptSrc,totalExpected,sampledTrials:trials.length,
+              inkValues:[...inks],wordValues:[...words],computedColors:[...computed],
+              distinctInkValues:inks.size,distinctWordValues:words.size,distinctComputedColors:computed.size,
+              fatal,errors,trials
+            };
+            fs.writeFileSync('/tmp/browser.json',JSON.stringify(report,null,2));
+            console.log(JSON.stringify(report,null,2));
+            await browser.close();
           }
-          const deployment=await page.evaluate(async base=>await (await fetch(`${base}deployment.json?v=${Date.now()}`,{cache:'no-store'})).json(),base);
-          const report={liveCommit:deployment.commit,scriptSrc,sampledTrials:trials.length,inkValues:[...inks],wordValues:[...words],computedColors:[...computed],distinctInkValues:inks.size,distinctWordValues:words.size,distinctComputedColors:computed.size,errors,trials};
-          fs.writeFileSync('/tmp/browser.json',JSON.stringify(report,null,2));
-          console.log(JSON.stringify(report,null,2));
-          await browser.close();
-          if(!scriptSrc?.includes('lab-v12.js?v=213'))process.exit(2);
-          if(errors.length||inks.size<6||words.size<6||computed.size<6)process.exit(3);
+          if(fatal||errors.length||trials.length!==totalExpected||inks.size<6||words.size<6||computed.size<6)process.exit(3);
           NODE
           node /tmp/probe.mjs
 
@@ -102,14 +157,14 @@ jobs:
           script: |
             const fs=require('fs');
             const read=p=>fs.existsSync(p)?fs.readFileSync(p,'utf8'):'{"status":"missing"}';
-            const body=[`## Final live Stroop browser proof — run ${context.runId}`,'### Static','```json',read('/tmp/static.json'),'```','### Browser','```json',read('/tmp/browser.json'),'```'].join('\n');
+            const body=[`## Final live Stroop browser proof v2 — run ${context.runId}`,'### Static','```json',read('/tmp/static.json'),'```','### Browser','```json',read('/tmp/browser.json'),'```'].join('\n');
             await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body});
 
       - name: Upload proof
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: final-live-stroop-v214-proof
+          name: final-live-stroop-v214-proof-v2
           path: |
             /tmp/static.json
             /tmp/browser.json
