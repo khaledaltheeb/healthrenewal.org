@@ -44,14 +44,24 @@
 
   const list = (items) => `<ul class="list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
 
-  const loadEducation = () => {
-    if (document.body.dataset.depth !== "detail" || document.querySelector('[data-module="condition-education-v1"]')) return;
+  const addModule = (src, moduleName, onload) => {
+    if (document.querySelector(`[data-module="${moduleName}"]`)) {
+      if (onload) onload();
+      return;
+    }
     const script = document.createElement("script");
-    script.src = "../condition-education-v1.js?v=20260724-content1";
+    script.src = src;
     script.defer = true;
-    script.dataset.module = "condition-education-v1";
-    script.addEventListener("error", () => console.error("Condition education module failed to load"), { once: true });
+    script.dataset.module = moduleName;
+    if (onload) script.addEventListener("load", onload, { once: true });
+    script.addEventListener("error", () => console.error(`${moduleName} failed to load`), { once: true });
     document.head.appendChild(script);
+  };
+
+  const loadEducation = () => {
+    if (document.body.dataset.depth !== "detail") return;
+    addModule("../condition-education-v1.js?v=20260724-content2", "condition-education-v1", () =>
+      addModule("../condition-decision-handoff-v1.js?v=20260724-content2", "condition-decision-handoff-v1"));
   };
 
   const renderIndex = () => {
