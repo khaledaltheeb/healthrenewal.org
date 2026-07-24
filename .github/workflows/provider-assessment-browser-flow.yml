@@ -2,7 +2,7 @@ name: Validate Provider Assessment Browser Flow
 
 on:
   push:
-    branches: [main, record-backup-audit-test]
+    branches: [main]
     paths:
       - "provider-assessment-demo/index.html"
       - "provider-assessment-demo/professional-console.html"
