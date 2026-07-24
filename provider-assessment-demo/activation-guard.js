@@ -46,12 +46,23 @@
   }
 
   const patchCopy = () => {
+    document.title = "منصة التقييم وإدارة السجلات | مصطلحات علم النفس";
+    const description = document.querySelector('meta[name="description"]');
+    if (description) description.content = "منصة عربية لإدارة الحالات والجلسات الاستكشافية وسجلات الخدمات المهنية محليًا ضمن UID مستقل، مع إبقاء المقاييس المهنية المحمية مقفلة حتى اكتمال الترخيص والمراجعة المؤسسية.";
     const notice = document.querySelector(".notice-bar");
     if (notice) notice.textContent = "الأدوات الاستكشافية الأصلية متاحة للاستخدام التعليمي غير التشخيصي. المقاييس المهنية المحمية تبقى مقفلة حتى اكتمال الترخيص وحق الرقمنة والمراجعة العلمية والأمنية والمؤسسية.";
+    const heroEyebrow = document.querySelector(".hero .eyebrow");
+    if (heroEyebrow) heroEyebrow.textContent = "نسخة تشغيل محلية لإدارة الحالات والسجلات";
+    const heroTitle = document.getElementById("hero-title");
+    if (heroTitle) heroTitle.textContent = "أنشئ حالة، نفّذ جلسات استكشافية، وسجّل الخدمات المهنية في مسار واحد.";
     const lead = document.querySelector(".hero .lead");
     if (lead) lead.textContent = "إدارة حالات متعددة، جلسات استكشافية متكررة، سجل زمني، مقارنة وصفية، وسجل خدمات مهنية. تحفظ هذه النسخة البيانات محليًا داخل المتصفح بواسطة UID مستقل، ولا تفتح مواد المقاييس المحمية.";
     const heroItems = document.querySelectorAll(".hero-card li");
     if (heroItems.length) heroItems[heroItems.length - 1].textContent = "دليل حقوقي للمقاييس المهنية مع إبقاء المواد المحمية مقفلة.";
+    const professionalEyebrow = document.querySelector("#view-professional .section-heading .eyebrow");
+    if (professionalEyebrow) professionalEyebrow.textContent = "دليل وصول مصنف — دون بنود أو مفاتيح محمية";
+    const professionalHeading = document.querySelector("#view-professional .section-heading h2");
+    if (professionalHeading) professionalHeading.textContent = "المقاييس المهنية وحالة التفعيل الحقوقي";
     const professionalCallout = document.querySelector("#view-professional .callout");
     if (professionalCallout) {
       professionalCallout.className = "callout warning";
@@ -68,6 +79,8 @@
       if (label) label.textContent = "مرجع تقرير خارجي أو وثيقة";
       if (input) input.placeholder = "رقم أو اسم التقرير الخارجي فقط؛ لا تدخل مفاتيح تصحيح";
     }
+    const footer = document.querySelector(".site-footer p");
+    if (footer) footer.textContent = "© منصة مصطلحات علم النفس — تشغيل محلي لإدارة الاستكشاف والسجلات، مع دليل وصول حقوقي للمقاييس المهنية. لا تستخدم للطوارئ أو التشخيص الآلي أو تقرير الأهلية.";
   };
 
   const applyRightsUi = () => {
