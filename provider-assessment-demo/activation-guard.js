@@ -2,6 +2,18 @@
 
 (() => {
   const data = window.PA_DEMO_DATA;
+  const slug = (value) => String(value || "")
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  if (Array.isArray(data?.professional)) {
+    data.professional.forEach((item, index) => {
+      if (!item.id) item.id = `professional-${index + 1}-${slug(item.name) || "record"}`;
+    });
+  }
+
   const emotionalTool = data?.explorers?.find((item) => item.id === "emotional-regulation");
   if (emotionalTool && Array.isArray(emotionalTool.questions) && !emotionalTool.questions.some((question) => question.type === "checkbox")) {
     const question = {
@@ -21,6 +33,8 @@
     const safetyIndex = emotionalTool.questions.findIndex((item) => item.safety === true);
     emotionalTool.questions.splice(safetyIndex >= 0 ? safetyIndex : Math.max(emotionalTool.questions.length - 1, 0), 0, question);
   }
+
+  if (typeof render === "function") render();
 
   document.addEventListener("click", (event) => {
     const cancelButton = event.target.closest(
