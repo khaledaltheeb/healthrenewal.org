@@ -7,7 +7,6 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 from collections import OrderedDict
-from html.parser import HTMLParser
 from pathlib import Path
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
@@ -17,7 +16,7 @@ BLOCK_ID = "platform-directory-v216"
 DIRECTORY_ROUTE = "sections/"
 TECHNICAL_ROOTS = {
     "assets", "downloads", "fonts", "images", "media", "scripts", "styles",
-    "css", "js", ".well-known", "node_modules",
+    "css", "js", ".well-known", "node_modules", "sections",
 }
 
 SECTION_DEFINITIONS: OrderedDict[str, tuple[str, str, str]] = OrderedDict([
@@ -47,27 +46,6 @@ FEATURED_ROUTES = (
     "comparisons/", "library/", "guided-assessment/", "hubs/",
     "assessments/", "cognitive-tests/",
 )
-
-
-class TextExtractor(HTMLParser):
-    def __init__(self) -> None:
-        super().__init__(convert_charrefs=True)
-        self.skip = 0
-        self.parts: list[str] = []
-
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag in {"script", "style", "svg"}:
-            self.skip += 1
-
-    def handle_endtag(self, tag: str) -> None:
-        if tag in {"script", "style", "svg"} and self.skip:
-            self.skip -= 1
-
-    def handle_data(self, data: str) -> None:
-        if not self.skip:
-            value = re.sub(r"\s+", " ", data).strip()
-            if value:
-                self.parts.append(value)
 
 
 def clean(value: str) -> str:
@@ -124,14 +102,20 @@ def section_record(route: str, homepage_before: str) -> dict[str, object]:
     }
 
 
-def section_cards(records: list[dict[str, object]], *, featured_only: bool) -> str:
+def section_cards(
+    records: list[dict[str, object]],
+    *,
+    featured_only: bool,
+    absolute_links: bool = False,
+) -> str:
     selected = [record for record in records if bool(record["featured_on_home"])] if featured_only else records
     cards = []
     for record in selected:
+        href = str(record["url"] if absolute_links else record["route"])
         cards.append(
             '<article class="directory-card-v216">'
             f'<p class="directory-category-v216">{html.escape(str(record["category"]))}</p>'
-            f'<h3><a href="{html.escape(str(record["route"]), quote=True)}">{html.escape(str(record["name"]))}</a></h3>'
+            f'<h3><a href="{html.escape(href, quote=True)}">{html.escape(str(record["name"]))}</a></h3>'
             f'<p>{html.escape(str(record["summary"]))}</p>'
             f'<span>{int(record["page_count"])} صفحة منشورة</span>'
             '</article>'
@@ -182,7 +166,7 @@ def directory_page(records: list[dict[str, object]]) -> str:
     for category, items in grouped.items():
         groups.append(
             f'<section aria-labelledby="cat-{len(groups)}"><h2 id="cat-{len(groups)}">{html.escape(category)}</h2>'
-            f'<div class="grid">{section_cards(items, featured_only=False)}</div></section>'
+            f'<div class="grid">{section_cards(items, featured_only=False, absolute_links=True)}</div></section>'
         )
     schema = {
         "@context": "https://schema.org",
