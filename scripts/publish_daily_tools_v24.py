@@ -21,6 +21,7 @@ from scripts.publish_daily_tools_v24_core import *  # noqa: F401,F403
 
 SEO_CONTRACT = 219
 SITE_NAME = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
+FOUNDING_NAME = "مصطلحات علم النفس"
 SOCIAL_IMAGE = BASE + "assets/brand/social-card.svg"
 LOGO = PATH + "assets/brand/logo-mark.svg"
 MANIFEST = PATH + "manifest.webmanifest"
@@ -60,11 +61,32 @@ def topic_keywords(title: str, description: str, canonical: str) -> list[str]:
             "أدوات دعم الأسرة",
         )
     description_term = description if len(description) <= 90 else ""
-    return _unique((title, description_term, *route_terms, "مصطلحات علم النفس"))
+    return _unique((title, description_term, *route_terms, FOUNDING_NAME))
+
+
+def institutionalize_schema(value: Any) -> Any:
+    if isinstance(value, list):
+        return [institutionalize_schema(item) for item in value]
+    if not isinstance(value, dict):
+        return value
+    result = {key: institutionalize_schema(item) for key, item in value.items()}
+    item_type = result.get("@type")
+    types = set(item_type) if isinstance(item_type, list) else {item_type}
+    if "Organization" in types:
+        current_name = str(result.get("name") or "").strip()
+        result["name"] = SITE_NAME
+        if current_name and current_name != SITE_NAME:
+            result.setdefault("alternateName", current_name)
+        else:
+            result.setdefault("alternateName", FOUNDING_NAME)
+        result.setdefault("url", BASE)
+        result.setdefault("logo", SOCIAL_IMAGE)
+    return result
 
 
 def shell(title: str, description: str, canonical: str, schema: dict[str, Any], body: str) -> str:
-    structured = json.dumps(schema, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    normalized_schema = institutionalize_schema(schema)
+    structured = json.dumps(normalized_schema, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     keywords = ",".join(topic_keywords(title, description, canonical))
     page_type = "website" if canonical in {BASE + "daily-tools/", BASE + "learning-paths/"} else "article"
     title_text = f"{title} | {SITE_NAME}"
@@ -108,6 +130,15 @@ def validate_metadata(data: dict[str, Any]) -> None:
             errors.append(f"{page}: invalid topic keyword set {keywords}")
         if text.count('<meta name="description"') != 1 or text.count('<link rel="canonical"') != 1:
             errors.append(f"{page}: duplicate or missing primary metadata")
+        schema_match = re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)
+        if not schema_match:
+            errors.append(f"{page}: JSON-LD is missing")
+        else:
+            schema_text = schema_match.group(1)
+            if '"@type":"Organization","name":"مصطلحات علم النفس"' in schema_text:
+                errors.append(f"{page}: founding name remains the primary Organization identity")
+            if '"@type":"Organization"' in schema_text and SITE_NAME not in schema_text:
+                errors.append(f"{page}: institutional Organization identity is missing")
     if errors:
         raise SystemExit("Daily tools metadata contract failed:\n" + "\n".join(errors))
 
