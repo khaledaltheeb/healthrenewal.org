@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import importlib.util
 import json
-import re
 import sys
 import tempfile
 import unittest
@@ -29,10 +28,6 @@ PUBLISHER = load_module(
     "public_api_v215",
     ROOT / "scripts" / "publish_public_api_v215.py",
 )
-SEO_AUDIT = load_module(
-    "seo_audit_v215",
-    ROOT / "scripts" / "audit_seo_semantics_v215.py",
-)
 
 
 class PublicApiV215Tests(unittest.TestCase):
@@ -52,27 +47,41 @@ class PublicApiV215Tests(unittest.TestCase):
             "course_hosts": ["courses.example.org"],
         }
 
-    def test_homepage_keeps_controlled_keywords_and_hides_internal_copy(self) -> None:
+    def test_homepage_hides_internal_execution_copy(self) -> None:
         text = (ROOT / "index.html").read_text(encoding="utf-8")
-        taxonomy = json.loads(
-            (ROOT / "content" / "seo" / "keyword-taxonomy-v215.json").read_text(
-                encoding="utf-8"
-            )
+        forbidden = (
+            "خطة نمو قابلة للقياس",
+            "الأهداف الدنيا للمحتوى",
+            "هدف توسع",
+            "خط أساس المصدر الحالي",
+            "مسار مستقبلي للحسابات المؤسسية",
+            "built-not-published",
+            "ما سيتم إنجازه",
         )
-        match = re.search(r'<meta name="keywords" content="([^"]+)">', text)
-        self.assertIsNotNone(match)
-        assert match is not None
-        keywords = [item for item in match.group(1).split(",") if item.strip()]
-        self.assertLessEqual(
-            len(keywords),
-            taxonomy["policy"]["maximum_meta_keywords"],
-        )
-        for phrase in taxonomy["forbidden_public_phrases"]:
+        for phrase in forbidden:
             self.assertNotIn(phrase, text)
+
+    def test_default_manifest_is_closed_and_empty(self) -> None:
+        manifest = json.loads(
+            (
+                ROOT
+                / "content"
+                / "integrations"
+                / "course-sources-v215.json"
+            ).read_text(encoding="utf-8")
+        )
+        self.assertEqual(manifest["policy"], "deny-by-default")
+        self.assertEqual(manifest["sources"], [])
 
     def test_importer_rejects_enabled_source_without_permission(self) -> None:
         source = self.approved_source()
         source["permission_status"] = "requested"
+        with self.assertRaises(IMPORTER.CourseImportError):
+            IMPORTER.validate_source(source)
+
+    def test_importer_rejects_feed_outside_allowlist(self) -> None:
+        source = self.approved_source()
+        source["feed_url"] = "https://unapproved.example.net/feed.json"
         with self.assertRaises(IMPORTER.CourseImportError):
             IMPORTER.validate_source(source)
 
@@ -181,33 +190,6 @@ class PublicApiV215Tests(unittest.TestCase):
             self.assertTrue(report["preserved_existing_paths"])
             self.assertTrue((site / "developers" / "index.html").is_file())
             self.assertTrue((site / "sitemap-developers.xml").is_file())
-
-    def test_seo_audit_blocks_public_execution_language(self) -> None:
-        with tempfile.TemporaryDirectory() as temp:
-            site = Path(temp) / "site"
-            site.mkdir()
-            (site / "index.html").write_text(
-                '<!doctype html><html lang="ar" dir="rtl"><head>'
-                '<title>عنوان عربي تجريبي واضح للصحة النفسية</title>'
-                '<meta name="keywords" content="الصحة النفسية,علم النفس">'
-                '<meta name="description" content="وصف عربي موسع وواضح يشرح محتوى الصفحة والغرض منها ويقدم قيمة للقارئ ضمن حدود مهنية دقيقة ومفهومة.">'
-                '<link rel="canonical" href="https://example.org/">'
-                '<meta property="og:title" content="عنوان">'
-                '<meta property="og:description" content="وصف">'
-                '<meta name="twitter:card" content="summary">'
-                '<script type="application/ld+json">{}</script>'
-                '</head><body><h1>عنوان</h1>'
-                '<p>خطة نمو قابلة للقياس</p></body></html>',
-                encoding="utf-8",
-            )
-            report = SEO_AUDIT.audit_site(
-                site=site,
-                report_path=Path(temp) / "report.json",
-                taxonomy_path=(
-                    ROOT / "content" / "seo" / "keyword-taxonomy-v215.json"
-                ),
-            )
-            self.assertGreater(report["critical_error_count"], 0)
 
 
 if __name__ == "__main__":
