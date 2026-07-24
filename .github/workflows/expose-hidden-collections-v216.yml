@@ -1,0 +1,57 @@
+name: Expose hidden collections v216
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/expose_hidden_collections_v216.py"
+      - ".github/workflows/expose-hidden-collections-v216.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/expose_hidden_collections_v216.py"
+      - ".github/workflows/expose-hidden-collections-v216.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: expose-hidden-collections-v216-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Expose advanced collections and strengthen homepage discovery
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/expose_hidden_collections_v216.py
+          python scripts/expose_hidden_collections_v216.py
+          python -m py_compile scripts/verify_homepage_v19.py
+          python scripts/verify_homepage_v19.py
+          git diff --check
+
+      - name: Commit durable source and regression gate
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          set -euxo pipefail
+          if git diff --quiet -- index.html scripts/verify_homepage_v19.py; then
+            echo "Homepage discovery contract is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html scripts/verify_homepage_v19.py
+          git commit -m "إظهار المكتبة والمقارنات وتقوية اكتشاف الصفحة الرئيسية"
+          git push origin HEAD:main
