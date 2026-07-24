@@ -1,0 +1,63 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "واجهة منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+    "version": "1.0.0",
+    "description": "واجهة قراءة عامة ثابتة لاكتشاف أقسام المنصة وعقد استيراد بيانات الدورات المخولة. لا تتضمن تشخيصًا أو بيانات شخصية.",
+    "license": {"name": "Rights vary by resource"}
+  },
+  "servers": [
+    {"url": "https://khaledaltheeb.github.io/pterminology-site"}
+  ],
+  "paths": {
+    "/api/v1/platform.json": {
+      "get": {
+        "summary": "اكتشاف المنصة والموارد",
+        "operationId": "getPlatform",
+        "responses": {
+          "200": {
+            "description": "بيانات المنصة",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Platform"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/courses.schema.json": {
+      "get": {
+        "summary": "مخطط تغذية الدورات المخولة",
+        "operationId": "getCourseSchema",
+        "responses": {
+          "200": {"description": "JSON Schema لاستيراد الدورات"}
+        }
+      }
+    },
+    "/api/v1/courses.example.json": {
+      "get": {
+        "summary": "مثال غير إنتاجي لتغذية الدورات",
+        "operationId": "getCourseExample",
+        "responses": {
+          "200": {"description": "مثال توضيحي لا يمثل شراكة فعلية"}
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Platform": {
+        "type": "object",
+        "required": ["apiVersion", "name", "baseUrl", "resources", "endpoints"],
+        "properties": {
+          "apiVersion": {"type": "string"},
+          "name": {"type": "string"},
+          "baseUrl": {"type": "string", "format": "uri"},
+          "resources": {"type": "array", "items": {"type": "object"}},
+          "endpoints": {"type": "object"}
+        }
+      }
+    }
+  }
+}
