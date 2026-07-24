@@ -1,4 +1,4 @@
-name: Diagnose main and Pages deployment v214
+name: Verify live institutional platform v215
 
 on:
   push:
@@ -15,52 +15,109 @@ permissions:
   issues: write
 
 jobs:
-  diagnose:
+  verify-live:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     env:
-      EVIDENCE_ISSUE: "188"
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      TARGET_SHA: a62de1e51eb6bd2307f177437b7c619141023f28
+      EVIDENCE_ISSUE: "204"
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Query final v214 deployment state
+      - name: Wait for institutional deployment and validate live contracts
         run: |
-          python - <<'PY'
+          set -euo pipefail
+          rm -f /tmp/live-institutional-v215.json
+          for attempt in $(seq 1 60); do
+            token="$(date +%s)-${attempt}"
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o /tmp/deployment.json \
+              && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}?v=${token}" -o /tmp/home.html \
+              && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/?v=${token}" -o /tmp/api.html \
+              && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/v1/platform.json?v=${token}" -o /tmp/platform.json \
+              && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/v1/openapi.json?v=${token}" -o /tmp/openapi.json \
+              && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/v1/courses.schema.json?v=${token}" -o /tmp/courses.schema.json \
+              && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}assets/brand/logo-mark.svg?v=${token}" -o /tmp/logo.svg; then
+              if ATTEMPT="${attempt}" python - <<'PY'
           import json, os, urllib.request
           from pathlib import Path
-          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
-          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'pterminology-final-v214'}
-          def get(path):
-              req=urllib.request.Request(f'https://api.github.com/repos/{repo}{path}',headers=headers)
-              with urllib.request.urlopen(req,timeout=30) as response:
-                  return json.loads(response.read().decode('utf-8'))
-          current=get('/git/ref/heads/main')['object']['sha']
-          runs=get('/actions/runs?branch=main&per_page=100')['workflow_runs']
-          wanted={'Validate every assessment and cognitive tool v31','Deploy validated main to GitHub Pages'}
-          selected=[]
-          for run in runs:
-              if run.get('name') in wanted:
-                  selected.append({key:run.get(key) for key in ('id','name','event','head_sha','status','conclusion','run_number','created_at','updated_at','html_url')})
-              if len(selected)>=8: break
-          deployments=[]
-          for deployment in get('/deployments?environment=github-pages&per_page=3'):
-              item={key:deployment.get(key) for key in ('id','sha','ref','environment','created_at','updated_at')}
-              statuses=get(f"/deployments/{deployment['id']}/statuses?per_page=2")
-              item['statuses']=[{key:status.get(key) for key in ('state','description','environment_url','created_at','updated_at')} for status in statuses]
-              deployments.append(item)
-          live={}
-          try:
-              with urllib.request.urlopen('https://khaledaltheeb.github.io/pterminology-site/deployment.json?probe=v214-final',timeout=30) as response:
-                  live=json.loads(response.read().decode('utf-8'))
-          except Exception as exc:
-              live={'error':repr(exc)}
-          report={'current_main_sha':current,'v214_merge_sha':'a08e3092352ba786c74ab01d647260ad531b8d55','latest_validation_and_deploy_runs':selected,'latest_pages_deployments':deployments,'live_deployment_commit':live.get('commit'),'live_schema_version':live.get('schema_version')}
-          Path('/tmp/final-pages-v214.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
-          print(json.dumps(report,ensure_ascii=False,indent=2))
+
+          target=os.environ['TARGET_SHA']; repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          deployment=json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          home=Path('/tmp/home.html').read_text(encoding='utf-8')
+          api=Path('/tmp/api.html').read_text(encoding='utf-8')
+          platform=json.loads(Path('/tmp/platform.json').read_text(encoding='utf-8'))
+          openapi=json.loads(Path('/tmp/openapi.json').read_text(encoding='utf-8'))
+          schema=json.loads(Path('/tmp/courses.schema.json').read_text(encoding='utf-8'))
+          logo=Path('/tmp/logo.svg').read_text(encoding='utf-8')
+          live=deployment.get('commit') or ''
+          compare_status='missing'; contains_target=False
+          if live==target:
+              compare_status='identical'; contains_target=True
+          elif live:
+              headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'institutional-live-v215'}
+              request=urllib.request.Request(f'https://api.github.com/repos/{repo}/compare/{target}...{live}',headers=headers)
+              try:
+                  with urllib.request.urlopen(request,timeout=30) as response:
+                      compare_status=json.loads(response.read().decode('utf-8')).get('status','unknown')
+                  contains_target=compare_status in {'ahead','identical'}
+              except Exception as exc:
+                  compare_status=f'error:{type(exc).__name__}'
+          forbidden=['خطة نمو قابلة للقياس','الأهداف الدنيا للمحتوى','هدف توسع','العدد الحالي يثبت','ما سيتم إنجازه','قيد الإعداد']
+          authorization=schema.get('properties',{}).get('authorization',{})
+          authorization_required=set(authorization.get('required',[]))
+          evidence={
+              'attempt':int(os.environ['ATTEMPT']),
+              'live_commit':live,
+              'target_commit':target,
+              'contains_target_commit':contains_target,
+              'target_to_live_compare':compare_status,
+              'schema_version':deployment.get('schema_version'),
+              'homepage_brand':'منصة الصحة النفسية وذوي الاحتياجات الخاصة' in home,
+              'homepage_logo':'/pterminology-site/assets/brand/logo-mark.svg' in home,
+              'homepage_social_card':'assets/brand/social-card.svg' in home,
+              'homepage_keywords':'<meta name="keywords"' in home,
+              'homepage_opensearch':'opensearch.xml' in home,
+              'homepage_api_link':'href="api/"' in home or 'href="/pterminology-site/api/"' in home,
+              'homepage_has_no_internal_planning':not any(term in home for term in forbidden),
+              'api_documentation':'API v1' in api and 'شرط استيراد الدورات' in api,
+              'platform_api_named':platform.get('name')=='منصة الصحة النفسية وذوي الاحتياجات الخاصة',
+              'platform_course_policy':platform.get('integrationPolicy',{}).get('externalCourseImport')=='permission_required',
+              'platform_required_evidence_count':len(platform.get('integrationPolicy',{}).get('requiredEvidence',[])),
+              'openapi_version':openapi.get('openapi'),
+              'openapi_has_paths':bool(openapi.get('paths')),
+              'course_status_const':authorization.get('properties',{}).get('status',{}).get('const'),
+              'course_authorization_evidence_required':{'status','evidenceUrl','license','verifiedAt'}.issubset(authorization_required),
+              'logo_accessible':'<title' in logo and '<desc' in logo,
+          }
+          Path('/tmp/live-institutional-v215.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(evidence,ensure_ascii=False,indent=2))
+          bool_checks=[value for value in evidence.values() if isinstance(value,bool)]
+          ok=all(bool_checks) and evidence['openapi_version']=='3.1.0' and evidence['course_status_const']=='authorized' and evidence['platform_required_evidence_count']>=4
+          raise SystemExit(0 if ok else 1)
           PY
-      - name: Publish final v214 deployment diagnostics
+              then
+                exit 0
+              fi
+            fi
+            sleep 15
+          done
+          echo 'Live institutional release did not become verifiable' >&2
+          exit 1
+
+      - name: Publish live institutional evidence
+        if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs=require('fs');
-            const report=fs.readFileSync('/tmp/final-pages-v214.json','utf8');
-            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## Final Pages v214 diagnostic — run ${context.runId}\n\n\`\`\`json\n${report}\n\`\`\``});
+            const evidence=fs.existsSync('/tmp/live-institutional-v215.json')?fs.readFileSync('/tmp/live-institutional-v215.json','utf8'):'{"status":"missing"}';
+            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## Live institutional v215 proof — run ${context.runId}\n\n\`\`\`json\n${evidence}\n\`\`\``});
+
+      - name: Upload live evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-institutional-v215-evidence
+          path: /tmp/live-institutional-v215.json
+          if-no-files-found: warn
+          retention-days: 7
