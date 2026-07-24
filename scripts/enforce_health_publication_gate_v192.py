@@ -8,10 +8,17 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from scripts import enforce_health_publication_gate_v192_core as _core
 from scripts.enforce_health_publication_gate_v192_core import *  # noqa: F401,F403
 from scripts.publish_verified_public_api_v220 import publish_verified
 
 PUBLIC_API_CONTRACT = 220
+SITE = _core.SITE
+
+
+def enforce() -> dict:
+    _core.SITE = SITE
+    return _core.enforce()
 
 
 def main() -> None:
