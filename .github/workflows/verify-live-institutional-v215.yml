@@ -1,4 +1,4 @@
-name: Verify live institutional platform v215
+name: Verify live institutional platform v215.1
 
 on:
   push:
@@ -36,7 +36,7 @@ jobs:
               && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/v1/openapi.json?v=${token}" -o /tmp/openapi.json \
               && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/v1/courses.schema.json?v=${token}" -o /tmp/courses.schema.json \
               && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}assets/brand/logo-mark.svg?v=${token}" -o /tmp/logo.svg; then
-              ATTEMPT="${attempt}" python - <<'PY'
+              if ATTEMPT="${attempt}" python - <<'PY'
           import json, os, urllib.request
           from pathlib import Path
 
@@ -96,7 +96,9 @@ jobs:
           required=[key for key,value in evidence.items() if isinstance(value,bool)]
           raise SystemExit(0 if all(evidence[key] for key in required) and evidence['openapi_version']=='3.1.0' and evidence['course_status_const']=='authorized' else 1)
           PY
-              if [ $? -eq 0 ]; then exit 0; fi
+              then
+                exit 0
+              fi
             fi
             sleep 15
           done
