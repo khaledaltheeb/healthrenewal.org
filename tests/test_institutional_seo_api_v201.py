@@ -123,6 +123,7 @@ class ContentDiscoveryTests(unittest.TestCase):
         self.assertIsInstance(catalog["courses"], list)
         self.assertTrue(catalog["integrationPolicy"]["authorizationRequired"])
         self.assertTrue(catalog["integrationPolicy"]["protectedCourseContentExcluded"])
+        self.assertTrue(catalog["integrationPolicy"]["authorizationEvidenceRedacted"])
 
 
 class AuthorizedCoursesTests(unittest.TestCase):
@@ -164,37 +165,66 @@ class AuthorizedCoursesTests(unittest.TestCase):
             ],
         }
 
+    def publish_feed(self, feed: dict):
+        temp = tempfile.TemporaryDirectory()
+        root = Path(temp.name)
+        site = root / "site"
+        feeds = root / "feeds"
+        site.mkdir()
+        feeds.mkdir()
+        (feeds / "example.json").write_text(
+            json.dumps(feed, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        return temp, site, feeds
+
     def test_publishes_only_authorized_metadata(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            site = root / "site"
-            feeds = root / "feeds"
-            site.mkdir()
-            feeds.mkdir()
-            (feeds / "example.json").write_text(
-                json.dumps(self.valid_feed(), ensure_ascii=False),
-                encoding="utf-8",
-            )
+        temp, site, feeds = self.publish_feed(self.valid_feed())
+        with temp:
             result = courses.publish(site, feeds, today=date(2026, 7, 25))
             self.assertEqual(result, {"version": 201, "providers": 1, "courses": 1})
             payload = json.loads((site / "api" / "v1" / "courses.json").read_text(encoding="utf-8"))
             self.assertEqual(payload["totalCourses"], 1)
             self.assertNotIn("contactEmail", payload["providers"][0])
+            self.assertNotIn("evidenceUrl", payload["providers"][0]["authorization"])
+            self.assertNotIn("evidenceUrl", payload["courses"][0]["authorization"])
+            self.assertTrue(payload["providers"][0]["authorization"]["evidenceVerified"])
+            self.assertTrue(payload["integrationPolicy"]["authorizationEvidenceRedacted"])
             self.assertEqual(payload["courses"][0]["currency"], "JOD")
             self.assertFalse(payload["courses"][0]["rights"]["contentReuse"])
 
     def test_rejects_expired_authorization(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            site = root / "site"
-            feeds = root / "feeds"
-            site.mkdir()
-            feeds.mkdir()
-            feed = self.valid_feed()
-            feed["authorization"]["expiresAt"] = "2026-07-24"
-            (feeds / "expired.json").write_text(json.dumps(feed), encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "authorization.expired"):
-                courses.publish(site, feeds, today=date(2026, 7, 25))
+        feed = self.valid_feed()
+        feed["authorization"]["expiresAt"] = "2026-07-24"
+        temp, site, feeds = self.publish_feed(feed)
+        with temp, self.assertRaisesRegex(ValueError, "authorization.expired"):
+            courses.publish(site, feeds, today=date(2026, 7, 25))
+
+    def test_rejects_missing_attribution_nonfinite_price_and_naive_datetime(self):
+        cases = [
+            (
+                "missing attribution",
+                lambda feed: feed["courses"][0]["rights"].pop("attributionText"),
+                "attribution_required",
+            ),
+            (
+                "nonfinite price",
+                lambda feed: feed["courses"][0].__setitem__("price", float("inf")),
+                "price_invalid",
+            ),
+            (
+                "naive datetime",
+                lambda feed: feed["courses"][0].__setitem__("updatedAt", "2026-07-20T10:00:00"),
+                "timezone_required",
+            ),
+        ]
+        for label, mutate, expected in cases:
+            with self.subTest(label=label):
+                feed = self.valid_feed()
+                mutate(feed)
+                temp, site, feeds = self.publish_feed(feed)
+                with temp, self.assertRaisesRegex(ValueError, expected):
+                    courses.publish(site, feeds, today=date(2026, 7, 25))
 
 
 if __name__ == "__main__":
