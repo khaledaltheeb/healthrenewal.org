@@ -1,0 +1,51 @@
+name: One-shot public copy cleanup v215
+
+on:
+  push:
+    branches: ["agent/institutional-home-api-brand-v215"]
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-remove-self:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/institutional-home-api-brand-v215
+          fetch-depth: 0
+      - name: Remove operational copy from public special-needs output
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          publisher_path = Path("scripts/publish_special_needs_v73.py")
+          publisher = publisher_path.read_text(encoding="utf-8")
+          replacements = {
+              "معلومات عملية للأشخاص ذوي الاحتياجات الخاصة أو الاحتياجات الإضافية،": "معلومات عملية للأشخاص ذوي الاحتياجات الخاصة وذوي احتياجات الدعم الإضافية،",
+              '<span>قيد الإعداد المنظم</span>': '<a href="{BASE_PATH}special-needs/">استكشاف موارد التواصل والإتاحة</a>',
+              '<span>قيد التوسع</span>': '<a href="{BASE_PATH}care-guides/">فتح الأدلة الأسرية العملية</a>',
+          }
+          for old, new in replacements.items():
+              if old not in publisher:
+                  raise SystemExit(f"Expected public-copy marker missing: {old}")
+              publisher = publisher.replace(old, new, 1)
+          publisher_path.write_text(publisher, encoding="utf-8")
+
+          workflow = Path(".github/workflows/one-shot-public-copy-v215.yml")
+          workflow.unlink()
+          PY
+      - name: Verify targeted publisher
+        run: |
+          python -m py_compile scripts/publish_special_needs_v73.py
+          ! grep -q 'قيد الإعداد المنظم' scripts/publish_special_needs_v73.py
+          ! grep -q 'قيد التوسع' scripts/publish_special_needs_v73.py
+      - name: Commit public copy cleanup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/publish_special_needs_v73.py .github/workflows/one-shot-public-copy-v215.yml
+          git commit -m "إزالة لغة الخطط التشغيلية من مركز الاحتياجات الخاصة"
+          git push origin HEAD:agent/institutional-home-api-brand-v215
