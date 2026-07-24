@@ -1,4 +1,4 @@
-name: Diagnose main and Pages deployment v213
+name: Diagnose main and Pages deployment v214
 
 on:
   push:
@@ -22,13 +22,13 @@ jobs:
       EVIDENCE_ISSUE: "183"
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Query concise main Pages and v214 PR-opener state
+      - name: Query post-merge main validation and Pages state
         run: |
           python - <<'PY'
-          import json, os, urllib.parse, urllib.request
+          import json, os, urllib.request
           from pathlib import Path
           repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
-          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'pterminology-live-diagnostics-v214'}
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'pterminology-post-merge-v214'}
           def get(path):
               req=urllib.request.Request(f'https://api.github.com/repos/{repo}{path}',headers=headers)
               with urllib.request.urlopen(req,timeout=30) as response:
@@ -41,27 +41,26 @@ jobs:
               if run.get('name') in wanted:
                   selected.append({key:run.get(key) for key in ('id','name','event','head_sha','status','conclusion','run_number','created_at','updated_at','html_url')})
               if len(selected)>=12: break
-          branch=urllib.parse.quote('fix/pages-deployment-starvation-v214',safe='')
-          opener_runs=get(f'/actions/runs?branch={branch}&per_page=20')['workflow_runs']
-          opener=[{key:run.get(key) for key in ('id','name','event','head_sha','status','conclusion','run_number','created_at','updated_at','html_url')} for run in opener_runs if run.get('name')=='Open Pages v214 PR']
-          pulls=get('/pulls?state=open&base=main&per_page=100')
-          matching=[{'number':p.get('number'),'title':p.get('title'),'draft':p.get('draft'),'head':p.get('head',{}).get('ref'),'html_url':p.get('html_url')} for p in pulls if p.get('head',{}).get('ref')=='fix/pages-deployment-starvation-v214']
           deployments=[]
           for deployment in get('/deployments?environment=github-pages&per_page=5'):
               item={key:deployment.get(key) for key in ('id','sha','ref','environment','created_at','updated_at')}
               statuses=get(f"/deployments/{deployment['id']}/statuses?per_page=2")
               item['statuses']=[{key:status.get(key) for key in ('state','description','environment_url','created_at','updated_at')} for status in statuses]
               deployments.append(item)
-          report={'current_main_sha':current,'target_stroop_merge':'db7be924e956d14bebf0d8f540564f819166f314','latest_validation_and_deploy_runs':selected,'v214_pr_opener_runs':opener,'v214_open_pull_requests':matching,'latest_pages_deployments':deployments}
-          Path('/tmp/main-pages-diagnostic-v213.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+          live={}
+          try:
+              with urllib.request.urlopen('https://khaledaltheeb.github.io/pterminology-site/deployment.json?probe=v214',timeout=30) as response:
+                  live=json.loads(response.read().decode('utf-8'))
+          except Exception as exc:
+              live={'error':repr(exc)}
+          report={'current_main_sha':current,'v214_merge_sha':'a08e3092352ba786c74ab01d647260ad531b8d55','latest_validation_and_deploy_runs':selected,'latest_pages_deployments':deployments,'live_deployment_commit':live.get('commit'),'live_schema_version':live.get('schema_version')}
+          Path('/tmp/post-merge-pages-v214.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
           print(json.dumps(report,ensure_ascii=False,indent=2))
           PY
-
-      - name: Publish concise diagnostics to issue
-        if: always()
+      - name: Publish post-merge diagnostics
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
-            const report = fs.existsSync('/tmp/main-pages-diagnostic-v213.json') ? fs.readFileSync('/tmp/main-pages-diagnostic-v213.json','utf8') : '{"status":"missing"}';
-            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## Concise Main/Pages/v214 diagnostic — run ${context.runId}\n\n\`\`\`json\n${report}\n\`\`\``});
+            const fs=require('fs');
+            const report=fs.readFileSync('/tmp/post-merge-pages-v214.json','utf8');
+            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## Post-merge Pages v214 diagnostic — run ${context.runId}\n\n\`\`\`json\n${report}\n\`\`\``});
