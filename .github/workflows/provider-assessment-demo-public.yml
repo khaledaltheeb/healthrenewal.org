@@ -41,7 +41,7 @@ jobs:
           node --check provider-assessment-demo/activation.js
           node --check provider-assessment-demo/activation-guard.js
           node --check provider-assessment-demo/enhancements.js
-      - name: Validate published files and operational catalog
+      - name: Validate published files, catalog, and rights gates
         run: |
           node <<'NODE'
           const fs = require('fs');
@@ -67,10 +67,10 @@ jobs:
             if (!app.includes(marker)) throw new Error(`Missing app behavior ${marker}`);
           }
           for (const marker of ['professionalAssessments','professional-record-dialog','rightsConfirmed','recordedByUid']) {
-            if (!activation.includes(marker)) throw new Error(`Missing professional workflow ${marker}`);
+            if (!activation.includes(marker)) throw new Error(`Missing professional record behavior ${marker}`);
           }
-          for (const marker of ['professional-', 'emo-context-factors']) {
-            if (!guard.includes(marker)) throw new Error(`Missing runtime contract ${marker}`);
+          for (const marker of ['professional-', 'emo-context-factors', 'locked_pending_rights', 'locked_or_link_only', 'مقفل حتى الترخيص']) {
+            if (!guard.includes(marker)) throw new Error(`Missing runtime or rights contract ${marker}`);
           }
           if (!home.includes('provider-assessment-demo/')) throw new Error('Homepage link is missing');
           if (!sitemap.includes('/provider-assessment-demo/')) throw new Error('Sitemap URL is missing');
@@ -82,6 +82,5 @@ jobs:
           const data = context.window.PA_DEMO_DATA;
           if (data.categories.length !== 8 || data.explorers.length !== 20) throw new Error('Unexpected exploratory catalog size');
           if (data.professional.length < 100) throw new Error(`Professional registry is incomplete: ${data.professional.length}`);
-          if (data.professional.some(item => item.status === 'locked')) throw new Error('Locked professional states remain');
-          console.log(`Validated ${data.explorers.length} exploratory tools and ${data.professional.length} operational professional entries.`);
+          console.log(`Validated ${data.explorers.length} exploratory tools, ${data.professional.length} professional directory entries, and explicit rights gates.`);
           NODE
