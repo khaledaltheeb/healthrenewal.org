@@ -2,63 +2,123 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>واجهة API والتكامل | منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
-<meta name="description" content="توثيق واجهة البيانات العامة للمنصة، ومواصفة OpenAPI، ومخطط استيراد بيانات الدورات من مصادر مخولة بعد التحقق من الإذن والترخيص.">
-<meta name="robots" content="index,follow">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>واجهة API وفهارس المحتوى والدورات المخولة | منصة الصحة النفسية</title>
+<meta name="description" content="توثيق واجهة API العامة للمنصة: فهرس المحتوى، التصنيف الموضوعي، بيانات الأقسام، وكتالوج الدورات المستوردة حصراً من مصادر مخولة بإذن وترخيص موثقين.">
+<meta name="keywords" content="واجهة API للصحة النفسية, API علم النفس, بيانات الصحة النفسية, فهرس المحتوى النفسي, تصنيف موضوعات علم النفس, دورات الصحة النفسية, تكامل المواقع, OpenAPI, JSON Schema, بيانات منظمة">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+<meta name="author" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة">
+<meta name="theme-color" content="#075f5b">
 <link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/api/">
+<link rel="manifest" href="/pterminology-site/manifest.webmanifest">
 <link rel="icon" href="/pterminology-site/assets/brand/logo-mark.svg" type="image/svg+xml">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="ar_AR">
+<meta property="og:site_name" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة">
+<meta property="og:url" content="https://khaledaltheeb.github.io/pterminology-site/api/">
+<meta property="og:title" content="واجهة API وفهارس المحتوى والدورات المخولة">
+<meta property="og:description" content="واجهة قراءة عامة لاكتشاف محتوى المنصة وتصنيفاته وبيانات الدورات المخولة، مع OpenAPI وJSON Schema وحدود واضحة للحقوق والخصوصية.">
+<meta property="og:image" content="https://khaledaltheeb.github.io/pterminology-site/assets/brand/social-card.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="واجهة API وفهارس المحتوى والدورات المخولة">
+<meta name="twitter:description" content="فهرس المحتوى والتصنيف الموضوعي وكتالوج الدورات المخولة ضمن واجهة بيانات عربية منظمة.">
+<meta name="twitter:image" content="https://khaledaltheeb.github.io/pterminology-site/assets/brand/social-card.svg">
 <style>
-:root{--ink:#103e43;--muted:#526f73;--brand:#075f5b;--line:#c6e3df;--paper:#fff;--mist:#effaf8}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#fff,var(--mist));color:var(--ink);font-family:Tahoma,Arial,sans-serif;line-height:1.8}.wrap{width:min(1000px,92%);margin:auto}header,footer{background:#fff;border-bottom:1px solid var(--line)}header .wrap,footer .wrap{padding:18px 0}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);font-weight:900}.brand img{width:52px;height:52px}main{padding:50px 0}.hero,.card,.warning{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;margin:16px 0;box-shadow:0 16px 45px rgba(16,76,76,.1)}h1{font-size:clamp(2rem,6vw,4rem);line-height:1.2}h2{color:var(--brand)}code,pre{direction:ltr;text-align:left;background:#f6fbfa;border:1px solid var(--line);border-radius:10px;padding:10px;overflow:auto}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}.warning{border-right:6px solid #a33f6a;background:#fff3f7}.button{display:inline-block;padding:10px 15px;border-radius:12px;background:var(--brand);color:#fff;text-decoration:none;font-weight:900;margin:4px}.secondary{background:#fff;color:var(--brand);border:1px solid var(--line)}@media(max-width:700px){.grid{grid-template-columns:1fr}}
+:root{--ink:#103e43;--muted:#526f73;--brand:#075f5b;--brand2:#0d7f77;--accent:#a33f6a;--line:#c6e3df;--paper:#fff;--mist:#effaf8;--shadow:0 16px 45px rgba(16,76,76,.1)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:linear-gradient(145deg,#fff,var(--mist));color:var(--ink);font-family:Tahoma,Arial,sans-serif;line-height:1.85}.wrap{width:min(1120px,92%);margin:auto}.skip{position:absolute;right:-9999px;top:8px;background:#fff;padding:10px 14px;border:2px solid var(--brand);border-radius:12px;z-index:99}.skip:focus{right:8px}a:focus-visible{outline:3px solid #0a8b82;outline-offset:4px}
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}header .wrap{padding:14px 0;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);font-weight:900}.brand img{width:52px;height:52px}.nav{display:flex;gap:8px;flex-wrap:wrap}.nav a{text-decoration:none;font-weight:800;padding:8px 10px;border-radius:10px}.nav a:hover{background:var(--mist)}
+main{padding:50px 0}.hero,.card,.warning{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;margin:16px 0;box-shadow:var(--shadow)}h1{font-size:clamp(2rem,6vw,4rem);line-height:1.2;margin:.2em 0}h2{color:var(--brand)}h3{color:#7d3456}.lead{font-size:1.14rem;color:var(--muted);max-width:900px}.eyebrow{color:var(--accent);font-weight:900}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.card{display:flex;flex-direction:column}.card p{color:var(--muted);flex:1}.card a{font-weight:900}.warning{border-right:6px solid var(--accent);background:#fff3f7}.button{display:inline-block;padding:10px 15px;border-radius:12px;background:var(--brand);color:#fff;text-decoration:none;font-weight:900;margin:4px}.secondary{background:#fff;color:var(--brand);border:1px solid var(--line)}code,pre{direction:ltr;text-align:left;background:#f6fbfa;border:1px solid var(--line);border-radius:10px;padding:10px;overflow:auto}.endpoint{display:block;overflow-wrap:anywhere;margin:.5rem 0}.rules{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.rules article{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px}
+footer{background:#fff;border-top:1px solid var(--line);padding:28px 0;color:var(--muted)}@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}header .wrap{align-items:flex-start;flex-direction:column}}@media(max-width:620px){.grid,.rules{grid-template-columns:1fr}.nav{overflow-x:auto;flex-wrap:nowrap;max-width:100%}.nav a{white-space:nowrap}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}@media print{header,.skip,.button{display:none!important}.hero,.card,.warning,.rules article{box-shadow:none;break-inside:avoid}}
 </style>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"واجهة API والتكامل لمنصة الصحة النفسية وذوي الاحتياجات الخاصة","inLanguage":"ar","url":"https://khaledaltheeb.github.io/pterminology-site/api/","about":["OpenAPI","JSON Schema","تكامل بيانات الدورات"]}</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"TechArticle",
+      "@id":"https://khaledaltheeb.github.io/pterminology-site/api/#article",
+      "headline":"واجهة API وفهارس المحتوى والدورات المخولة",
+      "description":"توثيق واجهة البيانات العامة وفهارس المحتوى والتصنيف وكتالوج الدورات المخولة.",
+      "inLanguage":"ar",
+      "url":"https://khaledaltheeb.github.io/pterminology-site/api/",
+      "keywords":["واجهة API للصحة النفسية","فهرس المحتوى النفسي","التصنيف الموضوعي","OpenAPI","JSON Schema","الدورات المخولة"],
+      "publisher":{"@id":"https://khaledaltheeb.github.io/pterminology-site/#organization"}
+    },
+    {
+      "@type":"BreadcrumbList",
+      "itemListElement":[
+        {"@type":"ListItem","position":1,"name":"الرئيسية","item":"https://khaledaltheeb.github.io/pterminology-site/"},
+        {"@type":"ListItem","position":2,"name":"واجهة API","item":"https://khaledaltheeb.github.io/pterminology-site/api/"}
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
-<header><div class="wrap"><a class="brand" href="../"><img src="/pterminology-site/assets/brand/logo-mark.svg" alt=""><span>منصة الصحة النفسية وذوي الاحتياجات الخاصة<br><small>واجهة البيانات والتكامل</small></span></a></div></header>
-<main><div class="wrap">
+<a class="skip" href="#main">انتقل إلى المحتوى الرئيسي</a>
+<header><div class="wrap"><a class="brand" href="../"><img src="/pterminology-site/assets/brand/logo-mark.svg" alt=""><span>منصة الصحة النفسية وذوي الاحتياجات الخاصة<br><small>واجهة البيانات والتكامل</small></span></a><nav class="nav" aria-label="التنقل الرئيسي"><a href="../">الرئيسية</a><a href="../encyclopedia/">الموسوعة</a><a href="../special-needs/">ذوو الاحتياجات الخاصة</a><a href="../trust/">الثقة والمنهجية</a></nav></div></header>
+<main id="main"><div class="wrap">
 <section class="hero">
-<p>API v1</p>
-<h1>واجهة قراءة عامة وعقد تكامل واضح</h1>
-<p>تتيح هذه الواجهة اكتشاف أقسام المنصة وقراءة المواصفة التقنية ومخطط بيانات الدورات. جميع النقاط الحالية ثابتة للقراءة ولا تستقبل بيانات شخصية أو نتائج صحية.</p>
-<a class="button" href="v1/platform.json">بيانات المنصة</a>
-<a class="button secondary" href="v1/openapi.json">OpenAPI</a>
-<a class="button secondary" href="v1/courses.schema.json">مخطط الدورات</a>
+<p class="eyebrow">API v1 — قراءة عامة دون بيانات شخصية</p>
+<h1>بيانات منظمة تربط المحتوى بالمواقع والتطبيقات</h1>
+<p class="lead">تتيح الواجهة اكتشاف أقسام المنصة، والوصول إلى فهرس الصفحات القابلة للفهرسة وتصنيفها الموضوعي، وقراءة كتالوج الدورات التي يثبت الإذن بإعادة استخدام بياناتها الوصفية. لا تستقبل الواجهة نتائج صحية أو سجلات مستخدمين أو مواد اختبارات محمية.</p>
+<a class="button" href="v1/platform.json">اكتشاف المنصة</a>
+<a class="button secondary" href="v1/openapi.json">مواصفة OpenAPI</a>
+<a class="button secondary" href="v1/content-index.json">فهرس المحتوى</a>
+<a class="button secondary" href="v1/taxonomy.json">التصنيف الموضوعي</a>
+<a class="button secondary" href="v1/courses.json">الدورات المخولة</a>
 </section>
-<section class="warning">
-<h2>شرط استيراد الدورات</h2>
-<p>لا يُسحب أي محتوى أو وصف دورة من جهة خارجية قبل وجود إذن موثق وترخيص يسمح بإعادة استخدام البيانات. يجب الحفاظ على الرابط الأصلي والإسناد، ولا يجوز تجاوز تسجيل الدخول أو القيود التقنية أو إزالة حقوق صاحب المحتوى.</p>
+
+<section class="warning" aria-labelledby="authorization">
+<h2 id="authorization">الاستيراد لا يبدأ قبل ثبوت الإذن</h2>
+<p>لا تُنشر بيانات دورة خارجية إلا بعد التحقق من هوية مقدمها، ورابط المصدر الأصلي، ونطاق الترخيص، ودليل الإذن، وتاريخ صلاحيته. الكتالوج يعرض البيانات الوصفية المسموح بها فقط، ولا ينسخ الفيديوهات أو الملفات أو الاختبارات أو المواد التدريبية المحمية.</p>
 </section>
-<section>
-<h2>النقاط المتاحة</h2>
+
+<section aria-labelledby="discovery">
+<h2 id="discovery">فهارس المحتوى والبحث</h2>
 <div class="grid">
-<article class="card"><h3>GET /api/v1/platform.json</h3><p>اسم المنصة، الموارد، الأقسام، الروابط، وسياسة التكامل.</p><a href="v1/platform.json">عرض الاستجابة</a></article>
-<article class="card"><h3>GET /api/v1/openapi.json</h3><p>مواصفة OpenAPI 3.1 لتوليد عميل أو التحقق الآلي من العقد.</p><a href="v1/openapi.json">عرض المواصفة</a></article>
-<article class="card"><h3>GET /api/v1/courses.schema.json</h3><p>JSON Schema يفرض بيانات مقدم الخدمة والإذن والترخيص والروابط الأصلية.</p><a href="v1/courses.schema.json">عرض المخطط</a></article>
-<article class="card"><h3>GET /api/v1/courses.example.json</h3><p>مثال توضيحي فقط؛ لا يمثل دورة حقيقية أو شراكة أو إذنًا قائمًا.</p><a href="v1/courses.example.json">عرض المثال</a></article>
+<article class="card"><h3>بيانات المنصة</h3><code class="endpoint">GET /api/v1/platform.json</code><p>هوية المنصة، اللغات، الأقسام، القدرات، والروابط الرسمية للواجهات.</p><a href="v1/platform.json">عرض الاستجابة</a></article>
+<article class="card"><h3>فهرس المحتوى</h3><code class="endpoint">GET /api/v1/content-index.json</code><p>سجل موحد للصفحات العامة يتضمن العنوان والوصف والقسم واللغة والوسوم والرابط القانوني.</p><a href="v1/content-index.json">عرض الفهرس</a></article>
+<article class="card"><h3>التصنيف الموضوعي</h3><code class="endpoint">GET /api/v1/taxonomy.json</code><p>الأقسام واللغات والوسوم وعدد الصفحات المرتبطة بكل تصنيف لتسهيل بناء القوائم ومحركات البحث.</p><a href="v1/taxonomy.json">عرض التصنيف</a></article>
 </div>
 </section>
-<section class="card">
-<h2>مثال قراءة</h2>
-<pre><code>fetch("https://khaledaltheeb.github.io/pterminology-site/api/v1/platform.json")
+
+<section aria-labelledby="courses">
+<h2 id="courses">تكامل الدورات المخولة</h2>
+<div class="grid">
+<article class="card"><h3>كتالوج الدورات</h3><code class="endpoint">GET /api/v1/courses.json</code><p>الدورات التي اجتازت شروط الإذن والترخيص، مع مقدم الخدمة والرابط الأصلي والتسجيل واللغة وطريقة التقديم.</p><a href="v1/courses.json">عرض الكتالوج</a></article>
+<article class="card"><h3>مخطط التغذية</h3><code class="endpoint">GET /api/v1/courses.schema.json</code><p>JSON Schema يحدد حقول مقدم الخدمة والإذن والحقوق والبيانات المطلوبة لكل دورة.</p><a href="v1/courses.schema.json">عرض المخطط</a></article>
+<article class="card"><h3>مثال توضيحي</h3><code class="endpoint">GET /api/v1/courses.example.json</code><p>مثال بنيوي لا يمثل دورة حقيقية أو شراكة أو إذنًا قائمًا.</p><a href="v1/courses.example.json">عرض المثال</a></article>
+</div>
+</section>
+
+<section class="card" aria-labelledby="example">
+<h2 id="example">مثال قراءة فهرس المحتوى</h2>
+<pre><code>fetch("https://khaledaltheeb.github.io/pterminology-site/api/v1/content-index.json")
   .then(response =&gt; {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return response.json();
   })
-  .then(platform =&gt; console.log(platform.resources))
+  .then(index =&gt; {
+    const autismPages = index.items.filter(page =&gt;
+      page.tags.some(tag =&gt; tag.includes("التوحد"))
+    );
+    console.log(autismPages);
+  })
   .catch(console.error);</code></pre>
 </section>
-<section class="card">
-<h2>قواعد الاستقرار</h2>
-<ul>
-<li>الإصدار الرئيسي في المسار: <code>/api/v1/</code>.</li>
-<li>تُضاف الحقول الجديدة بصورة متوافقة ما أمكن.</li>
-<li>أي تغيير غير متوافق ينتقل إلى إصدار رئيسي جديد.</li>
-<li>لا تحتوي الاستجابات العامة على بيانات مستخدمين أو حالات أو جلسات.</li>
-<li>لا تُقدَّم الأدوات المحمية أو مفاتيح التصحيح أو المواد التدريبية الخارجية عبر الواجهة.</li>
-</ul>
+
+<section aria-labelledby="rules">
+<h2 id="rules">عقد الاستقرار والخصوصية</h2>
+<div class="rules">
+<article><h3>إصدارات مستقرة</h3><p>يبقى الإصدار الرئيسي ضمن <code>/api/v1/</code>. تُضاف الحقول بصورة متوافقة، وأي تغيير غير متوافق ينتقل إلى إصدار رئيسي جديد.</p></article>
+<article><h3>لا بيانات شخصية</h3><p>الاستجابات العامة لا تحتوي على أسماء مستخدمين أو جلسات أو نتائج صحية أو تقارير فردية أو معرفات داخلية للحالات.</p></article>
+<article><h3>المصدر القانوني محفوظ</h3><p>كل دورة خارجية تحتفظ بالرابط القانوني لمصدرها وإسنادها، ولا تُعرض عند انتهاء الإذن أو فشل التحقق.</p></article>
+<article><h3>لا مواد مهنية محمية</h3><p>لا تُعرض بنود الاختبارات أو مفاتيح التصحيح أو جداول المعايير أو محتوى الدورات المدفوع أو المحمي.</p></article>
+</div>
 </section>
 </div></main>
-<footer><div class="wrap"><a href="../">العودة إلى الصفحة الرئيسية</a> · <a href="../trust/">الثقة والمنهجية</a> · <a href="../sitemap.xml">خريطة الموقع</a></div></footer>
+<footer><div class="wrap"><a href="../">العودة إلى الصفحة الرئيسية</a> · <a href="../trust/">الثقة والمنهجية</a> · <a href="../partners/">الشفافية والشركاء</a> · <a href="../sitemap.xml">خريطة الموقع</a></div></footer>
 </body>
 </html>
