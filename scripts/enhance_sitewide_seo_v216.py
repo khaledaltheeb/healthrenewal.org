@@ -12,10 +12,7 @@ from urllib.parse import quote
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
-BRAND_AR = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
-BRAND_EN = "Mental Health and Special Needs Platform"
-BRAND_ES = "Plataforma de Salud Mental y Necesidades Especiales"
-SOCIAL_IMAGE = BASE_URL + "assets/brand/social-card.png"
+SOCIAL_IMAGE = BASE_URL + "assets/brand/social-card.svg"
 SKIP_FILES = {"404.html", "offline.html"}
 SKIP_PREFIXES = ("coverage/", "reports/", "tmp/", "node_modules/")
 
@@ -23,7 +20,8 @@ TAG_RE = re.compile(r"<(?:meta|link)\b[^>]*>", re.I | re.S)
 ATTR_RE = re.compile(r"([:\w-]+)\s*=\s*([\"'])(.*?)\2", re.I | re.S)
 TITLE_RE = re.compile(r"<title\b[^>]*>(.*?)</title>", re.I | re.S)
 H1_RE = re.compile(r"<h1\b[^>]*>(.*?)</h1>", re.I | re.S)
-HTML_RE = re.compile(r"<html\b([^>]*)>", re.I | re.S)
+HTML_RE = re.compile(r"<html\b[^>]*>", re.I | re.S)
+HEAD_RE = re.compile(r"<head\b[^>]*>(.*?)</head\s*>", re.I | re.S)
 HEAD_END_RE = re.compile(r"</head\s*>", re.I)
 JSONLD_RE = re.compile(
     r"<script\b[^>]*\btype\s*=\s*([\"'])application/ld\+json\1[^>]*>",
@@ -32,15 +30,11 @@ JSONLD_RE = re.compile(
 STRIP_TAGS_RE = re.compile(r"<[^>]+>")
 SPACE_RE = re.compile(r"\s+")
 
-LOCALE = {
-    "ar": "ar_AR",
-    "en": "en_US",
-    "es": "es_ES",
-}
-BRANDS = {
-    "ar": BRAND_AR,
-    "en": BRAND_EN,
-    "es": BRAND_ES,
+LOCALE = {"ar": "ar_AR", "en": "en_US", "es": "es_ES"}
+BRAND = {
+    "ar": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+    "en": "Mental Health and Special Needs Platform",
+    "es": "Plataforma de Salud Mental y Necesidades Especiales",
 }
 BASE_TERMS = {
     "ar": ["الصحة النفسية", "علم النفس", "مصطلحات علم النفس"],
@@ -116,12 +110,14 @@ CONTENT_ROOTS = {
 
 
 def attrs(tag: str) -> dict[str, str]:
-    return {name.lower(): html.unescape(value.strip()) for name, _, value in ATTR_RE.findall(tag)}
+    return {
+        name.lower(): html.unescape(value.strip())
+        for name, _, value in ATTR_RE.findall(tag)
+    }
 
 
 def clean_text(value: str) -> str:
-    value = STRIP_TAGS_RE.sub(" ", value)
-    return SPACE_RE.sub(" ", html.unescape(value)).strip()
+    return SPACE_RE.sub(" ", html.unescape(STRIP_TAGS_RE.sub(" ", value))).strip()
 
 
 def escape_attr(value: str) -> str:
@@ -130,58 +126,41 @@ def escape_attr(value: str) -> str:
 
 def language_of(source: str) -> str:
     match = HTML_RE.search(source)
-    if not match:
-        return "ar"
-    language = attrs(match.group(0)).get("lang", "ar").split("-", 1)[0].lower()
+    language = attrs(match.group(0)).get("lang", "ar") if match else "ar"
+    language = language.split("-", 1)[0].lower()
     return language if language in LOCALE else "ar"
 
 
-def title_of(head: str, h1: str, language: str) -> tuple[str, str]:
-    match = TITLE_RE.search(head)
-    title = clean_text(match.group(1)) if match else ""
-    if title:
-        return title, head
-    if not h1:
-        return "", head
-    title = f"{h1} | {BRANDS[language]}"
-    return title, f"<title>{html.escape(title)}</title>\n" + head
-
-
-def first_meta(head: str, key: str, value: str) -> tuple[str | None, str | None, tuple[int, int] | None]:
-    key = key.lower()
-    value = value.lower()
+def find_tag(
+    head: str, attribute: str, expected: str, *, tag_name: str | None = None
+) -> tuple[re.Match[str] | None, dict[str, str]]:
+    expected = expected.lower()
     for match in TAG_RE.finditer(head):
         tag = match.group(0)
-        parsed = attrs(tag)
-        if parsed.get(key, "").lower() == value:
-            return parsed.get("content"), tag, match.span()
-    return None, None, None
-
-
-def link_rel(head: str, rel: str) -> tuple[str | None, str | None, tuple[int, int] | None]:
-    rel = rel.lower()
-    for match in TAG_RE.finditer(head):
-        tag = match.group(0)
-        if not tag.lower().startswith("<link"):
+        if tag_name and not tag.lower().startswith(f"<{tag_name.lower()}"):
             continue
         parsed = attrs(tag)
-        rels = {part.lower() for part in parsed.get("rel", "").split()}
-        if rel in rels:
-            return parsed.get("href"), tag, match.span()
-    return None, None, None
+        if parsed.get(attribute, "").lower() == expected:
+            return match, parsed
+    return None, {}
 
 
 def replace_content(tag: str, value: str) -> str:
-    replacement = escape_attr(value)
+    value = escape_attr(value)
     if re.search(r"\bcontent\s*=", tag, re.I):
         return re.sub(
             r"(\bcontent\s*=\s*)([\"']).*?\2",
-            lambda match: f'{match.group(1)}"{replacement}"',
+            lambda match: f'{match.group(1)}"{value}"',
             tag,
             count=1,
             flags=re.I | re.S,
         )
-    return tag[:-1] + f' content="{replacement}">'
+    return tag[:-1] + f' content="{value}">'
+
+
+def replace_tag(head: str, match: re.Match[str], replacement: str) -> str:
+    start, end = match.span()
+    return head[:start] + replacement + head[end:]
 
 
 def canonical_for(path: Path) -> str:
@@ -199,13 +178,12 @@ def route_key(relative: str) -> str:
     parts = Path(relative).parts
     if not parts:
         return "home"
-    root = parts[0]
-    if root == "sectors" and len(parts) > 1:
+    if parts[0] == "sectors" and len(parts) > 1:
         if parts[1] == "child":
             return "child"
         if parts[1] in {"family", "home"}:
             return "family"
-    return root
+    return parts[0]
 
 
 def normalized_keyword(value: str) -> str:
@@ -214,23 +192,35 @@ def normalized_keyword(value: str) -> str:
 
 def title_topic(title: str, language: str) -> str:
     topic = title
-    for brand in (BRANDS[language], BRAND_AR, "مصطلحات علم النفس", "Psychology Terminology"):
-        topic = topic.replace(brand, "")
+    for value in (
+        BRAND[language],
+        BRAND["ar"],
+        "مصطلحات علم النفس",
+        "Psychology Terminology",
+    ):
+        topic = topic.replace(value, "")
     topic = re.split(r"\s*[|—–]\s*", topic, maxsplit=1)[0]
     return clean_text(topic).strip(" -|—–")
 
 
-def build_keywords(relative: str, language: str, title: str, h1: str, existing: str | None) -> list[str]:
+def build_keywords(
+    relative: str,
+    language: str,
+    title: str,
+    h1: str,
+    existing: str | None,
+) -> list[str]:
     candidates: list[str] = []
     if existing:
-        candidates.extend(part.strip() for part in re.split(r"[,،]", existing) if part.strip())
+        candidates.extend(
+            part.strip() for part in re.split(r"[,،]", existing) if part.strip()
+        )
     topic = title_topic(title, language)
     if 3 <= len(topic) <= 120:
         candidates.append(topic)
     if h1 and normalized_keyword(h1) != normalized_keyword(topic) and len(h1) <= 120:
         candidates.append(h1)
-    key = route_key(relative)
-    candidates.extend(ROUTE_TERMS.get(key, {}).get(language, []))
+    candidates.extend(ROUTE_TERMS.get(route_key(relative), {}).get(language, []))
     candidates.extend(BASE_TERMS[language])
 
     result: list[str] = []
@@ -238,7 +228,13 @@ def build_keywords(relative: str, language: str, title: str, h1: str, existing: 
     for candidate in candidates:
         candidate = clean_text(candidate)
         normalized = normalized_keyword(candidate)
-        if not normalized or normalized in seen or len(candidate) > 120:
+        proposed = result + [candidate]
+        if (
+            not normalized
+            or normalized in seen
+            or len(candidate) > 120
+            or len(", ".join(proposed)) > 480
+        ):
             continue
         seen.add(normalized)
         result.append(candidate)
@@ -253,14 +249,14 @@ def is_article(relative: str) -> bool:
 
 
 def generic_description(topic: str, language: str) -> str:
-    topic = topic or BRANDS[language]
+    topic = topic or BRAND[language]
     if language == "en":
-        text = f"A structured evidence-aware guide to {topic}, with practical context, related topics, and clear professional limits."
+        value = f"A structured evidence-aware guide to {topic}, with practical context, related topics, and clear professional limits."
     elif language == "es":
-        text = f"Guía estructurada y basada en evidencia sobre {topic}, con contexto práctico, temas relacionados y límites profesionales claros."
+        value = f"Guía estructurada y basada en evidencia sobre {topic}, con contexto práctico, temas relacionados y límites profesionales claros."
     else:
-        text = f"دليل عربي منظم حول {topic} يوضح السياق العملي والموضوعات المرتبطة والحدود المهنية ضمن منصة الصحة النفسية وذوي الاحتياجات الخاصة."
-    return text[:220]
+        value = f"دليل عربي منظم حول {topic} يوضح السياق العملي والموضوعات المرتبطة والحدود المهنية ضمن منصة الصحة النفسية وذوي الاحتياجات الخاصة."
+    return value[:220]
 
 
 def inject_before_head_end(source: str, additions: list[str]) -> str:
@@ -270,8 +266,7 @@ def inject_before_head_end(source: str, additions: list[str]) -> str:
     if len(matches) != 1:
         raise ValueError("expected exactly one closing head tag")
     position = matches[0].start()
-    block = "\n" + "\n".join(additions) + "\n"
-    return source[:position] + block + source[position:]
+    return source[:position] + "\n" + "\n".join(additions) + "\n" + source[position:]
 
 
 def enrich_page(path: Path) -> tuple[bool, dict[str, int | str | bool]]:
@@ -279,63 +274,101 @@ def enrich_page(path: Path) -> tuple[bool, dict[str, int | str | bool]]:
     source = path.read_text(encoding="utf-8")
     if relative in SKIP_FILES or relative.startswith(SKIP_PREFIXES):
         return False, {"status": "skipped_special"}
-    head_match = re.search(r"<head\b[^>]*>(.*?)</head\s*>", source, re.I | re.S)
+
+    head_match = HEAD_RE.search(source)
     if not head_match:
-        return False, {"status": "missing_head"}
-    head = head_match.group(1)
-    robots, _, _ = first_meta(head, "name", "robots")
-    if robots and "noindex" in robots.lower():
+        raise ValueError("missing head")
+    original_head = head_match.group(1)
+    head = original_head
+
+    robots_match, robots_attrs = find_tag(head, "name", "robots", tag_name="meta")
+    robots = robots_attrs.get("content", "")
+    if "noindex" in robots.lower():
         return False, {"status": "skipped_noindex"}
 
     language = language_of(source)
     h1_match = H1_RE.search(source)
     h1 = clean_text(h1_match.group(1)) if h1_match else ""
-    title, updated_head = title_of(head, h1, language)
+    title_match = TITLE_RE.search(head)
+    title = clean_text(title_match.group(1)) if title_match else ""
     if not title:
-        return False, {"status": "missing_title_and_h1"}
-    if updated_head != head:
-        source = source.replace(head, updated_head, 1)
-        head = updated_head
+        if not h1:
+            raise ValueError("missing title and h1")
+        title = f"{h1} | {BRAND[language]}"
+        head = f"<title>{html.escape(title)}</title>\n" + head
 
-    description, _, _ = first_meta(head, "name", "description")
+    description_match, description_attrs = find_tag(
+        head, "name", "description", tag_name="meta"
+    )
+    description = description_attrs.get("content", "").strip()
     if not description:
         description = generic_description(h1 or title_topic(title, language), language)
-    canonical, _, _ = link_rel(head, "canonical")
-    canonical = canonical or canonical_for(path)
-    existing_keywords, keyword_tag, keyword_span = first_meta(head, "name", "keywords")
+        if description_match:
+            head = replace_tag(
+                head,
+                description_match,
+                replace_content(description_match.group(0), description),
+            )
+            description_match, description_attrs = find_tag(
+                head, "name", "description", tag_name="meta"
+            )
+
+    canonical_match, canonical_attrs = find_tag(
+        head, "rel", "canonical", tag_name="link"
+    )
+    canonical = canonical_attrs.get("href", "").strip() or canonical_for(path)
+
+    keyword_match, keyword_attrs = find_tag(
+        head, "name", "keywords", tag_name="meta"
+    )
+    existing_keywords = keyword_attrs.get("content", "") or None
     keywords = build_keywords(relative, language, title, h1, existing_keywords)
     if len(keywords) < 5:
-        return False, {"status": "insufficient_keywords"}
+        raise ValueError("insufficient topical keyword coverage")
     keyword_value = ", ".join(keywords)
 
     additions: list[str] = []
     counters: Counter[str] = Counter()
-    if not first_meta(head, "name", "description")[0]:
-        additions.append(f'<meta name="description" content="{escape_attr(description)}">')
+    if not description_match:
+        additions.append(
+            f'<meta name="description" content="{escape_attr(description)}">'
+        )
         counters["description_added"] += 1
-    if not robots:
-        additions.append('<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">')
+    if not robots_match:
+        additions.append(
+            '<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">'
+        )
         counters["robots_added"] += 1
-    if not canonical:
-        raise AssertionError("canonical resolution failed")
-    if not link_rel(head, "canonical")[0]:
+    if not canonical_match:
         additions.append(f'<link rel="canonical" href="{escape_attr(canonical)}">')
         counters["canonical_added"] += 1
+    elif not canonical_attrs.get("href", "").strip():
+        replacement = re.sub(
+            r"\s*/?>$",
+            f' href="{escape_attr(canonical)}">',
+            canonical_match.group(0),
+            count=1,
+        )
+        head = replace_tag(head, canonical_match, replacement)
+        counters["canonical_repaired"] += 1
 
-    if keyword_tag and keyword_span:
-        if existing_keywords != keyword_value:
-            new_tag = replace_content(keyword_tag, keyword_value)
-            start, end = keyword_span
-            head = head[:start] + new_tag + head[end:]
-            source = source.replace(head_match.group(1), head, 1)
+    if keyword_match:
+        if keyword_attrs.get("content", "") != keyword_value:
+            head = replace_tag(
+                head,
+                keyword_match,
+                replace_content(keyword_match.group(0), keyword_value),
+            )
             counters["keywords_augmented"] += 1
     else:
-        additions.append(f'<meta name="keywords" content="{escape_attr(keyword_value)}">')
+        additions.append(
+            f'<meta name="keywords" content="{escape_attr(keyword_value)}">'
+        )
         counters["keywords_added"] += 1
 
-    singleton_properties = {
+    open_graph = {
         "og:type": "article" if is_article(relative) else "website",
-        "og:site_name": BRANDS[language],
+        "og:site_name": BRAND[language],
         "og:locale": LOCALE[language],
         "og:title": title,
         "og:description": description,
@@ -343,9 +376,12 @@ def enrich_page(path: Path) -> tuple[bool, dict[str, int | str | bool]]:
         "og:image": SOCIAL_IMAGE,
         "og:image:alt": title,
     }
-    for prop, value in singleton_properties.items():
-        if first_meta(head, "property", prop)[0] is None:
-            additions.append(f'<meta property="{prop}" content="{escape_attr(value)}">')
+    for property_name, value in open_graph.items():
+        match, _ = find_tag(head, "property", property_name, tag_name="meta")
+        if not match:
+            additions.append(
+                f'<meta property="{property_name}" content="{escape_attr(value)}">'
+            )
             counters["open_graph_added"] += 1
 
     twitter = {
@@ -356,7 +392,8 @@ def enrich_page(path: Path) -> tuple[bool, dict[str, int | str | bool]]:
         "twitter:image:alt": title,
     }
     for name, value in twitter.items():
-        if first_meta(head, "name", name)[0] is None:
+        match, _ = find_tag(head, "name", name, tag_name="meta")
+        if not match:
             additions.append(f'<meta name="{name}" content="{escape_attr(value)}">')
             counters["twitter_added"] += 1
 
@@ -369,7 +406,9 @@ def enrich_page(path: Path) -> tuple[bool, dict[str, int | str | bool]]:
         for keyword in keywords[:8]:
             if normalized_keyword(keyword) in existing_tags:
                 continue
-            additions.append(f'<meta property="article:tag" content="{escape_attr(keyword)}">')
+            additions.append(
+                f'<meta property="article:tag" content="{escape_attr(keyword)}">'
+            )
             counters["article_tags_added"] += 1
 
     if not JSONLD_RE.search(head):
@@ -384,18 +423,27 @@ def enrich_page(path: Path) -> tuple[bool, dict[str, int | str | bool]]:
             "keywords": keywords,
             "isPartOf": {
                 "@type": "WebSite",
-                "name": BRANDS[language],
+                "name": BRAND[language],
                 "url": BASE_URL,
             },
         }
-        payload = json.dumps(schema, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+        payload = json.dumps(
+            schema, ensure_ascii=False, separators=(",", ":")
+        ).replace("</", "<\\/")
         additions.append(f'<script type="application/ld+json">{payload}</script>')
         counters["schema_added"] += 1
 
+    if head != original_head:
+        source = (
+            source[: head_match.start(1)]
+            + head
+            + source[head_match.end(1) :]
+        )
     enriched = inject_before_head_end(source, additions)
-    changed = enriched != source
+    changed = enriched != path.read_text(encoding="utf-8")
     if changed:
         path.write_text(enriched, encoding="utf-8")
+
     result: dict[str, int | str | bool] = {
         "status": "modified" if changed else "unchanged",
         "language": language,
@@ -420,18 +468,20 @@ def main() -> int:
     failures: list[dict[str, str]] = []
     for path in pages:
         relative = path.relative_to(SITE).as_posix()
+        totals["html_pages"] += 1
         try:
             changed, result = enrich_page(path)
-        except Exception as exc:  # fail closed and report exact page
-            failures.append({"path": relative, "error": f"{type(exc).__name__}: {exc}"})
+        except Exception as exc:
+            failures.append(
+                {"path": relative, "error": f"{type(exc).__name__}: {exc}"}
+            )
             continue
         status = str(result.get("status", "unknown"))
-        totals["html_pages"] += 1
         totals[status] += 1
         if changed:
             totals["modified_pages"] += 1
         for key, value in result.items():
-            if isinstance(value, int) and key not in {"keyword_count"}:
+            if isinstance(value, int) and key != "keyword_count":
                 totals[key] += value
         if result.get("route"):
             routes[str(result["route"])] += 1
@@ -450,6 +500,7 @@ def main() -> int:
         "failures": failures[:200],
         "policy": {
             "keyword_limit": 15,
+            "keyword_character_limit": 480,
             "no_keyword_stuffing": True,
             "preserve_existing_metadata": True,
             "skip_noindex_pages": True,
@@ -459,7 +510,9 @@ def main() -> int:
     }
     output = SITE / "api" / "sitewide-seo-v216.json"
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    output.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     print(json.dumps(report, ensure_ascii=False, indent=2))
     if failures:
         raise SystemExit(f"SEO enrichment failed for {len(failures)} pages")
