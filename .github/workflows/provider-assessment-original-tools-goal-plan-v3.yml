@@ -39,7 +39,7 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Validate JavaScript and rights-safe contract
+      - name: Validate JavaScript, rights and local-audit boundaries
         run: |
           node --check provider-assessment-demo/original-tools-progress-plan-bridge-v3.js
           node --check provider-assessment-demo/original-tools-progress-plan-v3.js
@@ -50,12 +50,17 @@ jobs:
           grep -q 'plan_revised' provider-assessment-demo/original-tools-progress-plan-v3.js
           grep -q 'edit_reason_required' provider-assessment-demo/original-tools-progress-plan-v3.js
           grep -q 'human-review-required-not-diagnostic-not-norm-referenced' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'local-change-history-not-tamper-evident-not-legal-record' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'auditRetentionLimit' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'auditEventCount' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'ليس سجلًا قانونيًا غير قابل للتلاعب' provider-assessment-demo/original-tools-progress-plan-v3.js
           grep -q 'لا تعلن المنصة تحقق الهدف آليًا' provider-assessment-demo/original-tools-progress-plan-v3.js
           grep -q 'persistStore' provider-assessment-demo/original-tools-progress-plan-bridge-v3.js
           grep -q 'original-tools-progress-plan-bridge-v3.js' provider-assessment-demo/institutional-live-v2.js
           grep -q 'original-tools-progress-plan-v3.js' provider-assessment-demo/institutional-live-v2.js
           ! grep -Eq 'XMLHttpRequest|WebSocket|sendBeacon\(|EventSource\(|fetch\(|eval\(|new Function\(' provider-assessment-demo/original-tools-progress-plan-bridge-v3.js provider-assessment-demo/original-tools-progress-plan-v3.js
           ! grep -Eqi 'scoring key|norm table|item bank|مفتاح التصحيح|جداول المعايير|بنود الاختبار' provider-assessment-demo/original-tools-progress-plan-bridge-v3.js provider-assessment-demo/original-tools-progress-plan-v3.js
+          ! grep -Eq 'سجل تدقيق غير قابل للطمس|سجل غير قابل للتلاعب|immutable audit' provider-assessment-demo/original-tools-progress-plan-v3.js
 
       - name: Install Playwright and Chromium
         run: |
