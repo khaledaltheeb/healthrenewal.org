@@ -1,7 +1,7 @@
 "use strict";
 
 (() => {
-  const RELEASE = "2026.07.24-live.5";
+  const RELEASE = "2026.07.24-live.6";
   const PATH = "/pterminology-site/provider-assessment-demo/";
 
   const replaceText = (root = document) => {
@@ -29,7 +29,7 @@
     document.documentElement.dataset.release = RELEASE;
     document.title = "منصة التقييم والسجل المهني | منصة الصحة النفسية وذوي الاحتياجات الخاصة";
     const description = document.querySelector('meta[name="description"]');
-    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية ومسارات تطبيق المقاييس المهنية، مع 20 دليل حالة وقوالب تشغيل متخصصة وربط النتائج والملاحظات والقرارات بكل حالة ضمن UID مستقل.";
+    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية ومسارات تطبيق المقاييس المهنية، مع 20 دليل حالة وقوالب تشغيل متخصصة وتقارير مهنية متعددة الإصدارات داخل UID مستقل.";
     const applicationVersion = document.querySelector('meta[name="application-version"]');
     if (applicationVersion) applicationVersion.content = RELEASE;
 
@@ -38,7 +38,7 @@
     const product = document.querySelector(".product-name");
     if (product) product.textContent = "منصة التقييم والسجل المهني";
     const notice = document.querySelector(".notice-bar");
-    if (notice) notice.textContent = "جميع الأدوات الظاهرة تملك مسار عمل فعّالًا وقالب تطبيق يناسب نوعها: استبانة، اختبار أداء، مقابلة أو ملاحظة، فحص جهازي، تصنيف وظيفي، تواصل، أو تحليل سلوك. لا تُنسخ مواد تجارية محمية دون حق استخدامها.";
+    if (notice) notice.textContent = "جميع الأدوات الظاهرة تملك مسار عمل فعّالًا وقالب تطبيق يناسب نوعها، مع تقارير مهنية متعددة الإصدارات مرتبطة بالحالة. لا تُنسخ مواد تجارية محمية دون حق استخدامها.";
 
     const count = window.PA_OPERATIONAL_COUNT || window.PA_DEMO_DATA?.professional?.length || 0;
     const card = document.querySelector(".hero-card ul");
@@ -50,6 +50,7 @@
         <li>${count} مقياسًا وفحصًا وبروتوكولًا بمسار عمل مهني فعّال.</li>
         <li>20 دليل حالة مؤسسيًا مع فريق وحزمة مقاييس وكورس ومخرجات تقرير.</li>
         <li>قوالب إدخال متخصصة حسب نوع الأداة والفحص.</li>
+        <li>تقارير مهنية متعددة الإصدارات مع طباعة وتصدير محلي.</li>
         <li>الإصدار الحي: ${RELEASE}.</li>`;
     }
 
@@ -63,7 +64,6 @@
 
     const footer = document.querySelector(".site-footer p");
     if (footer) footer.textContent = `© منصة الصحة النفسية وذوي الاحتياجات الخاصة — منصة التقييم والسجل المهني، الإصدار ${RELEASE}. التخزين محلي داخل UID مستقل.`;
-
     replaceText(document.body);
   };
 
@@ -92,14 +92,9 @@
   };
 
   const loadAssessmentPathways = () => addScript("assessment-pathways-content.js", "assessment-pathways");
-
-  const loadConditionPathways = () => {
-    addScript("conditions/conditions-data-v1.js", "condition-pathways", () => {
-      addScript("condition-entry-v1.js", "condition-entry");
-    });
-  };
-
+  const loadConditionPathways = () => addScript("conditions/conditions-data-v1.js", "condition-pathways", () => addScript("condition-entry-v1.js", "condition-entry"));
   const loadProfessionalTemplates = () => addScript("professional-templates-v1.js", "professional-templates");
+  const loadCaseReports = () => addScript("case-report-v1.js", "case-reports");
 
   const refreshOldCaches = async () => {
     try {
@@ -124,6 +119,7 @@
     loadAssessmentPathways();
     loadConditionPathways();
     loadProfessionalTemplates();
+    loadCaseReports();
     refreshOldCaches();
     requestAnimationFrame(() => requestAnimationFrame(applyInstitutionalCopy));
   });
