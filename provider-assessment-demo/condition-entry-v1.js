@@ -6,10 +6,21 @@
 
   const params = new URLSearchParams(window.location.search);
   const requestedSlug = params.get("condition");
+  const requestedView = params.get("open");
   let stored = null;
   try { stored = JSON.parse(localStorage.getItem("pa-selected-condition-v1") || "null"); } catch (_) {}
   const slug = requestedSlug || stored?.slug || "";
   const condition = registry.conditions.find((item) => item.slug === slug);
+
+  const openView = (name) => {
+    const tab = document.querySelector(`[data-view="${name}"]`);
+    if (tab) {
+      tab.click();
+      document.getElementById(`view-${name}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    return false;
+  };
 
   const addConditionsLink = () => {
     const headerActions = document.querySelector(".header-actions");
@@ -50,8 +61,7 @@
         search.value = condition.title;
         search.dispatchEvent(new Event("input", { bubbles: true }));
       }
-      const tab = document.querySelector('[data-view="professional"]');
-      tab?.click();
+      openView("professional");
     });
 
     document.getElementById("clear-condition-pathway")?.addEventListener("click", () => {
@@ -63,8 +73,29 @@
     });
   };
 
+  const routeRequestedView = () => {
+    const routeMap = {
+      professional: "professional",
+      records: "professional-records",
+      cases: "cases",
+      explorers: "explorers",
+      guide: "guide",
+      dashboard: "dashboard"
+    };
+    const target = routeMap[requestedView];
+    if (!target) return;
+    let attempts = 0;
+    const route = () => {
+      attempts += 1;
+      if (openView(target) || attempts >= 12) return;
+      setTimeout(route, 80);
+    };
+    requestAnimationFrame(route);
+  };
+
   addConditionsLink();
   showContext();
+  routeRequestedView();
 
   if (condition && requestedSlug) {
     try {
