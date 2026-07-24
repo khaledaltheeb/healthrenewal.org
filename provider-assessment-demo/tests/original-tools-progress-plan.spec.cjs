@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 const BASE = 'http://127.0.0.1:4173/provider-assessment-demo/';
 const sharedContext = { respondent: 'parent', setting: 'home', administrationMode: 'questionnaire', supportLevel: 'usual', note: '', contractVersion: 'pa-original-session-context-v2' };
 
-test('original tool progress plans require functional goals, human review and audited revisions', async ({ page }) => {
+test('original tool progress plans require goals, human review and bounded local change history', async ({ page }) => {
   await page.addInitScript((context) => {
     const identity = { uid: 'UID-GOAL-PLAN-TEST', username: 'visitor', role: 'visitor', createdAt: new Date().toISOString() };
     localStorage.setItem('pa-demo-identities-v3', JSON.stringify({ __visitor__: identity }));
@@ -37,19 +37,24 @@ test('original tool progress plans require functional goals, human review and au
 
   await expect(panel).toContainText('جاهز للمراجعة المهنية');
   await expect(panel).toContainText('لا تعلن المنصة تحقق الهدف آليًا');
-  await expect(panel).toContainText('تدخل ضمن نسخة الحالة الاحتياطية');
+  await expect(panel).toContainText('نسخة الحالة الاحتياطية المحلية');
+  await expect(panel).toContainText('ليس سجلًا قانونيًا غير قابل للتلاعب');
   await panel.locator('[data-edit-progress-plan]').click();
   const editForm = panel.locator('[data-progress-plan-form]');
   await editForm.locator('[name="functionalGoal"]').fill('زيادة المبادرات التواصلية في المنزل والمدرسة مع توثيق السياق.');
   await editForm.locator('[name="editReason"]').fill('توسيع الهدف بعد مراجعة الفريق.');
   await editForm.locator('button[type="submit"]').click();
-  await expect(panel).toContainText('أحداث السجل: 2');
+  await expect(panel).toContainText('إجمالي أحداث السجل المحلي: 2');
+  await expect(panel).toContainText('المحتفظ بها: 2');
 
   const store = await page.evaluate(() => JSON.parse(localStorage.getItem('pa-demo-store-v3:UID-GOAL-PLAN-TEST')));
   const plans = store.cases[0].originalProgressPlans;
   expect(plans).toHaveLength(1);
   expect(plans[0].schema).toBe('pa-original-progress-plan-v3');
   expect(plans[0].createdByUid).toBe('UID-GOAL-PLAN-TEST');
+  expect(plans[0].auditBoundary).toBe('local-change-history-not-tamper-evident-not-legal-record');
+  expect(plans[0].auditRetentionLimit).toBe(200);
+  expect(plans[0].auditEventCount).toBe(2);
   expect(plans[0].auditTrail).toHaveLength(2);
   expect(plans[0].auditTrail[1].event).toBe('plan_revised');
   expect(plans[0].auditTrail[1].reason).toBe('توسيع الهدف بعد مراجعة الفريق.');
@@ -65,5 +70,8 @@ test('original tool progress plans require functional goals, human review and au
   expect(exported.ownerUid).toBe('UID-GOAL-PLAN-TEST');
   expect(exported.backupLocation).toBe('embedded-in-case-record');
   expect(exported.interpretationBoundary).toBe('human-review-required-not-diagnostic-not-norm-referenced');
+  expect(exported.auditBoundary).toBe('local-change-history-not-tamper-evident-not-legal-record');
+  expect(exported.auditRetentionLimit).toBe(200);
+  expect(exported.plans[0].auditEventCount).toBe(2);
   expect(exported.plans[0].auditTrail).toHaveLength(2);
 });
