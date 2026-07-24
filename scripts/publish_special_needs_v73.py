@@ -110,7 +110,7 @@ def common_schema(data: dict[str, Any], canonical: str, name: str, page_type: st
 def render_center(data: dict[str, Any]) -> str:
     canonical = BASE + "/special-needs/"
     title = "ذوو الاحتياجات الخاصة والتربية الدامجة | مصطلحات علم النفس"
-    description = "مركز عربي منظم للمعلومات والأدلة والأدوات الموجهة للأشخاص ذوي الإعاقة وأسرهم ومعلميهم ومقدمي الخدمات، مع قواعد للكرامة والسلامة والمصادر."
+    description = "مركز عربي منظم للمعلومات والأدلة والأدوات الموجهة للأشخاص ذوي الاحتياجات الخاصة وأسرهم ومعلميهم ومقدمي الخدمات، مع قواعد للكرامة والسلامة والمصادر."
     schema = {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
@@ -124,7 +124,7 @@ def render_center(data: dict[str, Any]) -> str:
     return f'''<!doctype html><html lang="ar" dir="rtl">{head(title, description, canonical, schema)}<body>
 <a class="skip" href="#main">انتقل إلى المحتوى الرئيسي</a><div class="wrap">{nav()}<main id="main">
 <header><p><strong>قسم أساسي في المنصة</strong></p><h1>ذوو الاحتياجات الخاصة والتربية الدامجة</h1>
-<p class="lead">معلومات عملية للأشخاص ذوي الإعاقة أو الاحتياجات الإضافية، وللأسر والمعلمين ومقدمي الرعاية والخدمات. يبنى القسم على الكرامة والمشاركة واللغة غير الوصمية وإزالة الحواجز، لا على الشفقة أو اختزال الإنسان في تشخيص.</p>
+<p class="lead">معلومات عملية للأشخاص ذوي الاحتياجات الخاصة أو الاحتياجات الإضافية، وللأسر والمعلمين ومقدمي الرعاية والخدمات. يبنى القسم على الكرامة والمشاركة واللغة غير الوصمية وإزالة الحواجز، لا على الشفقة أو اختزال الإنسان في تشخيص.</p>
 <p><strong>آخر مراجعة:</strong> <time datetime="{e(data["reviewed_at"])}">{e(data["reviewed_at"])}</time></p></header>
 <section class="notice"><h2>الحدود المهنية</h2><p>{e(data["professional_limits"])}</p><p>حالة المادة الحالية: تحتاج مراجعة خارجية متخصصة، ولا توجد دعوى اعتماد أو مراجعة سريرية.</p></section>
 <section><h2>المسارات التي سيغطيها المركز</h2><div class="cards">
@@ -253,7 +253,7 @@ def patch_homepage(site: Path, data: dict[str, Any]) -> dict[str, bool]:
         pattern = re.compile(r'(<article class="card"><h3>الأسرة والطفل</h3>.*?</article>)', re.S)
         card = (
             '<article class="card" data-special-needs-v73><h3>ذوو الاحتياجات الخاصة</h3>'
-            '<p>مركز أساسي للأشخاص ذوي الإعاقة وأسرهم ومعلميهم ومقدمي الخدمات: تعليم دامج، تواصل، حماية، أدوات وأدلة عملية.</p>'
+            '<p>مركز أساسي للأشخاص ذوي الاحتياجات الخاصة وأسرهم ومعلميهم ومقدمي الخدمات: تعليم دامج، تواصل، حماية، أدوات وأدلة عملية.</p>'
             '<a href="special-needs/">دخول المركز</a></article>'
         )
         text, count = pattern.subn(r"\1" + card, text, count=1)

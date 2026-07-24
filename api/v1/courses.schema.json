@@ -4,29 +4,78 @@
   "title": "Authorized Course Feed",
   "description": "مخطط لاستيراد بيانات الدورات من مصادر مخولة فقط.",
   "type": "object",
-  "required": ["feedVersion", "provider", "authorization", "courses"],
+  "required": [
+    "feedVersion",
+    "provider",
+    "authorization",
+    "courses"
+  ],
   "properties": {
-    "feedVersion": {"type": "string", "const": "1.0"},
+    "feedVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
     "provider": {
       "type": "object",
-      "required": ["id", "name", "website"],
+      "required": [
+        "id",
+        "name",
+        "website"
+      ],
       "properties": {
-        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,79}$"},
-        "name": {"type": "string", "minLength": 2, "maxLength": 160},
-        "website": {"type": "string", "format": "uri"},
-        "contactEmail": {"type": "string", "format": "email"}
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{1,79}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 160
+        },
+        "website": {
+          "type": "string",
+          "format": "uri"
+        },
+        "contactEmail": {
+          "type": "string",
+          "format": "email"
+        }
       },
       "additionalProperties": false
     },
     "authorization": {
       "type": "object",
-      "required": ["status", "evidenceUrl", "license", "verifiedAt"],
+      "required": [
+        "status",
+        "evidenceUrl",
+        "license",
+        "verifiedAt"
+      ],
       "properties": {
-        "status": {"type": "string", "const": "authorized"},
-        "evidenceUrl": {"type": "string", "format": "uri"},
-        "license": {"type": "string", "minLength": 2, "maxLength": 200},
-        "verifiedAt": {"type": "string", "format": "date"},
-        "expiresAt": {"type": ["string", "null"], "format": "date"}
+        "status": {
+          "type": "string",
+          "const": "authorized"
+        },
+        "evidenceUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "license": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 200
+        },
+        "verifiedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "expiresAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        }
       },
       "additionalProperties": false
     },
@@ -36,34 +85,153 @@
       "maxItems": 5000,
       "items": {
         "type": "object",
-        "required": ["id", "title", "language", "canonicalUrl", "enrollmentUrl", "deliveryMode", "status", "updatedAt"],
+        "required": [
+          "id",
+          "title",
+          "language",
+          "canonicalUrl",
+          "enrollmentUrl",
+          "deliveryMode",
+          "status",
+          "updatedAt",
+          "rights"
+        ],
         "properties": {
-          "id": {"type": "string", "pattern": "^[A-Za-z0-9._-]{1,120}$"},
-          "title": {"type": "string", "minLength": 3, "maxLength": 220},
-          "summary": {"type": "string", "maxLength": 1500},
-          "language": {"type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$"},
-          "canonicalUrl": {"type": "string", "format": "uri"},
-          "enrollmentUrl": {"type": "string", "format": "uri"},
-          "imageUrl": {"type": ["string", "null"], "format": "uri"},
-          "providerName": {"type": "string", "maxLength": 160},
-          "instructors": {"type": "array", "maxItems": 50, "items": {"type": "string", "maxLength": 160}},
-          "categories": {"type": "array", "maxItems": 30, "items": {"type": "string", "maxLength": 100}},
-          "audience": {"type": "array", "maxItems": 20, "items": {"type": "string", "maxLength": 120}},
-          "deliveryMode": {"type": "string", "enum": ["online", "in_person", "hybrid", "self_paced"]},
-          "price": {"type": ["number", "null"], "minimum": 0},
-          "currency": {"type": ["string", "null"], "pattern": "^[A-Z]{3}$"},
-          "startsAt": {"type": ["string", "null"], "format": "date-time"},
-          "endsAt": {"type": ["string", "null"], "format": "date-time"},
-          "duration": {"type": ["string", "null"], "maxLength": 120},
-          "status": {"type": "string", "enum": ["scheduled", "open", "closed", "archived"]},
-          "updatedAt": {"type": "string", "format": "date-time"},
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._-]{1,120}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 220
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 1500
+          },
+          "language": {
+            "type": "string",
+            "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+          },
+          "canonicalUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "enrollmentUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "imageUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          },
+          "providerName": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "instructors": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "maxLength": 160
+            }
+          },
+          "categories": {
+            "type": "array",
+            "maxItems": 30,
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            }
+          },
+          "audience": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "maxLength": 120
+            }
+          },
+          "deliveryMode": {
+            "type": "string",
+            "enum": [
+              "online",
+              "in_person",
+              "hybrid",
+              "self_paced"
+            ]
+          },
+          "price": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "currency": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[A-Z]{3}$"
+          },
+          "startsAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "duration": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 120
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "scheduled",
+              "open",
+              "closed",
+              "archived"
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "rights": {
             "type": "object",
-            "required": ["metadataReuse"],
+            "required": [
+              "metadataReuse"
+            ],
             "properties": {
-              "metadataReuse": {"type": "boolean", "const": true},
-              "contentReuse": {"type": "boolean", "default": false},
-              "attributionText": {"type": "string", "maxLength": 500}
+              "metadataReuse": {
+                "type": "boolean",
+                "const": true
+              },
+              "contentReuse": {
+                "type": "boolean",
+                "default": false
+              },
+              "attributionText": {
+                "type": "string",
+                "maxLength": 500
+              }
             },
             "additionalProperties": false
           }
