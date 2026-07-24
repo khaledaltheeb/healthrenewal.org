@@ -71,6 +71,7 @@ def finalize(site: Path) -> dict[str, object]:
         run_batch(site, 209, "publish_special_needs_guides_v209_compat.py"),
         run_batch(site, 210, "publish_special_needs_guides_v210.py"),
         run_batch(site, 211, "publish_special_needs_guides_v211.py"),
+        run_batch(site, 212, "publish_special_needs_guides_v212.py"),
     ]
     total_guides = sum(int(batch["guide_count"]) for batch in batches)
 
@@ -81,7 +82,7 @@ def finalize(site: Path) -> dict[str, object]:
         "input_changed": input_changed,
         "explicit_label_for": True,
         "accessible_name": True,
-        "special_needs_guides_versions": [209, 210, 211],
+        "special_needs_guides_versions": [209, 210, 211, 212],
         "special_needs_guides": total_guides,
         "special_needs_batches": len(batches),
     }
