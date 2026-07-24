@@ -115,7 +115,8 @@
   const loadOriginalProgress = () => addScript("original-tools-session-context-v2.js", "original-session-context-v2", () => addScript("original-tools-progress-v1.js", "original-tools-progress-v1"));
   const loadCaseReports = () => addScript("case-report-v1.js", "case-reports", () =>
     addScript("case-report-interpretation-v2.js", "case-report-interpretation-v2", () =>
-      addScript("case-report-export-v2.js", "case-report-export-v2")));
+      addScript("case-report-condition-decision-v3.js", "case-report-condition-decision-v3", () =>
+        addScript("case-report-export-v2.js", "case-report-export-v2"))));
 
   const refreshOldCaches = async () => {
     try {
