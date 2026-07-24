@@ -14,6 +14,7 @@ LOCALE_CONTRACTS = {
     "en": ("en", "ltr"),
     "es": ("es", "ltr"),
 }
+BOOLEAN_SCRIPT_ATTRIBUTES = ("defer", "async")
 
 
 def expected_language_direction(relative_path: str) -> tuple[str, str]:
@@ -23,12 +24,48 @@ def expected_language_direction(relative_path: str) -> tuple[str, str]:
     return "ar", "rtl"
 
 
+def normalize_boolean_script_attributes(parser) -> None:
+    """Preserve presence semantics for HTML boolean attributes parsed as None."""
+    for script in parser.scripts:
+        for attribute in BOOLEAN_SCRIPT_ATTRIBUTES:
+            if attribute in script and script[attribute] is None:
+                script[attribute] = attribute
+
+
+def legacy_render_blocking_decision(script: dict[str, str | None]) -> bool:
+    src = str(script.get("src", ""))
+    return bool(
+        src
+        and not script.get("defer")
+        and not script.get("async")
+        and str(script.get("type", "")).lower() != "module"
+    )
+
+
+def verify_boolean_attribute_contract(module) -> None:
+    parser = module.AuditParser()
+    parser.feed(
+        '<script src="deferred.js" defer></script>'
+        '<script src="async.js" async></script>'
+        '<script src="module.js" type="module"></script>'
+        '<script src="blocking.js"></script>'
+    )
+    normalize_boolean_script_attributes(parser)
+    observed = [legacy_render_blocking_decision(script) for script in parser.scripts]
+    expected = [False, False, False, True]
+    if observed != expected:
+        raise SystemExit(
+            f"Render-blocking boolean attribute contract failed: {observed} != {expected}"
+        )
+
+
 def main() -> int:
     spec = importlib.util.spec_from_file_location("audit_full_site_v16_legacy", LEGACY)
     if spec is None or spec.loader is None:
         raise SystemExit("Could not load legacy full-site auditor")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    verify_boolean_attribute_contract(module)
 
     original_parse_page = module.parse_page
     locale_page_counts: Counter[str] = Counter()
@@ -36,6 +73,7 @@ def main() -> int:
 
     def locale_aware_parse_page(path: Path):
         parser = original_parse_page(path)
+        normalize_boolean_script_attributes(parser)
         rel = path.relative_to(module.SITE).as_posix()
         expected_lang, expected_dir = expected_language_direction(rel)
         locale_page_counts[expected_lang] += 1
@@ -72,6 +110,8 @@ def main() -> int:
     }
     report["locale_page_counts"] = dict(sorted(locale_page_counts.items()))
     report["locale_contract_error_count"] = 0
+    report["render_blocking_detection"] = "boolean-attribute-presence-v25"
+    report["render_blocking_boolean_attribute_contract"] = True
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(
         json.dumps(
@@ -80,6 +120,8 @@ def main() -> int:
                 "version": report["version"],
                 "locale_page_counts": report["locale_page_counts"],
                 "locale_contract_error_count": 0,
+                "render_blocking_detection": report["render_blocking_detection"],
+                "blocking_scripts": report.get("blocking_scripts", 0),
             },
             ensure_ascii=False,
             indent=2,
