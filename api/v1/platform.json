@@ -1,6 +1,6 @@
 {
   "apiVersion": "1.0.0",
-  "generatedAt": "2026-07-24",
+  "generatedAt": "2026-07-25",
   "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
   "alternateName": "مصطلحات علم النفس",
   "baseUrl": "https://khaledaltheeb.github.io/pterminology-site/",
@@ -15,6 +15,20 @@
       "title": "الموسوعة النفسية العربية",
       "url": "https://khaledaltheeb.github.io/pterminology-site/encyclopedia/",
       "tags": ["علم النفس", "الصحة النفسية", "مصطلحات"]
+    },
+    {
+      "id": "comparisons",
+      "type": "collection",
+      "title": "مكتبة المقارنات النفسية",
+      "url": "https://khaledaltheeb.github.io/pterminology-site/comparisons/",
+      "tags": ["مقارنات نفسية", "الفروق بين الحالات", "التثقيف النفسي"]
+    },
+    {
+      "id": "library",
+      "type": "collection",
+      "title": "المكتبة الأكاديمية العربية",
+      "url": "https://khaledaltheeb.github.io/pterminology-site/library/",
+      "tags": ["المكتبة النفسية", "التعلم", "المراجع"]
     },
     {
       "id": "special-needs",
@@ -38,6 +52,14 @@
       "tags": ["التقييم", "الاستكشاف", "التقارير"]
     },
     {
+      "id": "courses",
+      "type": "collection",
+      "title": "دليل الدورات المخولة",
+      "url": "https://khaledaltheeb.github.io/pterminology-site/courses/",
+      "tags": ["دورات علم النفس", "دورات الصحة النفسية", "التدريب", "إذن موثق"],
+      "publicationRule": "metadata_only_authorized_sources"
+    },
+    {
       "id": "magazine",
       "type": "collection",
       "title": "المجلة والأبحاث",
@@ -48,12 +70,16 @@
   "endpoints": {
     "platform": "https://khaledaltheeb.github.io/pterminology-site/api/v1/platform.json",
     "openapi": "https://khaledaltheeb.github.io/pterminology-site/api/v1/openapi.json",
+    "courseCatalog": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.json",
     "courseSchema": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.schema.json",
+    "courseProviderRegistrySchema": "https://khaledaltheeb.github.io/pterminology-site/api/v1/course-provider-registry.schema.json",
     "courseExample": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.example.json"
   },
   "integrationPolicy": {
     "externalCourseImport": "permission_required",
-    "requiredEvidence": ["source authorization", "content license", "provider identity", "canonical source URL"],
-    "prohibited": ["circumventing access controls", "copying protected course materials", "removing attribution", "publishing unverified provider claims"]
+    "networkDefault": "disabled",
+    "publicationScope": "metadata_only",
+    "requiredEvidence": ["source authorization", "content license", "provider identity", "canonical source URL", "feed host allowlist"],
+    "prohibited": ["circumventing access controls", "copying protected course materials", "removing attribution", "publishing unverified provider claims", "fetching unapproved providers"]
   }
 }
