@@ -1,0 +1,118 @@
+name: Validate authorized course import v218
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "api/index.html"
+      - "api/v1/openapi.json"
+      - "api/v1/platform.json"
+      - "api/v1/courses.schema.json"
+      - "api/v1/course-provider-registry.schema.json"
+      - "content/course-import/**"
+      - "scripts/import_authorized_courses_v218.py"
+      - "scripts/verify_authorized_course_import_v218.py"
+      - "scripts/integrate_authorized_course_import_v218.py"
+      - "tests/test_authorized_course_import_v218.py"
+      - ".github/workflows/validate-authorized-course-import-v218.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "api/index.html"
+      - "api/v1/openapi.json"
+      - "api/v1/platform.json"
+      - "api/v1/course-provider-registry.schema.json"
+      - "content/course-import/**"
+      - "scripts/import_authorized_courses_v218.py"
+      - "scripts/verify_authorized_course_import_v218.py"
+      - "scripts/integrate_authorized_course_import_v218.py"
+      - "tests/test_authorized_course_import_v218.py"
+      - ".github/workflows/validate-authorized-course-import-v218.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: authorized-course-import-v218-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-and-integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile importer verifier integration and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/import_authorized_courses_v218.py \
+            scripts/verify_authorized_course_import_v218.py \
+            scripts/integrate_authorized_course_import_v218.py \
+            tests/test_authorized_course_import_v218.py
+
+      - name: Validate public JSON contracts
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for path in (
+              Path('api/v1/openapi.json'),
+              Path('api/v1/platform.json'),
+              Path('api/v1/courses.schema.json'),
+              Path('api/v1/course-provider-registry.schema.json'),
+              Path('content/course-import/registry.json'),
+          ):
+              json.loads(path.read_text(encoding='utf-8'))
+          openapi=json.loads(Path('api/v1/openapi.json').read_text(encoding='utf-8'))
+          platform=json.loads(Path('api/v1/platform.json').read_text(encoding='utf-8'))
+          registry=json.loads(Path('content/course-import/registry.json').read_text(encoding='utf-8'))
+          assert openapi['openapi']=='3.1.0'
+          assert '/api/v1/courses.json' in openapi['paths']
+          assert '/api/v1/course-provider-registry.schema.json' in openapi['paths']
+          assert platform['apiVersion']=='1.0.0'
+          assert platform['integrationPolicy']['networkDefault']=='disabled'
+          assert platform['integrationPolicy']['publicationScope']=='metadata_only'
+          assert registry['policy']=='permission_required' and registry['providers']==[]
+          print({'json_contracts':5,'network_default':'disabled','registry_providers':0,'status':'passed'})
+          PY
+
+      - name: Run importer acceptance and rejection tests
+        run: python -m unittest -v tests/test_authorized_course_import_v218.py
+
+      - name: Validate production integration patch
+        run: |
+          set -euxo pipefail
+          cp scripts/apply_homepage_v20.py /tmp/apply-homepage-before-v218.py
+          python scripts/integrate_authorized_course_import_v218.py
+          first="$(sha256sum scripts/apply_homepage_v20.py | awk '{print $1}')"
+          python scripts/integrate_authorized_course_import_v218.py
+          second="$(sha256sum scripts/apply_homepage_v20.py | awk '{print $1}')"
+          test "$first" = "$second"
+          grep -q 'run_publisher("import_authorized_courses_v218.py")' scripts/apply_homepage_v20.py
+          grep -q 'run_publisher("verify_authorized_course_import_v218.py")' scripts/apply_homepage_v20.py
+          python -m py_compile scripts/apply_homepage_v20.py
+          git diff --check
+
+      - name: Commit durable production integration on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          set -euxo pipefail
+          if git diff --quiet -- scripts/apply_homepage_v20.py; then
+            echo "Authorized course importer is already integrated."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/apply_homepage_v20.py
+          git commit -m "ربط كتالوج الدورات المخولة ببناء الإنتاج"
+          git push origin HEAD:main
