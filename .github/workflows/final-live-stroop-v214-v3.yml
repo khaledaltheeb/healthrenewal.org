@@ -1,0 +1,118 @@
+name: Final live Stroop v214 browser proof v3
+
+on:
+  push:
+    branches: ["ops/verify-live-stroop-v213"]
+    paths: [".github/workflows/final-live-stroop-v214-v3.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  prove-live-stroop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      EVIDENCE_ISSUE: "189"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Measure the published Stroop task in a clean browser
+        run: |
+          cat > probe-live-stroop-v214.mjs <<'NODE'
+          import fs from 'node:fs';
+          import { chromium } from 'playwright';
+
+          const base=process.env.BASE_URL;
+          const expectedRgb={
+            'أحمر':'rgb(180, 35, 24)','أزرق':'rgb(23, 92, 211)','أخضر':'rgb(6, 118, 71)',
+            'برتقالي':'rgb(181, 71, 8)','بنفسجي':'rgb(105, 65, 198)','تركواز':'rgb(8, 126, 139)'
+          };
+          const inks=new Set(),words=new Set(),computed=new Set(),trials=[],errors=[];
+          let scriptSrc='',liveCommit='',totalExpected=0,fatal='';
+          let browser;
+          try{
+            browser=await chromium.launch({headless:true,args:['--mute-audio']});
+            const context=await browser.newContext({viewport:{width:390,height:844},locale:'ar-JO',colorScheme:'light',reducedMotion:'reduce'});
+            await context.addInitScript(()=>{
+              const native=window.setTimeout;
+              window.setTimeout=(fn,ms,...args)=>native(fn,Math.min(Number(ms)||0,8),...args);
+            });
+            const page=await context.newPage();
+            page.on('pageerror',e=>errors.push(`pageerror:${String(e)}`));
+            page.on('console',m=>{if(m.type()==='error')errors.push(`console:${m.text()}`)});
+            const token=Date.now();
+            await page.goto(`${base}cognitive-lab/stroop-basic/?v=${token}`,{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForSelector('[data-v12-lab]',{timeout:10000});
+            await page.evaluate(async()=>{
+              localStorage.clear();sessionStorage.clear();
+              if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}
+              if('caches' in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}
+            });
+            await context.clearCookies();
+            await page.goto(`${base}cognitive-lab/stroop-basic/?v=${token+1}`,{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForSelector('[data-v12-lab]',{timeout:10000});
+            scriptSrc=await page.locator('script[src*="assets/js/lab-v12.js"]').getAttribute('src')||'';
+            if(!scriptSrc.includes('lab-v12.js?v=213'))throw new Error(`runtime:${scriptSrc}`);
+            const def=await page.locator('#lab-definition').evaluate(n=>JSON.parse(n.textContent));
+            totalExpected=(def.stages||5)*(def.trials_per_stage||6);
+            for(let i=0;i<totalExpected;i++){
+              const start=page.locator('button.start');
+              if(await start.count()&&await start.isVisible()&&await start.isEnabled())await start.click();
+              await page.waitForSelector('button.choice-button:not([disabled])',{state:'visible',timeout:10000});
+              const choices=page.locator('button.choice-button:not([disabled])');
+              const count=await choices.count();
+              const visual=await page.locator('.stroop-word').evaluate(node=>({
+                ink:node.dataset.ink||'',word:node.dataset.word||'',computed:getComputedStyle(node).color,
+                inline:node.getAttribute('style')||'',prompt:node.closest('.prompt,.question,.trial-card')?.textContent||node.parentElement?.textContent||''
+              }));
+              if(count<2||!visual.ink||!visual.word||visual.ink===visual.word||!visual.prompt.includes('لون الحبر'))throw new Error(`trial:${i}:${JSON.stringify({count,visual})}`);
+              if(expectedRgb[visual.ink]!==visual.computed)throw new Error(`rgb:${i}:${JSON.stringify(visual)}`);
+              const optionTexts=(await choices.allTextContents()).map(x=>x.trim());
+              if(optionTexts.filter(x=>x===visual.ink).length!==1)throw new Error(`answer:${i}:${JSON.stringify(optionTexts)}`);
+              const snapshot=await choices.nth(i%count).evaluate(node=>{
+                node.click();
+                const buttons=[...document.querySelectorAll('button.choice-button')];
+                return{correctCount:buttons.filter(x=>x.classList.contains('is-correct')).length,selectedCorrect:node.classList.contains('is-correct'),selectedWrong:node.classList.contains('is-wrong'),feedback:document.querySelector('.trial-feedback')?.textContent||''};
+              });
+              if(snapshot.correctCount!==1||snapshot.selectedCorrect===snapshot.selectedWrong||!snapshot.feedback.trim())throw new Error(`feedback:${i}:${JSON.stringify(snapshot)}`);
+              inks.add(visual.ink);words.add(visual.word);computed.add(visual.computed);trials.push({...visual,...snapshot});
+              await page.waitForTimeout(10);
+            }
+            liveCommit=await page.evaluate(async base=>(await (await fetch(`${base}deployment.json?v=${Date.now()}`,{cache:'no-store'})).json()).commit||'',base);
+          }catch(error){fatal=String(error);errors.push(fatal);}
+          finally{
+            const report={liveCommit,scriptSrc,totalExpected,sampledTrials:trials.length,inkValues:[...inks],wordValues:[...words],computedColors:[...computed],distinctInkValues:inks.size,distinctWordValues:words.size,distinctComputedColors:computed.size,fatal,errors,trials};
+            fs.writeFileSync('/tmp/browser-v3.json',JSON.stringify(report,null,2));
+            console.log(JSON.stringify(report,null,2));
+            if(browser)await browser.close();
+          }
+          if(fatal||errors.length||trials.length!==totalExpected||inks.size!==6||words.size!==6||computed.size!==6)process.exit(3);
+          NODE
+          node ./probe-live-stroop-v214.mjs
+
+      - name: Publish browser evidence
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const evidence=fs.existsSync('/tmp/browser-v3.json')?fs.readFileSync('/tmp/browser-v3.json','utf8'):'{"status":"missing"}';
+            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## Final live Stroop browser proof v3 — run ${context.runId}\n\n\`\`\`json\n${evidence}\n\`\`\``});
+
+      - name: Upload proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-live-stroop-v214-browser-v3
+          path: /tmp/browser-v3.json
+          if-no-files-found: warn
+          retention-days: 7
