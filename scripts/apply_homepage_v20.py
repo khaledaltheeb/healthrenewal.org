@@ -59,7 +59,8 @@ def restore_static_file(relative_path: str) -> None:
 
 def synchronize_homepage_lab_inventory(text: str) -> str:
     pattern = re.compile(
-        r'(<article class="stat"><strong>)\d+(</strong><span>مقياسًا وأداة وقدرة معرفية[^<]*</span></article>)'
+        r'(<article class="stat"><strong>)[\d,]+'
+        r'(</strong><span>مقياسًا وأداة وقدرة معرفية[^<]*</span></article>)'
     )
     text, count = pattern.subn(rf"\g<1>{LAB_TOOL_COUNT}\g<2>", text, count=1)
     if count != 1:
@@ -95,7 +96,10 @@ def synchronize_care_guides_report() -> None:
     report["sitemap_urls"] = len(urls)
     report["choosing_professional_guide"] = True
     report["choosing_professional_route"] = expected_url
-    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    report_path.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
 
 def local_name(tag: str) -> str:
@@ -146,7 +150,9 @@ def register_sitemap(sitemap_name: str) -> None:
             ET.SubElement(item, qualify(root, "loc")).text = url
             existing.add(url)
     else:
-        raise SystemExit(f"Unsupported sitemap root while registering {sitemap_name}: {root_type}")
+        raise SystemExit(
+            f"Unsupported sitemap root while registering {sitemap_name}: {root_type}"
+        )
 
     tree.write(sitemap_index, encoding="utf-8", xml_declaration=True)
 
@@ -156,7 +162,7 @@ def publish_api_sitemap() -> None:
     sitemap.write_text(
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        f"  <url><loc>{BASE_URL}api/</loc><lastmod>2026-07-24</lastmod>"
+        f"  <url><loc>{BASE_URL}api/</loc><lastmod>2026-07-25</lastmod>"
         "<changefreq>monthly</changefreq><priority>0.7</priority></url>\n"
         "</urlset>\n",
         encoding="utf-8",
@@ -207,22 +213,31 @@ def main() -> None:
         'background:#000',
         'background:black',
         'خطة نمو قابلة للقياس',
+        'الأهداف الدنيا للمحتوى',
         'هدف معلن للموسوعة النفسية العربية',
         'هدف أدنى لكل مسار رئيسي',
+        'هدف توسع',
         'خط أساس المصدر الحالي',
         'يُحسب العدد من حزمة الإنتاج',
+        'مسار مستقبلي للحسابات المؤسسية',
+        'ما سيتم إنجازه',
         'لا نشر قبل البوابات',
+        'built-not-published',
         'قيد الإعداد',
         'قيد التوسع',
     ]
     found = [item for item in forbidden if item in text]
     if found:
         raise SystemExit(f"Homepage regression or operational copy detected: {found}")
-    if text.count('<h1>') != 1:
-        raise SystemExit(f"Expected exactly one H1, found {text.count('<h1>')}")
-    if len(re.findall(r'<h2\b', text)) < 4:
+
+    h1_count = len(re.findall(r'<h1\b', text))
+    h2_count = len(re.findall(r'<h2\b', text))
+    h3_count = len(re.findall(r'<h3\b', text))
+    if h1_count != 1:
+        raise SystemExit(f"Expected exactly one H1, found {h1_count}")
+    if h2_count < 4:
         raise SystemExit("Homepage must contain at least four H2 sections")
-    if len(re.findall(r'<h3\b', text)) < 16:
+    if h3_count < 16:
         raise SystemExit("Homepage must contain at least sixteen H3 cards")
 
     TARGET.parent.mkdir(parents=True, exist_ok=True)
@@ -237,22 +252,25 @@ def main() -> None:
 
     expected_target_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
     report = {
-        "version": 215,
+        "version": 217,
         "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         "target_sha256": hashlib.sha256(TARGET.read_bytes()).hexdigest(),
         "source_transformed": True,
         "lab_tool_count": LAB_TOOL_COUNT,
         "lab_inventory_updated": True,
         "lab_inventory_metadata_updated": True,
-        "h1": text.count('<h1>'),
-        "h2": len(re.findall(r'<h2\b', text)),
-        "h3": len(re.findall(r'<h3\b', text)),
+        "h1": h1_count,
+        "h2": h2_count,
+        "h3": h3_count,
         "brand": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
         "founding_name": "مصطلحات علم النفس",
         "slogan": "معرفة تحترم الإنسان. دعم يوسّع الإمكانات.",
         "target_counts_are_labeled": False,
         "production_counts_are_contextualized": True,
         "operational_copy_hidden": True,
+        "public_api_publisher": 215,
+        "authorized_course_importer": 215,
+        "course_permission_policy": "deny-by-default",
         "light_palette": True,
         "core_sections_linked": True,
         "api_v1_published": True,
@@ -280,16 +298,21 @@ def main() -> None:
     }
     if report["target_sha256"] != expected_target_sha:
         raise SystemExit("Homepage transformed output hash mismatch")
+
     api = SITE / "api"
     api.mkdir(parents=True, exist_ok=True)
     (api / "homepage-v20.json").write_text(
-        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+        json.dumps(report, ensure_ascii=False, indent=2),
+        encoding="utf-8",
     )
 
     run_publisher("publish_trust_center_v201.py")
     run_publisher("finalize_trust_center_links_v71.py")
     run_publisher("publish_partners_v201.py")
     run_publisher("publish_magazine_v201.py")
+    run_publisher("import_authorized_courses_v215.py")
+    run_publisher("publish_public_api_v215.py")
+    register_sitemap("sitemap-developers.xml")
 
     run_publisher("publish_care_guides_v21.py")
     run_publisher("link_care_guides_v201.py")
