@@ -1,0 +1,129 @@
+name: Integrate twenty special-needs guides v217
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v209/special-needs-guides/**"
+      - "content/v209/special-needs-guides-manifest-ar.json"
+      - "content/v210/special-needs-guides/**"
+      - "content/v210/special-needs-guides-manifest-ar.json"
+      - "content/v211/special-needs-guides/**"
+      - "content/v211/special-needs-guides-manifest-ar.json"
+      - "content/v212/special-needs-guides/**"
+      - "content/v212/special-needs-guides-manifest-ar.json"
+      - "scripts/publish_special_needs_guides_v209.py"
+      - "scripts/publish_special_needs_guides_v209_compat.py"
+      - "scripts/publish_special_needs_guides_v210.py"
+      - "scripts/publish_special_needs_guides_v211.py"
+      - "scripts/publish_special_needs_guides_v212.py"
+      - "scripts/publish_special_needs_guides_v217.py"
+      - "scripts/integrate_special_needs_guides_v217.py"
+      - ".github/workflows/integrate-special-needs-guides-v217.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_special_needs_guides_v217.py"
+      - "scripts/integrate_special_needs_guides_v217.py"
+      - ".github/workflows/integrate-special-needs-guides-v217.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: integrate-special-needs-guides-v217-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integrate-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile publishers and integration patcher
+        run: |
+          set -euxo pipefail
+          for file in \
+            scripts/publish_special_needs_guides_v209.py \
+            scripts/publish_special_needs_guides_v209_compat.py \
+            scripts/publish_special_needs_guides_v210.py \
+            scripts/publish_special_needs_guides_v211.py \
+            scripts/publish_special_needs_guides_v212.py \
+            scripts/publish_special_needs_guides_v217.py \
+            scripts/integrate_special_needs_guides_v217.py; do
+            python -m py_compile "$file"
+          done
+
+      - name: Smoke-test all twenty guides against a sitemap index
+        run: |
+          set -euxo pipefail
+          SITE="$(mktemp -d)"
+          mkdir -p "$SITE/special-needs" "$SITE/api"
+          cat > "$SITE/special-needs/index.html" <<'HTML'
+          <!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>مركز ذوي الاحتياجات الخاصة</title></head><body><main><div class="resources"></div></main></body></html>
+          HTML
+          cat > "$SITE/sitemap-special-needs.xml" <<'XML'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>
+          XML
+          cat > "$SITE/sitemap.xml" <<'XML'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>
+          XML
+          python scripts/publish_special_needs_guides_v217.py "$SITE"
+          REPORT="$SITE/api/special-needs-guides-v217.json" python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report=json.loads(Path(os.environ['REPORT']).read_text(encoding='utf-8'))
+          assert report['status']=='passed',report
+          assert report['guide_count']==20 and report['batch_count']==4,report
+          assert report['minimum_rendered_words']>=700,report
+          assert report['minimum_h2']>=9 and report['minimum_citations']>=2,report
+          assert report['main_sitemap_mode']=='sitemapindex',report
+          assert report['hub_linked_guides']==20,report
+          assert report['external_review_completed'] is False,report
+          print({'guides':'20/20','batches':'4/4','hub':'linked','sitemap':'indexed','status':'passed'})
+          PY
+
+      - name: Patch the durable validated production workflow
+        run: |
+          set -euxo pipefail
+          python scripts/integrate_special_needs_guides_v217.py
+          python - <<'PY'
+          from pathlib import Path
+          workflow=Path('.github/workflows/validate-all-labs-v22.yml').read_text(encoding='utf-8')
+          required=(
+              'python scripts/publish_special_needs_guides_v217.py _site',
+              'python scripts/enforce_health_publication_gate_v192.py _site',
+              'Enforce twenty special-needs guide production contract',
+              "special_guides=json.loads(Path('_site/api/special-needs-guides-v217.json').read_text())",
+              "'special_needs_guides':'20/20'",
+          )
+          missing=[item for item in required if item not in workflow]
+          assert not missing,missing
+          assert workflow.count('python scripts/publish_special_needs_guides_v217.py _site')==1
+          print({'production_workflow':'patched','publisher_runs':1,'contract':'locked'})
+          PY
+          git diff --check
+
+      - name: Commit production integration on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          set -euxo pipefail
+          if git diff --quiet -- .github/workflows/validate-all-labs-v22.yml; then
+            echo "The twenty-guide production contract is already integrated."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/validate-all-labs-v22.yml
+          git commit -m "ربط عشرين دليلًا متخصصًا ببوابة الإنتاج"
+          git push origin HEAD:main

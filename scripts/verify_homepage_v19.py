@@ -21,6 +21,12 @@ REQUIRED_LINKS = (
     "sectors/child/",
     "sectors/home/",
     "provider-assessment-demo/",
+    "comparisons/",
+    "library/",
+    "guided-assessment/",
+    "hubs/",
+    "assessments/",
+    "cognitive-tests/",
     "trust/",
     "partners/",
     "api/",
@@ -71,12 +77,14 @@ def main() -> None:
     assert "16" in source and "93" in source, "Homepage is missing verified platform inventory"
     assert "data-special-needs-v73" in source, "Special-needs publisher contract is missing"
     assert '<a class="btn secondary" href="care-guides/">أدلة التعامل مع الحالات</a>' in source
+    assert "مكتبة المقارنات النفسية" in source, "Comparisons collection is not visibly described"
+    assert "المكتبة الأكاديمية العربية" in source, "Academic library is not visibly described"
     for phrase in FORBIDDEN_OPERATIONAL_COPY:
         assert phrase not in source, f"Operational planning copy leaked to users: {phrase}"
 
     assert len(re.findall(r"<h1\b", source)) == 1, "Homepage must contain exactly one h1"
-    assert len(re.findall(r"<h2\b", source)) >= 4, "Homepage needs structured H2 sections"
-    assert len(re.findall(r"<h3\b", source)) >= 16, "Homepage needs discoverable H3 cards"
+    assert len(re.findall(r"<h2\b", source)) >= 5, "Homepage needs structured H2 sections"
+    assert len(re.findall(r"<h3\b", source)) >= 22, "Homepage needs discoverable H3 cards"
     assert 'href="#main"' in source, "Missing skip link"
     assert 'id="main"' in source, "Missing main landmark target"
     assert 'color-scheme" content="light"' in source, "Homepage must declare light color scheme"
@@ -88,17 +96,25 @@ def main() -> None:
         assert (ROOT / relative_path).is_file(), f"Missing institutional asset: {relative_path}"
 
     description = re.search(r'<meta name="description" content="([^"]+)"', source)
-    assert description and 100 <= len(description.group(1)) <= 220
+    assert description and 120 <= len(description.group(1)) <= 220
     keywords = re.search(r'<meta name="keywords" content="([^"]+)"', source)
     assert keywords, "Missing thematic keyword metadata"
     keyword_items = [item.strip() for item in keywords.group(1).split(",") if item.strip()]
-    assert len(keyword_items) >= 12, "Homepage keyword coverage is too narrow"
-    assert {"الصحة النفسية", "علم النفس", "التربية الدامجة"}.issubset(keyword_items)
+    assert len(keyword_items) >= 24, "Homepage keyword coverage is too narrow"
+    assert {
+        "الصحة النفسية",
+        "علم النفس",
+        "التربية الدامجة",
+        "المكتبة النفسية",
+        "مقارنات نفسية",
+        "الاختبارات النفسية",
+    }.issubset(keyword_items)
 
     for required_meta in (
         '<link rel="manifest" href="/pterminology-site/manifest.webmanifest">',
         '<link rel="icon" href="/pterminology-site/assets/brand/logo-mark.svg" type="image/svg+xml">',
         '<link rel="search" type="application/opensearchdescription+xml"',
+        '<link rel="sitemap" type="application/xml" href="https://khaledaltheeb.github.io/pterminology-site/sitemap.xml">',
         '<meta property="og:image" content="https://khaledaltheeb.github.io/pterminology-site/assets/brand/social-card.svg">',
         '<meta name="twitter:image" content="https://khaledaltheeb.github.io/pterminology-site/assets/brand/social-card.svg">',
     ):
@@ -119,7 +135,12 @@ def main() -> None:
     assert organization.get("slogan") == SLOGAN
     assert "مصطلحات علم النفس" in organization.get("alternateName", [])
     assert organization.get("logo", {}).get("url", "").endswith("/assets/brand/logo-mark.svg")
-    assert any(part.get("@type") == "WebAPI" for part in collection.get("hasPart", []))
+    parts = collection.get("hasPart", [])
+    assert any(part.get("@type") == "WebAPI" for part in parts)
+    part_urls = {part.get("url") for part in parts}
+    assert "https://khaledaltheeb.github.io/pterminology-site/comparisons/" in part_urls
+    assert "https://khaledaltheeb.github.io/pterminology-site/library/" in part_urls
+    assert "https://khaledaltheeb.github.io/pterminology-site/guided-assessment/" in part_urls
 
     manifest = load_json("manifest.webmanifest")
     platform = load_json("api/v1/platform.json")
@@ -139,7 +160,7 @@ def main() -> None:
         json.dumps(
             {
                 "status": "passed",
-                "contract": "institutional-home-api-brand-v215",
+                "contract": "institutional-home-discovery-seo-v216",
                 "brand": BRAND,
                 "slogan": SLOGAN,
                 "required_links": len(REQUIRED_LINKS),
@@ -150,6 +171,9 @@ def main() -> None:
                 "h1": len(re.findall(r"<h1\b", source)),
                 "h2": len(re.findall(r"<h2\b", source)),
                 "h3": len(re.findall(r"<h3\b", source)),
+                "comparisons_linked": True,
+                "library_linked": True,
+                "guided_assessment_linked": True,
                 "operational_copy_hidden": True,
                 "api_version": platform["apiVersion"],
                 "openapi": openapi["openapi"],
