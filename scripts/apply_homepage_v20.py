@@ -244,6 +244,7 @@ def main() -> None:
     register_sitemap("sitemap-accessible-arabic-content.xml")
     run_publisher("enforce_health_publication_gate_v192.py")
     run_publisher("finalize_enterprise_platform_v215.py")
+    run_publisher("postprocess_enterprise_platform_v215.py")
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 
