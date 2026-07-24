@@ -1,4 +1,4 @@
-name: Validate institutional SEO and content depth v215
+name: Validate institutional SEO and content depth v216
 
 on:
   pull_request:
@@ -8,6 +8,7 @@ on:
       - 'scripts/publish_global_metadata_v27.py'
       - 'scripts/publish_global_metadata_v27_core.py'
       - 'tests/test_institutional_seo_v215.py'
+      - 'tests/test_institutional_seo_v216_contract.py'
       - '.github/workflows/validate-institutional-seo-v215.yml'
   workflow_dispatch:
 
@@ -25,9 +26,9 @@ jobs:
           python-version: '3.12'
       - name: Compile metadata and SEO publishers
         run: |
-          python -m py_compile scripts/publish_global_metadata_v27.py scripts/publish_global_metadata_v27_core.py scripts/upgrade_institutional_seo_v215.py tests/test_institutional_seo_v215.py
+          python -m py_compile scripts/publish_global_metadata_v27.py scripts/publish_global_metadata_v27_core.py scripts/upgrade_institutional_seo_v215.py tests/test_institutional_seo_v215.py tests/test_institutional_seo_v216_contract.py
       - name: Test keywords social metadata headings images links and reports
-        run: python -m unittest -v tests/test_institutional_seo_v215.py
+        run: python -m unittest -v tests/test_institutional_seo_v215.py tests/test_institutional_seo_v216_contract.py
       - name: Verify wrapper preserves the v27 API and invokes v215
         run: |
           python - <<'PY'
@@ -36,5 +37,5 @@ jobs:
               if not hasattr(wrapper, name):
                   raise SystemExit({'missing_export': name})
           wrapper.verify_contract()
-          print({'v27_exports':'preserved','v215_hook':'compiled'})
+          print({'v27_exports':'preserved','v215_hook':'compiled','keyword_contract':'page-specific-bounded','operational_copy':'reported'})
           PY
