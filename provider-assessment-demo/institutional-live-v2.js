@@ -7,9 +7,7 @@
   const replaceText = (root = document) => {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     const replacements = new Map([
-      ["مقفل", "مسار عمل متاح"],
-      ["دليل فقط", "مسار عمل متاح"],
-      ["خدمة خارجية", "مسار نتيجة متاح"],
+      ["خدمة خارجية", "تقرير خارجي فقط"],
       ["مصطلحات علم النفس", "منصة الصحة النفسية وذوي الاحتياجات الخاصة"],
       ["مقدم خدمة تجريبي", "مقدم خدمة محلي"],
       ["الدخول التجريبي", "مساحة مقدم الخدمة"],
@@ -29,7 +27,7 @@
     document.documentElement.dataset.release = RELEASE;
     document.title = "منصة التقييم والسجل المهني | منصة الصحة النفسية وذوي الاحتياجات الخاصة";
     const description = document.querySelector('meta[name="description"]');
-    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية ومسارات تطبيق المقاييس المهنية، مع 20 دليل حالة وتقارير متعددة الإصدارات تتضمن نوع التقييم وصلاحية النتيجة وخط الأساس والهدف والملخص الأسري داخل UID مستقل.";
+    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية وسجلات الخدمات المهنية، مع 20 دليل حالة وتقارير متعددة الإصدارات. تبقى المقاييس المحمية مقفلة حتى اكتمال الترخيص والمراجعة المؤسسية.";
     const applicationVersion = document.querySelector('meta[name="application-version"]');
     if (applicationVersion) applicationVersion.content = RELEASE;
 
@@ -38,7 +36,7 @@
     const product = document.querySelector(".product-name");
     if (product) product.textContent = "منصة التقييم والسجل المهني";
     const notice = document.querySelector(".notice-bar");
-    if (notice) notice.textContent = "جميع الأدوات الظاهرة تملك مسار عمل فعّالًا وقالب تطبيق يناسب نوعها، مع تقارير مهنية متعددة الإصدارات وسجل مراجعة. لا تُنسخ مواد تجارية محمية دون حق استخدامها.";
+    if (notice) notice.textContent = "الأدوات الاستكشافية الأصلية متاحة للاستخدام غير التشخيصي. المقاييس المهنية المحمية تبقى مقفلة حتى اكتمال الترخيص وحق الرقمنة والمراجعة العلمية والأمنية والمؤسسية.";
 
     const count = window.PA_OPERATIONAL_COUNT || window.PA_DEMO_DATA?.professional?.length || 0;
     const card = document.querySelector(".hero-card ul");
@@ -47,45 +45,45 @@
         <li>UID مستقل لكل مستخدم أو مقدم خدمة.</li>
         <li>سجل حالات وجلسات ونتائج متكررة محفوظ محليًا.</li>
         <li>20 أداة استكشافية أصلية تعمل مباشرة.</li>
-        <li>${count} مقياسًا وفحصًا وبروتوكولًا بمسار عمل مهني فعّال.</li>
+        <li>${count} مقياسًا وفحصًا في دليل الوصول المهني مع حالة حقوق واضحة.</li>
         <li>20 دليل حالة مؤسسيًا مع فريق وحزمة مقاييس وكورس ومخرجات تقرير.</li>
-        <li>قوالب إدخال متخصصة حسب نوع الأداة والفحص.</li>
+        <li>سجل خدمات ونتائج خارجية دون نسخ بنود أو مفاتيح تصحيح محمية.</li>
         <li>تقارير مهنية متعددة الإصدارات مع عقد تفسير وخط أساس وهدف وسجل مراجعة.</li>
         <li>الإصدار الحي: ${RELEASE}.</li>`;
     }
 
     const professionalTitle = document.querySelector("#view-professional h2");
-    if (professionalTitle) professionalTitle.textContent = "المقاييس والفحوص والبروتوكولات المهنية الفعّالة";
+    if (professionalTitle) professionalTitle.textContent = "المقاييس والفحوص والبروتوكولات المهنية وحالة التفعيل الحقوقي";
     const professionalCallout = document.querySelector("#view-professional .callout");
     if (professionalCallout) {
-      professionalCallout.className = "callout info";
-      professionalCallout.textContent = "اختر أي عنصر ثم ابدأ سجلًا مهنيًا مرتبطًا بالحالة. تتغير حقول النموذج تلقائيًا بحسب نوع الأداة، مع توثيق المنفذ والتاريخ والنسخة واللغة والنتيجة والقيود والخطوة التالية.";
+      professionalCallout.className = "callout warning";
+      professionalCallout.textContent = "تظهر المقاييس المهنية كدليل وصول مصنف. يمكن توثيق الخدمة أو التقرير الخارجي، لكن لا يُفتح تطبيق أداة محمية قبل توثيق الترخيص وحق الرقمنة والمؤهل والنسخة اللغوية والمراجعة المؤسسية.";
     }
 
     const footer = document.querySelector(".site-footer p");
-    if (footer) footer.textContent = `© منصة الصحة النفسية وذوي الاحتياجات الخاصة — منصة التقييم والسجل المهني، الإصدار ${RELEASE}. التخزين محلي داخل UID مستقل.`;
+    if (footer) footer.textContent = `© منصة الصحة النفسية وذوي الاحتياجات الخاصة — منصة التقييم والسجل المهني، الإصدار ${RELEASE}. التخزين محلي داخل UID مستقل؛ لا تشخيص آلي ولا نسخ لأدوات محمية.`;
     replaceText(document.body);
   };
 
   const applyTabSemantics = () => {
     const tablist = document.querySelector(".tabs");
-    if (tablist) role(tablist, "tablist");
+    if (tablist) setRole(tablist, "tablist");
     document.querySelectorAll(".tab[data-view]").forEach((tab) => {
       const viewName = tab.dataset.view;
       const panel = document.querySelector(`[data-view-panel="${viewName}"]`);
       const tabId = tab.id || `workspace-tab-${viewName}`;
       tab.id = tabId;
-      role(tab, "tab");
+      setRole(tab, "tab");
       if (!panel) return;
       panel.id ||= `view-${viewName}`;
-      role(panel, "tabpanel");
+      setRole(panel, "tabpanel");
       tab.setAttribute("aria-controls", panel.id);
       panel.setAttribute("aria-labelledby", tabId);
       panel.setAttribute("tabindex", "0");
     });
   };
 
-  function role(element, value) {
+  function setRole(element, value) {
     if (element.getAttribute("role") !== value) element.setAttribute("role", value);
   }
 
@@ -94,12 +92,6 @@
     const observer = new MutationObserver(() => {
       replaceText(target);
       applyTabSemantics();
-      target.querySelectorAll(".badge.danger,.badge.warning").forEach((badge) => {
-        if (["مسار عمل متاح", "مسار نتيجة متاح"].includes(badge.textContent.trim())) {
-          badge.classList.remove("danger", "warning", "neutral");
-          badge.classList.add("success");
-        }
-      });
     });
     observer.observe(target, { childList: true, subtree: true, characterData: true });
   };
