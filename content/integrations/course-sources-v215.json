@@ -13,7 +13,21 @@
     "license_url",
     "allowed_actions"
   ],
-  "permission_duration_values": ["fixed", "perpetual"],
-  "allowed_formats": ["json", "csv"],
+  "permission_duration_values": [
+    "fixed",
+    "perpetual"
+  ],
+  "allowed_formats": [
+    "json",
+    "csv"
+  ],
+  "network_security": {
+    "https_default_port_only": true,
+    "explicit_host_allowlists": true,
+    "public_dns_addresses_only": true,
+    "dns_answers_pinned_during_connection": true,
+    "redirect_target_checked_before_request": true,
+    "environment_proxies_disabled": true
+  },
   "sources": []
 }
