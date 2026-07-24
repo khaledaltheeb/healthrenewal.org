@@ -21,6 +21,8 @@ on:
       - "scripts/publish_public_api_v215.py"
       - "tests/test_public_api_v215.py"
       - ".github/workflows/provider-assessment-condition-decisions.yml"
+  schedule:
+    - cron: "17 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -32,6 +34,7 @@ concurrency:
 
 jobs:
   validate-decision-guides:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -94,18 +97,7 @@ jobs:
           }
 
           if (errors.length) throw new Error(errors.join('\n'));
-          console.log({
-            conditions: 20,
-            assessmentTypes: 4,
-            tailoredDecisionProfiles: 20,
-            quizQuestions: 4,
-            familyProviderEducation: true,
-            caseHandoffTemplate: true,
-            rightsSafeguards: true,
-            authoritativeSources: 4,
-            localOnly: true,
-            status: 'passed'
-          });
+          console.log({conditions:20,assessmentTypes:4,tailoredDecisionProfiles:20,quizQuestions:4,familyProviderEducation:true,caseHandoffTemplate:true,rightsSafeguards:true,authoritativeSources:4,localOnly:true,status:'passed'});
           NODE
 
       - name: Validate Arabic pages, RTL, links and source wiring
@@ -125,7 +117,7 @@ jobs:
             }
           }
           if (errors.length) throw new Error(errors.join('\n'));
-          console.log({pages:20, lang:'ar', direction:'rtl', mainLandmark:true, sharedLoader:true});
+          console.log({pages:20,lang:'ar',direction:'rtl',mainLandmark:true,sharedLoader:true});
           NODE
 
   validate-authorized-api:
@@ -147,5 +139,21 @@ jobs:
             scripts/publish_public_api_v215.py \
             tests/test_public_api_v215.py
 
-      - name: Test permission gates and API compatibility
+      - name: Test permission gates API compatibility and network safeguards
         run: python -m unittest -v tests/test_public_api_v215.py
+
+      - name: Audit enabled source permission windows without fetching feeds
+        run: |
+          python - <<'PY'
+          import importlib.util,json,sys
+          from pathlib import Path
+          path=Path('scripts/import_authorized_courses_v215.py')
+          spec=importlib.util.spec_from_file_location('course_permission_audit',path)
+          module=importlib.util.module_from_spec(spec)
+          sys.modules['course_permission_audit']=module
+          spec.loader.exec_module(module)
+          manifest=json.loads(Path('content/integrations/course-sources-v215.json').read_text(encoding='utf-8'))
+          enabled=[source for source in manifest.get('sources',[]) if isinstance(source,dict) and source.get('enabled')]
+          approved=[module.validate_source(source) for source in enabled]
+          print({'policy':manifest.get('policy'),'enabled_sources':len(enabled),'active_permissions':len(approved),'security_contract':module.SECURITY_CONTRACT_VERSION})
+          PY
