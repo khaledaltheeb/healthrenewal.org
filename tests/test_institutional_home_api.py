@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import unittest
 from pathlib import Path
@@ -21,6 +22,22 @@ class InstitutionalHomeApiTests(unittest.TestCase):
             "لا نشر قبل البوابات",
         ):
             self.assertNotIn(internal_phrase, page)
+
+    def test_homepage_inventory_sync_accepts_previous_public_count(self):
+        script_path = ROOT / "scripts" / "apply_homepage_v20.py"
+        spec = importlib.util.spec_from_file_location("apply_homepage_v20", script_path)
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        previous_card = (
+            '<article class="stat"><strong>88</strong><span>'
+            "مقياسًا وأداة وقدرة معرفية في المختبرات الحالية بحدود استخدام واضحة."
+            "</span></article>"
+        )
+        synchronized = module.synchronize_homepage_lab_inventory(previous_card)
+        self.assertIn("<strong>93</strong>", synchronized)
+        self.assertNotIn("<strong>88</strong>", synchronized)
 
     def test_manifest_and_api_documents_are_valid_json(self):
         paths = (
