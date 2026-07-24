@@ -11,6 +11,7 @@ on:
       - "provider-assessment-demo/case-report-interpretation-v2.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/sw-live-v2.js"
+      - "provider-assessment-demo/index.html"
       - "sitemap.xml"
       - ".github/workflows/provider-assessment-conditions.yml"
   pull_request:
@@ -23,6 +24,7 @@ on:
       - "provider-assessment-demo/case-report-interpretation-v2.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/sw-live-v2.js"
+      - "provider-assessment-demo/index.html"
       - "sitemap.xml"
       - ".github/workflows/provider-assessment-conditions.yml"
   workflow_dispatch:
@@ -108,15 +110,18 @@ jobs:
           for (const marker of ['view-reports','case-report-dialog','caseRecord.reports','versionNumber','export-case-report-html','export-case-report-json']) if (!reports.includes(marker)) throw new Error(`Case report engine missing ${marker}`);
 
           const interpretation = read('provider-assessment-demo/case-report-interpretation-v2.js');
-          for (const marker of ['assessmentType','resultValidity','validityLimitations','baseline','measurableTarget','measurementMethod','remeasureDate','familySummary','revisionReason','parentReportId','changedFields','conditionPathwaySlug','PA_CASE_REPORT_INTERPRETATION_V2']) if (!interpretation.includes(marker)) throw new Error(`Report interpretation contract missing ${marker}`);
+          const contractFields = ['assessmentType','evidenceSources','decisionAuthority','functionalContexts','resultValidity','interpretationLimitations','baselineIndicator','measurementMethod','measurableGoal','remeasurementDate','providerInterpretation','familySummary','revisionReason','supersedesReportId','sourceVersionNumber','reviewAuditTrail','interpretationContractVersion'];
+          for (const marker of contractFields) if (!interpretation.includes(marker)) throw new Error(`Report interpretation contract missing ${marker}`);
           for (const marker of ['screening','diagnostic','functional','progress']) if (!interpretation.includes(marker)) throw new Error(`Assessment type contract missing ${marker}`);
-          if (!interpretation.includes('type === "progress"') || !interpretation.includes('form.reportValidity()')) throw new Error('Progress report validation missing');
-          if (!interpretation.includes('form.elements.reportId.value = ""')) throw new Error('Immutable report versioning missing');
-          if (!interpretation.includes('المسح لا يثبت التشخيص')) throw new Error('Diagnostic overclaim safeguard missing');
+          for (const marker of ['fieldset','legend','role="note"','required-by-contract','data-screening-confirmation']) if (!interpretation.includes(marker)) throw new Error(`Report accessibility contract missing ${marker}`);
+          for (const marker of ['data.assessmentType === "screening"','form.reportValidity()','form.elements.reportId.value = ""','computeChangedFields','reviewAuditTrail','PA_REPORT_INTERPRETATION_CONTRACT']) if (!interpretation.includes(marker)) throw new Error(`Versioning or audit safeguard missing ${marker}`);
+          for (const marker of ['المسح لا يثبت التشخيص أو الأهلية','لا تُنسخ البنود أو مفاتيح التصحيح أو المعايير','ملخص موجه للأسرة أو الشخص','خط الأساس والهدف وإعادة القياس']) if (!interpretation.includes(marker)) throw new Error(`Interpretation safeguard missing ${marker}`);
 
           const institutional = read('provider-assessment-demo/institutional-live-v2.js');
           for (const marker of ['2026.07.24-live.7','loadConditionPathways','loadProfessionalTemplates','loadCaseReports','conditions/conditions-data-v1.js','condition-entry-v1.js','professional-templates-v1.js','case-report-v1.js','case-report-interpretation-v2.js']) if (!institutional.includes(marker)) throw new Error(`Institutional release missing ${marker}`);
           if (!read('provider-assessment-demo/sw-live-v2.js').includes('2026.07.24-live.7')) throw new Error('Service worker release mismatch');
+          const platformIndex = read('provider-assessment-demo/index.html');
+          for (const marker of ['<html lang="ar" dir="rtl"','2026.07.24-live.7','case-report-interpretation-v2.js?v=20260724-live7']) if (!platformIndex.includes(marker)) throw new Error(`Platform index missing ${marker}`);
 
           const sitemap = read('sitemap.xml');
           const sitemapConditionUrls = [...sitemap.matchAll(/provider-assessment-demo\/conditions\//g)].length;
@@ -126,5 +131,5 @@ jobs:
           const combined = [read('provider-assessment-demo/conditions/conditions-data-v1.js'),ui,education,bridge,templates,reports,interpretation].join('\n');
           for (const token of ['fetch(','XMLHttpRequest','WebSocket','sendBeacon(','EventSource(','eval(','new Function(']) if (combined.includes(token)) throw new Error(`Network or unsafe API forbidden: ${token}`);
 
-          console.log({conditionPages:20, assessmentTypes:4, conditionProgressSets:20, familyGuide:true, course:true, officialSources:3, commonDomains:registry.commonDomains.length, workflowStages:registry.workflowStages.length, templateFamilies:7, reports:true, reportInterpretationContract:true, immutableRevisions:true, sitemapConditionUrls, release:'2026.07.24-live.7', status:'passed'});
+          console.log({conditionPages:20, assessmentTypes:4, conditionProgressSets:20, familyGuide:true, course:true, officialSources:3, commonDomains:registry.commonDomains.length, workflowStages:registry.workflowStages.length, templateFamilies:7, reports:true, reportInterpretationContract:true, immutableRevisions:true, familySummary:true, auditTrail:true, sitemapConditionUrls, release:'2026.07.24-live.7', status:'passed'});
           NODE
