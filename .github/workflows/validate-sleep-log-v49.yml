@@ -1,18 +1,27 @@
-name: Validate sleep log v49
+name: Validate sleep log marshmallow and SEO v220
 
 on:
   pull_request:
+    branches: ["main"]
     paths:
-      - 'assets/sleep-log-v49.js'
-      - 'scripts/publish_sleep_log_v49.py'
-      - 'scripts/verify_sleep_log_v49.py'
-      - 'tests/test_sleep_log_v49.mjs'
-      - 'tests/e2e_sleep_log_v62.mjs'
-      - '.github/workflows/validate-sleep-log-v49.yml'
+      - "assets/sleep-log-v49.js"
+      - "scripts/publish_daily_tools_v24.py"
+      - "scripts/publish_daily_tools_v24_core.py"
+      - "scripts/verify_daily_tools_v24.py"
+      - "scripts/publish_sleep_log_v49.py"
+      - "scripts/apply_daily_tools_marshmallow_v219.py"
+      - "scripts/verify_sleep_log_v49.py"
+      - "tests/test_sleep_log_v49.mjs"
+      - "tests/e2e_sleep_log_v62.mjs"
+      - ".github/workflows/validate-sleep-log-v49.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: sleep-log-v220-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verify:
@@ -20,29 +29,45 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - name: Verify publisher, safety, accessibility and unit behavior
+          node-version: "20"
+
+      - name: Compile design SEO and sleep contracts
+        run: |
+          python -m py_compile \
+            scripts/publish_daily_tools_v24.py \
+            scripts/publish_daily_tools_v24_core.py \
+            scripts/verify_daily_tools_v24.py \
+            scripts/publish_sleep_log_v49.py \
+            scripts/apply_daily_tools_marshmallow_v219.py \
+            scripts/verify_sleep_log_v49.py
+
+      - name: Verify publisher safety accessibility design SEO and unit behavior
         run: python scripts/verify_sleep_log_v49.py
+
       - name: Install Chromium and browser audit dependencies
         run: |
           npm install --no-save playwright @axe-core/playwright
           npx playwright install --with-deps chromium
+
       - name: Audit generated sleep log on mobile and desktop
         shell: bash
         run: |
           set -o pipefail
           mkdir -p artifacts/sleep-log-browser-v62
           node tests/e2e_sleep_log_v62.mjs 2>&1 | tee artifacts/sleep-log-browser-v62/run.log
+
       - name: Upload sleep log browser evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sleep-log-browser-v62
+          name: sleep-log-browser-v220
           path: artifacts/sleep-log-browser-v62
           if-no-files-found: error
           retention-days: 14
