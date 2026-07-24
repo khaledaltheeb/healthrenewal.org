@@ -1,0 +1,100 @@
+name: Validate provider condition report bridge v3
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/case-report-condition-decision-v3.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/conditions/conditions-data-v1.js"
+      - ".github/workflows/provider-assessment-condition-report-bridge.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-condition-report-bridge-v3-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-condition-report-bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate JavaScript syntax
+        run: |
+          set -euxo pipefail
+          node --check provider-assessment-demo/case-report-condition-decision-v3.js
+          node --check provider-assessment-demo/institutional-live-v2.js
+          node --check provider-assessment-demo/conditions/conditions-data-v1.js
+
+      - name: Validate twenty-condition scope and loading order
+        run: |
+          set -euxo pipefail
+          node - <<'NODE'
+          global.window = {};
+          require('./provider-assessment-demo/conditions/conditions-data-v1.js');
+          const registry = global.window.PA_CONDITION_PATHWAYS;
+          if (!registry || !Array.isArray(registry.conditions) || registry.conditions.length !== 20) {
+            throw new Error(`Expected 20 condition pathways, received ${registry?.conditions?.length}`);
+          }
+          const slugs = registry.conditions.map((item) => item.slug);
+          if (new Set(slugs).size !== 20) throw new Error('Condition slugs must be unique');
+          for (const item of registry.conditions) {
+            for (const key of ['title','summary','focus','primary','supporting','external','alerts','deliverables']) {
+              if (!item[key] || (Array.isArray(item[key]) && item[key].length === 0)) {
+                throw new Error(`${item.slug} is missing ${key}`);
+              }
+            }
+          }
+          console.log({conditions: registry.conditions.length, uniqueSlugs: true});
+          NODE
+          grep -q 'case-report-interpretation-v2.js.*case-report-condition-decision-v3.js.*case-report-export-v2.js' provider-assessment-demo/institutional-live-v2.js
+
+      - name: Enforce decision support and non-diagnostic boundaries
+        run: |
+          set -euxo pipefail
+          FILE=provider-assessment-demo/case-report-condition-decision-v3.js
+          grep -q 'تطبيق المسودة في الحقول الفارغة' "$FILE"
+          grep -q 'لا يختار القالب نوع التقييم' "$FILE"
+          grep -q 'قالب مسار الحالة' "$FILE"
+          grep -q 'أدلة الأسرة أو الشخص' "$FILE"
+          grep -q 'أدلة مقدم الخدمة' "$FILE"
+          grep -q 'معيار إغلاق المسار' "$FILE"
+          grep -q 'pa-condition-report-template-audit-v3' "$FILE"
+          grep -q 'setIfEmpty(form.elements.purpose' "$FILE"
+          grep -q 'setIfEmpty(form.elements.evidenceSources' "$FILE"
+          grep -q 'setIfEmpty(form.elements.functionalContexts' "$FILE"
+          grep -q 'setIfEmpty(form.elements.followUpIndicators' "$FILE"
+          grep -q 'setIfEmpty(form.elements.decision' "$FILE"
+          ! grep -q 'setIfEmpty(form.elements.assessmentType' "$FILE"
+          ! grep -q 'setIfEmpty(form.elements.resultValidity' "$FILE"
+          ! grep -q 'setIfEmpty(form.elements.interpretationLimitations' "$FILE"
+          ! grep -q 'setIfEmpty(form.elements.baselineIndicator' "$FILE"
+          ! grep -q 'setIfEmpty(form.elements.measurementMethod' "$FILE"
+          ! grep -q 'setIfEmpty(form.elements.measurableGoal' "$FILE"
+          ! grep -Eq 'fetch\(|XMLHttpRequest|WebSocket|sendBeacon|eval\(|new Function' "$FILE"
+
+      - name: Protect proprietary assessment content
+        run: |
+          set -euxo pipefail
+          FILE=provider-assessment-demo/case-report-condition-decision-v3.js
+          ! grep -Eqi 'scoring key|answer key|norm table|raw item text|مفتاح التصحيح الكامل|جدول المعايير الكامل|بنود الاختبار المحمية' "$FILE"
+          grep -q 'المصادر الأساسية المقترحة' "$FILE"
+          grep -q 'الخدمات أو التقارير الخارجية' "$FILE"
+
+      - name: Validate RTL and repository links remain intact
+        run: |
+          set -euxo pipefail
+          test -f provider-assessment-demo/index.html
+          test -f provider-assessment-demo/conditions/index.html
+          grep -q 'lang="ar" dir="rtl"' provider-assessment-demo/index.html
+          grep -q 'href="conditions/"' provider-assessment-demo/index.html
+          grep -q 'conditions/${encodeURIComponent(condition.slug)}/' provider-assessment-demo/case-report-condition-decision-v3.js
