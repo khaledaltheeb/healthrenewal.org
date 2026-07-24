@@ -13,16 +13,12 @@ ROOT = Path(__file__).resolve().parents[1]
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 SOURCE = ROOT / "index.html"
 TARGET = SITE / "index.html"
-BRAND_SOURCE = ROOT / "assets" / "brand"
-BRAND_TARGET = SITE / "assets" / "brand"
 LAB_TOOL_COUNT = 93
+BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
 
 
 def run_publisher(script: str) -> None:
-    subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / script), str(SITE)],
-        check=True,
-    )
+    subprocess.run([sys.executable, str(ROOT / "scripts" / script), str(SITE)], check=True)
 
 
 def restore_static_route(route: str) -> int:
@@ -37,48 +33,32 @@ def restore_static_route(route: str) -> int:
     return len(pages)
 
 
-def restore_brand_assets() -> list[str]:
-    if not BRAND_SOURCE.is_dir():
-        raise SystemExit("Missing institutional brand assets")
-    required = {"platform-logo.svg", "platform-social-card.svg"}
-    available = {path.name for path in BRAND_SOURCE.glob("*.svg")}
-    missing = sorted(required - available)
-    if missing:
-        raise SystemExit(f"Missing required brand assets: {missing}")
-    shutil.copytree(BRAND_SOURCE, BRAND_TARGET, dirs_exist_ok=True)
-    copied = sorted(path.name for path in BRAND_TARGET.glob("*.svg"))
-    if not required.issubset(copied):
-        raise SystemExit("Institutional brand asset copy failed")
-    return copied
+def restore_static_tree(route: str) -> int:
+    source = ROOT / route
+    target = SITE / route
+    if not source.is_dir():
+        raise SystemExit(f"Missing repository static tree: {route}")
+    shutil.copytree(source, target, dirs_exist_ok=True)
+    files = [path for path in target.rglob("*") if path.is_file()]
+    if not files:
+        raise SystemExit(f"Restored static tree is empty: {route}")
+    return len(files)
+
+
+def restore_static_file(relative_path: str) -> None:
+    source = ROOT / relative_path
+    target = SITE / relative_path
+    if not source.is_file():
+        raise SystemExit(f"Missing repository static file: {relative_path}")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source, target)
 
 
 def synchronize_homepage_lab_inventory(text: str) -> str:
-    replacements = (
-        (
-            '<meta name="description" content="منصة عربية شاملة للصحة النفسية وذوي الاحتياجات الخاصة تجمع موسوعة موثقة وأدلة عملية للأسرة والطفل والعائلة والتربية الدامجة وأدوات تقييم استكشافية بحدود مهنية واضحة.">',
-            f'<meta name="description" content="منصة عربية شاملة للصحة النفسية وذوي الاحتياجات الخاصة تجمع موسوعة موثقة وأدلة عملية للأسرة والطفل والعائلة والتربية الدامجة و{LAB_TOOL_COUNT} مقياسًا وأداة معرفية وتقييمًا استكشافيًا بحدود مهنية واضحة.">',
-        ),
-        (
-            '<meta property="og:description" content="معرفة تحترم الإنسان، وأدلة عملية تساعد الأسرة والمختص ومقدم الخدمة على الوصول إلى المعلومة والمسار المناسب.">',
-            f'<meta property="og:description" content="معرفة تحترم الإنسان، وأدلة عملية و{LAB_TOOL_COUNT} مقياسًا وأداة معرفية تساعد الأسرة والمختص ومقدم الخدمة على الوصول إلى المعلومة والمسار المناسب.">',
-        ),
-        (
-            '<meta name="twitter:description" content="موسوعة عربية وأدلة عملية وتربية دامجة ومنصة تقييم استكشافية ضمن بنية موثوقة ومتاحة.">',
-            f'<meta name="twitter:description" content="موسوعة عربية وأدلة عملية وتربية دامجة و{LAB_TOOL_COUNT} مقياسًا وأداة معرفية ومنصة تقييم استكشافية ضمن بنية موثوقة ومتاحة.">',
-        ),
-        (
-            '"description":"بوابة عربية للموسوعة النفسية والأدلة العملية والأسرة والطفل والعائلة وذوي الاحتياجات الخاصة والتربية الدامجة والمقاييس والاستكشاف المهني."',
-            f'"description":"بوابة عربية للموسوعة النفسية والأدلة العملية والأسرة والطفل والعائلة وذوي الاحتياجات الخاصة والتربية الدامجة و{LAB_TOOL_COUNT} مقياسًا وأداة معرفية والاستكشاف المهني."',
-        ),
-        (
-            '<article class="stat"><strong>88</strong><span>مقياسًا وأداة وقدرة معرفية في المختبرات الحالية بحدود استخدام واضحة.</span></article>',
-            f'<article class="stat"><strong>{LAB_TOOL_COUNT}</strong><span>مقياسًا وأداة وقدرة معرفية في المختبرات الحالية بحدود استخدام واضحة.</span></article>',
-        ),
-    )
-    for old, new in replacements:
-        if old not in text:
-            raise SystemExit(f"Homepage laboratory inventory marker missing: {old[:80]}")
-        text = text.replace(old, new, 1)
+    pattern = re.compile(r'(<article class="stat"><strong>)[\d,]+(</strong><span>مقياسًا وأداة وقدرة معرفية[^<]*</span></article>)')
+    text, count = pattern.subn(rf"\g<1>{LAB_TOOL_COUNT}\g<2>", text, count=1)
+    if count != 1:
+        raise SystemExit("Homepage laboratory inventory card is missing or ambiguous")
     return text
 
 
@@ -87,13 +67,11 @@ def synchronize_care_guides_report() -> None:
     sitemap_path = SITE / "sitemap-care-guides.xml"
     guide_root = SITE / "care-guides"
     expected_page = guide_root / "choosing-mental-health-professional" / "index.html"
-    expected_url = "https://khaledaltheeb.github.io/pterminology-site/care-guides/choosing-mental-health-professional/"
-
+    expected_url = BASE_URL + "care-guides/choosing-mental-health-professional/"
     if not report_path.is_file():
         raise SystemExit("Missing care-guides-v21.json after guide publication")
     if not sitemap_path.is_file() or not expected_page.is_file():
         raise SystemExit("Choosing-professional guide or care-guide sitemap is missing")
-
     namespace = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
     root = ET.parse(sitemap_path).getroot()
     urls = [node.text for node in root.findall("sm:url/sm:loc", namespace) if node.text]
@@ -101,7 +79,6 @@ def synchronize_care_guides_report() -> None:
         raise SystemExit("Choosing-professional guide is absent from care-guide sitemap")
     if len(urls) != len(set(urls)):
         raise SystemExit("Duplicate URLs detected in care-guide sitemap")
-
     html_pages = sorted(guide_root.rglob("index.html"))
     report = json.loads(report_path.read_text(encoding="utf-8"))
     report["version"] = 178
@@ -113,25 +90,55 @@ def synchronize_care_guides_report() -> None:
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def local_name(tag: str) -> str:
+    return tag.rsplit("}", 1)[-1]
+
+
+def qualify(root: ET.Element, name: str) -> str:
+    if root.tag.startswith("{"):
+        return root.tag.split("}", 1)[0] + "}" + name
+    return name
+
+
 def register_sitemap(sitemap_name: str) -> None:
     sitemap_path = SITE / sitemap_name
     sitemap_index = SITE / "sitemap.xml"
     if not sitemap_path.is_file() or not sitemap_index.is_file():
         raise SystemExit(f"Missing sitemap integration input: {sitemap_name}")
-
-    target = f"https://khaledaltheeb.github.io/pterminology-site/{sitemap_name}"
+    target = BASE_URL + sitemap_name
     tree = ET.parse(sitemap_index)
     root = tree.getroot()
-    existing = [(node.text or "").strip() for node in root.findall("{*}sitemap/{*}loc")]
-    if target not in existing:
-        sitemap = ET.SubElement(root, "sitemap")
-        ET.SubElement(sitemap, "loc").text = target
+    root_type = local_name(root.tag)
+    if root_type == "sitemapindex":
+        existing = [(node.text or "").strip() for node in root.findall("{*}sitemap/{*}loc")]
+        if target not in existing:
+            sitemap = ET.SubElement(root, qualify(root, "sitemap"))
+            ET.SubElement(sitemap, qualify(root, "loc")).text = target
+    elif root_type == "urlset":
+        child_root = ET.parse(sitemap_path).getroot()
+        child_urls = [(node.text or "").strip() for node in child_root.findall("{*}url/{*}loc") if node.text and node.text.strip()]
+        existing = {(node.text or "").strip() for node in root.findall("{*}url/{*}loc") if node.text and node.text.strip()}
+        for url in child_urls:
+            if url in existing:
+                continue
+            item = ET.SubElement(root, qualify(root, "url"))
+            ET.SubElement(item, qualify(root, "loc")).text = url
+            existing.add(url)
+    else:
+        raise SystemExit(f"Unsupported sitemap root while registering {sitemap_name}: {root_type}")
     tree.write(sitemap_index, encoding="utf-8", xml_declaration=True)
 
-    tree = ET.parse(sitemap_index)
-    current = [(node.text or "").strip() for node in tree.getroot().findall("{*}sitemap/{*}loc")]
-    if current.count(target) != 1:
-        raise SystemExit(f"Expected exactly one sitemap index entry for {sitemap_name}")
+
+def publish_api_sitemap() -> None:
+    sitemap = SITE / "sitemap-api.xml"
+    sitemap.write_text(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f"  <url><loc>{BASE_URL}api/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>\n"
+        "</urlset>\n",
+        encoding="utf-8",
+    )
+    register_sitemap("sitemap-api.xml")
 
 
 def main() -> None:
@@ -139,25 +146,15 @@ def main() -> None:
         raise SystemExit("Missing source homepage index.html")
     if not SITE.exists():
         raise SystemExit(f"Missing site output: {SITE}")
-    source_text = SOURCE.read_text(encoding="utf-8")
-    text = synchronize_homepage_lab_inventory(source_text)
+    text = synchronize_homepage_lab_inventory(SOURCE.read_text(encoding="utf-8"))
     required = [
-        '<html lang="ar" dir="rtl">',
-        '<h1',
-        'href="encyclopedia/"',
-        'href="tips/"',
-        'href="assessment-lab/"',
-        'href="cognitive-lab/"',
-        'href="sectors/family/"',
-        'href="special-needs/"',
-        'href="care-guides/"',
-        'href="developers/"',
-        'assets/brand/platform-logo.svg',
-        'rel="manifest"',
-        'application/ld+json',
-        '"@type":"FAQPage"',
-        'color-scheme" content="light"',
-        'منصة الصحة النفسية وذوي الاحتياجات الخاصة',
+        '<html lang="ar" dir="rtl">', '<h1', 'href="encyclopedia/"', 'href="tips/"',
+        'href="assessment-lab/"', 'href="cognitive-lab/"', 'href="sectors/family/"',
+        'href="sectors/child/"', 'href="sectors/home/"', 'href="special-needs/"',
+        'href="care-guides/"', 'href="api/"', 'href="developers/"', 'rel="manifest"',
+        'rel="icon"', 'rel="search"', 'name="keywords"', 'property="og:image"',
+        'name="twitter:image"', 'application/ld+json', '"@type":"FAQPage"',
+        'color-scheme" content="light"', 'منصة الصحة النفسية وذوي الاحتياجات الخاصة',
         'معرفة تحترم الإنسان. دعم يوسّع الإمكانات.',
         f'<strong>{LAB_TOOL_COUNT}</strong><span>مقياسًا وأداة وقدرة معرفية',
     ]
@@ -165,26 +162,15 @@ def main() -> None:
     if missing:
         raise SystemExit(f"Homepage source missing required markers: {missing}")
     forbidden = [
-        'background:linear-gradient(145deg,var(--navy),var(--navy2))',
-        'background:#071827',
-        'background:#000',
-        'background:black',
-        '2000+',
-        'قيد الإعداد',
-        'قيد التوسع',
-        'خطة نمو قابلة للقياس',
-        'الأهداف الدنيا للمحتوى',
-        'هدف توسع',
-        'خط أساس المصدر الحالي',
-        'مسار مستقبلي للحسابات المؤسسية',
-        'لا نشر قبل البوابات',
-        'built-not-published',
-        '<strong>88</strong><span>مقياسًا وأداة وقدرة معرفية',
-        '<strong>92</strong><span>مقياسًا وأداة وقدرة معرفية',
+        'background:linear-gradient(145deg,var(--navy),var(--navy2))', 'background:#071827',
+        'background:#000', 'background:black', 'خطة نمو قابلة للقياس', 'الأهداف الدنيا للمحتوى',
+        'هدف معلن للموسوعة النفسية العربية', 'هدف أدنى لكل مسار رئيسي', 'هدف توسع',
+        'خط أساس المصدر الحالي', 'يُحسب العدد من حزمة الإنتاج', 'مسار مستقبلي للحسابات المؤسسية',
+        'لا نشر قبل البوابات', 'built-not-published', 'قيد الإعداد', 'قيد التوسع',
     ]
     found = [item for item in forbidden if item in text]
     if found:
-        raise SystemExit(f"Homepage regression placeholder or internal language detected: {found}")
+        raise SystemExit(f"Homepage regression or operational copy detected: {found}")
     h1_count = len(re.findall(r'<h1\b', text))
     h2_count = len(re.findall(r'<h2\b', text))
     h3_count = len(re.findall(r'<h3\b', text))
@@ -192,56 +178,41 @@ def main() -> None:
         raise SystemExit(f"Expected exactly one H1, found {h1_count}")
     if h2_count < 5:
         raise SystemExit("Homepage must contain at least five H2 sections")
-    if h3_count < 12:
-        raise SystemExit("Homepage must contain at least twelve H3 cards")
+    if h3_count < 16:
+        raise SystemExit("Homepage must contain at least sixteen H3 cards")
+
     TARGET.parent.mkdir(parents=True, exist_ok=True)
     TARGET.write_text(text, encoding="utf-8")
-    restored_routes = {"provider-assessment-demo": restore_static_route("provider-assessment-demo")}
-    brand_assets = restore_brand_assets()
+    restored_routes = {
+        "provider-assessment-demo": restore_static_route("provider-assessment-demo"),
+        "brand_assets": restore_static_tree("assets/brand"),
+        "api_v1": restore_static_tree("api/v1"),
+    }
+    for relative_path in ("api/index.html", "manifest.webmanifest", "opensearch.xml"):
+        restore_static_file(relative_path)
+
     expected_target_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
     report = {
-        "version": 215,
-        "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
-        "target_sha256": hashlib.sha256(TARGET.read_bytes()).hexdigest(),
-        "source_transformed": True,
-        "lab_tool_count": LAB_TOOL_COUNT,
-        "lab_inventory_metadata_updated": True,
-        "h1": h1_count,
-        "h2": h2_count,
-        "h3": h3_count,
-        "brand": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
-        "founding_name": "مصطلحات علم النفس",
+        "version": 215, "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
+        "target_sha256": hashlib.sha256(TARGET.read_bytes()).hexdigest(), "source_transformed": True,
+        "lab_tool_count": LAB_TOOL_COUNT, "lab_inventory_updated": True,
+        "h1": h1_count, "h2": h2_count, "h3": h3_count,
+        "brand": "منصة الصحة النفسية وذوي الاحتياجات الخاصة", "founding_name": "مصطلحات علم النفس",
         "slogan": "معرفة تحترم الإنسان. دعم يوسّع الإمكانات.",
-        "target_counts_are_labeled": True,
-        "verified_counts_only": True,
-        "public_operational_language_removed": True,
-        "semantic_keyword_taxonomy": 215,
-        "meta_keywords_stuffing_blocked": True,
-        "brand_assets": brand_assets,
-        "light_palette": True,
-        "core_sections_linked": True,
-        "restored_static_routes": restored_routes,
-        "trust_center_publisher": 201,
-        "partners_publisher": 201,
-        "magazine_publisher": 201,
-        "public_api_publisher": 215,
-        "authorized_course_importer": 215,
-        "seo_semantic_audit": 215,
-        "homepage_i18n_publisher": 72,
-        "care_guides_publisher": 73,
-        "special_needs_publisher": 201,
-        "start_here_publisher": 176,
-        "choose_professional_publisher": 176,
-        "care_guides_report_sync": 178,
-        "inclusive_disability_language_publisher": 186,
-        "inclusive_disability_language_sitemap_sync": 187,
-        "caregiver_wellbeing_publisher": 188,
-        "caregiver_wellbeing_sitemap_sync": 189,
-        "accessible_arabic_content_publisher": 190,
-        "accessible_arabic_content_sitemap_sync": 191,
-        "health_publication_gate": 192,
-        "internal_base_path_normalizer": 198,
-        "cognitive_lab_inventory_publisher": 210,
+        "target_counts_are_labeled": False, "production_counts_are_contextualized": True,
+        "operational_copy_hidden": True, "semantic_keyword_taxonomy": 215,
+        "controlled_meta_keywords_limit": 15, "public_api_publisher": 215,
+        "authorized_course_importer": 215, "seo_semantic_audit": 215,
+        "light_palette": True, "core_sections_linked": True, "api_v1_published": True,
+        "brand_assets_published": True, "restored_static_routes": restored_routes,
+        "trust_center_publisher": 201, "partners_publisher": 201, "magazine_publisher": 201,
+        "homepage_i18n_publisher": 72, "care_guides_publisher": 73, "special_needs_publisher": 201,
+        "start_here_publisher": 176, "choose_professional_publisher": 176,
+        "care_guides_report_sync": 178, "inclusive_disability_language_publisher": 186,
+        "inclusive_disability_language_sitemap_sync": 187, "caregiver_wellbeing_publisher": 188,
+        "caregiver_wellbeing_sitemap_sync": 189, "accessible_arabic_content_publisher": 190,
+        "accessible_arabic_content_sitemap_sync": 191, "health_publication_gate": 192,
+        "internal_base_path_normalizer": 198, "cognitive_lab_inventory_publisher": 210,
     }
     if report["target_sha256"] != expected_target_sha:
         raise SystemExit("Homepage transformed output hash mismatch")
@@ -259,7 +230,6 @@ def main() -> None:
 
     run_publisher("publish_care_guides_v21.py")
     run_publisher("link_care_guides_v201.py")
-
     run_publisher("publish_special_needs_v73.py")
     run_publisher("publish_choose_professional_v176.py")
     synchronize_care_guides_report()
@@ -271,6 +241,7 @@ def main() -> None:
     register_sitemap("sitemap-caregiver-wellbeing.xml")
     run_publisher("publish_accessible_arabic_content_v190.py")
     register_sitemap("sitemap-accessible-arabic-content.xml")
+    publish_api_sitemap()
     run_publisher("enforce_health_publication_gate_v192.py")
     run_publisher("audit_seo_semantics_v215.py")
     print(json.dumps(report, ensure_ascii=False, indent=2))
