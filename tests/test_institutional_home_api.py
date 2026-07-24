@@ -39,6 +39,19 @@ class InstitutionalHomeApiTests(unittest.TestCase):
         self.assertIn("<strong>93</strong>", synchronized)
         self.assertNotIn("<strong>88</strong>", synchronized)
 
+    def test_public_special_needs_publisher_has_no_operational_copy(self):
+        publisher = (ROOT / "scripts" / "publish_special_needs_v73.py").read_text(
+            encoding="utf-8"
+        )
+        for phrase in (
+            "قيد الإعداد المنظم",
+            "قيد التوسع",
+            "الأشخاص ذوي الإعاقة",
+        ):
+            self.assertNotIn(phrase, publisher)
+        self.assertIn("استكشاف موارد التواصل والإتاحة", publisher)
+        self.assertIn("فتح الأدلة الأسرية العملية", publisher)
+
     def test_manifest_and_api_documents_are_valid_json(self):
         paths = (
             "manifest.webmanifest",
@@ -61,6 +74,9 @@ class InstitutionalHomeApiTests(unittest.TestCase):
         )
         self.assertTrue(
             documents["api/v1/courses.example.json"]["courses"][0]["rights"]["metadataReuse"]
+        )
+        self.assertFalse(
+            documents["api/v1/courses.example.json"]["courses"][0]["rights"]["contentReuse"]
         )
 
     def test_brand_and_search_xml_are_well_formed(self):
