@@ -1,0 +1,48 @@
+name: One-shot wire sitewide SEO v216
+
+on:
+  push:
+    branches: ["agent/sitewide-seo-v216"]
+    paths:
+      - ".github/workflows/one-shot-wire-sitewide-seo-v216.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/sitewide-seo-v216
+          fetch-depth: 0
+      - name: Wire the SEO publisher into final production build
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("scripts/apply_homepage_v20.py")
+          text = path.read_text(encoding="utf-8")
+          old_call = '    publish_api_sitemap()\n    run_publisher("enforce_health_publication_gate_v192.py")'
+          new_call = '    publish_api_sitemap()\n    run_publisher("enhance_sitewide_seo_v216.py")\n    run_publisher("enforce_health_publication_gate_v192.py")'
+          if old_call not in text and 'run_publisher("enhance_sitewide_seo_v216.py")' not in text:
+              raise SystemExit("Could not locate final publisher insertion point")
+          text = text.replace(old_call, new_call, 1)
+
+          old_report = '        "cognitive_lab_inventory_publisher": 210,\n'
+          new_report = old_report + '        "sitewide_seo_publisher": 216,\n'
+          if old_report not in text and '"sitewide_seo_publisher": 216' not in text:
+              raise SystemExit("Could not locate homepage report insertion point")
+          text = text.replace(old_report, new_report, 1)
+          path.write_text(text, encoding="utf-8")
+          PY
+          rm .github/workflows/one-shot-wire-sitewide-seo-v216.yml
+      - name: Commit production wiring
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/apply_homepage_v20.py .github/workflows/one-shot-wire-sitewide-seo-v216.yml
+          git commit -m "Build: wire sitewide SEO publisher v216"
+          git push origin HEAD:agent/sitewide-seo-v216
