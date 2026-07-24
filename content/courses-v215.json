@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "updated": "2026-07-25",
+  "policy": {
+    "publication_rule": "لا تُنشر أو تُسحب أي دورة إلا بعد توثيق إذن كتابي صالح يحدد المصدر ونطاق الاستخدام والتحديث والنسبة واللغة.",
+    "allowed_rights_status": [
+      "written_permission_verified"
+    ],
+    "default_status": "not_connected",
+    "review_required": true
+  },
+  "providers": [],
+  "items": []
+}
