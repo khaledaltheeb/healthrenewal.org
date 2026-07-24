@@ -1,15 +1,29 @@
-name: Validate Assessment Condition Decision Guides
+name: Validate Assessment Decisions and Institutional API
 
 on:
   pull_request:
     branches: ["main"]
     paths:
       - "provider-assessment-demo/conditions/**"
+      - "content/integrations/**"
+      - "content/seo/**"
+      - "scripts/apply_homepage_v20.py"
+      - "scripts/import_authorized_courses_v215.py"
+      - "scripts/publish_public_api_v215.py"
+      - "scripts/audit_seo_semantics_v215.py"
+      - "tests/test_public_api_v215.py"
       - ".github/workflows/provider-assessment-condition-decisions.yml"
   push:
     branches: ["main"]
     paths:
       - "provider-assessment-demo/conditions/**"
+      - "content/integrations/**"
+      - "content/seo/**"
+      - "scripts/apply_homepage_v20.py"
+      - "scripts/import_authorized_courses_v215.py"
+      - "scripts/publish_public_api_v215.py"
+      - "scripts/audit_seo_semantics_v215.py"
+      - "tests/test_public_api_v215.py"
       - ".github/workflows/provider-assessment-condition-decisions.yml"
   workflow_dispatch:
 
@@ -17,7 +31,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: assessment-condition-decisions-${{ github.ref }}
+  group: assessment-decisions-institutional-api-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -117,3 +131,27 @@ jobs:
           if (errors.length) throw new Error(errors.join('\n'));
           console.log({pages:20, lang:'ar', direction:'rtl', mainLandmark:true, sharedLoader:true});
           NODE
+
+  validate-authorized-api-seo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate JSON and Python contracts
+        run: |
+          python -m json.tool content/integrations/course-sources-v215.json >/dev/null
+          python -m json.tool content/integrations/imported-courses-v215.json >/dev/null
+          python -m json.tool content/seo/keyword-taxonomy-v215.json >/dev/null
+          python -m py_compile \
+            scripts/apply_homepage_v20.py \
+            scripts/import_authorized_courses_v215.py \
+            scripts/publish_public_api_v215.py \
+            scripts/audit_seo_semantics_v215.py \
+            tests/test_public_api_v215.py
+
+      - name: Test permission gates API compatibility and SEO controls
+        run: python -m unittest -v tests/test_public_api_v215.py
