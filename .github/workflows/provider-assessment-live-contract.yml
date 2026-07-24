@@ -1,0 +1,70 @@
+name: Validate Provider Assessment Live Contract
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/sw-live-v2.js"
+      - "provider-assessment-demo/professional-templates-v1.js"
+      - "provider-assessment-demo/condition-entry-v1.js"
+      - "provider-assessment-demo/conditions/**"
+      - ".github/workflows/provider-assessment-live-contract.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/sw-live-v2.js"
+      - "provider-assessment-demo/professional-templates-v1.js"
+      - "provider-assessment-demo/condition-entry-v1.js"
+      - "provider-assessment-demo/conditions/**"
+      - ".github/workflows/provider-assessment-live-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-live-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate static release and cache-busting contract
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const html = fs.readFileSync('provider-assessment-demo/index.html','utf8');
+          const institutional = fs.readFileSync('provider-assessment-demo/institutional-live-v2.js','utf8');
+          const worker = fs.readFileSync('provider-assessment-demo/sw-live-v2.js','utf8');
+          const release = '2026.07.24-live.5';
+          const cacheToken = '20260724-live5';
+
+          for (const marker of [
+            `data-release="${release}"`,
+            `application-version" content="${release}"`,
+            `styles.css?v=${cacheToken}`,
+            `catalog.js?v=${cacheToken}`,
+            `conditions/conditions-data-v1.js?v=${cacheToken}`,
+            `condition-entry-v1.js?v=${cacheToken}`,
+            `professional-templates-v1.js?v=${cacheToken}`,
+            `institutional-live-v2.js?v=${cacheToken}`,
+            'conditions-hub-link',
+            'استعراض الحالات العشرين',
+            'قوالب إدخال متخصصة'
+          ]) if (!html.includes(marker)) throw new Error(`Live HTML missing ${marker}`);
+
+          for (const stale of ['20260724-live2','20260724-live4','2026.07.24-live.2','2026.07.24-live.4']) {
+            if (html.includes(stale)) throw new Error(`Stale release remains in live HTML: ${stale}`);
+          }
+
+          if (!institutional.includes(release) || !institutional.includes('loadProfessionalTemplates') || !institutional.includes('loadConditionPathways')) throw new Error('Institutional runtime release mismatch');
+          if (!worker.includes(release) || !worker.includes('cache: "no-store"')) throw new Error('Service worker release or network-first contract mismatch');
+
+          for (const forbidden of ['>مقفل<','>دليل فقط<','النسخة التجريبية المنشورة']) {
+            if (html.includes(forbidden)) throw new Error(`Forbidden live wording: ${forbidden}`);
+          }
+          console.log({release, cacheToken, conditions:20, templateFamilies:7, status:'passed'});
+          NODE

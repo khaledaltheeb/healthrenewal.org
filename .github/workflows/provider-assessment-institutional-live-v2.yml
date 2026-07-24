@@ -6,10 +6,18 @@ on:
     paths:
       - "provider-assessment-demo/**"
       - ".github/workflows/provider-assessment-institutional-live-v2.yml"
+  pull_request:
+    paths:
+      - "provider-assessment-demo/**"
+      - ".github/workflows/provider-assessment-institutional-live-v2.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: provider-assessment-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate-live-v2:
@@ -24,6 +32,10 @@ jobs:
           node --check provider-assessment-demo/sw-live-v2.js
           node --check provider-assessment-demo/activation.js
           node --check provider-assessment-demo/activation-guard.js
+          node --check provider-assessment-demo/professional-record-lifecycle.js
+          node --check provider-assessment-demo/professional-record-integrity.js
+          node --check provider-assessment-demo/backup-integrity.js
+          node --check provider-assessment-demo/backup-large-file-patch.js
       - name: Validate operational registry and release assets
         run: |
           node <<'NODE'
@@ -33,7 +45,8 @@ jobs:
           const required = [
             'index.html','catalog.js','catalog-extra.js','professional-master-registry.js',
             'catalog-operational-v2.js','app.js','activation.js','activation-guard.js',
-            'enhancements.js','institutional-live-v2.js','sw-live-v2.js'
+            'professional-record-lifecycle.js','professional-record-integrity.js','backup-integrity.js',
+            'backup-large-file-patch.js','enhancements.js','institutional-live-v2.js','sw-live-v2.js'
           ];
           for (const file of required) if (!fs.existsSync(base + file)) throw new Error(`Missing ${file}`);
           const html = fs.readFileSync(base + 'index.html','utf8');
@@ -53,20 +66,51 @@ jobs:
           if (!data || data.explorers.length !== 20) throw new Error(`Expected 20 exploratory tools, found ${data?.explorers?.length}`);
           if (data.professional.length < 150) throw new Error(`Professional registry too small: ${data.professional.length}`);
           if (data.professional.some(item => !item.operational)) throw new Error('Non-operational professional entries remain');
-          if (data.professional.some(item => item.status === 'locked')) throw new Error('Locked runtime states remain');
-          if (data.professional.some(item => !['workflow','external'].includes(item.status))) throw new Error('Unexpected runtime status remains');
+          if (data.professional.some(item => item.status === 'locked')) throw new Error('Locked source registry states remain');
+          if (data.professional.some(item => !['workflow','external'].includes(item.status))) throw new Error('Unexpected source registry status remains');
           console.log({explorers:data.explorers.length, professional:data.professional.length, release:context.window.PA_OPERATIONAL_RELEASE});
           NODE
-      - name: Validate UID and professional record contracts
+      - name: Validate UID, rights, audit, and backup-integrity contracts
         run: |
           python - <<'PY'
           from pathlib import Path
-          text='\n'.join(Path('provider-assessment-demo',p).read_text(encoding='utf-8') for p in ['app.js','activation.js','institutional-live-v2.js'])
-          required=['storeKey=u=>`pa-demo-store-v${V}:${u}`','professionalAssessments','recordedByUid: identity.uid','rightsConfirmed','MutationObserver','serviceWorker.register']
+          files = [
+              'app.js','activation.js','activation-guard.js','institutional-live-v2.js',
+              'professional-record-lifecycle.js','professional-record-integrity.js',
+              'backup-integrity.js','backup-large-file-patch.js'
+          ]
+          text='\n'.join(Path('provider-assessment-demo',p).read_text(encoding='utf-8') for p in files)
+          required=[
+              'storeKey=u=>`pa-demo-store-v${V}:${u}`','professionalAssessments',
+              'recordedByUid: identity.uid','rightsConfirmed','MutationObserver',
+              'serviceWorker.register','auditTrail','metadataAuditTrail',
+              'practitionerQualification','resultSourceType','reportReference',
+              'recordEvents','printableDocument','codes[codes.length - 1]',
+              'locked_pending_rights','locked_or_link_only','pa-demo-uid-backup-v2',
+              'pa-demo-uid-backup-encrypted-v1','PBKDF2_ITERATIONS','AES-GCM',
+              'SHA-256','stableStringify','integrity_mismatch','createRollbackSnapshot',
+              'conflictReport','transferConfirmation','importHistory','backup-integrity.js?v=20260724-backup1',
+              'backup-large-file-patch.js?v=20260724-backup2','CHUNK_SIZE','bytesToBase64Chunked'
+          ]
           missing=[x for x in required if x not in text]
           if missing: raise SystemExit({'missing':missing})
-          forbidden=['fetch("http','fetch(\'http','XMLHttpRequest','WebSocket','sendBeacon(']
+          forbidden=['fetch("http','fetch(\'http','XMLHttpRequest','WebSocket','sendBeacon(','eval(','new Function(']
           found=[x for x in forbidden if x in text]
-          if found: raise SystemExit({'unexpected_network_api':found})
-          print({'uid':'isolated','professional_records':'enabled','cache_refresh':'enabled'})
+          if found: raise SystemExit({'unexpected_unsafe_api':found})
+          lifecycle=Path('provider-assessment-demo/professional-record-lifecycle.js').read_text(encoding='utf-8')
+          if 'card.querySelector(".code.small")?.textContent' in lifecycle:
+              raise SystemExit('Lifecycle still selects the case id instead of the professional record id')
+          integrity=Path('provider-assessment-demo/professional-record-integrity.js').read_text(encoding='utf-8')
+          for protected in ['toolId','toolName','category','recordStatus','recordedAt','recordedByUid']:
+              if f'"{protected}",' in integrity.split('const EDITABLE_FIELDS = [',1)[1].split('];',1)[0]:
+                  raise SystemExit({'protected_field_became_editable':protected})
+          backup=Path('provider-assessment-demo/backup-integrity.js').read_text(encoding='utf-8')
+          for gate in ['payload.integrity?.digest','actual !== expected','sourceUid !== identity.uid','typed !== identity.uid','createRollbackSnapshot()','mode === "merge"']:
+              if gate not in backup: raise SystemExit({'missing_backup_gate':gate})
+          patch=Path('provider-assessment-demo/backup-large-file-patch.js').read_text(encoding='utf-8')
+          if 'String.fromCharCode(...bytes)' in patch:
+              raise SystemExit('Large encrypted backup patch still spreads the full byte array')
+          for gate in ['CHUNK_SIZE = 0x8000','bytes.subarray(offset','event.stopImmediatePropagation()','crypto.subtle.encrypt']:
+              if gate not in patch: raise SystemExit({'missing_large_backup_gate':gate})
+          print({'uid':'isolated','rights':'gated','lifecycle':'audited','metadata_edits':'audited','backup_digest':'sha256','backup_encryption':'aes-gcm','large_backup_encoding':'chunked','import_preview':'required','uid_transfer':'explicit','rollback':'enabled'})
           PY

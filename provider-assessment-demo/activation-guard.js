@@ -135,7 +135,7 @@
     }
 
     const cancelButton = event.target.closest(
-      "#account-form button[value='cancel'], #professional-record-form button[value='cancel']"
+      "#account-form button[value='cancel'], #professional-record-form button[value='cancel'], #professional-lifecycle-form button[value='cancel'], #professional-record-edit-form button[value='cancel'], #backup-export-form button[value='cancel'], #backup-import-preview-form button[value='cancel'], #backup-unlock-form button[value='cancel']"
     );
     if (!cancelButton) return;
     event.preventDefault();
@@ -146,9 +146,23 @@
     else dialog.removeAttribute("open");
   }, true);
 
-  const lifecycleScript = document.createElement("script");
-  lifecycleScript.src = "professional-record-lifecycle.js";
-  lifecycleScript.defer = true;
-  lifecycleScript.dataset.module = "professional-record-lifecycle";
-  document.head.appendChild(lifecycleScript);
+  const loadModule = (src, moduleName) => new Promise((resolve, reject) => {
+    if (document.querySelector(`[data-module="${moduleName}"]`)) {
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = false;
+    script.dataset.module = moduleName;
+    script.addEventListener("load", resolve, { once: true });
+    script.addEventListener("error", reject, { once: true });
+    document.head.appendChild(script);
+  });
+
+  loadModule("professional-record-lifecycle.js?v=20260724-integrity1", "professional-record-lifecycle")
+    .then(() => loadModule("professional-record-integrity.js?v=20260724-integrity1", "professional-record-integrity"))
+    .then(() => loadModule("backup-integrity.js?v=20260724-backup1", "backup-integrity"))
+    .then(() => loadModule("backup-large-file-patch.js?v=20260724-backup2", "backup-large-file-patch"))
+    .catch((error) => console.error("Provider assessment module failed to load", error));
 })();

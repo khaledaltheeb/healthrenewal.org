@@ -1,7 +1,7 @@
 "use strict";
 
 (() => {
-  const RELEASE = "2026.07.24-live.3";
+  const RELEASE = "2026.07.24-live.5";
   const PATH = "/pterminology-site/provider-assessment-demo/";
 
   const replaceText = (root = document) => {
@@ -29,14 +29,16 @@
     document.documentElement.dataset.release = RELEASE;
     document.title = "منصة التقييم والسجل المهني | منصة الصحة النفسية وذوي الاحتياجات الخاصة";
     const description = document.querySelector('meta[name="description"]');
-    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية ومسارات تطبيق المقاييس المهنية وربط النتائج والملاحظات والقرارات بكل حالة ضمن UID مستقل.";
+    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية ومسارات تطبيق المقاييس المهنية، مع 20 دليل حالة وقوالب تشغيل متخصصة وربط النتائج والملاحظات والقرارات بكل حالة ضمن UID مستقل.";
+    const applicationVersion = document.querySelector('meta[name="application-version"]');
+    if (applicationVersion) applicationVersion.content = RELEASE;
 
     const brand = document.querySelector(".brand");
     if (brand) brand.textContent = "منصة الصحة النفسية وذوي الاحتياجات الخاصة";
     const product = document.querySelector(".product-name");
     if (product) product.textContent = "منصة التقييم والسجل المهني";
     const notice = document.querySelector(".notice-bar");
-    if (notice) notice.textContent = "جميع الأدوات الظاهرة تملك مسار عمل فعّالًا: تطبيق استكشافي أصلي، أو سجل مهني للتخطيط والتعيين والنتيجة، أو استيراد نتيجة من جهة مختصة. لا تُنسخ مواد تجارية محمية دون حق استخدامها.";
+    if (notice) notice.textContent = "جميع الأدوات الظاهرة تملك مسار عمل فعّالًا وقالب تطبيق يناسب نوعها: استبانة، اختبار أداء، مقابلة أو ملاحظة، فحص جهازي، تصنيف وظيفي، تواصل، أو تحليل سلوك. لا تُنسخ مواد تجارية محمية دون حق استخدامها.";
 
     const count = window.PA_OPERATIONAL_COUNT || window.PA_DEMO_DATA?.professional?.length || 0;
     const card = document.querySelector(".hero-card ul");
@@ -46,7 +48,8 @@
         <li>سجل حالات وجلسات ونتائج متكررة محفوظ محليًا.</li>
         <li>20 أداة استكشافية أصلية تعمل مباشرة.</li>
         <li>${count} مقياسًا وفحصًا وبروتوكولًا بمسار عمل مهني فعّال.</li>
-        <li>دليل مؤسسي لمسارات التقييم في 20 حالة ومجالًا.</li>
+        <li>20 دليل حالة مؤسسيًا مع فريق وحزمة مقاييس وكورس ومخرجات تقرير.</li>
+        <li>قوالب إدخال متخصصة حسب نوع الأداة والفحص.</li>
         <li>الإصدار الحي: ${RELEASE}.</li>`;
     }
 
@@ -55,7 +58,7 @@
     const professionalCallout = document.querySelector("#view-professional .callout");
     if (professionalCallout) {
       professionalCallout.className = "callout info";
-      professionalCallout.textContent = "اختر أي عنصر ثم ابدأ سجلًا مهنيًا مرتبطًا بالحالة: حدد المنفذ والتاريخ وطريقة التطبيق والإصدار واللغة والنتيجة والملاحظات والخطوة التالية. الفحوص الجهازية تستقبل نتيجتها من الجهة المختصة.";
+      professionalCallout.textContent = "اختر أي عنصر ثم ابدأ سجلًا مهنيًا مرتبطًا بالحالة. تتغير حقول النموذج تلقائيًا بحسب نوع الأداة، مع توثيق المنفذ والتاريخ والنسخة واللغة والنتيجة والقيود والخطوة التالية.";
     }
 
     const footer = document.querySelector(".site-footer p");
@@ -78,14 +81,25 @@
     observer.observe(target, { childList: true, subtree: true, characterData: true });
   };
 
-  const loadAssessmentPathways = () => {
-    if (document.querySelector('script[data-assessment-pathways]')) return;
+  const addScript = (src, datasetName, onload) => {
+    if (document.querySelector(`script[data-${datasetName}]`)) return;
     const script = document.createElement("script");
-    script.src = `assessment-pathways-content.js?release=${encodeURIComponent(RELEASE)}`;
+    script.src = `${src}?release=${encodeURIComponent(RELEASE)}`;
     script.defer = true;
-    script.dataset.assessmentPathways = RELEASE;
+    script.dataset[datasetName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())] = RELEASE;
+    if (onload) script.addEventListener("load", onload, { once: true });
     document.head.appendChild(script);
   };
+
+  const loadAssessmentPathways = () => addScript("assessment-pathways-content.js", "assessment-pathways");
+
+  const loadConditionPathways = () => {
+    addScript("conditions/conditions-data-v1.js", "condition-pathways", () => {
+      addScript("condition-entry-v1.js", "condition-entry");
+    });
+  };
+
+  const loadProfessionalTemplates = () => addScript("professional-templates-v1.js", "professional-templates");
 
   const refreshOldCaches = async () => {
     try {
@@ -108,6 +122,8 @@
     applyInstitutionalCopy();
     observeOperationalUi();
     loadAssessmentPathways();
+    loadConditionPathways();
+    loadProfessionalTemplates();
     refreshOldCaches();
     requestAnimationFrame(() => requestAnimationFrame(applyInstitutionalCopy));
   });

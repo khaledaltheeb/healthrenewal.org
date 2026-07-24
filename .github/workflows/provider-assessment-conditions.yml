@@ -1,0 +1,105 @@
+name: Validate Assessment Condition Pathways
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/conditions/**"
+      - "provider-assessment-demo/condition-entry-v1.js"
+      - "provider-assessment-demo/professional-templates-v1.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/sw-live-v2.js"
+      - "sitemap.xml"
+      - ".github/workflows/provider-assessment-conditions.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/conditions/**"
+      - "provider-assessment-demo/condition-entry-v1.js"
+      - "provider-assessment-demo/professional-templates-v1.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/sw-live-v2.js"
+      - "sitemap.xml"
+      - ".github/workflows/provider-assessment-conditions.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-condition-pathways:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: |
+          node --check provider-assessment-demo/conditions/conditions-data-v1.js
+          node --check provider-assessment-demo/conditions/conditions-ui-v1.js
+          node --check provider-assessment-demo/condition-entry-v1.js
+          node --check provider-assessment-demo/professional-templates-v1.js
+          node --check provider-assessment-demo/institutional-live-v2.js
+          node --check provider-assessment-demo/sw-live-v2.js
+
+      - name: Validate registry, pages, SEO, templates and operational links
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const vm = require('vm');
+          const read = file => fs.readFileSync(file, 'utf8');
+
+          const context = { window: {} };
+          vm.runInNewContext(read('provider-assessment-demo/conditions/conditions-data-v1.js'), context);
+          const registry = context.window.PA_CONDITION_PATHWAYS;
+          if (!registry || !Array.isArray(registry.conditions)) throw new Error('Condition registry missing');
+          if (registry.conditions.length !== 20) throw new Error(`Expected 20 conditions, found ${registry.conditions.length}`);
+          if (new Set(registry.conditions.map(item => item.slug)).size !== 20) throw new Error('Duplicate condition slugs');
+          if (new Set(registry.conditions.map(item => item.title)).size !== 20) throw new Error('Duplicate condition titles');
+          if (registry.workflowStages.length < 7 || registry.commonDomains.length < 9) throw new Error('Common pathway content incomplete');
+
+          const requiredArrays = ['team','primary','supporting','external','focus','deliverables','alerts'];
+          const forbidden = [/مقفل/u,/دليل فقط/u,/النسخة التجريبية المنشورة/u,/status\s*:\s*["']locked["']/u];
+          for (const item of registry.conditions) {
+            if (!item.summary || item.summary.length < 50) throw new Error(`Thin summary: ${item.slug}`);
+            for (const key of requiredArrays) if (!Array.isArray(item[key]) || item[key].length < 2) throw new Error(`Incomplete ${key}: ${item.slug}`);
+            const file = path.join('provider-assessment-demo/conditions', item.slug, 'index.html');
+            if (!fs.existsSync(file)) throw new Error(`Missing condition page: ${file}`);
+            const html = read(file);
+            for (const marker of ['<title>','meta name="description"','rel="canonical"','application/ld+json',`data-condition="${item.slug}"`,'../conditions-data-v1.js','../conditions-ui-v1.js']) {
+              if (!html.includes(marker)) throw new Error(`${item.slug} missing ${marker}`);
+            }
+            for (const pattern of forbidden) if (pattern.test(html)) throw new Error(`Forbidden wording in ${item.slug}`);
+          }
+
+          const index = read('provider-assessment-demo/conditions/index.html');
+          for (const marker of ['conditions-grid','condition-search','team-filter','CollectionPage','2026.07.24-live.5']) if (!index.includes(marker)) throw new Error(`Conditions index missing ${marker}`);
+
+          const ui = read('provider-assessment-demo/conditions/conditions-ui-v1.js');
+          for (const marker of ['pa-selected-condition-v1','pa-condition-pathway-history-v1','data-start-condition','?condition=']) if (!ui.includes(marker)) throw new Error(`Condition UI missing ${marker}`);
+
+          const bridge = read('provider-assessment-demo/condition-entry-v1.js');
+          for (const marker of ['professional-search','open-condition-professional','conditions-hub-link','pa-selected-condition-v1']) if (!bridge.includes(marker)) throw new Error(`Condition bridge missing ${marker}`);
+
+          const templates = read('provider-assessment-demo/professional-templates-v1.js');
+          for (const marker of ['ratingTemplate','performanceTemplate','interviewTemplate','externalTemplate','classificationTemplate','behaviorTemplate','communicationTemplate','commonFields','informants','accommodations','بيانات القالب المهني']) {
+            if (!templates.includes(marker)) throw new Error(`Professional templates missing ${marker}`);
+          }
+          if (!templates.includes('key.startsWith("detail_")')) throw new Error('Dynamic template fields are not serialized');
+          if (!templates.includes('notesField.value')) throw new Error('Template details are not persisted into the professional record');
+
+          const institutional = read('provider-assessment-demo/institutional-live-v2.js');
+          for (const marker of ['2026.07.24-live.5','loadConditionPathways','loadProfessionalTemplates','conditions/conditions-data-v1.js','condition-entry-v1.js','professional-templates-v1.js']) if (!institutional.includes(marker)) throw new Error(`Institutional release missing ${marker}`);
+
+          if (!read('provider-assessment-demo/sw-live-v2.js').includes('2026.07.24-live.5')) throw new Error('Service worker release mismatch');
+
+          const sitemap = read('sitemap.xml');
+          const sitemapConditionUrls = [...sitemap.matchAll(/provider-assessment-demo\/conditions\//g)].length;
+          if (sitemapConditionUrls !== 21) throw new Error(`Expected 21 condition sitemap URLs, found ${sitemapConditionUrls}`);
+          for (const item of registry.conditions) if (!sitemap.includes(`/conditions/${item.slug}/`)) throw new Error(`Sitemap missing ${item.slug}`);
+
+          const combined = [read('provider-assessment-demo/conditions/conditions-data-v1.js'),ui,bridge,templates].join('\n');
+          for (const token of ['fetch(','XMLHttpRequest','WebSocket','sendBeacon(','EventSource(']) if (combined.includes(token)) throw new Error(`Network API forbidden: ${token}`);
+
+          console.log({conditionPages:20, commonDomains:registry.commonDomains.length, workflowStages:registry.workflowStages.length, templateFamilies:7, sitemapConditionUrls, release:'2026.07.24-live.5', status:'passed'});
+          NODE
