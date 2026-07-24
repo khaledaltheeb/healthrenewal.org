@@ -7,6 +7,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+from publish_global_metadata_v27 import main as publish_global_metadata
+
 
 ROOT = Path(__file__).resolve().parents[1]
 LEGACY = ROOT / "scripts" / "audit_full_site_v16.py"
@@ -117,6 +119,12 @@ def verify_accessible_link_contract(parser_class) -> None:
 
 
 def main() -> int:
+    publish_global_metadata()
+    metadata_path = Path(sys.argv[1] if len(sys.argv) > 1 else "_site") / "api" / "global-metadata-v27.json"
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    if metadata.get("status") != "passed" or int(metadata.get("remaining_missing_count", -1)) != 0:
+        raise SystemExit({"invalid_global_metadata_evidence": metadata})
+
     spec = importlib.util.spec_from_file_location("audit_full_site_v16_legacy", LEGACY)
     if spec is None or spec.loader is None:
         raise SystemExit("Could not load legacy full-site auditor")
@@ -143,9 +151,6 @@ def main() -> int:
                 f"Locale contract mismatch in {rel}: expected {expected_lang}/{expected_dir}, "
                 f"found {actual_lang}/{actual_dir}"
             )
-        # The v16 auditor predates multilingual output and checks only ar/rtl.
-        # Normalize only the parser view after validating the real document above;
-        # every other metadata, link, content and accessibility check remains unchanged.
         parser.html_attrs = dict(parser.html_attrs)
         parser.html_attrs["lang"] = "ar"
         parser.html_attrs["dir"] = "rtl"
@@ -173,6 +178,9 @@ def main() -> int:
     report["render_blocking_boolean_attribute_contract"] = True
     report["accessible_link_detection"] = "text-or-aria-label-labelledby-title-image-alt-v26"
     report["accessible_link_name_contract"] = True
+    report["global_metadata_version"] = int(metadata["version"])
+    report["global_metadata_pages"] = int(metadata["pages_scanned"])
+    report["global_metadata_remaining_missing"] = int(metadata["remaining_missing_count"])
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(
         json.dumps(
@@ -185,6 +193,8 @@ def main() -> int:
                 "blocking_scripts": report.get("blocking_scripts", 0),
                 "accessible_link_detection": report["accessible_link_detection"],
                 "empty_links": report.get("empty_links", 0),
+                "global_metadata_version": report["global_metadata_version"],
+                "global_metadata_remaining_missing": 0,
             },
             ensure_ascii=False,
             indent=2,
