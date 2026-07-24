@@ -107,8 +107,10 @@ def register_sitemap(sitemap_name: str) -> None:
     root = tree.getroot()
     existing = [(node.text or "").strip() for node in root.findall("{*}sitemap/{*}loc")]
     if target not in existing:
-        sitemap = ET.SubElement(root, "sitemap")
-        ET.SubElement(sitemap, "loc").text = target
+        namespace = root.tag.split("}", 1)[0].strip("{") if "}" in root.tag else ""
+        tag = lambda name: f"{{{namespace}}}{name}" if namespace else name
+        sitemap = ET.SubElement(root, tag("sitemap"))
+        ET.SubElement(sitemap, tag("loc")).text = target
     tree.write(sitemap_index, encoding="utf-8", xml_declaration=True)
 
     tree = ET.parse(sitemap_index)
@@ -134,6 +136,10 @@ def main() -> None:
         'href="sectors/family/"',
         'href="special-needs/"',
         'href="care-guides/"',
+        'href="developers/"',
+        'assets/logo-mark-v215.svg',
+        'assets/logo-card-v215.svg',
+        'meta name="keywords"',
         'rel="manifest"',
         'application/ld+json',
         'color-scheme" content="light"',
@@ -152,12 +158,16 @@ def main() -> None:
         '2000+',
         'قيد الإعداد',
         'قيد التوسع',
+        'خطة نمو قابلة للقياس',
+        'الأهداف الدنيا للمحتوى',
+        'هدف توسع',
+        'العدد الحالي يثبت',
         '<strong>88</strong><span>مقياسًا وأداة وقدرة معرفية',
         '<strong>92</strong><span>مقياسًا وأداة وقدرة معرفية',
     ]
     found = [item for item in forbidden if item in text]
     if found:
-        raise SystemExit(f"Homepage regression or placeholder detected: {found}")
+        raise SystemExit(f"Homepage regression, planning leak, or placeholder detected: {found}")
     if text.count('<h1>') != 1:
         raise SystemExit(f"Expected exactly one H1, found {text.count('<h1>')}")
     if len(re.findall(r'<h2\b', text)) < 4:
@@ -169,7 +179,7 @@ def main() -> None:
     restored_routes = {"provider-assessment-demo": restore_static_route("provider-assessment-demo")}
     expected_target_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
     report = {
-        "version": 210,
+        "version": 215,
         "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         "target_sha256": hashlib.sha256(TARGET.read_bytes()).hexdigest(),
         "source_transformed": True,
@@ -181,7 +191,9 @@ def main() -> None:
         "brand": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
         "founding_name": "مصطلحات علم النفس",
         "slogan": "معرفة تحترم الإنسان. دعم يوسّع الإمكانات.",
-        "target_counts_are_labeled": True,
+        "public_planning_copy_removed": True,
+        "institutional_logo": True,
+        "developers_api_linked": True,
         "light_palette": True,
         "core_sections_linked": True,
         "restored_static_routes": restored_routes,
@@ -203,6 +215,7 @@ def main() -> None:
         "health_publication_gate": 192,
         "internal_base_path_normalizer": 198,
         "cognitive_lab_inventory_publisher": 210,
+        "enterprise_platform_publisher": 215,
     }
     if report["target_sha256"] != expected_target_sha:
         raise SystemExit("Homepage transformed output hash mismatch")
@@ -230,6 +243,7 @@ def main() -> None:
     run_publisher("publish_accessible_arabic_content_v190.py")
     register_sitemap("sitemap-accessible-arabic-content.xml")
     run_publisher("enforce_health_publication_gate_v192.py")
+    run_publisher("finalize_enterprise_platform_v215.py")
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 
