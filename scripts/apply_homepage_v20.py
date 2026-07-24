@@ -306,6 +306,7 @@ def main() -> None:
     register_sitemap("sitemap-accessible-arabic-content.xml")
     publish_api_sitemap()
     run_publisher("enhance_sitewide_seo_v216.py")
+    run_publisher("verify_sitewide_seo_v216.py")
     run_publisher("enforce_health_publication_gate_v192.py")
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
