@@ -1,0 +1,39 @@
+name: Validate marshmallow homepage v220
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "tests/test_homepage_marshmallow_v220.py"
+      - ".github/workflows/validate-homepage-marshmallow-v220.yml"
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "tests/test_homepage_marshmallow_v220.py"
+      - ".github/workflows/validate-homepage-marshmallow-v220.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: homepage-marshmallow-v220-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile homepage test
+        run: python -m py_compile tests/test_homepage_marshmallow_v220.py
+      - name: Validate focused homepage layout
+        run: python tests/test_homepage_marshmallow_v220.py
+      - name: Validate institutional homepage contract
+        run: python scripts/verify_homepage_v19.py
