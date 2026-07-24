@@ -1,0 +1,34 @@
+name: Validate sitewide SEO v216
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/enhance_sitewide_seo_v216.py"
+      - "scripts/verify_sitewide_seo_v216.py"
+      - "scripts/apply_homepage_v20.py"
+      - "tests/test_sitewide_seo_v216.py"
+      - "tests/test_sitewide_seo_verifier_diagnostics_v216.py"
+      - ".github/workflows/validate-sitewide-seo-v216.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile SEO publisher, verifier and tests
+        run: |
+          python -m py_compile \
+            scripts/enhance_sitewide_seo_v216.py \
+            scripts/verify_sitewide_seo_v216.py \
+            tests/test_sitewide_seo_v216.py \
+            tests/test_sitewide_seo_verifier_diagnostics_v216.py
+      - name: Run deterministic SEO unit tests
+        run: |
+          python -m unittest \
+            tests/test_sitewide_seo_v216.py \
+            tests/test_sitewide_seo_verifier_diagnostics_v216.py
