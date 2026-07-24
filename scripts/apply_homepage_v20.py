@@ -252,7 +252,7 @@ def main() -> None:
 
     expected_target_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
     report = {
-        "version": 217,
+        "version": 219,
         "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         "target_sha256": hashlib.sha256(TARGET.read_bytes()).hexdigest(),
         "source_transformed": True,
@@ -270,8 +270,10 @@ def main() -> None:
         "operational_copy_hidden": True,
         "public_api_publisher": 215,
         "authorized_course_importer": 215,
+        "course_security_contract": 218,
         "course_permission_policy": "deny-by-default",
         "content_discovery_publisher": 219,
+        "special_needs_guides_publisher": 217,
         "light_palette": True,
         "core_sections_linked": True,
         "api_v1_published": True,
@@ -311,6 +313,7 @@ def main() -> None:
     run_publisher("finalize_trust_center_links_v71.py")
     run_publisher("publish_partners_v201.py")
     run_publisher("publish_magazine_v201.py")
+
     run_publisher("import_authorized_courses_v215.py")
     run_publisher("publish_public_api_v215.py")
     register_sitemap("sitemap-developers.xml")
@@ -321,6 +324,7 @@ def main() -> None:
     run_publisher("link_care_guides_v201.py")
 
     run_publisher("publish_special_needs_v73.py")
+    run_publisher("publish_special_needs_guides_v217.py")
     run_publisher("publish_choose_professional_v176.py")
     synchronize_care_guides_report()
     run_publisher("publish_homepage_i18n_v72.py")
