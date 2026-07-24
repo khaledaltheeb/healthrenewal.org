@@ -2,6 +2,7 @@
 
 (() => {
   const RELEASE = "2026.07.24-live.7";
+  const SATURATION_SCHEMA = "pa-explorer-saturation-v1";
   const PATH = "/pterminology-site/provider-assessment-demo/";
 
   const replaceText = (root = document) => {
@@ -23,11 +24,49 @@
     }
   };
 
+  const explorerInventory = () => {
+    const tools = window.PA_DEMO_DATA?.explorers || [];
+    const contract = window.PA_EXPLORER_SATURATION;
+    const questionCount = tools.reduce((total, tool) => total + (tool.questions?.length || 0), 0);
+    const safetyStops = tools.reduce(
+      (total, tool) => total + (tool.questions || []).filter((question) => question.safety === true).length,
+      0,
+    );
+    const valid =
+      contract?.schema === SATURATION_SCHEMA
+      && contract.toolCount === 20
+      && tools.length === 20
+      && questionCount === 280
+      && safetyStops === 20
+      && tools.every((tool) => tool.questions?.length >= 14 && tool.institutionalProfile?.schema === SATURATION_SCHEMA);
+    return { tools, contract, questionCount, safetyStops, valid };
+  };
+
+  const enforceExplorerContract = () => {
+    const inventory = explorerInventory();
+    document.documentElement.dataset.explorerSaturation = inventory.valid ? "ready" : "blocked";
+    if (inventory.valid) return inventory;
+
+    const notice = document.querySelector(".notice-bar");
+    if (notice) {
+      notice.className = "notice-bar danger";
+      notice.textContent = "تعذر تحميل عقد اكتمال الأدوات الاستكشافية. أُوقف بدء الجلسات لحماية سلامة السجل؛ أعد تحميل الصفحة أو راجع إصدار المنصة.";
+    }
+    for (const control of document.querySelectorAll("#start-explore, [data-start], [data-assess-case]")) {
+      control.setAttribute("disabled", "");
+      control.setAttribute("aria-disabled", "true");
+    }
+    return inventory;
+  };
+
   const applyInstitutionalCopy = () => {
+    const inventory = enforceExplorerContract();
     document.documentElement.dataset.release = RELEASE;
     document.title = "منصة التقييم والسجل المهني | منصة الصحة النفسية وذوي الاحتياجات الخاصة";
     const description = document.querySelector('meta[name="description"]');
-    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية وسجلات الخدمات المهنية، مع 20 دليل حالة وتقارير متعددة الإصدارات. تبقى المقاييس المحمية مقفلة حتى اكتمال الترخيص والمراجعة المؤسسية.";
+    if (description) {
+      description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات وعشرين بروتوكولًا استكشافيًا أصليًا متعدد المحاور ومسارات المقاييس المهنية، مع تقارير متعددة الإصدارات. تبقى الأدوات المحمية مقفلة حتى اكتمال الترخيص والمراجعة المؤسسية.";
+    }
     const applicationVersion = document.querySelector('meta[name="application-version"]');
     if (applicationVersion) applicationVersion.content = RELEASE;
 
@@ -36,7 +75,10 @@
     const product = document.querySelector(".product-name");
     if (product) product.textContent = "منصة التقييم والسجل المهني";
     const notice = document.querySelector(".notice-bar");
-    if (notice) notice.textContent = "الأدوات الاستكشافية الأصلية متاحة للاستخدام غير التشخيصي. المقاييس المهنية المحمية تبقى مقفلة حتى اكتمال الترخيص وحق الرقمنة والمراجعة العلمية والأمنية والمؤسسية.";
+    if (notice && inventory.valid) {
+      notice.className = "notice-bar";
+      notice.textContent = `تعمل ${inventory.tools.length} أداة استكشافية أصلية كبروتوكولات متعددة المصادر والسياقات، بإجمالي ${inventory.questionCount} عنصرًا منظمًا و${inventory.safetyStops} مسار سلامة. النتائج وصفية غير تشخيصية، والمقاييس المحمية تبقى مقفلة حتى اكتمال الحقوق والمراجعة.`;
+    }
 
     const count = window.PA_OPERATIONAL_COUNT || window.PA_DEMO_DATA?.professional?.length || 0;
     const card = document.querySelector(".hero-card ul");
@@ -44,7 +86,8 @@
       card.innerHTML = `
         <li>UID مستقل لكل مستخدم أو مقدم خدمة.</li>
         <li>سجل حالات وجلسات ونتائج متكررة محفوظ محليًا.</li>
-        <li>20 أداة استكشافية أصلية تعمل مباشرة مع متابعة وصفية مشروطة بقابلية المقارنة.</li>
+        <li>${inventory.tools.length} بروتوكولًا استكشافيًا أصليًا متعدد المحاور، بإجمالي ${inventory.questionCount} عنصرًا و${inventory.safetyStops} مسار سلامة.</li>
+        <li>تغطية إلزامية للمجيب والفترة والبيئة والتكييفات ونقاط القوة وجودة البيانات.</li>
         <li>${count} مقياسًا وفحصًا في دليل الوصول المهني مع حالة حقوق واضحة.</li>
         <li>20 دليل حالة مؤسسيًا مع فريق وحزمة مقاييس وكورس ومخرجات تقرير.</li>
         <li>سجل خدمات ونتائج خارجية دون نسخ بنود أو مفاتيح تصحيح محمية.</li>
@@ -92,6 +135,7 @@
     const observer = new MutationObserver(() => {
       replaceText(target);
       applyTabSemantics();
+      if (document.documentElement.dataset.explorerSaturation !== "ready") enforceExplorerContract();
     });
     observer.observe(target, { childList: true, subtree: true, characterData: true });
   };
