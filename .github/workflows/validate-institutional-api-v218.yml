@@ -7,8 +7,10 @@ on:
       - "content/integrations/**"
       - "scripts/import_authorized_courses_v215.py"
       - "scripts/publish_public_api_v215.py"
+      - "scripts/publish_public_api_v215_core.py"
       - "scripts/apply_homepage_v20.py"
       - "tests/test_public_api_v215.py"
+      - "tests/test_public_api_permission_revalidation_v218.py"
       - "tests/test_course_source_network_contract_v218.py"
       - ".github/workflows/validate-institutional-api-v218.yml"
   push:
@@ -17,8 +19,10 @@ on:
       - "content/integrations/**"
       - "scripts/import_authorized_courses_v215.py"
       - "scripts/publish_public_api_v215.py"
+      - "scripts/publish_public_api_v215_core.py"
       - "scripts/apply_homepage_v20.py"
       - "tests/test_public_api_v215.py"
+      - "tests/test_public_api_permission_revalidation_v218.py"
       - "tests/test_course_source_network_contract_v218.py"
       - ".github/workflows/validate-institutional-api-v218.yml"
   schedule:
@@ -50,13 +54,16 @@ jobs:
           python -m py_compile \
             scripts/import_authorized_courses_v215.py \
             scripts/publish_public_api_v215.py \
+            scripts/publish_public_api_v215_core.py \
             tests/test_public_api_v215.py \
+            tests/test_public_api_permission_revalidation_v218.py \
             tests/test_course_source_network_contract_v218.py
 
-      - name: Test permission expiry SSRF DNS pinning sanitation and API compatibility
+      - name: Test permission expiry SSRF DNS pinning publication revalidation sanitation and API compatibility
         run: |
           python -m unittest -v \
             tests.test_public_api_v215 \
+            tests.test_public_api_permission_revalidation_v218 \
             tests.test_course_source_network_contract_v218
 
       - name: Audit enabled permission windows without fetching feeds
