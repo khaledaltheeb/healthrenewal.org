@@ -145,4 +145,10 @@
     if (typeof dialog.close === "function") dialog.close();
     else dialog.removeAttribute("open");
   }, true);
+
+  const lifecycleScript = document.createElement("script");
+  lifecycleScript.src = "professional-record-lifecycle.js";
+  lifecycleScript.defer = true;
+  lifecycleScript.dataset.module = "professional-record-lifecycle";
+  document.head.appendChild(lifecycleScript);
 })();
