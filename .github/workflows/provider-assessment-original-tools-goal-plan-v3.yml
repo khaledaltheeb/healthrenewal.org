@@ -44,10 +44,14 @@ jobs:
           node --check provider-assessment-demo/original-tools-progress-plan-bridge-v3.js
           node --check provider-assessment-demo/original-tools-progress-plan-v3.js
           node --check provider-assessment-demo/tests/original-tools-progress-plan.spec.cjs
-          grep -q 'pa-original-progress-plans-v3' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'pa-original-progress-plan-v3' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'pa-original-progress-plan-export-v3' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'embedded-in-case-record' provider-assessment-demo/original-tools-progress-plan-v3.js
           grep -q 'plan_revised' provider-assessment-demo/original-tools-progress-plan-v3.js
           grep -q 'edit_reason_required' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'human-review-required-not-diagnostic-not-norm-referenced' provider-assessment-demo/original-tools-progress-plan-v3.js
           grep -q 'لا تعلن المنصة تحقق الهدف آليًا' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'persistStore' provider-assessment-demo/original-tools-progress-plan-bridge-v3.js
           grep -q 'original-tools-progress-plan-bridge-v3.js' provider-assessment-demo/institutional-live-v2.js
           grep -q 'original-tools-progress-plan-v3.js' provider-assessment-demo/institutional-live-v2.js
           ! grep -Eq 'XMLHttpRequest|WebSocket|sendBeacon\(|EventSource\(|fetch\(|eval\(|new Function\(' provider-assessment-demo/original-tools-progress-plan-bridge-v3.js provider-assessment-demo/original-tools-progress-plan-v3.js
