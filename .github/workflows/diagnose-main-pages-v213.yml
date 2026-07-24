@@ -22,84 +22,49 @@ jobs:
       EVIDENCE_ISSUE: "181"
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Query current main, workflow runs, and Pages deployments
+      - name: Query concise main and Pages state
         run: |
           python - <<'PY'
           import json, os, urllib.request
           from pathlib import Path
-          repo=os.environ['GITHUB_REPOSITORY']
-          token=os.environ['GH_TOKEN']
-          headers={
-              'Authorization':f'Bearer {token}',
-              'Accept':'application/vnd.github+json',
-              'X-GitHub-Api-Version':'2022-11-28',
-              'User-Agent':'pterminology-live-diagnostics-v213',
-          }
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'pterminology-live-diagnostics-v213'}
           def get(path):
-              request=urllib.request.Request(f'https://api.github.com/repos/{repo}{path}',headers=headers)
-              with urllib.request.urlopen(request,timeout=30) as response:
+              req=urllib.request.Request(f'https://api.github.com/repos/{repo}{path}',headers=headers)
+              with urllib.request.urlopen(req,timeout=30) as response:
                   return json.loads(response.read().decode('utf-8'))
           current=get('/git/ref/heads/main')['object']['sha']
           runs=get('/actions/runs?branch=main&per_page=100')['workflow_runs']
-          names={
-              'Validate every assessment and cognitive tool v31',
-              'Deploy validated main to GitHub Pages',
-              'Validate provider assessment browser flows',
-              'Validate provider assessment institutional live v2',
-          }
+          wanted={'Validate every assessment and cognitive tool v31','Deploy validated main to GitHub Pages'}
           selected=[]
           for run in runs:
-              if run.get('name') in names or run.get('head_sha') in {
-                  'db7be924e956d14bebf0d8f540564f819166f314',
-                  '476eee33ed5033175ed07f8b82ba161653f8d40e',
-                  '6a149a04b681cf4d5aa7b77c047d7584093171ff',
-              }:
-                  selected.append({key:run.get(key) for key in ('id','name','event','head_branch','head_sha','status','conclusion','run_number','created_at','updated_at','html_url')})
+              if run.get('name') in wanted:
+                  selected.append({key:run.get(key) for key in ('id','name','event','head_sha','status','conclusion','run_number','created_at','updated_at','html_url')})
+              if len(selected)>=12: break
           deployments=[]
-          try:
-              raw=get('/deployments?environment=github-pages&per_page=10')
-              for deployment in raw:
-                  item={key:deployment.get(key) for key in ('id','sha','ref','environment','created_at','updated_at')}
-                  try:
-                      statuses=get(f"/deployments/{deployment['id']}/statuses?per_page=3")
-                      item['statuses']=[{key:status.get(key) for key in ('state','description','environment_url','created_at','updated_at')} for status in statuses]
-                  except Exception as exc:
-                      item['status_error']=repr(exc)
-                  deployments.append(item)
-          except Exception as exc:
-              deployments=[{'error':repr(exc)}]
+          for deployment in get('/deployments?environment=github-pages&per_page=5'):
+              item={key:deployment.get(key) for key in ('id','sha','ref','environment','created_at','updated_at')}
+              statuses=get(f"/deployments/{deployment['id']}/statuses?per_page=2")
+              item['statuses']=[{key:status.get(key) for key in ('state','description','environment_url','created_at','updated_at')} for status in statuses]
+              deployments.append(item)
           try:
               pages=get('/pages')
-              pages={key:pages.get(key) for key in ('status','html_url','build_type','source','public')}
+              pages={key:pages.get(key) for key in ('status','html_url','build_type','public')}
           except Exception as exc:
               pages={'error':repr(exc)}
-          report={
-              'current_main_sha':current,
-              'target_stroop_merge':'db7be924e956d14bebf0d8f540564f819166f314',
-              'target_is_current_main':current=='db7be924e956d14bebf0d8f540564f819166f314',
-              'relevant_runs':selected[:40],
-              'github_pages':pages,
-              'deployments':deployments,
-          }
+          report={'current_main_sha':current,'target_stroop_merge':'db7be924e956d14bebf0d8f540564f819166f314','latest_validation_and_deploy_runs':selected,'github_pages':pages,'latest_pages_deployments':deployments}
           Path('/tmp/main-pages-diagnostic-v213.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
           print(json.dumps(report,ensure_ascii=False,indent=2))
           PY
 
-      - name: Publish diagnostics to issue
+      - name: Publish concise diagnostics to issue
         if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const report = fs.existsSync('/tmp/main-pages-diagnostic-v213.json')
-              ? fs.readFileSync('/tmp/main-pages-diagnostic-v213.json','utf8')
-              : '{"status":"diagnostic file missing"}';
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: Number(process.env.EVIDENCE_ISSUE),
-              body: `## Main and Pages diagnostic — run ${context.runId}\n\n\`\`\`json\n${report}\n\`\`\``
-            });
+            const report = fs.existsSync('/tmp/main-pages-diagnostic-v213.json') ? fs.readFileSync('/tmp/main-pages-diagnostic-v213.json','utf8') : '{"status":"missing"}';
+            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## Concise Main/Pages diagnostic — run ${context.runId}\n\n\`\`\`json\n${report}\n\`\`\``});
 
       - name: Upload diagnostic evidence
         if: always()
