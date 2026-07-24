@@ -1,0 +1,83 @@
+name: Validate original tools goal plans v3
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "provider-assessment-demo/original-tools-progress-plan-v3.js"
+      - "provider-assessment-demo/original-tools-progress-plan-bridge-v3.js"
+      - "provider-assessment-demo/original-tools-progress-v1.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/tests/original-tools-progress-plan.spec.cjs"
+      - ".github/workflows/provider-assessment-original-tools-goal-plan-v3.yml"
+  push:
+    branches: [main]
+    paths:
+      - "provider-assessment-demo/original-tools-progress-plan-v3.js"
+      - "provider-assessment-demo/original-tools-progress-plan-bridge-v3.js"
+      - "provider-assessment-demo/original-tools-progress-v1.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/tests/original-tools-progress-plan.spec.cjs"
+      - ".github/workflows/provider-assessment-original-tools-goal-plan-v3.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: original-tools-goal-plan-v3-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-goal-plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate JavaScript and rights-safe contract
+        run: |
+          node --check provider-assessment-demo/original-tools-progress-plan-bridge-v3.js
+          node --check provider-assessment-demo/original-tools-progress-plan-v3.js
+          node --check provider-assessment-demo/tests/original-tools-progress-plan.spec.cjs
+          grep -q 'pa-original-progress-plans-v3' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'plan_revised' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'edit_reason_required' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'لا تعلن المنصة تحقق الهدف آليًا' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'original-tools-progress-plan-bridge-v3.js' provider-assessment-demo/institutional-live-v2.js
+          grep -q 'original-tools-progress-plan-v3.js' provider-assessment-demo/institutional-live-v2.js
+          ! grep -Eq 'XMLHttpRequest|WebSocket|sendBeacon\(|EventSource\(|fetch\(|eval\(|new Function\(' provider-assessment-demo/original-tools-progress-plan-bridge-v3.js provider-assessment-demo/original-tools-progress-plan-v3.js
+          ! grep -Eqi 'scoring key|norm table|item bank|مفتاح التصحيح|جداول المعايير|بنود الاختبار' provider-assessment-demo/original-tools-progress-plan-bridge-v3.js provider-assessment-demo/original-tools-progress-plan-v3.js
+
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.61.0
+          npx playwright install --with-deps chromium
+
+      - name: Run goal plan workflow in Chromium
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory . >/tmp/original-goal-plan-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            curl --fail --silent http://127.0.0.1:4173/provider-assessment-demo/ >/dev/null && break
+            [ "$attempt" -eq 30 ] && { cat /tmp/original-goal-plan-http.log; exit 1; }
+            sleep 1
+          done
+          npx playwright test provider-assessment-demo/tests/original-tools-progress-plan.spec.cjs --config=provider-assessment-demo/tests/playwright.config.cjs
+
+      - name: Upload diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: original-tools-goal-plan-v3-diagnostics
+          path: |
+            test-results/
+            /tmp/original-goal-plan-http.log
+          if-no-files-found: ignore
+          retention-days: 7
