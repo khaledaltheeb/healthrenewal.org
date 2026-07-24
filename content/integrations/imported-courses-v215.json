@@ -1,0 +1,17 @@
+{
+  "schema_version": 215,
+  "security_contract_version": 218,
+  "generated_at": null,
+  "status": "no-approved-sources",
+  "sources_processed": 0,
+  "courses": [],
+  "security": {
+    "permission_window_required": true,
+    "https_port": 443,
+    "redirects_checked_before_request": true,
+    "dns_public_addresses_only": true,
+    "proxies_disabled": true,
+    "maximum_response_bytes": 5000000,
+    "maximum_courses_per_source": 5000
+  }
+}
