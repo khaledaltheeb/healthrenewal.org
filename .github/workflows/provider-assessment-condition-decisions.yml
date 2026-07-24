@@ -1,0 +1,119 @@
+name: Validate Assessment Condition Decision Guides
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/conditions/**"
+      - ".github/workflows/provider-assessment-condition-decisions.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/conditions/**"
+      - ".github/workflows/provider-assessment-condition-decisions.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: assessment-condition-decisions-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-decision-guides:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check provider-assessment-demo/conditions/conditions-data-v1.js
+          node --check provider-assessment-demo/conditions/conditions-ui-v1.js
+          node --check provider-assessment-demo/conditions/condition-education-v1.js
+          node --check provider-assessment-demo/conditions/condition-decision-guide-v2.js
+
+      - name: Validate twenty condition-specific decision profiles
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const vm = require('vm');
+          const context = { window: {} };
+          vm.runInNewContext(fs.readFileSync('provider-assessment-demo/conditions/conditions-data-v1.js','utf8'), context);
+          const registry = context.window.PA_CONDITION_PATHWAYS;
+          const guide = fs.readFileSync('provider-assessment-demo/conditions/condition-decision-guide-v2.js','utf8');
+          const ui = fs.readFileSync('provider-assessment-demo/conditions/conditions-ui-v1.js','utf8');
+          const errors = [];
+
+          if (registry.conditions.length !== 20) errors.push(`expected 20 conditions, found ${registry.conditions.length}`);
+          for (const condition of registry.conditions) {
+            if (!guide.includes(`"${condition.slug}": {`)) errors.push(`decision profile missing ${condition.slug}`);
+          }
+          for (const marker of [
+            'المسح أو الفرز','التقييم التشخيصي','التقييم الوظيفي','متابعة التقدم',
+            'ما الذي تحضره الأسرة ومقدم الخدمة؟','عند اختلاف النتائج أو ضعف صلاحيتها',
+            'قالب تسليم الحالة بين أعضاء الفريق','حقوق الأدوات والتكامل الرسمي',
+            'data-decision-quiz','data-check-decision-quiz','pa-condition-decision-quiz-v2',
+            'لا تُنسخ البنود أو الصور أو جداول المعايير أو مفاتيح التصحيح',
+            'لا تُعامل الدرجة كأنها معيارية','لا إغلاق آلي','لا تؤخر مسار الطوارئ عند خطر مباشر'
+          ]) if (!guide.includes(marker)) errors.push(`guide missing ${marker}`);
+
+          const quizQuestions = [...guide.matchAll(/id: "(?:positive-screen|different-settings|protected-tool|progress-measure)"/g)].length;
+          if (quizQuestions !== 4) errors.push(`expected four decision quiz questions, found ${quizQuestions}`);
+
+          for (const source of [
+            'https://www.who.int/standards/classifications/international-classification-of-functioning-disability-and-health',
+            'https://www.aap.org/en/patient-care/developmental-surveillance-and-screening-patient-care/',
+            'https://www.cdc.gov/act-early/about/developmental-monitoring-and-screening.html',
+            'https://sites.ed.gov/idea/regs/b/d/300.304'
+          ]) if (!guide.includes(source)) errors.push(`authoritative source missing ${source}`);
+
+          for (const marker of [
+            'appendModule','condition-education-v1.js?v=20260724-content1',
+            'condition-decision-guide-v2.js?v=20260725-decision2',
+            'await appendModule','data-module-load-error'
+          ]) if (!ui.includes(marker)) errors.push(`sequential loader missing ${marker}`);
+
+          const combined = `${guide}\n${ui}`;
+          for (const token of ['fetch(','XMLHttpRequest','WebSocket','sendBeacon(','EventSource(','eval(','new Function(']) {
+            if (combined.includes(token)) errors.push(`network or unsafe API forbidden: ${token}`);
+          }
+          for (const overclaim of ['يشخّص تلقائيًا','يثبت التشخيص تلقائيًا','يضمن التشخيص','بديل عن المختص']) {
+            if (combined.includes(overclaim)) errors.push(`diagnostic overclaim forbidden: ${overclaim}`);
+          }
+
+          if (errors.length) throw new Error(errors.join('\n'));
+          console.log({
+            conditions: 20,
+            assessmentTypes: 4,
+            tailoredDecisionProfiles: 20,
+            quizQuestions: 4,
+            familyProviderEducation: true,
+            caseHandoffTemplate: true,
+            rightsSafeguards: true,
+            authoritativeSources: 4,
+            localOnly: true,
+            status: 'passed'
+          });
+          NODE
+
+      - name: Validate Arabic pages, RTL, links and source wiring
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const vm = require('vm');
+          const context = { window: {} };
+          vm.runInNewContext(fs.readFileSync('provider-assessment-demo/conditions/conditions-data-v1.js','utf8'), context);
+          const errors = [];
+          for (const condition of context.window.PA_CONDITION_PATHWAYS.conditions) {
+            const file = path.join('provider-assessment-demo/conditions', condition.slug, 'index.html');
+            const html = fs.readFileSync(file,'utf8');
+            for (const marker of ['<html lang="ar" dir="rtl"','<main','id="condition-root"','../conditions-data-v1.js','../conditions-ui-v1.js']) {
+              if (!html.includes(marker)) errors.push(`${condition.slug}: missing ${marker}`);
+            }
+          }
+          if (errors.length) throw new Error(errors.join('\n'));
+          console.log({pages:20, lang:'ar', direction:'rtl', mainLandmark:true, sharedLoader:true});
+          NODE
