@@ -1,167 +1,98 @@
-{
-  "version": 201,
-  "status": "active-execution-contract",
-  "updated_at": "2026-07-24",
-  "platform_name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
-  "founding_name": "مصطلحات علم النفس",
-  "slogan_candidate": "معرفة تحترم الإنسان. دعم يوسّع الإمكانات.",
-  "principles": [
-    "العدد هدف توسع لا مبرر لصفحات رقيقة أو مكررة.",
-    "لا تحتسب الصفحة قبل وجود عنوان وH1 وmeta description وcanonical وSchema وروابط داخلية مناسبة.",
-    "لا تحتسب الصفحة الصحية الحساسة قبل اكتمال المصادر والمراجعة المطلوبة.",
-    "لا تنشر مادة تحمل needs-specialist-review أو needs-external-review أو needs-review.",
-    "لا تستخدم ألفاظ معاق أو معاقين أو معاقون لوصف الأشخاص؛ تستخدم ذوو أو ذوي الاحتياجات الخاصة وفق السياق.",
-    "يبقى مصطلح الإعاقة متاحًا عندما يكون مفهومًا علميًا أو قانونيًا أو وظيفيًا لازمًا.",
-    "كل صفحة إنتاجية يجب أن تحتوي ترويسة وتذييلًا ومسار تنقل واضحًا.",
-    "الأرقام المعروضة على الصفحة الرئيسية تستخرج من تقرير الإنتاج ولا تكتب يدويًا دون إثبات."
-  ],
-  "quality_contract": {
-    "unique_slug": true,
-    "unique_title": true,
-    "unique_canonical": true,
-    "exactly_one_h1": true,
-    "meta_description_min_chars": 90,
-    "meta_description_max_chars": 180,
-    "requires_internal_links": 3,
-    "requires_authoritative_sources": 2,
-    "requires_visible_limits": true,
-    "requires_when_to_seek_help": true,
-    "requires_rtl_and_arabic_lang": true,
-    "requires_header": true,
-    "requires_footer": true,
-    "forbid_duplicate_body_ratio_above": 0.72,
-    "forbid_placeholder_phrases": [
-      "قيد الإعداد",
-      "قيد التوسع",
-      "سيتم الإضافة لاحقًا",
-      "محتوى قريبًا",
-      "لوريم إيبسوم"
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+LABEL_OLD = '<label class="field"><span>البحث داخل المركز</span>'
+LABEL_NEW = '<label class="field" for="hub-search"><span>البحث داخل المركز</span>'
+INPUT_OLD = '<input id="hub-search" type="search" placeholder='
+INPUT_NEW = '<input id="hub-search" type="search" aria-label="البحث داخل مركز ذوي الاحتياجات الخاصة" placeholder='
+
+
+def run_batch(site: Path, version: int, script_name: str) -> dict[str, object]:
+    publisher = Path(__file__).with_name(script_name)
+    subprocess.run([sys.executable, str(publisher), str(site)], check=True)
+    report_path = site / "api" / f"special-needs-guides-v{version}.json"
+    if not report_path.is_file():
+        raise SystemExit(f"v{version} publisher completed without an evidence report")
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    if report.get("guide_count") != 5 or not report.get("hub_linked"):
+        raise SystemExit(f"Invalid v{version} guide report: {report}")
+    return report
+
+
+def finalize(site: Path) -> dict[str, object]:
+    page = site / "special-needs" / "index.html"
+    if not page.is_file():
+        raise SystemExit(f"Missing generated special-needs hub: {page}")
+
+    text = page.read_text(encoding="utf-8")
+    if text.count('id="hub-search"') != 1:
+        raise SystemExit("Expected exactly one special-needs hub search input")
+
+    label_changed = False
+    input_changed = False
+    if 'for="hub-search"' not in text:
+        if LABEL_OLD not in text:
+            raise SystemExit("Special-needs search label marker changed; refusing unsafe accessibility patch")
+        text = text.replace(LABEL_OLD, LABEL_NEW, 1)
+        label_changed = True
+
+    if 'aria-label="البحث داخل مركز ذوي الاحتياجات الخاصة"' not in text:
+        if INPUT_OLD not in text:
+            raise SystemExit("Special-needs search input marker changed; refusing unsafe accessibility patch")
+        text = text.replace(INPUT_OLD, INPUT_NEW, 1)
+        input_changed = True
+
+    if text.count('for="hub-search"') != 1:
+        raise SystemExit("Search input must have exactly one explicit label association")
+    if text.count('aria-label="البحث داخل مركز ذوي الاحتياجات الخاصة"') != 1:
+        raise SystemExit("Search input must have exactly one accessible name")
+
+    page.write_text(text, encoding="utf-8")
+
+    report_path = site / "api" / "special-needs-hub-v201.json"
+    if report_path.is_file():
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+    else:
+        report = {"version": 201, "output": "special-needs/index.html"}
+    report["search_accessibility"] = {
+        "explicit_label_for": True,
+        "accessible_name": True,
+        "input_id": "hub-search",
+    }
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    batches = [
+        run_batch(site, 209, "publish_special_needs_guides_v209_compat.py"),
+        run_batch(site, 210, "publish_special_needs_guides_v210.py"),
+        run_batch(site, 211, "publish_special_needs_guides_v211.py"),
+        run_batch(site, 212, "publish_special_needs_guides_v212.py"),
+        run_batch(site, 214, "publish_special_needs_guides_v214.py"),
     ]
-  },
-  "targets": {
-    "encyclopedia": {
-      "label": "الموسوعة النفسية العربية",
-      "route": "encyclopedia",
-      "minimum_count": 10000,
-      "minimum_visible_words": 500,
-      "publication_batch_size": 25,
-      "current_confirmed_count": null,
-      "current_count_source": "pending-production-audit"
-    },
-    "practical_tips": {
-      "label": "النصائح النفسية العملية",
-      "route": "tips",
-      "minimum_count": 100,
-      "minimum_visible_words": 700,
-      "publication_batch_size": 10,
-      "current_confirmed_count": 20,
-      "current_count_source": "complete_core_sections_v15"
-    },
-    "care_guides": {
-      "label": "أدلة التعامل العملي مع الحالات النفسية",
-      "route": "care-guides",
-      "minimum_count": 100,
-      "minimum_visible_words": 800,
-      "publication_batch_size": 5,
-      "current_confirmed_count": null,
-      "current_count_source": "pending-production-audit"
-    },
-    "family": {
-      "label": "الصحة النفسية للأسرة",
-      "route": "sectors/family",
-      "minimum_count": 100,
-      "minimum_visible_words": 650,
-      "publication_batch_size": 10,
-      "current_confirmed_count": null,
-      "current_count_source": "pending-source-and-production-audit"
-    },
-    "child": {
-      "label": "الصحة النفسية للطفل",
-      "route": "sectors/child",
-      "minimum_count": 100,
-      "minimum_visible_words": 700,
-      "publication_batch_size": 10,
-      "current_confirmed_count": null,
-      "current_count_source": "pending-source-and-production-audit"
-    },
-    "home_family": {
-      "label": "الصحة النفسية للعائلة",
-      "route": "sectors/home",
-      "minimum_count": 100,
-      "minimum_visible_words": 650,
-      "publication_batch_size": 10,
-      "current_confirmed_count": null,
-      "current_count_source": "pending-source-and-production-audit"
-    },
-    "special_needs": {
-      "label": "ذوو الاحتياجات الخاصة والتربية الدامجة",
-      "route": "special-needs",
-      "minimum_count": 300,
-      "minimum_visible_words": 750,
-      "pillar_minimum_visible_words": 1200,
-      "publication_batch_size": 5,
-      "current_confirmed_count": 25,
-      "current_count_source": "special-needs-guides-v209-v214-production-build",
-      "required_taxonomy": [
-        "التربية الدامجة والتكييفات التعليمية",
-        "التدخل المبكر والنمو",
-        "التواصل واللغة والتواصل المعزز والبديل",
-        "التوحد",
-        "الاحتياجات الذهنية والسلوك التكيفي",
-        "السمع والصمم",
-        "البصر وضعف البصر",
-        "الحركة والشلل الدماغي",
-        "التعلم والانتباه والوظائف التنفيذية",
-        "الحواس والتنظيم اليومي",
-        "الأسرة ومقدم الرعاية والإخوة",
-        "الحماية من الاستغلال والإساءة والتنمر",
-        "الانتقال إلى الرشد والعمل والاستقلال",
-        "التكنولوجيا المساندة والإتاحة الرقمية",
-        "الخدمات والمراكز واختيار مقدم الخدمة",
-        "الحقوق والمشاركة المجتمعية"
-      ]
+    total_guides = sum(int(batch["guide_count"]) for batch in batches)
+
+    result = {
+        "version": 201,
+        "page": "special-needs/index.html",
+        "label_changed": label_changed,
+        "input_changed": input_changed,
+        "explicit_label_for": True,
+        "accessible_name": True,
+        "special_needs_guides_versions": [209, 210, 211, 212, 214],
+        "special_needs_guides": total_guides,
+        "special_needs_batches": len(batches),
     }
-  },
-  "parallel_workstreams": [
-    {
-      "id": "language-identity",
-      "responsibility": "اللغة والهوية والشعار والصفحة الرئيسية والهيدر والفوتر"
-    },
-    {
-      "id": "encyclopedia",
-      "responsibility": "جرد الموسوعة وبناء خريطة 10000 مدخل وإنتاج الدفعات"
-    },
-    {
-      "id": "tips-care-guides",
-      "responsibility": "النصائح العملية وأدلة التعامل مع الحالات"
-    },
-    {
-      "id": "family-child-home",
-      "responsibility": "الأسرة والطفل والعائلة والمواقف اليومية الأكثر شيوعًا"
-    },
-    {
-      "id": "special-needs-inclusive-education",
-      "responsibility": "ذوو الاحتياجات الخاصة والتربية الدامجة والإتاحة والحماية والانتقال"
-    },
-    {
-      "id": "recovery-publication",
-      "responsibility": "تدقيق الأعمال غير المنشورة واستعادة الصالح منها على أحدث main"
-    },
-    {
-      "id": "research-seo-quality",
-      "responsibility": "البحث المرجعي وتحليل المواقع المهمة وSEO والميتا والجودة والتحديث"
-    }
-  ],
-  "publication_states": [
-    "planned",
-    "researched",
-    "drafted",
-    "internally-reviewed",
-    "needs-specialist-review",
-    "approved-for-build",
-    "built-not-published",
-    "published-unverified",
-    "published-verified"
-  ],
-  "acceptance_rule": "لا تتحول المادة إلى published-verified إلا بعد نجاح البناء والتدقيق والروابط وSEO والإتاحة والسلامة وتطابق النسخة الحية مع SHA المنشور."
-}
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    return result
+
+
+if __name__ == "__main__":
+    target = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
+    if not target.is_dir():
+        raise SystemExit(f"Missing site directory: {target}")
+    finalize(target)
