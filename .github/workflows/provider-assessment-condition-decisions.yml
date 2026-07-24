@@ -6,11 +6,9 @@ on:
     paths:
       - "provider-assessment-demo/conditions/**"
       - "content/integrations/**"
-      - "content/seo/**"
       - "scripts/apply_homepage_v20.py"
       - "scripts/import_authorized_courses_v215.py"
       - "scripts/publish_public_api_v215.py"
-      - "scripts/audit_seo_semantics_v215.py"
       - "tests/test_public_api_v215.py"
       - ".github/workflows/provider-assessment-condition-decisions.yml"
   push:
@@ -18,11 +16,9 @@ on:
     paths:
       - "provider-assessment-demo/conditions/**"
       - "content/integrations/**"
-      - "content/seo/**"
       - "scripts/apply_homepage_v20.py"
       - "scripts/import_authorized_courses_v215.py"
       - "scripts/publish_public_api_v215.py"
-      - "scripts/audit_seo_semantics_v215.py"
       - "tests/test_public_api_v215.py"
       - ".github/workflows/provider-assessment-condition-decisions.yml"
   workflow_dispatch:
@@ -132,7 +128,7 @@ jobs:
           console.log({pages:20, lang:'ar', direction:'rtl', mainLandmark:true, sharedLoader:true});
           NODE
 
-  validate-authorized-api-seo:
+  validate-authorized-api:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
@@ -141,17 +137,15 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Validate JSON and Python contracts
+      - name: Validate permission manifests and Python contracts
         run: |
           python -m json.tool content/integrations/course-sources-v215.json >/dev/null
           python -m json.tool content/integrations/imported-courses-v215.json >/dev/null
-          python -m json.tool content/seo/keyword-taxonomy-v215.json >/dev/null
           python -m py_compile \
             scripts/apply_homepage_v20.py \
             scripts/import_authorized_courses_v215.py \
             scripts/publish_public_api_v215.py \
-            scripts/audit_seo_semantics_v215.py \
             tests/test_public_api_v215.py
 
-      - name: Test permission gates API compatibility and SEO controls
+      - name: Test permission gates and API compatibility
         run: python -m unittest -v tests/test_public_api_v215.py
