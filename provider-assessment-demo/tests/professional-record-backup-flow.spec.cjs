@@ -48,6 +48,15 @@ test("professional record lifecycle, encrypted backup merge, and rollback remain
   await page.locator('#professional-record-form [name="scoreReference"]').fill("EXT-REPORT-2026-001");
   await page.locator('#professional-record-form [name="nextAction"]').selectOption("team_review");
   await page.locator('#professional-record-form [name="notes"]').fill("لم تُنسخ بنود أو مفاتيح تصحيح أو معايير؛ سُجل مرجع التقرير فقط.");
+  await page.locator('#professional-record-form [name="detail_purpose"]').selectOption("planning");
+  await page.locator('#professional-record-form [name="detail_setting"]').selectOption("multiple");
+  await page.locator('#professional-record-form [name="detail_validity"]').selectOption("qualified");
+  await page.locator('#professional-record-form [name="detail_informants"][value="records"]').check();
+  await page.locator('#professional-record-form [name="detail_informants"][value="provider"]').check();
+  await page.locator('#professional-record-form [name="detail_limitations"]').fill("التفسير محدود بملخص التقرير الخارجي والسياقات المتاحة للمراجعة.");
+  await page.locator('#professional-record-form [name="detail_result_summary"]').fill("مرجع نتيجة خارجية قيد المراجعة؛ لا توجد مواد محمية داخل المنصة.");
+  await page.locator('#professional-record-form [name="detail_domain_findings"]').fill("تحتاج النتيجة إلى دمجها مع التاريخ والملاحظة والسياق الوظيفي.");
+  await page.locator('#professional-record-form [name="detail_recommendations"]').fill("مراجعة الفريق وتحديد الحاجة إلى مصدر مكمل قبل اتخاذ القرار.");
   await page.locator('#professional-record-form [name="rightsConfirmed"]').check();
   await page.locator('#professional-record-form button[type="submit"]').click();
 
