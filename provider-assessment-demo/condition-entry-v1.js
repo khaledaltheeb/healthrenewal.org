@@ -12,6 +12,21 @@
   const slug = requestedSlug || stored?.slug || "";
   const condition = registry.conditions.find((item) => item.slug === slug);
 
+  const currentPathway = () => {
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem("pa-selected-condition-v1") || "null"); } catch (_) {}
+    const currentParams = new URLSearchParams(window.location.search);
+    const activeSlug = currentParams.get("condition") || saved?.slug || "";
+    const item = registry.conditions.find((candidate) => candidate.slug === activeSlug);
+    return item ? {
+      slug: item.slug,
+      title: item.title,
+      summary: item.summary,
+      registryVersion: registry.version,
+      selectedAt: saved?.selectedAt || new Date().toISOString()
+    } : null;
+  };
+
   const openView = (name) => {
     const tab = document.querySelector(`[data-view="${name}"]`);
     if (tab) {
@@ -41,6 +56,24 @@
       link.textContent = "استعراض الحالات العشرين";
       heroActions.appendChild(link);
     }
+  };
+
+  const bindPathwayToCaseCreation = () => {
+    if (typeof makeCase !== "function" || makeCase.pathwayAware === true) return;
+    const originalMakeCase = makeCase;
+    const pathwayAwareMakeCase = function pathwayAwareMakeCase(formData) {
+      const caseRecord = originalMakeCase(formData);
+      const pathway = currentPathway();
+      if (caseRecord && pathway) {
+        caseRecord.conditionPathway = pathway;
+        caseRecord.updatedAt = new Date().toISOString();
+        save();
+        render();
+      }
+      return caseRecord;
+    };
+    pathwayAwareMakeCase.pathwayAware = true;
+    makeCase = pathwayAwareMakeCase;
   };
 
   const showContext = () => {
@@ -77,6 +110,7 @@
     const routeMap = {
       professional: "professional",
       records: "professional-records",
+      reports: "reports",
       cases: "cases",
       explorers: "explorers",
       guide: "guide",
@@ -87,13 +121,14 @@
     let attempts = 0;
     const route = () => {
       attempts += 1;
-      if (openView(target) || attempts >= 12) return;
+      if (openView(target) || attempts >= 16) return;
       setTimeout(route, 80);
     };
     requestAnimationFrame(route);
   };
 
   addConditionsLink();
+  bindPathwayToCaseCreation();
   showContext();
   routeRequestedView();
 
