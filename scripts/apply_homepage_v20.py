@@ -268,12 +268,9 @@ def main() -> None:
         "target_counts_are_labeled": False,
         "production_counts_are_contextualized": True,
         "operational_copy_hidden": True,
-        "semantic_keyword_taxonomy": 215,
-        "controlled_meta_keywords_limit": 15,
         "public_api_publisher": 215,
         "authorized_course_importer": 215,
         "course_permission_policy": "deny-by-default",
-        "seo_semantic_audit": 215,
         "light_palette": True,
         "core_sections_linked": True,
         "api_v1_published": True,
@@ -297,6 +294,7 @@ def main() -> None:
         "health_publication_gate": 192,
         "internal_base_path_normalizer": 198,
         "cognitive_lab_inventory_publisher": 210,
+        "sitewide_seo_publisher": 216,
     }
     if report["target_sha256"] != expected_target_sha:
         raise SystemExit("Homepage transformed output hash mismatch")
@@ -331,8 +329,9 @@ def main() -> None:
     run_publisher("publish_accessible_arabic_content_v190.py")
     register_sitemap("sitemap-accessible-arabic-content.xml")
     publish_api_sitemap()
+    run_publisher("enhance_sitewide_seo_v216.py")
+    run_publisher("verify_sitewide_seo_v216.py")
     run_publisher("enforce_health_publication_gate_v192.py")
-    run_publisher("audit_seo_semantics_v215.py")
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 
