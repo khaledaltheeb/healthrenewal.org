@@ -1,7 +1,7 @@
 "use strict";
 
 (() => {
-  const RELEASE = "2026.07.24-live.2";
+  const RELEASE = "2026.07.24-live.3";
   const PATH = "/pterminology-site/provider-assessment-demo/";
 
   const replaceText = (root = document) => {
@@ -46,6 +46,7 @@
         <li>سجل حالات وجلسات ونتائج متكررة محفوظ محليًا.</li>
         <li>20 أداة استكشافية أصلية تعمل مباشرة.</li>
         <li>${count} مقياسًا وفحصًا وبروتوكولًا بمسار عمل مهني فعّال.</li>
+        <li>دليل مؤسسي لمسارات التقييم في 20 حالة ومجالًا.</li>
         <li>الإصدار الحي: ${RELEASE}.</li>`;
     }
 
@@ -77,6 +78,15 @@
     observer.observe(target, { childList: true, subtree: true, characterData: true });
   };
 
+  const loadAssessmentPathways = () => {
+    if (document.querySelector('script[data-assessment-pathways]')) return;
+    const script = document.createElement("script");
+    script.src = `assessment-pathways-content.js?release=${encodeURIComponent(RELEASE)}`;
+    script.defer = true;
+    script.dataset.assessmentPathways = RELEASE;
+    document.head.appendChild(script);
+  };
+
   const refreshOldCaches = async () => {
     try {
       const key = "pa-live-release";
@@ -97,6 +107,7 @@
   window.addEventListener("DOMContentLoaded", () => {
     applyInstitutionalCopy();
     observeOperationalUi();
+    loadAssessmentPathways();
     refreshOldCaches();
     requestAnimationFrame(() => requestAnimationFrame(applyInstitutionalCopy));
   });
