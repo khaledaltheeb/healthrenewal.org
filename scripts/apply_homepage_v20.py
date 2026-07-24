@@ -13,6 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 SOURCE = ROOT / "index.html"
 TARGET = SITE / "index.html"
+BRAND_SOURCE = ROOT / "assets" / "brand"
+BRAND_TARGET = SITE / "assets" / "brand"
 LAB_TOOL_COUNT = 93
 
 
@@ -33,6 +35,21 @@ def restore_static_route(route: str) -> int:
     if not pages:
         raise SystemExit(f"Restored static route has no HTML pages: {route}")
     return len(pages)
+
+
+def restore_brand_assets() -> list[str]:
+    if not BRAND_SOURCE.is_dir():
+        raise SystemExit("Missing institutional brand assets")
+    required = {"platform-logo.svg", "platform-social-card.svg"}
+    available = {path.name for path in BRAND_SOURCE.glob("*.svg")}
+    missing = sorted(required - available)
+    if missing:
+        raise SystemExit(f"Missing required brand assets: {missing}")
+    shutil.copytree(BRAND_SOURCE, BRAND_TARGET, dirs_exist_ok=True)
+    copied = sorted(path.name for path in BRAND_TARGET.glob("*.svg"))
+    if not required.issubset(copied):
+        raise SystemExit("Institutional brand asset copy failed")
+    return copied
 
 
 def synchronize_homepage_lab_inventory(text: str) -> str:
@@ -126,7 +143,7 @@ def main() -> None:
     text = synchronize_homepage_lab_inventory(source_text)
     required = [
         '<html lang="ar" dir="rtl">',
-        '<h1>',
+        '<h1',
         'href="encyclopedia/"',
         'href="tips/"',
         'href="assessment-lab/"',
@@ -134,8 +151,11 @@ def main() -> None:
         'href="sectors/family/"',
         'href="special-needs/"',
         'href="care-guides/"',
+        'href="developers/"',
+        'assets/brand/platform-logo.svg',
         'rel="manifest"',
         'application/ld+json',
+        '"@type":"FAQPage"',
         'color-scheme" content="light"',
         'منصة الصحة النفسية وذوي الاحتياجات الخاصة',
         'معرفة تحترم الإنسان. دعم يوسّع الإمكانات.',
@@ -152,42 +172,61 @@ def main() -> None:
         '2000+',
         'قيد الإعداد',
         'قيد التوسع',
+        'خطة نمو قابلة للقياس',
+        'الأهداف الدنيا للمحتوى',
+        'هدف توسع',
+        'خط أساس المصدر الحالي',
+        'مسار مستقبلي للحسابات المؤسسية',
+        'لا نشر قبل البوابات',
+        'built-not-published',
         '<strong>88</strong><span>مقياسًا وأداة وقدرة معرفية',
         '<strong>92</strong><span>مقياسًا وأداة وقدرة معرفية',
     ]
     found = [item for item in forbidden if item in text]
     if found:
-        raise SystemExit(f"Homepage regression or placeholder detected: {found}")
-    if text.count('<h1>') != 1:
-        raise SystemExit(f"Expected exactly one H1, found {text.count('<h1>')}")
-    if len(re.findall(r'<h2\b', text)) < 4:
-        raise SystemExit("Homepage must contain at least four H2 sections")
-    if len(re.findall(r'<h3\b', text)) < 12:
+        raise SystemExit(f"Homepage regression placeholder or internal language detected: {found}")
+    h1_count = len(re.findall(r'<h1\b', text))
+    h2_count = len(re.findall(r'<h2\b', text))
+    h3_count = len(re.findall(r'<h3\b', text))
+    if h1_count != 1:
+        raise SystemExit(f"Expected exactly one H1, found {h1_count}")
+    if h2_count < 5:
+        raise SystemExit("Homepage must contain at least five H2 sections")
+    if h3_count < 12:
         raise SystemExit("Homepage must contain at least twelve H3 cards")
     TARGET.parent.mkdir(parents=True, exist_ok=True)
     TARGET.write_text(text, encoding="utf-8")
     restored_routes = {"provider-assessment-demo": restore_static_route("provider-assessment-demo")}
+    brand_assets = restore_brand_assets()
     expected_target_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
     report = {
-        "version": 210,
+        "version": 215,
         "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         "target_sha256": hashlib.sha256(TARGET.read_bytes()).hexdigest(),
         "source_transformed": True,
         "lab_tool_count": LAB_TOOL_COUNT,
         "lab_inventory_metadata_updated": True,
-        "h1": text.count('<h1>'),
-        "h2": len(re.findall(r'<h2\b', text)),
-        "h3": len(re.findall(r'<h3\b', text)),
+        "h1": h1_count,
+        "h2": h2_count,
+        "h3": h3_count,
         "brand": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
         "founding_name": "مصطلحات علم النفس",
         "slogan": "معرفة تحترم الإنسان. دعم يوسّع الإمكانات.",
         "target_counts_are_labeled": True,
+        "verified_counts_only": True,
+        "public_operational_language_removed": True,
+        "semantic_keyword_taxonomy": 215,
+        "meta_keywords_stuffing_blocked": True,
+        "brand_assets": brand_assets,
         "light_palette": True,
         "core_sections_linked": True,
         "restored_static_routes": restored_routes,
         "trust_center_publisher": 201,
         "partners_publisher": 201,
         "magazine_publisher": 201,
+        "public_api_publisher": 215,
+        "authorized_course_importer": 215,
+        "seo_semantic_audit": 215,
         "homepage_i18n_publisher": 72,
         "care_guides_publisher": 73,
         "special_needs_publisher": 201,
@@ -214,6 +253,9 @@ def main() -> None:
     run_publisher("finalize_trust_center_links_v71.py")
     run_publisher("publish_partners_v201.py")
     run_publisher("publish_magazine_v201.py")
+    run_publisher("import_authorized_courses_v215.py")
+    run_publisher("publish_public_api_v215.py")
+    register_sitemap("sitemap-developers.xml")
 
     run_publisher("publish_care_guides_v21.py")
     run_publisher("link_care_guides_v201.py")
@@ -230,6 +272,7 @@ def main() -> None:
     run_publisher("publish_accessible_arabic_content_v190.py")
     register_sitemap("sitemap-accessible-arabic-content.xml")
     run_publisher("enforce_health_publication_gate_v192.py")
+    run_publisher("audit_seo_semantics_v215.py")
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 
