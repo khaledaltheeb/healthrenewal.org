@@ -41,6 +41,8 @@ jobs:
           node --check provider-assessment-demo/professional-templates-v1.js
           node --check provider-assessment-demo/case-report-v1.js
           node --check provider-assessment-demo/case-report-interpretation-v2.js
+          node --check provider-assessment-demo/training/training-v1.js
+          node --check provider-assessment-demo/training/training-accessibility-v2.js
 
       - name: Validate operational registry and release assets
         run: |
@@ -54,7 +56,8 @@ jobs:
             'professional-record-lifecycle.js','professional-record-integrity.js','backup-integrity.js',
             'backup-large-file-patch.js','enhancements.js','conditions/conditions-data-v1.js',
             'condition-entry-v1.js','professional-templates-v1.js','case-report-v1.js',
-            'case-report-interpretation-v2.js','institutional-live-v2.js','sw-live-v2.js'
+            'case-report-interpretation-v2.js','institutional-live-v2.js','sw-live-v2.js',
+            'training/index.html','training/training-v1.js','training/training-accessibility-v2.js'
           ];
           for (const file of required) if (!fs.existsSync(base + file)) throw new Error(`Missing ${file}`);
           const html = fs.readFileSync(base + 'index.html','utf8');
@@ -64,7 +67,7 @@ jobs:
             'institutional-live-v2.js?v=20260724-live7','المقاييس والفحوص والبروتوكولات المهنية الفعّالة'
           ]) if (!html.includes(marker)) throw new Error(`Missing live marker ${marker}`);
           for (const forbidden of ['مقفل','دليل فقط','النسخة التجريبية المنشورة']) {
-            if (html.includes(forbidden)) throw new Error(`Forbidden stale UI text: ${forbidden}`);
+            if (html.includes(forbidden)) throw new Error(`Forbidden stale static UI text: ${forbidden}`);
           }
           const context = { window: {} };
           vm.runInNewContext(fs.readFileSync(base + 'catalog.js','utf8'), context);
@@ -74,13 +77,29 @@ jobs:
           const data = context.window.PA_DEMO_DATA;
           if (!data || data.explorers.length !== 20) throw new Error(`Expected 20 exploratory tools, found ${data?.explorers?.length}`);
           if (data.professional.length < 150) throw new Error(`Professional registry too small: ${data.professional.length}`);
-          if (data.professional.some(item => !item.operational)) throw new Error('Non-operational professional entries remain');
-          if (data.professional.some(item => item.status === 'locked')) throw new Error('Locked source registry states remain');
-          if (data.professional.some(item => !['workflow','external'].includes(item.status))) throw new Error('Unexpected source registry status remains');
+          if (data.professional.some(item => !item.operational)) throw new Error('Non-operational professional directory entries remain');
+          if (data.professional.some(item => !['locked','external'].includes(item.status))) throw new Error('Unexpected rights-gated source registry status remains');
+          if (data.professional.some(item => item.status === 'locked' && item.activationStatus !== 'locked_pending_rights')) throw new Error('Locked professional entry lacks the rights activation gate');
+          if (data.professional.some(item => item.status === 'external' && item.activationStatus !== 'external_result_workflow')) throw new Error('External-result entry lacks the external report workflow');
+          const institutional = fs.readFileSync(base + 'institutional-live-v2.js','utf8');
+          for (const marker of ['role(tablist, "tablist")','"tab"','"tabpanel"','aria-controls','aria-labelledby','تبقى المقاييس المحمية مقفلة']) {
+            if (!institutional.includes(marker) && !institutional.includes(marker.replace('role(', 'setRole('))) throw new Error(`Institutional rights or ARIA marker missing: ${marker}`);
+          }
+          for (const forbidden of ['["مقفل", "مسار عمل متاح"]','["دليل فقط", "مسار عمل متاح"]']) {
+            if (institutional.includes(forbidden)) throw new Error(`Institutional runtime still hides a protected-tool state: ${forbidden}`);
+          }
+          const training = fs.readFileSync(base + 'training/index.html','utf8');
+          for (const marker of ['training-accessibility-v2.js?v=20260724-a11y2','training-data-v1.js?v=20260724-training1" defer','training-v1.js?v=20260724-training1" defer']) {
+            if (!training.includes(marker)) throw new Error(`Training accessibility marker missing: ${marker}`);
+          }
+          const progress = fs.readFileSync(base + 'training/training-accessibility-v2.js','utf8');
+          for (const marker of ['role", "progressbar"','aria-valuemin','aria-valuemax','aria-valuenow','aria-valuetext']) {
+            if (!progress.includes(marker)) throw new Error(`Training progress contract missing: ${marker}`);
+          }
           const conditionContext = { window: {} };
           vm.runInNewContext(fs.readFileSync(base + 'conditions/conditions-data-v1.js','utf8'), conditionContext);
           if (conditionContext.window.PA_CONDITION_PATHWAYS?.conditions?.length !== 20) throw new Error('Twenty-condition registry missing');
-          console.log({explorers:data.explorers.length, professional:data.professional.length, conditions:20, release:'2026.07.24-live.7'});
+          console.log({explorers:data.explorers.length, professional:data.professional.length, conditions:20, rights:'gated', tabs:'semantic', progressbars:'semantic', release:'2026.07.24-live.7'});
           NODE
 
       - name: Validate UID, rights, audit, backup and report contracts
