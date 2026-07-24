@@ -8,6 +8,7 @@ on:
       - "scripts/publish_daily_tools_v24.py"
       - "scripts/verify_daily_tools_v24.py"
       - "scripts/apply_daily_tools_marshmallow_v219.py"
+      - "scripts/expose_daily_tools_home_v219.py"
       - ".github/workflows/validate-daily-tools-v24.yml"
   workflow_dispatch:
 
@@ -35,7 +36,8 @@ jobs:
           python -m py_compile \
             scripts/publish_daily_tools_v24.py \
             scripts/verify_daily_tools_v24.py \
-            scripts/apply_daily_tools_marshmallow_v219.py
+            scripts/apply_daily_tools_marshmallow_v219.py \
+            scripts/expose_daily_tools_home_v219.py
           python scripts/verify_daily_tools_v24.py
 
       - name: Generate production pages in an isolated homepage fixture
