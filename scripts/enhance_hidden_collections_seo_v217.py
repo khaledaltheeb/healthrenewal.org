@@ -100,15 +100,18 @@ def ensure_head_link(source: str, markup: str, identity: str) -> str:
 def keyword_list(source: str, config: dict[str, object], topic: str) -> list[str]:
     match = re.search(r'<meta\b[^>]*name=(["\'])keywords\1[^>]*content=(["\'])(.*?)\2', source, re.I | re.S)
     existing = [item.strip() for item in match.group(3).replace("،", ",").split(",") if item.strip()] if match else []
-    candidates = [topic, *list(config["keywords"]), "الصحة النفسية", "علم النفس", "مصطلحات علم النفس"]
+    prioritized = [topic, *list(config["keywords"]), "الصحة النفسية", "علم النفس", "مصطلحات علم النفس", *existing]
     result: list[str] = []
-    for value in [*existing, *candidates]:
+    normalized: set[str] = set()
+    for value in prioritized:
         value = SPACE_RE.sub(" ", value).strip(" ,،")
-        if not value or value in result or len(value) > 100:
+        key = value.casefold()
+        if not value or key in normalized or len(value) > 100:
             continue
         if len(", ".join([*result, value])) > 470:
-            break
+            continue
         result.append(value)
+        normalized.add(key)
         if len(result) >= 15:
             break
     return result
@@ -221,6 +224,7 @@ def main() -> None:
         "pages_changed": changed,
         "page_counts": counts,
         "keywords_specialized": True,
+        "keyword_priority": "topic-and-section-first",
         "breadcrumb_schema": True,
         "related_navigation": True,
         "sections_api_linked": True,
