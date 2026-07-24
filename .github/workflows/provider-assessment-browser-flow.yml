@@ -6,6 +6,7 @@ on:
     paths:
       - "provider-assessment-demo/index.html"
       - "provider-assessment-demo/professional-console.html"
+      - "provider-assessment-demo/training/**"
       - "provider-assessment-demo/app.js"
       - "provider-assessment-demo/activation.js"
       - "provider-assessment-demo/activation-guard.js"
@@ -25,6 +26,7 @@ on:
     paths:
       - "provider-assessment-demo/index.html"
       - "provider-assessment-demo/professional-console.html"
+      - "provider-assessment-demo/training/**"
       - "provider-assessment-demo/app.js"
       - "provider-assessment-demo/activation.js"
       - "provider-assessment-demo/activation-guard.js"
@@ -60,11 +62,13 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Check browser test syntax
+      - name: Check browser tests and release routes
         run: |
           node --check provider-assessment-demo/tests/playwright.config.cjs
           node --check provider-assessment-demo/tests/report-flow.spec.cjs
           node --check provider-assessment-demo/tests/professional-record-backup-flow.spec.cjs
+          grep -q 'href="../?release=2026.07.24-live.7"' provider-assessment-demo/training/index.html
+          ! grep -q 'release=2026.07.24-live.6' provider-assessment-demo/training/index.html
 
       - name: Install Playwright test runner and Chromium
         run: |
