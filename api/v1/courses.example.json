@@ -1,0 +1,44 @@
+{
+  "feedVersion": "1.0",
+  "provider": {
+    "id": "example-authorized-provider",
+    "name": "جهة تدريب مخولة — مثال توضيحي",
+    "website": "https://example.org",
+    "contactEmail": "courses@example.org"
+  },
+  "authorization": {
+    "status": "authorized",
+    "evidenceUrl": "https://example.org/authorization",
+    "license": "Metadata reuse permission — example only",
+    "verifiedAt": "2026-07-24",
+    "expiresAt": null
+  },
+  "courses": [
+    {
+      "id": "course-001",
+      "title": "مثال توضيحي لدورة مخولة",
+      "summary": "هذا سجل تجريبي لشرح بنية البيانات، وليس دورة منشورة أو شراكة فعلية.",
+      "language": "ar",
+      "canonicalUrl": "https://example.org/courses/course-001",
+      "enrollmentUrl": "https://example.org/courses/course-001/enroll",
+      "imageUrl": null,
+      "providerName": "جهة تدريب مخولة — مثال توضيحي",
+      "instructors": ["مدرب معتمد — مثال"],
+      "categories": ["الصحة النفسية", "التدريب المهني"],
+      "audience": ["الأسر", "مقدمو الخدمة"],
+      "deliveryMode": "online",
+      "price": null,
+      "currency": null,
+      "startsAt": null,
+      "endsAt": null,
+      "duration": "6 ساعات",
+      "status": "open",
+      "updatedAt": "2026-07-24T00:00:00Z",
+      "rights": {
+        "metadataReuse": true,
+        "contentReuse": false,
+        "attributionText": "مثال غير حقيقي؛ لا يدل على شراكة أو إذن فعلي."
+      }
+    }
+  ]
+}
