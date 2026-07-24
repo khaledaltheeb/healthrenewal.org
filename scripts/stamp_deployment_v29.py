@@ -7,6 +7,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from publish_global_metadata_v27 import main as publish_global_metadata
+
+
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
 CRITICAL_FILES = (
     "index.html",
@@ -28,6 +31,14 @@ def main() -> None:
     if not SITE.is_dir():
         raise SystemExit(f"Site directory not found: {SITE}")
 
+    publish_global_metadata()
+    metadata_path = SITE / "api" / "global-metadata-v27.json"
+    if not metadata_path.is_file():
+        raise SystemExit(f"Global metadata evidence not found: {metadata_path}")
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    if metadata.get("status") != "passed" or int(metadata.get("remaining_missing_count", -1)) != 0:
+        raise SystemExit({"invalid_global_metadata_evidence": metadata})
+
     pwa_path = SITE / "api" / "pwa-v14.json"
     if not pwa_path.is_file():
         raise SystemExit(f"PWA evidence not found: {pwa_path}")
@@ -39,6 +50,13 @@ def main() -> None:
     pwa = json.loads(pwa_path.read_text(encoding="utf-8"))
     if not pwa.get("registration_verified") or int(pwa.get("pages_scanned", 0)) <= 0:
         raise SystemExit({"invalid_pwa_evidence": pwa})
+    if int(metadata.get("pages_scanned", 0)) != int(pwa.get("pages_scanned", 0)):
+        raise SystemExit({
+            "metadata_pwa_page_count_mismatch": {
+                "metadata": metadata.get("pages_scanned"),
+                "pwa": pwa.get("pages_scanned"),
+            }
+        })
 
     artifacts = {
         name: {
@@ -54,8 +72,11 @@ def main() -> None:
         "workflow_run": os.environ["GITHUB_RUN_ID"],
         "workflow_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "1"),
         "validated_at": datetime.now(timezone.utc).isoformat(),
-        "gate": "40 assessments, 48 cognitive tools, 176 browser runs, full PWA registration, critical artifact SHA-256",
+        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, critical artifact SHA-256",
         "pwa_pages": int(pwa["pages_scanned"]),
+        "metadata_pages": int(metadata["pages_scanned"]),
+        "metadata_version": int(metadata["version"]),
+        "metadata_remaining_missing": int(metadata["remaining_missing_count"]),
         "artifacts": artifacts,
     }
 
