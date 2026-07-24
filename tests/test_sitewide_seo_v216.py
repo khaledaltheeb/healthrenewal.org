@@ -90,6 +90,23 @@ class SitewideSeoV216Tests(unittest.TestCase):
         self.assertIn("ذوو الاحتياجات الخاصة", keywords)
         self.assertLessEqual(len(keyword_match.group(1)), 480)
 
+    def test_generic_collection_still_receives_five_precise_terms(self):
+        page = self.write_page(
+            "comparisons/comparison-001/index.html",
+            "<title>الفرق بين القلق والخوف | مصطلحات علم النفس</title>"
+            "<meta name=\"description\" content=\"مقارنة توضيحية بين القلق والخوف.\">",
+            "<h1>الفرق بين القلق والخوف</h1>",
+        )
+        self.module.enrich_page(page)
+        source = page.read_text(encoding="utf-8")
+        keyword_match = re.search(
+            r'<meta name="keywords" content="([^"]+)"', source
+        )
+        self.assertIsNotNone(keyword_match)
+        keywords = [item.strip() for item in keyword_match.group(1).split(",")]
+        self.assertGreaterEqual(len(keywords), 5)
+        self.assertIn("التثقيف النفسي", keywords)
+
     def test_repairs_missing_title_description_and_canonical(self):
         page = self.write_page(
             "care-guides/sleep/index.html",
@@ -114,6 +131,15 @@ class SitewideSeoV216Tests(unittest.TestCase):
         self.assertFalse(changed)
         self.assertEqual(result["status"], "skipped_noindex")
         self.assertEqual(page.read_text(encoding="utf-8"), original)
+
+    def test_google_verification_file_is_skipped(self):
+        path = self.site / "google644f1f7a8b7aaa2b.html"
+        path.write_text("google-site-verification: token", encoding="utf-8")
+        original = path.read_text(encoding="utf-8")
+        changed, result = self.module.enrich_page(path)
+        self.assertFalse(changed)
+        self.assertEqual(result["status"], "skipped_special")
+        self.assertEqual(path.read_text(encoding="utf-8"), original)
 
     def test_generated_schema_is_valid_json(self):
         page = self.write_page(
