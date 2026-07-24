@@ -13,7 +13,7 @@ from urllib.parse import quote
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
 SOCIAL_IMAGE = BASE_URL + "assets/brand/social-card.svg"
-SKIP_FILES = {"404.html", "offline.html"}
+SKIP_FILES = {"404.html", "offline.html", "google644f1f7a8b7aaa2b.html"}
 SKIP_PREFIXES = ("coverage/", "reports/", "tmp/", "node_modules/")
 
 TAG_RE = re.compile(r"<(?:meta|link)\b[^>]*>", re.I | re.S)
@@ -37,9 +37,9 @@ BRAND = {
     "es": "Plataforma de Salud Mental y Necesidades Especiales",
 }
 BASE_TERMS = {
-    "ar": ["الصحة النفسية", "علم النفس", "مصطلحات علم النفس"],
-    "en": ["mental health", "psychology", "psychology terminology"],
-    "es": ["salud mental", "psicología", "términos de psicología"],
+    "ar": ["الصحة النفسية", "علم النفس", "مصطلحات علم النفس", "التثقيف النفسي"],
+    "en": ["mental health", "psychology", "psychology terminology", "mental health education"],
+    "es": ["salud mental", "psicología", "términos de psicología", "educación en salud mental"],
 }
 ROUTE_TERMS = {
     "encyclopedia": {
