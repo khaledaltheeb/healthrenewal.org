@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>منصة التقييم والاستكشاف | مصطلحات علم النفس</title>
-  <meta name="description" content="منصة عربية تجريبية لاستكشاف مجالات النمو والتواصل والانتباه والتعلم والوظائف اليومية، مع سجل حالات محلي منفصل لكل مستخدم ودليل للمقاييس المهنية.">
+  <title>منصة التقييم وإدارة السجلات | مصطلحات علم النفس</title>
+  <meta name="description" content="منصة عربية تشغيلية لإدارة الحالات والجلسات الاستكشافية ومسارات تطبيق المقاييس المهنية وتوثيق النتائج محليًا ضمن UID مستقل.">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
   <meta name="theme-color" content="#0b6b66">
   <link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/provider-assessment-demo/">
@@ -12,7 +12,9 @@
   <link rel="stylesheet" href="enhancements.css">
   <script src="catalog.js" defer></script>
   <script src="catalog-extra.js" defer></script>
+  <script src="professional-master-registry.js" defer></script>
   <script src="app.js" defer></script>
+  <script src="activation.js" defer></script>
   <script src="enhancements.js" defer></script>
 </head>
 <body>
@@ -21,37 +23,37 @@
 <header class="site-header">
   <div class="brand-wrap">
     <a class="brand" href="../">مصطلحات علم النفس</a>
-    <span class="product-name">منصة التقييم والاستكشاف</span>
+    <span class="product-name">منصة التقييم وإدارة السجلات</span>
   </div>
   <div class="header-actions">
     <span id="mode-badge" class="badge neutral">وضع الزائر</span>
     <button id="contrast-toggle" class="button ghost" type="button" aria-pressed="false">تباين مرتفع</button>
-    <button id="account-button" class="button secondary" type="button">الدخول التجريبي</button>
+    <button id="account-button" class="button secondary" type="button">مساحة مقدم الخدمة</button>
   </div>
 </header>
 
 <div class="notice-bar" role="note">
-  هذه الأدوات استكشافية وتعليمية، ولا تنتج تشخيصًا أو أهلية قانونية أو خطة علاج. المقاييس المهنية المحمية تظهر كدليل فقط.
+  الأدوات الاستكشافية لا تنتج تشخيصًا أو أهلية قانونية. مسارات المقاييس المهنية متاحة للتخطيط والتوثيق، بينما تبقى البنود ومفاتيح التصحيح المحمية مرتبطة بالترخيص والمؤهل المهني.
 </div>
 
 <main id="main" class="page-shell">
   <section class="hero" aria-labelledby="hero-title">
     <div>
-      <p class="eyebrow">عرض عملي للخدمة قبل الاشتراك المؤسسي</p>
-      <h1 id="hero-title">أنشئ حالة، نفّذ جلسات متعددة، واحتفظ بسجل منفصل لكل مستخدم.</h1>
-      <p class="lead">اختيارات متعددة، قوائم منسدلة، صناديق ملاحظات، توصيات للخطوة التالية، مقارنة الجلسات، وسجل زمني لكل حالة. التخزين في النسخة الحالية محلي داخل المتصفح ويُفصل بواسطة UID خاص بالمستخدم.</p>
+      <p class="eyebrow">نسخة تشغيل محلية لإدارة الحالات ومسارات التقييم</p>
+      <h1 id="hero-title">أنشئ حالة، نفّذ جلسات، وسجّل التطبيقات المهنية في مسار واحد.</h1>
+      <p class="lead">إدارة حالات متعددة، جلسات متكررة، سجل زمني، مقارنة وصفية، ومسارات تطبيق للمقاييس المهنية. تحفظ هذه النسخة البيانات محليًا داخل المتصفح بواسطة UID مستقل.</p>
       <div class="hero-actions">
         <button id="start-explore" class="button primary" type="button">ابدأ الاستكشاف</button>
         <button id="open-guide" class="button secondary" type="button">دليل الاستخدام المختصر</button>
       </div>
     </div>
     <aside class="hero-card" aria-label="ملخص خصائص النسخة">
-      <strong>النسخة التجريبية المنشورة</strong>
+      <strong>النسخة التشغيلية المحلية</strong>
       <ul>
         <li>UID مستقل لكل مستخدم أو مقدم خدمة.</li>
         <li>سجل حالات وجلسات متكررة محفوظ محليًا.</li>
         <li>20 أداة استكشافية أصلية غير تشخيصية.</li>
-        <li>دليل مصنف للمقاييس المهنية دون نسخ بنودها.</li>
+        <li>سجل مهني موسع مع تخطيط التطبيق وتوثيق النتائج.</li>
       </ul>
     </aside>
   </section>
@@ -61,7 +63,7 @@
       <button class="tab active" data-view="dashboard" type="button" aria-selected="true">لوحة المستخدم</button>
       <button class="tab" data-view="cases" type="button" aria-selected="false">الحالات</button>
       <button class="tab" data-view="explorers" type="button" aria-selected="false">الأدوات الاستكشافية</button>
-      <button class="tab" data-view="professional" type="button" aria-selected="false">دليل المقاييس المهنية</button>
+      <button class="tab" data-view="professional" type="button" aria-selected="false">المقاييس المهنية</button>
       <button class="tab" data-view="guide" type="button" aria-selected="false">الدليل والكورس المختصر</button>
     </nav>
 
@@ -82,16 +84,16 @@
       <div class="two-column">
         <article class="panel">
           <h3>البدء السريع</h3>
-          <p>أنشئ حالة باسم مستعار، ثم اختر أداة استكشافية. يمكن تكرار الجلسة في تاريخ آخر أو الانتقال إلى أداة مختلفة، وستبقى جميع النتائج داخل سجل الحالة.</p>
+          <p>أنشئ حالة باسم مستعار، ثم اختر أداة استكشافية أو مقياسًا مهنيًا. يمكن تكرار الجلسات وربط التطبيقات المهنية بالحالة نفسها.</p>
           <button id="dashboard-new-case" class="button primary" type="button">إنشاء حالة جديدة</button>
         </article>
         <article class="panel">
-          <h3>حدود النسخة الحالية</h3>
+          <h3>حدود التشغيل الحالي</h3>
           <ul class="clean-list">
             <li>التخزين محلي في هذا الجهاز والمتصفح.</li>
             <li>لا ترفع أسماء حقيقية أو أرقام هوية أو تقارير طبية.</li>
-            <li>الحساب التجريبي ليس نظام مصادقة مؤسسيًا.</li>
-            <li>النتيجة أولوية استكشاف وليست تشخيصًا.</li>
+            <li>المصادقة السحابية المؤسسية لم تُربط بعد.</li>
+            <li>النتائج الاستكشافية ليست تشخيصًا، والتطبيق المهني مسؤولية المختص.</li>
           </ul>
         </article>
       </div>
@@ -124,10 +126,10 @@
     </section>
 
     <section id="view-professional" class="view" data-view-panel="professional" hidden>
-      <div class="section-heading"><div><p class="eyebrow">دليل مصنف — دون بنود محمية</p><h2>المقاييس المهنية حسب الحالة والمجال</h2></div></div>
-      <div class="callout warning">لا تُعرض بنود أو مفاتيح تصحيح أو جداول معيارية للمقاييس المحمية. التفعيل المهني لاحقًا يتطلب ترخيص الأداة، حق الرقمنة، مؤهل المستخدم، النسخة اللغوية، والمراجعة المؤسسية.</div>
+      <div class="section-heading"><div><p class="eyebrow">سجل مصنف مع تشغيل وتوثيق — دون نسخ مواد محمية</p><h2>المقاييس المهنية ومسارات التشغيل</h2></div></div>
+      <div class="callout info">كل مقياس يفتح مسارًا لتحديد الحالة والمنفذ والتاريخ والنسخة والنتيجة والخطوة التالية. التطبيق الرسمي للبنود والدرجات المعيارية يتطلب النسخة الأصلية والترخيص والمؤهل المناسب.</div>
       <div class="toolbar">
-        <label class="field grow"><span>البحث في الدليل</span><input id="professional-search" type="search" placeholder="ADOS-2، السلوك التكيفي، السمع..."></label>
+        <label class="field grow"><span>البحث في السجل</span><input id="professional-search" type="search" placeholder="ADOS-2، السلوك التكيفي، السمع..."></label>
         <label class="field"><span>الحالة أو المجال</span><select id="professional-category-filter"><option value="">جميع المجالات</option></select></label>
       </div>
       <div id="professional-list" class="catalog-list"></div>
@@ -138,7 +140,7 @@
       <ol class="course-steps">
         <li><strong>حدّد الغرض:</strong> ما السؤال الذي تريد فهمه؟ تجنب البدء باسم تشخيص.</li>
         <li><strong>أنشئ حالة باسم مستعار:</strong> العمر، اللغة، السياق، وسؤال الاستكشاف.</li>
-        <li><strong>اختر الأداة الأنسب:</strong> استخدم أداة واحدة كبداية، ثم اتبع التوصية التالية عند الحاجة.</li>
+        <li><strong>اختر المسار الأنسب:</strong> أداة استكشافية أصلية أو سجل تطبيق مهني مرخص.</li>
         <li><strong>راجع السياق والملاحظات:</strong> الإجابات لا تكفي وحدها؛ سجّل البيئة، المدة، مصدر المعلومة، وما تعذر ملاحظته.</li>
         <li><strong>اختم الجلسة بقرار مبدئي:</strong> متابعة، أداة تالية، جمع معلومات إضافية، أو إحالة إلى مختص. لا تسجل تشخيصًا آليًا.</li>
       </ol>
@@ -150,15 +152,15 @@
   </section>
 </main>
 
-<footer class="site-footer"><p>© منصة مصطلحات علم النفس — نسخة استكشافية تعليمية. لا تستخدم لحالات الطوارئ أو التشخيص أو تقرير الأهلية.</p></footer>
+<footer class="site-footer"><p>© منصة مصطلحات علم النفس — تشغيل محلي لإدارة الاستكشاف ومسارات التقييم. لا تستخدم للطوارئ أو التشخيص الآلي أو تقرير الأهلية.</p></footer>
 
 <dialog id="account-dialog" class="dialog">
   <form method="dialog" id="account-form">
-    <div class="dialog-heading"><div><p class="eyebrow">تبديل مساحة التخزين</p><h2>الدخول التجريبي</h2></div><button class="icon-button" value="cancel" aria-label="إغلاق">×</button></div>
-    <div class="callout info">هذه ليست مصادقة آمنة. الغرض إظهار فصل التخزين حسب اسم المستخدم وUID على هذا الجهاز فقط.</div>
-    <label class="field"><span>اسم المستخدم التجريبي</span><input id="login-username" autocomplete="username" minlength="3" maxlength="40" placeholder="center-demo" required></label>
-    <label class="field"><span>رمز العرض</span><input id="login-password" type="password" autocomplete="current-password" placeholder="Explore-2026!" required></label>
-    <p class="demo-credentials">حساب العرض: <code>center-demo</code> — الرمز: <code>Explore-2026!</code></p>
+    <div class="dialog-heading"><div><p class="eyebrow">تبديل مساحة التخزين</p><h2>فتح مساحة مقدم خدمة محلية</h2></div><button class="icon-button" value="cancel" aria-label="إغلاق">×</button></div>
+    <div class="callout info">ينشئ هذا الخيار مساحة محلية منفصلة بواسطة UID على هذا الجهاز. المصادقة المؤسسية السحابية ليست مفعلة في استضافة GitHub Pages الحالية.</div>
+    <label class="field"><span>اسم المساحة المحلية</span><input id="login-username" autocomplete="username" minlength="3" maxlength="40" placeholder="center-demo" required></label>
+    <label class="field"><span>رمز العرض</span><input id="login-password" type="password" autocomplete="current-password" placeholder="غير مستخدم في التشغيل المحلي"></label>
+    <p class="demo-credentials">لا توجد كلمة مرور تجريبية. اكتب اسمًا للمساحة المحلية فقط.</p>
     <div class="dialog-actions"><button id="visitor-mode-button" class="button ghost" value="cancel" type="button">العودة لوضع الزائر</button><button class="button primary" value="default" type="submit">فتح مساحة مقدم الخدمة</button></div>
   </form>
 </dialog>
