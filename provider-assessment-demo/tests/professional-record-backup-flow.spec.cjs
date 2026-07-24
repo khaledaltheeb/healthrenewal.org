@@ -3,10 +3,10 @@
 const fs = require("node:fs");
 const { test, expect } = require("@playwright/test");
 
-const fillCase = async (page) => {
+const fillCase = async (page, alias) => {
   await page.locator('button.tab[data-view="cases"]').click();
   await page.locator("#new-case-button").click();
-  await page.locator('#case-form [name="alias"]').fill("الحالة المهنية الآلية 01");
+  await page.locator('#case-form [name="alias"]').fill(alias);
   await page.locator('#case-form [name="ageGroup"]').selectOption("child");
   await page.locator('#case-form [name="language"]').selectOption("ar");
   await page.locator('#case-form [name="informant"]').selectOption("multiple");
@@ -28,12 +28,20 @@ const updateLifecycle = async (page, status, reason, outcome) => {
   await expect(dialog).not.toHaveAttribute("open", "");
 };
 
-test("professional record lifecycle, encrypted backup merge, and rollback remain auditable", async ({ page }) => {
+const activeStore = async (page) => page.evaluate(() => {
+  const active = JSON.parse(localStorage.getItem("pa-demo-active-v3") || "null");
+  const identities = JSON.parse(localStorage.getItem("pa-demo-identities-v3") || "{}");
+  const identity = active?.role === "provider" ? identities[active.username] : identities.__visitor__;
+  if (!identity?.uid) throw new Error("active UID is missing");
+  return JSON.parse(localStorage.getItem(`pa-demo-store-v3:${identity.uid}`));
+});
+
+test("professional record lifecycle, audited amendment, encrypted replacement, and rollback remain intact", async ({ page }) => {
   await page.goto("/provider-assessment-demo/?open=records&release=2026.07.24-live.7#workspace");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.locator('button.tab[data-view="professional-records"]')).toBeVisible();
 
-  await fillCase(page);
+  await fillCase(page, "الحالة المهنية الآلية 01");
 
   await page.locator('button.tab[data-view="professional-records"]').click();
   await page.locator("#professional-record-new").click();
@@ -70,6 +78,29 @@ test("professional record lifecycle, encrypted backup merge, and rollback remain
   await expect(page.locator("#professional-record-list")).toContainText("تقرير خارجي مستلم");
   await expect(page.locator("#professional-record-list details.audit-details")).toContainText("سجل تغيرات الحالة (2)");
 
+  await page.locator("[data-edit-professional-record]").first().click();
+  const editDialog = page.locator("#professional-record-edit-dialog");
+  await expect(editDialog).toHaveAttribute("open", "");
+  await page.locator('#professional-record-edit-form [name="practitionerQualification"]').fill("أخصائي نفسي مرخص — رمز مهني داخلي");
+  await page.locator('#professional-record-edit-form [name="resultSourceType"]').selectOption("external_report");
+  await page.locator('#professional-record-edit-form [name="reportReference"]').fill("EXT-REPORT-2026-001");
+  await page.locator('#professional-record-edit-form [name="reportIssuedBy"]').fill("جهة تقييم خارجية مختصة");
+  await page.locator('#professional-record-edit-form [name="notes"]').fill("النتيجة الخارجية دليل واحد ضمن مصادر متعددة، ولا تثبت التشخيص أو الأهلية تلقائيًا.");
+  await page.locator('#professional-record-edit-form [name="editReason"]').fill("استكمال مصدر النتيجة والمؤهل ومرجع التقرير بعد التحقق.");
+  await page.locator('#professional-record-edit-form [name="rightsConfirmed"]').check();
+  await page.locator('#professional-record-edit-form button[type="submit"]').click();
+  await expect(editDialog).not.toHaveAttribute("open", "");
+
+  const afterAmendment = await activeStore(page);
+  const amendedRecord = afterAmendment.cases[0].professionalAssessments[0];
+  expect(amendedRecord.recordStatus).toBe("result_imported");
+  expect(amendedRecord.auditTrail).toHaveLength(2);
+  expect(amendedRecord.metadataAuditTrail).toHaveLength(1);
+  expect(amendedRecord.practitionerQualification).toContain("مرخص");
+  expect(amendedRecord.resultSourceType).toBe("external_report");
+  expect(amendedRecord.reportReference).toBe("EXT-REPORT-2026-001");
+  expect(amendedRecord.reportIssuedBy).toContain("جهة تقييم");
+
   await page.locator('button.tab[data-view="analytics"]').click();
   await expect(page.locator("#export-space")).toBeVisible();
   const downloadPromise = page.waitForEvent("download");
@@ -84,8 +115,13 @@ test("professional record lifecycle, encrypted backup merge, and rollback remain
   const encryptedJson = JSON.parse(fs.readFileSync(encryptedPath, "utf8"));
   expect(encryptedJson.schema).toBe("pa-demo-uid-backup-encrypted-v1");
   expect(encryptedJson.kdf).toBe("PBKDF2-SHA-256");
+  expect(encryptedJson.iterations).toBe(250000);
   expect(encryptedJson.cipher).toBe("AES-GCM-256");
   expect(encryptedJson.ciphertext.length).toBeGreaterThan(100);
+
+  await fillCase(page, "الحالة المؤقتة قبل الاستعادة");
+  await expect(page.locator("#case-count")).toHaveText("2");
+  await page.locator('button.tab[data-view="analytics"]').click();
 
   const chooserPromise = page.waitForEvent("filechooser");
   await page.locator("#import-space").click();
@@ -99,29 +135,28 @@ test("professional record lifecycle, encrypted backup merge, and rollback remain
   await expect(preview).toHaveAttribute("open", "");
   await expect(page.locator("#backup-import-preview-summary")).toContainText("بصمة SHA-256 مطابقة");
   await expect(page.locator("#backup-import-preview-summary")).toContainText("السجلات المهنية");
-  await page.locator('#backup-import-preview-form [name="importMode"]').selectOption("merge");
+  await page.locator('#backup-import-preview-form [name="importMode"]').selectOption("replace");
   await page.locator('#backup-import-preview-form button[type="submit"]').click();
   await expect(preview).not.toHaveAttribute("open", "");
+  await expect(page.locator("#case-count")).toHaveText("1");
 
-  await page.locator('button.tab[data-view="professional-records"]').click();
-  await expect(page.locator("#professional-record-list .professional-record")).toHaveCount(2);
+  const restored = await activeStore(page);
+  expect(restored.cases).toHaveLength(1);
+  const restoredRecord = restored.cases[0].professionalAssessments[0];
+  expect(restoredRecord.auditTrail).toHaveLength(2);
+  expect(restoredRecord.metadataAuditTrail).toHaveLength(1);
+  expect(restoredRecord.practitionerQualification).toContain("مرخص");
+  expect(restoredRecord.reportReference).toBe("EXT-REPORT-2026-001");
 
   page.once("dialog", (dialog) => dialog.accept());
-  await page.locator('button.tab[data-view="analytics"]').click();
   await page.locator("#rollback-space-import").click();
-  await page.locator('button.tab[data-view="professional-records"]').click();
-  await expect(page.locator("#professional-record-list .professional-record")).toHaveCount(1);
-  await expect(page.locator("#professional-record-list details.audit-details")).toContainText("سجل تغيرات الحالة (2)");
+  await expect(page.locator("#case-count")).toHaveText("2");
 
-  const stored = await page.evaluate(() => {
-    const active = JSON.parse(localStorage.getItem("pa-demo-active-v3") || "null");
-    const identities = JSON.parse(localStorage.getItem("pa-demo-identities-v3") || "{}");
-    const identity = active?.role === "provider" ? identities[active.username] : identities.__visitor__;
-    return JSON.parse(localStorage.getItem(`pa-demo-store-v3:${identity.uid}`));
-  });
-  expect(stored.cases).toHaveLength(1);
-  expect(stored.cases[0].professionalAssessments).toHaveLength(1);
-  expect(stored.cases[0].professionalAssessments[0].recordStatus).toBe("result_imported");
-  expect(stored.cases[0].professionalAssessments[0].auditTrail).toHaveLength(2);
-  expect(stored.cases[0].professionalAssessments[0].scoreReference).toBe("EXT-REPORT-2026-001");
+  const rolledBack = await activeStore(page);
+  expect(rolledBack.cases).toHaveLength(2);
+  const originalRecord = rolledBack.cases.flatMap((item) => item.professionalAssessments || [])[0];
+  expect(originalRecord.recordStatus).toBe("result_imported");
+  expect(originalRecord.auditTrail).toHaveLength(2);
+  expect(originalRecord.metadataAuditTrail).toHaveLength(1);
+  expect(originalRecord.scoreReference).toBe("EXT-REPORT-2026-001");
 });
