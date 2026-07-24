@@ -243,6 +243,7 @@ def main() -> None:
         "source_transformed": True,
         "lab_tool_count": LAB_TOOL_COUNT,
         "lab_inventory_updated": True,
+        "lab_inventory_metadata_updated": True,
         "h1": text.count('<h1>'),
         "h2": len(re.findall(r'<h2\b', text)),
         "h3": len(re.findall(r'<h3\b', text)),
