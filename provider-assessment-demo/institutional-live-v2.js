@@ -1,7 +1,7 @@
 "use strict";
 
 (() => {
-  const RELEASE = "2026.07.24-live.7";
+  const RELEASE = "2026.07.24-live.6";
   const PATH = "/pterminology-site/provider-assessment-demo/";
 
   const replaceText = (root = document) => {
