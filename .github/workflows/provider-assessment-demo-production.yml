@@ -40,6 +40,8 @@ jobs:
           node --check provider-assessment-demo/activation-guard.js
           node --check provider-assessment-demo/professional-record-lifecycle.js
           node --check provider-assessment-demo/professional-record-integrity.js
+          node --check provider-assessment-demo/backup-integrity.js
+          node --check provider-assessment-demo/backup-large-file-patch.js
           node --check provider-assessment-demo/enhancements.js
 
       - name: Validate catalog and UI contracts
@@ -77,20 +79,24 @@ jobs:
               Path('provider-assessment-demo/activation-guard.js'),
               Path('provider-assessment-demo/professional-record-lifecycle.js'),
               Path('provider-assessment-demo/professional-record-integrity.js'),
+              Path('provider-assessment-demo/backup-integrity.js'),
+              Path('provider-assessment-demo/backup-large-file-patch.js'),
               Path('provider-assessment-demo/catalog-contract-fix.js'),
               Path('provider-assessment-demo/professional-master-registry.js'),
           ]
           text = '\n'.join(path.read_text(encoding='utf-8') for path in files)
-          forbidden = ['fetch(', 'XMLHttpRequest', 'WebSocket', 'sendBeacon(', 'EventSource(']
+          forbidden = ['fetch(', 'XMLHttpRequest', 'WebSocket', 'sendBeacon(', 'EventSource(', 'eval(', 'new Function(']
           found = [token for token in forbidden if token in text]
           if found:
-              raise SystemExit(f'Network APIs are forbidden in the local platform: {found}')
+              raise SystemExit(f'Network or unsafe APIs are forbidden in the local platform: {found}')
           required = [
               'storeKey=u=>`pa-demo-store-v${V}:${u}`',
               'ownerUid: identity.uid',
               'payload.ownerUid !== identity.uid',
               'candidate.uid !== identity.uid',
               'pa-demo-uid-backup-v1',
+              'pa-demo-uid-backup-v2',
+              'pa-demo-uid-backup-encrypted-v1',
               'professionalAssessments',
               'rightsConfirmed',
               'recordedByUid: identity.uid',
@@ -99,10 +105,18 @@ jobs:
               'lastUpdatedByUid',
               'locked_pending_rights',
               'locked_or_link_only',
+              'integrity_mismatch',
+              'createRollbackSnapshot',
+              'transferConfirmation',
+              'bytesToBase64Chunked',
+              'backup-large-file-patch.js?v=20260724-backup2',
           ]
           missing = [token for token in required if token not in text]
           if missing:
-              raise SystemExit(f'UID isolation, backup, rights, or audit gates missing: {missing}')
+              raise SystemExit(f'UID isolation, rights, audit, or backup gates missing: {missing}')
+          patch = Path('provider-assessment-demo/backup-large-file-patch.js').read_text(encoding='utf-8')
+          if 'String.fromCharCode(...bytes)' in patch:
+              raise SystemExit('Large encrypted backup encoding still spreads the full byte array')
           PY
 
       - name: Validate HTML links and unique identifiers
@@ -151,19 +165,23 @@ jobs:
           dynamically_loaded = {
               'professional-record-lifecycle.js': 'professional-record-lifecycle',
               'professional-record-integrity.js': 'professional-record-integrity',
+              'backup-integrity.js': 'backup-integrity',
+              'backup-large-file-patch.js': 'backup-large-file-patch',
           }
           guard = (base / 'activation-guard.js').read_text(encoding='utf-8')
           for asset, marker in dynamically_loaded.items():
               if not (base / asset).exists():
-                  raise SystemExit(f'Missing professional record module: {asset}')
+                  raise SystemExit(f'Missing dynamic module: {asset}')
               if asset not in guard or marker not in guard:
-                  raise SystemExit(f'Professional record module is not wired: {asset}')
+                  raise SystemExit(f'Dynamic module is not wired: {asset}')
           combined = '\n'.join([
               html,
               (base / 'activation.js').read_text(encoding='utf-8'),
               guard,
               (base / 'professional-record-lifecycle.js').read_text(encoding='utf-8'),
               (base / 'professional-record-integrity.js').read_text(encoding='utf-8'),
+              (base / 'backup-integrity.js').read_text(encoding='utf-8'),
+              (base / 'backup-large-file-patch.js').read_text(encoding='utf-8'),
               (base / 'enhancements.js').read_text(encoding='utf-8'),
           ])
           required_text = [
@@ -175,6 +193,8 @@ jobs:
               'تحرير البيانات',
               'طباعة السجل',
               'سجل الأحداث الموحد',
+              'مراجعة النسخة قبل الاستيراد',
+              'التراجع عن آخر استيراد',
           ]
           absent = [value for value in required_text if value not in combined]
           if absent:
