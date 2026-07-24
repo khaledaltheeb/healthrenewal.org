@@ -44,6 +44,16 @@
 
   const list = (items) => `<ul class="list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
 
+  const loadEducation = () => {
+    if (document.body.dataset.depth !== "detail" || document.querySelector('[data-module="condition-education-v1"]')) return;
+    const script = document.createElement("script");
+    script.src = "../condition-education-v1.js?v=20260724-content1";
+    script.defer = true;
+    script.dataset.module = "condition-education-v1";
+    script.addEventListener("error", () => console.error("Condition education module failed to load"), { once: true });
+    document.head.appendChild(script);
+  };
+
   const renderIndex = () => {
     const grid = document.getElementById("conditions-grid");
     const search = document.getElementById("condition-search");
@@ -164,6 +174,8 @@
           </section>
         </aside>
       </div>`;
+
+    loadEducation();
   };
 
   document.addEventListener("click", (event) => {

@@ -28,6 +28,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: assessment-condition-content-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate-condition-pathways:
     runs-on: ubuntu-latest
@@ -38,13 +42,14 @@ jobs:
         run: |
           node --check provider-assessment-demo/conditions/conditions-data-v1.js
           node --check provider-assessment-demo/conditions/conditions-ui-v1.js
+          node --check provider-assessment-demo/conditions/condition-education-v1.js
           node --check provider-assessment-demo/condition-entry-v1.js
           node --check provider-assessment-demo/professional-templates-v1.js
           node --check provider-assessment-demo/case-report-v1.js
           node --check provider-assessment-demo/institutional-live-v2.js
           node --check provider-assessment-demo/sw-live-v2.js
 
-      - name: Validate registry, pages, SEO, templates, reports and links
+      - name: Validate registry, education, RTL pages, accessibility, reports and links
         run: |
           node <<'NODE'
           const fs = require('fs');
@@ -69,15 +74,25 @@ jobs:
             const file = path.join('provider-assessment-demo/conditions', item.slug, 'index.html');
             if (!fs.existsSync(file)) throw new Error(`Missing condition page: ${file}`);
             const html = read(file);
-            for (const marker of ['<title>','meta name="description"','rel="canonical"','application/ld+json',`data-condition="${item.slug}"`,'../conditions-data-v1.js','../conditions-ui-v1.js']) if (!html.includes(marker)) throw new Error(`${item.slug} missing ${marker}`);
+            for (const marker of ['<html lang="ar" dir="rtl"','<title>','meta name="description"','rel="canonical"','application/ld+json',`data-condition="${item.slug}"`,'../conditions-data-v1.js','../conditions-ui-v1.js']) if (!html.includes(marker)) throw new Error(`${item.slug} missing ${marker}`);
+            if (!/<main[^>]+id="condition-root"/u.test(html)) throw new Error(`${item.slug} missing accessible main condition root`);
             for (const pattern of forbidden) if (pattern.test(html)) throw new Error(`Forbidden wording in ${item.slug}`);
           }
 
           const index = read('provider-assessment-demo/conditions/index.html');
-          for (const marker of ['conditions-grid','condition-search','team-filter','CollectionPage']) if (!index.includes(marker)) throw new Error(`Conditions index missing ${marker}`);
+          for (const marker of ['<html lang="ar" dir="rtl"','conditions-grid','condition-search','team-filter','CollectionPage']) if (!index.includes(marker)) throw new Error(`Conditions index missing ${marker}`);
 
           const ui = read('provider-assessment-demo/conditions/conditions-ui-v1.js');
-          for (const marker of ['pa-selected-condition-v1','pa-condition-pathway-history-v1','data-start-condition','?condition=']) if (!ui.includes(marker)) throw new Error(`Condition UI missing ${marker}`);
+          for (const marker of ['pa-selected-condition-v1','pa-condition-pathway-history-v1','data-start-condition','?condition=','condition-education-v1.js?v=20260724-content1','script.dataset.module = "condition-education-v1"']) if (!ui.includes(marker)) throw new Error(`Condition UI missing ${marker}`);
+
+          const education = read('provider-assessment-demo/conditions/condition-education-v1.js');
+          const typeMarkers = ['المسح أو الفرز','التقييم التشخيصي','التقييم الوظيفي','متابعة التقدم'];
+          for (const marker of typeMarkers) if (!education.includes(marker)) throw new Error(`Assessment type missing: ${marker}`);
+          for (const marker of ['progressByCondition','قائمة توثيق الحالة المهنية','دليل الأسرة ومقدم الخدمة','مراجعة جودة خطة التقييم','pa-condition-course-v1','aria-pressed','data-assessment-education']) if (!education.includes(marker)) throw new Error(`Education module missing ${marker}`);
+          for (const item of registry.conditions) if (!education.includes(`"${item.slug}"`)) throw new Error(`Condition-specific progress indicators missing: ${item.slug}`);
+          const officialSources = ['https://www.who.int/standards/classifications/international-classification-of-functioning-disability-and-health','https://www.aap.org/en/patient-care/developmental-surveillance-and-screening-patient-care/','https://www.cdc.gov/act-early/about/developmental-monitoring-and-screening.html'];
+          for (const source of officialSources) if (!education.includes(source)) throw new Error(`Authoritative source missing: ${source}`);
+          for (const claim of ['النتيجة المرتفعة في أداة مسح','لا تعني ثبوت الحالة','الدرجة دليل واحد ضمن مصادر متعددة','العوامل البيئية']) if (!education.includes(claim)) throw new Error(`Interpretation safeguard missing: ${claim}`);
 
           const bridge = read('provider-assessment-demo/condition-entry-v1.js');
           for (const marker of ['professional-search','open-condition-professional','conditions-hub-link','pa-selected-condition-v1','requestedView','professional-records']) if (!bridge.includes(marker)) throw new Error(`Condition bridge missing ${marker}`);
@@ -98,8 +113,8 @@ jobs:
           if (sitemapConditionUrls !== 21) throw new Error(`Expected 21 condition sitemap URLs, found ${sitemapConditionUrls}`);
           for (const item of registry.conditions) if (!sitemap.includes(`/conditions/${item.slug}/`)) throw new Error(`Sitemap missing ${item.slug}`);
 
-          const combined = [read('provider-assessment-demo/conditions/conditions-data-v1.js'),ui,bridge,templates,reports].join('\n');
-          for (const token of ['fetch(','XMLHttpRequest','WebSocket','sendBeacon(','EventSource(']) if (combined.includes(token)) throw new Error(`Network API forbidden: ${token}`);
+          const combined = [read('provider-assessment-demo/conditions/conditions-data-v1.js'),ui,education,bridge,templates,reports].join('\n');
+          for (const token of ['fetch(','XMLHttpRequest','WebSocket','sendBeacon(','EventSource(','eval(','new Function(']) if (combined.includes(token)) throw new Error(`Network or unsafe API forbidden: ${token}`);
 
-          console.log({conditionPages:20, commonDomains:registry.commonDomains.length, workflowStages:registry.workflowStages.length, templateFamilies:7, reports:true, sitemapConditionUrls, release:'2026.07.24-live.6', status:'passed'});
+          console.log({conditionPages:20, assessmentTypes:4, conditionProgressSets:20, familyGuide:true, course:true, officialSources:3, commonDomains:registry.commonDomains.length, workflowStages:registry.workflowStages.length, templateFamilies:7, reports:true, sitemapConditionUrls, release:'2026.07.24-live.6', status:'passed'});
           NODE
