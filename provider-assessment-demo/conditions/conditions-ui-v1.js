@@ -44,14 +44,35 @@
 
   const list = (items) => `<ul class="list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
 
-  const loadEducation = () => {
-    if (document.body.dataset.depth !== "detail" || document.querySelector('[data-module="condition-education-v1"]')) return;
+  const appendModule = (src, moduleName, errorMessage) => new Promise((resolve, reject) => {
+    if (document.querySelector(`[data-module="${moduleName}"]`)) { resolve(); return; }
     const script = document.createElement("script");
-    script.src = "../condition-education-v1.js?v=20260724-content1";
+    script.src = src;
     script.defer = true;
-    script.dataset.module = "condition-education-v1";
-    script.addEventListener("error", () => console.error("Condition education module failed to load"), { once: true });
+    script.dataset.module = moduleName;
+    script.addEventListener("load", resolve, { once: true });
+    script.addEventListener("error", () => {
+      console.error(errorMessage);
+      reject(new Error(errorMessage));
+    }, { once: true });
     document.head.appendChild(script);
+  });
+
+  const loadEducation = async () => {
+    if (document.body.dataset.depth !== "detail") return;
+    try {
+      await appendModule("../condition-education-v1.js?v=20260724-content1", "condition-education-v1", "Condition education module failed to load");
+      await appendModule("../condition-decision-guide-v2.js?v=20260725-decision2", "condition-decision-guide-v2", "Condition decision guide failed to load");
+    } catch (_) {
+      const root = document.getElementById("condition-root");
+      if (root && !root.querySelector("[data-module-load-error]")) {
+        const notice = document.createElement("p");
+        notice.className = "notice";
+        notice.dataset.moduleLoadError = "true";
+        notice.textContent = "تعذر تحميل جزء من الدليل التعليمي. أعد تحميل الصفحة، واستمر في استخدام المسار الأساسي دون تحويل أي نتيجة إلى تشخيص.";
+        root.appendChild(notice);
+      }
+    }
   };
 
   const renderIndex = () => {
