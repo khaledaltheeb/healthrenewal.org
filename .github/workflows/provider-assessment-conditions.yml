@@ -48,6 +48,7 @@ jobs:
           node --check provider-assessment-demo/conditions/conditions-data-v1.js
           node --check provider-assessment-demo/conditions/conditions-ui-v1.js
           node --check provider-assessment-demo/conditions/condition-education-v1.js
+          node --check provider-assessment-demo/conditions/condition-decision-handoff-v1.js
           node --check provider-assessment-demo/condition-entry-v1.js
           node --check provider-assessment-demo/professional-templates-v1.js
           node --check provider-assessment-demo/case-report-v1.js
@@ -100,7 +101,7 @@ jobs:
           console.log({conditionPages:20, rtl:true, metadata:true, accessibility:true});
           NODE
 
-      - name: Validate education, family guidance and official sources
+      - name: Validate education, family guidance, decision handoff and official sources
         run: |
           node <<'NODE'
           const fs = require('fs');
@@ -108,12 +109,19 @@ jobs:
           const context = { window: {} };
           vm.runInNewContext(fs.readFileSync('provider-assessment-demo/conditions/conditions-data-v1.js','utf8'), context);
           const education = fs.readFileSync('provider-assessment-demo/conditions/condition-education-v1.js','utf8');
+          const handoff = fs.readFileSync('provider-assessment-demo/conditions/condition-decision-handoff-v1.js','utf8');
+          const ui = fs.readFileSync('provider-assessment-demo/conditions/conditions-ui-v1.js','utf8');
           const errors = [];
           for (const marker of ['المسح أو الفرز','التقييم التشخيصي','التقييم الوظيفي','متابعة التقدم','progressByCondition','قائمة توثيق الحالة المهنية','دليل الأسرة ومقدم الخدمة','مراجعة جودة خطة التقييم','pa-condition-course-v1','aria-pressed','data-assessment-education','النتيجة المرتفعة في أداة مسح','لا تعني ثبوت الحالة','الدرجة دليل واحد ضمن مصادر متعددة','العوامل البيئية']) if (!education.includes(marker)) errors.push(`education missing ${marker}`);
           for (const item of context.window.PA_CONDITION_PATHWAYS.conditions) if (!education.includes(`"${item.slug}"`)) errors.push(`progress indicators missing ${item.slug}`);
-          for (const source of ['https://www.who.int/standards/classifications/international-classification-of-functioning-disability-and-health','https://www.aap.org/en/patient-care/developmental-surveillance-and-screening-patient-care/','https://www.cdc.gov/act-early/about/developmental-monitoring-and-screening.html']) if (!education.includes(source)) errors.push(`official source missing ${source}`);
+          for (const marker of ['assessmentMatrix','المسح أو الفرز','التقييم التشخيصي','التقييم الوظيفي','متابعة التقدم','حزمة الأسرة قبل الموعد','قائمة التسليم بين المختصين','أسئلة اجتماع القرار','data-decision-handoff','data-handoff-item','aria-pressed','pa-condition-handoff-v1','لا يثبت التشخيص أو الأهلية','دون نسخ البنود أو مفاتيح التصحيح أو المعايير']) if (!handoff.includes(marker)) errors.push(`handoff missing ${marker}`);
+          for (const marker of ['condition-decision-handoff-v1.js?v=20260724-content2','condition-education-v1.js?v=20260724-content2','addModule']) if (!ui.includes(marker)) errors.push(`condition UI loader missing ${marker}`);
+          for (const source of ['https://www.who.int/standards/classifications/international-classification-of-functioning-disability-and-health','https://www.aap.org/en/patient-care/developmental-surveillance-and-screening-patient-care/','https://www.cdc.gov/act-early/about/developmental-monitoring-and-screening.html']) {
+            if (!education.includes(source) || !handoff.includes(source)) errors.push(`official source missing from both modules: ${source}`);
+          }
+          for (const token of ['XMLHttpRequest','WebSocket','sendBeacon(','EventSource(','eval(','new Function(']) if ([education,handoff,ui].join('\n').includes(token)) errors.push(`unsafe API ${token}`);
           if (errors.length) throw new Error(errors.join('\n'));
-          console.log({assessmentTypes:4, progressSets:20, familyGuide:true, course:true, officialSources:3});
+          console.log({assessmentTypes:4, progressSets:20, familyGuide:true, decisionMatrix:true, handoffChecklist:true, meetingQuestions:true, officialSources:3});
           NODE
 
       - name: Validate report interpretation, versioning and rights safeguards
