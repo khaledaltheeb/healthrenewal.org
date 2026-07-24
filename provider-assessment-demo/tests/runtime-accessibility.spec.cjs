@@ -22,6 +22,7 @@ test("provider platform boots without runtime errors and exposes semantic tabs",
     await expect(panel).toHaveAttribute("aria-labelledby", await tab.getAttribute("id"));
   }
 
+  await page.locator('.tab[data-view="professional"]').click();
   const protectedRows = page.locator("#professional-list .catalog-row");
   await expect(protectedRows.first()).toBeVisible();
   await expect(page.locator("#professional-list")).toContainText("مقفل");
