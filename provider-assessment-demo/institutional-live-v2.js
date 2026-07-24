@@ -156,7 +156,15 @@
   const loadAssessmentPathways = () => addScript("assessment-pathways-content.js", "assessment-pathways");
   const loadConditionPathways = () => addScript("conditions/conditions-data-v1.js", "condition-pathways", () => addScript("condition-entry-v1.js", "condition-entry"));
   const loadProfessionalTemplates = () => addScript("professional-templates-v1.js", "professional-templates");
-  const loadOriginalProgress = () => addScript("original-tools-session-context-v2.js", "original-session-context-v2", () => addScript("original-tools-progress-v1.js", "original-tools-progress-v1"));
+  const loadOriginalProgress = () => addScript(
+    "original-tools-session-context-v2.js",
+    "original-session-context-v2",
+    () => addScript(
+      "original-tools-progress-v1.js",
+      "original-tools-progress-v1",
+      () => addScript("explorer-saturation-record-v1.js", "explorer-saturation-record-v1"),
+    ),
+  );
   const loadCaseReports = () => addScript("case-report-v1.js", "case-reports", () =>
     addScript("case-report-interpretation-v2.js", "case-report-interpretation-v2", () =>
       addScript("case-report-export-v2.js", "case-report-export-v2")));
