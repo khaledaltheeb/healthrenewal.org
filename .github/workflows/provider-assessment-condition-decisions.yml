@@ -33,6 +33,7 @@ jobs:
           node --check provider-assessment-demo/conditions/conditions-ui-v1.js
           node --check provider-assessment-demo/conditions/condition-education-v1.js
           node --check provider-assessment-demo/conditions/condition-decision-guide-v2.js
+          node --check provider-assessment-demo/conditions/condition-layout-stability-v2.js
 
       - name: Validate twenty condition-specific decision profiles
         run: |
@@ -44,6 +45,8 @@ jobs:
           const registry = context.window.PA_CONDITION_PATHWAYS;
           const guide = fs.readFileSync('provider-assessment-demo/conditions/condition-decision-guide-v2.js','utf8');
           const ui = fs.readFileSync('provider-assessment-demo/conditions/conditions-ui-v1.js','utf8');
+          const stability = fs.readFileSync('provider-assessment-demo/conditions/condition-layout-stability-v2.js','utf8');
+          const css = fs.readFileSync('provider-assessment-demo/conditions/conditions.css','utf8');
           const errors = [];
 
           if (registry.conditions.length !== 20) errors.push(`expected 20 conditions, found ${registry.conditions.length}`);
@@ -75,7 +78,18 @@ jobs:
             'await appendModule','data-module-load-error'
           ]) if (!ui.includes(marker)) errors.push(`sequential loader missing ${marker}`);
 
-          const combined = `${guide}\n${ui}`;
+          for (const marker of [
+            '[data-assessment-education]','[data-condition-decision-guide]',
+            'requiredModules.every','document.body.dataset.layoutReady = "true"',
+            'complete() ? "content-complete" : "module-error"'
+          ]) if (!stability.includes(marker)) errors.push(`layout stability contract missing ${marker}`);
+          for (const marker of [
+            'body[data-layout-stable="true"] #condition-root',
+            'body[data-layout-stable="true"] .footer',
+            'body[data-layout-stable="true"][data-layout-ready="true"]'
+          ]) if (!css.includes(marker)) errors.push(`layout visibility contract missing ${marker}`);
+
+          const combined = `${guide}\n${ui}\n${stability}`;
           for (const token of ['fetch(','XMLHttpRequest','WebSocket','sendBeacon(','EventSource(','eval(','new Function(']) {
             if (combined.includes(token)) errors.push(`network or unsafe API forbidden: ${token}`);
           }
@@ -93,6 +107,7 @@ jobs:
             caseHandoffTemplate: true,
             rightsSafeguards: true,
             authoritativeSources: 4,
+            layoutReveal: 'education-and-decision-complete',
             localOnly: true,
             status: 'passed'
           });
@@ -110,10 +125,14 @@ jobs:
           for (const condition of context.window.PA_CONDITION_PATHWAYS.conditions) {
             const file = path.join('provider-assessment-demo/conditions', condition.slug, 'index.html');
             const html = fs.readFileSync(file,'utf8');
-            for (const marker of ['<html lang="ar" dir="rtl"','<main','id="condition-root"','../conditions-data-v1.js','../conditions-ui-v1.js']) {
+            for (const marker of [
+              '<html lang="ar" dir="rtl"','<main','id="condition-root"',
+              'data-layout-stable="true"','../conditions-data-v1.js','../conditions-ui-v1.js',
+              '../condition-layout-stability-v2.js'
+            ]) {
               if (!html.includes(marker)) errors.push(`${condition.slug}: missing ${marker}`);
             }
           }
           if (errors.length) throw new Error(errors.join('\n'));
-          console.log({pages:20, lang:'ar', direction:'rtl', mainLandmark:true, sharedLoader:true});
+          console.log({pages:20, lang:'ar', direction:'rtl', mainLandmark:true, sharedLoader:true, stableLayout:true});
           NODE
