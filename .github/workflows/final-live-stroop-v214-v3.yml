@@ -1,4 +1,4 @@
-name: Final live Stroop v214 browser proof v3
+name: Final live Stroop v214 browser proof v3.1
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
           npm install --no-save playwright
           npx playwright install --with-deps chromium
 
-      - name: Measure the published Stroop task in a clean browser
+      - name: Measure the published Stroop task in a clean browser v3.1
         run: |
           cat > probe-live-stroop-v214.mjs <<'NODE'
           import fs from 'node:fs';
@@ -106,13 +106,13 @@ jobs:
           script: |
             const fs=require('fs');
             const evidence=fs.existsSync('/tmp/browser-v3.json')?fs.readFileSync('/tmp/browser-v3.json','utf8'):'{"status":"missing"}';
-            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## Final live Stroop browser proof v3 — run ${context.runId}\n\n\`\`\`json\n${evidence}\n\`\`\``});
+            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## Final live Stroop browser proof v3.1 — run ${context.runId}\n\n\`\`\`json\n${evidence}\n\`\`\``});
 
       - name: Upload proof
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: final-live-stroop-v214-browser-v3
+          name: final-live-stroop-v214-browser-v3-1
           path: /tmp/browser-v3.json
           if-no-files-found: warn
           retention-days: 7
