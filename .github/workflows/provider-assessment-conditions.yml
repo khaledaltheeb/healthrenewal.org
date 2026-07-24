@@ -71,10 +71,11 @@ jobs:
           if (!Array.isArray(registry?.commonDomains) || registry.commonDomains.length < 9) errors.push('common domains incomplete');
           for (const item of registry?.conditions || []) {
             if (!item.summary || item.summary.length < 50) errors.push(`${item.slug}: thin summary (${item.summary?.length || 0})`);
-            for (const key of ['team','primary','supporting','external','focus','deliverables','alerts']) if (!Array.isArray(item[key]) || item[key].length < 2) errors.push(`${item.slug}: incomplete ${key}`);
+            for (const key of ['team','primary','supporting','focus','deliverables','alerts']) if (!Array.isArray(item[key]) || item[key].length < 2) errors.push(`${item.slug}: incomplete ${key}`);
+            if (!Array.isArray(item.external) || item.external.length < 1) errors.push(`${item.slug}: external referral or integration path missing`);
           }
           if (errors.length) throw new Error(errors.join('\n'));
-          console.log({conditions:20, workflowStages:registry.workflowStages.length, commonDomains:registry.commonDomains.length});
+          console.log({conditions:20, workflowStages:registry.workflowStages.length, commonDomains:registry.commonDomains.length, externalPaths:'at-least-one-per-condition'});
           NODE
 
       - name: Validate twenty Arabic condition pages and RTL
