@@ -144,8 +144,14 @@
     enhanceResultDialog();
   };
 
-  window.addEventListener("DOMContentLoaded", () => {
+  const boot = () => {
     refresh();
     new MutationObserver(refresh).observe(document.body, { childList: true, subtree: true });
-  });
+  };
+  window.PA_EXPLORATORY_V220_REFRESH = refresh;
+  if (document.readyState === "loading") {
+    window.addEventListener("DOMContentLoaded", boot, { once: true });
+  } else {
+    boot();
+  }
 })();
