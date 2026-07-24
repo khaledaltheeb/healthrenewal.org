@@ -6,6 +6,7 @@ on:
     paths:
       - "content/v24/**"
       - "scripts/publish_daily_tools_v24.py"
+      - "scripts/publish_daily_tools_v24_core.py"
       - "scripts/verify_daily_tools_v24.py"
       - "scripts/apply_daily_tools_marshmallow_v219.py"
       - "scripts/expose_daily_tools_home_v219.py"
@@ -35,6 +36,7 @@ jobs:
           set -euxo pipefail
           python -m py_compile \
             scripts/publish_daily_tools_v24.py \
+            scripts/publish_daily_tools_v24_core.py \
             scripts/verify_daily_tools_v24.py \
             scripts/apply_daily_tools_marshmallow_v219.py \
             scripts/expose_daily_tools_home_v219.py
