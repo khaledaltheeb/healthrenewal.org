@@ -211,6 +211,7 @@ def main() -> int:
         "languages": dict(sorted(languages.items())),
         "routes": dict(sorted(routes.items())),
         "idempotency_failure_count": len(set(idempotency_failures)),
+        "idempotency_failures": sorted(set(idempotency_failures))[:300],
         "failure_count": len(failures),
         "failures": failures[:300],
     }
