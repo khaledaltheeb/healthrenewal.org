@@ -68,7 +68,9 @@ def main() -> None:
     assert "ثلاثين شرحًا" not in source, "Homepage contains obsolete 30-item claim"
     assert "2,000+" in source, "Homepage must expose the production-backed encyclopedia scale"
     assert "200" in source, "Homepage must expose the production-backed hub count"
-    assert "16" in source and "88" in source, "Homepage is missing verified platform inventory"
+    assert "16" in source and "93" in source, "Homepage is missing verified platform inventory"
+    assert "data-special-needs-v73" in source, "Special-needs publisher contract is missing"
+    assert '<a class="btn secondary" href="care-guides/">أدلة التعامل مع الحالات</a>' in source
     for phrase in FORBIDDEN_OPERATIONAL_COPY:
         assert phrase not in source, f"Operational planning copy leaked to users: {phrase}"
 
@@ -151,6 +153,7 @@ def main() -> None:
                 "operational_copy_hidden": True,
                 "api_version": platform["apiVersion"],
                 "openapi": openapi["openapi"],
+                "lab_tool_count": 93,
                 "light_palette": True,
             },
             ensure_ascii=False,
