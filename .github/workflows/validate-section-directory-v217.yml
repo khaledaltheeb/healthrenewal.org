@@ -3,6 +3,13 @@ name: Validate institutional section directory v217
 on:
   pull_request:
     branches: ["main"]
+    paths:
+      - "scripts/publish_section_directory_v217.py"
+      - "scripts/normalize_section_directory_api_v217.py"
+      - "scripts/enhance_sitewide_seo_v216.py"
+      - "scripts/enhance_sitewide_seo_core_v216.py"
+      - "tests/test_section_directory_v217.py"
+      - ".github/workflows/validate-section-directory-v217.yml"
   workflow_dispatch:
 
 permissions:
@@ -11,10 +18,10 @@ permissions:
 jobs:
   section-directory:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
-      - name: Restore production sources and compile contracts
+      - name: Restore production sources and run deterministic contracts
         run: |
           set -euxo pipefail
           mkdir -p /tmp/v10-content
@@ -25,7 +32,13 @@ jobs:
           cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
           python scripts/verify_enricher_v7.py
           python scripts/verify_expander_v9.py
-          python -m py_compile build_site.py expand_site_v9.py scripts/publish_section_directory_v217.py scripts/apply_homepage_v20.py tests/test_section_directory_v217.py
+          python -m py_compile \
+            build_site.py expand_site_v9.py \
+            scripts/publish_section_directory_v217.py \
+            scripts/normalize_section_directory_api_v217.py \
+            scripts/enhance_sitewide_seo_v216.py \
+            scripts/enhance_sitewide_seo_core_v216.py \
+            tests/test_section_directory_v217.py
           python -m unittest -v tests/test_section_directory_v217.py
       - name: Build exact production output
         run: |
@@ -49,19 +62,22 @@ jobs:
           python scripts/publish_global_metadata_v27.py _site
           python scripts/audit_site_integrity_v13.py _site
           python scripts/audit_content_quality_v32.py _site
-      - name: Enforce directory API sitemap and public-copy contracts
+      - name: Enforce directory API sitemap SEO and public-copy contracts
         run: |
           set -euxo pipefail
           python - <<'PY'
-          import json, re
+          import json
           from pathlib import Path
           root=Path('_site')
           report=json.loads((root/'api/section-directory-v217.json').read_text(encoding='utf-8'))
           sections=json.loads((root/'api/v1/sections.json').read_text(encoding='utf-8'))
+          seo=json.loads((root/'api/sitewide-seo-v216.json').read_text(encoding='utf-8'))
+          verification=json.loads((root/'api/sitewide-seo-verification-v216.json').read_text(encoding='utf-8'))
           homepage=(root/'index.html').read_text(encoding='utf-8')
           directory=(root/'sections/index.html').read_text(encoding='utf-8')
           assert report['status']=='passed' and report['version']==217,report
           assert report['section_count']>=20 and report['html_page_count']>=3000,report
+          assert report['platform_resource_normalized'] and report['platform_endpoint_registered'],report
           assert sections['section_count']==report['section_count'],(sections,report)
           assert len(sections['items'])==report['section_count'],sections
           assert {item['route'] for item in sections['items']} >= {'encyclopedia/','special-needs/','care-guides/','api/'},sections
@@ -73,7 +89,12 @@ jobs:
           assert not any(item in homepage or item in directory for item in banned),banned
           openapi=json.loads((root/'api/v1/openapi.json').read_text(encoding='utf-8'))
           assert any(path.endswith('/api/v1/sections.json') for path in openapi['paths']),openapi['paths']
-          print({'directory':'passed','sections':report['section_count'],'pages':report['html_page_count'],'featured':report['featured_on_home']})
+          platform=json.loads((root/'api/v1/platform.json').read_text(encoding='utf-8'))
+          resource=next(item for item in platform['resources'] if item.get('id')=='sections')
+          assert resource['type']=='collection' and platform['endpoints']['sections']==resource['url'],platform
+          assert seo['failure_count']==0 and verification['failure_count']==0,(seo,verification)
+          assert verification['idempotency_failure_count']==0,verification
+          print({'directory':'passed','sections':report['section_count'],'pages':report['html_page_count'],'seo_pages':verification['totals']['indexed_pages']})
           PY
       - name: Upload section directory evidence
         if: always()
@@ -85,6 +106,8 @@ jobs:
             _site/api/v1/sections.json
             _site/api/v1/openapi.json
             _site/api/v1/platform.json
+            _site/api/sitewide-seo-v216.json
+            _site/api/sitewide-seo-verification-v216.json
             _site/sections/index.html
             _site/sitemap-sections-v217.xml
             _site/api/content-quality-v32.json
