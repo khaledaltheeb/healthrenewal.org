@@ -20,6 +20,16 @@
     if (due && due > today) return { code: "scheduled", label: "المقارنة متاحة والموعد لاحق" };
     return { code: "review_ready", label: "جاهز للمراجعة المهنية" };
   };
+  const validatePlan = (data, record, previous) => {
+    const allowedAssessments = new Set((record.sessions || []).map((item) => item.assessmentId).filter(Boolean));
+    if (!allowedAssessments.has(data.assessmentId)) throw new Error("assessment_not_in_case");
+    if (previous && previous.assessmentId !== data.assessmentId) throw new Error("assessment_change_forbidden");
+    if (!directionLabels[data.targetDirection]) throw new Error("invalid_direction");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data.reviewDate || "") || !Number.isFinite(Date.parse(`${data.reviewDate}T00:00:00`))) throw new Error("invalid_review_date");
+    if ((data.functionalGoal || "").trim().length < 12) throw new Error("functional_goal_too_short");
+    if ((data.decisionRule || "").trim().length < 12) throw new Error("decision_rule_too_short");
+    if (previous && (data.editReason || "").trim().length < 5) throw new Error("edit_reason_required");
+  };
   const savePlan = (data) => {
     const store = progress()?.activeStore?.();
     const identity = progress()?.activeIdentity?.();
@@ -28,14 +38,15 @@
     const plans = Array.isArray(record.originalProgressPlans) ? record.originalProgressPlans : [];
     const id = `${data.caseId}::${data.assessmentId}`;
     const previous = plans.find((item) => item.planId === id) || null;
-    if (previous && !data.editReason?.trim()) throw new Error("edit_reason_required");
+    validatePlan(data, record, previous);
     const now = new Date().toISOString();
     const snapshot = { functionalGoal: data.functionalGoal.trim(), targetDirection: data.targetDirection, reviewDate: data.reviewDate, decisionRule: data.decisionRule.trim() };
+    const event = previous ? { event: "plan_revised", at: now, actorUid: identity.uid, reason: data.editReason.trim(), previous: { functionalGoal: previous.functionalGoal, targetDirection: previous.targetDirection, reviewDate: previous.reviewDate, decisionRule: previous.decisionRule }, next: snapshot } : { event: "plan_created", at: now, actorUid: identity.uid };
     const next = {
       schema: PLAN_SCHEMA, release: RELEASE, planId: id, caseId: data.caseId, assessmentId: data.assessmentId, ...snapshot,
       createdAt: previous?.createdAt || now, createdByUid: previous?.createdByUid || identity.uid,
       updatedAt: now, updatedByUid: identity.uid,
-      auditTrail: [...(previous?.auditTrail || []), previous ? { event: "plan_revised", at: now, actorUid: identity.uid, reason: data.editReason.trim(), previous: { functionalGoal: previous.functionalGoal, targetDirection: previous.targetDirection, reviewDate: previous.reviewDate, decisionRule: previous.decisionRule }, next: snapshot } : { event: "plan_created", at: now, actorUid: identity.uid }]
+      auditTrail: [...(previous?.auditTrail || []), event].slice(-200)
     };
     record.originalProgressPlans = [next, ...plans.filter((item) => item.planId !== id)];
     record.updatedAt = now;
@@ -49,10 +60,8 @@
     if (!identity?.uid || !record) return;
     const payload = {
       schema: "pa-original-progress-plan-export-v3", release: RELEASE, ownerUid: identity.uid, caseId,
-      generatedAt: new Date().toISOString(),
-      interpretationBoundary: "human-review-required-not-diagnostic-not-norm-referenced",
-      backupLocation: "embedded-in-case-record",
-      plans: getPlans(caseId)
+      generatedAt: new Date().toISOString(), interpretationBoundary: "human-review-required-not-diagnostic-not-norm-referenced",
+      backupLocation: "embedded-in-case-record", plans: getPlans(caseId)
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -60,15 +69,19 @@
     anchor.href = url; anchor.download = `${caseId}-original-progress-plans.json`; anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 500);
   };
-  const formHtml = (caseId, options, existing = null) => `<form class="progress-plan-form" data-progress-plan-form="${esc(caseId)}">
-    <label>الأداة الأصلية<select name="assessmentId" required>${options.map((item) => `<option value="${esc(item.id)}" ${existing?.assessmentId === item.id ? "selected" : ""}>${esc(item.title)}</option>`).join("")}</select></label>
-    <label>الهدف الوظيفي<textarea name="functionalGoal" rows="2" maxlength="500" required>${esc(existing?.functionalGoal || "")}</textarea></label>
-    <label>الاتجاه المتوقع<select name="targetDirection" required>${Object.entries(directionLabels).map(([value, label]) => `<option value="${value}" ${existing?.targetDirection === value ? "selected" : ""}>${esc(label)}</option>`).join("")}</select></label>
-    <label>موعد المراجعة<input name="reviewDate" type="date" required value="${esc(existing?.reviewDate || "")}"></label>
-    <label>قاعدة القرار المهنية<textarea name="decisionRule" rows="2" maxlength="500" required placeholder="يراجع الفريق الوظيفة والسياق قبل الاستمرار أو التعديل أو الإغلاق.">${esc(existing?.decisionRule || "")}</textarea></label>
-    <label ${existing ? "" : "hidden"}>سبب تعديل الخطة<input name="editReason" maxlength="240" ${existing ? "required" : ""}></label>
-    <div class="dialog-actions"><button class="button primary small-button" type="submit">${existing ? "حفظ إصدار الخطة" : "إنشاء خطة المتابعة"}</button><button class="button ghost small-button" type="reset">مسح الحقول</button></div>
-    <p class="muted">هذه قاعدة متابعة داخلية وليست عتبة سريرية أو معيارية. لا تعلن المنصة تحقق الهدف آليًا.</p><p class="muted" data-progress-plan-status aria-live="polite"></p></form>`;
+  const formHtml = (caseId, options, existing = null) => {
+    const allowedOptions = existing ? options.filter((item) => item.id === existing.assessmentId) : options;
+    const displayOptions = allowedOptions.length ? allowedOptions : [{ id: existing?.assessmentId || "", title: existing?.assessmentId || "—" }];
+    return `<form class="progress-plan-form" data-progress-plan-form="${esc(caseId)}">
+      <label>الأداة الأصلية<select name="assessmentId" required>${displayOptions.map((item) => `<option value="${esc(item.id)}" ${existing?.assessmentId === item.id ? "selected" : ""}>${esc(item.title)}</option>`).join("")}</select></label>
+      <label>الهدف الوظيفي<textarea name="functionalGoal" rows="2" minlength="12" maxlength="500" required>${esc(existing?.functionalGoal || "")}</textarea></label>
+      <label>الاتجاه المتوقع<select name="targetDirection" required>${Object.entries(directionLabels).map(([value, label]) => `<option value="${value}" ${existing?.targetDirection === value ? "selected" : ""}>${esc(label)}</option>`).join("")}</select></label>
+      <label>موعد المراجعة<input name="reviewDate" type="date" required value="${esc(existing?.reviewDate || "")}"></label>
+      <label>قاعدة القرار المهنية<textarea name="decisionRule" rows="2" minlength="12" maxlength="500" required placeholder="يراجع الفريق الوظيفة والسياق قبل الاستمرار أو التعديل أو الإغلاق.">${esc(existing?.decisionRule || "")}</textarea></label>
+      <label ${existing ? "" : "hidden"}>سبب تعديل الخطة<input name="editReason" minlength="5" maxlength="240" ${existing ? "required" : ""}></label>
+      <div class="dialog-actions"><button class="button primary small-button" type="submit">${existing ? "حفظ إصدار الخطة" : "إنشاء خطة المتابعة"}</button><button class="button ghost small-button" type="reset">مسح الحقول</button></div>
+      <p class="muted">هذه قاعدة متابعة داخلية وليست عتبة سريرية أو معيارية. لا تعلن المنصة تحقق الهدف آليًا.</p><p class="muted" data-progress-plan-status aria-live="polite"></p></form>`;
+  };
   const renderPlans = (caseId) => {
     const panel = document.querySelector(`[data-original-progress="${CSS.escape(caseId)}"]`);
     if (!panel) return;
@@ -88,14 +101,16 @@
     const form = event.target.closest("[data-progress-plan-form]"); if (!form) return;
     event.preventDefault();
     try { savePlan({ caseId: form.dataset.progressPlanForm, ...Object.fromEntries(new FormData(form)) }); renderPlans(form.dataset.progressPlanForm); }
-    catch (error) { const status = form.querySelector("[data-progress-plan-status]"); if (status) status.textContent = error.message === "edit_reason_required" ? "سبب التعديل إلزامي." : "تعذر حفظ الخطة."; }
+    catch (error) { const status = form.querySelector("[data-progress-plan-status]"); if (status) status.textContent = error.message === "edit_reason_required" ? "سبب التعديل إلزامي." : "تحقق من الهدف والأداة والتاريخ وقاعدة القرار."; }
   });
   document.addEventListener("click", (event) => {
     const exportButton = event.target.closest("[data-export-progress-plans]");
     if (exportButton) { exportPlans(exportButton.dataset.exportProgressPlans); return; }
     const button = event.target.closest("[data-edit-progress-plan]"); if (!button) return;
-    const plan = [...document.querySelectorAll("[data-original-progress]")].flatMap((panel) => getPlans(panel.dataset.originalProgress)).find((item) => item.planId === button.dataset.editProgressPlan);
-    const host = button.closest("[data-original-progress-plans]"); if (!plan || !host) return;
+    const host = button.closest("[data-original-progress-plans]");
+    const caseId = host?.dataset.originalProgressPlans;
+    const plan = caseId ? getPlans(caseId).find((item) => item.planId === button.dataset.editProgressPlan) : null;
+    if (!plan || !host) return;
     const wrapper = document.createElement("div"); wrapper.innerHTML = formHtml(plan.caseId, assessmentOptions(plan.caseId), plan);
     host.querySelector("[data-progress-plan-form]")?.replaceWith(wrapper.firstElementChild);
   });
@@ -108,5 +123,5 @@
   const style = document.createElement("style");
   style.textContent = `.progress-plan-section{margin-top:18px;border-top:1px solid var(--line,#c5e4e0);padding-top:16px}.progress-plan-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.progress-plan-card,.progress-plan-form{border:1px solid var(--line,#c5e4e0);border-radius:14px;padding:12px;background:#fff}.progress-plan-card>div{display:flex;gap:8px;justify-content:space-between;align-items:start}.progress-plan-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.progress-plan-form label{display:grid;gap:5px;font-weight:700}.progress-plan-form textarea,.progress-plan-form input,.progress-plan-form select{width:100%;font:inherit;padding:8px;border:1px solid var(--line,#c5e4e0);border-radius:9px}.progress-plan-form label:nth-child(2),.progress-plan-form label:nth-child(5),.progress-plan-form .dialog-actions,.progress-plan-form .muted{grid-column:1/-1}.comparability-badge.review_ready{background:#dff7ef;color:#075a46}.comparability-badge.context_blocked{background:#fff2d8;color:#704500}@media(max-width:700px){.progress-plan-grid,.progress-plan-form{grid-template-columns:1fr}}`;
   document.head.appendChild(style);
-  window.PA_ORIGINAL_PROGRESS_PLANS = { release: RELEASE, schema: PLAN_SCHEMA, getPlans, savePlan, reviewStatus, exportPlans };
+  window.PA_ORIGINAL_PROGRESS_PLANS = { release: RELEASE, schema: PLAN_SCHEMA, getPlans, savePlan, reviewStatus, exportPlans, validatePlan };
 })();
