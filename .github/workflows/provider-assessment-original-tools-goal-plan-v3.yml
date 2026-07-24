@@ -50,7 +50,15 @@ jobs:
           grep -q 'plan_revised' provider-assessment-demo/original-tools-progress-plan-v3.js
           grep -q 'edit_reason_required' provider-assessment-demo/original-tools-progress-plan-v3.js
           grep -q 'human-review-required-not-diagnostic-not-norm-referenced' provider-assessment-demo/original-tools-progress-plan-v3.js
-          grep -q 'لا تعلن المنصة تحقق الهدف آليًا' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'progress-monitoring-not-screening-not-diagnostic-not-standalone-functional-assessment' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'assessmentPurpose: ASSESSMENT_PURPOSE' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'familyPriority' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'providerObservation' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'measurementContext' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'reviewOwner' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'interpretationLimit' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'ليست هذه الخطة مسحًا أو فرزًا' provider-assessment-demo/original-tools-progress-plan-v3.js
+          grep -q 'لا تعلن المنصة تحقق الهدف أو التحسن السريري آليًا' provider-assessment-demo/original-tools-progress-plan-v3.js
           grep -q 'persistStore' provider-assessment-demo/original-tools-progress-plan-bridge-v3.js
           grep -q 'original-tools-progress-plan-bridge-v3.js' provider-assessment-demo/institutional-live-v2.js
           grep -q 'original-tools-progress-plan-v3.js' provider-assessment-demo/institutional-live-v2.js
