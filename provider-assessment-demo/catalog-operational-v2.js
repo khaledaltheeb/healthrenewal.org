@@ -6,14 +6,17 @@
   if (!data || !Array.isArray(data.professional)) return;
 
   const normalize = (item, index) => {
-    const isExternal = item.status === "external" || String(item.activationStatus || "").startsWith("external");
+    const isExternal = item.status === "external"
+      || String(item.activationStatus || "").startsWith("external")
+      || String(item.inputMode || "").includes("external");
     item.id ||= `professional-${index + 1}`;
     item.status = isExternal ? "external" : "locked";
     item.operational = true;
     item.release = RELEASE;
     item.activationStatus = isExternal ? "external_result_workflow" : "locked_pending_rights";
+    item.rightsStatus = isExternal ? "locked_or_link_only" : "locked_pending_rights";
     item.access = isExternal
-      ? "مسار متاح لتسجيل الفحص الخارجي أو استيراد النتيجة وربطها بالحالة"
+      ? "تسجيل نتيجة خارجية أو رابط رسمي فقط؛ لا تُعرض البنود أو مفاتيح التصحيح أو المعايير"
       : "مقفل حتى اكتمال الترخيص وحق الرقمنة والتحقق من النسخة واللغة والمؤهل";
     item.note = isExternal
       ? "يُسجل تقرير الجهة المختصة أو نتيجتها داخل سجل الحالة مع التاريخ والمنفذ والملاحظات دون نسخ المواد المحمية."
@@ -27,4 +30,31 @@
   data.professional = data.professional.map(normalize);
   window.PA_OPERATIONAL_RELEASE = RELEASE;
   window.PA_OPERATIONAL_COUNT = data.professional.length;
+
+  const applyTabSemantics = () => {
+    const tablist = document.querySelector(".tabs");
+    if (!tablist) return;
+    tablist.setAttribute("role", "tablist");
+    document.querySelectorAll(".tab[data-view]").forEach((tab, index) => {
+      const view = tab.dataset.view || String(index);
+      const panel = document.querySelector(`[data-view-panel="${CSS.escape(view)}"]`);
+      const tabId = `workspace-tab-${view}`;
+      tab.id = tabId;
+      tab.setAttribute("role", "tab");
+      tab.setAttribute("aria-controls", panel?.id || `view-${view}`);
+      tab.tabIndex = tab.getAttribute("aria-selected") === "true" ? 0 : -1;
+      if (panel) {
+        panel.setAttribute("role", "tabpanel");
+        panel.setAttribute("aria-labelledby", tabId);
+      }
+    });
+  };
+
+  const bootAccessibility = () => {
+    applyTabSemantics();
+    const tablist = document.querySelector(".tabs");
+    if (tablist) new MutationObserver(applyTabSemantics).observe(tablist, { childList: true });
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bootAccessibility, { once: true });
+  else bootAccessibility();
 })();
