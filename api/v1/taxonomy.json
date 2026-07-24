@@ -1,8 +1,9 @@
 {
   "apiVersion": "1.0.0",
   "generatedAt": "2026-07-25",
+  "totalPages": 0,
   "notice": "يُعاد توليد التصنيف من صفحات الإنتاج القابلة للفهرسة. هذه النسخة الأولية تحفظ عقد API وسلامة الروابط.",
-  "languages": {},
-  "sections": {},
-  "topics": []
+  "languages": [],
+  "sections": [],
+  "tags": []
 }
