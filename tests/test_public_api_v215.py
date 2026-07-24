@@ -71,6 +71,14 @@ class PublicApiV215Tests(unittest.TestCase):
             site.mkdir()
             manifest = root / "manifest.json"
             imported = root / "imported.json"
+            api = site / "api" / "v1"
+            api.mkdir(parents=True)
+            (api / "openapi.json").write_text(json.dumps({
+                "openapi": "3.1.0",
+                "info": {"title": "Original API", "version": "0.9.0"},
+                "paths": {"/api/v1/platform.json": {"get": {"summary": "Existing platform endpoint"}}},
+                "components": {"schemas": {"Platform": {"type": "object"}}}
+            }), encoding="utf-8")
             manifest.write_text(json.dumps({"schema_version": 215, "policy": "deny-by-default", "sources": [self.approved_source()]}), encoding="utf-8")
             imported.write_text(json.dumps({
                 "schema_version": 215,
@@ -101,13 +109,19 @@ class PublicApiV215Tests(unittest.TestCase):
             self.assertTrue((site / "sitemap-developers.xml").is_file())
             courses = json.loads((site / "api" / "v1" / "courses.json").read_text(encoding="utf-8"))
             self.assertEqual(courses["count"], 1)
+            openapi = json.loads((site / "api" / "v1" / "openapi.json").read_text(encoding="utf-8"))
+            self.assertIn("/api/v1/platform.json", openapi["paths"])
+            self.assertIn("/api/v1/health.json", openapi["paths"])
+            self.assertIn("Platform", openapi["components"]["schemas"])
+            self.assertIn("Course", openapi["components"]["schemas"])
+            self.assertTrue(report["preserved_existing_paths"])
 
     def test_seo_audit_blocks_public_execution_language(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             site = Path(temp) / "site"
             site.mkdir()
             (site / "index.html").write_text(
-                '<!doctype html><html lang="ar" dir="rtl"><head><title>عنوان عربي تجريبي واضح للصحة النفسية</title><meta name="description" content="وصف عربي موسع وواضح يشرح محتوى الصفحة والغرض منها ويقدم قيمة للقارئ ضمن حدود مهنية دقيقة ومفهومة."><link rel="canonical" href="https://example.org/"><meta property="og:title" content="عنوان"><meta property="og:description" content="وصف"><meta name="twitter:card" content="summary"><script type="application/ld+json">{}</script></head><body><h1>عنوان</h1><p>خطة نمو قابلة للقياس</p></body></html>',
+                '<!doctype html><html lang="ar" dir="rtl"><head><title>عنوان عربي تجريبي واضح للصحة النفسية</title><meta name="keywords" content="الصحة النفسية,علم النفس"><meta name="description" content="وصف عربي موسع وواضح يشرح محتوى الصفحة والغرض منها ويقدم قيمة للقارئ ضمن حدود مهنية دقيقة ومفهومة."><link rel="canonical" href="https://example.org/"><meta property="og:title" content="عنوان"><meta property="og:description" content="وصف"><meta name="twitter:card" content="summary"><script type="application/ld+json">{}</script></head><body><h1>عنوان</h1><p>خطة نمو قابلة للقياس</p></body></html>',
                 encoding="utf-8",
             )
             report = SEO_AUDIT.audit_site(site=site, report_path=Path(temp) / "report.json", taxonomy_path=ROOT / "content" / "seo" / "keyword-taxonomy-v215.json")
