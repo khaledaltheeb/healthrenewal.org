@@ -14,6 +14,19 @@ on:
       - "tests/test_sleep_log_v49.mjs"
       - "tests/e2e_sleep_log_v62.mjs"
       - ".github/workflows/validate-sleep-log-v49.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "assets/sleep-log-v49.js"
+      - "scripts/publish_daily_tools_v24.py"
+      - "scripts/publish_daily_tools_v24_core.py"
+      - "scripts/verify_daily_tools_v24.py"
+      - "scripts/publish_sleep_log_v49.py"
+      - "scripts/apply_daily_tools_marshmallow_v219.py"
+      - "scripts/verify_sleep_log_v49.py"
+      - "tests/test_sleep_log_v49.mjs"
+      - "tests/e2e_sleep_log_v62.mjs"
+      - ".github/workflows/validate-sleep-log-v49.yml"
   workflow_dispatch:
 
 permissions:
