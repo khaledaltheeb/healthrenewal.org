@@ -1,0 +1,44 @@
+name: Validate institutional homepage API and semantic SEO v215
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'assets/brand/**'
+      - 'content/integrations/**'
+      - 'content/seo/**'
+      - 'scripts/apply_homepage_v20.py'
+      - 'scripts/import_authorized_courses_v215.py'
+      - 'scripts/publish_public_api_v215.py'
+      - 'scripts/audit_seo_semantics_v215.py'
+      - 'tests/test_homepage_public_content_v215.py'
+      - 'tests/test_public_api_v215.py'
+      - '.github/workflows/validate-home-api-seo-v215.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate JSON SVG and Python contracts
+        run: |
+          python -m json.tool content/integrations/course-sources-v215.json >/dev/null
+          python -m json.tool content/integrations/imported-courses-v215.json >/dev/null
+          python -m json.tool content/seo/keyword-taxonomy-v215.json >/dev/null
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          ET.parse('assets/brand/platform-logo.svg')
+          ET.parse('assets/brand/platform-social-card.svg')
+          PY
+          python -m py_compile scripts/apply_homepage_v20.py scripts/import_authorized_courses_v215.py scripts/publish_public_api_v215.py scripts/audit_seo_semantics_v215.py tests/test_homepage_public_content_v215.py tests/test_public_api_v215.py
+      - name: Test homepage public content API permission gates and SEO audit
+        run: python -m unittest -v tests/test_homepage_public_content_v215.py tests/test_public_api_v215.py
