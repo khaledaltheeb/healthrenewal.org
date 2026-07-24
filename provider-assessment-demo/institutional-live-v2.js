@@ -1,7 +1,7 @@
 "use strict";
 
 (() => {
-  const RELEASE = "2026.07.24-live.6";
+  const RELEASE = "2026.07.24-live.7";
   const PATH = "/pterminology-site/provider-assessment-demo/";
 
   const replaceText = (root = document) => {
@@ -29,7 +29,7 @@
     document.documentElement.dataset.release = RELEASE;
     document.title = "منصة التقييم والسجل المهني | منصة الصحة النفسية وذوي الاحتياجات الخاصة";
     const description = document.querySelector('meta[name="description"]');
-    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية ومسارات تطبيق المقاييس المهنية، مع 20 دليل حالة وقوالب تشغيل متخصصة وتقارير مهنية متعددة الإصدارات داخل UID مستقل.";
+    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية ومسارات تطبيق المقاييس المهنية، مع 20 دليل حالة وتقارير متعددة الإصدارات تتضمن نوع التقييم وصلاحية النتيجة وخط الأساس والهدف والمتابعة داخل UID مستقل.";
     const applicationVersion = document.querySelector('meta[name="application-version"]');
     if (applicationVersion) applicationVersion.content = RELEASE;
 
@@ -38,7 +38,7 @@
     const product = document.querySelector(".product-name");
     if (product) product.textContent = "منصة التقييم والسجل المهني";
     const notice = document.querySelector(".notice-bar");
-    if (notice) notice.textContent = "جميع الأدوات الظاهرة تملك مسار عمل فعّالًا وقالب تطبيق يناسب نوعها، مع تقارير مهنية متعددة الإصدارات مرتبطة بالحالة. لا تُنسخ مواد تجارية محمية دون حق استخدامها.";
+    if (notice) notice.textContent = "جميع الأدوات الظاهرة تملك مسار عمل فعّالًا وقالب تطبيق يناسب نوعها، مع تقارير مهنية متعددة الإصدارات وسجل مراجعة. لا تُنسخ مواد تجارية محمية دون حق استخدامها.";
 
     const count = window.PA_OPERATIONAL_COUNT || window.PA_DEMO_DATA?.professional?.length || 0;
     const card = document.querySelector(".hero-card ul");
@@ -50,7 +50,7 @@
         <li>${count} مقياسًا وفحصًا وبروتوكولًا بمسار عمل مهني فعّال.</li>
         <li>20 دليل حالة مؤسسيًا مع فريق وحزمة مقاييس وكورس ومخرجات تقرير.</li>
         <li>قوالب إدخال متخصصة حسب نوع الأداة والفحص.</li>
-        <li>تقارير مهنية متعددة الإصدارات مع طباعة وتصدير محلي.</li>
+        <li>تقارير مهنية متعددة الإصدارات مع عقد تفسير وخط أساس وهدف وسجل مراجعة.</li>
         <li>الإصدار الحي: ${RELEASE}.</li>`;
     }
 
@@ -82,7 +82,10 @@
   };
 
   const addScript = (src, datasetName, onload) => {
-    if (document.querySelector(`script[data-${datasetName}]`)) return;
+    if (document.querySelector(`script[data-${datasetName}]`)) {
+      if (onload) onload();
+      return;
+    }
     const script = document.createElement("script");
     script.src = `${src}?release=${encodeURIComponent(RELEASE)}`;
     script.defer = true;
@@ -94,7 +97,7 @@
   const loadAssessmentPathways = () => addScript("assessment-pathways-content.js", "assessment-pathways");
   const loadConditionPathways = () => addScript("conditions/conditions-data-v1.js", "condition-pathways", () => addScript("condition-entry-v1.js", "condition-entry"));
   const loadProfessionalTemplates = () => addScript("professional-templates-v1.js", "professional-templates");
-  const loadCaseReports = () => addScript("case-report-v1.js", "case-reports");
+  const loadCaseReports = () => addScript("case-report-v1.js", "case-reports", () => addScript("case-report-interpretation-v2.js", "case-report-interpretation-v2"));
 
   const refreshOldCaches = async () => {
     try {
