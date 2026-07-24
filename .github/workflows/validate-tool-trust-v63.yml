@@ -1,11 +1,14 @@
-name: Validate interactive tool trust v63
+name: Validate interactive tool trust and marshmallow design v219
 
 on:
   pull_request:
     branches: ["main"]
     paths:
       - "scripts/publish_daily_tools_v24.py"
+      - "scripts/verify_daily_tools_v24.py"
       - "scripts/publish_sleep_log_v49.py"
+      - "scripts/verify_sleep_log_v49.py"
+      - "scripts/apply_daily_tools_marshmallow_v219.py"
       - "assets/sleep-log-v49.js"
       - "scripts/audit_tool_trust_v63.py"
       - ".github/workflows/validate-tool-trust-v63.yml"
@@ -16,27 +19,80 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: interactive-tools-v219-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  trust-safety-gate:
+  trust-safety-and-design:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
-      - name: Compile trust audit
-        run: python -m py_compile scripts/audit_tool_trust_v63.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile interactive tool publishers and audits
+        run: |
+          python -m py_compile \
+            scripts/publish_daily_tools_v24.py \
+            scripts/verify_daily_tools_v24.py \
+            scripts/publish_sleep_log_v49.py \
+            scripts/verify_sleep_log_v49.py \
+            scripts/apply_daily_tools_marshmallow_v219.py \
+            scripts/audit_tool_trust_v63.py
 
       - name: Validate JavaScript syntax
         run: node --check assets/sleep-log-v49.js
 
-      - name: Enforce privacy, non-diagnosis and safe next steps
+      - name: Generate all interactive tools and enforce marshmallow contrast
+        run: |
+          set -euxo pipefail
+          rm -rf /tmp/interactive-tools-v219
+          mkdir -p /tmp/interactive-tools-v219
+          cat > /tmp/interactive-tools-v219/sitemap.xml <<'XML'
+          <?xml version="1.0" encoding="utf-8"?>
+          <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>
+          XML
+          cat > /tmp/interactive-tools-v219/index.html <<'HTML'
+          <!doctype html><html lang="ar" dir="rtl"><head><title>منصة اختبار</title>
+          <meta name="keywords" content="الصحة النفسية">
+          <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"CollectionPage","@id":"https://khaledaltheeb.github.io/pterminology-site/#home","hasPart":[]}]}</script>
+          </head><body><nav><a href="provider-assessment-demo/">منصة التقييم</a></nav>
+          <article><a href="cognitive-tests/">فتح المهام</a></article></body></html>
+          HTML
+          python scripts/publish_daily_tools_v24.py /tmp/interactive-tools-v219
+          python scripts/publish_sleep_log_v49.py /tmp/interactive-tools-v219
+          python scripts/apply_daily_tools_marshmallow_v219.py /tmp/interactive-tools-v219
+          python scripts/verify_daily_tools_v24.py /tmp/interactive-tools-v219
+          test "$(find /tmp/interactive-tools-v219/daily-tools -name index.html | wc -l)" -eq 9
+          test "$(find /tmp/interactive-tools-v219/learning-paths -name index.html | wc -l)" -eq 5
+          grep -q 'data-daily-tools-v219' /tmp/interactive-tools-v219/index.html
+          grep -q 'data-learning-paths-v219' /tmp/interactive-tools-v219/index.html
+          ! grep -R -Eqi 'text-shadow|rgba\(0[[:space:]]*,[[:space:]]*0[[:space:]]*,[[:space:]]*0' \
+            /tmp/interactive-tools-v219/daily-tools \
+            /tmp/interactive-tools-v219/learning-paths
+
+      - name: Enforce privacy non-diagnosis and safe next steps
         run: python scripts/audit_tool_trust_v63.py
 
-      - name: Upload trust evidence
+      - name: Audit unpublished and unwired repository sources
+        run: python scripts/audit_unpublished_content_v201.py .
+
+      - name: Upload trust design and unpublished-content evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: tool-trust-v63
-          path: tool-trust-v63.json
+          name: interactive-tools-v219-evidence
+          path: |
+            tool-trust-v63.json
+            _audit/unpublished-content-v201.json
+            _audit/unpublished-content-v201.md
+            /tmp/interactive-tools-v219/api/daily-tools-v24.json
+            /tmp/interactive-tools-v219/index.html
+            /tmp/interactive-tools-v219/daily-tools/index.html
+            /tmp/interactive-tools-v219/daily-tools/sleep-wind-down-plan/index.html
           if-no-files-found: warn
           retention-days: 14
