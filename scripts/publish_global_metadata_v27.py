@@ -9,6 +9,9 @@ from dataclasses import dataclass
 from html.parser import HTMLParser
 from pathlib import Path
 
+from publish_authorized_courses_v201 import publish as publish_authorized_courses
+from publish_content_discovery_v201 import publish as publish_content_discovery
+
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 VERIFY = "google644f1f7a8b7aaa2b.html"
@@ -160,6 +163,12 @@ def main() -> None:
         }.items():
             if not present:
                 stats["remaining_missing"][key].append(relative)
+
+    try:
+        stats["content_discovery"] = publish_content_discovery(SITE)
+        stats["authorized_courses"] = publish_authorized_courses(SITE)
+    except ValueError as error:
+        failures.append(f"institutional_seo_api_v201: {error}")
 
     remaining_count = sum(len(items) for items in stats["remaining_missing"].values())
     stats["remaining_missing_count"] = remaining_count
