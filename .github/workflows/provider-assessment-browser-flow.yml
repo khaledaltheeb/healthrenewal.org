@@ -18,6 +18,7 @@ on:
       - "provider-assessment-demo/case-report-v1.js"
       - "provider-assessment-demo/case-report-interpretation-v2.js"
       - "provider-assessment-demo/case-report-export-v2.js"
+      - "provider-assessment-demo/original-tools-progress-v1.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/tests/**"
       - ".github/workflows/provider-assessment-browser-flow.yml"
@@ -38,6 +39,7 @@ on:
       - "provider-assessment-demo/case-report-v1.js"
       - "provider-assessment-demo/case-report-interpretation-v2.js"
       - "provider-assessment-demo/case-report-export-v2.js"
+      - "provider-assessment-demo/original-tools-progress-v1.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/tests/**"
       - ".github/workflows/provider-assessment-browser-flow.yml"
@@ -67,8 +69,12 @@ jobs:
           node --check provider-assessment-demo/tests/playwright.config.cjs
           node --check provider-assessment-demo/tests/report-flow.spec.cjs
           node --check provider-assessment-demo/tests/professional-record-backup-flow.spec.cjs
+          node --check provider-assessment-demo/tests/original-tools-progress.spec.cjs
+          node --check provider-assessment-demo/original-tools-progress-v1.js
           grep -q 'href="../?release=2026.07.24-live.7"' provider-assessment-demo/training/index.html
           ! grep -q 'release=2026.07.24-live.6' provider-assessment-demo/training/index.html
+          grep -q 'loadOriginalProgress' provider-assessment-demo/institutional-live-v2.js
+          grep -q 'descriptive-longitudinal-comparison-not-diagnostic-not-norm-referenced' provider-assessment-demo/original-tools-progress-v1.js
 
       - name: Install Playwright test runner and Chromium
         run: |
@@ -118,7 +124,7 @@ jobs:
           payload = json.dumps({
               'state': 'success',
               'context': 'provider-assessment/browser-flows',
-              'description': 'Chromium report, record, encrypted restore and rollback flows passed',
+              'description': 'Chromium report, record, progress, encrypted restore and rollback flows passed',
               'target_url': run_url,
           }).encode()
           request = urllib.request.Request(
@@ -150,7 +156,7 @@ jobs:
           payload = json.dumps({
               'state': 'failure',
               'context': 'provider-assessment/browser-flows',
-              'description': 'Chromium professional workflow regression detected',
+              'description': 'Chromium professional or original-tool workflow regression detected',
               'target_url': run_url,
           }).encode()
           request = urllib.request.Request(
