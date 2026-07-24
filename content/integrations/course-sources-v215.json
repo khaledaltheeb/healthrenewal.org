@@ -1,0 +1,19 @@
+{
+  "schema_version": 215,
+  "policy": "deny-by-default",
+  "security_contract_version": 218,
+  "updated_at": "2026-07-25",
+  "description": "سجل مصادر الدورات المسموح باستيراد فهارسها. لا يُفعّل أي مصدر قبل توثيق الإذن والترخيص ونطاق الاستخدام ومدة صلاحية الإذن.",
+  "required_permission_fields": [
+    "permission_status",
+    "permission_reference",
+    "permission_granted_at",
+    "permission_duration",
+    "permission_expires_at",
+    "license_url",
+    "allowed_actions"
+  ],
+  "permission_duration_values": ["fixed", "perpetual"],
+  "allowed_formats": ["json", "csv"],
+  "sources": []
+}
