@@ -1,57 +1,67 @@
 <!doctype html>
-<html lang="ar" dir="rtl" data-release="2026.07.24-live.2">
+<html lang="ar" dir="rtl" data-release="2026.07.24-live.5">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>منصة التقييم والسجل المهني | منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
-  <meta name="description" content="منصة عربية مؤسسية محلية لإدارة الحالات والجلسات الاستكشافية ومسارات تطبيق المقاييس والفحوص المهنية وربط النتائج والملاحظات والقرارات بكل حالة ضمن UID مستقل.">
+  <meta name="description" content="منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية ومسارات تطبيق المقاييس المهنية، مع 20 دليل حالة وقوالب تشغيل متخصصة وربط النتائج والملاحظات والقرارات بكل حالة ضمن UID مستقل.">
+  <meta name="keywords" content="منصة تقييم ذوي الاحتياجات الخاصة, المقاييس النفسية, التقييم المهني, سجل الحالات, السلوك التكيفي, تقييم التوحد, صعوبات التعلم, التربية الخاصة">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
   <meta name="theme-color" content="#0b6b66">
-  <meta name="application-version" content="2026.07.24-live.2">
+  <meta name="application-version" content="2026.07.24-live.5">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/provider-assessment-demo/">
-  <link rel="stylesheet" href="styles.css?v=20260724-live2">
-  <link rel="stylesheet" href="enhancements.css?v=20260724-live2">
-  <script src="catalog.js?v=20260724-live2" defer></script>
-  <script src="catalog-extra.js?v=20260724-live2" defer></script>
-  <script src="professional-master-registry.js?v=20260724-live2" defer></script>
-  <script src="catalog-operational-v2.js?v=20260724-live2" defer></script>
-  <script src="app.js?v=20260724-live2" defer></script>
-  <script src="activation.js?v=20260724-live2" defer></script>
-  <script src="activation-guard.js?v=20260724-live2" defer></script>
-  <script src="enhancements.js?v=20260724-live2" defer></script>
-  <script src="institutional-live-v2.js?v=20260724-live2" defer></script>
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ar_AR">
+  <meta property="og:site_name" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة">
+  <meta property="og:title" content="منصة التقييم والسجل المهني">
+  <meta property="og:description" content="20 أداة استكشافية، سجل مهني موسع، 20 مسار حالة، وقوالب إدخال متخصصة مع تخزين محلي مستقل لكل UID.">
+  <meta property="og:url" content="https://khaledaltheeb.github.io/pterminology-site/provider-assessment-demo/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css?v=20260724-live5">
+  <link rel="stylesheet" href="enhancements.css?v=20260724-live5">
+  <script src="catalog.js?v=20260724-live5" defer></script>
+  <script src="catalog-extra.js?v=20260724-live5" defer></script>
+  <script src="professional-master-registry.js?v=20260724-live5" defer></script>
+  <script src="catalog-operational-v2.js?v=20260724-live5" defer></script>
+  <script src="app.js?v=20260724-live5" defer></script>
+  <script src="activation.js?v=20260724-live5" defer></script>
+  <script src="activation-guard.js?v=20260724-live5" defer></script>
+  <script src="enhancements.js?v=20260724-live5" defer></script>
+  <script src="conditions/conditions-data-v1.js?v=20260724-live5" defer data-condition-pathways="2026.07.24-live.5"></script>
+  <script src="condition-entry-v1.js?v=20260724-live5" defer data-condition-entry="2026.07.24-live.5"></script>
+  <script src="professional-templates-v1.js?v=20260724-live5" defer data-professional-templates="2026.07.24-live.5"></script>
+  <script src="institutional-live-v2.js?v=20260724-live5" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main">تجاوز إلى المحتوى الرئيسي</a>
-
 <header class="site-header">
   <div class="brand-wrap">
     <a class="brand" href="../">منصة الصحة النفسية وذوي الاحتياجات الخاصة</a>
     <span class="product-name">منصة التقييم والسجل المهني</span>
   </div>
   <div class="header-actions">
+    <a id="conditions-hub-link" class="button ghost" href="conditions/">مسارات الحالات</a>
     <span id="mode-badge" class="badge neutral">وضع الزائر</span>
     <button id="contrast-toggle" class="button ghost" type="button" aria-pressed="false">تباين مرتفع</button>
     <button id="account-button" class="button secondary" type="button">مساحة مقدم الخدمة</button>
   </div>
 </header>
 
-<div class="notice-bar" role="note">
-  جميع الأدوات الظاهرة تملك مسار عمل فعّالًا: تطبيق استكشافي أصلي، أو سجل مهني للتخطيط والتعيين والنتيجة، أو استيراد نتيجة من جهة مختصة. لا تُنسخ مواد تجارية محمية دون حق استخدامها.
-</div>
+<div class="notice-bar" role="note">جميع الأدوات الظاهرة تملك مسار عمل فعّالًا وقالب تطبيق يناسب نوعها: استبانة، اختبار أداء، مقابلة أو ملاحظة، فحص جهازي، تصنيف وظيفي، تواصل، أو تحليل سلوك. لا تُنسخ مواد تجارية محمية دون حق استخدامها.</div>
 
 <main id="main" class="page-shell">
   <section class="hero" aria-labelledby="hero-title">
     <div>
-      <p class="eyebrow">نسخة مؤسسية محلية منشورة لإدارة الحالات والسجلات</p>
+      <p class="eyebrow">منصة مؤسسية محلية لإدارة الحالات ومسارات التقييم</p>
       <h1 id="hero-title">أنشئ حالة، نفّذ جلسات، وسجّل التقييمات والفحوص والخدمات المهنية في مسار واحد.</h1>
-      <p class="lead">إدارة حالات متعددة، جلسات متكررة، سجل زمني، مقارنة وصفية، وسجلات تطبيق مهنية. تحفظ البيانات محليًا داخل المتصفح بواسطة UID مستقل لكل مستخدم أو مقدم خدمة.</p>
+      <p class="lead">إدارة حالات متعددة، جلسات متكررة، سجل زمني، مقارنة وصفية، وسجلات تطبيق مهنية بقوالب متخصصة. تحفظ البيانات محليًا داخل المتصفح بواسطة UID مستقل لكل مستخدم أو مقدم خدمة.</p>
       <div class="hero-actions">
         <button id="start-explore" class="button primary" type="button">ابدأ الاستكشاف</button>
         <button id="open-guide" class="button secondary" type="button">دليل الاستخدام المختصر</button>
+        <a class="button secondary" href="conditions/">استعراض الحالات العشرين</a>
       </div>
     </div>
     <aside class="hero-card" aria-label="ملخص خصائص النسخة">
@@ -60,8 +70,10 @@
         <li>UID مستقل لكل مستخدم أو مقدم خدمة.</li>
         <li>سجل حالات وجلسات ونتائج متكررة محفوظ محليًا.</li>
         <li>20 أداة استكشافية أصلية تعمل مباشرة.</li>
-        <li>سجل مهني موسع للتخطيط والتعيين والتطبيق المصرح والنتائج.</li>
-        <li>الإصدار الحي: 2026.07.24-live.2.</li>
+        <li>سجل مهني موسع للمقاييس والفحوص والبروتوكولات.</li>
+        <li>20 دليل حالة مؤسسيًا مع فريق وحزمة مقاييس وكورس ومخرجات تقرير.</li>
+        <li>قوالب إدخال متخصصة حسب نوع الأداة والفحص.</li>
+        <li>الإصدار الحي: 2026.07.24-live.5.</li>
       </ul>
     </aside>
   </section>
@@ -76,10 +88,7 @@
     </nav>
 
     <section id="view-dashboard" class="view active" data-view-panel="dashboard">
-      <div class="section-heading">
-        <div><p class="eyebrow">هوية التخزين الحالية</p><h2>لوحة المستخدم</h2></div>
-        <button id="copy-uid" class="button ghost" type="button">نسخ UID</button>
-      </div>
+      <div class="section-heading"><div><p class="eyebrow">هوية التخزين الحالية</p><h2>لوحة المستخدم</h2></div><button id="copy-uid" class="button ghost" type="button">نسخ UID</button></div>
       <div class="stats-grid">
         <article class="stat-card"><span>UID</span><strong id="current-uid" class="code">—</strong></article>
         <article class="stat-card"><span>نوع الحساب</span><strong id="current-role">زائر استكشافي</strong></article>
@@ -87,77 +96,41 @@
         <article class="stat-card"><span>الجلسات المكتملة</span><strong id="session-count">0</strong></article>
       </div>
       <div class="two-column">
-        <article class="panel">
-          <h3>البدء السريع</h3>
-          <p>أنشئ حالة باسم مستعار، ثم اختر أداة استكشافية أصلية أو أضف سجل تطبيق لمقياس أو فحص مهني. يمكن تكرار الجلسات وربط النتائج والملاحظات والقرارات بالحالة نفسها.</p>
-          <button id="dashboard-new-case" class="button primary" type="button">إنشاء حالة جديدة</button>
-        </article>
-        <article class="panel">
-          <h3>التشغيل الحالي</h3>
-          <ul class="clean-list">
-            <li>التخزين محلي في هذا الجهاز والمتصفح ومفصول بواسطة UID.</li>
-            <li>الأدوات الاستكشافية تعمل مباشرة وتنتج خلاصة وصفية غير تشخيصية.</li>
-            <li>كل مقياس أو فحص مهني يفتح سجل عمل للتعيين والتطبيق والنتيجة والمتابعة.</li>
-            <li>الفحوص الجهازية والطبية تستقبل نتيجتها من الجهة المختصة.</li>
-          </ul>
-        </article>
+        <article class="panel"><h3>البدء السريع</h3><p>أنشئ حالة باسم مستعار، ثم اختر أداة استكشافية أصلية أو أضف سجل تطبيق لمقياس أو فحص مهني. يمكن تكرار الجلسات وربط النتائج والملاحظات والقرارات بالحالة نفسها.</p><button id="dashboard-new-case" class="button primary" type="button">إنشاء حالة جديدة</button></article>
+        <article class="panel"><h3>التشغيل الحالي</h3><ul class="clean-list"><li>التخزين محلي في هذا الجهاز والمتصفح ومفصول بواسطة UID.</li><li>الأدوات الاستكشافية تعمل مباشرة وتنتج خلاصة وصفية غير تشخيصية.</li><li>كل مقياس أو فحص مهني يفتح سجل عمل وقالبًا متخصصًا للتطبيق والنتيجة والمتابعة.</li><li>الفحوص الجهازية والطبية تستقبل نتيجتها من الجهة المختصة.</li></ul></article>
       </div>
-      <article class="panel">
-        <div class="section-heading compact"><div><h3>آخر النشاطات</h3><p class="muted">أحدث الجلسات والحالات في مساحة المستخدم الحالية.</p></div></div>
-        <div id="recent-activity" class="empty-state">لا يوجد نشاط محفوظ بعد.</div>
-      </article>
+      <article class="panel"><div class="section-heading compact"><div><h3>آخر النشاطات</h3><p class="muted">أحدث الجلسات والحالات في مساحة المستخدم الحالية.</p></div></div><div id="recent-activity" class="empty-state">لا يوجد نشاط محفوظ بعد.</div></article>
     </section>
 
     <section id="view-cases" class="view" data-view-panel="cases" hidden>
-      <div class="section-heading">
-        <div><p class="eyebrow">سجل طويل المدى</p><h2>الحالات والجلسات</h2></div>
-        <button id="new-case-button" class="button primary" type="button">حالة جديدة</button>
-      </div>
-      <div class="toolbar">
-        <label class="field grow"><span>البحث في الحالات</span><input id="case-search" type="search" placeholder="ابحث بالاسم المستعار أو رقم الحالة"></label>
-        <label class="field"><span>الحالة</span><select id="case-status-filter"><option value="">الكل</option><option value="active">نشطة</option><option value="follow_up">متابعة</option><option value="closed">مغلقة</option></select></label>
-      </div>
+      <div class="section-heading"><div><p class="eyebrow">سجل طويل المدى</p><h2>الحالات والجلسات</h2></div><button id="new-case-button" class="button primary" type="button">حالة جديدة</button></div>
+      <div class="toolbar"><label class="field grow"><span>البحث في الحالات</span><input id="case-search" type="search" placeholder="ابحث بالاسم المستعار أو رقم الحالة"></label><label class="field"><span>الحالة</span><select id="case-status-filter"><option value="">الكل</option><option value="active">نشطة</option><option value="follow_up">متابعة</option><option value="closed">مغلقة</option></select></label></div>
       <div id="cases-list" class="cards-grid"></div>
     </section>
 
     <section id="view-explorers" class="view" data-view-panel="explorers" hidden>
       <div class="section-heading"><div><p class="eyebrow">أدوات أصلية غير تشخيصية</p><h2>الأدوات الاستكشافية الإلكترونية</h2></div></div>
       <div class="callout info">يمكن للجمهور ومقدم الخدمة استخدام الأدوات نفسها. وضع مقدم الخدمة يضيف الملاحظة المهنية وقرار الجلسة والمتابعة، بينما تظل الخلاصة غير تشخيصية.</div>
-      <div class="toolbar">
-        <label class="field grow"><span>البحث</span><input id="explorer-search" type="search" placeholder="النمو، التواصل، الانتباه، التعلم..."></label>
-        <label class="field"><span>التصنيف</span><select id="explorer-category-filter"><option value="">جميع التصنيفات</option></select></label>
-      </div>
+      <div class="toolbar"><label class="field grow"><span>البحث</span><input id="explorer-search" type="search" placeholder="النمو، التواصل، الانتباه، التعلم..."></label><label class="field"><span>التصنيف</span><select id="explorer-category-filter"><option value="">جميع التصنيفات</option></select></label></div>
       <div id="explorer-list" class="cards-grid"></div>
     </section>
 
     <section id="view-professional" class="view" data-view-panel="professional" hidden>
       <div class="section-heading"><div><p class="eyebrow">سجل مهني شامل حسب الحالة والمجال</p><h2>المقاييس والفحوص والبروتوكولات المهنية الفعّالة</h2></div></div>
-      <div class="callout info">اختر أي عنصر ثم ابدأ سجلًا مهنيًا مرتبطًا بالحالة: حدد المنفذ والتاريخ وطريقة التطبيق والإصدار واللغة والنتيجة والملاحظات والخطوة التالية. الفحوص الجهازية تستقبل نتيجتها من الجهة المختصة.</div>
-      <div class="toolbar">
-        <label class="field grow"><span>البحث في السجل</span><input id="professional-search" type="search" placeholder="ADOS-2، السلوك التكيفي، السمع..."></label>
-        <label class="field"><span>الحالة أو المجال</span><select id="professional-category-filter"><option value="">جميع المجالات</option></select></label>
-      </div>
+      <div class="callout info">اختر أي عنصر ثم ابدأ سجلًا مهنيًا مرتبطًا بالحالة. تتغير حقول النموذج تلقائيًا بحسب نوع الأداة، مع توثيق المنفذ والتاريخ والنسخة واللغة والنتيجة والقيود والخطوة التالية.</div>
+      <div class="toolbar"><label class="field grow"><span>البحث في السجل</span><input id="professional-search" type="search" placeholder="ADOS-2، السلوك التكيفي، السمع..."></label><label class="field"><span>الحالة أو المجال</span><select id="professional-category-filter"><option value="">جميع المجالات</option></select></label></div>
       <div id="professional-list" class="catalog-list"></div>
     </section>
 
     <section id="view-guide" class="view" data-view-panel="guide" hidden>
       <div class="section-heading"><div><p class="eyebrow">كورس مختصر قبل التطبيق</p><h2>آلية العمل في خمس مراحل</h2></div></div>
-      <ol class="course-steps">
-        <li><strong>حدّد الغرض:</strong> ما السؤال الذي تريد فهمه أو متابعته؟</li>
-        <li><strong>أنشئ حالة باسم مستعار:</strong> العمر، اللغة، السياق، وسؤال الإحالة.</li>
-        <li><strong>اختر المسار:</strong> أداة استكشافية أصلية، سجل تطبيق مهني، أو استيراد نتيجة خارجية.</li>
-        <li><strong>وثّق التطبيق:</strong> المنفذ، الطريقة، النسخة واللغة، النتيجة، الملاحظات وحدود التفسير.</li>
-        <li><strong>اختم بالخطوة التالية:</strong> مراجعة، أداة مكملة، جمع معلومات، خطة دعم، إحالة، أو إغلاق المسار.</li>
-      </ol>
-      <div class="two-column">
-        <article class="panel"><h3>للمستخدم العام</h3><p>استخدم الأدوات الأصلية لفهم المجالات التي تستحق السؤال أو المتابعة، دون اعتبارها تشخيصًا.</p></article>
-        <article class="panel"><h3>لمقدم الخدمة</h3><p>استخدم سجل التطبيق المهني لربط كل مقياس أو فحص بالحالة والمنفذ والنتيجة والخطوة التالية.</p></article>
-      </div>
+      <ol class="course-steps"><li><strong>حدّد الغرض:</strong> ما السؤال الذي تريد فهمه أو متابعته؟</li><li><strong>أنشئ حالة باسم مستعار:</strong> العمر، اللغة، السياق، وسؤال الإحالة.</li><li><strong>اختر المسار:</strong> أداة استكشافية أصلية، سجل تطبيق مهني، أو استيراد نتيجة خارجية.</li><li><strong>وثّق التطبيق:</strong> المنفذ، الطريقة، النسخة واللغة، النتيجة، الملاحظات وحدود التفسير.</li><li><strong>اختم بالخطوة التالية:</strong> مراجعة، أداة مكملة، جمع معلومات، خطة دعم، إحالة، أو إغلاق المسار.</li></ol>
+      <div class="two-column"><article class="panel"><h3>للمستخدم العام</h3><p>استخدم الأدوات الأصلية لفهم المجالات التي تستحق السؤال أو المتابعة، دون اعتبارها تشخيصًا.</p></article><article class="panel"><h3>لمقدم الخدمة</h3><p>استخدم سجل التطبيق المهني والقالب المتخصص لربط كل مقياس أو فحص بالحالة والمنفذ والنتيجة والخطوة التالية.</p></article></div>
     </section>
   </section>
 </main>
 
-<footer class="site-footer"><p>© منصة الصحة النفسية وذوي الاحتياجات الخاصة — منصة التقييم والسجل المهني، الإصدار 2026.07.24-live.2. التخزين محلي داخل UID مستقل.</p></footer>
+<footer class="site-footer"><p>© منصة الصحة النفسية وذوي الاحتياجات الخاصة — منصة التقييم والسجل المهني، الإصدار 2026.07.24-live.5. التخزين محلي داخل UID مستقل.</p></footer>
 
 <dialog id="account-dialog" class="dialog">
   <form method="dialog" id="account-form">
