@@ -39,6 +39,13 @@ class InstitutionalHomeApiTests(unittest.TestCase):
         self.assertIn("<strong>93</strong>", synchronized)
         self.assertNotIn("<strong>88</strong>", synchronized)
 
+    def test_homepage_report_preserves_inventory_field_compatibility(self):
+        publisher = (ROOT / "scripts" / "apply_homepage_v20.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('"lab_inventory_updated": True', publisher)
+        self.assertIn('"lab_inventory_metadata_updated": True', publisher)
+
     def test_public_special_needs_publisher_has_no_operational_copy(self):
         publisher = (ROOT / "scripts" / "publish_special_needs_v73.py").read_text(
             encoding="utf-8"
