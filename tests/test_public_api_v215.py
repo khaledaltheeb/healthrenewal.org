@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import socket
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -39,6 +41,8 @@ class PublicApiV215Tests(unittest.TestCase):
             "permission_status": "approved",
             "permission_reference": "written-permission-2026-07-20",
             "permission_granted_at": "2026-07-20",
+            "permission_duration": "fixed",
+            "permission_expires_at": "2027-12-31",
             "license_url": "https://courses.example.org/license",
             "allowed_actions": ["import_catalog"],
             "format": "json",
@@ -61,7 +65,7 @@ class PublicApiV215Tests(unittest.TestCase):
         for phrase in forbidden:
             self.assertNotIn(phrase, text)
 
-    def test_default_manifest_is_closed_and_empty(self) -> None:
+    def test_default_manifest_is_closed_empty_and_time_bounded(self) -> None:
         manifest = json.loads(
             (
                 ROOT
@@ -71,6 +75,9 @@ class PublicApiV215Tests(unittest.TestCase):
             ).read_text(encoding="utf-8")
         )
         self.assertEqual(manifest["policy"], "deny-by-default")
+        self.assertEqual(manifest["security_contract_version"], 218)
+        self.assertIn("permission_duration", manifest["required_permission_fields"])
+        self.assertIn("permission_expires_at", manifest["required_permission_fields"])
         self.assertEqual(manifest["sources"], [])
 
     def test_importer_rejects_enabled_source_without_permission(self) -> None:
@@ -79,11 +86,85 @@ class PublicApiV215Tests(unittest.TestCase):
         with self.assertRaises(IMPORTER.CourseImportError):
             IMPORTER.validate_source(source)
 
+    def test_importer_requires_explicit_active_permission_window(self) -> None:
+        missing = self.approved_source()
+        missing.pop("permission_duration")
+        with self.assertRaises(IMPORTER.CourseImportError):
+            IMPORTER.validate_source(missing)
+
+        expired = self.approved_source()
+        expired["permission_expires_at"] = "2026-01-01"
+        with self.assertRaises(IMPORTER.CourseImportError):
+            IMPORTER.validate_source(expired)
+
+        perpetual = self.approved_source()
+        perpetual["permission_duration"] = "perpetual"
+        perpetual["permission_expires_at"] = None
+        approved = IMPORTER.validate_source(perpetual)
+        self.assertEqual(approved.permission_duration, "perpetual")
+        self.assertIsNone(approved.permission_expires_at)
+
     def test_importer_rejects_feed_outside_allowlist(self) -> None:
         source = self.approved_source()
         source["feed_url"] = "https://unapproved.example.net/feed.json"
         with self.assertRaises(IMPORTER.CourseImportError):
             IMPORTER.validate_source(source)
+
+    def test_importer_rejects_ip_literals_local_hosts_and_wildcards(self) -> None:
+        cases = (
+            ("127.0.0.1", "https://127.0.0.1/feed.json"),
+            ("localhost", "https://localhost/feed.json"),
+            ("catalog.local", "https://catalog.local/feed.json"),
+            ("*.example.org", "https://courses.example.org/feed.json"),
+        )
+        for host, feed_url in cases:
+            source = self.approved_source()
+            source["allowed_hosts"] = [host]
+            source["feed_url"] = feed_url
+            with self.subTest(host=host), self.assertRaises(IMPORTER.CourseImportError):
+                IMPORTER.validate_source(source)
+
+    def test_importer_rejects_private_dns_and_redirect_escape(self) -> None:
+        source = IMPORTER.validate_source(self.approved_source())
+        private_answer = [
+            (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("10.0.0.8", 443))
+        ]
+        with mock.patch.object(IMPORTER.socket, "getaddrinfo", return_value=private_answer):
+            with self.assertRaises(IMPORTER.CourseImportError):
+                IMPORTER.validate_network_target(source.feed_url, source, "feed URL")
+
+        handler = IMPORTER.SafeRedirectHandler(source)
+        with self.assertRaises(IMPORTER.CourseImportError):
+            handler.redirect_request(
+                None,
+                None,
+                302,
+                "Found",
+                {},
+                "https://unapproved.example.net/feed.json",
+            )
+
+    def test_empty_manifest_writes_hardened_security_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            manifest = root / "manifest.json"
+            output = root / "courses.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 215,
+                        "policy": "deny-by-default",
+                        "sources": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            result = IMPORTER.import_courses(manifest, output)
+            self.assertEqual(result["status"], "no-approved-sources")
+            self.assertEqual(result["security_contract_version"], 218)
+            self.assertTrue(result["security"]["dns_public_addresses_only"])
+            self.assertTrue(result["security"]["redirects_checked_before_request"])
+            self.assertTrue(output.is_file())
 
     def test_course_normalization_strips_html_and_enforces_hosts(self) -> None:
         source = IMPORTER.validate_source(self.approved_source())
@@ -99,6 +180,7 @@ class PublicApiV215Tests(unittest.TestCase):
         )
         self.assertEqual(course["title_ar"], "دورة دعم الأسرة")
         self.assertEqual(course["permission_status"], "approved")
+        self.assertEqual(course["permission_expires_at"], "2027-12-31")
         self.assertNotIn("<", course["description_ar"])
 
     def test_publisher_preserves_existing_api_contract(self) -> None:
@@ -115,22 +197,13 @@ class PublicApiV215Tests(unittest.TestCase):
                 json.dumps(
                     {
                         "openapi": "3.1.0",
-                        "info": {
-                            "title": "Original API",
-                            "version": "0.9.0",
-                        },
+                        "info": {"title": "Original API", "version": "0.9.0"},
                         "paths": {
                             "/api/v1/platform.json": {
-                                "get": {
-                                    "summary": "Existing platform endpoint"
-                                }
+                                "get": {"summary": "Existing platform endpoint"}
                             }
                         },
-                        "components": {
-                            "schemas": {
-                                "Platform": {"type": "object"}
-                            }
-                        },
+                        "components": {"schemas": {"Platform": {"type": "object"}}},
                     }
                 ),
                 encoding="utf-8",
@@ -168,6 +241,7 @@ class PublicApiV215Tests(unittest.TestCase):
                                 "updated_at": None,
                                 "license_url": "https://courses.example.org/license",
                                 "permission_status": "approved",
+                                "permission_expires_at": "2027-12-31",
                             }
                         ],
                     }
@@ -180,9 +254,7 @@ class PublicApiV215Tests(unittest.TestCase):
                 manifest_path=manifest,
                 import_path=imported,
             )
-            openapi = json.loads(
-                (api / "openapi.json").read_text(encoding="utf-8")
-            )
+            openapi = json.loads((api / "openapi.json").read_text(encoding="utf-8"))
             self.assertIn("/api/v1/platform.json", openapi["paths"])
             self.assertIn("/api/v1/health.json", openapi["paths"])
             self.assertIn("Platform", openapi["components"]["schemas"])
