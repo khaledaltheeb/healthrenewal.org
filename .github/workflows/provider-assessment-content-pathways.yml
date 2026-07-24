@@ -1,0 +1,42 @@
+name: Validate provider assessment content pathways
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/assessment-pathways-content.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - ".github/workflows/provider-assessment-content-pathways.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-content-pathways:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: |
+          node --check provider-assessment-demo/assessment-pathways-content.js
+          node --check provider-assessment-demo/institutional-live-v2.js
+      - name: Validate institutional content contracts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          content = Path('provider-assessment-demo/assessment-pathways-content.js').read_text(encoding='utf-8')
+          loader = Path('provider-assessment-demo/institutional-live-v2.js').read_text(encoding='utf-8')
+          assert content.count('{name:') == 20, 'Expected twenty condition pathways'
+          for marker in ['المسح','التقييم التشخيصي','التقييم الوظيفي','متابعة التقدم','قالب توثيق النتيجة','لا تمنح حق نسخ المقاييس التجارية']:
+              assert marker in content, f'Missing content marker: {marker}'
+          for source in ['who.int/standards/classifications','icd.who.int/browse/releases/icf','asha.org/practice-portal','aaidd.org/intellectual-disability','canchild.ca/en/resources']:
+              assert source in content, f'Missing authoritative source: {source}'
+          assert 'assessment-pathways-content.js' in loader, 'Content loader is missing'
+          assert '2026.07.24-live.3' in loader, 'Release marker is missing'
+          forbidden = ['بنود ADOS-2', 'أسئلة WISC-V', 'مفتاح تصحيح Vineland', 'جداول المعايير المحمية']
+          found = [value for value in forbidden if value in content]
+          assert not found, f'Protected content found: {found}'
+          print({'condition_pathways': 20, 'levels': 4, 'rights_gate': 'preserved'})
+          PY
