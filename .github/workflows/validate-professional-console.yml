@@ -5,18 +5,34 @@ on:
     branches: [main]
     paths:
       - "provider-assessment-demo/professional-console.html"
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/condition-entry-v1.js"
+      - "provider-assessment-demo/activation.js"
       - "provider-assessment-demo/professional-master-registry.js"
       - "provider-assessment-demo/professional-workflow.js"
+      - "provider-assessment-demo/case-report-v1.js"
+      - "provider-assessment-demo/case-report-interpretation-v2.js"
+      - "provider-assessment-demo/case-report-export-v2.js"
       - ".github/workflows/validate-professional-console.yml"
   pull_request:
     paths:
       - "provider-assessment-demo/professional-console.html"
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/condition-entry-v1.js"
+      - "provider-assessment-demo/activation.js"
       - "provider-assessment-demo/professional-master-registry.js"
       - "provider-assessment-demo/professional-workflow.js"
+      - "provider-assessment-demo/case-report-v1.js"
+      - "provider-assessment-demo/case-report-interpretation-v2.js"
+      - "provider-assessment-demo/case-report-export-v2.js"
       - ".github/workflows/validate-professional-console.yml"
 
 permissions:
   contents: read
+
+concurrency:
+  group: professional-assessment-console-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate-professional-console:
@@ -32,6 +48,11 @@ jobs:
         run: |
           node --check provider-assessment-demo/professional-master-registry.js
           node --check provider-assessment-demo/professional-workflow.js
+          node --check provider-assessment-demo/condition-entry-v1.js
+          node --check provider-assessment-demo/activation.js
+          node --check provider-assessment-demo/case-report-v1.js
+          node --check provider-assessment-demo/case-report-interpretation-v2.js
+          node --check provider-assessment-demo/case-report-export-v2.js
           node <<'NODE'
           global.window = { PA_DEMO_DATA: { professional: [] } };
           require('./provider-assessment-demo/professional-master-registry.js');
@@ -47,72 +68,122 @@ jobs:
             }
           }
           const added = window.PA_DEMO_DATA.professional;
-          if (added.length !== 167) throw new Error(`Expected all 167 registry entries to be available in the professional directory, got ${added.length}`);
+          if (added.length !== 167) throw new Error(`Expected all 167 registry entries in the directory, got ${added.length}`);
           NODE
 
-      - name: Validate console HTML and inline JavaScript
+      - name: Validate unified console landing page
         run: |
           python - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path
-          import re
+          from urllib.parse import urlsplit, parse_qs
 
           path = Path('provider-assessment-demo/professional-console.html')
           html = path.read_text(encoding='utf-8')
           required = [
-              'مسار عمل متاح', 'assignedEntity', 'specialty', 'administrationMode',
-              'recordStatus', 'responseSource', 'prerequisites', 'scoreReference',
-              'notes', 'nextAction', 'ownerUid:identity.uid',
-              'pa-demo-store-v${VERSION}:${identity.uid}',
-              "checks.includes('authorization')",
+              '<html lang="ar" dir="rtl"',
+              'application-version" content="2026.07.24-live.7"',
+              'rel="canonical"',
+              'بوابة موحدة للسجل التشغيلي والتقارير',
+              'لا تستخدم هذه الصفحة نظامًا منفصلًا',
+              'مساحة UID المحلية نفسها',
+              'فتح المقاييس والفحوص',
+              'فتح التطبيقات المسجلة',
+              'فتح التقارير المهنية',
+              'تقارير متعددة الإصدارات',
+              'النسخة الأصلية المصرح بها',
           ]
           missing = [token for token in required if token not in html]
           if missing:
-              raise SystemExit(f'Missing professional workflow controls: {missing}')
-          if 'مقفل' in html:
-              raise SystemExit('The professional console must not present any assessment as locked')
-          forbidden = ['fetch(', 'XMLHttpRequest', 'WebSocket', 'sendBeacon(', 'EventSource(']
+              raise SystemExit(f'Missing unified console contract: {missing}')
+
+          forbidden = [
+              'Explore-2026!', 'الدخول التجريبي', 'اسم المستخدم التجريبي',
+              'assignedEntity', 'administrationMode', 'recordStatus',
+              'ownerUid:identity.uid', 'pa-demo-store-v${VERSION}:${identity.uid}',
+              'fetch(', 'XMLHttpRequest', 'WebSocket', 'sendBeacon(', 'EventSource(',
+          ]
           found = [token for token in forbidden if token in html]
           if found:
-              raise SystemExit(f'Network APIs are forbidden in the local demonstration console: {found}')
+              raise SystemExit(f'Legacy standalone console code remains: {found}')
 
           class Inspector(HTMLParser):
               def __init__(self):
                   super().__init__()
                   self.ids = []
-                  self.select_names = []
-                  self.textareas = 0
-                  self.checkboxes = 0
+                  self.links = []
+                  self.application_scripts = 0
+                  self.jsonld_scripts = 0
               def handle_starttag(self, tag, attrs):
                   values = dict(attrs)
                   if values.get('id'):
                       self.ids.append(values['id'])
-                  if tag == 'select' and values.get('name'):
-                      self.select_names.append(values['name'])
-                  if tag == 'textarea':
-                      self.textareas += 1
-                  if tag == 'input' and values.get('type') == 'checkbox':
-                      self.checkboxes += 1
+                  if tag == 'a' and values.get('href'):
+                      self.links.append(values['href'])
+                  if tag == 'script':
+                      if values.get('type') == 'application/ld+json':
+                          self.jsonld_scripts += 1
+                      else:
+                          self.application_scripts += 1
 
           parser = Inspector()
           parser.feed(html)
           duplicates = sorted({item for item in parser.ids if parser.ids.count(item) > 1})
           if duplicates:
               raise SystemExit(f'Duplicate HTML ids: {duplicates}')
-          expected_selects = {'assignedEntity','specialty','administrationMode','recordStatus','responseSource','outcome','nextAction'}
-          if not expected_selects.issubset(set(parser.select_names)):
-              raise SystemExit(f'Missing dropdowns: {sorted(expected_selects - set(parser.select_names))}')
-          if parser.textareas < 5:
-              raise SystemExit('Expected notes, referral, score reference, and context text areas')
-          if parser.checkboxes < 8:
-              raise SystemExit('Expected multiple prerequisite checkboxes')
+          if parser.application_scripts:
+              raise SystemExit('The unified landing page must not contain a second application runtime')
+          if parser.jsonld_scripts != 1:
+              raise SystemExit(f'Expected one JSON-LD block, got {parser.jsonld_scripts}')
 
-          scripts = re.findall(r'<script defer>\s*(.*?)\s*</script>', html, flags=re.S)
-          if len(scripts) != 1:
-              raise SystemExit(f'Expected one inline application script, got {len(scripts)}')
-          Path('/tmp/professional-console-inline.js').write_text(scripts[0], encoding='utf-8')
+          routes = set()
+          for href in parser.links:
+              parsed = urlsplit(href.replace('&amp;', '&'))
+              value = parse_qs(parsed.query).get('open', [None])[0]
+              if value:
+                  routes.add(value)
+          expected_routes = {'professional', 'records', 'reports'}
+          if not expected_routes.issubset(routes):
+              raise SystemExit(f'Missing unified routes: {sorted(expected_routes - routes)}')
+          for required_href in ['conditions/', 'center-guide.html']:
+              if not any(required_href in href for href in parser.links):
+                  raise SystemExit(f'Missing institutional destination: {required_href}')
           PY
-          node --check /tmp/professional-console-inline.js
+
+      - name: Validate target views and professional controls
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          files = {
+              'index': Path('provider-assessment-demo/index.html').read_text(encoding='utf-8'),
+              'router': Path('provider-assessment-demo/condition-entry-v1.js').read_text(encoding='utf-8'),
+              'activation': Path('provider-assessment-demo/activation.js').read_text(encoding='utf-8'),
+              'reports': Path('provider-assessment-demo/case-report-v1.js').read_text(encoding='utf-8'),
+              'interpretation': Path('provider-assessment-demo/case-report-interpretation-v2.js').read_text(encoding='utf-8'),
+              'export': Path('provider-assessment-demo/case-report-export-v2.js').read_text(encoding='utf-8'),
+          }
+          required_by_file = {
+              'index': ['data-release="2026.07.24-live.7"', 'data-view="professional"', 'case-report-interpretation-v2.js'],
+              'router': ['professional: "professional"', 'records: "professional-records"', 'reports: "reports"', 'routeRequestedView'],
+              'activation': ['view-professional-records', 'professional-record-form', 'recordStatus', 'administrationMode', 'scoreReference', 'rightsConfirmed'],
+              'reports': ['view-reports', 'case-report-form', 'export-case-report-html', 'export-case-report-json', 'caseRecord.reports'],
+              'interpretation': ['assessmentType', 'resultValidity', 'baselineIndicator', 'measurableGoal', 'familySummary', 'reviewAuditTrail', 'form.elements.reportId.value = ""'],
+              'export': ['includesInterpretationContract: true', 'includesFamilySummary: true', 'includesReviewAudit: true', 'networkTransfer: false'],
+          }
+          errors = []
+          for name, markers in required_by_file.items():
+              for marker in markers:
+                  if marker not in files[name]:
+                      errors.append(f'{name} missing {marker}')
+          combined = '\n'.join(files.values())
+          for token in ['XMLHttpRequest', 'WebSocket', 'sendBeacon(', 'EventSource(', 'eval(', 'new Function(']:
+              if token in combined:
+                  errors.append(f'unsafe API {token}')
+          if errors:
+              raise SystemExit('\n'.join(errors))
+          print({'unified_console': True, 'routes': 3, 'professional_records': True, 'reports': True, 'release': '2026.07.24-live.7'})
+          PY
 
       - name: Validate non-diagnostic and rights boundaries
         run: |
@@ -121,8 +192,15 @@ jobs:
           text = '\n'.join([
               Path('provider-assessment-demo/professional-console.html').read_text(encoding='utf-8'),
               Path('provider-assessment-demo/professional-master-registry.js').read_text(encoding='utf-8'),
+              Path('provider-assessment-demo/activation.js').read_text(encoding='utf-8'),
+              Path('provider-assessment-demo/case-report-interpretation-v2.js').read_text(encoding='utf-8'),
           ])
-          required = ['لا تعيد إنتاج بنود المقاييس التجارية', 'النسخة الأصلية المرخصة', 'لا تستخدم النتيجة المنفردة كتشخيص']
+          required = [
+              'النسخة الأصلية المصرح بها',
+              'لا ينسخ بنود المقاييس أو مفاتيح التصحيح المحمية',
+              'لا يثبت التشخيص أو الأهلية',
+              'external-results-and-official-integrations-only-for-protected-instruments',
+          ]
           missing = [token for token in required if token not in text]
           if missing:
               raise SystemExit(f'Missing rights or clinical-boundary statements: {missing}')

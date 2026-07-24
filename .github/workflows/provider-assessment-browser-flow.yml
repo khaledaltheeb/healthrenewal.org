@@ -1,0 +1,90 @@
+name: Validate Provider Assessment Browser Flow
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/professional-console.html"
+      - "provider-assessment-demo/app.js"
+      - "provider-assessment-demo/activation.js"
+      - "provider-assessment-demo/condition-entry-v1.js"
+      - "provider-assessment-demo/case-report-v1.js"
+      - "provider-assessment-demo/case-report-interpretation-v2.js"
+      - "provider-assessment-demo/case-report-export-v2.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/tests/**"
+      - ".github/workflows/provider-assessment-browser-flow.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/professional-console.html"
+      - "provider-assessment-demo/app.js"
+      - "provider-assessment-demo/activation.js"
+      - "provider-assessment-demo/condition-entry-v1.js"
+      - "provider-assessment-demo/case-report-v1.js"
+      - "provider-assessment-demo/case-report-interpretation-v2.js"
+      - "provider-assessment-demo/case-report-export-v2.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/tests/**"
+      - ".github/workflows/provider-assessment-browser-flow.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-assessment-browser-flow-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  report-browser-flow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Check browser test syntax
+        run: |
+          node --check provider-assessment-demo/tests/playwright.config.cjs
+          node --check provider-assessment-demo/tests/report-flow.spec.cjs
+
+      - name: Install Playwright test runner and Chromium
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.61.0
+          npx playwright install --with-deps chromium
+
+      - name: Run complete report workflow in Chromium
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory . >/tmp/provider-assessment-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/provider-assessment-demo/ >/dev/null; then
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              cat /tmp/provider-assessment-http.log
+              exit 1
+            fi
+            sleep 1
+          done
+          npx playwright test provider-assessment-demo/tests/report-flow.spec.cjs \
+            --config=provider-assessment-demo/tests/playwright.config.cjs
+
+      - name: Upload browser diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider-assessment-browser-diagnostics
+          path: |
+            test-results/
+            /tmp/provider-assessment-http.log
+          if-no-files-found: ignore
+          retention-days: 7
