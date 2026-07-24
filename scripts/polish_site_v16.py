@@ -120,10 +120,66 @@ def inject_social_metadata(text: str, page_title: str) -> tuple[str, int]:
     return text.replace("</head>", "".join(additions) + "</head>", 1), len(additions)
 
 
-def inject_robots(text: str) -> tuple[str, bool]:
-    if re.search(r'<meta\s+name=["\']robots["\']', text, re.I):
+def inject_json_ld(text: str, page_title: str) -> tuple[str, bool]:
+    if re.search(
+        r'<script\b[^>]*type=["\']application/ld\+json["\']',
+        text,
+        re.I,
+    ):
         return text, False
-    tag = '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">'
+    description_match = re.search(
+        r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']\s*/?>',
+        text,
+        re.I | re.S,
+    )
+    description = (
+        html.unescape(description_match.group(1)).strip()
+        if description_match
+        else f"{page_title} — محتوى عربي منظم وموثوق."
+    )
+    payload = json.dumps(
+        {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": page_title,
+            "description": description,
+            "inLanguage": "ar",
+        },
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+    script = f'<script type="application/ld+json">{payload}</script>'
+    if "</head>" not in text:
+        raise SystemExit(f"HTML head is not closed while adding JSON-LD: {page_title}")
+    return text.replace("</head>", script + "</head>", 1), True
+
+
+def inject_robots(text: str, *, noindex: bool = False) -> tuple[str, bool]:
+    desired = (
+        "noindex,follow"
+        if noindex
+        else "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
+    )
+    pattern = re.compile(
+        r'(<meta\s+name=["\']robots["\']\s+content=["\'])(.*?)(["\']\s*/?>)',
+        re.I | re.S,
+    )
+    match = pattern.search(text)
+    if match:
+        current = html.unescape(match.group(2)).strip()
+        if current.casefold() == desired.casefold() or (
+            noindex and "noindex" in current.casefold()
+        ):
+            return text, False
+        if not noindex:
+            return text, False
+        escaped = html.escape(desired, quote=True)
+        return pattern.sub(
+            lambda item: item.group(1) + escaped + item.group(3),
+            text,
+            count=1,
+        ), True
+    tag = f'<meta name="robots" content="{desired}">'
     return text.replace("</head>", tag + "</head>", 1), True
 
 
@@ -245,15 +301,18 @@ def main() -> None:
     make_icon(512, icons / "icon-512.png")
 
     comparison_titles = fix_duplicate_comparison_titles()
-    stats = {"descriptions": 0, "social_metadata": 0, "robots": 0, "inputs": 0, "image_links": 0, "deferred_scripts": 0, "app_links": 0, "comparison_titles": comparison_titles}
+    stats = {"descriptions": 0, "social_metadata": 0, "json_ld": 0, "robots": 0, "inputs": 0, "image_links": 0, "deferred_scripts": 0, "app_links": 0, "comparison_titles": comparison_titles}
     for page in SITE.rglob("*.html"):
         if page.name == VERIFY:
             continue
         text = page.read_text(encoding="utf-8")
         page_title = title_from_html(text)
+        relative_path = page.relative_to(SITE).as_posix()
+        indexable = relative_path != "404.html"
         text, changed = expand_description(text, page_title); stats["descriptions"] += int(changed)
         text, count = inject_social_metadata(text, page_title); stats["social_metadata"] += count
-        text, changed = inject_robots(text); stats["robots"] += int(changed)
+        text, changed = inject_json_ld(text, page_title); stats["json_ld"] += int(changed)
+        text, changed = inject_robots(text, noindex=not indexable); stats["robots"] += int(changed)
         text, count = label_inputs(text, page_title); stats["inputs"] += count
         text, count = label_image_links(text); stats["image_links"] += count
         text, count = defer_scripts(text); stats["deferred_scripts"] += count
