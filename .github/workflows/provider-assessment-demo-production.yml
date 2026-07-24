@@ -33,7 +33,11 @@ jobs:
         run: |
           node --check provider-assessment-demo/catalog.js
           node --check provider-assessment-demo/catalog-extra.js
+          node --check provider-assessment-demo/catalog-contract-fix.js
+          node --check provider-assessment-demo/professional-master-registry.js
           node --check provider-assessment-demo/app.js
+          node --check provider-assessment-demo/activation.js
+          node --check provider-assessment-demo/activation-guard.js
           node --check provider-assessment-demo/enhancements.js
 
       - name: Validate catalog and UI contracts
@@ -42,6 +46,7 @@ jobs:
           global.window = {};
           require('./provider-assessment-demo/catalog.js');
           require('./provider-assessment-demo/catalog-extra.js');
+          require('./provider-assessment-demo/catalog-contract-fix.js');
           const data = window.PA_DEMO_DATA;
           if (!data || data.explorers.length !== 20) throw new Error(`Expected twenty exploratory tools, found ${data?.explorers?.length}`);
           if (data.categories.length !== 8) throw new Error('Expected eight primary categories');
@@ -63,22 +68,32 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          files = [Path('provider-assessment-demo/app.js'), Path('provider-assessment-demo/enhancements.js')]
+          files = [
+              Path('provider-assessment-demo/app.js'),
+              Path('provider-assessment-demo/enhancements.js'),
+              Path('provider-assessment-demo/activation.js'),
+              Path('provider-assessment-demo/activation-guard.js'),
+              Path('provider-assessment-demo/catalog-contract-fix.js'),
+              Path('provider-assessment-demo/professional-master-registry.js'),
+          ]
           text = '\n'.join(path.read_text(encoding='utf-8') for path in files)
           forbidden = ['fetch(', 'XMLHttpRequest', 'WebSocket', 'sendBeacon(', 'EventSource(']
           found = [token for token in forbidden if token in text]
           if found:
-              raise SystemExit(f'Network APIs are forbidden in the local demo: {found}')
+              raise SystemExit(f'Network APIs are forbidden in the local platform: {found}')
           required = [
               'storeKey=u=>`pa-demo-store-v${V}:${u}`',
               'ownerUid: identity.uid',
               'payload.ownerUid !== identity.uid',
               'candidate.uid !== identity.uid',
               'pa-demo-uid-backup-v1',
+              'professionalAssessments',
+              'rightsConfirmed',
+              'recordedByUid: identity.uid',
           ]
           missing = [token for token in required if token not in text]
           if missing:
-              raise SystemExit(f'UID isolation or backup gates missing: {missing}')
+              raise SystemExit(f'UID isolation, backup, or professional-record gates missing: {missing}')
           PY
 
       - name: Validate HTML links and unique identifiers
@@ -107,13 +122,34 @@ jobs:
           duplicates = sorted({item for item in parser.ids if parser.ids.count(item) > 1})
           if duplicates:
               raise SystemExit(f'Duplicate HTML ids: {duplicates}')
-          expected = {'styles.css', 'enhancements.css', 'catalog.js', 'catalog-extra.js', 'app.js', 'enhancements.js'}
+          expected = {
+              'styles.css',
+              'enhancements.css',
+              'catalog.js',
+              'catalog-extra.js',
+              'catalog-contract-fix.js',
+              'professional-master-registry.js',
+              'app.js',
+              'activation.js',
+              'activation-guard.js',
+              'enhancements.js',
+          }
           missing = expected - parser.assets
           if missing:
               raise SystemExit(f'Missing published assets: {sorted(missing)}')
-          required_text = ['20 أداة استكشافية', 'الدخول التجريبي', 'سجل منفصل لكل مستخدم']
-          combined = html + Path('provider-assessment-demo/enhancements.js').read_text(encoding='utf-8')
+          combined = '\n'.join([
+              html,
+              Path('provider-assessment-demo/activation.js').read_text(encoding='utf-8'),
+              Path('provider-assessment-demo/enhancements.js').read_text(encoding='utf-8'),
+          ])
+          required_text = [
+              '20 أداة استكشافية',
+              'مساحة مقدم الخدمة',
+              'السجل المهني',
+              'مسارات التقييم',
+              'professionalAssessments',
+          ]
           absent = [value for value in required_text if value not in combined]
           if absent:
-              raise SystemExit(f'Missing user-visible features: {absent}')
+              raise SystemExit(f'Missing operational user-visible features: {absent}')
           PY
