@@ -1,7 +1,7 @@
 "use strict";
 
 (() => {
-  const RELEASE = "2026.07.24-live.3";
+  const RELEASE = "2026.07.24-live.4";
   const PATH = "/pterminology-site/provider-assessment-demo/";
 
   const replaceText = (root = document) => {
@@ -29,7 +29,9 @@
     document.documentElement.dataset.release = RELEASE;
     document.title = "منصة التقييم والسجل المهني | منصة الصحة النفسية وذوي الاحتياجات الخاصة";
     const description = document.querySelector('meta[name="description"]');
-    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية ومسارات تطبيق المقاييس المهنية وربط النتائج والملاحظات والقرارات بكل حالة ضمن UID مستقل.";
+    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية ومسارات تطبيق المقاييس المهنية، مع 20 دليل حالة مفصل وربط النتائج والملاحظات والقرارات بكل حالة ضمن UID مستقل.";
+    const applicationVersion = document.querySelector('meta[name="application-version"]');
+    if (applicationVersion) applicationVersion.content = RELEASE;
 
     const brand = document.querySelector(".brand");
     if (brand) brand.textContent = "منصة الصحة النفسية وذوي الاحتياجات الخاصة";
@@ -46,7 +48,7 @@
         <li>سجل حالات وجلسات ونتائج متكررة محفوظ محليًا.</li>
         <li>20 أداة استكشافية أصلية تعمل مباشرة.</li>
         <li>${count} مقياسًا وفحصًا وبروتوكولًا بمسار عمل مهني فعّال.</li>
-        <li>دليل مؤسسي لمسارات التقييم في 20 حالة ومجالًا.</li>
+        <li>20 دليل حالة مؤسسيًا مع فريق وحزمة مقاييس وكورس ومخرجات تقرير.</li>
         <li>الإصدار الحي: ${RELEASE}.</li>`;
     }
 
@@ -87,6 +89,23 @@
     document.head.appendChild(script);
   };
 
+  const loadConditionPathways = () => {
+    if (document.querySelector('script[data-condition-pathways]')) return;
+    const dataScript = document.createElement("script");
+    dataScript.src = `conditions/conditions-data-v1.js?release=${encodeURIComponent(RELEASE)}`;
+    dataScript.defer = true;
+    dataScript.dataset.conditionPathways = RELEASE;
+    dataScript.addEventListener("load", () => {
+      if (document.querySelector('script[data-condition-entry]')) return;
+      const bridge = document.createElement("script");
+      bridge.src = `condition-entry-v1.js?release=${encodeURIComponent(RELEASE)}`;
+      bridge.defer = true;
+      bridge.dataset.conditionEntry = RELEASE;
+      document.head.appendChild(bridge);
+    });
+    document.head.appendChild(dataScript);
+  };
+
   const refreshOldCaches = async () => {
     try {
       const key = "pa-live-release";
@@ -108,6 +127,7 @@
     applyInstitutionalCopy();
     observeOperationalUi();
     loadAssessmentPathways();
+    loadConditionPathways();
     refreshOldCaches();
     requestAnimationFrame(() => requestAnimationFrame(applyInstitutionalCopy));
   });
