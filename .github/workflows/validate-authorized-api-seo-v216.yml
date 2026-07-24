@@ -1,0 +1,36 @@
+name: Validate authorized course API and semantic SEO v216
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/integrations/**'
+      - 'content/seo/**'
+      - 'scripts/apply_homepage_v20.py'
+      - 'scripts/import_authorized_courses_v215.py'
+      - 'scripts/publish_public_api_v215.py'
+      - 'scripts/audit_seo_semantics_v215.py'
+      - 'tests/test_public_api_v215.py'
+      - '.github/workflows/validate-authorized-api-seo-v216.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate contracts and Python
+        run: |
+          python -m json.tool content/integrations/course-sources-v215.json >/dev/null
+          python -m json.tool content/integrations/imported-courses-v215.json >/dev/null
+          python -m json.tool content/seo/keyword-taxonomy-v215.json >/dev/null
+          python -m py_compile scripts/apply_homepage_v20.py scripts/import_authorized_courses_v215.py scripts/publish_public_api_v215.py scripts/audit_seo_semantics_v215.py tests/test_public_api_v215.py
+      - name: Test permission gates API compatibility and SEO controls
+        run: python -m unittest -v tests/test_public_api_v215.py
