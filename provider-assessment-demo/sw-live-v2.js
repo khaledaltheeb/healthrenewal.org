@@ -1,6 +1,6 @@
 "use strict";
 
-const RELEASE = "2026.07.24-live.4";
+const RELEASE = "2026.07.24-live.5";
 const CACHE = `provider-assessment-${RELEASE}`;
 const SCOPE_PATH = "/pterminology-site/provider-assessment-demo/";
 
