@@ -36,8 +36,8 @@ jobs:
           python -m json.tool content/seo/keyword-taxonomy-v215.json >/dev/null
           python - <<'PY'
           import xml.etree.ElementTree as ET
-          ET.parse('assets/brand/platform-logo.svg')
-          ET.parse('assets/brand/platform-social-card.svg')
+          ET.parse('assets/brand/logo-mark.svg')
+          ET.parse('assets/brand/social-card.svg')
           PY
           python -m py_compile scripts/apply_homepage_v20.py scripts/import_authorized_courses_v215.py scripts/publish_public_api_v215.py scripts/audit_seo_semantics_v215.py tests/test_homepage_public_content_v215.py tests/test_public_api_v215.py
       - name: Test homepage public content API permission gates and SEO audit
