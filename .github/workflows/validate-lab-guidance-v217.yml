@@ -1,0 +1,31 @@
+name: Validate assessment and cognitive guidance v217
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/v217/**'
+      - 'scripts/expand_lab_guidance_v217.py'
+      - 'scripts/publish_global_metadata_v27.py'
+      - 'tests/test_lab_guidance_v217.py'
+      - '.github/workflows/validate-lab-guidance-v217.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile publisher and test
+        run: python -m py_compile scripts/expand_lab_guidance_v217.py tests/test_lab_guidance_v217.py
+      - name: Validate profile source
+        run: python -m json.tool content/v217/lab-guidance-profiles-ar.json >/dev/null
+      - name: Test depth sources safety and idempotence
+        run: python -m unittest -v tests/test_lab_guidance_v217.py
