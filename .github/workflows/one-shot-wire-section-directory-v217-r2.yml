@@ -1,0 +1,59 @@
+name: One-shot wire section directory v217 r2
+
+on:
+  push:
+    branches: ["agent/institutional-section-directory-v217-r2"]
+    paths:
+      - ".github/workflows/one-shot-wire-section-directory-v217-r2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/institutional-section-directory-v217-r2
+          fetch-depth: 0
+
+      - name: Wire directory before sitewide SEO and health gates
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/apply_homepage_v20.py')
+          text = path.read_text(encoding='utf-8')
+
+          report_old = '        "sitewide_seo_publisher": 216,\n'
+          report_new = report_old + '        "section_directory_publisher": 217,\n'
+          if '"section_directory_publisher": 217' not in text:
+              if report_old not in text:
+                  raise SystemExit('Homepage report insertion point not found')
+              text = text.replace(report_old, report_new, 1)
+
+          call_old = '    publish_api_sitemap()\n    run_publisher("enhance_sitewide_seo_v216.py")\n'
+          call_new = '    publish_api_sitemap()\n    run_publisher("publish_section_directory_v217.py")\n    run_publisher("enhance_sitewide_seo_v216.py")\n'
+          if 'run_publisher("publish_section_directory_v217.py")' not in text:
+              if call_old not in text:
+                  raise SystemExit('Publisher insertion point not found')
+              text = text.replace(call_old, call_new, 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+          python -m py_compile scripts/apply_homepage_v20.py scripts/publish_section_directory_v217.py tests/test_section_directory_v217.py
+          python -m unittest tests.test_section_directory_v217
+          rm .github/workflows/one-shot-wire-section-directory-v217-r2.yml
+
+      - name: Commit durable production wiring and remove this workflow
+        run: |
+          set -euxo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/apply_homepage_v20.py scripts/publish_section_directory_v217.py tests/test_section_directory_v217.py .github/workflows/one-shot-wire-section-directory-v217-r2.yml
+          git commit -m "ربط دليل الأقسام والمكتبة والمقارنات بخط الإنتاج v217"
+          git push origin HEAD:agent/institutional-section-directory-v217-r2
