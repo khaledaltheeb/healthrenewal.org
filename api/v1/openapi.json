@@ -2,24 +2,111 @@
   "openapi": "3.1.0",
   "info": {
     "title": "واجهة منصة الصحة النفسية وذوي الاحتياجات الخاصة",
-    "version": "1.0.0",
-    "description": "واجهة قراءة عامة ثابتة لاكتشاف أقسام المنصة وعقد استيراد بيانات الدورات المخولة. لا تتضمن تشخيصًا أو بيانات شخصية.",
-    "license": {"name": "Rights vary by resource"}
+    "version": "1.1.0",
+    "description": "واجهة قراءة عامة لاكتشاف أقسام المنصة وفهرس محتواها وتصنيفاته وكتالوج بيانات الدورات المخولة. لا تتضمن تشخيصًا أو بيانات شخصية أو مواد مهنية محمية.",
+    "license": {
+      "name": "Rights vary by resource"
+    }
   },
   "servers": [
-    {"url": "https://khaledaltheeb.github.io/pterminology-site"}
+    {
+      "url": "https://khaledaltheeb.github.io/pterminology-site"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Discovery",
+      "description": "اكتشاف المنصة وفهرس المحتوى والتصنيف الموضوعي."
+    },
+    {
+      "name": "Authorized courses",
+      "description": "بيانات وصفية لدورات اجتازت التحقق من الإذن والترخيص."
+    },
+    {
+      "name": "Contracts",
+      "description": "مخططات وأمثلة التكامل."
+    }
   ],
   "paths": {
     "/api/v1/platform.json": {
       "get": {
-        "summary": "اكتشاف المنصة والموارد",
+        "tags": [
+          "Discovery"
+        ],
+        "summary": "اكتشاف المنصة والموارد والقدرات",
         "operationId": "getPlatform",
         "responses": {
           "200": {
-            "description": "بيانات المنصة",
+            "description": "بيانات المنصة ونقاط التكامل",
             "content": {
               "application/json": {
-                "schema": {"$ref": "#/components/schemas/Platform"}
+                "schema": {
+                  "$ref": "#/components/schemas/Platform"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/content-index.json": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "summary": "فهرس الصفحات العامة القابلة للاكتشاف",
+        "operationId": "getContentIndex",
+        "responses": {
+          "200": {
+            "description": "عناوين الصفحات وأوصافها وأقسامها ولغاتها ووسومها وروابطها القانونية",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentIndex"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/taxonomy.json": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "summary": "التصنيف الموضوعي واللغوي للمحتوى",
+        "operationId": "getTaxonomy",
+        "responses": {
+          "200": {
+            "description": "الأقسام واللغات والوسوم وأعداد الصفحات",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Taxonomy"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/courses.json": {
+      "get": {
+        "tags": [
+          "Authorized courses"
+        ],
+        "summary": "كتالوج بيانات الدورات المخولة",
+        "description": "يعرض البيانات الوصفية فقط بعد تحقق الإذن والترخيص والهوية والرابط القانوني. قد يكون الكتالوج فارغًا عند عدم وجود تغذية مخولة.",
+        "operationId": "getAuthorizedCourses",
+        "responses": {
+          "200": {
+            "description": "مقدمو الخدمات والدورات المقبولة وسياسة التكامل",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseCatalog"
+                }
               }
             }
           }
@@ -28,19 +115,29 @@
     },
     "/api/v1/courses.schema.json": {
       "get": {
+        "tags": [
+          "Contracts"
+        ],
         "summary": "مخطط تغذية الدورات المخولة",
         "operationId": "getCourseSchema",
         "responses": {
-          "200": {"description": "JSON Schema لاستيراد الدورات"}
+          "200": {
+            "description": "JSON Schema لاستيراد بيانات الدورات"
+          }
         }
       }
     },
     "/api/v1/courses.example.json": {
       "get": {
+        "tags": [
+          "Contracts"
+        ],
         "summary": "مثال غير إنتاجي لتغذية الدورات",
         "operationId": "getCourseExample",
         "responses": {
-          "200": {"description": "مثال توضيحي لا يمثل شراكة فعلية"}
+          "200": {
+            "description": "مثال توضيحي لا يمثل شراكة أو إذنًا فعليًا"
+          }
         }
       }
     }
@@ -49,13 +146,306 @@
     "schemas": {
       "Platform": {
         "type": "object",
-        "required": ["apiVersion", "name", "baseUrl", "resources", "endpoints"],
+        "required": [
+          "apiVersion",
+          "name",
+          "baseUrl",
+          "resources",
+          "endpoints",
+          "integrationPolicy"
+        ],
         "properties": {
-          "apiVersion": {"type": "string"},
-          "name": {"type": "string"},
-          "baseUrl": {"type": "string", "format": "uri"},
-          "resources": {"type": "array", "items": {"type": "object"}},
-          "endpoints": {"type": "object"}
+          "apiVersion": {
+            "type": "string"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "name": {
+            "type": "string"
+          },
+          "alternateName": {
+            "type": "string"
+          },
+          "baseUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "language": {
+            "type": "string"
+          },
+          "supportedLanguages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "type",
+                "title",
+                "url",
+                "tags"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "endpoints": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "integrationPolicy": {
+            "type": "object"
+          }
+        }
+      },
+      "ContentItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "path",
+          "url",
+          "lang",
+          "dir",
+          "section",
+          "sectionLabel",
+          "title",
+          "description",
+          "tags"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "lang": {
+            "type": "string"
+          },
+          "dir": {
+            "type": "string",
+            "enum": [
+              "rtl",
+              "ltr"
+            ]
+          },
+          "section": {
+            "type": "string"
+          },
+          "sectionLabel": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "h1": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ContentIndex": {
+        "type": "object",
+        "required": [
+          "apiVersion",
+          "generatedAt",
+          "total",
+          "items"
+        ],
+        "properties": {
+          "apiVersion": {
+            "type": "string"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentItem"
+            }
+          }
+        }
+      },
+      "Taxonomy": {
+        "type": "object",
+        "required": [
+          "apiVersion",
+          "generatedAt",
+          "totalPages",
+          "languages",
+          "sections",
+          "tags"
+        ],
+        "properties": {
+          "apiVersion": {
+            "type": "string"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "totalPages": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "code",
+                "pages"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "pages": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "label",
+                "pages"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "pages": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "pages"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "pages": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "CourseCatalog": {
+        "type": "object",
+        "required": [
+          "apiVersion",
+          "generatedAt",
+          "totalProviders",
+          "totalCourses",
+          "integrationPolicy",
+          "providers",
+          "courses"
+        ],
+        "properties": {
+          "apiVersion": {
+            "type": "string"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "totalProviders": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "totalCourses": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "integrationPolicy": {
+            "type": "object"
+          },
+          "providers": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "courses": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
         }
       }
     }
