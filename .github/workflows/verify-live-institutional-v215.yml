@@ -1,0 +1,122 @@
+name: Verify live institutional platform v215
+
+on:
+  push:
+    branches: ["ops/verify-live-institutional-v215"]
+    paths:
+      - ".github/workflows/verify-live-institutional-v215.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      TARGET_SHA: a62de1e51eb6bd2307f177437b7c619141023f28
+      EVIDENCE_ISSUE: "204"
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Wait for institutional build and verify every live contract
+        run: |
+          set -euo pipefail
+          rm -f /tmp/live-institutional-v215.json
+          for attempt in $(seq 1 80); do
+            token="$(date +%s)-${attempt}"
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o /tmp/deployment.json \
+              && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}?v=${token}" -o /tmp/home.html \
+              && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/?v=${token}" -o /tmp/api.html \
+              && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/v1/platform.json?v=${token}" -o /tmp/platform.json \
+              && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/v1/openapi.json?v=${token}" -o /tmp/openapi.json \
+              && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/v1/courses.schema.json?v=${token}" -o /tmp/courses.schema.json \
+              && curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}assets/brand/logo-mark.svg?v=${token}" -o /tmp/logo.svg; then
+              ATTEMPT="${attempt}" python - <<'PY'
+          import json, os, urllib.request
+          from pathlib import Path
+
+          target=os.environ['TARGET_SHA']
+          repo=os.environ['GITHUB_REPOSITORY']
+          token=os.environ['GH_TOKEN']
+          deployment=json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          home=Path('/tmp/home.html').read_text(encoding='utf-8')
+          api=Path('/tmp/api.html').read_text(encoding='utf-8')
+          platform=json.loads(Path('/tmp/platform.json').read_text(encoding='utf-8'))
+          openapi=json.loads(Path('/tmp/openapi.json').read_text(encoding='utf-8'))
+          schema=json.loads(Path('/tmp/courses.schema.json').read_text(encoding='utf-8'))
+          logo=Path('/tmp/logo.svg').read_text(encoding='utf-8')
+          live=deployment.get('commit') or ''
+          compare_status='missing'
+          contains_target=False
+          if live==target:
+              compare_status='identical'; contains_target=True
+          elif live:
+              headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'institutional-live-v215'}
+              request=urllib.request.Request(f'https://api.github.com/repos/{repo}/compare/{target}...{live}',headers=headers)
+              try:
+                  with urllib.request.urlopen(request,timeout=30) as response:
+                      compare_status=json.loads(response.read().decode('utf-8')).get('status','unknown')
+                  contains_target=compare_status in {'ahead','identical'}
+              except Exception as exc:
+                  compare_status=f'error:{type(exc).__name__}'
+          forbidden=['خطة نمو قابلة للقياس','الأهداف الدنيا للمحتوى','هدف توسع','العدد الحالي يثبت','ما سيتم إنجازه','قيد الإعداد']
+          authorization=schema.get('properties',{}).get('authorization',{})
+          authorization_required=set(authorization.get('required',[]))
+          status_const=authorization.get('properties',{}).get('status',{}).get('const')
+          evidence={
+              'attempt':int(os.environ['ATTEMPT']),
+              'live_commit':live,
+              'target_commit':target,
+              'contains_target_commit':contains_target,
+              'target_to_live_compare':compare_status,
+              'schema_version':deployment.get('schema_version'),
+              'homepage_brand': 'منصة الصحة النفسية وذوي الاحتياجات الخاصة' in home,
+              'homepage_logo': '/pterminology-site/assets/brand/logo-mark.svg' in home,
+              'homepage_social_card': 'assets/brand/social-card.svg' in home,
+              'homepage_keywords': '<meta name="keywords"' in home,
+              'homepage_opensearch': 'opensearch.xml' in home,
+              'homepage_api_link': 'href="api/"' in home or 'href="/pterminology-site/api/"' in home,
+              'homepage_has_no_internal_planning': not any(term in home for term in forbidden),
+              'api_documentation': 'API v1' in api and 'شرط استيراد الدورات' in api,
+              'platform_api_named': platform.get('name')=='منصة الصحة النفسية وذوي الاحتياجات الخاصة',
+              'platform_api_read_only': platform.get('api',{}).get('mode')=='read-only',
+              'openapi_version': openapi.get('openapi'),
+              'openapi_has_paths': bool(openapi.get('paths')),
+              'course_status_const': status_const,
+              'course_authorization_evidence_required': {'status','evidenceUrl','license','verifiedAt'}.issubset(authorization_required),
+              'logo_accessible': '<title' in logo and '<desc' in logo,
+          }
+          Path('/tmp/live-institutional-v215.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(evidence,ensure_ascii=False,indent=2))
+          required=[key for key,value in evidence.items() if isinstance(value,bool)]
+          raise SystemExit(0 if all(evidence[key] for key in required) and evidence['openapi_version']=='3.1.0' and evidence['course_status_const']=='authorized' else 1)
+          PY
+              if [ $? -eq 0 ]; then exit 0; fi
+            fi
+            sleep 15
+          done
+          echo 'Live institutional release did not become verifiable' >&2
+          exit 1
+
+      - name: Publish live evidence
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const evidence=fs.existsSync('/tmp/live-institutional-v215.json')?fs.readFileSync('/tmp/live-institutional-v215.json','utf8'):'{"status":"missing"}';
+            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## Live institutional v215 proof — run ${context.runId}\n\n\`\`\`json\n${evidence}\n\`\`\``});
+
+      - name: Upload live evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-institutional-v215-evidence
+          path: /tmp/live-institutional-v215.json
+          if-no-files-found: warn
+          retention-days: 7
