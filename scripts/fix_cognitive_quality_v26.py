@@ -72,6 +72,7 @@ def main() -> None:
     visual_change = Path(__file__).with_name('publish_visual_change_detection_v210.py')
     bank_hardening = Path(__file__).with_name('harden_cognitive_banks_v211.py')
     copy_hardening = Path(__file__).with_name('harden_cognitive_copy_v209.py')
+    asset_cache = Path(__file__).with_name('bust_lab_asset_cache_v213.py')
     subprocess.run([sys.executable, str(finalizer), str(SITE)], check=True)
     subprocess.run([sys.executable, str(hardener), str(SITE)], check=True)
     subprocess.run([sys.executable, str(provider_route), str(SITE)], check=True)
@@ -82,9 +83,10 @@ def main() -> None:
     subprocess.run([sys.executable, str(visual_change), str(SITE)], check=True)
     subprocess.run([sys.executable, str(bank_hardening), str(SITE)], check=True)
     subprocess.run([sys.executable, str(copy_hardening), str(SITE)], check=True)
+    subprocess.run([sys.executable, str(asset_cache), str(SITE)], check=True)
 
     report = {
-        'version': 211,
+        'version': 213,
         'legacy_patches': len(PATCHES),
         'results': results,
         'v202_finalizer': True,
@@ -97,6 +99,7 @@ def main() -> None:
         'visual_change_detection_v210': True,
         'bank_hardening_v211': True,
         'copy_hardening_v209': True,
+        'lab_asset_cache_v213': True,
         'cognitive_tools': 53,
         'total_lab_tools': 93,
     }
