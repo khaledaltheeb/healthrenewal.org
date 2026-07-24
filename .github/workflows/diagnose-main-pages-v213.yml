@@ -19,16 +19,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      EVIDENCE_ISSUE: "187"
+      EVIDENCE_ISSUE: "188"
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Query post-merge main validation and Pages state v3
+      - name: Query final v214 deployment state
         run: |
           python - <<'PY'
           import json, os, urllib.request
           from pathlib import Path
           repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
-          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'pterminology-post-merge-v214'}
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'pterminology-final-v214'}
           def get(path):
               req=urllib.request.Request(f'https://api.github.com/repos/{repo}{path}',headers=headers)
               with urllib.request.urlopen(req,timeout=30) as response:
@@ -40,27 +40,27 @@ jobs:
           for run in runs:
               if run.get('name') in wanted:
                   selected.append({key:run.get(key) for key in ('id','name','event','head_sha','status','conclusion','run_number','created_at','updated_at','html_url')})
-              if len(selected)>=12: break
+              if len(selected)>=8: break
           deployments=[]
-          for deployment in get('/deployments?environment=github-pages&per_page=5'):
+          for deployment in get('/deployments?environment=github-pages&per_page=3'):
               item={key:deployment.get(key) for key in ('id','sha','ref','environment','created_at','updated_at')}
               statuses=get(f"/deployments/{deployment['id']}/statuses?per_page=2")
               item['statuses']=[{key:status.get(key) for key in ('state','description','environment_url','created_at','updated_at')} for status in statuses]
               deployments.append(item)
           live={}
           try:
-              with urllib.request.urlopen('https://khaledaltheeb.github.io/pterminology-site/deployment.json?probe=v214-3',timeout=30) as response:
+              with urllib.request.urlopen('https://khaledaltheeb.github.io/pterminology-site/deployment.json?probe=v214-final',timeout=30) as response:
                   live=json.loads(response.read().decode('utf-8'))
           except Exception as exc:
               live={'error':repr(exc)}
           report={'current_main_sha':current,'v214_merge_sha':'a08e3092352ba786c74ab01d647260ad531b8d55','latest_validation_and_deploy_runs':selected,'latest_pages_deployments':deployments,'live_deployment_commit':live.get('commit'),'live_schema_version':live.get('schema_version')}
-          Path('/tmp/post-merge-pages-v214.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+          Path('/tmp/final-pages-v214.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
           print(json.dumps(report,ensure_ascii=False,indent=2))
           PY
-      - name: Publish post-merge diagnostics v3
+      - name: Publish final v214 deployment diagnostics
         uses: actions/github-script@v7
         with:
           script: |
             const fs=require('fs');
-            const report=fs.readFileSync('/tmp/post-merge-pages-v214.json','utf8');
-            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## Post-merge Pages v214 diagnostic v3 — run ${context.runId}\n\n\`\`\`json\n${report}\n\`\`\``});
+            const report=fs.readFileSync('/tmp/final-pages-v214.json','utf8');
+            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:Number(process.env.EVIDENCE_ISSUE),body:`## Final Pages v214 diagnostic — run ${context.runId}\n\n\`\`\`json\n${report}\n\`\`\``});
