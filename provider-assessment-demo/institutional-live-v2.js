@@ -67,10 +67,33 @@
     replaceText(document.body);
   };
 
+  const applyTabSemantics = () => {
+    const tablist = document.querySelector(".tabs");
+    if (tablist) role(tablist, "tablist");
+    document.querySelectorAll(".tab[data-view]").forEach((tab) => {
+      const viewName = tab.dataset.view;
+      const panel = document.querySelector(`[data-view-panel="${viewName}"]`);
+      const tabId = tab.id || `workspace-tab-${viewName}`;
+      tab.id = tabId;
+      role(tab, "tab");
+      if (!panel) return;
+      panel.id ||= `view-${viewName}`;
+      role(panel, "tabpanel");
+      tab.setAttribute("aria-controls", panel.id);
+      panel.setAttribute("aria-labelledby", tabId);
+      panel.setAttribute("tabindex", "0");
+    });
+  };
+
+  function role(element, value) {
+    if (element.getAttribute("role") !== value) element.setAttribute("role", value);
+  }
+
   const observeOperationalUi = () => {
     const target = document.getElementById("professional-list") || document.body;
     const observer = new MutationObserver(() => {
       replaceText(target);
+      applyTabSemantics();
       target.querySelectorAll(".badge.danger,.badge.warning").forEach((badge) => {
         if (["مسار عمل متاح", "مسار نتيجة متاح"].includes(badge.textContent.trim())) {
           badge.classList.remove("danger", "warning", "neutral");
@@ -120,13 +143,17 @@
 
   window.addEventListener("DOMContentLoaded", () => {
     applyInstitutionalCopy();
+    applyTabSemantics();
     observeOperationalUi();
     loadAssessmentPathways();
     loadConditionPathways();
     loadProfessionalTemplates();
     loadCaseReports();
     refreshOldCaches();
-    requestAnimationFrame(() => requestAnimationFrame(applyInstitutionalCopy));
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      applyInstitutionalCopy();
+      applyTabSemantics();
+    }));
   });
 
   if (location.pathname === PATH && !location.search.includes("release=")) {
