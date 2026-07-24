@@ -1,8 +1,8 @@
 name: Verify live Stroop deployment v213
 
 on:
-  pull_request:
-    branches: ["main"]
+  push:
+    branches: ["ops/verify-live-stroop-v213"]
     paths:
       - ".github/workflows/verify-live-stroop-v213.yml"
   workflow_dispatch:
