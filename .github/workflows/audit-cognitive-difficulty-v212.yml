@@ -1,0 +1,84 @@
+name: Audit cognitive difficulty progression v212
+
+on:
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+
+jobs:
+  cognitive-difficulty-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore production sources
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          python scripts/verify_enricher_v7.py
+          python scripts/verify_expander_v9.py
+
+      - name: Compile difficulty audit
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/harden_cognitive_banks_v211.py scripts/harden_cognitive_banks_core_v211.py scripts/harden_cognitive_difficulty_v212.py scripts/fix_cognitive_quality_v26.py
+          test "$(find scripts/v212_difficulty_parts -name 'part*.jsfrag' | wc -l)" -eq 5
+          node --check scripts/audit_cognitive_banks_v211.mjs
+          node --check scripts/audit_cognitive_difficulty_v212.mjs
+          node --check scripts/test_cognitive_variation_v24.mjs
+
+      - name: Build cognitive production output
+        run: |
+          set -euxo pipefail
+          python build_site.py
+          python enrich_site_v7.py
+          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+          python scripts/scale_site_v8.py
+          python expand_site_v9.py
+          python scripts/design_content_v10.py
+          python scripts/apply_contrast_v11.py _site
+          python scripts/expand_v12_direct.py _site
+          python scripts/run_encyclopedia_v13.py
+          python scripts/performance_hotfix_v14.py _site
+          python scripts/optimize_site_performance_v14.py _site
+          python scripts/strip_nonlab_runtime_v14.py _site
+          python scripts/finalize_pwa_v14.py _site
+          python scripts/complete_core_sections_v15.py _site
+          python scripts/upgrade_cognitive_batch1_v22.py _site
+          python scripts/upgrade_cognitive_batch2_v22.py _site
+          python scripts/fix_initial_cognitive_variation_v25.py _site
+          python scripts/fix_stroop_and_variation_v23.py _site
+          python scripts/complete_cognitive_remaining_v24.py _site
+          python scripts/fix_cognitive_quality_v26.py _site
+          node --check _site/assets/js/lab-v12.js
+
+      - name: Test banks answers and real difficulty progression
+        run: |
+          set -euxo pipefail
+          node scripts/audit_cognitive_banks_v211.mjs _site
+          node scripts/audit_cognitive_difficulty_v212.mjs _site
+          node scripts/test_cognitive_variation_v24.mjs _site
+
+      - name: Upload difficulty evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cognitive-difficulty-audit-v212
+          path: |
+            _site/api/cognitive-bank-audit-v211.json
+            _site/api/cognitive-difficulty-audit-v212.json
+            _site/api/cognitive-difficulty-v212.json
+          if-no-files-found: warn
+          retention-days: 14
