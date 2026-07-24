@@ -31,13 +31,16 @@
   window.PA_OPERATIONAL_RELEASE = RELEASE;
   window.PA_OPERATIONAL_COUNT = data.professional.length;
 
+  if (typeof document === "undefined") return;
+
   const applyTabSemantics = () => {
     const tablist = document.querySelector(".tabs");
     if (!tablist) return;
     tablist.setAttribute("role", "tablist");
     document.querySelectorAll(".tab[data-view]").forEach((tab, index) => {
       const view = tab.dataset.view || String(index);
-      const panel = document.querySelector(`[data-view-panel="${CSS.escape(view)}"]`);
+      const escapedView = typeof CSS !== "undefined" && typeof CSS.escape === "function" ? CSS.escape(view) : view.replace(/[^a-zA-Z0-9_-]/g, "");
+      const panel = document.querySelector(`[data-view-panel="${escapedView}"]`);
       const tabId = `workspace-tab-${view}`;
       tab.id = tabId;
       tab.setAttribute("role", "tab");
