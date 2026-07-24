@@ -33,7 +33,7 @@ class V214(unittest.TestCase):
         (p/"sitemap-special-needs.xml").write_text('<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"/>',encoding="utf-8")
         xml='<?xml version="1.0"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap><loc>'+BASE+'/sitemap-core.xml</loc></sitemap></sitemapindex>' if index else '<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"/>'
         (p/"sitemap.xml").write_text(xml,encoding="utf-8");return p
-    def run(self,site):
+    def run_publisher(self,site):
         r=subprocess.run(["python3",str(PUBLISHER),str(site)],cwd=ROOT,capture_output=True,text=True)
         self.assertEqual(r.returncode,0,r.stderr)
         return json.loads((site/"api/special-needs-guides-v214.json").read_text(encoding="utf-8"))
@@ -49,7 +49,7 @@ class V214(unittest.TestCase):
             self.assertGreaterEqual(len(x["checklist"]),7);self.assertGreaterEqual(len(x["common_mistakes"]),5);self.assertGreaterEqual(len(x["template"]),8);self.assertGreaterEqual(len(x["source_ids"]),2)
             self.assertGreaterEqual(len(re.findall(r"[\w\u0600-\u06ff]+",json.dumps(x,ensure_ascii=False))),900);self.assertTrue(90<=len(x["description"])<=180);self.assertIsNone(BANNED.search(json.dumps(x,ensure_ascii=False)))
     def test_pages_sitemaps_and_idempotence(self):
-        s=self.site();a=self.run(s);b=self.run(s);self.assertEqual((a["guide_count"],b["generated_page_count"]),(5,5));self.assertGreaterEqual(a["minimum_source_words"],900)
+        s=self.site();a=self.run_publisher(s);b=self.run_publisher(s);self.assertEqual((a["guide_count"],b["generated_page_count"]),(5,5));self.assertGreaterEqual(a["minimum_source_words"],900)
         hub=(s/"special-needs/index.html").read_text(encoding="utf-8");self.assertEqual(hub.count("special-needs-guides-v214:start"),1);self.assertEqual(hub.count("special-needs-guides-v214:end"),1)
         for slug in self.data()[0]["guide_slugs"]:
             page=(s/f"special-needs/{slug}/index.html").read_text(encoding="utf-8");self.assertIn('lang="ar" dir="rtl"',page);self.assertIn('rel="canonical"',page);self.assertIn("application/ld+json",page);self.assertIn("متى نطلب مساعدة متخصصة؟",page);self.assertIsNone(BANNED.search(page))
@@ -57,7 +57,7 @@ class V214(unittest.TestCase):
         locs=[n.text for n in ET.parse(s/"sitemap-special-needs.xml").findall("sm:url/sm:loc",NS)]
         self.assertEqual(len([u for u in locs if u and any(x in u for x in self.data()[0]["guide_slugs"])]),5)
     def test_sitemapindex(self):
-        s=self.site(True);self.run(s);self.run(s);tree=ET.parse(s/"sitemap.xml");self.assertEqual(tree.getroot().tag.rsplit("}",1)[-1],"sitemapindex")
+        s=self.site(True);self.run_publisher(s);self.run_publisher(s);tree=ET.parse(s/"sitemap.xml");self.assertEqual(tree.getroot().tag.rsplit("}",1)[-1],"sitemapindex")
         self.assertEqual([n.text for n in tree.findall("sm:sitemap/sm:loc",NS)].count(BASE+"/sitemap-special-needs.xml"),1)
 
 if __name__=="__main__":unittest.main()
