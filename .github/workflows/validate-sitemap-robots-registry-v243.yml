@@ -37,4 +37,4 @@ jobs:
             scripts/publish_provider_condition_discovery_v238_compat.py \
             tests/test_sitemap_robots_registry_v243.py
       - name: Prove existing sitemaps are registered once and only once
-        run: python -m unittest -v tests.test_sitemap_robots_registry_v243
+        run: python -m unittest discover -s tests -p 'test_sitemap_robots_registry_v243.py' -v
