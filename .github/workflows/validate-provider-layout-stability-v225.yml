@@ -27,12 +27,15 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - name: Validate deterministic layout contract
         run: |
           python -m py_compile tests/test_provider_layout_stability_v225.py
@@ -43,3 +46,72 @@ jobs:
           grep -q 'min-block-size:82px' provider-assessment-demo/institutional-contract-v220.css
           grep -q 'overscroll-behavior-inline:contain' provider-assessment-demo/institutional-contract-v220.css
           grep -q 'tabs.insertBefore(tab, guideTab)' provider-assessment-demo/institutional-contract-v220-integration.js
+      - name: Install Lighthouse and isolated Chromium
+        run: |
+          npm install --no-save lighthouse@12 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Measure provider page desktop CLS directly
+        run: |
+          set -euxo pipefail
+          rm -rf /tmp/provider-v225
+          mkdir -p /tmp/provider-v225/pterminology-site
+          ln -s "$GITHUB_WORKSPACE/provider-assessment-demo" /tmp/provider-v225/pterminology-site/provider-assessment-demo
+          python -m http.server 8765 --directory /tmp/provider-v225 >/tmp/provider-v225-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8765/pterminology-site/provider-assessment-demo/ >/dev/null && break
+            sleep 1
+          done
+          CHROME_PATH="$(node -e "console.log(require('playwright').chromium.executablePath())")"
+          "$CHROME_PATH" --version
+          CHROME_PATH="$CHROME_PATH" npx lighthouse \
+            http://127.0.0.1:8765/pterminology-site/provider-assessment-demo/ \
+            --output=json \
+            --output-path=/tmp/provider-v225-lighthouse.json \
+            --only-categories=performance,accessibility,best-practices,seo \
+            --form-factor=desktop \
+            --screenEmulation.width=1350 \
+            --screenEmulation.height=940 \
+            --screenEmulation.deviceScaleFactor=1 \
+            --throttling-method=simulate \
+            --chrome-flags='--headless=new --no-sandbox --disable-dev-shm-usage' \
+            --quiet
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path('/tmp/provider-v225-lighthouse.json').read_text(encoding='utf-8'))
+          audits = report['audits']
+          categories = report['categories']
+          result = {
+              'version': 225,
+              'route': 'provider-assessment-demo/',
+              'form_factor': 'desktop',
+              'cls': audits['cumulative-layout-shift']['numericValue'],
+              'performance': categories['performance']['score'],
+              'accessibility': categories['accessibility']['score'],
+              'best_practices': categories['best-practices']['score'],
+              'seo': categories['seo']['score'],
+          }
+          Path('/tmp/provider-layout-stability-v225.json').write_text(
+              json.dumps(result, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          assert result['cls'] <= 0.10, result
+          assert result['performance'] >= 0.95, result
+          assert result['accessibility'] >= 0.95, result
+          assert result['best_practices'] >= 0.95, result
+          assert result['seo'] >= 0.95, result
+          PY
+      - name: Upload measured layout evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider-layout-stability-v225
+          path: |
+            /tmp/provider-layout-stability-v225.json
+            /tmp/provider-v225-lighthouse.json
+            /tmp/provider-v225-http.log
+          if-no-files-found: warn
+          retention-days: 14
