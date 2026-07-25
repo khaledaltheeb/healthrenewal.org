@@ -14,6 +14,7 @@ on:
       - "tests/test_verify_core_sections_v244.py"
       - "tests/test_health_gate_header_integration_v233.py"
       - ".github/workflows/validate-practical-tips-v237.yml"
+      - ".github/workflows/validate-global-quality-v20.yml"
   push:
     branches: ["main"]
     paths:
@@ -27,6 +28,7 @@ on:
       - "tests/test_verify_core_sections_v244.py"
       - "tests/test_health_gate_header_integration_v233.py"
       - ".github/workflows/validate-practical-tips-v237.yml"
+      - ".github/workflows/validate-global-quality-v20.yml"
   workflow_dispatch:
 
 permissions:
@@ -157,3 +159,5 @@ jobs:
           grep -q 'from scripts.publish_practical_tips_v237 import publish as _publish_practical_tips' scripts/enforce_health_publication_gate_v192.py
           grep -q 'tips_report = _publish_practical_tips(SITE, REPO)' scripts/enforce_health_publication_gate_v192.py
           grep -q 'report\["practical_tips_guides"\]' scripts/enforce_health_publication_gate_v192.py
+          grep -q 'python scripts/enforce_health_publication_gate_v192.py' .github/workflows/validate-global-quality-v20.yml
+          grep -q "_site/api/practical-tips-v237.json" .github/workflows/validate-global-quality-v20.yml

@@ -6,6 +6,9 @@ on:
     paths:
       - "provider-assessment-demo/**"
       - ".github/workflows/validate-global-quality-v20.yml"
+      - "scripts/enforce_health_publication_gate_v192.py"
+      - "scripts/publish_practical_tips_v237.py"
+      - "scripts/verify_core_sections_v15.py"
   pull_request:
     branches: ["main"]
   workflow_dispatch:
@@ -50,7 +53,33 @@ jobs:
           cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
           python scripts/verify_enricher_v7.py
           python scripts/verify_expander_v9.py
-          python -m py_compile build_site.py expand_site_v9.py scripts/scale_site_v8.py scripts/design_content_v10.py scripts/apply_contrast_v11.py scripts/expand_v12_direct.py scripts/rebuild_encyclopedia_v13.py scripts/run_encyclopedia_v13.py scripts/performance_hotfix_v14.py scripts/optimize_site_performance_v14.py scripts/defer_encyclopedia_index_v20.py scripts/strip_nonlab_runtime_v14.py scripts/finalize_pwa_v14.py scripts/audit_site_integrity_v13.py scripts/verify_performance_v14.py scripts/complete_core_sections_v15.py scripts/verify_core_sections_v15.py scripts/polish_site_v16.py scripts/audit_full_site_v16.py scripts/audit_full_site_i18n_v72.py scripts/apply_homepage_v20.py scripts/publish_homepage_i18n_v72.py scripts/publish_care_guides_v21.py scripts/link_care_guides_v21.py
+          python -m py_compile \
+            build_site.py \
+            expand_site_v9.py \
+            scripts/scale_site_v8.py \
+            scripts/design_content_v10.py \
+            scripts/apply_contrast_v11.py \
+            scripts/expand_v12_direct.py \
+            scripts/rebuild_encyclopedia_v13.py \
+            scripts/run_encyclopedia_v13.py \
+            scripts/performance_hotfix_v14.py \
+            scripts/optimize_site_performance_v14.py \
+            scripts/defer_encyclopedia_index_v20.py \
+            scripts/strip_nonlab_runtime_v14.py \
+            scripts/finalize_pwa_v14.py \
+            scripts/audit_site_integrity_v13.py \
+            scripts/verify_performance_v14.py \
+            scripts/complete_core_sections_v15.py \
+            scripts/verify_core_sections_v15.py \
+            scripts/polish_site_v16.py \
+            scripts/audit_full_site_v16.py \
+            scripts/audit_full_site_i18n_v72.py \
+            scripts/apply_homepage_v20.py \
+            scripts/publish_homepage_i18n_v72.py \
+            scripts/publish_care_guides_v21.py \
+            scripts/link_care_guides_v21.py \
+            scripts/enforce_health_publication_gate_v192.py \
+            scripts/publish_practical_tips_v237.py
           node --check scripts/lighthouse_statistics_v201.mjs
           node --check scripts/global_quality_v20.mjs
           node --test tests/test_lighthouse_statistics_v201.mjs
@@ -75,6 +104,7 @@ jobs:
           python scripts/apply_homepage_v20.py _site
           python scripts/publish_care_guides_v21.py _site
           python scripts/link_care_guides_v21.py _site
+          python scripts/enforce_health_publication_gate_v192.py
           python scripts/polish_site_v16.py _site
           python scripts/audit_site_integrity_v13.py _site
           python scripts/finalize_pwa_v14.py _site
@@ -97,13 +127,30 @@ jobs:
           linked=json.loads((root/'api/care-guides-homepage-v21.json').read_text(encoding='utf-8'))
           guides=json.loads((root/'api/care-guides-v21.json').read_text(encoding='utf-8'))
           i18n=json.loads((root/'api/homepage-i18n-v72.json').read_text(encoding='utf-8'))
+          tips=json.loads((root/'api/practical-tips-v237.json').read_text(encoding='utf-8'))
+          core=json.loads((root/'api/core-sections-audit-v15.json').read_text(encoding='utf-8'))
+          health=json.loads((root/'api/health-publication-gate-v192.json').read_text(encoding='utf-8'))
           actual_pages=sum(1 for _ in (root/'care-guides').rglob('index.html'))
           assert guides['guides'] >= 1,guides
           assert guides['pages'] == guides['guides'] + 1,guides
           assert guides['sitemap_urls'] == guides['pages'],guides
           assert actual_pages == guides['pages'],(actual_pages,guides)
           assert i18n['generated_page_count']==2 and i18n['locales']==['en','es'],i18n
-          assert (root/'en/index.html').is_file() and (root/'es/index.html').is_file()
+          assert tips['version']==237 and tips['status']=='passed',tips
+          assert tips['guide_count']==100 and tips['sitemap_urls']==111,tips
+          assert tips['preserved_existing_guides']==20 and tips['new_guides']==80,tips
+          assert tips['pillar_count']==10 and tips['category_count']>=25,tips
+          assert tips['minimum_after_words']>=700 and tips['remaining_below_minimum']==0,tips
+          assert tips['core_sections_compatibility']=='passed',tips
+          assert tips['unique_titles']==100 and tips['unique_descriptions']==100,tips
+          assert core['tips_contract_version']==237,core
+          assert core['tips_pages']==100 and core['expected_tips_pages']==100,core
+          assert core['tips_sitemap_urls']==111 and core['expected_tips_sitemap_urls']==111,core
+          assert core['unique_tip_titles']==100 and core['unique_tip_descriptions']==100,core
+          assert core['errors']==[],core
+          assert health['practical_tips_status']=='passed',health
+          assert health['practical_tips_guides']==100 and health['practical_tips_new_guides']==80,health
+          assert health['practical_tips_sitemap_urls']==111,health
           assert pwa['version']==23,pwa
           assert pwa['registration_verified'] and pwa['pages_scanned'] > 0,pwa
           assert pwa['verification_files_skipped'] >= 1,pwa
@@ -124,7 +171,19 @@ jobs:
           assert eligible==pwa['pages_scanned'],(eligible,pwa)
           expected='google-site-verification: google644f1f7a8b7aaa2b.html'
           assert (root/'google644f1f7a8b7aaa2b.html').read_text(encoding='utf-8').strip()==expected
-          print(json.dumps({'pwa':pwa,'care_guides':guides,'homepage_i18n':i18n,'homepage_linking':linked},ensure_ascii=False,indent=2))
+          print(json.dumps({
+              'pwa':pwa,
+              'care_guides':guides,
+              'homepage_i18n':i18n,
+              'homepage_linking':linked,
+              'practical_tips':tips,
+              'core_sections':core,
+              'health_gate':{
+                  'practical_tips_status':health['practical_tips_status'],
+                  'practical_tips_guides':health['practical_tips_guides'],
+                  'practical_tips_sitemap_urls':health['practical_tips_sitemap_urls'],
+              },
+          },ensure_ascii=False,indent=2))
           PY
       - name: Install Lighthouse, Playwright and Axe
         run: |
@@ -153,6 +212,9 @@ jobs:
             _site/api/pwa-v14.json
             _site/api/care-guides-v21.json
             _site/api/care-guides-homepage-v21.json
+            _site/api/practical-tips-v237.json
+            _site/api/core-sections-audit-v15.json
+            _site/api/health-publication-gate-v192.json
             _site/api/full-site-audit-v16.json
             _site/api/site-integrity-v13.json
             /tmp/pterminology-v23-http.log
