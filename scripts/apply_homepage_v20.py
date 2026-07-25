@@ -274,6 +274,7 @@ def main() -> None:
         "course_permission_policy": "deny-by-default",
         "content_discovery_publisher": 219,
         "special_needs_guides_publisher": 217,
+        "institutional_pages_publisher": 232,
         "light_palette": True,
         "core_sections_linked": True,
         "api_v1_published": True,
@@ -337,6 +338,7 @@ def main() -> None:
     run_publisher("publish_accessible_arabic_content_v190.py")
     register_sitemap("sitemap-accessible-arabic-content.xml")
     run_publisher("publish_daily_tools_v24.py")
+    run_publisher("publish_institutional_pages_v232.py")
     publish_api_sitemap()
     run_publisher("enhance_sitewide_seo_v216.py")
     run_publisher("publish_content_catalog_v219.py")
