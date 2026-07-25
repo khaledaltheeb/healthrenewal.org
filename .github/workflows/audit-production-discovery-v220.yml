@@ -20,7 +20,7 @@ jobs:
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: Checkout the validated source commit
         uses: actions/checkout@v4
@@ -35,13 +35,59 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run discovery unit contracts
+      - name: Run discovery and content-depth unit contracts
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/audit_orphan_pages_v197.py tests/test_orphan_page_audit_v197.py
-          python -m unittest -v tests/test_orphan_page_audit_v197.py
+          python -m py_compile \
+            scripts/audit_orphan_pages_v197.py \
+            tests/test_orphan_page_audit_v197.py \
+            scripts/enrich_thin_content_v222.py \
+            tests/test_content_depth_v222.py \
+            scripts/audit_content_quality_v32.py
+          python -m unittest -v \
+            tests.test_orphan_page_audit_v197 \
+            tests.test_content_depth_v222
 
-      - name: Enforce institutional gateway, inbound-link and sitemap coverage
+      - name: Expand short Arabic pages and re-audit content quality
+        run: |
+          set -euxo pipefail
+          python scripts/enrich_thin_content_v222.py validated-site
+          python scripts/audit_content_quality_v32.py validated-site
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('validated-site')
+          depth = json.loads((root / 'api/content-depth-v222.json').read_text(encoding='utf-8'))
+          quality = json.loads((root / 'api/content-quality-v32.json').read_text(encoding='utf-8'))
+          assert depth['version'] == 222, depth
+          assert depth['status'] == 'passed', depth
+          assert depth['eligible_pages'] > 0, depth
+          assert depth['remaining_below_minimum'] == 0, depth
+          assert depth['failure_count'] == 0, depth
+          assert quality['critical_error_count'] == 0, quality
+          for route in ('comparisons', 'library', 'encyclopedia', 'assessments', 'special-needs', 'care-guides'):
+              assert route in depth['policies'], route
+          print({
+              'status': depth['status'],
+              'pages_scanned': depth['pages_scanned'],
+              'eligible_pages': depth['eligible_pages'],
+              'enriched_pages': depth['enriched_pages'],
+              'sufficient_pages': depth['sufficient_pages'],
+              'remaining_below_minimum': depth['remaining_below_minimum'],
+              'quality_critical_errors': quality['critical_error_count'],
+          })
+          PY
+          test -f validated-site/assets/css/content-depth-v222.css
+          ! grep -R -Eqi 'يعالج نهائيًا|شفاء مضمون|بديل عن الطبيب|تشخيصك هو' \
+            validated-site/comparisons \
+            validated-site/library \
+            validated-site/encyclopedia \
+            validated-site/assessments \
+            validated-site/special-needs \
+            validated-site/care-guides
+
+      - name: Enforce institutional gateway inbound-link and sitemap coverage
         run: |
           set -euxo pipefail
           python scripts/audit_orphan_pages_v197.py validated-site --fail-on-critical --require-gateways
@@ -72,7 +118,7 @@ jobs:
           })
           PY
 
-      - name: Re-publish the discovery-audited production artifact
+      - name: Re-publish the audited production artifact
         uses: actions/upload-artifact@v4
         with:
           name: validated-production-site
@@ -80,11 +126,14 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload discovery evidence
+      - name: Upload discovery and content evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: production-discovery-audit-v220
-          path: validated-site/api/orphan-page-audit-v197.json
+          path: |
+            validated-site/api/orphan-page-audit-v197.json
+            validated-site/api/content-depth-v222.json
+            validated-site/api/content-quality-v32.json
           if-no-files-found: warn
           retention-days: 14
