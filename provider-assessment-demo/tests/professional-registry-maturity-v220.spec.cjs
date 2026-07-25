@@ -97,9 +97,26 @@ assert.ok(ui.includes("رُفض الحفظ لأن النص قد يتضمن ما�
 assert.ok(!ui.includes("reverse().find"), "legacy record fallback must not be restored");
 assert.ok(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/.test(ui), "professional registry UI must remain local-only");
 
+const planning = fs.readFileSync(path.join(DEMO, "professional-registry-planning-compat-v220.js"), "utf8");
+for (const marker of [
+  "planningDraftAllowed: true",
+  "completedRightsRequired: true",
+  'if (completed && tool?.professionalContract)',
+  'rights.value = "pending_review"',
+  'section.dataset.recordRequirement = completed ? "completed-strict" : "planning-draft"',
+]) {
+  assert.ok(planning.includes(marker), `professional planning compatibility marker missing: ${marker}`);
+}
+assert.ok(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/.test(planning), "planning compatibility must remain local-only");
+
 const maturityUi = fs.readFileSync(path.join(DEMO, "exploratory-tools-maturity-ui-v220.js"), "utf8");
 assert.ok(maturityUi.includes("professional-registry-contract-v220.js"), "professional contract loader missing");
 assert.ok(maturityUi.includes("professional-registry-maturity-ui-v220.js"), "professional UI loader missing");
+assert.ok(maturityUi.includes("professional-registry-planning-compat-v220.js"), "professional planning compatibility loader missing");
+assert.ok(maturityUi.includes("professional-registry-report-integration-v220.js"), "professional report integration loader missing");
+assert.ok(maturityUi.includes('ui.addEventListener("load", () => loadPlanningCompatibility()'), "planning compatibility must load after professional UI");
+assert.ok(maturityUi.includes('planning.addEventListener("load", () => loadReportIntegration()'), "report integration must load after planning compatibility");
+assert.ok(maturityUi.includes("draft records remain in stricter fallback mode"), "planning load failure must be explicit and fail to stricter mode");
 
 console.log(JSON.stringify({
   status: "passed",
@@ -107,5 +124,7 @@ console.log(JSON.stringify({
   allDigitalAdministrationLocked: report.allDigitalAdministrationLocked,
   protectedContentStorageAllowed: report.protectedContentStorageAllowed,
   structuredRecordSchema: "professional-registry-record-v220",
+  planningDraftCompatibilityLoaded: true,
+  reportIntegrationAfterPlanningCompatibility: true,
   legacyRecordMutationFallback: false,
 }, null, 2));
