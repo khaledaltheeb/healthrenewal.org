@@ -84,11 +84,15 @@ async function auditViewport(browser, baseUrl, name, viewport) {
       svgWidth: svgRect.width,
       wrapClientWidth: wrap.clientWidth,
       wrapScrollWidth: wrap.scrollWidth,
+      ariaLabel: svg.getAttribute('aria-label'),
+      nestedTitles: svg.querySelectorAll('title,desc').length,
     };
   });
   assert.ok(chartMetrics.wrapLeft >= -1 && chartMetrics.wrapRight <= chartMetrics.viewport + 1, `chart container escapes viewport: ${JSON.stringify(chartMetrics)}`);
   assert.ok(['auto', 'scroll'].includes(chartMetrics.overflowX), `chart overflow must be contained: ${chartMetrics.overflowX}`);
   assert.ok(chartMetrics.svgWidth > 0 && chartMetrics.wrapScrollWidth >= chartMetrics.wrapClientWidth);
+  assert.match(chartMetrics.ariaLabel || '', /اتجاهات النوم والجودة والطاقة/);
+  assert.equal(chartMetrics.nestedTitles, 0, 'chart must not create a second document title in generic audits');
 
   const axe = await new AxeBuilder({ page }).analyze();
   const blockingViolations = axe.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact));
@@ -182,8 +186,15 @@ async function main() {
   await mkdir(site, { recursive: true });
   await mkdir(preview, { recursive: true });
   await writeFile(path.join(site, 'sitemap.xml'), '<?xml version="1.0"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>\n', 'utf8');
+  await writeFile(
+    path.join(site, 'index.html'),
+    '<!doctype html><html lang="ar" dir="rtl"><head><title>منصة اختبار</title><meta name="keywords" content="الصحة النفسية"><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"CollectionPage","@id":"https://khaledaltheeb.github.io/pterminology-site/#home","hasPart":[]}]}</script></head><body><nav><a href="provider-assessment-demo/">منصة التقييم</a></nav><article><a href="cognitive-tests/">فتح المهام</a></article></body></html>',
+    'utf8',
+  );
   await run('python', [path.join(ROOT, 'scripts', 'publish_daily_tools_v24.py'), site]);
   await run('python', [path.join(ROOT, 'scripts', 'publish_sleep_log_v49.py'), site]);
+  await run('python', [path.join(ROOT, 'scripts', 'patch_sleep_svg_export_v65.py'), site]);
+  await run('python', [path.join(ROOT, 'scripts', 'apply_daily_tools_marshmallow_v219.py'), site]);
   await symlink(site, path.join(preview, 'pterminology-site'), 'dir');
 
   const server = spawn('python', ['-m', 'http.server', '8762', '--directory', preview], { stdio: ['ignore', 'pipe', 'pipe'] });
