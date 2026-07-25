@@ -1,0 +1,42 @@
+{
+  "version": 234,
+  "reviewed": "2026-07-25",
+  "sources": [
+    {
+      "organization": "منظمة الصحة العالمية",
+      "title": "الصحة النفسية",
+      "url": "https://www.who.int/health-topics/mental-health",
+      "scope": "المفاهيم العامة وعوامل الحماية والخطر وحدود الدعم الذاتي"
+    },
+    {
+      "organization": "منظمة الصحة العالمية",
+      "title": "التعامل مع الضغط",
+      "url": "https://www.who.int/news-room/questions-and-answers/item/stress",
+      "scope": "الروتين والنوم والحركة والتواصل وتقليل الحمل الإخباري"
+    },
+    {
+      "organization": "منظمة الصحة العالمية",
+      "title": "التدخلات النفسية للمساعدة الذاتية",
+      "url": "https://www.who.int/teams/mental-health-and-substance-use/treatment-care/Psychological-interventions/psychological-self-help-interventions",
+      "scope": "المساعدة الذاتية المنظمة ضمن رعاية متدرجة"
+    },
+    {
+      "organization": "منظمة الصحة العالمية",
+      "title": "الرعاية الذاتية للصحة والرفاه",
+      "url": "https://www.who.int/health-topics/self-care",
+      "scope": "الرعاية الذاتية بوصفها مكملة للخدمات الصحية وليست بديلًا عنها"
+    },
+    {
+      "organization": "يونيسف",
+      "title": "الصحة النفسية والرفاه للوالدين والأطفال",
+      "url": "https://www.unicef.org/parenting/mental-health-and-well-being",
+      "scope": "صحة الطفل ومقدم الرعاية والمحادثات الأسرية"
+    },
+    {
+      "organization": "يونيسف",
+      "title": "الحوار مع الطفل حول الصحة النفسية",
+      "url": "https://www.unicef.org/parenting/mental-health/how-to-talk-to-kids-mental-health",
+      "scope": "الاستماع والشراكة وتقليل ردود الفعل التي تغلق الحوار"
+    }
+  ]
+}
