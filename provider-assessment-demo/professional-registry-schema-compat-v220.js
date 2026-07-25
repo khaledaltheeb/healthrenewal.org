@@ -3,12 +3,13 @@
 (() => {
   if (typeof store === "undefined" || !Array.isArray(store?.cases)) return;
 
-  const VERSION = "220.1";
+  const VERSION = "220.2";
   const canonicalField = "reportIssuedBy";
   const legacyField = "reportIssuer";
+  let normalizing = false;
 
   const persist = () => {
-    if (typeof set === "function" && typeof storeKey === "function" && identity?.uid) {
+    if (typeof set === "function" && typeof storeKey === "function" && typeof identity !== "undefined" && identity?.uid) {
       return set(storeKey(identity.uid), store);
     }
     if (typeof save === "function") {
@@ -47,8 +48,8 @@
         auditId: typeof id === "function" ? id("META") : `META-${Date.now()}`,
         eventType: "schema_alias_migrated",
         changedAt: now,
-        changedByUid: identity?.uid || "local-user",
-        changedByRole: identity?.role || "local",
+        changedByUid: typeof identity !== "undefined" ? identity?.uid || "local-user" : "local-user",
+        changedByRole: typeof identity !== "undefined" ? identity?.role || "local" : "local",
         fromField: legacyField,
         toField: canonicalField,
         reason: "توحيد اسم جهة إصدار التقرير مع مخطط سجل التدقيق المؤسسي.",
@@ -59,32 +60,44 @@
   };
 
   const normalizeAll = ({ persistChanges = true } = {}) => {
-    const now = new Date().toISOString();
-    let changed = 0;
-    for (const caseRecord of store.cases) {
-      let caseChanged = false;
-      for (const record of caseRecord.professionalAssessments || []) {
-        if (normalizeRecord(record, now)) {
-          changed += 1;
-          caseChanged = true;
+    if (normalizing) return 0;
+    normalizing = true;
+    try {
+      const now = new Date().toISOString();
+      let changed = 0;
+      for (const caseRecord of store.cases) {
+        let caseChanged = false;
+        for (const record of caseRecord.professionalAssessments || []) {
+          if (normalizeRecord(record, now)) {
+            changed += 1;
+            caseChanged = true;
+          }
         }
+        if (caseChanged) caseRecord.updatedAt = now;
       }
-      if (caseChanged) caseRecord.updatedAt = now;
+      if (changed && persistChanges) persist();
+      return changed;
+    } finally {
+      normalizing = false;
     }
-    if (changed && persistChanges) persist();
-    return changed;
   };
 
-  document.getElementById("professional-record-form")?.addEventListener("submit", () => {
-    queueMicrotask(() => {
-      const changed = normalizeAll();
-      if (changed && typeof render === "function") render();
-    });
-  }, true);
+  const normalizeAndRender = () => {
+    const changed = normalizeAll();
+    if (changed && typeof render === "function") render();
+  };
 
   document.addEventListener("click", (event) => {
-    if (event.target.closest("[data-edit-professional-record]")) normalizeAll();
+    if (event.target.closest("[data-edit-professional-record]")) normalizeAndRender();
   }, true);
+
+  const recordList = document.getElementById("professional-record-list");
+  if (recordList) {
+    new MutationObserver(() => queueMicrotask(normalizeAndRender)).observe(recordList, {
+      childList: true,
+      subtree: true,
+    });
+  }
 
   normalizeAll();
 
@@ -94,6 +107,7 @@
     legacyField,
     normalizeAll,
     migrationAudited: true,
+    observesSavedRecords: true,
     localOnly: true,
   });
 })();
