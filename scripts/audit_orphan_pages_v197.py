@@ -140,7 +140,7 @@ def audit(site: Path, require_gateways: bool = False) -> dict[str, object]:
     gateway_unmapped = sorted(route for route in required_gateways if route in routes and route not in mapped)
     failed = bool(critical or critical_unmapped or missing_gateways or gateway_orphans or gateway_unmapped)
     return {
-        "version": 226,
+        "version": 220,
         "status": "failed" if failed else "passed",
         "pages": len(pages),
         "sitemap_routes": len(mapped),
