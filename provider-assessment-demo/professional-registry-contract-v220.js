@@ -69,6 +69,27 @@
     status: "external",
     recommendedRoles: ["مختص مؤهل يراجع التقرير أو المخرج الرسمي"]
   }));
+  const customRecordTool = Object.freeze({
+    id: "custom-professional-record",
+    name: "تطبيق مهني مخصص",
+    category: "مسار مهني",
+    status: "external",
+    professionalContract: customRecordContract,
+    professionalContractVersion: VERSION,
+    digitalAdministrationStatus: "not_available_in_platform",
+    resultRecordingStatus: "available_without_protected_materials",
+  });
+  const nativeFind = Array.prototype.find;
+  Object.defineProperty(data.professional, "find", {
+    configurable: false,
+    enumerable: false,
+    writable: false,
+    value(predicate, thisArg) {
+      const found = nativeFind.call(this, predicate, thisArg);
+      if (found !== undefined) return found;
+      return predicate.call(thisArg, customRecordTool, this.length, this) ? customRecordTool : undefined;
+    }
+  });
 
   window.PA_PROFESSIONAL_REGISTRY_V220 = Object.freeze({
     version: VERSION,
@@ -76,6 +97,7 @@
     allDigitalAdministrationLocked: data.professional.every((tool) => tool.professionalContract.officialAdministrationInsidePlatform === false),
     protectedContentStorageAllowed: false,
     customRecordContract,
+    customRecordTool,
     tools: data.professional.map((tool) => ({
       id: tool.id,
       name: tool.name,
