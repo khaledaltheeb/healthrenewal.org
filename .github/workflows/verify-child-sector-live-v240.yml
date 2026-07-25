@@ -1,0 +1,145 @@
+name: Verify child-sector live deployment v240
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/verify_child_sector_deployment_v240.py"
+      - "tests/test_child_sector_deployment_v240.py"
+      - ".github/workflows/verify-child-sector-live-v240.yml"
+  workflow_run:
+    workflows: ["Deploy validated main to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  statuses: write
+
+concurrency:
+  group: child-sector-live-v240-${{ github.event.workflow_run.id || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-contract:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and test the child live-deployment verifier
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/verify_child_sector_deployment_v240.py tests/test_child_sector_deployment_v240.py
+          python -m unittest -v tests.test_child_sector_deployment_v240
+
+  verify-live:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      EXPECTED_SHA: ${{ github.event.workflow_run.head_sha }}
+      REQUIRED_CHILD_SHA: f74b43d7d5c7c77df62e7bcb774c3f6b6f34732d
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout the deployed source commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          show-progress: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Publish pending child-sector verification status
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          url=f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/statuses/{os.environ['EXPECTED_SHA']}"
+          body=json.dumps({"state":"pending","context":"child-sector-live-v240","description":"Checking live child-sector hub and twenty guides"}).encode()
+          req=urllib.request.Request(url,data=body,method='POST',headers={"Authorization":f"Bearer {os.environ['GH_TOKEN']}","Accept":"application/vnd.github+json","Content-Type":"application/json","User-Agent":"child-sector-live-v240"})
+          urllib.request.urlopen(req,timeout=30).read()
+          PY
+
+      - name: Prove the deployed commit contains the child-sector merge
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          repo=os.environ['GITHUB_REPOSITORY']; required=os.environ['REQUIRED_CHILD_SHA']; candidate=os.environ['EXPECTED_SHA']
+          req=urllib.request.Request(f'https://api.github.com/repos/{repo}/compare/{required}...{candidate}',headers={'Authorization':f"Bearer {os.environ['GH_TOKEN']}",'Accept':'application/vnd.github+json','User-Agent':'child-sector-live-v240'})
+          with urllib.request.urlopen(req,timeout=30) as response: data=json.loads(response.read())
+          assert data.get('status') in {'ahead','identical'},data
+          print({'required_child_sha':required,'deployed_candidate_sha':candidate,'comparison_status':data['status']})
+          PY
+
+      - name: Download deployment report hub and all twenty live child guides
+        run: |
+          set -euxo pipefail
+          root=/tmp/child-sector-live-v240
+          rm -rf "${root}"
+          mkdir -p "${root}/api" "${root}/sectors/child"
+          token="${EXPECTED_SHA}-$(date +%s)"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o "${root}/deployment.json"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/child-sector-v239.json?v=${token}" -o "${root}/api/child-sector-v239.json"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sectors/child/?v=${token}" -o "${root}/sectors/child/index.html"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}robots.txt?v=${token}" -o "${root}/robots.txt"
+          python - <<'PY'
+          import json, os, pathlib, subprocess
+          root=pathlib.Path('/tmp/child-sector-live-v240')
+          data=json.loads(pathlib.Path('content/sectors-v10/child.json').read_text(encoding='utf-8'))
+          base=os.environ['BASE_URL']; token=os.environ['EXPECTED_SHA']+'-articles'
+          for item in data['articles']:
+              slug=item['slug']; folder=root/'sectors'/'child'/slug; folder.mkdir(parents=True,exist_ok=True)
+              subprocess.run(['curl','--retry','6','--retry-delay','4','-H','Cache-Control: no-cache','-fsSL',f'{base}sectors/child/{slug}/?v={token}', '-o',str(folder/'index.html')],check=True)
+          PY
+
+      - name: Verify SHA report depth indexability correction and every guide
+        run: |
+          set -euxo pipefail
+          python scripts/verify_child_sector_deployment_v240.py \
+            /tmp/child-sector-live-v240 \
+            --source content/sectors-v10/child.json \
+            --expected-sha "${EXPECTED_SHA}" \
+            --mode live
+
+      - name: Publish successful child-sector verification status
+        if: success()
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          url=f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/statuses/{os.environ['EXPECTED_SHA']}"
+          body=json.dumps({"state":"success","context":"child-sector-live-v240","description":"Live child hub and twenty guides match deployed SHA","target_url":f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"}).encode()
+          req=urllib.request.Request(url,data=body,method='POST',headers={"Authorization":f"Bearer {os.environ['GH_TOKEN']}","Accept":"application/vnd.github+json","Content-Type":"application/json","User-Agent":"child-sector-live-v240"})
+          urllib.request.urlopen(req,timeout=30).read()
+          PY
+
+      - name: Publish failed child-sector verification status
+        if: failure()
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          url=f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/statuses/{os.environ['EXPECTED_SHA']}"
+          body=json.dumps({"state":"failure","context":"child-sector-live-v240","description":"Live child-sector verification failed","target_url":f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"}).encode()
+          req=urllib.request.Request(url,data=body,method='POST',headers={"Authorization":f"Bearer {os.environ['GH_TOKEN']}","Accept":"application/vnd.github+json","Content-Type":"application/json","User-Agent":"child-sector-live-v240"})
+          urllib.request.urlopen(req,timeout=30).read()
+          PY
+
+      - name: Upload live child-sector deployment evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: child-sector-live-v240
+          path: /tmp/child-sector-live-v240/api/child-sector-deployment-v240.json
+          if-no-files-found: error
+          retention-days: 30
