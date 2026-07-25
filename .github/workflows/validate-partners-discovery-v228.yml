@@ -1,0 +1,40 @@
+name: Validate partners discovery v228
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/publish_partners_v201.py"
+      - "scripts/audit_orphan_pages_v197.py"
+      - "tests/test_partners_discovery_v228.py"
+      - ".github/workflows/validate-partners-discovery-v228.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/publish_partners_v201.py"
+      - "scripts/audit_orphan_pages_v197.py"
+      - "tests/test_partners_discovery_v228.py"
+      - ".github/workflows/validate-partners-discovery-v228.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and test partners discovery contract
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_partners_v201.py \
+            scripts/audit_orphan_pages_v197.py \
+            tests/test_partners_discovery_v228.py
+          python -m unittest -v \
+            tests.test_partners_discovery_v228 \
+            tests.test_orphan_page_audit_v197
