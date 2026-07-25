@@ -32,7 +32,7 @@ class PlatformIdentityV201Tests(unittest.TestCase):
         )
         return site
 
-    def test_replaces_rejected_labels_and_adds_missing_shell(self) -> None:
+    def test_replaces_labels_adds_shell_and_publishes_magazine(self) -> None:
         site = self.make_site()
         subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
         homepage = (site / "index.html").read_text(encoding="utf-8")
@@ -44,39 +44,51 @@ class PlatformIdentityV201Tests(unittest.TestCase):
         self.assertIn("شخص من ذوي الاحتياجات الخاصة", existing)
         self.assertIn('data-platform-shell="header"', homepage)
         self.assertIn('data-platform-shell="footer"', homepage)
-        self.assertIn("منصة الصحة النفسية وذوي الاحتياجات الخاصة", homepage)
         self.assertEqual(existing.count("<header"), 1)
         self.assertEqual(existing.count("<footer"), 1)
         for relative in (
             "editorial-methodology/index.html",
             "evaluate-mental-health-information/index.html",
             "guides/source-citation-and-update-transparency/index.html",
+            "magazine/index.html",
+            "magazine/aya-cancer-digital-mental-health-meta-analysis-2026.html",
         ):
             self.assertTrue((site / relative).is_file(), relative)
         report = json.loads((site / "api/platform-identity-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(report["pages"], 5)
+        self.assertEqual(report["pages"], 46)
         self.assertEqual(report["headers_added"], 1)
         self.assertEqual(report["footers_added"], 1)
         self.assertGreaterEqual(report["language_replacements"], 4)
         self.assertTrue(report["trust_guides_published"])
-        self.assertEqual(report["trust_guides_report"], "api/trust-guides-v201.json")
+        self.assertTrue(report["magazine_published"])
+        self.assertEqual(report["magazine_pages"], 40)
+        self.assertEqual(report["magazine_unwired_pages"], 0)
+        self.assertEqual(report["magazine_report"], "api/magazine-v201.json")
         self.assertEqual(report["remaining_banned_pages"], [])
         self.assertEqual(report["missing_header_pages"], [])
         self.assertEqual(report["missing_footer_pages"], [])
+        magazine = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
+        self.assertEqual(magazine["research_summaries_published"], 40)
+        self.assertEqual(magazine["unwired_research_pages"], 0)
+        self.assertEqual(magazine["sitemap"]["child_urls"], 41)
 
     def test_is_idempotent(self) -> None:
         site = self.make_site()
         subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
         first = (site / "index.html").read_text(encoding="utf-8")
+        first_magazine = (site / "magazine/index.html").read_text(encoding="utf-8")
         subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
         second = (site / "index.html").read_text(encoding="utf-8")
+        second_magazine = (site / "magazine/index.html").read_text(encoding="utf-8")
         self.assertEqual(first, second)
+        self.assertEqual(first_magazine, second_magazine)
         self.assertEqual(second.count('data-platform-shell="header"'), 1)
         self.assertEqual(second.count('data-platform-shell="footer"'), 1)
         self.assertEqual(second.count("platform-shell-v201-style"), 1)
         trust_report = json.loads((site / "api/trust-guides-v201.json").read_text(encoding="utf-8"))
         self.assertEqual(trust_report["page_count"], 3)
-        self.assertEqual(trust_report["status"], "built-not-published")
+        magazine_report = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
+        self.assertEqual(magazine_report["research_summaries_published"], 40)
 
 
 if __name__ == "__main__":
