@@ -60,7 +60,9 @@ class MagazineRoutesV201Tests(unittest.TestCase):
         self.assertEqual(report["risk_level"], "low")
         self.assertEqual(report["unwired_research_pages"], 0)
         self.assertEqual(report["robots_contract"], "exactly-one-index-follow-meta-per-published-page")
-        self.assertGreaterEqual(report["robots"]["robots_normalized_pages"], 5)
+        normalized = report["robots"]["article_robots_added"]
+        self.assertEqual(report["robots"]["robots_normalized_pages"], len(normalized))
+        self.assertTrue(set(normalized).issubset({path.name for path in articles}))
 
     def test_magazine_sitemap_is_idempotent(self):
         site = self.fixture()
