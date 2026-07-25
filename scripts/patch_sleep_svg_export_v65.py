@@ -13,7 +13,7 @@ EMPTY_CHART_ACCESSIBLE = (
     "اتجاهات النوم والجودة والطاقة: "
     "لا توجد بيانات كافية لعرض مخطط الاتجاهات."
 )
-STATIC_ARIA_ASSIGNMENT = "chart.setAttribute('aria-label', CHART_ACCESSIBLE_NAME);"
+STATIC_ARIA_ASSIGNMENT = f"chart.setAttribute('aria-label', '{SVG_LABEL}');"
 DYNAMIC_ARIA_ASSIGNMENT = "chart.setAttribute('aria-label', description);"
 SUMMARY_ASSIGNMENTS = (
     "summaryElement.textContent =",
