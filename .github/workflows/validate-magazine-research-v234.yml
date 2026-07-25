@@ -40,7 +40,7 @@ jobs:
           sys.modules[spec.name] = module
           spec.loader.exec_module(module)
           pages = module.article_files()
-          assert len(pages) == 21, [page.name for page in pages]
+          assert len(pages) == 25, [page.name for page in pages]
           index = Path('magazine/index.html').read_text(encoding='utf-8')
           assert index.count('class="card"') == len(pages)
           for page in pages:
@@ -55,10 +55,10 @@ jobs:
         run: |
           set -euo pipefail
           test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 7
-          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 14
-          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 21
-          test "$(grep -o 'class="card"' magazine/index.html | wc -l)" -eq 21
-          grep -q '"numberOfItems":21' magazine/index.html
+          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 18
+          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 25
+          test "$(grep -o 'class="card"' magazine/index.html | wc -l)" -eq 25
+          grep -q '"numberOfItems":25' magazine/index.html
 
           grep -q '10.1177/10870547251364578' magazine/adhd-school-social-skills-meta-analysis-2026.html
           grep -q '10.1001/jamapsychiatry.2026.0603' magazine/artemis-adolescent-mental-health-stigma-2026.html
@@ -74,6 +74,10 @@ jobs:
           grep -q '10.1080/01942638.2026.2689070' magazine/adhd-technology-interventions-meta-analysis-2026.html
           grep -q '10.1016/j.arcped.2026.105583' magazine/adhd-physical-fitness-meta-analysis-2026.html
           grep -q '10.1186/s12888-026-08191-x' magazine/autism-sleep-disorders-prevalence-meta-analysis-2026.html
+          grep -q '10.1001/jamanetworkopen.2025.52693' magazine/autism-parent-act-randomized-trial-2026.html
+          grep -q '10.1111/camh.70093' magazine/neurodevelopmental-psychiatric-comorbidity-umbrella-review-2026.html
+          grep -q '10.1177/00048674251405141' magazine/child-adolescent-mental-health-guidelines-review-2026.html
+          grep -q '10.1001/jamapsychiatry.2026.0668' magazine/digital-eating-disorder-interventions-meta-analysis-2026.html
 
           grep -q '10.1038/s41562-025-02162-0' magazine/mobile-stress-interventions-2025.html
           grep -q '10.3389/fpsyt.2025.1594658' magazine/school-resilience-children-2025.html
