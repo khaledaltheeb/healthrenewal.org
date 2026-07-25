@@ -91,6 +91,7 @@
   const collectStructuredRecord = () => {
     const values = {};
     for (const name of maturityNames) values[name] = clean(inputFor(name)?.value, name.includes("Summary") || ["selectionRationale","administrationQuality","behavioralObservations","interpretationLimitations","recommendations"].includes(name) ? 2400 : 300);
+    const recordedAt = new Date().toISOString();
     return {
       schema: "professional-registry-record-v220",
       version: VERSION,
@@ -125,7 +126,8 @@
         status: values.reviewStatus || "not_reviewed",
         reviewedBy: values.reviewedBy,
       },
-      recordedAt: new Date().toISOString(),
+      recordedAt,
+      auditTrail: [{ event: "structured_record_created", at: recordedAt, actorUid: identity.uid, actorRole: identity.role }],
     };
   };
 
@@ -167,8 +169,15 @@
     queueMicrotask(() => {
       const caseRecord = store.cases.find((item) => item.caseId === caseId);
       const records = caseRecord?.professionalAssessments || [];
-      const record = records.length > beforeCount ? records[records.length - 1] : [...records].reverse().find((item) => item.toolId === toolId && !item.professionalMaturity);
-      if (!record) return;
+      if (records.length !== beforeCount + 1) {
+        console.error("Professional record was not created; structured metadata was not attached.");
+        return;
+      }
+      const record = records[records.length - 1];
+      if (record.toolId !== toolId || record.professionalMaturity) {
+        console.error("Professional record identity mismatch; structured metadata was not attached.");
+        return;
+      }
       record.professionalMaturity = payload;
       record.professionalContractVersion = VERSION;
       record.digitalAdministrationOccurredInsidePlatform = false;
