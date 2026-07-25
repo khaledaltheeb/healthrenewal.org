@@ -1,0 +1,40 @@
+name: Validate sitemap robots registry v243
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_provider_condition_discovery_v238_compat.py"
+      - "tests/test_sitemap_robots_registry_v243.py"
+      - ".github/workflows/validate-sitemap-robots-registry-v243.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_provider_condition_discovery_v238_compat.py"
+      - "tests/test_sitemap_robots_registry_v243.py"
+      - ".github/workflows/validate-sitemap-robots-registry-v243.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sitemap-robots-registry-v243-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile registry and regression test
+        run: |
+          python -m py_compile \
+            scripts/publish_provider_condition_discovery_v238_compat.py \
+            tests/test_sitemap_robots_registry_v243.py
+      - name: Prove existing sitemaps are registered once and only once
+        run: python -m unittest -v tests.test_sitemap_robots_registry_v243
