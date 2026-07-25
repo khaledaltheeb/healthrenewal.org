@@ -40,6 +40,19 @@ jobs:
           python -m json.tool content/v234/tips-guides-supplement-ar.json >/dev/null
           python -m json.tool content/v234/sources-ar.json >/dev/null
 
+      - name: Capture related platform contracts
+        shell: bash
+        run: |
+          {
+            echo '=== WORKFLOW STEP ==='
+            grep -R -n -B 14 -A 14 'Test partners transparency hub' .github/workflows || true
+            echo '=== PARTNERS TEST REFERENCES ==='
+            grep -R -n -E 'partners|الشركاء' tests scripts | head -n 400 || true
+            echo '=== CORE BUILD MARKERS ==='
+            grep -R -n -E 'core-sections-v15|complete_core_sections_v15|enforce_platform_identity_v201' .github/workflows scripts tests | head -n 400 || true
+          } > tips-v234-platform-contracts.log
+          cat tips-v234-platform-contracts.log
+
       - name: Build and audit all tips pages twice
         id: tips_tests
         shell: bash
@@ -60,7 +73,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tips-v234-diagnostics
-          path: tips-v234-test.log
+          path: |
+            tips-v234-test.log
+            tips-v234-platform-contracts.log
           if-no-files-found: error
           retention-days: 7
 
