@@ -115,7 +115,7 @@ jobs:
           if (!contractLoader.includes('import("./institutional-contract-v220-integration.js")') || !contractLoader.includes(institutionalRelease)) {
             throw new Error('Institutional v220 loader or release marker is missing');
           }
-          if (!contractCore.includes(`RELEASE = "${institutionalRelease}"`) || !contractCore.includes('institutional-contract-v220')) {
+          if (!contractCore.includes(`RELEASE = "${institutionalRelease}"`) || !contractCore.includes('institutional-assessment-contract-v220')) {
             throw new Error('Institutional v220 core release or schema marker is missing');
           }
           for (const marker of ['institutional-contract-v220-core.js','institutional-contract-v220-plans.js','العقد المؤسسي v220']) {
