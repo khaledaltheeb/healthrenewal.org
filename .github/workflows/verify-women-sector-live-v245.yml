@@ -1,0 +1,137 @@
+name: Verify women-sector live deployment v245
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/verify_women_sector_deployment_v245.py"
+      - "tests/test_women_sector_deployment_v245.py"
+      - ".github/workflows/verify-women-sector-live-v245.yml"
+  workflow_run:
+    workflows: ["Deploy validated main to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  statuses: write
+
+concurrency:
+  group: women-sector-live-v245-${{ github.event.workflow_run.id || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-contract:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and test the women live-deployment verifier
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/verify_women_sector_deployment_v245.py tests/test_women_sector_deployment_v245.py
+          python -m unittest -v tests.test_women_sector_deployment_v245
+
+  verify-live:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      EXPECTED_SHA: ${{ github.event.workflow_run.head_sha }}
+      REQUIRED_WOMEN_SHA: 2a214f1e5423a5db29a124b16983d9d4762fae46
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout the deployed source commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Publish pending women-sector verification status
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          url=f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/statuses/{os.environ['EXPECTED_SHA']}"
+          body=json.dumps({"state":"pending","context":"women-sector-live-v245","description":"Checking live women-sector hub and twenty guides"}).encode()
+          req=urllib.request.Request(url,data=body,method='POST',headers={"Authorization":f"Bearer {os.environ['GH_TOKEN']}","Accept":"application/vnd.github+json","Content-Type":"application/json","User-Agent":"women-sector-live-v245"})
+          urllib.request.urlopen(req,timeout=30).read()
+          PY
+      - name: Prove the deployed commit contains the women-sector merge
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          repo=os.environ['GITHUB_REPOSITORY']; required=os.environ['REQUIRED_WOMEN_SHA']; candidate=os.environ['EXPECTED_SHA']
+          req=urllib.request.Request(f'https://api.github.com/repos/{repo}/compare/{required}...{candidate}',headers={'Authorization':f"Bearer {os.environ['GH_TOKEN']}",'Accept':'application/vnd.github+json','User-Agent':'women-sector-live-v245'})
+          with urllib.request.urlopen(req,timeout=30) as response: data=json.loads(response.read())
+          assert data.get('status') in {'ahead','identical'},data
+          print({'required_women_sha':required,'deployed_candidate_sha':candidate,'comparison_status':data['status']})
+          PY
+      - name: Download deployment report hub and all twenty live women guides
+        run: |
+          set -euxo pipefail
+          root=/tmp/women-sector-live-v245
+          rm -rf "${root}"
+          mkdir -p "${root}/api" "${root}/sectors/women"
+          token="${EXPECTED_SHA}-$(date +%s)"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o "${root}/deployment.json"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/women-sector-v244.json?v=${token}" -o "${root}/api/women-sector-v244.json"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sectors/women/?v=${token}" -o "${root}/sectors/women/index.html"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}robots.txt?v=${token}" -o "${root}/robots.txt"
+          python - <<'PY'
+          import json, os, pathlib, subprocess
+          root=pathlib.Path('/tmp/women-sector-live-v245')
+          data=json.loads(pathlib.Path('content/sectors-v10/women.json').read_text(encoding='utf-8'))
+          base=os.environ['BASE_URL']; token=os.environ['EXPECTED_SHA']+'-articles'
+          for item in data['articles']:
+              slug=item['slug']; folder=root/'sectors'/'women'/slug; folder.mkdir(parents=True,exist_ok=True)
+              subprocess.run(['curl','--retry','6','--retry-delay','4','-H','Cache-Control: no-cache','-fsSL',f'{base}sectors/women/{slug}/?v={token}', '-o',str(folder/'index.html')],check=True)
+          PY
+      - name: Verify SHA report depth metadata safety and every guide
+        run: |
+          set -euxo pipefail
+          python scripts/verify_women_sector_deployment_v245.py \
+            /tmp/women-sector-live-v245 \
+            --source content/sectors-v10/women.json \
+            --expected-sha "${EXPECTED_SHA}" \
+            --mode live
+      - name: Publish successful women-sector verification status
+        if: success()
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          url=f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/statuses/{os.environ['EXPECTED_SHA']}"
+          body=json.dumps({"state":"success","context":"women-sector-live-v245","description":"Live women hub and twenty guides match deployed SHA","target_url":f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"}).encode()
+          req=urllib.request.Request(url,data=body,method='POST',headers={"Authorization":f"Bearer {os.environ['GH_TOKEN']}","Accept":"application/vnd.github+json","Content-Type":"application/json","User-Agent":"women-sector-live-v245"})
+          urllib.request.urlopen(req,timeout=30).read()
+          PY
+      - name: Publish failed women-sector verification status
+        if: failure()
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          url=f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/statuses/{os.environ['EXPECTED_SHA']}"
+          body=json.dumps({"state":"failure","context":"women-sector-live-v245","description":"Live women-sector verification failed","target_url":f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"}).encode()
+          req=urllib.request.Request(url,data=body,method='POST',headers={"Authorization":f"Bearer {os.environ['GH_TOKEN']}","Accept":"application/vnd.github+json","Content-Type":"application/json","User-Agent":"women-sector-live-v245"})
+          urllib.request.urlopen(req,timeout=30).read()
+          PY
+      - name: Upload live women-sector deployment evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: women-sector-live-v245
+          path: /tmp/women-sector-live-v245/api/women-sector-deployment-v245.json
+          if-no-files-found: error
+          retention-days: 30
