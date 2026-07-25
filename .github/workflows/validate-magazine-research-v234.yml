@@ -40,7 +40,7 @@ jobs:
           sys.modules[spec.name] = module
           spec.loader.exec_module(module)
           pages = module.article_files()
-          assert len(pages) == 30, [page.name for page in pages]
+          assert len(pages) == 35, [page.name for page in pages]
           index = Path('magazine/index.html').read_text(encoding='utf-8')
           assert index.count('class="card"') == len(pages)
           for page in pages:
@@ -54,11 +54,11 @@ jobs:
       - name: Verify source contracts
         run: |
           set -euo pipefail
-          test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 7
-          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 23
-          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 30
-          test "$(grep -o 'class="card"' magazine/index.html | wc -l)" -eq 30
-          grep -q '"numberOfItems":30' magazine/index.html
+          test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 9
+          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 26
+          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 35
+          test "$(grep -o 'class="card"' magazine/index.html | wc -l)" -eq 35
+          grep -q '"numberOfItems":35' magazine/index.html
 
           grep -q '10.1177/10870547251364578' magazine/adhd-school-social-skills-meta-analysis-2026.html
           grep -q '10.1001/jamapsychiatry.2026.0603' magazine/artemis-adolescent-mental-health-stigma-2026.html
@@ -83,7 +83,12 @@ jobs:
           grep -q '10.1037/bul0000522' magazine/young-children-universal-wellbeing-interventions-meta-analysis-2026.html
           grep -q '10.1111/jcpp.70192' magazine/youth-single-session-self-administered-interventions-2026.html
           grep -q '10.1016/j.smrv.2026.102303' magazine/adhd-sleep-interventions-network-meta-analysis-2026.html
+          grep -q '10.1007/s00787-026-03018-2' magazine/intellectual-disability-youth-psychotherapy-meta-analysis-2026.html
+          grep -q '10.1186/s13034-026-01042-3' magazine/youth-digital-depression-anxiety-network-meta-analysis-2026.html
+          grep -q '10.1111/josh.70144' magazine/high-school-digital-literacy-physical-activity-rct-2026.html
 
+          grep -q '10.3390/jcm14124364' magazine/cerebral-palsy-youth-mental-health-review-2025.html
+          grep -q '10.1007/s00787-025-02795-6' magazine/deaf-hard-hearing-youth-mental-health-review-2025.html
           grep -q '10.1038/s41562-025-02162-0' magazine/mobile-stress-interventions-2025.html
           grep -q '10.3389/fpsyt.2025.1594658' magazine/school-resilience-children-2025.html
           grep -q '39813031' magazine/youth-stigma-interventions-2025.html
