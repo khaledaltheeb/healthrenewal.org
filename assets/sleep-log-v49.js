@@ -147,6 +147,7 @@
   const status = form.querySelector('[role="status"]');
   const results = document.querySelector('[data-sleep-results]');
   const consent = form.querySelector('[name="localConsent"]');
+  const summaryElement = document.querySelector('[data-sleep-summary]');
   const chart = document.querySelector('[data-sleep-chart]');
   const chartText = document.querySelector('[data-sleep-chart-text]');
   const chartWrap = chart && chart.closest('.chart-wrap');
@@ -155,7 +156,10 @@
     chartWrap.setAttribute('role', 'region');
     chartWrap.setAttribute('aria-label', 'مخطط اتجاهات النوم القابل للتمرير أفقيًا عند الحاجة');
   }
+  const actionHeader = results?.closest('table')?.querySelector('thead th:last-child');
+  if (actionHeader) actionHeader.textContent = 'إجراءات';
   const printButton = document.querySelector('[data-print-sleep]');
+  const deleteAllButton = document.querySelector('[data-delete-all-sleep]') || document.querySelector('.actions [data-delete-sleep]');
   const exportChartButton = document.createElement('button');
   exportChartButton.type = 'button';
   exportChartButton.setAttribute('data-export-sleep-chart', '');
@@ -216,9 +220,19 @@
     const blob = new Blob([content], { type });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = url; link.download = name; link.click();
+    link.href = url;
+    link.download = name;
+    link.click();
     setTimeout(() => URL.revokeObjectURL(url), 0);
   }
+
+  form.addEventListener('input', (event) => {
+    const field = event.target;
+    if (!field?.name || field.getAttribute('aria-invalid') !== 'true') return;
+    field.removeAttribute('aria-invalid');
+    const error = form.querySelector(`[data-field-error="${field.name}"]`);
+    if (error) { error.textContent = ''; error.hidden = true; }
+  });
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -226,11 +240,17 @@
     const checked = validate(record);
     if (!checked.valid) { showFieldErrors(checked.fieldErrors); announce(checked.errors.join(' ')); return; }
     clearFieldErrors();
-    if (!consent.checked) { announce('فعّل الموافقة على التخزين المحلي قبل الحفظ.'); consent.focus(); return; }
+    const summary = summarize(record);
+    summaryElement.textContent = `${summary.hours} ساعة. ${summary.message} ${summary.flags.join(' ')}`.trim();
+    if (!consent.checked) {
+      announce('تم الحساب دون حفظ. فعّل خيار الحفظ المحلي إذا أردت الاحتفاظ بالسجل على هذا الجهاز.');
+      return;
+    }
+    delete record.localConsent;
     const current = readRecords();
     const next = upsert(current, record);
     const saved = storageWrite(localStorage, next);
-    if (!saved.ok) { announce('تعذر الحفظ المحلي. يمكنك تصدير البيانات بعد إدخالها أو المحاولة في متصفح آخر.'); return; }
+    if (!saved.ok) { announce('تعذر الحفظ المحلي. يمكنك استخدام الخلاصة دون حفظ أو المحاولة في متصفح آخر.'); return; }
     form.reset();
     announce('تم حفظ السجل محليًا على هذا الجهاز.');
     render();
@@ -240,13 +260,21 @@
     const button = event.target.closest('[data-delete-sleep]');
     if (!button) return;
     const next = readRecords().filter((record) => record.date !== button.dataset.deleteSleep);
-    storageWrite(localStorage, next); render(); announce('تم حذف السجل المحدد.');
+    const saved = storageWrite(localStorage, next);
+    if (!saved.ok) { announce('تعذر حذف السجل المحدد من التخزين المحلي.'); return; }
+    render();
+    announce('تم حذف السجل المحدد.');
   });
 
-  document.querySelector('[data-delete-all-sleep]').addEventListener('click', () => {
-    if (root.confirm && !root.confirm('هل تريد حذف جميع سجلات النوم المحلية من هذا الجهاز؟')) return;
-    storageDelete(localStorage); render(); announce('تم حذف جميع السجلات المحلية.');
-  });
+  if (deleteAllButton) {
+    deleteAllButton.addEventListener('click', () => {
+      if (root.confirm && !root.confirm('هل تريد حذف جميع سجلات النوم المحلية من هذا الجهاز؟')) return;
+      const deleted = storageDelete(localStorage);
+      if (!deleted.ok) { announce('تعذر حذف جميع السجلات المحلية.'); return; }
+      render();
+      announce('تم حذف جميع السجلات المحلية.');
+    });
+  }
 
   document.querySelector('[data-export-json]').addEventListener('click', () => downloadFile('sleep-log.json', 'application/json;charset=utf-8', JSON.stringify(readRecords(), null, 2)));
   document.querySelector('[data-export-csv]').addEventListener('click', () => downloadFile('sleep-log.csv', 'text/csv;charset=utf-8', toCsv(readRecords())));
