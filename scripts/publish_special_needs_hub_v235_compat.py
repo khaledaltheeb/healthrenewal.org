@@ -23,6 +23,8 @@ PATHWAYS = (
 LOCAL_SOURCE_MARKER = "data-special-needs-jordan-sources-v241"
 ASHA_OLD = "https://www.asha.org/public/speech/disorders/aac/"
 ASHA_CURRENT = "https://www.asha.org/Practice-Portal/Professional-Issues/Augmentative-and-Alternative-Communication/"
+OLD_SOURCE_METRIC = "<strong>7</strong><span>مراجع مؤسسية أصلية</span>"
+NEW_SOURCE_METRIC = "<strong>10</strong><span>مراجع مؤسسية أصلية</span>"
 JORDAN_SOURCES = (
     (
         "اليونسكو والأردن",
@@ -108,11 +110,10 @@ def sync_hub_sitemaps(site: Path) -> None:
 
 
 def render_local_sources() -> str:
-    items = "".join(
+    return "".join(
         f'<li {LOCAL_SOURCE_MARKER}><a href="{url}" rel="noopener noreferrer">{organization} — {topic}</a></li>'
         for organization, topic, url in JORDAN_SOURCES
     )
-    return items
 
 
 def publish(site: Path) -> dict[str, Any]:
@@ -131,11 +132,14 @@ def publish(site: Path) -> dict[str, Any]:
             raise SystemExit("Legacy ASHA AAC source URL is missing")
         source = source.replace(ASHA_OLD, ASHA_CURRENT, 1)
 
+        if source.count(OLD_SOURCE_METRIC) != 1:
+            raise SystemExit("Special-needs source metric contract failed")
+        source = source.replace(OLD_SOURCE_METRIC, NEW_SOURCE_METRIC, 1)
+
         source_list_end = "</ul></section>"
         if source.count(source_list_end) < 1:
             raise SystemExit("Special-needs source list insertion point is missing")
-        local_sources = render_local_sources()
-        source = source.replace(source_list_end, local_sources + source_list_end, 1)
+        source = source.replace(source_list_end, render_local_sources() + source_list_end, 1)
         if source.count(LOCAL_SOURCE_MARKER) != len(JORDAN_SOURCES):
             raise SystemExit("Jordan source insertion contract failed")
 
