@@ -62,7 +62,7 @@ jobs:
         run: python -m unittest tests.test_platform_identity_v201 -v
       - name: Verify source contracts
         run: |
-          set -euo pipefail
+          set -euxo pipefail
           test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 9
           test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 51
           test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 60
