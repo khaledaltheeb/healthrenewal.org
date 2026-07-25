@@ -76,6 +76,41 @@ class PlatformIdentityV201Tests(unittest.TestCase):
         self.assertEqual(magazine["unwired_research_pages"], 0)
         self.assertEqual(magazine["sitemap"]["child_urls"], 51)
 
+    def test_tools_page_uses_marshmallow_contrast(self) -> None:
+        site = self.make_site()
+        tools = site / "tools"
+        tools.mkdir()
+        (tools / "index.html").write_text(
+            '<!doctype html><html lang="ar" dir="rtl"><head><title>الأدوات</title>'
+            '<style>.tool-card{background:#000;color:#fff}.badge{background:#111;color:#fff}</style>'
+            '</head><body><main><section class="tools-grid"><article class="tool-card">'
+            '<h1>الأدوات</h1><p>وصف الأداة</p><span class="badge">متاح</span>'
+            '</article></section></main></body></html>',
+            encoding="utf-8",
+        )
+
+        subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
+        first = (tools / "index.html").read_text(encoding="utf-8")
+        self.assertIn('data-tools-design="marshmallow-v245"', first)
+        self.assertIn("tools-marshmallow-v245", first)
+        self.assertEqual(first.count("tools-marshmallow-v245-style"), 1)
+        for color in ("--tm-mint:#e5faf5", "--tm-rose:#fff0f5", "--tm-lilac:#f2edff"):
+            self.assertIn(color, first)
+        self.assertIn("color:var(--tm-ink)!important", first)
+        self.assertIn("background:var(--tm-lilac)!important;color:#4a315f!important", first)
+        self.assertIn("prefers-color-scheme:dark", first)
+
+        report = json.loads((site / "api/platform-identity-v201.json").read_text(encoding="utf-8"))
+        self.assertEqual(report["tools_marshmallow_route"], "tools/index.html")
+        self.assertEqual(report["tools_marshmallow_design"], "marshmallow-v245")
+        self.assertEqual(report["tools_marshmallow_pages"], 1)
+        self.assertEqual(report["tools_marshmallow_updates"], 1)
+
+        subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
+        second = (tools / "index.html").read_text(encoding="utf-8")
+        self.assertEqual(first, second)
+        self.assertEqual(second.count("tools-marshmallow-v245-style"), 1)
+
     def test_is_idempotent(self) -> None:
         site = self.make_site()
         subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
