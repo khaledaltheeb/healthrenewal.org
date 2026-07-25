@@ -108,7 +108,12 @@ class WomenSectorDeploymentV245Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             site, source = self.fixture(Path(tmp))
             page = site / "sectors/women/pmdd/index.html"
-            page.write_text(page.read_text(encoding="utf-8").replace("index,follow", "noindex,follow", 1), encoding="utf-8")
+            text = page.read_text(encoding="utf-8").replace(
+                '<meta name="robots" content="index,follow">',
+                '<meta name="robots" content="noindex,follow">',
+                1,
+            )
+            page.write_text(text, encoding="utf-8")
             with self.assertRaisesRegex(AssertionError, "must not be noindex"):
                 module.verify(site, source, self.SHA, "live")
 
