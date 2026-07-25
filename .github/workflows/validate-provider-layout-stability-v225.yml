@@ -8,6 +8,7 @@ on:
       - "provider-assessment-demo/institutional-contract-v220-integration.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "tests/test_provider_layout_stability_v225.py"
+      - "tests/probe_provider_layout_v225.mjs"
       - ".github/workflows/validate-provider-layout-stability-v225.yml"
   push:
     branches: [main]
@@ -16,6 +17,7 @@ on:
       - "provider-assessment-demo/institutional-contract-v220-integration.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "tests/test_provider_layout_stability_v225.py"
+      - "tests/probe_provider_layout_v225.mjs"
       - ".github/workflows/validate-provider-layout-stability-v225.yml"
   workflow_dispatch:
 
@@ -43,6 +45,7 @@ jobs:
           python -m py_compile tests/test_provider_layout_stability_v225.py
           python -m unittest -v tests.test_provider_layout_stability_v225
           node --check provider-assessment-demo/institutional-live-v2.js
+          node --check tests/probe_provider_layout_v225.mjs
       - name: Enforce reserved geometry and newer-contract guard
         run: |
           set -euxo pipefail
@@ -77,6 +80,9 @@ jobs:
             curl -fsS http://127.0.0.1:8765/pterminology-site/provider-assessment-demo/ >/dev/null && break
             sleep 1
           done
+          CHROME_PATH="$CHROME_PATH" node tests/probe_provider_layout_v225.mjs \
+            http://127.0.0.1:8765/pterminology-site/provider-assessment-demo/ \
+            /tmp/provider-layout-probe-v225.json
           for attempt in $(seq 1 30); do
             curl -fsS http://127.0.0.1:9222/json/version >/dev/null && break
             sleep 1
@@ -135,6 +141,7 @@ jobs:
           name: provider-layout-stability-v225
           path: |
             /tmp/provider-layout-stability-v225.json
+            /tmp/provider-layout-probe-v225.json
             /tmp/provider-v225-lighthouse.json
             /tmp/provider-v225-lighthouse.log
             /tmp/provider-v225-chrome.log
