@@ -14,8 +14,10 @@ CONTENT = ROOT / "content" / "v192" / "platform-institutional-foundation-ar.json
 SOURCE = ROOT / "magazine"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 URL = BASE + "/magazine/"
-CONTRACT = 234
+CONTRACT = 240
 MIN_ARTICLES = 21
+ROBOTS_META = '<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">'
+ROBOTS_PATTERN = re.compile(r'<meta\s+[^>]*name=["\']robots["\'][^>]*>', re.I)
 SOURCE_LINK_PATTERN = re.compile(
     r'href="https://(?:doi\.org/|pubmed\.ncbi\.nlm\.nih\.gov/|etheses\.whiterose\.ac\.uk/|research-repository\.uwa\.edu\.au/)',
     re.I,
@@ -57,6 +59,18 @@ def load_methodology() -> dict:
     if data.get("status") != "internally-reviewed" or data.get("risk_level") != "low":
         raise SystemExit("Magazine methodology must remain internally reviewed and low risk")
     return data
+
+
+def ensure_robots_meta(text: str, filename: str) -> tuple[str, bool]:
+    matches = ROBOTS_PATTERN.findall(text)
+    if len(matches) > 1:
+        raise SystemExit(f"Magazine page contains duplicate robots metadata: {filename}")
+    if matches:
+        return text, False
+    updated, count = re.subn(r"</head\s*>", ROBOTS_META + "</head>", text, count=1, flags=re.I)
+    if count != 1:
+        raise SystemExit(f"Magazine page lacks a closing head element: {filename}")
+    return updated, True
 
 
 def validate_source_tree(pages: list[Path]) -> dict[str, str]:
@@ -111,17 +125,31 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
             raise SystemExit(f"Magazine index must expose article twice: {filename}")
         if URL + filename not in index:
             raise SystemExit(f"Magazine JSON-LD does not include article: {filename}")
-        hashes[filename] = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        normalized, _ = ensure_robots_meta(text, filename)
+        hashes[filename] = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
     return hashes
 
 
-def publish_files(site: Path, pages: list[Path]) -> None:
+def publish_files(site: Path, pages: list[Path]) -> dict[str, object]:
     target = site / "magazine"
     target.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(SOURCE / "index.html", target / "index.html")
+    index_text, index_added = ensure_robots_meta(
+        (SOURCE / "index.html").read_text(encoding="utf-8"),
+        "index.html",
+    )
+    (target / "index.html").write_text(index_text, encoding="utf-8")
     shutil.copy2(SOURCE / "research.css", target / "research.css")
+    added: list[str] = []
     for path in pages:
-        shutil.copy2(path, target / path.name)
+        text, was_added = ensure_robots_meta(path.read_text(encoding="utf-8"), path.name)
+        (target / path.name).write_text(text, encoding="utf-8")
+        if was_added:
+            added.append(path.name)
+    return {
+        "index_robots_added": index_added,
+        "article_robots_added": added,
+        "robots_normalized_pages": int(index_added) + len(added),
+    }
 
 
 def local_name(tag: str) -> str:
@@ -180,7 +208,7 @@ def publish(site: Path) -> dict[str, object]:
     data = load_methodology()
     pages = article_files()
     hashes = validate_source_tree(pages)
-    publish_files(site, pages)
+    robots = publish_files(site, pages)
     sitemap = write_sitemaps(site, data["reviewed_at"], pages)
     report = {
         "version": CONTRACT,
@@ -195,6 +223,8 @@ def publish(site: Path) -> dict[str, object]:
         "unwired_research_pages": 0,
         "source_heading_contract": "article-or-official-repository",
         "limitations_contract": "limitations-or-cautions-required",
+        "robots_contract": "exactly-one-index-follow-meta-per-published-page",
+        "robots": robots,
         "sitemap": sitemap,
     }
     api = site / "api"
