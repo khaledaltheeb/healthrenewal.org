@@ -1,0 +1,72 @@
+name: Diagnose GitHub Pages production pipeline v237
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/diagnose_pages_pipeline_v237.py"
+      - ".github/workflows/diagnose-pages-pipeline-v237.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: diagnose-pages-pipeline-v237-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile diagnostic
+        run: python -m py_compile scripts/diagnose_pages_pipeline_v237.py
+
+      - name: Inspect main build discovery deploy live stamp and proof
+        id: diagnostic
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          python scripts/diagnose_pages_pipeline_v237.py --output pages-pipeline-diagnostic-v237.json \
+            2>&1 | tee pages-pipeline-diagnostic-v237.log
+          status=${PIPESTATUS[0]}
+          echo "exit_status=${status}" >> "$GITHUB_OUTPUT"
+          {
+            echo "## GitHub Pages pipeline diagnostic v237"
+            echo
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('pages-pipeline-diagnostic-v237.json').read_text(encoding='utf-8'))
+          print(f"- Status: `{report['status']}`")
+          print(f"- Current main: `{report['target_main']['sha']}`")
+          print(f"- Live Pages: `{report['live_deployment']['sha']}`")
+          print(f"- Blocking stage: `{report['blocking_stage']}`")
+          print(f"- Reason: {report['blocking_reason']}")
+          for key in ('build','discovery','deploy','proof'):
+              stage=report['stages'][key]
+              run=stage.get('run') or {}
+              print(f"- {key}: run={run.get('id')} status={run.get('status')} conclusion={run.get('conclusion')} exact={stage.get('selected_exact_target_sha')} artifact={stage.get('expected_artifact_present')}")
+          PY
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "${status}"
+
+      - name: Upload immutable diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-pipeline-diagnostic-v237
+          path: |
+            pages-pipeline-diagnostic-v237.json
+            pages-pipeline-diagnostic-v237.log
+          if-no-files-found: error
+          retention-days: 30
