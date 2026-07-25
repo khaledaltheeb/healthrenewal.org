@@ -1,4 +1,4 @@
-name: Validate exploratory tool maturity v220
+name: Validate exploratory and professional registry maturity v220
 
 on:
   push:
@@ -6,18 +6,26 @@ on:
     paths:
       - "provider-assessment-demo/catalog.js"
       - "provider-assessment-demo/catalog-extra.js"
+      - "provider-assessment-demo/professional-master-registry.js"
+      - "provider-assessment-demo/catalog-operational-v2.js"
       - "provider-assessment-demo/exploratory-tools-maturity-*-v220.js"
+      - "provider-assessment-demo/professional-registry-*-v220.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/tests/exploratory-tools-maturity-v220.spec.cjs"
+      - "provider-assessment-demo/tests/professional-registry-maturity-v220.spec.cjs"
       - ".github/workflows/provider-assessment-exploratory-maturity-v220.yml"
   pull_request:
     branches: ["main"]
     paths:
       - "provider-assessment-demo/catalog.js"
       - "provider-assessment-demo/catalog-extra.js"
+      - "provider-assessment-demo/professional-master-registry.js"
+      - "provider-assessment-demo/catalog-operational-v2.js"
       - "provider-assessment-demo/exploratory-tools-maturity-*-v220.js"
+      - "provider-assessment-demo/professional-registry-*-v220.js"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/tests/exploratory-tools-maturity-v220.spec.cjs"
+      - "provider-assessment-demo/tests/professional-registry-maturity-v220.spec.cjs"
       - ".github/workflows/provider-assessment-exploratory-maturity-v220.yml"
   workflow_dispatch:
 
@@ -25,7 +33,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: provider-assessment-exploratory-maturity-v220-${{ github.ref }}
+  group: provider-assessment-maturity-v220-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -47,14 +55,23 @@ jobs:
           node --check provider-assessment-demo/exploratory-tools-maturity-specs-4-v220.js
           node --check provider-assessment-demo/exploratory-tools-maturity-finalize-v220.js
           node --check provider-assessment-demo/exploratory-tools-maturity-ui-v220.js
+          node --check provider-assessment-demo/professional-registry-contract-v220.js
+          node --check provider-assessment-demo/professional-registry-maturity-ui-v220.js
           node --check provider-assessment-demo/institutional-live-v2.js
           node --check provider-assessment-demo/tests/exploratory-tools-maturity-v220.spec.cjs
-      - name: Enforce twenty-tool maturity contract
+          node --check provider-assessment-demo/tests/professional-registry-maturity-v220.spec.cjs
+      - name: Enforce twenty-tool exploratory maturity contract
         run: node provider-assessment-demo/tests/exploratory-tools-maturity-v220.spec.cjs
-      - name: Guard rights safety and public language
+      - name: Enforce professional rights and result-record contract
+        run: node provider-assessment-demo/tests/professional-registry-maturity-v220.spec.cjs
+      - name: Guard rights safety local storage and public language
         run: |
           set -euxo pipefail
           grep -F 'original_exploratory_non_diagnostic' provider-assessment-demo/exploratory-tools-maturity-finalize-v220.js
           grep -F 'protectedItemsCopied:false' provider-assessment-demo/exploratory-tools-maturity-finalize-v220.js
           grep -F 'urgentSafetyOverridesScoring:true' provider-assessment-demo/exploratory-tools-maturity-finalize-v220.js
-          ! grep -R -E 'بند من (ADOS|WISC|Vineland)|مفتاح التصحيح|الدرجة المعيارية المعتمدة' provider-assessment-demo/exploratory-tools-maturity-*-v220.js
+          grep -F 'officialAdministrationInsidePlatform: false' provider-assessment-demo/professional-registry-contract-v220.js
+          grep -F 'protectedContentStorageAllowed: false' provider-assessment-demo/professional-registry-contract-v220.js
+          grep -F 'digitalAdministrationOccurredInsidePlatform = false' provider-assessment-demo/professional-registry-maturity-ui-v220.js
+          ! grep -R -E 'بند من (ADOS|WISC|Vineland)|مفتاح التصحيح|الدرجة المعيارية المعتمدة' provider-assessment-demo/*-v220.js
+          ! grep -R -E '\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket' provider-assessment-demo/professional-registry-*-v220.js
