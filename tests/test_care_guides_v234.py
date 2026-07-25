@@ -57,7 +57,10 @@ class CareGuidesV234Tests(unittest.TestCase):
             '</urlset>',
             encoding="utf-8",
         )
-        (site / "api" / "care-guides-v21.json").write_text('{"version":194}\n', encoding="utf-8")
+        (site / "api" / "care-guides-v21.json").write_text(
+            '{"version":194,"publication_gate_version":194,"published_core_guides":7,"source_guides":8,"autism_published":false}\n',
+            encoding="utf-8",
+        )
         return site
 
     def run_linker(self, site: Path) -> dict:
@@ -88,6 +91,8 @@ class CareGuidesV234Tests(unittest.TestCase):
             self.assertEqual(report["pages"], 21)
             self.assertEqual(report["sitemap_urls"], 21)
             self.assertEqual(legacy["guides"], 20)
+            self.assertEqual(legacy["published_core_guides"], 7)
+            self.assertEqual(legacy["published_known_guides"], 19)
             self.assertFalse((site / "care-guides" / "autism-family-practical-guide").exists())
             self.assertTrue((site / "care-guides" / "choosing-mental-health-professional" / "index.html").is_file())
 
@@ -101,8 +106,8 @@ class CareGuidesV234Tests(unittest.TestCase):
 
             self_harm = (site / "care-guides" / "self-harm-family-response-plan" / "index.html").read_text(encoding="utf-8")
             for token in (
-                "مصادر مؤسسية للمراجعة", "خدمات الطوارئ", '"MedicalWebPage"',
-                '"Article"', '"HowTo"', '"FAQPage"', "لا توجد مراجعة اختصاصية بشرية موثقة",
+                "مصادر مؤسسية للمراجعة", "خدمات الطوارئ", '"@type":"MedicalWebPage"',
+                '"@type":"Article"', '"HowTo"', '"FAQPage"', "لا توجد مراجعة اختصاصية بشرية موثقة",
             ):
                 self.assertIn(token, self_harm)
             self.assertNotIn("معاقين", "\n".join(p.read_text(encoding="utf-8") for p in (site / "care-guides").rglob("*.html")))
