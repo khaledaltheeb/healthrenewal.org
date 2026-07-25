@@ -7,7 +7,9 @@ on:
       - "provider-assessment-demo/institutional-contract-v220.css"
       - "provider-assessment-demo/institutional-contract-v220-integration.js"
       - "provider-assessment-demo/institutional-live-v2.js"
+      - "scripts/stabilize_provider_layout_v225.py"
       - "tests/test_provider_layout_stability_v225.py"
+      - "tests/test_stabilize_provider_layout_v225.py"
       - "tests/probe_provider_layout_v225.mjs"
       - ".github/workflows/validate-provider-layout-stability-v225.yml"
   push:
@@ -16,7 +18,9 @@ on:
       - "provider-assessment-demo/institutional-contract-v220.css"
       - "provider-assessment-demo/institutional-contract-v220-integration.js"
       - "provider-assessment-demo/institutional-live-v2.js"
+      - "scripts/stabilize_provider_layout_v225.py"
       - "tests/test_provider_layout_stability_v225.py"
+      - "tests/test_stabilize_provider_layout_v225.py"
       - "tests/probe_provider_layout_v225.mjs"
       - ".github/workflows/validate-provider-layout-stability-v225.yml"
   workflow_dispatch:
@@ -40,13 +44,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Validate deterministic layout contract
+      - name: Validate deterministic layout contracts
         run: |
-          python -m py_compile tests/test_provider_layout_stability_v225.py
-          python -m unittest -v tests.test_provider_layout_stability_v225
+          python -m py_compile \
+            scripts/stabilize_provider_layout_v225.py \
+            tests/test_provider_layout_stability_v225.py \
+            tests/test_stabilize_provider_layout_v225.py
+          python -m unittest -v \
+            tests.test_provider_layout_stability_v225 \
+            tests.test_stabilize_provider_layout_v225
           node --check provider-assessment-demo/institutional-live-v2.js
           node --check tests/probe_provider_layout_v225.mjs
-      - name: Enforce reserved geometry and newer-contract guard
+      - name: Enforce reserved geometry and newer-contract guards
         run: |
           set -euxo pipefail
           grep -q 'min-block-size:82px' provider-assessment-demo/institutional-contract-v220.css
@@ -54,6 +63,14 @@ jobs:
           grep -q 'tabs.insertBefore(tab, guideTab)' provider-assessment-demo/institutional-contract-v220-integration.js
           grep -q 'hasNewerInstitutionalContract' provider-assessment-demo/institutional-live-v2.js
           grep -q 'if (hasNewerInstitutionalContract()) return;' provider-assessment-demo/institutional-live-v2.js
+          grep -q 'provider-layout-stability-v225' scripts/stabilize_provider_layout_v225.py
+      - name: Patch repository fixture exactly as production will be patched
+        run: |
+          set -euxo pipefail
+          python scripts/stabilize_provider_layout_v225.py "$GITHUB_WORKSPACE"
+          node --check provider-assessment-demo/activation.js
+          grep -q 'provider-layout-stability-v225' provider-assessment-demo/activation.js
+          grep -q 'data-institutional-contract-v220' provider-assessment-demo/activation.js
       - name: Install Lighthouse and isolated Chromium
         run: |
           npm install --no-save lighthouse@12 playwright@1.55.0
@@ -146,5 +163,6 @@ jobs:
             /tmp/provider-v225-lighthouse.log
             /tmp/provider-v225-chrome.log
             /tmp/provider-v225-http.log
+            api/provider-layout-stability-v225.json
           if-no-files-found: warn
           retention-days: 14
