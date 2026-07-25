@@ -1,0 +1,64 @@
+name: Validate special-needs production bridge v246
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_special_needs_hub_v201.py"
+      - "scripts/finalize_special_needs_hub_accessibility_v201.py"
+      - "scripts/publish_special_needs_hub_v235.py"
+      - "scripts/publish_special_needs_hub_v235_compat.py"
+      - "scripts/publish_special_needs_guides_v217.py"
+      - "scripts/enforce_platform_identity_v201.py"
+      - "scripts/enforce_platform_identity_v201_base.py"
+      - "tests/test_special_needs_production_bridge_v246.py"
+      - "tests/test_platform_identity_tools_class_v247.py"
+      - ".github/workflows/validate-special-needs-production-bridge-v246.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_special_needs_hub_v201.py"
+      - "scripts/finalize_special_needs_hub_accessibility_v201.py"
+      - "scripts/publish_special_needs_hub_v235.py"
+      - "scripts/publish_special_needs_hub_v235_compat.py"
+      - "scripts/publish_special_needs_guides_v217.py"
+      - "scripts/enforce_platform_identity_v201.py"
+      - "scripts/enforce_platform_identity_v201_base.py"
+      - "tests/test_special_needs_production_bridge_v246.py"
+      - "tests/test_platform_identity_tools_class_v247.py"
+      - ".github/workflows/validate-special-needs-production-bridge-v246.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: special-needs-production-bridge-v246-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile production bridge and contracts
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_special_needs_hub_v201.py \
+            scripts/finalize_special_needs_hub_accessibility_v201.py \
+            scripts/publish_special_needs_hub_v235.py \
+            scripts/publish_special_needs_hub_v235_compat.py \
+            scripts/publish_special_needs_guides_v217.py \
+            scripts/enforce_platform_identity_v201.py \
+            scripts/enforce_platform_identity_v201_base.py \
+            tests/test_special_needs_production_bridge_v246.py \
+            tests/test_platform_identity_tools_class_v247.py
+      - name: Prove legacy production entrypoints retain institutional v243
+        run: python -m unittest -v tests.test_special_needs_production_bridge_v246
+      - name: Prove tools body class compatibility is stable
+        run: python -m unittest -v tests.test_platform_identity_tools_class_v247

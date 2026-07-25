@@ -1,95 +1,130 @@
 from __future__ import annotations
 
 import json
-import re
 import shutil
 import subprocess
 import tempfile
 import unittest
-from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "publish_special_needs_hub_v201.py"
 FINALIZER = ROOT / "scripts" / "finalize_special_needs_hub_accessibility_v201.py"
+BASE = "https://khaledaltheeb.github.io/pterminology-site"
 
 
-class TextParser(HTMLParser):
-    def __init__(self) -> None:
-        super().__init__()
-        self.skip = 0
-        self.parts: list[str] = []
+class SpecialNeedsHubV201CompatibilityTests(unittest.TestCase):
+    """Keep the historical test entrypoint while enforcing the current v243 output."""
 
-    def handle_starttag(self, tag, attrs):
-        if tag in {"script", "style", "svg"}:
-            self.skip += 1
-
-    def handle_endtag(self, tag):
-        if tag in {"script", "style", "svg"} and self.skip:
-            self.skip -= 1
-
-    def handle_data(self, data):
-        if not self.skip and data.strip():
-            self.parts.append(data.strip())
-
-
-class SpecialNeedsHubV201Tests(unittest.TestCase):
     def make_site(self) -> Path:
-        site = Path(tempfile.mkdtemp(prefix="special-needs-v201-"))
+        site = Path(tempfile.mkdtemp(prefix="special-needs-v201-compat-"))
         self.addCleanup(lambda: shutil.rmtree(site, ignore_errors=True))
-        (site / "special-needs/executable-instructions-adhd-learning-difficulties").mkdir(parents=True)
-        (site / "special-needs/executable-instructions-adhd-learning-difficulties/index.html").write_text("existing", encoding="utf-8")
-        (site / "special-needs/inclusive-language-disability").mkdir(parents=True)
-        (site / "special-needs/inclusive-language-disability/index.html").write_text("existing", encoding="utf-8")
-        (site / "sitemap-special-needs.xml").write_text(
-            '<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>',
+        (site / "special-needs").mkdir(parents=True)
+        (site / "special-needs/index.html").write_text(
+            '<!doctype html><html lang="ar" dir="rtl"><head></head><body><main>'
+            '<h1>مركز قديم</h1><section><h2>مصادر الوحدة الحالية</h2></section>'
+            '</main></body></html>',
+            encoding="utf-8",
+        )
+        for name in ("sitemap.xml", "sitemap-special-needs.xml"):
+            (site / name).write_text(
+                '<?xml version="1.0" encoding="utf-8"?>'
+                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>',
+                encoding="utf-8",
+            )
+        (site / "robots.txt").write_text(
+            "User-agent: *\nAllow: /\n"
+            f"Sitemap: {BASE}/sitemap.xml\n",
             encoding="utf-8",
         )
         return site
 
     def publish(self, site: Path) -> None:
-        completed = subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, capture_output=True, text=True)
-        self.assertEqual(completed.returncode, 0, completed.stderr)
-        finalized = subprocess.run(["python3", str(FINALIZER), str(site)], cwd=ROOT, capture_output=True, text=True)
-        self.assertEqual(finalized.returncode, 0, finalized.stderr)
+        for script in (SCRIPT, FINALIZER):
+            completed = subprocess.run(
+                ["python3", str(script), str(site)],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr or completed.stdout)
 
-    def test_publishes_complete_searchable_hub_without_placeholders(self) -> None:
+    def test_historical_entrypoint_publishes_current_institutional_hub(self) -> None:
         site = self.make_site()
         self.publish(site)
-        output = site / "special-needs/index.html"
-        text = output.read_text(encoding="utf-8")
-        self.assertIn("منصة الصحة النفسية وذوي الاحتياجات الخاصة", text)
-        self.assertIn("معرفة تحترم الإنسان. دعم يوسّع الإمكانات.", text)
-        self.assertEqual(len(re.findall(r'class="detail" id="', text)), 16)
-        self.assertEqual(len(re.findall(r'class="path-card"', text)), 16)
-        self.assertNotIn("قيد الإعداد", text)
-        self.assertNotIn("قيد التوسع", text)
-        self.assertIn('id="hub-search"', text)
-        self.assertEqual(text.count('for="hub-search"'), 1)
-        self.assertEqual(text.count('aria-label="البحث داخل مركز ذوي الاحتياجات الخاصة"'), 1)
-        self.assertIn("application/ld+json", text)
-        self.assertIn("sitemap-special-needs.xml", str(site / "sitemap-special-needs.xml"))
-        parser = TextParser()
-        parser.feed(text)
-        words = re.findall(r"[\w\u0600-\u06ff]+", " ".join(parser.parts))
-        self.assertGreaterEqual(len(words), 1200)
-        report = json.loads((site / "api/special-needs-hub-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(report["pathways"], 16)
-        self.assertEqual(report["existing_resources"], 2)
-        self.assertEqual(report["placeholder_phrases"], [])
-        self.assertEqual(report["review_status"], "internally-reviewed")
-        self.assertEqual(report["external_review"], "recommended-not-completed")
-        self.assertTrue(report["search_accessibility"]["explicit_label_for"])
-        self.assertTrue(report["search_accessibility"]["accessible_name"])
+        source = (site / "special-needs/index.html").read_text(encoding="utf-8")
+        report = json.loads(
+            (site / "api/special-needs-guides-v221.json").read_text(encoding="utf-8")
+        )
+        compatibility = json.loads(
+            (site / "api/special-needs-hub-v201.json").read_text(encoding="utf-8")
+        )
 
-    def test_resource_links_are_emitted_only_for_existing_pages(self) -> None:
+        self.assertIn("منصة الصحة النفسية وذوي الاحتياجات الخاصة", source)
+        self.assertIn("معرفة تحترم الإنسان. دعم يوسّع الإمكانات.", source)
+        self.assertEqual(source.count("<h1"), 1)
+        self.assertIn("pathway-communication", source)
+        self.assertIn("data-special-needs-jordan-context-v241", source)
+        self.assertIn("مصفوفة قرار سريعة", source)
+        self.assertIn("معايير جودة الخطة أو الخدمة", source)
+        self.assertIn("المنهجية التحريرية وحدود الاستخدام", source)
+        self.assertIn("application/ld+json", source)
+        self.assertIn("prefers-reduced-motion", source)
+        self.assertIn("prefers-contrast:more", source)
+        self.assertIn("@media print", source)
+        self.assertNotIn('id="hub-search"', source)
+        self.assertNotIn("قيد الإعداد", source)
+        self.assertNotIn("قيد التوسع", source)
+
+        self.assertEqual(report["version"], 221)
+        self.assertEqual(report["status"], "passed")
+        self.assertEqual(report["hub_release"], 241)
+        self.assertEqual(report["guide_count"], 25)
+        self.assertEqual(report["batch_count"], 5)
+        self.assertEqual(report["hub"]["pathway_count"], 8)
+        self.assertEqual(report["hub"]["source_count"], 10)
+        self.assertEqual(report["hub"]["jordan_source_count"], 3)
+        self.assertTrue(report["hub"]["jordan_context_section"])
+
+        self.assertEqual(compatibility["status"], "production-integrated")
+        self.assertEqual(compatibility["superseded_by"], 243)
+        self.assertEqual(compatibility["existing_resources"], 25)
+        self.assertEqual(compatibility["source_count"], 10)
+        self.assertEqual(
+            compatibility["search_accessibility"]["mode"],
+            "static-semantic-navigation",
+        )
+        self.assertFalse(compatibility["search_accessibility"]["search_input_required"])
+
+        for slug in report["guide_slugs"]:
+            route = f"/pterminology-site/special-needs/{slug}/"
+            self.assertEqual(source.count(route), 1, slug)
+
+    def test_historical_entrypoint_does_not_emit_unpublished_resource_links(self) -> None:
         site = self.make_site()
         self.publish(site)
-        text = (site / "special-needs/index.html").read_text(encoding="utf-8")
-        self.assertIn("executable-instructions-adhd-learning-difficulties", text)
-        self.assertIn("inclusive-language-disability", text)
-        self.assertNotIn('href="/pterminology-site/special-needs/caregiver-wellbeing/"', text)
-        self.assertNotIn('href="/pterminology-site/special-needs/accessible-arabic-digital-content/"', text)
+        source = (site / "special-needs/index.html").read_text(encoding="utf-8")
+        report = json.loads(
+            (site / "api/special-needs-guides-v221.json").read_text(encoding="utf-8")
+        )
+        published = set(report["guide_slugs"])
+
+        self.assertEqual(len(published), 25)
+        emitted_guide_hrefs = sum(
+            source.count(f'href="/pterminology-site/special-needs/{slug}/"')
+            for slug in published
+        )
+        self.assertEqual(emitted_guide_hrefs, 25)
+        for unavailable in (
+            "caregiver-wellbeing",
+            "accessible-arabic-digital-content",
+            "unpublished-placeholder-guide",
+        ):
+            if unavailable not in published:
+                self.assertNotIn(
+                    f'href="/pterminology-site/special-needs/{unavailable}/"',
+                    source,
+                )
 
 
 if __name__ == "__main__":

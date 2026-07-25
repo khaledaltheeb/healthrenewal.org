@@ -24,7 +24,75 @@ def run_batch(site: Path, version: int, script_name: str) -> dict[str, object]:
     return report
 
 
-def finalize(site: Path) -> dict[str, object]:
+def institutional_report(site: Path) -> dict[str, object] | None:
+    path = site / "api" / "special-needs-guides-v221.json"
+    if not path.is_file():
+        return None
+    report = json.loads(path.read_text(encoding="utf-8"))
+    if report.get("version") == 221 and report.get("hub_release") == 241:
+        return report
+    return None
+
+
+def finalize_institutional(site: Path, report: dict[str, object]) -> dict[str, object]:
+    page = site / "special-needs" / "index.html"
+    if not page.is_file():
+        raise SystemExit(f"Missing institutional special-needs hub: {page}")
+    source = page.read_text(encoding="utf-8")
+    required = (
+        '<a class="skip" href="#main">',
+        'pathway-communication',
+        'data-special-needs-jordan-context-v241',
+        'prefers-reduced-motion',
+        'prefers-contrast:more',
+        '@media print',
+    )
+    missing = [marker for marker in required if marker not in source]
+    if missing:
+        raise SystemExit(f"Institutional special-needs accessibility contract failed: {missing}")
+    if any(token in source for token in ("fetch(", "XMLHttpRequest", "navigator.sendBeacon", "eval(", "new Function(")):
+        raise SystemExit("Institutional special-needs hub contains unsafe network or dynamic runtime")
+    if report.get("guide_count") != 25 or report.get("batch_count") != 5:
+        raise SystemExit(f"Institutional guide integration contract failed: {report}")
+
+    compatibility_path = site / "api" / "special-needs-hub-v201.json"
+    compatibility = (
+        json.loads(compatibility_path.read_text(encoding="utf-8"))
+        if compatibility_path.is_file()
+        else {"version": 201, "output": "special-needs/index.html"}
+    )
+    compatibility["search_accessibility"] = {
+        "mode": "static-semantic-navigation",
+        "search_input_required": False,
+        "skip_link": True,
+        "keyboard_focus": True,
+        "javascript_required": False,
+    }
+    compatibility["legacy_accessibility_finalizer"] = "institutional-v243-no-op"
+    compatibility_path.parent.mkdir(parents=True, exist_ok=True)
+    compatibility_path.write_text(
+        json.dumps(compatibility, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    result = {
+        "version": 201,
+        "page": "special-needs/index.html",
+        "mode": "institutional-v243",
+        "legacy_search_patch_applied": False,
+        "search_input_required": False,
+        "skip_link": True,
+        "keyboard_focus": True,
+        "javascript_required": False,
+        "special_needs_guides_versions": [209, 210, 211, 212, 214],
+        "special_needs_guides": 25,
+        "special_needs_batches": 5,
+    }
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    return result
+
+
+def finalize_legacy(site: Path) -> dict[str, object]:
     page = site / "special-needs" / "index.html"
     if not page.is_file():
         raise SystemExit(f"Missing generated special-needs hub: {page}")
@@ -55,10 +123,11 @@ def finalize(site: Path) -> dict[str, object]:
     page.write_text(text, encoding="utf-8")
 
     report_path = site / "api" / "special-needs-hub-v201.json"
-    if report_path.is_file():
-        report = json.loads(report_path.read_text(encoding="utf-8"))
-    else:
-        report = {"version": 201, "output": "special-needs/index.html"}
+    report = (
+        json.loads(report_path.read_text(encoding="utf-8"))
+        if report_path.is_file()
+        else {"version": 201, "output": "special-needs/index.html"}
+    )
     report["search_accessibility"] = {
         "explicit_label_for": True,
         "accessible_name": True,
@@ -79,6 +148,7 @@ def finalize(site: Path) -> dict[str, object]:
     result = {
         "version": 201,
         "page": "special-needs/index.html",
+        "mode": "legacy-v201",
         "label_changed": label_changed,
         "input_changed": input_changed,
         "explicit_label_for": True,
@@ -89,6 +159,13 @@ def finalize(site: Path) -> dict[str, object]:
     }
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return result
+
+
+def finalize(site: Path) -> dict[str, object]:
+    report = institutional_report(site)
+    if report is not None:
+        return finalize_institutional(site, report)
+    return finalize_legacy(site)
 
 
 if __name__ == "__main__":
