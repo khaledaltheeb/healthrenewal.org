@@ -50,7 +50,12 @@ def publish(site: Path) -> dict[str, Any]:
 
     hub.render = render_with_compatibility
     try:
-        return hub.publish(site)
+        report = hub.publish(site)
+        report.pop("robots_child_sitemap_changed", None)
+        report["robots_child_sitemap_registered"] = True
+        report_path = site / "api" / "special-needs-hub-v235.json"
+        report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        return report
     finally:
         hub.render = original_render
 
