@@ -30,7 +30,7 @@ class MagazineResearchV234Tests(unittest.TestCase):
 
     def test_publishes_every_discovered_article_and_sitemap(self) -> None:
         pages = MODULE.article_files()
-        self.assertEqual(len(pages), 30)
+        self.assertEqual(len(pages), 35)
         with tempfile.TemporaryDirectory() as directory:
             site = self.make_site(Path(directory))
             report = MODULE.publish(site)
@@ -86,9 +86,9 @@ class MagazineResearchV234Tests(unittest.TestCase):
 
     def test_index_exposes_every_discovered_article(self) -> None:
         index = (ROOT / "magazine" / "index.html").read_text(encoding="utf-8")
-        self.assertIn('"numberOfItems":30', index)
+        self.assertIn('"numberOfItems":35', index)
         self.assertIn('"hasPart"', index)
-        self.assertEqual(index.count('class="card"'), 30)
+        self.assertEqual(index.count('class="card"'), 35)
         for path in MODULE.article_files():
             self.assertGreaterEqual(index.count(f'href="{path.name}"'), 2)
             self.assertIn(MODULE.URL + path.name, index)
@@ -116,6 +116,11 @@ class MagazineResearchV234Tests(unittest.TestCase):
             "young-children-universal-wellbeing-interventions-meta-analysis-2026.html": ("32,512", "الاحتفاظ بالأثر"),
             "youth-single-session-self-administered-interventions-2026.html": ("5,628", "امتد فاصل التنبؤ"),
             "adhd-sleep-interventions-network-meta-analysis-2026.html": ("4,361", "الترتيب الشبكي لا يساوي توصية دوائية فردية"),
+            "intellectual-disability-youth-psychotherapy-meta-analysis-2026.html": ("SMD = −0.26", "لم يظهر أثر دال في الضغط الوالدي"),
+            "youth-digital-depression-anxiety-network-meta-analysis-2026.html": ("83.4%", "لا يجوز تحويل ترتيب SUCRA"),
+            "high-school-digital-literacy-physical-activity-rct-2026.html": ("390 طالبًا", "لا يمكن فصل مساهمة"),
+            "cerebral-palsy-youth-mental-health-review-2025.html": ("38 دراسة", "لا تقدم نسبة انتشار واحدة"),
+            "deaf-hard-hearing-youth-mental-health-review-2025.html": ("22,859", "نوع المدرسة وحده"),
         }
         for filename, markers in checks.items():
             text = (ROOT / "magazine" / filename).read_text(encoding="utf-8")
