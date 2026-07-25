@@ -57,7 +57,7 @@ class ChildSectorV239Tests(unittest.TestCase):
         self.assertGreaterEqual(report["hub_h2"], 12)
         self.assertEqual(report["faq_items"], 6)
         self.assertGreaterEqual(report["institutional_sources"], 10)
-        self.assertIn("child-grief", report["source_corrections"])
+        self.assertEqual(report["source_corrections"], ["child-grief"])
         self.assertFalse(report["banned_term_present"])
         self.assertFalse(report["diagnostic_claim_present"])
 
@@ -99,7 +99,7 @@ class ChildSectorV239Tests(unittest.TestCase):
         self.assertIn("Allow: /pterminology-site/sectors/child/", robots)
         self.assertIn("Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml", robots)
         evidence = json.loads((self.site / "api" / "child-sector-v239.json").read_text(encoding="utf-8"))
-        self.assertEqual(evidence["source_articles"], 20)
+        self.assertEqual(evidence, report)
 
         before = {
             path.relative_to(self.site): path.read_bytes()
