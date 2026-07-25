@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from publish_global_metadata_v27 import main as publish_global_metadata
+from upgrade_home_sector_v234 import upgrade as upgrade_home_sector
 
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
@@ -31,6 +32,21 @@ def main() -> None:
     if not SITE.is_dir():
         raise SystemExit(f"Site directory not found: {SITE}")
 
+    home_sector = upgrade_home_sector(SITE)
+    required_home_contract = {
+        "status": "passed",
+        "version": 234,
+        "source_articles": 20,
+        "hub_h1": 1,
+        "banned_term_present": False,
+        "diagnostic_claim_present": False,
+    }
+    for key, expected in required_home_contract.items():
+        if home_sector.get(key) != expected:
+            raise SystemExit({"invalid_home_sector_v234_evidence": {"key": key, "expected": expected, "actual": home_sector.get(key)}})
+    if int(home_sector.get("hub_words", 0)) < 1800 or int(home_sector.get("minimum_article_words", 0)) < 450:
+        raise SystemExit({"insufficient_home_sector_v234_depth": home_sector})
+
     publish_global_metadata()
     metadata_path = SITE / "api" / "global-metadata-v27.json"
     if not metadata_path.is_file():
@@ -38,6 +54,13 @@ def main() -> None:
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     if metadata.get("status") != "passed" or int(metadata.get("remaining_missing_count", -1)) != 0:
         raise SystemExit({"invalid_global_metadata_evidence": metadata})
+
+    home_report_path = SITE / "api" / "home-sector-v234.json"
+    if not home_report_path.is_file():
+        raise SystemExit(f"Home-sector evidence not found: {home_report_path}")
+    written_home_sector = json.loads(home_report_path.read_text(encoding="utf-8"))
+    if written_home_sector != home_sector:
+        raise SystemExit({"home_sector_evidence_mismatch": {"memory": home_sector, "written": written_home_sector}})
 
     pwa_path = SITE / "api" / "pwa-v14.json"
     if not pwa_path.is_file():
@@ -72,11 +95,15 @@ def main() -> None:
         "workflow_run": os.environ["GITHUB_RUN_ID"],
         "workflow_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "1"),
         "validated_at": datetime.now(timezone.utc).isoformat(),
-        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, critical artifact SHA-256",
+        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, home-sector v234 depth and safety, critical artifact SHA-256",
         "pwa_pages": int(pwa["pages_scanned"]),
         "metadata_pages": int(metadata["pages_scanned"]),
         "metadata_version": int(metadata["version"]),
         "metadata_remaining_missing": int(metadata["remaining_missing_count"]),
+        "home_sector_version": int(home_sector["version"]),
+        "home_sector_articles": int(home_sector["source_articles"]),
+        "home_sector_hub_words": int(home_sector["hub_words"]),
+        "home_sector_minimum_article_words": int(home_sector["minimum_article_words"]),
         "artifacts": artifacts,
     }
 
