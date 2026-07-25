@@ -1,0 +1,87 @@
+name: Verify live homepage release v230
+
+on:
+  workflow_run:
+    workflows: ["Deploy validated main to GitHub Pages"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-homepage-release-v230-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  verify-live:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout the deployed source commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Wait for exact deployment SHA and fetch the live homepage
+        env:
+          EXPECTED_SHA: ${{ github.event.workflow_run.head_sha }}
+          BASE: https://khaledaltheeb.github.io/pterminology-site/
+        run: |
+          set -euxo pipefail
+          matched=0
+          for attempt in $(seq 1 36); do
+            token="${EXPECTED_SHA}-${attempt}-$(date +%s)"
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}deployment.json?v=${token}" -o /tmp/live-deployment.json; then
+              if EXPECTED_SHA="${EXPECTED_SHA}" python - <<'PY'
+          import json, os
+          from pathlib import Path
+          data = json.loads(Path('/tmp/live-deployment.json').read_text(encoding='utf-8'))
+          raise SystemExit(0 if data.get('commit') == os.environ['EXPECTED_SHA'] else 1)
+          PY
+              then
+                curl --retry 3 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}?v=${token}" -o /tmp/live-index.html
+                matched=1
+                break
+              fi
+            fi
+            sleep 10
+          done
+          test "${matched}" -eq 1
+
+      - name: Enforce the institutional live homepage contract
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/verify_homepage_release_contract_v230.py
+          python scripts/verify_homepage_release_contract_v230.py \
+            /tmp/live-index.html \
+            --report /tmp/live-homepage-release-v230.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          deployment = json.loads(Path('/tmp/live-deployment.json').read_text(encoding='utf-8'))
+          report = json.loads(Path('/tmp/live-homepage-release-v230.json').read_text(encoding='utf-8'))
+          assert report['version'] == 230 and report['status'] == 'passed', report
+          report['live_commit'] = deployment['commit']
+          Path('/tmp/live-homepage-release-v230.json').write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          print({'live_commit': deployment['commit'], 'homepage_contract': report['status'], 'gateways': len(report['required_gateways'])})
+          PY
+
+      - name: Upload live homepage evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-homepage-release-v230
+          path: |
+            /tmp/live-deployment.json
+            /tmp/live-homepage-release-v230.json
+          if-no-files-found: warn
+          retention-days: 14
