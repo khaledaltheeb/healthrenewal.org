@@ -30,7 +30,7 @@ jobs:
           node --check content/v15/lab-v15.js
           node --check scripts/test_lab_v15.js
           node --check scripts/browser_audit_v16.mjs
-      - name: Build final production output
+      - name: Build base site and content layers
         run: |
           set -euxo pipefail
           python build_site.py
@@ -38,6 +38,9 @@ jobs:
           cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
           python scripts/scale_site_v8.py
           python expand_site_v9.py
+      - name: Apply design encyclopedia performance and core sections
+        run: |
+          set -euxo pipefail
           python scripts/design_content_v10.py
           python scripts/apply_contrast_v11.py _site
           python scripts/expand_v12_direct.py _site
@@ -47,9 +50,18 @@ jobs:
           python scripts/strip_nonlab_runtime_v14.py _site
           python scripts/finalize_pwa_v14.py _site
           python scripts/complete_core_sections_v15.py _site
+      - name: Publish institutional homepage and dependent sections
+        run: |
+          set -euxo pipefail
           python scripts/apply_homepage_v20.py _site
+      - name: Polish and audit generated HTML
+        run: |
+          set -euxo pipefail
           python scripts/polish_site_v16.py _site
           python scripts/audit_site_integrity_v13.py _site
+      - name: Verify laboratories performance and core sections
+        run: |
+          set -euxo pipefail
           node scripts/test_lab_v15.js _site
           python scripts/verify_performance_v14.py _site
           python scripts/verify_core_sections_v15.py _site
