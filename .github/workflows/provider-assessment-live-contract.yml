@@ -7,6 +7,7 @@ on:
       - "provider-assessment-demo/index.html"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/institutional-contract-v220.js"
+      - "provider-assessment-demo/institutional-contract-v220-core.js"
       - "provider-assessment-demo/institutional-contract-v220-integration.js"
       - "provider-assessment-demo/institutional-contract-v220.css"
       - "provider-assessment-demo/institutional-contract-v220.json"
@@ -25,6 +26,7 @@ on:
       - "provider-assessment-demo/index.html"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/institutional-contract-v220.js"
+      - "provider-assessment-demo/institutional-contract-v220-core.js"
       - "provider-assessment-demo/institutional-contract-v220-integration.js"
       - "provider-assessment-demo/institutional-contract-v220.css"
       - "provider-assessment-demo/institutional-contract-v220.json"
@@ -57,6 +59,7 @@ jobs:
           node --check provider-assessment-demo/condition-entry-v1.js
           node --check provider-assessment-demo/institutional-live-v2.js
           node --check provider-assessment-demo/institutional-contract-v220.js
+          node --check provider-assessment-demo/institutional-contract-v220-core.js
           node --check provider-assessment-demo/institutional-contract-v220-integration.js
           node --check provider-assessment-demo/sw-live-v2.js
 
@@ -101,6 +104,7 @@ jobs:
           const institutionalRelease = '2026.07.25-v220';
           const institutional = read('provider-assessment-demo/institutional-live-v2.js');
           const contractLoader = read('provider-assessment-demo/institutional-contract-v220.js');
+          const contractCore = read('provider-assessment-demo/institutional-contract-v220-core.js');
           const contractIntegration = read('provider-assessment-demo/institutional-contract-v220-integration.js');
           const worker = read('provider-assessment-demo/sw-live-v2.js');
           const releaseMarker = read('provider-assessment-demo/.report-interpretation-release').trim();
@@ -111,7 +115,10 @@ jobs:
           if (!contractLoader.includes('import("./institutional-contract-v220-integration.js")') || !contractLoader.includes(institutionalRelease)) {
             throw new Error('Institutional v220 loader or release marker is missing');
           }
-          for (const marker of ['2026.07.25-v220','institutional-contract-v220']) {
+          if (!contractCore.includes(`RELEASE = "${institutionalRelease}"`) || !contractCore.includes('institutional-contract-v220')) {
+            throw new Error('Institutional v220 core release or schema marker is missing');
+          }
+          for (const marker of ['institutional-contract-v220-core.js','institutional-contract-v220-plans.js','العقد المؤسسي v220']) {
             if (!contractIntegration.includes(marker)) throw new Error(`Institutional v220 integration missing ${marker}`);
           }
           if (!institutional.includes(compatibilityRelease)) throw new Error('Institutional compatibility runtime release mismatch');
