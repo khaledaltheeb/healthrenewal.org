@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import shutil
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,6 +13,9 @@ BASE = "https://khaledaltheeb.github.io/pterminology-site"
 
 
 def load_module():
+    scripts = str(ROOT / "scripts")
+    if scripts not in sys.path:
+        sys.path.insert(0, scripts)
     spec = importlib.util.spec_from_file_location("sitemap_registry_v243", MODULE_PATH)
     if spec is None or spec.loader is None:
         raise RuntimeError("Unable to load sitemap registry module")
