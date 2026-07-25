@@ -20,6 +20,26 @@ PATHWAYS = (
     ("vision-access-orientation-learning", "pathway-sensory-mobility-access", "السمع والبصر والحركة", "فتح دليل الوصول البصري والحركة"),
     ("transition-adulthood-employment-independence", "pathway-adulthood", "الانتقال إلى الرشد والعمل", "فتح دليل الانتقال والاستقلال"),
 )
+LOCAL_SOURCE_MARKER = "data-special-needs-jordan-sources-v241"
+ASHA_OLD = "https://www.asha.org/public/speech/disorders/aac/"
+ASHA_CURRENT = "https://www.asha.org/Practice-Portal/Professional-Issues/Augmentative-and-Alternative-Communication/"
+JORDAN_SOURCES = (
+    (
+        "اليونسكو والأردن",
+        "الإطار الوطني للإدماج والتنوع في التعليم ومسؤوليات بناء بيئة تعليمية دامجة",
+        "https://www.unesco.org/en/articles/jordan-launches-national-framework-inclusion-and-diversity-education-unesco",
+    ),
+    (
+        "وزارة التربية والتعليم واليونسكو",
+        "الخطة الاستراتيجية للتعليم في الأردن 2026–2030: الوصول والجودة والإنصاف والإدماج والمرونة",
+        "https://www.unesco.org/en/articles/jordans-education-strategic-plan-2026-2030?hub=422",
+    ),
+    (
+        "اليونيسف في الأردن",
+        "برامج التعليم والوصول الدامج للأطفال والأسر داخل السياق الأردني",
+        "https://www.unicef.org/jordan/education",
+    ),
+)
 
 
 def qualify(root: ET.Element, name: str) -> str:
@@ -87,6 +107,14 @@ def sync_hub_sitemaps(site: Path) -> None:
         tree.write(path, encoding="utf-8", xml_declaration=True)
 
 
+def render_local_sources() -> str:
+    items = "".join(
+        f'<li {LOCAL_SOURCE_MARKER}><a href="{url}" rel="noopener noreferrer">{organization} — {topic}</a></li>'
+        for organization, topic, url in JORDAN_SOURCES
+    )
+    return items
+
+
 def publish(site: Path) -> dict[str, Any]:
     original_render = hub.render
 
@@ -98,6 +126,18 @@ def publish(site: Path) -> dict[str, Any]:
         if old_emergency not in source:
             raise SystemExit("Special-needs emergency guidance marker is missing")
         source = source.replace(old_emergency, new_emergency, 1)
+
+        if ASHA_OLD not in source:
+            raise SystemExit("Legacy ASHA AAC source URL is missing")
+        source = source.replace(ASHA_OLD, ASHA_CURRENT, 1)
+
+        source_list_end = "</ul></section>"
+        if source.count(source_list_end) < 1:
+            raise SystemExit("Special-needs source list insertion point is missing")
+        local_sources = render_local_sources()
+        source = source.replace(source_list_end, local_sources + source_list_end, 1)
+        if source.count(LOCAL_SOURCE_MARKER) != len(JORDAN_SOURCES):
+            raise SystemExit("Jordan source insertion contract failed")
 
         for slug, anchor, title, old_label in PATHWAYS:
             absolute = f"{hub.BASE}/special-needs/{slug}/"
@@ -122,6 +162,9 @@ def publish(site: Path) -> dict[str, Any]:
         report.pop("robots_child_sitemap_changed", None)
         report["robots_child_sitemap_registered"] = True
         report["sitemap_hub_registered"] = True
+        report["source_count"] = 10
+        report["jordan_source_count"] = len(JORDAN_SOURCES)
+        report["asha_aac_source_updated"] = True
         report_path = site / "api" / "special-needs-hub-v235.json"
         report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         return report
