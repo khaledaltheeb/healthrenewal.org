@@ -44,6 +44,13 @@ class ProviderAssessmentV231CompatibilityTests(unittest.TestCase):
         self.assertNotIn("PA_DEMO_DATA.explorers.push", self.script)
         self.assertNotIn('"ADOS-2":', self.script)
 
+    def test_mixed_legacy_and_current_sessions_remain_available(self) -> None:
+        self.assertIn("filter((id) => tool(id))", self.script)
+        self.assertIn("hasLegacySession", self.script)
+        self.assertIn("ensureLegacyPanels(force = false)", self.script)
+        self.assertIn("ensureLegacyPanels(true)", self.script)
+        self.assertIn("setTimeout(() => ensureLegacyPanels(true), 0)", self.script)
+
     def test_legacy_flow_preserves_expected_public_contract(self) -> None:
         for token in (
             "data-progress-plan-form", "data-edit-progress-plan",
