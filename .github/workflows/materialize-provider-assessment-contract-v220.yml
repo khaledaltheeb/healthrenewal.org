@@ -9,6 +9,15 @@ on:
       - "scripts/.v220-js-part2.txt"
       - "scripts/materialize_provider_assessment_contract_v220.py"
       - ".github/workflows/materialize-provider-assessment-contract-v220.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "scripts/.v220-js-part1.txt"
+      - "scripts/.v220-js-part2.txt"
+      - "scripts/materialize_provider_assessment_contract_v220.py"
+      - ".github/workflows/materialize-provider-assessment-contract-v220.yml"
+  workflow_dispatch:
 
 permissions:
   contents: write
