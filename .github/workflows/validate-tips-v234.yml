@@ -1,0 +1,46 @@
+name: Validate institutional tips section v234
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/v234/**"
+      - "scripts/publish_tips_hub_v234.py"
+      - "scripts/enforce_platform_identity_v201.py"
+      - "tests/test_tips_v234.py"
+      - ".github/workflows/validate-tips-v234.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tips-v234-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate source files
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_tips_hub_v234.py \
+            scripts/enforce_platform_identity_v201.py \
+            tests/test_tips_v234.py
+          python -m json.tool content/v234/tips-guides-supplement-ar.json >/dev/null
+
+      - name: Build and audit all tips pages twice
+        run: python -m unittest -v tests.test_tips_v234
+
+      - name: Verify production integration marker
+        run: |
+          grep -q 'publish_tips_hub_v234.py' scripts/enforce_platform_identity_v201.py
+          grep -q 'tips_v234_published' scripts/enforce_platform_identity_v201.py
