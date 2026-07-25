@@ -76,7 +76,19 @@ class HomeSectorV234Tests(unittest.TestCase):
         self.assertEqual(hub.count('data-home-sector-v234="1"'), 1)
         for schema_type in ("CollectionPage", "BreadcrumbList", "ItemList", "FAQPage"):
             self.assertIn(schema_type, hub)
-        for section_id in ("foundations", "life-stages", "triage", "meeting", "plan-30", "guides", "faq", "sources", "methodology"):
+        for section_id in (
+            "overview",
+            "framework",
+            "stages",
+            "signals",
+            "meeting",
+            "plan",
+            "guides",
+            "professional-help",
+            "faq",
+            "sources",
+            "methodology",
+        ):
             self.assertIn(f'id="{section_id}"', hub)
         self.assertIn('id="global-header"', hub)
         self.assertIn('id="global-footer"', hub)
