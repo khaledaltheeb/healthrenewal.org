@@ -1,0 +1,141 @@
+name: Audit source origin dependency v234
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/audit_source_origin_depth_v234.py"
+      - "tests/test_source_origin_depth_v234.py"
+      - ".github/workflows/validate-source-origin-depth-v234.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/audit_source_origin_depth_v234.py"
+      - "tests/test_source_origin_depth_v234.py"
+      - ".github/workflows/validate-source-origin-depth-v234.yml"
+  workflow_run:
+    workflows: ["Audit production discovery contract v220"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: source-origin-depth-v234-${{ github.event.workflow_run.id || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-contract:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and run deterministic contracts
+        env:
+          PYTHONPATH: scripts
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/audit_source_origin_depth_v234.py tests/test_source_origin_depth_v234.py
+          python -m unittest -v tests.test_source_origin_depth_v234
+      - name: Smoke-test every current enrichment generation
+        run: |
+          set -euxo pipefail
+          rm -rf /tmp/source-origin-v234
+          mkdir -p /tmp/source-origin-v234/site/assessment-lab/example
+          python - <<'PY'
+          from pathlib import Path
+          root=Path('/tmp/source-origin-v234/site/assessment-lab/example/index.html')
+          origin=' '.join(f'أصل{i}' for i in range(40))
+          additions=[]
+          for marker in (
+              'content-depth-v222',
+              'term-content-depth-v224',
+              'provider-condition-depth-v231',
+              'residual-public-content-v232',
+              'advanced-content-depth-v233',
+          ):
+              words=' '.join(f'إضافة{marker}{i}' for i in range(160))
+              additions.append(f'<!-- {marker}:start --><section><p>{words}</p></section><!-- {marker}:end -->')
+          root.write_text(
+              '<!doctype html><html lang="ar" dir="rtl"><head><title>صفحة تجريبية</title>'
+              '<meta name="robots" content="index,follow"></head><body><main><h1>صفحة تجريبية</h1>'
+              f'<p>{origin}</p>{"".join(additions)}</main></body></html>',
+              encoding='utf-8',
+          )
+          PY
+          python scripts/audit_source_origin_depth_v234.py /tmp/source-origin-v234/site --repository . --fail-on-malformed
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('/tmp/source-origin-v234/site/api/source-origin-depth-v234.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed',report
+          assert report['generated_dependency_pages']==1,report
+          assert report['origin_below_minimum_count']==1,report
+          assert report['malformed_marker_count']==0,report
+          assert len(report['marker_counts'])==5,report
+          assert Path('/tmp/source-origin-v234/site/api/source-origin-depth-v234.md').is_file()
+          PY
+
+  audit-validated-production:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'workflow_run' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout the audited source commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download the enriched validated production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Measure original content before all generated depth blocks
+        run: |
+          set -euxo pipefail
+          python scripts/audit_source_origin_depth_v234.py validated-site --repository . --fail-on-malformed
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('validated-site/api/source-origin-depth-v234.json').read_text(encoding='utf-8'))
+          assert report['version']==234,report
+          assert report['status']=='passed',report
+          assert report['generated_dependency_pages']>0,report
+          assert report['origin_below_minimum_count']>0,report
+          assert report['malformed_marker_count']==0,report
+          marker_names=tuple(report['marker_counts'])
+          for version in ('v222','v224','v231','v232','v233'):
+              assert any(name.endswith(version) for name in marker_names),(version,marker_names)
+          print({
+              'generated_dependency_pages': report['generated_dependency_pages'],
+              'origin_below_minimum_count': report['origin_below_minimum_count'],
+              'minimum_origin_words': report['minimum_origin_words'],
+              'marker_counts': report['marker_counts'],
+              'route_group_counts': report['route_group_counts'],
+          })
+          PY
+          cat validated-site/api/source-origin-depth-v234.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload source-origin evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-origin-depth-v234
+          path: |
+            validated-site/api/source-origin-depth-v234.json
+            validated-site/api/source-origin-depth-v234.md
+          if-no-files-found: error
+          retention-days: 30
