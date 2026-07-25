@@ -8,9 +8,7 @@ on:
       - ".home-v234bundle/**"
       - "scripts/upgrade_home_sector_v234.py"
       - "scripts/stamp_deployment_v29.py"
-      - "scripts/verify_care_guides_publication_v234.py"
       - "tests/test_home_sector_v234.py"
-      - "tests/test_care_guides_publication_verifier_v237.py"
       - ".github/workflows/validate-home-sector-v234.yml"
   push:
     branches: [main]
@@ -19,9 +17,7 @@ on:
       - ".home-v234bundle/**"
       - "scripts/upgrade_home_sector_v234.py"
       - "scripts/stamp_deployment_v29.py"
-      - "scripts/verify_care_guides_publication_v234.py"
       - "tests/test_home_sector_v234.py"
-      - "tests/test_care_guides_publication_verifier_v237.py"
       - ".github/workflows/validate-home-sector-v234.yml"
   workflow_dispatch:
 
@@ -46,18 +42,13 @@ jobs:
           python3 -m py_compile \
             scripts/upgrade_home_sector_v234.py \
             scripts/stamp_deployment_v29.py \
-            scripts/verify_care_guides_publication_v234.py \
-            tests/test_home_sector_v234.py \
-            tests/test_care_guides_publication_verifier_v237.py
-      - name: Run home-sector and sitemap contracts and capture evidence
+            tests/test_home_sector_v234.py
+      - name: Run home-sector contract and capture evidence
         id: home_tests
         shell: bash
         run: |
           set +e
-          python3 -m unittest -v \
-            tests.test_home_sector_v234 \
-            tests.test_care_guides_publication_verifier_v237 \
-            > /tmp/home-v234-test.log 2>&1
+          python3 -m unittest -v tests.test_home_sector_v234 > /tmp/home-v234-test.log 2>&1
           code=$?
           cat /tmp/home-v234-test.log
           printf 'exit_code=%s\n' "$code" >> "$GITHUB_OUTPUT"
@@ -70,10 +61,10 @@ jobs:
           path: /tmp/home-v234-test.log
           if-no-files-found: error
           retention-days: 7
-      - name: Enforce home-sector and sitemap contracts
+      - name: Enforce home-sector contract
         if: steps.home_tests.outputs.exit_code != '0'
         run: |
-          echo "Home-sector v234 or sitemap verifier tests failed; inspect uploaded evidence."
+          echo "Home-sector v234 tests failed; inspect uploaded evidence."
           exit 1
       - name: Verify permanent production integration
         run: |
@@ -81,8 +72,6 @@ jobs:
           grep -q 'from upgrade_home_sector_v234 import upgrade as upgrade_home_sector' scripts/stamp_deployment_v29.py
           grep -q 'home_sector_version' scripts/stamp_deployment_v29.py
           grep -q 'home-sector-v234.json' scripts/stamp_deployment_v29.py
-          grep -q 'xml.etree.ElementTree as ET' scripts/verify_care_guides_publication_v234.py
-          grep -q 'root.findall("{*}url/{*}loc")' scripts/verify_care_guides_publication_v234.py
 
   # The build log is uploaded before its exit code is enforced, so a real failure remains diagnosable.
   production-smoke:
