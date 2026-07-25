@@ -1,0 +1,23 @@
+{
+  "id": "research-magazine.ar.v232",
+  "version": 232,
+  "status": "internally-reviewed",
+  "risk_level": "moderate",
+  "verified_at": "2026-07-25",
+  "target_pages": 100,
+  "publication_state": "first-production-batch",
+  "editorial_policy": {
+    "language": "ملخص عربي أصلي يحافظ على معنى المصدر ولا ينسخ الملخص المنشور.",
+    "sources": "يجب أن يحمل كل سجل DOI ومعرف PubMed ورابطين مباشرين إلى المصدر الأصلي والفهرس الطبي.",
+    "scope": "أبحاث محكمة أو منشورة إلكترونيًا في مجلات علمية خلال 2025–2026.",
+    "safety": "المادة تثقيفية ولا تقدم تشخيصًا أو وصفة أو أمرًا بتغيير العلاج.",
+    "review": "مراجعة تحريرية داخلية؛ لا ادعاء بمراجعة اختصاصية خارجية أو اعتماد مؤسسي."
+  },
+  "batch_files": [
+    "content/v232/research-summaries-ar-01.json",
+    "content/v232/research-summaries-ar-02.json",
+    "content/v232/research-summaries-ar-03.json",
+    "content/v232/research-summaries-ar-04.json",
+    "content/v232/research-summaries-ar-05.json"
+  ]
+}
