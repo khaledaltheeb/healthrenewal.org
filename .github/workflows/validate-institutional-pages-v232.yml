@@ -1,0 +1,117 @@
+name: Validate institutional pages v232
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/publish_institutional_pages_v232.py"
+      - "tests/test_institutional_pages_v232.py"
+      - "scripts/apply_homepage_v20.py"
+      - "scripts/audit_source_depth_gap_v231.py"
+      - ".github/workflows/validate-institutional-pages-v232.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/publish_institutional_pages_v232.py"
+      - "tests/test_institutional_pages_v232.py"
+      - "scripts/apply_homepage_v20.py"
+      - "scripts/audit_source_depth_gap_v231.py"
+      - ".github/workflows/validate-institutional-pages-v232.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: institutional-pages-v232-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publishers and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_institutional_pages_v232.py \
+            tests/test_institutional_pages_v232.py \
+            scripts/audit_source_depth_gap_v231.py \
+            scripts/apply_homepage_v20.py
+      - name: Run deterministic institutional-page tests
+        env:
+          PYTHONPATH: scripts
+        run: python -m unittest -v tests.test_institutional_pages_v232
+      - name: Prove the eight thin pages are resolved
+        run: |
+          set -euxo pipefail
+          rm -rf /tmp/institutional-v232
+          mkdir -p /tmp/institutional-v232/site
+          python - <<'PY'
+          from pathlib import Path
+          routes={
+              'about':'عن مصطلحات علم النفس',
+              'methodology':'منهجية التحرير',
+              'privacy':'الخصوصية',
+              'downloads':'تنزيل بيانات المعجم',
+              'media-kit':'الملف الإعلامي',
+              'stats':'إحصاءات المعجم',
+              'citation':'كيفية الاستشهاد بالموقع',
+              'sources':'المصادر المرجعية',
+          }
+          root=Path('/tmp/institutional-v232/site')
+          for slug,title in routes.items():
+              target=root/slug/'index.html'
+              target.parent.mkdir(parents=True)
+              target.write_text(
+                  '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">'
+                  f'<title>{title}</title><meta name="robots" content="index,follow"></head>'
+                  f'<body><main><h1>{title}</h1><p>مقدمة موجزة.</p></main></body></html>',
+                  encoding='utf-8',
+              )
+          PY
+          python scripts/publish_institutional_pages_v232.py /tmp/institutional-v232/site
+          python scripts/publish_institutional_pages_v232.py /tmp/institutional-v232/site
+          python scripts/audit_source_depth_gap_v231.py /tmp/institutional-v232/site --repository .
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/institutional-v232/site/api')
+          published=json.loads((root/'institutional-pages-v232.json').read_text(encoding='utf-8'))
+          depth=json.loads((root/'source-depth-gap-v231.json').read_text(encoding='utf-8'))
+          assert published['status']=='passed',published
+          assert published['page_count']==8,published
+          assert published['minimum_added_words']>=220,published
+          assert published['minimum_after_words']>=190,published
+          assert published['text_shadow_used'] is False,published
+          assert depth['status']=='passed',depth
+          assert depth['unhandled_thin_count']==0,depth
+          assert depth['malformed_marker_count']==0,depth
+          assert depth['source_gap_count']==0,depth
+          print({
+              'published_pages': published['page_count'],
+              'minimum_words': published['minimum_after_words'],
+              'unhandled_thin_pages': depth['unhandled_thin_count'],
+          })
+          PY
+      - name: Enforce production integration and public-copy safety
+        run: |
+          set -euxo pipefail
+          grep -q '"institutional_pages_publisher": 232' scripts/apply_homepage_v20.py
+          grep -q 'run_publisher("publish_institutional_pages_v232.py")' scripts/apply_homepage_v20.py
+          python - <<'PY'
+          from pathlib import Path
+          source=Path('scripts/apply_homepage_v20.py').read_text(encoding='utf-8')
+          assert source.index('run_publisher("publish_institutional_pages_v232.py")') < source.index('run_publisher("enhance_sitewide_seo_v216.py")')
+          PY
+          ! grep -Eqi 'يعالج نهائيًا|شفاء مضمون|بديل عن الطبيب|تشخيصك هو' scripts/publish_institutional_pages_v232.py
+          ! grep -Eq 'text-shadow\s*:' scripts/publish_institutional_pages_v232.py
+          grep -q 'GitHub.*privacy' scripts/publish_institutional_pages_v232.py
+          grep -q '9789240077263' scripts/publish_institutional_pages_v232.py
+          grep -q 'training.cochrane.org/handbook' scripts/publish_institutional_pages_v232.py
+          grep -q 'www.w3.org/TR/WCAG22' scripts/publish_institutional_pages_v232.py
