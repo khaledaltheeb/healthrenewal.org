@@ -28,8 +28,25 @@ jobs:
           python-version: "3.12"
       - name: Compile women-sector production upgrade and tests
         run: python -m py_compile scripts/women_sector_content_v244.py scripts/upgrade_women_sector_v244.py scripts/stamp_deployment_v29.py tests/test_women_sector_v244.py
+      - name: Measure generated content before contract tests
+        run: |
+          python - <<'PY'
+          import json, sys
+          from pathlib import Path
+          sys.path.insert(0, 'scripts')
+          import upgrade_women_sector_v244 as women
+          data=json.loads(Path('content/sectors-v10/women.json').read_text(encoding='utf-8'))
+          hub_words=women.visible_words(women.hub_main(data))
+          article_words={item['slug']:women.visible_words(women.article_main(item)) for item in data['articles']}
+          print({'source_articles':len(data['articles']),'hub_body_words':hub_words,'minimum_article_body_words':min(article_words.values()),'shortest_article':min(article_words,key=article_words.get),'maximum_article_body_words':max(article_words.values())})
+          PY
       - name: Validate twenty guides metadata schemas safety depth and idempotence
-        run: python -m unittest -v tests.test_women_sector_v244
+        run: |
+          set +e
+          python -m unittest -v tests.test_women_sector_v244 > /tmp/women-v244-tests.log 2>&1
+          status=$?
+          tail -n 100 /tmp/women-v244-tests.log | cut -c1-2400
+          exit $status
       - name: Verify permanent production integration
         run: |
           python - <<'PY'
