@@ -5,6 +5,14 @@ import json
 import expand_v12_direct_core_v235 as core
 import lab_source_content_v235 as source
 
+SOURCE_STYLE = """<style data-lab-source-v235-style>
+.lab-source-v235{margin-top:2rem;display:grid;gap:1rem}
+.lab-source-v235__card{padding:1.25rem;border:1px solid #b9ddd8;border-radius:1.25rem;background:#fff;line-height:1.9}
+.lab-source-v235__card h2{line-height:1.45;color:#075f5b}
+.lab-source-v235__card li{margin-block:.35rem}
+@media print{.lab-source-v235__card{break-inside:avoid}}
+</style>"""
+
 for _name in dir(core):
     if not _name.startswith("_"):
         globals().setdefault(_name, getattr(core, _name))
@@ -13,7 +21,7 @@ for _name in dir(core):
 def _head(definition: dict, kind: str, canonical: str) -> str:
     description = source.rich_description(definition, kind)
     page = core.page_head(definition["title"], description, canonical, definition)
-    return page.replace("</head>", source.head_fragment(definition, kind) + "</head>", 1)
+    return page.replace("</head>", source.head_fragment(definition, kind) + SOURCE_STYLE + "</head>", 1)
 
 
 def tool_html(item: dict) -> str:
