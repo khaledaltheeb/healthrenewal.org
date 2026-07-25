@@ -14,19 +14,8 @@ EMPTY_CHART_ACCESSIBLE = (
     "لا توجد بيانات كافية لعرض مخطط الاتجاهات."
 )
 STATIC_ARIA_ASSIGNMENT = "chart.setAttribute('aria-label', CHART_ACCESSIBLE_NAME);"
-SUMMARY_DECLARATIONS = (
-    "const summaryElement = document.querySelector('[data-sleep-summary]');",
-    "const summaryNode = document.querySelector('[data-sleep-summary]');",
-)
-SUMMARY_ASSIGNMENTS = (
-    "summaryElement.textContent =",
-    "summaryNode.textContent =",
-)
-SUMMARY_INSERTION_MARKER = "const current = readRecords();"
-SUMMARY_INSERTION = """const summary = summarize(record);
-    const summaryNode = document.querySelector('[data-sleep-summary]');
-    if (summaryNode) summaryNode.textContent = `${summary.hours} ساعة. ${summary.message} ${summary.flags.join(' ')}`;
-    const current = readRecords();"""
+DYNAMIC_ARIA_ASSIGNMENT = "chart.setAttribute('aria-label', description);"
+SUMMARY_ASSIGNMENT = "document.querySelector('[data-sleep-summary]').textContent ="
 
 
 def patch_chart_accessibility(text: str) -> tuple[str, bool]:
@@ -66,18 +55,18 @@ def patch_runtime_accessibility() -> bool:
         source = source.replace(target, replacement, 1)
         changed = True
 
-    if source.count(STATIC_ARIA_ASSIGNMENT) != 1:
-        raise SystemExit("Sleep runtime stable chart label is missing or duplicated")
-
-    has_summary_declaration = any(marker in source for marker in SUMMARY_DECLARATIONS)
-    has_summary_assignment = any(marker in source for marker in SUMMARY_ASSIGNMENTS)
-    if has_summary_declaration != has_summary_assignment:
-        raise SystemExit("Sleep runtime summary declaration and assignment are inconsistent")
-    if not has_summary_assignment:
-        if source.count(SUMMARY_INSERTION_MARKER) != 1:
-            raise SystemExit("Sleep runtime summary insertion point is missing or ambiguous")
-        source = source.replace(SUMMARY_INSERTION_MARKER, SUMMARY_INSERTION, 1)
+    static_count = source.count(STATIC_ARIA_ASSIGNMENT)
+    dynamic_count = source.count(DYNAMIC_ARIA_ASSIGNMENT)
+    if static_count == 0:
+        if dynamic_count != 1:
+            raise SystemExit("Sleep runtime dynamic chart label is missing or ambiguous")
+        source = source.replace(DYNAMIC_ARIA_ASSIGNMENT, STATIC_ARIA_ASSIGNMENT, 1)
         changed = True
+    elif static_count != 1 or dynamic_count:
+        raise SystemExit("Sleep runtime stable chart label is duplicated or conflicts with a dynamic label")
+
+    if source.count(SUMMARY_ASSIGNMENT) != 1:
+        raise SystemExit("Sleep runtime summary update is missing or duplicated")
 
     if changed:
         RUNTIME.write_text(source, encoding="utf-8")
@@ -115,8 +104,7 @@ def patch() -> None:
             "runtime_changed": runtime_changed,
             "stable_chart_accessible_name": True,
             "visible_chart_description_updates": True,
-            "sleep_summary_restored": True,
-            "summary_patch_idempotent": True,
+            "sleep_summary_preserved": True,
         }
     )
 
