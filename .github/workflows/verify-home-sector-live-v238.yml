@@ -1,10 +1,12 @@
-name: Verify home-sector live deployment v238
+name: Verify home-sector live deployment v244
 
 on:
   pull_request:
     branches: [main]
     paths:
+      - "scripts/upgrade_home_sector_v234.py"
       - "scripts/verify_home_sector_deployment_v238.py"
+      - "tests/test_home_sector_v234.py"
       - "tests/test_home_sector_deployment_v238.py"
       - ".github/workflows/verify-home-sector-live-v238.yml"
   workflow_run:
@@ -18,24 +20,28 @@ permissions:
   statuses: write
 
 concurrency:
-  group: home-sector-live-v238-${{ github.event.workflow_run.id || github.ref }}
+  group: home-sector-live-v244-${{ github.event.workflow_run.id || github.ref }}
   cancel-in-progress: false
 
 jobs:
   validate-contract:
     if: github.event_name != 'workflow_run'
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Compile and test the live deployment verifier
+      - name: Compile and test production enrichment and live verifier
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/verify_home_sector_deployment_v238.py tests/test_home_sector_deployment_v238.py
-          python -m unittest -v tests.test_home_sector_deployment_v238
+          python -m py_compile \
+            scripts/upgrade_home_sector_v234.py \
+            scripts/verify_home_sector_deployment_v238.py \
+            tests/test_home_sector_v234.py \
+            tests/test_home_sector_deployment_v238.py
+          python -m unittest -v tests.test_home_sector_v234 tests.test_home_sector_deployment_v238
 
   verify-live:
     if: >-
@@ -64,8 +70,8 @@ jobs:
           python - <<'PY'
           import json, os, urllib.request
           url=f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/statuses/{os.environ['EXPECTED_SHA']}"
-          body=json.dumps({"state":"pending","context":"home-sector-live-v238","description":"Checking live home-sector pages"}).encode()
-          req=urllib.request.Request(url,data=body,method='POST',headers={"Authorization":f"Bearer {os.environ['GH_TOKEN']}","Accept":"application/vnd.github+json","Content-Type":"application/json","User-Agent":"home-sector-live-v238"})
+          body=json.dumps({"state":"pending","context":"home-sector-live-v238","description":"Checking strict live home-sector contract v244"}).encode()
+          req=urllib.request.Request(url,data=body,method='POST',headers={"Authorization":f"Bearer {os.environ['GH_TOKEN']}","Accept":"application/vnd.github+json","Content-Type":"application/json","User-Agent":"home-sector-live-v244"})
           urllib.request.urlopen(req,timeout=30).read()
           PY
 
@@ -74,13 +80,13 @@ jobs:
           python - <<'PY'
           import json, os, urllib.request
           repo=os.environ['GITHUB_REPOSITORY']; required=os.environ['REQUIRED_HOME_SHA']; candidate=os.environ['EXPECTED_SHA']
-          req=urllib.request.Request(f'https://api.github.com/repos/{repo}/compare/{required}...{candidate}',headers={'Authorization':f"Bearer {os.environ['GH_TOKEN']}",'Accept':'application/vnd.github+json','User-Agent':'home-sector-live-v238'})
+          req=urllib.request.Request(f'https://api.github.com/repos/{repo}/compare/{required}...{candidate}',headers={'Authorization':f"Bearer {os.environ['GH_TOKEN']}",'Accept':'application/vnd.github+json','User-Agent':'home-sector-live-v244'})
           with urllib.request.urlopen(req,timeout=30) as response: data=json.loads(response.read())
           assert data.get('status') in {'ahead','identical'},data
           print({'required_home_sha':required,'deployed_candidate_sha':candidate,'comparison_status':data['status']})
           PY
 
-      - name: Download deployment report hub and all twenty live guides
+      - name: Download deployment report hub twenty guides robots and discovery maps
         run: |
           set -euxo pipefail
           root=/tmp/home-sector-live-v238
@@ -91,6 +97,15 @@ jobs:
           curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/home-sector-v234.json?v=${token}" -o "${root}/api/home-sector-v234.json"
           curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sectors/home/?v=${token}" -o "${root}/sectors/home/index.html"
           curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}robots.txt?v=${token}" -o "${root}/robots.txt"
+          for sitemap in sitemap-provider-assessment.xml sitemap-special-needs.xml; do
+            status=$(curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -sS -o "${root}/${sitemap}.tmp" -w '%{http_code}' "${BASE_URL}${sitemap}?v=${token}")
+            if [ "${status}" = "200" ]; then
+              mv "${root}/${sitemap}.tmp" "${root}/${sitemap}"
+            else
+              rm -f "${root}/${sitemap}.tmp"
+              test "${status}" = "404"
+            fi
+          done
           python - <<'PY'
           import json, os, pathlib, subprocess
           root=pathlib.Path('/tmp/home-sector-live-v238')
@@ -101,7 +116,7 @@ jobs:
               subprocess.run(['curl','--retry','6','--retry-delay','4','-H','Cache-Control: no-cache','-fsSL',f'{base}sectors/home/{slug}/?v={token}', '-o',str(folder/'index.html')],check=True)
           PY
 
-      - name: Verify SHA report depth indexability and every guide
+      - name: Verify SHA strict depth structure indexability PWA and sitemap registry
         run: |
           set -euxo pipefail
           python scripts/verify_home_sector_deployment_v238.py \
@@ -116,8 +131,8 @@ jobs:
           python - <<'PY'
           import json, os, urllib.request
           url=f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/statuses/{os.environ['EXPECTED_SHA']}"
-          body=json.dumps({"state":"success","context":"home-sector-live-v238","description":"Live hub and twenty guides match deployed SHA","target_url":f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"}).encode()
-          req=urllib.request.Request(url,data=body,method='POST',headers={"Authorization":f"Bearer {os.environ['GH_TOKEN']}","Accept":"application/vnd.github+json","Content-Type":"application/json","User-Agent":"home-sector-live-v238"})
+          body=json.dumps({"state":"success","context":"home-sector-live-v238","description":"Strict live hub and twenty-guide contract v244 passed","target_url":f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"}).encode()
+          req=urllib.request.Request(url,data=body,method='POST',headers={"Authorization":f"Bearer {os.environ['GH_TOKEN']}","Accept":"application/vnd.github+json","Content-Type":"application/json","User-Agent":"home-sector-live-v244"})
           urllib.request.urlopen(req,timeout=30).read()
           PY
 
@@ -127,8 +142,8 @@ jobs:
           python - <<'PY'
           import json, os, urllib.request
           url=f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/statuses/{os.environ['EXPECTED_SHA']}"
-          body=json.dumps({"state":"failure","context":"home-sector-live-v238","description":"Live home-sector verification failed","target_url":f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"}).encode()
-          req=urllib.request.Request(url,data=body,method='POST',headers={"Authorization":f"Bearer {os.environ['GH_TOKEN']}","Accept":"application/vnd.github+json","Content-Type":"application/json","User-Agent":"home-sector-live-v238"})
+          body=json.dumps({"state":"failure","context":"home-sector-live-v238","description":"Strict live home-sector contract v244 failed","target_url":f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"}).encode()
+          req=urllib.request.Request(url,data=body,method='POST',headers={"Authorization":f"Bearer {os.environ['GH_TOKEN']}","Accept":"application/vnd.github+json","Content-Type":"application/json","User-Agent":"home-sector-live-v244"})
           urllib.request.urlopen(req,timeout=30).read()
           PY
 
