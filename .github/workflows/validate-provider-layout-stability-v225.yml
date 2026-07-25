@@ -84,6 +84,7 @@ jobs:
             --output-path=/tmp/provider-v225-lighthouse.json \
             --only-categories=performance,accessibility,best-practices,seo \
             --form-factor=desktop \
+            --screenEmulation.mobile=false \
             --screenEmulation.width=1350 \
             --screenEmulation.height=940 \
             --screenEmulation.deviceScaleFactor=1 \
