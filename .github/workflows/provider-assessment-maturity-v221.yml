@@ -59,6 +59,7 @@ jobs:
           node --check provider-assessment-demo/professional-registry-contract-v220.js
           node --check provider-assessment-demo/professional-registry-maturity-ui-v220.js
           node --check provider-assessment-demo/professional-registry-planning-compat-v220.js
+          node --check provider-assessment-demo/professional-registry-schema-compat-v220.js
           node --check provider-assessment-demo/professional-registry-report-integration-v220.js
           node --check provider-assessment-demo/institutional-live-v2.js
           node --check provider-assessment-demo/tests/exploratory-tools-maturity-v221.spec.cjs
@@ -83,6 +84,7 @@ jobs:
           grep -F 'data-release="2026.07.24-live.7"' provider-assessment-demo/index.html
           ! grep -F '2026.07.25-live.8' provider-assessment-demo/institutional-live-v2.js
           grep -F 'professional-registry-planning-compat-v220.js' provider-assessment-demo/institutional-live-v2.js
+          grep -F 'professional-registry-schema-compat-v220.js' provider-assessment-demo/professional-registry-contract-v220.js
           grep -F 'original_exploratory_non_diagnostic' provider-assessment-demo/exploratory-tools-maturity-finalize-v220.js
           grep -F 'protectedItemsCopied:false' provider-assessment-demo/exploratory-tools-maturity-finalize-v220.js
           grep -F 'urgentSafetyOverridesScoring:true' provider-assessment-demo/exploratory-tools-maturity-finalize-v220.js
@@ -92,9 +94,12 @@ jobs:
           grep -F 'protectedContentStored: false' provider-assessment-demo/professional-registry-maturity-ui-v220.js
           grep -F 'planningDraftAllowed: true' provider-assessment-demo/professional-registry-planning-compat-v220.js
           grep -F 'completedRightsRequired: true' provider-assessment-demo/professional-registry-planning-compat-v220.js
+          grep -F 'schema_alias_migrated' provider-assessment-demo/professional-registry-schema-compat-v220.js
+          grep -F 'observesSavedRecords: true' provider-assessment-demo/professional-registry-schema-compat-v220.js
           grep -F 'case-report-professional-sources-v220' provider-assessment-demo/professional-registry-report-integration-v220.js
           ! grep -R -E '\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource' \
             provider-assessment-demo/professional-registry-contract-v220.js \
             provider-assessment-demo/professional-registry-maturity-ui-v220.js \
             provider-assessment-demo/professional-registry-planning-compat-v220.js \
+            provider-assessment-demo/professional-registry-schema-compat-v220.js \
             provider-assessment-demo/professional-registry-report-integration-v220.js
