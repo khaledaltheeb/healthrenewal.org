@@ -1,0 +1,83 @@
+name: Validate care guides institutional expansion v234
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/v234/**"
+      - "assets/care-guides-v234.css"
+      - "assets/care-guides-v234.js"
+      - "scripts/care_guides_v234_core.py"
+      - "scripts/care_guides_v234_pages.py"
+      - "scripts/expand_care_guides_v234.py"
+      - "scripts/link_care_guides_v21.py"
+      - "tests/test_care_guides_v234.py"
+      - ".github/workflows/validate-care-guides-v234.yml"
+  push:
+    branches: [main]
+    paths:
+      - "content/v234/**"
+      - "assets/care-guides-v234.css"
+      - "assets/care-guides-v234.js"
+      - "scripts/care_guides_v234_core.py"
+      - "scripts/care_guides_v234_pages.py"
+      - "scripts/expand_care_guides_v234.py"
+      - "scripts/link_care_guides_v21.py"
+      - "tests/test_care_guides_v234.py"
+      - ".github/workflows/validate-care-guides-v234.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: care-guides-v234-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile publisher linker and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/care_guides_v234_core.py
+          python -m py_compile scripts/care_guides_v234_pages.py
+          python -m py_compile scripts/expand_care_guides_v234.py
+          python -m py_compile scripts/link_care_guides_v21.py
+          python -m py_compile tests/test_care_guides_v234.py
+          node --check assets/care-guides-v234.js
+
+      - name: Validate Arabic source manifest
+        run: |
+          set -euxo pipefail
+          python -m json.tool content/v234/care-guides-manifest-ar.json >/dev/null
+          for file in content/v234/care-guides/*.json content/v234/care-guides-batch-*-ar.json; do python -m json.tool "$file" >/dev/null; done
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('content/v234/care-guides-manifest-ar.json').read_text(encoding='utf-8'))
+          assert data['version']==234,data
+          assert data['review_status']=='internally-reviewed',data
+          assert data['external_specialist_review'] is False,data
+          assert len(data['guide_slugs'])==12,len(data['guide_slugs'])
+          assert len(set(data['guide_slugs']))==12
+          guides=[]
+          for relative in data['guide_files']:
+              item=json.loads((Path('content/v234')/relative).read_text(encoding='utf-8'))
+              guides.extend(item.get('guides',[item]))
+          assert [g['slug'] for g in guides]==data['guide_slugs']
+          assert all(len(g['sources'])>=2 for g in guides)
+          assert all(g['emergency_note'] for g in guides)
+          print({'version':234,'guides':12,'review_claim':'honest','sources':'validated'})
+          PY
+
+      - name: Test safety SEO sitemap extension preservation and idempotence
+        run: python -m unittest -v tests.test_care_guides_v234
