@@ -14,6 +14,17 @@ REQUIRED_ROUTES = (
     Path("daily-tools/index.html"),
     Path("learning-paths/index.html"),
 )
+SLEEP_PAGE = Path("daily-tools/sleep-wind-down-plan/index.html")
+SLEEP_ASSET = Path("assets/sleep-log-v49.js")
+SLEEP_MARKERS = (
+    'data-sleep-log',
+    'data-design="marshmallow-v219"',
+    'data-seo="institutional-v219"',
+    'data-export-json',
+    'data-export-csv',
+    'data-delete-sleep',
+    'لا تُرسل البيانات إلى خادم',
+)
 
 
 def run(script: str, site: Path) -> None:
@@ -21,6 +32,28 @@ def run(script: str, site: Path) -> None:
         [sys.executable, str(ROOT / "scripts" / script), str(site)],
         check=True,
     )
+
+
+def sleep_contract_valid(site: Path) -> bool:
+    page = site / SLEEP_PAGE
+    asset = site / SLEEP_ASSET
+    if not page.is_file() or not asset.is_file():
+        return False
+    text = page.read_text(encoding="utf-8")
+    if not all(marker in text for marker in SLEEP_MARKERS):
+        return False
+    if text.count('<meta name="description"') != 1 or text.count('<link rel="canonical"') != 1:
+        return False
+    if "fetch(" in asset.read_text(encoding="utf-8"):
+        return False
+    return True
+
+
+def publish_linked_routes(site: Path) -> None:
+    run("publish_daily_tools_v24.py", site)
+    run("publish_sleep_log_v49.py", site)
+    run("patch_sleep_svg_export_v65.py", site)
+    run("apply_daily_tools_marshmallow_v219.py", site)
 
 
 def synchronize(site: Path) -> dict[str, object]:
@@ -48,16 +81,19 @@ def synchronize(site: Path) -> dict[str, object]:
     missing_before = [path.as_posix() for path in REQUIRED_ROUTES if not (site / path).is_file()]
     report_missing = not (site / "api" / "daily-tools-v24.json").is_file()
     sitemap_missing = not (site / "sitemap-tools-paths.xml").is_file()
-    published = bool(missing_before or report_missing or sitemap_missing)
+    sleep_valid_before = sleep_contract_valid(site)
+    published = bool(missing_before or report_missing or sitemap_missing or not sleep_valid_before)
 
     if published:
-        run("publish_daily_tools_v24.py", site)
+        publish_linked_routes(site)
 
     run("verify_daily_tools_v24.py", site)
 
     missing_after = [path.as_posix() for path in REQUIRED_ROUTES if not (site / path).is_file()]
     if missing_after:
         raise SystemExit(f"Homepage-linked routes remain missing after synchronization: {missing_after}")
+    if not sleep_contract_valid(site):
+        raise SystemExit("Interactive local sleep-log contract remains incomplete after synchronization")
 
     homepage_after = homepage.read_text(encoding="utf-8")
     if not all(marker in homepage_after for marker in REQUIRED_HOME_LINKS):
@@ -75,6 +111,10 @@ def synchronize(site: Path) -> dict[str, object]:
         "learning_path_pages": len(list((site / "learning-paths").rglob("index.html"))),
         "sitemap_present": (site / "sitemap-tools-paths.xml").is_file(),
         "publication_report_present": (site / "api" / "daily-tools-v24.json").is_file(),
+        "sleep_log_page": SLEEP_PAGE.as_posix(),
+        "sleep_log_asset": SLEEP_ASSET.as_posix(),
+        "sleep_log_contract": "passed",
+        "sleep_log_local_only": True,
     }
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
