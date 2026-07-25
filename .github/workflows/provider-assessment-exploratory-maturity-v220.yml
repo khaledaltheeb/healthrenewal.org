@@ -13,6 +13,7 @@ on:
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/tests/exploratory-tools-maturity-v220.spec.cjs"
       - "provider-assessment-demo/tests/professional-registry-maturity-v220.spec.cjs"
+      - "provider-assessment-demo/tests/professional-report-integration-v220.spec.cjs"
       - ".github/workflows/provider-assessment-exploratory-maturity-v220.yml"
   pull_request:
     branches: ["main"]
@@ -26,6 +27,7 @@ on:
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/tests/exploratory-tools-maturity-v220.spec.cjs"
       - "provider-assessment-demo/tests/professional-registry-maturity-v220.spec.cjs"
+      - "provider-assessment-demo/tests/professional-report-integration-v220.spec.cjs"
       - ".github/workflows/provider-assessment-exploratory-maturity-v220.yml"
   workflow_dispatch:
 
@@ -57,13 +59,17 @@ jobs:
           node --check provider-assessment-demo/exploratory-tools-maturity-ui-v220.js
           node --check provider-assessment-demo/professional-registry-contract-v220.js
           node --check provider-assessment-demo/professional-registry-maturity-ui-v220.js
+          node --check provider-assessment-demo/professional-registry-report-integration-v220.js
           node --check provider-assessment-demo/institutional-live-v2.js
           node --check provider-assessment-demo/tests/exploratory-tools-maturity-v220.spec.cjs
           node --check provider-assessment-demo/tests/professional-registry-maturity-v220.spec.cjs
+          node --check provider-assessment-demo/tests/professional-report-integration-v220.spec.cjs
       - name: Enforce twenty-tool exploratory maturity contract
         run: node provider-assessment-demo/tests/exploratory-tools-maturity-v220.spec.cjs
       - name: Enforce professional rights and result-record contract
         run: node provider-assessment-demo/tests/professional-registry-maturity-v220.spec.cjs
+      - name: Enforce professional source integrity in final reports
+        run: node provider-assessment-demo/tests/professional-report-integration-v220.spec.cjs
       - name: Guard rights safety local storage and public language
         run: |
           set -euxo pipefail
@@ -73,5 +79,6 @@ jobs:
           grep -F 'officialAdministrationInsidePlatform: false' provider-assessment-demo/professional-registry-contract-v220.js
           grep -F 'protectedContentStorageAllowed: false' provider-assessment-demo/professional-registry-contract-v220.js
           grep -F 'digitalAdministrationOccurredInsidePlatform = false' provider-assessment-demo/professional-registry-maturity-ui-v220.js
+          grep -F 'case-report-professional-sources-v220' provider-assessment-demo/professional-registry-report-integration-v220.js
           ! grep -R -E 'بند من (ADOS|WISC|Vineland)|مفتاح التصحيح|الدرجة المعيارية المعتمدة' provider-assessment-demo/*-v220.js
-          ! grep -R -E '\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket' provider-assessment-demo/professional-registry-*-v220.js
+          ! grep -R -E '\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource' provider-assessment-demo/professional-registry-*-v220.js
