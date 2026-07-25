@@ -65,21 +65,42 @@
     return valid;
   };
 
+  const loadEdit = () => {
+    if (window.PA_PROFESSIONAL_EDIT_V220 || document.querySelector('script[data-professional-edit-v220]')) return;
+    const edit = document.createElement("script");
+    edit.src = "professional-registry-edit-v220.js?release=220.1";
+    edit.defer = true;
+    edit.dataset.professionalEditV220 = "220.1";
+    edit.addEventListener("error", () => console.error("Failed to load professional record upgrade editor v220"), { once: true });
+    document.head.appendChild(edit);
+  };
+
   const loadUpgradePath = () => {
-    if (document.querySelector('script[data-professional-schema-compat-v220]')) return;
+    if (window.PA_PROFESSIONAL_SCHEMA_COMPAT_V220) {
+      loadEdit();
+      return;
+    }
+    const existingSchema = document.querySelector('script[data-professional-schema-compat-v220]');
+    if (existingSchema) {
+      existingSchema.addEventListener("load", loadEdit, { once: true });
+      let attempts = 0;
+      const timer = setInterval(() => {
+        attempts += 1;
+        if (window.PA_PROFESSIONAL_SCHEMA_COMPAT_V220) {
+          clearInterval(timer);
+          loadEdit();
+        } else if (attempts >= 100) {
+          clearInterval(timer);
+          console.error("Professional schema compatibility did not become ready for edit upgrade");
+        }
+      }, 50);
+      return;
+    }
     const schema = document.createElement("script");
-    schema.src = "professional-registry-schema-compat-v220.js?release=220.1";
+    schema.src = "professional-registry-schema-compat-v220.js?release=220.2";
     schema.defer = true;
-    schema.dataset.professionalSchemaCompatV220 = "220.1";
-    schema.addEventListener("load", () => {
-      if (document.querySelector('script[data-professional-edit-v220]')) return;
-      const edit = document.createElement("script");
-      edit.src = "professional-registry-edit-v220.js?release=220.1";
-      edit.defer = true;
-      edit.dataset.professionalEditV220 = "220.1";
-      edit.addEventListener("error", () => console.error("Failed to load professional record upgrade editor v220"), { once: true });
-      document.head.appendChild(edit);
-    }, { once: true });
+    schema.dataset.professionalSchemaCompatV220 = "220.2";
+    schema.addEventListener("load", loadEdit, { once: true });
     schema.addEventListener("error", () => console.error("Failed to load professional schema compatibility v220"), { once: true });
     document.head.appendChild(schema);
   };
@@ -96,12 +117,13 @@
   loadUpgradePath();
 
   window.PA_PROFESSIONAL_PLANNING_COMPAT_V220 = Object.freeze({
-    version: "220.2",
+    version: "220.3",
     completedStatuses: [...completedStatuses],
     planningDraftAllowed: true,
     completedRightsRequired: true,
     baseFormValidationPreserved: true,
     legacyRecordsUpgradable: true,
     schemaMigrationAudited: true,
+    orderedUpgradeLoading: true,
   });
 })();
