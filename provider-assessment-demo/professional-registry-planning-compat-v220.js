@@ -46,6 +46,16 @@
     }
   };
 
+  const loadEditorUpgrade = () => {
+    if (document.querySelector('script[data-professional-edit-v220]')) return;
+    const script = document.createElement("script");
+    script.src = "professional-registry-edit-v220.js?release=220.1";
+    script.defer = true;
+    script.dataset.professionalEditV220 = "220.1";
+    script.addEventListener("error", () => console.error("Failed to load professional record upgrade editor v220"), { once: true });
+    document.head.appendChild(script);
+  };
+
   const scheduleApply = () => queueMicrotask(() => queueMicrotask(apply));
   form.elements.recordStatus.addEventListener("change", scheduleApply);
   document.addEventListener("click", (event) => {
@@ -53,11 +63,13 @@
   }, true);
   new MutationObserver(scheduleApply).observe(form, { childList: true, subtree: true });
   apply();
+  loadEditorUpgrade();
 
   window.PA_PROFESSIONAL_PLANNING_COMPAT_V220 = Object.freeze({
     version: "220.1",
     completedStatuses: [...completedStatuses],
     planningDraftAllowed: true,
     completedRightsRequired: true,
+    legacyRecordsUpgradable: true,
   });
 })();
