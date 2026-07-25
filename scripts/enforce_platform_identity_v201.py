@@ -3,7 +3,11 @@ from __future__ import annotations
 
 """واجهة توافق لعقد الهوية مع تثبيت صنف أدوات مارشملو بصورة حتمية."""
 
+import json
 import re
+import sys
+import traceback
+from pathlib import Path
 
 try:
     from scripts import enforce_platform_identity_v201_base as _base
@@ -44,5 +48,34 @@ def main() -> int:
     return _base.main()
 
 
+def _write_failure_evidence(exc: BaseException) -> None:
+    """احتفظ بالاستثناء الكامل عندما تفشل سلسلة الإنتاج قبل إنشاء تقرير الهوية."""
+    if len(sys.argv) < 2:
+        return
+    site = Path(sys.argv[1]).resolve()
+    if not site.is_dir():
+        return
+    api = site / "api"
+    api.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "version": 247,
+        "status": "failed",
+        "entrypoint": "scripts/enforce_platform_identity_v201.py",
+        "exception_type": type(exc).__name__,
+        "message": str(exc),
+        "traceback": "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)),
+        "site": str(site),
+    }
+    (api / "platform-identity-v201-failure.json").write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        exit_code = main()
+    except BaseException as exc:
+        _write_failure_evidence(exc)
+        raise
+    raise SystemExit(exit_code)
