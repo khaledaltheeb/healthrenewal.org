@@ -6,7 +6,13 @@ from pathlib import Path
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 PAGE = SITE / "daily-tools" / "sleep-wind-down-plan" / "index.html"
+RUNTIME = SITE / "assets" / "sleep-log-v49.js"
 SVG_LABEL = "اتجاهات النوم والجودة والطاقة. الوصف النصي المتجدد يظهر قبل الرسم."
+EMPTY_CHART_OLD = "لا توجد بيانات كافية لعرض مخطط الاتجاهات."
+EMPTY_CHART_ACCESSIBLE = (
+    "اتجاهات النوم والجودة والطاقة: "
+    "لا توجد بيانات كافية لعرض مخطط الاتجاهات."
+)
 
 
 def patch_chart_accessibility(text: str) -> tuple[str, bool]:
@@ -32,6 +38,20 @@ def patch_chart_accessibility(text: str) -> tuple[str, bool]:
     raise SystemExit("Sleep chart accessibility markup is missing or ambiguous")
 
 
+def patch_runtime_accessibility() -> bool:
+    if not RUNTIME.is_file():
+        raise SystemExit(f"Missing generated sleep runtime: {RUNTIME}")
+    source = RUNTIME.read_text(encoding="utf-8")
+    if EMPTY_CHART_ACCESSIBLE in source:
+        return False
+    target = f"return '{EMPTY_CHART_OLD}';"
+    replacement = f"return '{EMPTY_CHART_ACCESSIBLE}';"
+    if source.count(target) != 1:
+        raise SystemExit("Sleep runtime empty-chart description is missing or ambiguous")
+    RUNTIME.write_text(source.replace(target, replacement, 1), encoding="utf-8")
+    return True
+
+
 def patch() -> None:
     if not PAGE.is_file():
         raise SystemExit(f"Missing generated sleep page: {PAGE}")
@@ -40,7 +60,7 @@ def patch() -> None:
     if "sleep-log-v49.js" not in text:
         raise SystemExit("Generated sleep page does not load sleep-log-v49.js")
 
-    text, changed = patch_chart_accessibility(text)
+    text, page_changed = patch_chart_accessibility(text)
     if 'id="sleep-chart-title"' in text or 'id="sleep-chart-desc"' in text:
         raise SystemExit("Obsolete nested SVG title or description remains")
     if text.count(f'aria-label="{SVG_LABEL}"') != 1:
@@ -54,7 +74,16 @@ def patch() -> None:
         raise SystemExit("Stale static SVG export markup would duplicate JS-managed controls")
 
     PAGE.write_text(text, encoding="utf-8")
-    print({"status": "passed", "chart_accessibility_normalized": True, "changed": changed})
+    runtime_changed = patch_runtime_accessibility()
+    print(
+        {
+            "status": "passed",
+            "chart_accessibility_normalized": True,
+            "page_changed": page_changed,
+            "runtime_changed": runtime_changed,
+            "empty_chart_keeps_accessible_name": True,
+        }
+    )
 
 
 if __name__ == "__main__":
