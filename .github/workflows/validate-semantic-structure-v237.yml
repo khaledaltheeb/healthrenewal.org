@@ -1,0 +1,112 @@
+name: Validate semantic structure v237
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/finalize_semantic_structure_v237.py"
+      - "scripts/enforce_health_publication_gate_v192.py"
+      - "tests/test_semantic_structure_v237.py"
+      - "tests/test_health_gate_header_integration_v233.py"
+      - ".github/workflows/validate-semantic-structure-v237.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: semantic-structure-v237-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile finalizer integration and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/finalize_semantic_structure_v237.py \
+            scripts/enforce_health_publication_gate_v192.py \
+            tests/test_semantic_structure_v237.py \
+            tests/test_health_gate_header_integration_v233.py
+
+      - name: Run deterministic semantic and health-gate tests
+        run: |
+          set -euxo pipefail
+          python -m unittest -v \
+            tests.test_semantic_structure_v237 \
+            tests.test_health_gate_header_integration_v233
+
+      - name: Verify hierarchy closure JSON-LD and idempotence
+        run: |
+          set -euxo pipefail
+          SITE="$(mktemp -d)"
+          export SITE
+          mkdir -p "$SITE/categories/example" "$SITE/english-index/a" "$SITE/letters/alef" "$SITE/api"
+          cat > "$SITE/index.html" <<'HTML'
+          <!doctype html><html lang="ar" dir="rtl"><head><title>الرئيسية</title></head><body><main><h1>الرئيسية</h1><h3>مدخل</h3><h3>مدخل ثان</h3><h4>تفصيل</h4><script>window.fixture="<h6>محمي</h6>";</script></main></body></html>
+          HTML
+          cat > "$SITE/categories/example/index.html" <<'HTML'
+          <!doctype html><html lang="ar" dir="rtl"><head><title>فئة</title></head><body><main><h1>فئة</h1><h3>مصطلح أول</h3><h3>مصطلح ثان</h3></main></body></html>
+          HTML
+          cat > "$SITE/english-index/a/index.html" <<'HTML'
+          <!doctype html><html lang="ar" dir="rtl"><head><title>A</title></head><body><main><h1>A</h1><h3>Alpha</h3></main></body></html>
+          HTML
+          cat > "$SITE/letters/alef/index.html" <<'HTML'
+          <!doctype html><html lang="ar" dir="rtl"><head><title>الألف</title></head><body><main><h1>الألف</h1><h3>المصطلحات</h3></main></body></html>
+          HTML
+          cat > "$SITE/404.html" <<'HTML'
+          <!doctype html><html lang="ar" dir="rtl"><head><title>الصفحة غير موجودة | مصطلحات علم النفس</title></head><body><main><h1>الصفحة غير موجودة</h1><h3>روابط مقترحة</h3></main></body></html>
+          HTML
+
+          python scripts/finalize_semantic_structure_v237.py "$SITE" > /tmp/semantic-first.json
+          cp "$SITE/api/semantic-structure-v237.json" /tmp/semantic-first-report.json
+          python scripts/finalize_semantic_structure_v237.py "$SITE" > /tmp/semantic-second.json
+
+          python - <<'PY'
+          import json, os
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          site=Path(os.environ['SITE'])
+          first=json.loads(Path('/tmp/semantic-first-report.json').read_text(encoding='utf-8'))
+          second=json.loads((site/'api/semantic-structure-v237.json').read_text(encoding='utf-8'))
+          assert first['status']=='passed',first
+          assert first['remaining_heading_jumps']==0,first
+          assert first['heading_pages_updated']==5,first
+          assert first['heading_tags_updated']==8,first
+          assert first['error_page_jsonld_added'] is True,first
+          assert first['error_page_marker_count']==1,first
+          assert second['status']=='passed',second
+          assert second['heading_pages_updated']==0,second
+          assert second['heading_tags_updated']==0,second
+          assert second['error_page_jsonld_added'] is False,second
+          assert second['error_page_marker_count']==1,second
+
+          class P(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.levels=[]
+              def handle_starttag(self,tag,attrs):
+                  if len(tag)==2 and tag[0]=='h' and tag[1].isdigit(): self.levels.append(int(tag[1]))
+
+          for page in sorted(site.rglob('*.html')):
+              parser=P(); parser.feed(page.read_text(encoding='utf-8'))
+              jumps=[(a,b) for a,b in zip(parser.levels,parser.levels[1:]) if b>a+1]
+              assert not jumps,(page,jumps,parser.levels)
+          index=(site/'index.html').read_text(encoding='utf-8')
+          error=(site/'404.html').read_text(encoding='utf-8')
+          assert 'window.fixture="<h6>محمي</h6>";' in index
+          assert error.count('data-error-page-jsonld-v237')==1
+          assert '"@type":"WebPage"' in error
+          print({'first_heading_updates':first['heading_tags_updated'],'second_heading_updates':0,'remaining_jumps':0,'error_jsonld':'single','status':'passed'})
+          PY
+
+      - name: Check repository diff hygiene
+        run: git diff --check
