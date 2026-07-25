@@ -3,27 +3,20 @@
 (() => {
   const RELEASE = "2026.07.24-live.7";
   const PATH = "/pterminology-site/provider-assessment-demo/";
-  const replacements = new Map([
-    ["خدمة خارجية", "تقرير خارجي فقط"],
-    ["مصطلحات علم النفس", "منصة الصحة النفسية وذوي الاحتياجات الخاصة"],
-    ["مقدم خدمة تجريبي", "مقدم خدمة محلي"],
-    ["الدخول التجريبي", "مساحة مقدم الخدمة"],
-    ["النسخة التجريبية المنشورة", "النسخة المؤسسية المحلية المنشورة"],
-    ["منصة التقييم والاستكشاف", "منصة التقييم والسجل المهني"],
-  ]);
 
-  const replaceText = (root) => {
-    if (!root) return;
-    if (root.nodeType === Node.TEXT_NODE) {
-      let value = root.nodeValue || "";
-      for (const [from, to] of replacements) value = value.replaceAll(from, to);
-      if (value !== root.nodeValue) root.nodeValue = value;
-      return;
-    }
-    if (root.nodeType !== Node.ELEMENT_NODE && root.nodeType !== Node.DOCUMENT_FRAGMENT_NODE) return;
+  const replaceText = (root = document) => {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    while (walker.nextNode()) {
-      const node = walker.currentNode;
+    const replacements = new Map([
+      ["خدمة خارجية", "تقرير خارجي فقط"],
+      ["مصطلحات علم النفس", "منصة الصحة النفسية وذوي الاحتياجات الخاصة"],
+      ["مقدم خدمة تجريبي", "مقدم خدمة محلي"],
+      ["الدخول التجريبي", "مساحة مقدم الخدمة"],
+      ["النسخة التجريبية المنشورة", "النسخة المؤسسية المحلية المنشورة"],
+      ["منصة التقييم والاستكشاف", "منصة التقييم والسجل المهني"],
+    ]);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    for (const node of nodes) {
       let value = node.nodeValue || "";
       for (const [from, to] of replacements) value = value.replaceAll(from, to);
       if (value !== node.nodeValue) node.nodeValue = value;
@@ -45,6 +38,20 @@
     const notice = document.querySelector(".notice-bar");
     if (notice) notice.textContent = "الأدوات الاستكشافية الأصلية متاحة للاستخدام غير التشخيصي. المقاييس المهنية المحمية تبقى مقفلة حتى اكتمال الترخيص وحق الرقمنة والمراجعة العلمية والأمنية والمؤسسية.";
 
+    const count = window.PA_OPERATIONAL_COUNT || window.PA_DEMO_DATA?.professional?.length || 0;
+    const card = document.querySelector(".hero-card ul");
+    if (card) {
+      card.innerHTML = `
+        <li>UID مستقل لكل مستخدم أو مقدم خدمة.</li>
+        <li>سجل حالات وجلسات ونتائج متكررة محفوظ محليًا.</li>
+        <li>20 أداة استكشافية أصلية تعمل مباشرة مع متابعة وصفية مشروطة بقابلية المقارنة.</li>
+        <li>${count} مقياسًا وفحصًا في دليل الوصول المهني مع حالة حقوق واضحة.</li>
+        <li>20 دليل حالة مؤسسيًا مع فريق وحزمة مقاييس وكورس ومخرجات تقرير.</li>
+        <li>سجل خدمات ونتائج خارجية دون نسخ بنود أو مفاتيح تصحيح محمية.</li>
+        <li>تقارير مهنية متعددة الإصدارات مع عقد تفسير وخط أساس وهدف وسجل مراجعة.</li>
+        <li>الإصدار الحي: ${RELEASE}.</li>`;
+    }
+
     const professionalTitle = document.querySelector("#view-professional h2");
     if (professionalTitle) professionalTitle.textContent = "المقاييس والفحوص والبروتوكولات المهنية وحالة التفعيل الحقوقي";
     const professionalCallout = document.querySelector("#view-professional .callout");
@@ -55,11 +62,8 @@
 
     const footer = document.querySelector(".site-footer p");
     if (footer) footer.textContent = `© منصة الصحة النفسية وذوي الاحتياجات الخاصة — منصة التقييم والسجل المهني، الإصدار ${RELEASE}. التخزين محلي داخل UID مستقل؛ لا تشخيص آلي ولا نسخ لأدوات محمية.`;
+    replaceText(document.body);
   };
-
-  function setRole(element, value) {
-    if (element.getAttribute("role") !== value) element.setAttribute("role", value);
-  }
 
   const applyTabSemantics = () => {
     const tablist = document.querySelector(".tabs");
@@ -79,20 +83,17 @@
     });
   };
 
+  function setRole(element, value) {
+    if (element.getAttribute("role") !== value) element.setAttribute("role", value);
+  }
+
   const observeOperationalUi = () => {
-    let semanticsFrame = 0;
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        for (const node of mutation.addedNodes) replaceText(node);
-      }
-      if (!semanticsFrame) {
-        semanticsFrame = requestAnimationFrame(() => {
-          semanticsFrame = 0;
-          applyTabSemantics();
-        });
-      }
+    const target = document.getElementById("professional-list") || document.body;
+    const observer = new MutationObserver(() => {
+      replaceText(target);
+      applyTabSemantics();
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(target, { childList: true, subtree: true, characterData: true });
   };
 
   const addScript = (src, datasetName, onload) => {
@@ -102,6 +103,7 @@
     }
     const script = document.createElement("script");
     script.src = `${src}?release=${encodeURIComponent(RELEASE)}`;
+    script.defer = true;
     script.dataset[datasetName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())] = RELEASE;
     if (onload) script.addEventListener("load", onload, { once: true });
     document.head.appendChild(script);
@@ -142,7 +144,11 @@
     loadOriginalProgress();
     loadCaseReports();
     refreshOldCaches();
-  }, { once: true });
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      applyInstitutionalCopy();
+      applyTabSemantics();
+    }));
+  });
 
   if (location.pathname === PATH && !location.search.includes("release=")) {
     const url = new URL(location.href);

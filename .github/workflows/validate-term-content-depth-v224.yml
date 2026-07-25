@@ -1,0 +1,50 @@
+name: Validate term content depth v224
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/enrich_term_pages_v224.py"
+      - "tests/test_term_content_depth_v224.py"
+      - ".github/workflows/audit-production-discovery-v220.yml"
+      - ".github/workflows/validate-term-content-depth-v224.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/enrich_term_pages_v224.py"
+      - "tests/test_term_content_depth_v224.py"
+      - ".github/workflows/audit-production-discovery-v220.yml"
+      - ".github/workflows/validate-term-content-depth-v224.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: term-content-v224-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publisher and deterministic tests
+        run: |
+          python -m py_compile scripts/enrich_term_pages_v224.py tests/test_term_content_depth_v224.py
+          python -m unittest -v tests.test_term_content_depth_v224
+      - name: Enforce evidence safety uniqueness and content-floor contracts
+        run: |
+          set -euxo pipefail
+          grep -q 'MIN_WORDS = 650' scripts/enrich_term_pages_v224.py
+          grep -q 'expected at least 200 terms' scripts/enrich_term_pages_v224.py
+          grep -q 'duplicate_generated_blocks' scripts/enrich_term_pages_v224.py
+          grep -q 'testingstandards.net' scripts/enrich_term_pages_v224.py
+          grep -q 'training.cochrane.org/handbook' scripts/enrich_term_pages_v224.py
+          grep -q '9789240077263' scripts/enrich_term_pages_v224.py
+          grep -q 'لا يثبت تشخيصًا' scripts/enrich_term_pages_v224.py
+          ! grep -Eqi 'شفاء مضمون|يعالج نهائيًا|بديل عن الطبيب|تشخيصك هو' scripts/enrich_term_pages_v224.py
