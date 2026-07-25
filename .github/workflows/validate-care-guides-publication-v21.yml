@@ -26,7 +26,8 @@ jobs:
           cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
           python scripts/verify_enricher_v7.py
           python scripts/verify_expander_v9.py
-          python -m py_compile build_site.py expand_site_v9.py scripts/scale_site_v8.py scripts/design_content_v10.py scripts/apply_contrast_v11.py scripts/expand_v12_direct.py scripts/rebuild_encyclopedia_v13.py scripts/run_encyclopedia_v13.py scripts/performance_hotfix_v14.py scripts/optimize_site_performance_v14.py scripts/strip_nonlab_runtime_v14.py scripts/finalize_pwa_v14.py scripts/audit_site_integrity_v13.py scripts/verify_performance_v14.py scripts/complete_core_sections_v15.py scripts/verify_core_sections_v15.py scripts/polish_site_v16.py scripts/audit_full_site_v16.py scripts/audit_full_site_i18n_v72.py scripts/apply_homepage_v20.py scripts/publish_homepage_i18n_v72.py scripts/publish_care_guides_v21.py scripts/link_care_guides_v21.py scripts/publish_special_needs_hub_v201.py scripts/audit_content_targets_v201.py scripts/enforce_platform_identity_v201.py
+          python -m py_compile build_site.py expand_site_v9.py scripts/scale_site_v8.py scripts/design_content_v10.py scripts/apply_contrast_v11.py scripts/expand_v12_direct.py scripts/rebuild_encyclopedia_v13.py scripts/run_encyclopedia_v13.py scripts/performance_hotfix_v14.py scripts/optimize_site_performance_v14.py scripts/strip_nonlab_runtime_v14.py scripts/finalize_pwa_v14.py scripts/audit_site_integrity_v13.py scripts/verify_performance_v14.py scripts/complete_core_sections_v15.py scripts/verify_core_sections_v15.py scripts/polish_site_v16.py scripts/audit_full_site_v16.py scripts/audit_full_site_i18n_v72.py scripts/apply_homepage_v20.py scripts/publish_homepage_i18n_v72.py scripts/publish_care_guides_v21.py scripts/enhance_care_guides_v234.py scripts/verify_care_guides_publication_v234.py scripts/link_care_guides_v21.py scripts/publish_special_needs_hub_v201.py scripts/audit_content_targets_v201.py scripts/enforce_platform_identity_v201.py tests/test_care_guides_v234.py
+          node --check assets/js/care-guides-v234.js
       - name: Build exact production output
         run: |
           set +e
@@ -58,50 +59,19 @@ jobs:
           exit $status
       - name: Verify guides discovery SEO safety and integration
         run: |
-          set -euxo pipefail
-          python scripts/verify_care_guides_v18.py
-          python - <<'PY'
-          import json,re
-          from pathlib import Path
-          root=Path('_site')
-          report=json.loads((root/'api/care-guides-v21.json').read_text(encoding='utf-8'))
-          linked=json.loads((root/'api/care-guides-homepage-v21.json').read_text(encoding='utf-8'))
-          identity=json.loads((root/'api/platform-identity-v201.json').read_text(encoding='utf-8'))
-          targets=json.loads((root/'api/content-targets-v201.json').read_text(encoding='utf-8'))
-          expected_guides=report['guides']
-          expected_pages=report['pages']
-          expected_urls=report['sitemap_urls']
-          actual_pages=sum(1 for _ in (root/'care-guides').rglob('index.html'))
-          actual_urls=(root/'sitemap-care-guides.xml').read_text(encoding='utf-8').count('<url>')
-          assert expected_guides >= 1,report
-          assert expected_pages == expected_guides + 1,report
-          assert expected_urls == expected_pages,report
-          assert actual_pages == expected_pages,(actual_pages,report)
-          assert actual_urls == expected_urls,(actual_urls,report)
-          assert report['all_have_sources'] and report['all_have_unique_titles']
-          assert linked['care_guides_linked'] and linked['navigation_link'] and linked['hero_link']
-          assert 'sitemap-care-guides.xml' in (root/'sitemap.xml').read_text(encoding='utf-8')
-          assert 'href="care-guides/"' in (root/'index.html').read_text(encoding='utf-8')
-          assert identity['remaining_banned_pages']==[] and identity['missing_header_pages']==[] and identity['missing_footer_pages']==[],identity
-          assert targets['targets']['care_guides']['published_count'] == expected_guides,targets['targets']['care_guides']
-          pages=sorted((root/'care-guides').glob('*/index.html'))
-          assert len(pages) == expected_guides,(len(pages),report)
-          titles=set();descriptions=set()
-          for page in pages:
-              text=page.read_text(encoding='utf-8')
-              assert text.count('<h1>')==1,page
-              assert 'application/ld+json' in text and 'HowTo' in text and 'Article' in text,page
-              assert 'مصادر مؤسسية للمراجعة' in text,page
-              assert 'خدمات الطوارئ المحلية' in text or 'مساعدة عاجلة' in text,page
-              title=re.search(r'<title>(.*?)</title>',text,re.S).group(1)
-              desc=re.search(r'<meta name="description" content="(.*?)">',text,re.S).group(1)
-              assert title not in titles and desc not in descriptions,page
-              titles.add(title);descriptions.add(desc)
-          print(json.dumps({'guides':len(pages),'pages':actual_pages,'sitemap_urls':actual_urls,'unique_titles':len(titles),'unique_descriptions':len(descriptions),'identity_pages':identity['pages']},ensure_ascii=False))
-          PY
-          python scripts/verify_performance_v14.py _site
-          python scripts/verify_core_sections_v15.py _site
-          python scripts/audit_full_site_i18n_v72.py _site
+          set +e
+          set -o pipefail
+          {
+            set -eux
+            python scripts/verify_care_guides_v18.py
+            python -m unittest -v tests.test_care_guides_v234
+            python scripts/verify_care_guides_publication_v234.py _site
+            python scripts/verify_performance_v14.py _site
+            python scripts/verify_core_sections_v15.py _site
+            python scripts/audit_full_site_i18n_v72.py _site
+          } 2>&1 | tee /tmp/care-guides-verify-v234.log
+          status=${PIPESTATUS[0]}
+          exit $status
       - name: Upload care-guide publication reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -109,12 +79,16 @@ jobs:
           name: care-guides-v21-audit
           path: |
             _site/api/care-guides-v21.json
+            _site/api/care-guides-v234.json
+            _site/api/care-guides-publication-verification-v234.json
             _site/api/care-guides-homepage-v21.json
             _site/api/site-integrity-v13.json
             _site/api/full-site-audit-v16.json
             _site/api/platform-identity-v201.json
             _site/api/content-targets-v201.json
             _site/api/special-needs-hub-v201.json
+            _site/care-guides/
             /tmp/care-guides-build-v201.log
+            /tmp/care-guides-verify-v234.log
           if-no-files-found: warn
           retention-days: 14
