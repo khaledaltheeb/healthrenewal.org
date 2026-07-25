@@ -46,6 +46,10 @@ def publish(site: Path) -> dict[str, Any]:
     hub_report = hub235.publish(site)
     if hub_report.get("version") != 235 or hub_report.get("guide_count") != 25:
         raise SystemExit(f"Institutional special-needs hub contract failed: {hub_report}")
+    if hub_report.get("source_count") != 10 or hub_report.get("jordan_source_count") != 3:
+        raise SystemExit(f"Institutional special-needs source contract failed: {hub_report}")
+    if hub_report.get("asha_aac_source_updated") is not True:
+        raise SystemExit("Institutional AAC source contract failed")
 
     base = core.publish(site)
     manifest = core.read_manifest(V214_MANIFEST, 214)
@@ -81,6 +85,7 @@ def publish(site: Path) -> dict[str, Any]:
         "legacy_contract": 217,
         "guide_contract": 221,
         "hub_contract": 235,
+        "hub_release": 241,
         "status": "passed",
         "production_status": "integrated",
         "batches": list(VERSIONS),
@@ -101,6 +106,8 @@ def publish(site: Path) -> dict[str, Any]:
             "pathway_count": hub_report["pathway_count"],
             "faq_count": hub_report["faq_count"],
             "source_count": hub_report["source_count"],
+            "jordan_source_count": hub_report["jordan_source_count"],
+            "asha_aac_source_updated": hub_report["asha_aac_source_updated"],
             "seo": hub_report["seo"],
             "accessibility": hub_report["accessibility"],
         },
