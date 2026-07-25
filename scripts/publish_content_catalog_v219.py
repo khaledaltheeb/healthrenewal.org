@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -13,7 +14,37 @@ ROOT = Path(__file__).resolve().parents[1]
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 
 
+def run_required_publisher(script_name: str) -> None:
+    script = ROOT / "scripts" / script_name
+    if not script.is_file():
+        raise SystemExit(f"Missing required publisher: {script}")
+    subprocess.run([sys.executable, str(script), str(SITE)], check=True)
+
+
+def publish_tips_v234_when_production_ready() -> bool:
+    """Replace v15 tips only after the complete core build exists.
+
+    This catalog publisher is called by the real homepage production pipeline
+    after core sections and before the final sitewide SEO verifier and health
+    publication gate. Focused unit-test fixtures do not carry this marker and
+    therefore remain isolated from the 49-page institutional tips build.
+    """
+    ready = (
+        (SITE / "robots.txt").is_file()
+        and (SITE / "assets").is_dir()
+        and (SITE / "api/core-sections-v15.json").is_file()
+        and (SITE / "tips").is_dir()
+    )
+    if not ready:
+        return False
+    run_required_publisher("publish_tips_hub_v234.py")
+    run_required_publisher("verify_tips_v234.py")
+    return True
+
+
 def main() -> int:
+    tips_v234_published = publish_tips_v234_when_production_ready()
+
     section_report = publish_sections(SITE, ROOT)
     seo.SITE = SITE
     seo_results = {}
@@ -28,6 +59,11 @@ def main() -> int:
     result["section_directory"] = section_report
     result["section_directory_seo"] = seo_results
     result["public_api_report"] = sync(ROOT, SITE, "published")
+    result["tips_v234_published"] = tips_v234_published
+    result["tips_v234_report"] = "api/tips-audit-v234.json" if tips_v234_published else None
+    result["tips_v234_verification"] = (
+        "api/tips-verification-v234.json" if tips_v234_published else None
+    )
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
