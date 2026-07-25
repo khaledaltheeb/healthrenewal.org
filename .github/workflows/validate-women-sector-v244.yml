@@ -15,10 +15,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: women-sector-v244-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
         with:
@@ -76,3 +80,105 @@ jobs:
           assert not missing, missing
           print({'production_integration': 'passed', 'tokens': len(required)})
           PY
+
+  production-smoke:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - name: Restore verified generators and Arabic sector sources
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10-source.tar.gz
+          tar -xzf /tmp/v10-source.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          python scripts/verify_enricher_v7.py
+          python scripts/verify_expander_v9.py
+          python -m py_compile build_site.py enrich_site_v7.py expand_site_v9.py scripts/scale_site_v8.py scripts/design_content_v10.py scripts/women_sector_content_v244.py scripts/upgrade_women_sector_v244.py
+      - name: Build exact v10 pages and apply women-sector v244
+        id: production_build
+        shell: bash
+        run: |
+          set +e
+          set -o pipefail
+          {
+            set -eux
+            python build_site.py
+            python enrich_site_v7.py
+            cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+            python scripts/scale_site_v8.py
+            python expand_site_v9.py
+            python scripts/design_content_v10.py
+            PYTHONPATH=scripts python -c "from pathlib import Path; from upgrade_women_sector_v244 import upgrade; print(upgrade(Path('_site')))"
+          } 2>&1 | tee /tmp/women-v244-production-build.log
+          code=${PIPESTATUS[0]}
+          printf 'exit_code=%s\n' "$code" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Upload exact production build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: women-sector-v244-production-build-log
+          path: /tmp/women-v244-production-build.log
+          if-no-files-found: error
+          retention-days: 14
+      - name: Enforce production build completion
+        if: steps.production_build.outputs.exit_code != '0'
+        run: |
+          tail -n 160 /tmp/women-v244-production-build.log
+          exit 1
+      - name: Enforce real generated-page depth SEO safety and discovery
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('_site')
+          report = json.loads((root / 'api/women-sector-v244.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['version'] == 244, report
+          assert report['source_articles'] == 20, report
+          assert report['hub_words'] >= 2200, report
+          assert report['minimum_article_words'] >= 700, report
+          assert report['hub_h1'] == 1, report
+          assert report['hub_h2'] >= 15, report
+          assert report['faq_items'] == 6, report
+          assert report['institutional_sources'] >= 12, report
+          assert report['banned_term_present'] is False, report
+          assert report['diagnostic_claim_present'] is False, report
+          pages = sorted((root / 'sectors/women').glob('*/index.html'))
+          assert len(pages) == 20, len(pages)
+          hub = (root / 'sectors/women/index.html').read_text(encoding='utf-8')
+          assert hub.count('<main') == 1
+          assert hub.count('<h1') == 1
+          assert hub.count('rel="canonical"') == 1
+          assert 'CollectionPage' in hub and 'FAQPage' in hub
+          assert 'ذوات الاحتياجات الخاصة' in hub
+          for page in pages:
+              text = page.read_text(encoding='utf-8')
+              assert text.count('<main') == 1, page
+              assert text.count('<h1') == 1, page
+              assert text.count('rel="canonical"') == 1, page
+              assert '"@type":"Article"' in text, page
+              assert 'noindex' not in text.lower(), page
+          robots = (root / 'robots.txt').read_text(encoding='utf-8')
+          assert robots.count('# women-sector-v244') == 1
+          assert 'Allow: /pterminology-site/sectors/women/' in robots
+          print({'women_sector': 'passed', 'guides': len(pages), 'hub_words': report['hub_words'], 'minimum_article_words': report['minimum_article_words']})
+          PY
+      - name: Upload real generated women-sector evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: women-sector-v244-production-smoke
+          path: |
+            _site/api/women-sector-v244.json
+            _site/sectors/women/
+            _site/robots.txt
+          if-no-files-found: warn
+          retention-days: 14
