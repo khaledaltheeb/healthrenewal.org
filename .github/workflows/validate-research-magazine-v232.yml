@@ -1,0 +1,77 @@
+name: Validate research magazine v232
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/v232/**"
+      - "scripts/publish_research_magazine_v232.py"
+      - "scripts/research_magazine_v232_*.py"
+      - "scripts/publish_magazine_v201.py"
+      - "tests/test_research_magazine_v232.py"
+      - ".github/workflows/validate-research-magazine-v232.yml"
+  push:
+    branches: [main]
+    paths:
+      - "content/v232/**"
+      - "scripts/publish_research_magazine_v232.py"
+      - "scripts/research_magazine_v232_*.py"
+      - "scripts/publish_magazine_v201.py"
+      - "tests/test_research_magazine_v232.py"
+      - ".github/workflows/validate-research-magazine-v232.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: research-magazine-v232-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile deterministic publishers and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_magazine_v201.py \
+            scripts/publish_research_magazine_v232.py \
+            scripts/research_magazine_v232_core.py \
+            scripts/research_magazine_v232_render.py \
+            scripts/research_magazine_v232_publish.py \
+            tests/test_research_magazine_v232.py
+      - name: Validate sources content safety and idempotent publication
+        run: |
+          set -euxo pipefail
+          python -m unittest -v tests.test_research_magazine_v232
+      - name: Verify the production magazine entry point delegates to v232
+        run: |
+          set -euxo pipefail
+          mkdir -p review-site
+          cat > review-site/sitemap.xml <<'XML'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>
+          XML
+          python scripts/publish_magazine_v201.py review-site
+          test -f review-site/magazine/index.html
+          test -f review-site/api/magazine-v201.json
+          test -f review-site/api/research-magazine-v232.json
+          test "$(find review-site/magazine/research -name index.html | wc -l)" -eq 25
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          legacy = json.loads(Path("review-site/api/magazine-v201.json").read_text(encoding="utf-8"))
+          current = json.loads(Path("review-site/api/research-magazine-v232.json").read_text(encoding="utf-8"))
+          assert legacy["research_summaries_published"] == 25, legacy
+          assert legacy["research_publisher"] == 232, legacy
+          assert current["published_pages"] == 25, current
+          assert current["target_pages"] == 100, current
+          assert current["sitemap"]["urls"] == 26, current
+          PY
