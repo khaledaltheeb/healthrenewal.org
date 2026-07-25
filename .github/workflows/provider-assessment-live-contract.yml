@@ -6,6 +6,9 @@ on:
     paths:
       - "provider-assessment-demo/index.html"
       - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/institutional-contract-v220.js"
+      - "provider-assessment-demo/institutional-contract-v220.css"
+      - "provider-assessment-demo/institutional-contract-v220.json"
       - "provider-assessment-demo/sw-live-v2.js"
       - "provider-assessment-demo/professional-templates-v1.js"
       - "provider-assessment-demo/case-report-v1.js"
@@ -20,6 +23,9 @@ on:
     paths:
       - "provider-assessment-demo/index.html"
       - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/institutional-contract-v220.js"
+      - "provider-assessment-demo/institutional-contract-v220.css"
+      - "provider-assessment-demo/institutional-contract-v220.json"
       - "provider-assessment-demo/sw-live-v2.js"
       - "provider-assessment-demo/professional-templates-v1.js"
       - "provider-assessment-demo/case-report-v1.js"
@@ -48,31 +54,39 @@ jobs:
           node --check provider-assessment-demo/professional-templates-v1.js
           node --check provider-assessment-demo/condition-entry-v1.js
           node --check provider-assessment-demo/institutional-live-v2.js
+          node --check provider-assessment-demo/institutional-contract-v220.js
           node --check provider-assessment-demo/sw-live-v2.js
 
-      - name: Validate live.7 HTML and cache tokens
+      - name: Validate v220 HTML and compatible asset tokens
         run: |
           node <<'NODE'
           const fs = require('fs');
           const html = fs.readFileSync('provider-assessment-demo/index.html','utf8');
-          const release = '2026.07.24-live.7';
-          const cacheToken = '20260724-live7';
+          const release = '2026.07.25-v220';
+          const contractToken = '20260725-v220';
+          const compatibleAssetToken = '20260724-live7';
           for (const marker of [
-            `data-release="${release}"`, `application-version" content="${release}"`,
-            `styles.css?v=${cacheToken}`, `catalog.js?v=${cacheToken}`,
-            `conditions/conditions-data-v1.js?v=${cacheToken}`, `condition-entry-v1.js?v=${cacheToken}`,
-            `professional-templates-v1.js?v=${cacheToken}`, `case-report-v1.js?v=${cacheToken}`,
-            `case-report-interpretation-v2.js?v=${cacheToken}`, `institutional-live-v2.js?v=${cacheToken}`,
-            'conditions-hub-link','استعراض الحالات العشرين','قوالب إدخال متخصصة','تقارير متعددة الإصدارات مع عقد تفسير'
-          ]) if (!html.includes(marker)) throw new Error(`Live HTML missing ${marker}`);
-          for (const stale of [
-            '20260724-live2','20260724-live4','20260724-live5','20260724-live6',
-            '2026.07.24-live.2','2026.07.24-live.4','2026.07.24-live.5','2026.07.24-live.6'
-          ]) if (html.includes(stale)) throw new Error(`Stale release remains in live HTML: ${stale}`);
+            `data-release="${release}"`, `data-institutional-contract="${release}"`,
+            `application-version" content="${release}"`,
+            `styles.css?v=${compatibleAssetToken}`, `catalog.js?v=${compatibleAssetToken}`,
+            `conditions/conditions-data-v1.js?v=${compatibleAssetToken}`, `condition-entry-v1.js?v=${compatibleAssetToken}`,
+            `professional-templates-v1.js?v=${compatibleAssetToken}`, `case-report-v1.js?v=${compatibleAssetToken}`,
+            `case-report-interpretation-v2.js?v=${compatibleAssetToken}`, `institutional-live-v2.js?v=${compatibleAssetToken}`,
+            `institutional-contract-v220.css?v=${contractToken}`, `institutional-contract-v220.js?v=${contractToken}`,
+            'href="institutional-contract-v220.json"', 'data-institutional-contract-v220',
+            'conditions-hub-link', 'استعراض الحالات العشرين', 'العقد المؤسسي المنشور v220',
+            'مخطط تقييم متعدد المصادر', 'قوالب توثيق مهني', 'تقارير متعددة الإصدارات مع عقد تفسير'
+          ]) if (!html.includes(marker)) throw new Error(`Institutional v220 HTML missing ${marker}`);
+          const releaseMatch = html.match(/<html[^>]*\bdata-release="([^"]+)"/);
+          const applicationMatch = html.match(/<meta\s+name="application-version"\s+content="([^"]+)"/);
+          const contractMatch = html.match(/<html[^>]*\bdata-institutional-contract="([^"]+)"/);
+          if (releaseMatch?.[1] !== release || applicationMatch?.[1] !== release || contractMatch?.[1] !== release) {
+            throw new Error(`Primary institutional release mismatch: ${JSON.stringify({release:releaseMatch?.[1],application:applicationMatch?.[1],contract:contractMatch?.[1]})}`);
+          }
           for (const forbidden of ['>مقفل<','>دليل فقط<','النسخة التجريبية المنشورة']) {
             if (html.includes(forbidden)) throw new Error(`Forbidden live wording: ${forbidden}`);
           }
-          console.log({release,cacheToken,html:'passed'});
+          console.log({release,contractToken,compatibleAssetToken,html:'passed'});
           NODE
 
       - name: Validate institutional runtime and service worker
@@ -80,17 +94,22 @@ jobs:
           node <<'NODE'
           const fs = require('fs');
           const read = file => fs.readFileSync(file,'utf8');
-          const release = '2026.07.24-live.7';
+          const compatibilityRelease = '2026.07.24-live.7';
+          const institutionalRelease = '2026.07.25-v220';
           const institutional = read('provider-assessment-demo/institutional-live-v2.js');
+          const contract = read('provider-assessment-demo/institutional-contract-v220.js');
           const worker = read('provider-assessment-demo/sw-live-v2.js');
           const releaseMarker = read('provider-assessment-demo/.report-interpretation-release').trim();
-          if (releaseMarker !== release) throw new Error(`Report interpretation release marker mismatch: ${releaseMarker}`);
+          if (releaseMarker !== compatibilityRelease) throw new Error(`Report interpretation compatibility marker mismatch: ${releaseMarker}`);
           for (const marker of ['loadProfessionalTemplates','loadConditionPathways','loadCaseReports','case-report-interpretation-v2.js']) {
-            if (!institutional.includes(marker)) throw new Error(`Institutional runtime missing ${marker}`);
+            if (!institutional.includes(marker)) throw new Error(`Institutional compatibility runtime missing ${marker}`);
           }
-          if (!institutional.includes(release)) throw new Error('Institutional runtime release mismatch');
-          if (!worker.includes(release) || !worker.includes('cache: "no-store"')) throw new Error('Service worker release or network-first contract mismatch');
-          console.log({release,runtime:'passed',serviceWorker:'passed'});
+          for (const marker of ['2026.07.25-v220','PA_INSTITUTIONAL_CONTRACT_V220']) {
+            if (!contract.includes(marker)) throw new Error(`Institutional v220 runtime missing ${marker}`);
+          }
+          if (!institutional.includes(compatibilityRelease)) throw new Error('Institutional compatibility runtime release mismatch');
+          if (!worker.includes(compatibilityRelease) || !worker.includes('cache: "no-store"')) throw new Error('Service worker release or network-first contract mismatch');
+          console.log({institutionalRelease,compatibilityRelease,runtime:'passed',serviceWorker:'passed'});
           NODE
 
       - name: Validate report engine and interpretation safeguards
@@ -123,7 +142,7 @@ jobs:
             for (const forbidden of ['Explore-2026!','الدخول التجريبي','اسم المستخدم التجريبي','النسخة التجريبية','>مقفل<','>دليل فقط<']) {
               if (page.includes(forbidden)) throw new Error(`Legacy demo wording remains: ${forbidden}`);
             }
-            if (!/2026\.07\.24-live\.[567]/.test(page)) throw new Error('Institutional entry page has no accepted release marker');
+            if (!/2026\.07\.(?:24-live\.[567]|25-v220)/.test(page)) throw new Error('Institutional entry page has no accepted release marker');
           }
           if (!consolePage.includes('?open=professional') || !consolePage.includes('?open=records')) throw new Error('Professional console does not route to unified views');
           if (!centerGuide.includes('قوالب التطبيق المتخصصة') || !centerGuide.includes('مسارات الحالات')) throw new Error('Center guide is incomplete');
