@@ -34,17 +34,17 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          show-progress: false
       - name: Compile production upgrade and contracts
         run: |
-          python -m py_compile \
+          python3 --version
+          python3 -m py_compile \
             scripts/upgrade_home_sector_v234.py \
             scripts/stamp_deployment_v29.py \
             tests/test_home_sector_v234.py
       - name: Validate twenty guides metadata schemas robots and idempotence
-        run: python -m unittest -v tests.test_home_sector_v234
+        run: python3 -m unittest -v tests.test_home_sector_v234
       - name: Verify permanent production integration
         run: |
           test "$(find .home-v234bundle -maxdepth 1 -type f -name 'part*' | wc -l)" -eq 5
