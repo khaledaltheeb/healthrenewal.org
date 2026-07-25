@@ -33,13 +33,14 @@
     if (integrationPromise) return integrationPromise;
     integrationPromise = import("./institutional-contract-v220-integration.js")
       .then(() => import("./institutional-contract-v231-compat.js"))
+      .then(() => import("./institutional-contract-v231-save-fallback.js"))
       .then((module) => {
         applyReleaseCopy();
         return module;
       })
       .catch((error) => {
         integrationPromise = null;
-        console.error("تعذر تحميل عقد التقييم المؤسسي v220 أو طبقة التوافق v231", error);
+        console.error("تعذر تحميل عقد التقييم المؤسسي v220 أو طبقات التوافق والحفظ v231", error);
         throw error;
       });
     return integrationPromise;
