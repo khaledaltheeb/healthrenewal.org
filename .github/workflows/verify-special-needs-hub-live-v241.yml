@@ -1,0 +1,93 @@
+name: Verify institutional special-needs hub live v241
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_special_needs_hub_v235.py"
+      - "scripts/publish_special_needs_hub_v235_compat.py"
+      - "scripts/publish_special_needs_guides_v217.py"
+      - "scripts/verify_special_needs_hub_live_v241.py"
+      - "tests/test_special_needs_hub_v235.py"
+      - ".github/workflows/verify-special-needs-hub-live-v241.yml"
+  workflow_run:
+    workflows: ["Deploy validated main to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: special-needs-hub-live-v241-${{ github.event.workflow_run.id || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-contract:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and test hub publication and live-verification contracts
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_special_needs_hub_v235.py \
+            scripts/publish_special_needs_hub_v235_compat.py \
+            scripts/publish_special_needs_guides_v217.py \
+            scripts/verify_special_needs_hub_live_v241.py \
+            tests/test_special_needs_hub_v235.py
+          python -m unittest -v tests.test_special_needs_hub_v235
+
+  verify-live:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      EXPECTED_SHA: ${{ github.event.workflow_run.head_sha }}
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+    steps:
+      - name: Checkout the deployed source commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Download exact live hub evidence
+        run: |
+          set -euxo pipefail
+          root=/tmp/special-needs-hub-live-v241
+          rm -rf "${root}"
+          mkdir -p "${root}/api" "${root}/special-needs"
+          token="${EXPECTED_SHA}-$(date +%s)"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o "${root}/deployment.json"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-guides-v221.json?v=${token}" -o "${root}/api/special-needs-guides-v221.json"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/?v=${token}" -o "${root}/special-needs/index.html"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sitemap-special-needs.xml?v=${token}" -o "${root}/sitemap-special-needs.xml"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}robots.txt?v=${token}" -o "${root}/robots.txt"
+
+      - name: Verify deployment SHA metadata schema pathways sources links sitemap robots and safety
+        run: |
+          set -euxo pipefail
+          python scripts/verify_special_needs_hub_live_v241.py \
+            /tmp/special-needs-hub-live-v241 \
+            --expected-sha "${EXPECTED_SHA}"
+
+      - name: Upload immutable live hub evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-needs-hub-live-v241
+          path: /tmp/special-needs-hub-live-v241/api/special-needs-hub-live-v241.json
+          if-no-files-found: error
+          retention-days: 30
