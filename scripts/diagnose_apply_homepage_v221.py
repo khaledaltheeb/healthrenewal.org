@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import traceback
 from datetime import datetime, timezone
@@ -28,11 +29,25 @@ def stamp(payload: dict) -> None:
     REPORT.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def run_target(script: str) -> None:
+    if script == "publish_special_needs_guides_v217.py":
+        subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "diagnose_special_needs_guides_v221.py"),
+                str(homepage.SITE),
+            ],
+            check=True,
+        )
+        return
+    ORIGINAL_RUN_PUBLISHER(script)
+
+
 def traced_publisher(script: str) -> None:
     global LAST_COMPLETED
     stamp({"status": "running", "last_started": script, "last_completed": LAST_COMPLETED})
     try:
-        ORIGINAL_RUN_PUBLISHER(script)
+        run_target(script)
     except Exception as exc:
         stamp(
             {
