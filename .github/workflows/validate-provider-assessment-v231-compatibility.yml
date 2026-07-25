@@ -1,0 +1,36 @@
+name: Validate provider assessment compatibility v231
+
+on:
+  pull_request:
+    paths:
+      - "provider-assessment-demo/institutional-contract-v220.js"
+      - "provider-assessment-demo/institutional-contract-v231-compat.js"
+      - "tests/test_provider_assessment_v231_compatibility.py"
+      - ".github/workflows/validate-provider-assessment-v231-compatibility.yml"
+  push:
+    branches: [main]
+    paths:
+      - "provider-assessment-demo/institutional-contract-v220.js"
+      - "provider-assessment-demo/institutional-contract-v231-compat.js"
+      - "tests/test_provider_assessment_v231_compatibility.py"
+      - ".github/workflows/validate-provider-assessment-v231-compatibility.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Validate compatibility contract and JavaScript
+        run: |
+          node --check provider-assessment-demo/institutional-contract-v220.js
+          node --check provider-assessment-demo/institutional-contract-v231-compat.js
+          python -m unittest -v tests/test_provider_assessment_v231_compatibility.py
