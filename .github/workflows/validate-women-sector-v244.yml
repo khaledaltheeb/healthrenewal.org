@@ -36,9 +36,10 @@ jobs:
           sys.path.insert(0, 'scripts')
           import upgrade_women_sector_v244 as women
           data=json.loads(Path('content/sectors-v10/women.json').read_text(encoding='utf-8'))
-          hub_words=women.visible_words(women.hub_main(data))
           article_words={item['slug']:women.visible_words(women.article_main(item)) for item in data['articles']}
-          print({'source_articles':len(data['articles']),'hub_body_words':hub_words,'minimum_article_body_words':min(article_words.values()),'shortest_article':min(article_words,key=article_words.get),'maximum_article_body_words':max(article_words.values())})
+          metrics={'source_articles':len(data['articles']),'hub_body_words':women.visible_words(women.hub_main(data)),'minimum_article_body_words':min(article_words.values()),'shortest_article':min(article_words,key=article_words.get),'maximum_article_body_words':max(article_words.values()),'article_body_words':article_words}
+          Path('/tmp/women-v244-metrics.json').write_text(json.dumps(metrics,ensure_ascii=False,indent=2),encoding='utf-8')
+          print({key:value for key,value in metrics.items() if key!='article_body_words'})
           PY
       - name: Validate twenty guides metadata schemas safety depth and idempotence
         run: |
@@ -47,6 +48,16 @@ jobs:
           status=$?
           tail -n 100 /tmp/women-v244-tests.log | cut -c1-2400
           exit $status
+      - name: Upload exact women-sector diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: women-sector-v244-diagnostics
+          path: |
+            /tmp/women-v244-tests.log
+            /tmp/women-v244-metrics.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify permanent production integration
         run: |
           python - <<'PY'
