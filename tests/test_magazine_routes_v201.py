@@ -25,7 +25,10 @@ class MagazineRoutesV201Tests(unittest.TestCase):
 
     @staticmethod
     def article_files() -> list[Path]:
-        return sorted(path for path in SOURCE.glob("*-20*.html") if path.name != "index.html")
+        return sorted(
+            (path for path in SOURCE.glob("*-20*.html") if path.name != "index.html"),
+            key=lambda path: (-int(re.search(r"-(20\d{2})\.html$", path.name).group(1)), path.name),
+        )
 
     def test_magazine_archive_is_complete_honest_and_indexable(self):
         site = self.fixture()
