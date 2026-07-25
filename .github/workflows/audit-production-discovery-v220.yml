@@ -20,7 +20,7 @@ jobs:
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - name: Checkout the validated source commit
         uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run discovery content-depth and homepage-release unit contracts
+      - name: Run discovery content-depth provider-condition and homepage-release unit contracts
         run: |
           set -euxo pipefail
           python -m py_compile \
@@ -45,6 +45,12 @@ jobs:
             tests/test_content_depth_v222.py \
             scripts/enrich_term_pages_v224.py \
             tests/test_term_content_depth_v224.py \
+            scripts/enrich_provider_condition_pages_v231.py \
+            tests/test_provider_condition_content_v231.py \
+            scripts/enrich_residual_public_pages_v232.py \
+            tests/test_residual_public_content_v232.py \
+            scripts/deepen_assessment_cognitive_hubs_v233.py \
+            tests/test_advanced_content_depth_v233.py \
             scripts/audit_content_quality_v32.py \
             scripts/verify_homepage_release_contract_v230.py \
             tests/test_homepage_release_contract_v230.py
@@ -52,21 +58,31 @@ jobs:
             tests.test_orphan_page_audit_v197 \
             tests.test_content_depth_v222 \
             tests.test_term_content_depth_v224 \
+            tests.test_provider_condition_content_v231 \
+            tests.test_residual_public_content_v232 \
+            tests.test_advanced_content_depth_v233 \
             tests.test_homepage_release_contract_v230
 
-      - name: Expand short Arabic pages terms and re-audit content quality
+      - name: Expand short Arabic pages terms provider conditions and re-audit content quality
         run: |
           set -euxo pipefail
           python scripts/enrich_thin_content_v222.py validated-site
+          python scripts/deepen_assessment_cognitive_hubs_v233.py validated-site
           python scripts/enrich_term_pages_v224.py validated-site
+          python scripts/enrich_provider_condition_pages_v231.py validated-site
+          python scripts/enrich_residual_public_pages_v232.py validated-site
           python scripts/audit_content_quality_v32.py validated-site
           python - <<'PY'
           import json
+          import re
           from pathlib import Path
 
           root = Path('validated-site')
           depth = json.loads((root / 'api/content-depth-v222.json').read_text(encoding='utf-8'))
           terms = json.loads((root / 'api/term-content-depth-v224.json').read_text(encoding='utf-8'))
+          provider = json.loads((root / 'api/provider-condition-content-v231.json').read_text(encoding='utf-8'))
+          residual = json.loads((root / 'api/residual-public-content-v232.json').read_text(encoding='utf-8'))
+          advanced = json.loads((root / 'api/advanced-content-depth-v233.json').read_text(encoding='utf-8'))
           quality = json.loads((root / 'api/content-quality-v32.json').read_text(encoding='utf-8'))
 
           assert depth['version'] == 222, depth
@@ -84,9 +100,64 @@ jobs:
           assert terms['missing_or_failed'] == 0, terms
           assert terms['duplicate_generated_blocks'] == 0, terms
 
+          assert provider['version'] == 231, provider
+          assert provider['status'] == 'passed', provider
+          assert provider['conditions'] == 20, provider
+          assert provider['workflow_stages'] >= 7, provider
+          assert provider['minimum_words'] == 900, provider
+          assert provider['minimum_after_words'] >= 900, provider
+          assert provider['remaining_below_minimum'] == 0, provider
+          assert provider['missing_or_failed'] == 0, provider
+          assert provider['duplicate_generated_blocks'] == 0, provider
+
+          assert residual['version'] == 232, residual
+          assert residual['status'] == 'passed', residual
+          assert residual['target_pages'] >= 15, residual
+          assert residual['remaining_below_minimum'] == 0, residual
+          assert residual['missing_or_failed'] == 0, residual
+          assert residual['duplicate_generated_blocks'] == 0, residual
+
+          assert advanced['version'] == 233, advanced
+          assert advanced['status'] == 'passed', advanced
+          assert advanced['target_pages'] >= 160, advanced
+          assert advanced['minimums'] == {'assessment': 750, 'cognitive': 700, 'hub': 600, 'library': 750}, advanced
+          assert advanced['counts_by_kind']['assessment'] >= 40, advanced
+          assert advanced['counts_by_kind']['cognitive'] >= 49, advanced
+          assert advanced['counts_by_kind']['hub'] >= 80, advanced
+          assert advanced['counts_by_kind']['library'] == 2, advanced
+          assert advanced['remaining_below_minimum'] == 0, advanced
+          assert advanced['missing_or_failed'] == 0, advanced
+          assert advanced['duplicate_generated_blocks'] == 0, advanced
+
           assert quality['critical_error_count'] == 0, quality
+          assert quality['thin_page_candidates'] == 0, quality['warnings'][:50]
           for route in ('comparisons', 'library', 'encyclopedia', 'assessments', 'special-needs', 'care-guides'):
               assert route in depth['policies'], route
+
+          remaining_provider_thin = []
+          remaining_residual_thin = []
+          pattern = re.compile(r'^Thin page candidate (.*): (\d+) visible words$')
+          residual_prefixes = ('about/', 'methodology/', 'privacy/', 'downloads/', 'tools/', 'letters/', 'english-index/')
+          for warning in quality['warnings']:
+              match = pattern.match(warning)
+              if not match:
+                  continue
+              path, words = match.group(1), int(match.group(2))
+              if path.startswith('provider-assessment-demo/conditions/'):
+                  remaining_provider_thin.append({'path': path, 'words': words})
+              if path.startswith(residual_prefixes):
+                  remaining_residual_thin.append({'path': path, 'words': words})
+          assert remaining_provider_thin == [], remaining_provider_thin
+          assert remaining_residual_thin == [], remaining_residual_thin
+
+          for page in provider['pages']:
+              target = root / page['path']
+              source = target.read_text(encoding='utf-8')
+              assert source.count('provider-condition-depth-v231:start') == 1, page['path']
+              assert source.count('data-provider-condition-depth-v231-style') == 1, page['path']
+              assert 'id="condition-root"' in source, page['path']
+              assert 'conditions-ui-v1.js' in source, page['path']
+
           print({
               'status': depth['status'],
               'pages_scanned': depth['pages_scanned'],
@@ -95,9 +166,19 @@ jobs:
               'term_pages': terms['terms'],
               'term_categories': terms['categories'],
               'term_enriched_pages': terms['enriched_pages'],
-              'term_sufficient_pages': terms['sufficient_pages'],
-              'term_remaining_below_minimum': terms['remaining_below_minimum'],
+              'provider_conditions': provider['conditions'],
+              'provider_enriched_pages': provider['enriched_pages'],
+              'provider_minimum_after_words': provider['minimum_after_words'],
+              'residual_target_pages': residual['target_pages'],
+              'residual_enriched_pages': residual['enriched_pages'],
+              'residual_minimum_after_words': residual['minimum_after_words'],
+              'advanced_target_pages': advanced['target_pages'],
+              'advanced_counts_by_kind': advanced['counts_by_kind'],
+              'advanced_minimum_after_words': advanced['minimum_after_words'],
+              'remaining_provider_thin_pages': len(remaining_provider_thin),
+              'remaining_residual_thin_pages': len(remaining_residual_thin),
               'quality_critical_errors': quality['critical_error_count'],
+              'remaining_global_thin_pages': quality['thin_page_candidates'],
           })
           PY
           test -f validated-site/assets/css/content-depth-v222.css
@@ -108,7 +189,8 @@ jobs:
             validated-site/encyclopedia \
             validated-site/assessments \
             validated-site/special-needs \
-            validated-site/care-guides
+            validated-site/care-guides \
+            validated-site/provider-assessment-demo/conditions
 
       - name: Enforce institutional gateway inbound-link and sitemap coverage
         run: |
@@ -156,7 +238,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload discovery content and homepage evidence
+      - name: Upload discovery content provider-condition and homepage evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -165,6 +247,9 @@ jobs:
             validated-site/api/orphan-page-audit-v197.json
             validated-site/api/content-depth-v222.json
             validated-site/api/term-content-depth-v224.json
+            validated-site/api/provider-condition-content-v231.json
+            validated-site/api/residual-public-content-v232.json
+            validated-site/api/advanced-content-depth-v233.json
             validated-site/api/content-quality-v32.json
             validated-site/api/homepage-release-v230.json
           if-no-files-found: warn
