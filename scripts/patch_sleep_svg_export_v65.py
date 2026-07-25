@@ -14,7 +14,12 @@ EMPTY_CHART_ACCESSIBLE = (
     "لا توجد بيانات كافية لعرض مخطط الاتجاهات."
 )
 STATIC_ARIA_ASSIGNMENT = "chart.setAttribute('aria-label', CHART_ACCESSIBLE_NAME);"
-DYNAMIC_ARIA_ASSIGNMENT = "chart.setAttribute('aria-label', description);"
+SUMMARY_IDENTITY = "const summaryNode = document.querySelector('[data-sleep-summary]');"
+SUMMARY_INSERTION_MARKER = "const current = readRecords();"
+SUMMARY_INSERTION = """const summary = summarize(record);
+    const summaryNode = document.querySelector('[data-sleep-summary]');
+    if (summaryNode) summaryNode.textContent = `${summary.hours} ساعة. ${summary.message} ${summary.flags.join(' ')}`;
+    const current = readRecords();"""
 
 
 def patch_chart_accessibility(text: str) -> tuple[str, bool]:
@@ -54,13 +59,14 @@ def patch_runtime_accessibility() -> bool:
         source = source.replace(target, replacement, 1)
         changed = True
 
-    if STATIC_ARIA_ASSIGNMENT in source:
-        if source.count(STATIC_ARIA_ASSIGNMENT) != 1:
-            raise SystemExit("Sleep runtime static chart label is duplicated")
-        source = source.replace(STATIC_ARIA_ASSIGNMENT, DYNAMIC_ARIA_ASSIGNMENT, 1)
+    if source.count(STATIC_ARIA_ASSIGNMENT) != 1:
+        raise SystemExit("Sleep runtime stable chart label is missing or duplicated")
+
+    if SUMMARY_IDENTITY not in source:
+        if source.count(SUMMARY_INSERTION_MARKER) != 1:
+            raise SystemExit("Sleep runtime summary insertion point is missing or ambiguous")
+        source = source.replace(SUMMARY_INSERTION_MARKER, SUMMARY_INSERTION, 1)
         changed = True
-    elif DYNAMIC_ARIA_ASSIGNMENT not in source:
-        raise SystemExit("Sleep runtime dynamic chart description binding is missing")
 
     if changed:
         RUNTIME.write_text(source, encoding="utf-8")
@@ -96,8 +102,9 @@ def patch() -> None:
             "chart_accessibility_normalized": True,
             "page_changed": page_changed,
             "runtime_changed": runtime_changed,
-            "empty_chart_keeps_accessible_name": True,
-            "chart_name_tracks_visible_description": True,
+            "stable_chart_accessible_name": True,
+            "visible_chart_description_updates": True,
+            "sleep_summary_restored": True,
         }
     )
 
