@@ -39,10 +39,82 @@
 <style>
 :root{--ink:#103e43;--muted:#526f73;--brand:#075f5b;--accent:#8b315c;--mist:#effaf8;--lilac:#f3f0ff;--peach:#fff4ed;--line:#c6e3df;--shadow:0 16px 42px rgba(16,76,76,.11)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Tahoma,Arial,sans-serif;line-height:1.8;background:linear-gradient(145deg,#fff,var(--mist) 52%,var(--lilac));}a{color:#066b65}a:focus-visible{outline:3px solid #0a8b82;outline-offset:4px}.wrap{width:min(1220px,92%);margin:auto}.skip{position:absolute;right:-9999px;top:8px;background:#fff;padding:10px 14px;border:2px solid var(--brand);border-radius:12px;z-index:99}.skip:focus{right:8px}header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}.header-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-weight:900}.brand img{width:54px;height:54px}.brand span{display:grid;line-height:1.35}.brand small{color:var(--muted)}.nav{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}.nav a{font-weight:800;text-decoration:none;padding:7px 9px;border-radius:9px}.nav a:hover{background:var(--mist)}.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:center;padding:62px 0 34px}.eyebrow{color:var(--accent);font-weight:900;margin:0}.hero h1{font-size:clamp(2.35rem,6vw,4.9rem);line-height:1.12;margin:.1em 0}.slogan{font-size:clamp(1.15rem,2.6vw,1.55rem);font-weight:900;color:var(--brand)}.lead,.section-intro,.card p,.panel li{color:var(--muted)}.actions,.footer-links{display:flex;gap:9px;flex-wrap:wrap}.button,.btn{display:inline-block;text-decoration:none;font-weight:900;padding:11px 15px;border-radius:13px;background:linear-gradient(135deg,#67d6cc,#a9ebdf);color:#103f42;border:1px solid #55bfb7}.button.secondary,.btn.secondary{background:#fff;border-color:var(--line)}.panel,.card,.stat{background:rgba(255,255,255,.97);border:1px solid var(--line);border-radius:21px;padding:20px;box-shadow:var(--shadow)}.notice{border-right:5px solid var(--accent);background:#fff0f6;padding:15px 18px;border-radius:14px;margin:20px 0}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat strong{display:block;font-size:1.8rem;color:var(--accent)}.section{padding:38px 0}.section h2{font-size:clamp(1.7rem,4vw,2.7rem);margin:.15em 0}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{display:flex;flex-direction:column}.card:nth-child(4n+1){background:linear-gradient(145deg,#fff,#fff0f6)}.card:nth-child(4n+2){background:linear-gradient(145deg,#fff,var(--mist))}.card:nth-child(4n+3){background:linear-gradient(145deg,#fff,var(--lilac))}.card:nth-child(4n){background:linear-gradient(145deg,#fff,var(--peach))}.card h3{margin-top:0;color:#783252}.card p{flex:1}.card a{font-weight:900}.principles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}footer{border-top:1px solid var(--line);background:rgba(255,255,255,.62);padding:32px 0 48px}.footer-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px}.footer-brand{display:flex;gap:10px;align-items:center}.footer-brand img{width:50px;height:50px}@media(max-width:920px){.hero,.footer-grid{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:680px){.header-inner{align-items:flex-start;flex-direction:column}.nav{overflow-x:auto;flex-wrap:nowrap;max-width:100%}.nav a{white-space:nowrap}.cards,.stats,.principles{grid-template-columns:1fr}.hero{padding-top:42px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
+<style id="institutional-header-v226-styles">
+header.institutional-header{position:sticky;inset-block-start:0;z-index:80;border-block-end:1px solid #bfded9;background:rgba(255,255,255,.97);box-shadow:0 8px 28px rgba(16,76,76,.08);backdrop-filter:blur(16px)}
+.institutional-header .header-shell{display:flex;align-items:center;justify-content:space-between;gap:22px;min-height:78px;padding-block:10px}
+.institutional-header .institutional-brand{display:flex;align-items:center;gap:12px;min-width:0;color:var(--ink,#103e43);text-decoration:none}
+.institutional-header .institutional-brand img{flex:0 0 auto;width:52px;height:52px}
+.institutional-header .brand-copy{display:grid;min-width:0;line-height:1.35}
+.institutional-header .brand-copy strong{font-size:clamp(.96rem,1.5vw,1.12rem);font-weight:900}
+.institutional-header .brand-copy small{color:var(--muted,#526f73);font-size:.78rem;font-weight:700}
+.institutional-nav{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:0 0 auto}
+.header-menu{position:relative}
+.header-menu>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:46px;padding:9px 15px;border:1px solid #b7d9d4;border-radius:13px;background:#fff;color:var(--ink,#103e43);font-weight:900;cursor:pointer;list-style:none;user-select:none;transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}
+.header-menu>summary::-webkit-details-marker{display:none}
+.header-menu>summary:hover,.header-menu[open]>summary{border-color:#55bfb7;background:#effaf8;box-shadow:0 8px 22px rgba(16,76,76,.09)}
+.header-menu>summary:focus-visible{outline:3px solid #0a8b82;outline-offset:3px}
+.menu-caret{font-size:1.08rem;line-height:1;transition:transform .18s ease}
+.header-menu[open] .menu-caret{transform:rotate(180deg)}
+.language-summary{display:grid;text-align:start;line-height:1.15}
+.language-summary small{color:var(--muted,#526f73);font-size:.7rem;font-weight:700}
+.language-summary strong{font-size:.9rem}
+.header-menu-panel{position:absolute;inset-block-start:calc(100% + 11px);inset-inline-end:0;z-index:95;padding:18px;border:1px solid #b9ddd8;border-radius:18px;background:#fff;box-shadow:0 24px 60px rgba(14,63,67,.18)}
+.sections-panel{width:min(760px,calc(100vw - 36px))}
+.language-panel{width:230px}
+.menu-heading{margin:0 0 12px;color:var(--muted,#526f73);font-size:.86rem;font-weight:800}
+.sections-list,.language-list{margin:0;padding:0;list-style:none}
+.sections-list{display:grid;grid-template-columns:repeat(2,minmax(230px,1fr));gap:7px}
+.sections-list a,.language-list a{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;padding:10px 12px;border-radius:11px;color:var(--ink,#103e43);font-weight:850;text-decoration:none}
+.sections-list a::after{content:"←";color:#168f88;font-weight:900}
+.sections-list a:hover,.language-list a:hover,.sections-list a:focus-visible,.language-list a:focus-visible{background:#effaf8;color:#075f5b;outline:none}
+.language-list{display:grid;gap:5px}
+.language-list a[aria-current="page"]{background:#effaf8;color:#075f5b}
+.language-list a[aria-current="page"]::after{content:"✓";font-weight:900}
+@media(max-width:900px){
+  .institutional-header .header-shell{display:grid;grid-template-columns:1fr;gap:9px;padding-block:9px 12px}
+  .institutional-header .institutional-brand{justify-content:center;text-align:center}
+  .institutional-nav{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,.56fr);width:100%;gap:8px}
+  .header-menu>summary{width:100%}
+  .header-menu-panel{inset-inline:0;width:100%;max-height:min(66vh,540px);overflow:auto}
+  .sections-list{grid-template-columns:1fr}
+  .language-panel{width:100%}
+}
+@media(max-width:520px){
+  .institutional-header .institutional-brand img{width:46px;height:46px}
+  .institutional-header .brand-copy strong{font-size:.9rem}
+  .institutional-header .brand-copy small{font-size:.7rem}
+  .institutional-nav{grid-template-columns:1fr}
+  .header-menu-panel{position:relative;inset:auto;margin-block-start:8px;box-shadow:0 12px 32px rgba(14,63,67,.14)}
+}
+@media(prefers-reduced-motion:reduce){.header-menu>summary,.menu-caret{transition:none}}
+</style>
 </head>
 <body>
 <a class="skip" href="#main">تجاوز إلى المحتوى</a>
-<header aria-label="الترويسة الرئيسية"><div class="wrap header-inner"><a class="brand" href="./"><img src="/pterminology-site/assets/brand/logo-mark.svg" alt=""><span>منصة الصحة النفسية وذوي الاحتياجات الخاصة<small>مصطلحات علم النفس — موسوعة عربية مؤسسية</small></span></a><nav class="nav" aria-label="التنقل الرئيسي"><a href="start-here/">ابدأ من هنا</a><a href="encyclopedia/">الموسوعة</a><a href="comparisons/">المقارنات</a><a href="library/">المكتبة</a><a href="care-guides/">أدلة التعامل</a><a href="special-needs/">ذوو الاحتياجات الخاصة</a><a href="sectors/child/">الطفل</a><a href="sectors/family/">الأسرة</a><a href="sectors/home/">العائلة</a><a href="daily-tools/">أدوات تفاعلية</a><a href="learning-paths/">مسارات التعلم</a><a href="provider-assessment-demo/">منصة التقييم</a><a href="api/">API</a></nav></div></header>
+<header class="institutional-header" aria-label="الترويسة الرئيسية" data-institutional-header-v226>
+  <div class="wrap header-shell">
+    <a class="institutional-brand" href="/pterminology-site/" aria-label="العودة إلى الصفحة الرئيسية لمنصة الصحة النفسية وذوي الاحتياجات الخاصة">
+      <img src="/pterminology-site/assets/brand/logo-mark.svg" width="52" height="52" alt="">
+      <span class="brand-copy"><strong>منصة الصحة النفسية وذوي الاحتياجات الخاصة</strong><small>مصطلحات علم النفس — معرفة تحترم الإنسان</small></span>
+    </a>
+    <nav class="institutional-nav" aria-label="التنقل الرئيسي">
+      <details class="header-menu sections-menu">
+        <summary><span>أقسام المنصة</span><span class="menu-caret" aria-hidden="true">⌄</span></summary>
+        <div class="header-menu-panel sections-panel">
+          <p class="menu-heading">انتقل مباشرة إلى القسم الذي تحتاجه</p>
+          <ul class="sections-list"><li><a href="/pterminology-site/start-here/">ابدأ من هنا</a></li><li><a href="/pterminology-site/encyclopedia/">الموسوعة</a></li><li><a href="/pterminology-site/comparisons/">المقارنات</a></li><li><a href="/pterminology-site/library/">المكتبة</a></li><li><a href="/pterminology-site/care-guides/">أدلة التعامل</a></li><li><a href="/pterminology-site/special-needs/">ذوو الاحتياجات الخاصة</a></li><li><a href="/pterminology-site/sectors/child/">الطفل</a></li><li><a href="/pterminology-site/sectors/family/">الأسرة</a></li><li><a href="/pterminology-site/sectors/home/">العائلة</a></li><li><a href="/pterminology-site/provider-assessment-demo/">منصة التقييم</a></li><li><a href="/pterminology-site/api/">API</a></li><li><a href="/pterminology-site/trust/">الثقة والمنهجية</a></li></ul>
+        </div>
+      </details>
+      <details class="header-menu language-menu" data-i18n-switcher-v72>
+        <summary><span class="language-summary"><small>اللغة</small><strong>العربية</strong></span><span class="menu-caret" aria-hidden="true">⌄</span></summary>
+        <div class="header-menu-panel language-panel">
+          <p class="menu-heading">اختر لغة الواجهة</p>
+          <ul class="language-list"><li><a lang="ar" dir="rtl" href="/pterminology-site/" aria-current="page">العربية</a></li><li><a lang="en" dir="ltr" href="/pterminology-site/en/">English</a></li><li><a lang="es" dir="ltr" href="/pterminology-site/es/">Español</a></li></ul>
+        </div>
+      </details>
+    </nav>
+  </div>
+</header>
 <main id="main"><div class="wrap">
 <section class="hero"><div><p class="eyebrow">مرجع عربي للصحة النفسية والتربية الدامجة</p><h1>افهم الحالة.<br>اختر الخطوة الأنسب.</h1><p class="slogan">معرفة تحترم الإنسان. دعم يوسّع الإمكانات.</p><p class="lead">تجمع المنصة موسوعة علم النفس والصحة النفسية، ومكتبة أكاديمية، ومقارنات تشرح الفروق بين الحالات، وأدلة التعامل، ودعم الأسرة والطفل، ومسارات الأشخاص ذوي الاحتياجات الخاصة والتربية الدامجة، وأدوات الاستكشاف والتقييم ضمن بنية تربط التعريف بالممارسة والمصادر.</p><div class="actions"><a class="button" href="start-here/">اختر مسارك</a><a class="button secondary" href="encyclopedia/">ابحث في الموسوعة</a><a class="button secondary" href="comparisons/">استكشف المقارنات</a><a class="button secondary" href="library/">افتح المكتبة</a><a class="button secondary" href="special-needs/">مركز ذوي الاحتياجات الخاصة</a><a class="btn secondary" href="care-guides/">أدلة التعامل مع الحالات</a></div><div class="notice">المحتوى للتثقيف والدعم العام، ولا يثبت تشخيصًا ولا يستبدل التقييم الفردي أو العلاج أو القرار التعليمي والقانوني المحلي. عند وجود خطر مباشر أو وشيك، استخدم خدمات الطوارئ المحلية أو جهة صحية عاجلة.</div></div><aside class="panel"><p class="eyebrow">مسار استخدام واضح</p><h2>ابدأ بما تحتاجه اليوم</h2><ul><li><strong>لفهم مصطلح:</strong> استخدم الموسوعة والمراكز الموضوعية.</li><li><strong>لمعرفة الفرق:</strong> افتح مكتبة المقارنات المنظمة.</li><li><strong>للقراءة المتعمقة:</strong> انتقل إلى المكتبة الأكاديمية.</li><li><strong>لخطوات يومية:</strong> استخدم النصائح وأدلة التعامل.</li><li data-daily-tools-journey-v219><strong>لأداة تفاعلية محلية:</strong> استخدم الأدوات اليومية أو مسار التعلم المناسب.</li><li><strong>لدعم طفل أو أسرة:</strong> اختر القسم المناسب.</li><li><strong>للتقييم:</strong> راجع الحدود المهنية وحقوق الأدوات.</li></ul><a class="button secondary" href="trust/">منهج المصادر والمراجعة</a></aside></section>
 <section class="stats" aria-label="حجم المنصة"><article class="stat"><strong>2,000+</strong><span>صفحة موسوعية ومركز معرفي في حزمة الإنتاج</span></article><article class="stat"><strong>200</strong><span>مركز موضوعي يربط المعرفة بالأدلة</span></article><article class="stat"><strong>16</strong><span>مسارًا رئيسيًا للأسرة والطفل والمختص</span></article><article class="stat"><strong>93</strong><span>مقياسًا وأداة وقدرة معرفية ضمن المختبرات</span></article></section>
