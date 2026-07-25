@@ -1,0 +1,43 @@
+name: Validate care guides expansion v239
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/v18/care-guides-*.json"
+      - "scripts/publish_care_guides_v21.py"
+      - "tests/test_care_guides_expansion_v239.py"
+      - ".github/workflows/validate-care-guides-expansion-v239.yml"
+  push:
+    branches: [main]
+    paths:
+      - "content/v18/care-guides-*.json"
+      - "scripts/publish_care_guides_v21.py"
+      - "tests/test_care_guides_expansion_v239.py"
+      - ".github/workflows/validate-care-guides-expansion-v239.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: care-guides-expansion-v239-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publisher and expansion contract
+        run: |
+          set -euxo pipefail
+          python -Werror -m py_compile \
+            scripts/publish_care_guides_v21.py \
+            tests/test_care_guides_expansion_v239.py
+      - name: Validate depth sources safety and complete inventory
+        run: python -m unittest -v tests.test_care_guides_expansion_v239
