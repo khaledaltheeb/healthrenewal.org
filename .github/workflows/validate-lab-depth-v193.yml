@@ -5,15 +5,29 @@ on:
     branches: [main]
     paths:
       - 'content/v193/lab-depth-contract-ar.json'
+      - 'scripts/expand_v12_direct.py'
+      - 'scripts/expand_v12_direct_core_v235.py'
+      - 'scripts/lab_source_content_v235.py'
       - 'scripts/enrich_lab_content_v193.py'
+      - 'scripts/enrich_lab_content_v193_core_v235.py'
+      - 'scripts/deepen_assessment_cognitive_hubs_v233.py'
+      - 'scripts/audit_source_origin_depth_v234.py'
       - 'tests/test_lab_depth_v193.py'
+      - 'tests/test_lab_source_content_v235.py'
       - '.github/workflows/validate-lab-depth-v193.yml'
   push:
     branches: [main]
     paths:
       - 'content/v193/lab-depth-contract-ar.json'
+      - 'scripts/expand_v12_direct.py'
+      - 'scripts/expand_v12_direct_core_v235.py'
+      - 'scripts/lab_source_content_v235.py'
       - 'scripts/enrich_lab_content_v193.py'
+      - 'scripts/enrich_lab_content_v193_core_v235.py'
+      - 'scripts/deepen_assessment_cognitive_hubs_v233.py'
+      - 'scripts/audit_source_origin_depth_v234.py'
       - 'tests/test_lab_depth_v193.py'
+      - 'tests/test_lab_source_content_v235.py'
       - '.github/workflows/validate-lab-depth-v193.yml'
   workflow_dispatch:
 
@@ -23,7 +37,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
     steps:
@@ -31,17 +45,34 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Compile publisher and tests
-        run: python -m py_compile scripts/enrich_lab_content_v193.py tests/test_lab_depth_v193.py
-      - name: Run safety depth SEO and idempotence tests
-        run: python -m unittest tests/test_lab_depth_v193.py
-      - name: Build all 88 laboratory pages in isolation
+      - name: Compile source generator compatibility layer and tests
         run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/expand_v12_direct.py \
+            scripts/expand_v12_direct_core_v235.py \
+            scripts/lab_source_content_v235.py \
+            scripts/enrich_lab_content_v193.py \
+            scripts/enrich_lab_content_v193_core_v235.py \
+            scripts/deepen_assessment_cognitive_hubs_v233.py \
+            scripts/audit_source_origin_depth_v234.py \
+            tests/test_lab_depth_v193.py \
+            tests/test_lab_source_content_v235.py
+      - name: Run legacy fallback and source integration tests
+        run: |
+          set -euxo pipefail
+          python -m unittest -v tests.test_lab_depth_v193
+          python -m unittest -v tests.test_lab_source_content_v235
+      - name: Build all 88 laboratory pages from the source generator
+        run: |
+          set -euxo pipefail
           rm -rf review-site
           mkdir -p review-site
           python scripts/expand_v12_direct.py review-site
           python scripts/enrich_lab_content_v193.py review-site
-      - name: Audit every generated page
+          python scripts/deepen_assessment_cognitive_hubs_v233.py review-site
+          python scripts/audit_source_origin_depth_v234.py review-site --repository . --fail-on-malformed
+      - name: Audit source depth compatibility and safety
         run: |
           python - <<'PY'
           import json
@@ -51,52 +82,99 @@ jobs:
 
           class Visible(HTMLParser):
               def __init__(self):
-                  super().__init__(); self.parts=[]; self.hidden=0
-              def handle_starttag(self, tag, attrs):
-                  if tag in {'script','style'}: self.hidden += 1
+                  super().__init__(convert_charrefs=True); self.stack=[]; self.parts=[]
+              def handle_starttag(self, tag, attrs): self.stack.append(tag.lower())
               def handle_endtag(self, tag):
-                  if tag in {'script','style'} and self.hidden: self.hidden -= 1
+                  tag=tag.lower()
+                  for index in range(len(self.stack)-1,-1,-1):
+                      if self.stack[index]==tag:
+                          del self.stack[index:]; return
               def handle_data(self, data):
-                  if not self.hidden: self.parts.append(data)
+                  if not any(tag in self.stack for tag in ('script','style','svg','template','noscript')):
+                      self.parts.append(data)
               def words(self):
-                  return len(re.findall(r'[\w\u0600-\u06ff]+', ' '.join(self.parts)))
+                  return len(re.findall(r'[\w\u0600-\u06ff]+',' '.join(self.parts)))
 
           root=Path('review-site')
-          pages=sorted((root/'assessment-lab').glob('*/index.html'))+sorted((root/'cognitive-lab').glob('*/index.html'))
-          assert len(pages)==88, len(pages)
+          assessment=sorted((root/'assessment-lab').glob('*/index.html'))
+          cognitive=sorted((root/'cognitive-lab').glob('*/index.html'))
+          assert len(assessment)==40,len(assessment)
+          assert len(cognitive)==48,len(cognitive)
           failures=[]
-          for page in pages:
-              text=page.read_text(encoding='utf-8')
-              parser=Visible(); parser.feed(text)
-              checks={
-                  'words': parser.words() >= 320,
-                  'one_h1': text.count('<h1>') == 1,
-                  'body_marker': text.count('lab-depth-v193:body:start') == 1,
-                  'head_marker': text.count('lab-depth-v193:head:start') == 1,
-                  'faq_schema': '"@type": "FAQPage"' in text,
-                  'twitter_title': 'name="twitter:title"' in text,
-                  'twitter_description': 'name="twitter:description"' in text,
-                  'privacy_link': '/pterminology-site/privacy/' in text,
-                  'not_published_claim': 'status: published' not in text.lower(),
-              }
-              bad=[key for key,value in checks.items() if not value]
-              if bad: failures.append({'page':page.relative_to(root).as_posix(),'words':parser.words(),'failed':bad})
-          assert not failures, failures[:10]
-          report=json.loads((root/'api/lab-depth-v193.json').read_text(encoding='utf-8'))
-          assert report['assessment_pages_enriched']==40, report
-          assert report['cognitive_pages_enriched']==48, report
-          assert report['total_pages_enriched']==88, report
-          assert report['status']=='built-not-published', report
-          print(json.dumps({'pages':len(pages),'minimum_words':min((lambda p: (lambda v: (v.feed(p.read_text(encoding="utf-8")),v.words())[1])(Visible()))(p) for p in pages),'report':report},ensure_ascii=False,indent=2))
+          for kind,minimum,pages in (
+              ('assessment',750,assessment),
+              ('cognitive',700,cognitive),
+          ):
+              for page in pages:
+                  text=page.read_text(encoding='utf-8')
+                  parser=Visible();parser.feed(text)
+                  checks={
+                      'minimum_words':parser.words()>=minimum,
+                      'one_h1':text.count('<h1>')==1,
+                      'source_marker':text.count(f'data-lab-source-v235="{kind}"')==1,
+                      'no_legacy_body_marker':'lab-depth-v193:body:start' not in text,
+                      'no_legacy_head_marker':'lab-depth-v193:head:start' not in text,
+                      'no_advanced_marker':'advanced-content-depth-v233:start' not in text,
+                      'faq_schema':'"@type": "FAQPage"' in text,
+                      'twitter_title':'name="twitter:title"' in text,
+                      'twitter_description':'name="twitter:description"' in text,
+                      'privacy_link':'/pterminology-site/privacy/' in text,
+                      'not_published_claim':'status: published' not in text.lower(),
+                  }
+                  bad=[key for key,value in checks.items() if not value]
+                  if bad: failures.append({'page':page.relative_to(root).as_posix(),'words':parser.words(),'failed':bad})
+          assert not failures,failures[:10]
+
+          build=json.loads((root/'api/build-report-v12.json').read_text(encoding='utf-8'))
+          legacy=json.loads((root/'api/lab-depth-v193.json').read_text(encoding='utf-8'))
+          advanced=json.loads((root/'api/advanced-content-depth-v233.json').read_text(encoding='utf-8'))
+          origin=json.loads((root/'api/source-origin-depth-v234.json').read_text(encoding='utf-8'))
+
+          assert build['lab_source_content_version']==235,build
+          assert build['source_integrated_assessment_pages']==40,build
+          assert build['source_integrated_cognitive_pages']==48,build
+          assert legacy['assessment_pages_enriched']==40,legacy
+          assert legacy['cognitive_pages_enriched']==48,legacy
+          assert legacy['source_integrated_pages']==88,legacy
+          assert legacy['fallback_pages_enriched']==0,legacy
+
+          child_rows=[
+              row for row in advanced['pages']
+              if (row['path'].startswith('assessment-lab/') or row['path'].startswith('cognitive-lab/'))
+              and row['path'].count('/')==2
+          ]
+          assert len(child_rows)==88,len(child_rows)
+          assert all(row['status']=='sufficient' for row in child_rows),child_rows[:10]
+
+          child_routes={
+              '/'+page.relative_to(root).parent.as_posix()+'/'
+              for page in assessment+cognitive
+          }
+          dependency_routes={row['route'] for row in origin['dependencies']}
+          assert child_routes.isdisjoint(dependency_routes),sorted(child_routes & dependency_routes)[:10]
+          assert origin['malformed_marker_count']==0,origin
+          def words(path):
+              parser=Visible();parser.feed(path.read_text(encoding='utf-8'));return parser.words()
+          print(json.dumps({
+              'assessment_pages':len(assessment),
+              'cognitive_pages':len(cognitive),
+              'minimum_assessment_words':min(words(page) for page in assessment),
+              'minimum_cognitive_words':min(words(page) for page in cognitive),
+              'source_integrated_pages':legacy['source_integrated_pages'],
+              'advanced_lab_pages_sufficient':len(child_rows),
+          },ensure_ascii=False))
           PY
-          ! grep -R -Eqi 'يشخص.*نهائي|يرفع الذكاء|يمنع الخرف|معتمد سريريًا لكل الفئات|راجعها طبيب' review-site/assessment-lab review-site/cognitive-lab
-      - name: Upload complete review artifact
+          ! grep -R -Eqi 'يشخص.*نهائي|يرفع الذكاء|يمنع الخرف|معتمد سريريًا لكل الفئات|راجعها طبيب|معاقين' review-site/assessment-lab review-site/cognitive-lab
+      - name: Upload complete source-depth review artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lab-depth-v193-review
+          name: lab-source-depth-v235-review
           path: |
             review-site/assessment-lab
             review-site/cognitive-lab
+            review-site/api/build-report-v12.json
             review-site/api/lab-depth-v193.json
+            review-site/api/advanced-content-depth-v233.json
+            review-site/api/source-origin-depth-v234.json
           if-no-files-found: error
           retention-days: 14
