@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLISHER = ROOT / "scripts" / "publish_magazine_v201.py"
+SOURCE = ROOT / "magazine"
 SOURCE_SITEMAP = ROOT / "sitemap.xml"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 URL = BASE + "/magazine/"
@@ -20,36 +21,47 @@ class MagazineRoutesV201Tests(unittest.TestCase):
         self.addCleanup(shutil.rmtree, site, True)
         return site
 
-    def test_magazine_methodology_is_complete_and_honest(self):
+    @staticmethod
+    def article_files() -> list[Path]:
+        return sorted(path for path in SOURCE.glob("*-20*.html") if path.name != "index.html")
+
+    def test_magazine_archive_is_complete_and_honest(self):
         site = self.fixture()
         subprocess.run(["python3", str(PUBLISHER), str(site)], cwd=ROOT, check=True, capture_output=True, text=True)
+        articles = self.article_files()
+        self.assertGreaterEqual(len(articles), 21)
         page = site / "magazine" / "index.html"
         self.assertTrue(page.is_file())
         text = page.read_text(encoding="utf-8")
         self.assertIn('<html lang="ar" dir="rtl">', text)
         self.assertEqual(text.count("<h1>"), 1)
         self.assertIn(f'<link rel="canonical" href="{URL}">', text)
-        self.assertIn("هذه الصفحة تنشر المنهج والعقد التحريري فقط", text)
-        self.assertIn("لا يتضمن هذا الإصدار ملخصات دراسات منفردة", text)
+        self.assertEqual(text.count('class="card"'), len(articles))
+        self.assertNotIn("لا يتضمن هذا الإصدار ملخصات دراسات منفردة", text)
         self.assertNotIn("مراجعة اختصاصية مكتملة", text)
         report = json.loads((site / "api" / "magazine-v201.json").read_text(encoding="utf-8"))
         self.assertTrue(report["methodology_published"])
-        self.assertEqual(report["research_summaries_published"], 0)
+        self.assertEqual(report["research_summaries_published"], len(articles))
+        self.assertEqual(report["articles"], [path.name for path in articles])
         self.assertEqual(report["review_status"], "internally-reviewed")
         self.assertEqual(report["risk_level"], "low")
+        self.assertEqual(report["unwired_research_pages"], 0)
 
     def test_magazine_sitemap_is_idempotent(self):
         site = self.fixture()
         for _ in range(2):
             subprocess.run(["python3", str(PUBLISHER), str(site)], cwd=ROOT, check=True, capture_output=True, text=True)
+        expected = [URL, *(URL + path.name for path in self.article_files())]
         child = ET.parse(site / "sitemap-magazine.xml").getroot()
         urls = [(node.text or "").strip() for node in child.findall("{*}url/{*}loc")]
-        self.assertEqual(urls, [URL])
+        self.assertEqual(urls, expected)
+        self.assertEqual(len(urls), len(set(urls)))
         main = ET.parse(site / "sitemap.xml").getroot()
         kind = main.tag.rsplit("}", 1)[-1]
         if kind == "urlset":
             values = [(node.text or "").strip() for node in main.findall("{*}url/{*}loc")]
-            self.assertEqual(values.count(URL), 1)
+            for expected_url in expected:
+                self.assertEqual(values.count(expected_url), 1)
         else:
             values = [(node.text or "").strip() for node in main.findall("{*}sitemap/{*}loc")]
             self.assertEqual(values.count(BASE + "/sitemap-magazine.xml"), 1)

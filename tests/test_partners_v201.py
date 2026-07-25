@@ -11,12 +11,19 @@ PUBLISHER = ROOT / "scripts" / "publish_partners_v201.py"
 SOURCE_SITEMAP = ROOT / "sitemap.xml"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 URL = BASE + "/partners/"
+PARTNERS_LINK = '<a href="partners/">الشركاء والشفافية</a>'
 
 
 class PartnersV201Tests(unittest.TestCase):
     def build_fixture(self) -> Path:
         site = Path(tempfile.mkdtemp(prefix="partners-v201-"))
         shutil.copy2(SOURCE_SITEMAP, site / "sitemap.xml")
+        (site / "index.html").write_text(
+            '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>الرئيسية</title></head>'
+            '<body><main><h1>الرئيسية</h1></main><footer><div class="footer-links">'
+            '<a href="/pterminology-site/">الرئيسية</a></div></footer></body></html>',
+            encoding="utf-8",
+        )
         self.addCleanup(shutil.rmtree, site, True)
         return site
 
@@ -45,6 +52,10 @@ class PartnersV201Tests(unittest.TestCase):
         report = json.loads((site / "api" / "partners-v201.json").read_text(encoding="utf-8"))
         self.assertEqual(report["public_registry_entries"], 0)
         self.assertFalse(report["unverified_partners_claimed"])
+        self.assertTrue(report["homepage_link_verified"])
+        homepage = (site / "index.html").read_text(encoding="utf-8")
+        self.assertIn(PARTNERS_LINK, homepage)
+        self.assertEqual(homepage.count(PARTNERS_LINK), 1)
 
     def test_sitemap_is_idempotent(self):
         site = self.build_fixture()
@@ -61,6 +72,8 @@ class PartnersV201Tests(unittest.TestCase):
         else:
             urls = [(node.text or "").strip() for node in root.findall("{*}sitemap/{*}loc")]
             self.assertEqual(urls.count(BASE + "/sitemap-partners.xml"), 1)
+        homepage = (site / "index.html").read_text(encoding="utf-8")
+        self.assertEqual(homepage.count(PARTNERS_LINK), 1)
 
     def test_pipeline_invokes_publisher_before_identity_gate(self):
         pipeline = (ROOT / "scripts" / "apply_homepage_v20.py").read_text(encoding="utf-8")
