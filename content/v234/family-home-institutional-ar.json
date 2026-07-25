@@ -1,0 +1,74 @@
+{
+  "version": 234,
+  "status": "internally-reviewed",
+  "external_review": "recommended-not-completed",
+  "risk_level": "educational-low-with-crisis-routing",
+  "title": "مركز الصحة النفسية للأسرة والمنزل",
+  "description": "مركز عربي مؤسسي يساعد الأسر على بناء بيئة منزلية آمنة نفسيًا، وتحسين التواصل والروتين وإصلاح الخلافات ودعم الأطفال والمراهقين ومقدمي الرعاية، دون تشخيص ذاتي أو وعود علاجية.",
+  "keywords": [
+    "الصحة النفسية للأسرة",
+    "الصحة النفسية للعائلة",
+    "العلاقات الأسرية",
+    "التواصل الأسري",
+    "التربية الإيجابية",
+    "حل الخلافات الأسرية",
+    "دعم الأطفال نفسيًا",
+    "الصحة النفسية للمراهقين",
+    "إرهاق مقدم الرعاية",
+    "الروتين الأسري",
+    "التوازن الرقمي للأسرة",
+    "خطة أمان أسرية",
+    "التنظيم الانفعالي",
+    "التنظيم المشترك",
+    "الحدود الأسرية",
+    "المنزل الداعم نفسيًا"
+  ],
+  "editorial_scope": [
+    "محتوى تثقيفي ووقائي منخفض المخاطر يركز على البيئة والعلاقات والعادات اليومية.",
+    "لا يحل محل التقييم النفسي أو الطبي أو الاجتماعي الفردي، ولا يصدر تشخيصًا.",
+    "يُراعي اختلاف الأعمار والقدرات والثقافات والبنية الأسرية والموارد المتاحة.",
+    "يستخدم لغة تحترم الإنسان وتمنع الوصم واللوم والإكراه والعقاب المهين."
+  ],
+  "pillars": [
+    {"id": "connection", "title": "الأمان والاتصال", "description": "علاقة تسمح بالسؤال والإنصات والاختلاف دون تهديد أو سخرية."},
+    {"id": "routines", "title": "الروتين المرن", "description": "نقاط يومية متوقعة للنوم والطعام والانتقال والراحة دون صرامة مُنهكة."},
+    {"id": "regulation", "title": "تنظيم الانفعال", "description": "مساعدة الجسم والعقل على الهدوء قبل النقاش أو اتخاذ القرار."},
+    {"id": "repair", "title": "إصلاح العلاقة", "description": "الاعتراف بالضرر وتحمل المسؤولية والتعويض العملي بعد الخلاف."},
+    {"id": "development", "title": "مراعاة العمر والقدرة", "description": "توقعات تناسب مرحلة النمو واللغة والحالة الحسية والمعرفية."},
+    {"id": "caregivers", "title": "رفاه مقدمي الرعاية", "description": "تقاسم الحمل وطلب الدعم والراحة الواقعية لمنع الاستنزاف المزمن."},
+    {"id": "digital", "title": "البيئة الرقمية", "description": "قواعد تشاركية تحمي النوم والخصوصية والعلاقات دون مراقبة شاملة."},
+    {"id": "safety", "title": "السلامة والاستجابة", "description": "تمييز الضيق العابر عن الخطر ووضع مسار واضح للمساعدة المهنية والطوارئ."}
+  ],
+  "pathways": [
+    {"title": "أريد تهدئة التوتر اليومي", "description": "ابدأ بالروتين المرن، والتنظيم المشترك، واجتماع أسري قصير.", "slugs": ["family-mental-health-check-in", "co-regulation-at-home", "family-transition-change-plan"]},
+    {"title": "نختلف كثيرًا ولا نعرف كيف نصلح", "description": "أوقف التصعيد، ثم استخدم بروتوكول الإصلاح والحدود الإيجابية.", "slugs": ["family-conflict-repair-protocol", "positive-discipline-home-plan"]},
+    {"title": "أريد دعم طفل أو مراهق", "description": "اختر لغة تناسب العمر، واحمِ الخصوصية، وراقب أثر الضيق على الحياة اليومية.", "slugs": ["adolescent-privacy-connection-plan", "co-regulation-at-home", "family-transition-change-plan"]},
+    {"title": "مقدم الرعاية مُنهك", "description": "ابدأ بجرد الحمل وتقاسمه وخطة راحة صغيرة قابلة للتنفيذ.", "slugs": ["caregiver-burnout-prevention-plan", "inclusive-neurodiversity-home-plan"]},
+    {"title": "التقنية تستهلك البيت", "description": "صمموا قواعد ترتبط بالنوم والطعام والتعلم والخصوصية بدل رقم موحد للجميع.", "slugs": ["family-digital-balance-plan"]},
+    {"title": "لدينا فقد أو أزمة أو تغير كبير", "description": "قللوا الغموض، ثبتوا نقاط الأمان، وحددوا متى يلزم دعم متخصص أو طارئ.", "slugs": ["family-grief-loss-support-plan", "family-safety-crisis-response-plan", "family-transition-change-plan"]}
+  ],
+  "sources": [
+    {"id": "unicef-wellbeing", "organization": "UNICEF Parenting", "name": "Mental health and well-being", "url": "https://www.unicef.org/parenting/mental-health-and-well-being", "year": "محدّث دوريًا", "usage_note": "مرجع عام لرفاه الطفل والأسرة ومقدمي الرعاية."},
+    {"id": "unicef-talk", "organization": "UNICEF Parenting", "name": "How to talk to your kids about mental health", "url": "https://www.unicef.org/parenting/mental-health/how-to-talk-to-kids-mental-health", "year": "محدّث دوريًا", "usage_note": "مبادئ اختيار الوقت والإنصات والتحكم في رد الفعل والعمل بالشراكة."},
+    {"id": "unicef-explained", "organization": "UNICEF Parenting", "name": "Mental health explained", "url": "https://www.unicef.org/parenting/mental-health/explained", "year": "محدّث دوريًا", "usage_note": "تمييز المشاعر الطبيعية عن الضيق المستمر المؤثر في الوظائف اليومية."},
+    {"id": "unicef-selfcare", "organization": "UNICEF Parenting", "name": "Self-care for parents", "url": "https://www.unicef.org/parenting/mental-health/parent-self-care-tips", "year": "محدّث دوريًا", "usage_note": "رفاه الوالدين ومقدمي الرعاية وعلاقته بجودة الرعاية."},
+    {"id": "who-parenting", "organization": "World Health Organization", "name": "WHO guidelines on parenting interventions to prevent maltreatment and enhance parent–child relationships", "url": "https://www.who.int/publications/b/58002", "year": "2022", "usage_note": "مرجع إرشادي للتربية غير العنيفة وتعزيز علاقة الوالد والطفل."},
+    {"id": "who-caregiver", "organization": "World Health Organization", "name": "Caregiver skills training: caregiver well-being", "url": "https://www.who.int/publications/i/item/9789240120983", "year": "2026", "usage_note": "رفاه مقدمي الرعاية لأسر الأطفال ذوي التأخر النمائي أو الاحتياجات الخاصة."},
+    {"id": "cdc-mental", "organization": "Centers for Disease Control and Prevention", "name": "About Children's Mental Health", "url": "https://www.cdc.gov/children-mental-health/about/index.html", "year": "2026", "usage_note": "أهمية العلاقات والبيئات والنمو والوظيفة في المنزل والمدرسة والمجتمع."},
+    {"id": "cdc-parenting", "organization": "Centers for Disease Control and Prevention", "name": "Positive Parenting Tips", "url": "https://www.cdc.gov/child-development/positive-parenting-tips/index.html", "year": "2026", "usage_note": "تكييف الدعم والتوقعات بحسب المرحلة العمرية."},
+    {"id": "aap-media", "organization": "American Academy of Pediatrics", "name": "The Family Media Plan", "url": "https://publications.aap.org/pediatrics/article/154/6/e2024067417/199968/The-Family-Media-Plan", "year": "2024", "usage_note": "خطة رقمية عائلية قابلة للتخصيص تراعي الفوائد والمخاطر والسياق الأسري."}
+  ],
+  "hub_faq": [
+    {"q": "هل هذا القسم يقدم تشخيصًا أو علاجًا؟", "a": "لا. يقدم معرفة وخططًا تعليمية عامة. التشخيص والعلاج يحتاجان تقييمًا فرديًا من مختص مؤهل، والطوارئ تحتاج خدمات الطوارئ المحلية."},
+    {"q": "من أين أبدأ إذا كانت المشكلات كثيرة؟", "a": "ابدأ بالسلامة، ثم النوم والروتين والتهدئة، واختر مشكلة واحدة قابلة للتغيير خلال أسبوع بدل محاولة إصلاح كل شيء دفعة واحدة."},
+    {"q": "هل النصائح نفسها مناسبة لكل أسرة؟", "a": "لا. تُعدل وفق العمر والقدرة والثقافة والموارد والبنية الأسرية والحالة الصحية. تُوقف أي خطوة تزيد الخطر أو الإكراه."},
+    {"q": "متى نطلب مساعدة مهنية؟", "a": "عند استمرار الضيق أو شدته أو تأثيره في النوم أو الدراسة أو العمل أو العلاقات، أو عند وجود خطر أو عنف أو إيذاء للنفس أو الآخرين."},
+    {"q": "كيف نستخدم الأدلة دون وصم أحد؟", "a": "ناقشوا السلوك والاحتياج والعائق، لا قيمة الشخص أو هويته. استخدموا لغة اختيار وشراكة وخصوصية، ولا تجعلوا الدليل أداة اتهام."}
+  ],
+  "guide_files": [
+    "family-home-guide-batches/batch-01.json",
+    "family-home-guide-batches/batch-02.json",
+    "family-home-guide-batches/batch-03.json",
+    "family-home-guide-batches/batch-04.json"
+  ]
+}
