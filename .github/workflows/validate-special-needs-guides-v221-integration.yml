@@ -1,15 +1,19 @@
-name: Integrate twenty-five special-needs guides v221
+name: Integrate twenty-five special-needs guides and hub v235
 
 on:
   pull_request:
     branches: ["fix/special-needs-guide-hub-v221", "main"]
     paths:
+      - "scripts/publish_special_needs_hub_v235.py"
+      - "scripts/publish_special_needs_hub_v235_compat.py"
       - "scripts/publish_special_needs_guides_v217.py"
       - "scripts/publish_special_needs_guides_v217_core.py"
       - "scripts/publish_special_needs_guides_v214.py"
       - "scripts/publish_special_needs_guides_v209_compat.py"
+      - "content/v73/special-needs-executable-instructions-ar.json"
       - "content/v214/**"
       - "content/v221/special-needs-guides-production-manifest-ar.json"
+      - "tests/test_special_needs_hub_v235.py"
       - "tests/test_special_needs_guides_v214.py"
       - "tests/test_special_needs_guides_v221_integration.py"
       - ".github/workflows/validate-special-needs-guides-v221-integration.yml"
@@ -19,22 +23,24 @@ permissions:
   contents: read
 
 concurrency:
-  group: special-needs-guides-v221-${{ github.ref }}
+  group: special-needs-guides-hub-v235-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Compile publishers and integration tests
+      - name: Compile hub publishers guide publishers and integration tests
         run: |
           set -euxo pipefail
           python -m py_compile \
+            scripts/publish_special_needs_hub_v235.py \
+            scripts/publish_special_needs_hub_v235_compat.py \
             scripts/publish_special_needs_guides_v209.py \
             scripts/publish_special_needs_guides_v209_compat.py \
             scripts/publish_special_needs_guides_v210.py \
@@ -43,6 +49,7 @@ jobs:
             scripts/publish_special_needs_guides_v214.py \
             scripts/publish_special_needs_guides_v217_core.py \
             scripts/publish_special_needs_guides_v217.py \
+            tests/test_special_needs_hub_v235.py \
             tests/test_special_needs_guides_v214.py \
             tests/test_special_needs_guides_v221_integration.py
       - name: Validate production manifest and fifth-batch sources
@@ -50,6 +57,8 @@ jobs:
           python -m json.tool content/v221/special-needs-guides-production-manifest-ar.json >/dev/null
           python -m json.tool content/v214/special-needs-guides-manifest-ar.json >/dev/null
           for file in content/v214/special-needs-guides/*.json; do python -m json.tool "$file" >/dev/null; done
+      - name: Validate institutional hub depth metadata robots and idempotence
+        run: python -m unittest -v tests.test_special_needs_hub_v235
       - name: Validate v214 depth sources language and idempotence
         run: python -m unittest -v tests.test_special_needs_guides_v214
       - name: Validate five-batch production integration
