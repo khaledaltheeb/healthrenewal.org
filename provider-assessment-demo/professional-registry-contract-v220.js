@@ -33,20 +33,20 @@
       selectionQuestions: [
         "ما سؤال الإحالة الذي يبرر اختيار هذه الأداة؟",
         "هل العمر واللغة والسياق وخصائص الوصول متوافقة مع النسخة؟",
-        "ما الأدوات أو المصادر المكملة المطلوبة لتجنب الاعتماد على نتيجة واحدة؟"
+        "ما الأدوات أو المصادر المكملة المطلوبة لتجنب الاعتماد على نتيجة واحدة؟",
       ],
       interpretationLimits: [
         "لا تفسر النتيجة منفردة بوصفها تشخيصًا أو قرار أهلية أو علاجًا.",
         "يجب الرجوع إلى دليل النسخة الأصلية وشروط الناشر والمؤهل المهني والنظام المحلي.",
         "تسجل المنصة الخلاصة والمرجع فقط ولا تخزن البنود أو مفاتيح التصحيح أو الجداول المعيارية.",
-        "يجب توثيق التكييفات وجودة التطبيق والقيود قبل دمج النتيجة في التقرير."
+        "يجب توثيق التكييفات وجودة التطبيق والقيود قبل دمج النتيجة في التقرير.",
       ],
       requiredCompletedFields: [
         "publisher", "instrumentVersion", "administrationLanguage", "administratorQualification",
         "rightsBasis", "rightsReference", "scoreSource", "officialSourceReference",
         "selectionRationale", "administrationQuality", "interpretationLimitations",
-        "integrationSummary", "recommendations", "followUpDate"
-      ]
+        "integrationSummary", "recommendations", "followUpDate",
+      ],
     };
   };
 
@@ -67,7 +67,7 @@
     category: "مسار مهني",
     kind: "external report",
     status: "external",
-    recommendedRoles: ["مختص مؤهل يراجع التقرير أو المخرج الرسمي"]
+    recommendedRoles: ["مختص مؤهل يراجع التقرير أو المخرج الرسمي"],
   }));
 
   window.PA_PROFESSIONAL_REGISTRY_V220 = Object.freeze({
@@ -82,11 +82,11 @@
       category: tool.category,
       recordType: tool.professionalContract.recordType,
       rightsState: tool.professionalContract.rightsState,
-      requiredCompletedFields: [...tool.professionalContract.requiredCompletedFields]
-    }))
+      requiredCompletedFields: [...tool.professionalContract.requiredCompletedFields],
+    })),
   });
 
-  if (!document.querySelector('script[data-professional-planning-compat-v220]')) {
+  if (typeof document !== "undefined" && !document.querySelector('script[data-professional-planning-compat-v220]')) {
     const compatibility = document.createElement("script");
     compatibility.src = `professional-registry-planning-compat-v220.js?release=${encodeURIComponent(VERSION)}`;
     compatibility.defer = true;
