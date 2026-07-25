@@ -22,7 +22,6 @@ GATEWAY_START = "<!-- provider-condition-discovery-v238:gateway:start -->"
 GATEWAY_END = "<!-- provider-condition-discovery-v238:gateway:end -->"
 STYLE_MARKER = "data-provider-condition-discovery-v238-style"
 SCHEMA_MARKER = "data-provider-condition-discovery-v238-schema"
-BLOCK_RE_TEMPLATE = r"{start}.*?{end}"
 SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 ET.register_namespace("", SITEMAP_NS)
 
@@ -59,17 +58,30 @@ def title_from_source(source: str, slug: str) -> str:
     return title.split("|", 1)[0].strip()
 
 
-def replace_marker_block(source: str, start: str, end: str, block: str) -> str:
-    pattern = re.compile(
-        r"\s*" + BLOCK_RE_TEMPLATE.format(start=re.escape(start), end=re.escape(end)) + r"\s*",
+def remove_marker_block(source: str, start: str, end: str) -> str:
+    source = re.sub(
+        rf"\s*{re.escape(start)}.*?{re.escape(end)}\s*",
+        "\n",
+        source,
         flags=re.S,
     )
-    source = pattern.sub("\n", source)
+    return re.sub(r"\n{3,}", "\n\n", source)
+
+
+def insert_before_closing(source: str, closing: str, block: str) -> str:
+    if closing not in source:
+        raise ValueError(f"Missing insertion point: {closing}")
+    prefix, suffix = source.split(closing, 1)
+    return prefix.rstrip() + "\n" + block.strip() + "\n" + closing + suffix.lstrip("\n")
+
+
+def replace_marker_block(source: str, start: str, end: str, block: str) -> str:
+    source = remove_marker_block(source, start, end)
     if "</main>" in source:
-        return re.sub(r"\s*</main>", "\n" + block + "\n</main>", source, count=1)
+        return insert_before_closing(source, "</main>", block)
     if "</body>" in source:
-        return re.sub(r"\s*</body>", "\n" + block + "\n</body>", source, count=1)
-    raise ValueError("Missing insertion point")
+        return insert_before_closing(source, "</body>", block)
+    raise ValueError("Missing page insertion point")
 
 
 def discover_conditions(site: Path) -> list[dict[str, str]]:
@@ -164,8 +176,7 @@ def inject_directory_page(site: Path, records: list[dict[str, str]]) -> None:
     )
     if "</head>" not in source:
         raise ValueError("Provider condition index is missing </head>")
-    head_additions = directory_style() + item_list_schema(records)
-    source = re.sub(r"\s*</head>", "\n" + head_additions + "\n</head>", source, count=1)
+    source = insert_before_closing(source, "</head>", directory_style() + item_list_schema(records))
     source = replace_marker_block(source, DIRECTORY_START, DIRECTORY_END, render_directory(records))
     path.write_text(source, encoding="utf-8")
 
@@ -201,75 +212,45 @@ def write_provider_sitemap(site: Path, records: list[dict[str, str]], lastmod: s
     return urls
 
 
-def sync_root_sitemap(site: Path, lastmod: str) -> None:
-    path = site / "sitemap.xml"
-    if not path.is_file():
-        raise ValueError("Missing root sitemap.xml")
-    tree = ET.parse(path)
-    root = tree.getroot()
-    mode = root.tag.rsplit("}", 1)[-1]
-    child_url = f"{BASE}/{SITEMAP_NAME}"
-    if mode == "sitemapindex":
-        matches = [node for node in root.findall("{*}sitemap") if (node.findtext("{*}loc") or "").strip() == child_url]
-        for duplicate in matches[1:]:
-            root.remove(duplicate)
-        node = matches[0] if matches else ET.SubElement(root, qname("sitemap"))
-        loc = node.find("{*}loc")
-        if loc is None:
-            loc = ET.SubElement(node, qname("loc"))
-        loc.text = child_url
-        modified = node.find("{*}lastmod")
-        if modified is None:
-            modified = ET.SubElement(node, qname("lastmod"))
-        modified.text = lastmod
-    elif mode == "urlset":
-        provider_urls = {f"{BASE}/provider-assessment-demo/", f"{BASE}/provider-assessment-demo/conditions/"}
-        for url in provider_urls:
-            matches = [node for node in root.findall("{*}url") if (node.findtext("{*}loc") or "").strip() == url]
-            for duplicate in matches[1:]:
-                root.remove(duplicate)
-            node = matches[0] if matches else ET.SubElement(root, qname("url"))
-            loc = node.find("{*}loc")
-            if loc is None:
-                loc = ET.SubElement(node, qname("loc"))
-            loc.text = url
+def sync_robots(site: Path) -> None:
+    path = site / "robots.txt"
+    child = f"Sitemap: {BASE}/{SITEMAP_NAME}"
+    if path.is_file():
+        lines = [line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()]
     else:
-        raise ValueError(f"Unsupported root sitemap mode: {mode}")
-    tree.write(path, encoding="utf-8", xml_declaration=True)
+        lines = ["User-agent: *", "Allow: /"]
+    lines = [line for line in lines if line != child]
+    lines.append(child)
+    path.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
 
 
 def validate(site: Path, records: list[dict[str, str]], urls: list[str]) -> dict[str, Any]:
     gateway = (site / "provider-assessment-demo" / "index.html").read_text(encoding="utf-8")
+    directory = (site / "provider-assessment-demo" / "conditions" / "index.html").read_text(encoding="utf-8")
     training_path = site / "provider-assessment-demo" / "training" / "index.html"
     if not training_path.is_file():
         raise ValueError("Missing provider training page")
     training = training_path.read_text(encoding="utf-8")
     if f"{BASE}/provider-assessment-demo/training/" not in training or "noindex" in training.lower():
         raise ValueError("Provider training page indexability contract failed")
-    directory = (site / "provider-assessment-demo" / "conditions" / "index.html").read_text(encoding="utf-8")
-    if gateway.count(GATEWAY_START) != 1:
-        raise ValueError("Provider gateway marker contract failed")
+    if gateway.count(GATEWAY_START) != 1 or gateway.count('href="training/"') != 1:
+        raise ValueError("Provider gateway link contract failed")
     if gateway.count('href="conditions/"') < 1:
         raise ValueError("Provider condition gateway link is missing")
-    if gateway.count('href="training/"') != 1:
-        raise ValueError("Provider training gateway link contract failed")
     if directory.count(DIRECTORY_START) != 1:
         raise ValueError("Provider condition directory marker contract failed")
     if directory.count(STYLE_MARKER) != 1 or directory.count(SCHEMA_MARKER) != 1:
         raise ValueError("Provider condition directory metadata contract failed")
-    missing_links = [record["slug"] for record in records if directory.count(f'href="{record["slug"]}/"') != 1]
-    if missing_links:
-        raise ValueError(f"Provider condition links are missing or duplicated: {missing_links}")
+    missing = [record["slug"] for record in records if directory.count(f'href="{record["slug"]}/"') != 1]
+    if missing:
+        raise ValueError(f"Provider condition links are missing or duplicated: {missing}")
     sitemap = ET.parse(site / SITEMAP_NAME).getroot()
     locations = [(node.text or "").strip() for node in sitemap.findall("{*}url/{*}loc") if node.text]
     if locations != urls or len(locations) != len(set(locations)):
         raise ValueError("Provider condition sitemap route contract failed")
-    root = ET.parse(site / "sitemap.xml").getroot()
-    child = f"{BASE}/{SITEMAP_NAME}"
-    if root.tag.rsplit("}", 1)[-1] == "sitemapindex":
-        child_count = sum(1 for node in root.findall("{*}sitemap/{*}loc") if (node.text or "").strip() == child)
-        if child_count != 1:
-            raise ValueError("Root sitemap provider child contract failed")
+    robots = (site / "robots.txt").read_text(encoding="utf-8")
+    if robots.count(f"Sitemap: {BASE}/{SITEMAP_NAME}") != 1:
+        raise ValueError("Robots provider sitemap contract failed")
     return {
         "version": VERSION,
         "status": "passed",
@@ -278,7 +259,8 @@ def validate(site: Path, records: list[dict[str, str]], urls: list[str]) -> dict
         "directory_links": len(records),
         "training_links": 1,
         "sitemap_routes": len(urls),
-        "root_sitemap_registered": True,
+        "robots_sitemap_registered": True,
+        "root_sitemap_unchanged": True,
         "static_html_discovery": True,
         "javascript_required_for_discovery": False,
     }
@@ -288,11 +270,15 @@ def publish(site: Path) -> dict[str, Any]:
     site = site.resolve()
     if not site.is_dir():
         raise ValueError(f"Missing site directory: {site}")
+    root_sitemap = site / "sitemap.xml"
+    before = root_sitemap.read_bytes() if root_sitemap.is_file() else None
     records = discover_conditions(site)
     inject_directory_page(site, records)
     inject_gateway_page(site)
     urls = write_provider_sitemap(site, records, UPDATED)
-    sync_root_sitemap(site, UPDATED)
+    sync_robots(site)
+    if before is not None and root_sitemap.read_bytes() != before:
+        raise ValueError("Provider discovery publisher changed the root sitemap")
     report = validate(site, records, urls)
     output = site / "api" / "provider-condition-discovery-v238.json"
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -304,8 +290,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("site", nargs="?", default="_site", type=Path)
     args = parser.parse_args()
-    report = publish(args.site)
-    print(json.dumps(report, ensure_ascii=False, indent=2))
+    print(json.dumps(publish(args.site), ensure_ascii=False, indent=2))
     return 0
 
 
