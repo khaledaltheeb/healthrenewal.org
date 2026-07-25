@@ -18,6 +18,29 @@ CONTRACT = 234
 
 ARTICLES = (
     {
+        "file": "artemis-adolescent-mental-health-stigma-2026.html",
+        "doi": "10.1001/jamapsychiatry.2026.0603",
+        "pmid": "42054038",
+        "evidence": ("3,739", "60 تجمعًا", "لم يصل إلى الدلالة الإحصائية"),
+    },
+    {
+        "file": "autism-behavioral-domains-network-meta-analysis-2026.html",
+        "doi": "10.1186/s13034-026-01132-2",
+        "pmid": "42469874",
+        "evidence": ("67 تجربة", "4,203", "SUCRA"),
+    },
+    {
+        "file": "autism-emotion-regulation-interventions-2026.html",
+        "doi": "10.1016/j.cpr.2026.102764",
+        "pmid": "42224908",
+        "evidence": ("38 دراسة", "1,895", "تحليل شبكي"),
+    },
+    {
+        "file": "autism-interventions-meta-analysis-2026.html",
+        "doi": "10.1038/s44220-026-00652-2",
+        "evidence": ("149 تجربة", "9,011", "التباين المرتفع"),
+    },
+    {
         "file": "mobile-stress-interventions-2025.html",
         "doi": "10.1038/s41562-025-02162-0",
         "evidence": ("63 تجربة", "20,454"),
