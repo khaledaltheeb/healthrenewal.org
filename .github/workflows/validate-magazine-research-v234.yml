@@ -31,7 +31,7 @@ jobs:
           python-version: '3.12'
       - name: Compile publisher and tests
         run: python -m py_compile scripts/publish_magazine_v201.py scripts/enforce_platform_identity_v201.py tests/test_magazine_research_v234.py tests/test_platform_identity_v201.py
-      - name: Verify automatic source inventory
+      - name: Verify automatic source inventory and generated index
         run: |
           python - <<'PY'
           import importlib.util
@@ -44,13 +44,17 @@ jobs:
           spec.loader.exec_module(module)
           pages = module.article_files()
           assert len(pages) == 60, [page.name for page in pages]
-          index = Path('magazine/index.html').read_text(encoding='utf-8')
+          index = module.render_index(pages)
           assert index.count('class="card"') == 60
+          assert index.count('"@type":"ScholarlyArticle"') == 60
           assert '"numberOfItems":60' in index
           for page in pages:
               assert index.count(f'href="{page.name}"') >= 2, page.name
               assert module.URL + page.name in index, page.name
-          print({'articles': len(pages), 'unwired': 0})
+          template = Path('magazine/index.html').read_text(encoding='utf-8')
+          assert '<h1>المجلة والأبحاث</h1>' in template
+          assert 'research.css' in template
+          print({'articles': len(pages), 'generated_cards': 60, 'unwired': 0})
           PY
       - name: Run deterministic magazine tests
         run: python -m unittest tests.test_magazine_research_v234 -v
@@ -62,8 +66,6 @@ jobs:
           test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 9
           test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 51
           test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 60
-          test "$(grep -o 'class="card"' magazine/index.html | wc -l)" -eq 60
-          grep -q '"numberOfItems":60' magazine/index.html
           grep -q '10.1016/j.apmr.2026.06.004' magazine/dcd-school-motor-interventions-meta-analysis-2026.html
           grep -q '10.1007/s00431-026-07180-2' magazine/dcd-subtypes-systematic-review-2026.html
           grep -q '10.3390/brainsci16020234' magazine/dcd-action-observation-motor-imagery-review-2026.html
@@ -95,6 +97,7 @@ jobs:
           grep -q '10.1038/s41562-025-02162-0' magazine/mobile-stress-interventions-2025.html
           grep -q 'لم يجد التحليل التلوي آثارًا دالة' magazine/peer-led-adolescent-mental-health-2025.html
           grep -q 'unwired_research_pages' scripts/publish_magazine_v201.py
+          grep -q 'generated-from-discovered-articles' scripts/publish_magazine_v201.py
           grep -q 'SOURCE_LINK_PATTERN' scripts/publish_magazine_v201.py
           grep -q 'Magazine production requires 60 pages' scripts/enforce_platform_identity_v201.py
           ! grep -R -E 'علاج مضمون|يشخّص|نتائج مؤكدة للجميع' magazine
