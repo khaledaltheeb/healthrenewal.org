@@ -16,6 +16,17 @@ PUBLISHER = ROOT / "scripts" / "publish_care_guides_v21.py"
 LINKER = ROOT / "scripts" / "link_care_guides_v21.py"
 BLOCKED_SLUG = "autism-family-practical-guide"
 BLOCKED_ROUTE = f"care-guides/{BLOCKED_SLUG}/"
+EXPECTED_SOURCE_FILES = {
+    "care-guides-ar.json",
+    "care-guides-adhd-ar.json",
+    "care-guides-autism-ar.json",
+    "care-guides-family-anxiety-panic-support-ar.json",
+    "care-guides-family-ocd-support-ar.json",
+    "care-guides-bipolar-family-early-warning-plan-ar.json",
+    "care-guides-trauma-ptsd-family-support-ar.json",
+    "care-guides-eating-disorder-family-support-ar.json",
+    "care-guides-self-harm-family-safety-support-ar.json",
+}
 
 
 class AutismFamilyGuideV73Tests(unittest.TestCase):
@@ -99,18 +110,12 @@ class AutismFamilyGuideV73Tests(unittest.TestCase):
     def test_source_contract_is_retained_but_publication_is_blocked(self) -> None:
         publisher = PUBLISHER.read_text(encoding="utf-8")
         linker = LINKER.read_text(encoding="utf-8")
-        for source_name in (
-            "care-guides-ar.json",
-            "care-guides-adhd-ar.json",
-            "care-guides-autism-ar.json",
-        ):
-            self.assertIn(source_name, publisher)
-        data_sources = re.findall(r'ROOT / "content/v18/(care-guides-[^"]+\.json)"', publisher)
-        self.assertEqual(
-            data_sources,
-            ["care-guides-ar.json", "care-guides-adhd-ar.json", "care-guides-autism-ar.json"],
+        data_sources = set(
+            re.findall(r'ROOT / "content/v18/(care-guides-[^"]+\.json)"', publisher)
         )
-        self.assertIn("Expected 8 validated source guides", publisher)
+        self.assertEqual(data_sources, EXPECTED_SOURCE_FILES)
+        self.assertIn("EXPECTED_SOURCE_GUIDES = 14", publisher)
+        self.assertIn("CONTENT_RELEASE_VERSION = 239", publisher)
         self.assertIn('BLOCKED_REVIEW_STATUSES = {"needs-specialist-review"}', publisher)
         self.assertIn('"needs_specialist_review_published": False', publisher)
         self.assertIn('"blocked_review_slugs": blocked_slugs', publisher)
@@ -171,11 +176,12 @@ class AutismFamilyGuideV73Tests(unittest.TestCase):
                 (site / "api" / "care-guides-v21.json").read_text(encoding="utf-8")
             )
             self.assertEqual(care_report["publication_gate_version"], 194)
+            self.assertEqual(care_report["content_release_version"], 239)
             self.assertEqual(care_report["blocked_review_slugs"], [BLOCKED_SLUG])
             self.assertFalse(care_report["needs_specialist_review_published"])
             self.assertFalse(care_report["autism_published"])
-            self.assertEqual(care_report["source_guides"], 8)
-            self.assertEqual(care_report["published_core_guides"], 7)
+            self.assertEqual(care_report["source_guides"], 14)
+            self.assertEqual(care_report["published_core_guides"], 13)
 
             journey = json.loads(
                 (site / "api" / "care-guides-homepage-v21.json").read_text(encoding="utf-8")
