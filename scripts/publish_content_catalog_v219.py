@@ -22,17 +22,17 @@ def run_required_publisher(script_name: str) -> None:
 
 
 def publish_tips_v234_when_production_ready() -> bool:
-    """Replace v15 tips only after the complete core build exists.
+    """Replace v15 tips only inside the complete homepage production build.
 
-    This catalog publisher is called by the real homepage production pipeline
-    after core sections and before the final sitewide SEO verifier and health
-    publication gate. Focused unit-test fixtures do not carry this marker and
-    therefore remain isolated from the 49-page institutional tips build.
+    The real pipeline writes both the v15 core report and homepage-v20 report
+    before calling this catalog publisher. Focused fixtures do not carry both
+    markers and remain isolated from the 49-page institutional tips build.
     """
     ready = (
         (SITE / "robots.txt").is_file()
         and (SITE / "assets").is_dir()
         and (SITE / "api/core-sections-v15.json").is_file()
+        and (SITE / "api/homepage-v20.json").is_file()
         and (SITE / "tips").is_dir()
     )
     if not ready:
