@@ -10,6 +10,7 @@ from pathlib import Path
 from publish_global_metadata_v27 import main as publish_global_metadata
 from upgrade_child_sector_v239 import upgrade as upgrade_child_sector
 from upgrade_home_sector_v234 import upgrade as upgrade_home_sector
+from upgrade_women_sector_v244 import upgrade as upgrade_women_sector
 
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
@@ -63,6 +64,21 @@ def main() -> None:
     if int(child_sector.get("hub_words", 0)) < 2200 or int(child_sector.get("minimum_article_words", 0)) < 650:
         raise SystemExit({"insufficient_child_sector_v239_depth": child_sector})
 
+    women_sector = upgrade_women_sector(SITE)
+    required_women_contract = {
+        "status": "passed",
+        "version": 244,
+        "source_articles": 20,
+        "hub_h1": 1,
+        "banned_term_present": False,
+        "diagnostic_claim_present": False,
+    }
+    for key, expected in required_women_contract.items():
+        if women_sector.get(key) != expected:
+            raise SystemExit({"invalid_women_sector_v244_evidence": {"key": key, "expected": expected, "actual": women_sector.get(key)}})
+    if int(women_sector.get("hub_words", 0)) < 2200 or int(women_sector.get("minimum_article_words", 0)) < 700:
+        raise SystemExit({"insufficient_women_sector_v244_depth": women_sector})
+
     publish_global_metadata()
     metadata_path = SITE / "api" / "global-metadata-v27.json"
     if not metadata_path.is_file():
@@ -84,6 +100,13 @@ def main() -> None:
     written_child_sector = json.loads(child_report_path.read_text(encoding="utf-8"))
     if written_child_sector != child_sector:
         raise SystemExit({"child_sector_evidence_mismatch": {"memory": child_sector, "written": written_child_sector}})
+
+    women_report_path = SITE / "api" / "women-sector-v244.json"
+    if not women_report_path.is_file():
+        raise SystemExit(f"Women-sector evidence not found: {women_report_path}")
+    written_women_sector = json.loads(women_report_path.read_text(encoding="utf-8"))
+    if written_women_sector != women_sector:
+        raise SystemExit({"women_sector_evidence_mismatch": {"memory": women_sector, "written": written_women_sector}})
 
     pwa_path = SITE / "api" / "pwa-v14.json"
     if not pwa_path.is_file():
@@ -118,7 +141,7 @@ def main() -> None:
         "workflow_run": os.environ["GITHUB_RUN_ID"],
         "workflow_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "1"),
         "validated_at": datetime.now(timezone.utc).isoformat(),
-        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, home-sector v234 depth and safety, child-sector v239 depth and safety, critical artifact SHA-256",
+        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, home-sector v234 depth and safety, child-sector v239 depth and safety, women-sector v244 depth and safety, critical artifact SHA-256",
         "pwa_pages": int(pwa["pages_scanned"]),
         "metadata_pages": int(metadata["pages_scanned"]),
         "metadata_version": int(metadata["version"]),
@@ -131,6 +154,10 @@ def main() -> None:
         "child_sector_articles": int(child_sector["source_articles"]),
         "child_sector_hub_words": int(child_sector["hub_words"]),
         "child_sector_minimum_article_words": int(child_sector["minimum_article_words"]),
+        "women_sector_version": int(women_sector["version"]),
+        "women_sector_articles": int(women_sector["source_articles"]),
+        "women_sector_hub_words": int(women_sector["hub_words"]),
+        "women_sector_minimum_article_words": int(women_sector["minimum_article_words"]),
         "artifacts": artifacts,
     }
 
