@@ -20,6 +20,8 @@ REQUIRED_LINKS = (
     "sectors/family/",
     "sectors/child/",
     "sectors/home/",
+    "daily-tools/",
+    "learning-paths/",
     "provider-assessment-demo/",
     "comparisons/",
     "library/",
@@ -79,12 +81,19 @@ def main() -> None:
     assert '<a class="btn secondary" href="care-guides/">أدلة التعامل مع الحالات</a>' in source
     assert "مكتبة المقارنات النفسية" in source, "Comparisons collection is not visibly described"
     assert "المكتبة الأكاديمية العربية" in source, "Academic library is not visibly described"
+    assert "الأدوات النفسية التفاعلية" in source, "Interactive tools are not visibly described"
+    assert "مسارات التعلم القصيرة" in source, "Learning paths are not visibly described"
+    assert source.count("data-daily-tools-v219") == 1, "Interactive tools card must be unique"
+    assert source.count("data-learning-paths-v219") == 1, "Learning paths card must be unique"
+    assert source.count("data-daily-tools-journey-v219") == 1, "Interactive-tools journey hint must be unique"
+    assert source.count('href="daily-tools/"') >= 3, "Daily tools need navigation, card and footer discovery"
+    assert source.count('href="learning-paths/"') >= 3, "Learning paths need navigation, card and footer discovery"
     for phrase in FORBIDDEN_OPERATIONAL_COPY:
         assert phrase not in source, f"Operational planning copy leaked to users: {phrase}"
 
     assert len(re.findall(r"<h1\b", source)) == 1, "Homepage must contain exactly one h1"
     assert len(re.findall(r"<h2\b", source)) >= 5, "Homepage needs structured H2 sections"
-    assert len(re.findall(r"<h3\b", source)) >= 22, "Homepage needs discoverable H3 cards"
+    assert len(re.findall(r"<h3\b", source)) >= 24, "Homepage needs discoverable H3 cards"
     assert 'href="#main"' in source, "Missing skip link"
     assert 'id="main"' in source, "Missing main landmark target"
     assert 'color-scheme" content="light"' in source, "Homepage must declare light color scheme"
@@ -100,7 +109,7 @@ def main() -> None:
     keywords = re.search(r'<meta name="keywords" content="([^"]+)"', source)
     assert keywords, "Missing thematic keyword metadata"
     keyword_items = [item.strip() for item in keywords.group(1).split(",") if item.strip()]
-    assert len(keyword_items) >= 24, "Homepage keyword coverage is too narrow"
+    assert len(keyword_items) >= 28, "Homepage keyword coverage is too narrow"
     assert {
         "الصحة النفسية",
         "علم النفس",
@@ -108,6 +117,10 @@ def main() -> None:
         "المكتبة النفسية",
         "مقارنات نفسية",
         "الاختبارات النفسية",
+        "أدوات نفسية تفاعلية",
+        "أدوات تنظيم التوتر",
+        "أدوات متابعة النوم",
+        "مسارات تعلم الصحة النفسية",
     }.issubset(keyword_items)
 
     for required_meta in (
@@ -141,6 +154,8 @@ def main() -> None:
     assert "https://khaledaltheeb.github.io/pterminology-site/comparisons/" in part_urls
     assert "https://khaledaltheeb.github.io/pterminology-site/library/" in part_urls
     assert "https://khaledaltheeb.github.io/pterminology-site/guided-assessment/" in part_urls
+    assert "https://khaledaltheeb.github.io/pterminology-site/daily-tools/" in part_urls
+    assert "https://khaledaltheeb.github.io/pterminology-site/learning-paths/" in part_urls
 
     manifest = load_json("manifest.webmanifest")
     platform = load_json("api/v1/platform.json")
@@ -160,7 +175,7 @@ def main() -> None:
         json.dumps(
             {
                 "status": "passed",
-                "contract": "institutional-home-discovery-seo-v216",
+                "contract": "institutional-home-discovery-seo-v220",
                 "brand": BRAND,
                 "slogan": SLOGAN,
                 "required_links": len(REQUIRED_LINKS),
@@ -174,6 +189,9 @@ def main() -> None:
                 "comparisons_linked": True,
                 "library_linked": True,
                 "guided_assessment_linked": True,
+                "daily_tools_linked": True,
+                "learning_paths_linked": True,
+                "interactive_tools_discovery_contract": 220,
                 "operational_copy_hidden": True,
                 "api_version": platform["apiVersion"],
                 "openapi": openapi["openapi"],
