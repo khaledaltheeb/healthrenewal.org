@@ -1,0 +1,129 @@
+name: Verify tools Marshmallow live v245
+
+on:
+  workflow_run:
+    workflows: ["Deploy validated main to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-tools-marshmallow-live-v245
+  cancel-in-progress: true
+
+jobs:
+  verify-live:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      TOOLS_URL: https://khaledaltheeb.github.io/pterminology-site/tools/
+      DEPLOYMENT_URL: https://khaledaltheeb.github.io/pterminology-site/deployment.json
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Download uncached live tools page and deployment evidence
+        run: |
+          set -euxo pipefail
+          token="$(date +%s)-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          curl --retry 8 --retry-delay 8 --retry-all-errors \
+            -H 'Cache-Control: no-cache, no-store, max-age=0' \
+            -H 'Pragma: no-cache' \
+            -fsSL "${TOOLS_URL}?v=${token}" -o /tmp/live-tools.html
+          curl --retry 8 --retry-delay 8 --retry-all-errors \
+            -H 'Cache-Control: no-cache, no-store, max-age=0' \
+            -H 'Pragma: no-cache' \
+            -fsSL "${DEPLOYMENT_URL}?v=${token}" -o /tmp/live-deployment.json
+          test -s /tmp/live-tools.html
+          test -s /tmp/live-deployment.json
+
+      - name: Prove the live page contains the final Marshmallow contrast contract
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import re
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          page_path = Path('/tmp/live-tools.html')
+          deployment_path = Path('/tmp/live-deployment.json')
+          page = page_path.read_text(encoding='utf-8')
+          deployment = json.loads(deployment_path.read_text(encoding='utf-8'))
+
+          required = (
+              'data-tools-design="marshmallow-v245"',
+              'tools-marshmallow-v245',
+              'id="tools-marshmallow-v245-style"',
+              '--tm-ink:#173f45',
+              '--tm-muted:#4d686b',
+              '--tm-mint:#e5faf5',
+              '--tm-rose:#fff0f5',
+              '--tm-lilac:#f2edff',
+              '--tm-peach:#fff0e8',
+              'color:var(--tm-ink)!important',
+              'color:var(--tm-muted)!important',
+              'background:linear-gradient(145deg,var(--tm-white),var(--tm-mint))!important',
+              'background:var(--tm-lilac)!important;color:#4a315f!important',
+              '@media(prefers-color-scheme:dark)',
+          )
+          missing = [marker for marker in required if marker not in page]
+          assert not missing, {'missing_live_tools_markers': missing}
+          assert page.count('id="tools-marshmallow-v245-style"') == 1
+          assert re.search(r'<body\b[^>]*\bclass=["\'][^"\']*tools-marshmallow-v245', page, re.I)
+          assert re.search(
+              r'body\.tools-marshmallow-v245\.tools-marshmallow-v245\s+main\s+:where\([^}]*\.tool-card',
+              page,
+              re.I | re.S,
+          )
+          assert re.search(
+              r':where\(h1,h2,h3,h4,h5,h6\)\s*\{color:var\(--tm-berry\)!important\}',
+              page,
+              re.I,
+          )
+          assert re.search(
+              r':where\(p,li,dd,small,.muted,',
+              page,
+              re.I,
+          )
+
+          commit = deployment.get('commit')
+          assert isinstance(commit, str) and re.fullmatch(r'[0-9a-f]{40}', commit), deployment
+
+          evidence = {
+              'version': 245,
+              'status': 'passed',
+              'route': '/pterminology-site/tools/',
+              'live_commit': commit,
+              'design': 'marshmallow-v245',
+              'light_cards_enforced': True,
+              'dark_text_enforced': True,
+              'dark_mode_blackening_blocked': True,
+              'style_block_count': page.count('id="tools-marshmallow-v245-style"'),
+              'html_sha256': hashlib.sha256(page_path.read_bytes()).hexdigest(),
+              'verified_at': datetime.now(timezone.utc).isoformat(),
+          }
+          Path('/tmp/tools-marshmallow-live-v245.json').write_text(
+              json.dumps(evidence, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(evidence, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Retain live contrast evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tools-marshmallow-live-v245
+          path: |
+            /tmp/tools-marshmallow-live-v245.json
+            /tmp/live-deployment.json
+          if-no-files-found: warn
+          retention-days: 30
