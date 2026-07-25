@@ -1,0 +1,90 @@
+name: Validate institutional header v226
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "index.html"
+      - "scripts/publish_institutional_header_v226.py"
+      - "tests/test_institutional_header_v226.py"
+      - ".github/workflows/validate-institutional-header-v226.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "index.html"
+      - "scripts/publish_institutional_header_v226.py"
+      - "tests/test_institutional_header_v226.py"
+      - ".github/workflows/validate-institutional-header-v226.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  institutional-header:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile and run deterministic tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/publish_institutional_header_v226.py tests/test_institutional_header_v226.py
+          python -m unittest -v tests/test_institutional_header_v226.py
+
+      - name: Verify materialized source is stable
+        run: |
+          set -euxo pipefail
+          before="$(sha256sum index.html | cut -d' ' -f1)"
+          python scripts/publish_institutional_header_v226.py . | tee /tmp/institutional-header-v226.json
+          after="$(sha256sum index.html | cut -d' ' -f1)"
+          test "$before" = "$after"
+          git diff --exit-code -- index.html
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path('/tmp/institutional-header-v226.json').read_text(encoding='utf-8'))
+          page = Path('index.html').read_text(encoding='utf-8')
+          assert report['status'] == 'passed', report
+          assert report['changed'] is False, report
+          assert report['section_links'] == 12, report
+          assert report['language_links'] == 3, report
+          assert report['dropdowns'] == 2, report
+          assert report['keyboard_native_details'] is True, report
+          assert report['responsive'] is True, report
+          assert page.count('data-institutional-header-v226') == 1
+          assert page.count('data-i18n-switcher-v72') == 1
+          assert page.count('id="institutional-header-v226-styles"') == 1
+          assert page.count('<details') == 2
+          assert page.count('<summary') == 2
+          assert '<nav class="nav"' not in page
+          for route in (
+              'start-here/', 'encyclopedia/', 'comparisons/', 'library/',
+              'care-guides/', 'special-needs/', 'sectors/child/',
+              'sectors/family/', 'sectors/home/', 'provider-assessment-demo/',
+              'api/', 'trust/'
+          ):
+              assert f'href="/pterminology-site/{route}"' in page, route
+          for route in ('/pterminology-site/', '/pterminology-site/en/', '/pterminology-site/es/'):
+              assert f'href="{route}"' in page, route
+          print({'header': 'passed', 'sections': 12, 'languages': 3, 'dropdowns': 2})
+          PY
+          rm -f api/institutional-header-v226.json
+
+      - name: Serve homepage and verify response
+        run: |
+          set -euxo pipefail
+          python -m http.server 8000 >/tmp/header-v226-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill $server_pid || true' EXIT
+          for attempt in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:8000/index.html -o /tmp/header-v226.html && break
+            sleep 1
+          done
+          grep -q 'data-institutional-header-v226' /tmp/header-v226.html
+          grep -q 'أقسام المنصة' /tmp/header-v226.html
+          grep -q 'اختر لغة الواجهة' /tmp/header-v226.html
+          grep -q 'English' /tmp/header-v226.html
+          grep -q 'Español' /tmp/header-v226.html
