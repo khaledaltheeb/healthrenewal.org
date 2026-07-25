@@ -20,7 +20,7 @@ jobs:
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - name: Checkout the validated source commit
         uses: actions/checkout@v4
@@ -43,15 +43,19 @@ jobs:
             tests/test_orphan_page_audit_v197.py \
             scripts/enrich_thin_content_v222.py \
             tests/test_content_depth_v222.py \
+            scripts/enrich_term_pages_v224.py \
+            tests/test_term_content_depth_v224.py \
             scripts/audit_content_quality_v32.py
           python -m unittest -v \
             tests.test_orphan_page_audit_v197 \
-            tests.test_content_depth_v222
+            tests.test_content_depth_v222 \
+            tests.test_term_content_depth_v224
 
-      - name: Expand short Arabic pages and re-audit content quality
+      - name: Expand short Arabic pages terms and re-audit content quality
         run: |
           set -euxo pipefail
           python scripts/enrich_thin_content_v222.py validated-site
+          python scripts/enrich_term_pages_v224.py validated-site
           python scripts/audit_content_quality_v32.py validated-site
           python - <<'PY'
           import json
@@ -59,12 +63,24 @@ jobs:
 
           root = Path('validated-site')
           depth = json.loads((root / 'api/content-depth-v222.json').read_text(encoding='utf-8'))
+          terms = json.loads((root / 'api/term-content-depth-v224.json').read_text(encoding='utf-8'))
           quality = json.loads((root / 'api/content-quality-v32.json').read_text(encoding='utf-8'))
+
           assert depth['version'] == 222, depth
           assert depth['status'] == 'passed', depth
           assert depth['eligible_pages'] > 0, depth
           assert depth['remaining_below_minimum'] == 0, depth
           assert depth['failure_count'] == 0, depth
+
+          assert terms['version'] == 224, terms
+          assert terms['status'] == 'passed', terms
+          assert terms['terms'] >= 200, terms
+          assert terms['categories'] >= 10, terms
+          assert terms['minimum_words'] == 650, terms
+          assert terms['remaining_below_minimum'] == 0, terms
+          assert terms['missing_or_failed'] == 0, terms
+          assert terms['duplicate_generated_blocks'] == 0, terms
+
           assert quality['critical_error_count'] == 0, quality
           for route in ('comparisons', 'library', 'encyclopedia', 'assessments', 'special-needs', 'care-guides'):
               assert route in depth['policies'], route
@@ -72,14 +88,18 @@ jobs:
               'status': depth['status'],
               'pages_scanned': depth['pages_scanned'],
               'eligible_pages': depth['eligible_pages'],
-              'enriched_pages': depth['enriched_pages'],
-              'sufficient_pages': depth['sufficient_pages'],
-              'remaining_below_minimum': depth['remaining_below_minimum'],
+              'general_enriched_pages': depth['enriched_pages'],
+              'term_pages': terms['terms'],
+              'term_categories': terms['categories'],
+              'term_enriched_pages': terms['enriched_pages'],
+              'term_sufficient_pages': terms['sufficient_pages'],
+              'term_remaining_below_minimum': terms['remaining_below_minimum'],
               'quality_critical_errors': quality['critical_error_count'],
           })
           PY
           test -f validated-site/assets/css/content-depth-v222.css
           ! grep -R -Eqi 'يعالج نهائيًا|شفاء مضمون|بديل عن الطبيب|تشخيصك هو' \
+            validated-site/terms \
             validated-site/comparisons \
             validated-site/library \
             validated-site/encyclopedia \
@@ -134,6 +154,7 @@ jobs:
           path: |
             validated-site/api/orphan-page-audit-v197.json
             validated-site/api/content-depth-v222.json
+            validated-site/api/term-content-depth-v224.json
             validated-site/api/content-quality-v32.json
           if-no-files-found: warn
           retention-days: 14
