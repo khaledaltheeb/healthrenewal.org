@@ -6,13 +6,59 @@
   const form = document.getElementById("professional-record-form");
   if (!data || !registry || !form) return;
 
-  const VERSION = "220.1";
-  const completedStatuses = new Set(["completed", "result_imported"]);
+  const VERSION = "220.2";
+  const COMPLETED = new Set(["completed", "result_imported"]);
+  const REQUIRED_COMPLETED = [
+    "publisher", "instrumentVersion", "administrationLanguage", "administratorQualification",
+    "rightsBasis", "rightsReference", "scoreSource", "officialSourceReference",
+    "selectionRationale", "administrationQuality", "interpretationLimitations",
+    "integrationSummary", "recommendations", "followUpDate",
+  ];
+  const PROTECTED_TEXT = /(مفتاح\s*التصحيح|قواعد?\s*التصحيح|جدول\s*المعايير|درجات?\s*المعايير|إجابات?\s*البنود|استجابات?\s*البنود|نصوص?\s*البنود|بنود?\s*الاختبار\s*الكاملة|answer\s*key|scoring\s*(?:key|rule)|norm(?:ative)?\s*table|item\s*(?:text|response))/i;
   const escapeHtml = (value) => String(value ?? "")
     .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;").replaceAll("'", "&#039;");
-  const clean = (value, limit = 3000) => String(value || "").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ").trim().slice(0, limit);
-  const toolById = (idValue, nameValue = "") => data.professional.find((tool) => tool.id === idValue || tool.name === nameValue);
+  const clean = (value, limit = 3000) => String(value || "")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ")
+    .trim().slice(0, limit);
+  const registeredTool = () => data.professional.find((tool) =>
+    tool.id === form.elements.toolId.value || tool.name === form.elements.toolName.value
+  ) || null;
+
+  const syntheticContract = () => {
+    const mode = form.elements.administrationMode?.value || "";
+    const external = mode === "external_import" || mode === "record_review";
+    return {
+      version: VERSION,
+      recordType: external ? "external_official_result_record" : "licensed_professional_administration_record",
+      rightsState: external ? "external_report_only" : "rights_verification_required",
+      officialAdministrationInsidePlatform: false,
+      protectedContentStorageAllowed: false,
+      itemResponsesStorageAllowed: false,
+      scoringKeyStorageAllowed: false,
+      normTableStorageAllowed: false,
+      recommendedRoles: ["مختص مؤهل بحسب الأداة والجهة المنظمة"],
+      permittedRightsBases: external
+        ? ["external_report_only", "licensed_original_copy", "official_public_permission"]
+        : ["licensed_original_copy", "official_public_permission"],
+      permittedScoreSources: ["official_report", "authorized_scoring_platform", "qualified_professional_record", "publisher_output"],
+      requiredCompletedFields: REQUIRED_COMPLETED,
+      customModeBound: true,
+    };
+  };
+
+  const currentTool = () => {
+    const tool = registeredTool();
+    if (tool?.professionalContract) return tool;
+    return {
+      id: form.elements.toolId.value || "custom-professional-record",
+      name: form.elements.toolName.value || "سجل مهني مخصص",
+      category: form.elements.category.value || "مسار مهني",
+      professionalContract: syntheticContract(),
+      professionalContractVersion: VERSION,
+      customRecord: true,
+    };
+  };
 
   const field = (name, label, attributes = "") => `<label class="field"><span>${escapeHtml(label)}</span><input name="maturity_${escapeHtml(name)}" maxlength="300" ${attributes}></label>`;
   const textarea = (name, label, placeholder = "") => `<label class="field template-full"><span>${escapeHtml(label)}</span><textarea name="maturity_${escapeHtml(name)}" rows="3" maxlength="2400" placeholder="${escapeHtml(placeholder)}"></textarea></label>`;
@@ -22,8 +68,8 @@
   section.id = "professional-maturity-fields-v220";
   section.className = "professional-template-fields";
   section.innerHTML = `
-    <div class="template-heading template-full"><p class="eyebrow">عقد السجل المهني v${VERSION}</p><h3>الحقوق والنسخة والمؤهل ومصدر النتيجة</h3><p>هذه الحقول تسجل التطبيق أو التقرير الرسمي فقط. لا تدخل أي بند أو استجابة فردية أو مفتاح تصحيح أو جدول معياري.</p></div>
-    <div id="professional-contract-summary-v220" class="callout warning template-full"></div>
+    <div class="template-heading template-full"><p class="eyebrow">عقد السجل المهني v${VERSION}</p><h3>الحقوق والنسخة والمؤهل ومصدر النتيجة</h3><p>تسجل هذه الحقول تطبيقًا تم خارج المنصة أو تقريرًا رسميًا فقط. لا تدخل بندًا أو استجابة فردية أو مفتاح تصحيح أو جدولًا معياريًا.</p></div>
+    <div id="professional-contract-summary-v220" class="callout warning template-full" role="note"></div>
     <div class="template-grid">
       ${field("publisher", "الناشر أو الجهة المالكة", 'placeholder="اسم الناشر أو الجهة الرسمية"')}
       ${field("instrumentVersion", "اسم الإصدار أو النموذج", 'placeholder="الإصدار والسنة والوحدة عند الصلة"')}
@@ -49,16 +95,14 @@
   if (templateContainer) templateContainer.before(section);
   else form.querySelector(".dialog-actions")?.before(section);
 
-  const inputFor = (name) => form.elements[`maturity_${name}`];
   const maturityNames = [
     "publisher", "instrumentVersion", "administrationLanguage", "administratorQualification",
     "rightsBasis", "rightsReference", "scoreSource", "officialSourceReference",
     "selectionRationale", "administrationQuality", "behavioralObservations",
     "interpretationLimitations", "integrationSummary", "recommendations",
-    "followUpDate", "reviewedBy", "reviewStatus"
+    "followUpDate", "reviewedBy", "reviewStatus",
   ];
-
-  const currentTool = () => toolById(form.elements.toolId.value, form.elements.toolName.value);
+  const inputFor = (name) => form.elements[`maturity_${name}`];
   const setRequired = (element, required) => {
     if (!element) return;
     element.required = required;
@@ -67,11 +111,10 @@
 
   const updateContractUi = () => {
     const tool = currentTool();
-    if (!tool?.professionalContract) return;
     const contract = tool.professionalContract;
-    const completed = completedStatuses.has(form.elements.recordStatus.value);
+    const completed = COMPLETED.has(form.elements.recordStatus.value);
     const summary = document.getElementById("professional-contract-summary-v220");
-    if (summary) summary.innerHTML = `<strong>${escapeHtml(tool.name)}:</strong> التطبيق الرقمي داخل المنصة غير متاح. يسمح بتسجيل الخلاصة الرسمية والمرجع فقط. الأدوار المقترحة: ${escapeHtml(contract.recommendedRoles.join("، "))}.`;
+    if (summary) summary.innerHTML = `<strong>${escapeHtml(tool.name)}:</strong> التطبيق الرقمي داخل المنصة غير متاح. ${contract.recordType === "external_official_result_record" ? "يسمح بتسجيل التقرير الرسمي ومرجعه فقط." : "يسمح بتوثيق تطبيق تم بواسطة مختص وبنسخة مصرح بها خارج المنصة."} الأدوار المقترحة: ${escapeHtml(contract.recommendedRoles.join("، "))}.`;
 
     for (const name of maturityNames) setRequired(inputFor(name), false);
     setRequired(inputFor("administratorQualification"), true);
@@ -82,27 +125,36 @@
     const rights = inputFor("rightsBasis");
     if (rights) {
       for (const option of rights.options) {
-        option.disabled = option.value && option.value !== "pending_review" && !contract.permittedRightsBases.includes(option.value);
+        option.disabled = Boolean(option.value && option.value !== "pending_review" && !contract.permittedRightsBases.includes(option.value));
       }
+      if (rights.value && rights.value !== "pending_review" && !contract.permittedRightsBases.includes(rights.value)) rights.value = "";
       if (contract.recordType === "external_official_result_record" && !rights.value) rights.value = "external_report_only";
     }
   };
 
-  const collectStructuredRecord = () => {
+  const collectStructuredRecord = (tool, recordedAt) => {
     const values = {};
-    for (const name of maturityNames) values[name] = clean(inputFor(name)?.value, name.includes("Summary") || ["selectionRationale","administrationQuality","behavioralObservations","interpretationLimitations","recommendations"].includes(name) ? 2400 : 300);
-    const recordedAt = new Date().toISOString();
+    for (const name of maturityNames) {
+      const long = name.includes("Summary") || ["selectionRationale", "administrationQuality", "behavioralObservations", "interpretationLimitations", "recommendations"].includes(name);
+      values[name] = clean(inputFor(name)?.value, long ? 2400 : 300);
+    }
+    const contract = tool.professionalContract;
     return {
       schema: "professional-registry-record-v220",
       version: VERSION,
-      instrument: {
-        publisher: values.publisher,
-        version: values.instrumentVersion,
-        language: values.administrationLanguage,
+      contractSnapshot: {
+        toolId: tool.id,
+        toolName: tool.name,
+        category: tool.category || form.elements.category.value,
+        source: tool.customRecord ? "custom_mode_bound_contract" : "professional_registry",
+        recordType: contract.recordType,
+        rightsState: contract.rightsState,
+        officialAdministrationInsidePlatform: false,
+        permittedRightsBases: [...contract.permittedRightsBases],
+        permittedScoreSources: [...contract.permittedScoreSources],
       },
-      administrator: {
-        qualification: values.administratorQualification,
-      },
+      instrument: { publisher: values.publisher, version: values.instrumentVersion, language: values.administrationLanguage },
+      administrator: { qualification: values.administratorQualification },
       rights: {
         basis: values.rightsBasis,
         reference: values.rightsReference,
@@ -111,10 +163,7 @@
         scoringKeyStored: false,
         normTablesStored: false,
       },
-      officialResultSource: {
-        type: values.scoreSource,
-        reference: values.officialSourceReference,
-      },
+      officialResultSource: { type: values.scoreSource, reference: values.officialSourceReference },
       selectionRationale: values.selectionRationale,
       administrationQuality: values.administrationQuality,
       behavioralObservations: values.behavioralObservations,
@@ -122,70 +171,166 @@
       integrationSummary: values.integrationSummary,
       recommendations: values.recommendations,
       followUpDate: values.followUpDate,
-      review: {
-        status: values.reviewStatus || "not_reviewed",
-        reviewedBy: values.reviewedBy,
-      },
+      review: { status: values.reviewStatus || "not_reviewed", reviewedBy: values.reviewedBy },
       recordedAt,
       auditTrail: [{ event: "structured_record_created", at: recordedAt, actorUid: identity.uid, actorRole: identity.role }],
     };
   };
 
-  const validateBeforeSave = (event) => {
+  const protectedTextIn = (formData) => [...formData.entries()]
+    .filter(([name]) => name === "scoreReference" || name === "notes" || name.startsWith("detail_") || /^maturity_(selectionRationale|administrationQuality|behavioralObservations|interpretationLimitations|integrationSummary|recommendations)$/.test(name))
+    .map(([, value]) => String(value || ""))
+    .join(" ");
+
+  const persistAtomically = (caseRecord, record, now) => {
+    caseRecord.professionalAssessments ||= [];
+    const previousCaseUpdatedAt = caseRecord.updatedAt;
+    const previousStoreUpdatedAt = store.updatedAt;
+    caseRecord.professionalAssessments.push(record);
+    caseRecord.updatedAt = now;
+    store.updatedAt = now;
+    const persisted = typeof set === "function" && typeof storeKey === "function"
+      ? set(storeKey(identity.uid), store)
+      : (save(), true);
+    if (persisted) return true;
+    caseRecord.professionalAssessments.pop();
+    caseRecord.updatedAt = previousCaseUpdatedAt;
+    store.updatedAt = previousStoreUpdatedAt;
+    return false;
+  };
+
+  const saveAtomicProfessionalRecord = (event) => {
     updateContractUi();
     if (!form.reportValidity()) {
       event.preventDefault();
       event.stopImmediatePropagation();
       return;
     }
-    const tool = currentTool();
-    if (!tool?.professionalContract) {
+    if (form.dataset.v220Saving === "true") {
       event.preventDefault();
       event.stopImmediatePropagation();
-      toast("تعذر تحميل عقد الحقوق لهذه الأداة؛ لم يُحفظ السجل.");
       return;
     }
-    const completed = completedStatuses.has(form.elements.recordStatus.value);
+
+    const tool = currentTool();
+    const contract = tool.professionalContract;
+    const completed = COMPLETED.has(form.elements.recordStatus.value);
     const rightsBasis = inputFor("rightsBasis").value;
-    if (completed && (rightsBasis === "pending_review" || !tool.professionalContract.permittedRightsBases.includes(rightsBasis))) {
+    if (completed && (rightsBasis === "pending_review" || !contract.permittedRightsBases.includes(rightsBasis))) {
       event.preventDefault();
       event.stopImmediatePropagation();
       toast("لا يمكن حفظ تطبيق مكتمل قبل توثيق أساس حق صالح لهذه الأداة.");
       inputFor("rightsBasis").focus();
       return;
     }
-    const suspicious = `${form.elements.scoreReference.value} ${form.elements.notes.value}`;
-    if (/(مفتاح\s*التصحيح|جدول\s*المعايير|إجابات\s*البنود|نص\s*البند|answer\s*key|norm\s*table)/i.test(suspicious)) {
+    if (rightsBasis !== "pending_review" && !contract.permittedRightsBases.includes(rightsBasis)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      toast("أساس الحق المحدد لا يتوافق مع نوع هذا السجل.");
+      inputFor("rightsBasis").focus();
+      return;
+    }
+    const reviewStatus = inputFor("reviewStatus").value;
+    if (["peer_reviewed", "team_reviewed"].includes(reviewStatus) && !inputFor("reviewedBy").value.trim()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      toast("سجل اسمًا أو دورًا مهنيًا للمراجع قبل اعتماد مراجعة الزميل أو الفريق.");
+      inputFor("reviewedBy").focus();
+      return;
+    }
+
+    const formData = new FormData(form);
+    if (PROTECTED_TEXT.test(protectedTextIn(formData))) {
       event.preventDefault();
       event.stopImmediatePropagation();
       toast("رُفض الحفظ لأن النص قد يتضمن مادة محمية. سجل الخلاصة والمرجع الرسمي فقط.");
       return;
     }
+    const caseRecord = store.cases.find((item) => item.caseId === formData.get("caseId"));
+    if (!caseRecord) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      toast("تعذر العثور على الحالة المحددة.");
+      return;
+    }
 
-    const payload = collectStructuredRecord();
-    const caseId = form.elements.caseId.value;
-    const toolId = form.elements.toolId.value;
-    const beforeCount = store.cases.find((item) => item.caseId === caseId)?.professionalAssessments?.length || 0;
-    queueMicrotask(() => {
-      const caseRecord = store.cases.find((item) => item.caseId === caseId);
-      const records = caseRecord?.professionalAssessments || [];
-      if (records.length !== beforeCount + 1) {
-        console.error("Professional record was not created; structured metadata was not attached.");
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    form.dataset.v220Saving = "true";
+    try {
+      const now = new Date().toISOString();
+      const maturity = collectStructuredRecord(tool, now);
+      const record = {
+        recordId: id("PRO"),
+        toolId: clean(formData.get("toolId"), 180),
+        toolName: clean(formData.get("toolName"), 240),
+        category: clean(formData.get("category"), 180),
+        recordStatus: clean(formData.get("recordStatus"), 40) || "planned",
+        administrationDate: clean(formData.get("administrationDate"), 20),
+        assignedEntityLabel: clean(formData.get("assignedEntityLabel"), 120),
+        performerName: clean(formData.get("performerName"), 120),
+        administrationMode: clean(formData.get("administrationMode"), 40),
+        versionLanguage: clean(formData.get("versionLanguage"), 160),
+        practitionerQualification: maturity.administrator.qualification,
+        resultSourceType: maturity.officialResultSource.type,
+        reportReference: maturity.officialResultSource.reference,
+        reportIssuer: maturity.instrument.publisher,
+        outcomeLabel: clean(formData.get("outcomeLabel"), 240),
+        scoreReference: clean(formData.get("scoreReference"), 240),
+        notes: clean(formData.get("notes"), 3000),
+        nextAction: clean(formData.get("nextAction"), 60) || "review",
+        rightsConfirmed: formData.get("rightsConfirmed") === "on",
+        recordedAt: now,
+        recordedByUid: identity.uid,
+        recordedByRole: identity.role,
+        activationVersion: "1.0.0",
+        professionalMaturity: maturity,
+        professionalContractVersion: VERSION,
+        digitalAdministrationOccurredInsidePlatform: false,
+        protectedContentStored: false,
+      };
+      if (!persistAtomically(caseRecord, record, now)) {
+        toast("تعذر تثبيت السجل محليًا؛ لم يُضف سجل جزئي.");
         return;
       }
-      const record = records[records.length - 1];
-      if (record.toolId !== toolId || record.professionalMaturity) {
-        console.error("Professional record identity mismatch; structured metadata was not attached.");
-        return;
-      }
-      record.professionalMaturity = payload;
-      record.professionalContractVersion = VERSION;
-      record.digitalAdministrationOccurredInsidePlatform = false;
-      record.protectedContentStored = false;
-      caseRecord.updatedAt = new Date().toISOString();
-      save();
       render();
-    });
+      const dialog = document.getElementById("professional-record-dialog");
+      if (dialog?.open && typeof dialog.close === "function") dialog.close();
+      else dialog?.removeAttribute("open");
+      view("professional-records");
+      toast("تم حفظ السجل المهني وعقد الحقوق في عملية محلية واحدة.");
+    } finally {
+      delete form.dataset.v220Saving;
+    }
+  };
+
+  const fillCaseOptions = (select, selected = "") => {
+    select.innerHTML = store.cases.length
+      ? store.cases.map((caseRecord) => `<option value="${escapeHtml(caseRecord.caseId)}"${caseRecord.caseId === selected ? " selected" : ""}>${escapeHtml(caseRecord.alias)} — ${escapeHtml(caseRecord.caseId)}</option>`).join("")
+      : '<option value="">لا توجد حالات؛ أنشئ حالة أولًا</option>';
+  };
+
+  const openRecordForTool = (toolId) => {
+    if (!store.cases.length) {
+      toast("أنشئ حالة أولًا، ثم وثق التطبيق المهني أو التقرير الرسمي.");
+      if (typeof newCase === "function") newCase();
+      return;
+    }
+    const tool = data.professional.find((item) => item.id === toolId);
+    if (!tool?.professionalContract) return toast("تعذر تحميل عقد الأداة المهنية.");
+    form.reset();
+    form.elements.toolId.value = tool.id;
+    form.elements.toolName.value = tool.name;
+    form.elements.category.value = tool.category || "مسار مهني";
+    form.elements.administrationDate.value = new Date().toISOString().slice(0, 10);
+    form.elements.administrationMode.value = tool.professionalContract.recordType === "external_official_result_record" ? "external_import" : "in_person";
+    fillCaseOptions(form.elements.caseId, (typeof selectedCase !== "undefined" && selectedCase) || store.cases[0]?.caseId);
+    const title = document.getElementById("professional-record-title");
+    if (title) title.textContent = tool.professionalContract.recordType === "external_official_result_record" ? `تسجيل تقرير ${tool.name}` : `توثيق تطبيق ${tool.name}`;
+    updateContractUi();
+    const dialog = document.getElementById("professional-record-dialog");
+    if (dialog?.showModal) dialog.showModal();
+    else dialog?.setAttribute("open", "");
   };
 
   const findRecord = (recordId) => {
@@ -198,15 +343,30 @@
 
   const enhanceCatalog = () => {
     document.querySelectorAll("#professional-list .catalog-row").forEach((card) => {
-      if (card.querySelector("[data-professional-contract-v220]")) return;
-      const title = card.querySelector("h3")?.textContent || "";
-      const tool = data.professional.find((item) => title.includes(item.name));
+      const title = card.querySelector("h3")?.textContent?.trim() || "";
+      const tool = data.professional.find((item) => item.name === title || title.includes(item.name));
       if (!tool?.professionalContract) return;
-      const contract = document.createElement("div");
-      contract.className = "callout warning";
-      contract.dataset.professionalContractV220 = tool.id;
-      contract.innerHTML = `<strong>عقد الحقوق:</strong> ${tool.professionalContract.recordType === "external_official_result_record" ? "تسجيل تقرير خارجي رسمي فقط" : "يتطلب نسخة أصلية وترخيصًا ومؤهلًا موثقًا"}. لا تطبيق رقمي أو تخزين بنود داخل المنصة.`;
-      card.querySelector(".professional-card-actions")?.before(contract);
+      if (!card.querySelector("[data-professional-contract-v220]")) {
+        const contract = document.createElement("div");
+        contract.className = "callout warning";
+        contract.dataset.professionalContractV220 = tool.id;
+        contract.innerHTML = `<strong>عقد الحقوق:</strong> ${tool.professionalContract.recordType === "external_official_result_record" ? "تسجيل تقرير خارجي رسمي فقط" : "يتطلب نسخة أصلية وترخيصًا ومؤهلًا موثقًا"}. لا تطبيق رقمي أو تخزين بنود داخل المنصة.`;
+        card.querySelector(".professional-card-actions")?.before(contract) || card.appendChild(contract);
+      }
+      if (!card.querySelector("[data-v220-record-tool]")) {
+        let actions = card.querySelector(".professional-card-actions");
+        if (!actions) {
+          actions = document.createElement("div");
+          actions.className = "professional-card-actions";
+          card.appendChild(actions);
+        }
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "button secondary small-button";
+        button.dataset.v220RecordTool = tool.id;
+        button.textContent = tool.professionalContract.recordType === "external_official_result_record" ? "تسجيل تقرير رسمي" : "توثيق تطبيق مرخص";
+        actions.appendChild(button);
+      }
     });
   };
 
@@ -246,17 +406,26 @@
     link.href = url;
     link.download = `${recordId}.json`;
     link.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 500);
   };
 
   document.addEventListener("click", (event) => {
-    const trigger = event.target.closest("[data-professional-tool],#professional-record-new");
+    const recordTool = event.target.closest("[data-v220-record-tool]");
+    if (recordTool) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      openRecordForTool(recordTool.dataset.v220RecordTool);
+      return;
+    }
+    const trigger = event.target.closest("#professional-record-new");
     if (trigger) queueMicrotask(updateContractUi);
     const exportButton = event.target.closest("[data-export-professional-record]");
     if (exportButton) exportRecord(exportButton.dataset.exportProfessionalRecord);
   }, true);
   form.elements.recordStatus.addEventListener("change", updateContractUi);
-  form.addEventListener("submit", validateBeforeSave, true);
+  form.elements.administrationMode.addEventListener("change", updateContractUi);
+  form.addEventListener("reset", () => queueMicrotask(updateContractUi));
+  form.addEventListener("submit", saveAtomicProfessionalRecord, true);
 
   const refresh = () => {
     enhanceCatalog();
@@ -265,4 +434,5 @@
   new MutationObserver(refresh).observe(document.body, { childList: true, subtree: true });
   refresh();
   window.PA_PROFESSIONAL_REGISTRY_V220_REFRESH = refresh;
+  window.PA_PROFESSIONAL_RECORD_V220 = Object.freeze({ version: VERSION, openRecordForTool, collectStructuredRecord });
 })();
