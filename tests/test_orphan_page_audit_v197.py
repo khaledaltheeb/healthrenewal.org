@@ -60,7 +60,36 @@ class OrphanAuditTests(unittest.TestCase):
             self.assertIn("sections/", report["missing_gateways"])
             self.assertIn("comparisons/", report["missing_gateways"])
             self.assertIn("library/", report["missing_gateways"])
+            self.assertIn("magazine/", report["missing_gateways"])
+            self.assertIn("trust/", report["missing_gateways"])
             self.assertEqual(report["status"], "failed")
+
+    def test_magazine_and_trust_must_exist_link_and_map_when_required(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = Path(tmp)
+            links = '<a href="magazine/">المجلة</a><a href="trust/">منهج المصادر</a>'
+            (site / "index.html").write_text(PAGE.format(links), encoding="utf-8")
+            for route in ("magazine", "trust"):
+                page = site / route / "index.html"
+                page.parent.mkdir()
+                page.write_text(PAGE.format(''), encoding="utf-8")
+            (site / "sitemap-institutional.xml").write_text(
+                '<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+                '<url><loc>https://khaledaltheeb.github.io/pterminology-site/</loc></url>'
+                '<url><loc>https://khaledaltheeb.github.io/pterminology-site/magazine/</loc></url>'
+                '<url><loc>https://khaledaltheeb.github.io/pterminology-site/trust/</loc></url>'
+                '</urlset>',
+                encoding="utf-8",
+            )
+            report = module.audit(site)
+            self.assertNotIn("magazine/", report["critical_orphans"])
+            self.assertNotIn("trust/", report["critical_orphans"])
+            self.assertNotIn("magazine/", report["critical_unmapped"])
+            self.assertNotIn("trust/", report["critical_unmapped"])
+
+            required = set(module.REQUIRED_GATEWAYS)
+            self.assertIn("magazine/", required)
+            self.assertIn("trust/", required)
 
     def test_section_directory_must_be_linked_and_sitemapped(self):
         with tempfile.TemporaryDirectory() as tmp:
