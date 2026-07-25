@@ -1,0 +1,56 @@
+name: Integrate twenty-five special-needs guides v221
+
+on:
+  pull_request:
+    branches: ["fix/special-needs-guide-hub-v221", "main"]
+    paths:
+      - "scripts/publish_special_needs_guides_v217.py"
+      - "scripts/publish_special_needs_guides_v217_core.py"
+      - "scripts/publish_special_needs_guides_v214.py"
+      - "scripts/publish_special_needs_guides_v209_compat.py"
+      - "content/v214/**"
+      - "content/v221/special-needs-guides-production-manifest-ar.json"
+      - "tests/test_special_needs_guides_v214.py"
+      - "tests/test_special_needs_guides_v221_integration.py"
+      - ".github/workflows/validate-special-needs-guides-v221-integration.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: special-needs-guides-v221-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publishers and integration tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_special_needs_guides_v209.py \
+            scripts/publish_special_needs_guides_v209_compat.py \
+            scripts/publish_special_needs_guides_v210.py \
+            scripts/publish_special_needs_guides_v211.py \
+            scripts/publish_special_needs_guides_v212.py \
+            scripts/publish_special_needs_guides_v214.py \
+            scripts/publish_special_needs_guides_v217_core.py \
+            scripts/publish_special_needs_guides_v217.py \
+            tests/test_special_needs_guides_v214.py \
+            tests/test_special_needs_guides_v221_integration.py
+      - name: Validate production manifest and fifth-batch sources
+        run: |
+          python -m json.tool content/v221/special-needs-guides-production-manifest-ar.json >/dev/null
+          python -m json.tool content/v214/special-needs-guides-manifest-ar.json >/dev/null
+          for file in content/v214/special-needs-guides/*.json; do python -m json.tool "$file" >/dev/null; done
+      - name: Validate v214 depth sources language and idempotence
+        run: python -m unittest -v tests.test_special_needs_guides_v214
+      - name: Validate five-batch production integration
+        run: python -m unittest -v tests.test_special_needs_guides_v221_integration

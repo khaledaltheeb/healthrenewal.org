@@ -1,0 +1,43 @@
+{
+  "version": 221,
+  "status": "production-integrated",
+  "review_status": "internally-reviewed",
+  "external_review": "recommended-not-completed",
+  "title": "بيان إنتاج الأدلة العملية المتخصصة للأشخاص ذوي الاحتياجات الخاصة",
+  "publisher": "scripts/publish_special_needs_guides_v217.py",
+  "batches": [
+    209,
+    210,
+    211,
+    212,
+    214
+  ],
+  "source_files": [
+    "content/v209/special-needs-guides/aac-daily-communication-access.json",
+    "content/v209/special-needs-guides/accessible-learning-materials-arabic.json",
+    "content/v209/special-needs-guides/assistive-technology-task-matching.json",
+    "content/v209/special-needs-guides/family-school-collaboration-meeting.json",
+    "content/v209/special-needs-guides/inclusive-classroom-adjustments-plan.json",
+    "content/v210/special-needs-guides/adaptive-skills-stepwise-teaching.json",
+    "content/v210/special-needs-guides/autism-daily-participation-support.json",
+    "content/v210/special-needs-guides/early-intervention-family-action-plan.json",
+    "content/v210/special-needs-guides/hearing-access-classroom-home.json",
+    "content/v210/special-needs-guides/vision-access-orientation-learning.json",
+    "content/v211/special-needs-guides/caregiver-wellbeing-sustainable-support-plan.json",
+    "content/v211/special-needs-guides/cerebral-palsy-mobility-participation-plan.json",
+    "content/v211/special-needs-guides/safeguarding-bullying-abuse-response-plan.json",
+    "content/v211/special-needs-guides/sensory-regulation-daily-environment-plan.json",
+    "content/v211/special-needs-guides/transition-adulthood-employment-independence.json",
+    "content/v212/special-needs-guides/adhd-executive-function-school-home-plan.json",
+    "content/v212/special-needs-guides/community-participation-rights-access-plan.json",
+    "content/v212/special-needs-guides/individual-learning-support-plan.json",
+    "content/v212/special-needs-guides/learning-differences-reading-writing-math-support.json",
+    "content/v212/special-needs-guides/provider-center-quality-selection-checklist.json",
+    "content/v214/special-needs-guides/accessible-family-emergency-preparedness-plan.json",
+    "content/v214/special-needs-guides/assessment-homework-accommodations-plan.json",
+    "content/v214/special-needs-guides/inclusive-play-peer-friendship-plan.json",
+    "content/v214/special-needs-guides/siblings-family-balance-support-plan.json",
+    "content/v214/special-needs-guides/visual-schedules-transitions-home-school-plan.json"
+  ],
+  "blocked_review_files_excluded": 3
+}
