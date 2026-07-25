@@ -30,14 +30,14 @@ class MagazineResearchV234Tests(unittest.TestCase):
 
     def test_publishes_every_discovered_article_and_sitemap(self) -> None:
         pages = MODULE.article_files()
-        self.assertEqual(len(pages), 50)
+        self.assertEqual(len(pages), 60)
         with tempfile.TemporaryDirectory() as directory:
             site = self.make_site(Path(directory))
             report = MODULE.publish(site)
             self.assertEqual(report["version"], 234)
-            self.assertEqual(report["research_summaries_published"], 50)
-            self.assertEqual(len(report["articles"]), 50)
-            self.assertEqual(report["sitemap"]["child_urls"], 51)
+            self.assertEqual(report["research_summaries_published"], 60)
+            self.assertEqual(len(report["articles"]), 60)
+            self.assertEqual(report["sitemap"]["child_urls"], 61)
             self.assertEqual(report["unwired_research_pages"], 0)
             magazine = site / "magazine"
             source_headings = ("المصدر الأصلي", "السجل الأصلي", "السجل الجامعي", "السجل الجامعي الأصلي")
@@ -49,12 +49,12 @@ class MagazineResearchV234Tests(unittest.TestCase):
                 self.assertTrue(any(term in text for term in limitation_terms), path.name)
             sitemap = ET.parse(site / "sitemap-magazine.xml").getroot()
             urls = [node.text for node in sitemap.findall("{*}url/{*}loc")]
-            self.assertEqual(len(urls), 51)
+            self.assertEqual(len(urls), 61)
             self.assertEqual(len(urls), len(set(urls)))
             for path in pages:
                 self.assertIn(MODULE.URL + path.name, urls)
             saved = json.loads((site / "api" / "magazine-v201.json").read_text(encoding="utf-8"))
-            self.assertEqual(saved["research_summaries_published"], 50)
+            self.assertEqual(saved["research_summaries_published"], 60)
             self.assertEqual(set(saved["articles"]), {path.name for path in pages})
 
     def test_publish_is_idempotent(self) -> None:
@@ -70,8 +70,8 @@ class MagazineResearchV234Tests(unittest.TestCase):
 
     def test_index_exposes_every_discovered_article(self) -> None:
         index = (ROOT / "magazine" / "index.html").read_text(encoding="utf-8")
-        self.assertIn('"numberOfItems":50', index)
-        self.assertEqual(index.count('class="card"'), 50)
+        self.assertIn('"numberOfItems":60', index)
+        self.assertEqual(index.count('class="card"'), 60)
         for path in MODULE.article_files():
             self.assertGreaterEqual(index.count(f'href="{path.name}"'), 2)
             self.assertIn(MODULE.URL + path.name, index)
@@ -96,6 +96,16 @@ class MagazineResearchV234Tests(unittest.TestCase):
             "neurodevelopmental-exercise-executive-function-meta-analysis-2026.html": ("527 طفلًا", "I² = 81%"),
             "neurodevelopmental-sleep-family-wellbeing-review-2026.html": ("العلاقة قد تكون دائرية", "كثرة الدراسات المقطعية"),
             "down-syndrome-adult-medical-care-systematic-review-2026.html": ("8680 مرجعًا", "لم تُحدد دراسات مؤهلة"),
+            "dcd-school-motor-interventions-meta-analysis-2026.html": ("Hedges g = 1.06", "لا تضمن التحسن نفسه"),
+            "dcd-subtypes-systematic-review-2026.html": ("1,719 سجلًا", "لا يجوز استخدام هذه الأنماط"),
+            "dcd-action-observation-motor-imagery-review-2026.html": ("199 طفلًا", "بديل عن التدريب الوظيفي"),
+            "childhood-vision-impairment-longitudinal-review-2026.html": ("57,768 مشاركًا", "لا يثبت أن ضعف البصر وحده"),
+            "visual-impairment-mental-health-review-2026.html": ("مراجعة سردية", "لا يعني أن كل شخص"),
+            "intellectual-disability-healthcare-transition-review-2026.html": ("28 دراسة", "لا تختبر نموذج انتقال واحدًا"),
+            "unilateral-cerebral-palsy-participation-meta-analysis-2026.html": ("I²=95%", "لا توجد طريقة واحدة"),
+            "deaf-hard-hearing-adult-mental-disorders-review-2026.html": ("8,578,466", "لا تعني أن كل شخص"),
+            "dysgraphia-interventions-scoping-review-2026.html": ("47 دراسة", "لا تحسب أثرًا علاجيًا مجمعًا"),
+            "cerebral-palsy-participation-quality-life-study-2026.html": ("59 طفلًا", "لا تثبت اتجاه السببية"),
         }
         for filename, markers in checks.items():
             text = (ROOT / "magazine" / filename).read_text(encoding="utf-8")
