@@ -135,13 +135,21 @@ def upgrade(*args: Any, **kwargs: Any) -> dict[str, Any]:
         raise TypeError("upgrade() requires the generated site directory")
     site = Path(args[0])
     source_path = _source_path(args, kwargs)
-    report = dict(_BUNDLE_UPGRADE(*args, **kwargs))
-
     payload = json.loads(source_path.read_text(encoding="utf-8"))
     articles = payload.get("articles")
     if not isinstance(articles, list) or len(articles) != 20:
         raise RuntimeError("Home-sector semantic depth contract requires twenty source articles")
 
+    article_paths = {
+        str(article["slug"]): site / "sectors" / "home" / str(article["slug"]) / "index.html"
+        for article in articles
+    }
+    before_articles = {
+        slug: path.read_text(encoding="utf-8") if path.is_file() else None
+        for slug, path in article_paths.items()
+    }
+
+    report = dict(_BUNDLE_UPGRADE(*args, **kwargs))
     blocks_added = 0
     hub_path = site / "sectors" / "home" / "index.html"
     blocks_added += int(_inject_once(hub_path, HUB_DEPTH_MARKER, _hub_depth_block()))
@@ -149,10 +157,14 @@ def upgrade(*args: Any, **kwargs: Any) -> dict[str, Any]:
     article_words: list[int] = []
     for article in articles:
         slug = str(article["slug"])
-        path = site / "sectors" / "home" / slug / "index.html"
+        path = article_paths[slug]
         blocks_added += int(_normalize_article_depth_block(path, _article_depth_block(article)))
         article_words.append(semantic_visible_words(path.read_text(encoding="utf-8")))
 
+    final_article_changes = sum(
+        before_articles[slug] != path.read_text(encoding="utf-8")
+        for slug, path in article_paths.items()
+    )
     hub_words = semantic_visible_words(hub_path.read_text(encoding="utf-8"))
     minimum_article_words = min(article_words)
     if hub_words < MINIMUM_HUB_WORDS or minimum_article_words < MINIMUM_ARTICLE_WORDS:
@@ -166,6 +178,7 @@ def upgrade(*args: Any, **kwargs: Any) -> dict[str, Any]:
         })
 
     report.update({
+        "article_pages_enriched": final_article_changes,
         "hub_words": hub_words,
         "minimum_article_words": minimum_article_words,
         "word_count_method": "semantic-visible-tokens-v244",
