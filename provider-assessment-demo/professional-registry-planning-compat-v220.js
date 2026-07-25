@@ -65,6 +65,25 @@
     return valid;
   };
 
+  const loadUpgradePath = () => {
+    if (document.querySelector('script[data-professional-schema-compat-v220]')) return;
+    const schema = document.createElement("script");
+    schema.src = "professional-registry-schema-compat-v220.js?release=220.1";
+    schema.defer = true;
+    schema.dataset.professionalSchemaCompatV220 = "220.1";
+    schema.addEventListener("load", () => {
+      if (document.querySelector('script[data-professional-edit-v220]')) return;
+      const edit = document.createElement("script");
+      edit.src = "professional-registry-edit-v220.js?release=220.1";
+      edit.defer = true;
+      edit.dataset.professionalEditV220 = "220.1";
+      edit.addEventListener("error", () => console.error("Failed to load professional record upgrade editor v220"), { once: true });
+      document.head.appendChild(edit);
+    }, { once: true });
+    schema.addEventListener("error", () => console.error("Failed to load professional schema compatibility v220"), { once: true });
+    document.head.appendChild(schema);
+  };
+
   const scheduleApply = () => queueMicrotask(() => queueMicrotask(apply));
   form.elements.recordStatus.addEventListener("change", scheduleApply);
   document.addEventListener("click", (event) => {
@@ -74,6 +93,7 @@
   }, true);
   new MutationObserver(scheduleApply).observe(form, { childList: true, subtree: true });
   apply();
+  loadUpgradePath();
 
   window.PA_PROFESSIONAL_PLANNING_COMPAT_V220 = Object.freeze({
     version: "220.2",
@@ -81,5 +101,7 @@
     planningDraftAllowed: true,
     completedRightsRequired: true,
     baseFormValidationPreserved: true,
+    legacyRecordsUpgradable: true,
+    schemaMigrationAudited: true,
   });
 })();
