@@ -39,6 +39,7 @@ class MagazineResearchV234Tests(unittest.TestCase):
             self.assertEqual(len(report["articles"]), 60)
             self.assertEqual(report["sitemap"]["child_urls"], 61)
             self.assertEqual(report["unwired_research_pages"], 0)
+            self.assertEqual(report["index_contract"], "generated-from-discovered-articles")
             magazine = site / "magazine"
             source_headings = ("المصدر الأصلي", "السجل الأصلي", "السجل الجامعي", "السجل الجامعي الأصلي")
             limitation_terms = ("حدود", "قيود", "الحذر")
@@ -68,11 +69,13 @@ class MagazineResearchV234Tests(unittest.TestCase):
             self.assertEqual(sitemap_before, (site / "sitemap-magazine.xml").read_bytes())
             self.assertEqual(index_before, (site / "magazine" / "index.html").read_bytes())
 
-    def test_index_exposes_every_discovered_article(self) -> None:
-        index = (ROOT / "magazine" / "index.html").read_text(encoding="utf-8")
+    def test_generated_index_exposes_every_discovered_article(self) -> None:
+        pages = MODULE.article_files()
+        index = MODULE.render_index(pages)
         self.assertIn('"numberOfItems":60', index)
         self.assertEqual(index.count('class="card"'), 60)
-        for path in MODULE.article_files():
+        self.assertEqual(index.count('"@type":"ScholarlyArticle"'), 60)
+        for path in pages:
             self.assertGreaterEqual(index.count(f'href="{path.name}"'), 2)
             self.assertIn(MODULE.URL + path.name, index)
 
