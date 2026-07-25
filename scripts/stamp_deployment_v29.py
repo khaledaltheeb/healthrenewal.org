@@ -42,12 +42,14 @@ def main() -> None:
         "hub_h1": 1,
         "banned_term_present": False,
         "diagnostic_claim_present": False,
+        "word_count_method": "semantic-visible-tokens-v244",
+        "depth_contract_version": 244,
     }
     for key, expected in required_home_contract.items():
         if home_sector.get(key) != expected:
-            raise SystemExit({"invalid_home_sector_v234_evidence": {"key": key, "expected": expected, "actual": home_sector.get(key)}})
-    if int(home_sector.get("hub_words", 0)) < 1800 or int(home_sector.get("minimum_article_words", 0)) < 450:
-        raise SystemExit({"insufficient_home_sector_v234_depth": home_sector})
+            raise SystemExit({"invalid_home_sector_v244_evidence": {"key": key, "expected": expected, "actual": home_sector.get(key)}})
+    if int(home_sector.get("hub_words", 0)) < 2919 or int(home_sector.get("minimum_article_words", 0)) < 819:
+        raise SystemExit({"insufficient_home_sector_v244_semantic_depth": home_sector})
 
     child_sector = upgrade_child_sector(SITE)
     required_child_contract = {
@@ -141,7 +143,7 @@ def main() -> None:
         "workflow_run": os.environ["GITHUB_RUN_ID"],
         "workflow_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "1"),
         "validated_at": datetime.now(timezone.utc).isoformat(),
-        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, home-sector v234 depth and safety, child-sector v239 depth and safety, women-sector v244 depth and safety, critical artifact SHA-256",
+        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, home-sector v244 semantic depth and safety, child-sector v239 depth and safety, women-sector v244 depth and safety, critical artifact SHA-256",
         "pwa_pages": int(pwa["pages_scanned"]),
         "metadata_pages": int(metadata["pages_scanned"]),
         "metadata_version": int(metadata["version"]),
@@ -150,6 +152,8 @@ def main() -> None:
         "home_sector_articles": int(home_sector["source_articles"]),
         "home_sector_hub_words": int(home_sector["hub_words"]),
         "home_sector_minimum_article_words": int(home_sector["minimum_article_words"]),
+        "home_sector_word_count_method": str(home_sector["word_count_method"]),
+        "home_sector_depth_contract_version": int(home_sector["depth_contract_version"]),
         "child_sector_version": int(child_sector["version"]),
         "child_sector_articles": int(child_sector["source_articles"]),
         "child_sector_hub_words": int(child_sector["hub_words"]),
