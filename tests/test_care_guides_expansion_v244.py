@@ -30,13 +30,15 @@ TRUSTED_HOSTS = {"www.who.int", "www.nice.org.uk", "www.nhs.uk"}
 class CareGuidesExpansionV244Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.guides: list[dict] = []
-        for path in V244_FILES:
-            payload = json.loads(path.read_text(encoding="utf-8"))
-            cls.assertGreaterEqual(cls, payload.get("version", 0), 244, path.name)
-            cls.assertEqual(cls, payload.get("language"), "ar", path.name)
-            cls.assertEqual(cls, len(payload.get("guides", [])), 1, path.name)
-            cls.guides.extend(payload["guides"])
+        cls.payloads = [json.loads(path.read_text(encoding="utf-8")) for path in V244_FILES]
+        cls.guides = [guide for payload in cls.payloads for guide in payload.get("guides", [])]
+
+    def test_payload_contract(self) -> None:
+        self.assertEqual(len(self.payloads), 6)
+        for path, payload in zip(V244_FILES, self.payloads):
+            self.assertGreaterEqual(payload.get("version", 0), 244, path.name)
+            self.assertEqual(payload.get("language"), "ar", path.name)
+            self.assertEqual(len(payload.get("guides", [])), 1, path.name)
 
     def test_inventory_identity_and_depth(self) -> None:
         self.assertEqual(len(self.guides), 6)
