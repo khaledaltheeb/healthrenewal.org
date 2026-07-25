@@ -15,6 +15,8 @@ from scripts import publish_public_api_v215_core as _core
 from scripts.publish_public_api_v215_core import *  # noqa: F401,F403
 
 SECURITY_CONTRACT_VERSION = 218
+DISCOVERY_CONTRACT_VERSION = 229
+HOME_LINK_MARKER = 'data-developers-discovery-v229'
 _core_validate_courses = _core.validate_courses
 _core_course_schema = _core.course_schema
 _ACTIVE_SOURCE_EXPIRY: dict[str, str | None] = {}
@@ -91,6 +93,30 @@ def course_schema() -> dict[str, Any]:
     return schema
 
 
+def ensure_homepage_developers_link(site: Path) -> bool:
+    homepage = site / "index.html"
+    if not homepage.is_file():
+        return False
+    text = homepage.read_text(encoding="utf-8")
+    if HOME_LINK_MARKER in text:
+        return False
+    anchor = (
+        f'<a href="developers/" {HOME_LINK_MARKER}>'
+        "واجهة المطورين والتكامل</a>"
+    )
+    footer_marker = '<div class="footer-links">'
+    if footer_marker not in text:
+        raise PublicApiError("homepage footer links container is missing")
+    text = text.replace(footer_marker, footer_marker + anchor, 1)
+    homepage.write_text(text, encoding="utf-8")
+    return True
+
+
+def homepage_developers_link_present(site: Path) -> bool:
+    homepage = site / "index.html"
+    return homepage.is_file() and HOME_LINK_MARKER in homepage.read_text(encoding="utf-8")
+
+
 _core.public_sources = public_sources
 _core.validate_courses = validate_courses
 _core.course_schema = course_schema
@@ -101,14 +127,19 @@ def publish(
     manifest_path: Path = SOURCE_MANIFEST,
     import_path: Path | None = None,
 ) -> dict[str, Any]:
+    target = Path(site).resolve()
     report = _core.publish(
-        site=site,
+        site=target,
         manifest_path=manifest_path,
         import_path=import_path,
     )
+    homepage_link_added = ensure_homepage_developers_link(target)
     report["security_contract_version"] = SECURITY_CONTRACT_VERSION
     report["permission_expiry_revalidated"] = True
     report["course_source_windows_matched"] = True
+    report["discovery_contract_version"] = DISCOVERY_CONTRACT_VERSION
+    report["developers_homepage_link_added"] = homepage_link_added
+    report["developers_homepage_link_present"] = homepage_developers_link_present(target)
     report_path = ROOT / ".build" / "reports" / "public-api-v215.json"
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(
