@@ -108,6 +108,23 @@ def update_brand_metadata(text: str) -> tuple[str, int]:
     return text, replacements
 
 
+def publish_magazine(site: Path) -> dict[str, object]:
+    publisher = Path(__file__).with_name("publish_magazine_v201.py")
+    subprocess.run([sys.executable, str(publisher), str(site)], check=True)
+    report_path = site / "api" / "magazine-v201.json"
+    if not report_path.is_file():
+        raise SystemExit("Magazine production report was not created")
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    if report.get("research_summaries_published") != 40:
+        raise SystemExit(f"Magazine production requires 40 pages: {report}")
+    if report.get("unwired_research_pages") != 0:
+        raise SystemExit(f"Magazine has unwired pages: {report}")
+    index = site / "magazine" / "index.html"
+    if not index.is_file() or '"numberOfItems":40' not in index.read_text(encoding="utf-8"):
+        raise SystemExit("Magazine production index contract failed")
+    return report
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("site", type=Path)
@@ -122,6 +139,8 @@ def main() -> int:
     subprocess.run([sys.executable, str(trust_guides_link_finalizer), str(site)], check=True)
     trust_guides_published = True
     trust_guides_links_finalized = True
+
+    magazine_report = publish_magazine(site)
 
     special_needs_published = False
     special_needs_accessibility_finalized = False
@@ -146,6 +165,10 @@ def main() -> int:
         "trust_guides_published": trust_guides_published,
         "trust_guides_links_finalized": trust_guides_links_finalized,
         "trust_guides_report": "api/trust-guides-v201.json",
+        "magazine_published": True,
+        "magazine_pages": magazine_report["research_summaries_published"],
+        "magazine_unwired_pages": magazine_report["unwired_research_pages"],
+        "magazine_report": "api/magazine-v201.json",
         "special_needs_hub_published": special_needs_published,
         "special_needs_hub_accessibility_finalized": special_needs_accessibility_finalized,
         "special_needs_hub_report": "api/special-needs-hub-v201.json" if special_needs_published else None,
