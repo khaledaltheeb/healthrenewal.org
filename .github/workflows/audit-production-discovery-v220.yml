@@ -47,6 +47,9 @@ jobs:
             tests/test_term_content_depth_v224.py \
             scripts/enrich_provider_condition_pages_v231.py \
             tests/test_provider_condition_content_v231.py \
+            scripts/publish_provider_condition_discovery_v238.py \
+            scripts/publish_provider_condition_discovery_v238_compat.py \
+            tests/test_provider_condition_discovery_v238_compat.py \
             scripts/enrich_residual_public_pages_v232.py \
             tests/test_residual_public_content_v232.py \
             scripts/deepen_assessment_cognitive_hubs_v233.py \
@@ -59,6 +62,7 @@ jobs:
             tests.test_content_depth_v222 \
             tests.test_term_content_depth_v224 \
             tests.test_provider_condition_content_v231 \
+            tests.test_provider_condition_discovery_v238_compat \
             tests.test_residual_public_content_v232 \
             tests.test_advanced_content_depth_v233 \
             tests.test_homepage_release_contract_v230
@@ -71,6 +75,7 @@ jobs:
           python scripts/enrich_term_pages_v224.py validated-site
           python scripts/enrich_provider_condition_pages_v231.py validated-site
           python scripts/enrich_residual_public_pages_v232.py validated-site
+          python scripts/publish_provider_condition_discovery_v238_compat.py validated-site
           python scripts/audit_content_quality_v32.py validated-site
           python - <<'PY'
           import json
@@ -81,6 +86,7 @@ jobs:
           depth = json.loads((root / 'api/content-depth-v222.json').read_text(encoding='utf-8'))
           terms = json.loads((root / 'api/term-content-depth-v224.json').read_text(encoding='utf-8'))
           provider = json.loads((root / 'api/provider-condition-content-v231.json').read_text(encoding='utf-8'))
+          provider_discovery = json.loads((root / 'api/provider-condition-discovery-v238.json').read_text(encoding='utf-8'))
           residual = json.loads((root / 'api/residual-public-content-v232.json').read_text(encoding='utf-8'))
           advanced = json.loads((root / 'api/advanced-content-depth-v233.json').read_text(encoding='utf-8'))
           quality = json.loads((root / 'api/content-quality-v32.json').read_text(encoding='utf-8'))
@@ -109,6 +115,17 @@ jobs:
           assert provider['remaining_below_minimum'] == 0, provider
           assert provider['missing_or_failed'] == 0, provider
           assert provider['duplicate_generated_blocks'] == 0, provider
+
+          assert provider_discovery['version'] == 238, provider_discovery
+          assert provider_discovery['status'] == 'passed', provider_discovery
+          assert provider_discovery['condition_count'] == 20, provider_discovery
+          assert provider_discovery['directory_links'] == 20, provider_discovery
+          assert provider_discovery['training_links'] == 1, provider_discovery
+          assert provider_discovery['sitemap_routes'] == 23, provider_discovery
+          assert provider_discovery['robots_sitemap_registered'] is True, provider_discovery
+          assert provider_discovery['root_sitemap_unchanged'] is True, provider_discovery
+          assert provider_discovery['static_html_discovery'] is True, provider_discovery
+          assert provider_discovery['javascript_required_for_discovery'] is False, provider_discovery
 
           assert residual['version'] == 232, residual
           assert residual['status'] == 'passed', residual
@@ -169,6 +186,9 @@ jobs:
               'provider_conditions': provider['conditions'],
               'provider_enriched_pages': provider['enriched_pages'],
               'provider_minimum_after_words': provider['minimum_after_words'],
+              'provider_directory_links': provider_discovery['directory_links'],
+              'provider_sitemap_routes': provider_discovery['sitemap_routes'],
+              'provider_root_sitemap_unchanged': provider_discovery['root_sitemap_unchanged'],
               'residual_target_pages': residual['target_pages'],
               'residual_enriched_pages': residual['enriched_pages'],
               'residual_minimum_after_words': residual['minimum_after_words'],
@@ -182,6 +202,8 @@ jobs:
           })
           PY
           test -f validated-site/assets/css/content-depth-v222.css
+          test -f validated-site/sitemap-provider-assessment.xml
+          test "$(grep -c 'sitemap-provider-assessment.xml' validated-site/robots.txt)" -eq 1
           ! grep -R -Eqi 'يعالج نهائيًا|شفاء مضمون|بديل عن الطبيب|تشخيصك هو' \
             validated-site/terms \
             validated-site/comparisons \
@@ -220,6 +242,8 @@ jobs:
               'required_gateways': len(required),
               'comparisons': 'discoverable',
               'library': 'discoverable',
+              'provider_conditions': 'discoverable',
+              'provider_training': 'discoverable',
           })
           PY
 
@@ -248,6 +272,7 @@ jobs:
             validated-site/api/content-depth-v222.json
             validated-site/api/term-content-depth-v224.json
             validated-site/api/provider-condition-content-v231.json
+            validated-site/api/provider-condition-discovery-v238.json
             validated-site/api/residual-public-content-v232.json
             validated-site/api/advanced-content-depth-v233.json
             validated-site/api/content-quality-v32.json
