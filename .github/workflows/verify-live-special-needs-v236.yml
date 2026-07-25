@@ -42,7 +42,12 @@ jobs:
       - name: Compile deterministic live verifier
         run: python -m py_compile scripts/verify_live_special_needs_v236.py
       - name: Prove live deployment SHA report sitemap hub and twenty-five guide routes
-        run: python scripts/verify_live_special_needs_v236.py --output live-special-needs-v236.json
+        run: |
+          set +e
+          python scripts/verify_live_special_needs_v236.py --output live-special-needs-v236.json 2>&1 | tee live-special-needs-v236.log
+          status=${PIPESTATUS[0]}
+          echo "verifier_exit_status=${status}" >> "$GITHUB_STEP_SUMMARY"
+          exit "${status}"
       - name: Validate evidence contract
         run: |
           python - <<'PY'
@@ -64,11 +69,13 @@ jobs:
             'status':'live-proof-passed',
           })
           PY
-      - name: Upload immutable live evidence
+      - name: Upload immutable live evidence and failure log
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: live-special-needs-v236
-          path: live-special-needs-v236.json
+          path: |
+            live-special-needs-v236.json
+            live-special-needs-v236.log
           if-no-files-found: warn
           retention-days: 30
