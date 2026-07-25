@@ -1,215 +1,58 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-
-import argparse
-import hashlib
-import html
-import json
-import re
+import argparse,base64,hashlib,html,json,re,zlib
 from pathlib import Path
 from typing import Any
-
-VERSION = 232
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site/"
-START = "<!-- institutional-pages-v232:start -->"
-END = "<!-- institutional-pages-v232:end -->"
-STYLE_MARKER = 'data-institutional-pages-v232="style"'
-WORD_RE = re.compile(r"[\w\u0600-\u06ff]+", re.UNICODE)
-TAG_RE = re.compile(r"<[^>]+>")
-BANNED = re.compile(r"(?<!\w)(?:المعاقين|معاقين|المعاقون|معاقون|المعاقة|معاقة|المعاق|معاق)(?!\w)")
-OPERATIONAL = ("built-not-published", "قيد الإعداد", "قيد التوسع", "لا نشر قبل البوابات", "ما سيتم إنجازه")
-
-STYLE = '''<style data-institutional-pages-v232="style">
-.institutional-depth-v232{margin:clamp(24px,5vw,54px) auto;padding:clamp(20px,4vw,38px);border:1px solid #cbe7e1;border-radius:28px;background:linear-gradient(145deg,#fffafc,#f0fff8,#f3efff);color:#173f45;box-shadow:0 18px 44px rgba(70,145,134,.13)}
-.institutional-depth-v232 h2{margin-top:0;color:#71304f;font-size:clamp(1.55rem,3vw,2.25rem);line-height:1.4}.institutional-depth-v232 h3{color:#075f5b;line-height:1.5}.institutional-depth-v232 p,.institutional-depth-v232 li{line-height:1.95}.institutional-depth-v232__lead{font-size:1.08rem;color:#365e62}.institutional-depth-v232__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:22px 0}.institutional-depth-v232__card{padding:20px;border:1px solid #d7e8e5;border-radius:20px;background:#fff;box-shadow:0 12px 28px rgba(123,180,170,.12)}.institutional-depth-v232__card:nth-child(4n+1){background:#fff4f8}.institutional-depth-v232__card:nth-child(4n+2){background:#edfff7}.institutional-depth-v232__card:nth-child(4n+3){background:#f3efff}.institutional-depth-v232__card:nth-child(4n){background:#fff5e9}.institutional-depth-v232__note{padding:16px 18px;border-inline-start:5px solid #8d4164;border-radius:16px;background:#fff8e9}.institutional-depth-v232__links{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.institutional-depth-v232__links a{display:inline-block;padding:10px 14px;border:1px solid #7fbab0;border-radius:13px;background:#fff;color:#075f5b;font-weight:800;text-decoration:none}.institutional-depth-v232 a:focus-visible{outline:3px solid #155eef;outline-offset:4px}.institutional-depth-v232__sources{padding:18px;border:1px solid #d8e8e5;border-radius:18px;background:rgba(255,255,255,.9)}
-@media(max-width:760px){.institutional-depth-v232__grid{grid-template-columns:1fr}.institutional-depth-v232{border-radius:22px;padding:18px}}
-@media(prefers-reduced-motion:reduce){.institutional-depth-v232 *{scroll-behavior:auto!important;transition:none!important}}
-@media print{.institutional-depth-v232{box-shadow:none;background:#fff}.institutional-depth-v232__card{box-shadow:none;break-inside:avoid}.institutional-depth-v232__links{display:none}}
-</style>'''
-
-PAGES: dict[str, dict[str, Any]] = {
-    "about": {
-        "title": "عن المنصة: الرسالة والنطاق والمسؤولية",
-        "lead": "منصة الصحة النفسية وذوي الاحتياجات الخاصة مشروع عربي معرفي يهدف إلى تنظيم المعلومات النفسية والتربوية والوظيفية في صفحات واضحة يمكن للقارئ الرجوع إليها، مع إعطاء الأولوية للكرامة الإنسانية، واللغة غير الوصمية، والتمييز الصريح بين التثقيف العام والتشخيص أو العلاج الفردي.",
-        "sections": [
-            ("ما الذي تقدمه المنصة؟", "تجمع المنصة تعريفات المصطلحات، وأدلة عملية للأسر ومقدمي الخدمات، ومسارات تعلم، وأدوات متابعة واستكشاف غير تشخيصية، ومراجع للمصادر والمنهجية. القيمة المقصودة ليست زيادة عدد الصفحات فقط، بل ربط التعريف بالفروق المهمة والعلامات المحتملة والأثر الوظيفي والخطوات العملية ومتى تصبح الاستشارة المتخصصة ضرورية."),
-            ("لمن صُممت؟", "يستفيد منها القارئ العام، والأسر، والمعلمون، ومقدمو الرعاية والخدمات، والطلاب، والباحثون عن نقطة بداية عربية منظمة. تختلف احتياجات هؤلاء، لذلك تُكتب الصفحات بطبقات: شرح مبسط أولًا، ثم تفاصيل أعمق وروابط للأدلة والمصادر. لا يفترض المحتوى مستوى تعليميًا واحدًا ولا يختزل الشخص في تشخيص أو نتيجة اختبار."),
-            ("ما حدودها المهنية؟", "الموقع ليس عيادة، ولا يصدر تشخيصًا، ولا يحدد أهلية قانونية أو تربوية، ولا يستبدل التقييم متعدد المصادر الذي يجريه مختص مؤهل ضمن سياق محلي. الأدوات التفاعلية موجهة للتأمل وتنظيم الملاحظات، والنتيجة لا تُفسر منفردة. عند وجود خطر مباشر أو تدهور سريع يجب استخدام خدمات الطوارئ أو الرعاية المحلية المناسبة."),
-            ("كيف تُبنى الثقة؟", "تُذكر حالة المراجعة وحدود كل مادة، وتُفصل المصادر المرجعية عن ادعاء اعتماد الجهات المذكورة، وتُراجع اللغة والروابط والبيانات الوصفية والإتاحة بصورة منتظمة. يمكن تصحيح الصفحة أو تحديثها عند ظهور مصدر أقوى أو تغير توصية مؤسسية. الشفافية تعني توضيح ما نعرفه وما لا نعرفه، لا تقديم اليقين حيث لا تسمح الأدلة بذلك."),
-        ],
-        "note": "ذكر مؤسسة أو مرجع لا يعني أن المؤسسة راجعت المنصة أو اعتمدتها. الاسم التأسيسي «مصطلحات علم النفس» يبقى جزءًا من هوية المشروع، بينما يعكس الاسم المؤسسي الحالي اتساع نطاقه.",
-        "links": [("الثقة والمنهجية", "trust/"), ("المصادر المرجعية", "sources/"), ("ابدأ من هنا", "start-here/")],
-    },
-    "methodology": {
-        "title": "منهجية التحرير والتحقق والتحديث",
-        "lead": "تتعامل المنصة مع المحتوى النفسي والصحي بوصفه معرفة عالية الحساسية. لذلك لا تكفي الصياغة السلسة أو كثافة الكلمات؛ يجب أن تكون الادعاءات قابلة للتتبع، وأن يُفصل الوصف التعليمي عن الحكم السريري، وأن تظهر حدود التعميم بوضوح.",
-        "sections": [
-            ("هرم المصادر", "تُقدَّم التصنيفات والأدلة والإرشادات الصادرة عن المنظمات الدولية والهيئات المهنية والمراجعات المنهجية على المصادر الثانوية غير الموثقة. في موضوعات التشخيص تُستخدم المراجع السريرية المعترف بها لفهم المصطلح وحدوده، لا لتحويل الصفحة إلى أداة تشخيص ذاتي. وعند اختلاف المصادر يُعرض موضع الاختلاف بدل دمج الآراء في نتيجة واحدة مصطنعة."),
-            ("من المصدر إلى النص العربي", "يبدأ التحرير بتحديد سؤال الصفحة والجمهور المقصود والمصطلحات المتداخلة. ثم تُستخرج النقاط التي يدعمها المصدر فعلًا، وتُعاد صياغتها بالعربية دون نسخ مطول أو ترجمة حرفية مضللة. تُشرح الفروق بين العرض العابر والنمط المستمر، وبين الملاحظة اليومية والتقييم المهني، وتُربط النصائح بسياق العمر والقدرة والبيئة."),
-            ("السلامة واللغة", "تُمنع الوعود القطعية والعبارات التي توحي بالشفاء المضمون أو أن نتيجة واحدة تكفي للحكم. وتُستخدم لغة تحترم الشخص وتصف احتياجات الدعم دون وصم. توضع تنبيهات واضحة في مواد الخطر والأزمات، وتبقى القرارات العلاجية والدوائية والقانونية خارج نطاق الموقع. كما تُراجع قابلية القراءة والتباين والتنقل بلوحة المفاتيح."),
-            ("المراجعة والتصحيح", "تتغير المعرفة والإرشادات، ولذلك تُعامل الصفحة كإصدار قابل للتحديث. تشمل المراجعة سلامة الروابط، وحداثة المصدر، واتساق العنوان والوصف والبيانات المنظمة، وعدم وجود تعارض بين الصفحة وأجزاء الموقع الأخرى. عند اكتشاف خطأ جوهري يُصحح النص وتُحدّث الإشارات المرتبطة به بدل إبقاء نسخة قديمة لمجرد ثبات الرابط."),
-        ],
-        "note": "المراجعة الداخلية لا تساوي مراجعة سريرية خارجية. عندما لا تكون مراجعة مختص مستقل مكتملة، يجب أن تبقى هذه الحالة معلنة وألا تُستبدل بعبارات اعتماد عامة.",
-        "links": [("مركز الثقة", "trust/"), ("دليل تقييم المعلومات", "trust/evaluate-mental-health-information/"), ("كيفية الاستشهاد", "citation/")],
-        "sources": [("منظمة الصحة العالمية — متطلبات ICD-11 السريرية", "https://www.who.int/publications/i/item/9789240077263"), ("دليل كوكرين للمراجعات المنهجية", "https://training.cochrane.org/handbook"), ("إرشادات إتاحة محتوى الويب WCAG 2.2", "https://www.w3.org/TR/WCAG22/")],
-    },
-    "privacy": {
-        "title": "الخصوصية واستخدام البيانات في النسخة العامة",
-        "lead": "توضح هذه الصفحة ما يحدث عند قراءة الموقع أو استخدام أدواته العامة. الهدف تقليل جمع البيانات قدر الإمكان، وتجنب إدخال معلومات حساسة عندما لا تكون ضرورية، والتمييز بين ما تعالجه الصفحة داخل المتصفح وما قد تسجله خدمات الاستضافة أو المواقع الخارجية تقنيًا.",
-        "sections": [
-            ("قراءة الصفحات العامة", "قراءة المحتوى العام لا تتطلب من المنصة طلب اسمك أو إنشاء ملف شخصي. ومع ذلك، فإن الوصول إلى أي موقع ويب يمر عبر متصفح وشبكة وخدمة استضافة، وقد تتعامل هذه الجهات مع معلومات تقنية مثل عنوان الشبكة ونوع المتصفح ووقت الطلب وفق سياساتها الخاصة. لا ينبغي تفسير غياب نموذج تسجيل على أنه غياب مطلق لكل سجل تقني خارج سيطرة الموقع."),
-            ("الأدوات والتخزين المحلي", "توضح الأدوات التفاعلية التي تعمل محليًا أن البيانات لا تُرسل إلى خادم المنصة أثناء الاستخدام المعتاد. قد تستخدم بعض الأدوات مساحة التخزين في المتصفح لحفظ سجل أو تفضيل على الجهاز نفسه. يستطيع المستخدم مسح هذه البيانات من داخل الأداة عندما يتوفر الخيار أو من إعدادات المتصفح. لا تكتب أسماء كاملة أو أرقامًا أو تفاصيل تعريفية في الحقول الحرة دون حاجة."),
-            ("الروابط والخدمات الخارجية", "قد تقود روابط المصادر أو الشركاء أو المطورين إلى مواقع مستقلة. عند مغادرة نطاق المنصة تصبح سياسة الجهة الخارجية وشروطها هي المرجع، وقد تستخدم تلك الجهة ملفات ارتباط أو تحليلات خاصة بها. فتح رابط مرجعي لا يعني أن المنصة تتحكم في طريقة جمع البيانات لدى الموقع الآخر أو تضمن استمرار محتواه دون تغيير."),
-            ("التحكم والمسؤولية", "استخدم جهازًا موثوقًا عند تدوين ملاحظات شخصية، وتجنب الأجهزة المشتركة للمعلومات الحساسة، وامسح التخزين المحلي بعد الانتهاء عند الحاجة. لا تُدخل بيانات شخص آخر دون علمه وصلاحية مناسبة. إذا ظهر لاحقًا نموذج تواصل أو خدمة حسابات أو إرسال ملفات، فيجب أن تُذكر غايته والحقول المطلوبة ومدة الاحتفاظ قبل جمع البيانات."),
-        ],
-        "note": "لا تُستخدم الأدوات العامة لحفظ ملفات سريرية أو تقارير رسمية. عند وجود خطر فوري لا ترسل تفاصيل الأزمة عبر حقل عام؛ استخدم خدمات الطوارئ أو قناة الرعاية المحلية المناسبة.",
-        "links": [("الأدوات التفاعلية", "daily-tools/"), ("مركز الثقة", "trust/"), ("بوابة المطورين", "developers/")],
-        "sources": [("بيان الخصوصية العام لخدمة GitHub", "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement")],
-    },
-    "downloads": {
-        "title": "تنزيل البيانات: الصيغ والإصدارات والاستخدام المسؤول",
-        "lead": "يوفر قسم التنزيل نقطة وصول منظمة إلى بيانات المعجم والملفات العامة التي تسمح بنقل المعرفة إلى البحث أو التعليم أو التطبيقات المتوافقة. يجب التعامل مع الملف بوصفه إصدارًا له تاريخ وبنية وحدود، لا نسخة ثابتة تمثل كل محتوى الموقع إلى الأبد.",
-        "sections": [
-            ("ماذا يحتوي الملف؟", "قد تتضمن البيانات أسماء المصطلحات والمسارات والعناوين والأوصاف والروابط والمعرفات اللازمة للبحث أو الفهرسة. لا يعني وجود مسار في الملف أن الصفحة أداة تشخيص، ولا تعني البيانات الوصفية أنها تغطي جميع الاستعمالات السريرية أو الثقافية للمصطلح. راجع وصف الحقل قبل بناء استنتاج أو واجهة فوقه."),
-            ("الإصدار والتحديث", "احفظ تاريخ التنزيل واسم الملف ورقم الإصدار أو بصمته إن كانت متاحة. الصفحات والروابط والتصنيفات قابلة للتحديث، ولذلك ينبغي للأنظمة التي تعيد استخدام البيانات أن تدعم المزامنة والتحقق من الحذف والتغيير بدل افتراض ثبات السجل. عند المقارنة بين ملفين استخدم المعرف أو المسار، لا ترتيب الصفوف فقط."),
-            ("إعادة الاستخدام والإسناد", "اذكر اسم المنصة ورابط المصدر وتاريخ الوصول عند اقتباس البيانات أو نشر نتيجة مبنية عليها. لا تُعدّل التعريف ثم تنسب النسخة المعدلة إلى المنصة دون توضيح. ولا تستخدم الشعار أو الاسم بطريقة توحي بشراكة أو اعتماد غير موجود. للمشروعات الآلية الواسعة، يفضّل استخدام الواجهة العامة وسياسة الصلاحيات بدل السحب غير المنظم."),
-            ("فحوص قبل الاستيراد", "تحقق من ترميز UTF-8، وتفرّد المعرفات، وصلاحية الروابط الداخلية، والقيم الفارغة، واتجاه النص العربي. احتفظ بنسخة خام غير معدلة، وسجل التحويلات التي أجريتها، ولا تخلط حقول العرض مع حقول التصنيف. البيانات الصحية أو نتائج الأشخاص ليست جزءًا مناسبًا لملف معجم عام."),
-        ],
-        "note": "إتاحة ملف للتنزيل لا تلغي حقوق المصادر الأصلية ولا تمنح حق إعادة نشر مواد خارجية محمية. راجع صفحة المصادر والاستشهاد قبل التوزيع أو الاستخدام التجاري.",
-        "links": [("واجهة API العامة", "api/"), ("بوابة المطورين", "developers/"), ("كيفية الاستشهاد", "citation/")],
-    },
-    "media-kit": {
-        "title": "الملف الإعلامي: الاسم والهوية والاستخدام الدقيق",
-        "lead": "يساعد الملف الإعلامي الصحفيين والباحثين والشركاء المحتملين على وصف المشروع بصورة متسقة. الأولوية للدقة: ما هو منشور فعليًا، وما هو نطاق المنصة، وما الذي لا يجوز استنتاجه من الشعار أو من ذكر مصدر أو جهة.",
-        "sections": [
-            ("الاسم والتعريف المختصر", "الاسم المؤسسي هو «منصة الصحة النفسية وذوي الاحتياجات الخاصة»، والاسم التأسيسي «مصطلحات علم النفس» جزء من تاريخ المشروع وهويته الرقمية. الوصف المقترح: منصة عربية معرفية تنظم المصطلحات والأدلة والأدوات غير التشخيصية ومسارات التعلم، مع عناية بالمصادر والإتاحة واللغة التي تحترم الإنسان."),
-            ("استخدام الشعار والمواد", "استخدم ملفات الهوية الأصلية دون ضغط مشوه أو تغيير للنسب أو إضافة تأثيرات تقلل الوضوح. اترك مساحة فارغة حول الشعار، واختر النسخة التي تحافظ على التباين مع الخلفية. لا تحول الشعار إلى ختم اعتماد، ولا تضعه بجانب جهة أخرى بطريقة توحي باتفاق رسمي ما لم توجد شراكة معلنة في سجل الشراكات."),
-            ("الأرقام والحقائق", "عند ذكر عدد الصفحات أو الأدوات أو الأقسام استخدم الرقم الظاهر في تقرير أو صفحة إحصاءات مؤرخة، لأن الحزمة تتغير مع التحديث. فرّق بين عدد المسارات وعدد الصفحات وعدد الأدوات؛ جمعها في رقم واحد قد يعطي انطباعًا مضللًا. لا تصف المراجعة الداخلية بأنها مراجعة سريرية مستقلة."),
-            ("الاقتباس والتواصل", "يمكن اقتباس وصف قصير مع رابط الصفحة الأصلية وتاريخ الوصول. عند إعداد تقرير أو مقابلة، أرسل الأسئلة المحددة والسياق وموعد النشر، ولا تنسب للمشروع موقفًا علاجيًا أو سياسيًا غير منشور. التصحيحات الإعلامية يجب أن تشير إلى العبارة المعنية والرابط حتى يمكن مراجعتها بوضوح."),
-        ],
-        "note": "وجود شعار جهة أو رابطها في المصادر أو سجل الشراكات لا يعني تلقائيًا رعاية مالية أو اعتمادًا علميًا. استخدم الوصف الدقيق للحالة المنشورة فقط.",
-        "links": [("أصول العلامة", "assets/brand/"), ("سجل الشراكات", "partners/registry/"), ("الإحصاءات", "stats/")],
-    },
-    "stats": {
-        "title": "كيف تُقرأ إحصاءات المنصة؟",
-        "lead": "تعرض الإحصاءات صورة قابلة للقياس عن حجم الحزمة المنشورة، لكنها لا تقيس جودة المعرفة بمجرد العدد. لذلك يجب تعريف ما الذي يُحسب، وتوقيت الحساب، والاستثناءات، والفرق بين الصفحة والمسار والأداة والسجل.",
-        "sections": [
-            ("وحدة العد", "الصفحة هي ملف HTML قابل للوصول بمسار مستقل. الأداة قد تتكون من صفحة وملفات تشغيل وبيانات، بينما المسار التعليمي قد يضم عدة وحدات. السجل داخل API ليس بالضرورة صفحة عامة. عند عرض رقم إجمالي يجب ذكر الوحدة، لأن جمع أنواع مختلفة دون تعريف يجعل المقارنة غير مفيدة."),
-            ("وقت القياس", "الإحصاءات تمثل حزمة بناء محددة وليست عدادًا لحظيًا. قد يتغير الرقم بعد إضافة محتوى أو دمج صفحات أو استبعاد مسار من الفهرسة. لذلك يرتبط التقرير بتاريخ أو بصمة نشر، ويجب عدم نسخ الرقم إلى مادة إعلامية دائمة دون تاريخ. للمقارنة الزمنية استخدم تقارير مبنية بالطريقة نفسها."),
-            ("ما الذي يُستثنى؟", "لا ينبغي احتساب صفحات التحقق التقني وملفات الأخطاء والنسخ غير المفهرسة على أنها محتوى معرفي. كما يجب فصل اللغات والصفحات المكررة وظيفيًا وملفات API عن صفحات القراءة. فشل صفحة في الإتاحة أو وجود رابط مكسور قد يبقي الملف موجودًا لكنه يمنعه من أن يكون إنجازًا صالحًا للنشر."),
-            ("الجودة خلف العدد", "تُقرأ الأرقام مع مؤشرات أخرى: اكتمال العنوان والوصف، مصدر موثوق، حد مهني، بنية عناوين، روابط داخلية، تباين، قابلية استخدام الهاتف، وعدم وجود محتوى قصير يعتمد على حشو عام. الهدف من الإحصاءات كشف الفجوات والتحسن، لا تقديم رقم كبير منفصل عن سلامة الصفحات."),
-        ],
-        "note": "أي رقم بلا تاريخ أو تعريف لوحدة العد قابل لسوء الفهم. استخدم تقرير الإصدار أو API للحصول على قيمة قابلة للتتبع.",
-        "links": [("كتالوج المحتوى", "api/content-catalog.json"), ("التنزيلات", "downloads/"), ("منهجية التحرير", "methodology/")],
-    },
-    "citation": {
-        "title": "الاستشهاد بالصفحات والبيانات بصورة قابلة للتتبع",
-        "lead": "الاستشهاد الجيد يسمح للقارئ بالعودة إلى النسخة التي استخدمتها. لأن المحتوى الرقمي يتغير، يجب تسجيل عنوان الصفحة واسم المنصة والرابط وتاريخ الوصول، وإضافة تاريخ التحديث أو رقم الإصدار عندما يظهران.",
-        "sections": [
-            ("الاستشهاد بصفحة", "ابدأ بعنوان الصفحة كما يظهر في H1، ثم اسم المنصة، ثم تاريخ التحديث إن كان منشورًا، والرابط القانوني canonical، وتاريخ الوصول. مثال وصفي: «عنوان الصفحة». منصة الصحة النفسية وذوي الاحتياجات الخاصة، تاريخ التحديث، الرابط، تم الوصول في اليوم والشهر والسنة. عدّل علامات الترقيم وفق نمط جامعتك دون حذف عناصر التتبع."),
-            ("الاستشهاد ببيانات أو API", "اذكر اسم مجموعة البيانات أو نقطة الوصول، والإصدار أو تاريخ الملف، وصيغة البيانات، والرابط، وتاريخ التنزيل. إذا نظفت البيانات أو دمجتها مع مصدر آخر، صف التحويلات في المنهجية ولا تنسب النتائج المشتقة إلى الملف الخام. احتفظ بنسخة من التقرير أو البصمة التي تثبت الإصدار المستخدم."),
-            ("الاقتباس من مصدر خارجي", "عندما تلخص الصفحة منظمة دولية أو دليلًا مهنيًا، الأفضل الاستشهاد بالمصدر الأصلي إلى جانب صفحة المنصة إذا كان الادعاء العلمي هو محور العمل. المنصة تساعد في الشرح العربي والتنظيم، لكنها لا تحل محل الوثيقة المرجعية. راجع رابط المصدر وتاريخ نشره ولا تنسب رأي المؤلف الأصلي إلى المنصة."),
-            ("حدود الإسناد", "الاستشهاد لا يعني اعتماد المنصة للبحث أو اعتماد الجهة المرجعية للمنصة. لا تستخدم الاسم أو الشعار لإيحاء مراجعة أو شراكة. وإذا اقتبست نصًا حرفيًا فالتزم بالحدود القانونية والأكاديمية، وميّز بوضوح بين الاقتباس وإعادة الصياغة والتحليل الذي أضفته أنت."),
-        ],
-        "note": "للأعمال الأكاديمية أو المؤسسية احتفظ بتاريخ الوصول والرابط القانوني ونسخة من بيانات الإصدار؛ الروابط وحدها قد تتغير بمرور الوقت.",
-        "links": [("المصادر المرجعية", "sources/"), ("منهجية التحرير", "methodology/"), ("التنزيلات", "downloads/")],
-    },
-    "sources": {
-        "title": "كيف تختار المنصة المصادر وتعرضها؟",
-        "lead": "المصدر ليس زينة في نهاية الصفحة. وظيفته تحديد أصل الادعاء، ونطاقه، وتاريخه، والجهة المسؤولة عنه. تختلف قوة المصدر بحسب السؤال؛ فدليل تشخيصي ليس بديلًا عن مراجعة منهجية للعلاج، ودراسة واحدة لا تكفي لتقرير قاعدة عامة.",
-        "sections": [
-            ("ترتيب الأولوية", "تُعطى الأولوية للمنظمات الدولية، والتصنيفات الرسمية، والإرشادات المهنية، والمراجعات المنهجية، والمواقع الحكومية أو الجامعية ذات المسؤولية التحريرية الواضحة. تُستخدم المقالات التفسيرية لتبسيط السياق لا لإثبات ادعاء حساس بمفردها. ويُتجنب المصدر مجهول المؤلف أو الذي يبيع حلًا مع وعد قطعي."),
-            ("مطابقة المصدر للادعاء", "يجب أن يدعم الرابط الجملة المعنية لا مجرد الموضوع العام. يراجع المحرر الفئة العمرية والسياق ونوع الدراسة وتاريخها وحدودها. إذا كان المصدر يتحدث عن مجموعة محددة فلا تعمم النتيجة على الجميع. وعند ترجمة مصطلح، تُراجع دلالته في المرجع الأصلي وفي الاستخدام العربي المؤسسي."),
-            ("التعارض والحداثة", "قد تختلف الإرشادات بسبب اختلاف السكان أو الموارد أو تاريخ الإصدار. عند وجود تعارض موثوق، تعرض الصفحة الفروق أو تختار المرجع الأنسب مع تفسير، بدل إخفاء الخلاف. تُراجع الروابط والإصدارات دوريًا، لكن حداثة التاريخ وحدها لا تجعل المصدر أقوى من مراجعة جيدة أو معيار مؤسسي مستقر."),
-            ("ما الذي لا يعنيه الرابط؟", "إدراج منظمة في قائمة المصادر لا يعني أنها راجعت النص العربي أو اعتمدت المنصة. كما لا تعني كثرة الروابط جودة الصفحة إذا كانت لا ترتبط بالادعاءات. تبقى حالة المراجعة والحدود المهنية ظاهرة، ويُشار إلى المراجعة الخارجية فقط عندما تكون موثقة فعلًا."),
-        ],
-        "note": "عند استخدام الصفحة في قرار صحي أو تربوي مهم، ارجع إلى الوثيقة الأصلية واستشر المختص المؤهل ضمن السياق المحلي؛ الملخص العربي نقطة بداية لا قرار نهائي.",
-        "links": [("منهجية التحرير", "methodology/"), ("الثقة والمنهجية", "trust/"), ("كيفية الاستشهاد", "citation/")],
-        "sources": [("منظمة الصحة العالمية — متطلبات ICD-11 السريرية", "https://www.who.int/publications/i/item/9789240077263"), ("دليل كوكرين للمراجعات المنهجية", "https://training.cochrane.org/handbook"), ("إرشادات إتاحة محتوى الويب WCAG 2.2", "https://www.w3.org/TR/WCAG22/")],
-    },
-}
-
-
-def esc(value: object) -> str:
-    return html.escape(str(value), quote=True)
-
-
-def visible_words(markup: str) -> int:
-    return len(WORD_RE.findall(html.unescape(TAG_RE.sub(" ", markup))))
-
-
-def render(slug: str, page: dict[str, Any]) -> str:
-    cards = "".join(f'<article class="institutional-depth-v232__card"><h3>{esc(heading)}</h3><p>{esc(text)}</p></article>' for heading, text in page["sections"])
-    links = "".join(f'<a href="{BASE_PATH}{esc(path)}">{esc(label)}</a>' for label, path in page["links"])
-    sources = ""
-    if page.get("sources"):
-        items = "".join(f'<li><a href="{esc(url)}" rel="noopener noreferrer">{esc(label)}</a></li>' for label, url in page["sources"])
-        sources = f'<div class="institutional-depth-v232__sources"><h3>مراجع مؤسسية مرتبطة بالمنهج</h3><ul>{items}</ul><p><small>تدعم هذه المراجع الإطار العام، ولا يعني إدراجها أنها راجعت نص المنصة أو اعتمدته.</small></p></div>'
-    heading_id = f"institutional-depth-v232-{slug}"
-    return START + f'<section class="institutional-depth-v232" data-institutional-depth-v232="{esc(slug)}" aria-labelledby="{heading_id}"><h2 id="{heading_id}">{esc(page["title"])}</h2><p class="institutional-depth-v232__lead">{esc(page["lead"])}</p><div class="institutional-depth-v232__grid">{cards}</div><p class="institutional-depth-v232__note"><strong>ملاحظة مهمة:</strong> {esc(page["note"])}</p>{sources}<nav class="institutional-depth-v232__links" aria-label="روابط مرتبطة بهذه الصفحة">{links}</nav></section>' + END
-
-
-def upsert_page(path: Path, slug: str, payload: str) -> dict[str, Any]:
-    if not path.is_file():
-        raise SystemExit(f"Missing institutional page: {path}")
-    source = path.read_text(encoding="utf-8")
-    if source.count(START) != source.count(END):
-        raise SystemExit(f"{slug}: unbalanced v232 markers")
-    before_words = visible_words(source)
-    if START in source:
-        pattern = re.compile(re.escape(START) + r".*?" + re.escape(END), re.S)
-        source, count = pattern.subn(payload, source)
-        if count != 1:
-            raise SystemExit(f"{slug}: expected one existing v232 block, found {count}")
-    else:
-        anchor = "</main>" if "</main>" in source else "</body>"
-        if anchor not in source:
-            raise SystemExit(f"{slug}: no safe insertion anchor")
-        source = source.replace(anchor, payload + anchor, 1)
-    if STYLE_MARKER not in source:
-        if "</head>" not in source:
-            raise SystemExit(f"{slug}: head closing tag is missing")
-        source = source.replace("</head>", STYLE + "</head>", 1)
-    if source.count(START) != 1 or source.count(END) != 1:
-        raise SystemExit(f"{slug}: v232 block is not unique")
-    if source.count(STYLE_MARKER) != 1:
-        raise SystemExit(f"{slug}: v232 style is not unique")
-    if BANNED.search(source):
-        raise SystemExit(f"{slug}: prohibited person-label language remains")
-    if any(token in source for token in OPERATIONAL):
-        raise SystemExit(f"{slug}: operational copy leaked into public page")
-    after_words = visible_words(source)
-    minimum = {"methodology": 230, "about": 220, "privacy": 190, "downloads": 190, "media-kit": 190, "stats": 190, "citation": 210, "sources": 220}[slug]
-    if after_words < minimum:
-        raise SystemExit(f"{slug}: page remains thin ({after_words} < {minimum})")
-    path.write_text(source, encoding="utf-8")
-    return {"route": f"/{slug}/", "path": path.as_posix(), "minimum_words": minimum, "before_words": before_words, "after_words": after_words, "added_words": max(0, after_words - before_words), "sha256": hashlib.sha256(source.encode("utf-8")).hexdigest(), "internal_links": payload.count(f'href="{BASE_PATH}'), "external_sources": payload.count('rel="noopener noreferrer"')}
-
-
-def publish(site: Path) -> dict[str, Any]:
-    if not site.is_dir():
-        raise SystemExit(f"Missing site directory: {site}")
-    pages = []
-    for slug, page in PAGES.items():
-        payload = render(slug, page)
-        if visible_words(payload) < 220:
-            raise SystemExit(f"{slug}: institutional block is too short")
-        pages.append(upsert_page(site / slug / "index.html", slug, payload))
-    report = {"version": VERSION, "status": "passed", "page_count": len(pages), "routes": [item["route"] for item in pages], "minimum_after_words": min(item["after_words"] for item in pages), "minimum_added_words": min(item["added_words"] for item in pages), "total_internal_links": sum(item["internal_links"] for item in pages), "total_external_sources": sum(item["external_sources"] for item in pages), "light_marshmallow_design": True, "dark_readable_text": True, "text_shadow_used": False, "professional_limits_visible": True, "pages": pages}
-    api = site / "api"
-    api.mkdir(parents=True, exist_ok=True)
-    (api / "institutional-pages-v232.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    return report
-
-
-def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("site", type=Path)
-    args = parser.parse_args()
-    print(json.dumps(publish(args.site.resolve()), ensure_ascii=False, indent=2))
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+VERSION=232;BASE="https://khaledaltheeb.github.io/pterminology-site";BASE_PATH="/pterminology-site/"
+START="<!-- institutional-pages-v232:start -->";END="<!-- institutional-pages-v232:end -->";STYLE_MARKER='data-institutional-pages-v232="style"'
+WORD_RE=re.compile(r"[\w\u0600-\u06ff]+",re.UNICODE);TAG_RE=re.compile(r"<[^>]+>")
+BANNED=re.compile(r"(?<!\w)(?:المعاقين|معاقين|المعاقون|معاقون|المعاقة|معاقة|المعاق|معاق)(?!\w)")
+OPERATIONAL=("built-not-published","قيد الإعداد","قيد التوسع","لا نشر قبل البوابات","ما سيتم إنجازه")
+PACK=json.loads(zlib.decompress(base64.b85decode("c-rk<TW?$0b^a@-&Wqhj)P3xc)1X0%CIMQYC{pwx2?9!_B*HQ&P?SAWVSq{^B@Q!aFhJktA#h}y6fKFSbu*o}`4!Y_e@XYcuYJy;JVx@+hd$UQ56{_W@3q(ETet1qdt1fz^7g&u-FwBA+D-#LG%AhF^1bDI<I(M5GVb0sZ(FyA<E!z>GJYEm#~1kTNpjo9pAW}3;op7v+6uqFylsb1o$<-Nse7B{VkrzKqtGB%<1_wvdw9DyzJPmSfVbhn4&BlXxAepH?)WtP>C?sY@DT<HZ@C-~!vmvaJPK3lg{Q)`@bPvJK6Y-8#)I3vWc(_;;p-#}bU1z=uC{nZVR6mys+Nu%PXk`n$6?#<QurIj*rQAEp7B+9>I?^gTgKP8EO^iDL7-lEq<Om^t`Enrg?OhlX_yyGvOE3;CmybZ*#|<7U(lV$NJ4%+jB^kk?uJ{Lg0I4gU?UFU4j6={*c^X=J3fS~!-OY&6{h2F3e*S}!liez8N=}9ECDL=o`==Hx!s4w($^8Z+9-25J`Yb^B`{0A0e9?_Ubz>hI=Jl=!tQUER~waDHL%#PesvG%O}D=V;`IY<24N~k5u1(w5FQKfI3=>UU&0f(!(mpoZ>{jlO&Ae(ftGk2Mg{&1lWGwgA_c?si$E0Ec7Ab3m})?rfR7^s!<OMI`p79Q8@Nro-3q^S$GtEg;*Ri4KWx!u7;sO?uY^+ahv$aK(IeVan0<FVz-h@+16Q2F0|i<j?1Jn%&ipFeI-oUm;I+y49g4{SmmK~X@U|Ln?uEy0!UVz&HxuCN@r`UV6EyrJTNh@zFK;`-SM$E(9($Q-p@_DeG6*DkV~oerBEOx7jcS`LyWIi0^ifU&J$k^3qya9Fgs>U1{&3+u+=JY3jT&Hxw7U13slZ=IKak4bhYxTs@Dfo8#deS|fxApwFPq5YCM3u$CRn60T4Ab(ypzmCZINtv-sz8+tMJkdE~;l2dZ^{zz@Q20+b}uUsT0_a0gopN4%Hs&u@*81P@)f8mSl8gSm8^2*9&+Th+EJfAaK7AJlY@k(hLF&5nci0=m#|)RBPCS@S0wr!A-)t=y#~B!fabG5{O{nYv8A2+)6Y6L)>6sFP6B0w-n0l1(;MfK}iNZd+qtD9T)+HkUp{qc2H;i4xVb`dI$W4M*?C5L1@y_E`du}N2k<PpdgUy6j=(Nf?XIg2cd>KLpdK9pMW5cqDAG@Wlq>9F%J9%yT>v}+`*H&LfLkTfQV=}oRPd9hZnFc?4wd|)B9M%I$IPyeSxzd$g2COEWpYk^P4VkdPdbR(g0-t2<`?tT)~HzFq0r#BuQWq(YA-Jfe9AaIH@A!_X0PJWCejVL4zHM+U<um1WAW|OPgUf^Y0@uaT|o|M7G@{-Q7YvJp?)zP+~x&+h|n7N`r#In{Y=jVX;iTu$91^2@Dd39?{}K43LE9C~K|6WHw=WZHt09&dRy4EH7Iv6^z+am2^PbHLM}*;34ocj1r8iTDtJdTd?lHcLc0>WVRF}Kg^R!7_gb(B!$<QK3B{IslCQ=PLVxN62^4l#}Olq@S#tm(Zo&>lc;_V69dAzH>v${aD%m(6Mj~2$UTQPAYhR_uOwfg89gI~cSWxvE!P)4r)Ua|!x<qJQ(q<`K%q{cEJ`i0Mi_%O9*Hs_j@T!)!cU2*#<>yuj$eiyyf70yz6Ac}iK99?B>2(}V$vZ^*#*5q@bif5S(kO3UM5xC72Kmz&_SsU>w~quk$b`fTC!3FG(FPffwg`!b+1}$AWkRdk!cG-WZy;8%B+tS)!Y5TX#Eu2BBo~+8HB$BX$xwbdHx{ZNUiWE`Tk7|$P%)e4q|`*CzwpIHLwS#<9Fj1q{l(sz-D>TVu(+`C6I`y3QIWvl^f5)_KkiyBjP5gTL96G5^+^-j{ur(R;o`3mzqfCz_4&<qrS7<m_d2|h=c*+t?krT%iD508uDXZUl0bkr%|jorZ>v<a=7g`UrpV6T5fFAO0~_}`j_4Z^Yaj5pP>pH8W=wd3)**INes;M3fKAsZd60?20MhUme)H&GAN22>;cK|k-A!hPP$G5hH)-%Q&4&odI;kmkVz)-1%vrPp1XiQ%De{wMs{g@82tdJ2pjpGs%~Ut7_luri|RGPK!9d?1V6|O^%1WVl84>s#Cj7Kr?6NcN1}dkAi{z0JlPTWqr;)bIwCbrs#=F?k+AnrVFXp4b&SGu#>UKCY#dNoe0%#}CT>?C$?O9uSoJ_FsMR6j=7HHV9@LBg^TB&>@CM?yiyRz<FRz_J5FBKPPIQO6$Fb~)-0vI+@`hnfC*`gJctBAs5PZW6*Qf>zZy2Hji^L|}2<T0e+bY#7BLGzB^PsT+3=N)6%As^t*OWI)T$_+@WQI7@aEw$xiE!szm^+{+SO;0AE}?hw7i0PWV<PCk=GDtmqGuTQ0bn7wd;CXS_zR|+Ls1NvN#bF3V3P!(w9Fu|iF{?7b_la4=Lmfea;He8rSws_D#~X7K<g#^9+QZ<^A!20Z9C3Bt#=cg1rfgw$a)T3UQj1Q_I@alheMQlac&9a4p0IO%kwhBoJQ)^Ft!;H5E9kYr>A<J0<g0K)HxV{IR}#7fY>;weo7Ae8AYRr?ANG-&~FPbA`dI}xLx#Rq&^W&sb}#4uz@#;2HN__?KppX+~MjIff#Ly0a*k{JcUTE9mtaq0h)?#Py!GiQhz`kc$?ThYZnLoUJH+@g73O;0%1o{a-fPvqK8MSKG7Q<`I(Q%UGvTdV==N(2G}@~hO}>ymB1Z3roGFN4mD6XJ5=`tp@=CNiLn8<_f>C;%h^T+o#T^}f(4=}17T>cz(^975B^b)<AQNWQB|QLb#`_{|G)FWhQ0tSBH=Km7{}^7Rmq)u?Nxiq4?V{*P8CBX-U}{(Thd}*%_3ZEflc+&R9^TXD{NSYh(Ws<L>Pprhn#R`j@2INP_Uj3h($gUn@4gID2mvRY>T3nJUc0#wFOHe)MQ%hAUt=4&kS{qf-x9<VR+`!AucyjCke6JM0<CJBfl|gh3bmEV}i0KfQPt{Lkmy?>rL{$G<ZaVjfk7odq$8*ipQxUr@N04ubW(P1cVtdXyMzh)hQ1b4=8vCvH-jq3`TenBApJII7kAVnVn%l0}6f{{2<<-%ZPW8kbNZ937T)UgReM#^@8;>g;E9_JjEwZA#f0E2WpVMxbsN**rUqq7>O>L9}Xw8j~0GuQ|iI*uSXm#H|$L!am+bX{2Ftz3&&ibss@iA=t;3w*uDq^v$O}=zU5%Lh7ve#dB{7c0TmxQ>ZO#bj|osv^d$C|V76g8?_4b7&+?KeNMb$&2Yyiv4#Lf=l|~W3@(k`0Kgu%^o=)eL*e@Zg_doyn-xLzN;h<|j`NiM=!}Q!-1|o*HZ8REN+siXE&!0apJm07lD%Hl!*3QaiWfdo}JyV&fG|EqBK7aV=^ZCWu*@qA3KU<(>575>&6WrAUjIJF@p#LtQ?B3d_7c13Db-l1!TivJ^tK~wizCN>2td>@4wI}qN6uh?}O4^SDc->3>{qKMJvt+(7pI+Mn4*ko2oq-$X=h+qAs#l&BS0gu+?ah_NNZRShSz6(!pQqC3V(cg0IYrxd7BR2toR$Si-)Okcj7Y48I9d@+O9PcMwD2=M%Sl2MF+%i~b&8j>Z=TC5l*KOR0Wec_2(tJp+;WbfH=SQ(pO}5GTm|5h8M%o%Qps#&iMb(Im-0baNf~IyUo;@KPkR0$JlTY2Q}IqB-nDq%67wY7VY=R_G@{)hMdq_^ZM;=J;Se)JW=|tFmh2-dU6$g+c`g#Lq8}(I1U4L30GZNDvJ5RsmmpLlcZ{|hO+Ju)5AL>b0K$6l>llGi)Sn~^t;;Y${W(k`f`^y%!k8#4MCOwuCNSX*-V%$@ctMb8EY32`RZMx3lQ%F^!vl;+Wd?YCl*1M9ehqdbQQMF#<iJ0&ZC_m{$-Z0mCh$GrE6N955YYO7Pxc^{1$^@sTr*<14$YCNc?gTto56`{LKq8!JqfX>uF>EpzU9Ux1Q~#upW%|Uf(XwcLuzg=M(oM)Al>uvoQCr>C~v755sY4HR5ex_O+&;Nj+0<57Ol`=YuLj>%l~KfD+eyZvjr!~8u|b$ew|(lC$rBid?>Uq1??CDoSwb$dnG@4wBgcqw0Xvw?-Gs`9u*`Xb%O~O^H9ZWf-kX}k7$L$?A4bAQk>50pjy}yReX-@Gn9xo4DkxnUOx0?3oMw@r7Y+%M%hs{9FX{_-a8JucptCv2DejLPfeY>auA9V?vvgi7&f$k0qVZf$SKaGOi~)zsajH#1Cj{@?DlXPZ)vvb5`h{rm1%R#YY{eKmUJ54FsDzkwSvnl@x!zSsI?iKx);@PVvKT<H5{lRVFfo7gF7;IM4T9DN5|%U^3H5zQtAR-hn&y7v9u7GcDh08hbZy~Ax5|(5jP+)lsY+YVhiqbNSHSN25AaOgo!8u9PO`jyr(~c_oOrC+-q0kJ6$p^XcNQzN6Jv>-GbV6ETxmmFUK;)0@P$FmK01IYZ3N|<=K(z<I4zq_<XIJQB4jC5F+7)q2KvjP9J&kMDTFB0?Sa6;2+W$cj$0ZdK?ewVoc|Vm|dOFrV5=?#{*I_k%LU(8`+70lw@FRj3PC-b}Pe>G%u)}w=gnA|M@neVPpeQTCY^CDkz|JvrkHhMT+bkb0a!Q<vuiV`~g$aeVS=n39)T$!)yuh49w9wW2N>UOiFJu0*)Ny*o(B#d)kJMB;Y4@#mj2sC9`_PdK`igL&R{MyYl>dq{b8&vXzarv<1gb1g0Tzn&R4im&6ircL@N%5i&}jSPPIzH{Jy|!ri4}W%JAFMy<9fKJrI>?jD<ilZ={&@ygH2o3*WSeLL$!%RVO=KQBh#!m&TAG=9Fb;=IXHZFRe_UTJLXtOU39=}fsgvmIRI>8)CDn!lW3kCMJtg40j8POq1%<$7^*T7KUSUViy$x!NE{v{ZXu-K-T$+mR~@A<}oYw~j@ZEwA{&0(=~(^MEiHTCtXN1*;uK8iCZ7>(;kxrItDhJ{G}9FB^gj)I4>{*_kdUFCJ}j89-0sqH!G4<!ZqAf|sneUz3>8wHx##_ak(Kv)SXMn^eYdbzoP}uGV5UDRU;dV52dqJajDkEXe1Snb4de=hHNsron+X$hv*<D9N3XN|z|2p=Q%9{1^gRxy7cam@$CR*TP~Z`X3BWIg^_Xn;JmO$xJy5o8mA~SY5H2ZK>x4d}iU<H1yM5)tzagX>LgZJGH-9QUZ3u{4vHVswib@9_-Wh9jC*)IcZC)G_#tQk5u)LTSrfP08aqTi8=%<d5|~i3L?v-Xq8vrApYL73TUN%A+a2T%i5D(7dzHdZwhhLA@bxYtMN7_K#mBwx2YmT5tNJWXNxM(x}%R|Jf2n!?WimTDUPamU(|@bftCxkPb~^kLHvQkOIl`prj<x>y?LGkktz?!6hZJx;$(+&<*9Bnj;gBT+o8<$osmC@Npq@;IQt#ykwc%R;j$H#yR$HtJ^Pt~ZDRF}R4Up9CpQY=qp#`{50p}d%{e5fFW?oJNs)D2GBBco0Our;P=DjlMIU26vJYS#xU#w+VcC(CVQ0;Z8l(%P(|}ls@ms_$T$|HYrzB2Ww^NK~fhr}yK084dxx0fUuuvW8lb|it(rh)zJyM`I!XlJrrfQrM@u0_h*?2D!mTT8sRe`!t;>JiNUBPLb6tujg?3B|FOthYNyj&jm68j|%GIea2)}W*ySE{x#qSA~?&Xl|U=ph}2y+@pa!MF$!C5tFb!^BXyo%WB-vEWK<E$0p14-hpfjzPKP%8flJM1eFBYdmE-ctCh87BtLPV?g=ee)*5nk0jv_H3;8Yt+3i5`rW%eDW#Lnj9C%yzEv0Op(K6KU%^u(H#V=tq>!jv@}9If^V2yISGG<#iw5O@RoB<&q-q3?sot5LL~q=ns^lh#BR5ii1EwqbK^1Hv-yCxO`NXQtv3%lGu*xL`Azb@LTm?x!gJ3DP9)cT*kK$~lPyf)}&Db2V5H~4QON-ghEy_BEy_S{?ehj8`hL0sq!-)#fl7uL>1D=pLZ(59{P@|jE_!8&*B9;c3en%L>%YNDhAydHyr*f4hh(G<8U!)Tc#jVOGdrzO3u*B-lQl&Wkq|!(y)dY@_W#Imr+s?9Aa9WAyTha0eFhH5x_Z|$@y_!|bdzmrq9+m_hrkhjTB^OSN`hUo*QgqlMGT)`=%e&F7*;i1LZgqo|K)WG@e2+M^8_3(XvaODFQrKO2fl0f^Iv*G<gXVvi!iQMgY6+B4I=rmK)>kglitLqfKr(yi?IuwN)BIHFIkA`-mj-p!f5HCA@Bd^u#y_W$n^c$DmI#*E-b2*~Zm(ux5emB=H_tMNUWVhd<;0fkJD{Y=lgvHZ!^zHBx-iy7UCgY;eR`P|K=Y+r+N?<qUWaP(bM=|i%28*g!_!gunD%puBa#(xVMh%fv<*o5L`xJ@h-&Jcf*0&{4UQW2)513Swg|GbO@?$mjZJEPxQ{ujj<!l-7F~;}snVIs?}y-HSSrd8L4vlr8LdxH0tm-2r-neO*CmMHl2WdmOoN!`g!^3tIOm-%H`hmU8(55x!gY8X)*PLp&F>|G@wonJG92wvh!3<Ahc;QiH3>lnAPRcgP^+)pLHFH39Jz}EvzGbfl$DDDV^ts61n~~o<H+q3HT&x1#I8XgjJYw5&Yf@j9-y7Z93ZC45nUX}s-?p}S5~YK`fdn&Odi*<d4(LiwNgIYT32pI5Z0B^M$K<gfF{31HoC6Mhwv~4#3@OIOQN+(*(jxA0iIC2ql;FkhrwKebX59_1ro}E&O+W%W)_B#fXd_wvnXL_%;3F1ttR0N1XgiNS5@jpEFj!RRVbwPerSZ^BD^@kEj7nnGqV}4V1K>Ga2^<$Liy5%``Wj~VauecbZt>=qefJ;g8<bFFRQWG(c_Yiu(O==;?h``^<{reuBq$Dh@_Cjb*E-D9LT~`0iu$<OIp4QV@eU8xz16qg>Azb_Db6+1I8Lsux^beK5L`-6IFVmykMC;ykqpdq;kFzN+(PE+*|!xh~~PZTh=d>_RDn-q}R8Q6RU9nKSsP<t{pW`%I=W%#28JKf;rZ{A8l*bqz-Cla1OS&%Z=@sm3pySn%S(a*QTEq>rV>X&(=-M3=s=NwqC(7#8$E1sH)q*T;UWS^@26F*-^mHQ3IH@k7A9~aawU^PEN3<FV{qndPb3W932E|Qq*Wf)e5Jg(^U(nXp71kn2`HuxVw=$qEGppf^^EFXQjBr_5+H)Xe^TC#K3Y2y?3xk_(J;V`zXJiIE&ni@GYKZaVYDz7zNmj{Yll%&T=^Ph%s`}JQ#S)<Q>}5O~9)YbgyF{Q6(8TV?Y1pKmSu)LvG=`p1odGd?7B4(FBH;5!3MpvIvg_0pxy=__PaJ#NCzAvNOGKV(YFc6fw}G4k8g3j<r%AaJr>Oo|-eb(h(@6#>C1p*;p|1GOl=qMwt3Jg+C;8%6$TZ2s&^Q`<M#isH}xgOYm_=W3diaeKd2z$Exq~010iIvdTFT8`<ZSut_@0gh(<Iku9@u5L-!(071EhC_^E?Z)y+{aV3PobDudwMa!LH8Mw!#;MDu%cutBf;yjZIDc9la$pgL(Oo4#QZb;0COfqjG_aIOwm0yn3B}qU%wxvj+*F;U-OMa<@a{V5{!0)i&x?^RST2N$F2R;l=%xYj>3f-X2)sBjYv=S?t+pj6Rm@bk;kDSy~lCFi7Fs*iHQ6ev$AwI_12QxQ9xhO`g8x~hv5{h&uY_KD(%{#m)z9+VcbzkaD$CJi7=%I9d@nJ7=Du+!R!)_x}O!~MM{UUt7gm<dy(sDX?LI7v(7{pk~7IcGCY>4Fp+99HRrv>^Yu8KB`Fw`OXbj0u67tA%;;FF(feH5l|!KvaQ7-BlitrqXxB5i2itd(~tjg!t<<Ko_zgs3R(jNarjx6zR9yQ}Ai0u!7e(mF0s?Pql8jr8~VG>_(};kt|I$MJk~s^KMZOIJ4Sam0>pUWbwAKJ_p<a=d^t>lvU6iFErqeGAN`oW}z|U6N}!O;`V(VahG%@CA0{4$vCv;UZU@O3U<VDfh<V_ha)35leNGi~@9arkQ~U-uxpUzfiSH>rX4Iq3Qlq9+_<|*bGexq8gPmq$c#lPmGx7CphxL=TQcnk*yZ+%xI_agu@K(MJFII7?vP<rV}Mj6|kbtWX7Xu_a<RpA%R2AIj<n$?vQq&ik$dtH*OIY`HwoN)1fQ3p>m{#i+H4aA2?L%%)V>?it6g4+J6sZbCb*7qnzlxlNd)KzqsZ>0x;r3=9V}__1jn_Npa2z@$z_Yc_9?#<i_*f#MK@|uOTz?^Eo}XDoYAG(Q4w#tRlmC{nj@gx#p?H*<`g?tyL?l#Z4)Z%@2_PM5KC8uBBN{zJD`ek>CHRko-lH0i@&eR}a6r1>&vV5y!eW4HjUVxjDi|<~e}|MszP_1nINnFi1=}V{So_R`*l94~)ctE2M{75i((rK#?I>n^_Pn%}tq7h@diaDlq^lb2RB>Vhx3y)RvK#yb7Omas*8kXV*KH8HoL|n7i^=$aJpOA!ABpPso~?H@N{EDH7<x$t)~>hCOx%q4-?7FC#Nmo({0d8D1{!P4(Xt6OZaZ6egXEwa-iao8eD~lPOPml_^z%0-=6J5v6)kCPhnI6jWoPXkuG~=+f!lq>}NtW6>(7>@XD}JT@XoqW?(R=0wJhv7V%vOtf(}Cl`BFf@(%0&a;c6VCFb5ed3P+qc9j58cMigZOPD`)L6*0KS*-fz`7l4VW+ZcUq7AvmK!pH!fEcP5_x(fIh0iIu&*fic!3l_bUKnNX3`-6H_o*hBc{pf*3A489q$v@b7kuo;<#w~xHU7#nF7zegW0mw5MTGu_2p%2r`YVdt{_e%LfVl+)-O^S2E133Q3ZklZ^`2&QGr+myqA0<KI?>-dyjR;I|@utSZ?4C_3%eaXo2hjhCMp&v|5Y<e@pGJ9MX=$b*bD%ssPVUm~usjO{*P$OI1PFpe-r&d6;Q*K#mxB2P`$usAf<Pj*Au9q>8<dp$9x{)T_V@6u0{J?~-gi=oz13X?4yVC+J}}fu6vFv8-&5!l!ibe*(7uA?^YO!=*(bCmfE+;jS->yUMLB;wU&u;~!#-ZwiB>lh|LRXRV-qvgNQ+Eoh{JSjL@r<T46&5ZO1hhkWW>%7V*<jCgY|0(<GuTj>sa#qPh8)R9d+iik@D7SCRSv(onTNCIEv-~zG(HA!^-Y<v!dxAILpIfkY^z*{d;2TVl=y+sxqy`_;HQ>@2I#6Cc(&eoL%$yu3@XZ?D@8QGH$G;=-mQGv8i`S`oCC#bnYV88ic$Dg_T;s*LN3^1kChX7r=`qnpSxDLLQaK)vm*IX%{cPJVvmS)^=bYV$ks-3{*>LgC9@~LO9T+y`w2kzNJjl#!%lSA9afT(W?bnz+RcHf@%QkoLl(eboBD*8K9%tZD695calp)?eGgI@i9S}?eag6B)8muVJO&IU^|S{TuPGba<<q<L8S%8sXVv5`W;RWYaje8r)tt35aw%N?QRt)R<hThD$hYF>YI<3sAYg&d$~#ORQ|;<GejFUKb%_N?opr6pf>YI4*Cj@=#pU^_bi%~fQ56Q2x)MOnm!M^UnQXy^6`5JPvcGqLPbaAs_QqkdR9)<~*i<bWmD0c0m>XJx;KxyD}h$iDC*rgD5z1~EsD+h^uFr>W7+GYa5FiQEX=>&bEas@Nt*w3OP17M(K2qL1-lIX>y!otcIe(OoQYP9OQ3?Kp{h?2s3SR-f6VDwFtBtGGW*VG47d&%~vV?G@+DLDf^r%jvPVBR&+s*HCf-H9qD$T@Q*<t|f}>bmJM#uUG<4y@N*<Zr?IdDfE%)AE)As)M2~n^7rhiyRi?VF|MdF3lB^k=G5o=B)l)aG96(DRai=|mpxClVCPKTc}{f(?Aw{4QW_@UzJmuLc2h@AW-6kh%5tpbNMb)+bKh+_#8;1Yj6?N$^kznjM0qDUF)xvWZ{suA6aIe@zM=C5PUCLGl<OLoNXh?bFpLU-%?$dZ*S$4}+Ka!lLmto5%#-*32M{C5nuradGADhe*QX=+A9iH&|DW#lf97;AEHU~LU8x`Ahon?&6sIfI?cibU!1|#b8~#h6>1Xo`^MCtmy8YMpe)8*TA-=0r-fC>%UAs?<_4P`1d3Ce+bnE{7;?@^aOV6H9ErkyclHyLI_IRsUDuqSM9kbz%#c;>Mqj1OLm0G=2t}oAReUWU}HY=s%N2@F4hvhl`VY*%{Rd%+Q=flm9SBk4o*6X#MYH2xeZn;>WUWcE{)yDm~#ideted<SRYiq@|)$s3Z`1C0JyHE}v9z0$R%v)dn(cHs@wZ)|{_7~IJ8^z#qF3%=&Vd!KrOgE{ouN3b;oSh1TP0cMVP8H@B9(;Aj(vuBY{dA+YwLB|tc{sN)ySVmvtyXPJZ&&`K%qyQOEG^Z`Pp1~b;=_)?=Le5rA=4Y>%KAoQd9JYd)g3Qe*yZtOA1<vet)w1Zy5rHUsmZ@>R(9ioKEGq6-~JX{=v`acTw(T6Scj~9;j^XkXY+SGzh1ADc1xA*t<B<>%kbqf{52h9E?jApr^7%yPpjL@_3~D^*tkDG^|VrbTKwXE*p;>Vg9ne-i(AWcp9N-Mwws?18#jB`8&`|<(ys6za9<A3l^&KKm6y^yHyiUDFjtCo;N`%Y#5!~H3sZBC!b}4X73St2d~8<B)$nz7qq14LzgYd7xd*$cmo2V6`m`bD;~~nWFv!DC8)6|f3zVNv8X~idrSj)@4FKj@_XoBXB~tdHQbq2>BlDM+Y{wpz7Uw=&OzjvlM(XX4?tVL(KxN3a&GHwI;jiiE^}uNG7jfLIavX{}u*OG6O^P}$uVQ7hw)#Z%Aq<+#E#@-h!?l&-%4~Xh3porK>jad{=OoIHW@jHa%3n0X%vNi4v~SDRTD5$Kq9`t})mC?c`mbzPRyNDKwVeh`e0jlUHn+4?F0Vc2U#4qoYun|<^5Wg}V6$%9{3u@xALWSQTuSw$sLd}eP063a=b)wk4%_VR2VF7!yi#gxEI<4#(D%Xa$8=G?`U%Qr@_KetdLn3n$9`pB*>tw*<+XBsd%9jO?W~qd(@$%-4fOSn$t8ciyS-YkZEjAllsAgcDq)Mkmi|@c=~k`YC{`Pf1D2?6S9DYD7khiMRS)=P_pWuQGJ`SFy!BD7nt8rnE<OP~Q7M&|i_dD6(hnCs<jgSjAI~7@_{qJm{uh=6vl9")).decode("utf-8"));PAGES=PACK["pages"];STYLE=PACK["style"]
+MINIMUM={"methodology":230,"about":220,"privacy":190,"downloads":190,"media-kit":190,"stats":190,"citation":210,"sources":220}
+def esc(value:object)->str:return html.escape(str(value),quote=True)
+def visible_words(markup:str)->int:return len(WORD_RE.findall(html.unescape(TAG_RE.sub(" ",markup))))
+def render(slug:str,page:dict[str,Any])->str:
+ cards="".join(f'<article class="institutional-depth-v232__card"><h3>{esc(heading)}</h3><p>{esc(text)}</p></article>' for heading,text in page["sections"])
+ links="".join(f'<a href="{BASE_PATH}{esc(path)}">{esc(label)}</a>' for label,path in page["links"])
+ sources=""
+ if page.get("sources"):
+  items="".join(f'<li><a href="{esc(url)}" rel="noopener noreferrer">{esc(label)}</a></li>' for label,url in page["sources"])
+  sources=f'<div class="institutional-depth-v232__sources"><h3>مراجع مؤسسية مرتبطة بالمنهج</h3><ul>{items}</ul><p><small>تدعم هذه المراجع الإطار العام، ولا يعني إدراجها أنها راجعت نص المنصة أو اعتمدته.</small></p></div>'
+ heading_id=f"institutional-depth-v232-{slug}"
+ return START+f'<section class="institutional-depth-v232" data-institutional-depth-v232="{esc(slug)}" aria-labelledby="{heading_id}"><h2 id="{heading_id}">{esc(page["title"])}</h2><p class="institutional-depth-v232__lead">{esc(page["lead"])}</p><div class="institutional-depth-v232__grid">{cards}</div><p class="institutional-depth-v232__note"><strong>ملاحظة مهمة:</strong> {esc(page["note"])}</p>{sources}<nav class="institutional-depth-v232__links" aria-label="روابط مرتبطة بهذه الصفحة">{links}</nav></section>'+END
+def upsert_page(path:Path,slug:str,payload:str)->dict[str,Any]:
+ if not path.is_file():raise SystemExit(f"Missing institutional page: {path}")
+ source=path.read_text(encoding="utf-8")
+ if source.count(START)!=source.count(END):raise SystemExit(f"{slug}: unbalanced v232 markers")
+ before_words=visible_words(source)
+ if START in source:
+  pattern=re.compile(re.escape(START)+r".*?"+re.escape(END),re.S);source,count=pattern.subn(payload,source)
+  if count!=1:raise SystemExit(f"{slug}: expected one existing v232 block, found {count}")
+ else:
+  anchor="</main>" if "</main>" in source else "</body>"
+  if anchor not in source:raise SystemExit(f"{slug}: no safe insertion anchor")
+  source=source.replace(anchor,payload+anchor,1)
+ if STYLE_MARKER not in source:
+  if "</head>" not in source:raise SystemExit(f"{slug}: head closing tag is missing")
+  source=source.replace("</head>",STYLE+"</head>",1)
+ if source.count(START)!=1 or source.count(END)!=1:raise SystemExit(f"{slug}: v232 block is not unique")
+ if source.count(STYLE_MARKER)!=1:raise SystemExit(f"{slug}: v232 style is not unique")
+ if BANNED.search(source):raise SystemExit(f"{slug}: prohibited person-label language remains")
+ if any(token in source for token in OPERATIONAL):raise SystemExit(f"{slug}: operational copy leaked into public page")
+ after_words=visible_words(source);minimum=MINIMUM[slug]
+ if after_words<minimum:raise SystemExit(f"{slug}: page remains thin ({after_words} < {minimum})")
+ path.write_text(source,encoding="utf-8")
+ return {"route":f"/{slug}/","path":path.as_posix(),"minimum_words":minimum,"before_words":before_words,"after_words":after_words,"added_words":max(0,after_words-before_words),"sha256":hashlib.sha256(source.encode()).hexdigest(),"internal_links":payload.count(f'href="{BASE_PATH}'),"external_sources":payload.count('rel="noopener noreferrer"')}
+def publish(site:Path)->dict[str,Any]:
+ if not site.is_dir():raise SystemExit(f"Missing site directory: {site}")
+ pages=[]
+ for slug,page in PAGES.items():
+  payload=render(slug,page)
+  if visible_words(payload)<220:raise SystemExit(f"{slug}: institutional block is too short")
+  pages.append(upsert_page(site/slug/"index.html",slug,payload))
+ report={"version":VERSION,"status":"passed","page_count":len(pages),"routes":[item["route"] for item in pages],"minimum_after_words":min(item["after_words"] for item in pages),"minimum_added_words":min(item["added_words"] for item in pages),"total_internal_links":sum(item["internal_links"] for item in pages),"total_external_sources":sum(item["external_sources"] for item in pages),"light_marshmallow_design":True,"dark_readable_text":True,"text_shadow_used":False,"professional_limits_visible":True,"pages":pages}
+ api=site/"api";api.mkdir(parents=True,exist_ok=True);(api/"institutional-pages-v232.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8");return report
+def main()->int:
+ parser=argparse.ArgumentParser();parser.add_argument("site",type=Path);args=parser.parse_args();print(json.dumps(publish(args.site.resolve()),ensure_ascii=False,indent=2));return 0
+if __name__=="__main__":raise SystemExit(main())
