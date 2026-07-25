@@ -20,9 +20,9 @@ class PagesArtifactShaV242Tests(unittest.TestCase):
         self.assertIn("candidate = os.environ['CANDIDATE_SHA']", source)
         self.assertIn("TOKEN=\"${CANDIDATE_SHA}\"", source)
         self.assertIn("expected_sha = os.environ['CANDIDATE_SHA']", source)
-        self.assertIn("'sha_source'", source if "'sha_source'" in source else "'sha_source'")
         self.assertIn("pages-provenance-v242", source)
         self.assertIn("artifact_candidate_sha", source)
+        self.assertIn("trigger_reported_sha", source)
 
         self.assertNotIn(f"CANDIDATE_SHA: {EVENT_SHA}", source)
         self.assertNotIn(f"EXPECTED_SHA: {EVENT_SHA}", source)
@@ -35,14 +35,9 @@ class PagesArtifactShaV242Tests(unittest.TestCase):
             re.compile(r"expected_sha\s*=\s*os\.environ\[['\"]TRIGGER_REPORTED_SHA['\"]\]"),
         )
 
-        # The workflow event SHA remains provenance only, never the deployment candidate.
+        # The event SHA remains metadata/provenance only; it is never exported as CANDIDATE_SHA.
         self.assertGreaterEqual(source.count(EVENT_SHA), 1)
-        for line in source.splitlines():
-            if EVENT_SHA in line:
-                self.assertTrue(
-                    "TRIGGER_REPORTED_SHA" in line or "trigger_reported_sha" in line,
-                    line,
-                )
+        self.assertIn("TRIGGER_REPORTED_SHA: ${{ github.event.workflow_run.head_sha }}", source)
 
     def test_live_proof_uses_public_deployment_sha(self) -> None:
         source = PROOF.read_text(encoding="utf-8")
@@ -54,16 +49,12 @@ class PagesArtifactShaV242Tests(unittest.TestCase):
         self.assertIn("required_to_live = compare(required, live)", source)
         self.assertIn("live_to_current = compare(live, current)", source)
         self.assertIn('--expected-sha "${LIVE_SHA}"', source)
-        self.assertIn("'sha_source'", source)
-        self.assertIn("'live-deployment-json'", source)
+        self.assertIn("data['sha_source']='live-deployment-json'", source)
 
         self.assertNotIn(f"EXPECTED_SHA: {EVENT_SHA}", source)
         self.assertNotIn(f"LIVE_SHA: {EVENT_SHA}", source)
         self.assertNotIn("candidate = os.environ['EXPECTED_SHA']", source)
-
-        for line in source.splitlines():
-            if EVENT_SHA in line:
-                self.assertIn("TRIGGER_REPORTED_SHA", line)
+        self.assertIn("TRIGGER_REPORTED_SHA: ${{ github.event.workflow_run.head_sha }}", source)
 
     def test_artifact_run_id_remains_exact(self) -> None:
         source = DEPLOY.read_text(encoding="utf-8")
