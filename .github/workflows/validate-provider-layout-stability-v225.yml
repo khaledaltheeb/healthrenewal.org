@@ -6,6 +6,7 @@ on:
     paths:
       - "provider-assessment-demo/institutional-contract-v220.css"
       - "provider-assessment-demo/institutional-contract-v220-integration.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
       - "tests/test_provider_layout_stability_v225.py"
       - ".github/workflows/validate-provider-layout-stability-v225.yml"
   push:
@@ -13,6 +14,7 @@ on:
     paths:
       - "provider-assessment-demo/institutional-contract-v220.css"
       - "provider-assessment-demo/institutional-contract-v220-integration.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
       - "tests/test_provider_layout_stability_v225.py"
       - ".github/workflows/validate-provider-layout-stability-v225.yml"
   workflow_dispatch:
@@ -40,12 +42,15 @@ jobs:
         run: |
           python -m py_compile tests/test_provider_layout_stability_v225.py
           python -m unittest -v tests.test_provider_layout_stability_v225
-      - name: Enforce reserved tab-strip geometry
+          node --check provider-assessment-demo/institutional-live-v2.js
+      - name: Enforce reserved geometry and newer-contract guard
         run: |
           set -euxo pipefail
           grep -q 'min-block-size:82px' provider-assessment-demo/institutional-contract-v220.css
           grep -q 'overscroll-behavior-inline:contain' provider-assessment-demo/institutional-contract-v220.css
           grep -q 'tabs.insertBefore(tab, guideTab)' provider-assessment-demo/institutional-contract-v220-integration.js
+          grep -q 'hasNewerInstitutionalContract' provider-assessment-demo/institutional-live-v2.js
+          grep -q 'if (hasNewerInstitutionalContract()) return;' provider-assessment-demo/institutional-live-v2.js
       - name: Install Lighthouse and isolated Chromium
         run: |
           npm install --no-save lighthouse@12 playwright@1.55.0
@@ -111,11 +116,12 @@ jobs:
               'accessibility': categories['accessibility']['score'],
               'best_practices': categories['best-practices']['score'],
               'seo': categories['seo']['score'],
+              'layout_shifts': audits.get('layout-shifts', {}).get('details', {}).get('items', []),
           }
           Path('/tmp/provider-layout-stability-v225.json').write_text(
               json.dumps(result, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
           )
-          print(json.dumps(result, ensure_ascii=False, indent=2))
+          print(json.dumps({key: result[key] for key in ('version','route','form_factor','cls','performance','accessibility','best_practices','seo')}, ensure_ascii=False, indent=2))
           assert result['cls'] <= 0.10, result
           assert result['performance'] >= 0.95, result
           assert result['accessibility'] >= 0.95, result
