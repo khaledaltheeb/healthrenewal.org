@@ -30,7 +30,7 @@ class MagazineResearchV234Tests(unittest.TestCase):
 
     def test_publishes_every_discovered_article_and_sitemap(self) -> None:
         pages = MODULE.article_files()
-        self.assertEqual(len(pages), 25)
+        self.assertEqual(len(pages), 30)
         with tempfile.TemporaryDirectory() as directory:
             site = self.make_site(Path(directory))
             report = MODULE.publish(site)
@@ -86,9 +86,9 @@ class MagazineResearchV234Tests(unittest.TestCase):
 
     def test_index_exposes_every_discovered_article(self) -> None:
         index = (ROOT / "magazine" / "index.html").read_text(encoding="utf-8")
-        self.assertIn('"numberOfItems":25', index)
+        self.assertIn('"numberOfItems":30', index)
         self.assertIn('"hasPart"', index)
-        self.assertEqual(index.count('class="card"'), 25)
+        self.assertEqual(index.count('class="card"'), 30)
         for path in MODULE.article_files():
             self.assertGreaterEqual(index.count(f'href="{path.name}"'), 2)
             self.assertIn(MODULE.URL + path.name, index)
@@ -111,6 +111,11 @@ class MagazineResearchV234Tests(unittest.TestCase):
             "neurodevelopmental-psychiatric-comorbidity-umbrella-review-2026.html": ("14,608", "لا تصلح للتنبؤ بحالة طفل فردي"),
             "child-adolescent-mental-health-guidelines-review-2026.html": ("20 إرشادًا", "لا تضمن تنفيذ توصياته"),
             "digital-eating-disorder-interventions-meta-analysis-2026.html": ("36 تجربة عشوائية", "لا يجوز الاعتماد على تطبيق وحده"),
+            "adolescent-chronic-pain-digital-psychological-interventions-2026.html": ("1,403", "لم يكن الأثر المجمع في الاكتئاب دالًا إحصائيًا"),
+            "youth-self-harm-interventions-meta-analysis-2026.html": ("RD = −0.12", "لا يعني اختفاء خطر الانتحار"),
+            "young-children-universal-wellbeing-interventions-meta-analysis-2026.html": ("32,512", "الاحتفاظ بالأثر"),
+            "youth-single-session-self-administered-interventions-2026.html": ("5,628", "امتد فاصل التنبؤ"),
+            "adhd-sleep-interventions-network-meta-analysis-2026.html": ("4,361", "الترتيب الشبكي لا يساوي توصية دوائية فردية"),
         }
         for filename, markers in checks.items():
             text = (ROOT / "magazine" / filename).read_text(encoding="utf-8")
