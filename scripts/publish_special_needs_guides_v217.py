@@ -77,7 +77,7 @@ def publish(site: Path) -> dict[str, Any]:
 
     report = {
         **base,
-        "version": 235,
+        "version": 221,
         "legacy_contract": 217,
         "guide_contract": 221,
         "hub_contract": 235,
@@ -112,7 +112,6 @@ def publish(site: Path) -> dict[str, Any]:
     payload = json.dumps(report, ensure_ascii=False, indent=2)
     (api / "special-needs-guides-v217.json").write_text(payload, encoding="utf-8")
     (api / "special-needs-guides-v221.json").write_text(payload, encoding="utf-8")
-    (api / "special-needs-v235.json").write_text(payload, encoding="utf-8")
     return report
 
 
