@@ -5,7 +5,6 @@
   const MAX_RECORDS = 180;
   const CHART_RECORDS = 14;
   const CHART = { width: 720, height: 300, left: 56, right: 24, top: 24, bottom: 52 };
-  const CHART_ACCESSIBLE_NAME = 'اتجاهات النوم والجودة والطاقة. الوصف النصي المتجدد يظهر قبل الرسم.';
   const SVG_PRIVACY_NOTICE = 'يتضمن ملف SVG تواريخ النوم ومدته ودرجات الجودة والطاقة. لا يتضمن الملاحظات النصية. راجع الملف قبل مشاركته؛ المشاركة اختيارية وخارج التخزين المحلي.';
 
   function minutes(value) {
@@ -137,7 +136,7 @@
     return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CHART.width} ${CHART.height}" role="img" aria-labelledby="title desc"><title id="title">مخطط اتجاهات النوم والجودة والطاقة</title><desc id="desc">${xmlEscape(description)}</desc><style>${style}</style><rect width="100%" height="100%" fill="#ffffff"/>${chartMarkup(points)}</svg>\n`;
   }
 
-  const api = { STORAGE_KEY, MAX_RECORDS, CHART_RECORDS, CHART_ACCESSIBLE_NAME, SVG_PRIVACY_NOTICE, durationMinutes, isValidDate, validate, summarize, upsert, safeParse, storageRead, storageWrite, storageDelete, toCsv, chartData, chartDescription, chartSvgDocument };
+  const api = { STORAGE_KEY, MAX_RECORDS, CHART_RECORDS, SVG_PRIVACY_NOTICE, durationMinutes, isValidDate, validate, summarize, upsert, safeParse, storageRead, storageWrite, storageDelete, toCsv, chartData, chartDescription, chartSvgDocument };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.PTSleepLog = api;
 
@@ -147,7 +146,6 @@
   const status = form.querySelector('[role="status"]');
   const results = document.querySelector('[data-sleep-results]');
   const consent = form.querySelector('[name="localConsent"]');
-  const summaryElement = document.querySelector('[data-sleep-summary]');
   const chart = document.querySelector('[data-sleep-chart]');
   const chartText = document.querySelector('[data-sleep-chart-text]');
   const chartWrap = chart && chart.closest('.chart-wrap');
@@ -156,10 +154,7 @@
     chartWrap.setAttribute('role', 'region');
     chartWrap.setAttribute('aria-label', 'مخطط اتجاهات النوم القابل للتمرير أفقيًا عند الحاجة');
   }
-  const actionHeader = results?.closest('table')?.querySelector('thead th:last-child');
-  if (actionHeader) actionHeader.textContent = 'إجراءات';
   const printButton = document.querySelector('[data-print-sleep]');
-  const deleteAllButton = document.querySelector('[data-delete-all-sleep]') || document.querySelector('.actions [data-delete-sleep]');
   const exportChartButton = document.createElement('button');
   exportChartButton.type = 'button';
   exportChartButton.setAttribute('data-export-sleep-chart', '');
@@ -203,7 +198,7 @@
     const description = chartDescription(points);
     chartText.textContent = description;
     chart.removeAttribute('aria-labelledby');
-    chart.setAttribute('aria-label', CHART_ACCESSIBLE_NAME);
+    chart.setAttribute('aria-label', description);
     chart.innerHTML = chartMarkup(points);
   }
 
@@ -211,24 +206,15 @@
     const records = readRecords();
     results.innerHTML = records.length ? records.slice().reverse().map((record) => {
       const summary = summarize(record);
-      return `<tr><td>${record.date}</td><td>${summary.hours ?? '—'} ساعة</td><td>${record.quality}/10</td><td>${record.energy}/10</td><td><button type="button" data-delete-sleep="${record.date}">حذف</button></td></tr>`;
-    }).join('') : '<tr><td colspan="5">لا توجد سجلات محفوظة.</td></tr>';
+      return `<tr><td>${record.date}</td><td>${summary.hours ?? '—'} ساعة</td><td>${record.quality}/10</td><td>${record.energy}/10</td><td>${(record.note || '').replace(/[<>&]/g, '')}</td></tr>`;
+    }).join('') : '<tr><td colspan="5">لا توجد سجلات محفوظة على هذا الجهاز.</td></tr>';
     renderChart(records);
   }
 
-  function downloadFile(name, type, content) {
-    const blob = new Blob([content], { type });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = name;
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 0);
-  }
-
+  function recordFromForm() { return Object.fromEntries(new FormData(form).entries()); }
   form.addEventListener('input', (event) => {
     const field = event.target;
-    if (!field?.name || field.getAttribute('aria-invalid') !== 'true') return;
+    if (!field.name || !field.hasAttribute('aria-invalid')) return;
     field.removeAttribute('aria-invalid');
     const error = form.querySelector(`[data-field-error="${field.name}"]`);
     if (error) { error.textContent = ''; error.hidden = true; }
@@ -236,54 +222,37 @@
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    const record = Object.fromEntries(new FormData(form).entries());
+    const record = recordFromForm();
     const checked = validate(record);
-    if (!checked.valid) { showFieldErrors(checked.fieldErrors); announce(checked.errors.join(' ')); return; }
+    if (!checked.valid) { showFieldErrors(checked.fieldErrors); announce(`تعذر حساب الخلاصة. صحح ${Object.keys(checked.fieldErrors).length} حقول موضحة أدناه.`); return; }
     clearFieldErrors();
     const summary = summarize(record);
-    summaryElement.textContent = `${summary.hours} ساعة. ${summary.message} ${summary.flags.join(' ')}`.trim();
-    if (!consent.checked) {
-      announce('تم الحساب دون حفظ. فعّل خيار الحفظ المحلي إذا أردت الاحتفاظ بالسجل على هذا الجهاز.');
-      return;
-    }
-    delete record.localConsent;
-    const current = readRecords();
-    const next = upsert(current, record);
+    document.querySelector('[data-sleep-summary]').textContent = `${summary.hours} ساعة. ${summary.message} ${summary.flags.join(' ')}`;
+    if (!consent.checked) { announce('تم الحساب دون حفظ. فعّل خيار الحفظ المحلي لحفظ السجل.'); return; }
+    const next = upsert(readRecords(), record);
     const saved = storageWrite(localStorage, next);
-    if (!saved.ok) { announce('تعذر الحفظ المحلي. يمكنك استخدام الخلاصة دون حفظ أو المحاولة في متصفح آخر.'); return; }
-    form.reset();
-    announce('تم حفظ السجل محليًا على هذا الجهاز.');
+    if (!saved.ok) { announce('تم الحساب، لكن تعذر الحفظ المحلي. تحقق من إعدادات الخصوصية أو مساحة التخزين.'); return; }
     render();
+    announce('تم حفظ السجل محليًا على هذا الجهاز بعد موافقتك.');
   });
 
-  results.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-delete-sleep]');
-    if (!button) return;
-    const next = readRecords().filter((record) => record.date !== button.dataset.deleteSleep);
-    const saved = storageWrite(localStorage, next);
-    if (!saved.ok) { announce('تعذر حذف السجل المحدد من التخزين المحلي.'); return; }
-    render();
-    announce('تم حذف السجل المحدد.');
+  document.querySelector('[data-delete-sleep]').addEventListener('click', () => {
+    const deleted = storageDelete(localStorage);
+    if (!deleted.ok) { announce('تعذر حذف السجلات المحلية. تحقق من إعدادات الخصوصية ثم أعد المحاولة.'); return; }
+    form.reset(); clearFieldErrors(); render(); announce('حُذفت جميع سجلات النوم المحلية من هذا الجهاز.');
   });
-
-  if (deleteAllButton) {
-    deleteAllButton.addEventListener('click', () => {
-      if (root.confirm && !root.confirm('هل تريد حذف جميع سجلات النوم المحلية من هذا الجهاز؟')) return;
-      const deleted = storageDelete(localStorage);
-      if (!deleted.ok) { announce('تعذر حذف جميع السجلات المحلية.'); return; }
-      render();
-      announce('تم حذف جميع السجلات المحلية.');
-    });
-  }
-
-  document.querySelector('[data-export-json]').addEventListener('click', () => downloadFile('sleep-log.json', 'application/json;charset=utf-8', JSON.stringify(readRecords(), null, 2)));
-  document.querySelector('[data-export-csv]').addEventListener('click', () => downloadFile('sleep-log.csv', 'text/csv;charset=utf-8', toCsv(readRecords())));
-  printButton.addEventListener('click', () => root.print());
+  printButton.addEventListener('click', () => window.print());
+  document.querySelector('[data-export-json]').addEventListener('click', () => download('sleep-log.json', JSON.stringify(readRecords(), null, 2), 'application/json'));
+  document.querySelector('[data-export-csv]').addEventListener('click', () => download('sleep-log.csv', toCsv(readRecords()), 'text/csv;charset=utf-8'));
   exportChartButton.addEventListener('click', () => {
-    const documentText = chartSvgDocument(readRecords());
-    if (!documentText) { announce('أضف سجلًا صالحًا واحدًا على الأقل قبل تصدير المخطط.'); return; }
-    downloadFile('sleep-trends.svg', 'image/svg+xml;charset=utf-8', documentText);
-    announce('تم تجهيز ملف SVG. راجع الملف قبل مشاركته؛ المشاركة اختيارية وخارج التخزين المحلي.');
+    const svg = chartSvgDocument(readRecords());
+    if (!svg) { announce('لا توجد سجلات صالحة لتصدير المخطط. احفظ سجلًا واحدًا على الأقل أولًا.'); return; }
+    download('sleep-trends.svg', svg, 'image/svg+xml;charset=utf-8');
+    announce('تم تجهيز مخطط الاتجاهات كملف SVG قابل للطباعة والمشاركة. راجع الملف قبل مشاركته.');
   });
+  function download(name, content, type) {
+    const url = URL.createObjectURL(new Blob([content], { type }));
+    const link = document.createElement('a'); link.href = url; link.download = name; link.click(); URL.revokeObjectURL(url);
+  }
   render();
 }(typeof window !== 'undefined' ? window : globalThis));
