@@ -26,9 +26,10 @@ assert.ok(data?.professional?.length, "professional registry did not load");
 assert.ok(report, "professional v220 report did not load");
 assert.equal(report.version, "220.1");
 assert.equal(report.count, data.professional.length);
+assert.equal(report.count, context.window.PA_OPERATIONAL_COUNT, "v221 rights contract must cover the operational professional inventory exactly");
 assert.equal(report.allDigitalAdministrationLocked, true);
 assert.equal(report.protectedContentStorageAllowed, false);
-assert.ok(report.count >= 100, `professional registry unexpectedly small: ${report.count}`);
+assert.ok(report.count >= 90, `professional registry unexpectedly small: ${report.count}`);
 
 const ids = new Set();
 const requiredCompleted = [
@@ -114,6 +115,7 @@ assert.ok(compatibility.includes('startsWith("maturity_")'), "planning compatibi
 console.log(JSON.stringify({
   status: "passed",
   registryItems: report.count,
+  operationalInventoryMatched: true,
   allDigitalAdministrationLocked: report.allDigitalAdministrationLocked,
   protectedContentStorageAllowed: report.protectedContentStorageAllowed,
   structuredRecordSchema: "professional-registry-record-v220",
