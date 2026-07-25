@@ -20,6 +20,7 @@ if str(ROOT) not in sys.path:
 
 from scripts import publish_daily_tools_v24_core as _core
 from scripts.publish_daily_tools_v24_core import *  # noqa: F401,F403
+from scripts.stabilize_provider_layout_v225 import stabilize as stabilize_provider_layout
 
 SEO_CONTRACT = 219
 SITE_NAME = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
@@ -155,6 +156,8 @@ def publish(data: dict[str, Any], site: Path | str | None = None) -> None:
     _core.shell = shell
     _core.publish(data)
     validate_metadata(data, target)
+    if (target / "provider-assessment-demo/index.html").is_file():
+        stabilize_provider_layout(target)
 
 
 _core.shell = shell
