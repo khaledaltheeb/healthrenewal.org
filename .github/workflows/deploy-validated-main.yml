@@ -36,6 +36,9 @@ jobs:
 
       - name: Verify artifact integrity and export its authoritative SHA
         id: artifact
+        env:
+          TRIGGER_RUN_ID: ${{ github.event.workflow_run.id }}
+          TRIGGER_REPORTED_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euxo pipefail
           test -f validated-site/deployment.json
@@ -97,9 +100,6 @@ jobs:
               'status': 'artifact-is-authoritative',
           })
           PY
-        env:
-          TRIGGER_RUN_ID: ${{ github.event.workflow_run.id }}
-          TRIGGER_REPORTED_SHA: ${{ github.event.workflow_run.head_sha }}
 
       - name: Accept a validated main ancestor and prevent rollback
         env:
@@ -182,6 +182,7 @@ jobs:
       - name: Verify live SHA exact digests discovery and Stroop v213
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          TRIGGER_REPORTED_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euxo pipefail
           BASE="${PAGE_URL%/}/"
@@ -265,8 +266,6 @@ jobs:
               'status': 'byte-exact-artifact-current-and-discoverable',
           })
           PY
-        env:
-          TRIGGER_REPORTED_SHA: ${{ github.event.workflow_run.head_sha }}
 
       - name: Upload deployment provenance
         if: always()
