@@ -1,0 +1,36 @@
+name: Diagnose PR331 failed content-target log v247
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/diagnose-pr331-failed-log-v247.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Export complete failed log
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          gh run view 30179716780 --repo "$GITHUB_REPOSITORY" --log-failed > pr331-content-target-failure.log 2>&1
+          status=$?
+          echo "gh_status=${status}" >> "$GITHUB_STEP_SUMMARY"
+          tail -n 240 pr331-content-target-failure.log >> "$GITHUB_STEP_SUMMARY" || true
+          test -s pr331-content-target-failure.log
+      - name: Upload exact failed log
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr331-content-target-failure-v247
+          path: pr331-content-target-failure.log
+          if-no-files-found: error
+          retention-days: 3
