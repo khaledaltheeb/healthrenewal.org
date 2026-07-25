@@ -35,7 +35,7 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run discovery content-depth provider-condition and homepage-release unit contracts
+      - name: Run discovery content-depth tips provider-condition and homepage-release unit contracts
         run: |
           set -euxo pipefail
           python -m py_compile \
@@ -54,6 +54,8 @@ jobs:
             tests/test_residual_public_content_v232.py \
             scripts/deepen_assessment_cognitive_hubs_v233.py \
             tests/test_advanced_content_depth_v233.py \
+            scripts/publish_practical_tips_v237.py \
+            tests/test_practical_tips_v237.py \
             scripts/audit_content_quality_v32.py \
             scripts/verify_homepage_release_contract_v230.py \
             tests/test_homepage_release_contract_v230.py
@@ -65,9 +67,10 @@ jobs:
             tests.test_provider_condition_discovery_v238_compat \
             tests.test_residual_public_content_v232 \
             tests.test_advanced_content_depth_v233 \
+            tests.test_practical_tips_v237 \
             tests.test_homepage_release_contract_v230
 
-      - name: Expand short Arabic pages terms provider conditions and re-audit content quality
+      - name: Expand short Arabic pages publish one hundred tips and re-audit content quality
         run: |
           set -euxo pipefail
           python scripts/enrich_thin_content_v222.py validated-site
@@ -75,6 +78,7 @@ jobs:
           python scripts/enrich_term_pages_v224.py validated-site
           python scripts/enrich_provider_condition_pages_v231.py validated-site
           python scripts/enrich_residual_public_pages_v232.py validated-site
+          python scripts/publish_practical_tips_v237.py validated-site
           python scripts/publish_provider_condition_discovery_v238_compat.py validated-site
           python scripts/audit_content_quality_v32.py validated-site
           python - <<'PY'
@@ -89,6 +93,7 @@ jobs:
           provider_discovery = json.loads((root / 'api/provider-condition-discovery-v238.json').read_text(encoding='utf-8'))
           residual = json.loads((root / 'api/residual-public-content-v232.json').read_text(encoding='utf-8'))
           advanced = json.loads((root / 'api/advanced-content-depth-v233.json').read_text(encoding='utf-8'))
+          tips = json.loads((root / 'api/practical-tips-v237.json').read_text(encoding='utf-8'))
           quality = json.loads((root / 'api/content-quality-v32.json').read_text(encoding='utf-8'))
 
           assert depth['version'] == 222, depth
@@ -146,9 +151,24 @@ jobs:
           assert advanced['missing_or_failed'] == 0, advanced
           assert advanced['duplicate_generated_blocks'] == 0, advanced
 
+          assert tips['version'] == 237, tips
+          assert tips['status'] == 'passed', tips
+          assert tips['guide_count'] == 100, tips
+          assert tips['preserved_existing_guides'] == 20, tips
+          assert tips['new_guides'] == 80, tips
+          assert tips['pillar_count'] == 10, tips
+          assert tips['category_count'] >= 25, tips
+          assert tips['minimum_required_words'] == 700, tips
+          assert tips['minimum_after_words'] >= 700, tips
+          assert tips['remaining_below_minimum'] == 0, tips
+          assert tips['missing_or_failed'] == 0, tips
+          assert tips['duplicate_slugs'] == 0, tips
+          assert tips['duplicate_titles'] == 0, tips
+          assert tips['sitemap_urls'] == 111, tips
+
           assert quality['critical_error_count'] == 0, quality
           assert quality['thin_page_candidates'] == 0, quality['warnings'][:50]
-          for route in ('comparisons', 'library', 'encyclopedia', 'assessments', 'special-needs', 'care-guides'):
+          for route in ('comparisons', 'library', 'encyclopedia', 'assessments', 'special-needs', 'care-guides', 'tips'):
               assert route in depth['policies'], route
 
           remaining_provider_thin = []
@@ -159,11 +179,11 @@ jobs:
               match = pattern.match(warning)
               if not match:
                   continue
-              path, words = match.group(1), int(match.group(2))
+              path, count = match.group(1), int(match.group(2))
               if path.startswith('provider-assessment-demo/conditions/'):
-                  remaining_provider_thin.append({'path': path, 'words': words})
+                  remaining_provider_thin.append({'path': path, 'words': count})
               if path.startswith(residual_prefixes):
-                  remaining_residual_thin.append({'path': path, 'words': words})
+                  remaining_residual_thin.append({'path': path, 'words': count})
           assert remaining_provider_thin == [], remaining_provider_thin
           assert remaining_residual_thin == [], remaining_residual_thin
 
@@ -174,6 +194,10 @@ jobs:
               assert source.count('data-provider-condition-depth-v231-style') == 1, page['path']
               assert 'id="condition-root"' in source, page['path']
               assert 'conditions-ui-v1.js' in source, page['path']
+
+          assert len(list((root / 'tips').glob('*/index.html'))) == 100
+          assert len(list((root / 'tips/topics').glob('*/index.html'))) == 10
+          assert (root / 'assets/css/practical-tips-v237.css').is_file()
 
           print({
               'status': depth['status'],
@@ -195,6 +219,10 @@ jobs:
               'advanced_target_pages': advanced['target_pages'],
               'advanced_counts_by_kind': advanced['counts_by_kind'],
               'advanced_minimum_after_words': advanced['minimum_after_words'],
+              'tips_guides': tips['guide_count'],
+              'tips_new_guides': tips['new_guides'],
+              'tips_minimum_after_words': tips['minimum_after_words'],
+              'tips_pillar_counts': tips['pillar_counts'],
               'remaining_provider_thin_pages': len(remaining_provider_thin),
               'remaining_residual_thin_pages': len(remaining_residual_thin),
               'quality_critical_errors': quality['critical_error_count'],
@@ -202,9 +230,10 @@ jobs:
           })
           PY
           test -f validated-site/assets/css/content-depth-v222.css
+          test -f validated-site/assets/css/practical-tips-v237.css
           test -f validated-site/sitemap-provider-assessment.xml
           test "$(grep -c 'sitemap-provider-assessment.xml' validated-site/robots.txt)" -eq 1
-          ! grep -R -Eqi 'يعالج نهائيًا|شفاء مضمون|بديل عن الطبيب|تشخيصك هو' \
+          ! grep -R -Eqi 'يعالج نهائيًا|شفاء مضمون|بديل عن الطبيب|تشخيصك هو|معاقين' \
             validated-site/terms \
             validated-site/comparisons \
             validated-site/library \
@@ -212,6 +241,7 @@ jobs:
             validated-site/assessments \
             validated-site/special-needs \
             validated-site/care-guides \
+            validated-site/tips \
             validated-site/provider-assessment-demo/conditions
 
       - name: Enforce institutional gateway inbound-link and sitemap coverage
@@ -242,6 +272,7 @@ jobs:
               'required_gateways': len(required),
               'comparisons': 'discoverable',
               'library': 'discoverable',
+              'tips': 'discoverable',
               'provider_conditions': 'discoverable',
               'provider_training': 'discoverable',
           })
@@ -262,7 +293,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload discovery content provider-condition and homepage evidence
+      - name: Upload discovery content tips provider-condition and homepage evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -275,6 +306,7 @@ jobs:
             validated-site/api/provider-condition-discovery-v238.json
             validated-site/api/residual-public-content-v232.json
             validated-site/api/advanced-content-depth-v233.json
+            validated-site/api/practical-tips-v237.json
             validated-site/api/content-quality-v32.json
             validated-site/api/homepage-release-v230.json
           if-no-files-found: warn
