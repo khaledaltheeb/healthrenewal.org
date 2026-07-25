@@ -30,32 +30,70 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Download uncached live evidence
+      - name: Download uncached live evidence with per-URL diagnostics
+        id: download
+        shell: bash
         run: |
-          set -euxo pipefail
+          set -uo pipefail
           root=/tmp/special-needs-live-v236
           rm -rf "${root}"
           mkdir -p "${root}/api" "${root}/special-needs"
           token="${EXPECTED_SHA}-manual-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          curl --retry 8 --retry-delay 5 --retry-all-errors -H 'Cache-Control: no-cache' -fsSL \
-            "${BASE_URL}deployment.json?v=${token}" -o "${root}/deployment.json"
-          curl --retry 8 --retry-delay 5 --retry-all-errors -H 'Cache-Control: no-cache' -fsSL \
-            "${BASE_URL}api/special-needs-guides-v221.json?v=${token}" -o "${root}/api/special-needs-guides-v221.json"
-          curl --retry 8 --retry-delay 5 --retry-all-errors -H 'Cache-Control: no-cache' -fsSL \
-            "${BASE_URL}special-needs/?v=${token}" -o "${root}/special-needs/index.html"
-          curl --retry 8 --retry-delay 5 --retry-all-errors -H 'Cache-Control: no-cache' -fsSL \
-            "${BASE_URL}sitemap-special-needs.xml?v=${token}" -o "${root}/sitemap-special-needs.xml"
+          diagnostics="${root}/api/live-download-diagnostics-v236.tsv"
+          printf 'label\tstatus\tbytes\turl\n' > "${diagnostics}"
+          failures=0
+
+          download() {
+            label="$1"; relative="$2"; output="$3"
+            mkdir -p "$(dirname "${output}")"
+            url="${BASE_URL}${relative}?v=${token}"
+            tmp="${output}.part"
+            status=$(curl --retry 4 --retry-delay 4 --retry-all-errors \
+              -H 'Cache-Control: no-cache' -sS -L \
+              -o "${tmp}" -w '%{http_code}' "${url}" || printf '000')
+            bytes=0
+            if [ -f "${tmp}" ]; then bytes=$(wc -c < "${tmp}"); fi
+            printf '%s\t%s\t%s\t%s\n' "${label}" "${status}" "${bytes}" "${url}" | tee -a "${diagnostics}"
+            if [ "${status}" = "200" ] && [ "${bytes}" -gt 0 ]; then
+              mv "${tmp}" "${output}"
+            else
+              failures=$((failures+1))
+              rm -f "${tmp}"
+            fi
+          }
+
+          download deployment deployment.json "${root}/deployment.json"
+          download report api/special-needs-guides-v221.json "${root}/api/special-needs-guides-v221.json"
+          download hub special-needs/ "${root}/special-needs/index.html"
+          download sitemap sitemap-special-needs.xml "${root}/sitemap-special-needs.xml"
           for slug in \
             assessment-homework-accommodations-plan \
             visual-schedules-transitions-home-school-plan \
             inclusive-play-peer-friendship-plan \
             siblings-family-balance-support-plan \
             accessible-family-emergency-preparedness-plan; do
-            mkdir -p "${root}/special-needs/${slug}"
-            curl --retry 8 --retry-delay 5 --retry-all-errors -H 'Cache-Control: no-cache' -fsSL \
-              "${BASE_URL}special-needs/${slug}/?v=${token}" \
-              -o "${root}/special-needs/${slug}/index.html"
+            download "guide:${slug}" "special-needs/${slug}/" "${root}/special-needs/${slug}/index.html"
           done
+
+          python - <<'PY'
+          import csv,json
+          from pathlib import Path
+          tsv=Path('/tmp/special-needs-live-v236/api/live-download-diagnostics-v236.tsv')
+          rows=list(csv.DictReader(tsv.open(encoding='utf-8'),delimiter='\t'))
+          payload={
+              'version':236,
+              'expected_sha':'b2f67cc76e709b0b6308ae45e57f52a21f012f0a',
+              'status':'passed' if rows and all(row['status']=='200' and int(row['bytes'])>0 for row in rows) else 'failed',
+              'downloads':rows,
+          }
+          Path('/tmp/special-needs-live-v236/api/live-download-diagnostics-v236.json').write_text(
+              json.dumps(payload,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(payload,ensure_ascii=False,indent=2))
+          PY
+          if [ "${failures}" -ne 0 ]; then
+            echo "Required live downloads failed: ${failures}" >&2
+            exit 1
+          fi
 
       - name: Verify SHA, twenty-five links, five batches and v214 pages
         env:
@@ -76,7 +114,7 @@ jobs:
             data/disability-dignity-safety.json \
             data/urgent-help-governance.json; do
             status=$(curl --retry 3 --retry-delay 3 --retry-all-errors -H 'Cache-Control: no-cache' \
-              -sS -o /tmp/blocked-response -w '%{http_code}' \
+              -sS -L -o /tmp/blocked-response -w '%{http_code}' \
               "${BASE_URL}${path}?v=${token}")
             case "${status}" in
               404|410) ;;
@@ -106,9 +144,13 @@ jobs:
           PY
 
       - name: Upload live deployment evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: special-needs-live-v236
-          path: /tmp/special-needs-live-v236/api/special-needs-deployment-v236.json
-          if-no-files-found: error
+          path: |
+            /tmp/special-needs-live-v236/api/special-needs-deployment-v236.json
+            /tmp/special-needs-live-v236/api/live-download-diagnostics-v236.json
+            /tmp/special-needs-live-v236/api/live-download-diagnostics-v236.tsv
+          if-no-files-found: warn
           retention-days: 30
