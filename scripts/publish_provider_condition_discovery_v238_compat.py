@@ -24,20 +24,26 @@ def sync_discovery_sitemaps(site: Path) -> list[str]:
 
     registered: list[str] = []
     for filename in DISCOVERY_SITEMAPS:
+        directive = f"Sitemap: {BASE}/{filename}"
+        # Remove stale and duplicate directives first. Re-add exactly once only
+        # when the corresponding sitemap exists in the production artifact.
+        lines = [line for line in lines if line != directive]
         sitemap = site / filename
         if not sitemap.is_file():
             continue
-        directive = f"Sitemap: {BASE}/{filename}"
-        lines = [line for line in lines if line != directive]
         lines.append(directive)
         registered.append(filename)
 
     path.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
     normalized = path.read_text(encoding="utf-8")
-    for filename in registered:
+    for filename in DISCOVERY_SITEMAPS:
         directive = f"Sitemap: {BASE}/{filename}"
-        if normalized.count(directive) != 1:
-            raise ValueError(f"robots.txt sitemap registry failed: {filename}")
+        expected = 1 if filename in registered else 0
+        actual = normalized.count(directive)
+        if actual != expected:
+            raise ValueError(
+                f"robots.txt sitemap registry failed: {filename}; expected={expected}; actual={actual}"
+            )
     return registered
 
 
