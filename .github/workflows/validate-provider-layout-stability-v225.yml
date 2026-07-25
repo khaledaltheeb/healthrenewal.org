@@ -1,0 +1,47 @@
+name: Validate provider layout stability v225
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/styles.css"
+      - "provider-assessment-demo/institutional-contract-v220.css"
+      - "provider-assessment-demo/institutional-contract-v220-integration.js"
+      - "scripts/verify_provider_layout_stability_v225.py"
+      - ".github/workflows/validate-provider-layout-stability-v225.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/styles.css"
+      - "provider-assessment-demo/institutional-contract-v220.css"
+      - "provider-assessment-demo/institutional-contract-v220-integration.js"
+      - "scripts/verify_provider_layout_stability_v225.py"
+      - ".github/workflows/validate-provider-layout-stability-v225.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-layout-stability-v225-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and enforce reserved tab-strip geometry
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/verify_provider_layout_stability_v225.py
+          python scripts/verify_provider_layout_stability_v225.py
+          grep -q 'min-block-size:82px' provider-assessment-demo/institutional-contract-v220.css
+          grep -q 'overscroll-behavior-inline:contain' provider-assessment-demo/institutional-contract-v220.css
+          grep -q 'tabs.insertBefore(tab, guideTab)' provider-assessment-demo/institutional-contract-v220-integration.js
