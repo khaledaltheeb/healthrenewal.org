@@ -7,6 +7,7 @@ on:
       - "provider-assessment-demo/index.html"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/institutional-contract-v220.js"
+      - "provider-assessment-demo/institutional-contract-v220-integration.js"
       - "provider-assessment-demo/institutional-contract-v220.css"
       - "provider-assessment-demo/institutional-contract-v220.json"
       - "provider-assessment-demo/sw-live-v2.js"
@@ -24,6 +25,7 @@ on:
       - "provider-assessment-demo/index.html"
       - "provider-assessment-demo/institutional-live-v2.js"
       - "provider-assessment-demo/institutional-contract-v220.js"
+      - "provider-assessment-demo/institutional-contract-v220-integration.js"
       - "provider-assessment-demo/institutional-contract-v220.css"
       - "provider-assessment-demo/institutional-contract-v220.json"
       - "provider-assessment-demo/sw-live-v2.js"
@@ -55,6 +57,7 @@ jobs:
           node --check provider-assessment-demo/condition-entry-v1.js
           node --check provider-assessment-demo/institutional-live-v2.js
           node --check provider-assessment-demo/institutional-contract-v220.js
+          node --check provider-assessment-demo/institutional-contract-v220-integration.js
           node --check provider-assessment-demo/sw-live-v2.js
 
       - name: Validate v220 HTML and compatible asset tokens
@@ -97,15 +100,19 @@ jobs:
           const compatibilityRelease = '2026.07.24-live.7';
           const institutionalRelease = '2026.07.25-v220';
           const institutional = read('provider-assessment-demo/institutional-live-v2.js');
-          const contract = read('provider-assessment-demo/institutional-contract-v220.js');
+          const contractLoader = read('provider-assessment-demo/institutional-contract-v220.js');
+          const contractIntegration = read('provider-assessment-demo/institutional-contract-v220-integration.js');
           const worker = read('provider-assessment-demo/sw-live-v2.js');
           const releaseMarker = read('provider-assessment-demo/.report-interpretation-release').trim();
           if (releaseMarker !== compatibilityRelease) throw new Error(`Report interpretation compatibility marker mismatch: ${releaseMarker}`);
           for (const marker of ['loadProfessionalTemplates','loadConditionPathways','loadCaseReports','case-report-interpretation-v2.js']) {
             if (!institutional.includes(marker)) throw new Error(`Institutional compatibility runtime missing ${marker}`);
           }
-          for (const marker of ['2026.07.25-v220','PA_INSTITUTIONAL_CONTRACT_V220']) {
-            if (!contract.includes(marker)) throw new Error(`Institutional v220 runtime missing ${marker}`);
+          if (!contractLoader.includes('import("./institutional-contract-v220-integration.js")') || !contractLoader.includes(institutionalRelease)) {
+            throw new Error('Institutional v220 loader or release marker is missing');
+          }
+          for (const marker of ['2026.07.25-v220','institutional-contract-v220']) {
+            if (!contractIntegration.includes(marker)) throw new Error(`Institutional v220 integration missing ${marker}`);
           }
           if (!institutional.includes(compatibilityRelease)) throw new Error('Institutional compatibility runtime release mismatch');
           if (!worker.includes(compatibilityRelease) || !worker.includes('cache: "no-store"')) throw new Error('Service worker release or network-first contract mismatch');
