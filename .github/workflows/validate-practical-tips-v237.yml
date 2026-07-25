@@ -74,7 +74,8 @@ jobs:
       - name: Publish the real one-hundred-guide registry
         run: |
           set -euxo pipefail
-          TMP_SITE="$(mktemp -d)"
+          TMP_SITE="/tmp/practical-tips-v237-site"
+          rm -rf "${TMP_SITE}" practical-tips-v237-evidence
           mkdir -p "${TMP_SITE}/assets"
           printf '%s\n' '<svg xmlns="http://www.w3.org/2000/svg"></svg>' > "${TMP_SITE}/assets/logo.svg"
           printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>' > "${TMP_SITE}/sitemap.xml"
@@ -130,6 +131,18 @@ jobs:
           })
           PY
           ! grep -R -Eqi 'يعالج نهائيًا|شفاء مضمون|بديل عن الطبيب|تشخيصك هو|معاقين' "${TMP_SITE}/tips"
+          mkdir -p practical-tips-v237-evidence
+          cp "${REPORT}" practical-tips-v237-evidence/
+          cp "${TMP_SITE}/tips/better-sleep/index.html" practical-tips-v237-evidence/better-sleep.html
+
+      - name: Upload generated practical-tip evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: practical-tips-v237-generated-evidence
+          path: practical-tips-v237-evidence
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Enforce permanent production hook
         run: |
