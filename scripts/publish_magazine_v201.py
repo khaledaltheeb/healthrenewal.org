@@ -15,7 +15,7 @@ SOURCE = ROOT / "magazine"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 URL = BASE + "/magazine/"
 CONTRACT = 234
-MIN_ARTICLES = 15
+MIN_ARTICLES = 21
 SOURCE_LINK_PATTERN = re.compile(
     r'href="https://(?:doi\.org/|pubmed\.ncbi\.nlm\.nih\.gov/|etheses\.whiterose\.ac\.uk/|research-repository\.uwa\.edu\.au/)',
     re.I,
@@ -36,6 +36,12 @@ KNOWN_MARKERS = {
     "thesis-autism-heterogeneity-research-2025.html": ("38156", "51 ورقة", "حتى 1 مارس 2028"),
     "thesis-autistic-camouflaging-mental-health-2025.html": ("10.26182/pez7-d531", "دراسة مقطعية", "دراسة طولية"),
     "thesis-sensory-processing-adhd-autism-2026.html": ("38725", "3 دراسات تجريبية", "حتى 6 مايو 2027"),
+    "autism-social-functioning-meta-analysis-2026.html": ("10.1038/s41562-026-02457-w", "2,622 دراسة", "−0.744"),
+    "autism-ssri-children-meta-analysis-2026.html": ("10.1177/11795565261442820", "606 مشاركين", "GRADE"),
+    "adhd-screen-time-meta-analysis-2026.html": ("10.1080/24694193.2026.2640837", "235,283", "يقين منخفض"),
+    "adhd-technology-interventions-meta-analysis-2026.html": ("10.1080/01942638.2026.2689070", "0.24", "I² = 68.3%"),
+    "adhd-physical-fitness-meta-analysis-2026.html": ("10.1016/j.arcped.2026.105583", "1,814", "−0.46"),
+    "autism-sleep-disorders-prevalence-meta-analysis-2026.html": ("10.1186/s12888-026-08191-x", "60.0%", "I² = 98.8%"),
 }
 
 
@@ -59,17 +65,22 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
             raise SystemExit(f"Missing magazine source file: {name}")
 
     index = (SOURCE / "index.html").read_text(encoding="utf-8")
+    expected_count = len(pages)
     required_index = (
         '<html lang="ar" dir="rtl">',
         '<h1>المجلة والأبحاث</h1>',
         '<link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/magazine/">',
         'application/ld+json',
         'research.css',
-        '"numberOfItems":15',
+        f'"numberOfItems":{expected_count}',
     )
     missing = [marker for marker in required_index if marker not in index]
     if missing:
         raise SystemExit(f"Magazine index contract failed: {missing}")
+    if index.count('class="card"') != expected_count:
+        raise SystemExit(
+            f"Magazine index must expose {expected_count} cards, found {index.count('class=\"card\"')}"
+        )
 
     hashes: dict[str, str] = {}
     for path in pages:
@@ -188,7 +199,9 @@ def publish(site: Path) -> dict[str, object]:
     }
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
-    (api / "magazine-v201.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (api / "magazine-v201.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return report
 
