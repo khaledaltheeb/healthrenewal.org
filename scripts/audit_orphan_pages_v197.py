@@ -51,6 +51,8 @@ REQUIRED_GATEWAYS = (
     "cognitive-lab/",
     "daily-tools/",
     "learning-paths/",
+    "magazine/",
+    "trust/",
     "start-here/",
     "provider-assessment-demo/",
     "api/",
