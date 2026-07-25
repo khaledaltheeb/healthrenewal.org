@@ -137,6 +137,25 @@
     content.querySelector(".dialog-actions")?.insertAdjacentElement("beforebegin", wrapper.firstElementChild);
   };
 
+  const loadProfessionalRegistry = () => {
+    if (document.querySelector('script[data-professional-registry-contract-v220]')) return;
+    const contract = document.createElement("script");
+    contract.src = `professional-registry-contract-v220.js?release=${encodeURIComponent(RELEASE)}`;
+    contract.defer = true;
+    contract.dataset.professionalRegistryContractV220 = RELEASE;
+    contract.addEventListener("load", () => {
+      if (document.querySelector('script[data-professional-registry-ui-v220]')) return;
+      const ui = document.createElement("script");
+      ui.src = `professional-registry-maturity-ui-v220.js?release=${encodeURIComponent(RELEASE)}`;
+      ui.defer = true;
+      ui.dataset.professionalRegistryUiV220 = RELEASE;
+      ui.addEventListener("error", () => console.error("Failed to load professional registry maturity UI v220"), { once: true });
+      document.head.appendChild(ui);
+    }, { once: true });
+    contract.addEventListener("error", () => console.error("Failed to load professional registry rights contract v220"), { once: true });
+    document.head.appendChild(contract);
+  };
+
   const refresh = () => {
     enhanceExplorerCards();
     enhanceAssessmentDialog();
@@ -146,6 +165,7 @@
 
   const boot = () => {
     refresh();
+    loadProfessionalRegistry();
     new MutationObserver(refresh).observe(document.body, { childList: true, subtree: true });
   };
   window.PA_EXPLORATORY_V220_REFRESH = refresh;
