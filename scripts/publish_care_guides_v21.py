@@ -15,7 +15,15 @@ DATA_FILES = [
     ROOT / "content/v18/care-guides-ar.json",
     ROOT / "content/v18/care-guides-adhd-ar.json",
     ROOT / "content/v18/care-guides-autism-ar.json",
+    ROOT / "content/v18/care-guides-family-anxiety-panic-support-ar.json",
+    ROOT / "content/v18/care-guides-family-ocd-support-ar.json",
+    ROOT / "content/v18/care-guides-bipolar-family-early-warning-plan-ar.json",
+    ROOT / "content/v18/care-guides-trauma-ptsd-family-support-ar.json",
+    ROOT / "content/v18/care-guides-eating-disorder-family-support-ar.json",
+    ROOT / "content/v18/care-guides-self-harm-family-safety-support-ar.json",
 ]
+EXPECTED_SOURCE_GUIDES = 14
+CONTENT_RELEASE_VERSION = 239
 BASE = "https://khaledaltheeb.github.io/pterminology-site/"
 BASE_PATH = "/pterminology-site/"
 TODAY = date.today().isoformat()
@@ -215,8 +223,10 @@ def main() -> None:
     for path in DATA_FILES[1:]:
         payload = json.loads(path.read_text(encoding="utf-8"))
         all_guides.extend(payload.get("guides", []))
-    if len(all_guides) != 8:
-        raise SystemExit(f"Expected 8 validated source guides, found {len(all_guides)}")
+    if len(all_guides) != EXPECTED_SOURCE_GUIDES:
+        raise SystemExit(
+            f"Expected {EXPECTED_SOURCE_GUIDES} validated source guides, found {len(all_guides)}"
+        )
     slugs = [guide["slug"] for guide in all_guides]
     if len(slugs) != len(set(slugs)):
         raise SystemExit("Duplicate care-guide slugs")
@@ -261,6 +271,7 @@ def main() -> None:
     report = {
         "version": 194,
         "publication_gate_version": 194,
+        "content_release_version": CONTENT_RELEASE_VERSION,
         "source_guides": len(all_guides),
         "guides": published_guide_count,
         "core_guides": len(all_guides),
