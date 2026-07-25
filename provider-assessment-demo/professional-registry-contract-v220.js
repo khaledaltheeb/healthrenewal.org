@@ -108,7 +108,7 @@
     }))
   });
 
-  if (!document.querySelector('script[data-professional-planning-compat-v220]')) {
+  if (typeof document !== "undefined" && !document.querySelector('script[data-professional-planning-compat-v220]')) {
     const compatibility = document.createElement("script");
     compatibility.src = `professional-registry-planning-compat-v220.js?release=${encodeURIComponent(VERSION)}`;
     compatibility.defer = true;
