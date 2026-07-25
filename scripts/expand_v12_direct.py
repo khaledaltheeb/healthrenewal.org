@@ -24,10 +24,24 @@ for _name in dir(core):
         globals().setdefault(_name, getattr(core, _name))
 
 
+def _seo_visible_head_fragment(definition: dict, kind: str) -> str:
+    fragment = source.head_fragment(definition, kind)
+    fragment = fragment.replace(
+        '<meta data-lab-source-v235-head="twitter-title" name="twitter:title"',
+        '<meta name="twitter:title" data-lab-source-v235-head="twitter-title"',
+    )
+    fragment = fragment.replace(
+        '<meta data-lab-source-v235-head="twitter-description" name="twitter:description"',
+        '<meta name="twitter:description" data-lab-source-v235-head="twitter-description"',
+    )
+    return fragment
+
+
 def _head(definition: dict, kind: str, canonical: str) -> str:
     description = source.rich_description(definition, kind)
     page = core.page_head(definition["title"], description, canonical, definition)
-    return page.replace("</head>", source.head_fragment(definition, kind) + SOURCE_STYLE + "</head>", 1)
+    fragment = _seo_visible_head_fragment(definition, kind)
+    return page.replace("</head>", fragment + SOURCE_STYLE + "</head>", 1)
 
 
 def tool_html(item: dict) -> str:
