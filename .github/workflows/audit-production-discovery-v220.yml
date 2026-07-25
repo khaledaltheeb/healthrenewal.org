@@ -35,7 +35,7 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run discovery and content-depth unit contracts
+      - name: Run discovery content-depth and homepage-release unit contracts
         run: |
           set -euxo pipefail
           python -m py_compile \
@@ -45,11 +45,14 @@ jobs:
             tests/test_content_depth_v222.py \
             scripts/enrich_term_pages_v224.py \
             tests/test_term_content_depth_v224.py \
-            scripts/audit_content_quality_v32.py
+            scripts/audit_content_quality_v32.py \
+            scripts/verify_homepage_release_contract_v230.py \
+            tests/test_homepage_release_contract_v230.py
           python -m unittest -v \
             tests.test_orphan_page_audit_v197 \
             tests.test_content_depth_v222 \
-            tests.test_term_content_depth_v224
+            tests.test_term_content_depth_v224 \
+            tests.test_homepage_release_contract_v230
 
       - name: Expand short Arabic pages terms and re-audit content quality
         run: |
@@ -138,6 +141,13 @@ jobs:
           })
           PY
 
+      - name: Reject a legacy homepage before re-publishing the artifact
+        run: |
+          set -euxo pipefail
+          python scripts/verify_homepage_release_contract_v230.py \
+            validated-site/index.html \
+            --report validated-site/api/homepage-release-v230.json
+
       - name: Re-publish the audited production artifact
         uses: actions/upload-artifact@v4
         with:
@@ -146,7 +156,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload discovery and content evidence
+      - name: Upload discovery content and homepage evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -156,5 +166,6 @@ jobs:
             validated-site/api/content-depth-v222.json
             validated-site/api/term-content-depth-v224.json
             validated-site/api/content-quality-v32.json
+            validated-site/api/homepage-release-v230.json
           if-no-files-found: warn
           retention-days: 14
