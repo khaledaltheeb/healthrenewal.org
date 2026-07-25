@@ -4,6 +4,8 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
+import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
@@ -138,6 +140,17 @@ def compatible_link_hub(site: Path, guides: list[dict[str, Any]]) -> None:
     hub_path.write_text(text, encoding="utf-8")
 
 
+def synchronize_homepage_routes(site: Path) -> None:
+    subprocess.run(
+        [
+            sys.executable,
+            str(Path(__file__).with_name("synchronize_homepage_linked_routes_v221.py")),
+            str(site),
+        ],
+        check=True,
+    )
+
+
 def publish(site: Path) -> dict[str, Any]:
     global MAIN_SITEMAP_MODE
     MAIN_SITEMAP_MODE = "urlset"
@@ -146,6 +159,7 @@ def publish(site: Path) -> dict[str, Any]:
     publisher.link_hub = compatible_link_hub
     try:
         report = publisher.publish(site)
+        synchronize_homepage_routes(site)
     finally:
         publisher.upsert_urlset = ORIGINAL_UPSERT
         # Keep the compatible hub linker installed: v210-v212 execute in the
