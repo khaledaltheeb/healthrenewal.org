@@ -1,0 +1,100 @@
+name: Validate exploratory and professional maturity v221
+
+on:
+  push:
+    branches: ["agent/exploratory-professional-v221-clean"]
+    paths:
+      - "provider-assessment-demo/exploratory-tools-maturity-*-v220.js"
+      - "provider-assessment-demo/professional-registry-*-v220.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/sw-live-v2.js"
+      - "provider-assessment-demo/tests/exploratory-tools-maturity-v221.spec.cjs"
+      - "provider-assessment-demo/tests/professional-registry-maturity-v221.spec.cjs"
+      - "provider-assessment-demo/tests/professional-report-integration-v220.spec.cjs"
+      - "provider-assessment-demo/tests/exploratory-professional-maturity-v221.spec.cjs"
+      - ".github/workflows/provider-assessment-maturity-v221.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/exploratory-tools-maturity-*-v220.js"
+      - "provider-assessment-demo/professional-registry-*-v220.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/sw-live-v2.js"
+      - "provider-assessment-demo/tests/exploratory-tools-maturity-v221.spec.cjs"
+      - "provider-assessment-demo/tests/professional-registry-maturity-v221.spec.cjs"
+      - "provider-assessment-demo/tests/professional-report-integration-v220.spec.cjs"
+      - "provider-assessment-demo/tests/exploratory-professional-maturity-v221.spec.cjs"
+      - ".github/workflows/provider-assessment-maturity-v221.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-assessment-maturity-v221-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  maturity-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Check JavaScript syntax
+        run: |
+          set -euxo pipefail
+          node --check provider-assessment-demo/exploratory-tools-maturity-runtime-v220.js
+          node --check provider-assessment-demo/exploratory-tools-maturity-specs-1-v220.js
+          node --check provider-assessment-demo/exploratory-tools-maturity-specs-2-v220.js
+          node --check provider-assessment-demo/exploratory-tools-maturity-specs-3-v220.js
+          node --check provider-assessment-demo/exploratory-tools-maturity-specs-4-v220.js
+          node --check provider-assessment-demo/exploratory-tools-maturity-finalize-v220.js
+          node --check provider-assessment-demo/exploratory-tools-maturity-ui-v220.js
+          node --check provider-assessment-demo/professional-registry-contract-v220.js
+          node --check provider-assessment-demo/professional-registry-maturity-ui-v220.js
+          node --check provider-assessment-demo/professional-registry-planning-compat-v220.js
+          node --check provider-assessment-demo/professional-registry-report-integration-v220.js
+          node --check provider-assessment-demo/institutional-live-v2.js
+          node --check provider-assessment-demo/tests/exploratory-tools-maturity-v221.spec.cjs
+          node --check provider-assessment-demo/tests/professional-registry-maturity-v221.spec.cjs
+          node --check provider-assessment-demo/tests/professional-report-integration-v220.spec.cjs
+          node --check provider-assessment-demo/tests/exploratory-professional-maturity-v221.spec.cjs
+
+      - name: Enforce twenty-tool exploratory maturity contract
+        run: node provider-assessment-demo/tests/exploratory-tools-maturity-v221.spec.cjs
+
+      - name: Enforce professional rights and result-record contract
+        run: node provider-assessment-demo/tests/professional-registry-maturity-v221.spec.cjs
+
+      - name: Enforce professional source integrity in final reports
+        run: node provider-assessment-demo/tests/professional-report-integration-v220.spec.cjs
+
+      - name: Guard release rights privacy and loading contracts
+        run: |
+          set -euxo pipefail
+          grep -F 'const RELEASE = "2026.07.24-live.7"' provider-assessment-demo/institutional-live-v2.js
+          grep -F 'const RELEASE = "2026.07.24-live.7"' provider-assessment-demo/sw-live-v2.js
+          grep -F 'data-release="2026.07.24-live.7"' provider-assessment-demo/index.html
+          ! grep -F '2026.07.25-live.8' provider-assessment-demo/institutional-live-v2.js
+          grep -F 'professional-registry-planning-compat-v220.js' provider-assessment-demo/institutional-live-v2.js
+          grep -F 'original_exploratory_non_diagnostic' provider-assessment-demo/exploratory-tools-maturity-finalize-v220.js
+          grep -F 'protectedItemsCopied:false' provider-assessment-demo/exploratory-tools-maturity-finalize-v220.js
+          grep -F 'urgentSafetyOverridesScoring:true' provider-assessment-demo/exploratory-tools-maturity-finalize-v220.js
+          grep -F 'officialAdministrationInsidePlatform: false' provider-assessment-demo/professional-registry-contract-v220.js
+          grep -F 'protectedContentStorageAllowed: false' provider-assessment-demo/professional-registry-contract-v220.js
+          grep -F 'digitalAdministrationOccurredInsidePlatform: false' provider-assessment-demo/professional-registry-maturity-ui-v220.js
+          grep -F 'protectedContentStored: false' provider-assessment-demo/professional-registry-maturity-ui-v220.js
+          grep -F 'planningDraftAllowed: true' provider-assessment-demo/professional-registry-planning-compat-v220.js
+          grep -F 'completedRightsRequired: true' provider-assessment-demo/professional-registry-planning-compat-v220.js
+          grep -F 'case-report-professional-sources-v220' provider-assessment-demo/professional-registry-report-integration-v220.js
+          ! grep -R -E '\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource' \
+            provider-assessment-demo/professional-registry-contract-v220.js \
+            provider-assessment-demo/professional-registry-maturity-ui-v220.js \
+            provider-assessment-demo/professional-registry-planning-compat-v220.js \
+            provider-assessment-demo/professional-registry-report-integration-v220.js
