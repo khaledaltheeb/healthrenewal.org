@@ -8,6 +8,7 @@ from typing import Any
 
 import publish_special_needs_guides_v214 as batch214
 import publish_special_needs_guides_v217_core as core
+import publish_special_needs_hub_v235_compat as hub235
 
 ROOT = Path(__file__).resolve().parents[1]
 V214_MANIFEST = ROOT / "content" / "v214" / "special-needs-guides-manifest-ar.json"
@@ -42,6 +43,16 @@ def load_production_manifest() -> dict[str, Any]:
 
 def publish(site: Path) -> dict[str, Any]:
     production_manifest = load_production_manifest()
+    hub_report = hub235.publish(site)
+    if hub_report.get("version") != 235 or hub_report.get("guide_count") != 25:
+        raise SystemExit(f"Institutional special-needs hub contract failed: {hub_report}")
+    if hub_report.get("source_count") != 10 or hub_report.get("jordan_source_count") != 3:
+        raise SystemExit(f"Institutional special-needs source contract failed: {hub_report}")
+    if hub_report.get("jordan_context_section") is not True:
+        raise SystemExit("Institutional Jordan context contract failed")
+    if hub_report.get("asha_aac_source_updated") is not True:
+        raise SystemExit("Institutional AAC source contract failed")
+
     base = core.publish(site)
     manifest = core.read_manifest(V214_MANIFEST, 214)
     titles: dict[str, str] = {}
@@ -74,6 +85,9 @@ def publish(site: Path) -> dict[str, Any]:
         **base,
         "version": 221,
         "legacy_contract": 217,
+        "guide_contract": 221,
+        "hub_contract": 235,
+        "hub_release": 241,
         "status": "passed",
         "production_status": "integrated",
         "batches": list(VERSIONS),
@@ -89,6 +103,17 @@ def publish(site: Path) -> dict[str, Any]:
         "external_review": "recommended-not-completed",
         "production_source_manifest": PRODUCTION_MANIFEST.relative_to(ROOT).as_posix(),
         "production_source_file_count": len(production_manifest["source_files"]),
+        "hub": {
+            "status": hub_report["status"],
+            "pathway_count": hub_report["pathway_count"],
+            "faq_count": hub_report["faq_count"],
+            "source_count": hub_report["source_count"],
+            "jordan_source_count": hub_report["jordan_source_count"],
+            "jordan_context_section": hub_report["jordan_context_section"],
+            "asha_aac_source_updated": hub_report["asha_aac_source_updated"],
+            "seo": hub_report["seo"],
+            "accessibility": hub_report["accessibility"],
+        },
         **discovery,
         "batch_reports": [*base["batch_reports"], summary(report214)],
     }
