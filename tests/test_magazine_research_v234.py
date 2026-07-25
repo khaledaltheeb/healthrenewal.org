@@ -40,16 +40,18 @@ class MagazineResearchV234Tests(unittest.TestCase):
             self.assertEqual(report["sitemap"]["child_urls"], len(pages) + 1)
             self.assertEqual(report["unwired_research_pages"], 0)
             self.assertEqual(report["source_heading_contract"], "article-or-official-repository")
+            self.assertEqual(report["limitations_contract"], "limitations-or-cautions-required")
 
             magazine = site / "magazine"
             self.assertTrue((magazine / "index.html").is_file())
             self.assertTrue((magazine / "research.css").is_file())
             source_headings = ("المصدر الأصلي", "السجل الأصلي", "السجل الجامعي", "السجل الجامعي الأصلي")
+            limitation_terms = ("حدود", "قيود", "الحذر")
             for path in pages:
                 text = (magazine / path.name).read_text(encoding="utf-8")
                 self.assertIn('<html lang="ar" dir="rtl">', text)
                 self.assertTrue(any(heading in text for heading in source_headings), path.name)
-                self.assertIn("حدود", text)
+                self.assertTrue(any(term in text for term in limitation_terms), path.name)
 
             sitemap = ET.parse(site / "sitemap-magazine.xml").getroot()
             urls = [node.text for node in sitemap.findall("{*}url/{*}loc")]
