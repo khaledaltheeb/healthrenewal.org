@@ -1,0 +1,59 @@
+name: Validate developers discovery v229
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/publish_public_api_v215.py"
+      - "scripts/audit_orphan_pages_v197.py"
+      - "tests/test_developers_discovery_v229.py"
+      - ".github/workflows/validate-developers-discovery-v229.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/publish_public_api_v215.py"
+      - "scripts/audit_orphan_pages_v197.py"
+      - "tests/test_developers_discovery_v229.py"
+      - ".github/workflows/validate-developers-discovery-v229.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: developers-discovery-v229-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate publisher and discovery contract
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_public_api_v215.py \
+            scripts/audit_orphan_pages_v197.py \
+            tests/test_developers_discovery_v229.py
+          python -m unittest -v \
+            tests.test_developers_discovery_v229 \
+            tests.test_public_api_v215 \
+            tests.test_orphan_page_audit_v197
+      - name: Enforce deny-by-default and public discovery markers
+        run: |
+          set -euxo pipefail
+          grep -q 'DISCOVERY_CONTRACT_VERSION = 229' scripts/publish_public_api_v215.py
+          grep -q 'data-developers-discovery-v229' scripts/publish_public_api_v215.py
+          grep -q '"developers/"' scripts/audit_orphan_pages_v197.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('content/integrations/course-sources-v215.json').read_text(encoding='utf-8'))
+          assert manifest['policy'] == 'deny-by-default'
+          assert manifest['sources'] == []
+          PY
