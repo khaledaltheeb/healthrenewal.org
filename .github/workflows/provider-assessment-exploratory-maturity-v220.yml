@@ -59,6 +59,7 @@ jobs:
           node --check provider-assessment-demo/exploratory-tools-maturity-ui-v220.js
           node --check provider-assessment-demo/professional-registry-contract-v220.js
           node --check provider-assessment-demo/professional-registry-maturity-ui-v220.js
+          node --check provider-assessment-demo/professional-registry-planning-compat-v220.js
           node --check provider-assessment-demo/professional-registry-report-integration-v220.js
           node --check provider-assessment-demo/institutional-live-v2.js
           node --check provider-assessment-demo/tests/exploratory-tools-maturity-v220.spec.cjs
@@ -79,6 +80,8 @@ jobs:
           grep -F 'officialAdministrationInsidePlatform: false' provider-assessment-demo/professional-registry-contract-v220.js
           grep -F 'protectedContentStorageAllowed: false' provider-assessment-demo/professional-registry-contract-v220.js
           grep -F 'digitalAdministrationOccurredInsidePlatform = false' provider-assessment-demo/professional-registry-maturity-ui-v220.js
+          grep -F 'planningDraftAllowed: true' provider-assessment-demo/professional-registry-planning-compat-v220.js
+          grep -F 'completedRightsRequired: true' provider-assessment-demo/professional-registry-planning-compat-v220.js
           grep -F 'case-report-professional-sources-v220' provider-assessment-demo/professional-registry-report-integration-v220.js
           ! grep -R -E 'بند من (ADOS|WISC|Vineland)|مفتاح التصحيح|الدرجة المعيارية المعتمدة' provider-assessment-demo/*-v220.js
           ! grep -R -E '\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource' provider-assessment-demo/professional-registry-*-v220.js
