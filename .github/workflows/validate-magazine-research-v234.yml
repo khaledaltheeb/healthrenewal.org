@@ -5,14 +5,18 @@ on:
     paths:
       - 'magazine/**'
       - 'scripts/publish_magazine_v201.py'
+      - 'scripts/enforce_platform_identity_v201.py'
       - 'tests/test_magazine_research_v234.py'
+      - 'tests/test_platform_identity_v201.py'
       - '.github/workflows/validate-magazine-research-v234.yml'
   push:
     branches: [main]
     paths:
       - 'magazine/**'
       - 'scripts/publish_magazine_v201.py'
+      - 'scripts/enforce_platform_identity_v201.py'
       - 'tests/test_magazine_research_v234.py'
+      - 'tests/test_platform_identity_v201.py'
 
 permissions:
   contents: read
@@ -26,7 +30,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Compile publisher and tests
-        run: python -m py_compile scripts/publish_magazine_v201.py tests/test_magazine_research_v234.py
+        run: python -m py_compile scripts/publish_magazine_v201.py scripts/enforce_platform_identity_v201.py tests/test_magazine_research_v234.py tests/test_platform_identity_v201.py
       - name: Verify automatic source inventory
         run: |
           python - <<'PY'
@@ -39,10 +43,10 @@ jobs:
           sys.modules[spec.name] = module
           spec.loader.exec_module(module)
           pages = module.article_files()
-          assert len(pages) == 40, [page.name for page in pages]
+          assert len(pages) == 50, [page.name for page in pages]
           index = Path('magazine/index.html').read_text(encoding='utf-8')
-          assert index.count('class="card"') == 40
-          assert '"numberOfItems":40' in index
+          assert index.count('class="card"') == 50
+          assert '"numberOfItems":50' in index
           for page in pages:
               assert index.count(f'href="{page.name}"') >= 2, page.name
               assert module.URL + page.name in index, page.name
@@ -50,14 +54,26 @@ jobs:
           PY
       - name: Run deterministic magazine tests
         run: python -m unittest tests.test_magazine_research_v234 -v
+      - name: Run production integration tests
+        run: python -m unittest tests.test_platform_identity_v201 -v
       - name: Verify source contracts
         run: |
           set -euo pipefail
           test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 9
-          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 31
-          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 40
-          test "$(grep -o 'class="card"' magazine/index.html | wc -l)" -eq 40
-          grep -q '"numberOfItems":40' magazine/index.html
+          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 41
+          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 50
+          test "$(grep -o 'class="card"' magazine/index.html | wc -l)" -eq 50
+          grep -q '"numberOfItems":50' magazine/index.html
+          grep -q '10.1177/07067437261450738' magazine/autism-parent-act-meta-analysis-2026.html
+          grep -q '10.1177/13623613251407305' magazine/autism-caregiver-adjustment-review-2026.html
+          grep -q '10.1111/jpm.70129' magazine/family-carer-coping-mental-health-meta-analysis-2026.html
+          grep -q '10.1371/journal.pone.0351969' magazine/autism-parent-resilience-factors-review-2026.html
+          grep -q '10.1111/nbu.70047' magazine/autism-family-food-insecurity-meta-analysis-2026.html
+          grep -q '10.1111/jir.70033' magazine/intellectual-disability-youth-healthcare-access-review-2026.html
+          grep -q '10.3389/fresc.2026.1742526' magazine/neurodevelopmental-video-game-interventions-meta-analysis-2026.html
+          grep -q '10.3389/fneur.2026.1827768' magazine/neurodevelopmental-exercise-executive-function-meta-analysis-2026.html
+          grep -q '10.1177/00207640251415506' magazine/neurodevelopmental-sleep-family-wellbeing-review-2026.html
+          grep -q '10.23970/AHRQEPCSR_MEDICALDOWN' magazine/down-syndrome-adult-medical-care-systematic-review-2026.html
           grep -q '10.1038/s41746-026-02719-x' magazine/aya-cancer-digital-mental-health-meta-analysis-2026.html
           grep -q '10.1038/s41746-026-02706-2' magazine/adolescent-passive-smartphone-sensing-meta-analysis-2026.html
           grep -q '10.1038/s41746-026-02341-x' magazine/youth-transdiagnostic-internet-rct-2026.html
@@ -70,4 +86,5 @@ jobs:
           grep -q 'لم يجد التحليل التلوي آثارًا دالة' magazine/peer-led-adolescent-mental-health-2025.html
           grep -q 'unwired_research_pages' scripts/publish_magazine_v201.py
           grep -q 'SOURCE_LINK_PATTERN' scripts/publish_magazine_v201.py
+          grep -q 'Magazine production requires 50 pages' scripts/enforce_platform_identity_v201.py
           ! grep -R -E 'علاج مضمون|يشخّص|نتائج مؤكدة للجميع' magazine
