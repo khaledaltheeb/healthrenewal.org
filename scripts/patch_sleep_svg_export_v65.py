@@ -13,6 +13,8 @@ EMPTY_CHART_ACCESSIBLE = (
     "اتجاهات النوم والجودة والطاقة: "
     "لا توجد بيانات كافية لعرض مخطط الاتجاهات."
 )
+STATIC_ARIA_ASSIGNMENT = "chart.setAttribute('aria-label', CHART_ACCESSIBLE_NAME);"
+DYNAMIC_ARIA_ASSIGNMENT = "chart.setAttribute('aria-label', description);"
 
 
 def patch_chart_accessibility(text: str) -> tuple[str, bool]:
@@ -42,14 +44,27 @@ def patch_runtime_accessibility() -> bool:
     if not RUNTIME.is_file():
         raise SystemExit(f"Missing generated sleep runtime: {RUNTIME}")
     source = RUNTIME.read_text(encoding="utf-8")
-    if EMPTY_CHART_ACCESSIBLE in source:
-        return False
-    target = f"return '{EMPTY_CHART_OLD}';"
-    replacement = f"return '{EMPTY_CHART_ACCESSIBLE}';"
-    if source.count(target) != 1:
-        raise SystemExit("Sleep runtime empty-chart description is missing or ambiguous")
-    RUNTIME.write_text(source.replace(target, replacement, 1), encoding="utf-8")
-    return True
+    changed = False
+
+    if EMPTY_CHART_ACCESSIBLE not in source:
+        target = f"return '{EMPTY_CHART_OLD}';"
+        replacement = f"return '{EMPTY_CHART_ACCESSIBLE}';"
+        if source.count(target) != 1:
+            raise SystemExit("Sleep runtime empty-chart description is missing or ambiguous")
+        source = source.replace(target, replacement, 1)
+        changed = True
+
+    if STATIC_ARIA_ASSIGNMENT in source:
+        if source.count(STATIC_ARIA_ASSIGNMENT) != 1:
+            raise SystemExit("Sleep runtime static chart label is duplicated")
+        source = source.replace(STATIC_ARIA_ASSIGNMENT, DYNAMIC_ARIA_ASSIGNMENT, 1)
+        changed = True
+    elif DYNAMIC_ARIA_ASSIGNMENT not in source:
+        raise SystemExit("Sleep runtime dynamic chart description binding is missing")
+
+    if changed:
+        RUNTIME.write_text(source, encoding="utf-8")
+    return changed
 
 
 def patch() -> None:
@@ -82,6 +97,7 @@ def patch() -> None:
             "page_changed": page_changed,
             "runtime_changed": runtime_changed,
             "empty_chart_keeps_accessible_name": True,
+            "chart_name_tracks_visible_description": True,
         }
     )
 
