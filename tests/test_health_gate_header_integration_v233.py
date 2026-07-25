@@ -18,7 +18,8 @@ class HealthGateHeaderIntegrationV233Tests(unittest.TestCase):
     def test_header_runs_after_successful_health_gate_when_homepage_exists(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             site = Path(temporary_directory)
-            (site / "index.html").write_text(LEGACY_PAGE, encoding="utf-8")
+            homepage = site / "index.html"
+            homepage.write_text(LEGACY_PAGE, encoding="utf-8")
             previous_site = entry.SITE
             entry.SITE = site
             try:
@@ -32,13 +33,19 @@ class HealthGateHeaderIntegrationV233Tests(unittest.TestCase):
                 entry.SITE = previous_site
 
             health_gate.assert_called_once_with()
-            page = (site / "index.html").read_text(encoding="utf-8")
+            page = homepage.read_text(encoding="utf-8")
             self.assertEqual(report["institutional_header_version"], 233)
             self.assertEqual(report["institutional_header_status"], "passed")
             self.assertEqual(report["institutional_header_section_links"], 12)
             self.assertEqual(report["institutional_header_language_links"], 3)
+            self.assertTrue(report["institutional_header_care_guide_link_compatible"])
+            self.assertTrue(report["institutional_header_care_guide_link_normalized"])
+            self.assertEqual(report["institutional_header_care_guide_link"], "care-guides/")
             self.assertEqual(page.count("data-institutional-header-v233"), 1)
             self.assertEqual(page.count("<details"), 2)
+            self.assertEqual(page.count(entry.CARE_GUIDE_RELATIVE_LINK), 1)
+            self.assertEqual(page.count(entry.CARE_GUIDE_ABSOLUTE_LINK), 0)
+            self.assertFalse(entry.ensure_care_guide_link_compatibility(homepage))
             self.assertNotIn('<nav class="nav"', page)
 
     def test_header_is_skipped_for_health_gate_fixtures_without_homepage(self) -> None:
@@ -58,6 +65,13 @@ class HealthGateHeaderIntegrationV233Tests(unittest.TestCase):
 
             publisher.assert_not_called()
             self.assertEqual(report, {"version": 192, "status": "passed"})
+
+    def test_duplicate_or_missing_care_guide_link_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            homepage = Path(temporary_directory) / "index.html"
+            homepage.write_text("<html><body><main></main></body></html>", encoding="utf-8")
+            with self.assertRaises(SystemExit):
+                entry.ensure_care_guide_link_compatibility(homepage)
 
     def test_original_health_gate_contract_is_reexported(self) -> None:
         self.assertIs(entry.load_guides, entry._base.load_guides)
