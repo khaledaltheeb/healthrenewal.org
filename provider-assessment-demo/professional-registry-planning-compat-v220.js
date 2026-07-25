@@ -11,14 +11,13 @@
     "selectionRationale", "administrationQuality", "interpretationLimitations",
     "integrationSummary", "recommendations", "followUpDate",
   ];
-  const allMaturityInputs = [...form.querySelectorAll('[name^="maturity_"]')];
   const input = (name) => form.elements[`maturity_${name}`];
   const currentTool = () => window.PA_DEMO_DATA?.professional?.find((tool) => tool.id === form.elements.toolId.value || tool.name === form.elements.toolName.value);
 
   const apply = () => {
     const completed = completedStatuses.has(form.elements.recordStatus.value);
     const tool = currentTool();
-    for (const element of allMaturityInputs) {
+    for (const element of form.querySelectorAll('[name^="maturity_"]')) {
       element.required = false;
       element.closest("label")?.classList.remove("required-field");
     }
