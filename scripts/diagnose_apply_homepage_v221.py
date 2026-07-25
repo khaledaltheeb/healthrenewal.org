@@ -6,11 +6,16 @@ import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from scripts import apply_homepage_v20 as homepage
 
 CONTRACT = 221
 REPORT = homepage.SITE / "api" / "homepage-publisher-progress-v221.json"
 ORIGINAL_RUN_PUBLISHER = homepage.run_publisher
+LAST_COMPLETED: str | None = None
 
 
 def stamp(payload: dict) -> None:
@@ -24,7 +29,8 @@ def stamp(payload: dict) -> None:
 
 
 def traced_publisher(script: str) -> None:
-    stamp({"status": "running", "last_started": script, "last_completed": None})
+    global LAST_COMPLETED
+    stamp({"status": "running", "last_started": script, "last_completed": LAST_COMPLETED})
     try:
         ORIGINAL_RUN_PUBLISHER(script)
     except Exception as exc:
@@ -32,14 +38,15 @@ def traced_publisher(script: str) -> None:
             {
                 "status": "failed",
                 "last_started": script,
-                "last_completed": None,
+                "last_completed": LAST_COMPLETED,
                 "error_type": type(exc).__name__,
                 "error": str(exc),
                 "traceback": traceback.format_exc(),
             }
         )
         raise
-    stamp({"status": "running", "last_started": script, "last_completed": script})
+    LAST_COMPLETED = script
+    stamp({"status": "running", "last_started": script, "last_completed": LAST_COMPLETED})
 
 
 def main() -> None:
