@@ -67,6 +67,8 @@ test("expanded original tools and rights-safe professional records work in Chrom
   await expect.poll(() => page.evaluate(() => Boolean(window.PA_PROFESSIONAL_REGISTRY_V220))).toBe(true);
   await expect.poll(() => page.evaluate(() => Boolean(window.PA_PROFESSIONAL_RECORD_V220))).toBe(true);
   await expect.poll(() => page.evaluate(() => Boolean(window.PA_PROFESSIONAL_PLANNING_COMPAT_V220))).toBe(true);
+  await expect.poll(() => page.evaluate(() => Boolean(window.PA_PROFESSIONAL_SCHEMA_COMPAT_V220?.migrationAudited))).toBe(true);
+  await expect.poll(() => page.evaluate(() => Boolean(window.PA_PROFESSIONAL_EDIT_V220?.legacyRecordsUpgradable))).toBe(true);
 
   const maturity = await page.evaluate(() => window.PA_EXPLORATORY_MATURITY_V220);
   expect(maturity.toolCount).toBe(20);
@@ -117,6 +119,11 @@ test("expanded original tools and rights-safe professional records work in Chrom
   await form.locator('button[type="submit"]').click();
 
   await expect(dialog).not.toHaveAttribute("open", "");
+  await expect.poll(async () => {
+    const state = await activeStore(page);
+    return state.cases[0].professionalAssessments[0]?.schemaCompatibilityVersion || "";
+  }).toBe("220.2");
+
   let store = await activeStore(page);
   expect(store.cases[0].professionalAssessments).toHaveLength(1);
   const record = store.cases[0].professionalAssessments[0];
@@ -129,6 +136,9 @@ test("expanded original tools and rights-safe professional records work in Chrom
   expect(record.professionalMaturity.rights.scoringKeyStored).toBe(false);
   expect(record.professionalMaturity.rights.normTablesStored).toBe(false);
   expect(record.professionalMaturity.rights.basis).not.toBe("pending_review");
+  expect(record.reportIssuedBy).toBe("الناشر أو الجهة الرسمية");
+  expect(record.reportIssuer).toBeUndefined();
+  expect(record.metadataAuditTrail.some((entry) => entry.eventType === "schema_alias_migrated")).toBe(true);
 
   await page.locator('button.tab[data-view="professional"]').click();
   await page.locator(`[data-v220-record-tool="${contract.id}"]`).click();
