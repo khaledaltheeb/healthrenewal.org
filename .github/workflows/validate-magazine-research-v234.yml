@@ -40,7 +40,7 @@ jobs:
           sys.modules[spec.name] = module
           spec.loader.exec_module(module)
           pages = module.article_files()
-          assert len(pages) == 25, [page.name for page in pages]
+          assert len(pages) == 30, [page.name for page in pages]
           index = Path('magazine/index.html').read_text(encoding='utf-8')
           assert index.count('class="card"') == len(pages)
           for page in pages:
@@ -55,10 +55,10 @@ jobs:
         run: |
           set -euo pipefail
           test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 7
-          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 18
-          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 25
-          test "$(grep -o 'class="card"' magazine/index.html | wc -l)" -eq 25
-          grep -q '"numberOfItems":25' magazine/index.html
+          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 23
+          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 30
+          test "$(grep -o 'class="card"' magazine/index.html | wc -l)" -eq 30
+          grep -q '"numberOfItems":30' magazine/index.html
 
           grep -q '10.1177/10870547251364578' magazine/adhd-school-social-skills-meta-analysis-2026.html
           grep -q '10.1001/jamapsychiatry.2026.0603' magazine/artemis-adolescent-mental-health-stigma-2026.html
@@ -78,6 +78,11 @@ jobs:
           grep -q '10.1111/camh.70093' magazine/neurodevelopmental-psychiatric-comorbidity-umbrella-review-2026.html
           grep -q '10.1177/00048674251405141' magazine/child-adolescent-mental-health-guidelines-review-2026.html
           grep -q '10.1001/jamapsychiatry.2026.0668' magazine/digital-eating-disorder-interventions-meta-analysis-2026.html
+          grep -q '10.1002/jad.70236' magazine/adolescent-chronic-pain-digital-psychological-interventions-2026.html
+          grep -q '10.1007/s00787-025-02859-7' magazine/youth-self-harm-interventions-meta-analysis-2026.html
+          grep -q '10.1037/bul0000522' magazine/young-children-universal-wellbeing-interventions-meta-analysis-2026.html
+          grep -q '10.1111/jcpp.70192' magazine/youth-single-session-self-administered-interventions-2026.html
+          grep -q '10.1016/j.smrv.2026.102303' magazine/adhd-sleep-interventions-network-meta-analysis-2026.html
 
           grep -q '10.1038/s41562-025-02162-0' magazine/mobile-stress-interventions-2025.html
           grep -q '10.3389/fpsyt.2025.1594658' magazine/school-resilience-children-2025.html
