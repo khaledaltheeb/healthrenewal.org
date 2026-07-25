@@ -1,0 +1,39 @@
+name: Validate provider assessment contract v220
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "provider-assessment-demo/**"
+      - "tests/test_provider_assessment_contract_v220.py"
+      - ".github/workflows/validate-provider-assessment-contract-v220.yml"
+  pull_request:
+    paths:
+      - "provider-assessment-demo/**"
+      - "tests/test_provider_assessment_contract_v220.py"
+      - ".github/workflows/validate-provider-assessment-contract-v220.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-assessment-contract-v220-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate JavaScript and machine-readable contract
+        run: |
+          for file in provider-assessment-demo/institutional-contract-v220*.js; do node --check "$file"; done
+          python -m json.tool provider-assessment-demo/institutional-contract-v220.json >/dev/null
+          python -m unittest -v tests/test_provider_assessment_contract_v220.py
