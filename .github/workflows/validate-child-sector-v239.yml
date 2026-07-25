@@ -1,0 +1,47 @@
+name: Validate institutional child sector v239
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/sectors-v10/child.json"
+      - ".child-v239bundle/**"
+      - "scripts/upgrade_child_sector_v239.py"
+      - "scripts/stamp_deployment_v29.py"
+      - "tests/test_child_sector_v239.py"
+      - ".github/workflows/validate-child-sector-v239.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - name: Compile child-sector production upgrade and tests
+        run: python -m py_compile scripts/upgrade_child_sector_v239.py scripts/stamp_deployment_v29.py tests/test_child_sector_v239.py
+      - name: Validate twenty child guides metadata schemas robots safety and idempotence
+        run: python -m unittest -v tests/test_child_sector_v239.py
+      - name: Verify permanent production integration
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('scripts/stamp_deployment_v29.py').read_text(encoding='utf-8')
+          required = (
+              'from upgrade_child_sector_v239 import upgrade as upgrade_child_sector',
+              'child_sector = upgrade_child_sector(SITE)',
+              'child-sector v239 depth and safety',
+              'child_sector_version',
+              'child_sector_articles',
+              'child_sector_hub_words',
+              'child_sector_minimum_article_words',
+          )
+          missing = [token for token in required if token not in text]
+          assert not missing, missing
+          print({'production_integration': 'passed', 'tokens': len(required)})
+          PY
