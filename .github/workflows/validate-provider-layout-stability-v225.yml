@@ -1,0 +1,181 @@
+name: Validate provider layout stability v225
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "provider-assessment-demo/institutional-contract-v220.css"
+      - "provider-assessment-demo/institutional-contract-v220-integration.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/activation-guard.js"
+      - "scripts/stabilize_provider_layout_v225.py"
+      - "tests/test_provider_layout_stability_v225.py"
+      - "tests/test_stabilize_provider_layout_v225.py"
+      - "tests/probe_provider_layout_v225.mjs"
+      - ".github/workflows/validate-provider-layout-stability-v225.yml"
+  push:
+    branches: [main]
+    paths:
+      - "provider-assessment-demo/institutional-contract-v220.css"
+      - "provider-assessment-demo/institutional-contract-v220-integration.js"
+      - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/activation-guard.js"
+      - "scripts/stabilize_provider_layout_v225.py"
+      - "tests/test_provider_layout_stability_v225.py"
+      - "tests/test_stabilize_provider_layout_v225.py"
+      - "tests/probe_provider_layout_v225.mjs"
+      - ".github/workflows/validate-provider-layout-stability-v225.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-layout-stability-v225-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate deterministic layout contracts
+        run: |
+          python -m py_compile \
+            scripts/stabilize_provider_layout_v225.py \
+            tests/test_provider_layout_stability_v225.py \
+            tests/test_stabilize_provider_layout_v225.py
+          python -m unittest -v \
+            tests.test_provider_layout_stability_v225 \
+            tests.test_stabilize_provider_layout_v225
+          node --check provider-assessment-demo/institutional-live-v2.js
+          node --check provider-assessment-demo/activation-guard.js
+          node --check tests/probe_provider_layout_v225.mjs
+      - name: Enforce reserved geometry and newer-contract guards
+        run: |
+          set -euxo pipefail
+          grep -q 'min-block-size:82px' provider-assessment-demo/institutional-contract-v220.css
+          grep -q 'overscroll-behavior-inline:contain' provider-assessment-demo/institutional-contract-v220.css
+          grep -q 'tabs.insertBefore(tab, guideTab)' provider-assessment-demo/institutional-contract-v220-integration.js
+          grep -q 'hasNewerInstitutionalContract' provider-assessment-demo/institutional-live-v2.js
+          grep -q 'if (hasNewerInstitutionalContract()) return;' provider-assessment-demo/institutional-live-v2.js
+          grep -q 'hasNewerInstitutionalContract' provider-assessment-demo/activation-guard.js
+          grep -q 'if (hasNewerInstitutionalContract()) return;' provider-assessment-demo/activation-guard.js
+          grep -q 'locked_pending_rights' provider-assessment-demo/activation-guard.js
+          grep -q 'provider-layout-stability-v225' scripts/stabilize_provider_layout_v225.py
+      - name: Patch repository fixture exactly as production will be patched
+        run: |
+          set -euxo pipefail
+          python scripts/stabilize_provider_layout_v225.py "$GITHUB_WORKSPACE"
+          node --check provider-assessment-demo/activation.js
+          grep -q 'provider-layout-stability-v225' provider-assessment-demo/activation.js
+          grep -q 'data-institutional-contract-v220' provider-assessment-demo/activation.js
+      - name: Install Lighthouse and isolated Chromium
+        run: |
+          npm install --no-save lighthouse@12 playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Measure provider page desktop CLS directly
+        run: |
+          set -euxo pipefail
+          rm -rf /tmp/provider-v225 /tmp/provider-v225-chrome
+          mkdir -p /tmp/provider-v225/pterminology-site
+          ln -s "$GITHUB_WORKSPACE/provider-assessment-demo" /tmp/provider-v225/pterminology-site/provider-assessment-demo
+          python -m http.server 8765 --directory /tmp/provider-v225 >/tmp/provider-v225-http.log 2>&1 &
+          SERVER_PID=$!
+          CHROME_PATH="$(node -e "console.log(require('playwright').chromium.executablePath())")"
+          "$CHROME_PATH" \
+            --headless=new \
+            --no-sandbox \
+            --disable-dev-shm-usage \
+            --remote-debugging-port=9222 \
+            --user-data-dir=/tmp/provider-v225-chrome \
+            about:blank >/tmp/provider-v225-chrome.log 2>&1 &
+          CHROME_PID=$!
+          trap 'kill $CHROME_PID $SERVER_PID 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8765/pterminology-site/provider-assessment-demo/ >/dev/null && break
+            sleep 1
+          done
+          CHROME_PATH="$CHROME_PATH" node tests/probe_provider_layout_v225.mjs \
+            http://127.0.0.1:8765/pterminology-site/provider-assessment-demo/ \
+            /tmp/provider-layout-probe-v225.json
+          for attempt in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:9222/json/version >/dev/null && break
+            sleep 1
+          done
+          set +e
+          npx lighthouse \
+            http://127.0.0.1:8765/pterminology-site/provider-assessment-demo/ \
+            --port=9222 \
+            --output=json \
+            --output-path=/tmp/provider-v225-lighthouse.json \
+            --only-categories=performance,accessibility,best-practices,seo \
+            --form-factor=desktop \
+            --screenEmulation.mobile=false \
+            --screenEmulation.width=1350 \
+            --screenEmulation.height=940 \
+            --screenEmulation.deviceScaleFactor=1 \
+            --throttling-method=simulate \
+            --quiet >/tmp/provider-v225-lighthouse.log 2>&1
+          LIGHTHOUSE_STATUS=$?
+          set -e
+          cat /tmp/provider-v225-lighthouse.log
+          test "$LIGHTHOUSE_STATUS" -eq 0
+          test -s /tmp/provider-v225-lighthouse.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path('/tmp/provider-v225-lighthouse.json').read_text(encoding='utf-8'))
+          probe = json.loads(Path('/tmp/provider-layout-probe-v225.json').read_text(encoding='utf-8'))
+          audits = report['audits']
+          categories = report['categories']
+          result = {
+              'version': 225,
+              'route': 'provider-assessment-demo/',
+              'form_factor': 'desktop',
+              'scope': 'layout-stability-isolated',
+              'cls': audits['cumulative-layout-shift']['numericValue'],
+              'probe_cls': probe['cls'],
+              'probe_shifts': len(probe['shifts']),
+              'performance_observational': categories['performance']['score'],
+              'accessibility': categories['accessibility']['score'],
+              'best_practices': categories['best-practices']['score'],
+              'seo': categories['seo']['score'],
+              'layout_shifts': audits.get('layout-shifts', {}).get('details', {}).get('items', []),
+          }
+          Path('/tmp/provider-layout-stability-v225.json').write_text(
+              json.dumps(result, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          print(json.dumps({key: result[key] for key in ('version','route','form_factor','scope','cls','probe_cls','probe_shifts','performance_observational','accessibility','best_practices','seo')}, ensure_ascii=False, indent=2))
+          assert result['cls'] <= 0.10, result
+          assert result['probe_cls'] <= 0.10, result
+          # The repository-wide Lighthouse workflow remains the authoritative performance gate.
+          # This isolated route check keeps a defensive floor while focusing on CLS regressions.
+          assert result['performance_observational'] >= 0.75, result
+          assert result['accessibility'] >= 0.95, result
+          assert result['best_practices'] >= 0.95, result
+          assert result['seo'] >= 0.95, result
+          PY
+      - name: Upload measured layout evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider-layout-stability-v225
+          path: |
+            /tmp/provider-layout-stability-v225.json
+            /tmp/provider-layout-probe-v225.json
+            /tmp/provider-v225-lighthouse.json
+            /tmp/provider-v225-lighthouse.log
+            /tmp/provider-v225-chrome.log
+            /tmp/provider-v225-http.log
+            api/provider-layout-stability-v225.json
+          if-no-files-found: warn
+          retention-days: 14

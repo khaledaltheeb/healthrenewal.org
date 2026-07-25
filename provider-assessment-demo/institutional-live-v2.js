@@ -3,6 +3,9 @@
 (() => {
   const RELEASE = "2026.07.24-live.7";
   const PATH = "/pterminology-site/provider-assessment-demo/";
+  const hasNewerInstitutionalContract = () =>
+    document.documentElement.dataset.institutionalContract === "2026.07.25-v220" ||
+    Boolean(document.querySelector('script[data-institutional-contract-v220]'));
 
   const replaceText = (root = document) => {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -24,6 +27,7 @@
   };
 
   const applyInstitutionalCopy = () => {
+    if (hasNewerInstitutionalContract()) return;
     document.documentElement.dataset.release = RELEASE;
     document.title = "منصة التقييم والسجل المهني | منصة الصحة النفسية وذوي الاحتياجات الخاصة";
     const description = document.querySelector('meta[name="description"]');
