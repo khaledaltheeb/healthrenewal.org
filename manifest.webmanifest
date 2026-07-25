@@ -24,6 +24,17 @@
   ],
   "shortcuts": [
     {
+      "name": "أدلة التعامل والرعاية",
+      "url": "/pterminology-site/care-guides/",
+      "icons": [
+        {
+          "src": "/pterminology-site/assets/brand/logo-mark.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
       "name": "الموسوعة",
       "url": "/pterminology-site/encyclopedia/",
       "icons": [
