@@ -1,0 +1,83 @@
+name: Diagnose content-target magazine and assessment routes v247
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/enforce_platform_identity_v201.py"
+      - "tests/**"
+      - ".github/workflows/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Locate the exact workflow step and candidate tests
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/content-target-v247
+          grep -RniE "Test magazine and assessment routes|magazine.*assessment|assessment.*magazine|research_summaries_published|magazine_pages" .github/workflows tests scripts \
+            > /tmp/content-target-v247/search.txt || true
+          cat /tmp/content-target-v247/search.txt
+      - name: Execute only candidate test modules and preserve full output
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+          import pathlib
+          import subprocess
+          import sys
+
+          root = pathlib.Path('.')
+          out = pathlib.Path('/tmp/content-target-v247')
+          candidates = []
+          for path in sorted((root / 'tests').glob('test_*.py')):
+              text = path.read_text(encoding='utf-8', errors='replace').lower()
+              if 'magazine' in text and ('assessment' in text or 'التقييم' in text):
+                  candidates.append(path)
+
+          (out / 'candidates.txt').write_text(
+              '\n'.join(path.as_posix() for path in candidates) + '\n',
+              encoding='utf-8',
+          )
+          print({'candidate_modules': [p.as_posix() for p in candidates]})
+
+          failures = []
+          for path in candidates:
+              module = path.with_suffix('').as_posix().replace('/', '.')
+              result = subprocess.run(
+                  [sys.executable, '-m', 'unittest', '-v', module],
+                  text=True,
+                  capture_output=True,
+              )
+              log = out / f'{path.stem}.log'
+              log.write_text(result.stdout + '\n' + result.stderr, encoding='utf-8')
+              print(f'===== {module} rc={result.returncode} =====')
+              print((result.stdout + '\n' + result.stderr)[-12000:])
+              if result.returncode:
+                  failures.append(module)
+
+          (out / 'summary.txt').write_text(
+              f'candidates={len(candidates)}\nfailures={failures!r}\n',
+              encoding='utf-8',
+          )
+          print({'failures': failures})
+          PY
+      - name: Upload exact diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-target-magazine-assessment-v247
+          path: /tmp/content-target-v247
+          if-no-files-found: error
+          retention-days: 7
