@@ -57,8 +57,9 @@ class HomeSectorV234Tests(unittest.TestCase):
         self.assertEqual(report["version"], 234)
         self.assertEqual(report["source_articles"], 20)
         self.assertEqual(report["article_pages_enriched"], 20)
-        self.assertGreaterEqual(report["hub_words"], 1800)
-        self.assertGreaterEqual(report["minimum_article_words"], 450)
+        self.assertGreaterEqual(report["hub_words"], module.HUB_VISIBLE_WORD_FLOOR)
+        self.assertGreaterEqual(report["minimum_article_words"], module.ARTICLE_VISIBLE_WORD_FLOOR)
+        self.assertEqual(report["visible_depth_contract"], 244)
         self.assertEqual(report["hub_h1"], 1)
         self.assertGreaterEqual(report["hub_h2"], 10)
         self.assertEqual(report["faq_items"], 6)
@@ -74,21 +75,10 @@ class HomeSectorV234Tests(unittest.TestCase):
         self.assertEqual(hub.count('name="googlebot"'), 1)
         self.assertEqual(hub.count('name="keywords"'), 1)
         self.assertEqual(hub.count('data-home-sector-v234="1"'), 1)
+        self.assertEqual(hub.count(module.DEPTH_MARKER), 1)
         for schema_type in ("CollectionPage", "BreadcrumbList", "ItemList", "FAQPage"):
             self.assertIn(schema_type, hub)
-        for section_id in (
-            "overview",
-            "framework",
-            "stages",
-            "signals",
-            "meeting",
-            "plan",
-            "guides",
-            "professional-help",
-            "faq",
-            "sources",
-            "methodology",
-        ):
+        for section_id in ("overview", "framework", "stages", "signals", "meeting", "plan", "guides", "professional-help", "faq", "sources", "methodology"):
             self.assertIn(f'id="{section_id}"', hub)
         self.assertIn('id="global-header"', hub)
         self.assertIn('id="global-footer"', hub)
@@ -100,6 +90,7 @@ class HomeSectorV234Tests(unittest.TestCase):
             self.assertEqual(text.count("<h1"), 1, article["slug"])
             self.assertEqual(text.count('rel="canonical"'), 1, article["slug"])
             self.assertEqual(text.count(module.ARTICLE_START), 1, article["slug"])
+            self.assertEqual(text.count(module.DEPTH_MARKER), 1, article["slug"])
             self.assertIn('"@type":"Article"', text, article["slug"])
             self.assertIn("قياس الأثر لمدة أسبوعين", text, article["slug"])
             self.assertIn("للأشخاص ذوي الاحتياجات الخاصة", text, article["slug"])
@@ -110,32 +101,19 @@ class HomeSectorV234Tests(unittest.TestCase):
         self.assertIn("Allow: /pterminology-site/sectors/home/", robots)
         self.assertIn("Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml", robots)
         evidence = json.loads((self.site / "api" / "home-sector-v234.json").read_text(encoding="utf-8"))
-        self.assertEqual(evidence["source_articles"], 20)
+        self.assertEqual(evidence, report)
 
-        before = {
-            path.relative_to(self.site): path.read_text(encoding="utf-8")
-            for path in self.site.rglob("*")
-            if path.is_file() and path.name != "home-sector-v234.json"
-        }
+        before = {path.relative_to(self.site): path.read_text(encoding="utf-8") for path in self.site.rglob("*") if path.is_file() and path.name != "home-sector-v234.json"}
         second = self.run_upgrade()
-        after = {
-            path.relative_to(self.site): path.read_text(encoding="utf-8")
-            for path in self.site.rglob("*")
-            if path.is_file() and path.name != "home-sector-v234.json"
-        }
+        after = {path.relative_to(self.site): path.read_text(encoding="utf-8") for path in self.site.rglob("*") if path.is_file() and path.name != "home-sector-v234.json"}
         self.assertEqual(before, after)
         self.assertEqual(second["article_pages_enriched"], 0)
         self.assertFalse(second["robots_updated"])
+        self.assertGreaterEqual(second["hub_words"], module.HUB_VISIBLE_WORD_FLOOR)
+        self.assertGreaterEqual(second["minimum_article_words"], module.ARTICLE_VISIBLE_WORD_FLOOR)
 
     def test_replaces_complete_generated_v10_multi_main_range(self) -> None:
-        generated = (
-            '<!doctype html><html><head><title>قديم</title></head><body>'
-            '<header id="global-header">الهيدر</header>'
-            '<main id="content-v10"><div>مسار التنقل</div></main>'
-            '<section class="hero-v10"><main class="hero-grid-v10"><h1>العنوان القديم</h1></main></section>'
-            '<main><section><h2>المحتوى القديم</h2></section></main>'
-            '<footer id="global-footer">الفوتر</footer></body></html>'
-        )
+        generated = ('<!doctype html><html><head><title>قديم</title></head><body><header id="global-header">الهيدر</header><main id="content-v10"><div>مسار التنقل</div></main><section class="hero-v10"><main class="hero-grid-v10"><h1>العنوان القديم</h1></main></section><main><section><h2>المحتوى القديم</h2></section></main><footer id="global-footer">الفوتر</footer></body></html>')
         replacement = '<main id="home-v234"><h1>العنوان المؤسسي الجديد</h1></main>'
         updated = module.replace_main(generated, replacement)
         self.assertEqual(updated.count("<main"), 1)
@@ -148,10 +126,7 @@ class HomeSectorV234Tests(unittest.TestCase):
         self.assertNotIn("hero-v10", updated)
 
     def test_rejects_explicit_robots_block(self) -> None:
-        (self.site / "robots.txt").write_text(
-            "User-agent: *\nDisallow: /pterminology-site/sectors/home/\n",
-            encoding="utf-8",
-        )
+        (self.site / "robots.txt").write_text("User-agent: *\nDisallow: /pterminology-site/sectors/home/\n", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "robots_disallows_home_sector"):
             self.run_upgrade()
 
