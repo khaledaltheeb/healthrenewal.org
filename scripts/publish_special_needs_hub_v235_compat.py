@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +19,70 @@ PATHWAYS = (
     ("vision-access-orientation-learning", "pathway-sensory-mobility-access", "السمع والبصر والحركة", "فتح دليل الوصول البصري والحركة"),
     ("transition-adulthood-employment-independence", "pathway-adulthood", "الانتقال إلى الرشد والعمل", "فتح دليل الانتقال والاستقلال"),
 )
+
+
+def qualify(root: ET.Element, name: str) -> str:
+    if root.tag.startswith("{"):
+        return root.tag.split("}", 1)[0] + "}" + name
+    return name
+
+
+def sync_hub_sitemaps(site: Path) -> None:
+    canonical = f"{hub.BASE}/special-needs/"
+    child_url = f"{hub.BASE}/sitemap-special-needs.xml"
+
+    for name in ("sitemap-special-needs.xml", "sitemap.xml"):
+        path = site / name
+        if not path.is_file():
+            raise SystemExit(f"Missing sitemap while enhancing special-needs hub: {path}")
+        tree = ET.parse(path)
+        root = tree.getroot()
+        mode = root.tag.rsplit("}", 1)[-1]
+
+        if mode == "urlset":
+            matches = [
+                item
+                for item in root.findall("{*}url")
+                if (item.findtext("{*}loc") or "").strip() == canonical
+            ]
+            if len(matches) > 1:
+                raise SystemExit(f"Duplicate special-needs hub URLs in {path}")
+            item = matches[0] if matches else ET.SubElement(root, qualify(root, "url"))
+            loc = item.find("{*}loc")
+            if loc is None:
+                loc = ET.SubElement(item, qualify(root, "loc"))
+            loc.text = canonical
+            values = {
+                "lastmod": hub.UPDATED,
+                "changefreq": "weekly",
+                "priority": "0.95",
+            }
+            for key, value in values.items():
+                node = item.find(f"{{*}}{key}")
+                if node is None:
+                    node = ET.SubElement(item, qualify(root, key))
+                node.text = value
+        elif mode == "sitemapindex" and name == "sitemap.xml":
+            matches = [
+                item
+                for item in root.findall("{*}sitemap")
+                if (item.findtext("{*}loc") or "").strip() == child_url
+            ]
+            if len(matches) > 1:
+                raise SystemExit("Duplicate special-needs child sitemaps in the main sitemap index")
+            item = matches[0] if matches else ET.SubElement(root, qualify(root, "sitemap"))
+            loc = item.find("{*}loc")
+            if loc is None:
+                loc = ET.SubElement(item, qualify(root, "loc"))
+            loc.text = child_url
+            lastmod = item.find("{*}lastmod")
+            if lastmod is None:
+                lastmod = ET.SubElement(item, qualify(root, "lastmod"))
+            lastmod.text = hub.UPDATED
+        else:
+            raise SystemExit(f"Unsupported sitemap mode for {path}: {mode}")
+
+        tree.write(path, encoding="utf-8", xml_declaration=True)
 
 
 def publish(site: Path) -> dict[str, Any]:
@@ -51,8 +116,10 @@ def publish(site: Path) -> dict[str, Any]:
     hub.render = render_with_compatibility
     try:
         report = hub.publish(site)
+        sync_hub_sitemaps(site)
         report.pop("robots_child_sitemap_changed", None)
         report["robots_child_sitemap_registered"] = True
+        report["sitemap_hub_registered"] = True
         report_path = site / "api" / "special-needs-hub-v235.json"
         report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         return report
