@@ -33,17 +33,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Validate publisher and discovery contract
+      - name: Compile changed Python
         run: |
           set -euxo pipefail
           python -m py_compile \
             scripts/publish_public_api_v215.py \
             scripts/audit_orphan_pages_v197.py \
             tests/test_developers_discovery_v229.py
-          python -m unittest -v \
-            tests.test_developers_discovery_v229 \
-            tests.test_public_api_v215 \
-            tests.test_orphan_page_audit_v197
+      - name: Validate developers discovery contract
+        run: python -m unittest -v tests.test_developers_discovery_v229
+      - name: Validate existing API and authorized import contract
+        run: python -m unittest -v tests.test_public_api_v215
+      - name: Validate existing orphan and sitemap contract
+        run: python -m unittest -v tests.test_orphan_page_audit_v197
       - name: Enforce deny-by-default and public discovery markers
         run: |
           set -euxo pipefail
