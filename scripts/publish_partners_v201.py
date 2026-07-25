@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -9,6 +10,7 @@ from pathlib import Path
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 ROUTE = "/partners/"
 URL = BASE + ROUTE
+PARTNERS_LINK = '<a href="partners/">الشركاء والشفافية</a>'
 
 
 def render_page() -> str:
@@ -76,6 +78,31 @@ a{{color:#086e69}}header,footer{{padding:18px max(4vw,20px);background:var(--sof
 </html>'''
 
 
+def patch_homepage(site: Path) -> dict[str, bool]:
+    path = site / "index.html"
+    if not path.is_file():
+        raise SystemExit("Missing generated homepage before partners publication")
+    text = path.read_text(encoding="utf-8")
+    footer = re.search(r"<footer\b[^>]*>.*?</footer>", text, re.I | re.S)
+    if not footer:
+        raise SystemExit("Homepage contains no footer for partners integration")
+    if PARTNERS_LINK in footer.group(0):
+        return {"footer_link_added": False, "homepage_link_verified": True}
+    footer_html = footer.group(0)
+    footer_links = re.search(r'<div\b[^>]*class=["\'][^"\']*footer-links[^"\']*["\'][^>]*>.*?</div>', footer_html, re.I | re.S)
+    if footer_links:
+        updated_links = re.sub(r"</div>", PARTNERS_LINK + "</div>", footer_links.group(0), count=1, flags=re.I)
+        updated_footer = footer_html[:footer_links.start()] + updated_links + footer_html[footer_links.end():]
+    else:
+        updated_footer = re.sub(r"</footer>", f'<p class="partners-link">{PARTNERS_LINK}</p></footer>', footer_html, count=1, flags=re.I)
+    text = text[:footer.start()] + updated_footer + text[footer.end():]
+    path.write_text(text, encoding="utf-8")
+    verified = PARTNERS_LINK in re.search(r"<footer\b[^>]*>.*?</footer>", text, re.I | re.S).group(0)
+    if not verified:
+        raise SystemExit("Partners link is absent from homepage footer")
+    return {"footer_link_added": True, "homepage_link_verified": True}
+
+
 def local_name(tag: str) -> str:
     return tag.rsplit("}", 1)[-1]
 
@@ -128,17 +155,18 @@ def publish(site: Path) -> dict[str, object]:
         raise SystemExit(f"Missing site directory: {site}")
     target = site / "partners" / "index.html"
     target.parent.mkdir(parents=True, exist_ok=True)
-    rendered = render_page()
-    target.write_text(rendered, encoding="utf-8")
+    target.write_text(render_page(), encoding="utf-8")
+    integration = patch_homepage(site)
     sitemap = write_sitemaps(site)
     report = {
-        "version": 201,
+        "version": 228,
         "route": ROUTE,
         "url": URL,
         "page": "partners/index.html",
         "public_registry_entries": 0,
         "unverified_partners_claimed": False,
         "sitemap": sitemap,
+        **integration,
     }
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
