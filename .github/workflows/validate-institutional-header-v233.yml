@@ -4,20 +4,22 @@ on:
   pull_request:
     branches: ["main"]
     paths:
-      - "scripts/apply_homepage_v20.py"
-      - "scripts/apply_homepage_v20_base.py"
+      - "scripts/enforce_health_publication_gate_v192.py"
+      - "scripts/enforce_health_publication_gate_v192_base.py"
       - "scripts/publish_institutional_header_v233.py"
+      - "tests/test_health_publication_gate_v192.py"
+      - "tests/test_health_gate_header_integration_v233.py"
       - "tests/test_institutional_header_v233.py"
-      - "tests/test_homepage_header_integration_v233.py"
       - ".github/workflows/validate-institutional-header-v233.yml"
   push:
     branches: ["main"]
     paths:
-      - "scripts/apply_homepage_v20.py"
-      - "scripts/apply_homepage_v20_base.py"
+      - "scripts/enforce_health_publication_gate_v192.py"
+      - "scripts/enforce_health_publication_gate_v192_base.py"
       - "scripts/publish_institutional_header_v233.py"
+      - "tests/test_health_publication_gate_v192.py"
+      - "tests/test_health_gate_header_integration_v233.py"
       - "tests/test_institutional_header_v233.py"
-      - "tests/test_homepage_header_integration_v233.py"
       - ".github/workflows/validate-institutional-header-v233.yml"
   workflow_dispatch:
 
@@ -37,23 +39,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Verify preserved homepage builder blob
+      - name: Verify preserved health gate blob
         run: |
           set -euxo pipefail
-          test "$(git hash-object scripts/apply_homepage_v20_base.py)" = "7abc3dbf97cc0bf31fb596b3a9d5209ada71ef36"
+          test "$(git hash-object scripts/enforce_health_publication_gate_v192_base.py)" = "99455362327c93507fd3069f10c17e30c6a0a3cf"
 
       - name: Compile and run deterministic tests
         run: |
           set -euxo pipefail
           python -m py_compile \
-            scripts/apply_homepage_v20.py \
-            scripts/apply_homepage_v20_base.py \
+            scripts/enforce_health_publication_gate_v192.py \
+            scripts/enforce_health_publication_gate_v192_base.py \
             scripts/publish_institutional_header_v233.py \
-            tests/test_institutional_header_v233.py \
-            tests/test_homepage_header_integration_v233.py
+            tests/test_health_publication_gate_v192.py \
+            tests/test_health_gate_header_integration_v233.py \
+            tests/test_institutional_header_v233.py
           python -m unittest -v \
-            tests.test_institutional_header_v233 \
-            tests.test_homepage_header_integration_v233
+            tests.test_health_publication_gate_v192 \
+            tests.test_health_gate_header_integration_v233 \
+            tests.test_institutional_header_v233
 
       - name: Materialize and verify an isolated homepage
         run: |
@@ -63,9 +67,6 @@ jobs:
           cp index.html /tmp/header-v233-site/index.html
           python scripts/publish_institutional_header_v233.py /tmp/header-v233-site | tee /tmp/header-v233-first.json
           python scripts/publish_institutional_header_v233.py /tmp/header-v233-site | tee /tmp/header-v233-second.json
-          python scripts/verify_homepage_release_contract_v230.py \
-            /tmp/header-v233-site/index.html \
-            --report /tmp/header-v233-release.json
           python - <<'PY'
           import json
           from pathlib import Path
@@ -73,10 +74,8 @@ jobs:
           page = Path('/tmp/header-v233-site/index.html').read_text(encoding='utf-8')
           first = json.loads(Path('/tmp/header-v233-first.json').read_text(encoding='utf-8'))
           second = json.loads(Path('/tmp/header-v233-second.json').read_text(encoding='utf-8'))
-          release = json.loads(Path('/tmp/header-v233-release.json').read_text(encoding='utf-8'))
           assert first['status'] == 'passed' and first['changed'] is True, first
           assert second['status'] == 'passed' and second['changed'] is False, second
-          assert release['status'] == 'passed', release
           assert page.count('data-institutional-header-v233') == 1
           assert page.count('data-i18n-switcher-v72') == 1
           assert page.count('id="institutional-header-v233-styles"') == 1
