@@ -15,60 +15,27 @@ SOURCE = ROOT / "magazine"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 URL = BASE + "/magazine/"
 CONTRACT = 234
-
-ARTICLES = (
-    {
-        "file": "artemis-adolescent-mental-health-stigma-2026.html",
-        "doi": "10.1001/jamapsychiatry.2026.0603",
-        "pmid": "42054038",
-        "evidence": ("3,739", "60 تجمعًا", "لم يصل إلى الدلالة الإحصائية"),
-    },
-    {
-        "file": "autism-behavioral-domains-network-meta-analysis-2026.html",
-        "doi": "10.1186/s13034-026-01132-2",
-        "pmid": "42469874",
-        "evidence": ("67 تجربة", "4,203", "SUCRA"),
-    },
-    {
-        "file": "autism-emotion-regulation-interventions-2026.html",
-        "doi": "10.1016/j.cpr.2026.102764",
-        "pmid": "42224908",
-        "evidence": ("38 دراسة", "1,895", "تحليل شبكي"),
-    },
-    {
-        "file": "autism-interventions-meta-analysis-2026.html",
-        "doi": "10.1038/s44220-026-00652-2",
-        "evidence": ("149 تجربة", "9,011", "التباين المرتفع"),
-    },
-    {
-        "file": "mobile-stress-interventions-2025.html",
-        "doi": "10.1038/s41562-025-02162-0",
-        "evidence": ("63 تجربة", "20,454"),
-    },
-    {
-        "file": "school-resilience-children-2025.html",
-        "doi": "10.3389/fpsyt.2025.1594658",
-        "pmid": "40458775",
-        "evidence": ("مراجعة منهجية", "تجارب عشوائية"),
-    },
-    {
-        "file": "youth-stigma-interventions-2025.html",
-        "pmid": "39813031",
-        "evidence": ("10–24", "التجارب العشوائية"),
-    },
-    {
-        "file": "developmental-disabilities-school-support-2025.html",
-        "doi": "10.1111/tmi.70000",
-        "pmid": "40556074",
-        "evidence": ("الدول منخفضة ومتوسطة الدخل", "حدود الدليل"),
-    },
-    {
-        "file": "peer-led-adolescent-mental-health-2025.html",
-        "doi": "10.1038/s41598-025-01053-8",
-        "pmid": "40355577",
-        "evidence": ("7,060", "لم يجد التحليل التلوي آثارًا دالة"),
-    },
+MIN_ARTICLES = 15
+SOURCE_LINK_PATTERN = re.compile(
+    r'href="https://(?:doi\.org/|pubmed\.ncbi\.nlm\.nih\.gov/|etheses\.whiterose\.ac\.uk/|research-repository\.uwa\.edu\.au/)',
+    re.I,
 )
+KNOWN_MARKERS = {
+    "peer-led-adolescent-mental-health-2025.html": ("7,060", "لم يجد التحليل التلوي آثارًا دالة", "ست دراسات من أصل سبع"),
+    "adhd-school-social-skills-meta-analysis-2026.html": ("10.1177/10870547251364578", "40905635", "0.09"),
+    "intensive-community-care-adolescents-2026.html": ("10.1016/j.jaac.2026.01.006", "41580120", "16,546"),
+    "neurodivergent-university-mental-health-interventions-2026.html": ("10.1038/s44184-026-00196-4", "41741588", "37 دراسة"),
+    "thesis-autism-heterogeneity-research-2025.html": ("38156", "51 ورقة", "حتى 1 مارس 2028"),
+    "thesis-autistic-camouflaging-mental-health-2025.html": ("10.26182/pez7-d531", "دراسة مقطعية", "دراسة طولية"),
+    "thesis-sensory-processing-adhd-autism-2026.html": ("38725", "3 دراسات تجريبية", "حتى 6 مايو 2027"),
+}
+
+
+def article_files() -> list[Path]:
+    pages = sorted(path for path in SOURCE.glob("*-20*.html") if path.name != "index.html")
+    if len(pages) < MIN_ARTICLES:
+        raise SystemExit(f"Magazine requires at least {MIN_ARTICLES} research pages, found {len(pages)}")
+    return pages
 
 
 def load_methodology() -> dict:
@@ -78,62 +45,62 @@ def load_methodology() -> dict:
     return data
 
 
-def validate_source_tree() -> dict[str, str]:
-    required_files = ["index.html", "research.css", *(item["file"] for item in ARTICLES)]
-    missing = [name for name in required_files if not (SOURCE / name).is_file()]
-    if missing:
-        raise SystemExit(f"Missing magazine source files: {missing}")
+def validate_source_tree(pages: list[Path]) -> dict[str, str]:
+    for name in ("index.html", "research.css"):
+        if not (SOURCE / name).is_file():
+            raise SystemExit(f"Missing magazine source file: {name}")
 
     index = (SOURCE / "index.html").read_text(encoding="utf-8")
-    index_required = (
+    required_index = (
         '<html lang="ar" dir="rtl">',
         '<h1>المجلة والأبحاث</h1>',
         '<link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/magazine/">',
         'application/ld+json',
         'research.css',
-        'لا تُقدَّم النتائج بوصفها تشخيصًا',
+        '"numberOfItems":15',
     )
-    absent = [marker for marker in index_required if marker not in index]
-    if absent:
-        raise SystemExit(f"Magazine index contract failed: {absent}")
+    missing = [marker for marker in required_index if marker not in index]
+    if missing:
+        raise SystemExit(f"Magazine index contract failed: {missing}")
 
     hashes: dict[str, str] = {}
-    for item in ARTICLES:
-        filename = item["file"]
-        text = (SOURCE / filename).read_text(encoding="utf-8")
-        canonical = f'<link rel="canonical" href="{URL}{filename}">'
-        required = [
+    for path in pages:
+        filename = path.name
+        text = path.read_text(encoding="utf-8")
+        required = (
             '<html lang="ar" dir="rtl">',
             '<meta name="description"',
-            canonical,
+            f'<link rel="canonical" href="{URL}{filename}">',
             '<link rel="stylesheet" href="research.css">',
             '<h1>',
             'المصدر الأصلي',
-            'حدود الدليل',
-        ]
-        required.extend(item.get("evidence", ()))
-        if item.get("doi"):
-            required.extend((item["doi"], f'https://doi.org/{item["doi"]}'))
-        if item.get("pmid"):
-            required.append(item["pmid"])
+            'حدود',
+        )
         absent = [marker for marker in required if marker not in text]
+        absent.extend(marker for marker in KNOWN_MARKERS.get(filename, ()) if marker not in text)
         if absent:
             raise SystemExit(f"Research article contract failed for {filename}: {absent}")
         if len(re.findall(r"<h1\b", text, flags=re.I)) != 1:
             raise SystemExit(f"Research article must contain exactly one H1: {filename}")
+        if not SOURCE_LINK_PATTERN.search(text):
+            raise SystemExit(f"Research article lacks an approved original-source link: {filename}")
         if any(term in text for term in ("يشخّص", "علاج مضمون", "نتائج مؤكدة للجميع")):
             raise SystemExit(f"Unsupported clinical claim in {filename}")
         if index.count(f'href="{filename}"') < 2:
-            raise SystemExit(f"Magazine index does not expose article card and action: {filename}")
+            raise SystemExit(f"Magazine index must expose article twice: {filename}")
+        if URL + filename not in index:
+            raise SystemExit(f"Magazine JSON-LD does not include article: {filename}")
         hashes[filename] = hashlib.sha256(text.encode("utf-8")).hexdigest()
     return hashes
 
 
-def publish_files(site: Path) -> None:
+def publish_files(site: Path, pages: list[Path]) -> None:
     target = site / "magazine"
     target.mkdir(parents=True, exist_ok=True)
-    for name in ("index.html", "research.css", *(item["file"] for item in ARTICLES)):
-        shutil.copy2(SOURCE / name, target / name)
+    shutil.copy2(SOURCE / "index.html", target / "index.html")
+    shutil.copy2(SOURCE / "research.css", target / "research.css")
+    for path in pages:
+        shutil.copy2(path, target / path.name)
 
 
 def local_name(tag: str) -> str:
@@ -144,10 +111,10 @@ def qualify(root: ET.Element, name: str) -> str:
     return root.tag.split("}", 1)[0] + "}" + name if root.tag.startswith("{") else name
 
 
-def write_sitemaps(site: Path, reviewed_at: str) -> dict[str, object]:
+def write_sitemaps(site: Path, reviewed_at: str, pages: list[Path]) -> dict[str, object]:
     ns = "http://www.sitemaps.org/schemas/sitemap/0.9"
     ET.register_namespace("", ns)
-    urls = [URL, *(URL + item["file"] for item in ARTICLES)]
+    urls = [URL, *(URL + path.name for path in pages)]
     child = site / "sitemap-magazine.xml"
     root = ET.Element(f"{{{ns}}}urlset")
     for target_url in urls:
@@ -167,12 +134,11 @@ def write_sitemaps(site: Path, reviewed_at: str) -> dict[str, object]:
     if mode == "urlset":
         existing = {(node.text or "").strip() for node in main.findall("{*}url/{*}loc")}
         for target_url in urls:
-            if target_url in existing:
-                continue
-            item = ET.SubElement(main, qualify(main, "url"))
-            ET.SubElement(item, qualify(main, "loc")).text = target_url
-            existing.add(target_url)
-            changed = True
+            if target_url not in existing:
+                item = ET.SubElement(main, qualify(main, "url"))
+                ET.SubElement(item, qualify(main, "loc")).text = target_url
+                existing.add(target_url)
+                changed = True
     elif mode == "sitemapindex":
         child_url = BASE + "/sitemap-magazine.xml"
         existing = {(node.text or "").strip() for node in main.findall("{*}sitemap/{*}loc")}
@@ -191,26 +157,26 @@ def publish(site: Path) -> dict[str, object]:
     if not site.is_dir():
         raise SystemExit(f"Missing site directory: {site}")
     data = load_methodology()
-    hashes = validate_source_tree()
-    publish_files(site)
-    sitemap = write_sitemaps(site, data["reviewed_at"])
+    pages = article_files()
+    hashes = validate_source_tree(pages)
+    publish_files(site, pages)
+    sitemap = write_sitemaps(site, data["reviewed_at"], pages)
     report = {
         "version": CONTRACT,
         "page": "magazine/index.html",
         "url": URL,
         "methodology_published": True,
-        "research_summaries_published": len(ARTICLES),
-        "articles": [item["file"] for item in ARTICLES],
+        "research_summaries_published": len(pages),
+        "articles": [path.name for path in pages],
         "source_sha256": hashes,
         "review_status": data["status"],
         "risk_level": data["risk_level"],
+        "unwired_research_pages": 0,
         "sitemap": sitemap,
     }
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
-    (api / "magazine-v201.json").write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    (api / "magazine-v201.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return report
 
