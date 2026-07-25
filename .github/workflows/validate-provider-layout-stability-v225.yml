@@ -7,6 +7,7 @@ on:
       - "provider-assessment-demo/institutional-contract-v220.css"
       - "provider-assessment-demo/institutional-contract-v220-integration.js"
       - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/activation-guard.js"
       - "scripts/stabilize_provider_layout_v225.py"
       - "tests/test_provider_layout_stability_v225.py"
       - "tests/test_stabilize_provider_layout_v225.py"
@@ -18,6 +19,7 @@ on:
       - "provider-assessment-demo/institutional-contract-v220.css"
       - "provider-assessment-demo/institutional-contract-v220-integration.js"
       - "provider-assessment-demo/institutional-live-v2.js"
+      - "provider-assessment-demo/activation-guard.js"
       - "scripts/stabilize_provider_layout_v225.py"
       - "tests/test_provider_layout_stability_v225.py"
       - "tests/test_stabilize_provider_layout_v225.py"
@@ -54,6 +56,7 @@ jobs:
             tests.test_provider_layout_stability_v225 \
             tests.test_stabilize_provider_layout_v225
           node --check provider-assessment-demo/institutional-live-v2.js
+          node --check provider-assessment-demo/activation-guard.js
           node --check tests/probe_provider_layout_v225.mjs
       - name: Enforce reserved geometry and newer-contract guards
         run: |
@@ -63,6 +66,9 @@ jobs:
           grep -q 'tabs.insertBefore(tab, guideTab)' provider-assessment-demo/institutional-contract-v220-integration.js
           grep -q 'hasNewerInstitutionalContract' provider-assessment-demo/institutional-live-v2.js
           grep -q 'if (hasNewerInstitutionalContract()) return;' provider-assessment-demo/institutional-live-v2.js
+          grep -q 'hasNewerInstitutionalContract' provider-assessment-demo/activation-guard.js
+          grep -q 'if (hasNewerInstitutionalContract()) return;' provider-assessment-demo/activation-guard.js
+          grep -q 'locked_pending_rights' provider-assessment-demo/activation-guard.js
           grep -q 'provider-layout-stability-v225' scripts/stabilize_provider_layout_v225.py
       - name: Patch repository fixture exactly as production will be patched
         run: |
@@ -128,6 +134,7 @@ jobs:
           from pathlib import Path
 
           report = json.loads(Path('/tmp/provider-v225-lighthouse.json').read_text(encoding='utf-8'))
+          probe = json.loads(Path('/tmp/provider-layout-probe-v225.json').read_text(encoding='utf-8'))
           audits = report['audits']
           categories = report['categories']
           result = {
@@ -135,6 +142,8 @@ jobs:
               'route': 'provider-assessment-demo/',
               'form_factor': 'desktop',
               'cls': audits['cumulative-layout-shift']['numericValue'],
+              'probe_cls': probe['cls'],
+              'probe_shifts': len(probe['shifts']),
               'performance': categories['performance']['score'],
               'accessibility': categories['accessibility']['score'],
               'best_practices': categories['best-practices']['score'],
@@ -144,8 +153,9 @@ jobs:
           Path('/tmp/provider-layout-stability-v225.json').write_text(
               json.dumps(result, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
           )
-          print(json.dumps({key: result[key] for key in ('version','route','form_factor','cls','performance','accessibility','best_practices','seo')}, ensure_ascii=False, indent=2))
+          print(json.dumps({key: result[key] for key in ('version','route','form_factor','cls','probe_cls','probe_shifts','performance','accessibility','best_practices','seo')}, ensure_ascii=False, indent=2))
           assert result['cls'] <= 0.10, result
+          assert result['probe_cls'] <= 0.10, result
           assert result['performance'] >= 0.95, result
           assert result['accessibility'] >= 0.95, result
           assert result['best_practices'] >= 0.95, result
