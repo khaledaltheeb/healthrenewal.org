@@ -1,0 +1,42 @@
+name: Validate Pages artifact SHA provenance v242
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/deploy-validated-main.yml"
+      - ".github/workflows/verify-special-needs-live-v236.yml"
+      - ".github/workflows/validate-pages-artifact-sha-v242.yml"
+      - "tests/test_pages_artifact_sha_v242.py"
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/deploy-validated-main.yml"
+      - ".github/workflows/verify-special-needs-live-v236.yml"
+      - ".github/workflows/validate-pages-artifact-sha-v242.yml"
+      - "tests/test_pages_artifact_sha_v242.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-artifact-sha-v242-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile provenance regression contract
+        run: python -m py_compile tests/test_pages_artifact_sha_v242.py
+
+      - name: Prove artifact and live deployment stamps are authoritative
+        run: python -m unittest -v tests.test_pages_artifact_sha_v242
