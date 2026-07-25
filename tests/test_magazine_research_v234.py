@@ -99,7 +99,7 @@ class MagazineResearchV234Tests(unittest.TestCase):
             "neurodevelopmental-exercise-executive-function-meta-analysis-2026.html": ("527 طفلًا", "I² = 81%"),
             "neurodevelopmental-sleep-family-wellbeing-review-2026.html": ("العلاقة قد تكون دائرية", "كثرة الدراسات المقطعية"),
             "down-syndrome-adult-medical-care-systematic-review-2026.html": ("8680 مرجعًا", "لم تُحدد دراسات مؤهلة"),
-            "dcd-school-motor-interventions-meta-analysis-2026.html": ("Hedges g = 1.06", "لا تضمن التحسن نفسه"),
+            "dcd-school-motor-interventions-meta-analysis-2026.html": ("Hedges g = 1.06", "لا يضمن التحسن نفسه"),
             "dcd-subtypes-systematic-review-2026.html": ("1,719 سجلًا", "لا يجوز استخدام هذه الأنماط"),
             "dcd-action-observation-motor-imagery-review-2026.html": ("199 طفلًا", "بديل عن التدريب الوظيفي"),
             "childhood-vision-impairment-longitudinal-review-2026.html": ("57,768 مشاركًا", "لا يثبت أن ضعف البصر وحده"),
