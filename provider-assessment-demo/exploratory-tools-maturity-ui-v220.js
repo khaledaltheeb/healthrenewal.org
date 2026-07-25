@@ -152,6 +152,23 @@
     document.head.appendChild(report);
   };
 
+  const loadPlanningCompatibility = () => {
+    if (document.querySelector('script[data-professional-planning-compat-v220]')) {
+      loadReportIntegration();
+      return;
+    }
+    const planning = document.createElement("script");
+    planning.src = `professional-registry-planning-compat-v220.js?release=${encodeURIComponent(RELEASE)}`;
+    planning.defer = true;
+    planning.dataset.professionalPlanningCompatV220 = RELEASE;
+    planning.addEventListener("load", () => loadReportIntegration(), { once: true });
+    planning.addEventListener("error", () => {
+      console.error("Failed to load professional planning compatibility v220; draft records remain in stricter fallback mode");
+      loadReportIntegration();
+    }, { once: true });
+    document.head.appendChild(planning);
+  };
+
   const loadProfessionalRegistry = () => {
     if (document.querySelector('script[data-professional-registry-contract-v220]')) return;
     const contract = document.createElement("script");
@@ -159,12 +176,15 @@
     contract.defer = true;
     contract.dataset.professionalRegistryContractV220 = RELEASE;
     contract.addEventListener("load", () => {
-      if (document.querySelector('script[data-professional-registry-ui-v220]')) return;
+      if (document.querySelector('script[data-professional-registry-ui-v220]')) {
+        loadPlanningCompatibility();
+        return;
+      }
       const ui = document.createElement("script");
       ui.src = `professional-registry-maturity-ui-v220.js?release=${encodeURIComponent(RELEASE)}`;
       ui.defer = true;
       ui.dataset.professionalRegistryUiV220 = RELEASE;
-      ui.addEventListener("load", () => loadReportIntegration(), { once: true });
+      ui.addEventListener("load", () => loadPlanningCompatibility(), { once: true });
       ui.addEventListener("error", () => console.error("Failed to load professional registry maturity UI v220"), { once: true });
       document.head.appendChild(ui);
     }, { once: true });
