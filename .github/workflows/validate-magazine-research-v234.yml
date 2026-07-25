@@ -62,7 +62,7 @@ jobs:
         run: python -m unittest tests.test_platform_identity_v201 -v
       - name: Verify source contracts
         run: |
-          set -euo pipefail
+          set -euxo pipefail
           test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 9
           test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 51
           test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 60
@@ -99,5 +99,6 @@ jobs:
           grep -q 'unwired_research_pages' scripts/publish_magazine_v201.py
           grep -q 'generated-from-discovered-articles' scripts/publish_magazine_v201.py
           grep -q 'SOURCE_LINK_PATTERN' scripts/publish_magazine_v201.py
-          grep -q 'Magazine production requires 60 pages' scripts/enforce_platform_identity_v201.py
+          grep -q 'published = report.get("research_summaries_published")' scripts/enforce_platform_identity_v201.py
+          grep -q 'Magazine production index contract failed for' scripts/enforce_platform_identity_v201.py
           ! grep -R -E 'علاج مضمون|يشخّص|نتائج مؤكدة للجميع' magazine
