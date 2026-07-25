@@ -1,0 +1,75 @@
+name: Validate lab source content v235
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/v193/lab-depth-contract-ar.json'
+      - 'scripts/expand_v12_direct.py'
+      - 'scripts/expand_v12_direct_core_v235.py'
+      - 'scripts/lab_source_content_v235.py'
+      - 'scripts/enrich_lab_content_v193.py'
+      - 'scripts/enrich_lab_content_v193_core_v235.py'
+      - 'scripts/deepen_assessment_cognitive_hubs_v233.py'
+      - 'scripts/audit_source_origin_depth_v234.py'
+      - 'tests/test_lab_source_content_v235.py'
+      - '.github/workflows/validate-lab-source-content-v235.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/v193/lab-depth-contract-ar.json'
+      - 'scripts/expand_v12_direct.py'
+      - 'scripts/expand_v12_direct_core_v235.py'
+      - 'scripts/lab_source_content_v235.py'
+      - 'scripts/enrich_lab_content_v193.py'
+      - 'scripts/enrich_lab_content_v193_core_v235.py'
+      - 'scripts/deepen_assessment_cognitive_hubs_v233.py'
+      - 'scripts/audit_source_origin_depth_v234.py'
+      - 'tests/test_lab_source_content_v235.py'
+      - '.github/workflows/validate-lab-source-content-v235.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab-source-content-v235-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-source-generation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile source generator and contracts
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/expand_v12_direct.py \
+            scripts/expand_v12_direct_core_v235.py \
+            scripts/lab_source_content_v235.py \
+            scripts/enrich_lab_content_v193.py \
+            scripts/enrich_lab_content_v193_core_v235.py \
+            scripts/deepen_assessment_cognitive_hubs_v233.py \
+            scripts/audit_source_origin_depth_v234.py \
+            tests/test_lab_source_content_v235.py
+      - name: Run all source-integration scenarios
+        run: python -m unittest -v tests.test_lab_source_content_v235
+      - name: Enforce reviewed contract and safety wording
+        run: |
+          set -euxo pipefail
+          grep -q 'internally-reviewed' content/v193/lab-depth-contract-ar.json
+          grep -q 'data-lab-source-v235' scripts/lab_source_content_v235.py
+          grep -q 'لا تثبت تشخيصًا' content/v193/lab-depth-contract-ar.json
+          grep -q 'ليست اختبار ذكاء' content/v193/lab-depth-contract-ar.json
+          grep -q 'خدمات الطوارئ المحلية' content/v193/lab-depth-contract-ar.json
+          ! grep -Eqi 'يشخص.*نهائي|يرفع الذكاء|يمنع الخرف|معتمد سريريًا لكل الفئات|راجعها طبيب|معاقين' \
+            scripts/lab_source_content_v235.py \
+            scripts/expand_v12_direct.py \
+            scripts/enrich_lab_content_v193.py
