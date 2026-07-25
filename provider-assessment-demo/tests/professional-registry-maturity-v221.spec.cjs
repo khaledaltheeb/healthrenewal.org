@@ -30,6 +30,13 @@ assert.equal(report.count, context.window.PA_OPERATIONAL_COUNT, "v221 rights con
 assert.equal(report.allDigitalAdministrationLocked, true);
 assert.equal(report.protectedContentStorageAllowed, false);
 assert.ok(report.count >= 90, `professional registry unexpectedly small: ${report.count}`);
+assert.equal(typeof report.customContractForMode, "function", "mode-bound custom record contract resolver missing");
+assert.equal(report.customContractForMode("in_person").recordType, "licensed_professional_administration_record");
+assert.equal(report.customContractForMode("remote").recordType, "licensed_professional_administration_record");
+assert.equal(report.customContractForMode("external_import").recordType, "external_official_result_record");
+assert.equal(report.customContractForMode("record_review").recordType, "external_official_result_record");
+assert.ok(!report.customContractForMode("in_person").permittedRightsBases.includes("external_report_only"));
+assert.ok(report.customContractForMode("external_import").permittedRightsBases.includes("external_report_only"));
 
 const ids = new Set();
 const requiredCompleted = [
@@ -68,29 +75,20 @@ for (const tool of data.professional) {
   assert.ok(contract.interpretationLimits.some((text) => text.includes("لا تفسر النتيجة منفردة")), `${tool.id}: non-diagnostic limit missing`);
 }
 
+const contractSource = fs.readFileSync(path.join(DEMO, "professional-registry-contract-v220.js"), "utf8");
+assert.ok(contractSource.includes("customContractForMode"), "custom record mode resolver missing from rights contract");
+assert.ok(!contractSource.includes('Object.defineProperty(data.professional, "find"'), "rights contract must not mutate Array.find");
+
 const ui = fs.readFileSync(path.join(DEMO, "professional-registry-maturity-ui-v220.js"), "utf8");
 for (const marker of [
-  'field("publisher"',
-  'field("instrumentVersion"',
-  'field("administrationLanguage"',
-  'field("administratorQualification"',
-  'select("rightsBasis"',
-  'field("rightsReference"',
-  'select("scoreSource"',
-  'field("officialSourceReference"',
-  'textarea("selectionRationale"',
-  'textarea("administrationQuality"',
-  'textarea("interpretationLimitations"',
-  'textarea("integrationSummary"',
-  'textarea("recommendations"',
-  'field("followUpDate"',
-  "professional-registry-record-v220",
-  "digitalAdministrationOccurredInsidePlatform: false",
-  "protectedContentStored: false",
-  "structured_record_created",
-  "persistAtomically",
-  "caseRecord.professionalAssessments.pop()",
-  "if (!persistAtomically(caseRecord, record, now))",
+  'field("publisher"', 'field("instrumentVersion"', 'field("administrationLanguage"',
+  'field("administratorQualification"', 'select("rightsBasis"', 'field("rightsReference"',
+  'select("scoreSource"', 'field("officialSourceReference"', 'textarea("selectionRationale"',
+  'textarea("administrationQuality"', 'textarea("interpretationLimitations"',
+  'textarea("integrationSummary"', 'textarea("recommendations"', 'field("followUpDate"',
+  "professional-registry-record-v220", "digitalAdministrationOccurredInsidePlatform: false",
+  "protectedContentStored: false", "structured_record_created", "persistAtomically",
+  "caseRecord.professionalAssessments.pop()", "if (!persistAtomically(caseRecord, record, now))",
 ]) {
   assert.ok(ui.includes(marker), `professional UI contract marker missing: ${marker}`);
 }
@@ -99,18 +97,43 @@ assert.ok(ui.includes("رُفض الحفظ لأن النص قد يتضمن ما�
 assert.ok(!ui.includes("reverse().find"), "legacy record fallback must not be restored");
 assert.ok(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/.test(ui), "professional registry UI must remain local-only");
 
+const planning = fs.readFileSync(path.join(DEMO, "professional-registry-planning-compat-v220.js"), "utf8");
+for (const marker of [
+  "planningDraftAllowed: true", "completedRightsRequired: true", "baseFormValidationPreserved: true",
+  "legacyRecordsUpgradable: true", "schemaMigrationAudited: true", "nativeReportValidity",
+  'startsWith("maturity_")', "professional-registry-schema-compat-v220.js", "professional-registry-edit-v220.js",
+]) {
+  assert.ok(planning.includes(marker), `planning and upgrade compatibility marker missing: ${marker}`);
+}
+assert.ok(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/.test(planning), "planning compatibility must remain local-only");
+
+const schemaCompat = fs.readFileSync(path.join(DEMO, "professional-registry-schema-compat-v220.js"), "utf8");
+for (const marker of [
+  'canonicalField = "reportIssuedBy"', 'legacyField = "reportIssuer"', "delete record[legacyField]",
+  'eventType: "schema_alias_migrated"', "schemaCompatibilityVersion = VERSION",
+  "migrationAudited: true", "localOnly: true",
+]) {
+  assert.ok(schemaCompat.includes(marker), `professional schema compatibility marker missing: ${marker}`);
+}
+assert.ok(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/.test(schemaCompat), "schema compatibility must remain local-only");
+
+const edit = fs.readFileSync(path.join(DEMO, "professional-registry-edit-v220.js"), "utf8");
+for (const marker of [
+  "legacyRecordsUpgradable: true", "completedRightsRequired: true", "atomicPersistence: true",
+  "structured_record_updated", "contractSnapshot", "customContractForMode", "restore(record, snapshot)",
+  "record.professionalMaturity = nextMaturity", "record.digitalAdministrationOccurredInsidePlatform = false",
+  "record.protectedContentStored = false",
+]) {
+  assert.ok(edit.includes(marker), `professional edit-upgrade marker missing: ${marker}`);
+}
+assert.ok(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/.test(edit), "professional edit upgrade must remain local-only");
+
 const maturityUi = fs.readFileSync(path.join(DEMO, "exploratory-tools-maturity-ui-v220.js"), "utf8");
 assert.ok(maturityUi.includes("professional-registry-contract-v220.js"), "professional contract loader missing");
 assert.ok(maturityUi.includes("professional-registry-maturity-ui-v220.js"), "professional UI loader missing");
 
 const loader = fs.readFileSync(path.join(DEMO, "institutional-live-v2.js"), "utf8");
 assert.ok(loader.includes("professional-registry-planning-compat-v220.js"), "planning compatibility loader missing");
-
-const compatibility = fs.readFileSync(path.join(DEMO, "professional-registry-planning-compat-v220.js"), "utf8");
-assert.ok(compatibility.includes("planningDraftAllowed: true"), "planning draft compatibility missing");
-assert.ok(compatibility.includes("completedRightsRequired: true"), "completed rights requirement missing");
-assert.ok(compatibility.includes("nativeReportValidity"), "planning compatibility must preserve base form validation");
-assert.ok(compatibility.includes('startsWith("maturity_")'), "planning compatibility must relax only maturity fields");
 
 console.log(JSON.stringify({
   status: "passed",
@@ -121,4 +144,7 @@ console.log(JSON.stringify({
   structuredRecordSchema: "professional-registry-record-v220",
   planningDraftAllowed: true,
   completedRightsRequired: true,
+  legacyRecordsUpgradable: true,
+  schemaMigrationAudited: true,
+  modeBoundCustomContract: true,
 }, null, 2));
