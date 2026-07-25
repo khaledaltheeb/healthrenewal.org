@@ -27,7 +27,7 @@
     document.documentElement.dataset.release = RELEASE;
     document.title = "منصة التقييم والسجل المهني | منصة الصحة النفسية وذوي الاحتياجات الخاصة";
     const description = document.querySelector('meta[name="description"]');
-    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية وسجلات الخدمات المهنية، مع 20 دليل حالة وتقارير متعددة الإصدارات. تبقى المقاييس المحمية مقفلة حتى اكتمال الترخيص والمراجعة المؤسسية.";
+    if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات وعشرين أداة استكشافية موسعة وسجلات الخدمات المهنية، مع بروتوكولات استخدام وسلامة وجودة معلومات وتقارير متعددة الإصدارات. تبقى المقاييس المحمية مقفلة حتى اكتمال الترخيص والمراجعة المؤسسية.";
     const applicationVersion = document.querySelector('meta[name="application-version"]');
     if (applicationVersion) applicationVersion.content = RELEASE;
 
@@ -36,15 +36,20 @@
     const product = document.querySelector(".product-name");
     if (product) product.textContent = "منصة التقييم والسجل المهني";
     const notice = document.querySelector(".notice-bar");
-    if (notice) notice.textContent = "الأدوات الاستكشافية الأصلية متاحة للاستخدام غير التشخيصي. المقاييس المهنية المحمية تبقى مقفلة حتى اكتمال الترخيص وحق الرقمنة والمراجعة العلمية والأمنية والمؤسسية.";
+    if (notice && document.documentElement.dataset.exploratoryMaturity !== "failed") {
+      notice.removeAttribute("role");
+      notice.setAttribute("role", "note");
+      notice.textContent = "الأدوات الاستكشافية الأصلية متاحة للاستخدام غير التشخيصي مع بروتوكولات موسعة وحدود تفسير وسلامة. المقاييس المهنية المحمية تبقى مقفلة حتى اكتمال الترخيص وحق الرقمنة والمراجعة العلمية والأمنية والمؤسسية.";
+    }
 
     const count = window.PA_OPERATIONAL_COUNT || window.PA_DEMO_DATA?.professional?.length || 0;
+    const maturity = window.PA_EXPLORATORY_MATURITY_V220;
     const card = document.querySelector(".hero-card ul");
     if (card) {
       card.innerHTML = `
         <li>UID مستقل لكل مستخدم أو مقدم خدمة.</li>
         <li>سجل حالات وجلسات ونتائج متكررة محفوظ محليًا.</li>
-        <li>20 أداة استكشافية أصلية تعمل مباشرة مع متابعة وصفية مشروطة بقابلية المقارنة.</li>
+        <li>20 أداة استكشافية أصلية موسعة${maturity ? ` بحد أدنى ${maturity.minimumQuestions} بندًا و${maturity.minimumDomains} مجالات` : ""} مع متابعة وصفية مشروطة بقابلية المقارنة.</li>
         <li>${count} مقياسًا وفحصًا في دليل الوصول المهني مع حالة حقوق واضحة.</li>
         <li>20 دليل حالة مؤسسيًا مع فريق وحزمة مقاييس وكورس ومخرجات تقرير.</li>
         <li>سجل خدمات ونتائج خارجية دون نسخ بنود أو مفاتيح تصحيح محمية.</li>
@@ -96,7 +101,35 @@
     observer.observe(target, { childList: true, subtree: true, characterData: true });
   };
 
-  const addScript = (src, datasetName, onload) => {
+  const announce = (message) => {
+    const live = document.getElementById("live-region");
+    if (live) live.textContent = message;
+  };
+
+  const setMaturityState = (state, message = "") => {
+    document.documentElement.dataset.exploratoryMaturity = state;
+    if (message) announce(message);
+    if (state === "failed") {
+      const notice = document.querySelector(".notice-bar");
+      if (notice) {
+        notice.setAttribute("role", "alert");
+        notice.textContent = "تعذر تحميل عقد الأدوات الاستكشافية الموسع. أُوقف بدء الأدوات لمنع تشغيل نسخة جزئية؛ أعد تحميل الصفحة أو استخدم السجل المهني فقط.";
+      }
+    }
+  };
+
+  const guardMaturityStart = () => {
+    document.addEventListener("click", (event) => {
+      const trigger = event.target.closest?.("[data-start], [data-guide]");
+      if (!trigger || window.PA_EXPLORATORY_MATURITY_V220) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const failed = document.documentElement.dataset.exploratoryMaturity === "failed";
+      announce(failed ? "الأداة غير متاحة لأن عقدها الموسع لم يكتمل تحميله." : "يكتمل الآن تحميل بروتوكول الأداة الموسع؛ أعد المحاولة بعد لحظات.");
+    }, true);
+  };
+
+  const addScript = (src, datasetName, onload, onerror) => {
     if (document.querySelector(`script[data-${datasetName}]`)) {
       if (onload) onload();
       return;
@@ -106,7 +139,53 @@
     script.defer = true;
     script.dataset[datasetName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())] = RELEASE;
     if (onload) script.addEventListener("load", onload, { once: true });
+    script.addEventListener("error", () => {
+      console.error(`Failed to load ${src}`);
+      if (onerror) onerror(src);
+    }, { once: true });
     document.head.appendChild(script);
+  };
+
+  const maturityFailure = (src) => setMaturityState("failed", `تعذر تحميل ${src}`);
+
+  const refreshExplorers = () => {
+    if (!window.PA_EXPLORATORY_MATURITY_V220 || window.PA_EXPLORATORY_MATURITY_V220.toolCount !== 20) {
+      maturityFailure("عقد الأدوات العشرين");
+      return;
+    }
+    setMaturityState("ready", "اكتمل تحميل الأدوات الاستكشافية الموسعة.");
+    document.getElementById("explorer-search")?.dispatchEvent(new Event("input", { bubbles: true }));
+    window.PA_EXPLORATORY_V220_REFRESH?.();
+    applyInstitutionalCopy();
+  };
+
+  const loadExploratoryMaturity = () => {
+    setMaturityState("loading", "يتم تحميل بروتوكولات الأدوات الاستكشافية الموسعة.");
+    addScript("exploratory-tools-maturity-runtime-v220.js", "exploratory-maturity-runtime-v220", () =>
+      addScript("exploratory-tools-maturity-specs-1-v220.js", "exploratory-maturity-specs-1-v220", () =>
+        addScript("exploratory-tools-maturity-specs-2-v220.js", "exploratory-maturity-specs-2-v220", () =>
+          addScript("exploratory-tools-maturity-specs-3-v220.js", "exploratory-maturity-specs-3-v220", () =>
+            addScript("exploratory-tools-maturity-specs-4-v220.js", "exploratory-maturity-specs-4-v220", () =>
+              addScript("exploratory-tools-maturity-finalize-v220.js", "exploratory-maturity-finalize-v220", () =>
+                addScript("exploratory-tools-maturity-ui-v220.js", "exploratory-maturity-ui-v220", refreshExplorers, maturityFailure), maturityFailure), maturityFailure), maturityFailure), maturityFailure), maturityFailure), maturityFailure);
+  };
+
+  const loadProfessionalPlanningCompat = (attempt = 0) => {
+    if (window.PA_PROFESSIONAL_PLANNING_COMPAT_V220) return;
+    if (window.PA_PROFESSIONAL_RECORD_V220) {
+      addScript(
+        "professional-registry-planning-compat-v220.js",
+        "professional-planning-compat-v220",
+        () => announce("اكتمل تحميل عقد المسودات والسجلات المهنية المكتملة."),
+        (src) => console.error(`Failed to load professional planning compatibility: ${src}`),
+      );
+      return;
+    }
+    if (attempt < 160) {
+      setTimeout(() => loadProfessionalPlanningCompat(attempt + 1), 50);
+      return;
+    }
+    console.error("Professional registry v220 did not become ready for planning compatibility");
   };
 
   const loadAssessmentPathways = () => addScript("assessment-pathways-content.js", "assessment-pathways");
@@ -138,6 +217,9 @@
     applyInstitutionalCopy();
     applyTabSemantics();
     observeOperationalUi();
+    guardMaturityStart();
+    loadExploratoryMaturity();
+    loadProfessionalPlanningCompat();
     loadAssessmentPathways();
     loadConditionPathways();
     loadProfessionalTemplates();
