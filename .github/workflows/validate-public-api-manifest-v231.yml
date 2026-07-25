@@ -1,0 +1,62 @@
+name: Validate public API manifest and section registry v231
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/upgrade_public_api_manifest_v231.py"
+      - "scripts/publish_content_catalog_v219.py"
+      - "tests/test_public_api_manifest_v231.py"
+      - ".github/workflows/validate-public-api-manifest-v231.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/upgrade_public_api_manifest_v231.py"
+      - "scripts/publish_content_catalog_v219.py"
+      - "tests/test_public_api_manifest_v231.py"
+      - ".github/workflows/validate-public-api-manifest-v231.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-api-manifest-v231-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile the manifest publisher and integration
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/upgrade_public_api_manifest_v231.py \
+            scripts/publish_content_catalog_v219.py \
+            tests/test_public_api_manifest_v231.py
+
+      - name: Run deterministic v231 contract tests
+        run: python -m unittest -v tests.test_public_api_manifest_v231
+
+      - name: Re-run existing API and permission compatibility tests
+        run: |
+          set -euxo pipefail
+          python -m unittest -v \
+            tests.test_public_api_v215 \
+            tests.test_public_api_permission_revalidation_v218 \
+            tests.test_course_source_network_contract_v218
+
+      - name: Enforce production wiring and terminology boundaries
+        run: |
+          set -euxo pipefail
+          grep -q "upgrade_public_api_manifest_v231" scripts/publish_content_catalog_v219.py
+          grep -q "upgrade_api_manifest(SITE, ROOT)" scripts/publish_content_catalog_v219.py
+          grep -q 'defaultDecision.*deny' scripts/upgrade_public_api_manifest_v231.py
+          ! grep -Eq 'معاقين|المعاقين|ذوو الإعاقة|ذوي الإعاقة' scripts/upgrade_public_api_manifest_v231.py
