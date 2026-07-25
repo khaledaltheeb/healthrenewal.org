@@ -1,0 +1,46 @@
+name: Validate homepage release contract v230
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/verify_homepage_release_contract_v230.py"
+      - "tests/test_homepage_release_contract_v230.py"
+      - ".github/workflows/validate-homepage-release-contract-v230.yml"
+      - ".github/workflows/deploy-validated-main.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/verify_homepage_release_contract_v230.py"
+      - "tests/test_homepage_release_contract_v230.py"
+      - ".github/workflows/validate-homepage-release-contract-v230.yml"
+      - ".github/workflows/deploy-validated-main.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: homepage-release-contract-v230-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and run deterministic contract tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/verify_homepage_release_contract_v230.py tests/test_homepage_release_contract_v230.py
+          python -m unittest -v tests.test_homepage_release_contract_v230
+      - name: Verify prohibited homepage language is absent from current source
+        run: |
+          set -euxo pipefail
+          ! grep -Fq '88 مقياسًا وأداة وقدرة معرفية' index.html
+          ! grep -Fq 'مركز أساسي للأشخاص ذوي الإعاقة' index.html
+          ! grep -Fq 'معاقين' index.html
