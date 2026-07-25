@@ -1,0 +1,51 @@
+name: Validate provider condition discovery v238
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_provider_condition_discovery_v238.py"
+      - "scripts/publish_provider_condition_discovery_v238_compat.py"
+      - "tests/test_provider_condition_discovery_v238.py"
+      - "tests/test_provider_condition_discovery_v238_compat.py"
+      - ".github/workflows/validate-provider-condition-discovery-v238.yml"
+      - ".github/workflows/audit-production-discovery-v220.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_provider_condition_discovery_v238.py"
+      - "scripts/publish_provider_condition_discovery_v238_compat.py"
+      - "tests/test_provider_condition_discovery_v238.py"
+      - "tests/test_provider_condition_discovery_v238_compat.py"
+      - ".github/workflows/validate-provider-condition-discovery-v238.yml"
+      - ".github/workflows/audit-production-discovery-v220.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-condition-discovery-v238-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile publishers and regression contracts
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_provider_condition_discovery_v238.py \
+            scripts/publish_provider_condition_discovery_v238_compat.py \
+            tests/test_provider_condition_discovery_v238_compat.py
+
+      - name: Verify static links child sitemap robots root digest and idempotence
+        run: python -m unittest -v tests.test_provider_condition_discovery_v238_compat
