@@ -5,8 +5,10 @@ on:
     branches: [main]
     paths:
       - "content/v234/**"
+      - "content/v15/tips-details-v15.json"
       - "scripts/publish_tips_hub_v234.py"
       - "scripts/verify_tips_v234.py"
+      - "scripts/publish_content_catalog_v219.py"
       - "scripts/enforce_platform_identity_v201.py"
       - "tests/test_tips_v234.py"
       - ".github/workflows/validate-tips-v234.yml"
@@ -35,21 +37,24 @@ jobs:
           python -m py_compile \
             scripts/publish_tips_hub_v234.py \
             scripts/verify_tips_v234.py \
+            scripts/publish_content_catalog_v219.py \
             scripts/enforce_platform_identity_v201.py \
             tests/test_tips_v234.py
           python -m json.tool content/v234/tips-guides-supplement-ar.json >/dev/null
           python -m json.tool content/v234/sources-ar.json >/dev/null
+          python -m json.tool content/v15/tips-details-v15.json >/dev/null
 
       - name: Capture related platform contracts
         shell: bash
         run: |
           {
-            echo '=== WORKFLOW STEP ==='
-            grep -R -n -B 14 -A 14 'Test partners transparency hub' .github/workflows || true
-            echo '=== PARTNERS TEST REFERENCES ==='
-            grep -R -n -E 'partners|الشركاء' tests scripts | head -n 400 || true
-            echo '=== CORE BUILD MARKERS ==='
-            grep -R -n -E 'core-sections-v15|complete_core_sections_v15|enforce_platform_identity_v201' .github/workflows scripts tests | head -n 400 || true
+            echo '=== PRODUCTION CATALOG HOOK ==='
+            grep -R -n -E 'publish_tips_hub_v234|verify_tips_v234|core-sections-v15' \
+              scripts/publish_content_catalog_v219.py \
+              scripts/enforce_platform_identity_v201.py \
+              tests/test_tips_v234.py || true
+            echo '=== KNOWN PARTNERS BASELINE ==='
+            grep -R -n -E 'partners|الشركاء' tests/test_partners_v201.py scripts/publish_partners_v201.py || true
           } > tips-v234-platform-contracts.log
           cat tips-v234-platform-contracts.log
 
@@ -100,6 +105,7 @@ jobs:
 
       - name: Verify production integration marker
         run: |
-          grep -q 'publish_tips_hub_v234.py' scripts/enforce_platform_identity_v201.py
-          grep -q 'verify_tips_v234.py' scripts/enforce_platform_identity_v201.py
-          grep -q 'tips_v234_verification' scripts/enforce_platform_identity_v201.py
+          grep -q 'publish_tips_hub_v234.py' scripts/publish_content_catalog_v219.py
+          grep -q 'verify_tips_v234.py' scripts/publish_content_catalog_v219.py
+          grep -q 'core-sections-v15.json' scripts/publish_content_catalog_v219.py
+          grep -q 'tips_v234_verification' scripts/publish_content_catalog_v219.py
