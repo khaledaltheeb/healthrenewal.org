@@ -1,0 +1,62 @@
+name: Validate institutional section directory v221
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_section_directory_v221.py"
+      - "scripts/publish_content_catalog_v219.py"
+      - "tests/test_section_directory_v221.py"
+      - ".github/workflows/validate-section-directory-v221.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_section_directory_v221.py"
+      - "scripts/publish_content_catalog_v219.py"
+      - "tests/test_section_directory_v221.py"
+      - ".github/workflows/validate-section-directory-v221.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: section-directory-v221-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile publisher integration and tests
+        run: |
+          python -m py_compile \
+            scripts/publish_section_directory_v221.py \
+            scripts/publish_content_catalog_v219.py \
+            tests/test_section_directory_v221.py
+
+      - name: Test compatibility idempotency privacy and sitemaps
+        run: python -m unittest -v tests.test_section_directory_v221
+
+      - name: Enforce production ordering contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          source=Path('scripts/publish_content_catalog_v219.py').read_text(encoding='utf-8')
+          sections=source.index('publish_sections(SITE, ROOT)')
+          seo=source.index('seo.enrich_page(path)')
+          catalog=source.index('publish_catalog(SITE, ROOT)')
+          assert sections < seo < catalog, (sections,seo,catalog)
+          publisher=Path('scripts/publish_section_directory_v221.py').read_text(encoding='utf-8')
+          assert 'section-directory.json' in publisher
+          assert 'legacy sections endpoint was modified' in publisher
+          assert 'noindex' in publisher
+          assert 'data-section-directory-v221' in publisher
+          print({'order':'sections -> SEO -> content catalog','legacy_sections':'preserved','noindex':'excluded'})
+          PY
