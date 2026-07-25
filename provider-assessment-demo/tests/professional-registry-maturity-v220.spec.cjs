@@ -130,6 +130,24 @@ for (const marker of [
 assert.ok(!planning.includes("element.required = false"), "planning compatibility must not clear atomic UI requirements");
 assert.ok(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/.test(planning), "planning compatibility must remain local-only");
 
+const schemaCompat = fs.readFileSync(path.join(DEMO, "professional-registry-schema-compat-v220.js"), "utf8");
+for (const marker of [
+  'canonicalField = "reportIssuedBy"',
+  'legacyField = "reportIssuer"',
+  "delete record[legacyField]",
+  'eventType: "schema_alias_migrated"',
+  "schemaCompatibilityVersion = VERSION",
+  "migrationAudited: true",
+  "localOnly: true",
+]) {
+  assert.ok(schemaCompat.includes(marker), `professional schema compatibility marker missing: ${marker}`);
+}
+assert.ok(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/.test(schemaCompat), "schema compatibility must remain local-only");
+
+const integrity = fs.readFileSync(path.join(DEMO, "professional-record-integrity.js"), "utf8");
+assert.ok(integrity.includes('reportIssuedBy: "الجهة المصدرة للتقرير"'), "canonical report issuer field drifted");
+assert.ok(integrity.includes('record.reportIssuedBy ||= ""'), "canonical report issuer normalizer missing");
+
 const edit = fs.readFileSync(path.join(DEMO, "professional-registry-edit-v220.js"), "utf8");
 for (const marker of [
   "legacyRecordsUpgradable: true",
@@ -152,6 +170,7 @@ assert.ok(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/.test(edit), "profe
 const maturityUi = fs.readFileSync(path.join(DEMO, "exploratory-tools-maturity-ui-v220.js"), "utf8");
 for (const loader of [
   "professional-registry-contract-v220.js",
+  "professional-registry-schema-compat-v220.js",
   "professional-registry-maturity-ui-v220.js",
   "professional-registry-planning-compat-v220.js",
   "professional-registry-edit-v220.js",
@@ -161,6 +180,7 @@ for (const loader of [
 }
 for (const readiness of [
   "PA_PROFESSIONAL_REGISTRY_V220",
+  "PA_PROFESSIONAL_SCHEMA_COMPAT_V220",
   "PA_PROFESSIONAL_RECORD_V220",
   "PA_PROFESSIONAL_PLANNING_COMPAT_V220",
   "PA_PROFESSIONAL_EDIT_V220",
@@ -169,10 +189,12 @@ for (const readiness of [
   assert.ok(maturityUi.includes(readiness), `readiness contract missing: ${readiness}`);
 }
 assert.ok(maturityUi.includes("const ensureScriptReady"), "readiness-aware script loader missing");
-assert.ok(maturityUi.includes("onReady: loadProfessionalUi"), "professional UI must follow rights contract");
+assert.ok(maturityUi.includes("onReady: loadSchemaCompatibility"), "schema migration must follow rights contract");
+assert.ok(maturityUi.includes("onReady: loadProfessionalUi"), "professional UI must follow schema migration");
 assert.ok(maturityUi.includes("onReady: loadPlanningCompatibility"), "planning compatibility must follow professional UI");
 assert.ok(maturityUi.includes("onReady: loadEditIntegration"), "edit upgrade must follow planning compatibility");
 assert.ok(maturityUi.includes("onReady: loadReportIntegration"), "report integration must follow edit upgrade");
+assert.ok(maturityUi.includes("field-alias migration remains unavailable"), "schema migration failure must be explicit");
 assert.ok(maturityUi.includes("draft records remain in stricter fallback mode"), "planning load failure must be explicit and fail to stricter mode");
 assert.ok(maturityUi.includes("legacy-record upgrade UI remains unavailable"), "edit load failure must be explicit");
 
@@ -182,6 +204,8 @@ console.log(JSON.stringify({
   allDigitalAdministrationLocked: report.allDigitalAdministrationLocked,
   protectedContentStorageAllowed: report.protectedContentStorageAllowed,
   structuredRecordSchema: "professional-registry-record-v220",
+  canonicalReportIssuerField: "reportIssuedBy",
+  legacyReportIssuerAliasMigrated: true,
   atomicRecordPersistence: true,
   atomicEditPersistence: true,
   modeBoundCustomContract: true,
