@@ -1,0 +1,132 @@
+name: Diagnose production publisher v223
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/diagnose-production-publisher-v223.yml"
+      - "scripts/apply_homepage_v20.py"
+      - "scripts/publish_public_api_v215.py"
+      - "scripts/prepare_content_discovery_v219.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore production sources
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+
+      - name: Build production input through v15
+        run: |
+          set -euxo pipefail
+          python build_site.py
+          python enrich_site_v7.py
+          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+          python scripts/scale_site_v8.py
+          python expand_site_v9.py
+          python scripts/design_content_v10.py
+          python scripts/apply_contrast_v11.py _site
+          python scripts/expand_v12_direct.py _site
+          python scripts/run_encyclopedia_v13.py
+          python scripts/performance_hotfix_v14.py _site
+          python scripts/optimize_site_performance_v14.py _site
+          python scripts/strip_nonlab_runtime_v14.py _site
+          python scripts/finalize_pwa_v14.py _site
+          python scripts/complete_core_sections_v15.py _site
+
+      - name: Diagnose exact homepage publisher
+        id: publisher
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python - <<'PY' 2>&1 | tee /tmp/production-publisher-v223.log
+          import json
+          import traceback
+          from pathlib import Path
+          import scripts.apply_homepage_v20 as publisher
+
+          output = Path('_site/api/production-publisher-v223.json')
+          output.parent.mkdir(parents=True, exist_ok=True)
+          current = {'publisher': 'apply_homepage_v20.main'}
+          original = publisher.run_publisher
+
+          def traced(script: str) -> None:
+              current['publisher'] = script
+              print(f'::notice title=Publisher v223::START {script}', flush=True)
+              try:
+                  original(script)
+              except Exception as error:
+                  payload = {
+                      'version': 223,
+                      'status': 'failed',
+                      'publisher': script,
+                      'error_type': type(error).__name__,
+                      'error': str(error),
+                      'traceback': traceback.format_exc(),
+                  }
+                  output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+                  raise
+              print(f'::notice title=Publisher v223::PASS {script}', flush=True)
+
+          publisher.run_publisher = traced
+          try:
+              publisher.main()
+          except Exception as error:
+              if not output.exists():
+                  output.write_text(json.dumps({
+                      'version': 223,
+                      'status': 'failed',
+                      'publisher': current['publisher'],
+                      'error_type': type(error).__name__,
+                      'error': str(error),
+                      'traceback': traceback.format_exc(),
+                  }, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+              raise
+          else:
+              output.write_text(json.dumps({
+                  'version': 223,
+                  'status': 'passed',
+                  'publisher': 'all',
+              }, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+
+      - name: Upload publisher diagnosis
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-publisher-diagnosis-v223
+          path: |
+            _site/api/production-publisher-v223.json
+            _site/api/*.json
+            .build/reports/*.json
+            /tmp/production-publisher-v223.log
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Enforce diagnostic success
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('_site/api/production-publisher-v223.json').read_text(encoding='utf-8'))
+          print(json.dumps(report, ensure_ascii=False, indent=2))
+          assert report['status'] == 'passed', report
+          PY
