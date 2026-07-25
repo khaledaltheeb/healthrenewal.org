@@ -2,20 +2,34 @@
   "publisher_id": "publisher-08-articles",
   "issue": 103,
   "route_prefix": "/articles/",
-  "queue_updated_at": "2026-07-22",
+  "queue_updated_at": "2026-07-25",
   "items": [
     {
       "id": "article-normal-anxiety-vs-anxiety-disorder",
       "title": "كيف تميّز بين القلق الطبيعي واضطراب القلق؟",
       "slug": "normal-anxiety-vs-anxiety-disorder",
-      "status": "drafting",
+      "status": "approved-for-build",
+      "review_status": "internally-reviewed",
+      "source_path": "content/v221/articles/normal-anxiety-vs-anxiety-disorder-ar.json",
       "search_intent": "compare-normal-anxiety-and-anxiety-disorder",
       "audience": "general-family",
       "age_group": "mixed",
       "risk_level": "moderate",
       "target_content_type": "article",
-      "required_sources": ["official-anxiety-guideline", "systematic-review-or-authoritative-clinical-reference"],
-      "acceptance": ["original-analysis", "function-duration-control", "myths-and-limitations", "safe-help-seeking", "article-schema"]
+      "required_sources": [
+        "WHO anxiety disorders",
+        "NIMH anxiety disorders",
+        "NICE CG113",
+        "NHS GAD guidance"
+      ],
+      "acceptance": [
+        "original-analysis",
+        "function-duration-control",
+        "myths-and-limitations",
+        "safe-help-seeking",
+        "article-schema",
+        "sitemap-and-magazine-discovery"
+      ]
     }
   ]
 }

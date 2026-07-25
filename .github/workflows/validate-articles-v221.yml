@@ -1,0 +1,59 @@
+name: Validate Arabic anxiety article v221
+
+on:
+  pull_request:
+    branches: ["agent/homepage-marshmallow-desktop-v221-final", "main"]
+    paths:
+      - "content/v221/articles/**"
+      - "content/publishers/articles/queue.json"
+      - "scripts/articles_v221_common.py"
+      - "scripts/articles_v221_render.py"
+      - "scripts/publish_articles_v221.py"
+      - "scripts/apply_homepage_v20.py"
+      - "scripts/apply_homepage_v20_core_v221.py"
+      - "tests/test_articles_v221.py"
+      - ".github/workflows/validate-articles-v221.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: articles-v221-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate source and Python syntax
+        run: |
+          set -euxo pipefail
+          python -m json.tool content/v221/articles/normal-anxiety-vs-anxiety-disorder-ar.json >/dev/null
+          python -m json.tool content/publishers/articles/queue.json >/dev/null
+          python -m py_compile \
+            scripts/articles_v221_common.py \
+            scripts/articles_v221_render.py \
+            scripts/publish_articles_v221.py \
+            scripts/apply_homepage_v20.py \
+            scripts/apply_homepage_v20_core_v221.py \
+            tests/test_articles_v221.py
+
+      - name: Test article depth publication SEO sources sitemap and idempotence
+        run: python -m unittest -v tests.test_articles_v221
+
+      - name: Guard health claims and official source domains
+        run: |
+          set -euxo pipefail
+          ! grep -R -E 'تشخيصك هو|يعالج نهائيًا|يضمن الشفاء|بديل عن الطبيب' \
+            content/v221/articles scripts/publish_articles_v221.py
+          grep -q 'www.who.int' content/v221/articles/normal-anxiety-vs-anxiety-disorder-ar.json
+          grep -q 'www.nimh.nih.gov' content/v221/articles/normal-anxiety-vs-anxiety-disorder-ar.json
+          grep -q 'www.nice.org.uk' content/v221/articles/normal-anxiety-vs-anxiety-disorder-ar.json
+          grep -q 'www.nhs.uk' content/v221/articles/normal-anxiety-vs-anxiety-disorder-ar.json
