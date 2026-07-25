@@ -39,7 +39,8 @@ def render(data: dict) -> str:
     )
     checklist = "".join(f"<li>{esc(item)}</li>" for item in magazine["publication_checklist"])
     sources = "".join(
-        f'<li><a rel="noopener" href="{esc(source["url"])}">{esc(source["title"])}</a> — {esc(source["publisher"])} ({esc(source["year"])})</li>'
+        f'<li><a rel="noopener" href="{esc(source["url"])}">{esc(source["title"])}</a> — '
+        f'{esc(source["publisher"])} ({esc(source["year"])})</li>'
         for source in data.get("sources", [])
     )
     schema = {
@@ -50,7 +51,11 @@ def render(data: dict) -> str:
         "url": URL,
         "inLanguage": "ar",
         "dateModified": data["reviewed_at"],
-        "isPartOf": {"@type": "WebSite", "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة", "url": BASE + "/"},
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+            "url": BASE + "/",
+        },
     }
     return f'''<!doctype html>
 <html lang="ar" dir="rtl"><head>
@@ -60,11 +65,11 @@ def render(data: dict) -> str:
 <link rel="canonical" href="{URL}"><meta name="color-scheme" content="light">
 <meta property="og:type" content="website"><meta property="og:title" content="{esc(magazine["title"])}"><meta property="og:description" content="{esc(magazine["description"])}"><meta property="og:url" content="{URL}">
 <meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">{json.dumps(schema, ensure_ascii=False)}</script>
-<style>:root{{--ink:#173f45;--muted:#4f7074;--line:#c7e7e3;--soft:#f4fbfa;--brand:#08736d}}*{{box-sizing:border-box}}body{{margin:0;font-family:Tahoma,Arial,sans-serif;color:var(--ink);line-height:1.9;background:#fff}}a{{color:#086e69}}header,footer{{padding:18px max(4vw,20px);background:var(--soft);border-color:var(--line)}}header{{border-bottom:1px solid var(--line)}}footer{{border-top:1px solid var(--line);margin-top:40px}}nav{{display:flex;gap:12px;flex-wrap:wrap}}main{{max-width:1000px;margin:auto;padding:34px max(4vw,20px)}}h1,h2{{line-height:1.35}}.lead{{font-size:1.13rem;color:var(--muted)}}section{{border:1px solid var(--line);border-radius:16px;padding:20px;margin:18px 0}}.status{{background:#fff8e6;border-color:#ead7a2}}li{{margin:.5rem 0}}@media print{{header nav{{display:none}}section{{break-inside:avoid}}}}</style>
+<style>:root{{--ink:#173f45;--muted:#4f7074;--line:#c7e7e3;--soft:#f4fbfa;--brand:#08736d}}*{{box-sizing:border-box}}body{{margin:0;font-family:Tahoma,Arial,sans-serif;color:var(--ink);line-height:1.9;background:#fff}}a{{color:#086e69}}header,footer{{padding:18px max(4vw,20px);background:var(--soft);border-color:var(--line)}}header{{border-bottom:1px solid var(--line)}}footer{{border-top:1px solid var(--line);margin-top:40px}}nav{{display:flex;gap:12px;flex-wrap:wrap}}main{{max-width:1000px;margin:auto;padding:34px max(4vw,20px)}}h1,h2{{line-height:1.35}}.lead{{font-size:1.13rem;color:var(--muted)}}section{{border:1px solid var(--line);border-radius:16px;padding:20px;margin:18px 0}}.status{{background:#fff8e6;border-color:#ead7a2}}li{{margin:.5rem 0}}a:focus-visible{{outline:3px solid #805600;outline-offset:4px}}@media print{{header nav{{display:none}}section{{break-inside:avoid}}}}</style>
 </head><body>
 <header><strong>منصة الصحة النفسية وذوي الاحتياجات الخاصة</strong><nav aria-label="التنقل الرئيسي"><a href="/pterminology-site/">الرئيسية</a><a href="/pterminology-site/encyclopedia/">الموسوعة</a><a href="/pterminology-site/care-guides/">أدلة التعامل</a><a href="/pterminology-site/trust/">الثقة والمنهجية</a></nav></header>
 <main><h1>{esc(magazine["title"])}</h1><p class="lead">{esc(magazine["summary"])}</p>
-<section class="status"><h2>حالة النشر الحالية</h2><p><strong>هذه الصفحة تنشر المنهج والعقد التحريري فقط.</strong> لا يتضمن هذا الإصدار ملخصات دراسات منفردة، ولا تُضاف دراسة إلى المجلة قبل فحص المصدر الأولي والحقوق والدقة والسلامة والروابط والنسخة المنشورة.</p></section>
+<section class="status"><h2>حالة النشر الحالية</h2><p><strong>هذه الصفحة تنشر المنهج والعقد التحريري.</strong> تُضاف الملخصات البحثية الفعلية في طبقة النشر v232 بعد نجاح فحص المصدر الأولي والحقوق والدقة والسلامة والروابط.</p></section>
 {sections}
 <section><h2>قائمة فحص كل مادة علمية</h2><ol>{checklist}</ol></section>
 <section><h2>المصادر المؤسسة للمنهج</h2><ul>{sources}</ul></section>
@@ -139,11 +144,19 @@ def publish(site: Path) -> dict[str, object]:
     }
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
-    (api / "magazine-v201.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (api / "magazine-v201.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return report
 
 
-if __name__ == "__main__":
-    site = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
+def publish_complete_magazine(site: Path) -> dict[str, object]:
     publish(site)
+    from publish_research_magazine_v232 import publish as publish_research
+    return publish_research(site)
+
+
+if __name__ == "__main__":
+    output = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
+    publish_complete_magazine(output)
