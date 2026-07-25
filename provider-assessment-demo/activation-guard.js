@@ -2,6 +2,9 @@
 
 (() => {
   const data = window.PA_DEMO_DATA;
+  const hasNewerInstitutionalContract = () =>
+    document.documentElement.dataset.institutionalContract === "2026.07.25-v220" ||
+    Boolean(document.querySelector('script[data-institutional-contract-v220]'));
   const slug = (value) => String(value || "")
     .toLowerCase()
     .normalize("NFKD")
@@ -46,6 +49,7 @@
   }
 
   const patchCopy = () => {
+    if (hasNewerInstitutionalContract()) return;
     document.title = "منصة التقييم وإدارة السجلات | مصطلحات علم النفس";
     const description = document.querySelector('meta[name="description"]');
     if (description) description.content = "منصة عربية لإدارة الحالات والجلسات الاستكشافية وسجلات الخدمات المهنية محليًا ضمن UID مستقل، مع إبقاء المقاييس المهنية المحمية مقفلة حتى اكتمال الترخيص والمراجعة المؤسسية.";
