@@ -116,7 +116,8 @@
     }, 0);
   }, true);
 
-  const optionsFor = (caseId) => [...new Set((findCase(caseId)?.sessions || []).map((session) => session.assessmentId).filter((id) => ALIASES[id] && tool(id)))].map((id) => ({ id, title: tool(id)?.title || id }));
+  const optionsFor = (caseId) => [...new Set((findCase(caseId)?.sessions || []).map((session) => session.assessmentId).filter((id) => tool(id)))].map((id) => ({ id, title: tool(id)?.title || id }));
+  const hasLegacySession = (caseId) => (findCase(caseId)?.sessions || []).some((session) => ALIASES[session.assessmentId] && tool(session.assessmentId));
   const plansFor = (caseId) => findCase(caseId)?.originalProgressPlans || [];
   const snapshot = (data) => ({ assessmentPurpose: "progress_monitoring", licenseBoundary: LICENSE, functionalGoal: clean(data.functionalGoal), familyPriority: clean(data.familyPriority), providerObservation: clean(data.providerObservation), measurementContext: clean(data.measurementContext), targetDirection: data.targetDirection, reviewDate: data.reviewDate, reviewOwner: clean(data.reviewOwner), decisionRule: clean(data.decisionRule), interpretationLimit: clean(data.interpretationLimit) });
 
@@ -183,13 +184,16 @@
     host.innerHTML = `<div class="section-heading compact"><div><h4>خطط الأهداف والمراجعة</h4><p class="muted">توافق آمن مع جلسات الأدوات الأصلية التاريخية، دون فتح أدوات محمية.</p></div><button class="button ghost small-button" type="button" data-export-progress-plans="${esc(caseId)}">تصدير الخطط</button></div><div class="progress-plan-grid">${currentCards}${cardsHtml(caseId) || '<p class="muted">لا توجد خطة موثقة بعد.</p>'}</div>${formHtml(caseId, options, editing)}`;
   }
 
-  function ensureLegacyPanels() {
+  function ensureLegacyPanels(force = false) {
     if (!progress()?.findCase || !window.PA_DEMO_DATA?.explorers) return;
     document.querySelectorAll("[data-original-progress]").forEach((panel) => {
       const caseId = panel.dataset.originalProgress;
+      if (!hasLegacySession(caseId)) return;
+      const host = panel.querySelector("[data-original-progress-plans]");
+      if (!force && host?.dataset.v231LegacyHost === "true") return;
       const form = panel.querySelector("[data-progress-plan-form]");
       const hasLegacy = form && [...form.elements.assessmentId?.options || []].some((option) => ALIASES[option.value]);
-      if (optionsFor(caseId).length && !hasLegacy) renderLegacy(caseId);
+      if (force || !hasLegacy) renderLegacy(caseId);
     });
   }
 
@@ -217,7 +221,7 @@
 
   new MutationObserver(() => { prepareProfessionalForm(); ensureLegacyPanels(); }).observe(document.documentElement, { childList: true, subtree: true });
   prepareProfessionalForm(); ensureLegacyPanels();
-  window.addEventListener("pa-original-progress-plan-saved", ensureLegacyPanels);
-  window.addEventListener("pa-original-session-context-saved", ensureLegacyPanels);
+  window.addEventListener("pa-original-progress-plan-saved", () => setTimeout(() => ensureLegacyPanels(true), 0));
+  window.addEventListener("pa-original-session-context-saved", () => setTimeout(() => ensureLegacyPanels(true), 0));
   window.PA_INSTITUTIONAL_COMPAT_V231 = { release: RELEASE, legacyToolAliases: ALIASES, auditProfessional, saveLegacyPlan, ensureLegacyPanels };
 })();
