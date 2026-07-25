@@ -87,7 +87,9 @@ class SpecialNeedsHubV235Tests(unittest.TestCase):
         self.assertEqual(report["guide_count"], 25)
         self.assertEqual(report["hub"]["pathway_count"], 8)
         self.assertEqual(report["hub"]["faq_count"], 8)
-        self.assertEqual(report["hub"]["source_count"], 7)
+        self.assertEqual(report["hub"]["source_count"], 10)
+        self.assertEqual(report["hub"]["jordan_source_count"], 3)
+        self.assertTrue(report["hub"]["asha_aac_source_updated"])
 
         self.assertEqual(len(re.findall(r"<h1\b", source)), 1)
         self.assertGreaterEqual(len(re.findall(r"<h2\b", source)), 15)
@@ -121,9 +123,16 @@ class SpecialNeedsHubV235Tests(unittest.TestCase):
             'المنهجية التحريرية وحدود الاستخدام',
             'متى تكون الأولوية للأمان؟',
             'الطوارئ المحلية',
+            'data-special-needs-jordan-sources-v241',
+            'jordan-launches-national-framework-inclusion-and-diversity-education-unesco',
+            'jordans-education-strategic-plan-2026-2030',
+            'unicef.org/jordan/education',
+            'Practice-Portal/Professional-Issues/Augmentative-and-Alternative-Communication',
         )
         missing = [marker for marker in required if marker not in source]
         self.assertFalse(missing, missing)
+        self.assertEqual(source.count('data-special-needs-jordan-sources-v241'), 3)
+        self.assertNotIn('www.asha.org/public/speech/disorders/aac/', source)
         self.assertIsNone(BANNED.search(source))
         self.assertNotIn("fetch(", source)
         self.assertNotIn("XMLHttpRequest", source)
