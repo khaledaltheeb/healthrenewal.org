@@ -35,9 +35,23 @@ jobs:
         run: |
           set -euo pipefail
           test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 5
+          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 4
+          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 9
+
+          grep -q '10.1001/jamapsychiatry.2026.0603' magazine/artemis-adolescent-mental-health-stigma-2026.html
+          grep -q '42054038' magazine/artemis-adolescent-mental-health-stigma-2026.html
+          grep -q '10.1186/s13034-026-01132-2' magazine/autism-behavioral-domains-network-meta-analysis-2026.html
+          grep -q '42469874' magazine/autism-behavioral-domains-network-meta-analysis-2026.html
+          grep -q '10.1016/j.cpr.2026.102764' magazine/autism-emotion-regulation-interventions-2026.html
+          grep -q '42224908' magazine/autism-emotion-regulation-interventions-2026.html
+          grep -q '10.1038/s44220-026-00652-2' magazine/autism-interventions-meta-analysis-2026.html
+
           grep -q '10.1038/s41562-025-02162-0' magazine/mobile-stress-interventions-2025.html
           grep -q '10.3389/fpsyt.2025.1594658' magazine/school-resilience-children-2025.html
           grep -q '39813031' magazine/youth-stigma-interventions-2025.html
           grep -q '10.1111/tmi.70000' magazine/developmental-disabilities-school-support-2025.html
           grep -q 'لم يجد التحليل التلوي آثارًا دالة' magazine/peer-led-adolescent-mental-health-2025.html
+
+          grep -q 'research_summaries_published' scripts/publish_magazine_v201.py
+          grep -q '"hasPart"' magazine/index.html
           ! grep -R -E 'علاج مضمون|يشخّص|نتائج مؤكدة للجميع' magazine
