@@ -6,7 +6,6 @@ on:
     paths:
       - "scripts/publish_provider_condition_discovery_v238.py"
       - "scripts/publish_provider_condition_discovery_v238_compat.py"
-      - "tests/test_provider_condition_discovery_v238.py"
       - "tests/test_provider_condition_discovery_v238_compat.py"
       - ".github/workflows/validate-provider-condition-discovery-v238.yml"
       - ".github/workflows/audit-production-discovery-v220.yml"
@@ -15,7 +14,6 @@ on:
     paths:
       - "scripts/publish_provider_condition_discovery_v238.py"
       - "scripts/publish_provider_condition_discovery_v238_compat.py"
-      - "tests/test_provider_condition_discovery_v238.py"
       - "tests/test_provider_condition_discovery_v238_compat.py"
       - ".github/workflows/validate-provider-condition-discovery-v238.yml"
       - ".github/workflows/audit-production-discovery-v220.yml"
