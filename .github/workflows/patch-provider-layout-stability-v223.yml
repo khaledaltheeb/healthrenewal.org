@@ -1,0 +1,45 @@
+name: Patch provider assessment layout stability v223
+
+on:
+  push:
+    branches: ["fix/final-production-ci-diagnostics-v221"]
+    paths: [".github/workflows/patch-provider-layout-stability-v223.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/final-production-ci-diagnostics-v221
+          fetch-depth: 0
+      - name: Reserve dashboard statistic height before UID hydration
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("provider-assessment-demo/enhancements.css")
+          text = path.read_text(encoding="utf-8")
+          marker = "/* provider-layout-stability-v223 */"
+          rule = (
+              "\n" + marker
+              + ".stats-grid>.stat-card{min-block-size:128px}"
+              + "#current-uid{font-size:clamp(.92rem,1.35vw,1.12rem);line-height:1.35}"
+              + "\n"
+          )
+          if marker not in text:
+              path.write_text(text.rstrip() + rule, encoding="utf-8")
+          if path.read_text(encoding="utf-8").count(marker) != 1:
+              raise SystemExit("Provider layout stability marker is missing or duplicated")
+          PY
+          git rm .github/workflows/patch-provider-layout-stability-v223.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add provider-assessment-demo/enhancements.css
+          git diff --cached --check
+          git commit -m "fix: reserve provider dashboard statistic height"
+          git push origin HEAD:fix/final-production-ci-diagnostics-v221
