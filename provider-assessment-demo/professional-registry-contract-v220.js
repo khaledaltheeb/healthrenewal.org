@@ -75,4 +75,13 @@
       requiredCompletedFields: [...tool.professionalContract.requiredCompletedFields]
     }))
   });
+
+  if (!document.querySelector('script[data-professional-planning-compat-v220]')) {
+    const compatibility = document.createElement("script");
+    compatibility.src = `professional-registry-planning-compat-v220.js?release=${encodeURIComponent(VERSION)}`;
+    compatibility.defer = true;
+    compatibility.dataset.professionalPlanningCompatV220 = VERSION;
+    compatibility.addEventListener("error", () => console.error("Failed to load professional planning compatibility v220"), { once: true });
+    document.head.appendChild(compatibility);
+  }
 })();
