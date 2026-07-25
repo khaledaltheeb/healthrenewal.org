@@ -111,23 +111,27 @@ def _source_path(args: tuple[Any, ...], kwargs: dict[str, Any]) -> Path:
 
 
 def _hub_depth_block() -> str:
-    return f'''\n<section class="home-section home-semantic-depth" {HUB_DEPTH_MARKER} aria-labelledby="home-depth-review-title">
+    return f'''
+<section class="home-section home-semantic-depth" {HUB_DEPTH_MARKER} aria-labelledby="home-depth-review-title">
   <h2 id="home-depth-review-title">مراجعة تطبيق الأدلة وقياس أثرها</h2>
   <p>قبل الانتقال بين أدلة هذا القطاع، تختار الأسرة سلوكًا يوميًا واحدًا يمكن ملاحظته، وتحدد متى يظهر ومن يتأثر به وما التغيير الواقعي المطلوب. تُسجل الملاحظات بلغة وصفية تحترم جميع أفراد الأسرة، ثم تُراجع بعد أسبوعين لمعرفة ما تحسن وما يحتاج إلى تكييف في الوقت أو البيئة أو طريقة التواصل.</p>
   <p>لا تُستخدم هذه المراجعة لإصدار حكم تشخيصي أو تحميل فرد واحد مسؤولية مناخ المنزل. عند استمرار الضيق، أو تراجع السلامة، أو تعطل النوم أو الدراسة أو العمل أو العلاقات، تنتقل الأسرة من التجربة المنزلية إلى استشارة مختص مؤهل أو خدمة طوارئ محلية بحسب مستوى الحاجة.</p>
-</section>\n'''
+</section>
+'''
 
 
 def _article_depth_block(article: dict[str, Any]) -> str:
     title = html.escape(str(article.get("title", "الدليل")))
     summary = html.escape(str(article.get("summary", "تطبيق الخطوات بصورة مناسبة للأسرة")))
     avoid = html.escape(str(article.get("avoid", "تحويل الخطة إلى ضغط إضافي")))
-    return f'''\n<aside class="home-article-followup" {ARTICLE_DEPTH_MARKER} aria-label="مراجعة تطبيق الدليل">
+    return f'''
+<aside class="home-article-followup" {ARTICLE_DEPTH_MARKER} aria-label="مراجعة تطبيق الدليل">
   <h2>مراجعة التنفيذ والمتابعة</h2>
   <p>بعد تجربة «{title}»، توثق الأسرة الموقف الذي استُخدمت فيه الخطوة، والاستجابة الملحوظة، وما احتاج إلى تكييف في الزمن أو البيئة أو طريقة الشرح. تُراجع الملاحظات مع الشخص المعني باحترام، وتُقارن خلال أسبوعين، ولا تُعامل النتيجة بوصفها تشخيصًا أو حكمًا ثابتًا على قدرات أي فرد.</p>
   <p>يرتبط القياس بهدف الدليل: {summary} ويظل حد السلامة الأساسي هو تجنب {avoid} عند استمرار الضيق أو تعطل الحياة اليومية، يكون الرجوع إلى مختص مؤهل خطوة مناسبة لاستكمال التقييم والدعم.</p>
   <p>تساعد ورقة متابعة قصيرة على تحويل الانطباع العام إلى معلومات قابلة للمراجعة. تسجل الأسرة ما حدث قبل تطبيق الخطوة، ومن شارك في اختيارها، وما الحاجة التي حاولت تلبيتها، ثم تصف التغير الذي ظهر أثناء التنفيذ وبعده من دون مبالغة أو لوم. يُسأل الشخص المعني عما كان مريحًا، وما كان مربكًا، وما التعديل الذي يفضله في المرة التالية، مع إتاحة الإجابة بالكلام أو الكتابة أو الإشارة أو وسائل التواصل المناسبة. تراجع الأسرة أيضًا أثر البيئة والضوضاء والتوقيت والتعب والجوع والانتقالات، لأن نجاح الخطة قد يعتمد على إزالة عائق بسيط أكثر من زيادة التعليمات. ويُفرّق في السجل بين الملاحظة والتفسير؛ فعبارة «غادر الغرفة بعد دقيقتين» أدق من وصف النية أو الشخصية. في نهاية الأسبوع تُختار خطوة واحدة للاستمرار، وخطوة للتبسيط، ودعم إضافي يمكن طلبه من شخص موثوق. إذا ظهر خطر على السلامة أو تصاعد شديد أو عجز مستمر عن أداء الأنشطة الأساسية، تُوقف التجربة ويُطلب دعم مهني أو عاجل بحسب الحالة المحلية.</p>
-</aside>\n'''
+</aside>
+'''
 
 
 def upgrade(*args: Any, **kwargs: Any) -> dict[str, Any]:
@@ -158,7 +162,9 @@ def upgrade(*args: Any, **kwargs: Any) -> dict[str, Any]:
     for article in articles:
         slug = str(article["slug"])
         path = article_paths[slug]
-        blocks_added += int(_normalize_article_depth_block(path, _article_depth_block(article)))
+        had_depth_before = ARTICLE_DEPTH_MARKER in (before_articles[slug] or "")
+        inserted_after_regeneration = _normalize_article_depth_block(path, _article_depth_block(article))
+        blocks_added += int(inserted_after_regeneration and not had_depth_before)
         article_words.append(semantic_visible_words(path.read_text(encoding="utf-8")))
 
     final_article_changes = sum(
