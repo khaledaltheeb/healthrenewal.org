@@ -96,7 +96,7 @@ def course_schema() -> dict[str, Any]:
 def ensure_homepage_developers_link(site: Path) -> bool:
     homepage = site / "index.html"
     if not homepage.is_file():
-        raise PublicApiError("homepage is missing; cannot expose developers gateway")
+        return False
     text = homepage.read_text(encoding="utf-8")
     if HOME_LINK_MARKER in text:
         return False
@@ -112,6 +112,11 @@ def ensure_homepage_developers_link(site: Path) -> bool:
     return True
 
 
+def homepage_developers_link_present(site: Path) -> bool:
+    homepage = site / "index.html"
+    return homepage.is_file() and HOME_LINK_MARKER in homepage.read_text(encoding="utf-8")
+
+
 _core.public_sources = public_sources
 _core.validate_courses = validate_courses
 _core.course_schema = course_schema
@@ -122,18 +127,19 @@ def publish(
     manifest_path: Path = SOURCE_MANIFEST,
     import_path: Path | None = None,
 ) -> dict[str, Any]:
+    target = Path(site).resolve()
     report = _core.publish(
-        site=site,
+        site=target,
         manifest_path=manifest_path,
         import_path=import_path,
     )
-    homepage_link_added = ensure_homepage_developers_link(Path(site).resolve())
+    homepage_link_added = ensure_homepage_developers_link(target)
     report["security_contract_version"] = SECURITY_CONTRACT_VERSION
     report["permission_expiry_revalidated"] = True
     report["course_source_windows_matched"] = True
     report["discovery_contract_version"] = DISCOVERY_CONTRACT_VERSION
     report["developers_homepage_link_added"] = homepage_link_added
-    report["developers_homepage_link_present"] = True
+    report["developers_homepage_link_present"] = homepage_developers_link_present(target)
     report_path = ROOT / ".build" / "reports" / "public-api-v215.json"
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(
