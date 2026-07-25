@@ -9,6 +9,7 @@ on:
       - "scripts/publish_practical_tips_v237.py.gz.b64"
       - "scripts/enforce_health_publication_gate_v192.py"
       - "tests/test_practical_tips_v237.py"
+      - "tests/test_practical_tips_v237_compat.py"
       - "tests/test_health_gate_header_integration_v233.py"
       - ".github/workflows/validate-practical-tips-v237.yml"
   push:
@@ -19,6 +20,7 @@ on:
       - "scripts/publish_practical_tips_v237.py.gz.b64"
       - "scripts/enforce_health_publication_gate_v192.py"
       - "tests/test_practical_tips_v237.py"
+      - "tests/test_practical_tips_v237_compat.py"
       - "tests/test_health_gate_header_integration_v233.py"
       - ".github/workflows/validate-practical-tips-v237.yml"
   workflow_dispatch:
@@ -48,6 +50,7 @@ jobs:
             scripts/publish_practical_tips_v237.py \
             scripts/enforce_health_publication_gate_v192.py \
             tests/test_practical_tips_v237.py \
+            tests/test_practical_tips_v237_compat.py \
             tests/test_health_gate_header_integration_v233.py
           python - <<'PY'
           import base64, gzip
@@ -65,6 +68,7 @@ jobs:
           set -euxo pipefail
           python -m unittest -v \
             tests.test_practical_tips_v237 \
+            tests.test_practical_tips_v237_compat \
             tests.test_health_gate_header_integration_v233
 
       - name: Publish the real one-hundred-guide registry
@@ -79,6 +83,7 @@ jobs:
           REPORT="${REPORT}" TMP_SITE="${TMP_SITE}" python - <<'PY'
           import json
           import os
+          import re
           from pathlib import Path
 
           root = Path(os.environ["TMP_SITE"])
@@ -97,13 +102,30 @@ jobs:
           assert report["duplicate_slugs"] == 0, report
           assert report["duplicate_titles"] == 0, report
           assert report["sitemap_urls"] == 111, report
-          assert len(list((root / "tips").glob("*/index.html"))) == 100
+          assert report["core_sections_compatibility"] == "passed", report
+          assert report["compatibility_pages"] == 100, report
+          assert report["unique_titles"] == 100, report
+          assert report["unique_descriptions"] == 100, report
+          pages = sorted((root / "tips").glob("*/index.html"))
+          assert len(pages) == 100
           assert len(list((root / "tips/topics").glob("*/index.html"))) == 10
+          required = (
+              "جملة جاهزة للاستخدام",
+              "كيف تعرف أن الخطة تتحسن؟",
+              "متى تحتاج إلى مساعدة؟",
+              "مصادر موثوقة للتوسع",
+          )
+          for page in pages:
+              source = page.read_text(encoding="utf-8")
+              assert source.count("practical-tips-v237-core-compat:start") == 1, page
+              assert all(marker in source for marker in required), page
+              assert len(re.findall(r"<li\b", source, flags=re.I)) >= 6, page
           print({
               "guide_count": report["guide_count"],
               "new_guides": report["new_guides"],
               "minimum_after_words": report["minimum_after_words"],
               "pillar_counts": report["pillar_counts"],
+              "core_sections_compatibility": report["core_sections_compatibility"],
               "production_hook": "health-gate-before-header-and-pwa",
           })
           PY
