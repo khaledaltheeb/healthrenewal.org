@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-"""بوابة النشر الصحي الأصلية مع إنهاء الهيدر المؤسسي v233."""
+"""بوابة النشر الصحي الأصلية مع إنهاء الهيدر المؤسسي وأبعاد الرسوم."""
 
 import json
 
 try:
     from scripts import enforce_health_publication_gate_v192_base as _base
+    from scripts.finalize_sector_image_dimensions_v236 import finalize as _finalize_image_dimensions
     from scripts.publish_institutional_header_v233 import publish as _publish_header
 except ModuleNotFoundError:
     import enforce_health_publication_gate_v192_base as _base
+    from finalize_sector_image_dimensions_v236 import finalize as _finalize_image_dimensions
     from publish_institutional_header_v233 import publish as _publish_header
 
 
@@ -52,6 +54,10 @@ def enforce() -> dict:
         raise SystemExit(f"Institutional header v233 failed after health gate: {header_report}")
     care_guide_link_normalized = ensure_care_guide_link_compatibility(homepage)
 
+    image_report = _finalize_image_dimensions(SITE)
+    if image_report.get("status") != "passed":
+        raise SystemExit(f"Sector image dimensions v236 failed after health gate: {image_report}")
+
     report = dict(report)
     report["institutional_header_version"] = 233
     report["institutional_header_status"] = "passed"
@@ -60,6 +66,11 @@ def enforce() -> dict:
     report["institutional_header_care_guide_link"] = "care-guides/"
     report["institutional_header_care_guide_link_compatible"] = True
     report["institutional_header_care_guide_link_normalized"] = care_guide_link_normalized
+    report["sector_image_dimensions_version"] = 236
+    report["sector_image_dimensions_status"] = "passed"
+    report["sector_image_dimensions_target_images"] = image_report["target_images"]
+    report["sector_image_dimensions_images_updated"] = image_report["images_updated"]
+    report["sector_image_dimensions_remaining"] = image_report["remaining_missing_dimensions"]
     report_path = SITE / "api" / "health-publication-gate-v192.json"
     report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
