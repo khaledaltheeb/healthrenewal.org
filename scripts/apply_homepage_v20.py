@@ -298,6 +298,7 @@ def main() -> None:
         "internal_base_path_normalizer": 198,
         "cognitive_lab_inventory_publisher": 210,
         "sitewide_seo_publisher": 216,
+        "daily_tools_publisher": 219,
     }
     if report["target_sha256"] != expected_target_sha:
         raise SystemExit("Homepage transformed output hash mismatch")
@@ -335,6 +336,7 @@ def main() -> None:
     register_sitemap("sitemap-caregiver-wellbeing.xml")
     run_publisher("publish_accessible_arabic_content_v190.py")
     register_sitemap("sitemap-accessible-arabic-content.xml")
+    run_publisher("publish_daily_tools_v24.py")
     publish_api_sitemap()
     run_publisher("enhance_sitewide_seo_v216.py")
     run_publisher("publish_content_catalog_v219.py")
