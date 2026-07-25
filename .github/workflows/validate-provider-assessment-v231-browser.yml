@@ -43,7 +43,9 @@ jobs:
           cat /tmp/provider-assessment-v231-http.log
           exit 1
       - name: Run v231 compatibility flows in Chromium
-        run: npx playwright test tests/provider-assessment-v231-browser.spec.cjs --browser=chromium --reporter=line
+        run: |
+          set -o pipefail
+          npx playwright test tests/provider-assessment-v231-browser.spec.cjs --browser=chromium --reporter=line 2>&1 | tee /tmp/provider-assessment-v231-playwright.log
       - name: Upload diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -53,5 +55,6 @@ jobs:
             playwright-report
             test-results
             /tmp/provider-assessment-v231-http.log
+            /tmp/provider-assessment-v231-playwright.log
           if-no-files-found: ignore
           retention-days: 7
