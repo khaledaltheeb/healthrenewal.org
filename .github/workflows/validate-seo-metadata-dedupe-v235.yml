@@ -1,0 +1,66 @@
+name: Validate SEO metadata dedupe v235
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/enhance_sitewide_seo_v216.py'
+      - 'scripts/enhance_sitewide_seo_v216_core_v235.py'
+      - 'scripts/verify_sitewide_seo_v216.py'
+      - 'scripts/expand_v12_direct.py'
+      - 'scripts/lab_source_content_v235.py'
+      - 'tests/test_seo_metadata_dedupe_v235.py'
+      - '.github/workflows/validate-seo-metadata-dedupe-v235.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/enhance_sitewide_seo_v216.py'
+      - 'scripts/enhance_sitewide_seo_v216_core_v235.py'
+      - 'scripts/verify_sitewide_seo_v216.py'
+      - 'scripts/expand_v12_direct.py'
+      - 'scripts/lab_source_content_v235.py'
+      - 'tests/test_seo_metadata_dedupe_v235.py'
+      - '.github/workflows/validate-seo-metadata-dedupe-v235.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seo-metadata-dedupe-v235-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile dedupe wrapper core verifier and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/enhance_sitewide_seo_v216.py \
+            scripts/enhance_sitewide_seo_v216_core_v235.py \
+            scripts/verify_sitewide_seo_v216.py \
+            tests/test_seo_metadata_dedupe_v235.py
+      - name: Run deterministic metadata dedupe contracts
+        run: python -m unittest -v tests.test_seo_metadata_dedupe_v235
+      - name: Enforce managed scope and safety
+        run: |
+          set -euxo pipefail
+          grep -q 'DEDUPE_VERSION = 235' scripts/enhance_sitewide_seo_v216.py
+          grep -q 'metadata_duplicates_removed' scripts/enhance_sitewide_seo_v216.py
+          grep -q 'article:tag' scripts/enhance_sitewide_seo_v216_core_v235.py
+          ! grep -q 'article:tag' <(python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+          path=Path('scripts/enhance_sitewide_seo_v216.py')
+          spec=importlib.util.spec_from_file_location('seo',path)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          print('\n'.join(sorted(module.MANAGED_META_PROPERTIES)))
+          PY
+          )
