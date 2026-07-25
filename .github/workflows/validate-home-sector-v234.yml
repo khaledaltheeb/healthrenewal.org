@@ -117,12 +117,12 @@ jobs:
             python expand_site_v9.py
             python scripts/design_content_v10.py
             PYTHONPATH=scripts python - <<'PY'
-            from pathlib import Path
-            from upgrade_home_sector_v234 import upgrade
+          from pathlib import Path
+          from upgrade_home_sector_v234 import upgrade
 
-            result = upgrade(Path('_site'))
-            print(result)
-            PY
+          result = upgrade(Path('_site'))
+          print(result)
+          PY
           } 2>&1 | tee /tmp/home-v234-production-build.log
           code=${PIPESTATUS[0]}
           printf 'exit_code=%s\n' "$code" >> "$GITHUB_OUTPUT"
