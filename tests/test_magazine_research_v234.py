@@ -30,14 +30,14 @@ class MagazineResearchV234Tests(unittest.TestCase):
 
     def test_publishes_every_discovered_article_and_sitemap(self) -> None:
         pages = MODULE.article_files()
-        self.assertEqual(len(pages), 40)
+        self.assertEqual(len(pages), 50)
         with tempfile.TemporaryDirectory() as directory:
             site = self.make_site(Path(directory))
             report = MODULE.publish(site)
             self.assertEqual(report["version"], 234)
-            self.assertEqual(report["research_summaries_published"], 40)
-            self.assertEqual(len(report["articles"]), 40)
-            self.assertEqual(report["sitemap"]["child_urls"], 41)
+            self.assertEqual(report["research_summaries_published"], 50)
+            self.assertEqual(len(report["articles"]), 50)
+            self.assertEqual(report["sitemap"]["child_urls"], 51)
             self.assertEqual(report["unwired_research_pages"], 0)
             magazine = site / "magazine"
             source_headings = ("المصدر الأصلي", "السجل الأصلي", "السجل الجامعي", "السجل الجامعي الأصلي")
@@ -49,12 +49,12 @@ class MagazineResearchV234Tests(unittest.TestCase):
                 self.assertTrue(any(term in text for term in limitation_terms), path.name)
             sitemap = ET.parse(site / "sitemap-magazine.xml").getroot()
             urls = [node.text for node in sitemap.findall("{*}url/{*}loc")]
-            self.assertEqual(len(urls), 41)
+            self.assertEqual(len(urls), 51)
             self.assertEqual(len(urls), len(set(urls)))
             for path in pages:
                 self.assertIn(MODULE.URL + path.name, urls)
             saved = json.loads((site / "api" / "magazine-v201.json").read_text(encoding="utf-8"))
-            self.assertEqual(saved["research_summaries_published"], 40)
+            self.assertEqual(saved["research_summaries_published"], 50)
             self.assertEqual(set(saved["articles"]), {path.name for path in pages})
 
     def test_publish_is_idempotent(self) -> None:
@@ -70,8 +70,8 @@ class MagazineResearchV234Tests(unittest.TestCase):
 
     def test_index_exposes_every_discovered_article(self) -> None:
         index = (ROOT / "magazine" / "index.html").read_text(encoding="utf-8")
-        self.assertIn('"numberOfItems":40', index)
-        self.assertEqual(index.count('class="card"'), 40)
+        self.assertIn('"numberOfItems":50', index)
+        self.assertEqual(index.count('class="card"'), 50)
         for path in MODULE.article_files():
             self.assertGreaterEqual(index.count(f'href="{path.name}"'), 2)
             self.assertIn(MODULE.URL + path.name, index)
@@ -86,6 +86,16 @@ class MagazineResearchV234Tests(unittest.TestCase):
             "youth-transdiagnostic-internet-rct-2026.html": ("53%", "لا يثبت مساواة البرنامج بالعلاج الحضوري"),
             "down-syndrome-telehealth-systematic-review-2026.html": ("39 دراسة", "بديلًا كاملًا للرعاية الحضورية"),
             "homeless-youth-mental-disorders-meta-analysis-2026.html": ("25,320", "لا تسمح بتحديد اتجاه السببية"),
+            "autism-parent-act-meta-analysis-2026.html": ("698 مشاركًا", "عدد التجارب سبع فقط"),
+            "autism-caregiver-adjustment-review-2026.html": ("8 مقالات تدخلية", "تعريف موحد"),
+            "family-carer-coping-mental-health-meta-analysis-2026.html": ("38 دراسة", "لا تثبت اتجاه السببية"),
+            "autism-parent-resilience-factors-review-2026.html": ("13 دراسة", "معظم الدراسات مقطعية"),
+            "autism-family-food-insecurity-meta-analysis-2026.html": ("انتشار مجمع 29%", "11 دراسة فقط"),
+            "intellectual-disability-youth-healthcare-access-review-2026.html": ("33 دراسة", "تواصل غير واضح"),
+            "neurodevelopmental-video-game-interventions-meta-analysis-2026.html": ("20 تجربة عشوائية", "لا يضمن انتقال الأثر"),
+            "neurodevelopmental-exercise-executive-function-meta-analysis-2026.html": ("527 طفلًا", "I² = 81%"),
+            "neurodevelopmental-sleep-family-wellbeing-review-2026.html": ("العلاقة قد تكون دائرية", "كثرة الدراسات المقطعية"),
+            "down-syndrome-adult-medical-care-systematic-review-2026.html": ("8680 مرجعًا", "لم تُحدد دراسات مؤهلة"),
         }
         for filename, markers in checks.items():
             text = (ROOT / "magazine" / filename).read_text(encoding="utf-8")

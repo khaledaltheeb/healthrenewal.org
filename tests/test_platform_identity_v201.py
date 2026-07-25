@@ -52,25 +52,29 @@ class PlatformIdentityV201Tests(unittest.TestCase):
             "guides/source-citation-and-update-transparency/index.html",
             "magazine/index.html",
             "magazine/aya-cancer-digital-mental-health-meta-analysis-2026.html",
+            "magazine/down-syndrome-adult-medical-care-systematic-review-2026.html",
         ):
             self.assertTrue((site / relative).is_file(), relative)
+        index = (site / "magazine/index.html").read_text(encoding="utf-8")
+        self.assertIn('"numberOfItems":50', index)
+        self.assertEqual(index.count('class="card"'), 50)
         report = json.loads((site / "api/platform-identity-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(report["pages"], 46)
+        self.assertEqual(report["pages"], 56)
         self.assertEqual(report["headers_added"], 1)
         self.assertEqual(report["footers_added"], 1)
         self.assertGreaterEqual(report["language_replacements"], 4)
         self.assertTrue(report["trust_guides_published"])
         self.assertTrue(report["magazine_published"])
-        self.assertEqual(report["magazine_pages"], 40)
+        self.assertEqual(report["magazine_pages"], 50)
         self.assertEqual(report["magazine_unwired_pages"], 0)
         self.assertEqual(report["magazine_report"], "api/magazine-v201.json")
         self.assertEqual(report["remaining_banned_pages"], [])
         self.assertEqual(report["missing_header_pages"], [])
         self.assertEqual(report["missing_footer_pages"], [])
         magazine = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(magazine["research_summaries_published"], 40)
+        self.assertEqual(magazine["research_summaries_published"], 50)
         self.assertEqual(magazine["unwired_research_pages"], 0)
-        self.assertEqual(magazine["sitemap"]["child_urls"], 41)
+        self.assertEqual(magazine["sitemap"]["child_urls"], 51)
 
     def test_is_idempotent(self) -> None:
         site = self.make_site()
@@ -88,7 +92,8 @@ class PlatformIdentityV201Tests(unittest.TestCase):
         trust_report = json.loads((site / "api/trust-guides-v201.json").read_text(encoding="utf-8"))
         self.assertEqual(trust_report["page_count"], 3)
         magazine_report = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(magazine_report["research_summaries_published"], 40)
+        self.assertEqual(magazine_report["research_summaries_published"], 50)
+        self.assertEqual(magazine_report["sitemap"]["child_urls"], 51)
 
 
 if __name__ == "__main__":
