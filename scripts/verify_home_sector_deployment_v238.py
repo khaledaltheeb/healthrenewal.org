@@ -8,9 +8,12 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
-VERSION = 238
+VERSION = 244
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 BASE_PATH = "/pterminology-site/"
+HUB_MINIMUM_WORDS = 2919
+ARTICLE_MINIMUM_WORDS = 819
+BANNED_TERM = "معاقين"
 
 
 class TextParser(HTMLParser):
@@ -86,16 +89,33 @@ def validate_indexable_page(path: Path, canonical: str, *, article: bool, minimu
     lower = source.lower()
     if len(re.findall(r"<h1\b", source, flags=re.I)) != 1:
         fail("Page must contain exactly one H1", path.as_posix())
-    if canonical not in source:
-        fail("Canonical URL is missing", canonical)
+    canonical_tags = re.findall(r'<link\b[^>]*rel=["\']canonical["\'][^>]*>', source, flags=re.I | re.S)
+    if len(canonical_tags) != 1 or canonical not in canonical_tags[0]:
+        fail("Page must contain exactly one matching canonical URL", {"path": path.as_posix(), "canonical": canonical})
     if re.search(r'<meta\b[^>]*name=["\']robots["\'][^>]*content=["\'][^"\']*noindex', source, flags=re.I | re.S):
         fail("Published page must not be noindex", path.as_posix())
     if article and not re.search(r'"@type"\s*:\s*"Article"', source):
         fail("Article JSON-LD is missing", path.as_posix())
+    if 'id="global-header"' not in source or 'id="global-footer"' not in source:
+        fail("Global header or footer is missing", path.as_posix())
+    if "serviceWorker.register" not in source:
+        fail("PWA registration is missing", path.as_posix())
+    if BANNED_TERM in source:
+        fail("Banned terminology is present in a published page", path.as_posix())
     words = visible_words(source)
     if words < minimum_words:
         fail("Deployed page is below its minimum depth", {"path": path.as_posix(), "words": words, "minimum": minimum_words})
     return {"path": path.as_posix(), "words": words, "indexable": "noindex" not in lower}
+
+
+def _verify_optional_sitemap_registration(site: Path, robots: str, filename: str) -> None:
+    declaration = f"Sitemap: {BASE}/{filename}"
+    count = robots.count(declaration)
+    exists = (site / filename).is_file()
+    if exists and count != 1:
+        fail("Existing sitemap must be registered exactly once", {"sitemap": filename, "count": count})
+    if not exists and count != 0:
+        fail("Missing sitemap must not be registered", {"sitemap": filename, "count": count})
 
 
 def verify(site: Path, source_file: Path, expected_sha: str | None = None, mode: str = "live") -> dict[str, Any]:
@@ -127,16 +147,16 @@ def verify(site: Path, source_file: Path, expected_sha: str | None = None, mode:
     for key, expected in required.items():
         if report.get(key) != expected:
             fail("Home-sector report contract mismatch", {"key": key, "found": report.get(key), "expected": expected})
-    if int(report.get("hub_words", 0)) < 1800:
+    if int(report.get("hub_words", 0)) < HUB_MINIMUM_WORDS:
         fail("Home-sector hub report depth is too low", report.get("hub_words"))
-    if int(report.get("minimum_article_words", 0)) < 450:
+    if int(report.get("minimum_article_words", 0)) < ARTICLE_MINIMUM_WORDS:
         fail("Home-sector article report depth is too low", report.get("minimum_article_words"))
 
     hub = validate_indexable_page(
         site / "sectors" / "home" / "index.html",
         f"{BASE}/sectors/home/",
         article=False,
-        minimum_words=1800,
+        minimum_words=HUB_MINIMUM_WORDS,
     )
     hub_source = (site / "sectors" / "home" / "index.html").read_text(encoding="utf-8")
     for schema in ("CollectionPage", "BreadcrumbList", "ItemList", "FAQPage"):
@@ -153,7 +173,7 @@ def verify(site: Path, source_file: Path, expected_sha: str | None = None, mode:
                 site / "sectors" / "home" / slug / "index.html",
                 f"{BASE}/sectors/home/{slug}/",
                 article=True,
-                minimum_words=450,
+                minimum_words=ARTICLE_MINIMUM_WORDS,
             )
         )
 
@@ -163,8 +183,10 @@ def verify(site: Path, source_file: Path, expected_sha: str | None = None, mode:
     robots = robots_path.read_text(encoding="utf-8")
     if "Allow: /pterminology-site/sectors/home/" not in robots:
         fail("Home-sector Allow rule is missing from robots.txt")
-    if "Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml" not in robots:
-        fail("Main sitemap declaration is missing from robots.txt")
+    if robots.count(f"Sitemap: {BASE}/sitemap.xml") != 1:
+        fail("Main sitemap must be declared exactly once in robots.txt")
+    for filename in ("sitemap-provider-assessment.xml", "sitemap-special-needs.xml"):
+        _verify_optional_sitemap_registration(site, robots, filename)
 
     result = {
         "version": VERSION,
@@ -176,7 +198,9 @@ def verify(site: Path, source_file: Path, expected_sha: str | None = None, mode:
         "article_pages_verified": len(pages),
         "minimum_live_article_words": min(item["words"] for item in pages),
         "all_indexable": all(item["indexable"] for item in [hub, *pages]),
+        "header_footer_pwa_verified": True,
         "robots_allow": True,
+        "optional_sitemaps_verified": True,
         "report_version": report["version"],
     }
     api = site / "api"
