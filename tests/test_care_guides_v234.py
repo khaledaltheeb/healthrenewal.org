@@ -7,12 +7,40 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+DATA = ROOT / "content/v18/care-guides-ar.json"
+TRUSTED_HOSTS = {"www.who.int", "www.unicef.org", "www.nice.org.uk", "www.cuh.nhs.uk"}
 
 
 class CareGuidesV234Tests(unittest.TestCase):
+    def test_core_content_depth_v235(self) -> None:
+        payload = json.loads(DATA.read_text(encoding="utf-8"))
+        self.assertGreaterEqual(payload.get("version", 0), 235)
+        self.assertEqual(len(payload.get("guides", [])), 6)
+        for guide in payload["guides"]:
+            joined = json.dumps(guide, ensure_ascii=False)
+            word_count = len(re.findall(r"[\w\u0600-\u06ff]+", joined, flags=re.UNICODE))
+            actionable_items = sum(
+                len(value)
+                for key, value in guide.items()
+                if isinstance(value, list) and key not in {"audience", "search_intent", "sources"}
+            )
+            self.assertGreaterEqual(word_count, 700, guide["slug"])
+            self.assertGreaterEqual(actionable_items, 50, guide["slug"])
+            self.assertGreaterEqual(len(guide["summary"]), 150, guide["slug"])
+            self.assertEqual(guide.get("review_status"), "internally-reviewed", guide["slug"])
+            self.assertRegex(guide.get("reviewed_at", ""), r"^20\d{2}-\d{2}-\d{2}$")
+            self.assertGreaterEqual(len(guide.get("sources", [])), 3, guide["slug"])
+            for source in guide["sources"]:
+                parsed = urlparse(source["url"])
+                self.assertEqual(parsed.scheme, "https", source)
+                self.assertIn(parsed.netloc, TRUSTED_HOSTS, source)
+            for prohibited in ("تشخيص مؤكد", "يغني عن الطبيب", "بديل عن العلاج", "نتيجة نهائية", "معاقين"):
+                self.assertNotIn(prohibited, joined, guide["slug"])
+
     def test_institutional_publication_contract(self) -> None:
         with tempfile.TemporaryDirectory(prefix="care-v234-") as temp:
             site = Path(temp)

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
@@ -10,6 +11,18 @@ SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
 
 def read_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def sitemap_urls(path: Path) -> list[str]:
+    root = ET.parse(path).getroot()
+    urls = [
+        (node.text or "").strip()
+        for node in root.findall("{*}url/{*}loc")
+        if (node.text or "").strip()
+    ]
+    if len(urls) != len(set(urls)):
+        raise AssertionError(f"Duplicate care-guide sitemap URLs: {path}")
+    return urls
 
 
 def main() -> None:
@@ -23,13 +36,15 @@ def main() -> None:
     expected_pages = report["pages"]
     expected_urls = report["sitemap_urls"]
     actual_pages = sum(1 for _ in (SITE / "care-guides").rglob("index.html"))
-    actual_urls = (SITE / "sitemap-care-guides.xml").read_text(encoding="utf-8").count("<url>")
+    parsed_urls = sitemap_urls(SITE / "sitemap-care-guides.xml")
+    actual_urls = len(parsed_urls)
 
     assert expected_guides >= 1, report
     assert expected_pages == expected_guides + 1, report
     assert expected_urls == expected_pages, report
     assert actual_pages == expected_pages, (actual_pages, report)
-    assert actual_urls == expected_urls, (actual_urls, report)
+    assert actual_urls == expected_urls, (actual_urls, report, parsed_urls)
+    assert all(url.startswith("https://khaledaltheeb.github.io/pterminology-site/care-guides/") for url in parsed_urls), parsed_urls
     assert report["all_have_sources"] and report["all_have_unique_titles"]
     assert enhanced["status"] == "passed" and enhanced["published_pages"] == expected_pages, enhanced
     assert enhanced["sitemap_urls"] == expected_urls and enhanced["pages_with_keywords"] == expected_pages, enhanced
@@ -64,11 +79,12 @@ def main() -> None:
         descriptions.add(description)
 
     result = {
-        "version": 234,
+        "version": 235,
         "status": "passed",
         "guides": len(pages),
         "pages": actual_pages,
         "sitemap_urls": actual_urls,
+        "sitemap_parser": "xml-namespace-aware",
         "unique_titles": len(titles),
         "unique_descriptions": len(descriptions),
         "identity_pages": identity["pages"],
