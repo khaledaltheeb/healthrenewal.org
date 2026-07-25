@@ -2,7 +2,7 @@ name: Deploy validated main to GitHub Pages
 
 on:
   workflow_run:
-    workflows: ["Validate every assessment and cognitive tool v31"]
+    workflows: ["Audit production discovery contract v220"]
     types: [completed]
 
 permissions:
@@ -12,14 +12,13 @@ permissions:
   id-token: write
 
 concurrency:
-  group: validated-github-pages-v214
+  group: validated-github-pages-v220
   cancel-in-progress: false
 
 jobs:
   deploy:
     if: >-
       github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -27,7 +26,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Download validated production artifact
+      - name: Download discovery-audited production artifact
         uses: actions/download-artifact@v4
         with:
           name: validated-production-site
@@ -69,6 +68,12 @@ jobs:
           assert 'pterminology-v23-resilient-core' in sw
           assert 'Promise.allSettled' in sw and 'cached===0' in sw and 'cache.addAll' not in sw
 
+          discovery = json.loads((root / 'api/orphan-page-audit-v197.json').read_text(encoding='utf-8'))
+          assert discovery.get('version') == 220, discovery
+          assert discovery.get('status') == 'passed', discovery
+          for key in ('critical_orphans', 'critical_unmapped', 'missing_gateways', 'gateway_orphans', 'gateway_unmapped'):
+              assert discovery.get(key) == [], (key, discovery.get(key))
+
           stroop = (root / 'cognitive-lab/stroop-basic/index.html').read_text(encoding='utf-8')
           runtime = (root / 'assets/js/lab-v12.js').read_text(encoding='utf-8')
           assert stroop.count('assets/js/lab-v12.js?v=213') == 1
@@ -78,7 +83,7 @@ jobs:
           assert 'stimulusInk' in runtime and 'stimulusWord' in runtime
           palette = ('#b42318', '#175cd3', '#067647', '#b54708', '#6941c6', '#087e8b')
           assert all(color in runtime for color in palette)
-          print({'artifact_commit': data['commit'], 'digests': len(required), 'stroop_runtime': 'v213', 'stroop_palette': len(palette), 'status': 'matched'})
+          print({'artifact_commit': data['commit'], 'digests': len(required), 'discovery': discovery['status'], 'stroop_runtime': 'v213', 'stroop_palette': len(palette), 'status': 'matched'})
           PY
 
       - name: Accept a validated main ancestor and prevent rollback
@@ -101,7 +106,7 @@ jobs:
               'Authorization': f'Bearer {token}',
               'Accept': 'application/vnd.github+json',
               'X-GitHub-Api-Version': '2022-11-28',
-              'User-Agent': 'validated-pages-v214',
+              'User-Agent': 'validated-pages-v220',
           }
 
           def api(path):
@@ -160,7 +165,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify live SHA exact digests and Stroop v213
+      - name: Verify live SHA exact digests discovery and Stroop v213
         env:
           EXPECTED_SHA: ${{ github.event.workflow_run.head_sha }}
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
@@ -184,6 +189,9 @@ jobs:
           curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}sitemap.xml?v=${TOKEN}" -o /tmp/live-sitemap.xml
           curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}manifest.webmanifest?v=${TOKEN}" -o /tmp/live-manifest.json
           curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}sw.js?v=${TOKEN}" -o /tmp/live-sw.js
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}api/orphan-page-audit-v197.json?v=${TOKEN}" -o /tmp/live-discovery.json
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}comparisons/?v=${TOKEN}" -o /tmp/live-comparisons.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}library/?v=${TOKEN}" -o /tmp/live-library.html
           curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}cognitive-lab/stroop-basic/?v=${TOKEN}" -o /tmp/live-stroop.html
           curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}assets/js/lab-v12.js?v=213&probe=${TOKEN}" -o /tmp/live-lab-v12.js
 
@@ -215,8 +223,16 @@ jobs:
           index = files['index.html'].read_text(encoding='utf-8')
           sw = files['sw.js'].read_text(encoding='utf-8')
           assert 'navigator.serviceWorker.register' in index and 'sw.js' in index
+          assert 'href="comparisons/"' in index and 'href="library/"' in index
           assert 'pterminology-v23-resilient-core' in sw
           assert 'Promise.allSettled' in sw and 'cached===0' in sw and 'cache.addAll' not in sw
+
+          discovery = json.loads(Path('/tmp/live-discovery.json').read_text(encoding='utf-8'))
+          assert discovery.get('version') == 220 and discovery.get('status') == 'passed', discovery
+          comparisons = Path('/tmp/live-comparisons.html').read_text(encoding='utf-8')
+          library = Path('/tmp/live-library.html').read_text(encoding='utf-8')
+          assert '<h1' in comparisons and '<h1' in library
+          assert 'noindex' not in comparisons.lower() and 'noindex' not in library.lower()
 
           stroop = Path('/tmp/live-stroop.html').read_text(encoding='utf-8')
           runtime = Path('/tmp/live-lab-v12.js').read_text(encoding='utf-8')
@@ -226,5 +242,5 @@ jobs:
           palette = ('#b42318', '#175cd3', '#067647', '#b54708', '#6941c6', '#087e8b')
           assert all(color in runtime for color in palette)
           assert 'stimulusInk' in runtime and 'stimulusWord' in runtime
-          print({'live_commit': data['commit'], 'live_digests_verified': len(files), 'stroop_runtime': 'v213', 'stroop_palette': len(palette), 'status': 'byte-exact-and-current'})
+          print({'live_commit': data['commit'], 'live_digests_verified': len(files), 'discovery': discovery['status'], 'comparisons': 'live', 'library': 'live', 'stroop_runtime': 'v213', 'stroop_palette': len(palette), 'status': 'byte-exact-current-and-discoverable'})
           PY

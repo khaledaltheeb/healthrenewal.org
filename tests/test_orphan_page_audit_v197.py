@@ -40,6 +40,27 @@ class OrphanAuditTests(unittest.TestCase):
             report = module.audit(site)
             self.assertIn("special-needs/", report["critical_unmapped"])
 
+    def test_treats_comparisons_as_critical_collection(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = Path(tmp)
+            (site / "index.html").write_text(PAGE.format(''), encoding="utf-8")
+            target = site / "comparisons" / "index.html"
+            target.parent.mkdir()
+            target.write_text(PAGE.format(''), encoding="utf-8")
+            report = module.audit(site)
+            self.assertEqual(report["critical_orphans"], ["comparisons/"])
+            self.assertEqual(report["critical_unmapped"], ["comparisons/"])
+            self.assertEqual(report["status"], "failed")
+
+    def test_requires_all_institutional_gateways_when_enabled(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = Path(tmp)
+            (site / "index.html").write_text(PAGE.format(''), encoding="utf-8")
+            report = module.audit(site, require_gateways=True)
+            self.assertIn("comparisons/", report["missing_gateways"])
+            self.assertIn("library/", report["missing_gateways"])
+            self.assertEqual(report["status"], "failed")
+
 
 if __name__ == "__main__":
     unittest.main()

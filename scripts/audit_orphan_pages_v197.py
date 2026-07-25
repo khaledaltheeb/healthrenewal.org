@@ -9,7 +9,50 @@ from pathlib import Path
 from urllib.parse import unquote, urlparse
 
 BASE_PATH = "/pterminology-site/"
-CRITICAL_PREFIXES = ("encyclopedia/", "care-guides/", "special-needs/", "guides/", "blog/")
+CRITICAL_PREFIXES = (
+    "encyclopedia/",
+    "hubs/",
+    "assessments/",
+    "cognitive-tests/",
+    "comparisons/",
+    "guided-assessment/",
+    "library/",
+    "tips/",
+    "care-guides/",
+    "special-needs/",
+    "sectors/",
+    "assessment-lab/",
+    "cognitive-lab/",
+    "daily-tools/",
+    "learning-paths/",
+    "magazine/",
+    "trust/",
+    "start-here/",
+    "provider-assessment-demo/",
+    "api/",
+    "en/",
+    "es/",
+    "guides/",
+    "blog/",
+)
+REQUIRED_GATEWAYS = (
+    "encyclopedia/",
+    "comparisons/",
+    "library/",
+    "guided-assessment/",
+    "hubs/",
+    "assessments/",
+    "cognitive-tests/",
+    "care-guides/",
+    "special-needs/",
+    "assessment-lab/",
+    "cognitive-lab/",
+    "daily-tools/",
+    "learning-paths/",
+    "start-here/",
+    "provider-assessment-demo/",
+    "api/",
+)
 
 
 class LinkParser(HTMLParser):
@@ -73,7 +116,7 @@ def sitemap_routes(site: Path) -> set[str]:
     return routes
 
 
-def audit(site: Path) -> dict[str, object]:
+def audit(site: Path, require_gateways: bool = False) -> dict[str, object]:
     pages = sorted(site.rglob("index.html"))
     routes = {route_for(page, site): page for page in pages}
     inbound: Counter[str] = Counter()
@@ -89,15 +132,25 @@ def audit(site: Path) -> dict[str, object]:
     missing_sitemap = sorted(route for route in routes if route not in mapped)
     critical = sorted(route for route in orphan if route.startswith(CRITICAL_PREFIXES))
     critical_unmapped = sorted(route for route in missing_sitemap if route.startswith(CRITICAL_PREFIXES))
+    required_gateways = list(REQUIRED_GATEWAYS) if require_gateways else []
+    missing_gateways = sorted(route for route in required_gateways if route not in routes)
+    gateway_orphans = sorted(route for route in required_gateways if route in routes and inbound[route] == 0)
+    gateway_unmapped = sorted(route for route in required_gateways if route in routes and route not in mapped)
+    failed = bool(critical or critical_unmapped or missing_gateways or gateway_orphans or gateway_unmapped)
     return {
-        "version": 197,
-        "status": "passed" if not critical and not critical_unmapped else "failed",
+        "version": 220,
+        "status": "failed" if failed else "passed",
         "pages": len(pages),
         "sitemap_routes": len(mapped),
         "orphan_pages": orphan,
         "missing_from_sitemaps": missing_sitemap,
+        "critical_prefixes": list(CRITICAL_PREFIXES),
         "critical_orphans": critical,
         "critical_unmapped": critical_unmapped,
+        "required_gateways": required_gateways,
+        "missing_gateways": missing_gateways,
+        "gateway_orphans": gateway_orphans,
+        "gateway_unmapped": gateway_unmapped,
         "inbound_distribution": dict(sorted(Counter(inbound.values()).items())),
     }
 
@@ -106,17 +159,18 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("site", nargs="?", default="_site")
     parser.add_argument("--fail-on-critical", action="store_true")
+    parser.add_argument("--require-gateways", action="store_true")
     args = parser.parse_args()
     site = Path(args.site).resolve()
     if not site.is_dir():
         raise SystemExit(f"Missing site directory: {site}")
-    report = audit(site)
+    report = audit(site, require_gateways=args.require_gateways)
     output = site / "api" / "orphan-page-audit-v197.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
     if args.fail_on_critical and report["status"] != "passed":
-        raise SystemExit("Critical orphan or sitemap coverage defects detected")
+        raise SystemExit("Critical orphan, sitemap, or gateway discovery defects detected")
 
 
 if __name__ == "__main__":
