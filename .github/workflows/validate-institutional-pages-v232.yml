@@ -76,13 +76,17 @@ jobs:
               )
           PY
           python scripts/publish_institutional_pages_v232.py /tmp/institutional-v232/site
+          cp /tmp/institutional-v232/site/api/institutional-pages-v232.json /tmp/institutional-v232/first-report.json
+          find /tmp/institutional-v232/site -path '*/index.html' -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/institutional-v232/first-sha256.txt
           python scripts/publish_institutional_pages_v232.py /tmp/institutional-v232/site
+          find /tmp/institutional-v232/site -path '*/index.html' -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/institutional-v232/second-sha256.txt
+          diff -u /tmp/institutional-v232/first-sha256.txt /tmp/institutional-v232/second-sha256.txt
           python scripts/audit_source_depth_gap_v231.py /tmp/institutional-v232/site --repository .
           python - <<'PY'
           import json
           from pathlib import Path
           root=Path('/tmp/institutional-v232/site/api')
-          published=json.loads((root/'institutional-pages-v232.json').read_text(encoding='utf-8'))
+          published=json.loads(Path('/tmp/institutional-v232/first-report.json').read_text(encoding='utf-8'))
           depth=json.loads((root/'source-depth-gap-v231.json').read_text(encoding='utf-8'))
           assert published['status']=='passed',published
           assert published['page_count']==8,published
@@ -97,6 +101,7 @@ jobs:
               'published_pages': published['page_count'],
               'minimum_words': published['minimum_after_words'],
               'unhandled_thin_pages': depth['unhandled_thin_count'],
+              'idempotence': 'passed',
           })
           PY
       - name: Enforce production integration and public-copy safety
