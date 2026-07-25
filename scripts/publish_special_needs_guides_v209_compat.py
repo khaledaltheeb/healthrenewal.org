@@ -17,11 +17,12 @@ HUB_CONTRACT = 221
 LIBRARY_START = "<!-- special-needs-guide-library-v221:start -->"
 LIBRARY_END = "<!-- special-needs-guide-library-v221:end -->"
 INSERT_MARKER = "<!-- special-needs-guide-library-v221:insert -->"
-RESOURCE_MARKER = '<div class="resources">'
+RESOURCE_MARKER = '<div class="resources" data-special-needs-guide-resources-v221>'
+LEGACY_RESOURCE_MARKER = '<div class="resources">'
 STYLE_MARKER = 'id="special-needs-guide-library-style-v221"'
 LIBRARY_STYLE = """
 <style id="special-needs-guide-library-style-v221">
-#special-needs-guide-library-v221 .resources{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#special-needs-guide-library-v221 [data-special-needs-guide-resources-v221]{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 #special-needs-guide-library-v221 .resource{display:flex;flex-direction:column;background:linear-gradient(145deg,#fff,#f4fffc);border:1px solid #c7e8e3;border-radius:18px;padding:18px;box-shadow:0 12px 30px rgba(42,119,118,.08)}
 #special-needs-guide-library-v221 .resource:nth-child(4n+1){background:linear-gradient(145deg,#fff,#fff0f6)}
 #special-needs-guide-library-v221 .resource:nth-child(4n+2){background:linear-gradient(145deg,#fff,#eafff5)}
@@ -29,7 +30,7 @@ LIBRARY_STYLE = """
 #special-needs-guide-library-v221 .resource:nth-child(4n){background:linear-gradient(145deg,#fff,#fff6e8)}
 #special-needs-guide-library-v221 .resource p{flex:1;color:#4b6e71}
 #special-needs-guide-library-v221 .resource .button{align-self:flex-start}
-@media(max-width:760px){#special-needs-guide-library-v221 .resources{grid-template-columns:1fr}}
+@media(max-width:760px){#special-needs-guide-library-v221 [data-special-needs-guide-resources-v221]{grid-template-columns:1fr}}
 @media print{#special-needs-guide-library-v221 .resource{box-shadow:none;break-inside:avoid}}
 </style>
 """.strip()
@@ -88,16 +89,23 @@ def ensure_hub_library(site: Path) -> bool:
         text = text.replace("</head>", LIBRARY_STYLE + "</head>", 1)
 
     if RESOURCE_MARKER not in text:
-        anchor = '<section class="review">' if '<section class="review">' in text else "</main>"
-        if anchor not in text:
-            raise SystemExit("Special-needs hub has no safe insertion anchor")
-        text = text.replace(anchor, LIBRARY_SECTION + anchor, 1)
-        created = True
+        if LEGACY_RESOURCE_MARKER in text:
+            text = text.replace(
+                LEGACY_RESOURCE_MARKER,
+                RESOURCE_MARKER + INSERT_MARKER,
+                1,
+            )
+        else:
+            anchor = '<section class="review">' if '<section class="review">' in text else "</main>"
+            if anchor not in text:
+                raise SystemExit("Special-needs hub has no safe insertion anchor")
+            text = text.replace(anchor, LIBRARY_SECTION + anchor, 1)
+            created = True
     elif INSERT_MARKER not in text:
         text = text.replace(RESOURCE_MARKER, RESOURCE_MARKER + INSERT_MARKER, 1)
 
     if text.count(RESOURCE_MARKER) != 1:
-        raise SystemExit("Special-needs hub must expose exactly one guide resources container")
+        raise SystemExit("Special-needs hub must expose exactly one contracted guide container")
     if text.count(INSERT_MARKER) != 1:
         raise SystemExit("Special-needs hub guide insertion marker must be unique")
     if STYLE_MARKER not in text:
