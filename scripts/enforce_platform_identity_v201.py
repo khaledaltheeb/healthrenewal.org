@@ -15,8 +15,6 @@ SLOGAN = "معرفة تحترم الإنسان. دعم يوسّع الإمكان
 BASE_PATH = "/pterminology-site/"
 VERIFY_FILE = "google644f1f7a8b7aaa2b.html"
 
-# Unicode-aware \w matches Arabic letters and digits but excludes punctuation
-# such as the Arabic comma, so replacements also work after normal punctuation.
 REPLACEMENTS = (
     (re.compile(r"(?<!\w)المعاقين(?!\w)"), "ذوي الاحتياجات الخاصة"),
     (re.compile(r"(?<!\w)معاقين(?!\w)"), "ذوي الاحتياجات الخاصة"),
@@ -38,8 +36,11 @@ SHELL_STYLE = f"""
 .platform-shell-v201-header{{background:#fff;border-bottom:1px solid #c9e9e5;padding:12px max(4vw,18px);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;color:#173f45}}
 .platform-shell-v201-brand{{display:flex;align-items:center;gap:10px;text-decoration:none;color:#173f45;font-weight:900}}
 .platform-shell-v201-mark{{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#dffaf7,#eee9ff);border:1px solid #a9dcd6;font-size:1.25rem}}
-.platform-shell-v201-name{{display:grid;line-height:1.35}}.platform-shell-v201-name small{{font-weight:700;color:#567477}}
-.platform-shell-v201-nav{{display:flex;gap:8px;flex-wrap:wrap}}.platform-shell-v201-nav a{{color:#086e69;text-decoration:none;font-weight:800;padding:6px 8px;border-radius:9px}}.platform-shell-v201-nav a:focus-visible{{outline:3px solid #168f88;outline-offset:2px}}
+.platform-shell-v201-name{{display:grid;line-height:1.35}}
+.platform-shell-v201-name small{{font-weight:700;color:#567477}}
+.platform-shell-v201-nav{{display:flex;gap:8px;flex-wrap:wrap}}
+.platform-shell-v201-nav a{{color:#086e69;text-decoration:none;font-weight:800;padding:6px 8px;border-radius:9px}}
+.platform-shell-v201-nav a:focus-visible{{outline:3px solid #168f88;outline-offset:2px}}
 .platform-shell-v201-footer{{margin-top:34px;border-top:1px solid #c9e9e5;background:#f7fcfb;padding:24px max(4vw,18px);color:#496d70}}
 .platform-shell-v201-footer p{{margin:.35rem 0}}
 @media(max-width:760px){{.platform-shell-v201-header{{align-items:flex-start;flex-direction:column}}}}
@@ -53,6 +54,13 @@ HEADER = f"""<header class="platform-shell-v201 platform-shell-v201-header" data
 </header>"""
 
 FOOTER = f"""<footer class="platform-shell-v201 platform-shell-v201-footer" data-platform-shell="footer"><p><strong>{BRAND}</strong> — {SLOGAN}</p><p>الاسم المؤسس: {FOUNDER}. المحتوى للتثقيف والدعم العام ولا يستبدل التقييم أو الرعاية المهنية الفردية.</p><p><a href="{BASE_PATH}trust/">الثقة والمنهجية</a> · <a href="{BASE_PATH}partners/">الشركاء والشفافية</a> · <a href="{BASE_PATH}special-needs/">ذوو الاحتياجات الخاصة والتربية الدامجة</a></p></footer>"""
+
+
+def run_script(name: str, site: Path) -> None:
+    script = Path(__file__).with_name(name)
+    if not script.is_file():
+        raise SystemExit(f"Missing required publisher: {script}")
+    subprocess.run([sys.executable, str(script), str(site)], check=True)
 
 
 def replace_language(text: str) -> tuple[str, int]:
@@ -75,8 +83,7 @@ def ensure_style(text: str) -> tuple[str, bool]:
         return text, False
     if "</head>" not in text.lower():
         return text, False
-    text = re.sub(r"</head>", SHELL_STYLE + "</head>", text, count=1, flags=re.I)
-    return text, True
+    return re.sub(r"</head>", SHELL_STYLE + "</head>", text, count=1, flags=re.I), True
 
 
 def ensure_header(text: str) -> tuple[str, bool]:
@@ -103,7 +110,10 @@ def update_brand_metadata(text: str) -> tuple[str, int]:
     )
     for raw, value in patterns:
         pattern = re.compile(raw, re.I | re.S)
-        text, count = pattern.subn(lambda match: match.group(1) + html.escape(value, quote=True) + match.group(3), text)
+        text, count = pattern.subn(
+            lambda match: match.group(1) + html.escape(value, quote=True) + match.group(3),
+            text,
+        )
         replacements += count
     return text, replacements
 
@@ -116,20 +126,15 @@ def main() -> int:
     if not site.is_dir():
         raise SystemExit(f"Missing site directory: {site}")
 
-    trust_guides_publisher = Path(__file__).with_name("publish_trust_guides_v201.py")
-    subprocess.run([sys.executable, str(trust_guides_publisher), str(site)], check=True)
-    trust_guides_link_finalizer = Path(__file__).with_name("finalize_trust_guides_links_v201.py")
-    subprocess.run([sys.executable, str(trust_guides_link_finalizer), str(site)], check=True)
-    trust_guides_published = True
-    trust_guides_links_finalized = True
+    run_script("publish_tips_hub_v234.py", site)
+    run_script("publish_trust_guides_v201.py", site)
+    run_script("finalize_trust_guides_links_v201.py", site)
 
     special_needs_published = False
     special_needs_accessibility_finalized = False
     if (site / "special-needs").is_dir():
-        hub_publisher = Path(__file__).with_name("publish_special_needs_hub_v201.py")
-        subprocess.run([sys.executable, str(hub_publisher), str(site)], check=True)
-        accessibility_finalizer = Path(__file__).with_name("finalize_special_needs_hub_accessibility_v201.py")
-        subprocess.run([sys.executable, str(accessibility_finalizer), str(site)], check=True)
+        run_script("publish_special_needs_hub_v201.py", site)
+        run_script("finalize_special_needs_hub_accessibility_v201.py", site)
         special_needs_published = True
         special_needs_accessibility_finalized = True
 
@@ -143,8 +148,10 @@ def main() -> int:
         "footers_added": 0,
         "styles_added": 0,
         "brand_metadata_updates": 0,
-        "trust_guides_published": trust_guides_published,
-        "trust_guides_links_finalized": trust_guides_links_finalized,
+        "tips_v234_published": True,
+        "tips_v234_report": "api/tips-audit-v234.json",
+        "trust_guides_published": True,
+        "trust_guides_links_finalized": True,
         "trust_guides_report": "api/trust-guides-v201.json",
         "special_needs_hub_published": special_needs_published,
         "special_needs_hub_accessibility_finalized": special_needs_accessibility_finalized,
@@ -154,6 +161,7 @@ def main() -> int:
         "missing_footer_pages": [],
         "content_targets_report": "api/content-targets-v201.json",
     }
+
     for page in sorted(site.rglob("*.html")):
         if page.name == VERIFY_FILE:
             continue
@@ -171,6 +179,7 @@ def main() -> int:
         text, count = update_brand_metadata(text)
         stats["brand_metadata_updates"] += count
         page.write_text(text, encoding="utf-8")
+
         relative = page.relative_to(site).as_posix()
         if BANNED_RE.search(text):
             stats["remaining_banned_pages"].append(relative)
@@ -183,14 +192,16 @@ def main() -> int:
     api.mkdir(parents=True, exist_ok=True)
     report = api / "platform-identity-v201.json"
     report.write_text(json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8")
+
     if stats["remaining_banned_pages"]:
         raise SystemExit(f"Banned person-label language remains in: {stats['remaining_banned_pages'][:20]}")
     if stats["missing_header_pages"] or stats["missing_footer_pages"]:
         raise SystemExit(
-            f"Site shell incomplete: headers={stats['missing_header_pages'][:20]}, footers={stats['missing_footer_pages'][:20]}"
+            f"Site shell incomplete: headers={stats['missing_header_pages'][:20]}, "
+            f"footers={stats['missing_footer_pages'][:20]}"
         )
-    target_audit = Path(__file__).with_name("audit_content_targets_v201.py")
-    subprocess.run([sys.executable, str(target_audit), str(site)], check=True)
+
+    run_script("audit_content_targets_v201.py", site)
     print(json.dumps(stats, ensure_ascii=False, indent=2))
     return 0
 
