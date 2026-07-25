@@ -1,0 +1,32 @@
+name: Validate institutional header v232
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  institutional-header:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile publisher and integration
+        run: |
+          python -m py_compile scripts/publish_institutional_header_v232.py
+          python -m py_compile scripts/apply_homepage_v20.py
+          python -m py_compile tests/test_institutional_header_v232.py
+      - name: Run deterministic tests
+        run: python -m unittest -v tests/test_institutional_header_v232.py
+      - name: Verify production integration markers
+        run: |
+          grep -q 'run_publisher("publish_homepage_i18n_v72.py")' scripts/apply_homepage_v20.py
+          grep -q 'run_publisher("publish_institutional_header_v232.py")' scripts/apply_homepage_v20.py
+          grep -q '"institutional_header_publisher": 232' scripts/apply_homepage_v20.py
+          grep -q 'data-i18n-switcher-v72' scripts/publish_institutional_header_v232.py
+          ! grep -R -q 'publish_institutional_header_v226.py' scripts tests .github/workflows
