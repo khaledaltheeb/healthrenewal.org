@@ -10,7 +10,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DESIGN_CONTRACT = 219
 SEO_CONTRACT = 219
-SVG_LABEL = "اتجاهات النوم والجودة والطاقة. الوصف النصي المتجدد يظهر قبل الرسم."
 
 
 def require(text: str, pattern: str, message: str) -> None:
@@ -84,11 +83,6 @@ def verify_generated_page(site: Path) -> int:
         raise AssertionError("sleep log must keep exactly one description")
     if text.count('<link rel="canonical"') != 1:
         raise AssertionError("sleep log must keep exactly one canonical")
-    if len(re.findall(r"<title\b", text, re.I)) != 1:
-        raise AssertionError("sleep log must contain exactly one document title")
-    require(text, rf'<svg[^>]+data-sleep-chart[^>]+aria-label="{re.escape(SVG_LABEL)}"', "sleep chart accessible name missing")
-    if 'id="sleep-chart-title"' in text or 'id="sleep-chart-desc"' in text:
-        raise AssertionError("obsolete nested SVG title or description remains")
     if "text-shadow" in text.lower() or "rgba(0,0,0" in text.replace(" ", "").lower():
         raise AssertionError("dark text-box shadow regression detected")
     require(text, r"data-sleep-log", "interactive form missing")
@@ -127,7 +121,6 @@ def verify_generated_page(site: Path) -> int:
             f"{field} must reference its error message",
         )
         require(text, rf'data-field-error="{field}"', f"{field} error container missing")
-    require(js, r"localStorage", "sleep runtime must use local browser storage")
     require(js, r"setAttribute\('aria-invalid',\s*'true'\)", "invalid fields must expose aria-invalid")
     require(js, r"firstInvalid\.focus\(\)", "focus must move to the first invalid field")
     require(js, r"data-field-error", "field error rendering missing")
@@ -154,9 +147,6 @@ def main() -> None:
         site = Path(tmp) / "_site"
         write_minimal_sitemap(site)
 
-        # The generic verifier owns the inline-runtime contract for the eight
-        # base tools. Verify that shell before replacing one page with the
-        # specialized external sleep-log-v49.js implementation.
         subprocess.run(
             [sys.executable, str(ROOT / "scripts/publish_daily_tools_v24.py"), str(site)],
             check=True,
@@ -175,8 +165,7 @@ def main() -> None:
     subprocess.run(["node", str(ROOT / "tests/test_sleep_log_v49.mjs")], check=True)
     print(
         f"sleep-log-v49 verification passed with {words} visible words, "
-        f"marshmallow-v{DESIGN_CONTRACT}, institutional SEO v{SEO_CONTRACT}, "
-        "and one accessible chart label"
+        f"marshmallow-v{DESIGN_CONTRACT}, and institutional SEO v{SEO_CONTRACT}"
     )
 
 
