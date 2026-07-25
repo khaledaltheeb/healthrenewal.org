@@ -9,6 +9,7 @@ from typing import Any
 
 import publish_special_needs_hub_v235 as hub
 
+SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 PATHWAYS = (
     ("aac-daily-communication-access", "pathway-communication", "التواصل والوصول إلى المعلومات", "فتح دليل التواصل المعزز والبديل"),
     ("inclusive-classroom-adjustments-plan", "pathway-inclusive-learning", "التعلّم والتربية الدامجة", "فتح خطة التكييفات الصفية"),
@@ -28,6 +29,7 @@ def qualify(root: ET.Element, name: str) -> str:
 
 
 def sync_hub_sitemaps(site: Path) -> None:
+    ET.register_namespace("", SITEMAP_NS)
     canonical = f"{hub.BASE}/special-needs/"
     child_url = f"{hub.BASE}/sitemap-special-needs.xml"
 
