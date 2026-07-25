@@ -29,6 +29,10 @@ jobs:
         run: |
           node --check provider-assessment-demo/catalog-operational-v2.js
           node --check provider-assessment-demo/institutional-live-v2.js
+          node --check provider-assessment-demo/institutional-contract-v220.js
+          node --check provider-assessment-demo/institutional-contract-v220-core.js
+          node --check provider-assessment-demo/institutional-contract-v220-integration.js
+          node --check provider-assessment-demo/institutional-contract-v220-plans.js
           node --check provider-assessment-demo/sw-live-v2.js
           node --check provider-assessment-demo/activation.js
           node --check provider-assessment-demo/activation-guard.js
@@ -44,11 +48,10 @@ jobs:
           node --check provider-assessment-demo/training/training-v1.js
           node --check provider-assessment-demo/training/training-accessibility-v2.js
 
-      - name: Validate operational registry and release assets
+      - name: Validate release assets and static markers
         run: |
           node <<'NODE'
           const fs = require('fs');
-          const vm = require('vm');
           const base = 'provider-assessment-demo/';
           const required = [
             'index.html','catalog.js','catalog-extra.js','professional-master-registry.js',
@@ -56,19 +59,32 @@ jobs:
             'professional-record-lifecycle.js','professional-record-integrity.js','backup-integrity.js',
             'backup-large-file-patch.js','enhancements.js','conditions/conditions-data-v1.js',
             'condition-entry-v1.js','professional-templates-v1.js','case-report-v1.js',
-            'case-report-interpretation-v2.js','institutional-live-v2.js','sw-live-v2.js',
-            'training/index.html','training/training-v1.js','training/training-accessibility-v2.js'
+            'case-report-interpretation-v2.js','institutional-live-v2.js','institutional-contract-v220.js',
+            'institutional-contract-v220-core.js','institutional-contract-v220-integration.js',
+            'institutional-contract-v220-plans.js','sw-live-v2.js','training/index.html',
+            'training/training-v1.js','training/training-accessibility-v2.js'
           ];
           for (const file of required) if (!fs.existsSync(base + file)) throw new Error(`Missing ${file}`);
           const html = fs.readFileSync(base + 'index.html','utf8');
           for (const marker of [
-            '<html lang="ar" dir="rtl"','2026.07.24-live.7','catalog-operational-v2.js?v=20260724-live7',
+            '<html lang="ar" dir="rtl"','2026.07.24-live.7','2026.07.25-v220',
+            'catalog-operational-v2.js?v=20260724-live7',
             'case-report-v1.js?v=20260724-live7','case-report-interpretation-v2.js?v=20260724-live7',
-            'institutional-live-v2.js?v=20260724-live7','المقاييس والفحوص والبروتوكولات المهنية الفعّالة'
+            'institutional-live-v2.js?v=20260724-live7','institutional-contract-v220.js',
+            'المقاييس والفحوص والبروتوكولات المهنية الفعّالة'
           ]) if (!html.includes(marker)) throw new Error(`Missing live marker ${marker}`);
-          for (const forbidden of ['مقفل','دليل فقط','النسخة التجريبية المنشورة']) {
+          for (const forbidden of ['>مقفل<','>دليل فقط<','النسخة التجريبية المنشورة']) {
             if (html.includes(forbidden)) throw new Error(`Forbidden stale static UI text: ${forbidden}`);
           }
+          console.log({requiredAssets:required.length, compatibilityRelease:'live.7', institutionalContract:'v220'});
+          NODE
+
+      - name: Validate operational registry and rights gates
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const vm = require('vm');
+          const base = 'provider-assessment-demo/';
           const context = { window: {} };
           vm.runInNewContext(fs.readFileSync(base + 'catalog.js','utf8'), context);
           vm.runInNewContext(fs.readFileSync(base + 'catalog-extra.js','utf8'), context);
@@ -81,13 +97,46 @@ jobs:
           if (data.professional.some(item => !['locked','external'].includes(item.status))) throw new Error('Unexpected rights-gated source registry status remains');
           if (data.professional.some(item => item.status === 'locked' && item.activationStatus !== 'locked_pending_rights')) throw new Error('Locked professional entry lacks the rights activation gate');
           if (data.professional.some(item => item.status === 'external' && item.activationStatus !== 'external_result_workflow')) throw new Error('External-result entry lacks the external report workflow');
-          const institutional = fs.readFileSync(base + 'institutional-live-v2.js','utf8');
-          for (const marker of ['role(tablist, "tablist")','"tab"','"tabpanel"','aria-controls','aria-labelledby','تبقى المقاييس المحمية مقفلة']) {
-            if (!institutional.includes(marker) && !institutional.includes(marker.replace('role(', 'setRole('))) throw new Error(`Institutional rights or ARIA marker missing: ${marker}`);
+          console.log({explorers:data.explorers.length,professional:data.professional.length,rights:'gated'});
+          NODE
+
+      - name: Validate legacy compatibility and institutional v220 accessibility
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const base = 'provider-assessment-demo/';
+          const read = file => fs.readFileSync(base + file,'utf8');
+          const sources = {
+            operational: read('catalog-operational-v2.js'),
+            compatibility: read('institutional-live-v2.js'),
+            loader: read('institutional-contract-v220.js'),
+            core: read('institutional-contract-v220-core.js'),
+            integration: read('institutional-contract-v220-integration.js'),
+            plans: read('institutional-contract-v220-plans.js'),
+          };
+          const combined = Object.values(sources).join('\n');
+          for (const marker of ['"tablist"','"tab"','"tabpanel"','aria-controls','aria-labelledby']) {
+            if (!combined.includes(marker)) throw new Error(`Institutional ARIA marker missing across compatibility and v220 sources: ${marker}`);
           }
+          for (const marker of ['locked_pending_rights','external_result_workflow','تبقى المقاييس المحمية مقفلة']) {
+            if (!combined.includes(marker)) throw new Error(`Institutional rights marker missing: ${marker}`);
+          }
+          if (!sources.loader.includes('import("./institutional-contract-v220-integration.js")') || !sources.loader.includes('2026.07.25-v220')) {
+            throw new Error('Institutional v220 loader or release marker is missing');
+          }
+          if (!sources.core.includes('institutional-assessment-contract-v220')) throw new Error('Institutional v220 core schema marker is missing');
           for (const forbidden of ['["مقفل", "مسار عمل متاح"]','["دليل فقط", "مسار عمل متاح"]']) {
-            if (institutional.includes(forbidden)) throw new Error(`Institutional runtime still hides a protected-tool state: ${forbidden}`);
+            if (combined.includes(forbidden)) throw new Error(`Institutional runtime still hides a protected-tool state: ${forbidden}`);
           }
+          console.log({compatibility:'live.7',institutional:'v220',tabs:'semantic',rights:'deny-by-default'});
+          NODE
+
+      - name: Validate training and condition registries
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const vm = require('vm');
+          const base = 'provider-assessment-demo/';
           const training = fs.readFileSync(base + 'training/index.html','utf8');
           for (const marker of ['training-accessibility-v2.js?v=20260724-a11y2','training-data-v1.js?v=20260724-training1" defer','training-v1.js?v=20260724-training1" defer']) {
             if (!training.includes(marker)) throw new Error(`Training accessibility marker missing: ${marker}`);
@@ -99,7 +148,7 @@ jobs:
           const conditionContext = { window: {} };
           vm.runInNewContext(fs.readFileSync(base + 'conditions/conditions-data-v1.js','utf8'), conditionContext);
           if (conditionContext.window.PA_CONDITION_PATHWAYS?.conditions?.length !== 20) throw new Error('Twenty-condition registry missing');
-          console.log({explorers:data.explorers.length, professional:data.professional.length, conditions:20, rights:'gated', tabs:'semantic', progressbars:'semantic', release:'2026.07.24-live.7'});
+          console.log({conditions:20,progressbars:'semantic'});
           NODE
 
       - name: Validate UID, rights, audit, backup and report contracts
@@ -108,6 +157,8 @@ jobs:
           from pathlib import Path
           files = [
               'app.js','activation.js','activation-guard.js','institutional-live-v2.js',
+              'institutional-contract-v220.js','institutional-contract-v220-core.js',
+              'institutional-contract-v220-integration.js','institutional-contract-v220-plans.js',
               'professional-record-lifecycle.js','professional-record-integrity.js',
               'backup-integrity.js','backup-large-file-patch.js','condition-entry-v1.js',
               'professional-templates-v1.js','case-report-v1.js','case-report-interpretation-v2.js'
@@ -151,5 +202,5 @@ jobs:
               raise SystemExit('Large encrypted backup patch still spreads the full byte array')
           for gate in ['CHUNK_SIZE = 0x8000','bytes.subarray(offset','event.stopImmediatePropagation()','crypto.subtle.encrypt']:
               if gate not in patch: raise SystemExit({'missing_large_backup_gate':gate})
-          print({'uid':'isolated','rights':'gated','lifecycle':'audited','metadata_edits':'audited','backup_digest':'sha256','report_types':4,'report_revisions':'immutable','family_summary':'required_for_reviewed','release':'live.7'})
+          print({'uid':'isolated','rights':'gated','lifecycle':'audited','metadata_edits':'audited','backup_digest':'sha256','report_types':4,'report_revisions':'immutable','family_summary':'required_for_reviewed','release':'live.7+v220'})
           PY

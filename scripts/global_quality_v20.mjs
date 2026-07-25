@@ -11,6 +11,7 @@ import {
 
 const base = process.env.AUDIT_BASE_URL || 'http://127.0.0.1:8000/pterminology-site/';
 const outDir = process.env.AUDIT_OUT_DIR || '_site/api';
+const reportPath = path.join(outDir, 'global-quality-v20.json');
 fs.mkdirSync(outDir, { recursive: true });
 
 const lighthouseTargets = [
@@ -51,7 +52,40 @@ const thresholds = {
 const desktopThrottling = { rttMs: 40, throughputKbps: 10240, cpuSlowdownMultiplier: 1, requestLatencyMs: 0, downloadThroughputKbps: 0, uploadThroughputKbps: 0 };
 const mobileThrottling = { rttMs: 150, throughputKbps: 1638.4, cpuSlowdownMultiplier: 4, requestLatencyMs: 562.5, downloadThroughputKbps: 1474.56, uploadThroughputKbps: 675 };
 
-const errors = [], warnings = [], lighthouseRuns = [], lighthouseSamples = [], axeRuns = [];
+const errors = [];
+const warnings = [];
+const lighthouseRuns = [];
+const lighthouseSamples = [];
+const axeRuns = [];
+const executionFailures = [];
+
+function errorText(error) {
+  if (error instanceof Error) return error.stack || error.message;
+  return String(error);
+}
+
+function writeCheckpoint(stage, current = null) {
+  fs.writeFileSync(reportPath, JSON.stringify({
+    version: 24,
+    status: 'running',
+    stage,
+    current,
+    base,
+    lighthouseRoutes: lighthouseRoutes.length,
+    axeRoutes: axeRoutes.length,
+    completedLighthouseRuns: lighthouseRuns.length,
+    completedLighthouseSamples: lighthouseSamples.length,
+    completedAxeRuns: axeRuns.length,
+    lighthouseRuns,
+    lighthouseSamples,
+    axeRuns,
+    executionFailures,
+    warningCount: warnings.length,
+    warnings,
+    errorCount: errors.length,
+    errors
+  }, null, 2));
+}
 
 function warningTaxonomy() {
   const auditPath = path.join(outDir, 'full-site-audit-v16.json');
@@ -79,7 +113,9 @@ function warningTaxonomy() {
     renderBlockingScripts: { baseline: 3438, actual: renderBlocking, regressed: renderBlocking > 3438 },
     emptyLinkText: { baseline: 111, actual: emptyLinks, regressed: emptyLinks > 111 }
   };
-  const regressions = Object.entries(budgets).filter(([, value]) => value.regressed).map(([name, value]) => `${name} ${value.actual} > ${value.baseline}`);
+  const regressions = Object.entries(budgets)
+    .filter(([, value]) => value.regressed)
+    .map(([name, value]) => `${name} ${value.actual} > ${value.baseline}`);
   if (regressions.length) warnings.push(`Full-site warning debt regression: ${regressions.join(', ')}`);
   return {
     available: true,
@@ -113,46 +149,41 @@ function warningTaxonomy() {
   };
 }
 
-async function runLighthouseSample(url, formFactor, target) {
-  const chrome = await launch({ chromeFlags: ['--headless=new', '--no-sandbox', '--disable-dev-shm-usage'] });
-  try {
-    const config = {
-      extends: 'lighthouse:default',
-      settings: {
-        onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
-        formFactor,
-        screenEmulation: formFactor === 'mobile'
-          ? { mobile: true, width: 390, height: 844, deviceScaleFactor: 2, disabled: false }
-          : { mobile: false, width: 1440, height: 900, deviceScaleFactor: 1, disabled: false },
-        throttlingMethod: 'simulate',
-        throttling: formFactor === 'mobile' ? mobileThrottling : desktopThrottling,
-        locale: 'ar'
-      }
-    };
-    const result = await lighthouse(url, { port: chrome.port, output: 'json', logLevel: 'error' }, config);
-    const lhr = result.lhr;
-    return {
-      route: target.route,
-      group: target.group,
-      label: target.label,
+async function runLighthouseSample(url, formFactor, target, chromePort) {
+  const config = {
+    extends: 'lighthouse:default',
+    settings: {
+      onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
       formFactor,
-      performance: lhr.categories.performance.score,
-      accessibility: lhr.categories.accessibility.score,
-      bestPractices: lhr.categories['best-practices'].score,
-      seo: lhr.categories.seo.score,
-      fcp: lhr.audits['first-contentful-paint']?.numericValue ?? null,
-      lcp: lhr.audits['largest-contentful-paint']?.numericValue ?? null,
-      cls: lhr.audits['cumulative-layout-shift']?.numericValue ?? null,
-      tbt: lhr.audits['total-blocking-time']?.numericValue ?? null,
-      speedIndex: lhr.audits['speed-index']?.numericValue ?? null,
-      interactive: lhr.audits.interactive?.numericValue ?? null,
-      totalByteWeight: lhr.audits['total-byte-weight']?.numericValue ?? null,
-      unusedJavascript: lhr.audits['unused-javascript']?.numericValue ?? null,
-      unusedCss: lhr.audits['unused-css-rules']?.numericValue ?? null
-    };
-  } finally {
-    await chrome.kill();
-  }
+      screenEmulation: formFactor === 'mobile'
+        ? { mobile: true, width: 390, height: 844, deviceScaleFactor: 2, disabled: false }
+        : { mobile: false, width: 1440, height: 900, deviceScaleFactor: 1, disabled: false },
+      throttlingMethod: 'simulate',
+      throttling: formFactor === 'mobile' ? mobileThrottling : desktopThrottling,
+      locale: 'ar'
+    }
+  };
+  const result = await lighthouse(url, { port: chromePort, output: 'json', logLevel: 'error' }, config);
+  const lhr = result.lhr;
+  return {
+    route: target.route,
+    group: target.group,
+    label: target.label,
+    formFactor,
+    performance: lhr.categories.performance.score,
+    accessibility: lhr.categories.accessibility.score,
+    bestPractices: lhr.categories['best-practices'].score,
+    seo: lhr.categories.seo.score,
+    fcp: lhr.audits['first-contentful-paint']?.numericValue ?? null,
+    lcp: lhr.audits['largest-contentful-paint']?.numericValue ?? null,
+    cls: lhr.audits['cumulative-layout-shift']?.numericValue ?? null,
+    tbt: lhr.audits['total-blocking-time']?.numericValue ?? null,
+    speedIndex: lhr.audits['speed-index']?.numericValue ?? null,
+    interactive: lhr.audits.interactive?.numericValue ?? null,
+    totalByteWeight: lhr.audits['total-byte-weight']?.numericValue ?? null,
+    unusedJavascript: lhr.audits['unused-javascript']?.numericValue ?? null,
+    unusedCss: lhr.audits['unused-css-rules']?.numericValue ?? null
+  };
 }
 
 function evaluateLighthouse(metrics) {
@@ -176,72 +207,148 @@ function evaluateLighthouse(metrics) {
   }
 }
 
-async function measureRoute(target, formFactor, sampleCount) {
+async function measureRoute(target, formFactor, sampleCount, chromePort) {
   const samples = [];
   const url = new URL(target.route, base).href;
   for (let index = 1; index <= sampleCount; index += 1) {
-    const sample = await runLighthouseSample(url, formFactor, target);
+    const sample = await runLighthouseSample(url, formFactor, target, chromePort);
     const recorded = { ...sample, sampleIndex: index, sampleCount };
     samples.push(recorded);
     lighthouseSamples.push(recorded);
+    writeCheckpoint('lighthouse-sample', { route: target.route, label: target.label, formFactor, sampleIndex: index, sampleCount });
   }
   const aggregate = { ...aggregateLighthouseSamples(samples), group: target.group, label: target.label };
   lighthouseRuns.push(aggregate);
   evaluateLighthouse(aggregate);
+  writeCheckpoint('lighthouse-route', { route: target.route, label: target.label, formFactor });
+}
+
+async function runLighthouse() {
+  const chrome = await launch({
+    chromeFlags: [
+      '--headless=new',
+      '--no-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-background-networking',
+      '--disable-component-update'
+    ]
+  });
+  try {
+    for (const target of lighthouseTargets) {
+      for (const formFactor of ['mobile', 'desktop']) {
+        const sampleCount = target.route === '' && formFactor === 'mobile' ? mobileHomeSampleCount : 1;
+        try {
+          await measureRoute(target, formFactor, sampleCount, chrome.port);
+        } catch (error) {
+          const failure = {
+            stage: 'lighthouse',
+            route: target.route,
+            label: target.label,
+            formFactor,
+            error: errorText(error)
+          };
+          executionFailures.push(failure);
+          errors.push(`Lighthouse execution failed ${formFactor} ${target.route || '/'}: ${error instanceof Error ? error.message : String(error)}`);
+          writeCheckpoint('lighthouse-failed', failure);
+        }
+      }
+    }
+  } finally {
+    await chrome.kill();
+  }
 }
 
 async function runAxe() {
   const browser = await chromium.launch({ headless: true });
   try {
     for (const target of axeTargets) {
-      const context = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'ar-JO', colorScheme: 'light', reducedMotion: 'reduce', serviceWorkers: 'block' });
-      const page = await context.newPage();
-      const runtimeErrors = [];
-      page.on('pageerror', error => runtimeErrors.push(error.message));
-      const response = await page.goto(new URL(target.route, base).href, { waitUntil: 'networkidle', timeout: 30000 });
-      if (!response || !response.ok()) errors.push(`Axe navigation failed ${target.route}: ${response?.status() ?? 'no response'}`);
-      if (target.ready) await page.locator(target.ready).first().waitFor({ state: 'attached', timeout: 12000 });
-      if (runtimeErrors.length) errors.push(`Runtime errors on ${target.route || '/'}: ${runtimeErrors.slice(0, 5).join(' | ')}`);
-      const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
-      const serious = results.violations.filter(v => ['critical', 'serious'].includes(v.impact));
-      const moderate = results.violations.filter(v => v.impact === 'moderate');
-      axeRuns.push({
-        route: target.route,
-        group: target.group,
-        label: target.label,
-        runtimeErrors: runtimeErrors.length,
-        violations: results.violations.length,
-        serious: serious.length,
-        moderate: moderate.length,
-        details: results.violations.map(v => ({ id: v.id, impact: v.impact, description: v.description, nodes: v.nodes.length }))
+      const context = await browser.newContext({
+        viewport: { width: 390, height: 844 },
+        locale: 'ar-JO',
+        colorScheme: 'light',
+        reducedMotion: 'reduce',
+        serviceWorkers: 'block'
       });
-      if (serious.length) errors.push(`WCAG serious/critical violations on ${target.route || '/'}: ${serious.map(v => `${v.id}(${v.nodes.length})`).join(', ')}`);
-      if (moderate.length) warnings.push(`WCAG moderate violations on ${target.route || '/'}: ${moderate.map(v => `${v.id}(${v.nodes.length})`).join(', ')}`);
-      await context.close();
+      try {
+        const page = await context.newPage();
+        const runtimeErrors = [];
+        page.on('pageerror', error => runtimeErrors.push(error.message));
+        const response = await page.goto(new URL(target.route, base).href, { waitUntil: 'networkidle', timeout: 30000 });
+        if (!response || !response.ok()) errors.push(`Axe navigation failed ${target.route}: ${response?.status() ?? 'no response'}`);
+        if (target.ready) await page.locator(target.ready).first().waitFor({ state: 'attached', timeout: 12000 });
+        if (runtimeErrors.length) errors.push(`Runtime errors on ${target.route || '/'}: ${runtimeErrors.slice(0, 5).join(' | ')}`);
+        const results = await new AxeBuilder({ page })
+          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+          .analyze();
+        const serious = results.violations.filter(violation => ['critical', 'serious'].includes(violation.impact));
+        const moderate = results.violations.filter(violation => violation.impact === 'moderate');
+        axeRuns.push({
+          route: target.route,
+          group: target.group,
+          label: target.label,
+          runtimeErrors: runtimeErrors.length,
+          violations: results.violations.length,
+          serious: serious.length,
+          moderate: moderate.length,
+          details: results.violations.map(violation => ({
+            id: violation.id,
+            impact: violation.impact,
+            description: violation.description,
+            nodes: violation.nodes.length
+          }))
+        });
+        if (serious.length) errors.push(`WCAG serious/critical violations on ${target.route || '/'}: ${serious.map(violation => `${violation.id}(${violation.nodes.length})`).join(', ')}`);
+        if (moderate.length) warnings.push(`WCAG moderate violations on ${target.route || '/'}: ${moderate.map(violation => `${violation.id}(${violation.nodes.length})`).join(', ')}`);
+        writeCheckpoint('axe-route', { route: target.route, label: target.label });
+      } catch (error) {
+        const failure = {
+          stage: 'axe',
+          route: target.route,
+          label: target.label,
+          error: errorText(error)
+        };
+        executionFailures.push(failure);
+        errors.push(`Axe execution failed ${target.route || '/'}: ${error instanceof Error ? error.message : String(error)}`);
+        writeCheckpoint('axe-failed', failure);
+      } finally {
+        await context.close();
+      }
     }
   } finally {
     await browser.close();
   }
 }
 
-for (const target of lighthouseTargets) {
-  await measureRoute(target, 'mobile', target.route === '' ? mobileHomeSampleCount : 1);
-  await measureRoute(target, 'desktop', 1);
+writeCheckpoint('starting');
+try {
+  await runLighthouse();
+} catch (error) {
+  const failure = { stage: 'lighthouse-browser', error: errorText(error) };
+  executionFailures.push(failure);
+  errors.push(`Lighthouse browser failed: ${error instanceof Error ? error.message : String(error)}`);
+  writeCheckpoint('lighthouse-browser-failed', failure);
 }
-await runAxe();
+try {
+  await runAxe();
+} catch (error) {
+  const failure = { stage: 'axe-browser', error: errorText(error) };
+  executionFailures.push(failure);
+  errors.push(`Axe browser failed: ${error instanceof Error ? error.message : String(error)}`);
+  writeCheckpoint('axe-browser-failed', failure);
+}
 
 const scoreSummary = {};
 for (const factor of ['mobile', 'desktop']) {
-  const rows = lighthouseRuns.filter(x => x.formFactor === factor);
-  scoreSummary[factor] = {
-    minimumPerformance: Math.min(...rows.map(x => x.performance)),
-    minimumAccessibility: Math.min(...rows.map(x => x.accessibility)),
-    minimumBestPractices: Math.min(...rows.map(x => x.bestPractices)),
-    minimumSeo: Math.min(...rows.map(x => x.seo)),
-    maximumLcpMs: Math.max(...rows.map(x => x.lcp ?? 0)),
-    maximumCls: Math.max(...rows.map(x => x.cls ?? 0)),
-    maximumTbtMs: Math.max(...rows.map(x => x.tbt ?? 0))
-  };
+  const rows = lighthouseRuns.filter(row => row.formFactor === factor);
+  scoreSummary[factor] = rows.length ? {
+    minimumPerformance: Math.min(...rows.map(row => row.performance)),
+    minimumAccessibility: Math.min(...rows.map(row => row.accessibility)),
+    minimumBestPractices: Math.min(...rows.map(row => row.bestPractices)),
+    minimumSeo: Math.min(...rows.map(row => row.seo)),
+    maximumLcpMs: Math.max(...rows.map(row => row.lcp ?? 0)),
+    maximumCls: Math.max(...rows.map(row => row.cls ?? 0)),
+    maximumTbtMs: Math.max(...rows.map(row => row.tbt ?? 0))
+  } : null;
 }
 
 const providerLighthouse = lighthouseRuns.filter(row => row.group === 'provider-assessment');
@@ -268,13 +375,16 @@ const routeCoverage = {
 
 const report = {
   version: 24,
+  status: errors.length ? 'failed' : 'passed',
   base,
   note: 'Lighthouse provides laboratory LCP/CLS/TBT. The mobile homepage uses an odd number of independent samples and median lab metrics to reduce runner variance; accessibility, best-practices and SEO retain the strict minimum sample. INP requires real-user field data and is not claimed here.',
   aggregationPolicy: {
     mobileHomepageSamples: mobileHomeSampleCount,
     labMetrics: 'median',
     qualityScores: 'minimum',
-    thresholdsUnchanged: true
+    thresholdsUnchanged: true,
+    sharedChromeProcess: true,
+    routeLevelFailureCapture: true
   },
   routeCoverage,
   warningTaxonomy: warningTaxonomy(),
@@ -284,11 +394,13 @@ const report = {
   lighthouseRuns,
   lighthouseSamples,
   axeRuns,
+  executionFailureCount: executionFailures.length,
+  executionFailures,
   warningCount: warnings.length,
   warnings,
   errorCount: errors.length,
   errors
 };
-fs.writeFileSync(path.join(outDir, 'global-quality-v20.json'), JSON.stringify(report, null, 2));
+fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
 console.log(JSON.stringify(report, null, 2));
 if (errors.length) process.exit(1);

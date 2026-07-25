@@ -16,7 +16,11 @@ ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "tool-trust-v63.json"
 
 TEXT_SOURCES = {
-    "daily_tools_publisher": ROOT / "scripts/publish_daily_tools_v24.py",
+    # The core owns the rendered Arabic guidance, privacy boundary, and next steps.
+    "daily_tools_publisher": ROOT / "scripts/publish_daily_tools_v24_core.py",
+    # The wrapper owns institutional SEO and schema and remains independently audited
+    # for prohibited health claims.
+    "daily_tools_wrapper": ROOT / "scripts/publish_daily_tools_v24.py",
     "sleep_log_publisher": ROOT / "scripts/publish_sleep_log_v49.py",
 }
 SCRIPT_SOURCES = {
@@ -97,6 +101,8 @@ def main() -> int:
         "scope": "interactive tool trust and safety source gate",
         "clinical_review_claimed": False,
         "sources": sorted(texts),
+        "content_source": "daily_tools_publisher",
+        "seo_wrapper_source": "daily_tools_wrapper",
         "checks": checks,
         "passed_checks": sum(1 for item in checks if item["passed"]),
         "failed_checks": sum(1 for item in checks if not item["passed"]),

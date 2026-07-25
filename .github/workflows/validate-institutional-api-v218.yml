@@ -59,12 +59,14 @@ jobs:
             tests/test_public_api_permission_revalidation_v218.py \
             tests/test_course_source_network_contract_v218.py
 
-      - name: Test permission expiry SSRF DNS pinning publication revalidation sanitation and API compatibility
-        run: |
-          python -m unittest -v \
-            tests.test_public_api_v215 \
-            tests.test_public_api_permission_revalidation_v218 \
-            tests.test_course_source_network_contract_v218
+      - name: Test API publication and compatibility
+        run: python -m unittest -v tests.test_public_api_v215
+
+      - name: Test permission expiry and publication revalidation
+        run: python -m unittest -v tests.test_public_api_permission_revalidation_v218
+
+      - name: Test SSRF DNS pinning and network contract
+        run: python -m unittest -v tests.test_course_source_network_contract_v218
 
       - name: Audit enabled permission windows without fetching feeds
         run: |

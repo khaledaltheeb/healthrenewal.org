@@ -9,6 +9,7 @@ import AxeBuilder from '@axe-core/playwright';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const OUT = path.join(ROOT, 'artifacts', 'sleep-log-browser-v62');
 const SITE_PATH = '/pterminology-site/daily-tools/sleep-wind-down-plan/';
+const CHART_ACCESSIBLE_NAME = 'اتجاهات النوم والجودة والطاقة. الوصف النصي المتجدد يظهر قبل الرسم.';
 
 function run(command, args, options = {}) {
   return new Promise((resolve, reject) => {
@@ -84,11 +85,17 @@ async function auditViewport(browser, baseUrl, name, viewport) {
       svgWidth: svgRect.width,
       wrapClientWidth: wrap.clientWidth,
       wrapScrollWidth: wrap.scrollWidth,
+      ariaLabel: svg.getAttribute('aria-label'),
+      descriptionText: document.querySelector('[data-sleep-chart-text]')?.textContent?.trim() || '',
+      nestedTitles: svg.querySelectorAll('title,desc').length,
     };
   });
   assert.ok(chartMetrics.wrapLeft >= -1 && chartMetrics.wrapRight <= chartMetrics.viewport + 1, `chart container escapes viewport: ${JSON.stringify(chartMetrics)}`);
   assert.ok(['auto', 'scroll'].includes(chartMetrics.overflowX), `chart overflow must be contained: ${chartMetrics.overflowX}`);
   assert.ok(chartMetrics.svgWidth > 0 && chartMetrics.wrapScrollWidth >= chartMetrics.wrapClientWidth);
+  assert.equal(chartMetrics.ariaLabel, CHART_ACCESSIBLE_NAME, 'chart accessible name must remain stable');
+  assert.match(chartMetrics.descriptionText, /لا توجد بيانات كافية/);
+  assert.equal(chartMetrics.nestedTitles, 0, 'chart must not create a second document title in generic audits');
 
   const axe = await new AxeBuilder({ page }).analyze();
   const blockingViolations = axe.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact));
@@ -132,6 +139,18 @@ async function auditViewport(browser, baseUrl, name, viewport) {
   assert.ok(!(await page.locator('[data-sleep-summary]').textContent()).includes('أدخل البيانات'));
   assert.equal(await page.locator('[data-sleep-results] tr').count(), 1);
 
+  const populatedChart = await page.evaluate(() => {
+    const svg = document.querySelector('[data-sleep-chart]');
+    return {
+      ariaLabel: svg?.getAttribute('aria-label') || '',
+      descriptionText: document.querySelector('[data-sleep-chart-text]')?.textContent?.trim() || '',
+      nestedTitles: svg?.querySelectorAll('title,desc').length || 0,
+    };
+  });
+  assert.equal(populatedChart.ariaLabel, CHART_ACCESSIBLE_NAME, 'runtime updates must preserve the stable chart accessible name');
+  assert.match(populatedChart.descriptionText, /يعرض المخطط 1 سجلًا/);
+  assert.equal(populatedChart.nestedTitles, 0, 'runtime chart updates must not restore nested title elements');
+
   const downloadPromise = page.waitForEvent('download');
   await exportButton.click();
   const download = await downloadPromise;
@@ -161,6 +180,7 @@ async function auditViewport(browser, baseUrl, name, viewport) {
     viewport,
     pageMetrics,
     chartMetrics,
+    populatedChart,
     keyboardTargets: keyboardTargets.length,
     axeViolations: axe.violations.length,
     axeBlockingViolations: blockingViolations.length,
@@ -182,8 +202,15 @@ async function main() {
   await mkdir(site, { recursive: true });
   await mkdir(preview, { recursive: true });
   await writeFile(path.join(site, 'sitemap.xml'), '<?xml version="1.0"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>\n', 'utf8');
+  await writeFile(
+    path.join(site, 'index.html'),
+    '<!doctype html><html lang="ar" dir="rtl"><head><title>منصة اختبار</title><meta name="keywords" content="الصحة النفسية,ذوو الاحتياجات الخاصة,أدلة الدعم,أدوات التقييم"><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"CollectionPage","@id":"https://khaledaltheeb.github.io/pterminology-site/#home","name":"منصة الصحة النفسية وذوي الاحتياجات الخاصة","url":"https://khaledaltheeb.github.io/pterminology-site/","hasPart":[]}]}</script></head><body><nav><a href="provider-assessment-demo/">منصة التقييم</a></nav><article class="card"><h3>المهام المعرفية</h3><a href="cognitive-tests/">فتح المهام</a></article></body></html>',
+    'utf8',
+  );
   await run('python', [path.join(ROOT, 'scripts', 'publish_daily_tools_v24.py'), site]);
   await run('python', [path.join(ROOT, 'scripts', 'publish_sleep_log_v49.py'), site]);
+  await run('python', [path.join(ROOT, 'scripts', 'patch_sleep_svg_export_v65.py'), site]);
+  await run('python', [path.join(ROOT, 'scripts', 'apply_daily_tools_marshmallow_v219.py'), site]);
   await symlink(site, path.join(preview, 'pterminology-site'), 'dir');
 
   const server = spawn('python', ['-m', 'http.server', '8762', '--directory', preview], { stdio: ['ignore', 'pipe', 'pipe'] });
