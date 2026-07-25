@@ -1,0 +1,90 @@
+name: Audit production discovery contract v220
+
+on:
+  workflow_run:
+    workflows: ["Validate every assessment and cognitive tool v31"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: production-discovery-v220-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  audit-discovery:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout the validated source commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Download the exact validated production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run discovery unit contracts
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/audit_orphan_pages_v197.py tests/test_orphan_page_audit_v197.py
+          python -m unittest -v tests/test_orphan_page_audit_v197.py
+
+      - name: Enforce institutional gateway, inbound-link and sitemap coverage
+        run: |
+          set -euxo pipefail
+          python scripts/audit_orphan_pages_v197.py validated-site --fail-on-critical --require-gateways
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('validated-site')
+          report = json.loads((root / 'api/orphan-page-audit-v197.json').read_text(encoding='utf-8'))
+          assert report['version'] == 220, report
+          assert report['status'] == 'passed', report
+          assert report['pages'] > 0, report
+          assert report['sitemap_routes'] > 0, report
+          for key in ('critical_orphans', 'critical_unmapped', 'missing_gateways', 'gateway_orphans', 'gateway_unmapped'):
+              assert report[key] == [], (key, report[key][:25])
+          required = tuple(report['required_gateways'])
+          assert 'comparisons/' in required and 'library/' in required, required
+          index = (root / 'index.html').read_text(encoding='utf-8')
+          for route in required:
+              assert f'href="{route}"' in index or f'href="/{route}"' in index or f'href="/pterminology-site/{route}"' in index, route
+          print({
+              'status': report['status'],
+              'pages': report['pages'],
+              'sitemap_routes': report['sitemap_routes'],
+              'required_gateways': len(required),
+              'comparisons': 'discoverable',
+              'library': 'discoverable',
+          })
+          PY
+
+      - name: Re-publish the discovery-audited production artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload discovery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-discovery-audit-v220
+          path: validated-site/api/orphan-page-audit-v197.json
+          if-no-files-found: warn
+          retention-days: 14
