@@ -1,0 +1,74 @@
+name: Verify live twenty-five-guide special-needs deployment v236
+
+on:
+  pull_request:
+    branches: ["main"]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "scripts/verify_live_special_needs_v236.py"
+      - "scripts/publish_special_needs_hub_v235.py"
+      - "scripts/publish_special_needs_hub_v235_compat.py"
+      - "scripts/publish_special_needs_guides_v217.py"
+      - "content/v209/special-needs-guides/**"
+      - "content/v210/special-needs-guides/**"
+      - "content/v211/special-needs-guides/**"
+      - "content/v212/special-needs-guides/**"
+      - "content/v214/special-needs-guides/**"
+      - "content/v221/special-needs-guides-production-manifest-ar.json"
+      - "tests/test_special_needs_hub_v235.py"
+      - ".github/workflows/verify-live-special-needs-v236.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-live-special-needs-v236-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch current main ancestry
+        run: git fetch --no-tags origin main:refs/remotes/origin/main
+      - name: Compile deterministic live verifier
+        run: python -m py_compile scripts/verify_live_special_needs_v236.py
+      - name: Prove live deployment SHA report sitemap hub and twenty-five guide routes
+        run: python scripts/verify_live_special_needs_v236.py --output live-special-needs-v236.json
+      - name: Validate evidence contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('live-special-needs-v236.json').read_text(encoding='utf-8'))
+          assert report['version']==236 and report['status']=='passed',report
+          assert report['deployment']['contains_25_guide_integration'] is True,report
+          assert report['production_report']['guide_count']==25,report
+          assert report['production_report']['batch_count']==5,report
+          assert report['live']['guide_pages_verified']==25,report
+          assert report['live']['sitemap_special_needs_routes']>=26,report
+          assert report['live']['robots_child_sitemap_count']==1,report
+          print({
+            'live_commit':report['deployment']['commit'],
+            'hub_bytes':report['live']['hub_bytes'],
+            'guide_pages':report['live']['guide_pages_verified'],
+            'sitemap_routes':report['live']['sitemap_special_needs_routes'],
+            'status':'live-proof-passed',
+          })
+          PY
+      - name: Upload immutable live evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-special-needs-v236
+          path: live-special-needs-v236.json
+          if-no-files-found: warn
+          retention-days: 30
