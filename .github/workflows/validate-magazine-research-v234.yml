@@ -32,14 +32,17 @@ jobs:
         run: |
           python - <<'PY'
           import importlib.util
+          import sys
           from pathlib import Path
           path = Path('scripts/publish_magazine_v201.py')
           spec = importlib.util.spec_from_file_location('magazine_v234_inventory', path)
           module = importlib.util.module_from_spec(spec)
+          sys.modules[spec.name] = module
           spec.loader.exec_module(module)
           pages = module.article_files()
-          assert len(pages) == 15, [page.name for page in pages]
+          assert len(pages) == 21, [page.name for page in pages]
           index = Path('magazine/index.html').read_text(encoding='utf-8')
+          assert index.count('class="card"') == len(pages)
           for page in pages:
               assert index.count(f'href="{page.name}"') >= 2, page.name
               assert module.URL + page.name in index, page.name
@@ -52,10 +55,10 @@ jobs:
         run: |
           set -euo pipefail
           test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 7
-          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 8
-          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 15
-          test "$(grep -o 'class="card"' magazine/index.html | wc -l)" -eq 15
-          grep -q '"numberOfItems":15' magazine/index.html
+          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 14
+          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 21
+          test "$(grep -o 'class="card"' magazine/index.html | wc -l)" -eq 21
+          grep -q '"numberOfItems":21' magazine/index.html
 
           grep -q '10.1177/10870547251364578' magazine/adhd-school-social-skills-meta-analysis-2026.html
           grep -q '10.1001/jamapsychiatry.2026.0603' magazine/artemis-adolescent-mental-health-stigma-2026.html
@@ -65,6 +68,12 @@ jobs:
           grep -q '10.1016/j.jaac.2026.01.006' magazine/intensive-community-care-adolescents-2026.html
           grep -q '10.1038/s44184-026-00196-4' magazine/neurodivergent-university-mental-health-interventions-2026.html
           grep -q '38725' magazine/thesis-sensory-processing-adhd-autism-2026.html
+          grep -q '10.1038/s41562-026-02457-w' magazine/autism-social-functioning-meta-analysis-2026.html
+          grep -q '10.1177/11795565261442820' magazine/autism-ssri-children-meta-analysis-2026.html
+          grep -q '10.1080/24694193.2026.2640837' magazine/adhd-screen-time-meta-analysis-2026.html
+          grep -q '10.1080/01942638.2026.2689070' magazine/adhd-technology-interventions-meta-analysis-2026.html
+          grep -q '10.1016/j.arcped.2026.105583' magazine/adhd-physical-fitness-meta-analysis-2026.html
+          grep -q '10.1186/s12888-026-08191-x' magazine/autism-sleep-disorders-prevalence-meta-analysis-2026.html
 
           grep -q '10.1038/s41562-025-02162-0' magazine/mobile-stress-interventions-2025.html
           grep -q '10.3389/fpsyt.2025.1594658' magazine/school-resilience-children-2025.html
