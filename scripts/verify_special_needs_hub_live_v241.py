@@ -111,6 +111,7 @@ def verify(root: Path, expected_sha: str | None = None) -> dict[str, Any]:
         "faq_count": 8,
         "source_count": 10,
         "jordan_source_count": 3,
+        "jordan_context_section": True,
         "asha_aac_source_updated": True,
     }.items():
         if hub_report.get(key) != expected:
@@ -142,6 +143,9 @@ def verify(root: Path, expected_sha: str | None = None) -> dict[str, Any]:
         'application/ld+json',
         '<strong>10</strong><span>مراجع مؤسسية أصلية</span>',
         'data-special-needs-jordan-sources-v241',
+        'data-special-needs-jordan-context-v241',
+        'من مبدأ الإدماج إلى طلب مكتوب قابل للمتابعة',
+        'لا تمثل هذه الصفحة تفسيرًا قانونيًا',
         'Practice-Portal/Professional-Issues/Augmentative-and-Alternative-Communication',
         'مصفوفة قرار سريعة',
         'معايير جودة الخطة أو الخدمة',
@@ -162,6 +166,8 @@ def verify(root: Path, expected_sha: str | None = None) -> dict[str, Any]:
         fail("Live hub is missing Jordan source links", missing_sources)
     if source.count("data-special-needs-jordan-sources-v241") != 3:
         fail("Jordan source marker count must equal three")
+    if source.count("data-special-needs-jordan-context-v241") != 1:
+        fail("Jordan context section marker must occur exactly once")
     if "www.asha.org/public/speech/disorders/aac/" in source:
         fail("Legacy ASHA public AAC URL remains in live hub")
     for unsafe in ("fetch(", "XMLHttpRequest", "navigator.sendBeacon", "eval(", "new Function("):
@@ -208,6 +214,7 @@ def verify(root: Path, expected_sha: str | None = None) -> dict[str, Any]:
         "faq_count": hub_report["faq_count"],
         "source_count": hub_report["source_count"],
         "jordan_source_count": hub_report["jordan_source_count"],
+        "jordan_context_section": hub_report["jordan_context_section"],
         "guide_links": len(slugs),
         "sitemap_required_urls": len(expected_urls),
         "sitemap_total_urls": len(locations),
