@@ -127,6 +127,7 @@ def main() -> int:
         raise SystemExit(f"Missing site directory: {site}")
 
     run_script("publish_tips_hub_v234.py", site)
+    run_script("verify_tips_v234.py", site)
     run_script("publish_trust_guides_v201.py", site)
     run_script("finalize_trust_guides_links_v201.py", site)
 
@@ -150,6 +151,7 @@ def main() -> int:
         "brand_metadata_updates": 0,
         "tips_v234_published": True,
         "tips_v234_report": "api/tips-audit-v234.json",
+        "tips_v234_verification": "api/tips-verification-v234.json",
         "trust_guides_published": True,
         "trust_guides_links_finalized": True,
         "trust_guides_report": "api/trust-guides-v201.json",
