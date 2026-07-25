@@ -104,9 +104,17 @@ def main() -> None:
             assert "rgba(0,0,0" not in text.replace(" ", "").lower(), page
             assert not any(item in text.lower() for item in BANNED), page
 
+        sleep_runtime_path = SITE / "assets" / "sleep-log-v49.js"
         for tool in tools:
             text = (SITE / "daily-tools" / tool["slug"] / "index.html").read_text(encoding="utf-8")
-            assert "localStorage" in text and "لا تُرسل البيانات إلى خادم" in text
+            assert "لا تُرسل البيانات إلى خادم" in text
+            if tool["slug"] == SLEEP_SLUG and "sleep-log-v49.js" in text:
+                assert sleep_runtime_path.is_file(), sleep_runtime_path
+                sleep_runtime = sleep_runtime_path.read_text(encoding="utf-8")
+                assert "localStorage" in sleep_runtime
+                assert not any(marker in sleep_runtime for marker in ("fetch(", "XMLHttpRequest", "navigator.sendBeacon"))
+            else:
+                assert "localStorage" in text
 
         sleep_href = f"/pterminology-site/daily-tools/{SLEEP_SLUG}/"
         center = (SITE / "daily-tools" / "index.html").read_text(encoding="utf-8")
