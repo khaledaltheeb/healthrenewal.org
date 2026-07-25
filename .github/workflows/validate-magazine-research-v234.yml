@@ -1,0 +1,102 @@
+name: Validate magazine and research v234
+
+on:
+  pull_request:
+    paths:
+      - 'magazine/**'
+      - 'scripts/publish_magazine_v201.py'
+      - 'tests/test_magazine_research_v234.py'
+      - '.github/workflows/validate-magazine-research-v234.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'magazine/**'
+      - 'scripts/publish_magazine_v201.py'
+      - 'tests/test_magazine_research_v234.py'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile publisher and tests
+        run: |
+          python -m py_compile scripts/publish_magazine_v201.py tests/test_magazine_research_v234.py
+      - name: Verify automatic source inventory
+        run: |
+          python - <<'PY'
+          import importlib.util
+          import sys
+          from pathlib import Path
+          path = Path('scripts/publish_magazine_v201.py')
+          spec = importlib.util.spec_from_file_location('magazine_v234_inventory', path)
+          module = importlib.util.module_from_spec(spec)
+          sys.modules[spec.name] = module
+          spec.loader.exec_module(module)
+          pages = module.article_files()
+          assert len(pages) == 35, [page.name for page in pages]
+          index = Path('magazine/index.html').read_text(encoding='utf-8')
+          assert index.count('class="card"') == len(pages)
+          for page in pages:
+              assert index.count(f'href="{page.name}"') >= 2, page.name
+              assert module.URL + page.name in index, page.name
+          print({'articles': len(pages), 'unwired': 0})
+          PY
+      - name: Run deterministic magazine tests
+        run: |
+          python -m unittest tests.test_magazine_research_v234 -v
+      - name: Verify source contracts
+        run: |
+          set -euo pipefail
+          test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 9
+          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 26
+          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 35
+          test "$(grep -o 'class="card"' magazine/index.html | wc -l)" -eq 35
+          grep -q '"numberOfItems":35' magazine/index.html
+
+          grep -q '10.1177/10870547251364578' magazine/adhd-school-social-skills-meta-analysis-2026.html
+          grep -q '10.1001/jamapsychiatry.2026.0603' magazine/artemis-adolescent-mental-health-stigma-2026.html
+          grep -q '10.1186/s13034-026-01132-2' magazine/autism-behavioral-domains-network-meta-analysis-2026.html
+          grep -q '10.1016/j.cpr.2026.102764' magazine/autism-emotion-regulation-interventions-2026.html
+          grep -q '10.1038/s44220-026-00652-2' magazine/autism-interventions-meta-analysis-2026.html
+          grep -q '10.1016/j.jaac.2026.01.006' magazine/intensive-community-care-adolescents-2026.html
+          grep -q '10.1038/s44184-026-00196-4' magazine/neurodivergent-university-mental-health-interventions-2026.html
+          grep -q '38725' magazine/thesis-sensory-processing-adhd-autism-2026.html
+          grep -q '10.1038/s41562-026-02457-w' magazine/autism-social-functioning-meta-analysis-2026.html
+          grep -q '10.1177/11795565261442820' magazine/autism-ssri-children-meta-analysis-2026.html
+          grep -q '10.1080/24694193.2026.2640837' magazine/adhd-screen-time-meta-analysis-2026.html
+          grep -q '10.1080/01942638.2026.2689070' magazine/adhd-technology-interventions-meta-analysis-2026.html
+          grep -q '10.1016/j.arcped.2026.105583' magazine/adhd-physical-fitness-meta-analysis-2026.html
+          grep -q '10.1186/s12888-026-08191-x' magazine/autism-sleep-disorders-prevalence-meta-analysis-2026.html
+          grep -q '10.1001/jamanetworkopen.2025.52693' magazine/autism-parent-act-randomized-trial-2026.html
+          grep -q '10.1111/camh.70093' magazine/neurodevelopmental-psychiatric-comorbidity-umbrella-review-2026.html
+          grep -q '10.1177/00048674251405141' magazine/child-adolescent-mental-health-guidelines-review-2026.html
+          grep -q '10.1001/jamapsychiatry.2026.0668' magazine/digital-eating-disorder-interventions-meta-analysis-2026.html
+          grep -q '10.1002/jad.70236' magazine/adolescent-chronic-pain-digital-psychological-interventions-2026.html
+          grep -q '10.1007/s00787-025-02859-7' magazine/youth-self-harm-interventions-meta-analysis-2026.html
+          grep -q '10.1037/bul0000522' magazine/young-children-universal-wellbeing-interventions-meta-analysis-2026.html
+          grep -q '10.1111/jcpp.70192' magazine/youth-single-session-self-administered-interventions-2026.html
+          grep -q '10.1016/j.smrv.2026.102303' magazine/adhd-sleep-interventions-network-meta-analysis-2026.html
+          grep -q '10.1007/s00787-026-03018-2' magazine/intellectual-disability-youth-psychotherapy-meta-analysis-2026.html
+          grep -q '10.1186/s13034-026-01042-3' magazine/youth-digital-depression-anxiety-network-meta-analysis-2026.html
+          grep -q '10.1111/josh.70144' magazine/high-school-digital-literacy-physical-activity-rct-2026.html
+
+          grep -q '10.3390/jcm14124364' magazine/cerebral-palsy-youth-mental-health-review-2025.html
+          grep -q '10.1007/s00787-025-02795-6' magazine/deaf-hard-hearing-youth-mental-health-review-2025.html
+          grep -q '10.1038/s41562-025-02162-0' magazine/mobile-stress-interventions-2025.html
+          grep -q '10.3389/fpsyt.2025.1594658' magazine/school-resilience-children-2025.html
+          grep -q '39813031' magazine/youth-stigma-interventions-2025.html
+          grep -q '10.1111/tmi.70000' magazine/developmental-disabilities-school-support-2025.html
+          grep -q 'لم يجد التحليل التلوي آثارًا دالة' magazine/peer-led-adolescent-mental-health-2025.html
+          grep -q '38156' magazine/thesis-autism-heterogeneity-research-2025.html
+          grep -q '10.26182/pez7-d531' magazine/thesis-autistic-camouflaging-mental-health-2025.html
+
+          grep -q 'unwired_research_pages' scripts/publish_magazine_v201.py
+          grep -q 'SOURCE_LINK_PATTERN' scripts/publish_magazine_v201.py
+          ! grep -R -E 'علاج مضمون|يشخّص|نتائج مؤكدة للجميع' magazine
