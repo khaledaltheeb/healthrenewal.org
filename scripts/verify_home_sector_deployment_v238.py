@@ -8,9 +8,12 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
-VERSION = 238
+VERSION = 244
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 BASE_PATH = "/pterminology-site/"
+MINIMUM_HUB_WORDS = 2919
+MINIMUM_ARTICLE_WORDS = 819
+WORD_COUNT_METHOD = "semantic-visible-tokens-v244"
 
 
 class TextParser(HTMLParser):
@@ -79,6 +82,12 @@ def source_articles(path: Path) -> list[dict[str, Any]]:
     return articles
 
 
+def _require_single(source: str, pattern: str, message: str, detail: str) -> None:
+    matches = re.findall(pattern, source, flags=re.I | re.S)
+    if len(matches) != 1:
+        fail(message, {"page": detail, "count": len(matches)})
+
+
 def validate_indexable_page(path: Path, canonical: str, *, article: bool, minimum_words: int) -> dict[str, Any]:
     if not path.is_file():
         fail("Missing deployed page", path.as_posix())
@@ -86,16 +95,33 @@ def validate_indexable_page(path: Path, canonical: str, *, article: bool, minimu
     lower = source.lower()
     if len(re.findall(r"<h1\b", source, flags=re.I)) != 1:
         fail("Page must contain exactly one H1", path.as_posix())
-    if canonical not in source:
-        fail("Canonical URL is missing", canonical)
+    canonical_pattern = rf'<link\b[^>]*rel=["\']canonical["\'][^>]*href=["\']{re.escape(canonical)}["\'][^>]*>'
+    if len(re.findall(canonical_pattern, source, flags=re.I | re.S)) != 1:
+        fail("Page must contain exactly one matching canonical URL", canonical)
+    _require_single(source, r'<meta\b[^>]*name=["\']description["\'][^>]*content=["\'][^"\']+["\']', "Page must contain one meta description", path.as_posix())
+    _require_single(source, r'<meta\b[^>]*name=["\']robots["\'][^>]*content=["\'][^"\']+["\']', "Page must contain one robots meta tag", path.as_posix())
     if re.search(r'<meta\b[^>]*name=["\']robots["\'][^>]*content=["\'][^"\']*noindex', source, flags=re.I | re.S):
         fail("Published page must not be noindex", path.as_posix())
+    for required in ('property="og:title"', 'name="twitter:card"', 'id="global-header"', 'id="global-footer"', "navigator.serviceWorker.register"):
+        if required not in source:
+            fail("Published page is missing SEO, shell or PWA integration", {"page": path.as_posix(), "required": required})
+    if "application/ld+json" not in source:
+        fail("Structured data block is missing", path.as_posix())
     if article and not re.search(r'"@type"\s*:\s*"Article"', source):
         fail("Article JSON-LD is missing", path.as_posix())
+    if "معاقين" in source:
+        fail("Published page contains the prohibited term", path.as_posix())
     words = visible_words(source)
     if words < minimum_words:
         fail("Deployed page is below its minimum depth", {"path": path.as_posix(), "words": words, "minimum": minimum_words})
-    return {"path": path.as_posix(), "words": words, "indexable": "noindex" not in lower}
+    return {
+        "path": path.as_posix(),
+        "words": words,
+        "indexable": "noindex" not in lower,
+        "canonical": canonical,
+        "shell": True,
+        "pwa": True,
+    }
 
 
 def verify(site: Path, source_file: Path, expected_sha: str | None = None, mode: str = "live") -> dict[str, Any]:
@@ -123,20 +149,22 @@ def verify(site: Path, source_file: Path, expected_sha: str | None = None, mode:
         "source_articles": 20,
         "banned_term_present": False,
         "diagnostic_claim_present": False,
+        "word_count_method": WORD_COUNT_METHOD,
+        "depth_contract_version": 244,
     }
     for key, expected in required.items():
         if report.get(key) != expected:
             fail("Home-sector report contract mismatch", {"key": key, "found": report.get(key), "expected": expected})
-    if int(report.get("hub_words", 0)) < 1800:
+    if int(report.get("hub_words", 0)) < MINIMUM_HUB_WORDS:
         fail("Home-sector hub report depth is too low", report.get("hub_words"))
-    if int(report.get("minimum_article_words", 0)) < 450:
+    if int(report.get("minimum_article_words", 0)) < MINIMUM_ARTICLE_WORDS:
         fail("Home-sector article report depth is too low", report.get("minimum_article_words"))
 
     hub = validate_indexable_page(
         site / "sectors" / "home" / "index.html",
         f"{BASE}/sectors/home/",
         article=False,
-        minimum_words=1800,
+        minimum_words=MINIMUM_HUB_WORDS,
     )
     hub_source = (site / "sectors" / "home" / "index.html").read_text(encoding="utf-8")
     for schema in ("CollectionPage", "BreadcrumbList", "ItemList", "FAQPage"):
@@ -153,7 +181,7 @@ def verify(site: Path, source_file: Path, expected_sha: str | None = None, mode:
                 site / "sectors" / "home" / slug / "index.html",
                 f"{BASE}/sectors/home/{slug}/",
                 article=True,
-                minimum_words=450,
+                minimum_words=MINIMUM_ARTICLE_WORDS,
             )
         )
 
@@ -166,6 +194,15 @@ def verify(site: Path, source_file: Path, expected_sha: str | None = None, mode:
     if "Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml" not in robots:
         fail("Main sitemap declaration is missing from robots.txt")
 
+    minimum_live_article_words = min(item["words"] for item in pages)
+    if int(report["hub_words"]) != hub["words"] or int(report["minimum_article_words"]) != minimum_live_article_words:
+        fail("Production report and live semantic word counts differ", {
+            "report_hub": report["hub_words"],
+            "live_hub": hub["words"],
+            "report_minimum_article": report["minimum_article_words"],
+            "live_minimum_article": minimum_live_article_words,
+        })
+
     result = {
         "version": VERSION,
         "status": "passed",
@@ -174,10 +211,14 @@ def verify(site: Path, source_file: Path, expected_sha: str | None = None, mode:
         "source_articles": len(articles),
         "hub_words": hub["words"],
         "article_pages_verified": len(pages),
-        "minimum_live_article_words": min(item["words"] for item in pages),
+        "minimum_live_article_words": minimum_live_article_words,
+        "word_count_method": WORD_COUNT_METHOD,
         "all_indexable": all(item["indexable"] for item in [hub, *pages]),
+        "all_have_shell": all(item["shell"] for item in [hub, *pages]),
+        "all_have_pwa": all(item["pwa"] for item in [hub, *pages]),
         "robots_allow": True,
         "report_version": report["version"],
+        "depth_contract_version": report["depth_contract_version"],
     }
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
