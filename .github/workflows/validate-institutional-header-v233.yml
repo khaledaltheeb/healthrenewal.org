@@ -1,0 +1,115 @@
+name: Validate institutional header v233
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/enforce_health_publication_gate_v192.py"
+      - "scripts/enforce_health_publication_gate_v192_base.py"
+      - "scripts/publish_institutional_header_v233.py"
+      - "tests/test_health_publication_gate_v192.py"
+      - "tests/test_health_gate_header_integration_v233.py"
+      - "tests/test_institutional_header_v233.py"
+      - ".github/workflows/validate-institutional-header-v233.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/enforce_health_publication_gate_v192.py"
+      - "scripts/enforce_health_publication_gate_v192_base.py"
+      - "scripts/publish_institutional_header_v233.py"
+      - "tests/test_health_publication_gate_v192.py"
+      - "tests/test_health_gate_header_integration_v233.py"
+      - "tests/test_institutional_header_v233.py"
+      - ".github/workflows/validate-institutional-header-v233.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: institutional-header-v233-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  institutional-header:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify preserved health gate blob
+        run: |
+          set -euxo pipefail
+          test "$(git hash-object scripts/enforce_health_publication_gate_v192_base.py)" = "99455362327c93507fd3069f10c17e30c6a0a3cf"
+
+      - name: Compile and run deterministic tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/enforce_health_publication_gate_v192.py \
+            scripts/enforce_health_publication_gate_v192_base.py \
+            scripts/publish_institutional_header_v233.py \
+            tests/test_health_publication_gate_v192.py \
+            tests/test_health_gate_header_integration_v233.py \
+            tests/test_institutional_header_v233.py
+          python -m unittest -v \
+            tests.test_health_publication_gate_v192 \
+            tests.test_health_gate_header_integration_v233 \
+            tests.test_institutional_header_v233
+
+      - name: Materialize and verify an isolated homepage
+        run: |
+          set -euxo pipefail
+          rm -rf /tmp/header-v233-site
+          mkdir -p /tmp/header-v233-site
+          cp index.html /tmp/header-v233-site/index.html
+          python scripts/publish_institutional_header_v233.py /tmp/header-v233-site | tee /tmp/header-v233-first.json
+          python scripts/publish_institutional_header_v233.py /tmp/header-v233-site | tee /tmp/header-v233-second.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          page = Path('/tmp/header-v233-site/index.html').read_text(encoding='utf-8')
+          first = json.loads(Path('/tmp/header-v233-first.json').read_text(encoding='utf-8'))
+          second = json.loads(Path('/tmp/header-v233-second.json').read_text(encoding='utf-8'))
+          assert first['status'] == 'passed' and first['changed'] is True, first
+          assert second['status'] == 'passed' and second['changed'] is False, second
+          assert page.count('data-institutional-header-v233') == 1
+          assert page.count('data-i18n-switcher-v72') == 1
+          assert page.count('id="institutional-header-v233-styles"') == 1
+          assert page.count('<details') == 2
+          assert page.count('<summary') == 2
+          assert '<nav class="nav"' not in page
+          for route in (
+              'start-here/', 'encyclopedia/', 'comparisons/', 'library/',
+              'care-guides/', 'special-needs/', 'sectors/child/',
+              'sectors/family/', 'sectors/home/', 'provider-assessment-demo/',
+              'api/', 'trust/'
+          ):
+              assert f'href="/pterminology-site/{route}"' in page, route
+          for label, route in (
+              ('العربية', '/pterminology-site/'),
+              ('English', '/pterminology-site/en/'),
+              ('Español', '/pterminology-site/es/'),
+          ):
+              assert label in page and f'href="{route}"' in page, (label, route)
+          print({'header': 'passed', 'sections': 12, 'languages': 3, 'idempotent': True})
+          PY
+
+      - name: Serve and verify rendered response
+        run: |
+          set -euxo pipefail
+          python -m http.server 8000 --directory /tmp/header-v233-site >/tmp/header-v233-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill $server_pid || true' EXIT
+          for attempt in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:8000/index.html -o /tmp/header-v233-served.html && break
+            sleep 1
+          done
+          grep -q 'data-institutional-header-v233' /tmp/header-v233-served.html
+          grep -q 'أقسام المنصة' /tmp/header-v233-served.html
+          grep -q 'اختر لغة الواجهة' /tmp/header-v233-served.html
+          grep -q 'English' /tmp/header-v233-served.html
+          grep -q 'Español' /tmp/header-v233-served.html
