@@ -30,7 +30,7 @@ class MagazineResearchV234Tests(unittest.TestCase):
 
     def test_publishes_every_discovered_article_and_sitemap(self) -> None:
         pages = MODULE.article_files()
-        self.assertEqual(len(pages), 21)
+        self.assertEqual(len(pages), 25)
         with tempfile.TemporaryDirectory() as directory:
             site = self.make_site(Path(directory))
             report = MODULE.publish(site)
@@ -86,9 +86,9 @@ class MagazineResearchV234Tests(unittest.TestCase):
 
     def test_index_exposes_every_discovered_article(self) -> None:
         index = (ROOT / "magazine" / "index.html").read_text(encoding="utf-8")
-        self.assertIn('"numberOfItems":21', index)
+        self.assertIn('"numberOfItems":25', index)
         self.assertIn('"hasPart"', index)
-        self.assertEqual(index.count('class="card"'), 21)
+        self.assertEqual(index.count('class="card"'), 25)
         for path in MODULE.article_files():
             self.assertGreaterEqual(index.count(f'href="{path.name}"'), 2)
             self.assertIn(MODULE.URL + path.name, index)
@@ -107,6 +107,10 @@ class MagazineResearchV234Tests(unittest.TestCase):
             "adhd-technology-interventions-meta-analysis-2026.html": ("p = 0.059", "لا تساوي تلقائيًا تحسنًا في السلوك اليومي"),
             "adhd-physical-fitness-meta-analysis-2026.html": ("SMD = −0.46", "لا تبرر النتيجة افتراض ضعف جسدي"),
             "autism-sleep-disorders-prevalence-meta-analysis-2026.html": ("I² = 98.8%", "لا يمكن استنتاج السببية"),
+            "autism-parent-act-randomized-trial-2026.html": ("154 مشاركًا", "لم تستمر بوصفها فروقًا دالة"),
+            "neurodevelopmental-psychiatric-comorbidity-umbrella-review-2026.html": ("14,608", "لا تصلح للتنبؤ بحالة طفل فردي"),
+            "child-adolescent-mental-health-guidelines-review-2026.html": ("20 إرشادًا", "لا تضمن تنفيذ توصياته"),
+            "digital-eating-disorder-interventions-meta-analysis-2026.html": ("36 تجربة عشوائية", "لا يجوز الاعتماد على تطبيق وحده"),
         }
         for filename, markers in checks.items():
             text = (ROOT / "magazine" / filename).read_text(encoding="utf-8")
