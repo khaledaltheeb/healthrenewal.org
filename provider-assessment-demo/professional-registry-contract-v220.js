@@ -5,13 +5,14 @@
   if (!data || !Array.isArray(data.professional)) return;
 
   const VERSION = "220.1";
+  const EXTERNAL_MODES = new Set(["external_import", "record_review"]);
   const externalPattern = /external|device|audiometry|oae|abr|bera|tympan|vision|hearing|سمع|بصر|جهاز/i;
   const normalizeText = (value) => String(value || "").trim();
   const unique = (values) => [...new Set((values || []).map(normalizeText).filter(Boolean))];
 
-  const contractFor = (tool) => {
-    const descriptor = `${tool.name} ${tool.category} ${tool.kind} ${tool.inputMode} ${tool.activationStatus} ${tool.status}`;
-    const external = tool.status === "external" || externalPattern.test(descriptor);
+  const contractFor = (tool, forceExternal = null) => {
+    const descriptor = `${tool.name || ""} ${tool.category || ""} ${tool.kind || ""} ${tool.inputMode || ""} ${tool.activationStatus || ""} ${tool.status || ""}`;
+    const external = forceExternal ?? (tool.status === "external" || externalPattern.test(descriptor));
     return {
       version: VERSION,
       recordType: external ? "external_official_result_record" : "licensed_professional_administration_record",
@@ -61,21 +62,20 @@
     tool.resultRecordingStatus = "available_without_protected_materials";
   }
 
-  const customRecordContract = Object.freeze(contractFor({
+  const customContractForMode = (administrationMode = "") => contractFor({
     id: "custom-professional-record",
     name: "تطبيق مهني مخصص أو تقرير خارجي",
     category: "مسار مهني",
-    kind: "external report",
-    status: "external",
-    recommendedRoles: ["مختص مؤهل يراجع التقرير أو المخرج الرسمي"],
-  }));
+    recommendedRoles: ["مختص مؤهل يطبق النسخة المرخصة أو يراجع التقرير الرسمي"],
+  }, EXTERNAL_MODES.has(String(administrationMode || "")));
 
   window.PA_PROFESSIONAL_REGISTRY_V220 = Object.freeze({
     version: VERSION,
     count: data.professional.length,
     allDigitalAdministrationLocked: data.professional.every((tool) => tool.professionalContract.officialAdministrationInsidePlatform === false),
     protectedContentStorageAllowed: false,
-    customRecordContract,
+    customRecordContract: customContractForMode("external_import"),
+    customContractForMode,
     tools: data.professional.map((tool) => ({
       id: tool.id,
       name: tool.name,
@@ -85,13 +85,4 @@
       requiredCompletedFields: [...tool.professionalContract.requiredCompletedFields],
     })),
   });
-
-  if (typeof document !== "undefined" && !document.querySelector('script[data-professional-planning-compat-v220]')) {
-    const compatibility = document.createElement("script");
-    compatibility.src = `professional-registry-planning-compat-v220.js?release=${encodeURIComponent(VERSION)}`;
-    compatibility.defer = true;
-    compatibility.dataset.professionalPlanningCompatV220 = VERSION;
-    compatibility.addEventListener("error", () => console.error("Failed to load professional planning compatibility v220"), { once: true });
-    document.head.appendChild(compatibility);
-  }
 })();
