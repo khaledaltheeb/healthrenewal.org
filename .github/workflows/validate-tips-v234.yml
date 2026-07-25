@@ -11,6 +11,7 @@ on:
       - "scripts/publish_content_catalog_v219.py"
       - "scripts/enforce_platform_identity_v201.py"
       - "tests/test_tips_v234.py"
+      - "tests/test_tips_catalog_hook_v234.py"
       - ".github/workflows/validate-tips-v234.yml"
   workflow_dispatch:
 
@@ -39,7 +40,8 @@ jobs:
             scripts/verify_tips_v234.py \
             scripts/publish_content_catalog_v219.py \
             scripts/enforce_platform_identity_v201.py \
-            tests/test_tips_v234.py
+            tests/test_tips_v234.py \
+            tests/test_tips_catalog_hook_v234.py
           python -m json.tool content/v234/tips-guides-supplement-ar.json >/dev/null
           python -m json.tool content/v234/sources-ar.json >/dev/null
           python -m json.tool content/v15/tips-details-v15.json >/dev/null
@@ -49,10 +51,11 @@ jobs:
         run: |
           {
             echo '=== PRODUCTION CATALOG HOOK ==='
-            grep -R -n -E 'publish_tips_hub_v234|verify_tips_v234|core-sections-v15' \
+            grep -R -n -E 'publish_tips_hub_v234|verify_tips_v234|core-sections-v15|homepage-v20' \
               scripts/publish_content_catalog_v219.py \
               scripts/enforce_platform_identity_v201.py \
-              tests/test_tips_v234.py || true
+              tests/test_tips_v234.py \
+              tests/test_tips_catalog_hook_v234.py || true
             echo '=== KNOWN PARTNERS BASELINE ==='
             grep -R -n -E 'partners|الشركاء' tests/test_partners_v201.py scripts/publish_partners_v201.py || true
           } > tips-v234-platform-contracts.log
@@ -75,17 +78,19 @@ jobs:
           cat tips-v234-partners-baseline.log
           exit "$status"
 
-      - name: Build and audit all tips pages twice
+      - name: Build, hook, and audit all tips pages
         id: tips_tests
         shell: bash
         run: |
           set +e
-          python -m unittest -v tests.test_tips_v234 > tips-v234-test.log 2>&1
+          python -m unittest -v \
+            tests.test_tips_v234 \
+            tests.test_tips_catalog_hook_v234 > tips-v234-test.log 2>&1
           status=$?
           cat tips-v234-test.log
           if [ "$status" -ne 0 ]; then
             echo "::group::Failure tail"
-            tail -n 160 tips-v234-test.log
+            tail -n 200 tips-v234-test.log
             echo "::endgroup::"
           fi
           exit "$status"
@@ -108,4 +113,5 @@ jobs:
           grep -q 'publish_tips_hub_v234.py' scripts/publish_content_catalog_v219.py
           grep -q 'verify_tips_v234.py' scripts/publish_content_catalog_v219.py
           grep -q 'core-sections-v15.json' scripts/publish_content_catalog_v219.py
+          grep -q 'homepage-v20.json' scripts/publish_content_catalog_v219.py
           grep -q 'tips_v234_verification' scripts/publish_content_catalog_v219.py
