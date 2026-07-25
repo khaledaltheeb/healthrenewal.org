@@ -1,0 +1,46 @@
+name: Validate residual public content v232
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/enrich_residual_public_pages_v232.py"
+      - "tests/test_residual_public_content_v232.py"
+      - ".github/workflows/validate-residual-public-content-v232.yml"
+      - ".github/workflows/audit-production-discovery-v220.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/enrich_residual_public_pages_v232.py"
+      - "tests/test_residual_public_content_v232.py"
+      - ".github/workflows/validate-residual-public-content-v232.yml"
+      - ".github/workflows/audit-production-discovery-v220.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile publisher and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/enrich_residual_public_pages_v232.py \
+            tests/test_residual_public_content_v232.py
+
+      - name: Run deterministic residual-page contracts
+        run: python -m unittest -v tests/test_residual_public_content_v232.py
+
+      - name: Enforce source and safety language
+        run: |
+          set -euxo pipefail
+          grep -q 'دليل كوكرين' scripts/enrich_residual_public_pages_v232.py
+          grep -q 'التخزين المحلي' scripts/enrich_residual_public_pages_v232.py
+          grep -q 'لا يقيس الذكاء' scripts/enrich_residual_public_pages_v232.py
+          ! grep -Eqi 'شفاء مضمون|يعالج نهائيًا|بديل عن الطبيب|تشخيصك هو' scripts/enrich_residual_public_pages_v232.py
