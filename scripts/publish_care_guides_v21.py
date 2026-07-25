@@ -21,9 +21,15 @@ DATA_FILES = [
     ROOT / "content/v18/care-guides-trauma-ptsd-family-support-ar.json",
     ROOT / "content/v18/care-guides-eating-disorder-family-support-ar.json",
     ROOT / "content/v18/care-guides-self-harm-family-safety-support-ar.json",
+    ROOT / "content/v18/care-guides-suicide-risk-family-safety-plan-ar.json",
+    ROOT / "content/v18/care-guides-substance-use-family-recovery-plan-ar.json",
+    ROOT / "content/v18/care-guides-perinatal-mental-health-family-plan-ar.json",
+    ROOT / "content/v18/care-guides-borderline-emotional-instability-family-plan-ar.json",
+    ROOT / "content/v18/care-guides-dementia-behaviour-family-plan-ar.json",
+    ROOT / "content/v18/care-guides-chronic-insomnia-family-sleep-plan-ar.json",
 ]
-EXPECTED_SOURCE_GUIDES = 14
-CONTENT_RELEASE_VERSION = 239
+EXPECTED_SOURCE_GUIDES = 20
+CONTENT_RELEASE_VERSION = 244
 BASE = "https://khaledaltheeb.github.io/pterminology-site/"
 BASE_PATH = "/pterminology-site/"
 TODAY = date.today().isoformat()
@@ -55,6 +61,13 @@ SECTION_LABELS = {
     "warning_signs": "إشارات الاستنزاف أو الخطر",
 }
 
+STYLE = """
+:root{--ink:#173f45;--muted:#4b6f73;--pink:#ffe5ef;--turq:#dffaf7;--mint:#e9fff4;--lilac:#eee9ff;--line:#c9e9e5;--danger:#fff0f3}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#fff9fc,var(--turq),var(--lilac));color:var(--ink);font-family:Tahoma,Arial,sans-serif;line-height:1.9}a{color:#086e69}a:focus-visible{outline:3px solid #168f88;outline-offset:4px}.care-v21{width:min(1060px,92%);margin:auto;padding:28px 0 60px}.care-v21__hero,.care-v21__section,.care-v21__sources{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:26px;padding:clamp(20px,4vw,38px);box-shadow:0 18px 48px rgba(45,117,116,.1);margin:18px 0}.care-v21__hero{background:linear-gradient(135deg,var(--pink),var(--turq),var(--lilac))}.care-v21__hero h1{font-size:clamp(2rem,5vw,3.6rem);line-height:1.3;margin:.25em 0}.care-v21__hero p{max-width:78ch;color:var(--muted);font-size:1.1rem}.care-v21__nav{display:flex;gap:10px;flex-wrap:wrap}.care-v21__nav a,.care-v21__button{display:inline-block;text-decoration:none;padding:10px 16px;border-radius:14px;background:#fff;border:1px solid var(--line);font-weight:900}.care-v21__audience{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.care-v21__audience span{padding:6px 11px;border-radius:999px;background:var(--mint);font-weight:800}.care-v21__section h2,.care-v21__sources h2{margin-top:0;color:#7d3658}.care-v21__section li{margin:.55rem 0}.care-v21__section--danger{background:var(--danger);border-color:#e9a2b7}.care-v21__emergency{border-right:6px solid #c7476e;background:#fff0f3;border-radius:20px;padding:20px;margin:18px 0;color:#651f36;font-weight:800}.care-v21__sources li{margin:.7rem 0}.care-v21__small{color:var(--muted)}
+@media(max-width:650px){.care-v21{width:min(94%,1060px)}.care-v21__nav{display:grid;grid-template-columns:1fr}.care-v21__nav a{text-align:center}}
+@media print{.care-v21__nav{display:none!important}body{background:#fff}.care-v21__hero,.care-v21__section,.care-v21__sources{box-shadow:none;break-inside:avoid}}
+""".strip()
+
 
 def esc(value: object) -> str:
     return html.escape(str(value), quote=True)
@@ -67,20 +80,10 @@ def list_section(title: str, items: list[str], danger: bool = False) -> str:
 
 
 def schema_for(guide: dict, canonical: str) -> str:
-    steps = []
-    position = 1
-    for key in (
-        "do",
-        "communication_plan",
-        "conversation_steps",
-        "plan",
-        "caregiver_plan",
-        "home_plan",
-        "school_plan",
-    ):
+    steps: list[dict] = []
+    for key in ("do", "communication_plan", "conversation_steps", "plan", "caregiver_plan", "home_plan", "school_plan"):
         for item in guide.get(key, []):
-            steps.append({"@type": "HowToStep", "position": position, "name": item, "text": item})
-            position += 1
+            steps.append({"@type": "HowToStep", "position": len(steps) + 1, "name": item, "text": item})
     graph = [
         {
             "@type": "Article",
@@ -93,14 +96,7 @@ def schema_for(guide: dict, canonical: str) -> str:
             "publisher": {"@type": "Organization", "name": "مصطلحات علم النفس"},
             "citation": [source["url"] for source in guide["sources"]],
         },
-        {
-            "@type": "HowTo",
-            "name": guide["title"],
-            "description": guide["summary"],
-            "inLanguage": "ar",
-            "url": canonical,
-            "step": steps,
-        },
+        {"@type": "HowTo", "name": guide["title"], "description": guide["summary"], "inLanguage": "ar", "url": canonical, "step": steps},
         {
             "@type": "BreadcrumbList",
             "itemListElement": [
@@ -114,35 +110,59 @@ def schema_for(guide: dict, canonical: str) -> str:
 
 
 def head(title: str, description: str, canonical: str, schema: str) -> str:
-    return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{esc(title)} | مصطلحات علم النفس</title><meta name="description" content="{esc(description)}"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#71d8cf"><meta name="color-scheme" content="light"><link rel="canonical" href="{esc(canonical)}"><link rel="alternate" hreflang="ar" href="{esc(canonical)}"><link rel="alternate" hreflang="x-default" href="{esc(canonical)}"><link rel="manifest" href="{BASE_PATH}manifest.webmanifest"><link rel="stylesheet" href="{BASE_PATH}assets/css/theme-v10.css"><link rel="stylesheet" href="{BASE_PATH}assets/css/marshmallow-v12.css"><meta property="og:type" content="article"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="مصطلحات علم النفس"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(canonical)}"><meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">{schema}</script><style>:root{{--ink:#173f45;--muted:#4b6f73;--pink:#ffe5ef;--turq:#dffaf7;--mint:#e9fff4;--lilac:#eee9ff;--line:#c9e9e5;--white:#fff;--danger:#fff0f3}}*{{box-sizing:border-box}}body{{margin:0;background:linear-gradient(145deg,#fff9fc,var(--turq),var(--lilac));color:var(--ink);font-family:Tahoma,Arial,sans-serif;line-height:1.9}}a{{color:#086e69}}a:focus-visible{{outline:3px solid #168f88;outline-offset:4px}}.care-v21{{width:min(1060px,92%);margin:auto;padding:28px 0 60px}}.care-v21__hero,.care-v21__section,.care-v21__sources{{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:26px;padding:clamp(20px,4vw,38px);box-shadow:0 18px 48px rgba(45,117,116,.1);margin:18px 0}}.care-v21__hero{{background:linear-gradient(135deg,var(--pink),var(--turq),var(--lilac))}}.care-v21__hero h1{{font-size:clamp(2rem,5vw,3.6rem);line-height:1.3;margin:.25em 0}}.care-v21__hero p{{max-width:78ch;color:var(--muted);font-size:1.1rem}}.care-v21__nav{{display:flex;gap:10px;flex-wrap:wrap}}.care-v21__nav a,.care-v21__button{{display:inline-block;text-decoration:none;padding:10px 16px;border-radius:14px;background:#fff;border:1px solid var(--line);font-weight:900}}.care-v21__audience{{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}}.care-v21__audience span{{padding:6px 11px;border-radius:999px;background:var(--mint);font-weight:800}}.care-v21__section h2,.care-v21__sources h2{{margin-top:0;color:#7d3658}}.care-v21__section li{{margin:.55rem 0}}.care-v21__section--danger{{background:var(--danger);border-color:#e9a2b7}}.care-v21__emergency{{border-right:6px solid #c7476e;background:#fff0f3;border-radius:20px;padding:20px;margin:18px 0;color:#651f36;font-weight:800}}.care-v21__sources li{{margin:.7rem 0}}.care-v21__small{{color:var(--muted)}}@media(max-width:650px){{.care-v21{{width:min(94%,1060px)}}.care-v21__nav{{display:grid;grid-template-columns:1fr}}.care-v21__nav a{{text-align:center}}}}@media print{{.care-v21__nav{{display:none!important}}body{{background:#fff}}.care-v21__hero,.care-v21__section,.care-v21__sources{{box-shadow:none;break-inside:avoid}}}}</style></head>'''
+    return (
+        '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+        f'<title>{esc(title)} | مصطلحات علم النفس</title>'
+        f'<meta name="description" content="{esc(description)}">'
+        '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">'
+        '<meta name="theme-color" content="#71d8cf"><meta name="color-scheme" content="light">'
+        f'<link rel="canonical" href="{esc(canonical)}"><link rel="alternate" hreflang="ar" href="{esc(canonical)}">'
+        f'<link rel="alternate" hreflang="x-default" href="{esc(canonical)}"><link rel="manifest" href="{BASE_PATH}manifest.webmanifest">'
+        f'<link rel="stylesheet" href="{BASE_PATH}assets/css/theme-v10.css"><link rel="stylesheet" href="{BASE_PATH}assets/css/marshmallow-v12.css">'
+        '<meta property="og:type" content="article"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="مصطلحات علم النفس">'
+        f'<meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(canonical)}">'
+        f'<meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">{schema}</script><style>{STYLE}</style></head>'
+    )
 
 
 def guide_page(guide: dict) -> str:
     canonical = BASE + "care-guides/" + guide["slug"] + "/"
-    sections = []
-    for key, label in SECTION_LABELS.items():
-        values = guide.get(key)
-        if values:
-            sections.append(list_section(label, values, danger=key in {"when_to_seek_help", "warning_signs"}))
+    sections = [
+        list_section(label, guide[key], danger=key in {"when_to_seek_help", "warning_signs"})
+        for key, label in SECTION_LABELS.items()
+        if guide.get(key)
+    ]
     sources = "".join(
         f'<li><a href="{esc(source["url"])}" rel="noopener noreferrer">{esc(source["publisher"])} — {esc(source["title"])} ({esc(source["year"])})</a></li>'
         for source in guide["sources"]
     )
     audience = "".join(f"<span>{esc(item)}</span>" for item in guide.get("audience", []))
-    emergency = guide.get("emergency_note", "")
     review_line = ""
     if guide.get("reviewed_at"):
-        review_line = (
-            f'<p class="care-v21__small">آخر مراجعة للمحتوى والمصادر: {esc(guide["reviewed_at"])}. '
-            "لا توجد مراجعة اختصاصية موثقة لهذا الدليل حتى الآن.</p>"
-        )
-    return head(guide["title"], guide["summary"], canonical, schema_for(guide, canonical)) + f'''<body><main class="care-v21"><header class="care-v21__hero"><nav class="care-v21__nav" aria-label="التنقل"><a href="{BASE_PATH}">الرئيسية</a><a href="{BASE_PATH}care-guides/">كل أدلة التعامل</a><a href="{BASE_PATH}tips/">النصائح</a><a href="{BASE_PATH}assessment-lab/">المقاييس</a></nav><p>دليل عملي غير تشخيصي</p><h1>{esc(guide['title'])}</h1><p>{esc(guide['summary'])}</p><div class="care-v21__audience" aria-label="الفئات المستفيدة">{audience}</div>{review_line}</header>{''.join(sections)}{f'<aside class="care-v21__emergency" role="note"><strong>عند الخطر أو التدهور الحاد:</strong> {esc(emergency)}</aside>' if emergency else ''}<section class="care-v21__sources"><h2>مصادر مؤسسية للمراجعة</h2><ul>{sources}</ul><p class="care-v21__small">هذا الدليل للتثقيف والدعم العام، ولا يستبدل التقييم أو العلاج الفردي. عند وجود خطر مباشر استخدم خدمات الطوارئ المحلية.</p></section></main></body></html>'''
+        review_line = f'<p class="care-v21__small">آخر مراجعة للمحتوى والمصادر: {esc(guide["reviewed_at"])}. لا توجد مراجعة اختصاصية موثقة لهذا الدليل حتى الآن.</p>'
+    emergency = ""
+    if guide.get("emergency_note"):
+        emergency = f'<aside class="care-v21__emergency" role="note"><strong>عند الخطر أو التدهور الحاد:</strong> {esc(guide["emergency_note"])}</aside>'
+    body = (
+        f'<body><main class="care-v21"><header class="care-v21__hero"><nav class="care-v21__nav" aria-label="التنقل">'
+        f'<a href="{BASE_PATH}">الرئيسية</a><a href="{BASE_PATH}care-guides/">كل أدلة التعامل</a>'
+        f'<a href="{BASE_PATH}tips/">النصائح</a><a href="{BASE_PATH}assessment-lab/">المقاييس</a></nav>'
+        f'<p>دليل عملي غير تشخيصي</p><h1>{esc(guide["title"])}</h1><p>{esc(guide["summary"])}</p>'
+        f'<div class="care-v21__audience" aria-label="الفئات المستفيدة">{audience}</div>{review_line}</header>'
+        + "".join(sections)
+        + emergency
+        + f'<section class="care-v21__sources"><h2>مصادر مؤسسية للمراجعة</h2><ul>{sources}</ul>'
+          '<p class="care-v21__small">هذا الدليل للتثقيف والدعم العام، ولا يستبدل التقييم أو العلاج الفردي. عند وجود خطر مباشر استخدم خدمات الطوارئ المحلية.</p></section></main></body></html>'
+    )
+    return head(guide["title"], guide["summary"], canonical, schema_for(guide, canonical)) + body
 
 
 def index_page(data: dict) -> str:
     canonical = BASE + "care-guides/"
     cards = "".join(
-        f'<article class="care-v21__section"><h2>{esc(guide["title"])}</h2><p>{esc(guide["summary"])}</p><p><a class="care-v21__button" href="{BASE_PATH}care-guides/{esc(guide["slug"])}/">فتح الدليل الكامل</a></p></article>'
+        f'<article class="care-v21__section"><h2>{esc(guide["title"])}</h2><p>{esc(guide["summary"])}</p>'
+        f'<p><a class="care-v21__button" href="{BASE_PATH}care-guides/{esc(guide["slug"])}/">فتح الدليل الكامل</a></p></article>'
         for guide in data["guides"]
     )
     schema = json.dumps(
@@ -153,15 +173,20 @@ def index_page(data: dict) -> str:
             "description": "أدلة عربية عملية موثقة تساعد الأسرة والأصدقاء ومقدمي الرعاية على التعامل الآمن والداعم.",
             "url": canonical,
             "inLanguage": "ar",
-            "hasPart": [
-                {"@type": "Article", "name": guide["title"], "url": canonical + guide["slug"] + "/"}
-                for guide in data["guides"]
-            ],
+            "hasPart": [{"@type": "Article", "name": guide["title"], "url": canonical + guide["slug"] + "/"} for guide in data["guides"]],
         },
         ensure_ascii=False,
     )
     description = "أدلة عربية عملية موثقة لدعم الأسرة والأصدقاء ومقدمي الرعاية، مع حدود واضحة للمراجعة المهنية والسلامة."
-    return head(data["title"], description, canonical, schema) + f'''<body><main class="care-v21"><header class="care-v21__hero"><nav class="care-v21__nav" aria-label="التنقل"><a href="{BASE_PATH}">الرئيسية</a><a href="{BASE_PATH}encyclopedia/">الموسوعة</a><a href="{BASE_PATH}tips/">النصائح</a><a href="{BASE_PATH}sectors/family/">الأسرة</a></nav><p>معرفة عملية للأسرة ومقدمي الرعاية</p><h1>{esc(data['title'])}</h1><p>مسارات واضحة لما يمكن فعله، وما ينبغي تجنبه، ومتى يلزم طلب مساعدة مهنية، بلغة خالية من الوصم وبالاستناد إلى مصادر مؤسسية.</p></header>{cards}</main></body></html>'''
+    body = (
+        f'<body><main class="care-v21"><header class="care-v21__hero"><nav class="care-v21__nav" aria-label="التنقل">'
+        f'<a href="{BASE_PATH}">الرئيسية</a><a href="{BASE_PATH}encyclopedia/">الموسوعة</a>'
+        f'<a href="{BASE_PATH}tips/">النصائح</a><a href="{BASE_PATH}sectors/family/">الأسرة</a></nav>'
+        f'<p>معرفة عملية للأسرة ومقدمي الرعاية</p><h1>{esc(data["title"])}</h1>'
+        '<p>مسارات واضحة لما يمكن فعله، وما ينبغي تجنبه، ومتى يلزم طلب مساعدة مهنية، بلغة خالية من الوصم وبالاستناد إلى مصادر مؤسسية.</p>'
+        f'</header>{cards}</main></body></html>'
+    )
+    return head(data["title"], description, canonical, schema) + body
 
 
 def extension_urls() -> list[str]:
@@ -169,7 +194,7 @@ def extension_urls() -> list[str]:
     if not sitemap_path.is_file():
         return []
     root = ET.parse(sitemap_path).getroot()
-    found = []
+    found: list[str] = []
     for node in root.findall("{*}url/{*}loc"):
         url = (node.text or "").strip()
         if not url.startswith(BASE + "care-guides/") or url == BASE + "care-guides/":
@@ -224,19 +249,14 @@ def main() -> None:
         payload = json.loads(path.read_text(encoding="utf-8"))
         all_guides.extend(payload.get("guides", []))
     if len(all_guides) != EXPECTED_SOURCE_GUIDES:
-        raise SystemExit(
-            f"Expected {EXPECTED_SOURCE_GUIDES} validated source guides, found {len(all_guides)}"
-        )
+        raise SystemExit(f"Expected {EXPECTED_SOURCE_GUIDES} validated source guides, found {len(all_guides)}")
     slugs = [guide["slug"] for guide in all_guides]
     if len(slugs) != len(set(slugs)):
         raise SystemExit("Duplicate care-guide slugs")
     for guide in all_guides:
         validate_guide(guide)
 
-    blocked_guides = [
-        guide for guide in all_guides
-        if guide.get("review_status") in BLOCKED_REVIEW_STATUSES
-    ]
+    blocked_guides = [guide for guide in all_guides if guide.get("review_status") in BLOCKED_REVIEW_STATUSES]
     guides = [guide for guide in all_guides if guide not in blocked_guides]
     blocked_slugs = [guide["slug"] for guide in blocked_guides]
     primary["guides"] = guides
@@ -255,15 +275,10 @@ def main() -> None:
     published_guide_count = max(0, sitemap_url_count - 1)
     page_count = len(list(output.rglob("index.html")))
     if page_count != sitemap_url_count:
-        raise SystemExit(
-            f"Care-guide page/sitemap mismatch after source safety filtering: pages={page_count}, sitemap_urls={sitemap_url_count}"
-        )
+        raise SystemExit(f"Care-guide page/sitemap mismatch after source safety filtering: pages={page_count}, sitemap_urls={sitemap_url_count}")
     blocked_routes = [BASE + "care-guides/" + slug + "/" for slug in blocked_slugs]
     sitemap_text = (SITE / "sitemap-care-guides.xml").read_text(encoding="utf-8")
-    remaining = [
-        route for route, slug in zip(blocked_routes, blocked_slugs)
-        if route in sitemap_text or (output / slug / "index.html").exists()
-    ]
+    remaining = [route for route, slug in zip(blocked_routes, blocked_slugs) if route in sitemap_text or (output / slug / "index.html").exists()]
     if remaining:
         raise SystemExit(f"Blocked specialist-review guides remain after publication filtering: {remaining}")
 
@@ -293,9 +308,7 @@ def main() -> None:
     }
     api = SITE / "api"
     api.mkdir(parents=True, exist_ok=True)
-    (api / "care-guides-v21.json").write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    (api / "care-guides-v21.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 
