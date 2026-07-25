@@ -126,10 +126,14 @@ def main() -> int:
     if not site.is_dir():
         raise SystemExit(f"Missing site directory: {site}")
 
-    # The identity script is also exercised against minimal unit-test fixtures.
-    # Publish the complete tips hub only when the directory is a real production
-    # build with its crawl policy and asset tree already present.
-    production_site = (site / "robots.txt").is_file() and (site / "assets").is_dir()
+    # The identity script is also exercised against focused fixtures for other
+    # platform hubs. The core-sections report is the authoritative marker that
+    # the full v15 production build completed and the tips replacement is due.
+    production_site = (
+        (site / "robots.txt").is_file()
+        and (site / "assets").is_dir()
+        and (site / "api/core-sections-v15.json").is_file()
+    )
     tips_v234_published = False
     if production_site:
         run_script("publish_tips_hub_v234.py", site)
