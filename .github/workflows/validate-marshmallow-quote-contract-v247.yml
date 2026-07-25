@@ -1,0 +1,52 @@
+name: Validate Marshmallow quote contract v247
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/enforce_platform_identity_v201.py"
+      - "tests/test_marshmallow_quote_contract_v247.py"
+      - ".github/workflows/validate-marshmallow-quote-contract-v247.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/enforce_platform_identity_v201.py"
+      - "tests/test_marshmallow_quote_contract_v247.py"
+      - ".github/workflows/validate-marshmallow-quote-contract-v247.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: marshmallow-quote-contract-v247-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile the production contract and regression tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/enforce_platform_identity_v201.py \
+            tests/test_platform_identity_v201.py \
+            tests/test_marshmallow_quote_contract_v247.py
+      - name: Run quote-style semantic regression tests
+        run: |
+          set -euxo pipefail
+          python -m unittest -v \
+            tests.test_marshmallow_quote_contract_v247
+      - name: Run the existing platform identity regression suite
+        run: |
+          set -euxo pipefail
+          python -m unittest -v \
+            tests.test_platform_identity_v201

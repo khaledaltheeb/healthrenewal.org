@@ -136,18 +136,37 @@ def ensure_style(text: str) -> tuple[str, bool]:
     return text, True
 
 
+def _tag_attribute(
+    text: str, tag_name: str, attribute_name: str
+) -> tuple[re.Match[str] | None, re.Match[str] | None]:
+    tag_match = re.search(fr"<{re.escape(tag_name)}\b[^>]*>", text, re.I | re.S)
+    if not tag_match:
+        return None, None
+    attribute_match = re.search(
+        fr"\b{re.escape(attribute_name)}\s*=\s*([\"'])(.*?)\1",
+        tag_match.group(0),
+        re.I | re.S,
+    )
+    return tag_match, attribute_match
+
+
+def _tag_has_class(text: str, tag_name: str, class_name: str) -> bool:
+    _tag_match, class_match = _tag_attribute(text, tag_name, "class")
+    return bool(class_match and class_name in class_match.group(2).split())
+
+
 def _add_class_to_body(text: str, class_name: str) -> tuple[str, bool]:
-    match = re.search(r"<body\b[^>]*>", text, re.I)
+    match, class_match = _tag_attribute(text, "body", "class")
     if not match:
         return text, False
     tag = match.group(0)
-    class_match = re.search(r'\bclass=(["\'])(.*?)\1', tag, re.I | re.S)
     if class_match:
         classes = class_match.group(2).split()
         if class_name in classes:
             return text, False
         classes.append(class_name)
-        replacement = f'class={class_match.group(1)}{" ".join(classes)}{class_match.group(1)}'
+        quote = class_match.group(1)
+        replacement = f'class={quote}{" ".join(classes)}{quote}'
         updated_tag = tag[: class_match.start()] + replacement + tag[class_match.end() :]
     else:
         updated_tag = tag[:-1] + f' class="{class_name}">'
@@ -155,13 +174,18 @@ def _add_class_to_body(text: str, class_name: str) -> tuple[str, bool]:
 
 
 def _add_tools_html_marker(text: str) -> tuple[str, bool]:
-    match = re.search(r"<html\b[^>]*>", text, re.I)
+    match, marker_match = _tag_attribute(text, "html", "data-tools-design")
     if not match:
         return text, False
     tag = match.group(0)
-    if f'data-tools-design="{TOOLS_DESIGN}"' in tag:
+    if marker_match and marker_match.group(2) == TOOLS_DESIGN:
         return text, False
-    updated_tag = tag[:-1] + f' data-tools-design="{TOOLS_DESIGN}">'
+    if marker_match:
+        quote = marker_match.group(1)
+        replacement = f'data-tools-design={quote}{TOOLS_DESIGN}{quote}'
+        updated_tag = tag[: marker_match.start()] + replacement + tag[marker_match.end() :]
+    else:
+        updated_tag = tag[:-1] + f' data-tools-design="{TOOLS_DESIGN}">'
     return text[: match.start()] + updated_tag + text[match.end() :], True
 
 
@@ -177,6 +201,24 @@ def ensure_tools_marshmallow(text: str) -> tuple[str, bool]:
         text = re.sub(r"</head>", TOOLS_MARSHMALLOW_STYLE + "</head>", text, count=1, flags=re.I)
         changed = True
     return text, changed
+
+
+def validate_tools_marshmallow_contract(tools_text: str) -> None:
+    required_tools_markers = (
+        TOOLS_STYLE_ID,
+        "--tm-mint:#e5faf5",
+        "--tm-rose:#fff0f5",
+        "--tm-lilac:#f2edff",
+        "color:var(--tm-ink)!important",
+    )
+    missing = [marker for marker in required_tools_markers if marker not in tools_text]
+    _html_tag, design_match = _tag_attribute(tools_text, "html", "data-tools-design")
+    if not design_match or design_match.group(2) != TOOLS_DESIGN:
+        missing.append(f"html data-tools-design={TOOLS_DESIGN}")
+    if not _tag_has_class(tools_text, "body", "tools-marshmallow-v245"):
+        missing.append("body class tools-marshmallow-v245")
+    if missing:
+        raise SystemExit(f"Tools Marshmallow contrast contract is incomplete: {missing}")
 
 
 def ensure_header(text: str) -> tuple[str, bool]:
@@ -318,19 +360,7 @@ def main() -> int:
 
     tools_page = site / TOOLS_ROUTE
     if tools_page.is_file():
-        tools_text = tools_page.read_text(encoding="utf-8")
-        required_tools_markers = (
-            f'data-tools-design="{TOOLS_DESIGN}"',
-            'class="tools-marshmallow-v245',
-            TOOLS_STYLE_ID,
-            "--tm-mint:#e5faf5",
-            "--tm-rose:#fff0f5",
-            "--tm-lilac:#f2edff",
-            "color:var(--tm-ink)!important",
-        )
-        missing = [marker for marker in required_tools_markers if marker not in tools_text]
-        if missing:
-            raise SystemExit(f"Tools Marshmallow contrast contract is incomplete: {missing}")
+        validate_tools_marshmallow_contract(tools_page.read_text(encoding="utf-8"))
 
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
