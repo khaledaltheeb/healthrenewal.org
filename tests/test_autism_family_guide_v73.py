@@ -9,7 +9,6 @@ import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "content" / "v18" / "care-guides-autism-ar.json"
 PUBLISHER = ROOT / "scripts" / "publish_care_guides_v21.py"
@@ -26,6 +25,12 @@ EXPECTED_SOURCE_FILES = {
     "care-guides-trauma-ptsd-family-support-ar.json",
     "care-guides-eating-disorder-family-support-ar.json",
     "care-guides-self-harm-family-safety-support-ar.json",
+    "care-guides-suicide-risk-family-safety-plan-ar.json",
+    "care-guides-substance-use-family-recovery-plan-ar.json",
+    "care-guides-perinatal-mental-health-family-plan-ar.json",
+    "care-guides-borderline-emotional-instability-family-plan-ar.json",
+    "care-guides-dementia-behaviour-family-plan-ar.json",
+    "care-guides-chronic-insomnia-family-sleep-plan-ar.json",
 }
 
 
@@ -114,8 +119,8 @@ class AutismFamilyGuideV73Tests(unittest.TestCase):
             re.findall(r'ROOT / "content/v18/(care-guides-[^"]+\.json)"', publisher)
         )
         self.assertEqual(data_sources, EXPECTED_SOURCE_FILES)
-        self.assertIn("EXPECTED_SOURCE_GUIDES = 14", publisher)
-        self.assertIn("CONTENT_RELEASE_VERSION = 239", publisher)
+        self.assertIn("EXPECTED_SOURCE_GUIDES = 20", publisher)
+        self.assertIn("CONTENT_RELEASE_VERSION = 244", publisher)
         self.assertIn('BLOCKED_REVIEW_STATUSES = {"needs-specialist-review"}', publisher)
         self.assertIn('"needs_specialist_review_published": False', publisher)
         self.assertIn('"blocked_review_slugs": blocked_slugs', publisher)
@@ -176,12 +181,12 @@ class AutismFamilyGuideV73Tests(unittest.TestCase):
                 (site / "api" / "care-guides-v21.json").read_text(encoding="utf-8")
             )
             self.assertEqual(care_report["publication_gate_version"], 194)
-            self.assertEqual(care_report["content_release_version"], 239)
+            self.assertEqual(care_report["content_release_version"], 244)
             self.assertEqual(care_report["blocked_review_slugs"], [BLOCKED_SLUG])
             self.assertFalse(care_report["needs_specialist_review_published"])
             self.assertFalse(care_report["autism_published"])
-            self.assertEqual(care_report["source_guides"], 14)
-            self.assertEqual(care_report["published_core_guides"], 13)
+            self.assertEqual(care_report["source_guides"], 20)
+            self.assertEqual(care_report["published_core_guides"], 19)
 
             journey = json.loads(
                 (site / "api" / "care-guides-homepage-v21.json").read_text(encoding="utf-8")
