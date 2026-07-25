@@ -43,10 +43,10 @@ jobs:
           sys.modules[spec.name] = module
           spec.loader.exec_module(module)
           pages = module.article_files()
-          assert len(pages) == 50, [page.name for page in pages]
+          assert len(pages) == 60, [page.name for page in pages]
           index = Path('magazine/index.html').read_text(encoding='utf-8')
-          assert index.count('class="card"') == 50
-          assert '"numberOfItems":50' in index
+          assert index.count('class="card"') == 60
+          assert '"numberOfItems":60' in index
           for page in pages:
               assert index.count(f'href="{page.name}"') >= 2, page.name
               assert module.URL + page.name in index, page.name
@@ -60,10 +60,20 @@ jobs:
         run: |
           set -euo pipefail
           test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 9
-          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 41
-          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 50
-          test "$(grep -o 'class="card"' magazine/index.html | wc -l)" -eq 50
-          grep -q '"numberOfItems":50' magazine/index.html
+          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 51
+          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 60
+          test "$(grep -o 'class="card"' magazine/index.html | wc -l)" -eq 60
+          grep -q '"numberOfItems":60' magazine/index.html
+          grep -q '10.1016/j.apmr.2026.06.004' magazine/dcd-school-motor-interventions-meta-analysis-2026.html
+          grep -q '10.1007/s00431-026-07180-2' magazine/dcd-subtypes-systematic-review-2026.html
+          grep -q '10.3390/brainsci16020234' magazine/dcd-action-observation-motor-imagery-review-2026.html
+          grep -q '10.1016/j.jeph.2026.203371' magazine/childhood-vision-impairment-longitudinal-review-2026.html
+          grep -q '10.5498/wjp.v16.i1.111118' magazine/visual-impairment-mental-health-review-2026.html
+          grep -q '10.1016/j.ssmhs.2026.100193' magazine/intellectual-disability-healthcare-transition-review-2026.html
+          grep -q '10.1016/j.arrct.2026.100593' magazine/unilateral-cerebral-palsy-participation-meta-analysis-2026.html
+          grep -q '10.1017/S2045796026100511' magazine/deaf-hard-hearing-adult-mental-disorders-review-2026.html
+          grep -q '10.1136/bmjopen-2025-113327' magazine/dysgraphia-interventions-scoping-review-2026.html
+          grep -q '10.1111/dmcn.70079' magazine/cerebral-palsy-participation-quality-life-study-2026.html
           grep -q '10.1177/07067437261450738' magazine/autism-parent-act-meta-analysis-2026.html
           grep -q '10.1177/13623613251407305' magazine/autism-caregiver-adjustment-review-2026.html
           grep -q '10.1111/jpm.70129' magazine/family-carer-coping-mental-health-meta-analysis-2026.html
@@ -86,5 +96,5 @@ jobs:
           grep -q 'لم يجد التحليل التلوي آثارًا دالة' magazine/peer-led-adolescent-mental-health-2025.html
           grep -q 'unwired_research_pages' scripts/publish_magazine_v201.py
           grep -q 'SOURCE_LINK_PATTERN' scripts/publish_magazine_v201.py
-          grep -q 'Magazine production requires 50 pages' scripts/enforce_platform_identity_v201.py
+          grep -q 'Magazine production requires 60 pages' scripts/enforce_platform_identity_v201.py
           ! grep -R -E 'علاج مضمون|يشخّص|نتائج مؤكدة للجميع' magazine
