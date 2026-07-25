@@ -41,7 +41,28 @@ jobs:
           python -m json.tool content/v234/sources-ar.json >/dev/null
 
       - name: Build and audit all tips pages twice
-        run: python -m unittest -v tests.test_tips_v234
+        id: tips_tests
+        shell: bash
+        run: |
+          set +e
+          python -m unittest -v tests.test_tips_v234 > tips-v234-test.log 2>&1
+          status=$?
+          cat tips-v234-test.log
+          if [ "$status" -ne 0 ]; then
+            echo "::group::Failure tail"
+            tail -n 160 tips-v234-test.log
+            echo "::endgroup::"
+          fi
+          exit "$status"
+
+      - name: Upload tips diagnostic log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tips-v234-diagnostics
+          path: tips-v234-test.log
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Verify production integration marker
         run: |
