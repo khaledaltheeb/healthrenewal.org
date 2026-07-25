@@ -21,6 +21,8 @@ PATHWAYS = (
     ("transition-adulthood-employment-independence", "pathway-adulthood", "الانتقال إلى الرشد والعمل", "فتح دليل الانتقال والاستقلال"),
 )
 LOCAL_SOURCE_MARKER = "data-special-needs-jordan-sources-v241"
+JORDAN_CONTEXT_MARKER = "data-special-needs-jordan-context-v241"
+METHOD_SECTION_MARKER = '<section class="section" id="method">'
 ASHA_OLD = "https://www.asha.org/public/speech/disorders/aac/"
 ASHA_CURRENT = "https://www.asha.org/Practice-Portal/Professional-Issues/Augmentative-and-Alternative-Communication/"
 OLD_SOURCE_METRIC = "<strong>7</strong><span>مراجع مؤسسية أصلية</span>"
@@ -116,6 +118,21 @@ def render_local_sources() -> str:
     )
 
 
+def render_jordan_context() -> str:
+    return f'''<section class="section" {JORDAN_CONTEXT_MARKER} aria-labelledby="jordan-context-title"><div class="wrap">
+<p class="eyebrow">السياق الأردني</p><h2 id="jordan-context-title">من مبدأ الإدماج إلى طلب مكتوب قابل للمتابعة</h2>
+<p class="section-intro">يعكس الإطار الوطني الأردني للإدماج والتنوع في التعليم والخطة الاستراتيجية للتعليم 2026–2030 اتجاهًا نحو الوصول والإنصاف والإدماج. لكن المبدأ العام لا يحدد وحده ما يحتاجه شخص بعينه، ولا يثبت أهلية خدمة محددة. ابدأ بالحاجز الوظيفي، واطلب إجراءً واضحًا، وحدد موعد مراجعة، واحتفظ بنسخة من المراسلات والاتفاقات.</p>
+<div class="quality-grid">
+<article class="quality-card"><h3>قبل الاجتماع المدرسي</h3><p>اكتب موقفين أو ثلاثة يوضح كل منها المهمة والحاجز وما جُرّب وما تغيّر. اختر هدفًا قريبًا مثل فهم التعليمات أو بدء المهمة أو طلب استراحة، بدل قائمة عامة من الصفات.</p></article>
+<article class="quality-card"><h3>داخل الاجتماع</h3><p>اطلب تحديد المسؤول والإجراء وموعد البدء ومؤشر المتابعة وتاريخ المراجعة. ناقش التكييفات ووسيلة التواصل والمواد والوقت والبيئة، ولا تحصر النقاش في اسم الحالة.</p></article>
+<article class="quality-card"><h3>المشاركة والخصوصية</h3><p>اشرح الخطة للشخص بطريقة مناسبة لعمره وتواصله، واعرض خيارات حقيقية. شارك الحد الأدنى اللازم من المعلومات، وحدد من يطّلع عليها ولماذا وكيف تحفظ.</p></article>
+<article class="quality-card"><h3>عند تعثر التنفيذ</h3><p>وثّق الوقائع والتواريخ والطلبات والردود دون اتهامات عامة. اطلب مراجعة مكتوبة، واستعن بجهة محلية مؤهلة عندما يستمر الحاجز أو يظهر خطر أو خلاف حول التقييم أو الحماية.</p></article>
+</div>
+<div class="notice positive"><strong>حدود مهمة:</strong> لا تمثل هذه الصفحة تفسيرًا قانونيًا ولا دليلًا محدثًا للجهات والخدمات في كل محافظة. الأنظمة والإجراءات والخدمات قد تتغير؛ تحقق من المدرسة والجهة المختصة ومصادرها الرسمية قبل اتخاذ قرار يعتمد على شرط محلي.</div>
+<p><a href="https://www.unesco.org/en/articles/jordan-launches-national-framework-inclusion-and-diversity-education-unesco" rel="noopener noreferrer">الإطار الوطني للإدماج والتنوع في التعليم</a> · <a href="https://www.unesco.org/en/articles/jordans-education-strategic-plan-2026-2030?hub=422" rel="noopener noreferrer">الخطة الاستراتيجية للتعليم 2026–2030</a> · <a href="https://www.unicef.org/jordan/education" rel="noopener noreferrer">برامج التعليم لدى اليونيسف في الأردن</a></p>
+</div></section>'''
+
+
 def publish(site: Path) -> dict[str, Any]:
     original_render = hub.render
 
@@ -143,6 +160,12 @@ def publish(site: Path) -> dict[str, Any]:
         if source.count(LOCAL_SOURCE_MARKER) != len(JORDAN_SOURCES):
             raise SystemExit("Jordan source insertion contract failed")
 
+        if source.count(METHOD_SECTION_MARKER) != 1:
+            raise SystemExit("Special-needs method section insertion point is missing")
+        source = source.replace(METHOD_SECTION_MARKER, render_jordan_context() + METHOD_SECTION_MARKER, 1)
+        if source.count(JORDAN_CONTEXT_MARKER) != 1:
+            raise SystemExit("Jordan context section contract failed")
+
         for slug, anchor, title, old_label in PATHWAYS:
             absolute = f"{hub.BASE}/special-needs/{slug}/"
             internal = f"{hub.BASE_PATH}special-needs/{slug}/"
@@ -168,6 +191,7 @@ def publish(site: Path) -> dict[str, Any]:
         report["sitemap_hub_registered"] = True
         report["source_count"] = 10
         report["jordan_source_count"] = len(JORDAN_SOURCES)
+        report["jordan_context_section"] = True
         report["asha_aac_source_updated"] = True
         report_path = site / "api" / "special-needs-hub-v235.json"
         report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
