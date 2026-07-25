@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import html
 import json
 import re
 import shutil
@@ -15,7 +16,7 @@ SOURCE = ROOT / "magazine"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 URL = BASE + "/magazine/"
 CONTRACT = 234
-MIN_ARTICLES = 21
+MIN_ARTICLES = 60
 ROBOTS_META = '<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">'
 ROBOTS_PATTERN = re.compile(r'<meta\s+[^>]*name=["\']robots["\'][^>]*>', re.I)
 SOURCE_LINK_PATTERN = re.compile(
@@ -44,7 +45,10 @@ KNOWN_MARKERS = {
 
 
 def article_files() -> list[Path]:
-    pages = sorted(path for path in SOURCE.glob("*-20*.html") if path.name != "index.html")
+    pages = sorted(
+        (path for path in SOURCE.glob("*-20*.html") if path.name != "index.html"),
+        key=lambda path: (-int(re.search(r"-(20\d{2})\.html$", path.name).group(1)), path.name),
+    )
     if len(pages) < MIN_ARTICLES:
         raise SystemExit(f"Magazine requires at least {MIN_ARTICLES} research pages, found {len(pages)}")
     return pages
@@ -69,26 +73,96 @@ def ensure_robots_meta(text: str, filename: str) -> tuple[str, bool]:
     return updated, True
 
 
+def plain_text(fragment: str) -> str:
+    text = re.sub(r"<[^>]+>", " ", fragment)
+    return html.unescape(re.sub(r"\s+", " ", text)).strip()
+
+
+def first_match(text: str, pattern: str, fallback: str) -> str:
+    match = re.search(pattern, text, re.I | re.S)
+    return plain_text(match.group(1)) if match else fallback
+
+
+def article_record(path: Path) -> dict[str, str]:
+    text = path.read_text(encoding="utf-8")
+    return {
+        "filename": path.name,
+        "title": first_match(text, r"<h1[^>]*>(.*?)</h1>", path.stem.replace("-", " ")),
+        "tag": first_match(text, r'<p\s+class=["\']eyebrow["\'][^>]*>(.*?)</p>', "قراءة علمية حديثة"),
+        "description": first_match(
+            text,
+            r'<p\s+class=["\']lead["\'][^>]*>(.*?)</p>',
+            first_match(text, r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']', "قراءة عربية نقدية للدراسة الأصلية."),
+        ),
+    }
+
+
+def render_index(pages: list[Path]) -> str:
+    records = [article_record(path) for path in pages]
+    scholarly = [{"@type": "ScholarlyArticle", "url": URL + item["filename"]} for item in records]
+    schema = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "المجلة والأبحاث",
+        "url": URL,
+        "inLanguage": "ar",
+        "description": "ملخصات عربية تحليلية للأبحاث المحكمة والرسائل الجامعية الحديثة في الصحة النفسية وعلم النفس.",
+        "numberOfItems": len(records),
+        "hasPart": scholarly,
+    }
+    cards = "\n".join(
+        '<article class="card"><span class="tag">{tag}</span><h2><a href="{filename}">{title}</a></h2>'
+        '<p>{description}</p><a class="source" href="{filename}">قراءة التحليل العربي</a></article>'.format(
+            tag=html.escape(item["tag"]),
+            filename=html.escape(item["filename"], quote=True),
+            title=html.escape(item["title"]),
+            description=html.escape(item["description"]),
+        )
+        for item in records
+    )
+    return f'''<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>المجلة والأبحاث | أحدث الدراسات والرسائل العلمية بالعربية</title>
+<meta name="description" content="ستون قراءة عربية منهجية لأحدث الأبحاث المحكمة ورسائل الدكتوراه في الصحة النفسية وعلم النفس والأشخاص ذوي الاحتياجات الخاصة، مع المصادر الأصلية والمنهج والنتائج وحدود الدليل.">
+{ROBOTS_META}
+<link rel="canonical" href="{URL}">
+<link rel="stylesheet" href="research.css">
+<script type="application/ld+json">{json.dumps(schema, ensure_ascii=False, separators=(",", ":"))}</script>
+</head>
+<body>
+<a class="skip" href="#main">تجاوز إلى المحتوى</a>
+<header><div class="wrap header-inner"><a class="brand" href="../">منصة الصحة النفسية وذوي الاحتياجات الخاصة</a><nav aria-label="التنقل الرئيسي"><a href="../">الرئيسية</a><a href="../encyclopedia/">الموسوعة</a><a href="../special-needs/">ذوو الاحتياجات الخاصة</a><a href="./" aria-current="page">المجلة والأبحاث</a></nav></div></header>
+<main id="main">
+<section class="hero"><div class="wrap"><p class="eyebrow">مرصد عربي للأدلة العلمية</p><h1>المجلة والأبحاث</h1><p class="lead">ملخصات عربية نقدية للأوراق المحكمة والرسائل الجامعية الحديثة، تشمل تصميم الدراسة والعينة والنتائج والقيود والدلالة العملية والمصدر الأصلي.</p><div class="notice"><strong>حالة القسم:</strong> {len(records)} قراءة علمية مستقلة: {len(records)-3} ورقة أو مراجعة محكمة وثلاث رسائل دكتوراه. أحدث الأوراق المدرجة منشورة في 2026.</div><div class="filters" aria-label="التصنيفات"><span class="chip">أبحاث 2026</span><span class="chip">تحليلات تلوية وشبكية</span><span class="chip">تجارب عشوائية</span><span class="chip">رسائل دكتوراه</span><span class="chip">التنسيق الحركي</span><span class="chip">ضعف البصر</span><span class="chip">الصم وضعاف السمع</span><span class="chip">الشلل الدماغي</span><span class="chip">الاحتياجات الذهنية</span><span class="chip">الانتقال إلى الرشد</span></div></div></section>
+<section class="wrap grid" aria-label="أحدث القراءات البحثية">
+{cards}
+</section>
+</main>
+<footer><div class="wrap"><strong>منهج التحرير:</strong> لا تُنقل الخلاصات الصحفية بوصفها دليلًا؛ كل صفحة تربط بالمصدر الأصلي وتعرض المنهج والنتائج والحدود.</div></footer>
+</body>
+</html>
+'''
+
+
 def validate_source_tree(pages: list[Path]) -> dict[str, str]:
     for name in ("index.html", "research.css"):
         if not (SOURCE / name).is_file():
             raise SystemExit(f"Missing magazine source file: {name}")
 
-    index = (SOURCE / "index.html").read_text(encoding="utf-8")
+    template = (SOURCE / "index.html").read_text(encoding="utf-8")
+    for marker in ('<html lang="ar" dir="rtl">', '<h1>المجلة والأبحاث</h1>', 'research.css'):
+        if marker not in template:
+            raise SystemExit(f"Magazine source template contract failed: {marker}")
+
+    rendered = render_index(pages)
     expected_count = len(pages)
-    required_index = (
-        '<html lang="ar" dir="rtl">',
-        '<h1>المجلة والأبحاث</h1>',
-        '<link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/magazine/">',
-        'application/ld+json',
-        'research.css',
-        f'"numberOfItems":{expected_count}',
-    )
-    missing = [marker for marker in required_index if marker not in index]
-    if missing:
-        raise SystemExit(f"Magazine index contract failed: {missing}")
-    if index.count('class="card"') != expected_count:
-        raise SystemExit(f"Magazine index must expose {expected_count} cards, found {index.count('class=\"card\"')}")
+    if rendered.count('class="card"') != expected_count:
+        raise SystemExit("Generated magazine index card count failed")
+    if f'"numberOfItems":{expected_count}' not in rendered:
+        raise SystemExit("Generated magazine JSON-LD count failed")
 
     hashes: dict[str, str] = {}
     for path in pages:
@@ -115,10 +189,10 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
             raise SystemExit(f"Research article lacks an approved original-source link: {filename}")
         if any(term in text for term in ("يشخّص", "علاج مضمون", "نتائج مؤكدة للجميع")):
             raise SystemExit(f"Unsupported clinical claim in {filename}")
-        if index.count(f'href="{filename}"') < 2:
-            raise SystemExit(f"Magazine index must expose article twice: {filename}")
-        if URL + filename not in index:
-            raise SystemExit(f"Magazine JSON-LD does not include article: {filename}")
+        if rendered.count(f'href="{filename}"') < 2:
+            raise SystemExit(f"Generated magazine index must expose article twice: {filename}")
+        if URL + filename not in rendered:
+            raise SystemExit(f"Generated magazine JSON-LD does not include article: {filename}")
         normalized, _ = ensure_robots_meta(text, filename)
         hashes[filename] = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
     return hashes
@@ -127,8 +201,7 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
 def publish_files(site: Path, pages: list[Path]) -> dict[str, object]:
     target = site / "magazine"
     target.mkdir(parents=True, exist_ok=True)
-    index_text, index_added = ensure_robots_meta((SOURCE / "index.html").read_text(encoding="utf-8"), "index.html")
-    (target / "index.html").write_text(index_text, encoding="utf-8")
+    (target / "index.html").write_text(render_index(pages), encoding="utf-8")
     shutil.copy2(SOURCE / "research.css", target / "research.css")
     added: list[str] = []
     for path in pages:
@@ -137,9 +210,9 @@ def publish_files(site: Path, pages: list[Path]) -> dict[str, object]:
         if was_added:
             added.append(path.name)
     return {
-        "index_robots_added": index_added,
+        "index_robots_added": False,
         "article_robots_added": added,
-        "robots_normalized_pages": int(index_added) + len(added),
+        "robots_normalized_pages": len(added),
     }
 
 
@@ -215,6 +288,7 @@ def publish(site: Path) -> dict[str, object]:
         "source_heading_contract": "article-or-official-repository",
         "limitations_contract": "limitations-or-cautions-required",
         "robots_contract": "exactly-one-index-follow-meta-per-published-page",
+        "index_contract": "generated-from-discovered-articles",
         "robots": robots,
         "sitemap": sitemap,
     }

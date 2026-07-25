@@ -217,12 +217,12 @@ def publish_magazine(site: Path) -> dict[str, object]:
     if not report_path.is_file():
         raise SystemExit("Magazine production report was not created")
     report = json.loads(report_path.read_text(encoding="utf-8"))
-    if report.get("research_summaries_published") != 50:
-        raise SystemExit(f"Magazine production requires 50 pages: {report}")
+    if report.get("research_summaries_published") != 60:
+        raise SystemExit(f"Magazine production requires 60 pages: {report}")
     if report.get("unwired_research_pages") != 0:
         raise SystemExit(f"Magazine has unwired pages: {report}")
     index = site / "magazine" / "index.html"
-    if not index.is_file() or '"numberOfItems":50' not in index.read_text(encoding="utf-8"):
+    if not index.is_file() or '"numberOfItems":60' not in index.read_text(encoding="utf-8"):
         raise SystemExit("Magazine production index contract failed")
     return report
 
