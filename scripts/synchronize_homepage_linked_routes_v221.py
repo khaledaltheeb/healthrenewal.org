@@ -34,6 +34,27 @@ def run(script: str, site: Path) -> None:
     )
 
 
+def daily_report_valid(site: Path) -> bool:
+    path = site / "api" / "daily-tools-v24.json"
+    if not path.is_file():
+        return False
+    try:
+        report = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    return (
+        report.get("version") == 24
+        and report.get("design_contract") == 219
+        and report.get("tools") == 8
+        and report.get("paths") == 4
+        and report.get("pages") == 14
+        and report.get("local_only") is True
+        and report.get("marshmallow_palette") is True
+        and report.get("dark_text_box_shadow") is False
+        and report.get("homepage_linked") is True
+    )
+
+
 def sleep_contract_valid(site: Path) -> bool:
     page = site / SLEEP_PAGE
     asset = site / SLEEP_ASSET
@@ -44,13 +65,18 @@ def sleep_contract_valid(site: Path) -> bool:
         return False
     if text.count('<meta name="description"') != 1 or text.count('<link rel="canonical"') != 1:
         return False
-    if "fetch(" in asset.read_text(encoding="utf-8"):
+    runtime = asset.read_text(encoding="utf-8")
+    if "localStorage" not in runtime or "fetch(" in runtime:
         return False
     return True
 
 
 def publish_linked_routes(site: Path) -> None:
+    # The generic verifier expects each basic tool to keep its localStorage
+    # runtime inline. Run it before the specialized sleep publisher replaces
+    # one page with the tested external sleep-log-v49.js implementation.
     run("publish_daily_tools_v24.py", site)
+    run("verify_daily_tools_v24.py", site)
     run("publish_sleep_log_v49.py", site)
     run("patch_sleep_svg_export_v65.py", site)
     run("apply_daily_tools_marshmallow_v219.py", site)
@@ -79,25 +105,32 @@ def synchronize(site: Path) -> dict[str, object]:
         }
 
     missing_before = [path.as_posix() for path in REQUIRED_ROUTES if not (site / path).is_file()]
-    report_missing = not (site / "api" / "daily-tools-v24.json").is_file()
+    report_valid_before = daily_report_valid(site)
     sitemap_missing = not (site / "sitemap-tools-paths.xml").is_file()
     sleep_valid_before = sleep_contract_valid(site)
-    published = bool(missing_before or report_missing or sitemap_missing or not sleep_valid_before)
+    published = bool(missing_before or not report_valid_before or sitemap_missing or not sleep_valid_before)
 
     if published:
         publish_linked_routes(site)
 
-    run("verify_daily_tools_v24.py", site)
-
     missing_after = [path.as_posix() for path in REQUIRED_ROUTES if not (site / path).is_file()]
     if missing_after:
         raise SystemExit(f"Homepage-linked routes remain missing after synchronization: {missing_after}")
+    if not daily_report_valid(site):
+        raise SystemExit("Daily-tools publication report is missing or invalid after synchronization")
     if not sleep_contract_valid(site):
         raise SystemExit("Interactive local sleep-log contract remains incomplete after synchronization")
 
     homepage_after = homepage.read_text(encoding="utf-8")
     if not all(marker in homepage_after for marker in REQUIRED_HOME_LINKS):
         raise SystemExit("Daily-tools publisher removed homepage discovery links")
+
+    daily_pages = len(list((site / "daily-tools").rglob("index.html")))
+    learning_pages = len(list((site / "learning-paths").rglob("index.html")))
+    if daily_pages != 9 or learning_pages != 5:
+        raise SystemExit(
+            f"Homepage-linked route counts are incomplete: daily={daily_pages}, learning={learning_pages}"
+        )
 
     report = {
         "contract": CONTRACT,
@@ -107,8 +140,9 @@ def synchronize(site: Path) -> dict[str, object]:
         "published": published,
         "missing_before": missing_before,
         "missing_after": missing_after,
-        "daily_tools_pages": len(list((site / "daily-tools").rglob("index.html"))),
-        "learning_path_pages": len(list((site / "learning-paths").rglob("index.html"))),
+        "daily_tools_pages": daily_pages,
+        "learning_path_pages": learning_pages,
+        "daily_tools_report": "passed",
         "sitemap_present": (site / "sitemap-tools-paths.xml").is_file(),
         "publication_report_present": (site / "api" / "daily-tools-v24.json").is_file(),
         "sleep_log_page": SLEEP_PAGE.as_posix(),
