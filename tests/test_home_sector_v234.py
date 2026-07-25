@@ -127,6 +127,26 @@ class HomeSectorV234Tests(unittest.TestCase):
         self.assertEqual(second["article_pages_enriched"], 0)
         self.assertFalse(second["robots_updated"])
 
+    def test_replaces_complete_generated_v10_multi_main_range(self) -> None:
+        generated = (
+            '<!doctype html><html><head><title>قديم</title></head><body>'
+            '<header id="global-header">الهيدر</header>'
+            '<main id="content-v10"><div>مسار التنقل</div></main>'
+            '<section class="hero-v10"><main class="hero-grid-v10"><h1>العنوان القديم</h1></main></section>'
+            '<main><section><h2>المحتوى القديم</h2></section></main>'
+            '<footer id="global-footer">الفوتر</footer></body></html>'
+        )
+        replacement = '<main id="home-v234"><h1>العنوان المؤسسي الجديد</h1></main>'
+        updated = module.replace_main(generated, replacement)
+        self.assertEqual(updated.count("<main"), 1)
+        self.assertEqual(updated.count("<h1"), 1)
+        self.assertIn('id="global-header"', updated)
+        self.assertIn('id="global-footer"', updated)
+        self.assertIn('id="home-v234"', updated)
+        self.assertNotIn("العنوان القديم", updated)
+        self.assertNotIn("المحتوى القديم", updated)
+        self.assertNotIn("hero-v10", updated)
+
     def test_rejects_explicit_robots_block(self) -> None:
         (self.site / "robots.txt").write_text(
             "User-agent: *\nDisallow: /pterminology-site/sectors/home/\n",
