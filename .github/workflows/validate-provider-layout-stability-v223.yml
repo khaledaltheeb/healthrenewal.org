@@ -1,0 +1,44 @@
+name: Validate provider layout stability v223
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/styles.css"
+      - "provider-assessment-demo/enhancements.css"
+      - "provider-assessment-demo/app.js"
+      - "scripts/verify_provider_layout_stability_v223.py"
+      - ".github/workflows/validate-provider-layout-stability-v223.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/styles.css"
+      - "provider-assessment-demo/enhancements.css"
+      - "provider-assessment-demo/app.js"
+      - "scripts/verify_provider_layout_stability_v223.py"
+      - ".github/workflows/validate-provider-layout-stability-v223.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-layout-stability-v223-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and enforce UID hydration layout contract
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/verify_provider_layout_stability_v223.py
+          python scripts/verify_provider_layout_stability_v223.py
