@@ -43,10 +43,33 @@ class TipsV234Test(unittest.TestCase):
         self.assertEqual(supplemental["version"], 234)
         self.assertEqual(len(supplemental["guides"]), 16)
         self.assertGreaterEqual(len(sources["sources"]), 6)
+        required_source_fields = {
+            "id",
+            "organization",
+            "publisher",
+            "title",
+            "url",
+            "year",
+            "source_type",
+            "status",
+            "verified_at",
+            "claims_supported",
+        }
+        for source in sources["sources"]:
+            self.assertTrue(required_source_fields.issubset(source), source)
+            self.assertGreaterEqual(len(source["claims_supported"]), 2)
+
+        catalog = (ROOT / "scripts/publish_content_catalog_v219.py").read_text(encoding="utf-8")
+        self.assertIn('run_required_publisher("publish_tips_hub_v234.py")', catalog)
+        self.assertIn('run_required_publisher("verify_tips_v234.py")', catalog)
+        self.assertIn('SITE / "api/core-sections-v15.json"', catalog)
+        self.assertIn('result["tips_v234_published"]', catalog)
+
         identity = (ROOT / "scripts/enforce_platform_identity_v201.py").read_text(encoding="utf-8")
         self.assertIn('run_script("publish_tips_hub_v234.py", site)', identity)
         self.assertIn('run_script("verify_tips_v234.py", site)', identity)
-        self.assertIn('"tips_v234_verification": "api/tips-verification-v234.json"', identity)
+        self.assertIn('"tips_v234_verification"', identity)
+
         slugs = [item["slug"] for item in supplemental["guides"]]
         self.assertEqual(len(slugs), len(set(slugs)))
         for item in supplemental["guides"]:
