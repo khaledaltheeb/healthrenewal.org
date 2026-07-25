@@ -137,6 +137,21 @@
     content.querySelector(".dialog-actions")?.insertAdjacentElement("beforebegin", wrapper.firstElementChild);
   };
 
+  const loadReportIntegration = (attempt = 0) => {
+    if (document.querySelector('script[data-professional-report-v220]')) return;
+    if (!document.getElementById("case-report-form")) {
+      if (attempt < 100) setTimeout(() => loadReportIntegration(attempt + 1), 50);
+      else console.error("Case report form did not become available for professional v220 integration");
+      return;
+    }
+    const report = document.createElement("script");
+    report.src = `professional-registry-report-integration-v220.js?release=${encodeURIComponent(RELEASE)}`;
+    report.defer = true;
+    report.dataset.professionalReportV220 = RELEASE;
+    report.addEventListener("error", () => console.error("Failed to load professional report integration v220"), { once: true });
+    document.head.appendChild(report);
+  };
+
   const loadProfessionalRegistry = () => {
     if (document.querySelector('script[data-professional-registry-contract-v220]')) return;
     const contract = document.createElement("script");
@@ -149,6 +164,7 @@
       ui.src = `professional-registry-maturity-ui-v220.js?release=${encodeURIComponent(RELEASE)}`;
       ui.defer = true;
       ui.dataset.professionalRegistryUiV220 = RELEASE;
+      ui.addEventListener("load", () => loadReportIntegration(), { once: true });
       ui.addEventListener("error", () => console.error("Failed to load professional registry maturity UI v220"), { once: true });
       document.head.appendChild(ui);
     }, { once: true });
