@@ -5,6 +5,7 @@ on:
     paths:
       - "provider-assessment-demo/institutional-contract-v220.js"
       - "provider-assessment-demo/institutional-contract-v231-compat.js"
+      - "provider-assessment-demo/institutional-contract-v231-save-fallback.js"
       - "tests/test_provider_assessment_v231_compatibility.py"
       - ".github/workflows/validate-provider-assessment-v231-compatibility.yml"
   push:
@@ -12,6 +13,7 @@ on:
     paths:
       - "provider-assessment-demo/institutional-contract-v220.js"
       - "provider-assessment-demo/institutional-contract-v231-compat.js"
+      - "provider-assessment-demo/institutional-contract-v231-save-fallback.js"
       - "tests/test_provider_assessment_v231_compatibility.py"
       - ".github/workflows/validate-provider-assessment-v231-compatibility.yml"
 
@@ -33,4 +35,5 @@ jobs:
         run: |
           node --check provider-assessment-demo/institutional-contract-v220.js
           node --check provider-assessment-demo/institutional-contract-v231-compat.js
+          node --check provider-assessment-demo/institutional-contract-v231-save-fallback.js
           python -m unittest -v tests/test_provider_assessment_v231_compatibility.py
