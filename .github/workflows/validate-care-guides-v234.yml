@@ -1,0 +1,52 @@
+name: Validate institutional care guides v234
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/publish_care_guides_v21.py"
+      - "scripts/enhance_care_guides_v234.py"
+      - "assets/css/care-guides-v234.css"
+      - "assets/js/care-guides-v234.js"
+      - "content/v18/care-guides-*.json"
+      - "tests/test_care_guides_v234.py"
+      - ".github/workflows/validate-care-guides-v234.yml"
+      - "robots.txt"
+      - "manifest.webmanifest"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/publish_care_guides_v21.py"
+      - "scripts/enhance_care_guides_v234.py"
+      - "assets/css/care-guides-v234.css"
+      - "assets/js/care-guides-v234.js"
+      - "content/v18/care-guides-*.json"
+      - "tests/test_care_guides_v234.py"
+      - ".github/workflows/validate-care-guides-v234.yml"
+      - "robots.txt"
+      - "manifest.webmanifest"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: care-guides-v234-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publisher and focused regression suite
+        run: |
+          set -euxo pipefail
+          python -Werror -m py_compile scripts/publish_care_guides_v21.py scripts/enhance_care_guides_v234.py tests/test_care_guides_v234.py
+          node --check assets/js/care-guides-v234.js
+      - name: Validate hub SEO safety extension preservation and idempotence
+        run: python -m unittest -v tests.test_care_guides_v234
