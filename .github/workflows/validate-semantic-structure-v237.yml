@@ -6,8 +6,10 @@ on:
     paths:
       - "scripts/finalize_semantic_structure_v237.py"
       - "scripts/enforce_health_publication_gate_v192.py"
+      - "scripts/verify_care_guides_publication_v234.py"
       - "tests/test_semantic_structure_v237.py"
       - "tests/test_health_gate_header_integration_v233.py"
+      - "tests/test_care_guides_publication_verifier_v237.py"
       - ".github/workflows/validate-semantic-structure-v237.yml"
   workflow_dispatch:
 
@@ -28,21 +30,24 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Compile finalizer integration and tests
+      - name: Compile finalizers verifier integration and tests
         run: |
           set -euxo pipefail
           python -m py_compile \
             scripts/finalize_semantic_structure_v237.py \
             scripts/enforce_health_publication_gate_v192.py \
+            scripts/verify_care_guides_publication_v234.py \
             tests/test_semantic_structure_v237.py \
-            tests/test_health_gate_header_integration_v233.py
+            tests/test_health_gate_header_integration_v233.py \
+            tests/test_care_guides_publication_verifier_v237.py
 
-      - name: Run deterministic semantic and health-gate tests
+      - name: Run deterministic semantic health-gate and sitemap tests
         run: |
           set -euxo pipefail
           python -m unittest -v \
             tests.test_semantic_structure_v237 \
-            tests.test_health_gate_header_integration_v233
+            tests.test_health_gate_header_integration_v233 \
+            tests.test_care_guides_publication_verifier_v237
 
       - name: Verify hierarchy closure JSON-LD and idempotence
         run: |
