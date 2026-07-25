@@ -69,22 +69,17 @@ CORE_SHORT_TITLE = {
 def esc(value: object) -> str:
     return html.escape(str(value), quote=True)
 
-
 def compact(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip()
-
 
 def words(value: str) -> int:
     return len(re.findall(r"[\u0600-\u06ffA-Za-z0-9]+", value))
 
-
 def json_script(payload: dict[str, Any]) -> str:
     return json.dumps(payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
 
-
 def valid_date(value: object) -> bool:
     return isinstance(value, str) and bool(re.fullmatch(r"\d{4}-\d{2}-\d{2}", value))
-
 
 def normalize_guide(raw: dict[str, Any]) -> dict[str, Any]:
     guide = dict(raw)
@@ -96,10 +91,8 @@ def normalize_guide(raw: dict[str, Any]) -> dict[str, Any]:
     guide.setdefault("external_specialist_review", False)
     return guide
 
-
 def category_map(expansion: dict[str, Any]) -> dict[str, dict[str, str]]:
     return {item["id"]: item for item in expansion["categories"]}
-
 
 def keyword_text(guide: dict[str, Any], category_label: str) -> str:
     values = [
@@ -108,7 +101,6 @@ def keyword_text(guide: dict[str, Any], category_label: str) -> str:
         "الصحة النفسية", "دعم الأسرة", "مقدمو الرعاية", "مصطلحات علم النفس"
     ]
     return compact("، ".join(dict.fromkeys(v for v in values if v)))[:480]
-
 
 def head(title: str, description: str, canonical: str, keywords: str, schema: dict[str, Any], *, page_type: str = "article", modified: str = "") -> str:
     modified_meta = f'<meta property="article:modified_time" content="{esc(modified)}">' if valid_date(modified) else ""
@@ -136,14 +128,12 @@ def head(title: str, description: str, canonical: str, keywords: str, schema: di
         f'<link rel="stylesheet" href="{BASE_PATH}assets/care-guides-v234.css"><script type="application/ld+json">{json_script(schema)}</script></head>'
     )
 
-
 def list_section(key: str, items: list[str], index: int) -> str:
     section_id = f"section-{index}"
     danger = key in {"warning_signs", "when_to_seek_help"}
     css = "care234__section care234__section--danger" if danger else "care234__section"
     rows = "".join(f"<li>{esc(item)}</li>" for item in items)
     return f'<section id="{section_id}" class="{css}"><h2>{esc(SECTION_LABELS[key])}</h2><ul>{rows}</ul></section>'
-
 
 def howto_steps(guide: dict[str, Any]) -> list[dict[str, Any]]:
     keys = ("first_minutes", "do", "communication_plan", "conversation_plan", "plan", "family_plan", "home_plan", "school_plan")
@@ -152,7 +142,6 @@ def howto_steps(guide: dict[str, Any]) -> list[dict[str, Any]]:
         for item in guide.get(key, []):
             result.append({"@type": "HowToStep", "position": len(result) + 1, "name": compact(item)[:110], "text": item})
     return result[:24]
-
 
 def guide_schema(guide: dict[str, Any], canonical: str, category_label: str) -> dict[str, Any]:
     modified = guide.get("reviewed_at") if valid_date(guide.get("reviewed_at")) else TODAY
@@ -163,7 +152,7 @@ def guide_schema(guide: dict[str, Any], canonical: str, category_label: str) -> 
         {"@type": "Question", "name": "كيف تستخدم الأسرة هذا الدليل؟", "acceptedAnswer": {"@type": "Answer", "text": "اختَر خطوة صغيرة تناسب الموقف، واتفق مع الشخص على حدود الدعم، واطلب تقييمًا مهنيًا عندما تستمر الصعوبة أو تتدهور الوظيفة."}},
     ]
     article = {
-        "@type": ["MedicalWebPage", "Article"],
+        "@type": "Article",
         "@id": canonical + "#article",
         "url": canonical,
         "headline": guide["title"],
@@ -178,7 +167,19 @@ def guide_schema(guide: dict[str, Any], canonical: str, category_label: str) -> 
         "citation": citations,
         "keywords": guide.get("search_intent", []),
     }
+    medical_page = {
+        "@type": "MedicalWebPage",
+        "@id": canonical + "#webpage",
+        "url": canonical,
+        "name": guide["title"],
+        "description": guide["summary"],
+        "inLanguage": "ar",
+        "dateModified": modified,
+        "mainEntity": {"@id": canonical + "#article"},
+        "isPartOf": {"@id": BASE + "care-guides/#collection"},
+    }
     graph: list[dict[str, Any]] = [
+        medical_page,
         article,
         {
             "@type": "BreadcrumbList",
@@ -198,7 +199,6 @@ def guide_schema(guide: dict[str, Any], canonical: str, category_label: str) -> 
             "description": guide["summary"], "inLanguage": "ar", "url": canonical, "step": steps,
         })
     return {"@context": "https://schema.org", "@graph": graph}
-
 
 def index_schema(expansion: dict[str, Any], guides: list[dict[str, Any]]) -> dict[str, Any]:
     canonical = BASE + "care-guides/"
