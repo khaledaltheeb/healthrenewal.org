@@ -12,6 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLISHER = ROOT / "scripts/publish_tips_hub_v234.py"
+VERIFIER = ROOT / "scripts/verify_tips_v234.py"
 BASE = "https://khaledaltheeb.github.io/pterminology-site/"
 
 
@@ -29,16 +30,23 @@ class TipsV234Test(unittest.TestCase):
             encoding="utf-8",
         )
         subprocess.run([sys.executable, str(PUBLISHER), str(temp)], check=True)
+        subprocess.run([sys.executable, str(VERIFIER), str(temp)], check=True)
         return temp
 
     def test_source_contract(self) -> None:
         supplemental = json.loads(
             (ROOT / "content/v234/tips-guides-supplement-ar.json").read_text(encoding="utf-8")
         )
+        sources = json.loads(
+            (ROOT / "content/v234/sources-ar.json").read_text(encoding="utf-8")
+        )
         self.assertEqual(supplemental["version"], 234)
         self.assertEqual(len(supplemental["guides"]), 16)
+        self.assertGreaterEqual(len(sources["sources"]), 6)
         identity = (ROOT / "scripts/enforce_platform_identity_v201.py").read_text(encoding="utf-8")
         self.assertIn('run_script("publish_tips_hub_v234.py", site)', identity)
+        self.assertIn('run_script("verify_tips_v234.py", site)', identity)
+        self.assertIn('"tips_v234_verification": "api/tips-verification-v234.json"', identity)
         slugs = [item["slug"] for item in supplemental["guides"]]
         self.assertEqual(len(slugs), len(set(slugs)))
         for item in supplemental["guides"]:
@@ -51,6 +59,9 @@ class TipsV234Test(unittest.TestCase):
     def test_generated_section_is_complete_and_indexable(self) -> None:
         site = self.build()
         report = json.loads((site / "api/tips-audit-v234.json").read_text(encoding="utf-8"))
+        verification = json.loads(
+            (site / "api/tips-verification-v234.json").read_text(encoding="utf-8")
+        )
         export = json.loads((site / "api/v1/tips.json").read_text(encoding="utf-8"))
 
         self.assertEqual(report["guide_count"], 36)
@@ -62,6 +73,13 @@ class TipsV234Test(unittest.TestCase):
         self.assertEqual(report["sitemap_urls"], 49)
         self.assertGreaterEqual(report["minimum_rendered_arabic_words"], 100)
         self.assertTrue(report["robots_txt"])
+        self.assertEqual(verification["status"], "passed")
+        self.assertEqual(verification["pages"], 49)
+        self.assertEqual(verification["unique_titles"], 49)
+        self.assertEqual(verification["unique_descriptions"], 49)
+        self.assertEqual(verification["unique_canonicals"], 49)
+        self.assertGreaterEqual(verification["minimum_arabic_words"], 100)
+        self.assertGreaterEqual(verification["minimum_internal_links"], 3)
         self.assertEqual(export["guide_count"], 36)
         self.assertFalse(export["safety"]["diagnostic"])
         self.assertFalse(export["safety"]["medication_advice"])
@@ -124,6 +142,7 @@ class TipsV234Test(unittest.TestCase):
         site = self.build()
         first = (site / "tips/index.html").read_text(encoding="utf-8")
         subprocess.run([sys.executable, str(PUBLISHER), str(site)], check=True)
+        subprocess.run([sys.executable, str(VERIFIER), str(site)], check=True)
         second = (site / "tips/index.html").read_text(encoding="utf-8")
         self.assertEqual(first, second)
         self.assertEqual(len(list((site / "tips").rglob("index.html"))), 49)
