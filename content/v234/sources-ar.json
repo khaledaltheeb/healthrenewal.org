@@ -1,41 +1,103 @@
 {
   "version": 234,
   "reviewed": "2026-07-25",
+  "review_status": "internally-reviewed",
+  "external_review": "recommended-not-completed",
   "sources": [
     {
+      "id": "who-mental-health-topic-2025",
       "organization": "منظمة الصحة العالمية",
-      "title": "الصحة النفسية",
+      "publisher": "World Health Organization",
+      "title": "Mental health",
       "url": "https://www.who.int/health-topics/mental-health",
+      "year": 2025,
+      "source_type": "institutional_fact_sheet",
+      "status": "current",
+      "verified_at": "2026-07-25",
+      "claims_supported": [
+        "الصحة النفسية جزء أساسي من الصحة والرفاه والقدرة على التعلم والعمل والمشاركة",
+        "تتداخل عوامل فردية وأسرية ومجتمعية وبنيوية في الحماية النفسية أو زيادة المخاطر"
+      ],
       "scope": "المفاهيم العامة وعوامل الحماية والخطر وحدود الدعم الذاتي"
     },
     {
+      "id": "who-stress-qa-2026",
       "organization": "منظمة الصحة العالمية",
-      "title": "التعامل مع الضغط",
+      "publisher": "World Health Organization",
+      "title": "Stress — Questions and answers",
       "url": "https://www.who.int/news-room/questions-and-answers/item/stress",
+      "year": 2026,
+      "source_type": "institutional_fact_sheet",
+      "status": "current",
+      "verified_at": "2026-07-25",
+      "claims_supported": [
+        "الإجهاد استجابة بشرية طبيعية لكن فرطه قد يؤثر في الصحة الجسدية والنفسية",
+        "تنظيم النوم والحركة والتواصل والروتين من عناصر التعامل العام مع الضغط"
+      ],
       "scope": "الروتين والنوم والحركة والتواصل وتقليل الحمل الإخباري"
     },
     {
+      "id": "who-psychological-self-help-2026",
       "organization": "منظمة الصحة العالمية",
-      "title": "التدخلات النفسية للمساعدة الذاتية",
+      "publisher": "World Health Organization",
+      "title": "Psychological self-help interventions",
       "url": "https://www.who.int/teams/mental-health-and-substance-use/treatment-care/Psychological-interventions/psychological-self-help-interventions",
+      "year": 2026,
+      "source_type": "official_guideline",
+      "status": "current",
+      "verified_at": "2026-07-25",
+      "claims_supported": [
+        "التدخلات المنظمة للمساعدة الذاتية قد توسع الوصول إلى الدعم النفسي ضمن رعاية متدرجة",
+        "المساعدة الذاتية لا تلغي الحاجة إلى الدعم المهني عندما يكون الخطر أو التعطل مرتفعًا"
+      ],
       "scope": "المساعدة الذاتية المنظمة ضمن رعاية متدرجة"
     },
     {
+      "id": "who-self-care-health-wellbeing-2026",
       "organization": "منظمة الصحة العالمية",
-      "title": "الرعاية الذاتية للصحة والرفاه",
+      "publisher": "World Health Organization",
+      "title": "Self-care for health and well-being",
       "url": "https://www.who.int/health-topics/self-care",
+      "year": 2026,
+      "source_type": "institutional_fact_sheet",
+      "status": "current",
+      "verified_at": "2026-07-25",
+      "claims_supported": [
+        "الرعاية الذاتية تدعم الصحة والوقاية والتعامل مع المرض بوجود دعم مهني أو دونه",
+        "الرعاية الذاتية تكمل النظام الصحي ولا تستبدله"
+      ],
       "scope": "الرعاية الذاتية بوصفها مكملة للخدمات الصحية وليست بديلًا عنها"
     },
     {
-      "organization": "يونيسف",
-      "title": "الصحة النفسية والرفاه للوالدين والأطفال",
+      "id": "unicef-parenting-mental-health-wellbeing-2026",
+      "organization": "اليونيسف",
+      "publisher": "United Nations Children's Fund (UNICEF)",
+      "title": "Mental health and well-being",
       "url": "https://www.unicef.org/parenting/mental-health-and-well-being",
+      "year": 2026,
+      "source_type": "institutional_fact_sheet",
+      "status": "current",
+      "verified_at": "2026-07-25",
+      "claims_supported": [
+        "الرعاية المحبة والداعمة تسهم في بناء المهارات الاجتماعية والانفعالية لدى الطفل",
+        "صحة مقدم الرعاية النفسية جزء من دعم رفاه الطفل والأسرة"
+      ],
       "scope": "صحة الطفل ومقدم الرعاية والمحادثات الأسرية"
     },
     {
-      "organization": "يونيسف",
-      "title": "الحوار مع الطفل حول الصحة النفسية",
+      "id": "unicef-talk-kids-mental-health-2021",
+      "organization": "اليونيسف",
+      "publisher": "United Nations Children's Fund (UNICEF)",
+      "title": "How to talk to your kids about mental health",
       "url": "https://www.unicef.org/parenting/mental-health/how-to-talk-to-kids-mental-health",
+      "year": 2021,
+      "source_type": "institutional_fact_sheet",
+      "status": "current",
+      "verified_at": "2026-07-25",
+      "claims_supported": [
+        "اختيار وقت هادئ والاستماع أكثر من الكلام يساعدان على فتح الحوار مع الطفل",
+        "الشراكة مع الطفل وسؤاله عن نوع الاستجابة التي يريدها تقللان ردود الفعل التي تغلق الحوار"
+      ],
       "scope": "الاستماع والشراكة وتقليل ردود الفعل التي تغلق الحوار"
     }
   ]
