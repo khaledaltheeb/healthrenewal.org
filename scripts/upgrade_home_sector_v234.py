@@ -144,6 +144,8 @@ def upgrade(*args: Any, **kwargs: Any) -> dict[str, Any]:
     if not isinstance(articles, list) or len(articles) != 20:
         raise RuntimeError("Home-sector semantic depth contract requires twenty source articles")
 
+    hub_path = site / "sectors" / "home" / "index.html"
+    before_hub = hub_path.read_text(encoding="utf-8") if hub_path.is_file() else None
     article_paths = {
         str(article["slug"]): site / "sectors" / "home" / str(article["slug"]) / "index.html"
         for article in articles
@@ -155,8 +157,9 @@ def upgrade(*args: Any, **kwargs: Any) -> dict[str, Any]:
 
     report = dict(_BUNDLE_UPGRADE(*args, **kwargs))
     blocks_added = 0
-    hub_path = site / "sectors" / "home" / "index.html"
-    blocks_added += int(_inject_once(hub_path, HUB_DEPTH_MARKER, _hub_depth_block()))
+    had_hub_depth_before = HUB_DEPTH_MARKER in (before_hub or "")
+    inserted_hub_after_regeneration = _inject_once(hub_path, HUB_DEPTH_MARKER, _hub_depth_block())
+    blocks_added += int(inserted_hub_after_regeneration and not had_hub_depth_before)
 
     article_words: list[int] = []
     for article in articles:
