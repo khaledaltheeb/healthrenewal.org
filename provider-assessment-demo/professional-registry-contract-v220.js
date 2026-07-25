@@ -4,7 +4,7 @@
   const data = window.PA_DEMO_DATA;
   if (!data || !Array.isArray(data.professional)) return;
 
-  const VERSION = "220.1";
+  const VERSION = "220.2";
   const externalPattern = /external|device|audiometry|oae|abr|bera|tympan|vision|hearing|سمع|بصر|جهاز/i;
   const normalizeText = (value) => String(value || "").trim();
   const unique = (values) => [...new Set((values || []).map(normalizeText).filter(Boolean))];
@@ -61,34 +61,34 @@
     tool.resultRecordingStatus = "available_without_protected_materials";
   }
 
-  const customRecordContract = Object.freeze(contractFor({
+  const customLicensedAdministrationContract = Object.freeze(contractFor({
     id: "custom-professional-record",
-    name: "تطبيق مهني مخصص أو تقرير خارجي",
+    name: "تطبيق مهني مخصص موثق",
+    category: "مسار مهني",
+    kind: "licensed professional administration record",
+    status: "locked",
+    recommendedRoles: ["مختص مؤهل يطبق نسخة أصلية مصرحًا بها خارج المنصة"]
+  }));
+  const customExternalReportContract = Object.freeze(contractFor({
+    id: "custom-professional-record",
+    name: "تقرير مهني خارجي مخصص",
     category: "مسار مهني",
     kind: "external report",
     status: "external",
     recommendedRoles: ["مختص مؤهل يراجع التقرير أو المخرج الرسمي"]
   }));
+  const customContractForMode = (mode) => ["external_import", "record_review"].includes(String(mode || ""))
+    ? customExternalReportContract
+    : customLicensedAdministrationContract;
   const customRecordTool = Object.freeze({
     id: "custom-professional-record",
-    name: "تطبيق مهني مخصص",
+    name: "سجل مهني مخصص",
     category: "مسار مهني",
-    status: "external",
-    professionalContract: customRecordContract,
+    status: "custom_mode_bound",
+    professionalContract: customExternalReportContract,
     professionalContractVersion: VERSION,
     digitalAdministrationStatus: "not_available_in_platform",
-    resultRecordingStatus: "available_without_protected_materials",
-  });
-  const nativeFind = Array.prototype.find;
-  Object.defineProperty(data.professional, "find", {
-    configurable: false,
-    enumerable: false,
-    writable: false,
-    value(predicate, thisArg) {
-      const found = nativeFind.call(this, predicate, thisArg);
-      if (found !== undefined) return found;
-      return predicate.call(thisArg, customRecordTool, this.length, this) ? customRecordTool : undefined;
-    }
+    resultRecordingStatus: "available_without_protected_materials"
   });
 
   window.PA_PROFESSIONAL_REGISTRY_V220 = Object.freeze({
@@ -96,7 +96,11 @@
     count: data.professional.length,
     allDigitalAdministrationLocked: data.professional.every((tool) => tool.professionalContract.officialAdministrationInsidePlatform === false),
     protectedContentStorageAllowed: false,
-    customRecordContract,
+    customRecordContracts: Object.freeze({
+      licensedAdministration: customLicensedAdministrationContract,
+      externalReport: customExternalReportContract
+    }),
+    customContractForMode,
     customRecordTool,
     tools: data.professional.map((tool) => ({
       id: tool.id,
