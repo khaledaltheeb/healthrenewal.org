@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "provider-assessment-demo" / "institutional-contract-v231-compat.js"
+FALLBACK = ROOT / "provider-assessment-demo" / "institutional-contract-v231-save-fallback.js"
 LOADER = ROOT / "provider-assessment-demo" / "institutional-contract-v220.js"
 
 
@@ -14,6 +15,7 @@ class ProviderAssessmentV231CompatibilityTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.script = SCRIPT.read_text(encoding="utf-8")
+        cls.fallback = FALLBACK.read_text(encoding="utf-8")
         cls.loader = LOADER.read_text(encoding="utf-8")
 
     def test_progressive_draft_does_not_block_legacy_record_save(self) -> None:
@@ -60,9 +62,21 @@ class ProviderAssessmentV231CompatibilityTests(unittest.TestCase):
         ):
             self.assertIn(token, self.script)
 
+    def test_fallback_only_runs_when_original_save_did_not_create_record(self) -> None:
+        for token in (
+            "alreadyCreated", "baseRecordIsValid", "beforeIds",
+            'documentationState: "progressive_draft_allowed"',
+            'source: "v231_save_fallback"',
+            "pa-professional-record-v231-fallback-saved",
+        ):
+            self.assertIn(token, self.fallback)
+        self.assertIn("if (alreadyCreated || !baseRecordIsValid(baseRecord)) return", self.fallback)
+        self.assertIn("record.rightsConfirmed", self.fallback)
+
     def test_loader_preserves_lazy_loading_and_chains_compatibility(self) -> None:
         self.assertIn('import("./institutional-contract-v220-integration.js")', self.loader)
         self.assertIn('.then(() => import("./institutional-contract-v231-compat.js"))', self.loader)
+        self.assertIn('.then(() => import("./institutional-contract-v231-save-fallback.js"))', self.loader)
         self.assertIn("fallbackTimer", self.loader)
         self.assertIn("PA_LOAD_INSTITUTIONAL_V220", self.loader)
         self.assertIn("compatibilityRelease", self.loader)
@@ -71,7 +85,7 @@ class ProviderAssessmentV231CompatibilityTests(unittest.TestCase):
         node = shutil.which("node")
         if not node:
             self.skipTest("Node.js is not installed")
-        for path in (SCRIPT, LOADER):
+        for path in (SCRIPT, FALLBACK, LOADER):
             subprocess.run([node, "--check", str(path)], check=True, capture_output=True, text=True)
 
 
