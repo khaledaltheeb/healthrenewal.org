@@ -85,7 +85,7 @@ class PlatformIdentityV201Tests(unittest.TestCase):
         (tools / "index.html").write_text(
             '<!doctype html><html lang="ar" dir="rtl"><head><title>الأدوات</title>'
             '<style>.tool-card{background:#000;color:#fff}.badge{background:#111;color:#fff}</style>'
-            '</head><body><main><section class="tools-grid"><article class="tool-card">'
+            "</head><body class='existing-tools-page'><main><section class=\"tools-grid\"><article class=\"tool-card\">"
             '<h1>الأدوات</h1><p>وصف الأداة</p><span class="badge">متاح</span>'
             '</article></section></main></body></html>',
             encoding="utf-8",
@@ -94,7 +94,7 @@ class PlatformIdentityV201Tests(unittest.TestCase):
         subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
         first = (tools / "index.html").read_text(encoding="utf-8")
         self.assertIn('data-tools-design="marshmallow-v245"', first)
-        self.assertIn("tools-marshmallow-v245", first)
+        self.assertIn("class='existing-tools-page tools-marshmallow-v245'", first)
         self.assertEqual(first.count("tools-marshmallow-v245-style"), 1)
         for color in ("--tm-mint:#e5faf5", "--tm-rose:#fff0f5", "--tm-lilac:#f2edff"):
             self.assertIn(color, first)
@@ -112,6 +112,7 @@ class PlatformIdentityV201Tests(unittest.TestCase):
         second = (tools / "index.html").read_text(encoding="utf-8")
         self.assertEqual(first, second)
         self.assertEqual(second.count("tools-marshmallow-v245-style"), 1)
+        self.assertIn("class='existing-tools-page tools-marshmallow-v245'", second)
 
     def test_is_idempotent(self) -> None:
         site = self.make_site()
