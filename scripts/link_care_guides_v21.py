@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import json
@@ -5,6 +6,8 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
+
+import expand_care_guides_v234 as care_v234
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 PAGE = SITE / "index.html"
@@ -56,10 +59,10 @@ ENCYCLOPEDIA_AUTISM_BLOCK = f'''<!-- autism-encyclopedia-journey-v73 -->
 <!-- /autism-encyclopedia-journey-v73 -->'''
 
 ADHD_RELATED_BLOCK = '''<!-- adhd-related-journey-v42 -->
-<section class="care-v21__section" aria-labelledby="adhd-related-links">
+<section class="care234__section" aria-labelledby="adhd-related-links">
   <h2 id="adhd-related-links">أكمل رحلة الفهم والدعم</h2>
   <ul>
-    <li><a href="/pterminology-site/care-guides/">تصفح مكتبة أدلة التعامل والأسرة</a></li>
+    <li><a href="/pterminology-site/care-guides/">تصفح مكتبة أدلة الرعاية والدعم</a></li>
     <li><a href="/pterminology-site/sectors/family/">انتقل إلى مركز الأسرة ومسارات الدعم</a></li>
     <li><a href="/pterminology-site/encyclopedia/?q=ADHD">راجع مصطلحات ADHD والفروق المرتبطة في الموسوعة</a></li>
   </ul>
@@ -68,10 +71,10 @@ ADHD_RELATED_BLOCK = '''<!-- adhd-related-journey-v42 -->
 <!-- /adhd-related-journey-v42 -->'''
 
 AUTISM_RELATED_BLOCK = '''<!-- autism-related-journey-v73 -->
-<section class="care-v21__section" aria-labelledby="autism-related-links">
+<section class="care234__section" aria-labelledby="autism-related-links">
   <h2 id="autism-related-links">أكمل رحلة الفهم والدعم</h2>
   <ul>
-    <li><a href="/pterminology-site/care-guides/">تصفح مكتبة أدلة التعامل والأسرة</a></li>
+    <li><a href="/pterminology-site/care-guides/">تصفح مكتبة أدلة الرعاية والدعم</a></li>
     <li><a href="/pterminology-site/sectors/family/">انتقل إلى مركز الأسرة ومسارات الدعم</a></li>
     <li><a href="/pterminology-site/encyclopedia/?q=اضطراب%20طيف%20التوحد">راجع مصطلحات طيف التوحد والفروق المرتبطة في الموسوعة</a></li>
   </ul>
@@ -129,7 +132,6 @@ def normalize_main_sitemap() -> dict[str, object]:
     care_path = SITE / "sitemap-care-guides.xml"
     if not main_path.exists() or not care_path.exists():
         raise SystemExit("Main or care-guide sitemap is missing")
-
     main_tree = ET.parse(main_path)
     main_root = main_tree.getroot()
     root_type = local_name(main_root.tag)
@@ -141,59 +143,49 @@ def normalize_main_sitemap() -> dict[str, object]:
     ]
     if not care_urls:
         raise SystemExit("Care-guide sitemap contains no URLs")
-
     changed = False
     if root_type == "urlset":
-        invalid_children = [child for child in list(main_root) if local_name(child.tag) == "sitemap"]
-        for child in invalid_children:
-            main_root.remove(child)
-            changed = True
-
-        allowed_care_urls = set(care_urls)
+        for child in list(main_root):
+            if local_name(child.tag) == "sitemap":
+                main_root.remove(child)
+                changed = True
+        allowed = set(care_urls)
         for child in list(main_root):
             if local_name(child.tag) != "url":
                 continue
             loc = child.find("{*}loc")
             value = (loc.text or "").strip() if loc is not None else ""
-            if value.startswith(BASE + "care-guides/") and value not in allowed_care_urls:
+            if value.startswith(BASE + "care-guides/") and value not in allowed:
                 main_root.remove(child)
                 changed = True
-
         existing = {
-            node.text.strip()
-            for node in main_root.findall("{*}url/{*}loc")
+            node.text.strip() for node in main_root.findall("{*}url/{*}loc")
             if node.text and node.text.strip()
         }
-        url_tag = qualify(main_root, "url")
-        loc_tag = qualify(main_root, "loc")
         for url in care_urls:
-            if url in existing:
-                continue
-            item = ET.SubElement(main_root, url_tag)
-            ET.SubElement(item, loc_tag).text = url
-            existing.add(url)
-            changed = True
+            if url not in existing:
+                item = ET.SubElement(main_root, qualify(main_root, "url"))
+                ET.SubElement(item, qualify(main_root, "loc")).text = url
+                existing.add(url)
+                changed = True
     elif root_type == "sitemapindex":
-        invalid_children = [child for child in list(main_root) if local_name(child.tag) == "url"]
-        for child in invalid_children:
-            main_root.remove(child)
-            changed = True
+        for child in list(main_root):
+            if local_name(child.tag) == "url":
+                main_root.remove(child)
+                changed = True
         target = BASE + "sitemap-care-guides.xml"
         existing = {
-            node.text.strip()
-            for node in main_root.findall("{*}sitemap/{*}loc")
+            node.text.strip() for node in main_root.findall("{*}sitemap/{*}loc")
             if node.text and node.text.strip()
         }
         if target not in existing:
-            sitemap = ET.SubElement(main_root, qualify(main_root, "sitemap"))
-            ET.SubElement(sitemap, qualify(main_root, "loc")).text = target
+            item = ET.SubElement(main_root, qualify(main_root, "sitemap"))
+            ET.SubElement(item, qualify(main_root, "loc")).text = target
             changed = True
     else:
         raise SystemExit(f"Unsupported sitemap root: {root_type}")
-
     if changed:
         main_tree.write(main_path, encoding="utf-8", xml_declaration=True)
-
     reparsed = ET.parse(main_path).getroot()
     valid = local_name(reparsed.tag) in {"urlset", "sitemapindex"}
     if local_name(reparsed.tag) == "urlset":
@@ -201,11 +193,12 @@ def normalize_main_sitemap() -> dict[str, object]:
     else:
         valid = valid and not any(local_name(child.tag) == "url" for child in reparsed)
     if not valid:
-        raise SystemExit("Main sitemap mixes urlset and sitemapindex element contracts")
+        raise SystemExit("Main sitemap mixes urlset and sitemapindex contracts")
     return {"root_type": local_name(reparsed.tag), "changed": changed, "valid": valid}
 
 
 def main() -> None:
+    expansion = care_v234.publish(SITE)
     if not PAGE.exists():
         raise SystemExit("Production homepage is missing")
     if not ADHD_PAGE.exists():
@@ -223,10 +216,8 @@ def main() -> None:
         FAMILY_PAGE, FAMILY_ADHD_BLOCK, "adhd-family-journey-v42", "family hub"
     )
     encyclopedia_adhd_changed = inject_before_main(
-        ENCYCLOPEDIA_PAGE,
-        ENCYCLOPEDIA_ADHD_BLOCK,
-        "adhd-encyclopedia-journey-v42",
-        "encyclopedia hub",
+        ENCYCLOPEDIA_PAGE, ENCYCLOPEDIA_ADHD_BLOCK,
+        "adhd-encyclopedia-journey-v42", "encyclopedia hub",
     )
     adhd_target_changed = inject_before_main(
         ADHD_PAGE, ADHD_RELATED_BLOCK, "adhd-related-journey-v42", "ADHD guide"
@@ -237,10 +228,8 @@ def main() -> None:
             FAMILY_PAGE, FAMILY_AUTISM_BLOCK, "autism-family-journey-v73", "family hub"
         )
         encyclopedia_autism_changed = inject_before_main(
-            ENCYCLOPEDIA_PAGE,
-            ENCYCLOPEDIA_AUTISM_BLOCK,
-            "autism-encyclopedia-journey-v73",
-            "encyclopedia hub",
+            ENCYCLOPEDIA_PAGE, ENCYCLOPEDIA_AUTISM_BLOCK,
+            "autism-encyclopedia-journey-v73", "encyclopedia hub",
         )
         autism_target_changed = inject_before_main(
             AUTISM_PAGE, AUTISM_RELATED_BLOCK, "autism-related-journey-v73", "autism guide"
@@ -271,34 +260,24 @@ def main() -> None:
     autism_outgoing_to_encyclopedia_search = (
         "/pterminology-site/encyclopedia/?q=اضطراب%20طيف%20التوحد" in autism_text
     )
-    blocked_review_links_removed = (
-        autism_published
-        or (
-            AUTISM_HREF not in family_text
-            and AUTISM_HREF not in encyclopedia_text
-            and AUTISM_HREF not in care_hub_text
-        )
+    blocked_review_links_removed = autism_published or (
+        AUTISM_HREF not in family_text
+        and AUTISM_HREF not in encyclopedia_text
+        and AUTISM_HREF not in care_hub_text
     )
-    no_blocked_review_routes = (
-        autism_published
-        or (
-            not AUTISM_PAGE.exists()
-            and AUTISM_ROUTE_TOKEN not in care_sitemap_text
-            and AUTISM_ROUTE_TOKEN not in main_sitemap_text
-        )
+    no_blocked_review_routes = autism_published or (
+        not AUTISM_PAGE.exists()
+        and AUTISM_ROUTE_TOKEN not in care_sitemap_text
+        and AUTISM_ROUTE_TOKEN not in main_sitemap_text
     )
     autism_contract_valid = (
-        (
-            autism_inbound_from_care_hub
-            and autism_inbound_from_family_hub
-            and autism_inbound_from_encyclopedia_hub
-            and autism_outgoing_to_care_hub
-            and autism_outgoing_to_family_hub
-            and autism_outgoing_to_encyclopedia_search
-        )
-        if autism_published
-        else (blocked_review_links_removed and no_blocked_review_routes)
-    )
+        autism_inbound_from_care_hub
+        and autism_inbound_from_family_hub
+        and autism_inbound_from_encyclopedia_hub
+        and autism_outgoing_to_care_hub
+        and autism_outgoing_to_family_hub
+        and autism_outgoing_to_encyclopedia_search
+    ) if autism_published else (blocked_review_links_removed and no_blocked_review_routes)
     idempotent_blocks = (
         family_text.count("adhd-family-journey-v42") == 2
         and encyclopedia_text.count("adhd-encyclopedia-journey-v42") == 2
@@ -308,9 +287,7 @@ def main() -> None:
                 family_text.count("autism-family-journey-v73") == 2
                 and encyclopedia_text.count("autism-encyclopedia-journey-v73") == 2
                 and autism_text.count("autism-related-journey-v73") == 2
-            )
-            if autism_published
-            else (
+            ) if autism_published else (
                 family_text.count("autism-family-journey-v73") == 0
                 and encyclopedia_text.count("autism-encyclopedia-journey-v73") == 0
             )
@@ -319,6 +296,9 @@ def main() -> None:
 
     report = {
         "version": 194,
+        "expansion_version": expansion["version"],
+        "expansion_status": expansion["status"],
+        "published_guides": expansion["guides"],
         "care_guides_linked": text.count('href="care-guides/"') >= 2,
         "navigation_link": NAV_LINK in text,
         "hero_link": ACTION_LINK in text,
@@ -352,24 +332,17 @@ def main() -> None:
             "sitemap": sitemap_state["changed"],
         },
     }
-    required_keys = [
-        "care_guides_linked",
-        "navigation_link",
-        "hero_link",
-        "duplicate_free",
-        "adhd_inbound_from_care_hub",
-        "adhd_inbound_from_family_hub",
-        "adhd_inbound_from_encyclopedia_hub",
-        "adhd_outgoing_to_care_hub",
-        "adhd_outgoing_to_family_hub",
-        "adhd_outgoing_to_encyclopedia_search",
-        "blocked_review_links_removed",
-        "no_blocked_review_routes",
-        "autism_contract_valid",
-        "idempotent_blocks",
-        "main_sitemap_valid",
-    ]
-    if not all(report[key] for key in required_keys):
+    required = (
+        "care_guides_linked", "navigation_link", "hero_link", "duplicate_free",
+        "adhd_inbound_from_care_hub", "adhd_inbound_from_family_hub",
+        "adhd_inbound_from_encyclopedia_hub", "adhd_outgoing_to_care_hub",
+        "adhd_outgoing_to_family_hub", "adhd_outgoing_to_encyclopedia_search",
+        "blocked_review_links_removed", "no_blocked_review_routes",
+        "autism_contract_valid", "idempotent_blocks", "main_sitemap_valid",
+    )
+    if expansion["version"] != 234 or expansion["status"] != "passed":
+        raise SystemExit(f"Care-guide v234 expansion failed: {expansion}")
+    if not all(report[key] for key in required):
         raise SystemExit(f"Care-guide journey integration failed: {report}")
 
     api = SITE / "api"
