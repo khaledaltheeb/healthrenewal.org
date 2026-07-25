@@ -1,7 +1,7 @@
 "use strict";
 
 (() => {
-  const RELEASE = "220.1";
+  const RELEASE = "220.3";
   const escapeHtml = (value) => String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -62,8 +62,8 @@
       const key = localStorage.key(index);
       if (!key?.startsWith("pa-demo-store-v3:")) continue;
       try {
-        const store = JSON.parse(localStorage.getItem(key));
-        for (const caseRecord of store?.cases || []) {
+        const localStore = JSON.parse(localStorage.getItem(key));
+        for (const caseRecord of localStore?.cases || []) {
           const session = (caseRecord.sessions || []).find((item) => item.sessionId === sessionId);
           if (session) return { caseRecord, session };
         }
@@ -137,60 +137,100 @@
     content.querySelector(".dialog-actions")?.insertAdjacentElement("beforebegin", wrapper.firstElementChild);
   };
 
+  const ensureScriptReady = ({ selector, src, datasetKey, ready, onReady, onFailure, attempts = 120 }) => {
+    if (ready()) {
+      onReady();
+      return;
+    }
+    let script = document.querySelector(selector);
+    if (!script) {
+      script = document.createElement("script");
+      script.src = `${src}?release=${encodeURIComponent(RELEASE)}`;
+      script.defer = true;
+      script.dataset[datasetKey] = RELEASE;
+      document.head.appendChild(script);
+    }
+    let settled = false;
+    const fail = (reason) => {
+      if (settled) return;
+      settled = true;
+      console.error(reason);
+      onFailure?.();
+    };
+    script.addEventListener("error", () => fail(`Failed to load ${src}`), { once: true });
+    const poll = (remaining) => {
+      if (settled) return;
+      if (ready()) {
+        settled = true;
+        onReady();
+        return;
+      }
+      if (remaining <= 0) {
+        fail(`${src} loaded without exposing its v220 readiness contract`);
+        return;
+      }
+      setTimeout(() => poll(remaining - 1), 50);
+    };
+    poll(attempts);
+  };
+
   const loadReportIntegration = (attempt = 0) => {
-    if (document.querySelector('script[data-professional-report-v220]')) return;
     if (!document.getElementById("case-report-form")) {
-      if (attempt < 100) setTimeout(() => loadReportIntegration(attempt + 1), 50);
+      if (attempt < 120) setTimeout(() => loadReportIntegration(attempt + 1), 50);
       else console.error("Case report form did not become available for professional v220 integration");
       return;
     }
-    const report = document.createElement("script");
-    report.src = `professional-registry-report-integration-v220.js?release=${encodeURIComponent(RELEASE)}`;
-    report.defer = true;
-    report.dataset.professionalReportV220 = RELEASE;
-    report.addEventListener("error", () => console.error("Failed to load professional report integration v220"), { once: true });
-    document.head.appendChild(report);
+    ensureScriptReady({
+      selector: 'script[data-professional-report-v220]',
+      src: "professional-registry-report-integration-v220.js",
+      datasetKey: "professionalReportV220",
+      ready: () => Boolean(window.PA_PROFESSIONAL_REPORT_V220),
+      onReady: () => undefined,
+      onFailure: () => console.error("Professional report integration remains unavailable"),
+    });
   };
 
-  const loadPlanningCompatibility = () => {
-    if (document.querySelector('script[data-professional-planning-compat-v220]')) {
+  const loadEditIntegration = () => ensureScriptReady({
+    selector: 'script[data-professional-edit-v220]',
+    src: "professional-registry-edit-v220.js",
+    datasetKey: "professionalEditV220",
+    ready: () => Boolean(window.PA_PROFESSIONAL_EDIT_V220),
+    onReady: loadReportIntegration,
+    onFailure: () => {
+      console.error("Professional legacy-record upgrade UI remains unavailable");
       loadReportIntegration();
-      return;
-    }
-    const planning = document.createElement("script");
-    planning.src = `professional-registry-planning-compat-v220.js?release=${encodeURIComponent(RELEASE)}`;
-    planning.defer = true;
-    planning.dataset.professionalPlanningCompatV220 = RELEASE;
-    planning.addEventListener("load", () => loadReportIntegration(), { once: true });
-    planning.addEventListener("error", () => {
-      console.error("Failed to load professional planning compatibility v220; draft records remain in stricter fallback mode");
-      loadReportIntegration();
-    }, { once: true });
-    document.head.appendChild(planning);
-  };
+    },
+  });
 
-  const loadProfessionalRegistry = () => {
-    if (document.querySelector('script[data-professional-registry-contract-v220]')) return;
-    const contract = document.createElement("script");
-    contract.src = `professional-registry-contract-v220.js?release=${encodeURIComponent(RELEASE)}`;
-    contract.defer = true;
-    contract.dataset.professionalRegistryContractV220 = RELEASE;
-    contract.addEventListener("load", () => {
-      if (document.querySelector('script[data-professional-registry-ui-v220]')) {
-        loadPlanningCompatibility();
-        return;
-      }
-      const ui = document.createElement("script");
-      ui.src = `professional-registry-maturity-ui-v220.js?release=${encodeURIComponent(RELEASE)}`;
-      ui.defer = true;
-      ui.dataset.professionalRegistryUiV220 = RELEASE;
-      ui.addEventListener("load", () => loadPlanningCompatibility(), { once: true });
-      ui.addEventListener("error", () => console.error("Failed to load professional registry maturity UI v220"), { once: true });
-      document.head.appendChild(ui);
-    }, { once: true });
-    contract.addEventListener("error", () => console.error("Failed to load professional registry rights contract v220"), { once: true });
-    document.head.appendChild(contract);
-  };
+  const loadPlanningCompatibility = () => ensureScriptReady({
+    selector: 'script[data-professional-planning-compat-v220]',
+    src: "professional-registry-planning-compat-v220.js",
+    datasetKey: "professionalPlanningCompatV220",
+    ready: () => Boolean(window.PA_PROFESSIONAL_PLANNING_COMPAT_V220),
+    onReady: loadEditIntegration,
+    onFailure: () => {
+      console.error("Professional planning compatibility failed; draft records remain in stricter fallback mode");
+      loadEditIntegration();
+    },
+  });
+
+  const loadProfessionalUi = () => ensureScriptReady({
+    selector: 'script[data-professional-registry-ui-v220]',
+    src: "professional-registry-maturity-ui-v220.js",
+    datasetKey: "professionalRegistryUiV220",
+    ready: () => Boolean(window.PA_PROFESSIONAL_RECORD_V220),
+    onReady: loadPlanningCompatibility,
+    onFailure: () => console.error("Professional registry maturity UI remains unavailable"),
+  });
+
+  const loadProfessionalRegistry = () => ensureScriptReady({
+    selector: 'script[data-professional-registry-contract-v220]',
+    src: "professional-registry-contract-v220.js",
+    datasetKey: "professionalRegistryContractV220",
+    ready: () => Boolean(window.PA_PROFESSIONAL_REGISTRY_V220),
+    onReady: loadProfessionalUi,
+    onFailure: () => console.error("Professional registry rights contract remains unavailable"),
+  });
 
   const refresh = () => {
     enhanceExplorerCards();
