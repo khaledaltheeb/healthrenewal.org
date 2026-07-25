@@ -102,6 +102,8 @@ jobs:
             scripts/design_content_v10.py \
             scripts/upgrade_home_sector_v234.py
       - name: Build the real sector pages and apply v234
+        id: production_build
+        shell: bash
         run: |
           set +e
           set -o pipefail
@@ -121,8 +123,23 @@ jobs:
             print(result)
             PY
           } 2>&1 | tee /tmp/home-v234-production-build.log
-          status=${PIPESTATUS[0]}
-          exit $status
+          code=${PIPESTATUS[0]}
+          printf 'exit_code=%s\n' "$code" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Upload exact production build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-sector-v234-production-build-log
+          path: /tmp/home-v234-production-build.log
+          if-no-files-found: error
+          retention-days: 7
+      - name: Enforce production build completion
+        if: steps.production_build.outputs.exit_code != '0'
+        run: |
+          echo "The real v10 build or home-sector upgrade failed. Last 120 lines follow."
+          tail -n 120 /tmp/home-v234-production-build.log
+          exit 1
       - name: Enforce real generated-page SEO depth safety and discovery
         run: |
           python - <<'PY'
@@ -165,9 +182,8 @@ jobs:
         with:
           name: home-sector-v234-production-smoke
           path: |
-            /tmp/home-v234-production-build.log
             _site/api/home-sector-v234.json
             _site/sectors/home/
             _site/robots.txt
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 7
