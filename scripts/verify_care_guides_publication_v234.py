@@ -3,13 +3,30 @@ from __future__ import annotations
 import json
 import re
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
+CARE_GUIDES_BASE = "https://khaledaltheeb.github.io/pterminology-site/care-guides/"
 
 
 def read_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def sitemap_locations(path: Path) -> list[str]:
+    """Read sitemap locations structurally, independent of XML namespace prefixes."""
+    root = ET.parse(path).getroot()
+    locations = [(node.text or "").strip() for node in root.findall("{*}url/{*}loc")]
+    if not locations:
+        raise AssertionError(f"Care-guide sitemap contains no URL entries: {path}")
+    if any(not location for location in locations):
+        raise AssertionError(f"Care-guide sitemap contains an empty loc: {path}")
+    if len(locations) != len(set(locations)):
+        raise AssertionError(f"Care-guide sitemap contains duplicate URLs: {locations}")
+    if any(not location.startswith(CARE_GUIDES_BASE) for location in locations):
+        raise AssertionError(f"Care-guide sitemap contains an out-of-scope URL: {locations}")
+    return locations
 
 
 def main() -> None:
@@ -23,13 +40,14 @@ def main() -> None:
     expected_pages = report["pages"]
     expected_urls = report["sitemap_urls"]
     actual_pages = sum(1 for _ in (SITE / "care-guides").rglob("index.html"))
-    actual_urls = (SITE / "sitemap-care-guides.xml").read_text(encoding="utf-8").count("<url>")
+    actual_locations = sitemap_locations(SITE / "sitemap-care-guides.xml")
+    actual_urls = len(actual_locations)
 
     assert expected_guides >= 1, report
     assert expected_pages == expected_guides + 1, report
     assert expected_urls == expected_pages, report
     assert actual_pages == expected_pages, (actual_pages, report)
-    assert actual_urls == expected_urls, (actual_urls, report)
+    assert actual_urls == expected_urls, (actual_urls, report, actual_locations)
     assert report["all_have_sources"] and report["all_have_unique_titles"]
     assert enhanced["status"] == "passed" and enhanced["published_pages"] == expected_pages, enhanced
     assert enhanced["sitemap_urls"] == expected_urls and enhanced["pages_with_keywords"] == expected_pages, enhanced
@@ -64,11 +82,12 @@ def main() -> None:
         descriptions.add(description)
 
     result = {
-        "version": 234,
+        "version": 237,
         "status": "passed",
         "guides": len(pages),
         "pages": actual_pages,
         "sitemap_urls": actual_urls,
+        "sitemap_namespace_safe": True,
         "unique_titles": len(titles),
         "unique_descriptions": len(descriptions),
         "identity_pages": identity["pages"],
