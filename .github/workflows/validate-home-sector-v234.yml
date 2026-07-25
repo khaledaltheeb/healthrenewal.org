@@ -1,0 +1,53 @@
+name: Validate institutional home sector v234
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/sectors-v10/home.json"
+      - ".home-v234bundle/**"
+      - "scripts/upgrade_home_sector_v234.py"
+      - "scripts/stamp_deployment_v29.py"
+      - "tests/test_home_sector_v234.py"
+      - ".github/workflows/validate-home-sector-v234.yml"
+  push:
+    branches: [main]
+    paths:
+      - "content/sectors-v10/home.json"
+      - ".home-v234bundle/**"
+      - "scripts/upgrade_home_sector_v234.py"
+      - "scripts/stamp_deployment_v29.py"
+      - "tests/test_home_sector_v234.py"
+      - ".github/workflows/validate-home-sector-v234.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: home-sector-v234-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile production upgrade and contracts
+        run: |
+          python -m py_compile \
+            scripts/upgrade_home_sector_v234.py \
+            scripts/stamp_deployment_v29.py \
+            tests/test_home_sector_v234.py
+      - name: Validate twenty guides metadata schemas robots and idempotence
+        run: python -m unittest -v tests.test_home_sector_v234
+      - name: Verify permanent production integration
+        run: |
+          test "$(find .home-v234bundle -maxdepth 1 -type f -name 'part*' | wc -l)" -eq 5
+          grep -q 'from upgrade_home_sector_v234 import upgrade as upgrade_home_sector' scripts/stamp_deployment_v29.py
+          grep -q 'home_sector_version' scripts/stamp_deployment_v29.py
+          grep -q 'home-sector-v234.json' scripts/stamp_deployment_v29.py
