@@ -1,0 +1,47 @@
+name: Validate advanced assessment cognitive hub content v233
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/deepen_assessment_cognitive_hubs_v233.py"
+      - "tests/test_advanced_content_depth_v233.py"
+      - ".github/workflows/validate-advanced-content-depth-v233.yml"
+      - ".github/workflows/audit-production-discovery-v220.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/deepen_assessment_cognitive_hubs_v233.py"
+      - "tests/test_advanced_content_depth_v233.py"
+      - ".github/workflows/validate-advanced-content-depth-v233.yml"
+      - ".github/workflows/audit-production-discovery-v220.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile publisher and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/deepen_assessment_cognitive_hubs_v233.py \
+            tests/test_advanced_content_depth_v233.py
+
+      - name: Run deterministic advanced-depth contracts
+        run: python -m unittest -v tests/test_advanced_content_depth_v233.py
+
+      - name: Enforce methodological sources and safety language
+        run: |
+          set -euxo pipefail
+          grep -q 'testingstandards.net' scripts/deepen_assessment_cognitive_hubs_v233.py
+          grep -q 'cochrane.org' scripts/deepen_assessment_cognitive_hubs_v233.py
+          grep -q 'أثر التدريب' scripts/deepen_assessment_cognitive_hubs_v233.py
+          grep -q 'نقطة القطع' scripts/deepen_assessment_cognitive_hubs_v233.py
+          ! grep -Eqi 'شفاء مضمون|يعالج نهائيًا|بديل عن الطبيب|تشخيصك هو' scripts/deepen_assessment_cognitive_hubs_v233.py
