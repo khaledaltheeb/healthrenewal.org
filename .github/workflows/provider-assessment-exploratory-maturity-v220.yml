@@ -15,6 +15,7 @@ on:
       - "provider-assessment-demo/tests/professional-registry-maturity-v220.spec.cjs"
       - "provider-assessment-demo/tests/professional-report-integration-v220.spec.cjs"
       - "provider-assessment-demo/tests/assessment-maturity-v220-flow.spec.cjs"
+      - "provider-assessment-demo/tests/playwright.config.cjs"
       - ".github/workflows/provider-assessment-exploratory-maturity-v220.yml"
   pull_request:
     branches: ["main"]
@@ -30,6 +31,7 @@ on:
       - "provider-assessment-demo/tests/professional-registry-maturity-v220.spec.cjs"
       - "provider-assessment-demo/tests/professional-report-integration-v220.spec.cjs"
       - "provider-assessment-demo/tests/assessment-maturity-v220-flow.spec.cjs"
+      - "provider-assessment-demo/tests/playwright.config.cjs"
       - ".github/workflows/provider-assessment-exploratory-maturity-v220.yml"
   workflow_dispatch:
 
@@ -43,7 +45,7 @@ concurrency:
 jobs:
   maturity-contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -60,6 +62,7 @@ jobs:
           node --check provider-assessment-demo/exploratory-tools-maturity-finalize-v220.js
           node --check provider-assessment-demo/exploratory-tools-maturity-ui-v220.js
           node --check provider-assessment-demo/professional-registry-contract-v220.js
+          node --check provider-assessment-demo/professional-registry-schema-compat-v220.js
           node --check provider-assessment-demo/professional-registry-maturity-ui-v220.js
           node --check provider-assessment-demo/professional-registry-planning-compat-v220.js
           node --check provider-assessment-demo/professional-registry-edit-v220.js
@@ -75,6 +78,23 @@ jobs:
         run: node provider-assessment-demo/tests/professional-registry-maturity-v220.spec.cjs
       - name: Enforce professional source integrity in final reports
         run: node provider-assessment-demo/tests/professional-report-integration-v220.spec.cjs
+      - name: Install browser test runtime
+        run: |
+          set -euxo pipefail
+          npm install --no-save --no-package-lock @playwright/test@1.51.1
+          npx playwright install --with-deps chromium
+      - name: Run complete v220 browser flow
+        run: |
+          set -euxo pipefail
+          python3 -m http.server 4173 --directory . >/tmp/v220-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true; cat /tmp/v220-http.log' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/provider-assessment-demo/ >/dev/null; then break; fi
+            if [ "$attempt" -eq 30 ]; then echo "Local test server did not start"; exit 1; fi
+            sleep 1
+          done
+          npx playwright test assessment-maturity-v220-flow.spec.cjs --config=provider-assessment-demo/tests/playwright.config.cjs
       - name: Guard rights safety local storage and public language
         run: |
           set -euxo pipefail
@@ -83,10 +103,13 @@ jobs:
           grep -F 'urgentSafetyOverridesScoring:true' provider-assessment-demo/exploratory-tools-maturity-finalize-v220.js
           grep -F 'officialAdministrationInsidePlatform: false' provider-assessment-demo/professional-registry-contract-v220.js
           grep -F 'protectedContentStorageAllowed: false' provider-assessment-demo/professional-registry-contract-v220.js
+          grep -F 'canonicalField = "reportIssuedBy"' provider-assessment-demo/professional-registry-schema-compat-v220.js
+          grep -F 'legacyField = "reportIssuer"' provider-assessment-demo/professional-registry-schema-compat-v220.js
+          grep -F 'schema_alias_migrated' provider-assessment-demo/professional-registry-schema-compat-v220.js
           grep -F 'digitalAdministrationOccurredInsidePlatform = false' provider-assessment-demo/professional-registry-maturity-ui-v220.js
           grep -F 'planningDraftAllowed: true' provider-assessment-demo/professional-registry-planning-compat-v220.js
-          grep -F 'completedRightsRequired:true' provider-assessment-demo/professional-registry-edit-v220.js
-          grep -F 'legacyRecordsUpgradable:true' provider-assessment-demo/professional-registry-edit-v220.js
+          grep -F 'completedRightsRequired: true' provider-assessment-demo/professional-registry-edit-v220.js
+          grep -F 'legacyRecordsUpgradable: true' provider-assessment-demo/professional-registry-edit-v220.js
           grep -F 'case-report-professional-sources-v220' provider-assessment-demo/professional-registry-report-integration-v220.js
           ! grep -R -E 'بند من (ADOS|WISC|Vineland)|نسخ بنود (ADOS|WISC|Vineland)|مفتاح التصحيح المعتمد متاح|جدول المعايير الكامل متاح|الدرجة المعيارية المعتمدة:' provider-assessment-demo/*-v220.js
           ! grep -R -E '\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource' provider-assessment-demo/professional-registry-*-v220.js
