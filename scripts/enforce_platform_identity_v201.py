@@ -14,6 +14,9 @@ FOUNDER = "مصطلحات علم النفس"
 SLOGAN = "معرفة تحترم الإنسان. دعم يوسّع الإمكانات."
 BASE_PATH = "/pterminology-site/"
 VERIFY_FILE = "google644f1f7a8b7aaa2b.html"
+TOOLS_ROUTE = "tools/index.html"
+TOOLS_DESIGN = "marshmallow-v245"
+TOOLS_STYLE_ID = "tools-marshmallow-v245-style"
 
 # Unicode-aware \w matches Arabic letters and digits but excludes punctuation
 # such as the Arabic comma, so replacements also work after normal punctuation.
@@ -44,6 +47,60 @@ SHELL_STYLE = f"""
 .platform-shell-v201-footer p{{margin:.35rem 0}}
 @media(max-width:760px){{.platform-shell-v201-header{{align-items:flex-start;flex-direction:column}}}}
 @media print{{.platform-shell-v201-header,.platform-shell-v201-footer{{box-shadow:none;background:#fff}}}}
+</style>
+""".strip()
+
+TOOLS_MARSHMALLOW_STYLE = f"""
+<style id="{TOOLS_STYLE_ID}">
+html[data-tools-design="{TOOLS_DESIGN}"]{{color-scheme:light!important}}
+body.tools-marshmallow-v245.tools-marshmallow-v245{{
+  --tm-ink:#173f45;--tm-muted:#4d686b;--tm-brand:#075f5b;--tm-berry:#5b2946;
+  --tm-mint:#e5faf5;--tm-mint-line:#b8e4db;--tm-rose:#fff0f5;--tm-rose-line:#f1bfd2;
+  --tm-lilac:#f2edff;--tm-lilac-line:#d7caf4;--tm-peach:#fff0e8;--tm-peach-line:#f2cbbb;
+  --tm-butter:#fff8d8;--tm-line:#c7e3de;--tm-white:#fff;
+  color:var(--tm-ink)!important;
+  background:linear-gradient(140deg,#fffafd 0%,var(--tm-mint) 48%,var(--tm-lilac) 100%)!important;
+}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(*){{text-shadow:none!important}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(h1,h2,h3,h4,h5,h6){{color:var(--tm-berry)!important}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(p,li,dd,small,.muted,[class$="-description"],[class$="-summary"]){{color:var(--tm-muted)!important}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(label,legend,dt,strong){{color:var(--tm-ink)!important}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 main :where(
+  section,article,aside,form,fieldset,details,dialog,
+  .card,.panel,.box,.tile,.tool-card,.resource-card,.feature-card,.result-card,
+  [class$="-card"],[class$="-panel"],[class$="-box"],[class$="-tile"]
+){{
+  background:linear-gradient(145deg,var(--tm-white),var(--tm-mint))!important;
+  color:var(--tm-ink)!important;
+  border-color:var(--tm-line)!important;
+  box-shadow:0 15px 34px rgba(80,151,139,.14)!important;
+}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(.grid,.cards,.tools-grid,[class$="-grid"]) > :nth-child(4n+1){{background:linear-gradient(145deg,#fff,var(--tm-rose))!important;border-color:var(--tm-rose-line)!important}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(.grid,.cards,.tools-grid,[class$="-grid"]) > :nth-child(4n+2){{background:linear-gradient(145deg,#fff,var(--tm-mint))!important;border-color:var(--tm-mint-line)!important}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(.grid,.cards,.tools-grid,[class$="-grid"]) > :nth-child(4n+3){{background:linear-gradient(145deg,#fff,var(--tm-lilac))!important;border-color:var(--tm-lilac-line)!important}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(.grid,.cards,.tools-grid,[class$="-grid"]) > :nth-child(4n){{background:linear-gradient(145deg,#fff,var(--tm-peach))!important;border-color:var(--tm-peach-line)!important}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(pre,code,kbd,samp,mark,.tag,.badge,.chip,.pill,[class$="-tag"],[class$="-badge"],[class$="-chip"],[class$="-pill"]){{
+  background:var(--tm-lilac)!important;color:#4a315f!important;border-color:var(--tm-lilac-line)!important;
+  box-shadow:none!important;text-shadow:none!important;
+}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(input,select,textarea){{background:#fff!important;color:var(--tm-ink)!important;border-color:#91c7be!important}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(button,.button,[role="button"]){{
+  background:linear-gradient(145deg,#fff,var(--tm-mint))!important;color:#103f42!important;
+  border:2px solid #76cbbf!important;box-shadow:0 5px 0 #d3ece7,0 10px 20px rgba(80,151,139,.12)!important;
+}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(a){{color:var(--tm-brand)!important;text-underline-offset:.22em}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(table){{background:#fff!important;color:var(--tm-ink)!important}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(th){{background:var(--tm-lilac)!important;color:#4a315f!important}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(td){{background:#fff!important;color:var(--tm-ink)!important}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 :where(svg text){{fill:var(--tm-ink)!important}}
+body.tools-marshmallow-v245.tools-marshmallow-v245 ::selection{{background:var(--tm-butter);color:#493700}}
+@media(prefers-color-scheme:dark){{
+  body.tools-marshmallow-v245.tools-marshmallow-v245{{color-scheme:light!important;color:var(--tm-ink)!important;background:linear-gradient(140deg,#fffafd 0%,var(--tm-mint) 48%,var(--tm-lilac) 100%)!important}}
+}}
+@media(prefers-contrast:more){{
+  body.tools-marshmallow-v245.tools-marshmallow-v245 main :where(section,article,aside,form,fieldset,details,dialog,.card,.panel,.box,.tile,[class$="-card"],[class$="-panel"],[class$="-box"],[class$="-tile"]){{background:#fff!important;border-color:currentColor!important;box-shadow:none!important}}
+}}
+@media print{{body.tools-marshmallow-v245.tools-marshmallow-v245,body.tools-marshmallow-v245.tools-marshmallow-v245 main :where(section,article,aside,form,fieldset,details){{background:#fff!important;color:#000!important;box-shadow:none!important}}}}
 </style>
 """.strip()
 
@@ -79,6 +136,49 @@ def ensure_style(text: str) -> tuple[str, bool]:
     return text, True
 
 
+def _add_class_to_body(text: str, class_name: str) -> tuple[str, bool]:
+    match = re.search(r"<body\b[^>]*>", text, re.I)
+    if not match:
+        return text, False
+    tag = match.group(0)
+    class_match = re.search(r'\bclass=(["\'])(.*?)\1', tag, re.I | re.S)
+    if class_match:
+        classes = class_match.group(2).split()
+        if class_name in classes:
+            return text, False
+        classes.append(class_name)
+        replacement = f'class={class_match.group(1)}{" ".join(classes)}{class_match.group(1)}'
+        updated_tag = tag[: class_match.start()] + replacement + tag[class_match.end() :]
+    else:
+        updated_tag = tag[:-1] + f' class="{class_name}">'
+    return text[: match.start()] + updated_tag + text[match.end() :], True
+
+
+def _add_tools_html_marker(text: str) -> tuple[str, bool]:
+    match = re.search(r"<html\b[^>]*>", text, re.I)
+    if not match:
+        return text, False
+    tag = match.group(0)
+    if f'data-tools-design="{TOOLS_DESIGN}"' in tag:
+        return text, False
+    updated_tag = tag[:-1] + f' data-tools-design="{TOOLS_DESIGN}">'
+    return text[: match.start()] + updated_tag + text[match.end() :], True
+
+
+def ensure_tools_marshmallow(text: str) -> tuple[str, bool]:
+    changed = False
+    text, updated = _add_tools_html_marker(text)
+    changed = changed or updated
+    text, updated = _add_class_to_body(text, "tools-marshmallow-v245")
+    changed = changed or updated
+    if TOOLS_STYLE_ID not in text:
+        if "</head>" not in text.lower():
+            raise SystemExit("Tools page head is missing; Marshmallow contrast cannot be installed")
+        text = re.sub(r"</head>", TOOLS_MARSHMALLOW_STYLE + "</head>", text, count=1, flags=re.I)
+        changed = True
+    return text, changed
+
+
 def ensure_header(text: str) -> tuple[str, bool]:
     if re.search(r"<header\b", text, re.I):
         return text, False
@@ -103,7 +203,9 @@ def update_brand_metadata(text: str) -> tuple[str, int]:
     )
     for raw, value in patterns:
         pattern = re.compile(raw, re.I | re.S)
-        text, count = pattern.subn(lambda match: match.group(1) + html.escape(value, quote=True) + match.group(3), text)
+        text, count = pattern.subn(
+            lambda match: match.group(1) + html.escape(value, quote=True) + match.group(3), text
+        )
         replacements += count
     return text, replacements
 
@@ -147,7 +249,9 @@ def main() -> int:
     if (site / "special-needs").is_dir():
         hub_publisher = Path(__file__).with_name("publish_special_needs_hub_v201.py")
         subprocess.run([sys.executable, str(hub_publisher), str(site)], check=True)
-        accessibility_finalizer = Path(__file__).with_name("finalize_special_needs_hub_accessibility_v201.py")
+        accessibility_finalizer = Path(__file__).with_name(
+            "finalize_special_needs_hub_accessibility_v201.py"
+        )
         subprocess.run([sys.executable, str(accessibility_finalizer), str(site)], check=True)
         special_needs_published = True
         special_needs_accessibility_finalized = True
@@ -162,6 +266,10 @@ def main() -> int:
         "footers_added": 0,
         "styles_added": 0,
         "brand_metadata_updates": 0,
+        "tools_marshmallow_route": TOOLS_ROUTE,
+        "tools_marshmallow_design": TOOLS_DESIGN,
+        "tools_marshmallow_pages": 0,
+        "tools_marshmallow_updates": 0,
         "trust_guides_published": trust_guides_published,
         "trust_guides_links_finalized": trust_guides_links_finalized,
         "trust_guides_report": "api/trust-guides-v201.json",
@@ -171,7 +279,9 @@ def main() -> int:
         "magazine_report": "api/magazine-v201.json",
         "special_needs_hub_published": special_needs_published,
         "special_needs_hub_accessibility_finalized": special_needs_accessibility_finalized,
-        "special_needs_hub_report": "api/special-needs-hub-v201.json" if special_needs_published else None,
+        "special_needs_hub_report": (
+            "api/special-needs-hub-v201.json" if special_needs_published else None
+        ),
         "remaining_banned_pages": [],
         "missing_header_pages": [],
         "missing_footer_pages": [],
@@ -180,6 +290,7 @@ def main() -> int:
     for page in sorted(site.rglob("*.html")):
         if page.name == VERIFY_FILE:
             continue
+        relative = page.relative_to(site).as_posix()
         text = page.read_text(encoding="utf-8")
         stats["pages"] += 1
         text, count = replace_language(text)
@@ -191,10 +302,13 @@ def main() -> int:
         if 'data-platform-shell="header"' in text or 'data-platform-shell="footer"' in text:
             text, changed = ensure_style(text)
             stats["styles_added"] += int(changed)
+        if relative == TOOLS_ROUTE:
+            stats["tools_marshmallow_pages"] += 1
+            text, changed = ensure_tools_marshmallow(text)
+            stats["tools_marshmallow_updates"] += int(changed)
         text, count = update_brand_metadata(text)
         stats["brand_metadata_updates"] += count
         page.write_text(text, encoding="utf-8")
-        relative = page.relative_to(site).as_posix()
         if BANNED_RE.search(text):
             stats["remaining_banned_pages"].append(relative)
         if not re.search(r"<header\b", text, re.I):
@@ -202,15 +316,34 @@ def main() -> int:
         if not re.search(r"<footer\b", text, re.I):
             stats["missing_footer_pages"].append(relative)
 
+    tools_page = site / TOOLS_ROUTE
+    if tools_page.is_file():
+        tools_text = tools_page.read_text(encoding="utf-8")
+        required_tools_markers = (
+            f'data-tools-design="{TOOLS_DESIGN}"',
+            'class="tools-marshmallow-v245',
+            TOOLS_STYLE_ID,
+            "--tm-mint:#e5faf5",
+            "--tm-rose:#fff0f5",
+            "--tm-lilac:#f2edff",
+            "color:var(--tm-ink)!important",
+        )
+        missing = [marker for marker in required_tools_markers if marker not in tools_text]
+        if missing:
+            raise SystemExit(f"Tools Marshmallow contrast contract is incomplete: {missing}")
+
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
     report = api / "platform-identity-v201.json"
     report.write_text(json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8")
     if stats["remaining_banned_pages"]:
-        raise SystemExit(f"Banned person-label language remains in: {stats['remaining_banned_pages'][:20]}")
+        raise SystemExit(
+            f"Banned person-label language remains in: {stats['remaining_banned_pages'][:20]}"
+        )
     if stats["missing_header_pages"] or stats["missing_footer_pages"]:
         raise SystemExit(
-            f"Site shell incomplete: headers={stats['missing_header_pages'][:20]}, footers={stats['missing_footer_pages'][:20]}"
+            f"Site shell incomplete: headers={stats['missing_header_pages'][:20]}, "
+            f"footers={stats['missing_footer_pages'][:20]}"
         )
     target_audit = Path(__file__).with_name("audit_content_targets_v201.py")
     subprocess.run([sys.executable, str(target_audit), str(site)], check=True)
