@@ -1,0 +1,118 @@
+name: Audit source content gap v231
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/audit_source_depth_gap_v231.py"
+      - "tests/test_source_depth_gap_v231.py"
+      - ".github/workflows/validate-source-depth-gap-v231.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/audit_source_depth_gap_v231.py"
+      - "tests/test_source_depth_gap_v231.py"
+      - ".github/workflows/validate-source-depth-gap-v231.yml"
+  workflow_run:
+    workflows: ["Audit production discovery v220"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: source-depth-gap-v231-${{ github.event.workflow_run.id || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-contract:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and test the contract
+        env:
+          PYTHONPATH: scripts
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/audit_source_depth_gap_v231.py tests/test_source_depth_gap_v231.py
+          python -m unittest -v tests.test_source_depth_gap_v231
+      - name: Smoke-test report generation
+        run: |
+          set -euxo pipefail
+          rm -rf /tmp/source-depth-v231
+          mkdir -p /tmp/source-depth-v231/site/trust
+          python - <<'PY'
+          from pathlib import Path
+          root=Path('/tmp/source-depth-v231/site/trust')
+          before=' '.join(f'كلمة{i}' for i in range(45))
+          after=' '.join(f'إضافة{i}' for i in range(260))
+          root.joinpath('index.html').write_text(
+              '<!doctype html><html lang="ar" dir="rtl"><head><title>الثقة والمنهجية</title>'
+              '<meta name="robots" content="index,follow"></head><body><h1>الثقة والمنهجية</h1>'
+              f'<p>{before}</p><!-- content-depth-v222:start --><section><p>{after}</p></section>'
+              '<!-- content-depth-v222:end --></body></html>', encoding='utf-8')
+          PY
+          python scripts/audit_source_depth_gap_v231.py /tmp/source-depth-v231/site --repository .
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('/tmp/source-depth-v231/site/api/source-depth-gap-v231.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed',report
+          assert report['source_gap_count']==1,report
+          assert report['gaps'][0]['route']=='/trust/',report
+          assert Path('/tmp/source-depth-v231/site/api/source-depth-gap-v231.md').is_file()
+          PY
+
+  audit-validated-production:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout the validated source commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download validated production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Audit dependency on v222 injection
+        run: |
+          set -euxo pipefail
+          python scripts/audit_source_depth_gap_v231.py validated-site --repository .
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('validated-site/api/source-depth-gap-v231.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed',report
+          assert report['unhandled_thin_count']==0,report
+          assert report['malformed_marker_count']==0,report
+          print({key: report[key] for key in (
+              'source_gap_count','minimum_source_words','maximum_injected_words','route_group_counts'
+          )})
+          PY
+          cat validated-site/api/source-depth-gap-v231.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload source-depth evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-depth-gap-v231
+          path: |
+            validated-site/api/source-depth-gap-v231.json
+            validated-site/api/source-depth-gap-v231.md
+          if-no-files-found: error
+          retention-days: 30
