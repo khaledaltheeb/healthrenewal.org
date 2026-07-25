@@ -1,6 +1,12 @@
 from __future__ import annotations
 
 import json
+import sys
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
 
 import expand_v12_direct_core_v235 as core
 import lab_source_content_v235 as source
