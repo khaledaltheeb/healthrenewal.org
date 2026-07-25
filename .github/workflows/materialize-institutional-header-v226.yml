@@ -1,0 +1,63 @@
+name: Materialize institutional header v226
+
+on:
+  push:
+    branches: ["agent/institutional-header-v226"]
+    paths:
+      - "scripts/publish_institutional_header_v226.py"
+      - "tests/test_institutional_header_v226.py"
+      - ".github/workflows/materialize-institutional-header-v226.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/institutional-header-v226
+          fetch-depth: 0
+
+      - name: Validate deterministic publisher
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/publish_institutional_header_v226.py tests/test_institutional_header_v226.py
+          python -m unittest -v tests/test_institutional_header_v226.py
+
+      - name: Materialize header in homepage source
+        run: |
+          set -euxo pipefail
+          python scripts/publish_institutional_header_v226.py .
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          page = Path('index.html').read_text(encoding='utf-8')
+          report = json.loads(Path('api/institutional-header-v226.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['section_links'] == 12, report
+          assert report['language_links'] == 3, report
+          assert report['dropdowns'] == 2, report
+          assert page.count('data-institutional-header-v226') == 1
+          assert page.count('data-i18n-switcher-v72') == 1
+          assert page.count('id="institutional-header-v226-styles"') == 1
+          assert '<nav class="nav"' not in page
+          print(report)
+          PY
+          rm -f api/institutional-header-v226.json
+
+      - name: Commit materialized homepage
+        run: |
+          set -euxo pipefail
+          if git diff --quiet -- index.html; then
+            echo "Homepage source already contains institutional header v226"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "تطبيق الهيدر المؤسسي على الصفحة الرئيسية v226"
+          git push origin HEAD:agent/institutional-header-v226
