@@ -29,6 +29,8 @@ assert.equal(report.count, data.professional.length);
 assert.equal(report.allDigitalAdministrationLocked, true);
 assert.equal(report.protectedContentStorageAllowed, false);
 assert.ok(report.count >= 100, `professional registry unexpectedly small: ${report.count}`);
+assert.ok(report.customRecordTool?.professionalContract, "custom professional record contract missing");
+assert.equal(report.customRecordTool.digitalAdministrationStatus, "not_available_in_platform");
 
 const ids = new Set();
 const requiredCompleted = [
@@ -109,14 +111,46 @@ for (const marker of [
 }
 assert.ok(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/.test(planning), "planning compatibility must remain local-only");
 
+const edit = fs.readFileSync(path.join(DEMO, "professional-registry-edit-v220.js"), "utf8");
+for (const marker of [
+  "legacyRecordsUpgradable:true",
+  "completedRightsRequired:true",
+  "structured_record_updated",
+  "record.professionalMaturity = nextMaturity",
+  "record.digitalAdministrationOccurredInsidePlatform = false",
+  "record.protectedContentStored = false",
+]) {
+  assert.ok(edit.includes(marker), `professional edit-upgrade marker missing: ${marker}`);
+}
+assert.ok(edit.includes("registry.customRecordTool"), "custom-record edit fallback missing");
+assert.ok(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/.test(edit), "professional edit upgrade must remain local-only");
+
 const maturityUi = fs.readFileSync(path.join(DEMO, "exploratory-tools-maturity-ui-v220.js"), "utf8");
-assert.ok(maturityUi.includes("professional-registry-contract-v220.js"), "professional contract loader missing");
-assert.ok(maturityUi.includes("professional-registry-maturity-ui-v220.js"), "professional UI loader missing");
-assert.ok(maturityUi.includes("professional-registry-planning-compat-v220.js"), "professional planning compatibility loader missing");
-assert.ok(maturityUi.includes("professional-registry-report-integration-v220.js"), "professional report integration loader missing");
-assert.ok(maturityUi.includes('ui.addEventListener("load", () => loadPlanningCompatibility()'), "planning compatibility must load after professional UI");
-assert.ok(maturityUi.includes('planning.addEventListener("load", () => loadReportIntegration()'), "report integration must load after planning compatibility");
+for (const loader of [
+  "professional-registry-contract-v220.js",
+  "professional-registry-maturity-ui-v220.js",
+  "professional-registry-planning-compat-v220.js",
+  "professional-registry-edit-v220.js",
+  "professional-registry-report-integration-v220.js",
+]) {
+  assert.ok(maturityUi.includes(loader), `professional loader missing: ${loader}`);
+}
+for (const readiness of [
+  "PA_PROFESSIONAL_REGISTRY_V220",
+  "PA_PROFESSIONAL_RECORD_V220",
+  "PA_PROFESSIONAL_PLANNING_COMPAT_V220",
+  "PA_PROFESSIONAL_EDIT_V220",
+  "PA_PROFESSIONAL_REPORT_V220",
+]) {
+  assert.ok(maturityUi.includes(readiness), `readiness contract missing: ${readiness}`);
+}
+assert.ok(maturityUi.includes("const ensureScriptReady"), "readiness-aware script loader missing");
+assert.ok(maturityUi.includes("onReady: loadProfessionalUi"), "professional UI must follow rights contract");
+assert.ok(maturityUi.includes("onReady: loadPlanningCompatibility"), "planning compatibility must follow professional UI");
+assert.ok(maturityUi.includes("onReady: loadEditIntegration"), "edit upgrade must follow planning compatibility");
+assert.ok(maturityUi.includes("onReady: loadReportIntegration"), "report integration must follow edit upgrade");
 assert.ok(maturityUi.includes("draft records remain in stricter fallback mode"), "planning load failure must be explicit and fail to stricter mode");
+assert.ok(maturityUi.includes("legacy-record upgrade UI remains unavailable"), "edit load failure must be explicit");
 
 console.log(JSON.stringify({
   status: "passed",
@@ -125,6 +159,8 @@ console.log(JSON.stringify({
   protectedContentStorageAllowed: report.protectedContentStorageAllowed,
   structuredRecordSchema: "professional-registry-record-v220",
   planningDraftCompatibilityLoaded: true,
-  reportIntegrationAfterPlanningCompatibility: true,
+  legacyRecordsUpgradable: true,
+  readinessAwareLoader: true,
+  reportIntegrationAfterEditUpgrade: true,
   legacyRecordMutationFallback: false,
 }, null, 2));
