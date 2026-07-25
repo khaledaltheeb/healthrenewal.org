@@ -28,10 +28,8 @@ CORE_FILES = (
 )
 BLOCKED_REVIEW_STATUSES = {"needs-specialist-review"}
 
-
 def load_payload(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
-
 
 def load_all() -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
     expansion = load_payload(MANIFEST)
@@ -52,7 +50,6 @@ def load_all() -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any
     blocked = [g for g in guides if g.get("review_status") in BLOCKED_REVIEW_STATUSES]
     allowed = [normalize_guide(g) for g in guides if g not in blocked]
     return expansion, allowed, blocked
-
 
 def validate(expansion: dict[str, Any], guides: list[dict[str, Any]], blocked: list[dict[str, Any]]) -> None:
     category_ids = {item["id"] for item in expansion.get("categories", [])}
@@ -90,7 +87,6 @@ def validate(expansion: dict[str, Any], guides: list[dict[str, Any]], blocked: l
     if not blocked:
         raise SystemExit("Safety fixture disappeared; at least one specialist-review guide should remain blocked")
 
-
 def read_extension_urls(site: Path, known_slugs: set[str]) -> list[str]:
     path = site / "sitemap-care-guides.xml"
     if not path.is_file():
@@ -111,7 +107,6 @@ def read_extension_urls(site: Path, known_slugs: set[str]) -> list[str]:
         if (site / relative / "index.html").is_file():
             urls.append(url)
     return sorted(set(urls))
-
 
 def write_sitemap(site: Path, guides: list[dict[str, Any]], extension_urls: list[str]) -> int:
     namespace = "http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -136,7 +131,6 @@ def write_sitemap(site: Path, guides: list[dict[str, Any]], extension_urls: list
     ET.ElementTree(urlset).write(site / "sitemap-care-guides.xml", encoding="utf-8", xml_declaration=True)
     return len(seen)
 
-
 def write_robots(site: Path) -> None:
     content = (
         "User-agent: *\n"
@@ -146,7 +140,6 @@ def write_robots(site: Path) -> None:
         f"Sitemap: {BASE}sitemap-care-guides.xml\n"
     )
     (site / "robots.txt").write_text(content, encoding="utf-8")
-
 
 def metadata_audit(output: Path) -> dict[str, Any]:
     pages = sorted(output.rglob("index.html"))
@@ -177,7 +170,6 @@ def metadata_audit(output: Path) -> dict[str, Any]:
         titles.add(title)
         descriptions.add(desc)
     return {"pages": len(pages), "unique_titles": len(titles), "unique_descriptions": len(descriptions), "failures": failures}
-
 
 def publish(site: Path) -> dict[str, Any]:
     site = site.resolve()
@@ -269,7 +261,7 @@ def publish(site: Path) -> dict[str, Any]:
         "all_have_sources": True,
         "all_have_unique_titles": True,
         "expansion_version": 234,
-        "published_core_guides": report["published_known_guides"],
+        "published_known_guides": report["published_known_guides"],
         "extension_guides_preserved": report["extension_guides_preserved"],
         "blocked_review_guides": report["blocked_review_guides"],
         "blocked_review_slugs": report["blocked_review_slugs"],
@@ -278,14 +270,12 @@ def publish(site: Path) -> dict[str, Any]:
     legacy_path.write_text(json.dumps(legacy, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return report
 
-
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("site", nargs="?", default="_site", type=Path)
     args = parser.parse_args()
     print(json.dumps(publish(args.site), ensure_ascii=False, indent=2))
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())
