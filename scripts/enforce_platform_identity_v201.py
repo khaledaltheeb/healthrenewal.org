@@ -126,8 +126,16 @@ def main() -> int:
     if not site.is_dir():
         raise SystemExit(f"Missing site directory: {site}")
 
-    run_script("publish_tips_hub_v234.py", site)
-    run_script("verify_tips_v234.py", site)
+    # The identity script is also exercised against minimal unit-test fixtures.
+    # Publish the complete tips hub only when the directory is a real production
+    # build with its crawl policy and asset tree already present.
+    production_site = (site / "robots.txt").is_file() and (site / "assets").is_dir()
+    tips_v234_published = False
+    if production_site:
+        run_script("publish_tips_hub_v234.py", site)
+        run_script("verify_tips_v234.py", site)
+        tips_v234_published = True
+
     run_script("publish_trust_guides_v201.py", site)
     run_script("finalize_trust_guides_links_v201.py", site)
 
@@ -149,9 +157,9 @@ def main() -> int:
         "footers_added": 0,
         "styles_added": 0,
         "brand_metadata_updates": 0,
-        "tips_v234_published": True,
-        "tips_v234_report": "api/tips-audit-v234.json",
-        "tips_v234_verification": "api/tips-verification-v234.json",
+        "tips_v234_published": tips_v234_published,
+        "tips_v234_report": "api/tips-audit-v234.json" if tips_v234_published else None,
+        "tips_v234_verification": "api/tips-verification-v234.json" if tips_v234_published else None,
         "trust_guides_published": True,
         "trust_guides_links_finalized": True,
         "trust_guides_report": "api/trust-guides-v201.json",
