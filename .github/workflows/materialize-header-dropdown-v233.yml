@@ -7,9 +7,14 @@ on:
       - "scripts/publish_institutional_header_v233.py"
       - "tests/test_institutional_header_v233.py"
       - ".github/workflows/materialize-header-dropdown-v233.yml"
+  workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: materialize-header-dropdown-v233
+  cancel-in-progress: true
 
 jobs:
   materialize:
