@@ -12,7 +12,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLISHER = ROOT / "scripts" / "publish_special_needs_guides_v217.py"
+LIVE_VERIFIER = ROOT / "scripts" / "verify_special_needs_hub_live_v241.py"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
+TEST_SHA = "a" * 40
 BANNED = re.compile(r"(?<!\w)(?:المعاقين|معاقين|المعاقون|معاقون|المعاقة|معاقة|المعاق|معاق)(?!\w)")
 
 
@@ -84,6 +86,7 @@ class SpecialNeedsHubV235Tests(unittest.TestCase):
 
         self.assertEqual(report["version"], 221)
         self.assertEqual(report["hub_contract"], 235)
+        self.assertEqual(report["hub_release"], 241)
         self.assertEqual(report["guide_count"], 25)
         self.assertEqual(report["hub"]["pathway_count"], 8)
         self.assertEqual(report["hub"]["faq_count"], 8)
@@ -123,6 +126,7 @@ class SpecialNeedsHubV235Tests(unittest.TestCase):
             'المنهجية التحريرية وحدود الاستخدام',
             'متى تكون الأولوية للأمان؟',
             'الطوارئ المحلية',
+            '<strong>10</strong><span>مراجع مؤسسية أصلية</span>',
             'data-special-needs-jordan-sources-v241',
             'jordan-launches-national-framework-inclusion-and-diversity-education-unesco',
             'jordans-education-strategic-plan-2026-2030',
@@ -154,6 +158,28 @@ class SpecialNeedsHubV235Tests(unittest.TestCase):
         for slug in report["guide_slugs"]:
             route = f"/pterminology-site/special-needs/{slug}/"
             self.assertEqual(source.count(route), 1, slug)
+
+    def test_live_verifier_accepts_exact_generated_contract(self) -> None:
+        self.publish()
+        (self.site / "deployment.json").write_text(
+            json.dumps({"schema_version": 29, "commit": TEST_SHA}, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        result = subprocess.run(
+            ["python3", str(LIVE_VERIFIER), str(self.site), "--expected-sha", TEST_SHA],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+        evidence = json.loads((self.site / "api/special-needs-hub-live-v241.json").read_text(encoding="utf-8"))
+        self.assertEqual(evidence["version"], 241)
+        self.assertEqual(evidence["status"], "passed")
+        self.assertEqual(evidence["deployment_commit"], TEST_SHA)
+        self.assertEqual(evidence["guide_count"], 25)
+        self.assertEqual(evidence["source_count"], 10)
+        self.assertEqual(evidence["jordan_source_count"], 3)
+        self.assertFalse(evidence["external_review_completed"])
 
     def test_robots_and_complete_output_are_idempotent(self) -> None:
         first = self.publish()
