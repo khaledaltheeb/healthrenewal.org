@@ -1,4 +1,5 @@
 import json
+import re
 import shutil
 import subprocess
 import tempfile
@@ -12,6 +13,7 @@ SOURCE = ROOT / "magazine"
 SOURCE_SITEMAP = ROOT / "sitemap.xml"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 URL = BASE + "/magazine/"
+ROBOTS_PATTERN = re.compile(r'<meta\s+[^>]*name=["\']robots["\'][^>]*>', re.I)
 
 
 class MagazineRoutesV201Tests(unittest.TestCase):
@@ -25,7 +27,7 @@ class MagazineRoutesV201Tests(unittest.TestCase):
     def article_files() -> list[Path]:
         return sorted(path for path in SOURCE.glob("*-20*.html") if path.name != "index.html")
 
-    def test_magazine_archive_is_complete_and_honest(self):
+    def test_magazine_archive_is_complete_honest_and_indexable(self):
         site = self.fixture()
         subprocess.run(["python3", str(PUBLISHER), str(site)], cwd=ROOT, check=True, capture_output=True, text=True)
         articles = self.article_files()
@@ -39,6 +41,17 @@ class MagazineRoutesV201Tests(unittest.TestCase):
         self.assertEqual(text.count('class="card"'), len(articles))
         self.assertNotIn("لا يتضمن هذا الإصدار ملخصات دراسات منفردة", text)
         self.assertNotIn("مراجعة اختصاصية مكتملة", text)
+
+        published = [page, *(site / "magazine" / path.name for path in articles)]
+        for published_page in published:
+            published_text = published_page.read_text(encoding="utf-8")
+            self.assertEqual(
+                len(ROBOTS_PATTERN.findall(published_text)),
+                1,
+                published_page.name,
+            )
+            self.assertNotIn("noindex", published_text.lower(), published_page.name)
+
         report = json.loads((site / "api" / "magazine-v201.json").read_text(encoding="utf-8"))
         self.assertTrue(report["methodology_published"])
         self.assertEqual(report["research_summaries_published"], len(articles))
@@ -46,6 +59,8 @@ class MagazineRoutesV201Tests(unittest.TestCase):
         self.assertEqual(report["review_status"], "internally-reviewed")
         self.assertEqual(report["risk_level"], "low")
         self.assertEqual(report["unwired_research_pages"], 0)
+        self.assertEqual(report["robots_contract"], "exactly-one-index-follow-meta-per-published-page")
+        self.assertGreaterEqual(report["robots"]["robots_normalized_pages"], 5)
 
     def test_magazine_sitemap_is_idempotent(self):
         site = self.fixture()

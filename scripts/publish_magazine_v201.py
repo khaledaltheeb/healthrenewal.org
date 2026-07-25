@@ -16,18 +16,16 @@ BASE = "https://khaledaltheeb.github.io/pterminology-site"
 URL = BASE + "/magazine/"
 CONTRACT = 234
 MIN_ARTICLES = 21
+ROBOTS_META = '<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">'
+ROBOTS_PATTERN = re.compile(r'<meta\s+[^>]*name=["\']robots["\'][^>]*>', re.I)
 SOURCE_LINK_PATTERN = re.compile(
     r'href="https://(?:doi\.org/|pubmed\.ncbi\.nlm\.nih\.gov/|etheses\.whiterose\.ac\.uk/|research-repository\.uwa\.edu\.au/)',
     re.I,
 )
 SOURCE_HEADING_PATTERN = re.compile(
-    r'<h2>(?:المصدر الأصلي|السجل الأصلي|السجل الجامعي|السجل الجامعي الأصلي)</h2>',
-    re.I,
+    r'<h2>(?:المصدر الأصلي|السجل الأصلي|السجل الجامعي|السجل الجامعي الأصلي)</h2>', re.I
 )
-LIMITATION_HEADING_PATTERN = re.compile(
-    r'<h2>[^<]*(?:حدود|قيود|الحذر)[^<]*</h2>',
-    re.I,
-)
+LIMITATION_HEADING_PATTERN = re.compile(r'<h2>[^<]*(?:حدود|قيود|الحذر)[^<]*</h2>', re.I)
 KNOWN_MARKERS = {
     "peer-led-adolescent-mental-health-2025.html": ("7,060", "لم يجد التحليل التلوي آثارًا دالة", "ست دراسات من أصل سبع"),
     "adhd-school-social-skills-meta-analysis-2026.html": ("10.1177/10870547251364578", "40905635", "0.09"),
@@ -59,6 +57,18 @@ def load_methodology() -> dict:
     return data
 
 
+def ensure_robots_meta(text: str, filename: str) -> tuple[str, bool]:
+    matches = ROBOTS_PATTERN.findall(text)
+    if len(matches) > 1:
+        raise SystemExit(f"Magazine page contains duplicate robots metadata: {filename}")
+    if matches:
+        return text, False
+    updated, count = re.subn(r"</head\s*>", ROBOTS_META + "</head>", text, count=1, flags=re.I)
+    if count != 1:
+        raise SystemExit(f"Magazine page lacks a closing head element: {filename}")
+    return updated, True
+
+
 def validate_source_tree(pages: list[Path]) -> dict[str, str]:
     for name in ("index.html", "research.css"):
         if not (SOURCE / name).is_file():
@@ -78,9 +88,7 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
     if missing:
         raise SystemExit(f"Magazine index contract failed: {missing}")
     if index.count('class="card"') != expected_count:
-        raise SystemExit(
-            f"Magazine index must expose {expected_count} cards, found {index.count('class=\"card\"')}"
-        )
+        raise SystemExit(f"Magazine index must expose {expected_count} cards, found {index.count('class=\"card\"')}")
 
     hashes: dict[str, str] = {}
     for path in pages:
@@ -111,17 +119,28 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
             raise SystemExit(f"Magazine index must expose article twice: {filename}")
         if URL + filename not in index:
             raise SystemExit(f"Magazine JSON-LD does not include article: {filename}")
-        hashes[filename] = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        normalized, _ = ensure_robots_meta(text, filename)
+        hashes[filename] = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
     return hashes
 
 
-def publish_files(site: Path, pages: list[Path]) -> None:
+def publish_files(site: Path, pages: list[Path]) -> dict[str, object]:
     target = site / "magazine"
     target.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(SOURCE / "index.html", target / "index.html")
+    index_text, index_added = ensure_robots_meta((SOURCE / "index.html").read_text(encoding="utf-8"), "index.html")
+    (target / "index.html").write_text(index_text, encoding="utf-8")
     shutil.copy2(SOURCE / "research.css", target / "research.css")
+    added: list[str] = []
     for path in pages:
-        shutil.copy2(path, target / path.name)
+        text, was_added = ensure_robots_meta(path.read_text(encoding="utf-8"), path.name)
+        (target / path.name).write_text(text, encoding="utf-8")
+        if was_added:
+            added.append(path.name)
+    return {
+        "index_robots_added": index_added,
+        "article_robots_added": added,
+        "robots_normalized_pages": int(index_added) + len(added),
+    }
 
 
 def local_name(tag: str) -> str:
@@ -180,7 +199,7 @@ def publish(site: Path) -> dict[str, object]:
     data = load_methodology()
     pages = article_files()
     hashes = validate_source_tree(pages)
-    publish_files(site, pages)
+    robots = publish_files(site, pages)
     sitemap = write_sitemaps(site, data["reviewed_at"], pages)
     report = {
         "version": CONTRACT,
@@ -195,13 +214,13 @@ def publish(site: Path) -> dict[str, object]:
         "unwired_research_pages": 0,
         "source_heading_contract": "article-or-official-repository",
         "limitations_contract": "limitations-or-cautions-required",
+        "robots_contract": "exactly-one-index-follow-meta-per-published-page",
+        "robots": robots,
         "sitemap": sitemap,
     }
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
-    (api / "magazine-v201.json").write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    (api / "magazine-v201.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return report
 
