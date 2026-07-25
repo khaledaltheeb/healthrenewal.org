@@ -1,7 +1,7 @@
 "use strict";
 
 (() => {
-  const RELEASE = "220.3";
+  const RELEASE = "220.4";
   const escapeHtml = (value) => String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -223,12 +223,24 @@
     onFailure: () => console.error("Professional registry maturity UI remains unavailable"),
   });
 
+  const loadSchemaCompatibility = () => ensureScriptReady({
+    selector: 'script[data-professional-schema-compat-v220]',
+    src: "professional-registry-schema-compat-v220.js",
+    datasetKey: "professionalSchemaCompatV220",
+    ready: () => Boolean(window.PA_PROFESSIONAL_SCHEMA_COMPAT_V220),
+    onReady: loadProfessionalUi,
+    onFailure: () => {
+      console.error("Professional registry field-alias migration remains unavailable");
+      loadProfessionalUi();
+    },
+  });
+
   const loadProfessionalRegistry = () => ensureScriptReady({
     selector: 'script[data-professional-registry-contract-v220]',
     src: "professional-registry-contract-v220.js",
     datasetKey: "professionalRegistryContractV220",
     ready: () => Boolean(window.PA_PROFESSIONAL_REGISTRY_V220),
-    onReady: loadProfessionalUi,
+    onReady: loadSchemaCompatibility,
     onFailure: () => console.error("Professional registry rights contract remains unavailable"),
   });
 
