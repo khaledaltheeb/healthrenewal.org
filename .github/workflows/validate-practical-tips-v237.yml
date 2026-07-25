@@ -1,0 +1,96 @@
+name: Validate practical tips library v237
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v237/practical-tips-v237.json.gz.b64"
+      - "scripts/publish_practical_tips_v237.py"
+      - "scripts/publish_practical_tips_v237.py.gz.b64"
+      - "tests/test_practical_tips_v237.py"
+      - ".github/workflows/validate-practical-tips-v237.yml"
+      - ".github/workflows/audit-production-discovery-v220.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "content/v237/practical-tips-v237.json.gz.b64"
+      - "scripts/publish_practical_tips_v237.py"
+      - "scripts/publish_practical_tips_v237.py.gz.b64"
+      - "tests/test_practical_tips_v237.py"
+      - ".github/workflows/validate-practical-tips-v237.yml"
+      - ".github/workflows/audit-production-discovery-v220.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile publisher and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_practical_tips_v237.py \
+            tests/test_practical_tips_v237.py
+          python - <<'PY'
+          import base64, gzip
+          from pathlib import Path
+          source=gzip.decompress(base64.b64decode(Path('scripts/publish_practical_tips_v237.py.gz.b64').read_bytes()))
+          compile(source.decode('utf-8'),'packed-publisher-v237','exec')
+          registry=gzip.decompress(base64.b64decode(Path('content/v237/practical-tips-v237.json.gz.b64').read_bytes()))
+          import json
+          data=json.loads(registry.decode('utf-8'))
+          assert data['version']==237 and len(data['new_guides'])==80,data
+          PY
+
+      - name: Run deterministic practical-tip contracts
+        run: python -m unittest -v tests.test_practical_tips_v237
+
+      - name: Publish the real one-hundred-guide registry
+        run: |
+          set -euxo pipefail
+          TMP_SITE="$(mktemp -d)"
+          mkdir -p "${TMP_SITE}/assets"
+          printf '%s\n' '<svg xmlns="http://www.w3.org/2000/svg"></svg>' > "${TMP_SITE}/assets/logo.svg"
+          printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>' > "${TMP_SITE}/sitemap.xml"
+          python scripts/publish_practical_tips_v237.py "${TMP_SITE}"
+          REPORT="${TMP_SITE}/api/practical-tips-v237.json"
+          REPORT="${REPORT}" TMP_SITE="${TMP_SITE}" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["TMP_SITE"])
+          report = json.loads(Path(os.environ["REPORT"]).read_text(encoding="utf-8"))
+          assert report["version"] == 237, report
+          assert report["status"] == "passed", report
+          assert report["guide_count"] == 100, report
+          assert report["preserved_existing_guides"] == 20, report
+          assert report["new_guides"] == 80, report
+          assert report["pillar_count"] == 10, report
+          assert report["category_count"] >= 25, report
+          assert report["minimum_required_words"] == 700, report
+          assert report["minimum_after_words"] >= 700, report
+          assert report["remaining_below_minimum"] == 0, report
+          assert report["duplicate_slugs"] == 0, report
+          assert report["duplicate_titles"] == 0, report
+          assert report["sitemap_urls"] == 111, report
+          assert len(list((root / "tips").glob("*/index.html"))) == 100
+          assert len(list((root / "tips/topics").glob("*/index.html"))) == 10
+          print({
+              "guide_count": report["guide_count"],
+              "new_guides": report["new_guides"],
+              "minimum_after_words": report["minimum_after_words"],
+              "pillar_counts": report["pillar_counts"],
+          })
+          PY
+          ! grep -R -Eqi 'يعالج نهائيًا|شفاء مضمون|بديل عن الطبيب|تشخيصك هو|معاقين' "${TMP_SITE}/tips"
