@@ -103,14 +103,26 @@ jobs:
             scripts/upgrade_home_sector_v234.py
       - name: Build the real sector pages and apply v234
         run: |
-          set -euxo pipefail
-          python build_site.py
-          python enrich_site_v7.py
-          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
-          python scripts/scale_site_v8.py
-          python expand_site_v9.py
-          python scripts/design_content_v10.py
-          python scripts/upgrade_home_sector_v234.py _site
+          set +e
+          set -o pipefail
+          {
+            set -eux
+            python build_site.py
+            python enrich_site_v7.py
+            cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+            python scripts/scale_site_v8.py
+            python expand_site_v9.py
+            python scripts/design_content_v10.py
+            PYTHONPATH=scripts python - <<'PY'
+            from pathlib import Path
+            from upgrade_home_sector_v234 import upgrade
+
+            result = upgrade(Path('_site'))
+            print(result)
+            PY
+          } 2>&1 | tee /tmp/home-v234-production-build.log
+          status=${PIPESTATUS[0]}
+          exit $status
       - name: Enforce real generated-page SEO depth safety and discovery
         run: |
           python - <<'PY'
@@ -153,6 +165,7 @@ jobs:
         with:
           name: home-sector-v234-production-smoke
           path: |
+            /tmp/home-v234-production-build.log
             _site/api/home-sector-v234.json
             _site/sectors/home/
             _site/robots.txt
