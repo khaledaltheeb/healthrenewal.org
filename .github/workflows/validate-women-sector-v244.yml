@@ -1,0 +1,50 @@
+name: Validate institutional women sector v244
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/sectors-v10/women.json"
+      - "scripts/women_sector_content_v244.py"
+      - "scripts/upgrade_women_sector_v244.py"
+      - "scripts/stamp_deployment_v29.py"
+      - "tests/test_women_sector_v244.py"
+      - ".github/workflows/validate-women-sector-v244.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile women-sector production upgrade and tests
+        run: python -m py_compile scripts/women_sector_content_v244.py scripts/upgrade_women_sector_v244.py scripts/stamp_deployment_v29.py tests/test_women_sector_v244.py
+      - name: Validate twenty guides metadata schemas safety depth and idempotence
+        run: python -m unittest -v tests.test_women_sector_v244
+      - name: Verify permanent production integration
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('scripts/stamp_deployment_v29.py').read_text(encoding='utf-8')
+          required = (
+              'from upgrade_women_sector_v244 import upgrade as upgrade_women_sector',
+              'women_sector = upgrade_women_sector(SITE)',
+              'women-sector v244 depth and safety',
+              'women_sector_version',
+              'women_sector_articles',
+              'women_sector_hub_words',
+              'women_sector_minimum_article_words',
+          )
+          missing = [token for token in required if token not in text]
+          assert not missing, missing
+          print({'production_integration': 'passed', 'tokens': len(required)})
+          PY
