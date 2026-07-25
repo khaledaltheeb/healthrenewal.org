@@ -1,0 +1,114 @@
+name: Verify special-needs live deployment v236 manual
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/verify-special-needs-live-v236-manual.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: special-needs-live-v236-manual-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      EXPECTED_SHA: b2f67cc76e709b0b6308ae45e57f52a21f012f0a
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: b2f67cc76e709b0b6308ae45e57f52a21f012f0a
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Download uncached live evidence
+        run: |
+          set -euxo pipefail
+          root=/tmp/special-needs-live-v236
+          rm -rf "${root}"
+          mkdir -p "${root}/api" "${root}/special-needs"
+          token="${EXPECTED_SHA}-manual-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          curl --retry 8 --retry-delay 5 --retry-all-errors -H 'Cache-Control: no-cache' -fsSL \
+            "${BASE_URL}deployment.json?v=${token}" -o "${root}/deployment.json"
+          curl --retry 8 --retry-delay 5 --retry-all-errors -H 'Cache-Control: no-cache' -fsSL \
+            "${BASE_URL}api/special-needs-guides-v221.json?v=${token}" -o "${root}/api/special-needs-guides-v221.json"
+          curl --retry 8 --retry-delay 5 --retry-all-errors -H 'Cache-Control: no-cache' -fsSL \
+            "${BASE_URL}special-needs/?v=${token}" -o "${root}/special-needs/index.html"
+          curl --retry 8 --retry-delay 5 --retry-all-errors -H 'Cache-Control: no-cache' -fsSL \
+            "${BASE_URL}sitemap-special-needs.xml?v=${token}" -o "${root}/sitemap-special-needs.xml"
+          for slug in \
+            assessment-homework-accommodations-plan \
+            visual-schedules-transitions-home-school-plan \
+            inclusive-play-peer-friendship-plan \
+            siblings-family-balance-support-plan \
+            accessible-family-emergency-preparedness-plan; do
+            mkdir -p "${root}/special-needs/${slug}"
+            curl --retry 8 --retry-delay 5 --retry-all-errors -H 'Cache-Control: no-cache' -fsSL \
+              "${BASE_URL}special-needs/${slug}/?v=${token}" \
+              -o "${root}/special-needs/${slug}/index.html"
+          done
+
+      - name: Verify SHA, twenty-five links, five batches and v214 pages
+        env:
+          PYTHONPATH: .
+        run: |
+          set -euxo pipefail
+          python scripts/verify_special_needs_deployment_v236.py \
+            /tmp/special-needs-live-v236 \
+            --mode live \
+            --expected-sha "${EXPECTED_SHA}"
+
+      - name: Prove blocked review sources remain private
+        run: |
+          set -euxo pipefail
+          token="${EXPECTED_SHA}-blocked-${GITHUB_RUN_ID}"
+          for path in \
+            content/v73/special-needs-executable-instructions-ar.json \
+            data/disability-dignity-safety.json \
+            data/urgent-help-governance.json; do
+            status=$(curl --retry 3 --retry-delay 3 --retry-all-errors -H 'Cache-Control: no-cache' \
+              -sS -o /tmp/blocked-response -w '%{http_code}' \
+              "${BASE_URL}${path}?v=${token}")
+            case "${status}" in
+              404|410) ;;
+              *) echo "Blocked review source returned HTTP ${status}: ${path}" >&2; exit 1 ;;
+            esac
+          done
+
+      - name: Enrich evidence with manual verification context
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path=Path('/tmp/special-needs-live-v236/api/special-needs-deployment-v236.json')
+          data=json.loads(path.read_text(encoding='utf-8'))
+          data.update({
+              'verification_trigger':'pull-request-manual-proof',
+              'expected_sha':'b2f67cc76e709b0b6308ae45e57f52a21f012f0a',
+              'blocked_review_files_published':False,
+          })
+          path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          assert data['status']=='passed',data
+          assert data['guide_count']==25,data
+          assert data['batch_count']==5,data
+          assert data['hub_links']==25,data
+          assert data['v214_pages_verified']==5,data
+          print(json.dumps(data,ensure_ascii=False,indent=2))
+          PY
+
+      - name: Upload live deployment evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-needs-live-v236
+          path: /tmp/special-needs-live-v236/api/special-needs-deployment-v236.json
+          if-no-files-found: error
+          retention-days: 30
