@@ -8,8 +8,10 @@ on:
       - "scripts/publish_practical_tips_v237.py"
       - "scripts/publish_practical_tips_v237.py.gz.b64"
       - "scripts/enforce_health_publication_gate_v192.py"
+      - "scripts/verify_core_sections_v15.py"
       - "tests/test_practical_tips_v237.py"
       - "tests/test_practical_tips_v237_compat.py"
+      - "tests/test_verify_core_sections_v244.py"
       - "tests/test_health_gate_header_integration_v233.py"
       - ".github/workflows/validate-practical-tips-v237.yml"
   push:
@@ -19,8 +21,10 @@ on:
       - "scripts/publish_practical_tips_v237.py"
       - "scripts/publish_practical_tips_v237.py.gz.b64"
       - "scripts/enforce_health_publication_gate_v192.py"
+      - "scripts/verify_core_sections_v15.py"
       - "tests/test_practical_tips_v237.py"
       - "tests/test_practical_tips_v237_compat.py"
+      - "tests/test_verify_core_sections_v244.py"
       - "tests/test_health_gate_header_integration_v233.py"
       - ".github/workflows/validate-practical-tips-v237.yml"
   workflow_dispatch:
@@ -49,8 +53,10 @@ jobs:
           python -m py_compile \
             scripts/publish_practical_tips_v237.py \
             scripts/enforce_health_publication_gate_v192.py \
+            scripts/verify_core_sections_v15.py \
             tests/test_practical_tips_v237.py \
             tests/test_practical_tips_v237_compat.py \
+            tests/test_verify_core_sections_v244.py \
             tests/test_health_gate_header_integration_v233.py
           python - <<'PY'
           import base64, gzip
@@ -69,6 +75,7 @@ jobs:
           python -m unittest -v \
             tests.test_practical_tips_v237 \
             tests.test_practical_tips_v237_compat \
+            tests.test_verify_core_sections_v244 \
             tests.test_health_gate_header_integration_v233
 
       - name: Publish the real one-hundred-guide registry
