@@ -1,0 +1,278 @@
+"use strict";
+
+(() => {
+  const VERSION = "220.1";
+  const data = window.PA_DEMO_DATA;
+  const registry = window.PA_PROFESSIONAL_REGISTRY_V220;
+  if (!data || !registry || typeof store === "undefined" || typeof identity === "undefined") return;
+
+  const COMPLETED = new Set(["completed", "result_imported"]);
+  const PROTECTED_TEXT = /(مفتاح\s*التصحيح|قواعد?\s*التصحيح|جدول\s*المعايير|درجات?\s*المعايير|إجابات?\s*البنود|استجابات?\s*البنود|نصوص?\s*البنود|answer\s*key|scoring\s*(?:key|rule)|norm(?:ative)?\s*table|item\s*(?:text|response))/i;
+  const BASE_FIELDS = [
+    "administrationDate", "assignedEntityLabel", "performerName", "practitionerQualification",
+    "administrationMode", "versionLanguage", "resultSourceType", "reportReference",
+    "reportIssuedBy", "outcomeLabel", "scoreReference", "notes", "nextAction",
+  ];
+  const MATURITY_FIELDS = [
+    "publisher", "instrumentVersion", "administrationLanguage", "rightsBasis", "rightsReference",
+    "scoreSource", "officialSourceReference", "selectionRationale", "administrationQuality",
+    "behavioralObservations", "interpretationLimitations", "integrationSummary", "recommendations",
+    "followUpDate", "reviewedBy", "reviewStatus",
+  ];
+  const clean = (value, limit = 3000) => String(value || "")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ").trim().slice(0, limit);
+  const esc = (value) => String(value ?? "")
+    .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+  const clone = (value) => JSON.parse(JSON.stringify(value));
+
+  const allRecords = () => store.cases.flatMap((caseRecord) =>
+    (caseRecord.professionalAssessments || []).map((record) => ({ caseRecord, record }))
+  );
+  const findRecord = (recordId) => allRecords().find(({ record }) => record.recordId === recordId) || null;
+  const toolFor = (record) => {
+    const registered = Array.prototype.find.call(data.professional, (tool) => tool.id === record.toolId || tool.name === record.toolName);
+    if (registered?.professionalContract) return registered;
+    return {
+      id: record.toolId || "custom-professional-record",
+      name: record.toolName || "سجل مهني مخصص",
+      category: record.category || "مسار مهني",
+      customRecord: true,
+      professionalContract: registry.customContractForMode(record.administrationMode),
+    };
+  };
+
+  const input = (name, label, type = "text") => `<label class="field"><span>${esc(label)}</span><input name="edit_maturity_${esc(name)}" type="${esc(type)}" maxlength="300"></label>`;
+  const textarea = (name, label) => `<label class="field report-full"><span>${esc(label)}</span><textarea name="edit_maturity_${esc(name)}" rows="3" maxlength="2400"></textarea></label>`;
+  const select = (name, label, options) => `<label class="field"><span>${esc(label)}</span><select name="edit_maturity_${esc(name)}"><option value="">اختر</option>${options.map(([value, text]) => `<option value="${esc(value)}">${esc(text)}</option>`).join("")}</select></label>`;
+
+  const editInput = (form, name) => form.elements[`edit_maturity_${name}`];
+  const install = () => {
+    const form = document.getElementById("professional-record-edit-form");
+    if (!form || document.getElementById("professional-record-edit-maturity-v220")) return false;
+    const section = document.createElement("section");
+    section.id = "professional-record-edit-maturity-v220";
+    section.className = "panel report-full";
+    section.innerHTML = `<div class="section-heading compact"><div><p class="eyebrow">استكمال عقد السجل v${VERSION}</p><h3>الحقوق والنسخة والمصدر والتكامل</h3></div><span class="badge neutral">تعديل موثق</span></div>
+      <div id="professional-edit-contract-summary-v220" class="callout warning"></div>
+      <div class="report-form-grid">
+        ${input("publisher", "الناشر أو الجهة المالكة")}
+        ${input("instrumentVersion", "الإصدار أو النموذج")}
+        ${input("administrationLanguage", "لغة النسخة الرسمية")}
+        ${select("rightsBasis", "أساس الحق", [["pending_review","قيد المراجعة — للتخطيط فقط"],["licensed_original_copy","نسخة أصلية مرخصة"],["official_public_permission","إذن رسمي عام أو مكتوب"],["external_report_only","تقرير خارجي فقط"]])}
+        ${input("rightsReference", "مرجع الحق أو الترخيص")}
+        ${select("scoreSource", "مصدر النتيجة", [["official_report","تقرير رسمي"],["authorized_scoring_platform","منصة تصحيح مصرح بها"],["qualified_professional_record","سجل مختص مؤهل"],["publisher_output","مخرج الناشر"]])}
+        ${input("officialSourceReference", "مرجع المخرج الرسمي")}
+        ${input("followUpDate", "تاريخ المتابعة", "date")}
+        ${textarea("selectionRationale", "مبرر اختيار الأداة")}
+        ${textarea("administrationQuality", "جودة التطبيق وشروطه")}
+        ${textarea("behavioralObservations", "الملاحظات السلوكية والسياقية")}
+        ${textarea("interpretationLimitations", "قيود التفسير")}
+        ${textarea("integrationSummary", "تكامل النتيجة مع المصادر الأخرى")}
+        ${textarea("recommendations", "التوصيات والمتابعة")}
+        ${input("reviewedBy", "المراجع المهني")}
+        ${select("reviewStatus", "حالة المراجعة", [["not_reviewed","لم تراجع"],["self_checked","مراجعة ذاتية"],["peer_reviewed","مراجعة زميل مؤهل"],["team_reviewed","مراجعة فريق"]])}
+        <label class="rights-confirmation report-full"><input name="edit_maturity_noProtectedContent" type="checkbox" required><span>أؤكد أن السجل لا يحتوي بنود الأداة أو الاستجابات الفردية أو مفاتيح التصحيح أو الجداول المعيارية.</span></label>
+      </div>`;
+    form.querySelector('[name="editReason"]')?.closest("label")?.before(section);
+    form.addEventListener("submit", saveStructuredEdit, true);
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-edit-professional-record]");
+      if (button) setTimeout(() => fill(button.dataset.editProfessionalRecord), 0);
+    }, true);
+    return true;
+  };
+
+  const applyRequirements = (form, record, tool) => {
+    for (const element of form.querySelectorAll('[name^="edit_maturity_"]')) element.required = false;
+    editInput(form, "noProtectedContent").required = true;
+    const rights = editInput(form, "rightsBasis");
+    for (const option of rights.options) {
+      option.disabled = Boolean(option.value && option.value !== "pending_review" && !tool.professionalContract.permittedRightsBases.includes(option.value));
+    }
+    if (!COMPLETED.has(record.recordStatus)) {
+      if (!rights.value) rights.value = "pending_review";
+      return;
+    }
+    for (const name of tool.professionalContract.requiredCompletedFields.filter((field) => field !== "administratorQualification")) {
+      if (editInput(form, name)) editInput(form, name).required = true;
+    }
+    form.elements.practitionerQualification.required = true;
+  };
+
+  const fill = (recordId) => {
+    const form = document.getElementById("professional-record-edit-form");
+    const found = findRecord(recordId);
+    if (!form || !found) return;
+    const { record } = found;
+    const maturity = record.professionalMaturity || {};
+    const tool = toolFor(record);
+    const values = {
+      publisher: maturity.instrument?.publisher || record.reportIssuedBy || record.reportIssuer || "",
+      instrumentVersion: maturity.instrument?.version || record.versionLanguage || "",
+      administrationLanguage: maturity.instrument?.language || record.versionLanguage || "",
+      rightsBasis: maturity.rights?.basis || (["external_import", "record_review"].includes(record.administrationMode) ? "external_report_only" : "pending_review"),
+      rightsReference: maturity.rights?.reference || record.reportReference || "",
+      scoreSource: maturity.officialResultSource?.type || (record.resultSourceType === "external_report" ? "official_report" : "qualified_professional_record"),
+      officialSourceReference: maturity.officialResultSource?.reference || record.reportReference || record.scoreReference || "",
+      selectionRationale: maturity.selectionRationale || "",
+      administrationQuality: maturity.administrationQuality || "",
+      behavioralObservations: maturity.behavioralObservations || "",
+      interpretationLimitations: maturity.interpretationLimitations || record.notes || "",
+      integrationSummary: maturity.integrationSummary || "",
+      recommendations: maturity.recommendations || "",
+      followUpDate: maturity.followUpDate || "",
+      reviewedBy: maturity.review?.reviewedBy || "",
+      reviewStatus: maturity.review?.status || "not_reviewed",
+    };
+    for (const name of MATURITY_FIELDS) if (editInput(form, name)) editInput(form, name).value = values[name] || "";
+    editInput(form, "noProtectedContent").checked = Boolean(maturity.rights && maturity.rights.protectedContentStored === false);
+    const summary = document.getElementById("professional-edit-contract-summary-v220");
+    if (summary) summary.innerHTML = `<strong>${esc(record.toolName)}:</strong> ${COMPLETED.has(record.recordStatus) ? "السجل مكتمل ويجب استيفاء العقد كاملًا." : "يمكن إبقاء الحقوق قيد المراجعة حتى اكتمال التطبيق."} التطبيق الرقمي داخل المنصة غير متاح.`;
+    applyRequirements(form, record, tool);
+  };
+
+  const buildStructured = (form, record, tool, now) => {
+    const values = {};
+    for (const name of MATURITY_FIELDS) {
+      const long = ["selectionRationale", "administrationQuality", "behavioralObservations", "interpretationLimitations", "integrationSummary", "recommendations"].includes(name);
+      values[name] = clean(editInput(form, name)?.value, long ? 2400 : 300);
+    }
+    const contract = tool.professionalContract;
+    return {
+      schema: "professional-registry-record-v220",
+      version: VERSION,
+      contractSnapshot: {
+        toolId: record.toolId,
+        toolName: record.toolName,
+        category: record.category,
+        source: tool.customRecord ? "custom_mode_bound_contract" : "professional_registry",
+        recordType: contract.recordType,
+        rightsState: contract.rightsState,
+        officialAdministrationInsidePlatform: false,
+        permittedRightsBases: [...contract.permittedRightsBases],
+        permittedScoreSources: [...contract.permittedScoreSources],
+      },
+      instrument: { publisher: values.publisher, version: values.instrumentVersion, language: values.administrationLanguage },
+      administrator: { qualification: clean(form.elements.practitionerQualification.value, 300) },
+      rights: { basis: values.rightsBasis, reference: values.rightsReference, protectedContentStored: false, itemResponsesStored: false, scoringKeyStored: false, normTablesStored: false },
+      officialResultSource: { type: values.scoreSource, reference: values.officialSourceReference },
+      selectionRationale: values.selectionRationale,
+      administrationQuality: values.administrationQuality,
+      behavioralObservations: values.behavioralObservations,
+      interpretationLimitations: values.interpretationLimitations,
+      integrationSummary: values.integrationSummary,
+      recommendations: values.recommendations,
+      followUpDate: values.followUpDate,
+      review: { status: values.reviewStatus || "not_reviewed", reviewedBy: values.reviewedBy },
+      recordedAt: record.professionalMaturity?.recordedAt || record.recordedAt || now,
+      updatedAt: now,
+      auditTrail: [...(record.professionalMaturity?.auditTrail || []), { event: "structured_record_updated", at: now, actorUid: identity.uid, actorRole: identity.role }],
+    };
+  };
+
+  const restore = (target, snapshot) => {
+    for (const key of Object.keys(target)) delete target[key];
+    Object.assign(target, snapshot);
+  };
+
+  function saveStructuredEdit(event) {
+    const form = event.currentTarget;
+    const found = findRecord(form.elements.recordId.value);
+    if (!found) return;
+    const { caseRecord, record } = found;
+    const tool = toolFor(record);
+    applyRequirements(form, record, tool);
+    if (!form.reportValidity()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
+    const rights = editInput(form, "rightsBasis").value;
+    if ((COMPLETED.has(record.recordStatus) && rights === "pending_review") || (rights !== "pending_review" && !tool.professionalContract.permittedRightsBases.includes(rights))) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      toast("لا يمكن حفظ السجل بهذه الحالة قبل توثيق أساس حق متوافق مع نوعه.");
+      return;
+    }
+    const reviewStatus = editInput(form, "reviewStatus").value;
+    if (["peer_reviewed", "team_reviewed"].includes(reviewStatus) && !editInput(form, "reviewedBy").value.trim()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      toast("سجل اسمًا أو دورًا مهنيًا للمراجع قبل اعتماد مراجعة الزميل أو الفريق.");
+      return;
+    }
+    const protectedText = [form.elements.scoreReference.value, form.elements.notes.value, ...MATURITY_FIELDS.map((name) => editInput(form, name)?.value || "")].join(" ");
+    if (PROTECTED_TEXT.test(protectedText)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      toast("رُفض التعديل لأنه قد يتضمن مادة محمية؛ احتفظ بالخلاصة والمرجع فقط.");
+      return;
+    }
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const now = new Date().toISOString();
+    const snapshot = clone(record);
+    const previousCaseUpdatedAt = caseRecord.updatedAt;
+    const previousStoreUpdatedAt = store.updatedAt;
+    const changes = [];
+    for (const field of BASE_FIELDS) {
+      const next = clean(form.elements[field]?.value, field === "notes" ? 3000 : 300);
+      if (next !== String(record[field] || "")) changes.push({ field, from: String(record[field] || ""), to: next });
+      record[field] = next;
+    }
+    const nextMaturity = buildStructured(form, record, tool, now);
+    if (JSON.stringify(record.professionalMaturity || null) !== JSON.stringify(nextMaturity)) changes.push({ field: "professionalMaturity", from: record.professionalContractVersion || "legacy", to: VERSION });
+    if (!changes.length) return toast("لم تُسجل تغييرات جديدة.");
+
+    record.metadataAuditTrail ||= [];
+    record.metadataAuditTrail.push({
+      auditId: typeof id === "function" ? id("META") : `META-${Date.now()}`,
+      eventType: "metadata_updated",
+      changedAt: now,
+      changedByUid: identity.uid,
+      changedByRole: identity.role,
+      reason: clean(form.elements.editReason.value, 1000),
+      changes,
+    });
+    record.professionalMaturity = nextMaturity;
+    record.professionalContractVersion = VERSION;
+    record.digitalAdministrationOccurredInsidePlatform = false;
+    record.protectedContentStored = false;
+    record.rightsConfirmed = form.elements.rightsConfirmed.checked;
+    record.lastUpdatedAt = now;
+    record.lastUpdatedByUid = identity.uid;
+    record.lastUpdatedByRole = identity.role;
+    record.integrityVersion = "1.0.0";
+    caseRecord.updatedAt = now;
+    store.updatedAt = now;
+
+    const persisted = typeof set === "function" && typeof storeKey === "function"
+      ? set(storeKey(identity.uid), store)
+      : (save(), true);
+    if (!persisted) {
+      restore(record, snapshot);
+      caseRecord.updatedAt = previousCaseUpdatedAt;
+      store.updatedAt = previousStoreUpdatedAt;
+      toast("تعذر تثبيت التعديل محليًا؛ أُعيد السجل إلى حالته السابقة.");
+      return;
+    }
+    render();
+    document.getElementById("professional-record-edit-dialog")?.close();
+    toast("تم استكمال عقد السجل وحفظ التعديل ذريًا في سجل التدقيق.");
+  }
+
+  let attempts = 0;
+  const timer = setInterval(() => {
+    attempts += 1;
+    if (install() || attempts >= 100) clearInterval(timer);
+  }, 50);
+
+  window.PA_PROFESSIONAL_EDIT_V220 = Object.freeze({
+    version: VERSION,
+    completedRightsRequired: true,
+    legacyRecordsUpgradable: true,
+    atomicPersistence: true,
+  });
+})();
