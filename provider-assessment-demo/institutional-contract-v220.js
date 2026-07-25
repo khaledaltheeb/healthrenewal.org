@@ -2,12 +2,16 @@
 
 (() => {
   const release = "2026.07.25-v220";
+  const compatibilityRelease = "2026.07.25-v231";
   let integrationPromise = null;
   let fallbackTimer = 0;
 
   const applyReleaseCopy = () => {
     document.documentElement.dataset.release = release;
     document.documentElement.dataset.institutionalContract = release;
+    document.documentElement.dataset.compatibilityRelease = compatibilityRelease;
+    document.documentElement.dataset.professionalDraftFallback = compatibilityRelease;
+    document.documentElement.dataset.professionalTemplateDraft = compatibilityRelease;
     document.title = "عقد التقييم والسجل المهني v220 | منصة الصحة النفسية وذوي الاحتياجات الخاصة";
     const description = document.querySelector('meta[name="description"]');
     if (description) description.content = "منصة عربية مؤسسية لإدارة الحالات والجلسات والأدوات الاستكشافية والسجل المهني ضمن عقد v220 يضبط الغرض والمصادر والبيئات والصلاحية والحقوق والمراجعة وخطط المتابعة، دون تشخيص آلي أو فتح مواد محمية.";
@@ -30,9 +34,15 @@
     }
     if (integrationPromise) return integrationPromise;
     integrationPromise = import("./institutional-contract-v220-integration.js")
+      .then(() => import("./institutional-contract-v231-compat.js"))
+      .then(() => import("./institutional-contract-v231-save-fallback.js"))
+      .then((module) => {
+        applyReleaseCopy();
+        return module;
+      })
       .catch((error) => {
         integrationPromise = null;
-        console.error("تعذر تحميل عقد التقييم المؤسسي v220", error);
+        console.error("تعذر تحميل عقد التقييم المؤسسي v220 أو طبقات التوافق والحفظ v231", error);
         throw error;
       });
     return integrationPromise;

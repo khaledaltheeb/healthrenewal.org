@@ -1,0 +1,98 @@
+name: Validate provider assessment compatibility v231 browser
+
+on:
+  pull_request:
+    paths:
+      - "provider-assessment-demo/**"
+      - "tests/provider-assessment-v231-browser.spec.cjs"
+      - ".github/workflows/validate-provider-assessment-v231-browser.yml"
+      - ".github/workflows/validate-provider-assessment-v231-compatibility.yml"
+  push:
+    branches:
+      - main
+      - agent/provider-assessment-v231-compatibility-v236
+    paths:
+      - "provider-assessment-demo/**"
+      - "tests/provider-assessment-v231-browser.spec.cjs"
+      - ".github/workflows/validate-provider-assessment-v231-browser.yml"
+      - ".github/workflows/validate-provider-assessment-v231-compatibility.yml"
+
+permissions:
+  contents: read
+  statuses: write
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish Chromium pending status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          curl --fail --silent --show-error -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$REPOSITORY/statuses/$SHA" \
+            -d "{\"state\":\"pending\",\"target_url\":\"$RUN_URL\",\"description\":\"Chromium flow is running\",\"context\":\"v231/browser\"}" >/dev/null
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --no-save @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local static server
+        run: |
+          python -m http.server 4173 --bind 127.0.0.1 > /tmp/provider-assessment-v231-http.log 2>&1 &
+          echo $! > /tmp/provider-assessment-v231-http.pid
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/provider-assessment-demo/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/provider-assessment-v231-http.log
+          exit 1
+      - name: Run v231 compatibility flows in Chromium
+        run: |
+          set -o pipefail
+          npx playwright test tests/provider-assessment-v231-browser.spec.cjs --browser=chromium --reporter=line 2>&1 | tee /tmp/provider-assessment-v231-playwright.log
+      - name: Upload diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider-assessment-v231-browser-diagnostics
+          path: |
+            playwright-report
+            test-results
+            /tmp/provider-assessment-v231-http.log
+            /tmp/provider-assessment-v231-playwright.log
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Publish Chromium commit status
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          case "$JOB_STATUS" in
+            success) STATE=success ;;
+            cancelled) STATE=error ;;
+            *) STATE=failure ;;
+          esac
+          curl --fail --silent --show-error -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$REPOSITORY/statuses/$SHA" \
+            -d "{\"state\":\"$STATE\",\"target_url\":\"$RUN_URL\",\"description\":\"Chromium flows for v231 compatibility\",\"context\":\"v231/browser\"}" >/dev/null
