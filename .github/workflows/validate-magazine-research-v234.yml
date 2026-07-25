@@ -99,5 +99,6 @@ jobs:
           grep -q 'unwired_research_pages' scripts/publish_magazine_v201.py
           grep -q 'generated-from-discovered-articles' scripts/publish_magazine_v201.py
           grep -q 'SOURCE_LINK_PATTERN' scripts/publish_magazine_v201.py
-          grep -q 'Magazine production requires 60 pages' scripts/enforce_platform_identity_v201.py
+          grep -q 'published = report.get("research_summaries_published")' scripts/enforce_platform_identity_v201.py
+          grep -q 'Magazine production index contract failed for' scripts/enforce_platform_identity_v201.py
           ! grep -R -E 'علاج مضمون|يشخّص|نتائج مؤكدة للجميع' magazine
