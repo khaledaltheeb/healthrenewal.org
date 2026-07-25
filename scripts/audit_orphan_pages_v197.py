@@ -10,6 +10,7 @@ from urllib.parse import unquote, urlparse
 
 BASE_PATH = "/pterminology-site/"
 CRITICAL_PREFIXES = (
+    "sections/",
     "encyclopedia/",
     "hubs/",
     "assessments/",
@@ -36,6 +37,7 @@ CRITICAL_PREFIXES = (
     "blog/",
 )
 REQUIRED_GATEWAYS = (
+    "sections/",
     "encyclopedia/",
     "comparisons/",
     "library/",
