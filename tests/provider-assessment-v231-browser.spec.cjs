@@ -56,6 +56,8 @@ async function boot(page) {
 
 test('professional record remains saveable as an explicit incomplete draft without contaminating prior records', async ({ page }) => {
   await boot(page);
+  await page.locator('[data-view="professional-records"]').click();
+  await expect(page.locator('#professional-record-new')).toBeVisible();
   await page.locator('#professional-record-new').click();
   const form = page.locator('#professional-record-form');
   await expect(form).toBeVisible();
