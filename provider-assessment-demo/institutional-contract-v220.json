@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "id": "institutional-assessment-contract-v220",
+  "release": "2026.07.25-v220",
+  "status": "operational-local-governance-layer",
+  "language": "ar",
+  "direction": "rtl",
+  "scope": {
+    "exploratoryTools": "all registered exploratory tools",
+    "professionalRegistry": "all registered professional instruments, examinations and protocols",
+    "casePlans": "versioned assessment plans stored within each local UID case",
+    "professionalRecords": "institutional documentation contract attached to every new professional record"
+  },
+  "principles": [
+    "function-participation-and-context",
+    "purpose-before-tool-selection",
+    "multiple-sources-and-settings",
+    "language-culture-and-accessibility",
+    "consent-assent-and-supported-participation",
+    "safety-before-continuation",
+    "validity-and-limitations",
+    "rights-and-qualification-gating",
+    "strengths-needs-and-actionable-support",
+    "versioning-review-and-audit-trail"
+  ],
+  "qualityGates": [
+    "clear-referral-question-and-decision-use",
+    "at-least-two-independent-information-sources",
+    "at-least-two-settings-when-applicable",
+    "documented-language-culture-and-accessibility",
+    "documented-consent-and-supported-participation",
+    "completed-safety-review",
+    "rationale-for-each-selected-source-or-tool",
+    "verified-version-language-norms-rights-and-qualification",
+    "integrated-strengths-needs-function-and-environment",
+    "named-reviewer-version-and-review-date"
+  ],
+  "exploratoryToolPolicy": {
+    "type": "original-non-standardized-non-diagnostic",
+    "output": "descriptive-domain-signals-and-next-step-guidance",
+    "forbiddenOutputs": [
+      "diagnosis",
+      "eligibility-determination",
+      "norm-referenced-score",
+      "percentile",
+      "automated-clinical-decision"
+    ],
+    "missingDataRule": "use-unknown-instead-of-guessing-and-reduce-validity-when-data-are-incomplete",
+    "repeatRule": "repeat-only-after-a-documented-change-support-cycle-or-context-change"
+  },
+  "professionalRegistryPolicy": {
+    "protectedMaterials": "locked-until-rights-digital-use-language-version-and-qualification-are-documented",
+    "externalResults": "record-or-import-summary-only-without-copying-items-scoring-keys-or-norms",
+    "singleToolRule": "no-diagnosis-or-eligibility-from-one-tool",
+    "minimumRecord": [
+      "referral-purpose",
+      "decision-use",
+      "performer-and-qualification",
+      "version-language-and-mode",
+      "sources-and-settings",
+      "accommodations-and-deviations",
+      "completion-and-validity",
+      "functional-synthesis",
+      "actionable-recommendations",
+      "limitations-reviewer-and-review-date"
+    ]
+  },
+  "storage": {
+    "mode": "browser-local-storage",
+    "isolation": "uid-per-local-workspace",
+    "sensitiveDataWarning": "do-not-enter-full-names-identification-numbers-or-sensitive-medical-files-in-the-public-static-demo",
+    "serverAuthentication": false,
+    "cloudSynchronization": false
+  },
+  "interoperability": {
+    "machineReadableManifest": "institutional-contract-v220.json",
+    "runtimeGlobal": "PA_INSTITUTIONAL_CONTRACT_V220",
+    "casePlanCollection": "case.assessmentPlans",
+    "professionalRecordExtension": "professionalAssessment.institutionalV220",
+    "sessionValidityExtension": "session.institutionalValidity"
+  },
+  "authoritativeDesignReferences": [
+    {
+      "name": "WHO International Classification of Functioning, Disability and Health (ICF)",
+      "url": "https://www.who.int/standards/classifications/international-classification-of-functioning-disability-and-health"
+    },
+    {
+      "name": "Standards for Educational and Psychological Testing",
+      "url": "https://www.testingstandards.net/"
+    },
+    {
+      "name": "CDC Developmental Monitoring and Screening",
+      "url": "https://www.cdc.gov/act-early/about/developmental-monitoring-and-screening.html"
+    }
+  ]
+}
