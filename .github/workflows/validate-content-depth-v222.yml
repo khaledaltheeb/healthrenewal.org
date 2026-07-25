@@ -1,0 +1,50 @@
+name: Validate scientific content depth v222
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/enrich_thin_content_v222.py"
+      - "tests/test_content_depth_v222.py"
+      - ".github/workflows/audit-production-discovery-v220.yml"
+      - ".github/workflows/validate-content-depth-v222.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/enrich_thin_content_v222.py"
+      - "tests/test_content_depth_v222.py"
+      - ".github/workflows/audit-production-discovery-v220.yml"
+      - ".github/workflows/validate-content-depth-v222.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: content-depth-v222-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publisher and tests
+        run: python -m py_compile scripts/enrich_thin_content_v222.py tests/test_content_depth_v222.py
+      - name: Run deterministic content-depth tests
+        run: python -m unittest -v tests.test_content_depth_v222
+      - name: Enforce scientific safety and source contracts
+        run: |
+          set -euxo pipefail
+          grep -q 'remaining_below_minimum' scripts/enrich_thin_content_v222.py
+          grep -q 'testingstandards.net' scripts/enrich_thin_content_v222.py
+          grep -q 'cosmin.nl' scripts/enrich_thin_content_v222.py
+          grep -q 'training.cochrane.org/handbook' scripts/enrich_thin_content_v222.py
+          grep -q '9789240077263' scripts/enrich_thin_content_v222.py
+          grep -q 'لا يثبت تشخيصًا' scripts/enrich_thin_content_v222.py
+          grep -q "'provider-assessment-demo/'" scripts/enrich_thin_content_v222.py
+          ! grep -Eqi 'يعالج نهائيًا|شفاء مضمون|بديل عن الطبيب|تشخيصك هو' scripts/enrich_thin_content_v222.py
