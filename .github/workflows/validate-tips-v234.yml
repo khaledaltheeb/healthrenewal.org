@@ -53,6 +53,17 @@ jobs:
           } > tips-v234-platform-contracts.log
           cat tips-v234-platform-contracts.log
 
+      - name: Run identity and partners regression fixtures
+        shell: bash
+        run: |
+          set +e
+          python -m unittest -v \
+            tests.test_platform_identity_v201 \
+            tests.test_partners_v201 > tips-v234-related-tests.log 2>&1
+          status=$?
+          cat tips-v234-related-tests.log
+          exit "$status"
+
       - name: Build and audit all tips pages twice
         id: tips_tests
         shell: bash
@@ -75,6 +86,7 @@ jobs:
           name: tips-v234-diagnostics
           path: |
             tips-v234-test.log
+            tips-v234-related-tests.log
             tips-v234-platform-contracts.log
           if-no-files-found: error
           retention-days: 7
