@@ -61,11 +61,21 @@
     tool.resultRecordingStatus = "available_without_protected_materials";
   }
 
+  const customRecordContract = Object.freeze(contractFor({
+    id: "custom-professional-record",
+    name: "تطبيق مهني مخصص أو تقرير خارجي",
+    category: "مسار مهني",
+    kind: "external report",
+    status: "external",
+    recommendedRoles: ["مختص مؤهل يراجع التقرير أو المخرج الرسمي"]
+  }));
+
   window.PA_PROFESSIONAL_REGISTRY_V220 = Object.freeze({
     version: VERSION,
     count: data.professional.length,
     allDigitalAdministrationLocked: data.professional.every((tool) => tool.professionalContract.officialAdministrationInsidePlatform === false),
     protectedContentStorageAllowed: false,
+    customRecordContract,
     tools: data.professional.map((tool) => ({
       id: tool.id,
       name: tool.name,
