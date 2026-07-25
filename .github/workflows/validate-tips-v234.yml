@@ -8,6 +8,7 @@ on:
       - "content/v15/tips-details-v15.json"
       - "scripts/publish_tips_hub_v234.py"
       - "scripts/verify_tips_v234.py"
+      - "scripts/verify_core_sections_v15.py"
       - "scripts/publish_content_catalog_v219.py"
       - "scripts/enforce_platform_identity_v201.py"
       - "tests/test_tips_v234.py"
@@ -38,6 +39,7 @@ jobs:
           python -m py_compile \
             scripts/publish_tips_hub_v234.py \
             scripts/verify_tips_v234.py \
+            scripts/verify_core_sections_v15.py \
             scripts/publish_content_catalog_v219.py \
             scripts/enforce_platform_identity_v201.py \
             tests/test_tips_v234.py \
@@ -56,6 +58,9 @@ jobs:
               scripts/enforce_platform_identity_v201.py \
               tests/test_tips_v234.py \
               tests/test_tips_catalog_hook_v234.py || true
+            echo '=== CORE VERIFIER CONTRACT ==='
+            grep -n -E 'tips_version|tips v234|expected_sitemap_urls|tips-v234.css' \
+              scripts/verify_core_sections_v15.py || true
             echo '=== KNOWN PARTNERS BASELINE ==='
             grep -R -n -E 'partners|الشركاء' tests/test_partners_v201.py scripts/publish_partners_v201.py || true
           } > tips-v234-platform-contracts.log
@@ -115,3 +120,5 @@ jobs:
           grep -q 'core-sections-v15.json' scripts/publish_content_catalog_v219.py
           grep -q 'homepage-v20.json' scripts/publish_content_catalog_v219.py
           grep -q 'tips_v234_verification' scripts/publish_content_catalog_v219.py
+          grep -q 'tips_version = 234' scripts/verify_core_sections_v15.py
+          grep -q 'expected_sitemap_urls = 49' scripts/verify_core_sections_v15.py
