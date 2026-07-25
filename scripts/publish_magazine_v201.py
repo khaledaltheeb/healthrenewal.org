@@ -24,6 +24,10 @@ SOURCE_HEADING_PATTERN = re.compile(
     r'<h2>(?:المصدر الأصلي|السجل الأصلي|السجل الجامعي|السجل الجامعي الأصلي)</h2>',
     re.I,
 )
+LIMITATION_HEADING_PATTERN = re.compile(
+    r'<h2>[^<]*(?:حدود|قيود|الحذر)[^<]*</h2>',
+    re.I,
+)
 KNOWN_MARKERS = {
     "peer-led-adolescent-mental-health-2025.html": ("7,060", "لم يجد التحليل التلوي آثارًا دالة", "ست دراسات من أصل سبع"),
     "adhd-school-social-skills-meta-analysis-2026.html": ("10.1177/10870547251364578", "40905635", "0.09"),
@@ -77,7 +81,6 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
             f'<link rel="canonical" href="{URL}{filename}">',
             '<link rel="stylesheet" href="research.css">',
             '<h1>',
-            'حدود',
         )
         absent = [marker for marker in required if marker not in text]
         absent.extend(marker for marker in KNOWN_MARKERS.get(filename, ()) if marker not in text)
@@ -85,6 +88,8 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
             raise SystemExit(f"Research article contract failed for {filename}: {absent}")
         if not SOURCE_HEADING_PATTERN.search(text):
             raise SystemExit(f"Research article lacks an approved original-source heading: {filename}")
+        if not LIMITATION_HEADING_PATTERN.search(text):
+            raise SystemExit(f"Research article lacks a limitations or caution section: {filename}")
         if len(re.findall(r"<h1\b", text, flags=re.I)) != 1:
             raise SystemExit(f"Research article must contain exactly one H1: {filename}")
         if not SOURCE_LINK_PATTERN.search(text):
@@ -178,6 +183,7 @@ def publish(site: Path) -> dict[str, object]:
         "risk_level": data["risk_level"],
         "unwired_research_pages": 0,
         "source_heading_contract": "article-or-official-repository",
+        "limitations_contract": "limitations-or-cautions-required",
         "sitemap": sitemap,
     }
     api = site / "api"
