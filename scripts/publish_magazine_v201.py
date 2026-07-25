@@ -20,6 +20,10 @@ SOURCE_LINK_PATTERN = re.compile(
     r'href="https://(?:doi\.org/|pubmed\.ncbi\.nlm\.nih\.gov/|etheses\.whiterose\.ac\.uk/|research-repository\.uwa\.edu\.au/)',
     re.I,
 )
+SOURCE_HEADING_PATTERN = re.compile(
+    r'<h2>(?:المصدر الأصلي|السجل الأصلي|السجل الجامعي|السجل الجامعي الأصلي)</h2>',
+    re.I,
+)
 KNOWN_MARKERS = {
     "peer-led-adolescent-mental-health-2025.html": ("7,060", "لم يجد التحليل التلوي آثارًا دالة", "ست دراسات من أصل سبع"),
     "adhd-school-social-skills-meta-analysis-2026.html": ("10.1177/10870547251364578", "40905635", "0.09"),
@@ -73,13 +77,14 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
             f'<link rel="canonical" href="{URL}{filename}">',
             '<link rel="stylesheet" href="research.css">',
             '<h1>',
-            'المصدر الأصلي',
             'حدود',
         )
         absent = [marker for marker in required if marker not in text]
         absent.extend(marker for marker in KNOWN_MARKERS.get(filename, ()) if marker not in text)
         if absent:
             raise SystemExit(f"Research article contract failed for {filename}: {absent}")
+        if not SOURCE_HEADING_PATTERN.search(text):
+            raise SystemExit(f"Research article lacks an approved original-source heading: {filename}")
         if len(re.findall(r"<h1\b", text, flags=re.I)) != 1:
             raise SystemExit(f"Research article must contain exactly one H1: {filename}")
         if not SOURCE_LINK_PATTERN.search(text):
@@ -172,6 +177,7 @@ def publish(site: Path) -> dict[str, object]:
         "review_status": data["status"],
         "risk_level": data["risk_level"],
         "unwired_research_pages": 0,
+        "source_heading_contract": "article-or-official-repository",
         "sitemap": sitemap,
     }
     api = site / "api"
