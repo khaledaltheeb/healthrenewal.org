@@ -107,7 +107,7 @@ jobs:
               }, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           PY
 
-      - name: Upload publisher diagnosis
+      - name: Upload publisher and generated-content diagnosis
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -117,6 +117,11 @@ jobs:
             _site/api/*.json
             .build/reports/*.json
             /tmp/production-publisher-v223.log
+            expand_site_v9.py
+            _site/comparisons/**/*.html
+            _site/library/**/*.html
+            _site/guided-assessment/**/*.html
+            _site/encyclopedia/concept-0001/index.html
           if-no-files-found: warn
           retention-days: 14
 
