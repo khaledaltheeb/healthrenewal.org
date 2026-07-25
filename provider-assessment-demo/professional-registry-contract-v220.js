@@ -85,4 +85,13 @@
       requiredCompletedFields: [...tool.professionalContract.requiredCompletedFields],
     })),
   });
+
+  if (typeof document !== "undefined" && !document.querySelector('script[data-professional-schema-compat-v220]')) {
+    const compatibility = document.createElement("script");
+    compatibility.src = `professional-registry-schema-compat-v220.js?release=${encodeURIComponent(VERSION)}`;
+    compatibility.defer = true;
+    compatibility.dataset.professionalSchemaCompatV220 = VERSION;
+    compatibility.addEventListener("error", () => console.error("Failed to load professional schema compatibility v220"), { once: true });
+    document.head.appendChild(compatibility);
+  }
 })();
