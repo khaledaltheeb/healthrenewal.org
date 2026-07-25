@@ -28,6 +28,23 @@ jobs:
       - name: Compile publisher and tests
         run: |
           python -m py_compile scripts/publish_magazine_v201.py tests/test_magazine_research_v234.py
+      - name: Verify automatic source inventory
+        run: |
+          python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+          path = Path('scripts/publish_magazine_v201.py')
+          spec = importlib.util.spec_from_file_location('magazine_v234_inventory', path)
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          pages = module.article_files()
+          assert len(pages) == 15, [page.name for page in pages]
+          index = Path('magazine/index.html').read_text(encoding='utf-8')
+          for page in pages:
+              assert index.count(f'href="{page.name}"') >= 2, page.name
+              assert module.URL + page.name in index, page.name
+          print({'articles': len(pages), 'unwired': 0})
+          PY
       - name: Run deterministic magazine tests
         run: |
           python -m unittest tests.test_magazine_research_v234 -v
