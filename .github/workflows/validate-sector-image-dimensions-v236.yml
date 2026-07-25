@@ -1,0 +1,81 @@
+name: Validate sector image dimensions v236
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/finalize_sector_image_dimensions_v236.py"
+      - "scripts/enforce_health_publication_gate_v192.py"
+      - "tests/test_health_gate_header_integration_v233.py"
+      - ".github/workflows/validate-sector-image-dimensions-v236.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/finalize_sector_image_dimensions_v236.py"
+      - "scripts/enforce_health_publication_gate_v192.py"
+      - "tests/test_health_gate_header_integration_v233.py"
+      - ".github/workflows/validate-sector-image-dimensions-v236.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sector-image-dimensions-v236-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile finalizer integration and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/finalize_sector_image_dimensions_v236.py \
+            scripts/enforce_health_publication_gate_v192.py \
+            tests/test_health_gate_header_integration_v233.py
+      - name: Run deterministic integration tests
+        run: python -m unittest -v tests.test_health_gate_header_integration_v233
+      - name: Verify multiple SVG dimensions missing attributes and idempotence
+        run: |
+          set -euxo pipefail
+          SITE="$(mktemp -d)"
+          mkdir -p "$SITE/assets/illustrations" "$SITE/sectors/child/example" "$SITE/sectors/family"
+          cat > "$SITE/assets/illustrations/child.svg" <<'SVG'
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect width="1200" height="800"/></svg>
+          SVG
+          cat > "$SITE/assets/illustrations/family.svg" <<'SVG'
+          <svg xmlns="http://www.w3.org/2000/svg" width="960" height="640" viewBox="0 0 960 640"><rect width="960" height="640"/></svg>
+          SVG
+          cat > "$SITE/sectors/child/example/index.html" <<'HTML'
+          <html><body><main><img src="/pterminology-site/assets/illustrations/child.svg" alt="طفل"></main></body></html>
+          HTML
+          cat > "$SITE/sectors/family/index.html" <<'HTML'
+          <html><body><main><img src="https://khaledaltheeb.github.io/pterminology-site/assets/illustrations/family.svg" width="960" alt="أسرة"></main></body></html>
+          HTML
+          python scripts/finalize_sector_image_dimensions_v236.py "$SITE" | tee /tmp/dimensions-first.json
+          python scripts/finalize_sector_image_dimensions_v236.py "$SITE" | tee /tmp/dimensions-second.json
+          SITE="$SITE" python - <<'PY'
+          import json, os
+          from pathlib import Path
+          site = Path(os.environ['SITE'])
+          child = (site / 'sectors/child/example/index.html').read_text(encoding='utf-8')
+          family = (site / 'sectors/family/index.html').read_text(encoding='utf-8')
+          first = json.loads(Path('/tmp/dimensions-first.json').read_text(encoding='utf-8'))
+          second = json.loads(Path('/tmp/dimensions-second.json').read_text(encoding='utf-8'))
+          assert first['status'] == 'passed' and first['target_images'] == 2, first
+          assert first['images_updated'] == 2 and first['attributes_added'] == 3, first
+          assert first['remaining_missing_dimensions'] == 0, first
+          assert 'width="1200"' in child and 'height="800"' in child, child
+          assert child.count('width="1200"') == 1 and child.count('height="800"') == 1, child
+          assert family.count('width="960"') == 1 and family.count('height="640"') == 1, family
+          assert second['status'] == 'passed' and second['images_updated'] == 0, second
+          assert second['attributes_added'] == 0 and second['remaining_missing_dimensions'] == 0, second
+          print({'images': 2, 'attributes_added': 3, 'idempotent': True, 'status': 'passed'})
+          PY
