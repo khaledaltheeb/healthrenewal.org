@@ -14,7 +14,14 @@ EMPTY_CHART_ACCESSIBLE = (
     "لا توجد بيانات كافية لعرض مخطط الاتجاهات."
 )
 STATIC_ARIA_ASSIGNMENT = "chart.setAttribute('aria-label', CHART_ACCESSIBLE_NAME);"
-SUMMARY_IDENTITY = "const summaryNode = document.querySelector('[data-sleep-summary]');"
+SUMMARY_DECLARATIONS = (
+    "const summaryElement = document.querySelector('[data-sleep-summary]');",
+    "const summaryNode = document.querySelector('[data-sleep-summary]');",
+)
+SUMMARY_ASSIGNMENTS = (
+    "summaryElement.textContent =",
+    "summaryNode.textContent =",
+)
 SUMMARY_INSERTION_MARKER = "const current = readRecords();"
 SUMMARY_INSERTION = """const summary = summarize(record);
     const summaryNode = document.querySelector('[data-sleep-summary]');
@@ -62,7 +69,11 @@ def patch_runtime_accessibility() -> bool:
     if source.count(STATIC_ARIA_ASSIGNMENT) != 1:
         raise SystemExit("Sleep runtime stable chart label is missing or duplicated")
 
-    if SUMMARY_IDENTITY not in source:
+    has_summary_declaration = any(marker in source for marker in SUMMARY_DECLARATIONS)
+    has_summary_assignment = any(marker in source for marker in SUMMARY_ASSIGNMENTS)
+    if has_summary_declaration != has_summary_assignment:
+        raise SystemExit("Sleep runtime summary declaration and assignment are inconsistent")
+    if not has_summary_assignment:
         if source.count(SUMMARY_INSERTION_MARKER) != 1:
             raise SystemExit("Sleep runtime summary insertion point is missing or ambiguous")
         source = source.replace(SUMMARY_INSERTION_MARKER, SUMMARY_INSERTION, 1)
@@ -105,6 +116,7 @@ def patch() -> None:
             "stable_chart_accessible_name": True,
             "visible_chart_description_updates": True,
             "sleep_summary_restored": True,
+            "summary_patch_idempotent": True,
         }
     )
 
