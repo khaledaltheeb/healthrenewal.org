@@ -290,3 +290,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    from enhance_care_guides_v234 import enhance
+
+    enhance(SITE)
