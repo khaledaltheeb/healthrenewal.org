@@ -73,6 +73,7 @@ jobs:
           grep -q 'home_sector_version' scripts/stamp_deployment_v29.py
           grep -q 'home-sector-v234.json' scripts/stamp_deployment_v29.py
 
+  # The build log is uploaded before its exit code is enforced, so a real failure remains diagnosable.
   production-smoke:
     needs: validate
     runs-on: ubuntu-latest
