@@ -1,0 +1,91 @@
+name: Patch homepage verifier for header v226
+
+on:
+  push:
+    branches: ["agent/institutional-header-v226"]
+    paths:
+      - ".github/workflows/patch-homepage-verifier-v226.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-verifier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/institutional-header-v226
+          fetch-depth: 0
+
+      - name: Update homepage verifier contract
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/verify_homepage_v19.py')
+          text = path.read_text(encoding='utf-8')
+
+          old_counts = '''    assert source.count('href="daily-tools/"') >= 3, "Daily tools need navigation, card and footer discovery"
+    assert source.count('href="learning-paths/"') >= 3, "Learning paths need navigation, card and footer discovery"
+'''
+          new_counts = '''    assert source.count('href="daily-tools/"') >= 2, "Daily tools need card and footer discovery"
+    assert source.count('href="learning-paths/"') >= 2, "Learning paths need card and footer discovery"
+'''
+          if old_counts not in text:
+              raise SystemExit('Legacy daily-tools navigation contract anchor was not found')
+          text = text.replace(old_counts, new_counts, 1)
+
+          old_links = '''    for link in REQUIRED_LINKS:
+        assert f'href="{link}"' in source, f"Missing primary discovery link: {link}"
+'''
+          new_links = '''    for link in REQUIRED_LINKS:
+        relative = f'href="{link}"'
+        based = f'href="/pterminology-site/{link}"'
+        assert relative in source or based in source, f"Missing primary discovery link: {link}"
+
+    assert source.count('data-institutional-header-v226') == 1, "Institutional header v226 must be unique"
+    assert source.count('data-i18n-switcher-v72') == 1, "Language dropdown must be unique"
+    assert source.count('id="institutional-header-v226-styles"') == 1, "Header styles must be unique"
+    assert source.count('<details') == 2 and source.count('<summary') == 2, "Header must expose two native dropdowns"
+    assert '<nav class="nav"' not in source, "Legacy expanded navigation remains in the header"
+    for label, route in (
+        ("ابدأ من هنا", "start-here/"),
+        ("الموسوعة", "encyclopedia/"),
+        ("المقارنات", "comparisons/"),
+        ("المكتبة", "library/"),
+        ("أدلة التعامل", "care-guides/"),
+        ("ذوو الاحتياجات الخاصة", "special-needs/"),
+        ("الطفل", "sectors/child/"),
+        ("الأسرة", "sectors/family/"),
+        ("العائلة", "sectors/home/"),
+        ("منصة التقييم", "provider-assessment-demo/"),
+        ("API", "api/"),
+        ("الثقة والمنهجية", "trust/"),
+    ):
+        assert label in source and f'href="/pterminology-site/{route}"' in source, (label, route)
+    for label, route in (
+        ("العربية", "/pterminology-site/"),
+        ("English", "/pterminology-site/en/"),
+        ("Español", "/pterminology-site/es/"),
+    ):
+        assert label in source and f'href="{route}"' in source, (label, route)
+'''
+          if old_links not in text:
+              raise SystemExit('Legacy required-links contract anchor was not found')
+          text = text.replace(old_links, new_links, 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+          python -m py_compile scripts/verify_homepage_v19.py
+          python scripts/verify_homepage_v19.py
+
+      - name: Commit verifier compatibility update
+        run: |
+          set -euxo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/verify_homepage_v19.py
+          git commit -m "تحديث مدقق الصفحة الرئيسية للهيدر المؤسسي v226"
+          git push origin HEAD:agent/institutional-header-v226
