@@ -15,7 +15,11 @@ EMPTY_CHART_ACCESSIBLE = (
 )
 STATIC_ARIA_ASSIGNMENT = "chart.setAttribute('aria-label', CHART_ACCESSIBLE_NAME);"
 DYNAMIC_ARIA_ASSIGNMENT = "chart.setAttribute('aria-label', description);"
-SUMMARY_ASSIGNMENT = "document.querySelector('[data-sleep-summary]').textContent ="
+SUMMARY_ASSIGNMENTS = (
+    "summaryElement.textContent =",
+    "summaryNode.textContent =",
+    "document.querySelector('[data-sleep-summary]').textContent =",
+)
 
 
 def patch_chart_accessibility(text: str) -> tuple[str, bool]:
@@ -65,8 +69,11 @@ def patch_runtime_accessibility() -> bool:
     elif static_count != 1 or dynamic_count:
         raise SystemExit("Sleep runtime stable chart label is duplicated or conflicts with a dynamic label")
 
-    if source.count(SUMMARY_ASSIGNMENT) != 1:
-        raise SystemExit("Sleep runtime summary update is missing or duplicated")
+    summary_count = sum(source.count(marker) for marker in SUMMARY_ASSIGNMENTS)
+    if summary_count != 1:
+        raise SystemExit(
+            "Sleep runtime summary update must use exactly one supported assignment"
+        )
 
     if changed:
         RUNTIME.write_text(source, encoding="utf-8")
@@ -105,6 +112,7 @@ def patch() -> None:
             "stable_chart_accessible_name": True,
             "visible_chart_description_updates": True,
             "sleep_summary_preserved": True,
+            "summary_assignment_count": 1,
         }
     )
 
