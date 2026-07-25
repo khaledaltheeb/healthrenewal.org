@@ -283,6 +283,7 @@ def main() -> None:
         "partners_publisher": 201,
         "magazine_publisher": 201,
         "homepage_i18n_publisher": 72,
+        "institutional_header_publisher": 232,
         "care_guides_publisher": 73,
         "special_needs_publisher": 201,
         "start_here_publisher": 176,
@@ -329,6 +330,7 @@ def main() -> None:
     run_publisher("publish_choose_professional_v176.py")
     synchronize_care_guides_report()
     run_publisher("publish_homepage_i18n_v72.py")
+    run_publisher("publish_institutional_header_v232.py")
     run_publisher("publish_start_here_v176.py")
     run_publisher("publish_inclusive_disability_language_v186.py")
     register_sitemap("sitemap-inclusive-disability-language.xml")
