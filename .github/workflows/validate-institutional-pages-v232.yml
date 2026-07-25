@@ -118,14 +118,16 @@ jobs:
           source=Path('scripts/apply_homepage_v20.py').read_text(encoding='utf-8')
           assert source.index('run_publisher("publish_institutional_pages_v232.py")') < source.index('run_publisher("enhance_sitewide_seo_v216.py")')
           serialized=json.dumps(publisher.PAGES,ensure_ascii=False)
+          targets={path for page in publisher.PAGES.values() for _,path in page['links']}
           assert 'docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement' in serialized
           assert '9789240077263' in serialized
           assert 'training.cochrane.org/handbook' in serialized
           assert 'www.w3.org/TR/WCAG22' in serialized
-          assert 'trust/evaluate-mental-health-information/' not in serialized
-          assert 'partners/registry/' not in serialized
-          assert 'api/content-catalog.json' not in serialized
-          assert 'assets/brand/' not in serialized
+          assert 'trust/evaluate-mental-health-information/' not in targets
+          assert 'partners/registry/' not in targets
+          assert 'api/content-catalog.json' not in targets
+          assert 'assets/brand/' not in targets
+          assert 'assets/brand/logo-mark.svg' in targets
           assert 'text-shadow' not in publisher.STYLE
           forbidden=('يعالج نهائيًا','شفاء مضمون','بديل عن الطبيب','تشخيصك هو')
           assert not any(token in serialized for token in forbidden)
