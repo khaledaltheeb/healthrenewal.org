@@ -57,8 +57,33 @@ class OrphanAuditTests(unittest.TestCase):
             site = Path(tmp)
             (site / "index.html").write_text(PAGE.format(''), encoding="utf-8")
             report = module.audit(site, require_gateways=True)
+            self.assertIn("sections/", report["missing_gateways"])
             self.assertIn("comparisons/", report["missing_gateways"])
             self.assertIn("library/", report["missing_gateways"])
+            self.assertEqual(report["status"], "failed")
+
+    def test_section_directory_must_be_linked_and_sitemapped(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = Path(tmp)
+            section = site / "sections" / "index.html"
+            section.parent.mkdir()
+            section.write_text(PAGE.format('<a href="../encyclopedia/">الموسوعة</a>'), encoding="utf-8")
+            (site / "index.html").write_text(PAGE.format('<a href="sections/">جميع الأقسام</a>'), encoding="utf-8")
+            (site / "sitemap-sections.xml").write_text(
+                '<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+                '<url><loc>https://khaledaltheeb.github.io/pterminology-site/</loc></url>'
+                '<url><loc>https://khaledaltheeb.github.io/pterminology-site/sections/</loc></url>'
+                '</urlset>',
+                encoding="utf-8",
+            )
+            report = module.audit(site)
+            self.assertNotIn("sections/", report["critical_orphans"])
+            self.assertNotIn("sections/", report["critical_unmapped"])
+            self.assertEqual(report["status"], "passed")
+
+            (site / "index.html").write_text(PAGE.format(''), encoding="utf-8")
+            report = module.audit(site)
+            self.assertEqual(report["critical_orphans"], ["sections/"])
             self.assertEqual(report["status"], "failed")
 
 
