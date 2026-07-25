@@ -140,6 +140,8 @@ def upgrade(*args: Any, **kwargs: Any) -> dict[str, Any]:
     if not isinstance(articles, list) or len(articles) != 20:
         raise RuntimeError("Home-sector semantic depth contract requires twenty source articles")
 
+    hub_path = site / "sectors" / "home" / "index.html"
+    before_hub = hub_path.read_text(encoding="utf-8") if hub_path.is_file() else None
     article_paths = {
         str(article["slug"]): site / "sectors" / "home" / str(article["slug"]) / "index.html"
         for article in articles
@@ -150,22 +152,22 @@ def upgrade(*args: Any, **kwargs: Any) -> dict[str, Any]:
     }
 
     report = dict(_BUNDLE_UPGRADE(*args, **kwargs))
-    blocks_added = 0
-    hub_path = site / "sectors" / "home" / "index.html"
-    blocks_added += int(_inject_once(hub_path, HUB_DEPTH_MARKER, _hub_depth_block()))
+    _inject_once(hub_path, HUB_DEPTH_MARKER, _hub_depth_block())
 
     article_words: list[int] = []
     for article in articles:
         slug = str(article["slug"])
         path = article_paths[slug]
-        blocks_added += int(_normalize_article_depth_block(path, _article_depth_block(article)))
+        _normalize_article_depth_block(path, _article_depth_block(article))
         article_words.append(semantic_visible_words(path.read_text(encoding="utf-8")))
 
+    final_hub = hub_path.read_text(encoding="utf-8")
     final_article_changes = sum(
         before_articles[slug] != path.read_text(encoding="utf-8")
         for slug, path in article_paths.items()
     )
-    hub_words = semantic_visible_words(hub_path.read_text(encoding="utf-8"))
+    final_page_changes = int(before_hub != final_hub) + final_article_changes
+    hub_words = semantic_visible_words(final_hub)
     minimum_article_words = min(article_words)
     if hub_words < MINIMUM_HUB_WORDS or minimum_article_words < MINIMUM_ARTICLE_WORDS:
         raise RuntimeError({
@@ -183,7 +185,7 @@ def upgrade(*args: Any, **kwargs: Any) -> dict[str, Any]:
         "minimum_article_words": minimum_article_words,
         "word_count_method": "semantic-visible-tokens-v244",
         "depth_contract_version": DEPTH_CONTRACT_VERSION,
-        "semantic_depth_blocks_added": blocks_added,
+        "semantic_depth_blocks_added": final_page_changes,
     })
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
