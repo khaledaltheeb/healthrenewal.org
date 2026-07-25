@@ -14,7 +14,7 @@ CONTENT = ROOT / "content" / "v192" / "platform-institutional-foundation-ar.json
 SOURCE = ROOT / "magazine"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 URL = BASE + "/magazine/"
-CONTRACT = 240
+CONTRACT = 234
 MIN_ARTICLES = 21
 ROBOTS_META = '<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">'
 ROBOTS_PATTERN = re.compile(r'<meta\s+[^>]*name=["\']robots["\'][^>]*>', re.I)
@@ -23,13 +23,9 @@ SOURCE_LINK_PATTERN = re.compile(
     re.I,
 )
 SOURCE_HEADING_PATTERN = re.compile(
-    r'<h2>(?:المصدر الأصلي|السجل الأصلي|السجل الجامعي|السجل الجامعي الأصلي)</h2>',
-    re.I,
+    r'<h2>(?:المصدر الأصلي|السجل الأصلي|السجل الجامعي|السجل الجامعي الأصلي)</h2>', re.I
 )
-LIMITATION_HEADING_PATTERN = re.compile(
-    r'<h2>[^<]*(?:حدود|قيود|الحذر)[^<]*</h2>',
-    re.I,
-)
+LIMITATION_HEADING_PATTERN = re.compile(r'<h2>[^<]*(?:حدود|قيود|الحذر)[^<]*</h2>', re.I)
 KNOWN_MARKERS = {
     "peer-led-adolescent-mental-health-2025.html": ("7,060", "لم يجد التحليل التلوي آثارًا دالة", "ست دراسات من أصل سبع"),
     "adhd-school-social-skills-meta-analysis-2026.html": ("10.1177/10870547251364578", "40905635", "0.09"),
@@ -92,9 +88,7 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
     if missing:
         raise SystemExit(f"Magazine index contract failed: {missing}")
     if index.count('class="card"') != expected_count:
-        raise SystemExit(
-            f"Magazine index must expose {expected_count} cards, found {index.count('class=\"card\"')}"
-        )
+        raise SystemExit(f"Magazine index must expose {expected_count} cards, found {index.count('class=\"card\"')}")
 
     hashes: dict[str, str] = {}
     for path in pages:
@@ -133,10 +127,7 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
 def publish_files(site: Path, pages: list[Path]) -> dict[str, object]:
     target = site / "magazine"
     target.mkdir(parents=True, exist_ok=True)
-    index_text, index_added = ensure_robots_meta(
-        (SOURCE / "index.html").read_text(encoding="utf-8"),
-        "index.html",
-    )
+    index_text, index_added = ensure_robots_meta((SOURCE / "index.html").read_text(encoding="utf-8"), "index.html")
     (target / "index.html").write_text(index_text, encoding="utf-8")
     shutil.copy2(SOURCE / "research.css", target / "research.css")
     added: list[str] = []
@@ -229,9 +220,7 @@ def publish(site: Path) -> dict[str, object]:
     }
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
-    (api / "magazine-v201.json").write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    (api / "magazine-v201.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return report
 
