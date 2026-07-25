@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-"""واجهة نشر SEO للأدوات اليومية.
+"""واجهة نشر مؤسسية للأدوات اليومية ومسارات التعلم.
 
-يحافظ الناشر الأساسي على الخصوصية المحلية: لا تُرسل البيانات إلى خادم.
-المحتوى تنظيمي غير تشخيصي، ويعرض بوضوح متى تطلب المساعدة من مختص.
+تُبقي البيانات محلية على الجهاز، وتزامن مسار الإخراج صراحةً مع نواة
+الناشر عند الاستدعاء من الاختبارات أو من سطر الأوامر.
 """
 
 import json
@@ -19,13 +19,13 @@ if str(ROOT) not in sys.path:
 from scripts import publish_daily_tools_v24_core as _core
 from scripts.publish_daily_tools_v24_core import *  # noqa: F401,F403
 
-SEO_CONTRACT = 219
+SEO_CONTRACT = 223
 SITE_NAME = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
 FOUNDING_NAME = "مصطلحات علم النفس"
-SOCIAL_IMAGE = BASE + "assets/brand/social-card.svg"
-LOGO = PATH + "assets/brand/logo-mark.svg"
-MANIFEST = PATH + "manifest.webmanifest"
-SEARCH = PATH + "opensearch.xml"
+SOCIAL_IMAGE = _core.BASE + "assets/brand/social-card.svg"
+LOGO = _core.PATH + "assets/brand/logo-mark.svg"
+MANIFEST = _core.PATH + "manifest.webmanifest"
+SEARCH = _core.PATH + "opensearch.xml"
 
 
 def _unique(values: Iterable[str], limit: int = 8) -> list[str]:
@@ -75,36 +75,59 @@ def institutionalize_schema(value: Any) -> Any:
     if "Organization" in types:
         current_name = str(result.get("name") or "").strip()
         result["name"] = SITE_NAME
-        if current_name and current_name != SITE_NAME:
-            result.setdefault("alternateName", current_name)
-        else:
-            result.setdefault("alternateName", FOUNDING_NAME)
-        result.setdefault("url", BASE)
+        result.setdefault(
+            "alternateName",
+            current_name if current_name and current_name != SITE_NAME else FOUNDING_NAME,
+        )
+        result.setdefault("url", _core.BASE)
         result.setdefault("logo", SOCIAL_IMAGE)
     return result
 
 
-def shell(title: str, description: str, canonical: str, schema: dict[str, Any], body: str) -> str:
-    normalized_schema = institutionalize_schema(schema)
-    structured = json.dumps(normalized_schema, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+def shell(
+    title: str,
+    description: str,
+    canonical: str,
+    schema: dict[str, Any],
+    body: str,
+) -> str:
+    structured = json.dumps(
+        institutionalize_schema(schema),
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ).replace("</", "<\\/")
     keywords = ",".join(topic_keywords(title, description, canonical))
-    page_type = "website" if canonical in {BASE + "daily-tools/", BASE + "learning-paths/"} else "article"
+    page_type = (
+        "website"
+        if canonical in {_core.BASE + "daily-tools/", _core.BASE + "learning-paths/"}
+        else "article"
+    )
     title_text = f"{title} | {SITE_NAME}"
     image_alt = f"هوية {SITE_NAME}"
-    return f'''<!doctype html><html lang="ar" dir="rtl" data-design="marshmallow-v{DESIGN_CONTRACT}" data-seo="institutional-v{SEO_CONTRACT}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{e(title_text)}</title><meta name="description" content="{e(description)}"><meta name="keywords" content="{e(keywords)}"><meta name="author" content="{e(SITE_NAME)}"><meta name="application-name" content="{e(SITE_NAME)}"><meta name="subject" content="الصحة النفسية والأدوات النفسية التفاعلية"><meta name="audience" content="الأفراد والأسر ومقدمو الرعاية"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"><meta name="theme-color" content="#e5faf5"><meta name="color-scheme" content="light"><link rel="canonical" href="{e(canonical)}"><link rel="manifest" href="{MANIFEST}"><link rel="icon" href="{LOGO}" type="image/svg+xml"><link rel="apple-touch-icon" href="{LOGO}"><link rel="search" type="application/opensearchdescription+xml" title="البحث في المنصة" href="{SEARCH}"><link rel="sitemap" type="application/xml" href="{BASE}sitemap.xml"><meta property="og:type" content="{page_type}"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="{e(SITE_NAME)}"><meta property="og:title" content="{e(title_text)}"><meta property="og:description" content="{e(description)}"><meta property="og:url" content="{e(canonical)}"><meta property="og:image" content="{SOCIAL_IMAGE}"><meta property="og:image:alt" content="{e(image_alt)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{e(title_text)}"><meta name="twitter:description" content="{e(description)}"><meta name="twitter:image" content="{SOCIAL_IMAGE}"><meta name="twitter:image:alt" content="{e(image_alt)}"><script type="application/ld+json">{structured}</script><style>{STYLE}</style></head><body>{body}</body></html>'''
+    esc = _core.e
+    return f'''<!doctype html><html lang="ar" dir="rtl" data-design="marshmallow-v{_core.DESIGN_CONTRACT}" data-seo="institutional-v{SEO_CONTRACT}"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{esc(title_text)}</title><meta name="description" content="{esc(description)}"><meta name="keywords" content="{esc(keywords)}">
+<meta name="author" content="{esc(SITE_NAME)}"><meta name="application-name" content="{esc(SITE_NAME)}"><meta name="subject" content="الصحة النفسية والأدوات النفسية التفاعلية"><meta name="audience" content="الأفراد والأسر ومقدمو الرعاية">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"><meta name="theme-color" content="#e5faf5"><meta name="color-scheme" content="light">
+<link rel="canonical" href="{esc(canonical)}"><link rel="manifest" href="{MANIFEST}"><link rel="icon" href="{LOGO}" type="image/svg+xml"><link rel="apple-touch-icon" href="{LOGO}"><link rel="search" type="application/opensearchdescription+xml" title="البحث في المنصة" href="{SEARCH}"><link rel="sitemap" type="application/xml" href="{_core.BASE}sitemap.xml">
+<meta property="og:type" content="{page_type}"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="{esc(SITE_NAME)}"><meta property="og:title" content="{esc(title_text)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(canonical)}"><meta property="og:image" content="{SOCIAL_IMAGE}"><meta property="og:image:alt" content="{esc(image_alt)}">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{esc(title_text)}"><meta name="twitter:description" content="{esc(description)}"><meta name="twitter:image" content="{SOCIAL_IMAGE}"><meta name="twitter:image:alt" content="{esc(image_alt)}">
+<script type="application/ld+json">{structured}</script><style>{_core.STYLE}</style></head><body>{body}</body></html>'''
 
 
-def _expected_pages(data: dict[str, Any]) -> list[Path]:
+def _expected_pages(data: dict[str, Any], site: Path) -> list[Path]:
     return (
-        [SITE / "daily-tools" / "index.html", SITE / "learning-paths" / "index.html"]
-        + [SITE / "daily-tools" / tool["slug"] / "index.html" for tool in data["tools"]]
-        + [SITE / "learning-paths" / path["slug"] / "index.html" for path in data["paths"]]
+        [site / "daily-tools" / "index.html", site / "learning-paths" / "index.html"]
+        + [site / "daily-tools" / tool["slug"] / "index.html" for tool in data["tools"]]
+        + [site / "learning-paths" / path["slug"] / "index.html" for path in data["paths"]]
     )
 
 
-def validate_metadata(data: dict[str, Any]) -> None:
+def validate_metadata(data: dict[str, Any], site: Path | None = None) -> None:
+    target = Path(site or _core.SITE).resolve()
     required = (
-        'data-seo="institutional-v219"',
+        f'data-seo="institutional-v{SEO_CONTRACT}"',
         '<meta name="keywords"',
         '<link rel="canonical"',
         '<link rel="manifest"',
@@ -116,7 +139,7 @@ def validate_metadata(data: dict[str, Any]) -> None:
         'application/ld+json',
     )
     errors: list[str] = []
-    for page in _expected_pages(data):
+    for page in _expected_pages(data, target):
         if not page.is_file():
             errors.append(f"missing page: {page}")
             continue
@@ -143,16 +166,20 @@ def validate_metadata(data: dict[str, Any]) -> None:
         raise SystemExit("Daily tools metadata contract failed:\n" + "\n".join(errors))
 
 
-def publish(data: dict[str, Any]) -> None:
+def publish(data: dict[str, Any], site: Path | str | None = None) -> None:
+    target = Path(site or _core.SITE).resolve()
+    if not target.is_dir():
+        raise SystemExit(f"Missing site output: {target}")
+    globals()["SITE"] = target
+    _core.SITE = target
     _core.shell = shell
     _core.publish(data)
-    validate_metadata(data)
+    validate_metadata(data, target)
 
 
 _core.shell = shell
 
 
 if __name__ == "__main__":
-    if not SITE.exists():
-        raise SystemExit("Missing site output")
-    publish(json.loads(DATA.read_text(encoding="utf-8")))
+    requested_site = Path(sys.argv[1] if len(sys.argv) > 1 else _core.SITE).resolve()
+    publish(json.loads(_core.DATA.read_text(encoding="utf-8")), requested_site)
