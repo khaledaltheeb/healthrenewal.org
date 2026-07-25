@@ -25,7 +25,10 @@ class MagazineRoutesV201Tests(unittest.TestCase):
 
     @staticmethod
     def article_files() -> list[Path]:
-        return sorted(path for path in SOURCE.glob("*-20*.html") if path.name != "index.html")
+        return sorted(
+            (path for path in SOURCE.glob("*-20*.html") if path.name != "index.html"),
+            key=lambda path: (-int(re.search(r"-(20\d{2})\.html$", path.name).group(1)), path.name),
+        )
 
     def test_magazine_archive_is_complete_honest_and_indexable(self):
         site = self.fixture()
@@ -60,7 +63,9 @@ class MagazineRoutesV201Tests(unittest.TestCase):
         self.assertEqual(report["risk_level"], "low")
         self.assertEqual(report["unwired_research_pages"], 0)
         self.assertEqual(report["robots_contract"], "exactly-one-index-follow-meta-per-published-page")
-        self.assertGreaterEqual(report["robots"]["robots_normalized_pages"], 5)
+        normalized = report["robots"]["article_robots_added"]
+        self.assertEqual(report["robots"]["robots_normalized_pages"], len(normalized))
+        self.assertTrue(set(normalized).issubset({path.name for path in articles}))
 
     def test_magazine_sitemap_is_idempotent(self):
         site = self.fixture()
