@@ -1,0 +1,73 @@
+name: Validate provider condition content v231
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/conditions/**"
+      - "scripts/enrich_provider_condition_pages_v231.py"
+      - "tests/test_provider_condition_content_v231.py"
+      - ".github/workflows/validate-provider-condition-content-v231.yml"
+      - ".github/workflows/audit-production-discovery-v220.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "provider-assessment-demo/conditions/**"
+      - "scripts/enrich_provider_condition_pages_v231.py"
+      - "tests/test_provider_condition_content_v231.py"
+      - ".github/workflows/validate-provider-condition-content-v231.yml"
+      - ".github/workflows/audit-production-discovery-v220.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile publisher and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/enrich_provider_condition_pages_v231.py \
+            tests/test_provider_condition_content_v231.py
+
+      - name: Run deterministic condition-content contracts
+        run: python -m unittest -v tests/test_provider_condition_content_v231.py
+
+      - name: Expand the real twenty source pages in an isolated copy
+        run: |
+          set -euxo pipefail
+          TMP_SITE="$(mktemp -d)"
+          mkdir -p "${TMP_SITE}/provider-assessment-demo"
+          cp -R provider-assessment-demo/conditions "${TMP_SITE}/provider-assessment-demo/conditions"
+          python scripts/enrich_provider_condition_pages_v231.py "${TMP_SITE}"
+          REPORT="${TMP_SITE}/api/provider-condition-content-v231.json"
+          test -f "${REPORT}"
+          REPORT="${REPORT}" python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          report = json.loads(Path(os.environ['REPORT']).read_text(encoding='utf-8'))
+          assert report['version'] == 231, report
+          assert report['status'] == 'passed', report
+          assert report['conditions'] == 20, report
+          assert report['workflow_stages'] >= 7, report
+          assert report['minimum_words'] == 900, report
+          assert report['minimum_after_words'] >= 900, report
+          assert report['remaining_below_minimum'] == 0, report
+          assert report['missing_or_failed'] == 0, report
+          assert report['duplicate_generated_blocks'] == 0, report
+          print({
+              'conditions': report['conditions'],
+              'enriched_pages': report['enriched_pages'],
+              'minimum_after_words': report['minimum_after_words'],
+              'status': report['status'],
+          })
+          PY
+          ! grep -R -Eqi 'شفاء مضمون|يعالج نهائيًا|بديل عن الطبيب|تشخيصك هو' \
+            "${TMP_SITE}/provider-assessment-demo/conditions"
