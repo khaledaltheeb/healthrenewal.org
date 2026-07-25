@@ -1,0 +1,53 @@
+name: Validate care guides expansion v244
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/publish_care_guides_v21.py"
+      - "content/v18/care-guides-*-plan-ar.json"
+      - "tests/test_care_guides_expansion_v244.py"
+      - "tests/test_care_guides_expansion_v239.py"
+      - "tests/test_autism_family_guide_v73.py"
+      - ".github/workflows/validate-care-guides-expansion-v244.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/publish_care_guides_v21.py"
+      - "content/v18/care-guides-*-plan-ar.json"
+      - "tests/test_care_guides_expansion_v244.py"
+      - "tests/test_care_guides_expansion_v239.py"
+      - "tests/test_autism_family_guide_v73.py"
+      - ".github/workflows/validate-care-guides-expansion-v244.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: care-guides-expansion-v244-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publisher and regression contracts
+        run: |
+          set -euxo pipefail
+          python -Werror -m py_compile \
+            scripts/publish_care_guides_v21.py \
+            tests/test_care_guides_expansion_v244.py \
+            tests/test_care_guides_expansion_v239.py \
+            tests/test_autism_family_guide_v73.py
+      - name: Validate depth sources safety inventory and blocked review gate
+        run: |
+          python -m unittest -v \
+            tests.test_care_guides_expansion_v244 \
+            tests.test_care_guides_expansion_v239 \
+            tests.test_autism_family_guide_v73
