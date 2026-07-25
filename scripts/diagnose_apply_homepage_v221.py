@@ -64,11 +64,25 @@ def traced_publisher(script: str) -> None:
     stamp({"status": "running", "last_started": script, "last_completed": LAST_COMPLETED})
 
 
+def verify_linked_sections() -> list[str]:
+    expected = (
+        "daily-tools/index.html",
+        "learning-paths/index.html",
+        "sitemap-tools-paths.xml",
+        "api/daily-tools-v24.json",
+    )
+    missing = [relative for relative in expected if not (homepage.SITE / relative).is_file()]
+    if missing:
+        raise RuntimeError(f"Homepage-linked production sections are missing: {missing}")
+    return list(expected)
+
+
 def main() -> None:
     homepage.run_publisher = traced_publisher
     stamp({"status": "starting", "last_started": None, "last_completed": None})
     try:
         homepage.main()
+        verified_sections = verify_linked_sections()
     except Exception as exc:
         current = {}
         if REPORT.is_file():
@@ -87,7 +101,14 @@ def main() -> None:
             }
         )
         raise
-    stamp({"status": "passed", "last_started": None, "last_completed": "all"})
+    stamp(
+        {
+            "status": "passed",
+            "last_started": None,
+            "last_completed": "all",
+            "verified_linked_sections": verified_sections,
+        }
+    )
 
 
 if __name__ == "__main__":
