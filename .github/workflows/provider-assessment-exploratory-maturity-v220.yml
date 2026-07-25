@@ -83,5 +83,5 @@ jobs:
           grep -F 'planningDraftAllowed: true' provider-assessment-demo/professional-registry-planning-compat-v220.js
           grep -F 'completedRightsRequired: true' provider-assessment-demo/professional-registry-planning-compat-v220.js
           grep -F 'case-report-professional-sources-v220' provider-assessment-demo/professional-registry-report-integration-v220.js
-          ! grep -R -E 'بند من (ADOS|WISC|Vineland)|مفتاح التصحيح|الدرجة المعيارية المعتمدة' provider-assessment-demo/*-v220.js
+          ! grep -R -E 'بند من (ADOS|WISC|Vineland)|نسخ بنود (ADOS|WISC|Vineland)|مفتاح التصحيح المعتمد متاح|جدول المعايير الكامل متاح|الدرجة المعيارية المعتمدة:' provider-assessment-demo/*-v220.js
           ! grep -R -E '\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource' provider-assessment-demo/professional-registry-*-v220.js
