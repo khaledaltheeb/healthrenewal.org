@@ -190,6 +190,8 @@ def main() -> None:
         'href="sectors/home/"',
         'href="special-needs/"',
         'href="care-guides/"',
+        'href="daily-tools/"',
+        'href="learning-paths/"',
         'href="api/"',
         'rel="manifest"',
         'rel="icon"',
@@ -252,7 +254,7 @@ def main() -> None:
 
     expected_target_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
     report = {
-        "version": 219,
+        "version": 221,
         "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         "target_sha256": hashlib.sha256(TARGET.read_bytes()).hexdigest(),
         "source_transformed": True,
@@ -273,6 +275,9 @@ def main() -> None:
         "course_security_contract": 218,
         "course_permission_policy": "deny-by-default",
         "content_discovery_publisher": 219,
+        "daily_tools_publisher": 24,
+        "daily_tools_design_contract": 219,
+        "learning_paths_publisher": 24,
         "special_needs_guides_publisher": 217,
         "light_palette": True,
         "core_sections_linked": True,
@@ -319,6 +324,11 @@ def main() -> None:
     register_sitemap("sitemap-developers.xml")
     run_publisher("prepare_content_discovery_v219.py")
     register_sitemap("sitemap-content-discovery.xml")
+
+    # The homepage permanently links these routes. Build and verify them before
+    # any downstream integrity audit, including focused/partial production jobs.
+    run_publisher("publish_daily_tools_v24.py")
+    run_publisher("verify_daily_tools_v24.py")
 
     run_publisher("publish_care_guides_v21.py")
     run_publisher("link_care_guides_v201.py")
