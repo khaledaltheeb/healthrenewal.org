@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-"""توحيد بيان المنصة وفهرس الأقسام العامة في عقد API واحد.
+"""توحيد بيان المنصة وفهرس الأقسام العامة في عقد API إضافي ومتوافق مع v1.
 
-العقد إضافي ومتوافق مع v1: يحافظ على الحقول الأساسية في ``sections.json``
-ويضيف حقولًا وصفية، ويحدّث ``platform.json`` ليعكس البوابات المنشورة فعليًا.
-لا يغيّر ملفات الدورات أو المصادر ولا يفتح أي مصدر غير مخول.
+لا يغيّر الناشر ملفات الدورات أو المصادر، ولا يفتح أي مصدر غير مخول، ولا
+ينشر بيانات مستخدمين أو سجلات صحية أو مواد مقاييس محمية.
 """
 
 import json
@@ -23,152 +22,40 @@ API_BASE = BASE_URL + "api/v1/"
 INSTITUTIONAL_NAME = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
 FOUNDING_NAME = "مصطلحات علم النفس"
 DEVELOPERS_MARKER = "data-platform-manifest-v231"
+PROHIBITED_PUBLIC_TERMS = ("معاقين", "المعاقين", "ذوو الإعاقة", "ذوي الإعاقة")
 
-SECTION_DEFINITIONS: tuple[dict[str, Any], ...] = (
+# id, route, Arabic name, type, audiences, tags
+_SECTION_ROWS: tuple[tuple[Any, ...], ...] = (
+    ("sections", "sections/", "دليل أقسام المنصة", "directory", ["الجمهور", "الأسر", "المختصون"], ["أقسام المنصة", "دليل المحتوى", "التصفح"]),
+    ("encyclopedia", "encyclopedia/", "الموسوعة النفسية العربية", "collection", ["الجمهور", "الطلاب", "المختصون"], ["علم النفس", "الصحة النفسية", "الموسوعة"]),
+    ("terms", "terms/", "المعجم النفسي", "collection", ["الجمهور", "الطلاب"], ["مصطلحات علم النفس", "معجم عربي", "تعريفات"]),
+    ("hubs", "hubs/", "المراكز الموضوعية", "collection", ["الجمهور", "الباحثون"], ["موضوعات نفسية", "روابط داخلية", "مراكز معرفية"]),
+    ("special-needs", "special-needs/", "ذوو الاحتياجات الخاصة والتربية الدامجة", "collection", ["الأسر", "المعلمون", "مقدمو الخدمة"], ["التربية الدامجة", "التدخل المبكر", "الدعم الأسري"]),
+    ("care-guides", "care-guides/", "أدلة التعامل العملي", "collection", ["الأسر", "مقدمو الرعاية", "المختصون"], ["أدلة عملية", "الأسرة", "مقدم الخدمة"]),
+    ("tips", "tips/", "النصائح النفسية العملية", "collection", ["الجمهور", "الأسر"], ["نصائح نفسية", "جودة الحياة", "التثقيف"]),
+    ("daily-tools", "daily-tools/", "الأدوات اليومية", "application", ["الجمهور", "الأسر"], ["أدوات تفاعلية", "تنظيم يومي", "تخزين محلي"]),
+    ("learning-paths", "learning-paths/", "مسارات التعلم", "collection", ["الجمهور", "الطلاب", "مقدمو الرعاية"], ["تعلم نفسي", "مسارات عملية", "مهارات"]),
+    ("assessment-lab", "assessment-lab/", "مختبر المقاييس والاستكشاف", "application", ["الجمهور", "المختصون"], ["مقاييس استكشافية", "تثقيف", "حدود التفسير"]),
+    ("cognitive-lab", "cognitive-lab/", "مختبر القدرات المعرفية", "application", ["الجمهور", "الطلاب", "المختصون"], ["قدرات معرفية", "مهام تفاعلية", "تعلم"]),
+    ("provider-assessment-demo", "provider-assessment-demo/", "منصة التقييم والسجل المهني", "application", ["المختصون", "مقدمو الخدمة"], ["التقييم المهني", "سجل الحالات", "حقوق الأدوات"]),
+    ("magazine", "magazine/", "المجلة والأبحاث", "collection", ["الجمهور", "الباحثون", "المختصون"], ["أبحاث", "دراسات", "تحليل"]),
+    ("comparisons", "comparisons/", "المقارنات المنهجية", "collection", ["الجمهور", "الطلاب", "المختصون"], ["مقارنة المفاهيم", "الفروق", "التعلم"]),
+    ("library", "library/", "المكتبة العربية", "collection", ["الجمهور", "الأسر", "الباحثون"], ["مكتبة", "أدلة", "مصادر"]),
+    ("trust", "trust/", "الثقة والمنهجية", "governance", ["الجمهور", "الباحثون", "الشركاء"], ["المنهجية", "المراجعة", "الشفافية"]),
+    ("partners", "partners/", "الشركاء والشفافية", "governance", ["الشركاء", "الجهات", "الجمهور"], ["الشراكات", "الشفافية", "السجل العام"]),
+    ("developers", "developers/", "واجهة المطورين والتكامل", "documentation", ["المطورون", "الشركاء التقنيون"], ["API", "OpenAPI", "تكامل المواقع"]),
+)
+
+SECTION_DEFINITIONS: tuple[dict[str, Any], ...] = tuple(
     {
-        "id": "sections",
-        "route": "sections/",
-        "name_ar": "دليل أقسام المنصة",
-        "type": "directory",
-        "audiences": ["الجمهور", "الأسر", "المختصون"],
-        "tags": ["أقسام المنصة", "دليل المحتوى", "التصفح"],
-    },
-    {
-        "id": "encyclopedia",
-        "route": "encyclopedia/",
-        "name_ar": "الموسوعة النفسية العربية",
-        "type": "collection",
-        "audiences": ["الجمهور", "الطلاب", "المختصون"],
-        "tags": ["علم النفس", "الصحة النفسية", "الموسوعة"],
-    },
-    {
-        "id": "terms",
-        "route": "terms/",
-        "name_ar": "المعجم النفسي",
-        "type": "collection",
-        "audiences": ["الجمهور", "الطلاب"],
-        "tags": ["مصطلحات علم النفس", "معجم عربي", "تعريفات"],
-    },
-    {
-        "id": "hubs",
-        "route": "hubs/",
-        "name_ar": "المراكز الموضوعية",
-        "type": "collection",
-        "audiences": ["الجمهور", "الباحثون"],
-        "tags": ["موضوعات نفسية", "روابط داخلية", "مراكز معرفية"],
-    },
-    {
-        "id": "special-needs",
-        "route": "special-needs/",
-        "name_ar": "ذوو الاحتياجات الخاصة والتربية الدامجة",
-        "type": "collection",
-        "audiences": ["الأسر", "المعلمون", "مقدمو الخدمة"],
-        "tags": ["التربية الدامجة", "التدخل المبكر", "الدعم الأسري"],
-    },
-    {
-        "id": "care-guides",
-        "route": "care-guides/",
-        "name_ar": "أدلة التعامل العملي",
-        "type": "collection",
-        "audiences": ["الأسر", "مقدمو الرعاية", "المختصون"],
-        "tags": ["أدلة عملية", "الأسرة", "مقدم الخدمة"],
-    },
-    {
-        "id": "tips",
-        "route": "tips/",
-        "name_ar": "النصائح النفسية العملية",
-        "type": "collection",
-        "audiences": ["الجمهور", "الأسر"],
-        "tags": ["نصائح نفسية", "جودة الحياة", "التثقيف"],
-    },
-    {
-        "id": "daily-tools",
-        "route": "daily-tools/",
-        "name_ar": "الأدوات اليومية",
-        "type": "application",
-        "audiences": ["الجمهور", "الأسر"],
-        "tags": ["أدوات تفاعلية", "تنظيم يومي", "تخزين محلي"],
-    },
-    {
-        "id": "learning-paths",
-        "route": "learning-paths/",
-        "name_ar": "مسارات التعلم",
-        "type": "collection",
-        "audiences": ["الجمهور", "الطلاب", "مقدمو الرعاية"],
-        "tags": ["تعلم نفسي", "مسارات عملية", "مهارات"],
-    },
-    {
-        "id": "assessment-lab",
-        "route": "assessment-lab/",
-        "name_ar": "مختبر المقاييس والاستكشاف",
-        "type": "application",
-        "audiences": ["الجمهور", "المختصون"],
-        "tags": ["مقاييس استكشافية", "تثقيف", "حدود التفسير"],
-    },
-    {
-        "id": "cognitive-lab",
-        "route": "cognitive-lab/",
-        "name_ar": "مختبر القدرات المعرفية",
-        "type": "application",
-        "audiences": ["الجمهور", "الطلاب", "المختصون"],
-        "tags": ["قدرات معرفية", "مهام تفاعلية", "تعلم"],
-    },
-    {
-        "id": "provider-assessment-demo",
-        "route": "provider-assessment-demo/",
-        "name_ar": "منصة التقييم والسجل المهني",
-        "type": "application",
-        "audiences": ["المختصون", "مقدمو الخدمة"],
-        "tags": ["التقييم المهني", "سجل الحالات", "حقوق الأدوات"],
-    },
-    {
-        "id": "magazine",
-        "route": "magazine/",
-        "name_ar": "المجلة والأبحاث",
-        "type": "collection",
-        "audiences": ["الجمهور", "الباحثون", "المختصون"],
-        "tags": ["أبحاث", "دراسات", "تحليل"],
-    },
-    {
-        "id": "comparisons",
-        "route": "comparisons/",
-        "name_ar": "المقارنات المنهجية",
-        "type": "collection",
-        "audiences": ["الجمهور", "الطلاب", "المختصون"],
-        "tags": ["مقارنة المفاهيم", "الفروق", "التعلم"],
-    },
-    {
-        "id": "library",
-        "route": "library/",
-        "name_ar": "المكتبة العربية",
-        "type": "collection",
-        "audiences": ["الجمهور", "الأسر", "الباحثون"],
-        "tags": ["مكتبة", "أدلة", "مصادر"],
-    },
-    {
-        "id": "trust",
-        "route": "trust/",
-        "name_ar": "الثقة والمنهجية",
-        "type": "governance",
-        "audiences": ["الجمهور", "الباحثون", "الشركاء"],
-        "tags": ["المنهجية", "المراجعة", "الشفافية"],
-    },
-    {
-        "id": "partners",
-        "route": "partners/",
-        "name_ar": "الشركاء والشفافية",
-        "type": "governance",
-        "audiences": ["الشركاء", "الجهات", "الجمهور"],
-        "tags": ["الشراكات", "الشفافية", "السجل العام"],
-    },
-    {
-        "id": "developers",
-        "route": "developers/",
-        "name_ar": "واجهة المطورين والتكامل",
-        "type": "documentation",
-        "audiences": ["المطورون", "الشركاء التقنيون"],
-        "tags": ["API", "OpenAPI", "تكامل المواقع"],
-    },
+        "id": row[0],
+        "route": row[1],
+        "name_ar": row[2],
+        "type": row[3],
+        "audiences": row[4],
+        "tags": row[5],
+    }
+    for row in _SECTION_ROWS
 )
 
 ENDPOINTS: dict[str, str] = {
@@ -184,9 +71,7 @@ ENDPOINTS: dict[str, str] = {
     "courseSchema": API_BASE + "courses.schema.json",
     "courseExample": API_BASE + "courses.example.json",
 }
-
-ENDPOINT_FILES: tuple[str, ...] = tuple(url.removeprefix(API_BASE) for url in ENDPOINTS.values())
-PROHIBITED_PUBLIC_TERMS = ("معاقين", "المعاقين", "ذوو الإعاقة", "ذوي الإعاقة")
+ENDPOINT_FILES = tuple(url.removeprefix(API_BASE) for url in ENDPOINTS.values())
 
 
 class PublicApiManifestError(ValueError):
@@ -210,7 +95,7 @@ def read_object(path: Path) -> dict[str, Any]:
     return payload
 
 
-def write_json(path: Path, payload: dict[str, Any] | list[Any]) -> None:
+def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False) + "\n",
@@ -222,8 +107,8 @@ def validate_registry() -> None:
     ids: set[str] = set()
     routes: set[str] = set()
     for item in SECTION_DEFINITIONS:
-        identifier = str(item.get("id") or "")
-        route = str(item.get("route") or "")
+        identifier = str(item["id"])
+        route = str(item["route"])
         if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", identifier):
             raise PublicApiManifestError(f"invalid section id: {identifier}")
         if not re.fullmatch(r"[a-z0-9][a-z0-9./-]*/", route):
@@ -232,26 +117,22 @@ def validate_registry() -> None:
             raise PublicApiManifestError(f"duplicate section id or route: {identifier} {route}")
         ids.add(identifier)
         routes.add(route)
-        if not item.get("name_ar") or not item.get("type"):
+        if not item["name_ar"] or not item["type"] or not item["audiences"] or not item["tags"]:
             raise PublicApiManifestError(f"incomplete section definition: {identifier}")
-        if not item.get("audiences") or not item.get("tags"):
-            raise PublicApiManifestError(f"section lacks audiences or tags: {identifier}")
 
 
 def public_sections() -> list[dict[str, Any]]:
-    result: list[dict[str, Any]] = []
-    for item in SECTION_DEFINITIONS:
-        result.append(
-            {
-                "id": item["id"],
-                "name_ar": item["name_ar"],
-                "url": BASE_URL + item["route"],
-                "type": item["type"],
-                "audiences": list(item["audiences"]),
-                "tags": list(item["tags"]),
-            }
-        )
-    return result
+    return [
+        {
+            "id": item["id"],
+            "name_ar": item["name_ar"],
+            "url": BASE_URL + item["route"],
+            "type": item["type"],
+            "audiences": list(item["audiences"]),
+            "tags": list(item["tags"]),
+        }
+        for item in SECTION_DEFINITIONS
+    ]
 
 
 def build_platform(existing: dict[str, Any], date_value: str) -> dict[str, Any]:
@@ -280,7 +161,6 @@ def build_platform(existing: dict[str, Any], date_value: str) -> dict[str, Any]:
             ],
         }
     )
-    sections = public_sections()
     return {
         "apiVersion": API_VERSION,
         "schemaVersion": SCHEMA_VERSION,
@@ -309,9 +189,9 @@ def build_platform(existing: dict[str, Any], date_value: str) -> dict[str, Any]:
                 "type": item["type"],
                 "title": item["name_ar"],
                 "url": item["url"],
-                "tags": item["tags"],
+                "tags": list(item["tags"]),
             }
-            for item in sections
+            for item in public_sections()
         ],
         "endpoints": deepcopy(ENDPOINTS),
         "integrationPolicy": integration,
@@ -341,63 +221,58 @@ def build_sections(date_value: str) -> dict[str, Any]:
     }
 
 
+def _response(schema: str, description: str) -> dict[str, Any]:
+    return {
+        "200": {
+            "description": description,
+            "content": {"application/json": {"schema": {"$ref": schema}}},
+        }
+    }
+
+
 def patch_openapi(document: dict[str, Any]) -> dict[str, Any]:
     result = deepcopy(document)
     result["openapi"] = "3.1.0"
     info = result.setdefault("info", {})
-    info["title"] = "واجهة منصة الصحة النفسية وذوي الاحتياجات الخاصة"
-    info["version"] = API_VERSION
-    info["description"] = (
-        "واجهة قراءة عامة ثابتة لاكتشاف أقسام المنصة وفهرس المحتوى والتصنيف "
-        "وفهارس الدورات ذات الإذن النشط، دون بيانات شخصية أو مواد مقاييس محمية."
+    info.update(
+        {
+            "title": "واجهة منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+            "version": API_VERSION,
+            "description": (
+                "واجهة قراءة عامة ثابتة لاكتشاف أقسام المنصة وفهرس المحتوى والتصنيف "
+                "وفهارس الدورات ذات الإذن النشط، دون بيانات شخصية أو مواد مقاييس محمية."
+            ),
+        }
     )
     tags = result.setdefault("tags", [])
-    existing_tags = {
-        str(item.get("name")) for item in tags if isinstance(item, dict) and item.get("name")
-    }
+    known = {str(item.get("name")) for item in tags if isinstance(item, dict)}
     for item in (
         {"name": "Platform", "description": "هوية المنصة وقدرات التكامل"},
         {"name": "Discovery", "description": "الأقسام وفهرس المحتوى والتصنيف"},
         {"name": "Authorized courses", "description": "فهارس الدورات ذات الإذن النشط"},
     ):
-        if item["name"] not in existing_tags:
+        if item["name"] not in known:
             tags.append(item)
-            existing_tags.add(item["name"])
+            known.add(item["name"])
 
     paths = result.setdefault("paths", {})
     paths["/api/v1/platform.json"] = {
         "get": {
             "tags": ["Platform"],
             "summary": "بيان المنصة والموارد ونقاط النهاية",
-            "responses": {
-                "200": {
-                    "description": "بيان المنصة المؤسسي",
-                    "content": {
-                        "application/json": {
-                            "schema": {"$ref": "#/components/schemas/PlatformManifest"}
-                        }
-                    },
-                }
-            },
+            "responses": _response("#/components/schemas/PlatformManifest", "بيان المنصة المؤسسي"),
         }
     }
     paths["/api/v1/sections.json"] = {
         "get": {
             "tags": ["Discovery"],
             "summary": "فهرس الأقسام العامة",
-            "responses": {
-                "200": {
-                    "description": "قائمة الأقسام العامة المنشورة",
-                    "content": {
-                        "application/json": {
-                            "schema": {"$ref": "#/components/schemas/SectionsIndex"}
-                        }
-                    },
-                }
-            },
+            "responses": _response("#/components/schemas/SectionsIndex", "قائمة الأقسام العامة المنشورة"),
         }
     }
+
     schemas = result.setdefault("components", {}).setdefault("schemas", {})
+    section_types = ["directory", "collection", "application", "documentation", "governance"]
     schemas["Section"] = {
         "type": "object",
         "required": ["id", "name_ar", "url", "type", "audiences", "tags"],
@@ -405,10 +280,19 @@ def patch_openapi(document: dict[str, Any]) -> dict[str, Any]:
             "id": {"type": "string"},
             "name_ar": {"type": "string"},
             "url": {"type": "string", "format": "uri"},
-            "type": {
-                "enum": ["directory", "collection", "application", "documentation", "governance"]
-            },
+            "type": {"enum": section_types},
             "audiences": {"type": "array", "items": {"type": "string"}},
+            "tags": {"type": "array", "items": {"type": "string"}},
+        },
+    }
+    schemas["PlatformResource"] = {
+        "type": "object",
+        "required": ["id", "type", "title", "url", "tags"],
+        "properties": {
+            "id": {"type": "string"},
+            "type": {"enum": section_types},
+            "title": {"type": "string"},
+            "url": {"type": "string", "format": "uri"},
             "tags": {"type": "array", "items": {"type": "string"}},
         },
     }
@@ -420,10 +304,7 @@ def patch_openapi(document: dict[str, Any]) -> dict[str, Any]:
             "schema_version": {"const": SCHEMA_VERSION},
             "generated_at": {"type": "string", "format": "date"},
             "count": {"type": "integer", "minimum": 1},
-            "sections": {
-                "type": "array",
-                "items": {"$ref": "#/components/schemas/Section"},
-            },
+            "sections": {"type": "array", "items": {"$ref": "#/components/schemas/Section"}},
         },
     }
     schemas["PlatformManifest"] = {
@@ -446,10 +327,7 @@ def patch_openapi(document: dict[str, Any]) -> dict[str, Any]:
             "name": {"type": "string"},
             "baseUrl": {"type": "string", "format": "uri"},
             "languages": {"type": "array", "items": {"type": "string"}},
-            "resources": {
-                "type": "array",
-                "items": {"$ref": "#/components/schemas/Section"},
-            },
+            "resources": {"type": "array", "items": {"$ref": "#/components/schemas/PlatformResource"}},
             "endpoints": {"type": "object", "additionalProperties": {"type": "string", "format": "uri"}},
             "integrationPolicy": {"type": "object"},
         },
@@ -475,7 +353,9 @@ def patch_developers_page(path: Path, section_count: int) -> bool:
 def validate_output(site: Path, platform: dict[str, Any], sections: dict[str, Any]) -> None:
     validate_registry()
     missing_routes = [
-        item["route"] for item in SECTION_DEFINITIONS if not (site / item["route"] / "index.html").is_file()
+        item["route"]
+        for item in SECTION_DEFINITIONS
+        if not (site / item["route"] / "index.html").is_file()
     ]
     if missing_routes:
         raise PublicApiManifestError(f"published section routes are missing: {missing_routes}")
@@ -483,11 +363,10 @@ def validate_output(site: Path, platform: dict[str, Any], sections: dict[str, An
     missing_files = [name for name in ENDPOINT_FILES if not (api / name).is_file()]
     if missing_files:
         raise PublicApiManifestError(f"public API endpoint files are missing: {missing_files}")
-    if sections.get("count") != len(SECTION_DEFINITIONS):
-        raise PublicApiManifestError("section count mismatch")
-    ids = [str(item.get("id")) for item in sections.get("sections") or []]
-    if len(ids) != len(set(ids)) or set(ids) != {str(item["id"]) for item in SECTION_DEFINITIONS}:
-        raise PublicApiManifestError("section registry identity mismatch")
+    expected_ids = {str(item["id"]) for item in SECTION_DEFINITIONS}
+    actual_ids = [str(item.get("id")) for item in sections.get("sections") or []]
+    if sections.get("count") != len(expected_ids) or len(actual_ids) != len(set(actual_ids)) or set(actual_ids) != expected_ids:
+        raise PublicApiManifestError("section registry identity or count mismatch")
     for key, url in ENDPOINTS.items():
         if platform.get("endpoints", {}).get(key) != url:
             raise PublicApiManifestError(f"platform endpoint mismatch: {key}")
@@ -521,8 +400,7 @@ def upgrade(site: Path, root: Path | None = None) -> dict[str, Any]:
         if (api / name).is_file()
     }
     date_value = generated_date()
-    existing_platform = read_object(api / "platform.json")
-    platform = build_platform(existing_platform, date_value)
+    platform = build_platform(read_object(api / "platform.json"), date_value)
     sections = build_sections(date_value)
     openapi = patch_openapi(read_object(api / "openapi.json"))
 
