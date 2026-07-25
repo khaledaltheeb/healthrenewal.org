@@ -56,6 +56,11 @@ const fillNewProfessionalDraft = async (page) => {
   await form.locator('[name="detail_result_summary"]').fill("مرجع نتيجة خارجية قيد المراجعة المهنية.");
   await form.locator('[name="detail_domain_findings"]').fill("تدمج النتيجة مع التاريخ والملاحظة قبل أي قرار.");
   await form.locator('[name="detail_recommendations"]').fill("مراجعة المصدر والنسخة والمؤهل وإضافة مصدر مكمل.");
+  await form.locator('[name="maturity_publisher"]').fill("جهة إصدار التقرير الأولية");
+  await form.locator('[name="maturity_administratorQualification"]').fill("مختص مؤهل — تخطيط أولي");
+  await form.locator('[name="maturity_rightsBasis"]').selectOption("pending_review");
+  await form.locator('[name="maturity_selectionRationale"]').fill("تسجيل مسودة منظمة لحين التحقق من النسخة والحقوق والمصدر الرسمي.");
+  await form.locator('[name="maturity_noProtectedContent"]').check();
   await form.locator('[name="rightsConfirmed"]').check();
 };
 
@@ -140,12 +145,13 @@ const activeStore = async (page) => page.evaluate(() => {
   return JSON.parse(localStorage.getItem(`pa-demo-store-v3:${identity.uid}`));
 });
 
-test("v220 keeps exploration, professional rights, legacy upgrade, and final report auditable", async ({ page }) => {
+test("v220 keeps exploration, professional rights, schema migration, legacy upgrade, and final report auditable", async ({ page }) => {
   await page.goto("/provider-assessment-demo/?release=2026.07.25-live.8#workspace");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.exploratoryMaturity)).toBe("ready");
   await expect.poll(() => page.evaluate(() => window.PA_EXPLORATORY_MATURITY_V220?.toolCount)).toBe(20);
-  await expect.poll(() => page.evaluate(() => Boolean(window.PA_PROFESSIONAL_REGISTRY_V220?.customRecordContract))).toBe(true);
+  await expect.poll(() => page.evaluate(() => typeof window.PA_PROFESSIONAL_REGISTRY_V220?.customContractForMode)).toBe("function");
+  await expect.poll(() => page.evaluate(() => window.PA_PROFESSIONAL_SCHEMA_COMPAT_V220?.canonicalField)).toBe("reportIssuedBy");
   await expect.poll(() => page.evaluate(() => window.PA_PROFESSIONAL_PLANNING_COMPAT_V220?.planningDraftAllowed)).toBe(true);
   await expect.poll(() => page.evaluate(() => window.PA_PROFESSIONAL_EDIT_V220?.legacyRecordsUpgradable)).toBe(true);
 
@@ -170,6 +176,14 @@ test("v220 keeps exploration, professional rights, legacy upgrade, and final rep
   await expect(page.locator("#professional-record-dialog")).not.toHaveAttribute("open", "");
   await expect(page.locator("#professional-record-list .professional-record")).toHaveCount(1);
 
+  await expect.poll(async () => {
+    const saved = await activeStore(page);
+    return saved.cases[0].professionalAssessments[0].reportIssuedBy;
+  }).toBe("جهة إصدار التقرير الأولية");
+  const draftStore = await activeStore(page);
+  expect(draftStore.cases[0].professionalAssessments[0].reportIssuer).toBeUndefined();
+  expect(draftStore.cases[0].professionalAssessments[0].metadataAuditTrail.some((entry) => entry.eventType === "schema_alias_migrated")).toBe(true);
+
   await receiveExternalResult(page);
   await page.locator("[data-edit-professional-record]").first().click();
   await expect(page.locator("#professional-record-edit-dialog")).toHaveAttribute("open", "");
@@ -177,11 +191,13 @@ test("v220 keeps exploration, professional rights, legacy upgrade, and final rep
   await fillProfessionalUpgrade(page);
   await page.locator('#professional-record-edit-form button[type="submit"]').click();
   await expect(page.locator("#professional-record-edit-dialog")).not.toHaveAttribute("open", "");
-  await expect(page.locator("#professional-record-list [data-professional-maturity-v220]")).toContainText("السجل المنظم v220.1");
+  await expect(page.locator("#professional-record-list [data-professional-maturity-v220]")).toContainText("السجل المنظم v220.2");
 
   const upgraded = await activeStore(page);
   const professional = upgraded.cases[0].professionalAssessments[0];
   expect(professional.recordStatus).toBe("result_imported");
+  expect(professional.reportIssuedBy).toBe("جهة تقييم خارجية مختصة");
+  expect(professional.reportIssuer).toBeUndefined();
   expect(professional.professionalMaturity.schema).toBe("professional-registry-record-v220");
   expect(professional.professionalMaturity.rights.basis).toBe("external_report_only");
   expect(professional.professionalMaturity.auditTrail.at(-1).event).toBe("structured_record_updated");
@@ -191,7 +207,7 @@ test("v220 keeps exploration, professional rights, legacy upgrade, and final rep
   await page.locator("#new-case-report").click();
   await expect(page.locator("#case-report-dialog")).toHaveAttribute("open", "");
   await fillReport(page);
-  await expect(page.locator('[data-professional-report-v220="220.1"]')).toContainText("جميع التطبيقات المكتملة تحمل عقدًا منظمًا");
+  await expect(page.locator('[data-professional-report-v220="220.2"]')).toContainText("جميع التطبيقات المكتملة تحمل عقدًا منظمًا");
   await page.locator('#case-report-form button[type="submit"]').click();
   await expect(page.locator("#case-report-dialog")).not.toHaveAttribute("open", "");
 
