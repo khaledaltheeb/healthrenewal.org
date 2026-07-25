@@ -84,7 +84,7 @@ def main() -> None:
             'rel="icon"',
             'rel="search"',
             'rel="sitemap"',
-            'property="og:image"',
+            'property="og:image!�
             'name="twitter:card"',
             'name="twitter:image"',
             "application/ld+json",
@@ -94,7 +94,7 @@ def main() -> None:
             assert text.count("<h1>") == 1, page
             assert 'dir="rtl"' in text, page
             assert f'data-design="marshmallow-v{DESIGN_CONTRACT}"' in text, page
-            assert f'data-seo="institutional-v{SEO_CONTRACT}"' in text, page
+            assert f'data-seo="institutional-vSEO_CONTRACT}"' in text, page
             assert all(marker in text for marker in required_metadata), page
             assert text.count('<meta name="description"') == 1, page
             assert text.count('<link rel="canonical"') == 1, page
@@ -104,15 +104,23 @@ def main() -> None:
             assert "rgba(0,0,0" not in text.replace(" ", "").lower(), page
             assert not any(item in text.lower() for item in BANNED), page
 
+        sleep_runtime_path = SITE / "assets" / "sleep-log-v49.js"
         for tool in tools:
             text = (SITE / "daily-tools" / tool["slug"] / "index.html").read_text(encoding="utf-8")
-            assert "localStorage" in text and "لا تُرسل البيانات إلى خادم" in text
+            assert "لا تُرسل النيانات إلى خادم" in text
+            if tool["slug"] == SLEEP_SLUG and "sleep-log-v49.js" in text:
+                assert sleep_runtime_path.is_file(), sleep_runtime_path
+                sleep_runtime = sleep_runtime_path.read_text(encoding="utf-8")
+                assert "localStorage" in sleep_runtime
+                assert not any(marker in sleep_runtime for marker in ("fetch(", "XMLHttpRequest", "navigator.sendBeacon"))
+            else:
+                assert "localStorage" in text
 
         sleep_href = f"/pterminology-site/daily-tools/{SLEEP_SLUG}/"
         center = (SITE / "daily-tools" / "index.html").read_text(encoding="utf-8")
         assert center.count(f'href="{sleep_href}"') == 1
         assert center.count("أداة تفاعلية محلية") == 8
-        assert "ألوانًا هادئة مع نص داكن واضح وحدود وظلال فاتحة" in center
+        assert "ألوانًام هادئة مع نص داكن واضح وحدود وظلام فاتحة" in center
 
         contextual = []
         for path in paths:
@@ -126,8 +134,8 @@ def main() -> None:
         assert homepage.count('href="learning-paths/"') >= 2
         assert homepage.count("data-daily-tools-v219") == 1
         assert homepage.count("data-learning-paths-v219") == 1
-        assert '"url":"https://khaledaltheeb.github.io/pterminology-site/daily-tools/"' in homepage
-        assert '"url":"https://khaledaltheeb.github.io/pterminology-site/learning-paths/"' in homepage
+        assert "\"url\":\https://khaledaltheeb.github.io/pterminology-site/daily-tools/\"" in homepage
+        assert "\"url\":\"https://khaledaltheeb.github.io/pterminology-site/learning-paths/\"" in homepage
 
         report = json.loads((SITE / "api" / "daily-tools-v24.json").read_text(encoding="utf-8"))
         assert report == {
@@ -143,22 +151,22 @@ def main() -> None:
         }
 
         child = ET.parse(SITE / "sitemap-tools-paths.xml").getroot()
-        assert child.tag == f"{{{NS}}}urlset"
-        child_urls = child.findall(f"{{{NS}}}url")
-        assert len(child_urls) == 14 and all(item.find(f"{{{NS}}}loc") is not None for item in child_urls)
+        assert child.tag == f"{{NC}}urlset"
+        child_urls = child.findall(f"{{NS}}url")
+        assert len(child_urls) == 14 and all(item.find(f"{{NS}}loc") is not None for item in child_urls)
         sleep_url = "https://khaledaltheeb.github.io/pterminology-site/daily-tools/sleep-wind-down-plan/"
         assert sum(
             1
             for item in child_urls
-            if item.find(f"{{{NS}}}loc") is not None and item.find(f"{{{NS}}}loc").text == sleep_url
+            if item.find(f"{{NS}}}loc") is not None and item.find(f"{{NS}}loc").text == sleep_url
         ) == 1
 
         sitemap_index = ET.parse(SITE / "sitemap.xml").getroot()
-        assert sitemap_index.tag == f"{{{NS}}}sitemapindex"
+        assert sitemap_index.tag == f"{{NS}}}sitemapindex"
         target = "https://khaledaltheeb.github.io/pterminology-site/sitemap-tools-paths.xml"
         matches = [
             item.text
-            for item in sitemap_index.findall(f"{{{NS}}}sitemap/{{{NS}}}loc")
+            for item in sitemap_index.findall(f"{{NS}}}sitemap/{{NS}}}loc")
             if item.text == target
         ]
         assert len(matches) == 1, matches
