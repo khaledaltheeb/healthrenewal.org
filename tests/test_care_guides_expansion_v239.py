@@ -73,7 +73,7 @@ class CareGuidesExpansionV239Tests(unittest.TestCase):
             ):
                 self.assertNotIn(prohibited, joined, guide["slug"])
 
-    def test_complete_source_inventory_and_review_gate(self) -> None:
+    def test_v239_source_inventory_and_current_review_gate(self) -> None:
         all_guides: list[dict] = []
         for path in SOURCE_FILES:
             payload = json.loads(path.read_text(encoding="utf-8"))
@@ -88,8 +88,13 @@ class CareGuidesExpansionV239Tests(unittest.TestCase):
         publisher = (ROOT / "scripts/publish_care_guides_v21.py").read_text(encoding="utf-8")
         for path in EXPANDED_FILES:
             self.assertIn(f'ROOT / "content/v18/{path.name}"', publisher)
-        self.assertIn("EXPECTED_SOURCE_GUIDES = 14", publisher)
-        self.assertIn("CONTENT_RELEASE_VERSION = 239", publisher)
+        source_match = re.search(r"EXPECTED_SOURCE_GUIDES\s*=\s*(\d+)", publisher)
+        release_match = re.search(r"CONTENT_RELEASE_VERSION\s*=\s*(\d+)", publisher)
+        self.assertIsNotNone(source_match)
+        self.assertIsNotNone(release_match)
+        self.assertGreaterEqual(int(source_match.group(1)), 14)
+        self.assertGreaterEqual(int(release_match.group(1)), 239)
+        self.assertIn('BLOCKED_REVIEW_STATUSES = {"needs-specialist-review"}', publisher)
 
 
 if __name__ == "__main__":
