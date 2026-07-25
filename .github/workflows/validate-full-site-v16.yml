@@ -26,7 +26,7 @@ jobs:
           cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
           python scripts/verify_enricher_v7.py
           python scripts/verify_expander_v9.py
-          python -m py_compile build_site.py expand_site_v9.py scripts/scale_site_v8.py scripts/design_content_v10.py scripts/apply_contrast_v11.py scripts/expand_v12_direct.py scripts/rebuild_encyclopedia_v13.py scripts/run_encyclopedia_v13.py scripts/performance_hotfix_v14.py scripts/optimize_site_performance_v14.py scripts/strip_nonlab_runtime_v14.py scripts/finalize_pwa_v14.py scripts/audit_site_integrity_v13.py scripts/verify_performance_v14.py scripts/complete_core_sections_v15.py scripts/verify_core_sections_v15.py scripts/polish_site_v16.py scripts/audit_full_site_v16.py scripts/audit_full_site_i18n_v72.py scripts/apply_homepage_v20.py scripts/diagnose_apply_homepage_v221.py scripts/diagnose_special_needs_guides_v221.py scripts/publish_homepage_i18n_v72.py
+          python -m py_compile build_site.py expand_site_v9.py scripts/scale_site_v8.py scripts/design_content_v10.py scripts/apply_contrast_v11.py scripts/expand_v12_direct.py scripts/rebuild_encyclopedia_v13.py scripts/run_encyclopedia_v13.py scripts/performance_hotfix_v14.py scripts/optimize_site_performance_v14.py scripts/strip_nonlab_runtime_v14.py scripts/finalize_pwa_v14.py scripts/audit_site_integrity_v13.py scripts/verify_performance_v14.py scripts/complete_core_sections_v15.py scripts/verify_core_sections_v15.py scripts/polish_site_v16.py scripts/audit_full_site_v16.py scripts/audit_full_site_i18n_v72.py scripts/apply_homepage_v20.py scripts/diagnose_apply_homepage_v221.py scripts/diagnose_special_needs_guides_v221.py scripts/publish_homepage_i18n_v72.py scripts/enrich_thin_content_v222.py scripts/audit_source_depth_gap_v231.py
           node --check content/v15/lab-v15.js
           node --check scripts/test_lab_v15.js
           node --check scripts/browser_audit_v16.mjs
@@ -69,6 +69,39 @@ jobs:
         run: |
           set -euxo pipefail
           python scripts/audit_full_site_i18n_v72.py _site
+      - name: Measure source dependency on v222
+        run: |
+          set -euxo pipefail
+          python scripts/enrich_thin_content_v222.py _site
+          set +e
+          python scripts/audit_source_depth_gap_v231.py _site --repository .
+          AUDIT_EXIT=$?
+          set -e
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/source-depth-gap-v231.json').read_text(encoding='utf-8'))
+          assert report['version']==231,report
+          assert report['malformed_marker_count']==0,report
+          print({
+              'status': report['status'],
+              'source_gap_count': report['source_gap_count'],
+              'unhandled_thin_count': report['unhandled_thin_count'],
+              'minimum_source_words': report['minimum_source_words'],
+              'route_group_counts': report['route_group_counts'],
+          })
+          PY
+          test "$AUDIT_EXIT" -eq 0 -o "$AUDIT_EXIT" -eq 1
+      - name: Upload source-depth evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-depth-gap-v231-pr
+          path: |
+            _site/api/content-depth-v222.json
+            _site/api/source-depth-gap-v231.json
+            _site/api/source-depth-gap-v231.md
+          if-no-files-found: error
+          retention-days: 30
       - name: Install browser audit runtime
         run: |
           npm install --no-save playwright
@@ -97,6 +130,9 @@ jobs:
             _site/api/site-integrity-v13.json
             _site/api/core-sections-audit-v15.json
             _site/api/performance-verification-v14.json
+            _site/api/content-depth-v222.json
+            _site/api/source-depth-gap-v231.json
+            _site/api/source-depth-gap-v231.md
             /tmp/pterminology-http.log
           if-no-files-found: warn
           retention-days: 14
