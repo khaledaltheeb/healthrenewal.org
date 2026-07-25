@@ -1,16 +1,18 @@
 from __future__ import annotations
 
-"""بوابة النشر الصحي الأصلية مع إنهاء الهيدر المؤسسي وأبعاد الرسوم."""
+"""بوابة النشر الصحي الأصلية مع إنهاء الهيدر والأبعاد والبنية الدلالية."""
 
 import json
 
 try:
     from scripts import enforce_health_publication_gate_v192_base as _base
     from scripts.finalize_sector_image_dimensions_v236 import finalize as _finalize_image_dimensions
+    from scripts.finalize_semantic_structure_v237 import finalize as _finalize_semantic_structure
     from scripts.publish_institutional_header_v233 import publish as _publish_header
 except ModuleNotFoundError:
     import enforce_health_publication_gate_v192_base as _base
     from finalize_sector_image_dimensions_v236 import finalize as _finalize_image_dimensions
+    from finalize_semantic_structure_v237 import finalize as _finalize_semantic_structure
     from publish_institutional_header_v233 import publish as _publish_header
 
 
@@ -58,6 +60,10 @@ def enforce() -> dict:
     if image_report.get("status") != "passed":
         raise SystemExit(f"Sector image dimensions v236 failed after health gate: {image_report}")
 
+    semantic_report = _finalize_semantic_structure(SITE)
+    if semantic_report.get("status") != "passed":
+        raise SystemExit(f"Semantic structure v237 failed after health gate: {semantic_report}")
+
     report = dict(report)
     report["institutional_header_version"] = 233
     report["institutional_header_status"] = "passed"
@@ -71,6 +77,12 @@ def enforce() -> dict:
     report["sector_image_dimensions_target_images"] = image_report["target_images"]
     report["sector_image_dimensions_images_updated"] = image_report["images_updated"]
     report["sector_image_dimensions_remaining"] = image_report["remaining_missing_dimensions"]
+    report["semantic_structure_version"] = 237
+    report["semantic_structure_status"] = "passed"
+    report["semantic_structure_heading_pages_updated"] = semantic_report["heading_pages_updated"]
+    report["semantic_structure_heading_tags_updated"] = semantic_report["heading_tags_updated"]
+    report["semantic_structure_remaining_heading_jumps"] = semantic_report["remaining_heading_jumps"]
+    report["semantic_structure_error_page_jsonld_present"] = semantic_report["error_page_jsonld_present"]
     report_path = SITE / "api" / "health-publication-gate-v192.json"
     report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
