@@ -86,11 +86,15 @@ for (const marker of [
   "professional-registry-record-v220",
   "digitalAdministrationOccurredInsidePlatform = false",
   "protectedContentStored = false",
+  "structured_record_created",
+  "records.length !== beforeCount + 1",
+  "record.toolId !== toolId",
 ]) {
   assert.ok(ui.includes(marker), `professional UI contract marker missing: ${marker}`);
 }
 assert.ok(ui.includes('rightsBasis === "pending_review"'), "completed record pending-rights guard missing");
 assert.ok(ui.includes("رُفض الحفظ لأن النص قد يتضمن مادة محمية"), "protected-content rejection missing");
+assert.ok(!ui.includes("reverse().find"), "legacy record fallback must not be restored");
 assert.ok(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/.test(ui), "professional registry UI must remain local-only");
 
 const maturityUi = fs.readFileSync(path.join(DEMO, "exploratory-tools-maturity-ui-v220.js"), "utf8");
@@ -103,4 +107,5 @@ console.log(JSON.stringify({
   allDigitalAdministrationLocked: report.allDigitalAdministrationLocked,
   protectedContentStorageAllowed: report.protectedContentStorageAllowed,
   structuredRecordSchema: "professional-registry-record-v220",
+  legacyRecordMutationFallback: false,
 }, null, 2));
