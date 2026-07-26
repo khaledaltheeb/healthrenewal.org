@@ -1,0 +1,836 @@
+{
+  "version": 280,
+  "language": "ar",
+  "category": "chronic-health",
+  "title": "حزم الأدلة المنتقاة: الحالات الصحية المزمنة والمتقطعة",
+  "search_updated": "2026-07-27",
+  "external_review_completed": false,
+  "selection_method": {
+    "scope": "تغطي هذه الموجة الحالات الـ14 كلها في فئة الحالات الصحية المزمنة والمتقطعة، بثلاثة ادعاءات محدودة لكل حالة: حدود الملف، والوصول أو التدخل، والأمان أو التشخيص التفريقي.",
+    "selection_order": [
+      "إرشاد رسمي أو مهني حديث ومباشر للحالة أو للمجال الوظيفي.",
+      "مرجع سريري خبير مُراجع ومحدّث دوريًا للحالات الوراثية أو النادرة.",
+      "مراجعة منهجية أو تحليل تجميعي مباشر، مع التصريح بالتغاير ومحدودية الدراسات.",
+      "بحث محكم أو توافق خبراء فقط عندما لا يتوفر إرشاد أعلى، ومن دون تحويله إلى قاعدة جماعية."
+    ],
+    "exclusions": [
+      "المصادر الترويجية وقصص النجاح المنفردة بوصفها دليلًا على صفة أو تدخل.",
+      "نتائج البحث الحي في PubMed بوصفها قائمة مصادر منتقاة قبل الفرز والنقد.",
+      "بروتوكولات المراجعات التي لم تنشر نتائجها بعد بوصفها دليل فعالية.",
+      "أي استنتاج يربط التشخيص بموهبة أو ذكاء أو مهنة من دون قياس مباشر عند الشخص."
+    ],
+    "certainty_policy": "لا يعيّن المشروع درجة GRADE من تلقاء نفسه. يصف نوع المصدر، ومباشرة الدليل، والتغاير، وحدود النقل إلى الفرد. تبقى قوة التوصية الرسمية للجهة التي أصدرتها.",
+    "live_search_boundary": "رابط البحث الحي أداة تحديث للمراجع المتخصص، وليس مصدرًا مختارًا ولا إثباتًا لفعالية تدخل.",
+    "review_boundary": "الانتقاء والترجمة ومطابقة الادعاءات مراجعة داخلية قابلة للتدقيق، ولم تكتمل مراجعة خارجية مستقلة سريرية وتأهيلية ومن ذوي الخبرة المعاشة."
+  },
+  "evidence_character_labels": {
+    "official-current-guidance": "إرشاد رسمي أو بوابة ممارسة مهنية حالية؛ مباشر للممارسة، ولا يثبت نتيجة فردية مسبقًا.",
+    "guideline-backed": "توصية إرشادية مبنية على مراجعة أو توافق مهني؛ يلزم تطبيقها بحسب العمر والسياق والتفضيلات.",
+    "expert-reviewed-living-reference": "مرجع سريري خبير مُراجع ومحدّث دوريًا؛ يدعم الحدود والمراقبة ولا يثبت نتيجة وظيفية فردية.",
+    "systematic-review-direct-heterogeneous": "مراجعة منهجية مباشرة لكن الدراسات أو العينات أو المقاييس متغايرة؛ تصلح لتحديد اتجاه لا لضمان نتيجة.",
+    "systematic-review-limited-directness": "مراجعة منهجية ذات عدد قليل أو مباشرة جزئية للحالة؛ الاستنتاج حذر وتجريبي.",
+    "mixed-sources-no-causal-inference": "مزيج من إرشاد وبحث محكم أو خبرة معاشة؛ يحدد فرضية أو حدًا ولا يثبت السببية."
+  },
+  "sources": [
+    {
+      "id": "ecfs-cystic-fibrosis-care-2024",
+      "publisher": "European Cystic Fibrosis Society",
+      "title": "Standards for the care of people with cystic fibrosis: recognising and addressing health issues",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38233247/",
+      "year": 2024,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "cystic-fibrosis-evidence-profile-boundary",
+        "cystic-fibrosis-evidence-access-intervention",
+        "cystic-fibrosis-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "ash-sickle-cell-pain-2020",
+      "publisher": "American Society of Hematology",
+      "title": "ASH 2020 guidelines for sickle cell disease: management of acute and chronic pain",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32559294/",
+      "year": 2020,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "sickle-cell-disease-evidence-profile-boundary",
+        "sickle-cell-disease-evidence-access-intervention",
+        "sickle-cell-disease-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "wfh-hemophilia-guideline-2020",
+      "publisher": "World Federation of Hemophilia",
+      "title": "WFH Guidelines for the Management of Hemophilia, 3rd edition",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32744769/",
+      "year": 2020,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "hemophilia-evidence-profile-boundary",
+        "hemophilia-evidence-access-intervention",
+        "hemophilia-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "ispad-diabetes-school-2022",
+      "publisher": "International Society for Pediatric and Adolescent Diabetes",
+      "title": "ISPAD Clinical Practice Consensus Guidelines 2022: Management and support of children and adolescents with diabetes in school",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36537526/",
+      "year": 2022,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "type-1-diabetes-evidence-profile-boundary",
+        "type-1-diabetes-evidence-access-intervention",
+        "type-1-diabetes-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "kdigo-chronic-kidney-disease-2024",
+      "publisher": "Kidney Disease: Improving Global Outcomes",
+      "title": "KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38490803/",
+      "year": 2024,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "chronic-kidney-disease-evidence-profile-boundary",
+        "chronic-kidney-disease-evidence-access-intervention",
+        "chronic-kidney-disease-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "aha-congenital-heart-neurodevelopment-2024",
+      "publisher": "American Heart Association",
+      "title": "Neurodevelopmental Outcomes for Individuals With Congenital Heart Disease: 2024 Scientific Statement",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38385268/",
+      "year": 2024,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "congenital-heart-disease-evidence-profile-boundary",
+        "congenital-heart-disease-evidence-access-intervention",
+        "congenital-heart-disease-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "acr-juvenile-idiopathic-arthritis-2022",
+      "publisher": "American College of Rheumatology",
+      "title": "2021 ACR Guideline for the Treatment of Juvenile Idiopathic Arthritis",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35233986/",
+      "year": 2022,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "juvenile-idiopathic-arthritis-evidence-profile-boundary",
+        "juvenile-idiopathic-arthritis-evidence-access-intervention",
+        "juvenile-idiopathic-arthritis-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "eular-systemic-lupus-2024",
+      "publisher": "European Alliance of Associations for Rheumatology",
+      "title": "EULAR recommendations for the management of systemic lupus erythematosus: 2023 update",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37827694/",
+      "year": 2024,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "systemic-lupus-erythematosus-evidence-profile-boundary",
+        "systemic-lupus-erythematosus-evidence-access-intervention",
+        "systemic-lupus-erythematosus-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "ecco-ibd-diagnostics-monitoring-2025",
+      "publisher": "European Crohn's and Colitis Organisation",
+      "title": "ECCO-ESGAR-ESP-IBUS Guideline on Diagnostics and Monitoring of Inflammatory Bowel Disease",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40741688/",
+      "year": 2025,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "inflammatory-bowel-disease-evidence-profile-boundary",
+        "inflammatory-bowel-disease-evidence-access-intervention",
+        "inflammatory-bowel-disease-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "gina-severe-asthma-guide-2026",
+      "publisher": "Global Initiative for Asthma",
+      "title": "Difficult-to-Treat and Severe Asthma: Diagnosis and Management",
+      "url": "https://ginasthma.org/2026-gina-severe-asthma-guide/",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "severe-asthma-evidence-profile-boundary",
+        "severe-asthma-evidence-access-intervention",
+        "severe-asthma-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "golden-anaphylaxis-practice-parameter-2024",
+      "publisher": "Joint Task Force on Practice Parameters",
+      "title": "Anaphylaxis: A 2023 practice parameter update",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38108678/",
+      "year": 2024,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "severe-food-allergy-evidence-profile-boundary",
+        "severe-food-allergy-evidence-access-intervention",
+        "severe-food-allergy-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "cog-long-term-follow-up-2023",
+      "publisher": "Children's Oncology Group",
+      "title": "Long-Term Follow-Up Guidelines for Survivors of Childhood, Adolescent and Young Adult Cancers, Version 6.0",
+      "url": "https://www.survivorshipguidelines.org/",
+      "year": 2023,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "childhood-cancer-late-effects-evidence-profile-boundary",
+        "childhood-cancer-late-effects-evidence-access-intervention",
+        "childhood-cancer-late-effects-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "nice-me-cfs-ng206-2021",
+      "publisher": "National Institute for Health and Care Excellence",
+      "title": "ME/CFS: diagnosis and management (NG206)",
+      "url": "https://www.nice.org.uk/guidance/ng206",
+      "year": 2021,
+      "source_type": "official_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "me-cfs-evidence-profile-boundary",
+        "me-cfs-evidence-access-intervention",
+        "me-cfs-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "who-post-covid-living-guideline-2025",
+      "publisher": "World Health Organization",
+      "title": "Clinical management of COVID-19: living guideline, June 2025",
+      "url": "https://www.who.int/publications/i/item/B09467",
+      "year": 2025,
+      "source_type": "official_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "long-covid-evidence-profile-boundary",
+        "long-covid-evidence-access-intervention",
+        "long-covid-evidence-safety-differential"
+      ],
+      "status": "current"
+    }
+  ],
+  "evidence_packets": [
+    {
+      "slug": "cystic-fibrosis",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "cystic-fibrosis-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "التليف الكيسي لا ينتج قوة؛ قد تبقى القدرات الدراسية والمهنية واسعة بينما يستهلك العلاج والمرض الرئوي والطاقة وقتًا كبيرًا. لذلك يظل تشخيص التليف الكيسي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد الدور أو المهارة المحفوظة وقياس الأداء بجدول مرن يحسب عبء العلاج، لا بإهمال العلاج لصالح الإنتاج.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه التليف الكيسي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "ecfs-cystic-fibrosis-care-2024"
+          ]
+        },
+        {
+          "id": "cystic-fibrosis-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تعلم أو عمل مرن وعن بعد عند الحاجة، فواصل للعلاج والطعام، خطة غياب وعودة، وبيئة تراعي مكافحة العدوى. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قسّم مشروعًا إلى وحدات يمكن تنفيذها حول العلاج وقارنها بجدول ثابت، وسجل الجودة والطاقة والالتزام الصحي.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "ecfs-cystic-fibrosis-care-2024"
+          ]
+        },
+        {
+          "id": "cystic-fibrosis-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تُدار أعراض التنفس والعدوى والتغذية والسكري والأدوية مع فريق التليف؛ تدهور التنفس أو حمى أو نفث دم يحتاج مسارًا طبيًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إنجاز مساهمة تعليمية أو مهنية ذات معنى من دون تفويت العلاج أو تجاوز حدود التنفس والطاقة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "ecfs-cystic-fibrosis-care-2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sickle-cell-disease",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "sickle-cell-disease-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "فقر الدم المنجلي لا يمنح تحملًا للألم أو مرونة واجبة؛ الألم والتعب والمضاعفات حواجز، بينما تبقى قدرات الشخص واهتماماته فردية. لذلك يظل تشخيص فقر الدم المنجلي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار التعلم والعمل في فترات الاستقرار مع خطة مرنة للنوبات، وفصل المعرفة عن الغياب أو بطء الأداء أثناء الألم.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه فقر الدم المنجلي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "ash-sickle-cell-pain-2020"
+          ]
+        },
+        {
+          "id": "sickle-cell-disease-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "ماء وحرارة مناسبة وراحة وجدولة مرنة وخطة غياب وتعويض وإتاحة الرعاية العاجلة وفق الفريق. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: نفذ مهمة في وحدات قصيرة مع حق التوقف وسجل الجودة والطاقة والألم في اليوم التالي، لا أثناء الجلسة فقط.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "ash-sickle-cell-pain-2020"
+          ]
+        },
+        {
+          "id": "sickle-cell-disease-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "الحمى وألم الصدر وضيق النفس والعلامات العصبية أو الألم غير المعتاد تستلزم الخطة الطبية؛ لا يُدفع الشخص خلال أزمة. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: الاستمرار في تعلم أو عمل مختار بخطة نوبات واضحة وتقييم قائم على الإنجاز لا الحضور وحده.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "ash-sickle-cell-pain-2020"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "hemophilia",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "hemophilia-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الهيموفيليا لا تنتج قوة؛ قد تقل المشاركة بسبب خوف مبالغ أو نزف ومشكلات مفاصل، ويجب موازنة الأمان والاستقلال. لذلك يظل تشخيص الهيموفيليا وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد الأنشطة والمهارات الممكنة مع خطة وقاية وتعديل مخاطر، وعدم خفض التوقعات المعرفية أو الاجتماعية.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الهيموفيليا، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "wfh-hemophilia-guideline-2020"
+          ]
+        },
+        {
+          "id": "hemophilia-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "خطة نشاط فردية وأدوات تقلل الصدمات ووصول للرعاية ومرونة للمواعيد، مع تعليم الشخص التعرف إلى النزف. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: أعد تصميم نشاط عملي لتقليل الصدمة والرفع وقارن المشاركة والاستقلال قبل التعديل وبعده.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "wfh-hemophilia-guideline-2020"
+          ]
+        },
+        {
+          "id": "hemophilia-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "يُتبع بروتوكول النزف والعلاج ومثبطات العامل وصحة المفاصل؛ إصابة الرأس أو نزف مشتبه به يحتاج تقييمًا عاجلًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المشاركة في نشاط مختار بخطة وقاية واستجابة للنزف من دون منع شامل أو مخاطرة غير محسوبة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "wfh-hemophilia-guideline-2020"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "type-1-diabetes",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "type-1-diabetes-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "السكري من النوع الأول لا يمنح انضباطًا أو قوة؛ إدارة الجلوكوز عبء مستمر ولا ينبغي استخدامها مقياسًا أخلاقيًا لقيمة الشخص. لذلك يظل تشخيص السكري من النوع الأول وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: قياس التعلم والعمل بعيدًا عن نوبات انخفاض أو ارتفاع الجلوكوز، وتمكين الشخص من إدارة جزء مناسب من الرعاية.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه السكري من النوع الأول، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "ispad-diabetes-school-2022"
+          ]
+        },
+        {
+          "id": "type-1-diabetes-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "إتاحة الجهاز والطعام والماء والحمام والراحة والخصوصية وخطة مدرسية أو مهنية للطوارئ بلا عقاب. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: اختبر روتين إدارة آمن مثل تذكر عدة أو طلب استراحة باستخدام قائمة وتنبيه، لا بتغيير الجرعة أو الطعام.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "ispad-diabetes-school-2022"
+          ]
+        },
+        {
+          "id": "type-1-diabetes-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تُتبع خطة نقص وارتفاع الجلوكوز والكيتونات والمرض والدواء مع الفريق؛ تغير الوعي أو القيء أو النقص الشديد طارئ. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المشاركة في دراسة أو عمل مع إدارة آمنة وخصوصية وحق الاستجابة للتنبيهات من دون خسارة غير عادلة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "ispad-diabetes-school-2022"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "chronic-kidney-disease",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "chronic-kidney-disease-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "مرض الكلى المزمن لا ينتج قوة؛ قد تخفي الأنيميا والتعب والدواء والغسيل قدرة معرفية ومهنية محفوظة. لذلك يظل تشخيص مرض الكلى المزمن وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد وقت الأداء الأفضل والمهارات المحفوظة، وقياس العمل في جرعات تراعي العلاج والتعب.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه مرض الكلى المزمن، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "kdigo-chronic-kidney-disease-2024"
+          ]
+        },
+        {
+          "id": "chronic-kidney-disease-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "جدول مرن وعن بعد عند الحاجة وفواصل ومقعد ودعم ذاكرة، وخطة للغسيل والمواعيد والعودة بعد التفاقم. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن مهمة في يوم علاج ويوم غير علاج أو في وقتين مناسبين دون تغيير الخطة، وسجل الجودة والتعب.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "kdigo-chronic-kidney-disease-2024"
+          ]
+        },
+        {
+          "id": "chronic-kidney-disease-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تُراجع السوائل والضغط والشوارد والأنيميا والدواء والغسيل مع الفريق؛ ضيق النفس أو تورم أو ارتباك جديد يحتاج تقييمًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إنجاز دور مختار بجدول يتوافق مع العلاج ويقيس الناتج والجودة بدل الحضور المتواصل.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "kdigo-chronic-kidney-disease-2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "congenital-heart-disease",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "congenital-heart-disease-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "أمراض القلب الخلقية لا تمنح قوة؛ قد تكون القدرات واسعة بينما يحد التعب أو نقص الأكسجة أو العلاج من التحمل. لذلك يظل تشخيص أمراض القلب الخلقية وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: فصل جودة المعرفة والقرار عن سرعة الحركة والتحمل، وتحديد الحمل الذي يسمح بالمشاركة الآمنة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه أمراض القلب الخلقية، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "aha-congenital-heart-neurodevelopment-2024"
+          ]
+        },
+        {
+          "id": "congenital-heart-disease-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "فواصل وجدولة مرنة وتقليل المشي أو الحمل غير الضروري وماء وحرارة مناسبة وخطة مدرسة أو عمل. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قسّم مهمة إلى وحدات أو نفذها جلوسًا وقارن الجودة والطاقة والأعراض مع النسخة المعتادة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "aha-congenital-heart-neurodevelopment-2024"
+          ]
+        },
+        {
+          "id": "congenital-heart-disease-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تُتبع حدود القلب والأدوية والإجراءات والعدوى مع طبيب القلب؛ ألم الصدر أو إغماء أو زرقة أو خفقان جديد يحتاج تقييمًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المشاركة في نشاط معرفي أو اجتماعي أو مهني ضمن حدود قلبية فردية ومن دون مساواة التحمل بالكفاءة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "aha-congenital-heart-neurodevelopment-2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "juvenile-idiopathic-arthritis",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "juvenile-idiopathic-arthritis-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "التهاب المفاصل اليفعي لا ينتج قوة؛ الألم والتيبس والتعب قد يخفضان الكتابة والحضور بينما تبقى المعرفة والاهتمامات. لذلك يظل تشخيص التهاب المفاصل اليفعي مجهول السبب وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: قياس الفهم والمشاركة بعد تكييف اليد والوضعية والوقت، وتحديد أفضل توقيت بالنسبة للتيبس والعلاج.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه التهاب المفاصل اليفعي مجهول السبب، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "acr-juvenile-idiopathic-arthritis-2022"
+          ]
+        },
+        {
+          "id": "juvenile-idiopathic-arthritis-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "لوحة مفاتيح أو إملاء وأدوات يد ومقعد وفواصل وحرارة مناسبة وجدول مرن للنوبات والمواعيد. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن إنتاج مهمة باليد وبطريقة رقمية في وقتين من اليوم، وسجل المحتوى والألم والتيبس والتعب.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "acr-juvenile-idiopathic-arthritis-2022"
+          ]
+        },
+        {
+          "id": "juvenile-idiopathic-arthritis-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع نشاط الالتهاب والألم والعين والأدوية والمناعة مع الفريق؛ عين حمراء مؤلمة أو تورم وحمى أو تدهور يحتاج تقييمًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إظهار المعرفة وإنجاز مهمة يومية مع حماية المفاصل وخطة واضحة لأيام النشاط والهدوء.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "acr-juvenile-idiopathic-arthritis-2022"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "systemic-lupus-erythematosus",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "systemic-lupus-erythematosus-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الذئبة لا تنتج قوة؛ التقلب والتعب والألم أو التأثير العصبي قد يحجبان قدرات دراسية ومهنية موجودة. لذلك يظل تشخيص الذئبة الحمامية الجهازية وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد المهارات المحفوظة والفروق بين يوم مستقر ويوم نشاط، مع أدوات للتنظيم والذاكرة عند الحاجة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الذئبة الحمامية الجهازية، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "eular-systemic-lupus-2024"
+          ]
+        },
+        {
+          "id": "systemic-lupus-erythematosus-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "جدول مرن وفواصل وحماية من الشمس وبيئة حرارية مناسبة والعمل عن بعد وخطة غياب وعودة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: نفذ مهمة قصيرة متكررة مع سجل للطاقة والأعراض خلال 24 ساعة، وقارن جدولًا مرنًا بجدول ثابت.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "eular-systemic-lupus-2024"
+          ]
+        },
+        {
+          "id": "systemic-lupus-erythematosus-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تُراجع الكلى والجهاز العصبي والقلب والرئة والعدوى والأدوية مع الفريق؛ حمى أو ألم صدر أو تغير عصبي يحتاج رعاية. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: الاستمرار في دور مختار بوتيرة قابلة للاستدامة وخطة لنوبات النشاط لا تحول المرض إلى تقصير شخصي.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "eular-systemic-lupus-2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "inflammatory-bowel-disease",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "inflammatory-bowel-disease-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "داء كرون والتهاب القولون التقرحي لا يمنحان قوة؛ الألم والإلحاح والأنيميا والتعب والعلاج قد يحدون المشاركة مع بقاء القدرة. لذلك يظل تشخيص أمراض الأمعاء الالتهابية: داء كرون والتهاب القولون التقرحي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: قياس التعلم والعمل في فترات استقرار مع وصول غير مقيد للحمام وخطة مرنة للنوبات.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه أمراض الأمعاء الالتهابية: داء كرون والتهاب القولون التقرحي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "ecco-ibd-diagnostics-monitoring-2025"
+          ]
+        },
+        {
+          "id": "inflammatory-bowel-disease-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "حمام قريب وخصوصية وفواصل وعمل مرن وطعام وخطة دواء كما يحدد الفريق، مع منع الوصم بسبب الغياب أو الإلحاح. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن إنجاز مشروع بموقع ثابت وبخيار مرن قريب من الحمام، وسجل الجودة والضغط والتعب لا مرات الخروج فقط.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "ecco-ibd-diagnostics-monitoring-2025"
+          ]
+        },
+        {
+          "id": "inflammatory-bowel-disease-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تُراجع شدة النزف والألم والجفاف والحمى والوزن والأنيميا والأدوية مع الفريق؛ أعراض شديدة أو جديدة تحتاج تقييمًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إكمال مسؤولية تعليمية أو مهنية مع وصول وخصوصية وخطة تفاقم تحافظ على العلاج والتغذية.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "ecco-ibd-diagnostics-monitoring-2025"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "severe-asthma",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "severe-asthma-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الربو الشديد لا ينتج قوة؛ ضيق النفس والخوف والدواء قد يحدون الحركة والكلام والتركيز، بينما تبقى القدرات الأخرى. لذلك يظل تشخيص الربو الشديد وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد مهام يمكن إنجازها مع تحكم مناسب وبيئة منخفضة المحفزات، وفصل المعرفة عن التحمل التنفسي.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الربو الشديد، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "gina-severe-asthma-guide-2026"
+          ]
+        },
+        {
+          "id": "severe-asthma-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "خطة ربو متاحة وهواء مناسب وتجنب محفزات وراحة وإحماء وفق الفريق وخيار جلوس أو عمل عن بعد. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: أعد تصميم مهمة لتقليل التعرض أو الجهد وقارن المشاركة والأعراض وفق خطة الفريق، من دون اختبار تحدٍّ تنفسي.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "gina-severe-asthma-guide-2026"
+          ]
+        },
+        {
+          "id": "severe-asthma-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "يُتبع تصعيد خطة الربو والدواء؛ صعوبة الكلام أو زرقة أو ضيق شديد أو عدم استجابة للدواء الإسعافي طارئ. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المشاركة في تعلم أو عمل مع تحكم بيئي وخطة طوارئ من دون تعريض التنفس لإثبات القدرة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "gina-severe-asthma-guide-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "severe-food-allergy",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "severe-food-allergy-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الحساسية الغذائية الشديدة لا تنتج قوة؛ اليقظة الزائدة قد تكون عبئًا، والهدف أمان واقعي لا خوف أو استبعاد. لذلك يظل تشخيص الحساسية الغذائية الشديدة وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تمكين الشخص من قراءة المخاطر وطلب المعلومات وتنفيذ نشاط اجتماعي أو عملي مع خطة حساسية موثوقة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الحساسية الغذائية الشديدة، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "golden-anaphylaxis-practice-parameter-2024"
+          ]
+        },
+        {
+          "id": "severe-food-allergy-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "سياسة طعام وملصقات ومنع تلوث وإتاحة الإبينفرين وتدريب الشركاء وخيارات مشاركة لا تعزل الشخص. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: محاكاة آمنة غير غذائية لقراءة ملصق وطلب معلومات وتحديد الإبينفرين والاتصال بالمساعدة، من دون تعريض.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "golden-anaphylaxis-practice-parameter-2024"
+          ]
+        },
+        {
+          "id": "severe-food-allergy-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تُتبع خطة الحساسية والإبينفرين والطوارئ؛ أعراض جهازية أو تنفسية بعد تعرض محتمل تستلزم الاستجابة فورًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المشاركة الآمنة في مدرسة أو عمل أو مناسبة مع مهارة طلب وحماية وخطة طوارئ معروفة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "golden-anaphylaxis-practice-parameter-2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "childhood-cancer-late-effects",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "childhood-cancer-late-effects-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "النجاة من سرطان الطفولة لا تُلزم الشخص بقصة قوة؛ قد تبقى قدرات واسعة أو تظهر آثار معرفية أو قلبية أو هرمونية تحتاج دعمًا. لذلك يظل تشخيص الآثار المتأخرة لعلاج السرطان في الطفولة وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: رسم ملف تعلم وطاقة وذاكرة وحركة ومهارات سابقة، وتحديد التكييف بناءً على الأثر الفعلي لا تاريخ السرطان وحده.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الآثار المتأخرة لعلاج السرطان في الطفولة، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "cog-long-term-follow-up-2023"
+          ]
+        },
+        {
+          "id": "childhood-cancer-late-effects-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "خطة تعليم أو عمل مرنة ودعم ذاكرة ومعالجة وبصر وسمع وحركة، مع وقت للمتابعة الصحية. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن مهمة مفتوحة بمهمة ذات قائمة وفواصل، وسجل التعلم والذاكرة والطاقة والأعراض المتأخرة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "cog-long-term-follow-up-2023"
+          ]
+        },
+        {
+          "id": "childhood-cancer-late-effects-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تُتبع خطة متابعة الآثار المتأخرة للقلب والغدد والأعصاب والسمع والبصر والعظام والسرطانات الثانوية والصحة النفسية. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: العودة أو التقدم في تعليم أو عمل بخطة تعويض ومتابعة صحية لا تفرض هوية «البطل» أو تخفي الاحتياج.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "cog-long-term-follow-up-2023"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "me-cfs",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "me-cfs-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "ME/CFS لا يمنح قوة؛ التوعك التالي للجهد عَرَض محوري، والقدرة في لحظة لا تعني أن الجهد آمن أو قابل للتكرار. لذلك يظل تشخيص التهاب الدماغ والنخاع العضلي/متلازمة التعب المزمن وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: فصل جودة المعرفة عن سعة الطاقة، وقياس الاستدامة وأعراض 24–72 ساعة بعد المهمة لا الناتج الفوري فقط.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه التهاب الدماغ والنخاع العضلي/متلازمة التعب المزمن، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "nice-me-cfs-ng206-2021"
+          ]
+        },
+        {
+          "id": "me-cfs-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "موازنة النشاط والراحة ضمن حدود الفرد، عمل غير متزامن وعن بعد، وحدات قصيرة، وضعية مناسبة، وخطة لأعراض الوقوف. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: اختبر أصغر جرعة مهمة ذات معنى ثم راقب الأعراض يومين أو ثلاثة قبل أي زيادة، مع حق التراجع.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "nice-me-cfs-ng206-2021"
+          ]
+        },
+        {
+          "id": "me-cfs-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تجنب برامج الزيادة الثابتة أو دفع النشاط عبر التوعك؛ راجع الإغماء وضيق النفس وألم الصدر والأعراض الجديدة مع الفريق. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: مساهمة صغيرة قابلة للتكرار لا تسبب توعكًا تاليًا للجهد، مع أولوية الاستقرار ونوعية الحياة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "nice-me-cfs-ng206-2021"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "long-covid",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "long-covid-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "كوفيد طويل الأمد لا ينتج قوة؛ قد تتقلب الطاقة والتركيز والتنفس أو الجهاز العصبي الذاتي، ويجب ألا تُقرأ أيام التحسن كتعافٍ كامل. لذلك يظل تشخيص كوفيد طويل الأمد وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد القدرات المحفوظة وميزانية الطاقة، وقياس الأثر المتأخر والتقلب في مهمة معرفية أو عملية قصيرة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه كوفيد طويل الأمد، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "who-post-covid-living-guideline-2025"
+          ]
+        },
+        {
+          "id": "long-covid-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "عمل مرن وعن بعد ووحدات قصيرة وراحة ووضعية ودعم ذاكرة وتقليل محرضات حسية، مع خطة عودة قابلة للعكس. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: نفذ جرعة صغيرة من مهمة وسجل الطاقة والقلب والتنفس والتركيز لمدة 48 ساعة قبل تعديل الجرعة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "who-post-covid-living-guideline-2025"
+          ]
+        },
+        {
+          "id": "long-covid-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع ألم الصدر وضيق النفس والإغماء والأعراض العصبية والتوعك التالي للجهد مع الفريق، ولا تفرض زيادة نشاط ثابتة. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: العودة الجزئية القابلة للاستدامة إلى دور مختار من دون انتكاس متكرر أو إنكار للتقلب.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-post-covid-living-guideline-2025"
+          ]
+        }
+      ]
+    }
+  ]
+}

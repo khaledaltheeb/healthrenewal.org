@@ -7,6 +7,7 @@ on:
       - "content/v280/capabilities-100-ar.json"
       - "content/v280/profiles/*.json"
       - "content/v280/evidence/*.json"
+      - "scripts/build_capabilities_evidence_v280.py"
       - "scripts/publish_capabilities_v280.py"
       - "scripts/apply_homepage_v20.py"
       - "assets/css/capabilities-v280.css"
@@ -19,6 +20,7 @@ on:
       - "content/v280/capabilities-100-ar.json"
       - "content/v280/profiles/*.json"
       - "content/v280/evidence/*.json"
+      - "scripts/build_capabilities_evidence_v280.py"
       - "scripts/publish_capabilities_v280.py"
       - "scripts/apply_homepage_v20.py"
       - "assets/css/capabilities-v280.css"
@@ -43,6 +45,7 @@ jobs:
           python -m json.tool content/v280/capabilities-100-ar.json >/dev/null
           for profile in content/v280/profiles/*.json; do python -m json.tool "$profile" >/dev/null; done
           for evidence in content/v280/evidence/*.json; do python -m json.tool "$evidence" >/dev/null; done
+          python -m py_compile scripts/build_capabilities_evidence_v280.py
           python -m py_compile scripts/publish_capabilities_v280.py
           python -m py_compile tests/test_capabilities_v280.py
           node --check assets/js/capabilities-v280.js
@@ -71,8 +74,8 @@ jobs:
           ]
           records = [*base_records, *selected_records]
           assert len(base_records) == 20, len(base_records)
-          assert len(selected_records) == 31, len(selected_records)
-          assert len(records) == 51, len(records)
+          assert len(selected_records) == 112, len(selected_records)
+          assert len(records) == 132, len(records)
           assert all(item["contract_ready"] for item in records), records
           print({
               "base_sources": len(base_records),

@@ -23,6 +23,30 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "content" / "v280" / "capabilities-100-ar.json"
 PROFILE_DIR = ROOT / "content" / "v280" / "profiles"
 EVIDENCE_DIR = ROOT / "content" / "v280" / "evidence"
+PROFILE_FILES = (
+    ROOT / "content" / "v280" / "profiles" / "chronic-health.json",
+    ROOT / "content" / "v280" / "profiles" / "genetic-metabolic.json",
+    ROOT / "content" / "v280" / "profiles" / "motor-neurological.json",
+    ROOT / "content" / "v280" / "profiles" / "neurodevelopmental-learning.json",
+    ROOT / "content" / "v280" / "profiles" / "progressive-psychosocial.json",
+    ROOT / "content" / "v280" / "profiles" / "sensory-communication.json",
+)
+EVIDENCE_FILES = (
+    ROOT / "content" / "v280" / "evidence" / "chronic-health-ar.json",
+    ROOT / "content" / "v280" / "evidence" / "genetic-metabolic-ar.json",
+    ROOT / "content" / "v280" / "evidence" / "motor-neurological-ar.json",
+    ROOT
+    / "content"
+    / "v280"
+    / "evidence"
+    / "neurodevelopmental-learning-ar.json",
+    ROOT
+    / "content"
+    / "v280"
+    / "evidence"
+    / "progressive-psychosocial-ar.json",
+    ROOT / "content" / "v280" / "evidence" / "sensory-communication-ar.json",
+)
 OUTSIDE_THE_BOX_DATA_PATH = (
     ROOT / "content" / "v254" / "outside-the-box-conditions-ar.json"
 )
@@ -79,6 +103,7 @@ EVIDENCE_CLAIM_TITLES = {
 EVIDENCE_CHARACTER_TITLES = {
     "official-current-guidance": "إرشاد رسمي حالي",
     "guideline-backed": "توصية إرشادية",
+    "expert-reviewed-living-reference": "مرجع سريري خبير ومحدّث",
     "systematic-review-direct-heterogeneous": "مراجعة مباشرة متغايرة",
     "systematic-review-limited-directness": "مراجعة محدودة المباشرة",
     "mixed-sources-no-causal-inference": "مصادر مختلطة بلا استدلال سببي",
@@ -400,6 +425,15 @@ def unique_in_order(items: Iterable[str]) -> list[str]:
 def load_profiles(data: dict[str, Any]) -> dict[str, dict[str, str]]:
     if not PROFILE_DIR.is_dir():
         raise ValueError("Missing condition-specific capability profile directory")
+    actual_paths = set(PROFILE_DIR.glob("*.json"))
+    expected_paths = set(PROFILE_FILES)
+    if actual_paths != expected_paths:
+        missing = sorted(path.name for path in expected_paths - actual_paths)
+        unexpected = sorted(path.name for path in actual_paths - expected_paths)
+        raise ValueError(
+            f"Capability profile file set mismatch; missing={missing}, "
+            f"unexpected={unexpected}"
+        )
     records: list[dict[str, str]] = []
     required = {
         "slug",
@@ -413,7 +447,7 @@ def load_profiles(data: dict[str, Any]) -> dict[str, dict[str, str]]:
     condition_categories = {
         item["slug"]: item["category"] for item in data["conditions"]
     }
-    for path in sorted(PROFILE_DIR.glob("*.json")):
+    for path in PROFILE_FILES:
         payload = json.loads(path.read_text(encoding="utf-8"))
         if payload.get("version") != VERSION or payload.get("language") != "ar":
             raise ValueError(f"Invalid capability profile header: {path.name}")
@@ -458,9 +492,16 @@ def load_evidence_packets(data: dict[str, Any]) -> dict[str, Any]:
 
     if not EVIDENCE_DIR.is_dir():
         raise ValueError("Missing selected-evidence packet directory")
-    paths = sorted(EVIDENCE_DIR.glob("*.json"))
-    if not paths:
-        raise ValueError("At least one selected-evidence packet file is required")
+    actual_paths = set(EVIDENCE_DIR.glob("*.json"))
+    expected_paths = set(EVIDENCE_FILES)
+    if actual_paths != expected_paths:
+        missing = sorted(path.name for path in expected_paths - actual_paths)
+        unexpected = sorted(path.name for path in actual_paths - expected_paths)
+        raise ValueError(
+            f"Selected-evidence file set mismatch; missing={missing}, "
+            f"unexpected={unexpected}"
+        )
+    paths = EVIDENCE_FILES
 
     condition_by_slug = {item["slug"]: item for item in data["conditions"]}
     base_source_ids = {item["id"] for item in data["sources"]}
@@ -1181,6 +1222,17 @@ def render_hub(data: dict[str, Any], guides: list[dict[str, Any]]) -> str:
     covered_categories = "، ".join(
         data["categories"][key] for key in data["evidence_covered_categories"]
     )
+    if remaining_evidence_count:
+        coverage_summary = (
+            f"واكتمل الانتقاء البحثي الخاص بالحالة في {packet_count} حالة ضمن "
+            f"{e(covered_categories)}؛ ولا نساوي ذلك باكتمال الانتقاء للحالات "
+            f"الـ{remaining_evidence_count} المتبقية."
+        )
+    else:
+        coverage_summary = (
+            "واكتمل الانتقاء البحثي الداخلي الخاص بالحالة للحالات المئة كلها "
+            f"عبر الفئات الست: {e(covered_categories)}."
+        )
     highlighted_slugs = {
         item["slug"] for item in data["conditions"] if item["first_wave_guide"]
     }
@@ -1226,7 +1278,7 @@ def render_hub(data: dict[str, Any], guides: list[dict[str, Any]]) -> str:
 {review_banner(data)}
 <section class="cap-section" aria-labelledby="start-title">
 <div class="cap-section-heading"><div><p class="cap-eyebrow">الإصدار الأول</p><h2 id="start-title">ماذا نُشر فعلًا؟</h2></div>
-<p>لكل حالة من الحالات المئة صفحة بروتوكول كاملة بالموقف العلمي وفحص الأمان وتجارب المهام والتكييف والقياس وخطة 12 أسبوعًا. واكتمل الانتقاء البحثي الخاص بالحالة لجميع الحالات السبع عشرة في فئة {e(covered_categories)}؛ ولا نساوي ذلك بعدُ باكتمال الانتقاء للحالات الثلاث والثمانين الأخرى.</p></div>
+<p>لكل حالة من الحالات المئة صفحة بروتوكول كاملة بالموقف العلمي وفحص الأمان وتجارب المهام والتكييف والقياس وخطة 12 أسبوعًا. {coverage_summary}</p></div>
 <div class="cap-stats cap-stats-six">
 <article class="cap-stat"><strong>100</strong><span>حالة في سجل بحثي منظم</span></article>
 <article class="cap-stat"><strong>100</strong><span>بروتوكول حالة كامل ومترابط</span></article>
@@ -1334,6 +1386,21 @@ def render_methodology(data: dict[str, Any]) -> str:
 </article>"""
         for key, label in data["evidence_character_labels"].items()
     )
+    packet_count = len(data["evidence_packets"])
+    claim_count = sum(len(item["claims"]) for item in data["evidence_packets"])
+    remaining_count = len(data["conditions"]) - packet_count
+    if remaining_count:
+        selected_coverage = (
+            f"اكتملت هذه الطبقة لـ{packet_count} حالة، بثلاثة ادعاءات محدودة "
+            f"لكل حالة، أي {claim_count} ادعاءً. ما زالت {remaining_count} حالة "
+            "خارج الانتقاء البحثي المكافئ."
+        )
+    else:
+        selected_coverage = (
+            "اكتملت هذه الطبقة للحالات المئة كلها عبر الفئات الست: ثلاثة "
+            f"ادعاءات محدودة لكل حالة، أي {claim_count} ادعاءً، مع بقاء "
+            "المراجعة الخارجية المستقلة غير مكتملة."
+        )
     main = f"""
 <section class="cap-page-hero"><div class="cap-wrap">
 {crumbs}<p class="cap-eyebrow">ميثاق الدليل واللغة</p>
@@ -1389,7 +1456,7 @@ def render_methodology(data: dict[str, Any]) -> str:
 <section class="cap-section" aria-labelledby="selected-method-title">
 <div class="cap-section-heading"><div><p class="cap-eyebrow">انتقاء على مستوى الادعاء</p>
 <h2 id="selected-method-title">كيف بُنيت حزم الأدلة الخاصة بالحالات؟</h2></div>
-<p>اكتملت هذه الطبقة لجميع الحالات السبع عشرة في فئة النمو العصبي والتعلم والتواصل: ثلاثة ادعاءات محدودة لكل حالة، أي 51 ادعاءً. لا توصف الحالات الثلاث والثمانون الأخرى بأنها تمتلك الطبقة نفسها قبل إنجازها وتدقيقها.</p></div>
+<p>{selected_coverage}</p></div>
 {selected_method_sections}
 </section>
 <section class="cap-section cap-soft" aria-labelledby="character-title">
@@ -1531,6 +1598,18 @@ def render_registry(
     )
     guide_slugs = {item["slug"] for item in guides}
     evidence_slugs = {item["slug"] for item in data["evidence_packets"]}
+    evidence_count = len(evidence_slugs)
+    remaining_count = len(data["conditions"]) - evidence_count
+    if remaining_count:
+        coverage_status = (
+            f"100 بروتوكول كامل؛ {evidence_count} حزمة أدلة منتقاة خاصة بالحالة، "
+            f"و{remaining_count} بروتوكولًا لم يكتمل له بعد الانتقاء البحثي المكافئ."
+        )
+    else:
+        coverage_status = (
+            "100 بروتوكول كامل و100 حزمة أدلة منتقاة خاصة بالحالة؛ تغطي الطبقة "
+            "البحثية الداخلية السجل كله، مع بقاء المراجعة الخارجية المستقلة مطلوبة."
+        )
     cards: list[str] = []
     for condition in data["conditions"]:
         route = data["evidence_routes"][condition["evidence_route"]]
@@ -1583,7 +1662,7 @@ def render_registry(
 {review_banner(data)}
 <section class="cap-section" aria-labelledby="filter-title">
 <h2 id="filter-title">ابحث وصفِّ السجل</h2>
-<p class="cap-evidence-status"><strong>حالة التغطية:</strong> 100 بروتوكول كامل؛ 17 حزمة أدلة منتقاة خاصة بالحالة، و83 بروتوكولًا لم يكتمل له بعد الانتقاء البحثي المكافئ.</p>
+<p class="cap-evidence-status"><strong>حالة التغطية:</strong> {coverage_status}</p>
 <form class="cap-filters" data-cap-filters>
 <label>بحث بالاسم العربي أو الإنجليزي
 <input type="search" data-cap-search autocomplete="off" placeholder="مثال: التوحد أو cerebral palsy"></label>

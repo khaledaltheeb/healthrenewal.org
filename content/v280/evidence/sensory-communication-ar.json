@@ -1,0 +1,899 @@
+{
+  "version": 280,
+  "language": "ar",
+  "category": "sensory-communication",
+  "title": "حزم الأدلة المنتقاة: الحواس والوصول والتواصل",
+  "search_updated": "2026-07-27",
+  "external_review_completed": false,
+  "selection_method": {
+    "scope": "تغطي هذه الموجة الحالات الـ15 كلها في فئة الحواس والوصول والتواصل، بثلاثة ادعاءات محدودة لكل حالة: حدود الملف، والوصول أو التدخل، والأمان أو التشخيص التفريقي.",
+    "selection_order": [
+      "إرشاد رسمي أو مهني حديث ومباشر للحالة أو للمجال الوظيفي.",
+      "مرجع سريري خبير مُراجع ومحدّث دوريًا للحالات الوراثية أو النادرة.",
+      "مراجعة منهجية أو تحليل تجميعي مباشر، مع التصريح بالتغاير ومحدودية الدراسات.",
+      "بحث محكم أو توافق خبراء فقط عندما لا يتوفر إرشاد أعلى، ومن دون تحويله إلى قاعدة جماعية."
+    ],
+    "exclusions": [
+      "المصادر الترويجية وقصص النجاح المنفردة بوصفها دليلًا على صفة أو تدخل.",
+      "نتائج البحث الحي في PubMed بوصفها قائمة مصادر منتقاة قبل الفرز والنقد.",
+      "بروتوكولات المراجعات التي لم تنشر نتائجها بعد بوصفها دليل فعالية.",
+      "أي استنتاج يربط التشخيص بموهبة أو ذكاء أو مهنة من دون قياس مباشر عند الشخص."
+    ],
+    "certainty_policy": "لا يعيّن المشروع درجة GRADE من تلقاء نفسه. يصف نوع المصدر، ومباشرة الدليل، والتغاير، وحدود النقل إلى الفرد. تبقى قوة التوصية الرسمية للجهة التي أصدرتها.",
+    "live_search_boundary": "رابط البحث الحي أداة تحديث للمراجع المتخصص، وليس مصدرًا مختارًا ولا إثباتًا لفعالية تدخل.",
+    "review_boundary": "الانتقاء والترجمة ومطابقة الادعاءات مراجعة داخلية قابلة للتدقيق، ولم تكتمل مراجعة خارجية مستقلة سريرية وتأهيلية ومن ذوي الخبرة المعاشة."
+  },
+  "evidence_character_labels": {
+    "official-current-guidance": "إرشاد رسمي أو بوابة ممارسة مهنية حالية؛ مباشر للممارسة، ولا يثبت نتيجة فردية مسبقًا.",
+    "guideline-backed": "توصية إرشادية مبنية على مراجعة أو توافق مهني؛ يلزم تطبيقها بحسب العمر والسياق والتفضيلات.",
+    "expert-reviewed-living-reference": "مرجع سريري خبير مُراجع ومحدّث دوريًا؛ يدعم الحدود والمراقبة ولا يثبت نتيجة وظيفية فردية.",
+    "systematic-review-direct-heterogeneous": "مراجعة منهجية مباشرة لكن الدراسات أو العينات أو المقاييس متغايرة؛ تصلح لتحديد اتجاه لا لضمان نتيجة.",
+    "systematic-review-limited-directness": "مراجعة منهجية ذات عدد قليل أو مباشرة جزئية للحالة؛ الاستنتاج حذر وتجريبي.",
+    "mixed-sources-no-causal-inference": "مزيج من إرشاد وبحث محكم أو خبرة معاشة؛ يحدد فرضية أو حدًا ولا يثبت السببية."
+  },
+  "sources": [
+    {
+      "id": "who-blindness-vision-impairment-2026",
+      "publisher": "World Health Organization",
+      "title": "Blindness and vision impairment",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/blindness-and-visual-impairment",
+      "year": 2026,
+      "source_type": "public_health_authority",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "blindness-evidence-profile-boundary",
+        "blindness-evidence-access-intervention",
+        "blindness-evidence-safety-differential",
+        "low-vision-evidence-profile-boundary",
+        "low-vision-evidence-access-intervention",
+        "low-vision-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "liu-low-vision-rehabilitation-2021",
+      "publisher": "International Journal of Ophthalmology",
+      "title": "Low vision rehabilitation in improving the quality of life for patients with impaired vision: a systematic review and meta-analysis",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34106601/",
+      "year": 2021,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "blindness-evidence-profile-boundary",
+        "blindness-evidence-access-intervention",
+        "blindness-evidence-safety-differential",
+        "low-vision-evidence-profile-boundary",
+        "low-vision-evidence-access-intervention",
+        "low-vision-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "aap-cerebral-visual-impairment-2024",
+      "publisher": "American Academy of Pediatrics",
+      "title": "Diagnosis and Care of Children With Cerebral/Cortical Visual Impairment: Clinical Report",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39558730/",
+      "year": 2024,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "cerebral-visual-impairment-evidence-profile-boundary",
+        "cerebral-visual-impairment-evidence-access-intervention",
+        "cerebral-visual-impairment-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "jcih-early-hearing-position-2019",
+      "publisher": "Joint Committee on Infant Hearing",
+      "title": "Year 2019 Position Statement: Principles and Guidelines for Early Hearing Detection and Intervention Programs",
+      "url": "https://www.jcih.org/posstatemts.htm",
+      "year": 2019,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "deafness-evidence-profile-boundary",
+        "deafness-evidence-access-intervention",
+        "deafness-evidence-safety-differential",
+        "hearing-loss-evidence-profile-boundary",
+        "hearing-loss-evidence-access-intervention",
+        "hearing-loss-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "nhs-inform-deafblindness-2024",
+      "publisher": "NHS inform",
+      "title": "Deafblindness",
+      "url": "https://www.nhsinform.scot/illnesses-and-conditions/eyes/deafblindness/",
+      "year": 2024,
+      "source_type": "institutional_fact_sheet",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "deafblindness-evidence-profile-boundary",
+        "deafblindness-evidence-access-intervention",
+        "deafblindness-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "medlineplus-usher-syndrome-2021",
+      "publisher": "U.S. National Library of Medicine",
+      "title": "Usher syndrome",
+      "url": "https://medlineplus.gov/genetics/condition/usher-syndrome/",
+      "year": 2021,
+      "source_type": "institutional_fact_sheet",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "usher-syndrome-evidence-profile-boundary",
+        "usher-syndrome-evidence-access-intervention",
+        "usher-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-oculocutaneous-albinism-2023",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Oculocutaneous Albinism and Ocular Albinism Overview",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK590568/",
+      "year": 2023,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "oculocutaneous-albinism-evidence-profile-boundary",
+        "oculocutaneous-albinism-evidence-access-intervention",
+        "oculocutaneous-albinism-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-retinitis-pigmentosa-2023",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Nonsyndromic Retinitis Pigmentosa Overview",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1417/",
+      "year": 2023,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "retinitis-pigmentosa-evidence-profile-boundary",
+        "retinitis-pigmentosa-evidence-access-intervention",
+        "retinitis-pigmentosa-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "garcia-filion-optic-nerve-hypoplasia-2013",
+      "publisher": "Current Opinion in Ophthalmology",
+      "title": "Optic nerve hypoplasia syndrome: a review of the epidemiology and clinical associations",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23233151/",
+      "year": 2013,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "optic-nerve-hypoplasia-evidence-profile-boundary",
+        "optic-nerve-hypoplasia-evidence-access-intervention",
+        "optic-nerve-hypoplasia-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "asha-aphasia-2026",
+      "publisher": "American Speech-Language-Hearing Association",
+      "title": "Aphasia — Practice Portal",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/aphasia/",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "aphasia-evidence-profile-boundary",
+        "aphasia-evidence-access-intervention",
+        "aphasia-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "asha-acquired-apraxia-2026",
+      "publisher": "American Speech-Language-Hearing Association",
+      "title": "Acquired Apraxia of Speech — Practice Portal",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/acquired-apraxia-of-speech/",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "acquired-apraxia-of-speech-evidence-profile-boundary",
+        "acquired-apraxia-of-speech-evidence-access-intervention",
+        "acquired-apraxia-of-speech-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "asha-dysarthria-adults-2026",
+      "publisher": "American Speech-Language-Hearing Association",
+      "title": "Dysarthria in Adults — Practice Portal",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/dysarthria-in-adults/",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "dysarthria-evidence-profile-boundary",
+        "dysarthria-evidence-access-intervention",
+        "dysarthria-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "odedra-moebius-multidisciplinary-care-2024",
+      "publisher": "American Journal of Medical Genetics Part A",
+      "title": "Multidisciplinary Care for Moebius Syndrome and Related Disorders",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38893020/",
+      "year": 2024,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "moebius-syndrome-evidence-profile-boundary",
+        "moebius-syndrome-evidence-access-intervention",
+        "moebius-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "asha-cleft-lip-palate-2026",
+      "publisher": "American Speech-Language-Hearing Association",
+      "title": "Cleft Lip and Palate — Practice Portal",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/cleft-lip-and-palate/",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "cleft-lip-palate-communication-evidence-profile-boundary",
+        "cleft-lip-palate-communication-evidence-access-intervention",
+        "cleft-lip-palate-communication-evidence-safety-differential"
+      ],
+      "status": "current"
+    }
+  ],
+  "evidence_packets": [
+    {
+      "slug": "blindness",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "blindness-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "العمى لا يمنح سمعًا خارقًا ولا يحدد الذكاء؛ تنمو الكفاءة عندما تتوافر لغة برايل وتقنية وصول وتوجيه وحركة وفرص تعلم متكافئة. لذلك يظل تشخيص العمى وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار المعرفة والتنظيم والذاكرة أو المهارة العملية عبر قناة لمسية أو سمعية، من دون إدخال متطلب بصري غير مرتبط بالهدف.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه العمى، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "who-blindness-vision-impairment-2026",
+            "liu-low-vision-rehabilitation-2021"
+          ]
+        },
+        {
+          "id": "blindness-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "برايل أو قارئ شاشة ووصف بديل وملفات قابلة للوصول وتوجيه وحركة وعلامات لمسية وبيئة منظمة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قدم المعلومات نفسها في ملف غير مهيأ ثم بصيغة رقمية أو برايل قابلة للوصول، وقارن الدقة والاستقلال والزمن.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "who-blindness-vision-impairment-2026",
+            "liu-low-vision-rehabilitation-2021"
+          ]
+        },
+        {
+          "id": "blindness-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع سبب العمى وأي ألم أو تغير عصبي أو سمعي، ونفذ تقييم مخاطر بيئية مع الحفاظ على حق المخاطرة والاختيار. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إنجاز مهمة تعلم أو تنقل أو عمل باستخدام أداة وصول يتقنها الشخص وبأقل مساعدة بشرية لازمة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "who-blindness-vision-impairment-2026",
+            "liu-low-vision-rehabilitation-2021"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "low-vision",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "low-vision-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "ضعف البصر لا ينتج قوة؛ قد تكون المعرفة محفوظة بينما يخفض التباين أو الوهج أو حجم الهدف الأداء. لذلك يظل تشخيص ضعف البصر وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد أفضل حجم وتباين ومسافة وإضاءة وقناة بديلة، وقياس الأداء قبل التعديل وبعده.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه ضعف البصر، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "who-blindness-vision-impairment-2026",
+            "liu-low-vision-rehabilitation-2021"
+          ]
+        },
+        {
+          "id": "low-vision-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تكبير وتباين وإضاءة وضبط وهج وقارئ شاشة أو صوت ووضع المادة في المجال البصري الأفضل. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن قراءة أو فرزًا في ثلاثة إعدادات للحجم والتباين، وسجل الدقة والسرعة والتعب بعد المهمة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "who-blindness-vision-impairment-2026",
+            "liu-low-vision-rehabilitation-2021"
+          ]
+        },
+        {
+          "id": "low-vision-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع سبب ضعف البصر وتغيره والألم والصداع والتعب وخطر السقوط، ولا تستخدم تكبيرًا أو إضاءة يفاقمان الأعراض. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: الوصول إلى معلومات أو تنفيذ روتين بصري بإعداد شخصي ثابت مع خطة بديلة عندما تتغير الإضاءة أو الطاقة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "who-blindness-vision-impairment-2026",
+            "liu-low-vision-rehabilitation-2021"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "cerebral-visual-impairment",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "cerebral-visual-impairment-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "ضعف الرؤية الدماغي متغير ويعتمد على التعقيد والسياق؛ الاستجابة غير المتسقة لا تعني غياب الرؤية أو الفهم. لذلك يظل تشخيص ضعف الرؤية الدماغي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد خصائص الهدف واللون والحركة والخلفية والمسافة والمجال التي تسمح باستخدام الرؤية وظيفيًا، مع بدائل غير بصرية.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه ضعف الرؤية الدماغي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "aap-cerebral-visual-impairment-2024"
+          ]
+        },
+        {
+          "id": "cerebral-visual-impairment-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تبسيط المشهد وخلفية عالية التباين ووقت نظر وإضاءة ثابتة وترتيب معروف ولمس أو صوت مكمل. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: اعرض الهدف نفسه في مشهد معقد ثم مبسطًا بعامل واحد، وسجل زمن العثور والدقة والحمل البصري.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "aap-cerebral-visual-impairment-2024"
+          ]
+        },
+        {
+          "id": "cerebral-visual-impairment-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع النوبات والحالة العصبية والعين والإرهاق، ولا تفرض نظرًا مستمرًا أو تفسر تجنب النظر رفضًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: العثور على أداة أو رمز واستخدامه في روتين حقيقي بإعداد بصري ثابت مع قناة بديلة عند التعب.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "aap-cerebral-visual-impairment-2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "deafness",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "deafness-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الصمم لا يمنح قوة بصرية موحدة؛ لغة الإشارة والثقافة الصماء قد تكونان مصدر هوية وكفاءة، بينما الحرمان اللغوي حاجز لا صفة فردية. لذلك يظل تشخيص الصمم وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: قياس المعرفة والتواصل باللغة الأقوى للشخص وبواسطة مترجم مؤهل عند الحاجة، لا من خلال كلام منطوق غير متاح.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الصمم، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "who-hearing-2026",
+            "jcih-early-hearing-position-2019"
+          ]
+        },
+        {
+          "id": "deafness-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "لغة إشارة أو نص فوري وترجمة ومواد مرئية وتنبيهات ضوئية وبيئة تتيح رؤية الوجوه ومشاركة كاملة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قدم نقاشًا أو تعليمات دون وصول لغوي ثم بلغة الإشارة أو نص دقيق، وقارن الفهم والمبادرة والعبء.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "who-hearing-2026",
+            "jcih-early-hearing-position-2019"
+          ]
+        },
+        {
+          "id": "deafness-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع الوصول اللغوي وصحة الأذن والتوازن وأي فقد مفاجئ أو تغير، ولا يُفرض جهاز أو طريقة تواصل على الشخص. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المشاركة المتكافئة في تعلم أو اجتماع باللغة والقناة التي يختارها الشخص مع وصول مباشر للطوارئ.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-hearing-2026",
+            "jcih-early-hearing-position-2019"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "hearing-loss",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "hearing-loss-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "فقدان السمع لا يحدد الذكاء أو لغة الشخص؛ قد تحجب الضوضاء والمسافة ونقص الترجمة معرفةً كاملة. لذلك يظل تشخيص فقدان السمع وضعفه وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد أثر الهدوء والقراءة الشفوية والنص والجهاز السمعي في فهم الرسائل، واختيار القناة لا افتراضها.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه فقدان السمع وضعفه، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "who-hearing-2026",
+            "jcih-early-hearing-position-2019"
+          ]
+        },
+        {
+          "id": "hearing-loss-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "جهاز مضبوط عند اختياره، ميكروفون أو حلقة ونصوص وترجمة ولغة إشارة وبيئة قليلة الضوضاء. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قدم الرسالة في ضوضاء وهدوء ثم مع نص أو ميكروفون، وسجل الفهم وطلبات التكرار والتعب.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "who-hearing-2026",
+            "jcih-early-hearing-position-2019"
+          ]
+        },
+        {
+          "id": "hearing-loss-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "الفقد المفاجئ يحتاج تقييمًا عاجلًا؛ راجع الأذن والجهاز والدواء السام للأذن والتوازن وتعب الاستماع. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: فهم رسائل العمل أو التعليم المهمة بقناة وصول مختارة مع طريقة واضحة لطلب إعادة الصياغة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-hearing-2026",
+            "jcih-early-hearing-position-2019"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "deafblindness",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "deafblindness-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الصمم الكففي لا يحدد الإدراك؛ غياب قناة تواصل موثوقة قد يجعل الشخص يبدو غير مستجيب رغم وجود فهم واختيار. لذلك يظل تشخيص الصمم الكففي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تثبيت رموز لمسية أو لغة إشارة لمسية أو طريقة اختيار قبل تقييم المعرفة، وقياس الاستجابة مع شريك مدرب.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الصمم الكففي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "nhs-inform-deafblindness-2024"
+          ]
+        },
+        {
+          "id": "deafblindness-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "شريك تواصل وتدخل مؤهل، رموز وأجسام مرجعية ولمس متفق عليه وتوجيه وحركة وترتيب بيئي ثابت. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قدم اختيارًا مألوفًا عبر طريقتين لمسيتين وبدل المواقع، وكرر عبر أيام للتحقق من الاتساق.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "nhs-inform-deafblindness-2024"
+          ]
+        },
+        {
+          "id": "deafblindness-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع السمع والبصر والتوازن والصحة العصبية والجلد والتعب، واحصل على الموافقة قبل اللمس وحدد علامة توقف لمسية. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: استخدام إشارة لمسية موثوقة للاختيار والرفض والتنقل في روتين يومي مع شريكين.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "nhs-inform-deafblindness-2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "usher-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "usher-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "متلازمة أشر لا تنتج موهبة؛ قد تكون القدرات المعرفية محفوظة بينما يتغير الوصول السمعي والبصري والتوازن بمرور الوقت. لذلك يظل تشخيص متلازمة أشر وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد القنوات المتاحة الآن وبناء مهارات بديلة مبكرًا، مع قياس المعرفة بعيدًا عن الرؤية الليلية أو السمع.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة أشر، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "medlineplus-usher-syndrome-2021"
+          ]
+        },
+        {
+          "id": "usher-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "لغة إشارة أو نص وبرايل وتوجيه وحركة وإضاءة وتباين وتقنية وصول قابلة للتكيف مع التقدم. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: أنجز مهمة رقمية بالطريقة الحالية ثم بطريقة بديلة مستقبلية مثل قارئ الشاشة أو برايل، وسجل الاستقلال والتعلم.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "medlineplus-usher-syndrome-2021"
+          ]
+        },
+        {
+          "id": "usher-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع السمع والشبكية والتوازن والصحة النفسية، وخطط للانتقال قبل فقد الوصول لا بعده. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إتقان قناة وصول احتياطية واستخدامها في مهمة حقيقية مع الحفاظ على الهوية والاختيار.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "medlineplus-usher-syndrome-2021"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "oculocutaneous-albinism",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "oculocutaneous-albinism-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "المهق لا يمنح قوة؛ ضعف البصر والوهج والوصمة قد تعيق إظهار القدرات بينما تبقى المعرفة متنوعة. لذلك يظل تشخيص المهق العيني الجلدي المصحوب بضعف البصر وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار القراءة أو العمل البصري بعد ضبط التكبير والوهج والمسافة، وفصل مهارة المحتوى عن سرعة الرؤية.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه المهق العيني الجلدي المصحوب بضعف البصر، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-oculocutaneous-albinism-2023"
+          ]
+        },
+        {
+          "id": "oculocutaneous-albinism-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تكبير وتباين ومقعد مناسب ونظارات أو مرشحات ومواد رقمية وحماية من الشمس، مع مكافحة التنمر والوصم. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن مادة مطبوعة قياسية بمادة رقمية مكبرة منخفضة الوهج، وسجل الفهم والتعب والدقة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-oculocutaneous-albinism-2023"
+          ]
+        },
+        {
+          "id": "oculocutaneous-albinism-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع العين والجلد والحماية من الأشعة فوق البنفسجية وأي تغير بصري أو جلدي وفق المختص. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إكمال مهمة تعلم أو عمل بإعداد بصري شخصي مع ممارسة حماية الجلد والعين باستقلال.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-oculocutaneous-albinism-2023"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "retinitis-pigmentosa",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "retinitis-pigmentosa-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "التهاب الشبكية الصباغي لا ينتج قوة؛ قد يبقى الفهم كاملًا بينما يضيق المجال أو تضعف الرؤية الليلية ويتغير الوصول. لذلك يظل تشخيص التهاب الشبكية الصباغي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: قياس المعرفة والملاحة مع تقليل المتطلبات البصرية، وبناء كفاءة تقنية ولمسية أو سمعية قبل الحاجة الملحة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه التهاب الشبكية الصباغي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-retinitis-pigmentosa-2023"
+          ]
+        },
+        {
+          "id": "retinitis-pigmentosa-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "قارئ شاشة وتكبير وتباين وإضاءة وتوجيه وحركة وعلامات لمسية، مع تحديث الخطة حسب التقدم. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: نفذ مهمة في إضاءة معتادة ثم معدلة وبقناة غير بصرية، وسجل السلامة والاستقلال والطاقة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-retinitis-pigmentosa-2023"
+          ]
+        },
+        {
+          "id": "retinitis-pigmentosa-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع الشبكية والسقوط والتعب والصحة النفسية والاستشارة الجينية عند الرغبة؛ أي تغير سريع يستلزم تقييمًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: استخدام قناة وصول أساسية واحتياطية في نشاط يومي مع تنقل آمن في إضاءة مختلفة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-retinitis-pigmentosa-2023"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "optic-nerve-hypoplasia",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "optic-nerve-hypoplasia-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "نقص تنسج العصب البصري لا يحدد الفكر؛ الأداء البصري متباين وقد يتأثر أيضًا بوظائف الغدد أو الدماغ. لذلك يظل تشخيص نقص تنسج العصب البصري وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد الرؤية الوظيفية والقنوات غير البصرية وقياس التعلم بعد توفير حجم وتباين وموقع مناسب.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه نقص تنسج العصب البصري، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "garcia-filion-optic-nerve-hypoplasia-2013"
+          ]
+        },
+        {
+          "id": "optic-nerve-hypoplasia-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تكبير وإضاءة وتباين ووضع المادة في المجال الأفضل وصوت أو لمس وتوجيه وحركة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن العثور على هدف في مواقع وأحجام مختلفة ثم بقناة صوتية أو لمسية، وسجل الاتساق والتعب.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "garcia-filion-optic-nerve-hypoplasia-2013"
+          ]
+        },
+        {
+          "id": "optic-nerve-hypoplasia-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع الغدد النخامية والنمو وسكر الدم والحرارة والنوبات والبصر وفق الفريق؛ الخمول أو التغير قد يكون طبيًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: الوصول إلى رمز أو معلومة وأداء روتين باستخدام مزيج حسي ثابت مع خطة طبية للطوارئ الهرمونية.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "garcia-filion-optic-nerve-hypoplasia-2013"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "aphasia",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "aphasia-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الحُبسة اضطراب لغة مكتسب ولا تثبت فقد الذكاء أو الخبرة أو الأهلية؛ قد يتجاوز الفهم أو القرار القدرة على الكلام والكتابة. لذلك يظل تشخيص الحُبسة الكلامية وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تثبيت طريقة نعم/لا وتواصل مدعوم، ثم اختبار المعرفة والاختيار بوسائل كلام وصورة وكتابة وإشارة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الحُبسة الكلامية، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "asha-aphasia-2026"
+          ]
+        },
+        {
+          "id": "aphasia-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "وقت انتظار وأسئلة قصيرة وكتابة وصور وإيماءات وAAC وتدريب الشركاء على دعم المحادثة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: اسأل عن معلومات واختيارات متكافئة عبر الكلام والكتابة والصورة وبدل ترتيب الإجابات للتحقق من الموثوقية.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "asha-aphasia-2026"
+          ]
+        },
+        {
+          "id": "aphasia-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "أعراض سكتة جديدة طارئة؛ راجع البلع والمزاج والتعب والرؤية والسمع، ولا تستنتج الأهلية من طلاقة الكلام. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إيصال قرار أو قصة قصيرة في موقف حقيقي بوسيلة تواصل مدعومة يفهمها شريكان.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-aphasia-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "acquired-apraxia-of-speech",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "acquired-apraxia-of-speech-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "تعذر الأداء النطقي المكتسب يؤثر في تخطيط الكلام ولا يحدد الفهم؛ قد تكون اللغة الداخلية والكتابة أو الإشارة محفوظة. لذلك يظل تشخيص تعذر الأداء النطقي المكتسب وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: فصل صياغة الرسالة عن تنفيذ الكلام واختبار قنوات بديلة، مع قياس أهداف حركية للكلام على نحو مستقل.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه تعذر الأداء النطقي المكتسب، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "asha-acquired-apraxia-2026"
+          ]
+        },
+        {
+          "id": "acquired-apraxia-of-speech-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "AAC أو كتابة وإيماءة، وقت كلام، علاج كلام حركي متخصص، وتدريب الشركاء على عدم الاستعجال. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: انقل الرسالة نفسها بالكلام والكتابة أو AAC، ثم اختبر مقاطع كلامية متدرجة وسجل الاتساق والجهد.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "asha-acquired-apraxia-2026"
+          ]
+        },
+        {
+          "id": "acquired-apraxia-of-speech-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع السبب العصبي والبلع والتعب والحبسة أو عسر التلفظ المصاحب، وأي تدهور عصبي جديد. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إيصال رسائل يومية موثوقة بقناة بديلة مع تقدم مستقل في هدف كلامي يختاره الشخص.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-acquired-apraxia-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "dysarthria",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "dysarthria-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "عسر التلفظ يؤثر في تنفيذ الكلام ولا يساوي ضعف الفهم أو اللغة؛ قد تكون الرسالة كاملة بينما يصعب سماعها. لذلك يظل تشخيص عسر التلفظ وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: قياس المعرفة واللغة بقناة بديلة وتحديد ظروف تحسن قابلية الفهم من دون إنهاك أو ضغط تنفسي.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه عسر التلفظ، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "asha-dysarthria-adults-2026"
+          ]
+        },
+        {
+          "id": "dysarthria-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "AAC وكتابة وتضخيم عند ملاءمته ووضعية ودعم تنفس ووقت، مع علاج يراعي السبب. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن رسالة بالكلام وحده وبالكلام مع AAC أو كتابة أمام مستمعين مختلفين، وسجل الفهم والطاقة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "asha-dysarthria-adults-2026"
+          ]
+        },
+        {
+          "id": "dysarthria-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع البلع والتنفس والضعف المتقدم والتعب وأي تغير عصبي، ولا يطلب رفع الصوت إذا كان غير آمن. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إيصال رسالة حرجة وعادية بسرعة موثوقة باستخدام مزيج قنوات مع خطة احتياط.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-dysarthria-adults-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "moebius-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "moebius-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "ضعف حركة الوجه لا يعني غياب العاطفة أو الفهم؛ قد تسيء البيئة قراءة التعبير وتقلل مشاركة الشخص. لذلك يظل تشخيص متلازمة موبيوس وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار التواصل والاختيار دون الاعتماد على تعبير الوجه، وإظهار المهارات الأكاديمية والاجتماعية بقنوات مباشرة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة موبيوس، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "odedra-moebius-multidisciplinary-care-2024"
+          ]
+        },
+        {
+          "id": "moebius-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "لغة صريحة وإشارة أو كتابة وAAC عند الحاجة، توعية الشركاء، ودعم النطق والسمع والبصر. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن فهم الشريك لرسالة دون توضيح وباستخدام كلمات أو رموز مباشرة، وسجل سوء الفهم والمبادرة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "odedra-moebius-multidisciplinary-care-2024"
+          ]
+        },
+        {
+          "id": "moebius-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع التغذية والبلع والتنفس وحماية العين والأسنان والسمع والأطراف وفق الفريق. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: التعبير عن عاطفة أو قرار أو طلب بقناة لا تعتمد على الوجه مع انخفاض سوء الفهم الاجتماعي.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "odedra-moebius-multidisciplinary-care-2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "cleft-lip-palate-communication",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "cleft-lip-palate-communication-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "شق الشفة والحنك لا يحدد الذكاء؛ السمع والرنين والنطق والوصمة قد تعيق التواصل وإظهار المعرفة. لذلك يظل تشخيص شق الشفة والحنك المصحوب باحتياجات نطق أو سمع وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: قياس اللغة والمعرفة مستقلًا عن الرنين أو وضوح الأصوات، وتحديد أثر السمع في التعلم.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه شق الشفة والحنك المصحوب باحتياجات نطق أو سمع، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "asha-cleft-lip-palate-2026"
+          ]
+        },
+        {
+          "id": "cleft-lip-palate-communication-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تقييم وعلاج كلام مناسب للبنية والوظيفة، دعم سمعي، وقت تواصل، وقناة بديلة عند انخفاض قابلية الفهم. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: انقل رسالة بالكلام وحده ثم مع كتابة أو صورة، وقارن فهم مستمع مألوف وغير مألوف مع فحص السمع.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "asha-cleft-lip-palate-2026"
+          ]
+        },
+        {
+          "id": "cleft-lip-palate-communication-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع الأذن والسمع والبلع والأسنان ومجرى الهواء والجراحة والصحة النفسية؛ لا تستخدم تمارين نفخ غير مسندة بدل التقييم البنيوي. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المشاركة في حديث أو تعلم بمضمون كامل مع خطة سمع ونطق وقناة احتياط تحمي من الانسحاب والوصم.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-cleft-lip-palate-2026"
+          ]
+        }
+      ]
+    }
+  ]
+}
