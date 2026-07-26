@@ -71,6 +71,36 @@ def publish_cognitive_sectors() -> dict:
     return report
 
 
+def apply_tools_descendant_marshmallow() -> dict:
+    tools_root = SITE / "tools"
+    if not tools_root.is_dir():
+        return {
+            "version": 250,
+            "status": "not-applicable",
+            "pages": 0,
+            "child_pages": 0,
+            "quiz_fixed": False,
+            "unstyled_pages": [],
+        }
+
+    publisher = Path(__file__).with_name("apply_tools_descendant_marshmallow_v250.py")
+    if not publisher.is_file():
+        raise SystemExit(f"Missing tools descendant Marshmallow publisher: {publisher}")
+    subprocess.run([sys.executable, str(publisher), str(SITE)], check=True)
+    report_path = SITE / "api/tools-descendant-marshmallow-v250.json"
+    if not report_path.is_file():
+        raise SystemExit(f"Missing tools descendant Marshmallow report: {report_path}")
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report.get("status") == "published", report
+    assert report.get("pages", 0) >= 2, report
+    assert report.get("child_pages", 0) >= 1, report
+    assert report.get("quiz_route") == "tools/quiz/index.html", report
+    assert report.get("quiz_fixed") is True, report
+    assert report.get("unstyled_pages") == [], report
+    assert report.get("dark_mode_blackening_blocked") is True, report
+    return report
+
+
 def main() -> None:
     pages = lab_pages()
     if len(pages) != 95:
@@ -106,6 +136,7 @@ def main() -> None:
         raise SystemExit(f"Generated Stroop runtime is incomplete: {missing}")
 
     cognitive_sectors = publish_cognitive_sectors()
+    tools_descendants = apply_tools_descendant_marshmallow()
 
     report = {
         "version": 213,
@@ -131,6 +162,13 @@ def main() -> None:
             "sitemap_duplicates_avoided": cognitive_sectors["sitemap_duplicates_avoided"],
             "sitemap_unmapped_urls": cognitive_sectors["sitemap_unmapped_urls"],
             "contracts": cognitive_sectors["contracts"],
+        },
+        "tools_descendant_marshmallow_v250": {
+            "status": tools_descendants["status"],
+            "pages": tools_descendants["pages"],
+            "child_pages": tools_descendants.get("child_pages", 0),
+            "quiz_fixed": tools_descendants["quiz_fixed"],
+            "unstyled_pages": tools_descendants["unstyled_pages"],
         },
     }
     api = SITE / "api"
