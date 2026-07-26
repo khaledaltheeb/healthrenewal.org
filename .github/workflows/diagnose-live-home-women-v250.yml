@@ -1,0 +1,106 @@
+name: Diagnose live home and women sectors v250
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/diagnose-live-home-women-v250.yml"
+      - "scripts/verify_home_sector_deployment_v238.py"
+      - "scripts/verify_women_sector_deployment_v245.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download current live deployment and every home and women page
+        run: |
+          set -euxo pipefail
+          root=/tmp/live-sector-v250
+          rm -rf "$root"
+          mkdir -p "$root/home/api" "$root/home/sectors/home" "$root/women/api" "$root/women/sectors/women"
+          token="diagnose-${GITHUB_SHA}-$(date +%s)"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o "$root/deployment.json"
+          cp "$root/deployment.json" "$root/home/deployment.json"
+          cp "$root/deployment.json" "$root/women/deployment.json"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/home-sector-v234.json?v=${token}" -o "$root/home/api/home-sector-v234.json"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sectors/home/?v=${token}" -o "$root/home/sectors/home/index.html"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/women-sector-v244.json?v=${token}" -o "$root/women/api/women-sector-v244.json"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sectors/women/?v=${token}" -o "$root/women/sectors/women/index.html"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}robots.txt?v=${token}" -o "$root/home/robots.txt"
+          cp "$root/home/robots.txt" "$root/women/robots.txt"
+          python - <<'PY'
+          import json, os, pathlib, subprocess
+          root=pathlib.Path('/tmp/live-sector-v250')
+          base=os.environ['BASE_URL']; token='guides-'+os.environ['GITHUB_SHA']
+          for sector in ('home','women'):
+              data=json.loads(pathlib.Path(f'content/sectors-v10/{sector}.json').read_text(encoding='utf-8'))
+              for item in data['articles']:
+                  slug=item['slug']; folder=root/sector/'sectors'/sector/slug; folder.mkdir(parents=True,exist_ok=True)
+                  subprocess.run(['curl','--retry','6','--retry-delay','4','-H','Cache-Control: no-cache','-fsSL',f'{base}sectors/{sector}/{slug}/?v={token}','-o',str(folder/'index.html')],check=True)
+          deployment=json.loads((root/'deployment.json').read_text(encoding='utf-8'))
+          (root/'expected-sha.txt').write_text(str(deployment.get('commit',''))+'\n',encoding='utf-8')
+          print({'live_commit':deployment.get('commit'),'schema_version':deployment.get('schema_version')})
+          PY
+      - name: Run home live verifier and preserve exact failure
+        id: home
+        shell: bash
+        run: |
+          set +e
+          sha="$(tr -d '\r\n' < /tmp/live-sector-v250/expected-sha.txt)"
+          python scripts/verify_home_sector_deployment_v238.py /tmp/live-sector-v250/home --source content/sectors-v10/home.json --expected-sha "$sha" --mode live > /tmp/live-sector-v250/home-verifier.log 2>&1
+          code=$?
+          printf 'exit_code=%s\n' "$code" >> "$GITHUB_OUTPUT"
+          tail -n 120 /tmp/live-sector-v250/home-verifier.log
+          exit 0
+      - name: Run women live verifier and preserve exact failure
+        id: women
+        shell: bash
+        run: |
+          set +e
+          sha="$(tr -d '\r\n' < /tmp/live-sector-v250/expected-sha.txt)"
+          python scripts/verify_women_sector_deployment_v245.py /tmp/live-sector-v250/women --source content/sectors-v10/women.json --expected-sha "$sha" --mode live > /tmp/live-sector-v250/women-verifier.log 2>&1
+          code=$?
+          printf 'exit_code=%s\n' "$code" >> "$GITHUB_OUTPUT"
+          tail -n 120 /tmp/live-sector-v250/women-verifier.log
+          exit 0
+      - name: Summarize visible counts and metadata
+        run: |
+          python - <<'PY'
+          import importlib.util, json, pathlib, sys
+          root=pathlib.Path('/tmp/live-sector-v250')
+          result={}
+          for sector,script in [('home','scripts/verify_home_sector_deployment_v238.py'),('women','scripts/verify_women_sector_deployment_v245.py')]:
+              spec=importlib.util.spec_from_file_location('verify_'+sector,script); mod=importlib.util.module_from_spec(spec); sys.modules[spec.name]=mod; spec.loader.exec_module(mod)
+              report=json.loads((root/sector/'api'/('home-sector-v234.json' if sector=='home' else 'women-sector-v244.json')).read_text(encoding='utf-8'))
+              hub=(root/sector/'sectors'/sector/'index.html').read_text(encoding='utf-8')
+              guides=[]
+              for page in sorted((root/sector/'sectors'/sector).glob('*/index.html')):
+                  guides.append({'slug':page.parent.name,'words':mod.visible_words(page.read_text(encoding='utf-8'))})
+              result[sector]={'report_hub_words':report.get('hub_words'),'live_hub_words':mod.visible_words(hub),'report_minimum_article_words':report.get('minimum_article_words'),'live_minimum_article_words':min(x['words'] for x in guides),'guide_counts':len(guides),'canonical_count':hub.lower().count('rel="canonical"'),'robots_count':hub.lower().count('name="robots"'),'description_count':hub.lower().count('name="description"'),'keywords_count':hub.lower().count('name="keywords"'),'googlebot_count':hub.lower().count('name="googlebot"')}
+          (root/'summary.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(result,ensure_ascii=False,indent=2))
+          PY
+      - name: Upload complete live evidence and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-home-women-v250-diagnostics
+          path: /tmp/live-sector-v250
+          if-no-files-found: error
+          retention-days: 14
+      - name: Enforce diagnostic completion
+        run: |
+          echo "home=${{ steps.home.outputs.exit_code }} women=${{ steps.women.outputs.exit_code }}"
