@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PUBLISHER = ROOT / "scripts" / "publish_capabilities_v280.py"
 DATA = ROOT / "content" / "v280" / "capabilities-100-ar.json"
+PROFILE_DIR = ROOT / "content" / "v280" / "profiles"
 CSS = ROOT / "assets" / "css" / "capabilities-v280.css"
 JS = ROOT / "assets" / "js" / "capabilities-v280.js"
 INTEGRATION = ROOT / "scripts" / "apply_homepage_v20.py"
@@ -97,6 +98,53 @@ class CapabilitiesSourceContractV280(unittest.TestCase):
                     },
                 )
                 self.assertTrue(all(str(value).strip() for value in hypothesis.values()))
+
+    def test_one_hundred_condition_specific_profiles_are_complete(self) -> None:
+        profiles = []
+        for path in sorted(PROFILE_DIR.glob("*.json")):
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(payload["version"], 280)
+            self.assertEqual(payload["language"], "ar")
+            self.assertIn(payload["category"], self.data["categories"])
+            profiles.extend(
+                (payload["category"], item) for item in payload["profiles"]
+            )
+        self.assertEqual(len(profiles), 100)
+        self.assertEqual(len({item["slug"] for _, item in profiles}), 100)
+        expected = {item["slug"]: item["category"] for item in self.data["conditions"]}
+        self.assertEqual({item["slug"] for _, item in profiles}, set(expected))
+        required = {
+            "slug",
+            "position",
+            "ability_focus",
+            "access_priority",
+            "safety_priority",
+            "task_trial",
+            "functional_goal",
+        }
+        for category, profile in profiles:
+            self.assertEqual(set(profile), required)
+            self.assertEqual(category, expected[profile["slug"]])
+            for key in required - {"slug"}:
+                self.assertGreaterEqual(
+                    len(profile[key]),
+                    60,
+                    (profile["slug"], key),
+                )
+
+    def test_every_condition_has_a_direct_authority_reference(self) -> None:
+        publisher = load_publisher()
+        references = publisher.load_direct_reference_map(self.data)
+        self.assertEqual(len(references), 100)
+        self.assertEqual(
+            set(references),
+            {condition["slug"] for condition in self.data["conditions"]},
+        )
+        for slug, reference in references.items():
+            self.assertEqual(set(reference), {"publisher", "title", "url"}, slug)
+            self.assertTrue(reference["publisher"].strip(), slug)
+            self.assertTrue(reference["title"].strip(), slug)
+            self.assertTrue(reference["url"].startswith("https://"), slug)
 
     def test_scientific_boundaries_are_explicit_not_inspirational_claims(self) -> None:
         text = DATA.read_text(encoding="utf-8")
@@ -191,20 +239,23 @@ class CapabilitiesPublisherV280(unittest.TestCase):
     def publish(self) -> dict:
         return self.publisher.publish(self.site)
 
-    def test_generates_nine_pages_registry_guides_and_api(self) -> None:
+    def test_generates_one_hundred_complete_protocols_registry_and_api(self) -> None:
         report = self.publish()
         self.assertEqual(report["status"], "passed")
         self.assertEqual(report["condition_count"], 100)
-        self.assertEqual(report["detailed_guide_count"], 5)
-        self.assertEqual(report["generated_page_count"], 9)
-        self.assertEqual(report["sitemap_url_count"], 9)
+        self.assertEqual(report["detailed_guide_count"], 100)
+        self.assertEqual(report["bespoke_research_synthesis_count"], 5)
+        self.assertEqual(report["condition_profile_count"], 100)
+        self.assertEqual(report["direct_condition_reference_count"], 100)
+        self.assertEqual(report["generated_page_count"], 104)
+        self.assertEqual(report["sitemap_url_count"], 104)
         self.assertEqual(report["protocol_stage_count"], 9)
         self.assertFalse(report["external_clinical_review_completed"])
         self.assertFalse(report["diagnostic_automation"])
         self.assertFalse(report["condition_implies_strength"])
 
         pages = sorted((self.site / "capabilities").rglob("index.html"))
-        self.assertEqual(len(pages), 9)
+        self.assertEqual(len(pages), 104)
         for path in pages:
             text = path.read_text(encoding="utf-8")
             self.assertEqual(len(re.findall(r"<h1\b", text)), 1, path)
@@ -224,7 +275,7 @@ class CapabilitiesPublisherV280(unittest.TestCase):
             encoding="utf-8"
         )
         self.assertEqual(registry.count("data-cap-condition"), 100)
-        self.assertEqual(registry.count("الدليل التفصيلي المنشور"), 5)
+        self.assertEqual(registry.count("البروتوكول الكامل"), 100)
         self.assertIn("inflammatory-bowel-disease", registry)
         self.assertIn("schizophrenia-functional-support", registry)
         self.assertIn("bipolar-disorder-functional-support", registry)
@@ -233,16 +284,40 @@ class CapabilitiesPublisherV280(unittest.TestCase):
             (self.site / "api/capabilities-v280.json").read_text(encoding="utf-8")
         )
         self.assertEqual(len(api["conditions"]), 100)
-        self.assertEqual(len(api["guides"]), 5)
+        self.assertEqual(len(api["guides"]), 100)
         self.assertEqual(len(api["sources"]), 20)
+        self.assertEqual(len(api["protocol"]["stages"]), 9)
+        for guide in api["guides"]:
+            self.assertEqual(len(guide["hypotheses"]), 4)
+            self.assertEqual(len(guide["research_links"]), 2)
+            self.assertEqual(
+                set(guide["profile"]),
+                {
+                    "slug",
+                    "position",
+                    "ability_focus",
+                    "access_priority",
+                    "safety_priority",
+                    "task_trial",
+                    "functional_goal",
+                },
+            )
 
-    def test_each_guide_has_evidence_trials_plan_stops_and_direct_sources(self) -> None:
+    def test_all_one_hundred_guides_have_full_protocol_and_research_routes(self) -> None:
         self.publish()
         data = json.loads(DATA.read_text(encoding="utf-8"))
-        for guide in data["guides"]:
-            path = self.site / "capabilities" / guide["slug"] / "index.html"
+        bespoke = {item["slug"]: item for item in data["guides"]}
+        for condition in data["conditions"]:
+            path = self.site / "capabilities" / condition["slug"] / "index.html"
             text = path.read_text(encoding="utf-8")
             for marker in (
+                "طبقة الحالة الخاصة",
+                "الموقف العلمي",
+                "سؤال القدرة",
+                "أولوية الوصول",
+                "فحص الأمان",
+                "التجربة المصغرة",
+                "مثال هدف وظيفي",
                 "ماذا يقول الدليل، وماذا لا يقول؟",
                 "لا تفترض",
                 "الصحة والأمان أولًا",
@@ -250,15 +325,23 @@ class CapabilitiesPublisherV280(unittest.TestCase):
                 "تجربة مهمة صغيرة",
                 "ما الذي نقيسه؟",
                 "متى نتوقف أو نعيد الصياغة؟",
+                "البروتوكول الكامل لهذه الحالة",
+                "المرحلة 1: الأمان والاستقرار",
+                "المرحلة 9: المراجعة والقرار",
                 "خطة 12 أسبوعًا",
                 "قواعد توقف عامة",
                 "المصادر التي تسند هذا الدليل",
+                "تحقق خاص بالحالة ومسار للبحث الأحدث",
+                "بحث PubMed محدث",
                 "لا توجد مصادقة أو مراجعة خارجية مستقلة",
             ):
-                self.assertIn(marker, text, (guide["slug"], marker))
+                self.assertIn(marker, text, (condition["slug"], marker))
             self.assertEqual(text.count('class="cap-hypothesis"'), 4)
-            for source_id in guide["source_ids"]:
-                self.assertIn(f'id="source-{source_id}"', text)
+            self.assertEqual(text.count('class="cap-stage"'), 9)
+            self.assertGreater(len(text), 18000, condition["slug"])
+            if condition["slug"] in bespoke:
+                for source_id in bespoke[condition["slug"]]["source_ids"]:
+                    self.assertIn(f'id="source-{source_id}"', text)
 
     def test_protocol_is_printable_and_registry_runtime_is_local_only(self) -> None:
         self.publish()
@@ -335,7 +418,7 @@ class CapabilitiesPublisherV280(unittest.TestCase):
             .findall("{*}url/{*}loc")
             if node.text
         ]
-        self.assertEqual(len(section_urls), 9)
+        self.assertEqual(len(section_urls), 104)
         self.assertEqual(len(section_urls), len(set(section_urls)))
 
     def test_public_copy_is_person_first_and_review_state_is_honest(self) -> None:
