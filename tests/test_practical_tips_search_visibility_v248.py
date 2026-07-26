@@ -24,12 +24,12 @@ class PracticalTipsSearchVisibilityV248Tests(unittest.TestCase):
         (site / "api").mkdir(parents=True)
         (site / "assets/css").mkdir(parents=True)
         rendered_cards = "".join(
-            f'<article class="tip237-card" data-search="دليل {index}">دليل {index}</article>'
+            f'<article class="tip237-card" data-search="دليل {index}"><span>تصنيف</span>دليل {index}</article>'
             for index in range(cards)
         )
         (site / "tips/index.html").write_text(
             "<!doctype html><html lang=\"ar\" dir=\"rtl\"><head><title>النصائح</title></head>"
-            f"<body><main>{rendered_cards}</main></body></html>",
+            f"<body><main><div class=\"tip237-badges\"><span>100 دليل مؤسسي</span><span>10 مسارات</span></div>{rendered_cards}</main></body></html>",
             encoding="utf-8",
         )
         (site / "tips/example/index.html").write_text(
@@ -39,7 +39,7 @@ class PracticalTipsSearchVisibilityV248Tests(unittest.TestCase):
             encoding="utf-8",
         )
         (site / "assets/css/practical-tips-v237.css").write_text(
-            ":root{--tip237-brand:#167f78}.tip237-card a{color:var(--tip237-brand)}\n",
+            ":root{--tip237-ink:#123d42;--tip237-brand:#167f78}.tip237-badges span,.tip237-card>span{background:#e8e1ff}.tip237-card a{color:var(--tip237-brand)}\n",
             encoding="utf-8",
         )
         (site / "api/practical-tips-v237.json").write_text(
@@ -71,6 +71,10 @@ class PracticalTipsSearchVisibilityV248Tests(unittest.TestCase):
             self.assertEqual(css.count(module.ACCESS_CSS_START), 1)
             self.assertEqual(css.count(module.ACCESS_CSS_END), 1)
             self.assertIn(f"--tip237-brand:{module.SAFE_BRAND}", css)
+            self.assertIn(
+                f".tip237-badges span,.tip237-card>span{{color:{module.SAFE_BADGE_TEXT}}}",
+                css,
+            )
             self.assertIn('tabindex="0"', detail)
             self.assertIn('role="region"', detail)
             self.assertIn(f'aria-label="{module.SCROLL_REGION_LABEL}"', detail)
@@ -78,6 +82,7 @@ class PracticalTipsSearchVisibilityV248Tests(unittest.TestCase):
             self.assertEqual(report["search_visibility_cards"], 100)
             self.assertEqual(report["accessibility_contract"], module.ACCESS_CONTRACT)
             self.assertEqual(report["accessibility_link_color"], module.SAFE_BRAND)
+            self.assertEqual(report["accessibility_badge_text_color"], module.SAFE_BADGE_TEXT)
             self.assertEqual(report["accessible_scroll_regions"], 1)
 
     def test_is_idempotent(self) -> None:
