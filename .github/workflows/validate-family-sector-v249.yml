@@ -1,0 +1,186 @@
+name: Validate institutional family sector v249
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/sectors-v10/family.json"
+      - "scripts/family_sector_content_v249.py"
+      - "scripts/upgrade_family_sector_v249.py"
+      - "scripts/publish_family_sector_v249.py"
+      - "scripts/stamp_deployment_v29.py"
+      - "tests/test_family_sector_v249.py"
+      - ".github/workflows/validate-family-sector-v249.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: family-sector-v249-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile family-sector production upgrade and tests
+        run: python -m py_compile scripts/family_sector_content_v249.py scripts/upgrade_family_sector_v249.py scripts/publish_family_sector_v249.py scripts/stamp_deployment_v29.py tests/test_family_sector_v249.py
+      - name: Measure generated content before contract tests
+        run: |
+          python - <<'PY'
+          import json, sys
+          from pathlib import Path
+          sys.path.insert(0, 'scripts')
+          import publish_family_sector_v249 as family
+          data=json.loads(Path('content/sectors-v10/family.json').read_text(encoding='utf-8'))
+          article_words={item['slug']:family.visible_words(family.article_main(item)) for item in data['articles']}
+          metrics={'source_articles':len(data['articles']),'hub_body_words':family.visible_words(family.hub_main(data)),'minimum_article_body_words':min(article_words.values()),'shortest_article':min(article_words,key=article_words.get),'maximum_article_body_words':max(article_words.values()),'article_body_words':article_words}
+          Path('/tmp/family-v249-metrics.json').write_text(json.dumps(metrics,ensure_ascii=False,indent=2),encoding='utf-8')
+          print({key:value for key,value in metrics.items() if key!='article_body_words'})
+          PY
+      - name: Validate twenty guides metadata schemas safety depth and idempotence
+        run: |
+          set +e
+          python -m unittest -v tests.test_family_sector_v249 > /tmp/family-v249-tests.log 2>&1
+          status=$?
+          tail -n 120 /tmp/family-v249-tests.log | cut -c1-2400
+          exit $status
+      - name: Upload exact family-sector diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: family-sector-v249-diagnostics
+          path: |
+            /tmp/family-v249-tests.log
+            /tmp/family-v249-metrics.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Verify permanent production integration
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('scripts/stamp_deployment_v29.py').read_text(encoding='utf-8')
+          required = (
+              'from publish_family_sector_v249 import upgrade as upgrade_family_sector',
+              'family_sector = upgrade_family_sector(SITE)',
+              'family-sector v249 depth and safety',
+              'family_sector_version',
+              'family_sector_articles',
+              'family_sector_hub_words',
+              'family_sector_minimum_article_words',
+          )
+          missing = [token for token in required if token not in text]
+          assert not missing, missing
+          print({'production_integration': 'passed', 'tokens': len(required)})
+          PY
+
+  production-smoke:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - name: Restore verified generators and Arabic sector sources
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10-source.tar.gz
+          tar -xzf /tmp/v10-source.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          python scripts/verify_enricher_v7.py
+          python scripts/verify_expander_v9.py
+          python -m py_compile build_site.py enrich_site_v7.py expand_site_v9.py scripts/scale_site_v8.py scripts/design_content_v10.py scripts/family_sector_content_v249.py scripts/upgrade_family_sector_v249.py scripts/publish_family_sector_v249.py
+      - name: Build exact v10 pages and apply family-sector v249
+        id: production_build
+        shell: bash
+        run: |
+          set +e
+          set -o pipefail
+          {
+            set -eux
+            python build_site.py
+            python enrich_site_v7.py
+            cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+            python scripts/scale_site_v8.py
+            python expand_site_v9.py
+            python scripts/design_content_v10.py
+            PYTHONPATH=scripts python -c "from pathlib import Path; from publish_family_sector_v249 import upgrade; print(upgrade(Path('_site')))"
+          } 2>&1 | tee /tmp/family-v249-production-build.log
+          code=${PIPESTATUS[0]}
+          printf 'exit_code=%s\n' "$code" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Upload exact production build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: family-sector-v249-production-build-log
+          path: /tmp/family-v249-production-build.log
+          if-no-files-found: error
+          retention-days: 14
+      - name: Enforce production build completion
+        if: steps.production_build.outputs.exit_code != '0'
+        run: |
+          tail -n 180 /tmp/family-v249-production-build.log
+          exit 1
+      - name: Enforce real generated-page depth SEO safety and discovery
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('_site')
+          report = json.loads((root / 'api/family-sector-v249.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['version'] == 249, report
+          assert report['source_articles'] == 20, report
+          assert report['hub_words'] >= 2500, report
+          assert report['minimum_article_words'] >= 800, report
+          assert report['hub_h1'] == 1, report
+          assert report['hub_h2'] >= 15, report
+          assert report['faq_items'] == 6, report
+          assert report['institutional_sources'] >= 12, report
+          assert report['banned_term_present'] is False, report
+          assert report['diagnostic_claim_present'] is False, report
+          pages = sorted((root / 'sectors/family').glob('*/index.html'))
+          assert len(pages) == 20, len(pages)
+          hub = (root / 'sectors/family/index.html').read_text(encoding='utf-8')
+          assert hub.count('<main') == 1
+          assert hub.count('<h1') == 1
+          assert hub.count('rel="canonical"') == 1
+          assert 'CollectionPage' in hub and 'FAQPage' in hub
+          assert 'الأشخاص ذوي الاحتياجات الخاصة' in hub
+          assert 'خطة أسرية لمدة 30 يومًا' in hub
+          for page in pages:
+              text = page.read_text(encoding='utf-8')
+              assert text.count('<main') == 1, page
+              assert text.count('<h1') == 1, page
+              assert text.count('rel="canonical"') == 1, page
+              assert text.count('data-family-article-schema-v249=') == 1, page
+              assert '"@type":"Article"' in text, page
+              assert 'noindex' not in text.lower(), page
+          robots = (root / 'robots.txt').read_text(encoding='utf-8')
+          assert robots.count('Allow: /pterminology-site/sectors/family/') == 1
+          print({'family_sector': 'passed', 'guides': len(pages), 'hub_words': report['hub_words'], 'minimum_article_words': report['minimum_article_words']})
+          PY
+      - name: Upload real generated family-sector evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: family-sector-v249-production-smoke
+          path: |
+            _site/api/family-sector-v249.json
+            _site/sectors/family/
+            _site/robots.txt
+          if-no-files-found: warn
+          retention-days: 14

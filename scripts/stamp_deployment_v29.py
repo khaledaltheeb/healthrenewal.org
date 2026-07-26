@@ -7,6 +7,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from publish_family_sector_v249 import upgrade as upgrade_family_sector
 from publish_global_metadata_v27 import main as publish_global_metadata
 from upgrade_child_sector_v239 import upgrade as upgrade_child_sector
 from upgrade_home_sector_v234 import upgrade as upgrade_home_sector
@@ -81,6 +82,21 @@ def main() -> None:
     if int(women_sector.get("hub_words", 0)) < 2200 or int(women_sector.get("minimum_article_words", 0)) < 700:
         raise SystemExit({"insufficient_women_sector_v244_depth": women_sector})
 
+    family_sector = upgrade_family_sector(SITE)
+    required_family_contract = {
+        "status": "passed",
+        "version": 249,
+        "source_articles": 20,
+        "hub_h1": 1,
+        "banned_term_present": False,
+        "diagnostic_claim_present": False,
+    }
+    for key, expected in required_family_contract.items():
+        if family_sector.get(key) != expected:
+            raise SystemExit({"invalid_family_sector_v249_evidence": {"key": key, "expected": expected, "actual": family_sector.get(key)}})
+    if int(family_sector.get("hub_words", 0)) < 2500 or int(family_sector.get("minimum_article_words", 0)) < 800:
+        raise SystemExit({"insufficient_family_sector_v249_depth": family_sector})
+
     publish_global_metadata()
     metadata_path = SITE / "api" / "global-metadata-v27.json"
     if not metadata_path.is_file():
@@ -89,26 +105,19 @@ def main() -> None:
     if metadata.get("status") != "passed" or int(metadata.get("remaining_missing_count", -1)) != 0:
         raise SystemExit({"invalid_global_metadata_evidence": metadata})
 
-    home_report_path = SITE / "api" / "home-sector-v234.json"
-    if not home_report_path.is_file():
-        raise SystemExit(f"Home-sector evidence not found: {home_report_path}")
-    written_home_sector = json.loads(home_report_path.read_text(encoding="utf-8"))
-    if written_home_sector != home_sector:
-        raise SystemExit({"home_sector_evidence_mismatch": {"memory": home_sector, "written": written_home_sector}})
-
-    child_report_path = SITE / "api" / "child-sector-v239.json"
-    if not child_report_path.is_file():
-        raise SystemExit(f"Child-sector evidence not found: {child_report_path}")
-    written_child_sector = json.loads(child_report_path.read_text(encoding="utf-8"))
-    if written_child_sector != child_sector:
-        raise SystemExit({"child_sector_evidence_mismatch": {"memory": child_sector, "written": written_child_sector}})
-
-    women_report_path = SITE / "api" / "women-sector-v244.json"
-    if not women_report_path.is_file():
-        raise SystemExit(f"Women-sector evidence not found: {women_report_path}")
-    written_women_sector = json.loads(women_report_path.read_text(encoding="utf-8"))
-    if written_women_sector != women_sector:
-        raise SystemExit({"women_sector_evidence_mismatch": {"memory": women_sector, "written": written_women_sector}})
+    reports = (
+        ("home-sector-v234.json", home_sector, "home_sector_evidence_mismatch"),
+        ("child-sector-v239.json", child_sector, "child_sector_evidence_mismatch"),
+        ("women-sector-v244.json", women_sector, "women_sector_evidence_mismatch"),
+        ("family-sector-v249.json", family_sector, "family_sector_evidence_mismatch"),
+    )
+    for filename, memory_report, mismatch_key in reports:
+        report_path = SITE / "api" / filename
+        if not report_path.is_file():
+            raise SystemExit(f"Sector evidence not found: {report_path}")
+        written_report = json.loads(report_path.read_text(encoding="utf-8"))
+        if written_report != memory_report:
+            raise SystemExit({mismatch_key: {"memory": memory_report, "written": written_report}})
 
     pwa_path = SITE / "api" / "pwa-v14.json"
     if not pwa_path.is_file():
@@ -143,7 +152,7 @@ def main() -> None:
         "workflow_run": os.environ["GITHUB_RUN_ID"],
         "workflow_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "1"),
         "validated_at": datetime.now(timezone.utc).isoformat(),
-        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, home-sector v244 semantic depth and safety, child-sector v239 depth and safety, women-sector v244 depth and safety, critical artifact SHA-256",
+        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, home-sector v244 semantic depth and safety, child-sector v239 depth and safety, women-sector v244 depth and safety, family-sector v249 depth and safety, critical artifact SHA-256",
         "pwa_pages": int(pwa["pages_scanned"]),
         "metadata_pages": int(metadata["pages_scanned"]),
         "metadata_version": int(metadata["version"]),
@@ -162,6 +171,10 @@ def main() -> None:
         "women_sector_articles": int(women_sector["source_articles"]),
         "women_sector_hub_words": int(women_sector["hub_words"]),
         "women_sector_minimum_article_words": int(women_sector["minimum_article_words"]),
+        "family_sector_version": int(family_sector["version"]),
+        "family_sector_articles": int(family_sector["source_articles"]),
+        "family_sector_hub_words": int(family_sector["hub_words"]),
+        "family_sector_minimum_article_words": int(family_sector["minimum_article_words"]),
         "artifacts": artifacts,
     }
 
