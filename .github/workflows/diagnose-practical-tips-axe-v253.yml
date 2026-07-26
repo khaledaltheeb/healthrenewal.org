@@ -36,6 +36,8 @@ jobs:
           tar -xzf /tmp/v10.tar.gz
           cp /tmp/v10-content/*.json content/sectors-v10/
           cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          python scripts/verify_enricher_v7.py
+          python scripts/verify_expander_v9.py
           node --check scripts/diagnose_practical_tips_axe_v253.mjs
       - name: Build exact current production output
         run: |
