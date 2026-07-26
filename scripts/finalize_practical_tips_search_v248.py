@@ -24,6 +24,7 @@ def _style_block() -> str:
 {STYLE_START}
 <style id="{STYLE_ID}">
 [data-search][hidden]{{display:none!important}}
+.tip237-badges span,.tip237-card>span{{color:{SAFE_BADGE_TEXT}!important}}
 </style>
 {STYLE_END}
 """.strip()
@@ -33,7 +34,6 @@ def _accessibility_css_block() -> str:
     return f"""
 {ACCESS_CSS_START}
 :root{{--tip237-brand:{SAFE_BRAND}}}
-.tip237-badges span,.tip237-card>span{{color:{SAFE_BADGE_TEXT}}}
 .tip237-table-wrap:focus-visible{{outline:3px solid {SAFE_BRAND};outline-offset:4px}}
 {ACCESS_CSS_END}
 """.strip()
@@ -66,6 +66,8 @@ def _normalize_search_visibility(index: Path) -> tuple[str, int]:
         raise RuntimeError("Search visibility style id is missing or duplicated")
     if "[data-search][hidden]{display:none!important}" not in verified:
         raise RuntimeError("Search visibility important rule is missing")
+    if f".tip237-badges span,.tip237-card>span{{color:{SAFE_BADGE_TEXT}!important}}" not in verified:
+        raise RuntimeError("Practical tips badge contrast rule is missing")
     return verified, card_count
 
 
@@ -92,8 +94,6 @@ def _normalize_accessibility_css(root: Path) -> None:
         raise RuntimeError("Practical tips accessibility CSS is missing or duplicated")
     if f"--tip237-brand:{SAFE_BRAND}" not in verified:
         raise RuntimeError("Practical tips safe link color is missing")
-    if f".tip237-badges span,.tip237-card>span{{color:{SAFE_BADGE_TEXT}}}" not in verified:
-        raise RuntimeError("Practical tips badge contrast rule is missing")
 
 
 def _focus_scroll_regions(root: Path) -> int:
