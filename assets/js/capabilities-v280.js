@@ -20,16 +20,18 @@
     const search = form.querySelector("[data-cap-search]");
     const category = form.querySelector("[data-cap-category]");
     const route = form.querySelector("[data-cap-route]");
+    const evidence = form.querySelector("[data-cap-evidence]");
     const count = document.querySelector("[data-cap-count]");
     const empty = document.querySelector("[data-cap-empty]");
     const cards = Array.from(registry.querySelectorAll("[data-cap-condition]"));
 
-    if (!search || !category || !route || !count || !empty) return;
+    if (!search || !category || !route || !evidence || !count || !empty) return;
 
     const apply = () => {
       const query = normalize(search.value);
       const selectedCategory = category.value;
       const selectedRoute = route.value;
+      const selectedEvidence = evidence.value;
       let visible = 0;
 
       cards.forEach((card) => {
@@ -39,7 +41,10 @@
           !selectedCategory || card.dataset.category === selectedCategory;
         const matchesRoute =
           !selectedRoute || card.dataset.route === selectedRoute;
-        const show = matchesText && matchesCategory && matchesRoute;
+        const matchesEvidence =
+          !selectedEvidence || card.dataset.evidence === selectedEvidence;
+        const show =
+          matchesText && matchesCategory && matchesRoute && matchesEvidence;
         card.hidden = !show;
         if (show) visible += 1;
       });
@@ -51,6 +56,7 @@
     search.addEventListener("input", apply);
     category.addEventListener("change", apply);
     route.addEventListener("change", apply);
+    evidence.addEventListener("change", apply);
     form.addEventListener("reset", () => window.setTimeout(apply, 0));
     apply();
   };

@@ -22,6 +22,7 @@ from urllib.parse import quote_plus
 ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "content" / "v280" / "capabilities-100-ar.json"
 PROFILE_DIR = ROOT / "content" / "v280" / "profiles"
+EVIDENCE_DIR = ROOT / "content" / "v280" / "evidence"
 OUTSIDE_THE_BOX_DATA_PATH = (
     ROOT / "content" / "v254" / "outside-the-box-conditions-ar.json"
 )
@@ -29,7 +30,7 @@ CSS_PATH = ROOT / "assets" / "css" / "capabilities-v280.css"
 JS_PATH = ROOT / "assets" / "js" / "capabilities-v280.js"
 
 VERSION = 280
-UPDATED = "2026-07-26"
+UPDATED = "2026-07-27"
 BASE = "https://khaledaltheeb.github.io/pterminology-site/"
 BASE_ORIGIN = "https://khaledaltheeb.github.io"
 BASE_PATH = "/pterminology-site/"
@@ -40,6 +41,44 @@ BRAND = "منصة الصحة النفسية وذوي الاحتياجات الخ
 SLOGAN = "معرفة تحترم الإنسان. دعم يوسّع الإمكانات."
 BRIDGE_START = "<!-- capabilities-v280:start -->"
 BRIDGE_END = "<!-- capabilities-v280:end -->"
+
+SOURCE_FIELDS = {
+    "id",
+    "publisher",
+    "title",
+    "url",
+    "year",
+    "source_type",
+    "verified_at",
+    "claims_supported",
+    "status",
+}
+EVIDENCE_CLAIM_TYPES = (
+    "profile-boundary",
+    "access-and-intervention",
+    "safety-and-differential",
+)
+EVIDENCE_CLAIM_FIELDS = {
+    "id",
+    "type",
+    "statement",
+    "what_it_supports",
+    "what_it_does_not_support",
+    "evidence_character",
+    "source_ids",
+}
+EVIDENCE_CLAIM_TITLES = {
+    "profile-boundary": "حدود ملف الحالة",
+    "access-and-intervention": "الوصول والتدخل",
+    "safety-and-differential": "الأمان والتشخيص التفريقي",
+}
+EVIDENCE_CHARACTER_TITLES = {
+    "official-current-guidance": "إرشاد رسمي حالي",
+    "guideline-backed": "توصية إرشادية",
+    "systematic-review-direct-heterogeneous": "مراجعة مباشرة متغايرة",
+    "systematic-review-limited-directness": "مراجعة محدودة المباشرة",
+    "mixed-sources-no-causal-inference": "مصادر مختلطة بلا استدلال سببي",
+}
 
 CATEGORY_AUTHORITIES = {
     "neurodevelopmental-learning": {
@@ -350,6 +389,10 @@ def source_map(data: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {item["id"]: item for item in data["sources"]}
 
 
+def unique_in_order(items: Iterable[str]) -> list[str]:
+    return list(dict.fromkeys(items))
+
+
 def load_profiles(data: dict[str, Any]) -> dict[str, dict[str, str]]:
     if not PROFILE_DIR.is_dir():
         raise ValueError("Missing condition-specific capability profile directory")
@@ -399,6 +442,260 @@ def load_profiles(data: dict[str, Any]) -> dict[str, dict[str, str]]:
             "Capability profile slugs must match the complete condition registry"
         )
     return {item["slug"]: item for item in records}
+
+
+def load_evidence_packets(data: dict[str, Any]) -> dict[str, Any]:
+    """Load condition-level selected evidence without manufacturing certainty.
+
+    Each selected category must be complete: a file cannot quietly cover only
+    its easiest conditions. Every claim declares both its supported use and
+    the inference that the cited evidence does not permit.
+    """
+
+    if not EVIDENCE_DIR.is_dir():
+        raise ValueError("Missing selected-evidence packet directory")
+    paths = sorted(EVIDENCE_DIR.glob("*.json"))
+    if not paths:
+        raise ValueError("At least one selected-evidence packet file is required")
+
+    condition_by_slug = {item["slug"]: item for item in data["conditions"]}
+    base_source_ids = {item["id"] for item in data["sources"]}
+    records: list[dict[str, Any]] = []
+    selected_sources: list[dict[str, Any]] = []
+    selection_methods: dict[str, dict[str, Any]] = {}
+    character_labels: dict[str, str] | None = None
+    covered_categories: set[str] = set()
+    evidence_claim_ids: set[str] = set()
+
+    for path in paths:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if payload.get("version") != VERSION or payload.get("language") != "ar":
+            raise ValueError(f"Invalid selected-evidence header: {path.name}")
+        if payload.get("external_review_completed") is not False:
+            raise ValueError(
+                f"Selected evidence cannot claim external review: {path.name}"
+            )
+        if payload.get("search_updated") != UPDATED:
+            raise ValueError(
+                f"Selected evidence search date must be {UPDATED}: {path.name}"
+            )
+        category = payload.get("category")
+        if category not in data["categories"]:
+            raise ValueError(f"Unknown selected-evidence category: {category!r}")
+        if category in covered_categories:
+            raise ValueError(f"Duplicate selected-evidence category: {category}")
+        covered_categories.add(category)
+
+        method = payload.get("selection_method")
+        required_method = {
+            "scope",
+            "selection_order",
+            "exclusions",
+            "certainty_policy",
+            "live_search_boundary",
+            "review_boundary",
+        }
+        if not isinstance(method, dict) or set(method) != required_method:
+            raise ValueError(f"Evidence selection method is incomplete: {path.name}")
+        if (
+            not isinstance(method["selection_order"], list)
+            or not isinstance(method["exclusions"], list)
+            or len(method["selection_order"]) < 4
+            or len(method["exclusions"]) < 4
+            or not all(
+                isinstance(item, str) and item.strip()
+                for item in [
+                    method["scope"],
+                    method["certainty_policy"],
+                    method["live_search_boundary"],
+                    method["review_boundary"],
+                    *method["selection_order"],
+                    *method["exclusions"],
+                ]
+            )
+        ):
+            raise ValueError(f"Evidence selection method is too shallow: {path.name}")
+        selection_methods[category] = method
+
+        labels = payload.get("evidence_character_labels")
+        if (
+            not isinstance(labels, dict)
+            or set(labels) != set(EVIDENCE_CHARACTER_TITLES)
+            or not all(isinstance(item, str) and item.strip() for item in labels.values())
+        ):
+            raise ValueError(f"Evidence character labels are incomplete: {path.name}")
+        if character_labels is None:
+            character_labels = labels
+        elif labels != character_labels:
+            raise ValueError("Evidence character labels must match across category files")
+
+        for source in payload.get("sources", []):
+            if set(source) != SOURCE_FIELDS:
+                raise ValueError(
+                    f"Selected source contract mismatch: {source.get('id')!r}"
+                )
+            if not re.fullmatch(
+                r"[a-z0-9]+(?:-[a-z0-9]+)*", str(source.get("id", ""))
+            ):
+                raise ValueError(f"Unsafe selected source id: {source.get('id')!r}")
+            if not str(source.get("url", "")).startswith("https://"):
+                raise ValueError(
+                    f"Selected source must use HTTPS: {source.get('id')}"
+                )
+            if source.get("verified_at") != UPDATED:
+                raise ValueError(
+                    f"Selected source verification must be {UPDATED}: "
+                    f"{source.get('id')}"
+                )
+            if source.get("status") != "current":
+                raise ValueError(
+                    f"Selected source is not current: {source.get('id')}"
+                )
+            if not isinstance(source.get("year"), int):
+                raise ValueError(
+                    f"Selected source year must be numeric: {source.get('id')}"
+                )
+            if (
+                not isinstance(source.get("claims_supported"), list)
+                or not source["claims_supported"]
+                or not all(
+                    isinstance(item, str) and item.strip()
+                    for item in source["claims_supported"]
+                )
+            ):
+                raise ValueError(
+                    f"Selected source needs claim mappings: {source.get('id')}"
+                )
+            selected_sources.append(source)
+
+        packets = payload.get("evidence_packets", [])
+        expected_slugs = {
+            item["slug"]
+            for item in data["conditions"]
+            if item["category"] == category
+        }
+        packet_slugs = [item.get("slug") for item in packets]
+        if len(packet_slugs) != len(set(packet_slugs)):
+            raise ValueError(f"Duplicate evidence packet slug in {path.name}")
+        if set(packet_slugs) != expected_slugs:
+            raise ValueError(
+                f"Selected category must cover every condition in {category}; "
+                f"missing={sorted(expected_slugs - set(packet_slugs))!r}, "
+                f"extra={sorted(set(packet_slugs) - expected_slugs)!r}"
+            )
+        for packet in packets:
+            if set(packet) != {
+                "slug",
+                "search_updated",
+                "review_state",
+                "claims",
+            }:
+                raise ValueError(
+                    f"Evidence packet contract mismatch: {packet.get('slug')}"
+                )
+            slug = packet["slug"]
+            if slug not in condition_by_slug:
+                raise ValueError(f"Unknown evidence packet condition: {slug}")
+            if condition_by_slug[slug]["category"] != category:
+                raise ValueError(f"Evidence packet category mismatch: {slug}")
+            if packet["search_updated"] != UPDATED:
+                raise ValueError(f"Evidence packet search date is stale: {slug}")
+            if packet["review_state"] != "curated-not-externally-reviewed":
+                raise ValueError(f"Evidence packet review boundary is unclear: {slug}")
+            claims = packet["claims"]
+            if [item.get("type") for item in claims] != list(EVIDENCE_CLAIM_TYPES):
+                raise ValueError(
+                    f"Evidence packet needs the three ordered claim types: {slug}"
+                )
+            claim_ids = [item.get("id") for item in claims]
+            if len(claim_ids) != len(set(claim_ids)):
+                raise ValueError(f"Duplicate evidence claim id: {slug}")
+            duplicates = evidence_claim_ids.intersection(claim_ids)
+            if duplicates:
+                raise ValueError(
+                    f"Evidence claim ids must be globally unique: {sorted(duplicates)!r}"
+                )
+            evidence_claim_ids.update(claim_ids)
+            for claim in claims:
+                if set(claim) != EVIDENCE_CLAIM_FIELDS:
+                    raise ValueError(
+                        f"Evidence claim contract mismatch: {claim.get('id')}"
+                    )
+                if not re.fullmatch(
+                    r"[a-z0-9]+(?:-[a-z0-9]+)*", str(claim.get("id", ""))
+                ):
+                    raise ValueError(f"Unsafe evidence claim id: {claim.get('id')!r}")
+                if claim["evidence_character"] not in labels:
+                    raise ValueError(
+                        f"Unknown evidence character in {claim['id']}: "
+                        f"{claim['evidence_character']}"
+                    )
+                for key in (
+                    "statement",
+                    "what_it_supports",
+                    "what_it_does_not_support",
+                ):
+                    if len(str(claim[key]).strip()) < 70:
+                        raise ValueError(
+                            f"Evidence claim field is too shallow: "
+                            f"{claim['id']}.{key}"
+                        )
+                if (
+                    not isinstance(claim["source_ids"], list)
+                    or not claim["source_ids"]
+                    or not all(
+                        isinstance(item, str) and item.strip()
+                        for item in claim["source_ids"]
+                    )
+                ):
+                    raise ValueError(
+                        f"Evidence claim must cite selected sources: {claim['id']}"
+                    )
+                if len(claim["source_ids"]) != len(set(claim["source_ids"])):
+                    raise ValueError(
+                        f"Evidence claim repeats a source: {claim['id']}"
+                    )
+            records.append(packet)
+
+    selected_ids = [item["id"] for item in selected_sources]
+    if len(selected_ids) != len(set(selected_ids)):
+        raise ValueError("Selected evidence source ids must be unique")
+    duplicates = base_source_ids.intersection(selected_ids)
+    if duplicates:
+        raise ValueError(
+            f"Selected evidence sources duplicate base ids: {sorted(duplicates)!r}"
+        )
+    all_source_ids = base_source_ids.union(selected_ids)
+    for packet in records:
+        for claim in packet["claims"]:
+            unknown = set(claim["source_ids"]) - all_source_ids
+            if unknown:
+                raise ValueError(
+                    f"Unknown selected sources in {claim['id']}: {sorted(unknown)!r}"
+                )
+    cited_source_ids = {
+        source_id
+        for packet in records
+        for claim in packet["claims"]
+        for source_id in claim["source_ids"]
+    }
+    unused_selected_ids = set(selected_ids) - cited_source_ids
+    if unused_selected_ids:
+        raise ValueError(
+            "Selected sources cannot be bibliography padding; uncited ids: "
+            f"{sorted(unused_selected_ids)!r}"
+        )
+
+    packet_slugs = [item["slug"] for item in records]
+    if len(packet_slugs) != len(set(packet_slugs)):
+        raise ValueError("Selected evidence packet slugs must be unique")
+    return {
+        "sources": selected_sources,
+        "packets": records,
+        "selection_methods": selection_methods,
+        "character_labels": character_labels or {},
+        "covered_categories": sorted(covered_categories),
+    }
 
 
 def load_direct_reference_map(data: dict[str, Any]) -> dict[str, dict[str, str]]:
@@ -598,6 +895,9 @@ def complete_guides(
     direct_references: dict[str, dict[str, str]],
 ) -> list[dict[str, Any]]:
     bespoke = {item["slug"]: item for item in data["guides"]}
+    evidence_packets = {
+        item["slug"]: item for item in data.get("evidence_packets", [])
+    }
     guides: list[dict[str, Any]] = []
     for condition in data["conditions"]:
         profile = profiles[condition["slug"]]
@@ -607,6 +907,7 @@ def complete_guides(
         )
         guide["profile"] = profile
         guide["generated_from_profile"] = condition["slug"] not in bespoke
+        guide["evidence_packet"] = evidence_packets.get(condition["slug"])
         references = []
         if condition["slug"] in direct_references:
             references.append(direct_references[condition["slug"]])
@@ -620,6 +921,8 @@ def load_and_validate() -> dict[str, Any]:
     data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
     if data.get("version") != VERSION or data.get("language") != "ar":
         raise ValueError("Capabilities source must declare Arabic version 280")
+    if data.get("updated_at") != UPDATED:
+        raise ValueError(f"Capabilities source updated_at must be {UPDATED}")
     if data.get("external_review_completed") is not False:
         raise ValueError("External review must remain false until independently documented")
     if "المراجعة السريرية" not in data.get("review_status", ""):
@@ -659,17 +962,30 @@ def load_and_validate() -> dict[str, Any]:
         if condition["evidence_route"] not in routes:
             raise ValueError(f"Unknown evidence route: {condition['evidence_route']}")
 
-    sources = data.get("sources", [])
-    if len(sources) < 20:
+    base_sources = data.get("sources", [])
+    if len(base_sources) < 20:
         raise ValueError("At least 20 verified institutional or research sources are required")
-    source_ids = [item.get("id") for item in sources]
+    source_ids = [item.get("id") for item in base_sources]
     if len(source_ids) != len(set(source_ids)):
         raise ValueError("Source ids must be unique")
-    for source in sources:
+    for source in base_sources:
+        if set(source) != SOURCE_FIELDS:
+            raise ValueError(f"Base source contract mismatch: {source.get('id')!r}")
         if not str(source.get("url", "")).startswith("https://"):
             raise ValueError(f"Source must use HTTPS: {source.get('id')}")
         if source.get("status") != "current":
             raise ValueError(f"Only current sources may support v280: {source.get('id')}")
+
+    selected_evidence = load_evidence_packets(data)
+    data["sources"] = [*base_sources, *selected_evidence["sources"]]
+    data["evidence_packets"] = selected_evidence["packets"]
+    data["evidence_selection_methods"] = selected_evidence["selection_methods"]
+    data["evidence_character_labels"] = selected_evidence["character_labels"]
+    data["evidence_covered_categories"] = selected_evidence["covered_categories"]
+    data["selected_evidence_source_count"] = len(selected_evidence["sources"])
+    source_ids = [item["id"] for item in data["sources"]]
+    if len(source_ids) != len(set(source_ids)):
+        raise ValueError("Combined base and selected source ids must be unique")
 
     guides = data.get("guides", [])
     if len(guides) != 5:
@@ -852,6 +1168,14 @@ def render_hub(data: dict[str, Any], guides: list[dict[str, Any]]) -> str:
     )
     category_counts = Counter(item["category"] for item in data["conditions"])
     route_counts = Counter(item["evidence_route"] for item in data["conditions"])
+    packet_count = len(data["evidence_packets"])
+    evidence_claim_count = sum(
+        len(item["claims"]) for item in data["evidence_packets"]
+    )
+    remaining_evidence_count = len(data["conditions"]) - packet_count
+    covered_categories = "، ".join(
+        data["categories"][key] for key in data["evidence_covered_categories"]
+    )
     highlighted_slugs = {
         item["slug"] for item in data["conditions"] if item["first_wave_guide"]
     }
@@ -897,13 +1221,18 @@ def render_hub(data: dict[str, Any], guides: list[dict[str, Any]]) -> str:
 {review_banner(data)}
 <section class="cap-section" aria-labelledby="start-title">
 <div class="cap-section-heading"><div><p class="cap-eyebrow">الإصدار الأول</p><h2 id="start-title">ماذا نُشر فعلًا؟</h2></div>
-<p>لكل حالة من الحالات المئة صفحة بروتوكول كاملة بالموقف العلمي وفحص الأمان وتجارب المهام والتكييف والقياس وخطة 12 أسبوعًا. وتعرض البطاقات الخمس أدناه أمثلة المراجعة البحثية الأكثر تخصيصًا في هذا الإصدار.</p></div>
-<div class="cap-stats">
+<p>لكل حالة من الحالات المئة صفحة بروتوكول كاملة بالموقف العلمي وفحص الأمان وتجارب المهام والتكييف والقياس وخطة 12 أسبوعًا. واكتمل الانتقاء البحثي الخاص بالحالة لجميع الحالات السبع عشرة في فئة {e(covered_categories)}؛ ولا نساوي ذلك بعدُ باكتمال الانتقاء للحالات الثلاث والثمانين الأخرى.</p></div>
+<div class="cap-stats cap-stats-six">
 <article class="cap-stat"><strong>100</strong><span>حالة في سجل بحثي منظم</span></article>
 <article class="cap-stat"><strong>100</strong><span>بروتوكول حالة كامل ومترابط</span></article>
+<article class="cap-stat"><strong>{packet_count}</strong><span>حزمة أدلة منتقاة خاصة بالحالة</span></article>
+<article class="cap-stat"><strong>{evidence_claim_count}</strong><span>ادعاءً محدودًا مع ما يدعمه وما لا يدعمه</span></article>
+<article class="cap-stat"><strong>{len(data["sources"])}</strong><span>مصدرًا بعقد توثيق على مستوى الادعاء</span></article>
 <article class="cap-stat"><strong>9</strong><span>مراحل في البروتوكول المشترك</span></article>
-<article class="cap-stat"><strong>{len(data["sources"])}</strong><span>مصدرًا مؤسسيًا أو بحثيًا موثقًا</span></article>
 </div>
+<p class="cap-evidence-status"><strong>حد التغطية الحالي:</strong> {packet_count} حزمة مكتملة الانتقاء الداخلي و{remaining_evidence_count} صفحة بروتوكول لم يكتمل لها الانتقاء الخاص المكافئ. المراجعة الخارجية المستقلة لم تكتمل لأي حزمة.</p>
+<div class="cap-section-heading cap-subheading"><div><p class="cap-eyebrow">خمسة نماذج افتتاحية</p><h2>أمثلة على الخرائط العملية</h2></div>
+<p>هذه البطاقات أمثلة للتصفح، وليست الحالات الوحيدة ذات بروتوكول كامل. يوضح سجل الحالات حالة الانتقاء البحثي لكل صفحة.</p></div>
 <div class="cap-grid cap-grid-guides">{''.join(guide_cards)}</div>
 </section>
 <section class="cap-section cap-soft" aria-labelledby="routes-title">
@@ -974,6 +1303,32 @@ def render_methodology(data: dict[str, Any]) -> str:
         f"<p>{e(item['meaning'])}</p></article>"
         for key, item in data["evidence_routes"].items()
     )
+    selected_method_sections = "".join(
+        f"""<article class="cap-method-wave">
+<p class="cap-eyebrow">موجة انتقاء مكتملة للفئة</p>
+<h3>{e(data["categories"][category])}</h3>
+<p>{e(method["scope"])}</p>
+<div class="cap-grid cap-grid-two">
+<div><h4>ترتيب اختيار المصادر</h4>
+{ul(method["selection_order"], "cap-check-list")}</div>
+<div><h4>ما استُبعد من الاستدلال</h4>
+{ul(method["exclusions"], "cap-cross-list")}</div>
+</div>
+<dl class="cap-method-boundaries">
+<div><dt>سياسة اليقين</dt><dd>{e(method["certainty_policy"])}</dd></div>
+<div><dt>حد البحث الحي</dt><dd>{e(method["live_search_boundary"])}</dd></div>
+<div><dt>حد المراجعة</dt><dd>{e(method["review_boundary"])}</dd></div>
+</dl>
+</article>"""
+        for category, method in data["evidence_selection_methods"].items()
+    )
+    character_cards = "".join(
+        f"""<article class="cap-card">
+<h3>{e(EVIDENCE_CHARACTER_TITLES[key])}</h3>
+<p>{e(label)}</p>
+</article>"""
+        for key, label in data["evidence_character_labels"].items()
+    )
     main = f"""
 <section class="cap-page-hero"><div class="cap-wrap">
 {crumbs}<p class="cap-eyebrow">ميثاق الدليل واللغة</p>
@@ -1025,6 +1380,17 @@ def render_methodology(data: dict[str, Any]) -> str:
 <li><strong>تجربة آمنة:</strong> مهمة حقيقية وتكييف واحد أو أكثر وقياس متعدد الأبعاد.</li>
 <li><strong>قرار مشترك:</strong> استمرار أو تعديل أو توقف وفق البيانات ورأي الشخص.</li>
 </ol>
+</section>
+<section class="cap-section" aria-labelledby="selected-method-title">
+<div class="cap-section-heading"><div><p class="cap-eyebrow">انتقاء على مستوى الادعاء</p>
+<h2 id="selected-method-title">كيف بُنيت حزم الأدلة الخاصة بالحالات؟</h2></div>
+<p>اكتملت هذه الطبقة لجميع الحالات السبع عشرة في فئة النمو العصبي والتعلم والتواصل: ثلاثة ادعاءات محدودة لكل حالة، أي 51 ادعاءً. لا توصف الحالات الثلاث والثمانون الأخرى بأنها تمتلك الطبقة نفسها قبل إنجازها وتدقيقها.</p></div>
+{selected_method_sections}
+</section>
+<section class="cap-section cap-soft" aria-labelledby="character-title">
+<h2 id="character-title">وصف طبيعة الدليل بدل اختراع درجة يقين</h2>
+<p>هذه الأوصاف تبين نوع المصدر ومباشرته وحدوده. لا تعيد المنصة إجراء GRADE ولا تنسب لنفسها درجة توصية لم تمنحها الجهة المؤلفة.</p>
+<div class="cap-grid cap-grid-three">{character_cards}</div>
 </section>
 <section class="cap-section" aria-labelledby="foundation-title">
 <h2 id="foundation-title">الأساس المرجعي للمنهج</h2>
@@ -1159,10 +1525,19 @@ def render_registry(
         ]
     )
     guide_slugs = {item["slug"] for item in guides}
+    evidence_slugs = {item["slug"] for item in data["evidence_packets"]}
     cards: list[str] = []
     for condition in data["conditions"]:
         route = data["evidence_routes"][condition["evidence_route"]]
         category = data["categories"][condition["category"]]
+        evidence_state = (
+            "selected" if condition["slug"] in evidence_slugs else "not-selected"
+        )
+        evidence_status = (
+            "حزمة أدلة منتقاة"
+            if evidence_state == "selected"
+            else "البروتوكول منشور؛ الانتقاء البحثي لم يكتمل"
+        )
         link = (
             f'<a class="cap-text-link" href="../{e(condition["slug"])}/">'
             'البروتوكول الكامل <span aria-hidden="true">←</span></a>'
@@ -1174,12 +1549,15 @@ def render_registry(
  data-slug="{e(condition["slug"])}"
  data-category="{e(condition["category"])}"
  data-route="{e(condition["evidence_route"])}"
+ data-evidence="{e(evidence_state)}"
  data-search="{e(condition["title_ar"])} {e(condition["title_en"])}">
 <div class="cap-condition-top"><span class="cap-rank">{condition["rank"]:02d}</span>
 <span class="cap-route-badge">{e(route["label"])}</span></div>
 <h2>{e(condition["title_ar"])}</h2>
 <p lang="en" dir="ltr">{e(condition["title_en"])}</p>
-<small>{e(category)}</small>{link}
+<small>{e(category)}</small>
+<span class="cap-evidence-badge cap-evidence-badge-{e(evidence_state)}">{e(evidence_status)}</span>
+{link}
 </article>"""
         )
     category_options = "".join(
@@ -1200,11 +1578,17 @@ def render_registry(
 {review_banner(data)}
 <section class="cap-section" aria-labelledby="filter-title">
 <h2 id="filter-title">ابحث وصفِّ السجل</h2>
+<p class="cap-evidence-status"><strong>حالة التغطية:</strong> 100 بروتوكول كامل؛ 17 حزمة أدلة منتقاة خاصة بالحالة، و83 بروتوكولًا لم يكتمل له بعد الانتقاء البحثي المكافئ.</p>
 <form class="cap-filters" data-cap-filters>
 <label>بحث بالاسم العربي أو الإنجليزي
 <input type="search" data-cap-search autocomplete="off" placeholder="مثال: التوحد أو cerebral palsy"></label>
 <label>المجال<select data-cap-category><option value="">كل المجالات</option>{category_options}</select></label>
 <label>مسار الدليل<select data-cap-route><option value="">كل مسارات الدليل</option>{route_options}</select></label>
+<label>حالة الانتقاء<select data-cap-evidence>
+<option value="">كل الحالات</option>
+<option value="selected">حزمة أدلة منتقاة</option>
+<option value="not-selected">البروتوكول فقط دون حزمة منتقاة</option>
+</select></label>
 <button type="reset" class="cap-reset" data-cap-reset>مسح المرشحات</button>
 </form>
 <p class="cap-result-status" role="status" aria-live="polite"><strong data-cap-count>100</strong> حالة ظاهرة من 100.</p>
@@ -1255,6 +1639,54 @@ def render_sources(data: dict[str, Any], ids: list[str]) -> str:
     )
 
 
+def render_selected_evidence(data: dict[str, Any], guide: dict[str, Any]) -> str:
+    packet = guide["evidence_packet"]
+    if packet is None:
+        return """
+<section class="cap-section cap-evidence-status" data-evidence-packet="not-selected"
+ aria-labelledby="selected-evidence-title">
+<p class="cap-eyebrow">حدّ التغطية البحثية</p>
+<h2 id="selected-evidence-title">حالة الانتقاء البحثي لهذه الصفحة</h2>
+<p>لم تكتمل لهذه الحالة بعد حزمة أدلة منتقاة مكافئة للحزمة المنشورة في الفئة الأولى. الصفحة الحالية بروتوكول عملي كامل مبني على ملف حالة شرطي والمنهج التأهيلي المشترك، ومعها مرجع سلطة مباشر ومسار بحث حي؛ لكنها لا تُقدَّم بوصفها خلاصة انتقائية مكتملة للدراسات الخاصة بالحالة.</p>
+</section>"""
+
+    sources = source_map(data)
+    character_labels = data["evidence_character_labels"]
+    claim_cards: list[str] = []
+    for index, claim in enumerate(packet["claims"], start=1):
+        citations = "، ".join(
+            f'<a href="#source-{e(source_id)}">'
+            f'{e(sources[source_id]["publisher"])} — '
+            f'{e(sources[source_id]["title"])}</a>'
+            for source_id in claim["source_ids"]
+        )
+        claim_cards.append(
+            f"""<article class="cap-evidence-claim"
+ data-evidence-claim-type="{e(claim["type"])}">
+<header><span>الادعاء المحدود {index} من 3</span>
+<h3>{e(EVIDENCE_CLAIM_TITLES[claim["type"]])}</h3></header>
+<p class="cap-evidence-statement">{e(claim["statement"])}</p>
+<dl>
+<div class="cap-evidence-support"><dt>ما الذي يدعمه الدليل؟</dt>
+<dd>{e(claim["what_it_supports"])}</dd></div>
+<div class="cap-evidence-boundary"><dt>ما الذي لا يدعمه الدليل؟</dt>
+<dd>{e(claim["what_it_does_not_support"])}</dd></div>
+<div><dt>طبيعة الدليل وحدوده</dt>
+<dd>{e(character_labels[claim["evidence_character"]])}</dd></div>
+</dl>
+<p class="cap-evidence-citations"><strong>مصادر الادعاء:</strong> {citations}</p>
+</article>"""
+        )
+    return f"""
+<section class="cap-section cap-selected-evidence" data-evidence-packet="selected"
+ aria-labelledby="selected-evidence-title">
+<div class="cap-section-heading"><div><p class="cap-eyebrow">انتقاء خاص بالحالة</p>
+<h2 id="selected-evidence-title">خلاصة الأدلة المنتقاة</h2></div>
+<p>ثلاثة ادعاءات قابلة للتدقيق، حُدِّث بحثها في {e(packet["search_updated"])}. هذا انتقاء وترجمة داخلية، ولم يخضع بعد لمراجعة خارجية مستقلة.</p></div>
+<div class="cap-evidence-claims">{''.join(claim_cards)}</div>
+</section>"""
+
+
 def render_guide(data: dict[str, Any], guide: dict[str, Any]) -> str:
     condition = next(
         item for item in data["conditions"] if item["slug"] == guide["slug"]
@@ -1295,7 +1727,20 @@ def render_guide(data: dict[str, Any], guide: dict[str, Any]) -> str:
 </article>"""
         for stage in data["protocol"]["stages"]
     )
-    source_html = render_sources(data, guide["source_ids"])
+    packet_source_ids = (
+        [
+            source_id
+            for claim in guide["evidence_packet"]["claims"]
+            for source_id in claim["source_ids"]
+        ]
+        if guide["evidence_packet"]
+        else []
+    )
+    guide_source_ids = unique_in_order(
+        [*guide["source_ids"], *packet_source_ids]
+    )
+    source_html = render_sources(data, guide_source_ids)
+    selected_evidence_html = render_selected_evidence(data, guide)
     reference_links = "".join(
         f'<li><a href="{e(item["url"])}" rel="noopener">'
         f'{e(item["publisher"])} — {e(item["title"])}</a></li>'
@@ -1306,11 +1751,15 @@ def render_guide(data: dict[str, Any], guide: dict[str, Any]) -> str:
         "(rehabilitation OR participation OR functioning) AND "
         '("systematic review" OR guideline)'
     )
-    profile_origin = (
-        "مراجعة بحثية خاصة ومباشرة"
-        if not guide["generated_from_profile"]
-        else "ملف حالة شرطي + المنهج التأهيلي المشترك"
-    )
+    if guide["evidence_packet"]:
+        profile_origin = (
+            "حزمة أدلة منتقاة خاصة بالحالة + ملف حالة شرطي "
+            "+ المنهج التأهيلي المشترك"
+        )
+    elif not guide["generated_from_profile"]:
+        profile_origin = "مراجعة بحثية خاصة ومباشرة"
+    else:
+        profile_origin = "ملف حالة شرطي + المنهج التأهيلي المشترك"
     main = f"""
 <section class="cap-page-hero cap-guide-hero"><div class="cap-wrap">
 {crumbs}<p class="cap-eyebrow">الدليل التفصيلي {condition["rank"]:02d} من سجل المئة</p>
@@ -1336,6 +1785,7 @@ def render_guide(data: dict[str, Any], guide: dict[str, Any]) -> str:
 <h2 id="evidence-title">ماذا يقول الدليل، وماذا لا يقول؟</h2>
 {ul(guide["evidence_summary"], "cap-evidence-list")}
 </section>
+{selected_evidence_html}
 <section class="cap-section cap-soft" aria-labelledby="assume-title">
 <div class="cap-grid cap-grid-two">
 <article><h2 id="assume-title">لا تفترض</h2>{ul(guide["do_not_assume"], "cap-cross-list")}</article>
@@ -1401,7 +1851,7 @@ def render_guide(data: dict[str, Any], guide: dict[str, Any]) -> str:
                 "dateModified": UPDATED,
                 "publisher": {"@id": BASE + "#organization"},
                 "citation": [
-                    source_map(data)[key]["url"] for key in guide["source_ids"]
+                    source_map(data)[key]["url"] for key in guide_source_ids
                 ],
             },
             crumb_schema,
@@ -1585,6 +2035,10 @@ def publish(site: Path) -> dict[str, Any]:
     register_root_sitemap(site, paths)
     register_robots(site)
 
+    evidence_packet_count = len(data["evidence_packets"])
+    evidence_claim_count = sum(
+        len(item["claims"]) for item in data["evidence_packets"]
+    )
     report = {
         "version": VERSION,
         "status": "passed",
@@ -1598,6 +2052,15 @@ def publish(site: Path) -> dict[str, Any]:
         "sitemap_url_count": len(paths),
         "protocol_stage_count": len(data["protocol"]["stages"]),
         "source_count": len(data["sources"]),
+        "curated_evidence_packet_count": evidence_packet_count,
+        "curated_evidence_claim_count": evidence_claim_count,
+        "curated_evidence_source_count": data["selected_evidence_source_count"],
+        "curated_evidence_remaining_count": (
+            len(data["conditions"]) - evidence_packet_count
+        ),
+        "curated_evidence_covered_categories": data[
+            "evidence_covered_categories"
+        ],
         "external_clinical_review_completed": False,
         "diagnostic_automation": False,
         "condition_implies_strength": False,
@@ -1611,6 +2074,9 @@ def publish(site: Path) -> dict[str, Any]:
         "protocol": data["protocol"],
         "conditions": data["conditions"],
         "guides": guides,
+        "evidence_packets": data["evidence_packets"],
+        "evidence_selection_methods": data["evidence_selection_methods"],
+        "evidence_character_labels": data["evidence_character_labels"],
         "sources": data["sources"],
     }
     api = site / "api"

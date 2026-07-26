@@ -6,6 +6,7 @@ on:
     paths:
       - "content/v280/capabilities-100-ar.json"
       - "content/v280/profiles/*.json"
+      - "content/v280/evidence/*.json"
       - "scripts/publish_capabilities_v280.py"
       - "scripts/apply_homepage_v20.py"
       - "assets/css/capabilities-v280.css"
@@ -17,6 +18,7 @@ on:
     paths:
       - "content/v280/capabilities-100-ar.json"
       - "content/v280/profiles/*.json"
+      - "content/v280/evidence/*.json"
       - "scripts/publish_capabilities_v280.py"
       - "scripts/apply_homepage_v20.py"
       - "assets/css/capabilities-v280.css"
@@ -40,6 +42,7 @@ jobs:
           set -euxo pipefail
           python -m json.tool content/v280/capabilities-100-ar.json >/dev/null
           for profile in content/v280/profiles/*.json; do python -m json.tool "$profile" >/dev/null; done
+          for evidence in content/v280/evidence/*.json; do python -m json.tool "$evidence" >/dev/null; done
           python -m py_compile scripts/publish_capabilities_v280.py
           python -m py_compile tests/test_capabilities_v280.py
           node --check assets/js/capabilities-v280.js
@@ -56,12 +59,25 @@ jobs:
 
           report = json.loads(Path("/tmp/source-evidence-v280.json").read_text(encoding="utf-8"))
           assert report["error_count"] == 0, report["errors"][:10]
-          records = [
+          base_records = [
               item
               for item in report["records"]
               if item["file"] == "content/v280/capabilities-100-ar.json"
           ]
-          assert len(records) == 20, len(records)
+          selected_records = [
+              item
+              for item in report["records"]
+              if item["file"].startswith("content/v280/evidence/")
+          ]
+          records = [*base_records, *selected_records]
+          assert len(base_records) == 20, len(base_records)
+          assert len(selected_records) == 31, len(selected_records)
+          assert len(records) == 51, len(records)
           assert all(item["contract_ready"] for item in records), records
-          print({"capabilities_sources": len(records), "contract_ready": True})
+          print({
+              "base_sources": len(base_records),
+              "selected_sources": len(selected_records),
+              "capabilities_sources": len(records),
+              "contract_ready": True,
+          })
           PY

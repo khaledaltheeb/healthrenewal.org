@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PUBLISHER = ROOT / "scripts" / "publish_capabilities_v280.py"
 DATA = ROOT / "content" / "v280" / "capabilities-100-ar.json"
 PROFILE_DIR = ROOT / "content" / "v280" / "profiles"
+EVIDENCE_DIR = ROOT / "content" / "v280" / "evidence"
 CSS = ROOT / "assets" / "css" / "capabilities-v280.css"
 JS = ROOT / "assets" / "js" / "capabilities-v280.js"
 INTEGRATION = ROOT / "scripts" / "apply_homepage_v20.py"
@@ -190,6 +191,118 @@ class CapabilitiesSourceContractV280(unittest.TestCase):
             self.assertTrue(source["claims_supported"])
             self.assertEqual(source["status"], "current")
 
+    def test_selected_evidence_covers_the_complete_first_category(self) -> None:
+        payloads = [
+            json.loads(path.read_text(encoding="utf-8"))
+            for path in sorted(EVIDENCE_DIR.glob("*.json"))
+        ]
+        self.assertTrue(payloads)
+        base_source_ids = {item["id"] for item in self.data["sources"]}
+        selected_sources = [
+            source for payload in payloads for source in payload["sources"]
+        ]
+        packets = [
+            packet
+            for payload in payloads
+            for packet in payload["evidence_packets"]
+        ]
+        claims = [claim for packet in packets for claim in packet["claims"]]
+
+        self.assertEqual(len(selected_sources), 31)
+        self.assertEqual(len(packets), 17)
+        self.assertEqual(len(claims), 51)
+        self.assertEqual(
+            {packet["slug"] for packet in packets},
+            {
+                item["slug"]
+                for item in self.data["conditions"]
+                if item["category"] == "neurodevelopmental-learning"
+            },
+        )
+
+        required_source_fields = {
+            "id",
+            "publisher",
+            "title",
+            "url",
+            "year",
+            "source_type",
+            "verified_at",
+            "claims_supported",
+            "status",
+        }
+        selected_source_ids = {item["id"] for item in selected_sources}
+        self.assertEqual(len(selected_source_ids), 31)
+        self.assertFalse(base_source_ids.intersection(selected_source_ids))
+        for source in selected_sources:
+            self.assertEqual(set(source), required_source_fields)
+            self.assertTrue(source["url"].startswith("https://"))
+            self.assertEqual(source["verified_at"], "2026-07-27")
+            self.assertEqual(source["status"], "current")
+            self.assertTrue(source["claims_supported"])
+
+        all_source_ids = base_source_ids | selected_source_ids
+        claim_ids = {claim["id"] for claim in claims}
+        cited_source_ids = {
+            source_id for claim in claims for source_id in claim["source_ids"]
+        }
+        self.assertEqual(len(claim_ids), 51)
+        self.assertTrue(selected_source_ids.issubset(cited_source_ids))
+        for packet in packets:
+            self.assertEqual(packet["search_updated"], "2026-07-27")
+            self.assertEqual(
+                packet["review_state"],
+                "curated-not-externally-reviewed",
+            )
+            self.assertEqual(
+                [claim["type"] for claim in packet["claims"]],
+                [
+                    "profile-boundary",
+                    "access-and-intervention",
+                    "safety-and-differential",
+                ],
+            )
+            for claim in packet["claims"]:
+                self.assertEqual(
+                    set(claim),
+                    {
+                        "id",
+                        "type",
+                        "statement",
+                        "what_it_supports",
+                        "what_it_does_not_support",
+                        "evidence_character",
+                        "source_ids",
+                    },
+                )
+                for field in (
+                    "statement",
+                    "what_it_supports",
+                    "what_it_does_not_support",
+                ):
+                    self.assertGreaterEqual(len(claim[field]), 70)
+                self.assertTrue(set(claim["source_ids"]).issubset(all_source_ids))
+
+        for payload in payloads:
+            self.assertFalse(payload["external_review_completed"])
+            method = payload["selection_method"]
+            self.assertEqual(
+                set(method),
+                {
+                    "scope",
+                    "selection_order",
+                    "exclusions",
+                    "certainty_policy",
+                    "live_search_boundary",
+                    "review_boundary",
+                },
+            )
+            exclusions = " ".join(method["exclusions"])
+            for marker in ("الترويجية", "قصص النجاح", "البحث الحي", "بروتوكولات"):
+                self.assertIn(marker, exclusions)
+            self.assertIn("لا يعيّن المشروع درجة GRADE", method["certainty_policy"])
+            self.assertIn("لم تكتمل مراجعة خارجية", method["review_boundary"])
+
     def test_protocol_measures_benefit_burden_and_stop_rules(self) -> None:
         protocol = self.data["protocol"]
         self.assertEqual([item["number"] for item in protocol["stages"]], list(range(1, 10)))
@@ -250,6 +363,15 @@ class CapabilitiesPublisherV280(unittest.TestCase):
         self.assertEqual(report["generated_page_count"], 104)
         self.assertEqual(report["sitemap_url_count"], 104)
         self.assertEqual(report["protocol_stage_count"], 9)
+        self.assertEqual(report["source_count"], 51)
+        self.assertEqual(report["curated_evidence_packet_count"], 17)
+        self.assertEqual(report["curated_evidence_claim_count"], 51)
+        self.assertEqual(report["curated_evidence_source_count"], 31)
+        self.assertEqual(report["curated_evidence_remaining_count"], 83)
+        self.assertEqual(
+            report["curated_evidence_covered_categories"],
+            ["neurodevelopmental-learning"],
+        )
         self.assertFalse(report["external_clinical_review_completed"])
         self.assertFalse(report["diagnostic_automation"])
         self.assertFalse(report["condition_implies_strength"])
@@ -285,8 +407,14 @@ class CapabilitiesPublisherV280(unittest.TestCase):
         )
         self.assertEqual(len(api["conditions"]), 100)
         self.assertEqual(len(api["guides"]), 100)
-        self.assertEqual(len(api["sources"]), 20)
+        self.assertEqual(len(api["sources"]), 51)
+        self.assertEqual(len(api["evidence_packets"]), 17)
+        self.assertEqual(
+            sum(len(item["claims"]) for item in api["evidence_packets"]),
+            51,
+        )
         self.assertEqual(len(api["protocol"]["stages"]), 9)
+        packet_slugs = {item["slug"] for item in api["evidence_packets"]}
         for guide in api["guides"]:
             self.assertEqual(len(guide["hypotheses"]), 4)
             self.assertEqual(len(guide["research_links"]), 2)
@@ -302,11 +430,25 @@ class CapabilitiesPublisherV280(unittest.TestCase):
                     "functional_goal",
                 },
             )
+            if guide["slug"] in packet_slugs:
+                self.assertIsInstance(guide["evidence_packet"], dict)
+                self.assertEqual(len(guide["evidence_packet"]["claims"]), 3)
+            else:
+                self.assertIsNone(guide["evidence_packet"])
 
     def test_all_one_hundred_guides_have_full_protocol_and_research_routes(self) -> None:
         self.publish()
         data = json.loads(DATA.read_text(encoding="utf-8"))
         bespoke = {item["slug"]: item for item in data["guides"]}
+        selected_payloads = [
+            json.loads(path.read_text(encoding="utf-8"))
+            for path in EVIDENCE_DIR.glob("*.json")
+        ]
+        selected_packets = {
+            packet["slug"]: packet
+            for payload in selected_payloads
+            for packet in payload["evidence_packets"]
+        }
         for condition in data["conditions"]:
             path = self.site / "capabilities" / condition["slug"] / "index.html"
             text = path.read_text(encoding="utf-8")
@@ -339,6 +481,31 @@ class CapabilitiesPublisherV280(unittest.TestCase):
             self.assertEqual(text.count('class="cap-hypothesis"'), 4)
             self.assertEqual(text.count('class="cap-stage"'), 9)
             self.assertGreater(len(text), 18000, condition["slug"])
+            if condition["slug"] in selected_packets:
+                self.assertIn("خلاصة الأدلة المنتقاة", text)
+                self.assertIn('data-evidence-packet="selected"', text)
+                self.assertEqual(
+                    text.count('class="cap-evidence-claim"'),
+                    3,
+                )
+                self.assertEqual(
+                    text.count("ما الذي يدعمه الدليل؟"),
+                    3,
+                )
+                self.assertEqual(
+                    text.count("ما الذي لا يدعمه الدليل؟"),
+                    3,
+                )
+                for claim in selected_packets[condition["slug"]]["claims"]:
+                    for source_id in claim["source_ids"]:
+                        self.assertIn(f'id="source-{source_id}"', text)
+            else:
+                self.assertNotIn("خلاصة الأدلة المنتقاة", text)
+                self.assertIn(
+                    "لم تكتمل لهذه الحالة بعد حزمة أدلة منتقاة مكافئة",
+                    text,
+                )
+                self.assertIn('data-evidence-packet="not-selected"', text)
             if condition["slug"] in bespoke:
                 for source_id in bespoke[condition["slug"]]["source_ids"]:
                     self.assertIn(f'id="source-{source_id}"', text)

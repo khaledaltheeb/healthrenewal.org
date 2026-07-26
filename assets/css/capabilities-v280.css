@@ -479,6 +479,25 @@ body.cap-page {
   background: var(--cap-gold-soft);
 }
 
+.cap-evidence-status {
+  padding: 0.9rem 1rem;
+  border: 1px solid #e8cc83;
+  border-inline-start: 5px solid var(--cap-gold);
+  border-radius: var(--cap-small-radius);
+  background: var(--cap-gold-soft);
+  color: #65450d;
+}
+
+.cap-section.cap-evidence-status {
+  margin-block: 1rem;
+  padding-block: clamp(1.4rem, 3vw, 2.2rem);
+  padding-inline: clamp(1rem, 3vw, 1.8rem);
+}
+
+.cap-subheading {
+  margin-block-start: 2.2rem;
+}
+
 .cap-process {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -651,6 +670,116 @@ body.cap-page {
   font-size: 0.9rem;
 }
 
+.cap-evidence-claims {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.cap-evidence-claim {
+  overflow: hidden;
+  border: 1px solid var(--cap-border);
+  border-radius: var(--cap-radius);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(21, 59, 55, 0.06);
+}
+
+.cap-evidence-claim header {
+  padding: 1rem 1.15rem;
+  border-block-end: 1px solid var(--cap-border);
+  background: var(--cap-mint);
+}
+
+.cap-evidence-claim header span {
+  display: block;
+  color: var(--cap-muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.cap-evidence-claim header h3 {
+  margin: 0.15rem 0 0;
+  color: var(--cap-teal-deep);
+}
+
+.cap-evidence-statement {
+  margin: 0;
+  padding: 1rem 1.15rem;
+  font-weight: 800;
+}
+
+.cap-evidence-claim dl {
+  margin: 0;
+}
+
+.cap-evidence-claim dl > div {
+  padding: 0.85rem 1.15rem;
+  border-block-start: 1px solid var(--cap-border);
+}
+
+.cap-evidence-claim dt,
+.cap-method-boundaries dt {
+  color: var(--cap-teal-deep);
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.cap-evidence-claim dd,
+.cap-method-boundaries dd {
+  margin: 0.2rem 0 0;
+  color: #345a55;
+}
+
+.cap-evidence-claim .cap-evidence-support {
+  background: var(--cap-mint-soft);
+}
+
+.cap-evidence-claim .cap-evidence-boundary {
+  background: var(--cap-red-soft);
+}
+
+.cap-evidence-claim .cap-evidence-boundary dt {
+  color: #8d2d30;
+}
+
+.cap-evidence-citations {
+  margin: 0;
+  padding: 0.85rem 1.15rem 1.15rem;
+  border-block-start: 1px solid var(--cap-border);
+  color: var(--cap-muted);
+  font-size: 0.82rem;
+}
+
+.cap-method-wave {
+  padding: clamp(1rem, 3vw, 1.6rem);
+  border: 1px solid var(--cap-border);
+  border-radius: var(--cap-radius);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(21, 59, 55, 0.06);
+}
+
+.cap-method-wave h4 {
+  margin-block-end: 0.3rem;
+  color: var(--cap-teal-deep);
+}
+
+.cap-method-boundaries {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: 1.2rem 0 0;
+  border: 1px solid var(--cap-border);
+  border-radius: var(--cap-small-radius);
+}
+
+.cap-method-boundaries > div {
+  padding: 0.9rem 1rem;
+}
+
+.cap-method-boundaries > div + div {
+  border-inline-start: 1px solid var(--cap-border);
+}
+
 .cap-hypotheses {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -747,7 +876,7 @@ body.cap-page {
 
 .cap-filters {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
   gap: 0.8rem;
   align-items: end;
   padding: 1rem;
@@ -832,6 +961,25 @@ body.cap-page {
   color: var(--cap-muted);
 }
 
+.cap-evidence-badge {
+  align-self: flex-start;
+  padding: 0.3rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1.45;
+}
+
+.cap-evidence-badge-selected {
+  background: var(--cap-mint);
+  color: var(--cap-teal-deep);
+}
+
+.cap-evidence-badge-not-selected {
+  background: var(--cap-gold-soft);
+  color: #65450d;
+}
+
 .cap-condition .cap-text-link,
 .cap-registry-only {
   margin-block-start: auto;
@@ -902,11 +1050,18 @@ body.cap-page {
   .cap-grid-routes,
   .cap-grid-three,
   .cap-grid-two,
+  .cap-evidence-claims,
+  .cap-method-boundaries,
   .cap-hypotheses,
   .cap-process,
   .cap-form-grid,
   .cap-filters {
     grid-template-columns: 1fr;
+  }
+
+  .cap-method-boundaries > div + div {
+    border-block-start: 1px solid var(--cap-border);
+    border-inline-start: 0;
   }
 
   .cap-grid-guides,
@@ -1007,6 +1162,8 @@ body.cap-page {
   .cap-card,
   .cap-route,
   .cap-hypothesis,
+  .cap-evidence-claim,
+  .cap-method-wave,
   .cap-health,
   .cap-danger {
     break-inside: avoid;
