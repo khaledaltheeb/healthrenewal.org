@@ -52,7 +52,9 @@ jobs:
           python scripts/patch_live_tools_real_dom_v253.py /tmp/site | tee /tmp/first.json
           cp -a /tmp/site /tmp/site-first
           python scripts/patch_live_tools_real_dom_v253.py /tmp/site | tee /tmp/second.json
-          diff -qr /tmp/site-first /tmp/site
+          # The execution report intentionally records changed/unchanged counts per run.
+          # Prove byte stability on the actual published HTML rather than comparing that report.
+          diff -qr /tmp/site-first/tools /tmp/site/tools
           python - <<'PY'
           import json
           from pathlib import Path
