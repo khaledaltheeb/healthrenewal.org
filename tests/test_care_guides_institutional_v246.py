@@ -41,6 +41,10 @@ TRUSTED_HOSTS = {
     "www.nimh.nih.gov", "www.nia.nih.gov", "www.nidcd.nih.gov", "www.nhlbi.nih.gov",
     "www.unicef.org", "www.ptsd.va.gov", "store.samhsa.gov",
 }
+CONTENT_SECTIONS = (
+    "understanding", "what_the_person_may_feel", "communication_plan", "do",
+    "avoid", "plan", "when_to_seek_help", "caregiver_plan",
+)
 
 
 class CareGuidesInstitutionalV246Tests(unittest.TestCase):
@@ -83,6 +87,19 @@ class CareGuidesInstitutionalV246Tests(unittest.TestCase):
                 self.assertIn(parsed.netloc, TRUSTED_HOSTS, source)
             for prohibited in ("معاقين", "يغني عن الطبيب", "بديل عن العلاج", "نتيجة نهائية", "مضمون 100%"):
                 self.assertNotIn(prohibited, joined, guide["slug"])
+
+    def test_cross_guide_repetition_is_limited_to_standard_safety_rules(self) -> None:
+        items = [
+            item
+            for guide in self.guides
+            for section in CONTENT_SECTIONS
+            for item in guide.get(section, [])
+        ]
+        counts = Counter(items)
+        repeated_instances = sum(count for count in counts.values() if count > 1)
+        repetition_ratio = repeated_instances / len(items)
+        self.assertLessEqual(repetition_ratio, 0.30, repetition_ratio)
+        self.assertGreaterEqual(len(set(items)), int(len(items) * 0.70))
 
     def test_source_and_publication_minimum(self) -> None:
         legacy: list[dict] = []
