@@ -1,0 +1,202 @@
+name: Verify care guides live deployment v247
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/verify_care_guides_deployment_v247.py"
+      - "tests/test_care_guides_deployment_v247.py"
+      - ".github/workflows/verify-care-guides-live-v247.yml"
+  workflow_run:
+    workflows: ["Deploy validated main to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  statuses: write
+
+concurrency:
+  group: care-guides-live-v247-${{ github.event.workflow_run.id || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-contract:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and test the complete care-guide deployment verifier
+        run: |
+          set -euxo pipefail
+          python -Werror -m py_compile \
+            scripts/verify_care_guides_deployment_v247.py \
+            tests/test_care_guides_deployment_v247.py
+          python -m unittest -v tests.test_care_guides_deployment_v247
+
+  verify-live:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      EXPECTED_SHA: ${{ github.event.workflow_run.head_sha }}
+      REQUIRED_CARE_GUIDES_SHA: 2ac1e1a04eebee7bd230b5c362a0a0183249db21
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout the deployed source commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Publish pending live verification status
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/statuses/{os.environ['EXPECTED_SHA']}"
+          body = json.dumps({
+              "state": "pending",
+              "context": "care-guides-live-v247",
+              "description": "Checking the live hub and all one hundred care guides",
+          }).encode()
+          request = urllib.request.Request(
+              url,
+              data=body,
+              method="POST",
+              headers={
+                  "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+                  "Accept": "application/vnd.github+json",
+                  "Content-Type": "application/json",
+                  "User-Agent": "care-guides-live-v247",
+              },
+          )
+          urllib.request.urlopen(request, timeout=30).read()
+          PY
+
+      - name: Prove the deployed candidate contains the hundred-guide release
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          repo = os.environ["GITHUB_REPOSITORY"]
+          required = os.environ["REQUIRED_CARE_GUIDES_SHA"]
+          candidate = os.environ["EXPECTED_SHA"]
+          request = urllib.request.Request(
+              f"https://api.github.com/repos/{repo}/compare/{required}...{candidate}",
+              headers={
+                  "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+                  "Accept": "application/vnd.github+json",
+                  "User-Agent": "care-guides-live-v247",
+              },
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              data = json.loads(response.read())
+          assert data.get("status") in {"ahead", "identical"}, data
+          print({"required_release": required, "deployed_candidate": candidate, "status": data["status"]})
+          PY
+
+      - name: Wait for the exact deployment stamp
+        run: |
+          set -euxo pipefail
+          matched=0
+          for i in $(seq 1 36); do
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS \
+              "${BASE_URL}deployment.json?v=${EXPECTED_SHA}-${i}" -o /tmp/care-guides-deployment.json; then
+              if python - <<'PY'
+          import json, os
+          data = json.load(open('/tmp/care-guides-deployment.json', encoding='utf-8'))
+          raise SystemExit(0 if data.get('commit') == os.environ['EXPECTED_SHA'] else 1)
+          PY
+              then
+                matched=1
+                break
+              fi
+            fi
+            sleep 10
+          done
+          test "${matched}" -eq 1
+
+      - name: Download and verify every live core guide
+        run: |
+          set -euxo pipefail
+          rm -rf /tmp/care-guides-live-v247
+          python scripts/verify_care_guides_deployment_v247.py \
+            /tmp/care-guides-live-v247 \
+            --base-url "${BASE_URL}" \
+            --token "${EXPECTED_SHA}-${GITHUB_RUN_ID}" \
+            --expected-sha "${EXPECTED_SHA}" \
+            --mode live
+
+      - name: Publish successful live verification status
+        if: success()
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/statuses/{os.environ['EXPECTED_SHA']}"
+          body = json.dumps({
+              "state": "success",
+              "context": "care-guides-live-v247",
+              "description": "Live hub and all one hundred care guides match the deployed SHA",
+              "target_url": f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}",
+          }).encode()
+          request = urllib.request.Request(
+              url,
+              data=body,
+              method="POST",
+              headers={
+                  "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+                  "Accept": "application/vnd.github+json",
+                  "Content-Type": "application/json",
+                  "User-Agent": "care-guides-live-v247",
+              },
+          )
+          urllib.request.urlopen(request, timeout=30).read()
+          PY
+
+      - name: Publish failed live verification status
+        if: failure()
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/statuses/{os.environ['EXPECTED_SHA']}"
+          body = json.dumps({
+              "state": "failure",
+              "context": "care-guides-live-v247",
+              "description": "Live verification of the one hundred care guides failed",
+              "target_url": f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}",
+          }).encode()
+          request = urllib.request.Request(
+              url,
+              data=body,
+              method="POST",
+              headers={
+                  "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+                  "Accept": "application/vnd.github+json",
+                  "Content-Type": "application/json",
+                  "User-Agent": "care-guides-live-v247",
+              },
+          )
+          urllib.request.urlopen(request, timeout=30).read()
+          PY
+
+      - name: Upload live care-guide deployment evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: care-guides-live-v247
+          path: /tmp/care-guides-live-v247/api/care-guides-deployment-v247.json
+          if-no-files-found: error
+          retention-days: 30
