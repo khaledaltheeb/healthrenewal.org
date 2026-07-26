@@ -1,0 +1,48 @@
+name: Validate outside-the-box provider pathways v254
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v254/outside-the-box-*.json"
+      - "scripts/publish_outside_the_box_v254.py"
+      - "scripts/publish_special_needs_hub_v201.py"
+      - "scripts/apply_homepage_v20.py"
+      - "assets/css/outside-the-box-v254.css"
+      - "assets/js/outside-the-box-v254.js"
+      - "tests/test_outside_the_box_v254.py"
+      - ".github/workflows/validate-outside-the-box-v254.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "content/v254/outside-the-box-*.json"
+      - "scripts/publish_outside_the_box_v254.py"
+      - "scripts/publish_special_needs_hub_v201.py"
+      - "scripts/apply_homepage_v20.py"
+      - "assets/css/outside-the-box-v254.css"
+      - "assets/js/outside-the-box-v254.js"
+      - "tests/test_outside_the_box_v254.py"
+      - ".github/workflows/validate-outside-the-box-v254.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  institutional-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile publisher and runtime
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/publish_outside_the_box_v254.py
+          python -m py_compile scripts/publish_special_needs_hub_v201.py
+          node --check assets/js/outside-the-box-v254.js
+          python -m json.tool content/v254/outside-the-box-conditions-ar.json >/dev/null
+          python -m json.tool content/v254/outside-the-box-instruments-ar.json >/dev/null
+
+      - name: Enforce source, publication, rights, safety, and discovery contracts
+        run: python -m unittest -v tests/test_outside_the_box_v254.py
