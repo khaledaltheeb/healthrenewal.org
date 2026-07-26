@@ -42,7 +42,7 @@ class CareGuidesV234Tests(unittest.TestCase):
                 self.assertNotIn(prohibited, joined, guide["slug"])
 
     def test_institutional_publication_contract(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="care-v234-") as temp:
+        with tempfile.TemporaryDirectory(prefix="care-v246-") as temp:
             site = Path(temp)
             extension = site / "care-guides/extension-guide/index.html"
             extension.parent.mkdir(parents=True)
@@ -73,8 +73,10 @@ class CareGuidesV234Tests(unittest.TestCase):
             self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
             legacy = json.loads((site / "api/care-guides-v21.json").read_text(encoding="utf-8"))
             report = json.loads((site / "api/care-guides-v234.json").read_text(encoding="utf-8"))
-            self.assertEqual(report["version"], 234)
+            self.assertEqual(report["version"], 246)
             self.assertEqual(report["status"], "passed")
+            self.assertGreaterEqual(legacy["published_core_guides"], 100)
+            self.assertTrue(legacy["minimum_published_guides_met"])
             self.assertEqual(report["published_pages"], legacy["pages"])
             self.assertEqual(report["sitemap_urls"], legacy["sitemap_urls"])
             self.assertEqual(report["pages_with_keywords"], legacy["pages"])
