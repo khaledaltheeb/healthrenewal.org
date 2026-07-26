@@ -80,7 +80,6 @@ jobs:
           assert isinstance(commit, str) and re.fullmatch(r'[0-9a-f]{40}', commit), deployment
 
           required = (
-              'data-tools-design="marshmallow-v245"',
               'tools-marshmallow-v245',
               'tools-descendant-marshmallow-v250',
               'id="tools-marshmallow-v245-style"',
@@ -100,7 +99,7 @@ jobs:
                   failures.append({'route': route, 'error': 'invalid route'})
                   continue
               public_route = route[:-10] if route.endswith('/index.html') else route
-              url = base + public_route + ('/' if not public_route.endswith('/') else '') + f'?v={token}'
+              url = base + public_route + f'?v={token}'
               request = urllib.request.Request(
                   url,
                   headers={
@@ -118,6 +117,12 @@ jobs:
                   continue
 
               missing = [marker for marker in required if marker not in html]
+              if not re.search(
+                  r'\bdata-tools-design\s*=\s*(["\'])marshmallow-v245\1',
+                  html,
+                  re.I,
+              ):
+                  missing.append('data-tools-design=marshmallow-v245')
               if status != 200 or missing:
                   failures.append({'route': route, 'status': status, 'missing': missing})
                   continue
