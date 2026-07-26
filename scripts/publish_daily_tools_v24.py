@@ -19,7 +19,7 @@ if str(ROOT) not in sys.path:
 from scripts import publish_daily_tools_v24_core as _core
 from scripts.publish_daily_tools_v24_core import *  # noqa: F401,F403
 from scripts.stabilize_provider_layout_v225 import stabilize as stabilize_provider_layout
-from scripts.daily_tools_v275 import CONTENT_CONTRACT, enhance_site, load_catalog
+from scripts.daily_tools_v275 import CONTENT_CONTRACT, EXTRA_STYLE, enhance_site, load_catalog
 
 SEO_CONTRACT = 219
 SITE_NAME = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
@@ -100,7 +100,7 @@ def shell(title: str, description: str, canonical: str, schema: dict[str, Any], 
 <title>{esc(full_title)}</title><meta name="description" content="{esc(description)}"><meta name="keywords" content="{esc(keywords)}"><meta name="author" content="{esc(SITE_NAME)}"><meta name="application-name" content="{esc(SITE_NAME)}"><meta name="subject" content="الصحة النفسية والأدوات النفسية التفاعلية"><meta name="audience" content="الأفراد والأسر ومقدمو الرعاية"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"><meta name="theme-color" content="#e5faf5"><meta name="color-scheme" content="light">
 <link rel="canonical" href="{esc(canonical)}"><link rel="manifest" href="{MANIFEST}"><link rel="icon" href="{LOGO}" type="image/svg+xml"><link rel="apple-touch-icon" href="{LOGO}"><link rel="search" type="application/opensearchdescription+xml" title="البحث في المنصة" href="{SEARCH}"><link rel="sitemap" type="application/xml" href="{_core.BASE}sitemap.xml">
 <meta property="og:type" content="{page_type}"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="{esc(SITE_NAME)}"><meta property="og:title" content="{esc(full_title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(canonical)}"><meta property="og:image" content="{SOCIAL_IMAGE}"><meta property="og:image:alt" content="هوية {esc(SITE_NAME)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{esc(full_title)}"><meta name="twitter:description" content="{esc(description)}"><meta name="twitter:image" content="{SOCIAL_IMAGE}"><meta name="twitter:image:alt" content="هوية {esc(SITE_NAME)}">
-<script type="application/ld+json">{structured}</script><style>{_core.STYLE}</style></head><body>{body}</body></html>'''
+<script type="application/ld+json">{structured}</script><style>{_core.STYLE}{EXTRA_STYLE}</style></head><body>{body}</body></html>'''
 
 
 def _expected_pages(data: dict[str, Any], site: Path) -> list[Path]:
