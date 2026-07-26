@@ -31,6 +31,10 @@ JS_PATH = ROOT / "assets" / "js" / "capabilities-v280.js"
 
 VERSION = 280
 UPDATED = "2026-07-27"
+# Use the latest verification date that had fully elapsed in every timezone
+# when this evidence wave was published. This avoids treating same-day
+# verification in Asia/Amman as a future date on UTC CI runners.
+SOURCE_VERIFIED_THROUGH = "2026-07-26"
 BASE = "https://khaledaltheeb.github.io/pterminology-site/"
 BASE_ORIGIN = "https://khaledaltheeb.github.io"
 BASE_PATH = "/pterminology-site/"
@@ -542,9 +546,10 @@ def load_evidence_packets(data: dict[str, Any]) -> dict[str, Any]:
                 raise ValueError(
                     f"Selected source must use HTTPS: {source.get('id')}"
                 )
-            if source.get("verified_at") != UPDATED:
+            if source.get("verified_at") != SOURCE_VERIFIED_THROUGH:
                 raise ValueError(
-                    f"Selected source verification must be {UPDATED}: "
+                    "Selected source verification must be "
+                    f"{SOURCE_VERIFIED_THROUGH}: "
                     f"{source.get('id')}"
                 )
             if source.get("status") != "current":

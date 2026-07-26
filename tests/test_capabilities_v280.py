@@ -237,7 +237,7 @@ class CapabilitiesSourceContractV280(unittest.TestCase):
         for source in selected_sources:
             self.assertEqual(set(source), required_source_fields)
             self.assertTrue(source["url"].startswith("https://"))
-            self.assertEqual(source["verified_at"], "2026-07-27")
+            self.assertEqual(source["verified_at"], "2026-07-26")
             self.assertEqual(source["status"], "current")
             self.assertTrue(source["claims_supported"])
 
