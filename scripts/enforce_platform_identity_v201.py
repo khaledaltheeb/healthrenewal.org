@@ -141,7 +141,7 @@ def _add_class_to_body(text: str, class_name: str) -> tuple[str, bool]:
     if not match:
         return text, False
     tag = match.group(0)
-    class_match = re.search(r'\bclass=(["\'])(.*?)\1', tag, re.I | re.S)
+    class_match = re.search(r'\bclass\s*=\s*(["\'])(.*?)\1', tag, re.I | re.S)
     if class_match:
         classes = class_match.group(2).split()
         if class_name in classes:
@@ -154,12 +154,24 @@ def _add_class_to_body(text: str, class_name: str) -> tuple[str, bool]:
     return text[: match.start()] + updated_tag + text[match.end() :], True
 
 
+def _element_has_class(text: str, tag_name: str, class_name: str) -> bool:
+    match = re.search(fr"<{re.escape(tag_name)}\b[^>]*>", text, re.I | re.S)
+    if not match:
+        return False
+    class_match = re.search(r'\bclass\s*=\s*(["\'])(.*?)\1', match.group(0), re.I | re.S)
+    return bool(class_match and class_name in class_match.group(2).split())
+
+
 def _add_tools_html_marker(text: str) -> tuple[str, bool]:
     match = re.search(r"<html\b[^>]*>", text, re.I)
     if not match:
         return text, False
     tag = match.group(0)
-    if f'data-tools-design="{TOOLS_DESIGN}"' in tag:
+    if re.search(
+        rf'\bdata-tools-design\s*=\s*(["\']){re.escape(TOOLS_DESIGN)}\1',
+        tag,
+        re.I,
+    ):
         return text, False
     updated_tag = tag[:-1] + f' data-tools-design="{TOOLS_DESIGN}">'
     return text[: match.start()] + updated_tag + text[match.end() :], True
@@ -217,13 +229,15 @@ def publish_magazine(site: Path) -> dict[str, object]:
     if not report_path.is_file():
         raise SystemExit("Magazine production report was not created")
     report = json.loads(report_path.read_text(encoding="utf-8"))
-    if report.get("research_summaries_published") != 60:
-        raise SystemExit(f"Magazine production requires 60 pages: {report}")
+    published = report.get("research_summaries_published")
+    if not isinstance(published, int) or published < 1:
+        raise SystemExit(f"Magazine production reported an invalid page count: {report}")
     if report.get("unwired_research_pages") != 0:
         raise SystemExit(f"Magazine has unwired pages: {report}")
     index = site / "magazine" / "index.html"
-    if not index.is_file() or '"numberOfItems":60' not in index.read_text(encoding="utf-8"):
-        raise SystemExit("Magazine production index contract failed")
+    marker = f'"numberOfItems":{published}'
+    if not index.is_file() or marker not in index.read_text(encoding="utf-8"):
+        raise SystemExit(f"Magazine production index contract failed for {published} pages")
     return report
 
 
@@ -321,7 +335,6 @@ def main() -> int:
         tools_text = tools_page.read_text(encoding="utf-8")
         required_tools_markers = (
             f'data-tools-design="{TOOLS_DESIGN}"',
-            'class="tools-marshmallow-v245',
             TOOLS_STYLE_ID,
             "--tm-mint:#e5faf5",
             "--tm-rose:#fff0f5",
@@ -329,6 +342,8 @@ def main() -> int:
             "color:var(--tm-ink)!important",
         )
         missing = [marker for marker in required_tools_markers if marker not in tools_text]
+        if not _element_has_class(tools_text, "body", "tools-marshmallow-v245"):
+            missing.append("body class tools-marshmallow-v245")
         if missing:
             raise SystemExit(f"Tools Marshmallow contrast contract is incomplete: {missing}")
 

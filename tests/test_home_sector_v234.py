@@ -57,8 +57,11 @@ class HomeSectorV234Tests(unittest.TestCase):
         self.assertEqual(report["version"], 234)
         self.assertEqual(report["source_articles"], 20)
         self.assertEqual(report["article_pages_enriched"], 20)
-        self.assertGreaterEqual(report["hub_words"], 1800)
-        self.assertGreaterEqual(report["minimum_article_words"], 450)
+        self.assertGreaterEqual(report["hub_words"], module.MINIMUM_HUB_WORDS)
+        self.assertGreaterEqual(report["minimum_article_words"], module.MINIMUM_ARTICLE_WORDS)
+        self.assertEqual(report["word_count_method"], "semantic-visible-tokens-v244")
+        self.assertEqual(report["depth_contract_version"], 244)
+        self.assertEqual(report["semantic_depth_blocks_added"], 21)
         self.assertEqual(report["hub_h1"], 1)
         self.assertGreaterEqual(report["hub_h2"], 10)
         self.assertEqual(report["faq_items"], 6)
@@ -74,6 +77,7 @@ class HomeSectorV234Tests(unittest.TestCase):
         self.assertEqual(hub.count('name="googlebot"'), 1)
         self.assertEqual(hub.count('name="keywords"'), 1)
         self.assertEqual(hub.count('data-home-sector-v234="1"'), 1)
+        self.assertEqual(hub.count(module.HUB_DEPTH_MARKER), 1)
         for schema_type in ("CollectionPage", "BreadcrumbList", "ItemList", "FAQPage"):
             self.assertIn(schema_type, hub)
         for section_id in (
@@ -100,10 +104,12 @@ class HomeSectorV234Tests(unittest.TestCase):
             self.assertEqual(text.count("<h1"), 1, article["slug"])
             self.assertEqual(text.count('rel="canonical"'), 1, article["slug"])
             self.assertEqual(text.count(module.ARTICLE_START), 1, article["slug"])
+            self.assertEqual(text.count(module.ARTICLE_DEPTH_MARKER), 1, article["slug"])
             self.assertIn('"@type":"Article"', text, article["slug"])
             self.assertIn("قياس الأثر لمدة أسبوعين", text, article["slug"])
             self.assertIn("للأشخاص ذوي الاحتياجات الخاصة", text, article["slug"])
             self.assertNotIn("noindex", text.lower(), article["slug"])
+            self.assertGreaterEqual(module.semantic_visible_words(text), module.MINIMUM_ARTICLE_WORDS)
 
         robots = (self.site / "robots.txt").read_text(encoding="utf-8")
         self.assertEqual(robots.count("# home-sector-v234"), 1)
@@ -111,6 +117,7 @@ class HomeSectorV234Tests(unittest.TestCase):
         self.assertIn("Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml", robots)
         evidence = json.loads((self.site / "api" / "home-sector-v234.json").read_text(encoding="utf-8"))
         self.assertEqual(evidence["source_articles"], 20)
+        self.assertEqual(evidence["word_count_method"], "semantic-visible-tokens-v244")
 
         before = {
             path.relative_to(self.site): path.read_text(encoding="utf-8")
@@ -125,6 +132,7 @@ class HomeSectorV234Tests(unittest.TestCase):
         }
         self.assertEqual(before, after)
         self.assertEqual(second["article_pages_enriched"], 0)
+        self.assertEqual(second["semantic_depth_blocks_added"], 0)
         self.assertFalse(second["robots_updated"])
 
     def test_replaces_complete_generated_v10_multi_main_range(self) -> None:
