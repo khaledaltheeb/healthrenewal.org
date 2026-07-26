@@ -96,7 +96,8 @@ jobs:
           python scripts/patch_live_tools_real_dom_v253.py patched-site | tee /tmp/tools-real-dom-first.json
           cp -a patched-site /tmp/patched-site-first
           python scripts/patch_live_tools_real_dom_v253.py patched-site | tee /tmp/tools-real-dom-second.json
-          diff -qr /tmp/patched-site-first patched-site
+          # The report records per-run counters; the published HTML itself must remain byte-identical.
+          diff -qr /tmp/patched-site-first/tools patched-site/tools
           python - <<'PY'
           import json
           from pathlib import Path
