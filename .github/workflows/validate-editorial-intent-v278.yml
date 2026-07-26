@@ -1,0 +1,23 @@
+name: Validate editorial SEO intent map v278
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/seo/editorial-intent-map-v278.json"
+      - "scripts/verify_editorial_intent_map_v278.py"
+      - ".github/workflows/validate-editorial-intent-v278.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  editorial-intent:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile verifier
+        run: python -m py_compile scripts/verify_editorial_intent_map_v278.py
+      - name: Validate Arabic and English intent clusters
+        run: python scripts/verify_editorial_intent_map_v278.py
