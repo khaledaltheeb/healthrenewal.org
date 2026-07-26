@@ -1,0 +1,64 @@
+name: Validate capabilities library v280
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v280/capabilities-100-ar.json"
+      - "scripts/publish_capabilities_v280.py"
+      - "scripts/apply_homepage_v20.py"
+      - "assets/css/capabilities-v280.css"
+      - "assets/js/capabilities-v280.js"
+      - "tests/test_capabilities_v280.py"
+      - ".github/workflows/validate-capabilities-v280.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "content/v280/capabilities-100-ar.json"
+      - "scripts/publish_capabilities_v280.py"
+      - "scripts/apply_homepage_v20.py"
+      - "assets/css/capabilities-v280.css"
+      - "assets/js/capabilities-v280.js"
+      - "tests/test_capabilities_v280.py"
+      - ".github/workflows/validate-capabilities-v280.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence-and-publication-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile structured source and runtimes
+        run: |
+          set -euxo pipefail
+          python -m json.tool content/v280/capabilities-100-ar.json >/dev/null
+          python -m py_compile scripts/publish_capabilities_v280.py
+          python -m py_compile tests/test_capabilities_v280.py
+          node --check assets/js/capabilities-v280.js
+
+      - name: Enforce scientific, safety, language, and publication contracts
+        run: python -m unittest -v tests/test_capabilities_v280.py
+
+      - name: Audit claim-level source metadata
+        run: |
+          python scripts/audit_source_evidence_v75.py . --output /tmp/source-evidence-v280.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path("/tmp/source-evidence-v280.json").read_text(encoding="utf-8"))
+          assert report["error_count"] == 0, report["errors"][:10]
+          records = [
+              item
+              for item in report["records"]
+              if item["file"] == "content/v280/capabilities-100-ar.json"
+          ]
+          assert len(records) == 20, len(records)
+          assert all(item["contract_ready"] for item in records), records
+          print({"capabilities_sources": len(records), "contract_ready": True})
+          PY
