@@ -59,7 +59,9 @@ def publish_cognitive_sectors() -> dict:
     assert report["legacy_sector"]["pages"] >= 8, report
     assert report["modern_sector"]["pages"] >= 53, report
     assert report["total_detail_pages"] >= 61, report
-    assert report["sitemap_urls"] >= 63, report
+    assert report["sitemap_required_urls"] >= 63, report
+    assert report["sitemap_mapped_required_urls"] >= 63, report
+    assert report["sitemap_unmapped_urls"] == [], report
     assert report.get("open_text_controls") == [], report
     contracts = report.get("contracts", {})
     assert contracts.get("all_detail_pages_published") is True, report
@@ -123,7 +125,11 @@ def main() -> None:
             "legacy_pages": cognitive_sectors["legacy_sector"]["pages"],
             "modern_pages": cognitive_sectors["modern_sector"]["pages"],
             "total_detail_pages": cognitive_sectors["total_detail_pages"],
-            "sitemap_urls": cognitive_sectors["sitemap_urls"],
+            "sitemap_target_urls": cognitive_sectors["sitemap_urls"],
+            "sitemap_required_urls": cognitive_sectors["sitemap_required_urls"],
+            "sitemap_mapped_required_urls": cognitive_sectors["sitemap_mapped_required_urls"],
+            "sitemap_duplicates_avoided": cognitive_sectors["sitemap_duplicates_avoided"],
+            "sitemap_unmapped_urls": cognitive_sectors["sitemap_unmapped_urls"],
             "contracts": cognitive_sectors["contracts"],
         },
     }
