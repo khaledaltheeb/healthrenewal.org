@@ -30,9 +30,9 @@ class HomeSectorDeploymentV238Tests(unittest.TestCase):
             '<meta name="twitter:card" content="summary_large_image">'
             f'<link rel="canonical" href="{canonical}">'
             '</head><body>'
-            '<header id="global-header">التنقل</header>'
+            '<header class="site-header-v10">التنقل</header>'
             f'<main>{body}</main>'
-            '<footer id="global-footer">الحقوق</footer>'
+            '<footer class="site-footer-v10">الحقوق</footer>'
             '<script>navigator.serviceWorker.register("/pterminology-site/sw.js")</script>'
             '</body></html>'
         )
@@ -94,7 +94,7 @@ class HomeSectorDeploymentV238Tests(unittest.TestCase):
         )
         return site, source
 
-    def test_valid_live_fixture_passes(self) -> None:
+    def test_valid_live_fixture_passes_with_production_v10_shell(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             site, source = self.fixture(Path(tmp))
             result = module.verify(site, source, self.SHA, "live")
@@ -109,6 +109,26 @@ class HomeSectorDeploymentV238Tests(unittest.TestCase):
             self.assertTrue(result["all_have_shell"])
             self.assertTrue(result["all_have_pwa"])
             self.assertTrue((site / "api/home-sector-deployment-v238.json").is_file())
+
+    def test_retained_global_id_shell_variant_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            site, source = self.fixture(Path(tmp))
+            for page in (site / "sectors/home").rglob("index.html"):
+                text = page.read_text(encoding="utf-8")
+                text = text.replace('class="site-header-v10"', 'id="global-header"')
+                text = text.replace('class="site-footer-v10"', 'id="global-footer"')
+                page.write_text(text, encoding="utf-8")
+            result = module.verify(site, source, self.SHA, "live")
+            self.assertTrue(result["all_have_shell"])
+
+    def test_missing_institutional_header_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            site, source = self.fixture(Path(tmp))
+            page = site / "sectors/home/index.html"
+            text = page.read_text(encoding="utf-8").replace('<header class="site-header-v10">التنقل</header>', "")
+            page.write_text(text, encoding="utf-8")
+            with self.assertRaisesRegex(AssertionError, "missing institutional header"):
+                module.verify(site, source, self.SHA, "live")
 
     def test_wrong_deployment_sha_fails(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
