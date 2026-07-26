@@ -15,6 +15,7 @@ ACCESS_CSS_START = "/* practical-tips-v253-accessibility:start */"
 ACCESS_CSS_END = "/* practical-tips-v253-accessibility:end */"
 ACCESS_CONTRACT = "contrast-and-scroll-focus-v253"
 SAFE_BRAND = "#0b5f59"
+SAFE_BADGE_TEXT = "#123d42"
 SCROLL_REGION_LABEL = "جدول متابعة قابل للتمرير"
 
 
@@ -32,6 +33,7 @@ def _accessibility_css_block() -> str:
     return f"""
 {ACCESS_CSS_START}
 :root{{--tip237-brand:{SAFE_BRAND}}}
+.tip237-badges span,.tip237-card>span{{color:{SAFE_BADGE_TEXT}}}
 .tip237-table-wrap:focus-visible{{outline:3px solid {SAFE_BRAND};outline-offset:4px}}
 {ACCESS_CSS_END}
 """.strip()
@@ -90,6 +92,8 @@ def _normalize_accessibility_css(root: Path) -> None:
         raise RuntimeError("Practical tips accessibility CSS is missing or duplicated")
     if f"--tip237-brand:{SAFE_BRAND}" not in verified:
         raise RuntimeError("Practical tips safe link color is missing")
+    if f".tip237-badges span,.tip237-card>span{{color:{SAFE_BADGE_TEXT}}}" not in verified:
+        raise RuntimeError("Practical tips badge contrast rule is missing")
 
 
 def _focus_scroll_regions(root: Path) -> int:
@@ -166,6 +170,7 @@ def finalize(site: Path | str) -> dict:
     report["search_visibility_cards"] = card_count
     report["accessibility_contract"] = ACCESS_CONTRACT
     report["accessibility_link_color"] = SAFE_BRAND
+    report["accessibility_badge_text_color"] = SAFE_BADGE_TEXT
     report["accessible_scroll_regions"] = scroll_regions
     report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
