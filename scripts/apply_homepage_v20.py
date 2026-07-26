@@ -275,6 +275,7 @@ def main() -> None:
         "content_discovery_publisher": 219,
         "special_needs_guides_publisher": 217,
         "outside_the_box_publisher": 254,
+        "capabilities_publisher": 280,
         "light_palette": True,
         "core_sections_linked": True,
         "api_v1_published": True,
@@ -328,6 +329,7 @@ def main() -> None:
     run_publisher("publish_special_needs_v73.py")
     run_publisher("publish_special_needs_guides_v217.py")
     run_publisher("publish_outside_the_box_v254.py")
+    run_publisher("publish_capabilities_v280.py")
     run_publisher("publish_choose_professional_v176.py")
     synchronize_care_guides_report()
     run_publisher("publish_homepage_i18n_v72.py")
