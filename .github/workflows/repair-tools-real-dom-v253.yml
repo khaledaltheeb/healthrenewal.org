@@ -1,0 +1,232 @@
+name: Repair and verify tools real DOM v253
+
+on:
+  workflow_run:
+    workflows: ["Deploy validated main to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: repair-tools-real-dom-v253
+  cancel-in-progress: false
+
+jobs:
+  repair-and-deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout current repair source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          show-progress: false
+
+      - name: Resolve the exact validated production artifact run
+        id: source
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euxo pipefail
+          if [ "${EVENT_NAME}" = "workflow_dispatch" ]; then
+            HEAD_SHA="$(git rev-parse HEAD)"
+          else
+            HEAD_SHA="${EVENT_HEAD_SHA}"
+          fi
+          curl --retry 4 --retry-delay 3 -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows?per_page=100" \
+            -o /tmp/workflows.json
+          WORKFLOW_ID="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('/tmp/workflows.json').read_text(encoding='utf-8'))
+          matches=[item for item in data.get('workflows',[]) if item.get('name')=='Audit production discovery contract v220']
+          assert len(matches)==1,matches
+          print(matches[0]['id'])
+          PY
+          )"
+          curl --retry 4 --retry-delay 3 -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/${WORKFLOW_ID}/runs?head_sha=${HEAD_SHA}&status=success&per_page=30" \
+            -o /tmp/source-runs.json
+          RUN_ID="$(EXPECTED_SHA="${HEAD_SHA}" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          data=json.loads(Path('/tmp/source-runs.json').read_text(encoding='utf-8'))
+          runs=[r for r in data.get('workflow_runs',[]) if r.get('conclusion')=='success' and r.get('head_sha')==os.environ['EXPECTED_SHA']]
+          assert runs,{'expected_sha':os.environ['EXPECTED_SHA'],'runs':data.get('workflow_runs',[])[:5]}
+          runs.sort(key=lambda r:r.get('run_started_at') or r.get('created_at') or '',reverse=True)
+          print(runs[0]['id'])
+          PY
+          )"
+          echo "head_sha=${HEAD_SHA}" >> "${GITHUB_OUTPUT}"
+          echo "run_id=${RUN_ID}" >> "${GITHUB_OUTPUT}"
+          echo "workflow_id=${WORKFLOW_ID}" >> "${GITHUB_OUTPUT}"
+
+      - name: Download the exact validated site
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: patched-site
+          run-id: ${{ steps.source.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Patch every tools page and prove byte stability
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/patch_live_tools_real_dom_v253.py
+          python scripts/patch_live_tools_real_dom_v253.py patched-site | tee /tmp/tools-real-dom-first.json
+          cp -a patched-site /tmp/patched-site-first
+          python scripts/patch_live_tools_real_dom_v253.py patched-site | tee /tmp/tools-real-dom-second.json
+          diff -qr /tmp/patched-site-first patched-site
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('patched-site/api/tools-real-dom-marshmallow-v253.json').read_text(encoding='utf-8'))
+          assert report['version']==253,report
+          assert report['status']=='patched',report
+          assert report['pages']>=2,report
+          assert report['quiz']=='tools/quiz/index.html',report
+          assert report['real_dom_runtime'] is True,report
+          assert report['computed_dark_surface_repair'] is True,report
+          assert report['inline_important_override'] is True,report
+          quiz=Path('patched-site/tools/quiz/index.html').read_text(encoding='utf-8')
+          assert quiz.count('id="tools-real-dom-marshmallow-v253-style"')==1
+          assert quiz.count('id="tools-real-dom-marshmallow-v253-runtime"')==1
+          assert 'data-tools-runtime-painted' in quiz
+          assert 'MutationObserver' in quiz
+          assert 'style.setProperty(k,v,"important")' in quiz
+          second=json.loads(Path('/tmp/tools-real-dom-second.json').read_text(encoding='utf-8'))
+          assert second['changed']==0 and second['unchanged']==second['pages'],second
+          PY
+
+      - name: Install Chromium audit runtime
+        run: |
+          set -euxo pipefail
+          python -m pip install --disable-pip-version-check 'playwright>=1.50,<2'
+          python -m playwright install --with-deps chromium
+
+      - name: Verify the actual generated quiz DOM before deployment
+        run: |
+          set -euxo pipefail
+          python -m http.server 8765 --directory patched-site >/tmp/tools-v253-http.log 2>&1 &
+          echo $! >/tmp/tools-v253-http.pid
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              page=browser.new_page(viewport={'width':1440,'height':1100},color_scheme='dark',reduced_motion='reduce')
+              response=page.goto('http://127.0.0.1:8765/tools/quiz/?v=253',wait_until='networkidle',timeout=90000)
+              assert response and response.status==200,response
+              page.wait_for_function("Number(document.documentElement.getAttribute('data-tools-real-dom-applied')||0)>=2",timeout=30000)
+              audit=page.evaluate(r'''() => {
+                const parse=v=>{const m=String(v||'').match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?/i);return m?[+m[1],+m[2],+m[3],m[4]===undefined?1:+m[4]]:null};
+                const lum=c=>{const a=c.slice(0,3).map(n=>{n/=255;return n<=.04045?n/12.92:Math.pow((n+.055)/1.055,2.4)});return .2126*a[0]+.7152*a[1]+.0722*a[2]};
+                const visible=e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return r.width>=180&&r.height>=44&&s.display!=='none'&&s.visibility!=='hidden'&&+s.opacity>=.05};
+                const dark=[...document.querySelectorAll('main *')].filter(e=>{if(!visible(e))return false;const c=parse(getComputedStyle(e).backgroundColor);return c&&c[3]>.45&&lum(c)<.42}).map(e=>({tag:e.tagName,cls:String(e.className).slice(0,160),bg:getComputedStyle(e).backgroundColor,text:(e.textContent||'').trim().slice(0,100)}));
+                const painted=[...document.querySelectorAll('main [data-tools-runtime-painted="v253"]')];
+                return {dark,painted:painted.length,applied:Number(document.documentElement.getAttribute('data-tools-real-dom-applied')||0),title:document.querySelector('h1')?.textContent?.trim()||'',hasQuestion:(document.body.innerText||'').includes('السؤال'),styleBlocks:document.querySelectorAll('#tools-real-dom-marshmallow-v253-style').length,runtimeBlocks:document.querySelectorAll('#tools-real-dom-marshmallow-v253-runtime').length};
+              }''')
+              page.screenshot(path='/tmp/tools-quiz-real-dom-v253-before.png',full_page=True)
+              browser.close()
+          assert audit['dark']==[],audit
+          assert audit['painted']>=2,audit
+          assert audit['applied']>=2,audit
+          assert audit['hasQuestion'] is True,audit
+          assert audit['styleBlocks']==1 and audit['runtimeBlocks']==1,audit
+          Path('/tmp/tools-quiz-real-dom-v253-before.json').write_text(json.dumps(audit,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(audit,ensure_ascii=False,indent=2))
+          PY
+          kill "$(cat /tmp/tools-v253-http.pid)"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload repaired Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: patched-site
+
+      - name: Deploy repaired tools site
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify the real live quiz DOM without synthetic fixtures
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          SOURCE_SHA: ${{ steps.source.outputs.head_sha }}
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json,os,time
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          base=os.environ['PAGE_URL'].rstrip('/')+'/'
+          url=base+'tools/quiz/?v=real-dom-253-'+os.environ['SOURCE_SHA']
+          last=None
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              for attempt in range(1,16):
+                  page=browser.new_page(viewport={'width':1440,'height':1100},color_scheme='dark',reduced_motion='reduce')
+                  try:
+                      response=page.goto(url+f'-{attempt}',wait_until='networkidle',timeout=90000)
+                      if not response or response.status!=200:
+                          raise AssertionError(response.status if response else None)
+                      page.wait_for_function("Number(document.documentElement.getAttribute('data-tools-real-dom-applied')||0)>=2",timeout=20000)
+                      audit=page.evaluate(r'''() => {
+                        const parse=v=>{const m=String(v||'').match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?/i);return m?[+m[1],+m[2],+m[3],m[4]===undefined?1:+m[4]]:null};
+                        const lum=c=>{const a=c.slice(0,3).map(n=>{n/=255;return n<=.04045?n/12.92:Math.pow((n+.055)/1.055,2.4)});return .2126*a[0]+.7152*a[1]+.0722*a[2]};
+                        const dark=[...document.querySelectorAll('main *')].filter(e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e),c=parse(s.backgroundColor);return r.width>=180&&r.height>=44&&s.display!=='none'&&s.visibility!=='hidden'&&+s.opacity>=.05&&c&&c[3]>.45&&lum(c)<.42}).map(e=>({tag:e.tagName,cls:String(e.className).slice(0,160),bg:getComputedStyle(e).backgroundColor,text:(e.textContent||'').trim().slice(0,100)}));
+                        return {dark,painted:document.querySelectorAll('main [data-tools-runtime-painted="v253"]').length,applied:Number(document.documentElement.getAttribute('data-tools-real-dom-applied')||0),hasQuestion:(document.body.innerText||'').includes('السؤال'),styleBlocks:document.querySelectorAll('#tools-real-dom-marshmallow-v253-style').length,runtimeBlocks:document.querySelectorAll('#tools-real-dom-marshmallow-v253-runtime').length};
+                      }''')
+                      if audit['dark'] or audit['painted']<2 or not audit['hasQuestion'] or audit['styleBlocks']!=1 or audit['runtimeBlocks']!=1:
+                          raise AssertionError(audit)
+                      page.screenshot(path='/tmp/tools-quiz-real-dom-v253-live.png',full_page=True)
+                      last=audit
+                      page.close()
+                      break
+                  except Exception as exc:
+                      last={'attempt':attempt,'error':repr(exc)}
+                      page.close()
+                      time.sleep(10)
+              browser.close()
+          assert isinstance(last,dict) and 'error' not in last,last
+          evidence={'version':253,'status':'live-real-dom-passed','source_sha':os.environ['SOURCE_SHA'],'url':url,**last}
+          Path('/tmp/tools-quiz-real-dom-v253-live.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(evidence,ensure_ascii=False,indent=2))
+          PY
+
+      - name: Retain real-DOM evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tools-quiz-real-dom-v253
+          path: |
+            patched-site/api/tools-real-dom-marshmallow-v253.json
+            /tmp/tools-quiz-real-dom-v253-before.json
+            /tmp/tools-quiz-real-dom-v253-before.png
+            /tmp/tools-quiz-real-dom-v253-live.json
+            /tmp/tools-quiz-real-dom-v253-live.png
+            /tmp/tools-v253-http.log
+          if-no-files-found: warn
+          retention-days: 30
