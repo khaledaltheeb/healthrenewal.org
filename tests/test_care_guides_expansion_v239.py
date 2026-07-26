@@ -73,7 +73,7 @@ class CareGuidesExpansionV239Tests(unittest.TestCase):
             ):
                 self.assertNotIn(prohibited, joined, guide["slug"])
 
-    def test_complete_source_inventory_and_review_gate(self) -> None:
+    def test_legacy_inventory_and_v246_publication_gate(self) -> None:
         all_guides: list[dict] = []
         for path in SOURCE_FILES:
             payload = json.loads(path.read_text(encoding="utf-8"))
@@ -85,11 +85,15 @@ class CareGuidesExpansionV239Tests(unittest.TestCase):
         self.assertEqual([guide["slug"] for guide in blocked], ["autism-family-practical-guide"])
         self.assertTrue(EXPECTED_SLUGS.isdisjoint({guide["slug"] for guide in blocked}))
 
-        publisher = (ROOT / "scripts/publish_care_guides_v21.py").read_text(encoding="utf-8")
+        compatibility = (ROOT / "scripts/publish_care_guides_v21.py").read_text(encoding="utf-8")
+        publisher = (ROOT / "scripts/publish_care_guides_v246.py").read_text(encoding="utf-8")
+        self.assertIn("publish_care_guides_v246", compatibility)
         for path in EXPANDED_FILES:
             self.assertIn(f'ROOT / "content/v18/{path.name}"', publisher)
-        self.assertIn("EXPECTED_SOURCE_GUIDES = 14", publisher)
-        self.assertIn("CONTENT_RELEASE_VERSION = 239", publisher)
+        self.assertIn("EXPECTED_LEGACY_SOURCE_GUIDES = 14", publisher)
+        self.assertIn("EXPECTED_SOURCE_GUIDES = 101", publisher)
+        self.assertIn("MINIMUM_PUBLISHED_GUIDES = 100", publisher)
+        self.assertIn("CONTENT_RELEASE_VERSION = 246", publisher)
 
 
 if __name__ == "__main__":
