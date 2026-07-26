@@ -23,11 +23,16 @@ TIPS_REPORT = {
     "category_count": 29,
     "minimum_required_words": 700,
     "minimum_after_words": 812,
+    "minimum_topic_characters": 3100,
     "remaining_below_minimum": 0,
     "missing_or_failed": 0,
     "duplicate_slugs": 0,
     "duplicate_titles": 0,
     "sitemap_urls": 111,
+    "search_contract": "local-normalized-filter-v248",
+    "search_cards": 100,
+    "search_visibility_contract": "hidden-important-v248",
+    "search_visibility_cards": 100,
 }
 
 
@@ -84,14 +89,19 @@ class HealthGateHeaderIntegrationV233Tests(unittest.TestCase):
                 ) as health_gate, patch.object(
                     entry,
                     "_publish_practical_tips",
+                    return_value={"status": "publisher-passed"},
+                ) as tips_publisher, patch.object(
+                    entry,
+                    "_finalize_tips_search",
                     return_value=dict(TIPS_REPORT),
-                ) as tips_publisher:
+                ) as search_finalizer:
                     report = entry.enforce()
             finally:
                 entry.SITE = previous_site
 
             health_gate.assert_called_once_with()
             tips_publisher.assert_called_once_with(site, entry.REPO)
+            search_finalizer.assert_called_once_with(site)
             page = homepage.read_text(encoding="utf-8")
             sector = sector_page.read_text(encoding="utf-8")
             category = category_page.read_text(encoding="utf-8")
@@ -104,7 +114,13 @@ class HealthGateHeaderIntegrationV233Tests(unittest.TestCase):
             self.assertEqual(report["practical_tips_pillars"], 10)
             self.assertEqual(report["practical_tips_categories"], 29)
             self.assertEqual(report["practical_tips_minimum_words"], 812)
+            self.assertEqual(report["practical_tips_minimum_topic_characters"], 3100)
             self.assertEqual(report["practical_tips_sitemap_urls"], 111)
+            self.assertEqual(report["practical_tips_search_contract"], "local-normalized-filter-v248")
+            self.assertEqual(
+                report["practical_tips_search_visibility_contract"],
+                "hidden-important-v248",
+            )
             self.assertEqual(report["institutional_header_version"], 233)
             self.assertEqual(report["institutional_header_status"], "passed")
             self.assertEqual(report["institutional_header_section_links"], 12)
@@ -163,6 +179,8 @@ class HealthGateHeaderIntegrationV233Tests(unittest.TestCase):
                     "enforce",
                     return_value={"version": 192, "status": "passed"},
                 ), patch.object(entry, "_publish_practical_tips") as tips, patch.object(
+                    entry, "_finalize_tips_search"
+                ) as search, patch.object(
                     entry, "_publish_header"
                 ) as publisher, patch.object(
                     entry, "_finalize_image_dimensions"
@@ -172,6 +190,7 @@ class HealthGateHeaderIntegrationV233Tests(unittest.TestCase):
                 entry.SITE = previous_site
 
             tips.assert_not_called()
+            search.assert_not_called()
             publisher.assert_not_called()
             dimensions.assert_not_called()
             semantics.assert_not_called()
@@ -180,6 +199,12 @@ class HealthGateHeaderIntegrationV233Tests(unittest.TestCase):
     def test_invalid_practical_tips_contract_is_rejected(self) -> None:
         invalid = dict(TIPS_REPORT)
         invalid["guide_count"] = 99
+        with self.assertRaises(SystemExit):
+            entry.validate_practical_tips(invalid)
+
+    def test_missing_search_visibility_contract_is_rejected(self) -> None:
+        invalid = dict(TIPS_REPORT)
+        invalid.pop("search_visibility_contract")
         with self.assertRaises(SystemExit):
             entry.validate_practical_tips(invalid)
 
