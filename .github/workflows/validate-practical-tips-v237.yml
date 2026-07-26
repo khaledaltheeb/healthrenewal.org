@@ -194,6 +194,7 @@ jobs:
           cp "${TMP_SITE}/tips/index.html" practical-tips-v237-evidence/tips-index.html
           cp "${TMP_SITE}/tips/better-sleep/index.html" practical-tips-v237-evidence/better-sleep.html
           cp "${TMP_SITE}/tips/topics/sleep/index.html" practical-tips-v237-evidence/sleep-topic.html
+          cp "${TMP_SITE}/assets/css/practical-tips-v237.css" practical-tips-v237-evidence/practical-tips-v237.css
 
       - name: Verify the real production call chain
         run: |
