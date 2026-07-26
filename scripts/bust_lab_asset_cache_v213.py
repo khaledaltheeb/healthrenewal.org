@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -44,6 +45,30 @@ def version_page(path: Path) -> tuple[bool, str]:
     return changed, updated
 
 
+def publish_cognitive_sectors() -> dict:
+    publisher = Path(__file__).with_name("publish_cognitive_sectors_v246.py")
+    if not publisher.is_file():
+        raise SystemExit(f"Missing cognitive sectors publisher: {publisher}")
+    subprocess.run([sys.executable, str(publisher), "--self-test"], check=True)
+    subprocess.run([sys.executable, str(publisher), str(SITE)], check=True)
+    report_path = SITE / "api/cognitive-sectors-v246.json"
+    if not report_path.is_file():
+        raise SystemExit(f"Missing cognitive sectors publication report: {report_path}")
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report.get("status") == "published", report
+    assert report["legacy_sector"]["pages"] >= 8, report
+    assert report["modern_sector"]["pages"] >= 53, report
+    assert report["total_detail_pages"] >= 61, report
+    assert report["sitemap_urls"] >= 63, report
+    assert report.get("open_text_controls") == [], report
+    contracts = report.get("contracts", {})
+    assert contracts.get("all_detail_pages_published") is True, report
+    assert contracts.get("all_answers_are_selection_based") is True, report
+    assert contracts.get("complete_inventory") is True, report
+    assert contracts.get("sitemap_registered") is True, report
+    return report
+
+
 def main() -> None:
     pages = lab_pages()
     if len(pages) != 95:
@@ -78,9 +103,11 @@ def main() -> None:
     if missing:
         raise SystemExit(f"Generated Stroop runtime is incomplete: {missing}")
 
+    cognitive_sectors = publish_cognitive_sectors()
+
     report = {
         "version": 213,
-        "status": "built-not-published",
+        "status": "production-ready",
         "pages_scanned": len(pages),
         "assessment_pages": assessments,
         "cognitive_pages": cognitive,
@@ -91,6 +118,14 @@ def main() -> None:
         "stroop_palette_colors": 6,
         "stroop_inline_ink": True,
         "cache_busting_required": True,
+        "cognitive_sectors_v246": {
+            "status": cognitive_sectors["status"],
+            "legacy_pages": cognitive_sectors["legacy_sector"]["pages"],
+            "modern_pages": cognitive_sectors["modern_sector"]["pages"],
+            "total_detail_pages": cognitive_sectors["total_detail_pages"],
+            "sitemap_urls": cognitive_sectors["sitemap_urls"],
+            "contracts": cognitive_sectors["contracts"],
+        },
     }
     api = SITE / "api"
     api.mkdir(parents=True, exist_ok=True)
