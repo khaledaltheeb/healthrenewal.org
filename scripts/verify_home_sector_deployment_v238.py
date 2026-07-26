@@ -88,6 +88,25 @@ def _require_single(source: str, pattern: str, message: str, detail: str) -> Non
         fail(message, {"page": detail, "count": len(matches)})
 
 
+def _has_shell_component(source: str, component: str) -> bool:
+    """Accept the current v10 shell and retained institutional shell variants."""
+    if component == "header":
+        patterns = (
+            r'<header\b[^>]*\bid\s*=\s*["\']global-header["\']',
+            r'<header\b[^>]*\bclass\s*=\s*["\'][^"\']*\bsite-header-v10\b[^"\']*["\']',
+            r'<header\b[^>]*\bdata-platform-shell\s*=\s*["\']header["\']',
+        )
+    elif component == "footer":
+        patterns = (
+            r'<footer\b[^>]*\bid\s*=\s*["\']global-footer["\']',
+            r'<footer\b[^>]*\bclass\s*=\s*["\'][^"\']*\bsite-footer-v10\b[^"\']*["\']',
+            r'<footer\b[^>]*\bdata-platform-shell\s*=\s*["\']footer["\']',
+        )
+    else:
+        raise ValueError(f"Unknown shell component: {component}")
+    return any(re.search(pattern, source, flags=re.I | re.S) for pattern in patterns)
+
+
 def validate_indexable_page(path: Path, canonical: str, *, article: bool, minimum_words: int) -> dict[str, Any]:
     if not path.is_file():
         fail("Missing deployed page", path.as_posix())
@@ -102,9 +121,13 @@ def validate_indexable_page(path: Path, canonical: str, *, article: bool, minimu
     _require_single(source, r'<meta\b[^>]*name=["\']robots["\'][^>]*content=["\'][^"\']+["\']', "Page must contain one robots meta tag", path.as_posix())
     if re.search(r'<meta\b[^>]*name=["\']robots["\'][^>]*content=["\'][^"\']*noindex', source, flags=re.I | re.S):
         fail("Published page must not be noindex", path.as_posix())
-    for required in ('property="og:title"', 'name="twitter:card"', 'id="global-header"', 'id="global-footer"', "navigator.serviceWorker.register"):
+    for required in ('property="og:title"', 'name="twitter:card"', "navigator.serviceWorker.register"):
         if required not in source:
-            fail("Published page is missing SEO, shell or PWA integration", {"page": path.as_posix(), "required": required})
+            fail("Published page is missing SEO or PWA integration", {"page": path.as_posix(), "required": required})
+    if not _has_shell_component(source, "header"):
+        fail("Published page is missing institutional header", path.as_posix())
+    if not _has_shell_component(source, "footer"):
+        fail("Published page is missing institutional footer", path.as_posix())
     if "application/ld+json" not in source:
         fail("Structured data block is missing", path.as_posix())
     if article and not re.search(r'"@type"\s*:\s*"Article"', source):
