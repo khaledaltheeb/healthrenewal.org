@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import re
 from pathlib import Path
 
 import enhance_care_guides_v234 as base
@@ -18,9 +20,64 @@ CATEGORY_RULES = (
     ("daily", "النوم والعمل والمرض المزمن", ("نوم", "أرق", "كوابيس", "ألم مزمن", "مرض مزمن", "العمل", "sleep", "insomnia", "pain", "workplace")),
 )
 
+_META_RE = re.compile(r"<meta\b[^>]*>", flags=re.I)
+_ATTRIBUTE_RE = re.compile(r'\b(name|property|http-equiv)=["\']([^"\']+)["\']', flags=re.I)
+
+
+def deduplicate_meta_tags(path: Path) -> int:
+    text = path.read_text(encoding="utf-8")
+    seen: set[tuple[str, str]] = set()
+    removed = 0
+
+    def replace(match: re.Match[str]) -> str:
+        nonlocal removed
+        tag = match.group(0)
+        attribute = _ATTRIBUTE_RE.search(tag)
+        if not attribute:
+            return tag
+        key = (attribute.group(1).lower(), attribute.group(2).strip().lower())
+        if key in seen:
+            removed += 1
+            return ""
+        seen.add(key)
+        return tag
+
+    normalized = _META_RE.sub(replace, text)
+    if normalized != text:
+        path.write_text(normalized, encoding="utf-8")
+    return removed
+
+
+def duplicate_meta_keys(path: Path) -> list[str]:
+    text = path.read_text(encoding="utf-8")
+    keys: list[tuple[str, str]] = []
+    for tag in _META_RE.findall(text):
+        attribute = _ATTRIBUTE_RE.search(tag)
+        if attribute:
+            keys.append((attribute.group(1).lower(), attribute.group(2).strip().lower()))
+    return sorted({f"{kind}:{value}" for kind, value in keys if keys.count((kind, value)) > 1})
+
 
 def enhance(site: Path) -> dict[str, object]:
     base.RELEASE_DATE = RELEASE_DATE
     base.ENHANCEMENT_VERSION = ENHANCEMENT_VERSION
     base.CATEGORY_RULES = CATEGORY_RULES
-    return base.enhance(site)
+    report = base.enhance(site)
+
+    site = Path(site).resolve()
+    pages = sorted((site / "care-guides").rglob("index.html"))
+    removed = sum(deduplicate_meta_tags(path) for path in pages)
+    remaining = {
+        str(path.relative_to(site)): duplicate_meta_keys(path)
+        for path in pages
+        if duplicate_meta_keys(path)
+    }
+    if remaining:
+        raise SystemExit(f"Duplicate care-guide metadata remains after normalization: {remaining}")
+
+    report["version"] = ENHANCEMENT_VERSION
+    report["duplicate_meta_tags_removed"] = removed
+    report["duplicate_meta_keys"] = remaining
+    report_path = site / "api/care-guides-v234.json"
+    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return report
