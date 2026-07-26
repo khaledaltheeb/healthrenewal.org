@@ -78,7 +78,7 @@ SOURCES = {
     ],
     "communication": [
         s("National Institute on Deafness and Other Communication Disorders", "Speech and language", "https://www.nidcd.nih.gov/health/speech-and-language", 2026),
-        s("CDC", "Developmental monitoring and screening", "https://www.cdc.gov/ncbddd/actearly/index.html", 2026),
+        s("CDC", "Developmental monitoring and screening", "https://www.cdc.gov/act-early/about/developmental-monitoring-and-screening.html", 2026),
         s("World Health Organization", "Disability and health", "https://www.who.int/news-room/fact-sheets/detail/disability-and-health", 2023),
     ],
     "access": [
@@ -109,7 +109,7 @@ SOURCES = {
     "delirium": [
         s("NICE", "Delirium: prevention, diagnosis and management", "https://www.nice.org.uk/guidance/cg103/chapter/Recommendations", 2023),
         s("NHS", "Sudden confusion (delirium)", "https://www.nhs.uk/conditions/confusion/", 2026),
-        s("National Institute on Aging", "Older adults and hospitalization", "https://www.nia.nih.gov/health/what-do-after-someone-hospitalized", 2026),
+        s("National Institute on Aging", "Hospitals and hospitalization", "https://www.nia.nih.gov/health/hospitals-and-hospitalization", 2026),
     ],
     "older": [
         s("World Health Organization", "Mental health of older adults", "https://www.who.int/news-room/fact-sheets/detail/mental-health-of-older-adults", 2023),
