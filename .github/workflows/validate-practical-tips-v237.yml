@@ -1,0 +1,212 @@
+name: Validate practical tips library v237
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v237/practical-tips-v237.json.gz.b64"
+      - "scripts/publish_practical_tips_v237.py"
+      - "scripts/publish_practical_tips_v237.py.gz.b64"
+      - "scripts/finalize_practical_tips_search_v248.py"
+      - "scripts/enforce_health_publication_gate_v192.py"
+      - "scripts/apply_homepage_v20.py"
+      - "scripts/verify_core_sections_v15.py"
+      - "scripts/audit_full_site_i18n_v72.py"
+      - "scripts/browser_audit_v16.mjs"
+      - "tests/test_practical_tips_v237.py"
+      - "tests/test_practical_tips_v237_compat.py"
+      - "tests/test_practical_tips_search_visibility_v248.py"
+      - "tests/test_verify_core_sections_v244.py"
+      - "tests/test_health_gate_header_integration_v233.py"
+      - "tests/test_full_site_tips_contract_v248.py"
+      - ".github/workflows/validate-practical-tips-v237.yml"
+      - ".github/workflows/validate-global-quality-v20.yml"
+      - ".github/workflows/validate-full-site-v16.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "content/v237/practical-tips-v237.json.gz.b64"
+      - "scripts/publish_practical_tips_v237.py"
+      - "scripts/publish_practical_tips_v237.py.gz.b64"
+      - "scripts/finalize_practical_tips_search_v248.py"
+      - "scripts/enforce_health_publication_gate_v192.py"
+      - "scripts/apply_homepage_v20.py"
+      - "scripts/verify_core_sections_v15.py"
+      - "scripts/audit_full_site_i18n_v72.py"
+      - "scripts/browser_audit_v16.mjs"
+      - "tests/test_practical_tips_v237.py"
+      - "tests/test_practical_tips_v237_compat.py"
+      - "tests/test_practical_tips_search_visibility_v248.py"
+      - "tests/test_verify_core_sections_v244.py"
+      - "tests/test_health_gate_header_integration_v233.py"
+      - "tests/test_full_site_tips_contract_v248.py"
+      - ".github/workflows/validate-practical-tips-v237.yml"
+      - ".github/workflows/validate-global-quality-v20.yml"
+      - ".github/workflows/validate-full-site-v16.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: practical-tips-v237-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile publisher search finalizer integration browser contract and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_practical_tips_v237.py \
+            scripts/finalize_practical_tips_search_v248.py \
+            scripts/enforce_health_publication_gate_v192.py \
+            scripts/apply_homepage_v20.py \
+            scripts/verify_core_sections_v15.py \
+            scripts/audit_full_site_i18n_v72.py \
+            tests/test_practical_tips_v237.py \
+            tests/test_practical_tips_v237_compat.py \
+            tests/test_practical_tips_search_visibility_v248.py \
+            tests/test_verify_core_sections_v244.py \
+            tests/test_health_gate_header_integration_v233.py \
+            tests/test_full_site_tips_contract_v248.py
+          node --check scripts/browser_audit_v16.mjs
+          python - <<'PY'
+          import base64, gzip, json
+          from pathlib import Path
+          publisher = gzip.decompress(base64.b64decode(Path('scripts/publish_practical_tips_v237.py.gz.b64').read_bytes()))
+          compile(publisher.decode('utf-8'), 'packed-publisher-v237', 'exec')
+          registry = gzip.decompress(base64.b64decode(Path('content/v237/practical-tips-v237.json.gz.b64').read_bytes()))
+          data = json.loads(registry.decode('utf-8'))
+          assert data['version'] == 237 and len(data['new_guides']) == 80, data
+          PY
+
+      - name: Run deterministic publisher search and production integration contracts
+        run: |
+          set -euxo pipefail
+          python -m unittest -v \
+            tests.test_practical_tips_v237 \
+            tests.test_practical_tips_v237_compat \
+            tests.test_practical_tips_search_visibility_v248 \
+            tests.test_verify_core_sections_v244 \
+            tests.test_health_gate_header_integration_v233 \
+            tests.test_full_site_tips_contract_v248
+
+      - name: Publish and verify the real one hundred guide registry
+        run: |
+          set -euxo pipefail
+          TMP_SITE="/tmp/practical-tips-v237-site"
+          rm -rf "${TMP_SITE}" practical-tips-v237-evidence
+          mkdir -p "${TMP_SITE}/assets"
+          printf '%s\n' '<svg xmlns="http://www.w3.org/2000/svg"></svg>' > "${TMP_SITE}/assets/logo.svg"
+          printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>' > "${TMP_SITE}/sitemap.xml"
+          python scripts/publish_practical_tips_v237.py "${TMP_SITE}"
+          python scripts/finalize_practical_tips_search_v248.py "${TMP_SITE}"
+          REPORT="${TMP_SITE}/api/practical-tips-v237.json"
+          REPORT="${REPORT}" TMP_SITE="${TMP_SITE}" python - <<'PY'
+          import html, json, os, re
+          from pathlib import Path
+          root = Path(os.environ['TMP_SITE'])
+          report = json.loads(Path(os.environ['REPORT']).read_text(encoding='utf-8'))
+          expected = {
+              'version': 237, 'status': 'passed', 'guide_count': 100,
+              'preserved_existing_guides': 20, 'new_guides': 80,
+              'pillar_count': 10, 'minimum_required_words': 700,
+              'remaining_below_minimum': 0, 'missing_or_failed': 0,
+              'duplicate_slugs': 0, 'duplicate_titles': 0,
+              'sitemap_urls': 111, 'core_sections_compatibility': 'passed',
+              'compatibility_pages': 100, 'unique_titles': 100,
+              'unique_descriptions': 100, 'topic_depth_status': 'passed',
+              'topic_depth_pages': 10,
+              'search_contract': 'local-normalized-filter-v248',
+              'search_cards': 100,
+              'search_visibility_contract': 'hidden-important-v248',
+              'search_visibility_cards': 100,
+          }
+          for key, value in expected.items():
+              assert report.get(key) == value, (key, report.get(key), value)
+          assert report['category_count'] >= 25, report
+          assert report['minimum_after_words'] >= 700, report
+          assert report['minimum_topic_characters'] >= 1800, report
+          pages = sorted((root / 'tips').glob('*/index.html'))
+          topics = sorted((root / 'tips/topics').glob('*/index.html'))
+          assert len(pages) == 100 and len(topics) == 10, (len(pages), len(topics))
+          for page in pages:
+              source = page.read_text(encoding='utf-8')
+              assert source.count('practical-tips-v237-core-compat:start') == 1, page
+              assert all(
+                  marker in source
+                  for marker in (
+                      'جملة جاهزة للاستخدام',
+                      'كيف تعرف أن الخطة تتحسن؟',
+                      'متى تحتاج إلى مساعدة؟',
+                      'مصادر موثوقة للتوسع',
+                  )
+              ), page
+              assert len(re.findall(r'<li\b', source, flags=re.I)) >= 6, page
+          topic_lengths = []
+          for page in topics:
+              source = page.read_text(encoding='utf-8')
+              assert source.count('practical-tips-v237-topic-depth:start') == 1, page
+              assert source.count('practical-tips-v237-topic-depth:end') == 1, page
+              plain = re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', source))).strip()
+              topic_lengths.append(len(plain))
+          assert min(topic_lengths) >= 1800, min(topic_lengths)
+          assert min(topic_lengths) == report['minimum_topic_characters'], (min(topic_lengths), report)
+          index_source = (root / 'tips/index.html').read_text(encoding='utf-8')
+          assert index_source.count('practical-tips-v248-search:start') == 1
+          assert index_source.count('practical-tips-v248-search:end') == 1
+          assert index_source.count('practical-tips-v248-search-visibility:start') == 1
+          assert index_source.count('practical-tips-v248-search-visibility:end') == 1
+          assert 'id="practical-tips-v248-search"' in index_source
+          assert 'id="practical-tips-v248-search-visibility"' in index_source
+          assert "card.hidden = !matches" in index_source
+          assert '[data-search][hidden]{display:none!important}' in index_source
+          print({
+              'guide_count': 100,
+              'topics': 10,
+              'sitemap_urls': 111,
+              'minimum_words': report['minimum_after_words'],
+              'minimum_topic_characters': min(topic_lengths),
+              'search_cards': report['search_cards'],
+              'search_visibility_contract': report['search_visibility_contract'],
+          })
+          PY
+          ! grep -R -Eqi 'يعالج نهائيًا|شفاء مضمون|بديل عن الطبيب|تشخيصك هو|معاقين' "${TMP_SITE}/tips"
+          mkdir -p practical-tips-v237-evidence
+          cp "${REPORT}" practical-tips-v237-evidence/
+          cp "${TMP_SITE}/tips/index.html" practical-tips-v237-evidence/tips-index.html
+          cp "${TMP_SITE}/tips/better-sleep/index.html" practical-tips-v237-evidence/better-sleep.html
+          cp "${TMP_SITE}/tips/topics/sleep/index.html" practical-tips-v237-evidence/sleep-topic.html
+
+      - name: Verify the real production call chain
+        run: |
+          set -euxo pipefail
+          grep -q 'from scripts.publish_practical_tips_v237 import publish as _publish_practical_tips' scripts/enforce_health_publication_gate_v192.py
+          grep -q 'from scripts.finalize_practical_tips_search_v248 import finalize as _finalize_tips_search' scripts/enforce_health_publication_gate_v192.py
+          grep -q 'tips_report = _publish_practical_tips(SITE, REPO)' scripts/enforce_health_publication_gate_v192.py
+          grep -q 'tips_report = _finalize_tips_search(SITE)' scripts/enforce_health_publication_gate_v192.py
+          grep -q 'run_publisher("enforce_health_publication_gate_v192.py")' scripts/apply_homepage_v20.py
+          grep -q 'python scripts/apply_homepage_v20.py _site' .github/workflows/validate-global-quality-v20.yml
+          grep -q 'from scripts import apply_homepage_v20 as homepage' scripts/diagnose_apply_homepage_v221.py
+          grep -q 'python scripts/diagnose_apply_homepage_v221.py _site' .github/workflows/validate-full-site-v16.yml
+          grep -q 'run_legacy_with_practical_tips_upgrade' scripts/audit_full_site_i18n_v72.py
+          grep -q "search_contract: 'local-normalized-filter-v248'" scripts/browser_audit_v16.mjs
+
+      - name: Upload generated practical tip evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: practical-tips-v237-generated-evidence
+          path: practical-tips-v237-evidence
+          if-no-files-found: error
+          retention-days: 14
