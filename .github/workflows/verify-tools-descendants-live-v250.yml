@@ -1,4 +1,4 @@
-name: Verify tools descendants live v250
+name: Verify tools descendants live v252
 
 on:
   workflow_run:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: verify-tools-descendants-live-v250
+  group: verify-tools-descendants-live-v252
   cancel-in-progress: true
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     env:
       SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
     steps:
@@ -44,7 +44,7 @@ jobs:
           test -s /tmp/tools-descendants-report.json
           test -s /tmp/live-deployment.json
 
-      - name: Verify every published tools page and the quiz route
+      - name: Verify every published tools page and the complete quiz contract
         run: |
           set -euxo pipefail
           python - <<'PY'
@@ -60,6 +60,7 @@ jobs:
           report = json.loads(Path('/tmp/tools-descendants-report.json').read_text(encoding='utf-8'))
           deployment = json.loads(Path('/tmp/live-deployment.json').read_text(encoding='utf-8'))
 
+          assert report.get('version', 0) >= 252, report
           assert report.get('status') == 'published', report
           assert report.get('scope') == 'tools/**/*.html', report
           assert report.get('pages', 0) >= 2, report
@@ -67,7 +68,17 @@ jobs:
           assert report.get('quiz_route') == 'tools/quiz/index.html', report
           assert report.get('quiz_fixed') is True, report
           assert report.get('unstyled_pages') == [], report
+          assert report.get('style_replacement_enabled') is True, report
+          assert report.get('selected_states_styled') is True, report
+          assert report.get('nested_option_text_forced') is True, report
+          assert report.get('disabled_states_styled') is True, report
           assert report.get('dark_mode_blackening_blocked') is True, report
+          assert report.get('high_contrast_supported') is True, report
+          assert report.get('reduced_motion_supported') is True, report
+          contrast = report.get('contrast', {})
+          assert contrast.get('passes_wcag_aa_normal_text') is True, report
+          assert contrast.get('minimum_ratio', 0) >= 5.2, report
+          assert len(contrast.get('pairs', {})) >= 25, report
 
           routes = report.get('routes')
           assert isinstance(routes, list) and routes, report
@@ -88,7 +99,14 @@ jobs:
               '--tdm-mint:#e5faf5',
               'background:linear-gradient(145deg,#fff,var(--tdm-mint))!important',
               'color:var(--tdm-ink)!important',
+              'label:has(input[type="radio"]:checked)',
+              '[role="radio"][aria-checked="true"]',
+              'color:inherit!important',
+              'button:disabled',
+              '::placeholder',
               '@media(prefers-color-scheme:dark)',
+              '@media(prefers-contrast:more)',
+              '@media(prefers-reduced-motion:reduce)',
           )
 
           verified = []
@@ -103,7 +121,7 @@ jobs:
               request = urllib.request.Request(
                   url,
                   headers={
-                      'User-Agent': 'tools-descendants-live-v250',
+                      'User-Agent': 'tools-descendants-live-v252',
                       'Cache-Control': 'no-cache, no-store, max-age=0',
                       'Pragma': 'no-cache',
                   },
@@ -142,18 +160,158 @@ jobs:
           assert len(verified) == len(routes), (len(verified), len(routes))
 
           evidence = {
-              'version': 250,
-              'status': 'passed',
+              'version': 252,
+              'status': 'source-contract-passed',
               'live_commit': commit,
               'pages_reported': report['pages'],
               'pages_verified': len(verified),
               'quiz_verified': any(item['route'] == 'tools/quiz/index.html' for item in verified),
               'all_descendants_verified': True,
+              'minimum_declared_contrast_ratio': contrast['minimum_ratio'],
+              'selected_states_styled': True,
+              'nested_option_text_forced': True,
+              'disabled_states_styled': True,
               'dark_mode_blackening_blocked': True,
               'verified_at': datetime.now(timezone.utc).isoformat(),
               'pages': verified,
           }
-          Path('/tmp/tools-descendants-live-v250.json').write_text(
+          Path('/tmp/tools-descendants-live-v252.json').write_text(
+              json.dumps(evidence, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(evidence, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Install Chromium for computed-style verification
+        run: |
+          set -euxo pipefail
+          python -m pip install --disable-pip-version-check 'playwright>=1.50,<2'
+          python -m playwright install --with-deps chromium
+
+      - name: Verify computed colors, selected state and disabled state in Chromium
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json
+          import time
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+
+          url = f"https://khaledaltheeb.github.io/pterminology-site/tools/quiz/?v={int(time.time())}"
+          with sync_playwright() as playwright:
+              browser = playwright.chromium.launch(headless=True)
+              page = browser.new_page(
+                  viewport={"width": 1440, "height": 1100},
+                  color_scheme="dark",
+                  reduced_motion="reduce",
+              )
+              response = page.goto(url, wait_until="networkidle", timeout=90000)
+              assert response is not None and response.status == 200, response
+              page.evaluate(
+                  """
+                  () => {
+                    const host = document.querySelector('main') || document.body;
+                    const fixture = document.createElement('section');
+                    fixture.id = 'tools-v252-computed-fixture';
+                    fixture.className = 'quiz-panel';
+                    fixture.innerHTML = `
+                      <article class="question" data-question>
+                        <h2>فحص التباين الحي</h2>
+                        <p class="question-text">نص السؤال التجريبي</p>
+                        <div role="radiogroup">
+                          <label class="option" data-option>
+                            <input type="radio" name="live-audit" checked>
+                            <span class="option-text">خيار محدد واضح</span>
+                          </label>
+                          <div class="choice" role="radio" aria-checked="true">
+                            <span>خيار ARIA واضح</span>
+                          </div>
+                        </div>
+                        <div class="result" data-result data-state="incorrect">
+                          <strong>النتيجة</strong><output>نص النتيجة</output>
+                        </div>
+                        <button type="button" disabled>زر غير متاح</button>
+                      </article>`;
+                    host.prepend(fixture);
+                  }
+                  """
+              )
+              audit = page.evaluate(
+                  """
+                  () => {
+                    const parse = value => {
+                      const match = String(value).match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+                      return match ? [Number(match[1]), Number(match[2]), Number(match[3])] : null;
+                    };
+                    const luminance = rgb => {
+                      const values = rgb.map(channel => {
+                        const c = channel / 255;
+                        return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+                      });
+                      return 0.2126 * values[0] + 0.7152 * values[1] + 0.0722 * values[2];
+                    };
+                    const contrast = (a, b) => {
+                      const first = luminance(a);
+                      const second = luminance(b);
+                      return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
+                    };
+                    const backgrounds = style => {
+                      const colors = [...String(style.backgroundImage).matchAll(/rgba?\((\d+),\s*(\d+),\s*(\d+)/gi)]
+                        .map(match => [Number(match[1]), Number(match[2]), Number(match[3])]);
+                      const solid = parse(style.backgroundColor);
+                      if (solid && !colors.length) colors.push(solid);
+                      return colors;
+                    };
+                    const inspect = selector => {
+                      const element = document.querySelector(selector);
+                      if (!element) return {selector, missing: true};
+                      const style = getComputedStyle(element);
+                      const foreground = parse(style.color);
+                      const stops = backgrounds(style);
+                      const ratios = foreground && stops.length ? stops.map(bg => contrast(foreground, bg)) : [];
+                      return {
+                        selector,
+                        color: style.color,
+                        backgroundColor: style.backgroundColor,
+                        backgroundImage: style.backgroundImage,
+                        borderColor: style.borderColor,
+                        borderWidth: style.borderWidth,
+                        colorScheme: style.colorScheme,
+                        ratios,
+                        minimumRatio: ratios.length ? Math.min(...ratios) : null,
+                      };
+                    };
+                    const option = inspect('#tools-v252-computed-fixture label.option');
+                    const optionText = inspect('#tools-v252-computed-fixture .option-text');
+                    const ariaOption = inspect('#tools-v252-computed-fixture [role="radio"]');
+                    const result = inspect('#tools-v252-computed-fixture .result');
+                    const disabled = inspect('#tools-v252-computed-fixture button:disabled');
+                    const body = inspect('body');
+                    return {option, optionText, ariaOption, result, disabled, body};
+                  }
+                  """
+              )
+              page.screenshot(path='/tmp/tools-quiz-live-v252.png', full_page=True)
+              browser.close()
+
+          for name in ('option', 'optionText', 'ariaOption', 'result', 'disabled'):
+              item = audit[name]
+              assert not item.get('missing'), (name, audit)
+              assert item.get('minimumRatio') is not None, (name, item)
+              assert item['minimumRatio'] >= 4.5, (name, item)
+          assert audit['option']['borderWidth'] not in ('0px', ''), audit
+          assert audit['ariaOption']['borderWidth'] not in ('0px', ''), audit
+          assert audit['option']['color'] == audit['optionText']['color'], audit
+          assert audit['body']['colorScheme'] == 'light', audit
+
+          evidence_path = Path('/tmp/tools-descendants-live-v252.json')
+          evidence = json.loads(evidence_path.read_text(encoding='utf-8'))
+          evidence['status'] = 'passed'
+          evidence['computed_style_verified'] = True
+          evidence['dark_scheme_browser_verified'] = True
+          evidence['reduced_motion_browser_verified'] = True
+          evidence['computed_styles'] = audit
+          evidence_path.write_text(
               json.dumps(evidence, ensure_ascii=False, indent=2) + '\n',
               encoding='utf-8',
           )
@@ -164,10 +322,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: tools-descendants-live-v250
+          name: tools-descendants-live-v252
           path: |
-            /tmp/tools-descendants-live-v250.json
+            /tmp/tools-descendants-live-v252.json
             /tmp/tools-descendants-report.json
             /tmp/live-deployment.json
+            /tmp/tools-quiz-live-v252.png
           if-no-files-found: warn
           retention-days: 30

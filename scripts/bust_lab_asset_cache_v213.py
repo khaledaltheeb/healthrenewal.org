@@ -75,7 +75,7 @@ def apply_tools_descendant_marshmallow() -> dict:
     tools_root = SITE / "tools"
     if not tools_root.is_dir():
         return {
-            "version": 250,
+            "version": 252,
             "status": "not-applicable",
             "pages": 0,
             "child_pages": 0,
@@ -91,20 +91,32 @@ def apply_tools_descendant_marshmallow() -> dict:
     if not report_path.is_file():
         raise SystemExit(f"Missing tools descendant Marshmallow report: {report_path}")
     report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report.get("version", 0) >= 252, report
     assert report.get("status") == "published", report
     assert report.get("pages", 0) >= 2, report
     assert report.get("child_pages", 0) >= 1, report
     assert report.get("quiz_route") == "tools/quiz/index.html", report
     assert report.get("quiz_fixed") is True, report
     assert report.get("unstyled_pages") == [], report
+    assert report.get("style_replacement_enabled") is True, report
+    assert report.get("selected_states_styled") is True, report
+    assert report.get("nested_option_text_forced") is True, report
+    assert report.get("disabled_states_styled") is True, report
     assert report.get("dark_mode_blackening_blocked") is True, report
+    assert report.get("high_contrast_supported") is True, report
+    assert report.get("reduced_motion_supported") is True, report
+    contrast = report.get("contrast", {})
+    assert contrast.get("passes_wcag_aa_normal_text") is True, report
+    assert contrast.get("minimum_ratio", 0) >= 4.5, report
     return report
 
 
 def main() -> None:
     pages = lab_pages()
     if len(pages) != 95:
-        raise SystemExit(f"Expected 95 lab HTML pages (40 assessments + 53 cognitive + 2 indexes), found {len(pages)}")
+        raise SystemExit(
+            f"Expected 95 lab HTML pages (40 assessments + 53 cognitive + 2 indexes), found {len(pages)}"
+        )
 
     changed = 0
     cognitive = 0
@@ -164,10 +176,23 @@ def main() -> None:
             "contracts": cognitive_sectors["contracts"],
         },
         "tools_descendant_marshmallow_v250": {
+            "version": tools_descendants["version"],
             "status": tools_descendants["status"],
             "pages": tools_descendants["pages"],
             "child_pages": tools_descendants.get("child_pages", 0),
             "quiz_fixed": tools_descendants["quiz_fixed"],
+            "style_replacement_enabled": tools_descendants.get("style_replacement_enabled"),
+            "selected_states_styled": tools_descendants.get("selected_states_styled"),
+            "nested_option_text_forced": tools_descendants.get("nested_option_text_forced"),
+            "disabled_states_styled": tools_descendants.get("disabled_states_styled"),
+            "dark_mode_blackening_blocked": tools_descendants.get(
+                "dark_mode_blackening_blocked"
+            ),
+            "high_contrast_supported": tools_descendants.get("high_contrast_supported"),
+            "reduced_motion_supported": tools_descendants.get("reduced_motion_supported"),
+            "minimum_contrast_ratio": tools_descendants.get("contrast", {}).get(
+                "minimum_ratio"
+            ),
             "unstyled_pages": tools_descendants["unstyled_pages"],
         },
     }

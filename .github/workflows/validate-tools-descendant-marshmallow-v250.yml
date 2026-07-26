@@ -1,4 +1,4 @@
-name: Validate tools descendant Marshmallow v250
+name: Validate tools descendant Marshmallow v252
 
 on:
   pull_request:
@@ -9,6 +9,7 @@ on:
       - "scripts/enforce_platform_identity_v201.py"
       - "tests/test_tools_descendant_marshmallow_v250.py"
       - ".github/workflows/validate-tools-descendant-marshmallow-v250.yml"
+      - ".github/workflows/verify-tools-descendants-live-v250.yml"
   push:
     branches: [main]
     paths:
@@ -17,19 +18,20 @@ on:
       - "scripts/enforce_platform_identity_v201.py"
       - "tests/test_tools_descendant_marshmallow_v250.py"
       - ".github/workflows/validate-tools-descendant-marshmallow-v250.yml"
+      - ".github/workflows/verify-tools-descendants-live-v250.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: tools-descendant-marshmallow-v250-${{ github.ref }}
+  group: tools-descendant-marshmallow-v252-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,14 +47,21 @@ jobs:
             scripts/apply_tools_descendant_marshmallow_v250.py \
             scripts/bust_lab_asset_cache_v213.py \
             tests/test_tools_descendant_marshmallow_v250.py
-      - name: Run descendant Marshmallow regression suite
+      - name: Run descendant Marshmallow regression and contrast suite
         run: |
           set -euxo pipefail
           python -m unittest -v tests.test_tools_descendant_marshmallow_v250
-      - name: Prove production hook and quiz contract are wired
+      - name: Prove production hook and complete quiz contract are wired
         run: |
           set -euxo pipefail
           grep -F 'apply_tools_descendant_marshmallow_v250.py' scripts/bust_lab_asset_cache_v213.py
           grep -F 'tools/quiz/index.html' scripts/apply_tools_descendant_marshmallow_v250.py
           grep -F 'tools/**/*.html' scripts/apply_tools_descendant_marshmallow_v250.py
+          grep -F 'style_replacement_enabled' scripts/apply_tools_descendant_marshmallow_v250.py
+          grep -F 'selected_states_styled' scripts/apply_tools_descendant_marshmallow_v250.py
+          grep -F 'nested_option_text_forced' scripts/apply_tools_descendant_marshmallow_v250.py
+          grep -F 'disabled_states_styled' scripts/apply_tools_descendant_marshmallow_v250.py
+          grep -F 'passes_wcag_aa_normal_text' scripts/apply_tools_descendant_marshmallow_v250.py
           grep -F 'dark_mode_blackening_blocked' scripts/apply_tools_descendant_marshmallow_v250.py
+          grep -F '@media(prefers-contrast:more)' scripts/apply_tools_descendant_marshmallow_v250.py
+          grep -F '@media(prefers-reduced-motion:reduce)' scripts/apply_tools_descendant_marshmallow_v250.py
