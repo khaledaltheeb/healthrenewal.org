@@ -19,8 +19,8 @@ CATEGORY_RULES = (
 )
 
 
-def enhance(site: Path) -> None:
+def enhance(site: Path) -> dict[str, object]:
     base.RELEASE_DATE = RELEASE_DATE
     base.ENHANCEMENT_VERSION = ENHANCEMENT_VERSION
     base.CATEGORY_RULES = CATEGORY_RULES
-    base.enhance(site)
+    return base.enhance(site)
