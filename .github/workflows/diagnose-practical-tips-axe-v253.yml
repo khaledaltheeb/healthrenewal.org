@@ -1,0 +1,91 @@
+name: Diagnose practical tips Axe v253
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/diagnose_practical_tips_axe_v253.mjs"
+      - ".github/workflows/diagnose-practical-tips-axe-v253.yml"
+      - "scripts/finalize_practical_tips_search_v248.py"
+      - "scripts/publish_practical_tips_v237.py"
+      - "content/v237/practical-tips-v237.json.gz.b64"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: diagnose-practical-tips-axe-v253-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Restore production sources
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          node --check scripts/diagnose_practical_tips_axe_v253.mjs
+      - name: Build exact current production output
+        run: |
+          set -euxo pipefail
+          python build_site.py
+          python enrich_site_v7.py
+          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+          python scripts/scale_site_v8.py
+          python expand_site_v9.py
+          python scripts/design_content_v10.py
+          python scripts/apply_contrast_v11.py _site
+          python scripts/expand_v12_direct.py _site
+          python scripts/run_encyclopedia_v13.py _site
+          python scripts/performance_hotfix_v14.py _site
+          python scripts/optimize_site_performance_v14.py _site
+          python scripts/defer_encyclopedia_index_v20.py _site
+          python scripts/strip_nonlab_runtime_v14.py _site
+          python scripts/finalize_pwa_v14.py _site
+          python scripts/complete_core_sections_v15.py _site
+          python scripts/apply_homepage_v20.py _site
+          python scripts/publish_care_guides_v21.py _site
+          python scripts/link_care_guides_v21.py _site
+          python scripts/polish_site_v16.py _site
+          python scripts/audit_site_integrity_v13.py _site
+          python scripts/finalize_pwa_v14.py _site
+          python scripts/verify_performance_v14.py _site
+          python scripts/verify_core_sections_v15.py _site
+          python scripts/audit_full_site_i18n_v72.py _site
+      - name: Install browser and Axe
+        run: |
+          npm install --no-save playwright @axe-core/playwright
+          npx playwright install --with-deps chromium
+      - name: Capture exact tips violation nodes
+        run: |
+          set -euxo pipefail
+          mkdir -p preview practical-tips-axe-v253-evidence
+          ln -s "$PWD/_site" preview/pterminology-site
+          python -m http.server 8000 --directory preview >/tmp/practical-tips-axe-v253-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/pterminology-site/tips/ >/dev/null && break; sleep 1; done
+          AUDIT_BASE_URL=http://127.0.0.1:8000/pterminology-site/ AUDIT_OUT=practical-tips-axe-v253-evidence/report.json node scripts/diagnose_practical_tips_axe_v253.mjs
+          cp _site/tips/index.html practical-tips-axe-v253-evidence/tips-index.html
+          cp _site/assets/css/practical-tips-v237.css practical-tips-axe-v253-evidence/practical-tips-v237.css
+          cp /tmp/practical-tips-axe-v253-http.log practical-tips-axe-v253-evidence/http.log
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: practical-tips-axe-v253
+          path: practical-tips-axe-v253-evidence
+          if-no-files-found: error
+          retention-days: 3
