@@ -5,6 +5,7 @@ on:
     branches: ["main"]
     paths:
       - "content/v280/capabilities-100-ar.json"
+      - "content/v280/profiles/*.json"
       - "scripts/publish_capabilities_v280.py"
       - "scripts/apply_homepage_v20.py"
       - "assets/css/capabilities-v280.css"
@@ -15,6 +16,7 @@ on:
     branches: ["main"]
     paths:
       - "content/v280/capabilities-100-ar.json"
+      - "content/v280/profiles/*.json"
       - "scripts/publish_capabilities_v280.py"
       - "scripts/apply_homepage_v20.py"
       - "assets/css/capabilities-v280.css"
@@ -37,6 +39,7 @@ jobs:
         run: |
           set -euxo pipefail
           python -m json.tool content/v280/capabilities-100-ar.json >/dev/null
+          for profile in content/v280/profiles/*.json; do python -m json.tool "$profile" >/dev/null; done
           python -m py_compile scripts/publish_capabilities_v280.py
           python -m py_compile tests/test_capabilities_v280.py
           node --check assets/js/capabilities-v280.js
