@@ -74,12 +74,23 @@ class AdvancedContentDepthTests(unittest.TestCase):
         rich.parent.mkdir(parents=True, exist_ok=True)
         rich.write_text(page('صفحة غنية', body_words=900), encoding='utf-8')
         before_rich = rich.read_text(encoding='utf-8')
+        expected_rich, _ = module.publish_contract(
+            before_rich,
+            'assessment-lab/rich/index.html',
+        )
         module.run(self.site)
         path = self.site / 'cognitive-lab/mental-rotation/index.html'
         first = path.read_text(encoding='utf-8')
+        rich_after_first = rich.read_text(encoding='utf-8')
         second = module.run(self.site)
         self.assertEqual(first, path.read_text(encoding='utf-8'))
-        self.assertEqual(before_rich, rich.read_text(encoding='utf-8'))
+        self.assertEqual(expected_rich, rich_after_first)
+        self.assertEqual(rich_after_first, rich.read_text(encoding='utf-8'))
+        self.assertNotIn(module.START, rich_after_first)
+        self.assertEqual(
+            module.visible_words(before_rich),
+            module.visible_words(rich_after_first),
+        )
         self.assertGreaterEqual(second['already_enriched_pages'], 8)
         self.assertGreaterEqual(second['sufficient_pages'], 1)
 
