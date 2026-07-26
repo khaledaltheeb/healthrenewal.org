@@ -1,0 +1,70 @@
+name: Validate institutional care guides v246
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/care_guides_topics_v246_*.py"
+      - "scripts/care_guides_sources_v246.py"
+      - "scripts/care_guides_catalog_v246.py"
+      - "scripts/publish_care_guides_v246.py"
+      - "scripts/publish_care_guides_v21.py"
+      - "scripts/enhance_care_guides_v246.py"
+      - "tests/test_care_guides_institutional_v246.py"
+      - "tests/test_care_guides_expansion_v239.py"
+      - "tests/test_care_guides_v234.py"
+      - ".github/workflows/validate-care-guides-institutional-v246.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/care_guides_topics_v246_*.py"
+      - "scripts/care_guides_sources_v246.py"
+      - "scripts/care_guides_catalog_v246.py"
+      - "scripts/publish_care_guides_v246.py"
+      - "scripts/publish_care_guides_v21.py"
+      - "scripts/enhance_care_guides_v246.py"
+      - "tests/test_care_guides_institutional_v246.py"
+      - "tests/test_care_guides_expansion_v239.py"
+      - "tests/test_care_guides_v234.py"
+      - ".github/workflows/validate-care-guides-institutional-v246.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: care-guides-institutional-v246-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile institutional catalog publisher and tests
+        run: |
+          set -euxo pipefail
+          python -Werror -m py_compile \
+            scripts/care_guides_topics_v246_1.py \
+            scripts/care_guides_topics_v246_2.py \
+            scripts/care_guides_topics_v246_3.py \
+            scripts/care_guides_topics_v246_4.py \
+            scripts/care_guides_sources_v246.py \
+            scripts/care_guides_catalog_v246.py \
+            scripts/publish_care_guides_v246.py \
+            scripts/publish_care_guides_v21.py \
+            scripts/enhance_care_guides_v246.py \
+            tests/test_care_guides_institutional_v246.py \
+            tests/test_care_guides_expansion_v239.py \
+            tests/test_care_guides_v234.py
+      - name: Validate 101-source inventory and 100-page publication contract
+        run: |
+          set -euxo pipefail
+          python -m unittest -v \
+            tests.test_care_guides_institutional_v246 \
+            tests.test_care_guides_expansion_v239 \
+            tests.test_care_guides_v234
