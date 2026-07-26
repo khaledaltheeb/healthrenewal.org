@@ -1,0 +1,58 @@
+name: Validate tools descendant Marshmallow v250
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/apply_tools_descendant_marshmallow_v250.py"
+      - "scripts/bust_lab_asset_cache_v213.py"
+      - "scripts/enforce_platform_identity_v201.py"
+      - "tests/test_tools_descendant_marshmallow_v250.py"
+      - ".github/workflows/validate-tools-descendant-marshmallow-v250.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/apply_tools_descendant_marshmallow_v250.py"
+      - "scripts/bust_lab_asset_cache_v213.py"
+      - "scripts/enforce_platform_identity_v201.py"
+      - "tests/test_tools_descendant_marshmallow_v250.py"
+      - ".github/workflows/validate-tools-descendant-marshmallow-v250.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tools-descendant-marshmallow-v250-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile production publishers and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/enforce_platform_identity_v201.py \
+            scripts/apply_tools_descendant_marshmallow_v250.py \
+            scripts/bust_lab_asset_cache_v213.py \
+            tests/test_tools_descendant_marshmallow_v250.py
+      - name: Run descendant Marshmallow regression suite
+        run: |
+          set -euxo pipefail
+          python -m unittest -v tests.test_tools_descendant_marshmallow_v250
+      - name: Prove production hook and quiz contract are wired
+        run: |
+          set -euxo pipefail
+          grep -F 'apply_tools_descendant_marshmallow_v250.py' scripts/bust_lab_asset_cache_v213.py
+          grep -F 'tools/quiz/index.html' scripts/apply_tools_descendant_marshmallow_v250.py
+          grep -F 'tools/**/*.html' scripts/apply_tools_descendant_marshmallow_v250.py
+          grep -F 'dark_mode_blackening_blocked' scripts/apply_tools_descendant_marshmallow_v250.py
