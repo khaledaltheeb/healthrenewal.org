@@ -4,8 +4,6 @@ from __future__ import annotations
 
 لا تُرسل البيانات إلى خادم؛ تبقى السجلات محلية على جهاز المستخدم.
 الأدوات تنظيمية غير تشخيصية، وتوضح متى تطلب المساعدة من مختص مؤهل.
-كما تزامن الواجهة مسار الإخراج صراحة مع نواة الناشر عند الاستدعاء من
-الاختبارات أو من سطر الأوامر.
 """
 
 import json
@@ -21,6 +19,7 @@ if str(ROOT) not in sys.path:
 from scripts import publish_daily_tools_v24_core as _core
 from scripts.publish_daily_tools_v24_core import *  # noqa: F401,F403
 from scripts.stabilize_provider_layout_v225 import stabilize as stabilize_provider_layout
+from scripts.daily_tools_v275 import CONTENT_CONTRACT, enhance_site, load_catalog
 
 SEO_CONTRACT = 219
 SITE_NAME = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
@@ -57,11 +56,12 @@ def topic_keywords(title: str, description: str, canonical: str) -> list[str]:
         )
         if "/learning-paths/" in canonical
         else (
+            "100 أداة نفسية",
             "أدوات نفسية تفاعلية",
             "تمارين الصحة النفسية",
             "تنظيم التوتر",
-            "متابعة نفسية محلية",
             "أدوات دعم الأسرة",
+            "أدوات الدمج والإتاحة",
         )
     )
     return _unique((title, description if len(description) <= 90 else "", *terms, FOUNDING_NAME))
@@ -95,7 +95,7 @@ def shell(title: str, description: str, canonical: str, schema: dict[str, Any], 
         _core.BASE + "learning-paths/",
     } else "article"
     full_title = f"{title} | {SITE_NAME}"
-    return f'''<!doctype html><html lang="ar" dir="rtl" data-design="marshmallow-v{_core.DESIGN_CONTRACT}" data-seo="institutional-v{SEO_CONTRACT}"><head>
+    return f'''<!doctype html><html lang="ar" dir="rtl" data-design="marshmallow-v{_core.DESIGN_CONTRACT}" data-seo="institutional-v{SEO_CONTRACT}" data-tools-content="v{CONTENT_CONTRACT}"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(full_title)}</title><meta name="description" content="{esc(description)}"><meta name="keywords" content="{esc(keywords)}"><meta name="author" content="{esc(SITE_NAME)}"><meta name="application-name" content="{esc(SITE_NAME)}"><meta name="subject" content="الصحة النفسية والأدوات النفسية التفاعلية"><meta name="audience" content="الأفراد والأسر ومقدمو الرعاية"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"><meta name="theme-color" content="#e5faf5"><meta name="color-scheme" content="light">
 <link rel="canonical" href="{esc(canonical)}"><link rel="manifest" href="{MANIFEST}"><link rel="icon" href="{LOGO}" type="image/svg+xml"><link rel="apple-touch-icon" href="{LOGO}"><link rel="search" type="application/opensearchdescription+xml" title="البحث في المنصة" href="{SEARCH}"><link rel="sitemap" type="application/xml" href="{_core.BASE}sitemap.xml">
@@ -114,10 +114,10 @@ def _expected_pages(data: dict[str, Any], site: Path) -> list[Path]:
 def validate_metadata(data: dict[str, Any], site: Path | str | None = None) -> None:
     target = Path(site or _core.SITE).resolve()
     required = (
-        'data-seo="institutional-v219"', '<meta name="keywords"',
-        '<link rel="canonical"', '<link rel="manifest"', '<link rel="icon"',
-        '<link rel="search"', 'property="og:image"', 'name="twitter:card"',
-        'name="twitter:image"', 'application/ld+json',
+        'data-seo="institutional-v219"', f'data-tools-content="v{CONTENT_CONTRACT}"',
+        '<meta name="keywords"', '<link rel="canonical"', '<link rel="manifest"',
+        '<link rel="icon"', '<link rel="search"', 'property="og:image"',
+        'name="twitter:card"', 'name="twitter:image"', 'application/ld+json',
     )
     errors: list[str] = []
     for page in _expected_pages(data, target):
@@ -147,15 +147,17 @@ def validate_metadata(data: dict[str, Any], site: Path | str | None = None) -> N
         raise SystemExit("Daily tools metadata contract failed:\n" + "\n".join(errors))
 
 
-def publish(data: dict[str, Any], site: Path | str | None = None) -> None:
+def publish(data: dict[str, Any] | None = None, site: Path | str | None = None) -> None:
     target = Path(site or _core.SITE).resolve()
     if not target.is_dir():
         raise SystemExit(f"Missing site output: {target}")
+    catalog = data if data and data.get("tools") else load_catalog()
     globals()["SITE"] = target
     _core.SITE = target
     _core.shell = shell
-    _core.publish(data)
-    validate_metadata(data, target)
+    _core.publish(catalog)
+    enhance_site(catalog, target)
+    validate_metadata(catalog, target)
     if (target / "provider-assessment-demo/index.html").is_file():
         stabilize_provider_layout(target)
 
@@ -164,4 +166,4 @@ _core.shell = shell
 
 if __name__ == "__main__":
     target = Path(sys.argv[1] if len(sys.argv) > 1 else _core.SITE).resolve()
-    publish(json.loads(_core.DATA.read_text(encoding="utf-8")), target)
+    publish(load_catalog(), target)
