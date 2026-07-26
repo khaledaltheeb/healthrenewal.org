@@ -29,6 +29,27 @@ def dark_page(title: str, *, single_quotes: bool = False) -> str:
     )
 
 
+def relative_luminance(color: str) -> float:
+    raw = color.removeprefix("#")
+    channels = [int(raw[index : index + 2], 16) / 255 for index in (0, 2, 4)]
+
+    def linearize(channel: float) -> float:
+        if channel <= 0.04045:
+            return channel / 12.92
+        return ((channel + 0.055) / 1.055) ** 2.4
+
+    red, green, blue = (linearize(channel) for channel in channels)
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+
+def contrast_ratio(foreground: str, background: str) -> float:
+    lighter, darker = sorted(
+        (relative_luminance(foreground), relative_luminance(background)),
+        reverse=True,
+    )
+    return (lighter + 0.05) / (darker + 0.05)
+
+
 class ToolsDescendantMarshmallowV250Tests(unittest.TestCase):
     def make_site(self) -> Path:
         site = Path(tempfile.mkdtemp(prefix="tools-descendant-v250-"))
@@ -91,6 +112,29 @@ class ToolsDescendantMarshmallowV250Tests(unittest.TestCase):
         self.assertTrue(report["quiz_fixed"])
         self.assertEqual(report["unstyled_pages"], [])
         self.assertIn("tools/quiz/index.html", report["routes"])
+
+    def test_palette_exceeds_wcag_aa_for_normal_text(self) -> None:
+        foregrounds = {
+            "primary": "#173f45",
+            "muted": "#4d686b",
+            "heading": "#5b2946",
+            "button": "#103f42",
+        }
+        backgrounds = {
+            "white": "#ffffff",
+            "mint": "#e5faf5",
+            "rose": "#fff0f5",
+            "lilac": "#f2edff",
+            "peach": "#fff0e8",
+        }
+        ratios = {
+            f"{foreground_name}_on_{background_name}": contrast_ratio(foreground, background)
+            for foreground_name, foreground in foregrounds.items()
+            for background_name, background in backgrounds.items()
+        }
+        failures = {name: ratio for name, ratio in ratios.items() if ratio < 4.5}
+        self.assertEqual(failures, {}, ratios)
+        self.assertGreaterEqual(min(ratios.values()), 5.2)
 
     def test_second_run_is_byte_stable(self) -> None:
         site = self.make_site()
