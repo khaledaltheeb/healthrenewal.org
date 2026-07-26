@@ -117,9 +117,25 @@ def _unique(items: list[str]) -> list[str]:
     return output
 
 
+def _contextualize(
+    items: list[str], title: str, focus: str, signals: list[str], action: str, avoid: str, plan: str
+) -> list[str]:
+    anchors = [
+        f"ويطبق ذلك في «{title}» بما يخدم الهدف التالي: {focus}",
+        f"وتزداد أهمية هذه القاعدة عند ملاحظة «{signals[0]}»",
+        f"ويجب اختبار أثرها عمليًا عند ظهور «{signals[1]}»",
+        f"وتراجع فائدتها إذا تزامنت مع «{signals[2]}»",
+        f"وتترجم هنا إلى الإجراء المحدد: {action}",
+        f"وتدمج ضمن الخطة العملية: {plan}",
+        f"وتحمي من الخطأ النوعي التالي: {avoid}",
+    ]
+    return [f"{item} {anchors[index % len(anchors)]}." for index, item in enumerate(items)]
+
+
 def _build(topic: tuple[str, ...]) -> dict:
     slug, title, category, focus, signal_text, action, avoid, plan, source_bundle = topic
     signals = _split(signal_text)
+    contextual = lambda key: _contextualize(COMMON[key], title, focus, signals, action, avoid, plan)
     guide = {
         "slug": slug,
         "title": title,
@@ -134,23 +150,23 @@ def _build(topic: tuple[str, ...]) -> dict:
         "understanding": _unique([
             f"يركز «{title}» على {focus}، ويطبق وفق العمر والقدرة والسياق والخدمات.",
             *[f"تحتاج إشارة «{signal}» إلى تسجيل التوقيت والمدة والأثر بدل تفسيرها منفردة." for signal in signals],
-            *COMMON["understanding"],
+            *contextual("understanding"),
         ]),
         "what_the_person_may_feel": _unique([
             f"قد يعيش الشخص في «{title}» خوفًا أو إرهاقًا أو خجلًا لا يظهر في السلوك.",
             *[f"قد يشعر أن «{signal}» خارج سيطرته أو أن الآخرين سيحكمون عليه بسببه." for signal in signals],
-            *COMMON["experience"],
+            *contextual("experience"),
         ]),
         "communication_plan": _unique([
             f"في «{title}» ابدأ بوصف ما لاحظته دون تشخيص واسأل عن الحاجة الحالية.",
             f"الإجراء النوعي في الحوار: {action}.",
-            *COMMON["communication"],
+            *contextual("communication"),
         ]),
         "do": _unique([
             f"نفذ الإجراء التالي ضمن خطة متفق عليها: {action}.",
             f"اربط الخطوة بالهدف المركزي: {focus}.",
             *[f"راقب «{signal}» وسجل ما سبقها وما ساعد بعدها." for signal in signals],
-            *COMMON["do"],
+            *contextual("do"),
         ]),
         "avoid": _unique([
             f"تجنب تحديدًا: {avoid}.",
@@ -161,7 +177,7 @@ def _build(topic: tuple[str, ...]) -> dict:
             f"المكون النوعي للخطة: {plan}.",
             f"اكتب كيف تدعم الخطة الهدف التالي: {focus}.",
             *[f"حدد استجابة عند «{signal}» والمسؤول وموعد الانتقال لدعم أعلى." for signal in signals],
-            *COMMON["plan"],
+            *contextual("plan"),
         ]),
         "when_to_seek_help": _unique([
             *[f"اطلب تقييمًا أسرع إذا أصبحت «{signal}» شديدة أو متكررة أو معطلة." for signal in signals],
