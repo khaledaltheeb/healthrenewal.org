@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import json
 import re
 import sys
@@ -17,8 +18,11 @@ from care_guides_catalog_v246 import CATALOG_VERSION, EXPECTED_GUIDES, instituti
 from enhance_care_guides_v246 import (  # noqa: E402
     CATEGORY_RULES,
     ENHANCEMENT_VERSION,
+    MAX_META_DESCRIPTION_LENGTH,
     deduplicate_meta_tags,
     duplicate_meta_keys,
+    meta_description_length,
+    normalize_meta_descriptions,
 )
 
 LEGACY_FILES = (
@@ -130,6 +134,34 @@ class CareGuidesInstitutionalV246Tests(unittest.TestCase):
             self.assertIn('content="الأول"', text)
             self.assertNotIn('content="الثاني"', text)
 
+    def test_long_search_descriptions_are_shortened_without_changing_page_content(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="care-description-v246-") as temp:
+            path = Path(temp) / "index.html"
+            long_description = " ".join(["دليل مؤسسي موسع يشرح الخطوات العملية والدعم الآمن والمصادر الموثوقة"] * 8)
+            path.write_text(
+                '<html><head>'
+                f'<meta name="description" content="{html.escape(long_description, quote=True)}">'
+                f'<meta property="og:description" content="{html.escape(long_description, quote=True)}">'
+                f'<meta name="twitter:description" content="{html.escape(long_description, quote=True)}">'
+                '</head><body><p id="full-content">يبقى المحتوى الكامل دون اختصار.</p></body></html>',
+                encoding="utf-8",
+            )
+            self.assertEqual(normalize_meta_descriptions(path), 3)
+            self.assertLessEqual(meta_description_length(path) or 0, MAX_META_DESCRIPTION_LENGTH)
+            text = path.read_text(encoding="utf-8")
+            self.assertIn("يبقى المحتوى الكامل دون اختصار", text)
+            descriptions = [
+                html.unescape(value)
+                for value in re.findall(
+                    r'<meta\b[^>]*(?:name|property)=["\'](?:description|og:description|twitter:description)["\'][^>]*content=["\']([^"\']+)["\']',
+                    text,
+                    flags=re.I,
+                )
+            ]
+            self.assertEqual(len(descriptions), 3)
+            self.assertEqual(len(set(descriptions)), 1)
+            self.assertTrue(descriptions[0].endswith("…"))
+
     def test_publisher_and_enhancer_contracts(self) -> None:
         publisher = (SCRIPTS / "publish_care_guides_v246.py").read_text(encoding="utf-8")
         compatibility = (SCRIPTS / "publish_care_guides_v21.py").read_text(encoding="utf-8")
@@ -142,6 +174,7 @@ class CareGuidesInstitutionalV246Tests(unittest.TestCase):
         self.assertIn("publish_care_guides_v246", compatibility)
         self.assertEqual(ENHANCEMENT_VERSION, 246)
         self.assertEqual(len(CATEGORY_RULES), 8)
+        self.assertEqual(MAX_META_DESCRIPTION_LENGTH, 180)
 
 
 if __name__ == "__main__":
