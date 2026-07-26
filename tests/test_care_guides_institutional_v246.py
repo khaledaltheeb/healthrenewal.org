@@ -13,6 +13,7 @@ SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from care_guides_catalog_v246 import CATALOG_VERSION, EXPECTED_GUIDES, institutional_guides  # noqa: E402
+from enhance_care_guides_v246 import CATEGORY_RULES, ENHANCEMENT_VERSION  # noqa: E402
 
 LEGACY_FILES = (
     ROOT / "content/v18/care-guides-ar.json",
@@ -26,14 +27,8 @@ LEGACY_FILES = (
     ROOT / "content/v18/care-guides-self-harm-family-safety-support-ar.json",
 )
 EXPECTED_DISTRIBUTION = {
-    "crisis": 10,
-    "mood": 12,
-    "children": 12,
-    "neurodevelopment": 20,
-    "services": 10,
-    "older": 10,
-    "addictions": 8,
-    "daily": 5,
+    "crisis": 10, "mood": 12, "children": 12, "neurodevelopment": 20,
+    "services": 10, "older": 10, "addictions": 8, "daily": 5,
 }
 TRUSTED_HOSTS = {
     "www.who.int", "www.nice.org.uk", "cks.nice.org.uk", "www.nhs.uk", "www.cdc.gov",
@@ -48,9 +43,7 @@ class CareGuidesInstitutionalV246Tests(unittest.TestCase):
         cls.guides = institutional_guides()
 
     def test_catalog_count_distribution_and_identity(self) -> None:
-        self.assertEqual(CATALOG_VERSION, 246)
-        self.assertEqual(EXPECTED_GUIDES, 87)
-        self.assertEqual(len(self.guides), 87)
+        self.assertEqual((CATALOG_VERSION, EXPECTED_GUIDES, len(self.guides)), (246, 87, 87))
         self.assertEqual(Counter(guide["category"] for guide in self.guides), EXPECTED_DISTRIBUTION)
         self.assertEqual(len({guide["slug"] for guide in self.guides}), 87)
         self.assertEqual(len({guide["title"] for guide in self.guides}), 87)
@@ -60,11 +53,7 @@ class CareGuidesInstitutionalV246Tests(unittest.TestCase):
         for guide in self.guides:
             joined = json.dumps(guide, ensure_ascii=False)
             words = len(re.findall(r"[\w\u0600-\u06ff]+", joined, flags=re.UNICODE))
-            actionable = sum(
-                len(value)
-                for key, value in guide.items()
-                if isinstance(value, list) and key not in {"audience", "search_intent", "sources"}
-            )
+            actionable = sum(len(value) for key, value in guide.items() if isinstance(value, list) and key not in {"audience", "search_intent", "sources"})
             self.assertRegex(guide["slug"], r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
             self.assertGreaterEqual(words, 900, guide["slug"])
             self.assertGreaterEqual(actionable, 60, guide["slug"])
@@ -82,13 +71,7 @@ class CareGuidesInstitutionalV246Tests(unittest.TestCase):
                 parsed = urlparse(source["url"])
                 self.assertEqual(parsed.scheme, "https", source)
                 self.assertIn(parsed.netloc, TRUSTED_HOSTS, source)
-            for prohibited in (
-                "معاقين",
-                "يغني عن الطبيب",
-                "بديل عن العلاج",
-                "نتيجة نهائية",
-                "مضمون 100%",
-            ):
+            for prohibited in ("معاقين", "يغني عن الطبيب", "بديل عن العلاج", "نتيجة نهائية", "مضمون 100%"):
                 self.assertNotIn(prohibited, joined, guide["slug"])
 
     def test_source_and_publication_minimum(self) -> None:
@@ -101,22 +84,20 @@ class CareGuidesInstitutionalV246Tests(unittest.TestCase):
         self.assertEqual(len({guide["slug"] for guide in combined}), 101)
         blocked = [guide for guide in combined if guide.get("review_status") == "needs-specialist-review"]
         self.assertEqual([guide["slug"] for guide in blocked], ["autism-family-practical-guide"])
-        published = [guide for guide in combined if guide not in blocked]
-        self.assertEqual(len(published), 100)
+        self.assertEqual(len([guide for guide in combined if guide not in blocked]), 100)
 
     def test_publisher_and_enhancer_contracts(self) -> None:
         publisher = (SCRIPTS / "publish_care_guides_v246.py").read_text(encoding="utf-8")
-        enhancer = (SCRIPTS / "enhance_care_guides_v246.py").read_text(encoding="utf-8")
         compatibility = (SCRIPTS / "publish_care_guides_v21.py").read_text(encoding="utf-8")
-        self.assertIn("EXPECTED_SOURCE_GUIDES = 101", publisher)
-        self.assertIn("MINIMUM_PUBLISHED_GUIDES = 100", publisher)
-        self.assertIn("word_count(guide) < 900", publisher)
-        self.assertIn("actionable_count(guide) < 60", publisher)
-        self.assertIn("TRUSTED_SOURCE_HOSTS", publisher)
-        self.assertIn("needs_specialist_review_published", publisher)
+        for contract in (
+            "EXPECTED_SOURCE_GUIDES = 101", "MINIMUM_PUBLISHED_GUIDES = 100",
+            "word_count(guide) < 900", "actionable_count(guide) < 60",
+            "TRUSTED_SOURCE_HOSTS", "needs_specialist_review_published",
+        ):
+            self.assertIn(contract, publisher)
         self.assertIn("publish_care_guides_v246", compatibility)
-        self.assertIn("ENHANCEMENT_VERSION = 246", enhancer)
-        self.assertEqual(enhancer.count("(\""), 8)
+        self.assertEqual(ENHANCEMENT_VERSION, 246)
+        self.assertEqual(len(CATEGORY_RULES), 8)
 
 
 if __name__ == "__main__":
