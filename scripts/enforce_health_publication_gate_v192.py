@@ -1,19 +1,24 @@
 from __future__ import annotations
 
-"""بوابة النشر الصحي الأصلية مع إنهاء الهيدر والأبعاد والبنية الدلالية."""
+"""بوابة النشر الصحي الأصلية مع النصائح والهيدر والأبعاد والبنية الدلالية."""
 
 import json
+from pathlib import Path
 
 try:
     from scripts import enforce_health_publication_gate_v192_base as _base
+    from scripts.finalize_practical_tips_search_v248 import finalize as _finalize_tips_search
     from scripts.finalize_sector_image_dimensions_v236 import finalize as _finalize_image_dimensions
     from scripts.finalize_semantic_structure_v237 import finalize as _finalize_semantic_structure
     from scripts.publish_institutional_header_v233 import publish as _publish_header
+    from scripts.publish_practical_tips_v237 import publish as _publish_practical_tips
 except ModuleNotFoundError:
     import enforce_health_publication_gate_v192_base as _base
+    from finalize_practical_tips_search_v248 import finalize as _finalize_tips_search
     from finalize_sector_image_dimensions_v236 import finalize as _finalize_image_dimensions
     from finalize_semantic_structure_v237 import finalize as _finalize_semantic_structure
     from publish_institutional_header_v233 import publish as _publish_header
+    from publish_practical_tips_v237 import publish as _publish_practical_tips
 
 
 for _name in dir(_base):
@@ -21,6 +26,7 @@ for _name in dir(_base):
         globals()[_name] = getattr(_base, _name)
 
 SITE = _base.SITE
+REPO = Path(__file__).resolve().parents[1]
 CARE_GUIDE_ABSOLUTE_LINK = '<a href="/pterminology-site/care-guides/">أدلة التعامل</a>'
 CARE_GUIDE_RELATIVE_LINK = '<a href="care-guides/">أدلة التعامل</a>'
 
@@ -44,12 +50,49 @@ def ensure_care_guide_link_compatibility(homepage) -> bool:
     )
 
 
+def validate_practical_tips(report: dict) -> None:
+    required = {
+        "status": "passed",
+        "version": 237,
+        "guide_count": 100,
+        "preserved_existing_guides": 20,
+        "new_guides": 80,
+        "pillar_count": 10,
+        "minimum_required_words": 700,
+        "remaining_below_minimum": 0,
+        "missing_or_failed": 0,
+        "duplicate_slugs": 0,
+        "duplicate_titles": 0,
+        "sitemap_urls": 111,
+        "search_contract": "local-normalized-filter-v248",
+        "search_cards": 100,
+        "search_visibility_contract": "hidden-important-v248",
+        "search_visibility_cards": 100,
+    }
+    for key, expected in required.items():
+        if report.get(key) != expected:
+            raise SystemExit(
+                f"Practical tips v237 contract failed: key={key}, "
+                f"expected={expected!r}, actual={report.get(key)!r}"
+            )
+    if int(report.get("category_count", 0)) < 25:
+        raise SystemExit(f"Practical tips v237 category depth failed: {report}")
+    if int(report.get("minimum_after_words", 0)) < 700:
+        raise SystemExit(f"Practical tips v237 page depth failed: {report}")
+    if int(report.get("minimum_topic_characters", 0)) < 1800:
+        raise SystemExit(f"Practical tips v237 topic depth failed: {report}")
+
+
 def enforce() -> dict:
     _base.SITE = SITE
     report = _base.enforce()
     homepage = SITE / "index.html"
     if not homepage.is_file():
         return report
+
+    tips_report = _publish_practical_tips(SITE, REPO)
+    tips_report = _finalize_tips_search(SITE)
+    validate_practical_tips(tips_report)
 
     header_report = _publish_header(SITE)
     if header_report.get("status") != "passed":
@@ -65,6 +108,18 @@ def enforce() -> dict:
         raise SystemExit(f"Semantic structure v237 failed after health gate: {semantic_report}")
 
     report = dict(report)
+    report["practical_tips_version"] = 237
+    report["practical_tips_status"] = "passed"
+    report["practical_tips_guides"] = tips_report["guide_count"]
+    report["practical_tips_preserved_guides"] = tips_report["preserved_existing_guides"]
+    report["practical_tips_new_guides"] = tips_report["new_guides"]
+    report["practical_tips_pillars"] = tips_report["pillar_count"]
+    report["practical_tips_categories"] = tips_report["category_count"]
+    report["practical_tips_minimum_words"] = tips_report["minimum_after_words"]
+    report["practical_tips_minimum_topic_characters"] = tips_report["minimum_topic_characters"]
+    report["practical_tips_sitemap_urls"] = tips_report["sitemap_urls"]
+    report["practical_tips_search_contract"] = tips_report["search_contract"]
+    report["practical_tips_search_visibility_contract"] = tips_report["search_visibility_contract"]
     report["institutional_header_version"] = 233
     report["institutional_header_status"] = "passed"
     report["institutional_header_section_links"] = header_report["section_links"]

@@ -9,8 +9,71 @@ const errors = [];
 const warnings = [];
 const pagesReport = [];
 
+function loadPracticalTipsContract() {
+  const reportPath = path.join(outDir, 'practical-tips-v237.json');
+  if (!fs.existsSync(reportPath)) {
+    return { version: 15, status: 'legacy', expectedGuides: 20, sitemapUrls: 21 };
+  }
+
+  let source;
+  try {
+    source = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+  } catch (error) {
+    errors.push(`practical tips contract unreadable: ${error}`);
+    return { version: 237, status: 'invalid', expectedGuides: 100, sitemapUrls: 111 };
+  }
+
+  const expected = {
+    version: 237,
+    status: 'passed',
+    guide_count: 100,
+    preserved_existing_guides: 20,
+    new_guides: 80,
+    pillar_count: 10,
+    remaining_below_minimum: 0,
+    missing_or_failed: 0,
+    duplicate_slugs: 0,
+    duplicate_titles: 0,
+    sitemap_urls: 111,
+    core_sections_compatibility: 'passed',
+    compatibility_pages: 100,
+    unique_titles: 100,
+    unique_descriptions: 100,
+    topic_depth_status: 'passed',
+    topic_depth_pages: 10,
+    search_contract: 'local-normalized-filter-v248',
+    search_cards: 100,
+  };
+  for (const [key, value] of Object.entries(expected)) {
+    if (source[key] !== value) {
+      errors.push(`practical tips contract ${key}=${JSON.stringify(source[key])}, expected=${JSON.stringify(value)}`);
+    }
+  }
+  if (Number(source.category_count || 0) < 25) {
+    errors.push(`practical tips category count=${source.category_count}`);
+  }
+  if (Number(source.minimum_after_words || 0) < 700) {
+    errors.push(`practical tips minimum words=${source.minimum_after_words}`);
+  }
+  if (Number(source.minimum_topic_characters || 0) < 1800) {
+    errors.push(`practical tips minimum topic characters=${source.minimum_topic_characters}`);
+  }
+
+  return {
+    version: 237,
+    status: source.status,
+    expectedGuides: 100,
+    sitemapUrls: 111,
+    minimumWords: Number(source.minimum_after_words || 0),
+    minimumTopicCharacters: Number(source.minimum_topic_characters || 0),
+    searchContract: source.search_contract,
+  };
+}
+
+const practicalTipsContract = loadPracticalTipsContract();
+
 const routes = [
-  '', 'tips/', 'tips/better-sleep/', 'assessment-lab/', 'assessment-lab/phq-9-plus/',
+  '', 'tips/', 'tips/better-sleep/', 'tips/topics/sleep/', 'assessment-lab/', 'assessment-lab/phq-9-plus/',
   'cognitive-lab/', 'cognitive-lab/simple-reaction/', 'encyclopedia/',
   'encyclopedia/concept-0001/', 'hubs/', 'sectors/family/', 'sectors/child/',
   'sectors/home/', 'sectors/women/', 'comparisons/', 'guided-assessment/', 'library/'
@@ -69,9 +132,22 @@ async function interactionTests(browser) {
   await page.goto(new URL('tips/', base).href, { waitUntil: 'domcontentloaded' });
   const totalTips = await page.locator('[data-search]').count();
   await page.locator('#tips-search').fill('نوم');
-  await page.waitForTimeout(100);
+  await page.waitForTimeout(150);
   const visibleTips = await page.locator('[data-search]:visible').count();
-  if (totalTips !== 20 || visibleTips < 1 || visibleTips >= totalTips) errors.push(`tips search failed total=${totalTips} visible=${visibleTips}`);
+  const searchStatus = await page.locator('[data-practical-tips-search-status]').innerText().catch(() => '');
+  if (
+    totalTips !== practicalTipsContract.expectedGuides
+    || visibleTips < 1
+    || visibleTips >= totalTips
+  ) {
+    errors.push(
+      `tips search failed contract=${practicalTipsContract.version} `
+      + `expected=${practicalTipsContract.expectedGuides} total=${totalTips} visible=${visibleTips}`
+    );
+  }
+  if (!searchStatus.includes(String(visibleTips)) || !searchStatus.includes(String(totalTips))) {
+    errors.push(`tips search status invalid: ${searchStatus}`);
+  }
 
   await page.goto(new URL('assessment-lab/phq-9-plus/', base).href, { waitUntil: 'domcontentloaded' });
   const fieldsets = page.locator('fieldset.question');
@@ -124,7 +200,18 @@ try {
   await browser.close();
 }
 
-const report = { version: 16, base, testedRoutes: routes.length, pageRuns: pagesReport.length, pages: pagesReport, warningCount: warnings.length, warnings, errorCount: errors.length, errors };
+const report = {
+  version: 16,
+  base,
+  practicalTipsContract,
+  testedRoutes: routes.length,
+  pageRuns: pagesReport.length,
+  pages: pagesReport,
+  warningCount: warnings.length,
+  warnings,
+  errorCount: errors.length,
+  errors,
+};
 fs.writeFileSync(path.join(outDir, 'browser-audit-v16.json'), JSON.stringify(report, null, 2));
 console.log(JSON.stringify(report, null, 2));
 if (errors.length) process.exit(1);
