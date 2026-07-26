@@ -7,12 +7,14 @@ from pathlib import Path
 
 try:
     from scripts import enforce_health_publication_gate_v192_base as _base
+    from scripts.finalize_practical_tips_search_v248 import finalize as _finalize_tips_search
     from scripts.finalize_sector_image_dimensions_v236 import finalize as _finalize_image_dimensions
     from scripts.finalize_semantic_structure_v237 import finalize as _finalize_semantic_structure
     from scripts.publish_institutional_header_v233 import publish as _publish_header
     from scripts.publish_practical_tips_v237 import publish as _publish_practical_tips
 except ModuleNotFoundError:
     import enforce_health_publication_gate_v192_base as _base
+    from finalize_practical_tips_search_v248 import finalize as _finalize_tips_search
     from finalize_sector_image_dimensions_v236 import finalize as _finalize_image_dimensions
     from finalize_semantic_structure_v237 import finalize as _finalize_semantic_structure
     from publish_institutional_header_v233 import publish as _publish_header
@@ -62,6 +64,10 @@ def validate_practical_tips(report: dict) -> None:
         "duplicate_slugs": 0,
         "duplicate_titles": 0,
         "sitemap_urls": 111,
+        "search_contract": "local-normalized-filter-v248",
+        "search_cards": 100,
+        "search_visibility_contract": "hidden-important-v248",
+        "search_visibility_cards": 100,
     }
     for key, expected in required.items():
         if report.get(key) != expected:
@@ -73,6 +79,8 @@ def validate_practical_tips(report: dict) -> None:
         raise SystemExit(f"Practical tips v237 category depth failed: {report}")
     if int(report.get("minimum_after_words", 0)) < 700:
         raise SystemExit(f"Practical tips v237 page depth failed: {report}")
+    if int(report.get("minimum_topic_characters", 0)) < 1800:
+        raise SystemExit(f"Practical tips v237 topic depth failed: {report}")
 
 
 def enforce() -> dict:
@@ -83,6 +91,7 @@ def enforce() -> dict:
         return report
 
     tips_report = _publish_practical_tips(SITE, REPO)
+    tips_report = _finalize_tips_search(SITE)
     validate_practical_tips(tips_report)
 
     header_report = _publish_header(SITE)
@@ -107,7 +116,10 @@ def enforce() -> dict:
     report["practical_tips_pillars"] = tips_report["pillar_count"]
     report["practical_tips_categories"] = tips_report["category_count"]
     report["practical_tips_minimum_words"] = tips_report["minimum_after_words"]
+    report["practical_tips_minimum_topic_characters"] = tips_report["minimum_topic_characters"]
     report["practical_tips_sitemap_urls"] = tips_report["sitemap_urls"]
+    report["practical_tips_search_contract"] = tips_report["search_contract"]
+    report["practical_tips_search_visibility_contract"] = tips_report["search_visibility_contract"]
     report["institutional_header_version"] = 233
     report["institutional_header_status"] = "passed"
     report["institutional_header_section_links"] = header_report["section_links"]

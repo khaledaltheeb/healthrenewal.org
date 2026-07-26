@@ -7,6 +7,7 @@ on:
       - "content/v237/practical-tips-v237.json.gz.b64"
       - "scripts/publish_practical_tips_v237.py"
       - "scripts/publish_practical_tips_v237.py.gz.b64"
+      - "scripts/finalize_practical_tips_search_v248.py"
       - "scripts/enforce_health_publication_gate_v192.py"
       - "scripts/apply_homepage_v20.py"
       - "scripts/verify_core_sections_v15.py"
@@ -14,6 +15,7 @@ on:
       - "scripts/browser_audit_v16.mjs"
       - "tests/test_practical_tips_v237.py"
       - "tests/test_practical_tips_v237_compat.py"
+      - "tests/test_practical_tips_search_visibility_v248.py"
       - "tests/test_verify_core_sections_v244.py"
       - "tests/test_health_gate_header_integration_v233.py"
       - "tests/test_full_site_tips_contract_v248.py"
@@ -26,6 +28,7 @@ on:
       - "content/v237/practical-tips-v237.json.gz.b64"
       - "scripts/publish_practical_tips_v237.py"
       - "scripts/publish_practical_tips_v237.py.gz.b64"
+      - "scripts/finalize_practical_tips_search_v248.py"
       - "scripts/enforce_health_publication_gate_v192.py"
       - "scripts/apply_homepage_v20.py"
       - "scripts/verify_core_sections_v15.py"
@@ -33,6 +36,7 @@ on:
       - "scripts/browser_audit_v16.mjs"
       - "tests/test_practical_tips_v237.py"
       - "tests/test_practical_tips_v237_compat.py"
+      - "tests/test_practical_tips_search_visibility_v248.py"
       - "tests/test_verify_core_sections_v244.py"
       - "tests/test_health_gate_header_integration_v233.py"
       - "tests/test_full_site_tips_contract_v248.py"
@@ -59,17 +63,19 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Compile publisher integration browser contract and tests
+      - name: Compile publisher search finalizer integration browser contract and tests
         run: |
           set -euxo pipefail
           python -m py_compile \
             scripts/publish_practical_tips_v237.py \
+            scripts/finalize_practical_tips_search_v248.py \
             scripts/enforce_health_publication_gate_v192.py \
             scripts/apply_homepage_v20.py \
             scripts/verify_core_sections_v15.py \
             scripts/audit_full_site_i18n_v72.py \
             tests/test_practical_tips_v237.py \
             tests/test_practical_tips_v237_compat.py \
+            tests/test_practical_tips_search_visibility_v248.py \
             tests/test_verify_core_sections_v244.py \
             tests/test_health_gate_header_integration_v233.py \
             tests/test_full_site_tips_contract_v248.py
@@ -84,12 +90,13 @@ jobs:
           assert data['version'] == 237 and len(data['new_guides']) == 80, data
           PY
 
-      - name: Run deterministic publisher and production integration contracts
+      - name: Run deterministic publisher search and production integration contracts
         run: |
           set -euxo pipefail
           python -m unittest -v \
             tests.test_practical_tips_v237 \
             tests.test_practical_tips_v237_compat \
+            tests.test_practical_tips_search_visibility_v248 \
             tests.test_verify_core_sections_v244 \
             tests.test_health_gate_header_integration_v233 \
             tests.test_full_site_tips_contract_v248
@@ -103,6 +110,7 @@ jobs:
           printf '%s\n' '<svg xmlns="http://www.w3.org/2000/svg"></svg>' > "${TMP_SITE}/assets/logo.svg"
           printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>' > "${TMP_SITE}/sitemap.xml"
           python scripts/publish_practical_tips_v237.py "${TMP_SITE}"
+          python scripts/finalize_practical_tips_search_v248.py "${TMP_SITE}"
           REPORT="${TMP_SITE}/api/practical-tips-v237.json"
           REPORT="${REPORT}" TMP_SITE="${TMP_SITE}" python - <<'PY'
           import html, json, os, re
@@ -121,6 +129,8 @@ jobs:
               'topic_depth_pages': 10,
               'search_contract': 'local-normalized-filter-v248',
               'search_cards': 100,
+              'search_visibility_contract': 'hidden-important-v248',
+              'search_visibility_cards': 100,
           }
           for key, value in expected.items():
               assert report.get(key) == value, (key, report.get(key), value)
@@ -155,8 +165,12 @@ jobs:
           index_source = (root / 'tips/index.html').read_text(encoding='utf-8')
           assert index_source.count('practical-tips-v248-search:start') == 1
           assert index_source.count('practical-tips-v248-search:end') == 1
+          assert index_source.count('practical-tips-v248-search-visibility:start') == 1
+          assert index_source.count('practical-tips-v248-search-visibility:end') == 1
           assert 'id="practical-tips-v248-search"' in index_source
+          assert 'id="practical-tips-v248-search-visibility"' in index_source
           assert "card.hidden = !matches" in index_source
+          assert '[data-search][hidden]{display:none!important}' in index_source
           print({
               'guide_count': 100,
               'topics': 10,
@@ -164,6 +178,7 @@ jobs:
               'minimum_words': report['minimum_after_words'],
               'minimum_topic_characters': min(topic_lengths),
               'search_cards': report['search_cards'],
+              'search_visibility_contract': report['search_visibility_contract'],
           })
           PY
           ! grep -R -Eqi 'يعالج نهائيًا|شفاء مضمون|بديل عن الطبيب|تشخيصك هو|معاقين' "${TMP_SITE}/tips"
@@ -177,7 +192,9 @@ jobs:
         run: |
           set -euxo pipefail
           grep -q 'from scripts.publish_practical_tips_v237 import publish as _publish_practical_tips' scripts/enforce_health_publication_gate_v192.py
+          grep -q 'from scripts.finalize_practical_tips_search_v248 import finalize as _finalize_tips_search' scripts/enforce_health_publication_gate_v192.py
           grep -q 'tips_report = _publish_practical_tips(SITE, REPO)' scripts/enforce_health_publication_gate_v192.py
+          grep -q 'tips_report = _finalize_tips_search(SITE)' scripts/enforce_health_publication_gate_v192.py
           grep -q 'run_publisher("enforce_health_publication_gate_v192.py")' scripts/apply_homepage_v20.py
           grep -q 'python scripts/apply_homepage_v20.py _site' .github/workflows/validate-global-quality-v20.yml
           grep -q 'from scripts import apply_homepage_v20 as homepage' scripts/diagnose_apply_homepage_v221.py
