@@ -35,7 +35,7 @@ jobs:
       - name: Compile every audit and upgrade script
         run: |
           set -euxo pipefail
-          for f in scripts/audit_all_labs_v22.py scripts/audit_content_quality_v32.py scripts/upgrade_cognitive_batch1_v22.py scripts/upgrade_cognitive_batch2_v22.py scripts/fix_initial_cognitive_variation_v25.py scripts/fix_stroop_and_variation_v23.py scripts/complete_cognitive_remaining_v24.py scripts/fix_cognitive_quality_v26.py scripts/finalize_cognitive_lab_v202.py scripts/harden_cognitive_lab_v203.py scripts/publish_provider_assessment_route_v204.py scripts/publish_working_memory_updating_v205.py scripts/publish_prospective_memory_v206.py scripts/publish_associative_binding_v207.py scripts/publish_temporal_order_memory_v208.py scripts/publish_visual_change_detection_v210.py scripts/harden_cognitive_copy_v209.py scripts/finalize_pwa_v14.py scripts/stamp_deployment_v29.py scripts/publish_daily_tools_v24.py scripts/verify_daily_tools_v24.py scripts/publish_sleep_log_v49.py scripts/verify_sleep_log_v49.py scripts/enforce_platform_identity_v201.py; do python -m py_compile "$f"; done
+          for f in scripts/audit_all_labs_v22.py scripts/audit_content_quality_v32.py scripts/upgrade_cognitive_batch1_v22.py scripts/upgrade_cognitive_batch2_v22.py scripts/fix_initial_cognitive_variation_v25.py scripts/fix_stroop_and_variation_v23.py scripts/complete_cognitive_remaining_v24.py scripts/fix_cognitive_quality_v26.py scripts/finalize_cognitive_lab_v202.py scripts/harden_cognitive_lab_v203.py scripts/publish_provider_assessment_route_v204.py scripts/publish_working_memory_updating_v205.py scripts/publish_prospective_memory_v206.py scripts/publish_associative_binding_v207.py scripts/publish_temporal_order_memory_v208.py scripts/publish_visual_change_detection_v210.py scripts/harden_cognitive_copy_v209.py scripts/finalize_pwa_v14.py scripts/stamp_deployment_v29.py scripts/publish_outside_the_box_v254.py scripts/publish_daily_tools_v24.py scripts/verify_daily_tools_v24.py scripts/publish_sleep_log_v49.py scripts/verify_sleep_log_v49.py scripts/enforce_platform_identity_v201.py; do python -m py_compile "$f"; done
           python -m py_compile tests/test_platform_identity_v201.py
           node --check scripts/e2e_all_labs_v22.mjs
           node --check scripts/test_cognitive_variation_v23.mjs
@@ -45,6 +45,9 @@ jobs:
 
       - name: Test platform identity and inclusive language gate
         run: python -m unittest -v tests/test_platform_identity_v201.py
+
+      - name: Test outside-the-box provider pathways
+        run: python -m unittest -v tests/test_outside_the_box_v254.py
 
       - name: Build v6 base
         run: python build_site.py
