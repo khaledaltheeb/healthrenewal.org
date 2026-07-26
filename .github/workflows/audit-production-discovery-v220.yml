@@ -134,10 +134,10 @@ jobs:
           assert residual['missing_or_failed'] == 0, residual
           assert residual['duplicate_generated_blocks'] == 0, residual
 
-          assert advanced['version'] == 233, advanced
+          assert advanced['version'] == 246, advanced
           assert advanced['status'] == 'passed', advanced
           assert advanced['target_pages'] >= 160, advanced
-          assert advanced['minimums'] == {'assessment': 750, 'cognitive': 700, 'hub': 600, 'library': 750}, advanced
+          assert advanced['minimums'] == {'assessment': 900, 'cognitive': 850, 'hub': 750, 'library': 750}, advanced
           assert advanced['counts_by_kind']['assessment'] >= 40, advanced
           assert advanced['counts_by_kind']['cognitive'] >= 49, advanced
           assert advanced['counts_by_kind']['hub'] >= 80, advanced
