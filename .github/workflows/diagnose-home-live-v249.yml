@@ -1,0 +1,36 @@
+name: Diagnose home-sector live failure v249
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/diagnose-home-live-v249.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Export complete failed attempt log
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          gh run view 30181254109 --repo "$GITHUB_REPOSITORY" --attempt 2 --log-failed > home-sector-live-v249.log 2>&1
+          status=$?
+          echo "gh_status=${status}" >> "$GITHUB_STEP_SUMMARY"
+          tail -n 260 home-sector-live-v249.log >> "$GITHUB_STEP_SUMMARY" || true
+          test -s home-sector-live-v249.log
+      - name: Upload exact failed log
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-sector-live-failure-v249
+          path: home-sector-live-v249.log
+          if-no-files-found: error
+          retention-days: 3
