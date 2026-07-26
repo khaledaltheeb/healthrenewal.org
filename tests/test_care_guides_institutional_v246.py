@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
@@ -13,7 +14,12 @@ SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from care_guides_catalog_v246 import CATALOG_VERSION, EXPECTED_GUIDES, institutional_guides  # noqa: E402
-from enhance_care_guides_v246 import CATEGORY_RULES, ENHANCEMENT_VERSION  # noqa: E402
+from enhance_care_guides_v246 import (  # noqa: E402
+    CATEGORY_RULES,
+    ENHANCEMENT_VERSION,
+    deduplicate_meta_tags,
+    duplicate_meta_keys,
+)
 
 LEGACY_FILES = (
     ROOT / "content/v18/care-guides-ar.json",
@@ -53,7 +59,11 @@ class CareGuidesInstitutionalV246Tests(unittest.TestCase):
         for guide in self.guides:
             joined = json.dumps(guide, ensure_ascii=False)
             words = len(re.findall(r"[\w\u0600-\u06ff]+", joined, flags=re.UNICODE))
-            actionable = sum(len(value) for key, value in guide.items() if isinstance(value, list) and key not in {"audience", "search_intent", "sources"})
+            actionable = sum(
+                len(value)
+                for key, value in guide.items()
+                if isinstance(value, list) and key not in {"audience", "search_intent", "sources"}
+            )
             self.assertRegex(guide["slug"], r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
             self.assertGreaterEqual(words, 900, guide["slug"])
             self.assertGreaterEqual(actionable, 60, guide["slug"])
@@ -85,6 +95,23 @@ class CareGuidesInstitutionalV246Tests(unittest.TestCase):
         blocked = [guide for guide in combined if guide.get("review_status") == "needs-specialist-review"]
         self.assertEqual([guide["slug"] for guide in blocked], ["autism-family-practical-guide"])
         self.assertEqual(len([guide for guide in combined if guide not in blocked]), 100)
+
+    def test_metadata_deduplication_keeps_one_authoritative_tag(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="care-meta-v246-") as temp:
+            path = Path(temp) / "index.html"
+            path.write_text(
+                '<html><head><meta name="description" content="الأول">'
+                '<meta name="description" content="الثاني">'
+                '<meta property="og:title" content="الأول">'
+                '<meta property="og:title" content="الثاني">'
+                '<meta name="robots" content="index,follow"></head><body></body></html>',
+                encoding="utf-8",
+            )
+            self.assertEqual(deduplicate_meta_tags(path), 2)
+            self.assertEqual(duplicate_meta_keys(path), [])
+            text = path.read_text(encoding="utf-8")
+            self.assertIn('content="الأول"', text)
+            self.assertNotIn('content="الثاني"', text)
 
     def test_publisher_and_enhancer_contracts(self) -> None:
         publisher = (SCRIPTS / "publish_care_guides_v246.py").read_text(encoding="utf-8")
