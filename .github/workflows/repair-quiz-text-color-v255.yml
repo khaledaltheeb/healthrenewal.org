@@ -1,0 +1,215 @@
+name: Repair quiz text color v255
+
+on:
+  workflow_run:
+    workflows: ["Repair quiz contrast v254"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: repair-quiz-text-color-v255
+  cancel-in-progress: false
+
+jobs:
+  repair-and-deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout current source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          show-progress: false
+
+      - name: Resolve validated production artifact
+        id: source
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euxo pipefail
+          if [ "${EVENT_NAME}" = "workflow_dispatch" ]; then
+            HEAD_SHA="$(git rev-parse HEAD)"
+          else
+            HEAD_SHA="${EVENT_HEAD_SHA}"
+          fi
+          curl --retry 4 --retry-delay 3 -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows?per_page=100" \
+            -o /tmp/workflows.json
+          WORKFLOW_ID="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('/tmp/workflows.json').read_text(encoding='utf-8'))
+          matches=[item for item in data.get('workflows',[]) if item.get('name')=='Audit production discovery contract v220']
+          assert len(matches)==1,matches
+          print(matches[0]['id'])
+          PY
+          )"
+          curl --retry 4 --retry-delay 3 -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/${WORKFLOW_ID}/runs?head_sha=${HEAD_SHA}&status=success&per_page=30" \
+            -o /tmp/source-runs.json
+          RUN_ID="$(EXPECTED_SHA="${HEAD_SHA}" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          data=json.loads(Path('/tmp/source-runs.json').read_text(encoding='utf-8'))
+          runs=[run for run in data.get('workflow_runs',[]) if run.get('conclusion')=='success' and run.get('head_sha')==os.environ['EXPECTED_SHA']]
+          assert runs,{'expected_sha':os.environ['EXPECTED_SHA'],'runs':data.get('workflow_runs',[])[:5]}
+          runs.sort(key=lambda run:run.get('run_started_at') or run.get('created_at') or '',reverse=True)
+          print(runs[0]['id'])
+          PY
+          )"
+          echo "head_sha=${HEAD_SHA}" >> "${GITHUB_OUTPUT}"
+          echo "run_id=${RUN_ID}" >> "${GITHUB_OUTPUT}"
+
+      - name: Download validated site
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: patched-site
+          run-id: ${{ steps.source.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Apply light surfaces and clear text
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/patch_quiz_contrast_v254.py scripts/patch_quiz_text_color_v255.py
+          python scripts/patch_quiz_contrast_v254.py patched-site >/tmp/quiz-v254.json
+          python scripts/patch_quiz_text_color_v255.py patched-site | tee /tmp/quiz-v255-first.json
+          cp patched-site/tools/quiz/index.html /tmp/quiz-v255-first.html
+          python scripts/patch_quiz_text_color_v255.py patched-site | tee /tmp/quiz-v255-second.json
+          cmp /tmp/quiz-v255-first.html patched-site/tools/quiz/index.html
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          first=json.loads(Path('/tmp/quiz-v255-first.json').read_text(encoding='utf-8'))
+          second=json.loads(Path('/tmp/quiz-v255-second.json').read_text(encoding='utf-8'))
+          quiz=Path('patched-site/tools/quiz/index.html').read_text(encoding='utf-8')
+          assert first['version']==255 and first['text_color']=='#071a1f',first
+          assert second['changed'] is False,second
+          assert quiz.count('id="quiz-text-color-v255-style"')==1
+          assert quiz.count('id="quiz-text-color-v255-runtime"')==1
+          assert '-webkit-text-fill-color: #071a1f !important' in quiz
+          assert 'MutationObserver' in quiz
+          PY
+
+      - name: Install Chromium
+        run: |
+          set -euxo pipefail
+          python -m pip install --disable-pip-version-check 'playwright>=1.50,<2'
+          python -m playwright install --with-deps chromium
+
+      - name: Verify computed text color before deployment
+        run: |
+          set -euxo pipefail
+          python -m http.server 8765 --directory patched-site >/tmp/quiz-v255-http.log 2>&1 &
+          echo $! >/tmp/quiz-v255-http.pid
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              page=browser.new_page(viewport={'width':1440,'height':1100},color_scheme='dark',reduced_motion='reduce')
+              response=page.goto('http://127.0.0.1:8765/tools/quiz/?v=255',wait_until='networkidle',timeout=90000)
+              assert response and response.status==200,response
+              page.wait_for_function("Number(document.documentElement.getAttribute('data-quiz-text-color-applied')||0)>=2",timeout=30000)
+              audit=page.evaluate(r'''() => {
+                const nodes=[...document.querySelectorAll('main h1,main h2,main h3,main p,main span,main button,main label')].filter(e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'});
+                return {count:nodes.length,colors:[...new Set(nodes.map(e=>getComputedStyle(e).color))],fills:[...new Set(nodes.map(e=>getComputedStyle(e).webkitTextFillColor))],hasQuestion:(document.body.innerText||'').includes('السؤال'),painted:document.querySelectorAll('[data-quiz-text-painted="v255"]').length};
+              }''')
+              page.screenshot(path='/tmp/quiz-v255-before.png',full_page=True)
+              browser.close()
+          assert audit['count']>=2,audit
+          assert audit['hasQuestion'] is True,audit
+          assert audit['painted']>=2,audit
+          assert all(color in ('rgb(7, 26, 31)','rgb(16, 24, 40)') for color in audit['colors']),audit
+          Path('/tmp/quiz-v255-before.json').write_text(json.dumps(audit,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(audit,ensure_ascii=False,indent=2))
+          PY
+          kill "$(cat /tmp/quiz-v255-http.pid)"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload repaired site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: patched-site
+
+      - name: Deploy repaired quiz
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify live text color
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          SOURCE_SHA: ${{ steps.source.outputs.head_sha }}
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json,os,time
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          url=os.environ['PAGE_URL'].rstrip('/')+'/tools/quiz/?v=text-color-255-'+os.environ['SOURCE_SHA']
+          last=None
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              for attempt in range(1,16):
+                  page=browser.new_page(viewport={'width':1440,'height':1100},color_scheme='dark',reduced_motion='reduce')
+                  try:
+                      response=page.goto(url+f'-{attempt}',wait_until='networkidle',timeout=90000)
+                      if not response or response.status!=200: raise AssertionError(response.status if response else None)
+                      page.wait_for_function("Number(document.documentElement.getAttribute('data-quiz-text-color-applied')||0)>=2",timeout=25000)
+                      audit=page.evaluate(r'''() => {const nodes=[...document.querySelectorAll('main h1,main h2,main h3,main p,main span,main button,main label')].filter(e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'});return {count:nodes.length,colors:[...new Set(nodes.map(e=>getComputedStyle(e).color))],hasQuestion:(document.body.innerText||'').includes('السؤال'),painted:document.querySelectorAll('[data-quiz-text-painted="v255"]').length};}''')
+                      if audit['count']<2 or not audit['hasQuestion'] or audit['painted']<2 or not all(c in ('rgb(7, 26, 31)','rgb(16, 24, 40)') for c in audit['colors']): raise AssertionError(audit)
+                      page.screenshot(path='/tmp/quiz-v255-live.png',full_page=True)
+                      last=audit
+                      page.close()
+                      break
+                  except Exception as exc:
+                      last={'attempt':attempt,'error':repr(exc)}
+                      page.close()
+                      time.sleep(10)
+              browser.close()
+          assert isinstance(last,dict) and 'error' not in last,last
+          evidence={'version':255,'status':'live-passed','source_sha':os.environ['SOURCE_SHA'],'url':url,**last}
+          Path('/tmp/quiz-v255-live.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(evidence,ensure_ascii=False,indent=2))
+          PY
+
+      - name: Retain evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quiz-text-color-v255
+          path: |
+            patched-site/api/quiz-text-color-v255.json
+            /tmp/quiz-v255-first.json
+            /tmp/quiz-v255-second.json
+            /tmp/quiz-v255-before.json
+            /tmp/quiz-v255-before.png
+            /tmp/quiz-v255-live.json
+            /tmp/quiz-v255-live.png
+            /tmp/quiz-v255-http.log
+          if-no-files-found: warn
+          retention-days: 30
