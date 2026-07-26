@@ -1,0 +1,111 @@
+name: Validate tools real DOM v253
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/patch_live_tools_real_dom_v253.py"
+      - ".github/workflows/repair-tools-real-dom-v253.yml"
+      - ".github/workflows/validate-tools-real-dom-v253.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/patch_live_tools_real_dom_v253.py"
+      - ".github/workflows/repair-tools-real-dom-v253.yml"
+      - ".github/workflows/validate-tools-real-dom-v253.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-tools-real-dom-v253-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and patch a hostile dark quiz twice
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/patch_live_tools_real_dom_v253.py
+          mkdir -p /tmp/site/tools/quiz /tmp/site/tools/other
+          cat >/tmp/site/tools/quiz/index.html <<'HTML'
+          <!doctype html><html lang="ar" dir="rtl"><head><style>
+          main .legacy-card{background:#243f45!important;color:#06282d!important}
+          main .legacy-option{background:#153940!important;color:#153940!important}
+          </style></head><body><main>
+          <section class="legacy-card"><h1>اختبار المصطلحات</h1>
+          <article class="legacy-card"><h2>السؤال 1</h2><p>شعور بالانفصال عن الذات.</p>
+          <div role="radiogroup"><button class="legacy-option">الإجابة الأولى</button><button class="legacy-option">الإجابة الثانية</button></div>
+          </article></section></main></body></html>
+          HTML
+          cp /tmp/site/tools/quiz/index.html /tmp/site/tools/other/index.html
+          python scripts/patch_live_tools_real_dom_v253.py /tmp/site | tee /tmp/first.json
+          cp -a /tmp/site /tmp/site-first
+          python scripts/patch_live_tools_real_dom_v253.py /tmp/site | tee /tmp/second.json
+          diff -qr /tmp/site-first /tmp/site
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          first=json.loads(Path('/tmp/first.json').read_text(encoding='utf-8'))
+          second=json.loads(Path('/tmp/second.json').read_text(encoding='utf-8'))
+          assert first['version']==253 and first['changed']==2,first
+          assert second['changed']==0 and second['unchanged']==2,second
+          quiz=Path('/tmp/site/tools/quiz/index.html').read_text(encoding='utf-8')
+          assert quiz.count('id="tools-real-dom-marshmallow-v253-style"')==1
+          assert quiz.count('id="tools-real-dom-marshmallow-v253-runtime"')==1
+          assert 'MutationObserver' in quiz
+          assert 'data-tools-runtime-painted' in quiz
+          assert 'style.setProperty(k,v,"important")' in quiz
+          PY
+      - name: Install Chromium
+        run: |
+          set -euxo pipefail
+          python -m pip install --disable-pip-version-check 'playwright>=1.50,<2'
+          python -m playwright install --with-deps chromium
+      - name: Measure the actual hostile DOM, not a synthetic injected fixture
+        run: |
+          set -euxo pipefail
+          python -m http.server 8765 --directory /tmp/site >/tmp/http.log 2>&1 &
+          echo $! >/tmp/http.pid
+          python - <<'PY'
+          from playwright.sync_api import sync_playwright
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              page=browser.new_page(viewport={'width':1280,'height':900},color_scheme='dark')
+              response=page.goto('http://127.0.0.1:8765/tools/quiz/',wait_until='networkidle',timeout=90000)
+              assert response and response.status==200,response
+              page.wait_for_function("Number(document.documentElement.getAttribute('data-tools-real-dom-applied')||0)>=2")
+              audit=page.evaluate(r'''() => {
+                const parse=v=>{const m=String(v||'').match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?/i);return m?[+m[1],+m[2],+m[3],m[4]===undefined?1:+m[4]]:null};
+                const lum=c=>{const a=c.slice(0,3).map(n=>{n/=255;return n<=.04045?n/12.92:Math.pow((n+.055)/1.055,2.4)});return .2126*a[0]+.7152*a[1]+.0722*a[2]};
+                const dark=[...document.querySelectorAll('main *')].filter(e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e),c=parse(s.backgroundColor);return r.width>=180&&r.height>=44&&c&&c[3]>.45&&lum(c)<.42}).map(e=>({tag:e.tagName,cls:e.className,bg:getComputedStyle(e).backgroundColor}));
+                return {dark,painted:document.querySelectorAll('main [data-tools-runtime-painted="v253"]').length,applied:Number(document.documentElement.getAttribute('data-tools-real-dom-applied')||0)};
+              }''')
+              page.screenshot(path='/tmp/tools-real-dom-v253.png',full_page=True)
+              browser.close()
+          assert audit['dark']==[],audit
+          assert audit['painted']>=2 and audit['applied']>=2,audit
+          print(audit)
+          PY
+          kill "$(cat /tmp/http.pid)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: validate-tools-real-dom-v253
+          path: |
+            /tmp/first.json
+            /tmp/second.json
+            /tmp/tools-real-dom-v253.png
+            /tmp/http.log
+          if-no-files-found: warn
+          retention-days: 14
