@@ -23,8 +23,9 @@ def _load_legacy_guides_with_review_provenance() -> tuple[dict, list[dict]]:
 def main() -> dict:
     implementation.load_legacy_guides = _load_legacy_guides_with_review_provenance
     report = implementation.main()
-    # Preserve the established API meaning: true only when the blocked autism guide was published.
+    # Preserve established API meanings consumed by later production publishers.
     report["autism_published"] = False
+    report["core_guides"] = report["source_guides"]
     report_path = SITE / "api/care-guides-v21.json"
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return report
