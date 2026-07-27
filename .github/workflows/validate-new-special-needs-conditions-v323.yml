@@ -1,0 +1,90 @@
+name: Validate new special-needs conditions v323
+
+on:
+  pull_request:
+    paths:
+      - 'content/v323/**'
+      - 'scripts/publish_new_special_needs_conditions_v323.py'
+      - 'scripts/diagnose_special_needs_guides_v221.py'
+      - 'tests/test_new_special_needs_conditions_v323.py'
+      - 'tests/test_new_special_needs_conditions_integration_v323.py'
+      - '.github/workflows/validate-new-special-needs-conditions-v323.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/v323/**'
+      - 'scripts/publish_new_special_needs_conditions_v323.py'
+      - 'scripts/diagnose_special_needs_guides_v221.py'
+      - 'tests/test_new_special_needs_conditions_v323.py'
+      - 'tests/test_new_special_needs_conditions_integration_v323.py'
+      - '.github/workflows/validate-new-special-needs-conditions-v323.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-v323:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile publisher integration and tests
+        run: |
+          python -m py_compile \
+            scripts/publish_new_special_needs_conditions_v323.py \
+            scripts/diagnose_special_needs_guides_v221.py \
+            tests/test_new_special_needs_conditions_v323.py \
+            tests/test_new_special_needs_conditions_integration_v323.py
+      - name: Validate JSON and source contracts
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+          path = Path('content/v323/new-special-needs-conditions-ar.json')
+          data = json.loads(path.read_text(encoding='utf-8'))
+          assert data['version'] == 323
+          assert data['review_status'] == 'internally-reviewed-external-clinical-review-required'
+          assert [row['slug'] for row in data['guides']] == [
+              'rett-syndrome', 'fragile-x-syndrome', 'angelman-syndrome'
+          ]
+          assert sum(len(row['sections']) for row in data['guides']) == 21
+          assert sum(len(row['sources']) for row in data['guides']) >= 18
+          serialized = json.dumps(data, ensure_ascii=False)
+          banned = re.compile(r'(?<!\w)(?:المعاقين|معاقين|المعاقون|معاقون|المعاقة|معاقة|المعاق|معاق)(?!\w)')
+          assert not banned.search(serialized)
+          for guide in data['guides']:
+              assert len(guide['sections']) == 7
+              assert len(guide['action_steps']) >= 8
+              assert len(guide['urgent']) >= 6
+              assert len(guide['myths']) >= 5
+              assert len(guide['faqs']) >= 5
+              assert all(source['url'].startswith('https://') for source in guide['sources'])
+          print({
+              'conditions': len(data['guides']),
+              'sections': sum(len(row['sections']) for row in data['guides']),
+              'sources': sum(len(row['sources']) for row in data['guides']),
+              'review_state': data['review_status'],
+          })
+          PY
+      - name: Run deterministic publisher tests
+        run: python -m unittest tests.test_new_special_needs_conditions_v323 -v
+      - name: Run production entrypoint integration tests
+        run: python -m unittest tests.test_new_special_needs_conditions_integration_v323 -v
+      - name: Verify scientific identity markers
+        run: |
+          set -euxo pipefail
+          grep -q 'MECP2' content/v323/new-special-needs-conditions-ar.json
+          grep -q 'FMR1' content/v323/new-special-needs-conditions-ar.json
+          grep -q 'UBE3A' content/v323/new-special-needs-conditions-ar.json
+          grep -q 'https://www.ncbi.nlm.nih.gov/books/NBK1497/' content/v323/new-special-needs-conditions-ar.json
+          grep -q 'https://www.ncbi.nlm.nih.gov/books/NBK1384/' content/v323/new-special-needs-conditions-ar.json
+          grep -q 'https://www.ncbi.nlm.nih.gov/books/NBK1144/' content/v323/new-special-needs-conditions-ar.json
+          grep -q 'MedicalWebPage' scripts/publish_new_special_needs_conditions_v323.py
+          grep -q 'FAQPage' scripts/publish_new_special_needs_conditions_v323.py
+          grep -q 'sitemap-special-needs.xml' scripts/publish_new_special_needs_conditions_v323.py
+          ! grep -R -E 'علاج مضمون|شفاء مضمون|نتائج مؤكدة للجميع' content/v323
