@@ -87,8 +87,13 @@ def main() -> int:
         failures.append("hero/header black CSS marker missing")
     if "--hero-header-text-v282: #000000" not in rendered_css:
         failures.append("hero/header pure-black token missing")
-    if ":where(*)" not in hero_header_payload:
+
+    descendant_contract = ") * {\n  color: var(--hero-header-text-v282) !important;"
+    if descendant_contract not in hero_header_payload:
         failures.append("hero/header descendant coverage missing")
+    if "-webkit-text-fill-color: var(--hero-header-text-v282) !important;" not in hero_header_payload:
+        failures.append("hero/header text-fill coverage missing")
+
     if MARKER_JS not in js_target.read_text(encoding="utf-8"):
         failures.append("contrast JS marker missing")
     if not target.exists():
