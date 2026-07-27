@@ -29,59 +29,32 @@
     if (!match) return null;
     const parts = match[1].split(/[\s,/]+/).filter(Boolean).map(Number);
     if (parts.length < 3 || parts.slice(0, 3).some(Number.isNaN)) return null;
-    return {
-      r: Math.max(0, Math.min(255, parts[0])),
-      g: Math.max(0, Math.min(255, parts[1])),
-      b: Math.max(0, Math.min(255, parts[2])),
-      a: Number.isFinite(parts[3]) ? Math.max(0, Math.min(1, parts[3])) : 1,
-    };
+    return { r: Math.max(0, Math.min(255, parts[0])), g: Math.max(0, Math.min(255, parts[1])), b: Math.max(0, Math.min(255, parts[2])), a: Number.isFinite(parts[3]) ? Math.max(0, Math.min(1, parts[3])) : 1 };
   }
 
   function colorsFromGradient(value) {
     if (!value || value === 'none' || !/gradient\(/i.test(value)) return [];
-    return [...String(value).matchAll(/rgba?\([^)]+\)/gi)]
-      .map((match) => parseColor(match[0]))
-      .filter(Boolean);
+    return [...String(value).matchAll(/rgba?\([^)]+\)/gi)].map((match) => parseColor(match[0])).filter(Boolean);
   }
 
   function composite(front, back) {
     const alpha = front.a + back.a * (1 - front.a);
     if (alpha <= 0) return { ...WHITE };
-    return {
-      r: (front.r * front.a + back.r * back.a * (1 - front.a)) / alpha,
-      g: (front.g * front.a + back.g * back.a * (1 - front.a)) / alpha,
-      b: (front.b * front.a + back.b * back.a * (1 - front.a)) / alpha,
-      a: alpha,
-    };
+    return { r: (front.r * front.a + back.r * back.a * (1 - front.a)) / alpha, g: (front.g * front.a + back.g * back.a * (1 - front.a)) / alpha, b: (front.b * front.a + back.b * back.a * (1 - front.a)) / alpha, a: alpha };
   }
 
   function luminance({ r, g, b }) {
-    const channels = [r, g, b].map((channel) => {
-      const value = channel / 255;
-      return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
-    });
+    const channels = [r, g, b].map((channel) => { const value = channel / 255; return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4; });
     return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
   }
 
-  function ratio(a, b) {
-    const first = luminance(a);
-    const second = luminance(b);
-    return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
-  }
-
-  function cssColor(color) {
-    return `rgb(${Math.round(color.r)}, ${Math.round(color.g)}, ${Math.round(color.b)})`;
-  }
+  function ratio(a, b) { const first = luminance(a); const second = luminance(b); return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05); }
+  function cssColor(color) { return `rgb(${Math.round(color.r)}, ${Math.round(color.g)}, ${Math.round(color.b)})`; }
 
   function visible(element) {
     const style = getComputedStyle(element);
     const rect = element.getBoundingClientRect();
-    return Boolean((element.innerText || element.value || element.textContent || '').trim())
-      && style.display !== 'none'
-      && style.visibility !== 'hidden'
-      && Number(style.opacity || 1) > 0.05
-      && rect.width > 0
-      && rect.height > 0;
+    return Boolean((element.innerText || element.value || element.textContent || '').trim()) && style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0.05 && rect.width > 0 && rect.height > 0;
   }
 
   function thresholdFor(element, style) {
@@ -126,34 +99,22 @@
     let current = element;
     while (current && current.nodeType === Node.ELEMENT_NODE) {
       const style = getComputedStyle(current);
-      chain.push({
-        color: parseColor(style.backgroundColor),
-        image: style.backgroundImage,
-        guarded: current.matches('.hh-overlay-dark,.hh-overlay-light,[data-surface="light"],[data-surface="dark"],[data-theme="light"],[data-theme="dark"],.surface-light,.surface-dark,.theme-light,.theme-dark,.hh-surface-light,.hh-surface-dark'),
-      });
+      chain.push({ color: parseColor(style.backgroundColor), image: style.backgroundImage, guarded: current.matches('.hh-overlay-dark,.hh-overlay-light,[data-surface="light"],[data-surface="dark"],[data-theme="light"],[data-theme="dark"],.surface-light,.surface-dark,.theme-light,.theme-dark,.hh-surface-light,.hh-surface-dark') });
       if (chain.at(-1).color?.a >= 0.999) break;
       current = current.parentElement;
     }
 
     let solid = { ...WHITE };
-    for (let index = chain.length - 1; index >= 0; index -= 1) {
-      if (chain[index].color?.a > 0.001) solid = composite(chain[index].color, solid);
-    }
+    for (let index = chain.length - 1; index >= 0; index -= 1) if (chain[index].color?.a > 0.001) solid = composite(chain[index].color, solid);
 
-    const candidates = [solid];
-    let unresolvedImage = false;
-    for (const layer of chain) {
-      if (!layer.image || layer.image === 'none' || layer.guarded) continue;
-      const gradientColors = colorsFromGradient(layer.image);
-      if (gradientColors.length) candidates.push(...gradientColors.map((color) => composite(color, solid)));
-      if (/url\(/i.test(layer.image)) unresolvedImage = true;
-    }
-    return { candidates, unresolvedImage };
+    const imageLayer = chain.find((layer) => layer.image && layer.image !== 'none' && !layer.guarded);
+    if (!imageLayer) return { candidates: [solid], unresolvedImage: false };
+    const gradientColors = colorsFromGradient(imageLayer.image);
+    if (gradientColors.length) return { candidates: gradientColors.map((color) => composite(color, solid)), unresolvedImage: false };
+    return { candidates: [solid], unresolvedImage: /url\(/i.test(imageLayer.image) };
   }
 
-  function minimumRatio(foreground, candidates) {
-    return Math.min(...candidates.map((background) => ratio(foreground.a < 1 ? composite(foreground, background) : foreground, background)));
-  }
+  function minimumRatio(foreground, candidates) { return Math.min(...candidates.map((background) => ratio(foreground.a < 1 ? composite(foreground, background) : foreground, background))); }
 
   function applyColor(element, target, candidates, source) {
     const light = target === LIGHT_TEXT;
@@ -217,11 +178,7 @@
     document.documentElement.dataset.heroHeaderContrastScan = String(scanId);
   }
 
-  function schedule() {
-    if (scheduled) return;
-    scheduled = true;
-    requestAnimationFrame(scan);
-  }
+  function schedule() { if (scheduled) return; scheduled = true; requestAnimationFrame(scan); }
 
   function resolvedAndPassing(element) {
     if (!(element instanceof Element) || element.dataset.hhInlineContrast !== 'true') return false;
@@ -258,10 +215,5 @@
       return !resolvedAndPassing(target);
     });
     if (shouldScan) schedule();
-  }).observe(document.documentElement, {
-    subtree: true,
-    childList: true,
-    attributes: true,
-    attributeFilter: ['class','style','data-surface','data-theme','aria-expanded','aria-disabled'],
-  });
+  }).observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ['class','style','data-surface','data-theme','aria-expanded','aria-disabled'] });
 })();
