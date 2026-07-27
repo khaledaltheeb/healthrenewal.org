@@ -75,15 +75,20 @@ class SpecialistsPartnersSectorTests(unittest.TestCase):
         for item in ("speech_language", "audiology", "special_education", "early_intervention", "aac"):
             self.assertIn(item, specialties)
 
-    def test_javascript_uses_local_dataset_and_no_remote_case_submission(self) -> None:
+    def test_javascript_uses_local_dataset_and_safe_published_contacts(self) -> None:
         script = (SECTOR / "assets" / "sector.js").read_text(encoding="utf-8")
         self.assertIn("data/providers.json", script)
         self.assertIn("cache:'no-store'", script)
+        self.assertIn("p.publicationStatus==='published'", script)
+        self.assertIn("p.verification?.status==='verified'", script)
+        self.assertIn("p.consent?.publicProfileApproved===true", script)
+        self.assertIn("['http:','https:','mailto:','tel:']", script)
         self.assertNotIn("XMLHttpRequest", script)
         self.assertNotIn("FormData", script)
         self.assertNotIn("sendBeacon", script)
         self.assertNotIn("localStorage", script)
         self.assertNotIn("sessionStorage", script)
+        self.assertNotIn("javascript:", script.lower())
 
     def test_sitemap_and_robots_registration(self) -> None:
         sitemap = ROOT / "sitemap-specialists-partners.xml"
