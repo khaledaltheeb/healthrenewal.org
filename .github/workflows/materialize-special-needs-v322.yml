@@ -1,0 +1,103 @@
+name: Materialize special-needs v322 pages
+
+on:
+  push:
+    branches:
+      - agent/materialize-special-needs-v322
+    paths:
+      - .github/workflows/materialize-special-needs-v322.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: materialize-special-needs-v322
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/materialize-special-needs-v322
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify source and publisher
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_special_needs_expansion_v322.py \
+            scripts/special_needs_v322_core.py \
+            scripts/special_needs_v322_render.py \
+            scripts/special_needs_v322_publish.py \
+            tests/test_special_needs_expansion_v322.py
+          python -m unittest -v tests.test_special_needs_expansion_v322
+      - name: Materialize pages in an isolated site tree
+        run: |
+          set -euxo pipefail
+          rm -rf /tmp/v322-site
+          mkdir -p /tmp/v322-site/special-needs /tmp/v322-site/api
+          cp special-needs/index.html /tmp/v322-site/special-needs/index.html
+          cp sitemap-special-needs.xml /tmp/v322-site/sitemap-special-needs.xml
+          cp sitemap.xml /tmp/v322-site/sitemap.xml
+          python scripts/publish_special_needs_expansion_v322.py /tmp/v322-site
+          for slug in \
+            adhd-lifespan-assessment-support \
+            cerebral-palsy-lifespan-care-participation \
+            hearing-loss-deafness-language-access \
+            vision-impairment-learning-mobility-access \
+            developmental-language-disorder-assessment-support
+          do
+            rm -rf "special-needs/${slug}"
+            cp -a "/tmp/v322-site/special-needs/${slug}" "special-needs/${slug}"
+          done
+          cp /tmp/v322-site/special-needs/index.html special-needs/index.html
+          cp /tmp/v322-site/sitemap-special-needs.xml sitemap-special-needs.xml
+          cp /tmp/v322-site/sitemap.xml sitemap.xml
+          cp /tmp/v322-site/api/special-needs-expansion-v322.json api/special-needs-expansion-v322.json
+      - name: Validate materialized output
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json, re, xml.etree.ElementTree as ET
+          from pathlib import Path
+          root=Path('.')
+          report=json.loads((root/'api/special-needs-expansion-v322.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed' and report['guide_count']==5, report
+          assert report['section_count']==40 and report['source_count']==25, report
+          assert report['minimum_rendered_words']>=1200, report
+          hub=(root/'special-needs/index.html').read_text(encoding='utf-8')
+          assert hub.count('<!-- special-needs-expansion-v322:start -->')==1
+          urls=[(n.text or '').strip() for n in ET.parse(root/'sitemap-special-needs.xml').getroot().findall('{*}url/{*}loc')]
+          for slug in report['guide_slugs']:
+              path=root/'special-needs'/slug/'index.html'
+              text=path.read_text(encoding='utf-8')
+              assert path.is_file() and text.count('<h1')==1
+              assert len(re.findall(r'<h2\b', text))>=11
+              assert f'https://khaledaltheeb.github.io/pterminology-site/special-needs/{slug}/' in urls
+          print({'status':'materialized','guides':5,'sections':40,'sources':25})
+          PY
+      - name: Commit generated production files
+        env:
+          BRANCH: agent/materialize-special-needs-v322
+        run: |
+          set -euxo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/materialize-special-needs-v322.yml
+          git add \
+            special-needs/index.html \
+            special-needs/adhd-lifespan-assessment-support/index.html \
+            special-needs/cerebral-palsy-lifespan-care-participation/index.html \
+            special-needs/hearing-loss-deafness-language-access/index.html \
+            special-needs/vision-impairment-learning-mobility-access/index.html \
+            special-needs/developmental-language-disorder-assessment-support/index.html \
+            sitemap-special-needs.xml sitemap.xml \
+            api/special-needs-expansion-v322.json
+          git diff --cached --check
+          git commit -m "content: materialize five special-needs guides v322 [skip ci]"
+          git push origin "HEAD:${BRANCH}"
