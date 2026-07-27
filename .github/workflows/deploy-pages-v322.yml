@@ -1,0 +1,51 @@
+name: Deploy publication surface to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout production source
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Verify publication entry points
+        run: |
+          set -euo pipefail
+          test -f index.html
+          test -f sections/index.html
+          test -f sectors/index.html
+          test -f specialists-partners/index.html
+          test -f platform/index.html
+          test -f copyright/index.html
+          grep -q 'data-publication-surface="v322"' index.html
+          grep -q 'فريقنا وشركاؤنا ذوو الاختصاص' index.html
+          grep -q 'الأقسام المتخصصة للصحة النفسية' sectors/index.html
+
+      - name: Upload static site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
