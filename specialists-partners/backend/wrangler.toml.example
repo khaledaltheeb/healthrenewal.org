@@ -1,0 +1,24 @@
+name = "pterminology-specialists"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+workers_dev = true
+
+[vars]
+ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
+OWNER_EMAIL = "pterminology@gmail.com"
+PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
+RATE_LIMIT_SALT = "replace-with-a-long-random-value"
+FROM_EMAIL = "منصة المختصين <notifications@your-verified-domain.example>"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pterminology-specialists"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[triggers]
+crons = ["17 2 * * *"]
+
+# Add secrets with Wrangler; never commit their values:
+# wrangler secret put RESEND_API_KEY
+# wrangler secret put TURNSTILE_SECRET
+# wrangler secret put ADMIN_API_KEY
