@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -43,6 +44,8 @@ def load_production_manifest() -> dict[str, Any]:
 
 
 def publish(site: Path) -> dict[str, Any]:
+    for slug in ("autism", "down-syndrome"):
+        shutil.rmtree(site / "special-needs" / slug, ignore_errors=True)
     production_manifest = load_production_manifest()
     hub_report = hub235.publish(site)
     if hub_report.get("version") != 235 or hub_report.get("guide_count") != 25:
