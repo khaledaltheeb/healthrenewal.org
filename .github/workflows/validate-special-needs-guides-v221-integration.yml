@@ -67,7 +67,9 @@ jobs:
           python -m json.tool content/v302/down-syndrome-ar.json >/dev/null
           for file in content/v214/special-needs-guides/*.json; do python -m json.tool "$file" >/dev/null; done
       - name: Validate institutional hub depth metadata robots and idempotence
-        run: python -m unittest -v tests.test_special_needs_hub_v235
+        run: |
+          python -m unittest -v tests.test_special_needs_hub_v235 > /tmp/special-needs-hub.log 2>&1 || { tail -n 100 /tmp/special-needs-hub.log; exit 1; }
+          tail -n 20 /tmp/special-needs-hub.log
       - name: Validate autism Down syndrome evidence traceability providers and idempotence
         run: python -m unittest -v tests.test_special_needs_condition_hubs_v302
       - name: Validate v214 depth sources language and idempotence
