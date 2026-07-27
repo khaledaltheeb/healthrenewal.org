@@ -16,4 +16,17 @@ jobs:
       - name: Compile verifier
         run: python -m py_compile scripts/verify_homepage_v19.py
       - name: Validate homepage discovery, metadata, and structure
-        run: python scripts/verify_homepage_v19.py
+        run: |
+          set +e
+          python scripts/verify_homepage_v19.py > /tmp/homepage-v19.log 2>&1
+          status=$?
+          cat /tmp/homepage-v19.log
+          exit "$status"
+      - name: Upload homepage verifier failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: homepage-v19-failure-log
+          path: /tmp/homepage-v19.log
+          if-no-files-found: error
+          retention-days: 7

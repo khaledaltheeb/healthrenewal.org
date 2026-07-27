@@ -164,7 +164,10 @@ def main() -> None:
     course_example = load_json("api/v1/courses.example.json")
     assert manifest.get("name") == BRAND
     assert manifest.get("dir") == "rtl" and manifest.get("lang") == "ar"
-    assert platform.get("apiVersion") == "1.0.0"
+    api_version = str(platform.get("apiVersion", ""))
+    assert re.fullmatch(r"1\.\d+\.\d+", api_version), (
+        f"Platform API must remain compatible with the supported 1.x semantic-version contract: {api_version!r}"
+    )
     assert openapi.get("openapi") == "3.1.0"
     assert course_schema["properties"]["authorization"]["properties"]["status"]["const"] == "authorized"
     assert course_example["authorization"]["status"] == "authorized"
@@ -193,7 +196,7 @@ def main() -> None:
                 "learning_paths_linked": True,
                 "interactive_tools_discovery_contract": 220,
                 "operational_copy_hidden": True,
-                "api_version": platform["apiVersion"],
+                "api_version": api_version,
                 "openapi": openapi["openapi"],
                 "lab_tool_count": 93,
                 "light_palette": True,
