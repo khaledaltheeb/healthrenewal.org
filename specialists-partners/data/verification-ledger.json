@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-07-27",
+  "privacyRule": "يسجل هذا الملف نتائج المراجعة ومراجع إثبات عامة أو رموزًا داخلية غير كاشفة فقط. لا تُنشر فيه صور الهويات أو الشهادات أو التراخيص أو التواقيع أو بيانات العملاء والأطفال والأسر.",
+  "accuracyPolicy": {
+    "fieldLevelReviewRequired": true,
+    "selfReportedClaimsAreNotAutomaticallyVerified": true,
+    "materialDisputesTriggerSuspension": true,
+    "correctionsAreLogged": true,
+    "expiredReviewsCannotSupportPublication": true
+  },
+  "records": []
+}
