@@ -1,0 +1,35 @@
+name: Validate cognitive title disambiguation v314
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_cognitive_sectors_v246.py"
+      - "tests/test_cognitive_title_disambiguation_v314.py"
+      - ".github/workflows/validate-cognitive-title-disambiguation-v314.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_cognitive_sectors_v246.py"
+      - "tests/test_cognitive_title_disambiguation_v314.py"
+      - ".github/workflows/validate-cognitive-title-disambiguation-v314.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  title-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publisher and title regression test
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/publish_cognitive_sectors_v246.py tests/test_cognitive_title_disambiguation_v314.py
+      - name: Prove legacy and modern verbal analogy pages keep distinct titles
+        run: python -m unittest -v tests.test_cognitive_title_disambiguation_v314

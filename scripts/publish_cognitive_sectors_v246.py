@@ -3,7 +3,9 @@ from __future__ import annotations
 # Verified compressed source bundle for the institutional cognitive sectors publisher.
 import base64
 import gzip
+import json
 import re
+import sys
 from pathlib import Path
 
 _PARTS = tuple(Path(__file__).with_name("v246_cognitive_parts").glob("part*.b85"))
@@ -115,4 +117,123 @@ source = source.replace(
     '("version", "status", "legacy_sector", "modern_sector", "total_detail_pages", "sitemap_urls", "sitemap_required_urls", "sitemap_mapped_required_urls", "contracts")',
     1,
 )
-exec(compile(source, __file__, "exec"), {"__name__": __name__, "__file__": __file__})
+
+LEGACY_ROUTE = "cognitive-tests/verbal-analogies/index.html"
+LEGACY_SLUG = "verbal-analogies"
+LEGACY_OLD_TITLE = "التناظر اللفظي"
+LEGACY_NEW_TITLE = "اختبار التناظر اللفظي التقليدي"
+REPORT_PATH = "api/cognitive-sectors-v246.json"
+
+
+def _replace_first_element_text(source_text: str, tag: str, replacement: str) -> tuple[str, int]:
+    pattern = re.compile(rf"(<{tag}\b[^>]*>)(.*?)(</{tag}>)", re.I | re.S)
+    return pattern.subn(lambda match: match.group(1) + replacement + match.group(3), source_text, count=1)
+
+
+def _replace_title_metadata(source_text: str, replacement: str) -> tuple[str, int]:
+    changed = 0
+
+    def replace_meta(match: re.Match[str]) -> str:
+        nonlocal changed
+        tag = match.group(0)
+        attrs = {
+            key.lower(): value
+            for key, _, value in re.findall(r"([:\w-]+)\s*=\s*([\"'])(.*?)\2", tag, re.I | re.S)
+        }
+        if attrs.get("property", "").lower() != "og:title" and attrs.get("name", "").lower() != "twitter:title":
+            return tag
+        content_match = re.search(r"\bcontent\s*=\s*([\"'])(.*?)\1", tag, re.I | re.S)
+        if not content_match:
+            return tag
+        changed += 1
+        quote = content_match.group(1)
+        return tag[: content_match.start()] + f"content={quote}{replacement}{quote}" + tag[content_match.end() :]
+
+    return re.sub(r"<meta\b[^>]*>", replace_meta, source_text, flags=re.I | re.S), changed
+
+
+def disambiguate_legacy_verbal_analogy(site: Path) -> dict[str, object]:
+    site = site.resolve()
+    page = site / LEGACY_ROUTE
+    report_path = site / REPORT_PATH
+    if not page.is_file():
+        raise SystemExit(f"Missing legacy verbal analogy page: {page}")
+    if not report_path.is_file():
+        raise SystemExit(f"Missing cognitive sector report: {report_path}")
+
+    original = page.read_text(encoding="utf-8")
+    title_match = re.search(r"<title\b[^>]*>(.*?)</title>", original, re.I | re.S)
+    if not title_match:
+        raise SystemExit("Legacy verbal analogy page has no title")
+    current_full_title = re.sub(r"\s+", " ", title_match.group(1)).strip()
+    suffix = current_full_title.split(" | ", 1)[1] if " | " in current_full_title else ""
+    new_full_title = LEGACY_NEW_TITLE + (f" | {suffix}" if suffix else "")
+
+    updated, title_count = _replace_first_element_text(original, "title", new_full_title)
+    updated, h1_count = _replace_first_element_text(updated, "h1", LEGACY_NEW_TITLE)
+    updated, meta_count = _replace_title_metadata(updated, new_full_title)
+    updated, json_ld_count = re.subn(
+        rf'("name"\s*:\s*")({re.escape(LEGACY_OLD_TITLE)})(")',
+        lambda match: match.group(1) + LEGACY_NEW_TITLE + match.group(3),
+        updated,
+    )
+
+    if title_count != 1 or h1_count != 1:
+        raise SystemExit(
+            f"Legacy verbal analogy title contract failed: title={title_count}, h1={h1_count}"
+        )
+    if LEGACY_OLD_TITLE + " | " in updated:
+        raise SystemExit("Legacy duplicate title remains after disambiguation")
+    if updated.count(f"<title>{new_full_title}</title>") != 1:
+        raise SystemExit("Disambiguated legacy title is not unique in the page")
+    page.write_text(updated, encoding="utf-8")
+
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    matches = [item for item in report.get("legacy_pages", []) if item.get("slug") == LEGACY_SLUG]
+    if len(matches) != 1:
+        raise SystemExit(f"Expected one legacy report row for {LEGACY_SLUG}, found {len(matches)}")
+    matches[0]["title"] = LEGACY_NEW_TITLE
+    contracts = report.setdefault("contracts", {})
+    contracts["legacy_verbal_analogy_title_disambiguated"] = True
+    report["title_disambiguation_version"] = 314
+    report["title_disambiguation"] = {
+        "path": LEGACY_ROUTE,
+        "slug": LEGACY_SLUG,
+        "old_title": LEGACY_OLD_TITLE,
+        "new_title": LEGACY_NEW_TITLE,
+        "title_updates": title_count,
+        "h1_updates": h1_count,
+        "social_title_updates": meta_count,
+        "json_ld_name_updates": json_ld_count,
+    }
+    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    return report["title_disambiguation"]
+
+
+_namespace: dict[str, object] = {
+    "__name__": "pterminology_cognitive_sectors_v246_core",
+    "__file__": __file__,
+}
+exec(compile(source, __file__, "exec"), _namespace)
+
+
+def _exit_code(result: object) -> int:
+    return result if isinstance(result, int) else 0
+
+
+def main() -> int:
+    core_main = _namespace.get("main")
+    if not callable(core_main):
+        raise SystemExit("Cognitive sector core main() was not defined")
+    result = core_main()
+    if len(sys.argv) > 1 and sys.argv[1] == "--self-test":
+        return _exit_code(result)
+    site = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
+    evidence = disambiguate_legacy_verbal_analogy(site)
+    print(json.dumps({"title_disambiguation": evidence}, ensure_ascii=False, indent=2))
+    return _exit_code(result)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
