@@ -10,24 +10,38 @@ on:
       - "assets/platform/**"
       - "scripts/normalize_platform_shell.py"
       - ".github/workflows/platform-normalize.yml"
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+    paths:
+      - "**/*.html"
+      - "assets/platform/**"
+      - "scripts/normalize_platform_shell.py"
+      - ".github/workflows/platform-normalize.yml"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: platform-normalize-${{ github.ref }}
+  group: platform-normalize-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: false
 
 jobs:
   normalize:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Check out repository
+      - name: Check out writable branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
 
       - name: Validate migration source
         run: |
@@ -52,4 +66,4 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add -- '*.html' reports/platform-normalization.json
           git commit -m "style: normalize platform shell across HTML pages"
-          git push
+          git push origin HEAD:${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
