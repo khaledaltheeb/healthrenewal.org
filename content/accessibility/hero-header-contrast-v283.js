@@ -1,4 +1,4 @@
-/* v283 — computed-style hero/header contrast guard. */
+/* v285 — computed-style adaptive surface contrast guard. */
 (() => {
   'use strict';
 
@@ -74,26 +74,6 @@
     return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
   }
 
-  function explicitSurface(element) {
-    const surface = element.closest('[data-surface], [data-theme], .surface-light, .surface-dark, .theme-light, .theme-dark');
-    if (!surface) return null;
-    const token = `${surface.getAttribute('data-surface') || ''} ${surface.getAttribute('data-theme') || ''} ${surface.className || ''}`;
-    if (/\bdark\b/i.test(token)) return 'dark';
-    if (/\blight\b/i.test(token)) return 'light';
-    return null;
-  }
-
-  function nearestVariableSurface(element) {
-    let current = element;
-    while (current && current.nodeType === Node.ELEMENT_NODE) {
-      const style = getComputedStyle(current);
-      if (style.backgroundImage && style.backgroundImage !== 'none') return current;
-      if (current.matches(SURFACE_SELECTOR)) break;
-      current = current.parentElement;
-    }
-    return null;
-  }
-
   function effectiveBackground(element) {
     let current = element;
     let background = { ...WHITE };
@@ -130,22 +110,12 @@
     return large || ui ? 3 : 4.5;
   }
 
-  function clearResolution(element) {
-    element.classList.remove('hh-text-on-dark', 'hh-text-on-light', 'auto-contrast-light', 'auto-contrast-dark');
-  }
-
-  function resolveVariableSurface(surface) {
-    if (!surface || explicitSurface(surface)) return;
-    if (surface.classList.contains('hh-overlay-dark') || surface.classList.contains('hh-overlay-light')) return;
-    surface.classList.add('hh-overlay-dark', 'hh-surface-dark');
-    surface.dataset.hhOverlay = 'dark';
+  function hasResolution(element) {
+    return CLASS_NAMES.some((name) => element.classList.contains(name));
   }
 
   function resolveElement(element) {
     if (!visible(element)) return;
-
-    const variableSurface = nearestVariableSurface(element);
-    if (variableSurface) resolveVariableSurface(variableSurface);
 
     const style = getComputedStyle(element);
     const foregroundRaw = parseColor(style.color);
@@ -155,8 +125,10 @@
     const threshold = thresholdFor(element, style);
     const currentRatio = contrast(foreground, background);
 
+    /* Keep a correction once applied. The former implementation removed the
+     * class as soon as the corrected value passed, which immediately restored
+     * the original failing color and created an observer-driven oscillation. */
     if (currentRatio + 0.001 >= threshold) {
-      clearResolution(element);
       element.dataset.hhContrast = currentRatio.toFixed(2);
       return;
     }
@@ -164,8 +136,13 @@
     const lightRatio = contrast(LIGHT_TEXT, background);
     const darkRatio = contrast(DARK_TEXT, background);
     const useLight = lightRatio >= darkRatio;
-    element.classList.toggle('hh-text-on-dark', useLight);
-    element.classList.toggle('hh-text-on-light', !useLight);
+    const targetClass = useLight ? 'hh-text-on-dark' : 'hh-text-on-light';
+    const oppositeClass = useLight ? 'hh-text-on-light' : 'hh-text-on-dark';
+
+    if (!element.classList.contains(targetClass) || element.classList.contains(oppositeClass)) {
+      element.classList.remove(oppositeClass, 'auto-contrast-light', 'auto-contrast-dark');
+      element.classList.add(targetClass);
+    }
     element.dataset.hhContrast = Math.max(lightRatio, darkRatio).toFixed(2);
   }
 
@@ -176,7 +153,7 @@
       if (surface.matches(TEXT_SELECTOR)) resolveElement(surface);
       surface.querySelectorAll(TEXT_SELECTOR).forEach(resolveElement);
     }
-    document.documentElement.dataset.heroHeaderContrast = 'v283';
+    document.documentElement.dataset.heroHeaderContrast = 'v285';
   }
 
   function schedule() {
@@ -204,7 +181,13 @@
     else media.addListener(schedule);
   }
 
-  new MutationObserver(schedule).observe(document.documentElement, {
+  new MutationObserver((mutations) => {
+    const externalChange = mutations.some((mutation) => {
+      if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') return true;
+      return !hasResolution(mutation.target);
+    });
+    if (externalChange) schedule();
+  }).observe(document.documentElement, {
     subtree: true,
     childList: true,
     attributes: true,
@@ -214,5 +197,6 @@
   window.__heroHeaderContrastV283 = {
     scan,
     classes: CLASS_NAMES.slice(),
+    version: 285,
   };
 })();
