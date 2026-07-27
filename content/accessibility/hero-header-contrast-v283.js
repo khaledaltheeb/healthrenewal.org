@@ -2,35 +2,44 @@
 (() => {
   'use strict';
 
-  const CONTAINER_SELECTOR = [
+  const SURFACE_SELECTOR = [
     'header',
     '[role="banner"]',
+    'nav',
+    '[role="navigation"]',
+    '[role="search"]',
     '[class*="hero"]', '[class*="Hero"]',
     '[id*="hero"]', '[id*="Hero"]',
     '[class*="banner"]', '[class*="Banner"]',
     '[class*="masthead"]',
     '[class*="breadcrumb"]', '[class*="Breadcrumb"]',
+    'footer',
+    '[role="contentinfo"]',
+    '.site-footer',
   ].join(',');
 
   const TEXT_SELECTOR = [
-    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-    'p', 'li', 'dt', 'dd', 'small', 'strong', 'em', 'span', 'label', 'blockquote',
-    'a', 'button', '[role="button"]', 'summary', 'input', 'select', 'textarea',
+    'h1','h2','h3','h4','h5','h6','p','li','dt','dd','small','strong','em','span','label','blockquote','a',
+    'button','[role="button"]','input','select','textarea','option','summary','[tabindex]',
   ].join(',');
 
   const CLASS_NAMES = [
-    'hh-text-on-light', 'hh-text-on-dark',
-    'auto-contrast-light', 'auto-contrast-dark',
+    'hh-text-on-dark',
+    'hh-text-on-light',
+    'auto-contrast-light',
+    'auto-contrast-dark',
   ];
 
+  const WHITE = { r: 255, g: 255, b: 255, a: 1 };
+  const LIGHT_TEXT = { r: 248, g: 252, b: 255, a: 1 };
+  const DARK_TEXT = { r: 16, g: 42, b: 46, a: 1 };
   let scheduled = false;
-  const pendingRoots = new Set();
 
   function parseColor(value) {
     if (!value || value === 'transparent') return null;
     const match = String(value).match(/rgba?\(([^)]+)\)/i);
     if (!match) return null;
-    const parts = match[1].split(/[\s,\/]+/).filter(Boolean).map(Number);
+    const parts = match[1].split(/[\s,/]+/).filter(Boolean).map(Number);
     if (parts.length < 3 || parts.slice(0, 3).some(Number.isNaN)) return null;
     return {
       r: Math.max(0, Math.min(255, parts[0])),
@@ -42,7 +51,7 @@
 
   function composite(front, back) {
     const alpha = front.a + back.a * (1 - front.a);
-    if (alpha <= 0) return { r: 255, g: 255, b: 255, a: 1 };
+    if (alpha <= 0) return { ...WHITE };
     return {
       r: (front.r * front.a + back.r * back.a * (1 - front.a)) / alpha,
       g: (front.g * front.a + back.g * back.a * (1 - front.a)) / alpha,
@@ -59,177 +68,151 @@
     return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
   }
 
-  function ratio(a, b) {
-    const l1 = luminance(a);
-    const l2 = luminance(b);
-    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+  function contrast(a, b) {
+    const first = luminance(a);
+    const second = luminance(b);
+    return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
+  }
+
+  function explicitSurface(element) {
+    const surface = element.closest('[data-surface], [data-theme], .surface-light, .surface-dark, .theme-light, .theme-dark');
+    if (!surface) return null;
+    const token = `${surface.getAttribute('data-surface') || ''} ${surface.getAttribute('data-theme') || ''} ${surface.className || ''}`;
+    if (/\bdark\b/i.test(token)) return 'dark';
+    if (/\blight\b/i.test(token)) return 'light';
+    return null;
+  }
+
+  function nearestVariableSurface(element) {
+    let current = element;
+    while (current && current.nodeType === Node.ELEMENT_NODE) {
+      const style = getComputedStyle(current);
+      if (style.backgroundImage && style.backgroundImage !== 'none') return current;
+      if (current.matches(SURFACE_SELECTOR)) break;
+      current = current.parentElement;
+    }
+    return null;
+  }
+
+  function effectiveBackground(element) {
+    let current = element;
+    let background = { ...WHITE };
+    const layers = [];
+    while (current && current.nodeType === Node.ELEMENT_NODE) {
+      const style = getComputedStyle(current);
+      const color = parseColor(style.backgroundColor);
+      if (color && color.a > 0.001) {
+        layers.push({ element: current, color });
+        background = composite(color, background);
+        if (color.a >= 0.999) break;
+      }
+      current = current.parentElement;
+    }
+    return { color: background, layers };
   }
 
   function visible(element) {
     const style = getComputedStyle(element);
     const rect = element.getBoundingClientRect();
-    return style.display !== 'none'
+    return Boolean((element.innerText || element.textContent || '').trim())
+      && style.display !== 'none'
       && style.visibility !== 'hidden'
       && Number(style.opacity || 1) > 0.05
       && rect.width > 0
       && rect.height > 0;
   }
 
-  function effectiveBackground(element) {
-    const layers = [];
-    let node = element;
-    let imageBearer = null;
-
-    while (node && node.nodeType === Node.ELEMENT_NODE) {
-      const style = getComputedStyle(node);
-      if (!imageBearer && style.backgroundImage && style.backgroundImage !== 'none') {
-        imageBearer = node;
-      }
-      const color = parseColor(style.backgroundColor);
-      if (color && color.a > 0.001) {
-        layers.push(color);
-        if (color.a >= 0.999) break;
-      }
-      node = node.parentElement;
-    }
-
-    let background = { r: 255, g: 255, b: 255, a: 1 };
-    for (let index = layers.length - 1; index >= 0; index -= 1) {
-      background = composite(layers[index], background);
-    }
-    return { color: background, imageBearer };
-  }
-
-  function isLargeText(style) {
-    const size = Number.parseFloat(style.fontSize) || 0;
+  function thresholdFor(element, style) {
+    const size = Number.parseFloat(style.fontSize) || 16;
     const weight = Number.parseInt(style.fontWeight, 10) || 400;
-    return size >= 24 || (size >= 18.66 && weight >= 700);
+    const large = size >= 24 || (size >= 18.66 && weight >= 700);
+    const ui = element.matches('button,[role="button"],input,select,textarea,summary,[tabindex],a.btn,a.button,[class*="button"],[class*="Button"]');
+    return large || ui ? 3 : 4.5;
   }
 
-  function isUiControl(element) {
-    return element.matches('button,[role="button"],input,select,textarea,summary,a.btn,a.button,[class*="button"],[class*="Button"]');
+  function clearResolution(element) {
+    element.classList.remove('hh-text-on-dark', 'hh-text-on-light', 'auto-contrast-light', 'auto-contrast-dark');
   }
 
-  function setTextClass(element, className) {
-    CLASS_NAMES.forEach((name) => {
-      if (name !== className) element.classList.remove(name);
-    });
-    if (className) element.classList.add(className);
+  function resolveVariableSurface(surface) {
+    if (!surface || explicitSurface(surface)) return;
+    if (surface.classList.contains('hh-overlay-dark') || surface.classList.contains('hh-overlay-light')) return;
+    surface.classList.add('hh-overlay-dark', 'hh-surface-dark');
+    surface.dataset.hhOverlay = 'dark';
   }
 
-  function classifyContainer(container) {
-    container.classList.remove('hh-surface-light', 'hh-surface-dark');
-    const explicitLight = container.matches('[data-surface="light"],[data-theme="light"],.surface-light,.theme-light');
-    const explicitDark = container.matches('[data-surface="dark"],[data-theme="dark"],.surface-dark,.theme-dark');
-    const style = getComputedStyle(container);
-    const hasImage = style.backgroundImage && style.backgroundImage !== 'none';
-
-    if (hasImage && !explicitLight && !explicitDark) {
-      container.classList.add('hh-overlay-dark', 'hh-surface-dark');
-      container.classList.remove('hh-overlay-light');
-      return;
-    }
-
-    container.classList.remove('hh-overlay-dark', 'hh-overlay-light');
-    if (explicitDark) {
-      container.classList.add('hh-surface-dark');
-      return;
-    }
-    if (explicitLight) {
-      container.classList.add('hh-surface-light');
-      return;
-    }
-
-    const background = effectiveBackground(container).color;
-    container.classList.add(luminance(background) < 0.42 ? 'hh-surface-dark' : 'hh-surface-light');
-  }
-
-  function fixText(element) {
+  function resolveElement(element) {
     if (!visible(element)) return;
-    const text = (element.value || element.textContent || '').trim();
-    if (!text && !element.matches('input,select,textarea')) return;
+
+    const variableSurface = nearestVariableSurface(element);
+    if (variableSurface) resolveVariableSurface(variableSurface);
 
     const style = getComputedStyle(element);
-    const backgroundInfo = effectiveBackground(element);
     const foregroundRaw = parseColor(style.color);
     if (!foregroundRaw) return;
+    const background = effectiveBackground(element).color;
+    const foreground = foregroundRaw.a < 1 ? composite(foregroundRaw, background) : foregroundRaw;
+    const threshold = thresholdFor(element, style);
+    const currentRatio = contrast(foreground, background);
 
-    const foreground = foregroundRaw.a < 1
-      ? composite(foregroundRaw, backgroundInfo.color)
-      : foregroundRaw;
-    const threshold = isUiControl(element) || isLargeText(style) ? 3 : 4.5;
-    const currentRatio = ratio(foreground, backgroundInfo.color);
-
-    if (currentRatio + 0.01 >= threshold) {
-      setTextClass(element, null);
+    if (currentRatio + 0.001 >= threshold) {
+      clearResolution(element);
+      element.dataset.hhContrast = currentRatio.toFixed(2);
       return;
     }
 
-    const light = { r: 248, g: 252, b: 255, a: 1 };
-    const dark = { r: 16, g: 42, b: 46, a: 1 };
-    const lightRatio = ratio(light, backgroundInfo.color);
-    const darkRatio = ratio(dark, backgroundInfo.color);
-    setTextClass(element, lightRatio >= darkRatio ? 'hh-text-on-dark' : 'hh-text-on-light');
+    const lightRatio = contrast(LIGHT_TEXT, background);
+    const darkRatio = contrast(DARK_TEXT, background);
+    const useLight = lightRatio >= darkRatio;
+    element.classList.toggle('hh-text-on-dark', useLight);
+    element.classList.toggle('hh-text-on-light', !useLight);
+    element.dataset.hhContrast = Math.max(lightRatio, darkRatio).toFixed(2);
   }
 
-  function scanContainer(container) {
-    classifyContainer(container);
-    if (container.matches(TEXT_SELECTOR)) fixText(container);
-    container.querySelectorAll(TEXT_SELECTOR).forEach(fixText);
-  }
-
-  function scanRoot(root) {
-    if (!(root instanceof Element) && root !== document) return;
-    const containers = [];
-    if (root instanceof Element && root.matches(CONTAINER_SELECTOR)) containers.push(root);
-    containers.push(...root.querySelectorAll(CONTAINER_SELECTOR));
-    [...new Set(containers)].forEach(scanContainer);
+  function scan() {
+    scheduled = false;
+    const surfaces = [...document.querySelectorAll(SURFACE_SELECTOR)];
+    for (const surface of surfaces) {
+      if (surface.matches(TEXT_SELECTOR)) resolveElement(surface);
+      surface.querySelectorAll(TEXT_SELECTOR).forEach(resolveElement);
+    }
     document.documentElement.dataset.heroHeaderContrast = 'v283';
   }
 
-  function run() {
-    scheduled = false;
-    const roots = pendingRoots.size ? [...pendingRoots] : [document];
-    pendingRoots.clear();
-    roots.forEach(scanRoot);
-  }
-
-  function schedule(root = document) {
-    pendingRoots.add(root);
+  function schedule() {
     if (scheduled) return;
     scheduled = true;
-    requestAnimationFrame(() => requestAnimationFrame(run));
+    if ('requestIdleCallback' in window) requestIdleCallback(scan, { timeout: 350 });
+    else requestAnimationFrame(scan);
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => schedule(document), { once: true });
+    document.addEventListener('DOMContentLoaded', schedule, { once: true });
   } else {
-    schedule(document);
+    schedule();
   }
 
-  if (document.fonts?.ready) document.fonts.ready.then(() => schedule(document));
+  window.addEventListener('load', schedule, { once: true });
+  window.addEventListener('resize', schedule, { passive: true });
+  window.addEventListener('beforeprint', schedule);
+  document.addEventListener('focusin', schedule);
+  document.addEventListener('pointerover', schedule, { passive: true });
 
-  let resizeTimer = 0;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(() => schedule(document), 120);
-  }, { passive: true });
+  for (const query of ['(prefers-color-scheme: dark)', '(prefers-contrast: more)']) {
+    const media = matchMedia(query);
+    if (media.addEventListener) media.addEventListener('change', schedule);
+    else media.addListener(schedule);
+  }
 
-  ['focusin', 'focusout', 'pointerover', 'pointerout', 'change'].forEach((eventName) => {
-    document.addEventListener(eventName, (event) => {
-      const container = event.target instanceof Element ? event.target.closest(CONTAINER_SELECTOR) : null;
-      if (container) schedule(container);
-    }, { passive: true });
+  new MutationObserver(schedule).observe(document.documentElement, {
+    subtree: true,
+    childList: true,
+    attributes: true,
+    attributeFilter: ['class', 'style', 'data-surface', 'data-theme', 'aria-expanded', 'aria-disabled'],
   });
 
-  ['(prefers-color-scheme: dark)', '(prefers-contrast: more)'].forEach((query) => {
-    const media = window.matchMedia(query);
-    media.addEventListener?.('change', () => schedule(document));
-  });
-
-  new MutationObserver((records) => {
-    records.forEach((record) => record.addedNodes.forEach((node) => {
-      if (node instanceof Element) schedule(node);
-    }));
-  }).observe(document.documentElement, { subtree: true, childList: true });
+  window.__heroHeaderContrastV283 = {
+    scan,
+    classes: CLASS_NAMES.slice(),
+  };
 })();
