@@ -30,11 +30,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
-      - name: Validate source publisher and tests
+      - name: Compile v322 source files
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/*v322*.py tests/test_special_needs_expansion_v322.py
-          python -m unittest -v tests.test_special_needs_expansion_v322
+          python -m py_compile \
+            scripts/publish_special_needs_expansion_v322.py \
+            scripts/special_needs_v322_core.py \
+            scripts/special_needs_v322_render.py \
+            scripts/special_needs_v322_publish.py \
+            tests/test_special_needs_expansion_v322.py
+      - name: Run v322 regression tests
+        run: python -m unittest -v tests.test_special_needs_expansion_v322
 
   publish-artifact:
     if: >-
@@ -55,11 +61,20 @@ jobs:
           path: validated-site
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Test and publish five condition guides
+      - name: Compile v322 source files
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/*v322*.py tests/test_special_needs_expansion_v322.py
-          python -m unittest -v tests.test_special_needs_expansion_v322
+          python -m py_compile \
+            scripts/publish_special_needs_expansion_v322.py \
+            scripts/special_needs_v322_core.py \
+            scripts/special_needs_v322_render.py \
+            scripts/special_needs_v322_publish.py \
+            tests/test_special_needs_expansion_v322.py
+      - name: Run v322 regression tests
+        run: python -m unittest -v tests.test_special_needs_expansion_v322
+      - name: Publish five condition guides
+        run: |
+          set -euxo pipefail
           python scripts/publish_special_needs_expansion_v322.py validated-site
           python - <<'PY'
           import json,re,xml.etree.ElementTree as ET
