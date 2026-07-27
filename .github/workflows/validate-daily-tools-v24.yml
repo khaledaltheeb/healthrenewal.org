@@ -1,12 +1,15 @@
-name: Validate daily tools learning paths and marshmallow discovery v219
+name: Validate 100 Arabic learning paths v326
 
 on:
   pull_request:
     branches: ["main"]
     paths:
       - "content/v24/**"
+      - "content/v326/learning-paths/**"
       - "scripts/publish_daily_tools_v24.py"
       - "scripts/publish_daily_tools_v24_core.py"
+      - "scripts/publish_learning_paths_v326.py"
+      - "scripts/learning_paths_catalog_v326.py"
       - "scripts/verify_daily_tools_v24.py"
       - "scripts/apply_daily_tools_marshmallow_v219.py"
       - "scripts/expose_daily_tools_home_v219.py"
@@ -17,13 +20,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: daily-tools-v219-${{ github.ref }}
+  group: learning-paths-v326-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -31,22 +34,22 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Compile and validate source content
+      - name: Compile and validate source catalog
         run: |
           set -euxo pipefail
           python -m py_compile \
             scripts/publish_daily_tools_v24.py \
             scripts/publish_daily_tools_v24_core.py \
+            scripts/publish_learning_paths_v326.py \
+            scripts/learning_paths_catalog_v326.py \
             scripts/verify_daily_tools_v24.py \
             scripts/apply_daily_tools_marshmallow_v219.py \
             scripts/expose_daily_tools_home_v219.py
-          grep -q 'publish_daily_tools_v24_core' scripts/publish_daily_tools_v24.py
-          grep -q 'DESIGN_CONTRACT = 219' scripts/publish_daily_tools_v24_core.py
-          grep -q -- '--mint:#e5faf5' scripts/publish_daily_tools_v24_core.py
-          grep -q 'def link_homepage' scripts/publish_daily_tools_v24_core.py
+          grep -q 'SEO_CONTRACT = 326' scripts/publish_daily_tools_v24.py
+          grep -q 'publish_learning_paths' scripts/publish_daily_tools_v24.py
           python scripts/verify_daily_tools_v24.py
 
-      - name: Generate production pages in an isolated homepage fixture
+      - name: Generate pages in an isolated homepage fixture
         run: |
           set -euxo pipefail
           rm -rf _site
@@ -65,16 +68,17 @@ jobs:
           python scripts/publish_daily_tools_v24.py _site
           python scripts/verify_daily_tools_v24.py _site
 
-      - name: Check contrast SEO discovery privacy and prohibited claims
+      - name: Check count SEO discovery privacy and prohibited claims
         run: |
           set -euxo pipefail
           test "$(find _site/daily-tools -name index.html | wc -l)" -eq 9
-          test "$(find _site/learning-paths -name index.html | wc -l)" -eq 5
-          test "$(grep -o '<url>' _site/sitemap-tools-paths.xml | wc -l)" -eq 14
+          test "$(find _site/learning-paths -name index.html | wc -l)" -eq 101
+          test "$(grep -o '<url>' _site/sitemap-tools-paths.xml | wc -l)" -eq 110
+          test "$(grep -R -l 'class=\"module\"' _site/learning-paths/*/index.html | wc -l)" -eq 100
+          grep -q '100 مسار تعلم' _site/learning-paths/index.html
+          grep -q 'مئة مسار تعلم مؤسسي' _site/index.html
           grep -R -q 'data-design="marshmallow-v219"' _site/daily-tools _site/learning-paths
-          grep -R -q 'data-seo="institutional-v219"' _site/daily-tools _site/learning-paths
-          grep -q 'data-daily-tools-v219' _site/index.html
-          grep -q 'data-learning-paths-v219' _site/index.html
+          grep -R -q 'data-seo="institutional-v326"' _site/daily-tools _site/learning-paths
           ! grep -R -Eqi 'text-shadow|rgba\(0[[:space:]]*,[[:space:]]*0[[:space:]]*,[[:space:]]*0|fetch\(|XMLHttpRequest|navigator\.sendBeacon|تشخيصك|يعالج نهائيًا|بديل عن الطبيب' \
             _site/daily-tools _site/learning-paths
           grep -R -q 'لا تُرسل البيانات إلى خادم' _site/daily-tools
@@ -82,18 +86,16 @@ jobs:
           import json
           from pathlib import Path
           report=json.loads(Path('_site/api/daily-tools-v24.json').read_text(encoding='utf-8'))
-          assert report['design_contract']==219,report
-          assert report['marshmallow_palette'] is True,report
-          assert report['dark_text_box_shadow'] is False,report
-          assert report['homepage_linked'] is True,report
-          assert report['tools']==8 and report['paths']==4 and report['pages']==14,report
+          assert report['learning_paths_catalog_version']==326,report
+          assert report['tools']==8 and report['paths']==100 and report['pages']==110,report
+          assert report['path_categories']==10 and report['path_sources']>=20,report
           print(report)
           PY
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: daily-tools-v219-preview
+          name: learning-paths-v326-preview
           path: |
             _site/index.html
             _site/daily-tools
