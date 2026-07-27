@@ -16,6 +16,20 @@
   const currentPath = location.pathname.replace(/index\.html$/, '');
   const pageTitle = (doc.querySelector('h1')?.textContent || doc.title || 'المنصة').trim();
 
+  // Preserve section-level navigation, but avoid rendering the old home header
+  // directly below the new global platform shell.
+  const existingTopHeader = [...body.children].find((child) => child.tagName === 'HEADER');
+  if (existingTopHeader) {
+    if (currentPath === base) {
+      existingTopHeader.hidden = true;
+      existingTopHeader.setAttribute('aria-hidden', 'true');
+      existingTopHeader.dataset.replacedByPlatformShell = 'true';
+    } else {
+      existingTopHeader.classList.add('pt-section-header');
+      existingTopHeader.dataset.localNavigation = 'true';
+    }
+  }
+
   const navItems = [
     ['ابدأ', 'start-here/'],
     ['الموسوعة', 'encyclopedia/'],
@@ -203,6 +217,7 @@
     element('div', { class: 'pt-global-footer__inner' }, [
       element('p', { text: `© ${new Date().getFullYear()} منصة الصحة النفسية وذوي الاحتياجات الخاصة. جميع الحقوق محفوظة.` }),
       element('nav', { 'aria-label': 'روابط الحوكمة والشفافية' }, [
+        element('a', { href: url('platform/'), text: 'دليل المنصة' }),
         element('a', { href: url('trust/'), text: 'الثقة والمنهجية' }),
         element('a', { href: url('copyright/'), text: 'حقوق النشر' }),
         element('a', { href: url('sitemap-html/'), text: 'دليل الأقسام' }),
