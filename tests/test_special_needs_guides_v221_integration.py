@@ -31,6 +31,7 @@ SPECIAL_NEEDS_PUBLISHERS = {
     "scripts/publish_special_needs_condition_postlaunch_v305.py",
     "scripts/publish_special_needs_condition_trust_v307.py",
     "scripts/validate_special_needs_provider_directory_v308.py",
+    "scripts/audit_special_needs_condition_sources_v310.py",
     "scripts/publish_special_needs_guides_v214.py",
     "scripts/publish_special_needs_guides_v217.py",
     "scripts/publish_special_needs_guides_v217_core.py",
@@ -93,6 +94,11 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
         self.assertFalse(first["external_review_completed"])
         self.assertEqual(first["condition_hubs"]["condition_slugs"], ["autism", "down-syndrome"])
         self.assertEqual(first["condition_hubs"]["source_count"], 17)
+        source_maintenance = first["condition_hubs"]["source_maintenance"]
+        self.assertEqual(source_maintenance["version"], 310)
+        self.assertEqual(source_maintenance["source_count"], 17)
+        self.assertGreaterEqual(source_maintenance["distinct_host_count"], 3)
+        self.assertEqual(source_maintenance["overdue_source_count"], 0)
         self.assertEqual(first["condition_hubs"]["postlaunch"]["related_link_count"], 16)
         self.assertEqual(first["condition_hubs"]["trust"]["faq_count"], 8)
         self.assertTrue(first["condition_hubs"]["trust"]["faq_schema_visible_match"])
@@ -145,6 +151,7 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
             self.site / "api/special-needs-condition-postlaunch-v305.json",
             self.site / "api/special-needs-condition-trust-v307.json",
             self.site / "api/special-needs-provider-governance-v308.json",
+            self.site / "api/special-needs-condition-source-maintenance-v310.json",
             self.site / "special-needs/autism/index.html",
             self.site / "special-needs/down-syndrome/index.html",
         ]

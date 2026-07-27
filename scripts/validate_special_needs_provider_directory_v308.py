@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PROVIDERS = ROOT / "content" / "v302" / "special-needs-providers-ar.json"
 VERSION = 308
 PHONE_RE = re.compile(r"^\+[0-9]{7,15}$")
+CONDITION_DIRECTORY_SPECIALTIES = {"autism", "down-syndrome"}
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -51,6 +52,8 @@ def validate_provider_data(data: dict[str, Any], today: date | None = None) -> d
     required = tuple(data.get("required_fields_for_publication", []))
     if not allowed_types or not allowed_specialties or allowed_statuses != {"pending", "verified", "expired", "rejected"}:
         raise SystemExit("Provider directory allowed-value contract failed")
+    if not CONDITION_DIRECTORY_SPECIALTIES.issubset(allowed_specialties):
+        raise SystemExit("Provider directory must support both visible condition routes")
     if allowed_disclosures != {"editorial", "sponsored"}:
         raise SystemExit("Provider disclosure values are incomplete")
 
@@ -88,6 +91,10 @@ def validate_provider_data(data: dict[str, Any], today: date | None = None) -> d
 
         if item.get("published") is not True:
             continue
+        if not CONDITION_DIRECTORY_SPECIALTIES.intersection(specialties):
+            raise SystemExit(
+                f"Published provider must map to autism or Down syndrome so it appears in the public directory: {provider_id}"
+            )
         missing = [key for key in required if item.get(key) in (None, "", [])]
         if missing:
             raise SystemExit(f"Published provider is missing required fields: {provider_id}/{missing}")
