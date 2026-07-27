@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import audit_special_needs_condition_sources_v310 as source310
+import publish_special_needs_condition_age_guides_v314 as age314
 import publish_special_needs_condition_hubs_v302 as condition302
 import publish_special_needs_condition_postlaunch_v305 as postlaunch305
 import publish_special_needs_condition_trust_v307 as trust307
@@ -24,6 +25,8 @@ VERSIONS = (209, 210, 211, 212, 214)
 CONDITION_URLS = {
     f"{condition302.BASE}/special-needs/autism/",
     f"{condition302.BASE}/special-needs/down-syndrome/",
+    f"{condition302.BASE}/special-needs/autism-signs-by-age/",
+    f"{condition302.BASE}/special-needs/down-syndrome-health-by-age/",
 }
 
 
@@ -53,7 +56,7 @@ def load_production_manifest() -> dict[str, Any]:
 
 
 def reset_condition_outputs(site: Path) -> None:
-    for slug in ("autism", "down-syndrome"):
+    for slug in ("autism", "down-syndrome", "autism-signs-by-age", "down-syndrome-health-by-age"):
         shutil.rmtree(site / "special-needs" / slug, ignore_errors=True)
     for name in (
         "special-needs-condition-hubs-v302.json",
@@ -61,6 +64,7 @@ def reset_condition_outputs(site: Path) -> None:
         "special-needs-condition-trust-v307.json",
         "special-needs-provider-governance-v308.json",
         "special-needs-condition-source-maintenance-v310.json",
+        "special-needs-condition-age-guides-v314.json",
     ):
         (site / "api" / name).unlink(missing_ok=True)
 
@@ -155,6 +159,20 @@ def publish(site: Path) -> dict[str, Any]:
             f"records={published_records}, appearances={rendered_total}"
         )
 
+    age_report = age314.publish(site)
+    if age_report.get("version") != 314 or age_report.get("status") != "passed":
+        raise SystemExit(f"Condition age-guide contract failed: {age_report}")
+    if age_report.get("guide_slugs") != ["autism-signs-by-age", "down-syndrome-health-by-age"]:
+        raise SystemExit("Condition age-guide routes are incomplete")
+    if age_report.get("guide_count") != 2 or age_report.get("stage_count") != 8:
+        raise SystemExit("Condition age guides must publish two pages and eight age stages")
+    if age_report.get("source_count") != 7 or age_report.get("parent_links_added") != 2:
+        raise SystemExit("Condition age-guide evidence or parent-link contract failed")
+    if age_report.get("external_clinical_review_completed") is not False:
+        raise SystemExit("Condition age guides must not overstate external clinical review")
+    if age_report.get("sitemap_registered") is not True:
+        raise SystemExit("Condition age-guide routes must be registered in the special-needs sitemap")
+
     postlaunch_report = postlaunch305.publish(site)
     if postlaunch_report.get("version") != 305 or postlaunch_report.get("status") != "passed":
         raise SystemExit(f"Condition post-launch audit contract failed: {postlaunch_report}")
@@ -190,6 +208,7 @@ def publish(site: Path) -> dict[str, Any]:
         "condition_trust_contract": 307,
         "provider_governance_contract": 308,
         "condition_source_maintenance_contract": 310,
+        "condition_age_guides_contract": 314,
         "status": "passed",
         "production_status": "integrated",
         "batches": list(VERSIONS),
@@ -226,6 +245,22 @@ def publish(site: Path) -> dict[str, Any]:
             "provider_source": condition_report["provider_source"],
             "published_provider_count": condition_report["published_provider_count"],
             "sitemap_registered": condition_report["sitemap_registered"],
+            "age_guides": {
+                "version": age_report["version"],
+                "status": age_report["status"],
+                "guide_count": age_report["guide_count"],
+                "guide_slugs": age_report["guide_slugs"],
+                "generated_pages": age_report["generated_pages"],
+                "stage_count": age_report["stage_count"],
+                "source_count": age_report["source_count"],
+                "urgent_item_count": age_report["urgent_item_count"],
+                "parent_links_added": age_report["parent_links_added"],
+                "sitemap_registered": age_report["sitemap_registered"],
+                "reviewed_at": age_report["reviewed_at"],
+                "next_review_due": age_report["next_review_due"],
+                "external_clinical_review_completed": age_report["external_clinical_review_completed"],
+                "content_source": age_report["content_source"],
+            },
             "source_maintenance": {
                 "version": source_report["version"],
                 "checked_at": source_report["checked_at"],

@@ -1,4 +1,4 @@
-name: Integrate special-needs condition source verification v312
+name: Integrate special-needs condition age guides v314
 
 on:
   pull_request:
@@ -12,6 +12,7 @@ on:
       - "scripts/validate_special_needs_provider_directory_v308.py"
       - "scripts/audit_special_needs_condition_sources_v310.py"
       - "scripts/audit_special_needs_condition_source_http_v312.py"
+      - "scripts/publish_special_needs_condition_age_guides_v314.py"
       - "scripts/publish_special_needs_guides_v217.py"
       - "scripts/publish_special_needs_guides_v217_core.py"
       - "scripts/publish_special_needs_guides_v214.py"
@@ -24,6 +25,7 @@ on:
       - "content/v307/**"
       - "content/v310/**"
       - "content/v312/**"
+      - "content/v314/**"
       - "tests/test_special_needs_hub_v235.py"
       - "tests/test_special_needs_condition_hubs_v302.py"
       - "tests/test_special_needs_condition_postlaunch_v305.py"
@@ -31,6 +33,7 @@ on:
       - "tests/test_special_needs_provider_directory_v308.py"
       - "tests/test_special_needs_condition_sources_v310.py"
       - "tests/test_special_needs_condition_source_http_v312.py"
+      - "tests/test_special_needs_condition_age_guides_v314.py"
       - "tests/test_special_needs_guides_v214.py"
       - "tests/test_special_needs_guides_v221_integration.py"
       - ".github/workflows/validate-special-needs-guides-v221-integration.yml"
@@ -40,19 +43,19 @@ permissions:
   contents: read
 
 concurrency:
-  group: special-needs-source-verification-v312-${{ github.ref }}
+  group: special-needs-condition-age-guides-v314-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 27
+    timeout-minutes: 29
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Compile hub condition trust provider source HTTP and guide publishers
+      - name: Compile hub condition trust provider source HTTP age and guide publishers
         run: |
           set -euxo pipefail
           python -m py_compile \
@@ -64,6 +67,7 @@ jobs:
             scripts/validate_special_needs_provider_directory_v308.py \
             scripts/audit_special_needs_condition_sources_v310.py \
             scripts/audit_special_needs_condition_source_http_v312.py \
+            scripts/publish_special_needs_condition_age_guides_v314.py \
             scripts/publish_special_needs_guides_v209.py \
             scripts/publish_special_needs_guides_v209_compat.py \
             scripts/publish_special_needs_guides_v210.py \
@@ -79,9 +83,10 @@ jobs:
             tests/test_special_needs_provider_directory_v308.py \
             tests/test_special_needs_condition_sources_v310.py \
             tests/test_special_needs_condition_source_http_v312.py \
+            tests/test_special_needs_condition_age_guides_v314.py \
             tests/test_special_needs_guides_v214.py \
             tests/test_special_needs_guides_v221_integration.py
-      - name: Validate manifests condition provider link trust source and override contracts
+      - name: Validate manifests condition provider link trust source override and age contracts
         run: |
           python -m json.tool content/v221/special-needs-guides-production-manifest-ar.json >/dev/null
           python -m json.tool content/v214/special-needs-guides-manifest-ar.json >/dev/null
@@ -93,6 +98,7 @@ jobs:
           python -m json.tool content/v307/special-needs-condition-trust-ar.json >/dev/null
           python -m json.tool content/v310/special-needs-condition-source-maintenance-ar.json >/dev/null
           python -m json.tool content/v312/special-needs-condition-source-url-overrides.json >/dev/null
+          python -m json.tool content/v314/special-needs-condition-age-guides-ar.json >/dev/null
           for file in content/v214/special-needs-guides/*.json; do python -m json.tool "$file" >/dev/null; done
       - name: Validate institutional hub depth metadata robots and idempotence
         run: |
@@ -102,7 +108,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: special-needs-hub-v312-failure-log
+          name: special-needs-hub-v314-failure-log
           path: /tmp/special-needs-hub.log
           if-no-files-found: ignore
           retention-days: 7
@@ -114,21 +120,23 @@ jobs:
         run: python -m unittest -v tests.test_special_needs_provider_directory_v308
       - name: Validate autism Down syndrome evidence traceability providers overrides and idempotence
         run: python -m unittest -v tests.test_special_needs_condition_hubs_v302
+      - name: Validate two age guides stages sources safety parent links sitemap and idempotence
+        run: python -m unittest -v tests.test_special_needs_condition_age_guides_v314
       - name: Validate post-launch navigation contextual links metadata accessibility and policy
         run: python -m unittest -v tests.test_special_needs_condition_postlaunch_v305
       - name: Validate visible FAQs FAQPage source anchors review dates and idempotence
         run: python -m unittest -v tests.test_special_needs_condition_trust_v307
       - name: Validate v214 depth sources language and idempotence
         run: python -m unittest -v tests.test_special_needs_guides_v214
-      - name: Validate five-batch production integration
+      - name: Validate five-batch and condition age-guide production integration
         run: |
-          python -m unittest -v tests.test_special_needs_guides_v221_integration > /tmp/special-needs-v221-integration.log 2>&1 || { tail -n 220 /tmp/special-needs-v221-integration.log; exit 1; }
-          tail -n 50 /tmp/special-needs-v221-integration.log
-      - name: Upload five-batch integration failure evidence
+          python -m unittest -v tests.test_special_needs_guides_v221_integration > /tmp/special-needs-v221-integration.log 2>&1 || { tail -n 240 /tmp/special-needs-v221-integration.log; exit 1; }
+          tail -n 55 /tmp/special-needs-v221-integration.log
+      - name: Upload full integration failure evidence
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: special-needs-v221-integration-failure-log
+          name: special-needs-v314-integration-failure-log
           path: |
             /tmp/special-needs-v221-integration.log
             _audit/unpublished-content-v201.json
