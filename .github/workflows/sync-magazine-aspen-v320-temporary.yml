@@ -1,0 +1,54 @@
+name: Safely synchronize ASPEN magazine branch v320 temporary
+
+on:
+  push:
+    branches: ["agent/magazine-aspen-v320"]
+    paths:
+      - ".github/workflows/sync-magazine-aspen-v320-temporary.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/magazine-aspen-v320
+          fetch-depth: 0
+      - name: Merge current main while preserving only magazine changes
+        run: |
+          set -euxo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git fetch origin main
+          if git merge --no-edit origin/main; then
+            git push origin HEAD:agent/magazine-aspen-v320
+            exit 0
+          fi
+
+          allowed=$(cat <<'EOF'
+          .github/workflows/validate-magazine-research-v234.yml
+          .github/workflows/verify-magazine-live-v314.yml
+          magazine/autism-aspen-low-resource-parent-intervention-rct-2026.html
+          tests/test_magazine_research_v234.py
+          tests/test_magazine_routes_v201.py
+          tests/test_platform_identity_v201.py
+          EOF
+          )
+          conflicts="$(git diff --name-only --diff-filter=U)"
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            echo "$allowed" | grep -Fxq "$file" || {
+              echo "Unexpected conflict outside magazine scope: $file"
+              exit 1
+            }
+            git checkout --ours -- "$file"
+            git add "$file"
+          done <<< "$conflicts"
+
+          test -z "$(git diff --name-only --diff-filter=U)"
+          python -m py_compile tests/test_magazine_research_v234.py tests/test_magazine_routes_v201.py tests/test_platform_identity_v201.py
+          git commit --no-edit
+          git push origin HEAD:agent/magazine-aspen-v320
