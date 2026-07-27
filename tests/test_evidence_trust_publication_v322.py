@@ -37,13 +37,12 @@ class EvidenceTrustPublicationV322Tests(unittest.TestCase):
         )
         return site
 
-    def test_source_page_has_institutional_depth_and_boundaries(self) -> None:
-        path = ROOT / "trust" / "index.html"
-        source = path.read_text(encoding="utf-8")
-        self.assertGreaterEqual(publisher.words(source), 1100)
-        self.assertEqual(source.count("<h1"), 1)
-        self.assertIn('rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/trust/"', source)
-        self.assertIn('application/ld+json', source)
+    def test_source_pages_have_institutional_depth_and_boundaries(self) -> None:
+        trust = (ROOT / "trust" / "index.html").read_text(encoding="utf-8")
+        self.assertGreaterEqual(publisher.words(trust), 1100)
+        self.assertEqual(trust.count("<h1"), 1)
+        self.assertIn('rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/trust/"', trust)
+        self.assertIn("application/ld+json", trust)
         for phrase in (
             "لا تتعامل المنهجية مع عدد الكلمات بوصفه جودة",
             "التحليل التلوي لا يحول الدراسات غير المتشابهة أو المتحيزة إلى نتيجة موثوقة",
@@ -51,14 +50,30 @@ class EvidenceTrustPublicationV322Tests(unittest.TestCase):
             "لم تكتمل مراجعة خارجية مستقلة شاملة لكل إجراءاتها",
             "الاختبارات الآلية اكتمال المراجعة العلمية البشرية",
         ):
-            self.assertIn(phrase, source)
+            self.assertIn(phrase, trust)
 
-    def test_wrapper_publishes_trust_page_report_and_sitemap(self) -> None:
+        start = (ROOT / "start-here" / "index.html").read_text(encoding="utf-8")
+        self.assertGreaterEqual(publisher.words(start), 900)
+        self.assertEqual(start.count("<h1"), 1)
+        self.assertIn('rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/start-here/"', start)
+        self.assertIn("application/ld+json", start)
+        for phrase in (
+            "المعلومات التثقيفية تساعد على الفهم والاستعداد للحوار مع المختص",
+            "وجود علامة واحدة لا يثبت الحالة",
+            "استخدم الأدوات لفهم نمط أو متابعة تغير أو تجهيز نقاش، لا لإثبات تشخيص",
+            "اجتياز الاختبارات الآلية لا يساوي اكتمال المراجعة العلمية البشرية",
+            "خطة عشر دقائق",
+        ):
+            self.assertIn(phrase, start)
+
+    def test_wrapper_publishes_institutional_pages_report_and_sitemap(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             site = self.make_site(Path(tmp))
             report = publisher.publish(site)
             trust = site / "trust" / "index.html"
+            start = site / "start-here" / "index.html"
             self.assertTrue(trust.is_file())
+            self.assertTrue(start.is_file())
             self.assertTrue(report["trust_page_published"])
             self.assertEqual(report["trust_page_path"], "trust/index.html")
             self.assertGreaterEqual(report["trust_page_words"], 1100)
@@ -67,6 +82,10 @@ class EvidenceTrustPublicationV322Tests(unittest.TestCase):
                 "internally-reviewed-external-methodology-review-required",
             )
             self.assertTrue(report["trust_page_sitemap_registered"])
+            self.assertTrue(report["start_here_page_published"])
+            self.assertEqual(report["start_here_page_path"], "start-here/index.html")
+            self.assertGreaterEqual(report["start_here_page_words"], 900)
+            self.assertTrue(report["start_here_page_sitemap_registered"])
             api = json.loads(
                 (site / "api" / "evidence-literacy-library-v322.json").read_text(encoding="utf-8")
             )
@@ -76,10 +95,11 @@ class EvidenceTrustPublicationV322Tests(unittest.TestCase):
                 for node in ET.parse(site / "sitemap-library.xml").getroot().findall("{*}url/{*}loc")
                 if node.text
             ]
-            self.assertEqual(
-                urls.count("https://khaledaltheeb.github.io/pterminology-site/trust/"),
-                1,
-            )
+            for url in (
+                "https://khaledaltheeb.github.io/pterminology-site/trust/",
+                "https://khaledaltheeb.github.io/pterminology-site/start-here/",
+            ):
+                self.assertEqual(urls.count(url), 1)
             self.assertEqual(len(urls), len(set(urls)))
 
 
