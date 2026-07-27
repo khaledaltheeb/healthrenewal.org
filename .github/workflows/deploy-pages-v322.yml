@@ -27,6 +27,36 @@ jobs:
       - name: Checkout production source
         uses: actions/checkout@v4
 
+      - name: Record deployment start
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          payload = {
+              "schema_version": 322,
+              "status": "building",
+              "deployment_outcome": "in_progress",
+              "artifact": "_site",
+              "source_commit": os.environ["GITHUB_SHA"],
+              "source_ref": os.environ["GITHUB_REF"],
+              "workflow_run_id": os.environ["GITHUB_RUN_ID"],
+              "page_url": "",
+              "recorded_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+          }
+          Path("pages-deployment-status.json").write_text(
+              json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages-deployment-status.json
+          git commit -m "chore: record Pages build start"
+          git push origin HEAD:main
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
@@ -128,14 +158,10 @@ jobs:
               encoding="utf-8",
           )
           PY
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add pages-deployment-status.json
-          if git diff --cached --quiet; then
-            echo "Deployment receipt already current"
-            exit 0
-          fi
           git commit -m "chore: record built Pages deployment outcome"
+          git fetch origin main
+          git rebase origin/main
           git push origin HEAD:main
 
       - name: Fail when Pages deployment failed
