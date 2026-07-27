@@ -115,6 +115,7 @@
   const searchButton = element('button', {
     class: 'pt-search-button',
     type: 'button',
+    'aria-label': 'فتح البحث في المنصة',
     'aria-haspopup': 'dialog',
     'aria-controls': 'pt-platform-search'
   }, [element('span', { text: 'بحث' }), element('span', { 'aria-hidden': 'true', text: '⌕' })]);
