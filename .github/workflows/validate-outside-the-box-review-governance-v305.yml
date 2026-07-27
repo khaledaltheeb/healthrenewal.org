@@ -61,7 +61,8 @@ jobs:
           import json
           from pathlib import Path
 
-          contract = json.loads(Path('content/v305/outside-the-box-review-governance-ar.json').read_text(encoding='utf-8'))
+          contract_path = Path('content/v305/outside-the-box-review-governance-ar.json')
+          contract = json.loads(contract_path.read_text(encoding='utf-8'))
           assert contract['scope']['external_review_completed'] is False
           assert contract['scope']['global_accreditation_claim'] is False
           policy = contract['publication_policy']
@@ -71,12 +72,10 @@ jobs:
           assert policy['allow_self_review_as_independent_review'] is False
           assert policy['allow_single_reviewer_global_approval'] is False
 
-          paths = [
-              Path('content/v305/outside-the-box-review-governance-ar.json'),
-              Path('scripts/publish_outside_the_box_review_governance_v305.py'),
-              Path('assets/css/outside-the-box-review-governance-v305.css'),
-          ]
-          text = '\n'.join(path.read_text(encoding='utf-8') for path in paths)
+          public_source_text = '\n'.join([
+              contract_path.read_text(encoding='utf-8'),
+              Path('assets/css/outside-the-box-review-governance-v305.css').read_text(encoding='utf-8'),
+          ])
           forbidden = (
               'مراجعة خارجية مكتملة',
               'اعتماد عالمي مكتمل',
@@ -84,9 +83,13 @@ jobs:
               'الخطة تصلح للجميع',
               'معاقين',
           )
-          found = [term for term in forbidden if term in text]
+          found = [term for term in forbidden if term in public_source_text]
           assert not found, found
-          assert 'لا تُنشر بنود الاختبارات المحمية' in text
-          assert 'allow_proprietary_test_content' in text
+          assert 'لا تُنشر بنود الاختبارات المحمية' in public_source_text
+
+          publisher = Path('scripts/publish_outside_the_box_review_governance_v305.py').read_text(encoding='utf-8')
+          assert 'proprietary_test_items_published' in publisher
+          assert 'diagnostic_automation' in publisher
+          assert 'forbidden =' in publisher
           print({'false_approvals': 'blocked', 'protected_test_content': 'blocked', 'language': 'passed'})
           PY
