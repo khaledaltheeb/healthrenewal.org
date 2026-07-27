@@ -1,4 +1,4 @@
-name: Validate magazine continuous research v318
+name: Validate magazine continuous research v320
 
 on:
   pull_request:
@@ -46,26 +46,26 @@ jobs:
           from pathlib import Path
 
           path = Path('scripts/publish_magazine_v201.py')
-          spec = importlib.util.spec_from_file_location('magazine_v318_inventory', path)
+          spec = importlib.util.spec_from_file_location('magazine_v320_inventory', path)
           module = importlib.util.module_from_spec(spec)
           sys.modules[spec.name] = module
           spec.loader.exec_module(module)
           pages = module.article_files()
           assert module.CONTRACT == 315
           assert module.TARGET_ARTICLES == 100
-          assert len(pages) == 71, [page.name for page in pages]
+          assert len(pages) == 72, [page.name for page in pages]
           dates = [module.article_date(page) for page in pages]
           assert dates == sorted(dates, reverse=True), dates
           index = module.render_index(pages)
           feed = module.render_feed(pages)
           root = ET.fromstring(feed)
           items = root.findall('./channel/item')
-          assert index.count('class="card"') == 71
-          assert index.count('"@type":"ScholarlyArticle"') == 71
-          assert index.count('"datePublished"') == 71
-          assert '"numberOfItems":71' in index
+          assert index.count('class="card"') == 72
+          assert index.count('"@type":"ScholarlyArticle"') == 72
+          assert index.count('"datePublished"') == 72
+          assert '"numberOfItems":72' in index
           assert 'الهدف المرحلي 100 قراءة' in index
-          assert 'المتبقي 29' in index
+          assert 'المتبقي 28' in index
           assert index.count('type="application/rss+xml"') == 1
           assert len(items) == 20
           links = [item.findtext('link') for item in items]
@@ -76,22 +76,24 @@ jobs:
           for page in pages:
               assert index.count(f'href="{page.name}"') >= 2, page.name
               assert module.URL + page.name in index, page.name
-          print({'articles': len(pages), 'generated_cards': 71, 'rss_items': 20, 'target': 100, 'remaining': 29, 'chronological': True, 'unwired': 0})
+          print({'articles': len(pages), 'generated_cards': 72, 'rss_items': 20, 'target': 100, 'remaining': 28, 'chronological': True, 'unwired': 0})
           PY
       - name: Run deterministic magazine tests
         run: python -m unittest tests.test_magazine_research_v234 -v
       - name: Run production integration tests
         run: python -m unittest tests.test_platform_identity_v201 -v
-      - name: Verify source contract for new primary study
+      - name: Verify source contract for ASPEN primary study
         run: |
           set -euxo pipefail
           test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 9
-          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 62
-          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 71
-          grep -q '10.3389/fpubh.2026.1808386' magazine/adhd-rhythmic-music-game-rct-2026.html
-          grep -q '42145502' magazine/adhd-rhythmic-music-game-rct-2026.html
-          grep -q '−46.1' magazine/adhd-rhythmic-music-game-rct-2026.html
-          grep -q 'لا تثبت أن الألعاب الموسيقية تشفي ADHD' magazine/adhd-rhythmic-music-game-rct-2026.html
+          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 63
+          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 72
+          grep -q '10.3389/fpsyt.2026.1795918' magazine/autism-aspen-low-resource-parent-intervention-rct-2026.html
+          grep -q '42404716' magazine/autism-aspen-low-resource-parent-intervention-rct-2026.html
+          grep -q '50%' magazine/autism-aspen-low-resource-parent-intervention-rct-2026.html
+          grep -q 'p=0.026' magazine/autism-aspen-low-resource-parent-intervention-rct-2026.html
+          grep -q 'العتبة المصححة 0.017' magazine/autism-aspen-low-resource-parent-intervention-rct-2026.html
+          grep -q 'لا تثبت أن 12 جلسة أفضل سريريًا' magazine/autism-aspen-low-resource-parent-intervention-rct-2026.html
           grep -q 'TARGET_ARTICLES = 100' scripts/publish_magazine_v201.py
           grep -q 'continuous_publication_policy' scripts/publish_magazine_v201.py
           grep -q 'latest-twenty-sorted-by-datePublished' scripts/publish_magazine_v201.py
