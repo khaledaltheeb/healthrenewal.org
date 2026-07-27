@@ -1,0 +1,93 @@
+name: Validate Williams and Prader-Willi guides v324
+
+on:
+  pull_request:
+    paths:
+      - 'content/v324/**'
+      - 'scripts/publish_williams_prader_willi_v324.py'
+      - 'scripts/diagnose_special_needs_guides_v221.py'
+      - 'tests/test_williams_prader_willi_v324.py'
+      - 'tests/test_williams_prader_willi_integration_v324.py'
+      - '.github/workflows/validate-williams-prader-willi-v324.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/v324/**'
+      - 'scripts/publish_williams_prader_willi_v324.py'
+      - 'scripts/diagnose_special_needs_guides_v221.py'
+      - 'tests/test_williams_prader_willi_v324.py'
+      - 'tests/test_williams_prader_willi_integration_v324.py'
+      - '.github/workflows/validate-williams-prader-willi-v324.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-v324:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile publisher integration and tests
+        run: |
+          python -m py_compile \
+            scripts/publish_new_special_needs_conditions_v323.py \
+            scripts/publish_williams_prader_willi_v324.py \
+            scripts/diagnose_special_needs_guides_v221.py \
+            tests/test_williams_prader_willi_v324.py \
+            tests/test_williams_prader_willi_integration_v324.py
+      - name: Validate manifest depth and review honesty
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'scripts')
+          import publish_williams_prader_willi_v324 as publisher
+
+          raw = json.loads(Path('content/v324/williams-prader-willi-guides-ar.json').read_text(encoding='utf-8'))
+          data = publisher.read_payload()
+          assert data['version'] == 324
+          assert data['review_status'] == 'internally-reviewed-external-clinical-review-required'
+          assert [guide['slug'] for guide in data['guides']] == ['williams-syndrome', 'prader-willi-syndrome']
+          assert sum(len(guide['sections']) for guide in data['guides']) == 14
+          assert sum(len(guide['sources']) for guide in data['guides']) == 14
+          assert len(publisher.SOURCE_URL_OVERRIDES) == 3
+          banned = re.compile(r'(?<!\w)(?:المعاقين|معاقين|المعاقون|معاقون|المعاقة|معاقة|المعاق|معاق)(?!\w)')
+          assert not banned.search(json.dumps(raw, ensure_ascii=False))
+          for guide in data['guides']:
+              assert len(guide['sections']) == 7
+              assert len(guide['action_steps']) >= 8
+              assert len(guide['urgent']) >= 6
+              assert len(guide['myths']) >= 5
+              assert len(guide['faqs']) >= 5
+              assert all(source['url'].startswith('https://') for source in guide['sources'])
+          print({
+              'conditions': len(data['guides']),
+              'sections': sum(len(guide['sections']) for guide in data['guides']),
+              'sources': sum(len(guide['sources']) for guide in data['guides']),
+              'source_url_normalizations': len(publisher.SOURCE_URL_OVERRIDES),
+              'review_state': data['review_status'],
+          })
+          PY
+      - name: Run deterministic publisher tests
+        run: python -m unittest tests.test_williams_prader_willi_v324 -v
+      - name: Run production entrypoint integration tests
+        run: python -m unittest tests.test_williams_prader_willi_integration_v324 -v
+      - name: Verify scientific identity and safety markers
+        run: |
+          set -euxo pipefail
+          grep -q '7q11.23' content/v324/williams-prader-willi-guides-ar.json
+          grep -q '15q11.2-q13' content/v324/williams-prader-willi-guides-ar.json
+          grep -q 'diazoxide choline' content/v324/williams-prader-willi-guides-ar.json
+          grep -q 'تخدير' content/v324/williams-prader-willi-guides-ar.json
+          grep -q 'المثيلة' content/v324/williams-prader-willi-guides-ar.json
+          grep -q 'MedicalWebPage' scripts/publish_new_special_needs_conditions_v323.py
+          grep -q 'source_url_normalizations' scripts/publish_williams_prader_willi_v324.py
+          grep -q 'expanded_condition_guides_contract' scripts/diagnose_special_needs_guides_v221.py
+          ! grep -R -E 'علاج مضمون|شفاء مضمون|نتائج مؤكدة للجميع' content/v324
