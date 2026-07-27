@@ -1,12 +1,6 @@
 from __future__ import annotations
 
-"""واجهة SEO مؤسسية للأدوات اليومية ومسارات التعلم.
-
-لا تُرسل البيانات إلى خادم؛ تبقى السجلات محلية على جهاز المستخدم.
-الأدوات تنظيمية غير تشخيصية، وتوضح متى تطلب المساعدة من مختص مؤهل.
-كما تزامن الواجهة مسار الإخراج صراحة مع نواة الناشر عند الاستدعاء من
-الاختبارات أو من سطر الأوامر.
-"""
+"""واجهة النشر المؤسسية للأدوات اليومية وموسوعة مسارات التعلم."""
 
 import json
 import re
@@ -20,16 +14,16 @@ if str(ROOT) not in sys.path:
 
 from scripts import publish_daily_tools_v24_core as _core
 from scripts.publish_daily_tools_v24_core import *  # noqa: F401,F403
+from scripts.publish_learning_paths_v326 import load_catalog, publish_learning_paths
 from scripts.stabilize_provider_layout_v225 import stabilize as stabilize_provider_layout
 
-SEO_CONTRACT = 219
+SEO_CONTRACT = 326
 SITE_NAME = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
 FOUNDING_NAME = "مصطلحات علم النفس"
 SOCIAL_IMAGE = _core.BASE + "assets/brand/social-card.svg"
 LOGO = _core.PATH + "assets/brand/logo-mark.svg"
 MANIFEST = _core.PATH + "manifest.webmanifest"
 SEARCH = _core.PATH + "opensearch.xml"
-
 
 def _unique(values: Iterable[str], limit: int = 8) -> list[str]:
     output: list[str] = []
@@ -45,15 +39,14 @@ def _unique(values: Iterable[str], limit: int = 8) -> list[str]:
             break
     return output
 
-
 def topic_keywords(title: str, description: str, canonical: str) -> list[str]:
     terms = (
         (
-            "مسارات تعلم الصحة النفسية",
+            "100 مسار تعلم للصحة النفسية",
+            "مسارات تعلم ذوي الاحتياجات الخاصة",
             "تعليم نفسي عربي",
             "مهارات نفسية عملية",
-            "خطة تعلم قصيرة",
-            "أدوات دعم نفسي",
+            "تعلم مهني لمقدمي الخدمة",
         )
         if "/learning-paths/" in canonical
         else (
@@ -65,7 +58,6 @@ def topic_keywords(title: str, description: str, canonical: str) -> list[str]:
         )
     )
     return _unique((title, description if len(description) <= 90 else "", *terms, FOUNDING_NAME))
-
 
 def institutionalize_schema(value: Any) -> Any:
     if isinstance(value, list):
@@ -83,7 +75,6 @@ def institutionalize_schema(value: Any) -> Any:
         result.setdefault("logo", SOCIAL_IMAGE)
     return result
 
-
 def shell(title: str, description: str, canonical: str, schema: dict[str, Any], body: str) -> str:
     esc = _core.e
     structured = json.dumps(
@@ -97,24 +88,23 @@ def shell(title: str, description: str, canonical: str, schema: dict[str, Any], 
     full_title = f"{title} | {SITE_NAME}"
     return f'''<!doctype html><html lang="ar" dir="rtl" data-design="marshmallow-v{_core.DESIGN_CONTRACT}" data-seo="institutional-v{SEO_CONTRACT}"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{esc(full_title)}</title><meta name="description" content="{esc(description)}"><meta name="keywords" content="{esc(keywords)}"><meta name="author" content="{esc(SITE_NAME)}"><meta name="application-name" content="{esc(SITE_NAME)}"><meta name="subject" content="الصحة النفسية والأدوات النفسية التفاعلية"><meta name="audience" content="الأفراد والأسر ومقدمو الرعاية"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"><meta name="theme-color" content="#e5faf5"><meta name="color-scheme" content="light">
+<title>{esc(full_title)}</title><meta name="description" content="{esc(description)}"><meta name="keywords" content="{esc(keywords)}"><meta name="author" content="{esc(SITE_NAME)}"><meta name="application-name" content="{esc(SITE_NAME)}"><meta name="subject" content="الصحة النفسية وذوو الاحتياجات الخاصة ومسارات التعلم"><meta name="audience" content="الأفراد والأسر ومقدمو الرعاية والخدمة"><meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"><meta name="theme-color" content="#e5faf5"><meta name="color-scheme" content="light">
 <link rel="canonical" href="{esc(canonical)}"><link rel="manifest" href="{MANIFEST}"><link rel="icon" href="{LOGO}" type="image/svg+xml"><link rel="apple-touch-icon" href="{LOGO}"><link rel="search" type="application/opensearchdescription+xml" title="البحث في المنصة" href="{SEARCH}"><link rel="sitemap" type="application/xml" href="{_core.BASE}sitemap.xml">
 <meta property="og:type" content="{page_type}"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="{esc(SITE_NAME)}"><meta property="og:title" content="{esc(full_title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(canonical)}"><meta property="og:image" content="{SOCIAL_IMAGE}"><meta property="og:image:alt" content="هوية {esc(SITE_NAME)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{esc(full_title)}"><meta name="twitter:description" content="{esc(description)}"><meta name="twitter:image" content="{SOCIAL_IMAGE}"><meta name="twitter:image:alt" content="هوية {esc(SITE_NAME)}">
 <script type="application/ld+json">{structured}</script><style>{_core.STYLE}</style></head><body>{body}</body></html>'''
 
-
 def _expected_pages(data: dict[str, Any], site: Path) -> list[Path]:
+    catalog = load_catalog()
     return (
         [site / "daily-tools/index.html", site / "learning-paths/index.html"]
         + [site / "daily-tools" / item["slug"] / "index.html" for item in data["tools"]]
-        + [site / "learning-paths" / item["slug"] / "index.html" for item in data["paths"]]
+        + [site / "learning-paths" / item["slug"] / "index.html" for item in catalog["paths"]]
     )
-
 
 def validate_metadata(data: dict[str, Any], site: Path | str | None = None) -> None:
     target = Path(site or _core.SITE).resolve()
     required = (
-        'data-seo="institutional-v219"', '<meta name="keywords"',
+        f'data-seo="institutional-v{SEO_CONTRACT}"', '<meta name="keywords"',
         '<link rel="canonical"', '<link rel="manifest"', '<link rel="icon"',
         '<link rel="search"', 'property="og:image"', 'name="twitter:card"',
         'name="twitter:image"', 'application/ld+json',
@@ -137,15 +127,10 @@ def validate_metadata(data: dict[str, Any], site: Path | str | None = None) -> N
         schema = re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)
         if not schema:
             errors.append(f"{page}: JSON-LD is missing")
-        else:
-            payload = schema.group(1)
-            if '"@type":"Organization","name":"مصطلحات علم النفس"' in payload:
-                errors.append(f"{page}: founding name remains primary")
-            if '"@type":"Organization"' in payload and SITE_NAME not in payload:
-                errors.append(f"{page}: institutional Organization identity is missing")
+        elif '"@type":"Organization","name":"مصطلحات علم النفس"' in schema.group(1):
+            errors.append(f"{page}: founding name remains primary")
     if errors:
-        raise SystemExit("Daily tools metadata contract failed:\n" + "\n".join(errors))
-
+        raise SystemExit("Daily tools and learning paths metadata contract failed:\n" + "\n".join(errors))
 
 def publish(data: dict[str, Any], site: Path | str | None = None) -> None:
     target = Path(site or _core.SITE).resolve()
@@ -155,10 +140,10 @@ def publish(data: dict[str, Any], site: Path | str | None = None) -> None:
     _core.SITE = target
     _core.shell = shell
     _core.publish(data)
+    publish_learning_paths(load_catalog(), target, data["tools"], shell, _core.nav)
     validate_metadata(data, target)
     if (target / "provider-assessment-demo/index.html").is_file():
         stabilize_provider_layout(target)
-
 
 _core.shell = shell
 
