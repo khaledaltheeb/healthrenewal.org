@@ -4,7 +4,9 @@ on:
   pull_request:
     branches: ["main"]
     paths:
-      - "content/v324/autism-clinical-pathways-ar.json.gz"
+      - "content/v324/autism-clinical-pathways-ar.parts/**"
+      - "content/v324/README.md"
+      - "docs/AUTISM_CLINICAL_PATHWAYS_V324_AR.md"
       - "scripts/publish_autism_clinical_pathways_v324.py"
       - "scripts/publish_autism_clinical_pathways_v324_core.py"
       - "scripts/publish_special_needs_guides_v217.py"
@@ -40,7 +42,7 @@ jobs:
             scripts/publish_special_needs_guides_v217_pipeline_core.py \
             tests/test_autism_clinical_pathways_v324.py \
             tests/test_autism_clinical_pathways_integration_v324.py
-      - name: Validate compressed source page depth evidence and shell
+      - name: Validate source-part digests page depth evidence and shell
         run: |
           set -o pipefail
           python -m unittest -v \
