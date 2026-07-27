@@ -61,12 +61,12 @@ def patch_jsonld(text: str) -> str:
 
 def cards() -> tuple[str, str]:
     tools = (
-        '<article class="card" data-daily-tools-v219><h3>الأدوات النفسية التفاعلية</h3>'
+        '<article class="card" data-daily-tools-v219><span class="tag">خصوصية محلية</span><h3>الأدوات النفسية التفاعلية</h3>'
         f'<p>{TOOL_COUNT} أداة عربية عملية موزعة على {CATEGORY_COUNT} مجالات للتنظيم النفسي والأسري والتربوي، تعمل محليًا دون تشخيص أو إرسال البيانات إلى خادم.</p>'
         '<a href="daily-tools/">فتح الأدوات التفاعلية</a></article>'
     )
     paths = (
-        '<article class="card" data-learning-paths-v219><h3>مسارات التعلم القصيرة</h3>'
+        '<article class="card" data-learning-paths-v219><span class="tag">تعلم منظم</span><h3>مسارات التعلم القصيرة</h3>'
         f'<p>{PATH_COUNT} مسارات مترابطة تحول المعرفة إلى خطة أيام وأدوات عملية قابلة للمراجعة.</p>'
         '<a href="learning-paths/">فتح مسارات التعلم</a></article>'
     )
@@ -75,8 +75,12 @@ def cards() -> tuple[str, str]:
 
 def upsert_card(text: str, identity: str, card: str, marker: str) -> str:
     pattern = re.compile(rf'<article class="card" {identity}>.*?</article>', re.S)
-    if pattern.search(text):
-        return pattern.sub(card, text, count=1)
+    matches = list(pattern.finditer(text))
+    if len(matches) > 1:
+        raise SystemExit(f"Duplicate homepage card before normalization: {identity}")
+    if matches:
+        match = matches[0]
+        return text[: match.start()] + card + text[match.end() :]
     if text.count(marker) != 1:
         raise SystemExit(f"Homepage card marker changed for {identity}")
     return text.replace(marker, marker + card, 1)
@@ -86,9 +90,9 @@ def patch_index() -> None:
     text = patch_jsonld(patch_keywords(INDEX.read_text(encoding="utf-8")))
     nav_marker = '<a href="provider-assessment-demo/">منصة التقييم</a>'
     missing_nav = ""
-    if '<a href="daily-tools/">أدوات تفاعلية</a>' not in text:
+    if 'href="daily-tools/"' not in text:
         missing_nav += '<a href="daily-tools/">أدوات تفاعلية</a>'
-    if '<a href="learning-paths/">مسارات التعلم</a>' not in text:
+    if 'href="learning-paths/"' not in text:
         missing_nav += '<a href="learning-paths/">مسارات التعلم</a>'
     if missing_nav:
         if text.count(nav_marker) != 1:
@@ -104,8 +108,19 @@ def patch_index() -> None:
     journey_addition = '<li data-daily-tools-journey-v219><strong>لأداة تفاعلية محلية:</strong> استخدم الأدوات اليومية أو مسار التعلم المناسب.</li>'
     text = add_once(text, journey_marker, journey_addition, "data-daily-tools-journey-v219")
 
-    required = {'href="daily-tools/"': 2, 'href="learning-paths/"': 2, "data-daily-tools-v219": 1, "data-learning-paths-v219": 1, "data-daily-tools-journey-v219": 1, BASE + "daily-tools/": 1, BASE + "learning-paths/": 1}
-    errors = {marker: text.count(marker) for marker, count in required.items() if text.count(marker) != count}
+    exact = {
+        "data-daily-tools-v219": 1,
+        "data-learning-paths-v219": 1,
+        "data-daily-tools-journey-v219": 1,
+    }
+    minimum = {
+        'href="daily-tools/"': 2,
+        'href="learning-paths/"': 2,
+        BASE + "daily-tools/": 1,
+        BASE + "learning-paths/": 1,
+    }
+    errors = {marker: text.count(marker) for marker, count in exact.items() if text.count(marker) != count}
+    errors.update({marker: text.count(marker) for marker, count in minimum.items() if text.count(marker) < count})
     if errors:
         raise SystemExit(f"Homepage interactive-tools discovery contract failed: {errors}")
     if f"{TOOL_COUNT} أداة عربية عملية" not in text or f"{PATH_COUNT} مسارات مترابطة" not in text:
@@ -113,39 +128,57 @@ def patch_index() -> None:
     INDEX.write_text(text, encoding="utf-8")
 
 
+def insert_after_once(text: str, marker: str, addition: str, identity: str) -> str:
+    if identity in text:
+        return text
+    if text.count(marker) != 1:
+        raise SystemExit(f"{identity}: verifier marker changed")
+    return text.replace(marker, marker + addition, 1)
+
+
 def patch_verifier() -> None:
     text = VERIFY.read_text(encoding="utf-8")
     link_marker = '    "provider-assessment-demo/",\n'
-    additions = ""
+    link_additions = ""
     if '    "daily-tools/",\n' not in text:
-        additions += '    "daily-tools/",\n'
+        link_additions += '    "daily-tools/",\n'
     if '    "learning-paths/",\n' not in text:
-        additions += '    "learning-paths/",\n'
-    if additions:
+        link_additions += '    "learning-paths/",\n'
+    if link_additions:
         if text.count(link_marker) != 1:
             raise SystemExit("Homepage verifier link marker changed")
-        text = text.replace(link_marker, additions + link_marker, 1)
+        text = text.replace(link_marker, link_additions + link_marker, 1)
 
     assertion_marker = '    assert "المكتبة الأكاديمية العربية" in source, "Academic library is not visibly described"\n'
-    assertion_block = assertion_marker + '    assert "الأدوات النفسية التفاعلية" in source, "Interactive tools are not visibly described"\n' + '    assert "مسارات التعلم القصيرة" in source, "Learning paths are not visibly described"\n' + '    assert source.count("data-daily-tools-v219") == 1, "Interactive tools card must be unique"\n' + '    assert source.count("data-learning-paths-v219") == 1, "Learning paths card must be unique"\n'
-    if "Interactive tools are not visibly described" not in text:
-        if text.count(assertion_marker) != 1:
-            raise SystemExit("Homepage verifier assertion marker changed")
-        text = text.replace(assertion_marker, assertion_block, 1)
+    assertion_addition = (
+        '    assert "الأدوات النفسية التفاعلية" in source, "Interactive tools are not visibly described"\n'
+        '    assert "مسارات التعلم القصيرة" in source, "Learning paths are not visibly described"\n'
+        '    assert source.count("data-daily-tools-v219") == 1, "Interactive tools card must be unique"\n'
+        '    assert source.count("data-learning-paths-v219") == 1, "Learning paths card must be unique"\n'
+    )
+    text = insert_after_once(text, assertion_marker, assertion_addition, "Interactive tools are not visibly described")
 
     jsonld_marker = '    assert "https://khaledaltheeb.github.io/pterminology-site/guided-assessment/" in part_urls\n'
-    jsonld_block = jsonld_marker + '    assert "https://khaledaltheeb.github.io/pterminology-site/daily-tools/" in part_urls\n' + '    assert "https://khaledaltheeb.github.io/pterminology-site/learning-paths/" in part_urls\n'
-    if 'part_urls\n    assert "https://khaledaltheeb.github.io/pterminology-site/daily-tools/"' not in text:
-        if text.count(jsonld_marker) != 1:
-            raise SystemExit("Homepage verifier JSON-LD marker changed")
-        text = text.replace(jsonld_marker, jsonld_block, 1)
+    text = insert_after_once(
+        text,
+        jsonld_marker,
+        '    assert "https://khaledaltheeb.github.io/pterminology-site/daily-tools/" in part_urls\n',
+        '"https://khaledaltheeb.github.io/pterminology-site/daily-tools/" in part_urls',
+    )
+    text = insert_after_once(
+        text,
+        jsonld_marker,
+        '    assert "https://khaledaltheeb.github.io/pterminology-site/learning-paths/" in part_urls\n',
+        '"https://khaledaltheeb.github.io/pterminology-site/learning-paths/" in part_urls',
+    )
 
     report_marker = '                "guided_assessment_linked": True,\n'
-    report_block = report_marker + '                "daily_tools_linked": True,\n' + '                "learning_paths_linked": True,\n' + f'                "interactive_tools_discovery_contract": {RELEASE},\n'
-    if '"interactive_tools_discovery_contract": 219' not in text:
-        if text.count(report_marker) != 1:
-            raise SystemExit("Homepage verifier report marker changed")
-        text = text.replace(report_marker, report_block, 1)
+    report_addition = (
+        '                "daily_tools_linked": True,\n'
+        '                "learning_paths_linked": True,\n'
+        f'                "interactive_tools_discovery_contract": {RELEASE},\n'
+    )
+    text = insert_after_once(text, report_marker, report_addition, '"interactive_tools_discovery_contract": 219')
     VERIFY.write_text(text, encoding="utf-8")
 
 
