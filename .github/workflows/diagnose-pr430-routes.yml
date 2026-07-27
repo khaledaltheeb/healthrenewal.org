@@ -3,6 +3,8 @@ name: Diagnose PR430 magazine and assessment routes
 on:
   push:
     branches: ["agent/platform-architecture-v1"]
+  pull_request:
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
