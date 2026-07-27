@@ -31,6 +31,7 @@ const profiles = [
     colorScheme: 'light',
     media: 'screen',
     reducedMotion: 'no-preference',
+    prefersContrast: 'no-preference',
   },
   {
     name: 'mobile-rtl-light-reduced',
@@ -40,6 +41,7 @@ const profiles = [
     colorScheme: 'light',
     media: 'screen',
     reducedMotion: 'reduce',
+    prefersContrast: 'no-preference',
   },
   {
     name: 'desktop-rtl-dark-high-contrast',
@@ -49,7 +51,7 @@ const profiles = [
     colorScheme: 'dark',
     media: 'screen',
     reducedMotion: 'reduce',
-    forcedColors: 'none',
+    prefersContrast: 'more',
   },
   {
     name: 'print-rtl',
@@ -59,6 +61,7 @@ const profiles = [
     colorScheme: 'light',
     media: 'print',
     reducedMotion: 'reduce',
+    prefersContrast: 'no-preference',
   },
 ];
 
@@ -72,41 +75,56 @@ async function auditPage(page, profile) {
     media: profile.media,
     colorScheme: profile.colorScheme,
     reducedMotion: profile.reducedMotion,
-    forcedColors: profile.forcedColors || 'none',
+    forcedColors: 'none',
   });
+
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Emulation.setEmulatedMedia', {
+    media: profile.media,
+    features: [
+      { name: 'prefers-color-scheme', value: profile.colorScheme },
+      { name: 'prefers-reduced-motion', value: profile.reducedMotion },
+      { name: 'prefers-contrast', value: profile.prefersContrast },
+    ],
+  });
+
   await page.evaluate((direction) => {
     document.documentElement.dir = direction;
   }, profile.direction);
 
   await page.waitForFunction(
     () => document.documentElement.dataset.heroHeaderContrast === 'v283',
-    { timeout: 5000 },
-  ).catch(() => {});
-  await page.evaluate(() => new Promise((resolve) => {
-    requestAnimationFrame(() => requestAnimationFrame(resolve));
-  }));
+    null,
+    { timeout: Math.min(timeoutMs, 5000) },
+  ).catch(() => null);
 
   return page.evaluate(() => {
     const CONTAINER_SELECTOR = [
       'header',
       '[role="banner"]',
+      'nav',
+      '[role="navigation"]',
+      '[role="search"]',
       '[class*="hero"]', '[class*="Hero"]',
       '[id*="hero"]', '[id*="Hero"]',
       '[class*="masthead"]',
       '[class*="banner"]', '[class*="Banner"]',
       '[class*="breadcrumb"]', '[class*="Breadcrumb"]',
+      'footer',
+      '[role="contentinfo"]',
+      '.site-footer',
     ].join(',');
+
     const TEXT_SELECTOR = [
-      'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-      'p', 'li', 'dt', 'dd', 'small', 'strong', 'em', 'span', 'label', 'blockquote',
-      'a', 'button', '[role="button"]', 'summary', 'input', 'select', 'textarea',
+      'h1','h2','h3','h4','h5','h6','p','li','dt','dd','small','strong','em','span','label','blockquote','a',
+      'button','[role="button"]','input','select','textarea','summary','[tabindex]',
     ].join(',');
 
     function parseColor(value) {
       if (!value || value === 'transparent') return null;
       const match = String(value).match(/rgba?\(([^)]+)\)/i);
       if (!match) return null;
-      const parts = match[1].split(/[\s,\/]+/).filter(Boolean).map(Number);
+      const parts = match[1].split(/[\s,/]+/).filter(Boolean).map(Number);
       if (parts.length < 3 || parts.slice(0, 3).some(Number.isNaN)) return null;
       return {
         r: Math.max(0, Math.min(255, parts[0])),
@@ -114,6 +132,13 @@ async function auditPage(page, profile) {
         b: Math.max(0, Math.min(255, parts[2])),
         a: Number.isFinite(parts[3]) ? Math.max(0, Math.min(1, parts[3])) : 1,
       };
+    }
+
+    function colorsFromGradient(value) {
+      if (!value || value === 'none' || !/gradient\(/i.test(value)) return [];
+      return [...value.matchAll(/rgba?\([^)]+\)/gi)]
+        .map((match) => parseColor(match[0]))
+        .filter(Boolean);
     }
 
     function composite(front, back) {
@@ -136,61 +161,48 @@ async function auditPage(page, profile) {
     }
 
     function ratio(a, b) {
-      const l1 = luminance(a);
-      const l2 = luminance(b);
-      return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+      const first = luminance(a);
+      const second = luminance(b);
+      return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
     }
 
     function colorString(color) {
       return `rgb(${Math.round(color.r)}, ${Math.round(color.g)}, ${Math.round(color.b)})`;
     }
 
-    function selectorFor(element) {
-      return `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ''}${element.classList.length ? `.${[...element.classList].slice(0, 5).join('.')}` : ''}`;
-    }
-
-    function visible(element) {
-      const style = getComputedStyle(element);
-      const rect = element.getBoundingClientRect();
-      return style.display !== 'none'
-        && style.visibility !== 'hidden'
-        && Number(style.opacity || 1) > 0.05
-        && rect.width > 0
-        && rect.height > 0;
-    }
-
     function effectiveBackground(element) {
+      let current = element;
+      let solid = { r: 255, g: 255, b: 255, a: 1 };
+      const gradientCandidates = [];
       const layers = [];
-      let node = element;
-      let hasImageOrGradient = false;
-      let stableSurface = false;
-      let imageBearer = null;
+      let unresolvedImage = false;
 
-      while (node && node.nodeType === Node.ELEMENT_NODE) {
-        const style = getComputedStyle(node);
+      while (current && current.nodeType === Node.ELEMENT_NODE) {
+        const style = getComputedStyle(current);
         const image = style.backgroundImage;
+        const parsed = parseColor(style.backgroundColor);
+        const guarded = current.classList.contains('hh-overlay-dark')
+          || current.classList.contains('hh-overlay-light')
+          || current.matches('[data-surface="light"],[data-surface="dark"],[data-theme="light"],[data-theme="dark"],.surface-light,.surface-dark,.theme-light,.theme-dark,.hh-surface-light,.hh-surface-dark');
+
         if (image && image !== 'none') {
-          hasImageOrGradient = true;
-          if (!imageBearer) imageBearer = selectorFor(node);
+          const gradientColors = colorsFromGradient(image);
+          if (gradientColors.length && !guarded) gradientCandidates.push(...gradientColors);
+          else if (/url\(/i.test(image) && !guarded) unresolvedImage = true;
         }
 
-        const parsed = parseColor(style.backgroundColor);
         if (parsed && parsed.a > 0.001) {
-          layers.push({ selector: selectorFor(node), color: style.backgroundColor, alpha: parsed.a });
-          if (parsed.a >= 0.72 || node.matches('.hh-overlay-dark,.hh-overlay-light,[data-surface="light"],[data-surface="dark"]')) {
-            stableSurface = true;
-          }
+          layers.push({ selector: current.tagName.toLowerCase(), color: style.backgroundColor, guarded });
+          solid = composite(parsed, solid);
           if (parsed.a >= 0.999) break;
         }
-        node = node.parentElement;
+        current = current.parentElement;
       }
 
-      let background = { r: 255, g: 255, b: 255, a: 1 };
-      for (let index = layers.length - 1; index >= 0; index -= 1) {
-        const parsed = parseColor(layers[index].color);
-        if (parsed) background = composite(parsed, background);
-      }
-      return { color: background, hasImageOrGradient, stableSurface, imageBearer, layers };
+      const candidates = gradientCandidates.length
+        ? gradientCandidates.map((color) => composite(color, solid))
+        : [solid];
+      return { candidates, unresolvedImage, layers };
     }
 
     function isLargeText(style) {
@@ -200,59 +212,73 @@ async function auditPage(page, profile) {
     }
 
     function isUiControl(element) {
-      return element.matches('button,[role="button"],input,select,textarea,summary,a.btn,a.button,[class*="button"],[class*="Button"]');
+      return element.matches('button,[role="button"],input,select,textarea,summary,[tabindex],a.btn,a.button,[class*="button"],[class*="Button"]');
+    }
+
+    function selectorFor(element) {
+      return `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ''}${element.classList.length ? `.${[...element.classList].slice(0, 5).join('.')}` : ''}`;
+    }
+
+    function isVisible(element, style, rect) {
+      return style.display !== 'none'
+        && style.visibility !== 'hidden'
+        && Number(style.opacity || 1) > 0.05
+        && rect.width > 0
+        && rect.height > 0;
     }
 
     const containers = [...document.querySelectorAll(CONTAINER_SELECTOR)];
     const nodes = [...new Set(containers.flatMap((container) => [
       ...(container.matches(TEXT_SELECTOR) ? [container] : []),
       ...container.querySelectorAll(TEXT_SELECTOR),
-    ]))].filter(visible);
+    ]))];
 
     const contrastViolations = [];
     const hiddenOrClipped = [];
+    let visibleTextElements = 0;
 
     for (const element of nodes) {
       const style = getComputedStyle(element);
       const rect = element.getBoundingClientRect();
-      const selector = selectorFor(element);
-      const text = (element.value || element.innerText || element.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 180);
-      const foregroundRaw = parseColor(style.color) || { r: 0, g: 0, b: 0, a: 1 };
-      const background = effectiveBackground(element);
-      const foreground = foregroundRaw.a < 1 ? composite(foregroundRaw, background.color) : foregroundRaw;
-      const contrastRatio = ratio(foreground, background.color);
-      const threshold = isUiControl(element) || isLargeText(style) ? 3 : 4.5;
-      const indeterminateBackground = background.hasImageOrGradient && !background.stableSurface;
+      if (!isVisible(element, style, rect)) continue;
+      const text = (element.innerText || element.value || element.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 180);
+      if (!text) continue;
+      visibleTextElements += 1;
 
-      if (contrastRatio + 0.001 < threshold || indeterminateBackground) {
+      const selector = selectorFor(element);
+      const background = effectiveBackground(element);
+      const foregroundRaw = parseColor(style.color) || { r: 0, g: 0, b: 0, a: 1 };
+      const threshold = isUiControl(element) || isLargeText(style) ? 3 : 4.5;
+      const ratios = background.candidates.map((candidate) => {
+        const foreground = foregroundRaw.a < 1 ? composite(foregroundRaw, candidate) : foregroundRaw;
+        return { foreground, background: candidate, ratio: ratio(foreground, candidate) };
+      });
+      const worst = ratios.reduce((minimum, item) => item.ratio < minimum.ratio ? item : minimum, ratios[0]);
+
+      if (worst.ratio + 0.001 < threshold || background.unresolvedImage) {
         contrastViolations.push({
           selector,
           text,
-          foreground: colorString(foreground),
-          effectiveBackground: colorString(background.color),
-          contrastRatio: Number(contrastRatio.toFixed(2)),
+          foreground: colorString(worst.foreground),
+          effectiveBackground: colorString(worst.background),
+          contrastRatio: Number(worst.ratio.toFixed(2)),
           threshold,
           fontSize: style.fontSize,
           fontWeight: style.fontWeight,
           backgroundImage: style.backgroundImage,
-          imageBearer: background.imageBearer,
-          stableSurface: background.stableSurface,
-          indeterminateBackground,
-          reason: indeterminateBackground
-            ? 'background image/gradient without a stable readable surface or overlay'
+          unresolvedImage: background.unresolvedImage,
+          layers: background.layers,
+          reason: background.unresolvedImage
+            ? 'background image without a stable adaptive surface or overlay'
             : 'contrast ratio below WCAG AA threshold',
         });
       }
 
-      const clippedX = element.scrollWidth > element.clientWidth + 1
-        && !['visible', 'clip'].includes(style.overflowX);
-      const clippedY = element.scrollHeight > element.clientHeight + 1
-        && !['visible', 'clip'].includes(style.overflowY);
-      const lineClamped = style.webkitLineClamp
-        && style.webkitLineClamp !== 'none'
+      const clippedX = element.scrollWidth > element.clientWidth + 1 && !['visible', 'clip'].includes(style.overflowX);
+      const clippedY = element.scrollHeight > element.clientHeight + 1 && !['visible', 'clip'].includes(style.overflowY);
+      const lineClamped = style.webkitLineClamp && style.webkitLineClamp !== 'none'
         && Number(style.webkitLineClamp) > 0
         && element.scrollHeight > element.clientHeight + 1;
-
       if (clippedX || clippedY || lineClamped) {
         hiddenOrClipped.push({
           selector,
@@ -271,10 +297,11 @@ async function auditPage(page, profile) {
     }
 
     return {
-      count: nodes.length,
+      containers: containers.length,
+      visibleTextElements,
+      guardVersion: document.documentElement.dataset.heroHeaderContrast || null,
       contrastViolations,
-      hidden: hiddenOrClipped,
-      runtimeContract: document.documentElement.dataset.heroHeaderContrast || null,
+      hiddenOrClipped,
     };
   });
 }
@@ -284,15 +311,15 @@ async function worker() {
     const index = cursor++;
     if (index >= htmlFiles.length) break;
     const file = htmlFiles[index];
-    const rel = path.relative(siteDir, file).split(path.sep).join('/');
+    const relative = path.relative(siteDir, file).split(path.sep).join('/');
     const url = toUrl(file);
     const record = {
-      path: rel,
+      path: relative,
       url,
       profiles: [],
       textElements: 0,
       contrastViolations: [],
-      hidden: [],
+      hiddenOrClipped: [],
       failedProfiles: [],
     };
 
@@ -311,16 +338,15 @@ async function worker() {
         record.profiles.push({
           name: profile.name,
           status,
-          textElements: audit.count,
-          runtimeContract: audit.runtimeContract,
+          containers: audit.containers,
+          visibleTextElements: audit.visibleTextElements,
+          guardVersion: audit.guardVersion,
         });
-        record.textElements = Math.max(record.textElements, audit.count);
+        record.textElements = Math.max(record.textElements, audit.visibleTextElements);
         record.contrastViolations.push(...audit.contrastViolations.map((item) => ({ profile: profile.name, ...item })));
-        record.hidden.push(...audit.hidden.map((item) => ({ profile: profile.name, ...item })));
+        record.hiddenOrClipped.push(...audit.hiddenOrClipped.map((item) => ({ profile: profile.name, ...item })));
         if (status !== null && status >= 400) record.failedProfiles.push({ profile: profile.name, status });
-        if (audit.runtimeContract !== 'v283') {
-          record.failedProfiles.push({ profile: profile.name, error: 'adaptive hero/header runtime contract missing' });
-        }
+        if (audit.guardVersion !== 'v283') record.failedProfiles.push({ profile: profile.name, error: 'adaptive contrast guard did not initialize' });
       } catch (error) {
         record.failedProfiles.push({ profile: profile.name, error: String(error) });
       } finally {
@@ -334,16 +360,16 @@ async function worker() {
 await Promise.all(Array.from({ length: concurrency }, () => worker()));
 await browser.close();
 
-const pagesWithContainers = results.filter((item) => item.textElements > 0);
+const pagesWithContainers = results.filter((item) => item.profiles.some((profile) => profile.containers > 0));
 const violatingPages = results.filter((item) => item.contrastViolations.length > 0);
-const hiddenPages = results.filter((item) => item.hidden.length > 0);
+const hiddenPages = results.filter((item) => item.hiddenOrClipped.length > 0);
 const failedPages = results.filter((item) => item.failedProfiles.length > 0);
 const report = {
   contract: 283,
-  requirement: 'Adaptive WCAG AA text/background contrast across hero and header surfaces',
+  requirement: 'Adaptive WCAG AA text/background contrast across header, hero, navigation, breadcrumb, search and footer surfaces',
   generatedAt: new Date().toISOString(),
-  profiles: profiles.map(({ name, viewport, colorScheme, direction, media, reducedMotion }) => ({
-    name, viewport, colorScheme, direction, media, reducedMotion,
+  profiles: profiles.map(({ name, viewport, colorScheme, direction, media, reducedMotion, prefersContrast }) => ({
+    name, viewport, colorScheme, direction, media, reducedMotion, prefersContrast,
   })),
   htmlPages: htmlFiles.length,
   pagesWithHeroOrHeader: pagesWithContainers.length,
@@ -358,6 +384,4 @@ const report = {
 fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(path.join(outDir, 'hero-header-contrast-audit-v283.json'), JSON.stringify(report, null, 2));
 console.log(JSON.stringify({ ...report, results: undefined }, null, 2));
-if (report.contrastViolations || report.pagesWithHiddenOrClippedText || report.failedPages) {
-  process.exitCode = 1;
-}
+if (report.contrastViolations || report.pagesWithHiddenOrClippedText || report.failedPages) process.exitCode = 1;
