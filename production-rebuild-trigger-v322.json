@@ -1,0 +1,7 @@
+{
+  "schema_version": 322,
+  "purpose": "Trigger the validated production pipeline after publication-surface remediation.",
+  "required_workflow": "Validate every assessment and cognitive tool v31",
+  "required_discovery_gate": "Audit production discovery contract v220",
+  "required_deployer": "Deploy validated main to GitHub Pages"
+}
