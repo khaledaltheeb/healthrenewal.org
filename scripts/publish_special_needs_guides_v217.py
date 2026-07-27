@@ -17,6 +17,7 @@ import publish_special_needs_diagnostic_decision_guides_v316 as decision316
 import publish_special_needs_guides_v214 as batch214
 import publish_special_needs_guides_v217_core as core
 import publish_special_needs_hub_v235_compat as hub235
+import publish_special_needs_regression_coexisting_v320 as regression320
 import publish_special_needs_support_interventions_v318 as support318
 import validate_special_needs_provider_directory_v308 as provider308
 
@@ -24,16 +25,30 @@ ROOT = Path(__file__).resolve().parents[1]
 V214_MANIFEST = ROOT / "content" / "v214" / "special-needs-guides-manifest-ar.json"
 PRODUCTION_MANIFEST = ROOT / "content" / "v221" / "special-needs-guides-production-manifest-ar.json"
 VERSIONS = (209, 210, 211, 212, 214)
-CONDITION_URLS = {
-    f"{condition302.BASE}/special-needs/autism/",
-    f"{condition302.BASE}/special-needs/down-syndrome/",
-    f"{condition302.BASE}/special-needs/autism-signs-by-age/",
-    f"{condition302.BASE}/special-needs/down-syndrome-health-by-age/",
-    f"{condition302.BASE}/special-needs/autism-screening-vs-diagnosis/",
-    f"{condition302.BASE}/special-needs/down-syndrome-prenatal-screening-vs-diagnosis/",
-    f"{condition302.BASE}/special-needs/autism-evidence-based-support-plan/",
-    f"{condition302.BASE}/special-needs/down-syndrome-development-communication-independence/",
-}
+CONDITION_SLUGS = (
+    "autism",
+    "down-syndrome",
+    "autism-signs-by-age",
+    "down-syndrome-health-by-age",
+    "autism-screening-vs-diagnosis",
+    "down-syndrome-prenatal-screening-vs-diagnosis",
+    "autism-evidence-based-support-plan",
+    "down-syndrome-development-communication-independence",
+    "autism-coexisting-conditions-sudden-change",
+    "down-syndrome-regression-dementia-urgent-changes",
+)
+CONDITION_URLS = {f"{condition302.BASE}/special-needs/{slug}/" for slug in CONDITION_SLUGS}
+CONDITION_API_FILES = (
+    "special-needs-condition-hubs-v302.json",
+    "special-needs-condition-postlaunch-v305.json",
+    "special-needs-condition-trust-v307.json",
+    "special-needs-provider-governance-v308.json",
+    "special-needs-condition-source-maintenance-v310.json",
+    "special-needs-condition-age-guides-v314.json",
+    "special-needs-diagnostic-decision-guides-v316.json",
+    "special-needs-support-interventions-v318.json",
+    "special-needs-regression-coexisting-v320.json",
+)
 
 
 def summary(report: dict[str, Any]) -> dict[str, Any]:
@@ -44,6 +59,10 @@ def summary(report: dict[str, Any]) -> dict[str, Any]:
         "minimum_source_words": report["minimum_source_words"],
         "source_count": report["source_count"],
     }
+
+
+def pick(report: dict[str, Any], *keys: str) -> dict[str, Any]:
+    return {key: report[key] for key in keys}
 
 
 def load_production_manifest() -> dict[str, Any]:
@@ -62,27 +81,9 @@ def load_production_manifest() -> dict[str, Any]:
 
 
 def reset_condition_outputs(site: Path) -> None:
-    for slug in (
-        "autism",
-        "down-syndrome",
-        "autism-signs-by-age",
-        "down-syndrome-health-by-age",
-        "autism-screening-vs-diagnosis",
-        "down-syndrome-prenatal-screening-vs-diagnosis",
-        "autism-evidence-based-support-plan",
-        "down-syndrome-development-communication-independence",
-    ):
+    for slug in CONDITION_SLUGS:
         shutil.rmtree(site / "special-needs" / slug, ignore_errors=True)
-    for name in (
-        "special-needs-condition-hubs-v302.json",
-        "special-needs-condition-postlaunch-v305.json",
-        "special-needs-condition-trust-v307.json",
-        "special-needs-provider-governance-v308.json",
-        "special-needs-condition-source-maintenance-v310.json",
-        "special-needs-condition-age-guides-v314.json",
-        "special-needs-diagnostic-decision-guides-v316.json",
-        "special-needs-support-interventions-v318.json",
-    ):
+    for name in CONDITION_API_FILES:
         (site / "api" / name).unlink(missing_ok=True)
 
     sitemap_path = site / "sitemap-special-needs.xml"
@@ -100,27 +101,152 @@ def reset_condition_outputs(site: Path) -> None:
         tree.write(sitemap_path, encoding="utf-8", xml_declaration=True)
 
 
+def validate_condition_layers(
+    source_report: dict[str, Any],
+    provider_report: dict[str, Any],
+    condition_report: dict[str, Any],
+    age_report: dict[str, Any],
+    decision_report: dict[str, Any],
+    support_report: dict[str, Any],
+    regression_report: dict[str, Any],
+    postlaunch_report: dict[str, Any],
+    trust_report: dict[str, Any],
+) -> None:
+    if source_report.get("version") != 310 or source_report.get("status") != "passed":
+        raise SystemExit(f"Condition source maintenance contract failed: {source_report}")
+    if source_report.get("condition_slugs") != ["autism", "down-syndrome"]:
+        raise SystemExit("Source maintenance must cover both condition pages")
+    if source_report.get("source_count") != 17 or source_report.get("condition_count") != 2:
+        raise SystemExit("Source maintenance must cover all seventeen condition references")
+
+    if provider_report.get("version") != 308 or provider_report.get("status") != "passed":
+        raise SystemExit(f"Provider directory governance contract failed: {provider_report}")
+    if provider_report.get("sponsored_publication_enabled") is not False:
+        raise SystemExit("Sponsored provider publishing must remain disabled until visible disclosure rendering exists")
+
+    if condition_report.get("version") != 302 or condition_report.get("condition_count") != 2:
+        raise SystemExit(f"Special-needs condition hub contract failed: {condition_report}")
+    if condition_report.get("condition_slugs") != ["autism", "down-syndrome"]:
+        raise SystemExit("Autism and Down syndrome routes are required")
+    if condition_report.get("generated_page_count") != 2 or condition_report.get("source_count", 0) < 15:
+        raise SystemExit("Scientific condition page depth contract failed")
+    if condition_report.get("source_count") != source_report.get("source_count"):
+        raise SystemExit("Rendered condition source count must match the maintenance audit")
+    rendered_total = sum(condition_report.get("provider_counts", {}).values())
+    published_records = provider_report.get("published_count", 0)
+    if rendered_total != condition_report.get("published_provider_count"):
+        raise SystemExit("Rendered provider counts are internally inconsistent")
+    if not (published_records <= rendered_total <= published_records * 2):
+        raise SystemExit(
+            "Published provider records do not match one-or-two condition page appearances: "
+            f"records={published_records}, appearances={rendered_total}"
+        )
+
+    if age_report.get("version") != 314 or age_report.get("status") != "passed":
+        raise SystemExit(f"Condition age-guide contract failed: {age_report}")
+    if age_report.get("guide_slugs") != ["autism-signs-by-age", "down-syndrome-health-by-age"]:
+        raise SystemExit("Condition age-guide routes are incomplete")
+    if age_report.get("guide_count") != 2 or age_report.get("stage_count") != 8:
+        raise SystemExit("Condition age guides must publish two pages and eight age stages")
+    if age_report.get("source_count") != 7 or age_report.get("parent_links_added") != 2:
+        raise SystemExit("Condition age-guide evidence or parent-link contract failed")
+
+    if decision_report.get("version") != 316 or decision_report.get("status") != "passed":
+        raise SystemExit(f"Diagnostic decision-guide contract failed: {decision_report}")
+    if decision_report.get("guide_slugs") != [
+        "autism-screening-vs-diagnosis",
+        "down-syndrome-prenatal-screening-vs-diagnosis",
+    ]:
+        raise SystemExit("Diagnostic decision-guide routes are incomplete")
+    if decision_report.get("guide_count") != 2 or decision_report.get("section_count") != 10:
+        raise SystemExit("Diagnostic decision guides must publish two pages and ten decision sections")
+    if decision_report.get("source_count") != 8 or decision_report.get("parent_links_added") != 2:
+        raise SystemExit("Diagnostic decision-guide evidence or parent-link contract failed")
+
+    if support_report.get("version") != 318 or support_report.get("status") != "passed":
+        raise SystemExit(f"Support intervention-guide contract failed: {support_report}")
+    if support_report.get("guide_slugs") != [
+        "autism-evidence-based-support-plan",
+        "down-syndrome-development-communication-independence",
+    ]:
+        raise SystemExit("Support intervention-guide routes are incomplete")
+    if support_report.get("guide_count") != 2 or support_report.get("section_count") != 10:
+        raise SystemExit("Support intervention guides must publish two pages and ten support sections")
+    if support_report.get("source_count") != 9 or support_report.get("parent_links_added") != 2:
+        raise SystemExit("Support intervention-guide evidence or parent-link contract failed")
+    if support_report.get("plan_step_count") != 10 or support_report.get("urgent_item_count") != 6:
+        raise SystemExit("Support intervention plan or safety depth failed")
+
+    if regression_report.get("version") != 320 or regression_report.get("status") != "passed":
+        raise SystemExit(f"Regression/coexisting guide contract failed: {regression_report}")
+    if regression_report.get("guide_slugs") != [
+        "autism-coexisting-conditions-sudden-change",
+        "down-syndrome-regression-dementia-urgent-changes",
+    ]:
+        raise SystemExit("Regression/coexisting routes are incomplete")
+    if regression_report.get("guide_count") != 2 or regression_report.get("section_count") != 10:
+        raise SystemExit("Regression/coexisting guides must publish two pages and ten sections")
+    if regression_report.get("source_count") != 11 or regression_report.get("parent_links_added") != 2:
+        raise SystemExit("Regression/coexisting evidence or parent-link contract failed")
+    if regression_report.get("action_step_count") != 10 or regression_report.get("urgent_item_count") != 6:
+        raise SystemExit("Regression/coexisting action or urgent-depth contract failed")
+    if not all(
+        regression_report.get(key) is True
+        for key in ("dsrd_consensus_limit_visible", "dementia_baseline_limit_visible", "diagnostic_overshadowing_guard")
+    ):
+        raise SystemExit("Regression/coexisting clinical-boundary controls are incomplete")
+
+    for report, label in (
+        (age_report, "age guides"),
+        (decision_report, "diagnostic decision guides"),
+        (support_report, "support intervention guides"),
+        (regression_report, "regression/coexisting guides"),
+    ):
+        if report.get("external_clinical_review_completed") is not False:
+            raise SystemExit(f"{label} must not overstate external clinical review")
+        if report.get("sitemap_registered") is not True:
+            raise SystemExit(f"{label} routes must be registered in the special-needs sitemap")
+
+    if postlaunch_report.get("version") != 305 or postlaunch_report.get("status") != "passed":
+        raise SystemExit(f"Condition post-launch audit contract failed: {postlaunch_report}")
+    if postlaunch_report.get("condition_slugs") != ["autism", "down-syndrome"]:
+        raise SystemExit("Post-launch audit must cover both condition routes")
+    if postlaunch_report.get("related_link_count") != 16:
+        raise SystemExit("Post-launch internal-link graph must contain sixteen contextual links")
+    if not all(
+        postlaunch_report.get(key) is True
+        for key in ("visible_breadcrumbs", "meta_enhanced", "provider_policy_visible", "focus_visibility_guard")
+    ):
+        raise SystemExit("Post-launch accessibility and transparency controls are incomplete")
+
+    if trust_report.get("version") != 307 or trust_report.get("status") != "passed":
+        raise SystemExit(f"Condition trust and FAQ contract failed: {trust_report}")
+    if trust_report.get("condition_slugs") != ["autism", "down-syndrome"] or trust_report.get("faq_count") != 8:
+        raise SystemExit("Trust layer must publish four referenced FAQs for each condition")
+    if trust_report.get("faq_schema_visible_match") is not True:
+        raise SystemExit("Visible FAQ content and FAQPage structured data must match")
+    if trust_report.get("external_clinical_review_completed") is not False:
+        raise SystemExit("Trust layer must not overstate external clinical review")
+
+
 def publish(site: Path) -> dict[str, Any]:
     reset_condition_outputs(site)
-
     production_manifest = load_production_manifest()
+
     hub_report = hub235.publish(site)
     if hub_report.get("version") != 235 or hub_report.get("guide_count") != 25:
         raise SystemExit(f"Institutional special-needs hub contract failed: {hub_report}")
     if hub_report.get("source_count") != 10 or hub_report.get("jordan_source_count") != 3:
         raise SystemExit(f"Institutional special-needs source contract failed: {hub_report}")
-    if hub_report.get("jordan_context_section") is not True:
-        raise SystemExit("Institutional Jordan context contract failed")
-    if hub_report.get("asha_aac_source_updated") is not True:
-        raise SystemExit("Institutional AAC source contract failed")
+    if hub_report.get("jordan_context_section") is not True or hub_report.get("asha_aac_source_updated") is not True:
+        raise SystemExit("Institutional Jordan or AAC source contract failed")
 
     base = core.publish(site)
     manifest = core.read_manifest(V214_MANIFEST, 214)
     titles: dict[str, str] = {}
     for slug in manifest["guide_slugs"]:
         guide_path = V214_MANIFEST.parent / "special-needs-guides" / f"{slug}.json"
-        guide = json.loads(guide_path.read_text(encoding="utf-8"))
-        titles[slug] = guide["title"]
+        titles[slug] = json.loads(guide_path.read_text(encoding="utf-8"))["title"]
 
     report214 = batch214.publish(site)
     if report214.get("guide_count") != 5 or report214.get("generated_page_count") != 5:
@@ -136,118 +262,32 @@ def publish(site: Path) -> dict[str, Any]:
     all_slugs = list(base["guide_slugs"]) + list(manifest["guide_slugs"])
     if len(all_slugs) != 25 or len(all_slugs) != len(set(all_slugs)):
         raise SystemExit("The five batches must produce twenty-five unique guide routes")
-
     pages = list(base["generated_pages"])
     validated214 = [core.validate_page(site, slug, titles[slug]) for slug in manifest["guide_slugs"]]
     pages.extend(page["path"] for page in validated214)
     discovery = core.validate_discovery(site, all_slugs)
 
     source_report = source310.publish(site)
-    if source_report.get("version") != 310 or source_report.get("status") != "passed":
-        raise SystemExit(f"Condition source maintenance contract failed: {source_report}")
-    if source_report.get("condition_slugs") != ["autism", "down-syndrome"]:
-        raise SystemExit("Source maintenance must cover both condition pages")
-    if source_report.get("source_count") != 17 or source_report.get("condition_count") != 2:
-        raise SystemExit("Source maintenance must cover all seventeen condition references")
-
     provider_report = provider308.publish(site)
-    if provider_report.get("version") != 308 or provider_report.get("status") != "passed":
-        raise SystemExit(f"Provider directory governance contract failed: {provider_report}")
-    if provider_report.get("sponsored_publication_enabled") is not False:
-        raise SystemExit("Sponsored provider publishing must remain disabled until visible disclosure rendering exists")
-
     condition_report = condition302.publish(site)
-    if condition_report.get("version") != 302 or condition_report.get("condition_count") != 2:
-        raise SystemExit(f"Special-needs condition hub contract failed: {condition_report}")
-    if condition_report.get("condition_slugs") != ["autism", "down-syndrome"]:
-        raise SystemExit("Autism and Down syndrome routes are required")
-    if condition_report.get("generated_page_count") != 2 or condition_report.get("source_count", 0) < 15:
-        raise SystemExit("Scientific condition page depth contract failed")
-    if condition_report.get("source_count") != source_report.get("source_count"):
-        raise SystemExit("Rendered condition source count must match the maintenance audit")
-    rendered_counts = condition_report.get("provider_counts", {})
-    rendered_total = sum(rendered_counts.values())
-    published_records = provider_report.get("published_count", 0)
-    if rendered_total != condition_report.get("published_provider_count"):
-        raise SystemExit("Rendered provider counts are internally inconsistent")
-    if not (published_records <= rendered_total <= published_records * 2):
-        raise SystemExit(
-            f"Published provider records do not match one-or-two condition page appearances: "
-            f"records={published_records}, appearances={rendered_total}"
-        )
-
     age_report = age314.publish(site)
-    if age_report.get("version") != 314 or age_report.get("status") != "passed":
-        raise SystemExit(f"Condition age-guide contract failed: {age_report}")
-    if age_report.get("guide_slugs") != ["autism-signs-by-age", "down-syndrome-health-by-age"]:
-        raise SystemExit("Condition age-guide routes are incomplete")
-    if age_report.get("guide_count") != 2 or age_report.get("stage_count") != 8:
-        raise SystemExit("Condition age guides must publish two pages and eight age stages")
-    if age_report.get("source_count") != 7 or age_report.get("parent_links_added") != 2:
-        raise SystemExit("Condition age-guide evidence or parent-link contract failed")
-    if age_report.get("external_clinical_review_completed") is not False:
-        raise SystemExit("Condition age guides must not overstate external clinical review")
-    if age_report.get("sitemap_registered") is not True:
-        raise SystemExit("Condition age-guide routes must be registered in the special-needs sitemap")
-
     decision_report = decision316.publish(site)
-    if decision_report.get("version") != 316 or decision_report.get("status") != "passed":
-        raise SystemExit(f"Diagnostic decision-guide contract failed: {decision_report}")
-    if decision_report.get("guide_slugs") != [
-        "autism-screening-vs-diagnosis",
-        "down-syndrome-prenatal-screening-vs-diagnosis",
-    ]:
-        raise SystemExit("Diagnostic decision-guide routes are incomplete")
-    if decision_report.get("guide_count") != 2 or decision_report.get("section_count") != 10:
-        raise SystemExit("Diagnostic decision guides must publish two pages and ten decision sections")
-    if decision_report.get("source_count") != 8 or decision_report.get("parent_links_added") != 2:
-        raise SystemExit("Diagnostic decision-guide evidence or parent-link contract failed")
-    if decision_report.get("external_clinical_review_completed") is not False:
-        raise SystemExit("Diagnostic decision guides must not overstate external clinical review")
-    if decision_report.get("sitemap_registered") is not True:
-        raise SystemExit("Diagnostic decision routes must be registered in the special-needs sitemap")
-
     support_report = support318.publish(site)
-    if support_report.get("version") != 318 or support_report.get("status") != "passed":
-        raise SystemExit(f"Support intervention-guide contract failed: {support_report}")
-    if support_report.get("guide_slugs") != [
-        "autism-evidence-based-support-plan",
-        "down-syndrome-development-communication-independence",
-    ]:
-        raise SystemExit("Support intervention-guide routes are incomplete")
-    if support_report.get("guide_count") != 2 or support_report.get("section_count") != 10:
-        raise SystemExit("Support intervention guides must publish two pages and ten support sections")
-    if support_report.get("source_count") != 9 or support_report.get("parent_links_added") != 2:
-        raise SystemExit("Support intervention-guide evidence or parent-link contract failed")
-    if support_report.get("plan_step_count") != 10 or support_report.get("urgent_item_count") != 6:
-        raise SystemExit("Support intervention plan or safety depth failed")
-    if support_report.get("external_clinical_review_completed") is not False:
-        raise SystemExit("Support intervention guides must not overstate external clinical review")
-    if support_report.get("sitemap_registered") is not True:
-        raise SystemExit("Support intervention routes must be registered in the special-needs sitemap")
-
+    regression_report = regression320.publish(site)
     postlaunch_report = postlaunch305.publish(site)
-    if postlaunch_report.get("version") != 305 or postlaunch_report.get("status") != "passed":
-        raise SystemExit(f"Condition post-launch audit contract failed: {postlaunch_report}")
-    if postlaunch_report.get("condition_slugs") != ["autism", "down-syndrome"]:
-        raise SystemExit("Post-launch audit must cover both condition routes")
-    if postlaunch_report.get("related_link_count") != 16:
-        raise SystemExit("Post-launch internal-link graph must contain sixteen contextual links")
-    if not all(
-        postlaunch_report.get(key) is True
-        for key in ("visible_breadcrumbs", "meta_enhanced", "provider_policy_visible", "focus_visibility_guard")
-    ):
-        raise SystemExit("Post-launch accessibility and transparency controls are incomplete")
-
     trust_report = trust307.publish(site)
-    if trust_report.get("version") != 307 or trust_report.get("status") != "passed":
-        raise SystemExit(f"Condition trust and FAQ contract failed: {trust_report}")
-    if trust_report.get("condition_slugs") != ["autism", "down-syndrome"] or trust_report.get("faq_count") != 8:
-        raise SystemExit("Trust layer must publish four referenced FAQs for each condition")
-    if trust_report.get("faq_schema_visible_match") is not True:
-        raise SystemExit("Visible FAQ content and FAQPage structured data must match")
-    if trust_report.get("external_clinical_review_completed") is not False:
-        raise SystemExit("Trust layer must not overstate external clinical review")
+
+    validate_condition_layers(
+        source_report,
+        provider_report,
+        condition_report,
+        age_report,
+        decision_report,
+        support_report,
+        regression_report,
+        postlaunch_report,
+        trust_report,
+    )
 
     report = {
         **base,
@@ -264,6 +304,7 @@ def publish(site: Path) -> dict[str, Any]:
         "condition_age_guides_contract": 314,
         "diagnostic_decision_guides_contract": 316,
         "support_intervention_guides_contract": 318,
+        "regression_coexisting_guides_contract": 320,
         "status": "passed",
         "production_status": "integrated",
         "batches": list(VERSIONS),
@@ -280,119 +321,153 @@ def publish(site: Path) -> dict[str, Any]:
         "production_source_manifest": PRODUCTION_MANIFEST.relative_to(ROOT).as_posix(),
         "production_source_file_count": len(production_manifest["source_files"]),
         "hub": {
-            "status": hub_report["status"],
-            "pathway_count": hub_report["pathway_count"],
-            "faq_count": hub_report["faq_count"],
-            "source_count": hub_report["source_count"],
-            "jordan_source_count": hub_report["jordan_source_count"],
-            "jordan_context_section": hub_report["jordan_context_section"],
-            "asha_aac_source_updated": hub_report["asha_aac_source_updated"],
-            "seo": hub_report["seo"],
-            "accessibility": hub_report["accessibility"],
+            **pick(
+                hub_report,
+                "status",
+                "pathway_count",
+                "faq_count",
+                "source_count",
+                "jordan_source_count",
+                "jordan_context_section",
+                "asha_aac_source_updated",
+                "seo",
+                "accessibility",
+            )
         },
         "condition_hubs": {
-            "status": condition_report["status"],
-            "version": condition_report["version"],
-            "condition_count": condition_report["condition_count"],
-            "condition_slugs": condition_report["condition_slugs"],
-            "generated_pages": condition_report["generated_pages"],
-            "source_count": condition_report["source_count"],
-            "provider_source": condition_report["provider_source"],
-            "published_provider_count": condition_report["published_provider_count"],
-            "sitemap_registered": condition_report["sitemap_registered"],
-            "age_guides": {
-                "version": age_report["version"],
-                "status": age_report["status"],
-                "guide_count": age_report["guide_count"],
-                "guide_slugs": age_report["guide_slugs"],
-                "generated_pages": age_report["generated_pages"],
-                "stage_count": age_report["stage_count"],
-                "source_count": age_report["source_count"],
-                "urgent_item_count": age_report["urgent_item_count"],
-                "parent_links_added": age_report["parent_links_added"],
-                "sitemap_registered": age_report["sitemap_registered"],
-                "reviewed_at": age_report["reviewed_at"],
-                "next_review_due": age_report["next_review_due"],
-                "external_clinical_review_completed": age_report["external_clinical_review_completed"],
-                "content_source": age_report["content_source"],
-            },
-            "diagnostic_decision_guides": {
-                "version": decision_report["version"],
-                "status": decision_report["status"],
-                "guide_count": decision_report["guide_count"],
-                "guide_slugs": decision_report["guide_slugs"],
-                "generated_pages": decision_report["generated_pages"],
-                "section_count": decision_report["section_count"],
-                "source_count": decision_report["source_count"],
-                "decision_step_count": decision_report["decision_step_count"],
-                "urgent_item_count": decision_report["urgent_item_count"],
-                "parent_links_added": decision_report["parent_links_added"],
-                "sitemap_registered": decision_report["sitemap_registered"],
-                "reviewed_at": decision_report["reviewed_at"],
-                "next_review_due": decision_report["next_review_due"],
-                "external_clinical_review_completed": decision_report["external_clinical_review_completed"],
-                "content_source": decision_report["content_source"],
-            },
-            "support_interventions": {
-                "version": support_report["version"],
-                "status": support_report["status"],
-                "guide_count": support_report["guide_count"],
-                "guide_slugs": support_report["guide_slugs"],
-                "generated_pages": support_report["generated_pages"],
-                "section_count": support_report["section_count"],
-                "source_count": support_report["source_count"],
-                "plan_step_count": support_report["plan_step_count"],
-                "urgent_item_count": support_report["urgent_item_count"],
-                "parent_links_added": support_report["parent_links_added"],
-                "sitemap_registered": support_report["sitemap_registered"],
-                "reviewed_at": support_report["reviewed_at"],
-                "next_review_due": support_report["next_review_due"],
-                "external_clinical_review_completed": support_report["external_clinical_review_completed"],
-                "content_source": support_report["content_source"],
-            },
-            "source_maintenance": {
-                "version": source_report["version"],
-                "checked_at": source_report["checked_at"],
-                "review_interval_days": source_report["review_interval_days"],
-                "maximum_allowed_review_age_days": source_report["maximum_allowed_review_age_days"],
-                "source_count": source_report["source_count"],
-                "distinct_host_count": source_report["distinct_host_count"],
-                "overdue_source_count": source_report["overdue_source_count"],
-                "due_within_30_days_count": source_report["due_within_30_days_count"],
-            },
-            "provider_governance": {
-                "version": provider_report["version"],
-                "checked_at": provider_report["checked_at"],
-                "record_count": provider_report["record_count"],
-                "published_count": provider_report["published_count"],
-                "sponsored_count": provider_report["sponsored_count"],
-                "sponsored_publication_enabled": provider_report["sponsored_publication_enabled"],
-                "expiring_within_30_days": provider_report["expiring_within_30_days"],
-                "status_counts": provider_report["status_counts"],
-                "provider_source": provider_report["provider_source"],
-            },
-            "postlaunch": {
-                "version": postlaunch_report["version"],
-                "reviewed_at": postlaunch_report["reviewed_at"],
-                "minimum_words": postlaunch_report["minimum_words"],
-                "minimum_h2": postlaunch_report["minimum_h2"],
-                "related_link_count": postlaunch_report["related_link_count"],
-                "visible_breadcrumbs": postlaunch_report["visible_breadcrumbs"],
-                "meta_enhanced": postlaunch_report["meta_enhanced"],
-                "provider_policy_visible": postlaunch_report["provider_policy_visible"],
-                "focus_visibility_guard": postlaunch_report["focus_visibility_guard"],
-                "config_source": postlaunch_report["config_source"],
-            },
-            "trust": {
-                "version": trust_report["version"],
-                "reviewed_at": trust_report["reviewed_at"],
-                "next_review_due": trust_report["next_review_due"],
-                "faq_count": trust_report["faq_count"],
-                "minimum_source_count": trust_report["minimum_source_count"],
-                "faq_schema_visible_match": trust_report["faq_schema_visible_match"],
-                "external_clinical_review_completed": trust_report["external_clinical_review_completed"],
-                "config_source": trust_report["config_source"],
-            },
+            **pick(
+                condition_report,
+                "status",
+                "version",
+                "condition_count",
+                "condition_slugs",
+                "generated_pages",
+                "source_count",
+                "provider_source",
+                "published_provider_count",
+                "sitemap_registered",
+            ),
+            "age_guides": pick(
+                age_report,
+                "version",
+                "status",
+                "guide_count",
+                "guide_slugs",
+                "generated_pages",
+                "stage_count",
+                "source_count",
+                "urgent_item_count",
+                "parent_links_added",
+                "sitemap_registered",
+                "reviewed_at",
+                "next_review_due",
+                "external_clinical_review_completed",
+                "content_source",
+            ),
+            "diagnostic_decision_guides": pick(
+                decision_report,
+                "version",
+                "status",
+                "guide_count",
+                "guide_slugs",
+                "generated_pages",
+                "section_count",
+                "source_count",
+                "decision_step_count",
+                "urgent_item_count",
+                "parent_links_added",
+                "sitemap_registered",
+                "reviewed_at",
+                "next_review_due",
+                "external_clinical_review_completed",
+                "content_source",
+            ),
+            "support_interventions": pick(
+                support_report,
+                "version",
+                "status",
+                "guide_count",
+                "guide_slugs",
+                "generated_pages",
+                "section_count",
+                "source_count",
+                "plan_step_count",
+                "urgent_item_count",
+                "parent_links_added",
+                "sitemap_registered",
+                "reviewed_at",
+                "next_review_due",
+                "external_clinical_review_completed",
+                "content_source",
+            ),
+            "regression_coexisting": pick(
+                regression_report,
+                "version",
+                "status",
+                "guide_count",
+                "guide_slugs",
+                "generated_pages",
+                "section_count",
+                "source_count",
+                "action_step_count",
+                "urgent_item_count",
+                "parent_links_added",
+                "sitemap_registered",
+                "dsrd_consensus_limit_visible",
+                "dementia_baseline_limit_visible",
+                "diagnostic_overshadowing_guard",
+                "reviewed_at",
+                "next_review_due",
+                "external_clinical_review_completed",
+                "content_source",
+            ),
+            "source_maintenance": pick(
+                source_report,
+                "version",
+                "checked_at",
+                "review_interval_days",
+                "maximum_allowed_review_age_days",
+                "source_count",
+                "distinct_host_count",
+                "overdue_source_count",
+                "due_within_30_days_count",
+            ),
+            "provider_governance": pick(
+                provider_report,
+                "version",
+                "checked_at",
+                "record_count",
+                "published_count",
+                "sponsored_count",
+                "sponsored_publication_enabled",
+                "expiring_within_30_days",
+                "status_counts",
+                "provider_source",
+            ),
+            "postlaunch": pick(
+                postlaunch_report,
+                "version",
+                "reviewed_at",
+                "minimum_words",
+                "minimum_h2",
+                "related_link_count",
+                "visible_breadcrumbs",
+                "meta_enhanced",
+                "provider_policy_visible",
+                "focus_visibility_guard",
+                "config_source",
+            ),
+            "trust": pick(
+                trust_report,
+                "version",
+                "reviewed_at",
+                "next_review_due",
+                "faq_count",
+                "minimum_source_count",
+                "faq_schema_visible_match",
+                "external_clinical_review_completed",
+                "config_source",
+            ),
         },
         **discovery,
         "batch_reports": [*base["batch_reports"], summary(report214)],

@@ -153,6 +153,7 @@ jobs:
       - name: Validate target views and professional controls
         run: |
           python - <<'PY'
+          import re
           from pathlib import Path
 
           files = {
@@ -163,8 +164,13 @@ jobs:
               'interpretation': Path('provider-assessment-demo/case-report-interpretation-v2.js').read_text(encoding='utf-8'),
               'export': Path('provider-assessment-demo/case-report-export-v2.js').read_text(encoding='utf-8'),
           }
+          release_match = re.search(r'<html[^>]+data-release="([^"]+)"', files['index'])
+          version_match = re.search(r'<meta name="application-version" content="([^"]+)"', files['index'])
+          if not release_match or not version_match or release_match.group(1) != version_match.group(1):
+              raise SystemExit('Assessment release metadata is missing or inconsistent')
+          release = release_match.group(1)
           required_by_file = {
-              'index': ['data-release="2026.07.24-live.7"', 'data-view="professional"', 'case-report-interpretation-v2.js'],
+              'index': ['data-institutional-contract="2026.07.25-v220"', 'data-view="professional"', 'case-report-interpretation-v2.js'],
               'router': ['professional: "professional"', 'records: "professional-records"', 'reports: "reports"', 'routeRequestedView'],
               'activation': ['view-professional-records', 'professional-record-form', 'recordStatus', 'administrationMode', 'scoreReference', 'rightsConfirmed'],
               'reports': ['view-reports', 'case-report-form', 'export-case-report-html', 'export-case-report-json', 'caseRecord.reports'],
@@ -182,7 +188,7 @@ jobs:
                   errors.append(f'unsafe API {token}')
           if errors:
               raise SystemExit('\n'.join(errors))
-          print({'unified_console': True, 'routes': 3, 'professional_records': True, 'reports': True, 'release': '2026.07.24-live.7'})
+          print({'unified_console': True, 'routes': 3, 'professional_records': True, 'reports': True, 'release': release, 'contract': '2026.07.25-v220'})
           PY
 
       - name: Validate non-diagnostic and rights boundaries

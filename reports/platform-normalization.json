@@ -1,0 +1,543 @@
+{
+  "schema_version": 1,
+  "shell_version": "1.1.0",
+  "status": "passed",
+  "generated_at": "2026-07-27T16:24:00.169976+00:00",
+  "mode": "write",
+  "root": "/home/runner/work/pterminology-site/pterminology-site",
+  "runtime": {
+    "source": "/home/runner/work/pterminology-site/pterminology-site",
+    "target": "/home/runner/work/pterminology-site/pterminology-site",
+    "copied": false,
+    "files": []
+  },
+  "html_pages_seen": 104,
+  "html_pages_normalized_or_current": 103,
+  "counts": {
+    "current": 92,
+    "skipped": 1,
+    "updated": 11
+  },
+  "results": [
+    {
+      "path": "404.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "api/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "copyright/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "google644f1f7a8b7aaa2b.html",
+      "status": "skipped",
+      "detail": "missing </head>"
+    },
+    {
+      "path": "index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/adhd-baduanjin-response-inhibition-rct-2026.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "magazine/adhd-dexamphetamine-methylphenidate-randomized-2026.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "magazine/adhd-personalized-neurofeedback-sham-rct-2026.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "magazine/adhd-physical-fitness-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/adhd-rhythmic-music-game-rct-2026.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "magazine/adhd-school-social-skills-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/adhd-screen-time-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/adhd-sleep-interventions-network-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/adhd-technology-interventions-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/adolescent-chronic-pain-digital-psychological-interventions-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/adolescent-depression-one-step-back-rct-2026.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "magazine/adolescent-passive-smartphone-sensing-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/artemis-adolescent-mental-health-stigma-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-behavioral-domains-network-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-caregiver-adjustment-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-emotion-regulation-interventions-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-family-food-insecurity-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-interventions-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-lets-play-caregiver-mediated-rct-2026.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-parent-act-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-parent-act-randomized-trial-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-parent-reflective-functioning-rct-2026.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-parent-resilience-factors-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-sleep-disorders-prevalence-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-social-functioning-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-ssri-children-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-structured-interactive-play-screening-cohort-2026.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "magazine/aya-cancer-digital-mental-health-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/cerebral-palsy-participate-cp-leisure-rct-2026.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "magazine/cerebral-palsy-participation-quality-life-study-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/cerebral-palsy-youth-mental-health-review-2025.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/child-adolescent-mental-health-guidelines-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/childhood-vision-impairment-longitudinal-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/dcd-action-observation-motor-imagery-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/dcd-school-motor-interventions-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/dcd-subtypes-systematic-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/deaf-hard-hearing-adult-mental-disorders-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/deaf-hard-hearing-youth-mental-health-review-2025.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/developmental-disabilities-school-support-2025.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/digital-eating-disorder-interventions-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/down-syndrome-adult-medical-care-systematic-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/down-syndrome-dual-task-exergaming-cognition-rct-2026.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "magazine/down-syndrome-telehealth-systematic-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/dysgraphia-interventions-scoping-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/family-carer-coping-mental-health-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/high-school-digital-literacy-physical-activity-rct-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/homeless-youth-mental-disorders-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/intellectual-disability-healthcare-transition-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/intellectual-disability-youth-healthcare-access-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/intellectual-disability-youth-psychotherapy-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/intensive-community-care-adolescents-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/latinx-adolescent-suicidal-behavior-cbt-rct-2026.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "magazine/mobile-stress-interventions-2025.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/neurodevelopmental-exercise-executive-function-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/neurodevelopmental-psychiatric-comorbidity-umbrella-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/neurodevelopmental-sleep-family-wellbeing-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/neurodevelopmental-video-game-interventions-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/neurodivergent-university-mental-health-interventions-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/peer-led-adolescent-mental-health-2025.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/school-resilience-children-2025.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/thesis-autism-heterogeneity-research-2025.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/thesis-autistic-camouflaging-mental-health-2025.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/thesis-sensory-processing-adhd-autism-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/unilateral-cerebral-palsy-participation-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/visual-impairment-mental-health-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/young-children-universal-wellbeing-interventions-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/youth-digital-depression-anxiety-network-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/youth-self-harm-interventions-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/youth-single-session-self-administered-interventions-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/youth-stigma-interventions-2025.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/youth-transdiagnostic-internet-rct-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "outside-the-box/evidence-standard/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "platform/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/center-guide.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/aac/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/adhd/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/autism/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/behavioral-emotional-disorders/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/brain-injury-memory-executive/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/cerebral-palsy/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/developmental-coordination-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/down-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/genetic-syndromes/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/global-developmental-delay/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/hearing-loss-deafness/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/intellectual-disability/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/language-speech-disorders/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/multiple-disabilities-deafblindness/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/physical-motor-disabilities/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/sensory-processing/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/severe-behavior-self-injury/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/specific-learning-disabilities/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/transition-adulthood/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/conditions/visual-impairment/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/professional-console.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "provider-assessment-demo/training/index.html",
+      "status": "current",
+      "detail": ""
+    }
+  ]
+}

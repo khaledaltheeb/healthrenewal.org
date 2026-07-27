@@ -28,6 +28,11 @@ SITEMAP_EVIDENCE_FILES = (
     "api/sitemap-index-v305.json",
     "api/indexing-coverage-audit-v303.json",
 )
+PLATFORM_FILES = (
+    "assets/platform/platform-core.css",
+    "assets/platform/platform-core.js",
+    "api/platform-normalization-v1.json",
+)
 
 
 def sha256(path: Path) -> str:
@@ -57,6 +62,44 @@ def finalize_sitemap_coverage(site: Path) -> dict[str, object]:
         raise SystemExit({"incomplete_production_sitemap_coverage": report})
     if report.get("local_route_contract") != "passed":
         raise SystemExit({"invalid_local_route_contract": report})
+    return report
+
+
+def normalize_platform_shell(site: Path) -> dict[str, object]:
+    normalizer = Path(__file__).with_name("normalize_platform_shell.py")
+    report_path = site / "api" / "platform-normalization-v1.json"
+    subprocess.run(
+        [
+            sys.executable,
+            str(normalizer),
+            str(site),
+            "--report-path",
+            str(report_path),
+        ],
+        check=True,
+    )
+    if not report_path.is_file():
+        raise SystemExit(f"Platform normalization evidence not found: {report_path}")
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    counts = report.get("counts", {})
+    seen = int(report.get("html_pages_seen", 0))
+    normalized = int(report.get("html_pages_normalized_or_current", 0))
+    if report.get("schema_version") != 1 or report.get("status") != "passed":
+        raise SystemExit({"invalid_platform_normalization_evidence": report})
+    if seen < 3000 or normalized < 3000:
+        raise SystemExit(
+            {
+                "platform_normalization_page_count_too_low": {
+                    "seen": seen,
+                    "normalized_or_current": normalized,
+                }
+            }
+        )
+    if int(counts.get("error", 0)) != 0:
+        raise SystemExit({"platform_normalization_errors": report})
+    for relative in PLATFORM_FILES[:2]:
+        if not (site / relative).is_file():
+            raise SystemExit({"missing_platform_asset": relative})
     return report
 
 
@@ -126,6 +169,8 @@ def main() -> None:
     if int(family_sector.get("hub_words", 0)) < 2500 or int(family_sector.get("minimum_article_words", 0)) < 800:
         raise SystemExit({"insufficient_family_sector_v249_depth": family_sector})
 
+    platform = normalize_platform_shell(SITE)
+
     publish_global_metadata()
     metadata_path = SITE / "api" / "global-metadata-v27.json"
     if not metadata_path.is_file():
@@ -156,10 +201,13 @@ def main() -> None:
 
     missing = [name for name in CRITICAL_FILES if not (SITE / name).is_file()]
     missing_sitemap_evidence = [name for name in SITEMAP_EVIDENCE_FILES if not (SITE / name).is_file()]
+    missing_platform_files = [name for name in PLATFORM_FILES if not (SITE / name).is_file()]
     if missing:
         raise SystemExit({"missing_critical_files": missing})
     if missing_sitemap_evidence:
         raise SystemExit({"missing_sitemap_evidence_files": missing_sitemap_evidence})
+    if missing_platform_files:
+        raise SystemExit({"missing_platform_files": missing_platform_files})
 
     pwa = json.loads(pwa_path.read_text(encoding="utf-8"))
     if not pwa.get("registration_verified") or int(pwa.get("pages_scanned", 0)) <= 0:
@@ -181,16 +229,20 @@ def main() -> None:
     }
 
     payload = {
-        "schema_version": 29,
+        "schema_version": 30,
         "commit": os.environ["GITHUB_SHA"],
         "workflow_run": os.environ["GITHUB_RUN_ID"],
         "workflow_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "1"),
         "validated_at": datetime.now(timezone.utc).isoformat(),
-        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, complete family sitemap index v305, home-sector v244 semantic depth and safety, child-sector v239 depth and safety, women-sector v244 depth and safety, family-sector v249 depth and safety, critical artifact SHA-256",
+        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, complete platform shell normalization, complete family sitemap index v305, home-sector v244 semantic depth and safety, child-sector v239 depth and safety, women-sector v244 depth and safety, family-sector v249 depth and safety, critical artifact SHA-256",
         "pwa_pages": int(pwa["pages_scanned"]),
         "metadata_pages": int(metadata["pages_scanned"]),
         "metadata_version": int(metadata["version"]),
         "metadata_remaining_missing": int(metadata["remaining_missing_count"]),
+        "platform_shell_version": str(platform["shell_version"]),
+        "platform_html_pages_seen": int(platform["html_pages_seen"]),
+        "platform_html_pages_normalized_or_current": int(platform["html_pages_normalized_or_current"]),
+        "platform_normalization_counts": platform["counts"],
         "sitemap_index_version": int(indexing["version"]),
         "sitemap_index_status": str(indexing["status"]),
         "sitemap_index_pages": int(indexing["expected_indexable_pages"]),
