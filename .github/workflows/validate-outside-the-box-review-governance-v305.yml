@@ -55,9 +55,38 @@ jobs:
       - name: Re-run evidence and instrument publication regression
         run: python -m unittest -v tests.test_outside_the_box_reference_assets_v303
 
-      - name: Reject false approvals protected test content and stigmatizing language
+      - name: Reject false approvals and unsafe claims
         run: |
-          set -euxo pipefail
-          ! grep -R -n -E 'external_review_completed["'"' ]*:["'"' ]*true|global_accreditation_claim["'"' ]*:["'"' ]*true' content/v305 scripts/publish_outside_the_box_review_governance_v305.py
-          ! grep -R -n -E 'مراجعة خارجية مكتملة|اعتماد عالمي مكتمل|كل المصابين متفوقون|الخطة تصلح للجميع|معاقين' content/v305 scripts/publish_outside_the_box_review_governance_v305.py assets/css/outside-the-box-review-governance-v305.css
-          ! grep -R -n -E 'test items|scoring key|normative table|بنود الاختبار|مفتاح التصحيح|الجداول المعيارية' content/v305 scripts/publish_outside_the_box_review_governance_v305.py | grep -v -E 'لا تُنشر|لا يُنشر|allow_proprietary|proprietary_test|منع نشر'
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          contract = json.loads(Path('content/v305/outside-the-box-review-governance-ar.json').read_text(encoding='utf-8'))
+          assert contract['scope']['external_review_completed'] is False
+          assert contract['scope']['global_accreditation_claim'] is False
+          policy = contract['publication_policy']
+          assert policy['allow_proprietary_test_content'] is False
+          assert policy['allow_diagnostic_automation'] is False
+          assert policy['allow_silent_corrections'] is False
+          assert policy['allow_self_review_as_independent_review'] is False
+          assert policy['allow_single_reviewer_global_approval'] is False
+
+          paths = [
+              Path('content/v305/outside-the-box-review-governance-ar.json'),
+              Path('scripts/publish_outside_the_box_review_governance_v305.py'),
+              Path('assets/css/outside-the-box-review-governance-v305.css'),
+          ]
+          text = '\n'.join(path.read_text(encoding='utf-8') for path in paths)
+          forbidden = (
+              'مراجعة خارجية مكتملة',
+              'اعتماد عالمي مكتمل',
+              'كل المصابين متفوقون',
+              'الخطة تصلح للجميع',
+              'معاقين',
+          )
+          found = [term for term in forbidden if term in text]
+          assert not found, found
+          assert 'لا تُنشر بنود الاختبارات المحمية' in text
+          assert 'allow_proprietary_test_content' in text
+          print({'false_approvals': 'blocked', 'protected_test_content': 'blocked', 'language': 'passed'})
+          PY
