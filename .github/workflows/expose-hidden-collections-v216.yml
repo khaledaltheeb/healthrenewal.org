@@ -1,4 +1,4 @@
-name: Expose homepage collections and interactive tools v219
+name: Expose homepage collections and interactive tools v220
 
 on:
   pull_request:
@@ -6,12 +6,14 @@ on:
     paths:
       - "scripts/expose_hidden_collections_v216.py"
       - "scripts/expose_daily_tools_home_v219.py"
+      - "scripts/verify_homepage_v19.py"
       - ".github/workflows/expose-hidden-collections-v216.yml"
   push:
     branches: ["main"]
     paths:
       - "scripts/expose_hidden_collections_v216.py"
       - "scripts/expose_daily_tools_home_v219.py"
+      - "scripts/verify_homepage_v19.py"
       - ".github/workflows/expose-hidden-collections-v216.yml"
   workflow_dispatch:
 
@@ -19,7 +21,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: expose-homepage-collections-v219-${{ github.ref }}
+  group: expose-homepage-collections-v220-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -46,10 +48,12 @@ jobs:
           python scripts/expose_daily_tools_home_v219.py
           python scripts/expose_daily_tools_home_v219.py
           python scripts/verify_homepage_v19.py
-          test "$(grep -o 'href="daily-tools/"' index.html | wc -l)" -eq 2
-          test "$(grep -o 'href="learning-paths/"' index.html | wc -l)" -eq 2
+          test "$(grep -o 'href="daily-tools/"' index.html | wc -l)" -ge 3
+          test "$(grep -o 'href="learning-paths/"' index.html | wc -l)" -ge 3
           test "$(grep -o 'data-daily-tools-v219' index.html | wc -l)" -eq 1
           test "$(grep -o 'data-learning-paths-v219' index.html | wc -l)" -eq 1
+          grep -q '100 أداة عربية عملية' index.html
+          grep -q '10 مسارات مترابطة' index.html
           git diff --check
 
       - name: Commit durable source and regression gate
@@ -61,7 +65,7 @@ jobs:
             exit 0
           fi
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "4189826+github-actions[bot]@users.noreply.github.com"
           git add index.html scripts/verify_homepage_v19.py
           git commit -m "ربط الأدوات التفاعلية ومسارات التعلم بمصدر الصفحة الرئيسية"
           git push origin HEAD:main
