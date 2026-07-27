@@ -1,0 +1,215 @@
+name: Verify outside-the-box scientific review live v307
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/verify-outside-the-box-review-live-v307.yml"
+  workflow_run:
+    workflows: ["Deploy validated main to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  live-review-and-quality:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    env:
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      MINIMUM_SHA: a3e69b9575a436f7123cbe14f33eeba182f46449
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Wait for merged release or a newer non-rollback deployment
+        run: |
+          set -euo pipefail
+          matched=0
+          for i in $(seq 1 90); do
+            token="${MINIMUM_SHA}-${i}-$(date +%s)"
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o /tmp/deployment.json; then
+              if python - <<'PY'
+          import json, os, urllib.error, urllib.request
+          from pathlib import Path
+
+          deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          live = deployment.get('commit')
+          minimum = os.environ['MINIMUM_SHA']
+          assert isinstance(live, str) and len(live) == 40, deployment
+          if live == minimum:
+              raise SystemExit(0)
+          request = urllib.request.Request(
+              f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/compare/{minimum}...{live}",
+              headers={
+                  'Authorization': f"Bearer {os.environ['GH_TOKEN']}",
+                  'Accept': 'application/vnd.github+json',
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'User-Agent': 'outside-box-live-review-v307',
+              },
+          )
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  status = json.loads(response.read().decode('utf-8')).get('status')
+          except urllib.error.HTTPError:
+              raise SystemExit(1)
+          raise SystemExit(0 if status in {'ahead', 'identical'} else 1)
+          PY
+              then
+                matched=1
+                break
+              fi
+            fi
+            sleep 10
+          done
+          test "${matched}" -eq 1
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          print({'live_commit': data.get('commit'), 'pwa_pages': data.get('pwa_pages'), 'status': 'v306-or-newer'})
+          PY
+
+      - name: Download live pages APIs and sitemap
+        run: |
+          set -euxo pipefail
+          token="${MINIMUM_SHA}-live-$(date +%s)"
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/?v=${token}" -o /tmp/hub.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/review-governance/?v=${token}" -o /tmp/review.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/quality-audit/?v=${token}" -o /tmp/quality.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/autism/?v=${token}" -o /tmp/autism.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/down-syndrome/?v=${token}" -o /tmp/down.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/cerebral-palsy/?v=${token}" -o /tmp/cp.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/outside-the-box-v254.json?v=${token}" -o /tmp/v254.json
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/outside-the-box-ten-plans-v302.json?v=${token}" -o /tmp/v302.json
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/outside-the-box-review-governance-v305.json?v=${token}" -o /tmp/v305.json
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/outside-the-box-quality-audit-v306.json?v=${token}" -o /tmp/v306.json
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sitemap-outside-the-box.xml?v=${token}" -o /tmp/sitemap.xml
+
+      - name: Enforce the live v305-v306 scientific and technical contract
+        run: |
+          python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          base = 'https://khaledaltheeb.github.io/pterminology-site/'
+          v254 = json.loads(Path('/tmp/v254.json').read_text(encoding='utf-8'))
+          v302 = json.loads(Path('/tmp/v302.json').read_text(encoding='utf-8'))
+          v305 = json.loads(Path('/tmp/v305.json').read_text(encoding='utf-8'))
+          v306 = json.loads(Path('/tmp/v306.json').read_text(encoding='utf-8'))
+
+          assert v305['version'] == 305
+          assert v305['status'] == 'passed'
+          assert v305['condition_count'] == 100
+          assert v305['claim_domain_count'] == 6
+          assert v305['claim_review_count'] == 600
+          assert v305['plans_per_condition'] == 10
+          assert v305['plan_review_count'] == 1000
+          assert v305['independent_reviews_recorded'] == 0
+          assert v305['conditions_approved'] == 0
+          assert v305['plans_approved'] == 0
+          assert v305['external_review_completed'] is False
+          assert v305['global_accreditation_claim'] is False
+          assert v305['diagnostic_automation'] is False
+          assert v305['proprietary_test_items_published'] is False
+          assert len(v305['conditions']) == 100
+          assert [item['rank'] for item in v305['conditions']] == list(range(1, 101))
+          assert len({item['slug'] for item in v305['conditions']}) == 100
+          assert sum(len(item['claim_reviews']) for item in v305['conditions']) == 600
+          assert sum(len(item['plan_reviews']) for item in v305['conditions']) == 1000
+          assert all(item['status'] == 'awaiting-independent-review' for item in v305['conditions'])
+          assert all(item['external_review_completed'] is False for item in v305['conditions'])
+          for condition in v305['conditions']:
+              assert len(condition['claim_reviews']) == 6, condition['slug']
+              assert len(condition['plan_reviews']) == 10, condition['slug']
+              assert [plan['order'] for plan in condition['plan_reviews']] == list(range(1, 11)), condition['slug']
+              assert all(len(item['source_keys']) >= 2 for item in condition['claim_reviews']), condition['slug']
+              assert all(len(item['source_keys']) >= 2 for item in condition['plan_reviews']), condition['slug']
+              assert all(item['reviews'] == [] for item in condition['claim_reviews']), condition['slug']
+              assert all(item['reviews'] == [] for item in condition['plan_reviews']), condition['slug']
+
+          assert v306['version'] == 306
+          assert v306['status'] == 'passed-with-disclosed-warnings'
+          assert v306['critical_error_count'] == 0
+          assert v306['condition_count'] == 100
+          assert v306['condition_pages_audited'] == 100
+          assert v306['plan_cards_audited'] == 1000
+          assert v306['review_markers_audited'] == 100
+          assert v306['broken_internal_link_count'] == 0
+          assert v306['unique_canonical_count'] == 100
+          assert v306['external_review_completed'] is False
+          assert v306['global_accreditation_claim'] is False
+          assert all(v306['api_checks'].values()), v306['api_checks']
+          assert v306['errors'] == []
+          warning_codes = {item['code'] for item in v306['warnings']}
+          assert 'independent-review-incomplete' in warning_codes
+          assert 'source-contract-migration-incomplete' in warning_codes
+
+          for payload in (v254, v302):
+              review = payload['scientific_review_governance']
+              quality = payload['quality_audit']
+              assert review['version'] == 305
+              assert review['condition_count'] == 100
+              assert review['claim_review_count'] == 600
+              assert review['plan_review_count'] == 1000
+              assert review['independent_reviews_recorded'] == 0
+              assert review['external_review_completed'] is False
+              assert quality['version'] == 306
+              assert quality['critical_error_count'] == 0
+              assert quality['condition_pages_audited'] == 100
+              assert quality['plan_cards_audited'] == 1000
+              assert quality['broken_internal_link_count'] == 0
+
+          hub = Path('/tmp/hub.html').read_text(encoding='utf-8')
+          review_page = Path('/tmp/review.html').read_text(encoding='utf-8')
+          quality_page = Path('/tmp/quality.html').read_text(encoding='utf-8')
+          assert 'review-governance/' in hub and 'quality-audit/' in hub
+          assert 'سجل مراجعة مفتوح للحالات المئة والخطط الألف' in hub
+          assert review_page.count('data-review-condition=') == 100
+          assert 'صفر موافقات تخصصية مستقلة' in review_page
+          assert '../quality-audit/' in review_page
+          assert 'تدقيق الجودة والتنسيق والربط لمسارات 100 حالة' in quality_page
+          assert 'الأخطاء الحرجة: 0' in quality_page
+          assert 'ولا يعني اعتمادًا سريريًا' in quality_page
+
+          for page_name in ('autism', 'down', 'cp'):
+              text = Path(f'/tmp/{page_name}.html').read_text(encoding='utf-8')
+              assert text.count('data-ten-plan="') == 10, page_name
+              assert text.count('outside-the-box-review-governance-v305-condition:start') == 1, page_name
+              assert 'لم تُسجل له بعد موافقة تخصصية مستقلة' in text, page_name
+              assert '../review-governance/#condition-' in text, page_name
+
+          sitemap_urls = {
+              (node.text or '').strip()
+              for node in ET.parse('/tmp/sitemap.xml').getroot().findall('{*}url/{*}loc')
+              if node.text
+          }
+          required = {
+              base + 'outside-the-box/',
+              base + 'outside-the-box/review-governance/',
+              base + 'outside-the-box/quality-audit/',
+              base + 'outside-the-box/ten-plan-methodology/',
+              base + 'outside-the-box/instruments/',
+              base + 'outside-the-box/evidence-standard/',
+              base + 'outside-the-box/autism/',
+              base + 'outside-the-box/down-syndrome/',
+              base + 'outside-the-box/cerebral-palsy/',
+          }
+          assert required.issubset(sitemap_urls), sorted(required - sitemap_urls)
+          assert len(sitemap_urls) == len(set(sitemap_urls))
+
+          print({
+              'conditions': v305['condition_count'],
+              'claim_reviews': v305['claim_review_count'],
+              'plan_reviews': v305['plan_review_count'],
+              'independent_reviews': v305['independent_reviews_recorded'],
+              'quality_errors': v306['critical_error_count'],
+              'broken_links': v306['broken_internal_link_count'],
+              'status': 'live-v305-v306-verified',
+          })
+          PY
