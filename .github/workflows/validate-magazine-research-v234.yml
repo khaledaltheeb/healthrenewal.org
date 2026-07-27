@@ -1,4 +1,4 @@
-name: Validate magazine and research v234
+name: Validate magazine continuous research v313
 
 on:
   pull_request:
@@ -17,6 +17,8 @@ on:
       - 'scripts/enforce_platform_identity_v201.py'
       - 'tests/test_magazine_research_v234.py'
       - 'tests/test_platform_identity_v201.py'
+      - '.github/workflows/validate-magazine-research-v234.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -24,6 +26,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-24.04
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -31,73 +34,55 @@ jobs:
           python-version: '3.12'
       - name: Compile publisher and tests
         run: python -m py_compile scripts/publish_magazine_v201.py scripts/enforce_platform_identity_v201.py tests/test_magazine_research_v234.py tests/test_platform_identity_v201.py
-      - name: Verify automatic source inventory and generated index
+      - name: Verify automatic inventory dynamic index and RSS
         run: |
           python - <<'PY'
           import importlib.util
           import sys
+          import xml.etree.ElementTree as ET
           from pathlib import Path
+
           path = Path('scripts/publish_magazine_v201.py')
-          spec = importlib.util.spec_from_file_location('magazine_v234_inventory', path)
+          spec = importlib.util.spec_from_file_location('magazine_v313_inventory', path)
           module = importlib.util.module_from_spec(spec)
           sys.modules[spec.name] = module
           spec.loader.exec_module(module)
           pages = module.article_files()
-          assert len(pages) == 60, [page.name for page in pages]
+          assert module.CONTRACT == 313
+          assert module.TARGET_ARTICLES == 100
+          assert len(pages) == 65, [page.name for page in pages]
           index = module.render_index(pages)
-          assert index.count('class="card"') == 60
-          assert index.count('"@type":"ScholarlyArticle"') == 60
-          assert '"numberOfItems":60' in index
+          feed = module.render_feed(pages)
+          assert index.count('class="card"') == 65
+          assert index.count('"@type":"ScholarlyArticle"') == 65
+          assert '"numberOfItems":65' in index
+          assert 'الهدف المرحلي 100 قراءة' in index
+          assert 'المتبقي 35' in index
+          assert index.count('type="application/rss+xml"') == 1
+          assert len(ET.fromstring(feed).findall('./channel/item')) == 20
           for page in pages:
               assert index.count(f'href="{page.name}"') >= 2, page.name
               assert module.URL + page.name in index, page.name
-          template = Path('magazine/index.html').read_text(encoding='utf-8')
-          assert '<h1>المجلة والأبحاث</h1>' in template
-          assert 'research.css' in template
-          print({'articles': len(pages), 'generated_cards': 60, 'unwired': 0})
+          print({'articles': len(pages), 'generated_cards': 65, 'rss_items': 20, 'target': 100, 'unwired': 0})
           PY
       - name: Run deterministic magazine tests
         run: python -m unittest tests.test_magazine_research_v234 -v
       - name: Run production integration tests
         run: python -m unittest tests.test_platform_identity_v201 -v
-      - name: Verify source contracts
+      - name: Verify source contracts and new primary studies
         run: |
           set -euxo pipefail
           test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 9
-          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 51
-          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 60
-          grep -q '10.1016/j.apmr.2026.06.004' magazine/dcd-school-motor-interventions-meta-analysis-2026.html
-          grep -q '10.1007/s00431-026-07180-2' magazine/dcd-subtypes-systematic-review-2026.html
-          grep -q '10.3390/brainsci16020234' magazine/dcd-action-observation-motor-imagery-review-2026.html
-          grep -q '10.1016/j.jeph.2026.203371' magazine/childhood-vision-impairment-longitudinal-review-2026.html
-          grep -q '10.5498/wjp.v16.i1.111118' magazine/visual-impairment-mental-health-review-2026.html
-          grep -q '10.1016/j.ssmhs.2026.100193' magazine/intellectual-disability-healthcare-transition-review-2026.html
-          grep -q '10.1016/j.arrct.2026.100593' magazine/unilateral-cerebral-palsy-participation-meta-analysis-2026.html
-          grep -q '10.1017/S2045796026100511' magazine/deaf-hard-hearing-adult-mental-disorders-review-2026.html
-          grep -q '10.1136/bmjopen-2025-113327' magazine/dysgraphia-interventions-scoping-review-2026.html
-          grep -q '10.1111/dmcn.70079' magazine/cerebral-palsy-participation-quality-life-study-2026.html
-          grep -q '10.1177/07067437261450738' magazine/autism-parent-act-meta-analysis-2026.html
-          grep -q '10.1177/13623613251407305' magazine/autism-caregiver-adjustment-review-2026.html
-          grep -q '10.1111/jpm.70129' magazine/family-carer-coping-mental-health-meta-analysis-2026.html
-          grep -q '10.1371/journal.pone.0351969' magazine/autism-parent-resilience-factors-review-2026.html
-          grep -q '10.1111/nbu.70047' magazine/autism-family-food-insecurity-meta-analysis-2026.html
-          grep -q '10.1111/jir.70033' magazine/intellectual-disability-youth-healthcare-access-review-2026.html
-          grep -q '10.3389/fresc.2026.1742526' magazine/neurodevelopmental-video-game-interventions-meta-analysis-2026.html
-          grep -q '10.3389/fneur.2026.1827768' magazine/neurodevelopmental-exercise-executive-function-meta-analysis-2026.html
-          grep -q '10.1177/00207640251415506' magazine/neurodevelopmental-sleep-family-wellbeing-review-2026.html
-          grep -q '10.23970/AHRQEPCSR_MEDICALDOWN' magazine/down-syndrome-adult-medical-care-systematic-review-2026.html
-          grep -q '10.1038/s41746-026-02719-x' magazine/aya-cancer-digital-mental-health-meta-analysis-2026.html
-          grep -q '10.1038/s41746-026-02706-2' magazine/adolescent-passive-smartphone-sensing-meta-analysis-2026.html
-          grep -q '10.1038/s41746-026-02341-x' magazine/youth-transdiagnostic-internet-rct-2026.html
-          grep -q '10.1186/s12913-026-14374-9' magazine/down-syndrome-telehealth-systematic-review-2026.html
-          grep -q '10.1038/s44220-026-00616-6' magazine/homeless-youth-mental-disorders-meta-analysis-2026.html
-          grep -q '10.1177/10870547251364578' magazine/adhd-school-social-skills-meta-analysis-2026.html
-          grep -q '10.1186/s13034-026-01132-2' magazine/autism-behavioral-domains-network-meta-analysis-2026.html
-          grep -q '10.1038/s44184-026-00196-4' magazine/neurodivergent-university-mental-health-interventions-2026.html
-          grep -q '10.1038/s41562-025-02162-0' magazine/mobile-stress-interventions-2025.html
-          grep -q 'لم يجد التحليل التلوي آثارًا دالة' magazine/peer-led-adolescent-mental-health-2025.html
-          grep -q 'unwired_research_pages' scripts/publish_magazine_v201.py
-          grep -q 'generated-from-discovered-articles' scripts/publish_magazine_v201.py
+          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 56
+          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 65
+          grep -q '10.1016/j.ridd.2026.105277' magazine/adhd-baduanjin-response-inhibition-rct-2026.html
+          grep -q '10.1186/s12888-026-08274-9' magazine/autism-structured-interactive-play-screening-cohort-2026.html
+          grep -q '10.1016/j.eclinm.2026.103971' magazine/adolescent-depression-one-step-back-rct-2026.html
+          grep -q '10.1080/15374416.2026.2687880' magazine/latinx-adolescent-suicidal-behavior-cbt-rct-2026.html
+          grep -q '10.1111/jcpp.70188' magazine/adhd-personalized-neurofeedback-sham-rct-2026.html
+          grep -q 'TARGET_ARTICLES = 100' scripts/publish_magazine_v201.py
+          grep -q 'continuous_publication_policy' scripts/publish_magazine_v201.py
+          grep -q 'latest-twenty-generated-from-discovered-articles' scripts/publish_magazine_v201.py
           grep -q 'SOURCE_LINK_PATTERN' scripts/publish_magazine_v201.py
           grep -q 'published = report.get("research_summaries_published")' scripts/enforce_platform_identity_v201.py
           grep -q 'Magazine production index contract failed for' scripts/enforce_platform_identity_v201.py

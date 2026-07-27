@@ -1,0 +1,111 @@
+name: Verify magazine continuous publication live v314
+
+on:
+  workflow_run:
+    workflows: ["Deploy validated main to GitHub Pages"]
+    types: [completed]
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: magazine-live-v314
+  cancel-in-progress: true
+
+jobs:
+  live-magazine:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+    steps:
+      - name: Download live magazine contracts
+        run: |
+          set -euxo pipefail
+          token="magazine-v314-$(date +%s)"
+          curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/?v=${token}" -o /tmp/index.html
+          curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/feed.xml?v=${token}" -o /tmp/feed.xml
+          curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/magazine-v201.json?v=${token}" -o /tmp/api.json
+          curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sitemap-magazine.xml?v=${token}" -o /tmp/sitemap.xml
+          for page in \
+            adhd-baduanjin-response-inhibition-rct-2026.html \
+            autism-structured-interactive-play-screening-cohort-2026.html \
+            adolescent-depression-one-step-back-rct-2026.html \
+            latinx-adolescent-suicidal-behavior-cbt-rct-2026.html \
+            adhd-personalized-neurofeedback-sham-rct-2026.html
+          do
+            curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/${page}?v=${token}" -o "/tmp/${page}"
+          done
+
+      - name: Verify live count RSS API sitemap and new readings
+        run: |
+          python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          base = 'https://khaledaltheeb.github.io/pterminology-site/magazine/'
+          api = json.loads(Path('/tmp/api.json').read_text(encoding='utf-8'))
+          assert api['version'] >= 313, api['version']
+          assert api['research_summaries_published'] >= 65
+          assert api['target_research_summaries'] == 100
+          assert api['remaining_to_target'] == max(0, 100 - api['research_summaries_published'])
+          assert api['continuous_publication_policy'] is True
+          assert api['unwired_research_pages'] == 0
+          assert api['rss_contract'] == 'latest-twenty-generated-from-discovered-articles'
+          assert api['robots']['rss_items'] == 20
+
+          index = Path('/tmp/index.html').read_text(encoding='utf-8')
+          assert f'{api["research_summaries_published"]} قراءة علمية مستقلة' in index
+          assert 'الهدف المرحلي 100 قراءة' in index
+          assert 'type="application/rss+xml"' in index
+          assert index.count('class="card"') == api['research_summaries_published']
+          assert index.count('"@type":"ScholarlyArticle"') == api['research_summaries_published']
+
+          feed = ET.parse('/tmp/feed.xml').getroot()
+          items = feed.findall('./channel/item')
+          assert len(items) == 20
+          links = [item.findtext('link') for item in items]
+          assert len(links) == len(set(links))
+          assert all(link and link.startswith(base) for link in links)
+
+          sitemap_urls = [
+              (node.text or '').strip()
+              for node in ET.parse('/tmp/sitemap.xml').getroot().findall('{*}url/{*}loc')
+              if node.text
+          ]
+          assert len(sitemap_urls) == api['research_summaries_published'] + 1
+          assert len(sitemap_urls) == len(set(sitemap_urls))
+          assert base in sitemap_urls
+
+          checks = {
+              'adhd-baduanjin-response-inhibition-rct-2026.html': ('10.1016/j.ridd.2026.105277', '90 طفلًا'),
+              'autism-structured-interactive-play-screening-cohort-2026.html': ('10.1186/s12888-026-08274-9', '0.915'),
+              'adolescent-depression-one-step-back-rct-2026.html': ('10.1016/j.eclinm.2026.103971', 'd=0.61'),
+              'latinx-adolescent-suicidal-behavior-cbt-rct-2026.html': ('10.1080/15374416.2026.2687880', 'RR=0.50'),
+              'adhd-personalized-neurofeedback-sham-rct-2026.html': ('10.1111/jcpp.70188', '80.7%'),
+          }
+          for filename, markers in checks.items():
+              text = Path('/tmp/' + filename).read_text(encoding='utf-8')
+              assert '<html lang="ar" dir="rtl">' in text
+              assert text.lower().count('<h1') == 1
+              assert '<h2>المصدر الأصلي</h2>' in text
+              assert any(term in text for term in ('حدود', 'قيود', 'الحذر'))
+              assert all(marker in text for marker in markers), filename
+              assert base + filename in sitemap_urls
+
+          print({
+              'articles': api['research_summaries_published'],
+              'target': api['target_research_summaries'],
+              'remaining': api['remaining_to_target'],
+              'rss_items': len(items),
+              'sitemap_urls': len(sitemap_urls),
+              'status': 'live-magazine-v314-verified',
+          })
+          PY
