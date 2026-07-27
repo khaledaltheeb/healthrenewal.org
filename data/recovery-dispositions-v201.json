@@ -1,6 +1,6 @@
 {
-  "version": 201,
-  "updated_at": "2026-07-24",
+  "version": 314,
+  "updated_at": "2026-07-27",
   "dispositions": [
     {
       "path": "scripts/publish_institutional_foundation_v192.py",
@@ -116,6 +116,24 @@
       "disposition": "production-source",
       "recommended_action": "retain",
       "reason": "This sector source is explicitly copied into the reconstructed v10 production build by the global contrast workflow before scripts/design_content_v10.py runs. It is a build input rather than an unwired public page."
+    },
+    {
+      "path": "content/sectors-v10/aac-home-school-guide.json",
+      "disposition": "source-only",
+      "recommended_action": "manual-review",
+      "reason": "Git history search found one matching addition commit (45af8668fc66682173118f30d4df1c209ee100e2), and that commit added only this JSON source. The current production reachability audit finds no publisher, route, sitemap, or search connection. Treat it as an unpublished source unless separate historical deployment evidence is produced; do not count it as a missing page and do not publish it automatically."
+    },
+    {
+      "path": "content/sectors-v10/inclusive-school-transition.json",
+      "disposition": "source-only",
+      "recommended_action": "manual-review",
+      "reason": "Git history search found one matching addition commit (02a6c9ae827940b6beb7c235b67021da7ff20d4f), and that commit added only this JSON source. The current production reachability audit finds no publisher, route, sitemap, or search connection. Treat it as an unpublished source unless separate historical deployment evidence is produced; do not count it as a missing page and do not publish it automatically."
+    },
+    {
+      "path": "content/sectors-v10/mental-health-foundations.json",
+      "disposition": "source-only",
+      "recommended_action": "manual-review",
+      "reason": "Git history search found one matching addition commit (e23695d9c03898c271e1dcae44ca6a78b82445f6), and that commit added only this JSON source. Despite the commit wording 'restore', no publisher, route, sitemap, or search connection was included in that commit, and the current production reachability audit finds none. Treat it as an unpublished source unless separate historical deployment evidence is produced; do not count it as a missing page and do not publish it automatically."
     },
     {
       "path": "content/v193/lab-depth-contract-ar.json",
