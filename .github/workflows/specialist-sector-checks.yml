@@ -1,0 +1,81 @@
+name: Specialist sector checks
+
+on:
+  pull_request:
+    paths:
+      - 'specialists-partners/**'
+      - '.github/workflows/specialist-sector-checks.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'specialists-partners/**'
+      - '.github/workflows/specialist-sector-checks.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check specialists-partners/assets/runtime-config.js
+          node --check specialists-partners/assets/sector.js
+          node --check specialists-partners/assets/forms.js
+          node --check specialists-partners/backend/src/index.js
+
+      - name: Validate JSON and HTML
+        run: |
+          python - <<'PY'
+          import json
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          for path in [
+              'specialists-partners/data/providers.json',
+              'specialists-partners/data/provider.schema.json',
+          ]:
+              with open(path, encoding='utf-8') as stream:
+                  json.load(stream)
+
+          for path in [
+              'specialists-partners/index.html',
+              'specialists-partners/join.html',
+              'specialists-partners/contact.html',
+              'specialists-partners/portal/index.html',
+          ]:
+              parser = HTMLParser()
+              parser.feed(Path(path).read_text(encoding='utf-8'))
+          PY
+
+      - name: Validate D1 migration with SQLite
+        run: |
+          python - <<'PY'
+          import sqlite3
+          from pathlib import Path
+          sql = Path('specialists-partners/backend/migrations/0001_initial.sql').read_text(encoding='utf-8')
+          db = sqlite3.connect(':memory:')
+          db.executescript(sql)
+          tables = {row[0] for row in db.execute("select name from sqlite_master where type='table'")}
+          expected = {'providers_private','applications','conversations','conversation_tokens','messages','rate_limits','audit_log'}
+          missing = expected - tables
+          if missing:
+              raise SystemExit(f'Missing tables: {sorted(missing)}')
+          PY
+
+      - name: Check forbidden private fields in public directory
+        run: |
+          python - <<'PY'
+          import json
+          data=json.load(open('specialists-partners/data/providers.json',encoding='utf-8'))
+          forbidden={'privateEmail','privatePhone','identityDocument','certificateImage','signature'}
+          for provider in data.get('providers',[]):
+              overlap=forbidden.intersection(provider)
+              if overlap:
+                  raise SystemExit(f"Public provider {provider.get('id')} contains private fields: {sorted(overlap)}")
+          PY
