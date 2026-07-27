@@ -1,0 +1,117 @@
+# Final validation after synchronization with current main.
+name: Validate outside-the-box review governance and quality audit v306
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v305/outside-the-box-review-governance-ar.json"
+      - "scripts/publish_outside_the_box_review_governance_v305.py"
+      - "scripts/audit_outside_the_box_quality_v306.py"
+      - "assets/css/outside-the-box-review-governance-v305.css"
+      - "tests/test_outside_the_box_review_governance_v305.py"
+      - "tests/test_outside_the_box_quality_audit_v306.py"
+      - "scripts/apply_homepage_v20.py"
+      - ".github/ISSUE_TEMPLATE/outside-the-box-scientific-review.yml"
+      - ".github/workflows/validate-outside-the-box-review-governance-v305.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "content/v305/outside-the-box-review-governance-ar.json"
+      - "scripts/publish_outside_the_box_review_governance_v305.py"
+      - "scripts/audit_outside_the_box_quality_v306.py"
+      - "assets/css/outside-the-box-review-governance-v305.css"
+      - "tests/test_outside_the_box_review_governance_v305.py"
+      - "tests/test_outside_the_box_quality_audit_v306.py"
+      - "scripts/apply_homepage_v20.py"
+      - ".github/ISSUE_TEMPLATE/outside-the-box-scientific-review.yml"
+      - ".github/workflows/validate-outside-the-box-review-governance-v305.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scientific-review-governance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate machine contracts and compile publishers
+        run: |
+          set -euxo pipefail
+          python -m json.tool content/v254/outside-the-box-conditions-ar.json >/dev/null
+          python -m json.tool content/v302/outside-the-box-ten-plan-framework-ar.json >/dev/null
+          python -m json.tool content/v305/outside-the-box-review-governance-ar.json >/dev/null
+          python -m py_compile scripts/publish_outside_the_box_v254.py
+          python -m py_compile scripts/publish_outside_the_box_ten_plans_v302.py
+          python -m py_compile scripts/publish_outside_the_box_reference_assets_v303.py
+          python -m py_compile scripts/publish_outside_the_box_review_governance_v305.py
+          python -m py_compile scripts/audit_outside_the_box_quality_v306.py
+          python -m py_compile scripts/apply_homepage_v20.py
+          python -m py_compile tests/test_outside_the_box_review_governance_v305.py
+          python -m py_compile tests/test_outside_the_box_quality_audit_v306.py
+
+      - name: Validate review contract and exact 100-condition 1000-plan register
+        run: python -m unittest -v tests.test_outside_the_box_review_governance_v305
+
+      - name: Audit 100 pages 1000 plans links SEO accessibility and APIs
+        run: python -m unittest -v tests.test_outside_the_box_quality_audit_v306.OutsideBoxQualityAuditV306.test_audit_covers_pages_plans_links_seo_and_apis
+
+      - name: Validate quality report API and sitemap integration
+        run: python -m unittest -v tests.test_outside_the_box_quality_audit_v306.OutsideBoxQualityAuditV306.test_quality_report_is_integrated_into_apis_and_sitemap
+
+      - name: Validate deterministic repeat publication
+        run: python -m unittest -v tests.test_outside_the_box_quality_audit_v306.OutsideBoxQualityAuditV306.test_audit_publication_is_idempotent
+
+      - name: Prove broken internal links are rejected
+        run: python -m unittest -v tests.test_outside_the_box_quality_audit_v306.OutsideBoxQualityAuditV306.test_auditor_rejects_a_broken_internal_link
+
+      - name: Re-run ten-plan regression contract
+        run: python -m unittest -v tests.test_outside_the_box_ten_plans_v302
+
+      - name: Re-run evidence and instrument publication regression
+        run: python -m unittest -v tests.test_outside_the_box_reference_assets_v303
+
+      - name: Reject false approvals and unsafe claims
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          contract_path = Path('content/v305/outside-the-box-review-governance-ar.json')
+          contract = json.loads(contract_path.read_text(encoding='utf-8'))
+          assert contract['scope']['external_review_completed'] is False
+          assert contract['scope']['global_accreditation_claim'] is False
+          policy = contract['publication_policy']
+          assert policy['allow_proprietary_test_content'] is False
+          assert policy['allow_diagnostic_automation'] is False
+          assert policy['allow_silent_corrections'] is False
+          assert policy['allow_self_review_as_independent_review'] is False
+          assert policy['allow_single_reviewer_global_approval'] is False
+
+          public_source_text = '\n'.join([
+              contract_path.read_text(encoding='utf-8'),
+              Path('assets/css/outside-the-box-review-governance-v305.css').read_text(encoding='utf-8'),
+          ])
+          forbidden = (
+              'مراجعة خارجية مكتملة',
+              'اعتماد عالمي مكتمل',
+              'كل المصابين متفوقون',
+              'الخطة تصلح للجميع',
+              'معاقين',
+          )
+          found = [term for term in forbidden if term in public_source_text]
+          assert not found, found
+          assert 'لا تُنشر بنود الاختبارات المحمية' in public_source_text
+
+          publisher = Path('scripts/publish_outside_the_box_review_governance_v305.py').read_text(encoding='utf-8')
+          auditor = Path('scripts/audit_outside_the_box_quality_v306.py').read_text(encoding='utf-8')
+          assert 'proprietary_test_items_published' in publisher
+          assert 'diagnostic_automation' in publisher
+          assert 'forbidden =' in publisher
+          assert 'broken_internal_link_count' in auditor
+          assert 'global_accreditation_claim' in auditor
+          print({'false_approvals': 'blocked', 'protected_test_content': 'blocked', 'language': 'passed', 'quality_audit': 'wired'})
+          PY
