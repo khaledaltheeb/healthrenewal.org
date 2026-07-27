@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import publish_evidence_literacy_library_v322_core as core
+from publish_academic_library_v326 import publish as publish_academic_library
 from publish_evidence_literacy_library_v322_core import *  # noqa: F401,F403
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -72,6 +73,95 @@ def publish_special_needs_sitemap(site: Path) -> None:
         raise SystemExit("Special-needs sitemap foundation contract failed")
 
 
+def trim_academic_sitemap_to_new_entries(site: Path) -> int:
+    path = site / "sitemap-library-academic-v326.xml"
+    if not path.is_file():
+        raise SystemExit(f"Missing academic sitemap: {path}")
+    tree = ET.parse(path)
+    root = tree.getroot()
+    if root.tag.rsplit("}", 1)[-1] != "urlset":
+        raise SystemExit("Academic library sitemap must be a urlset")
+
+    already_registered = {
+        "https://khaledaltheeb.github.io/pterminology-site/library/",
+        "https://khaledaltheeb.github.io/pterminology-site/library/branches/",
+        "https://khaledaltheeb.github.io/pterminology-site/library/therapies/",
+        "https://khaledaltheeb.github.io/pterminology-site/library/research/",
+    }
+    removed: set[str] = set()
+    for node in list(root.findall("{*}url")):
+        loc = node.find("{*}loc")
+        url = (loc.text or "").strip() if loc is not None else ""
+        if url in already_registered:
+            root.remove(node)
+            removed.add(url)
+
+    urls = [
+        (node.text or "").strip()
+        for node in root.findall("{*}url/{*}loc")
+        if node.text
+    ]
+    if removed != already_registered:
+        raise SystemExit({"academic_sitemap_expected_duplicates_not_found": sorted(already_registered - removed)})
+    if len(urls) != 80 or len(urls) != len(set(urls)):
+        raise SystemExit({"academic_sitemap_entry_contract_failed": {"count": len(urls), "unique": len(set(urls))}})
+    if any(url.count("/") < 6 for url in urls):
+        raise SystemExit("Academic sitemap contains a non-entry route")
+    tree.write(path, encoding="utf-8", xml_declaration=True)
+    return len(urls)
+
+
+def restore_evidence_library_parent_contract(site: Path) -> None:
+    path = site / "library" / "index.html"
+    if not path.is_file():
+        raise SystemExit(f"Missing academic library index: {path}")
+    source = path.read_text(encoding="utf-8")
+    marker = core.PARENT_MARKER
+
+    footer_link = f' · <a href="{core.BP}library/evidence-literacy/">الثقافة العلمية</a>'
+    if footer_link in source:
+        source = source.replace(footer_link, "", 1)
+
+    section_needle = '<section class="wrap grid">'
+    section_replacement = f'<section class="wrap grid" {marker}>'
+    if marker not in source:
+        if source.count(section_needle) != 1:
+            raise SystemExit({"evidence_parent_section_contract_failed": source.count(section_needle)})
+        source = source.replace(section_needle, section_replacement, 1)
+
+    evidence_url = f'{core.BP}library/evidence-literacy/'
+    if source.count(marker) != 1 or source.count(evidence_url) != 1:
+        raise SystemExit(
+            {
+                "evidence_parent_contract_failed": {
+                    "markers": source.count(marker),
+                    "links": source.count(evidence_url),
+                }
+            }
+        )
+    path.write_text(source, encoding="utf-8")
+
+
+def ensure_academic_seo_keyword_seed(site: Path) -> None:
+    path = site / "library" / "therapies" / "psychoeducation" / "index.html"
+    if not path.is_file():
+        raise SystemExit(f"Missing psychoeducation entry: {path}")
+    source = path.read_text(encoding="utf-8")
+    marker = 'name="keywords"'
+    keyword_tag = (
+        '<meta name="keywords" content="برامج التثقيف النفسي المنظمة, '
+        'خطة الوقاية من الانتكاس, دعم الأسرة في العلاج النفسي">'
+    )
+    if marker not in source:
+        if source.count("</head>") != 1:
+            raise SystemExit("Psychoeducation page must contain exactly one closing head tag")
+        source = source.replace("</head>", keyword_tag + "</head>", 1)
+        path.write_text(source, encoding="utf-8")
+    updated = path.read_text(encoding="utf-8")
+    if updated.count(marker) != 1 or "برامج التثقيف النفسي المنظمة" not in updated:
+        raise SystemExit("Psychoeducation SEO keyword seed contract failed")
+
+
 def publish(site: Path) -> dict:
     static_words = {
         slug: publish_static_page(site, slug, contract)
@@ -80,6 +170,21 @@ def publish(site: Path) -> dict:
     publish_special_needs_sitemap(site)
     report = core.publish(site)
     core.update_sitemap(site, ["/trust/", "/start-here/"], report["reviewed_at"])
+
+    academic = publish_academic_library(site)
+    expected_sections = {"branches": 25, "therapies": 27, "research": 28}
+    if academic.get("version") != 326 or academic.get("status") != "passed":
+        raise SystemExit({"invalid_academic_library_v326": academic})
+    if academic.get("sections") != expected_sections:
+        raise SystemExit({"academic_library_section_contract_failed": academic})
+    if academic.get("total_entries") != 80 or academic.get("generated_pages") != 84:
+        raise SystemExit({"academic_library_inventory_failed": academic})
+    if int(academic.get("minimum_page_words", 0)) < 180:
+        raise SystemExit({"academic_library_depth_failed": academic})
+    academic_sitemap_entries = trim_academic_sitemap_to_new_entries(site)
+    restore_evidence_library_parent_contract(site)
+    ensure_academic_seo_keyword_seed(site)
+
     report.update(
         {
             "trust_page_published": True,
@@ -96,6 +201,17 @@ def publish(site: Path) -> dict:
             "special_needs_hub_words": static_words["special-needs"],
             "special_needs_hub_review_status": "internally-reviewed-external-specialist-review-required",
             "special_needs_sitemap_published": True,
+            "academic_library_version": academic["version"],
+            "academic_library_review_status": academic["review_status"],
+            "academic_library_sections": academic["sections"],
+            "academic_library_total_entries": academic["total_entries"],
+            "academic_library_generated_pages": academic["generated_pages"],
+            "academic_library_minimum_page_words": academic["minimum_page_words"],
+            "academic_library_source_registry": academic["source_registry"],
+            "academic_library_sitemap": academic["sitemap"],
+            "academic_library_sitemap_entries": academic_sitemap_entries,
+            "evidence_library_parent_marker_preserved": True,
+            "academic_library_seo_keyword_seeded": True,
         }
     )
     api_path = site / "api" / "evidence-literacy-library-v322.json"
