@@ -1,0 +1,70 @@
+name: Validate autism clinical pathways v324
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v324/autism-clinical-pathways-ar.json.gz"
+      - "scripts/publish_autism_clinical_pathways_v324.py"
+      - "scripts/publish_special_needs_guides_v217.py"
+      - "scripts/publish_special_needs_guides_v217_pipeline_core.py"
+      - "tests/test_autism_clinical_pathways_v324.py"
+      - "tests/test_autism_clinical_pathways_integration_v324.py"
+      - ".github/workflows/validate-autism-clinical-pathways-v324.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: autism-clinical-pathways-v324-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-source-and-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publishers and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_autism_clinical_pathways_v324.py \
+            scripts/publish_special_needs_guides_v217.py \
+            scripts/publish_special_needs_guides_v217_pipeline_core.py \
+            tests/test_autism_clinical_pathways_v324.py \
+            tests/test_autism_clinical_pathways_integration_v324.py
+      - name: Validate compressed source and page contracts
+        run: |
+          set -o pipefail
+          python -m unittest -v \
+            tests.test_autism_clinical_pathways_v324 \
+            > /tmp/autism-clinical-v324-unit.log 2>&1 || {
+              tail -n 260 /tmp/autism-clinical-v324-unit.log
+              exit 1
+            }
+          tail -n 100 /tmp/autism-clinical-v324-unit.log
+      - name: Validate exact central production integration
+        run: |
+          set -o pipefail
+          python -m unittest -v \
+            tests.test_autism_clinical_pathways_integration_v324 \
+            > /tmp/autism-clinical-v324-integration.log 2>&1 || {
+              tail -n 320 /tmp/autism-clinical-v324-integration.log
+              exit 1
+            }
+          tail -n 120 /tmp/autism-clinical-v324-integration.log
+      - name: Upload failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autism-clinical-pathways-v324-failure
+          path: |
+            /tmp/autism-clinical-v324-unit.log
+            /tmp/autism-clinical-v324-integration.log
+          if-no-files-found: ignore
+          retention-days: 7
