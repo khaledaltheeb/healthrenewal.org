@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -104,10 +105,19 @@ def ensure_homepage_developers_link(site: Path) -> bool:
         f'<a href="developers/" {HOME_LINK_MARKER}>'
         "واجهة المطورين والتكامل</a>"
     )
-    footer_marker = '<div class="footer-links">'
-    if footer_marker not in text:
+
+    # The institutional homepage may use a semantic nav, div, or another
+    # suitable container. Discovery must depend on the stable class contract,
+    # not on one historical HTML tag.
+    match = re.search(
+        r'<(?P<tag>[a-zA-Z][\w:-]*)\b(?P<attrs>[^>]*\bclass="[^"]*\bfooter-links\b[^"]*"[^>]*)>',
+        text,
+        flags=re.I,
+    )
+    if not match:
         raise PublicApiError("homepage footer links container is missing")
-    text = text.replace(footer_marker, footer_marker + anchor, 1)
+    opening = match.group(0)
+    text = text[: match.end()] + anchor + text[match.end() :]
     homepage.write_text(text, encoding="utf-8")
     return True
 
