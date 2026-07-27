@@ -40,4 +40,10 @@ jobs:
           python -m py_compile tests/test_outside_the_box_ten_plans_v302.py
 
       - name: Enforce 100 conditions and 1000 complete plan instances
-        run: python -m unittest -v tests/test_outside_the_box_ten_plans_v302.py
+        run: |
+          set -o pipefail
+          if ! python -m unittest tests/test_outside_the_box_ten_plans_v302.py > /tmp/ten-plans-test.log 2>&1; then
+            tail -80 /tmp/ten-plans-test.log
+            exit 1
+          fi
+          cat /tmp/ten-plans-test.log
