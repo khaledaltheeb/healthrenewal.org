@@ -83,4 +83,14 @@ jobs:
       - name: Validate v214 depth sources language and idempotence
         run: python -m unittest -v tests.test_special_needs_guides_v214
       - name: Validate five-batch production integration
-        run: python -m unittest -v tests.test_special_needs_guides_v221_integration
+        run: |
+          python -m unittest -v tests.test_special_needs_guides_v221_integration > /tmp/special-needs-v221-integration.log 2>&1 || { tail -n 140 /tmp/special-needs-v221-integration.log; exit 1; }
+          tail -n 30 /tmp/special-needs-v221-integration.log
+      - name: Upload five-batch integration failure log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-needs-v221-integration-failure-log
+          path: /tmp/special-needs-v221-integration.log
+          if-no-files-found: ignore
+          retention-days: 7
