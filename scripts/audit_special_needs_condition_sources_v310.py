@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 from collections import Counter
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qsl, urlparse
@@ -14,12 +14,12 @@ CONDITION_FILES = (
     ROOT / "content" / "v302" / "autism-ar.json",
     ROOT / "content" / "v302" / "down-syndrome-ar.json",
 )
+MAINTENANCE = ROOT / "content" / "v310" / "special-needs-condition-source-maintenance-ar.json"
 VERSION = 310
 ALLOWED_LEVELS = {"S1", "S2", "S3", "S4", "S5"}
 TRACKING_PARAMETERS = {"fbclid", "gclid", "mc_cid", "mc_eid"}
 SHORTENER_HOSTS = {"bit.ly", "tinyurl.com", "t.co", "goo.gl", "ow.ly", "buff.ly"}
-REVIEW_INTERVAL_DAYS = 180
-MAX_REVIEW_AGE_DAYS = 730
+MAX_METADATA_CHECK_AGE_DAYS = 365
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -55,7 +55,57 @@ def validate_url(value: Any, source_id: str) -> tuple[str, tuple[str, ...]]:
     return host, parameters
 
 
-def audit_condition(path: Path, today: date) -> dict[str, Any]:
+def load_maintenance(today: date) -> dict[str, Any]:
+    data = read_json(MAINTENANCE)
+    if data.get("version") != VERSION or data.get("language") != "ar":
+        raise SystemExit("Source maintenance manifest contract failed")
+    if data.get("check_scope") != "metadata-url-citation-mapping":
+        raise SystemExit("Source maintenance scope must remain explicit")
+    if data.get("external_http_status_check_completed") is not False:
+        raise SystemExit("Do not claim a live HTTP check without a dedicated network audit")
+    checked_at = parse_iso_date(data.get("checked_at"), "maintenance/checked_at")
+    next_due = parse_iso_date(data.get("next_check_due"), "maintenance/next_check_due")
+    if checked_at > today or next_due <= checked_at:
+        raise SystemExit("Source maintenance dates are invalid")
+    check_age = (today - checked_at).days
+    if check_age > MAX_METADATA_CHECK_AGE_DAYS:
+        raise SystemExit(f"Condition source metadata check is too old: {check_age} days")
+    conditions = data.get("conditions")
+    if not isinstance(conditions, dict) or set(conditions) != {"autism", "down-syndrome"}:
+        raise SystemExit("Source maintenance manifest must cover both conditions")
+    ids_by_slug: dict[str, set[str]] = {}
+    all_ids: set[str] = set()
+    for slug, item in conditions.items():
+        source_ids = item.get("source_ids") if isinstance(item, dict) else None
+        if not isinstance(source_ids, list) or not source_ids:
+            raise SystemExit(f"Maintenance source ids are missing: {slug}")
+        normalized = {str(source_id) for source_id in source_ids}
+        if len(normalized) != len(source_ids):
+            raise SystemExit(f"Duplicate maintenance source id: {slug}")
+        overlap = all_ids.intersection(normalized)
+        if overlap:
+            raise SystemExit(f"Source ids cannot appear under both conditions: {sorted(overlap)}")
+        all_ids.update(normalized)
+        ids_by_slug[slug] = normalized
+    return {
+        "checked_at": checked_at,
+        "next_due": next_due,
+        "check_age_days": check_age,
+        "maintenance_overdue": today > next_due,
+        "due_within_30_days": 0 <= (next_due - today).days <= 30,
+        "ids_by_slug": ids_by_slug,
+        "external_http_status_check_completed": False,
+        "source_file": MAINTENANCE.relative_to(ROOT).as_posix(),
+    }
+
+
+def audit_condition(
+    path: Path,
+    today: date,
+    maintenance_ids: set[str],
+    checked_at: date,
+    next_due: date,
+) -> dict[str, Any]:
     data = read_json(path)
     slug = str(data.get("slug", "")).strip()
     if slug not in {"autism", "down-syndrome"}:
@@ -69,10 +119,7 @@ def audit_condition(path: Path, today: date) -> dict[str, Any]:
     ids: set[str] = set()
     urls: set[str] = set()
     hosts: set[str] = set()
-    due_within_30: list[str] = []
-    overdue: list[str] = []
-    ages: list[int] = []
-    review_due: dict[str, str] = {}
+    source_ages: list[int] = []
     level_counts: Counter[str] = Counter()
     source_rows: list[dict[str, Any]] = []
 
@@ -99,30 +146,27 @@ def audit_condition(path: Path, today: date) -> dict[str, Any]:
         if level not in ALLOWED_LEVELS:
             raise SystemExit(f"Invalid evidence level: {slug}/{source_id}/{level}")
         level_counts[level] += 1
-        reviewed = parse_iso_date(source["reviewed"], f"{slug}/{source_id}/reviewed")
-        if reviewed > today:
-            raise SystemExit(f"Source review date cannot be in the future: {slug}/{source_id}/{reviewed}")
-        age = (today - reviewed).days
-        if age > MAX_REVIEW_AGE_DAYS:
-            raise SystemExit(f"Source review is too old for publication: {slug}/{source_id}/{age} days")
-        ages.append(age)
-        due = reviewed + timedelta(days=REVIEW_INTERVAL_DAYS)
-        review_due[source_id] = due.isoformat()
-        if due < today:
-            overdue.append(source_id)
-        elif (due - today).days <= 30:
-            due_within_30.append(source_id)
+        source_date = parse_iso_date(source["reviewed"], f"{slug}/{source_id}/source-date")
+        if source_date > today:
+            raise SystemExit(f"Source publication or guideline date cannot be in the future: {slug}/{source_id}/{source_date}")
+        source_ages.append((today - source_date).days)
         source_rows.append(
             {
                 "id": source_id,
                 "host": host,
                 "level": level,
-                "reviewed": reviewed.isoformat(),
-                "next_review_due": due.isoformat(),
+                "source_date": source_date.isoformat(),
+                "metadata_checked_at": checked_at.isoformat(),
+                "next_metadata_check_due": next_due.isoformat(),
                 "query_parameter_count": len(parameters),
             }
         )
 
+    if ids != maintenance_ids:
+        raise SystemExit(
+            f"Maintenance manifest and condition source ids differ: {slug}/"
+            f"missing={sorted(ids - maintenance_ids)}/unknown={sorted(maintenance_ids - ids)}"
+        )
     if len(hosts) < 3:
         raise SystemExit(f"Condition sources need domain diversity: {slug}/{sorted(hosts)}")
 
@@ -149,9 +193,9 @@ def audit_condition(path: Path, today: date) -> dict[str, Any]:
         "distinct_host_count": len(hosts),
         "hosts": sorted(hosts),
         "level_counts": dict(sorted(level_counts.items())),
-        "maximum_review_age_days": max(ages),
-        "overdue_source_ids": sorted(overdue),
-        "due_within_30_days": sorted(due_within_30),
+        "maximum_source_age_days": max(source_ages),
+        "metadata_checked_at": checked_at.isoformat(),
+        "next_metadata_check_due": next_due.isoformat(),
         "source_usage": dict(sorted(usage.items())),
         "sources": source_rows,
     }
@@ -159,21 +203,39 @@ def audit_condition(path: Path, today: date) -> dict[str, Any]:
 
 def audit(today: date | None = None) -> dict[str, Any]:
     today = today or date.today()
-    conditions = [audit_condition(path, today) for path in CONDITION_FILES]
+    maintenance = load_maintenance(today)
+    conditions = []
+    for path in CONDITION_FILES:
+        raw = read_json(path)
+        slug = str(raw.get("slug", "")).strip()
+        conditions.append(
+            audit_condition(
+                path,
+                today,
+                maintenance["ids_by_slug"].get(slug, set()),
+                maintenance["checked_at"],
+                maintenance["next_due"],
+            )
+        )
     all_rows = [row for condition in conditions for row in condition["sources"]]
     hosts = {row["host"] for row in all_rows}
     return {
         "version": VERSION,
         "status": "passed",
         "checked_at": today.isoformat(),
-        "review_interval_days": REVIEW_INTERVAL_DAYS,
-        "maximum_allowed_review_age_days": MAX_REVIEW_AGE_DAYS,
+        "metadata_checked_at": maintenance["checked_at"].isoformat(),
+        "next_metadata_check_due": maintenance["next_due"].isoformat(),
+        "metadata_check_age_days": maintenance["check_age_days"],
+        "maximum_allowed_metadata_check_age_days": MAX_METADATA_CHECK_AGE_DAYS,
+        "maintenance_overdue": maintenance["maintenance_overdue"],
+        "due_within_30_days": maintenance["due_within_30_days"],
+        "external_http_status_check_completed": maintenance["external_http_status_check_completed"],
+        "maintenance_source": maintenance["source_file"],
         "condition_count": len(conditions),
         "condition_slugs": [condition["slug"] for condition in conditions],
         "source_count": sum(condition["source_count"] for condition in conditions),
         "distinct_host_count": len(hosts),
-        "overdue_source_count": sum(len(condition["overdue_source_ids"]) for condition in conditions),
-        "due_within_30_days_count": sum(len(condition["due_within_30_days"]) for condition in conditions),
+        "maximum_source_age_days": max(condition["maximum_source_age_days"] for condition in conditions),
         "conditions": conditions,
     }
 
