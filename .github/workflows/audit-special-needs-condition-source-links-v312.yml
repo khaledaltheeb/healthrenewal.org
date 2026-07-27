@@ -6,7 +6,10 @@ on:
     paths:
       - "content/v302/autism-ar.json"
       - "content/v302/down-syndrome-ar.json"
+      - "content/v312/special-needs-condition-source-url-overrides.json"
+      - "scripts/publish_special_needs_condition_hubs_v302.py"
       - "scripts/audit_special_needs_condition_source_http_v312.py"
+      - "tests/test_special_needs_condition_hubs_v302.py"
       - "tests/test_special_needs_condition_source_http_v312.py"
       - ".github/workflows/audit-special-needs-condition-source-links-v312.yml"
   schedule:
@@ -29,10 +32,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Compile and validate classification policy
+      - name: Compile and validate classification and override policy
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/audit_special_needs_condition_source_http_v312.py tests/test_special_needs_condition_source_http_v312.py
+          python -m json.tool content/v312/special-needs-condition-source-url-overrides.json >/dev/null
+          python -m py_compile \
+            scripts/publish_special_needs_condition_hubs_v302.py \
+            scripts/audit_special_needs_condition_source_http_v312.py \
+            tests/test_special_needs_condition_hubs_v302.py \
+            tests/test_special_needs_condition_source_http_v312.py
           python -m unittest -v tests.test_special_needs_condition_source_http_v312
       - name: Probe all seventeen external source URLs
         run: |
@@ -64,6 +72,7 @@ jobs:
               'status': report.get('status'),
               'checked_at': report.get('checked_at'),
               'source_count': report.get('source_count'),
+              'source_url_override_count': report.get('source_url_override_count'),
               'blocking_count': report.get('blocking_count'),
               'blocking_source_ids': report.get('blocking_source_ids'),
               'observations': observations,
