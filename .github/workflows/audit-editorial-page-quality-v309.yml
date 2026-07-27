@@ -1,0 +1,171 @@
+name: Audit editorial page quality score v309
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/audit_editorial_page_quality_v309.py"
+      - ".github/workflows/audit-editorial-page-quality-v309.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/audit_editorial_page_quality_v309.py"
+      - ".github/workflows/audit-editorial-page-quality-v309.yml"
+  workflow_run:
+    workflows: ["Validate every assessment and cognitive tool v31"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  validate-scoring-contract:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile editorial quality auditor
+        run: python -m py_compile scripts/audit_editorial_page_quality_v309.py
+      - name: Build strong and weak deterministic fixtures
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          root = Path('quality-fixture')
+          base = 'https://khaledaltheeb.github.io/pterminology-site/'
+          strong = root / 'comparisons/strong/index.html'
+          strong.parent.mkdir(parents=True, exist_ok=True)
+          paragraphs = []
+          for index in range(24):
+              paragraphs.append(
+                  f'<p>فقرة تطبيقية مميزة رقم {index + 1} تشرح الفرق والسياق والعوامل والحدود العملية، '
+                  f'وتقدم مثالًا واقعيًا وخطوات قابلة للمراجعة للأسرة والمدرسة والعمل، مع تجنب التشخيص الذاتي '
+                  f'والتأكيد أن التقييم يعتمد على التاريخ والوظيفة ومصادر متعددة لا على علامة واحدة.</p>'
+              )
+          internal_links = ''.join(
+              f'<a href="{base}hubs/topic-{index}/">رابط داخلي {index}</a>' for index in range(1, 10)
+          )
+          strong.write_text(
+              '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">'
+              '<title>مقارنة نفسية تطبيقية موثقة وعميقة</title>'
+              '<meta name="description" content="دليل عربي تطبيقي موثق يشرح الفروق والأمثلة والخطوات ومتى يلزم طلب تقييم مهني دون تشخيص ذاتي.">'
+              f'<link rel="canonical" href="{base}comparisons/strong/">'
+              '<meta property="og:title" content="مقارنة نفسية تطبيقية">'
+              '<meta property="og:description" content="فروق وأمثلة وخطوات عملية موثقة">'
+              '<script type="application/ld+json">{"@type":"Article","dateModified":"2026-07-27"}</script>'
+              '</head><body><main><h1>مقارنة نفسية تطبيقية موثقة وعميقة</h1>'
+              '<h2>الخلاصة وحدود الدليل</h2><p>هذا المحتوى للتثقيف وليس تشخيصًا، ولا يستبدل التقييم المهني. '
+              'توضح إرشادات رسمية أن الأداة الواحدة لا تكفي وقد تختلف الصورة بحسب السياق.</p>'
+              '<h2>المصادر والمراجع</h2><p>إرشادات ودليل سريري، DOI وPMID، آخر تحديث وتاريخ المراجعة.</p>'
+              '<a href="https://www.who.int/">منظمة الصحة العالمية</a>'
+              '<a href="https://www.cdc.gov/">مراكز مكافحة الأمراض</a>'
+              '<a href="https://www.nice.org.uk/">إرشادات NICE</a>'
+              '<h2>خطوات وأمثلة</h2><ul><li>ابدأ بجمع السياق.</li><li>قارن أكثر من بيئة.</li>'
+              '<li>استخدم مثالًا واضحًا.</li><li>حدد مؤشرات طلب المساعدة.</li><li>راجع الخطة.</li></ul>'
+              '<details><summary>أسئلة شائعة</summary><p>سؤال للأسرة والمدرسة والعمل ومتى تطلب تقييمًا.</p></details>'
+              + ''.join(paragraphs) + internal_links + '</main></body></html>',
+              encoding='utf-8',
+          )
+
+          weak = root / 'comparisons/weak/index.html'
+          weak.parent.mkdir(parents=True, exist_ok=True)
+          weak.write_text(
+              '<!doctype html><html lang="ar" dir="rtl"><head><title>صفحة قصيرة</title>'
+              '<meta name="description" content="وصف قصير لصفحة تحتاج إلى ترقية تحريرية واسعة قبل اعتمادها.">'
+              f'<link rel="canonical" href="{base}comparisons/weak/">'
+              '</head><body><main><h1>صفحة قصيرة</h1><p>تعريف عام قصير لا يقدم مصادر أو أمثلة أو خطوات.</p></main></body></html>',
+              encoding='utf-8',
+          )
+          PY
+      - name: Score fixture and validate 100-point arithmetic
+        run: |
+          set -euxo pipefail
+          python scripts/audit_editorial_page_quality_v309.py quality-fixture --minimum-score 80
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads((Path('quality-fixture/api/editorial-page-quality-v309.json')).read_text(encoding='utf-8'))
+          assert report['version'] == 309, report
+          assert report['status'] == 'passed', report
+          assert report['score_type'] == 'editorial-operational-readiness', report
+          assert report['pages_scanned'] == 2, report
+          assert report['parse_error_count'] == 0, report
+          assert report['pages_below_target'] == 1, report
+          pages = {item['path']: item for item in report['pages']}
+          strong = pages['comparisons/strong/index.html']
+          weak = pages['comparisons/weak/index.html']
+          assert strong['score'] >= 80, strong
+          assert weak['score'] < 80, weak
+          for item in pages.values():
+              assert sum(item['components'].values()) == item['score'], item
+              assert sum(item['component_maximums'].values()) == 100, item
+              assert 0 <= item['score'] <= 100, item
+          assert 'not establish medical correctness' in report['caveat'], report
+          assert 'not deleted' in report['policy'], report
+          print({'strong': strong['score'], 'weak': weak['score'], 'below_target': report['pages_below_target']})
+          PY
+      - name: Upload fixture evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: editorial-quality-fixture-v309
+          path: quality-fixture/api/editorial-page-quality-v309.json
+          if-no-files-found: error
+
+  audit-validated-production:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact validated source commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download exact validated production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Score every indexable production page without deleting low-score pages
+        run: |
+          set -euxo pipefail
+          python scripts/audit_editorial_page_quality_v309.py validated-site --minimum-score 80
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads((Path('validated-site/api/editorial-page-quality-v309.json')).read_text(encoding='utf-8'))
+          assert report['version'] == 309, report
+          assert report['status'] == 'passed', report
+          assert report['pages_scanned'] >= 3000, report
+          assert report['parse_error_count'] == 0, report
+          assert report['policy'].startswith('Pages below the target enter an upgrade queue'), report
+          print({
+              'pages': report['pages_scanned'],
+              'average': report['average_score'],
+              'below_target': report['pages_below_target'],
+              'bands': report['bands'],
+          })
+          PY
+      - name: Upload full quality score and priority upgrade queue
+        uses: actions/upload-artifact@v4
+        with:
+          name: editorial-page-quality-v309
+          path: validated-site/api/editorial-page-quality-v309.json
+          if-no-files-found: error
+          retention-days: 14
