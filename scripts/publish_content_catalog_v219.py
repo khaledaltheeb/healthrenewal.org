@@ -17,6 +17,7 @@ STATIC_PUBLIC_ROUTES = (
     "specialists-partners",
     "platform",
     "copyright",
+    "sectors",
 )
 
 
@@ -39,7 +40,6 @@ def seo_targets() -> list[Path]:
     targets = [SITE / "index.html", SITE / "sections/index.html"]
     for route in STATIC_PUBLIC_ROUTES:
         targets.extend(sorted((SITE / route).rglob("*.html")))
-    # Preserve deterministic order while removing duplicates.
     output: list[Path] = []
     seen: set[Path] = set()
     for path in targets:
