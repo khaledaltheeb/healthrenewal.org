@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-27T16:37:40.105185+00:00",
+  "generated_at": "2026-07-27T17:48:20.082920+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -11,10 +11,10 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 105,
-  "html_pages_normalized_or_current": 104,
+  "html_pages_seen": 106,
+  "html_pages_normalized_or_current": 105,
   "counts": {
-    "current": 103,
+    "current": 104,
     "skipped": 1,
     "updated": 1
   },
@@ -111,7 +111,7 @@
     },
     {
       "path": "magazine/autism-aspen-low-resource-parent-intervention-rct-2026.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -542,6 +542,11 @@
     {
       "path": "provider-assessment-demo/training/index.html",
       "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "trust/index.html",
+      "status": "updated",
       "detail": ""
     }
   ]
