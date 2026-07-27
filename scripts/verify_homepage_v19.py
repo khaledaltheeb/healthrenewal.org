@@ -65,6 +65,12 @@ def load_json(relative_path: str) -> dict:
     return json.loads((ROOT / relative_path).read_text(encoding="utf-8"))
 
 
+def parse_semver(value: object) -> tuple[int, int, int]:
+    match = re.fullmatch(r"(\d+)\.(\d+)\.(\d+)", str(value or ""))
+    assert match, f"Invalid platform API semantic version: {value!r}"
+    return tuple(int(part) for part in match.groups())
+
+
 def main() -> None:
     source = INDEX.read_text(encoding="utf-8")
     StrictHTMLParser().feed(source)
@@ -133,9 +139,7 @@ def main() -> None:
     ):
         assert required_meta in source, f"Missing homepage discovery metadata: {required_meta}"
 
-    structured = re.search(
-        r'<script type="application/ld\+json">(.*?)</script>', source, re.DOTALL
-    )
+    structured = re.search(r'<script type="application/ld\+json">(.*?)</script>', source, re.DOTALL)
     assert structured, "Missing JSON-LD"
     payload = json.loads(structured.group(1))
     graph = payload.get("@graph", [])
@@ -164,7 +168,18 @@ def main() -> None:
     course_example = load_json("api/v1/courses.example.json")
     assert manifest.get("name") == BRAND
     assert manifest.get("dir") == "rtl" and manifest.get("lang") == "ar"
-    assert platform.get("apiVersion") == "1.0.0"
+
+    platform_version = parse_semver(platform.get("apiVersion"))
+    assert platform_version[0] == 1 and platform_version >= (1, 0, 0), (
+        f"Unsupported platform API version: {platform.get('apiVersion')}"
+    )
+    if platform_version >= (1, 1, 0):
+        resource_ids = {item.get("id") for item in platform.get("resources", [])}
+        assert "specialists-partners" in resource_ids, "Platform API 1.1+ must expose the specialists directory"
+        assert platform.get("endpoints", {}).get("specialistsPartners", "").endswith(
+            "/api/v1/specialists-partners.json"
+        )
+
     assert openapi.get("openapi") == "3.1.0"
     assert course_schema["properties"]["authorization"]["properties"]["status"]["const"] == "authorized"
     assert course_example["authorization"]["status"] == "authorized"
@@ -175,7 +190,7 @@ def main() -> None:
         json.dumps(
             {
                 "status": "passed",
-                "contract": "institutional-home-discovery-seo-v220",
+                "contract": "institutional-home-discovery-seo-v323",
                 "brand": BRAND,
                 "slogan": SLOGAN,
                 "required_links": len(REQUIRED_LINKS),
@@ -194,6 +209,7 @@ def main() -> None:
                 "interactive_tools_discovery_contract": 220,
                 "operational_copy_hidden": True,
                 "api_version": platform["apiVersion"],
+                "platform_api_major": platform_version[0],
                 "openapi": openapi["openapi"],
                 "lab_tool_count": 93,
                 "light_palette": True,
