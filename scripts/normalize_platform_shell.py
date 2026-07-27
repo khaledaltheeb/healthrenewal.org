@@ -3,7 +3,7 @@
 
 The migration is deliberately idempotent. Existing pages keep their content and
 local navigation; the script adds shared presentation assets, rights metadata,
-and a body marker. It can operate on the repository source tree or on the
+and stable body markers. It can operate on the repository source tree or on the
 generated ``_site`` production artifact.
 
 When the target is a generated artifact, the script also copies the platform
@@ -26,7 +26,7 @@ from typing import Iterable
 
 DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 MARKER = "<!-- pt-platform-shell:v1 -->"
-SHELL_VERSION = "1.0.0"
+SHELL_VERSION = "1.1.0"
 EXCLUDED_PARTS = {
     ".git",
     ".github",
@@ -50,6 +50,7 @@ NO_ENHANCER_PATHS = {
 HEAD_CLOSE_RE = re.compile(r"</head\s*>", re.IGNORECASE)
 BODY_OPEN_RE = re.compile(r"<body\b(?P<attrs>[^>]*)>", re.IGNORECASE)
 CLASS_RE = re.compile(r"\bclass\s*=\s*([\"'])(?P<value>.*?)\1", re.IGNORECASE | re.DOTALL)
+DATA_ATTR_RE_TEMPLATE = r"\s+{name}\s*=\s*([\"']).*?\1"
 PLATFORM_SCRIPT_RE = re.compile(
     r"\s*<script\b[^>]*\bsrc\s*=\s*([\"'])[^\"']*assets/platform/platform-core\.js\?v=[^\"']*\1[^>]*>\s*</script>\s*",
     re.IGNORECASE,
@@ -123,6 +124,23 @@ def enhancer_allowed(path: Path, root: Path) -> bool:
     return path.relative_to(root).as_posix() not in NO_ENHANCER_PATHS
 
 
+def is_home_page(path: Path, root: Path) -> bool:
+    return path.relative_to(root).as_posix() == "index.html"
+
+
+def set_data_attribute(attrs: str, name: str, value: str) -> str:
+    pattern = re.compile(DATA_ATTR_RE_TEMPLATE.format(name=re.escape(name)), re.IGNORECASE | re.DOTALL)
+    replacement = f' {name}="{value}"'
+    if pattern.search(attrs):
+        return pattern.sub(replacement, attrs, count=1)
+    return attrs + replacement
+
+
+def remove_data_attribute(attrs: str, name: str) -> str:
+    pattern = re.compile(DATA_ATTR_RE_TEMPLATE.format(name=re.escape(name)), re.IGNORECASE | re.DOTALL)
+    return pattern.sub("", attrs)
+
+
 def head_injection(path: Path, root: Path, source: str) -> str:
     prefix = relative_prefix(path, root)
     items = [MARKER]
@@ -148,19 +166,27 @@ def head_injection(path: Path, root: Path, source: str) -> str:
 
 
 def normalize_head_assets(source: str, path: Path, root: Path) -> str:
-    """Keep optional enhancer presence aligned with the page runtime contract."""
+    """Keep asset versions and optional enhancer presence aligned with the page contract."""
+
+    prefix = relative_prefix(path, root)
+    css = f'<link rel="stylesheet" href="{prefix}assets/platform/platform-core.css?v={SHELL_VERSION}">'
+    if PLATFORM_CSS_RE.search(source):
+        source = PLATFORM_CSS_RE.sub(css, source, count=1)
+    else:
+        source = HEAD_CLOSE_RE.sub(css + "\n</head>", source, count=1)
 
     if enhancer_allowed(path, root):
-        if not PLATFORM_SCRIPT_RE.search(source):
-            prefix = relative_prefix(path, root)
-            script = f'<script defer src="{prefix}assets/platform/platform-core.js?v={SHELL_VERSION}"></script>\n'
-            source = HEAD_CLOSE_RE.sub(script + "</head>", source, count=1)
+        script = f'<script defer src="{prefix}assets/platform/platform-core.js?v={SHELL_VERSION}"></script>'
+        if PLATFORM_SCRIPT_RE.search(source):
+            source = PLATFORM_SCRIPT_RE.sub("\n" + script + "\n", source, count=1)
+        else:
+            source = HEAD_CLOSE_RE.sub(script + "\n</head>", source, count=1)
         return source
 
     return PLATFORM_SCRIPT_RE.sub("\n", source)
 
 
-def normalize_body(source: str) -> tuple[str, bool]:
+def normalize_body(source: str, path: Path, root: Path) -> tuple[str, bool]:
     match = BODY_OPEN_RE.search(source)
     if not match:
         return source, False
@@ -177,8 +203,16 @@ def normalize_body(source: str) -> tuple[str, bool]:
     else:
         attrs = f'{attrs} class="pt-platform"'
 
-    if "data-pt-normalized" not in attrs:
-        attrs += f' data-pt-normalized="{SHELL_VERSION}"'
+    attrs = set_data_attribute(attrs, "data-pt-normalized", SHELL_VERSION)
+    attrs = set_data_attribute(
+        attrs,
+        "data-pt-enhancer",
+        "true" if enhancer_allowed(path, root) else "false",
+    )
+    if is_home_page(path, root):
+        attrs = set_data_attribute(attrs, "data-pt-home", "true")
+    else:
+        attrs = remove_data_attribute(attrs, "data-pt-home")
 
     opening = f"<body{attrs}>"
     return source[: match.start()] + opening + source[match.end() :], True
@@ -192,7 +226,7 @@ def normalize_file(path: Path, root: Path, *, check_only: bool) -> Result:
         return Result(relative, "error", f"not UTF-8: {exc}")
 
     if MARKER in original:
-        normalized, has_body = normalize_body(original)
+        normalized, has_body = normalize_body(original, path, root)
         if not has_body:
             return Result(relative, "error", "missing <body>")
         normalized = normalize_head_assets(normalized, path, root)
@@ -201,13 +235,13 @@ def normalize_file(path: Path, root: Path, *, check_only: bool) -> Result:
         if check_only:
             return Result(relative, "needs-update", "platform shell drift")
         path.write_text(normalized, encoding="utf-8", newline="\n")
-        detail = "removed optional enhancer for strict application runtime" if not enhancer_allowed(path, root) else "repaired platform shell"
+        detail = "removed optional enhancer for strict application runtime" if not enhancer_allowed(path, root) else "updated stable platform shell"
         return Result(relative, "updated", detail)
 
     if not HEAD_CLOSE_RE.search(original):
         return Result(relative, "skipped", "missing </head>")
 
-    normalized, has_body = normalize_body(original)
+    normalized, has_body = normalize_body(original, path, root)
     if not has_body:
         return Result(relative, "skipped", "missing <body>")
 
