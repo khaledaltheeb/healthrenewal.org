@@ -1,4 +1,4 @@
-name: Deploy publication surface to GitHub Pages
+name: Deploy built publication surface to GitHub Pages
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Checkout production source
         uses: actions/checkout@v4
@@ -30,25 +30,71 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Verify publication entry points
+      - name: Restore generators and compile production sources
         run: |
-          set -euo pipefail
-          test -f index.html
-          test -f sections/index.html
-          test -f sectors/index.html
-          test -f specialists-partners/index.html
-          test -f platform/index.html
-          test -f copyright/index.html
-          grep -q 'data-publication-surface="v322"' index.html
-          grep -q 'فريقنا وشركاؤنا ذوو الاختصاص' index.html
-          grep -q 'الأقسام المتخصصة للصحة النفسية' sectors/index.html
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          python scripts/verify_enricher_v7.py
+          python scripts/verify_expander_v9.py
+          python -m py_compile \
+            build_site.py enrich_site_v7.py expand_site_v9.py \
+            scripts/scale_site_v8.py scripts/design_content_v10.py \
+            scripts/apply_contrast_v11.py scripts/expand_v12_direct.py \
+            scripts/run_encyclopedia_v13.py scripts/performance_hotfix_v14.py \
+            scripts/optimize_site_performance_v14.py scripts/strip_nonlab_runtime_v14.py \
+            scripts/finalize_pwa_v14.py scripts/complete_core_sections_v15.py \
+            scripts/diagnose_apply_homepage_v221.py scripts/polish_site_v16.py \
+            scripts/audit_site_integrity_v13.py scripts/verify_performance_v14.py \
+            scripts/verify_core_sections_v15.py scripts/audit_full_site_i18n_v72.py
 
-      - name: Upload static site artifact
+      - name: Build complete production site
+        run: |
+          set -euxo pipefail
+          python build_site.py
+          python enrich_site_v7.py
+          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+          python scripts/scale_site_v8.py
+          python expand_site_v9.py
+          python scripts/design_content_v10.py
+          python scripts/apply_contrast_v11.py _site
+          python scripts/expand_v12_direct.py _site
+          python scripts/run_encyclopedia_v13.py _site
+          python scripts/performance_hotfix_v14.py _site
+          python scripts/optimize_site_performance_v14.py _site
+          python scripts/strip_nonlab_runtime_v14.py _site
+          python scripts/finalize_pwa_v14.py _site
+          python scripts/complete_core_sections_v15.py _site
+          python scripts/diagnose_apply_homepage_v221.py _site
+          python scripts/polish_site_v16.py _site
+
+      - name: Audit generated production package
+        run: |
+          set -euxo pipefail
+          python scripts/audit_site_integrity_v13.py _site
+          python scripts/verify_performance_v14.py _site
+          python scripts/verify_core_sections_v15.py _site
+          python scripts/audit_full_site_i18n_v72.py _site
+          test -f _site/index.html
+          test -f _site/sections/index.html
+          test -f _site/sectors/index.html
+          test -f _site/specialists-partners/index.html
+          test -f _site/platform/index.html
+          test -f _site/copyright/index.html
+          grep -q 'data-publication-surface="v322"' _site/index.html
+          grep -q 'فريقنا وشركاؤنا ذوو الاختصاص' _site/index.html
+          grep -q 'الأقسام المتخصصة للصحة النفسية' _site/sectors/index.html
+
+      - name: Upload built Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy built site to GitHub Pages
         id: deployment
         continue-on-error: true
         uses: actions/deploy-pages@v4
@@ -70,6 +116,7 @@ jobs:
               "schema_version": 322,
               "status": "deployed" if outcome == "success" else "failed",
               "deployment_outcome": outcome,
+              "artifact": "_site",
               "source_commit": os.environ["GITHUB_SHA"],
               "source_ref": os.environ["GITHUB_REF"],
               "workflow_run_id": os.environ["GITHUB_RUN_ID"],
@@ -88,7 +135,7 @@ jobs:
             echo "Deployment receipt already current"
             exit 0
           fi
-          git commit -m "chore: record Pages deployment outcome"
+          git commit -m "chore: record built Pages deployment outcome"
           git push origin HEAD:main
 
       - name: Fail when Pages deployment failed
