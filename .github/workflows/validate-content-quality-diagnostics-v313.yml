@@ -1,0 +1,35 @@
+name: Validate actionable content quality diagnostics v313
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/audit_content_quality_v32.py"
+      - "tests/test_content_quality_diagnostics_v313.py"
+      - ".github/workflows/validate-content-quality-diagnostics-v313.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/audit_content_quality_v32.py"
+      - "tests/test_content_quality_diagnostics_v313.py"
+      - ".github/workflows/validate-content-quality-diagnostics-v313.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile auditor and regression fixture
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/audit_content_quality_v32.py tests/test_content_quality_diagnostics_v313.py
+      - name: Prove duplicate title and description groups contain exact paths
+        run: python -m unittest -v tests.test_content_quality_diagnostics_v313
