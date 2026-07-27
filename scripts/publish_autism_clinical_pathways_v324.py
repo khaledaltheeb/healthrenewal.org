@@ -13,8 +13,16 @@ import publish_autism_clinical_pathways_v324_core as core
 from publish_autism_clinical_pathways_v324_core import *  # noqa: F401,F403
 
 ROOT = Path(__file__).resolve().parents[1]
+PART_RELATIVE_PATHS = (
+    "content/v324/autism-clinical-pathways-ar.parts/part-01.b64",
+    "content/v324/autism-clinical-pathways-ar.parts/part-02.b64",
+    "content/v324/autism-clinical-pathways-ar.parts/part-03.b64",
+    "content/v324/autism-clinical-pathways-ar.parts/part-04.b64",
+    "content/v324/autism-clinical-pathways-ar.parts/part-05.b64",
+)
+PART_PATHS = tuple(ROOT / relative for relative in PART_RELATIVE_PATHS)
 PARTS_DIR = ROOT / "content" / "v324" / "autism-clinical-pathways-ar.parts"
-PART_NAMES = tuple(f"part-{index:02d}.b64" for index in range(1, 6))
+PART_NAMES = tuple(path.name for path in PART_PATHS)
 EXPECTED_B64_LENGTH = 24652
 EXPECTED_B64_SHA256 = "3a1b4b14d25d67b6f72a50d42d45cabc26382f5841fbd4a7e2d7c11e4a44f2eb"
 EXPECTED_GZIP_SHA256 = "3350205c4f20177d4cb10fc80c5c9058abffc50c3092f1a60efbc9e96913db5b"
@@ -37,13 +45,17 @@ def sha256(data: bytes) -> str:
 def read_payload() -> dict:
     if not PARTS_DIR.is_dir():
         raise SystemExit(f"Missing v324 source-parts directory: {PARTS_DIR}")
-    actual = tuple(sorted(path.name for path in PARTS_DIR.glob("*.b64")))
-    if actual != PART_NAMES:
-        raise SystemExit({"v324_source_parts_mismatch": {"expected": PART_NAMES, "actual": actual}})
+    actual = tuple(
+        sorted(path.relative_to(ROOT).as_posix() for path in PARTS_DIR.glob("*.b64"))
+    )
+    if actual != PART_RELATIVE_PATHS:
+        raise SystemExit(
+            {"v324_source_parts_mismatch": {"expected": PART_RELATIVE_PATHS, "actual": actual}}
+        )
 
     encoded = "".join(
-        "".join((PARTS_DIR / name).read_text(encoding="ascii").split())
-        for name in PART_NAMES
+        "".join(path.read_text(encoding="ascii").split())
+        for path in PART_PATHS
     )
     encoded_bytes = encoded.encode("ascii")
     if len(encoded) != EXPECTED_B64_LENGTH:
@@ -113,7 +125,7 @@ def publish(site: Path) -> dict:
     report["minimum_guide_words"] = min(item["words"] for item in report["pages"])
     report["total_guide_words"] = sum(item["words"] for item in report["pages"])
     report["platform_shell_normalized"] = True
-    report["source_part_count"] = len(PART_NAMES)
+    report["source_part_count"] = len(PART_PATHS)
     report["source_base64_sha256"] = EXPECTED_B64_SHA256
     report["source_gzip_sha256"] = EXPECTED_GZIP_SHA256
     report["source_json_sha256"] = EXPECTED_JSON_SHA256
