@@ -47,9 +47,23 @@ jobs:
         run: python -m json.tool content/v322/evidence-literacy-library-ar.json >/dev/null
       - name: Validate depth evidence boundaries sources discovery idempotence and production hook
         run: |
+          set -o pipefail
           python -m unittest -v \
             tests.test_evidence_literacy_library_v322 \
-            tests.test_core_sections_evidence_literacy_v322
+            tests.test_core_sections_evidence_literacy_v322 \
+            > /tmp/evidence-literacy-v322-tests.log 2>&1 || {
+              tail -n 240 /tmp/evidence-literacy-v322-tests.log
+              exit 1
+            }
+          tail -n 80 /tmp/evidence-literacy-v322-tests.log
+      - name: Upload v322 failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-literacy-v322-failure-log
+          path: /tmp/evidence-literacy-v322-tests.log
+          if-no-files-found: ignore
+          retention-days: 7
 
   audit-validated-production:
     if: >-
