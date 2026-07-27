@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 
 MARKER_CSS = "v11 — global readable contrast layer"
 MARKER_JS = "v11 — runtime contrast guard"
+MARKER_HERO_HEADER = "v282 — deterministic black hero/header text contract"
 VERIFY_NAME = "google644f1f7a8b7aaa2b.html"
 
 
@@ -21,21 +22,27 @@ def main() -> int:
     site = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
     repo = Path(__file__).resolve().parents[1]
     css_source = repo / "content" / "accessibility" / "contrast-v11.css"
+    hero_header_source = repo / "content" / "accessibility" / "hero-header-black-v282.css"
     js_source = repo / "content" / "accessibility" / "contrast-guard-v11.js"
     css_target = site / "assets" / "css" / "theme-v10.css"
     js_target = site / "assets" / "js" / "app-v10.js"
 
-    for required in (site, css_source, js_source, css_target, js_target):
+    for required in (site, css_source, hero_header_source, js_source, css_target, js_target):
         if not required.exists():
             raise SystemExit(f"Missing required path: {required}")
 
     css_payload = css_source.read_text(encoding="utf-8")
+    hero_header_payload = hero_header_source.read_text(encoding="utf-8")
     js_payload = js_source.read_text(encoding="utf-8")
     current_css = css_target.read_text(encoding="utf-8")
     current_js = js_target.read_text(encoding="utf-8")
 
     if MARKER_CSS not in current_css:
-        css_target.write_text(current_css.rstrip() + "\n\n" + css_payload.rstrip() + "\n", encoding="utf-8")
+        current_css = current_css.rstrip() + "\n\n" + css_payload.rstrip() + "\n"
+    if MARKER_HERO_HEADER not in current_css:
+        current_css = current_css.rstrip() + "\n\n" + hero_header_payload.rstrip() + "\n"
+    css_target.write_text(current_css, encoding="utf-8")
+
     if MARKER_JS not in current_js:
         js_target.write_text(current_js.rstrip() + "\n\n" + js_payload.rstrip() + "\n", encoding="utf-8")
 
@@ -73,8 +80,15 @@ def main() -> int:
     target_sentence = "خبرة واسعة تشمل الرضا والمعنى والقدرة على إدارة الانفعالات وبناء علاقات داعمة."
 
     failures: list[str] = []
-    if MARKER_CSS not in css_target.read_text(encoding="utf-8"):
+    rendered_css = css_target.read_text(encoding="utf-8")
+    if MARKER_CSS not in rendered_css:
         failures.append("contrast CSS marker missing")
+    if MARKER_HERO_HEADER not in rendered_css:
+        failures.append("hero/header black CSS marker missing")
+    if "--hero-header-text-v282: #000000" not in rendered_css:
+        failures.append("hero/header pure-black token missing")
+    if ":where(*)" not in hero_header_payload:
+        failures.append("hero/header descendant coverage missing")
     if MARKER_JS not in js_target.read_text(encoding="utf-8"):
         failures.append("contrast JS marker missing")
     if not target.exists():
@@ -96,7 +110,7 @@ def main() -> int:
         failures.append(f"pages without contrast guard JS: {len(unguarded)}")
 
     report = {
-        "version": "v11-contrast",
+        "version": "v282-hero-header-black",
         "html_pages": len(html_files),
         "content_pages": len(content_files),
         "pages_with_theme": len(content_files) - len(unstyled),
@@ -104,6 +118,8 @@ def main() -> int:
         "injected_css_links": injected_css,
         "injected_js_links": injected_js,
         "injected_theme_meta": theme_meta,
+        "hero_header_contract": "rgb(0, 0, 0)",
+        "hero_header_layer_present": MARKER_HERO_HEADER in rendered_css,
         "target_page_found": target.exists(),
         "target_sentence_found": target_sentence in target_text,
         "failures": failures,
