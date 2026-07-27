@@ -70,6 +70,14 @@ jobs:
         run: |
           python -m unittest -v tests.test_special_needs_hub_v235 > /tmp/special-needs-hub.log 2>&1 || { tail -n 100 /tmp/special-needs-hub.log; exit 1; }
           tail -n 20 /tmp/special-needs-hub.log
+      - name: Upload compatibility failure log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-needs-hub-v302-failure-log
+          path: /tmp/special-needs-hub.log
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Validate autism Down syndrome evidence traceability providers and idempotence
         run: python -m unittest -v tests.test_special_needs_condition_hubs_v302
       - name: Validate v214 depth sources language and idempotence
