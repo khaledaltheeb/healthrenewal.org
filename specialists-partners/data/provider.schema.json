@@ -97,7 +97,7 @@
       "additionalProperties": false,
       "required": ["status", "lastVerifiedAt", "sources"],
       "properties": {
-        "status": {"enum": ["verified", "provisional", "pending", "unverified", "suspended"]},
+        "status": {"enum": ["verified", "provisional", "pending", "unverified"]},
         "lastVerifiedAt": {"type": ["string", "null"], "format": "date"},
         "nextReviewAt": {"type": ["string", "null"], "format": "date"},
         "reviewerRole": {"type": ["string", "null"], "maxLength": 120},
