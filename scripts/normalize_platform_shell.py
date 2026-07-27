@@ -2,14 +2,14 @@
 """Apply the shared platform shell to every production HTML page.
 
 The migration is deliberately idempotent. Existing pages keep their content and
-local navigation; the script only adds the shared presentation assets, rights
-metadata, and a body marker consumed by the global shell. It can operate on the
-repository source tree or on the generated ``_site`` production artifact.
+local navigation; the script adds shared presentation assets, rights metadata,
+and a body marker. It can operate on the repository source tree or on the
+generated ``_site`` production artifact.
 
 When the target is a generated artifact, the script also copies the platform
-runtime and the public governance pages into that artifact before normalizing
-its HTML. This keeps the injected links deployable instead of merely present in
-source markup.
+runtime and public governance pages into that artifact before normalization.
+Pages with strict single-runtime application contracts receive the shared CSS
+and rights metadata but not the optional platform JavaScript enhancer.
 """
 
 from __future__ import annotations
@@ -43,10 +43,21 @@ RUNTIME_DIRECTORIES = (
     Path("copyright"),
     Path("platform"),
 )
+NO_ENHANCER_PATHS = {
+    "provider-assessment-demo/professional-console.html",
+}
 
 HEAD_CLOSE_RE = re.compile(r"</head\s*>", re.IGNORECASE)
 BODY_OPEN_RE = re.compile(r"<body\b(?P<attrs>[^>]*)>", re.IGNORECASE)
 CLASS_RE = re.compile(r"\bclass\s*=\s*([\"'])(?P<value>.*?)\1", re.IGNORECASE | re.DOTALL)
+PLATFORM_SCRIPT_RE = re.compile(
+    r"\s*<script\b[^>]*\bsrc\s*=\s*([\"'])[^\"']*assets/platform/platform-core\.js\?v=[^\"']*\1[^>]*>\s*</script>\s*",
+    re.IGNORECASE,
+)
+PLATFORM_CSS_RE = re.compile(
+    r"<link\b[^>]*\bhref\s*=\s*([\"'])[^\"']*assets/platform/platform-core\.css\?v=[^\"']*\1[^>]*>",
+    re.IGNORECASE,
+)
 
 
 @dataclass
@@ -108,6 +119,10 @@ def relative_prefix(path: Path, root: Path) -> str:
     return "../" * depth
 
 
+def enhancer_allowed(path: Path, root: Path) -> bool:
+    return path.relative_to(root).as_posix() not in NO_ENHANCER_PATHS
+
+
 def head_injection(path: Path, root: Path, source: str) -> str:
     prefix = relative_prefix(path, root)
     items = [MARKER]
@@ -122,13 +137,27 @@ def head_injection(path: Path, root: Path, source: str) -> str:
     if 'rel="license"' not in lowered and "rel='license'" not in lowered:
         items.append(f'<link rel="license" href="{prefix}copyright/">')
 
-    items.extend(
-        [
-            f'<link rel="stylesheet" href="{prefix}assets/platform/platform-core.css?v={SHELL_VERSION}">',
-            f'<script defer src="{prefix}assets/platform/platform-core.js?v={SHELL_VERSION}"></script>',
-        ]
+    items.append(
+        f'<link rel="stylesheet" href="{prefix}assets/platform/platform-core.css?v={SHELL_VERSION}">'
     )
+    if enhancer_allowed(path, root):
+        items.append(
+            f'<script defer src="{prefix}assets/platform/platform-core.js?v={SHELL_VERSION}"></script>'
+        )
     return "\n".join(items) + "\n"
+
+
+def normalize_head_assets(source: str, path: Path, root: Path) -> str:
+    """Keep optional enhancer presence aligned with the page runtime contract."""
+
+    if enhancer_allowed(path, root):
+        if not PLATFORM_SCRIPT_RE.search(source):
+            prefix = relative_prefix(path, root)
+            script = f'<script defer src="{prefix}assets/platform/platform-core.js?v={SHELL_VERSION}"></script>\n'
+            source = HEAD_CLOSE_RE.sub(script + "</head>", source, count=1)
+        return source
+
+    return PLATFORM_SCRIPT_RE.sub("\n", source)
 
 
 def normalize_body(source: str) -> tuple[str, bool]:
@@ -166,12 +195,14 @@ def normalize_file(path: Path, root: Path, *, check_only: bool) -> Result:
         normalized, has_body = normalize_body(original)
         if not has_body:
             return Result(relative, "error", "missing <body>")
+        normalized = normalize_head_assets(normalized, path, root)
         if normalized == original:
             return Result(relative, "current")
         if check_only:
-            return Result(relative, "needs-update", "body marker drift")
+            return Result(relative, "needs-update", "platform shell drift")
         path.write_text(normalized, encoding="utf-8", newline="\n")
-        return Result(relative, "updated", "repaired body marker")
+        detail = "removed optional enhancer for strict application runtime" if not enhancer_allowed(path, root) else "repaired platform shell"
+        return Result(relative, "updated", detail)
 
     if not HEAD_CLOSE_RE.search(original):
         return Result(relative, "skipped", "missing </head>")
