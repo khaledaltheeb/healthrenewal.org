@@ -22,6 +22,15 @@ def read(path):
 def https(url):
     p=urlparse(str(url)); return p.scheme=='https' and bool(p.netloc)
 
+def normalized_host(url): return urlparse(str(url)).netloc.lower().removeprefix('www.')
+def official_domain_family(organization,old,new):
+    old_host=normalized_host(old); new_host=normalized_host(new)
+    if not old_host or not new_host: return False
+    if old_host==new_host: return True
+    if organization=='ASHA':
+        return (old_host=='asha.org' or old_host.endswith('.asha.org')) and (new_host=='asha.org' or new_host.endswith('.asha.org'))
+    return False
+
 def validate_provider_data(data):
     if data.get('version')!=VERSION or not isinstance(data.get('providers'),list): raise SystemExit('Provider contract failed')
     ids=set(); types=set(data.get('allowed_types',[])); specs=set(data.get('allowed_specialties',[]))
@@ -39,8 +48,7 @@ def validate_provider_data(data):
 validate_providers=validate_provider_data
 
 def apply_source_url_overrides(conditions):
-    data=read(SOURCE_OVERRIDE_FILE)
-    overrides=data.get('overrides')
+    data=read(SOURCE_OVERRIDE_FILE); overrides=data.get('overrides')
     if data.get('version')!=312 or data.get('language')!='ar' or not isinstance(overrides,dict): raise SystemExit('Source URL override contract failed')
     indexed={}
     for condition in conditions:
@@ -50,13 +58,13 @@ def apply_source_url_overrides(conditions):
             indexed[sid]=source
     for sid,item in overrides.items():
         if sid not in indexed or not isinstance(item,dict): raise SystemExit(f'Unknown source URL override: {sid}')
-        source=indexed[sid]; old=str(item.get('from','')); new=str(item.get('to',''))
+        source=indexed[sid]; old=str(item.get('from','')); new=str(item.get('to','')); title=str(item.get('title','')).strip(); organization=str(item.get('organization','')).strip()
         if source.get('url')!=old: raise SystemExit(f'Source URL override no longer matches its declared original: {sid}')
-        if not https(new) or urlparse(new).netloc.lower().removeprefix('www.')!=urlparse(old).netloc.lower().removeprefix('www.'):
-            raise SystemExit(f'Source URL override must remain on the same HTTPS official domain: {sid}')
-        if item.get('organization') and item.get('organization')!=source.get('organization'): raise SystemExit(f'Source URL override organization mismatch: {sid}')
+        if not title: raise SystemExit(f'Source URL override title is required: {sid}')
+        if not https(new) or not official_domain_family(organization,old,new): raise SystemExit(f'Source URL override must remain on the same verified HTTPS official domain family: {sid}')
+        if organization!=source.get('organization'): raise SystemExit(f'Source URL override organization mismatch: {sid}')
         if not str(item.get('reason','')).strip() or not str(item.get('verification_method','')).strip(): raise SystemExit(f'Source URL override requires reason and verification method: {sid}')
-        source['url']=new
+        source['url']=new; source['title']=title
     return len(overrides)
 
 def load():
