@@ -73,6 +73,44 @@ def publish_special_needs_sitemap(site: Path) -> None:
         raise SystemExit("Special-needs sitemap foundation contract failed")
 
 
+def trim_academic_sitemap_to_new_entries(site: Path) -> int:
+    path = site / "sitemap-library-academic-v326.xml"
+    if not path.is_file():
+        raise SystemExit(f"Missing academic sitemap: {path}")
+    tree = ET.parse(path)
+    root = tree.getroot()
+    if root.tag.rsplit("}", 1)[-1] != "urlset":
+        raise SystemExit("Academic library sitemap must be a urlset")
+
+    already_registered = {
+        "https://khaledaltheeb.github.io/pterminology-site/library/",
+        "https://khaledaltheeb.github.io/pterminology-site/library/branches/",
+        "https://khaledaltheeb.github.io/pterminology-site/library/therapies/",
+        "https://khaledaltheeb.github.io/pterminology-site/library/research/",
+    }
+    removed: set[str] = set()
+    for node in list(root.findall("{*}url")):
+        loc = node.find("{*}loc")
+        url = (loc.text or "").strip() if loc is not None else ""
+        if url in already_registered:
+            root.remove(node)
+            removed.add(url)
+
+    urls = [
+        (node.text or "").strip()
+        for node in root.findall("{*}url/{*}loc")
+        if node.text
+    ]
+    if removed != already_registered:
+        raise SystemExit({"academic_sitemap_expected_duplicates_not_found": sorted(already_registered - removed)})
+    if len(urls) != 80 or len(urls) != len(set(urls)):
+        raise SystemExit({"academic_sitemap_entry_contract_failed": {"count": len(urls), "unique": len(set(urls))}})
+    if any(url.count("/") < 6 for url in urls):
+        raise SystemExit("Academic sitemap contains a non-entry route")
+    tree.write(path, encoding="utf-8", xml_declaration=True)
+    return len(urls)
+
+
 def publish(site: Path) -> dict:
     static_words = {
         slug: publish_static_page(site, slug, contract)
@@ -92,6 +130,7 @@ def publish(site: Path) -> dict:
         raise SystemExit({"academic_library_inventory_failed": academic})
     if int(academic.get("minimum_page_words", 0)) < 180:
         raise SystemExit({"academic_library_depth_failed": academic})
+    academic_sitemap_entries = trim_academic_sitemap_to_new_entries(site)
 
     report.update(
         {
@@ -117,6 +156,7 @@ def publish(site: Path) -> dict:
             "academic_library_minimum_page_words": academic["minimum_page_words"],
             "academic_library_source_registry": academic["source_registry"],
             "academic_library_sitemap": academic["sitemap"],
+            "academic_library_sitemap_entries": academic_sitemap_entries,
         }
     )
     api_path = site / "api" / "evidence-literacy-library-v322.json"
