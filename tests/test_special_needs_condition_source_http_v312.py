@@ -29,12 +29,18 @@ class SpecialNeedsConditionSourceHTTPV312Tests(unittest.TestCase):
             error=error,
         )
 
-    def test_real_source_manifest_contains_seventeen_unique_https_sources(self) -> None:
+    def test_real_source_manifest_contains_seventeen_unique_https_sources_and_applies_override(self) -> None:
         rows = http312.load_sources()
         self.assertEqual(len(rows), 17)
         self.assertEqual({row["condition"] for row in rows}, {"autism", "down-syndrome"})
         self.assertEqual(len({row["source_id"] for row in rows}), 17)
         self.assertTrue(all(row["url"].startswith("https://") for row in rows))
+        by_id = {row["source_id"]: row for row in rows}
+        self.assertEqual(
+            by_id["A9"]["url"],
+            "https://www.asha.org/practice-portal/professional-issues/augmentative-and-alternative-communication/",
+        )
+        self.assertEqual(len(http312.load_url_overrides()), 1)
 
     def test_successful_response_is_reachable(self) -> None:
         result = http312.classify_attempts([self.attempt("HEAD", 200)])
