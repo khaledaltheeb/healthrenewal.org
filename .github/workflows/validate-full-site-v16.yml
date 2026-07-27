@@ -56,10 +56,11 @@ jobs:
         run: |
           set -euxo pipefail
           python scripts/diagnose_apply_homepage_v221.py _site
-      - name: Polish and audit generated HTML
+      - name: Finalize adaptive contrast and audit generated HTML
         run: |
           set -euxo pipefail
           python scripts/polish_site_v16.py _site
+          python scripts/apply_contrast_v11.py _site
           python scripts/audit_site_integrity_v13.py _site
       - name: Verify laboratories performance and core sections
         run: |
