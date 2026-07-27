@@ -10,7 +10,10 @@ def main() -> int:
     report = json.loads(Path("reports/recovery-source-only-v315.json").read_text(encoding="utf-8"))
     records = {item["path"]: item for item in manifest["dispositions"]}
 
-    assert manifest["version"] >= 315
+    # Keep the central recovery manifest on its established v201 contract.
+    # The evidence package itself is versioned independently as v315.
+    assert manifest["version"] == 201
+    assert report["version"] == 315
     assert len(records) == len(manifest["dispositions"]), "duplicate disposition paths"
     assert report["automatic_publication"] is False
     assert report["count_as_missing_page"] is False
