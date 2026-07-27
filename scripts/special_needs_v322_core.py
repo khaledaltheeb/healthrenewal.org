@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import gzip
 import hashlib
 import html
@@ -13,7 +14,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTENT = ROOT / "content" / "v322" / "special-needs-condition-expansion-ar.json.gz"
+CONTENT = ROOT / "content" / "v322" / "special-needs-condition-expansion-ar.parts"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 BP = "/pterminology-site/"
 VERSION = 322
@@ -38,7 +39,15 @@ def e(value: object) -> str:
 
 def read_json(path: Path) -> dict[str, Any]:
     try:
-        raw = gzip.decompress(path.read_bytes()).decode("utf-8") if path.suffix == ".gz" else path.read_text(encoding="utf-8")
+        if path.is_dir():
+            parts = sorted(path.glob("part-*.txt"))
+            if not parts:
+                raise ValueError(f"No content parts in {path}")
+            encoded = "".join(part.read_text(encoding="ascii").strip() for part in parts)
+            compressed = base64.b64decode(encoded, validate=True)
+            raw = gzip.decompress(compressed).decode("utf-8")
+        else:
+            raw = gzip.decompress(path.read_bytes()).decode("utf-8") if path.suffix == ".gz" else path.read_text(encoding="utf-8")
         data = json.loads(raw)
     except Exception as exc:
         raise SystemExit(f"Invalid JSON {path}: {exc}") from exc
