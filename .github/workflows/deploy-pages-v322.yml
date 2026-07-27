@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: github-pages-production
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -50,10 +50,13 @@ jobs:
 
       - name: Deploy to GitHub Pages
         id: deployment
+        continue-on-error: true
         uses: actions/deploy-pages@v4
 
       - name: Record deployment receipt
+        if: always()
         env:
+          DEPLOY_OUTCOME: ${{ steps.deployment.outcome }}
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
           python - <<'PY'
@@ -62,14 +65,16 @@ jobs:
           from datetime import datetime, timezone
           from pathlib import Path
 
+          outcome = os.environ.get("DEPLOY_OUTCOME", "unknown")
           payload = {
               "schema_version": 322,
-              "status": "deployed",
+              "status": "deployed" if outcome == "success" else "failed",
+              "deployment_outcome": outcome,
               "source_commit": os.environ["GITHUB_SHA"],
               "source_ref": os.environ["GITHUB_REF"],
               "workflow_run_id": os.environ["GITHUB_RUN_ID"],
               "page_url": os.environ.get("PAGE_URL", ""),
-              "deployed_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+              "recorded_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
           }
           Path("pages-deployment-status.json").write_text(
               json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
@@ -83,5 +88,9 @@ jobs:
             echo "Deployment receipt already current"
             exit 0
           fi
-          git commit -m "chore: record successful Pages deployment"
+          git commit -m "chore: record Pages deployment outcome"
           git push origin HEAD:main
+
+      - name: Fail when Pages deployment failed
+        if: steps.deployment.outcome != 'success'
+        run: exit 1
