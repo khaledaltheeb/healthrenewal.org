@@ -4,8 +4,12 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-import audit_unpublished_content_v201_core as core
-from audit_unpublished_content_v201_core import *  # noqa: F401,F403
+try:
+    import audit_unpublished_content_v201_core as core
+    from audit_unpublished_content_v201_core import *  # noqa: F401,F403
+except ModuleNotFoundError:
+    from scripts import audit_unpublished_content_v201_core as core
+    from scripts.audit_unpublished_content_v201_core import *  # noqa: F401,F403
 
 # Base64 text parts are source content, not opaque binary assets. Extend the
 # established v201 graph rather than bypassing it with a separate audit.
