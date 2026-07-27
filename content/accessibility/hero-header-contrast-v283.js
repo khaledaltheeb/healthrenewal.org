@@ -1,4 +1,4 @@
-/* v285 — computed-style adaptive surface contrast guard. */
+/* v283 — computed-style hero/header contrast guard; v285 stability fix. */
 (() => {
   'use strict';
 
@@ -153,7 +153,7 @@
       if (surface.matches(TEXT_SELECTOR)) resolveElement(surface);
       surface.querySelectorAll(TEXT_SELECTOR).forEach(resolveElement);
     }
-    document.documentElement.dataset.heroHeaderContrast = 'v285';
+    document.documentElement.dataset.heroHeaderContrast = 'v283';
   }
 
   function schedule() {
