@@ -53,6 +53,8 @@ def load_catalog()->dict[str,Any]:
         filename=manifest["category_files"][category["id"]]
         data=json.loads((CATALOG.parent/filename).read_text(encoding="utf-8"))
         if data.get("category")!=category["id"]: raise SystemExit(f"Category mismatch in {filename}")
-        specs.extend(data["specs"])
+        for spec in data["specs"]:
+            spec.setdefault("category",category["id"])
+            specs.append(spec)
     manifest["paths"]=[inflate(spec,i) for i,spec in enumerate(specs,1)]
     return manifest
