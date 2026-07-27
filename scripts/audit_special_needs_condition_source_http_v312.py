@@ -65,25 +65,52 @@ def read_json(path: Path) -> dict[str, Any]:
     return payload
 
 
+def normalized_host(url: str) -> str:
+    return urlparse(url).netloc.lower().removeprefix("www.")
+
+
+def is_organization_domain(organization: str, old_url: str, new_url: str) -> bool:
+    """Allow an explicitly verified official subdomain without allowing a third party."""
+    old_host = normalized_host(old_url)
+    new_host = normalized_host(new_url)
+    if not old_host or not new_host:
+        return False
+    if old_host == new_host:
+        return True
+    if organization == "ASHA":
+        return (
+            (old_host == "asha.org" or old_host.endswith(".asha.org"))
+            and (new_host == "asha.org" or new_host.endswith(".asha.org"))
+        )
+    return False
+
+
 def load_url_overrides() -> dict[str, dict[str, str]]:
     data = read_json(OVERRIDE_FILE)
     overrides = data.get("overrides")
     if data.get("version") != VERSION or data.get("language") != "ar" or not isinstance(overrides, dict):
         raise SystemExit("Source URL override contract failed")
+
     result: dict[str, dict[str, str]] = {}
     for source_id, item in overrides.items():
         if not isinstance(item, dict):
             raise SystemExit(f"Source URL override must be an object: {source_id}")
-        required = ("from", "to", "organization", "reason", "verification_method")
+        required = ("from", "to", "title", "organization", "reason", "verification_method")
         missing = [key for key in required if not str(item.get(key, "")).strip()]
         if missing:
             raise SystemExit(f"Source URL override is incomplete: {source_id}/{missing}")
+
         old = str(item["from"])
         new = str(item["to"])
-        old_host = urlparse(old).netloc.lower().removeprefix("www.")
-        new_host = urlparse(new).netloc.lower().removeprefix("www.")
-        if urlparse(old).scheme != "https" or urlparse(new).scheme != "https" or not old_host or old_host != new_host:
-            raise SystemExit(f"Source URL override must remain on the same HTTPS official domain: {source_id}")
+        organization = str(item["organization"])
+        if (
+            urlparse(old).scheme != "https"
+            or urlparse(new).scheme != "https"
+            or not is_organization_domain(organization, old, new)
+        ):
+            raise SystemExit(
+                f"Source URL override must remain on the same verified HTTPS official domain family: {source_id}"
+            )
         result[str(source_id)] = {key: str(item[key]) for key in required}
     return result
 
@@ -94,12 +121,14 @@ def load_sources() -> list[dict[str, str]]:
     seen_ids: set[str] = set()
     seen_pairs: set[tuple[str, str]] = set()
     applied_overrides: set[str] = set()
+
     for path in CONDITION_FILES:
         payload = read_json(path)
         slug = str(payload.get("slug", "")).strip()
         sources = payload.get("sources")
         if slug not in {"autism", "down-syndrome"} or not isinstance(sources, list):
             raise SystemExit(f"Invalid condition source file: {path}")
+
         for source in sources:
             if not isinstance(source, dict):
                 raise SystemExit(f"Source entries must be objects: {path}")
@@ -109,6 +138,7 @@ def load_sources() -> list[dict[str, str]]:
             title = str(source.get("title", "")).strip()
             if not all((source_id, url, organization, title)):
                 raise SystemExit(f"Incomplete source row: {slug}/{source_id}")
+
             override = overrides.get(source_id)
             if override:
                 if url != override["from"]:
@@ -116,7 +146,9 @@ def load_sources() -> list[dict[str, str]]:
                 if organization != override["organization"]:
                     raise SystemExit(f"Source URL override organization mismatch: {source_id}")
                 url = override["to"]
+                title = override["title"]
                 applied_overrides.add(source_id)
+
             if source_id in seen_ids:
                 raise SystemExit(f"Duplicate source id across condition pages: {source_id}")
             pair = (slug, url)
@@ -125,6 +157,7 @@ def load_sources() -> list[dict[str, str]]:
             parsed = urlparse(url)
             if parsed.scheme != "https" or not parsed.netloc:
                 raise SystemExit(f"External source URL must use HTTPS: {slug}/{source_id}/{url}")
+
             seen_ids.add(source_id)
             seen_pairs.add(pair)
             rows.append(
@@ -136,6 +169,7 @@ def load_sources() -> list[dict[str, str]]:
                     "url": url,
                 }
             )
+
     unused_overrides = sorted(set(overrides) - applied_overrides)
     if unused_overrides:
         raise SystemExit(f"Unused source URL overrides must be removed: {unused_overrides}")
@@ -149,8 +183,8 @@ def _attempt(url: str, method: str, timeout: float) -> Attempt:
         "Accept-Language": "en-US,en;q=0.8,ar;q=0.6",
         "Cache-Control": "no-cache",
     }
-    if method == "GET":
-        headers["Range"] = "bytes=0-4095"
+    # Read only the first bytes from a normal GET. Some official CDNs return a
+    # false 404 for Range requests even though the ordinary public page works.
     request = urllib.request.Request(url, headers=headers, method=method)
     started = time.monotonic()
     context = ssl.create_default_context()
@@ -262,6 +296,7 @@ def audit(timeout: float = 18.0, workers: int = 4) -> dict[str, Any]:
                         attempts=(),
                     )
                 )
+
     results.sort(key=lambda result: (result.condition, result.source_id))
     counts: dict[str, int] = {}
     for result in results:
@@ -305,7 +340,11 @@ def audit(timeout: float = 18.0, workers: int = 4) -> dict[str, Any]:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output", type=Path, default=ROOT / "_audit" / "special-needs-condition-source-http-v312.json")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=ROOT / "_audit" / "special-needs-condition-source-http-v312.json",
+    )
     parser.add_argument("--timeout", type=float, default=18.0)
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--fail-on-broken", action="store_true")
