@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-27T16:24:00.169976+00:00",
+  "generated_at": "2026-07-27T16:37:40.105185+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -11,12 +11,12 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 104,
-  "html_pages_normalized_or_current": 103,
+  "html_pages_seen": 105,
+  "html_pages_normalized_or_current": 104,
   "counts": {
-    "current": 92,
+    "current": 103,
     "skipped": 1,
-    "updated": 11
+    "updated": 1
   },
   "results": [
     {
@@ -46,17 +46,17 @@
     },
     {
       "path": "magazine/adhd-baduanjin-response-inhibition-rct-2026.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "magazine/adhd-dexamphetamine-methylphenidate-randomized-2026.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "magazine/adhd-personalized-neurofeedback-sham-rct-2026.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -66,7 +66,7 @@
     },
     {
       "path": "magazine/adhd-rhythmic-music-game-rct-2026.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -96,7 +96,7 @@
     },
     {
       "path": "magazine/adolescent-depression-one-step-back-rct-2026.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -107,6 +107,11 @@
     {
       "path": "magazine/artemis-adolescent-mental-health-stigma-2026.html",
       "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-aspen-low-resource-parent-intervention-rct-2026.html",
+      "status": "updated",
       "detail": ""
     },
     {
@@ -136,7 +141,7 @@
     },
     {
       "path": "magazine/autism-lets-play-caregiver-mediated-rct-2026.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -151,7 +156,7 @@
     },
     {
       "path": "magazine/autism-parent-reflective-functioning-rct-2026.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -176,7 +181,7 @@
     },
     {
       "path": "magazine/autism-structured-interactive-play-screening-cohort-2026.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -186,7 +191,7 @@
     },
     {
       "path": "magazine/cerebral-palsy-participate-cp-leisure-rct-2026.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -251,7 +256,7 @@
     },
     {
       "path": "magazine/down-syndrome-dual-task-exergaming-cognition-rct-2026.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -306,7 +311,7 @@
     },
     {
       "path": "magazine/latinx-adolescent-suicidal-behavior-cbt-rct-2026.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
