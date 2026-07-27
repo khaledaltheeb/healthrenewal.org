@@ -1,6 +1,6 @@
 {
-  "apiVersion": "1.0.0",
-  "generatedAt": "2026-07-24",
+  "apiVersion": "1.1.0",
+  "generatedAt": "2026-07-27",
   "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
   "alternateName": "مصطلحات علم النفس",
   "baseUrl": "https://khaledaltheeb.github.io/pterminology-site/",
@@ -22,6 +22,13 @@
       "title": "ذوو الاحتياجات الخاصة والتربية الدامجة",
       "url": "https://khaledaltheeb.github.io/pterminology-site/special-needs/",
       "tags": ["التربية الدامجة", "التدخل المبكر", "الدعم الأسري"]
+    },
+    {
+      "id": "specialists-partners",
+      "type": "directory",
+      "title": "فريقنا وشركاؤنا ذوو الاختصاص",
+      "url": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/",
+      "tags": ["التربية الخاصة", "النطق واللغة", "السمعيات", "المراكز المتخصصة", "الدليل المهني"]
     },
     {
       "id": "care-guides",
@@ -48,12 +55,16 @@
   "endpoints": {
     "platform": "https://khaledaltheeb.github.io/pterminology-site/api/v1/platform.json",
     "openapi": "https://khaledaltheeb.github.io/pterminology-site/api/v1/openapi.json",
+    "specialistsPartners": "https://khaledaltheeb.github.io/pterminology-site/api/v1/specialists-partners.json",
+    "specialistsPartnersDirectory": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/providers.json",
+    "providerSchema": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/provider.schema.json",
     "courseSchema": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.schema.json",
     "courseExample": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.example.json"
   },
   "integrationPolicy": {
     "externalCourseImport": "permission_required",
-    "requiredEvidence": ["source authorization", "content license", "provider identity", "canonical source URL"],
-    "prohibited": ["circumventing access controls", "copying protected course materials", "removing attribution", "publishing unverified provider claims"]
+    "providerPublication": "verification_and_written_consent_required",
+    "requiredEvidence": ["source authorization", "content license", "provider identity", "provider qualification", "license when applicable", "written publication consent", "canonical source URL"],
+    "prohibited": ["circumventing access controls", "copying protected course materials", "removing attribution", "publishing unverified provider claims", "publishing client or child case data", "paid ranking presented as neutral results"]
   }
 }
