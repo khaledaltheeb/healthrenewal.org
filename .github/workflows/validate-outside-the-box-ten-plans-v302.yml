@@ -1,0 +1,43 @@
+name: Validate outside-the-box ten-plan expansion v302
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v302/outside-the-box-ten-plan-framework-ar.json"
+      - "scripts/publish_outside_the_box_ten_plans_v302.py"
+      - "assets/css/outside-the-box-ten-plans-v302.css"
+      - "tests/test_outside_the_box_ten_plans_v302.py"
+      - ".github/workflows/validate-outside-the-box-ten-plans-v302.yml"
+      - ".github/workflows/validate-all-labs-v22.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "content/v302/outside-the-box-ten-plan-framework-ar.json"
+      - "scripts/publish_outside_the_box_ten_plans_v302.py"
+      - "assets/css/outside-the-box-ten-plans-v302.css"
+      - "tests/test_outside_the_box_ten_plans_v302.py"
+      - ".github/workflows/validate-outside-the-box-ten-plans-v302.yml"
+      - ".github/workflows/validate-all-labs-v22.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ten-plan-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate sources and compile publisher
+        run: |
+          set -euxo pipefail
+          python -m json.tool content/v302/outside-the-box-ten-plan-framework-ar.json >/dev/null
+          python -m py_compile scripts/publish_outside_the_box_v254.py
+          python -m py_compile scripts/publish_outside_the_box_ten_plans_v302.py
+          python -m py_compile tests/test_outside_the_box_ten_plans_v302.py
+
+      - name: Enforce 100 conditions and 1000 complete plan instances
+        run: python -m unittest -v tests/test_outside_the_box_ten_plans_v302.py
