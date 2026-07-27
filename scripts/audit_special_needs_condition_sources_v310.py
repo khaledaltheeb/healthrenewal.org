@@ -219,6 +219,8 @@ def audit(today: date | None = None) -> dict[str, Any]:
         )
     all_rows = [row for condition in conditions for row in condition["sources"]]
     hosts = {row["host"] for row in all_rows}
+    source_count = sum(condition["source_count"] for condition in conditions)
+    interval_days = (maintenance["next_due"] - maintenance["checked_at"]).days
     return {
         "version": VERSION,
         "status": "passed",
@@ -233,9 +235,14 @@ def audit(today: date | None = None) -> dict[str, Any]:
         "maintenance_source": maintenance["source_file"],
         "condition_count": len(conditions),
         "condition_slugs": [condition["slug"] for condition in conditions],
-        "source_count": sum(condition["source_count"] for condition in conditions),
+        "source_count": source_count,
         "distinct_host_count": len(hosts),
         "maximum_source_age_days": max(condition["maximum_source_age_days"] for condition in conditions),
+        "review_interval_days": interval_days,
+        "maximum_allowed_review_age_days": MAX_METADATA_CHECK_AGE_DAYS,
+        "overdue_source_count": source_count if maintenance["maintenance_overdue"] else 0,
+        "due_within_30_days_count": source_count if maintenance["due_within_30_days"] else 0,
+        "compatibility_note": "The review-age compatibility fields refer to platform metadata checks, not source publication age.",
         "conditions": conditions,
     }
 
