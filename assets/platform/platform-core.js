@@ -37,6 +37,7 @@
     ['المكتبة', 'library/'],
     ['الأدلة', 'care-guides/'],
     ['ذوو الاحتياجات الخاصة', 'special-needs/'],
+    ['الفريق والشركاء', 'specialists-partners/'],
     ['المجلة', 'magazine/'],
     ['الأدوات', 'daily-tools/'],
     ['الثقة', 'trust/']
