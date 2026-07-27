@@ -1,0 +1,175 @@
+name: Observable validated Pages release v324
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/observable-pages-v324.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: one-shot-validated-pages-v323
+  cancel-in-progress: true
+
+env:
+  RELEASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout exact main release commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_SHA }}
+          fetch-depth: 0
+
+      - name: Restore generators and compile release sources
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          python scripts/verify_enricher_v7.py
+          python scripts/verify_expander_v9.py
+          python -m py_compile \
+            build_site.py enrich_site_v7.py expand_site_v9.py \
+            scripts/scale_site_v8.py scripts/design_content_v10.py \
+            scripts/apply_contrast_v11.py scripts/expand_v12_direct.py \
+            scripts/run_encyclopedia_v13.py scripts/performance_hotfix_v14.py \
+            scripts/optimize_site_performance_v14.py scripts/strip_nonlab_runtime_v14.py \
+            scripts/finalize_pwa_v14.py scripts/complete_core_sections_v15.py \
+            scripts/diagnose_apply_homepage_v221.py scripts/polish_site_v16.py \
+            scripts/audit_site_integrity_v13.py scripts/verify_performance_v14.py \
+            scripts/verify_core_sections_v15.py scripts/audit_full_site_i18n_v72.py \
+            scripts/audit_publication_surface_v322.py scripts/stamp_deployment_v29.py
+
+      - name: Build complete production package
+        run: |
+          set -euxo pipefail
+          python build_site.py
+          python enrich_site_v7.py
+          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+          python scripts/scale_site_v8.py
+          python expand_site_v9.py
+          python scripts/design_content_v10.py
+          python scripts/apply_contrast_v11.py _site
+          python scripts/expand_v12_direct.py _site
+          python scripts/run_encyclopedia_v13.py _site
+          python scripts/performance_hotfix_v14.py _site
+          python scripts/optimize_site_performance_v14.py _site
+          python scripts/strip_nonlab_runtime_v14.py _site
+          python scripts/finalize_pwa_v14.py _site
+          python scripts/complete_core_sections_v15.py _site
+          python scripts/diagnose_apply_homepage_v221.py _site
+          python scripts/polish_site_v16.py _site
+
+      - name: Enforce production publication contracts
+        run: |
+          set -euxo pipefail
+          python scripts/audit_site_integrity_v13.py _site
+          python scripts/verify_performance_v14.py _site
+          python scripts/verify_core_sections_v15.py _site
+          python scripts/audit_full_site_i18n_v72.py _site
+          python scripts/audit_publication_surface_v322.py _site
+          test -f _site/index.html
+          test -f _site/sections/index.html
+          test -f _site/sectors/index.html
+          test -f _site/specialists-partners/index.html
+          test -f _site/platform/index.html
+          test -f _site/copyright/index.html
+          grep -q 'data-publication-surface="v322"' _site/index.html
+          grep -q 'المعرفة ليست صفحات مبعثرة' _site/index.html
+          grep -q 'فريقنا وشركاؤنا ذوو الاختصاص' _site/index.html
+          grep -q 'دليل جميع الأقسام' _site/sections/index.html
+          grep -q 'الأقسام المتخصصة للصحة النفسية' _site/sectors/index.html
+
+      - name: Stamp exact main release SHA
+        run: |
+          set -euxo pipefail
+          GITHUB_SHA="${RELEASE_SHA}" python scripts/stamp_deployment_v29.py _site
+          EXPECTED_SHA="${RELEASE_SHA}" python - <<'PY'
+          import json, os
+          from pathlib import Path
+          data=json.loads(Path('_site/deployment.json').read_text(encoding='utf-8'))
+          assert data.get('schema_version') == 29, data
+          assert data.get('commit') == os.environ['EXPECTED_SHA'], (data, os.environ['EXPECTED_SHA'])
+          assert int(data.get('pwa_pages', 0)) > 0, data
+          print({'release_commit': data['commit'], 'pwa_pages': data['pwa_pages']})
+          PY
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload validated Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy validated site
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify live homepage gateways and exact SHA
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euxo pipefail
+          BASE="${PAGE_URL%/}/"
+          matched=0
+          for i in $(seq 1 30); do
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}deployment.json?v=${RELEASE_SHA}-${i}" -o /tmp/deployment.json; then
+              if EXPECTED_SHA="${RELEASE_SHA}" python -c "import json,os; d=json.load(open('/tmp/deployment.json',encoding='utf-8')); raise SystemExit(0 if d.get('commit')==os.environ['EXPECTED_SHA'] else 1)"; then
+                matched=1
+                break
+              fi
+            fi
+            sleep 10
+          done
+          test "${matched}" -eq 1
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}?v=${RELEASE_SHA}" -o /tmp/index.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}sections/?v=${RELEASE_SHA}" -o /tmp/sections.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}sectors/?v=${RELEASE_SHA}" -o /tmp/sectors.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}specialists-partners/?v=${RELEASE_SHA}" -o /tmp/specialists.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}platform/?v=${RELEASE_SHA}" -o /tmp/platform.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}copyright/?v=${RELEASE_SHA}" -o /tmp/copyright.html
+          python - <<'PY'
+          from pathlib import Path
+          checks={
+              '/tmp/index.html': ('data-publication-surface="v322"','المعرفة ليست صفحات مبعثرة','فريقنا وشركاؤنا ذوو الاختصاص'),
+              '/tmp/sections.html': ('دليل جميع الأقسام',),
+              '/tmp/sectors.html': ('الأقسام المتخصصة للصحة النفسية',),
+              '/tmp/specialists.html': ('فريقنا وشركاؤنا ذوو الاختصاص',),
+              '/tmp/platform.html': ('دليل المنصة',),
+              '/tmp/copyright.html': ('حقوق النشر',),
+          }
+          for path, phrases in checks.items():
+              text=Path(path).read_text(encoding='utf-8')
+              assert all(phrase in text for phrase in phrases), (path, phrases)
+              assert 'noindex' not in text.lower(), path
+          print({'release_sha': Path('/tmp/deployment.json').read_text(encoding='utf-8'), 'live_routes': len(checks), 'status': 'verified'})
+          PY
+
+      - name: Upload observable release evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: observable-pages-v324-evidence
+          path: |
+            _site/deployment.json
+            _site/api/publication-surface-v322.json
+            _site/api/full-site-audit-v16.json
+          if-no-files-found: warn
+          retention-days: 14
