@@ -51,10 +51,11 @@ class SpecialNeedsProviderDirectoryV308Tests(unittest.TestCase):
             self.assertEqual(report["status"], "passed")
             self.assertEqual(report["record_count"], 0)
             self.assertEqual(report["published_count"], 0)
+            self.assertFalse(report["sponsored_publication_enabled"])
             api = json.loads((site / "api" / "special-needs-provider-governance-v308.json").read_text(encoding="utf-8"))
             self.assertEqual(api["status_counts"]["verified"], 0)
 
-    def test_current_verified_provider_can_publish(self) -> None:
+    def test_current_verified_editorial_provider_can_publish(self) -> None:
         data = self.config()
         data["providers"] = [self.valid_provider()]
         report = governance.validate_provider_data(data, today=date(2026, 7, 27))
@@ -75,6 +76,15 @@ class SpecialNeedsProviderDirectoryV308Tests(unittest.TestCase):
         provider = self.valid_provider()
         provider["sponsored"] = True
         provider["listing_disclosure"] = "editorial"
+        data["providers"] = [provider]
+        with self.assertRaises(SystemExit):
+            governance.validate_provider_data(data, today=date(2026, 7, 27))
+
+    def test_even_matching_sponsored_record_is_blocked_until_public_label_renderer_exists(self) -> None:
+        data = self.config()
+        provider = self.valid_provider()
+        provider["sponsored"] = True
+        provider["listing_disclosure"] = "sponsored"
         data["providers"] = [provider]
         with self.assertRaises(SystemExit):
             governance.validate_provider_data(data, today=date(2026, 7, 27))
