@@ -118,10 +118,11 @@ def restore_evidence_library_parent_marker(site: Path) -> None:
     source = path.read_text(encoding="utf-8")
     marker = core.PARENT_MARKER
     if marker not in source:
-        needle = f'href="{core.BP}library/evidence-literacy/"'
+        needle = f'<a class="button" href="{core.BP}library/evidence-literacy/"'
+        replacement = f'<a class="button" {marker} href="{core.BP}library/evidence-literacy/"'
         if source.count(needle) != 1:
-            raise SystemExit({"evidence_parent_link_contract_failed": source.count(needle)})
-        source = source.replace(needle, f'{marker} {needle}', 1)
+            raise SystemExit({"evidence_primary_parent_link_contract_failed": source.count(needle)})
+        source = source.replace(needle, replacement, 1)
         path.write_text(source, encoding="utf-8")
     if path.read_text(encoding="utf-8").count(marker) != 1:
         raise SystemExit("Evidence parent marker must occur exactly once")
