@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,10 @@ ROOT = Path(__file__).resolve().parents[1]
 V214_MANIFEST = ROOT / "content" / "v214" / "special-needs-guides-manifest-ar.json"
 PRODUCTION_MANIFEST = ROOT / "content" / "v221" / "special-needs-guides-production-manifest-ar.json"
 VERSIONS = (209, 210, 211, 212, 214)
+CONDITION_URLS = {
+    f"{condition302.BASE}/special-needs/autism/",
+    f"{condition302.BASE}/special-needs/down-syndrome/",
+}
 
 
 def summary(report: dict[str, Any]) -> dict[str, Any]:
@@ -43,10 +48,28 @@ def load_production_manifest() -> dict[str, Any]:
     return data
 
 
-def publish(site: Path) -> dict[str, Any]:
+def reset_condition_outputs(site: Path) -> None:
     for slug in ("autism", "down-syndrome"):
         shutil.rmtree(site / "special-needs" / slug, ignore_errors=True)
     (site / "api" / "special-needs-condition-hubs-v302.json").unlink(missing_ok=True)
+
+    sitemap_path = site / "sitemap-special-needs.xml"
+    if not sitemap_path.is_file():
+        return
+    tree = ET.parse(sitemap_path)
+    root = tree.getroot()
+    removed = False
+    for row in list(root.findall("{*}url")):
+        loc = (row.findtext("{*}loc") or "").strip()
+        if loc in CONDITION_URLS:
+            root.remove(row)
+            removed = True
+    if removed:
+        tree.write(sitemap_path, encoding="utf-8", xml_declaration=True)
+
+
+def publish(site: Path) -> dict[str, Any]:
+    reset_condition_outputs(site)
 
     production_manifest = load_production_manifest()
     hub_report = hub235.publish(site)
