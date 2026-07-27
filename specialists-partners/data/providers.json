@@ -1,7 +1,16 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "updatedAt": "2026-07-27",
-  "publicationPolicy": "Only records with documented identity, qualification, scope, written publication consent, and a completed verification review may be published.",
-  "privacyNotice": "Public profiles must contain professional contact details only. Do not store client, child, student, patient, or family case data in this file.",
+  "publicationPolicy": "Only records with documented identity, qualification, scope, written publication consent, completed field-level verification, and a current verification-ledger record may be published.",
+  "accuracyPolicy": {
+    "siteReviewsBeforePublication": true,
+    "fieldLevelEvidenceRequired": true,
+    "selfReportedInformationIsTreatedAsUnverifiedUntilChecked": true,
+    "materialDisputeCausesTemporarySuspension": true,
+    "correctionsAndReviewDatesAreRecorded": true,
+    "noAbsoluteGuaranteeBeyondAvailableEvidence": true
+  },
+  "verificationLedger": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/verification-ledger.json",
+  "privacyNotice": "Public profiles must contain professional contact details only. Do not store client, child, student, patient, family, identity-document, certificate-image, signature, or private-license data in this file.",
   "providers": []
 }
