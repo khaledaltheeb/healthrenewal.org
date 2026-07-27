@@ -1,3 +1,4 @@
+# Triggered through a merged PR so GitHub emits a trusted push event.
 name: Apply v31 concurrency directly
 
 on:
