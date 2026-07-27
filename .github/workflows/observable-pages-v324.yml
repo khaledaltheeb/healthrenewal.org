@@ -84,7 +84,7 @@ jobs:
           grep -q 'data-publication-surface="v322"' _site/index.html
           grep -q 'المعرفة ليست صفحات مبعثرة' _site/index.html
           grep -q 'فريقنا وشركاؤنا ذوو الاختصاص' _site/index.html
-          grep -q 'دليل جميع الأقسام' _site/sections/index.html
+          grep -q 'دليل جميع أقسام المنصة' _site/sections/index.html
           grep -q 'الأقسام المتخصصة للصحة النفسية' _site/sectors/index.html
 
       - name: Stamp exact main release SHA
