@@ -38,11 +38,33 @@ jobs:
         with:
           python-version: "3.12"
       - name: Compile auditor
-        run: python -m py_compile scripts/audit_unpublished_content_v201.py tests/test_unpublished_content_audit_v201.py tests/test_unpublished_status_semantics_v201.py
+        run: |
+          python -m py_compile \
+            scripts/audit_unpublished_content_v201.py \
+            scripts/audit_unpublished_content_v201_core.py \
+            tests/test_unpublished_content_audit_v201.py \
+            tests/test_unpublished_status_semantics_v201.py
       - name: Validate recovery dispositions
         run: python -m json.tool data/recovery-dispositions-v201.json >/dev/null
       - name: Run unit tests
-        run: python -m unittest -v tests/test_unpublished_content_audit_v201.py tests/test_unpublished_status_semantics_v201.py
+        run: |
+          set -o pipefail
+          python -m unittest -v \
+            tests/test_unpublished_content_audit_v201.py \
+            tests/test_unpublished_status_semantics_v201.py \
+            > /tmp/unpublished-v201-tests.log 2>&1 || {
+              tail -n 240 /tmp/unpublished-v201-tests.log
+              exit 1
+            }
+          tail -n 80 /tmp/unpublished-v201-tests.log
+      - name: Upload unit failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unpublished-content-v201-unit-failure
+          path: /tmp/unpublished-v201-tests.log
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Audit repository
         run: python scripts/audit_unpublished_content_v201.py .
       - name: Show summary
