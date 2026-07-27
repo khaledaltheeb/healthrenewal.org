@@ -1,43 +1,34 @@
 {
-  "version": 201,
-  "updated_at": "2026-07-24",
+  "version": 315,
+  "updated_at": "2026-07-27",
   "dispositions": [
     {
       "path": "scripts/publish_institutional_foundation_v192.py",
       "disposition": "superseded",
       "recommended_action": "retain-history",
       "reason": "The combined v192 publisher was intentionally split to prevent identity and footer conflicts. The active production replacements are publish_magazine_v201.py and publish_partners_v201.py.",
-      "replacements": [
-        "scripts/publish_magazine_v201.py",
-        "scripts/publish_partners_v201.py"
-      ]
+      "replacements": ["scripts/publish_magazine_v201.py", "scripts/publish_partners_v201.py"]
     },
     {
       "path": "scripts/publish_editorial_methodology_v178.py",
       "disposition": "superseded",
       "recommended_action": "retain-history",
       "reason": "The v178 page content is retained, but the historical standalone publisher was replaced by the unified v201 trust-guide publisher to enforce the current brand, base path, site shell, sitemap integration, and publication reporting.",
-      "replacements": [
-        "scripts/publish_trust_guides_v201.py"
-      ]
+      "replacements": ["scripts/publish_trust_guides_v201.py"]
     },
     {
       "path": "scripts/publish_evaluate_mental_health_information_v181.py",
       "disposition": "superseded",
       "recommended_action": "retain-history",
       "reason": "The v181 content is retained with its declared moderate risk and internal review, while the historical publisher was replaced by the v201 trust-guide publisher for consistent safety, accessibility, discovery, and production integration.",
-      "replacements": [
-        "scripts/publish_trust_guides_v201.py"
-      ]
+      "replacements": ["scripts/publish_trust_guides_v201.py"]
     },
     {
       "path": "scripts/publish_source_citation_guide_v191.py",
       "disposition": "superseded",
       "recommended_action": "retain-history",
       "reason": "The v191 content remains authoritative for the project, but its standalone publisher was replaced by the v201 trust-guide publisher to provide explicit form labels, the current identity, correct internal base paths, and one coordinated sitemap.",
-      "replacements": [
-        "scripts/publish_trust_guides_v201.py"
-      ]
+      "replacements": ["scripts/publish_trust_guides_v201.py"]
     },
     {
       "path": "content/publishers/articles/queue.json",
@@ -116,6 +107,24 @@
       "disposition": "production-source",
       "recommended_action": "retain",
       "reason": "This sector source is explicitly copied into the reconstructed v10 production build by the global contrast workflow before scripts/design_content_v10.py runs. It is a build input rather than an unwired public page."
+    },
+    {
+      "path": "content/sectors-v10/aac-home-school-guide.json",
+      "disposition": "source-only",
+      "recommended_action": "manual-review",
+      "reason": "Commit 45af8668fc66682173118f30d4df1c209ee100e2 added only this JSON source. Current reachability evidence finds no publisher, route, sitemap, or search connection. Do not count it as a missing page or publish it automatically without independent historical deployment evidence and publication review."
+    },
+    {
+      "path": "content/sectors-v10/inclusive-school-transition.json",
+      "disposition": "source-only",
+      "recommended_action": "manual-review",
+      "reason": "Commit 02a6c9ae827940b6beb7c235b67021da7ff20d4f added only this JSON source. Current reachability evidence finds no publisher, route, sitemap, or search connection. Do not count it as a missing page or publish it automatically without independent historical deployment evidence and publication review."
+    },
+    {
+      "path": "content/sectors-v10/mental-health-foundations.json",
+      "disposition": "source-only",
+      "recommended_action": "manual-review",
+      "reason": "Commit e23695d9c03898c271e1dcae44ca6a78b82445f6 added only this JSON source. Despite the commit wording 'restore', it included no publisher, route, sitemap, or search connection. Do not count it as a missing page or publish it automatically without independent historical deployment evidence and publication review."
     },
     {
       "path": "content/v193/lab-depth-contract-ar.json",
