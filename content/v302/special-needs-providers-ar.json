@@ -1,0 +1,80 @@
+{
+  "version": 302,
+  "language": "ar",
+  "updated_at": "2026-07-27",
+  "purpose": "دليل خدمات قابل للتحرير من ملف واحد دون تعديل قوالب الصفحات.",
+  "publication_rule": "لا يظهر أي سجل إلا إذا كانت published=true وكانت بيانات التحقق الأساسية مكتملة.",
+  "allowed_types": [
+    "doctor",
+    "center",
+    "clinic",
+    "association",
+    "hospital",
+    "therapy-provider",
+    "education-provider"
+  ],
+  "allowed_specialties": [
+    "autism",
+    "down-syndrome",
+    "developmental-pediatrics",
+    "child-psychiatry",
+    "genetics",
+    "speech-language",
+    "occupational-therapy",
+    "physical-therapy",
+    "audiology",
+    "ophthalmology",
+    "cardiology",
+    "special-education",
+    "early-intervention"
+  ],
+  "required_fields_for_publication": [
+    "id",
+    "type",
+    "name_ar",
+    "specialties",
+    "country",
+    "city",
+    "verification_status",
+    "verified_at",
+    "published"
+  ],
+  "recommended_contact_fields": [
+    "phone_display",
+    "phone_uri",
+    "website",
+    "maps_url",
+    "address_ar"
+  ],
+  "example_not_published": {
+    "id": "provider-001",
+    "type": "center",
+    "name_ar": "اسم المركز",
+    "name_en": "Center name",
+    "professional_title": "مركز تقييم وتأهيل",
+    "specialties": [
+      "autism",
+      "down-syndrome"
+    ],
+    "services": [
+      "تقييم",
+      "علاج نطق",
+      "تدخل مبكر"
+    ],
+    "country": "الأردن",
+    "governorate": "العاصمة",
+    "city": "عمّان",
+    "address_ar": "العنوان التفصيلي",
+    "phone_display": "+962 ...",
+    "phone_uri": "+962...",
+    "whatsapp_uri": "https://wa.me/962...",
+    "website": "https://example.org",
+    "maps_url": "https://maps.google.com/?q=...",
+    "verification_status": "pending",
+    "verified_at": "2026-07-27",
+    "accepting_referrals": null,
+    "notes_ar": "ملاحظات مختصرة ومحايدة",
+    "published": false
+  },
+  "providers": []
+}
