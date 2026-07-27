@@ -1,3 +1,4 @@
+# Trigger contract patch after branch creation.
 name: Patch magazine Navigator ACT v321 temporary
 
 on:
