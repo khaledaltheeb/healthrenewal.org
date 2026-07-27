@@ -33,7 +33,7 @@ permissions:
 jobs:
   scientific-review-governance:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
 
@@ -55,8 +55,17 @@ jobs:
       - name: Validate review contract and exact 100-condition 1000-plan register
         run: python -m unittest -v tests.test_outside_the_box_review_governance_v305
 
-      - name: Validate post-publication pages links SEO accessibility APIs and idempotence
-        run: python -m unittest -v tests.test_outside_the_box_quality_audit_v306
+      - name: Audit 100 pages 1000 plans links SEO accessibility and APIs
+        run: python -m unittest -v tests.test_outside_the_box_quality_audit_v306.OutsideBoxQualityAuditV306.test_audit_covers_pages_plans_links_seo_and_apis
+
+      - name: Validate quality report API and sitemap integration
+        run: python -m unittest -v tests.test_outside_the_box_quality_audit_v306.OutsideBoxQualityAuditV306.test_quality_report_is_integrated_into_apis_and_sitemap
+
+      - name: Validate deterministic repeat publication
+        run: python -m unittest -v tests.test_outside_the_box_quality_audit_v306.OutsideBoxQualityAuditV306.test_audit_publication_is_idempotent
+
+      - name: Prove broken internal links are rejected
+        run: python -m unittest -v tests.test_outside_the_box_quality_audit_v306.OutsideBoxQualityAuditV306.test_auditor_rejects_a_broken_internal_link
 
       - name: Re-run ten-plan regression contract
         run: python -m unittest -v tests.test_outside_the_box_ten_plans_v302
