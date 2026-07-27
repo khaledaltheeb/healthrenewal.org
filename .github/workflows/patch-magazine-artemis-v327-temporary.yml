@@ -1,0 +1,151 @@
+name: Patch magazine ARTEMIS contracts v327 temporary
+
+on:
+  push:
+    branches: ["agent/magazine-artemis-v327"]
+    paths:
+      - ".github/workflows/patch-magazine-artemis-v327-temporary.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/magazine-artemis-v327
+          fetch-depth: 0
+      - name: Update magazine contracts to 74 readings
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          publisher = Path('scripts/publish_magazine_v201.py')
+          text = publisher.read_text(encoding='utf-8')
+          anchor = '    "adhd-dexamphetamine-methylphenidate-randomized-2026.html": ("10.1111/jpc.70487", "42415397", "−1.44"),\n'
+          addition = anchor + '    "adolescent-mental-health-artemis-cluster-rct-2026.html": ("10.1001/jamapsychiatry.2026.0603", "42054038", "OR=1.47", "p=0.10", "−0.87"),\n'
+          if 'adolescent-mental-health-artemis-cluster-rct-2026.html' not in text:
+              if text.count(anchor) != 1:
+                  raise SystemExit('publisher marker anchor missing')
+              text = text.replace(anchor, addition, 1)
+          publisher.write_text(text, encoding='utf-8')
+
+          test = Path('tests/test_magazine_research_v234.py')
+          text = test.read_text(encoding='utf-8')
+          replacements = {
+              'self.assertEqual(len(pages), 73)': 'self.assertEqual(len(pages), 74)',
+              'self.assertEqual(report["research_summaries_published"], 73)': 'self.assertEqual(report["research_summaries_published"], 74)',
+              'self.assertEqual(report["remaining_to_target"], 27)': 'self.assertEqual(report["remaining_to_target"], 26)',
+              'self.assertEqual(len(report["articles"]), 73)': 'self.assertEqual(len(report["articles"]), 74)',
+              'self.assertEqual(report["sitemap"]["child_urls"], 74)': 'self.assertEqual(report["sitemap"]["child_urls"], 75)',
+              'self.assertEqual(len(urls), 74)': 'self.assertEqual(len(urls), 75)',
+              'self.assertEqual(saved["research_summaries_published"], 73)': 'self.assertEqual(saved["research_summaries_published"], 74)',
+              'self.assertIn(\'"numberOfItems":73\', index)': 'self.assertIn(\'"numberOfItems":74\', index)',
+              'self.assertIn("73 قراءة علمية مستقلة", index)': 'self.assertIn("74 قراءة علمية مستقلة", index)',
+              'self.assertIn("المتبقي 27", index)': 'self.assertIn("المتبقي 26", index)',
+              'self.assertEqual(index.count(\'class="card"\'), 73)': 'self.assertEqual(index.count(\'class="card"\'), 74)',
+              'self.assertEqual(index.count(\'"@type":"ScholarlyArticle"\'), 73)': 'self.assertEqual(index.count(\'"@type":"ScholarlyArticle"\'), 74)',
+              'self.assertEqual(index.count(\'"datePublished"\'), 73)': 'self.assertEqual(index.count(\'"datePublished"\'), 74)',
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'test anchor missing: {old}')
+              text = text.replace(old, new)
+          check_anchor = '            "neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html": ("10.1002/aur.70282", "42187205", "d=0.84", "d=0.38", "لم تظهر فروق مهمة"),\n'
+          check_addition = check_anchor + '            "adolescent-mental-health-artemis-cluster-rct-2026.html": ("10.1001/jamapsychiatry.2026.0603", "42054038", "OR=1.47", "p=0.10", "−0.87"),\n'
+          if '"adolescent-mental-health-artemis-cluster-rct-2026.html"' not in text:
+              if text.count(check_anchor) != 1:
+                  raise SystemExit('test study anchor missing')
+              text = text.replace(check_anchor, check_addition, 1)
+          test.write_text(text, encoding='utf-8')
+
+          integration = Path('tests/test_platform_identity_v201.py')
+          text = integration.read_text(encoding='utf-8')
+          replacements = {
+              'self.assertIn(\'"numberOfItems":73\', index)': 'self.assertIn(\'"numberOfItems":74\', index)',
+              'self.assertEqual(index.count(\'class="card"\'), 73)': 'self.assertEqual(index.count(\'class="card"\'), 74)',
+              'self.assertEqual(report["pages"], 79)': 'self.assertEqual(report["pages"], 80)',
+              'self.assertEqual(report["magazine_pages"], 73)': 'self.assertEqual(report["magazine_pages"], 74)',
+              'self.assertEqual(magazine["research_summaries_published"], 73)': 'self.assertEqual(magazine["research_summaries_published"], 74)',
+              'self.assertEqual(magazine["remaining_to_target"], 27)': 'self.assertEqual(magazine["remaining_to_target"], 26)',
+              'self.assertEqual(magazine["sitemap"]["child_urls"], 74)': 'self.assertEqual(magazine["sitemap"]["child_urls"], 75)',
+              'self.assertEqual(magazine_report["research_summaries_published"], 73)': 'self.assertEqual(magazine_report["research_summaries_published"], 74)',
+              'self.assertEqual(magazine_report["sitemap"]["child_urls"], 74)': 'self.assertEqual(magazine_report["sitemap"]["child_urls"], 75)',
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'integration anchor missing: {old}')
+              text = text.replace(old, new)
+          file_anchor = '            "magazine/neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html",\n'
+          file_addition = file_anchor + '            "magazine/adolescent-mental-health-artemis-cluster-rct-2026.html",\n'
+          if 'magazine/adolescent-mental-health-artemis-cluster-rct-2026.html' not in text:
+              if text.count(file_anchor) != 1:
+                  raise SystemExit('integration page anchor missing')
+              text = text.replace(file_anchor, file_addition, 1)
+          integration.write_text(text, encoding='utf-8')
+
+          workflow = Path('.github/workflows/validate-magazine-research-v234.yml')
+          text = workflow.read_text(encoding='utf-8')
+          replacements = {
+              'Validate magazine continuous research v321': 'Validate magazine continuous research v327',
+              'magazine_v321_inventory': 'magazine_v327_inventory',
+              'assert len(pages) == 73': 'assert len(pages) == 74',
+              'assert index.count(\'class="card"\') == 73': 'assert index.count(\'class="card"\') == 74',
+              'assert index.count(\'"@type":"ScholarlyArticle"\') == 73': 'assert index.count(\'"@type":"ScholarlyArticle"\') == 74',
+              'assert index.count(\'"datePublished"\') == 73': 'assert index.count(\'"datePublished"\') == 74',
+              'assert \'"numberOfItems":73\' in index': 'assert \'"numberOfItems":74\' in index',
+              "assert 'المتبقي 27' in index": "assert 'المتبقي 26' in index",
+              "'generated_cards': 73": "'generated_cards': 74",
+              "'remaining': 27": "'remaining': 26",
+              'test "$(find magazine -maxdepth 1 -name \'*-2026.html\' | wc -l)" -eq 64': 'test "$(find magazine -maxdepth 1 -name \'*-2026.html\' | wc -l)" -eq 65',
+              'test "$(find magazine -maxdepth 1 -name \'*-20*.html\' | wc -l)" -eq 73': 'test "$(find magazine -maxdepth 1 -name \'*-20*.html\' | wc -l)" -eq 74',
+              'Verify source contract for Navigator ACT primary study': 'Verify source contracts for Navigator ACT and ARTEMIS primary studies',
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'workflow anchor missing: {old}')
+              text = text.replace(old, new)
+          grep_anchor = "          grep -q 'data-pt-normalized=\"1.1.0\"' magazine/neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html\n"
+          grep_addition = grep_anchor + "          grep -q '10.1001/jamapsychiatry.2026.0603' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html\n          grep -q '42054038' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html\n          grep -q 'OR=1.47' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html\n          grep -q 'p=0.10' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html\n          grep -q 'لا تثبت زيادة مؤكدة في الهدأة الكاملة' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html\n"
+          if 'jamapsychiatry.2026.0603' not in text:
+              if text.count(grep_anchor) != 1:
+                  raise SystemExit('workflow grep anchor missing')
+              text = text.replace(grep_anchor, grep_addition, 1)
+          workflow.write_text(text, encoding='utf-8')
+
+          live = Path('.github/workflows/verify-magazine-live-v314.yml')
+          text = live.read_text(encoding='utf-8')
+          replacements = {
+              'Verify magazine continuous publication live v321': 'Verify magazine continuous publication live v327',
+              'group: magazine-live-v321': 'group: magazine-live-v327',
+              'token="magazine-v321-$(date +%s)"': 'token="magazine-v327-$(date +%s)"',
+              "assert api['research_summaries_published'] >= 73": "assert api['research_summaries_published'] >= 74",
+              "'status': 'live-magazine-v321-verified'": "'status': 'live-magazine-v327-verified'",
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'live anchor missing: {old}')
+              text = text.replace(old, new)
+          download_anchor = '            neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html\n'
+          download_addition = '            neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html \\\n            adolescent-mental-health-artemis-cluster-rct-2026.html\n'
+          if 'adolescent-mental-health-artemis-cluster-rct-2026.html' not in text:
+              if text.count(download_anchor) != 1:
+                  raise SystemExit('live download anchor missing')
+              text = text.replace(download_anchor, download_addition, 1)
+          checks_anchor = "              'neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html': ('10.1002/aur.70282', '42187205', 'd=0.84', 'd=0.38', 'لم تظهر فروق مهمة'),\n"
+          checks_addition = checks_anchor + "              'adolescent-mental-health-artemis-cluster-rct-2026.html': ('10.1001/jamapsychiatry.2026.0603', '42054038', 'OR=1.47', 'p=0.10', '−0.87'),\n"
+          if "'adolescent-mental-health-artemis-cluster-rct-2026.html'" not in text:
+              if text.count(checks_anchor) != 1:
+                  raise SystemExit('live checks anchor missing')
+              text = text.replace(checks_anchor, checks_addition, 1)
+          live.write_text(text, encoding='utf-8')
+          PY
+          python -m py_compile scripts/publish_magazine_v201.py tests/test_magazine_research_v234.py tests/test_platform_identity_v201.py
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add scripts/publish_magazine_v201.py tests/test_magazine_research_v234.py tests/test_platform_identity_v201.py .github/workflows/validate-magazine-research-v234.yml .github/workflows/verify-magazine-live-v314.yml
+          git diff --cached --quiet && exit 0
+          git commit -m "test: raise magazine contract to 74 readings v327"
+          git push origin HEAD:agent/magazine-artemis-v327
