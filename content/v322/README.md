@@ -1,17 +1,14 @@
 # حزمة توسعة أدلة ذوي الاحتياجات الخاصة — v322
 
-يحتوي الملف `special-needs-condition-expansion-ar.json.gz` على مصدر JSON عربي مضغوط
-لخمس صفحات مرجعية موسعة. استُخدم الضغط لتقليل حجم الحزمة مع إبقاء المصدر قابلاً
-للاستخراج والتحقق بأدوات بايثون القياسية فقط.
+يُخزَّن المصدر العربي المضغوط في المجلد
+`special-needs-condition-expansion-ar.parts/` على هيئة ستة أجزاء Base64 نصية. يجمع
+الناشر الأجزاء بالترتيب، يتحقق من Base64، يفك ضغط Gzip، ثم يقرأ JSON. هذا الأسلوب
+يحافظ على سلامة المحتوى الثنائي عند نقله عبر واجهات المستودع النصية.
 
-للقراءة دون تعديل:
+للتحقق محليًا:
 
 ```bash
-python - <<'PY'
-import gzip
-from pathlib import Path
-print(gzip.decompress(Path('content/v322/special-needs-condition-expansion-ar.json.gz').read_bytes()).decode('utf-8'))
-PY
+python -m unittest -v tests.test_special_needs_expansion_v322
 ```
 
 حالة المحتوى: مراجعة تحريرية ومنهجية داخلية؛ المراجعة الخارجية المتخصصة موصى بها ولم تكتمل.
