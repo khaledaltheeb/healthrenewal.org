@@ -111,6 +111,22 @@ def trim_academic_sitemap_to_new_entries(site: Path) -> int:
     return len(urls)
 
 
+def restore_evidence_library_parent_marker(site: Path) -> None:
+    path = site / "library" / "index.html"
+    if not path.is_file():
+        raise SystemExit(f"Missing academic library index: {path}")
+    source = path.read_text(encoding="utf-8")
+    marker = core.PARENT_MARKER
+    if marker not in source:
+        needle = f'href="{core.BP}library/evidence-literacy/"'
+        if source.count(needle) != 1:
+            raise SystemExit({"evidence_parent_link_contract_failed": source.count(needle)})
+        source = source.replace(needle, f'{marker} {needle}', 1)
+        path.write_text(source, encoding="utf-8")
+    if path.read_text(encoding="utf-8").count(marker) != 1:
+        raise SystemExit("Evidence parent marker must occur exactly once")
+
+
 def publish(site: Path) -> dict:
     static_words = {
         slug: publish_static_page(site, slug, contract)
@@ -131,6 +147,7 @@ def publish(site: Path) -> dict:
     if int(academic.get("minimum_page_words", 0)) < 180:
         raise SystemExit({"academic_library_depth_failed": academic})
     academic_sitemap_entries = trim_academic_sitemap_to_new_entries(site)
+    restore_evidence_library_parent_marker(site)
 
     report.update(
         {
@@ -157,6 +174,7 @@ def publish(site: Path) -> dict:
             "academic_library_source_registry": academic["source_registry"],
             "academic_library_sitemap": academic["sitemap"],
             "academic_library_sitemap_entries": academic_sitemap_entries,
+            "evidence_library_parent_marker_preserved": True,
         }
     )
     api_path = site / "api" / "evidence-literacy-library-v322.json"
