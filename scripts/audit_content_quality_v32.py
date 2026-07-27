@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 import sys
-from collections import Counter
+from collections import Counter, defaultdict
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlparse
@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 BASE_HOST = "khaledaltheeb.github.io"
 BASE_PATH = "/pterminology-site/"
+DIAGNOSTIC_CONTRACT_VERSION = 313
 VERIFY_RE = re.compile(
     r"^(?:google-site-verification|msvalidate\.01|p:domain_verify|facebook-domain-verification)\s*[:=]",
     re.I,
@@ -109,6 +110,26 @@ def normalized(value: str) -> str:
     return SPACE_RE.sub(" ", value).strip().casefold()
 
 
+def duplicate_groups(
+    index: Counter[str], paths: dict[str, list[str]], display_values: dict[str, str]
+) -> list[dict[str, object]]:
+    groups: list[dict[str, object]] = []
+    for key, count in index.items():
+        if not key or count <= 1:
+            continue
+        group_paths = sorted(set(paths.get(key, [])))
+        groups.append(
+            {
+                "value": display_values.get(key, key),
+                "normalized_value": key,
+                "count": count,
+                "paths": group_paths,
+                "path_count": len(group_paths),
+            }
+        )
+    return sorted(groups, key=lambda item: (-int(item["count"]), str(item["value"])))
+
+
 def main() -> int:
     if not SITE.exists():
         raise SystemExit(f"Site directory does not exist: {SITE}")
@@ -118,6 +139,10 @@ def main() -> int:
     warnings: list[str] = []
     title_index: Counter[str] = Counter()
     description_index: Counter[str] = Counter()
+    title_paths: defaultdict[str, list[str]] = defaultdict(list)
+    description_paths: defaultdict[str, list[str]] = defaultdict(list)
+    title_values: dict[str, str] = {}
+    description_values: dict[str, str] = {}
 
     html_files = sorted(SITE.rglob("*.html"))
     for path in html_files:
@@ -155,9 +180,15 @@ def main() -> int:
             warnings.append(f"Thin page candidate {rel}: {word_count} visible words")
 
         if title:
-            title_index[normalized(title)] += 1
+            key = normalized(title)
+            title_index[key] += 1
+            title_paths[key].append(rel)
+            title_values.setdefault(key, title)
         if description:
-            description_index[normalized(description)] += 1
+            key = normalized(description)
+            description_index[key] += 1
+            description_paths[key].append(rel)
+            description_values.setdefault(key, description)
 
         missing_social: list[str] = []
         if not parser.og_title:
@@ -188,20 +219,26 @@ def main() -> int:
             }
         )
 
-    duplicate_titles = sorted(
-        (value, count) for value, count in title_index.items() if value and count > 1
+    duplicate_titles = duplicate_groups(title_index, title_paths, title_values)
+    duplicate_descriptions = duplicate_groups(
+        description_index, description_paths, description_values
     )
-    duplicate_descriptions = sorted(
-        (value, count) for value, count in description_index.items() if value and count > 1
-    )
-    for value, count in duplicate_titles[:100]:
-        warnings.append(f"Duplicate title used {count} times: {value[:120]}")
-    for value, count in duplicate_descriptions[:100]:
-        warnings.append(f"Duplicate meta description used {count} times: {value[:160]}")
+    for group in duplicate_titles[:100]:
+        joined_paths = ", ".join(str(path) for path in group["paths"])
+        warnings.append(
+            f"Duplicate title used {group['count']} times: {str(group['value'])[:120]} | paths: {joined_paths}"
+        )
+    for group in duplicate_descriptions[:100]:
+        joined_paths = ", ".join(str(path) for path in group["paths"])
+        warnings.append(
+            "Duplicate meta description used "
+            f"{group['count']} times: {str(group['value'])[:160]} | paths: {joined_paths}"
+        )
 
     word_counts = [int(page["word_count"]) for page in pages]
     report = {
         "version": "32-content-quality",
+        "diagnostic_contract_version": DIAGNOSTIC_CONTRACT_VERSION,
         "pages_scanned": len(pages),
         "critical_error_count": len(critical_errors),
         "warning_count": len(warnings),
@@ -217,6 +254,8 @@ def main() -> int:
         ),
         "duplicate_title_values": len(duplicate_titles),
         "duplicate_description_values": len(duplicate_descriptions),
+        "duplicate_title_groups": duplicate_titles[:100],
+        "duplicate_description_groups": duplicate_descriptions[:100],
         "minimum_visible_words": min(word_counts) if word_counts else 0,
         "median_visible_words": sorted(word_counts)[len(word_counts) // 2] if word_counts else 0,
         "critical_errors": critical_errors[:500],
