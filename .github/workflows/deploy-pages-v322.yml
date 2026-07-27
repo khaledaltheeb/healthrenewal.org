@@ -1,0 +1,96 @@
+name: Deploy publication surface to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "pages-deployment-status.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout production source
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Verify publication entry points
+        run: |
+          set -euo pipefail
+          test -f index.html
+          test -f sections/index.html
+          test -f sectors/index.html
+          test -f specialists-partners/index.html
+          test -f platform/index.html
+          test -f copyright/index.html
+          grep -q 'data-publication-surface="v322"' index.html
+          grep -q 'فريقنا وشركاؤنا ذوو الاختصاص' index.html
+          grep -q 'الأقسام المتخصصة للصحة النفسية' sectors/index.html
+
+      - name: Upload static site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+
+      - name: Record deployment receipt
+        if: always()
+        env:
+          DEPLOY_OUTCOME: ${{ steps.deployment.outcome }}
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          outcome = os.environ.get("DEPLOY_OUTCOME", "unknown")
+          payload = {
+              "schema_version": 322,
+              "status": "deployed" if outcome == "success" else "failed",
+              "deployment_outcome": outcome,
+              "source_commit": os.environ["GITHUB_SHA"],
+              "source_ref": os.environ["GITHUB_REF"],
+              "workflow_run_id": os.environ["GITHUB_RUN_ID"],
+              "page_url": os.environ.get("PAGE_URL", ""),
+              "recorded_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+          }
+          Path("pages-deployment-status.json").write_text(
+              json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages-deployment-status.json
+          if git diff --cached --quiet; then
+            echo "Deployment receipt already current"
+            exit 0
+          fi
+          git commit -m "chore: record Pages deployment outcome"
+          git push origin HEAD:main
+
+      - name: Fail when Pages deployment failed
+        if: steps.deployment.outcome != 'success'
+        run: exit 1

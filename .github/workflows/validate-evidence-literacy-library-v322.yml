@@ -1,0 +1,146 @@
+name: Validate evidence literacy library v322
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v322/**"
+      - "trust/index.html"
+      - "scripts/publish_evidence_literacy_library_v322.py"
+      - "scripts/publish_evidence_literacy_library_v322_core.py"
+      - "scripts/audit_section_content_depth_v322.py"
+      - "scripts/complete_core_sections_v15.py"
+      - "tests/test_evidence_literacy_library_v322.py"
+      - "tests/test_evidence_trust_publication_v322.py"
+      - "tests/test_core_sections_evidence_literacy_v322.py"
+      - ".github/workflows/validate-evidence-literacy-library-v322.yml"
+  workflow_run:
+    workflows: ["Validate every assessment and cognitive tool v31"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: evidence-literacy-library-v322-${{ github.event_name }}-${{ github.ref || github.event.workflow_run.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  validate-source:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publisher core wrapper audit integration and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_evidence_literacy_library_v322.py \
+            scripts/publish_evidence_literacy_library_v322_core.py \
+            scripts/audit_section_content_depth_v322.py \
+            scripts/complete_core_sections_v15.py \
+            tests/test_evidence_literacy_library_v322.py \
+            tests/test_evidence_trust_publication_v322.py \
+            tests/test_core_sections_evidence_literacy_v322.py
+      - name: Validate content manifest
+        run: python -m json.tool content/v322/evidence-literacy-library-ar.json >/dev/null
+      - name: Validate depth evidence trust boundaries sources discovery idempotence and production hook
+        run: |
+          set -o pipefail
+          python -m unittest -v \
+            tests.test_evidence_literacy_library_v322 \
+            tests.test_evidence_trust_publication_v322 \
+            tests.test_core_sections_evidence_literacy_v322 \
+            > /tmp/evidence-literacy-v322-tests.log 2>&1 || {
+              tail -n 260 /tmp/evidence-literacy-v322-tests.log
+              exit 1
+            }
+          tail -n 100 /tmp/evidence-literacy-v322-tests.log
+      - name: Upload v322 failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-literacy-v322-failure-log
+          path: /tmp/evidence-literacy-v322-tests.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+  audit-validated-production:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download exact validated production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - name: Audit exact production sections and enforce evidence-literacy publication
+        run: |
+          set -euxo pipefail
+          python scripts/audit_section_content_depth_v322.py _site | tee /tmp/section-depth-v322.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          site = Path('_site')
+          library = json.loads((site / 'api/evidence-literacy-library-v322.json').read_text(encoding='utf-8'))
+          depth = json.loads((site / 'api/section-content-depth-v322.json').read_text(encoding='utf-8'))
+          deployment = json.loads((site / 'deployment.json').read_text(encoding='utf-8'))
+          expected_sha = '${{ github.event.workflow_run.head_sha }}'
+          trust = site / 'trust/index.html'
+          assert deployment['commit'] == expected_sha, (deployment.get('commit'), expected_sha)
+          assert library['version'] == 322 and library['status'] == 'passed', library
+          assert library['guide_count'] == 4 and library['generated_page_count'] == 5, library
+          assert library['minimum_guide_words'] >= 900, library
+          assert library['section_count'] == 24 and library['source_count'] >= 12, library
+          assert library['external_methodology_review_completed'] is False, library
+          assert library['trust_page_published'] is True, library
+          assert library['trust_page_path'] == 'trust/index.html', library
+          assert library['trust_page_words'] >= 1100, library
+          assert library['trust_page_sitemap_registered'] is True, library
+          assert trust.is_file(), trust
+          assert depth['version'] == 322 and depth['status'] == 'passed', depth
+          assert depth['html_index_pages_scanned'] >= 3000, depth
+          assert depth['evidence_literacy_page_count'] == 5, depth
+          assert depth['evidence_literacy_minimum_guide_words'] >= 900, depth
+          assert depth['evidence_literacy_structural_issues'] == 0, depth
+          print({
+              'commit': expected_sha,
+              'pages_scanned': depth['html_index_pages_scanned'],
+              'families': depth['family_count'],
+              'priority_sections': depth['highest_priority_sections'],
+              'evidence_guides': library['guide_count'],
+              'minimum_guide_words': library['minimum_guide_words'],
+              'trust_page_words': library['trust_page_words'],
+          })
+          PY
+      - name: Upload ranked section audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: section-content-depth-v322-${{ github.event.workflow_run.head_sha }}
+          path: |
+            _site/api/section-content-depth-v322.json
+            _site/api/evidence-literacy-library-v322.json
+            _site/trust/index.html
+            /tmp/section-depth-v322.json
+          if-no-files-found: error
+          retention-days: 30
