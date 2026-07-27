@@ -11,6 +11,7 @@ from datetime import date
 from pathlib import Path
 
 from publish_evidence_literacy_library_v322 import publish as publish_evidence_literacy
+from publish_protection_safeguarding_cluster_v324 import publish as publish_protection_safeguarding
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 ROOT = Path(__file__).resolve().parents[1]
@@ -125,6 +126,11 @@ def main() -> None:
         raise SystemExit({"invalid_evidence_literacy_v322": evidence})
     if evidence.get("guide_count") != 4 or int(evidence.get("minimum_guide_words", 0)) < 900:
         raise SystemExit({"insufficient_evidence_literacy_v322": evidence})
+    protection = publish_protection_safeguarding(SITE)
+    if protection.get("version") != 324 or protection.get("status") != "passed":
+        raise SystemExit({"invalid_protection_safeguarding_v324": protection})
+    if protection.get("guide_count") != 6 or int(protection.get("minimum_rendered_words", 0)) < 650:
+        raise SystemExit({"insufficient_protection_safeguarding_v324": protection})
     sw = SITE / "sw.js"
     if sw.exists(): sw.write_text(sw.read_text(encoding="utf-8").replace("pterminology-v14-performance", "pterminology-v15-core-sections"), encoding="utf-8")
     report = {
@@ -139,6 +145,10 @@ def main() -> None:
         "evidence_literacy_guides": evidence["guide_count"],
         "evidence_literacy_minimum_words": evidence["minimum_guide_words"],
         "evidence_literacy_sources": evidence["source_count"],
+        "protection_safeguarding_version": protection["version"],
+        "protection_safeguarding_guides": protection["guide_count"],
+        "protection_safeguarding_minimum_words": protection["minimum_rendered_words"],
+        "protection_safeguarding_sources": protection["source_count"],
     }
     api = SITE / "api"; api.mkdir(exist_ok=True); (api / "core-sections-v15.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
