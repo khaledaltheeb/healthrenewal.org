@@ -31,7 +31,7 @@ jobs:
           node --check content/accessibility/hero-header-contrast-v283.js
           node --check scripts/test_lab_v15.js
           node --check scripts/browser_audit_v16.mjs
-          node --check scripts/audit_hero_header_black_v281.mjs
+          node --check scripts/audit_adaptive_surfaces_v284.mjs
       - name: Build base site and content layers
         run: |
           set -euxo pipefail
@@ -76,7 +76,7 @@ jobs:
         run: |
           npm install --no-save playwright
           npx playwright install --with-deps chromium
-      - name: Run real browser, mobile and interaction audit
+      - name: Run real browser mobile and adaptive surface audit
         run: |
           set -euxo pipefail
           mkdir -p preview
@@ -86,7 +86,7 @@ jobs:
           trap 'kill $SERVER_PID || true' EXIT
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/pterminology-site/ >/dev/null && break; sleep 1; done
           AUDIT_BASE_URL=http://127.0.0.1:8000/pterminology-site/ AUDIT_OUT_DIR=_site/api node scripts/browser_audit_v16.mjs
-          AUDIT_BASE_URL=http://127.0.0.1:8000/pterminology-site/ AUDIT_OUT_DIR=_site/api node scripts/audit_hero_header_black_v281.mjs _site
+          AUDIT_BASE_URL=http://127.0.0.1:8000/pterminology-site/ AUDIT_OUT_DIR=_site/api HERO_AUDIT_CONCURRENCY=4 node scripts/audit_adaptive_surfaces_v284.mjs _site
       - name: Upload complete audit reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -99,6 +99,7 @@ jobs:
             _site/api/full-site-audit-v16.json
             _site/api/browser-audit-v16.json
             _site/api/hero-header-contrast-audit-v283.json
+            _site/api/hero-header-contrast-audit-v284.json
             _site/api/site-integrity-v13.json
             _site/api/core-sections-audit-v15.json
             _site/api/performance-verification-v14.json
