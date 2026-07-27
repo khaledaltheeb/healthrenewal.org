@@ -20,12 +20,17 @@ CONDITION_SOURCE_FILES = {
     "content/v302/special-needs-providers-ar.json",
     "content/v302/autism-ar.json",
     "content/v302/down-syndrome-ar.json",
+    "content/v305/special-needs-condition-postlaunch-ar.json",
+    "content/v307/special-needs-condition-trust-ar.json",
 }
-SPECIAL_NEEDS_PREFIXES = tuple(f"content/v{version}/" for version in (*VERSIONS, 221, 302))
+SPECIAL_NEEDS_PREFIXES = tuple(f"content/v{version}/" for version in (*VERSIONS, 221, 302, 305, 307))
 SPECIAL_NEEDS_PUBLISHERS = {
     "scripts/publish_special_needs_hub_v235.py",
     "scripts/publish_special_needs_hub_v235_compat.py",
     "scripts/publish_special_needs_condition_hubs_v302.py",
+    "scripts/publish_special_needs_condition_postlaunch_v305.py",
+    "scripts/publish_special_needs_condition_trust_v307.py",
+    "scripts/validate_special_needs_provider_directory_v308.py",
     "scripts/publish_special_needs_guides_v214.py",
     "scripts/publish_special_needs_guides_v217.py",
     "scripts/publish_special_needs_guides_v217_core.py",
@@ -88,6 +93,14 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
         self.assertFalse(first["external_review_completed"])
         self.assertEqual(first["condition_hubs"]["condition_slugs"], ["autism", "down-syndrome"])
         self.assertEqual(first["condition_hubs"]["source_count"], 17)
+        self.assertEqual(first["condition_hubs"]["postlaunch"]["related_link_count"], 16)
+        self.assertEqual(first["condition_hubs"]["trust"]["faq_count"], 8)
+        self.assertTrue(first["condition_hubs"]["trust"]["faq_schema_visible_match"])
+        governance = first["condition_hubs"]["provider_governance"]
+        self.assertEqual(governance["version"], 308)
+        self.assertEqual(governance["record_count"], 0)
+        self.assertEqual(governance["published_count"], 0)
+        self.assertFalse(governance["sponsored_publication_enabled"])
 
         hub_path = self.site / "special-needs/index.html"
         hub = hub_path.read_text(encoding="utf-8")
@@ -98,8 +111,13 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
             self.assertTrue((self.site / "special-needs" / slug / "index.html").is_file())
             self.assertEqual(hub.count(f"/pterminology-site/special-needs/{slug}/"), 1)
         for slug in ("autism", "down-syndrome"):
-            self.assertTrue((self.site / "special-needs" / slug / "index.html").is_file())
+            page_path = self.site / "special-needs" / slug / "index.html"
+            self.assertTrue(page_path.is_file())
             self.assertEqual(hub.count(f"/pterminology-site/special-needs/{slug}/"), 1)
+            page = page_path.read_text(encoding="utf-8")
+            self.assertIn('"@type": "FAQPage"', page)
+            self.assertIn('id="quality-and-faq"', page)
+            self.assertIn('id="provider-listing-policy"', page)
 
         v214 = json.loads((self.site / "api/special-needs-guides-v214.json").read_text(encoding="utf-8"))
         self.assertEqual(v214["status"], "production-integrated")
@@ -124,6 +142,11 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
             self.site / "api/special-needs-guides-v217.json",
             self.site / "api/special-needs-guides-v221.json",
             self.site / "api/special-needs-condition-hubs-v302.json",
+            self.site / "api/special-needs-condition-postlaunch-v305.json",
+            self.site / "api/special-needs-condition-trust-v307.json",
+            self.site / "api/special-needs-provider-governance-v308.json",
+            self.site / "special-needs/autism/index.html",
+            self.site / "special-needs/down-syndrome/index.html",
         ]
         before = [digest(path) for path in tracked]
         second = self.run_publisher()
