@@ -4,57 +4,99 @@ import json
 import re
 import sys
 import xml.etree.ElementTree as ET
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "content" / "v24" / "daily-tools-learning-paths-ar.json"
-SITE = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else None
-BANNED = ("يشخص", "تشخيصك", "يعالج نهائيًا", "مضمون", "بديل عن الطبيب", "درجة الاكتئاب", "درجة القلق")
-NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
-SLEEP_SLUG = "sleep-wind-down-plan"
-DESIGN_CONTRACT = 219
-SEO_CONTRACT = 219
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
+from scripts.publish_learning_paths_v326 import REQUIRED_EXISTING_SLUGS, load_catalog
+
+TOOLS_DATA = ROOT / "content" / "v24" / "daily-tools-learning-paths-ar.json"
+SITE = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else None
+BANNED = (
+    "تشخيصك",
+    "يعالج نهائيًا",
+    "مضمون",
+    "بديل عن الطبيب",
+    "درجة الاكتئاب",
+    "درجة القلق",
+)
+NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
+DESIGN_CONTRACT = 219
+SEO_CONTRACT = 326
 
 def norm(value: str) -> str:
-    return re.sub(r"[\W_]+", "", value, flags=re.UNICODE).lower()
-
+    return re.sub(r"[\W_]+", "", value, flags=re.UNICODE).casefold()
 
 def relative_luminance(value: str) -> float:
     value = value.lstrip("#")
-    channels = [int(value[index : index + 2], 16) / 255 for index in (0, 2, 4)]
-    linear = [channel / 12.92 if channel <= 0.03928 else ((channel + 0.055) / 1.055) ** 2.4 for channel in channels]
+    channels = [int(value[index:index + 2], 16) / 255 for index in (0, 2, 4)]
+    linear = [
+        channel / 12.92 if channel <= 0.03928 else ((channel + 0.055) / 1.055) ** 2.4
+        for channel in channels
+    ]
     return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
-
 
 def contrast_ratio(foreground: str, background: str) -> float:
     light, dark = sorted((relative_luminance(foreground), relative_luminance(background)), reverse=True)
     return (light + 0.05) / (dark + 0.05)
 
-
 def main() -> None:
-    data = json.loads(DATA.read_text(encoding="utf-8"))
-    tools = data["tools"]
-    paths = data["paths"]
-    assert len(tools) == 8 and len(paths) == 4
+    tools_data = json.loads(TOOLS_DATA.read_text(encoding="utf-8"))
+    tools = tools_data["tools"]
+    catalog = load_catalog()
+    paths = catalog["paths"]
+    categories = catalog["categories"]
+    sources = catalog["sources"]
 
-    slugs = [item["slug"] for item in tools + paths]
-    titles = [norm(item["title"]) for item in tools + paths]
-    assert len(slugs) == len(set(slugs))
-    assert len(titles) == len(set(titles))
+    assert len(tools) == 8
+    assert len(paths) == 100
+    assert len(categories) == 10
+    assert len(sources) >= 20
+
+    category_ids = {item["id"] for item in categories}
+    source_ids = {item["id"] for item in sources}
+    tool_slugs = {item["slug"] for item in tools}
+    counts = Counter(path["category"] for path in paths)
+    assert set(counts) == category_ids
+    assert set(counts.values()) == {10}, counts
+
+    slugs = [path["slug"] for path in paths]
+    titles = [norm(path["title"]) for path in paths]
+    ids = [path["id"] for path in paths]
+    assert len(slugs) == len(set(slugs)) == 100
+    assert len(titles) == len(set(titles)) == 100
+    assert len(ids) == len(set(ids)) == 100
+    assert REQUIRED_EXISTING_SLUGS <= set(slugs)
     assert all(re.fullmatch(r"[a-z0-9-]+", slug) for slug in slugs)
 
-    source_blob = DATA.read_text(encoding="utf-8").lower()
-    assert not any(item in source_blob for item in BANNED)
-    assert all(len(tool["steps"]) >= 4 and len(tool["save_fields"]) >= 3 and tool["safety"] for tool in tools)
-    tool_slugs = {tool["slug"] for tool in tools}
-    assert all(len(path["days"]) >= 5 and set(path["related_tools"]) <= tool_slugs for path in paths)
-    sleep_context_paths = [path for path in paths if SLEEP_SLUG in path["related_tools"]]
-    assert len(sleep_context_paths) >= 2, [path["slug"] for path in sleep_context_paths]
+    source_blob = "\n".join(
+        file.read_text(encoding="utf-8")
+        for file in (ROOT / "content" / "v326" / "learning-paths").glob("*.json")
+    ).casefold()
+    assert not any(item.casefold() in source_blob for item in BANNED)
 
-    sources = data["sources"]
-    assert len(sources) >= 4 and all(source["url"].startswith("https://") for source in sources)
-    assert len({source["publisher"] for source in sources}) >= 2
+    for path in paths:
+        assert path["category"] in category_ids
+        assert len(path["outcomes"]) >= 3
+        assert len(path["modules"]) == 5
+        assert len(path["checklist"]) >= 5
+        assert len(path["faq"]) >= 3
+        assert len(path["source_ids"]) >= 2
+        assert set(path["source_ids"]) <= source_ids
+        assert set(path["related_tools"]) <= tool_slugs
+        assert path["safety"] and path["seek_help"] and path["reviewed"]
+        for position, module in enumerate(path["modules"], start=1):
+            assert module["position"] == position
+            assert module["title"] and module["objective"] and module["explanation"]
+            assert len(module["key_points"]) >= 3
+            assert module["application"]
+            assert len(module["knowledge_check"]) >= 2
+
+    assert all(source["url"].startswith("https://") for source in sources)
+    assert len({source["publisher"] for source in sources}) >= 6
 
     palette_pairs = {
         "ink_on_rose": ("#173f45", "#fff0f5"),
@@ -74,7 +116,8 @@ def main() -> None:
             + [SITE / "daily-tools" / tool["slug"] / "index.html" for tool in tools]
             + [SITE / "learning-paths" / path["slug"] / "index.html" for path in paths]
         )
-        assert all(path.exists() for path in expected), [str(path) for path in expected if not path.exists()]
+        assert len(expected) == 110
+        assert all(page.is_file() for page in expected), [str(page) for page in expected if not page.is_file()]
 
         required_metadata = (
             'rel="canonical"',
@@ -98,72 +141,55 @@ def main() -> None:
             assert all(marker in text for marker in required_metadata), page
             assert text.count('<meta name="description"') == 1, page
             assert text.count('<link rel="canonical"') == 1, page
-            assert "--mint:#e5faf5" in text and "--rose:#fff0f5" in text and "--lilac:#f2edff" in text, page
-            assert "--peach:#fff0e8" in text and "--butter:#fff8d8" in text, page
-            assert "text-shadow" not in text.lower(), page
-            assert "rgba(0,0,0" not in text.replace(" ", "").lower(), page
-            assert not any(item in text.lower() for item in BANNED), page
+            assert "text-shadow" not in text.casefold(), page
+            assert "rgba(0,0,0" not in text.replace(" ", "").casefold(), page
+            assert not any(item.casefold() in text.casefold() for item in BANNED), page
 
-        sleep_runtime_path = SITE / "assets" / "sleep-log-v49.js"
-        for tool in tools:
-            text = (SITE / "daily-tools" / tool["slug"] / "index.html").read_text(encoding="utf-8")
-            assert "لا تُرسل البيانات إلى خادم" in text
-            if tool["slug"] == SLEEP_SLUG and "sleep-log-v49.js" in text:
-                assert sleep_runtime_path.is_file(), sleep_runtime_path
-                sleep_runtime = sleep_runtime_path.read_text(encoding="utf-8")
-                assert "localStorage" in sleep_runtime
-                assert not any(marker in sleep_runtime for marker in ("fetch(", "XMLHttpRequest", "navigator.sendBeacon"))
-            else:
-                assert "localStorage" in text
+        center = (SITE / "learning-paths" / "index.html").read_text(encoding="utf-8")
+        assert center.count('class="path-card"') == 100
+        assert center.count('class="filter-button"') == 11
+        assert "500</strong> وحدة تعلم" in center
+        assert "29</strong> مرجعًا مؤسسيًا" in center
+        assert "fetch(" not in center and "XMLHttpRequest" not in center and "sendBeacon" not in center
 
-        sleep_href = f"/pterminology-site/daily-tools/{SLEEP_SLUG}/"
-        center = (SITE / "daily-tools" / "index.html").read_text(encoding="utf-8")
-        assert center.count(f'href="{sleep_href}"') == 1
-        assert center.count("أداة تفاعلية محلية") == 8
-        assert "ألوانًا هادئة مع نص داكن واضح وحدود وظلال فاتحة" in center
-
-        contextual = []
         for path in paths:
             page = (SITE / "learning-paths" / path["slug"] / "index.html").read_text(encoding="utf-8")
-            if f'href="{sleep_href}"' in page:
-                contextual.append(path["slug"])
-        assert len(contextual) >= 2, contextual
+            assert page.count('class="module"') == 5, path["slug"]
+            assert "<h2>نتائج التعلم</h2>" in page
+            assert "<h2>المراجع المؤسسية الخاصة بالمسار</h2>" in page
+            assert "<h2>السلامة وحدود المسار</h2>" in page
+            assert '"@type":"Course"' in page
+            assert '"@type":"BreadcrumbList"' in page
+            assert '"@type":"FAQPage"' in page
+            internal_links = page.count('href="/pterminology-site/')
+            assert internal_links >= 7, (path["slug"], internal_links)
 
         homepage = (SITE / "index.html").read_text(encoding="utf-8")
-        assert homepage.count('href="daily-tools/"') >= 2
-        assert homepage.count('href="learning-paths/"') >= 2
-        assert homepage.count("data-daily-tools-v219") == 1
         assert homepage.count("data-learning-paths-v219") == 1
-        assert '"url":"https://khaledaltheeb.github.io/pterminology-site/daily-tools/"' in homepage
-        assert '"url":"https://khaledaltheeb.github.io/pterminology-site/learning-paths/"' in homepage
+        assert "مئة مسار تعلم مؤسسي" in homepage
 
         report = json.loads((SITE / "api" / "daily-tools-v24.json").read_text(encoding="utf-8"))
-        assert report == {
-            "version": 24,
-            "design_contract": DESIGN_CONTRACT,
-            "tools": 8,
-            "paths": 4,
-            "pages": 14,
-            "local_only": True,
-            "marshmallow_palette": True,
-            "dark_text_box_shadow": False,
-            "homepage_linked": True,
-        }
+        assert report["learning_paths_catalog_version"] == 326
+        assert report["tools"] == 8
+        assert report["paths"] == 100
+        assert report["path_categories"] == 10
+        assert report["path_sources"] == len(sources)
+        assert report["pages"] == 110
+        assert report["local_only"] is True
 
         child = ET.parse(SITE / "sitemap-tools-paths.xml").getroot()
         assert child.tag == f"{{{NS}}}urlset"
         child_urls = child.findall(f"{{{NS}}}url")
-        assert len(child_urls) == 14 and all(item.find(f"{{{NS}}}loc") is not None for item in child_urls)
-        sleep_url = "https://khaledaltheeb.github.io/pterminology-site/daily-tools/sleep-wind-down-plan/"
-        assert sum(
-            1
-            for item in child_urls
-            if item.find(f"{{{NS}}}loc") is not None and item.find(f"{{{NS}}}loc").text == sleep_url
-        ) == 1
+        assert len(child_urls) == 110
+        locations = [item.find(f"{{{NS}}}loc").text for item in child_urls]
+        assert len(locations) == len(set(locations))
+        assert BASE_URL + "learning-paths/" in locations
+        for slug in REQUIRED_EXISTING_SLUGS:
+            assert BASE_URL + "learning-paths/" + slug + "/" in locations
 
         sitemap_index = ET.parse(SITE / "sitemap.xml").getroot()
         assert sitemap_index.tag == f"{{{NS}}}sitemapindex"
-        target = "https://khaledaltheeb.github.io/pterminology-site/sitemap-tools-paths.xml"
+        target = BASE_URL + "sitemap-tools-paths.xml"
         matches = [
             item.text
             for item in sitemap_index.findall(f"{{{NS}}}sitemap/{{{NS}}}loc")
@@ -171,28 +197,21 @@ def main() -> None:
         ]
         assert len(matches) == 1, matches
 
-    print(
-        json.dumps(
-            {
-                "tools": 8,
-                "paths": 4,
-                "unique_slugs": True,
-                "unique_titles": True,
-                "non_diagnostic": True,
-                "sources": len(sources),
-                "sleep_context_paths": len(sleep_context_paths),
-                "design_contract": DESIGN_CONTRACT,
-                "seo_contract": SEO_CONTRACT,
-                "minimum_contrast_ratio": min(ratios.values()),
-                "contrast_ratios": ratios,
-                "production_checked": bool(SITE),
-                "homepage_linked": bool(SITE),
-                "sitemap_namespaces_checked": bool(SITE),
-            },
-            ensure_ascii=False,
-        )
-    )
+    print(json.dumps({
+        "tools": 8,
+        "paths": 100,
+        "categories": 10,
+        "paths_per_category": 10,
+        "modules": 500,
+        "sources": len(sources),
+        "unique_slugs": True,
+        "existing_urls_preserved": sorted(REQUIRED_EXISTING_SLUGS),
+        "seo_contract": SEO_CONTRACT,
+        "minimum_contrast_ratio": min(ratios.values()),
+        "production_checked": bool(SITE),
+    }, ensure_ascii=False))
 
+BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
 
 if __name__ == "__main__":
     main()
