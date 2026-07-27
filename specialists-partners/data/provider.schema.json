@@ -1,70 +1,38 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/provider.schema.json",
-  "title": "Specialist or partner-center public profile",
+  "title": "Public specialist, expert, center, or institutional partner profile",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "id",
-    "entityType",
-    "displayName",
-    "specialties",
-    "ageGroups",
-    "serviceModes",
-    "languages",
-    "location",
-    "verification",
-    "publicationStatus",
-    "consent"
-  ],
+  "required": ["id", "entityType", "displayName", "specialties", "ageGroups", "serviceModes", "languages", "location", "verification", "publicationStatus", "consent"],
   "properties": {
     "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{2,80}$"},
     "entityType": {"enum": ["professional", "center"]},
     "displayName": {"type": "string", "minLength": 3, "maxLength": 140},
-    "professionalTitle": {"type": "string", "maxLength": 180},
-    "centerType": {"type": "string", "maxLength": 180},
-    "shortBio": {"type": "string", "maxLength": 700},
+    "professionalTitle": {"type": ["string", "null"], "maxLength": 180},
+    "centerType": {"type": ["string", "null"], "maxLength": 180},
+    "roleInNetwork": {"type": ["string", "null"], "maxLength": 140},
+    "shortBio": {"type": "string", "maxLength": 1000},
     "specialties": {
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
-      "items": {
-        "enum": [
-          "speech_language",
-          "audiology",
-          "special_education",
-          "early_intervention",
-          "occupational_therapy",
-          "behavior_support",
-          "learning_support",
-          "autism_support",
-          "aac",
-          "family_training",
-          "psychology",
-          "center"
-        ]
-      }
+      "items": {"enum": ["psychology", "psychiatry", "speech_language", "audiology", "special_education", "early_intervention", "occupational_therapy", "physiotherapy", "behavior_support", "learning_support", "autism_support", "aac", "family_training", "social_work", "nutrition", "center"]}
     },
     "services": {"type": "array", "items": {"type": "string", "maxLength": 180}, "uniqueItems": true},
-    "ageGroups": {
-      "type": "array",
-      "items": {"enum": ["الرضع", "الطفولة المبكرة", "الأطفال", "المراهقون", "البالغون", "جميع الأعمار"]},
-      "uniqueItems": true
-    },
-    "serviceModes": {
-      "type": "array",
-      "items": {"enum": ["حضوري", "عن بعد", "زيارة منزلية", "مدرسي", "هجين"]},
-      "uniqueItems": true
-    },
+    "ageGroups": {"type": "array", "items": {"enum": ["الرضع", "الطفولة المبكرة", "الأطفال", "المراهقون", "البالغون", "جميع الأعمار"]}, "uniqueItems": true},
+    "serviceModes": {"type": "array", "items": {"enum": ["حضوري", "عن بعد", "زيارة منزلية", "مدرسي", "هجين"]}, "uniqueItems": true},
     "languages": {"type": "array", "items": {"type": "string", "maxLength": 60}, "uniqueItems": true},
+    "serviceAreas": {"type": "array", "items": {"type": "string", "maxLength": 140}, "uniqueItems": true},
     "location": {
       "type": "object",
       "additionalProperties": false,
       "required": ["country", "city"],
       "properties": {
         "country": {"type": "string", "maxLength": 80},
+        "governorate": {"type": ["string", "null"], "maxLength": 100},
         "city": {"type": "string", "maxLength": 100},
-        "area": {"type": "string", "maxLength": 140},
+        "area": {"type": ["string", "null"], "maxLength": 140},
         "accessibility": {"type": "array", "items": {"type": "string", "maxLength": 140}}
       }
     },
@@ -77,6 +45,7 @@
         "properties": {
           "name": {"type": "string", "maxLength": 220},
           "institution": {"type": "string", "maxLength": 220},
+          "level": {"type": ["string", "null"], "maxLength": 100},
           "year": {"type": ["integer", "null"], "minimum": 1950, "maximum": 2100}
         }
       }
@@ -88,11 +57,28 @@
         "additionalProperties": false,
         "required": ["authority", "status"],
         "properties": {
-          "authority": {"type": "string", "maxLength": 220},
+          "authority": {"type": ["string", "null"], "maxLength": 220},
           "identifierPublic": {"type": ["string", "null"], "maxLength": 120},
           "status": {"enum": ["active", "not_applicable", "pending_review"]},
           "validUntil": {"type": ["string", "null"], "format": "date"}
         }
+      }
+    },
+    "availability": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {"enum": ["available", "limited", "unavailable"]},
+        "updatedAt": {"type": ["string", "null"], "format": "date"}
+      }
+    },
+    "communication": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "acceptsNewRequests": {"type": "boolean"},
+        "typicalResponse": {"type": ["string", "null"], "maxLength": 100}
       }
     },
     "contact": {
@@ -111,7 +97,7 @@
       "additionalProperties": false,
       "required": ["status", "lastVerifiedAt", "sources"],
       "properties": {
-        "status": {"enum": ["verified", "provisional", "pending", "unverified"]},
+        "status": {"enum": ["verified", "provisional", "pending", "unverified", "suspended"]},
         "lastVerifiedAt": {"type": ["string", "null"], "format": "date"},
         "nextReviewAt": {"type": ["string", "null"], "format": "date"},
         "reviewerRole": {"type": ["string", "null"], "maxLength": 120},
