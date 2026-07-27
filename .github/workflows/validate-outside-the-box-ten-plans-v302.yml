@@ -39,11 +39,20 @@ jobs:
           python -m py_compile scripts/publish_outside_the_box_ten_plans_v302.py
           python -m py_compile tests/test_outside_the_box_ten_plans_v302.py
 
-      - name: Enforce 100 conditions and 1000 complete plan instances
-        run: |
-          set -o pipefail
-          if ! python -m unittest tests/test_outside_the_box_ten_plans_v302.py > /tmp/ten-plans-test.log 2>&1; then
-            tail -80 /tmp/ten-plans-test.log
-            exit 1
-          fi
-          cat /tmp/ten-plans-test.log
+      - name: Validate framework contract
+        run: python -m unittest tests.test_outside_the_box_ten_plans_v302.TenPlanSourceContractV302.test_framework_declares_exact_complete_contract
+
+      - name: Generate ten plans for every condition
+        run: python -m unittest tests.test_outside_the_box_ten_plans_v302.TenPlanSourceContractV302.test_every_condition_can_generate_ten_evidence_linked_plans
+
+      - name: Publish 1000 complete plan instances
+        run: python -m unittest tests.test_outside_the_box_ten_plans_v302.TenPlanPublisherV302.test_publishes_one_thousand_complete_plan_instances
+
+      - name: Validate hub methodology sitemap and API integration
+        run: python -m unittest tests.test_outside_the_box_ten_plans_v302.TenPlanPublisherV302.test_hub_methodology_sitemap_and_base_api_are_integrated
+
+      - name: Validate idempotent publication
+        run: python -m unittest tests.test_outside_the_box_ten_plans_v302.TenPlanPublisherV302.test_extension_is_idempotent
+
+      - name: Validate responsible language and review status
+        run: python -m unittest tests.test_outside_the_box_ten_plans_v302.TenPlanPublisherV302.test_language_is_responsible_and_review_state_is_honest
