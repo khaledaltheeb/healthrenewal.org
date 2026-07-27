@@ -1,0 +1,24 @@
+name: Validate recovery dispositions v314
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "data/recovery-dispositions-v201.json"
+      - "scripts/verify_recovery_dispositions_v314.py"
+      - ".github/workflows/validate-recovery-dispositions-v314.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recovery-dispositions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JSON and evidence-bound classifications
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/verify_recovery_dispositions_v314.py
+          python scripts/verify_recovery_dispositions_v314.py
