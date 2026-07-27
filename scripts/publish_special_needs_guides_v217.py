@@ -46,6 +46,8 @@ def load_production_manifest() -> dict[str, Any]:
 def publish(site: Path) -> dict[str, Any]:
     for slug in ("autism", "down-syndrome"):
         shutil.rmtree(site / "special-needs" / slug, ignore_errors=True)
+    (site / "api" / "special-needs-condition-hubs-v302.json").unlink(missing_ok=True)
+
     production_manifest = load_production_manifest()
     hub_report = hub235.publish(site)
     if hub_report.get("version") != 235 or hub_report.get("guide_count") != 25:
