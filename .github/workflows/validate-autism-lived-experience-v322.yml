@@ -1,0 +1,61 @@
+name: Validate autism lived-experience guides v322
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v322/**"
+      - "scripts/publish_autism_lived_experience_guides_v322.py"
+      - "scripts/publish_special_needs_guides_v217.py"
+      - "tests/test_autism_lived_experience_guides_v322.py"
+      - "tests/test_autism_lived_experience_integration_v322.py"
+      - ".github/workflows/validate-autism-lived-experience-v322.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: autism-lived-experience-v322-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publishers and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_autism_lived_experience_guides_v322.py \
+            scripts/publish_special_needs_guides_v217.py \
+            tests/test_autism_lived_experience_guides_v322.py \
+            tests/test_autism_lived_experience_integration_v322.py
+      - name: Validate source manifest JSON
+        run: python -m json.tool content/v322/autism-lived-experience-guides-ar.json >/dev/null
+      - name: Validate evidence depth resources parent links sitemap schema and idempotence
+        run: python -m unittest -v tests.test_autism_lived_experience_guides_v322
+      - name: Validate v322 production integration and repository reachability
+        run: |
+          python -m unittest -v tests.test_autism_lived_experience_integration_v322 > /tmp/autism-v322-integration.log 2>&1 || { tail -n 300 /tmp/autism-v322-integration.log; exit 1; }
+          tail -n 100 /tmp/autism-v322-integration.log
+      - name: Re-run prior central special-needs production contract
+        run: |
+          python -m unittest -v tests.test_special_needs_guides_v221_integration > /tmp/special-needs-v221.log 2>&1 || { tail -n 300 /tmp/special-needs-v221.log; exit 1; }
+          tail -n 100 /tmp/special-needs-v221.log
+      - name: Upload failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autism-lived-experience-v322-failure-evidence
+          path: |
+            /tmp/autism-v322-integration.log
+            /tmp/special-needs-v221.log
+            _audit/unpublished-content-v201.json
+          if-no-files-found: ignore
+          retention-days: 7
