@@ -41,6 +41,7 @@ REQUIRED_FILES = (
     "assets/brand/social-card.svg",
     "api/index.html",
     "api/v1/platform.json",
+    "api/v1/specialists-partners.json",
     "api/v1/openapi.json",
     "api/v1/courses.schema.json",
     "api/v1/courses.example.json",
@@ -133,9 +134,7 @@ def main() -> None:
     ):
         assert required_meta in source, f"Missing homepage discovery metadata: {required_meta}"
 
-    structured = re.search(
-        r'<script type="application/ld\+json">(.*?)</script>', source, re.DOTALL
-    )
+    structured = re.search(r'<script type="application/ld\+json">(.*?)</script>', source, re.DOTALL)
     assert structured, "Missing JSON-LD"
     payload = json.loads(structured.group(1))
     graph = payload.get("@graph", [])
@@ -159,49 +158,51 @@ def main() -> None:
 
     manifest = load_json("manifest.webmanifest")
     platform = load_json("api/v1/platform.json")
+    specialists = load_json("api/v1/specialists-partners.json")
     openapi = load_json("api/v1/openapi.json")
     course_schema = load_json("api/v1/courses.schema.json")
     course_example = load_json("api/v1/courses.example.json")
     assert manifest.get("name") == BRAND
     assert manifest.get("dir") == "rtl" and manifest.get("lang") == "ar"
-    assert platform.get("apiVersion") == "1.0.0"
+    assert platform.get("apiVersion") == "1.1.0"
+    sections = platform.get("sections", [])
+    assert any(item.get("id") == "specialists-partners" for item in sections)
+    assert platform.get("endpoints", {}).get("specialistsPartners", "").endswith("/api/v1/specialists-partners.json")
+    assert specialists.get("id") == "specialists-partners"
+    assert specialists.get("publicationRules", {}).get("requiresWrittenPublicationConsent") is True
+    assert specialists.get("publicationRules", {}).get("paidRankingAllowed") is False
     assert openapi.get("openapi") == "3.1.0"
     assert course_schema["properties"]["authorization"]["properties"]["status"]["const"] == "authorized"
     assert course_example["authorization"]["status"] == "authorized"
     assert course_example["courses"][0]["rights"]["metadataReuse"] is True
     assert course_example["courses"][0]["rights"]["contentReuse"] is False
 
-    print(
-        json.dumps(
-            {
-                "status": "passed",
-                "contract": "institutional-home-discovery-seo-v220",
-                "brand": BRAND,
-                "slogan": SLOGAN,
-                "required_links": len(REQUIRED_LINKS),
-                "required_files": len(REQUIRED_FILES),
-                "description_chars": len(description.group(1)),
-                "keyword_items": len(keyword_items),
-                "jsonld_nodes": len(graph),
-                "h1": len(re.findall(r"<h1\b", source)),
-                "h2": len(re.findall(r"<h2\b", source)),
-                "h3": len(re.findall(r"<h3\b", source)),
-                "comparisons_linked": True,
-                "library_linked": True,
-                "guided_assessment_linked": True,
-                "daily_tools_linked": True,
-                "learning_paths_linked": True,
-                "interactive_tools_discovery_contract": 220,
-                "operational_copy_hidden": True,
-                "api_version": platform["apiVersion"],
-                "openapi": openapi["openapi"],
-                "lab_tool_count": 93,
-                "light_palette": True,
-            },
-            ensure_ascii=False,
-            indent=2,
-        )
-    )
+    print(json.dumps({
+        "status": "passed",
+        "contract": "institutional-home-discovery-seo-v323",
+        "brand": BRAND,
+        "slogan": SLOGAN,
+        "required_links": len(REQUIRED_LINKS),
+        "required_files": len(REQUIRED_FILES),
+        "description_chars": len(description.group(1)),
+        "keyword_items": len(keyword_items),
+        "jsonld_nodes": len(graph),
+        "h1": len(re.findall(r"<h1\b", source)),
+        "h2": len(re.findall(r"<h2\b", source)),
+        "h3": len(re.findall(r"<h3\b", source)),
+        "comparisons_linked": True,
+        "library_linked": True,
+        "guided_assessment_linked": True,
+        "daily_tools_linked": True,
+        "learning_paths_linked": True,
+        "specialists_partners_api": True,
+        "interactive_tools_discovery_contract": 220,
+        "operational_copy_hidden": True,
+        "api_version": platform["apiVersion"],
+        "openapi": openapi["openapi"],
+        "lab_tool_count": 93,
+        "light_palette": True,
+    }, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
