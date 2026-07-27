@@ -1,0 +1,61 @@
+name: Validate special-needs support intervention guides v318
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v318/**"
+      - "scripts/publish_special_needs_support_interventions_v318.py"
+      - "scripts/publish_special_needs_guides_v217.py"
+      - "tests/test_special_needs_support_interventions_v318.py"
+      - "tests/test_special_needs_support_integration_v318.py"
+      - ".github/workflows/validate-special-needs-support-interventions-v318.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: special-needs-support-interventions-v318-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile support publishers and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_special_needs_support_interventions_v318.py \
+            scripts/publish_special_needs_guides_v217.py \
+            tests/test_special_needs_support_interventions_v318.py \
+            tests/test_special_needs_support_integration_v318.py
+      - name: Validate support manifest JSON
+        run: python -m json.tool content/v318/special-needs-support-interventions-ar.json >/dev/null
+      - name: Validate goal evidence AAC safety sources links sitemap and idempotence
+        run: python -m unittest -v tests.test_special_needs_support_interventions_v318
+      - name: Validate complete production integration and repository reachability
+        run: |
+          python -m unittest -v tests.test_special_needs_support_integration_v318 > /tmp/support-v318-integration.log 2>&1 || { tail -n 260 /tmp/support-v318-integration.log; exit 1; }
+          tail -n 70 /tmp/support-v318-integration.log
+      - name: Re-run prior condition integration contract
+        run: |
+          python -m unittest -v tests.test_special_needs_guides_v221_integration > /tmp/special-needs-v221-regression.log 2>&1 || { tail -n 260 /tmp/special-needs-v221-regression.log; exit 1; }
+          tail -n 50 /tmp/special-needs-v221-regression.log
+      - name: Upload failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-needs-support-v318-failure-evidence
+          path: |
+            /tmp/support-v318-integration.log
+            /tmp/special-needs-v221-regression.log
+            _audit/unpublished-content-v201.json
+          if-no-files-found: ignore
+          retention-days: 7
