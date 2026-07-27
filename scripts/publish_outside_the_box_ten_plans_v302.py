@@ -712,7 +712,6 @@ def patch_condition_page(
     text = text.replace(
         "مسار مؤسسي لمقدم الخدمة حول",
         "مسار مؤسسي موسع يتضمن عشر خطط لمقدم الخدمة حول",
-        1,
     )
     path.write_text(text, encoding="utf-8")
 
