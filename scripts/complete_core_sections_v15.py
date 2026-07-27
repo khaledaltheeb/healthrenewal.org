@@ -10,6 +10,8 @@ import xml.etree.ElementTree as ET
 from datetime import date
 from pathlib import Path
 
+from publish_evidence_literacy_library_v322 import publish as publish_evidence_literacy
+
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 ROOT = Path(__file__).resolve().parents[1]
 BASE = os.environ.get("SITE_BASE", "https://khaledaltheeb.github.io/pterminology-site/").rstrip("/") + "/"
@@ -118,10 +120,28 @@ def main() -> None:
             if "core-v15.css" not in text: text = text.replace("</head>", f'<link rel="stylesheet" href="{BASE_PATH}assets/css/core-v15.css"></head>', 1)
             page.write_text(text, encoding="utf-8")
     write_sitemap(guides)
+    evidence = publish_evidence_literacy(SITE)
+    if evidence.get("version") != 322 or evidence.get("status") != "passed":
+        raise SystemExit({"invalid_evidence_literacy_v322": evidence})
+    if evidence.get("guide_count") != 4 or int(evidence.get("minimum_guide_words", 0)) < 900:
+        raise SystemExit({"insufficient_evidence_literacy_v322": evidence})
     sw = SITE / "sw.js"
     if sw.exists(): sw.write_text(sw.read_text(encoding="utf-8").replace("pterminology-v14-performance", "pterminology-v15-core-sections"), encoding="utf-8")
-    report = {"version":15,"tips_guides":len(guides),"tips_min_steps":min(len(g["tips"]) for g in guides),"assessment_pages":len(list((SITE/"assessment-lab").glob("*/index.html"))),"cognitive_pages":len(list((SITE/"cognitive-lab").glob("*/index.html"))),"runtime_marker":"__PTERMINOLOGY_LAB_V15__","color_answer_fixed":True}
+    report = {
+        "version": 15,
+        "tips_guides": len(guides),
+        "tips_min_steps": min(len(g["tips"]) for g in guides),
+        "assessment_pages": len(list((SITE / "assessment-lab").glob("*/index.html"))),
+        "cognitive_pages": len(list((SITE / "cognitive-lab").glob("*/index.html"))),
+        "runtime_marker": "__PTERMINOLOGY_LAB_V15__",
+        "color_answer_fixed": True,
+        "evidence_literacy_version": evidence["version"],
+        "evidence_literacy_guides": evidence["guide_count"],
+        "evidence_literacy_minimum_words": evidence["minimum_guide_words"],
+        "evidence_literacy_sources": evidence["source_count"],
+    }
     api = SITE / "api"; api.mkdir(exist_ok=True); (api / "core-sections-v15.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
+
 
 if __name__ == "__main__": main()
