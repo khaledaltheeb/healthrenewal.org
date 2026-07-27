@@ -1,7 +1,7 @@
 {
-  "schemaVersion": "2.0.0",
+  "schemaVersion": "1.0.0",
   "updatedAt": "2026-07-28",
-  "publicationPolicy": "Only profiles with documented consent and field-level review may be published. Private notification emails and verification documents are never stored in this public file.",
+  "publicationPolicy": "Only profiles with documented identity, qualification, professional scope, written publication consent, completed field-level verification, and a current verification-ledger record may be published.",
   "directoryPrinciples": {
     "noPaidRanking": true,
     "privateContactDataExcluded": true,
@@ -11,6 +11,6 @@
     "materialDisputeCausesTemporarySuspension": true
   },
   "verificationLedger": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/verification-ledger.json",
-  "privacyNotice": "This public file must not contain private email addresses used for login or notifications, identity documents, certificate images, signatures, client data, or case records.",
+  "privacyNotice": "Do not store private notification email addresses, login details, identity documents, certificate images, signatures, client data, child data, or case records in this public file.",
   "providers": []
 }
