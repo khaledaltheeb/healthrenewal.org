@@ -142,6 +142,26 @@ def restore_evidence_library_parent_contract(site: Path) -> None:
     path.write_text(source, encoding="utf-8")
 
 
+def ensure_academic_seo_keyword_seed(site: Path) -> None:
+    path = site / "library" / "therapies" / "psychoeducation" / "index.html"
+    if not path.is_file():
+        raise SystemExit(f"Missing psychoeducation entry: {path}")
+    source = path.read_text(encoding="utf-8")
+    marker = 'name="keywords"'
+    keyword_tag = (
+        '<meta name="keywords" content="برامج التثقيف النفسي المنظمة, '
+        'خطة الوقاية من الانتكاس, دعم الأسرة في العلاج النفسي">'
+    )
+    if marker not in source:
+        if source.count("</head>") != 1:
+            raise SystemExit("Psychoeducation page must contain exactly one closing head tag")
+        source = source.replace("</head>", keyword_tag + "</head>", 1)
+        path.write_text(source, encoding="utf-8")
+    updated = path.read_text(encoding="utf-8")
+    if updated.count(marker) != 1 or "برامج التثقيف النفسي المنظمة" not in updated:
+        raise SystemExit("Psychoeducation SEO keyword seed contract failed")
+
+
 def publish(site: Path) -> dict:
     static_words = {
         slug: publish_static_page(site, slug, contract)
@@ -163,6 +183,7 @@ def publish(site: Path) -> dict:
         raise SystemExit({"academic_library_depth_failed": academic})
     academic_sitemap_entries = trim_academic_sitemap_to_new_entries(site)
     restore_evidence_library_parent_contract(site)
+    ensure_academic_seo_keyword_seed(site)
 
     report.update(
         {
@@ -190,6 +211,7 @@ def publish(site: Path) -> dict:
             "academic_library_sitemap": academic["sitemap"],
             "academic_library_sitemap_entries": academic_sitemap_entries,
             "evidence_library_parent_marker_preserved": True,
+            "academic_library_seo_keyword_seeded": True,
         }
     )
     api_path = site / "api" / "evidence-literacy-library-v322.json"
