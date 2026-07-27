@@ -2,12 +2,23 @@
 from __future__ import annotations
 
 import argparse
+import base64
+import gzip
+import hashlib
 import json
 import re
 from pathlib import Path
 
 import publish_autism_clinical_pathways_v324_core as core
 from publish_autism_clinical_pathways_v324_core import *  # noqa: F401,F403
+
+ROOT = Path(__file__).resolve().parents[1]
+PARTS_DIR = ROOT / "content" / "v324" / "autism-clinical-pathways-ar.parts"
+PART_NAMES = tuple(f"part-{index:02d}.b64" for index in range(1, 6))
+EXPECTED_B64_LENGTH = 24652
+EXPECTED_B64_SHA256 = "3a1b4b14d25d67b6f72a50d42d45cabc26382f5841fbd4a7e2d7c11e4a44f2eb"
+EXPECTED_GZIP_SHA256 = "3350205c4f20177d4cb10fc80c5c9058abffc50c3092f1a60efbc9e96913db5b"
+EXPECTED_JSON_SHA256 = "0afeb714ceb04a83b0c2debce97004f87aa104328a7d0070d892b437adc66c17"
 
 SHELL_MARKER = "<!-- pt-platform-shell:v1 -->"
 SHELL_HEAD = """<!-- pt-platform-shell:v1 -->
@@ -17,6 +28,58 @@ SHELL_HEAD = """<!-- pt-platform-shell:v1 -->
 <link rel="stylesheet" href="/pterminology-site/assets/platform/platform-core.css?v=1.1.0">
 <script defer src="/pterminology-site/assets/platform/platform-core.js?v=1.1.0"></script>
 """
+
+
+def sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def read_payload() -> dict:
+    if not PARTS_DIR.is_dir():
+        raise SystemExit(f"Missing v324 source-parts directory: {PARTS_DIR}")
+    actual = tuple(sorted(path.name for path in PARTS_DIR.glob("*.b64")))
+    if actual != PART_NAMES:
+        raise SystemExit({"v324_source_parts_mismatch": {"expected": PART_NAMES, "actual": actual}})
+
+    encoded = "".join(
+        "".join((PARTS_DIR / name).read_text(encoding="ascii").split())
+        for name in PART_NAMES
+    )
+    encoded_bytes = encoded.encode("ascii")
+    if len(encoded) != EXPECTED_B64_LENGTH:
+        raise SystemExit(
+            {"v324_base64_length_mismatch": {"expected": EXPECTED_B64_LENGTH, "actual": len(encoded)}}
+        )
+    if sha256(encoded_bytes) != EXPECTED_B64_SHA256:
+        raise SystemExit("v324 Base64 source digest mismatch")
+
+    try:
+        compressed = base64.b64decode(encoded_bytes, validate=True)
+    except Exception as exc:
+        raise SystemExit(f"Invalid v324 Base64 source: {exc}") from exc
+    if sha256(compressed) != EXPECTED_GZIP_SHA256:
+        raise SystemExit("v324 Gzip source digest mismatch")
+
+    try:
+        raw = gzip.decompress(compressed)
+    except Exception as exc:
+        raise SystemExit(f"Invalid v324 Gzip source: {exc}") from exc
+    if sha256(raw) != EXPECTED_JSON_SHA256:
+        raise SystemExit("v324 JSON source digest mismatch")
+
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except Exception as exc:
+        raise SystemExit(f"Invalid v324 UTF-8 JSON source: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise SystemExit("v324 payload must be a JSON object")
+    return payload
+
+
+# Keep the full renderer isolated in the core module, but make its source loader
+# deterministic and text-transport-safe for GitHub Contents/API workflows.
+core.CONTENT = PARTS_DIR
+core.read_payload = read_payload
 
 
 def normalize_page(path: Path) -> None:
@@ -50,6 +113,10 @@ def publish(site: Path) -> dict:
     report["minimum_guide_words"] = min(item["words"] for item in report["pages"])
     report["total_guide_words"] = sum(item["words"] for item in report["pages"])
     report["platform_shell_normalized"] = True
+    report["source_part_count"] = len(PART_NAMES)
+    report["source_base64_sha256"] = EXPECTED_B64_SHA256
+    report["source_gzip_sha256"] = EXPECTED_GZIP_SHA256
+    report["source_json_sha256"] = EXPECTED_JSON_SHA256
     api = site / "api" / "autism-clinical-pathways-v324.json"
     api.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return report
