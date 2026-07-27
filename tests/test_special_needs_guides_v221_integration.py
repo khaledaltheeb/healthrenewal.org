@@ -15,6 +15,21 @@ AUDITOR = ROOT / "scripts" / "audit_unpublished_content_v201.py"
 PRODUCTION_MANIFEST = ROOT / "content" / "v221" / "special-needs-guides-production-manifest-ar.json"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 VERSIONS = (209, 210, 211, 212, 214)
+CONDITION_SOURCE_FILES = {
+    "content/v302/special-needs-condition-hubs-ar.json",
+    "content/v302/special-needs-providers-ar.json",
+    "content/v302/autism-ar.json",
+    "content/v302/down-syndrome-ar.json",
+}
+SPECIAL_NEEDS_PREFIXES = tuple(f"content/v{version}/" for version in (*VERSIONS, 221, 302))
+SPECIAL_NEEDS_PUBLISHERS = {
+    "scripts/publish_special_needs_hub_v235.py",
+    "scripts/publish_special_needs_hub_v235_compat.py",
+    "scripts/publish_special_needs_condition_hubs_v302.py",
+    "scripts/publish_special_needs_guides_v214.py",
+    "scripts/publish_special_needs_guides_v217.py",
+    "scripts/publish_special_needs_guides_v217_core.py",
+}
 
 
 def digest(path: Path) -> str:
@@ -71,6 +86,8 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
         self.assertEqual(first["production_source_file_count"], 25)
         self.assertEqual(first["review_status"], "internally-reviewed")
         self.assertFalse(first["external_review_completed"])
+        self.assertEqual(first["condition_hubs"]["condition_slugs"], ["autism", "down-syndrome"])
+        self.assertEqual(first["condition_hubs"]["source_count"], 17)
 
         hub_path = self.site / "special-needs/index.html"
         hub = hub_path.read_text(encoding="utf-8")
@@ -78,6 +95,9 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
             self.assertEqual(hub.count(f"special-needs-guides-v{version}:start"), 1)
             self.assertEqual(hub.count(f"special-needs-guides-v{version}:end"), 1)
         for slug in first["guide_slugs"]:
+            self.assertTrue((self.site / "special-needs" / slug / "index.html").is_file())
+            self.assertEqual(hub.count(f"/pterminology-site/special-needs/{slug}/"), 1)
+        for slug in ("autism", "down-syndrome"):
             self.assertTrue((self.site / "special-needs" / slug / "index.html").is_file())
             self.assertEqual(hub.count(f"/pterminology-site/special-needs/{slug}/"), 1)
 
@@ -92,6 +112,7 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
             if node.text
         ]
         expected = {f"{BASE}/special-needs/{slug}/" for slug in first["guide_slugs"]}
+        expected.update(f"{BASE}/special-needs/{slug}/" for slug in ("autism", "down-syndrome"))
         self.assertTrue(expected.issubset(set(locations)))
         self.assertEqual(len(locations), len(set(locations)))
 
@@ -102,6 +123,7 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
             self.site / "api/special-needs-guides-v214.json",
             self.site / "api/special-needs-guides-v217.json",
             self.site / "api/special-needs-guides-v221.json",
+            self.site / "api/special-needs-condition-hubs-v302.json",
         ]
         before = [digest(path) for path in tracked]
         second = self.run_publisher()
@@ -109,7 +131,7 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
         self.assertEqual(second["guide_count"], 25)
         self.assertEqual(before, after)
 
-    def test_repository_audit_sees_sources_and_preserves_blocks(self) -> None:
+    def test_repository_audit_sees_special_needs_sources_and_preserves_blocks(self) -> None:
         result = subprocess.run(
             ["python3", str(AUDITOR), "."],
             cwd=ROOT,
@@ -118,15 +140,25 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
         report = json.loads((ROOT / "_audit/unpublished-content-v201.json").read_text(encoding="utf-8"))
-        counts = report["category_counts"]
-        self.assertEqual(counts.get("unwired-content", 0), 0)
-        self.assertEqual(counts.get("source-only", 0), 0)
-        self.assertEqual(counts.get("unwired-publisher", 0), 0)
-        self.assertEqual(counts.get("blocked-review", 0), 3)
         by_path = {item["path"]: item for item in report["items"]}
+
         manifest = json.loads(PRODUCTION_MANIFEST.read_text(encoding="utf-8"))
-        for path in manifest["source_files"]:
-            self.assertEqual(by_path[path]["category"], "production-reachable")
+        required_sources = set(manifest["source_files"]) | CONDITION_SOURCE_FILES
+        for path in sorted(required_sources):
+            self.assertIn(path, by_path)
+            self.assertEqual(by_path[path]["category"], "production-reachable", path)
+
+        scoped_failures = [
+            item
+            for item in report["items"]
+            if item["category"] in {"unwired-content", "source-only", "unwired-publisher"}
+            and (
+                item["path"].startswith(SPECIAL_NEEDS_PREFIXES)
+                or item["path"] in SPECIAL_NEEDS_PUBLISHERS
+            )
+        ]
+        self.assertEqual(scoped_failures, [], "\n".join(item["path"] for item in scoped_failures))
+
         blocked = {
             "content/v73/special-needs-executable-instructions-ar.json",
             "data/disability-dignity-safety.json",

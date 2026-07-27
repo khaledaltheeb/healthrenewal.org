@@ -3,9 +3,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
+import publish_special_needs_condition_hubs_v302 as condition302
 import publish_special_needs_guides_v214 as batch214
 import publish_special_needs_guides_v217_core as core
 import publish_special_needs_hub_v235_compat as hub235
@@ -14,6 +17,10 @@ ROOT = Path(__file__).resolve().parents[1]
 V214_MANIFEST = ROOT / "content" / "v214" / "special-needs-guides-manifest-ar.json"
 PRODUCTION_MANIFEST = ROOT / "content" / "v221" / "special-needs-guides-production-manifest-ar.json"
 VERSIONS = (209, 210, 211, 212, 214)
+CONDITION_URLS = {
+    f"{condition302.BASE}/special-needs/autism/",
+    f"{condition302.BASE}/special-needs/down-syndrome/",
+}
 
 
 def summary(report: dict[str, Any]) -> dict[str, Any]:
@@ -41,7 +48,29 @@ def load_production_manifest() -> dict[str, Any]:
     return data
 
 
+def reset_condition_outputs(site: Path) -> None:
+    for slug in ("autism", "down-syndrome"):
+        shutil.rmtree(site / "special-needs" / slug, ignore_errors=True)
+    (site / "api" / "special-needs-condition-hubs-v302.json").unlink(missing_ok=True)
+
+    sitemap_path = site / "sitemap-special-needs.xml"
+    if not sitemap_path.is_file():
+        return
+    tree = ET.parse(sitemap_path)
+    root = tree.getroot()
+    removed = False
+    for row in list(root.findall("{*}url")):
+        loc = (row.findtext("{*}loc") or "").strip()
+        if loc in CONDITION_URLS:
+            root.remove(row)
+            removed = True
+    if removed:
+        tree.write(sitemap_path, encoding="utf-8", xml_declaration=True)
+
+
 def publish(site: Path) -> dict[str, Any]:
+    reset_condition_outputs(site)
+
     production_manifest = load_production_manifest()
     hub_report = hub235.publish(site)
     if hub_report.get("version") != 235 or hub_report.get("guide_count") != 25:
@@ -81,6 +110,14 @@ def publish(site: Path) -> dict[str, Any]:
     pages.extend(page["path"] for page in validated214)
     discovery = core.validate_discovery(site, all_slugs)
 
+    condition_report = condition302.publish(site)
+    if condition_report.get("version") != 302 or condition_report.get("condition_count") != 2:
+        raise SystemExit(f"Special-needs condition hub contract failed: {condition_report}")
+    if condition_report.get("condition_slugs") != ["autism", "down-syndrome"]:
+        raise SystemExit("Autism and Down syndrome routes are required")
+    if condition_report.get("generated_page_count") != 2 or condition_report.get("source_count", 0) < 15:
+        raise SystemExit("Scientific condition page depth contract failed")
+
     report = {
         **base,
         "version": 221,
@@ -88,6 +125,7 @@ def publish(site: Path) -> dict[str, Any]:
         "guide_contract": 221,
         "hub_contract": 235,
         "hub_release": 241,
+        "condition_hubs_contract": 302,
         "status": "passed",
         "production_status": "integrated",
         "batches": list(VERSIONS),
@@ -113,6 +151,17 @@ def publish(site: Path) -> dict[str, Any]:
             "asha_aac_source_updated": hub_report["asha_aac_source_updated"],
             "seo": hub_report["seo"],
             "accessibility": hub_report["accessibility"],
+        },
+        "condition_hubs": {
+            "status": condition_report["status"],
+            "version": condition_report["version"],
+            "condition_count": condition_report["condition_count"],
+            "condition_slugs": condition_report["condition_slugs"],
+            "generated_pages": condition_report["generated_pages"],
+            "source_count": condition_report["source_count"],
+            "provider_source": condition_report["provider_source"],
+            "published_provider_count": condition_report["published_provider_count"],
+            "sitemap_registered": condition_report["sitemap_registered"],
         },
         **discovery,
         "batch_reports": [*base["batch_reports"], summary(report214)],
