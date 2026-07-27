@@ -14,6 +14,7 @@ SOURCE_SITEMAP = ROOT / "sitemap.xml"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 URL = BASE + "/magazine/"
 ROBOTS_PATTERN = re.compile(r'<meta\s+[^>]*name=["\']robots["\'][^>]*>', re.I)
+ARTICLE_DATE_PATTERN = re.compile(r'"datePublished"\s*:\s*"(\d{4}-\d{2}-\d{2})"', re.I)
 
 
 class MagazineRoutesV201Tests(unittest.TestCase):
@@ -24,10 +25,22 @@ class MagazineRoutesV201Tests(unittest.TestCase):
         return site
 
     @staticmethod
-    def article_files() -> list[Path]:
+    def article_date(path: Path) -> str:
+        text = path.read_text(encoding="utf-8")
+        match = ARTICLE_DATE_PATTERN.search(text)
+        if match:
+            return match.group(1)
+        year_match = re.search(r"-(20\d{2})\.html$", path.name)
+        if not year_match:
+            raise AssertionError(f"Magazine article lacks a publication date and year suffix: {path.name}")
+        return f"{year_match.group(1)}-01-01"
+
+    @classmethod
+    def article_files(cls) -> list[Path]:
         return sorted(
             (path for path in SOURCE.glob("*-20*.html") if path.name != "index.html"),
-            key=lambda path: (-int(re.search(r"-(20\d{2})\.html$", path.name).group(1)), path.name),
+            key=lambda path: (cls.article_date(path), path.name),
+            reverse=True,
         )
 
     def test_magazine_archive_is_complete_honest_and_indexable(self):
