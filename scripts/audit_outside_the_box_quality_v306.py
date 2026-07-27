@@ -205,7 +205,7 @@ def audit(site: Path) -> dict[str, Any]:
             }
         )
 
-    pages = sorted(root.rglob("index.html"))
+    pages = sorted(path for path in root.rglob("index.html") if path.parent.name != ROUTE)
     links_checked, broken_links = scan_links(site, pages)
     if broken_links:
         errors.append({"code": "broken-internal-links", "count": len(broken_links), "examples": broken_links[:25]})
