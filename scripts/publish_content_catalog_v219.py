@@ -51,9 +51,12 @@ def seo_targets() -> list[Path]:
     return output
 
 
-def enrich_public_surface() -> dict[str, dict[str, object]]:
+def main() -> int:
+    restored_routes = restore_static_public_routes()
+    section_report = publish_sections(SITE, ROOT)
+
     seo.SITE = SITE
-    results: dict[str, dict[str, object]] = {}
+    seo_results: dict[str, dict[str, object]] = {}
     for path in seo_targets():
         if not path.is_file():
             raise SystemExit(f"SEO target is missing: {path.relative_to(SITE).as_posix()}")
@@ -61,17 +64,10 @@ def enrich_public_surface() -> dict[str, dict[str, object]]:
         relative = path.relative_to(SITE).as_posix()
         if result.get("status") in {"missing_head", "missing_title_and_h1"}:
             raise SystemExit(f"SEO enrichment failed for {relative}: {result}")
-        results[relative] = {
+        seo_results[relative] = {
             "changed": changed,
             "status": result.get("status"),
         }
-    return results
-
-
-def main() -> int:
-    restored_routes = restore_static_public_routes()
-    section_report = publish_sections(SITE, ROOT)
-    seo_results = enrich_public_surface()
 
     result = publish_catalog(SITE, ROOT)
     result["restored_static_public_routes"] = restored_routes
