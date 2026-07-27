@@ -1,4 +1,4 @@
-name: Validate outside-the-box scientific review governance v305
+name: Validate outside-the-box review governance and quality audit v306
 
 on:
   pull_request:
@@ -6,8 +6,10 @@ on:
     paths:
       - "content/v305/outside-the-box-review-governance-ar.json"
       - "scripts/publish_outside_the_box_review_governance_v305.py"
+      - "scripts/audit_outside_the_box_quality_v306.py"
       - "assets/css/outside-the-box-review-governance-v305.css"
       - "tests/test_outside_the_box_review_governance_v305.py"
+      - "tests/test_outside_the_box_quality_audit_v306.py"
       - "scripts/apply_homepage_v20.py"
       - ".github/ISSUE_TEMPLATE/outside-the-box-scientific-review.yml"
       - ".github/workflows/validate-outside-the-box-review-governance-v305.yml"
@@ -16,8 +18,10 @@ on:
     paths:
       - "content/v305/outside-the-box-review-governance-ar.json"
       - "scripts/publish_outside_the_box_review_governance_v305.py"
+      - "scripts/audit_outside_the_box_quality_v306.py"
       - "assets/css/outside-the-box-review-governance-v305.css"
       - "tests/test_outside_the_box_review_governance_v305.py"
+      - "tests/test_outside_the_box_quality_audit_v306.py"
       - "scripts/apply_homepage_v20.py"
       - ".github/ISSUE_TEMPLATE/outside-the-box-scientific-review.yml"
       - ".github/workflows/validate-outside-the-box-review-governance-v305.yml"
@@ -29,7 +33,7 @@ permissions:
 jobs:
   scientific-review-governance:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
 
@@ -43,11 +47,16 @@ jobs:
           python -m py_compile scripts/publish_outside_the_box_ten_plans_v302.py
           python -m py_compile scripts/publish_outside_the_box_reference_assets_v303.py
           python -m py_compile scripts/publish_outside_the_box_review_governance_v305.py
+          python -m py_compile scripts/audit_outside_the_box_quality_v306.py
           python -m py_compile scripts/apply_homepage_v20.py
           python -m py_compile tests/test_outside_the_box_review_governance_v305.py
+          python -m py_compile tests/test_outside_the_box_quality_audit_v306.py
 
       - name: Validate review contract and exact 100-condition 1000-plan register
         run: python -m unittest -v tests.test_outside_the_box_review_governance_v305
+
+      - name: Validate post-publication pages links SEO accessibility APIs and idempotence
+        run: python -m unittest -v tests.test_outside_the_box_quality_audit_v306
 
       - name: Re-run ten-plan regression contract
         run: python -m unittest -v tests.test_outside_the_box_ten_plans_v302
@@ -88,8 +97,11 @@ jobs:
           assert 'لا تُنشر بنود الاختبارات المحمية' in public_source_text
 
           publisher = Path('scripts/publish_outside_the_box_review_governance_v305.py').read_text(encoding='utf-8')
+          auditor = Path('scripts/audit_outside_the_box_quality_v306.py').read_text(encoding='utf-8')
           assert 'proprietary_test_items_published' in publisher
           assert 'diagnostic_automation' in publisher
           assert 'forbidden =' in publisher
-          print({'false_approvals': 'blocked', 'protected_test_content': 'blocked', 'language': 'passed'})
+          assert 'broken_internal_link_count' in auditor
+          assert 'global_accreditation_claim' in auditor
+          print({'false_approvals': 'blocked', 'protected_test_content': 'blocked', 'language': 'passed', 'quality_audit': 'wired'})
           PY
