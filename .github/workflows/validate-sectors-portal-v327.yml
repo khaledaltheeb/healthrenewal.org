@@ -70,7 +70,7 @@ jobs:
       - name: Run mutation and regression tests
         run: python3 -m unittest -v tests.test_sectors_portal_v327
 
-      - name: Verify production discovery markers
+      - name: Verify production discovery and platform-shell markers
         run: |
           set -euxo pipefail
           grep -q 'href="sectors/"' index.html
@@ -79,4 +79,6 @@ jobs:
           grep -q '"@type":"ItemList"' sectors/index.html
           grep -q '"@type":"FAQPage"' sectors/index.html
           grep -q 'مراجعة تحريرية ومنهجية داخلية' sectors/index.html
+          grep -q '<!-- pt-platform-shell:v1 -->' sectors/index.html
+          grep -q 'data-pt-normalized="1.1.0"' sectors/index.html
           ! grep -q 'noindex' sectors/index.html
