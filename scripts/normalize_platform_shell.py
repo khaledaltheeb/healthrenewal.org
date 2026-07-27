@@ -4,7 +4,12 @@
 The migration is deliberately idempotent. Existing pages keep their content and
 local navigation; the script only adds the shared presentation assets, rights
 metadata, and a body marker consumed by the global shell. It can operate on the
-repository source tree or on the generated `_site` production artifact.
+repository source tree or on the generated ``_site`` production artifact.
+
+When the target is a generated artifact, the script also copies the platform
+runtime and the public governance pages into that artifact before normalizing
+its HTML. This keeps the injected links deployable instead of merely present in
+source markup.
 """
 
 from __future__ import annotations
@@ -12,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
 import sys
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
@@ -24,6 +30,7 @@ SHELL_VERSION = "1.0.0"
 EXCLUDED_PARTS = {
     ".git",
     ".github",
+    "_site",
     "node_modules",
     "vendor",
     "fixtures",
@@ -31,6 +38,11 @@ EXCLUDED_PARTS = {
     "coverage",
     "reports",
 }
+RUNTIME_DIRECTORIES = (
+    Path("assets/platform"),
+    Path("copyright"),
+    Path("platform"),
+)
 
 HEAD_CLOSE_RE = re.compile(r"</head\s*>", re.IGNORECASE)
 BODY_OPEN_RE = re.compile(r"<body\b(?P<attrs>[^>]*)>", re.IGNORECASE)
@@ -42,6 +54,45 @@ class Result:
     path: str
     status: str
     detail: str = ""
+
+
+def copy_platform_runtime(root: Path) -> dict[str, object]:
+    """Copy shell assets and public governance pages into generated artifacts."""
+
+    repository_root = DEFAULT_ROOT.resolve()
+    target_root = root.resolve()
+    copied_files: list[str] = []
+
+    if target_root == repository_root:
+        return {
+            "source": str(repository_root),
+            "target": str(target_root),
+            "copied": False,
+            "files": copied_files,
+        }
+
+    for relative_directory in RUNTIME_DIRECTORIES:
+        source_directory = repository_root / relative_directory
+        if not source_directory.is_dir():
+            raise SystemExit(f"Platform runtime source not found: {source_directory}")
+
+        for source in sorted(source_directory.rglob("*")):
+            if not source.is_file():
+                continue
+            relative_file = source.relative_to(repository_root)
+            destination = target_root / relative_file
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            if destination.is_file() and destination.read_bytes() == source.read_bytes():
+                continue
+            shutil.copy2(source, destination)
+            copied_files.append(relative_file.as_posix())
+
+    return {
+        "source": str(repository_root),
+        "target": str(target_root),
+        "copied": bool(copied_files),
+        "files": copied_files,
+    }
 
 
 def production_html_files(root: Path) -> Iterable[Path]:
@@ -139,7 +190,13 @@ def normalize_file(path: Path, root: Path, *, check_only: bool) -> Result:
     return Result(relative, "updated")
 
 
-def build_report(results: list[Result], *, root: Path, check_only: bool) -> dict[str, object]:
+def build_report(
+    results: list[Result],
+    *,
+    root: Path,
+    check_only: bool,
+    runtime: dict[str, object],
+) -> dict[str, object]:
     counts: dict[str, int] = {}
     for result in results:
         counts[result.status] = counts.get(result.status, 0) + 1
@@ -152,6 +209,7 @@ def build_report(results: list[Result], *, root: Path, check_only: bool) -> dict
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "mode": "check" if check_only else "write",
         "root": str(root),
+        "runtime": runtime,
         "html_pages_seen": len(results),
         "html_pages_normalized_or_current": processed,
         "counts": counts,
@@ -199,8 +257,9 @@ def main() -> int:
         print(f"ERROR site root not found: {root}", file=sys.stderr)
         return 2
 
+    runtime = copy_platform_runtime(root)
     results = [normalize_file(path, root, check_only=args.check) for path in production_html_files(root)]
-    report = build_report(results, root=root, check_only=args.check)
+    report = build_report(results, root=root, check_only=args.check, runtime=runtime)
     if not args.no_report:
         report_path = args.report_path or (root / "reports" / "platform-normalization.json")
         write_report(report, report_path.resolve())
