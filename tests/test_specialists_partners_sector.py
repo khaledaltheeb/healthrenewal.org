@@ -21,6 +21,8 @@ class SpecialistsPartnersSectorTests(unittest.TestCase):
             SECTOR / "data" / "providers.json",
             SECTOR / "data" / "provider.schema.json",
             SECTOR / "data" / "provider-import-template.csv",
+            ROOT / "team-and-partners" / "index.html",
+            ROOT / "assets" / "platform" / "platform-core.js",
             ROOT / "api" / "v1" / "specialists-partners.json",
             ROOT / "sitemap-specialists-partners.xml",
         )
@@ -42,6 +44,11 @@ class SpecialistsPartnersSectorTests(unittest.TestCase):
             self.assertIn(f'<link rel="canonical" href="{BASE}{canonical_path}">', text)
             self.assertIn("assets/sector.css", text)
             self.assertNotIn("معاقين", text)
+
+    def test_global_navigation_exposes_sector(self) -> None:
+        shell = (ROOT / "assets" / "platform" / "platform-core.js").read_text(encoding="utf-8")
+        self.assertIn("['الفريق والشركاء', 'specialists-partners/']", shell)
+        self.assertEqual(shell.count("'specialists-partners/'"), 1)
 
     def test_directory_data_starts_empty_and_enforces_verified_publication(self) -> None:
         payload = json.loads((SECTOR / "data" / "providers.json").read_text(encoding="utf-8"))
