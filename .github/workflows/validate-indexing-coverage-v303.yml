@@ -1,0 +1,145 @@
+name: Validate sitemap engine and production hooks v305
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "robots.txt"
+      - "scripts/generate_sitemap_index_v304.py"
+      - "scripts/audit_indexing_coverage_v303.py"
+      - "scripts/stamp_deployment_v29.py"
+      - "scripts/publish_provider_condition_discovery_v238_compat.py"
+      - ".github/workflows/validate-indexing-coverage-v303.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "robots.txt"
+      - "scripts/generate_sitemap_index_v304.py"
+      - "scripts/audit_indexing_coverage_v303.py"
+      - "scripts/stamp_deployment_v29.py"
+      - "scripts/publish_provider_condition_discovery_v238_compat.py"
+      - ".github/workflows/validate-indexing-coverage-v303.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sitemap-engine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile sitemap engine and production integration hooks
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/generate_sitemap_index_v304.py
+          python -m py_compile scripts/audit_indexing_coverage_v303.py
+          python -m py_compile scripts/stamp_deployment_v29.py
+          python -m py_compile scripts/publish_provider_condition_discovery_v238_compat.py
+      - name: Create metadata-order route and noindex fixture
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          root = Path('indexing-fixture')
+          base = 'https://khaledaltheeb.github.io/pterminology-site/'
+          pages = {
+              'index.html': (base, 'الصفحة الرئيسية'),
+              'terms/term-001/index.html': (base + 'terms/term-001/', 'مصطلح نفسي'),
+              'encyclopedia/concept-001/index.html': (base + 'encyclopedia/concept-001/', 'مفهوم موسوعي'),
+              'care-guides/guide-001/index.html': (base + 'care-guides/guide-001/', 'دليل تعامل'),
+              'provider-assessment-demo/conditions/autism/index.html': (base + 'provider-assessment-demo/conditions/autism/', 'مسار مقدم الخدمة'),
+              'en/index.html': (base + 'en/', 'English gateway'),
+              'cognitive-lab/example/index.html': (base + 'cognitive-lab/example/', 'أداة معرفية'),
+          }
+          for index, (relative, (canonical, title)) in enumerate(pages.items(), start=1):
+              path = root / relative
+              path.parent.mkdir(parents=True, exist_ok=True)
+              if index % 2:
+                  metadata = (
+                      f'<meta content="وصف فريد للصفحة رقم {index} يشرح محتواها بدقة للمستخدم ومحرك البحث." name="description">'
+                      f'<link href="{canonical}" rel="canonical">'
+                      '<meta content="index,follow" name="robots">'
+                  )
+              else:
+                  metadata = (
+                      f'<meta name="description" content="وصف فريد للصفحة رقم {index} يشرح محتواها بدقة للمستخدم ومحرك البحث.">'
+                      f'<link rel="canonical" href="{canonical}">'
+                      '<meta name="robots" content="index,follow">'
+                  )
+              path.write_text(
+                  '<!doctype html><html lang="ar"><head><meta charset="utf-8">'
+                  f'<title>{title}</title>{metadata}</head><body><main><h1>{title}</h1></main></body></html>',
+                  encoding='utf-8',
+              )
+
+          hidden = root / 'hidden/index.html'
+          hidden.parent.mkdir(parents=True, exist_ok=True)
+          hidden.write_text(
+              '<!doctype html><html><head><title>مخفي</title>'
+              '<meta name="description" content="صفحة مستبعدة من الفهرسة للاختبار فقط.">'
+              f'<link rel="canonical" href="{base}hidden/">'
+              '<meta content="noindex,follow" name="robots"></head><body><h1>مخفي</h1></body></html>',
+              encoding='utf-8',
+          )
+          (root / '404.html').write_text('<!doctype html><title>404</title>', encoding='utf-8')
+          (root / 'google644f1f7a8b7aaa2b.html').write_text(
+              'google-site-verification: google644f1f7a8b7aaa2b.html', encoding='utf-8'
+          )
+          (root / 'robots.txt').write_text(
+              'User-agent: *\nAllow: /\nSitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap-provider-assessment.xml\n',
+              encoding='utf-8',
+          )
+          PY
+      - name: Generate and audit deterministic family sitemaps
+        run: |
+          set -euxo pipefail
+          python scripts/generate_sitemap_index_v304.py indexing-fixture
+          python scripts/audit_indexing_coverage_v303.py indexing-fixture
+      - name: Enforce fixture coverage and compatibility hook
+        run: |
+          set -euxo pipefail
+          PYTHONPATH=scripts python - <<'PY'
+          import json
+          from pathlib import Path
+          from publish_provider_condition_discovery_v238_compat import finalize_sitemap_coverage
+
+          root = Path('indexing-fixture')
+          report = json.loads((root / 'api/indexing-coverage-audit-v303.json').read_text(encoding='utf-8'))
+          assert report['version'] == 305, report
+          assert report['status'] == 'passed', report
+          assert report['expected_indexable_pages'] == 7, report
+          assert report['sitemap_urls'] == 7, report
+          assert report['sitemap_coverage_ratio'] == 1.0, report
+          assert report['noindex_pages'] == 1, report
+          assert report['skipped_verification_files'] == 2, report
+          assert len(report['referenced_sitemaps']) == 7, report
+          assert report['missing_from_sitemaps'] == [], report
+          assert report['stale_or_noncanonical_sitemap_urls'] == [], report
+          assert report['canonical_missing'] == [], report
+          assert report['canonical_mismatch'] == [], report
+          assert report['title_missing'] == [], report
+          assert report['description_missing'] == [], report
+          assert report['h1_missing'] == [], report
+          assert report['robots_index_registration_count'] == 1, report
+          assert all(name.startswith('sitemap-family-') for name in report['referenced_sitemaps']), report
+          repeated = finalize_sitemap_coverage(root)
+          assert repeated['status'] == 'passed' and repeated['sitemap_urls'] == 7, repeated
+          robots = (root / 'robots.txt').read_text(encoding='utf-8')
+          assert robots.count('sitemap-index.xml') == 1, robots
+          assert robots.count('sitemap-provider-assessment.xml') == 1, robots
+          print({'status': 'passed', 'pages': 7, 'families': report['family_counts']})
+          PY
+      - name: Upload sitemap engine evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sitemap-engine-v305
+          path: |
+            indexing-fixture/sitemap-index.xml
+            indexing-fixture/sitemap-family-*.xml
+            indexing-fixture/robots.txt
+            indexing-fixture/api/sitemap-index-v305.json
+            indexing-fixture/api/indexing-coverage-audit-v303.json
+          if-no-files-found: error
