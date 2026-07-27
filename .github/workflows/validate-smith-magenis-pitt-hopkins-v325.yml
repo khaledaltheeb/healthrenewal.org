@@ -1,0 +1,94 @@
+name: Validate Smith-Magenis and Pitt-Hopkins guides v325
+
+on:
+  pull_request:
+    paths:
+      - 'content/v325/**'
+      - 'scripts/publish_smith_magenis_pitt_hopkins_v325.py'
+      - 'scripts/diagnose_special_needs_guides_v221.py'
+      - 'tests/test_smith_magenis_pitt_hopkins_v325.py'
+      - 'tests/test_smith_magenis_pitt_hopkins_integration_v325.py'
+      - '.github/workflows/validate-smith-magenis-pitt-hopkins-v325.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/v325/**'
+      - 'scripts/publish_smith_magenis_pitt_hopkins_v325.py'
+      - 'scripts/diagnose_special_needs_guides_v221.py'
+      - 'tests/test_smith_magenis_pitt_hopkins_v325.py'
+      - 'tests/test_smith_magenis_pitt_hopkins_integration_v325.py'
+      - '.github/workflows/validate-smith-magenis-pitt-hopkins-v325.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-v325:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile publishers integration and tests
+        run: |
+          python -m py_compile \
+            scripts/publish_new_special_needs_conditions_v323.py \
+            scripts/publish_williams_prader_willi_v324.py \
+            scripts/publish_smith_magenis_pitt_hopkins_v325.py \
+            scripts/diagnose_special_needs_guides_v221.py \
+            tests/test_smith_magenis_pitt_hopkins_v325.py \
+            tests/test_smith_magenis_pitt_hopkins_integration_v325.py
+      - name: Validate manifest depth sources and review honesty
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'scripts')
+          import publish_smith_magenis_pitt_hopkins_v325 as publisher
+
+          raw = json.loads(Path('content/v325/smith-magenis-pitt-hopkins-guides-ar.json').read_text(encoding='utf-8'))
+          guides = publisher.validate_payload(raw)
+          assert raw['version'] == 325
+          assert raw['review_status'] == 'internally-reviewed-external-clinical-review-required'
+          assert [guide['slug'] for guide in guides] == ['smith-magenis-syndrome', 'pitt-hopkins-syndrome']
+          assert sum(len(guide['sections']) for guide in guides) == 14
+          assert sum(len(guide['sources']) for guide in guides) == 14
+          banned = re.compile(r'(?<!\w)(?:المعاقين|معاقين|المعاقون|معاقون|المعاقة|معاقة|المعاق|معاق)(?!\w)')
+          assert not banned.search(json.dumps(raw, ensure_ascii=False))
+          for guide in guides:
+              assert len(guide['sections']) == 7
+              assert all(len(section['points']) >= 6 for section in guide['sections'])
+              assert len(guide['action_steps']) >= 8
+              assert len(guide['urgent']) >= 6
+              assert len(guide['myths']) >= 5
+              assert len(guide['faqs']) >= 5
+              assert all(source['url'].startswith('https://') for source in guide['sources'])
+          print({
+              'conditions': len(guides),
+              'sections': sum(len(guide['sections']) for guide in guides),
+              'sources': sum(len(guide['sources']) for guide in guides),
+              'review_state': raw['review_status'],
+          })
+          PY
+      - name: Run deterministic three-layer publisher tests
+        run: python -m unittest tests.test_smith_magenis_pitt_hopkins_v325 -v
+      - name: Run central production integration tests
+        run: python -m unittest tests.test_smith_magenis_pitt_hopkins_integration_v325 -v
+      - name: Verify scientific identity and safety markers
+        run: |
+          set -euxo pipefail
+          grep -q '17p11.2' content/v325/smith-magenis-pitt-hopkins-guides-ar.json
+          grep -q 'RAI1' content/v325/smith-magenis-pitt-hopkins-guides-ar.json
+          grep -q 'tasimelteon' content/v325/smith-magenis-pitt-hopkins-guides-ar.json
+          grep -q 'TCF4' content/v325/smith-magenis-pitt-hopkins-guides-ar.json
+          grep -q 'فرط التنفس' content/v325/smith-magenis-pitt-hopkins-guides-ar.json
+          grep -q 'https://www.ncbi.nlm.nih.gov/books/NBK1310/' content/v325/smith-magenis-pitt-hopkins-guides-ar.json
+          grep -q 'https://www.ncbi.nlm.nih.gov/books/NBK100240/' content/v325/smith-magenis-pitt-hopkins-guides-ar.json
+          grep -q 'third_condition_guides_contract' scripts/diagnose_special_needs_guides_v221.py
+          grep -q 'total_condition_count' scripts/publish_smith_magenis_pitt_hopkins_v325.py
+          ! grep -R -E 'علاج مضمون|شفاء مضمون|نتائج مؤكدة للجميع' content/v325
