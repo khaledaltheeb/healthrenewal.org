@@ -45,9 +45,12 @@ jobs:
           python -m py_compile scripts/normalize_platform_shell.py
           node --check assets/platform/platform-core.js
 
-      - name: Verify pull request pages are normalized
+      - name: Exercise normalizer on pull request merge result
         if: github.event_name == 'pull_request'
-        run: python scripts/normalize_platform_shell.py --check --no-report
+        run: |
+          python scripts/normalize_platform_shell.py --report-path /tmp/platform-normalization-pr.json
+          git diff --check
+          python scripts/normalize_platform_shell.py --check --no-report
 
       - name: Normalize pages on main
         if: github.event_name != 'pull_request'
