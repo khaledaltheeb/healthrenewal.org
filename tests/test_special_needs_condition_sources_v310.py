@@ -24,10 +24,14 @@ class SpecialNeedsConditionSourcesV310Tests(unittest.TestCase):
         self.assertEqual(report["condition_slugs"], ["autism", "down-syndrome"])
         self.assertEqual(report["source_count"], 17)
         self.assertGreaterEqual(report["distinct_host_count"], 3)
+        self.assertEqual(report["metadata_checked_at"], "2026-07-27")
+        self.assertEqual(report["next_metadata_check_due"], "2027-01-27")
+        self.assertFalse(report["maintenance_overdue"])
+        self.assertFalse(report["external_http_status_check_completed"])
+        self.assertGreater(report["maximum_source_age_days"], 730)
         for condition in report["conditions"]:
             self.assertGreaterEqual(condition["source_count"], 5)
             self.assertGreaterEqual(condition["distinct_host_count"], 3)
-            self.assertEqual(condition["overdue_source_ids"], [])
             self.assertTrue(all(value > 0 for value in condition["source_usage"].values()))
 
     def test_report_is_written_for_the_publication_pipeline(self) -> None:
@@ -40,6 +44,7 @@ class SpecialNeedsConditionSourcesV310Tests(unittest.TestCase):
             )
             self.assertEqual(api, report)
             self.assertEqual(api["source_count"], 17)
+            self.assertIn("content/v310/", api["maintenance_source"])
 
     def test_tracking_parameter_is_rejected(self) -> None:
         with self.assertRaises(SystemExit):
@@ -49,15 +54,15 @@ class SpecialNeedsConditionSourcesV310Tests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             source310.validate_url("https://bit.ly/example", "D1")
 
-    def test_stale_orphaned_source_is_rejected(self) -> None:
+    def test_orphaned_source_or_manifest_mismatch_is_rejected(self) -> None:
         original_files = source310.CONDITION_FILES
         with tempfile.TemporaryDirectory() as tmp:
             payload = copy.deepcopy(json.loads(original_files[0].read_text(encoding="utf-8")))
             orphan = copy.deepcopy(payload["sources"][0])
             orphan["id"] = "A99"
-            orphan["url"] = "https://example.org/orphaned-old-guideline"
+            orphan["url"] = "https://example.org/orphaned-guideline"
             orphan["organization"] = "Example institution"
-            orphan["title"] = "Old orphaned guideline"
+            orphan["title"] = "Orphaned guideline"
             orphan["reviewed"] = "2020-01-01"
             payload["sources"].append(orphan)
             path = Path(tmp) / "autism.json"
@@ -68,6 +73,21 @@ class SpecialNeedsConditionSourcesV310Tests(unittest.TestCase):
                     source310.audit(today=date(2026, 7, 27))
             finally:
                 source310.CONDITION_FILES = original_files
+
+    def test_stale_platform_metadata_check_is_rejected_even_when_guideline_remains_authoritative(self) -> None:
+        original_manifest = source310.MAINTENANCE
+        with tempfile.TemporaryDirectory() as tmp:
+            payload = json.loads(original_manifest.read_text(encoding="utf-8"))
+            payload["checked_at"] = "2024-01-01"
+            payload["next_check_due"] = "2024-07-01"
+            path = Path(tmp) / "maintenance.json"
+            path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+            source310.MAINTENANCE = path
+            try:
+                with self.assertRaises(SystemExit):
+                    source310.audit(today=date(2026, 7, 27))
+            finally:
+                source310.MAINTENANCE = original_manifest
 
 
 if __name__ == "__main__":
