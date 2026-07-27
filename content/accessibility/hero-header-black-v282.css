@@ -1,0 +1,106 @@
+/* v282 — deterministic black hero/header text contract */
+:root {
+  --hero-header-text-v282: #000000;
+  --hero-header-surface-v282: #ffffff;
+}
+
+/*
+ * Every textual element inside the site header, ARIA banner, breadcrumb/banner
+ * surface, or hero must compute to pure black. This layer is appended after the
+ * legacy contrast layer so generated HTML does not need manual edits.
+ */
+:where(
+  header,
+  [role="banner"],
+  [class*="hero"], [class*="Hero"],
+  [id*="hero"], [id*="Hero"],
+  [class*="banner"], [class*="Banner"],
+  [class*="masthead"],
+  [class*="breadcrumb"], [class*="Breadcrumb"]
+) {
+  color: var(--hero-header-text-v282) !important;
+  background-color: var(--hero-header-surface-v282) !important;
+  background-image: none !important;
+  text-shadow: none !important;
+}
+
+:where(
+  header,
+  [role="banner"],
+  [class*="hero"], [class*="Hero"],
+  [id*="hero"], [id*="Hero"],
+  [class*="banner"], [class*="Banner"],
+  [class*="masthead"],
+  [class*="breadcrumb"], [class*="Breadcrumb"]
+) :where(*) {
+  color: var(--hero-header-text-v282) !important;
+  text-shadow: none !important;
+}
+
+:where(
+  header,
+  [role="banner"],
+  [class*="hero"], [class*="Hero"],
+  [id*="hero"], [id*="Hero"],
+  [class*="banner"], [class*="Banner"],
+  [class*="masthead"],
+  [class*="breadcrumb"], [class*="Breadcrumb"]
+) :where(a, a:link, a:visited, a:hover, a:focus, a:focus-visible, a:active,
+          button, button:hover, button:focus, button:focus-visible, button:active,
+          [role="button"], [role="button"]:hover, [role="button"]:focus,
+          [aria-disabled="true"], :disabled) {
+  color: var(--hero-header-text-v282) !important;
+  -webkit-text-fill-color: var(--hero-header-text-v282) !important;
+}
+
+@media print {
+  :where(
+    header,
+    [role="banner"],
+    [class*="hero"], [class*="Hero"],
+    [id*="hero"], [id*="Hero"],
+    [class*="banner"], [class*="Banner"],
+    [class*="masthead"],
+    [class*="breadcrumb"], [class*="Breadcrumb"]
+  ),
+  :where(
+    header,
+    [role="banner"],
+    [class*="hero"], [class*="Hero"],
+    [id*="hero"], [id*="Hero"],
+    [class*="banner"], [class*="Banner"],
+    [class*="masthead"],
+    [class*="breadcrumb"], [class*="Breadcrumb"]
+  ) :where(*) {
+    color: #000000 !important;
+    background: #ffffff !important;
+    text-shadow: none !important;
+    -webkit-text-fill-color: #000000 !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :where(
+    header,
+    [role="banner"],
+    [class*="hero"], [class*="Hero"],
+    [id*="hero"], [id*="Hero"],
+    [class*="banner"], [class*="Banner"],
+    [class*="masthead"],
+    [class*="breadcrumb"], [class*="Breadcrumb"]
+  ),
+  :where(
+    header,
+    [role="banner"],
+    [class*="hero"], [class*="Hero"],
+    [id*="hero"], [id*="Hero"],
+    [class*="banner"], [class*="Banner"],
+    [class*="masthead"],
+    [class*="breadcrumb"], [class*="Breadcrumb"]
+  ) :where(*) {
+    color: #000000 !important;
+    background-color: #ffffff !important;
+    text-shadow: none !important;
+    -webkit-text-fill-color: #000000 !important;
+  }
+}
