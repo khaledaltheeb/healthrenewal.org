@@ -8,6 +8,8 @@ import re
 import shutil
 import sys
 import xml.etree.ElementTree as ET
+from datetime import datetime, timezone
+from email.utils import format_datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -15,13 +17,14 @@ CONTENT = ROOT / "content" / "v192" / "platform-institutional-foundation-ar.json
 SOURCE = ROOT / "magazine"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 URL = BASE + "/magazine/"
-CONTRACT = 313
-MIN_ARTICLES = 65
+CONTRACT = 315
+MIN_ARTICLES = 70
 TARGET_ARTICLES = 100
 FEED_LIMIT = 20
 EDITORIAL_UPDATED = "2026-07-27"
 ROBOTS_META = '<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">'
 ROBOTS_PATTERN = re.compile(r'<meta\s+[^>]*name=["\']robots["\'][^>]*>', re.I)
+ARTICLE_DATE_PATTERN = re.compile(r'"datePublished"\s*:\s*"(\d{4}-\d{2}-\d{2})"', re.I)
 SOURCE_LINK_PATTERN = re.compile(
     r'href="https://(?:doi\.org/|pubmed\.ncbi\.nlm\.nih\.gov/|etheses\.whiterose\.ac\.uk/|research-repository\.uwa\.edu\.au/)',
     re.I,
@@ -49,13 +52,30 @@ KNOWN_MARKERS = {
     "adolescent-depression-one-step-back-rct-2026.html": ("10.1016/j.eclinm.2026.103971", "42232686", "d=0.61"),
     "latinx-adolescent-suicidal-behavior-cbt-rct-2026.html": ("10.1080/15374416.2026.2687880", "42413031", "RR=0.50"),
     "adhd-personalized-neurofeedback-sham-rct-2026.html": ("10.1111/jcpp.70188", "42324882", "80.7%"),
+    "autism-lets-play-caregiver-mediated-rct-2026.html": ("10.1007/s10803-026-07396-z", "42405995", "لم تظهر فروق دالة"),
+    "autism-parent-reflective-functioning-rct-2026.html": ("10.1002/aur.70301", "42394366", "249 والدًا ووالدة"),
+    "cerebral-palsy-participate-cp-leisure-rct-2026.html": ("10.1542/peds.2025-075162", "42425531", "2.75"),
+    "down-syndrome-dual-task-exergaming-cognition-rct-2026.html": ("10.1016/j.psychsport.2026.103190", "42309334", "η²=0.31"),
+    "adhd-dexamphetamine-methylphenidate-randomized-2026.html": ("10.1111/jpc.70487", "42415397", "−1.44"),
 }
+
+
+def article_date(path: Path) -> str:
+    text = path.read_text(encoding="utf-8")
+    match = ARTICLE_DATE_PATTERN.search(text)
+    if match:
+        return match.group(1)
+    year_match = re.search(r"-(20\d{2})\.html$", path.name)
+    if not year_match:
+        raise SystemExit(f"Magazine article lacks a year suffix: {path.name}")
+    return f"{year_match.group(1)}-01-01"
 
 
 def article_files() -> list[Path]:
     pages = sorted(
         (path for path in SOURCE.glob("*-20*.html") if path.name != "index.html"),
-        key=lambda path: (-int(re.search(r"-(20\d{2})\.html$", path.name).group(1)), path.name),
+        key=lambda path: (article_date(path), path.name),
+        reverse=True,
     )
     if len(pages) < MIN_ARTICLES:
         raise SystemExit(f"Magazine requires at least {MIN_ARTICLES} research pages, found {len(pages)}")
@@ -95,6 +115,7 @@ def article_record(path: Path) -> dict[str, str]:
     text = path.read_text(encoding="utf-8")
     return {
         "filename": path.name,
+        "date": article_date(path),
         "title": first_match(text, r"<h1[^>]*>(.*?)</h1>", path.stem.replace("-", " ")),
         "tag": first_match(text, r'<p\s+class=["\']eyebrow["\'][^>]*>(.*?)</p>', "قراءة علمية حديثة"),
         "description": first_match(
@@ -110,7 +131,10 @@ def render_index(pages: list[Path]) -> str:
     thesis_count = sum(item["filename"].startswith("thesis-") for item in records)
     peer_count = len(records) - thesis_count
     remaining = max(0, TARGET_ARTICLES - len(records))
-    scholarly = [{"@type": "ScholarlyArticle", "url": URL + item["filename"]} for item in records]
+    scholarly = [
+        {"@type": "ScholarlyArticle", "url": URL + item["filename"], "datePublished": item["date"]}
+        for item in records
+    ]
     schema = {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
@@ -160,16 +184,23 @@ def render_index(pages: list[Path]) -> str:
 '''
 
 
+def rss_date(value: str) -> str:
+    parsed = datetime.strptime(value, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    return format_datetime(parsed, usegmt=True)
+
+
 def render_feed(pages: list[Path]) -> str:
     records = [article_record(path) for path in pages[:FEED_LIMIT]]
     items = "\n".join(
-        """    <item>\n      <title>{title}</title>\n      <link>{url}</link>\n      <guid isPermaLink=\"true\">{url}</guid>\n      <description>{description}</description>\n    </item>""".format(
+        """    <item>\n      <title>{title}</title>\n      <link>{url}</link>\n      <guid isPermaLink=\"true\">{url}</guid>\n      <pubDate>{pub_date}</pubDate>\n      <description>{description}</description>\n    </item>""".format(
             title=html.escape(item["title"]),
             url=html.escape(URL + item["filename"], quote=True),
+            pub_date=rss_date(item["date"]),
             description=html.escape(item["description"]),
         )
         for item in records
     )
+    latest = rss_date(records[0]["date"] if records else EDITORIAL_UPDATED)
     return f'''<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
@@ -178,7 +209,7 @@ def render_feed(pages: list[Path]) -> str:
     <description>قراءات عربية نقدية للدراسات الأصلية والمراجعات المنهجية والرسائل الجامعية في الصحة النفسية وذوي الاحتياجات الخاصة.</description>
     <language>ar</language>
     <atom:link href="{URL}feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>Mon, 27 Jul 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>{latest}</lastBuildDate>
     <ttl>60</ttl>
 {items}
   </channel>
@@ -326,6 +357,7 @@ def publish(site: Path) -> dict[str, object]:
         "continuous_publication_policy": True,
         "editorial_updated_at": EDITORIAL_UPDATED,
         "articles": [path.name for path in pages],
+        "article_dates": {path.name: article_date(path) for path in pages},
         "source_sha256": hashes,
         "review_status": data["status"],
         "risk_level": data["risk_level"],
@@ -333,8 +365,8 @@ def publish(site: Path) -> dict[str, object]:
         "source_heading_contract": "article-or-official-repository",
         "limitations_contract": "limitations-or-cautions-required",
         "robots_contract": "exactly-one-index-follow-meta-per-published-page",
-        "index_contract": "generated-from-discovered-articles",
-        "rss_contract": "latest-twenty-generated-from-discovered-articles",
+        "index_contract": "generated-from-discovered-articles-sorted-by-datePublished",
+        "rss_contract": "latest-twenty-sorted-by-datePublished",
         "robots": robots,
         "sitemap": sitemap,
     }
