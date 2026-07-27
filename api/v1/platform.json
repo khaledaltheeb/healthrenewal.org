@@ -57,6 +57,8 @@
     "openapi": "https://khaledaltheeb.github.io/pterminology-site/api/v1/openapi.json",
     "specialistsPartners": "https://khaledaltheeb.github.io/pterminology-site/api/v1/specialists-partners.json",
     "specialistsPartnersDirectory": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/providers.json",
+    "specialistsPartnersVerificationLedger": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/verification-ledger.json",
+    "specialistsPartnersVerificationLedgerSchema": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/verification-ledger.schema.json",
     "providerSchema": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/provider.schema.json",
     "courseSchema": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.schema.json",
     "courseExample": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.example.json"
@@ -64,7 +66,8 @@
   "integrationPolicy": {
     "externalCourseImport": "permission_required",
     "providerPublication": "verification_and_written_consent_required",
-    "requiredEvidence": ["source authorization", "content license", "provider identity", "provider qualification", "license when applicable", "written publication consent", "canonical source URL"],
-    "prohibited": ["circumventing access controls", "copying protected course materials", "removing attribution", "publishing unverified provider claims", "publishing client or child case data", "paid ranking presented as neutral results"]
+    "providerAccuracy": "field_level_evidence_and_current_verification_ledger_required",
+    "requiredEvidence": ["source authorization", "content license", "provider identity", "provider qualification", "license when applicable", "field-level claim evidence", "written publication consent", "canonical source URL"],
+    "prohibited": ["circumventing access controls", "copying protected course materials", "removing attribution", "publishing unverified provider claims", "publishing client or child case data", "publishing sensitive verification documents", "paid ranking presented as neutral results"]
   }
 }

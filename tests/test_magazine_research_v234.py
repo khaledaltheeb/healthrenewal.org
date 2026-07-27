@@ -32,7 +32,7 @@ class MagazineResearchV315Tests(unittest.TestCase):
 
     def test_publishes_every_discovered_article_rss_and_sitemap(self) -> None:
         pages = MODULE.article_files()
-        self.assertEqual(len(pages), 72)
+        self.assertEqual(len(pages), 73)
         self.assertEqual(MODULE.CONTRACT, 315)
         self.assertEqual(MODULE.TARGET_ARTICLES, 100)
         dates = [MODULE.article_date(path) for path in pages]
@@ -42,12 +42,12 @@ class MagazineResearchV315Tests(unittest.TestCase):
             site = self.make_site(Path(directory))
             report = MODULE.publish(site)
             self.assertEqual(report["version"], 315)
-            self.assertEqual(report["research_summaries_published"], 72)
+            self.assertEqual(report["research_summaries_published"], 73)
             self.assertEqual(report["target_research_summaries"], 100)
-            self.assertEqual(report["remaining_to_target"], 28)
+            self.assertEqual(report["remaining_to_target"], 27)
             self.assertTrue(report["continuous_publication_policy"])
-            self.assertEqual(len(report["articles"]), 72)
-            self.assertEqual(report["sitemap"]["child_urls"], 73)
+            self.assertEqual(len(report["articles"]), 73)
+            self.assertEqual(report["sitemap"]["child_urls"], 74)
             self.assertEqual(report["robots"]["rss_items"], 20)
             self.assertEqual(report["unwired_research_pages"], 0)
             self.assertEqual(report["index_contract"], "generated-from-discovered-articles-sorted-by-datePublished")
@@ -63,7 +63,7 @@ class MagazineResearchV315Tests(unittest.TestCase):
                 self.assertTrue(any(term in text for term in ("حدود", "قيود", "الحذر")))
 
             urls = [node.text for node in ET.parse(site / "sitemap-magazine.xml").getroot().findall("{*}url/{*}loc")]
-            self.assertEqual(len(urls), 73)
+            self.assertEqual(len(urls), 74)
             self.assertEqual(len(urls), len(set(urls)))
             for path in pages:
                 self.assertIn(MODULE.URL + path.name, urls)
@@ -75,13 +75,10 @@ class MagazineResearchV315Tests(unittest.TestCase):
             self.assertEqual(feed_links, [MODULE.URL + path.name for path in pages[:20]])
             feed_dates = [parsedate_to_datetime(item.findtext("pubDate")) for item in items]
             self.assertEqual(feed_dates, sorted(feed_dates, reverse=True))
-            self.assertEqual(
-                parsedate_to_datetime(feed_root.findtext("./channel/lastBuildDate")),
-                feed_dates[0],
-            )
+            self.assertEqual(parsedate_to_datetime(feed_root.findtext("./channel/lastBuildDate")), feed_dates[0])
 
             saved = json.loads((site / "api" / "magazine-v201.json").read_text(encoding="utf-8"))
-            self.assertEqual(saved["research_summaries_published"], 72)
+            self.assertEqual(saved["research_summaries_published"], 73)
             self.assertEqual(saved["target_research_summaries"], 100)
             self.assertEqual(set(saved["articles"]), {path.name for path in pages})
 
@@ -89,11 +86,7 @@ class MagazineResearchV315Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             site = self.make_site(Path(directory))
             first = MODULE.publish(site)
-            tracked = [
-                site / "sitemap-magazine.xml",
-                site / "magazine/index.html",
-                site / "magazine/feed.xml",
-            ]
+            tracked = [site / "sitemap-magazine.xml", site / "magazine/index.html", site / "magazine/feed.xml"]
             before = [hashlib.sha256(path.read_bytes()).hexdigest() for path in tracked]
             second = MODULE.publish(site)
             after = [hashlib.sha256(path.read_bytes()).hexdigest() for path in tracked]
@@ -105,14 +98,14 @@ class MagazineResearchV315Tests(unittest.TestCase):
     def test_generated_index_is_dynamic_and_chronological(self) -> None:
         pages = MODULE.article_files()
         index = MODULE.render_index(pages)
-        self.assertIn('"numberOfItems":72', index)
-        self.assertIn("72 قراءة علمية مستقلة", index)
+        self.assertIn('"numberOfItems":73', index)
+        self.assertIn("73 قراءة علمية مستقلة", index)
         self.assertIn("الهدف المرحلي 100 قراءة", index)
-        self.assertIn("المتبقي 28", index)
+        self.assertIn("المتبقي 27", index)
         self.assertIn('type="application/rss+xml"', index)
-        self.assertEqual(index.count('class="card"'), 72)
-        self.assertEqual(index.count('"@type":"ScholarlyArticle"'), 72)
-        self.assertEqual(index.count('"datePublished"'), 72)
+        self.assertEqual(index.count('class="card"'), 73)
+        self.assertEqual(index.count('"@type":"ScholarlyArticle"'), 73)
+        self.assertEqual(index.count('"datePublished"'), 73)
         self.assertNotIn("ستون قراءة", index)
         card_positions = [index.index(f'href="{path.name}"') for path in pages]
         self.assertEqual(card_positions, sorted(card_positions))
@@ -134,6 +127,7 @@ class MagazineResearchV315Tests(unittest.TestCase):
             "adhd-dexamphetamine-methylphenidate-randomized-2026.html": ("10.1111/jpc.70487", "42415397", "−1.44"),
             "adhd-rhythmic-music-game-rct-2026.html": ("10.3389/fpubh.2026.1808386", "42145502", "−46.1"),
             "autism-aspen-low-resource-parent-intervention-rct-2026.html": ("10.3389/fpsyt.2026.1795918", "42404716", "50%", "p=0.026"),
+            "neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html": ("10.1002/aur.70282", "42187205", "d=0.84", "d=0.38", "لم تظهر فروق مهمة"),
         }
         for filename, markers in checks.items():
             text = (ROOT / "magazine" / filename).read_text(encoding="utf-8")
