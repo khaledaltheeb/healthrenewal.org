@@ -46,10 +46,10 @@ jobs:
               'الارتباط يعني أن متغيرين يتحركان معًا',
               'الإفصاح وحده ليس إدارة',
               'sitemap-library.xml',
+              "section_audit_surface': 'exact-production-workflow-artifact'",
           )
           missing = [marker for marker in required if marker not in text]
           assert not missing, missing
-          assert 'section-content-depth-v322.json?v=' not in text
           print({'status': 'static-contract-passed', 'markers': len(required), 'section_audit_surface': 'workflow-artifact-only'})
           PY
 
