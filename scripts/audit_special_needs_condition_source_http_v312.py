@@ -20,6 +20,7 @@ CONDITION_FILES = (
     ROOT / "content" / "v302" / "autism-ar.json",
     ROOT / "content" / "v302" / "down-syndrome-ar.json",
 )
+OVERRIDE_FILE = ROOT / "content" / "v312" / "special-needs-condition-source-url-overrides.json"
 VERSION = 312
 HEALTHY_STATUSES = set(range(200, 400))
 RESTRICTED_STATUSES = {401, 403, 405, 406, 407, 418, 425, 429}
@@ -64,10 +65,35 @@ def read_json(path: Path) -> dict[str, Any]:
     return payload
 
 
+def load_url_overrides() -> dict[str, dict[str, str]]:
+    data = read_json(OVERRIDE_FILE)
+    overrides = data.get("overrides")
+    if data.get("version") != VERSION or data.get("language") != "ar" or not isinstance(overrides, dict):
+        raise SystemExit("Source URL override contract failed")
+    result: dict[str, dict[str, str]] = {}
+    for source_id, item in overrides.items():
+        if not isinstance(item, dict):
+            raise SystemExit(f"Source URL override must be an object: {source_id}")
+        required = ("from", "to", "organization", "reason", "verification_method")
+        missing = [key for key in required if not str(item.get(key, "")).strip()]
+        if missing:
+            raise SystemExit(f"Source URL override is incomplete: {source_id}/{missing}")
+        old = str(item["from"])
+        new = str(item["to"])
+        old_host = urlparse(old).netloc.lower().removeprefix("www.")
+        new_host = urlparse(new).netloc.lower().removeprefix("www.")
+        if urlparse(old).scheme != "https" or urlparse(new).scheme != "https" or not old_host or old_host != new_host:
+            raise SystemExit(f"Source URL override must remain on the same HTTPS official domain: {source_id}")
+        result[str(source_id)] = {key: str(item[key]) for key in required}
+    return result
+
+
 def load_sources() -> list[dict[str, str]]:
+    overrides = load_url_overrides()
     rows: list[dict[str, str]] = []
     seen_ids: set[str] = set()
     seen_pairs: set[tuple[str, str]] = set()
+    applied_overrides: set[str] = set()
     for path in CONDITION_FILES:
         payload = read_json(path)
         slug = str(payload.get("slug", "")).strip()
@@ -83,6 +109,14 @@ def load_sources() -> list[dict[str, str]]:
             title = str(source.get("title", "")).strip()
             if not all((source_id, url, organization, title)):
                 raise SystemExit(f"Incomplete source row: {slug}/{source_id}")
+            override = overrides.get(source_id)
+            if override:
+                if url != override["from"]:
+                    raise SystemExit(f"Source URL override no longer matches its declared original: {source_id}")
+                if organization != override["organization"]:
+                    raise SystemExit(f"Source URL override organization mismatch: {source_id}")
+                url = override["to"]
+                applied_overrides.add(source_id)
             if source_id in seen_ids:
                 raise SystemExit(f"Duplicate source id across condition pages: {source_id}")
             pair = (slug, url)
@@ -102,6 +136,9 @@ def load_sources() -> list[dict[str, str]]:
                     "url": url,
                 }
             )
+    unused_overrides = sorted(set(overrides) - applied_overrides)
+    if unused_overrides:
+        raise SystemExit(f"Unused source URL overrides must be removed: {unused_overrides}")
     return sorted(rows, key=lambda row: (row["condition"], row["source_id"]))
 
 
@@ -231,6 +268,7 @@ def audit(timeout: float = 18.0, workers: int = 4) -> dict[str, Any]:
         counts[result.classification] = counts.get(result.classification, 0) + 1
     blocking = [result.source_id for result in results if result.blocking]
     checked_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    override_count = len(load_url_overrides())
     return {
         "version": VERSION,
         "status": "failed" if blocking else "passed-with-observations",
@@ -238,6 +276,8 @@ def audit(timeout: float = 18.0, workers: int = 4) -> dict[str, Any]:
         "check_type": "live-http",
         "condition_count": len({row["condition"] for row in rows}),
         "source_count": len(rows),
+        "source_url_override_count": override_count,
+        "source_url_override_source": OVERRIDE_FILE.relative_to(ROOT).as_posix(),
         "blocking_count": len(blocking),
         "blocking_source_ids": blocking,
         "classification_counts": dict(sorted(counts.items())),
