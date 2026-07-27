@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import publish_special_needs_condition_hubs_v302 as condition302
+import publish_special_needs_condition_postlaunch_v305 as postlaunch305
 import publish_special_needs_guides_v214 as batch214
 import publish_special_needs_guides_v217_core as core
 import publish_special_needs_hub_v235_compat as hub235
@@ -51,7 +52,11 @@ def load_production_manifest() -> dict[str, Any]:
 def reset_condition_outputs(site: Path) -> None:
     for slug in ("autism", "down-syndrome"):
         shutil.rmtree(site / "special-needs" / slug, ignore_errors=True)
-    (site / "api" / "special-needs-condition-hubs-v302.json").unlink(missing_ok=True)
+    for name in (
+        "special-needs-condition-hubs-v302.json",
+        "special-needs-condition-postlaunch-v305.json",
+    ):
+        (site / "api" / name).unlink(missing_ok=True)
 
     sitemap_path = site / "sitemap-special-needs.xml"
     if not sitemap_path.is_file():
@@ -118,6 +123,19 @@ def publish(site: Path) -> dict[str, Any]:
     if condition_report.get("generated_page_count") != 2 or condition_report.get("source_count", 0) < 15:
         raise SystemExit("Scientific condition page depth contract failed")
 
+    postlaunch_report = postlaunch305.publish(site)
+    if postlaunch_report.get("version") != 305 or postlaunch_report.get("status") != "passed":
+        raise SystemExit(f"Condition post-launch audit contract failed: {postlaunch_report}")
+    if postlaunch_report.get("condition_slugs") != ["autism", "down-syndrome"]:
+        raise SystemExit("Post-launch audit must cover both condition routes")
+    if postlaunch_report.get("related_link_count") != 16:
+        raise SystemExit("Post-launch internal-link graph must contain sixteen contextual links")
+    if not all(
+        postlaunch_report.get(key) is True
+        for key in ("visible_breadcrumbs", "meta_enhanced", "provider_policy_visible", "focus_visibility_guard")
+    ):
+        raise SystemExit("Post-launch accessibility and transparency controls are incomplete")
+
     report = {
         **base,
         "version": 221,
@@ -126,6 +144,7 @@ def publish(site: Path) -> dict[str, Any]:
         "hub_contract": 235,
         "hub_release": 241,
         "condition_hubs_contract": 302,
+        "condition_postlaunch_contract": 305,
         "status": "passed",
         "production_status": "integrated",
         "batches": list(VERSIONS),
@@ -162,6 +181,18 @@ def publish(site: Path) -> dict[str, Any]:
             "provider_source": condition_report["provider_source"],
             "published_provider_count": condition_report["published_provider_count"],
             "sitemap_registered": condition_report["sitemap_registered"],
+            "postlaunch": {
+                "version": postlaunch_report["version"],
+                "reviewed_at": postlaunch_report["reviewed_at"],
+                "minimum_words": postlaunch_report["minimum_words"],
+                "minimum_h2": postlaunch_report["minimum_h2"],
+                "related_link_count": postlaunch_report["related_link_count"],
+                "visible_breadcrumbs": postlaunch_report["visible_breadcrumbs"],
+                "meta_enhanced": postlaunch_report["meta_enhanced"],
+                "provider_policy_visible": postlaunch_report["provider_policy_visible"],
+                "focus_visibility_guard": postlaunch_report["focus_visibility_guard"],
+                "config_source": postlaunch_report["config_source"],
+            },
         },
         **discovery,
         "batch_reports": [*base["batch_reports"], summary(report214)],

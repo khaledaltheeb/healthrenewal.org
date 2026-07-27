@@ -1,4 +1,4 @@
-name: Integrate special-needs guides hub and condition portals v302
+name: Integrate special-needs guides condition portals and post-launch audit v305
 
 on:
   pull_request:
@@ -7,6 +7,7 @@ on:
       - "scripts/publish_special_needs_hub_v235.py"
       - "scripts/publish_special_needs_hub_v235_compat.py"
       - "scripts/publish_special_needs_condition_hubs_v302.py"
+      - "scripts/publish_special_needs_condition_postlaunch_v305.py"
       - "scripts/publish_special_needs_guides_v217.py"
       - "scripts/publish_special_needs_guides_v217_core.py"
       - "scripts/publish_special_needs_guides_v214.py"
@@ -15,8 +16,10 @@ on:
       - "content/v214/**"
       - "content/v221/special-needs-guides-production-manifest-ar.json"
       - "content/v302/**"
+      - "content/v305/**"
       - "tests/test_special_needs_hub_v235.py"
       - "tests/test_special_needs_condition_hubs_v302.py"
+      - "tests/test_special_needs_condition_postlaunch_v305.py"
       - "tests/test_special_needs_guides_v214.py"
       - "tests/test_special_needs_guides_v221_integration.py"
       - ".github/workflows/validate-special-needs-guides-v221-integration.yml"
@@ -26,25 +29,26 @@ permissions:
   contents: read
 
 concurrency:
-  group: special-needs-guides-condition-hubs-v302-${{ github.ref }}
+  group: special-needs-postlaunch-audit-v305-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 22
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Compile hub condition and guide publishers
+      - name: Compile hub condition post-launch and guide publishers
         run: |
           set -euxo pipefail
           python -m py_compile \
             scripts/publish_special_needs_hub_v235.py \
             scripts/publish_special_needs_hub_v235_compat.py \
             scripts/publish_special_needs_condition_hubs_v302.py \
+            scripts/publish_special_needs_condition_postlaunch_v305.py \
             scripts/publish_special_needs_guides_v209.py \
             scripts/publish_special_needs_guides_v209_compat.py \
             scripts/publish_special_needs_guides_v210.py \
@@ -55,9 +59,10 @@ jobs:
             scripts/publish_special_needs_guides_v217.py \
             tests/test_special_needs_hub_v235.py \
             tests/test_special_needs_condition_hubs_v302.py \
+            tests/test_special_needs_condition_postlaunch_v305.py \
             tests/test_special_needs_guides_v214.py \
             tests/test_special_needs_guides_v221_integration.py
-      - name: Validate manifests and condition data
+      - name: Validate manifests condition data and post-launch link contract
         run: |
           python -m json.tool content/v221/special-needs-guides-production-manifest-ar.json >/dev/null
           python -m json.tool content/v214/special-needs-guides-manifest-ar.json >/dev/null
@@ -65,6 +70,7 @@ jobs:
           python -m json.tool content/v302/special-needs-providers-ar.json >/dev/null
           python -m json.tool content/v302/autism-ar.json >/dev/null
           python -m json.tool content/v302/down-syndrome-ar.json >/dev/null
+          python -m json.tool content/v305/special-needs-condition-postlaunch-ar.json >/dev/null
           for file in content/v214/special-needs-guides/*.json; do python -m json.tool "$file" >/dev/null; done
       - name: Validate institutional hub depth metadata robots and idempotence
         run: |
@@ -74,12 +80,14 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: special-needs-hub-v302-failure-log
+          name: special-needs-hub-v305-failure-log
           path: /tmp/special-needs-hub.log
           if-no-files-found: ignore
           retention-days: 7
       - name: Validate autism Down syndrome evidence traceability providers and idempotence
         run: python -m unittest -v tests.test_special_needs_condition_hubs_v302
+      - name: Validate post-launch navigation contextual links meta accessibility and policy
+        run: python -m unittest -v tests.test_special_needs_condition_postlaunch_v305
       - name: Validate v214 depth sources language and idempotence
         run: python -m unittest -v tests.test_special_needs_guides_v214
       - name: Validate five-batch production integration
