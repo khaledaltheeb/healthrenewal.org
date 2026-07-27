@@ -1,4 +1,4 @@
-/* v283 — computed-style adaptive contrast guard; v289 deterministic late-style recovery. */
+/* v283 — computed-style hero/header contrast guard; v289 deterministic late-style recovery. */
 (() => {
   'use strict';
 
@@ -153,18 +153,18 @@
     const background = effectiveBackground(element);
     const threshold = thresholdFor(element, style);
     const foreground = foregroundRaw.a < 1 ? composite(foregroundRaw, background) : foregroundRaw;
-    const current = ratio(foreground, background);
+    const currentRatio = ratio(foreground, background);
 
     if (surfaceType === 'light' && !ownDarkControl(element, style)) {
-      if (current + 0.001 < threshold || luminance(foreground) > 0.55) applyColor(element, DARK_TEXT, background, 'light-surface');
+      if (currentRatio + 0.001 < threshold || luminance(foreground) > 0.55) applyColor(element, DARK_TEXT, background, 'light-surface');
       return;
     }
     if (surfaceType === 'dark' && !element.matches(CONTROL_SELECTOR)) {
-      if (current + 0.001 < threshold || luminance(foreground) < 0.45) applyColor(element, LIGHT_TEXT, background, 'dark-surface');
+      if (currentRatio + 0.001 < threshold || luminance(foreground) < 0.45) applyColor(element, LIGHT_TEXT, background, 'dark-surface');
       return;
     }
-    if (current + 0.001 >= threshold) {
-      element.dataset.hhContrast = current.toFixed(2);
+    if (currentRatio + 0.001 >= threshold) {
+      element.dataset.hhContrast = currentRatio.toFixed(2);
       element.dataset.hhContrastSource = 'computed-pass';
       return;
     }
