@@ -218,15 +218,21 @@ _namespace: dict[str, object] = {
 exec(compile(source, __file__, "exec"), _namespace)
 
 
+def _exit_code(result: object) -> int:
+    return result if isinstance(result, int) else 0
+
+
 def main() -> int:
     core_main = _namespace.get("main")
     if not callable(core_main):
         raise SystemExit("Cognitive sector core main() was not defined")
     result = core_main()
+    if len(sys.argv) > 1 and sys.argv[1] == "--self-test":
+        return _exit_code(result)
     site = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
     evidence = disambiguate_legacy_verbal_analogy(site)
     print(json.dumps({"title_disambiguation": evidence}, ensure_ascii=False, indent=2))
-    return int(result or 0)
+    return _exit_code(result)
 
 
 if __name__ == "__main__":
