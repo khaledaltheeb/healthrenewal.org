@@ -22,8 +22,17 @@ CONDITION_SOURCE_FILES = {
     "content/v302/down-syndrome-ar.json",
     "content/v305/special-needs-condition-postlaunch-ar.json",
     "content/v307/special-needs-condition-trust-ar.json",
+    "content/v310/special-needs-condition-source-maintenance-ar.json",
+    "content/v312/special-needs-condition-source-url-overrides.json",
 }
-SPECIAL_NEEDS_PREFIXES = tuple(f"content/v{version}/" for version in (*VERSIONS, 221, 302, 305, 307))
+SPECIAL_NEEDS_CONTENT_PREFIXES = (
+    "content/v209/special-needs-guides/",
+    "content/v210/special-needs-guides/",
+    "content/v211/special-needs-guides/",
+    "content/v212/special-needs-guides/",
+    "content/v214/special-needs-guides/",
+    "content/v221/special-needs",
+)
 SPECIAL_NEEDS_PUBLISHERS = {
     "scripts/publish_special_needs_hub_v235.py",
     "scripts/publish_special_needs_hub_v235_compat.py",
@@ -183,8 +192,9 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
             for item in report["items"]
             if item["category"] in {"unwired-content", "source-only", "unwired-publisher"}
             and (
-                item["path"].startswith(SPECIAL_NEEDS_PREFIXES)
+                item["path"].startswith(SPECIAL_NEEDS_CONTENT_PREFIXES)
                 or item["path"] in SPECIAL_NEEDS_PUBLISHERS
+                or item["path"] in CONDITION_SOURCE_FILES
             )
         ]
         self.assertEqual(scoped_failures, [], "\n".join(item["path"] for item in scoped_failures))
