@@ -1,0 +1,63 @@
+name: Validate outside-the-box scientific review governance v305
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v305/outside-the-box-review-governance-ar.json"
+      - "scripts/publish_outside_the_box_review_governance_v305.py"
+      - "assets/css/outside-the-box-review-governance-v305.css"
+      - "tests/test_outside_the_box_review_governance_v305.py"
+      - "scripts/apply_homepage_v20.py"
+      - ".github/ISSUE_TEMPLATE/outside-the-box-scientific-review.yml"
+      - ".github/workflows/validate-outside-the-box-review-governance-v305.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "content/v305/outside-the-box-review-governance-ar.json"
+      - "scripts/publish_outside_the_box_review_governance_v305.py"
+      - "assets/css/outside-the-box-review-governance-v305.css"
+      - "tests/test_outside_the_box_review_governance_v305.py"
+      - "scripts/apply_homepage_v20.py"
+      - ".github/ISSUE_TEMPLATE/outside-the-box-scientific-review.yml"
+      - ".github/workflows/validate-outside-the-box-review-governance-v305.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scientific-review-governance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate machine contracts and compile publishers
+        run: |
+          set -euxo pipefail
+          python -m json.tool content/v254/outside-the-box-conditions-ar.json >/dev/null
+          python -m json.tool content/v302/outside-the-box-ten-plan-framework-ar.json >/dev/null
+          python -m json.tool content/v305/outside-the-box-review-governance-ar.json >/dev/null
+          python -m py_compile scripts/publish_outside_the_box_v254.py
+          python -m py_compile scripts/publish_outside_the_box_ten_plans_v302.py
+          python -m py_compile scripts/publish_outside_the_box_reference_assets_v303.py
+          python -m py_compile scripts/publish_outside_the_box_review_governance_v305.py
+          python -m py_compile scripts/apply_homepage_v20.py
+          python -m py_compile tests/test_outside_the_box_review_governance_v305.py
+
+      - name: Validate review contract and exact 100-condition 1000-plan register
+        run: python -m unittest -v tests.test_outside_the_box_review_governance_v305
+
+      - name: Re-run ten-plan regression contract
+        run: python -m unittest -v tests.test_outside_the_box_ten_plans_v302
+
+      - name: Re-run evidence and instrument publication regression
+        run: python -m unittest -v tests.test_outside_the_box_reference_assets_v303
+
+      - name: Reject false approvals protected test content and stigmatizing language
+        run: |
+          set -euxo pipefail
+          ! grep -R -n -E 'external_review_completed["'"' ]*:["'"' ]*true|global_accreditation_claim["'"' ]*:["'"' ]*true' content/v305 scripts/publish_outside_the_box_review_governance_v305.py
+          ! grep -R -n -E 'مراجعة خارجية مكتملة|اعتماد عالمي مكتمل|كل المصابين متفوقون|الخطة تصلح للجميع|معاقين' content/v305 scripts/publish_outside_the_box_review_governance_v305.py assets/css/outside-the-box-review-governance-v305.css
+          ! grep -R -n -E 'test items|scoring key|normative table|بنود الاختبار|مفتاح التصحيح|الجداول المعيارية' content/v305 scripts/publish_outside_the_box_review_governance_v305.py | grep -v -E 'لا تُنشر|لا يُنشر|allow_proprietary|proprietary_test|منع نشر'
