@@ -1,4 +1,4 @@
-/* v283 — computed-style hero/header contrast guard; v287 known-light route fix. */
+/* v283 — computed-style hero/header contrast guard; v288 adaptive image/gradient surfaces. */
 (() => {
   'use strict';
 
@@ -136,6 +136,52 @@
     }
   }
 
+  function declaredSurface(surface) {
+    if (surface.matches('[data-surface="light"],[data-theme="light"],.surface-light,.theme-light,.hh-surface-light,.hh-overlay-light')) return 'light';
+    if (surface.matches('[data-surface="dark"],[data-theme="dark"],.surface-dark,.theme-dark,.hh-surface-dark,.hh-overlay-dark')) return 'dark';
+    return null;
+  }
+
+  function firstVisibleTextColor(surface) {
+    const candidates = [surface, ...surface.querySelectorAll(TEXT_SELECTOR)];
+    for (const element of candidates) {
+      if (!visible(element)) continue;
+      const color = parseColor(getComputedStyle(element).color);
+      if (color) return color;
+    }
+    return null;
+  }
+
+  function stabilizeImageSurface(surface, knownLightRoute) {
+    const style = getComputedStyle(surface);
+    if (!style.backgroundImage || style.backgroundImage === 'none') return null;
+
+    let choice = declaredSurface(surface);
+    if (!choice && knownLightRoute && surface.matches(TOP_SURFACE_SELECTOR)) choice = 'light';
+
+    if (!choice) {
+      const own = parseColor(style.backgroundColor);
+      if (own && own.a >= 0.55) {
+        choice = luminance(composite(own, WHITE)) >= 0.55 ? 'light' : 'dark';
+      } else {
+        const textColor = firstVisibleTextColor(surface);
+        choice = textColor && luminance(textColor) < 0.45 ? 'light' : 'dark';
+      }
+    }
+
+    const target = choice === 'light' ? 'hh-overlay-light' : 'hh-overlay-dark';
+    const opposite = choice === 'light' ? 'hh-overlay-dark' : 'hh-overlay-light';
+    applying = true;
+    try {
+      surface.classList.remove(opposite);
+      surface.classList.add(target);
+      surface.dataset.hhAdaptiveOverlay = choice;
+    } finally {
+      applying = false;
+    }
+    return choice;
+  }
+
   function resolveElement(element, declaredLight = false) {
     if (!visible(element)) return;
     const style = getComputedStyle(element);
@@ -146,7 +192,7 @@
 
     if (declaredLight && luminance(background) >= 0.55 && !hasOwnDarkControlSurface(element, style)) {
       const darkRatio = contrast(DARK_TEXT, background);
-      applyColor(element, DARK_TEXT, 'hh-text-on-light', 'hh-text-on-dark', darkRatio, 'declared-light-route');
+      applyColor(element, DARK_TEXT, 'hh-text-on-light', 'hh-text-on-dark', darkRatio, 'declared-light-surface');
       return;
     }
 
@@ -177,8 +223,12 @@
 
     const surfaces = [...document.querySelectorAll(SURFACE_SELECTOR)];
     for (const surface of surfaces) {
-      const declaredLight = knownLightRoute && surface.matches(TOP_SURFACE_SELECTOR);
+      const overlay = stabilizeImageSurface(surface, knownLightRoute);
+      const declaredLight = overlay === 'light'
+        || declaredSurface(surface) === 'light'
+        || (knownLightRoute && surface.matches(TOP_SURFACE_SELECTOR));
       if (declaredLight) surface.dataset.hhDeclaredSurface = 'light';
+      else if (overlay === 'dark' || declaredSurface(surface) === 'dark') surface.dataset.hhDeclaredSurface = 'dark';
       if (surface.matches(TEXT_SELECTOR)) resolveElement(surface, declaredLight);
       surface.querySelectorAll(TEXT_SELECTOR).forEach((element) => resolveElement(element, declaredLight));
     }
@@ -191,8 +241,6 @@
     requestAnimationFrame(scan);
   }
 
-  /* Defer scripts execute after parsing. Run immediately so the first complete frame
-   * does not expose white text over the known pale psychological-well-being hero. */
   scan();
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', schedule, { once: true });
@@ -215,6 +263,7 @@
     const externalChange = mutations.some((mutation) => {
       if (mutation.type !== 'attributes') return true;
       if (!['class','style'].includes(mutation.attributeName)) return true;
+      if (mutation.target.dataset?.hhAdaptiveOverlay) return false;
       return !hasResolution(mutation.target);
     });
     if (externalChange) schedule();
@@ -228,7 +277,8 @@
   window.__heroHeaderContrastV283 = {
     scan,
     classes: CLASS_NAMES.slice(),
-    version: 287,
+    version: 288,
     knownLightRoutes: KNOWN_LIGHT_ROUTE_SUFFIXES.slice(),
+    adaptiveImageSurfaces: true,
   };
 })();
