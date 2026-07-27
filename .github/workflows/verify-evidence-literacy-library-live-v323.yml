@@ -40,7 +40,6 @@ jobs:
               'study-designs-bias-and-causality',
               'appraise-clinical-guideline',
               'evidence-literacy-library-v322.json',
-              'section-content-depth-v322.json',
               'المراجعة المنهجية ليست قوية لمجرد اسمها',
               'التقرير الكامل وفق إرشاد مناسب يسهل التقييم، لكنه لا يصلح تصميمًا ضعيفًا',
               'يقين الدليل يجيب عن مقدار الثقة',
@@ -50,7 +49,8 @@ jobs:
           )
           missing = [marker for marker in required if marker not in text]
           assert not missing, missing
-          print({'status': 'static-contract-passed', 'markers': len(required)})
+          assert 'section-content-depth-v322.json?v=' not in text
+          print({'status': 'static-contract-passed', 'markers': len(required), 'section_audit_surface': 'workflow-artifact-only'})
           PY
 
   live-publication:
@@ -102,7 +102,7 @@ jobs:
           done
           test "$matched" -eq 1
 
-      - name: Download live library pages reports and sitemap
+      - name: Download live library pages report and sitemap
         run: |
           set -euxo pipefail
           token="${MINIMUM_SHA}-live-$(date +%s)"
@@ -112,7 +112,6 @@ jobs:
             curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}library/evidence-literacy/${slug}/?v=${token}" -o "/tmp/${slug}.html"
           done
           curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/evidence-literacy-library-v322.json?v=${token}" -o /tmp/library.json
-          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/section-content-depth-v322.json?v=${token}" -o /tmp/depth.json
           curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sitemap-library.xml?v=${token}" -o /tmp/sitemap-library.xml
 
       - name: Enforce live methodological depth evidence and discovery
@@ -123,7 +122,6 @@ jobs:
 
           base = 'https://khaledaltheeb.github.io/pterminology-site'
           report = json.loads(Path('/tmp/library.json').read_text(encoding='utf-8'))
-          depth = json.loads(Path('/tmp/depth.json').read_text(encoding='utf-8'))
           parent = Path('/tmp/library.html').read_text(encoding='utf-8')
           hub = Path('/tmp/hub.html').read_text(encoding='utf-8')
           slugs = [
@@ -139,10 +137,8 @@ jobs:
           assert report['section_count'] == 24 and report['source_count'] >= 12, report
           assert report['minimum_guide_words'] >= 900, report
           assert report['external_methodology_review_completed'] is False, report
-          assert depth['version'] == 322 and depth['status'] == 'passed', depth
-          assert depth['html_index_pages_scanned'] >= 3000, depth
-          assert depth['evidence_literacy_page_count'] == 5, depth
-          assert depth['evidence_literacy_minimum_guide_words'] >= 900, depth
+          assert report['review_status'] == 'internally-reviewed-external-methodology-review-required', report
+          assert report['next_review_due'] == '2027-01-27', report
           assert parent.count('data-evidence-literacy-library-v322="parent-link"') == 1
           assert parent.count('/pterminology-site/library/evidence-literacy/') == 1
           assert hub.count('class="card"') == 4
@@ -170,5 +166,5 @@ jobs:
               assert urls.count(base + route) == 1, route
           assert len(urls) == len(set(urls))
           deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
-          print({'live_commit': deployment.get('commit'), 'guides': report['guide_count'], 'minimum_words': report['minimum_guide_words'], 'pages_scanned': depth['html_index_pages_scanned'], 'status': 'evidence-literacy-library-live-v323-verified'})
+          print({'live_commit': deployment.get('commit'), 'guides': report['guide_count'], 'minimum_words': report['minimum_guide_words'], 'section_audit_surface': 'exact-production-workflow-artifact', 'status': 'evidence-literacy-library-live-v323-verified'})
           PY
