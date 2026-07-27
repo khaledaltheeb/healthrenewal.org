@@ -32,26 +32,49 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          publish=Path('.github/workflows/publish-autism-clinical-pathways-v324.yml').read_text(encoding='utf-8')
-          deploy=Path('.github/workflows/deploy-autism-clinical-pathways-v324.yml').read_text(encoding='utf-8')
-          for marker in (
-              'Publish special-needs expansion v322',
-              'validated-production-site',
-              'publish_autism_clinical_pathways_v324.py validated-site',
-              'autism-clinical-pathways-v324.json',
-              'audit_orphan_pages_v197.py',
-              'audit_content_quality_v32.py',
-          ):
-              assert marker in publish, marker
-          for marker in (
-              'Publish autism clinical pathways v324',
-              'actions/deploy-pages@v4',
-              'autism-clinical-pathways-v324.json',
-              'CANDIDATE_SHA',
-          ):
-              assert marker in deploy, marker
-          assert 'workflow_dispatch' not in publish
-          print({'status':'static-contract-passed'})
+
+          publish_path = Path('.github/workflows/publish-autism-clinical-pathways-v324.yml')
+          deploy_path = Path('.github/workflows/deploy-autism-clinical-pathways-v324.yml')
+          if not publish_path.is_file() or not deploy_path.is_file():
+              raise SystemExit({'missing_files': [str(path) for path in (publish_path, deploy_path) if not path.is_file()]})
+
+          publish = publish_path.read_text(encoding='utf-8')
+          deploy = deploy_path.read_text(encoding='utf-8')
+          required = {
+              'publish': (
+                  'Publish special-needs expansion v322',
+                  'validated-production-site',
+                  'publish_autism_clinical_pathways_v324.py validated-site',
+                  'autism-clinical-pathways-v324.json',
+                  'audit_orphan_pages_v197.py',
+                  'audit_content_quality_v32.py',
+              ),
+              'deploy': (
+                  'Publish autism clinical pathways v324',
+                  'actions/deploy-pages@v4',
+                  'autism-clinical-pathways-v324.json',
+                  'CANDIDATE_SHA',
+              ),
+          }
+          texts = {'publish': publish, 'deploy': deploy}
+          missing = {
+              name: [marker for marker in markers if marker not in texts[name]]
+              for name, markers in required.items()
+          }
+          missing = {name: markers for name, markers in missing.items() if markers}
+          forbidden = []
+          if 'workflow_dispatch' in publish:
+              forbidden.append('publish:workflow_dispatch')
+          report = {
+              'status': 'passed' if not missing and not forbidden else 'failed',
+              'missing': missing,
+              'forbidden': forbidden,
+              'publish_bytes': len(publish.encode('utf-8')),
+              'deploy_bytes': len(deploy.encode('utf-8')),
+          }
+          print(report)
+          if missing or forbidden:
+              raise SystemExit(1)
           PY
 
   publish-artifact:
