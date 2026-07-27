@@ -110,7 +110,7 @@ def validate_payload(payload: dict) -> list[dict]:
         "إجماع خبراء",
         "لا يملك اختبارًا حاسمًا واحدًا",
         "لا يساوي تلقائيًا تشخيص الخرف السريري",
-        "لا تُطلب قائمة ثابتة من الفحوص للجميع",
+        "لا تطلب قائمة ثابتة من الفحوص للجميع",
     )
     missing_limits = [phrase for phrase in required_limits if phrase not in down_text]
     if missing_limits:
