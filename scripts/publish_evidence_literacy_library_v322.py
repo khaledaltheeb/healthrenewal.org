@@ -106,25 +106,33 @@ def validate(payload: dict) -> tuple[list[dict], dict[str, dict]]:
             raise SystemExit(f"Each guide must have six sections: {guide.get('slug')}")
         if len(guide.get("red_flags", [])) != 5 or len(guide.get("action_steps", [])) != 5:
             raise SystemExit(f"Action/red-flag contract failed: {guide.get('slug')}")
-        declared = set(guide.get("source_ids", []))
-        if len(declared) < 5 or any(sid not in source_index for sid in declared):
+
+        declared_order = [str(sid).strip() for sid in guide.get("source_ids", [])]
+        if any(not sid or sid not in source_index for sid in declared_order):
             raise SystemExit(f"Guide source declaration failed: {guide.get('slug')}")
+        if len(declared_order) != len(set(declared_order)):
+            raise SystemExit(f"Duplicate guide source declaration: {guide.get('slug')}")
+
         section_ids: set[str] = set()
         section_used: set[str] = set()
         for section in guide["sections"]:
             section_id = str(section.get("id", "")).strip()
-            refs = set(section.get("source_ids", []))
+            refs = {str(sid).strip() for sid in section.get("source_ids", [])}
             if not section_id or section_id in section_ids:
                 raise SystemExit(f"Duplicate section id: {guide.get('slug')}/{section_id}")
             if len(section.get("paragraphs", [])) != 2 or len(section.get("checks", [])) != 4:
                 raise SystemExit(f"Section depth failed: {guide.get('slug')}/{section_id}")
-            if not refs or not refs.issubset(declared) or any(sid not in source_index for sid in refs):
+            if not refs or any(not sid or sid not in source_index for sid in refs):
                 raise SystemExit(f"Section evidence failed: {guide.get('slug')}/{section_id}")
             section_ids.add(section_id)
             section_used.update(refs)
-        if declared != section_used:
-            raise SystemExit(f"Declared sources must all be used in sections: {guide.get('slug')}")
-        used.update(declared)
+
+        if len(section_used) < 5:
+            raise SystemExit(f"Guide source depth failed: {guide.get('slug')}")
+        effective_order = [sid for sid in declared_order if sid in section_used]
+        effective_order.extend(sid for sid in source_index if sid in section_used and sid not in effective_order)
+        guide["source_ids"] = effective_order
+        used.update(section_used)
 
     unused = sorted(set(source_index) - used)
     if unused:
