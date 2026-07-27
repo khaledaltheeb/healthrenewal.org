@@ -1,2 +1,2 @@
-id,entityType,displayName,professionalTitle,centerType,specialties,services,ageGroups,serviceModes,languages,country,city,area,shortBio,website,publicPhone,publicEmail,verificationStatus,lastVerifiedAt,nextReviewAt,publicationStatus,publicProfileApproved,approvedAt
+id,entityType,displayName,professionalTitle,centerType,specialties,services,ageGroups,serviceModes,languages,location.country,location.city,location.area,shortBio,contact.website,contact.publicPhone,contact.publicEmail,verification.status,verification.lastVerifiedAt,verification.nextReviewAt,publicationStatus,consent.publicProfileApproved,consent.approvedAt
 example-slug,professional,,,,,,,,,Jordan,Amman,,,,,,pending,,,draft,false,

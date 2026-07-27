@@ -1,0 +1,117 @@
+name: Verify specialists and partners live
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "specialists-partners/**"
+      - "team-and-partners/**"
+      - "api/v1/platform.json"
+      - "api/v1/specialists-partners.json"
+      - "assets/platform/platform-core.js"
+      - "sitemap-specialists-partners.xml"
+      - "robots.txt"
+      - "pages-deployment-status.json"
+      - "scripts/verify_specialists_partners_live.py"
+      - "scripts/verify_specialists_partners_import_template.py"
+      - "tests/test_specialists_partners_live.py"
+      - "tests/test_specialists_partners_import_template.py"
+      - ".github/workflows/verify-specialists-partners-live.yml"
+  workflow_run:
+    workflows:
+      - "Deploy validated main to GitHub Pages"
+      - "Deploy publication surface to GitHub Pages"
+    types: [completed]
+  schedule:
+    - cron: "47 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: specialists-partners-live-${{ github.event_name }}-${{ github.ref || github.event.workflow_run.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  static-contract:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile verifiers and tests
+        run: |
+          python -m py_compile \
+            scripts/verify_specialists_partners_live.py \
+            scripts/verify_specialists_partners_import_template.py \
+            tests/test_specialists_partners_live.py \
+            tests/test_specialists_partners_import_template.py
+      - name: Run isolated verifier tests
+        run: |
+          python -m unittest -v \
+            tests.test_specialists_partners_live \
+            tests.test_specialists_partners_import_template
+      - name: Validate complete repository contracts
+        run: |
+          python scripts/verify_specialists_partners_live.py --root .
+          python scripts/verify_specialists_partners_import_template.py --root .
+
+  live-publication:
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and test the live verifiers
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/verify_specialists_partners_live.py \
+            scripts/verify_specialists_partners_import_template.py \
+            tests/test_specialists_partners_live.py \
+            tests/test_specialists_partners_import_template.py
+          python -m unittest -v \
+            tests.test_specialists_partners_live \
+            tests.test_specialists_partners_import_template
+      - name: Verify live deployment receipt pages data discovery and safety
+        run: |
+          set -o pipefail
+          python scripts/verify_specialists_partners_live.py \
+            --live \
+            --receipt-path pages-deployment-status.json \
+            --base-url "${BASE_URL}" \
+            --repository "${GITHUB_REPOSITORY}" \
+            --attempts 30 \
+            --delay 10 | tee /tmp/specialists-partners-live.log
+      - name: Verify live provider import template
+        run: |
+          set -o pipefail
+          python scripts/verify_specialists_partners_import_template.py \
+            --live \
+            --url "${BASE_URL}specialists-partners/data/provider-import-template.csv" | tee /tmp/specialists-partners-import-template.log
+      - name: Retain failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: specialists-partners-live-failure
+          path: |
+            /tmp/specialists-partners-live.log
+            /tmp/specialists-partners-import-template.log
+          if-no-files-found: ignore
+          retention-days: 7
