@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,6 +22,12 @@ CRITICAL_FILES = (
     "manifest.webmanifest",
     "sw.js",
 )
+SITEMAP_EVIDENCE_FILES = (
+    "sitemap-index.xml",
+    "robots.txt",
+    "api/sitemap-index-v305.json",
+    "api/indexing-coverage-audit-v303.json",
+)
 
 
 def sha256(path: Path) -> str:
@@ -29,6 +36,28 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def finalize_sitemap_coverage(site: Path) -> dict[str, object]:
+    generator = Path(__file__).with_name("generate_sitemap_index_v304.py")
+    auditor = Path(__file__).with_name("audit_indexing_coverage_v303.py")
+    subprocess.run([sys.executable, str(generator), str(site)], check=True)
+    subprocess.run([sys.executable, str(auditor), str(site)], check=True)
+    report_path = site / "api" / "indexing-coverage-audit-v303.json"
+    if not report_path.is_file():
+        raise SystemExit(f"Indexing coverage evidence not found: {report_path}")
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    expected = int(report.get("expected_indexable_pages", 0))
+    sitemap_urls = int(report.get("sitemap_urls", -1))
+    if report.get("version") != 305 or report.get("status") != "passed":
+        raise SystemExit({"invalid_indexing_coverage_evidence": report})
+    if expected < 3000:
+        raise SystemExit({"production_indexing_page_count_too_low": expected})
+    if sitemap_urls != expected or float(report.get("sitemap_coverage_ratio", 0)) != 1.0:
+        raise SystemExit({"incomplete_production_sitemap_coverage": report})
+    if report.get("local_route_contract") != "passed":
+        raise SystemExit({"invalid_local_route_contract": report})
+    return report
 
 
 def main() -> None:
@@ -119,13 +148,18 @@ def main() -> None:
         if written_report != memory_report:
             raise SystemExit({mismatch_key: {"memory": memory_report, "written": written_report}})
 
+    indexing = finalize_sitemap_coverage(SITE)
+
     pwa_path = SITE / "api" / "pwa-v14.json"
     if not pwa_path.is_file():
         raise SystemExit(f"PWA evidence not found: {pwa_path}")
 
     missing = [name for name in CRITICAL_FILES if not (SITE / name).is_file()]
+    missing_sitemap_evidence = [name for name in SITEMAP_EVIDENCE_FILES if not (SITE / name).is_file()]
     if missing:
         raise SystemExit({"missing_critical_files": missing})
+    if missing_sitemap_evidence:
+        raise SystemExit({"missing_sitemap_evidence_files": missing_sitemap_evidence})
 
     pwa = json.loads(pwa_path.read_text(encoding="utf-8"))
     if not pwa.get("registration_verified") or int(pwa.get("pages_scanned", 0)) <= 0:
@@ -152,11 +186,17 @@ def main() -> None:
         "workflow_run": os.environ["GITHUB_RUN_ID"],
         "workflow_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "1"),
         "validated_at": datetime.now(timezone.utc).isoformat(),
-        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, home-sector v244 semantic depth and safety, child-sector v239 depth and safety, women-sector v244 depth and safety, family-sector v249 depth and safety, critical artifact SHA-256",
+        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, complete family sitemap index v305, home-sector v244 semantic depth and safety, child-sector v239 depth and safety, women-sector v244 depth and safety, family-sector v249 depth and safety, critical artifact SHA-256",
         "pwa_pages": int(pwa["pages_scanned"]),
         "metadata_pages": int(metadata["pages_scanned"]),
         "metadata_version": int(metadata["version"]),
         "metadata_remaining_missing": int(metadata["remaining_missing_count"]),
+        "sitemap_index_version": int(indexing["version"]),
+        "sitemap_index_status": str(indexing["status"]),
+        "sitemap_index_pages": int(indexing["expected_indexable_pages"]),
+        "sitemap_index_urls": int(indexing["sitemap_urls"]),
+        "sitemap_index_coverage_ratio": float(indexing["sitemap_coverage_ratio"]),
+        "sitemap_index_families": indexing["family_counts"],
         "home_sector_version": int(home_sector["version"]),
         "home_sector_articles": int(home_sector["source_articles"]),
         "home_sector_hub_words": int(home_sector["hub_words"]),
