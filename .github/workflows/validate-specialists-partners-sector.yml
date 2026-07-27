@@ -1,0 +1,45 @@
+name: Validate specialists and partners sector
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "specialists-partners/**"
+      - "team-and-partners/**"
+      - "assets/platform/platform-core.js"
+      - "api/v1/platform.json"
+      - "api/v1/specialists-partners.json"
+      - "sitemap-specialists-partners.xml"
+      - "robots.txt"
+      - "tests/test_specialists_partners_sector.py"
+      - ".github/workflows/validate-specialists-partners-sector.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: specialists-partners-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate JSON resources
+        run: |
+          python -m json.tool specialists-partners/data/providers.json >/dev/null
+          python -m json.tool specialists-partners/data/provider.schema.json >/dev/null
+          python -m json.tool api/v1/specialists-partners.json >/dev/null
+          python -m json.tool api/v1/platform.json >/dev/null
+      - name: Validate JavaScript syntax
+        run: |
+          node --check specialists-partners/assets/sector.js
+          node --check assets/platform/platform-core.js
+      - name: Run sector contracts
+        run: python -m unittest -v tests.test_specialists_partners_sector

@@ -27,7 +27,7 @@ jobs:
           cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
           python scripts/verify_enricher_v7.py
           python scripts/verify_expander_v9.py
-          python -m py_compile build_site.py scripts/scale_site_v8.py scripts/design_content_v10.py scripts/apply_contrast_v11.py scripts/expand_v12_direct.py scripts/rebuild_encyclopedia_v13.py scripts/run_encyclopedia_v13.py expand_site_v9.py
+          python -m py_compile build_site.py scripts/scale_site_v8.py scripts/design_content_v10.py scripts/apply_contrast_v11.py scripts/expand_v12_direct.py scripts/rebuild_encyclopedia_v13.py scripts/run_encyclopedia_v13.py scripts/publish_encyclopedia_topic_hubs_v2.py expand_site_v9.py
           node --check content/v12-direct/lab-v12.js
 
       - name: Build and replace encyclopedia
@@ -43,7 +43,7 @@ jobs:
           python scripts/expand_v12_direct.py _site
           python scripts/run_encyclopedia_v13.py 2>&1 | tee /tmp/v13-build.log
 
-      - name: Audit all 2000 encyclopedia pages
+      - name: Audit all 2000 encyclopedia pages and topic-first navigation
         run: |
           python - <<'PY'
           import hashlib,json,re
@@ -51,10 +51,14 @@ jobs:
           from pathlib import Path
           root=Path('_site');pages=sorted((root/'encyclopedia').glob('concept-*/index.html'));hubs=sorted((root/'hubs').glob('*/index.html'))
           report=json.loads((root/'api/encyclopedia-audit-v13.json').read_text(encoding='utf-8'))
-          audit={'report':report,'page_count':len(pages),'hub_count':len(hubs),'errors':[]}
+          topic=json.loads((root/'api/encyclopedia-topic-hubs-v2.json').read_text(encoding='utf-8'))
+          audit={'report':report,'topic_hubs':topic,'page_count':len(pages),'hub_count':len(hubs),'errors':[]}
           expected={'concept_pages':2000,'domain_hubs':100,'facet_hubs':20,'application_hubs':80,'hub_pages':200,'unique_titles':2000,'unique_article_hashes':2000,'unique_descriptions':2000,'repeated_long_paragraphs_over_25':0,'old_boilerplate_removed':True}
           for key,value in expected.items():
               if report.get(key)!=value:audit['errors'].append(f'{key}: {report.get(key)} != {value}')
+          expected_topic={'status':'passed','primary_navigation':'topic-first','topic_hubs':100,'facets_per_topic':20,'detail_pages_preserved':2000,'primary_index_cards':100,'detail_archive_cards':2000}
+          for key,value in expected_topic.items():
+              if topic.get(key)!=value:audit['errors'].append(f'topic {key}: {topic.get(key)} != {value}')
           if report.get('minimum_article_characters',0)<1800:audit['errors'].append('minimum article length below 1800 chars')
           if len(pages)!=2000:audit['errors'].append(f'page_count={len(pages)}')
           if len(hubs)!=200:audit['errors'].append(f'hub_count={len(hubs)}')
@@ -81,7 +85,15 @@ jobs:
           if repeated:audit['errors'].append(f'repeated long paragraphs={len(repeated)}')
           if (root/'sitemap-terms-1.xml').read_text().count('<url>')!=1000:audit['errors'].append('sitemap terms 1 count')
           if (root/'sitemap-terms-2.xml').read_text().count('<url>')!=1000:audit['errors'].append('sitemap terms 2 count')
-          if (root/'sitemap-hubs.xml').read_text().count('<url>')!=201:audit['errors'].append('sitemap hubs count')
+          sitemap_hubs=(root/'sitemap-hubs.xml').read_text(encoding='utf-8')
+          if sitemap_hubs.count('<url>')!=202:audit['errors'].append('sitemap hubs count')
+          if 'https://khaledaltheeb.github.io/pterminology-site/encyclopedia/all/' not in sitemap_hubs:audit['errors'].append('detail archive missing from sitemap')
+          if not (root/'encyclopedia/all/index.html').is_file():audit['errors'].append('detail archive page missing')
+          index=(root/'encyclopedia/index.html').read_text(encoding='utf-8')
+          if index.count('class="ency-topic-v2__card topic-item"')!=100:audit['errors'].append('primary topic card count')
+          for hub in sorted((root/'hubs').glob('topic-*/index.html')):
+              text=hub.read_text(encoding='utf-8')
+              if len(set(re.findall(r'/encyclopedia/(concept-\d{4})/',text)))!=20:audit['errors'].append(f'{hub.relative_to(root)}: facet link count')
           verify=root/'google644f1f7a8b7aaa2b.html'
           if verify.read_text(encoding='utf-8').strip()!='google-site-verification: google644f1f7a8b7aaa2b.html':audit['errors'].append('Google verification changed')
           Path('/tmp/v13-audit.json').write_text(json.dumps(audit,ensure_ascii=False,indent=2),encoding='utf-8')
@@ -97,5 +109,6 @@ jobs:
           path: |
             /tmp/v13-audit.json
             /tmp/v13-build.log
+            _site/api/encyclopedia-topic-hubs-v2.json
           if-no-files-found: warn
           retention-days: 7

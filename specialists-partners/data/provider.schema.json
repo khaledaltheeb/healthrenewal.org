@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/provider.schema.json",
+  "title": "Specialist or partner-center public profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "entityType",
+    "displayName",
+    "specialties",
+    "ageGroups",
+    "serviceModes",
+    "languages",
+    "location",
+    "verification",
+    "publicationStatus",
+    "consent"
+  ],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{2,80}$"},
+    "entityType": {"enum": ["professional", "center"]},
+    "displayName": {"type": "string", "minLength": 3, "maxLength": 140},
+    "professionalTitle": {"type": "string", "maxLength": 180},
+    "centerType": {"type": "string", "maxLength": 180},
+    "shortBio": {"type": "string", "maxLength": 700},
+    "specialties": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "speech_language",
+          "audiology",
+          "special_education",
+          "early_intervention",
+          "occupational_therapy",
+          "behavior_support",
+          "learning_support",
+          "autism_support",
+          "aac",
+          "family_training",
+          "psychology",
+          "center"
+        ]
+      }
+    },
+    "services": {"type": "array", "items": {"type": "string", "maxLength": 180}, "uniqueItems": true},
+    "ageGroups": {
+      "type": "array",
+      "items": {"enum": ["الرضع", "الطفولة المبكرة", "الأطفال", "المراهقون", "البالغون", "جميع الأعمار"]},
+      "uniqueItems": true
+    },
+    "serviceModes": {
+      "type": "array",
+      "items": {"enum": ["حضوري", "عن بعد", "زيارة منزلية", "مدرسي", "هجين"]},
+      "uniqueItems": true
+    },
+    "languages": {"type": "array", "items": {"type": "string", "maxLength": 60}, "uniqueItems": true},
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["country", "city"],
+      "properties": {
+        "country": {"type": "string", "maxLength": 80},
+        "city": {"type": "string", "maxLength": 100},
+        "area": {"type": "string", "maxLength": 140},
+        "accessibility": {"type": "array", "items": {"type": "string", "maxLength": 140}}
+      }
+    },
+    "qualifications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "institution"],
+        "properties": {
+          "name": {"type": "string", "maxLength": 220},
+          "institution": {"type": "string", "maxLength": 220},
+          "year": {"type": ["integer", "null"], "minimum": 1950, "maximum": 2100}
+        }
+      }
+    },
+    "licenses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["authority", "status"],
+        "properties": {
+          "authority": {"type": "string", "maxLength": 220},
+          "identifierPublic": {"type": ["string", "null"], "maxLength": 120},
+          "status": {"enum": ["active", "not_applicable", "pending_review"]},
+          "validUntil": {"type": ["string", "null"], "format": "date"}
+        }
+      }
+    },
+    "contact": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "publicUrl": {"type": ["string", "null"], "format": "uri"},
+        "website": {"type": ["string", "null"], "format": "uri"},
+        "publicPhone": {"type": ["string", "null"], "maxLength": 40},
+        "publicEmail": {"type": ["string", "null"], "format": "email"}
+      }
+    },
+    "profileUrl": {"type": ["string", "null"], "format": "uri-reference"},
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "lastVerifiedAt", "sources"],
+      "properties": {
+        "status": {"enum": ["verified", "provisional", "pending", "unverified"]},
+        "lastVerifiedAt": {"type": ["string", "null"], "format": "date"},
+        "nextReviewAt": {"type": ["string", "null"], "format": "date"},
+        "reviewerRole": {"type": ["string", "null"], "maxLength": 120},
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "reference"],
+            "properties": {
+              "type": {"enum": ["identity", "qualification", "license", "employment", "center_registration", "official_website", "professional_directory", "written_consent"]},
+              "reference": {"type": "string", "maxLength": 500},
+              "checkedAt": {"type": ["string", "null"], "format": "date"}
+            }
+          }
+        }
+      }
+    },
+    "publicationStatus": {"enum": ["draft", "review", "published", "suspended", "archived"]},
+    "consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["publicProfileApproved", "approvedAt"],
+      "properties": {
+        "publicProfileApproved": {"const": true},
+        "approvedAt": {"type": "string", "format": "date"},
+        "approvedFields": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    }
+  }
+}
