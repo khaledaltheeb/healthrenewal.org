@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,6 +22,17 @@ CRITICAL_FILES = (
     "manifest.webmanifest",
     "sw.js",
 )
+SITEMAP_EVIDENCE_FILES = (
+    "sitemap-index.xml",
+    "robots.txt",
+    "api/sitemap-index-v305.json",
+    "api/indexing-coverage-audit-v303.json",
+)
+PLATFORM_FILES = (
+    "assets/platform/platform-core.css",
+    "assets/platform/platform-core.js",
+    "api/platform-normalization-v1.json",
+)
 
 
 def sha256(path: Path) -> str:
@@ -29,6 +41,66 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def finalize_sitemap_coverage(site: Path) -> dict[str, object]:
+    generator = Path(__file__).with_name("generate_sitemap_index_v304.py")
+    auditor = Path(__file__).with_name("audit_indexing_coverage_v303.py")
+    subprocess.run([sys.executable, str(generator), str(site)], check=True)
+    subprocess.run([sys.executable, str(auditor), str(site)], check=True)
+    report_path = site / "api" / "indexing-coverage-audit-v303.json"
+    if not report_path.is_file():
+        raise SystemExit(f"Indexing coverage evidence not found: {report_path}")
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    expected = int(report.get("expected_indexable_pages", 0))
+    sitemap_urls = int(report.get("sitemap_urls", -1))
+    if report.get("version") != 305 or report.get("status") != "passed":
+        raise SystemExit({"invalid_indexing_coverage_evidence": report})
+    if expected < 3000:
+        raise SystemExit({"production_indexing_page_count_too_low": expected})
+    if sitemap_urls != expected or float(report.get("sitemap_coverage_ratio", 0)) != 1.0:
+        raise SystemExit({"incomplete_production_sitemap_coverage": report})
+    if report.get("local_route_contract") != "passed":
+        raise SystemExit({"invalid_local_route_contract": report})
+    return report
+
+
+def normalize_platform_shell(site: Path) -> dict[str, object]:
+    normalizer = Path(__file__).with_name("normalize_platform_shell.py")
+    report_path = site / "api" / "platform-normalization-v1.json"
+    subprocess.run(
+        [
+            sys.executable,
+            str(normalizer),
+            str(site),
+            "--report-path",
+            str(report_path),
+        ],
+        check=True,
+    )
+    if not report_path.is_file():
+        raise SystemExit(f"Platform normalization evidence not found: {report_path}")
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    counts = report.get("counts", {})
+    seen = int(report.get("html_pages_seen", 0))
+    normalized = int(report.get("html_pages_normalized_or_current", 0))
+    if report.get("schema_version") != 1 or report.get("status") != "passed":
+        raise SystemExit({"invalid_platform_normalization_evidence": report})
+    if seen < 3000 or normalized < 3000:
+        raise SystemExit(
+            {
+                "platform_normalization_page_count_too_low": {
+                    "seen": seen,
+                    "normalized_or_current": normalized,
+                }
+            }
+        )
+    if int(counts.get("error", 0)) != 0:
+        raise SystemExit({"platform_normalization_errors": report})
+    for relative in PLATFORM_FILES[:2]:
+        if not (site / relative).is_file():
+            raise SystemExit({"missing_platform_asset": relative})
+    return report
 
 
 def main() -> None:
@@ -97,6 +169,8 @@ def main() -> None:
     if int(family_sector.get("hub_words", 0)) < 2500 or int(family_sector.get("minimum_article_words", 0)) < 800:
         raise SystemExit({"insufficient_family_sector_v249_depth": family_sector})
 
+    platform = normalize_platform_shell(SITE)
+
     publish_global_metadata()
     metadata_path = SITE / "api" / "global-metadata-v27.json"
     if not metadata_path.is_file():
@@ -119,13 +193,21 @@ def main() -> None:
         if written_report != memory_report:
             raise SystemExit({mismatch_key: {"memory": memory_report, "written": written_report}})
 
+    indexing = finalize_sitemap_coverage(SITE)
+
     pwa_path = SITE / "api" / "pwa-v14.json"
     if not pwa_path.is_file():
         raise SystemExit(f"PWA evidence not found: {pwa_path}")
 
     missing = [name for name in CRITICAL_FILES if not (SITE / name).is_file()]
+    missing_sitemap_evidence = [name for name in SITEMAP_EVIDENCE_FILES if not (SITE / name).is_file()]
+    missing_platform_files = [name for name in PLATFORM_FILES if not (SITE / name).is_file()]
     if missing:
         raise SystemExit({"missing_critical_files": missing})
+    if missing_sitemap_evidence:
+        raise SystemExit({"missing_sitemap_evidence_files": missing_sitemap_evidence})
+    if missing_platform_files:
+        raise SystemExit({"missing_platform_files": missing_platform_files})
 
     pwa = json.loads(pwa_path.read_text(encoding="utf-8"))
     if not pwa.get("registration_verified") or int(pwa.get("pages_scanned", 0)) <= 0:
@@ -147,16 +229,26 @@ def main() -> None:
     }
 
     payload = {
-        "schema_version": 29,
+        "schema_version": 30,
         "commit": os.environ["GITHUB_SHA"],
         "workflow_run": os.environ["GITHUB_RUN_ID"],
         "workflow_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "1"),
         "validated_at": datetime.now(timezone.utc).isoformat(),
-        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, home-sector v244 semantic depth and safety, child-sector v239 depth and safety, women-sector v244 depth and safety, family-sector v249 depth and safety, critical artifact SHA-256",
+        "gate": "40 assessments, 53 cognitive tools, 186 browser runs, full PWA registration, complete global metadata, complete platform shell normalization, complete family sitemap index v305, home-sector v244 semantic depth and safety, child-sector v239 depth and safety, women-sector v244 depth and safety, family-sector v249 depth and safety, critical artifact SHA-256",
         "pwa_pages": int(pwa["pages_scanned"]),
         "metadata_pages": int(metadata["pages_scanned"]),
         "metadata_version": int(metadata["version"]),
         "metadata_remaining_missing": int(metadata["remaining_missing_count"]),
+        "platform_shell_version": str(platform["shell_version"]),
+        "platform_html_pages_seen": int(platform["html_pages_seen"]),
+        "platform_html_pages_normalized_or_current": int(platform["html_pages_normalized_or_current"]),
+        "platform_normalization_counts": platform["counts"],
+        "sitemap_index_version": int(indexing["version"]),
+        "sitemap_index_status": str(indexing["status"]),
+        "sitemap_index_pages": int(indexing["expected_indexable_pages"]),
+        "sitemap_index_urls": int(indexing["sitemap_urls"]),
+        "sitemap_index_coverage_ratio": float(indexing["sitemap_coverage_ratio"]),
+        "sitemap_index_families": indexing["family_counts"],
         "home_sector_version": int(home_sector["version"]),
         "home_sector_articles": int(home_sector["source_articles"]),
         "home_sector_hub_words": int(home_sector["hub_words"]),

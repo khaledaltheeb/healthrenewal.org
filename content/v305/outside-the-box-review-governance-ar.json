@@ -1,0 +1,198 @@
+{
+  "version": 305,
+  "language": "ar",
+  "updated_at": "2026-07-27",
+  "title": "حوكمة المراجعة العلمية لمسارات 100 حالة و1000 خطة",
+  "purpose": "تحويل المحتوى المنشور إلى سجل مراجعة علمية قابل للتتبع، يربط كل حالة وخطة وادعاء ومصدر ومقياس بقرار مراجعة موثق دون ادعاء اعتماد سريري غير مكتمل.",
+  "scope": {
+    "condition_count": 100,
+    "plans_per_condition": 10,
+    "total_plan_instances": 1000,
+    "current_state": "مراجعة منهجية داخلية منشورة؛ المراجعات التخصصية المستقلة لم تكتمل بعد",
+    "external_review_completed": false,
+    "global_accreditation_claim": false
+  },
+  "principles": [
+    "تُراجع الادعاءات لا الصفحات فقط؛ كل ادعاء عالي المخاطر يحتاج مصدرًا ملائمًا ومراجعًا مختصًا وحدودًا معلنة.",
+    "يُفصل بين تعريف الحالة، والانتشار، والتقييم، والتدخل، والنتيجة المتوقعة، والسلامة؛ لأن قوة الدليل ومتطلبات المراجعة تختلف بينها.",
+    "لا تتحول موافقة مراجع واحد إلى اعتماد شامل للحالة أو الخطة أو القسم.",
+    "تُسجل الخلافات والمخاطر المتبقية والتعديلات المطلوبة بدل حذفها من سجل المراجعة.",
+    "لا تُنشر بنود الاختبارات المحمية أو مفاتيح التصحيح أو الجداول المعيارية أو نقاط القطع غير المرخصة.",
+    "لا يُفترض وجود موهبة أو تفوق أو ضعف ثابت بسبب التشخيص؛ تُختبر القدرات والاحتياجات على مستوى الفرد وفي سياق فعلي.",
+    "حق الشخص في الفهم والاختيار والرفض والخصوصية والسلامة مقدم على استكمال الخطة أو جمع البيانات.",
+    "التغيير العلمي يُنشر بإصدار وسجل تغيير، ولا يُجرى كتعديل صامت يمحو النص السابق وسبب التصحيح."
+  ],
+  "review_statuses": [
+    "awaiting-independent-review",
+    "in-specialist-review",
+    "changes-required",
+    "approved-within-defined-scope",
+    "approved-after-changes",
+    "rejected",
+    "withdrawn",
+    "superseded"
+  ],
+  "decisions": [
+    "approve-within-defined-scope",
+    "approve-after-required-changes",
+    "return-for-revision",
+    "reject",
+    "withdraw-prior-approval"
+  ],
+  "claim_domains": [
+    {
+      "id": "definition-classification",
+      "title": "التعريف والتصنيف والحدود التشخيصية",
+      "risk": "high",
+      "minimum_sources": 1,
+      "preferred_sources": ["diagnostic_manual_or_classification", "official_guideline", "professional_body_guideline"],
+      "required_roles": ["condition-specialist", "arabic-cultural-editor"]
+    },
+    {
+      "id": "prevalence-burden",
+      "title": "الانتشار والعبء والفئات السكانية",
+      "risk": "moderate",
+      "minimum_sources": 1,
+      "preferred_sources": ["public_health_authority", "systematic_review", "peer_reviewed_review"],
+      "required_roles": ["evidence-methodologist", "arabic-cultural-editor"]
+    },
+    {
+      "id": "assessment-measurement",
+      "title": "التقييم والمقاييس والتفسير",
+      "risk": "high",
+      "minimum_sources": 2,
+      "preferred_sources": ["original_instrument", "official_guideline", "professional_body_guideline", "systematic_review"],
+      "required_roles": ["psychometric-reviewer", "condition-specialist", "test-rights-reviewer"]
+    },
+    {
+      "id": "intervention-support",
+      "title": "التدخلات والدعم والتكييفات",
+      "risk": "high",
+      "minimum_sources": 2,
+      "preferred_sources": ["official_guideline", "systematic_review", "professional_body_guideline"],
+      "required_roles": ["condition-specialist", "implementation-reviewer", "lived-experience-reviewer"]
+    },
+    {
+      "id": "outcomes-strengths",
+      "title": "النتائج والقدرات والمشاركة ونوعية الحياة",
+      "risk": "high",
+      "minimum_sources": 2,
+      "preferred_sources": ["systematic_review", "peer_reviewed_review", "primary_research", "official_guideline"],
+      "required_roles": ["evidence-methodologist", "lived-experience-reviewer", "condition-specialist"]
+    },
+    {
+      "id": "safety-rights",
+      "title": "السلامة والحقوق والخصوصية والتصعيد",
+      "risk": "critical",
+      "minimum_sources": 2,
+      "preferred_sources": ["official_guideline", "public_health_authority", "human_rights_standard"],
+      "required_roles": ["safeguarding-reviewer", "disability-rights-reviewer", "condition-specialist"]
+    }
+  ],
+  "reviewer_roles": [
+    {
+      "id": "condition-specialist",
+      "title": "اختصاصي الحالة أو العائلة الوظيفية",
+      "minimum_basis": "ترخيص أو اعتماد مؤسسي موثق وخبرة عملية حديثة في الحالة أو العائلة الوظيفية ذات الصلة.",
+      "scope": "التعريف، التشخيص التفريقي، الأمان، ملاءمة التقييم والتدخل، وحدود الممارسة."
+    },
+    {
+      "id": "psychometric-reviewer",
+      "title": "اختصاصي قياس نفسي أو تربوي",
+      "minimum_basis": "تأهيل موثق في القياس والصدق والثبات والعدالة وتفسير الدرجات وتكييف الأدوات.",
+      "scope": "صلاحية الأداة والنسخة واللغة والسكان المعياريين والخطأ المعياري وحدود الاستدلال."
+    },
+    {
+      "id": "evidence-methodologist",
+      "title": "مراجع منهجية وأدلة",
+      "minimum_basis": "خبرة موثقة في المراجعات المنهجية وتقييم مخاطر التحيز ويقين الأدلة وربط الادعاء بالمصدر.",
+      "scope": "اختيار نوع المصدر، الاتساق، المباشرة، التحيز، حداثة الدليل، وقوة الصياغة."
+    },
+    {
+      "id": "implementation-reviewer",
+      "title": "ممارس تأهيل أو تربية أو تنفيذ خدمات",
+      "minimum_basis": "خبرة عملية موثقة في تطبيق الدعم داخل المنزل أو المدرسة أو المجتمع أو العمل.",
+      "scope": "قابلية التنفيذ، الجرعة، جودة التنفيذ، العبء، التعميم، والتنسيق بين الفريق."
+    },
+    {
+      "id": "lived-experience-reviewer",
+      "title": "مراجع ذو خبرة معاشة أو ممثل وصول مناسب",
+      "minimum_basis": "خبرة معاشة ذات صلة أو تمثيل مستقل موثق، مع توفير وسيلة تواصل ووصول مناسبة.",
+      "scope": "الكرامة والاختيار واللغة والقبول والعبء والأثر غير المقصود والواقعية اليومية."
+    },
+    {
+      "id": "arabic-cultural-editor",
+      "title": "مراجع لغة عربية وتكييف ثقافي",
+      "minimum_basis": "كفاءة تحرير عربية مهنية وفهم للفروق الثقافية واللغوية وعدم الوصم وحفظ المعنى العلمي.",
+      "scope": "وضوح العربية، دقة المصطلح، ملاءمة السياق، وعدم تحويل ترجمة إلى تقنين أو اعتماد."
+    },
+    {
+      "id": "test-rights-reviewer",
+      "title": "مراجع حقوق الأدوات والترخيص",
+      "minimum_basis": "خبرة في تراخيص الاختبارات أو إدارة أدوات مقننة وحقوق النشر وشروط المستخدم المؤهل.",
+      "scope": "النسخة والناشر والترخيص والوصول ومنع نشر البنود والمفاتيح والجداول المحمية."
+    },
+    {
+      "id": "safeguarding-reviewer",
+      "title": "مراجع سلامة وحماية",
+      "minimum_basis": "خبرة سريرية أو مؤسسية موثقة في حماية الأطفال أو البالغين المعرضين للخطر والطوارئ والتصعيد.",
+      "scope": "الخطر، الألم، الإساءة، الإهمال، الطوارئ، قواعد التوقف، والإحالة الآمنة."
+    },
+    {
+      "id": "disability-rights-reviewer",
+      "title": "مراجع حقوق الأشخاص ذوي الاحتياجات الخاصة",
+      "minimum_basis": "خبرة موثقة في الحقوق والدمج والإتاحة والقرار المدعوم والحماية من الإكراه والتمييز.",
+      "scope": "الوكالة والمشاركة والإتاحة والخصوصية والموافقة والرفض وعدم سحب الدعم بسبب الأداء."
+    }
+  ],
+  "required_review_record_fields": [
+    "review_id",
+    "condition_slug",
+    "plan_id_or_claim_domain",
+    "reviewer_name",
+    "reviewer_role",
+    "credential_or_authority_basis",
+    "credential_verification_record",
+    "affiliation",
+    "conflict_of_interest_statement",
+    "review_scope",
+    "source_version_or_sha",
+    "reviewed_at",
+    "decision",
+    "required_changes",
+    "resolved_changes",
+    "residual_risks",
+    "reviewer_attestation"
+  ],
+  "acceptance_gates": [
+    "الادعاء محدد وقابل للربط بمصدر أو أكثر، وليس عبارة عامة مثل تشير الدراسات.",
+    "نوع المصدر وقوته مناسب لمستوى خطر الادعاء، ولا تعتمد التوصية العالية المخاطر على صفحة تعريفية عامة وحدها.",
+    "كل مصدر حالي وغير مسحوب أو مستبدل، وتاريخ التحقق والإصدار أو تاريخ الوصول موثق.",
+    "لا توجد قفزة من ارتباط أو فرق جماعي إلى سببية أو تنبؤ فردي أو توصية علاجية.",
+    "المقياس موثق بالنسخة والناشر والغرض والعمر واللغة والمؤهل والترخيص والخصائص السيكومترية وحدود التفسير.",
+    "الخطة توضح متى تستخدم ومتى لا تستخدم وخط الأساس والجرعة والنتائج وجودة التنفيذ والتكييفات وقاعدة التوقف.",
+    "لغة القدرات فردية واحتمالية وسياقية، ولا تربط التشخيص بموهبة أو تفوق ثابت.",
+    "المشاركة والاختيار والاستقلال ونوعية الحياة لا تُستبدل بدرجة اختبار أو هدوء ظاهري أو امتثال.",
+    "الحقوق والسلامة والخصوصية والموافقة والرفض والتصعيد واضحة وقابلة للتنفيذ.",
+    "التعارضات والتعديلات والمخاطر المتبقية وسجل الإصدار منشورة في سجل المراجعة."
+  ],
+  "correction_workflow": [
+    "تسجيل الملاحظة باسم الحالة ورقم الخطة أو مجال الادعاء والنص محل الاعتراض ونوع الخطر.",
+    "تجميد الادعاء أو وسمه قيد المراجعة فورًا إذا كان قد يسبب ضررًا أو قرارًا علاجيًا أو تشخيصيًا غير صحيح.",
+    "جمع المصدر الأصلي والمصدر البديل وتحديد ما إذا كان الخلل في الدليل أو التفسير أو اللغة أو القياس أو التنفيذ.",
+    "إسناد المراجعة إلى الأدوار المطلوبة وفق مجال الادعاء ومستوى الخطر وتوثيق تضارب المصالح.",
+    "نشر التصحيح بإصدار وتاريخ وسبب وملخص أثره على الخطط المرتبطة، دون حذف سجل النص السابق.",
+    "إعادة تشغيل اختبارات الحالات المئة والخطط الألف والروابط واللغة والحقوق والنشر الحي قبل إغلاق التصحيح."
+  ],
+  "publication_policy": {
+    "default_status": "awaiting-independent-review",
+    "public_review_dashboard": true,
+    "publish_reviewer_identity_only_with_permission": true,
+    "allow_anonymous_public_approval": false,
+    "allow_self_review_as_independent_review": false,
+    "allow_single_reviewer_global_approval": false,
+    "allow_silent_corrections": false,
+    "allow_proprietary_test_content": false,
+    "allow_diagnostic_automation": false
+  }
+}

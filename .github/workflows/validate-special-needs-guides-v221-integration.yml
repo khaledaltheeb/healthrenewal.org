@@ -1,4 +1,4 @@
-name: Integrate twenty-five special-needs guides and hub v235
+name: Integrate special-needs diagnostic decision guides v316
 
 on:
   pull_request:
@@ -6,6 +6,14 @@ on:
     paths:
       - "scripts/publish_special_needs_hub_v235.py"
       - "scripts/publish_special_needs_hub_v235_compat.py"
+      - "scripts/publish_special_needs_condition_hubs_v302.py"
+      - "scripts/publish_special_needs_condition_postlaunch_v305.py"
+      - "scripts/publish_special_needs_condition_trust_v307.py"
+      - "scripts/validate_special_needs_provider_directory_v308.py"
+      - "scripts/audit_special_needs_condition_sources_v310.py"
+      - "scripts/audit_special_needs_condition_source_http_v312.py"
+      - "scripts/publish_special_needs_condition_age_guides_v314.py"
+      - "scripts/publish_special_needs_diagnostic_decision_guides_v316.py"
       - "scripts/publish_special_needs_guides_v217.py"
       - "scripts/publish_special_needs_guides_v217_core.py"
       - "scripts/publish_special_needs_guides_v214.py"
@@ -13,7 +21,22 @@ on:
       - "content/v73/special-needs-executable-instructions-ar.json"
       - "content/v214/**"
       - "content/v221/special-needs-guides-production-manifest-ar.json"
+      - "content/v302/**"
+      - "content/v305/**"
+      - "content/v307/**"
+      - "content/v310/**"
+      - "content/v312/**"
+      - "content/v314/**"
+      - "content/v316/**"
       - "tests/test_special_needs_hub_v235.py"
+      - "tests/test_special_needs_condition_hubs_v302.py"
+      - "tests/test_special_needs_condition_postlaunch_v305.py"
+      - "tests/test_special_needs_condition_trust_v307.py"
+      - "tests/test_special_needs_provider_directory_v308.py"
+      - "tests/test_special_needs_condition_sources_v310.py"
+      - "tests/test_special_needs_condition_source_http_v312.py"
+      - "tests/test_special_needs_condition_age_guides_v314.py"
+      - "tests/test_special_needs_diagnostic_decision_guides_v316.py"
       - "tests/test_special_needs_guides_v214.py"
       - "tests/test_special_needs_guides_v221_integration.py"
       - ".github/workflows/validate-special-needs-guides-v221-integration.yml"
@@ -23,24 +46,32 @@ permissions:
   contents: read
 
 concurrency:
-  group: special-needs-guides-hub-v235-${{ github.ref }}
+  group: special-needs-diagnostic-decision-guides-v316-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 31
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Compile hub publishers guide publishers and integration tests
+      - name: Compile hub condition trust provider source HTTP age decision and guide publishers
         run: |
           set -euxo pipefail
           python -m py_compile \
             scripts/publish_special_needs_hub_v235.py \
             scripts/publish_special_needs_hub_v235_compat.py \
+            scripts/publish_special_needs_condition_hubs_v302.py \
+            scripts/publish_special_needs_condition_postlaunch_v305.py \
+            scripts/publish_special_needs_condition_trust_v307.py \
+            scripts/validate_special_needs_provider_directory_v308.py \
+            scripts/audit_special_needs_condition_sources_v310.py \
+            scripts/audit_special_needs_condition_source_http_v312.py \
+            scripts/publish_special_needs_condition_age_guides_v314.py \
+            scripts/publish_special_needs_diagnostic_decision_guides_v316.py \
             scripts/publish_special_needs_guides_v209.py \
             scripts/publish_special_needs_guides_v209_compat.py \
             scripts/publish_special_needs_guides_v210.py \
@@ -50,16 +81,72 @@ jobs:
             scripts/publish_special_needs_guides_v217_core.py \
             scripts/publish_special_needs_guides_v217.py \
             tests/test_special_needs_hub_v235.py \
+            tests/test_special_needs_condition_hubs_v302.py \
+            tests/test_special_needs_condition_postlaunch_v305.py \
+            tests/test_special_needs_condition_trust_v307.py \
+            tests/test_special_needs_provider_directory_v308.py \
+            tests/test_special_needs_condition_sources_v310.py \
+            tests/test_special_needs_condition_source_http_v312.py \
+            tests/test_special_needs_condition_age_guides_v314.py \
+            tests/test_special_needs_diagnostic_decision_guides_v316.py \
             tests/test_special_needs_guides_v214.py \
             tests/test_special_needs_guides_v221_integration.py
-      - name: Validate production manifest and fifth-batch sources
+      - name: Validate manifests condition provider link trust source override age and decision contracts
         run: |
           python -m json.tool content/v221/special-needs-guides-production-manifest-ar.json >/dev/null
           python -m json.tool content/v214/special-needs-guides-manifest-ar.json >/dev/null
+          python -m json.tool content/v302/special-needs-condition-hubs-ar.json >/dev/null
+          python -m json.tool content/v302/special-needs-providers-ar.json >/dev/null
+          python -m json.tool content/v302/autism-ar.json >/dev/null
+          python -m json.tool content/v302/down-syndrome-ar.json >/dev/null
+          python -m json.tool content/v305/special-needs-condition-postlaunch-ar.json >/dev/null
+          python -m json.tool content/v307/special-needs-condition-trust-ar.json >/dev/null
+          python -m json.tool content/v310/special-needs-condition-source-maintenance-ar.json >/dev/null
+          python -m json.tool content/v312/special-needs-condition-source-url-overrides.json >/dev/null
+          python -m json.tool content/v314/special-needs-condition-age-guides-ar.json >/dev/null
+          python -m json.tool content/v316/special-needs-diagnostic-decision-guides-ar.json >/dev/null
           for file in content/v214/special-needs-guides/*.json; do python -m json.tool "$file" >/dev/null; done
       - name: Validate institutional hub depth metadata robots and idempotence
-        run: python -m unittest -v tests.test_special_needs_hub_v235
+        run: |
+          python -m unittest -v tests.test_special_needs_hub_v235 > /tmp/special-needs-hub.log 2>&1 || { tail -n 100 /tmp/special-needs-hub.log; exit 1; }
+          tail -n 20 /tmp/special-needs-hub.log
+      - name: Upload compatibility failure log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-needs-hub-v316-failure-log
+          path: /tmp/special-needs-hub.log
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Validate source URL override and HTTP classification policy without network
+        run: python -m unittest -v tests.test_special_needs_condition_source_http_v312
+      - name: Validate source metadata dates domains URLs usage and maintenance schedule
+        run: python -m unittest -v tests.test_special_needs_condition_sources_v310
+      - name: Validate provider verification expiry evidence registration advertising and visible routing
+        run: python -m unittest -v tests.test_special_needs_provider_directory_v308
+      - name: Validate autism Down syndrome evidence traceability providers overrides and idempotence
+        run: python -m unittest -v tests.test_special_needs_condition_hubs_v302
+      - name: Validate two age guides stages sources safety parent links sitemap and idempotence
+        run: python -m unittest -v tests.test_special_needs_condition_age_guides_v314
+      - name: Validate screening diagnosis prenatal choice sources parent links sitemap and idempotence
+        run: python -m unittest -v tests.test_special_needs_diagnostic_decision_guides_v316
+      - name: Validate post-launch navigation contextual links metadata accessibility and policy
+        run: python -m unittest -v tests.test_special_needs_condition_postlaunch_v305
+      - name: Validate visible FAQs FAQPage source anchors review dates and idempotence
+        run: python -m unittest -v tests.test_special_needs_condition_trust_v307
       - name: Validate v214 depth sources language and idempotence
         run: python -m unittest -v tests.test_special_needs_guides_v214
-      - name: Validate five-batch production integration
-        run: python -m unittest -v tests.test_special_needs_guides_v221_integration
+      - name: Validate five-batch age and diagnostic-decision production integration
+        run: |
+          python -m unittest -v tests.test_special_needs_guides_v221_integration > /tmp/special-needs-v221-integration.log 2>&1 || { tail -n 260 /tmp/special-needs-v221-integration.log; exit 1; }
+          tail -n 60 /tmp/special-needs-v221-integration.log
+      - name: Upload full integration failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-needs-v316-integration-failure-log
+          path: |
+            /tmp/special-needs-v221-integration.log
+            _audit/unpublished-content-v201.json
+          if-no-files-found: ignore
+          retention-days: 7

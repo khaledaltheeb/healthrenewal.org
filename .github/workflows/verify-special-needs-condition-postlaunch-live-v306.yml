@@ -1,0 +1,266 @@
+name: Verify special-needs condition sources trust and providers live v311
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/verify-special-needs-condition-postlaunch-live-v306.yml"
+  workflow_run:
+    workflows: ["Deploy validated main to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: verify-special-needs-condition-live-v311-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-contract:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate live-verification workflow contract
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('.github/workflows/verify-special-needs-condition-postlaunch-live-v306.yml')
+          text = path.read_text(encoding='utf-8')
+          required = (
+              'Deploy validated main to GitHub Pages',
+              'special-needs/autism/',
+              'special-needs/down-syndrome/',
+              'special-needs-condition-postlaunch-v305.json',
+              'special-needs-condition-trust-v307.json',
+              'special-needs-provider-governance-v308.json',
+              'special-needs-condition-source-maintenance-v310.json',
+              'special-needs-guides-v221.json',
+              'condition-trust-v307-content:start',
+              'provider-listing-policy',
+              'FAQPage',
+              'sponsored_publication_enabled',
+              'external_http_status_check_completed',
+              'maintenance_source',
+              'sitemap-special-needs.xml',
+          )
+          missing = [item for item in required if item not in text]
+          assert not missing, missing
+          assert 'MINIMUM_SHA: 0ce54b49539f542b9c3b7a4be7f7e786c6fc26e3' in text
+          print({'workflow': path.name, 'required_markers': len(required), 'status': 'static-contract-passed'})
+          PY
+
+  live-publication:
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    env:
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      MINIMUM_SHA: 0ce54b49539f542b9c3b7a4be7f7e786c6fc26e3
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Wait for a non-rollback deployment containing v310
+        run: |
+          set -euo pipefail
+          matched=0
+          for i in $(seq 1 90); do
+            token="${MINIMUM_SHA}-${i}-$(date +%s)"
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o /tmp/deployment.json; then
+              if python - <<'PY'
+          import json, os, urllib.error, urllib.request
+          from pathlib import Path
+          data = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          live = data.get('commit')
+          minimum = os.environ['MINIMUM_SHA']
+          repo = os.environ['GITHUB_REPOSITORY']
+          token = os.environ['GH_TOKEN']
+          assert isinstance(live, str) and len(live) == 40, data
+          if live == minimum:
+              raise SystemExit(0)
+          request = urllib.request.Request(
+              f'https://api.github.com/repos/{repo}/compare/{minimum}...{live}',
+              headers={
+                  'Authorization': f'Bearer {token}',
+                  'Accept': 'application/vnd.github+json',
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'User-Agent': 'special-needs-condition-live-v311',
+              },
+          )
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  status = json.loads(response.read().decode('utf-8')).get('status')
+          except urllib.error.HTTPError:
+              raise SystemExit(1)
+          raise SystemExit(0 if status in {'ahead', 'identical'} else 1)
+          PY
+              then
+                matched=1
+                break
+              fi
+            fi
+            sleep 10
+          done
+          test "${matched}" -eq 1
+
+      - name: Download live condition pages reports hub and sitemap
+        run: |
+          set -euxo pipefail
+          token="${MINIMUM_SHA}-live-$(date +%s)"
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/autism/?v=${token}" -o /tmp/autism.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/down-syndrome/?v=${token}" -o /tmp/down.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/?v=${token}" -o /tmp/hub.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-condition-postlaunch-v305.json?v=${token}" -o /tmp/postlaunch.json
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-condition-trust-v307.json?v=${token}" -o /tmp/trust.json
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-provider-governance-v308.json?v=${token}" -o /tmp/providers.json
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-condition-source-maintenance-v310.json?v=${token}" -o /tmp/sources.json
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-guides-v221.json?v=${token}" -o /tmp/central.json
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sitemap-special-needs.xml?v=${token}" -o /tmp/sitemap.xml
+
+      - name: Enforce live source maintenance trust provider links and discovery
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          base = 'https://khaledaltheeb.github.io/pterminology-site/'
+          deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          postlaunch = json.loads(Path('/tmp/postlaunch.json').read_text(encoding='utf-8'))
+          trust = json.loads(Path('/tmp/trust.json').read_text(encoding='utf-8'))
+          providers = json.loads(Path('/tmp/providers.json').read_text(encoding='utf-8'))
+          sources = json.loads(Path('/tmp/sources.json').read_text(encoding='utf-8'))
+          central = json.loads(Path('/tmp/central.json').read_text(encoding='utf-8'))
+
+          assert postlaunch['version'] == 305 and postlaunch['status'] == 'passed', postlaunch
+          assert postlaunch['condition_slugs'] == ['autism', 'down-syndrome']
+          assert postlaunch['related_link_count'] == 16
+          for key in ('visible_breadcrumbs', 'meta_enhanced', 'provider_policy_visible', 'focus_visibility_guard'):
+              assert postlaunch[key] is True, (key, postlaunch.get(key))
+
+          assert trust['version'] == 307 and trust['status'] == 'passed', trust
+          assert trust['condition_slugs'] == ['autism', 'down-syndrome']
+          assert trust['condition_count'] == 2 and trust['faq_count'] == 8
+          assert trust['faq_schema_visible_match'] is True
+          assert trust['external_clinical_review_completed'] is False
+          assert trust['next_review_due'] == '2027-01-27'
+          assert trust['minimum_source_count'] >= 5
+
+          assert providers['version'] == 308 and providers['status'] == 'passed', providers
+          assert providers['record_count'] >= providers['published_count'] >= 0
+          assert providers['sponsored_count'] == 0
+          assert providers['sponsored_publication_enabled'] is False
+          assert providers['expiring_within_30_days'] >= 0
+          assert sum(providers['status_counts'].values()) == providers['record_count']
+
+          assert sources['version'] == 310 and sources['status'] == 'passed', sources
+          assert sources['condition_slugs'] == ['autism', 'down-syndrome']
+          assert sources['condition_count'] == 2 and sources['source_count'] == 17
+          assert sources['metadata_checked_at'] == '2026-07-27'
+          assert sources['next_metadata_check_due'] == '2027-01-27'
+          assert sources['maintenance_overdue'] is False
+          assert sources['external_http_status_check_completed'] is False
+          assert sources['distinct_host_count'] >= 3
+          assert sources['maximum_source_age_days'] > 730
+          assert sources['maintenance_source'].endswith('content/v310/special-needs-condition-source-maintenance-ar.json')
+          assert len(sources['conditions']) == 2
+          for condition in sources['conditions']:
+              assert condition['source_count'] >= 5
+              assert condition['distinct_host_count'] >= 3
+              assert all(value > 0 for value in condition['source_usage'].values())
+              assert len(condition['sources']) == condition['source_count']
+
+          assert central['status'] == 'passed'
+          assert central['condition_postlaunch_contract'] == 305
+          assert central['condition_trust_contract'] == 307
+          assert central['provider_governance_contract'] == 308
+          assert central['condition_source_maintenance_contract'] == 310
+          embedded_provider = central['condition_hubs']['provider_governance']
+          for key in ('record_count', 'published_count', 'sponsored_count', 'expiring_within_30_days'):
+              assert embedded_provider[key] == providers[key], (key, embedded_provider.get(key), providers.get(key))
+          assert embedded_provider['sponsored_publication_enabled'] is False
+          embedded_sources = central['condition_hubs']['source_maintenance']
+          for key in ('source_count', 'distinct_host_count', 'overdue_source_count', 'due_within_30_days_count'):
+              assert embedded_sources[key] == sources[key], (key, embedded_sources.get(key), sources.get(key))
+
+          expected_links = {
+              'autism': (
+                  '/pterminology-site/special-needs/autism-daily-participation-support/',
+                  '/pterminology-site/special-needs/aac-daily-communication-access/',
+                  '/pterminology-site/special-needs/sensory-regulation-daily-environment-plan/',
+                  '/pterminology-site/special-needs/visual-schedules-transitions-home-school-plan/',
+                  '/pterminology-site/special-needs/early-intervention-family-action-plan/',
+                  '/pterminology-site/special-needs/provider-center-quality-selection-checklist/',
+                  '/pterminology-site/special-needs/caregiver-wellbeing-sustainable-support-plan/',
+                  '/pterminology-site/special-needs/safeguarding-bullying-abuse-response-plan/',
+              ),
+              'down': (
+                  '/pterminology-site/special-needs/early-intervention-family-action-plan/',
+                  '/pterminology-site/special-needs/individual-learning-support-plan/',
+                  '/pterminology-site/special-needs/accessible-learning-materials-arabic/',
+                  '/pterminology-site/special-needs/family-school-collaboration-meeting/',
+                  '/pterminology-site/special-needs/transition-adulthood-employment-independence/',
+                  '/pterminology-site/special-needs/provider-center-quality-selection-checklist/',
+                  '/pterminology-site/special-needs/caregiver-wellbeing-sustainable-support-plan/',
+                  '/pterminology-site/special-needs/safeguarding-bullying-abuse-response-plan/',
+              ),
+          }
+          for name in ('autism', 'down'):
+              text = Path(f'/tmp/{name}.html').read_text(encoding='utf-8')
+              required = (
+                  'condition-postlaunch-v305-meta:start',
+                  'condition-postlaunch-v305-breadcrumbs:start',
+                  'condition-postlaunch-v305-content:start',
+                  'condition-trust-v307-schema:start',
+                  'condition-trust-v307-content:start',
+                  '"@type": "FAQPage"',
+                  'id="quality-and-faq"',
+                  'id="condition-faq-title"',
+                  'id="provider-listing-policy"',
+                  'name="twitter:card" content="summary_large_image"',
+                  ':focus-visible',
+              )
+              missing = [item for item in required if item not in text]
+              assert not missing, (name, missing)
+              assert text.count('<h1') == 1, name
+              assert text.count('فتح الدليل العملي') == 8, name
+              assert text.count('<details id=') == 4, name
+              assert '2027-01-27' in text
+              ids = re.findall(r'\bid="([^"]+)"', text)
+              assert len(ids) == len(set(ids)), (name, [item for item in ids if ids.count(item) > 1])
+              for href in expected_links[name]:
+                  assert text.count(f'href="{href}"') == 1, (name, href)
+
+          hub = Path('/tmp/hub.html').read_text(encoding='utf-8')
+          assert hub.count('/pterminology-site/special-needs/autism/') == 1
+          assert hub.count('/pterminology-site/special-needs/down-syndrome/') == 1
+
+          sitemap_urls = {
+              (node.text or '').strip()
+              for node in ET.parse('/tmp/sitemap.xml').getroot().findall('{*}url/{*}loc')
+              if node.text
+          }
+          for url in (base + 'special-needs/autism/', base + 'special-needs/down-syndrome/'):
+              assert url in sitemap_urls, url
+          assert len(sitemap_urls) == len(set(sitemap_urls))
+
+          print({
+              'live_commit': deployment.get('commit'),
+              'condition_pages': 2,
+              'contextual_links': postlaunch['related_link_count'],
+              'faq_count': trust['faq_count'],
+              'source_count': sources['source_count'],
+              'source_domains': sources['distinct_host_count'],
+              'provider_records': providers['record_count'],
+              'published_providers': providers['published_count'],
+              'sitemap_urls': len(sitemap_urls),
+              'status': 'special-needs-condition-source-trust-provider-live-v311-verified',
+          })
+          PY

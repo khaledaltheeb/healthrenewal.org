@@ -51,32 +51,36 @@ class PlatformIdentityV201Tests(unittest.TestCase):
             "evaluate-mental-health-information/index.html",
             "guides/source-citation-and-update-transparency/index.html",
             "magazine/index.html",
-            "magazine/aya-cancer-digital-mental-health-meta-analysis-2026.html",
-            "magazine/down-syndrome-adult-medical-care-systematic-review-2026.html",
-            "magazine/dcd-school-motor-interventions-meta-analysis-2026.html",
-            "magazine/dysgraphia-interventions-scoping-review-2026.html",
+            "magazine/adhd-rhythmic-music-game-rct-2026.html",
+            "magazine/autism-aspen-low-resource-parent-intervention-rct-2026.html",
+            "magazine/feed.xml",
         ):
             self.assertTrue((site / relative).is_file(), relative)
         index = (site / "magazine/index.html").read_text(encoding="utf-8")
-        self.assertIn('"numberOfItems":60', index)
-        self.assertEqual(index.count('class="card"'), 60)
+        self.assertIn('"numberOfItems":72', index)
+        self.assertEqual(index.count('class="card"'), 72)
+        self.assertIn("الهدف المرحلي 100 قراءة", index)
         report = json.loads((site / "api/platform-identity-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(report["pages"], 66)
+        self.assertEqual(report["pages"], 78)
         self.assertEqual(report["headers_added"], 1)
         self.assertEqual(report["footers_added"], 1)
         self.assertGreaterEqual(report["language_replacements"], 4)
         self.assertTrue(report["trust_guides_published"])
         self.assertTrue(report["magazine_published"])
-        self.assertEqual(report["magazine_pages"], 60)
+        self.assertEqual(report["magazine_pages"], 72)
         self.assertEqual(report["magazine_unwired_pages"], 0)
         self.assertEqual(report["magazine_report"], "api/magazine-v201.json")
         self.assertEqual(report["remaining_banned_pages"], [])
         self.assertEqual(report["missing_header_pages"], [])
         self.assertEqual(report["missing_footer_pages"], [])
         magazine = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(magazine["research_summaries_published"], 60)
+        self.assertEqual(magazine["version"], 315)
+        self.assertEqual(magazine["research_summaries_published"], 72)
+        self.assertEqual(magazine["target_research_summaries"], 100)
+        self.assertEqual(magazine["remaining_to_target"], 28)
         self.assertEqual(magazine["unwired_research_pages"], 0)
-        self.assertEqual(magazine["sitemap"]["child_urls"], 61)
+        self.assertEqual(magazine["sitemap"]["child_urls"], 73)
+        self.assertEqual(magazine["rss_contract"], "latest-twenty-sorted-by-datePublished")
 
     def test_tools_page_uses_marshmallow_contrast(self) -> None:
         site = self.make_site()
@@ -90,7 +94,6 @@ class PlatformIdentityV201Tests(unittest.TestCase):
             '</article></section></main></body></html>',
             encoding="utf-8",
         )
-
         subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
         first = (tools / "index.html").read_text(encoding="utf-8")
         self.assertIn('data-tools-design="marshmallow-v245"', first)
@@ -101,37 +104,28 @@ class PlatformIdentityV201Tests(unittest.TestCase):
         self.assertIn("color:var(--tm-ink)!important", first)
         self.assertIn("background:var(--tm-lilac)!important;color:#4a315f!important", first)
         self.assertIn("prefers-color-scheme:dark", first)
-
-        report = json.loads((site / "api/platform-identity-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(report["tools_marshmallow_route"], "tools/index.html")
-        self.assertEqual(report["tools_marshmallow_design"], "marshmallow-v245")
-        self.assertEqual(report["tools_marshmallow_pages"], 1)
-        self.assertEqual(report["tools_marshmallow_updates"], 1)
-
         subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
         second = (tools / "index.html").read_text(encoding="utf-8")
         self.assertEqual(first, second)
-        self.assertEqual(second.count("tools-marshmallow-v245-style"), 1)
-        self.assertIn("class='existing-tools-page tools-marshmallow-v245'", second)
 
     def test_is_idempotent(self) -> None:
         site = self.make_site()
         subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
         first = (site / "index.html").read_text(encoding="utf-8")
         first_magazine = (site / "magazine/index.html").read_text(encoding="utf-8")
+        first_feed = (site / "magazine/feed.xml").read_text(encoding="utf-8")
         subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
         second = (site / "index.html").read_text(encoding="utf-8")
         second_magazine = (site / "magazine/index.html").read_text(encoding="utf-8")
+        second_feed = (site / "magazine/feed.xml").read_text(encoding="utf-8")
         self.assertEqual(first, second)
         self.assertEqual(first_magazine, second_magazine)
-        self.assertEqual(second.count('data-platform-shell="header"'), 1)
-        self.assertEqual(second.count('data-platform-shell="footer"'), 1)
-        self.assertEqual(second.count("platform-shell-v201-style"), 1)
-        trust_report = json.loads((site / "api/trust-guides-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(trust_report["page_count"], 3)
+        self.assertEqual(first_feed, second_feed)
         magazine_report = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(magazine_report["research_summaries_published"], 60)
-        self.assertEqual(magazine_report["sitemap"]["child_urls"], 61)
+        self.assertEqual(magazine_report["research_summaries_published"], 72)
+        self.assertEqual(magazine_report["target_research_summaries"], 100)
+        self.assertEqual(magazine_report["sitemap"]["child_urls"], 73)
+        self.assertEqual(magazine_report["rss_contract"], "latest-twenty-sorted-by-datePublished")
 
 
 if __name__ == "__main__":

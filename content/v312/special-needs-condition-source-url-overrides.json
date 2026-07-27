@@ -1,0 +1,16 @@
+{
+  "version": 312,
+  "language": "ar",
+  "verified_at": "2026-07-27",
+  "purpose": "تصحيح روابط رسمية تغيّرت أو أزيلت دون إعادة كتابة ملف الحالة العلمي الأساسي، مع توثيق الرابط القديم والبديل وسبب التغيير.",
+  "overrides": {
+    "A9": {
+      "from": "https://www.asha.org/Practice-Portal/Professional-Issues/Augmentative-and-Alternative-Communication/",
+      "to": "https://apps.asha.org/EvidenceMaps/Maps/LandingPage/990772a6-9cd8-4203-a76c-6ccd91eac874",
+      "title": "Augmentative and Alternative Communication (AAC) Evidence Map",
+      "organization": "ASHA",
+      "reason": "أعاد مسار Practice Portal الأصلي ومساره البديل وصفحة NJC/AAC الرسمية 404 متكررًا من GitHub Runner رغم بقائها ظاهرة للعامة؛ استُبدلت بصفحة Evidence Map الرسمية المتخصصة في AAC على البنية المستقلة التابعة لـASHA.",
+      "verification_method": "official-domain-content-review-live-search-and-live-http"
+    }
+  }
+}

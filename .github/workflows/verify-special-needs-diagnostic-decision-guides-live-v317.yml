@@ -1,0 +1,209 @@
+name: Verify special-needs diagnostic decision guides live v317
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/verify-special-needs-diagnostic-decision-guides-live-v317.yml"
+  workflow_run:
+    workflows: ["Deploy validated main to GitHub Pages"]
+    types: [completed]
+  schedule:
+    - cron: "57 */2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: special-needs-diagnostic-decision-guides-live-v317-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  static-contract:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate v317 live workflow contract
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('.github/workflows/verify-special-needs-diagnostic-decision-guides-live-v317.yml')
+          text = path.read_text(encoding='utf-8')
+          required = (
+              'Deploy validated main to GitHub Pages',
+              'MINIMUM_SHA: 211f87fdc6ec4047a3728134599cc096715f4fb1',
+              'special-needs/autism-screening-vs-diagnosis/',
+              'special-needs/down-syndrome-prenatal-screening-vs-diagnosis/',
+              'special-needs-diagnostic-decision-guides-v316.json',
+              'diagnostic_decision_guides_contract',
+              'data-diagnostic-guide="autism-screening-vs-diagnosis"',
+              'data-diagnostic-guide="down-syndrome-prenatal-screening-vs-diagnosis"',
+              'للمريضة الحق في قبول التحري أو الاختبار التشخيصي أو رفضهما',
+              'لا تفسر نتيجة تحرٍ إيجابية على أنها تشخيص مؤكد',
+              'لا يعتمد على أداة تشخيصية واحدة وحدها',
+              'sitemap-special-needs.xml',
+          )
+          missing = [marker for marker in required if marker not in text]
+          assert not missing, missing
+          print({'workflow': path.name, 'required_markers': len(required), 'status': 'static-contract-passed'})
+          PY
+
+  live-publication:
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      MINIMUM_SHA: 211f87fdc6ec4047a3728134599cc096715f4fb1
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Wait for a non-rollback deployment containing v316
+        run: |
+          set -euo pipefail
+          matched=0
+          for i in $(seq 1 90); do
+            token="${MINIMUM_SHA}-${i}-$(date +%s)"
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o /tmp/deployment.json; then
+              if python - <<'PY'
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+          from pathlib import Path
+
+          deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          live = deployment.get('commit')
+          minimum = os.environ['MINIMUM_SHA']
+          assert isinstance(live, str) and len(live) == 40, deployment
+          if live == minimum:
+              raise SystemExit(0)
+          request = urllib.request.Request(
+              f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/compare/{minimum}...{live}",
+              headers={
+                  'Authorization': f"Bearer {os.environ['GH_TOKEN']}",
+                  'Accept': 'application/vnd.github+json',
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'User-Agent': 'special-needs-diagnostic-decision-guides-live-v317',
+              },
+          )
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  status = json.loads(response.read().decode('utf-8')).get('status')
+          except urllib.error.HTTPError:
+              raise SystemExit(1)
+          raise SystemExit(0 if status in {'ahead', 'identical'} else 1)
+          PY
+              then
+                matched=1
+                break
+              fi
+            fi
+            sleep 10
+          done
+          test "${matched}" -eq 1
+
+      - name: Download live decision guides parent pages reports and sitemap
+        run: |
+          set -euxo pipefail
+          token="${MINIMUM_SHA}-live-$(date +%s)"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/autism-screening-vs-diagnosis/?v=${token}" -o /tmp/autism-decision.html
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/down-syndrome-prenatal-screening-vs-diagnosis/?v=${token}" -o /tmp/down-decision.html
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/autism/?v=${token}" -o /tmp/autism-parent.html
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/down-syndrome/?v=${token}" -o /tmp/down-parent.html
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-diagnostic-decision-guides-v316.json?v=${token}" -o /tmp/decision.json
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-guides-v221.json?v=${token}" -o /tmp/central.json
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sitemap-special-needs.xml?v=${token}" -o /tmp/sitemap.xml
+
+      - name: Enforce live screening diagnosis choice evidence and discovery contracts
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json
+          import re
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          base = 'https://khaledaltheeb.github.io/pterminology-site/'
+          report = json.loads(Path('/tmp/decision.json').read_text(encoding='utf-8'))
+          central = json.loads(Path('/tmp/central.json').read_text(encoding='utf-8'))
+          pages = {
+              'autism-screening-vs-diagnosis': Path('/tmp/autism-decision.html').read_text(encoding='utf-8'),
+              'down-syndrome-prenatal-screening-vs-diagnosis': Path('/tmp/down-decision.html').read_text(encoding='utf-8'),
+          }
+          parents = {
+              'autism-screening-vs-diagnosis': Path('/tmp/autism-parent.html').read_text(encoding='utf-8'),
+              'down-syndrome-prenatal-screening-vs-diagnosis': Path('/tmp/down-parent.html').read_text(encoding='utf-8'),
+          }
+
+          assert report['version'] == 316 and report['status'] == 'passed', report
+          assert report['review_status'] == 'internally-reviewed-external-clinical-review-required'
+          assert report['external_clinical_review_completed'] is False
+          assert report['guide_count'] == 2
+          assert report['section_count'] == 10
+          assert report['source_count'] == 8
+          assert report['decision_step_count'] == 10
+          assert report['parent_links_added'] == 2
+          assert report['sitemap_registered'] is True
+          assert report['next_review_due'] == '2027-01-27'
+
+          assert central['status'] == 'passed'
+          assert central['diagnostic_decision_guides_contract'] == 316
+          embedded = central['condition_hubs']['diagnostic_decision_guides']
+          for key in ('guide_count', 'guide_slugs', 'section_count', 'source_count', 'decision_step_count', 'parent_links_added', 'next_review_due'):
+              assert embedded[key] == report[key], (key, embedded.get(key), report.get(key))
+          assert embedded['external_clinical_review_completed'] is False
+
+          expected_sources = {
+              'autism-screening-vs-diagnosis': ('source-AS1', 'source-AS2', 'source-AS3', 'source-AS4'),
+              'down-syndrome-prenatal-screening-vs-diagnosis': ('source-DP1', 'source-DP2', 'source-DP3', 'source-DP4'),
+          }
+          for slug, text in pages.items():
+              assert text.count('<h1') == 1, slug
+              assert text.count('class="section-card"') == 5, slug
+              assert 'MedicalWebPage' in text and 'BreadcrumbList' in text, slug
+              assert 'لم تكتمل مراجعة سريرية خارجية مستقلة' in text, slug
+              assert '2027-01-27' in text, slug
+              ids = re.findall(r'\bid="([^"]+)"', text)
+              assert len(ids) == len(set(ids)), (slug, ids)
+              for source_id in expected_sources[slug]:
+                  assert f'id="{source_id}"' in text, (slug, source_id)
+              parent = parents[slug]
+              assert parent.count(f'data-diagnostic-guide="{slug}"') == 1, slug
+              assert parent.count(f'/pterminology-site/special-needs/{slug}/') == 1, slug
+
+          autism = pages['autism-screening-vs-diagnosis']
+          assert 'النتيجة الإيجابية تعني زيادة الحاجة إلى تقييم أعمق' in autism
+          assert 'لا يعتمد على أداة تشخيصية واحدة وحدها' in autism
+          prenatal = pages['down-syndrome-prenatal-screening-vs-diagnosis']
+          assert 'للمريضة الحق في قبول التحري أو الاختبار التشخيصي أو رفضهما' in prenatal
+          assert 'لا تفسر نتيجة تحرٍ إيجابية على أنها تشخيص مؤكد' in prenatal
+          assert 'لا يتنبأ بدقة كاملة' in prenatal
+
+          sitemap_urls = [
+              (node.text or '').strip()
+              for node in ET.parse('/tmp/sitemap.xml').getroot().findall('{*}url/{*}loc')
+              if node.text
+          ]
+          for slug in pages:
+              assert sitemap_urls.count(base + f'special-needs/{slug}/') == 1, slug
+          assert len(sitemap_urls) == len(set(sitemap_urls))
+
+          deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          print({
+              'live_commit': deployment.get('commit'),
+              'decision_guides': report['guide_count'],
+              'sections': report['section_count'],
+              'sources': report['source_count'],
+              'parent_links': report['parent_links_added'],
+              'status': 'special-needs-diagnostic-decision-guides-live-v317-verified',
+          })
+          PY

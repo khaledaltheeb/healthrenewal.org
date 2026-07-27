@@ -1,0 +1,12 @@
+{
+  "version": 302,
+  "language": "ar",
+  "reviewed_at": "2026-07-27",
+  "next_review_due": "2027-01-27",
+  "review_status": "internally-reviewed-external-clinical-review-required",
+  "editorial_note": "المحتوى تثقيفي قائم على الإرشادات والمراجع المؤسسية ولا يستبدل التقييم أو الرعاية الفردية.",
+  "condition_files": [
+    "content/v302/autism-ar.json",
+    "content/v302/down-syndrome-ar.json"
+  ]
+}

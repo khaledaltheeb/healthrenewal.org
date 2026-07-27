@@ -1,0 +1,17 @@
+{
+  "version": 310,
+  "language": "ar",
+  "check_scope": "metadata-url-citation-mapping",
+  "checked_at": "2026-07-27",
+  "next_check_due": "2027-01-27",
+  "external_http_status_check_completed": false,
+  "note": "تاريخ reviewed داخل ملفات الحالات يمثل تاريخ المصدر أو الإرشاد. هذا الملف يسجل تاريخ فحص المنصة لبيانات المرجع والرابط وملاءمة الاستشهاد، ولا يدعي تنفيذ فحص HTTP حي لكل رابط.",
+  "conditions": {
+    "autism": {
+      "source_ids": ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9"]
+    },
+    "down-syndrome": {
+      "source_ids": ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8"]
+    }
+  }
+}

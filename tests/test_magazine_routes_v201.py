@@ -1,7 +1,9 @@
+import importlib.util
 import json
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
@@ -14,6 +16,11 @@ SOURCE_SITEMAP = ROOT / "sitemap.xml"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 URL = BASE + "/magazine/"
 ROBOTS_PATTERN = re.compile(r'<meta\s+[^>]*name=["\']robots["\'][^>]*>', re.I)
+SPEC = importlib.util.spec_from_file_location("publish_magazine_routes_v320", PUBLISHER)
+assert SPEC and SPEC.loader
+PUBLISHER_MODULE = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = PUBLISHER_MODULE
+SPEC.loader.exec_module(PUBLISHER_MODULE)
 
 
 class MagazineRoutesV201Tests(unittest.TestCase):
@@ -25,16 +32,15 @@ class MagazineRoutesV201Tests(unittest.TestCase):
 
     @staticmethod
     def article_files() -> list[Path]:
-        return sorted(
-            (path for path in SOURCE.glob("*-20*.html") if path.name != "index.html"),
-            key=lambda path: (-int(re.search(r"-(20\d{2})\.html$", path.name).group(1)), path.name),
-        )
+        return PUBLISHER_MODULE.article_files()
 
     def test_magazine_archive_is_complete_honest_and_indexable(self):
         site = self.fixture()
         subprocess.run(["python3", str(PUBLISHER), str(site)], cwd=ROOT, check=True, capture_output=True, text=True)
         articles = self.article_files()
-        self.assertGreaterEqual(len(articles), 21)
+        self.assertGreaterEqual(len(articles), 72)
+        dates = [PUBLISHER_MODULE.article_date(path) for path in articles]
+        self.assertEqual(dates, sorted(dates, reverse=True))
         page = site / "magazine" / "index.html"
         self.assertTrue(page.is_file())
         text = page.read_text(encoding="utf-8")
@@ -59,11 +65,14 @@ class MagazineRoutesV201Tests(unittest.TestCase):
         self.assertTrue(report["methodology_published"])
         self.assertEqual(report["research_summaries_published"], len(articles))
         self.assertEqual(report["articles"], [path.name for path in articles])
+        self.assertEqual(report["article_dates"], {path.name: PUBLISHER_MODULE.article_date(path) for path in articles})
         self.assertEqual(report["review_status"], "internally-reviewed")
         self.assertEqual(report["risk_level"], "low")
         self.assertEqual(report["unwired_research_pages"], 0)
         self.assertEqual(report["robots_contract"], "exactly-one-index-follow-meta-per-published-page")
         self.assertGreaterEqual(report["robots"]["robots_normalized_pages"], 5)
+        self.assertEqual(report["index_contract"], "generated-from-discovered-articles-sorted-by-datePublished")
+        self.assertEqual(report["rss_contract"], "latest-twenty-sorted-by-datePublished")
 
     def test_magazine_sitemap_is_idempotent(self):
         site = self.fixture()

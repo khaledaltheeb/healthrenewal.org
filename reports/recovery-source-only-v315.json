@@ -1,0 +1,30 @@
+{
+  "version": 315,
+  "issue": 405,
+  "classification": "source-only-not-proven-missing",
+  "automatic_publication": false,
+  "count_as_missing_page": false,
+  "items": [
+    {
+      "path": "content/sectors-v10/aac-home-school-guide.json",
+      "addition_commit": "45af8668fc66682173118f30d4df1c209ee100e2",
+      "addition_commit_files": ["content/sectors-v10/aac-home-school-guide.json"],
+      "current_reachability": "unwired-content",
+      "decision": "manual-review"
+    },
+    {
+      "path": "content/sectors-v10/inclusive-school-transition.json",
+      "addition_commit": "02a6c9ae827940b6beb7c235b67021da7ff20d4f",
+      "addition_commit_files": ["content/sectors-v10/inclusive-school-transition.json"],
+      "current_reachability": "unwired-content",
+      "decision": "manual-review"
+    },
+    {
+      "path": "content/sectors-v10/mental-health-foundations.json",
+      "addition_commit": "e23695d9c03898c271e1dcae44ca6a78b82445f6",
+      "addition_commit_files": ["content/sectors-v10/mental-health-foundations.json"],
+      "current_reachability": "unwired-content",
+      "decision": "manual-review"
+    }
+  ]
+}

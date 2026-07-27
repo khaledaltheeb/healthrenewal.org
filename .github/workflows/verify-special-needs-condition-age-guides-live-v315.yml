@@ -1,0 +1,204 @@
+name: Verify special-needs condition age guides live v315
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/verify-special-needs-condition-age-guides-live-v315.yml"
+  workflow_run:
+    workflows: ["Deploy validated main to GitHub Pages"]
+    types: [completed]
+  schedule:
+    - cron: "47 */2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: special-needs-condition-age-guides-live-v315-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  static-contract:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate v315 live workflow contract
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('.github/workflows/verify-special-needs-condition-age-guides-live-v315.yml')
+          text = path.read_text(encoding='utf-8')
+          required = (
+              'Deploy validated main to GitHub Pages',
+              'MINIMUM_SHA: 97943ff2edf59dd5e3243c8e53f7f0f858e64c9f',
+              'special-needs/autism-signs-by-age/',
+              'special-needs/down-syndrome-health-by-age/',
+              'special-needs-condition-age-guides-v314.json',
+              'special-needs-guides-v221.json',
+              'data-age-guide="autism-signs-by-age"',
+              'data-age-guide="down-syndrome-health-by-age"',
+              'condition_age_guides_contract',
+              'internally-reviewed-external-clinical-review-required',
+              '2027-01-27',
+              'sitemap-special-needs.xml',
+          )
+          missing = [marker for marker in required if marker not in text]
+          assert not missing, missing
+          print({'workflow': path.name, 'required_markers': len(required), 'status': 'static-contract-passed'})
+          PY
+
+  live-publication:
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      MINIMUM_SHA: 97943ff2edf59dd5e3243c8e53f7f0f858e64c9f
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Wait for a non-rollback deployment containing v314
+        run: |
+          set -euo pipefail
+          matched=0
+          for i in $(seq 1 90); do
+            token="${MINIMUM_SHA}-${i}-$(date +%s)"
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o /tmp/deployment.json; then
+              if python - <<'PY'
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+          from pathlib import Path
+
+          deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          live = deployment.get('commit')
+          minimum = os.environ['MINIMUM_SHA']
+          assert isinstance(live, str) and len(live) == 40, deployment
+          if live == minimum:
+              raise SystemExit(0)
+          request = urllib.request.Request(
+              f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/compare/{minimum}...{live}",
+              headers={
+                  'Authorization': f"Bearer {os.environ['GH_TOKEN']}",
+                  'Accept': 'application/vnd.github+json',
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'User-Agent': 'special-needs-condition-age-guides-live-v315',
+              },
+          )
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  status = json.loads(response.read().decode('utf-8')).get('status')
+          except urllib.error.HTTPError:
+              raise SystemExit(1)
+          raise SystemExit(0 if status in {'ahead', 'identical'} else 1)
+          PY
+              then
+                matched=1
+                break
+              fi
+            fi
+            sleep 10
+          done
+          test "${matched}" -eq 1
+
+      - name: Download live age guides parent pages reports and sitemap
+        run: |
+          set -euxo pipefail
+          token="${MINIMUM_SHA}-live-$(date +%s)"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/autism-signs-by-age/?v=${token}" -o /tmp/autism-age.html
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/down-syndrome-health-by-age/?v=${token}" -o /tmp/down-age.html
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/autism/?v=${token}" -o /tmp/autism-parent.html
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/down-syndrome/?v=${token}" -o /tmp/down-parent.html
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-condition-age-guides-v314.json?v=${token}" -o /tmp/age.json
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-guides-v221.json?v=${token}" -o /tmp/central.json
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sitemap-special-needs.xml?v=${token}" -o /tmp/sitemap.xml
+
+      - name: Enforce live age-guide scientific discovery and review contracts
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json
+          import re
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          base = 'https://khaledaltheeb.github.io/pterminology-site/'
+          age = json.loads(Path('/tmp/age.json').read_text(encoding='utf-8'))
+          central = json.loads(Path('/tmp/central.json').read_text(encoding='utf-8'))
+          pages = {
+              'autism-signs-by-age': Path('/tmp/autism-age.html').read_text(encoding='utf-8'),
+              'down-syndrome-health-by-age': Path('/tmp/down-age.html').read_text(encoding='utf-8'),
+          }
+          parents = {
+              'autism-signs-by-age': Path('/tmp/autism-parent.html').read_text(encoding='utf-8'),
+              'down-syndrome-health-by-age': Path('/tmp/down-parent.html').read_text(encoding='utf-8'),
+          }
+
+          assert age['version'] == 314 and age['status'] == 'passed', age
+          assert age['review_status'] == 'internally-reviewed-external-clinical-review-required'
+          assert age['external_clinical_review_completed'] is False
+          assert age['guide_count'] == 2
+          assert age['guide_slugs'] == ['autism-signs-by-age', 'down-syndrome-health-by-age']
+          assert age['stage_count'] == 8
+          assert age['source_count'] == 7
+          assert age['parent_links_added'] == 2
+          assert age['sitemap_registered'] is True
+          assert age['reviewed_at'] == '2026-07-27'
+          assert age['next_review_due'] == '2027-01-27'
+
+          assert central['status'] == 'passed'
+          assert central['condition_age_guides_contract'] == 314
+          embedded = central['condition_hubs']['age_guides']
+          for key in ('guide_count', 'guide_slugs', 'stage_count', 'source_count', 'parent_links_added', 'next_review_due'):
+              assert embedded[key] == age[key], (key, embedded.get(key), age.get(key))
+          assert embedded['external_clinical_review_completed'] is False
+
+          expected_sources = {
+              'autism-signs-by-age': ('source-AU1', 'source-AU2', 'source-AU3', 'source-AU4'),
+              'down-syndrome-health-by-age': ('source-DSA1', 'source-DSA2', 'source-DSA3'),
+          }
+          for slug, text in pages.items():
+              assert text.count('<h1') == 1, slug
+              assert text.count('class="stage"') == 4, slug
+              assert 'MedicalWebPage' in text and 'BreadcrumbList' in text, slug
+              assert 'لم تكتمل مراجعة سريرية خارجية مستقلة' in text, slug
+              assert '2027-01-27' in text, slug
+              assert 'index,follow' in text, slug
+              ids = re.findall(r'\bid="([^"]+)"', text)
+              assert len(ids) == len(set(ids)), (slug, ids)
+              for source_id in expected_sources[slug]:
+                  assert f'id="{source_id}"' in text, (slug, source_id)
+
+              parent = parents[slug]
+              assert parent.count(f'data-age-guide="{slug}"') == 1, slug
+              assert parent.count(f'/pterminology-site/special-needs/{slug}/') == 1, slug
+
+          sitemap_urls = [
+              (node.text or '').strip()
+              for node in ET.parse('/tmp/sitemap.xml').getroot().findall('{*}url/{*}loc')
+              if node.text
+          ]
+          for slug in pages:
+              assert sitemap_urls.count(base + f'special-needs/{slug}/') == 1, slug
+          assert len(sitemap_urls) == len(set(sitemap_urls))
+
+          deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          print({
+              'live_commit': deployment.get('commit'),
+              'age_guides': age['guide_count'],
+              'age_stages': age['stage_count'],
+              'sources': age['source_count'],
+              'parent_links': age['parent_links_added'],
+              'status': 'special-needs-condition-age-guides-live-v315-verified',
+          })
+          PY

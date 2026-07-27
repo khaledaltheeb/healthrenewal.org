@@ -1,0 +1,108 @@
+{
+  "version": 302,
+  "governance_version": 308,
+  "language": "ar",
+  "updated_at": "2026-07-27",
+  "purpose": "دليل خدمات قابل للتحرير من ملف واحد دون تعديل قوالب الصفحات.",
+  "publication_rule": "لا يظهر أي سجل إلا إذا كانت published=true وكانت بيانات التحقق والترخيص والاتصال والصلاحية والإفصاح مكتملة وسارية.",
+  "allowed_types": [
+    "doctor",
+    "center",
+    "clinic",
+    "association",
+    "hospital",
+    "therapy-provider",
+    "education-provider"
+  ],
+  "allowed_specialties": [
+    "autism",
+    "down-syndrome",
+    "developmental-pediatrics",
+    "child-psychiatry",
+    "genetics",
+    "speech-language",
+    "occupational-therapy",
+    "physical-therapy",
+    "audiology",
+    "ophthalmology",
+    "cardiology",
+    "special-education",
+    "early-intervention"
+  ],
+  "allowed_verification_statuses": [
+    "pending",
+    "verified",
+    "expired",
+    "rejected"
+  ],
+  "allowed_listing_disclosures": [
+    "editorial",
+    "sponsored"
+  ],
+  "required_fields_for_publication": [
+    "id",
+    "type",
+    "name_ar",
+    "specialties",
+    "country",
+    "city",
+    "verification_status",
+    "verified_at",
+    "last_contact_verified_at",
+    "verification_expires_at",
+    "verification_evidence",
+    "registration_authority",
+    "registration_reference",
+    "listing_disclosure",
+    "sponsored",
+    "published"
+  ],
+  "recommended_contact_fields": [
+    "phone_display",
+    "phone_uri",
+    "website",
+    "maps_url",
+    "address_ar"
+  ],
+  "editing_note": "انسخ example_not_published إلى providers، استبدل البيانات، اترك published=false أثناء المراجعة، ثم غيّر verification_status إلى verified وpublished إلى true بعد اكتمال التحقق.",
+  "example_not_published": {
+    "id": "provider-001",
+    "type": "center",
+    "name_ar": "اسم المركز",
+    "name_en": "Center name",
+    "professional_title": "مركز تقييم وتأهيل",
+    "specialties": [
+      "autism",
+      "down-syndrome"
+    ],
+    "services": [
+      "تقييم",
+      "علاج نطق",
+      "تدخل مبكر"
+    ],
+    "country": "الأردن",
+    "governorate": "العاصمة",
+    "city": "عمّان",
+    "address_ar": "العنوان التفصيلي",
+    "phone_display": "+962 ...",
+    "phone_uri": "+962...",
+    "whatsapp_uri": "https://wa.me/962...",
+    "website": "https://example.org",
+    "maps_url": "https://maps.google.com/?q=...",
+    "verification_status": "pending",
+    "verified_at": "2026-07-27",
+    "last_contact_verified_at": "2026-07-27",
+    "verification_expires_at": "2027-01-27",
+    "verification_evidence": [
+      "https://example.org/official-registration-record"
+    ],
+    "registration_authority": "اسم الجهة المرخصة أو السجل المهني",
+    "registration_reference": "رقم الترخيص أو التسجيل",
+    "listing_disclosure": "editorial",
+    "sponsored": false,
+    "accepting_referrals": null,
+    "notes_ar": "ملاحظات مختصرة ومحايدة",
+    "published": false
+  },
+  "providers": []
+}

@@ -1,23 +1,25 @@
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
 import sys
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / "scripts" / "publish_magazine_v201.py"
-SPEC = importlib.util.spec_from_file_location("publish_magazine_v234", MODULE_PATH)
+SPEC = importlib.util.spec_from_file_location("publish_magazine_v315", MODULE_PATH)
 assert SPEC and SPEC.loader
 MODULE = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
 
 
-class MagazineResearchV234Tests(unittest.TestCase):
+class MagazineResearchV315Tests(unittest.TestCase):
     def make_site(self, root: Path) -> Path:
         site = root / "_site"
         site.mkdir()
@@ -28,92 +30,119 @@ class MagazineResearchV234Tests(unittest.TestCase):
         )
         return site
 
-    def test_publishes_every_discovered_article_and_sitemap(self) -> None:
+    def test_publishes_every_discovered_article_rss_and_sitemap(self) -> None:
         pages = MODULE.article_files()
-        self.assertEqual(len(pages), 60)
+        self.assertEqual(len(pages), 72)
+        self.assertEqual(MODULE.CONTRACT, 315)
+        self.assertEqual(MODULE.TARGET_ARTICLES, 100)
+        dates = [MODULE.article_date(path) for path in pages]
+        self.assertEqual(dates, sorted(dates, reverse=True))
+
         with tempfile.TemporaryDirectory() as directory:
             site = self.make_site(Path(directory))
             report = MODULE.publish(site)
-            self.assertEqual(report["version"], 234)
-            self.assertEqual(report["research_summaries_published"], 60)
-            self.assertEqual(len(report["articles"]), 60)
-            self.assertEqual(report["sitemap"]["child_urls"], 61)
+            self.assertEqual(report["version"], 315)
+            self.assertEqual(report["research_summaries_published"], 72)
+            self.assertEqual(report["target_research_summaries"], 100)
+            self.assertEqual(report["remaining_to_target"], 28)
+            self.assertTrue(report["continuous_publication_policy"])
+            self.assertEqual(len(report["articles"]), 72)
+            self.assertEqual(report["sitemap"]["child_urls"], 73)
+            self.assertEqual(report["robots"]["rss_items"], 20)
             self.assertEqual(report["unwired_research_pages"], 0)
-            self.assertEqual(report["index_contract"], "generated-from-discovered-articles")
+            self.assertEqual(report["index_contract"], "generated-from-discovered-articles-sorted-by-datePublished")
+            self.assertEqual(report["rss_contract"], "latest-twenty-sorted-by-datePublished")
+            self.assertEqual(report["article_dates"], {path.name: MODULE.article_date(path) for path in pages})
+
             magazine = site / "magazine"
-            source_headings = ("المصدر الأصلي", "السجل الأصلي", "السجل الجامعي", "السجل الجامعي الأصلي")
-            limitation_terms = ("حدود", "قيود", "الحذر")
             for path in pages:
                 text = (magazine / path.name).read_text(encoding="utf-8")
                 self.assertIn('<html lang="ar" dir="rtl">', text)
-                self.assertTrue(any(heading in text for heading in source_headings), path.name)
-                self.assertTrue(any(term in text for term in limitation_terms), path.name)
-            sitemap = ET.parse(site / "sitemap-magazine.xml").getroot()
-            urls = [node.text for node in sitemap.findall("{*}url/{*}loc")]
-            self.assertEqual(len(urls), 61)
+                self.assertEqual(text.lower().count("<h1"), 1)
+                self.assertTrue(any(heading in text for heading in ("المصدر الأصلي", "السجل الأصلي", "السجل الجامعي")))
+                self.assertTrue(any(term in text for term in ("حدود", "قيود", "الحذر")))
+
+            urls = [node.text for node in ET.parse(site / "sitemap-magazine.xml").getroot().findall("{*}url/{*}loc")]
+            self.assertEqual(len(urls), 73)
             self.assertEqual(len(urls), len(set(urls)))
             for path in pages:
                 self.assertIn(MODULE.URL + path.name, urls)
+
+            feed_root = ET.parse(magazine / "feed.xml").getroot()
+            items = feed_root.findall("./channel/item")
+            self.assertEqual(len(items), 20)
+            feed_links = [item.findtext("link") for item in items]
+            self.assertEqual(feed_links, [MODULE.URL + path.name for path in pages[:20]])
+            feed_dates = [parsedate_to_datetime(item.findtext("pubDate")) for item in items]
+            self.assertEqual(feed_dates, sorted(feed_dates, reverse=True))
+            self.assertEqual(
+                parsedate_to_datetime(feed_root.findtext("./channel/lastBuildDate")),
+                feed_dates[0],
+            )
+
             saved = json.loads((site / "api" / "magazine-v201.json").read_text(encoding="utf-8"))
-            self.assertEqual(saved["research_summaries_published"], 60)
+            self.assertEqual(saved["research_summaries_published"], 72)
+            self.assertEqual(saved["target_research_summaries"], 100)
             self.assertEqual(set(saved["articles"]), {path.name for path in pages})
 
-    def test_publish_is_idempotent(self) -> None:
+    def test_publish_is_idempotent_for_content_assets(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             site = self.make_site(Path(directory))
             first = MODULE.publish(site)
-            sitemap_before = (site / "sitemap-magazine.xml").read_bytes()
-            index_before = (site / "magazine" / "index.html").read_bytes()
+            tracked = [
+                site / "sitemap-magazine.xml",
+                site / "magazine/index.html",
+                site / "magazine/feed.xml",
+            ]
+            before = [hashlib.sha256(path.read_bytes()).hexdigest() for path in tracked]
             second = MODULE.publish(site)
+            after = [hashlib.sha256(path.read_bytes()).hexdigest() for path in tracked]
             self.assertEqual(first["source_sha256"], second["source_sha256"])
-            self.assertEqual(sitemap_before, (site / "sitemap-magazine.xml").read_bytes())
-            self.assertEqual(index_before, (site / "magazine" / "index.html").read_bytes())
+            self.assertEqual(before, after)
+            self.assertTrue(first["sitemap"]["main_changed"])
+            self.assertFalse(second["sitemap"]["main_changed"])
 
-    def test_generated_index_exposes_every_discovered_article(self) -> None:
+    def test_generated_index_is_dynamic_and_chronological(self) -> None:
         pages = MODULE.article_files()
         index = MODULE.render_index(pages)
-        self.assertIn('"numberOfItems":60', index)
-        self.assertEqual(index.count('class="card"'), 60)
-        self.assertEqual(index.count('"@type":"ScholarlyArticle"'), 60)
+        self.assertIn('"numberOfItems":72', index)
+        self.assertIn("72 قراءة علمية مستقلة", index)
+        self.assertIn("الهدف المرحلي 100 قراءة", index)
+        self.assertIn("المتبقي 28", index)
+        self.assertIn('type="application/rss+xml"', index)
+        self.assertEqual(index.count('class="card"'), 72)
+        self.assertEqual(index.count('"@type":"ScholarlyArticle"'), 72)
+        self.assertEqual(index.count('"datePublished"'), 72)
+        self.assertNotIn("ستون قراءة", index)
+        card_positions = [index.index(f'href="{path.name}"') for path in pages]
+        self.assertEqual(card_positions, sorted(card_positions))
         for path in pages:
             self.assertGreaterEqual(index.count(f'href="{path.name}"'), 2)
             self.assertIn(MODULE.URL + path.name, index)
 
-    def test_sensitive_interpretations_keep_limits(self) -> None:
+    def test_scientific_batches_have_primary_sources_results_and_limits(self) -> None:
         checks = {
-            "peer-led-adolescent-mental-health-2025.html": ("7,060", "لم يجد التحليل التلوي آثارًا دالة"),
-            "youth-self-harm-interventions-meta-analysis-2026.html": ("RD = −0.12", "لا يعني اختفاء خطر الانتحار"),
-            "adhd-screen-time-meta-analysis-2026.html": ("235,283", "لا تثبت النتائج أن الشاشة تسبب ADHD"),
-            "aya-cancer-digital-mental-health-meta-analysis-2026.html": ("25 دراسة", "لا تستبدل علاج السرطان"),
-            "adolescent-passive-smartphone-sensing-meta-analysis-2026.html": ("r = 0.12", "لا تكفي لتشخيص فرد"),
-            "youth-transdiagnostic-internet-rct-2026.html": ("53%", "لا يثبت مساواة البرنامج بالعلاج الحضوري"),
-            "down-syndrome-telehealth-systematic-review-2026.html": ("39 دراسة", "بديلًا كاملًا للرعاية الحضورية"),
-            "homeless-youth-mental-disorders-meta-analysis-2026.html": ("25,320", "لا تسمح بتحديد اتجاه السببية"),
-            "autism-parent-act-meta-analysis-2026.html": ("698 مشاركًا", "عدد التجارب سبع فقط"),
-            "autism-caregiver-adjustment-review-2026.html": ("8 مقالات تدخلية", "تعريف موحد"),
-            "family-carer-coping-mental-health-meta-analysis-2026.html": ("38 دراسة", "لا تثبت اتجاه السببية"),
-            "autism-parent-resilience-factors-review-2026.html": ("13 دراسة", "معظم الدراسات مقطعية"),
-            "autism-family-food-insecurity-meta-analysis-2026.html": ("انتشار مجمع 29%", "11 دراسة فقط"),
-            "intellectual-disability-youth-healthcare-access-review-2026.html": ("33 دراسة", "تواصل غير واضح"),
-            "neurodevelopmental-video-game-interventions-meta-analysis-2026.html": ("20 تجربة عشوائية", "لا يضمن انتقال الأثر"),
-            "neurodevelopmental-exercise-executive-function-meta-analysis-2026.html": ("527 طفلًا", "I² = 81%"),
-            "neurodevelopmental-sleep-family-wellbeing-review-2026.html": ("العلاقة قد تكون دائرية", "كثرة الدراسات المقطعية"),
-            "down-syndrome-adult-medical-care-systematic-review-2026.html": ("8680 مرجعًا", "لم تُحدد دراسات مؤهلة"),
-            "dcd-school-motor-interventions-meta-analysis-2026.html": ("Hedges g = 1.06", "لا يضمن التحسن نفسه"),
-            "dcd-subtypes-systematic-review-2026.html": ("1,719 سجلًا", "لا يجوز استخدام هذه الأنماط"),
-            "dcd-action-observation-motor-imagery-review-2026.html": ("199 طفلًا", "بديل عن التدريب الوظيفي"),
-            "childhood-vision-impairment-longitudinal-review-2026.html": ("57,768 مشاركًا", "لا يثبت أن ضعف البصر وحده"),
-            "visual-impairment-mental-health-review-2026.html": ("مراجعة سردية", "لا يعني أن كل شخص"),
-            "intellectual-disability-healthcare-transition-review-2026.html": ("28 دراسة", "لا تختبر نموذج انتقال واحدًا"),
-            "unilateral-cerebral-palsy-participation-meta-analysis-2026.html": ("I²=95%", "لا توجد طريقة واحدة"),
-            "deaf-hard-hearing-adult-mental-disorders-review-2026.html": ("8,578,466", "لا تعني أن كل شخص"),
-            "dysgraphia-interventions-scoping-review-2026.html": ("47 دراسة", "لا تحسب أثرًا علاجيًا مجمعًا"),
-            "cerebral-palsy-participation-quality-life-study-2026.html": ("59 طفلًا", "لا تثبت اتجاه السببية"),
+            "adhd-baduanjin-response-inhibition-rct-2026.html": ("10.1016/j.ridd.2026.105277", "41936141", "90 طفلًا"),
+            "autism-structured-interactive-play-screening-cohort-2026.html": ("10.1186/s12888-026-08274-9", "42464217", "0.915"),
+            "adolescent-depression-one-step-back-rct-2026.html": ("10.1016/j.eclinm.2026.103971", "42232686", "d=0.61"),
+            "latinx-adolescent-suicidal-behavior-cbt-rct-2026.html": ("10.1080/15374416.2026.2687880", "42413031", "RR=0.50"),
+            "adhd-personalized-neurofeedback-sham-rct-2026.html": ("10.1111/jcpp.70188", "42324882", "80.7%"),
+            "autism-lets-play-caregiver-mediated-rct-2026.html": ("10.1007/s10803-026-07396-z", "42405995", "لم تظهر فروق دالة"),
+            "autism-parent-reflective-functioning-rct-2026.html": ("10.1002/aur.70301", "42394366", "249 والدًا ووالدة"),
+            "cerebral-palsy-participate-cp-leisure-rct-2026.html": ("10.1542/peds.2025-075162", "42425531", "2.75"),
+            "down-syndrome-dual-task-exergaming-cognition-rct-2026.html": ("10.1016/j.psychsport.2026.103190", "42309334", "η²=0.31"),
+            "adhd-dexamphetamine-methylphenidate-randomized-2026.html": ("10.1111/jpc.70487", "42415397", "−1.44"),
+            "adhd-rhythmic-music-game-rct-2026.html": ("10.3389/fpubh.2026.1808386", "42145502", "−46.1"),
+            "autism-aspen-low-resource-parent-intervention-rct-2026.html": ("10.3389/fpsyt.2026.1795918", "42404716", "50%", "p=0.026"),
         }
         for filename, markers in checks.items():
             text = (ROOT / "magazine" / filename).read_text(encoding="utf-8")
             for marker in markers:
-                self.assertIn(marker, text)
+                self.assertIn(marker, text, filename)
+            self.assertIn("<h2>المصدر الأصلي</h2>", text)
+            self.assertIn('href="https://doi.org/', text)
+            self.assertTrue(any(term in text for term in ("حدود", "الحذر", "قيود")))
+            self.assertRegex(text, r'"datePublished":"2026-\d{2}-\d{2}"')
 
 
 if __name__ == "__main__":

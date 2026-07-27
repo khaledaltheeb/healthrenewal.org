@@ -1,0 +1,138 @@
+# Final validation trigger after automatic normalization report update.
+name: Verify magazine continuous publication live v320
+
+on:
+  workflow_run:
+    workflows: ["Deploy validated main to GitHub Pages"]
+    types: [completed]
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: magazine-live-v320
+  cancel-in-progress: true
+
+jobs:
+  live-magazine:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+    steps:
+      - name: Download live magazine contracts
+        run: |
+          set -euxo pipefail
+          token="magazine-v320-$(date +%s)"
+          curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/?v=${token}" -o /tmp/index.html
+          curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/feed.xml?v=${token}" -o /tmp/feed.xml
+          curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/magazine-v201.json?v=${token}" -o /tmp/api.json
+          curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sitemap-magazine.xml?v=${token}" -o /tmp/sitemap.xml
+          for page in \
+            adhd-baduanjin-response-inhibition-rct-2026.html \
+            autism-structured-interactive-play-screening-cohort-2026.html \
+            adolescent-depression-one-step-back-rct-2026.html \
+            latinx-adolescent-suicidal-behavior-cbt-rct-2026.html \
+            adhd-personalized-neurofeedback-sham-rct-2026.html \
+            autism-lets-play-caregiver-mediated-rct-2026.html \
+            autism-parent-reflective-functioning-rct-2026.html \
+            cerebral-palsy-participate-cp-leisure-rct-2026.html \
+            down-syndrome-dual-task-exergaming-cognition-rct-2026.html \
+            adhd-dexamphetamine-methylphenidate-randomized-2026.html \
+            adhd-rhythmic-music-game-rct-2026.html \
+            autism-aspen-low-resource-parent-intervention-rct-2026.html
+          do
+            curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/${page}?v=${token}" -o "/tmp/${page}"
+          done
+
+      - name: Verify live chronological count RSS API sitemap and readings
+        run: |
+          python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from email.utils import parsedate_to_datetime
+          from pathlib import Path
+
+          base = 'https://khaledaltheeb.github.io/pterminology-site/magazine/'
+          api = json.loads(Path('/tmp/api.json').read_text(encoding='utf-8'))
+          assert api['version'] >= 315, api['version']
+          assert api['research_summaries_published'] >= 72
+          assert api['target_research_summaries'] == 100
+          assert api['remaining_to_target'] == max(0, 100 - api['research_summaries_published'])
+          assert api['continuous_publication_policy'] is True
+          assert api['unwired_research_pages'] == 0
+          assert api['index_contract'] == 'generated-from-discovered-articles-sorted-by-datePublished'
+          assert api['rss_contract'] == 'latest-twenty-sorted-by-datePublished'
+          assert api['robots']['rss_items'] == 20
+          assert len(api['articles']) == api['research_summaries_published']
+          assert len(api['article_dates']) == api['research_summaries_published']
+          article_dates = [api['article_dates'][name] for name in api['articles']]
+          assert article_dates == sorted(article_dates, reverse=True), article_dates
+
+          index = Path('/tmp/index.html').read_text(encoding='utf-8')
+          assert f'{api["research_summaries_published"]} قراءة علمية مستقلة' in index
+          assert 'الهدف المرحلي 100 قراءة' in index
+          assert 'type="application/rss+xml"' in index
+          assert index.count('class="card"') == api['research_summaries_published']
+          assert index.count('"@type":"ScholarlyArticle"') == api['research_summaries_published']
+          assert index.count('"datePublished"') == api['research_summaries_published']
+
+          feed = ET.parse('/tmp/feed.xml').getroot()
+          items = feed.findall('./channel/item')
+          assert len(items) == 20
+          links = [item.findtext('link') for item in items]
+          assert links == [base + name for name in api['articles'][:20]], links
+          assert len(links) == len(set(links))
+          feed_dates = [parsedate_to_datetime(item.findtext('pubDate')) for item in items]
+          assert feed_dates == sorted(feed_dates, reverse=True), feed_dates
+          assert parsedate_to_datetime(feed.findtext('./channel/lastBuildDate')) == feed_dates[0]
+
+          sitemap_urls = [
+              (node.text or '').strip()
+              for node in ET.parse('/tmp/sitemap.xml').getroot().findall('{*}url/{*}loc')
+              if node.text
+          ]
+          assert len(sitemap_urls) == api['research_summaries_published'] + 1
+          assert len(sitemap_urls) == len(set(sitemap_urls))
+          assert base in sitemap_urls
+
+          checks = {
+              'adhd-baduanjin-response-inhibition-rct-2026.html': ('10.1016/j.ridd.2026.105277', '90 طفلًا'),
+              'autism-structured-interactive-play-screening-cohort-2026.html': ('10.1186/s12888-026-08274-9', '0.915'),
+              'adolescent-depression-one-step-back-rct-2026.html': ('10.1016/j.eclinm.2026.103971', 'd=0.61'),
+              'latinx-adolescent-suicidal-behavior-cbt-rct-2026.html': ('10.1080/15374416.2026.2687880', 'RR=0.50'),
+              'adhd-personalized-neurofeedback-sham-rct-2026.html': ('10.1111/jcpp.70188', '80.7%'),
+              'autism-lets-play-caregiver-mediated-rct-2026.html': ('10.1007/s10803-026-07396-z', 'لم تظهر فروق دالة'),
+              'autism-parent-reflective-functioning-rct-2026.html': ('10.1002/aur.70301', '249 والدًا ووالدة'),
+              'cerebral-palsy-participate-cp-leisure-rct-2026.html': ('10.1542/peds.2025-075162', '2.75'),
+              'down-syndrome-dual-task-exergaming-cognition-rct-2026.html': ('10.1016/j.psychsport.2026.103190', 'η²=0.31'),
+              'adhd-dexamphetamine-methylphenidate-randomized-2026.html': ('10.1111/jpc.70487', '−1.44'),
+              'adhd-rhythmic-music-game-rct-2026.html': ('10.3389/fpubh.2026.1808386', '42145502', '−46.1'),
+              'autism-aspen-low-resource-parent-intervention-rct-2026.html': ('10.3389/fpsyt.2026.1795918', '42404716', '50%', 'p=0.026'),
+          }
+          for filename, markers in checks.items():
+              text = Path('/tmp/' + filename).read_text(encoding='utf-8')
+              assert '<html lang="ar" dir="rtl">' in text
+              assert text.lower().count('<h1') == 1
+              assert '<h2>المصدر الأصلي</h2>' in text
+              assert any(term in text for term in ('حدود', 'قيود', 'الحذر'))
+              assert all(marker in text for marker in markers), filename
+              assert base + filename in sitemap_urls
+              assert filename in api['article_dates']
+
+          print({
+              'articles': api['research_summaries_published'],
+              'target': api['target_research_summaries'],
+              'remaining': api['remaining_to_target'],
+              'rss_items': len(items),
+              'sitemap_urls': len(sitemap_urls),
+              'chronological': True,
+              'status': 'live-magazine-v320-verified',
+          })
+          PY

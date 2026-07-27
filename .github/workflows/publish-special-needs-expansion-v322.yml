@@ -1,0 +1,141 @@
+name: Publish special-needs expansion v322
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v322/**"
+      - "scripts/*v322*.py"
+      - "tests/test_special_needs_expansion_v322.py"
+      - ".github/workflows/publish-special-needs-expansion-v322.yml"
+      - ".github/workflows/deploy-special-needs-expansion-v322.yml"
+  workflow_run:
+    workflows: ["Audit production discovery contract v220"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: special-needs-v322-${{ github.event.pull_request.number || github.event.workflow_run.id || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-source:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Compile v322 source files
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_special_needs_expansion_v322.py \
+            scripts/special_needs_v322_core.py \
+            scripts/special_needs_v322_render.py \
+            scripts/special_needs_v322_publish.py \
+            tests/test_special_needs_expansion_v322.py
+      - name: Test v322 source contract
+        run: python -m unittest -v tests.test_special_needs_expansion_v322.SpecialNeedsExpansionV322Tests.test_source_contract
+      - name: Test v322 publication depth and discovery
+        run: python -m unittest -v tests.test_special_needs_expansion_v322.SpecialNeedsExpansionV322Tests.test_publish_depth_discovery_and_idempotence
+      - name: Test v322 deployment digest refresh
+        run: python -m unittest -v tests.test_special_needs_expansion_v322.SpecialNeedsExpansionV322Tests.test_deployment_digest_refresh
+
+  publish-artifact:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: "${{ github.event.workflow_run.head_sha }}"}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Download audited production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compile v322 source files
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_special_needs_expansion_v322.py \
+            scripts/special_needs_v322_core.py \
+            scripts/special_needs_v322_render.py \
+            scripts/special_needs_v322_publish.py \
+            tests/test_special_needs_expansion_v322.py
+      - name: Test v322 source contract
+        run: python -m unittest -v tests.test_special_needs_expansion_v322.SpecialNeedsExpansionV322Tests.test_source_contract
+      - name: Test v322 publication depth and discovery
+        run: python -m unittest -v tests.test_special_needs_expansion_v322.SpecialNeedsExpansionV322Tests.test_publish_depth_discovery_and_idempotence
+      - name: Test v322 deployment digest refresh
+        run: python -m unittest -v tests.test_special_needs_expansion_v322.SpecialNeedsExpansionV322Tests.test_deployment_digest_refresh
+      - name: Publish five condition guides
+        run: |
+          set -euxo pipefail
+          python scripts/publish_special_needs_expansion_v322.py validated-site
+          python - <<'PY'
+          import json,re,xml.etree.ElementTree as ET
+          from pathlib import Path
+          root=Path('validated-site')
+          report=json.loads((root/'api/special-needs-expansion-v322.json').read_text(encoding='utf-8'))
+          assert report['version']==322 and report['status']=='passed',report
+          assert (report['guide_count'],report['section_count'],report['source_count'])==(5,40,25),report
+          assert report['minimum_rendered_words']>=1200 and report['minimum_h2']>=11,report
+          assert report['minimum_citations']>=4 and report['hub_links_added']==5,report
+          assert report['sitemap_registered'] is True and report['external_clinical_review_completed'] is False,report
+          hub=(root/'special-needs/index.html').read_text(encoding='utf-8')
+          assert hub.count('<!-- special-needs-expansion-v322:start -->')==1
+          urls=[(n.text or '').strip() for n in ET.parse(root/'sitemap-special-needs.xml').getroot().findall('{*}url/{*}loc')]
+          for slug in report['guide_slugs']:
+              url=f'https://khaledaltheeb.github.io/pterminology-site/special-needs/{slug}/'
+              assert urls.count(url)==1,(url,urls.count(url))
+              page=(root/'special-needs'/slug/'index.html').read_text(encoding='utf-8')
+              assert page.count('<h1')==1 and len(re.findall(r'<h2\b',page))>=11
+              assert 'pt-platform-shell:v1' in page
+          print({'status':'passed','guides':5,'sections':40,'sources':25,'minimum_words':report['minimum_rendered_words']})
+          PY
+      - name: Re-audit discovery and content safety
+        run: |
+          set -euxo pipefail
+          python scripts/audit_orphan_pages_v197.py validated-site --fail-on-critical --require-gateways
+          python scripts/audit_content_quality_v32.py validated-site
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('validated-site')
+          discovery=json.loads((root/'api/orphan-page-audit-v197.json').read_text(encoding='utf-8'))
+          quality=json.loads((root/'api/content-quality-v32.json').read_text(encoding='utf-8'))
+          assert discovery['status']=='passed',discovery
+          for key in ('critical_orphans','critical_unmapped','missing_gateways','gateway_orphans','gateway_unmapped'):
+              assert discovery[key]==[],(key,discovery[key])
+          assert quality['critical_error_count']==0 and quality['thin_page_candidates']==0,quality
+          PY
+      - name: Upload expanded validated artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload v322 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-needs-expansion-v322
+          path: |
+            validated-site/api/special-needs-expansion-v322.json
+            validated-site/api/orphan-page-audit-v197.json
+            validated-site/api/content-quality-v32.json
+          if-no-files-found: warn
+          retention-days: 14

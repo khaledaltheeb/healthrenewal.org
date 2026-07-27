@@ -1,0 +1,66 @@
+name: Validate special-needs regression and coexisting guides v320
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v320/**"
+      - "scripts/publish_special_needs_regression_coexisting_v320.py"
+      - "scripts/publish_special_needs_guides_v217.py"
+      - "tests/test_special_needs_regression_coexisting_v320.py"
+      - "tests/test_special_needs_regression_integration_v320.py"
+      - ".github/workflows/validate-special-needs-regression-coexisting-v320.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: special-needs-regression-coexisting-v320-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 32
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile regression publishers and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_special_needs_regression_coexisting_v320.py \
+            scripts/publish_special_needs_guides_v217.py \
+            tests/test_special_needs_regression_coexisting_v320.py \
+            tests/test_special_needs_regression_integration_v320.py
+      - name: Validate regression manifest JSON
+        run: python -m json.tool content/v320/special-needs-regression-coexisting-ar.json >/dev/null
+      - name: Validate baseline causes DSRD dementia safety sources links sitemap and idempotence
+        run: python -m unittest -v tests.test_special_needs_regression_coexisting_v320
+      - name: Validate complete production integration and repository reachability
+        run: |
+          python -m unittest -v tests.test_special_needs_regression_integration_v320 > /tmp/regression-v320-integration.log 2>&1 || { tail -n 280 /tmp/regression-v320-integration.log; exit 1; }
+          tail -n 80 /tmp/regression-v320-integration.log
+      - name: Re-run support intervention integration
+        run: |
+          python -m unittest -v tests.test_special_needs_support_integration_v318 > /tmp/support-v318-regression.log 2>&1 || { tail -n 260 /tmp/support-v318-regression.log; exit 1; }
+          tail -n 60 /tmp/support-v318-regression.log
+      - name: Re-run prior condition integration contract
+        run: |
+          python -m unittest -v tests.test_special_needs_guides_v221_integration > /tmp/special-needs-v221-regression.log 2>&1 || { tail -n 280 /tmp/special-needs-v221-regression.log; exit 1; }
+          tail -n 60 /tmp/special-needs-v221-regression.log
+      - name: Upload failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-needs-regression-v320-failure-evidence
+          path: |
+            /tmp/regression-v320-integration.log
+            /tmp/support-v318-regression.log
+            /tmp/special-needs-v221-regression.log
+            _audit/unpublished-content-v201.json
+          if-no-files-found: ignore
+          retention-days: 7
