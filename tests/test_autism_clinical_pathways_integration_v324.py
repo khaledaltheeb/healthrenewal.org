@@ -19,6 +19,10 @@ SLUGS = (
     "autism-aac-assessment-implementation",
     "autism-unsafe-unproven-treatments",
 )
+PART_PATHS = tuple(
+    f"content/v324/autism-clinical-pathways-ar.parts/part-{index:02d}.b64"
+    for index in range(1, 6)
+)
 
 
 def digest(path: Path) -> str:
@@ -72,6 +76,25 @@ class AutismClinicalPathwaysIntegrationV324(unittest.TestCase):
         self.assertGreaterEqual(clinical["minimum_guide_words"], 1250)
         self.assertTrue(clinical["sitemap_registered"])
         self.assertFalse(clinical["external_clinical_review_completed"])
+        self.assertEqual(clinical["content_source"], "content/v324/autism-clinical-pathways-ar.parts")
+
+        direct = json.loads(
+            (self.site / "api" / "autism-clinical-pathways-v324.json").read_text(encoding="utf-8")
+        )
+        self.assertTrue(direct["platform_shell_normalized"])
+        self.assertEqual(direct["source_part_count"], 5)
+        self.assertEqual(
+            direct["source_base64_sha256"],
+            "3a1b4b14d25d67b6f72a50d42d45cabc26382f5841fbd4a7e2d7c11e4a44f2eb",
+        )
+        self.assertEqual(
+            direct["source_gzip_sha256"],
+            "3350205c4f20177d4cb10fc80c5c9058abffc50c3092f1a60efbc9e96913db5b",
+        )
+        self.assertEqual(
+            direct["source_json_sha256"],
+            "0afeb714ceb04a83b0c2debce97004f87aa104328a7d0070d892b437adc66c17",
+        )
 
         parent = self.site / "special-needs" / "autism" / "index.html"
         parent_text = parent.read_text(encoding="utf-8")
@@ -91,6 +114,8 @@ class AutismClinicalPathwaysIntegrationV324(unittest.TestCase):
             self.assertEqual(source.count('class="section-card"'), 7)
             self.assertIn("MedicalWebPage", source)
             self.assertIn("لم تكتمل مراجعة سريرية خارجية مستقلة", source)
+            self.assertIn("<!-- pt-platform-shell:v1 -->", source)
+            self.assertIn('data-pt-normalized="1.1.0"', source)
             self.assertEqual(parent_text.count(f"/pterminology-site/special-needs/{slug}/"), 1)
             tracked.append(page)
 
@@ -120,8 +145,9 @@ class AutismClinicalPathwaysIntegrationV324(unittest.TestCase):
         report = json.loads((ROOT / "_audit" / "unpublished-content-v201.json").read_text(encoding="utf-8"))
         by_path = {item["path"]: item for item in report["items"]}
         required = (
-            "content/v324/autism-clinical-pathways-ar.json.gz",
+            *PART_PATHS,
             "scripts/publish_autism_clinical_pathways_v324.py",
+            "scripts/publish_autism_clinical_pathways_v324_core.py",
             "scripts/publish_special_needs_guides_v217_pipeline_core.py",
         )
         for path in required:
