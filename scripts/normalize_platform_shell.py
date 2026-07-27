@@ -3,7 +3,8 @@
 
 The migration is deliberately idempotent. Existing pages keep their content and
 local navigation; the script only adds the shared presentation assets, rights
-metadata, and a body marker consumed by the global shell.
+metadata, and a body marker consumed by the global shell. It can operate on the
+repository source tree or on the generated `_site` production artifact.
 """
 
 from __future__ import annotations
@@ -17,8 +18,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
-ROOT = Path(__file__).resolve().parents[1]
-REPORT_PATH = ROOT / "reports" / "platform-normalization.json"
+DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 MARKER = "<!-- pt-platform-shell:v1 -->"
 SHELL_VERSION = "1.0.0"
 EXCLUDED_PARTS = {
@@ -44,21 +44,21 @@ class Result:
     detail: str = ""
 
 
-def production_html_files() -> Iterable[Path]:
-    for path in sorted(ROOT.rglob("*.html")):
-        relative = path.relative_to(ROOT)
+def production_html_files(root: Path) -> Iterable[Path]:
+    for path in sorted(root.rglob("*.html")):
+        relative = path.relative_to(root)
         if any(part in EXCLUDED_PARTS for part in relative.parts):
             continue
         yield path
 
 
-def relative_prefix(path: Path) -> str:
-    depth = len(path.relative_to(ROOT).parent.parts)
+def relative_prefix(path: Path, root: Path) -> str:
+    depth = len(path.relative_to(root).parent.parts)
     return "../" * depth
 
 
-def head_injection(path: Path, source: str) -> str:
-    prefix = relative_prefix(path)
+def head_injection(path: Path, root: Path, source: str) -> str:
+    prefix = relative_prefix(path, root)
     items = [MARKER]
 
     lowered = source.lower()
@@ -104,8 +104,8 @@ def normalize_body(source: str) -> tuple[str, bool]:
     return source[: match.start()] + opening + source[match.end() :], True
 
 
-def normalize_file(path: Path, *, check_only: bool) -> Result:
-    relative = path.relative_to(ROOT).as_posix()
+def normalize_file(path: Path, root: Path, *, check_only: bool) -> Result:
+    relative = path.relative_to(root).as_posix()
     try:
         original = path.read_text(encoding="utf-8")
     except UnicodeDecodeError as exc:
@@ -129,7 +129,7 @@ def normalize_file(path: Path, *, check_only: bool) -> Result:
     if not has_body:
         return Result(relative, "skipped", "missing <body>")
 
-    injection = head_injection(path, normalized)
+    injection = head_injection(path, root, normalized)
     normalized = HEAD_CLOSE_RE.sub(injection + "</head>", normalized, count=1)
 
     if check_only:
@@ -139,22 +139,29 @@ def normalize_file(path: Path, *, check_only: bool) -> Result:
     return Result(relative, "updated")
 
 
-def write_report(results: list[Result], *, check_only: bool) -> None:
+def build_report(results: list[Result], *, root: Path, check_only: bool) -> dict[str, object]:
     counts: dict[str, int] = {}
     for result in results:
         counts[result.status] = counts.get(result.status, 0) + 1
 
-    report = {
+    processed = sum(counts.get(name, 0) for name in ("current", "updated", "needs-update"))
+    return {
         "schema_version": 1,
         "shell_version": SHELL_VERSION,
+        "status": "passed" if counts.get("error", 0) == 0 else "failed",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "mode": "check" if check_only else "write",
-        "root": ".",
+        "root": str(root),
+        "html_pages_seen": len(results),
+        "html_pages_normalized_or_current": processed,
         "counts": counts,
         "results": [asdict(result) for result in results],
     }
-    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(
+
+
+def write_report(report: dict[str, object], report_path: Path) -> None:
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
         newline="\n",
@@ -164,6 +171,13 @@ def write_report(results: list[Result], *, check_only: bool) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        "root",
+        nargs="?",
+        default=DEFAULT_ROOT,
+        type=Path,
+        help="site root to normalize; defaults to the repository root",
+    )
+    parser.add_argument(
         "--check",
         action="store_true",
         help="report pages that need migration without modifying them",
@@ -171,17 +185,27 @@ def main() -> int:
     parser.add_argument(
         "--no-report",
         action="store_true",
-        help="do not write reports/platform-normalization.json",
+        help="do not write a normalization report",
+    )
+    parser.add_argument(
+        "--report-path",
+        type=Path,
+        help="custom report path; defaults to <root>/reports/platform-normalization.json",
     )
     args = parser.parse_args()
 
-    results = [normalize_file(path, check_only=args.check) for path in production_html_files()]
-    if not args.no_report:
-        write_report(results, check_only=args.check)
+    root = args.root.resolve()
+    if not root.is_dir():
+        print(f"ERROR site root not found: {root}", file=sys.stderr)
+        return 2
 
-    counts: dict[str, int] = {}
-    for result in results:
-        counts[result.status] = counts.get(result.status, 0) + 1
+    results = [normalize_file(path, root, check_only=args.check) for path in production_html_files(root)]
+    report = build_report(results, root=root, check_only=args.check)
+    if not args.no_report:
+        report_path = args.report_path or (root / "reports" / "platform-normalization.json")
+        write_report(report, report_path.resolve())
+
+    counts = report["counts"]
     print(json.dumps(counts, ensure_ascii=False, sort_keys=True))
 
     errors = [result for result in results if result.status == "error"]
