@@ -34,6 +34,28 @@ class SpecialNeedsConditionHubsV302Tests(unittest.TestCase):
         )
         return site
 
+    def add_topic_first_encyclopedia(self, site: Path) -> None:
+        (site / "encyclopedia").mkdir(parents=True, exist_ok=True)
+        (site / "encyclopedia" / "index.html").write_text(
+            '<!doctype html><html lang="ar" dir="rtl"><body>'
+            '<main class="ency-topic-v2" data-encyclopedia-index-v2="true">'
+            '<header class="ency-topic-v2__hero"><h1>الموسوعة النفسية العربية</h1></header>'
+            '<section class="ency-topic-v2__grid" aria-label="الموضوعات المرجعية">'
+            '<article class="ency-topic-v2__card topic-item"><h2>موضوع تجريبي</h2></article>'
+            '</section></main></body></html>',
+            encoding="utf-8",
+        )
+        topic = site / "hubs" / "topic-058"
+        topic.mkdir(parents=True, exist_ok=True)
+        topic.joinpath("index.html").write_text(
+            '<!doctype html><html lang="ar" dir="rtl"><body>'
+            '<main class="ency-topic-v2" data-topic-hub-v2="true" data-topic-index="58">'
+            '<header class="ency-topic-v2__hero"><h1>التوحد: الدليل المرجعي المتكامل</h1></header>'
+            '<section class="ency-topic-v2__section"><h2>ابدأ من السؤال الأقرب</h2></section>'
+            '</main></body></html>',
+            encoding="utf-8",
+        )
+
     def test_publish_generates_scientific_hubs_and_editable_directory(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             site = self.make_site(Path(tmp))
@@ -48,6 +70,10 @@ class SpecialNeedsConditionHubsV302Tests(unittest.TestCase):
                 report["source_url_override_source"],
                 "content/v312/special-needs-condition-source-url-overrides.json",
             )
+            self.assertEqual(report["encyclopedia_bridge_version"], 322)
+            self.assertFalse(report["encyclopedia_bridge"]["available"])
+            self.assertFalse(report["autism_topic_bridge"]["available"])
+            self.assertFalse(report["down_syndrome_specialized_route_visible"])
 
             for slug in ("autism", "down-syndrome"):
                 page = (site / "special-needs" / slug / "index.html").read_text(encoding="utf-8")
@@ -57,9 +83,15 @@ class SpecialNeedsConditionHubsV302Tests(unittest.TestCase):
                 self.assertIn("MedicalCondition", page)
                 self.assertIn("الدليل المحلي قيد الإعداد والتحقق", page)
                 self.assertIn("special-needs-providers-ar.json", page)
+                self.assertIn('/pterminology-site/encyclopedia/', page)
                 self.assertIsNone(publisher.BANNED.search(page))
 
             autism = (site / "special-needs" / "autism" / "index.html").read_text(encoding="utf-8")
+            down = (site / "special-needs" / "down-syndrome" / "index.html").read_text(encoding="utf-8")
+            self.assertIn('/pterminology-site/hubs/topic-058/', autism)
+            self.assertIn('المسار الموسوعي للتوحد', autism)
+            self.assertIn('الموسوعة النفسية العربية', down)
+
             corrected = "https://apps.asha.org/EvidenceMaps/Maps/LandingPage/990772a6-9cd8-4203-a76c-6ccd91eac874"
             corrected_title = "Augmentative and Alternative Communication (AAC) Evidence Map"
             obsolete = "https://www.asha.org/Practice-Portal/Professional-Issues/Augmentative-and-Alternative-Communication/"
@@ -84,6 +116,41 @@ class SpecialNeedsConditionHubsV302Tests(unittest.TestCase):
             api = json.loads((site / "api" / "special-needs-condition-hubs-v302.json").read_text(encoding="utf-8"))
             self.assertEqual(api["condition_slugs"], ["autism", "down-syndrome"])
             self.assertEqual(api["source_url_override_count"], 1)
+            self.assertEqual(api["encyclopedia_bridge_version"], 322)
+
+    def test_topic_first_encyclopedia_exposes_specialized_portals_idempotently(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            site = self.make_site(Path(tmp))
+            self.add_topic_first_encyclopedia(site)
+
+            first = publisher.publish(site)
+            second = publisher.publish(site)
+
+            self.assertEqual(first["encyclopedia_bridge_version"], 322)
+            self.assertTrue(first["encyclopedia_bridge"]["available"])
+            self.assertTrue(first["encyclopedia_bridge"]["added"])
+            self.assertTrue(first["autism_topic_bridge"]["available"])
+            self.assertTrue(first["autism_topic_bridge"]["added"])
+            self.assertTrue(first["down_syndrome_specialized_route_visible"])
+            self.assertEqual(first["encyclopedia_bridge"], second["encyclopedia_bridge"])
+            self.assertEqual(first["autism_topic_bridge"], second["autism_topic_bridge"])
+
+            encyclopedia = (site / "encyclopedia" / "index.html").read_text(encoding="utf-8")
+            self.assertEqual(encyclopedia.count(publisher.ENCYCLOPEDIA_BRIDGE_MARKER), 1)
+            self.assertEqual(encyclopedia.count('/pterminology-site/special-needs/autism/'), 1)
+            self.assertEqual(encyclopedia.count('/pterminology-site/special-needs/down-syndrome/'), 1)
+            self.assertIn("بوابات علمية متخصصة للتوحد ومتلازمة داون", encyclopedia)
+            self.assertIn("خارج قائمة الموضوعات المئة", encyclopedia)
+
+            autism_topic = (site / "hubs" / "topic-058" / "index.html").read_text(encoding="utf-8")
+            self.assertEqual(autism_topic.count(publisher.AUTISM_TOPIC_BRIDGE_MARKER), 1)
+            self.assertEqual(autism_topic.count('/pterminology-site/special-needs/autism/'), 1)
+            self.assertIn("الدليل العلمي المتخصص للتوحد", autism_topic)
+
+            api = json.loads((site / "api" / "special-needs-condition-hubs-v302.json").read_text(encoding="utf-8"))
+            self.assertEqual(api["encyclopedia_bridge"]["path"], "encyclopedia/index.html")
+            self.assertEqual(api["autism_topic_bridge"]["path"], "hubs/topic-058/index.html")
+            self.assertTrue(api["down_syndrome_specialized_route_visible"])
 
     def test_publication_is_idempotent(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
