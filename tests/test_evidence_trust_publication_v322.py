@@ -66,14 +66,35 @@ class EvidenceTrustPublicationV322Tests(unittest.TestCase):
         ):
             self.assertIn(phrase, start)
 
-    def test_wrapper_publishes_institutional_pages_report_and_sitemap(self) -> None:
+        special = (ROOT / "special-needs" / "index.html").read_text(encoding="utf-8")
+        self.assertGreaterEqual(publisher.words(special), 1300)
+        self.assertEqual(special.count("<h1"), 1)
+        self.assertIn(
+            'rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/special-needs/"',
+            special,
+        )
+        self.assertIn("application/ld+json", special)
+        self.assertIsNone(publisher.BANNED.search(special))
+        for phrase in (
+            "الاحتياج لا يلغي القدرة",
+            "التقييم الشامل: سؤال متعدد المصادر لا اختبار منفرد",
+            "التواصل حق، وليس مكافأة",
+            "التعليم الدامج: حضور ومشاركة وتعلم وانتماء",
+            "قائمة مقدمي الخدمات تبقى فارغة حتى اكتمال التحقق المهني",
+            "لم تكتمل مراجعة خارجية مستقلة شاملة للمركز",
+        ):
+            self.assertIn(phrase, special)
+
+    def test_wrapper_publishes_institutional_pages_report_and_sitemaps(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             site = self.make_site(Path(tmp))
             report = publisher.publish(site)
             trust = site / "trust" / "index.html"
             start = site / "start-here" / "index.html"
+            special = site / "special-needs" / "index.html"
             self.assertTrue(trust.is_file())
             self.assertTrue(start.is_file())
+            self.assertTrue(special.is_file())
             self.assertTrue(report["trust_page_published"])
             self.assertEqual(report["trust_page_path"], "trust/index.html")
             self.assertGreaterEqual(report["trust_page_words"], 1100)
@@ -86,11 +107,19 @@ class EvidenceTrustPublicationV322Tests(unittest.TestCase):
             self.assertEqual(report["start_here_page_path"], "start-here/index.html")
             self.assertGreaterEqual(report["start_here_page_words"], 900)
             self.assertTrue(report["start_here_page_sitemap_registered"])
+            self.assertTrue(report["special_needs_hub_published"])
+            self.assertEqual(report["special_needs_hub_path"], "special-needs/index.html")
+            self.assertGreaterEqual(report["special_needs_hub_words"], 1300)
+            self.assertEqual(
+                report["special_needs_hub_review_status"],
+                "internally-reviewed-external-specialist-review-required",
+            )
+            self.assertTrue(report["special_needs_sitemap_published"])
             api = json.loads(
                 (site / "api" / "evidence-literacy-library-v322.json").read_text(encoding="utf-8")
             )
             self.assertEqual(api, report)
-            urls = [
+            library_urls = [
                 (node.text or "").strip()
                 for node in ET.parse(site / "sitemap-library.xml").getroot().findall("{*}url/{*}loc")
                 if node.text
@@ -99,8 +128,18 @@ class EvidenceTrustPublicationV322Tests(unittest.TestCase):
                 "https://khaledaltheeb.github.io/pterminology-site/trust/",
                 "https://khaledaltheeb.github.io/pterminology-site/start-here/",
             ):
-                self.assertEqual(urls.count(url), 1)
-            self.assertEqual(len(urls), len(set(urls)))
+                self.assertEqual(library_urls.count(url), 1)
+            self.assertEqual(len(library_urls), len(set(library_urls)))
+            special_urls = [
+                (node.text or "").strip()
+                for node in ET.parse(site / "sitemap-special-needs.xml").getroot().findall("{*}url/{*}loc")
+                if node.text
+            ]
+            self.assertEqual(
+                special_urls.count("https://khaledaltheeb.github.io/pterminology-site/special-needs/"),
+                1,
+            )
+            self.assertEqual(len(special_urls), len(set(special_urls)))
 
 
 if __name__ == "__main__":
