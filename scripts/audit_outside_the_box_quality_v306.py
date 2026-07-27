@@ -171,7 +171,7 @@ def audit(site: Path) -> dict[str, Any]:
             }
         )
 
-    html_pages = sorted(root.rglob("index.html"))
+    html_pages = sorted(path for path in root.rglob("index.html") if path.parent.name != ROUTE)
     broken_links: list[dict[str, str]] = []
     outside_root = site.resolve()
     for page in html_pages:

@@ -278,6 +278,7 @@ def main() -> None:
         "outside_the_box_ten_plan_publisher": 302,
         "outside_the_box_reference_assets_publisher": 303,
         "outside_the_box_review_governance_publisher": 305,
+        "outside_the_box_quality_audit": 306,
         "light_palette": True,
         "core_sections_linked": True,
         "api_v1_published": True,
@@ -335,6 +336,7 @@ def main() -> None:
     restore_static_route("outside-the-box/evidence-standard")
     run_publisher("publish_outside_the_box_reference_assets_v303.py")
     run_publisher("publish_outside_the_box_review_governance_v305.py")
+    run_publisher("audit_outside_the_box_quality_v306.py")
     run_publisher("publish_choose_professional_v176.py")
     synchronize_care_guides_report()
     run_publisher("publish_homepage_i18n_v72.py")
