@@ -144,6 +144,13 @@ class MagazineResearchV315Tests(unittest.TestCase):
             self.assertTrue(any(term in text for term in ("حدود", "الحذر", "قيود")))
             self.assertRegex(text, r'"datePublished":"2026-\d{2}-\d{2}"')
 
+        aspen = (ROOT / "magazine" / "autism-aspen-low-resource-parent-intervention-rct-2026.html").read_text(encoding="utf-8")
+        self.assertIn('data-pt-normalized="1.1.0"', aspen)
+        self.assertIn('assets/platform/platform-core.css?v=1.1.0', aspen)
+        self.assertIn('assets/platform/platform-core.js?v=1.1.0', aspen)
+        self.assertIn('<meta name="copyright"', aspen)
+        self.assertIn('<link rel="license" href="../copyright/">', aspen)
+
 
 if __name__ == "__main__":
     unittest.main()
