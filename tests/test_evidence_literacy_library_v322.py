@@ -170,7 +170,7 @@ class EvidenceLiteracyLibraryV322Tests(unittest.TestCase):
         guides, _ = library322.validate(payload)
         text = json.dumps(guides, ensure_ascii=False)
         self.assertIn("التقرير الكامل وفق إرشاد مناسب يسهل التقييم، لكنه لا يصلح تصميمًا ضعيفًا", text)
-        self.assertIn("لا تعتبر الالتزام بقائمة STROBE تقييمًا لجودة الدراسة نفسها", text)
+        self.assertIn("اعتبار الالتزام بقائمة STROBE تقييمًا لجودة الدراسة نفسها", text)
         self.assertIn("خلط جودة التقرير وفق PRISMA مع انخفاض خطر التحيز", text)
 
 
