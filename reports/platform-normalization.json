@@ -1,0 +1,487 @@
+{
+  "schema_version": 1,
+  "shell_version": "1.1.0",
+  "status": "passed",
+  "generated_at": "2026-07-27T14:02:54.908517+00:00",
+  "mode": "write",
+  "root": "/home/runner/work/pterminology-site/pterminology-site",
+  "runtime": {
+    "source": "/home/runner/work/pterminology-site/pterminology-site",
+    "target": "/home/runner/work/pterminology-site/pterminology-site",
+    "copied": false,
+    "files": []
+  },
+  "html_pages_seen": 93,
+  "html_pages_normalized_or_current": 92,
+  "counts": {
+    "updated": 92,
+    "skipped": 1
+  },
+  "results": [
+    {
+      "path": "404.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "api/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "copyright/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "google644f1f7a8b7aaa2b.html",
+      "status": "skipped",
+      "detail": "missing </head>"
+    },
+    {
+      "path": "index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/adhd-physical-fitness-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/adhd-school-social-skills-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/adhd-screen-time-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/adhd-sleep-interventions-network-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/adhd-technology-interventions-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/adolescent-chronic-pain-digital-psychological-interventions-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/adolescent-passive-smartphone-sensing-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/artemis-adolescent-mental-health-stigma-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/autism-behavioral-domains-network-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/autism-caregiver-adjustment-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/autism-emotion-regulation-interventions-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/autism-family-food-insecurity-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/autism-interventions-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/autism-parent-act-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/autism-parent-act-randomized-trial-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/autism-parent-resilience-factors-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/autism-sleep-disorders-prevalence-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/autism-social-functioning-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/autism-ssri-children-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/aya-cancer-digital-mental-health-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/cerebral-palsy-participation-quality-life-study-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/cerebral-palsy-youth-mental-health-review-2025.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/child-adolescent-mental-health-guidelines-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/childhood-vision-impairment-longitudinal-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/dcd-action-observation-motor-imagery-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/dcd-school-motor-interventions-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/dcd-subtypes-systematic-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/deaf-hard-hearing-adult-mental-disorders-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/deaf-hard-hearing-youth-mental-health-review-2025.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/developmental-disabilities-school-support-2025.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/digital-eating-disorder-interventions-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/down-syndrome-adult-medical-care-systematic-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/down-syndrome-telehealth-systematic-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/dysgraphia-interventions-scoping-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/family-carer-coping-mental-health-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/high-school-digital-literacy-physical-activity-rct-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/homeless-youth-mental-disorders-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/intellectual-disability-healthcare-transition-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/intellectual-disability-youth-healthcare-access-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/intellectual-disability-youth-psychotherapy-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/intensive-community-care-adolescents-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/mobile-stress-interventions-2025.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/neurodevelopmental-exercise-executive-function-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/neurodevelopmental-psychiatric-comorbidity-umbrella-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/neurodevelopmental-sleep-family-wellbeing-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/neurodevelopmental-video-game-interventions-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/neurodivergent-university-mental-health-interventions-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/peer-led-adolescent-mental-health-2025.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/school-resilience-children-2025.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/thesis-autism-heterogeneity-research-2025.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/thesis-autistic-camouflaging-mental-health-2025.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/thesis-sensory-processing-adhd-autism-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/unilateral-cerebral-palsy-participation-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/visual-impairment-mental-health-review-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/young-children-universal-wellbeing-interventions-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/youth-digital-depression-anxiety-network-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/youth-self-harm-interventions-meta-analysis-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/youth-single-session-self-administered-interventions-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/youth-stigma-interventions-2025.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "magazine/youth-transdiagnostic-internet-rct-2026.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "outside-the-box/evidence-standard/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "platform/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/center-guide.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/aac/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/adhd/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/autism/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/behavioral-emotional-disorders/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/brain-injury-memory-executive/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/cerebral-palsy/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/developmental-coordination-disorder/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/down-syndrome/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/genetic-syndromes/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/global-developmental-delay/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/hearing-loss-deafness/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/intellectual-disability/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/language-speech-disorders/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/multiple-disabilities-deafblindness/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/physical-motor-disabilities/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/sensory-processing/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/severe-behavior-self-injury/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/specific-learning-disabilities/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/transition-adulthood/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/conditions/visual-impairment/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "provider-assessment-demo/professional-console.html",
+      "status": "updated",
+      "detail": "removed optional enhancer for strict application runtime"
+    },
+    {
+      "path": "provider-assessment-demo/training/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    }
+  ]
+}

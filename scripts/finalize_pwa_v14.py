@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -48,6 +49,28 @@ VERIFICATION_CONTENT = re.compile(
     r"^(?:google-site-verification|msvalidate\.01|p:domain_verify|facebook-domain-verification)\s*[:=]",
     re.IGNORECASE,
 )
+
+
+def normalize_platform_before_pwa() -> None:
+    """Make the deployed shell and its assets part of every PWA build contract."""
+
+    normalizer = Path(__file__).with_name("normalize_platform_shell.py")
+    report_path = SITE / "api" / "platform-normalization-v1.json"
+    subprocess.run(
+        [
+            sys.executable,
+            str(normalizer),
+            str(SITE),
+            "--report-path",
+            str(report_path),
+        ],
+        check=True,
+    )
+    if not report_path.is_file():
+        raise SystemExit(f"Platform normalization report missing: {report_path}")
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    if report.get("status") != "passed" or int(report.get("counts", {}).get("error", 0)) != 0:
+        raise SystemExit({"invalid_platform_normalization_before_pwa": report})
 
 
 def is_verification_artifact(path: Path, html: str) -> bool:
@@ -97,6 +120,7 @@ def main() -> None:
     if not SITE.exists():
         raise SystemExit(f"Site root not found: {SITE}")
 
+    normalize_platform_before_pwa()
     defer_encyclopedia_index()
     (SITE / "sw.js").write_text(SERVICE_WORKER, encoding="utf-8")
 
@@ -128,6 +152,7 @@ def main() -> None:
         "old_cache_deleted": "keys.filter(key=>key!==CACHE)" in SERVICE_WORKER,
         "network_first_scripts": "js|css|json|xml" in SERVICE_WORKER,
         "deferred_encyclopedia_index": True,
+        "platform_shell_normalized_before_registration": True,
         "service_worker_file": (SITE / "sw.js").is_file(),
         "manifest_scope_valid": manifest.get("scope") == BASE,
         "manifest_start_url_valid": manifest.get("start_url") == BASE,
@@ -145,6 +170,7 @@ def main() -> None:
         "old_cache_deleted",
         "network_first_scripts",
         "deferred_encyclopedia_index",
+        "platform_shell_normalized_before_registration",
         "service_worker_file",
         "manifest_scope_valid",
         "manifest_start_url_valid",
