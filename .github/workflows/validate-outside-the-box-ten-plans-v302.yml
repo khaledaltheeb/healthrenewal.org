@@ -6,9 +6,11 @@ on:
     paths:
       - "content/v302/outside-the-box-ten-plan-framework-ar.json"
       - "scripts/publish_outside_the_box_ten_plans_v302.py"
+      - "scripts/publish_outside_the_box_reference_assets_v303.py"
       - "scripts/check_ten_plan_idempotence_v302.py"
       - "assets/css/outside-the-box-ten-plans-v302.css"
       - "tests/test_outside_the_box_ten_plans_v302.py"
+      - "tests/test_outside_the_box_reference_assets_v303.py"
       - ".github/workflows/validate-outside-the-box-ten-plans-v302.yml"
       - ".github/workflows/validate-all-labs-v22.yml"
   push:
@@ -16,9 +18,11 @@ on:
     paths:
       - "content/v302/outside-the-box-ten-plan-framework-ar.json"
       - "scripts/publish_outside_the_box_ten_plans_v302.py"
+      - "scripts/publish_outside_the_box_reference_assets_v303.py"
       - "scripts/check_ten_plan_idempotence_v302.py"
       - "assets/css/outside-the-box-ten-plans-v302.css"
       - "tests/test_outside_the_box_ten_plans_v302.py"
+      - "tests/test_outside_the_box_reference_assets_v303.py"
       - ".github/workflows/validate-outside-the-box-ten-plans-v302.yml"
       - ".github/workflows/validate-all-labs-v22.yml"
   workflow_dispatch:
@@ -33,14 +37,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate sources and compile publisher
+      - name: Validate sources and compile publishers
         run: |
           set -euxo pipefail
           python -m json.tool content/v302/outside-the-box-ten-plan-framework-ar.json >/dev/null
+          python -m json.tool content/v254/outside-the-box-instruments-ar.json >/dev/null
           python -m py_compile scripts/publish_outside_the_box_v254.py
           python -m py_compile scripts/publish_outside_the_box_ten_plans_v302.py
+          python -m py_compile scripts/publish_outside_the_box_reference_assets_v303.py
           python -m py_compile scripts/check_ten_plan_idempotence_v302.py
           python -m py_compile tests/test_outside_the_box_ten_plans_v302.py
+          python -m py_compile tests/test_outside_the_box_reference_assets_v303.py
 
       - name: Validate framework contract
         run: python -m unittest tests.test_outside_the_box_ten_plans_v302.TenPlanSourceContractV302.test_framework_declares_exact_complete_contract
@@ -74,3 +81,6 @@ jobs:
 
       - name: Validate responsible language and review status
         run: python -m unittest tests.test_outside_the_box_ten_plans_v302.TenPlanPublisherV302.test_language_is_responsible_and_review_state_is_honest
+
+      - name: Validate evidence standard and instrument registry publication
+        run: python -m unittest -v tests.test_outside_the_box_reference_assets_v303
