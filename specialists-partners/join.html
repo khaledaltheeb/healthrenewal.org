@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>الانضمام إلى شبكة المختصين والشراكات المهنية</title>
-<meta name="description" content="نموذج مؤسسي لإضافة مختص أو مركز إلى شبكة المنصة، وتجهيز الملف المهني وصلاحيات التواصل والإشعارات ومجالات التعاون والمراجعة.">
+<meta name="description" content="نموذج مؤسسي لإضافة مختص أو مركز إلى شبكة المنصة، وتجهيز الملف المهني وصلاحيات التواصل والإشعارات ومجالات التعاون والموافقة الكتابية قبل النشر.">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#075f5b">
 <link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/specialists-partners/join.html">
@@ -17,109 +17,25 @@
 <script defer src="../assets/platform/platform-core.js?v=1.1.0"></script>
 <script defer src="assets/runtime-config.js?v=2.0.0"></script>
 <script defer src="assets/forms.js?v=2.0.0"></script>
-<!-- pt-platform-shell:v1 -->
-<link rel="stylesheet" href="../assets/platform/platform-core.css?v=1.1.0">
-<script defer src="../assets/platform/platform-core.js?v=1.1.0"></script>
 </head>
 <body class="pt-platform" data-pt-normalized="1.1.0" data-page="join" data-pt-enhancer="true">
 <a class="skip" href="#main">تجاوز إلى المحتوى</a>
 <header><div class="wrap head"><a class="brand" href="index.html"><img src="/pterminology-site/assets/brand/logo-mark.svg" alt=""><span>شبكة المختصين والشراكات المهنية<small>تجهيز الملف والصلاحيات ومجالات التعاون</small></span></a><nav aria-label="التنقل"><a href="index.html">القطاع</a><a href="index.html#directory">الدليل</a><a href="verification.html">التحقق</a><a href="join.html" aria-current="page">الانضمام</a><a href="portal/">بوابة المحادثة</a></nav></div></header>
-
 <main id="main"><div class="wrap">
-<section class="hero compact">
-  <div>
-    <p class="eyebrow">مسار مهني موحد مع تصنيفات مختلفة</p>
-    <h1>إضافة مختص أو مركز أو <span>شريك علمي</span></h1>
-    <p class="lead">هذا النموذج ليس طلب توظيف عام. يُستخدم لإدخال أعضاء الشبكة المهنية، أفراد المجلس العلمي، المختصين، المراكز والجهات المتعاونة، ثم تحدد الإدارة نوع العلاقة والصلاحيات بعد المراجعة.</p>
-    <div class="notice"><strong>البيانات الخاصة:</strong> البريد ورقم الهاتف المخصصان للحساب والإشعارات لا يظهران للعامة إلا إذا اختار صاحب الملف نشرهما صراحة.</div>
-  </div>
-  <aside class="hero-card">
-    <h2>ما الذي سيُجهز من هذا النموذج؟</h2>
-    <ul class="checklist"><li>ملف مهني عام منظم.</li><li>بيانات حساب خاصة غير منشورة.</li><li>مناطق العمل وطرق تقديم الخدمة.</li><li>صلاحية استقبال المحادثات والإشعارات.</li><li>مجالات المشاركة العلمية والمؤسسية.</li><li>سجل موافقة ومراجعة قبل النشر.</li></ul>
-  </aside>
-</section>
-
-<section class="section" aria-labelledby="form-title">
-  <p class="eyebrow">بيانات الملف والحساب</p>
-  <h2 id="form-title">نموذج الانضمام المؤسسي</h2>
-  <p class="section-intro">الحقول التي تحمل وصفًا خاصًا لا تُنشر في الدليل. لا ترفع وثائق هوية أو شهادات أو تقارير من هذا النموذج؛ تُراجع لاحقًا عبر قناة إدارية آمنة.</p>
-  <form class="panel" id="onboarding-form" novalidate>
-    <div class="form-grid">
-      <div class="field"><label for="entityType">نوع الملف</label><select id="entityType" required><option value="">اختر</option><option value="professional">مختص فردي</option><option value="center">مركز أو مؤسسة</option></select></div>
-      <div class="field"><label for="displayName">الاسم الذي سيظهر في الموقع</label><input id="displayName" required maxlength="140" autocomplete="name"></div>
-      <div class="field"><label class="optional" for="professionalTitle">المسمى المهني</label><input id="professionalTitle" maxlength="180" placeholder="مثال: أخصائي نطق ولغة"></div>
-      <div class="field"><label class="optional" for="centerType">نوع المركز أو المؤسسة</label><input id="centerType" maxlength="180" placeholder="مثال: مركز متعدد التخصصات"></div>
-
-      <div class="field"><label for="privateEmail">بريد الحساب والإشعارات — خاص</label><input id="privateEmail" type="email" required autocomplete="email"><small>لا يُعرض للعامة افتراضيًا.</small></div>
-      <div class="field"><label class="optional" for="privatePhone">رقم التواصل الإداري — خاص</label><input id="privatePhone" inputmode="tel" autocomplete="tel"><small>يستخدم عند الحاجة للتحقق أو إدارة الحساب.</small></div>
-
-      <div class="field full"><label for="specialties">التخصصات الأساسية</label><select id="specialties" multiple size="12" required><option value="psychology">علم النفس والصحة النفسية</option><option value="psychiatry">الطب النفسي</option><option value="speech_language">النطق واللغة والتواصل</option><option value="audiology">السمع والسمعيات</option><option value="special_education">التربية الخاصة</option><option value="early_intervention">التدخل المبكر</option><option value="occupational_therapy">العلاج الوظيفي</option><option value="physiotherapy">العلاج الطبيعي</option><option value="behavior_support">الدعم السلوكي الإيجابي</option><option value="learning_support">صعوبات التعلم</option><option value="autism_support">دعم التوحد</option><option value="aac">التواصل المعزز والبديل</option><option value="family_training">تدريب الأسرة</option><option value="social_work">الخدمة الاجتماعية</option><option value="nutrition">التغذية العلاجية</option><option value="center">مركز متعدد التخصصات</option></select><small>استخدم Ctrl أو Command لاختيار أكثر من تخصص.</small></div>
-      <div class="field full"><label for="services">الخدمات المحددة</label><textarea id="services" maxlength="1500" required placeholder="اكتب كل خدمة في سطر مستقل، وابتعد عن الوعود أو عبارات الأفضلية."></textarea></div>
-
-      <div class="field full"><label for="ageGroups">الفئات العمرية</label><select id="ageGroups" multiple size="6" required><option>الرضع</option><option>الطفولة المبكرة</option><option>الأطفال</option><option>المراهقون</option><option>البالغون</option><option>جميع الأعمار</option></select></div>
-      <div class="field full"><label for="serviceModes">طرق تقديم الخدمة</label><select id="serviceModes" multiple size="5" required><option>حضوري</option><option>عن بعد</option><option>زيارة منزلية</option><option>مدرسي</option><option>هجين</option></select></div>
-      <div class="field"><label for="languages">اللغات</label><input id="languages" required placeholder="العربية، الإنجليزية"></div>
-      <div class="field"><label for="experienceYears">سنوات الخبرة</label><input id="experienceYears" type="number" min="0" max="70" inputmode="numeric"></div>
-
-      <div class="field"><label for="country">الدولة</label><input id="country" value="الأردن" required autocomplete="country-name"></div>
-      <div class="field"><label class="optional" for="governorate">المحافظة</label><input id="governorate" placeholder="عمّان"></div>
-      <div class="field"><label for="city">المدينة</label><input id="city" required autocomplete="address-level2"></div>
-      <div class="field"><label class="optional" for="area">المنطقة الأساسية</label><input id="area" autocomplete="address-level3"></div>
-      <div class="field full"><label for="serviceAreas">المناطق التي يمكن العمل فيها</label><textarea id="serviceAreas" maxlength="900" placeholder="كل منطقة في سطر مستقل، أو اكتب: جميع مناطق الأردن / عن بعد دوليًا."></textarea></div>
-
-      <div class="field"><label for="qualificationLevel">المستوى العلمي</label><select id="qualificationLevel" required><option value="">اختر</option><option>دبلوم</option><option>بكالوريوس</option><option>دبلوم عالٍ</option><option>ماجستير</option><option>دكتوراه</option><option>اختصاص أو بورد مهني</option><option>مؤهل مهني آخر</option></select></div>
-      <div class="field"><label for="qualification">اسم المؤهل الأساسي</label><input id="qualification" required></div>
-      <div class="field"><label for="institution">الجامعة أو الجهة المانحة</label><input id="institution" required></div>
-      <div class="field"><label class="optional" for="qualificationYear">سنة المؤهل</label><input id="qualificationYear" type="number" min="1950" max="2100" inputmode="numeric"></div>
-      <div class="field"><label class="optional" for="currentRole">جهة العمل أو الدور الحالي</label><input id="currentRole" maxlength="220"></div>
-      <div class="field"><label for="licenseStatus">حالة الترخيص أو التسجيل</label><select id="licenseStatus"><option value="pending_review">قيد المراجعة</option><option value="active">ساري</option><option value="not_applicable">لا ينطبق قانونيًا</option></select></div>
-      <div class="field"><label class="optional" for="licenseAuthority">جهة الترخيص أو التسجيل</label><input id="licenseAuthority"></div>
-      <div class="field"><label class="optional" for="licenseIdentifier">رقم مهني مسموح بنشره</label><input id="licenseIdentifier"><small>لا تكتب رقمًا حساسًا إن لم تكن متأكدًا من جواز نشره.</small></div>
-
-      <div class="field full"><label for="shortBio">نبذة مهنية عامة</label><textarea id="shortBio" maxlength="1000" required placeholder="المؤهلات والخبرة ونطاق الخدمة والفئات التي تعمل معها، دون ضمان نتائج."></textarea></div>
-
-      <div class="field"><label for="availability">حالة التوفر</label><select id="availability"><option value="available">متاح</option><option value="limited">توفر محدود</option><option value="unavailable">غير متاح حاليًا</option></select></div>
-      <div class="field"><label for="typicalResponse">زمن الرد المتوقع</label><select id="typicalResponse"><option>خلال 24 ساعة</option><option>خلال يومي عمل</option><option>خلال 3 أيام عمل</option><option>خلال أسبوع</option><option>غير محدد</option></select></div>
-      <div class="field full"><label class="checkbox"><input id="acceptsInternalMessages" type="checkbox" checked> أوافق على استقبال محادثات داخل المنصة.</label></div>
-      <div class="field full"><label class="checkbox"><input id="acceptsNewRequests" type="checkbox" checked> أستقبل طلبات تواصل جديدة حاليًا.</label></div>
-
-      <fieldset class="field full"><legend>تفضيلات العرض العام</legend>
-        <label class="checkbox"><input id="showPhone" type="checkbox"> السماح بعرض رقم مهني عام.</label>
-        <label class="checkbox"><input id="showEmail" type="checkbox"> السماح بعرض بريد مهني عام.</label>
-        <label class="checkbox"><input id="showOfficialProfile" type="checkbox"> السماح بعرض الحساب المهني الرسمي.</label>
-      </fieldset>
-      <div class="field"><label class="optional" for="officialProfile">رابط حساب مهني رسمي</label><input id="officialProfile" type="url" placeholder="https://"></div>
-      <div class="field"><label class="optional" for="website">الموقع الرسمي</label><input id="website" type="url" placeholder="https://"></div>
-
-      <div class="field full"><label for="collaborationInterests">مجالات المشاركة داخل المنصة</label><select id="collaborationInterests" multiple size="7"><option>استقبال طلبات تواصل</option><option>المجلس العلمي أو الاستشاري</option><option>مراجعة المحتوى</option><option>كتابة الأدلة والكتيبات</option><option>التدريب والندوات</option><option>الشراكات البحثية</option><option>التعاون المؤسسي والإحالات</option></select></div>
-
-      <div class="field full"><label class="checkbox"><input id="consentReview" type="checkbox" required> أوافق على مراجعة البيانات المهنية والتحقق منها قبل النشر.</label></div>
-      <div class="field full"><label class="checkbox"><input id="consentPublication" type="checkbox" required> أوافق على نشر الحقول العامة التي أعتمدها بعد إتاحة نسخة الملف للمراجعة.</label></div>
-      <div class="field full"><label class="checkbox"><input id="consentMessaging" type="checkbox" required> أوافق على استخدام البريد الخاص لإنشاء الحساب وإرسال إشعارات المحادثات.</label></div>
-      <div class="field full"><div id="turnstile-box" aria-label="التحقق من الاستخدام البشري"></div></div>
-    </div>
-
-    <div class="actions">
-      <button class="button secondary" id="preview-record" type="button">معاينة السجل</button>
-      <button class="button primary" id="submit-application" type="submit">إرسال الطلب إلى الإدارة</button>
-      <button class="button secondary" type="reset">مسح النموذج</button>
-    </div>
-    <div class="form-status" id="form-status" tabindex="-1" hidden aria-live="polite"></div>
-  </form>
-</section>
-
-<section class="section" aria-labelledby="output-title">
-  <p class="eyebrow">نسخة قابلة للتدقيق</p>
-  <h2 id="output-title">السجل المنظم قبل الإرسال</h2>
-  <div class="panel"><p class="small">يمكن للإدارة تنزيل السجل أو نسخه. لا تُدرج وثائق الهوية أو صور الشهادات في هذا الملف.</p><textarea id="output" readonly aria-label="سجل JSON الناتج" placeholder="اضغط معاينة السجل بعد إكمال الحقول."></textarea><div class="actions"><button class="button secondary" id="copy-output" type="button">نسخ السجل</button><button class="button secondary" id="download-output" type="button">تنزيل JSON</button></div></div>
-</section>
-
-<section class="section" aria-labelledby="review-title">
-  <p class="eyebrow">المراحل التالية</p><h2 id="review-title">من الإدخال إلى التفعيل</h2>
-  <div class="steps"><article class="step"><strong>1</strong><h3>استلام الإدارة</h3><p>يصل الطلب إلى بريد إدارة المنصة ويسجل برقم متابعة.</p></article><article class="step"><strong>2</strong><h3>التحقق</h3><p>مراجعة الهوية والمؤهل والترخيص ونطاق الممارسة عبر قناة منفصلة.</p></article><article class="step"><strong>3</strong><h3>اعتماد الملف</h3><p>يراجع صاحب الملف الصياغة والحقول العامة قبل النشر.</p></article><article class="step"><strong>4</strong><h3>تفعيل الحساب</h3><p>ربط البريد الخاص بالمحادثات والإشعارات والصلاحيات المناسبة.</p></article></div>
-</section>
-</div></main>
-
-<footer class="footer"><div class="wrap footer-grid"><div><h2>انضمام مهني منظم</h2><p class="small">أعضاء الأسرة المختصون وشبكتهم المهنية يُصنفون وفق دورهم الحقيقي: خبراء، مجلس علمي، مختصون، أو شركاء، وليسوا متقدمين عاديين للعمل.</p></div><div class="footer-links"><a href="index.html">القطاع</a><a href="verification.html">التحقق</a><a href="portal/">المحادثات</a><a href="data/provider.schema.json">مخطط البيانات</a></div></div></footer>
+<section class="hero compact"><div><p class="eyebrow">مسار مهني موحد مع تصنيفات مختلفة</p><h1>إضافة مختص أو مركز أو <span>شريك علمي</span></h1><p class="lead">هذا النموذج ليس طلب توظيف عام. يُستخدم لإدخال أعضاء الشبكة المهنية، أفراد المجلس العلمي، المختصين، المراكز والجهات المتعاونة، ثم تحدد الإدارة نوع العلاقة والصلاحيات بعد المراجعة. لا يتم نشر أي ملف قبل التحقق والحصول على الموافقة الكتابية من صاحب البيانات.</p><div class="notice"><strong>البيانات الخاصة:</strong> البريد ورقم الهاتف المخصصان للحساب والإشعارات لا يظهران للعامة إلا إذا اختار صاحب الملف نشرهما صراحة.</div></div><aside class="hero-card"><h2>ما الذي سيُجهز من هذا النموذج؟</h2><ul class="checklist"><li>ملف مهني عام منظم.</li><li>بيانات حساب خاصة غير منشورة.</li><li>مناطق العمل وطرق تقديم الخدمة.</li><li>صلاحية استقبال المحادثات والإشعارات.</li><li>مجالات المشاركة العلمية والمؤسسية.</li><li>سجل موافقة كتابية ومراجعة قبل النشر.</li></ul></aside></section>
+<section class="section" aria-labelledby="form-title"><p class="eyebrow">بيانات الملف والحساب</p><h2 id="form-title">نموذج الانضمام المؤسسي</h2><p class="section-intro">الحقول التي تحمل وصفًا خاصًا لا تُنشر في الدليل. لا ترفع وثائق هوية أو شهادات أو تقارير من هذا النموذج؛ تُراجع لاحقًا عبر قناة إدارية آمنة.</p><form class="panel" id="onboarding-form" novalidate><div class="form-grid">
+<div class="field"><label for="entityType">نوع الملف</label><select id="entityType" required><option value="">اختر</option><option value="professional">مختص فردي</option><option value="center">مركز أو مؤسسة</option></select></div><div class="field"><label for="displayName">الاسم الذي سيظهر في الموقع</label><input id="displayName" required maxlength="140" autocomplete="name"></div><div class="field"><label class="optional" for="professionalTitle">المسمى المهني</label><input id="professionalTitle" maxlength="180" placeholder="مثال: أخصائي نطق ولغة"></div><div class="field"><label class="optional" for="centerType">نوع المركز أو المؤسسة</label><input id="centerType" maxlength="180" placeholder="مثال: مركز متعدد التخصصات"></div>
+<div class="field"><label for="privateEmail">بريد الحساب والإشعارات — خاص</label><input id="privateEmail" type="email" required autocomplete="email"><small>لا يُعرض للعامة افتراضيًا.</small></div><div class="field"><label class="optional" for="privatePhone">رقم التواصل الإداري — خاص</label><input id="privatePhone" inputmode="tel" autocomplete="tel"><small>يستخدم عند الحاجة للتحقق أو إدارة الحساب.</small></div>
+<div class="field full"><label for="specialties">التخصصات الأساسية</label><select id="specialties" multiple size="12" required><option value="psychology">علم النفس والصحة النفسية</option><option value="psychiatry">الطب النفسي</option><option value="speech_language">النطق واللغة والتواصل</option><option value="audiology">السمع والسمعيات</option><option value="special_education">التربية الخاصة</option><option value="early_intervention">التدخل المبكر</option><option value="occupational_therapy">العلاج الوظيفي</option><option value="physiotherapy">العلاج الطبيعي</option><option value="behavior_support">الدعم السلوكي الإيجابي</option><option value="learning_support">صعوبات التعلم</option><option value="autism_support">دعم التوحد</option><option value="aac">التواصل المعزز والبديل</option><option value="family_training">تدريب الأسرة</option><option value="social_work">الخدمة الاجتماعية</option><option value="nutrition">التغذية العلاجية</option><option value="center">مركز متعدد التخصصات</option></select><small>استخدم Ctrl أو Command لاختيار أكثر من تخصص.</small></div><div class="field full"><label for="services">الخدمات المحددة</label><textarea id="services" maxlength="1500" required placeholder="اكتب كل خدمة في سطر مستقل، وابتعد عن الوعود أو عبارات الأفضلية."></textarea></div>
+<div class="field full"><label for="ageGroups">الفئات العمرية</label><select id="ageGroups" multiple size="6" required><option>الرضع</option><option>الطفولة المبكرة</option><option>الأطفال</option><option>المراهقون</option><option>البالغون</option><option>جميع الأعمار</option></select></div><div class="field full"><label for="serviceModes">طرق تقديم الخدمة</label><select id="serviceModes" multiple size="5" required><option>حضوري</option><option>عن بعد</option><option>زيارة منزلية</option><option>مدرسي</option><option>هجين</option></select></div><div class="field"><label for="languages">اللغات</label><input id="languages" required placeholder="العربية، الإنجليزية"></div><div class="field"><label for="experienceYears">سنوات الخبرة</label><input id="experienceYears" type="number" min="0" max="70" inputmode="numeric"></div>
+<div class="field"><label for="country">الدولة</label><input id="country" value="الأردن" required autocomplete="country-name"></div><div class="field"><label class="optional" for="governorate">المحافظة</label><input id="governorate" placeholder="عمّان"></div><div class="field"><label for="city">المدينة</label><input id="city" required autocomplete="address-level2"></div><div class="field"><label class="optional" for="area">المنطقة الأساسية</label><input id="area" autocomplete="address-level3"></div><div class="field full"><label for="serviceAreas">المناطق التي يمكن العمل فيها</label><textarea id="serviceAreas" maxlength="900" placeholder="كل منطقة في سطر مستقل، أو اكتب: جميع مناطق الأردن / عن بعد دوليًا."></textarea></div>
+<div class="field"><label for="qualificationLevel">المستوى العلمي</label><select id="qualificationLevel" required><option value="">اختر</option><option>دبلوم</option><option>بكالوريوس</option><option>دبلوم عالٍ</option><option>ماجستير</option><option>دكتوراه</option><option>اختصاص أو بورد مهني</option><option>مؤهل مهني آخر</option></select></div><div class="field"><label for="qualification">اسم المؤهل الأساسي</label><input id="qualification" required></div><div class="field"><label for="institution">الجامعة أو الجهة المانحة</label><input id="institution" required></div><div class="field"><label class="optional" for="qualificationYear">سنة المؤهل</label><input id="qualificationYear" type="number" min="1950" max="2100" inputmode="numeric"></div><div class="field"><label class="optional" for="currentRole">جهة العمل أو الدور الحالي</label><input id="currentRole" maxlength="220"></div><div class="field"><label for="licenseStatus">حالة الترخيص أو التسجيل</label><select id="licenseStatus"><option value="pending_review">قيد المراجعة</option><option value="active">ساري</option><option value="not_applicable">لا ينطبق قانونيًا</option></select></div><div class="field"><label class="optional" for="licenseAuthority">جهة الترخيص أو التسجيل</label><input id="licenseAuthority"></div><div class="field"><label class="optional" for="licenseIdentifier">رقم مهني مسموح بنشره</label><input id="licenseIdentifier"><small>لا تكتب رقمًا حساسًا إن لم تكن متأكدًا من جواز نشره.</small></div>
+<div class="field full"><label for="shortBio">نبذة مهنية عامة</label><textarea id="shortBio" maxlength="1000" required placeholder="المؤهلات والخبرة ونطاق الخدمة والفئات التي تعمل معها، دون ضمان نتائج."></textarea></div><div class="field"><label for="availability">حالة التوفر</label><select id="availability"><option value="available">متاح</option><option value="limited">توفر محدود</option><option value="unavailable">غير متاح حاليًا</option></select></div><div class="field"><label for="typicalResponse">زمن الرد المتوقع</label><select id="typicalResponse"><option>خلال 24 ساعة</option><option>خلال يومي عمل</option><option>خلال 3 أيام عمل</option><option>خلال أسبوع</option><option>غير محدد</option></select></div><div class="field full"><label class="checkbox"><input id="acceptsInternalMessages" type="checkbox" checked> أوافق على استقبال محادثات داخل المنصة.</label></div><div class="field full"><label class="checkbox"><input id="acceptsNewRequests" type="checkbox" checked> أستقبل طلبات تواصل جديدة حاليًا.</label></div>
+<fieldset class="field full"><legend>تفضيلات العرض العام</legend><label class="checkbox"><input id="showPhone" type="checkbox"> السماح بعرض رقم مهني عام.</label><label class="checkbox"><input id="showEmail" type="checkbox"> السماح بعرض بريد مهني عام.</label><label class="checkbox"><input id="showOfficialProfile" type="checkbox"> السماح بعرض الحساب المهني الرسمي.</label></fieldset><div class="field"><label class="optional" for="officialProfile">رابط حساب مهني رسمي</label><input id="officialProfile" type="url" placeholder="https://"></div><div class="field"><label class="optional" for="website">الموقع الرسمي</label><input id="website" type="url" placeholder="https://"></div>
+<div class="field full"><label for="collaborationInterests">مجالات المشاركة داخل المنصة</label><select id="collaborationInterests" multiple size="7"><option>استقبال طلبات تواصل</option><option>المجلس العلمي أو الاستشاري</option><option>مراجعة المحتوى</option><option>كتابة الأدلة والكتيبات</option><option>التدريب والندوات</option><option>الشراكات البحثية</option><option>التعاون المؤسسي والإحالات</option></select></div><div class="field full"><label class="checkbox"><input id="consentReview" type="checkbox" required> أوافق على مراجعة البيانات المهنية والتحقق منها قبل النشر.</label></div><div class="field full"><label class="checkbox"><input id="consentPublication" type="checkbox" required> أوافق على نشر الحقول العامة التي أعتمدها بعد إتاحة نسخة الملف للمراجعة.</label></div><div class="field full"><label class="checkbox"><input id="consentMessaging" type="checkbox" required> أوافق على استخدام البريد الخاص لإنشاء الحساب وإرسال إشعارات المحادثات.</label></div><div class="field full"><div id="turnstile-box" aria-label="التحقق من الاستخدام البشري"></div></div></div>
+<div class="actions"><button class="button secondary" id="preview-record" type="button">معاينة السجل</button><button class="button primary" id="submit-application" type="submit">إرسال الطلب إلى الإدارة</button><button class="button secondary" type="reset">مسح النموذج</button></div><div class="form-status" id="form-status" tabindex="-1" hidden aria-live="polite"></div></form></section>
+<section class="section" aria-labelledby="output-title"><p class="eyebrow">نسخة قابلة للتدقيق</p><h2 id="output-title">السجل المنظم قبل الإرسال</h2><div class="panel"><p class="small">يمكن للإدارة تنزيل السجل أو نسخه. لا تُدرج وثائق الهوية أو صور الشهادات في هذا الملف.</p><textarea id="output" readonly aria-label="سجل JSON الناتج" placeholder="اضغط معاينة السجل بعد إكمال الحقول."></textarea><div class="actions"><button class="button secondary" id="copy-output" type="button">نسخ السجل</button><button class="button secondary" id="download-output" type="button">تنزيل JSON</button></div></div></section>
+<section class="section" aria-labelledby="review-title"><p class="eyebrow">المراحل التالية</p><h2 id="review-title">من الإدخال إلى التفعيل</h2><div class="steps"><article class="step"><strong>1</strong><h3>استلام الإدارة</h3><p>يصل الطلب إلى بريد إدارة المنصة ويسجل برقم متابعة.</p></article><article class="step"><strong>2</strong><h3>التحقق</h3><p>مراجعة الهوية والمؤهل والترخيص ونطاق الممارسة عبر قناة منفصلة.</p></article><article class="step"><strong>3</strong><h3>اعتماد الملف</h3><p>يراجع صاحب الملف الصياغة والحقول العامة قبل النشر.</p></article><article class="step"><strong>4</strong><h3>تفعيل الحساب</h3><p>ربط البريد الخاص بالمحادثات والإشعارات والصلاحيات المناسبة.</p></article></div></section>
+</div></main><footer class="footer"><div class="wrap footer-grid"><div><h2>انضمام مهني منظم</h2><p class="small">أعضاء الأسرة المختصون وشبكتهم المهنية يُصنفون وفق دورهم الحقيقي: خبراء، مجلس علمي، مختصون، أو شركاء، وليسوا متقدمين عاديين للعمل.</p></div><div class="footer-links"><a href="index.html">القطاع</a><a href="verification.html">التحقق</a><a href="portal/">المحادثات</a><a href="data/provider.schema.json">مخطط البيانات</a></div></div></footer>
 </body>
 </html>
