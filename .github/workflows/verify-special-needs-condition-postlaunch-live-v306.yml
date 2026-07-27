@@ -1,4 +1,4 @@
-name: Verify special-needs condition trust and provider governance live v309
+name: Verify special-needs condition sources trust and providers live v311
 
 on:
   pull_request:
@@ -15,7 +15,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: verify-special-needs-condition-live-v309-${{ github.ref }}
+  group: verify-special-needs-condition-live-v311-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -38,16 +38,19 @@ jobs:
               'special-needs-condition-postlaunch-v305.json',
               'special-needs-condition-trust-v307.json',
               'special-needs-provider-governance-v308.json',
+              'special-needs-condition-source-maintenance-v310.json',
               'special-needs-guides-v221.json',
               'condition-trust-v307-content:start',
               'provider-listing-policy',
               'FAQPage',
               'sponsored_publication_enabled',
+              'external_http_status_check_completed',
+              'maintenance_source',
               'sitemap-special-needs.xml',
           )
           missing = [item for item in required if item not in text]
           assert not missing, missing
-          assert 'MINIMUM_SHA: 29d876d8722827a24dbdf654bdde3333be04c90e' in text
+          assert 'MINIMUM_SHA: 0ce54b49539f542b9c3b7a4be7f7e786c6fc26e3' in text
           print({'workflow': path.name, 'required_markers': len(required), 'status': 'static-contract-passed'})
           PY
 
@@ -57,17 +60,17 @@ jobs:
       (github.event_name != 'workflow_run' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'))
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 22
     env:
       BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
-      MINIMUM_SHA: 29d876d8722827a24dbdf654bdde3333be04c90e
+      MINIMUM_SHA: 0ce54b49539f542b9c3b7a4be7f7e786c6fc26e3
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Wait for a non-rollback deployment containing v308
+      - name: Wait for a non-rollback deployment containing v310
         run: |
           set -euo pipefail
           matched=0
-          for i in $(seq 1 84); do
+          for i in $(seq 1 90); do
             token="${MINIMUM_SHA}-${i}-$(date +%s)"
             if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o /tmp/deployment.json; then
               if python - <<'PY'
@@ -87,7 +90,7 @@ jobs:
                   'Authorization': f'Bearer {token}',
                   'Accept': 'application/vnd.github+json',
                   'X-GitHub-Api-Version': '2022-11-28',
-                  'User-Agent': 'special-needs-condition-live-v309',
+                  'User-Agent': 'special-needs-condition-live-v311',
               },
           )
           try:
@@ -116,10 +119,11 @@ jobs:
           curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-condition-postlaunch-v305.json?v=${token}" -o /tmp/postlaunch.json
           curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-condition-trust-v307.json?v=${token}" -o /tmp/trust.json
           curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-provider-governance-v308.json?v=${token}" -o /tmp/providers.json
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-condition-source-maintenance-v310.json?v=${token}" -o /tmp/sources.json
           curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-guides-v221.json?v=${token}" -o /tmp/central.json
           curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sitemap-special-needs.xml?v=${token}" -o /tmp/sitemap.xml
 
-      - name: Enforce live trust FAQ provider governance links and discovery
+      - name: Enforce live source maintenance trust provider links and discovery
         run: |
           python - <<'PY'
           import json
@@ -132,6 +136,7 @@ jobs:
           postlaunch = json.loads(Path('/tmp/postlaunch.json').read_text(encoding='utf-8'))
           trust = json.loads(Path('/tmp/trust.json').read_text(encoding='utf-8'))
           providers = json.loads(Path('/tmp/providers.json').read_text(encoding='utf-8'))
+          sources = json.loads(Path('/tmp/sources.json').read_text(encoding='utf-8'))
           central = json.loads(Path('/tmp/central.json').read_text(encoding='utf-8'))
 
           assert postlaunch['version'] == 305 and postlaunch['status'] == 'passed', postlaunch
@@ -155,14 +160,35 @@ jobs:
           assert providers['expiring_within_30_days'] >= 0
           assert sum(providers['status_counts'].values()) == providers['record_count']
 
+          assert sources['version'] == 310 and sources['status'] == 'passed', sources
+          assert sources['condition_slugs'] == ['autism', 'down-syndrome']
+          assert sources['condition_count'] == 2 and sources['source_count'] == 17
+          assert sources['metadata_checked_at'] == '2026-07-27'
+          assert sources['next_metadata_check_due'] == '2027-01-27'
+          assert sources['maintenance_overdue'] is False
+          assert sources['external_http_status_check_completed'] is False
+          assert sources['distinct_host_count'] >= 3
+          assert sources['maximum_source_age_days'] > 730
+          assert sources['maintenance_source'].endswith('content/v310/special-needs-condition-source-maintenance-ar.json')
+          assert len(sources['conditions']) == 2
+          for condition in sources['conditions']:
+              assert condition['source_count'] >= 5
+              assert condition['distinct_host_count'] >= 3
+              assert all(value > 0 for value in condition['source_usage'].values())
+              assert len(condition['sources']) == condition['source_count']
+
           assert central['status'] == 'passed'
           assert central['condition_postlaunch_contract'] == 305
           assert central['condition_trust_contract'] == 307
           assert central['provider_governance_contract'] == 308
-          embedded = central['condition_hubs']['provider_governance']
+          assert central['condition_source_maintenance_contract'] == 310
+          embedded_provider = central['condition_hubs']['provider_governance']
           for key in ('record_count', 'published_count', 'sponsored_count', 'expiring_within_30_days'):
-              assert embedded[key] == providers[key], (key, embedded.get(key), providers.get(key))
-          assert embedded['sponsored_publication_enabled'] is False
+              assert embedded_provider[key] == providers[key], (key, embedded_provider.get(key), providers.get(key))
+          assert embedded_provider['sponsored_publication_enabled'] is False
+          embedded_sources = central['condition_hubs']['source_maintenance']
+          for key in ('source_count', 'distinct_host_count', 'overdue_source_count', 'due_within_30_days_count'):
+              assert embedded_sources[key] == sources[key], (key, embedded_sources.get(key), sources.get(key))
 
           expected_links = {
               'autism': (
@@ -230,9 +256,11 @@ jobs:
               'condition_pages': 2,
               'contextual_links': postlaunch['related_link_count'],
               'faq_count': trust['faq_count'],
+              'source_count': sources['source_count'],
+              'source_domains': sources['distinct_host_count'],
               'provider_records': providers['record_count'],
               'published_providers': providers['published_count'],
               'sitemap_urls': len(sitemap_urls),
-              'status': 'special-needs-condition-trust-provider-live-v309-verified',
+              'status': 'special-needs-condition-source-trust-provider-live-v311-verified',
           })
           PY
