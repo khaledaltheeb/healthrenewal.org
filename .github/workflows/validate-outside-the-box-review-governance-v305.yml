@@ -1,4 +1,4 @@
-# Final clean-head validation for v305-v306.
+# Final validation after synchronization with current main.
 name: Validate outside-the-box review governance and quality audit v306
 
 on:
