@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import re
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 SOURCE = Path(__file__).with_name("rebuild_encyclopedia_v13.py")
@@ -61,6 +62,42 @@ def fix_homepage_heading_hierarchy(site: Path) -> None:
     homepage.write_text(text, encoding="utf-8")
 
 
+def normalize_hubs_sitemap_namespace(site: Path) -> dict[str, object]:
+    namespace = "http://www.sitemaps.org/schemas/sitemap/0.9"
+    sitemap = site / "sitemap-hubs.xml"
+    if not sitemap.is_file():
+        raise SystemExit(f"Missing hubs sitemap: {sitemap}")
+
+    ET.register_namespace("", namespace)
+    tree = ET.parse(sitemap)
+    root = tree.getroot()
+    if root.tag != f"{{{namespace}}}urlset":
+        raise SystemExit(f"Unexpected hubs sitemap root: {root.tag}")
+
+    url_count = len(root.findall(f"{{{namespace}}}url"))
+    tree.write(sitemap, encoding="utf-8", xml_declaration=True)
+    serialized = sitemap.read_text(encoding="utf-8")
+    if "ns0:" in serialized:
+        raise SystemExit("Prefixed sitemap namespace remains after normalization")
+    if f'xmlns="{namespace}"' not in serialized:
+        raise SystemExit("Default sitemap namespace is missing")
+    if serialized.count("<url>") != url_count:
+        raise SystemExit(
+            {
+                "hubs_sitemap_serialization_mismatch": {
+                    "semantic_urls": url_count,
+                    "serialized_urls": serialized.count("<url>"),
+                }
+            }
+        )
+    return {
+        "status": "passed",
+        "url_count": url_count,
+        "default_namespace": True,
+        "prefixed_namespace_removed": True,
+    }
+
+
 module.concept_html = enriched_concept_html
 build_report = module.build()
 
@@ -71,6 +108,7 @@ if topic_spec is None or topic_spec.loader is None:
 topic_module = importlib.util.module_from_spec(topic_spec)
 topic_spec.loader.exec_module(topic_module)
 topic_report = topic_module.publish(module)
+sitemap_report = normalize_hubs_sitemap_namespace(module.SITE)
 
 fix_homepage_heading_hierarchy(module.SITE)
 
@@ -83,4 +121,4 @@ audit_spec.loader.exec_module(audit_module)
 audit_module.SITE = module.SITE
 audit_result = audit_module.main()
 
-print(json.dumps({"encyclopedia": build_report, "topic_hubs": topic_report, "integrity_audit_exit": audit_result}, ensure_ascii=False, indent=2))
+print(json.dumps({"encyclopedia": build_report, "topic_hubs": topic_report, "hubs_sitemap": sitemap_report, "integrity_audit_exit": audit_result}, ensure_ascii=False, indent=2))
