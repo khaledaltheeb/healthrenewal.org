@@ -1,0 +1,51 @@
+name: Wire outside-the-box reference assets v303
+
+on:
+  push:
+    branches: ["agent/outside-the-box-ten-plans-v302"]
+    paths:
+      - ".github/workflows/patch-reference-assets-call-v303.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/outside-the-box-ten-plans-v302
+
+      - name: Add v303 publisher to production sequence
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("scripts/apply_homepage_v20.py")
+          text = path.read_text(encoding="utf-8")
+          metadata_anchor = '        "outside_the_box_ten_plan_publisher": 302,\n'
+          metadata_line = '        "outside_the_box_reference_assets_publisher": 303,\n'
+          if metadata_line not in text:
+              if metadata_anchor not in text:
+                  raise SystemExit("v302 metadata anchor not found")
+              text = text.replace(metadata_anchor, metadata_anchor + metadata_line, 1)
+          call_anchor = '    restore_static_route("outside-the-box/evidence-standard")\n'
+          call_line = '    run_publisher("publish_outside_the_box_reference_assets_v303.py")\n'
+          if call_line not in text:
+              if call_anchor not in text:
+                  raise SystemExit("evidence restore anchor not found")
+              text = text.replace(call_anchor, call_anchor + call_line, 1)
+          path.write_text(text, encoding="utf-8")
+          PY
+
+      - name: Commit production wiring
+        run: |
+          if git diff --quiet; then
+            echo "No wiring change needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/apply_homepage_v20.py
+          git commit -m "build: publish outside-the-box reference assets v303"
+          git push origin HEAD:agent/outside-the-box-ten-plans-v302
