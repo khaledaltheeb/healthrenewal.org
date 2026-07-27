@@ -15,6 +15,7 @@ for candidate in (str(ROOT), str(SCRIPTS)):
 
 import publish_mowat_wilson_kleefstra_v326 as conditions326
 import publish_new_special_needs_conditions_v323 as conditions323
+import publish_phelan_mcdermid_satb2_v327 as conditions327
 import publish_smith_magenis_pitt_hopkins_v325 as conditions325
 import publish_special_needs_guides_v217 as guides
 import publish_special_needs_guides_v217_core as core
@@ -134,6 +135,31 @@ def _require_honest_review(payload: dict[str, Any], label: str) -> None:
     )
 
 
+def _expansion_fields() -> tuple[str, ...]:
+    return (
+        "version",
+        "status",
+        "cluster_slug",
+        "previous_condition_count",
+        "added_condition_count",
+        "total_condition_count",
+        "added_condition_slugs",
+        "all_condition_slugs",
+        "generated_pages",
+        "source_count",
+        "section_count",
+        "faq_count",
+        "minimum_condition_words",
+        "cluster_expanded",
+        "hub_link_updated",
+        "sitemap_registered",
+        "reviewed_at",
+        "next_review_due",
+        "external_clinical_review_completed",
+        "content_source",
+    )
+
+
 def integrate_new_conditions(report: dict[str, Any], conditions_report: dict[str, Any]) -> dict[str, Any]:
     expected = ["rett-syndrome", "fragile-x-syndrome", "angelman-syndrome"]
     _require(
@@ -221,16 +247,8 @@ def integrate_third_conditions(report: dict[str, Any], conditions_report: dict[s
     _require_honest_review(conditions_report, "Smith-Magenis or Pitt-Hopkins")
     _require_discovery(conditions_report, "cluster_expanded", "hub_link_updated", "sitemap_registered")
 
-    fields = (
-        "version", "status", "cluster_slug", "previous_condition_count",
-        "added_condition_count", "total_condition_count", "added_condition_slugs",
-        "all_condition_slugs", "generated_pages", "source_count", "section_count",
-        "faq_count", "minimum_condition_words", "cluster_expanded",
-        "hub_link_updated", "sitemap_registered", "reviewed_at", "next_review_due",
-        "external_clinical_review_completed", "content_source",
-    )
     report.setdefault("condition_hubs", {})["smith_magenis_pitt_hopkins_expansion"] = _copy_fields(
-        conditions_report, fields
+        conditions_report, _expansion_fields()
     )
     report["third_condition_guides_contract"] = 325
     report["third_condition_batch_page_count"] = 2
@@ -258,20 +276,47 @@ def integrate_fourth_conditions(report: dict[str, Any], conditions_report: dict[
     _require_honest_review(conditions_report, "Mowat-Wilson or Kleefstra")
     _require_discovery(conditions_report, "cluster_expanded", "hub_link_updated", "sitemap_registered")
 
-    fields = (
-        "version", "status", "cluster_slug", "previous_condition_count",
-        "added_condition_count", "total_condition_count", "added_condition_slugs",
-        "all_condition_slugs", "generated_pages", "source_count", "section_count",
-        "faq_count", "minimum_condition_words", "cluster_expanded",
-        "hub_link_updated", "sitemap_registered", "reviewed_at", "next_review_due",
-        "external_clinical_review_completed", "content_source",
-    )
     report.setdefault("condition_hubs", {})["mowat_wilson_kleefstra_expansion"] = _copy_fields(
-        conditions_report, fields
+        conditions_report, _expansion_fields()
     )
     report["fourth_condition_guides_contract"] = 326
     report["fourth_condition_batch_page_count"] = 2
     report["total_new_condition_page_count"] = 9
+    write_central_reports(report)
+    return report
+
+
+def integrate_fifth_conditions(report: dict[str, Any], conditions_report: dict[str, Any]) -> dict[str, Any]:
+    expected = ["phelan-mcdermid-syndrome", "satb2-associated-syndrome"]
+    _require(
+        conditions_report.get("version") == 327 and conditions_report.get("status") == "passed",
+        f"Phelan-McDermid and SATB2-associated contract failed: {conditions_report}",
+    )
+    _require(
+        conditions_report.get("added_condition_slugs") == expected,
+        "Phelan-McDermid and SATB2-associated routes are incomplete",
+    )
+    _require(
+        conditions_report.get("previous_condition_count") == 9
+        and conditions_report.get("added_condition_count") == 2
+        and conditions_report.get("total_condition_count") == 11
+        and conditions_report.get("section_count") == 14
+        and conditions_report.get("source_count") == 14,
+        "Phelan-McDermid and SATB2-associated depth or count contract failed",
+    )
+    _require(
+        conditions_report.get("minimum_condition_words", 0) >= 1750,
+        "Phelan-McDermid or SATB2-associated page is too shallow",
+    )
+    _require_honest_review(conditions_report, "Phelan-McDermid or SATB2-associated")
+    _require_discovery(conditions_report, "cluster_expanded", "hub_link_updated", "sitemap_registered")
+
+    report.setdefault("condition_hubs", {})["phelan_mcdermid_satb2_expansion"] = _copy_fields(
+        conditions_report, _expansion_fields()
+    )
+    report["fifth_condition_guides_contract"] = 327
+    report["fifth_condition_batch_page_count"] = 2
+    report["total_new_condition_page_count"] = 11
     write_central_reports(report)
     return report
 
@@ -311,6 +356,7 @@ def main() -> None:
         report = _publish_layer(report, 324, "condition-expansion-publication", conditions324.publish, integrate_extended_conditions)
         report = _publish_layer(report, 325, "third-condition-expansion", conditions325.publish, integrate_third_conditions)
         report = _publish_layer(report, 326, "fourth-condition-expansion", conditions326.publish, integrate_fourth_conditions)
+        report = _publish_layer(report, 327, "fifth-condition-expansion", conditions327.publish, integrate_fifth_conditions)
     except BaseException as exc:
         if STATE.get("status") != "failed":
             stamp(
@@ -333,6 +379,7 @@ def main() -> None:
         second_condition_batch_page_count=report.get("second_condition_batch_page_count"),
         third_condition_batch_page_count=report.get("third_condition_batch_page_count"),
         fourth_condition_batch_page_count=report.get("fourth_condition_batch_page_count"),
+        fifth_condition_batch_page_count=report.get("fifth_condition_batch_page_count"),
         total_new_condition_page_count=report.get("total_new_condition_page_count"),
     )
     print(json.dumps(report, ensure_ascii=False, indent=2))
