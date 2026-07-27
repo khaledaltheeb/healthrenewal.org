@@ -43,6 +43,11 @@ class SpecialNeedsConditionHubsV302Tests(unittest.TestCase):
             self.assertEqual(report["generated_page_count"], 2)
             self.assertEqual(report["published_provider_count"], 0)
             self.assertEqual(report["source_count"], 17)
+            self.assertEqual(report["source_url_override_count"], 1)
+            self.assertEqual(
+                report["source_url_override_source"],
+                "content/v312/special-needs-condition-source-url-overrides.json",
+            )
 
             for slug in ("autism", "down-syndrome"):
                 page = (site / "special-needs" / slug / "index.html").read_text(encoding="utf-8")
@@ -53,6 +58,12 @@ class SpecialNeedsConditionHubsV302Tests(unittest.TestCase):
                 self.assertIn("الدليل المحلي قيد الإعداد والتحقق", page)
                 self.assertIn("special-needs-providers-ar.json", page)
                 self.assertIsNone(publisher.BANNED.search(page))
+
+            autism = (site / "special-needs" / "autism" / "index.html").read_text(encoding="utf-8")
+            corrected = "https://www.asha.org/practice-portal/professional-issues/augmentative-and-alternative-communication/"
+            obsolete = "https://www.asha.org/Practice-Portal/Professional-Issues/Augmentative-and-Alternative-Communication/"
+            self.assertEqual(autism.count(corrected), 1)
+            self.assertNotIn(obsolete, autism)
 
             hub = (site / "special-needs" / "index.html").read_text(encoding="utf-8")
             self.assertEqual(hub.count(publisher.HUB_MARKER), 1)
@@ -66,6 +77,7 @@ class SpecialNeedsConditionHubsV302Tests(unittest.TestCase):
 
             api = json.loads((site / "api" / "special-needs-condition-hubs-v302.json").read_text(encoding="utf-8"))
             self.assertEqual(api["condition_slugs"], ["autism", "down-syndrome"])
+            self.assertEqual(api["source_url_override_count"], 1)
 
     def test_publication_is_idempotent(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
