@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import audit_special_needs_condition_sources_v310 as source310
+import publish_autism_lived_experience_guides_v322 as autism322
 import publish_special_needs_condition_age_guides_v314 as age314
 import publish_special_needs_condition_hubs_v302 as condition302
 import publish_special_needs_condition_postlaunch_v305 as postlaunch305
@@ -36,6 +37,8 @@ CONDITION_SLUGS = (
     "down-syndrome-development-communication-independence",
     "autism-coexisting-conditions-sudden-change",
     "down-syndrome-regression-dementia-urgent-changes",
+    "autism-sensory-profile-overload",
+    "autism-communication-stimming-neurodiversity",
 )
 CONDITION_URLS = {f"{condition302.BASE}/special-needs/{slug}/" for slug in CONDITION_SLUGS}
 CONDITION_API_FILES = (
@@ -48,6 +51,7 @@ CONDITION_API_FILES = (
     "special-needs-diagnostic-decision-guides-v316.json",
     "special-needs-support-interventions-v318.json",
     "special-needs-regression-coexisting-v320.json",
+    "autism-lived-experience-guides-v322.json",
 )
 
 
@@ -109,6 +113,7 @@ def validate_condition_layers(
     decision_report: dict[str, Any],
     support_report: dict[str, Any],
     regression_report: dict[str, Any],
+    autism_report: dict[str, Any],
     postlaunch_report: dict[str, Any],
     trust_report: dict[str, Any],
 ) -> None:
@@ -196,11 +201,33 @@ def validate_condition_layers(
     ):
         raise SystemExit("Regression/coexisting clinical-boundary controls are incomplete")
 
+    if autism_report.get("version") != 322 or autism_report.get("status") != "passed":
+        raise SystemExit(f"Autism lived-experience guide contract failed: {autism_report}")
+    if autism_report.get("guide_slugs") != [
+        "autism-sensory-profile-overload",
+        "autism-communication-stimming-neurodiversity",
+    ]:
+        raise SystemExit("Autism lived-experience routes are incomplete")
+    if autism_report.get("guide_count") != 2 or autism_report.get("section_count") != 10:
+        raise SystemExit("Autism lived-experience guides must publish two pages and ten sections")
+    if autism_report.get("source_count") != 11 or autism_report.get("practical_resource_count") != 4:
+        raise SystemExit("Autism lived-experience evidence or practical-resource depth failed")
+    if autism_report.get("action_step_count") != 10 or autism_report.get("urgent_item_count") != 6:
+        raise SystemExit("Autism lived-experience action or urgent-depth contract failed")
+    if autism_report.get("parent_links_added") != 2:
+        raise SystemExit("Autism lived-experience parent-link contract failed")
+    if not all(
+        autism_report.get(key) is True
+        for key in ("national_autistic_society_resource_used", "content_rewritten_not_copied")
+    ):
+        raise SystemExit("Autism source attribution or rewrite contract failed")
+
     for report, label in (
         (age_report, "age guides"),
         (decision_report, "diagnostic decision guides"),
         (support_report, "support intervention guides"),
         (regression_report, "regression/coexisting guides"),
+        (autism_report, "autism lived-experience guides"),
     ):
         if report.get("external_clinical_review_completed") is not False:
             raise SystemExit(f"{label} must not overstate external clinical review")
@@ -274,6 +301,7 @@ def publish(site: Path) -> dict[str, Any]:
     decision_report = decision316.publish(site)
     support_report = support318.publish(site)
     regression_report = regression320.publish(site)
+    autism_report = autism322.publish(site)
     postlaunch_report = postlaunch305.publish(site)
     trust_report = trust307.publish(site)
 
@@ -285,6 +313,7 @@ def publish(site: Path) -> dict[str, Any]:
         decision_report,
         support_report,
         regression_report,
+        autism_report,
         postlaunch_report,
         trust_report,
     )
@@ -305,6 +334,7 @@ def publish(site: Path) -> dict[str, Any]:
         "diagnostic_decision_guides_contract": 316,
         "support_intervention_guides_contract": 318,
         "regression_coexisting_guides_contract": 320,
+        "autism_lived_experience_guides_contract": 322,
         "status": "passed",
         "production_status": "integrated",
         "batches": list(VERSIONS),
@@ -416,6 +446,27 @@ def publish(site: Path) -> dict[str, Any]:
                 "dsrd_consensus_limit_visible",
                 "dementia_baseline_limit_visible",
                 "diagnostic_overshadowing_guard",
+                "reviewed_at",
+                "next_review_due",
+                "external_clinical_review_completed",
+                "content_source",
+            ),
+            "autism_lived_experience": pick(
+                autism_report,
+                "version",
+                "status",
+                "guide_count",
+                "guide_slugs",
+                "generated_pages",
+                "section_count",
+                "source_count",
+                "practical_resource_count",
+                "action_step_count",
+                "urgent_item_count",
+                "parent_links_added",
+                "sitemap_registered",
+                "national_autistic_society_resource_used",
+                "content_rewritten_not_copied",
                 "reviewed_at",
                 "next_review_due",
                 "external_clinical_review_completed",

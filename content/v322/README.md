@@ -1,5 +1,40 @@
-# v322 — Evidence Literacy Library
+# حزم المحتوى المؤسسي — v322
 
-Production content source: `evidence-literacy-library-ar.json`.
+## توسعة أدلة ذوي الاحتياجات الخاصة
 
-The package publishes one collection hub and four Arabic methodological guides. It requires internal review disclosure, external methodology review pending status, traceable source use, minimum visible depth, deterministic publishing, parent-library discovery, and sitemap registration.
+يُخزَّن المصدر العربي المضغوط في المجلد
+`special-needs-condition-expansion-ar.parts/` على هيئة ستة أجزاء Base64 نصية. يجمع
+الناشر الأجزاء بالترتيب، يتحقق من Base64، يفك ضغط Gzip، ثم يقرأ JSON. هذا الأسلوب
+يحافظ على سلامة المحتوى الثنائي عند نقله عبر واجهات المستودع النصية.
+
+للتحقق محليًا:
+
+```bash
+python -m unittest -v tests.test_special_needs_expansion_v322
+```
+
+حالة المحتوى: مراجعة تحريرية ومنهجية داخلية؛ المراجعة الخارجية المتخصصة موصى بها ولم تكتمل.
+آخر مراجعة مسجلة: 2026-07-27.
+
+## مكتبة الثقافة العلمية وقراءة الدليل
+
+مصدر المحتوى الإنتاجي: `evidence-literacy-library-ar.json`.
+
+تنشر الحزمة مركزًا واحدًا وأربعة أدلة عربية منهجية، وتفرض الإفصاح عن المراجعة الداخلية والحاجة إلى مراجعة منهجية خارجية، والاستخدام القابل للتتبع للمصادر، وحدًا أدنى للعمق الظاهر، ونشرًا حتميًا قابلًا لإعادة البناء، وربطًا من المكتبة الأم، وتسجيلًا في خريطة الموقع.
+
+كما ينشر Wrapper الإنتاج المؤسسي الصفحات الآتية قبل تدقيق سلامة الروابط:
+
+- `/trust/` لمنهجية المصادر والمراجعة والتصحيح.
+- `/start-here/` لخريطة استخدام المنصة وحدود الأدوات.
+- `/special-needs/` لمركز ذوي الاحتياجات الخاصة القائم على الوظيفة والمشاركة والحقوق والتقييم الشامل.
+
+للتحقق:
+
+```bash
+python -m unittest -v \
+  tests.test_evidence_literacy_library_v322 \
+  tests.test_core_sections_evidence_literacy_v322 \
+  tests.test_evidence_trust_publication_v322
+```
+
+حالة المراجعة: مراجعة داخلية مكتملة للحزمة؛ المراجعة الخارجية المستقلة في منهجية البحث والتخصصات ذات الصلة لم تكتمل.
