@@ -60,10 +60,12 @@ class SpecialNeedsConditionHubsV302Tests(unittest.TestCase):
                 self.assertIsNone(publisher.BANNED.search(page))
 
             autism = (site / "special-needs" / "autism" / "index.html").read_text(encoding="utf-8")
-            corrected = "https://www.asha.org/practice-portal/professional-issues/augmentative-and-alternative-communication/"
+            corrected = "https://www.asha.org/NJC/AAC/"
             obsolete = "https://www.asha.org/Practice-Portal/Professional-Issues/Augmentative-and-Alternative-Communication/"
+            failed_lowercase = "https://www.asha.org/practice-portal/professional-issues/augmentative-and-alternative-communication/"
             self.assertEqual(autism.count(corrected), 1)
             self.assertNotIn(obsolete, autism)
+            self.assertNotIn(failed_lowercase, autism)
 
             hub = (site / "special-needs" / "index.html").read_text(encoding="utf-8")
             self.assertEqual(hub.count(publisher.HUB_MARKER), 1)
