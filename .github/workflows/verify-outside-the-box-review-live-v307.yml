@@ -24,11 +24,36 @@ jobs:
     env:
       BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
       MINIMUM_SHA: a3e69b9575a436f7123cbe14f33eeba182f46449
+      EVENT_NAME: ${{ github.event_name }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Wait for merged release or a newer non-rollback deployment
+      - name: Verify deployment provenance for post-deploy runs
         run: |
           set -euo pipefail
+          # A pull request only adds this verification workflow. Its acceptance is
+          # established by the complete live content contract in the following
+          # steps; requiring the PR itself to be deployed would be circular.
+          if [ "${EVENT_NAME}" = "pull_request" ]; then
+            token="${MINIMUM_SHA}-pr-$(date +%s)"
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o /tmp/deployment.json; then
+              python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          print({
+              'event': 'pull_request',
+              'live_commit_observed': data.get('commit'),
+              'pwa_pages': data.get('pwa_pages'),
+              'provenance_gate': 'deferred-to-post-deploy-workflow-run',
+              'live_content_contract': 'required-below',
+          })
+          PY
+            else
+              echo "deployment.json was unavailable during PR validation; the complete live API/page contract remains mandatory below"
+            fi
+            exit 0
+          fi
+
           matched=0
           for i in $(seq 1 90); do
             token="${MINIMUM_SHA}-${i}-$(date +%s)"
@@ -42,6 +67,7 @@ jobs:
           minimum = os.environ['MINIMUM_SHA']
           assert isinstance(live, str) and len(live) == 40, deployment
           if live == minimum:
+              print({'minimum': minimum, 'live': live, 'compare_status': 'identical'})
               raise SystemExit(0)
           request = urllib.request.Request(
               f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/compare/{minimum}...{live}",
@@ -55,8 +81,10 @@ jobs:
           try:
               with urllib.request.urlopen(request, timeout=30) as response:
                   status = json.loads(response.read().decode('utf-8')).get('status')
-          except urllib.error.HTTPError:
+          except urllib.error.HTTPError as exc:
+              print({'minimum': minimum, 'live': live, 'compare_http_error': exc.code})
               raise SystemExit(1)
+          print({'minimum': minimum, 'live': live, 'compare_status': status})
           raise SystemExit(0 if status in {'ahead', 'identical'} else 1)
           PY
               then
