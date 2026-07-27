@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -9,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
+PUBLISHER_SCRIPT = SCRIPTS / "publish_cognitive_sectors_v246.py"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
@@ -57,6 +59,16 @@ class CognitiveTitleDisambiguationV314Tests(unittest.TestCase):
             ),
             encoding="utf-8",
         )
+
+    def test_core_self_test_does_not_treat_flag_as_a_site_path(self) -> None:
+        result = subprocess.run(
+            [sys.executable, str(PUBLISHER_SCRIPT), "--self-test"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+        self.assertFalse((ROOT / "--self-test").exists())
 
     def test_only_legacy_route_gets_a_unique_title_and_report_evidence(self) -> None:
         first = publisher.disambiguate_legacy_verbal_analogy(self.site)
