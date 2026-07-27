@@ -1,0 +1,57 @@
+name: Wire outside-the-box quality audit v306 temporary
+
+on:
+  push:
+    branches: ["agent/outside-the-box-scientific-review-v305"]
+    paths:
+      - ".github/workflows/patch-outside-quality-v306-temporary.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-quality-chain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/outside-the-box-scientific-review-v305
+          fetch-depth: 0
+      - name: Patch production and deterministic audit
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          audit = Path('scripts/audit_outside_the_box_quality_v306.py')
+          text = audit.read_text(encoding='utf-8')
+          old = '    html_pages = sorted(root.rglob("index.html"))\n'
+          new = '    html_pages = sorted(path for path in root.rglob("index.html") if path.parent.name != ROUTE)\n'
+          if old in text:
+              text = text.replace(old, new, 1)
+          elif new not in text:
+              raise SystemExit('quality audit page-selection anchor missing')
+          audit.write_text(text, encoding='utf-8')
+
+          home = Path('scripts/apply_homepage_v20.py')
+          text = home.read_text(encoding='utf-8')
+          old_meta = '        "outside_the_box_review_governance_publisher": 305,\n'
+          new_meta = old_meta + '        "outside_the_box_quality_audit": 306,\n'
+          if '"outside_the_box_quality_audit": 306' not in text:
+              if text.count(old_meta) != 1:
+                  raise SystemExit('review metadata anchor missing or ambiguous')
+              text = text.replace(old_meta, new_meta, 1)
+          old_run = '    run_publisher("publish_outside_the_box_review_governance_v305.py")\n'
+          new_run = old_run + '    run_publisher("audit_outside_the_box_quality_v306.py")\n'
+          if 'run_publisher("audit_outside_the_box_quality_v306.py")' not in text:
+              if text.count(old_run) != 1:
+                  raise SystemExit('review publisher run anchor missing or ambiguous')
+              text = text.replace(old_run, new_run, 1)
+          home.write_text(text, encoding='utf-8')
+          PY
+          python -m py_compile scripts/audit_outside_the_box_quality_v306.py scripts/apply_homepage_v20.py
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add scripts/audit_outside_the_box_quality_v306.py scripts/apply_homepage_v20.py
+          git diff --cached --quiet && exit 0
+          git commit -m "build: wire post-publication quality audit v306"
+          git push origin HEAD:agent/outside-the-box-scientific-review-v305
