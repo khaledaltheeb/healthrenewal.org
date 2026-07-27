@@ -2,14 +2,21 @@
   "schema_version": 1,
   "shell_version": "1.0.0",
   "status": "passed",
-  "generated_at": "2026-07-27T13:14:26.471029+00:00",
+  "generated_at": "2026-07-27T13:47:45.843099+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
+  "runtime": {
+    "source": "/home/runner/work/pterminology-site/pterminology-site",
+    "target": "/home/runner/work/pterminology-site/pterminology-site",
+    "copied": false,
+    "files": []
+  },
   "html_pages_seen": 93,
   "html_pages_normalized_or_current": 92,
   "counts": {
-    "current": 92,
-    "skipped": 1
+    "current": 91,
+    "skipped": 1,
+    "updated": 1
   },
   "results": [
     {
@@ -469,8 +476,8 @@
     },
     {
       "path": "provider-assessment-demo/professional-console.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "removed optional enhancer for strict application runtime"
     },
     {
       "path": "provider-assessment-demo/training/index.html",
