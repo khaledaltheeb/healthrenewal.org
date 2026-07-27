@@ -63,6 +63,15 @@ def fix_homepage_heading_hierarchy(site: Path) -> None:
 
 module.concept_html = enriched_concept_html
 build_report = module.build()
+
+TOPIC_SOURCE = Path(__file__).with_name("publish_encyclopedia_topic_hubs_v2.py")
+topic_spec = importlib.util.spec_from_file_location("encyclopedia_topic_hubs_v2", TOPIC_SOURCE)
+if topic_spec is None or topic_spec.loader is None:
+    raise SystemExit("Unable to load encyclopedia topic-hub publisher")
+topic_module = importlib.util.module_from_spec(topic_spec)
+topic_spec.loader.exec_module(topic_module)
+topic_report = topic_module.publish(module)
+
 fix_homepage_heading_hierarchy(module.SITE)
 
 AUDIT_SOURCE = Path(__file__).with_name("audit_site_integrity_v13.py")
@@ -74,4 +83,4 @@ audit_spec.loader.exec_module(audit_module)
 audit_module.SITE = module.SITE
 audit_result = audit_module.main()
 
-print(json.dumps({"encyclopedia": build_report, "integrity_audit_exit": audit_result}, ensure_ascii=False, indent=2))
+print(json.dumps({"encyclopedia": build_report, "topic_hubs": topic_report, "integrity_audit_exit": audit_result}, ensure_ascii=False, indent=2))
