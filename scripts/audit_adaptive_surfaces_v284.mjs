@@ -14,14 +14,12 @@ function walk(dir) {
     return entry.isDirectory() ? walk(full) : [full];
   });
 }
-
 function toUrl(file) {
   let rel = path.relative(siteDir, file).split(path.sep).join('/');
   if (rel === 'index.html') rel = '';
   else if (rel.endsWith('/index.html')) rel = rel.slice(0, -10);
   return new URL(rel, baseUrl).href;
 }
-
 function familyFor(relativePath) {
   const normalized = relativePath.replace(/\\/g, '/');
   return normalized.includes('/') ? normalized.split('/')[0] : '(root)';
@@ -114,13 +112,13 @@ async function auditLoadedPage(page, profile) {
       }
       let solid = { r: 255, g: 255, b: 255, a: 1 };
       for (let index = chain.length - 1; index >= 0; index -= 1) if (chain[index].color?.a > 0.001) solid = composite(chain[index].color, solid);
-      const candidates = [solid];
+      const imageLayer = chain.find((layer) => layer.image && layer.image !== 'none' && !layer.guarded);
+      let candidates = [solid];
       let unresolvedImage = false;
-      for (const layer of chain) {
-        if (!layer.image || layer.image === 'none' || layer.guarded) continue;
-        const gradientColors = colorsFromGradient(layer.image);
-        if (gradientColors.length) candidates.push(...gradientColors.map((color) => composite(color, solid)));
-        if (/url\(/i.test(layer.image)) unresolvedImage = true;
+      if (imageLayer) {
+        const gradientColors = colorsFromGradient(imageLayer.image);
+        if (gradientColors.length) candidates = gradientColors.map((color) => composite(color, solid));
+        else if (/url\(/i.test(imageLayer.image)) unresolvedImage = true;
       }
       return { candidates, unresolvedImage, layers: chain.map(({ selector, colorRaw, image, guarded }) => ({ selector, color: colorRaw, image, guarded })) };
     }
@@ -178,6 +176,10 @@ async function auditLoadedPage(page, profile) {
               if (!marker.test(rule.selectorText)) continue;
               const selector = transformSelector(rule.selectorText);
               if (selector !== rule.selectorText) out.push(`${selector}{${rule.style.cssText}}`);
+            } else if (typeof CSSMediaRule !== 'undefined' && rule instanceof CSSMediaRule) {
+              if (matchMedia(rule.conditionText).matches) walkRules(rule.cssRules);
+            } else if (typeof CSSSupportsRule !== 'undefined' && rule instanceof CSSSupportsRule) {
+              if (CSS.supports(rule.conditionText)) walkRules(rule.cssRules);
             } else if (rule.cssRules) walkRules(rule.cssRules);
           } catch { /* inaccessible or unsupported CSS rule */ }
         }
