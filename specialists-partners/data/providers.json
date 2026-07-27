@@ -1,16 +1,16 @@
 {
-  "schemaVersion": "1.1.0",
-  "updatedAt": "2026-07-27",
-  "publicationPolicy": "Only records with documented identity, qualification, scope, written publication consent, completed field-level verification, and a current verification-ledger record may be published.",
-  "accuracyPolicy": {
-    "siteReviewsBeforePublication": true,
-    "fieldLevelEvidenceRequired": true,
-    "selfReportedInformationIsTreatedAsUnverifiedUntilChecked": true,
-    "materialDisputeCausesTemporarySuspension": true,
-    "correctionsAndReviewDatesAreRecorded": true,
-    "noAbsoluteGuaranteeBeyondAvailableEvidence": true
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-07-28",
+  "publicationPolicy": "Only profiles with documented identity, qualification, professional scope, written publication consent, completed field-level verification, and a current verification-ledger record may be published.",
+  "directoryPrinciples": {
+    "noPaidRanking": true,
+    "privateContactDataExcluded": true,
+    "internalMessagingUsesPrivateBackend": true,
+    "availabilityMustBeReviewed": true,
+    "professionalScopeMustBeExplicit": true,
+    "materialDisputeCausesTemporarySuspension": true
   },
   "verificationLedger": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/verification-ledger.json",
-  "privacyNotice": "Public profiles must contain professional contact details only. Do not store client, child, student, patient, family, identity-document, certificate-image, signature, or private-license data in this file.",
+  "privacyNotice": "Do not store private notification email addresses, login details, identity documents, certificate images, signatures, client data, child data, or case records in this public file.",
   "providers": []
 }
