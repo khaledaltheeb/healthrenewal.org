@@ -1,0 +1,168 @@
+name: Publish special-needs protocols v326
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v326/**"
+      - "scripts/publish_special_needs_protocols_v326.py"
+      - "scripts/special-needs-protocols-v326-source.parts/**"
+      - "tests/test_special_needs_protocols_v326.py"
+      - ".github/workflows/publish-special-needs-protocols-v326.yml"
+      - ".github/workflows/deploy-special-needs-protocols-v326.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "content/v326/**"
+      - "scripts/publish_special_needs_protocols_v326.py"
+      - "scripts/special-needs-protocols-v326-source.parts/**"
+      - "tests/test_special_needs_protocols_v326.py"
+      - ".github/workflows/publish-special-needs-protocols-v326.yml"
+      - ".github/workflows/deploy-special-needs-protocols-v326.yml"
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Publish special-needs expansion v322"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: special-needs-protocols-v326-${{ github.event.pull_request.number || github.event.workflow_run.id || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  validate-source:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Compile and test source contract
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/publish_special_needs_protocols_v326.py tests/test_special_needs_protocols_v326.py
+          python -m unittest -v tests.test_special_needs_protocols_v326
+
+  publish-artifact:
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Download artifact from triggering v322 run
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download latest successful v322 artifact
+        if: github.event_name != 'workflow_run'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json,os,urllib.request
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','User-Agent':'v326-baseline'}
+          def get(url):
+              with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=45) as response:
+                  return json.loads(response.read().decode())
+          runs=get(f'https://api.github.com/repos/{repo}/actions/workflows/publish-special-needs-expansion-v322.yml/runs?branch=main&status=success&per_page=10').get('workflow_runs',[])
+          artifact=None
+          for run in runs:
+              for item in get(run['artifacts_url']).get('artifacts',[]):
+                  if item.get('name')=='validated-production-site' and not item.get('expired'):
+                      artifact=item; break
+              if artifact: break
+          if not artifact: raise SystemExit('No non-expired successful v322 production artifact found')
+          with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as handle:
+              handle.write(f"BASELINE_ARTIFACT_ID={artifact['id']}\n")
+          print({'baseline_run':run['id'],'artifact':artifact['id'],'size':artifact.get('size_in_bytes')})
+          PY
+          curl -fL --retry 5 -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${BASELINE_ARTIFACT_ID}/zip" -o /tmp/v322.zip
+          mkdir -p validated-site
+          unzip -q /tmp/v322.zip -d validated-site
+      - name: Compile, test and publish fifty protocols
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/publish_special_needs_protocols_v326.py tests/test_special_needs_protocols_v326.py
+          python -m unittest -v tests.test_special_needs_protocols_v326
+          python scripts/publish_special_needs_protocols_v326.py validated-site
+          python scripts/finalize_pwa_v14.py validated-site
+          python scripts/audit_orphan_pages_v197.py validated-site --fail-on-critical --require-gateways
+          python scripts/audit_content_quality_v32.py validated-site
+          python scripts/stamp_deployment_v29.py validated-site
+      - name: Enforce v326 production contract
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import hashlib,json,re,xml.etree.ElementTree as ET
+          from pathlib import Path
+          root=Path('validated-site')
+          report=json.loads((root/'api/special-needs-protocols-v326.json').read_text(encoding='utf-8'))
+          assert report['version']==326 and report['status']=='passed',report
+          assert report['protocol_count']==50 and report['generated_page_count']==51,report
+          assert report['source_catalog_count']>=50,report
+          assert report['minimum_words']>=1200 and report['minimum_citations']>=6,report
+          assert report['external_clinical_review_completed'] is False,report
+          index=(root/'special-needs/protocols/index.html').read_text(encoding='utf-8')
+          assert index.count('فتح البروتوكول الكامل')==50
+          hub=(root/'special-needs/index.html').read_text(encoding='utf-8')
+          assert hub.count('<!-- special-needs-protocols-v326:start -->')==1
+          urls=[(n.text or '').strip() for n in ET.parse(root/'sitemap-special-needs.xml').getroot().findall('{*}url/{*}loc')]
+          assert len([u for u in urls if '/special-needs/protocols/' in u])==51
+          for slug in report['protocol_slugs']:
+              page=root/'special-needs/protocols'/slug/'index.html'
+              text=page.read_text(encoding='utf-8')
+              assert text.count('<h1')==1 and len(re.findall(r'<h2\b',text))>=11,slug
+              assert 'data-special-needs-protocol-v326' in text,slug
+              assert 'المراجعة الخارجية السريرية المستقلة لم تكتمل' in text,slug
+          discovery=json.loads((root/'api/orphan-page-audit-v197.json').read_text(encoding='utf-8'))
+          quality=json.loads((root/'api/content-quality-v32.json').read_text(encoding='utf-8'))
+          assert discovery['status']=='passed',discovery
+          for key in ('critical_orphans','critical_unmapped','missing_gateways','gateway_orphans','gateway_unmapped'):
+              assert discovery[key]==[],(key,discovery[key])
+          assert quality['critical_error_count']==0 and quality['thin_page_candidates']==0,quality
+          deployment=json.loads((root/'deployment.json').read_text(encoding='utf-8'))
+          for name,evidence in deployment['artifacts'].items():
+              path=root/name
+              assert path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest()==evidence['sha256'],name
+              assert path.stat().st_size==evidence['bytes'],name
+          print({'status':'passed','protocols':50,'routes':51,'sources':report['source_catalog_count'],'minimum_words':report['minimum_words'],'minimum_citations':report['minimum_citations']})
+          PY
+      - name: Upload v326 validated production artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload protocol evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-needs-protocols-v326
+          path: |
+            validated-site/api/special-needs-protocols-v326.json
+            validated-site/api/orphan-page-audit-v197.json
+            validated-site/api/content-quality-v32.json
+            validated-site/deployment.json
+          if-no-files-found: warn
+          retention-days: 14
