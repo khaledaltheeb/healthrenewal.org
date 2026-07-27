@@ -1,0 +1,85 @@
+name: Patch magazine continuous contract v313 temporary
+
+on:
+  push:
+    branches: ["agent/magazine-continuous-evidence-v313"]
+    paths:
+      - ".github/workflows/patch-magazine-v313-temporary.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/magazine-continuous-evidence-v313
+          fetch-depth: 0
+      - name: Update deterministic legacy expectations
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          test = Path('tests/test_magazine_research_v234.py')
+          text = test.read_text(encoding='utf-8')
+          replacements = {
+              'publish_magazine_v234': 'publish_magazine_v313',
+              'MagazineResearchV234Tests': 'MagazineResearchV313Tests',
+              'self.assertEqual(len(pages), 60)': 'self.assertEqual(len(pages), 65)',
+              'self.assertEqual(report["version"], 234)': 'self.assertEqual(report["version"], 313)',
+              'self.assertEqual(report["research_summaries_published"], 60)': 'self.assertEqual(report["research_summaries_published"], 65)',
+              'self.assertEqual(len(report["articles"]), 60)': 'self.assertEqual(len(report["articles"]), 65)',
+              'self.assertEqual(report["sitemap"]["child_urls"], 61)': 'self.assertEqual(report["sitemap"]["child_urls"], 66)',
+              'self.assertEqual(len(urls), 61)': 'self.assertEqual(len(urls), 66)',
+              'self.assertEqual(saved["research_summaries_published"], 60)': 'self.assertEqual(saved["research_summaries_published"], 65)',
+              'self.assertIn(\'"numberOfItems":60\', index)': 'self.assertIn(\'"numberOfItems":65\', index)',
+              'self.assertEqual(index.count(\'class="card"\'), 60)': 'self.assertEqual(index.count(\'class="card"\'), 65)',
+              'self.assertEqual(index.count(\'"@type":"ScholarlyArticle"\'), 60)': 'self.assertEqual(index.count(\'"@type":"ScholarlyArticle"\'), 65)',
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'missing test anchor: {old}')
+              text = text.replace(old, new)
+          test.write_text(text, encoding='utf-8')
+
+          workflow = Path('.github/workflows/validate-magazine-research-v234.yml')
+          text = workflow.read_text(encoding='utf-8')
+          replacements = {
+              'Validate magazine and research v234': 'Validate magazine continuous research v313',
+              "magazine_v234_inventory": "magazine_v313_inventory",
+              'assert len(pages) == 60': 'assert len(pages) == 65',
+              "assert index.count('class=\"card\"') == 60": "assert index.count('class=\"card\"') == 65",
+              "assert index.count('\"@type\":\"ScholarlyArticle\"') == 60": "assert index.count('\"@type\":\"ScholarlyArticle\"') == 65",
+              "assert '\"numberOfItems\":60' in index": "assert '\"numberOfItems\":65' in index",
+              "print({'articles': len(pages), 'generated_cards': 60, 'unwired': 0})": "print({'articles': len(pages), 'generated_cards': 65, 'target': 100, 'unwired': 0})",
+              "test \"$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)\" -eq 51": "test \"$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)\" -eq 56",
+              "test \"$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)\" -eq 60": "test \"$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)\" -eq 65",
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'missing workflow anchor: {old}')
+              text = text.replace(old, new)
+          insertion = """          grep -q '10.1016/j.ridd.2026.105277' magazine/adhd-baduanjin-response-inhibition-rct-2026.html
+          grep -q '10.1186/s12888-026-08274-9' magazine/autism-structured-interactive-play-screening-cohort-2026.html
+          grep -q '10.1016/j.eclinm.2026.103971' magazine/adolescent-depression-one-step-back-rct-2026.html
+          grep -q '10.1080/15374416.2026.2687880' magazine/latinx-adolescent-suicidal-behavior-cbt-rct-2026.html
+          grep -q '10.1111/jcpp.70188' magazine/adhd-personalized-neurofeedback-sham-rct-2026.html
+          grep -q 'TARGET_ARTICLES = 100' scripts/publish_magazine_v201.py
+          grep -q 'latest-twenty-generated-from-discovered-articles' scripts/publish_magazine_v201.py
+"""
+          anchor = "          grep -q 'unwired_research_pages' scripts/publish_magazine_v201.py\n"
+          if insertion not in text:
+              if text.count(anchor) != 1:
+                  raise SystemExit('workflow insertion anchor missing')
+              text = text.replace(anchor, insertion + anchor, 1)
+          workflow.write_text(text, encoding='utf-8')
+          PY
+          python -m py_compile scripts/publish_magazine_v201.py tests/test_magazine_research_v234.py
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tests/test_magazine_research_v234.py .github/workflows/validate-magazine-research-v234.yml
+          git diff --cached --quiet && exit 0
+          git commit -m "test: align magazine workflow with continuous contract v313"
+          git push origin HEAD:agent/magazine-continuous-evidence-v313
