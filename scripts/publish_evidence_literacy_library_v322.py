@@ -4,12 +4,14 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import publish_evidence_literacy_library_v322_core as core
 from publish_evidence_literacy_library_v322_core import *  # noqa: F401,F403
 
 ROOT = Path(__file__).resolve().parents[1]
+SPECIAL_NEEDS_SITEMAP = ROOT / "sitemap-special-needs.xml"
 STATIC_PAGES = {
     "trust": {
         "source": ROOT / "trust" / "index.html",
@@ -22,6 +24,12 @@ STATIC_PAGES = {
         "minimum_words": 900,
         "canonical": 'rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/start-here/"',
         "review_phrase": "المعلومات التثقيفية تساعد على الفهم",
+    },
+    "special-needs": {
+        "source": ROOT / "special-needs" / "index.html",
+        "minimum_words": 1300,
+        "canonical": 'rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/special-needs/"',
+        "review_phrase": "الاحتياج لا يلغي القدرة",
     },
 }
 
@@ -41,7 +49,27 @@ def publish_static_page(site: Path, slug: str, contract: dict) -> int:
         raise SystemExit(f"Institutional page canonical contract failed: {slug}")
     if "application/ld+json" not in source or contract["review_phrase"] not in source:
         raise SystemExit(f"Institutional page structure or boundary disclosure failed: {slug}")
+    if core.BANNED.search(source):
+        raise SystemExit(f"Banned terminology rendered in institutional page: {slug}")
     return page_words
+
+
+def publish_special_needs_sitemap(site: Path) -> None:
+    if not SPECIAL_NEEDS_SITEMAP.is_file():
+        raise SystemExit(f"Missing special-needs sitemap source: {SPECIAL_NEEDS_SITEMAP}")
+    target = site / "sitemap-special-needs.xml"
+    shutil.copy2(SPECIAL_NEEDS_SITEMAP, target)
+    root = ET.parse(target).getroot()
+    if root.tag.rsplit("}", 1)[-1] != "urlset":
+        raise SystemExit("Special-needs sitemap must be a urlset")
+    urls = [
+        (node.text or "").strip()
+        for node in root.findall("{*}url/{*}loc")
+        if node.text
+    ]
+    expected = "https://khaledaltheeb.github.io/pterminology-site/special-needs/"
+    if urls.count(expected) != 1 or len(urls) != len(set(urls)):
+        raise SystemExit("Special-needs sitemap foundation contract failed")
 
 
 def publish(site: Path) -> dict:
@@ -49,6 +77,7 @@ def publish(site: Path) -> dict:
         slug: publish_static_page(site, slug, contract)
         for slug, contract in STATIC_PAGES.items()
     }
+    publish_special_needs_sitemap(site)
     report = core.publish(site)
     core.update_sitemap(site, ["/trust/", "/start-here/"], report["reviewed_at"])
     report.update(
@@ -62,6 +91,11 @@ def publish(site: Path) -> dict:
             "start_here_page_path": "start-here/index.html",
             "start_here_page_words": static_words["start-here"],
             "start_here_page_sitemap_registered": True,
+            "special_needs_hub_published": True,
+            "special_needs_hub_path": "special-needs/index.html",
+            "special_needs_hub_words": static_words["special-needs"],
+            "special_needs_hub_review_status": "internally-reviewed-external-specialist-review-required",
+            "special_needs_sitemap_published": True,
         }
     )
     api_path = site / "api" / "evidence-literacy-library-v322.json"
