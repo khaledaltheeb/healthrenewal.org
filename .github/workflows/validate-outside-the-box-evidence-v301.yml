@@ -1,0 +1,41 @@
+name: Validate outside-the-box evidence governance v301
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "api/outside-the-box-evidence-standard-v301.json"
+      - "outside-the-box/evidence-standard/**"
+      - "scripts/audit_outside_the_box_evidence_v301.py"
+      - "content/v254/outside-the-box-conditions-ar.json"
+      - "content/v254/outside-the-box-instruments-ar.json"
+      - ".github/workflows/validate-outside-the-box-evidence-v301.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "api/outside-the-box-evidence-standard-v301.json"
+      - "outside-the-box/evidence-standard/**"
+      - "scripts/audit_outside_the_box_evidence_v301.py"
+      - "content/v254/outside-the-box-conditions-ar.json"
+      - "content/v254/outside-the-box-instruments-ar.json"
+      - ".github/workflows/validate-outside-the-box-evidence-v301.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON and Python
+        run: |
+          set -euxo pipefail
+          python -m json.tool api/outside-the-box-evidence-standard-v301.json >/dev/null
+          python -m py_compile scripts/audit_outside_the_box_evidence_v301.py
+
+      - name: Audit 100 condition pathways
+        run: python scripts/audit_outside_the_box_evidence_v301.py
