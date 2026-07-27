@@ -6,6 +6,7 @@ on:
     paths:
       - "content/v324/autism-clinical-pathways-ar.json.gz"
       - "scripts/publish_autism_clinical_pathways_v324.py"
+      - "scripts/publish_autism_clinical_pathways_v324_core.py"
       - "scripts/publish_special_needs_guides_v217.py"
       - "scripts/publish_special_needs_guides_v217_pipeline_core.py"
       - "tests/test_autism_clinical_pathways_v324.py"
@@ -34,11 +35,12 @@ jobs:
           set -euxo pipefail
           python -m py_compile \
             scripts/publish_autism_clinical_pathways_v324.py \
+            scripts/publish_autism_clinical_pathways_v324_core.py \
             scripts/publish_special_needs_guides_v217.py \
             scripts/publish_special_needs_guides_v217_pipeline_core.py \
             tests/test_autism_clinical_pathways_v324.py \
             tests/test_autism_clinical_pathways_integration_v324.py
-      - name: Validate compressed source and page contracts
+      - name: Validate compressed source page depth evidence and shell
         run: |
           set -o pipefail
           python -m unittest -v \
