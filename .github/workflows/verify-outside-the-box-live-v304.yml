@@ -82,7 +82,7 @@ jobs:
           token="${MINIMUM_SHA}-live-$(date +%s)"
           curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/?v=${token}" -o /tmp/hub.html
           curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/speech-sound-disorder/?v=${token}" -o /tmp/speech.html
-          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/autism-spectrum/?v=${token}" -o /tmp/autism.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/autism/?v=${token}" -o /tmp/autism.html
           curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/cerebral-palsy/?v=${token}" -o /tmp/cp.html
           curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/ten-plan-methodology/?v=${token}" -o /tmp/methodology.html
           curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/instruments/?v=${token}" -o /tmp/instruments.html
