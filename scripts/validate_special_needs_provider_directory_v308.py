@@ -109,6 +109,10 @@ def validate_provider_data(data: dict[str, Any], today: date | None = None) -> d
         is_sponsored = item.get("sponsored") is True
         if (disclosure == "sponsored") != is_sponsored:
             raise SystemExit(f"Sponsored disclosure mismatch: {provider_id}")
+        if is_sponsored:
+            raise SystemExit(
+                f"Sponsored publication is disabled until the public card renderer visibly labels sponsored records: {provider_id}"
+            )
         published += 1
         sponsored += int(is_sponsored)
         expiring_within_30_days += int((expires_at - today).days <= 30)
@@ -120,6 +124,7 @@ def validate_provider_data(data: dict[str, Any], today: date | None = None) -> d
         "record_count": len(providers),
         "published_count": published,
         "sponsored_count": sponsored,
+        "sponsored_publication_enabled": False,
         "expiring_within_30_days": expiring_within_30_days,
         "status_counts": dict(sorted(counts.items())),
         "provider_source": PROVIDERS.relative_to(ROOT).as_posix(),
