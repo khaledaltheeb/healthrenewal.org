@@ -9,6 +9,7 @@ on:
       - "content/v24/daily-tools-learning-paths-ar.json"
       - "scripts/publish_daily_tools_v24.py"
       - "scripts/daily_tools_v100.py"
+      - "scripts/audit_daily_tools_quality_v100.py"
       - "scripts/publish_daily_tools_v24_core.py"
       - "scripts/verify_daily_tools_v24.py"
       - "scripts/apply_daily_tools_marshmallow_v219.py"
@@ -40,6 +41,7 @@ jobs:
           python -m py_compile \
             scripts/publish_daily_tools_v24.py \
             scripts/daily_tools_v100.py \
+            scripts/audit_daily_tools_quality_v100.py \
             scripts/publish_daily_tools_v24_core.py \
             scripts/verify_daily_tools_v24.py \
             scripts/apply_daily_tools_marshmallow_v219.py \
@@ -47,6 +49,7 @@ jobs:
           grep -q 'CATALOG_CONTRACT = 100' scripts/daily_tools_v100.py
           grep -q 'daily-tools-v100' scripts/daily_tools_v100.py
           python scripts/verify_daily_tools_v24.py
+          python scripts/audit_daily_tools_quality_v100.py
 
       - name: Validate current homepage integration
         run: |
@@ -98,6 +101,7 @@ jobs:
           import xml.etree.ElementTree as ET
           from pathlib import Path
           report=json.loads(Path('_site/api/daily-tools-v24.json').read_text(encoding='utf-8'))
+          quality=json.loads(Path('_audit/daily-tools-quality-v100.json').read_text(encoding='utf-8'))
           assert report['catalog_contract']==100,report
           assert report['tools']>=100 and report['categories']>=10 and report['paths']>=10,report
           assert report['pages']==report['tools']+report['paths']+2,report
@@ -107,7 +111,11 @@ jobs:
           assert len(list(root))==report['pages']
           assert report['local_only'] and report['search_and_filters'] and report['per_tool_sources']
           assert report['homepage_linked'] and report['marshmallow_palette']
+          assert quality['status']=='passed' and quality['tools']==report['tools'],quality
+          assert quality['near_duplicate_pairs']==[],quality
+          assert quality['minimum_sources_per_tool']>=2,quality
           print(report)
+          print(quality)
           PY
           grep -R -q 'data-catalog="daily-tools-v100"' _site/daily-tools _site/learning-paths
           grep -q 'data-tool-search' _site/daily-tools/index.html
@@ -121,6 +129,7 @@ jobs:
         with:
           name: daily-tools-v100-preview
           path: |
+            _audit/daily-tools-quality-v100.json
             _audit/daily-tools-homepage-integration.log
             _audit/daily-tools-homepage-after.html
             _audit/daily-tools-home-verifier-after.py
