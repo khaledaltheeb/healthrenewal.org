@@ -44,7 +44,19 @@ jobs:
             scripts/expose_hidden_collections_v216.py \
             scripts/expose_daily_tools_home_v219.py \
             scripts/verify_homepage_v19.py
-          python scripts/expose_hidden_collections_v216.py
+
+          # v216 is a one-time migrator for the former compact homepage. Do not
+          # apply it to the current institutional shell after its collections
+          # have already become first-class navigation and JSON-LD entries.
+          if grep -q 'href="comparisons/"' index.html \
+            && grep -q 'href="library/"' index.html \
+            && grep -q 'href="guided-assessment/"' index.html \
+            && grep -q 'href="hubs/"' index.html; then
+            echo "Advanced collection discovery is already present; skipping obsolete v216 migration."
+          else
+            python scripts/expose_hidden_collections_v216.py
+          fi
+
           python scripts/expose_daily_tools_home_v219.py
           python scripts/expose_daily_tools_home_v219.py
           python scripts/verify_homepage_v19.py
