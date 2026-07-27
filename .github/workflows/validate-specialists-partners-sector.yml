@@ -5,6 +5,8 @@ on:
     branches: ["main"]
     paths:
       - "specialists-partners/**"
+      - "team-and-partners/**"
+      - "assets/platform/platform-core.js"
       - "api/v1/platform.json"
       - "api/v1/specialists-partners.json"
       - "sitemap-specialists-partners.xml"
@@ -36,6 +38,8 @@ jobs:
           python -m json.tool api/v1/specialists-partners.json >/dev/null
           python -m json.tool api/v1/platform.json >/dev/null
       - name: Validate JavaScript syntax
-        run: node --check specialists-partners/assets/sector.js
+        run: |
+          node --check specialists-partners/assets/sector.js
+          node --check assets/platform/platform-core.js
       - name: Run sector contracts
         run: python -m unittest -v tests.test_specialists_partners_sector
