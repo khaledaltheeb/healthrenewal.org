@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - agent/platform-architecture-v1
     paths:
       - "**/*.html"
       - "assets/platform/**"
@@ -29,36 +28,42 @@ permissions:
 
 concurrency:
   group: platform-normalize-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   normalize:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Check out writable branch
+      - name: Check out repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
 
       - name: Validate migration source
         run: |
           python -m py_compile scripts/normalize_platform_shell.py
           node --check assets/platform/platform-core.js
 
-      - name: Normalize all production HTML pages
+      - name: Verify pull request pages are normalized
+        if: github.event_name == 'pull_request'
+        run: python scripts/normalize_platform_shell.py --check --no-report
+
+      - name: Normalize pages on main
+        if: github.event_name != 'pull_request'
         run: python scripts/normalize_platform_shell.py
 
-      - name: Validate generated changes
+      - name: Validate generated changes on main
+        if: github.event_name != 'pull_request'
         run: |
           git diff --check
           python scripts/normalize_platform_shell.py --check --no-report
 
-      - name: Commit normalized pages
+      - name: Commit real HTML migrations on main
+        if: github.event_name != 'pull_request'
         run: |
-          if git diff --quiet; then
+          if ! git diff --name-only -- '*.html' | grep -q .; then
+            git restore --worktree --staged reports/platform-normalization.json 2>/dev/null || true
             echo "All pages already use the current platform shell."
             exit 0
           fi
@@ -66,4 +71,4 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add -- '*.html' reports/platform-normalization.json
           git commit -m "style: normalize platform shell across HTML pages"
-          git push origin HEAD:${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
+          git push origin HEAD:main
