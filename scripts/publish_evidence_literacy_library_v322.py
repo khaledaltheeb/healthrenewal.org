@@ -10,33 +10,58 @@ import publish_evidence_literacy_library_v322_core as core
 from publish_evidence_literacy_library_v322_core import *  # noqa: F401,F403
 
 ROOT = Path(__file__).resolve().parents[1]
-TRUST_SOURCE = ROOT / "trust" / "index.html"
+STATIC_PAGES = {
+    "trust": {
+        "source": ROOT / "trust" / "index.html",
+        "minimum_words": 1100,
+        "canonical": 'rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/trust/"',
+        "review_phrase": "لم تكتمل مراجعة خارجية مستقلة",
+    },
+    "start-here": {
+        "source": ROOT / "start-here" / "index.html",
+        "minimum_words": 900,
+        "canonical": 'rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/start-here/"',
+        "review_phrase": "المعلومات التثقيفية تساعد على الفهم",
+    },
+}
+
+
+def publish_static_page(site: Path, slug: str, contract: dict) -> int:
+    source_path = contract["source"]
+    if not source_path.is_file():
+        raise SystemExit(f"Missing institutional source page: {source_path}")
+    target = site / slug / "index.html"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source_path, target)
+    source = target.read_text(encoding="utf-8")
+    page_words = core.words(source)
+    if page_words < int(contract["minimum_words"]) or source.count("<h1") != 1:
+        raise SystemExit({"institutional_page_depth_failed": {"slug": slug, "words": page_words}})
+    if contract["canonical"] not in source:
+        raise SystemExit(f"Institutional page canonical contract failed: {slug}")
+    if "application/ld+json" not in source or contract["review_phrase"] not in source:
+        raise SystemExit(f"Institutional page structure or boundary disclosure failed: {slug}")
+    return page_words
 
 
 def publish(site: Path) -> dict:
-    if not TRUST_SOURCE.is_file():
-        raise SystemExit(f"Missing institutional trust source: {TRUST_SOURCE}")
-    trust_target = site / "trust" / "index.html"
-    trust_target.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(TRUST_SOURCE, trust_target)
-    trust_source = trust_target.read_text(encoding="utf-8")
-    trust_words = core.words(trust_source)
-    if trust_words < 1100 or trust_source.count("<h1") != 1:
-        raise SystemExit({"trust_page_depth_failed": {"words": trust_words}})
-    if 'rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/trust/"' not in trust_source:
-        raise SystemExit("Trust page canonical contract failed")
-    if 'application/ld+json' not in trust_source or "لم تكتمل مراجعة خارجية مستقلة" not in trust_source:
-        raise SystemExit("Trust page structure or review disclosure failed")
-
+    static_words = {
+        slug: publish_static_page(site, slug, contract)
+        for slug, contract in STATIC_PAGES.items()
+    }
     report = core.publish(site)
-    core.update_sitemap(site, ["/trust/"], report["reviewed_at"])
+    core.update_sitemap(site, ["/trust/", "/start-here/"], report["reviewed_at"])
     report.update(
         {
             "trust_page_published": True,
             "trust_page_path": "trust/index.html",
-            "trust_page_words": trust_words,
+            "trust_page_words": static_words["trust"],
             "trust_page_review_status": "internally-reviewed-external-methodology-review-required",
             "trust_page_sitemap_registered": True,
+            "start_here_page_published": True,
+            "start_here_page_path": "start-here/index.html",
+            "start_here_page_words": static_words["start-here"],
+            "start_here_page_sitemap_registered": True,
         }
     )
     api_path = site / "api" / "evidence-literacy-library-v322.json"
