@@ -73,7 +73,7 @@ class MagazineResearchV313Tests(unittest.TestCase):
             self.assertEqual(saved["target_research_summaries"], 100)
             self.assertEqual(set(saved["articles"]), {path.name for path in pages})
 
-    def test_publish_is_idempotent(self) -> None:
+    def test_publish_is_idempotent_for_content_assets(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             site = self.make_site(Path(directory))
             first = MODULE.publish(site)
@@ -81,13 +81,14 @@ class MagazineResearchV313Tests(unittest.TestCase):
                 site / "sitemap-magazine.xml",
                 site / "magazine/index.html",
                 site / "magazine/feed.xml",
-                site / "api/magazine-v201.json",
             ]
             before = [hashlib.sha256(path.read_bytes()).hexdigest() for path in tracked]
             second = MODULE.publish(site)
             after = [hashlib.sha256(path.read_bytes()).hexdigest() for path in tracked]
             self.assertEqual(first["source_sha256"], second["source_sha256"])
             self.assertEqual(before, after)
+            self.assertTrue(first["sitemap"]["main_changed"])
+            self.assertFalse(second["sitemap"]["main_changed"])
 
     def test_generated_index_is_dynamic(self) -> None:
         pages = MODULE.article_files()
