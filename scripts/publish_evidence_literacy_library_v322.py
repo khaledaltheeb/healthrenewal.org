@@ -111,21 +111,35 @@ def trim_academic_sitemap_to_new_entries(site: Path) -> int:
     return len(urls)
 
 
-def restore_evidence_library_parent_marker(site: Path) -> None:
+def restore_evidence_library_parent_contract(site: Path) -> None:
     path = site / "library" / "index.html"
     if not path.is_file():
         raise SystemExit(f"Missing academic library index: {path}")
     source = path.read_text(encoding="utf-8")
     marker = core.PARENT_MARKER
+
+    footer_link = f' · <a href="{core.BP}library/evidence-literacy/">الثقافة العلمية</a>'
+    if footer_link in source:
+        source = source.replace(footer_link, "", 1)
+
+    section_needle = '<section class="wrap grid">'
+    section_replacement = f'<section class="wrap grid" {marker}>'
     if marker not in source:
-        needle = f'<a class="button" href="{core.BP}library/evidence-literacy/"'
-        replacement = f'<a class="button" {marker} href="{core.BP}library/evidence-literacy/"'
-        if source.count(needle) != 1:
-            raise SystemExit({"evidence_primary_parent_link_contract_failed": source.count(needle)})
-        source = source.replace(needle, replacement, 1)
-        path.write_text(source, encoding="utf-8")
-    if path.read_text(encoding="utf-8").count(marker) != 1:
-        raise SystemExit("Evidence parent marker must occur exactly once")
+        if source.count(section_needle) != 1:
+            raise SystemExit({"evidence_parent_section_contract_failed": source.count(section_needle)})
+        source = source.replace(section_needle, section_replacement, 1)
+
+    evidence_url = f'{core.BP}library/evidence-literacy/'
+    if source.count(marker) != 1 or source.count(evidence_url) != 1:
+        raise SystemExit(
+            {
+                "evidence_parent_contract_failed": {
+                    "markers": source.count(marker),
+                    "links": source.count(evidence_url),
+                }
+            }
+        )
+    path.write_text(source, encoding="utf-8")
 
 
 def publish(site: Path) -> dict:
@@ -148,7 +162,7 @@ def publish(site: Path) -> dict:
     if int(academic.get("minimum_page_words", 0)) < 180:
         raise SystemExit({"academic_library_depth_failed": academic})
     academic_sitemap_entries = trim_academic_sitemap_to_new_entries(site)
-    restore_evidence_library_parent_marker(site)
+    restore_evidence_library_parent_contract(site)
 
     report.update(
         {
