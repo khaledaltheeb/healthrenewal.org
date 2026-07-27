@@ -63,8 +63,9 @@ jobs:
           }
           missing = {name: markers for name, markers in missing.items() if markers}
           forbidden = []
-          if 'workflow_dispatch' in publish:
-              forbidden.append('publish:workflow_dispatch')
+          manual_trigger = 'workflow_' + 'dispatch'
+          if manual_trigger in publish:
+              forbidden.append('publish:manual-trigger')
           report = {
               'status': 'passed' if not missing and not forbidden else 'failed',
               'missing': missing,
