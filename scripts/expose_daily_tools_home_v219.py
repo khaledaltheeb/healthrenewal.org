@@ -172,13 +172,32 @@ def patch_verifier() -> None:
         '"https://khaledaltheeb.github.io/pterminology-site/learning-paths/" in part_urls',
     )
 
-    report_marker = '                "guided_assessment_linked": True,\n'
-    report_addition = (
-        '                "daily_tools_linked": True,\n'
-        '                "learning_paths_linked": True,\n'
-        f'                "interactive_tools_discovery_contract": {RELEASE},\n'
+    report_contract = re.search(r'"interactive_tools_discovery_contract"\s*:\s*(\d+)', text)
+    if report_contract:
+        if int(report_contract.group(1)) < RELEASE:
+            text = text[: report_contract.start(1)] + str(RELEASE) + text[report_contract.end(1) :]
+    else:
+        report_marker = '                "guided_assessment_linked": True,\n'
+        report_addition = (
+            '                "daily_tools_linked": True,\n'
+            '                "learning_paths_linked": True,\n'
+            f'                "interactive_tools_discovery_contract": {RELEASE},\n'
+        )
+        text = insert_after_once(text, report_marker, report_addition, "interactive_tools_discovery_contract")
+
+    required = (
+        '    "daily-tools/",',
+        '    "learning-paths/",',
+        "Interactive tools are not visibly described",
+        '"https://khaledaltheeb.github.io/pterminology-site/daily-tools/" in part_urls',
+        '"https://khaledaltheeb.github.io/pterminology-site/learning-paths/" in part_urls',
+        '"daily_tools_linked": True',
+        '"learning_paths_linked": True',
+        "interactive_tools_discovery_contract",
     )
-    text = insert_after_once(text, report_marker, report_addition, '"interactive_tools_discovery_contract": 219')
+    missing = [marker for marker in required if marker not in text]
+    if missing:
+        raise SystemExit(f"Homepage verifier contract remains incomplete: {missing}")
     VERIFY.write_text(text, encoding="utf-8")
 
 
