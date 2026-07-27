@@ -30,6 +30,7 @@ jobs:
           node --check content/v15/lab-v15.js
           node --check scripts/test_lab_v15.js
           node --check scripts/browser_audit_v16.mjs
+          node --check scripts/audit_hero_header_black_v281.mjs
       - name: Build base site and content layers
         run: |
           set -euxo pipefail
@@ -83,6 +84,7 @@ jobs:
           trap 'kill $SERVER_PID || true' EXIT
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/pterminology-site/ >/dev/null && break; sleep 1; done
           AUDIT_BASE_URL=http://127.0.0.1:8000/pterminology-site/ AUDIT_OUT_DIR=_site/api node scripts/browser_audit_v16.mjs
+          AUDIT_BASE_URL=http://127.0.0.1:8000/pterminology-site/ AUDIT_OUT_DIR=_site/api node scripts/audit_hero_header_black_v281.mjs _site
       - name: Upload complete audit reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -94,6 +96,7 @@ jobs:
             _site/api/polish-v16.json
             _site/api/full-site-audit-v16.json
             _site/api/browser-audit-v16.json
+            _site/api/hero-header-black-audit-v281.json
             _site/api/site-integrity-v13.json
             _site/api/core-sections-audit-v15.json
             _site/api/performance-verification-v14.json
