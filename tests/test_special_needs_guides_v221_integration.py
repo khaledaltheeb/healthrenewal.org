@@ -119,9 +119,12 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
         report = json.loads((ROOT / "_audit/unpublished-content-v201.json").read_text(encoding="utf-8"))
         counts = report["category_counts"]
-        self.assertEqual(counts.get("unwired-content", 0), 0)
-        self.assertEqual(counts.get("source-only", 0), 0)
-        self.assertEqual(counts.get("unwired-publisher", 0), 0)
+        unwired_content = [item["path"] for item in report["items"] if item["category"] == "unwired-content"]
+        source_only = [item["path"] for item in report["items"] if item["category"] == "source-only"]
+        unwired_publishers = [item["path"] for item in report["items"] if item["category"] == "unwired-publisher"]
+        self.assertEqual(counts.get("unwired-content", 0), 0, "\n".join(unwired_content))
+        self.assertEqual(counts.get("source-only", 0), 0, "\n".join(source_only))
+        self.assertEqual(counts.get("unwired-publisher", 0), 0, "\n".join(unwired_publishers))
         self.assertEqual(counts.get("blocked-review", 0), 3)
         by_path = {item["path"]: item for item in report["items"]}
         manifest = json.loads(PRODUCTION_MANIFEST.read_text(encoding="utf-8"))
