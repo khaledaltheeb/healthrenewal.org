@@ -1,4 +1,4 @@
-/* v283 — computed-style hero/header contrast guard; v289 deterministic late-style recovery. */
+/* v283 — computed-style hero/header contrast guard; v290 element-background-first recovery. */
 (() => {
   'use strict';
 
@@ -37,6 +37,13 @@
     };
   }
 
+  function colorsFromGradient(value) {
+    if (!value || value === 'none' || !/gradient\(/i.test(value)) return [];
+    return [...String(value).matchAll(/rgba?\([^)]+\)/gi)]
+      .map((match) => parseColor(match[0]))
+      .filter(Boolean);
+  }
+
   function composite(front, back) {
     const alpha = front.a + back.a * (1 - front.a);
     if (alpha <= 0) return { ...WHITE };
@@ -49,11 +56,11 @@
   }
 
   function luminance({ r, g, b }) {
-    const c = [r, g, b].map((channel) => {
+    const channels = [r, g, b].map((channel) => {
       const value = channel / 255;
       return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
     });
-    return c[0] * 0.2126 + c[1] * 0.7152 + c[2] * 0.0722;
+    return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
   }
 
   function ratio(a, b) {
@@ -64,21 +71,6 @@
 
   function cssColor(color) {
     return `rgb(${Math.round(color.r)}, ${Math.round(color.g)}, ${Math.round(color.b)})`;
-  }
-
-  function effectiveBackground(element) {
-    const chain = [];
-    let current = element;
-    while (current && current.nodeType === Node.ELEMENT_NODE) {
-      const style = getComputedStyle(current);
-      const color = parseColor(style.backgroundColor);
-      if (color && color.a > 0.001) chain.push(color);
-      if (color?.a >= 0.999) break;
-      current = current.parentElement;
-    }
-    let background = { ...WHITE };
-    for (let index = chain.length - 1; index >= 0; index -= 1) background = composite(chain[index], background);
-    return background;
   }
 
   function visible(element) {
@@ -105,18 +97,23 @@
     return null;
   }
 
+  function targetForCandidates(candidates) {
+    const lightMinimum = Math.min(...candidates.map((background) => ratio(LIGHT_TEXT, background)));
+    const darkMinimum = Math.min(...candidates.map((background) => ratio(DARK_TEXT, background)));
+    return darkMinimum >= lightMinimum ? 'light' : 'dark';
+  }
+
   function stabilizeImageSurface(surface) {
     const style = getComputedStyle(surface);
     if (!style.backgroundImage || style.backgroundImage === 'none') return declaredSurface(surface);
     let choice = declaredSurface(surface);
     if (!choice) {
       const own = parseColor(style.backgroundColor);
-      if (own && own.a >= 0.55) choice = luminance(composite(own, WHITE)) >= 0.55 ? 'light' : 'dark';
-      else {
-        const sample = [...surface.querySelectorAll(TEXT_SELECTOR)].find(visible);
-        const text = sample ? parseColor(getComputedStyle(sample).color) : null;
-        choice = text && luminance(text) < 0.45 ? 'light' : 'dark';
-      }
+      const base = own && own.a > 0.001 ? composite(own, WHITE) : { ...WHITE };
+      const gradient = colorsFromGradient(style.backgroundImage).map((color) => composite(color, base));
+      if (gradient.length) choice = targetForCandidates(gradient);
+      else if (own && own.a >= 0.55) choice = luminance(base) >= 0.45 ? 'light' : 'dark';
+      else choice = 'dark';
     }
     surface.classList.toggle('hh-overlay-light', choice === 'light');
     surface.classList.toggle('hh-overlay-dark', choice === 'dark');
@@ -124,13 +121,41 @@
     return choice;
   }
 
-  function ownDarkControl(element, style) {
-    if (!element.matches(CONTROL_SELECTOR)) return false;
-    const own = parseColor(style.backgroundColor);
-    return Boolean(own && own.a >= 0.75 && luminance(composite(own, WHITE)) < 0.35);
+  function backgroundInfo(element) {
+    const chain = [];
+    let current = element;
+    while (current && current.nodeType === Node.ELEMENT_NODE) {
+      const style = getComputedStyle(current);
+      chain.push({
+        color: parseColor(style.backgroundColor),
+        image: style.backgroundImage,
+        guarded: current.matches('.hh-overlay-dark,.hh-overlay-light,[data-surface="light"],[data-surface="dark"],[data-theme="light"],[data-theme="dark"],.surface-light,.surface-dark,.theme-light,.theme-dark,.hh-surface-light,.hh-surface-dark'),
+      });
+      if (chain.at(-1).color?.a >= 0.999) break;
+      current = current.parentElement;
+    }
+
+    let solid = { ...WHITE };
+    for (let index = chain.length - 1; index >= 0; index -= 1) {
+      if (chain[index].color?.a > 0.001) solid = composite(chain[index].color, solid);
+    }
+
+    const candidates = [solid];
+    let unresolvedImage = false;
+    for (const layer of chain) {
+      if (!layer.image || layer.image === 'none' || layer.guarded) continue;
+      const gradientColors = colorsFromGradient(layer.image);
+      if (gradientColors.length) candidates.push(...gradientColors.map((color) => composite(color, solid)));
+      if (/url\(/i.test(layer.image)) unresolvedImage = true;
+    }
+    return { candidates, unresolvedImage };
   }
 
-  function applyColor(element, target, background, source) {
+  function minimumRatio(foreground, candidates) {
+    return Math.min(...candidates.map((background) => ratio(foreground.a < 1 ? composite(foreground, background) : foreground, background)));
+  }
+
+  function applyColor(element, target, candidates, source) {
     const light = target === LIGHT_TEXT;
     for (const name of [...OWN_CLASSES, ...LEGACY_CLASSES]) element.classList.remove(name);
     element.classList.add(light ? 'hh-text-on-dark' : 'hh-text-on-light');
@@ -140,37 +165,42 @@
     element.style.setProperty('text-shadow', light ? '0 1px 2px rgba(0,0,0,.38)' : 'none', 'important');
     element.dataset.hhInlineContrast = 'true';
     element.dataset.hhExpectedColor = value;
-    element.dataset.hhContrast = ratio(target, background).toFixed(2);
+    element.dataset.hhContrast = minimumRatio(target, candidates).toFixed(2);
     element.dataset.hhContrastSource = source;
     element.dataset.hhScan = String(scanId);
   }
 
-  function resolveElement(element, surfaceType) {
+  function resolveElement(element) {
     if (!visible(element)) return;
-    const style = getComputedStyle(element);
-    const foregroundRaw = parseColor(style.color);
+    for (const name of LEGACY_CLASSES) element.classList.remove(name);
+    let style = getComputedStyle(element);
+    let foregroundRaw = parseColor(style.color);
     if (!foregroundRaw) return;
-    const background = effectiveBackground(element);
+    let info = backgroundInfo(element);
     const threshold = thresholdFor(element, style);
-    const foreground = foregroundRaw.a < 1 ? composite(foregroundRaw, background) : foregroundRaw;
-    const currentRatio = ratio(foreground, background);
+    let currentRatio = minimumRatio(foregroundRaw, info.candidates);
 
-    if (surfaceType === 'light' && !ownDarkControl(element, style)) {
-      if (currentRatio + 0.001 < threshold || luminance(foreground) > 0.55) applyColor(element, DARK_TEXT, background, 'light-surface');
-      return;
+    if (info.unresolvedImage) {
+      const imageSurface = element.closest(SURFACE_SELECTOR);
+      if (imageSurface) {
+        stabilizeImageSurface(imageSurface);
+        style = getComputedStyle(element);
+        foregroundRaw = parseColor(style.color) || foregroundRaw;
+        info = backgroundInfo(element);
+        currentRatio = minimumRatio(foregroundRaw, info.candidates);
+      }
     }
-    if (surfaceType === 'dark' && !element.matches(CONTROL_SELECTOR)) {
-      if (currentRatio + 0.001 < threshold || luminance(foreground) < 0.45) applyColor(element, LIGHT_TEXT, background, 'dark-surface');
-      return;
-    }
-    if (currentRatio + 0.001 >= threshold) {
+
+    if (!info.unresolvedImage && currentRatio + 0.001 >= threshold) {
       element.dataset.hhContrast = currentRatio.toFixed(2);
       element.dataset.hhContrastSource = 'computed-pass';
+      element.dataset.hhScan = String(scanId);
       return;
     }
-    const lightRatio = ratio(LIGHT_TEXT, background);
-    const darkRatio = ratio(DARK_TEXT, background);
-    applyColor(element, lightRatio >= darkRatio ? LIGHT_TEXT : DARK_TEXT, background, 'computed-fail');
+
+    const lightRatio = minimumRatio(LIGHT_TEXT, info.candidates);
+    const darkRatio = minimumRatio(DARK_TEXT, info.candidates);
+    applyColor(element, lightRatio >= darkRatio ? LIGHT_TEXT : DARK_TEXT, info.candidates, info.unresolvedImage ? 'image-overlay-fallback' : 'computed-worst-background');
   }
 
   function scan() {
@@ -180,8 +210,8 @@
     for (const surface of surfaces) {
       const type = stabilizeImageSurface(surface) || declaredSurface(surface);
       if (type) surface.dataset.hhDeclaredSurface = type;
-      if (surface.matches(TEXT_SELECTOR)) resolveElement(surface, type);
-      surface.querySelectorAll(TEXT_SELECTOR).forEach((element) => resolveElement(element, type));
+      if (surface.matches(TEXT_SELECTOR)) resolveElement(surface);
+      surface.querySelectorAll(TEXT_SELECTOR).forEach(resolveElement);
     }
     document.documentElement.dataset.heroHeaderContrast = 'v283';
     document.documentElement.dataset.heroHeaderContrastScan = String(scanId);
@@ -199,10 +229,11 @@
     const style = getComputedStyle(element);
     const foreground = parseColor(style.color);
     if (!foreground) return false;
-    return ratio(foreground, effectiveBackground(element)) + 0.001 >= thresholdFor(element, style);
+    const info = backgroundInfo(element);
+    return !info.unresolvedImage && minimumRatio(foreground, info.candidates) + 0.001 >= thresholdFor(element, style);
   }
 
-  window.__heroHeaderContrastV283 = { scan, version: 289, adaptiveImageSurfaces: true };
+  window.__heroHeaderContrastV283 = { scan, version: 290, adaptiveImageSurfaces: true, gradientStops: true };
   scan();
   for (const delay of [0, 50, 250, 1000]) setTimeout(schedule, delay);
   document.addEventListener('DOMContentLoaded', schedule, { once: true });
