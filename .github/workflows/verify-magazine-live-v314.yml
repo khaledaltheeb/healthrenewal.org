@@ -1,5 +1,5 @@
 # Verify the live magazine only after Pages deployment or on the scheduled audit.
-name: Verify magazine continuous publication live v321
+name: Verify magazine continuous publication live v327
 
 on:
   workflow_run:
@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: magazine-live-v321
+  group: magazine-live-v327
   cancel-in-progress: true
 
 jobs:
@@ -29,7 +29,7 @@ jobs:
       - name: Download live magazine contracts
         run: |
           set -euxo pipefail
-          token="magazine-v321-$(date +%s)"
+          token="magazine-v327-$(date +%s)"
           curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/?v=${token}" -o /tmp/index.html
           curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/feed.xml?v=${token}" -o /tmp/feed.xml
           curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/magazine-v201.json?v=${token}" -o /tmp/api.json
@@ -47,7 +47,8 @@ jobs:
             adhd-dexamphetamine-methylphenidate-randomized-2026.html \
             adhd-rhythmic-music-game-rct-2026.html \
             autism-aspen-low-resource-parent-intervention-rct-2026.html \
-            neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html
+            neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html \
+            adolescent-mental-health-artemis-cluster-rct-2026.html
           do
             curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/${page}?v=${token}" -o "/tmp/${page}"
           done
@@ -63,7 +64,7 @@ jobs:
           base = 'https://khaledaltheeb.github.io/pterminology-site/magazine/'
           api = json.loads(Path('/tmp/api.json').read_text(encoding='utf-8'))
           assert api['version'] >= 315, api['version']
-          assert api['research_summaries_published'] >= 73
+          assert api['research_summaries_published'] >= 74
           assert api['target_research_summaries'] == 100
           assert api['remaining_to_target'] == max(0, 100 - api['research_summaries_published'])
           assert api['continuous_publication_policy'] is True
@@ -117,6 +118,7 @@ jobs:
               'adhd-rhythmic-music-game-rct-2026.html': ('10.3389/fpubh.2026.1808386', '42145502', '−46.1'),
               'autism-aspen-low-resource-parent-intervention-rct-2026.html': ('10.3389/fpsyt.2026.1795918', '42404716', '50%', 'p=0.026'),
               'neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html': ('10.1002/aur.70282', '42187205', 'd=0.84', 'd=0.38', 'لم تظهر فروق مهمة'),
+              'adolescent-mental-health-artemis-cluster-rct-2026.html': ('10.1001/jamapsychiatry.2026.0603', '42054038', 'OR=1.47', 'p=0.10', '−0.87'),
           }
           for filename, markers in checks.items():
               text = Path('/tmp/' + filename).read_text(encoding='utf-8')
@@ -135,6 +137,6 @@ jobs:
               'rss_items': len(items),
               'sitemap_urls': len(sitemap_urls),
               'chronological': True,
-              'status': 'live-magazine-v321-verified',
+              'status': 'live-magazine-v327-verified',
           })
           PY
