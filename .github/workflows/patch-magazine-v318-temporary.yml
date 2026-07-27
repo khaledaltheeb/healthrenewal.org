@@ -1,0 +1,88 @@
+name: Patch magazine v318 temporary
+on:
+  push:
+    branches: ["agent/magazine-rhythm-game-v318"]
+    paths: [".github/workflows/patch-magazine-v318-temporary.yml"]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/magazine-rhythm-game-v318
+          fetch-depth: 0
+      - name: Patch publisher and tests
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          files = {
+            'scripts/publish_magazine_v201.py': [
+              ('CONTRACT = 315','CONTRACT = 318'),
+              ('MIN_ARTICLES = 70','MIN_ARTICLES = 71'),
+              ('    "adhd-dexamphetamine-methylphenidate-randomized-2026.html": ("10.1111/jpc.70487", "42415397", "−1.44"),', '    "adhd-dexamphetamine-methylphenidate-randomized-2026.html": ("10.1111/jpc.70487", "42415397", "−1.44"),\n    "adhd-rhythmic-music-game-rct-2026.html": ("10.3389/fpubh.2026.1808386", "42145502", "−46.1"),'),
+            ],
+            'tests/test_magazine_research_v234.py': [
+              ('publish_magazine_v315','publish_magazine_v318'),
+              ('MagazineResearchV315Tests','MagazineResearchV318Tests'),
+              ('len(pages), 70','len(pages), 71'),
+              ('MODULE.CONTRACT, 315','MODULE.CONTRACT, 318'),
+              ('report["version"], 315','report["version"], 318'),
+              ('report["research_summaries_published"], 70','report["research_summaries_published"], 71'),
+              ('report["remaining_to_target"], 30','report["remaining_to_target"], 29'),
+              ('len(report["articles"]), 70','len(report["articles"]), 71'),
+              ('report["sitemap"]["child_urls"], 71','report["sitemap"]["child_urls"], 72'),
+              ('len(urls), 71','len(urls), 72'),
+              ('saved["research_summaries_published"], 70','saved["research_summaries_published"], 71'),
+              ('"numberOfItems":70','"numberOfItems":71'),
+              ('70 قراءة علمية مستقلة','71 قراءة علمية مستقلة'),
+              ('المتبقي 30','المتبقي 29'),
+              ('index.count(\'class="card"\'), 70','index.count(\'class="card"\'), 71'),
+              ('index.count(\'"@type":"ScholarlyArticle"\'), 70','index.count(\'"@type":"ScholarlyArticle"\'), 71'),
+              ('index.count(\'"datePublished"\'), 70','index.count(\'"datePublished"\'), 71'),
+              ('"adhd-dexamphetamine-methylphenidate-randomized-2026.html": ("10.1111/jpc.70487", "42415397", "−1.44"),', '"adhd-dexamphetamine-methylphenidate-randomized-2026.html": ("10.1111/jpc.70487", "42415397", "−1.44"),\n            "adhd-rhythmic-music-game-rct-2026.html": ("10.3389/fpubh.2026.1808386", "42145502", "−46.1"),'),
+            ],
+            'tests/test_platform_identity_v201.py': [
+              ('"magazine/adhd-dexamphetamine-methylphenidate-randomized-2026.html",', '"magazine/adhd-dexamphetamine-methylphenidate-randomized-2026.html",\n            "magazine/adhd-rhythmic-music-game-rct-2026.html",'),
+              ('"numberOfItems":70','"numberOfItems":71'),
+              ('index.count(\'class="card"\'), 70','index.count(\'class="card"\'), 71'),
+              ('report["pages"], 76','report["pages"], 77'),
+              ('report["magazine_pages"], 70','report["magazine_pages"], 71'),
+              ('magazine["version"], 315','magazine["version"], 318'),
+              ('magazine["research_summaries_published"], 70','magazine["research_summaries_published"], 71'),
+              ('magazine["remaining_to_target"], 30','magazine["remaining_to_target"], 29'),
+              ('magazine["sitemap"]["child_urls"], 71','magazine["sitemap"]["child_urls"], 72'),
+              ('magazine_report["research_summaries_published"], 70','magazine_report["research_summaries_published"], 71'),
+              ('magazine_report["sitemap"]["child_urls"], 71','magazine_report["sitemap"]["child_urls"], 72'),
+            ],
+            '.github/workflows/validate-magazine-research-v234.yml': [
+              ('v315','v318'),
+              ('module.CONTRACT == 315','module.CONTRACT == 318'),
+              ('len(pages) == 70','len(pages) == 71'),
+              ('== 70','== 71'),
+              ('"numberOfItems":70','"numberOfItems":71'),
+              ('المتبقي 30','المتبقي 29'),
+              ("'generated_cards': 70", "'generated_cards': 71"),
+              ("'remaining': 30", "'remaining': 29"),
+              ("-eq 61", "-eq 62"),
+              ("-eq 70", "-eq 71"),
+              ("grep -q '10.1111/jpc.70487' magazine/adhd-dexamphetamine-methylphenidate-randomized-2026.html", "grep -q '10.1111/jpc.70487' magazine/adhd-dexamphetamine-methylphenidate-randomized-2026.html\n          grep -q '10.3389/fpubh.2026.1808386' magazine/adhd-rhythmic-music-game-rct-2026.html"),
+              ("CONTRACT = 315", "CONTRACT = 318"),
+              ("MIN_ARTICLES = 70", "MIN_ARTICLES = 71"),
+            ],
+          }
+          for name, reps in files.items():
+              p=Path(name); text=p.read_text(encoding='utf-8')
+              for old,new in reps:
+                  if old not in text:
+                      raise SystemExit(f'missing anchor {name}: {old}')
+                  text=text.replace(old,new)
+              p.write_text(text,encoding='utf-8')
+          PY
+          python -m py_compile scripts/publish_magazine_v201.py tests/test_magazine_research_v234.py tests/test_platform_identity_v201.py
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add scripts/publish_magazine_v201.py tests/test_magazine_research_v234.py tests/test_platform_identity_v201.py .github/workflows/validate-magazine-research-v234.yml
+          git commit -m "test: raise magazine contract to 71 readings v318"
+          git push origin HEAD:agent/magazine-rhythm-game-v318
