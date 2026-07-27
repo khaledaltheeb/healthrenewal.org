@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import publish_evidence_literacy_library_v322_core as core
+from publish_academic_library_v326 import publish as publish_academic_library
 from publish_evidence_literacy_library_v322_core import *  # noqa: F401,F403
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -80,6 +81,18 @@ def publish(site: Path) -> dict:
     publish_special_needs_sitemap(site)
     report = core.publish(site)
     core.update_sitemap(site, ["/trust/", "/start-here/"], report["reviewed_at"])
+
+    academic = publish_academic_library(site)
+    expected_sections = {"branches": 25, "therapies": 27, "research": 28}
+    if academic.get("version") != 326 or academic.get("status") != "passed":
+        raise SystemExit({"invalid_academic_library_v326": academic})
+    if academic.get("sections") != expected_sections:
+        raise SystemExit({"academic_library_section_contract_failed": academic})
+    if academic.get("total_entries") != 80 or academic.get("generated_pages") != 84:
+        raise SystemExit({"academic_library_inventory_failed": academic})
+    if int(academic.get("minimum_page_words", 0)) < 180:
+        raise SystemExit({"academic_library_depth_failed": academic})
+
     report.update(
         {
             "trust_page_published": True,
@@ -96,6 +109,14 @@ def publish(site: Path) -> dict:
             "special_needs_hub_words": static_words["special-needs"],
             "special_needs_hub_review_status": "internally-reviewed-external-specialist-review-required",
             "special_needs_sitemap_published": True,
+            "academic_library_version": academic["version"],
+            "academic_library_review_status": academic["review_status"],
+            "academic_library_sections": academic["sections"],
+            "academic_library_total_entries": academic["total_entries"],
+            "academic_library_generated_pages": academic["generated_pages"],
+            "academic_library_minimum_page_words": academic["minimum_page_words"],
+            "academic_library_source_registry": academic["source_registry"],
+            "academic_library_sitemap": academic["sitemap"],
         }
     )
     api_path = site / "api" / "evidence-literacy-library-v322.json"
