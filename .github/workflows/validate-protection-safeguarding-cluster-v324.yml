@@ -1,0 +1,47 @@
+name: Validate protection safeguarding cluster v324
+
+on:
+  pull_request:
+    branches:
+      - main
+      - content/evidence-literacy-library-v322
+    paths:
+      - "content/v324/protection-safeguarding/**"
+      - "scripts/publish_protection_safeguarding_cluster_v324.py"
+      - "scripts/complete_core_sections_v15.py"
+      - "tests/test_protection_safeguarding_cluster_v324.py"
+      - ".github/workflows/validate-protection-safeguarding-cluster-v324.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: protection-safeguarding-v324-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publisher and tests
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/publish_protection_safeguarding_cluster_v324.py \
+            tests/test_protection_safeguarding_cluster_v324.py \
+            scripts/complete_core_sections_v15.py
+      - name: Validate all source JSON files
+        run: |
+          set -euxo pipefail
+          python -m json.tool content/v324/protection-safeguarding/manifest-ar.json >/dev/null
+          for file in content/v324/protection-safeguarding/guides/*.json; do
+            python -m json.tool "$file" >/dev/null
+          done
+      - name: Validate evidence depth publication discovery and idempotence
+        run: python -m unittest -v tests.test_protection_safeguarding_cluster_v324
