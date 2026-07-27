@@ -1,0 +1,184 @@
+name: Verify outside-the-box live publication v304
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/verify-outside-the-box-live-v304.yml"
+  workflow_run:
+    workflows: ["Deploy validated main to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  live-publication:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      MINIMUM_SHA: 5c9d646bacc21a72d5bd0ccced5c2a5a018971d3
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Wait for a non-rollback live deployment
+        run: |
+          set -euo pipefail
+          matched=0
+          for i in $(seq 1 72); do
+            token="${MINIMUM_SHA}-${i}-$(date +%s)"
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o /tmp/deployment.json; then
+              if python - <<'PY'
+          import json, os, urllib.error, urllib.request
+          from pathlib import Path
+
+          data = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          live = data.get('commit')
+          minimum = os.environ['MINIMUM_SHA']
+          repo = os.environ['GITHUB_REPOSITORY']
+          token = os.environ['GH_TOKEN']
+          assert isinstance(live, str) and len(live) == 40, data
+          if live == minimum:
+              raise SystemExit(0)
+          request = urllib.request.Request(
+              f'https://api.github.com/repos/{repo}/compare/{minimum}...{live}',
+              headers={
+                  'Authorization': f'Bearer {token}',
+                  'Accept': 'application/vnd.github+json',
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'User-Agent': 'outside-the-box-live-v304',
+              },
+          )
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  status = json.loads(response.read().decode('utf-8')).get('status')
+          except urllib.error.HTTPError:
+              raise SystemExit(1)
+          raise SystemExit(0 if status in {'ahead', 'identical'} else 1)
+          PY
+              then
+                matched=1
+                break
+              fi
+            fi
+            sleep 10
+          done
+          test "${matched}" -eq 1
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          print({'live_commit': data.get('commit'), 'pwa_pages': data.get('pwa_pages'), 'status': 'minimum-release-or-newer'})
+          PY
+
+      - name: Download live reference pages and machine contracts
+        run: |
+          set -euxo pipefail
+          token="${MINIMUM_SHA}-live-$(date +%s)"
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/?v=${token}" -o /tmp/hub.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/speech-sound-disorder/?v=${token}" -o /tmp/speech.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/autism-spectrum/?v=${token}" -o /tmp/autism.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/cerebral-palsy/?v=${token}" -o /tmp/cp.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/ten-plan-methodology/?v=${token}" -o /tmp/methodology.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/instruments/?v=${token}" -o /tmp/instruments.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/evidence-standard/?v=${token}" -o /tmp/evidence.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/outside-the-box-ten-plans-v302.json?v=${token}" -o /tmp/plans.json
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/outside-the-box-reference-assets-v303.json?v=${token}" -o /tmp/references.json
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/outside-the-box-evidence-standard-v301.json?v=${token}" -o /tmp/evidence.json
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sitemap-outside-the-box.xml?v=${token}" -o /tmp/sitemap.xml
+
+      - name: Enforce the live 100-condition 1000-plan contract
+        run: |
+          python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          base = 'https://khaledaltheeb.github.io/pterminology-site/'
+          plans = json.loads(Path('/tmp/plans.json').read_text(encoding='utf-8'))
+          refs = json.loads(Path('/tmp/references.json').read_text(encoding='utf-8'))
+          evidence_api = json.loads(Path('/tmp/evidence.json').read_text(encoding='utf-8'))
+
+          assert plans['version'] == 302, plans.get('version')
+          assert plans['status'] == 'passed', plans.get('status')
+          assert plans['condition_count'] == 100, plans.get('condition_count')
+          assert plans['plans_per_condition'] == 10, plans.get('plans_per_condition')
+          assert plans['total_plan_instances'] == 1000, plans.get('total_plan_instances')
+          assert plans['external_clinical_review_completed'] is False
+          assert plans['diagnostic_automation'] is False
+          assert plans['proprietary_test_items_published'] is False
+          assert len(plans['conditions']) == 100
+          assert [item['rank'] for item in plans['conditions']] == list(range(1, 101))
+          assert len({item['slug'] for item in plans['conditions']}) == 100
+          assert all(item['plan_count'] == 10 for item in plans['conditions'])
+          assert all(len(item['plans']) == 10 for item in plans['conditions'])
+          assert sum(item['plan_count'] for item in plans['conditions']) == 1000
+          for condition in plans['conditions']:
+              assert [plan['order'] for plan in condition['plans']] == list(range(1, 11)), condition['slug']
+              assert len({plan['id'] for plan in condition['plans']}) == 10, condition['slug']
+              for plan in condition['plans']:
+                  assert len(plan['steps']) >= 5, (condition['slug'], plan['id'])
+                  assert len(plan['source_keys']) >= 2, (condition['slug'], plan['id'])
+                  for key in ('goal','when_to_use','do_not_use','prerequisites','baseline','dose','outcomes','fidelity','adaptations','team','stop_rule','evidence_relation','review_timing','review_status'):
+                      assert plan[key], (condition['slug'], plan['id'], key)
+
+          assert refs['version'] == 303
+          assert refs['status'] == 'passed'
+          assert refs['protected_test_items_published'] is False
+          assert refs['scoring_keys_published'] is False
+          assert refs['normative_tables_published'] is False
+          assert refs['external_clinical_review_completed'] is False
+          assert refs['instrument_count'] > 0
+          assert evidence_api['version'] == 301
+          assert evidence_api['applies_to']['condition_count'] == 100
+          assert evidence_api['status']['global_accreditation_claim'] is False
+
+          hub = Path('/tmp/hub.html').read_text(encoding='utf-8')
+          methodology = Path('/tmp/methodology.html').read_text(encoding='utf-8')
+          instruments = Path('/tmp/instruments.html').read_text(encoding='utf-8')
+          evidence = Path('/tmp/evidence.html').read_text(encoding='utf-8')
+          assert '100 حالة، وعشر خطط لكل حالة' in hub
+          assert '1000' in hub and 'ten-plan-methodology/' in hub
+          assert '100 حالة × 10 خطط = 1000' in methodology
+          assert 'سجل أدوات التقييم المؤسسي' in instruments
+          assert '0</strong><span>بنود أو مفاتيح تصحيح منشورة' in instruments
+          assert 'لا تعميم بلا دليل' in evidence
+          assert 'لا تزال المراجعة السريرية الخارجية لكل حالة مطلوبة' in evidence
+
+          for page_name in ('speech','autism','cp'):
+              text = Path(f'/tmp/{page_name}.html').read_text(encoding='utf-8')
+              assert text.count('data-ten-plan="') == 10, page_name
+              assert 'الخطة 1 من 10' in text and 'الخطة 10 من 10' in text, page_name
+              assert 'عشر خطط كاملة قابلة للتخصيص والقياس' in text, page_name
+              for marker in ('متى تستخدم؟','متى لا تستخدم؟','المتطلبات السابقة','خط الأساس','خطوات التنفيذ','الجرعة أو الوتيرة','مؤشرات النتيجة','جودة التنفيذ','التكييفات والوصول','الفريق والمسؤوليات','قاعدة التوقف أو التصعيد','صلة الخطة بالدليل','موعد إعادة القرار'):
+                  assert text.count(marker) >= 10, (page_name, marker)
+
+          sitemap_urls = {
+              (node.text or '').strip()
+              for node in ET.parse('/tmp/sitemap.xml').getroot().findall('{*}url/{*}loc')
+              if node.text
+          }
+          for url in (
+              base + 'outside-the-box/',
+              base + 'outside-the-box/ten-plan-methodology/',
+              base + 'outside-the-box/instruments/',
+              base + 'outside-the-box/evidence-standard/',
+              base + 'outside-the-box/speech-sound-disorder/',
+          ):
+              assert url in sitemap_urls, url
+          assert len(sitemap_urls) == len(set(sitemap_urls))
+
+          print({
+              'condition_count': plans['condition_count'],
+              'plans_per_condition': plans['plans_per_condition'],
+              'total_plan_instances': plans['total_plan_instances'],
+              'instrument_count': refs['instrument_count'],
+              'sample_pages_with_exact_ten_plans': 3,
+              'status': 'live-publication-verified',
+          })
+          PY
