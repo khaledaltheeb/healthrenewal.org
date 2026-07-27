@@ -5,11 +5,13 @@
 }
 
 /*
- * Every textual element inside the site header, ARIA banner, breadcrumb/banner
- * surface, or hero must compute to pure black. This layer is appended after the
- * legacy contrast layer so generated HTML does not need manual edits.
+ * The unmatched ID in :is() deliberately raises selector specificity while the
+ * matching alternatives still target every header/hero surface. The contract is
+ * injected after legacy CSS and therefore wins even against highly specific old
+ * theme rules that also use !important.
  */
-:where(
+:is(
+  #hero-header-black-v282-specificity-guard,
   header,
   [role="banner"],
   [class*="hero"], [class*="Hero"],
@@ -19,12 +21,14 @@
   [class*="breadcrumb"], [class*="Breadcrumb"]
 ) {
   color: var(--hero-header-text-v282) !important;
+  -webkit-text-fill-color: var(--hero-header-text-v282) !important;
   background-color: var(--hero-header-surface-v282) !important;
   background-image: none !important;
   text-shadow: none !important;
 }
 
-:where(
+:is(
+  #hero-header-black-v282-specificity-guard,
   header,
   [role="banner"],
   [class*="hero"], [class*="Hero"],
@@ -32,12 +36,14 @@
   [class*="banner"], [class*="Banner"],
   [class*="masthead"],
   [class*="breadcrumb"], [class*="Breadcrumb"]
-) :where(*) {
+) * {
   color: var(--hero-header-text-v282) !important;
+  -webkit-text-fill-color: var(--hero-header-text-v282) !important;
   text-shadow: none !important;
 }
 
-:where(
+:is(
+  #hero-header-black-v282-specificity-guard,
   header,
   [role="banner"],
   [class*="hero"], [class*="Hero"],
@@ -45,16 +51,19 @@
   [class*="banner"], [class*="Banner"],
   [class*="masthead"],
   [class*="breadcrumb"], [class*="Breadcrumb"]
-) :where(a, a:link, a:visited, a:hover, a:focus, a:focus-visible, a:active,
-          button, button:hover, button:focus, button:focus-visible, button:active,
-          [role="button"], [role="button"]:hover, [role="button"]:focus,
-          [aria-disabled="true"], :disabled) {
+) :is(
+  a, a:link, a:visited, a:hover, a:focus, a:focus-visible, a:active,
+  button, button:hover, button:focus, button:focus-visible, button:active,
+  [role="button"], [role="button"]:hover, [role="button"]:focus,
+  [aria-disabled="true"], :disabled
+) {
   color: var(--hero-header-text-v282) !important;
   -webkit-text-fill-color: var(--hero-header-text-v282) !important;
 }
 
 @media print {
-  :where(
+  :is(
+    #hero-header-black-v282-specificity-guard,
     header,
     [role="banner"],
     [class*="hero"], [class*="Hero"],
@@ -63,7 +72,8 @@
     [class*="masthead"],
     [class*="breadcrumb"], [class*="Breadcrumb"]
   ),
-  :where(
+  :is(
+    #hero-header-black-v282-specificity-guard,
     header,
     [role="banner"],
     [class*="hero"], [class*="Hero"],
@@ -71,16 +81,18 @@
     [class*="banner"], [class*="Banner"],
     [class*="masthead"],
     [class*="breadcrumb"], [class*="Breadcrumb"]
-  ) :where(*) {
+  ) * {
     color: #000000 !important;
-    background: #ffffff !important;
-    text-shadow: none !important;
     -webkit-text-fill-color: #000000 !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    text-shadow: none !important;
   }
 }
 
 @media (prefers-contrast: more) {
-  :where(
+  :is(
+    #hero-header-black-v282-specificity-guard,
     header,
     [role="banner"],
     [class*="hero"], [class*="Hero"],
@@ -89,7 +101,8 @@
     [class*="masthead"],
     [class*="breadcrumb"], [class*="Breadcrumb"]
   ),
-  :where(
+  :is(
+    #hero-header-black-v282-specificity-guard,
     header,
     [role="banner"],
     [class*="hero"], [class*="Hero"],
@@ -97,10 +110,11 @@
     [class*="banner"], [class*="Banner"],
     [class*="masthead"],
     [class*="breadcrumb"], [class*="Breadcrumb"]
-  ) :where(*) {
+  ) * {
     color: #000000 !important;
-    background-color: #ffffff !important;
-    text-shadow: none !important;
     -webkit-text-fill-color: #000000 !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    text-shadow: none !important;
   }
 }
