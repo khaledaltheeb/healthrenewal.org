@@ -9,6 +9,7 @@ on:
       - "scripts/audit_section_content_depth_v322.py"
       - "scripts/complete_core_sections_v15.py"
       - "tests/test_evidence_literacy_library_v322.py"
+      - "tests/test_core_sections_evidence_literacy_v322.py"
       - ".github/workflows/validate-evidence-literacy-library-v322.yml"
   workflow_run:
     workflows: ["Validate every assessment and cognitive tool v31"]
@@ -40,11 +41,15 @@ jobs:
             scripts/publish_evidence_literacy_library_v322.py \
             scripts/audit_section_content_depth_v322.py \
             scripts/complete_core_sections_v15.py \
-            tests/test_evidence_literacy_library_v322.py
+            tests/test_evidence_literacy_library_v322.py \
+            tests/test_core_sections_evidence_literacy_v322.py
       - name: Validate content manifest
         run: python -m json.tool content/v322/evidence-literacy-library-ar.json >/dev/null
-      - name: Validate depth evidence boundaries sources discovery and idempotence
-        run: python -m unittest -v tests.test_evidence_literacy_library_v322
+      - name: Validate depth evidence boundaries sources discovery idempotence and production hook
+        run: |
+          python -m unittest -v \
+            tests.test_evidence_literacy_library_v322 \
+            tests.test_core_sections_evidence_literacy_v322
 
   audit-validated-production:
     if: >-
