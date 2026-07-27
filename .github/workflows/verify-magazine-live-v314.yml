@@ -1,3 +1,4 @@
+# Final validation trigger after automatic normalization report update.
 name: Verify magazine continuous publication live v320
 
 on:
