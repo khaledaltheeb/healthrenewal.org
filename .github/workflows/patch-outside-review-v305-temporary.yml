@@ -1,0 +1,46 @@
+name: Wire outside-the-box review governance v305 temporary
+
+on:
+  push:
+    branches: ["agent/outside-the-box-scientific-review-v305"]
+    paths:
+      - ".github/workflows/patch-outside-review-v305-temporary.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-production-chain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/outside-the-box-scientific-review-v305
+          fetch-depth: 0
+      - name: Patch publisher chain deterministically
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/apply_homepage_v20.py')
+          text = path.read_text(encoding='utf-8')
+          old_meta = '        "outside_the_box_reference_assets_publisher": 303,\n'
+          new_meta = old_meta + '        "outside_the_box_review_governance_publisher": 305,\n'
+          if '"outside_the_box_review_governance_publisher": 305' not in text:
+              if text.count(old_meta) != 1:
+                  raise SystemExit('reference publisher metadata anchor missing or ambiguous')
+              text = text.replace(old_meta, new_meta, 1)
+          old_run = '    run_publisher("publish_outside_the_box_reference_assets_v303.py")\n'
+          new_run = old_run + '    run_publisher("publish_outside_the_box_review_governance_v305.py")\n'
+          if 'run_publisher("publish_outside_the_box_review_governance_v305.py")' not in text:
+              if text.count(old_run) != 1:
+                  raise SystemExit('reference publisher run anchor missing or ambiguous')
+              text = text.replace(old_run, new_run, 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+          python -m py_compile scripts/apply_homepage_v20.py scripts/publish_outside_the_box_review_governance_v305.py
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add scripts/apply_homepage_v20.py
+          git diff --cached --quiet && exit 0
+          git commit -m "build: wire scientific review governance v305"
+          git push origin HEAD:agent/outside-the-box-scientific-review-v305
