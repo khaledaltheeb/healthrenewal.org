@@ -15,8 +15,11 @@ CONTENT = ROOT / "content" / "v192" / "platform-institutional-foundation-ar.json
 SOURCE = ROOT / "magazine"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 URL = BASE + "/magazine/"
-CONTRACT = 234
-MIN_ARTICLES = 60
+CONTRACT = 313
+MIN_ARTICLES = 65
+TARGET_ARTICLES = 100
+FEED_LIMIT = 20
+EDITORIAL_UPDATED = "2026-07-27"
 ROBOTS_META = '<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">'
 ROBOTS_PATTERN = re.compile(r'<meta\s+[^>]*name=["\']robots["\'][^>]*>', re.I)
 SOURCE_LINK_PATTERN = re.compile(
@@ -41,6 +44,11 @@ KNOWN_MARKERS = {
     "adhd-technology-interventions-meta-analysis-2026.html": ("10.1080/01942638.2026.2689070", "0.24", "I² = 68.3%"),
     "adhd-physical-fitness-meta-analysis-2026.html": ("10.1016/j.arcped.2026.105583", "1,814", "−0.46"),
     "autism-sleep-disorders-prevalence-meta-analysis-2026.html": ("10.1186/s12888-026-08191-x", "60.0%", "I² = 98.8%"),
+    "adhd-baduanjin-response-inhibition-rct-2026.html": ("10.1016/j.ridd.2026.105277", "41936141", "90 طفلًا"),
+    "autism-structured-interactive-play-screening-cohort-2026.html": ("10.1186/s12888-026-08274-9", "42464217", "0.915"),
+    "adolescent-depression-one-step-back-rct-2026.html": ("10.1016/j.eclinm.2026.103971", "42232686", "d=0.61"),
+    "latinx-adolescent-suicidal-behavior-cbt-rct-2026.html": ("10.1080/15374416.2026.2687880", "42413031", "RR=0.50"),
+    "adhd-personalized-neurofeedback-sham-rct-2026.html": ("10.1111/jcpp.70188", "42324882", "80.7%"),
 }
 
 
@@ -99,6 +107,9 @@ def article_record(path: Path) -> dict[str, str]:
 
 def render_index(pages: list[Path]) -> str:
     records = [article_record(path) for path in pages]
+    thesis_count = sum(item["filename"].startswith("thesis-") for item in records)
+    peer_count = len(records) - thesis_count
+    remaining = max(0, TARGET_ARTICLES - len(records))
     scholarly = [{"@type": "ScholarlyArticle", "url": URL + item["filename"]} for item in records]
     schema = {
         "@context": "https://schema.org",
@@ -106,6 +117,7 @@ def render_index(pages: list[Path]) -> str:
         "name": "المجلة والأبحاث",
         "url": URL,
         "inLanguage": "ar",
+        "dateModified": EDITORIAL_UPDATED,
         "description": "ملخصات عربية تحليلية للأبحاث المحكمة والرسائل الجامعية الحديثة في الصحة النفسية وعلم النفس.",
         "numberOfItems": len(records),
         "hasPart": scholarly,
@@ -126,9 +138,10 @@ def render_index(pages: list[Path]) -> str:
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>المجلة والأبحاث | أحدث الدراسات والرسائل العلمية بالعربية</title>
-<meta name="description" content="ستون قراءة عربية منهجية لأحدث الأبحاث المحكمة ورسائل الدكتوراه في الصحة النفسية وعلم النفس والأشخاص ذوي الاحتياجات الخاصة، مع المصادر الأصلية والمنهج والنتائج وحدود الدليل.">
+<meta name="description" content="{len(records)} قراءة عربية منهجية للأبحاث المحكمة والرسائل الجامعية في الصحة النفسية وعلم النفس والأشخاص ذوي الاحتياجات الخاصة، مع المصادر الأصلية والمنهج والنتائج وحدود الدليل.">
 {ROBOTS_META}
 <link rel="canonical" href="{URL}">
+<link rel="alternate" type="application/rss+xml" title="خلاصة المجلة والأبحاث" href="{URL}feed.xml">
 <link rel="stylesheet" href="research.css">
 <script type="application/ld+json">{json.dumps(schema, ensure_ascii=False, separators=(",", ":"))}</script>
 </head>
@@ -136,14 +149,40 @@ def render_index(pages: list[Path]) -> str:
 <a class="skip" href="#main">تجاوز إلى المحتوى</a>
 <header><div class="wrap header-inner"><a class="brand" href="../">منصة الصحة النفسية وذوي الاحتياجات الخاصة</a><nav aria-label="التنقل الرئيسي"><a href="../">الرئيسية</a><a href="../encyclopedia/">الموسوعة</a><a href="../special-needs/">ذوو الاحتياجات الخاصة</a><a href="./" aria-current="page">المجلة والأبحاث</a></nav></div></header>
 <main id="main">
-<section class="hero"><div class="wrap"><p class="eyebrow">مرصد عربي للأدلة العلمية</p><h1>المجلة والأبحاث</h1><p class="lead">ملخصات عربية نقدية للأوراق المحكمة والرسائل الجامعية الحديثة، تشمل تصميم الدراسة والعينة والنتائج والقيود والدلالة العملية والمصدر الأصلي.</p><div class="notice"><strong>حالة القسم:</strong> {len(records)} قراءة علمية مستقلة: {len(records)-3} ورقة أو مراجعة محكمة وثلاث رسائل دكتوراه. أحدث الأوراق المدرجة منشورة في 2026.</div><div class="filters" aria-label="التصنيفات"><span class="chip">أبحاث 2026</span><span class="chip">تحليلات تلوية وشبكية</span><span class="chip">تجارب عشوائية</span><span class="chip">رسائل دكتوراه</span><span class="chip">التنسيق الحركي</span><span class="chip">ضعف البصر</span><span class="chip">الصم وضعاف السمع</span><span class="chip">الشلل الدماغي</span><span class="chip">الاحتياجات الذهنية</span><span class="chip">الانتقال إلى الرشد</span></div></div></section>
+<section class="hero"><div class="wrap"><p class="eyebrow">مرصد عربي للأدلة العلمية</p><h1>المجلة والأبحاث</h1><p class="lead">ملخصات عربية نقدية للأوراق المحكمة والرسائل الجامعية الحديثة، تشمل تصميم الدراسة والعينة والنتائج والقيود والدلالة العملية والمصدر الأصلي.</p><div class="notice"><strong>حالة القسم:</strong> {len(records)} قراءة علمية مستقلة: {peer_count} ورقة أو مراجعة محكمة و{thesis_count} رسائل جامعية. الهدف المرحلي 100 قراءة؛ المتبقي {remaining}. تتم الإضافة على دفعات بعد فحص المصدر الأصلي.</div><div class="filters" aria-label="التصنيفات"><span class="chip">أبحاث 2026</span><span class="chip">دراسات أصلية</span><span class="chip">تحليلات تلوية وشبكية</span><span class="chip">تجارب عشوائية</span><span class="chip">دراسات أتراب</span><span class="chip">نتائج محايدة وسلبية</span><span class="chip">رسائل جامعية</span><span class="chip">الصحة النفسية</span><span class="chip">النمو والتأهيل</span></div><p><a class="source" href="feed.xml">الاشتراك في خلاصة RSS</a></p></div></section>
 <section class="wrap grid" aria-label="أحدث القراءات البحثية">
 {cards}
 </section>
 </main>
-<footer><div class="wrap"><strong>منهج التحرير:</strong> لا تُنقل الخلاصات الصحفية بوصفها دليلًا؛ كل صفحة تربط بالمصدر الأصلي وتعرض المنهج والنتائج والحدود.</div></footer>
+<footer><div class="wrap"><strong>منهج التحرير:</strong> لا تُنقل الخلاصات الصحفية بوصفها دليلًا؛ كل صفحة تربط بالمصدر الأصلي وتعرض المنهج والنتائج والحدود، وتشمل النتائج المحايدة أو غير الدالة عندما تكون مهمة.</div></footer>
 </body>
 </html>
+'''
+
+
+def render_feed(pages: list[Path]) -> str:
+    records = [article_record(path) for path in pages[:FEED_LIMIT]]
+    items = "\n".join(
+        """    <item>\n      <title>{title}</title>\n      <link>{url}</link>\n      <guid isPermaLink=\"true\">{url}</guid>\n      <description>{description}</description>\n    </item>""".format(
+            title=html.escape(item["title"]),
+            url=html.escape(URL + item["filename"], quote=True),
+            description=html.escape(item["description"]),
+        )
+        for item in records
+    )
+    return f'''<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>المجلة والأبحاث | منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
+    <link>{URL}</link>
+    <description>قراءات عربية نقدية للدراسات الأصلية والمراجعات المنهجية والرسائل الجامعية في الصحة النفسية وذوي الاحتياجات الخاصة.</description>
+    <language>ar</language>
+    <atom:link href="{URL}feed.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>Mon, 27 Jul 2026 00:00:00 GMT</lastBuildDate>
+    <ttl>60</ttl>
+{items}
+  </channel>
+</rss>
 '''
 
 
@@ -151,19 +190,20 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
     for name in ("index.html", "research.css"):
         if not (SOURCE / name).is_file():
             raise SystemExit(f"Missing magazine source file: {name}")
-
     template = (SOURCE / "index.html").read_text(encoding="utf-8")
     for marker in ('<html lang="ar" dir="rtl">', '<h1>المجلة والأبحاث</h1>', 'research.css'):
         if marker not in template:
             raise SystemExit(f"Magazine source template contract failed: {marker}")
-
     rendered = render_index(pages)
     expected_count = len(pages)
     if rendered.count('class="card"') != expected_count:
         raise SystemExit("Generated magazine index card count failed")
     if f'"numberOfItems":{expected_count}' not in rendered:
         raise SystemExit("Generated magazine JSON-LD count failed")
-
+    feed = render_feed(pages)
+    if feed.count("<item>") != min(FEED_LIMIT, expected_count):
+        raise SystemExit("Generated magazine RSS count failed")
+    ET.fromstring(feed)
     hashes: dict[str, str] = {}
     for path in pages:
         filename = path.name
@@ -202,6 +242,7 @@ def publish_files(site: Path, pages: list[Path]) -> dict[str, object]:
     target = site / "magazine"
     target.mkdir(parents=True, exist_ok=True)
     (target / "index.html").write_text(render_index(pages), encoding="utf-8")
+    (target / "feed.xml").write_text(render_feed(pages), encoding="utf-8")
     shutil.copy2(SOURCE / "research.css", target / "research.css")
     added: list[str] = []
     for path in pages:
@@ -213,6 +254,7 @@ def publish_files(site: Path, pages: list[Path]) -> dict[str, object]:
         "index_robots_added": False,
         "article_robots_added": added,
         "robots_normalized_pages": len(added),
+        "rss_items": min(FEED_LIMIT, len(pages)),
     }
 
 
@@ -236,7 +278,6 @@ def write_sitemaps(site: Path, reviewed_at: str, pages: list[Path]) -> dict[str,
         ET.SubElement(node, f"{{{ns}}}lastmod").text = reviewed_at
         ET.SubElement(node, f"{{{ns}}}changefreq").text = "weekly"
     ET.ElementTree(root).write(child, encoding="utf-8", xml_declaration=True)
-
     main_path = site / "sitemap.xml"
     if not main_path.is_file():
         raise SystemExit("Main sitemap is missing")
@@ -280,6 +321,10 @@ def publish(site: Path) -> dict[str, object]:
         "url": URL,
         "methodology_published": True,
         "research_summaries_published": len(pages),
+        "target_research_summaries": TARGET_ARTICLES,
+        "remaining_to_target": max(0, TARGET_ARTICLES - len(pages)),
+        "continuous_publication_policy": True,
+        "editorial_updated_at": EDITORIAL_UPDATED,
         "articles": [path.name for path in pages],
         "source_sha256": hashes,
         "review_status": data["status"],
@@ -289,6 +334,7 @@ def publish(site: Path) -> dict[str, object]:
         "limitations_contract": "limitations-or-cautions-required",
         "robots_contract": "exactly-one-index-follow-meta-per-published-page",
         "index_contract": "generated-from-discovered-articles",
+        "rss_contract": "latest-twenty-generated-from-discovered-articles",
         "robots": robots,
         "sitemap": sitemap,
     }
