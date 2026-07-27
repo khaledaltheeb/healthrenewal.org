@@ -17,6 +17,7 @@ from scripts.daily_tools_v100 import CATALOG_CONTRACT, load_data
 SITE = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else None
 BANNED = ("يشخص", "تشخيصك", "يعالج نهائيًا", "مضمون", "بديل عن الطبيب", "درجة الاكتئاب", "درجة القلق")
 NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
+SLEEP_SLUG = "sleep-wind-down-plan"
 SEO_CONTRACT = 219
 
 
@@ -60,6 +61,7 @@ def main() -> None:
     assert all(len(path["days"]) >= 5 and set(path["related_tools"]) <= tool_slugs for path in paths)
     assert len(sources) >= 12 and len({source["publisher"] for source in sources}) >= 5
     assert all(source["url"].startswith("https://") for source in sources)
+    assert all(source.get("source_type") and source.get("verified_at") and source.get("status") == "current" and source.get("claims_supported") for source in sources)
 
     source_blob = json.dumps(data, ensure_ascii=False).lower()
     assert not any(item in source_blob for item in BANNED)
@@ -91,7 +93,9 @@ def main() -> None:
             assert 'dir="rtl"' in text, page
             assert f'data-design="marshmallow-v{DESIGN_CONTRACT}"' in text, page
             assert f'data-seo="institutional-v{SEO_CONTRACT}"' in text, page
-            assert f'data-catalog="daily-tools-v{CATALOG_CONTRACT}"' in text, page
+            dedicated_sleep = page == SITE / "daily-tools" / SLEEP_SLUG / "index.html" and "data-sleep-log" in text
+            if not dedicated_sleep:
+                assert f'data-catalog="daily-tools-v{CATALOG_CONTRACT}"' in text, page
             assert all(marker in text for marker in required_metadata), page
             assert text.count('<meta name="description"') == 1, page
             assert text.count('<link rel="canonical"') == 1, page
@@ -110,10 +114,14 @@ def main() -> None:
         for tool in tools:
             text = (SITE / "daily-tools" / tool["slug"] / "index.html").read_text(encoding="utf-8")
             assert "لا تُرسل البيانات إلى خادم" in text
-            assert "localStorage" in text
-            assert "data-step-progress" in text and "تصدير JSON" in text
-            assert "مصادر المنهج الخاصة بهذه الأداة" in text
-            assert not any(marker in text for marker in ("fetch(", "XMLHttpRequest", "navigator.sendBeacon"))
+            if tool["slug"] == SLEEP_SLUG and "data-sleep-log" in text:
+                assert "data-export-json" in text and "data-delete-sleep" in text
+                assert "sleep-log-v49.js" in text and "غير تشخيص" in text
+            else:
+                assert "localStorage" in text
+                assert "data-step-progress" in text and "تصدير JSON" in text
+                assert "مصادر المنهج الخاصة بهذه الأداة" in text
+                assert not any(marker in text for marker in ("fetch(", "XMLHttpRequest", "navigator.sendBeacon"))
 
         homepage = (SITE / "index.html").read_text(encoding="utf-8")
         assert homepage.count('href="daily-tools/"') >= 2
