@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-27T17:08:05.248204+00:00",
+  "generated_at": "2026-07-27T17:43:26.488945+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -14,9 +14,9 @@
   "html_pages_seen": 109,
   "html_pages_normalized_or_current": 108,
   "counts": {
-    "current": 104,
-    "skipped": 1,
-    "updated": 4
+    "current": 106,
+    "updated": 2,
+    "skipped": 1
   },
   "results": [
     {
@@ -31,8 +31,8 @@
     },
     {
       "path": "copyright/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "google644f1f7a8b7aaa2b.html",
@@ -416,8 +416,8 @@
     },
     {
       "path": "platform/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "provider-assessment-demo/center-guide.html",
@@ -546,22 +546,22 @@
     },
     {
       "path": "specialists-partners/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "specialists-partners/join.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "specialists-partners/verification.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "team-and-partners/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     }
   ]
