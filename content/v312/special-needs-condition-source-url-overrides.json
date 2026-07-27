@@ -2,14 +2,14 @@
   "version": 312,
   "language": "ar",
   "verified_at": "2026-07-27",
-  "purpose": "تصحيح مسارات رسمية تغيّر فيها حس الأحرف أو البنية دون إعادة كتابة ملف الحالة العلمي الأساسي.",
+  "purpose": "تصحيح روابط رسمية تغيّرت أو أزيلت دون إعادة كتابة ملف الحالة العلمي الأساسي، مع توثيق الرابط القديم والبديل وسبب التغيير.",
   "overrides": {
     "A9": {
       "from": "https://www.asha.org/Practice-Portal/Professional-Issues/Augmentative-and-Alternative-Communication/",
-      "to": "https://www.asha.org/practice-portal/professional-issues/augmentative-and-alternative-communication/",
+      "to": "https://www.asha.org/NJC/AAC/",
       "organization": "ASHA",
-      "reason": "المسار القديم أعاد 404 في فحص HEAD وGET؛ المسار الرسمي المصحح يستخدم حروفًا صغيرة.",
-      "verification_method": "official-domain-and-live-http"
+      "reason": "المسار الأصلي ومساره المكافئ بالحروف الصغيرة أعادا 404 في فحصَي HEAD وGET؛ استُبدلا بصفحة NJC/AAC الرسمية من ASHA التي تغطي التواصل المعزز والبديل عبر مراحل الحياة.",
+      "verification_method": "official-domain-content-review-and-live-http"
     }
   }
 }
