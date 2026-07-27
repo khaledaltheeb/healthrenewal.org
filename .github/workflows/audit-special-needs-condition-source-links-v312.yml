@@ -1,0 +1,81 @@
+name: Audit special-needs condition source links v312
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v302/autism-ar.json"
+      - "content/v302/down-syndrome-ar.json"
+      - "scripts/audit_special_needs_condition_source_http_v312.py"
+      - "tests/test_special_needs_condition_source_http_v312.py"
+      - ".github/workflows/audit-special-needs-condition-source-links-v312.yml"
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: special-needs-condition-source-http-v312-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit-source-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and validate classification policy
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/audit_special_needs_condition_source_http_v312.py tests/test_special_needs_condition_source_http_v312.py
+          python -m unittest -v tests.test_special_needs_condition_source_http_v312
+      - name: Probe all seventeen external source URLs
+        run: |
+          set -o pipefail
+          python scripts/audit_special_needs_condition_source_http_v312.py \
+            --output _audit/special-needs-condition-source-http-v312.json \
+            --timeout 18 \
+            --workers 4 \
+            --fail-on-broken \
+            | tee /tmp/special-needs-source-http-v312.log
+      - name: Summarize audit without hiding restricted or indeterminate sources
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('_audit/special-needs-condition-source-http-v312.json')
+          if not path.is_file():
+              print({'status': 'report-not-produced'})
+              raise SystemExit(0)
+          report = json.loads(path.read_text(encoding='utf-8'))
+          observations = {
+              key: value
+              for key, value in report.get('classification_counts', {}).items()
+              if key != 'reachable'
+          }
+          print({
+              'version': report.get('version'),
+              'status': report.get('status'),
+              'checked_at': report.get('checked_at'),
+              'source_count': report.get('source_count'),
+              'blocking_count': report.get('blocking_count'),
+              'blocking_source_ids': report.get('blocking_source_ids'),
+              'observations': observations,
+          })
+          PY
+      - name: Upload external source audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-needs-condition-source-http-v312-${{ github.run_id }}
+          path: |
+            _audit/special-needs-condition-source-http-v312.json
+            /tmp/special-needs-source-http-v312.log
+          if-no-files-found: warn
+          retention-days: 30
