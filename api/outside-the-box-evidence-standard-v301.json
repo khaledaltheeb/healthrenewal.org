@@ -1,0 +1,346 @@
+{
+  "version": 301,
+  "language": "ar",
+  "reviewed_at": "2026-07-27",
+  "title": "معيار الأدلة والمقاييس والقدرات لمسارات أفكار خارج الصندوق",
+  "applies_to": {
+    "section": "/outside-the-box/",
+    "condition_count": 100,
+    "scope": "جميع صفحات الحالات والبروتوكولات والمقاييس والادعاءات المتعلقة بالقدرات والمشاركة"
+  },
+  "status": {
+    "editorial_governance": "ساري",
+    "internal_methodological_review": "مكتمل لهذا المعيار",
+    "external_clinical_review": "مطلوب لكل حالة قبل وصفها بأنها معتمدة سريريًا",
+    "global_accreditation_claim": false,
+    "living_standard": true,
+    "next_review_due": "2027-01-27"
+  },
+  "non_negotiable_rules": [
+    "لا يُستنتج التشخيص من مقياس واحد أو من نتيجة رقمية منفردة.",
+    "لا يُنقل مقياس أو معيار أجنبي إلى العربية دون تحقق من الترجمة والتكييف والصدق والثبات والعدالة في السكان المستهدفين.",
+    "لا تُنشر بنود الاختبارات المحمية أو مفاتيح التصحيح أو الجداول المعيارية.",
+    "لا تُقدَّم سمة محتملة على مستوى مجموعة بوصفها قدرة لازمة لكل فرد.",
+    "الهدف النهائي هو توسيع الأداء والمشاركة والاختيار والاستقلال وجودة الحياة، لا تدريب الشخص على إخفاء اختلافه.",
+    "عند تعارض الدليل العام مع سلامة الشخص أو تفضيلاته أو سياقه، تُقدَّم السلامة والقرار المشترك والتقييم الفردي."
+  ],
+  "source_hierarchy": [
+    {
+      "level": "S1",
+      "label": "معيار أو تصنيف أو اتفاقية أو إرشاد رسمي",
+      "examples": ["WHO ICF/ICD", "UN CRPD", "NICE", "إرشادات حكومية أو جمعيات مهنية ذات منهج معلن"],
+      "allowed_claims": ["التعريفات الرسمية", "الحقوق", "مسارات الرعاية", "حدود الممارسة", "السلامة"],
+      "minimum": "مصدر واحد على الأقل لكل حالة عندما يتوفر"
+    },
+    {
+      "level": "S2",
+      "label": "مراجعة منهجية أو تحليل تلوي أو إرشاد قائم على مراجعة منهجية",
+      "examples": ["Cochrane", "مراجعات منهجية محكمة", "إرشادات تستخدم GRADE أو منهجًا شفافًا"],
+      "allowed_claims": ["اتجاه الأثر", "الاتساق", "المخاطر", "الفجوات"],
+      "minimum": "مطلوب قبل توصية تدخل واسعة عندما يتوفر"
+    },
+    {
+      "level": "S3",
+      "label": "دراسة أولية محكمة",
+      "examples": ["تجربة عشوائية", "دراسة أتراب", "دراسة قياس", "بحث نوعي يركز خبرة الأشخاص"],
+      "allowed_claims": ["نتيجة محددة ضمن عينة وسياق محددين"],
+      "minimum": "لا يُعمم منها وحدها"
+    },
+    {
+      "level": "S4",
+      "label": "إجماع مهني أو بوابة ممارسة مؤسسية",
+      "examples": ["ASHA Practice Portal", "AAIDD", "مراكز جامعية متخصصة"],
+      "allowed_claims": ["إجراءات مهنية عملية وحدود إحالة"],
+      "minimum": "يُستخدم مع مصدر أعلى أو مع توضيح أنه إجماع"
+    },
+    {
+      "level": "S5",
+      "label": "خبرة معاشة وبيانات الشخص والأسرة",
+      "examples": ["مقابلة الشخص", "أهدافه", "ملاحظات متعددة السياقات", "منظمات يقودها أشخاص ذوو خبرة معاشة"],
+      "allowed_claims": ["ما يهم الشخص", "المعنى", "القبول", "الحواجز", "القدرات الفعلية"],
+      "minimum": "إلزامي في اختيار الأهداف وتفسير النتائج"
+    }
+  ],
+  "excluded_as_primary_evidence": [
+    "منشورات التواصل الاجتماعي غير الموثقة",
+    "مواقع التسويق للخدمات أو الاختبارات",
+    "مقالات الرأي العامة",
+    "الملخصات الآلية غير المرتبطة بالنص الأصلي",
+    "القصص الفردية عند استخدامها لتعميم سببي أو تشخيصي",
+    "ResearchGate بوصفه ناشرًا؛ يُرجع إلى المجلة أو المستودع الرسمي الأصلي"
+  ],
+  "claim_contract": {
+    "diagnosis": {
+      "requires": ["تعريف أو إرشاد رسمي", "تقييم متعدد الطرق والمصادر والسياقات", "مختص مؤهل", "تشخيصات تفريقية", "أثر وظيفي"],
+      "forbidden": ["تشخيص آلي", "حسم من مقياس فرز", "حسم من سلوك واحد"]
+    },
+    "prevalence": {
+      "requires": ["السنة", "العمر", "البلد أو السكان", "تعريف الحالة", "المقام", "نطاق عدم اليقين"],
+      "forbidden": ["ترتيب عالمي قطعي من تقديرات غير قابلة للمقارنة"]
+    },
+    "intervention": {
+      "requires": ["السكان", "المقارنة", "النتيجة", "الجرعة", "المخاطر", "يقين الدليل", "قبول الشخص"],
+      "forbidden": ["شفاء مضمون", "نتيجة مضمونة", "توصية دوائية خارج مختص"]
+    },
+    "measurement": {
+      "requires": ["البناء المقاس", "الغرض", "النسخة", "اللغة", "العمر", "المستخدم المؤهل", "الترخيص", "الصدق", "الثبات", "الخطأ المعياري", "الاستجابة للتغير", "العدالة"],
+      "forbidden": ["نسخة مترجمة ذاتيًا بوصفها مقننة", "نشر البنود أو مفاتيح التصحيح", "تفسير الدرجة خارج السكان المعياريين"]
+    },
+    "strength_or_capability": {
+      "requires": ["صياغة احتمالية لا حتمية", "مصدر يحدد نوع الدراسة والعينة", "فحص فردي مباشر", "السياق الذي تظهر فيه القدرة", "الحواجز والتيسيرات", "صوت الشخص"],
+      "forbidden": ["لكل حالة ميزة ثابتة", "كل شخص متفوق في مجال بعينه", "استخدام الموهبة لتقليل الحاجة إلى الدعم"]
+    }
+  },
+  "measurement_gate": [
+    {"gate": 1, "name": "تعريف البناء", "question": "ما الذي نقيسه تحديدًا، وما الذي لا يقيسه؟"},
+    {"gate": 2, "name": "الغرض والقرار", "question": "هل الغرض فرز أم تشخيص أم تخطيط دعم أم متابعة نتيجة؟"},
+    {"gate": 3, "name": "النسخة والحقوق", "question": "ما رقم النسخة والناشر وشروط المستخدم والترخيص؟"},
+    {"gate": 4, "name": "الملاءمة", "question": "هل العمر واللغة وطريقة التواصل والحركة والسمع والبصر مناسبة؟"},
+    {"gate": 5, "name": "الأدلة السيكومترية", "question": "هل توجد أدلة على صدق المحتوى والبناء والمعيار والثبات والخطأ والاستجابة للتغير؟"},
+    {"gate": 6, "name": "العدالة الثقافية واللغوية", "question": "هل تم التكييف لا الترجمة الحرفية فقط، وهل اختُبر التكافؤ أو ثبات القياس؟"},
+    {"gate": 7, "name": "التسهيلات", "question": "هل تغير التسهيلات البناء المقاس، وكيف وُثقت؟"},
+    {"gate": 8, "name": "التفسير المتعدد", "question": "هل دُمجت النتيجة مع مقابلة وملاحظة وأداء وظيفي ومصادر متعددة؟"},
+    {"gate": 9, "name": "السلامة والخصوصية", "question": "من يرى البيانات، وكم تحفظ، وما مسار التصعيد؟"},
+    {"gate": 10, "name": "المراجعة", "question": "متى يعاد القياس، وما مقدار التغير الذي يتجاوز خطأ القياس؟"}
+  ],
+  "psychometric_properties": [
+    "صدق المحتوى",
+    "الصدق البنائي",
+    "الصدق المحكي عند وجود محك مناسب",
+    "الثبات",
+    "الخطأ في القياس",
+    "الاستجابة للتغير",
+    "العدالة وعدم التحيز",
+    "التكافؤ أو ثبات القياس بين اللغات والمجموعات",
+    "القابلية للتنفيذ والعبء"
+  ],
+  "strengths_and_capabilities_framework": {
+    "principle": "لا نبحث عن «إيجابية المرض»، بل عن قدرات الشخص واهتماماته وموارده والبيئة التي تسمح لها بالظهور.",
+    "domains": [
+      "التعلم والمعرفة",
+      "الحساب والمنطق وحل المشكلات",
+      "التواصل واللغة أو الإشارة أو AAC",
+      "الذاكرة والانتباه للتفاصيل",
+      "الإبداع والفنون والموسيقى",
+      "الحركة والرياضة والتحمل",
+      "المهارات العملية والمهنية",
+      "العلاقات والمناصرة والقيادة",
+      "التقنية والأنظمة",
+      "العناية الذاتية واتخاذ القرار"
+    ],
+    "individual_discovery_cycle": [
+      "اسأل الشخص وما يهمه قبل افتراض قدرة.",
+      "اجمع أمثلة أداء حقيقية من أكثر من سياق.",
+      "افصل القدرة عن أثر الحواجز الحسية أو التواصلية أو التعليمية.",
+      "جرّب فرصة منخفضة المخاطر مع تهيئات واضحة.",
+      "قس التعلم والمتعة والاستقلال والتعب، لا النتيجة الخام فقط.",
+      "وسع الفرصة إذا ظهرت فائدة، وأوقفها إذا تحولت إلى ضغط أو استغلال."
+    ],
+    "evidence_labels": {
+      "established": "مدعوم بأكثر من مصدر عالي الجودة ومتسق ضمن سكان محددين",
+      "promising": "نتائج أولية أو غير متسقة تستحق الاستكشاف الفردي",
+      "lived_experience": "موثق في خبرات الأشخاص، وقد يعتمد بشدة على السياق",
+      "individual_only": "ظهر لدى الشخص نفسه ولا يجوز تعميمه",
+      "not_supported_as_group_claim": "لا يدعم الدليل تعميم القدرة على جميع أفراد الحالة"
+    }
+  },
+  "worked_examples": [
+    {
+      "topic": "التوحد والرياضيات أو المنطق",
+      "unsafe_statement": "الأشخاص التوحديون لديهم قدرات حسابية ومنطقية مرتفعة.",
+      "approved_statement": "قد تظهر لدى بعض الأشخاص التوحديين اهتمامات أو قدرات مميزة في أنظمة أو أرقام، لكن الدليل لا يدعم تفوقًا رياضيًا عامًا. دراسة صغيرة منشورة عام 2024 وجدت أداءً متشابهًا في الحساب والمسائل اللفظية بين مجموعتين مع اختلافات في بعض المهارات العددية المبكرة، بينما وجدت دراسة عام 2015 صعوبات في تقدير العدد لدى عينتها. لذلك تُقاس القدرة فرديًا وبأدوات تعليمية ملائمة.",
+      "evidence_label": "not_supported_as_group_claim",
+      "source_ids": ["autism-numeracy-2024", "autism-number-estimation-2015", "autistic-strengths-lived-experience-2024"]
+    },
+    {
+      "topic": "الأولمبياد الخاص والرياضة الدامجة",
+      "unsafe_statement": "الرياضة تكشف ميزة مرضية مشتركة.",
+      "approved_statement": "الأولمبياد الخاص والرياضة الدامجة يقدمان تدريبًا ومنافسة وفرصًا للصحة والهوية والصداقة وإظهار المهارات. تُختار الرياضة والتهيئات ومستوى المنافسة حسب رغبة الشخص وقدرته وسلامته، ولا تُستخدم المشاركة أو الميدالية لإثبات «ميزة مرضية» مشتركة أو لتقدير قيمة الإنسان.",
+      "evidence_label": "established",
+      "source_ids": ["special-olympics-general-rules", "un-crpd-article-30", "who-icf-2026"]
+    }
+  ],
+  "review_board_roles": [
+    "مختص سريري أو نمائي في الحالة",
+    "مختص قياس نفسي أو تربوي",
+    "مختص تأهيل أو تعليم أو تواصل حسب المجال",
+    "مراجع لغة عربية وتكييف ثقافي",
+    "مراجع إتاحة وتقنية مساعدة",
+    "شخص ذو خبرة معاشة أو ممثل يختاره",
+    "مراجع أخلاقيات وحقوق وخصوصية"
+  ],
+  "publication_states": [
+    {"code": "DRAFT", "label": "مسودة", "meaning": "لم تكتمل مراجعة المصادر"},
+    {"code": "INTERNAL_METHOD_REVIEW", "label": "مراجعة منهجية داخلية", "meaning": "اجتاز قواعد المصدر والحقوق والسلامة آليًا وبشريًا"},
+    {"code": "EXTERNAL_DOMAIN_REVIEW", "label": "مراجعة تخصصية خارجية", "meaning": "راجعه مختص مستقل في الحالة والقياس"},
+    {"code": "LIVED_EXPERIENCE_REVIEW", "label": "مراجعة خبرة معاشة", "meaning": "راجعه شخص أو أكثر من الفئة المعنية مع توثيق التعارضات"},
+    {"code": "PUBLISHED_LIVING", "label": "منشور حي", "meaning": "له تاريخ مراجعة قادم وسجل تغييرات وتصحيح علني"}
+  ],
+  "minimum_condition_record": [
+    "تعريف وحدود الحالة",
+    "ما قد يلتبس بها",
+    "الأثر الوظيفي عبر ICF",
+    "نقاط القوة الفردية التي يجب فحصها لا افتراضها",
+    "حواجز البيئة والتيسيرات",
+    "مقاييس محتملة مع النسخة والترخيص والخصائص السيكومترية",
+    "مسار تقييم متعدد المصادر",
+    "خيارات دعم مع يقين الدليل والمخاطر",
+    "فرص التعليم والعمل والرياضة والفنون والمجتمع",
+    "مؤشرات التصعيد والسلامة",
+    "مؤشرات متابعة قابلة للقياس",
+    "صوت الشخص وتفضيلاته",
+    "المراجع المرتبطة بكل ادعاء",
+    "تاريخ التحقق والمراجعة القادمة"
+  ],
+  "sources": [
+    {
+      "id": "who-icf-2026",
+      "publisher": "World Health Organization",
+      "title": "International Classification of Functioning, Disability and Health (ICF), 2026 release",
+      "url": "https://icd.who.int/browse/2026-01/icf/en",
+      "source_type": "international_classification",
+      "year": 2026,
+      "verified_at": "2026-07-27",
+      "supports": ["الأداء", "النشاط", "المشاركة", "العوامل البيئية"]
+    },
+    {
+      "id": "who-icf-overview",
+      "publisher": "World Health Organization",
+      "title": "International Classification of Functioning, Disability and Health (ICF)",
+      "url": "https://www.who.int/standards/classifications/international-classification-of-functioning-disability-and-health",
+      "source_type": "international_standard",
+      "year": 2001,
+      "verified_at": "2026-07-27",
+      "supports": ["الإطار الدولي لقياس الصحة والعجز", "السياق والعوامل البيئية"]
+    },
+    {
+      "id": "un-crpd-article-30",
+      "publisher": "United Nations",
+      "title": "CRPD Article 30: Participation in cultural life, recreation, leisure and sport",
+      "url": "https://www.un.org/development/desa/disabilities/convention-on-the-rights-of-persons-with-disabilities/article-30-participation-in-cultural-life-recreation-leisure-and-sport.html",
+      "source_type": "international_convention",
+      "year": 2006,
+      "verified_at": "2026-07-27",
+      "supports": ["الرياضة", "الفنون", "الإبداع", "المشاركة المتساوية"]
+    },
+    {
+      "id": "special-olympics-general-rules",
+      "publisher": "Special Olympics International",
+      "title": "General Rules, Article 1: Mission, Goal, and Founding Principles",
+      "url": "https://resources.specialolympics.org/governance/special-olympics-general-rules/article-1",
+      "year": null,
+      "source_type": "official_program_standard",
+      "verified_at": "2026-07-27",
+      "claims_supported": [
+        "التدريب الرياضي والمنافسة فرص مستمرة لتطوير اللياقة والمهارات والفرح والمشاركة للأشخاص ذوي الإعاقة الذهنية",
+        "تكييف التعليم والتدريب والمنافسة حسب احتياجات الفرد ومستوى قدرته",
+        "الرياضة مسار لإظهار المهارات والمواهب والاندماج وليست دليلًا على ميزة تشخيصية ثابتة"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "aera-apa-ncme-standards-2014",
+      "publisher": "AERA / APA / NCME",
+      "title": "Standards for Educational and Psychological Testing",
+      "url": "https://www.apa.org/science/programs/testing/standards",
+      "source_type": "testing_standard",
+      "year": 2014,
+      "verified_at": "2026-07-27",
+      "supports": ["الصدق", "الثبات", "العدالة", "مسؤولية استخدام الاختبار"]
+    },
+    {
+      "id": "cosmin-selection",
+      "publisher": "COSMIN",
+      "title": "Selecting the most suitable outcome measurement instrument",
+      "url": "https://www.cosmin.nl/finding-right-tool/select-best-measurement-instrument/",
+      "source_type": "measurement_methodology",
+      "year": null,
+      "verified_at": "2026-07-27",
+      "supports": ["خصائص القياس", "الملاءمة", "القابلية للتنفيذ"]
+    },
+    {
+      "id": "itc-translation-adaptation",
+      "publisher": "International Test Commission",
+      "title": "ITC Guidelines for Translating and Adapting Tests, Second Edition",
+      "url": "https://www.intestcom.org/page/14",
+      "source_type": "test_adaptation_guideline",
+      "year": 2017,
+      "verified_at": "2026-07-27",
+      "supports": ["التكييف اللغوي والثقافي", "التوثيق", "التفسير العادل"]
+    },
+    {
+      "id": "itc-test-use",
+      "publisher": "International Test Commission",
+      "title": "ITC Guidelines on Test Use",
+      "url": "https://www.intestcom.org/page/15",
+      "source_type": "test_use_guideline",
+      "year": 2001,
+      "verified_at": "2026-07-27",
+      "supports": ["المؤهل", "الاختيار", "الاستخدام والتفسير المسؤول"]
+    },
+    {
+      "id": "grade-official",
+      "publisher": "GRADE Working Group",
+      "title": "GRADE: transparent approach to certainty of evidence and recommendations",
+      "url": "https://www.gradeworkinggroup.org/",
+      "source_type": "evidence_certainty_methodology",
+      "year": null,
+      "verified_at": "2026-07-27",
+      "supports": ["يقين الدليل", "قوة التوصية", "الشفافية"]
+    },
+    {
+      "id": "nice-shared-decision-making",
+      "publisher": "NICE",
+      "title": "Shared decision making (NG197)",
+      "url": "https://www.nice.org.uk/guidance/ng197/chapter/Recommendations",
+      "source_type": "official_guideline",
+      "year": 2021,
+      "verified_at": "2026-07-27",
+      "supports": ["القرار المشترك", "المعلومات عالية الجودة", "التفضيلات والقيم"]
+    },
+    {
+      "id": "nice-complex-needs",
+      "publisher": "NICE",
+      "title": "Disabled children and young people with severe complex needs (NG213)",
+      "url": "https://www.nice.org.uk/guidance/ng213/chapter/recommendations-on-support-for-all-disabled-children-and-young-people-with-severe-complex-needs",
+      "source_type": "official_guideline",
+      "year": 2022,
+      "verified_at": "2026-07-27",
+      "supports": ["الأهداف والطموحات", "المشاركة في القرار", "تكامل الخدمات"]
+    },
+    {
+      "id": "autism-numeracy-2024",
+      "publisher": "Frontiers in Psychiatry / PubMed",
+      "title": "Early numerical skills and mathematical domains in autistic students in primary school",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39737104/",
+      "source_type": "primary_comparative_study",
+      "year": 2024,
+      "verified_at": "2026-07-27",
+      "population": "42 طفلًا، 21 توحديًا و21 غير توحدي، 6–12 سنة",
+      "limitations": ["عينة صغيرة", "لا تدعم تعميم تفوق رياضي", "تحتاج دراسات طولية وأوسع"],
+      "supports": ["تشابه في الحساب والمسائل اللفظية في العينة", "اختلاف بعض المتنبئات العددية المبكرة"]
+    },
+    {
+      "id": "autism-number-estimation-2015",
+      "publisher": "Autism Research / PubMed",
+      "title": "Numerical Estimation in Children With Autism",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25808265/",
+      "source_type": "primary_comparative_study",
+      "year": 2015,
+      "verified_at": "2026-07-27",
+      "population": "64 طفلًا، 32 توحديًا و32 غير توحدي، 8–13 سنة",
+      "limitations": ["عينة محددة معرفيًا", "لا تمثل الطيف كله"],
+      "supports": ["التشكيك في الاعتقاد الشائع بالتفوق الرياضي العام", "الحاجة إلى تقييم فردي"]
+    },
+    {
+      "id": "autistic-strengths-lived-experience-2024",
+      "publisher": "Autism in Adulthood / PubMed",
+      "title": "What Are the Lived Experiences of Strengths in Autistic Individuals? A Systematic Review and Thematic Synthesis",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42369095/",
+      "source_type": "systematic_review_qualitative",
+      "year": 2024,
+      "verified_at": "2026-07-27",
+      "supports": ["السياقية", "الاهتمامات المركزة", "مركزية صوت الأشخاص التوحديين"]
+    }
+  ]
+}
