@@ -1,11 +1,12 @@
 {
-  "schema_version": 322,
-  "status": "failed",
-  "deployment_outcome": "skipped",
-  "artifact": "_site",
-  "source_commit": "9e7a73ac1b59ea71c9b2bec4b7c4e4075f76cc23",
-  "source_ref": "refs/heads/main",
-  "workflow_run_id": "30302420934",
-  "page_url": "",
-  "recorded_at": "2026-07-27T20:36:37+00:00"
+  "schema_version": 324,
+  "status": "deployed",
+  "deployment_outcome": "success",
+  "artifact": "observable-validated-site-v324",
+  "source_commit": "a72f875252207f490619f109db56bb3d2c21f878",
+  "workflow_run_id": "30306496002",
+  "source_workflow_run_id": "30306245573",
+  "page_url": "https://khaledaltheeb.github.io/pterminology-site/",
+  "recorded_at": "2026-07-27T21:23:23+00:00",
+  "live_routes_verified": 6
 }
