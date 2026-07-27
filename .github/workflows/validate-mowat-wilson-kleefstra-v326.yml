@@ -1,0 +1,96 @@
+name: Validate Mowat-Wilson and Kleefstra guides v326
+
+on:
+  pull_request:
+    paths:
+      - 'content/v326/**'
+      - 'scripts/publish_mowat_wilson_kleefstra_v326.py'
+      - 'scripts/diagnose_special_needs_guides_v221.py'
+      - 'tests/test_mowat_wilson_kleefstra_v326.py'
+      - 'tests/test_mowat_wilson_kleefstra_integration_v326.py'
+      - '.github/workflows/validate-mowat-wilson-kleefstra-v326.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/v326/**'
+      - 'scripts/publish_mowat_wilson_kleefstra_v326.py'
+      - 'scripts/diagnose_special_needs_guides_v221.py'
+      - 'tests/test_mowat_wilson_kleefstra_v326.py'
+      - 'tests/test_mowat_wilson_kleefstra_integration_v326.py'
+      - '.github/workflows/validate-mowat-wilson-kleefstra-v326.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-v326:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile four-layer publishers integration and tests
+        run: |
+          python -m py_compile \
+            scripts/publish_new_special_needs_conditions_v323.py \
+            scripts/publish_williams_prader_willi_v324.py \
+            scripts/publish_smith_magenis_pitt_hopkins_v325.py \
+            scripts/publish_mowat_wilson_kleefstra_v326.py \
+            scripts/diagnose_special_needs_guides_v221.py \
+            tests/test_mowat_wilson_kleefstra_v326.py \
+            tests/test_mowat_wilson_kleefstra_integration_v326.py
+      - name: Validate manifest depth sources and review honesty
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'scripts')
+          import publish_mowat_wilson_kleefstra_v326 as publisher
+
+          raw = json.loads(Path('content/v326/mowat-wilson-kleefstra-guides-ar.json').read_text(encoding='utf-8'))
+          guides = publisher.validate_payload(raw)
+          assert raw['version'] == 326
+          assert raw['review_status'] == 'internally-reviewed-external-clinical-review-required'
+          assert [guide['slug'] for guide in guides] == ['mowat-wilson-syndrome', 'kleefstra-syndrome']
+          assert sum(len(guide['sections']) for guide in guides) == 14
+          assert sum(len(guide['sources']) for guide in guides) == 14
+          banned = re.compile(r'(?<!\w)(?:المعاقين|معاقين|المعاقون|معاقون|المعاقة|معاقة|المعاق|معاق)(?!\w)')
+          assert not banned.search(json.dumps(raw, ensure_ascii=False))
+          for guide in guides:
+              assert len(guide['sections']) == 7
+              assert all(len(section['points']) >= 7 for section in guide['sections'])
+              assert len(guide['action_steps']) >= 8
+              assert len(guide['urgent']) >= 6
+              assert len(guide['myths']) >= 5
+              assert len(guide['faqs']) >= 5
+              assert all(source['url'].startswith('https://') for source in guide['sources'])
+          print({
+              'conditions': len(guides),
+              'sections': sum(len(guide['sections']) for guide in guides),
+              'sources': sum(len(guide['sources']) for guide in guides),
+              'review_state': raw['review_status'],
+          })
+          PY
+      - name: Run deterministic four-layer publisher tests
+        run: python -m unittest tests.test_mowat_wilson_kleefstra_v326 -v
+      - name: Run central production integration tests
+        run: python -m unittest tests.test_mowat_wilson_kleefstra_integration_v326 -v
+      - name: Verify scientific identity and safety markers
+        run: |
+          set -euxo pipefail
+          grep -q 'ZEB2' content/v326/mowat-wilson-kleefstra-guides-ar.json
+          grep -q 'هيرشسبرونغ' content/v326/mowat-wilson-kleefstra-guides-ar.json
+          grep -q 'ESES' content/v326/mowat-wilson-kleefstra-guides-ar.json
+          grep -q 'EHMT1' content/v326/mowat-wilson-kleefstra-guides-ar.json
+          grep -q '9q34.3' content/v326/mowat-wilson-kleefstra-guides-ar.json
+          grep -q 'كاتاتونيا' content/v326/mowat-wilson-kleefstra-guides-ar.json
+          grep -q 'https://www.ncbi.nlm.nih.gov/books/NBK1412/' content/v326/mowat-wilson-kleefstra-guides-ar.json
+          grep -q 'https://www.ncbi.nlm.nih.gov/books/NBK47079/' content/v326/mowat-wilson-kleefstra-guides-ar.json
+          grep -q 'fourth_condition_guides_contract' scripts/diagnose_special_needs_guides_v221.py
+          grep -q 'total_condition_count' scripts/publish_mowat_wilson_kleefstra_v326.py
+          ! grep -R -E 'علاج مضمون|شفاء مضمون|نتائج مؤكدة للجميع' content/v326
