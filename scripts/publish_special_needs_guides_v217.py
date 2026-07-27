@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
+import audit_special_needs_condition_sources_v310 as source310
 import publish_special_needs_condition_hubs_v302 as condition302
 import publish_special_needs_condition_postlaunch_v305 as postlaunch305
 import publish_special_needs_condition_trust_v307 as trust307
@@ -59,6 +60,7 @@ def reset_condition_outputs(site: Path) -> None:
         "special-needs-condition-postlaunch-v305.json",
         "special-needs-condition-trust-v307.json",
         "special-needs-provider-governance-v308.json",
+        "special-needs-condition-source-maintenance-v310.json",
     ):
         (site / "api" / name).unlink(missing_ok=True)
 
@@ -119,6 +121,14 @@ def publish(site: Path) -> dict[str, Any]:
     pages.extend(page["path"] for page in validated214)
     discovery = core.validate_discovery(site, all_slugs)
 
+    source_report = source310.publish(site)
+    if source_report.get("version") != 310 or source_report.get("status") != "passed":
+        raise SystemExit(f"Condition source maintenance contract failed: {source_report}")
+    if source_report.get("condition_slugs") != ["autism", "down-syndrome"]:
+        raise SystemExit("Source maintenance must cover both condition pages")
+    if source_report.get("source_count") != 17 or source_report.get("condition_count") != 2:
+        raise SystemExit("Source maintenance must cover all seventeen condition references")
+
     provider_report = provider308.publish(site)
     if provider_report.get("version") != 308 or provider_report.get("status") != "passed":
         raise SystemExit(f"Provider directory governance contract failed: {provider_report}")
@@ -132,11 +142,18 @@ def publish(site: Path) -> dict[str, Any]:
         raise SystemExit("Autism and Down syndrome routes are required")
     if condition_report.get("generated_page_count") != 2 or condition_report.get("source_count", 0) < 15:
         raise SystemExit("Scientific condition page depth contract failed")
-    if condition_report.get("published_provider_count") != provider_report.get("published_count") * 2:
-        # A provider covering both conditions appears once on each condition page.
-        expected = sum(condition_report.get("provider_counts", {}).values())
-        if expected != condition_report.get("published_provider_count"):
-            raise SystemExit("Rendered provider counts are internally inconsistent")
+    if condition_report.get("source_count") != source_report.get("source_count"):
+        raise SystemExit("Rendered condition source count must match the maintenance audit")
+    rendered_counts = condition_report.get("provider_counts", {})
+    rendered_total = sum(rendered_counts.values())
+    published_records = provider_report.get("published_count", 0)
+    if rendered_total != condition_report.get("published_provider_count"):
+        raise SystemExit("Rendered provider counts are internally inconsistent")
+    if not (published_records <= rendered_total <= published_records * 2):
+        raise SystemExit(
+            f"Published provider records do not match one-or-two condition page appearances: "
+            f"records={published_records}, appearances={rendered_total}"
+        )
 
     postlaunch_report = postlaunch305.publish(site)
     if postlaunch_report.get("version") != 305 or postlaunch_report.get("status") != "passed":
@@ -172,6 +189,7 @@ def publish(site: Path) -> dict[str, Any]:
         "condition_postlaunch_contract": 305,
         "condition_trust_contract": 307,
         "provider_governance_contract": 308,
+        "condition_source_maintenance_contract": 310,
         "status": "passed",
         "production_status": "integrated",
         "batches": list(VERSIONS),
@@ -208,6 +226,16 @@ def publish(site: Path) -> dict[str, Any]:
             "provider_source": condition_report["provider_source"],
             "published_provider_count": condition_report["published_provider_count"],
             "sitemap_registered": condition_report["sitemap_registered"],
+            "source_maintenance": {
+                "version": source_report["version"],
+                "checked_at": source_report["checked_at"],
+                "review_interval_days": source_report["review_interval_days"],
+                "maximum_allowed_review_age_days": source_report["maximum_allowed_review_age_days"],
+                "source_count": source_report["source_count"],
+                "distinct_host_count": source_report["distinct_host_count"],
+                "overdue_source_count": source_report["overdue_source_count"],
+                "due_within_30_days_count": source_report["due_within_30_days_count"],
+            },
             "provider_governance": {
                 "version": provider_report["version"],
                 "checked_at": provider_report["checked_at"],

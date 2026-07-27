@@ -63,6 +63,14 @@ class SpecialNeedsProviderDirectoryV308Tests(unittest.TestCase):
         self.assertEqual(report["sponsored_count"], 0)
         self.assertEqual(report["status_counts"]["verified"], 1)
 
+    def test_published_provider_must_map_to_autism_or_down_syndrome_directory(self) -> None:
+        data = self.config()
+        provider = self.valid_provider()
+        provider["specialties"] = ["speech-language", "early-intervention"]
+        data["providers"] = [provider]
+        with self.assertRaises(SystemExit):
+            governance.validate_provider_data(data, today=date(2026, 7, 27))
+
     def test_expired_provider_cannot_remain_published(self) -> None:
         data = self.config()
         provider = self.valid_provider()
