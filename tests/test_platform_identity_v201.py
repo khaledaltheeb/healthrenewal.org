@@ -60,32 +60,39 @@ class PlatformIdentityV201Tests(unittest.TestCase):
             "magazine/adolescent-depression-one-step-back-rct-2026.html",
             "magazine/latinx-adolescent-suicidal-behavior-cbt-rct-2026.html",
             "magazine/adhd-personalized-neurofeedback-sham-rct-2026.html",
+            "magazine/autism-lets-play-caregiver-mediated-rct-2026.html",
+            "magazine/autism-parent-reflective-functioning-rct-2026.html",
+            "magazine/cerebral-palsy-participate-cp-leisure-rct-2026.html",
+            "magazine/down-syndrome-dual-task-exergaming-cognition-rct-2026.html",
+            "magazine/adhd-dexamphetamine-methylphenidate-randomized-2026.html",
             "magazine/feed.xml",
         ):
             self.assertTrue((site / relative).is_file(), relative)
         index = (site / "magazine/index.html").read_text(encoding="utf-8")
-        self.assertIn('"numberOfItems":65', index)
-        self.assertEqual(index.count('class="card"'), 65)
+        self.assertIn('"numberOfItems":70', index)
+        self.assertEqual(index.count('class="card"'), 70)
         self.assertIn("الهدف المرحلي 100 قراءة", index)
         report = json.loads((site / "api/platform-identity-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(report["pages"], 71)
+        self.assertEqual(report["pages"], 76)
         self.assertEqual(report["headers_added"], 1)
         self.assertEqual(report["footers_added"], 1)
         self.assertGreaterEqual(report["language_replacements"], 4)
         self.assertTrue(report["trust_guides_published"])
         self.assertTrue(report["magazine_published"])
-        self.assertEqual(report["magazine_pages"], 65)
+        self.assertEqual(report["magazine_pages"], 70)
         self.assertEqual(report["magazine_unwired_pages"], 0)
         self.assertEqual(report["magazine_report"], "api/magazine-v201.json")
         self.assertEqual(report["remaining_banned_pages"], [])
         self.assertEqual(report["missing_header_pages"], [])
         self.assertEqual(report["missing_footer_pages"], [])
         magazine = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(magazine["research_summaries_published"], 65)
+        self.assertEqual(magazine["version"], 315)
+        self.assertEqual(magazine["research_summaries_published"], 70)
         self.assertEqual(magazine["target_research_summaries"], 100)
-        self.assertEqual(magazine["remaining_to_target"], 35)
+        self.assertEqual(magazine["remaining_to_target"], 30)
         self.assertEqual(magazine["unwired_research_pages"], 0)
-        self.assertEqual(magazine["sitemap"]["child_urls"], 66)
+        self.assertEqual(magazine["sitemap"]["child_urls"], 71)
+        self.assertEqual(magazine["rss_contract"], "latest-twenty-sorted-by-datePublished")
 
     def test_tools_page_uses_marshmallow_contrast(self) -> None:
         site = self.make_site()
@@ -142,9 +149,10 @@ class PlatformIdentityV201Tests(unittest.TestCase):
         trust_report = json.loads((site / "api/trust-guides-v201.json").read_text(encoding="utf-8"))
         self.assertEqual(trust_report["page_count"], 3)
         magazine_report = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(magazine_report["research_summaries_published"], 65)
+        self.assertEqual(magazine_report["research_summaries_published"], 70)
         self.assertEqual(magazine_report["target_research_summaries"], 100)
-        self.assertEqual(magazine_report["sitemap"]["child_urls"], 66)
+        self.assertEqual(magazine_report["sitemap"]["child_urls"], 71)
+        self.assertEqual(magazine_report["rss_contract"], "latest-twenty-sorted-by-datePublished")
 
 
 if __name__ == "__main__":
