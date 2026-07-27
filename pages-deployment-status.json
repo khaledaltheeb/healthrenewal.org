@@ -1,10 +1,11 @@
 {
   "schema_version": 322,
-  "status": "failed",
-  "deployment_outcome": "skipped",
-  "source_commit": "0f6b8df95cf551b44a9f91ffffab55219e38d25d",
+  "status": "building",
+  "deployment_outcome": "in_progress",
+  "artifact": "_site",
+  "source_commit": "9e7a73ac1b59ea71c9b2bec4b7c4e4075f76cc23",
   "source_ref": "refs/heads/main",
-  "workflow_run_id": "30298661541",
+  "workflow_run_id": "30302420934",
   "page_url": "",
-  "recorded_at": "2026-07-27T20:01:45+00:00"
+  "recorded_at": "2026-07-27T20:36:36+00:00"
 }
