@@ -6,6 +6,11 @@ on:
       - agent/materialize-special-needs-v322
     paths:
       - .github/workflows/materialize-special-needs-v322.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/materialize-special-needs-v322.yml
 
 permissions:
   contents: write
