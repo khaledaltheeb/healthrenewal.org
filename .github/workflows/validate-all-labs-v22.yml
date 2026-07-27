@@ -13,6 +13,10 @@ permissions:
 env:
   SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
 
+concurrency:
+  group: validate-all-labs-v31-main
+  cancel-in-progress: true
+
 jobs:
   exhaustive-labs:
     runs-on: ubuntu-latest
