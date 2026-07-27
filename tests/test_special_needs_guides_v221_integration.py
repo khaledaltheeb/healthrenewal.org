@@ -25,6 +25,7 @@ CONDITION_SOURCE_FILES = {
     "content/v310/special-needs-condition-source-maintenance-ar.json",
     "content/v312/special-needs-condition-source-url-overrides.json",
     "content/v314/special-needs-condition-age-guides-ar.json",
+    "content/v316/special-needs-diagnostic-decision-guides-ar.json",
 }
 SPECIAL_NEEDS_CONTENT_PREFIXES = (
     "content/v209/special-needs-guides/",
@@ -43,6 +44,7 @@ SPECIAL_NEEDS_PUBLISHERS = {
     "scripts/validate_special_needs_provider_directory_v308.py",
     "scripts/audit_special_needs_condition_sources_v310.py",
     "scripts/publish_special_needs_condition_age_guides_v314.py",
+    "scripts/publish_special_needs_diagnostic_decision_guides_v316.py",
     "scripts/publish_special_needs_guides_v214.py",
     "scripts/publish_special_needs_guides_v217.py",
     "scripts/publish_special_needs_guides_v217_core.py",
@@ -94,7 +96,7 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
         self.assertTrue(all((ROOT / path).is_file() for path in manifest["source_files"]))
         self.assertEqual(manifest["blocked_review_files_excluded"], 3)
 
-    def test_all_five_batches_and_condition_age_guides_are_stable_and_discoverable(self) -> None:
+    def test_all_guides_condition_layers_are_stable_and_discoverable(self) -> None:
         first = self.run_publisher()
         self.assertEqual(first["version"], 221)
         self.assertEqual(first["batches"], list(VERSIONS))
@@ -105,12 +107,12 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
         self.assertFalse(first["external_review_completed"])
         self.assertEqual(first["condition_hubs_contract"], 302)
         self.assertEqual(first["condition_age_guides_contract"], 314)
+        self.assertEqual(first["diagnostic_decision_guides_contract"], 316)
         self.assertEqual(first["condition_hubs"]["condition_slugs"], ["autism", "down-syndrome"])
         self.assertEqual(first["condition_hubs"]["source_count"], 17)
 
         age_guides = first["condition_hubs"]["age_guides"]
         self.assertEqual(age_guides["version"], 314)
-        self.assertEqual(age_guides["status"], "passed")
         self.assertEqual(age_guides["guide_count"], 2)
         self.assertEqual(age_guides["guide_slugs"], ["autism-signs-by-age", "down-syndrome-health-by-age"])
         self.assertEqual(age_guides["stage_count"], 8)
@@ -118,7 +120,22 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
         self.assertEqual(age_guides["parent_links_added"], 2)
         self.assertTrue(age_guides["sitemap_registered"])
         self.assertFalse(age_guides["external_clinical_review_completed"])
-        self.assertEqual(age_guides["next_review_due"], "2027-01-27")
+
+        decision_guides = first["condition_hubs"]["diagnostic_decision_guides"]
+        self.assertEqual(decision_guides["version"], 316)
+        self.assertEqual(decision_guides["status"], "passed")
+        self.assertEqual(decision_guides["guide_count"], 2)
+        self.assertEqual(
+            decision_guides["guide_slugs"],
+            ["autism-screening-vs-diagnosis", "down-syndrome-prenatal-screening-vs-diagnosis"],
+        )
+        self.assertEqual(decision_guides["section_count"], 10)
+        self.assertEqual(decision_guides["source_count"], 8)
+        self.assertEqual(decision_guides["decision_step_count"], 10)
+        self.assertEqual(decision_guides["parent_links_added"], 2)
+        self.assertTrue(decision_guides["sitemap_registered"])
+        self.assertFalse(decision_guides["external_clinical_review_completed"])
+        self.assertEqual(decision_guides["next_review_due"], "2027-01-27")
 
         source_maintenance = first["condition_hubs"]["source_maintenance"]
         self.assertEqual(source_maintenance["version"], 310)
@@ -143,33 +160,49 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
             self.assertTrue((self.site / "special-needs" / slug / "index.html").is_file())
             self.assertEqual(hub.count(f"/pterminology-site/special-needs/{slug}/"), 1)
 
-        parent_to_age = {
-            "autism": "autism-signs-by-age",
-            "down-syndrome": "down-syndrome-health-by-age",
+        parent_children = {
+            "autism": ("autism-signs-by-age", "autism-screening-vs-diagnosis"),
+            "down-syndrome": (
+                "down-syndrome-health-by-age",
+                "down-syndrome-prenatal-screening-vs-diagnosis",
+            ),
         }
-        for parent, child in parent_to_age.items():
-            page_path = self.site / "special-needs" / parent / "index.html"
-            self.assertTrue(page_path.is_file())
+        for parent, children in parent_children.items():
+            parent_path = self.site / "special-needs" / parent / "index.html"
+            self.assertTrue(parent_path.is_file())
             self.assertEqual(hub.count(f"/pterminology-site/special-needs/{parent}/"), 1)
-            page = page_path.read_text(encoding="utf-8")
-            self.assertIn('"@type": "FAQPage"', page)
-            self.assertIn('id="quality-and-faq"', page)
-            self.assertIn('id="provider-listing-policy"', page)
-            self.assertEqual(page.count(f'data-age-guide="{child}"'), 1)
-            self.assertEqual(page.count(f'/pterminology-site/special-needs/{child}/'), 1)
+            parent_page = parent_path.read_text(encoding="utf-8")
+            self.assertIn('"@type": "FAQPage"', parent_page)
+            self.assertIn('id="quality-and-faq"', parent_page)
+            self.assertIn('id="provider-listing-policy"', parent_page)
 
-            child_path = self.site / "special-needs" / child / "index.html"
-            self.assertTrue(child_path.is_file())
-            child_page = child_path.read_text(encoding="utf-8")
-            self.assertEqual(child_page.count("<h1"), 1)
-            self.assertEqual(child_page.count('class="stage"'), 4)
-            self.assertIn("MedicalWebPage", child_page)
-            self.assertIn("لم تكتمل مراجعة سريرية خارجية مستقلة", child_page)
+            age_slug, decision_slug = children
+            self.assertEqual(parent_page.count(f'data-age-guide="{age_slug}"'), 1)
+            self.assertEqual(parent_page.count(f'/pterminology-site/special-needs/{age_slug}/'), 1)
+            self.assertEqual(parent_page.count(f'data-diagnostic-guide="{decision_slug}"'), 1)
+            self.assertEqual(parent_page.count(f'/pterminology-site/special-needs/{decision_slug}/'), 1)
 
-        v214 = json.loads((self.site / "api/special-needs-guides-v214.json").read_text(encoding="utf-8"))
-        self.assertEqual(v214["status"], "production-integrated")
-        self.assertEqual(v214["review_status"], "internally-reviewed")
-        self.assertEqual(v214["external_review"], "recommended-not-completed")
+            age_page = (self.site / "special-needs" / age_slug / "index.html").read_text(encoding="utf-8")
+            self.assertEqual(age_page.count("<h1"), 1)
+            self.assertEqual(age_page.count('class="stage"'), 4)
+            self.assertIn("MedicalWebPage", age_page)
+
+            decision_page = (self.site / "special-needs" / decision_slug / "index.html").read_text(encoding="utf-8")
+            self.assertEqual(decision_page.count("<h1"), 1)
+            self.assertEqual(decision_page.count('class="section-card"'), 5)
+            self.assertIn("MedicalWebPage", decision_page)
+            self.assertIn("لم تكتمل مراجعة سريرية خارجية مستقلة", decision_page)
+
+        autism_decision = (
+            self.site / "special-needs" / "autism-screening-vs-diagnosis" / "index.html"
+        ).read_text(encoding="utf-8")
+        self.assertIn("النتيجة الإيجابية تعني زيادة الحاجة إلى تقييم أعمق", autism_decision)
+        self.assertIn("لا يعتمد على أداة تشخيصية واحدة وحدها", autism_decision)
+        prenatal_decision = (
+            self.site / "special-needs" / "down-syndrome-prenatal-screening-vs-diagnosis" / "index.html"
+        ).read_text(encoding="utf-8")
+        self.assertIn("للمريضة الحق في قبول التحري أو الاختبار التشخيصي أو رفضهما", prenatal_decision)
+        self.assertIn("لا تفسر نتيجة تحرٍ إيجابية على أنها تشخيص مؤكد", prenatal_decision)
 
         locations = [
             node.text
@@ -179,7 +212,14 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
         expected = {f"{BASE}/special-needs/{slug}/" for slug in first["guide_slugs"]}
         expected.update(
             f"{BASE}/special-needs/{slug}/"
-            for slug in ("autism", "down-syndrome", "autism-signs-by-age", "down-syndrome-health-by-age")
+            for slug in (
+                "autism",
+                "down-syndrome",
+                "autism-signs-by-age",
+                "down-syndrome-health-by-age",
+                "autism-screening-vs-diagnosis",
+                "down-syndrome-prenatal-screening-vs-diagnosis",
+            )
         )
         self.assertTrue(expected.issubset(set(locations)))
         self.assertEqual(len(locations), len(set(locations)))
@@ -197,16 +237,20 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
             self.site / "api/special-needs-provider-governance-v308.json",
             self.site / "api/special-needs-condition-source-maintenance-v310.json",
             self.site / "api/special-needs-condition-age-guides-v314.json",
+            self.site / "api/special-needs-diagnostic-decision-guides-v316.json",
             self.site / "special-needs/autism/index.html",
             self.site / "special-needs/down-syndrome/index.html",
             self.site / "special-needs/autism-signs-by-age/index.html",
             self.site / "special-needs/down-syndrome-health-by-age/index.html",
+            self.site / "special-needs/autism-screening-vs-diagnosis/index.html",
+            self.site / "special-needs/down-syndrome-prenatal-screening-vs-diagnosis/index.html",
         ]
         before = [digest(path) for path in tracked]
         second = self.run_publisher()
         after = [digest(path) for path in tracked]
         self.assertEqual(second["guide_count"], 25)
         self.assertEqual(second["condition_hubs"]["age_guides"]["guide_count"], 2)
+        self.assertEqual(second["condition_hubs"]["diagnostic_decision_guides"]["guide_count"], 2)
         self.assertEqual(before, after)
 
     def test_repository_audit_sees_special_needs_sources_and_preserves_blocks(self) -> None:
