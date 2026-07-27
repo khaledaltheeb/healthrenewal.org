@@ -35,23 +35,43 @@ def restore_static_public_routes() -> dict[str, int]:
     return restored
 
 
+def seo_targets() -> list[Path]:
+    targets = [SITE / "index.html", SITE / "sections/index.html"]
+    for route in STATIC_PUBLIC_ROUTES:
+        targets.extend(sorted((SITE / route).rglob("*.html")))
+    # Preserve deterministic order while removing duplicates.
+    output: list[Path] = []
+    seen: set[Path] = set()
+    for path in targets:
+        resolved = path.resolve()
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        output.append(path)
+    return output
+
+
+def enrich_public_surface() -> dict[str, dict[str, object]]:
+    seo.SITE = SITE
+    results: dict[str, dict[str, object]] = {}
+    for path in seo_targets():
+        if not path.is_file():
+            raise SystemExit(f"SEO target is missing: {path.relative_to(SITE).as_posix()}")
+        changed, result = seo.enrich_page(path)
+        relative = path.relative_to(SITE).as_posix()
+        if result.get("status") in {"missing_head", "missing_title_and_h1"}:
+            raise SystemExit(f"SEO enrichment failed for {relative}: {result}")
+        results[relative] = {
+            "changed": changed,
+            "status": result.get("status"),
+        }
+    return results
+
+
 def main() -> int:
     restored_routes = restore_static_public_routes()
     section_report = publish_sections(SITE, ROOT)
-    seo.SITE = SITE
-    seo_results = {}
-    for relative in (
-        "index.html",
-        "sections/index.html",
-        "specialists-partners/index.html",
-        "platform/index.html",
-        "copyright/index.html",
-    ):
-        path = SITE / relative
-        changed, result = seo.enrich_page(path)
-        if result.get("status") in {"missing_head", "missing_title_and_h1"}:
-            raise SystemExit(f"SEO enrichment failed for {relative}: {result}")
-        seo_results[relative] = {"changed": changed, "status": result.get("status")}
+    seo_results = enrich_public_surface()
 
     result = publish_catalog(SITE, ROOT)
     result["restored_static_public_routes"] = restored_routes
