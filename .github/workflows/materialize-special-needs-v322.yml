@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: materialize-special-needs-v322
+  group: materialize-special-needs-v322-${{ github.run_id }}
   cancel-in-progress: false
 
 jobs:
