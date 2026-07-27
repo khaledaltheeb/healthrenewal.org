@@ -1,0 +1,25 @@
+name: Validate recovery source-only evidence v315
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "data/recovery-dispositions-v201.json"
+      - "reports/recovery-source-only-v315.*"
+      - "scripts/verify_recovery_source_only_v315.py"
+      - ".github/workflows/validate-recovery-source-only-v315.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recovery-source-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate evidence-bound recovery classifications
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/verify_recovery_source_only_v315.py
+          python scripts/verify_recovery_source_only_v315.py
