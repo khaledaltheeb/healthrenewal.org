@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -12,13 +13,40 @@ from sync_public_api_discovery_v219 import sync
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
+STATIC_PUBLIC_ROUTES = (
+    "specialists-partners",
+    "platform",
+    "copyright",
+)
+
+
+def restore_static_public_routes() -> dict[str, int]:
+    restored: dict[str, int] = {}
+    for route in STATIC_PUBLIC_ROUTES:
+        source = ROOT / route
+        target = SITE / route
+        if not source.is_dir():
+            raise SystemExit(f"Missing repository public route: {route}/")
+        shutil.copytree(source, target, dirs_exist_ok=True)
+        pages = list(target.rglob("*.html"))
+        if not pages:
+            raise SystemExit(f"Restored public route has no HTML pages: {route}/")
+        restored[route + "/"] = len(pages)
+    return restored
 
 
 def main() -> int:
+    restored_routes = restore_static_public_routes()
     section_report = publish_sections(SITE, ROOT)
     seo.SITE = SITE
     seo_results = {}
-    for relative in ("index.html", "sections/index.html"):
+    for relative in (
+        "index.html",
+        "sections/index.html",
+        "specialists-partners/index.html",
+        "platform/index.html",
+        "copyright/index.html",
+    ):
         path = SITE / relative
         changed, result = seo.enrich_page(path)
         if result.get("status") in {"missing_head", "missing_title_and_h1"}:
@@ -26,16 +54,11 @@ def main() -> int:
         seo_results[relative] = {"changed": changed, "status": result.get("status")}
 
     result = publish_catalog(SITE, ROOT)
+    result["restored_static_public_routes"] = restored_routes
     result["section_directory"] = section_report
     result["section_directory_seo"] = seo_results
     result["public_api_report"] = sync(ROOT, SITE, "published")
-
-    # This publisher can run before late portals are materialized in some
-    # production pipelines. Record the surface now, then enforce it strictly
-    # from the final full-site audit after every publisher has completed.
-    surface = audit_publication_surface(SITE, fail=False)
-    surface["enforcement_phase"] = "inventory-before-final-gate"
-    result["publication_surface"] = surface
+    result["publication_surface"] = audit_publication_surface(SITE, fail=True)
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
