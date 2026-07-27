@@ -1,0 +1,110 @@
+name: Validate encyclopedia topic hubs v2
+
+on:
+  push:
+    branches: ["agent/encyclopedia-topic-hubs-v2"]
+    paths:
+      - "scripts/publish_encyclopedia_topic_hubs_v2.py"
+      - "scripts/run_encyclopedia_v13.py"
+      - "tests/test_encyclopedia_topic_hubs_v2.py"
+      - ".github/workflows/validate-encyclopedia-topic-hubs-v2.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_encyclopedia_topic_hubs_v2.py"
+      - "scripts/run_encyclopedia_v13.py"
+      - "tests/test_encyclopedia_topic_hubs_v2.py"
+      - ".github/workflows/validate-encyclopedia-topic-hubs-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  topic-hubs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile and run focused contracts
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/publish_encyclopedia_topic_hubs_v2.py scripts/run_encyclopedia_v13.py tests/test_encyclopedia_topic_hubs_v2.py
+          python -m unittest -v tests.test_encyclopedia_topic_hubs_v2
+
+      - name: Restore production generator sources
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          python scripts/verify_enricher_v7.py
+          python scripts/verify_expander_v9.py
+
+      - name: Build exact encyclopedia production layer
+        run: |
+          set -euxo pipefail
+          python build_site.py
+          python enrich_site_v7.py
+          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+          python scripts/scale_site_v8.py
+          python expand_site_v9.py
+          python scripts/design_content_v10.py
+          python scripts/apply_contrast_v11.py _site
+          python scripts/expand_v12_direct.py _site
+          python scripts/run_encyclopedia_v13.py _site
+
+      - name: Verify topic-first production evidence
+        run: |
+          set -euxo pipefail
+          test "$(find _site/hubs -mindepth 2 -maxdepth 2 -path '*/topic-*/index.html' | wc -l)" -eq 100
+          test -f _site/encyclopedia/all/index.html
+          grep -q 'data-encyclopedia-index-v2="true"' _site/encyclopedia/index.html
+          grep -q 'data-detail-archive-v2="true"' _site/encyclopedia/all/index.html
+          grep -q 'data-topic-hub-v2="true"' _site/hubs/topic-001/index.html
+          python - <<'PY'
+          import json,re
+          from pathlib import Path
+          root=Path('_site')
+          report=json.loads((root/'api/encyclopedia-topic-hubs-v2.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed',report
+          assert report['primary_navigation']=='topic-first',report
+          assert report['topic_hubs']==100,report
+          assert report['facets_per_topic']==20,report
+          assert report['detail_pages_preserved']==2000,report
+          assert report['primary_index_cards']==100,report
+          assert report['detail_archive_cards']==2000,report
+          index=(root/'encyclopedia/index.html').read_text(encoding='utf-8')
+          archive=(root/'encyclopedia/all/index.html').read_text(encoding='utf-8')
+          assert index.count('class="ency-topic-v2__card topic-item"')==100
+          assert archive.count('class="ency-topic-v2__card detail-item"')==2000
+          for page in sorted((root/'hubs').glob('topic-*/index.html')):
+              text=page.read_text(encoding='utf-8')
+              assert text.count('<h1')==1,page
+              assert len(set(re.findall(r'/encyclopedia/(concept-\d{4})/',text)))==20,page
+          print(json.dumps(report,ensure_ascii=False,indent=2))
+          PY
+
+      - name: Upload encyclopedia evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: encyclopedia-topic-hubs-v2
+          path: |
+            _site/api/encyclopedia-topic-hubs-v2.json
+            _site/api/encyclopedia-audit-v13.json
+            _site/api/site-integrity-v13.json
+            _site/encyclopedia/index.html
+            _site/encyclopedia/all/index.html
+            _site/hubs/topic-001/index.html
+          if-no-files-found: warn
+          retention-days: 7

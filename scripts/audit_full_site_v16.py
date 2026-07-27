@@ -433,11 +433,21 @@ def main() -> int:
         if not target.exists():
             errors.append(f"Sitemap target missing: {url}")
 
-    expected_counts = {"encyclopedia": 2001, "hubs": 201, "assessment-lab": 41, "cognitive-lab": 49, "tips": 21}
+    expected_counts = {"encyclopedia": 2002, "hubs": 201, "assessment-lab": 41, "cognitive-lab": 49, "tips": 21}
     for section, expected in expected_counts.items():
         actual = section_counts.get(section, 0)
         if actual != expected:
             errors.append(f"Unexpected HTML count for {section}: {actual} != {expected}")
+
+    archive_path = SITE / "encyclopedia" / "all" / "index.html"
+    archive_valid = False
+    if not archive_path.is_file():
+        errors.append("Encyclopedia detail archive is missing")
+    else:
+        archive_text = archive_path.read_text(encoding="utf-8")
+        archive_valid = 'data-detail-archive-v2="true"' in archive_text
+        if not archive_valid:
+            errors.append("Encyclopedia detail archive marker is missing")
 
     report = {
         "version": 16,
@@ -445,6 +455,7 @@ def main() -> int:
         "html_pages": len(html_files),
         "content_pages": len(content_files),
         "section_counts": dict(section_counts),
+        "encyclopedia_detail_archive": archive_valid,
         "unique_titles": len([x for x in titles if x]),
         "unique_descriptions": len([x for x in descriptions if x]),
         "unique_canonicals": len([x for x in canonicals if x]),
