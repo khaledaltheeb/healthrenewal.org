@@ -45,7 +45,16 @@ class AutismClinicalPathwaysV324Tests(unittest.TestCase):
     def digest(path: Path) -> str:
         return hashlib.sha256(path.read_bytes()).hexdigest()
 
-    def test_compressed_manifest_depth_evidence_and_boundaries(self) -> None:
+    def test_source_parts_digests_manifest_depth_evidence_and_boundaries(self) -> None:
+        actual = tuple(sorted(path.name for path in module.PARTS_DIR.glob("*.b64")))
+        self.assertEqual(actual, module.PART_NAMES)
+        encoded = "".join(
+            "".join((module.PARTS_DIR / name).read_text(encoding="ascii").split())
+            for name in module.PART_NAMES
+        )
+        self.assertEqual(len(encoded), module.EXPECTED_B64_LENGTH)
+        self.assertEqual(module.sha256(encoded.encode("ascii")), module.EXPECTED_B64_SHA256)
+
         payload = module.read_payload()
         guides = module.validate_payload(payload)
         self.assertEqual(payload["version"], 324)
@@ -72,7 +81,7 @@ class AutismClinicalPathwaysV324Tests(unittest.TestCase):
         ):
             self.assertIn(phrase, serialized)
 
-    def test_publish_depth_parent_links_sitemap_schema_and_idempotence(self) -> None:
+    def test_publish_depth_parent_links_sitemap_schema_shell_and_idempotence(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             site = self.make_site(Path(tmp))
             first = module.publish(site)
@@ -98,6 +107,11 @@ class AutismClinicalPathwaysV324Tests(unittest.TestCase):
             self.assertEqual(first["parent_links_added"], 4)
             self.assertGreaterEqual(first["minimum_guide_words"], 1250)
             self.assertTrue(first["sitemap_registered"])
+            self.assertTrue(first["platform_shell_normalized"])
+            self.assertEqual(first["source_part_count"], 5)
+            self.assertEqual(first["source_base64_sha256"], module.EXPECTED_B64_SHA256)
+            self.assertEqual(first["source_gzip_sha256"], module.EXPECTED_GZIP_SHA256)
+            self.assertEqual(first["source_json_sha256"], module.EXPECTED_JSON_SHA256)
             self.assertFalse(first["external_clinical_review_completed"])
 
             parent = (site / "special-needs" / "autism" / "index.html").read_text(encoding="utf-8")
@@ -114,6 +128,8 @@ class AutismClinicalPathwaysV324Tests(unittest.TestCase):
                 self.assertIn("MedicalWebPage", source)
                 self.assertIn("BreadcrumbList", source)
                 self.assertIn("لم تكتمل مراجعة سريرية خارجية مستقلة", source)
+                self.assertEqual(source.count(module.SHELL_MARKER), 1)
+                self.assertIn('data-pt-normalized="1.1.0"', source)
                 self.assertIsNone(module.BANNED.search(source))
 
             urls = [
@@ -130,7 +146,7 @@ class AutismClinicalPathwaysV324Tests(unittest.TestCase):
                 (site / "api" / "autism-clinical-pathways-v324.json").read_text(encoding="utf-8")
             )
             self.assertEqual(api, first)
-            self.assertEqual(api["content_source"], "content/v324/autism-clinical-pathways-ar.json.gz")
+            self.assertEqual(api["content_source"], "content/v324/autism-clinical-pathways-ar.parts")
 
     def test_rejects_dishonest_review_and_unknown_evidence(self) -> None:
         payload = module.read_payload()
