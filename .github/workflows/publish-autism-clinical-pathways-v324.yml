@@ -12,7 +12,6 @@ on:
   workflow_run:
     workflows: ["Publish special-needs expansion v322"]
     types: [completed]
-  workflow_dispatch:
 
 permissions:
   actions: read
@@ -51,21 +50,21 @@ jobs:
               'CANDIDATE_SHA',
           ):
               assert marker in deploy, marker
+          assert 'workflow_dispatch' not in publish
           print({'status':'static-contract-passed'})
           PY
 
   publish-artifact:
     if: >-
-      (github.event_name == 'workflow_run' &&
-       github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'main') ||
-      github.event_name == 'workflow_dispatch'
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 28
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.event.workflow_run.head_sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -89,7 +88,7 @@ jobs:
           set -euxo pipefail
           python scripts/publish_autism_clinical_pathways_v324.py validated-site
           python - <<'PY'
-          import json,re,xml.etree.ElementTree as ET
+          import json,xml.etree.ElementTree as ET
           from pathlib import Path
           root=Path('validated-site')
           report=json.loads((root/'api/autism-clinical-pathways-v324.json').read_text(encoding='utf-8'))
