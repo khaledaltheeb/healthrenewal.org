@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/verification-ledger.schema.json",
+  "title": "Public-safe provider verification ledger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "updatedAt", "privacyRule", "records"],
+  "properties": {
+    "schemaVersion": {"const": "1.0.0"},
+    "updatedAt": {"type": "string", "format": "date"},
+    "privacyRule": {"type": "string", "minLength": 30, "maxLength": 700},
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "providerId",
+          "reviewStatus",
+          "reviewedAt",
+          "reviewerRole",
+          "reviewedFields",
+          "evidenceSummary",
+          "nextReviewAt",
+          "correctionStatus"
+        ],
+        "properties": {
+          "providerId": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{2,80}$"},
+          "reviewStatus": {"enum": ["pending", "verified", "rejected", "suspended", "expired"]},
+          "reviewedAt": {"type": ["string", "null"], "format": "date"},
+          "reviewerRole": {"type": ["string", "null"], "maxLength": 120},
+          "reviewedFields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["field", "result", "evidenceTypes", "evidenceRefs", "checkedAt"],
+              "properties": {
+                "field": {
+                  "enum": [
+                    "displayName",
+                    "professionalTitle",
+                    "centerType",
+                    "shortBio",
+                    "specialties",
+                    "services",
+                    "ageGroups",
+                    "serviceModes",
+                    "languages",
+                    "location",
+                    "qualifications",
+                    "licenses",
+                    "contact"
+                  ]
+                },
+                "result": {"enum": ["verified", "partially_verified", "unverified", "not_applicable", "disputed"]},
+                "evidenceTypes": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "enum": [
+                      "identity",
+                      "qualification",
+                      "license",
+                      "employment",
+                      "center_registration",
+                      "official_website",
+                      "professional_directory",
+                      "written_consent",
+                      "direct_confirmation",
+                      "independent_public_source"
+                    ]
+                  }
+                },
+                "evidenceRefs": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {"type": "string", "minLength": 3, "maxLength": 500}
+                },
+                "checkedAt": {"type": "string", "format": "date"},
+                "note": {"type": ["string", "null"], "maxLength": 500}
+              }
+            }
+          },
+          "evidenceSummary": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["publicSources", "privateDocuments", "independentSources"],
+            "properties": {
+              "publicSources": {"type": "integer", "minimum": 0},
+              "privateDocuments": {"type": "integer", "minimum": 0},
+              "independentSources": {"type": "integer", "minimum": 0}
+            }
+          },
+          "nextReviewAt": {"type": ["string", "null"], "format": "date"},
+          "correctionStatus": {"enum": ["none", "open", "resolved"]},
+          "publicNote": {"type": ["string", "null"], "maxLength": 700}
+        },
+        "allOf": [
+          {
+            "if": {"properties": {"reviewStatus": {"const": "verified"}}},
+            "then": {
+              "properties": {
+                "reviewedAt": {"type": "string", "format": "date"},
+                "reviewerRole": {"type": "string", "minLength": 3},
+                "reviewedFields": {"minItems": 1},
+                "nextReviewAt": {"type": "string", "format": "date"}
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
