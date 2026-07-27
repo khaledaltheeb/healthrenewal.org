@@ -123,6 +123,57 @@ class SourceEvidenceAuditTests(unittest.TestCase):
         self.assertEqual(report["contract_ready_records"], 1)
         self.assertEqual(report["warning_count"], 0)
 
+    def test_traceable_summary_contract_passes(self):
+        temp, root = self.make_repo(
+            {
+                "content/condition.json": {
+                    "sections": [{"id": "definition", "source_ids": ["A1"]}],
+                    "sources": [
+                        {
+                            "id": "A1",
+                            "organization": "منظمة الصحة العالمية",
+                            "title": "Autism fact sheet",
+                            "url": "https://www.who.int/example",
+                            "level": "S1",
+                            "reviewed": "2026-07-20",
+                        }
+                    ],
+                }
+            }
+        )
+        self.addCleanup(temp.cleanup)
+        report = audit_repository(root, today=date(2026, 7, 22))
+        self.assertEqual(report["error_count"], 0)
+        self.assertEqual(report["warning_count"], 0)
+        self.assertEqual(report["contract_ready_records"], 1)
+        self.assertEqual(report["traceable_summary_records"], 1)
+        self.assertEqual(report["records"][0]["publisher"], "منظمة الصحة العالمية")
+        self.assertEqual(report["records"][0]["year"], 2026)
+
+    def test_traceable_summary_rejects_invalid_level_and_future_review(self):
+        temp, root = self.make_repo(
+            {
+                "content/condition.json": {
+                    "sources": [
+                        {
+                            "id": "a1",
+                            "organization": "Example",
+                            "title": "Guidance",
+                            "url": "https://example.org/guidance",
+                            "level": "S9",
+                            "reviewed": "2027-01-01",
+                        }
+                    ]
+                }
+            }
+        )
+        self.addCleanup(temp.cleanup)
+        report = audit_repository(root, today=date(2026, 7, 22))
+        codes = {item["code"] for item in report["errors"]}
+        self.assertIn("invalid-summary-source-id", codes)
+        self.assertIn("invalid-evidence-level", codes)
+        self.assertIn("future-reviewed-date", codes)
+
     def test_contract_ready_record_rejects_string_year(self):
         temp, root = self.make_repo(
             {
