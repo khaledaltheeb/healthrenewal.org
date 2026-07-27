@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 ROOT=Path(__file__).resolve().parents[1]
 BASE='https://khaledaltheeb.github.io/pterminology-site'; BP='/pterminology-site/'
 MANIFEST=ROOT/'content/v302/special-needs-condition-hubs-ar.json'; PROVIDERS=ROOT/'content/v302/special-needs-providers-ar.json'
+SOURCE_OVERRIDE_FILE=ROOT/'content/v312/special-needs-condition-source-url-overrides.json'
 VERSION=302; UPDATED='2026-07-27'; MARK='data-condition-hubs-v302'; HUB_MARKER=MARK; PROVIDERS_FILE=PROVIDERS; INSERT='<section class="section" id="method">'
 BANNED=re.compile(r'(?<!\w)(?:المعاقين|معاقين|المعاقون|معاقون|المعاقة|معاقة|المعاق|معاق)(?!\w)')
 
@@ -20,6 +21,15 @@ def read(path):
 
 def https(url):
     p=urlparse(str(url)); return p.scheme=='https' and bool(p.netloc)
+
+def normalized_host(url): return urlparse(str(url)).netloc.lower().removeprefix('www.')
+def official_domain_family(organization,old,new):
+    old_host=normalized_host(old); new_host=normalized_host(new)
+    if not old_host or not new_host: return False
+    if old_host==new_host: return True
+    if organization=='ASHA':
+        return (old_host=='asha.org' or old_host.endswith('.asha.org')) and (new_host=='asha.org' or new_host.endswith('.asha.org'))
+    return False
 
 def validate_provider_data(data):
     if data.get('version')!=VERSION or not isinstance(data.get('providers'),list): raise SystemExit('Provider contract failed')
@@ -37,11 +47,32 @@ def validate_provider_data(data):
 
 validate_providers=validate_provider_data
 
+def apply_source_url_overrides(conditions):
+    data=read(SOURCE_OVERRIDE_FILE); overrides=data.get('overrides')
+    if data.get('version')!=312 or data.get('language')!='ar' or not isinstance(overrides,dict): raise SystemExit('Source URL override contract failed')
+    indexed={}
+    for condition in conditions:
+        for source in condition.get('sources',[]):
+            sid=str(source.get('id','')).strip()
+            if not sid or sid in indexed: raise SystemExit(f'Duplicate source id while applying URL overrides: {sid}')
+            indexed[sid]=source
+    for sid,item in overrides.items():
+        if sid not in indexed or not isinstance(item,dict): raise SystemExit(f'Unknown source URL override: {sid}')
+        source=indexed[sid]; old=str(item.get('from','')); new=str(item.get('to','')); title=str(item.get('title','')).strip(); organization=str(item.get('organization','')).strip()
+        if source.get('url')!=old: raise SystemExit(f'Source URL override no longer matches its declared original: {sid}')
+        if not title: raise SystemExit(f'Source URL override title is required: {sid}')
+        if not https(new) or not official_domain_family(organization,old,new): raise SystemExit(f'Source URL override must remain on the same verified HTTPS official domain family: {sid}')
+        if organization!=source.get('organization'): raise SystemExit(f'Source URL override organization mismatch: {sid}')
+        if not str(item.get('reason','')).strip() or not str(item.get('verification_method','')).strip(): raise SystemExit(f'Source URL override requires reason and verification method: {sid}')
+        source['url']=new; source['title']=title
+    return len(overrides)
+
 def load():
     m=read(MANIFEST); p=read(PROVIDERS); validate_provider_data(p)
     if m.get('version')!=VERSION or len(m.get('condition_files',[]))!=2: raise SystemExit('Condition manifest failed')
     conditions=[read(ROOT/x) for x in m['condition_files']]
     if {x.get('slug') for x in conditions}!={'autism','down-syndrome'}: raise SystemExit('Required condition slugs missing')
+    m['_source_url_override_count']=apply_source_url_overrides(conditions)
     for c in conditions:
         if BANNED.search(json.dumps(c,ensure_ascii=False)): raise SystemExit(f'Banned language: {c.get("slug")}')
         sources=c.get('sources',[]); idx={s.get('id'):s for s in sources}
@@ -126,7 +157,7 @@ def publish(site):
         if BANNED.search(page) or page.count('<h1')!=1 or page.count('application/ld+json')!=1 or page.count('evidence-section')<12: raise SystemExit(f'Render contract failed: {target}')
         pages.append(target.relative_to(site).as_posix()); counts[c['slug']]=count
     patch_hub(site,conditions); sitemap(site,conditions)
-    report={'version':VERSION,'status':'passed','review_status':manifest['review_status'],'condition_count':2,'condition_slugs':[c['slug'] for c in conditions],'generated_page_count':2,'generated_pages':pages,'provider_source':PROVIDERS.relative_to(ROOT).as_posix(),'published_provider_count':sum(counts.values()),'provider_counts':counts,'hub_section_added':True,'sitemap_registered':True,'source_count':sum(len(c['sources']) for c in conditions),'updated':UPDATED}
+    report={'version':VERSION,'status':'passed','review_status':manifest['review_status'],'condition_count':2,'condition_slugs':[c['slug'] for c in conditions],'generated_page_count':2,'generated_pages':pages,'provider_source':PROVIDERS.relative_to(ROOT).as_posix(),'published_provider_count':sum(counts.values()),'provider_counts':counts,'hub_section_added':True,'sitemap_registered':True,'source_count':sum(len(c['sources']) for c in conditions),'source_url_override_count':manifest.get('_source_url_override_count',0),'source_url_override_source':SOURCE_OVERRIDE_FILE.relative_to(ROOT).as_posix(),'updated':UPDATED}
     (site/'api').mkdir(parents=True,exist_ok=True); (site/'api/special-needs-condition-hubs-v302.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8'); return report
 
 def main():
