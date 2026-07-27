@@ -17,6 +17,7 @@ import publish_new_special_needs_conditions_v323 as conditions323
 import publish_special_needs_guides_v217 as guides
 import publish_special_needs_guides_v217_core as core
 import publish_williams_prader_willi_v324 as conditions324
+import publish_smith_magenis_pitt_hopkins_v325 as conditions325
 
 CONTRACT = 221
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
@@ -214,6 +215,65 @@ def integrate_extended_conditions(report: dict[str, Any], conditions_report: dic
     return report
 
 
+def integrate_third_conditions(report: dict[str, Any], conditions_report: dict[str, Any]) -> dict[str, Any]:
+    if conditions_report.get("version") != 325 or conditions_report.get("status") != "passed":
+        raise SystemExit(f"Smith-Magenis and Pitt-Hopkins contract failed: {conditions_report}")
+    if conditions_report.get("added_condition_slugs") != [
+        "smith-magenis-syndrome",
+        "pitt-hopkins-syndrome",
+    ]:
+        raise SystemExit("Smith-Magenis and Pitt-Hopkins routes are incomplete")
+    if (
+        conditions_report.get("previous_condition_count") != 5
+        or conditions_report.get("added_condition_count") != 2
+        or conditions_report.get("total_condition_count") != 7
+        or conditions_report.get("section_count") != 14
+        or conditions_report.get("source_count") != 14
+    ):
+        raise SystemExit("Smith-Magenis and Pitt-Hopkins depth or count contract failed")
+    if conditions_report.get("minimum_condition_words", 0) < 1550:
+        raise SystemExit("Smith-Magenis or Pitt-Hopkins page is too shallow")
+    if conditions_report.get("external_clinical_review_completed") is not False:
+        raise SystemExit("Smith-Magenis or Pitt-Hopkins page overstates external review")
+    if not all(
+        conditions_report.get(key)
+        for key in ("cluster_expanded", "hub_link_updated", "sitemap_registered")
+    ):
+        raise SystemExit("Smith-Magenis and Pitt-Hopkins discovery contract failed")
+
+    condition_hubs = report.setdefault("condition_hubs", {})
+    condition_hubs["smith_magenis_pitt_hopkins_expansion"] = {
+        key: conditions_report[key]
+        for key in (
+            "version",
+            "status",
+            "cluster_slug",
+            "previous_condition_count",
+            "added_condition_count",
+            "total_condition_count",
+            "added_condition_slugs",
+            "all_condition_slugs",
+            "generated_pages",
+            "source_count",
+            "section_count",
+            "faq_count",
+            "minimum_condition_words",
+            "cluster_expanded",
+            "hub_link_updated",
+            "sitemap_registered",
+            "reviewed_at",
+            "next_review_due",
+            "external_clinical_review_completed",
+            "content_source",
+        )
+    }
+    report["third_condition_guides_contract"] = 325
+    report["third_condition_batch_page_count"] = conditions_report["added_condition_count"]
+    report["total_new_condition_page_count"] = conditions_report["total_condition_count"]
+    write_central_reports(report)
+    return report
+
+
 def main() -> None:
     if not SITE.is_dir():
         raise SystemExit(f"Missing site directory: {SITE}")
@@ -240,6 +300,11 @@ def main() -> None:
         expansion_report = conditions324.publish(SITE)
         report = integrate_extended_conditions(report, expansion_report)
         stamp(status="running", stage="condition-expansion-publication-completed", last_batch_completed=324)
+
+        stamp(status="running", stage="third-condition-expansion", last_batch_started=325)
+        third_report = conditions325.publish(SITE)
+        report = integrate_third_conditions(report, third_report)
+        stamp(status="running", stage="third-condition-expansion-completed", last_batch_completed=325)
     except BaseException as exc:
         if STATE.get("status") != "failed":
             stamp(
@@ -260,6 +325,7 @@ def main() -> None:
         production_source_file_count=report.get("production_source_file_count"),
         additional_condition_page_count=report.get("additional_condition_page_count"),
         second_condition_batch_page_count=report.get("second_condition_batch_page_count"),
+        third_condition_batch_page_count=report.get("third_condition_batch_page_count"),
         total_new_condition_page_count=report.get("total_new_condition_page_count"),
     )
     print(json.dumps(report, ensure_ascii=False, indent=2))
