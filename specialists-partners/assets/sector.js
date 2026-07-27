@@ -18,13 +18,22 @@
     psychology:'علم النفس والدعم النفسي', psychiatry:'الطب النفسي', social_work:'الخدمة الاجتماعية',
     physiotherapy:'العلاج الطبيعي', nutrition:'التغذية العلاجية', center:'مركز متعدد التخصصات'
   };
-  const statusLabels = {verified:'موثّق', provisional:'تحقق أولي', pending:'قيد التحقق', unverified:'غير موثّق', suspended:'موقوف مؤقتًا'};
+  const statusLabels = {verified:'موثّق', provisional:'تحقق أولي', pending:'قيد التحقق', unverified:'غير موثّق'};
 
-  function safeUrl(value) {
+  function safeHref(value) {
     if (!value) return '';
     try {
       const parsed = new URL(String(value), location.origin);
-      return ['http:', 'https:'].includes(parsed.protocol) ? parsed.href : '';
+      return ['http:','https:','mailto:','tel:'].includes(parsed.protocol) ? parsed.href : '';
+    } catch (_) { return ''; }
+  }
+
+  function safeWebUrl(value) {
+    const href = safeHref(value);
+    if (!href) return '';
+    try {
+      const protocol = new URL(href, location.origin).protocol;
+      return ['http:', 'https:'].includes(protocol) ? href : '';
     } catch (_) { return ''; }
   }
 
@@ -33,7 +42,7 @@
   }
 
   function profileUrl(provider) {
-    return safeUrl(provider.profileUrl) || '';
+    return safeWebUrl(provider.profileUrl) || '';
   }
 
   function availabilityBadge(provider) {
@@ -50,9 +59,11 @@
     const canMessage = provider.communication?.enabled === true && provider.communication?.acceptsNewRequests !== false;
     const areas = [provider.location?.area, ...(provider.serviceAreas || [])].filter(Boolean).join('، ');
     const response = provider.communication?.typicalResponse || 'غير معلن';
+    const publicContact = safeHref(provider.contact?.publicUrl || provider.contact?.website || (provider.contact?.publicEmail ? `mailto:${provider.contact.publicEmail}` : '') || (provider.contact?.publicPhone ? `tel:${String(provider.contact.publicPhone).replace(/[^+\d]/g, '')}` : ''));
     const actions = [
       profile ? `<a class="button secondary" href="${esc(profile)}">عرض الملف المهني</a>` : '',
-      canMessage ? `<a class="button primary" href="${esc(contactUrl(provider))}">تواصل مع المختص</a>` : '<span class="small">التواصل الداخلي غير متاح حاليًا</span>'
+      canMessage ? `<a class="button primary" href="${esc(contactUrl(provider))}">تواصل مع المختص</a>` : '<span class="small">التواصل الداخلي غير متاح حاليًا</span>',
+      publicContact ? `<a class="button secondary" href="${esc(publicContact)}" rel="nofollow">وسيلة التواصل العامة</a>` : ''
     ].filter(Boolean).join('');
 
     return `<article class="provider-card" data-provider-id="${esc(provider.id)}">
@@ -201,14 +212,10 @@
 
   async function load() {
     try {
-      const response = await fetch('data/providers.json', { cache: 'no-store' });
+      const response = await fetch('data/providers.json',{cache:'no-store'});
       if (!response.ok) throw new Error('directory_load_failed');
       const data = await response.json();
-      state.providers = (data.providers || []).filter(provider =>
-        provider.publicationStatus === 'published' &&
-        ['verified','provisional'].includes(provider.verification?.status) &&
-        provider.consent?.publicProfileApproved === true
-      );
+      state.providers=(data.providers||[]).filter(p=>p.publicationStatus==='published'&&p.verification?.status==='verified'&&p.consent?.publicProfileApproved===true);
       state.filtered = [...state.providers];
       state.updatedAt = data.updatedAt || null;
       if ($('directory-updated')) $('directory-updated').textContent = state.updatedAt || 'غير محدد';
