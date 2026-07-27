@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import re
@@ -113,6 +114,22 @@ class SpecialNeedsConditionPostlaunchV305Tests(unittest.TestCase):
             missing.unlink()
             with self.assertRaises(SystemExit):
                 postlaunch305.publish(site)
+
+    def test_unexpected_cross_condition_duplicate_is_rejected(self) -> None:
+        original_config_path = postlaunch305.CONFIG
+        with tempfile.TemporaryDirectory() as tmp:
+            config = copy.deepcopy(postlaunch305.load_config())
+            config["conditions"]["down-syndrome"]["related_guides"].append(
+                copy.deepcopy(config["conditions"]["autism"]["related_guides"][0])
+            )
+            path = Path(tmp) / "invalid-postlaunch.json"
+            path.write_text(json.dumps(config, ensure_ascii=False), encoding="utf-8")
+            postlaunch305.CONFIG = path
+            try:
+                with self.assertRaises(SystemExit):
+                    postlaunch305.load_config()
+            finally:
+                postlaunch305.CONFIG = original_config_path
 
 
 if __name__ == "__main__":
