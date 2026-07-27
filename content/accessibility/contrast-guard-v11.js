@@ -1,9 +1,15 @@
-/* v11 — runtime contrast guard for all current and future content pages. */
+/* v11 — runtime contrast guard for all current and future content pages; v290 defers adaptive shell surfaces to v283. */
 (() => {
   'use strict';
 
   const CANDIDATES = 'h1,h2,h3,h4,h5,h6,p,li,dt,dd,small,strong,em,span,label,blockquote,a';
-  const DARK_HINT = /(hero|dark|banner|masthead|footer|gradient|overlay|cover)/i;
+  const ADAPTIVE_SCOPE = [
+    'header','[role="banner"]','nav','[role="navigation"]','[role="search"]',
+    '[class*="hero"]','[class*="Hero"]','[id*="hero"]','[id*="Hero"]',
+    '[class*="banner"]','[class*="Banner"]','[class*="masthead"]',
+    '[class*="breadcrumb"]','[class*="Breadcrumb"]','footer','[role="contentinfo"]','.site-footer',
+  ].join(',');
+  const DARK_HINT = /(dark|gradient|overlay|cover)/i;
   let scheduled = false;
   const pendingRoots = new Set();
 
@@ -69,6 +75,13 @@
     return rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none' && Number(style.opacity || 1) > 0.05;
   };
 
+  const ownedByAdaptiveGuard = (element) => Boolean(
+    element.closest(ADAPTIVE_SCOPE)
+    || element.dataset.hhInlineContrast === 'true'
+    || element.classList.contains('hh-text-on-dark')
+    || element.classList.contains('hh-text-on-light')
+  );
+
   const setContrastClass = (element, desired) => {
     const hasLight = element.classList.contains('auto-contrast-light');
     const hasDark = element.classList.contains('auto-contrast-dark');
@@ -85,7 +98,7 @@
   };
 
   const fixElement = (element) => {
-    if (!hasReadableText(element)) return;
+    if (ownedByAdaptiveGuard(element) || !hasReadableText(element)) return;
     const style = getComputedStyle(element);
     const foreground = parseColor(style.color);
     if (!foreground) return;
@@ -126,11 +139,8 @@
     else requestAnimationFrame(scan);
   };
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => schedule(document), { once: true });
-  } else {
-    schedule(document);
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => schedule(document), { once: true });
+  else schedule(document);
 
   let resizeTimer = 0;
   window.addEventListener('resize', () => {
