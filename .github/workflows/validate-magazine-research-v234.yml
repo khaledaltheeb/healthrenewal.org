@@ -1,4 +1,5 @@
-name: Validate magazine continuous research v321
+# Final human-head validation for the ARTEMIS magazine reading.
+name: Validate magazine continuous research v328
 
 on:
   pull_request:
@@ -46,26 +47,26 @@ jobs:
           from pathlib import Path
 
           path = Path('scripts/publish_magazine_v201.py')
-          spec = importlib.util.spec_from_file_location('magazine_v321_inventory', path)
+          spec = importlib.util.spec_from_file_location('magazine_v328_inventory', path)
           module = importlib.util.module_from_spec(spec)
           sys.modules[spec.name] = module
           spec.loader.exec_module(module)
           pages = module.article_files()
           assert module.CONTRACT == 315
           assert module.TARGET_ARTICLES == 100
-          assert len(pages) == 73, [page.name for page in pages]
+          assert len(pages) == 74, [page.name for page in pages]
           dates = [module.article_date(page) for page in pages]
           assert dates == sorted(dates, reverse=True), dates
           index = module.render_index(pages)
           feed = module.render_feed(pages)
           root = ET.fromstring(feed)
           items = root.findall('./channel/item')
-          assert index.count('class="card"') == 73
-          assert index.count('"@type":"ScholarlyArticle"') == 73
-          assert index.count('"datePublished"') == 73
-          assert '"numberOfItems":73' in index
+          assert index.count('class="card"') == 74
+          assert index.count('"@type":"ScholarlyArticle"') == 74
+          assert index.count('"datePublished"') == 74
+          assert '"numberOfItems":74' in index
           assert 'الهدف المرحلي 100 قراءة' in index
-          assert 'المتبقي 27' in index
+          assert 'المتبقي 26' in index
           assert index.count('type="application/rss+xml"') == 1
           assert len(items) == 20
           links = [item.findtext('link') for item in items]
@@ -76,26 +77,29 @@ jobs:
           for page in pages:
               assert index.count(f'href="{page.name}"') >= 2, page.name
               assert module.URL + page.name in index, page.name
-          print({'articles': len(pages), 'generated_cards': 73, 'rss_items': 20, 'target': 100, 'remaining': 27, 'chronological': True, 'unwired': 0})
+          print({'articles': len(pages), 'generated_cards': 74, 'rss_items': 20, 'target': 100, 'remaining': 26, 'chronological': True, 'unwired': 0})
           PY
       - name: Run deterministic magazine tests
         run: python -m unittest tests.test_magazine_research_v234 -v
       - name: Run production integration tests
         run: python -m unittest tests.test_platform_identity_v201 -v
-      - name: Verify source contract for Navigator ACT primary study
+      - name: Verify source contracts for Navigator ACT and ARTEMIS primary studies
         run: |
           set -euxo pipefail
           test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 9
-          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 64
-          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 73
+          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 65
+          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 74
           grep -q '10.1002/aur.70282' magazine/neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html
           grep -q '42187205' magazine/neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html
-          grep -q 'PMC13377316' magazine/neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html
           grep -q 'd=0.84' magazine/neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html
           grep -q 'd=0.38' magazine/neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html
           grep -q 'لم تظهر فروق مهمة' magazine/neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html
-          grep -q 'لا تثبت أن ACT يعالج اكتئاب الوالدين' magazine/neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html
-          grep -q 'data-pt-normalized="1.1.0"' magazine/neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html
+          grep -q '10.1001/jamapsychiatry.2026.0603' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html
+          grep -q '42054038' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html
+          grep -q 'OR=1.47' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html
+          grep -q 'p=0.10' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html
+          grep -q 'لا تثبت زيادة مؤكدة في الهدأة الكاملة' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html
+          grep -q 'data-pt-normalized="1.1.0"' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html
           grep -q 'TARGET_ARTICLES = 100' scripts/publish_magazine_v201.py
           grep -q 'continuous_publication_policy' scripts/publish_magazine_v201.py
           grep -q 'latest-twenty-sorted-by-datePublished' scripts/publish_magazine_v201.py
