@@ -36,10 +36,7 @@ class SpecialNeedsConditionSourceHTTPV312Tests(unittest.TestCase):
         self.assertEqual(len({row["source_id"] for row in rows}), 17)
         self.assertTrue(all(row["url"].startswith("https://") for row in rows))
         by_id = {row["source_id"]: row for row in rows}
-        self.assertEqual(
-            by_id["A9"]["url"],
-            "https://www.asha.org/practice-portal/professional-issues/augmentative-and-alternative-communication/",
-        )
+        self.assertEqual(by_id["A9"]["url"], "https://www.asha.org/NJC/AAC/")
         self.assertEqual(len(http312.load_url_overrides()), 1)
 
     def test_successful_response_is_reachable(self) -> None:
