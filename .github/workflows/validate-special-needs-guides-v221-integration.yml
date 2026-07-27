@@ -1,4 +1,4 @@
-name: Integrate twenty-five special-needs guides and hub v235
+name: Integrate special-needs guides hub and condition portals v302
 
 on:
   pull_request:
@@ -6,6 +6,7 @@ on:
     paths:
       - "scripts/publish_special_needs_hub_v235.py"
       - "scripts/publish_special_needs_hub_v235_compat.py"
+      - "scripts/publish_special_needs_condition_hubs_v302.py"
       - "scripts/publish_special_needs_guides_v217.py"
       - "scripts/publish_special_needs_guides_v217_core.py"
       - "scripts/publish_special_needs_guides_v214.py"
@@ -13,7 +14,9 @@ on:
       - "content/v73/special-needs-executable-instructions-ar.json"
       - "content/v214/**"
       - "content/v221/special-needs-guides-production-manifest-ar.json"
+      - "content/v302/**"
       - "tests/test_special_needs_hub_v235.py"
+      - "tests/test_special_needs_condition_hubs_v302.py"
       - "tests/test_special_needs_guides_v214.py"
       - "tests/test_special_needs_guides_v221_integration.py"
       - ".github/workflows/validate-special-needs-guides-v221-integration.yml"
@@ -23,24 +26,25 @@ permissions:
   contents: read
 
 concurrency:
-  group: special-needs-guides-hub-v235-${{ github.ref }}
+  group: special-needs-guides-condition-hubs-v302-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Compile hub publishers guide publishers and integration tests
+      - name: Compile hub condition and guide publishers
         run: |
           set -euxo pipefail
           python -m py_compile \
             scripts/publish_special_needs_hub_v235.py \
             scripts/publish_special_needs_hub_v235_compat.py \
+            scripts/publish_special_needs_condition_hubs_v302.py \
             scripts/publish_special_needs_guides_v209.py \
             scripts/publish_special_needs_guides_v209_compat.py \
             scripts/publish_special_needs_guides_v210.py \
@@ -50,15 +54,22 @@ jobs:
             scripts/publish_special_needs_guides_v217_core.py \
             scripts/publish_special_needs_guides_v217.py \
             tests/test_special_needs_hub_v235.py \
+            tests/test_special_needs_condition_hubs_v302.py \
             tests/test_special_needs_guides_v214.py \
             tests/test_special_needs_guides_v221_integration.py
-      - name: Validate production manifest and fifth-batch sources
+      - name: Validate manifests and condition data
         run: |
           python -m json.tool content/v221/special-needs-guides-production-manifest-ar.json >/dev/null
           python -m json.tool content/v214/special-needs-guides-manifest-ar.json >/dev/null
+          python -m json.tool content/v302/special-needs-condition-hubs-ar.json >/dev/null
+          python -m json.tool content/v302/special-needs-providers-ar.json >/dev/null
+          python -m json.tool content/v302/autism-ar.json >/dev/null
+          python -m json.tool content/v302/down-syndrome-ar.json >/dev/null
           for file in content/v214/special-needs-guides/*.json; do python -m json.tool "$file" >/dev/null; done
       - name: Validate institutional hub depth metadata robots and idempotence
         run: python -m unittest -v tests.test_special_needs_hub_v235
+      - name: Validate autism Down syndrome evidence traceability providers and idempotence
+        run: python -m unittest -v tests.test_special_needs_condition_hubs_v302
       - name: Validate v214 depth sources language and idempotence
         run: python -m unittest -v tests.test_special_needs_guides_v214
       - name: Validate five-batch production integration
