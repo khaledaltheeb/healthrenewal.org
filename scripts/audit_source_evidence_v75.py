@@ -23,8 +23,11 @@ SOURCE_TYPES = {
 STATUSES = {"current", "superseded", "withdrawn", "inaccessible", "pending_verification"}
 ADVANCED_FIELDS = {"id", "source_type", "verified_at", "claims_supported", "status"}
 SOURCE_KEYS = {"publisher", "title", "url", "year"}
+TRACEABLE_SUMMARY_FIELDS = {"id", "organization", "title", "url", "level", "reviewed"}
+TRACEABLE_LEVELS = {"S1", "S2", "S3", "S4", "S5"}
 SOURCE_CONTAINER_KEYS = {"sources", "references", "citations"}
 ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+SUMMARY_ID_RE = re.compile(r"^[A-Z][A-Z0-9-]{0,31}$")
 YEAR_RE = re.compile(r"^\d{4}$")
 
 
@@ -74,6 +77,18 @@ def is_https_url(value: Any) -> bool:
         return False
     parsed = urlparse(value.strip())
     return parsed.scheme == "https" and bool(parsed.netloc)
+
+
+def is_traceable_summary(source: Any) -> bool:
+    return (
+        isinstance(source, dict)
+        and not ADVANCED_FIELDS <= set(source)
+        and TRACEABLE_SUMMARY_FIELDS <= set(source)
+    )
+
+
+def is_contract_ready(source: Any) -> bool:
+    return isinstance(source, dict) and (ADVANCED_FIELDS <= set(source) or is_traceable_summary(source))
 
 
 def validate_legacy_url(value: str, pointer: str) -> list[Finding]:
@@ -126,6 +141,45 @@ def validate_year(value: Any, pointer: str, today: date, *, contract_ready: bool
     return findings
 
 
+def validate_traceable_summary(source: dict[str, Any], pointer: str, today: date) -> list[Finding]:
+    findings: list[Finding] = []
+    for field in sorted(TRACEABLE_SUMMARY_FIELDS):
+        value = source.get(field)
+        if value is None or (isinstance(value, str) and not value.strip()):
+            findings.append(Finding("error", "missing-summary-field", pointer, f"Missing required summary field: {field}."))
+
+    source_id = str(source.get("id", "")).strip()
+    if not SUMMARY_ID_RE.fullmatch(source_id):
+        findings.append(
+            Finding(
+                "error",
+                "invalid-summary-source-id",
+                pointer,
+                "Traceable summary id must be a stable uppercase citation label such as A1 or D4.",
+            )
+        )
+
+    if source.get("level") not in TRACEABLE_LEVELS:
+        findings.append(
+            Finding(
+                "error",
+                "invalid-evidence-level",
+                pointer,
+                f"Traceable summary level must be one of {sorted(TRACEABLE_LEVELS)}.",
+            )
+        )
+
+    reviewed = parse_date(source.get("reviewed"))
+    if reviewed is None:
+        findings.append(Finding("error", "invalid-reviewed-date", pointer, "reviewed must use YYYY-MM-DD."))
+    elif reviewed > today:
+        findings.append(Finding("error", "future-reviewed-date", pointer, "reviewed cannot be in the future."))
+
+    if not is_https_url(source.get("url")):
+        findings.append(Finding("error", "non-https-source", pointer, "Source URL must be an absolute HTTPS URL."))
+    return findings
+
+
 def validate_source(source: Any, pointer: str, today: date) -> list[Finding]:
     if isinstance(source, str):
         return validate_legacy_url(source, pointer)
@@ -138,6 +192,9 @@ def validate_source(source: Any, pointer: str, today: date) -> list[Finding]:
                 "Source record must be an object or a legacy HTTPS URL string.",
             )
         ]
+
+    if is_traceable_summary(source):
+        return validate_traceable_summary(source, pointer, today)
 
     findings: list[Finding] = []
     present_advanced = ADVANCED_FIELDS.intersection(source)
@@ -246,6 +303,8 @@ def record_format(source: Any) -> str:
     if isinstance(source, str):
         return "url-string"
     if isinstance(source, dict):
+        if is_traceable_summary(source):
+            return "traceable-summary-object"
         if (
             isinstance(source.get("name"), str)
             and source.get("url")
@@ -276,17 +335,23 @@ def audit_file(path: Path, root: Path, today: date) -> tuple[list[dict[str, Any]
                 seen_urls[url] = seen_urls.get(url, 0) + 1
 
             is_mapping = isinstance(source, dict)
+            summary = is_traceable_summary(source)
+            reviewed = parse_date(source.get("reviewed")) if is_mapping else None
             records.append(
                 {
                     "file": relative,
                     "pointer": f"{pointer}[{index}]",
                     "record_format": record_format(source),
-                    "publisher": source.get("publisher") if is_mapping else None,
+                    "publisher": (
+                        source.get("publisher") or source.get("organization") if is_mapping else None
+                    ),
                     "title": source.get("title") if is_mapping else None,
                     "legacy_name": source.get("name") if is_mapping else None,
                     "url": url or None,
-                    "year": source.get("year") if is_mapping else None,
-                    "contract_ready": is_mapping and ADVANCED_FIELDS <= set(source),
+                    "year": (
+                        source.get("year") if is_mapping and not summary else reviewed.year if reviewed else None
+                    ),
+                    "contract_ready": is_contract_ready(source),
                     "error_count": sum(item.severity == "error" for item in source_findings),
                     "warning_count": sum(item.severity == "warning" for item in source_findings),
                 }
@@ -336,6 +401,7 @@ def audit_repository(root: Path, today: date | None = None) -> dict[str, Any]:
         "files_with_source_lists": len(files_with_sources),
         "source_records": len(records),
         "contract_ready_records": sum(bool(item["contract_ready"]) for item in records),
+        "traceable_summary_records": sum(item["record_format"] == "traceable-summary-object" for item in records),
         "legacy_object_records": sum(
             item["record_format"] == "object" and not bool(item["contract_ready"]) for item in records
         ),
@@ -350,6 +416,7 @@ def audit_repository(root: Path, today: date | None = None) -> dict[str, Any]:
             "legacy_records_are_warnings": True,
             "unsafe_basic_records_fail": True,
             "full_contract_requires_integer_year": True,
+            "traceable_summary_requires_level_and_review_date": True,
             "automatic_content_rewrite": False,
         },
     }
@@ -375,6 +442,7 @@ def main() -> int:
                     "files_with_source_lists",
                     "source_records",
                     "contract_ready_records",
+                    "traceable_summary_records",
                     "legacy_object_records",
                     "legacy_url_records",
                     "legacy_name_url_records",
