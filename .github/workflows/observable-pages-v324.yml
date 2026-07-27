@@ -9,12 +9,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: one-shot-validated-pages-v323
-  cancel-in-progress: true
 
 env:
   RELEASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
@@ -22,10 +16,7 @@ env:
 jobs:
   release:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    timeout-minutes: 30
     steps:
       - name: Checkout exact main release commit
         uses: actions/checkout@v4
@@ -110,57 +101,13 @@ jobs:
           print({'release_commit': data['commit'], 'pwa_pages': data['pwa_pages']})
           PY
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload validated Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload exact validated site for default-branch deployment
+        uses: actions/upload-artifact@v4
         with:
+          name: observable-validated-site-v324
           path: _site
-
-      - name: Deploy validated site
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-      - name: Verify live homepage gateways and exact SHA
-        env:
-          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
-        run: |
-          set -euxo pipefail
-          BASE="${PAGE_URL%/}/"
-          matched=0
-          for i in $(seq 1 30); do
-            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}deployment.json?v=${RELEASE_SHA}-${i}" -o /tmp/deployment.json; then
-              if EXPECTED_SHA="${RELEASE_SHA}" python -c "import json,os; d=json.load(open('/tmp/deployment.json',encoding='utf-8')); raise SystemExit(0 if d.get('commit')==os.environ['EXPECTED_SHA'] else 1)"; then
-                matched=1
-                break
-              fi
-            fi
-            sleep 10
-          done
-          test "${matched}" -eq 1
-          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}?v=${RELEASE_SHA}" -o /tmp/index.html
-          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}sections/?v=${RELEASE_SHA}" -o /tmp/sections.html
-          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}sectors/?v=${RELEASE_SHA}" -o /tmp/sectors.html
-          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}specialists-partners/?v=${RELEASE_SHA}" -o /tmp/specialists.html
-          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}platform/?v=${RELEASE_SHA}" -o /tmp/platform.html
-          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}copyright/?v=${RELEASE_SHA}" -o /tmp/copyright.html
-          python - <<'PY'
-          from pathlib import Path
-          checks={
-              '/tmp/index.html': ('data-publication-surface="v322"','المعرفة ليست صفحات مبعثرة','فريقنا وشركاؤنا ذوو الاختصاص'),
-              '/tmp/sections.html': ('دليل جميع الأقسام',),
-              '/tmp/sectors.html': ('الأقسام المتخصصة للصحة النفسية',),
-              '/tmp/specialists.html': ('فريقنا وشركاؤنا ذوو الاختصاص',),
-              '/tmp/platform.html': ('دليل المنصة',),
-              '/tmp/copyright.html': ('حقوق النشر',),
-          }
-          for path, phrases in checks.items():
-              text=Path(path).read_text(encoding='utf-8')
-              assert all(phrase in text for phrase in phrases), (path, phrases)
-              assert 'noindex' not in text.lower(), path
-          print({'release_sha': Path('/tmp/deployment.json').read_text(encoding='utf-8'), 'live_routes': len(checks), 'status': 'verified'})
-          PY
+          if-no-files-found: error
+          retention-days: 3
 
       - name: Upload observable release evidence
         if: always()
