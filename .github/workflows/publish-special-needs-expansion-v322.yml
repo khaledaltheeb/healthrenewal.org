@@ -39,8 +39,12 @@ jobs:
             scripts/special_needs_v322_render.py \
             scripts/special_needs_v322_publish.py \
             tests/test_special_needs_expansion_v322.py
-      - name: Run v322 regression tests
-        run: python -m unittest -v tests.test_special_needs_expansion_v322
+      - name: Test v322 source contract
+        run: python -m unittest -v tests.test_special_needs_expansion_v322.SpecialNeedsExpansionV322Tests.test_source_contract
+      - name: Test v322 publication depth and discovery
+        run: python -m unittest -v tests.test_special_needs_expansion_v322.SpecialNeedsExpansionV322Tests.test_publish_depth_discovery_and_idempotence
+      - name: Test v322 deployment digest refresh
+        run: python -m unittest -v tests.test_special_needs_expansion_v322.SpecialNeedsExpansionV322Tests.test_deployment_digest_refresh
 
   publish-artifact:
     if: >-
@@ -70,8 +74,12 @@ jobs:
             scripts/special_needs_v322_render.py \
             scripts/special_needs_v322_publish.py \
             tests/test_special_needs_expansion_v322.py
-      - name: Run v322 regression tests
-        run: python -m unittest -v tests.test_special_needs_expansion_v322
+      - name: Test v322 source contract
+        run: python -m unittest -v tests.test_special_needs_expansion_v322.SpecialNeedsExpansionV322Tests.test_source_contract
+      - name: Test v322 publication depth and discovery
+        run: python -m unittest -v tests.test_special_needs_expansion_v322.SpecialNeedsExpansionV322Tests.test_publish_depth_discovery_and_idempotence
+      - name: Test v322 deployment digest refresh
+        run: python -m unittest -v tests.test_special_needs_expansion_v322.SpecialNeedsExpansionV322Tests.test_deployment_digest_refresh
       - name: Publish five condition guides
         run: |
           set -euxo pipefail
