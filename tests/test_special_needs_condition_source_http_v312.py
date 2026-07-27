@@ -36,8 +36,23 @@ class SpecialNeedsConditionSourceHTTPV312Tests(unittest.TestCase):
         self.assertEqual(len({row["source_id"] for row in rows}), 17)
         self.assertTrue(all(row["url"].startswith("https://") for row in rows))
         by_id = {row["source_id"]: row for row in rows}
-        self.assertEqual(by_id["A9"]["url"], "https://www.asha.org/NJC/AAC/")
+        self.assertEqual(
+            by_id["A9"]["url"],
+            "https://apps.asha.org/EvidenceMaps/Maps/LandingPage/990772a6-9cd8-4203-a76c-6ccd91eac874",
+        )
+        self.assertEqual(
+            by_id["A9"]["title"],
+            "Augmentative and Alternative Communication (AAC) Evidence Map",
+        )
         self.assertEqual(len(http312.load_url_overrides()), 1)
+
+    def test_official_subdomain_is_allowed_but_external_domain_is_rejected(self) -> None:
+        original = "https://www.asha.org/Practice-Portal/Professional-Issues/Augmentative-and-Alternative-Communication/"
+        official = "https://apps.asha.org/EvidenceMaps/Maps/LandingPage/example"
+        external = "https://asha.example.org/aac"
+        self.assertTrue(http312.is_organization_domain("ASHA", original, official))
+        self.assertFalse(http312.is_organization_domain("ASHA", original, external))
+        self.assertFalse(http312.is_organization_domain("Other", original, official))
 
     def test_successful_response_is_reachable(self) -> None:
         result = http312.classify_attempts([self.attempt("HEAD", 200)])
