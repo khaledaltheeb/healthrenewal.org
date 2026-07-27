@@ -1,3 +1,4 @@
+# Final human-head validation for the ARTEMIS magazine reading.
 name: Validate magazine continuous research v327
 
 on:
@@ -98,6 +99,7 @@ jobs:
           grep -q 'OR=1.47' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html
           grep -q 'p=0.10' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html
           grep -q 'لا تثبت زيادة مؤكدة في الهدأة الكاملة' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html
+          grep -q 'data-pt-normalized="1.1.0"' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html
           grep -q 'TARGET_ARTICLES = 100' scripts/publish_magazine_v201.py
           grep -q 'continuous_publication_policy' scripts/publish_magazine_v201.py
           grep -q 'latest-twenty-sorted-by-datePublished' scripts/publish_magazine_v201.py
