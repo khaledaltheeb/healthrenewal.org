@@ -16,6 +16,7 @@ for candidate in (str(ROOT), str(SCRIPTS)):
 import publish_new_special_needs_conditions_v323 as conditions323
 import publish_special_needs_guides_v217 as guides
 import publish_special_needs_guides_v217_core as core
+import publish_williams_prader_willi_v324 as conditions324
 
 CONTRACT = 221
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
@@ -101,6 +102,14 @@ def traced_validate_discovery(site: Path, slugs: list[str]) -> dict[str, Any]:
     return result
 
 
+def write_central_reports(report: dict[str, Any]) -> None:
+    api = SITE / "api"
+    api.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(report, ensure_ascii=False, indent=2)
+    (api / "special-needs-guides-v217.json").write_text(payload, encoding="utf-8")
+    (api / "special-needs-guides-v221.json").write_text(payload, encoding="utf-8")
+
+
 def integrate_new_conditions(report: dict[str, Any], conditions_report: dict[str, Any]) -> dict[str, Any]:
     if conditions_report.get("version") != 323 or conditions_report.get("status") != "passed":
         raise SystemExit(f"New special-needs condition contract failed: {conditions_report}")
@@ -143,10 +152,65 @@ def integrate_new_conditions(report: dict[str, Any], conditions_report: dict[str
     }
     report["new_condition_guides_contract"] = 323
     report["additional_condition_page_count"] = conditions_report["condition_count"]
-    api = SITE / "api"
-    payload = json.dumps(report, ensure_ascii=False, indent=2)
-    (api / "special-needs-guides-v217.json").write_text(payload, encoding="utf-8")
-    (api / "special-needs-guides-v221.json").write_text(payload, encoding="utf-8")
+    write_central_reports(report)
+    return report
+
+
+def integrate_extended_conditions(report: dict[str, Any], conditions_report: dict[str, Any]) -> dict[str, Any]:
+    if conditions_report.get("version") != 324 or conditions_report.get("status") != "passed":
+        raise SystemExit(f"Williams and Prader-Willi contract failed: {conditions_report}")
+    if conditions_report.get("added_condition_slugs") != [
+        "williams-syndrome",
+        "prader-willi-syndrome",
+    ]:
+        raise SystemExit("Williams and Prader-Willi routes are incomplete")
+    if (
+        conditions_report.get("base_condition_count") != 3
+        or conditions_report.get("added_condition_count") != 2
+        or conditions_report.get("total_condition_count") != 5
+        or conditions_report.get("section_count") != 14
+    ):
+        raise SystemExit("Williams and Prader-Willi depth or count contract failed")
+    if conditions_report.get("minimum_condition_words", 0) < 1400:
+        raise SystemExit("Williams or Prader-Willi page is too shallow")
+    if conditions_report.get("external_clinical_review_completed") is not False:
+        raise SystemExit("Williams or Prader-Willi page overstates external review")
+    if not all(
+        conditions_report.get(key)
+        for key in ("cluster_expanded", "hub_link_updated", "sitemap_registered")
+    ):
+        raise SystemExit("Williams and Prader-Willi discovery contract failed")
+
+    condition_hubs = report.setdefault("condition_hubs", {})
+    condition_hubs["williams_prader_willi_expansion"] = {
+        key: conditions_report[key]
+        for key in (
+            "version",
+            "status",
+            "cluster_slug",
+            "base_condition_count",
+            "added_condition_count",
+            "total_condition_count",
+            "added_condition_slugs",
+            "all_condition_slugs",
+            "generated_pages",
+            "source_count",
+            "section_count",
+            "faq_count",
+            "minimum_condition_words",
+            "cluster_expanded",
+            "hub_link_updated",
+            "sitemap_registered",
+            "reviewed_at",
+            "next_review_due",
+            "external_clinical_review_completed",
+            "content_source",
+        )
+    }
+    report["expanded_condition_guides_contract"] = 324
+    report["second_condition_batch_page_count"] = conditions_report["added_condition_count"]
+    report["total_new_condition_page_count"] = conditions_report["total_condition_count"]
+    write_central_reports(report)
     return report
 
 
@@ -171,6 +235,11 @@ def main() -> None:
         conditions_report = conditions323.publish(SITE)
         report = integrate_new_conditions(report, conditions_report)
         stamp(status="running", stage="new-condition-publication-completed", last_batch_completed=323)
+
+        stamp(status="running", stage="condition-expansion-publication", last_batch_started=324)
+        expansion_report = conditions324.publish(SITE)
+        report = integrate_extended_conditions(report, expansion_report)
+        stamp(status="running", stage="condition-expansion-publication-completed", last_batch_completed=324)
     except BaseException as exc:
         if STATE.get("status") != "failed":
             stamp(
@@ -190,6 +259,8 @@ def main() -> None:
         batch_count=report.get("batch_count"),
         production_source_file_count=report.get("production_source_file_count"),
         additional_condition_page_count=report.get("additional_condition_page_count"),
+        second_condition_batch_page_count=report.get("second_condition_batch_page_count"),
+        total_new_condition_page_count=report.get("total_new_condition_page_count"),
     )
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
