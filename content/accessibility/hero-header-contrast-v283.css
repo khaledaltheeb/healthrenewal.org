@@ -4,52 +4,57 @@
   --hh-on-light-muted: #3f5b61;
   --hh-on-dark: #f8fcff;
   --hh-on-dark-muted: #d9e8ec;
-  --hh-link-on-light: #0b4f58;
+  --hh-link-on-light: #074a55;
   --hh-link-on-dark: #ffffff;
   --hh-focus-ring: #ffcc66;
-  --hh-overlay-dark: rgba(8, 24, 28, 0.74);
-  --hh-overlay-light: rgba(255, 255, 255, 0.88);
+  --hh-overlay-dark: rgba(7, 22, 27, 0.82);
+  --hh-overlay-light: rgba(255, 255, 255, 0.92);
 }
 
-/* Explicit design-system surfaces. These tokens are inherited without replacing
- * the existing background, image, gradient, border radius, or visual identity. */
-:where([data-surface="light"], [data-theme="light"], .surface-light, .theme-light) {
+/* Explicit surfaces and runtime-classified containers. */
+:where(
+  [data-surface="light"], [data-theme="light"],
+  .surface-light, .theme-light, .hh-surface-light
+) {
   --hh-surface-text: var(--hh-on-light);
   --hh-surface-muted: var(--hh-on-light-muted);
   --hh-surface-link: var(--hh-link-on-light);
   color: var(--hh-surface-text);
 }
 
-:where([data-surface="dark"], [data-theme="dark"], .surface-dark, .theme-dark) {
+:where(
+  [data-surface="dark"], [data-theme="dark"],
+  .surface-dark, .theme-dark, .hh-surface-dark
+) {
   --hh-surface-text: var(--hh-on-dark);
   --hh-surface-muted: var(--hh-on-dark-muted);
   --hh-surface-link: var(--hh-link-on-dark);
   color: var(--hh-surface-text);
 }
 
-/* Runtime classes are assigned only when computed contrast is below WCAG AA. */
-.auto-contrast-light {
-  color: var(--hh-on-dark) !important;
-  -webkit-text-fill-color: currentColor !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.32);
-}
-
+/* Per-element classes are assigned from computed foreground/background contrast. */
+.hh-text-on-light,
 .auto-contrast-dark {
   color: var(--hh-on-light) !important;
   -webkit-text-fill-color: currentColor !important;
   text-shadow: none !important;
 }
 
-.auto-contrast-light :where(a, span, strong, em, small),
-.auto-contrast-dark :where(a, span, strong, em, small) {
+.hh-text-on-dark,
+.auto-contrast-light {
+  color: var(--hh-on-dark) !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.36) !important;
+}
+
+:where(.hh-text-on-light, .hh-text-on-dark, .auto-contrast-light, .auto-contrast-dark)
+  :where(span, strong, em, small, svg, use) {
   color: inherit !important;
   -webkit-text-fill-color: currentColor !important;
 }
 
-/* A variable image/gradient cannot be certified from CSS alone. The runtime
- * guard adds one of these classes only to the nearest image-bearing surface.
- * Background blending preserves the image while guaranteeing a stable surface. */
-.auto-contrast-overlay-dark {
+/* Image and gradient surfaces retain their identity but gain a stable overlay. */
+.hh-overlay-dark {
   --hh-surface-text: var(--hh-on-dark);
   --hh-surface-muted: var(--hh-on-dark-muted);
   --hh-surface-link: var(--hh-link-on-dark);
@@ -58,7 +63,7 @@
   color: var(--hh-surface-text);
 }
 
-.auto-contrast-overlay-light {
+.hh-overlay-light {
   --hh-surface-text: var(--hh-on-light);
   --hh-surface-muted: var(--hh-on-light-muted);
   --hh-surface-link: var(--hh-link-on-light);
@@ -75,19 +80,19 @@
   [class*="banner"], [class*="Banner"],
   [class*="masthead"],
   [class*="breadcrumb"], [class*="Breadcrumb"]
-) :where(a, button, [role="button"], input, select, textarea) {
+) :where(a, button, [role="button"], input, select, textarea, summary, [tabindex]) {
   -webkit-text-fill-color: currentColor;
 }
 
-:where(.auto-contrast-overlay-dark, [data-surface="dark"], [data-theme="dark"], .surface-dark, .theme-dark)
-  :where(a:not(.button):not(.btn), a:visited) {
+:where(.hh-surface-dark, .hh-overlay-dark, [data-surface="dark"], [data-theme="dark"], .surface-dark, .theme-dark)
+  :where(a:not(.button):not(.btn), a:link, a:visited) {
   color: var(--hh-link-on-dark);
   -webkit-text-fill-color: currentColor;
   text-decoration-color: currentColor;
 }
 
-:where(.auto-contrast-overlay-light, [data-surface="light"], [data-theme="light"], .surface-light, .theme-light)
-  :where(a:not(.button):not(.btn), a:visited) {
+:where(.hh-surface-light, .hh-overlay-light, [data-surface="light"], [data-theme="light"], .surface-light, .theme-light)
+  :where(a:not(.button):not(.btn), a:link, a:visited) {
   color: var(--hh-link-on-light);
   -webkit-text-fill-color: currentColor;
   text-decoration-color: currentColor;
@@ -101,7 +106,7 @@
   [class*="banner"], [class*="Banner"],
   [class*="masthead"],
   [class*="breadcrumb"], [class*="Breadcrumb"]
-) :where(a, button, [role="button"], input, select, textarea, [tabindex]):focus-visible {
+) :where(a, button, [role="button"], input, select, textarea, summary, [tabindex]):focus-visible {
   outline: 3px solid var(--hh-focus-ring) !important;
   outline-offset: 3px;
 }
@@ -115,13 +120,16 @@
   [class*="masthead"],
   [class*="breadcrumb"], [class*="Breadcrumb"]
 ) :where([aria-disabled="true"], :disabled) {
+  opacity: 1;
   -webkit-text-fill-color: currentColor;
 }
 
 @media (prefers-contrast: more) {
   :root {
-    --hh-overlay-dark: rgba(0, 0, 0, 0.84);
-    --hh-overlay-light: rgba(255, 255, 255, 0.94);
+    --hh-on-light: #00191d;
+    --hh-on-dark: #ffffff;
+    --hh-overlay-dark: rgba(0, 0, 0, 0.9);
+    --hh-overlay-light: rgba(255, 255, 255, 0.97);
   }
 }
 
@@ -134,14 +142,7 @@
     [class*="banner"], [class*="Banner"],
     [class*="masthead"],
     [class*="breadcrumb"], [class*="Breadcrumb"]
-  ) {
-    color: #111111 !important;
-    background-color: #ffffff !important;
-    background-image: none !important;
-    background-blend-mode: normal !important;
-    text-shadow: none !important;
-  }
-
+  ),
   :where(
     header,
     [role="banner"],
@@ -153,12 +154,15 @@
   ) * {
     color: #111111 !important;
     -webkit-text-fill-color: currentColor !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    background-blend-mode: normal !important;
     text-shadow: none !important;
   }
 }
 
 @media (forced-colors: active) {
-  :where(.auto-contrast-light, .auto-contrast-dark, .auto-contrast-overlay-dark, .auto-contrast-overlay-light) {
+  :where(.hh-text-on-light, .hh-text-on-dark, .hh-surface-light, .hh-surface-dark, .hh-overlay-dark, .hh-overlay-light) {
     color: CanvasText !important;
     background: Canvas !important;
     forced-color-adjust: auto;
