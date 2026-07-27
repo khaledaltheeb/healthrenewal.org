@@ -6,6 +6,7 @@ on:
     paths:
       - "content/v302/outside-the-box-ten-plan-framework-ar.json"
       - "scripts/publish_outside_the_box_ten_plans_v302.py"
+      - "scripts/check_ten_plan_idempotence_v302.py"
       - "assets/css/outside-the-box-ten-plans-v302.css"
       - "tests/test_outside_the_box_ten_plans_v302.py"
       - ".github/workflows/validate-outside-the-box-ten-plans-v302.yml"
@@ -15,6 +16,7 @@ on:
     paths:
       - "content/v302/outside-the-box-ten-plan-framework-ar.json"
       - "scripts/publish_outside_the_box_ten_plans_v302.py"
+      - "scripts/check_ten_plan_idempotence_v302.py"
       - "assets/css/outside-the-box-ten-plans-v302.css"
       - "tests/test_outside_the_box_ten_plans_v302.py"
       - ".github/workflows/validate-outside-the-box-ten-plans-v302.yml"
@@ -37,6 +39,7 @@ jobs:
           python -m json.tool content/v302/outside-the-box-ten-plan-framework-ar.json >/dev/null
           python -m py_compile scripts/publish_outside_the_box_v254.py
           python -m py_compile scripts/publish_outside_the_box_ten_plans_v302.py
+          python -m py_compile scripts/check_ten_plan_idempotence_v302.py
           python -m py_compile tests/test_outside_the_box_ten_plans_v302.py
 
       - name: Validate framework contract
@@ -50,6 +53,21 @@ jobs:
 
       - name: Validate hub methodology sitemap and API integration
         run: python -m unittest tests.test_outside_the_box_ten_plans_v302.TenPlanPublisherV302.test_hub_methodology_sitemap_and_base_api_are_integrated
+
+      - name: Check hub idempotence
+        run: python scripts/check_ten_plan_idempotence_v302.py hub
+
+      - name: Check condition-page idempotence
+        run: python scripts/check_ten_plan_idempotence_v302.py condition
+
+      - name: Check methodology idempotence
+        run: python scripts/check_ten_plan_idempotence_v302.py methodology
+
+      - name: Check API idempotence
+        run: python scripts/check_ten_plan_idempotence_v302.py api
+
+      - name: Check sitemap idempotence
+        run: python scripts/check_ten_plan_idempotence_v302.py sitemap
 
       - name: Validate idempotent publication
         run: python -m unittest tests.test_outside_the_box_ten_plans_v302.TenPlanPublisherV302.test_extension_is_idempotent
