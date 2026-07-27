@@ -10,6 +10,7 @@ from typing import Any
 
 import publish_special_needs_condition_hubs_v302 as condition302
 import publish_special_needs_condition_postlaunch_v305 as postlaunch305
+import publish_special_needs_condition_trust_v307 as trust307
 import publish_special_needs_guides_v214 as batch214
 import publish_special_needs_guides_v217_core as core
 import publish_special_needs_hub_v235_compat as hub235
@@ -55,6 +56,7 @@ def reset_condition_outputs(site: Path) -> None:
     for name in (
         "special-needs-condition-hubs-v302.json",
         "special-needs-condition-postlaunch-v305.json",
+        "special-needs-condition-trust-v307.json",
     ):
         (site / "api" / name).unlink(missing_ok=True)
 
@@ -136,6 +138,16 @@ def publish(site: Path) -> dict[str, Any]:
     ):
         raise SystemExit("Post-launch accessibility and transparency controls are incomplete")
 
+    trust_report = trust307.publish(site)
+    if trust_report.get("version") != 307 or trust_report.get("status") != "passed":
+        raise SystemExit(f"Condition trust and FAQ contract failed: {trust_report}")
+    if trust_report.get("condition_slugs") != ["autism", "down-syndrome"] or trust_report.get("faq_count") != 8:
+        raise SystemExit("Trust layer must publish four referenced FAQs for each condition")
+    if trust_report.get("faq_schema_visible_match") is not True:
+        raise SystemExit("Visible FAQ content and FAQPage structured data must match")
+    if trust_report.get("external_clinical_review_completed") is not False:
+        raise SystemExit("Trust layer must not overstate external clinical review")
+
     report = {
         **base,
         "version": 221,
@@ -145,6 +157,7 @@ def publish(site: Path) -> dict[str, Any]:
         "hub_release": 241,
         "condition_hubs_contract": 302,
         "condition_postlaunch_contract": 305,
+        "condition_trust_contract": 307,
         "status": "passed",
         "production_status": "integrated",
         "batches": list(VERSIONS),
@@ -192,6 +205,16 @@ def publish(site: Path) -> dict[str, Any]:
                 "provider_policy_visible": postlaunch_report["provider_policy_visible"],
                 "focus_visibility_guard": postlaunch_report["focus_visibility_guard"],
                 "config_source": postlaunch_report["config_source"],
+            },
+            "trust": {
+                "version": trust_report["version"],
+                "reviewed_at": trust_report["reviewed_at"],
+                "next_review_due": trust_report["next_review_due"],
+                "faq_count": trust_report["faq_count"],
+                "minimum_source_count": trust_report["minimum_source_count"],
+                "faq_schema_visible_match": trust_report["faq_schema_visible_match"],
+                "external_clinical_review_completed": trust_report["external_clinical_review_completed"],
+                "config_source": trust_report["config_source"],
             },
         },
         **discovery,
