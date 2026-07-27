@@ -1,0 +1,129 @@
+name: مراجعة علمية لمسار أو خطة
+description: تسجيل ملاحظة علمية أو قياسية أو سريرية أو حقوقية قابلة للتدقيق على إحدى الحالات المئة أو الخطط الألف.
+title: "[مراجعة علمية] "
+labels: ["scientific-review", "outside-the-box"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        هذا النموذج لا يمنح اعتمادًا تلقائيًا. يجب توثيق الحالة أو الخطة أو الادعاء، والدليل، ونطاق خبرة المراجع، وتضارب المصالح، والتغيير المطلوب.
+
+  - type: input
+    id: condition_slug
+    attributes:
+      label: معرف الحالة
+      description: مثال: autism أو down-syndrome أو cerebral-palsy.
+      placeholder: condition-slug
+    validations:
+      required: true
+
+  - type: dropdown
+    id: review_target_type
+    attributes:
+      label: نوع الجزء المراجع
+      options:
+        - مجال ادعاء
+        - خطة من الخطط العشر
+        - مصدر أو مرجع
+        - مقياس أو أداة
+        - لغة وتكييف ثقافي
+        - سلامة أو حقوق أو خصوصية
+        - تنسيق أو ربط أو خطأ تقني
+    validations:
+      required: true
+
+  - type: input
+    id: target_id
+    attributes:
+      label: رقم الخطة أو معرف مجال الادعاء
+      description: استخدم رقم الخطة 1–10 أو معرفًا مثل assessment-measurement. اكتب غير منطبق عند مراجعة الصفحة عمومًا.
+      placeholder: direct-protocol-1 أو assessment-measurement
+    validations:
+      required: true
+
+  - type: textarea
+    id: text_under_review
+    attributes:
+      label: النص أو الادعاء محل المراجعة
+      description: انسخ أقصر مقطع كافٍ وحدد عنوان القسم أو موضعه.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: risk_level
+    attributes:
+      label: مستوى الخطر
+      options:
+        - حرج: قد يسبب ضررًا أو قرارًا تشخيصيًا أو علاجيًا أو قانونيًا
+        - مرتفع: يؤثر في التقييم أو التدخل أو السلامة أو الحقوق
+        - متوسط: تثقيف أو انتشار أو نتيجة متوقعة أو تنفيذ
+        - منخفض: لغة أو تنسيق أو ربط لا يغير المعنى العلمي
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: نوع الملاحظة
+      options:
+        - مصدر غير كافٍ أو غير مباشر
+        - مصدر قديم أو مستبدل أو مسحوب
+        - تفسير يتجاوز ما يثبته الدليل
+        - خطأ في المقياس أو النسخة أو التقنين أو الترخيص
+        - تعميم أو صورة نمطية أو لغة غير دقيقة
+        - تدخل أو جرعة أو قاعدة توقف غير ملائمة
+        - خطر سلامة أو حقوق أو خصوصية
+        - نقص أو تعارض أو تكرار أو رابط معطل
+        - اقتراح تحسين أو إضافة موثقة
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: الدليل والمصدر الأصلي
+      description: اذكر العنوان والجهة والسنة والرابط أو DOI، وما الذي يثبته المصدر تحديدًا.
+      placeholder: |
+        الجهة/المجلة:
+        العنوان:
+        السنة والإصدار:
+        الرابط أو DOI:
+        الادعاء الذي يدعمه:
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_change
+    attributes:
+      label: التصحيح أو التغيير المقترح
+      description: قدم صياغة بديلة أو إجراءً محددًا، وحدد أثره على الخطط المرتبطة إن وجد.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reviewer_basis
+    attributes:
+      label: صفة المراجع ونطاق خبرته
+      description: اذكر الدور المهني أو الخبرة المعاشة أو الجهة، وأساس الصلاحية لهذا الجزء تحديدًا. لا تضع بيانات شخصية حساسة.
+    validations:
+      required: true
+
+  - type: textarea
+    id: conflicts
+    attributes:
+      label: تضارب المصالح
+      description: اذكر أي علاقة مهنية أو مالية أو بحثية أو مؤسسية ذات صلة، أو اكتب لا يوجد ما أعلمه.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: attestation
+    attributes:
+      label: إقرار المراجع
+      options:
+        - label: راجعت الجزء المحدد فقط، ولا أعتبر ملاحظتي اعتمادًا شاملًا للحالة أو القسم.
+          required: true
+        - label: أوضحت حدود الدليل والمخاطر المتبقية ولم أنقل بنود اختبار أو مواد محمية.
+          required: true
+        - label: أوافق على حفظ الملاحظة وسجل التغيير لأغراض التدقيق العلمي.
+          required: true
