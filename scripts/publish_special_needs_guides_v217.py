@@ -17,6 +17,7 @@ import publish_special_needs_diagnostic_decision_guides_v316 as decision316
 import publish_special_needs_guides_v214 as batch214
 import publish_special_needs_guides_v217_core as core
 import publish_special_needs_hub_v235_compat as hub235
+import publish_special_needs_support_interventions_v318 as support318
 import validate_special_needs_provider_directory_v308 as provider308
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,6 +31,8 @@ CONDITION_URLS = {
     f"{condition302.BASE}/special-needs/down-syndrome-health-by-age/",
     f"{condition302.BASE}/special-needs/autism-screening-vs-diagnosis/",
     f"{condition302.BASE}/special-needs/down-syndrome-prenatal-screening-vs-diagnosis/",
+    f"{condition302.BASE}/special-needs/autism-evidence-based-support-plan/",
+    f"{condition302.BASE}/special-needs/down-syndrome-development-communication-independence/",
 }
 
 
@@ -66,6 +69,8 @@ def reset_condition_outputs(site: Path) -> None:
         "down-syndrome-health-by-age",
         "autism-screening-vs-diagnosis",
         "down-syndrome-prenatal-screening-vs-diagnosis",
+        "autism-evidence-based-support-plan",
+        "down-syndrome-development-communication-independence",
     ):
         shutil.rmtree(site / "special-needs" / slug, ignore_errors=True)
     for name in (
@@ -76,6 +81,7 @@ def reset_condition_outputs(site: Path) -> None:
         "special-needs-condition-source-maintenance-v310.json",
         "special-needs-condition-age-guides-v314.json",
         "special-needs-diagnostic-decision-guides-v316.json",
+        "special-needs-support-interventions-v318.json",
     ):
         (site / "api" / name).unlink(missing_ok=True)
 
@@ -201,6 +207,25 @@ def publish(site: Path) -> dict[str, Any]:
     if decision_report.get("sitemap_registered") is not True:
         raise SystemExit("Diagnostic decision routes must be registered in the special-needs sitemap")
 
+    support_report = support318.publish(site)
+    if support_report.get("version") != 318 or support_report.get("status") != "passed":
+        raise SystemExit(f"Support intervention-guide contract failed: {support_report}")
+    if support_report.get("guide_slugs") != [
+        "autism-evidence-based-support-plan",
+        "down-syndrome-development-communication-independence",
+    ]:
+        raise SystemExit("Support intervention-guide routes are incomplete")
+    if support_report.get("guide_count") != 2 or support_report.get("section_count") != 10:
+        raise SystemExit("Support intervention guides must publish two pages and ten support sections")
+    if support_report.get("source_count") != 9 or support_report.get("parent_links_added") != 2:
+        raise SystemExit("Support intervention-guide evidence or parent-link contract failed")
+    if support_report.get("plan_step_count") != 10 or support_report.get("urgent_item_count") != 6:
+        raise SystemExit("Support intervention plan or safety depth failed")
+    if support_report.get("external_clinical_review_completed") is not False:
+        raise SystemExit("Support intervention guides must not overstate external clinical review")
+    if support_report.get("sitemap_registered") is not True:
+        raise SystemExit("Support intervention routes must be registered in the special-needs sitemap")
+
     postlaunch_report = postlaunch305.publish(site)
     if postlaunch_report.get("version") != 305 or postlaunch_report.get("status") != "passed":
         raise SystemExit(f"Condition post-launch audit contract failed: {postlaunch_report}")
@@ -238,6 +263,7 @@ def publish(site: Path) -> dict[str, Any]:
         "condition_source_maintenance_contract": 310,
         "condition_age_guides_contract": 314,
         "diagnostic_decision_guides_contract": 316,
+        "support_intervention_guides_contract": 318,
         "status": "passed",
         "production_status": "integrated",
         "batches": list(VERSIONS),
@@ -306,6 +332,23 @@ def publish(site: Path) -> dict[str, Any]:
                 "next_review_due": decision_report["next_review_due"],
                 "external_clinical_review_completed": decision_report["external_clinical_review_completed"],
                 "content_source": decision_report["content_source"],
+            },
+            "support_interventions": {
+                "version": support_report["version"],
+                "status": support_report["status"],
+                "guide_count": support_report["guide_count"],
+                "guide_slugs": support_report["guide_slugs"],
+                "generated_pages": support_report["generated_pages"],
+                "section_count": support_report["section_count"],
+                "source_count": support_report["source_count"],
+                "plan_step_count": support_report["plan_step_count"],
+                "urgent_item_count": support_report["urgent_item_count"],
+                "parent_links_added": support_report["parent_links_added"],
+                "sitemap_registered": support_report["sitemap_registered"],
+                "reviewed_at": support_report["reviewed_at"],
+                "next_review_due": support_report["next_review_due"],
+                "external_clinical_review_completed": support_report["external_clinical_review_completed"],
+                "content_source": support_report["content_source"],
             },
             "source_maintenance": {
                 "version": source_report["version"],
