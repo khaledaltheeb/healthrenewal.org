@@ -45,7 +45,7 @@ jobs:
             scripts/diagnose_apply_homepage_v221.py scripts/polish_site_v16.py \
             scripts/audit_site_integrity_v13.py scripts/verify_performance_v14.py \
             scripts/verify_core_sections_v15.py scripts/audit_full_site_i18n_v72.py \
-            scripts/audit_publication_surface_v322.py scripts/stamp_deployment_v29.py
+            scripts/audit_publication_surface_v322.py
 
       - name: Build complete production package
         run: |
@@ -87,18 +87,57 @@ jobs:
           grep -q 'دليل جميع أقسام المنصة' _site/sections/index.html
           grep -q 'الأقسام المتخصصة للصحة النفسية' _site/sectors/index.html
 
-      - name: Stamp exact main release SHA
+      - name: Stamp exact validated release SHA
         run: |
           set -euxo pipefail
-          GITHUB_SHA="${RELEASE_SHA}" python scripts/stamp_deployment_v29.py _site
-          EXPECTED_SHA="${RELEASE_SHA}" python - <<'PY'
-          import json, os
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import datetime, timezone
           from pathlib import Path
-          data=json.loads(Path('_site/deployment.json').read_text(encoding='utf-8'))
-          assert data.get('schema_version') == 29, data
-          assert data.get('commit') == os.environ['EXPECTED_SHA'], (data, os.environ['EXPECTED_SHA'])
-          assert int(data.get('pwa_pages', 0)) > 0, data
-          print({'release_commit': data['commit'], 'pwa_pages': data['pwa_pages']})
+
+          site=Path('_site')
+          release_sha=os.environ['RELEASE_SHA']
+          surface=json.loads((site/'api/publication-surface-v322.json').read_text(encoding='utf-8'))
+          audit=json.loads((site/'api/full-site-audit-v16.json').read_text(encoding='utf-8'))
+          assert surface.get('status') == 'passed', surface
+          assert not surface.get('errors'), surface
+          assert int(audit.get('error_count', -1)) == 0, audit
+          assert int(audit.get('html_pages', 0)) >= 3000, audit
+
+          critical=('index.html','sitemap.xml','manifest.webmanifest','sw.js')
+          artifacts={}
+          for relative in critical:
+              path=site/relative
+              assert path.is_file(), relative
+              artifacts[relative]={
+                  'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
+                  'bytes':path.stat().st_size,
+              }
+
+          pwa_path=site/'api/pwa-v14.json'
+          pwa=json.loads(pwa_path.read_text(encoding='utf-8')) if pwa_path.is_file() else {}
+          payload={
+              'schema_version':29,
+              'commit':release_sha,
+              'workflow_run':os.environ['GITHUB_RUN_ID'],
+              'workflow_attempt':os.environ.get('GITHUB_RUN_ATTEMPT','1'),
+              'validated_at':datetime.now(timezone.utc).isoformat(),
+              'gate':'observable publication surface v324: full static audit, route discovery, exact homepage gateways, critical artifact SHA-256',
+              'pwa_pages':int(pwa.get('pages_scanned', audit['content_pages'])),
+              'html_pages':int(audit['html_pages']),
+              'public_top_level_routes':int(surface['public_top_level_routes']),
+              'homepage_direct_routes':int(surface['homepage_direct_routes']),
+              'publication_surface_status':surface['status'],
+              'full_site_error_count':int(audit['error_count']),
+              'artifacts':artifacts,
+          }
+          assert payload['pwa_pages'] > 0, payload
+          (site/'deployment.json').write_text(json.dumps(payload,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          written=json.loads((site/'deployment.json').read_text(encoding='utf-8'))
+          assert written['commit'] == release_sha, written
+          print(json.dumps(written,ensure_ascii=False,indent=2))
           PY
 
       - name: Upload exact validated site for default-branch deployment
