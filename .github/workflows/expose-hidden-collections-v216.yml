@@ -1,4 +1,4 @@
-name: Expose homepage collections and interactive tools v220
+name: Expose homepage collections and interactive tools v221
 
 on:
   pull_request:
@@ -21,7 +21,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: expose-homepage-collections-v220-${{ github.ref }}
+  group: expose-homepage-collections-v221-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Expose advanced collections and interactive tools
+      - name: Expose collections and align daily-tools production contract
         run: |
           set -euxo pipefail
           python -m py_compile \
@@ -66,18 +66,48 @@ jobs:
           test "$(grep -o 'data-learning-paths-v219' index.html | wc -l)" -eq 1
           grep -q '100 أداة عربية عملية' index.html
           grep -q '10 مسارات مترابطة' index.html
+
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('.github/workflows/validate-all-labs-v22.yml')
+          text = path.read_text(encoding='utf-8')
+          replacements = {
+              'test "$(find _site/daily-tools -name index.html | wc -l)" -eq 9': 'test "$(find _site/daily-tools -name index.html | wc -l)" -eq 101',
+              'test "$(find _site/learning-paths -name index.html | wc -l)" -eq 5': 'test "$(find _site/learning-paths -name index.html | wc -l)" -eq 11',
+              'test "$(grep -o \'<url>\' _site/sitemap-tools-paths.xml | wc -l)" -eq 14': 'test "$(grep -o \'<url>\' _site/sitemap-tools-paths.xml | wc -l)" -eq 112',
+              "assert daily['tools']==8 and daily['paths']==4 and daily['pages']==14 and daily['local_only'] is True,daily": "assert daily['catalog_contract']==100 and daily['tools']>=100 and daily['categories']>=10 and daily['paths']>=10 and daily['pages']==daily['tools']+daily['paths']+2 and daily['local_only'] is True and daily['search_and_filters'] is True and daily['per_tool_sources'] is True,daily",
+              "print({'site':'passed','cognitive':'53/53','assessments':'40/40','browser':'186/186','daily_tools':'8/8','learning_paths':'4/4','quality_pages':quality['pages_scanned'],'thin_candidates':quality['thin_page_candidates'],'pwa_pages':pwa['pages_scanned'],'identity_pages':identity['pages'],'homepage_lab_tools':homepage['lab_tool_count']})": "print({'site':'passed','cognitive':'53/53','assessments':'40/40','browser':'186/186','daily_tools':daily['tools'],'daily_categories':daily['categories'],'learning_paths':daily['paths'],'daily_pages':daily['pages'],'quality_pages':quality['pages_scanned'],'thin_candidates':quality['thin_page_candidates'],'pwa_pages':pwa['pages_scanned'],'identity_pages':identity['pages'],'homepage_lab_tools':homepage['lab_tool_count']})",
+          }
+          for old, new in replacements.items():
+              if old in text:
+                  text = text.replace(old, new, 1)
+              elif new not in text:
+                  raise SystemExit(f'Neither legacy nor current production marker exists: {old}')
+          path.write_text(text, encoding='utf-8')
+          PY
+
+          rm -f .github/workflows/patch-production-daily-tools-v100.yml
           git diff --check
 
-      - name: Commit durable source and regression gate
+      - name: Commit durable homepage and production contracts
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           set -euxo pipefail
-          if git diff --quiet -- index.html scripts/verify_homepage_v19.py; then
-            echo "Homepage discovery contract is already current."
+          if git diff --quiet -- \
+            index.html \
+            scripts/verify_homepage_v19.py \
+            .github/workflows/validate-all-labs-v22.yml \
+            .github/workflows/patch-production-daily-tools-v100.yml; then
+            echo "Homepage discovery and production contracts are already current."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html scripts/verify_homepage_v19.py
-          git commit -m "ربط الأدوات التفاعلية ومسارات التعلم بمصدر الصفحة الرئيسية"
+          git add -A -- \
+            index.html \
+            scripts/verify_homepage_v19.py \
+            .github/workflows/validate-all-labs-v22.yml \
+            .github/workflows/patch-production-daily-tools-v100.yml
+          git commit -m "إصلاح عقد إنتاج الأدوات المئة وربطها بالرئيسية"
           git push origin HEAD:main
