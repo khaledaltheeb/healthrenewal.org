@@ -1,4 +1,4 @@
-/* v11 — runtime contrast guard for all current and future content pages; v291 clears legacy classes and defers adaptive shell surfaces to v283. */
+/* v11 — runtime contrast guard for all current and future content pages; v292 clears late legacy classes and hands adaptive shell surfaces back to v283. */
 (() => {
   'use strict';
 
@@ -11,6 +11,7 @@
   ].join(',');
   const DARK_HINT = /(dark|gradient|overlay|cover)/i;
   let scheduled = false;
+  let adaptiveRescanNeeded = false;
   const pendingRoots = new Set();
 
   const parseColor = (value) => {
@@ -95,11 +96,12 @@
       if (hasLight) element.classList.remove('auto-contrast-light');
       if (hasDark) element.classList.remove('auto-contrast-dark');
     }
+    return hasLight || hasDark;
   };
 
   const fixElement = (element) => {
     if (ownedByAdaptiveGuard(element)) {
-      setContrastClass(element, null);
+      if (setContrastClass(element, null)) adaptiveRescanNeeded = true;
       return;
     }
     if (!hasReadableText(element)) return;
@@ -129,17 +131,19 @@
 
   const scan = () => {
     scheduled = false;
+    adaptiveRescanNeeded = false;
     const roots = pendingRoots.size ? [...pendingRoots] : [document];
     pendingRoots.clear();
     roots.forEach(scanRoot);
     document.documentElement.dataset.contrastGuard = 'v11';
+    if (adaptiveRescanNeeded) window.__heroHeaderContrastV283?.scan?.();
   };
 
   const schedule = (root = document) => {
     pendingRoots.add(root);
     if (scheduled) return;
     scheduled = true;
-    if ('requestIdleCallback' in window) requestIdleCallback(scan, { timeout: 500 });
+    if ('requestIdleCallback' in window) requestIdleCallback(scan, { timeout: 250 });
     else requestAnimationFrame(scan);
   };
 
@@ -153,8 +157,13 @@
   }, { passive: true });
 
   new MutationObserver((records) => {
-    records.forEach((record) => record.addedNodes.forEach((node) => {
-      if (node instanceof Element) schedule(node);
-    }));
-  }).observe(document.body, { subtree: true, childList: true });
+    for (const record of records) {
+      if (record.type === 'childList') {
+        record.addedNodes.forEach((node) => { if (node instanceof Element) schedule(node); });
+      } else if (record.type === 'attributes' && record.target instanceof Element) {
+        const target = record.target;
+        if (target.classList.contains('auto-contrast-light') || target.classList.contains('auto-contrast-dark') || target.closest(ADAPTIVE_SCOPE)) schedule(target);
+      }
+    }
+  }).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'style', 'data-surface', 'data-theme'] });
 })();
