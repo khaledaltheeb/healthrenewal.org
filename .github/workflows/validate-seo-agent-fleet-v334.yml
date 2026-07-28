@@ -4,25 +4,23 @@ on:
   pull_request:
     branches: ["main"]
     paths:
-      - "**/*.html"
       - "robots.txt"
       - "llms.txt"
-      - "sitemap*.xml"
-      - "api/**/*.json"
+      - "api/ai-crawler-policy.json"
       - "scripts/seo_agent_fleet_v334.py"
       - "tests/test_seo_agent_fleet_v334.py"
       - ".github/workflows/validate-seo-agent-fleet-v334.yml"
+      - ".github/workflows/validate-full-site-v16.yml"
   push:
     branches: ["main"]
     paths:
-      - "**/*.html"
       - "robots.txt"
       - "llms.txt"
-      - "sitemap*.xml"
-      - "api/**/*.json"
+      - "api/ai-crawler-policy.json"
       - "scripts/seo_agent_fleet_v334.py"
       - "tests/test_seo_agent_fleet_v334.py"
       - ".github/workflows/validate-seo-agent-fleet-v334.yml"
+      - ".github/workflows/validate-full-site-v16.yml"
   workflow_dispatch:
 
 permissions:
@@ -31,7 +29,7 @@ permissions:
 jobs:
   seo-agent-fleet:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -39,14 +37,8 @@ jobs:
           python-version: "3.12"
       - name: Compile deterministic SEO engine
         run: python -m py_compile scripts/seo_agent_fleet_v334.py
-      - name: Run regression suite
+      - name: Run fourteen regression tests
         run: python -m unittest discover -s tests -p 'test_seo_agent_fleet_v334.py' -v
-      - name: Audit the complete publication tree with eight agents
-        run: |
-          python scripts/seo_agent_fleet_v334.py . \
-            --base-url https://khaledaltheeb.github.io/pterminology-site/ \
-            --report-dir seo-audit \
-            --fail-on critical
       - name: Verify discovery policy remains explicit
         run: |
           python - <<'PY'
@@ -59,12 +51,9 @@ jobs:
           assert 'OAI-SearchBot' in policy['search_and_answer_user_agents'], policy
           assert 'Googlebot' in policy['search_and_answer_user_agents'], policy
           assert 'GPTBot' in policy['training_or_model_user_agents'], policy
+          robots = Path('robots.txt').read_text(encoding='utf-8')
+          llms = Path('llms.txt').read_text(encoding='utf-8')
+          assert 'Allow: /' in robots and 'sitemap-index.xml' in robots, robots
+          assert policy['canonical_site'] in llms and 'Sitemap index' in llms, llms
           print({'status': 'passed', 'policy_version': policy['version']})
           PY
-      - name: Upload SEO audit evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: seo-agent-fleet-v334
-          path: seo-audit/
-          if-no-files-found: error
