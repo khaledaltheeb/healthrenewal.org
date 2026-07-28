@@ -1,0 +1,42 @@
+name: Validate special-needs sleep support v336
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/v336/special-needs-guides/developmental-disabilities-sleep-support-plan.json"
+      - "scripts/publish_special_needs_sleep_v336.py"
+      - "tests/test_special_needs_sleep_v336.py"
+      - ".github/workflows/validate-special-needs-sleep-v336.yml"
+  push:
+    branches: [main]
+    paths:
+      - "content/v336/special-needs-guides/developmental-disabilities-sleep-support-plan.json"
+      - "scripts/publish_special_needs_sleep_v336.py"
+      - "tests/test_special_needs_sleep_v336.py"
+      - ".github/workflows/validate-special-needs-sleep-v336.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publisher and tests
+        run: python -m py_compile scripts/publish_special_needs_sleep_v336.py tests/test_special_needs_sleep_v336.py
+      - name: Run source, safety, rendering, sitemap and API contracts
+        run: python -m unittest tests/test_special_needs_sleep_v336.py -v
+      - name: Verify prohibited terminology is absent
+        run: |
+          if grep -RIn --include='*.json' --include='*.py' 'معاقين' \
+            content/v336 scripts/publish_special_needs_sleep_v336.py tests/test_special_needs_sleep_v336.py; then
+            echo 'Prohibited terminology found' >&2
+            exit 1
+          fi
