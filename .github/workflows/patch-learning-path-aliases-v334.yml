@@ -1,0 +1,98 @@
+name: Patch learning-path aliases into release v334
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["agent/sitewide-structured-data-v332"]
+    paths:
+      - ".github/workflows/patch-learning-path-aliases-v334.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: patch-learning-path-aliases-v334
+  cancel-in-progress: true
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/sitewide-structured-data-v332
+          fetch-depth: 0
+
+      - name: Integrate tested alias repair into the release pipeline
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          target = Path('.github/workflows/structured-data-v332.yml')
+          text = target.read_text(encoding='utf-8')
+
+          replacements = (
+              (
+                  "            scripts/enhance_platform_experience_v333.py tests/test_platform_experience_v333.py",
+                  "            scripts/enhance_platform_experience_v333.py tests/test_platform_experience_v333.py \\\n            scripts/repair_legacy_learning_path_aliases_v334.py tests/test_legacy_learning_path_aliases_v334.py",
+              ),
+              (
+                  "          python -m unittest -v tests/test_platform_experience_v333.py\n",
+                  "          python -m unittest -v tests/test_platform_experience_v333.py\n          python -m unittest -v tests/test_legacy_learning_path_aliases_v334.py\n",
+              ),
+              (
+                  "            scripts/apply_structured_data_v332.py scripts/enhance_platform_experience_v333.py \\\n            scripts/stamp_deployment_v29.py",
+                  "            scripts/apply_structured_data_v332.py scripts/enhance_platform_experience_v333.py \\\n            scripts/repair_legacy_learning_path_aliases_v334.py scripts/stamp_deployment_v29.py",
+              ),
+          )
+          for old, new in replacements:
+              assert text.count(old) == 1, (old, text.count(old))
+              text = text.replace(old, new)
+
+          anchor = "      - name: Build site-wide search, local library, result history, and recommendations\n"
+          step = """      - name: Repair legacy learning-path transition pages
+        run: |
+          set -euxo pipefail
+          python scripts/repair_legacy_learning_path_aliases_v334.py _site --strict
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/legacy-learning-path-aliases-v334.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed', report
+          assert report['aliases_expected']==4, report
+          assert report['aliases_written']==4, report
+          assert report['errors']==[], report
+          assert all(record['target_exists'] for record in report['records']), report
+          print({'legacy_learning_path_aliases':'passed','aliases':report['aliases_written']})
+          PY
+
+"""
+          assert text.count(anchor) == 1, text.count(anchor)
+          text = text.replace(anchor, step + anchor)
+          target.write_text(text, encoding='utf-8')
+          Path('.github/workflows/patch-learning-path-aliases-v334.yml').unlink()
+          PY
+          git diff --check
+          grep -F "python -m unittest -v tests/test_legacy_learning_path_aliases_v334.py" .github/workflows/structured-data-v332.yml
+          grep -F "Repair legacy learning-path transition pages" .github/workflows/structured-data-v332.yml
+
+      - name: Validate repair implementation before committing
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/repair_legacy_learning_path_aliases_v334.py tests/test_legacy_learning_path_aliases_v334.py
+          python -m unittest -v tests/test_legacy_learning_path_aliases_v334.py
+
+      - name: Commit the release integration
+        run: |
+          set -euxo pipefail
+          find scripts tests -type d -name __pycache__ -prune -exec rm -rf {} +
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "دمج إصلاح صفحات مسارات التعلم القديمة في بوابة الإصدار v334"
+          git push origin HEAD:agent/sitewide-structured-data-v332
