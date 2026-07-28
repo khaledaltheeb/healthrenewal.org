@@ -1,4 +1,4 @@
-/* v11 — runtime contrast guard for all current and future content pages; v290 defers adaptive shell surfaces to v283. */
+/* v11 — runtime contrast guard for all current and future content pages; v291 clears legacy classes and defers adaptive shell surfaces to v283. */
 (() => {
   'use strict';
 
@@ -98,7 +98,11 @@
   };
 
   const fixElement = (element) => {
-    if (ownedByAdaptiveGuard(element) || !hasReadableText(element)) return;
+    if (ownedByAdaptiveGuard(element)) {
+      setContrastClass(element, null);
+      return;
+    }
+    if (!hasReadableText(element)) return;
     const style = getComputedStyle(element);
     const foreground = parseColor(style.color);
     if (!foreground) return;
