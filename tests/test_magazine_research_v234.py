@@ -140,6 +140,12 @@ class MagazineResearchV315Tests(unittest.TestCase):
             self.assertIn('href="https://doi.org/', text)
             self.assertTrue(any(term in text for term in ("حدود", "الحذر", "قيود")))
             self.assertRegex(text, r'"datePublished":"2026-\d{2}-\d{2}"')
+            if filename == "grieving-adolescents-alba-app-rct-2026.html":
+                self.assertIn("<!-- pt-platform-shell:v1 -->", text)
+                self.assertIn('data-pt-normalized="1.1.0"', text)
+                self.assertIn('href="../copyright/"', text)
+                self.assertIn('../assets/platform/platform-core.css?v=1.1.0', text)
+                self.assertIn('../assets/platform/platform-core.js?v=1.1.0', text)
 
 
 if __name__ == "__main__":
