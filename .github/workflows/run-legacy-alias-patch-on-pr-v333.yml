@@ -17,28 +17,23 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
-      - name: Extract reviewed patch payload
+      - name: Extract and execute complete reviewed patch payload
         run: |
           python - <<'PY'
           from pathlib import Path
           source = Path('.github/workflows/patch-legacy-alias-release-gates-v333-temporary.yml').read_text(encoding='utf-8').splitlines()
-          start = next(i for i, line in enumerate(source) if line == '        run: |') + 1
+          start = next(i for i, line in enumerate(source) if line.strip() == "python - <<'PY'")
+          end = next(i for i, line in enumerate(source[start:], start) if line.strip() == 'git push origin HEAD:agent/legacy-alias-release-gates-v333')
           payload = []
-          for line in source[start:]:
-              if line and not line.startswith('          '):
-                  break
-              payload.append(line[10:] if line.startswith('          ') else '')
+          for line in source[start:end + 1]:
+              payload.append(line[10:] if line.startswith('          ') else line)
           Path('/tmp/apply-legacy-alias-v333.sh').write_text('\n'.join(payload) + '\n', encoding='utf-8')
           PY
-      - name: Execute patch with full trace
-        run: bash -x /tmp/apply-legacy-alias-v333.sh 2>&1 | tee /tmp/legacy-alias-patch-v333.log
-      - name: Upload patch diagnostic
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: legacy-alias-patch-v333-diagnostic
-          path: |
-            /tmp/apply-legacy-alias-v333.sh
-            /tmp/legacy-alias-patch-v333.log
-          if-no-files-found: warn
-          retention-days: 3
+          bash -euxo pipefail /tmp/apply-legacy-alias-v333.sh
+          git fetch origin agent/legacy-alias-release-gates-v333
+          git reset --hard origin/agent/legacy-alias-release-gates-v333
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm .github/workflows/run-legacy-alias-patch-on-pr-v333.yml
+          git commit -m "chore: remove temporary pull-request patch runner"
+          git push origin HEAD:agent/legacy-alias-release-gates-v333
