@@ -26,7 +26,7 @@ jobs:
           cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
           python scripts/verify_enricher_v7.py
           python scripts/verify_expander_v9.py
-          python -m py_compile build_site.py expand_site_v9.py scripts/scale_site_v8.py scripts/design_content_v10.py scripts/apply_contrast_v11.py scripts/expand_v12_direct.py scripts/rebuild_encyclopedia_v13.py scripts/run_encyclopedia_v13.py scripts/performance_hotfix_v14.py scripts/optimize_site_performance_v14.py scripts/strip_nonlab_runtime_v14.py scripts/finalize_pwa_v14.py scripts/audit_site_integrity_v13.py scripts/verify_performance_v14.py scripts/complete_core_sections_v15.py scripts/verify_core_sections_v15.py scripts/polish_site_v16.py scripts/audit_full_site_v16.py scripts/audit_full_site_i18n_v72.py scripts/apply_homepage_v20.py scripts/diagnose_apply_homepage_v221.py scripts/diagnose_special_needs_guides_v221.py scripts/publish_homepage_i18n_v72.py scripts/seo_agent_fleet_v334.py
+          python -m py_compile build_site.py expand_site_v9.py scripts/scale_site_v8.py scripts/design_content_v10.py scripts/apply_contrast_v11.py scripts/expand_v12_direct.py scripts/rebuild_encyclopedia_v13.py scripts/run_encyclopedia_v13.py scripts/performance_hotfix_v14.py scripts/optimize_site_performance_v14.py scripts/strip_nonlab_runtime_v14.py scripts/finalize_pwa_v14.py scripts/audit_site_integrity_v13.py scripts/verify_performance_v14.py scripts/complete_core_sections_v15.py scripts/verify_core_sections_v15.py scripts/polish_site_v16.py scripts/audit_full_site_v16.py scripts/audit_full_site_i18n_v72.py scripts/apply_homepage_v20.py scripts/diagnose_apply_homepage_v221.py scripts/diagnose_special_needs_guides_v221.py scripts/publish_homepage_i18n_v72.py scripts/normalize_social_previews_v334.py scripts/seo_agent_fleet_v334.py scripts/seo_agent_fleet_v334_hardened.py
           node --check content/v15/lab-v15.js
           node --check scripts/test_lab_v15.js
           node --check scripts/browser_audit_v16.mjs
@@ -69,10 +69,16 @@ jobs:
         run: |
           set -euxo pipefail
           python scripts/audit_full_site_i18n_v72.py _site
+      - name: Normalize social previews to reviewed 1200x630 PNG
+        run: |
+          set -euxo pipefail
+          python scripts/normalize_social_previews_v334.py _site --base-url "$SITE_BASE"
+          test -f _site/assets/social-card-v334.png
+          test -f _site/api/social-preview-normalization-v334.json
       - name: Run eight-agent SEO audit against production output
         run: |
           set -euxo pipefail
-          python scripts/seo_agent_fleet_v334.py _site \
+          python scripts/seo_agent_fleet_v334_hardened.py _site \
             --base-url "$SITE_BASE" \
             --report-dir api/seo-audit-v334 \
             --fail-on critical
@@ -106,6 +112,7 @@ jobs:
             _site/api/performance-verification-v14.json
             _site/api/seo-audit-v334/seo-agent-report-v334.json
             _site/api/seo-audit-v334/seo-agent-report-v334.md
+            _site/api/social-preview-normalization-v334.json
             /tmp/pterminology-http.log
           if-no-files-found: warn
           retention-days: 14
