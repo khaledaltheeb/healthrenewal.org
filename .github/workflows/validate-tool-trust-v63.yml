@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: ["main"]
     paths:
+      - "content/v24/daily-tools-v100/**"
+      - "content/v24/daily-tools-sources-v100.json"
+      - "scripts/daily_tools_v100.py"
       - "scripts/publish_daily_tools_v24.py"
       - "scripts/publish_daily_tools_v24_core.py"
       - "scripts/verify_daily_tools_v24.py"
@@ -39,6 +42,7 @@ jobs:
       - name: Compile interactive tool publishers and audits
         run: |
           python -m py_compile \
+            scripts/daily_tools_v100.py \
             scripts/publish_daily_tools_v24.py \
             scripts/publish_daily_tools_v24_core.py \
             scripts/verify_daily_tools_v24.py \
@@ -48,6 +52,7 @@ jobs:
             scripts/expose_daily_tools_home_v219.py \
             scripts/audit_tool_trust_v63.py
           grep -q 'publish_daily_tools_v24_core' scripts/publish_daily_tools_v24.py
+          grep -q 'CATALOG_CONTRACT = 100' scripts/daily_tools_v100.py
           grep -q 'DESIGN_CONTRACT = 219' scripts/publish_daily_tools_v24_core.py
 
       - name: Validate JavaScript syntax
@@ -73,8 +78,17 @@ jobs:
           python scripts/publish_sleep_log_v49.py /tmp/interactive-tools-v219
           python scripts/apply_daily_tools_marshmallow_v219.py /tmp/interactive-tools-v219
           python scripts/verify_daily_tools_v24.py /tmp/interactive-tools-v219
-          test "$(find /tmp/interactive-tools-v219/daily-tools -name index.html | wc -l)" -eq 9
-          test "$(find /tmp/interactive-tools-v219/learning-paths -name index.html | wc -l)" -eq 5
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('/tmp/interactive-tools-v219/api/daily-tools-v24.json').read_text(encoding='utf-8'))
+          tool_pages=len(list(Path('/tmp/interactive-tools-v219/daily-tools').glob('*/index.html')))
+          path_pages=len(list(Path('/tmp/interactive-tools-v219/learning-paths').glob('*/index.html')))
+          assert report['catalog_contract']==100,report
+          assert tool_pages==report['tools']>=100,(tool_pages,report)
+          assert path_pages==report['paths']>=10,(path_pages,report)
+          assert report['categories']>=10 and report['pages']==report['tools']+report['paths']+2,report
+          PY
           grep -R -q 'data-design="marshmallow-v219"' /tmp/interactive-tools-v219/daily-tools /tmp/interactive-tools-v219/learning-paths
           grep -R -q 'data-seo="institutional-v219"' /tmp/interactive-tools-v219/daily-tools /tmp/interactive-tools-v219/learning-paths
           grep -q 'data-daily-tools-v219' /tmp/interactive-tools-v219/index.html
