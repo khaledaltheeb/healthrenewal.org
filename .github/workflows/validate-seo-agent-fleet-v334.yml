@@ -67,3 +67,22 @@ jobs:
           assert 'submit_indexnow_v334.py' in deployment, deployment
           print({'status': 'passed', 'policy_version': policy['version']})
           PY
+      - name: Upload reviewed SEO implementation bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-implementation-v334
+          path: |
+            scripts/seo_agent_fleet_v334.py
+            scripts/submit_indexnow_v334.py
+            tests/test_seo_agent_fleet_v334.py
+            tests/test_submit_indexnow_v334.py
+            docs/seo-agent-fleet-v334.md
+            robots.txt
+            llms.txt
+            api/ai-crawler-policy.json
+            .github/workflows/validate-seo-agent-fleet-v334.yml
+            .github/workflows/validate-full-site-v16.yml
+            .github/workflows/deploy-validated-pages-v327.yml
+          if-no-files-found: error
+          retention-days: 30
