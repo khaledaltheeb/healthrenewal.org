@@ -108,6 +108,17 @@ jobs:
           echo "SOURCE_RUN_ID=${EXPECTED_RUN_ID}" >> "$GITHUB_ENV"
           touch _site/.nojekyll
 
+      - name: Prepare IndexNow ownership proof from validated sitemaps
+        run: |
+          set -euxo pipefail
+          python scripts/submit_indexnow_v334.py _site \
+            --base-url https://khaledaltheeb.github.io/pterminology-site/ \
+            --key a4f9d7c2e81b4630b5d6f7a912ce3048 \
+            --prepare-only \
+            --report api/indexnow-preparation-v334.json
+          test -f _site/a4f9d7c2e81b4630b5d6f7a912ce3048.txt
+          test -f _site/api/indexnow-preparation-v334.json
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
@@ -170,6 +181,31 @@ jobs:
               assert 'noindex' not in text.lower(), filename
           print({'live_sha': report.get('reviewed_at'), 'live_entries': 80, 'live_pages': 84, 'routes_verified': len(checks)})
           PY
+
+      - name: Notify IndexNow from exact validated sitemap inventory
+        continue-on-error: true
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euxo pipefail
+          BASE="${PAGE_URL%/}/"
+          python scripts/submit_indexnow_v334.py _site \
+            --base-url "$BASE" \
+            --key a4f9d7c2e81b4630b5d6f7a912ce3048 \
+            --submit \
+            --continue-on-error \
+            --report api/indexnow-submission-v334.json
+
+      - name: Upload IndexNow preparation and submission evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: indexnow-v334-${{ github.run_id }}
+          path: |
+            _site/api/indexnow-preparation-v334.json
+            _site/api/indexnow-submission-v334.json
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Record successful Pages deployment receipt
         env:
