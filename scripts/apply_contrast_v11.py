@@ -33,6 +33,25 @@ def remove_asset_tags(text: str) -> str:
     return text
 
 
+def replace_marked_iife(text: str, marker: str, payload: str) -> tuple[str, bool]:
+    """Replace one previously appended marker IIFE without deleting later bundle code."""
+    marker_at = text.find(marker)
+    if marker_at < 0:
+        return text.rstrip() + "\n\n" + payload.rstrip() + "\n", False
+
+    comment_at = text.rfind("/*", 0, marker_at + 1)
+    if comment_at < 0:
+        raise SystemExit(f"Unable to locate opening comment for runtime marker: {marker}")
+
+    closing = re.search(r"\n\}\)\(\);(?:\r?\n)?", text[marker_at:])
+    if not closing:
+        raise SystemExit(f"Unable to locate IIFE terminator for runtime marker: {marker}")
+
+    block_end = marker_at + closing.end()
+    refreshed = text[:comment_at].rstrip() + "\n\n" + payload.rstrip() + "\n" + text[block_end:].lstrip("\r\n")
+    return refreshed, True
+
+
 def main() -> int:
     site = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
     repo = Path(__file__).resolve().parents[1]
@@ -70,8 +89,7 @@ def main() -> int:
         current_css = current_css.rstrip() + "\n\n" + css_payload.rstrip() + "\n"
     css_target.write_text(current_css, encoding="utf-8")
 
-    if MARKER_JS not in current_js:
-        current_js = current_js.rstrip() + "\n\n" + js_payload.rstrip() + "\n"
+    current_js, refreshed_base_guard = replace_marked_iife(current_js, MARKER_JS, js_payload)
     js_target.write_text(current_js, encoding="utf-8")
 
     hero_header_css_target.parent.mkdir(parents=True, exist_ok=True)
@@ -145,6 +163,7 @@ def main() -> int:
     rendered_css = css_target.read_text(encoding="utf-8")
     rendered_hero_header_css = hero_header_css_target.read_text(encoding="utf-8")
     rendered_hero_header_js = hero_header_js_target.read_text(encoding="utf-8")
+    rendered_base_js = js_target.read_text(encoding="utf-8")
 
     if MARKER_CSS not in rendered_css:
         failures.append("contrast CSS marker missing")
@@ -158,8 +177,10 @@ def main() -> int:
         failures.append("computed contrast logic missing")
     if LEGACY_HERO_HEADER_ASSET in rendered_hero_header_css:
         failures.append("legacy black contract leaked into adaptive CSS")
-    if MARKER_JS not in js_target.read_text(encoding="utf-8"):
-        failures.append("contrast JS marker missing")
+    if rendered_base_js.count(MARKER_JS) != 1:
+        failures.append(f"expected exactly one refreshed base contrast guard, found {rendered_base_js.count(MARKER_JS)}")
+    if "v291 clears legacy classes and defers adaptive shell surfaces" not in rendered_base_js:
+        failures.append("refreshed adaptive-aware base guard missing from generated app bundle")
     if not target.exists():
         failures.append("psychological well-being page missing")
     elif target_sentence not in target_text:
@@ -199,13 +220,15 @@ def main() -> int:
         failures.append(f"pages still referencing legacy black contract: {len(legacy_contract)}")
 
     report = {
-        "version": "v283-hero-header-adaptive",
+        "version": "v292-runtime-refresh",
         "html_pages": len(html_files),
         "content_pages": len(content_files),
         "pages_with_theme": len(content_files) - len(unstyled),
         "pages_with_base_guard": len(content_files) - len(unguarded),
         "pages_with_adaptive_hero_header_contract": len(content_files) - len(invalid_contract),
         "pages_with_legacy_black_contract": len(legacy_contract),
+        "base_guard_refreshed": refreshed_base_guard,
+        "base_guard_occurrences": rendered_base_js.count(MARKER_JS),
         "injected_css_links": injected_css,
         "injected_hero_header_css_links": injected_hero_header_css,
         "injected_js_links": injected_js,
