@@ -1,0 +1,111 @@
+name: Patch magazine MBSR reading v329 temporary
+
+on:
+  push:
+    branches: ["agent/magazine-mbsr-autism-parents-v329"]
+    paths:
+      - ".github/workflows/patch-magazine-mbsr-v329-temporary.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/magazine-mbsr-autism-parents-v329
+          fetch-depth: 0
+      - name: Update source-of-truth contracts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace(path, pairs):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              for old, new in pairs:
+                  if old not in text:
+                      raise SystemExit(f'missing anchor in {path}: {old}')
+                  text = text.replace(old, new)
+              p.write_text(text, encoding='utf-8')
+
+          replace('scripts/publish_magazine_v201.py', [
+              ('CONTRACT = 315', 'CONTRACT = 329'),
+              ('MIN_ARTICLES = 70', 'MIN_ARTICLES = 75'),
+              ('EDITORIAL_UPDATED = "2026-07-27"', 'EDITORIAL_UPDATED = "2026-07-28"'),
+              ('    "adhd-dexamphetamine-methylphenidate-randomized-2026.html": ("10.1111/jpc.70487", "42415397", "−1.44"),\n',
+               '    "adhd-dexamphetamine-methylphenidate-randomized-2026.html": ("10.1111/jpc.70487", "42415397", "−1.44"),\n    "autism-parents-mbsr-depression-anxiety-stress-rct-2026.html": ("10.1016/j.pedn.2026.05.008", "42166881", "96 والدًا ووالدة", "لم يظهر فرق دال"),\n'),
+          ])
+
+          replace('tests/test_magazine_research_v234.py', [
+              ('publish_magazine_v315', 'publish_magazine_v329'),
+              ('MagazineResearchV315Tests', 'MagazineResearchV329Tests'),
+              ('self.assertEqual(len(pages), 74)', 'self.assertEqual(len(pages), 75)'),
+              ('self.assertEqual(MODULE.CONTRACT, 315)', 'self.assertEqual(MODULE.CONTRACT, 329)'),
+              ('self.assertEqual(report["version"], 315)', 'self.assertEqual(report["version"], 329)'),
+              ('self.assertEqual(report["research_summaries_published"], 74)', 'self.assertEqual(report["research_summaries_published"], 75)'),
+              ('self.assertEqual(report["remaining_to_target"], 26)', 'self.assertEqual(report["remaining_to_target"], 25)'),
+              ('self.assertEqual(len(report["articles"]), 74)', 'self.assertEqual(len(report["articles"]), 75)'),
+              ('self.assertEqual(report["sitemap"]["child_urls"], 75)', 'self.assertEqual(report["sitemap"]["child_urls"], 76)'),
+              ('self.assertEqual(len(urls), 75)', 'self.assertEqual(len(urls), 76)'),
+              ('self.assertEqual(saved["research_summaries_published"], 74)', 'self.assertEqual(saved["research_summaries_published"], 75)'),
+              ('self.assertIn(\'"numberOfItems":74\', index)', 'self.assertIn(\'"numberOfItems":75\', index)'),
+              ('self.assertIn("74 قراءة علمية مستقلة", index)', 'self.assertIn("75 قراءة علمية مستقلة", index)'),
+              ('self.assertIn("المتبقي 26", index)', 'self.assertIn("المتبقي 25", index)'),
+              ('self.assertEqual(index.count(\'class="card"\'), 74)', 'self.assertEqual(index.count(\'class="card"\'), 75)'),
+              ('self.assertEqual(index.count(\'"@type":"ScholarlyArticle"\'), 74)', 'self.assertEqual(index.count(\'"@type":"ScholarlyArticle"\'), 75)'),
+              ('self.assertEqual(index.count(\'"datePublished"\'), 74)', 'self.assertEqual(index.count(\'"datePublished"\'), 75)'),
+              ('            "adolescent-mental-health-artemis-cluster-rct-2026.html": ("10.1001/jamapsychiatry.2026.0603", "42054038", "OR=1.47", "p=0.10", "−0.87"),\n',
+               '            "adolescent-mental-health-artemis-cluster-rct-2026.html": ("10.1001/jamapsychiatry.2026.0603", "42054038", "OR=1.47", "p=0.10", "−0.87"),\n            "autism-parents-mbsr-depression-anxiety-stress-rct-2026.html": ("10.1016/j.pedn.2026.05.008", "42166881", "96 والدًا ووالدة", "لم يظهر فرق دال"),\n'),
+          ])
+
+          replace('tests/test_platform_identity_v201.py', [
+              ('            "magazine/adolescent-mental-health-artemis-cluster-rct-2026.html",\n',
+               '            "magazine/adolescent-mental-health-artemis-cluster-rct-2026.html",\n            "magazine/autism-parents-mbsr-depression-anxiety-stress-rct-2026.html",\n'),
+              ('self.assertIn(\'"numberOfItems":74\', index)', 'self.assertIn(\'"numberOfItems":75\', index)'),
+              ('self.assertEqual(index.count(\'class="card"\'), 74)', 'self.assertEqual(index.count(\'class="card"\'), 75)'),
+              ('self.assertEqual(report["pages"], 80)', 'self.assertEqual(report["pages"], 81)'),
+              ('self.assertEqual(report["magazine_pages"], 74)', 'self.assertEqual(report["magazine_pages"], 75)'),
+              ('self.assertEqual(magazine["version"], 315)', 'self.assertEqual(magazine["version"], 329)'),
+              ('self.assertEqual(magazine["research_summaries_published"], 74)', 'self.assertEqual(magazine["research_summaries_published"], 75)'),
+              ('self.assertEqual(magazine["remaining_to_target"], 26)', 'self.assertEqual(magazine["remaining_to_target"], 25)'),
+              ('self.assertEqual(magazine["sitemap"]["child_urls"], 75)', 'self.assertEqual(magazine["sitemap"]["child_urls"], 76)'),
+              ('self.assertEqual(magazine_report["research_summaries_published"], 74)', 'self.assertEqual(magazine_report["research_summaries_published"], 75)'),
+              ('self.assertEqual(magazine_report["sitemap"]["child_urls"], 75)', 'self.assertEqual(magazine_report["sitemap"]["child_urls"], 76)'),
+          ])
+
+          replace('.github/workflows/validate-magazine-research-v234.yml', [
+              ('# Final human-head validation for the ARTEMIS magazine reading.\nname: Validate magazine continuous research v328', '# Final human-head validation for the MBSR parent-support reading.\nname: Validate magazine continuous research v329'),
+              ("magazine_v328_inventory", "magazine_v329_inventory"),
+              ('assert module.CONTRACT == 315', 'assert module.CONTRACT == 329'),
+              ('assert len(pages) == 74', 'assert len(pages) == 75'),
+              ('assert index.count(\'class="card"\') == 74', 'assert index.count(\'class="card"\') == 75'),
+              ('assert index.count(\'"@type":"ScholarlyArticle"\') == 74', 'assert index.count(\'"@type":"ScholarlyArticle"\') == 75'),
+              ('assert index.count(\'"datePublished"\') == 74', 'assert index.count(\'"datePublished"\') == 75'),
+              ('assert \'"numberOfItems":74\' in index', 'assert \'"numberOfItems":75\' in index'),
+              ("assert 'المتبقي 26' in index", "assert 'المتبقي 25' in index"),
+              ("print({'articles': len(pages), 'generated_cards': 74, 'rss_items': 20, 'target': 100, 'remaining': 26, 'chronological': True, 'unwired': 0})", "print({'articles': len(pages), 'generated_cards': 75, 'rss_items': 20, 'target': 100, 'remaining': 25, 'chronological': True, 'unwired': 0})"),
+              ('test "$(find magazine -maxdepth 1 -name \'*-2026.html\' | wc -l)" -eq 65', 'test "$(find magazine -maxdepth 1 -name \'*-2026.html\' | wc -l)" -eq 66'),
+              ('test "$(find magazine -maxdepth 1 -name \'*-20*.html\' | wc -l)" -eq 74', 'test "$(find magazine -maxdepth 1 -name \'*-20*.html\' | wc -l)" -eq 75'),
+              ("          grep -q 'data-pt-normalized=\"1.1.0\"' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html\n", "          grep -q 'data-pt-normalized=\"1.1.0\"' magazine/adolescent-mental-health-artemis-cluster-rct-2026.html\n          grep -q '10.1016/j.pedn.2026.05.008' magazine/autism-parents-mbsr-depression-anxiety-stress-rct-2026.html\n          grep -q '42166881' magazine/autism-parents-mbsr-depression-anxiety-stress-rct-2026.html\n          grep -q '96 والدًا ووالدة' magazine/autism-parents-mbsr-depression-anxiety-stress-rct-2026.html\n          grep -q 'لم يظهر فرق دال' magazine/autism-parents-mbsr-depression-anxiety-stress-rct-2026.html\n"),
+          ])
+
+          replace('.github/workflows/verify-magazine-live-v314.yml', [
+              ('name: Verify magazine continuous publication live v328', 'name: Verify magazine continuous publication live v329'),
+              ('group: magazine-live-v328', 'group: magazine-live-v329'),
+              ('token="magazine-v328-$(date +%s)"', 'token="magazine-v329-$(date +%s)"'),
+              ('            adolescent-mental-health-artemis-cluster-rct-2026.html\n', '            adolescent-mental-health-artemis-cluster-rct-2026.html \\\n            autism-parents-mbsr-depression-anxiety-stress-rct-2026.html\n'),
+              ("assert api['version'] >= 315", "assert api['version'] >= 329"),
+              ("assert api['research_summaries_published'] >= 74", "assert api['research_summaries_published'] >= 75"),
+              ("              'adolescent-mental-health-artemis-cluster-rct-2026.html': ('10.1001/jamapsychiatry.2026.0603', '42054038', 'OR=1.47', 'p=0.10', '−0.87'),\n", "              'adolescent-mental-health-artemis-cluster-rct-2026.html': ('10.1001/jamapsychiatry.2026.0603', '42054038', 'OR=1.47', 'p=0.10', '−0.87'),\n              'autism-parents-mbsr-depression-anxiety-stress-rct-2026.html': ('10.1016/j.pedn.2026.05.008', '42166881', '96 والدًا ووالدة', 'لم يظهر فرق دال'),\n"),
+              ("'status': 'live-magazine-v328-verified'", "'status': 'live-magazine-v329-verified'"),
+          ])
+          PY
+          python -m py_compile scripts/publish_magazine_v201.py tests/test_magazine_research_v234.py tests/test_platform_identity_v201.py
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add scripts/publish_magazine_v201.py tests/test_magazine_research_v234.py tests/test_platform_identity_v201.py .github/workflows/validate-magazine-research-v234.yml .github/workflows/verify-magazine-live-v314.yml
+          git commit -m "test: raise magazine contracts to 75 readings v329"
+          git push origin HEAD:agent/magazine-mbsr-autism-parents-v329
