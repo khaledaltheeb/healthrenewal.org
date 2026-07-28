@@ -1,4 +1,4 @@
-name: Site-wide structured data and Pages v332
+name: Structured data and platform experience v333
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: structured-data-v332-${{ github.ref }}
+  group: platform-release-v333-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -22,15 +22,34 @@ env:
 jobs:
   build-and-validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
 
-      - name: Test the structured-data engine
+      - name: Test structured-data and platform-experience engines
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/apply_structured_data_v332.py tests/test_structured_data_v332.py
+          python -m py_compile \
+            scripts/apply_structured_data_v332.py tests/test_structured_data_v332.py \
+            scripts/enhance_platform_experience_v333.py tests/test_platform_experience_v333.py
           python -m unittest -v tests/test_structured_data_v332.py
+          python -m unittest -v tests/test_platform_experience_v333.py
+          python - <<'PY'
+          import importlib.util
+          import sys
+          from pathlib import Path
+          source=Path('scripts/enhance_platform_experience_v333.py')
+          spec=importlib.util.spec_from_file_location('platform_experience_v333', source)
+          module=importlib.util.module_from_spec(spec)
+          sys.modules[spec.name]=module
+          spec.loader.exec_module(module)
+          Path('/tmp/platform-experience-v333.js').write_text(module.JS, encoding='utf-8')
+          assert module.VERSION == 333
+          assert 'pterminology.library.v333' in module.JS
+          assert 'pterminology.results.v333' in module.JS
+          assert 'pterminology:assessment-result' in module.JS
+          PY
+          node --check /tmp/platform-experience-v333.js
 
       - name: Restore production generators
         run: |
@@ -53,7 +72,8 @@ jobs:
             scripts/diagnose_apply_homepage_v221.py scripts/polish_site_v16.py \
             scripts/audit_site_integrity_v13.py scripts/verify_performance_v14.py \
             scripts/verify_core_sections_v15.py scripts/audit_full_site_i18n_v72.py \
-            scripts/apply_structured_data_v332.py scripts/stamp_deployment_v29.py
+            scripts/apply_structured_data_v332.py scripts/enhance_platform_experience_v333.py \
+            scripts/stamp_deployment_v29.py
 
       - name: Build the complete site
         run: |
@@ -75,7 +95,7 @@ jobs:
           python scripts/diagnose_apply_homepage_v221.py _site
           python scripts/polish_site_v16.py _site
 
-      - name: Finalize sector, metadata, sitemap, and PWA surfaces
+      - name: Finalize sector pages
         run: |
           set -euxo pipefail
           PYTHONPATH=scripts python - <<'PY'
@@ -84,7 +104,6 @@ jobs:
           from upgrade_child_sector_v239 import upgrade as upgrade_child_sector
           from upgrade_home_sector_v234 import upgrade as upgrade_home_sector
           from upgrade_women_sector_v244 import upgrade as upgrade_women_sector
-
           site = Path('_site')
           reports = {
               'home': upgrade_home_sector(site),
@@ -96,6 +115,29 @@ jobs:
               assert report.get('status') == 'passed', (name, report)
           print({name: {'version': report.get('version'), 'articles': report.get('source_articles')} for name, report in reports.items()})
           PY
+
+      - name: Build site-wide search, local library, result history, and recommendations
+        run: |
+          set -euxo pipefail
+          python scripts/enhance_platform_experience_v333.py _site --strict --min-pages 3000
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/platform-experience-v333.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed', report
+          assert report['eligible_pages'] >= 3000, report
+          assert report['searchable_pages'] >= 3000, report
+          assert report['experience_covered_pages']==report['eligible_pages'], report
+          assert report['coverage_ratio']==1.0, report
+          assert report['errors']==[], report
+          assert all(report['features'].values()), report
+          assert set(report['storage_keys'])=={'pterminology.library.v333','pterminology.results.v333'}, report
+          print({'platform_experience':'passed','pages':report['eligible_pages'],'searchable':report['searchable_pages'],'features':report['features']})
+          PY
+
+      - name: Finalize metadata, sitemap, indexing, and PWA after all pages exist
+        run: |
+          set -euxo pipefail
           python scripts/normalize_platform_shell.py _site --report-path _site/api/platform-normalization-v1.json
           python scripts/publish_global_metadata_v27.py _site
           python scripts/generate_sitemap_index_v304.py _site
@@ -106,43 +148,62 @@ jobs:
           from pathlib import Path
           metadata=json.loads(Path('_site/api/global-metadata-v27.json').read_text(encoding='utf-8'))
           pwa=json.loads(Path('_site/api/pwa-v14.json').read_text(encoding='utf-8'))
+          experience=json.loads(Path('_site/api/platform-experience-v333.json').read_text(encoding='utf-8'))
           assert metadata['status']=='passed', metadata
           assert pwa['registration_verified'] is True, pwa
           assert metadata['pages_scanned']==pwa['pages_scanned'], (metadata, pwa)
-          print({'finalized_pages': metadata['pages_scanned'], 'pwa_pages': pwa['pages_scanned']})
+          assert metadata['pages_scanned']==experience['eligible_pages'], (metadata, experience)
+          print({'finalized_pages':metadata['pages_scanned'],'pwa_pages':pwa['pages_scanned']})
           PY
 
       - name: Apply Schema.org JSON-LD to every generated page
         run: |
           set -euxo pipefail
-          python scripts/apply_structured_data_v332.py _site --strict --min-pages 1000
+          python scripts/apply_structured_data_v332.py _site --strict --min-pages 3000
           python - <<'PY'
           import json
           from pathlib import Path
           report=json.loads(Path('_site/api/structured-data-v332.json').read_text(encoding='utf-8'))
           assert report['status']=='passed', report
-          assert report['eligible_pages'] >= 1000, report
-          assert report['coverage_pages'] == report['eligible_pages'], report
-          assert report['coverage_ratio'] == 1.0, report
-          assert report['errors'] == [], report
-          print({
-              'structured_data':'passed',
-              'pages':report['eligible_pages'],
-              'faq_pages':report['faq_pages'],
-              'medical_condition_pages':report['medical_condition_pages'],
-              'article_pages':report['article_pages'],
-              'interactive_pages':report['interactive_pages'],
-              'invalid_legacy_removed':len(report['invalid_existing_jsonld_removed']),
-          })
+          assert report['eligible_pages'] >= 3000, report
+          assert report['coverage_pages']==report['eligible_pages'], report
+          assert report['coverage_ratio']==1.0, report
+          assert report['errors']==[], report
+          print({'structured_data':'passed','pages':report['eligible_pages'],'faq_pages':report['faq_pages'],'medical_condition_pages':report['medical_condition_pages'],'article_pages':report['article_pages'],'interactive_pages':report['interactive_pages'],'invalid_legacy_removed':len(report['invalid_existing_jsonld_removed'])})
           PY
 
       - name: Stamp final deployment provenance
         run: python scripts/stamp_deployment_v29.py _site
 
-      - name: Restore and prove schema stability after production stamping
+      - name: Restore and prove platform-experience stability after stamping
         run: |
           set -euxo pipefail
-          python scripts/apply_structured_data_v332.py _site --strict --min-pages 1000
+          python scripts/enhance_platform_experience_v333.py _site --strict --min-pages 3000
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/platform-experience-v333.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed', report
+          assert report['coverage_ratio']==1.0, report
+          assert report['experience_covered_pages']==report['eligible_pages'], report
+          assert report['pages_updated'] <= 10, report
+          print({'post_stamp_experience_restored':report['pages_updated'],'pages':report['eligible_pages']})
+          PY
+          python scripts/enhance_platform_experience_v333.py _site --strict --min-pages 3000
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/platform-experience-v333.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed', report
+          assert report['coverage_ratio']==1.0, report
+          assert report['pages_updated']==0, report
+          print({'post_stamp_experience':'stable','pages':report['eligible_pages']})
+          PY
+
+      - name: Restore and prove structured-data stability after stamping
+        run: |
+          set -euxo pipefail
+          python scripts/apply_structured_data_v332.py _site --strict --min-pages 3000
           python - <<'PY'
           import json
           from pathlib import Path
@@ -153,19 +214,18 @@ jobs:
           assert report['pages_updated'] <= 10, report
           print({'post_stamp_schema_restored':report['pages_updated'],'pages':report['eligible_pages']})
           PY
-          python scripts/apply_structured_data_v332.py _site --strict --min-pages 1000
+          python scripts/apply_structured_data_v332.py _site --strict --min-pages 3000
           python - <<'PY'
           import json
           from pathlib import Path
           report=json.loads(Path('_site/api/structured-data-v332.json').read_text(encoding='utf-8'))
           assert report['status']=='passed', report
           assert report['coverage_ratio']==1.0, report
-          assert report['coverage_pages']==report['eligible_pages'], report
           assert report['pages_updated']==0, report
-          print({'post_stamp_schema':'stable','pages':report['eligible_pages'],'pages_updated':report['pages_updated']})
+          print({'post_stamp_schema':'stable','pages':report['eligible_pages']})
           PY
 
-      - name: Refresh deployment hashes after final schema write
+      - name: Refresh deployment hashes after final managed writes
         run: |
           set -euxo pipefail
           python - <<'PY'
@@ -173,7 +233,6 @@ jobs:
           import json
           from datetime import datetime, timezone
           from pathlib import Path
-
           site=Path('_site')
           path=site/'deployment.json'
           payload=json.loads(path.read_text(encoding='utf-8'))
@@ -184,18 +243,24 @@ jobs:
                   for chunk in iter(lambda: handle.read(1024*1024), b''):
                       h.update(chunk)
               return h.hexdigest()
+          schema=json.loads((site/'api/structured-data-v332.json').read_text(encoding='utf-8'))
+          experience=json.loads((site/'api/platform-experience-v333.json').read_text(encoding='utf-8'))
           payload['validated_at']=datetime.now(timezone.utc).isoformat()
           payload['structured_data_schema_version']=332
-          report=json.loads((site/'api/structured-data-v332.json').read_text(encoding='utf-8'))
-          payload['structured_data_pages']=int(report['eligible_pages'])
-          payload['structured_data_coverage_ratio']=float(report['coverage_ratio'])
+          payload['structured_data_pages']=int(schema['eligible_pages'])
+          payload['structured_data_coverage_ratio']=float(schema['coverage_ratio'])
+          payload['platform_experience_schema_version']=333
+          payload['platform_experience_pages']=int(experience['eligible_pages'])
+          payload['platform_searchable_pages']=int(experience['searchable_pages'])
+          payload['platform_experience_coverage_ratio']=float(experience['coverage_ratio'])
           payload['artifacts']={name:{'sha256':digest(site/name),'bytes':(site/name).stat().st_size} for name in critical}
           path.write_text(json.dumps(payload,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           written=json.loads(path.read_text(encoding='utf-8'))
           for name in critical:
               assert written['artifacts'][name]['sha256']==digest(site/name), name
           assert written['structured_data_coverage_ratio']==1.0, written
-          print({'deployment_hashes':'current','structured_data_pages':written['structured_data_pages']})
+          assert written['platform_experience_coverage_ratio']==1.0, written
+          print({'deployment_hashes':'current','structured_data_pages':written['structured_data_pages'],'platform_pages':written['platform_experience_pages'],'searchable_pages':written['platform_searchable_pages']})
           PY
 
       - name: Audit site integrity
@@ -214,7 +279,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: structured-data-diagnostics-v332
+          name: platform-diagnostics-v333
           path: |
             _site/api/*.json
             _site/deployment.json
@@ -224,9 +289,8 @@ jobs:
       - name: Upload validated site artifact
         uses: actions/upload-artifact@v4
         with:
-          name: site-with-structured-data-v332
-          path: |
-            _site
+          name: validated-platform-v333
+          path: _site
           if-no-files-found: error
           retention-days: 7
 
@@ -248,11 +312,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy validated structured site
+      - name: Deploy validated platform
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify live structured-data coverage and release SHA
+      - name: Verify live release SHA and both coverage contracts
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
           EXPECTED_SHA: ${{ github.sha }}
@@ -262,8 +326,9 @@ jobs:
           matched=0
           for i in $(seq 1 30); do
             if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}deployment.json?v=${EXPECTED_SHA}-${i}" -o /tmp/deployment.json && \
-               curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}api/structured-data-v332.json?v=${EXPECTED_SHA}-${i}" -o /tmp/structured-data.json; then
-              if python -c "import json,os; release=json.load(open('/tmp/deployment.json',encoding='utf-8')); report=json.load(open('/tmp/structured-data.json',encoding='utf-8')); assert release.get('commit')==os.environ['EXPECTED_SHA'], release; assert release.get('structured_data_schema_version')==332, release; assert release.get('structured_data_coverage_ratio')==1.0, release; assert report.get('status')=='passed', report; assert report.get('coverage_ratio')==1.0, report; assert report.get('coverage_pages')==report.get('eligible_pages'), report"
+               curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}api/structured-data-v332.json?v=${EXPECTED_SHA}-${i}" -o /tmp/structured-data.json && \
+               curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}api/platform-experience-v333.json?v=${EXPECTED_SHA}-${i}" -o /tmp/platform-experience.json; then
+              if python -c "import json,os; release=json.load(open('/tmp/deployment.json',encoding='utf-8')); schema=json.load(open('/tmp/structured-data.json',encoding='utf-8')); experience=json.load(open('/tmp/platform-experience.json',encoding='utf-8')); assert release.get('commit')==os.environ['EXPECTED_SHA'], release; assert release.get('structured_data_schema_version')==332, release; assert release.get('structured_data_coverage_ratio')==1.0, release; assert release.get('platform_experience_schema_version')==333, release; assert release.get('platform_experience_coverage_ratio')==1.0, release; assert schema.get('status')=='passed' and schema.get('coverage_ratio')==1.0 and schema.get('coverage_pages')==schema.get('eligible_pages'), schema; assert experience.get('status')=='passed' and experience.get('coverage_ratio')==1.0 and experience.get('experience_covered_pages')==experience.get('eligible_pages') and all(experience.get('features',{}).values()), experience"
               then
                 matched=1
                 break
@@ -273,4 +338,9 @@ jobs:
           done
           test "$matched" -eq 1
           curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}?v=${EXPECTED_SHA}" -o /tmp/home.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}search/?v=${EXPECTED_SHA}" -o /tmp/search.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}my-library/?v=${EXPECTED_SHA}" -o /tmp/library.html
           grep -q 'data-pterminology-schema="v332"' /tmp/home.html
+          grep -q 'data-pterminology-experience="v333"' /tmp/home.html
+          grep -q 'id="pte-main-search"' /tmp/search.html
+          grep -q 'id="pte-library-items"' /tmp/library.html
