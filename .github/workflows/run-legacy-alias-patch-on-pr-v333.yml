@@ -17,34 +17,15 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
-      - name: Extract complete reviewed patch payload
+      - name: Apply and validate separated source patch
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          source = Path('.github/workflows/patch-legacy-alias-release-gates-v333-temporary.yml').read_text(encoding='utf-8').splitlines()
-          start = next(i for i, line in enumerate(source) if line.strip() == "python - <<'PY'")
-          end = next(i for i, line in enumerate(source[start:], start) if line.strip() == 'git push origin HEAD:agent/legacy-alias-release-gates-v333')
-          payload = [line[10:] if line.startswith('          ') else line for line in source[start:end + 1]]
-          payload[0] = "python - <<'PATCHPY'"
-          compile_index = next(i for i, line in enumerate(payload) if line.startswith('python -m py_compile scripts/audit_full_site_v16.py'))
-          outer_close = max(i for i, line in enumerate(payload[:compile_index]) if line == 'PY')
-          payload[outer_close] = 'PATCHPY'
-          Path('/tmp/apply-legacy-alias-v333.sh').write_text('\n'.join(payload) + '\n', encoding='utf-8')
-          PY
-      - name: Execute isolated patch with trace
-        run: |
-          set +e
-          bash -x /tmp/apply-legacy-alias-v333.sh > /tmp/legacy-alias-patch-v333.log 2>&1
-          status=$?
-          cat /tmp/legacy-alias-patch-v333.log
-          exit $status
-      - name: Upload isolated failure trace
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: legacy-alias-patch-v333-isolated-trace
-          path: |
-            /tmp/apply-legacy-alias-v333.sh
-            /tmp/legacy-alias-patch-v333.log
-          if-no-files-found: warn
-          retention-days: 3
+          set -euxo pipefail
+          python scripts/apply_legacy_alias_release_gates_v333.py
+          python -m py_compile scripts/audit_full_site_v16.py tests/test_legacy_learning_path_alias_v333.py
+          python -m unittest -v tests.test_legacy_learning_path_alias_v333
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add scripts/audit_full_site_v16.py .github/workflows/validate-all-labs-v22.yml tests/test_legacy_learning_path_alias_v333.py .github/workflows/validate-legacy-alias-release-gates-v333.yml
+          git rm scripts/apply_legacy_alias_release_gates_v333.py .github/workflows/run-legacy-alias-patch-on-pr-v333.yml
+          git commit -m "fix: classify noindex learning aliases and current catalog gates v333"
+          git push origin HEAD:agent/legacy-alias-release-gates-v333
