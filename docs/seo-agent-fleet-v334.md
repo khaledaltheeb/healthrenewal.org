@@ -1,5 +1,7 @@
 # منظومة وكلاء SEO والوصول عبر الذكاء الاصطناعي — v334
 
+تعمل طبقة `seo_agent_fleet_v334_hardened.py` كمهايئ إنتاجي فوق المحرك المراجع `seo_agent_fleet_v334.py`، بحيث تُصحح حالات المسار الفرعي والموارد غير HTML من دون نسخ المحرك أو تفكيك بنيته.
+
 هذه الطبقة لا تستبدل مولدات خرائط الموقع الحالية. وظيفتها تدقيق **ناتج الإنتاج `_site`** بعد اكتمال البناء، ومنع الأخطاء التي تخفض قابلية الزحف والفهرسة والاستشهاد.
 
 ## الوكلاء الثمانية
@@ -19,6 +21,11 @@
 - السياسة الحالية تسمح أيضًا لروبوتات تدريب/تحسين النماذج، تنفيذًا لقرار مالك المشروع. يمكن فصل هذا القرار لاحقًا عبر الخيار `--disallow-training` من دون حجب Googlebot أو OAI-SearchBot أو PerplexityBot أو Applebot.
 - `llms.txt` مساعد اكتشاف تكميلي، وليس بديلًا من robots.txt أو خرائط الموقع أو الروابط الداخلية أو النص القابل للفهرسة.
 - السماح بالزحف لا يضمن الفهرسة أو الترتيب أو الاستشهاد داخل إجابة ذكاء اصطناعي.
+- لأن الموقع الحالي منشور تحت مسار مشروع GitHub Pages، فإن ملف `robots.txt` داخل `/pterminology-site/` ليس ملف التحكم الرسمي للمضيف. الملف الرسمي يجب أن يكون في `https://khaledaltheeb.github.io/robots.txt`. الوكيل يبلغ عن هذا كقيد معماري بدل الادعاء بأن سياسة المسار الفرعي ملزمة للزواحف. الانتقال إلى نطاق مخصص أو مستودع صفحة مستخدم يتيح التحكم الرسمي من الجذر.
+
+## صور المعاينة الاجتماعية
+
+يحوّل `normalize_social_previews_v334.py` جميع وسوم `og:image` و`twitter:image` التي تشير إلى SVG إلى بطاقة PNG مراجعة بقياس 1200×630، مع إبقاء رسوم SVG العادية داخل المحتوى دون تغيير. العملية تعمل بعد بناء `_site` وتعمل مرة أخرى قبل نشر GitHub Pages لضمان تطابق المعاينة المنشورة مع الفحص الإنتاجي.
 
 ## IndexNow
 
@@ -29,8 +36,10 @@ IndexNow يخص Bing والمحركات المشاركة. Google يعتمد Goog
 ## التشغيل
 
 ```bash
-python -m unittest discover -s tests -p 'test_*v334.py' -v
-python scripts/seo_agent_fleet_v334.py _site \
+python -m unittest discover -s tests -p 'test_*v334*.py' -v
+python scripts/normalize_social_previews_v334.py _site \
+  --base-url https://khaledaltheeb.github.io/pterminology-site/
+python scripts/seo_agent_fleet_v334_hardened.py _site \
   --base-url https://khaledaltheeb.github.io/pterminology-site/ \
   --report-dir api/seo-audit-v334 \
   --fail-on critical
@@ -67,6 +76,8 @@ python scripts/submit_indexnow_v334.py _site \
 
 - `_site/api/seo-audit-v334/seo-agent-report-v334.json`
 - `_site/api/seo-audit-v334/seo-agent-report-v334.md`
+- `_site/api/social-preview-normalization-v334.json`
+- `_site/assets/social-card-v334.png`
 - `_site/api/indexnow-preparation-v334.json`
 - `_site/api/indexnow-submission-v334.json`
 - Artifacts في GitHub Actions لكل فحص إنتاج ولكل إرسال IndexNow.
