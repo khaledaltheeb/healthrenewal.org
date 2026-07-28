@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-28T04:15:44.396566+00:00",
+  "generated_at": "2026-07-28T04:39:09.091359+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -11,12 +11,12 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 121,
-  "html_pages_normalized_or_current": 120,
+  "html_pages_seen": 122,
+  "html_pages_normalized_or_current": 121,
   "counts": {
-    "current": 118,
+    "current": 120,
     "skipped": 1,
-    "updated": 2
+    "updated": 1
   },
   "results": [
     {
@@ -107,6 +107,11 @@
     {
       "path": "magazine/adolescent-passive-smartphone-sensing-meta-analysis-2026.html",
       "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/adolescent-school-guided-narrative-writing-cluster-rct-2026.html",
+      "status": "updated",
       "detail": ""
     },
     {
@@ -581,7 +586,7 @@
     },
     {
       "path": "specialists-partners/admin/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -601,7 +606,7 @@
     },
     {
       "path": "specialists-partners/portal/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
