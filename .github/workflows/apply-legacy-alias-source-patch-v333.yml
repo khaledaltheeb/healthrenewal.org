@@ -1,0 +1,31 @@
+name: Apply verified legacy alias source patch v333
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/apply-legacy-alias-source-patch-v333.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  apply-source-patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+      - name: Apply already-tested patch and publish clean branch
+        run: |
+          set -euxo pipefail
+          python scripts/apply_legacy_alias_release_gates_v333.py
+          python -m py_compile scripts/audit_full_site_v16.py tests/test_legacy_learning_path_alias_v333.py
+          python -m unittest -v tests.test_legacy_learning_path_alias_v333
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add scripts/audit_full_site_v16.py .github/workflows/validate-all-labs-v22.yml tests/test_legacy_learning_path_alias_v333.py .github/workflows/validate-legacy-alias-release-gates-v333.yml
+          git rm scripts/apply_legacy_alias_release_gates_v333.py .github/workflows/run-legacy-alias-patch-on-pr-v333.yml .github/workflows/apply-legacy-alias-source-patch-v333.yml
+          git commit -m "fix: classify noindex learning aliases and current catalog gates v333"
+          git push origin HEAD:agent/legacy-alias-release-gates-v333
