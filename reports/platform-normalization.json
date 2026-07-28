@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-28T00:42:16.787600+00:00",
+  "generated_at": "2026-07-28T02:44:27.365519+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -11,10 +11,10 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 119,
-  "html_pages_normalized_or_current": 118,
+  "html_pages_seen": 120,
+  "html_pages_normalized_or_current": 119,
   "counts": {
-    "current": 117,
+    "current": 118,
     "skipped": 1,
     "updated": 1
   },
@@ -171,7 +171,7 @@
     },
     {
       "path": "magazine/autism-parents-mbsr-depression-anxiety-stress-rct-2026.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -282,6 +282,11 @@
     {
       "path": "magazine/family-carer-coping-mental-health-meta-analysis-2026.html",
       "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/grieving-adolescents-alba-app-rct-2026.html",
+      "status": "updated",
       "detail": ""
     },
     {

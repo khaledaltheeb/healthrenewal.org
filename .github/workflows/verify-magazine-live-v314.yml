@@ -1,5 +1,5 @@
 # Verify the live magazine only after Pages deployment or on the scheduled audit.
-name: Verify magazine continuous publication live v329
+name: Verify magazine continuous publication live v330
 
 on:
   workflow_run:
@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: magazine-live-v329
+  group: magazine-live-v330
   cancel-in-progress: true
 
 jobs:
@@ -29,32 +29,14 @@ jobs:
       - name: Download live magazine contracts
         run: |
           set -euxo pipefail
-          token="magazine-v329-$(date +%s)"
+          token="magazine-v330-$(date +%s)"
           curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/?v=${token}" -o /tmp/index.html
           curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/feed.xml?v=${token}" -o /tmp/feed.xml
           curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/magazine-v201.json?v=${token}" -o /tmp/api.json
           curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sitemap-magazine.xml?v=${token}" -o /tmp/sitemap.xml
-          for page in \
-            adhd-baduanjin-response-inhibition-rct-2026.html \
-            autism-structured-interactive-play-screening-cohort-2026.html \
-            adolescent-depression-one-step-back-rct-2026.html \
-            latinx-adolescent-suicidal-behavior-cbt-rct-2026.html \
-            adhd-personalized-neurofeedback-sham-rct-2026.html \
-            autism-lets-play-caregiver-mediated-rct-2026.html \
-            autism-parent-reflective-functioning-rct-2026.html \
-            cerebral-palsy-participate-cp-leisure-rct-2026.html \
-            down-syndrome-dual-task-exergaming-cognition-rct-2026.html \
-            adhd-dexamphetamine-methylphenidate-randomized-2026.html \
-            adhd-rhythmic-music-game-rct-2026.html \
-            autism-aspen-low-resource-parent-intervention-rct-2026.html \
-            neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html \
-            adolescent-mental-health-artemis-cluster-rct-2026.html \
-            autism-parents-mbsr-depression-anxiety-stress-rct-2026.html
-          do
-            curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/${page}?v=${token}" -o "/tmp/${page}"
-          done
+          curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/grieving-adolescents-alba-app-rct-2026.html?v=${token}" -o /tmp/grieving-adolescents-alba-app-rct-2026.html
 
-      - name: Verify live chronological count RSS API sitemap and readings
+      - name: Verify live chronological count RSS API sitemap and Alba reading
         run: |
           python - <<'PY'
           import json
@@ -63,9 +45,10 @@ jobs:
           from pathlib import Path
 
           base = 'https://khaledaltheeb.github.io/pterminology-site/magazine/'
+          filename = 'grieving-adolescents-alba-app-rct-2026.html'
           api = json.loads(Path('/tmp/api.json').read_text(encoding='utf-8'))
           assert api['version'] >= 315, api['version']
-          assert api['research_summaries_published'] >= 75
+          assert api['research_summaries_published'] >= 76
           assert api['target_research_summaries'] == 100
           assert api['remaining_to_target'] == max(0, 100 - api['research_summaries_published'])
           assert api['continuous_publication_policy'] is True
@@ -104,33 +87,17 @@ jobs:
           assert len(sitemap_urls) == api['research_summaries_published'] + 1
           assert len(sitemap_urls) == len(set(sitemap_urls))
           assert base in sitemap_urls
+          assert base + filename in sitemap_urls
+          assert filename in api['articles']
+          assert api['article_dates'][filename] == '2026-07-15'
 
-          checks = {
-              'adhd-baduanjin-response-inhibition-rct-2026.html': ('10.1016/j.ridd.2026.105277', '90 طفلًا'),
-              'autism-structured-interactive-play-screening-cohort-2026.html': ('10.1186/s12888-026-08274-9', '0.915'),
-              'adolescent-depression-one-step-back-rct-2026.html': ('10.1016/j.eclinm.2026.103971', 'd=0.61'),
-              'latinx-adolescent-suicidal-behavior-cbt-rct-2026.html': ('10.1080/15374416.2026.2687880', 'RR=0.50'),
-              'adhd-personalized-neurofeedback-sham-rct-2026.html': ('10.1111/jcpp.70188', '80.7%'),
-              'autism-lets-play-caregiver-mediated-rct-2026.html': ('10.1007/s10803-026-07396-z', 'لم تظهر فروق دالة'),
-              'autism-parent-reflective-functioning-rct-2026.html': ('10.1002/aur.70301', '249 والدًا ووالدة'),
-              'cerebral-palsy-participate-cp-leisure-rct-2026.html': ('10.1542/peds.2025-075162', '2.75'),
-              'down-syndrome-dual-task-exergaming-cognition-rct-2026.html': ('10.1016/j.psychsport.2026.103190', 'η²=0.31'),
-              'adhd-dexamphetamine-methylphenidate-randomized-2026.html': ('10.1111/jpc.70487', '−1.44'),
-              'adhd-rhythmic-music-game-rct-2026.html': ('10.3389/fpubh.2026.1808386', '42145502', '−46.1'),
-              'autism-aspen-low-resource-parent-intervention-rct-2026.html': ('10.3389/fpsyt.2026.1795918', '42404716', '50%', 'p=0.026'),
-              'neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html': ('10.1002/aur.70282', '42187205', 'd=0.84', 'd=0.38', 'لم تظهر فروق مهمة'),
-              'adolescent-mental-health-artemis-cluster-rct-2026.html': ('10.1001/jamapsychiatry.2026.0603', '42054038', 'OR=1.47', 'p=0.10', '−0.87'),
-              'autism-parents-mbsr-depression-anxiety-stress-rct-2026.html': ('10.1016/j.pedn.2026.05.008', '42166881', '96 والدًا ووالدة', 'لم يظهر فرق دال'),
-          }
-          for filename, markers in checks.items():
-              text = Path('/tmp/' + filename).read_text(encoding='utf-8')
-              assert '<html lang="ar" dir="rtl">' in text
-              assert text.lower().count('<h1') == 1
-              assert '<h2>المصدر الأصلي</h2>' in text
-              assert any(term in text for term in ('حدود', 'قيود', 'الحذر'))
-              assert all(marker in text for marker in markers), filename
-              assert base + filename in sitemap_urls
-              assert filename in api['article_dates']
+          text = Path('/tmp/' + filename).read_text(encoding='utf-8')
+          assert '<html lang="ar" dir="rtl">' in text
+          assert text.lower().count('<h1') == 1
+          assert '<h2>المصدر الأصلي</h2>' in text
+          assert any(term in text for term in ('حدود', 'قيود', 'الحذر'))
+          for marker in ('10.2196/94777', '42459115', 'd=0.64', 'لم يظهر أثر على النمو الشخصي', 'NCT06093113'):
+              assert marker in text, marker
 
           print({
               'articles': api['research_summaries_published'],
@@ -139,6 +106,6 @@ jobs:
               'rss_items': len(items),
               'sitemap_urls': len(sitemap_urls),
               'chronological': True,
-              'status': 'live-magazine-v329-verified',
+              'status': 'live-magazine-v330-verified',
           })
           PY
