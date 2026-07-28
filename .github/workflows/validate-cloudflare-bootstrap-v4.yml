@@ -1,0 +1,32 @@
+name: Validate Cloudflare bootstrap v4
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/bootstrap-specialists-cloudflare.yml"
+      - ".github/workflows/validate-cloudflare-bootstrap-v4.yml"
+      - "specialists-partners/backend/CLOUDFLARE_BOOTSTRAP.md"
+      - "tests/test_cloudflare_bootstrap_v4.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-cloudflare-bootstrap-v4-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate bootstrap contracts
+        run: python -m unittest -v tests.test_cloudflare_bootstrap_v4
+      - name: Validate workflow syntax with Ruby YAML parser
+        run: ruby -e 'require "yaml"; YAML.load_file(".github/workflows/bootstrap-specialists-cloudflare.yml", aliases: true); YAML.load_file(".github/workflows/validate-cloudflare-bootstrap-v4.yml", aliases: true); puts "YAML parsed"'
