@@ -39,7 +39,6 @@ jobs:
               '.bootstrap-v332/apply.b64': 'scripts/apply_structured_data_v332.py',
               '.bootstrap-v332/tests.b64': 'tests/test_structured_data_v332.py',
               '.bootstrap-v332/docs.b64': 'docs/structured-data-v332.md',
-              '.bootstrap-v332/workflow.b64': '.github/workflows/structured-data-v332.yml',
           }
           for encoded, target in mapping.items():
               payload = Path(encoded).read_text(encoding='utf-8').strip()
