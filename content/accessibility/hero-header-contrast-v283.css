@@ -1,0 +1,208 @@
+/* v283 — adaptive hero/header contrast contract */
+:root {
+  --hh-on-light: #102a2e;
+  --hh-on-light-muted: #35535a;
+  --hh-on-dark: #f8fcff;
+  --hh-on-dark-muted: #d9e8ec;
+  --hh-link-on-light: #074b55;
+  --hh-link-on-dark: #ffffff;
+  --hh-focus-ring: #ffcc66;
+  --hh-overlay-dark: #102a2e;
+  --hh-overlay-light: #f7fbfc;
+}
+
+/* Explicit surfaces are authoritative and preserve the underlying design. */
+:where([data-surface="light"], [data-theme="light"], .surface-light, .theme-light, .hh-surface-light) {
+  --hh-surface-text: var(--hh-on-light);
+  --hh-surface-muted: var(--hh-on-light-muted);
+  --hh-surface-link: var(--hh-link-on-light);
+  color: var(--hh-surface-text);
+}
+
+:where([data-surface="dark"], [data-theme="dark"], .surface-dark, .theme-dark, .hh-surface-dark) {
+  --hh-surface-text: var(--hh-on-dark);
+  --hh-surface-muted: var(--hh-on-dark-muted);
+  --hh-surface-link: var(--hh-link-on-dark);
+  color: var(--hh-surface-text);
+}
+
+/* Runtime classes are applied only where computed contrast is below WCAG AA. */
+.hh-text-on-dark,
+.auto-contrast-light {
+  color: var(--hh-on-dark) !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.38) !important;
+}
+
+.hh-text-on-light,
+.auto-contrast-dark {
+  color: var(--hh-on-light) !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: none !important;
+}
+
+/* Image and gradient surfaces receive a stable, opaque blend layer. The image is
+ * retained, but the resulting surface is deterministic enough for WCAG testing. */
+.hh-overlay-dark {
+  --hh-surface-text: var(--hh-on-dark);
+  --hh-surface-muted: var(--hh-on-dark-muted);
+  --hh-surface-link: var(--hh-link-on-dark);
+  background-color: var(--hh-overlay-dark) !important;
+  background-blend-mode: multiply !important;
+  color: var(--hh-surface-text) !important;
+}
+
+.hh-overlay-light {
+  --hh-surface-text: var(--hh-on-light);
+  --hh-surface-muted: var(--hh-on-light-muted);
+  --hh-surface-link: var(--hh-link-on-light);
+  background-color: var(--hh-overlay-light) !important;
+  background-blend-mode: screen !important;
+  color: var(--hh-surface-text) !important;
+}
+
+:where(
+  .hh-text-on-dark,
+  .hh-text-on-light,
+  .auto-contrast-light,
+  .auto-contrast-dark,
+  .hh-overlay-dark,
+  .hh-overlay-light,
+  [data-surface="light"], [data-theme="light"], .surface-light, .theme-light, .hh-surface-light,
+  [data-surface="dark"], [data-theme="dark"], .surface-dark, .theme-dark, .hh-surface-dark
+) :where(h1,h2,h3,h4,h5,h6,p,li,dt,dd,small,strong,em,span,label,blockquote,.lead,.summary,.subtitle,.description,.muted,.subtle) {
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+
+:where(.hh-overlay-dark, [data-surface="dark"], [data-theme="dark"], .surface-dark, .theme-dark, .hh-surface-dark)
+  :where(a:not(.button):not(.btn), a:link:not(.button):not(.btn), a:visited:not(.button):not(.btn)) {
+  color: var(--hh-link-on-dark);
+  -webkit-text-fill-color: currentColor;
+  text-decoration-color: currentColor;
+}
+
+:where(.hh-overlay-light, [data-surface="light"], [data-theme="light"], .surface-light, .theme-light, .hh-surface-light)
+  :where(a:not(.button):not(.btn), a:link:not(.button):not(.btn), a:visited:not(.button):not(.btn)) {
+  color: var(--hh-link-on-light);
+  -webkit-text-fill-color: currentColor;
+  text-decoration-color: currentColor;
+}
+
+/* The guard resolves controls against their own computed backgrounds. */
+:where(
+  header,
+  [role="banner"],
+  nav,
+  [role="navigation"],
+  [role="search"],
+  [class*="hero"], [class*="Hero"],
+  [id*="hero"], [id*="Hero"],
+  [class*="banner"], [class*="Banner"],
+  [class*="masthead"],
+  [class*="breadcrumb"], [class*="Breadcrumb"],
+  footer,
+  [role="contentinfo"],
+  .site-footer
+) :where(a, button, [role="button"], input, select, textarea, option) {
+  -webkit-text-fill-color: currentColor;
+}
+
+:where(
+  header,
+  [role="banner"],
+  nav,
+  [role="navigation"],
+  [role="search"],
+  [class*="hero"], [class*="Hero"],
+  [id*="hero"], [id*="Hero"],
+  [class*="banner"], [class*="Banner"],
+  [class*="masthead"],
+  [class*="breadcrumb"], [class*="Breadcrumb"],
+  footer,
+  [role="contentinfo"],
+  .site-footer
+) :where(a, button, [role="button"], input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--hh-focus-ring) !important;
+  outline-offset: 3px;
+}
+
+:where(
+  header,
+  [role="banner"],
+  nav,
+  [role="navigation"],
+  [role="search"],
+  [class*="hero"], [class*="Hero"],
+  [id*="hero"], [id*="Hero"],
+  [class*="banner"], [class*="Banner"],
+  [class*="masthead"],
+  [class*="breadcrumb"], [class*="Breadcrumb"],
+  footer,
+  [role="contentinfo"],
+  .site-footer
+) :where([aria-disabled="true"], :disabled) {
+  opacity: 0.72;
+  -webkit-text-fill-color: currentColor;
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --hh-on-light: #07191c;
+    --hh-on-dark: #ffffff;
+    --hh-overlay-dark: #07191c;
+    --hh-overlay-light: #ffffff;
+  }
+}
+
+@media print {
+  :where(
+    header,
+    [role="banner"],
+    nav,
+    [role="navigation"],
+    [role="search"],
+    [class*="hero"], [class*="Hero"],
+    [id*="hero"], [id*="Hero"],
+    [class*="banner"], [class*="Banner"],
+    [class*="masthead"],
+    [class*="breadcrumb"], [class*="Breadcrumb"],
+    footer,
+    [role="contentinfo"],
+    .site-footer
+  ) {
+    color: #111111 !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    background-blend-mode: normal !important;
+    text-shadow: none !important;
+  }
+
+  :where(
+    header,
+    [role="banner"],
+    nav,
+    [role="navigation"],
+    [role="search"],
+    [class*="hero"], [class*="Hero"],
+    [id*="hero"], [id*="Hero"],
+    [class*="banner"], [class*="Banner"],
+    [class*="masthead"],
+    [class*="breadcrumb"], [class*="Breadcrumb"],
+    footer,
+    [role="contentinfo"],
+    .site-footer
+  ) * {
+    color: #111111 !important;
+    -webkit-text-fill-color: currentColor !important;
+    text-shadow: none !important;
+  }
+}
+
+@media (forced-colors: active) {
+  :where(.hh-text-on-dark, .hh-text-on-light, .auto-contrast-light, .auto-contrast-dark, .hh-overlay-dark, .hh-overlay-light) {
+    color: CanvasText !important;
+    background: Canvas !important;
+    forced-color-adjust: auto;
+  }
+}

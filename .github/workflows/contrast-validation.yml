@@ -32,8 +32,9 @@ jobs:
           python scripts/verify_enricher_v7.py
           python scripts/verify_expander_v9.py
           python -m py_compile build_site.py scripts/scale_site_v8.py scripts/design_content_v10.py scripts/apply_contrast_v11.py expand_site_v9.py
+          node --check content/accessibility/hero-header-contrast-v283.js
 
-      - name: Build and apply contrast correction globally
+      - name: Build and apply adaptive contrast globally
         run: |
           set -euxo pipefail
           python build_site.py
@@ -44,22 +45,31 @@ jobs:
           python scripts/design_content_v10.py
           python scripts/apply_contrast_v11.py _site
 
-      - name: Verify the reported page and the complete site
+      - name: Verify the reported page and adaptive contract
         run: |
           set -euo pipefail
           grep -q 'خبرة واسعة تشمل الرضا والمعنى والقدرة على إدارة الانفعالات وبناء علاقات داعمة.' _site/terms/psychological-well-being/index.html
           grep -q 'v11 — global readable contrast layer' _site/assets/css/theme-v10.css
           grep -q 'v11 — runtime contrast guard' _site/assets/js/app-v10.js
+          grep -q 'v283 — adaptive hero/header contrast contract' _site/assets/css/hero-header-contrast-v283.css
+          grep -q 'v283 — computed-style hero/header contrast guard' _site/assets/js/hero-header-contrast-v283.js
+          test ! -e _site/assets/css/hero-header-black-v282.css
           python - <<'PY'
           import json
           from pathlib import Path
-          root=Path('_site')
-          report=json.loads((root/'api/contrast-audit-v11.json').read_text(encoding='utf-8'))
+
+          root = Path('_site')
+          report = json.loads((root / 'api/contrast-audit-v11.json').read_text(encoding='utf-8'))
           assert not report['failures'], report
-          assert report['content_pages'] == report['pages_with_theme'] == report['pages_with_guard'], report
+          expected = report['content_pages']
+          assert expected == report['pages_with_theme'], report
+          assert expected == report['pages_with_base_guard'], report
+          assert expected == report['pages_with_adaptive_hero_header_contract'], report
+          assert report['pages_with_legacy_black_contract'] == 0, report
           assert report['target_page_found'] and report['target_sentence_found'], report
-          assert report['content_pages'] >= 2800, report
-          print(json.dumps(report,ensure_ascii=False,indent=2))
+          assert report['hero_header_contract'].startswith('adaptive WCAG AA'), report
+          assert expected >= 2800, report
+          print(json.dumps(report, ensure_ascii=False, indent=2))
           PY
 
       - name: Upload contrast audit report
