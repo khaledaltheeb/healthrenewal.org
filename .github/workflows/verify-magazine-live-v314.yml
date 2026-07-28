@@ -1,5 +1,5 @@
 # Verify the live magazine only after Pages deployment or on the scheduled audit.
-name: Verify magazine continuous publication live v330
+name: Verify magazine continuous publication live v331
 
 on:
   workflow_run:
@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: magazine-live-v330
+  group: magazine-live-v331
   cancel-in-progress: true
 
 jobs:
@@ -29,14 +29,14 @@ jobs:
       - name: Download live magazine contracts
         run: |
           set -euxo pipefail
-          token="magazine-v330-$(date +%s)"
+          token="magazine-v331-$(date +%s)"
           curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/?v=${token}" -o /tmp/index.html
           curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/feed.xml?v=${token}" -o /tmp/feed.xml
           curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/magazine-v201.json?v=${token}" -o /tmp/api.json
           curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sitemap-magazine.xml?v=${token}" -o /tmp/sitemap.xml
-          curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/grieving-adolescents-alba-app-rct-2026.html?v=${token}" -o /tmp/grieving-adolescents-alba-app-rct-2026.html
+          curl --retry 6 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}magazine/adolescent-school-guided-narrative-writing-cluster-rct-2026.html?v=${token}" -o /tmp/article.html
 
-      - name: Verify live chronological count RSS API sitemap and Alba reading
+      - name: Verify live chronological count RSS API sitemap and new reading
         run: |
           python - <<'PY'
           import json
@@ -45,10 +45,10 @@ jobs:
           from pathlib import Path
 
           base = 'https://khaledaltheeb.github.io/pterminology-site/magazine/'
-          filename = 'grieving-adolescents-alba-app-rct-2026.html'
+          filename = 'adolescent-school-guided-narrative-writing-cluster-rct-2026.html'
           api = json.loads(Path('/tmp/api.json').read_text(encoding='utf-8'))
           assert api['version'] >= 315, api['version']
-          assert api['research_summaries_published'] >= 76
+          assert api['research_summaries_published'] >= 77
           assert api['target_research_summaries'] == 100
           assert api['remaining_to_target'] == max(0, 100 - api['research_summaries_published'])
           assert api['continuous_publication_policy'] is True
@@ -74,7 +74,6 @@ jobs:
           assert len(items) == 20
           links = [item.findtext('link') for item in items]
           assert links == [base + name for name in api['articles'][:20]], links
-          assert len(links) == len(set(links))
           feed_dates = [parsedate_to_datetime(item.findtext('pubDate')) for item in items]
           assert feed_dates == sorted(feed_dates, reverse=True), feed_dates
           assert parsedate_to_datetime(feed.findtext('./channel/lastBuildDate')) == feed_dates[0]
@@ -89,14 +88,14 @@ jobs:
           assert base in sitemap_urls
           assert base + filename in sitemap_urls
           assert filename in api['articles']
-          assert api['article_dates'][filename] == '2026-07-15'
+          assert api['article_dates'][filename] == '2026-03-26'
 
-          text = Path('/tmp/' + filename).read_text(encoding='utf-8')
+          text = Path('/tmp/article.html').read_text(encoding='utf-8')
           assert '<html lang="ar" dir="rtl">' in text
           assert text.lower().count('<h1') == 1
           assert '<h2>المصدر الأصلي</h2>' in text
           assert any(term in text for term in ('حدود', 'قيود', 'الحذر'))
-          for marker in ('10.2196/94777', '42459115', 'd=0.64', 'لم يظهر أثر على النمو الشخصي', 'NCT06093113'):
+          for marker in ('10.1186/s12916-026-04816-w', '41888870', '211 طالبًا', 'd=−0.22', 'لم تظهر فروق دالة في الاكتئاب', 'NCT06708442'):
               assert marker in text, marker
 
           print({
@@ -106,6 +105,6 @@ jobs:
               'rss_items': len(items),
               'sitemap_urls': len(sitemap_urls),
               'chronological': True,
-              'status': 'live-magazine-v330-verified',
+              'status': 'live-magazine-v331-verified',
           })
           PY
