@@ -1,1 +1,13 @@
-PLACEHOLDER
+{
+  "schema_version": 331,
+  "encoding": "base85+gzip+utf8-json",
+  "parts": [
+    ".comparisons-v331/part00",
+    ".comparisons-v331/part01",
+    ".comparisons-v331/part02",
+    ".comparisons-v331/part03"
+  ],
+  "decoded_sha256": "db8c7e4c6af0f7f6bae77baaeae7e0d48e519edef4ff0a25542feee5f839203b",
+  "topics": 50,
+  "routes": 100
+}
