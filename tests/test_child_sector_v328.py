@@ -45,7 +45,7 @@ class ChildSectorV328Tests(unittest.TestCase):
             "هذه المكتبة تقدم تشخيص ذاتي مؤكد",
         )
         self.assertEqual(result["status"], "failed")
-        self.assertTrue(any("banned term" in error for error in result["errors"]), result)
+        self.assertTrue(any("banned pattern" in error for error in result["errors"]), result)
 
     def test_rejects_broken_canonical(self) -> None:
         result = self._mutated_page(
