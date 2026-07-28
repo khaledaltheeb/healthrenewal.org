@@ -32,7 +32,7 @@ def render_page() -> str:
                 "description": DESCRIPTION,
                 "inLanguage": "ar",
                 "datePublished": "2026-07-28",
-                "dateModified": "2026-07-28",
+                "dateModified": "2026-07-29",
                 "about": {"@type": "MedicalCondition", "name": "اضطراب التكيف"},
                 "citation": [
                     "https://dictionary.apa.org/adjustment-disorder",
@@ -125,7 +125,7 @@ def render_page() -> str:
 <section><h2>خطة عملية أولية</h2><ol><li>اكتب الحدث أو الضغط المستمر وتاريخ بدايته.</li><li>حدد أكثر مجالين تضررًا: النوم، الدراسة، العمل، العلاقات أو الرعاية الذاتية.</li><li>افصل بين ما يمكن تغييره وما يحتاج قبولًا ودعمًا وتدرجًا.</li><li>اختر خطوة صغيرة قابلة للقياس خلال أسبوع.</li><li>راجع التقدم، واطلب تقييمًا إذا لم يتحسن الأداء أو زادت الخطورة.</li></ol></section>
 <section><h2>أسئلة شائعة</h2><h3>هل اضطراب التكيف هو نفسه الاكتئاب؟</h3><p>لا. قد يتضمن مزاجًا منخفضًا، لكن علاقته بضاغط محدد ونمطه الزمني والأثر الوظيفي جزء أساسي من التقييم.</p><h3>هل يختفي وحده؟</h3><p>قد تتحسن الأعراض مع زوال الضاغط أو اكتساب مهارات تكيف، لكن الاستمرار أو الشدة أو الخطر تستلزم مساعدة مهنية.</p><h3>هل كل ضغط شديد يعني اضطراب تكيف؟</h3><p>لا. التشخيص يتطلب معاناة أو تعطيلًا يتجاوز الاستجابة المتوقعة في السياق، مع استبعاد تفسيرات أخرى.</p></section>
 <section class="ency-v13__sources"><h2>المصادر الأصلية والمراجعات</h2><ul><li><a href="https://dictionary.apa.org/adjustment-disorder" rel="noopener noreferrer">APA Dictionary of Psychology: Adjustment disorder</a></li><li><a href="https://pubmed.ncbi.nlm.nih.gov/37992766/" rel="noopener noreferrer">Fernández-Buendía et al. 2024 — مراجعة منهجية وتحليل أولي للعلاجات المدعومة بالتقنية، PMID 37992766، DOI 10.1016/j.jad.2023.11.059</a></li><li><a href="https://pubmed.ncbi.nlm.nih.gov/35176345/" rel="noopener noreferrer">O'Donnell et al. 2022 — مراجعة عوامل التنبؤ لدى البالغين، PMID 35176345، DOI 10.1016/j.jad.2022.02.038</a></li><li><a href="https://pubmed.ncbi.nlm.nih.gov/29958336/" rel="noopener noreferrer">O'Donnell et al. 2018 — مراجعة العلاجات النفسية والدوائية، PMID 29958336، DOI 10.1002/jts.22295</a></li></ul><p>هذه الصفحة للتثقيف ولا تستبدل التقييم أو العلاج الفردي.</p></section>
-<section><h2>روابط داخلية</h2><ul><li><a href="{BASE}encyclopedia/">الموسوعة النفسية</a></li><li><a href="{BASE}hubs/topic-009/">مركز الضغط النفسي</a></li><li><a href="{BASE}learning-paths/">مسارات التعلم</a></li><li><a href="{BASE}comparisons/">المقارنات النفسية</a></li></ul></section>
+<section><h2>روابط داخلية</h2><ul><li><a href="{BASE}encyclopedia/">الموسوعة النفسية</a></li><li><a href="{BASE}hubs/topic-009/">مركز الضغط النفسي</a></li><li><a href="{BASE}tips/">نصائح الصحة النفسية</a></li><li><a href="{BASE}comparisons/">المقارنات النفسية</a></li></ul></section>
 </article>
 </main>
 </body>
@@ -144,7 +144,7 @@ def append_to_sitemap(site: Path) -> int:
     if URL not in urls:
         node = ET.SubElement(root, f"{{{namespace}}}url")
         ET.SubElement(node, f"{{{namespace}}}loc").text = URL
-        ET.SubElement(node, f"{{{namespace}}}lastmod").text = "2026-07-28"
+        ET.SubElement(node, f"{{{namespace}}}lastmod").text = "2026-07-29"
         ET.SubElement(node, f"{{{namespace}}}changefreq").text = "monthly"
         ET.SubElement(node, f"{{{namespace}}}priority").text = "0.8"
         tree.write(sitemap, encoding="utf-8", xml_declaration=True)
