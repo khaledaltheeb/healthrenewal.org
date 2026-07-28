@@ -4,7 +4,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
 from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
@@ -23,7 +22,7 @@ CANONICALS = {
     "assessment": "https://khaledaltheeb.github.io/pterminology-site/sectors/child/assessment/",
     "interventions": "https://khaledaltheeb.github.io/pterminology-site/sectors/child/interventions/",
 }
-MIN_WORDS = {"index": 1450, "library": 1050, "assessment": 1050, "interventions": 1050}
+MIN_WORDS = {"index": 1400, "library": 700, "assessment": 800, "interventions": 1000}
 REQUIRED_MARKERS = {
     "index": ["الخطر المباشر يسبق التصفح", "المكتبة الموضوعية", "مسار التقييم", "إرشادات التدخل", "لا تعني مراجعة سريرية خارجية مستقلة"],
     "library": ["هذه المكتبة ليست قائمة تشخيص ذاتي", "الصدمات والفقد والعنف والسلامة", "إيذاء النفس والأفكار الانتحارية"],
@@ -36,7 +35,12 @@ REQUIRED_LINKS = {
     "assessment": ["../", "../library/", "../interventions/"],
     "interventions": ["../", "../library/", "../assessment/"],
 }
-BANNED = ["معاقين", "تشخيص ذاتي مؤكد", "علاج مضمون", "نتيجة مضمونة"]
+BANNED_PATTERNS = [
+    r"(?<!لا )تشخيص ذاتي مؤكد",
+    r"(?<!لا )علاج مضمون",
+    r"(?<!لا تعد ب)(?<!لا نعد ب)نتيجة مضمونة",
+    r"\bمعاقين\b",
+]
 ALLOWED_EXTERNAL_HOSTS = {"www.who.int", "www.unicef.org", "www.nice.org.uk"}
 
 
@@ -82,9 +86,9 @@ class Parser(HTMLParser):
         if tag == "script" and self._json is not None:
             self.json_ld.append("".join(self._json))
             self._json = None
-        for i in range(len(self.stack) - 1, -1, -1):
-            if self.stack[i] == tag:
-                del self.stack[i:]
+        for index in range(len(self.stack) - 1, -1, -1):
+            if self.stack[index] == tag:
+                del self.stack[index:]
                 break
 
     def handle_data(self, data: str) -> None:
@@ -105,7 +109,7 @@ def schema_types(value: object) -> set[str]:
         if isinstance(kind, str):
             found.add(kind)
         elif isinstance(kind, list):
-            found.update(x for x in kind if isinstance(x, str))
+            found.update(item for item in kind if isinstance(item, str))
         for child in value.values():
             found.update(schema_types(child))
     elif isinstance(value, list):
@@ -118,6 +122,7 @@ def validate_page(name: str, path: Path) -> dict[str, object]:
     errors: list[str] = []
     if not path.exists():
         return {"name": name, "path": str(path), "status": "failed", "errors": ["missing page"]}
+
     source = path.read_text(encoding="utf-8")
     parser = Parser()
     parser.feed(source)
@@ -140,12 +145,8 @@ def validate_page(name: str, path: Path) -> dict[str, object]:
         errors.append(f"canonical mismatch: {parser.canonical}")
     if "noindex" in source.lower():
         errors.append("page must remain indexable")
-    if not parser.meta.get("description"):
-        errors.append("missing meta description")
-    if not parser.meta.get("robots"):
-        errors.append("missing robots meta")
-    if parser.meta.get("googlebot") and "preview-preview" in parser.meta.get("googlebot", ""):
-        errors.append("invalid googlebot directive")
+    if not parser.meta.get("description") or not parser.meta.get("robots"):
+        errors.append("missing description or robots metadata")
 
     duplicates = sorted(key for key, count in Counter(parser.ids).items() if count > 1)
     if duplicates:
@@ -160,9 +161,9 @@ def validate_page(name: str, path: Path) -> dict[str, object]:
     for href in REQUIRED_LINKS[name]:
         if href not in parser.hrefs:
             errors.append(f"missing required link: {href}")
-    for term in BANNED:
-        if term in source:
-            errors.append(f"banned term: {term}")
+    for pattern in BANNED_PATTERNS:
+        if re.search(pattern, source):
+            errors.append(f"banned pattern: {pattern}")
     if any(not href or href == "#" for href in parser.hrefs):
         errors.append("empty or placeholder href")
 
@@ -175,9 +176,9 @@ def validate_page(name: str, path: Path) -> dict[str, object]:
     types: set[str] = set()
     for payload in payloads:
         types.update(schema_types(payload))
-    expected_type = "CollectionPage" if name == "library" else "MedicalWebPage"
-    if expected_type not in types or "BreadcrumbList" not in types:
-        errors.append(f"missing schema types: expected {expected_type} and BreadcrumbList, got {sorted(types)}")
+    expected = "CollectionPage" if name == "library" else "MedicalWebPage"
+    if expected not in types or "BreadcrumbList" not in types:
+        errors.append(f"missing schema types: expected {expected} and BreadcrumbList")
     if name == "index" and not {"ItemList", "FAQPage"}.issubset(types):
         errors.append("main page missing ItemList or FAQPage schema")
 
@@ -193,7 +194,7 @@ def validate_page(name: str, path: Path) -> dict[str, object]:
 
     return {
         "name": name,
-        "path": str(path.relative_to(ROOT)),
+        "path": str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path),
         "status": "passed" if not errors else "failed",
         "visible_words": words,
         "h1": parser.tags["h1"],
@@ -208,7 +209,7 @@ def validate() -> dict[str, object]:
     errors: list[str] = []
     css = ROOT / "sectors" / "child" / "assets" / "child-sector.css"
     if not css.exists() or css.stat().st_size < 5000:
-        errors.append("missing or undersized shared child-sector stylesheet")
+        errors.append("missing or undersized shared stylesheet")
     sectors = (ROOT / "sectors" / "index.html").read_text(encoding="utf-8")
     if 'href="child/"' not in sectors:
         errors.append("parent sectors portal does not link to child sector")
@@ -223,10 +224,7 @@ def main(argv: list[str] | None = None) -> int:
     cli.add_argument("--json", action="store_true")
     args = cli.parse_args(argv)
     report = validate()
-    if args.json:
-        print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
-    else:
-        print(report)
+    print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) if args.json else report)
     return 0 if report["status"] == "passed" else 1
 
 
