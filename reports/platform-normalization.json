@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-28T04:15:44.396566+00:00",
+  "generated_at": "2026-07-28T05:23:47.784354+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -11,12 +11,12 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 121,
-  "html_pages_normalized_or_current": 120,
+  "html_pages_seen": 133,
+  "html_pages_normalized_or_current": 132,
   "counts": {
-    "current": 118,
+    "current": 128,
     "skipped": 1,
-    "updated": 2
+    "updated": 4
   },
   "results": [
     {
@@ -570,6 +570,66 @@
       "detail": ""
     },
     {
+      "path": "sectors/child/assessment/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/interventions/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/library/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/assessment/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/interventions/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/library/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/home/assessment/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "sectors/home/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "sectors/home/interventions/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "sectors/home/library/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
       "path": "sectors/index.html",
       "status": "current",
       "detail": ""
@@ -581,7 +641,7 @@
     },
     {
       "path": "specialists-partners/admin/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -601,7 +661,7 @@
     },
     {
       "path": "specialists-partners/portal/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
