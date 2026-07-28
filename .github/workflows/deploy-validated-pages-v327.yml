@@ -1,4 +1,4 @@
-name: Deploy validated production to GitHub Pages v327
+name: Deploy validated production to GitHub Pages v329
 
 on:
   workflow_run:
@@ -6,7 +6,7 @@ on:
     types: [completed]
 
 permissions:
-  contents: read
+  contents: write
   actions: read
   pages: write
   id-token: write
@@ -22,12 +22,18 @@ jobs:
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
+      - name: Checkout current default branch for deployment receipt
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
       - name: Download exact validated production artifact
         uses: actions/download-artifact@v4
         with:
@@ -37,7 +43,7 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Verify deployment provenance and academic library contract
+      - name: Verify provenance and academic-library publication contract
         env:
           EXPECTED_SHA: ${{ github.event.workflow_run.head_sha }}
           EXPECTED_RUN_ID: ${{ github.event.workflow_run.id }}
@@ -46,52 +52,172 @@ jobs:
           test -f _site/index.html
           test -f _site/deployment.json
           test -f _site/library/index.html
+          test -f _site/library/branches/index.html
+          test -f _site/library/therapies/index.html
+          test -f _site/library/research/index.html
           test -f _site/api/academic-library-v326.json
           test -f _site/sitemap-library-academic-v326.xml
           python - <<'PY'
           import json
           import os
+          import re
           import xml.etree.ElementTree as ET
           from pathlib import Path
 
-          site = Path("_site")
-          deployment = json.loads((site / "deployment.json").read_text(encoding="utf-8"))
-          academic = json.loads((site / "api" / "academic-library-v326.json").read_text(encoding="utf-8"))
+          site = Path('_site')
+          deployment = json.loads((site / 'deployment.json').read_text(encoding='utf-8'))
+          academic = json.loads((site / 'api' / 'academic-library-v326.json').read_text(encoding='utf-8'))
+          expected_sha = os.environ['EXPECTED_SHA']
+          expected_run = os.environ['EXPECTED_RUN_ID']
 
-          assert deployment["commit"] == os.environ["EXPECTED_SHA"], deployment
-          assert str(deployment["workflow_run"]) == os.environ["EXPECTED_RUN_ID"], deployment
-          assert academic["version"] == 326, academic
-          assert academic["status"] == "passed", academic
-          assert academic["sections"] == {"branches": 25, "therapies": 27, "research": 28}, academic
-          assert academic["total_entries"] == 80, academic
-          assert academic["generated_pages"] == 84, academic
-          assert academic["minimum_page_words"] >= 180, academic
+          assert deployment['commit'] == expected_sha, deployment
+          assert str(deployment['workflow_run']) == expected_run, deployment
+          assert re.fullmatch(r'[0-9a-f]{40}', expected_sha), expected_sha
+          assert academic['version'] == 326, academic
+          assert academic['status'] == 'passed', academic
+          assert academic['review_status'] == 'internally-reviewed-external-specialist-review-required', academic
+          assert academic['sections'] == {'branches': 25, 'therapies': 27, 'research': 28}, academic
+          assert academic['total_entries'] == 80, academic
+          assert academic['generated_pages'] == 84, academic
+          assert academic['minimum_page_words'] >= 180, academic
 
-          root = ET.parse(site / "sitemap-library-academic-v326.xml").getroot()
-          urls = [
-              (node.text or "").strip()
-              for node in root.findall("{*}url/{*}loc")
-              if node.text
-          ]
+          root = ET.parse(site / 'sitemap-library-academic-v326.xml').getroot()
+          urls = [(node.text or '').strip() for node in root.findall('{*}url/{*}loc') if node.text]
           assert len(urls) == 80 and len(urls) == len(set(urls)), len(urls)
+
+          samples = {
+              'library/branches/clinical-psychology/index.html': ('علم النفس السريري', 'Clinical Psychology'),
+              'library/therapies/cognitive-behavioral-therapy/index.html': ('العلاج المعرفي السلوكي', 'Cognitive Behavioral Therapy'),
+              'library/research/randomized-controlled-trial/index.html': ('التجربة العشوائية المضبوطة', 'Randomized Controlled Trial'),
+          }
+          for relative, phrases in samples.items():
+              text = (site / relative).read_text(encoding='utf-8')
+              assert text.count('<h1') == 1, relative
+              assert all(phrase in text for phrase in phrases), relative
+              assert 'application/ld+json' in text and 'rel="canonical"' in text, relative
+
           print({
-              "deployment_sha": deployment["commit"],
-              "validated_run": deployment["workflow_run"],
-              "academic_entries": academic["total_entries"],
-              "academic_pages": academic["generated_pages"],
-              "academic_sitemap_urls": len(urls),
+              'deployment_sha': expected_sha,
+              'validated_run': expected_run,
+              'academic_entries': academic['total_entries'],
+              'academic_pages': academic['generated_pages'],
+              'academic_sitemap_urls': len(urls),
           })
           PY
+          echo "RELEASE_SHA=${EXPECTED_SHA}" >> "$GITHUB_ENV"
+          echo "SOURCE_RUN_ID=${EXPECTED_RUN_ID}" >> "$GITHUB_ENV"
           touch _site/.nojekyll
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload GitHub Pages artifact
+      - name: Upload exact GitHub Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: _site
 
-      - name: Deploy validated artifact
+      - name: Deploy exact validated artifact
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify live SHA, library inventory, and representative routes
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euxo pipefail
+          BASE="${PAGE_URL%/}/"
+          matched=0
+          for i in $(seq 1 36); do
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}deployment.json?v=${RELEASE_SHA}-${i}" -o /tmp/deployment.json && \
+               EXPECTED_SHA="${RELEASE_SHA}" python -c "import json,os;d=json.load(open('/tmp/deployment.json',encoding='utf-8'));raise SystemExit(0 if d.get('commit')==os.environ['EXPECTED_SHA'] else 1)"; then
+              matched=1
+              break
+            fi
+            sleep 10
+          done
+          test "$matched" -eq 1
+
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}api/academic-library-v326.json?v=${RELEASE_SHA}" -o /tmp/academic.json
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}library/?v=${RELEASE_SHA}" -o /tmp/library.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}library/branches/?v=${RELEASE_SHA}" -o /tmp/branches.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}library/therapies/?v=${RELEASE_SHA}" -o /tmp/therapies.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}library/research/?v=${RELEASE_SHA}" -o /tmp/research.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}library/branches/clinical-psychology/?v=${RELEASE_SHA}" -o /tmp/branch-sample.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}library/therapies/cognitive-behavioral-therapy/?v=${RELEASE_SHA}" -o /tmp/therapy-sample.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}library/research/randomized-controlled-trial/?v=${RELEASE_SHA}" -o /tmp/research-sample.html
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path('/tmp/academic.json').read_text(encoding='utf-8'))
+          assert report['version'] == 326 and report['status'] == 'passed', report
+          assert report['sections'] == {'branches': 25, 'therapies': 27, 'research': 28}, report
+          assert report['total_entries'] == 80 and report['generated_pages'] == 84, report
+
+          checks = {
+              '/tmp/library.html': ('المكتبة الأكاديمية لعلم النفس', '25 مدخلًا', '27 مدخلًا', '28 مدخلًا'),
+              '/tmp/branches.html': ('فروع علم النفس', '25 مدخلًا مستقلاً'),
+              '/tmp/therapies.html': ('العلاجات والتدخلات النفسية', '27 مدخلًا مستقلاً'),
+              '/tmp/research.html': ('مناهج البحث والقياس', '28 مدخلًا مستقلاً'),
+              '/tmp/branch-sample.html': ('علم النفس السريري', 'Clinical Psychology'),
+              '/tmp/therapy-sample.html': ('العلاج المعرفي السلوكي', 'Cognitive Behavioral Therapy'),
+              '/tmp/research-sample.html': ('التجربة العشوائية المضبوطة', 'Randomized Controlled Trial'),
+          }
+          for filename, phrases in checks.items():
+              text = Path(filename).read_text(encoding='utf-8')
+              assert all(phrase in text for phrase in phrases), (filename, phrases)
+              assert 'noindex' not in text.lower(), filename
+          print({'live_sha': report.get('reviewed_at'), 'live_entries': 80, 'live_pages': 84, 'routes_verified': len(checks)})
+          PY
+
+      - name: Record successful Pages deployment receipt
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          Path('pages-deployment-status-v329.json').write_text(
+              json.dumps(
+                  {
+                      'schema_version': 329,
+                      'status': 'deployed',
+                      'deployment_outcome': 'success',
+                      'artifact': 'validated-production-site',
+                      'source_commit': os.environ['RELEASE_SHA'],
+                      'deployment_workflow_run_id': os.environ['GITHUB_RUN_ID'],
+                      'source_workflow_run_id': os.environ['SOURCE_RUN_ID'],
+                      'page_url': os.environ.get('PAGE_URL', ''),
+                      'recorded_at': datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+                      'academic_library': {
+                          'version': 326,
+                          'sections': {'branches': 25, 'therapies': 27, 'research': 28},
+                          'entries': 80,
+                          'generated_pages': 84,
+                          'live_routes_verified': 7,
+                      },
+                  },
+                  ensure_ascii=False,
+                  indent=2,
+              ) + '\n',
+              encoding='utf-8',
+          )
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages-deployment-status-v329.json
+          git commit -m "ci: record verified academic-library Pages deployment v329 [skip ci]"
+          for attempt in 1 2 3 4; do
+            git fetch origin main
+            if git rebase origin/main && git push origin HEAD:main; then
+              exit 0
+            fi
+            git rebase --abort || true
+            sleep $((attempt * 3))
+          done
+          exit 1
