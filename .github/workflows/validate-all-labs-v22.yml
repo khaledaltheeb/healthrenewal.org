@@ -271,11 +271,11 @@ jobs:
           assert visual['minimum_set_size']==3 and visual['maximum_set_size']==7 and visual['change_features']==['shape','color'] and visual['study_then_test'] is True,visual
           assert copy['cognitive_pages']==53 and copy['error_count']==0 and copy['adjacent_phrase_guard'] is True,copy
           assert pwa['registration_verified'] and pwa['pages_scanned'] > 0,pwa
-          assert daily['tools']==8 and daily['paths']==4 and daily['pages']==14 and daily['local_only'] is True,daily
+          assert daily['version']==100 and daily['catalog_contract']==100 and daily['tools']==100 and daily['paths']==10 and daily['pages']==112 and daily['local_only'] is True,daily
           assert quality['pages_scanned'] > 0 and quality['critical_error_count']==0,quality
           assert identity['remaining_banned_pages']==[] and identity['missing_header_pages']==[] and identity['missing_footer_pages']==[],identity
           assert homepage['lab_tool_count']==93 and homepage['lab_inventory_metadata_updated'] is True,homepage
-          print({'site':'passed','cognitive':'53/53','assessments':'40/40','browser':'186/186','daily_tools':'8/8','learning_paths':'4/4','quality_pages':quality['pages_scanned'],'thin_candidates':quality['thin_page_candidates'],'pwa_pages':pwa['pages_scanned'],'identity_pages':identity['pages'],'homepage_lab_tools':homepage['lab_tool_count']})
+          print({'site':'passed','cognitive':'53/53','assessments':'40/40','browser':'186/186','daily_tools':'100/100','learning_paths':'10/10','discovery_pages':112,'quality_pages':quality['pages_scanned'],'thin_candidates':quality['thin_page_candidates'],'pwa_pages':pwa['pages_scanned'],'identity_pages':identity['pages'],'homepage_lab_tools':homepage['lab_tool_count']})
           PY
 
       - name: Stamp validated production build with SHA-256 evidence
