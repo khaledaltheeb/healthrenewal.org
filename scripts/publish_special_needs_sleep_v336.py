@@ -15,8 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "content" / "v336" / "special-needs-guides" / "developmental-disabilities-sleep-support-plan.json"
 BASE = "https://khaledaltheeb.github.io/pterminology-site"
 VERSION = 336
-START = "<!-- special-needs-sleep-v336:start -->"
-END = "<!-- special-needs-sleep-v336:end -->"
+START = "<!-- special-needs-guides-v336:start -->"
+END = "<!-- special-needs-guides-v336:end -->"
 ALLOWED_HOSTS = {"www.nice.org.uk", "www.who.int", "publications.aap.org"}
 PROHIBITED = re.compile(r"معاقين", re.IGNORECASE)
 
