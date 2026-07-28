@@ -1,0 +1,70 @@
+name: Validate eight-agent SEO and AI discovery v334
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "**/*.html"
+      - "robots.txt"
+      - "llms.txt"
+      - "sitemap*.xml"
+      - "api/**/*.json"
+      - "scripts/seo_agent_fleet_v334.py"
+      - "tests/test_seo_agent_fleet_v334.py"
+      - ".github/workflows/validate-seo-agent-fleet-v334.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "**/*.html"
+      - "robots.txt"
+      - "llms.txt"
+      - "sitemap*.xml"
+      - "api/**/*.json"
+      - "scripts/seo_agent_fleet_v334.py"
+      - "tests/test_seo_agent_fleet_v334.py"
+      - ".github/workflows/validate-seo-agent-fleet-v334.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  seo-agent-fleet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile deterministic SEO engine
+        run: python -m py_compile scripts/seo_agent_fleet_v334.py
+      - name: Run regression suite
+        run: python -m unittest discover -s tests -p 'test_seo_agent_fleet_v334.py' -v
+      - name: Audit the complete publication tree with eight agents
+        run: |
+          python scripts/seo_agent_fleet_v334.py . \
+            --base-url https://khaledaltheeb.github.io/pterminology-site/ \
+            --report-dir seo-audit \
+            --fail-on critical
+      - name: Verify discovery policy remains explicit
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          policy = json.loads(Path('api/ai-crawler-policy.json').read_text(encoding='utf-8'))
+          assert policy['public_content_access'] == 'allowed', policy
+          assert policy['search_and_answer_access'] == 'allowed', policy
+          assert policy['training_and_model_improvement_access'] == 'allowed', policy
+          assert 'OAI-SearchBot' in policy['search_and_answer_user_agents'], policy
+          assert 'Googlebot' in policy['search_and_answer_user_agents'], policy
+          assert 'GPTBot' in policy['training_or_model_user_agents'], policy
+          print({'status': 'passed', 'policy_version': policy['version']})
+          PY
+      - name: Upload SEO audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-agent-fleet-v334
+          path: seo-audit/
+          if-no-files-found: error
