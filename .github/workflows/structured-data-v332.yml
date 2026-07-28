@@ -37,7 +37,6 @@ jobs:
           set -euxo pipefail
           mkdir -p /tmp/v10-content
           cp content/sectors-v10/*.json /tmp/v10-content/
-          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .generator-v6/part03 >/dev/null 2>&1 || true
           cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
           tar -xzf /tmp/v10.tar.gz
           cp /tmp/v10-content/*.json content/sectors-v10/
