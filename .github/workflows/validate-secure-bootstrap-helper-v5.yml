@@ -1,0 +1,64 @@
+name: Validate secure bootstrap helper v5
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/setup-specialists-cloudflare.ps1"
+      - "scripts/setup-specialists-cloudflare.cmd"
+      - "tests/test_secure_bootstrap_helper_v5.py"
+      - ".github/workflows/validate-secure-bootstrap-helper-v5.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: secure-bootstrap-helper-v5-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Parse PowerShell script
+        shell: pwsh
+        run: |
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            "scripts/setup-specialists-cloudflare.ps1",
+            [ref]$null,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | Format-List | Out-String | Write-Error
+            exit 1
+          }
+      - name: Run helper contracts
+        run: python -m unittest -v tests.test_secure_bootstrap_helper_v5
+      - name: Confirm no credential-shaped values
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          paths = [
+              Path("scripts/setup-specialists-cloudflare.ps1"),
+              Path("scripts/setup-specialists-cloudflare.cmd"),
+          ]
+          patterns = [
+              re.compile(r"cfat_[A-Za-z0-9_-]{20,}"),
+              re.compile(r"re_[A-Za-z0-9_-]{20,}"),
+              re.compile(r"Bearer\s+[A-Za-z0-9_-]{30,}"),
+          ]
+          for path in paths:
+              text = path.read_text(encoding="utf-8", errors="ignore")
+              for pattern in patterns:
+                  if pattern.search(text):
+                      raise SystemExit(f"credential-shaped value found in {path}")
+          print("No credential-shaped values found.")
+          PY
