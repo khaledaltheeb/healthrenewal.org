@@ -17,7 +17,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
-      - name: Execute the reviewed patch payload
+      - name: Extract reviewed patch payload
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -30,11 +30,15 @@ jobs:
               payload.append(line[10:] if line.startswith('          ') else '')
           Path('/tmp/apply-legacy-alias-v333.sh').write_text('\n'.join(payload) + '\n', encoding='utf-8')
           PY
-          bash /tmp/apply-legacy-alias-v333.sh
-          git fetch origin agent/legacy-alias-release-gates-v333
-          git reset --hard origin/agent/legacy-alias-release-gates-v333
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git rm .github/workflows/run-legacy-alias-patch-on-pr-v333.yml
-          git commit -m "chore: remove temporary pull-request patch runner"
-          git push origin HEAD:agent/legacy-alias-release-gates-v333
+      - name: Execute patch with full trace
+        run: bash -x /tmp/apply-legacy-alias-v333.sh 2>&1 | tee /tmp/legacy-alias-patch-v333.log
+      - name: Upload patch diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-alias-patch-v333-diagnostic
+          path: |
+            /tmp/apply-legacy-alias-v333.sh
+            /tmp/legacy-alias-patch-v333.log
+          if-no-files-found: warn
+          retention-days: 3
