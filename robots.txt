@@ -1,5 +1,15 @@
+# Public search and AI-discovery policy
+# Search engines, answer engines, user-triggered assistants, and public model crawlers
+# may access all public content. Operational source paths are excluded.
 User-agent: *
 Allow: /
+Disallow: /.git/
+Disallow: /.github/
+Disallow: /scripts/
+Disallow: /tests/
+Disallow: /node_modules/
+Disallow: /api/private/
+
 Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml
 Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap-care-guides.xml
 Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap-outside-the-box-evidence.xml
