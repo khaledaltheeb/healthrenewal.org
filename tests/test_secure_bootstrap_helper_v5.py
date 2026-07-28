@@ -39,6 +39,11 @@ class SecureBootstrapHelperV5Tests(unittest.TestCase):
         self.assertIn("gh run watch", self.script)
         self.assertIn("--exit-status", self.script)
 
+    def test_windows_powershell_51_encoding_compatibility(self):
+        self.assertTrue(self.script.isascii())
+        for mojibake_marker in ("Ø", "Ù", "Ã", "Â"):
+            self.assertNotIn(mojibake_marker, self.script)
+
     def test_no_literal_credentials(self):
         forbidden = (
             re.compile(r"cfat_[A-Za-z0-9_-]{20,}"),
