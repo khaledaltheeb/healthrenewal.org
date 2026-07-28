@@ -28,27 +28,43 @@ jobs:
           ref: agent/sitewide-structured-data-v332
           fetch-depth: 0
 
-      - name: Decode reviewed source and tests
+      - name: Reassemble and verify reviewed source
         run: |
           set -euxo pipefail
           python - <<'PY'
           from pathlib import Path
           import base64
+          import hashlib
           import shutil
           import zlib
 
-          mapping = {
-              '.bootstrap-v333/source.b64': 'scripts/enhance_platform_experience_v333.py',
-              '.bootstrap-v333/tests.b64': 'tests/test_platform_experience_v333.py',
+          parts = [Path(f'.bootstrap-v333/source.part{index:02d}').read_text(encoding='utf-8').strip() for index in range(5)]
+          source_payload = ''.join(parts)
+          tests_payload = Path('.bootstrap-v333/tests.b64').read_text(encoding='utf-8').strip()
+
+          expected = {
+              'source': '9956bab7b5700520a36694027e5831cfeff65862c75cd65cc4db92618e459d59',
+              'tests': '119e6450ac4db880364468214163326dbc0e8d27da03addbef63794119e2fc99',
           }
-          for encoded, target in mapping.items():
-              payload = Path(encoded).read_text(encoding='utf-8').strip()
-              data = zlib.decompress(base64.b64decode(payload))
+          actual = {
+              'source': hashlib.sha256(source_payload.encode('ascii')).hexdigest(),
+              'tests': hashlib.sha256(tests_payload.encode('ascii')).hexdigest(),
+          }
+          assert actual == expected, {'expected': expected, 'actual': actual}
+
+          mapping = {
+              'scripts/enhance_platform_experience_v333.py': source_payload,
+              'tests/test_platform_experience_v333.py': tests_payload,
+          }
+          for target, payload in mapping.items():
+              data = zlib.decompress(base64.b64decode(payload, validate=True))
               output = Path(target)
               output.parent.mkdir(parents=True, exist_ok=True)
               output.write_bytes(data)
+
           shutil.rmtree('.bootstrap-v333')
           Path('.github/workflows/bootstrap-platform-experience-v333.yml').unlink()
+          print({'source_sha256': actual['source'], 'tests_sha256': actual['tests']})
           PY
 
       - name: Validate Python and browser source
@@ -67,6 +83,7 @@ jobs:
           spec.loader.exec_module(module)
           Path('/tmp/platform-experience-v333.js').write_text(module.JS, encoding='utf-8')
           assert 'pterminology.library.v333' in module.JS
+          assert 'pterminology.results.v333' in module.JS
           assert 'pterminology:assessment-result' in module.JS
           assert module.VERSION == 333
           PY
