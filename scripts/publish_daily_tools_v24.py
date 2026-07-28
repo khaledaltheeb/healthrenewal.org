@@ -131,7 +131,8 @@ def _write_legacy_path_aliases(site: Path) -> None:
     for old_slug, new_slug in LEGACY_PATH_ALIASES.items():
         old_label, new_label = LEGACY_PATH_LABELS[old_slug]
         destination = f"{_core.PATH}learning-paths/{new_slug}/"
-        self_canonical = f"{_core.BASE}learning-paths/{old_slug}/"
+        alias_url = f"{_core.BASE}learning-paths/{old_slug}/"
+        destination_canonical = f"{_core.BASE}learning-paths/{new_slug}/"
         full_title = f"تم نقل مسار {old_label} | {SITE_NAME}"
         description = (
             f"صفحة انتقال محفوظة لمسار {old_label}. نُقل المحتوى إلى مسار {new_label} الأحدث، "
@@ -143,7 +144,7 @@ def _write_legacy_path_aliases(site: Path) -> None:
                 "@type": "WebPage",
                 "name": full_title,
                 "description": description,
-                "url": self_canonical,
+                "url": alias_url,
                 "isPartOf": {"@type": "WebSite", "name": SITE_NAME, "url": _core.BASE},
             },
             ensure_ascii=False,
@@ -156,8 +157,8 @@ def _write_legacy_path_aliases(site: Path) -> None:
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(full_title)}</title><meta name="description" content="{esc(description)}">
 <meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url={esc(destination)}"><meta name="theme-color" content="#e5faf5"><meta name="color-scheme" content="light">
-<link rel="canonical" href="{esc(self_canonical)}"><link rel="manifest" href="{MANIFEST}">
-<meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="{esc(SITE_NAME)}"><meta property="og:title" content="{esc(full_title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(self_canonical)}"><meta property="og:image" content="{SOCIAL_IMAGE}"><meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="{esc(destination_canonical)}"><link rel="manifest" href="{MANIFEST}">
+<meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="{esc(SITE_NAME)}"><meta property="og:title" content="{esc(full_title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(alias_url)}"><meta property="og:image" content="{SOCIAL_IMAGE}"><meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">{schema}</script></head><body><main><h1>تم نقل مسار {esc(old_label)}</h1>
 <p>حُفظ هذا العنوان القديم لمنع الروابط المكسورة. أصبح المحتوى المنظم والأحدث متاحًا ضمن مسار {esc(new_label)}، ولن تُفهرس صفحة الانتقال هذه كمحتوى مستقل.</p>
 <p><a href="{esc(destination)}">فتح مسار {esc(new_label)}</a></p></main></body></html>''',
