@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import sys
 from pathlib import Path
 from typing import Any, Iterable
@@ -30,6 +31,15 @@ MANIFEST = _core.PATH + "manifest.webmanifest"
 SEARCH = _core.PATH + "opensearch.xml"
 STYLE = _core.STYLE + _v100.EXT_STYLE
 _core.STYLE = STYLE
+
+# حافظ على الروابط العامة التي نُشرت قبل عقد v100، لكن لا تترك محتوى قديمًا
+# أو صفحات قابلة للفهرسة تنافس المسارات الجديدة.
+LEGACY_PATH_ALIASES: dict[str, str] = {
+    "stress-basics-7-days": "stress-regulation-7-days",
+    "family-listening-5-days": "family-parenting-7-days",
+    "grief-support-7-days": "change-resilience-7-days",
+    "caregiver-boundaries-7-days": "caregiver-wellbeing-7-days",
+}
 
 
 def _unique(values: Iterable[str], limit: int = 8) -> list[str]:
@@ -95,6 +105,39 @@ def _expected_pages(data: dict[str, Any], site: Path) -> list[Path]:
     )
 
 
+def _prune_stale_generated_pages(data: dict[str, Any], site: Path) -> None:
+    collections = (
+        ("daily-tools", {item["slug"] for item in data["tools"]}),
+        ("learning-paths", {item["slug"] for item in data["paths"]} | set(LEGACY_PATH_ALIASES)),
+    )
+    for directory, allowed in collections:
+        root = site / directory
+        if not root.is_dir():
+            continue
+        for child in root.iterdir():
+            if child.is_dir() and child.name not in allowed:
+                shutil.rmtree(child)
+
+
+def _write_legacy_path_aliases(site: Path) -> None:
+    esc = _core.e
+    for old_slug, new_slug in LEGACY_PATH_ALIASES.items():
+        destination = f"{_core.PATH}learning-paths/{new_slug}/"
+        canonical = f"{_core.BASE}learning-paths/{new_slug}/"
+        page = site / "learning-paths" / old_slug / "index.html"
+        page.parent.mkdir(parents=True, exist_ok=True)
+        page.write_text(
+            f'''<!doctype html><html lang="ar" dir="rtl" data-legacy-path-alias="v100"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تم تحديث مسار التعلم | {esc(SITE_NAME)}</title>
+<meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url={esc(destination)}">
+<link rel="canonical" href="{esc(canonical)}"><meta name="color-scheme" content="light">
+</head><body><main><h1>تم تحديث هذا المسار</h1><p>انتقل المحتوى إلى مسار أحدث وأكثر اكتمالًا.</p>
+<p><a href="{esc(destination)}">فتح مسار التعلم المحدّث</a></p></main></body></html>''',
+            encoding="utf-8",
+        )
+
+
 def validate_metadata(data: dict[str, Any], site: Path | str | None = None) -> None:
     target = Path(site or _core.SITE).resolve()
     required = (
@@ -138,8 +181,10 @@ def publish(data: dict[str, Any], site: Path | str | None = None) -> None:
     _core.SITE = target
     _core.shell = shell
     _v100.prepare(_core)
+    _prune_stale_generated_pages(data, target)
     _core.publish(data)
     _v100.enhance(data, target)
+    _write_legacy_path_aliases(target)
     validate_metadata(data, target)
     if (target / "provider-assessment-demo/index.html").is_file():
         stabilize_provider_layout(target)

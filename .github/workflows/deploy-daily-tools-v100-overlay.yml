@@ -1,6 +1,22 @@
-name: Deploy daily tools v100 overlay to GitHub Pages
+name: Build and deploy daily tools v100 overlay
 
 on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v24/daily-tools-v100/**"
+      - "content/v24/daily-tools-sources-v100.json"
+      - "content/v24/daily-tools-learning-paths-ar.json"
+      - "scripts/daily_tools_v100.py"
+      - "scripts/publish_daily_tools_v24.py"
+      - "scripts/verify_daily_tools_v24.py"
+      - "scripts/verify_daily_tools_overlay_v100.py"
+      - "scripts/publish_sleep_log_v49.py"
+      - "scripts/verify_sleep_log_v49.py"
+      - "scripts/finalize_pwa_v14.py"
+      - "assets/sleep-log-v49.js"
+      - "tests/test_sleep_log_v49.mjs"
+      - ".github/workflows/deploy-daily-tools-v100-overlay.yml"
   push:
     branches: ["main"]
     paths:
@@ -10,6 +26,7 @@ on:
       - "scripts/daily_tools_v100.py"
       - "scripts/publish_daily_tools_v24.py"
       - "scripts/verify_daily_tools_v24.py"
+      - "scripts/verify_daily_tools_overlay_v100.py"
       - "scripts/publish_sleep_log_v49.py"
       - "scripts/verify_sleep_log_v49.py"
       - "scripts/finalize_pwa_v14.py"
@@ -25,16 +42,13 @@ permissions:
   id-token: write
 
 concurrency:
-  group: github-pages-production
-  cancel-in-progress: false
+  group: daily-tools-pages-overlay-v100-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  deploy-overlay:
+  build-overlay:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
@@ -60,12 +74,13 @@ jobs:
           assert receipt['status'] == 'deployed', receipt
           assert receipt['deployment_outcome'] == 'success', receipt
           assert receipt['artifact'] == 'validated-production-site', receipt
-          run_id = str(receipt['source_workflow_run_id'])
-          source_commit = str(receipt['source_commit'])
-          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
-              out.write(f'run_id={run_id}\n')
-              out.write(f'source_commit={source_commit}\n')
-          print({'base_run_id': run_id, 'base_source_commit': source_commit})
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f"run_id={receipt['source_workflow_run_id']}\n")
+              output.write(f"source_commit={receipt['source_commit']}\n")
+          print({
+              'base_run_id': receipt['source_workflow_run_id'],
+              'base_source_commit': receipt['source_commit'],
+          })
           PY
 
       - name: Download exact currently deployed production site
@@ -97,13 +112,14 @@ jobs:
           print({'validated_base': True, 'deployment': deployment})
           PY
 
-      - name: Build and validate the 100-tool overlay
+      - name: Build the 100-tool overlay
         run: |
           set -euxo pipefail
           python -m py_compile \
             scripts/daily_tools_v100.py \
             scripts/publish_daily_tools_v24.py \
             scripts/verify_daily_tools_v24.py \
+            scripts/verify_daily_tools_overlay_v100.py \
             scripts/publish_sleep_log_v49.py \
             scripts/verify_sleep_log_v49.py \
             scripts/finalize_pwa_v14.py
@@ -125,79 +141,84 @@ jobs:
               raise SystemExit('Expected sleep chart accessibility markup was not found')
           page.write_text(text, encoding='utf-8')
           PY
+
           python scripts/verify_sleep_log_v49.py
           node tests/test_sleep_log_v49.mjs
           python scripts/finalize_pwa_v14.py _site
           python scripts/verify_daily_tools_v24.py _site
 
-      - name: Enforce overlay counts privacy evidence and discovery
+      - name: Validate counts aliases discovery privacy and evidence
         env:
           BASE_RUN_ID: ${{ steps.base.outputs.run_id }}
           BASE_SOURCE_COMMIT: ${{ steps.base.outputs.source_commit }}
         run: |
           set -euxo pipefail
+          python scripts/verify_daily_tools_overlay_v100.py _site
+          touch _site/.nojekyll
+
+      - name: Upload validated overlay site
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-tools-pages-overlay-site-v100
+          path: _site
+          if-no-files-found: error
+          retention-days: 2
+
+      - name: Upload build evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-tools-pages-overlay-v100-build-evidence
+          path: |
+            _site/api/daily-tools-v24.json
+            _site/api/daily-tools-overlay-v100.json
+            _site/sitemap-tools-paths.xml
+            _site/sitemap.xml
+            _site/index.html
+            _site/daily-tools/index.html
+            _site/learning-paths/stress-basics-7-days/index.html
+            _site/learning-paths/family-listening-5-days/index.html
+            _site/learning-paths/grief-support-7-days/index.html
+            _site/learning-paths/caregiver-boundaries-7-days/index.html
+          if-no-files-found: warn
+          retention-days: 14
+
+  deploy-overlay:
+    if: github.event_name != 'pull_request'
+    needs: build-overlay
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: github-pages-production
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download validated overlay from this run
+        uses: actions/download-artifact@v4
+        with:
+          name: daily-tools-pages-overlay-site-v100
+          path: _site
+
+      - name: Verify deploy input
+        run: |
           python - <<'PY'
           import json
-          import os
-          import xml.etree.ElementTree as ET
-          from datetime import datetime, timezone
           from pathlib import Path
 
-          site = Path('_site')
-          daily = json.loads((site / 'api' / 'daily-tools-v24.json').read_text(encoding='utf-8'))
-          assert daily['catalog_contract'] == 100, daily
-          assert daily['tools'] == 100, daily
-          assert daily['categories'] == 10, daily
-          assert daily['paths'] == 10, daily
-          assert daily['pages'] == 112, daily
-          assert daily['local_only'] is True, daily
-          assert daily['search_and_filters'] is True, daily
-          assert daily['per_tool_sources'] is True, daily
-          assert daily['homepage_linked'] is True, daily
-
-          root = ET.parse(site / 'sitemap-tools-paths.xml').getroot()
-          assert len(list(root)) == 112
-
-          index = (site / 'daily-tools' / 'index.html').read_text(encoding='utf-8')
-          assert index.count('data-tool-card') == 100
-          assert 'data-tool-search' in index
-          assert 'data-category-select' in index
-          assert '100 أداة نفسية وتربوية يومية' in index
-
-          homepage = (site / 'index.html').read_text(encoding='utf-8')
-          assert '100 أداة عربية عملية' in homepage
-          assert homepage.count('data-daily-tools-v219') == 1
-
-          report = {
-              'status': 'passed',
-              'contract': 'daily-tools-pages-overlay-v100',
-              'base_validated_run': os.environ['BASE_RUN_ID'],
-              'base_source_commit': os.environ['BASE_SOURCE_COMMIT'],
-              'overlay_commit': os.environ['GITHUB_SHA'],
-              'tools': daily['tools'],
-              'categories': daily['categories'],
-              'paths': daily['paths'],
-              'pages': daily['pages'],
-              'local_only': daily['local_only'],
-              'search_and_filters': daily['search_and_filters'],
-              'per_tool_sources': daily['per_tool_sources'],
-              'generated_at': datetime.now(timezone.utc).isoformat(),
-          }
-          (site / 'api' / 'daily-tools-overlay-v100.json').write_text(
-              json.dumps(report, ensure_ascii=False, indent=2),
-              encoding='utf-8',
-          )
+          report = json.loads(Path('_site/api/daily-tools-overlay-v100.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['tools'] == 100, report
+          assert report['categories'] == 10, report
+          assert report['paths'] == 10, report
+          assert report['indexable_pages'] == 112, report
+          assert report['tool_cards'] == 100, report
+          assert report['canonical_learning_path_pages'] == 11, report
+          assert report['legacy_alias_pages'] == 4, report
           print(report)
           PY
-
-          test "$(find _site/daily-tools -name index.html | wc -l)" -eq 101
-          test "$(find _site/learning-paths -name index.html | wc -l)" -eq 11
-          test "$(grep -o '<url>' _site/sitemap-tools-paths.xml | wc -l)" -eq 112
-          test "$(grep -o 'sitemap-tools-paths.xml' _site/sitemap.xml | wc -l)" -eq 1
-          grep -R -q 'لا تُرسل البيانات إلى خادم' _site/daily-tools
-          ! grep -R -Eqi 'fetch\(|XMLHttpRequest|navigator\.sendBeacon|تشخيصك|يعالج نهائيًا|بديل عن الطبيب' \
-            _site/daily-tools _site/learning-paths
-          touch _site/.nojekyll
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -219,28 +240,30 @@ jobs:
           for attempt in $(seq 1 30); do
             if curl -fsSL "${PAGE_URL}daily-tools/?sha=${GITHUB_SHA}-${attempt}" -o /tmp/daily-tools-live.html \
               && grep -q '100 أداة نفسية وتربوية يومية' /tmp/daily-tools-live.html \
-              && test "$(grep -o 'data-tool-card' /tmp/daily-tools-live.html | wc -l)" -eq 100; then
+              && test "$(grep -o '<article data-tool-card ' /tmp/daily-tools-live.html | wc -l)" -eq 100; then
               break
             fi
             sleep 5
           done
           grep -q '100 أداة نفسية وتربوية يومية' /tmp/daily-tools-live.html
-          test "$(grep -o 'data-tool-card' /tmp/daily-tools-live.html | wc -l)" -eq 100
+          test "$(grep -o '<article data-tool-card ' /tmp/daily-tools-live.html | wc -l)" -eq 100
           grep -q 'data-tool-search' /tmp/daily-tools-live.html
           curl -fsSL "${PAGE_URL}daily-tools/sleep-wind-down-plan/?sha=${GITHUB_SHA}" -o /tmp/sleep-log-live.html
           grep -q 'data-sleep-log' /tmp/sleep-log-live.html
           grep -q 'لا تُرسل البيانات إلى خادم' /tmp/sleep-log-live.html
+          curl -fsSL "${PAGE_URL}learning-paths/stress-basics-7-days/?sha=${GITHUB_SHA}" -o /tmp/legacy-path-live.html
+          grep -q 'data-legacy-path-alias="v100"' /tmp/legacy-path-live.html
+          grep -q 'noindex,follow' /tmp/legacy-path-live.html
 
-      - name: Upload overlay evidence
+      - name: Upload live deployment evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: daily-tools-pages-overlay-v100-evidence
+          name: daily-tools-pages-overlay-v100-live-evidence
           path: |
-            _site/api/daily-tools-v24.json
             _site/api/daily-tools-overlay-v100.json
-            _site/sitemap-tools-paths.xml
             /tmp/daily-tools-live.html
             /tmp/sleep-log-live.html
+            /tmp/legacy-path-live.html
           if-no-files-found: warn
           retention-days: 14
