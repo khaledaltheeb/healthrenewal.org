@@ -1,4 +1,4 @@
-/* v11 — runtime contrast guard for all current and future content pages; v292 clears late legacy classes and hands adaptive shell surfaces back to v283. */
+/* v11 — runtime contrast guard for all current and future content pages; v291 clears legacy classes and defers adaptive shell surfaces; v292 also catches late class mutations and hands them back to v283. */
 (() => {
   'use strict';
 
