@@ -11,8 +11,10 @@ permissions:
 jobs:
   full-audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 300
     env:
       SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+      NODE_OPTIONS: --max-old-space-size=6144
     steps:
       - uses: actions/checkout@v4
       - name: Restore and compile all sources
@@ -72,6 +74,22 @@ jobs:
         run: |
           set -euxo pipefail
           python scripts/audit_full_site_i18n_v72.py _site
+      - name: Preserve pre-browser audit evidence
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/full-site-audit-evidence
+          find _site/api -maxdepth 1 -type f -name '*.json' -exec cp -f {} /tmp/full-site-audit-evidence/ \;
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          out = Path('/tmp/full-site-audit-evidence/browser-audit-progress.json')
+          out.write_text(json.dumps({
+              'stage': 'pre-browser',
+              'generatedAt': datetime.now(timezone.utc).isoformat(),
+              'status': 'static audits completed; browser audits not started',
+          }, ensure_ascii=False, indent=2), encoding='utf-8')
+          PY
       - name: Install browser audit runtime
         run: |
           npm install --no-save playwright
@@ -79,17 +97,37 @@ jobs:
       - name: Run real browser mobile and adaptive surface audit
         run: |
           set -euxo pipefail
-          mkdir -p preview
+          mkdir -p preview /tmp/full-site-audit-evidence
           ln -s "$PWD/_site" preview/pterminology-site
           VERIFY_FILE="$PWD/_site/google644f1f7a8b7aaa2b.html"
           VERIFY_HOLD="/tmp/google644f1f7a8b7aaa2b.html"
           mv "$VERIFY_FILE" "$VERIFY_HOLD"
           python -m http.server 8000 --directory preview >/tmp/pterminology-http.log 2>&1 &
           SERVER_PID=$!
-          trap 'mv "$VERIFY_HOLD" "$VERIFY_FILE" 2>/dev/null || true; kill $SERVER_PID || true' EXIT
+          trap 'mv "$VERIFY_HOLD" "$VERIFY_FILE" 2>/dev/null || true; kill $SERVER_PID 2>/dev/null || true' EXIT
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/pterminology-site/ >/dev/null && break; sleep 1; done
+
           AUDIT_BASE_URL=http://127.0.0.1:8000/pterminology-site/ AUDIT_OUT_DIR=_site/api node scripts/browser_audit_v16.mjs
-          AUDIT_BASE_URL=http://127.0.0.1:8000/pterminology-site/ AUDIT_OUT_DIR=_site/api HERO_AUDIT_CONCURRENCY=4 node scripts/audit_adaptive_surfaces_v284.mjs _site
+          cp -f _site/api/browser-audit-v16.json /tmp/full-site-audit-evidence/
+
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          out = Path('/tmp/full-site-audit-evidence/browser-audit-progress.json')
+          out.write_text(json.dumps({
+              'stage': 'adaptive-browser-audit',
+              'generatedAt': datetime.now(timezone.utc).isoformat(),
+              'status': 'representative browser audit completed; full adaptive audit running',
+              'adaptiveConcurrency': 2,
+              'nodeOptions': '--max-old-space-size=6144',
+          }, ensure_ascii=False, indent=2), encoding='utf-8')
+          PY
+
+          AUDIT_BASE_URL=http://127.0.0.1:8000/pterminology-site/ AUDIT_OUT_DIR=_site/api HERO_AUDIT_CONCURRENCY=2 node scripts/audit_adaptive_surfaces_v284.mjs _site
+          cp -f _site/api/hero-header-contrast-audit-v283.json /tmp/full-site-audit-evidence/
+          cp -f _site/api/hero-header-contrast-audit-v284.json /tmp/full-site-audit-evidence/
+          cp -f _site/api/hero-header-contrast-audit-v290.json /tmp/full-site-audit-evidence/
       - name: Upload complete audit reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -103,9 +141,11 @@ jobs:
             _site/api/browser-audit-v16.json
             _site/api/hero-header-contrast-audit-v283.json
             _site/api/hero-header-contrast-audit-v284.json
+            _site/api/hero-header-contrast-audit-v290.json
             _site/api/site-integrity-v13.json
             _site/api/core-sections-audit-v15.json
             _site/api/performance-verification-v14.json
+            /tmp/full-site-audit-evidence
             /tmp/pterminology-http.log
           if-no-files-found: warn
           retention-days: 14
