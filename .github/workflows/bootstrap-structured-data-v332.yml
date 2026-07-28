@@ -1,6 +1,8 @@
 name: Bootstrap structured-data implementation v332
 
 on:
+  pull_request:
+    branches: ["main"]
   push:
     branches: ["agent/sitewide-structured-data-v332"]
     paths:
