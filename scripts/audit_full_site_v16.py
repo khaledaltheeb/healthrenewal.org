@@ -170,6 +170,69 @@ def local_target(page: Path, value: str) -> Path | None:
     return target
 
 
+
+def legacy_alias_contract(page: Path, parser: AuditParser) -> tuple[bool, str | None, list[str]]:
+    """Validate explicit noindex redirect aliases without treating them as indexable content."""
+    marker = str(parser.html_attrs.get("data-legacy-path-alias") or "").strip()
+    if not marker:
+        return False, None, []
+
+    rel = page.relative_to(SITE).as_posix()
+    errors: list[str] = []
+    robots = meta_value(parser, "robots")
+    directives = {
+        item.strip().lower()
+        for value in robots
+        for item in value.split(",")
+        if item.strip()
+    }
+    if len(robots) != 1 or not {"noindex", "follow"}.issubset(directives):
+        errors.append(f"Legacy alias robots contract failed in {rel}: {robots}")
+
+    refresh = [
+        item for item in parser.meta
+        if str(item.get("http-equiv", "")).lower() == "refresh"
+    ]
+    destination = ""
+    if len(refresh) != 1:
+        errors.append(f"Legacy alias requires one meta refresh in {rel}, found {len(refresh)}")
+    else:
+        content = str(refresh[0].get("content", ""))
+        match = re.match(r"^\s*0\s*;\s*url\s*=\s*(.+?)\s*$", content, re.I)
+        if not match:
+            errors.append(f"Legacy alias refresh must be immediate in {rel}: {content}")
+        else:
+            destination = match.group(1).strip("\"' ")
+
+    canonical_values = link_values(parser, "canonical")
+    if len(canonical_values) != 1:
+        errors.append(f"Legacy alias requires one canonical in {rel}, found {len(canonical_values)}")
+
+    refresh_target = local_target(page, destination) if destination else None
+    canonical_target = local_target(page, canonical_values[0]) if len(canonical_values) == 1 else None
+    if refresh_target is None:
+        errors.append(f"Legacy alias refresh target is not an internal page in {rel}: {destination}")
+    if canonical_target is None:
+        errors.append(f"Legacy alias canonical target is not an internal page in {rel}: {canonical_values}")
+    if refresh_target is not None and canonical_target is not None and refresh_target != canonical_target:
+        errors.append(
+            f"Legacy alias refresh/canonical mismatch in {rel}: {destination} != {canonical_values[0]}"
+        )
+
+    target = refresh_target or canonical_target
+    target_rel: str | None = None
+    if target is not None:
+        try:
+            target_rel = target.relative_to(SITE).as_posix()
+        except ValueError:
+            errors.append(f"Legacy alias target escapes site root in {rel}: {target}")
+        else:
+            if target == page.resolve():
+                errors.append(f"Legacy alias redirects to itself in {rel}")
+            if not target.is_file():
+                errors.append(f"Legacy alias target is missing in {rel}: {target_rel}")
+    return True, target_rel, errors
+
 def content_minimum(rel: str) -> int:
     if rel.startswith("encyclopedia/concept-"):
         return 1800
@@ -207,6 +270,7 @@ def main() -> int:
     images_without_alt = 0
     oversized_assets: list[str] = []
     section_counts: Counter[str] = Counter()
+    legacy_aliases: dict[str, str] = {}
 
     for page in content_files:
         rel = page.relative_to(SITE).as_posix()
@@ -220,22 +284,28 @@ def main() -> int:
         title = " ".join(parser.title_parts).strip()
         descs = meta_value(parser, "description")
         canonical = link_values(parser, "canonical")
-        titles[title].append(rel)
-        if descs:
-            descriptions[descs[0]].append(rel)
-        if canonical:
-            canonicals[canonical[0]].append(rel)
+        is_legacy_alias, alias_target, alias_errors = legacy_alias_contract(page, parser)
+        errors.extend(alias_errors)
+        if is_legacy_alias:
+            legacy_aliases[rel] = alias_target or ""
+        else:
+            titles[title].append(rel)
+            if descs:
+                descriptions[descs[0]].append(rel)
+            if canonical:
+                canonicals[canonical[0]].append(rel)
 
         if parser.html_attrs.get("lang") != "ar" or parser.html_attrs.get("dir") != "rtl":
             errors.append(f"Arabic document attributes missing in {rel}")
         if parser.tags["title"] != 1 or not title:
             errors.append(f"Invalid title in {rel}")
-        if len(descs) != 1 or not (50 <= len(descs[0]) <= 320):
-            errors.append(f"Invalid meta description in {rel}: {len(descs[0]) if descs else 0}")
-        if len(canonical) != 1:
-            errors.append(f"Expected one canonical in {rel}, found {len(canonical)}")
-        elif canonical[0] != BASE_URL + ("" if rel == "index.html" else rel.removesuffix("index.html")):
-            errors.append(f"Canonical mismatch in {rel}: {canonical[0]}")
+        if not is_legacy_alias:
+            if len(descs) != 1 or not (50 <= len(descs[0]) <= 320):
+                errors.append(f"Invalid meta description in {rel}: {len(descs[0]) if descs else 0}")
+            if len(canonical) != 1:
+                errors.append(f"Expected one canonical in {rel}, found {len(canonical)}")
+            elif canonical[0] != BASE_URL + ("" if rel == "index.html" else rel.removesuffix("index.html")):
+                errors.append(f"Canonical mismatch in {rel}: {canonical[0]}")
         if len(meta_value(parser, "viewport")) != 1:
             errors.append(f"Viewport missing or duplicated in {rel}")
         if len(meta_value(parser, "robots")) != 1:
@@ -245,6 +315,8 @@ def main() -> int:
         duplicate_ids = [x for x, c in Counter(parser.ids).items() if c > 1]
         if duplicate_ids:
             errors.append(f"Duplicate IDs in {rel}: {duplicate_ids[:6]}")
+        if is_legacy_alias:
+            continue
         for previous, current in zip(parser.heading_levels, parser.heading_levels[1:]):
             if current > previous + 1:
                 warnings.append(f"Heading jump h{previous}->h{current} in {rel}")
@@ -418,6 +490,15 @@ def main() -> int:
                         sitemap_urls.append(node.text)
         except Exception as exc:
             errors.append(f"Sitemap index error: {exc}")
+    for alias_rel, target_rel in legacy_aliases.items():
+        alias_url = BASE_URL + alias_rel.removesuffix("index.html")
+        if alias_url in sitemap_urls:
+            errors.append(f"Noindex legacy alias must not be in sitemaps: {alias_url}")
+        if target_rel:
+            target_url = BASE_URL + target_rel.removesuffix("index.html")
+            if target_url not in sitemap_urls:
+                errors.append(f"Legacy alias canonical target is missing from sitemaps: {target_url}")
+
     duplicate_urls = [url for url, count in Counter(sitemap_urls).items() if count > 1]
     if duplicate_urls:
         errors.append(f"Duplicate URLs across sitemaps: {duplicate_urls[:10]}")
@@ -454,6 +535,9 @@ def main() -> int:
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
         "html_pages": len(html_files),
         "content_pages": len(content_files),
+        "legacy_alias_count": len(legacy_aliases),
+        "legacy_aliases": legacy_aliases,
+        "legacy_alias_contract": "noindex-follow-immediate-internal-redirect-v333",
         "section_counts": dict(section_counts),
         "encyclopedia_detail_archive": archive_valid,
         "unique_titles": len([x for x in titles if x]),

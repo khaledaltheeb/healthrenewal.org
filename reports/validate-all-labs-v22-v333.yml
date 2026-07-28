@@ -1,0 +1,304 @@
+name: Validate every assessment and cognitive tool v31
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+
+jobs:
+  exhaustive-labs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore production sources
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          python scripts/verify_enricher_v7.py
+          python scripts/verify_expander_v9.py
+
+      - name: Compile every audit and upgrade script
+        run: |
+          set -euxo pipefail
+          for f in scripts/audit_all_labs_v22.py scripts/audit_content_quality_v32.py scripts/upgrade_cognitive_batch1_v22.py scripts/upgrade_cognitive_batch2_v22.py scripts/fix_initial_cognitive_variation_v25.py scripts/fix_stroop_and_variation_v23.py scripts/complete_cognitive_remaining_v24.py scripts/fix_cognitive_quality_v26.py scripts/finalize_cognitive_lab_v202.py scripts/harden_cognitive_lab_v203.py scripts/publish_provider_assessment_route_v204.py scripts/publish_working_memory_updating_v205.py scripts/publish_prospective_memory_v206.py scripts/publish_associative_binding_v207.py scripts/publish_temporal_order_memory_v208.py scripts/publish_visual_change_detection_v210.py scripts/harden_cognitive_copy_v209.py scripts/finalize_pwa_v14.py scripts/stamp_deployment_v29.py scripts/publish_outside_the_box_v254.py scripts/publish_daily_tools_v24.py scripts/verify_daily_tools_v24.py scripts/publish_sleep_log_v49.py scripts/verify_sleep_log_v49.py scripts/enforce_platform_identity_v201.py; do python -m py_compile "$f"; done
+          python -m py_compile tests/test_platform_identity_v201.py
+          node --check scripts/e2e_all_labs_v22.mjs
+          node --check scripts/test_cognitive_variation_v23.mjs
+          node --check scripts/test_cognitive_variation_v24.mjs
+          node --check assets/sleep-log-v49.js
+          node --check tests/test_sleep_log_v49.mjs
+
+      - name: Test platform identity and inclusive language gate
+        run: python -m unittest -v tests/test_platform_identity_v201.py
+
+      - name: Test outside-the-box provider pathways
+        run: python -m unittest -v tests/test_outside_the_box_v254.py
+
+      - name: Build v6 base
+        run: python build_site.py
+      - name: Enrich v7
+        run: |
+          python enrich_site_v7.py
+          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+      - name: Scale v8
+        run: python scripts/scale_site_v8.py
+      - name: Expand v9
+        run: python expand_site_v9.py
+      - name: Design v10
+        run: python scripts/design_content_v10.py
+      - name: Contrast v11
+        run: python scripts/apply_contrast_v11.py _site
+      - name: Laboratory v12
+        run: python scripts/expand_v12_direct.py _site
+      - name: Encyclopedia v13
+        run: python scripts/run_encyclopedia_v13.py
+      - name: Performance v14 base
+        run: |
+          python scripts/performance_hotfix_v14.py _site
+          python scripts/optimize_site_performance_v14.py _site
+          python scripts/strip_nonlab_runtime_v14.py _site
+      - name: Initial PWA preparation
+        run: python scripts/finalize_pwa_v14.py _site
+      - name: Complete core sections v15
+        run: python scripts/complete_core_sections_v15.py _site
+      - name: Upgrade cognitive batch one
+        run: python scripts/upgrade_cognitive_batch1_v22.py _site
+      - name: Upgrade cognitive batch two
+        run: python scripts/upgrade_cognitive_batch2_v22.py _site
+      - name: Fix initial cognitive variation
+        run: python scripts/fix_initial_cognitive_variation_v25.py _site
+      - name: Fix Stroop and variation coverage
+        run: python scripts/fix_stroop_and_variation_v23.py _site
+      - name: Complete remaining cognitive tools
+        run: python scripts/complete_cognitive_remaining_v24.py _site
+      - name: Fix remaining cognitive quality defects
+        run: python scripts/fix_cognitive_quality_v26.py _site
+
+      - name: Validate generated cognitive runtime and variation
+        run: |
+          set -euxo pipefail
+          node --check _site/assets/js/lab-v12.js
+          node scripts/test_cognitive_variation_v23.mjs _site/assets/js/lab-v12.js | tee _site/api/cognitive-variation-v23.json
+          node scripts/test_cognitive_variation_v24.mjs _site
+
+      - name: Finish exact production output
+        run: |
+          set -euxo pipefail
+          python scripts/apply_homepage_v20.py _site
+          python scripts/publish_care_guides_v21.py _site
+          python scripts/link_care_guides_v21.py _site
+          python scripts/publish_daily_tools_v24.py _site
+          python scripts/verify_daily_tools_v24.py _site
+          python scripts/publish_sleep_log_v49.py _site
+          python - <<'PY'
+          from pathlib import Path
+          page=Path('_site/daily-tools/sleep-wind-down-plan/index.html')
+          text=page.read_text(encoding='utf-8')
+          old='<svg data-sleep-chart viewBox="0 0 720 300" role="img" aria-labelledby="sleep-chart-title sleep-chart-desc"><title id="sleep-chart-title">اتجاهات النوم والجودة والطاقة</title><desc id="sleep-chart-desc">رسم خطي لآخر أربعة عشر سجلًا محفوظًا. الوصف النصي المتجدد يظهر قبل الرسم.</desc>'
+          new='<svg data-sleep-chart viewBox="0 0 720 300" role="img" aria-label="اتجاهات النوم والجودة والطاقة. الوصف النصي المتجدد يظهر قبل الرسم.">'
+          if old not in text:
+              raise SystemExit('Expected sleep chart accessibility markup was not found')
+          page.write_text(text.replace(old,new,1),encoding='utf-8')
+          PY
+          python scripts/verify_sleep_log_v49.py
+          python scripts/polish_site_v16.py _site
+          python scripts/enforce_platform_identity_v201.py _site
+          python scripts/audit_site_integrity_v13.py _site
+          python scripts/audit_content_quality_v32.py _site
+
+      - name: Enforce platform identity production contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/platform-identity-v201.json').read_text(encoding='utf-8'))
+          assert report['pages'] > 0, report
+          assert report['brand'] == 'منصة الصحة النفسية وذوي الاحتياجات الخاصة', report
+          assert report['slogan'] == 'معرفة تحترم الإنسان. دعم يوسّع الإمكانات.', report
+          assert report['remaining_banned_pages'] == [], report
+          assert report['missing_header_pages'] == [], report
+          assert report['missing_footer_pages'] == [], report
+          print({'identity':'passed','pages':report['pages'],'headers_added':report['headers_added'],'footers_added':report['footers_added'],'language_replacements':report['language_replacements']})
+          PY
+
+      - name: Enforce daily tools and learning paths production contract
+        run: |
+          set -euxo pipefail
+          test -f _site/api/daily-tools-v24.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('_site')
+          report = json.loads((root / 'api/daily-tools-v24.json').read_text(encoding='utf-8'))
+          assert report['version'] == 100, report
+          assert report['catalog_contract'] == 100, report
+          assert report['tools'] == 100, report
+          assert report['paths'] == 10, report
+          assert report['pages'] == 112, report
+          daily_pages = list((root / 'daily-tools').rglob('index.html'))
+          learning_pages = list((root / 'learning-paths').rglob('index.html'))
+          assert len(daily_pages) == 101, len(daily_pages)
+          assert len(learning_pages) == 15, len(learning_pages)
+          aliases = []
+          for page in learning_pages:
+              page_text = page.read_text(encoding='utf-8')
+              if 'data-legacy-path-alias=' in page_text:
+                  aliases.append(page)
+                  assert 'noindex,follow' in page_text, page
+                  assert 'http-equiv="refresh"' in page_text, page
+          assert len(aliases) == 4, aliases
+          sitemap = (root / 'sitemap-tools-paths.xml').read_text(encoding='utf-8')
+          assert sitemap.count('<url>') == 112, sitemap.count('<url>')
+          main_sitemap = (root / 'sitemap.xml').read_text(encoding='utf-8')
+          assert main_sitemap.count('sitemap-tools-paths.xml') == 1
+          print({'daily_pages': len(daily_pages), 'learning_pages': len(learning_pages), 'aliases': len(aliases), 'sitemap_urls': 112})
+          PY
+          ! grep -R -Eqi 'fetch\(|XMLHttpRequest|navigator\.sendBeacon|تشخيصك|يعالج نهائيًا|بديل عن الطبيب' _site/daily-tools _site/learning-paths
+          grep -R -q 'لا تُرسل البيانات إلى خادم' _site/daily-tools
+
+      - name: Enforce sleep log production contract
+        run: |
+          set -euxo pipefail
+          test -f _site/daily-tools/sleep-wind-down-plan/index.html
+          test -f _site/assets/sleep-log-v49.js
+          test "$(grep -oi '<title' _site/daily-tools/sleep-wind-down-plan/index.html | wc -l)" -eq 1
+          grep -q 'data-sleep-log' _site/daily-tools/sleep-wind-down-plan/index.html
+          grep -q 'sleep-log-v49.js' _site/daily-tools/sleep-wind-down-plan/index.html
+          grep -q 'aria-label="اتجاهات النوم والجودة والطاقة' _site/daily-tools/sleep-wind-down-plan/index.html
+          grep -q 'لا تُرسل البيانات إلى خادم' _site/daily-tools/sleep-wind-down-plan/index.html
+          grep -q 'غير تشخيص' _site/daily-tools/sleep-wind-down-plan/index.html
+          ! grep -Eqi 'fetch\(|XMLHttpRequest|navigator\.sendBeacon' _site/assets/sleep-log-v49.js
+          node tests/test_sleep_log_v49.mjs
+
+      - name: Finalize and verify PWA across every content page
+        run: |
+          set -euxo pipefail
+          python scripts/finalize_pwa_v14.py _site
+          python - <<'PY'
+          import json,re
+          from pathlib import Path
+          root=Path('_site')
+          report=json.loads((root/'api/pwa-v14.json').read_text(encoding='utf-8'))
+          assert report['service_worker_file'] is True, report
+          assert report['manifest_scope_valid'] is True, report
+          assert report['manifest_start_url_valid'] is True, report
+          assert report['pages_scanned'] > 0, report
+          assert report['registration_verified'] is True, report
+          assert report['verification_files_skipped'] >= 1, report
+          missing=[];verification=[];eligible=0
+          pattern=re.compile(r'^(?:google-site-verification|msvalidate\.01|p:domain_verify|facebook-domain-verification)\s*[:=]',re.I)
+          for path in root.rglob('*.html'):
+              text=path.read_text(encoding='utf-8')
+              if path.parent==root and pattern.match(text.strip()):
+                  verification.append(str(path.relative_to(root)))
+                  continue
+              eligible+=1
+              if 'navigator.serviceWorker.register' not in text or 'sw.js' not in text:
+                  missing.append(str(path.relative_to(root)))
+          assert not missing, {'missing_service_worker_registration': missing[:25], 'count': len(missing)}
+          assert eligible==report['pages_scanned'],(eligible,report)
+          expected='google-site-verification: google644f1f7a8b7aaa2b.html'
+          assert (root/'google644f1f7a8b7aaa2b.html').read_text(encoding='utf-8').strip()==expected
+          print({'pwa_pages': eligible, 'verification_files': verification, 'registration': 'verified', 'cache': report['cache_name']})
+          PY
+
+      - name: Audit definitions names repetition and scoring
+        run: python scripts/audit_all_labs_v22.py _site
+
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Complete all 93 tools on mobile and desktop
+        run: |
+          set -euxo pipefail
+          mkdir -p preview
+          ln -s "$PWD/_site" preview/pterminology-site
+          python -m http.server 8000 --directory preview >/tmp/all-labs-v31-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/pterminology-site/ >/dev/null && break; sleep 1; done
+          AUDIT_BASE_URL=http://127.0.0.1:8000/pterminology-site/ AUDIT_OUT_DIR=_site/api node scripts/e2e_all_labs_v22.mjs
+
+      - name: Enforce final complete pass counts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          static=json.loads(Path('_site/api/all-labs-v22.json').read_text())
+          complete=json.loads(Path('_site/api/cognitive-complete-v24.json').read_text())
+          variation=json.loads(Path('_site/api/cognitive-variation-v24.json').read_text())
+          e2e=json.loads(Path('_site/api/all-labs-e2e-v22.json').read_text())
+          pwa=json.loads(Path('_site/api/pwa-v14.json').read_text())
+          daily=json.loads(Path('_site/api/daily-tools-v24.json').read_text())
+          quality=json.loads(Path('_site/api/content-quality-v32.json').read_text())
+          identity=json.loads(Path('_site/api/platform-identity-v201.json').read_text())
+          updating=json.loads(Path('_site/api/working-memory-updating-v205.json').read_text())
+          prospective=json.loads(Path('_site/api/prospective-memory-v206.json').read_text())
+          binding=json.loads(Path('_site/api/associative-binding-v207.json').read_text())
+          temporal=json.loads(Path('_site/api/temporal-order-v208.json').read_text())
+          visual=json.loads(Path('_site/api/visual-change-v210.json').read_text())
+          copy=json.loads(Path('_site/api/cognitive-copy-v209.json').read_text())
+          homepage=json.loads(Path('_site/api/homepage-v20.json').read_text())
+          assert complete['completed']==53 and complete['remaining']==0,complete
+          assert variation['tools']==53 and variation['errorCount']==0,variation
+          assert static['assessment_count']==40 and static['cognitive_count']==53 and static['error_count']==0,static
+          assert e2e['expectedRuns']==186 and e2e['completedRuns']==186 and e2e['passedRuns']==186 and e2e['failedRuns']==0 and e2e['errorCount']==0,e2e
+          assert updating['cognitive_pages']==49 and updating['total_lab_tools']==89 and updating['diagnostic'] is False,updating
+          assert prospective['cognitive_pages']==50 and prospective['total_lab_tools']==90 and prospective['diagnostic'] is False and prospective['delayed_intention_display'] is True,prospective
+          assert prospective['cue_action_combinations']>=144 and prospective['multiple_choice'] is True,prospective
+          assert binding['cognitive_pages']==51 and binding['total_lab_tools']==91 and binding['diagnostic'] is False,binding
+          assert binding['minimum_pairs']==2 and binding['maximum_pairs']==6 and binding['bidirectional_retrieval'] is True and binding['study_then_test'] is True,binding
+          assert temporal['cognitive_pages']==52 and temporal['total_lab_tools']==92 and temporal['diagnostic'] is False,temporal
+          assert temporal['minimum_sequence_length']==3 and temporal['maximum_sequence_length']==7 and temporal['bidirectional_queries'] is True and temporal['study_then_test'] is True,temporal
+          assert visual['cognitive_pages']==53 and visual['total_lab_tools']==93 and visual['diagnostic'] is False,visual
+          assert visual['minimum_set_size']==3 and visual['maximum_set_size']==7 and visual['change_features']==['shape','color'] and visual['study_then_test'] is True,visual
+          assert copy['cognitive_pages']==53 and copy['error_count']==0 and copy['adjacent_phrase_guard'] is True,copy
+          assert pwa['registration_verified'] and pwa['pages_scanned'] > 0,pwa
+          assert daily['tools']==8 and daily['paths']==4 and daily['pages']==14 and daily['local_only'] is True,daily
+          assert quality['pages_scanned'] > 0 and quality['critical_error_count']==0,quality
+          assert identity['remaining_banned_pages']==[] and identity['missing_header_pages']==[] and identity['missing_footer_pages']==[],identity
+          assert homepage['lab_tool_count']==93 and homepage['lab_inventory_metadata_updated'] is True,homepage
+          print({'site':'passed','cognitive':'53/53','assessments':'40/40','browser':'186/186','daily_tools':'8/8','learning_paths':'4/4','quality_pages':quality['pages_scanned'],'thin_candidates':quality['thin_page_candidates'],'pwa_pages':pwa['pages_scanned'],'identity_pages':identity['pages'],'homepage_lab_tools':homepage['lab_tool_count']})
+          PY
+
+      - name: Stamp validated production build with SHA-256 evidence
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: python scripts/stamp_deployment_v29.py _site
+
+      - name: Upload validated production site
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload final evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-site-audit-v31
+          path: |
+            _site/api/*.json
+            _site/deployment.json
+            /tmp/all-labs-v31-http.log
+          if-no-files-found: warn
+          retention-days: 14
