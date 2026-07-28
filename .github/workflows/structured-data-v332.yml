@@ -1,0 +1,163 @@
+name: Site-wide structured data and Pages v332
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test the structured-data engine
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/apply_structured_data_v332.py tests/test_structured_data_v332.py
+          python -m unittest -v tests/test_structured_data_v332.py
+
+      - name: Restore production generators
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          python scripts/verify_enricher_v7.py
+          python scripts/verify_expander_v9.py
+          python -m py_compile \
+            build_site.py enrich_site_v7.py expand_site_v9.py \
+            scripts/scale_site_v8.py scripts/design_content_v10.py \
+            scripts/apply_contrast_v11.py scripts/expand_v12_direct.py \
+            scripts/run_encyclopedia_v13.py scripts/performance_hotfix_v14.py \
+            scripts/optimize_site_performance_v14.py scripts/strip_nonlab_runtime_v14.py \
+            scripts/finalize_pwa_v14.py scripts/complete_core_sections_v15.py \
+            scripts/diagnose_apply_homepage_v221.py scripts/polish_site_v16.py \
+            scripts/audit_site_integrity_v13.py scripts/verify_performance_v14.py \
+            scripts/verify_core_sections_v15.py scripts/audit_full_site_i18n_v72.py \
+            scripts/apply_structured_data_v332.py scripts/stamp_deployment_v29.py
+
+      - name: Build the complete site
+        run: |
+          set -euxo pipefail
+          python build_site.py
+          python enrich_site_v7.py
+          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+          python scripts/scale_site_v8.py
+          python expand_site_v9.py
+          python scripts/design_content_v10.py
+          python scripts/apply_contrast_v11.py _site
+          python scripts/expand_v12_direct.py _site
+          python scripts/run_encyclopedia_v13.py _site
+          python scripts/performance_hotfix_v14.py _site
+          python scripts/optimize_site_performance_v14.py _site
+          python scripts/strip_nonlab_runtime_v14.py _site
+          python scripts/finalize_pwa_v14.py _site
+          python scripts/complete_core_sections_v15.py _site
+          python scripts/diagnose_apply_homepage_v221.py _site
+          python scripts/polish_site_v16.py _site
+
+      - name: Apply Schema.org JSON-LD to every generated page
+        run: |
+          set -euxo pipefail
+          python scripts/apply_structured_data_v332.py _site --strict --min-pages 1000
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/structured-data-v332.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed', report
+          assert report['eligible_pages'] >= 1000, report
+          assert report['coverage_pages'] == report['eligible_pages'], report
+          assert report['coverage_ratio'] == 1.0, report
+          assert report['errors'] == [], report
+          print({
+              'structured_data':'passed',
+              'pages':report['eligible_pages'],
+              'faq_pages':report['faq_pages'],
+              'medical_condition_pages':report['medical_condition_pages'],
+              'article_pages':report['article_pages'],
+              'interactive_pages':report['interactive_pages'],
+              'invalid_legacy_removed':len(report['invalid_existing_jsonld_removed']),
+          })
+          PY
+
+      - name: Run existing production integrity gates
+        run: |
+          set -euxo pipefail
+          python scripts/audit_site_integrity_v13.py _site
+          python scripts/verify_performance_v14.py _site
+          python scripts/verify_core_sections_v15.py _site
+          python scripts/audit_full_site_i18n_v72.py _site
+          python scripts/stamp_deployment_v29.py _site
+
+      - name: Upload validated site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-with-structured-data-v332
+          path: |
+            _site
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Configure GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build-and-validate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy validated structured site
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify live structured-data coverage and release SHA
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          set -euxo pipefail
+          BASE="${PAGE_URL%/}/"
+          matched=0
+          for i in $(seq 1 30); do
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}deployment.json?v=${EXPECTED_SHA}-${i}" -o /tmp/deployment.json && \
+               curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}api/structured-data-v332.json?v=${EXPECTED_SHA}-${i}" -o /tmp/structured-data.json; then
+              if python -c "import json,os; release=json.load(open('/tmp/deployment.json',encoding='utf-8')); report=json.load(open('/tmp/structured-data.json',encoding='utf-8')); assert release.get('commit')==os.environ['EXPECTED_SHA'], release; assert report.get('status')=='passed', report; assert report.get('coverage_ratio')==1.0, report; assert report.get('coverage_pages')==report.get('eligible_pages'), report"
+              then
+                matched=1
+                break
+              fi
+            fi
+            sleep 10
+          done
+          test "$matched" -eq 1
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}?v=${EXPECTED_SHA}" -o /tmp/home.html
+          grep -q 'data-pterminology-schema="v332"' /tmp/home.html
