@@ -1,0 +1,46 @@
+{
+  "version": 334,
+  "updated_at": "2026-07-28",
+  "canonical_site": "https://khaledaltheeb.github.io/pterminology-site/",
+  "public_content_access": "allowed",
+  "search_and_answer_access": "allowed",
+  "training_and_model_improvement_access": "allowed",
+  "search_and_answer_user_agents": [
+    "Googlebot",
+    "Bingbot",
+    "Applebot",
+    "OAI-SearchBot",
+    "ChatGPT-User",
+    "PerplexityBot",
+    "Perplexity-User",
+    "Claude-SearchBot",
+    "Claude-User",
+    "DuckDuckBot"
+  ],
+  "training_or_model_user_agents": [
+    "GPTBot",
+    "Google-Extended",
+    "Applebot-Extended",
+    "ClaudeBot",
+    "CCBot",
+    "Bytespider",
+    "Meta-ExternalAgent",
+    "Amazonbot"
+  ],
+  "authoritative_controls": [
+    "robots.txt",
+    "page-level robots meta",
+    "HTTP X-Robots-Tag"
+  ],
+  "supplementary_discovery": [
+    "llms.txt",
+    "sitemap-index.xml",
+    "opensearch.xml",
+    "api/"
+  ],
+  "notes": [
+    "robots.txt is advisory and respected only by compliant crawlers.",
+    "Allowing a crawler does not guarantee indexing, ranking, citation, or inclusion in an AI answer.",
+    "Search access and model-training access are separate policy decisions even when both are allowed."
+  ]
+}
