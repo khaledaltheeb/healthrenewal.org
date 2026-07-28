@@ -1,0 +1,22 @@
+{
+  "schema_version": 329,
+  "status": "deployed",
+  "deployment_outcome": "success",
+  "artifact": "validated-production-site",
+  "source_commit": "9b9e247b341f23f364990fbc00b3eaa8f756a415",
+  "deployment_workflow_run_id": "30327421344",
+  "source_workflow_run_id": "30326627613",
+  "page_url": "https://khaledaltheeb.github.io/pterminology-site/",
+  "recorded_at": "2026-07-28T03:59:21+00:00",
+  "academic_library": {
+    "version": 326,
+    "sections": {
+      "branches": 25,
+      "therapies": 27,
+      "research": 28
+    },
+    "entries": 80,
+    "generated_pages": 84,
+    "live_routes_verified": 7
+  }
+}
