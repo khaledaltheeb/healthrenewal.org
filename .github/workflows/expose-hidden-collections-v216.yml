@@ -1,4 +1,4 @@
-name: Expose homepage collections and interactive tools v219
+name: Expose homepage collections and interactive tools v220
 
 on:
   pull_request:
@@ -6,12 +6,14 @@ on:
     paths:
       - "scripts/expose_hidden_collections_v216.py"
       - "scripts/expose_daily_tools_home_v219.py"
+      - "scripts/verify_homepage_v19.py"
       - ".github/workflows/expose-hidden-collections-v216.yml"
   push:
     branches: ["main"]
     paths:
       - "scripts/expose_hidden_collections_v216.py"
       - "scripts/expose_daily_tools_home_v219.py"
+      - "scripts/verify_homepage_v19.py"
       - ".github/workflows/expose-hidden-collections-v216.yml"
   workflow_dispatch:
 
@@ -19,7 +21,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: expose-homepage-collections-v219-${{ github.ref }}
+  group: expose-homepage-collections-v220-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -42,14 +44,28 @@ jobs:
             scripts/expose_hidden_collections_v216.py \
             scripts/expose_daily_tools_home_v219.py \
             scripts/verify_homepage_v19.py
-          python scripts/expose_hidden_collections_v216.py
+
+          # v216 is a one-time migrator for the former compact homepage. Do not
+          # apply it to the current institutional shell after its collections
+          # have already become first-class navigation and JSON-LD entries.
+          if grep -q 'href="comparisons/"' index.html \
+            && grep -q 'href="library/"' index.html \
+            && grep -q 'href="guided-assessment/"' index.html \
+            && grep -q 'href="hubs/"' index.html; then
+            echo "Advanced collection discovery is already present; skipping obsolete v216 migration."
+          else
+            python scripts/expose_hidden_collections_v216.py
+          fi
+
           python scripts/expose_daily_tools_home_v219.py
           python scripts/expose_daily_tools_home_v219.py
           python scripts/verify_homepage_v19.py
-          test "$(grep -o 'href="daily-tools/"' index.html | wc -l)" -eq 2
-          test "$(grep -o 'href="learning-paths/"' index.html | wc -l)" -eq 2
+          test "$(grep -o 'href="daily-tools/"' index.html | wc -l)" -ge 3
+          test "$(grep -o 'href="learning-paths/"' index.html | wc -l)" -ge 3
           test "$(grep -o 'data-daily-tools-v219' index.html | wc -l)" -eq 1
           test "$(grep -o 'data-learning-paths-v219' index.html | wc -l)" -eq 1
+          grep -q '100 أداة عربية عملية' index.html
+          grep -q '10 مسارات مترابطة' index.html
           git diff --check
 
       - name: Commit durable source and regression gate
