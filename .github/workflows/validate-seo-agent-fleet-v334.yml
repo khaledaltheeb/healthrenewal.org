@@ -8,9 +8,12 @@ on:
       - "llms.txt"
       - "api/ai-crawler-policy.json"
       - "scripts/seo_agent_fleet_v334.py"
+      - "scripts/submit_indexnow_v334.py"
       - "tests/test_seo_agent_fleet_v334.py"
+      - "tests/test_submit_indexnow_v334.py"
       - ".github/workflows/validate-seo-agent-fleet-v334.yml"
       - ".github/workflows/validate-full-site-v16.yml"
+      - ".github/workflows/deploy-validated-pages-v327.yml"
   push:
     branches: ["main"]
     paths:
@@ -18,9 +21,12 @@ on:
       - "llms.txt"
       - "api/ai-crawler-policy.json"
       - "scripts/seo_agent_fleet_v334.py"
+      - "scripts/submit_indexnow_v334.py"
       - "tests/test_seo_agent_fleet_v334.py"
+      - "tests/test_submit_indexnow_v334.py"
       - ".github/workflows/validate-seo-agent-fleet-v334.yml"
       - ".github/workflows/validate-full-site-v16.yml"
+      - ".github/workflows/deploy-validated-pages-v327.yml"
   workflow_dispatch:
 
 permissions:
@@ -35,10 +41,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Compile deterministic SEO engine
-        run: python -m py_compile scripts/seo_agent_fleet_v334.py
-      - name: Run fourteen regression tests
-        run: python -m unittest discover -s tests -p 'test_seo_agent_fleet_v334.py' -v
+      - name: Compile deterministic SEO and IndexNow engines
+        run: |
+          python -m py_compile scripts/seo_agent_fleet_v334.py
+          python -m py_compile scripts/submit_indexnow_v334.py
+      - name: Run SEO and IndexNow regression tests
+        run: python -m unittest discover -s tests -p 'test_*v334.py' -v
       - name: Verify discovery policy remains explicit
         run: |
           python - <<'PY'
@@ -53,7 +61,9 @@ jobs:
           assert 'GPTBot' in policy['training_or_model_user_agents'], policy
           robots = Path('robots.txt').read_text(encoding='utf-8')
           llms = Path('llms.txt').read_text(encoding='utf-8')
+          deployment = Path('.github/workflows/deploy-validated-pages-v327.yml').read_text(encoding='utf-8')
           assert 'Allow: /' in robots and 'sitemap-index.xml' in robots, robots
           assert policy['canonical_site'] in llms and 'Sitemap index' in llms, llms
+          assert 'submit_indexnow_v334.py' in deployment, deployment
           print({'status': 'passed', 'policy_version': policy['version']})
           PY
