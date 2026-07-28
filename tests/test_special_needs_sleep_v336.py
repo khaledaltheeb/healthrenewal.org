@@ -20,8 +20,7 @@ class SpecialNeedsSleepSupportV336Tests(unittest.TestCase):
         (site / "api").mkdir(parents=True)
         (site / "special-needs" / "index.html").write_text(
             "<!doctype html><html lang='ar' dir='rtl'><head><title>ذوو الاحتياجات الخاصة</title></head>"
-            "<body><main><h1>ذوو الاحتياجات الخاصة</h1>"
-            "<!-- special-needs-guides-v214:end --></main></body></html>",
+            "<body><main><h1>ذوو الاحتياجات الخاصة</h1><div class=\"resources\"></div></main></body></html>",
             encoding="utf-8",
         )
         sitemap = (
@@ -36,11 +35,12 @@ class SpecialNeedsSleepSupportV336Tests(unittest.TestCase):
 
     def test_source_contract(self) -> None:
         data = publisher.load_data()
+        serialized = json.dumps(data, ensure_ascii=False)
         self.assertGreaterEqual(publisher.words(data), 900)
         self.assertEqual(data["review_status"], "internally-reviewed")
         self.assertEqual(data["external_review"], "recommended-not-completed")
         self.assertEqual(len(data["sources"]), 4)
-        self.assertFalse(any("معاقين" in json.dumps(data, ensure_ascii=False) for _ in [0]))
+        self.assertNotIn("معاقين", serialized)
 
     def test_publish_contract(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -58,6 +58,7 @@ class SpecialNeedsSleepSupportV336Tests(unittest.TestCase):
             self.assertIn("10.1542/peds.2012-0900I", json.dumps(publisher.load_data(), ensure_ascii=False))
             self.assertNotIn("معاقين", html)
             self.assertIn(report["canonical_url"], html)
+            self.assertIn("special-needs-sleep-v336:start", (site / "special-needs" / "index.html").read_text(encoding="utf-8"))
 
             root = ET.parse(site / "sitemap-special-needs.xml").getroot()
             urls = [node.text for node in root.findall("{*}url/{*}loc") if node.text]
