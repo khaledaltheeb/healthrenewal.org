@@ -27,7 +27,7 @@ function Assert-Command {
         [Parameter(Mandatory)][string]$InstallHint
     )
     if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
-        throw "الأداة '$Name' غير مثبتة. $InstallHint"
+        throw "Required command '$Name' is not installed. $InstallHint"
     }
 }
 
@@ -64,7 +64,7 @@ function Set-RepositorySecret {
         [Parameter(Mandatory)][string]$Value
     )
     if ([string]::IsNullOrWhiteSpace($Value)) {
-        throw "القيمة المطلوبة للسر $Name فارغة."
+        throw "The value for secret $Name is empty."
     }
 
     $previousPreference = $ErrorActionPreference
@@ -72,7 +72,7 @@ function Set-RepositorySecret {
         $ErrorActionPreference = "Continue"
         $Value | & gh secret set $Name --repo $Repository
         if ($LASTEXITCODE -ne 0) {
-            throw "تعذر حفظ GitHub Secret: $Name"
+            throw "Unable to save GitHub secret: $Name"
         }
     }
     finally {
@@ -103,7 +103,7 @@ function Save-AdminCredential {
         Set-Acl -Path $path -AclObject $acl
     }
     catch {
-        Write-Warning "تعذر تضييق أذونات ملف الاعتماد، لكنه ما يزال مشفرًا بواسطة حساب Windows الحالي."
+        Write-Warning "Unable to restrict the credential file ACL. The file remains encrypted for the current Windows account."
     }
 
     return $path
@@ -115,7 +115,7 @@ function Test-CloudflareToken {
     $uri = "https://api.cloudflare.com/client/v4/accounts/$AccountId/tokens/verify"
     $response = Invoke-RestMethod -Method Get -Uri $uri -Headers @{ Authorization = "Bearer $Token" }
     if ($response.success -ne $true -or $response.result.status -ne "active") {
-        throw "رمز Cloudflare غير نشط أو لا يخص الحساب المحدد."
+        throw "The Cloudflare token is inactive or does not belong to the selected account."
     }
 }
 
@@ -129,7 +129,7 @@ function Get-LatestBootstrapRun {
         --limit 10 `
         --json databaseId,status,conclusion,url,createdAt
     if ($LASTEXITCODE -ne 0) {
-        throw "تعذر قراءة تشغيلات GitHub Actions."
+        throw "Unable to read GitHub Actions workflow runs."
     }
 
     $runs = @($json | ConvertFrom-Json)
@@ -139,53 +139,53 @@ function Get-LatestBootstrapRun {
         Select-Object -First 1
 }
 
-Write-Host "إعداد آمن لقطاع المختصين — Cloudflare وGitHub" -ForegroundColor Green
-Write-Host "لا تُدخل الرمز السابق الذي ظهر في المحادثة. أنشئ رمزًا بديلًا محدود الصلاحيات أولًا." -ForegroundColor Yellow
+Write-Host "Secure specialists setup - Cloudflare and GitHub" -ForegroundColor Green
+Write-Host "Do not use the Cloudflare token that appeared in the chat. Create and use a replacement token." -ForegroundColor Yellow
 
-Write-Step "فحص الأدوات والاتصال بحساب GitHub"
-Assert-Command -Name "gh" -InstallHint "ثبّتها عبر: winget install --id GitHub.cli"
+Write-Step "Checking GitHub CLI and repository access"
+Assert-Command -Name "gh" -InstallHint "Install it with: winget install --id GitHub.cli"
 
 & gh auth status --hostname github.com
 if ($LASTEXITCODE -ne 0) {
-    throw "سجّل الدخول أولًا بالأمر: gh auth login"
+    throw "Sign in first with: gh auth login"
 }
 
 & gh repo view $Repository --json nameWithOwner,defaultBranchRef | Out-Null
 if ($LASTEXITCODE -ne 0) {
-    throw "لا توجد صلاحية للوصول إلى المستودع $Repository بالحساب الحالي."
+    throw "The current GitHub account cannot access $Repository."
 }
 
 if ($AccountId -notmatch '^[0-9a-f]{32}$') {
-    throw "معرّف حساب Cloudflare غير صالح."
+    throw "The Cloudflare account ID is invalid."
 }
 
-Write-Step "إدخال القيم الحساسة داخل الطرفية"
-$cloudflareToken = Read-PlainSecret "ألصق رمز Cloudflare البديل المحدود"
-$resendApiKey = Read-PlainSecret "ألصق Resend API key"
-$fromEmail = Read-Host "عنوان المرسل الموثق، مثال: notifications@example.com"
+Write-Step "Reading secrets securely in this terminal"
+$cloudflareToken = Read-PlainSecret "Paste the replacement Cloudflare token"
+$resendApiKey = Read-PlainSecret "Paste the Resend API key"
+$fromEmail = Read-Host "Verified sender email, for example notifications@example.com"
 
 if ($cloudflareToken.Length -lt 20) {
-    throw "رمز Cloudflare أقصر من المتوقع."
+    throw "The Cloudflare token is shorter than expected."
 }
 if ($resendApiKey.Length -lt 20) {
-    throw "مفتاح Resend أقصر من المتوقع."
+    throw "The Resend API key is shorter than expected."
 }
 if ($fromEmail -notmatch '@') {
-    throw "عنوان المرسل غير صالح. استخدم عنوانًا على نطاق موثق في Resend."
+    throw "The sender email is invalid. Use an address on a domain verified in Resend."
 }
 
-Write-Step "التحقق من رمز Cloudflare البديل"
+Write-Step "Verifying the replacement Cloudflare token"
 Test-CloudflareToken -Token $cloudflareToken
-Write-Host "تم التحقق من نشاط الرمز للحساب المحدد." -ForegroundColor Green
+Write-Host "The token is active for the selected account." -ForegroundColor Green
 
-Write-Step "توليد مفاتيح تشغيل محلية قوية"
+Write-Step "Generating strong local operation keys"
 $adminApiKey = New-RandomSecret -ByteCount 48
 $rateLimitSalt = New-RandomSecret -ByteCount 48
 $credentialPath = Save-AdminCredential -AdminKey $adminApiKey
-Write-Host "تم حفظ مفتاح الإدارة محليًا بصورة مشفرة في:" -ForegroundColor Green
+Write-Host "The admin key was encrypted locally at:" -ForegroundColor Green
 Write-Host $credentialPath
 
-Write-Step "حفظ الأسرار في GitHub Actions Secrets"
+Write-Step "Saving GitHub Actions secrets"
 Set-RepositorySecret -Name "CLOUDFLARE_API_TOKEN" -Value $cloudflareToken
 Set-RepositorySecret -Name "RESEND_API_KEY" -Value $resendApiKey
 Set-RepositorySecret -Name "SPECIALISTS_ADMIN_API_KEY" -Value $adminApiKey
@@ -199,7 +199,7 @@ $rateLimitSalt = $null
 [GC]::Collect()
 [GC]::WaitForPendingFinalizers()
 
-Write-Step "تشغيل تهيئة Cloudflare والنشر"
+Write-Step "Starting Cloudflare provisioning and deployment"
 $dispatchStartedAt = [datetime]::UtcNow
 & gh workflow run "bootstrap-specialists-cloudflare.yml" `
     --repo $Repository `
@@ -210,7 +210,7 @@ $dispatchStartedAt = [datetime]::UtcNow
     -f "widget_name=$WidgetName" `
     -f "hostname=$Hostname"
 if ($LASTEXITCODE -ne 0) {
-    throw "تعذر بدء Workflow التهيئة."
+    throw "Unable to start the bootstrap workflow."
 }
 
 $run = $null
@@ -219,31 +219,31 @@ for ($attempt = 1; $attempt -le 12 -and -not $run; $attempt++) {
     $run = Get-LatestBootstrapRun -NotBefore $dispatchStartedAt
 }
 if (-not $run) {
-    throw "بدأ الطلب لكن تعذر تحديد تشغيل GitHub Actions. افتح تبويب Actions في المستودع."
+    throw "The workflow was requested, but its run could not be located. Open the repository Actions tab."
 }
 
-Write-Host "رابط التشغيل: $($run.url)" -ForegroundColor Cyan
+Write-Host "Workflow run: $($run.url)" -ForegroundColor Cyan
 & gh run watch $run.databaseId --repo $Repository --exit-status
 if ($LASTEXITCODE -ne 0) {
-    throw "فشل النشر. افتح رابط التشغيل أعلاه لمراجعة الخطوة المتوقفة دون نسخ أي سر إلى السجل."
+    throw "Deployment failed. Open the workflow link above and inspect the failed step without copying any secret into logs."
 }
 
-Write-Step "التحقق من ربط الواجهة"
+Write-Step "Checking frontend runtime configuration"
 Start-Sleep -Seconds 3
 $runtime = & gh api "repos/$Repository/contents/specialists-partners/assets/runtime-config.js?ref=main" --jq '.content'
 if ($LASTEXITCODE -eq 0 -and $runtime) {
     $decoded = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String(($runtime -replace '\s', '')))
     if ($decoded -match 'apiBase:\s*"https://') {
-        Write-Host "تم ربط عنوان Worker العام بالواجهة." -ForegroundColor Green
+        Write-Host "The public Worker URL is connected to the frontend." -ForegroundColor Green
     }
     else {
-        Write-Warning "اكتمل Workflow لكن runtime-config.js لا يعرض عنوان API بعد. راجع آخر خطوة في التشغيل."
+        Write-Warning "The workflow finished, but runtime-config.js does not contain the API URL yet. Review the final workflow step."
     }
 }
 
-Write-Host "`nاكتمل إعداد الموارد والنشر والربط." -ForegroundColor Green
-Write-Host "صفحة القطاع: https://khaledaltheeb.github.io/pterminology-site/specialists-partners/"
-Write-Host "لوحة الإدارة: https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/"
-Write-Host "`nلاسترجاع مفتاح الإدارة محليًا:" -ForegroundColor Yellow
+Write-Host "`nResource setup, deployment, and frontend connection completed." -ForegroundColor Green
+Write-Host "Sector page: https://khaledaltheeb.github.io/pterminology-site/specialists-partners/"
+Write-Host "Admin page: https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/"
+Write-Host "`nTo recover the admin key locally:" -ForegroundColor Yellow
 Write-Host "(Import-Clixml '$credentialPath').GetNetworkCredential().Password"
-Write-Host "`nبعد نجاح الاختبار الحي، يمكن إلغاء رمز Cloudflare المؤقت وإنشاء رمز تشغيل جديد عند الحاجة." -ForegroundColor Yellow
+Write-Host "`nAfter a successful live test, revoke the temporary Cloudflare token or replace it with an operational token." -ForegroundColor Yellow
