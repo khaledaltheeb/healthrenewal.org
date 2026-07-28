@@ -75,6 +75,43 @@ jobs:
           python scripts/diagnose_apply_homepage_v221.py _site
           python scripts/polish_site_v16.py _site
 
+      - name: Finalize sector, metadata, sitemap, and PWA surfaces
+        run: |
+          set -euxo pipefail
+          PYTHONPATH=scripts python - <<'PY'
+          from pathlib import Path
+          from publish_family_sector_v249 import upgrade as upgrade_family_sector
+          from upgrade_child_sector_v239 import upgrade as upgrade_child_sector
+          from upgrade_home_sector_v234 import upgrade as upgrade_home_sector
+          from upgrade_women_sector_v244 import upgrade as upgrade_women_sector
+
+          site = Path('_site')
+          reports = {
+              'home': upgrade_home_sector(site),
+              'child': upgrade_child_sector(site),
+              'women': upgrade_women_sector(site),
+              'family': upgrade_family_sector(site),
+          }
+          for name, report in reports.items():
+              assert report.get('status') == 'passed', (name, report)
+          print({name: {'version': report.get('version'), 'articles': report.get('source_articles')} for name, report in reports.items()})
+          PY
+          python scripts/normalize_platform_shell.py _site --report-path _site/api/platform-normalization-v1.json
+          python scripts/publish_global_metadata_v27.py _site
+          python scripts/generate_sitemap_index_v304.py _site
+          python scripts/audit_indexing_coverage_v303.py _site
+          python scripts/finalize_pwa_v14.py _site
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          metadata=json.loads(Path('_site/api/global-metadata-v27.json').read_text(encoding='utf-8'))
+          pwa=json.loads(Path('_site/api/pwa-v14.json').read_text(encoding='utf-8'))
+          assert metadata['status']=='passed', metadata
+          assert pwa['registration_verified'] is True, pwa
+          assert metadata['pages_scanned']==pwa['pages_scanned'], (metadata, pwa)
+          print({'finalized_pages': metadata['pages_scanned'], 'pwa_pages': pwa['pages_scanned']})
+          PY
+
       - name: Apply Schema.org JSON-LD to every generated page
         run: |
           set -euxo pipefail
@@ -99,6 +136,24 @@ jobs:
           })
           PY
 
+      - name: Stamp final deployment provenance
+        run: python scripts/stamp_deployment_v29.py _site
+
+      - name: Verify schema remains complete after production stamping
+        run: |
+          set -euxo pipefail
+          python scripts/apply_structured_data_v332.py _site --strict --min-pages 1000
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/structured-data-v332.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed', report
+          assert report['coverage_ratio']==1.0, report
+          assert report['coverage_pages']==report['eligible_pages'], report
+          assert report['pages_updated']==0, report
+          print({'post_stamp_schema':'stable','pages':report['eligible_pages'],'pages_updated':report['pages_updated']})
+          PY
+
       - name: Audit site integrity
         run: python scripts/audit_site_integrity_v13.py _site
 
@@ -110,9 +165,6 @@ jobs:
 
       - name: Audit Arabic and i18n coverage
         run: python scripts/audit_full_site_i18n_v72.py _site
-
-      - name: Stamp deployment provenance
-        run: python scripts/stamp_deployment_v29.py _site
 
       - name: Upload diagnostic reports
         if: always()
