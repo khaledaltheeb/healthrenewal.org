@@ -1,6 +1,8 @@
 name: Patch platform release invariant v333
 
 on:
+  pull_request:
+    branches: ["main"]
   push:
     branches: ["agent/sitewide-structured-data-v332"]
     paths:
