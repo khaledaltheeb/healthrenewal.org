@@ -36,7 +36,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   actions: read
   pages: write
   id-token: write
@@ -196,6 +196,12 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
+      - name: Checkout repository for durable receipt
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: _repo
+
       - name: Download validated overlay from this run
         uses: actions/download-artifact@v4
         with:
@@ -254,6 +260,63 @@ jobs:
           curl -fsSL "${PAGE_URL}learning-paths/stress-basics-7-days/?sha=${GITHUB_SHA}" -o /tmp/legacy-path-live.html
           grep -q 'data-legacy-path-alias="v100"' /tmp/legacy-path-live.html
           grep -q 'noindex,follow' /tmp/legacy-path-live.html
+
+      - name: Record verified Pages deployment
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          WORKFLOW_RUN: ${{ github.run_id }}
+          DEPLOYMENT_COMMIT: ${{ github.sha }}
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          report = json.loads(Path('_site/api/daily-tools-overlay-v100.json').read_text(encoding='utf-8'))
+          receipt = {
+              'status': 'deployed',
+              'deployment_outcome': 'success',
+              'contract': report['contract'],
+              'workflow_run': int(os.environ['WORKFLOW_RUN']),
+              'deployment_commit': os.environ['DEPLOYMENT_COMMIT'],
+              'page_url': os.environ['PAGE_URL'],
+              'base_validated_run': report['base_validated_run'],
+              'base_source_commit': report['base_source_commit'],
+              'tools': report['tools'],
+              'categories': report['categories'],
+              'paths': report['paths'],
+              'indexable_pages': report['indexable_pages'],
+              'canonical_learning_path_pages': report['canonical_learning_path_pages'],
+              'legacy_alias_pages': report['legacy_alias_pages'],
+              'live_verified': True,
+              'verified_at': datetime.now(timezone.utc).isoformat(),
+          }
+          Path('_repo/daily-tools-pages-status-v100.json').write_text(
+              json.dumps(receipt, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(receipt)
+          PY
+          cd _repo
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add daily-tools-pages-status-v100.json
+          if git diff --cached --quiet; then
+            echo "Deployment receipt is already current."
+            exit 0
+          fi
+          git commit -m "ci: record verified daily-tools v100 Pages deployment [skip ci]"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Unable to publish the verified deployment receipt." >&2
+          exit 1
 
       - name: Upload live deployment evidence
         if: always()
