@@ -1,9 +1,9 @@
-# retrigger: apply the validated 100-tool production contract
+# one-time main trigger: apply the validated 100-tool production contract
 name: Patch production daily-tools contract v100
 
 on:
   push:
-    branches: ["fix/production-daily-tools-v100"]
+    branches: ["main"]
     paths:
       - ".github/workflows/patch-production-daily-tools-v100.yml"
 
@@ -55,4 +55,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "إصلاح عقد الإنتاج لكتالوج الأدوات المئة"
-          git push origin HEAD:fix/production-daily-tools-v100
+          git push origin HEAD:main
