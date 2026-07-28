@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-28T04:09:34.363595+00:00",
+  "generated_at": "2026-07-28T02:44:27.365519+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -11,12 +11,12 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 124,
-  "html_pages_normalized_or_current": 123,
+  "html_pages_seen": 120,
+  "html_pages_normalized_or_current": 119,
   "counts": {
-    "current": 119,
+    "current": 118,
     "skipped": 1,
-    "updated": 4
+    "updated": 1
   },
   "results": [
     {
@@ -286,7 +286,7 @@
     },
     {
       "path": "magazine/grieving-adolescents-alba-app-rct-2026.html",
-      "status": "current",
+      "status": "updated",
       "detail": ""
     },
     {
@@ -567,26 +567,6 @@
     {
       "path": "sections/index.html",
       "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "sectors/child/assessment/index.html",
-      "status": "updated",
-      "detail": ""
-    },
-    {
-      "path": "sectors/child/index.html",
-      "status": "updated",
-      "detail": ""
-    },
-    {
-      "path": "sectors/child/interventions/index.html",
-      "status": "updated",
-      "detail": ""
-    },
-    {
-      "path": "sectors/child/library/index.html",
-      "status": "updated",
       "detail": ""
     },
     {
