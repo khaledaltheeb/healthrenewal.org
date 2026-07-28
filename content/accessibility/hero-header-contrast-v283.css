@@ -61,6 +61,28 @@
   color: var(--hh-surface-text) !important;
 }
 
+/* v293 — an explicit/derived surface owns the final foreground decision.
+ * Legacy auto-contrast classes may be re-added by older bundles after the
+ * computed-style guard runs. These selectors make the surface contract
+ * authoritative without imposing one global foreground on every page. */
+:is(.hh-overlay-light, [data-surface="light"], [data-theme="light"], .surface-light, .theme-light, .hh-surface-light)
+  :is(.auto-contrast-light, .hh-text-on-dark),
+:is(.hh-overlay-light, [data-surface="light"], [data-theme="light"], .surface-light, .theme-light, .hh-surface-light).auto-contrast-light,
+:is(.hh-overlay-light, [data-surface="light"], [data-theme="light"], .surface-light, .theme-light, .hh-surface-light).hh-text-on-dark {
+  color: var(--hh-on-light) !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: none !important;
+}
+
+:is(.hh-overlay-dark, [data-surface="dark"], [data-theme="dark"], .surface-dark, .theme-dark, .hh-surface-dark)
+  :is(.auto-contrast-dark, .hh-text-on-light),
+:is(.hh-overlay-dark, [data-surface="dark"], [data-theme="dark"], .surface-dark, .theme-dark, .hh-surface-dark).auto-contrast-dark,
+:is(.hh-overlay-dark, [data-surface="dark"], [data-theme="dark"], .surface-dark, .theme-dark, .hh-surface-dark).hh-text-on-light {
+  color: var(--hh-on-dark) !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.38) !important;
+}
+
 :where(
   .hh-text-on-dark,
   .hh-text-on-light,
