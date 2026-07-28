@@ -74,7 +74,7 @@ jobs:
           set -euxo pipefail
           python scripts/seo_agent_fleet_v334.py _site \
             --base-url "$SITE_BASE" \
-            --report-dir _site/api/seo-audit-v334 \
+            --report-dir api/seo-audit-v334 \
             --fail-on critical
       - name: Install browser audit runtime
         run: |
