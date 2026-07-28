@@ -58,21 +58,22 @@ class PlatformIdentityV201Tests(unittest.TestCase):
             "magazine/autism-parents-mbsr-depression-anxiety-stress-rct-2026.html",
             "magazine/grieving-adolescents-alba-app-rct-2026.html",
             "magazine/adolescent-school-guided-narrative-writing-cluster-rct-2026.html",
+            "magazine/autism-mentorship-program-pilot-rct-2026.html",
             "magazine/feed.xml",
         ):
             self.assertTrue((site / relative).is_file(), relative)
         index = (site / "magazine/index.html").read_text(encoding="utf-8")
-        self.assertIn('"numberOfItems":77', index)
-        self.assertEqual(index.count('class="card"'), 77)
+        self.assertIn('"numberOfItems":78', index)
+        self.assertEqual(index.count('class="card"'), 78)
         self.assertIn("الهدف المرحلي 100 قراءة", index)
         report = json.loads((site / "api/platform-identity-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(report["pages"], 83)
+        self.assertEqual(report["pages"], 84)
         self.assertEqual(report["headers_added"], 1)
         self.assertEqual(report["footers_added"], 1)
         self.assertGreaterEqual(report["language_replacements"], 4)
         self.assertTrue(report["trust_guides_published"])
         self.assertTrue(report["magazine_published"])
-        self.assertEqual(report["magazine_pages"], 77)
+        self.assertEqual(report["magazine_pages"], 78)
         self.assertEqual(report["magazine_unwired_pages"], 0)
         self.assertEqual(report["magazine_report"], "api/magazine-v201.json")
         self.assertEqual(report["remaining_banned_pages"], [])
@@ -80,11 +81,11 @@ class PlatformIdentityV201Tests(unittest.TestCase):
         self.assertEqual(report["missing_footer_pages"], [])
         magazine = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
         self.assertEqual(magazine["version"], 315)
-        self.assertEqual(magazine["research_summaries_published"], 77)
+        self.assertEqual(magazine["research_summaries_published"], 78)
         self.assertEqual(magazine["target_research_summaries"], 100)
-        self.assertEqual(magazine["remaining_to_target"], 23)
+        self.assertEqual(magazine["remaining_to_target"], 22)
         self.assertEqual(magazine["unwired_research_pages"], 0)
-        self.assertEqual(magazine["sitemap"]["child_urls"], 78)
+        self.assertEqual(magazine["sitemap"]["child_urls"], 79)
         self.assertEqual(magazine["rss_contract"], "latest-twenty-sorted-by-datePublished")
 
     def test_tools_page_uses_marshmallow_contrast(self) -> None:
@@ -127,9 +128,9 @@ class PlatformIdentityV201Tests(unittest.TestCase):
         self.assertEqual(first_magazine, second_magazine)
         self.assertEqual(first_feed, second_feed)
         magazine_report = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(magazine_report["research_summaries_published"], 77)
+        self.assertEqual(magazine_report["research_summaries_published"], 78)
         self.assertEqual(magazine_report["target_research_summaries"], 100)
-        self.assertEqual(magazine_report["sitemap"]["child_urls"], 78)
+        self.assertEqual(magazine_report["sitemap"]["child_urls"], 79)
         self.assertEqual(magazine_report["rss_contract"], "latest-twenty-sorted-by-datePublished")
 
 
