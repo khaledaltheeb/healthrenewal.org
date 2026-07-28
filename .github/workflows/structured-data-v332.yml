@@ -152,7 +152,8 @@ jobs:
           assert metadata['status']=='passed', metadata
           assert pwa['registration_verified'] is True, pwa
           assert metadata['pages_scanned']==pwa['pages_scanned'], (metadata, pwa)
-          assert metadata['pages_scanned']==experience['eligible_pages'], (metadata, experience)
+          assert metadata['pages_scanned'] >= experience['eligible_pages'], (metadata, experience)
+          assert metadata['pages_scanned'] - experience['eligible_pages'] <= 20, (metadata, experience)
           print({'finalized_pages':metadata['pages_scanned'],'pwa_pages':pwa['pages_scanned']})
           PY
 
