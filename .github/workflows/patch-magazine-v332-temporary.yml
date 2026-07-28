@@ -1,0 +1,117 @@
+name: Patch magazine reading 78 contracts temporary
+
+on:
+  push:
+    branches: ["agent/magazine-autism-mentorship-pilot-rct-v332"]
+    paths:
+      - ".github/workflows/patch-magazine-v332-temporary.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/magazine-autism-mentorship-pilot-rct-v332
+          fetch-depth: 0
+      - name: Patch counts source markers and live verification
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_all(path, replacements):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              for old, new in replacements:
+                  if old not in text:
+                      raise SystemExit(f'missing anchor in {path}: {old}')
+                  text = text.replace(old, new)
+              p.write_text(text, encoding='utf-8')
+
+          script = Path('scripts/publish_magazine_v201.py')
+          text = script.read_text(encoding='utf-8')
+          anchor = '    "adhd-dexamphetamine-methylphenidate-randomized-2026.html": ("10.1111/jpc.70487", "42415397", "−1.44"),\n'
+          addition = anchor + '    "autism-mentorship-program-pilot-rct-2026.html": ("10.1007/s10803-026-07272-w", "41774317", "24 مراهقًا", "23 جلسة أسبوعية"),\n'
+          if '"autism-mentorship-program-pilot-rct-2026.html"' not in text:
+              if text.count(anchor) != 1:
+                  raise SystemExit('publisher marker anchor missing or ambiguous')
+              text = text.replace(anchor, addition, 1)
+          script.write_text(text, encoding='utf-8')
+
+          replace_all('tests/test_magazine_research_v234.py', [
+              ('self.assertEqual(len(pages), 77)', 'self.assertEqual(len(pages), 78)'),
+              ('self.assertEqual(report["research_summaries_published"], 77)', 'self.assertEqual(report["research_summaries_published"], 78)'),
+              ('self.assertEqual(report["remaining_to_target"], 23)', 'self.assertEqual(report["remaining_to_target"], 22)'),
+              ('self.assertEqual(len(report["articles"]), 77)', 'self.assertEqual(len(report["articles"]), 78)'),
+              ('self.assertEqual(report["sitemap"]["child_urls"], 78)', 'self.assertEqual(report["sitemap"]["child_urls"], 79)'),
+              ('self.assertEqual(len(urls), 78)', 'self.assertEqual(len(urls), 79)'),
+              ('self.assertEqual(saved["research_summaries_published"], 77)', 'self.assertEqual(saved["research_summaries_published"], 78)'),
+              ('self.assertIn(\'"numberOfItems":77\', index)', 'self.assertIn(\'"numberOfItems":78\', index)'),
+              ('self.assertIn("77 قراءة علمية مستقلة", index)', 'self.assertIn("78 قراءة علمية مستقلة", index)'),
+              ('self.assertIn("المتبقي 23", index)', 'self.assertIn("المتبقي 22", index)'),
+              ('self.assertEqual(index.count(\'class="card"\'), 77)', 'self.assertEqual(index.count(\'class="card"\'), 78)'),
+              ('self.assertEqual(index.count(\'"@type":"ScholarlyArticle"\'), 77)', 'self.assertEqual(index.count(\'"@type":"ScholarlyArticle"\'), 78)'),
+              ('self.assertEqual(index.count(\'"datePublished"\'), 77)', 'self.assertEqual(index.count(\'"datePublished"\'), 78)'),
+          ])
+          test = Path('tests/test_magazine_research_v234.py')
+          text = test.read_text(encoding='utf-8')
+          anchor = '            "adolescent-school-guided-narrative-writing-cluster-rct-2026.html": ("10.1186/s12916-026-04816-w", "41888870", "211 طالبًا", "d=−0.22", "لم تظهر فروق دالة في الاكتئاب"),\n'
+          addition = anchor + '            "autism-mentorship-program-pilot-rct-2026.html": ("10.1007/s10803-026-07272-w", "41774317", "24 مراهقًا", "23 جلسة أسبوعية", "الفاعلية النفسية: مؤشرات أولية فقط"),\n'
+          if '"autism-mentorship-program-pilot-rct-2026.html"' not in text:
+              if text.count(anchor) != 1:
+                  raise SystemExit('test marker anchor missing or ambiguous')
+              text = text.replace(anchor, addition, 1)
+          test.write_text(text, encoding='utf-8')
+
+          replace_all('tests/test_platform_identity_v201.py', [
+              ('            "magazine/adolescent-school-guided-narrative-writing-cluster-rct-2026.html",\n', '            "magazine/adolescent-school-guided-narrative-writing-cluster-rct-2026.html",\n            "magazine/autism-mentorship-program-pilot-rct-2026.html",\n'),
+              ('self.assertIn(\'"numberOfItems":77\', index)', 'self.assertIn(\'"numberOfItems":78\', index)'),
+              ('self.assertEqual(index.count(\'class="card"\'), 77)', 'self.assertEqual(index.count(\'class="card"\'), 78)'),
+              ('self.assertEqual(report["pages"], 83)', 'self.assertEqual(report["pages"], 84)'),
+              ('self.assertEqual(report["magazine_pages"], 77)', 'self.assertEqual(report["magazine_pages"], 78)'),
+              ('self.assertEqual(magazine["research_summaries_published"], 77)', 'self.assertEqual(magazine["research_summaries_published"], 78)'),
+              ('self.assertEqual(magazine["remaining_to_target"], 23)', 'self.assertEqual(magazine["remaining_to_target"], 22)'),
+              ('self.assertEqual(magazine["sitemap"]["child_urls"], 78)', 'self.assertEqual(magazine["sitemap"]["child_urls"], 79)'),
+              ('self.assertEqual(magazine_report["research_summaries_published"], 77)', 'self.assertEqual(magazine_report["research_summaries_published"], 78)'),
+              ('self.assertEqual(magazine_report["sitemap"]["child_urls"], 78)', 'self.assertEqual(magazine_report["sitemap"]["child_urls"], 79)'),
+          ])
+
+          replace_all('.github/workflows/validate-magazine-research-v234.yml', [
+              ('# Final validation for the school guided-narrative writing reading.', '# Validation for the autism mentorship pilot reading.'),
+              ('name: Validate magazine continuous research v331', 'name: Validate magazine continuous research v332'),
+              ("magazine_v331_inventory", "magazine_v332_inventory"),
+              ('assert len(pages) == 77', 'assert len(pages) == 78'),
+              ('assert index.count(\'class="card"\') == 77', 'assert index.count(\'class="card"\') == 78'),
+              ('assert index.count(\'"@type":"ScholarlyArticle"\') == 77', 'assert index.count(\'"@type":"ScholarlyArticle"\') == 78'),
+              ('assert index.count(\'"datePublished"\') == 77', 'assert index.count(\'"datePublished"\') == 78'),
+              ('assert \'"numberOfItems":77\' in index', 'assert \'"numberOfItems":78\' in index'),
+              ("assert 'المتبقي 23' in index", "assert 'المتبقي 22' in index"),
+              ("'generated_cards': 77", "'generated_cards': 78"),
+              ("'remaining': 23", "'remaining': 22"),
+              ('test "$(find magazine -maxdepth 1 -name \'*-2026.html\' | wc -l)" -eq 68', 'test "$(find magazine -maxdepth 1 -name \'*-2026.html\' | wc -l)" -eq 69'),
+              ('test "$(find magazine -maxdepth 1 -name \'*-20*.html\' | wc -l)" -eq 77', 'test "$(find magazine -maxdepth 1 -name \'*-20*.html\' | wc -l)" -eq 78'),
+              ("grep -q '10.1186/s12916-026-04816-w' magazine/adolescent-school-guided-narrative-writing-cluster-rct-2026.html\n", "grep -q '10.1007/s10803-026-07272-w' magazine/autism-mentorship-program-pilot-rct-2026.html\n          grep -q '41774317' magazine/autism-mentorship-program-pilot-rct-2026.html\n          grep -q '24 مراهقًا' magazine/autism-mentorship-program-pilot-rct-2026.html\n          grep -q '23 جلسة أسبوعية' magazine/autism-mentorship-program-pilot-rct-2026.html\n          grep -q 'الفاعلية النفسية: مؤشرات أولية فقط' magazine/autism-mentorship-program-pilot-rct-2026.html\n          grep -q '10.1186/s12916-026-04816-w' magazine/adolescent-school-guided-narrative-writing-cluster-rct-2026.html\n"),
+          ])
+
+          replace_all('.github/workflows/verify-magazine-live-v314.yml', [
+              ('name: Verify magazine continuous publication live v331', 'name: Verify magazine continuous publication live v332'),
+              ('group: magazine-live-v331', 'group: magazine-live-v332'),
+              ('token="magazine-v331-$(date +%s)"', 'token="magazine-v332-$(date +%s)"'),
+              ('magazine/adolescent-school-guided-narrative-writing-cluster-rct-2026.html?v=${token}', 'magazine/autism-mentorship-program-pilot-rct-2026.html?v=${token}'),
+              ("filename = 'adolescent-school-guided-narrative-writing-cluster-rct-2026.html'", "filename = 'autism-mentorship-program-pilot-rct-2026.html'"),
+              ("assert api['research_summaries_published'] >= 77", "assert api['research_summaries_published'] >= 78"),
+              ("assert api['article_dates'][filename] == '2026-03-26'", "assert api['article_dates'][filename] == '2026-03-03'"),
+              ("for marker in ('10.1186/s12916-026-04816-w', '41888870', '211 طالبًا', 'd=−0.22', 'لم تظهر فروق دالة في الاكتئاب', 'NCT06708442'):", "for marker in ('10.1007/s10803-026-07272-w', '41774317', '24 مراهقًا', '23 جلسة أسبوعية', 'الفاعلية النفسية: مؤشرات أولية فقط'):") ,
+              ("'status': 'live-magazine-v331-verified'", "'status': 'live-magazine-v332-verified'"),
+          ])
+          PY
+          python -m py_compile scripts/publish_magazine_v201.py tests/test_magazine_research_v234.py tests/test_platform_identity_v201.py
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add scripts/publish_magazine_v201.py tests/test_magazine_research_v234.py tests/test_platform_identity_v201.py .github/workflows/validate-magazine-research-v234.yml .github/workflows/verify-magazine-live-v314.yml
+          git diff --cached --quiet && exit 0
+          git commit -m "test: raise magazine contract to 78 readings v332"
+          git push origin HEAD:agent/magazine-autism-mentorship-pilot-rct-v332
