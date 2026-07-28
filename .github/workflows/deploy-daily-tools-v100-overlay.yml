@@ -1,0 +1,246 @@
+name: Deploy daily tools v100 overlay to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "content/v24/daily-tools-v100/**"
+      - "content/v24/daily-tools-sources-v100.json"
+      - "content/v24/daily-tools-learning-paths-ar.json"
+      - "scripts/daily_tools_v100.py"
+      - "scripts/publish_daily_tools_v24.py"
+      - "scripts/verify_daily_tools_v24.py"
+      - "scripts/publish_sleep_log_v49.py"
+      - "scripts/verify_sleep_log_v49.py"
+      - "scripts/finalize_pwa_v14.py"
+      - "assets/sleep-log-v49.js"
+      - "tests/test_sleep_log_v49.mjs"
+      - ".github/workflows/deploy-daily-tools-v100-overlay.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages-production
+  cancel-in-progress: false
+
+jobs:
+  deploy-overlay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Resolve currently deployed validated production artifact
+        id: base
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          receipt = json.loads(Path('pages-deployment-status-v329.json').read_text(encoding='utf-8'))
+          assert receipt['status'] == 'deployed', receipt
+          assert receipt['deployment_outcome'] == 'success', receipt
+          assert receipt['artifact'] == 'validated-production-site', receipt
+          run_id = str(receipt['source_workflow_run_id'])
+          source_commit = str(receipt['source_commit'])
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f'run_id={run_id}\n')
+              out.write(f'source_commit={source_commit}\n')
+          print({'base_run_id': run_id, 'base_source_commit': source_commit})
+          PY
+
+      - name: Download exact currently deployed production site
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.base.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify base artifact provenance
+        env:
+          EXPECTED_RUN_ID: ${{ steps.base.outputs.run_id }}
+          EXPECTED_SOURCE_COMMIT: ${{ steps.base.outputs.source_commit }}
+        run: |
+          set -euxo pipefail
+          test -f _site/index.html
+          test -f _site/deployment.json
+          test -f _site/library/index.html
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          deployment = json.loads(Path('_site/deployment.json').read_text(encoding='utf-8'))
+          assert str(deployment['workflow_run']) == os.environ['EXPECTED_RUN_ID'], deployment
+          assert deployment['commit'] == os.environ['EXPECTED_SOURCE_COMMIT'], deployment
+          print({'validated_base': True, 'deployment': deployment})
+          PY
+
+      - name: Build and validate the 100-tool overlay
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/daily_tools_v100.py \
+            scripts/publish_daily_tools_v24.py \
+            scripts/verify_daily_tools_v24.py \
+            scripts/publish_sleep_log_v49.py \
+            scripts/verify_sleep_log_v49.py \
+            scripts/finalize_pwa_v14.py
+          node --check assets/sleep-log-v49.js
+          node --check tests/test_sleep_log_v49.mjs
+
+          python scripts/publish_daily_tools_v24.py _site
+          python scripts/publish_sleep_log_v49.py _site
+          python - <<'PY'
+          from pathlib import Path
+
+          page = Path('_site/daily-tools/sleep-wind-down-plan/index.html')
+          text = page.read_text(encoding='utf-8')
+          old = '<svg data-sleep-chart viewBox="0 0 720 300" role="img" aria-labelledby="sleep-chart-title sleep-chart-desc"><title id="sleep-chart-title">اتجاهات النوم والجودة والطاقة</title><desc id="sleep-chart-desc">رسم خطي لآخر أربعة عشر سجلًا محفوظًا. الوصف النصي المتجدد يظهر قبل الرسم.</desc>'
+          new = '<svg data-sleep-chart viewBox="0 0 720 300" role="img" aria-label="اتجاهات النوم والجودة والطاقة. الوصف النصي المتجدد يظهر قبل الرسم.">'
+          if old in text:
+              text = text.replace(old, new, 1)
+          elif new not in text:
+              raise SystemExit('Expected sleep chart accessibility markup was not found')
+          page.write_text(text, encoding='utf-8')
+          PY
+          python scripts/verify_sleep_log_v49.py
+          node tests/test_sleep_log_v49.mjs
+          python scripts/finalize_pwa_v14.py _site
+          python scripts/verify_daily_tools_v24.py _site
+
+      - name: Enforce overlay counts privacy evidence and discovery
+        env:
+          BASE_RUN_ID: ${{ steps.base.outputs.run_id }}
+          BASE_SOURCE_COMMIT: ${{ steps.base.outputs.source_commit }}
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import xml.etree.ElementTree as ET
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          site = Path('_site')
+          daily = json.loads((site / 'api' / 'daily-tools-v24.json').read_text(encoding='utf-8'))
+          assert daily['catalog_contract'] == 100, daily
+          assert daily['tools'] == 100, daily
+          assert daily['categories'] == 10, daily
+          assert daily['paths'] == 10, daily
+          assert daily['pages'] == 112, daily
+          assert daily['local_only'] is True, daily
+          assert daily['search_and_filters'] is True, daily
+          assert daily['per_tool_sources'] is True, daily
+          assert daily['homepage_linked'] is True, daily
+
+          root = ET.parse(site / 'sitemap-tools-paths.xml').getroot()
+          assert len(list(root)) == 112
+
+          index = (site / 'daily-tools' / 'index.html').read_text(encoding='utf-8')
+          assert index.count('data-tool-card') == 100
+          assert 'data-tool-search' in index
+          assert 'data-category-select' in index
+          assert '100 أداة نفسية وتربوية يومية' in index
+
+          homepage = (site / 'index.html').read_text(encoding='utf-8')
+          assert '100 أداة عربية عملية' in homepage
+          assert homepage.count('data-daily-tools-v219') == 1
+
+          report = {
+              'status': 'passed',
+              'contract': 'daily-tools-pages-overlay-v100',
+              'base_validated_run': os.environ['BASE_RUN_ID'],
+              'base_source_commit': os.environ['BASE_SOURCE_COMMIT'],
+              'overlay_commit': os.environ['GITHUB_SHA'],
+              'tools': daily['tools'],
+              'categories': daily['categories'],
+              'paths': daily['paths'],
+              'pages': daily['pages'],
+              'local_only': daily['local_only'],
+              'search_and_filters': daily['search_and_filters'],
+              'per_tool_sources': daily['per_tool_sources'],
+              'generated_at': datetime.now(timezone.utc).isoformat(),
+          }
+          (site / 'api' / 'daily-tools-overlay-v100.json').write_text(
+              json.dumps(report, ensure_ascii=False, indent=2),
+              encoding='utf-8',
+          )
+          print(report)
+          PY
+
+          test "$(find _site/daily-tools -name index.html | wc -l)" -eq 101
+          test "$(find _site/learning-paths -name index.html | wc -l)" -eq 11
+          test "$(grep -o '<url>' _site/sitemap-tools-paths.xml | wc -l)" -eq 112
+          test "$(grep -o 'sitemap-tools-paths.xml' _site/sitemap.xml | wc -l)" -eq 1
+          grep -R -q 'لا تُرسل البيانات إلى خادم' _site/daily-tools
+          ! grep -R -Eqi 'fetch\(|XMLHttpRequest|navigator\.sendBeacon|تشخيصك|يعالج نهائيًا|بديل عن الطبيب' \
+            _site/daily-tools _site/learning-paths
+          touch _site/.nojekyll
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload overlay Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy validated overlay
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify live 100-tool publication
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euxo pipefail
+          for attempt in $(seq 1 30); do
+            if curl -fsSL "${PAGE_URL}daily-tools/?sha=${GITHUB_SHA}-${attempt}" -o /tmp/daily-tools-live.html \
+              && grep -q '100 أداة نفسية وتربوية يومية' /tmp/daily-tools-live.html \
+              && test "$(grep -o 'data-tool-card' /tmp/daily-tools-live.html | wc -l)" -eq 100; then
+              break
+            fi
+            sleep 5
+          done
+          grep -q '100 أداة نفسية وتربوية يومية' /tmp/daily-tools-live.html
+          test "$(grep -o 'data-tool-card' /tmp/daily-tools-live.html | wc -l)" -eq 100
+          grep -q 'data-tool-search' /tmp/daily-tools-live.html
+          curl -fsSL "${PAGE_URL}daily-tools/sleep-wind-down-plan/?sha=${GITHUB_SHA}" -o /tmp/sleep-log-live.html
+          grep -q 'data-sleep-log' /tmp/sleep-log-live.html
+          grep -q 'لا تُرسل البيانات إلى خادم' /tmp/sleep-log-live.html
+
+      - name: Upload overlay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-tools-pages-overlay-v100-evidence
+          path: |
+            _site/api/daily-tools-v24.json
+            _site/api/daily-tools-overlay-v100.json
+            _site/sitemap-tools-paths.xml
+            /tmp/daily-tools-live.html
+            /tmp/sleep-log-live.html
+          if-no-files-found: warn
+          retention-days: 14
