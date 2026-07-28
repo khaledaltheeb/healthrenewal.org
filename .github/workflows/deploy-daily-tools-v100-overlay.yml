@@ -1,6 +1,21 @@
-name: Deploy daily tools v100 overlay to GitHub Pages
+name: Build and deploy daily tools v100 overlay
 
 on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v24/daily-tools-v100/**"
+      - "content/v24/daily-tools-sources-v100.json"
+      - "content/v24/daily-tools-learning-paths-ar.json"
+      - "scripts/daily_tools_v100.py"
+      - "scripts/publish_daily_tools_v24.py"
+      - "scripts/verify_daily_tools_v24.py"
+      - "scripts/publish_sleep_log_v49.py"
+      - "scripts/verify_sleep_log_v49.py"
+      - "scripts/finalize_pwa_v14.py"
+      - "assets/sleep-log-v49.js"
+      - "tests/test_sleep_log_v49.mjs"
+      - ".github/workflows/deploy-daily-tools-v100-overlay.yml"
   push:
     branches: ["main"]
     paths:
@@ -25,16 +40,16 @@ permissions:
   id-token: write
 
 concurrency:
-  group: github-pages-production
-  cancel-in-progress: false
+  group: daily-tools-pages-overlay-v100-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  deploy-overlay:
+  build-overlay:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    timeout-minutes: 20
+    outputs:
+      base_run_id: ${{ steps.base.outputs.run_id }}
+      base_source_commit: ${{ steps.base.outputs.source_commit }}
 
     steps:
       - uses: actions/checkout@v4
@@ -199,6 +214,63 @@ jobs:
             _site/daily-tools _site/learning-paths
           touch _site/.nojekyll
 
+      - name: Upload validated overlay site
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-tools-pages-overlay-site-v100
+          path: _site
+          if-no-files-found: error
+          retention-days: 2
+
+      - name: Upload build evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-tools-pages-overlay-v100-build-evidence
+          path: |
+            _site/api/daily-tools-v24.json
+            _site/api/daily-tools-overlay-v100.json
+            _site/sitemap-tools-paths.xml
+          if-no-files-found: warn
+          retention-days: 14
+
+  deploy-overlay:
+    if: github.event_name != 'pull_request'
+    needs: build-overlay
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: github-pages-production
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download validated overlay from this run
+        uses: actions/download-artifact@v4
+        with:
+          name: daily-tools-pages-overlay-site-v100
+          path: _site
+
+      - name: Verify deploy input
+        run: |
+          set -euxo pipefail
+          test -f _site/index.html
+          test -f _site/api/daily-tools-overlay-v100.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path('_site/api/daily-tools-overlay-v100.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['tools'] == 100, report
+          assert report['categories'] == 10, report
+          assert report['paths'] == 10, report
+          assert report['pages'] == 112, report
+          print(report)
+          PY
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
@@ -231,15 +303,13 @@ jobs:
           grep -q 'data-sleep-log' /tmp/sleep-log-live.html
           grep -q 'لا تُرسل البيانات إلى خادم' /tmp/sleep-log-live.html
 
-      - name: Upload overlay evidence
+      - name: Upload live deployment evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: daily-tools-pages-overlay-v100-evidence
+          name: daily-tools-pages-overlay-v100-live-evidence
           path: |
-            _site/api/daily-tools-v24.json
             _site/api/daily-tools-overlay-v100.json
-            _site/sitemap-tools-paths.xml
             /tmp/daily-tools-live.html
             /tmp/sleep-log-live.html
           if-no-files-found: warn
