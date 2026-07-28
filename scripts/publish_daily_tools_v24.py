@@ -153,7 +153,7 @@ def _write_legacy_path_aliases(site: Path) -> None:
         page = site / "learning-paths" / old_slug / "index.html"
         page.parent.mkdir(parents=True, exist_ok=True)
         page.write_text(
-            f'''<!doctype html><html lang="ar" dir="rtl" data-legacy-path-alias="v332"><head>
+            f'''<!doctype html><html lang="ar" dir="rtl" data-legacy-path-alias="v100"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(full_title)}</title><meta name="description" content="{esc(description)}">
 <meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url={esc(destination)}"><meta name="theme-color" content="#e5faf5"><meta name="color-scheme" content="light">
