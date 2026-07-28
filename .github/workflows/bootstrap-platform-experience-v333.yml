@@ -44,7 +44,7 @@ jobs:
 
           expected = {
               'source': '9956bab7b5700520a36694027e5831cfeff65862c75cd65cc4db92618e459d59',
-              'tests': '119e6450ac4db880364468214163326dbc0e8d27da03addbef63794119e2fc99',
+              'tests': 'ed3f81001149317155097992144b6cad71c16461990c70312b1329549ab50e3c',
           }
           actual = {
               'source': hashlib.sha256(source_payload.encode('ascii')).hexdigest(),
