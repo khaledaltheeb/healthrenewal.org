@@ -138,6 +138,7 @@ def _write_legacy_path_aliases(site: Path) -> None:
             f"صفحة انتقال محفوظة لمسار {old_label}. نُقل المحتوى إلى مسار {new_label} الأحدث، "
             "مع إبقاء هذا العنوان القديم لتجنب الروابط المكسورة وتوجيه الزائر بأمان."
         )
+        keywords = ",".join(_unique((old_label, new_label, "مسارات تعلم الصحة النفسية", "تعليم نفسي عربي", "أدوات دعم نفسي", FOUNDING_NAME)))
         schema = json.dumps(
             {
                 "@context": "https://schema.org",
@@ -155,10 +156,10 @@ def _write_legacy_path_aliases(site: Path) -> None:
         page.write_text(
             f'''<!doctype html><html lang="ar" dir="rtl" data-legacy-path-alias="v100"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{esc(full_title)}</title><meta name="description" content="{esc(description)}">
+<title>{esc(full_title)}</title><meta name="description" content="{esc(description)}"><meta name="keywords" content="{esc(keywords)}"><meta name="author" content="{esc(SITE_NAME)}"><meta name="application-name" content="{esc(SITE_NAME)}"><meta name="subject" content="مسارات تعلم الصحة النفسية"><meta name="audience" content="الأفراد والأسر ومقدمو الرعاية">
 <meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url={esc(destination)}"><meta name="theme-color" content="#e5faf5"><meta name="color-scheme" content="light">
-<link rel="canonical" href="{esc(destination_canonical)}"><link rel="manifest" href="{MANIFEST}">
-<meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="{esc(SITE_NAME)}"><meta property="og:title" content="{esc(full_title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(alias_url)}"><meta property="og:image" content="{SOCIAL_IMAGE}"><meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="{esc(destination_canonical)}"><link rel="manifest" href="{MANIFEST}"><link rel="icon" href="{LOGO}" type="image/svg+xml"><link rel="apple-touch-icon" href="{LOGO}"><link rel="search" type="application/opensearchdescription+xml" title="البحث في المنصة" href="{SEARCH}"><link rel="sitemap" type="application/xml" href="{_core.BASE}sitemap.xml">
+<meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="{esc(SITE_NAME)}"><meta property="og:title" content="{esc(full_title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(alias_url)}"><meta property="og:image" content="{SOCIAL_IMAGE}"><meta property="og:image:alt" content="هوية {esc(SITE_NAME)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{esc(full_title)}"><meta name="twitter:description" content="{esc(description)}"><meta name="twitter:image" content="{SOCIAL_IMAGE}"><meta name="twitter:image:alt" content="هوية {esc(SITE_NAME)}">
 <script type="application/ld+json">{schema}</script></head><body><main><h1>تم نقل مسار {esc(old_label)}</h1>
 <p>حُفظ هذا العنوان القديم لمنع الروابط المكسورة. أصبح المحتوى المنظم والأحدث متاحًا ضمن مسار {esc(new_label)}، ولن تُفهرس صفحة الانتقال هذه كمحتوى مستقل.</p>
 <p><a href="{esc(destination)}">فتح مسار {esc(new_label)}</a></p></main></body></html>''',
