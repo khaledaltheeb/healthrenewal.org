@@ -1,0 +1,40 @@
+name: Run legacy alias patch on pull request v333
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/run-legacy-alias-patch-on-pr-v333.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  run-patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+      - name: Execute the reviewed patch payload
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          source = Path('.github/workflows/patch-legacy-alias-release-gates-v333-temporary.yml').read_text(encoding='utf-8').splitlines()
+          start = next(i for i, line in enumerate(source) if line == '        run: |') + 1
+          payload = []
+          for line in source[start:]:
+              if line and not line.startswith('          '):
+                  break
+              payload.append(line[10:] if line.startswith('          ') else '')
+          Path('/tmp/apply-legacy-alias-v333.sh').write_text('\n'.join(payload) + '\n', encoding='utf-8')
+          PY
+          bash /tmp/apply-legacy-alias-v333.sh
+          git fetch origin agent/legacy-alias-release-gates-v333
+          git reset --hard origin/agent/legacy-alias-release-gates-v333
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm .github/workflows/run-legacy-alias-patch-on-pr-v333.yml
+          git commit -m "chore: remove temporary pull-request patch runner"
+          git push origin HEAD:agent/legacy-alias-release-gates-v333
