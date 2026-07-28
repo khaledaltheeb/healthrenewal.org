@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-27T22:49:07.287400+00:00",
+  "generated_at": "2026-07-28T04:15:44.396566+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -11,10 +11,10 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 117,
-  "html_pages_normalized_or_current": 116,
+  "html_pages_seen": 121,
+  "html_pages_normalized_or_current": 120,
   "counts": {
-    "current": 114,
+    "current": 118,
     "skipped": 1,
     "updated": 2
   },
@@ -100,6 +100,11 @@
       "detail": ""
     },
     {
+      "path": "magazine/adolescent-mental-health-artemis-cluster-rct-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "magazine/adolescent-passive-smartphone-sensing-meta-analysis-2026.html",
       "status": "current",
       "detail": ""
@@ -161,6 +166,11 @@
     },
     {
       "path": "magazine/autism-parent-resilience-factors-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-parents-mbsr-depression-anxiety-stress-rct-2026.html",
       "status": "current",
       "detail": ""
     },
@@ -271,6 +281,11 @@
     },
     {
       "path": "magazine/family-carer-coping-mental-health-meta-analysis-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/grieving-adolescents-alba-app-rct-2026.html",
       "status": "current",
       "detail": ""
     },
@@ -565,8 +580,13 @@
       "detail": ""
     },
     {
-      "path": "specialists-partners/contact.html",
+      "path": "specialists-partners/admin/index.html",
       "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "specialists-partners/contact.html",
+      "status": "current",
       "detail": ""
     },
     {

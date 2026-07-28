@@ -1,0 +1,69 @@
+name: Validate specialist operations v3
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "specialists-partners/backend/**"
+      - "specialists-partners/admin/**"
+      - "specialists-partners/portal/**"
+      - "specialists-partners/assets/portal-controls.js"
+      - "tests/test_specialist_operations_v3.py"
+      - ".github/workflows/deploy-specialists-backend.yml"
+      - ".github/workflows/validate-specialist-operations-v3.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: specialist-operations-v3-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate JavaScript
+        run: |
+          node --check specialists-partners/backend/src/index-v2.js
+          node --check specialists-partners/admin/admin.js
+          node --check specialists-partners/assets/portal-controls.js
+      - name: Run operations contracts
+        run: python -m unittest -v tests.test_specialist_operations_v3
+      - name: Confirm public files contain no credential-shaped values
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          roots = [
+              Path("specialists-partners/admin"),
+              Path("specialists-partners/assets"),
+              Path("specialists-partners/portal"),
+          ]
+          patterns = {
+              "Resend API key": re.compile(r"\bre_[A-Za-z0-9]{16,}\b"),
+              "private secret assignment": re.compile(
+                  r"\b(?:ADMIN_API_KEY|RESEND_API_KEY|TURNSTILE_SECRET|CLOUDFLARE_API_TOKEN|RATE_LIMIT_SALT)\b"
+                  r"\s*[:=]\s*['\"][^'\"]+['\"]"
+              ),
+          }
+          failures = []
+          for root in roots:
+              for path in root.rglob("*"):
+                  if not path.is_file() or path.suffix.lower() not in {".js", ".html", ".css", ".json"}:
+                      continue
+                  text = path.read_text(encoding="utf-8", errors="ignore")
+                  for label, pattern in patterns.items():
+                      if pattern.search(text):
+                          failures.append(f"{path}: {label}")
+          if failures:
+              raise SystemExit("\n".join(failures))
+          print("No credential-shaped values found in public specialist files.")
+          PY
