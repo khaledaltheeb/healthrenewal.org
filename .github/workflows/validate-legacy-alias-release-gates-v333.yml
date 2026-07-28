@@ -1,0 +1,31 @@
+name: Validate legacy alias release gates v333
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/audit_full_site_v16.py"
+      - ".github/workflows/validate-all-labs-v22.yml"
+      - "tests/test_legacy_learning_path_alias_v333.py"
+      - ".github/workflows/validate-legacy-alias-release-gates-v333.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/audit_full_site_v16.py"
+      - ".github/workflows/validate-all-labs-v22.yml"
+      - "tests/test_legacy_learning_path_alias_v333.py"
+      - ".github/workflows/validate-legacy-alias-release-gates-v333.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  aliases-and-counts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile materialized contracts
+        run: python -m py_compile scripts/audit_full_site_v16.py tests/test_legacy_learning_path_alias_v333.py
+      - name: Test redirect aliases and current catalog counts
+        run: python -m unittest -v tests.test_legacy_learning_path_alias_v333

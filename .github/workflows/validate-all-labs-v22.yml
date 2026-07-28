@@ -139,11 +139,35 @@ jobs:
       - name: Enforce daily tools and learning paths production contract
         run: |
           set -euxo pipefail
-          test "$(find _site/daily-tools -name index.html | wc -l)" -eq 9
-          test "$(find _site/learning-paths -name index.html | wc -l)" -eq 5
-          test "$(grep -o '<url>' _site/sitemap-tools-paths.xml | wc -l)" -eq 14
-          test "$(grep -o 'sitemap-tools-paths.xml' _site/sitemap.xml | wc -l)" -eq 1
           test -f _site/api/daily-tools-v24.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('_site')
+          report = json.loads((root / 'api/daily-tools-v24.json').read_text(encoding='utf-8'))
+          assert report['version'] == 100, report
+          assert report['catalog_contract'] == 100, report
+          assert report['tools'] == 100, report
+          assert report['paths'] == 10, report
+          assert report['pages'] == 112, report
+          daily_pages = list((root / 'daily-tools').rglob('index.html'))
+          learning_pages = list((root / 'learning-paths').rglob('index.html'))
+          assert len(daily_pages) == 101, len(daily_pages)
+          assert len(learning_pages) == 15, len(learning_pages)
+          aliases = []
+          for page in learning_pages:
+              page_text = page.read_text(encoding='utf-8')
+              if 'data-legacy-path-alias=' in page_text:
+                  aliases.append(page)
+                  assert 'noindex,follow' in page_text, page
+                  assert 'http-equiv="refresh"' in page_text, page
+          assert len(aliases) == 4, aliases
+          sitemap = (root / 'sitemap-tools-paths.xml').read_text(encoding='utf-8')
+          assert sitemap.count('<url>') == 112, sitemap.count('<url>')
+          main_sitemap = (root / 'sitemap.xml').read_text(encoding='utf-8')
+          assert main_sitemap.count('sitemap-tools-paths.xml') == 1
+          print({'daily_pages': len(daily_pages), 'learning_pages': len(learning_pages), 'aliases': len(aliases), 'sitemap_urls': 112})
+          PY
           ! grep -R -Eqi 'fetch\(|XMLHttpRequest|navigator\.sendBeacon|تشخيصك|يعالج نهائيًا|بديل عن الطبيب' _site/daily-tools _site/learning-paths
           grep -R -q 'لا تُرسل البيانات إلى خادم' _site/daily-tools
 
@@ -247,11 +271,11 @@ jobs:
           assert visual['minimum_set_size']==3 and visual['maximum_set_size']==7 and visual['change_features']==['shape','color'] and visual['study_then_test'] is True,visual
           assert copy['cognitive_pages']==53 and copy['error_count']==0 and copy['adjacent_phrase_guard'] is True,copy
           assert pwa['registration_verified'] and pwa['pages_scanned'] > 0,pwa
-          assert daily['tools']==8 and daily['paths']==4 and daily['pages']==14 and daily['local_only'] is True,daily
+          assert daily['version']==100 and daily['catalog_contract']==100 and daily['tools']==100 and daily['paths']==10 and daily['pages']==112 and daily['local_only'] is True,daily
           assert quality['pages_scanned'] > 0 and quality['critical_error_count']==0,quality
           assert identity['remaining_banned_pages']==[] and identity['missing_header_pages']==[] and identity['missing_footer_pages']==[],identity
           assert homepage['lab_tool_count']==93 and homepage['lab_inventory_metadata_updated'] is True,homepage
-          print({'site':'passed','cognitive':'53/53','assessments':'40/40','browser':'186/186','daily_tools':'8/8','learning_paths':'4/4','quality_pages':quality['pages_scanned'],'thin_candidates':quality['thin_page_candidates'],'pwa_pages':pwa['pages_scanned'],'identity_pages':identity['pages'],'homepage_lab_tools':homepage['lab_tool_count']})
+          print({'site':'passed','cognitive':'53/53','assessments':'40/40','browser':'186/186','daily_tools':'100/100','learning_paths':'10/10','discovery_pages':112,'quality_pages':quality['pages_scanned'],'thin_candidates':quality['thin_page_candidates'],'pwa_pages':pwa['pages_scanned'],'identity_pages':identity['pages'],'homepage_lab_tools':homepage['lab_tool_count']})
           PY
 
       - name: Stamp validated production build with SHA-256 evidence
