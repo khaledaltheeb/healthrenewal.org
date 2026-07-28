@@ -1,0 +1,196 @@
+name: Deploy specialists messaging backend
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_base:
+        description: "Public Worker base URL, for example https://pterminology-specialists.example.workers.dev"
+        required: true
+        type: string
+      turnstile_site_key:
+        description: "Public Turnstile site key"
+        required: true
+        type: string
+      apply_migrations:
+        description: "Apply pending D1 migrations before deploy"
+        required: true
+        default: true
+        type: boolean
+      update_frontend_config:
+        description: "Commit public API and Turnstile values to runtime-config.js"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-specialists-backend
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      D1_DATABASE_ID: ${{ secrets.SPECIALISTS_D1_DATABASE_ID }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
+      ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
+      RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}
+      FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
+      API_BASE: ${{ inputs.api_base }}
+      TURNSTILE_SITE_KEY: ${{ inputs.turnstile_site_key }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Validate deployment inputs and secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID D1_DATABASE_ID
+            RESEND_API_KEY TURNSTILE_SECRET ADMIN_API_KEY RATE_LIMIT_SALT FROM_EMAIL
+            API_BASE TURNSTILE_SITE_KEY
+          )
+          for name in "${required[@]}"; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "::error::$name is required"
+              exit 1
+            fi
+          done
+          python - <<'PY'
+          import os
+          from urllib.parse import urlparse
+          parsed = urlparse(os.environ["API_BASE"])
+          if parsed.scheme != "https" or not parsed.netloc:
+              raise SystemExit("API_BASE must be an absolute HTTPS URL")
+          if len(os.environ["ADMIN_API_KEY"]) < 32:
+              raise SystemExit("SPECIALISTS_ADMIN_API_KEY must contain at least 32 characters")
+          if len(os.environ["RATE_LIMIT_SALT"]) < 32:
+              raise SystemExit("SPECIALISTS_RATE_LIMIT_SALT must contain at least 32 characters")
+          PY
+
+      - name: Generate production Wrangler configuration
+        working-directory: specialists-partners/backend
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          def toml(value: str) -> str:
+              return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+          content = f'''name = "pterminology-specialists"
+          main = "src/index-v2.js"
+          compatibility_date = "2026-07-01"
+          workers_dev = true
+
+          [vars]
+          ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
+          OWNER_EMAIL = "pterminology@gmail.com"
+          PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
+          TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"
+          FROM_EMAIL = {toml(os.environ["FROM_EMAIL"])}
+
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "pterminology-specialists"
+          database_id = {toml(os.environ["D1_DATABASE_ID"])}
+          migrations_dir = "migrations"
+
+          [triggers]
+          crons = ["17 2 * * *"]
+          '''
+          Path("wrangler.toml").write_text(content, encoding="utf-8")
+          PY
+
+      - name: Create ephemeral Worker secrets file
+        working-directory: specialists-partners/backend
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          payload = {
+              "RESEND_API_KEY": os.environ["RESEND_API_KEY"],
+              "TURNSTILE_SECRET": os.environ["TURNSTILE_SECRET"],
+              "ADMIN_API_KEY": os.environ["ADMIN_API_KEY"],
+              "RATE_LIMIT_SALT": os.environ["RATE_LIMIT_SALT"],
+          }
+          Path("worker-secrets.json").write_text(json.dumps(payload), encoding="utf-8")
+          PY
+          chmod 600 worker-secrets.json
+
+      - name: Apply D1 migrations
+        if: ${{ inputs.apply_migrations }}
+        working-directory: specialists-partners/backend
+        run: npx --yes wrangler@4 d1 migrations apply pterminology-specialists --remote --config wrangler.toml
+
+      - name: Deploy Worker with encrypted secrets
+        working-directory: specialists-partners/backend
+        run: npx --yes wrangler@4 deploy --config wrangler.toml --secrets-file worker-secrets.json --minify --keep-vars
+
+      - name: Remove ephemeral secrets
+        if: always()
+        working-directory: specialists-partners/backend
+        run: rm -f worker-secrets.json wrangler.toml
+
+      - name: Verify Worker health
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in {1..12}; do
+            status="$(curl -sS -o /tmp/specialists-health.json -w '%{http_code}' "${API_BASE%/}/health" || true)"
+            if [[ "$status" == "200" ]]; then
+              python -m json.tool /tmp/specialists-health.json
+              exit 0
+            fi
+            sleep 5
+          done
+          cat /tmp/specialists-health.json || true
+          exit 1
+
+      - name: Update public runtime configuration
+        if: ${{ inputs.update_frontend_config }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          api = os.environ["API_BASE"].rstrip("/")
+          key = os.environ["TURNSTILE_SITE_KEY"]
+          content = (
+              "window.PT_SPECIALIST_CONFIG = Object.freeze({\n"
+              f"  apiBase: {json.dumps(api)},\n"
+              f"  turnstileSiteKey: {json.dumps(key)},\n"
+              '  siteBase: "https://khaledaltheeb.github.io/pterminology-site",\n'
+              '  sectorBase: "https://khaledaltheeb.github.io/pterminology-site/specialists-partners",\n'
+              '  environment: "production"\n'
+              "});\n"
+          )
+          Path("specialists-partners/assets/runtime-config.js").write_text(content, encoding="utf-8")
+          PY
+          if git diff --quiet -- specialists-partners/assets/runtime-config.js; then
+            echo "Runtime configuration already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add specialists-partners/assets/runtime-config.js
+          git commit -m "ops: connect specialists messaging backend"
+          git push origin HEAD:main
