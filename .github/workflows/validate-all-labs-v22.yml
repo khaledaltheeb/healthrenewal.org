@@ -139,11 +139,35 @@ jobs:
       - name: Enforce daily tools and learning paths production contract
         run: |
           set -euxo pipefail
-          test "$(find _site/daily-tools -name index.html | wc -l)" -eq 9
-          test "$(find _site/learning-paths -name index.html | wc -l)" -eq 5
-          test "$(grep -o '<url>' _site/sitemap-tools-paths.xml | wc -l)" -eq 14
-          test "$(grep -o 'sitemap-tools-paths.xml' _site/sitemap.xml | wc -l)" -eq 1
           test -f _site/api/daily-tools-v24.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('_site')
+          report = json.loads((root / 'api/daily-tools-v24.json').read_text(encoding='utf-8'))
+          assert report['version'] == 100, report
+          assert report['catalog_contract'] == 100, report
+          assert report['tools'] == 100, report
+          assert report['paths'] == 10, report
+          assert report['pages'] == 112, report
+          daily_pages = list((root / 'daily-tools').rglob('index.html'))
+          learning_pages = list((root / 'learning-paths').rglob('index.html'))
+          assert len(daily_pages) == 101, len(daily_pages)
+          assert len(learning_pages) == 15, len(learning_pages)
+          aliases = []
+          for page in learning_pages:
+              page_text = page.read_text(encoding='utf-8')
+              if 'data-legacy-path-alias=' in page_text:
+                  aliases.append(page)
+                  assert 'noindex,follow' in page_text, page
+                  assert 'http-equiv="refresh"' in page_text, page
+          assert len(aliases) == 4, aliases
+          sitemap = (root / 'sitemap-tools-paths.xml').read_text(encoding='utf-8')
+          assert sitemap.count('<url>') == 112, sitemap.count('<url>')
+          main_sitemap = (root / 'sitemap.xml').read_text(encoding='utf-8')
+          assert main_sitemap.count('sitemap-tools-paths.xml') == 1
+          print({'daily_pages': len(daily_pages), 'learning_pages': len(learning_pages), 'aliases': len(aliases), 'sitemap_urls': 112})
+          PY
           ! grep -R -Eqi 'fetch\(|XMLHttpRequest|navigator\.sendBeacon|تشخيصك|يعالج نهائيًا|بديل عن الطبيب' _site/daily-tools _site/learning-paths
           grep -R -q 'لا تُرسل البيانات إلى خادم' _site/daily-tools
 
