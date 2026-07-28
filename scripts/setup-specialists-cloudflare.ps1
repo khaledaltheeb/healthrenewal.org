@@ -12,6 +12,10 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
+if ($PSVersionTable.PSVersion.Major -lt 6) {
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+}
+
 function Write-Step {
     param([Parameter(Mandatory)][string]$Message)
     Write-Host "`n==> $Message" -ForegroundColor Cyan
@@ -140,7 +144,6 @@ Write-Host "لا تُدخل الرمز السابق الذي ظهر في الم�
 
 Write-Step "فحص الأدوات والاتصال بحساب GitHub"
 Assert-Command -Name "gh" -InstallHint "ثبّتها عبر: winget install --id GitHub.cli"
-Assert-Command -Name "git" -InstallHint "ثبّت Git for Windows من الموقع الرسمي."
 
 & gh auth status --hostname github.com
 if ($LASTEXITCODE -ne 0) {
