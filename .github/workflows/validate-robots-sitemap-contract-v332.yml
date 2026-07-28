@@ -1,0 +1,37 @@
+name: Validate robots sitemap contract v332
+
+on:
+  pull_request:
+    paths:
+      - "robots.txt"
+      - "tests/test_robots_sitemap_contract_v332.py"
+      - ".github/workflows/validate-robots-sitemap-contract-v332.yml"
+  push:
+    branches: [main]
+    paths:
+      - "robots.txt"
+      - "tests/test_robots_sitemap_contract_v332.py"
+      - ".github/workflows/validate-robots-sitemap-contract-v332.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile contract test
+        run: python -m py_compile tests/test_robots_sitemap_contract_v332.py
+      - name: Validate robots and sitemap directives
+        run: python -m unittest -v tests.test_robots_sitemap_contract_v332
+      - name: Verify removed unsupported sitemap index
+        run: |
+          set -euxo pipefail
+          ! grep -q 'sitemap-index.xml' robots.txt
+          test "$(grep -c '^Sitemap:' robots.txt)" -eq 4
