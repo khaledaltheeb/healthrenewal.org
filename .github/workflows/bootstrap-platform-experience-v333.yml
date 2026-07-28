@@ -1,0 +1,83 @@
+name: Bootstrap platform experience v333
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["agent/sitewide-structured-data-v332"]
+    paths:
+      - ".bootstrap-v333/**"
+      - ".github/workflows/bootstrap-platform-experience-v333.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bootstrap-platform-experience-v333
+  cancel-in-progress: true
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/sitewide-structured-data-v332
+          fetch-depth: 0
+
+      - name: Decode reviewed source and tests
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+          import shutil
+          import zlib
+
+          mapping = {
+              '.bootstrap-v333/source.b64': 'scripts/enhance_platform_experience_v333.py',
+              '.bootstrap-v333/tests.b64': 'tests/test_platform_experience_v333.py',
+          }
+          for encoded, target in mapping.items():
+              payload = Path(encoded).read_text(encoding='utf-8').strip()
+              data = zlib.decompress(base64.b64decode(payload))
+              output = Path(target)
+              output.parent.mkdir(parents=True, exist_ok=True)
+              output.write_bytes(data)
+          shutil.rmtree('.bootstrap-v333')
+          Path('.github/workflows/bootstrap-platform-experience-v333.yml').unlink()
+          PY
+
+      - name: Validate Python and browser source
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/enhance_platform_experience_v333.py tests/test_platform_experience_v333.py
+          python -m unittest -v tests/test_platform_experience_v333.py
+          python - <<'PY'
+          import importlib.util
+          import sys
+          from pathlib import Path
+          source=Path('scripts/enhance_platform_experience_v333.py')
+          spec=importlib.util.spec_from_file_location('platform_experience_v333', source)
+          module=importlib.util.module_from_spec(spec)
+          sys.modules[spec.name]=module
+          spec.loader.exec_module(module)
+          Path('/tmp/platform-experience-v333.js').write_text(module.JS, encoding='utf-8')
+          assert 'pterminology.library.v333' in module.JS
+          assert 'pterminology:assessment-result' in module.JS
+          assert module.VERSION == 333
+          PY
+          node --check /tmp/platform-experience-v333.js
+
+      - name: Commit materialized implementation
+        run: |
+          set -euxo pipefail
+          find scripts tests -type d -name __pycache__ -prune -exec rm -rf {} +
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "إضافة البحث الشامل والمكتبة المحلية ومسار التوصيات v333"
+          git push origin HEAD:agent/sitewide-structured-data-v332
