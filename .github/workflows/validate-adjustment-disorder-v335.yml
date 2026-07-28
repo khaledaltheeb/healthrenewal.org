@@ -1,0 +1,37 @@
+name: Validate adjustment disorder guide v335
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/publish_adjustment_disorder_v335.py"
+      - "scripts/run_encyclopedia_v13.py"
+      - "tests/test_publish_adjustment_disorder_v335.py"
+      - ".github/workflows/validate-adjustment-disorder-v335.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  adjustment-disorder-guide:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publisher and encyclopedia runner
+        run: |
+          python -m py_compile scripts/publish_adjustment_disorder_v335.py
+          python -m py_compile scripts/run_encyclopedia_v13.py
+      - name: Run deterministic publisher tests
+        run: python -m unittest tests.test_publish_adjustment_disorder_v335 -v
+      - name: Verify evidence and safety markers
+        run: |
+          grep -q '10.1016/j.jad.2023.11.059' scripts/publish_adjustment_disorder_v335.py
+          grep -q '37992766' scripts/publish_adjustment_disorder_v335.py
+          grep -q '10.1016/j.jad.2022.02.038' scripts/publish_adjustment_disorder_v335.py
+          grep -q 'لا تستبدل التقييم أو العلاج الفردي' scripts/publish_adjustment_disorder_v335.py
+          ! grep -q 'meta name="keywords"' scripts/publish_adjustment_disorder_v335.py
