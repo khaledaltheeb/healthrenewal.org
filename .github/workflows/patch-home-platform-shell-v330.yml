@@ -1,0 +1,40 @@
+name: Patch home platform shell v330
+
+on:
+  push:
+    branches: [agent/build-home-sector-v330]
+    paths:
+      - "scripts/patch_home_platform_shell_v330.py"
+      - ".github/workflows/patch-home-platform-shell-v330.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: patch-home-platform-shell-v330
+  cancel-in-progress: false
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/build-home-sector-v330
+          fetch-depth: 0
+      - name: Apply exact shell migration
+        run: python3 scripts/patch_home_platform_shell_v330.py
+      - name: Commit migrated pages
+        run: |
+          set -euxo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sectors/home/index.html sectors/home/library/index.html sectors/home/assessment/index.html sectors/home/interventions/index.html
+          if git diff --cached --quiet; then
+            echo "No migration changes required."
+            exit 0
+          fi
+          git commit -m "style: normalize home sector platform shell v330"
+          git push origin HEAD:agent/build-home-sector-v330
