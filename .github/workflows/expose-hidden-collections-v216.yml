@@ -1,4 +1,4 @@
-name: Expose homepage collections and interactive tools v221
+name: Expose homepage collections and interactive tools v222
 
 on:
   pull_request:
@@ -21,7 +21,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: expose-homepage-collections-v221-${{ github.ref }}
+  group: expose-homepage-collections-v222-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -45,9 +45,6 @@ jobs:
             scripts/expose_daily_tools_home_v219.py \
             scripts/verify_homepage_v19.py
 
-          # v216 is a one-time migrator for the former compact homepage. Do not
-          # apply it to the current institutional shell after its collections
-          # have already become first-class navigation and JSON-LD entries.
           if grep -q 'href="comparisons/"' index.html \
             && grep -q 'href="library/"' index.html \
             && grep -q 'href="guided-assessment/"' index.html \
@@ -110,4 +107,12 @@ jobs:
             .github/workflows/validate-all-labs-v22.yml \
             .github/workflows/patch-production-daily-tools-v100.yml
           git commit -m "إصلاح عقد إنتاج الأدوات المئة وربطها بالرئيسية"
-          git push origin HEAD:main
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Failed to publish the production contract after three synchronized attempts." >&2
+          exit 1
