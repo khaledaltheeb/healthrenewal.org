@@ -10,8 +10,5 @@ Disallow: /tests/
 Disallow: /node_modules/
 Disallow: /api/private/
 
-Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml
-Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap-care-guides.xml
-Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap-outside-the-box-evidence.xml
-Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap-specialists-partners.xml
+# Canonical sitemap entry point. The index lists only verified sitemap files.
 Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap-index.xml
