@@ -1,0 +1,32 @@
+name: Dispatch daily tools v100 deployment on owner comment
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: dispatch-daily-tools-v100-owner-command
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    if: >-
+      github.event.issue.pull_request &&
+      github.actor == github.repository_owner &&
+      github.event.comment.body == '/deploy-daily-tools-v100'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Dispatch validated overlay workflow on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euxo pipefail
+          gh workflow run deploy-daily-tools-v100-overlay.yml \
+            --repo "${GITHUB_REPOSITORY}" \
+            --ref main
+          echo "Dispatched daily-tools v100 deployment from an authenticated owner command."
