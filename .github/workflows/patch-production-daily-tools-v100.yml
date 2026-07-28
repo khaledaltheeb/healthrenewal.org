@@ -1,3 +1,4 @@
+# retrigger: apply the validated 100-tool production contract
 name: Patch production daily-tools contract v100
 
 on:
