@@ -58,7 +58,9 @@ class SpecialNeedsSleepSupportV336Tests(unittest.TestCase):
             self.assertIn("10.1542/peds.2012-0900I", json.dumps(publisher.load_data(), ensure_ascii=False))
             self.assertNotIn("معاقين", html)
             self.assertIn(report["canonical_url"], html)
-            self.assertIn("special-needs-sleep-v336:start", (site / "special-needs" / "index.html").read_text(encoding="utf-8"))
+            hub_html = (site / "special-needs" / "index.html").read_text(encoding="utf-8")
+            self.assertIn("special-needs-guides-v336:start", hub_html)
+            self.assertIn(report["canonical_url"].removeprefix("https://khaledaltheeb.github.io"), hub_html)
 
             root = ET.parse(site / "sitemap-special-needs.xml").getroot()
             urls = [node.text for node in root.findall("{*}url/{*}loc") if node.text]
