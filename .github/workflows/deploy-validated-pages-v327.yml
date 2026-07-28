@@ -108,6 +108,14 @@ jobs:
           echo "SOURCE_RUN_ID=${EXPECTED_RUN_ID}" >> "$GITHUB_ENV"
           touch _site/.nojekyll
 
+      - name: Normalize social previews in the validated Pages artifact
+        run: |
+          set -euxo pipefail
+          python scripts/normalize_social_previews_v334.py _site \
+            --base-url https://khaledaltheeb.github.io/pterminology-site/
+          test -f _site/assets/social-card-v334.png
+          test -f _site/api/social-preview-normalization-v334.json
+
       - name: Prepare IndexNow ownership proof from validated sitemaps
         run: |
           set -euxo pipefail
@@ -204,6 +212,7 @@ jobs:
           path: |
             _site/api/indexnow-preparation-v334.json
             _site/api/indexnow-submission-v334.json
+            _site/api/social-preview-normalization-v334.json
           if-no-files-found: warn
           retention-days: 30
 
