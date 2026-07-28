@@ -43,11 +43,13 @@ function Read-PlainSecret {
 function New-RandomSecret {
     param([ValidateRange(32, 128)][int]$ByteCount = 48)
     $bytes = New-Object byte[] $ByteCount
-    [Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
+    $generator = [Security.Cryptography.RandomNumberGenerator]::Create()
     try {
+        $generator.GetBytes($bytes)
         return ([Convert]::ToBase64String($bytes)).TrimEnd('=').Replace('+', '-').Replace('/', '_')
     }
     finally {
+        $generator.Dispose()
         [Array]::Clear($bytes, 0, $bytes.Length)
     }
 }
@@ -82,21 +84,19 @@ function Save-AdminCredential {
     New-Item -ItemType Directory -Path $directory -Force | Out-Null
 
     $secure = ConvertTo-SecureString $AdminKey -AsPlainText -Force
-    $credential = [PSCredential]::new("specialists-admin", $secure)
+    $credential = New-Object System.Management.Automation.PSCredential("specialists-admin", $secure)
     $credential | Export-Clixml -Path $path -Force
 
     try {
-        if ($IsWindows) {
-            $acl = Get-Acl $path
-            $acl.SetAccessRuleProtection($true, $false)
-            $rule = New-Object Security.AccessControl.FileSystemAccessRule(
-                [Security.Principal.WindowsIdentity]::GetCurrent().Name,
-                "FullControl",
-                "Allow"
-            )
-            $acl.SetAccessRule($rule)
-            Set-Acl -Path $path -AclObject $acl
-        }
+        $acl = Get-Acl $path
+        $acl.SetAccessRuleProtection($true, $false)
+        $rule = New-Object Security.AccessControl.FileSystemAccessRule(
+            [Security.Principal.WindowsIdentity]::GetCurrent().Name,
+            "FullControl",
+            "Allow"
+        )
+        $acl.SetAccessRule($rule)
+        Set-Acl -Path $path -AclObject $acl
     }
     catch {
         Write-Warning "تعذر تضييق أذونات ملف الاعتماد، لكنه ما يزال مشفرًا بواسطة حساب Windows الحالي."
@@ -116,6 +116,8 @@ function Test-CloudflareToken {
 }
 
 function Get-LatestBootstrapRun {
+    param([Parameter(Mandatory)][datetime]$NotBefore)
+
     $json = & gh run list `
         --repo $Repository `
         --workflow "bootstrap-specialists-cloudflare.yml" `
@@ -126,11 +128,11 @@ function Get-LatestBootstrapRun {
         throw "تعذر قراءة تشغيلات GitHub Actions."
     }
 
-    $runs = $json | ConvertFrom-Json
-    if (-not $runs -or $runs.Count -eq 0) {
-        return $null
-    }
-    return $runs | Sort-Object {[datetime]$_.createdAt} -Descending | Select-Object -First 1
+    $runs = @($json | ConvertFrom-Json)
+    return $runs |
+        Where-Object { [datetime]$_.createdAt -ge $NotBefore.AddMinutes(-1) } |
+        Sort-Object {[datetime]$_.createdAt} -Descending |
+        Select-Object -First 1
 }
 
 Write-Host "إعداد آمن لقطاع المختصين — Cloudflare وGitHub" -ForegroundColor Green
@@ -195,6 +197,7 @@ $rateLimitSalt = $null
 [GC]::WaitForPendingFinalizers()
 
 Write-Step "تشغيل تهيئة Cloudflare والنشر"
+$dispatchStartedAt = [datetime]::UtcNow
 & gh workflow run "bootstrap-specialists-cloudflare.yml" `
     --repo $Repository `
     --ref main `
@@ -207,8 +210,11 @@ if ($LASTEXITCODE -ne 0) {
     throw "تعذر بدء Workflow التهيئة."
 }
 
-Start-Sleep -Seconds 5
-$run = Get-LatestBootstrapRun
+$run = $null
+for ($attempt = 1; $attempt -le 12 -and -not $run; $attempt++) {
+    Start-Sleep -Seconds 5
+    $run = Get-LatestBootstrapRun -NotBefore $dispatchStartedAt
+}
 if (-not $run) {
     throw "بدأ الطلب لكن تعذر تحديد تشغيل GitHub Actions. افتح تبويب Actions في المستودع."
 }
