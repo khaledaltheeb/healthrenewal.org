@@ -99,14 +99,29 @@ jobs:
           })
           PY
 
-      - name: Run existing production integrity gates
-        run: |
-          set -euxo pipefail
-          python scripts/audit_site_integrity_v13.py _site
-          python scripts/verify_performance_v14.py _site
-          python scripts/verify_core_sections_v15.py _site
-          python scripts/audit_full_site_i18n_v72.py _site
-          python scripts/stamp_deployment_v29.py _site
+      - name: Audit site integrity
+        run: python scripts/audit_site_integrity_v13.py _site
+
+      - name: Verify performance budgets
+        run: python scripts/verify_performance_v14.py _site
+
+      - name: Verify core sections
+        run: python scripts/verify_core_sections_v15.py _site
+
+      - name: Audit Arabic and i18n coverage
+        run: python scripts/audit_full_site_i18n_v72.py _site
+
+      - name: Stamp deployment provenance
+        run: python scripts/stamp_deployment_v29.py _site
+
+      - name: Upload diagnostic reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: structured-data-diagnostics-v332
+          path: _site/api/*.json
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Upload validated site artifact
         uses: actions/upload-artifact@v4
