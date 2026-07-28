@@ -139,7 +139,7 @@ jobs:
       - name: Stamp final deployment provenance
         run: python scripts/stamp_deployment_v29.py _site
 
-      - name: Verify schema remains complete after production stamping
+      - name: Restore and prove schema stability after production stamping
         run: |
           set -euxo pipefail
           python scripts/apply_structured_data_v332.py _site --strict --min-pages 1000
@@ -150,8 +150,52 @@ jobs:
           assert report['status']=='passed', report
           assert report['coverage_ratio']==1.0, report
           assert report['coverage_pages']==report['eligible_pages'], report
+          assert report['pages_updated'] <= 10, report
+          print({'post_stamp_schema_restored':report['pages_updated'],'pages':report['eligible_pages']})
+          PY
+          python scripts/apply_structured_data_v332.py _site --strict --min-pages 1000
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/structured-data-v332.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed', report
+          assert report['coverage_ratio']==1.0, report
+          assert report['coverage_pages']==report['eligible_pages'], report
           assert report['pages_updated']==0, report
           print({'post_stamp_schema':'stable','pages':report['eligible_pages'],'pages_updated':report['pages_updated']})
+          PY
+
+      - name: Refresh deployment hashes after final schema write
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          site=Path('_site')
+          path=site/'deployment.json'
+          payload=json.loads(path.read_text(encoding='utf-8'))
+          critical=('index.html','sitemap.xml','manifest.webmanifest','sw.js')
+          def digest(file: Path) -> str:
+              h=hashlib.sha256()
+              with file.open('rb') as handle:
+                  for chunk in iter(lambda: handle.read(1024*1024), b''):
+                      h.update(chunk)
+              return h.hexdigest()
+          payload['validated_at']=datetime.now(timezone.utc).isoformat()
+          payload['structured_data_schema_version']=332
+          report=json.loads((site/'api/structured-data-v332.json').read_text(encoding='utf-8'))
+          payload['structured_data_pages']=int(report['eligible_pages'])
+          payload['structured_data_coverage_ratio']=float(report['coverage_ratio'])
+          payload['artifacts']={name:{'sha256':digest(site/name),'bytes':(site/name).stat().st_size} for name in critical}
+          path.write_text(json.dumps(payload,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          written=json.loads(path.read_text(encoding='utf-8'))
+          for name in critical:
+              assert written['artifacts'][name]['sha256']==digest(site/name), name
+          assert written['structured_data_coverage_ratio']==1.0, written
+          print({'deployment_hashes':'current','structured_data_pages':written['structured_data_pages']})
           PY
 
       - name: Audit site integrity
@@ -171,7 +215,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: structured-data-diagnostics-v332
-          path: _site/api/*.json
+          path: |
+            _site/api/*.json
+            _site/deployment.json
           if-no-files-found: warn
           retention-days: 7
 
@@ -217,7 +263,7 @@ jobs:
           for i in $(seq 1 30); do
             if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}deployment.json?v=${EXPECTED_SHA}-${i}" -o /tmp/deployment.json && \
                curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}api/structured-data-v332.json?v=${EXPECTED_SHA}-${i}" -o /tmp/structured-data.json; then
-              if python -c "import json,os; release=json.load(open('/tmp/deployment.json',encoding='utf-8')); report=json.load(open('/tmp/structured-data.json',encoding='utf-8')); assert release.get('commit')==os.environ['EXPECTED_SHA'], release; assert report.get('status')=='passed', report; assert report.get('coverage_ratio')==1.0, report; assert report.get('coverage_pages')==report.get('eligible_pages'), report"
+              if python -c "import json,os; release=json.load(open('/tmp/deployment.json',encoding='utf-8')); report=json.load(open('/tmp/structured-data.json',encoding='utf-8')); assert release.get('commit')==os.environ['EXPECTED_SHA'], release; assert release.get('structured_data_schema_version')==332, release; assert release.get('structured_data_coverage_ratio')==1.0, release; assert report.get('status')=='passed', report; assert report.get('coverage_ratio')==1.0, report; assert report.get('coverage_pages')==report.get('eligible_pages'), report"
               then
                 matched=1
                 break
