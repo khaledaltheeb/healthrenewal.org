@@ -41,6 +41,13 @@ LEGACY_PATH_ALIASES: dict[str, str] = {
     "caregiver-boundaries-7-days": "caregiver-wellbeing-7-days",
 }
 
+LEGACY_PATH_LABELS: dict[str, tuple[str, str]] = {
+    "stress-basics-7-days": ("أساسيات التعامل مع التوتر", "تنظيم التوتر"),
+    "family-listening-5-days": ("الاستماع داخل الأسرة", "التربية والتواصل الأسري"),
+    "grief-support-7-days": ("دعم الحزن والفقد", "المرونة أمام التغيير والفقد"),
+    "caregiver-boundaries-7-days": ("حدود مقدم الرعاية", "عافية مقدم الرعاية"),
+}
+
 
 def _unique(values: Iterable[str], limit: int = 8) -> list[str]:
     output: list[str] = []
@@ -122,18 +129,39 @@ def _prune_stale_generated_pages(data: dict[str, Any], site: Path) -> None:
 def _write_legacy_path_aliases(site: Path) -> None:
     esc = _core.e
     for old_slug, new_slug in LEGACY_PATH_ALIASES.items():
+        old_label, new_label = LEGACY_PATH_LABELS[old_slug]
         destination = f"{_core.PATH}learning-paths/{new_slug}/"
-        canonical = f"{_core.BASE}learning-paths/{new_slug}/"
+        alias_url = f"{_core.BASE}learning-paths/{old_slug}/"
+        destination_canonical = f"{_core.BASE}learning-paths/{new_slug}/"
+        full_title = f"تم نقل مسار {old_label} | {SITE_NAME}"
+        description = (
+            f"صفحة انتقال محفوظة لمسار {old_label}. نُقل المحتوى إلى مسار {new_label} الأحدث، "
+            "مع إبقاء هذا العنوان القديم لتجنب الروابط المكسورة وتوجيه الزائر بأمان."
+        )
+        schema = json.dumps(
+            {
+                "@context": "https://schema.org",
+                "@type": "WebPage",
+                "name": full_title,
+                "description": description,
+                "url": alias_url,
+                "isPartOf": {"@type": "WebSite", "name": SITE_NAME, "url": _core.BASE},
+            },
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ).replace("</", "<\\/")
         page = site / "learning-paths" / old_slug / "index.html"
         page.parent.mkdir(parents=True, exist_ok=True)
         page.write_text(
-            f'''<!doctype html><html lang="ar" dir="rtl" data-legacy-path-alias="v100"><head>
+            f'''<!doctype html><html lang="ar" dir="rtl" data-legacy-path-alias="v332"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>تم تحديث مسار التعلم | {esc(SITE_NAME)}</title>
-<meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url={esc(destination)}">
-<link rel="canonical" href="{esc(canonical)}"><meta name="color-scheme" content="light">
-</head><body><main><h1>تم تحديث هذا المسار</h1><p>انتقل المحتوى إلى مسار أحدث وأكثر اكتمالًا.</p>
-<p><a href="{esc(destination)}">فتح مسار التعلم المحدّث</a></p></main></body></html>''',
+<title>{esc(full_title)}</title><meta name="description" content="{esc(description)}">
+<meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url={esc(destination)}"><meta name="theme-color" content="#e5faf5"><meta name="color-scheme" content="light">
+<link rel="canonical" href="{esc(destination_canonical)}"><link rel="manifest" href="{MANIFEST}">
+<meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="{esc(SITE_NAME)}"><meta property="og:title" content="{esc(full_title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(alias_url)}"><meta property="og:image" content="{SOCIAL_IMAGE}"><meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{schema}</script></head><body><main><h1>تم نقل مسار {esc(old_label)}</h1>
+<p>حُفظ هذا العنوان القديم لمنع الروابط المكسورة. أصبح المحتوى المنظم والأحدث متاحًا ضمن مسار {esc(new_label)}، ولن تُفهرس صفحة الانتقال هذه كمحتوى مستقل.</p>
+<p><a href="{esc(destination)}">فتح مسار {esc(new_label)}</a></p></main></body></html>''',
             encoding="utf-8",
         )
 
