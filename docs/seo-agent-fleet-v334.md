@@ -1,6 +1,6 @@
 # منظومة وكلاء SEO والوصول عبر الذكاء الاصطناعي — v334
 
-هذه الطبقة لا تستبدل مولدات خرائط الموقع الحالية. وظيفتها تدقيق ناتج النشر الكامل ومنع الأخطاء التي تخفض قابلية الزحف والفهرسة والاستشهاد.
+هذه الطبقة لا تستبدل مولدات خرائط الموقع الحالية. وظيفتها تدقيق **ناتج الإنتاج `_site`** بعد اكتمال البناء، ومنع الأخطاء التي تخفض قابلية الزحف والفهرسة والاستشهاد.
 
 ## الوكلاء الثمانية
 
@@ -20,13 +20,19 @@
 - `llms.txt` مساعد اكتشاف تكميلي، وليس بديلًا من robots.txt أو خرائط الموقع أو الروابط الداخلية أو النص القابل للفهرسة.
 - السماح بالزحف لا يضمن الفهرسة أو الترتيب أو الاستشهاد داخل إجابة ذكاء اصطناعي.
 
+## IndexNow
+
+يُنشئ `submit_indexnow_v334.py` ملف إثبات الملكية داخل حزمة الإنتاج، ثم يقرأ خرائط الموقع المسجلة في `robots.txt` تكراريًا، ويستبعد المضيفات والمسارات الخارجية، ويزيل التكرار، ويرسل حتى 10,000 عنوان في الدفعة الواحدة بعد نجاح نشر GitHub Pages والتحقق الحي منه.
+
+IndexNow يخص Bing والمحركات المشاركة. Google يعتمد Googlebot وخرائط الموقع وSearch Console، ولا يُعامل IndexNow كبديل عنها. فشل خدمة IndexNow الخارجية لا يوقف نشر الموقع؛ يُحفظ تقرير منفصل للمراجعة.
+
 ## التشغيل
 
 ```bash
-python -m unittest discover -s tests -p 'test_seo_agent_fleet_v334.py' -v
-python scripts/seo_agent_fleet_v334.py . \
+python -m unittest discover -s tests -p 'test_*v334.py' -v
+python scripts/seo_agent_fleet_v334.py _site \
   --base-url https://khaledaltheeb.github.io/pterminology-site/ \
-  --report-dir seo-audit \
+  --report-dir api/seo-audit-v334 \
   --fail-on critical
 ```
 
@@ -47,8 +53,20 @@ python scripts/seo_agent_fleet_v334.py . \
   --disallow-training
 ```
 
+اختبار إعداد IndexNow دون اتصال خارجي:
+
+```bash
+python scripts/submit_indexnow_v334.py _site \
+  --base-url https://khaledaltheeb.github.io/pterminology-site/ \
+  --key a4f9d7c2e81b4630b5d6f7a912ce3048 \
+  --prepare-only \
+  --report api/indexnow-preparation-v334.json
+```
+
 ## مخرجات الإثبات
 
-- `seo-audit/seo-agent-report-v334.json`
-- `seo-audit/seo-agent-report-v334.md`
-- Artifact دائم في GitHub Actions لكل تشغيل.
+- `_site/api/seo-audit-v334/seo-agent-report-v334.json`
+- `_site/api/seo-audit-v334/seo-agent-report-v334.md`
+- `_site/api/indexnow-preparation-v334.json`
+- `_site/api/indexnow-submission-v334.json`
+- Artifacts في GitHub Actions لكل فحص إنتاج ولكل إرسال IndexNow.
