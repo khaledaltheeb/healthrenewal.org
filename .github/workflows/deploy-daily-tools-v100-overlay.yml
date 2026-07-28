@@ -174,7 +174,7 @@ jobs:
           assert len(list(root)) == 112
 
           index = (site / 'daily-tools' / 'index.html').read_text(encoding='utf-8')
-          assert index.count('data-tool-card') == 100
+          assert index.count('<article data-tool-card ') == 100
           assert 'data-tool-search' in index
           assert 'data-category-select' in index
           assert '100 أداة نفسية وتربوية يومية' in index
@@ -231,6 +231,8 @@ jobs:
             _site/api/daily-tools-v24.json
             _site/api/daily-tools-overlay-v100.json
             _site/sitemap-tools-paths.xml
+            _site/index.html
+            _site/daily-tools/index.html
           if-no-files-found: warn
           retention-days: 14
 
@@ -291,13 +293,13 @@ jobs:
           for attempt in $(seq 1 30); do
             if curl -fsSL "${PAGE_URL}daily-tools/?sha=${GITHUB_SHA}-${attempt}" -o /tmp/daily-tools-live.html \
               && grep -q '100 أداة نفسية وتربوية يومية' /tmp/daily-tools-live.html \
-              && test "$(grep -o 'data-tool-card' /tmp/daily-tools-live.html | wc -l)" -eq 100; then
+              && test "$(grep -o '<article data-tool-card ' /tmp/daily-tools-live.html | wc -l)" -eq 100; then
               break
             fi
             sleep 5
           done
           grep -q '100 أداة نفسية وتربوية يومية' /tmp/daily-tools-live.html
-          test "$(grep -o 'data-tool-card' /tmp/daily-tools-live.html | wc -l)" -eq 100
+          test "$(grep -o '<article data-tool-card ' /tmp/daily-tools-live.html | wc -l)" -eq 100
           grep -q 'data-tool-search' /tmp/daily-tools-live.html
           curl -fsSL "${PAGE_URL}daily-tools/sleep-wind-down-plan/?sha=${GITHUB_SHA}" -o /tmp/sleep-log-live.html
           grep -q 'data-sleep-log' /tmp/sleep-log-live.html
