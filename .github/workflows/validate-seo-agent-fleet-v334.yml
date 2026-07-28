@@ -1,0 +1,102 @@
+name: Validate eight-agent SEO and AI discovery v334
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "robots.txt"
+      - "llms.txt"
+      - "api/ai-crawler-policy.json"
+      - "scripts/seo_agent_fleet_v334.py"
+      - "scripts/seo_agent_fleet_v334_hardened.py"
+      - "scripts/normalize_social_previews_v334.py"
+      - "scripts/submit_indexnow_v334.py"
+      - "tests/test_seo_agent_fleet_v334.py"
+      - "tests/test_seo_agent_fleet_v334_hardened.py"
+      - "tests/test_normalize_social_previews_v334.py"
+      - "tests/test_submit_indexnow_v334.py"
+      - ".github/workflows/validate-seo-agent-fleet-v334.yml"
+      - ".github/workflows/validate-full-site-v16.yml"
+      - ".github/workflows/deploy-validated-pages-v327.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "robots.txt"
+      - "llms.txt"
+      - "api/ai-crawler-policy.json"
+      - "scripts/seo_agent_fleet_v334.py"
+      - "scripts/seo_agent_fleet_v334_hardened.py"
+      - "scripts/normalize_social_previews_v334.py"
+      - "scripts/submit_indexnow_v334.py"
+      - "tests/test_seo_agent_fleet_v334.py"
+      - "tests/test_seo_agent_fleet_v334_hardened.py"
+      - "tests/test_normalize_social_previews_v334.py"
+      - "tests/test_submit_indexnow_v334.py"
+      - ".github/workflows/validate-seo-agent-fleet-v334.yml"
+      - ".github/workflows/validate-full-site-v16.yml"
+      - ".github/workflows/deploy-validated-pages-v327.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  seo-agent-fleet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile deterministic SEO and IndexNow engines
+        run: |
+          python -m py_compile scripts/seo_agent_fleet_v334.py
+          python -m py_compile scripts/seo_agent_fleet_v334_hardened.py
+          python -m py_compile scripts/normalize_social_previews_v334.py
+          python -m py_compile scripts/submit_indexnow_v334.py
+      - name: Run SEO and IndexNow regression tests
+        run: python -m unittest discover -s tests -p 'test_*v334*.py' -v
+      - name: Verify discovery policy remains explicit
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          policy = json.loads(Path('api/ai-crawler-policy.json').read_text(encoding='utf-8'))
+          assert policy['public_content_access'] == 'allowed', policy
+          assert policy['search_and_answer_access'] == 'allowed', policy
+          assert policy['training_and_model_improvement_access'] == 'allowed', policy
+          assert 'OAI-SearchBot' in policy['search_and_answer_user_agents'], policy
+          assert 'Googlebot' in policy['search_and_answer_user_agents'], policy
+          assert 'GPTBot' in policy['training_or_model_user_agents'], policy
+          robots = Path('robots.txt').read_text(encoding='utf-8')
+          llms = Path('llms.txt').read_text(encoding='utf-8')
+          deployment = Path('.github/workflows/deploy-validated-pages-v327.yml').read_text(encoding='utf-8')
+          assert 'Allow: /' in robots and 'sitemap-index.xml' in robots, robots
+          assert policy['canonical_site'] in llms and 'Sitemap index' in llms, llms
+          assert 'submit_indexnow_v334.py' in deployment, deployment
+          print({'status': 'passed', 'policy_version': policy['version']})
+          PY
+      - name: Upload reviewed SEO implementation bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-implementation-v334
+          path: |
+            scripts/seo_agent_fleet_v334.py
+            scripts/seo_agent_fleet_v334_hardened.py
+            scripts/normalize_social_previews_v334.py
+            scripts/submit_indexnow_v334.py
+            tests/test_seo_agent_fleet_v334.py
+            tests/test_seo_agent_fleet_v334_hardened.py
+            tests/test_normalize_social_previews_v334.py
+            tests/test_submit_indexnow_v334.py
+            docs/seo-agent-fleet-v334.md
+            robots.txt
+            llms.txt
+            api/ai-crawler-policy.json
+            .github/workflows/validate-seo-agent-fleet-v334.yml
+            .github/workflows/validate-full-site-v16.yml
+            .github/workflows/deploy-validated-pages-v327.yml
+          if-no-files-found: error
+          retention-days: 30
