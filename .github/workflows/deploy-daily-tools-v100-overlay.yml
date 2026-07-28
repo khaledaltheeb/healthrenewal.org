@@ -10,6 +10,7 @@ on:
       - "scripts/daily_tools_v100.py"
       - "scripts/publish_daily_tools_v24.py"
       - "scripts/verify_daily_tools_v24.py"
+      - "scripts/verify_daily_tools_overlay_v100.py"
       - "scripts/publish_sleep_log_v49.py"
       - "scripts/verify_sleep_log_v49.py"
       - "scripts/finalize_pwa_v14.py"
@@ -25,6 +26,7 @@ on:
       - "scripts/daily_tools_v100.py"
       - "scripts/publish_daily_tools_v24.py"
       - "scripts/verify_daily_tools_v24.py"
+      - "scripts/verify_daily_tools_overlay_v100.py"
       - "scripts/publish_sleep_log_v49.py"
       - "scripts/verify_sleep_log_v49.py"
       - "scripts/finalize_pwa_v14.py"
@@ -117,6 +119,7 @@ jobs:
             scripts/daily_tools_v100.py \
             scripts/publish_daily_tools_v24.py \
             scripts/verify_daily_tools_v24.py \
+            scripts/verify_daily_tools_overlay_v100.py \
             scripts/publish_sleep_log_v49.py \
             scripts/verify_sleep_log_v49.py \
             scripts/finalize_pwa_v14.py
@@ -144,124 +147,13 @@ jobs:
           python scripts/finalize_pwa_v14.py _site
           python scripts/verify_daily_tools_v24.py _site
 
-      - name: Validate counts discovery privacy and evidence
+      - name: Validate counts aliases discovery privacy and evidence
         env:
           BASE_RUN_ID: ${{ steps.base.outputs.run_id }}
           BASE_SOURCE_COMMIT: ${{ steps.base.outputs.source_commit }}
         run: |
-          python - <<'PY'
-          import json
-          import os
-          import re
-          import xml.etree.ElementTree as ET
-          from datetime import datetime, timezone
-          from pathlib import Path
-
-          site = Path('_site')
-          errors = []
-          daily = json.loads((site / 'api/daily-tools-v24.json').read_text(encoding='utf-8'))
-          expected = {
-              'catalog_contract': 100,
-              'tools': 100,
-              'categories': 10,
-              'paths': 10,
-              'pages': 112,
-              'local_only': True,
-              'search_and_filters': True,
-              'per_tool_sources': True,
-              'homepage_linked': True,
-          }
-          for key, value in expected.items():
-              if daily.get(key) != value:
-                  errors.append({'check': f'report.{key}', 'expected': value, 'actual': daily.get(key)})
-
-          tool_pages = list((site / 'daily-tools').rglob('index.html'))
-          path_pages = list((site / 'learning-paths').rglob('index.html'))
-          if len(tool_pages) != 101:
-              errors.append({'check': 'daily_tool_html_pages', 'expected': 101, 'actual': len(tool_pages)})
-          if len(path_pages) != 11:
-              errors.append({'check': 'learning_path_html_pages', 'expected': 11, 'actual': len(path_pages)})
-
-          child_sitemap = ET.parse(site / 'sitemap-tools-paths.xml').getroot()
-          child_urls = len(list(child_sitemap))
-          if child_urls != 112:
-              errors.append({'check': 'tool_path_sitemap_urls', 'expected': 112, 'actual': child_urls})
-
-          master_sitemap = (site / 'sitemap.xml').read_text(encoding='utf-8')
-          master_refs = master_sitemap.count('sitemap-tools-paths.xml')
-          if master_refs != 1:
-              errors.append({'check': 'master_sitemap_reference', 'expected': 1, 'actual': master_refs})
-
-          index = (site / 'daily-tools/index.html').read_text(encoding='utf-8')
-          cards = index.count('<article data-tool-card ')
-          if cards != 100:
-              errors.append({'check': 'tool_cards', 'expected': 100, 'actual': cards})
-          for marker in ('data-tool-search', 'data-category-select', '100 أداة نفسية وتربوية يومية'):
-              if marker not in index:
-                  errors.append({'check': 'daily_tools_index_marker', 'missing': marker})
-
-          homepage = (site / 'index.html').read_text(encoding='utf-8')
-          if '100 أداة عربية عملية' not in homepage:
-              errors.append({'check': 'homepage_count_copy', 'missing': '100 أداة عربية عملية'})
-          homepage_cards = homepage.count('data-daily-tools-v219')
-          if homepage_cards != 1:
-              errors.append({'check': 'homepage_tool_card_uniqueness', 'expected': 1, 'actual': homepage_cards})
-
-          privacy_copy_pages = 0
-          prohibited = re.compile(
-              r'fetch\(|XMLHttpRequest|navigator\.sendBeacon|تشخيصك|يعالج نهائيًا|بديل عن الطبيب',
-              re.IGNORECASE,
-          )
-          prohibited_matches = []
-          for directory in (site / 'daily-tools', site / 'learning-paths'):
-              for page in directory.rglob('*.html'):
-                  text = page.read_text(encoding='utf-8')
-                  if 'لا تُرسل البيانات إلى خادم' in text:
-                      privacy_copy_pages += 1
-                  match = prohibited.search(text)
-                  if match:
-                      prohibited_matches.append({
-                          'page': str(page.relative_to(site)),
-                          'match': match.group(0),
-                      })
-          if privacy_copy_pages < 100:
-              errors.append({'check': 'privacy_copy_coverage', 'minimum': 100, 'actual': privacy_copy_pages})
-          if prohibited_matches:
-              errors.append({'check': 'prohibited_network_or_claim_copy', 'matches': prohibited_matches[:25]})
-
-          sleep_page = (site / 'daily-tools/sleep-wind-down-plan/index.html').read_text(encoding='utf-8')
-          for marker in ('data-sleep-log', 'sleep-log-v49.js', 'غير تشخيص', 'لا تُرسل البيانات إلى خادم'):
-              if marker not in sleep_page:
-                  errors.append({'check': 'sleep_log_marker', 'missing': marker})
-
-          report = {
-              'status': 'passed' if not errors else 'failed',
-              'contract': 'daily-tools-pages-overlay-v100',
-              'base_validated_run': os.environ['BASE_RUN_ID'],
-              'base_source_commit': os.environ['BASE_SOURCE_COMMIT'],
-              'overlay_commit': os.environ['GITHUB_SHA'],
-              'tools': daily.get('tools'),
-              'categories': daily.get('categories'),
-              'paths': daily.get('paths'),
-              'pages': daily.get('pages'),
-              'tool_html_pages': len(tool_pages),
-              'learning_path_html_pages': len(path_pages),
-              'tool_cards': cards,
-              'sitemap_urls': child_urls,
-              'master_sitemap_references': master_refs,
-              'privacy_copy_pages': privacy_copy_pages,
-              'prohibited_matches': prohibited_matches,
-              'errors': errors,
-              'generated_at': datetime.now(timezone.utc).isoformat(),
-          }
-          (site / 'api/daily-tools-overlay-v100.json').write_text(
-              json.dumps(report, ensure_ascii=False, indent=2),
-              encoding='utf-8',
-          )
-          print(json.dumps(report, ensure_ascii=False, indent=2))
-          if errors:
-              raise SystemExit(f'Daily-tools overlay validation failed with {len(errors)} error(s)')
-          PY
+          set -euxo pipefail
+          python scripts/verify_daily_tools_overlay_v100.py _site
           touch _site/.nojekyll
 
       - name: Upload validated overlay site
@@ -284,6 +176,10 @@ jobs:
             _site/sitemap.xml
             _site/index.html
             _site/daily-tools/index.html
+            _site/learning-paths/stress-basics-7-days/index.html
+            _site/learning-paths/family-listening-5-days/index.html
+            _site/learning-paths/grief-support-7-days/index.html
+            _site/learning-paths/caregiver-boundaries-7-days/index.html
           if-no-files-found: warn
           retention-days: 14
 
@@ -317,8 +213,10 @@ jobs:
           assert report['tools'] == 100, report
           assert report['categories'] == 10, report
           assert report['paths'] == 10, report
-          assert report['pages'] == 112, report
+          assert report['indexable_pages'] == 112, report
           assert report['tool_cards'] == 100, report
+          assert report['canonical_learning_path_pages'] == 11, report
+          assert report['legacy_alias_pages'] == 4, report
           print(report)
           PY
 
@@ -353,6 +251,9 @@ jobs:
           curl -fsSL "${PAGE_URL}daily-tools/sleep-wind-down-plan/?sha=${GITHUB_SHA}" -o /tmp/sleep-log-live.html
           grep -q 'data-sleep-log' /tmp/sleep-log-live.html
           grep -q 'لا تُرسل البيانات إلى خادم' /tmp/sleep-log-live.html
+          curl -fsSL "${PAGE_URL}learning-paths/stress-basics-7-days/?sha=${GITHUB_SHA}" -o /tmp/legacy-path-live.html
+          grep -q 'data-legacy-path-alias="v100"' /tmp/legacy-path-live.html
+          grep -q 'noindex,follow' /tmp/legacy-path-live.html
 
       - name: Upload live deployment evidence
         if: always()
@@ -363,5 +264,6 @@ jobs:
             _site/api/daily-tools-overlay-v100.json
             /tmp/daily-tools-live.html
             /tmp/sleep-log-live.html
+            /tmp/legacy-path-live.html
           if-no-files-found: warn
           retention-days: 14
