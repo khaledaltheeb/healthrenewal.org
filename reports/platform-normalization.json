@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-28T04:15:44.396566+00:00",
+  "generated_at": "2026-07-29T21:47:45.937505+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -11,12 +11,12 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 121,
-  "html_pages_normalized_or_current": 120,
+  "html_pages_seen": 180,
+  "html_pages_normalized_or_current": 179,
   "counts": {
-    "current": 118,
-    "skipped": 1,
-    "updated": 2
+    "current": 175,
+    "updated": 4,
+    "skipped": 1
   },
   "results": [
     {
@@ -31,6 +31,226 @@
     },
     {
       "path": "copyright/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/16p11-2-deletion-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/22q11-2-deletion-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/acquired-brain-injury/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/adhd/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/angelman-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/autism/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/cerebral-palsy/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/charge-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/cornelia-de-lange-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/cri-du-chat-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/developmental-coordination-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/developmental-language-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/down-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/epilepsy/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/fetal-alcohol-spectrum-disorders/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/fragile-x-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/global-developmental-delay/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/hearing-loss-deafness/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/hydrocephalus/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/intellectual-disability/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/joubert-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/kabuki-syndrome/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "family-guide/conditions/kbg-syndrome/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "family-guide/conditions/kleefstra-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/muscular-dystrophy/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/neurofibromatosis-type-1/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/phelan-mcdermid-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/pitt-hopkins-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/prader-willi-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/rett-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/rubinstein-taybi-syndrome/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "family-guide/conditions/smith-magenis-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/sotos-syndrome/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "family-guide/conditions/specific-learning-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/spina-bifida/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/spinal-muscular-atrophy/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/tourette-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/tuberous-sclerosis-complex/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/visual-impairment/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/williams-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/appointment-prep/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/behavior-log/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/family-plan/index.html",
       "status": "current",
       "detail": ""
     },
@@ -110,6 +330,11 @@
       "detail": ""
     },
     {
+      "path": "magazine/adolescent-school-guided-narrative-writing-cluster-rct-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "magazine/artemis-adolescent-mental-health-stigma-2026.html",
       "status": "current",
       "detail": ""
@@ -146,6 +371,11 @@
     },
     {
       "path": "magazine/autism-lets-play-caregiver-mediated-rct-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/autism-mentorship-program-pilot-rct-2026.html",
       "status": "current",
       "detail": ""
     },
@@ -221,6 +451,11 @@
     },
     {
       "path": "magazine/childhood-vision-impairment-longitudinal-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "magazine/college-digital-cbt-guided-self-help-rct-2026.html",
       "status": "current",
       "detail": ""
     },
@@ -570,6 +805,66 @@
       "detail": ""
     },
     {
+      "path": "sectors/child/assessment/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/interventions/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/library/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/assessment/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/interventions/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/library/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/home/assessment/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/home/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/home/interventions/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/home/library/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "sectors/index.html",
       "status": "current",
       "detail": ""
@@ -581,7 +876,7 @@
     },
     {
       "path": "specialists-partners/admin/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -601,7 +896,7 @@
     },
     {
       "path": "specialists-partners/portal/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
