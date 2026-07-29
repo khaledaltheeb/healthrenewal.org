@@ -9,5 +9,8 @@ Disallow: /scripts/
 Disallow: /tests/
 Disallow: /node_modules/
 Disallow: /api/private/
+Disallow: /pterminology-site/specialists-partners/admin/
+Disallow: /pterminology-site/specialists-partners/portal/
+Disallow: /pterminology-site/specialists-partners/contact.html
 
 Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap-index.xml
