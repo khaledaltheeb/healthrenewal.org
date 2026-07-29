@@ -32,8 +32,7 @@
       }],
       licenses: [{
         authority: $('licenseAuthority')?.value.trim() || null,
-        status: $('licenseStatus')?.value || 'pending_review',
-        publicIdentifier: $('licenseIdentifier')?.value.trim() || null
+        status: $('licenseStatus')?.value || 'pending_review'
       }],
       experienceYears: Number($('experienceYears')?.value) || null,
       currentRole: $('currentRole')?.value.trim() || null,
@@ -52,7 +51,7 @@
         website: $('website')?.value.trim() || null
       },
       collaborationInterests: selected('collaborationInterests'),
-      privacyNotice: 'هذه نسخة مراجعة عامة. لا تتضمن البريد الخاص أو الهاتف الإداري أو رموز مكافحة السبام أو بيانات الجلسة.'
+      privacyNotice: 'هذه نسخة مراجعة عامة. لا تتضمن البريد الخاص أو الهاتف الإداري أو أرقام الترخيص أو رموز مكافحة السبام أو بيانات الجلسة.'
     };
   }
 
@@ -90,7 +89,7 @@
 
     $('preview-record')?.addEventListener('click', event => {
       event.stopImmediatePropagation();
-      if (validateAndBuild()) setStatus('تم إنشاء نسخة مراجعة منقحة لا تحتوي بيانات الاتصال الخاصة أو رموز الحماية.');
+      if (validateAndBuild()) setStatus('تم إنشاء نسخة مراجعة منقحة لا تحتوي بيانات الاتصال الخاصة أو أرقام الترخيص أو رموز الحماية.');
     }, true);
 
     $('copy-output')?.addEventListener('click', async event => {
