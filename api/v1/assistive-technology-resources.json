@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-07-29T16:54:00+03:00",
+  "language": "ar",
+  "title": "دليل موارد التقنيات المساعدة المستفاد من المصادر الرسمية المنشورة لدى RESNA",
+  "canonicalPage": "https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/",
+  "disclaimer": "هذا الملف فهرس تحريري مستقل. لا توجد شراكة أو موافقة أو اعتماد معلن من RESNA. لا يحتوي على نصوص المعايير أو الدورات أو الأوراق المحمية، ويجب الرجوع إلى المصدر الرسمي والتحقق من شروط الوصول والاستخدام.",
+  "publisher": {
+    "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+    "url": "https://khaledaltheeb.github.io/pterminology-site/"
+  },
+  "sourceOrganization": {
+    "name": "Rehabilitation Engineering and Assistive Technology Society of North America (RESNA)",
+    "homepage": "https://www.resna.org/"
+  },
+  "resources": [
+    {
+      "id": "resna-at-standards",
+      "type": "standards-directory",
+      "titleAr": "معايير التقنيات المساعدة",
+      "titleEn": "AT Standards",
+      "url": "https://www.resna.org/AT-Standards",
+      "access": "public-directory; individual standards may require purchase",
+      "topics": ["cognitive-accessibility", "wheelchairs", "wheelchair-seating", "wheelchair-transportation", "support-surfaces", "air-travel", "inclusive-fitness", "ground-surfaces", "adaptive-sports", "emergency-stair-travel"],
+      "recommendedUse": ["بناء خريطة تصنيف للموقع", "التحقق من وجود معيار متخصص قبل كتابة إرشاد تقني", "توجيه المختصين إلى المصدر الرسمي"],
+      "doNot": ["إعادة نشر نص معيار محمي", "الادعاء بأن ملخص المنصة بديل عن المعيار الكامل"]
+    },
+    {
+      "id": "resna-ethics-practice",
+      "type": "professional-code",
+      "titleAr": "مدونة الأخلاقيات ومعايير الممارسة",
+      "titleEn": "Code of Ethics and Standards of Practice",
+      "url": "https://www.resna.org/Certification/Ethics-and-Standards-of-Practice/Updated-Code-of-Ethics-and-Standards-of-Practice",
+      "access": "public",
+      "topics": ["consumer-welfare", "scope-of-competence", "confidentiality", "conflicts-of-interest", "laws-and-policies", "professional-conduct", "assessment", "trial", "training", "documentation", "referral"],
+      "recommendedUse": ["سياسة تحرير أخلاقية", "قائمة فحص اختيار مقدم الخدمة", "تصميم مسار التقييم والتجربة والتسليم والمتابعة"],
+      "doNot": ["القول إن العامل أو الموقع خاضع لإجراءات RESNA ما لم يكن معتمدًا منها"]
+    },
+    {
+      "id": "resna-position-papers",
+      "type": "clinical-position-papers-directory",
+      "titleAr": "أوراق الموقف وأدلة تقديم الخدمة",
+      "titleEn": "Position Papers and Service Provision Guidelines",
+      "url": "https://www.resna.org/Resources/Position-Papers-and-Service-Provision-Guidelines",
+      "access": "directory public; account may be required for papers",
+      "topics": ["wc19-wheelchairs", "tilt-recline-legrests", "lying-posture-care", "supported-standing", "school-capacity-building", "dynamic-seating", "seat-elevation", "pediatric-power-mobility"],
+      "recommendedUse": ["تحديد موضوعات الأدلة ذات الأولوية", "ربط المقالات العربية بالمصدر الكامل", "إظهار تاريخ الإصدار أو التحديث"],
+      "doNot": ["تقديم الورقة كخطة فردية", "نسخ النص الكامل أو ترجمته رسميًا دون إذن"]
+    },
+    {
+      "id": "resna-research-guidelines",
+      "type": "research-guidance",
+      "titleAr": "إرشادات وأولويات أبحاث التقنيات المساعدة والتأهيل",
+      "titleEn": "Guidelines and Priorities for Assistive Technology and Rehabilitation Research",
+      "url": "https://www.resna.org/Resources/Research-Guidelines",
+      "access": "public landing page; downloadable document",
+      "topics": ["research", "co-design", "outcomes", "quality-of-life", "independence", "developers", "funders", "policy"],
+      "recommendedUse": ["مراجعة أفكار خارج الصندوق", "تصميم نموذج تقييم ابتكار", "إضافة أسئلة حول مشاركة المستخدم والضرر وقابلية التطبيق"]
+    },
+    {
+      "id": "resna-learn",
+      "type": "learning-platform",
+      "titleAr": "منصة التعليم المهني في التقنيات المساعدة",
+      "titleEn": "RESNA Learn",
+      "url": "https://www.resna.org/Resources/RESNA-Learn",
+      "platformUrl": "https://learn.resna.org/",
+      "access": "registration and course-specific conditions",
+      "formats": ["live-webinars", "self-paced-courses", "on-demand", "journal-quizzes"],
+      "recommendedUse": ["فهرسة فرصة التعلم مع الرابط الأصلي", "إنشاء مسار تعلم عربي", "إحالة المختصين إلى التسجيل الرسمي"],
+      "doNot": ["سحب محتوى الدورة", "عرض سعر أو اعتماد دون فحص الصفحة الحالية"]
+    },
+    {
+      "id": "resna-official-ce-providers",
+      "type": "approved-provider-directory",
+      "titleAr": "مزودو التعليم المستمر الرسميون لدى RESNA",
+      "titleEn": "Official RESNA CE Providers",
+      "url": "https://www.resna.org/Certification/Continuing-Education/Official-RESNA-CE-Providers",
+      "access": "public",
+      "examplesListedBySource": ["U.S. Rehab", "Continued", "Human Development Institute", "iNRRTS", "NYC Department of Education Center for Assistive Technology", "Westminster Technologies", "WisTech"],
+      "recommendedUse": ["البحث عن جهات تدريب موثقة", "التحقق من اعتماد الفعالية المحددة"],
+      "doNot": ["الافتراض أن كل دورات الجهة معتمدة"]
+    },
+    {
+      "id": "resna-continuing-education-policies",
+      "type": "education-policy",
+      "titleAr": "سياسات التعليم المستمر",
+      "titleEn": "Continuing Education Policies",
+      "url": "https://www.resna.org/Certification/Continuing-Education/Continuing-Education-Policies",
+      "access": "public",
+      "keyNotes": ["توجد IACET CEUs وRESNA CEUs", "توضح السياسة متطلبات التقييم وإصدار السجل لبعض الأنشطة", "يجب التحقق من أهلية النشاط وفترة القبول الحالية"],
+      "recommendedUse": ["شرح الاعتماد دون تضليل", "بناء حقول بيانات الدورات والشهادات"]
+    },
+    {
+      "id": "resna-certified-directory",
+      "type": "professional-directory",
+      "titleAr": "دليل المختصين المعتمدين",
+      "titleEn": "Certified Professionals Directory",
+      "url": "https://www.resna.org/Certified-Professionals-Directory",
+      "access": "public search",
+      "recommendedUse": ["أداة تحقق إضافية لمؤهل RESNA", "البحث عن إحالات مهنية"],
+      "doNot": ["اعتباره ترخيصًا محليًا", "اعتباره ضمانًا دائمًا للجودة أو ملاءمة المختص لحالة فردية"]
+    },
+    {
+      "id": "resna-at-journal",
+      "type": "peer-reviewed-journal",
+      "titleAr": "مجلة التقنيات المساعدة",
+      "titleEn": "Assistive Technology Journal",
+      "url": "https://www.resna.org/Membership/Assistive-Technology-Journal",
+      "access": "mixed; subscription or article-specific access",
+      "topics": ["research", "clinical-practice", "engineering", "education", "consumer-perspectives"],
+      "recommendedUse": ["متابعة البحث المحكم", "ربط الملخصات بالمقال الأصلي", "تحديث أدلة المنصة"]
+    }
+  ],
+  "editorialRules": [
+    "اعرض تاريخ آخر مراجعة لكل رابط.",
+    "اربط دائمًا بالمصدر الرسمي.",
+    "افصل بين المعيار وورقة الموقف والمقال العلمي والدورة.",
+    "لا تحول المحتوى العام إلى توصية فردية.",
+    "أعلن حدود الوصول والترخيص والتحديث.",
+    "راجع الروابط والمواعيد والأسعار والاعتماد دوريًا."
+  ]
+}
