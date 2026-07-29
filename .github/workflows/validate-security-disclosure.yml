@@ -1,0 +1,37 @@
+name: Validate security disclosure contract
+
+on:
+  pull_request:
+    paths:
+      - 'SECURITY.md'
+      - '.well-known/security.txt'
+      - '.github/ISSUE_TEMPLATE/security-contact.yml'
+      - 'docs/innovation-register.md'
+      - 'scripts/validate_security_disclosure.py'
+      - '.github/workflows/validate-security-disclosure.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'SECURITY.md'
+      - '.well-known/security.txt'
+      - '.github/ISSUE_TEMPLATE/security-contact.yml'
+      - 'docs/innovation-register.md'
+      - 'scripts/validate_security_disclosure.py'
+      - '.github/workflows/validate-security-disclosure.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile validator
+        run: python -m py_compile scripts/validate_security_disclosure.py
+      - name: Validate disclosure contract
+        run: python scripts/validate_security_disclosure.py
