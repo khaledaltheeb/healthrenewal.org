@@ -1,0 +1,176 @@
+name: GDD guide quality
+
+on:
+  pull_request:
+    paths:
+      - 'provider-assessment-demo/conditions/global-developmental-delay/index.html'
+      - '.github/workflows/gdd-guide-quality.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-guide:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate publication contract
+        shell: python
+        run: |
+          from pathlib import Path
+          import json
+          import re
+          import sys
+          from html.parser import HTMLParser
+
+          path = Path('provider-assessment-demo/conditions/global-developmental-delay/index.html')
+          failures = []
+          if not path.is_file():
+              failures.append(f'الصفحة غير موجودة: {path}')
+              html = ''
+          else:
+              html = path.read_text(encoding='utf-8')
+
+          class GuideParser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids = set()
+                  self.href_fragments = []
+                  self.h1 = 0
+                  self.h2_text = []
+                  self._h2 = False
+                  self._h2_parts = []
+                  self.ordered_lists = []
+                  self._ol_depth = 0
+                  self._li_count = 0
+                  self.json_ld = []
+                  self._json_ld = False
+                  self._json_parts = []
+                  self.meta = {}
+                  self.canonical = []
+
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  if 'id' in attrs:
+                      self.ids.add(attrs['id'])
+                  if tag == 'a' and attrs.get('href', '').startswith('#'):
+                      self.href_fragments.append(attrs['href'][1:])
+                  if tag == 'h1':
+                      self.h1 += 1
+                  if tag == 'h2':
+                      self._h2 = True
+                      self._h2_parts = []
+                  if tag == 'ol':
+                      self._ol_depth += 1
+                      self._li_count = 0
+                  if tag == 'li' and self._ol_depth:
+                      self._li_count += 1
+                  if tag == 'script' and attrs.get('type') == 'application/ld+json':
+                      self._json_ld = True
+                      self._json_parts = []
+                  if tag == 'meta':
+                      key = attrs.get('name') or attrs.get('property')
+                      if key:
+                          self.meta[key.lower()] = attrs.get('content', '')
+                  if tag == 'link' and attrs.get('rel') == 'canonical':
+                      self.canonical.append(attrs.get('href', ''))
+
+              def handle_endtag(self, tag):
+                  if tag == 'h2' and self._h2:
+                      self.h2_text.append(' '.join(self._h2_parts).strip())
+                      self._h2 = False
+                  if tag == 'ol' and self._ol_depth:
+                      self.ordered_lists.append(self._li_count)
+                      self._ol_depth -= 1
+                  if tag == 'script' and self._json_ld:
+                      self.json_ld.append(''.join(self._json_parts).strip())
+                      self._json_ld = False
+
+              def handle_data(self, data):
+                  if self._h2:
+                      self._h2_parts.append(data)
+                  if self._json_ld:
+                      self._json_parts.append(data)
+
+          parser = GuideParser()
+          try:
+              parser.feed(html)
+          except Exception as exc:
+              failures.append(f'HTML غير قابل للتحليل: {exc}')
+
+          if parser.h1 != 1:
+              failures.append(f'يجب وجود H1 واحد؛ الموجود: {parser.h1}')
+
+          required_ids = {
+              'definition', 'signs', 'causes', 'assessment', 'daily', 'support',
+              'tips', 'avoid', 'education', 'health', 'transition', 'faq', 'sources'
+          }
+          missing_ids = sorted(required_ids - parser.ids)
+          if missing_ids:
+              failures.append('أقسام إلزامية مفقودة: ' + ', '.join(missing_ids))
+
+          broken_fragments = sorted({fragment for fragment in parser.href_fragments if fragment and fragment not in parser.ids})
+          if broken_fragments:
+              failures.append('روابط فهرس داخلية مكسورة: ' + ', '.join(broken_fragments))
+
+          if not any(count >= 20 for count in parser.ordered_lists):
+              failures.append('لا توجد قائمة مرتبة تحتوي 20 نصيحة عملية على الأقل')
+
+          robots = parser.meta.get('robots', '').lower()
+          if 'index' not in robots or 'follow' not in robots:
+              failures.append('صفحة النشر لا تعلن index,follow')
+
+          expected_canonical = 'https://khaledaltheeb.github.io/pterminology-site/provider-assessment-demo/conditions/global-developmental-delay/'
+          if parser.canonical != [expected_canonical]:
+              failures.append('canonical مفقود أو مكرر أو غير مطابق للمسار القانوني')
+
+          if 'keywords' in parser.meta:
+              failures.append('meta keywords غير مسموح بها')
+
+          if len(re.sub(r'<[^>]+>', ' ', html).split()) < 900:
+              failures.append('المحتوى النصي أقصر من حد إنذار بنيوي؛ يلزم فحص اكتمال الدليل')
+
+          required_phrases = [
+              'المسح ليس تشخيصًا', 'السمع', 'البصر', 'التشخيص التفريقي',
+              'التواصل المعزز والبديل', 'السلامة', 'الخصوصية', 'الانتقال',
+              'دليل أضعف', 'لا يغني عن التقييم الفردي'
+          ]
+          for phrase in required_phrases:
+              if phrase not in html:
+                  failures.append(f'عبارة/محور حماية إلزامي مفقود: {phrase}')
+
+          source_domains = {
+              'cps.ca', 'nice.org.uk', 'who.int', 'cdc.gov'
+          }
+          missing_domains = sorted(domain for domain in source_domains if domain not in html)
+          if missing_domains:
+              failures.append('مصادر رسمية معلنة في PR غير ظاهرة: ' + ', '.join(missing_domains))
+
+          parsed_json_ld = []
+          for raw in parser.json_ld:
+              try:
+                  parsed_json_ld.append(json.loads(raw))
+              except json.JSONDecodeError as exc:
+                  failures.append(f'JSON-LD غير صالح: {exc}')
+
+          json_text = json.dumps(parsed_json_ld, ensure_ascii=False)
+          for schema_type in ('MedicalWebPage', 'MedicalCondition', 'BreadcrumbList'):
+              if schema_type not in json_text:
+                  failures.append(f'نوع Schema مفقود: {schema_type}')
+
+          if 'dir="rtl"' not in html and "dir='rtl'" not in html:
+              failures.append('اتجاه RTL غير مثبت على الوثيقة')
+          if 'name="viewport"' not in html:
+              failures.append('وسم viewport للهاتف مفقود')
+          if 'class="skip"' not in html:
+              failures.append('رابط تجاوز المحتوى للإتاحة مفقود')
+
+          if failures:
+              print('فشل عقد جودة دليل التأخر النمائي الشامل:')
+              for failure in failures:
+                  print(f'- {failure}')
+              sys.exit(1)
+
+          print('نجح عقد الجودة: البنية، الأقسام، النصائح، السلامة، المصادر، Schema، RTL والهاتف.')
