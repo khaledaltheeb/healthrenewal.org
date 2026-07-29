@@ -2,6 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { URL as NodeURL } from 'node:url';
 import vm from 'node:vm';
 
 const source = await readFile('specialists-partners/assets/safe-preview.js', 'utf8');
@@ -97,15 +98,15 @@ const document = {
   }
 };
 
+NodeURL.createObjectURL = () => 'blob:test';
+NodeURL.revokeObjectURL = () => {};
+
 const sandbox = {
   document,
   window: { setTimeout: fn => fn() },
   navigator: { clipboard: { writeText: async () => {} } },
   Blob,
-  URL: {
-    createObjectURL: () => 'blob:test',
-    revokeObjectURL() {}
-  },
+  URL: NodeURL,
   console
 };
 
@@ -143,7 +144,7 @@ assert.equal(record.displayName, 'اسم مهني تجريبي');
 assert.equal(record.publicContactPreferences.showEmail, true);
 assert.equal(record.publicContactPreferences.showPhone, true);
 assert.equal(record.publicContactPreferences.officialProfile, 'https://example.org/profile');
-assert.equal(record.publicContactPreferences.website, 'https://example.org');
+assert.equal(record.publicContactPreferences.website, 'https://example.org/');
 assert.equal(Object.hasOwn(record.licenses[0], 'publicIdentifier'), false, 'يجب ألا يتضمن السجل العام رقم الترخيص');
 assert.match(record.privacyNotice, /أرقام الترخيص/, 'يجب أن يوضح إشعار الخصوصية استبعاد أرقام الترخيص');
 
@@ -154,6 +155,16 @@ click({ stopImmediatePropagation() {} });
 const unsafeRecord = JSON.parse(elements.get('output').value);
 assert.equal(unsafeRecord.publicContactPreferences.officialProfile, null, 'يجب رفض بروتوكول javascript:');
 assert.equal(unsafeRecord.publicContactPreferences.website, null, 'يجب رفض بروتوكول data:');
+
+// يجب رفض أي رابط يتضمن اسم مستخدم أو كلمة مرور حتى لا تنتقل أسرار URL إلى سجل عام.
+elements.get('officialProfile').value = 'https://reviewer:secret@example.org/profile';
+elements.get('website').value = 'https://token@example.org/';
+elements.get('showOfficialProfile').checked = true;
+click({ stopImmediatePropagation() {} });
+const credentialRecord = JSON.parse(elements.get('output').value);
+assert.equal(credentialRecord.publicContactPreferences.officialProfile, null, 'يجب رفض الرابط الذي يتضمن بيانات اعتماد');
+assert.equal(credentialRecord.publicContactPreferences.website, null, 'يجب رفض اسم المستخدم المضمّن في الرابط');
+assert.equal(JSON.stringify(credentialRecord).includes('secret'), false, 'يجب ألا تتسرب كلمة المرور المضمّنة في URL');
 
 // حتى الرابط الآمن لا يخرج في النسخة العامة دون موافقة صريحة على عرضه.
 elements.get('officialProfile').value = 'https://example.org/private-profile';
