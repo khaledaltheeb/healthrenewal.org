@@ -3,8 +3,8 @@ import json,re,xml.etree.ElementTree as ET
 
 root=Path(__file__).resolve().parents[1]
 api=json.loads((root/'api/family-guide-v1.json').read_text(encoding='utf-8'))
-assert api['version']=='1.0.0'
-assert len(api['conditions'])>=8
+assert api['version']=='1.1.0'
+assert len(api['conditions'])==16
 slugs=[x['slug'] for x in api['conditions']]
 assert len(slugs)==len(set(slugs))
 
@@ -15,6 +15,9 @@ for item in api['conditions']:
     page=root/'family-guide/conditions'/slug/'index.html'
     data_file=root/'family-guide/conditions'/slug/'data.js'
     assert page.is_file() and data_file.is_file()
+    page_text=page.read_text(encoding='utf-8')
+    assert '<!-- pt-platform-shell:v1 -->' in page_text
+    assert 'data-pt-normalized="1.1.0"' in page_text
     match=re.search(r'\}\)\((\{.*\})\);\s*$',data_file.read_text(encoding='utf-8'),re.S)
     assert match, slug
     condition=json.loads(match.group(1))
@@ -33,4 +36,4 @@ assert 'TODO' not in text
 ET.parse(root/'sitemap-family-guide.xml')
 listed=(root/'sitemap-family-guide.xml').read_text(encoding='utf-8')
 for slug in slugs: assert f'/family-guide/conditions/{slug}/' in listed
-print({'status':'passed','conditions':len(slugs),'tools':3})
+print({'status':'passed','conditions':len(slugs),'tools':3,'version':api['version']})
