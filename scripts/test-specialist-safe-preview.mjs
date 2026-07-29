@@ -142,8 +142,26 @@ assert.equal(record.recordType, 'specialist_application_public_review');
 assert.equal(record.displayName, 'اسم مهني تجريبي');
 assert.equal(record.publicContactPreferences.showEmail, true);
 assert.equal(record.publicContactPreferences.showPhone, true);
+assert.equal(record.publicContactPreferences.officialProfile, 'https://example.org/profile');
+assert.equal(record.publicContactPreferences.website, 'https://example.org');
 assert.equal(Object.hasOwn(record.licenses[0], 'publicIdentifier'), false, 'يجب ألا يتضمن السجل العام رقم الترخيص');
 assert.match(record.privacyNotice, /أرقام الترخيص/, 'يجب أن يوضح إشعار الخصوصية استبعاد أرقام الترخيص');
+
+// لا تُصدر روابط غير آمنة قد تتحول لاحقًا إلى href قابل للتنفيذ داخل ملف عام.
+elements.get('officialProfile').value = 'javascript:alert(document.domain)';
+elements.get('website').value = 'data:text/html,<script>alert(1)</script>';
+click({ stopImmediatePropagation() {} });
+const unsafeRecord = JSON.parse(elements.get('output').value);
+assert.equal(unsafeRecord.publicContactPreferences.officialProfile, null, 'يجب رفض بروتوكول javascript:');
+assert.equal(unsafeRecord.publicContactPreferences.website, null, 'يجب رفض بروتوكول data:');
+
+// حتى الرابط الآمن لا يخرج في النسخة العامة دون موافقة صريحة على عرضه.
+elements.get('officialProfile').value = 'https://example.org/private-profile';
+elements.get('showOfficialProfile').checked = false;
+click({ stopImmediatePropagation() {} });
+const consentRecord = JSON.parse(elements.get('output').value);
+assert.equal(consentRecord.publicContactPreferences.showOfficialProfile, false);
+assert.equal(consentRecord.publicContactPreferences.officialProfile, null, 'يجب ربط نشر الملف الرسمي بالموافقة الصريحة');
 
 assert.match(joinPage, /assets\/safe-preview\.js\?v=/, 'يجب تحميل طبقة التنقيح في صفحة الانضمام');
 assert.ok(joinPage.indexOf('assets/forms.js') < joinPage.indexOf('assets/safe-preview.js'), 'يجب تحميل طبقة التنقيح بعد منطق النموذج الأساسي');
