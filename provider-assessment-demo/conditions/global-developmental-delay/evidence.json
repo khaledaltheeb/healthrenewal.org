@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1.0",
+  "conditionId": "global-developmental-delay",
+  "titleAr": "التأخر النمائي الشامل عند الأطفال",
+  "publicationStatus": "draft",
+  "reviewedOn": "2026-07-29",
+  "scope": "سجل توثيق تحريري داخلي يربط الادعاءات الحساسة في الدليل بمصادرها ولا يمثل بروتوكول تشخيص أو علاج فردي.",
+  "claims": [
+    {
+      "id": "gdd-definition",
+      "claim": "يُستخدم وصف التأخر النمائي الشامل غالبًا للأطفال دون الخامسة مع تأخر مهم في مجالين نمائيين أو أكثر.",
+      "strength": "guideline-consensus",
+      "sources": ["cps-2026"]
+    },
+    {
+      "id": "multidomain-assessment",
+      "claim": "التقييم يجب أن يجمع التاريخ النمائي والطبي والفحص الجسدي والعصبي وتقييم السمع والبصر والمعلومات الوظيفية، ولا يعتمد على اختبار واحد.",
+      "strength": "guideline-consensus",
+      "sources": ["cps-2026"]
+    },
+    {
+      "id": "genomic-testing-individualized",
+      "claim": "الاستقصاء الجينومي يُنظر فيه بحسب المؤشرات السريرية والموارد؛ ولا تُعرض الفحوص المتقدمة كقائمة إلزامية موحدة لكل طفل.",
+      "strength": "guideline",
+      "sources": ["cps-2026", "acmg-2021"]
+    },
+    {
+      "id": "es-gs-first-or-second-tier",
+      "claim": "توصي ACMG بالنظر في تسلسل الإكسوم أو الجينوم كاختبار من المستوى الأول أو الثاني لدى الأطفال ذوي التأخر النمائي أو الإعاقة الذهنية أو العيوب الخلقية المناسبة للسياق السريري.",
+      "strength": "strong-guideline-recommendation",
+      "sources": ["acmg-2021"]
+    },
+    {
+      "id": "metabolic-testing-selective",
+      "claim": "الفحوص الاستقلابية تُطلب في ظروف أو مؤشرات محددة، وليست فحصًا روتينيًا شاملًا لكل حالة.",
+      "strength": "guideline",
+      "sources": ["cps-2026"]
+    },
+    {
+      "id": "support-before-complete-etiology",
+      "claim": "يمكن بدء الدعم الوظيفي والتدخل المبكر عند ثبوت الاحتياج دون انتظار اكتمال جميع استقصاءات السبب.",
+      "strength": "practice-consensus",
+      "sources": ["cps-2026", "who-ccd"]
+    }
+  ],
+  "sources": {
+    "cps-2026": {
+      "organization": "Canadian Paediatric Society",
+      "title": "Assessing children and youth with global developmental delay and intellectual developmental disorder",
+      "published": "2026-03-27",
+      "url": "https://cps.ca/en/documents/position/Assessing-GDD-IDD",
+      "type": "position-statement"
+    },
+    "acmg-2021": {
+      "organization": "American College of Medical Genetics and Genomics",
+      "title": "Exome and genome sequencing for pediatric patients with congenital anomalies or intellectual disability: an evidence-based clinical guideline",
+      "published": "2021-07-01",
+      "doi": "10.1038/s41436-021-01242-6",
+      "pmid": "34211152",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34211152/",
+      "type": "evidence-based-guideline"
+    },
+    "who-ccd": {
+      "organization": "World Health Organization",
+      "title": "Care for Child Development",
+      "url": "https://www.who.int/teams/maternal-newborn-child-adolescent-health-and-ageing/child-health/care-for-child-development",
+      "type": "official-programme-guidance"
+    }
+  },
+  "safety": {
+    "noProtectedScaleText": true,
+    "noIndividualDiagnosis": true,
+    "noIndividualTreatmentPrescription": true,
+    "publicApprovalClaim": false
+  }
+}
