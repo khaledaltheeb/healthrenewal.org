@@ -5,6 +5,14 @@ on:
     branches: ["agent/family-guide-phase4-v338"]
     paths:
       - ".github/workflows/materialize-family-guide-phase4-v338.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/materialize-family-guide-phase4-v338.yml"
+      - "family-guide/**"
+      - "api/family-guide-v1.json"
+      - "sitemap-family-guide.xml"
+      - "tests/test_family_guide_v335.py"
   workflow_dispatch:
 
 permissions:
@@ -12,6 +20,7 @@ permissions:
 
 jobs:
   materialize:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -124,7 +133,7 @@ jobs:
           readme_path = root / 'family-guide/README.md'
           readme = readme_path.read_text(encoding='utf-8')
           readme = re.sub(r'# دليل الأسرة v\d+', '# دليل الأسرة v338', readme)
-          readme = re.sub(r'- \d+ أدلة حالات منشورة', '- 32 دليل حالة منشورًا', readme)
+          readme = re.sub(r'- \d+ دليل(?: حالة)? منشور(?:ًا)?', '- 32 دليل حالة منشورًا', readme)
           readme = readme.replace('آخر مراجعة: 2026-07-29', f'آخر مراجعة: {review_date}')
           readme_path.write_text(readme, encoding='utf-8')
 
