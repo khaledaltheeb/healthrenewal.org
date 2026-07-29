@@ -4,8 +4,15 @@
   const $ = id => document.getElementById(id);
   const selected = id => Array.from($(id)?.selectedOptions || []).map(option => option.value);
   const splitList = value => String(value || '').split(/[،,\n]/).map(item => item.trim()).filter(Boolean);
+  const safeWebUrl = value => {
+    const candidate = String(value || '').trim();
+    if (!candidate) return null;
+    if (!/^https?:\/\/[^\s]+$/i.test(candidate)) return null;
+    return candidate;
+  };
 
   function publicReviewRecord() {
+    const showOfficialProfile = Boolean($('showOfficialProfile')?.checked);
     return {
       recordType: 'specialist_application_public_review',
       entityType: $('entityType')?.value || '',
@@ -46,9 +53,9 @@
       publicContactPreferences: {
         showPhone: Boolean($('showPhone')?.checked),
         showEmail: Boolean($('showEmail')?.checked),
-        showOfficialProfile: Boolean($('showOfficialProfile')?.checked),
-        officialProfile: $('officialProfile')?.value.trim() || null,
-        website: $('website')?.value.trim() || null
+        showOfficialProfile,
+        officialProfile: showOfficialProfile ? safeWebUrl($('officialProfile')?.value) : null,
+        website: safeWebUrl($('website')?.value)
       },
       collaborationInterests: selected('collaborationInterests'),
       privacyNotice: 'هذه نسخة مراجعة عامة. لا تتضمن البريد الخاص أو الهاتف الإداري أو أرقام الترخيص أو رموز مكافحة السبام أو بيانات الجلسة.'
