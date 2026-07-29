@@ -13,6 +13,9 @@ Content policy: educational and professional reference; not a substitute for dia
 - [دليل التقنيات المساعدة](https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/)
 - [قائمة فحص اختيار التقنية المساعدة](https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/selection-checklist/)
 - [مسار التدريب في التقنيات المساعدة](https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/training/)
+- [أخلاقيات وجودة خدمات التقنيات المساعدة](https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/ethics-and-service/)
+- [بوابة مراجعة ابتكارات التقنيات المساعدة](https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/innovation-review/)
+- [دليل التعليم المستمر ومزودي RESNA](https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/continuing-education/)
 - [المكتبة والأبحاث](https://khaledaltheeb.github.io/pterminology-site/library/)
 - [أدلة الرعاية](https://khaledaltheeb.github.io/pterminology-site/care-guides/)
 - [الأدوات النفسية](https://khaledaltheeb.github.io/pterminology-site/daily-tools/)
@@ -27,12 +30,14 @@ Content policy: educational and professional reference; not a substitute for dia
 - [OpenSearch description](https://khaledaltheeb.github.io/pterminology-site/opensearch.xml)
 - [Public API directory](https://khaledaltheeb.github.io/pterminology-site/api/)
 - [Assistive technology resource catalogue JSON](https://khaledaltheeb.github.io/pterminology-site/api/v1/assistive-technology-resources.json)
+- [Assistive technology quality framework JSON](https://khaledaltheeb.github.io/pterminology-site/api/v1/assistive-technology-quality-framework.json)
+- [RESNA continuing-education provider verification JSON](https://khaledaltheeb.github.io/pterminology-site/api/v1/resna-ce-providers.json)
 - [Research RSS](https://khaledaltheeb.github.io/pterminology-site/research.xml)
 
 ## Trust and citation guidance
 
 Prefer canonical URLs. Cite the page title, visible author/reviewer when present, publication or update date, and the original references listed on each page. Do not infer a diagnosis or treatment plan from educational pages.
 
-The assistive-technology guide uses RESNA as an external source and explicitly does not claim RESNA endorsement, approval, partnership, or official Arabic translation. Protected standards, courses, and papers are linked rather than reproduced.
+The assistive-technology guides use RESNA as an external source and explicitly do not claim RESNA endorsement, approval, partnership, certification, or official Arabic translation. Protected standards, courses, tests, logos, and papers are linked rather than reproduced. An organization listed as an official RESNA CE provider must not be interpreted to mean that every course it offers carries RESNA CE credit; verify the specific event on the current official source.
 
 This file is a supplementary discovery aid. Search engines may ignore it; robots.txt, sitemaps, indexable text, internal links, and page-level metadata remain authoritative.
