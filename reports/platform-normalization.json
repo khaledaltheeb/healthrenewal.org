@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-29T22:16:43.979230+00:00",
+  "generated_at": "2026-07-29T14:09:15.432950+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -11,12 +11,12 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 194,
-  "html_pages_normalized_or_current": 193,
+  "html_pages_seen": 167,
+  "html_pages_normalized_or_current": 166,
   "counts": {
-    "current": 185,
-    "updated": 8,
-    "skipped": 1
+    "current": 165,
+    "skipped": 1,
+    "updated": 1
   },
   "results": [
     {
@@ -35,16 +35,6 @@
       "detail": ""
     },
     {
-      "path": "family-guide/conditions/16p11-2-deletion-syndrome/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/22q11-2-deletion-syndrome/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
       "path": "family-guide/conditions/acquired-brain-injury/index.html",
       "status": "current",
       "detail": ""
@@ -53,11 +43,6 @@
       "path": "family-guide/conditions/adhd/index.html",
       "status": "current",
       "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/adnp-syndrome/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
     },
     {
       "path": "family-guide/conditions/angelman-syndrome/index.html",
@@ -75,31 +60,6 @@
       "detail": ""
     },
     {
-      "path": "family-guide/conditions/charge-syndrome/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/christianson-syndrome/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
-    },
-    {
-      "path": "family-guide/conditions/coffin-siris-syndrome/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
-    },
-    {
-      "path": "family-guide/conditions/cornelia-de-lange-syndrome/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/cri-du-chat-syndrome/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
       "path": "family-guide/conditions/developmental-coordination-disorder/index.html",
       "status": "current",
       "detail": ""
@@ -113,11 +73,6 @@
       "path": "family-guide/conditions/down-syndrome/index.html",
       "status": "current",
       "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/dyrk1a-syndrome/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
     },
     {
       "path": "family-guide/conditions/epilepsy/index.html",
@@ -155,52 +110,12 @@
       "detail": ""
     },
     {
-      "path": "family-guide/conditions/joubert-syndrome/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/kabuki-syndrome/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/kbg-syndrome/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/kleefstra-syndrome/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/mbd5-haploinsufficiency/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
-    },
-    {
-      "path": "family-guide/conditions/med13l-syndrome/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
-    },
-    {
       "path": "family-guide/conditions/muscular-dystrophy/index.html",
       "status": "current",
       "detail": ""
     },
     {
       "path": "family-guide/conditions/neurofibromatosis-type-1/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/phelan-mcdermid-syndrome/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/pitt-hopkins-syndrome/index.html",
       "status": "current",
       "detail": ""
     },
@@ -215,26 +130,6 @@
       "detail": ""
     },
     {
-      "path": "family-guide/conditions/rubinstein-taybi-syndrome/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/satb2-associated-syndrome/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
-    },
-    {
-      "path": "family-guide/conditions/smith-magenis-syndrome/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/sotos-syndrome/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
       "path": "family-guide/conditions/specific-learning-disorder/index.html",
       "status": "current",
       "detail": ""
@@ -245,17 +140,7 @@
       "detail": ""
     },
     {
-      "path": "family-guide/conditions/spinal-muscular-atrophy/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
       "path": "family-guide/conditions/tourette-syndrome/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/tuberous-sclerosis-complex/index.html",
       "status": "current",
       "detail": ""
     },
@@ -263,11 +148,6 @@
       "path": "family-guide/conditions/visual-impairment/index.html",
       "status": "current",
       "detail": ""
-    },
-    {
-      "path": "family-guide/conditions/wiedemann-steiner-syndrome/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
     },
     {
       "path": "family-guide/conditions/williams-syndrome/index.html",
@@ -910,22 +790,7 @@
       "detail": ""
     },
     {
-      "path": "special-needs/assistive-technology/continuing-education/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "special-needs/assistive-technology/ethics-and-service/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
       "path": "special-needs/assistive-technology/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "special-needs/assistive-technology/innovation-review/index.html",
       "status": "current",
       "detail": ""
     },
@@ -936,7 +801,7 @@
     },
     {
       "path": "special-needs/assistive-technology/training/index.html",
-      "status": "current",
+      "status": "updated",
       "detail": ""
     },
     {
