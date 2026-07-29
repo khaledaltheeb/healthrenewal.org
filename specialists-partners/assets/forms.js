@@ -234,11 +234,12 @@
         status('جارٍ إنشاء المحادثة وإرسال الإشعار…', 'loading');
         try {
           const result = await post('/v1/conversations', payload);
-          const portal = `portal/?conversation=${encodeURIComponent(result.conversationId)}&token=${encodeURIComponent(result.accessToken)}&role=visitor`;
+          const portal = `portal/#conversation=${encodeURIComponent(result.conversationId)}&token=${encodeURIComponent(result.accessToken)}&role=visitor`;
           status('تم إنشاء المحادثة وإشعار المختص. احتفظ بالرابط التالي للعودة إلى المحادثة.', 'success');
           const link = document.createElement('a');
           link.className = 'button primary';
           link.href = portal;
+          link.rel = 'noreferrer';
           link.textContent = 'فتح المحادثة الخاصة';
           $('form-status').append(document.createElement('br'), link);
           form.reset();
@@ -254,12 +255,19 @@
   }
 
   function portalCredentials() {
-    const params = new URLSearchParams(location.search);
-    return {
-      conversationId: params.get('conversation') || sessionStorage.getItem('ptConversationId') || '',
-      token: params.get('token') || sessionStorage.getItem('ptConversationToken') || '',
-      role: params.get('role') || sessionStorage.getItem('ptConversationRole') || 'visitor'
+    const fragment = new URLSearchParams(location.hash.replace(/^#/, ''));
+    const legacyQuery = new URLSearchParams(location.search);
+    const credentials = {
+      conversationId: fragment.get('conversation') || legacyQuery.get('conversation') || sessionStorage.getItem('ptConversationId') || '',
+      token: fragment.get('token') || legacyQuery.get('token') || sessionStorage.getItem('ptConversationToken') || '',
+      role: fragment.get('role') || legacyQuery.get('role') || sessionStorage.getItem('ptConversationRole') || 'visitor'
     };
+
+    if (location.hash || location.search) {
+      history.replaceState(null, document.title, location.pathname);
+    }
+
+    return credentials;
   }
 
   async function portalRequest(path, options = {}) {
