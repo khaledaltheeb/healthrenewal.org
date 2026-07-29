@@ -3,11 +3,11 @@
   "status": "deployed",
   "deployment_outcome": "success",
   "artifact": "validated-production-site",
-  "source_commit": "7ed944863315c06f44ee568b940386cc22fc5f22",
-  "deployment_workflow_run_id": "30397472035",
-  "source_workflow_run_id": "30396305078",
+  "source_commit": "276c0a0c21252782000dede97e0e934d8f51e1f7",
+  "deployment_workflow_run_id": "30429348602",
+  "source_workflow_run_id": "30428430291",
   "page_url": "https://khaledaltheeb.github.io/pterminology-site/",
-  "recorded_at": "2026-07-28T20:42:30+00:00",
+  "recorded_at": "2026-07-29T06:48:16+00:00",
   "academic_library": {
     "version": 326,
     "sections": {
