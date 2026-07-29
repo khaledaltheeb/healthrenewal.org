@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'SECURITY.md'
+      - 'security.txt'
       - '.well-known/security.txt'
       - '.github/ISSUE_TEMPLATE/security-contact.yml'
       - 'docs/innovation-register.md'
@@ -13,6 +14,7 @@ on:
     branches: [main]
     paths:
       - 'SECURITY.md'
+      - 'security.txt'
       - '.well-known/security.txt'
       - '.github/ISSUE_TEMPLATE/security-contact.yml'
       - 'docs/innovation-register.md'
