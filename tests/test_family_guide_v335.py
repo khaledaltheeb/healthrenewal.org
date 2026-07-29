@@ -3,10 +3,16 @@ import json,re,xml.etree.ElementTree as ET
 
 root=Path(__file__).resolve().parents[1]
 api=json.loads((root/'api/family-guide-v1.json').read_text(encoding='utf-8'))
-assert api['version']=='1.1.0'
-assert len(api['conditions'])==16
+assert api['version']=='1.2.0'
+assert len(api['conditions'])==24
 slugs=[x['slug'] for x in api['conditions']]
 assert len(slugs)==len(set(slugs))
+expected_phase3={
+    'fetal-alcohol-spectrum-disorders','rett-syndrome','angelman-syndrome',
+    'prader-willi-syndrome','williams-syndrome','tourette-syndrome',
+    'hydrocephalus','neurofibromatosis-type-1'
+}
+assert expected_phase3.issubset(set(slugs))
 
 required=['title','summary','causes','signs','first_steps','avoid','daily','plan30','plan90','plan_year','urgent','professionals','questions','sources']
 for item in api['conditions']:
@@ -23,6 +29,9 @@ for item in api['conditions']:
     condition=json.loads(match.group(1))
     for key in required: assert condition.get(key), (slug,key)
     assert len(condition['sources'])>=3
+    assert len(condition['first_steps'])>=3
+    assert len(condition['avoid'])>=3
+    assert len(condition['daily'])>=3
     for _,url in condition['sources']: assert url.startswith('https://')
 
 for path in [root/'family-guide/index.html',root/'family-guide/family-guide-data.js',root/'family-guide/family-guide-ui.js',root/'family-guide/family-guide.css']:
