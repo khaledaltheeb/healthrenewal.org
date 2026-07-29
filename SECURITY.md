@@ -8,6 +8,11 @@
 
 `https://github.com/khaledaltheeb/pterminology-site/issues/new?template=security-contact.yml`
 
+توجد بيانات الاتصال القابلة للقراءة الآلية في:
+
+- `https://khaledaltheeb.github.io/pterminology-site/security.txt` — المسار المنشور المتوافق مع بنية GitHub Pages الحالية.
+- `https://khaledaltheeb.github.io/pterminology-site/.well-known/security.txt` — المسار القياسي المحفوظ في المصدر، ويحتاج إلى بناء أو نطاق يدعم نشر المجلد المخفي.
+
 ## ما يجب تضمينه داخل البلاغ الخاص فقط
 
 - عنوان مختصر ووصف للأثر المحتمل.
@@ -39,6 +44,11 @@ Do not publish vulnerability details, exploit steps, personal or health data, cr
 First use GitHub **Private vulnerability reporting** through **Security → Advisories → Report a vulnerability**. If private reporting is unavailable, use the **Request a private security contact** issue form only to request a private channel. Do not identify the vulnerability class or include technical details or sensitive data:
 
 `https://github.com/khaledaltheeb/pterminology-site/issues/new?template=security-contact.yml`
+
+Machine-readable contacts are available at:
+
+- `https://khaledaltheeb.github.io/pterminology-site/security.txt` — the published compatibility location supported by the current GitHub Pages build.
+- `https://khaledaltheeb.github.io/pterminology-site/.well-known/security.txt` — the standards-based source location, requiring a build or domain setup that publishes hidden directories.
 
 ## Include only in the private report
 
