@@ -8,6 +8,8 @@
   const formId = page === 'join' ? 'onboarding-form' : page === 'contact' ? 'contact-form' : '';
   const REQUEST_TIMEOUT_MS = 20000;
   const MAX_JSON_BYTES = 256 * 1024;
+  const inFlightRequests = new Set();
+  const completedRequests = new Set();
 
   function announce(message) {
     const box = document.getElementById('form-status');
@@ -99,6 +101,15 @@
     }
   }
 
+  function resetTurnstileWidget() {
+    if (!config.turnstileSiteKey || typeof window.turnstile?.reset !== 'function') return;
+    try {
+      window.turnstile.reset();
+    } catch (_) {
+      // إعادة الضبط تحسين دفاعي فقط؛ يبقى تحقق الخادم ومنع إعادة الاستخدام إلزاميين.
+    }
+  }
+
   function combinedAbortSignal(externalSignal, timeoutController) {
     if (!externalSignal) return timeoutController.signal;
     if (typeof AbortSignal.any === 'function') {
@@ -126,6 +137,12 @@
       const body = parseJsonBody(options);
       const identity = requestIdentity(body);
       if (!identity) throw new Error('تعذر إنشاء معرّف آمن للطلب. أعد تحميل الصفحة وحاول مرة أخرى.');
+      if (completedRequests.has(identity)) {
+        throw new Error('تم إرسال هذا الطلب بنجاح بالفعل. أنشئ طلبًا جديدًا بدل إعادة استخدام المعرّف نفسه.');
+      }
+      if (inFlightRequests.has(identity)) {
+        throw new Error('هذا الطلب قيد الإرسال بالفعل. انتظر نتيجة المحاولة الحالية ولا تضغط زر الإرسال مرة أخرى.');
+      }
       requireBoundTurnstileToken(body);
 
       const headers = new Headers(resource instanceof Request ? resource.headers : undefined);
@@ -141,8 +158,9 @@
       const timeoutController = new AbortController();
       const signal = combinedAbortSignal(options.signal || (resource instanceof Request ? resource.signal : null), timeoutController);
       const timeout = window.setTimeout(() => timeoutController.abort('request_timeout'), REQUEST_TIMEOUT_MS);
+      inFlightRequests.add(identity);
       try {
-        return await nativeFetch(resource, {
+        const response = await nativeFetch(resource, {
           ...options,
           method: 'POST',
           headers,
@@ -152,7 +170,13 @@
           referrerPolicy: 'no-referrer',
           redirect: 'error'
         });
+        if (response.ok) {
+          completedRequests.add(identity);
+          resetTurnstileWidget();
+        }
+        return response;
       } finally {
+        inFlightRequests.delete(identity);
         window.clearTimeout(timeout);
       }
     };
