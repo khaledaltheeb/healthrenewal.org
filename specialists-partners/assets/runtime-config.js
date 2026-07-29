@@ -7,10 +7,16 @@ window.PT_SPECIALIST_CONFIG = Object.freeze({
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-  if (document.body?.dataset.page !== 'join') return;
-  const script = document.createElement('script');
-  script.src = 'assets/privacy-guard.js?v=2.0.0';
-  script.defer = true;
-  script.dataset.securityModule = 'private-preview-guard';
-  document.head.append(script);
+  const page = document.body?.dataset.page;
+  const modules = [];
+  if (page === 'join') modules.push(['assets/privacy-guard.js?v=2.0.0', 'private-preview-guard']);
+  if (page === 'join' || page === 'contact') modules.push(['assets/submission-security.js?v=2.0.0', 'protected-submission-guard']);
+
+  modules.forEach(([src, name]) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.defer = true;
+    script.dataset.securityModule = name;
+    document.head.append(script);
+  });
 }, {once: true});
