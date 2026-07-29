@@ -1,0 +1,58 @@
+name: Validate specialist owner console v4
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "specialists-partners/**"
+      - "api/v1/platform.json"
+      - "api/v1/specialists-partners.json"
+      - "tests/test_specialist_owner_console_v4.py"
+      - "tests/test_specialist_operations_v3.py"
+      - "tests/test_specialists_partners_sector.py"
+      - ".github/workflows/deploy-specialists-backend.yml"
+      - ".github/workflows/validate-specialist-owner-console-v4.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: specialist-owner-console-v4-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Validate JavaScript
+        run: |
+          node --check specialists-partners/backend/src/index-v2.js
+          node --check specialists-partners/admin/admin.js
+          node --check specialists-partners/assets/sector.js
+          node --check specialists-partners/assets/forms.js
+          node --check specialists-partners/assets/portal-controls.js
+
+      - name: Validate JSON contracts
+        run: |
+          python -m json.tool specialists-partners/data/provider.schema.json >/dev/null
+          python -m json.tool api/v1/specialists-partners.json >/dev/null
+          python -m json.tool api/v1/platform.json >/dev/null
+
+      - name: Run specialist production contracts
+        run: |
+          python -m unittest -v \
+            tests.test_specialist_owner_console_v4 \
+            tests.test_specialist_operations_v3 \
+            tests.test_specialists_partners_sector
