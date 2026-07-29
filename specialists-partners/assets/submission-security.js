@@ -7,6 +7,7 @@
   const page = document.body?.dataset.page || '';
   const formId = page === 'join' ? 'onboarding-form' : page === 'contact' ? 'contact-form' : '';
   const REQUEST_TIMEOUT_MS = 20000;
+  const MAX_JSON_BYTES = 256 * 1024;
 
   function announce(message) {
     const box = document.getElementById('form-status');
@@ -64,13 +65,37 @@
     return {url, relativePath};
   }
 
-  function requestIdentity(options) {
+  function parseJsonBody(options) {
+    if (typeof options?.body !== 'string') {
+      throw new Error('يجب إنشاء الطلب المحمي بجسم JSON نصي صريح حتى يمكن التحقق منه قبل الإرسال.');
+    }
+    if (new TextEncoder().encode(options.body).byteLength > MAX_JSON_BYTES) {
+      throw new Error('حجم الطلب أكبر من الحد المسموح. قلّل البيانات أو استخدم مسار رفع المستندات الآمن.');
+    }
+    let body;
     try {
-      const body = JSON.parse(String(options?.body || '{}'));
-      const identity = body.submissionId || body.requestId;
-      return typeof identity === 'string' && /^[a-z0-9-]{12,96}$/i.test(identity) ? identity : '';
+      body = JSON.parse(options.body);
     } catch (_) {
-      return '';
+      throw new Error('تعذر قراءة بيانات الطلب بصيغة JSON صحيحة.');
+    }
+    if (!body || Array.isArray(body) || typeof body !== 'object') {
+      throw new Error('يجب أن يكون جسم الطلب كائن JSON صالحًا.');
+    }
+    return body;
+  }
+
+  function requestIdentity(body) {
+    const identity = body.submissionId || body.requestId;
+    return typeof identity === 'string' && /^[a-z0-9-]{12,96}$/i.test(identity) ? identity : '';
+  }
+
+  function requireBoundTurnstileToken(body) {
+    if (!config.turnstileSiteKey) return;
+    const form = document.getElementById(formId);
+    const currentToken = turnstileToken(form);
+    const payloadToken = typeof body.turnstileToken === 'string' ? body.turnstileToken.trim() : '';
+    if (!currentToken || !payloadToken || payloadToken !== currentToken) {
+      throw new Error('رمز التحقق البشري مفقود أو غير مطابق للنموذج الحالي. أعد التحقق ثم حاول مرة أخرى.');
     }
   }
 
@@ -98,11 +123,16 @@
         throw new Error('يجب إنشاء الطلب المحمي بجسم JSON صريح حتى يمكن التحقق منه قبل الإرسال.');
       }
 
-      const identity = requestIdentity(options);
+      const body = parseJsonBody(options);
+      const identity = requestIdentity(body);
       if (!identity) throw new Error('تعذر إنشاء معرّف آمن للطلب. أعد تحميل الصفحة وحاول مرة أخرى.');
+      requireBoundTurnstileToken(body);
 
       const headers = new Headers(resource instanceof Request ? resource.headers : undefined);
       new Headers(options.headers || {}).forEach((value, key) => headers.set(key, value));
+      if (headers.has('Authorization') || headers.has('Proxy-Authorization')) {
+        throw new Error('لا يُسمح بإرسال بيانات اعتماد ضمن طلبات النماذج العامة.');
+      }
       headers.set('Accept', 'application/json');
       headers.set('Content-Type', 'application/json;charset=UTF-8');
       headers.set('Idempotency-Key', identity);
