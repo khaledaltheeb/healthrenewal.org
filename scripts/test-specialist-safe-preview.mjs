@@ -49,7 +49,7 @@ const values = {
   qualificationYear: '2020',
   licenseAuthority: 'جهة مهنية',
   licenseStatus: 'pending_review',
-  licenseIdentifier: 'PUBLIC-123',
+  licenseIdentifier: 'LICENSE-SENSITIVE-987654',
   experienceYears: '7',
   currentRole: 'مقدم خدمة',
   shortBio: 'نبذة مهنية عامة',
@@ -128,9 +128,12 @@ for (const forbidden of [
   'phone',
   'turnstileToken',
   'cf-turnstile-response',
+  'licenseIdentifier',
+  'publicIdentifier',
   'private@example.org',
   '+962799999999',
-  'turnstile-secret-token'
+  'turnstile-secret-token',
+  'LICENSE-SENSITIVE-987654'
 ]) {
   assert.equal(serialized.includes(forbidden), false, `تسرّب حقل أو قيمة محظورة: ${forbidden}`);
 }
@@ -139,6 +142,8 @@ assert.equal(record.recordType, 'specialist_application_public_review');
 assert.equal(record.displayName, 'اسم مهني تجريبي');
 assert.equal(record.publicContactPreferences.showEmail, true);
 assert.equal(record.publicContactPreferences.showPhone, true);
+assert.equal(Object.hasOwn(record.licenses[0], 'publicIdentifier'), false, 'يجب ألا يتضمن السجل العام رقم الترخيص');
+assert.match(record.privacyNotice, /أرقام الترخيص/, 'يجب أن يوضح إشعار الخصوصية استبعاد أرقام الترخيص');
 
 assert.match(joinPage, /assets\/safe-preview\.js\?v=/, 'يجب تحميل طبقة التنقيح في صفحة الانضمام');
 assert.ok(joinPage.indexOf('assets/forms.js') < joinPage.indexOf('assets/safe-preview.js'), 'يجب تحميل طبقة التنقيح بعد منطق النموذج الأساسي');
