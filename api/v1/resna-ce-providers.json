@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-07-29T17:46:00+03:00",
+  "lastChecked": "2026-07-29",
+  "language": "ar",
+  "title": "دليل تحقق تحريري لمزودي التعليم المستمر الرسميين لدى RESNA",
+  "canonicalPage": "https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/continuing-education/",
+  "officialDirectory": "https://www.resna.org/Certification/Continuing-Education/Official-RESNA-CE-Providers",
+  "disclaimer": "القائمة لقطة تحريرية من الدليل الرسمي في تاريخ المراجعة. يجب التحقق من الدليل الرسمي ومن الفعالية المحددة قبل وصف أي دورة بأنها تمنح وحدات RESNA. اعتماد المزود لا يعني اعتماد جميع دوراته.",
+  "providers": [
+    {"id": "us-rehab", "name": "U.S. Rehab", "topics": ["complex-rehab", "atp-prep", "aac", "technical-training"], "verificationStatus": "listed-on-official-directory"},
+    {"id": "continued", "name": "Continued", "topics": ["occupational-therapy", "physical-therapy", "speech-language-pathology"], "verificationStatus": "listed-on-official-directory"},
+    {"id": "human-development-institute", "name": "Human Development Institute", "topics": ["developmental-disabilities", "education", "research", "service"], "verificationStatus": "listed-on-official-directory"},
+    {"id": "inrrts", "name": "iNRRTS", "topics": ["complex-rehab-technology", "education", "advocacy", "quality-service"], "verificationStatus": "listed-on-official-directory"},
+    {"id": "nyc-doe-center-for-assistive-technology", "name": "NYC Department of Education Center for Assistive Technology", "topics": ["school-assessment", "professional-development", "training", "implementation-support"], "verificationStatus": "listed-on-official-directory"},
+    {"id": "westminster-technologies", "name": "Westminster Technologies", "topics": ["assistive-technology-assessment", "training", "professional-development", "consultation"], "verificationStatus": "listed-on-official-directory"},
+    {"id": "wistech", "name": "WisTech Assistive Technology Program", "topics": ["selection", "funding", "installation", "use"], "verificationStatus": "listed-on-official-directory"}
+  ],
+  "requiredCourseVerificationFields": [
+    "official-title",
+    "canonical-course-url",
+    "audience-and-prerequisites",
+    "delivery-format",
+    "event-specific-resna-ce-status",
+    "ce-type-and-amount",
+    "learning-outcomes",
+    "instructor-biography",
+    "evaluation-method",
+    "pass-requirement",
+    "certificate-or-transcript-method",
+    "price-currency-and-check-date",
+    "language-and-accessibility",
+    "license-and-attribution"
+  ],
+  "prohibitedClaimsWithoutEventEvidence": [
+    "all-provider-courses-are-resna-approved",
+    "certificate-is-professional-license",
+    "course-is-free",
+    "course-is-internationally-available",
+    "course-is-suitable-for-all-professionals-or-users"
+  ],
+  "officialSources": [
+    "https://www.resna.org/Certification/Continuing-Education/Official-RESNA-CE-Providers",
+    "https://www.resna.org/Certification/Continuing-Education/Continuing-Education-Policies",
+    "https://www.resna.org/Certification/Continuing-Education/Become-a-RESNA-CE-Provider"
+  ]
+}
