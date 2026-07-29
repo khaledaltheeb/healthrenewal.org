@@ -25,14 +25,9 @@ def add_once(text: str, marker: str, addition: str, identity: str) -> str:
 
 
 def patch_keywords(text: str) -> str:
-    match = re.search(r'(<meta name="keywords" content=")([^"]*)(">)', text)
-    if not match:
-        raise SystemExit("Homepage keyword metadata is missing")
-    values = [item.strip() for item in match.group(2).split(",") if item.strip()]
-    for value in ("أدوات نفسية تفاعلية", "أدوات تنظيم التوتر", "أدوات متابعة النوم", "مسارات تعلم الصحة النفسية"):
-        if value not in values:
-            values.append(value)
-    return text[: match.start(2)] + ",".join(values) + text[match.end(2) :]
+    if re.search(r'<meta\s+name=["\']keywords["\']', text, re.I):
+        raise SystemExit("Legacy homepage meta keywords must remain removed")
+    return text
 
 
 def patch_jsonld(text: str) -> str:
