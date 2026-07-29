@@ -1,0 +1,95 @@
+{
+  "condition": {
+    "id": "global-developmental-delay",
+    "name_ar": "التأخر النمائي الشامل",
+    "name_en": "Global Developmental Delay",
+    "scope": "سجل أدلة تحريري لدعم مراجعة الصفحة؛ لا يمثل تشخيصًا أو بروتوكول علاج فرديًا."
+  },
+  "review": {
+    "reviewed_on": "2026-07-29",
+    "status": "draft-unpublished",
+    "publication_rule": "لا تُزال حالة المسودة ولا تُفعّل الفهرسة قبل إدراج الصفحة في مصدر الحقيقة وخريطة القسم ونجاح اختبارات النشر.",
+    "protected_measures": "لا يتضمن السجل نصوص مقاييس أو أدوات تقييم محمية."
+  },
+  "evidence_statements": [
+    {
+      "topic": "التعريف والاستخدام العمري",
+      "statement_ar": "يُستخدم وصف التأخر النمائي الشامل غالبًا في الطفولة المبكرة عندما يظهر تأخر مهم في مجالين نمائيين أو أكثر، ولا يساوي تلقائيًا تشخيص الإعاقة الذهنية.",
+      "strength": "إرشادات ومراجعات مهنية متوافقة",
+      "sources": ["cps-2018", "aap-2025"]
+    },
+    {
+      "topic": "التقييم متعدد المجالات",
+      "statement_ar": "يجب أن يجمع التقييم التاريخ النمائي والطبي والعائلي، والفحص السريري، وتقييم السمع والبصر، والوظائف التكيفية والتواصل، بدل الاعتماد على اختبار واحد.",
+      "strength": "دليل إرشادي قوي نسبيًا",
+      "sources": ["cps-2018", "aap-2025"]
+    },
+    {
+      "topic": "الاختبارات الجينية",
+      "statement_ar": "قد تكون الاختبارات الجينية مفيدة في التأخر النمائي غير المفسر، ويُحدد ترتيبها وفق النمط السريري والموارد والمشورة الجينية؛ ولا تعني النتيجة السلبية غياب سبب بيولوجي.",
+      "strength": "إرشاد مهني حديث؛ التطبيق فردي",
+      "sources": ["aap-2025", "acmg-2021"]
+    },
+    {
+      "topic": "تسلسل الإكسوم أو الجينوم",
+      "statement_ar": "توصي إرشادات ACMG بالنظر في تسلسل الإكسوم أو الجينوم كاختبار من الخط الأول أو الثاني للأطفال ذوي التأخر النمائي أو الإعاقة الذهنية أو التشوهات الخلقية، ضمن تقييم سريري وموافقة مستنيرة مناسبة.",
+      "strength": "إرشاد سريري قائم على مراجعة أدلة",
+      "sources": ["acmg-2021"]
+    },
+    {
+      "topic": "التصوير والفحوص الاستقلابية",
+      "statement_ar": "لا تُطلب كل الفحوص لكل طفل بصورة موحدة؛ يرتفع مبرر التصوير أو الفحوص الاستقلابية عند وجود فقدان مهارات أو نوبات أو علامات عصبية أو قصة عائلية أو مؤشرات سريرية أخرى.",
+      "strength": "إرشادات متوافقة مع ضرورة الانتقاء السريري",
+      "sources": ["cps-2018", "aap-2025"]
+    },
+    {
+      "topic": "التدخل المبكر",
+      "statement_ar": "لا ينبغي تأخير الدعم النمائي والوظيفي المناسب بانتظار اكتمال تحديد السبب، وتُبنى الأهداف على المشاركة والتواصل والحياة اليومية واحتياجات الأسرة.",
+      "strength": "مبدأ ممارسة واسع القبول",
+      "sources": ["who-care-for-child-development", "cps-2018"]
+    }
+  ],
+  "sources": [
+    {
+      "id": "aap-2025",
+      "title": "Genetic Evaluation of the Child With Intellectual Disability or Global Developmental Delay: Clinical Report",
+      "organization": "American Academy of Pediatrics",
+      "year": 2025,
+      "doi": "10.1542/peds.2025-072219",
+      "pmid": null,
+      "url": "https://publications.aap.org/pediatrics/article/156/1/e2025072219/202230/Genetic-Evaluation-of-the-Child-With-Intellectual",
+      "role": "أحدث تقرير سريري رئيسي للتقييم الجيني، ويستبدل تقرير AAP لعام 2014."
+    },
+    {
+      "id": "acmg-2021",
+      "title": "Exome and genome sequencing for pediatric patients with congenital anomalies or intellectual disability: an evidence-based clinical guideline of the ACMG",
+      "organization": "American College of Medical Genetics and Genomics",
+      "year": 2021,
+      "doi": "10.1038/s41436-021-01242-6",
+      "pmid": "34211152",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34211152/",
+      "role": "إرشاد قائم على الدليل لاستخدام تسلسل الإكسوم والجينوم."
+    },
+    {
+      "id": "cps-2018",
+      "title": "Evaluation of the child with global developmental delay and intellectual disability",
+      "organization": "Canadian Paediatric Society",
+      "year": 2018,
+      "doi": "10.1093/pch/pxy093",
+      "pmid": "30919832",
+      "pmcid": "PMC6234423",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30919832/",
+      "role": "إطار للتقييم السببي متعدد المستويات والفحوص الأساسية."
+    },
+    {
+      "id": "who-care-for-child-development",
+      "title": "Care for Child Development",
+      "organization": "World Health Organization",
+      "year": null,
+      "doi": null,
+      "pmid": null,
+      "url": "https://www.who.int/teams/maternal-newborn-child-adolescent-health-and-ageing/child-health/care-for-child-development",
+      "role": "إطار رسمي لدعم التفاعل المستجيب وتمكين مقدمي الرعاية."
+    }
+  ]
+}
