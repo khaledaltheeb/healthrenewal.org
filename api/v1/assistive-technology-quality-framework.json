@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-07-29T17:46:00+03:00",
+  "language": "ar",
+  "title": "إطار جودة وأخلاقيات خدمات وابتكارات التقنيات المساعدة",
+  "canonicalPages": {
+    "ethicsAndService": "https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/ethics-and-service/",
+    "innovationReview": "https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/innovation-review/",
+    "selectionChecklist": "https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/selection-checklist/"
+  },
+  "sourceOrganization": {
+    "name": "Rehabilitation Engineering and Assistive Technology Society of North America (RESNA)",
+    "homepage": "https://www.resna.org/"
+  },
+  "disclaimer": "إطار تحريري مستقل مستفاد من مصادر RESNA المنشورة. لا يمثل اعتمادًا أو ترجمة رسمية، ولا يستبدل القوانين المحلية أو التقييم الفردي أو مراجعة أخلاقيات البحث.",
+  "ethicsPrinciples": [
+    {"id": "welfare", "titleAr": "رفاه الشخص أولًا", "requiredEvidence": ["هدف وظيفي", "مؤشر فائدة", "مراجعة ضرر"]},
+    {"id": "competence", "titleAr": "حدود الكفاءة", "requiredEvidence": ["المؤهل", "نطاق الدور", "معيار الإحالة"]},
+    {"id": "confidentiality", "titleAr": "السرية والخصوصية", "requiredEvidence": ["خريطة البيانات", "الصلاحيات", "سياسة الحذف"]},
+    {"id": "conflicts", "titleAr": "الإفصاح عن تضارب المصالح", "requiredEvidence": ["العلاقات المالية", "الموردون", "آلية التنحي"]},
+    {"id": "compliance", "titleAr": "الالتزام بالقوانين والسياسات", "requiredEvidence": ["البلد", "السياق", "المتطلبات المحلية"]},
+    {"id": "professionalConduct", "titleAr": "السلوك المهني", "requiredEvidence": ["دقة المؤهلات", "حدود الادعاء", "قناة الشكوى"]}
+  ],
+  "serviceStages": [
+    "direct-assessment",
+    "consumer-participation",
+    "option-disclosure",
+    "trial-or-simulation",
+    "documented-recommendation",
+    "delivery-fitting-training",
+    "follow-up-maintenance",
+    "modify-refer-or-stop"
+  ],
+  "innovationGates": [
+    "problem-and-outcome",
+    "co-design-and-user-participation",
+    "alternatives-and-comparator",
+    "safety-and-harm",
+    "privacy-and-data-minimization",
+    "accessibility-and-usability",
+    "interoperability-and-portability",
+    "cost-and-equity",
+    "maintenance-and-sustainability",
+    "evidence-and-relevant-outcomes",
+    "claims-and-communication",
+    "governance-and-accountability"
+  ],
+  "publicationStatuses": [
+    {"id": "idea", "allowedClaim": "فرضية أو مقترح"},
+    {"id": "prototype", "allowedClaim": "إمكانية تقنية محدودة"},
+    {"id": "controlled-trial", "allowedClaim": "نتيجة ضمن عينة وسياق وحدود معلنة"},
+    {"id": "limited-implementation", "allowedClaim": "خيار محدود تحت المتابعة"},
+    {"id": "independent-review-required", "allowedClaim": "لا توصية عامة قبل مراجعة ودليل أوسع"}
+  ],
+  "stopSignals": [
+    "unsupported-treatment-or-diagnostic-claim",
+    "no-meaningful-consent-or-withdrawal",
+    "unnecessary-sensitive-data-collection",
+    "undisclosed-commercial-conflict",
+    "blaming-users-for-design-failure",
+    "no-failure-or-exit-plan",
+    "new-pain-skin-change-fall-breathing-or-swallowing-risk"
+  ],
+  "officialSources": [
+    "https://www.resna.org/Certification/Ethics-and-Standards-of-Practice/Updated-Code-of-Ethics-and-Standards-of-Practice",
+    "https://www.resna.org/Resources/Research-Guidelines",
+    "https://www.resna.org/Resources/Government-Relations/RESNA-Policy-Position-Statement"
+  ]
+}
