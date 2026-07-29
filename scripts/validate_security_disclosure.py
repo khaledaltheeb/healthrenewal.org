@@ -13,6 +13,7 @@ WELL_KNOWN_SECURITY_TXT = ROOT / ".well-known" / "security.txt"
 ROOT_SECURITY_TXT = ROOT / "security.txt"
 CONTACT_FORM = ROOT / ".github" / "ISSUE_TEMPLATE" / "security-contact.yml"
 REGISTER = ROOT / "docs" / "innovation-register.md"
+GENERATOR_PART = ROOT / ".generator-v6" / "part03"
 
 ADVISORY_URL = "https://github.com/khaledaltheeb/pterminology-site/security/advisories/new"
 FALLBACK_URL = "https://github.com/khaledaltheeb/pterminology-site/issues/new?template=security-contact.yml"
@@ -85,7 +86,14 @@ def validate_security_txt(text: str, label: str) -> tuple[dict[str, list[str]], 
 
 
 def main() -> None:
-    for path in (SECURITY, WELL_KNOWN_SECURITY_TXT, ROOT_SECURITY_TXT, CONTACT_FORM, REGISTER):
+    for path in (
+        SECURITY,
+        WELL_KNOWN_SECURITY_TXT,
+        ROOT_SECURITY_TXT,
+        CONTACT_FORM,
+        REGISTER,
+        GENERATOR_PART,
+    ):
         if not path.is_file():
             fail(f"missing required file: {path.relative_to(ROOT)}")
 
@@ -111,6 +119,18 @@ def main() -> None:
     root_fields, root_remaining_days = validate_security_txt(root_text, "security.txt")
     if well_known_fields != root_fields or abs(remaining_days - root_remaining_days) > 0.001:
         fail("security.txt mirrors produced different parsed contracts")
+
+    generator = GENERATOR_PART.read_text(encoding="utf-8")
+    required_generator_terms = (
+        'SECURITY_TXT=Path("security.txt").read_text(encoding="utf-8")',
+        'write(".well-known/security.txt",SECURITY_TXT)',
+        'write("security.txt",SECURITY_TXT)',
+    )
+    for term in required_generator_terms:
+        if term not in generator:
+            fail(f"site generator is missing security publication step: {term}")
+    if "mailto:pterminology@gmail.com" in generator:
+        fail("site generator still contains the obsolete hard-coded security contact")
 
     form = CONTACT_FORM.read_text(encoding="utf-8")
     required_form_terms = (
@@ -140,6 +160,7 @@ def main() -> None:
 
     print("Security disclosure contract passed")
     print("Root and .well-known security.txt files are exact mirrors")
+    print("Site generator publishes both machine-readable security files")
     print(f"Expires in approximately {remaining_days:.1f} days")
 
 
