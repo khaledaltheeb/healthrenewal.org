@@ -7,6 +7,7 @@ on:
       - 'security.txt'
       - '.well-known/security.txt'
       - '.github/ISSUE_TEMPLATE/security-contact.yml'
+      - '.generator-v6/part03'
       - 'docs/innovation-register.md'
       - 'scripts/validate_security_disclosure.py'
       - '.github/workflows/validate-security-disclosure.yml'
@@ -17,6 +18,7 @@ on:
       - 'security.txt'
       - '.well-known/security.txt'
       - '.github/ISSUE_TEMPLATE/security-contact.yml'
+      - '.generator-v6/part03'
       - 'docs/innovation-register.md'
       - 'scripts/validate_security_disclosure.py'
       - '.github/workflows/validate-security-disclosure.yml'
@@ -37,3 +39,16 @@ jobs:
         run: python -m py_compile scripts/validate_security_disclosure.py
       - name: Validate disclosure contract
         run: python scripts/validate_security_disclosure.py
+      - name: Reconstruct and compile production generator
+        run: |
+          cat .generator-v6/part* > /tmp/build_site.py
+          python -m py_compile /tmp/build_site.py
+      - name: Verify machine-readable files in production output
+        run: |
+          rm -rf _site
+          python /tmp/build_site.py
+          test -f _site/security.txt
+          test -f _site/.well-known/security.txt
+          cmp security.txt _site/security.txt
+          cmp security.txt _site/.well-known/security.txt
+          test "$(find _site -mindepth 1 | wc -l)" -eq 510
