@@ -1,0 +1,53 @@
+name: Validate family guide v335
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "family-guide/**"
+      - "api/family-guide-v1.json"
+      - "sitemap-family-guide.xml"
+      - "sitemap-index.xml"
+      - "tests/test_family_guide_v335.py"
+      - ".github/workflows/validate-family-guide-v335.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "family-guide/**"
+      - "api/family-guide-v1.json"
+      - "sitemap-family-guide.xml"
+      - "sitemap-index.xml"
+      - "tests/test_family_guide_v335.py"
+      - ".github/workflows/validate-family-guide-v335.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-family-guide:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate family guide inventory and required content
+        run: python tests/test_family_guide_v335.py
+      - name: Validate JavaScript syntax
+        run: |
+          node --check family-guide/family-guide-ui.js
+          node --check family-guide/family-guide-data.js
+          for file in family-guide/conditions/*/data.js; do node --check "$file"; done
+      - name: Parse sitemap XML
+        run: |
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          ET.parse('sitemap-family-guide.xml')
+          ET.parse('sitemap-index.xml')
+          print({'xml': 'passed'})
+          PY
