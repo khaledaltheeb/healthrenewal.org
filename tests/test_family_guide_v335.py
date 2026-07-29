@@ -12,7 +12,14 @@ expected_phase3={
     'prader-willi-syndrome','williams-syndrome','tourette-syndrome',
     'hydrocephalus','neurofibromatosis-type-1'
 }
+expected_phase4={
+    'spinal-muscular-atrophy','tuberous-sclerosis-complex',
+    '22q11-2-deletion-syndrome','charge-syndrome',
+    'smith-magenis-syndrome','cri-du-chat-syndrome',
+    'joubert-syndrome','16p11-2-deletion-syndrome'
+}
 assert expected_phase3.issubset(set(slugs))
+assert expected_phase4.issubset(set(slugs))
 
 required=['title','summary','causes','signs','first_steps','avoid','daily','plan30','plan90','plan_year','urgent','professionals','questions','sources']
 for item in api['conditions']:
