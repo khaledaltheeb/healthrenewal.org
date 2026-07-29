@@ -17,8 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate publication contract
-        shell: python
+        shell: bash
         run: |
+          python - <<'PY'
           from pathlib import Path
           import json
           import re
@@ -39,9 +40,6 @@ jobs:
                   self.ids = set()
                   self.href_fragments = []
                   self.h1 = 0
-                  self.h2_text = []
-                  self._h2 = False
-                  self._h2_parts = []
                   self.ordered_lists = []
                   self._ol_depth = 0
                   self._li_count = 0
@@ -59,9 +57,6 @@ jobs:
                       self.href_fragments.append(attrs['href'][1:])
                   if tag == 'h1':
                       self.h1 += 1
-                  if tag == 'h2':
-                      self._h2 = True
-                      self._h2_parts = []
                   if tag == 'ol':
                       self._ol_depth += 1
                       self._li_count = 0
@@ -78,9 +73,6 @@ jobs:
                       self.canonical.append(attrs.get('href', ''))
 
               def handle_endtag(self, tag):
-                  if tag == 'h2' and self._h2:
-                      self.h2_text.append(' '.join(self._h2_parts).strip())
-                      self._h2 = False
                   if tag == 'ol' and self._ol_depth:
                       self.ordered_lists.append(self._li_count)
                       self._ol_depth -= 1
@@ -89,8 +81,6 @@ jobs:
                       self._json_ld = False
 
               def handle_data(self, data):
-                  if self._h2:
-                      self._h2_parts.append(data)
                   if self._json_ld:
                       self._json_parts.append(data)
 
@@ -141,9 +131,7 @@ jobs:
               if phrase not in html:
                   failures.append(f'عبارة/محور حماية إلزامي مفقود: {phrase}')
 
-          source_domains = {
-              'cps.ca', 'nice.org.uk', 'who.int', 'cdc.gov'
-          }
+          source_domains = {'cps.ca', 'nice.org.uk', 'who.int', 'cdc.gov'}
           missing_domains = sorted(domain for domain in source_domains if domain not in html)
           if missing_domains:
               failures.append('مصادر رسمية معلنة في PR غير ظاهرة: ' + ', '.join(missing_domains))
@@ -174,3 +162,4 @@ jobs:
               sys.exit(1)
 
           print('نجح عقد الجودة: البنية، الأقسام، النصائح، السلامة، المصادر، Schema، RTL والهاتف.')
+          PY
