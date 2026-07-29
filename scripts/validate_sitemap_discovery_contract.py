@@ -3,9 +3,10 @@ from __future__ import annotations
 
 import re
 import sys
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from urllib.parse import urlparse
+from zoneinfo import ZoneInfo
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -14,6 +15,7 @@ PUBLIC_ORIGIN = "https://khaledaltheeb.github.io"
 BASE_PATH = "/pterminology-site/"
 SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+PLATFORM_TIMEZONE = ZoneInfo("Asia/Amman")
 
 
 class ContractError(RuntimeError):
@@ -41,11 +43,16 @@ def parse_xml(path: Path) -> ET.Element:
         raise ContractError(f"Invalid XML in {path.relative_to(ROOT)}: {exc}") from exc
 
 
+def platform_today() -> date:
+    """Return the publishing date used by the platform, independent of runner timezone."""
+    return datetime.now(PLATFORM_TIMEZONE).date()
+
+
 def validate_lastmod(value: str, source: str) -> None:
     if not DATE_RE.fullmatch(value):
         raise ContractError(f"Invalid lastmod format in {source}: {value}")
     parsed = date.fromisoformat(value)
-    if parsed > date.today():
+    if parsed > platform_today():
         raise ContractError(f"Future lastmod date in {source}: {value}")
 
 
@@ -137,7 +144,8 @@ def main() -> int:
 
     print(
         f"Sitemap discovery contract passed: robots -> {index_path.name}; "
-        f"{len(child_urls)} child sitemaps; {indexed_urls} unique indexed URLs."
+        f"{len(child_urls)} child sitemaps; {indexed_urls} unique indexed URLs; "
+        f"publishing date {platform_today().isoformat()} ({PLATFORM_TIMEZONE.key})."
     )
     return 0
 
