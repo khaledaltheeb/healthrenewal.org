@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "واجهة منصة الصحة النفسية وذوي الاحتياجات الخاصة",
-    "version": "1.1.0",
-    "description": "واجهة قراءة عامة ثابتة لاكتشاف أقسام المنصة وموارد التقنيات المساعدة وعقد استيراد بيانات الدورات المخولة. لا تتضمن تشخيصًا أو بيانات شخصية.",
+    "version": "1.2.0",
+    "description": "واجهة قراءة عامة ثابتة لاكتشاف أقسام المنصة وموارد التقنيات المساعدة وأطر الجودة والتحقق من التعليم المستمر وعقد استيراد بيانات الدورات المخولة. لا تتضمن تشخيصًا أو بيانات شخصية.",
     "license": {"name": "Rights vary by resource"}
   },
   "servers": [
@@ -17,11 +17,7 @@
         "responses": {
           "200": {
             "description": "بيانات المنصة",
-            "content": {
-              "application/json": {
-                "schema": {"$ref": "#/components/schemas/Platform"}
-              }
-            }
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Platform"}}}
           }
         }
       }
@@ -34,11 +30,33 @@
         "responses": {
           "200": {
             "description": "دليل مصادر التقنيات المساعدة وسياسات استخدامها",
-            "content": {
-              "application/json": {
-                "schema": {"$ref": "#/components/schemas/AssistiveTechnologyResourceCatalog"}
-              }
-            }
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AssistiveTechnologyResourceCatalog"}}}
+          }
+        }
+      }
+    },
+    "/api/v1/assistive-technology-quality-framework.json": {
+      "get": {
+        "summary": "إطار جودة وأخلاقيات خدمات وابتكارات التقنيات المساعدة",
+        "description": "مبادئ أخلاقية ومراحل خدمة وبوابات مراجعة ابتكار وإشارات توقف، بصيغة قابلة للقراءة آليًا.",
+        "operationId": "getAssistiveTechnologyQualityFramework",
+        "responses": {
+          "200": {
+            "description": "إطار الجودة والأخلاقيات",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AssistiveTechnologyQualityFramework"}}}
+          }
+        }
+      }
+    },
+    "/api/v1/resna-ce-providers.json": {
+      "get": {
+        "summary": "دليل تحقق تحريري لمزودي التعليم المستمر الرسميين لدى RESNA",
+        "description": "لقطة مؤرخة من الدليل الرسمي مع حقول التحقق المطلوبة لكل دورة وتنبيه أن اعتماد المزود لا يعني اعتماد جميع دوراته.",
+        "operationId": "getResnaContinuingEducationProviders",
+        "responses": {
+          "200": {
+            "description": "مزودو التعليم المستمر وقواعد التحقق",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ResnaContinuingEducationProviders"}}}
           }
         }
       }
@@ -47,18 +65,14 @@
       "get": {
         "summary": "مخطط تغذية الدورات المخولة",
         "operationId": "getCourseSchema",
-        "responses": {
-          "200": {"description": "JSON Schema لاستيراد الدورات"}
-        }
+        "responses": {"200": {"description": "JSON Schema لاستيراد الدورات"}}
       }
     },
     "/api/v1/courses.example.json": {
       "get": {
         "summary": "مثال غير إنتاجي لتغذية الدورات",
         "operationId": "getCourseExample",
-        "responses": {
-          "200": {"description": "مثال توضيحي لا يمثل شراكة فعلية"}
-        }
+        "responses": {"200": {"description": "مثال توضيحي لا يمثل شراكة فعلية"}}
       }
     }
   },
@@ -106,6 +120,41 @@
             }
           },
           "editorialRules": {"type": "array", "items": {"type": "string"}}
+        }
+      },
+      "AssistiveTechnologyQualityFramework": {
+        "type": "object",
+        "required": ["schemaVersion", "generatedAt", "title", "canonicalPages", "disclaimer", "ethicsPrinciples", "serviceStages", "innovationGates", "stopSignals"],
+        "properties": {
+          "schemaVersion": {"type": "string"},
+          "generatedAt": {"type": "string", "format": "date-time"},
+          "title": {"type": "string"},
+          "canonicalPages": {"type": "object"},
+          "sourceOrganization": {"type": "object"},
+          "disclaimer": {"type": "string"},
+          "ethicsPrinciples": {"type": "array", "items": {"type": "object"}},
+          "serviceStages": {"type": "array", "items": {"type": "string"}},
+          "innovationGates": {"type": "array", "items": {"type": "string"}},
+          "publicationStatuses": {"type": "array", "items": {"type": "object"}},
+          "stopSignals": {"type": "array", "items": {"type": "string"}},
+          "officialSources": {"type": "array", "items": {"type": "string", "format": "uri"}}
+        }
+      },
+      "ResnaContinuingEducationProviders": {
+        "type": "object",
+        "required": ["schemaVersion", "generatedAt", "lastChecked", "title", "officialDirectory", "disclaimer", "providers", "requiredCourseVerificationFields"],
+        "properties": {
+          "schemaVersion": {"type": "string"},
+          "generatedAt": {"type": "string", "format": "date-time"},
+          "lastChecked": {"type": "string", "format": "date"},
+          "title": {"type": "string"},
+          "canonicalPage": {"type": "string", "format": "uri"},
+          "officialDirectory": {"type": "string", "format": "uri"},
+          "disclaimer": {"type": "string"},
+          "providers": {"type": "array", "items": {"type": "object", "required": ["id", "name", "verificationStatus"]}},
+          "requiredCourseVerificationFields": {"type": "array", "items": {"type": "string"}},
+          "prohibitedClaimsWithoutEventEvidence": {"type": "array", "items": {"type": "string"}},
+          "officialSources": {"type": "array", "items": {"type": "string", "format": "uri"}}
         }
       }
     }
