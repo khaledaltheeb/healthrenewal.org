@@ -1,0 +1,28 @@
+name: طلب قناة خاصة للإبلاغ الأمني / Request a private security contact
+description: اطلب قناة خاصة دون نشر تفاصيل الثغرة أو أي بيانات حساسة / Request a private channel without publishing vulnerability details or sensitive data
+title: "[Security contact request] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **هذا الطلب عام. لا تكتب تفاصيل الثغرة أو خطوات الاستغلال أو أسرارًا أو بيانات شخصية أو صحية هنا.**
+
+        **This request is public. Do not include vulnerability details, exploit steps, secrets, personal data, or health data.**
+
+        استخدم هذا النموذج فقط لطلب قناة خاصة عندما لا يظهر خيار **Report a vulnerability** في تبويب Security.
+        Use this form only to request a private channel when **Report a vulnerability** is unavailable in the Security tab.
+  - type: checkboxes
+    id: public-acknowledgement
+    attributes:
+      label: تأكيد السلامة / Safety acknowledgement
+      options:
+        - label: أفهم أن هذا الطلب عام، ولن أضع فيه أي تفاصيل تقنية أو بيانات حساسة. / I understand this request is public and will not include technical details or sensitive data.
+          required: true
+  - type: textarea
+    id: request
+    attributes:
+      label: طلب مختصر / Minimal request
+      description: اكتب طلبًا عامًا فقط، مثل «أحتاج قناة خاصة لإرسال بلاغ أمني». / Write only a generic request, such as “I need a private channel for a security report.”
+      placeholder: أحتاج قناة خاصة لإرسال بلاغ أمني. / I need a private channel for a security report.
+    validations:
+      required: true
