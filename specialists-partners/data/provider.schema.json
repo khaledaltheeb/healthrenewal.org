@@ -97,10 +97,25 @@
       "additionalProperties": false,
       "required": ["status", "lastVerifiedAt", "sources"],
       "properties": {
-        "status": {"enum": ["verified", "provisional", "pending", "unverified"]},
+        "status": {"enum": ["verified", "provisional", "pending", "unverified", "rejected", "expired"]},
         "lastVerifiedAt": {"type": ["string", "null"], "format": "date"},
         "nextReviewAt": {"type": ["string", "null"], "format": "date"},
         "reviewerRole": {"type": ["string", "null"], "maxLength": 120},
+        "verifiedFields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "displayName",
+              "qualifications",
+              "specialties",
+              "services",
+              "contact",
+              "licenses"
+            ]
+          }
+        },
+        "publicNote": {"type": ["string", "null"], "maxLength": 700},
         "sources": {
           "type": "array",
           "items": {
@@ -117,6 +132,9 @@
       }
     },
     "publicationStatus": {"enum": ["draft", "review", "published", "suspended", "archived"]},
+    "publicRevision": {"type": "integer", "minimum": 1},
+    "publishedAt": {"type": ["string", "null"], "format": "date-time"},
+    "updatedAt": {"type": "string", "format": "date-time"},
     "consent": {
       "type": "object",
       "additionalProperties": false,

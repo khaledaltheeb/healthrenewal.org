@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const state = { providers: [], filtered: [], updatedAt: null };
+  const state = { providers: [], filtered: [], updatedAt: null, source: 'static-fallback' };
   const $ = id => document.getElementById(id);
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const norm = value => String(value || '').normalize('NFKD').trim().toLowerCase();
@@ -24,7 +24,7 @@
     if (!value) return '';
     try {
       const parsed = new URL(String(value), location.origin);
-      return ['http:','https:','mailto:','tel:'].includes(parsed.protocol) ? parsed.href : '';
+      return ['https:','mailto:','tel:'].includes(parsed.protocol) ? parsed.href : '';
     } catch (_) { return ''; }
   }
 
@@ -33,8 +33,19 @@
     if (!href) return '';
     try {
       const protocol = new URL(href, location.origin).protocol;
-      return ['http:', 'https:'].includes(protocol) ? href : '';
+      return protocol === 'https:' ? href : '';
     } catch (_) { return ''; }
+  }
+
+  function configuredApiBase() {
+    try {
+      const parsed = new URL(String(config.apiBase || '').trim());
+      if (parsed.protocol !== 'https:' || parsed.username || parsed.password ||
+          parsed.search || parsed.hash) return '';
+      return parsed.href.replace(/\/$/, '');
+    } catch (_) {
+      return '';
+    }
   }
 
   function contactUrl(provider) {
@@ -210,21 +221,71 @@
     });
   }
 
+  async function fetchJson(url, timeoutMs = 6500) {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort('directory_timeout'), timeoutMs);
+    try {
+      const response = await fetch(url, {
+        cache:'no-store',
+        credentials:'omit',
+        referrerPolicy:'no-referrer',
+        headers:{accept:'application/json'},
+        signal:controller.signal
+      });
+      if (!response.ok) throw new Error(`directory_http_${response.status}`);
+      return await response.json();
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
+  async function directoryPayload() {
+    const apiBase = configuredApiBase();
+    if (apiBase) {
+      try {
+        const payload = await fetchJson(`${apiBase}/v1/providers?limit=250`);
+        return {...payload, source:'live-verified-registry'};
+      } catch (error) {
+        console.warn('specialist_directory_live_fallback', error);
+      }
+    }
+    const payload = await fetchJson('data/providers.json');
+    return {...payload, source:'static-verified-fallback'};
+  }
+
   async function load() {
     try {
-      const response = await fetch('data/providers.json',{cache:'no-store'});
-      if (!response.ok) throw new Error('directory_load_failed');
-      const data = await response.json();
-      state.providers=(data.providers||[]).filter(p=>p.publicationStatus==='published'&&p.verification?.status==='verified'&&p.consent?.publicProfileApproved===true);
+      const data = await directoryPayload();
+      const unique = new Map();
+      (data.providers || []).forEach(provider => {
+        if (provider?.id) unique.set(provider.id, provider);
+      });
+      state.providers=[...unique.values()].filter(p=>
+        p.publicationStatus==='published' &&
+        p.verification?.status==='verified' &&
+        p.consent?.publicProfileApproved===true
+      );
       state.filtered = [...state.providers];
       state.updatedAt = data.updatedAt || null;
-      if ($('directory-updated')) $('directory-updated').textContent = state.updatedAt || 'غير محدد';
+      state.source = data.source || 'unknown';
+      if ($('directory-updated')) {
+        const sourceLabel = state.source === 'live-verified-registry'
+          ? 'السجل الحي الموثق'
+          : 'النسخة العامة الاحتياطية';
+        $('directory-updated').textContent = `${state.updatedAt || 'غير محدد'} · ${sourceLabel}`;
+      }
+      if ($('directory-source')) {
+        $('directory-source').textContent = state.source === 'live-verified-registry'
+          ? 'السجل الحي الموثق'
+          : 'النسخة العامة الاحتياطية';
+      }
       populateDynamicFilters();
       render();
     } catch (error) {
       state.providers = [];
       state.filtered = [];
       if ($('directory-updated')) $('directory-updated').textContent = 'تعذر تحميل البيانات';
+      if ($('directory-source')) $('directory-source').textContent = 'غير متاح';
       render();
     }
   }

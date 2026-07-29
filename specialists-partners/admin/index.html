@@ -7,21 +7,20 @@
 <meta name="description" content="لوحة داخلية لإدارة طلبات الانضمام والمختصين والمحادثات وسجل التدقيق.">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
 <meta name="theme-color" content="#075f5b">
 <link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/">
 <link rel="icon" href="/pterminology-site/assets/brand/logo-mark.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/sector.css?v=3.0.0">
-<link rel="stylesheet" href="admin.css?v=3.0.0">
+<link rel="stylesheet" href="admin.css?v=4.0.0">
+<!-- pt-platform-shell:v1 -->
 <link rel="stylesheet" href="../../assets/platform/platform-core.css?v=1.1.0">
 <meta name="copyright" content="© 2026 Khaled Altheeb — منصة الصحة النفسية وذوي الاحتياجات الخاصة">
 <meta name="rights" content="All rights reserved">
 <link rel="license" href="../../copyright/">
 <script defer src="../../assets/platform/platform-core.js?v=1.1.0"></script>
-<script defer src="../assets/runtime-config.js?v=2.0.0"></script>
-<script defer src="admin.js?v=3.0.0"></script>
-<!-- pt-platform-shell:v1 -->
-<link rel="stylesheet" href="../../assets/platform/platform-core.css?v=1.1.0">
-<script defer src="../../assets/platform/platform-core.js?v=1.1.0"></script>
+<script defer src="../assets/runtime-config.js?v=4.0.0"></script>
+<script defer src="admin.js?v=4.0.0"></script>
 </head>
 <body class="pt-platform admin-page" data-page="specialist-admin" data-pt-normalized="1.1.0" data-pt-enhancer="true">
 <a class="skip" href="#main">تجاوز إلى لوحة الإدارة</a>
@@ -44,7 +43,7 @@
     <div>
       <p class="eyebrow">وصول إداري محمي</p>
       <h1 id="admin-login-title">لوحة التشغيل والمراجعة</h1>
-      <p class="section-intro">مفتاح الإدارة لا يُحفظ في المتصفح ولا في المستودع. يبقى في الذاكرة حتى إغلاق الصفحة أو تحديثها.</p>
+      <p class="section-intro">يُستخدم مفتاح المالك مرة واحدة لإنشاء جلسة قصيرة مشفرة، ثم يُمسح فورًا من الحقل والذاكرة. لا يُحفظ في المتصفح أو المستودع.</p>
     </div>
     <form id="admin-auth-form" class="admin-auth-form">
       <div class="field">
@@ -52,10 +51,10 @@
         <input id="admin-api-base" type="url" required placeholder="https://...workers.dev">
       </div>
       <div class="field">
-        <label for="admin-api-key">مفتاح الإدارة</label>
-        <input id="admin-api-key" type="password" required autocomplete="off">
+        <label for="admin-api-key">مفتاح المالك أو المراجع أو مشرف المحادثات</label>
+        <input id="admin-api-key" type="password" required autocomplete="new-password">
       </div>
-      <button class="button primary" type="submit">فتح اللوحة</button>
+      <button class="button primary" type="submit">فتح جلسة إدارية آمنة</button>
     </form>
     <div class="form-status" id="admin-status" tabindex="-1" hidden aria-live="polite"></div>
   </section>
@@ -65,6 +64,7 @@
       <div>
         <p class="eyebrow">حالة التشغيل</p>
         <h2>نظرة عامة</h2>
+        <p id="admin-role-summary" class="role-summary">لم تُحدّد الصلاحية بعد.</p>
       </div>
       <div class="actions">
         <button class="button secondary" id="admin-refresh" type="button">تحديث البيانات</button>
@@ -76,13 +76,14 @@
       <article><strong id="kpi-applications">0</strong><span>طلبات إجمالية</span><small id="kpi-applications-detail">0 بانتظار المراجعة</small></article>
       <article><strong id="kpi-conversations">0</strong><span>محادثات إجمالية</span><small id="kpi-conversations-detail">0 مفتوحة</small></article>
       <article><strong id="kpi-providers">0</strong><span>حسابات مختصين</span><small id="kpi-providers-detail">0 تستقبل طلبات</small></article>
+      <article><strong id="kpi-published">0</strong><span>ملفات منشورة</span><small id="kpi-published-detail">0 تحتاج مراجعة قريبة</small></article>
       <article><strong id="kpi-email-failures">0</strong><span>إخفاقات بريد خلال 7 أيام</span><small>تحتاج مراجعة فورية</small></article>
     </section>
 
     <nav class="admin-tabs" aria-label="أقسام لوحة الإدارة">
       <button type="button" class="active" data-admin-tab="applications">طلبات الانضمام</button>
       <button type="button" data-admin-tab="conversations">المحادثات</button>
-      <button type="button" data-admin-tab="providers">حسابات المختصين</button>
+      <button type="button" data-admin-tab="providers">الملفات والاعتماد</button>
       <button type="button" data-admin-tab="audit">سجل التدقيق</button>
     </nav>
 
@@ -123,19 +124,115 @@
 
     <section class="admin-section" data-admin-panel="providers" aria-labelledby="providers-title">
       <div class="admin-section-head">
-        <div><p class="eyebrow">حسابات خاصة</p><h2 id="providers-title">حسابات المختصين والإشعارات</h2></div>
+        <div>
+          <p class="eyebrow">صلاحية المالك</p>
+          <h2 id="providers-title">إضافة واعتماد ونشر الأشخاص والمراكز</h2>
+          <p class="section-intro">افتح طلبًا في المحرر أو أضف ملفًا يدويًا. لا يصبح الملف عامًا إلا عند اكتمال قائمة التحقق والضغط على «اعتماد ونشر».</p>
+        </div>
+        <button class="button secondary" id="provider-form-reset" type="button" data-owner-only>ملف جديد</button>
       </div>
       <form id="provider-form" class="panel provider-admin-form">
+        <input id="provider-application-id" type="hidden">
+        <div class="form-section-title">
+          <span>1</span>
+          <div><h3>الحساب الخاص والهوية العامة</h3><p>البريد أدناه خاص بالإشعارات ولا يظهر في الدليل.</p></div>
+        </div>
         <div class="form-grid">
-          <div class="field"><label for="provider-id">معرف الملف العام</label><input id="provider-id" required pattern="[A-Za-z0-9-]{3,90}"></div>
+          <div class="field"><label for="provider-id">معرف الملف العام</label><input id="provider-id" required pattern="[a-z0-9][a-z0-9-]{2,80}" dir="ltr" placeholder="provider-2026-001"><small>حروف إنجليزية صغيرة وأرقام وشرطة فقط.</small></div>
           <div class="field"><label for="provider-display-name">الاسم الظاهر</label><input id="provider-display-name" required></div>
           <div class="field"><label for="provider-email">بريد الإشعارات الخاص</label><input id="provider-email" type="email" required></div>
-          <div class="field"><label for="provider-status">الحالة</label><select id="provider-status"><option value="active">نشط</option><option value="suspended">موقوف</option><option value="archived">مؤرشف</option></select></div>
+          <div class="field"><label for="provider-entity-type">نوع الملف</label><select id="provider-entity-type"><option value="professional">مختص فردي</option><option value="center">مركز أو مؤسسة</option></select></div>
+          <div class="field"><label for="provider-professional-title">المسمى المهني</label><input id="provider-professional-title" maxlength="180"></div>
+          <div class="field"><label for="provider-center-type">نوع المركز أو المؤسسة</label><input id="provider-center-type" maxlength="180"></div>
+          <div class="field"><label for="provider-network-role">الدور داخل الشبكة</label><select id="provider-network-role"><option value="">مختص في الدليل</option><option>عضو مجلس علمي</option><option>مراجع محتوى</option><option>خبير استشاري</option><option>شريك مؤسسي</option><option>مركز مقدم خدمة</option></select></div>
+          <div class="field"><label for="provider-status">حالة الحساب الخاص</label><select id="provider-status"><option value="active">نشط</option><option value="suspended">موقوف</option><option value="archived">مؤرشف</option></select></div>
           <label class="check-field"><input id="provider-notifications" type="checkbox" checked> إرسال إشعارات البريد</label>
           <label class="check-field"><input id="provider-accepts" type="checkbox" checked> يستقبل طلبات جديدة</label>
         </div>
-        <button class="button primary" type="submit">حفظ حساب المختص</button>
+
+        <div class="form-section-title">
+          <span>2</span>
+          <div><h3>نطاق الخدمة والملف العام</h3><p>هذه هي البيانات التي يمكن أن تظهر للزائر بعد الاعتماد.</p></div>
+        </div>
+        <div class="form-grid">
+          <div class="field full"><label for="provider-bio">نبذة مهنية</label><textarea id="provider-bio" maxlength="1000" placeholder="المؤهل والخبرة ونطاق الخدمة، دون وعود أو عبارات أفضلية."></textarea></div>
+          <div class="field full"><label for="provider-specialties">التخصصات</label><select id="provider-specialties" multiple size="9">
+            <option value="psychology">علم النفس والصحة النفسية</option><option value="psychiatry">الطب النفسي</option><option value="speech_language">النطق واللغة</option><option value="audiology">السمعيات</option><option value="special_education">التربية الخاصة</option><option value="early_intervention">التدخل المبكر</option><option value="occupational_therapy">العلاج الوظيفي</option><option value="physiotherapy">العلاج الطبيعي</option><option value="behavior_support">الدعم السلوكي</option><option value="learning_support">صعوبات التعلم</option><option value="autism_support">دعم التوحد</option><option value="aac">التواصل المعزز والبديل</option><option value="family_training">تدريب الأسرة</option><option value="social_work">الخدمة الاجتماعية</option><option value="nutrition">التغذية العلاجية</option><option value="center">مركز متعدد التخصصات</option>
+          </select></div>
+          <div class="field full"><label for="provider-services">الخدمات — خدمة في كل سطر</label><textarea id="provider-services" maxlength="3000"></textarea></div>
+          <div class="field full"><label for="provider-age-groups">الفئات العمرية</label><select id="provider-age-groups" multiple size="6"><option>الرضع</option><option>الطفولة المبكرة</option><option>الأطفال</option><option>المراهقون</option><option>البالغون</option><option>جميع الأعمار</option></select></div>
+          <div class="field full"><label for="provider-service-modes">طرق الخدمة</label><select id="provider-service-modes" multiple size="5"><option>حضوري</option><option>عن بعد</option><option>زيارة منزلية</option><option>مدرسي</option><option>هجين</option></select></div>
+          <div class="field"><label for="provider-languages">اللغات</label><input id="provider-languages" placeholder="العربية، الإنجليزية"></div>
+          <div class="field"><label for="provider-response">زمن الرد المتوقع</label><select id="provider-response"><option>خلال 24 ساعة</option><option>خلال يومي عمل</option><option>خلال 3 أيام عمل</option><option>خلال أسبوع</option><option>غير محدد</option></select></div>
+          <div class="field"><label for="provider-availability">التوفر</label><select id="provider-availability"><option value="available">متاح</option><option value="limited">محدود</option><option value="unavailable">غير متاح</option></select></div>
+          <label class="check-field"><input id="provider-messaging-enabled" type="checkbox" checked> تفعيل التواصل الداخلي</label>
+        </div>
+
+        <div class="form-section-title">
+          <span>3</span>
+          <div><h3>الموقع والمؤهل والترخيص</h3><p>يجب مطابقة الحقول مع أدلة المراجعة الخاصة قبل النشر.</p></div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label for="provider-country">الدولة</label><input id="provider-country" value="الأردن"></div>
+          <div class="field"><label for="provider-governorate">المحافظة</label><input id="provider-governorate"></div>
+          <div class="field"><label for="provider-city">المدينة</label><input id="provider-city"></div>
+          <div class="field"><label for="provider-area">المنطقة</label><input id="provider-area"></div>
+          <div class="field full"><label for="provider-service-areas">مناطق الخدمة — منطقة في كل سطر</label><textarea id="provider-service-areas"></textarea></div>
+          <div class="field"><label for="provider-qualification-name">المؤهل الأساسي</label><input id="provider-qualification-name"></div>
+          <div class="field"><label for="provider-qualification-institution">الجهة المانحة</label><input id="provider-qualification-institution"></div>
+          <div class="field"><label for="provider-qualification-level">المستوى</label><input id="provider-qualification-level"></div>
+          <div class="field"><label for="provider-qualification-year">السنة</label><input id="provider-qualification-year" type="number" min="1950" max="2100"></div>
+          <div class="field"><label for="provider-license-status">حالة الترخيص</label><select id="provider-license-status"><option value="pending_review">قيد المراجعة</option><option value="active">ساري</option><option value="not_applicable">لا ينطبق</option></select></div>
+          <div class="field"><label for="provider-license-authority">جهة الترخيص أو التسجيل</label><input id="provider-license-authority"></div>
+          <div class="field"><label for="provider-license-public-id">رقم عام مسموح بنشره</label><input id="provider-license-public-id"></div>
+          <div class="field"><label for="provider-license-until">صالح حتى</label><input id="provider-license-until" type="date"></div>
+        </div>
+
+        <div class="form-section-title">
+          <span>4</span>
+          <div><h3>روابط ووسائل عامة اختيارية</h3><p>لا تضع بريد الإشعارات الخاص هنا إلا إذا وافق صاحبه كتابيًا على نشره.</p></div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label for="provider-profile-url">ملف مهني رسمي</label><input id="provider-profile-url" type="url" placeholder="https://"></div>
+          <div class="field"><label for="provider-website">الموقع</label><input id="provider-website" type="url" placeholder="https://"></div>
+          <div class="field"><label for="provider-public-phone">هاتف عام</label><input id="provider-public-phone" dir="ltr"></div>
+          <div class="field"><label for="provider-public-email">بريد عام</label><input id="provider-public-email" type="email" dir="ltr"></div>
+        </div>
+
+        <div class="form-section-title">
+          <span>5</span>
+          <div><h3>بوابة الاعتماد الإلزامية</h3><p>لا يمكن تنفيذ النشر إذا بقي بند مطلوب غير مكتمل.</p></div>
+        </div>
+        <div class="review-gate">
+          <label class="check-field"><input id="review-identity" type="checkbox"> تم التحقق من الهوية/التسجيل</label>
+          <label class="check-field"><input id="review-qualification" type="checkbox"> تم التحقق من المؤهل</label>
+          <label class="check-field"><input id="review-scope" type="checkbox"> تم التحقق من التخصص ونطاق الممارسة</label>
+          <label class="check-field"><input id="review-contact" type="checkbox"> تم التحقق من وسيلة التواصل الخاصة والعامة</label>
+          <label class="check-field"><input id="review-consent" type="checkbox"> توجد موافقة كتابية على الحقول العامة</label>
+          <div class="field"><label for="review-legal-authority">الترخيص/التسجيل</label><select id="review-legal-authority"><option value="pending">غير مكتمل</option><option value="verified">تم التحقق</option><option value="not_applicable">لا ينطبق قانونيًا</option></select></div>
+          <label class="check-field"><input id="review-consent-approved" type="checkbox"> اعتماد الموافقة على النشر</label>
+          <div class="field"><label for="review-consent-date">تاريخ الموافقة</label><input id="review-consent-date" type="date"></div>
+          <div class="field"><label for="review-next-date">المراجعة القادمة</label><input id="review-next-date" type="date"></div>
+          <div class="field"><label for="review-public-sources">مصادر عامة</label><input id="review-public-sources" type="number" min="0" max="100" value="0"></div>
+          <div class="field"><label for="review-private-documents">وثائق خاصة راجعتها الإدارة</label><input id="review-private-documents" type="number" min="0" max="100" value="0"></div>
+          <div class="field"><label for="review-independent-sources">مصادر مستقلة</label><input id="review-independent-sources" type="number" min="0" max="100" value="0"></div>
+          <div class="field full"><label for="review-public-note">ملاحظة تحقق عامة</label><textarea id="review-public-note" maxlength="700"></textarea></div>
+          <div class="field full"><label for="review-private-note">ملاحظات داخلية خاصة</label><textarea id="review-private-note" maxlength="4000"></textarea></div>
+        </div>
+
+        <div class="provider-form-actions" data-owner-only>
+          <button class="button secondary" type="button" data-provider-action="save_draft">حفظ كمسودة</button>
+          <button class="button secondary" type="button" data-provider-action="submit_review">إرسال للمراجعة</button>
+          <button class="button primary" type="button" data-provider-action="approve_publish">اعتماد ونشر</button>
+          <button class="button danger" type="button" data-provider-action="suspend">تعليق الملف</button>
+          <button class="button danger" type="button" data-provider-action="revoke_consent">سحب موافقة النشر</button>
+          <button class="button danger" type="button" data-provider-action="archive">أرشفة</button>
+        </div>
       </form>
+      <div class="admin-list-tools">
+        <div class="field"><label for="providers-search">بحث في الملفات</label><input id="providers-search" type="search" placeholder="اسم أو معرف أو مدينة"></div>
+        <div class="field"><label for="providers-publication-filter">حالة النشر</label><select id="providers-publication-filter"><option value="">الكل</option><option value="draft">مسودة</option><option value="review">مراجعة</option><option value="published">منشور</option><option value="suspended">معلق</option><option value="archived">مؤرشف</option></select></div>
+      </div>
       <div id="providers-list" class="admin-list" aria-live="polite"></div>
     </section>
 

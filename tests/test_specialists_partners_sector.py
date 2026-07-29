@@ -69,7 +69,10 @@ class SpecialistsPartnersSectorTests(unittest.TestCase):
         required = set(schema["required"])
         self.assertTrue({"id", "entityType", "displayName", "specialties", "verification", "consent"} <= required)
         statuses = schema["properties"]["verification"]["properties"]["status"]["enum"]
-        self.assertEqual(statuses, ["verified", "provisional", "pending", "unverified"])
+        self.assertTrue(
+            {"verified", "provisional", "pending", "unverified", "rejected", "expired"}
+            <= set(statuses)
+        )
         self.assertEqual(schema["properties"]["consent"]["properties"]["publicProfileApproved"]["const"], True)
         specialties = schema["properties"]["specialties"]["items"]["enum"]
         for item in ("speech_language", "audiology", "special_education", "early_intervention", "aac"):
@@ -82,7 +85,8 @@ class SpecialistsPartnersSectorTests(unittest.TestCase):
         self.assertIn("p.publicationStatus==='published'", script)
         self.assertIn("p.verification?.status==='verified'", script)
         self.assertIn("p.consent?.publicProfileApproved===true", script)
-        self.assertIn("['http:','https:','mailto:','tel:']", script)
+        self.assertIn("['https:','mailto:','tel:']", script)
+        self.assertIn("protocol === 'https:'", script)
         self.assertNotIn("XMLHttpRequest", script)
         self.assertNotIn("FormData", script)
         self.assertNotIn("sendBeacon", script)
@@ -106,7 +110,14 @@ class SpecialistsPartnersSectorTests(unittest.TestCase):
         self.assertEqual(set(locations), expected)
         self.assertEqual(len(locations), len(set(locations)))
         robots = (ROOT / "robots.txt").read_text(encoding="utf-8")
-        self.assertIn(f"Sitemap: {BASE}/sitemap-specialists-partners.xml", robots)
+        self.assertIn(f"Sitemap: {BASE}/sitemap-index.xml", robots)
+        sitemap_index = ROOT / "sitemap-index.xml"
+        index_locations = {
+            (node.text or "").strip()
+            for node in ET.parse(sitemap_index).getroot().findall("{*}sitemap/{*}loc")
+            if node.text
+        }
+        self.assertIn(f"{BASE}/sitemap-specialists-partners.xml", index_locations)
 
     def test_platform_api_registers_sector(self) -> None:
         platform = json.loads((ROOT / "api" / "v1" / "platform.json").read_text(encoding="utf-8"))

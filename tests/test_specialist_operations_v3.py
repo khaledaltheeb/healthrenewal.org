@@ -55,7 +55,11 @@ class SpecialistOperationsV3Tests(unittest.TestCase):
     def test_migrations_apply_in_sequence(self) -> None:
         connection = sqlite3.connect(":memory:")
         try:
-            for name in ("0001_initial.sql", "0002_operations.sql"):
+            for name in (
+                "0001_initial.sql",
+                "0002_operations.sql",
+                "0003_provider_publication.sql",
+            ):
                 connection.executescript((BACKEND / "migrations" / name).read_text(encoding="utf-8"))
             provider_columns = {
                 row[1] for row in connection.execute("PRAGMA table_info(providers_private)")
@@ -75,6 +79,15 @@ class SpecialistOperationsV3Tests(unittest.TestCase):
                 )
             }
             self.assertIn("email_events", tables)
+            self.assertTrue(
+                {
+                    "admin_sessions",
+                    "provider_profiles",
+                    "provider_review_records",
+                    "provider_profile_versions",
+                }
+                <= tables
+            )
         finally:
             connection.close()
 

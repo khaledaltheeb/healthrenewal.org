@@ -40,6 +40,8 @@ jobs:
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
       ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
+      REVIEWER_API_KEY: ${{ secrets.SPECIALISTS_REVIEWER_API_KEY }}
+      MODERATOR_API_KEY: ${{ secrets.SPECIALISTS_MODERATOR_API_KEY }}
       RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}
       FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
       API_BASE: ${{ inputs.api_base }}
@@ -104,6 +106,7 @@ jobs:
           PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
           TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"
           FROM_EMAIL = {toml(os.environ["FROM_EMAIL"])}
+          ADMIN_SESSION_MINUTES = "20"
 
           [[d1_databases]]
           binding = "DB"
@@ -131,6 +134,9 @@ jobs:
               "ADMIN_API_KEY": os.environ["ADMIN_API_KEY"],
               "RATE_LIMIT_SALT": os.environ["RATE_LIMIT_SALT"],
           }
+          for optional_name in ("REVIEWER_API_KEY", "MODERATOR_API_KEY"):
+              if os.environ.get(optional_name):
+                  payload[optional_name] = os.environ[optional_name]
           Path("worker-secrets.json").write_text(json.dumps(payload), encoding="utf-8")
           PY
           chmod 600 worker-secrets.json
