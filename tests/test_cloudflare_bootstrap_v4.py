@@ -54,6 +54,15 @@ class CloudflareBootstrapV4Tests(unittest.TestCase):
         self.assertIn("rm -f worker-secrets.json wrangler.toml", self.workflow)
         self.assertIn("::add-mask::", self.workflow)
 
+    def test_optional_limited_roles_are_deployed_without_becoming_required(self) -> None:
+        for secret in (
+            "SPECIALISTS_REVIEWER_API_KEY",
+            "SPECIALISTS_MODERATOR_API_KEY",
+        ):
+            self.assertIn(secret, self.workflow)
+            self.assertIn(secret, self.docs)
+        self.assertIn('if os.environ.get(optional_name):', self.workflow)
+
     def test_documented_permissions_follow_least_privilege(self) -> None:
         for permission in ("Workers Scripts", "D1", "Turnstile Sites"):
             self.assertIn(permission, self.docs)
