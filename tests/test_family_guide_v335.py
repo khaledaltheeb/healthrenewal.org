@@ -3,8 +3,8 @@ import json,re,xml.etree.ElementTree as ET
 
 root=Path(__file__).resolve().parents[1]
 api=json.loads((root/'api/family-guide-v1.json').read_text(encoding='utf-8'))
-assert api['version']=='1.5.0'
-assert len(api['conditions'])==48
+assert api['version']=='1.6.0'
+assert len(api['conditions'])==56
 slugs=[x['slug'] for x in api['conditions']]
 assert len(slugs)==len(set(slugs))
 expected_phase3={
