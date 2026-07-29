@@ -140,13 +140,23 @@ for (const forbidden of [
 }
 
 assert.equal(record.recordType, 'specialist_application_public_review');
+assert.equal(record.applicationStatus, 'new', 'يجب أن يبدأ كل طلب عام بحالة جديد');
 assert.equal(record.displayName, 'اسم مهني تجريبي');
 assert.equal(record.publicContactPreferences.showEmail, true);
 assert.equal(record.publicContactPreferences.showPhone, true);
 assert.equal(record.publicContactPreferences.officialProfile, 'https://example.org/profile');
 assert.equal(record.publicContactPreferences.website, 'https://example.org/');
+assert.equal(record.licenses[0].status, 'pending_review', 'يجب ألا تعلن النسخة العامة توثيقًا قبل قرار الخادم');
 assert.equal(Object.hasOwn(record.licenses[0], 'publicIdentifier'), false, 'يجب ألا يتضمن السجل العام رقم الترخيص');
 assert.match(record.privacyNotice, /أرقام الترخيص/, 'يجب أن يوضح إشعار الخصوصية استبعاد أرقام الترخيص');
+
+// لا يثق السجل العام بحالة يغيّرها مقدم الطلب أو يحقنها عبر أدوات المطور.
+elements.get('licenseStatus').value = 'approved';
+click({ stopImmediatePropagation() {} });
+const spoofedStatusRecord = JSON.parse(elements.get('output').value);
+assert.equal(spoofedStatusRecord.applicationStatus, 'new', 'يجب تثبيت حالة الطلب الأولية من التطبيق لا من DOM');
+assert.equal(spoofedStatusRecord.licenses[0].status, 'pending_review', 'يجب تجاهل حالة ترخيص مزورة من المتصفح');
+assert.equal(JSON.stringify(spoofedStatusRecord).includes('approved'), false, 'يجب ألا تتسرب حالة اعتماد مزورة إلى سجل المراجعة');
 
 // لا تُصدر روابط غير آمنة قد تتحول لاحقًا إلى href قابل للتنفيذ داخل ملف عام.
 elements.get('officialProfile').value = 'javascript:alert(document.domain)';
