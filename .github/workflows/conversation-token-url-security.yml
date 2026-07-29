@@ -1,0 +1,28 @@
+name: Conversation token URL security
+
+on:
+  pull_request:
+    paths:
+      - 'specialists-partners/assets/forms.js'
+      - 'scripts/test-conversation-token-url.mjs'
+      - '.github/workflows/conversation-token-url-security.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  token-url-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify conversation token URL handling
+        run: node scripts/test-conversation-token-url.mjs
