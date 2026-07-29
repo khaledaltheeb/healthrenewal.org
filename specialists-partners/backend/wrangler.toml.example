@@ -9,6 +9,7 @@ OWNER_EMAIL = "pterminology@gmail.com"
 PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
 TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"
 FROM_EMAIL = "منصة المختصين <notifications@your-verified-domain.example>"
+ADMIN_SESSION_MINUTES = "20"
 
 [secrets]
 required = [
