@@ -47,6 +47,7 @@ def validate_root(root: Path) -> dict[str, Any]:
         "api": root / "api" / "v1" / "specialists-partners.json",
         "platform": root / "api" / "v1" / "platform.json",
         "sitemap": root / "sitemap-specialists-partners.xml",
+        "sitemap_index": root / "sitemap-index.xml",
         "robots": root / "robots.txt",
         "shell": root / "assets" / "platform" / "platform-core.js",
     }
@@ -85,10 +86,13 @@ def validate_root(root: Path) -> dict[str, Any]:
             raise AssertionError(f"Disallowed terminology in {label} page")
 
     for marker in (
+        "/v1/providers?limit=250",
+        "data/providers.json",
         "p.publicationStatus==='published'",
         "p.verification?.status==='verified'",
         "p.consent?.publicProfileApproved===true",
-        "['http:','https:','mailto:','tel:']",
+        "['https:','mailto:','tel:']",
+        "protocol === 'https:'",
     ):
         require(runtime, marker, "runtime publication guard")
 
@@ -153,17 +157,25 @@ def validate_root(root: Path) -> dict[str, Any]:
     }
     if set(locations) != expected_locations or len(locations) != len(set(locations)):
         raise AssertionError(f"Unexpected specialists sitemap routes: {locations}")
-    require(robots, f"Sitemap: {BASE_URL}sitemap-specialists-partners.xml", "robots sitemap registration")
+    require(robots, f"Sitemap: {BASE_URL}sitemap-index.xml", "robots sitemap-index registration")
+    index_locations = {
+        (node.text or "").strip()
+        for node in ET.parse(paths["sitemap_index"]).getroot().findall("{*}sitemap/{*}loc")
+        if node.text
+    }
+    if f"{BASE_URL}sitemap-specialists-partners.xml" not in index_locations:
+        raise AssertionError("The sitemap index does not register specialists-partners")
     require(shell, "['الفريق والشركاء', 'specialists-partners/']", "global navigation link")
 
     return {
         "status": "passed",
-        "contract": "specialists-partners-production-v1",
+        "contract": "specialists-partners-production-v4",
         "provider_count": len(records),
         "sitemap_routes": len(locations),
         "global_navigation": True,
         "publication_guard": True,
         "written_consent_required": True,
+        "live_registry_with_static_fallback": True,
     }
 
 
