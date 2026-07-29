@@ -1,0 +1,53 @@
+name: Accessibility IDREF audit
+
+on:
+  pull_request:
+    paths:
+      - '**/*.html'
+      - 'scripts/audit-accessibility-idrefs.mjs'
+      - '.github/workflows/accessibility-idref-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: accessibility-idref-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate script syntax
+        run: node --check scripts/audit-accessibility-idrefs.mjs
+
+      - name: Audit duplicate IDs and broken ID references
+        run: node scripts/audit-accessibility-idrefs.mjs
+
+      - name: Add report to workflow summary
+        if: always()
+        run: |
+          if [ -f artifacts/accessibility-idrefs/report.md ]; then
+            cat artifacts/accessibility-idrefs/report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'لم يُنشأ تقرير الفحص.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: accessibility-idref-report
+          path: artifacts/accessibility-idrefs/
+          if-no-files-found: warn
+          retention-days: 14
