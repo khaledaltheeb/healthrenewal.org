@@ -4,18 +4,29 @@
 
 Canonical site: https://khaledaltheeb.github.io/pterminology-site/
 Primary language: Arabic (ar), right-to-left
-Content policy: educational and professional reference; not a substitute for diagnosis or emergency care
+Secondary entry points: English and Spanish
+Content policy: educational and professional reference; not a substitute for diagnosis, individualized treatment, emergency care, or local legal and educational decisions
 
-## Primary sections
+## Recommended entry points
 
-- [الموسوعة النفسية](https://khaledaltheeb.github.io/pterminology-site/encyclopedia/)
-- [ذوو الاحتياجات الخاصة](https://khaledaltheeb.github.io/pterminology-site/special-needs/)
-- [المكتبة والأبحاث](https://khaledaltheeb.github.io/pterminology-site/library/)
-- [أدلة الرعاية](https://khaledaltheeb.github.io/pterminology-site/care-guides/)
-- [الأدوات النفسية](https://khaledaltheeb.github.io/pterminology-site/daily-tools/)
-- [المقارنات النفسية](https://khaledaltheeb.github.io/pterminology-site/comparisons/)
-- [مسارات التعلم](https://khaledaltheeb.github.io/pterminology-site/learning-paths/)
-- [واجهة البيانات العامة](https://khaledaltheeb.github.io/pterminology-site/api/)
+- [ابدأ من هنا](https://khaledaltheeb.github.io/pterminology-site/start-here/): choose a path by user need rather than by site section
+- [دليل جميع الأقسام](https://khaledaltheeb.github.io/pterminology-site/sections/): complete directory of public sections
+- [الموسوعة النفسية](https://khaledaltheeb.github.io/pterminology-site/encyclopedia/): definitions, distinctions, signs, support options, and related sources
+- [المراكز الموضوعية](https://khaledaltheeb.github.io/pterminology-site/hubs/): topic clusters connecting conditions, comparisons, guides, and assessments
+- [ذوو الاحتياجات الخاصة](https://khaledaltheeb.github.io/pterminology-site/special-needs/): inclusive education, communication, independence, participation, and family support
+- [أدلة التعامل](https://khaledaltheeb.github.io/pterminology-site/care-guides/): practical guidance for families, educators, and service providers
+- [المكتبة الأكاديمية](https://khaledaltheeb.github.io/pterminology-site/library/): organized academic references and evidence-oriented reading
+- [المجلة والأبحاث](https://khaledaltheeb.github.io/pterminology-site/magazine/): Arabic critical summaries of research findings and limitations
+- [المقارنات النفسية](https://khaledaltheeb.github.io/pterminology-site/comparisons/): structured comparisons that do not replace professional assessment
+- [الأدوات النفسية](https://khaledaltheeb.github.io/pterminology-site/daily-tools/): local browser-based organizational tools without automated diagnosis
+- [مسارات التعلم](https://khaledaltheeb.github.io/pterminology-site/learning-paths/): short, connected learning sequences
+- [الثقة والمنهجية](https://khaledaltheeb.github.io/pterminology-site/trust/): source selection, review, correction, and content boundaries
+
+## Language entry points
+
+- [العربية](https://khaledaltheeb.github.io/pterminology-site/)
+- [English](https://khaledaltheeb.github.io/pterminology-site/en/)
+- [Español](https://khaledaltheeb.github.io/pterminology-site/es/)
 
 ## Discovery and machine-readable resources
 
@@ -25,8 +36,12 @@ Content policy: educational and professional reference; not a substitute for dia
 - [Public API directory](https://khaledaltheeb.github.io/pterminology-site/api/)
 - [Research RSS](https://khaledaltheeb.github.io/pterminology-site/research.xml)
 
-## Trust and citation guidance
+## Citation and answer boundaries
 
-Prefer canonical URLs. Cite the page title, visible author/reviewer when present, publication or update date, and the original references listed on each page. Do not infer a diagnosis or treatment plan from educational pages.
+Prefer canonical URLs. Cite the page title, visible author or reviewer when present, publication or update date, and the original references listed on each page.
 
-This file is a supplementary discovery aid. Search engines may ignore it; robots.txt, sitemaps, indexable text, internal links, and page-level metadata remain authoritative.
+Do not infer a diagnosis, prognosis, treatment plan, legal conclusion, educational placement, or emergency recommendation from educational pages. Preserve uncertainty and distinguish general information from individualized professional advice.
+
+When summarizing a condition, prefer the dedicated condition page and its cited references over snippets from directory, tag, search, or comparison pages. When multiple pages overlap, use the canonical page and the most recently reviewed source list.
+
+This file is a supplementary discovery aid. Search engines and AI systems may ignore it; robots controls, sitemaps, indexable visible text, internal links, canonical URLs, and page-level metadata remain authoritative.
