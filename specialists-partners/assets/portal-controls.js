@@ -5,17 +5,27 @@
   const $ = id => document.getElementById(id);
 
   function credentials() {
+    const fragment = new URLSearchParams(location.hash.replace(/^#/, ''));
     const params = new URLSearchParams(location.search);
     return {
-      conversationId:params.get('conversation') || sessionStorage.getItem('ptConversationId') || '',
-      token:params.get('token') || sessionStorage.getItem('ptConversationToken') || '',
-      role:params.get('role') || sessionStorage.getItem('ptConversationRole') || 'visitor'
+      conversationId:fragment.get('conversation') || params.get('conversation') ||
+        sessionStorage.getItem('ptConversationId') || '',
+      token:fragment.get('token') || params.get('token') ||
+        sessionStorage.getItem('ptConversationToken') || '',
+      role:fragment.get('role') || params.get('role') ||
+        sessionStorage.getItem('ptConversationRole') || 'visitor'
     };
   }
 
   function apiUrl(path) {
-    const base = String(config.apiBase || '').replace(/\/$/, '');
-    return base ? `${base}${path}` : '';
+    try {
+      const parsed = new URL(String(config.apiBase || '').trim());
+      if (parsed.protocol !== 'https:' || parsed.username || parsed.password ||
+          parsed.search || parsed.hash) return '';
+      return `${parsed.href.replace(/\/$/, '')}${path}`;
+    } catch (_) {
+      return '';
+    }
   }
 
   function displayStatus(message, state = 'loading') {
@@ -32,12 +42,17 @@
     if (!url) throw new Error('خدمة الرسائل الخلفية غير مرتبطة بعد.');
     const response = await fetch(url, {
       method:'PATCH',
-      headers:{'content-type':'application/json'},
-      body:JSON.stringify({
-        token:auth.token,
-        role:auth.role,
-        status:nextStatus
-      })
+      headers:{
+        accept:'application/json',
+        authorization:`Bearer ${auth.token}`,
+        'x-conversation-role':auth.role,
+        'content-type':'application/json;charset=UTF-8'
+      },
+      body:JSON.stringify({status:nextStatus}),
+      cache:'no-store',
+      credentials:'omit',
+      referrerPolicy:'no-referrer',
+      redirect:'error'
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.message || 'تعذر تحديث حالة المحادثة.');
@@ -46,11 +61,11 @@
 
   function cleanSensitiveUrl() {
     const url = new URL(location.href);
-    if (!url.searchParams.has('token')) return;
+    if (!url.searchParams.has('token') && !url.hash) return;
     url.searchParams.delete('token');
     url.searchParams.delete('conversation');
     url.searchParams.delete('role');
-    history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
+    history.replaceState({}, document.title, `${url.pathname}${url.search}`);
   }
 
   function updateControls(status, role) {
