@@ -7,8 +7,15 @@
   const safeWebUrl = value => {
     const candidate = String(value || '').trim();
     if (!candidate) return null;
-    if (!/^https?:\/\/[^\s]+$/i.test(candidate)) return null;
-    return candidate;
+
+    try {
+      const parsed = new URL(candidate);
+      if (!['http:', 'https:'].includes(parsed.protocol)) return null;
+      if (parsed.username || parsed.password) return null;
+      return parsed.href;
+    } catch (_) {
+      return null;
+    }
   };
 
   function publicReviewRecord() {
