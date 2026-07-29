@@ -137,14 +137,7 @@ jobs:
           readme = readme.replace('آخر مراجعة: 2026-07-29', f'آخر مراجعة: {review_date}')
           readme_path.write_text(readme, encoding='utf-8')
 
-          workflow_path = root / '.github/workflows/validate-family-guide-v335.yml'
-          workflow = workflow_path.read_text(encoding='utf-8')
-          workflow = re.sub(r'name: Validate family guide v\d+', 'name: Validate family guide v338', workflow)
-          workflow_path.write_text(workflow, encoding='utf-8')
-
-          temp = root / '.github/workflows/materialize-family-guide-phase4-v338.yml'
-          temp.unlink()
-          print({'conditions': len(order), 'version': version, 'temporary_workflow_removed': not temp.exists()})
+          print({'conditions': len(order), 'version': version})
           PY
       - name: Validate generated inventory
         run: |
@@ -156,10 +149,14 @@ jobs:
           ET.parse('sitemap-family-guide.xml')
           print({'xml': 'passed'})
           PY
-      - name: Commit production files and remove generator
+      - name: Commit production content files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add api/family-guide-v1.json family-guide/family-guide-data.js family-guide/index.html family-guide/README.md sitemap-family-guide.xml tests/test_family_guide_v335.py
+          if git diff --cached --quiet; then
+            echo "Inventory already materialized"
+            exit 0
+          fi
           git commit -m "feat: expand family guide inventory to 32 conditions v338"
           git push origin HEAD:agent/family-guide-phase4-v338
