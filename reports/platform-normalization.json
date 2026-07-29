@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-29T14:07:02.949470+00:00",
+  "generated_at": "2026-07-29T14:09:15.432950+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -11,10 +11,10 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 166,
-  "html_pages_normalized_or_current": 165,
+  "html_pages_seen": 167,
+  "html_pages_normalized_or_current": 166,
   "counts": {
-    "current": 164,
+    "current": 165,
     "skipped": 1,
     "updated": 1
   },
@@ -796,6 +796,11 @@
     },
     {
       "path": "special-needs/assistive-technology/selection-checklist/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/assistive-technology/training/index.html",
       "status": "updated",
       "detail": ""
     },
