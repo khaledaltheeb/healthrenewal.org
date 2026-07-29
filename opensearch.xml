@@ -3,6 +3,7 @@
   <ShortName>الصحة النفسية</ShortName>
   <Description>البحث في موسوعة الصحة النفسية ومصطلحات علم النفس</Description>
   <InputEncoding>UTF-8</InputEncoding>
+  <OutputEncoding>UTF-8</OutputEncoding>
   <Language>ar</Language>
   <Image height="64" width="64" type="image/svg+xml">https://khaledaltheeb.github.io/pterminology-site/assets/brand/logo-mark.svg</Image>
   <Url type="text/html" method="get" template="https://khaledaltheeb.github.io/pterminology-site/encyclopedia/?q={searchTerms}"/>
