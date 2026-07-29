@@ -8,10 +8,12 @@
 
 `https://github.com/khaledaltheeb/pterminology-site/issues/new?template=security-contact.yml`
 
-توجد بيانات الاتصال القابلة للقراءة الآلية في:
+ينشر بناء GitHub Pages الحالي بيانات الاتصال القابلة للقراءة الآلية في مسارين متطابقين:
 
-- `https://khaledaltheeb.github.io/pterminology-site/security.txt` — المسار المنشور المتوافق مع بنية GitHub Pages الحالية.
-- `https://khaledaltheeb.github.io/pterminology-site/.well-known/security.txt` — المسار القياسي المحفوظ في المصدر، ويحتاج إلى بناء أو نطاق يدعم نشر المجلد المخفي.
+- `https://khaledaltheeb.github.io/pterminology-site/.well-known/security.txt` — المسار القياسي داخل موقع المشروع.
+- `https://khaledaltheeb.github.io/pterminology-site/security.txt` — مسار توافق إضافي.
+
+لأن المنصة تعمل كموقع مشروع تحت `/pterminology-site/`، فلا يوجد الملف عند جذر النطاق `https://khaledaltheeb.github.io/.well-known/security.txt`. يتطلب الاكتشاف من جذر النطاق نطاقًا مخصصًا أو نشرًا تحت جذر حساب GitHub Pages.
 
 ## ما يجب تضمينه داخل البلاغ الخاص فقط
 
@@ -45,10 +47,12 @@ First use GitHub **Private vulnerability reporting** through **Security → Advi
 
 `https://github.com/khaledaltheeb/pterminology-site/issues/new?template=security-contact.yml`
 
-Machine-readable contacts are available at:
+The current GitHub Pages build publishes identical machine-readable contacts at:
 
-- `https://khaledaltheeb.github.io/pterminology-site/security.txt` — the published compatibility location supported by the current GitHub Pages build.
-- `https://khaledaltheeb.github.io/pterminology-site/.well-known/security.txt` — the standards-based source location, requiring a build or domain setup that publishes hidden directories.
+- `https://khaledaltheeb.github.io/pterminology-site/.well-known/security.txt` — the standards-based location within the project site.
+- `https://khaledaltheeb.github.io/pterminology-site/security.txt` — an additional compatibility location.
+
+Because the platform is a project site under `/pterminology-site/`, the file is not available at the origin root `https://khaledaltheeb.github.io/.well-known/security.txt`. Origin-root discovery requires a custom domain or publication from the GitHub Pages account root.
 
 ## Include only in the private report
 
