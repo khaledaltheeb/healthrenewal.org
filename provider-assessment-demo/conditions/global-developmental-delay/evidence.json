@@ -1,9 +1,9 @@
 {
-  "schemaVersion": "1.1",
+  "schemaVersion": "1.2",
   "conditionId": "global-developmental-delay",
   "titleAr": "التأخر النمائي الشامل عند الأطفال",
   "publicationStatus": "draft",
-  "reviewedOn": "2026-07-29",
+  "reviewedOn": "2026-07-30",
   "scope": "سجل توثيق تحريري داخلي يربط الادعاءات الحساسة في الدليل بمصادرها ولا يمثل بروتوكول تشخيص أو علاج فردي.",
   "claims": [
     {
@@ -19,10 +19,16 @@
       "sources": ["cps-2026"]
     },
     {
+      "id": "genetic-diagnosis-utility",
+      "claim": "قد يفيد الوصول إلى تشخيص جيني محدد في توجيه التنبؤ والمتابعة لمضاعفات مرتبطة بالحالة، وتقدير احتمال التكرار، وبعض قرارات التدبير؛ لكنه لا يحدد وحده قدرات الطفل المستقبلية أو خطته الوظيفية.",
+      "strength": "clinical-report-guidance",
+      "sources": ["aap-2025"]
+    },
+    {
       "id": "genomic-testing-individualized",
-      "claim": "الاستقصاء الجينومي يُنظر فيه بحسب المؤشرات السريرية والموارد؛ ولا تُعرض الفحوص المتقدمة كقائمة إلزامية موحدة لكل طفل.",
+      "claim": "الاستقصاء الجينومي يُنظر فيه بحسب النمط السريري والمؤشرات والموارد؛ ولا تُعرض الفحوص المتقدمة كقائمة إلزامية موحدة لكل طفل.",
       "strength": "guideline",
-      "sources": ["cps-2026", "acmg-2021"]
+      "sources": ["aap-2025", "cps-2026", "acmg-2021"]
     },
     {
       "id": "es-gs-first-or-second-tier",
@@ -50,6 +56,19 @@
     }
   ],
   "sources": {
+    "aap-2025": {
+      "organization": "American Academy of Pediatrics",
+      "title": "Genetic Evaluation of the Child With Intellectual Disability or Global Developmental Delay: Clinical Report",
+      "published": "2025-07-01",
+      "doi": "10.1542/peds.2025-072219",
+      "pmid": "40545261",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40545261/",
+      "type": "clinical-report",
+      "verification": {
+        "checkedOn": "2026-07-30",
+        "status": "identifier-and-record-verified"
+      }
+    },
     "cps-2026": {
       "organization": "Canadian Paediatric Society",
       "title": "Assessing children and youth with global developmental delay and intellectual developmental disorder",
