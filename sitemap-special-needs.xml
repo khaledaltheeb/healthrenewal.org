@@ -6,4 +6,22 @@
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
+  <url>
+    <loc>https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.92</priority>
+  </url>
+  <url>
+    <loc>https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/selection-checklist/</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.86</priority>
+  </url>
+  <url>
+    <loc>https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/training/</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.84</priority>
+  </url>
 </urlset>
