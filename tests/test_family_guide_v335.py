@@ -24,9 +24,16 @@ expected_phase5={
     'kabuki-syndrome','kbg-syndrome',
     'rubinstein-taybi-syndrome','sotos-syndrome'
 }
+expected_phase6={
+    'satb2-associated-syndrome','mbd5-haploinsufficiency',
+    'adnp-syndrome','dyrk1a-syndrome',
+    'med13l-syndrome','christianson-syndrome',
+    'coffin-siris-syndrome','wiedemann-steiner-syndrome'
+}
 assert expected_phase3.issubset(set(slugs))
 assert expected_phase4.issubset(set(slugs))
 assert expected_phase5.issubset(set(slugs))
+assert expected_phase6.issubset(set(slugs))
 
 required=['title','summary','causes','signs','first_steps','avoid','daily','plan30','plan90','plan_year','urgent','professionals','questions','sources']
 for item in api['conditions']:
