@@ -10,6 +10,9 @@ Content policy: educational and professional reference; not a substitute for dia
 
 - [الموسوعة النفسية](https://khaledaltheeb.github.io/pterminology-site/encyclopedia/)
 - [ذوو الاحتياجات الخاصة](https://khaledaltheeb.github.io/pterminology-site/special-needs/)
+- [دليل التقنيات المساعدة](https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/)
+- [قائمة فحص اختيار التقنية المساعدة](https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/selection-checklist/)
+- [مسار التدريب في التقنيات المساعدة](https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/training/)
 - [المكتبة والأبحاث](https://khaledaltheeb.github.io/pterminology-site/library/)
 - [أدلة الرعاية](https://khaledaltheeb.github.io/pterminology-site/care-guides/)
 - [الأدوات النفسية](https://khaledaltheeb.github.io/pterminology-site/daily-tools/)
@@ -23,10 +26,13 @@ Content policy: educational and professional reference; not a substitute for dia
 - [Primary sitemap](https://khaledaltheeb.github.io/pterminology-site/sitemap.xml)
 - [OpenSearch description](https://khaledaltheeb.github.io/pterminology-site/opensearch.xml)
 - [Public API directory](https://khaledaltheeb.github.io/pterminology-site/api/)
+- [Assistive technology resource catalogue JSON](https://khaledaltheeb.github.io/pterminology-site/api/v1/assistive-technology-resources.json)
 - [Research RSS](https://khaledaltheeb.github.io/pterminology-site/research.xml)
 
 ## Trust and citation guidance
 
 Prefer canonical URLs. Cite the page title, visible author/reviewer when present, publication or update date, and the original references listed on each page. Do not infer a diagnosis or treatment plan from educational pages.
+
+The assistive-technology guide uses RESNA as an external source and explicitly does not claim RESNA endorsement, approval, partnership, or official Arabic translation. Protected standards, courses, and papers are linked rather than reproduced.
 
 This file is a supplementary discovery aid. Search engines may ignore it; robots.txt, sitemaps, indexable text, internal links, and page-level metadata remain authoritative.
