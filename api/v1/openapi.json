@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "واجهة منصة الصحة النفسية وذوي الاحتياجات الخاصة",
-    "version": "1.0.0",
-    "description": "واجهة قراءة عامة ثابتة لاكتشاف أقسام المنصة وعقد استيراد بيانات الدورات المخولة. لا تتضمن تشخيصًا أو بيانات شخصية.",
+    "version": "1.1.0",
+    "description": "واجهة قراءة عامة ثابتة لاكتشاف أقسام المنصة وموارد التقنيات المساعدة وعقد استيراد بيانات الدورات المخولة. لا تتضمن تشخيصًا أو بيانات شخصية.",
     "license": {"name": "Rights vary by resource"}
   },
   "servers": [
@@ -20,6 +20,23 @@
             "content": {
               "application/json": {
                 "schema": {"$ref": "#/components/schemas/Platform"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assistive-technology-resources.json": {
+      "get": {
+        "summary": "فهرس عربي لمصادر التقنيات المساعدة الرسمية",
+        "description": "فهرس تحريري مستقل يربط بالمصادر الرسمية المنشورة لدى RESNA دون إعادة نشر المعايير أو الأوراق أو الدورات المحمية ودون ادعاء اعتماد أو شراكة.",
+        "operationId": "getAssistiveTechnologyResources",
+        "responses": {
+          "200": {
+            "description": "دليل مصادر التقنيات المساعدة وسياسات استخدامها",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AssistiveTechnologyResourceCatalog"}
               }
             }
           }
@@ -56,6 +73,39 @@
           "baseUrl": {"type": "string", "format": "uri"},
           "resources": {"type": "array", "items": {"type": "object"}},
           "endpoints": {"type": "object"}
+        }
+      },
+      "AssistiveTechnologyResourceCatalog": {
+        "type": "object",
+        "required": ["schemaVersion", "generatedAt", "language", "title", "canonicalPage", "disclaimer", "resources", "editorialRules"],
+        "properties": {
+          "schemaVersion": {"type": "string"},
+          "generatedAt": {"type": "string", "format": "date-time"},
+          "language": {"type": "string", "const": "ar"},
+          "title": {"type": "string"},
+          "canonicalPage": {"type": "string", "format": "uri"},
+          "disclaimer": {"type": "string"},
+          "publisher": {"type": "object"},
+          "sourceOrganization": {"type": "object"},
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "type", "titleAr", "titleEn", "url", "access", "recommendedUse"],
+              "properties": {
+                "id": {"type": "string"},
+                "type": {"type": "string"},
+                "titleAr": {"type": "string"},
+                "titleEn": {"type": "string"},
+                "url": {"type": "string", "format": "uri"},
+                "access": {"type": "string"},
+                "topics": {"type": "array", "items": {"type": "string"}},
+                "recommendedUse": {"type": "array", "items": {"type": "string"}},
+                "doNot": {"type": "array", "items": {"type": "string"}}
+              }
+            }
+          },
+          "editorialRules": {"type": "array", "items": {"type": "string"}}
         }
       }
     }
