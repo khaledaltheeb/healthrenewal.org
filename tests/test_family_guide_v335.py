@@ -3,8 +3,8 @@ import json,re,xml.etree.ElementTree as ET
 
 root=Path(__file__).resolve().parents[1]
 api=json.loads((root/'api/family-guide-v1.json').read_text(encoding='utf-8'))
-assert api['version']=='1.4.0'
-assert len(api['conditions'])==40
+assert api['version']=='1.5.0'
+assert len(api['conditions'])==48
 slugs=[x['slug'] for x in api['conditions']]
 assert len(slugs)==len(set(slugs))
 expected_phase3={
@@ -24,9 +24,16 @@ expected_phase5={
     'kabuki-syndrome','kbg-syndrome',
     'rubinstein-taybi-syndrome','sotos-syndrome'
 }
+expected_phase6={
+    'satb2-associated-syndrome','mbd5-haploinsufficiency',
+    'adnp-syndrome','dyrk1a-syndrome',
+    'med13l-syndrome','christianson-syndrome',
+    'coffin-siris-syndrome','wiedemann-steiner-syndrome'
+}
 assert expected_phase3.issubset(set(slugs))
 assert expected_phase4.issubset(set(slugs))
 assert expected_phase5.issubset(set(slugs))
+assert expected_phase6.issubset(set(slugs))
 
 required=['title','summary','causes','signs','first_steps','avoid','daily','plan30','plan90','plan_year','urgent','professionals','questions','sources']
 for item in api['conditions']:
