@@ -7,6 +7,37 @@
 <meta name="description" content="بوابة آمنة لقراءة الرسائل والرد عليها داخل قطاع المختصين والشراكات المهنية.">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="referrer" content="no-referrer">
+<script>
+(() => {
+  'use strict';
+  const params = new URLSearchParams(location.search);
+  const conversationId = params.get('conversation') || '';
+  const token = params.get('token') || '';
+  const requestedRole = params.get('role') || 'visitor';
+  const safeConversationId = /^[A-Za-z0-9_-]{8,160}$/.test(conversationId);
+  const safeToken = token.length >= 16 && token.length <= 2048 && /^[A-Za-z0-9._~-]+$/.test(token);
+  const role = /^(visitor|provider|specialist)$/.test(requestedRole) ? requestedRole : 'visitor';
+
+  try {
+    if (safeConversationId && safeToken) {
+      sessionStorage.setItem('ptConversationId', conversationId);
+      sessionStorage.setItem('ptConversationToken', token);
+      sessionStorage.setItem('ptConversationRole', role);
+    }
+  } catch (_) {
+    // ستعرض البوابة رسالة انتهاء الجلسة إذا كان تخزين الجلسة محظورًا.
+  }
+
+  if (params.has('conversation') || params.has('token') || params.has('role') || location.hash) {
+    params.delete('conversation');
+    params.delete('token');
+    params.delete('role');
+    const cleanQuery = params.toString();
+    const cleanUrl = `${location.pathname}${cleanQuery ? `?${cleanQuery}` : ''}`;
+    history.replaceState(null, document.title, cleanUrl);
+  }
+})();
+</script>
 <meta name="theme-color" content="#075f5b">
 <link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/">
 <link rel="icon" href="/pterminology-site/assets/brand/logo-mark.svg" type="image/svg+xml">
@@ -52,7 +83,7 @@
       <button class="button secondary" id="refresh-conversation" type="button">تحديث الرسائل</button>
       <button class="button danger" id="toggle-conversation-status" type="button" hidden>إغلاق المحادثة</button>
       <a class="button secondary" href="../index.html#directory">العودة إلى الدليل</a>
-      <p class="small">بعد تحميل الصفحة يُزال رمز الدخول من شريط العنوان ويُحفظ لهذه الجلسة فقط.</p>
+      <p class="small">يُزال رمز الدخول من شريط العنوان قبل تحميل موارد الصفحة ويُحفظ لهذه الجلسة فقط.</p>
     </aside>
     <section class="portal-shell" aria-labelledby="conversation-title">
       <header class="portal-header">
