@@ -22,6 +22,7 @@
     const showOfficialProfile = Boolean($('showOfficialProfile')?.checked);
     return {
       recordType: 'specialist_application_public_review',
+      applicationStatus: 'new',
       entityType: $('entityType')?.value || '',
       displayName: $('displayName')?.value.trim() || '',
       professionalTitle: $('professionalTitle')?.value.trim() || null,
@@ -46,7 +47,7 @@
       }],
       licenses: [{
         authority: $('licenseAuthority')?.value.trim() || null,
-        status: $('licenseStatus')?.value || 'pending_review'
+        status: 'pending_review'
       }],
       experienceYears: Number($('experienceYears')?.value) || null,
       currentRole: $('currentRole')?.value.trim() || null,
