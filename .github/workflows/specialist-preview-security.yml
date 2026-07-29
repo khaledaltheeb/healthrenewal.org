@@ -1,0 +1,28 @@
+name: Specialist preview security
+
+on:
+  pull_request:
+    paths:
+      - 'specialists-partners/join.html'
+      - 'specialists-partners/assets/forms.js'
+      - 'specialists-partners/assets/safe-preview.js'
+      - 'scripts/test-specialist-safe-preview.mjs'
+      - '.github/workflows/specialist-preview-security.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  redaction-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify public preview redaction
+        run: node scripts/test-specialist-safe-preview.mjs
