@@ -17,6 +17,7 @@ Content policy: educational and professional reference; not a substitute for dia
 - [بوابة مراجعة ابتكارات التقنيات المساعدة](https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/innovation-review/)
 - [دليل التعليم المستمر ومزودي RESNA](https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/continuing-education/)
 - [المكتبة والأبحاث](https://khaledaltheeb.github.io/pterminology-site/library/)
+- [سجل المصادر ومسارات التكامل](https://khaledaltheeb.github.io/pterminology-site/source-registry/)
 - [أدلة الرعاية](https://khaledaltheeb.github.io/pterminology-site/care-guides/)
 - [الأدوات النفسية](https://khaledaltheeb.github.io/pterminology-site/daily-tools/)
 - [المقارنات النفسية](https://khaledaltheeb.github.io/pterminology-site/comparisons/)
@@ -27,12 +28,18 @@ Content policy: educational and professional reference; not a substitute for dia
 
 - [Sitemap index](https://khaledaltheeb.github.io/pterminology-site/sitemap-index.xml)
 - [Primary sitemap](https://khaledaltheeb.github.io/pterminology-site/sitemap.xml)
+- [Source registry sitemap](https://khaledaltheeb.github.io/pterminology-site/sitemap-source-registry.xml)
 - [OpenSearch description](https://khaledaltheeb.github.io/pterminology-site/opensearch.xml)
 - [Public API directory](https://khaledaltheeb.github.io/pterminology-site/api/)
+- [Governed external source registry JSON](https://khaledaltheeb.github.io/pterminology-site/api/source-registry.json)
 - [Assistive technology resource catalogue JSON](https://khaledaltheeb.github.io/pterminology-site/api/v1/assistive-technology-resources.json)
 - [Assistive technology quality framework JSON](https://khaledaltheeb.github.io/pterminology-site/api/v1/assistive-technology-quality-framework.json)
 - [RESNA continuing-education provider verification JSON](https://khaledaltheeb.github.io/pterminology-site/api/v1/resna-ce-providers.json)
 - [Research RSS](https://khaledaltheeb.github.io/pterminology-site/research.xml)
+
+## Source-registry interpretation
+
+An organization listed in the source registry is an independent source candidate, not a partner, reviewer, endorser, certifier, or approved translator. The status `candidate` permits discovery and preliminary linking only. Translation, metadata ingestion, full-text reuse, logo use, or automated synchronization requires separate rights, technical, and editorial review.
 
 ## Trust and citation guidance
 
