@@ -1,0 +1,43 @@
+name: Validate accessibility governance
+
+on:
+  pull_request:
+    paths:
+      - accessibility/**
+      - README.md
+      - scripts/validate_accessibility_governance.py
+      - .github/workflows/validate-accessibility-governance.yml
+  push:
+    branches:
+      - main
+    paths:
+      - accessibility/**
+      - README.md
+      - scripts/validate_accessibility_governance.py
+      - .github/workflows/validate-accessibility-governance.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: accessibility-governance-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile validator
+        run: python -m py_compile scripts/validate_accessibility_governance.py
+      - name: Run validator self-test
+        run: python scripts/validate_accessibility_governance.py --self-test
+      - name: Validate public accessibility governance
+        run: python scripts/validate_accessibility_governance.py
