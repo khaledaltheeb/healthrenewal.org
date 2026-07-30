@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-30T12:20:59.475166+00:00",
+  "generated_at": "2026-07-30T15:10:32.643302+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -1051,13 +1051,13 @@
     },
     {
       "path": "specialists-partners/account/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "specialists-partners/admin/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "specialists-partners/contact.html",
