@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-30T23:19:05.558136+00:00",
+  "zones_api_success": true,
+  "addresses_api_success": true,
+  "addresses_errors": [],
+  "owner_destination_verified": false,
+  "verified_destinations": [],
+  "enabled_sending_domains": [],
+  "zones": [],
+  "cloudflare_fallback_ready": false
+}
