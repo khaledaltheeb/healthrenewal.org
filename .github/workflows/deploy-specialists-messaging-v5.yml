@@ -36,7 +36,7 @@ jobs:
       RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}
       FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
       OWNER_EMAIL_SECRET: ${{ secrets.SPECIALISTS_OWNER_EMAIL }}
-      API_BASE: https://pterminology-specialists.pterminology.workers.dev
+      API_BASE: https://pterminology-specialists.pterminology-826ac349.workers.dev
 
     steps:
       - uses: actions/checkout@v4
