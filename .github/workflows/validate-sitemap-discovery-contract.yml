@@ -1,0 +1,39 @@
+name: Validate sitemap discovery contract
+
+on:
+  pull_request:
+    paths:
+      - robots.txt
+      - sitemap*.xml
+      - scripts/validate_sitemap_discovery_contract.py
+      - .github/workflows/validate-sitemap-discovery-contract.yml
+  push:
+    branches:
+      - main
+    paths:
+      - robots.txt
+      - sitemap*.xml
+      - scripts/validate_sitemap_discovery_contract.py
+      - .github/workflows/validate-sitemap-discovery-contract.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sitemap-discovery-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate robots and sitemap graph
+        run: python scripts/validate_sitemap_discovery_contract.py
