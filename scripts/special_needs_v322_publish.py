@@ -62,7 +62,7 @@ def refresh_deployment_evidence(site: Path) -> bool:
     if not path.is_file():
         return False
     data = read_json(path)
-    if data.get("schema_version") != 29:
+    if data.get("schema_version") not in {29, 30}:
         raise SystemExit(f"Unsupported deployment schema while refreshing v322 evidence: {data.get('schema_version')}")
     required = ("index.html", "sitemap.xml", "manifest.webmanifest", "sw.js")
     artifacts = data.get("artifacts")

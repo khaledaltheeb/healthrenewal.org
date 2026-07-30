@@ -331,6 +331,7 @@ def main() -> None:
 
     run_publisher("publish_special_needs_v73.py")
     run_publisher("publish_special_needs_guides_v217.py")
+    run_publisher("publish_youth_sector_v353.py")
     run_publisher("publish_outside_the_box_v254.py")
     run_publisher("publish_outside_the_box_ten_plans_v302.py")
     restore_static_route("outside-the-box/evidence-standard")

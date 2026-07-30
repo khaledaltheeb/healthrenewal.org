@@ -73,6 +73,8 @@ class PlatformIdentityV201Tests(unittest.TestCase):
         self.assertEqual(report["footers_added"], 1)
         self.assertGreaterEqual(report["language_replacements"], 4)
         self.assertTrue(report["trust_guides_published"])
+        self.assertFalse(report["section_directory_refreshed_after_trust_guides"])
+        self.assertFalse(report["publication_surface_refreshed_after_trust_guides"])
         self.assertTrue(report["magazine_published"])
         self.assertEqual(report["magazine_pages"], 79)
         self.assertEqual(report["magazine_unwired_pages"], 0)

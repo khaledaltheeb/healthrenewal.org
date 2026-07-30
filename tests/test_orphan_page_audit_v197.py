@@ -40,6 +40,29 @@ class OrphanAuditTests(unittest.TestCase):
             report = module.audit(site)
             self.assertIn("special-needs/", report["critical_unmapped"])
 
+    def test_excludes_noindex_redirect_aliases_from_discovery_contract(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = Path(tmp)
+            (site / "index.html").write_text(PAGE.format(""), encoding="utf-8")
+            alias = site / "learning-paths" / "legacy-path" / "index.html"
+            alias.parent.mkdir(parents=True)
+            alias.write_text(
+                PAGE.replace(
+                    "</head>",
+                    '<meta name="robots" content="noindex,follow">'
+                    '<meta http-equiv="refresh" content="0;url=/pterminology-site/learning-paths/current-path/">'
+                    "</head>",
+                ).format('<a href="../current-path/">المسار الحالي</a>'),
+                encoding="utf-8",
+            )
+            report = module.audit(site)
+            self.assertEqual(report["pages"], 1)
+            self.assertEqual(report["html_pages"], 2)
+            self.assertEqual(report["excluded_noindex_pages"], 1)
+            self.assertNotIn("learning-paths/legacy-path/", report["critical_orphans"])
+            self.assertNotIn("learning-paths/legacy-path/", report["critical_unmapped"])
+            self.assertEqual(report["status"], "passed")
+
     def test_treats_comparisons_as_critical_collection(self):
         with tempfile.TemporaryDirectory() as tmp:
             site = Path(tmp)

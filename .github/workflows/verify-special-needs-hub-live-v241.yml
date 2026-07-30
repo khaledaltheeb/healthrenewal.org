@@ -79,7 +79,7 @@ jobs:
           from pathlib import Path
           data=json.loads(Path('/tmp/special-needs-hub-live-v241/deployment.json').read_text(encoding='utf-8'))
           sha=data.get('commit')
-          assert data.get('schema_version') == 29, data
+          assert data.get('schema_version') in {29, 30}, data
           assert isinstance(sha,str) and re.fullmatch(r'[0-9a-f]{40}',sha), data
           print(sha)
           PY

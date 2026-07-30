@@ -29,7 +29,7 @@ class WomenSectorDeploymentV245Tests(unittest.TestCase):
         source.write_text(json.dumps({"articles": articles}, ensure_ascii=False), encoding="utf-8")
         (site / "api").mkdir(parents=True)
         (site / "deployment.json").write_text(json.dumps({
-            "schema_version": 29,
+            "schema_version": 30,
             "commit": self.SHA,
             "women_sector_version": 244,
             "women_sector_articles": 20,

@@ -1,0 +1,73 @@
+name: Validate youth sector v353
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/v353/youth-sector-ar.json"
+      - "scripts/publish_youth_sector_v353.py"
+      - "scripts/apply_homepage_v20.py"
+      - "scripts/audit_content_targets_v201.py"
+      - "scripts/audit_section_content_depth_v322.py"
+      - "sectors/index.html"
+      - "index.html"
+      - "tests/test_youth_sector_v353.py"
+      - "tests/test_sectors_portal_v327.py"
+      - "scripts/verify_sectors_portal_v327.py"
+      - ".github/workflows/validate-youth-sector-v353.yml"
+  push:
+    branches: [main]
+    paths:
+      - "content/v353/youth-sector-ar.json"
+      - "scripts/publish_youth_sector_v353.py"
+      - "scripts/apply_homepage_v20.py"
+      - "scripts/audit_content_targets_v201.py"
+      - "scripts/audit_section_content_depth_v322.py"
+      - "sectors/index.html"
+      - "index.html"
+      - "tests/test_youth_sector_v353.py"
+      - "tests/test_sectors_portal_v327.py"
+      - "scripts/verify_sectors_portal_v327.py"
+      - ".github/workflows/validate-youth-sector-v353.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: youth-sector-v353-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  youth-sector-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile source publisher and audits
+        run: |
+          python -m py_compile \
+            scripts/publish_youth_sector_v353.py \
+            scripts/audit_content_targets_v201.py \
+            scripts/audit_section_content_depth_v322.py \
+            scripts/verify_sectors_portal_v327.py \
+            tests/test_youth_sector_v353.py \
+            tests/test_sectors_portal_v327.py
+      - name: Run source and publication contracts
+        run: python -m unittest -v tests.test_youth_sector_v353 tests.test_sectors_portal_v327
+      - name: Verify production wiring
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          apply = Path("scripts/apply_homepage_v20.py").read_text(encoding="utf-8")
+          home = Path("index.html").read_text(encoding="utf-8")
+          portal = Path("sectors/index.html").read_text(encoding="utf-8")
+          assert 'run_publisher("publish_youth_sector_v353.py")' in apply
+          assert 'href="sectors/youth/"' in home
+          assert 'href="youth/"' in portal
+          assert '"numberOfItems":5' in portal
+          print({"publisher": "wired", "homepage": "linked", "portal": "five-sectors"})
+          PY

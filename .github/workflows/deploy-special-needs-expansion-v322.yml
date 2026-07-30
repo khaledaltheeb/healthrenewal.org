@@ -45,7 +45,7 @@ jobs:
           deployment=json.loads((root/'deployment.json').read_text(encoding='utf-8'))
           report=json.loads((root/'api/special-needs-expansion-v322.json').read_text(encoding='utf-8'))
           candidate=deployment.get('commit')
-          assert deployment.get('schema_version')==29 and re.fullmatch(r'[0-9a-f]{40}',candidate or ''),deployment
+          assert deployment.get('schema_version') in {29,30} and re.fullmatch(r'[0-9a-f]{40}',candidate or ''),deployment
           assert report.get('version')==322 and report.get('status')=='passed',report
           assert (report.get('guide_count'),report.get('section_count'),report.get('source_count'))==(5,40,25),report
           assert report.get('minimum_rendered_words',0)>=1200 and report.get('external_clinical_review_completed') is False,report

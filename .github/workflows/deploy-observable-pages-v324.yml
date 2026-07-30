@@ -55,7 +55,7 @@ jobs:
           import json
           from pathlib import Path
           data=json.loads(Path('validated-site/deployment.json').read_text(encoding='utf-8'))
-          assert data.get('schema_version') == 29, data
+          assert data.get('schema_version') in {29, 30}, data
           print(data['commit'])
           PY
           )"

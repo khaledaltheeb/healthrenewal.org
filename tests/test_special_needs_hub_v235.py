@@ -162,7 +162,7 @@ class SpecialNeedsHubV235Tests(unittest.TestCase):
     def test_live_verifier_accepts_exact_generated_contract(self) -> None:
         self.publish()
         (self.site / "deployment.json").write_text(
-            json.dumps({"schema_version": 29, "commit": TEST_SHA}, ensure_ascii=False),
+            json.dumps({"schema_version": 30, "commit": TEST_SHA}, ensure_ascii=False),
             encoding="utf-8",
         )
         result = subprocess.run(

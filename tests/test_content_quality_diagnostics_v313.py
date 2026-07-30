@@ -16,7 +16,15 @@ class ContentQualityDiagnosticsV313Tests(unittest.TestCase):
         self.site = Path(tempfile.mkdtemp(prefix="content-quality-v313-"))
         self.addCleanup(lambda: shutil.rmtree(self.site, ignore_errors=True))
 
-    def write_page(self, route: str, *, title: str, description: str, h1: str) -> None:
+    def write_page(
+        self,
+        route: str,
+        *,
+        title: str,
+        description: str,
+        h1: str,
+        robots: str = "index,follow",
+    ) -> None:
         path = self.site / route / "index.html"
         path.parent.mkdir(parents=True, exist_ok=True)
         canonical_route = f"{route}/" if route else ""
@@ -24,6 +32,7 @@ class ContentQualityDiagnosticsV313Tests(unittest.TestCase):
             "<!doctype html><html lang=\"ar\" dir=\"rtl\"><head>"
             f"<title>{title}</title>"
             f"<meta name=\"description\" content=\"{description}\">"
+            f"<meta name=\"robots\" content=\"{robots}\">"
             f"<link rel=\"canonical\" href=\"https://khaledaltheeb.github.io/pterminology-site/{canonical_route}\">"
             f"<meta property=\"og:title\" content=\"{title}\">"
             f"<meta property=\"og:description\" content=\"{description}\">"
@@ -80,6 +89,42 @@ class ContentQualityDiagnosticsV313Tests(unittest.TestCase):
         ]
         self.assertTrue(any("alpha/index.html" in warning and "beta/index.html" in warning for warning in duplicate_warnings))
         self.assertFalse(any("gamma/index.html" in warning for warning in duplicate_warnings))
+
+    def test_noindex_alias_is_excluded_from_depth_and_duplicate_metrics(self) -> None:
+        for route in ("legacy-one", "legacy-two"):
+            self.write_page(
+                route,
+                title="تم تحديث المسار",
+                description="تحويل داخلي إلى المسار الحالي.",
+                h1="تم تحديث هذا المسار",
+                robots="noindex,follow",
+            )
+        self.write_page(
+            "current",
+            title="المسار الحالي",
+            description="مسار حالي غني ومستقل يظل داخل تقرير جودة المحتوى المنشور.",
+            h1="المسار الحالي",
+        )
+
+        result = subprocess.run(
+            ["python", str(AUDITOR), str(self.site)],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+        report = json.loads(
+            (self.site / "api" / "content-quality-v32.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(report["html_files_seen"], 3)
+        self.assertEqual(report["noindex_pages_skipped"], 2)
+        self.assertEqual(report["pages_scanned"], 1)
+        self.assertEqual(report["duplicate_title_values"], 0)
+        self.assertFalse(
+            any("legacy-" in warning for warning in report["warnings"])
+        )
 
 
 if __name__ == "__main__":

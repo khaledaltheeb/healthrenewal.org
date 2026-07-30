@@ -13,6 +13,22 @@ VERSION = 322
 
 ADDITIONS: OrderedDict[str, tuple[str, str, str]] = OrderedDict([
     (
+        "editorial-methodology/",
+        (
+            "المنهجية التحريرية",
+            "كيف تتحول المصادر إلى صفحات عربية، وكيف تراجع الادعاءات والتحديثات وحدود المحتوى قبل النشر وبعده.",
+            "الحوكمة",
+        ),
+    ),
+    (
+        "evaluate-mental-health-information/",
+        (
+            "تقييم معلومات الصحة النفسية",
+            "دليل عملي لفحص المصدر والادعاء والسياق والتعارض والمخاطر قبل اعتماد معلومة نفسية أو مشاركتها.",
+            "المصادر",
+        ),
+    ),
+    (
         "outside-the-box/",
         (
             "خارج الصندوق",
@@ -89,6 +105,8 @@ REQUIRED_DIRECTORY_ROUTES = {
     "api/",
     "platform/",
     "copyright/",
+    "editorial-methodology/",
+    "evaluate-mental-health-information/",
     "en/",
     "es/",
 }
@@ -101,10 +119,15 @@ def configure_legacy() -> None:
     for route, metadata in definitions.items():
         rebuilt[route] = metadata
         if route == "magazine/":
+            rebuilt["evaluate-mental-health-information/"] = ADDITIONS[
+                "evaluate-mental-health-information/"
+            ]
+        if route == "magazine/":
             rebuilt["outside-the-box/"] = ADDITIONS["outside-the-box/"]
         if route == "provider-assessment-demo/":
             rebuilt["specialists-partners/"] = ADDITIONS["specialists-partners/"]
         if route == "partners/":
+            rebuilt["editorial-methodology/"] = ADDITIONS["editorial-methodology/"]
             rebuilt["platform/"] = ADDITIONS["platform/"]
             rebuilt["copyright/"] = ADDITIONS["copyright/"]
 

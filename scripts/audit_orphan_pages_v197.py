@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import xml.etree.ElementTree as ET
 from collections import Counter
 from html.parser import HTMLParser
@@ -124,8 +125,23 @@ def sitemap_routes(site: Path) -> set[str]:
     return routes
 
 
+def is_indexable(source: str) -> bool:
+    for tag in re.findall(r"<meta\b[^>]*>", source, flags=re.I | re.S):
+        if not re.search(r"\bname\s*=\s*([\"'])robots\1", tag, flags=re.I):
+            continue
+        content = re.search(r"\bcontent\s*=\s*([\"'])(.*?)\1", tag, flags=re.I | re.S)
+        if content and "noindex" in content.group(2).lower():
+            return False
+    return True
+
+
 def audit(site: Path, require_gateways: bool = False) -> dict[str, object]:
-    pages = sorted(site.rglob("index.html"))
+    all_pages = sorted(site.rglob("index.html"))
+    pages = [
+        page
+        for page in all_pages
+        if is_indexable(page.read_text(encoding="utf-8"))
+    ]
     routes = {route_for(page, site): page for page in pages}
     inbound: Counter[str] = Counter()
     for page in pages:
@@ -149,6 +165,8 @@ def audit(site: Path, require_gateways: bool = False) -> dict[str, object]:
         "version": 220,
         "status": "failed" if failed else "passed",
         "pages": len(pages),
+        "html_pages": len(all_pages),
+        "excluded_noindex_pages": len(all_pages) - len(pages),
         "sitemap_routes": len(mapped),
         "orphan_pages": orphan,
         "missing_from_sitemaps": missing_sitemap,

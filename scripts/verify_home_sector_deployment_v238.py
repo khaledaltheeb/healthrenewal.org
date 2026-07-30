@@ -157,7 +157,7 @@ def verify(site: Path, source_file: Path, expected_sha: str | None = None, mode:
     slugs = [str(item["slug"]) for item in articles]
 
     deployment = read_json(site / "deployment.json")
-    if deployment.get("schema_version") != 29:
+    if deployment.get("schema_version") not in {29, 30}:
         fail("Unexpected deployment schema", deployment.get("schema_version"))
     deployed_sha = deployment.get("commit")
     if not isinstance(deployed_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", deployed_sha):

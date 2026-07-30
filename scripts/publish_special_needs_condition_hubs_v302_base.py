@@ -90,7 +90,7 @@ def load():
 def provider_cards(data,slug):
     rows=[p for p in data['providers'] if p.get('published') is True and p.get('verification_status')=='verified' and slug in p.get('specialties',[])]
     if not rows:
-        return '<div class="empty"><h3>الدليل المحلي قيد الإعداد والتحقق</h3><p>لم تُنشر أسماء أو أرقام بعد. تظهر السجلات تلقائيًا بعد التحقق المهني.</p><p><code>content/v302/special-needs-providers-ar.json</code></p></div>',0
+        return '<div class="empty"><h3>حالة الدليل المحلي</h3><p>لا توجد حاليًا سجلات محلية مكتملة التحقق ومصرح بنشرها لهذا المسار. لا نعرض اسمًا أو وسيلة اتصال قبل التحقق المهني من السجل وموافقة صاحبه على النشر، وتُضاف السجلات المؤهلة عند استيفاء هذه الشروط.</p></div>',0
     out=[]
     for p in sorted(rows,key=lambda x:(str(x.get('country','')),str(x.get('city','')),str(x.get('name_ar','')))):
         links=[]

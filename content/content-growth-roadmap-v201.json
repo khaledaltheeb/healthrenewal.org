@@ -1,7 +1,7 @@
 {
   "version": 201,
   "status": "active-execution-contract",
-  "updated_at": "2026-07-24",
+  "updated_at": "2026-07-31",
   "platform_name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
   "founding_name": "مصطلحات علم النفس",
   "slogan_candidate": "معرفة تحترم الإنسان. دعم يوسّع الإمكانات.",
@@ -92,6 +92,15 @@
       "publication_batch_size": 10,
       "current_confirmed_count": null,
       "current_count_source": "pending-source-and-production-audit"
+    },
+    "youth": {
+      "label": "الصحة النفسية للشباب واليافعين",
+      "route": "sectors/youth",
+      "minimum_count": 100,
+      "minimum_visible_words": 700,
+      "publication_batch_size": 10,
+      "current_confirmed_count": 20,
+      "current_count_source": "youth-sector-v353-source-backed-production"
     },
     "special_needs": {
       "label": "ذوو الاحتياجات الخاصة والتربية الدامجة",
