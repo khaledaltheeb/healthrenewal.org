@@ -1,23 +1,21 @@
 {
-  "schema_version": 1,
-  "checked_at": "2026-07-30T15:48:19.909441+00:00",
-  "commit": "f4fb4c72663392edb6308e4f05a35e8ec1c6f0d4",
-  "missing_secrets": [
-    "CLOUDFLARE_ACCOUNT_ID",
-    "D1_DATABASE_ID",
-    "TURNSTILE_SECRET"
-  ],
+  "schema_version": 2,
+  "checked_at": "2026-07-30T15:54:36.460468+00:00",
+  "commit": "bf1c46acedd2063230aa12cd94388032f35d14e3",
+  "account_id_source": "secret_or_verified_repository_default",
+  "resource_mode": "discover_or_create_at_deploy_time",
+  "missing_secrets": [],
   "cloudflare": {
-    "token_active": false,
-    "workers_access": false,
-    "d1_access": false,
-    "turnstile_access": false
+    "token_active": true,
+    "workers_access": true,
+    "d1_access": true,
+    "turnstile_access": true
   },
   "identity_worker": {
-    "http_status": 404,
-    "ok": false,
-    "version": "",
-    "service": ""
+    "http_status": 200,
+    "ok": true,
+    "version": "6.0.0",
+    "service": "pterminology-specialist-identity"
   },
   "core_worker": {
     "http_status": 200,
@@ -29,9 +27,9 @@
     "join_http": 200,
     "join_source_contract": true,
     "account_http": 200,
-    "account_v6": false,
+    "account_v6": true,
     "admin_http": 200,
-    "admin_v6": false
+    "admin_v6": true
   },
-  "passed": false
+  "passed": true
 }
