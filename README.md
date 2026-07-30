@@ -8,9 +8,11 @@
 - الموسوعة الموسعة: https://khaledaltheeb.github.io/pterminology-site/encyclopedia/
 - المعجم الأساسي: https://khaledaltheeb.github.io/pterminology-site/terms/
 - المراكز الموضوعية: https://khaledaltheeb.github.io/pterminology-site/hubs/
+- سجل المصادر ومسارات التكامل: https://khaledaltheeb.github.io/pterminology-site/source-registry/
+- سجل المصادر بصيغة JSON: https://khaledaltheeb.github.io/pterminology-site/api/source-registry.json
 - Instagram: https://www.instagram.com/pterminology/
 - YouTube: https://www.youtube.com/@psychology-term
-- Sitemap Index: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml
+- Sitemap Index: https://khaledaltheeb.github.io/pterminology-site/sitemap-index.xml
 
 ## الإصدار الثامن
 
@@ -20,6 +22,7 @@
 - واجهة بحث عربية/إنجليزية.
 - صفحات مستقلة بعناوين ووصف وCanonical وhreflang وJSON-LD.
 - ملفات API وCSV قابلة للتنزيل.
+- سجل محكوم للمصادر الرسمية المرشحة، يفصل بين المصدر والشريك ويمنع الاستيراد قبل مراجعة الحقوق والجودة.
 - نظام استيراد مستقبلي من CSV دون تعديل القوالب.
 - اختبارات تمنع التكرار ونقص الصفحات وفساد خرائط الموقع.
 - ملف تحقق Google Search Console محفوظ في جذر الموقع.
@@ -31,6 +34,7 @@
 - `sitemap-terms-2.xml`: ثاني 1000 صفحة.
 - `sitemap-hubs.xml`: المراكز الموضوعية.
 - `sitemap-core.xml`: الصفحات الأساسية والأدلة والأدوات.
+- `sitemap-source-registry.xml`: سجل المصادر ومسارات التكامل.
 
 ## توسيع المحتوى
 
@@ -50,10 +54,14 @@ content/README.md
 
 المحتوى للتثقيف العام، ويُبنى على الوضوح، الربط الداخلي، التمييز بين المفاهيم، وتجنب التشخيص السريع والوصم والادعاءات المطلقة.
 
+## حوكمة المصادر الخارجية
+
+إدراج جهة في سجل المصادر لا يعني شراكة أو اعتمادًا أو مراجعة أو تأييدًا. الحالة `candidate` تسمح بالاكتشاف والربط المبدئي فقط؛ أما الترجمة أو الاستيراد أو إعادة الاستخدام أو استخدام الشعارات فتحتاج مراجعة حقوقية وتقنية وتحريرية مستقلة.
+
 ## سياسة النشر
 
 يُبنى الموقع ويُنشر من أحدث `main` فقط بعد نجاح بوابات الإنتاج، مع ختم `deployment.json` ومطابقة SHA والملفات الحرجة على النسخة الحية.
 
 ---
 
-**Psychology Terminology** is an Arabic-first structured psychology encyclopedia with 2,000 indexable concept pages, 200 topic hubs, split sitemaps, reusable data imports, and automated release validation.
+**Psychology Terminology** is an Arabic-first structured psychology encyclopedia with 2,000 indexable concept pages, 200 topic hubs, split sitemaps, reusable data imports, a governed external-source registry, and automated release validation.
