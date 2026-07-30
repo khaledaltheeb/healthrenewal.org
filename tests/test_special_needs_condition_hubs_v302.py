@@ -81,8 +81,9 @@ class SpecialNeedsConditionHubsV302Tests(unittest.TestCase):
                 self.assertGreaterEqual(page.count('class="evidence-section"'), 12)
                 self.assertIn("MedicalWebPage", page)
                 self.assertIn("MedicalCondition", page)
-                self.assertIn("الدليل المحلي قيد الإعداد والتحقق", page)
-                self.assertIn("special-needs-providers-ar.json", page)
+                self.assertIn("لا توجد حاليًا سجلات محلية مكتملة التحقق", page)
+                self.assertNotIn("قيد الإعداد", page)
+                self.assertNotIn("special-needs-providers-ar.json", page)
                 self.assertIn('/pterminology-site/encyclopedia/', page)
                 self.assertIsNone(publisher.BANNED.search(page))
 

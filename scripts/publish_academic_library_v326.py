@@ -186,7 +186,7 @@ SECTIONS = {
 }
 
 STYLE = """
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Tahoma,Arial,sans-serif;color:#153f43;background:#f5faf9;line-height:1.9}a{color:#066b63}.wrap{width:min(1180px,92%);margin:auto}.skip{position:absolute;right:-9999px}.skip:focus{right:8px;top:8px;background:#fff;padding:10px;z-index:40}header.site{background:#123f43;color:#fff}.head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 0}.head a{color:#fff;text-decoration:none;font-weight:900}.nav{display:flex;gap:12px;flex-wrap:wrap}.hero{background:linear-gradient(135deg,#dff7f1,#fff);padding:52px 0 34px;border-bottom:1px solid #c5e5df}h1{font-size:clamp(2rem,5vw,4rem);line-height:1.2;margin:.15em 0}h2{font-size:clamp(1.35rem,3vw,2rem);line-height:1.4}.lead{font-size:1.08rem;color:#496b6e;max-width:82ch}.notice,.card,.panel,.source-box{background:#fff;border:1px solid #c5e5df;border-radius:18px;padding:20px;box-shadow:0 10px 25px #123f4310}.notice{border-right:6px solid #8a3156}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px;padding:28px 0}.card{display:flex;flex-direction:column}.card p{flex:1}.tag{display:inline-block;background:#e4f6f2;border-radius:999px;padding:2px 10px;font-weight:800;font-size:.9rem}.button{display:inline-block;text-decoration:none;font-weight:900;background:#b8eee4;color:#123f43;padding:9px 14px;border-radius:10px}.search{width:100%;max-width:650px;padding:13px;border:1px solid #88bdb5;border-radius:12px;font:inherit}.layout{display:grid;grid-template-columns:270px 1fr;gap:20px;padding:30px 0}.toc{position:sticky;top:15px;align-self:start}.toc a{display:block;text-decoration:none;padding:7px 0;border-bottom:1px solid #e2efed}.stack{display:grid;gap:17px}.list{background:#eff9f7;border-radius:12px;padding:12px 20px}.limits{border-right:6px solid #a32626;background:#fff7f7}.sources li{margin:1rem 0}.crumbs{font-size:.94rem}.meta{display:flex;gap:8px;flex-wrap:wrap}.english{direction:ltr;display:inline-block;color:#587578}footer{border-top:1px solid #c5e5df;margin-top:35px;padding:28px 0;color:#527174}@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.toc{position:static}.head{display:block}.nav{margin-top:10px}}@media(max-width:600px){.grid{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}@media print{header.site,.toc,.skip,.search{display:none}.layout{display:block}.card,.panel,.source-box{box-shadow:none}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Tahoma,Arial,sans-serif;color:#153f43;background:#f5faf9;line-height:1.9}a{color:#066b63}.wrap{width:min(1180px,92%);margin:auto}.skip{position:absolute;right:-9999px}.skip:focus{right:8px;top:8px;background:#fff;padding:10px;z-index:40}header.site{background:#123f43;color:#fff}.head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 0}.head a{color:#fff;text-decoration:none;font-weight:900}.nav{display:flex;gap:12px;flex-wrap:wrap}.hero{background:linear-gradient(135deg,#dff7f1,#fff);padding:52px 0 34px;border-bottom:1px solid #c5e5df}h1{font-size:clamp(2rem,5vw,4rem);line-height:1.2;margin:.15em 0}h2{font-size:clamp(1.35rem,3vw,2rem);line-height:1.4}.lead{font-size:1.08rem;color:#496b6e;max-width:82ch}.notice,.card,.panel,.source-box{background:#fff;border:1px solid #c5e5df;border-radius:18px;padding:20px;box-shadow:0 10px 25px #123f4310}.notice{border-right:6px solid #8a3156}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px;padding:28px 0}.card{display:flex;flex-direction:column}.card p{flex:1}.tag{display:inline-block;background:#e4f6f2;border-radius:999px;padding:2px 10px;font-weight:800;font-size:.9rem}.button{display:inline-block;text-decoration:none;font-weight:900;background:#b8eee4;color:#123f43;padding:9px 14px;border-radius:10px}.search{width:100%;max-width:650px;padding:13px;border:1px solid #88bdb5;border-radius:12px;font:inherit}.layout{display:grid;grid-template-columns:270px 1fr;gap:20px;padding:30px 0}.toc{position:sticky;top:15px;align-self:start}.toc a{display:block;text-decoration:none;padding:7px 0;border-bottom:1px solid #e2efed}.stack{display:grid;gap:17px}.list{background:#eff9f7;border-radius:12px;padding:12px 20px}.legacy-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 18px;padding-right:1.2rem}.legacy-links a{font-weight:800}.limits{border-right:6px solid #a32626;background:#fff7f7}.sources li{margin:1rem 0}.crumbs{font-size:.94rem}.meta{display:flex;gap:8px;flex-wrap:wrap}.english{direction:ltr;display:inline-block;color:#587578}footer{border-top:1px solid #c5e5df;margin-top:35px;padding:28px 0;color:#527174}@media(max-width:900px){.grid,.legacy-links{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.toc{position:static}.head{display:block}.nav{margin-top:10px}}@media(max-width:600px){.grid,.legacy-links{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}@media print{header.site,.toc,.skip,.search{display:none}.layout{display:block}.card,.panel,.source-box{box-shadow:none}}
 """
 
 
@@ -235,13 +235,59 @@ def entry_page(section_slug: str, section: dict, item: dict) -> str:
     return page
 
 
-def section_page(section_slug: str, section: dict) -> str:
+def discover_legacy_entries(section_dir: Path, section_slug: str) -> list[dict[str, str]]:
+    entries: list[dict[str, str]] = []
+    pattern = re.compile(rf"{re.escape(section_slug)}-\d{{2}}")
+    for path in sorted(section_dir.glob(f"{section_slug}-*/index.html")):
+        route = path.parent.name
+        if not pattern.fullmatch(route):
+            continue
+        source = path.read_text(encoding="utf-8")
+        heading = re.search(r"<h1\b[^>]*>(.*?)</h1>", source, flags=re.I | re.S)
+        if not heading:
+            raise SystemExit(f"Legacy library entry has no H1: {path}")
+        title = html.unescape(re.sub(r"<[^>]+>", " ", heading.group(1)))
+        title = re.sub(r"\s+", " ", title).strip()
+        if not title:
+            raise SystemExit(f"Legacy library entry has an empty H1: {path}")
+        entries.append({"slug": route, "title": title})
+    return entries
+
+
+def section_page(
+    section_slug: str,
+    section: dict,
+    legacy_entries: list[dict[str, str]] | None = None,
+) -> str:
+    legacy_entries = legacy_entries or []
     canonical = f"{BASE}/library/{section_slug}/"
-    description = f"{section['title']}: {len(section['entries'])} مدخلًا عربيًا منهجيًا مع تعريفات واستخدامات وحدود ومصادر."
+    total_entries = len(section["entries"]) + len(legacy_entries)
+    description = f"{section['title']}: {total_entries} مدخلًا عربيًا منهجيًا مع تعريفات واستخدامات وحدود ومصادر."
     parts = [{"@type": "Article", "name": item["title"], "url": f"{canonical}{item['slug']}/"} for item in section["entries"]]
+    parts.extend(
+        {
+            "@type": "Article",
+            "name": item["title"],
+            "url": f"{canonical}{item['slug']}/",
+        }
+        for item in legacy_entries
+    )
     schema = {"@context": "https://schema.org", "@type": "CollectionPage", "@id": canonical + "#collection", "name": section["title"], "description": description, "url": canonical, "inLanguage": "ar", "dateModified": REVIEWED_AT, "hasPart": parts}
     cards = "".join(f'''<article class="card" data-search="{e(item['title'] + ' ' + item['english'] + ' ' + item['definition'])}"><span class="tag">{e(item['english'])}</span><h2>{e(item['title'])}</h2><p>{e(item['definition'])}</p><a class="button" href="{BP}library/{section_slug}/{e(item['slug'])}/">فتح المدخل الكامل</a></article>''' for item in section["entries"])
-    return head(section["title"], description, canonical, schema) + f'''<body>{site_header()}<main id="content"><section class="hero"><div class="wrap"><p class="crumbs"><a href="{BP}library/">المكتبة الأكاديمية</a></p><h1>{e(section['title'])}</h1><p class="lead">{e(section['lead'])}</p><p><b>{len(section['entries'])} مدخلًا مستقلاً</b> مع تعريف ونطاق وأدوات واستخدامات وحدود ومصادر.</p><label for="section-search"><b>ابحث داخل القسم</b></label><br><input id="section-search" class="search" type="search" placeholder="اكتب الاسم العربي أو الإنجليزي أو موضوعًا" aria-label="البحث داخل القسم"></div></section><section class="wrap grid" id="cards">{cards}</section></main><script>const q=document.getElementById('section-search'),cards=[...document.querySelectorAll('[data-search]')];q?.addEventListener('input',()=>{{const v=q.value.trim().toLowerCase();cards.forEach(c=>c.hidden=v&&!c.dataset.search.toLowerCase().includes(v));}});</script>{footer()}'''
+    legacy_directory = ""
+    if legacy_entries:
+        links = "".join(
+            f'<li><a href="{BP}library/{section_slug}/{e(item["slug"])}/">{e(item["title"])}</a></li>'
+            for item in legacy_entries
+        )
+        legacy_directory = (
+            '<section class="wrap panel" data-legacy-library-directory-v353>'
+            '<h2>مداخل تأسيسية إضافية</h2>'
+            '<p>تضم هذه المجموعة مداخل مستقلة من الإصدار التأسيسي للمكتبة. '
+            'أبقينا مساراتها قابلة للوصول وربطناها هنا بدل ترك صفحات معرفية معزولة.</p>'
+            f'<ul class="legacy-links">{links}</ul></section>'
+        )
+    return head(section["title"], description, canonical, schema) + f'''<body>{site_header()}<main id="content"><section class="hero"><div class="wrap"><p class="crumbs"><a href="{BP}library/">المكتبة الأكاديمية</a></p><h1>{e(section['title'])}</h1><p class="lead">{e(section['lead'])}</p><p><b>{total_entries} مدخلًا مستقلاً</b> مع تعريف ونطاق وأدوات واستخدامات وحدود ومصادر.</p><label for="section-search"><b>ابحث داخل القسم</b></label><br><input id="section-search" class="search" type="search" placeholder="اكتب الاسم العربي أو الإنجليزي أو موضوعًا" aria-label="البحث داخل القسم"></div></section><section class="wrap grid" id="cards">{cards}</section>{legacy_directory}</main><script>const q=document.getElementById('section-search'),cards=[...document.querySelectorAll('[data-search]')];q?.addEventListener('input',()=>{{const v=q.value.trim().toLowerCase();cards.forEach(c=>c.hidden=v&&!c.dataset.search.toLowerCase().includes(v));}});</script>{footer()}'''
 
 
 def library_index() -> str:
@@ -318,10 +364,13 @@ def publish(site: Path) -> dict:
     routes = ["/library/"]
     minimum_words = 10**9
     generated = 1
+    legacy_counts: dict[str, int] = {}
     for section_slug, section in SECTIONS.items():
         section_dir = library / section_slug
         section_dir.mkdir(parents=True, exist_ok=True)
-        section_html = section_page(section_slug, section)
+        legacy_entries = discover_legacy_entries(section_dir, section_slug)
+        legacy_counts[section_slug] = len(legacy_entries)
+        section_html = section_page(section_slug, section, legacy_entries)
         (section_dir / "index.html").write_text(section_html, encoding="utf-8")
         routes.append(f"/library/{section_slug}/")
         minimum_words = min(minimum_words, words(section_html))
@@ -344,6 +393,8 @@ def publish(site: Path) -> dict:
         "sections": contract["counts"],
         "total_entries": contract["total_entries"],
         "generated_pages": generated,
+        "legacy_entries_linked": sum(legacy_counts.values()),
+        "legacy_entries_by_section": legacy_counts,
         "minimum_page_words": minimum_words,
         "source_registry": len(SOURCES),
         "used_sources": contract["used_sources"],

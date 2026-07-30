@@ -206,6 +206,12 @@ def publish(site: Path) -> dict:
             "academic_library_sections": academic["sections"],
             "academic_library_total_entries": academic["total_entries"],
             "academic_library_generated_pages": academic["generated_pages"],
+            "academic_library_legacy_entries_linked": academic[
+                "legacy_entries_linked"
+            ],
+            "academic_library_legacy_entries_by_section": academic[
+                "legacy_entries_by_section"
+            ],
             "academic_library_minimum_page_words": academic["minimum_page_words"],
             "academic_library_source_registry": academic["source_registry"],
             "academic_library_sitemap": academic["sitemap"],

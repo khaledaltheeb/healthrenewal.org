@@ -74,7 +74,7 @@ def verify(site: Path, mode: str, expected_sha: str | None = None) -> dict[str, 
         fail("Site directory does not exist", site.as_posix())
 
     deployment = read_json(site / "deployment.json")
-    if deployment.get("schema_version") != 29:
+    if deployment.get("schema_version") not in {29, 30}:
         fail("Unexpected deployment schema", deployment)
     live_sha = deployment.get("commit")
     if not isinstance(live_sha, str) or len(live_sha) != 40:

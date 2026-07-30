@@ -1,0 +1,60 @@
+name: Validate deployment schema v353
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/stamp_deployment_v29.py"
+      - "scripts/verify_*deployment*.py"
+      - "scripts/verify_special_needs_hub_live_v241.py"
+      - "scripts/special_needs_v322_publish.py"
+      - ".github/workflows/deploy-validated-main.yml"
+      - ".github/workflows/deploy-observable-pages-v324.yml"
+      - ".github/workflows/one-shot-validated-pages-v323.yml"
+      - ".github/workflows/deploy-special-needs-expansion-v322.yml"
+      - ".github/workflows/verify-special-needs-live-v236.yml"
+      - ".github/workflows/verify-special-needs-hub-live-v241.yml"
+      - "tests/test_deployment_schema_v353.py"
+      - ".github/workflows/validate-deployment-schema-v353.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/stamp_deployment_v29.py"
+      - "scripts/verify_*deployment*.py"
+      - "scripts/verify_special_needs_hub_live_v241.py"
+      - "scripts/special_needs_v322_publish.py"
+      - ".github/workflows/deploy-validated-main.yml"
+      - ".github/workflows/deploy-observable-pages-v324.yml"
+      - ".github/workflows/one-shot-validated-pages-v323.yml"
+      - ".github/workflows/deploy-special-needs-expansion-v322.yml"
+      - ".github/workflows/verify-special-needs-live-v236.yml"
+      - ".github/workflows/verify-special-needs-hub-live-v241.yml"
+      - "tests/test_deployment_schema_v353.py"
+      - ".github/workflows/validate-deployment-schema-v353.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  schema-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile schema consumers
+        run: |
+          python -m py_compile \
+            scripts/stamp_deployment_v29.py \
+            scripts/verify_home_sector_deployment_v238.py \
+            scripts/verify_child_sector_deployment_v240.py \
+            scripts/verify_women_sector_deployment_v245.py \
+            scripts/verify_special_needs_deployment_v236.py \
+            scripts/verify_special_needs_hub_live_v241.py \
+            scripts/special_needs_v322_publish.py \
+            tests/test_deployment_schema_v353.py
+      - name: Run schema drift contract
+        run: python -m unittest -v tests.test_deployment_schema_v353

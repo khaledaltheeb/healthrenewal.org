@@ -21,7 +21,7 @@ REQUIRED_SECTIONS = {
     "evidence",
     "faq",
 }
-SECTOR_LINKS = ("child/", "family/", "home/", "women/")
+SECTOR_LINKS = ("child/", "youth/", "family/", "home/", "women/")
 REQUIRED_MARKERS = (
     "عند وجود خطر مباشر لا تبدأ بالتصفح",
     "ثلاثة مستويات للحاجة إلى المساعدة",

@@ -81,7 +81,7 @@ def verify(root: Path, expected_sha: str | None = None) -> dict[str, Any]:
 
     deployment = read_json(root / "deployment.json")
     deployed_sha = deployment.get("commit")
-    if deployment.get("schema_version") != 29:
+    if deployment.get("schema_version") not in {29, 30}:
         fail("Unexpected deployment schema", deployment)
     if not isinstance(deployed_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", deployed_sha):
         fail("Deployment SHA must be a full lowercase SHA", deployed_sha)

@@ -16,6 +16,10 @@ from audit_publication_surface_v322 import (  # noqa: E402
     REQUIRED_HOME_ROUTES,
     audit,
 )
+from publish_section_directory_v322 import (  # noqa: E402
+    ADDITIONS,
+    REQUIRED_DIRECTORY_ROUTES,
+)
 
 
 class PublicationSurfaceAuditTests(unittest.TestCase):
@@ -80,6 +84,19 @@ class PublicationSurfaceAuditTests(unittest.TestCase):
             audit(site)
         report = json.loads((site / "api/publication-surface-v322.json").read_text(encoding="utf-8"))
         self.assertIn("missing-route/", report["broken_home_links"])
+
+    def test_late_trust_guides_are_registered_in_the_directory_contract(self) -> None:
+        late_routes = {
+            "editorial-methodology/",
+            "evaluate-mental-health-information/",
+        }
+        self.assertTrue(late_routes <= set(ADDITIONS))
+        self.assertTrue(late_routes <= REQUIRED_DIRECTORY_ROUTES)
+        for route in late_routes:
+            title, summary, category = ADDITIONS[route]
+            self.assertGreaterEqual(len(title), 8)
+            self.assertGreaterEqual(len(summary), 50)
+            self.assertIn(category, {"الحوكمة", "المصادر"})
 
 
 if __name__ == "__main__":

@@ -255,6 +255,28 @@ def main() -> int:
     subprocess.run([sys.executable, str(trust_guides_link_finalizer), str(site)], check=True)
     trust_guides_published = True
     trust_guides_links_finalized = True
+    section_directory_refreshed = False
+    publication_surface_refreshed = False
+    if (
+        (site / "sections" / "index.html").is_file()
+        and (site / "api" / "v1" / "section-directory.json").is_file()
+    ):
+        section_directory_publisher = Path(__file__).with_name(
+            "publish_section_directory_v322.py"
+        )
+        subprocess.run(
+            [sys.executable, str(section_directory_publisher), str(site)],
+            check=True,
+        )
+        section_directory_refreshed = True
+        publication_surface_auditor = Path(__file__).with_name(
+            "audit_publication_surface_v322.py"
+        )
+        subprocess.run(
+            [sys.executable, str(publication_surface_auditor), str(site)],
+            check=True,
+        )
+        publication_surface_refreshed = True
 
     magazine_report = publish_magazine(site)
 
@@ -286,6 +308,10 @@ def main() -> int:
         "tools_marshmallow_updates": 0,
         "trust_guides_published": trust_guides_published,
         "trust_guides_links_finalized": trust_guides_links_finalized,
+        "section_directory_refreshed_after_trust_guides": section_directory_refreshed,
+        "publication_surface_refreshed_after_trust_guides": (
+            publication_surface_refreshed
+        ),
         "trust_guides_report": "api/trust-guides-v201.json",
         "magazine_published": True,
         "magazine_pages": magazine_report["research_summaries_published"],

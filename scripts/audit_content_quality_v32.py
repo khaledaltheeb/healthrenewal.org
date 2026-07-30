@@ -28,6 +28,7 @@ class QualityParser(HTMLParser):
         self.h1_parts: list[str] = []
         self.visible_parts: list[str] = []
         self.meta_description = ""
+        self.robots = ""
         self.canonical = ""
         self.og_title = ""
         self.og_description = ""
@@ -45,6 +46,8 @@ class QualityParser(HTMLParser):
             content = data.get("content", "").strip()
             if name == "description":
                 self.meta_description = content
+            elif name == "robots":
+                self.robots = content
             elif prop == "og:title":
                 self.og_title = content
             elif prop == "og:description":
@@ -145,9 +148,12 @@ def main() -> int:
     description_values: dict[str, str] = {}
 
     html_files = sorted(SITE.rglob("*.html"))
+    verification_files_skipped = 0
+    noindex_pages_skipped = 0
     for path in html_files:
         raw = path.read_text(encoding="utf-8", errors="strict")
         if path.parent == SITE and VERIFY_RE.match(raw.strip()):
+            verification_files_skipped += 1
             continue
 
         rel = path.relative_to(SITE).as_posix()
@@ -156,6 +162,11 @@ def main() -> int:
             parser.feed(raw)
         except Exception as exc:
             critical_errors.append(f"Unreadable HTML {rel}: {exc}")
+            continue
+        if "noindex" in {
+            token.strip().lower() for token in parser.robots.split(",")
+        }:
+            noindex_pages_skipped += 1
             continue
 
         words = WORD_RE.findall(parser.visible_text)
@@ -240,6 +251,9 @@ def main() -> int:
         "version": "32-content-quality",
         "diagnostic_contract_version": DIAGNOSTIC_CONTRACT_VERSION,
         "pages_scanned": len(pages),
+        "html_files_seen": len(html_files),
+        "verification_files_skipped": verification_files_skipped,
+        "noindex_pages_skipped": noindex_pages_skipped,
         "critical_error_count": len(critical_errors),
         "warning_count": len(warnings),
         "effectively_empty_pages": sum(1 for count in word_counts if count < 8),

@@ -8,11 +8,13 @@ on:
       - "trust/index.html"
       - "scripts/publish_evidence_literacy_library_v322.py"
       - "scripts/publish_evidence_literacy_library_v322_core.py"
+      - "scripts/publish_academic_library_v326.py"
       - "scripts/audit_section_content_depth_v322.py"
       - "scripts/complete_core_sections_v15.py"
       - "tests/test_evidence_literacy_library_v322.py"
       - "tests/test_evidence_trust_publication_v322.py"
       - "tests/test_core_sections_evidence_literacy_v322.py"
+      - "tests/test_academic_library_legacy_discovery_v353.py"
       - ".github/workflows/validate-evidence-literacy-library-v322.yml"
   workflow_run:
     workflows: ["Validate every assessment and cognitive tool v31"]
@@ -43,11 +45,13 @@ jobs:
           python -m py_compile \
             scripts/publish_evidence_literacy_library_v322.py \
             scripts/publish_evidence_literacy_library_v322_core.py \
+            scripts/publish_academic_library_v326.py \
             scripts/audit_section_content_depth_v322.py \
             scripts/complete_core_sections_v15.py \
             tests/test_evidence_literacy_library_v322.py \
             tests/test_evidence_trust_publication_v322.py \
-            tests/test_core_sections_evidence_literacy_v322.py
+            tests/test_core_sections_evidence_literacy_v322.py \
+            tests/test_academic_library_legacy_discovery_v353.py
       - name: Validate content manifest
         run: python -m json.tool content/v322/evidence-literacy-library-ar.json >/dev/null
       - name: Validate depth evidence trust boundaries sources discovery idempotence and production hook
@@ -57,6 +61,7 @@ jobs:
             tests.test_evidence_literacy_library_v322 \
             tests.test_evidence_trust_publication_v322 \
             tests.test_core_sections_evidence_literacy_v322 \
+            tests.test_academic_library_legacy_discovery_v353 \
             > /tmp/evidence-literacy-v322-tests.log 2>&1 || {
               tail -n 260 /tmp/evidence-literacy-v322-tests.log
               exit 1

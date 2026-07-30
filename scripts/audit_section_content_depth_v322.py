@@ -25,6 +25,7 @@ FAMILIES = (
     ("family", lambda p: p.startswith("sectors/family/")),
     ("home-sector", lambda p: p.startswith("sectors/home/")),
     ("women", lambda p: p.startswith("sectors/women/")),
+    ("youth", lambda p: p.startswith("sectors/youth/")),
     ("magazine", lambda p: p.startswith("magazine/")),
     ("daily-tools", lambda p: p.startswith("daily-tools/")),
     ("learning-paths", lambda p: p.startswith("learning-paths/")),

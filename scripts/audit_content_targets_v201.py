@@ -19,6 +19,7 @@ SOURCE_REGISTRIES = {
     "family": [("content/sectors-v10/family.json", "articles")],
     "child": [("content/sectors-v10/child.json", "articles")],
     "home_family": [("content/sectors-v10/home.json", "articles")],
+    "youth": [("content/v353/youth-sector-ar.json", "guides")],
     "care_guides": [
         ("content/v18/care-guides-ar.json", "guides"),
         ("content/v18/care-guides-adhd-ar.json", "guides"),

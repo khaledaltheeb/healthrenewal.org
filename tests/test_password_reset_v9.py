@@ -11,6 +11,11 @@ class PasswordResetV9Tests(unittest.TestCase):
     def test_isolated_page_exists_and_is_not_indexed(self):
         html = HTML.read_text(encoding="utf-8")
         self.assertIn('noindex,nofollow,noarchive', html)
+        self.assertEqual(html.count('rel="canonical"'), 1)
+        self.assertIn(
+            'href="https://khaledaltheeb.github.io/pterminology-site/specialists-partners/password-reset/"',
+            html,
+        )
         self.assertIn('reset-v9.js?v=9.0.0', html)
         self.assertNotIn('runtime-config.js', html)
         self.assertNotIn('admin.js', html)
@@ -24,7 +29,12 @@ class PasswordResetV9Tests(unittest.TestCase):
 
     def test_issuance_targets_isolated_page(self):
         workflow = WORKFLOW.read_text(encoding="utf-8")
-        self.assertIn('/specialists-partners/password-reset/?v=9#resetToken=', workflow)
+        self.assertIn(
+            "RESET_PAGE: https://khaledaltheeb.github.io/pterminology-site/"
+            "specialists-partners/password-reset/",
+            workflow,
+        )
+        self.assertIn("link=os.environ['RESET_PAGE']+'?v=9#resetToken='+raw", workflow)
         self.assertNotIn('/specialists-partners/admin/?v=8#resetToken=', workflow)
 
 

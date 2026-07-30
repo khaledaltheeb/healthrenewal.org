@@ -8,6 +8,7 @@ on:
       - "scripts/publish_section_directory_v322.py"
       - "scripts/audit_publication_surface_v322.py"
       - "scripts/publish_content_catalog_v219.py"
+      - "scripts/enforce_platform_identity_v201.py"
       - "tests/test_publication_surface_v322.py"
       - ".github/workflows/validate-publication-surface-v322.yml"
   push:
@@ -17,6 +18,7 @@ on:
       - "scripts/publish_section_directory_v322.py"
       - "scripts/audit_publication_surface_v322.py"
       - "scripts/publish_content_catalog_v219.py"
+      - "scripts/enforce_platform_identity_v201.py"
       - "tests/test_publication_surface_v322.py"
       - ".github/workflows/validate-publication-surface-v322.yml"
   workflow_dispatch:
@@ -44,6 +46,7 @@ jobs:
             scripts/publish_section_directory_v322.py \
             scripts/audit_publication_surface_v322.py \
             scripts/publish_content_catalog_v219.py \
+            scripts/enforce_platform_identity_v201.py \
             tests/test_publication_surface_v322.py
       - name: Run discoverability regression tests
         run: python -m unittest -v tests.test_publication_surface_v322
@@ -54,6 +57,7 @@ jobs:
           home=Path('index.html').read_text(encoding='utf-8')
           orchestrator=Path('scripts/publish_content_catalog_v219.py').read_text(encoding='utf-8')
           publisher=Path('scripts/publish_section_directory_v322.py').read_text(encoding='utf-8')
+          identity=Path('scripts/enforce_platform_identity_v201.py').read_text(encoding='utf-8')
           assert 'data-publication-surface="v322"' in home
           assert home.count('<h1') == 1
           assert 'specialists-partners/' in home
@@ -62,5 +66,9 @@ jobs:
           assert 'audit_publication_surface' in orchestrator
           assert 'specialists-partners/' in publisher
           assert 'outside-the-box/' in publisher
-          print({'homepage':'v322','directory':'v322','audit':'integrated'})
+          assert 'editorial-methodology/' in publisher
+          assert 'evaluate-mental-health-information/' in publisher
+          assert 'publish_section_directory_v322.py' in identity
+          assert 'audit_publication_surface_v322.py' in identity
+          print({'homepage':'v322','directory':'v322','audit':'integrated','late_trust_routes':'refreshed'})
           PY

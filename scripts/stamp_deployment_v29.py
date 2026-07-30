@@ -16,6 +16,7 @@ from upgrade_women_sector_v244 import upgrade as upgrade_women_sector
 
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
+DEPLOYMENT_SCHEMA_VERSION = 30
 CRITICAL_FILES = (
     "index.html",
     "sitemap.xml",
@@ -229,7 +230,7 @@ def main() -> None:
     }
 
     payload = {
-        "schema_version": 30,
+        "schema_version": DEPLOYMENT_SCHEMA_VERSION,
         "commit": os.environ["GITHUB_SHA"],
         "workflow_run": os.environ["GITHUB_RUN_ID"],
         "workflow_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "1"),

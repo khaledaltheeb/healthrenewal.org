@@ -105,7 +105,7 @@ jobs:
           import json, os
           from pathlib import Path
           data=json.loads(Path('_site/deployment.json').read_text(encoding='utf-8'))
-          assert data.get('schema_version') == 29, data
+          assert data.get('schema_version') == 30, data
           assert data.get('commit') == os.environ['EXPECTED_SHA'], (data, os.environ['EXPECTED_SHA'])
           assert int(data.get('pwa_pages', 0)) > 0, data
           print({'release_commit': data['commit'], 'pwa_pages': data['pwa_pages']})
