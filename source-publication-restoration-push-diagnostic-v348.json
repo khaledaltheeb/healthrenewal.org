@@ -1,0 +1,149 @@
+{
+  "schema_version": 348,
+  "checked_at": "2026-07-30T03:54:44.173324+00:00",
+  "workflow_name": "Restore source-published pages to GitHub Pages v346",
+  "workflow_run_id": 30511855551,
+  "run_number": 11,
+  "run_attempt": 1,
+  "event": "push",
+  "head_branch": "main",
+  "head_sha": "4bb4dfbe3c116e47412c73bdfcbf1da0df743f3a",
+  "status": "completed",
+  "conclusion": "failure",
+  "created_at": "2026-07-30T03:41:36Z",
+  "updated_at": "2026-07-30T03:44:09Z",
+  "html_url": "https://github.com/khaledaltheeb/pterminology-site/actions/runs/30511855551",
+  "jobs": [
+    {
+      "id": 90773430912,
+      "name": "restore-and-deploy",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-07-30T03:43:56Z",
+      "completed_at": "2026-07-30T03:44:09Z",
+      "html_url": "https://github.com/khaledaltheeb/pterminology-site/actions/runs/30511855551/job/90773430912",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-07-30T03:43:57Z",
+          "completed_at": "2026-07-30T03:44:02Z"
+        },
+        {
+          "number": 2,
+          "name": "Checkout current restoration controller",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-07-30T03:44:02Z",
+          "completed_at": "2026-07-30T03:44:04Z"
+        },
+        {
+          "number": 3,
+          "name": "Resolve the exact deployed source commit",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-07-30T03:44:04Z",
+          "completed_at": "2026-07-30T03:44:04Z"
+        },
+        {
+          "number": 4,
+          "name": "Materialize the deployed source snapshot",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-07-30T03:44:04Z",
+          "completed_at": "2026-07-30T03:44:04Z"
+        },
+        {
+          "number": 5,
+          "name": "Resolve the matching discovery-audited artifact run",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-07-30T03:44:04Z",
+          "completed_at": "2026-07-30T03:44:06Z"
+        },
+        {
+          "number": 6,
+          "name": "Download the exact discovery-audited production artifact",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-07-30T03:44:06Z",
+          "completed_at": "2026-07-30T03:44:06Z"
+        },
+        {
+          "number": 7,
+          "name": "Restore every source-sitemap public route missing from production",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-07-30T03:44:06Z",
+          "completed_at": "2026-07-30T03:44:06Z"
+        },
+        {
+          "number": 8,
+          "name": "Enforce restored publication discovery and artifact integrity",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-07-30T03:44:06Z",
+          "completed_at": "2026-07-30T03:44:06Z"
+        },
+        {
+          "number": 9,
+          "name": "Configure GitHub Pages",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-07-30T03:44:06Z",
+          "completed_at": "2026-07-30T03:44:06Z"
+        },
+        {
+          "number": 10,
+          "name": "Upload restored Pages artifact",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-07-30T03:44:06Z",
+          "completed_at": "2026-07-30T03:44:06Z"
+        },
+        {
+          "number": 11,
+          "name": "Deploy restored public routes",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-07-30T03:44:06Z",
+          "completed_at": "2026-07-30T03:44:06Z"
+        },
+        {
+          "number": 12,
+          "name": "Verify the restored routes live",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-07-30T03:44:06Z",
+          "completed_at": "2026-07-30T03:44:06Z"
+        },
+        {
+          "number": 13,
+          "name": "Upload restoration evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-07-30T03:44:06Z",
+          "completed_at": "2026-07-30T03:44:06Z"
+        },
+        {
+          "number": 26,
+          "name": "Post Checkout current restoration controller",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-07-30T03:44:06Z",
+          "completed_at": "2026-07-30T03:44:07Z"
+        },
+        {
+          "number": 27,
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-07-30T03:44:07Z",
+          "completed_at": "2026-07-30T03:44:07Z"
+        }
+      ]
+    }
+  ]
+}
