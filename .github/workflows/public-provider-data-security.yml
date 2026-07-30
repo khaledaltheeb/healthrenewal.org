@@ -1,0 +1,35 @@
+name: Public provider data security
+
+on:
+  pull_request:
+    paths:
+      - 'specialists-partners/data/providers.json'
+      - 'specialists-partners/data/verification-ledger.json'
+      - 'scripts/audit-public-provider-data.mjs'
+      - '.github/workflows/public-provider-data-security.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'specialists-partners/data/providers.json'
+      - 'specialists-partners/data/verification-ledger.json'
+      - 'scripts/audit-public-provider-data.mjs'
+      - '.github/workflows/public-provider-data-security.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify private-field detection cannot be bypassed
+        run: node scripts/audit-public-provider-data.mjs --self-test
+      - name: Audit public provider and verification data
+        run: node scripts/audit-public-provider-data.mjs

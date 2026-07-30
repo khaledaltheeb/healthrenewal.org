@@ -1,11 +1,11 @@
 {
   "schemaVersion": "1.0.0",
-  "updatedAt": "2026-07-29",
+  "updatedAt": "2026-07-30",
   "publicationPolicy": "Only profiles with documented identity, qualification, professional scope, written publication consent, completed field-level verification, and a current verification-ledger record may be published.",
   "directoryPrinciples": {
     "noPaidRanking": true,
-    "privateContactDataExcluded": true,
-    "internalMessagingUsesPrivateBackend": true,
+    "contactDataExcluded": true,
+    "internalMessagingBackendIsNonPublic": true,
     "availabilityMustBeReviewed": true,
     "professionalScopeMustBeExplicit": true,
     "materialDisputeCausesTemporarySuspension": true
