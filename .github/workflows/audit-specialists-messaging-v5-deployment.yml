@@ -44,7 +44,8 @@ jobs:
           assert health['ok'] is True, health
           assert health['version'] == '5.0.0', health
           assert health['ownerDisplayName'] == 'خالد الذيب', health
-          for name in ('database', 'email', 'ownerEmail', 'messagingV5', 'notificationPolicy', 'ownerIdentity'):
+          assert len(health['deploymentCommit']) == 40, health
+          for name in ('database', 'email', 'ownerEmail', 'messagingV5', 'notificationPolicy', 'ownerIdentity', 'releaseIdentity'):
               assert health['checks'].get(name) is True, (name, health)
           PY
             then
@@ -63,14 +64,14 @@ jobs:
           script: |
             const fs = require('fs');
             const health = JSON.parse(fs.readFileSync(process.env.HEALTH_PATH, 'utf8'));
-            const required = ['database', 'email', 'ownerEmail', 'messagingV5', 'notificationPolicy', 'ownerIdentity'];
+            const required = ['database', 'email', 'ownerEmail', 'messagingV5', 'notificationPolicy', 'ownerIdentity', 'releaseIdentity'];
             const checkLines = required.map(name => `- ${name}: ${health.checks[name] === true ? 'نجح' : 'فشل'}`).join('\n');
             const body = [
               '## تم التحقق من النشر الحي للمحادثة',
               '',
               `- الإصدار: \`${health.version}\``,
+              `- الالتزام المنشور: \`${health.deploymentCommit}\``,
               `- مدير المنصة: **${health.ownerDisplayName}**`,
-              `- الالتزام المصدر: \`${process.env.SOURCE_COMMIT}\``,
               `- تشغيل التدقيق: \`${process.env.SOURCE_RUN_ID}\``,
               '',
               checkLines,
@@ -104,6 +105,7 @@ jobs:
               'version': health['version'],
               'status': 'verified',
               'ownerDisplayName': health['ownerDisplayName'],
+              'deploymentCommit': health['deploymentCommit'],
               'checks': health['checks'],
               'sourceCommit': os.environ['SOURCE_COMMIT'],
               'workflowRunId': os.environ['SOURCE_RUN_ID'],
