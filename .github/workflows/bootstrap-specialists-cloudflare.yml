@@ -46,11 +46,11 @@ jobs:
     timeout-minutes: 25
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      ACCOUNT_ID: ${{ inputs.account_id }}
-      WORKER_NAME: ${{ inputs.worker_name }}
-      DATABASE_NAME: ${{ inputs.database_name }}
-      WIDGET_NAME: ${{ inputs.widget_name }}
-      ALLOWED_HOSTNAME: ${{ inputs.hostname }}
+      ACCOUNT_ID: ${{ inputs.account_id || '826ac34927c1e045c06145a327c2ac52' }}
+      WORKER_NAME: ${{ inputs.worker_name || 'pterminology-specialists' }}
+      DATABASE_NAME: ${{ inputs.database_name || 'pterminology-specialists' }}
+      WIDGET_NAME: ${{ inputs.widget_name || 'pterminology-specialists-forms' }}
+      ALLOWED_HOSTNAME: ${{ inputs.hostname || 'khaledaltheeb.github.io' }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
       REVIEWER_API_KEY: ${{ secrets.SPECIALISTS_REVIEWER_API_KEY }}
