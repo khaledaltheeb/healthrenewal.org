@@ -1,35 +1,32 @@
-name: Validate and deploy specialist accounts v5
+name: Validate and deploy specialist identity v6
 
 on:
   pull_request:
     branches: ["main"]
     paths:
       - "specialists-partners/account/**"
+      - "specialists-partners/admin/**"
       - "specialists-partners/account-backend/**"
-      - "specialists-partners/backend/migrations/0004_specialist_accounts.sql"
+      - "specialists-partners/backend/src/index-v2.js"
+      - "specialists-partners/backend/migrations/0005_identity_password_admin.sql"
       - "specialists-partners/assets/runtime-config.js"
-      - "specialists-partners/portal/index.html"
-      - "specialists-partners/index.html"
-      - "robots.txt"
-      - "tests/test_specialist_accounts_v5.py"
+      - "tests/test_specialist_identity_v6.py"
       - ".github/workflows/deploy-specialists-account-backend.yml"
   push:
     branches: ["main"]
     paths:
       - "specialists-partners/account/**"
+      - "specialists-partners/admin/**"
       - "specialists-partners/account-backend/**"
-      - "specialists-partners/backend/migrations/0004_specialist_accounts.sql"
-      - "tests/test_specialist_accounts_v5.py"
+      - "specialists-partners/backend/src/index-v2.js"
+      - "specialists-partners/backend/migrations/0005_identity_password_admin.sql"
+      - "specialists-partners/assets/runtime-config.js"
+      - "tests/test_specialist_identity_v6.py"
       - ".github/workflows/deploy-specialists-account-backend.yml"
   workflow_dispatch:
     inputs:
-      account_api_base:
-        description: "Public specialist account Worker URL"
-        required: true
-        default: "https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev"
-        type: string
       apply_migrations:
-        description: "Apply pending D1 migrations before deployment"
+        description: "Apply pending D1 migrations"
         required: true
         default: true
         type: boolean
@@ -38,119 +35,82 @@ permissions:
   contents: read
 
 concurrency:
-  group: specialist-accounts-v5-${{ github.ref }}
+  group: specialist-identity-v6-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Validate JavaScript and data contracts
+      - name: Validate implementation and prevent committed secrets
         run: |
           set -euo pipefail
           node --check specialists-partners/account-backend/src/index.js
           node --check specialists-partners/account/account.js
-          python -m unittest -v tests.test_specialist_accounts_v5
+          node --check specialists-partners/admin/admin.js
+          python -m unittest -v tests.test_specialist_accounts_v5 tests.test_specialist_identity_v6
+          if git grep -nE '(CLOUDFLARE_API_TOKEN|RESEND_API_KEY|TURNSTILE_SECRET)[[:space:]]*[:=][[:space:]]*[^$<{[:space:]]' -- '*.md' '*.txt'; then
+            echo "::error::A secret-like value is committed in a documentation file. Move it to GitHub Actions secrets and rotate it."
+            exit 1
+          fi
 
   deploy:
     if: ${{ github.event_name != 'pull_request' }}
     needs: validate
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       D1_DATABASE_ID: ${{ secrets.SPECIALISTS_D1_DATABASE_ID }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
+      ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
+      REVIEWER_API_KEY: ${{ secrets.SPECIALISTS_REVIEWER_API_KEY }}
+      MODERATOR_API_KEY: ${{ secrets.SPECIALISTS_MODERATOR_API_KEY }}
       RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}
+      PASSWORD_PEPPER: ${{ secrets.SPECIALISTS_PASSWORD_PEPPER }}
       FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
-      ACCOUNT_API_BASE: ${{ inputs.account_api_base || 'https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev' }}
+      ACCOUNT_API_BASE: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
+      CORE_API_BASE: https://pterminology-specialists.pterminology-826ac349.workers.dev
       APPLY_MIGRATIONS: ${{ inputs.apply_migrations || 'true' }}
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
 
-      - name: Validate deployment configuration
+      - name: Validate secrets and Cloudflare token permissions
         shell: bash
         run: |
           set -euo pipefail
-          required=(
-            CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID D1_DATABASE_ID
-            RESEND_API_KEY TURNSTILE_SECRET RATE_LIMIT_SALT FROM_EMAIL ACCOUNT_API_BASE
-          )
+          required=(CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID D1_DATABASE_ID RESEND_API_KEY TURNSTILE_SECRET ADMIN_API_KEY RATE_LIMIT_SALT FROM_EMAIL)
           for name in "${required[@]}"; do
-            if [[ -z "${!name:-}" ]]; then
-              echo "::error::$name is required"
-              exit 1
-            fi
+            if [[ -z "${!name:-}" ]]; then echo "::error::$name is required"; exit 1; fi
           done
           python - <<'PY'
           import os, re
-          from urllib.parse import urlparse
-
-          if not re.fullmatch(r"[0-9a-f]{32}", os.environ["CLOUDFLARE_ACCOUNT_ID"]):
-              raise SystemExit("CLOUDFLARE_ACCOUNT_ID must be a 32-character hexadecimal value")
-          if len(os.environ["RATE_LIMIT_SALT"]) < 32:
-              raise SystemExit("SPECIALISTS_RATE_LIMIT_SALT must contain at least 32 characters")
-          parsed = urlparse(os.environ["ACCOUNT_API_BASE"])
-          if parsed.scheme != "https" or not parsed.netloc or parsed.query or parsed.fragment:
-              raise SystemExit("ACCOUNT_API_BASE must be an absolute HTTPS origin")
+          assert re.fullmatch(r"[0-9a-f]{32}", os.environ["CLOUDFLARE_ACCOUNT_ID"]), "invalid account id"
+          assert len(os.environ["ADMIN_API_KEY"]) >= 32
+          assert len(os.environ["RATE_LIMIT_SALT"]) >= 32
           PY
+          auth=(-H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json")
+          curl -fsS "${auth[@]}" https://api.cloudflare.com/client/v4/user/tokens/verify | python -c 'import json,sys; d=json.load(sys.stdin); assert d.get("success") and d["result"]["status"]=="active"'
+          curl -fsS "${auth[@]}" "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts" >/dev/null
+          curl -fsS "${auth[@]}" "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/d1/database" >/dev/null
+          curl -fsS "${auth[@]}" "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/challenges/widgets" >/dev/null
+          echo "Cloudflare token is active and can access Workers, D1, and Turnstile resources."
 
-      - name: Generate ephemeral Wrangler configuration
-        working-directory: specialists-partners/account-backend
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import os
-          from pathlib import Path
-
-          def toml(value: str) -> str:
-              return '"' + value.replace('\\', '\\\\').replace('"', '\\"') + '"'
-
-          content = f'''name = "pterminology-specialist-accounts"
-          main = "src/index.js"
-          compatibility_date = "2026-07-01"
-          workers_dev = true
-
-          [vars]
-          ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
-          ACCOUNT_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/account/"
-          PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
-          TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"
-          SPECIALIST_SESSION_HOURS = "12"
-          FROM_EMAIL = {toml(os.environ["FROM_EMAIL"])}
-
-          [[d1_databases]]
-          binding = "DB"
-          database_name = "pterminology-specialists"
-          database_id = {toml(os.environ["D1_DATABASE_ID"])}
-          migrations_dir = "../backend/migrations"
-
-          [triggers]
-          crons = ["31 2 * * *"]
-          '''
-          Path("wrangler.toml").write_text(content, encoding="utf-8")
-          PY
-
-      - name: Create encrypted Worker secrets payload
+      - name: Generate account Worker configuration and secrets
         working-directory: specialists-partners/account-backend
         shell: bash
         run: |
@@ -158,13 +118,46 @@ jobs:
           python - <<'PY'
           import json, os
           from pathlib import Path
+          def q(v): return '"' + v.replace('\\','\\\\').replace('"','\\"') + '"'
+          content=f'''name = "pterminology-specialist-accounts"
+          main = "src/index.js"
+          compatibility_date = "2026-07-01"
+          workers_dev = true
 
-          payload = {
-              "RESEND_API_KEY": os.environ["RESEND_API_KEY"],
-              "TURNSTILE_SECRET": os.environ["TURNSTILE_SECRET"],
-              "RATE_LIMIT_SALT": os.environ["RATE_LIMIT_SALT"],
+          [vars]
+          ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
+          ACCOUNT_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/account/"
+          ADMIN_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/"
+          PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
+          CORE_API_BASE = "{os.environ['CORE_API_BASE']}"
+          TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"
+          IDENTITY_SESSION_HOURS = "12"
+          OWNER_EMAIL = "pterminology@gmail.com"
+          OWNER_PHONE = "+962795945817"
+          OWNER_DISPLAY_NAME_AR = "خالد الذيب"
+          OWNER_DISPLAY_NAME_EN = "Khaled Altheeb"
+          FROM_EMAIL = {q(os.environ['FROM_EMAIL'])}
+
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "pterminology-specialists"
+          database_id = {q(os.environ['D1_DATABASE_ID'])}
+          migrations_dir = "../backend/migrations"
+
+          [triggers]
+          crons = ["31 2 * * *"]
+          '''
+          Path('wrangler.toml').write_text(content,encoding='utf-8')
+          secrets={
+            'RESEND_API_KEY':os.environ['RESEND_API_KEY'],
+            'TURNSTILE_SECRET':os.environ['TURNSTILE_SECRET'],
+            'ADMIN_API_KEY':os.environ['ADMIN_API_KEY'],
+            'RATE_LIMIT_SALT':os.environ['RATE_LIMIT_SALT'],
           }
-          Path("worker-secrets.json").write_text(json.dumps(payload), encoding="utf-8")
+          if os.environ.get('PASSWORD_PEPPER'): secrets['PASSWORD_PEPPER']=os.environ['PASSWORD_PEPPER']
+          if os.environ.get('REVIEWER_API_KEY'): secrets['REVIEWER_API_KEY']=os.environ['REVIEWER_API_KEY']
+          if os.environ.get('MODERATOR_API_KEY'): secrets['MODERATOR_API_KEY']=os.environ['MODERATOR_API_KEY']
+          Path('worker-secrets.json').write_text(json.dumps(secrets),encoding='utf-8')
           PY
           chmod 600 wrangler.toml worker-secrets.json
 
@@ -173,32 +166,97 @@ jobs:
         working-directory: specialists-partners/account-backend
         run: npx --yes wrangler@4 d1 migrations apply pterminology-specialists --remote --config wrangler.toml
 
-      - name: Deploy specialist account Worker
+      - name: Deploy identity Worker
         working-directory: specialists-partners/account-backend
         run: npx --yes wrangler@4 deploy --config wrangler.toml --secrets-file worker-secrets.json --minify --keep-vars
 
-      - name: Verify production health
+      - name: Bootstrap owner account and verify identity health
         shell: bash
         run: |
           set -euo pipefail
           for attempt in {1..18}; do
-            code="$(curl -sS -o /tmp/account-health.json -w '%{http_code}' "${ACCOUNT_API_BASE%/}/health" || true)"
-            if [[ "$code" == "200" ]]; then
-              python - <<'PY'
-              import json
-              data = json.load(open('/tmp/account-health.json', encoding='utf-8'))
-              assert data.get('ok') is True, data
-              assert data.get('service') == 'pterminology-specialist-accounts', data
-              print(json.dumps(data, ensure_ascii=False, indent=2))
-              PY
-              exit 0
-            fi
+            code="$(curl -sS -o /tmp/identity-health.json -w '%{http_code}' "${ACCOUNT_API_BASE}/health" || true)"
+            [[ "$code" == "200" ]] && break
             sleep 5
           done
-          cat /tmp/account-health.json || true
-          exit 1
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/identity-health.json',encoding='utf-8'))
+          assert d.get('ok') is True, d
+          assert d.get('service') == 'pterminology-specialist-identity', d
+          assert d.get('version') == '6.0.0', d
+          PY
+          curl -fsS -X POST -H "x-bootstrap-key: ${ADMIN_API_KEY}" -H "content-type: application/json" --data '{}' "${ACCOUNT_API_BASE}/v1/internal/bootstrap-owner" >/tmp/owner-bootstrap.json
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/owner-bootstrap.json',encoding='utf-8'))
+          assert d.get('ok') is True, d
+          u=d['user']
+          assert u['email']=='pterminology@gmail.com' and u['role']=='owner'
+          assert u['phone']=='+962795945817'
+          print('Owner account verified and setup email queued when required.')
+          PY
+
+      - name: Generate and deploy core messaging Worker
+        working-directory: specialists-partners/backend
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          def q(v): return '"' + v.replace('\\','\\\\').replace('"','\\"') + '"'
+          Path('wrangler.toml').write_text(f'''name = "pterminology-specialists"
+          main = "src/index-v2.js"
+          compatibility_date = "2026-07-01"
+          workers_dev = true
+          [vars]
+          ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
+          OWNER_EMAIL = "pterminology@gmail.com"
+          PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
+          TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"
+          FROM_EMAIL = {q(os.environ['FROM_EMAIL'])}
+          ADMIN_SESSION_MINUTES = "20"
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "pterminology-specialists"
+          database_id = {q(os.environ['D1_DATABASE_ID'])}
+          migrations_dir = "migrations"
+          [triggers]
+          crons = ["17 2 * * *"]
+          ''',encoding='utf-8')
+          secrets={'RESEND_API_KEY':os.environ['RESEND_API_KEY'],'TURNSTILE_SECRET':os.environ['TURNSTILE_SECRET'],'ADMIN_API_KEY':os.environ['ADMIN_API_KEY'],'RATE_LIMIT_SALT':os.environ['RATE_LIMIT_SALT']}
+          if os.environ.get('REVIEWER_API_KEY'): secrets['REVIEWER_API_KEY']=os.environ['REVIEWER_API_KEY']
+          if os.environ.get('MODERATOR_API_KEY'): secrets['MODERATOR_API_KEY']=os.environ['MODERATOR_API_KEY']
+          Path('worker-secrets.json').write_text(json.dumps(secrets),encoding='utf-8')
+          PY
+          chmod 600 wrangler.toml worker-secrets.json
+          npx --yes wrangler@4 deploy --config wrangler.toml --secrets-file worker-secrets.json --minify --keep-vars
+
+      - name: Verify core messaging route contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in {1..18}; do
+            code="$(curl -sS -o /tmp/core-health.json -w '%{http_code}' "${CORE_API_BASE}/health" || true)"
+            [[ "$code" == "200" ]] && break
+            sleep 5
+          done
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/core-health.json',encoding='utf-8'))
+          assert d.get('ok') is True, d
+          PY
+          route_code="$(curl -sS -o /tmp/application-contract.json -w '%{http_code}' -X POST -H 'content-type: application/json' --data '{}' "${CORE_API_BASE}/v1/applications")"
+          if [[ "$route_code" == "404" ]]; then
+            cat /tmp/application-contract.json
+            echo "::error::The live Worker does not expose /v1/applications"
+            exit 1
+          fi
+          echo "Application route is present (expected validation response HTTP ${route_code})."
 
       - name: Remove ephemeral deployment files
         if: always()
-        working-directory: specialists-partners/account-backend
-        run: rm -f wrangler.toml worker-secrets.json
+        run: |
+          rm -f specialists-partners/account-backend/wrangler.toml specialists-partners/account-backend/worker-secrets.json
+          rm -f specialists-partners/backend/wrangler.toml specialists-partners/backend/worker-secrets.json

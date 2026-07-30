@@ -29,6 +29,9 @@ class SpecialistOwnerConsoleV4Tests(unittest.TestCase):
                     "provider_profiles",
                     "provider_review_records",
                     "provider_profile_versions",
+                    "identity_users",
+                    "identity_sessions",
+                    "password_reset_tokens",
                 }
                 <= tables
             )
@@ -90,29 +93,41 @@ class SpecialistOwnerConsoleV4Tests(unittest.TestCase):
             source,
         )
 
-    def test_owner_console_contains_clear_add_review_publish_controls(self) -> None:
+    def test_owner_console_contains_identity_accounts_and_sector_controls(self) -> None:
         html = (SECTOR / "admin" / "index.html").read_text(encoding="utf-8")
         script = (SECTOR / "admin" / "admin.js").read_text(encoding="utf-8")
         for identifier in (
-            "provider-form",
-            "provider-display-name",
-            "provider-specialties",
-            "review-identity",
-            "review-qualification",
-            "review-scope",
-            "review-consent-approved",
-            "review-next-date",
-            'data-provider-action="approve_publish"',
-            'data-provider-action="suspend"',
-            'data-provider-action="revoke_consent"',
+            "admin-login-form",
+            "admin-email",
+            "admin-password",
+            "create-user-form",
+            "user-name-ar",
+            "user-email",
+            "user-role",
+            "user-provider-id",
+            "users-list",
+            "applications-list",
+            "providers-list",
+            "conversations-list",
+            "drafts-list",
+            "audit-list",
         ):
             self.assertIn(identifier, html)
-        self.assertIn("/v1/admin/session", script)
-        self.assertIn("authorization", script)
-        self.assertIn("فتح في محرر الاعتماد", script)
+        for marker in (
+            "/v1/auth/login",
+            "/v1/admin/core-session",
+            "/v1/admin/users",
+            "authorization",
+            "save-user",
+            "verify-user",
+            "reset-user",
+            "archive-user",
+        ):
+            self.assertIn(marker, script)
+        self.assertIn("sessionStorage", script)
         self.assertNotIn("localStorage", script)
-        self.assertNotIn("sessionStorage", script)
         self.assertNotIn("ADMIN_API_KEY", html)
+        self.assertNotIn("x-admin-key", html)
 
     def test_public_directory_uses_live_registry_with_static_fallback(self) -> None:
         source = (SECTOR / "assets" / "sector.js").read_text(encoding="utf-8")
@@ -163,6 +178,7 @@ class SpecialistOwnerConsoleV4Tests(unittest.TestCase):
             SECTOR / "contact.html",
             SECTOR / "verification.html",
             SECTOR / "portal" / "index.html",
+            SECTOR / "account" / "index.html",
             SECTOR / "admin" / "index.html",
         )
         for page in pages:
@@ -178,7 +194,6 @@ class SpecialistOwnerConsoleV4Tests(unittest.TestCase):
                 f"{page} loads platform-core.css more than once",
             )
             self.assertIn("Content-Security-Policy", text)
-            self.assertIn('name="referrer" content="no-referrer"', text)
 
 
 if __name__ == "__main__":

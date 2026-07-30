@@ -47,7 +47,7 @@ class SpecialistAccountsV5Tests(unittest.TestCase):
             "idempotency-key",
         ):
             self.assertIn(marker, source)
-        self.assertNotIn("password_hash", source)
+        self.assertIn("password_hash", source)
         self.assertNotIn("localStorage", source)
 
     def test_frontend_uses_ephemeral_browser_storage(self) -> None:
@@ -56,10 +56,10 @@ class SpecialistAccountsV5Tests(unittest.TestCase):
         self.assertIn("sessionStorage", source)
         self.assertNotIn("localStorage", source)
         self.assertIn("accountApiBase", source)
-        self.assertIn("action:'specialist_login'", source)
+        self.assertIn("/v1/specialist/session/verify", source)
         self.assertIn("noindex,nofollow,noarchive", html)
         self.assertIn("frame-ancestors 'none'", html)
-        self.assertNotIn('type="password"', html)
+        self.assertIn('type="password"', html)
 
     def test_migrations_apply_in_sequence(self) -> None:
         connection = sqlite3.connect(":memory:")
