@@ -1,0 +1,42 @@
+name: Specialists production readiness
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      SPECIALISTS_D1_DATABASE_ID: ${{ secrets.SPECIALISTS_D1_DATABASE_ID }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
+      SPECIALISTS_ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
+      SPECIALISTS_REVIEWER_API_KEY: ${{ secrets.SPECIALISTS_REVIEWER_API_KEY }}
+      SPECIALISTS_MODERATOR_API_KEY: ${{ secrets.SPECIALISTS_MODERATOR_API_KEY }}
+      SPECIALISTS_RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}
+      SPECIALISTS_REVIEW_LINK_SECRET: ${{ secrets.SPECIALISTS_REVIEW_LINK_SECRET }}
+      SPECIALISTS_FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
+      SPECIALISTS_OWNER_EMAIL: ${{ secrets.SPECIALISTS_OWNER_EMAIL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate configuration without exposing values
+        run: node scripts/check-specialists-production-readiness.mjs
+      - name: Write readiness summary
+        if: success()
+        run: |
+          {
+            echo '## Specialists production readiness'
+            echo ''
+            echo 'All required production settings passed presence, format, minimum-length, placeholder, whitespace, and secret-separation checks.'
+            echo ''
+            echo 'No migration or deployment was performed.'
+          } >> "$GITHUB_STEP_SUMMARY"
