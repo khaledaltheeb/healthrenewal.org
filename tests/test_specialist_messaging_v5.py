@@ -35,6 +35,9 @@ class SpecialistMessagingV5Tests(unittest.TestCase):
             "notificationPolicy",
             "provider_notifications_required",
             "لا يتضمن هذا البريد نص الرسالة",
+            "RELEASE_COMMIT",
+            "releaseIdentity",
+            "deploymentCommit",
         ):
             self.assertIn(marker, text)
         self.assertIn("if (canonical.message_id !== messageId)", text)
@@ -89,9 +92,13 @@ class SpecialistMessagingV5Tests(unittest.TestCase):
             "branches: [main]",
             'main = "src/index-v3.js"',
             'OWNER_DISPLAY_NAME = "خالد الذيب"',
+            "RELEASE_COMMIT",
+            "releaseIdentity",
             "d1 migrations apply",
             "wrangler@4 deploy",
+            "WRANGLER_OUTPUT_FILE_PATH",
             "health['version'] == '5.0.0'",
+            "health['deploymentCommit'] == os.environ['GITHUB_SHA']",
         ):
             self.assertIn(marker, workflow)
 

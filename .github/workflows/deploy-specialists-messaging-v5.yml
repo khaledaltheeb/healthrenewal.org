@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: deploy-specialists-live-messaging-v5
@@ -73,6 +74,7 @@ jobs:
           done
           [[ ${#ADMIN_API_KEY} -ge 32 ]]
           [[ ${#RATE_LIMIT_SALT} -ge 32 ]]
+          [[ "$GITHUB_SHA" =~ ^[a-f0-9]{40}$ ]]
 
       - name: Generate production Worker configuration
         working-directory: specialists-partners/backend
@@ -96,11 +98,15 @@ jobs:
           ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
           OWNER_EMAIL = {toml(owner_email)}
           OWNER_DISPLAY_NAME = "خالد الذيب"
+          RELEASE_COMMIT = {toml(os.environ['GITHUB_SHA'])}
           PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
           ADMIN_CONSOLE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/#conversations"
           TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"
           FROM_EMAIL = {toml(os.environ['FROM_EMAIL'])}
           ADMIN_SESSION_MINUTES = "20"
+
+          [secrets]
+          required = ["RESEND_API_KEY", "TURNSTILE_SECRET", "ADMIN_API_KEY", "RATE_LIMIT_SALT"]
 
           [[d1_databases]]
           binding = "DB"
@@ -141,6 +147,8 @@ jobs:
 
       - name: Deploy messaging Worker v5
         working-directory: specialists-partners/backend
+        env:
+          WRANGLER_OUTPUT_FILE_PATH: /tmp/wrangler-deploy.ndjson
         run: npx --yes wrangler@4 deploy --config wrangler.toml --secrets-file worker-secrets.json --minify --keep-vars
 
       - name: Remove ephemeral configuration
@@ -152,27 +160,70 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for attempt in {1..12}; do
+          for attempt in {1..18}; do
             status="$(curl -sS -o /tmp/messaging-health.json -w '%{http_code}' "${API_BASE%/}/health" || true)"
-            if [[ "$status" == "200" ]]; then
-              python - <<'PY'
-              import json
-              from pathlib import Path
-              health = json.loads(Path('/tmp/messaging-health.json').read_text(encoding='utf-8'))
-              assert health['ok'] is True, health
-              assert health['version'] == '5.0.0', health
-              assert health['ownerDisplayName'] == 'خالد الذيب', health
-              for name in ('database', 'email', 'ownerEmail', 'messagingV5', 'notificationPolicy', 'ownerIdentity'):
-                  assert health['checks'].get(name) is True, (name, health)
-              print({
-                  'version': health['version'],
-                  'owner': health['ownerDisplayName'],
-                  'checks': health['checks'],
-              })
-              PY
+            if [[ "$status" == "200" ]] && python - <<'PY'
+          import json, os
+          from pathlib import Path
+          health = json.loads(Path('/tmp/messaging-health.json').read_text(encoding='utf-8'))
+          assert health['ok'] is True, health
+          assert health['version'] == '5.0.0', health
+          assert health['ownerDisplayName'] == 'خالد الذيب', health
+          assert health['deploymentCommit'] == os.environ['GITHUB_SHA'], health
+          for name in ('database', 'email', 'ownerEmail', 'messagingV5', 'notificationPolicy', 'ownerIdentity', 'releaseIdentity'):
+              assert health['checks'].get(name) is True, (name, health)
+          PY
+            then
+              cat /tmp/messaging-health.json
               exit 0
             fi
             sleep 5
           done
           cat /tmp/messaging-health.json || true
+          cat /tmp/wrangler-deploy.ndjson || true
           exit 1
+
+      - name: Report successful production deployment
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const health = JSON.parse(fs.readFileSync('/tmp/messaging-health.json', 'utf8'));
+            const body = [
+              '## نجح نشر المحادثة المباشرة v5',
+              '',
+              `- الإصدار: \`${health.version}\``,
+              `- الالتزام المنشور: \`${health.deploymentCommit}\``,
+              `- مدير المنصة: **${health.ownerDisplayName}**`,
+              '- تم تطبيق هجرة منع التكرار والتحقق من جاهزية إشعارات المختص.',
+              '- تم التحقق من إعداد البريد وبريد الإدارة وقاعدة البيانات مباشرة من Worker الحي.',
+              '',
+              'لا يحتوي هذا التقرير على بريد خاص أو نص رسالة أو رمز دخول.'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 625,
+              body
+            });
+
+      - name: Report production deployment failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = [
+              '## فشل نشر المحادثة المباشرة v5',
+              '',
+              `- الالتزام: \`${context.sha}\``,
+              `- سجل التشغيل: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              '',
+              'بقي Worker الحي على الإصدار السابق أو فشلت إحدى بوابات النشر. لم تُعتمد الخدمة.'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 625,
+              body
+            });
