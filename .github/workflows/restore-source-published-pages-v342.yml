@@ -60,8 +60,10 @@ jobs:
       - name: Restore every source-sitemap public route missing from production
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/restore_source_published_pages_v342.py
-          python scripts/restore_source_published_pages_v342.py \
+          python -m py_compile \
+            scripts/restore_source_published_pages_v342.py \
+            scripts/restore_source_published_pages_v343.py
+          python scripts/restore_source_published_pages_v343.py \
             validated-site \
             --source-root . \
             --report validated-site/api/source-publication-parity-v342.json
