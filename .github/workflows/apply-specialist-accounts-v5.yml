@@ -41,6 +41,20 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Verify reviewed payload
+        shell: bash
+        run: |
+          python - <<'PY'
+          import base64
+          import glob
+          import hashlib
+          payload = ''.join(open(path, encoding='ascii').read().strip() for path in sorted(glob.glob('tools/specialist_accounts_v5_payload.*')))
+          assert hashlib.sha256(payload.encode('ascii')).hexdigest() == '608082c14dd94c5e5e1a0433bf7258d3a986c4f38971469bd3c38b92bcc7eed1'
+          archive = base64.b64decode(payload, validate=True)
+          assert hashlib.sha256(archive).hexdigest() == '220477921fe6e4195d8fd3f24911ff116174959526d2257415e35e9a60f9d466'
+          print('Reviewed payload checksums verified.')
+          PY
+
       - name: Materialize reviewed patch
         run: python tools/apply_specialist_accounts_v5_patch.py
 
