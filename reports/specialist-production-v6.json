@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "checked_at": "2026-07-30T19:36:29.818094+00:00",
-  "commit": "a00f59e19f77166e5a580097945a50b63db37497",
+  "checked_at": "2026-07-30T20:06:29.038228+00:00",
+  "commit": "3fd4b2df56fb8b61641a081c816c0f98688cd583",
   "account_id_source": "secret_or_verified_repository_default",
   "resource_mode": "discover_or_create_at_deploy_time",
   "missing_secrets": [],
@@ -29,7 +29,7 @@
     "account_http": 200,
     "account_v6": true,
     "admin_http": 200,
-    "admin_v6": true
+    "admin_v6": false
   },
-  "passed": true
+  "passed": false
 }
