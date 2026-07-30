@@ -9,6 +9,9 @@ on:
 permissions:
   contents: write
 
+env:
+  NORMALIZE_TRIGGER: "2026-07-31T02:30:00+03:00"
+
 jobs:
   normalize:
     runs-on: ubuntu-latest
