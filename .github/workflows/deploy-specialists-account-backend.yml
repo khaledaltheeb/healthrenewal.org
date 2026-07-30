@@ -155,6 +155,8 @@ jobs:
             'RATE_LIMIT_SALT':os.environ['RATE_LIMIT_SALT'],
           }
           if os.environ.get('PASSWORD_PEPPER'): secrets['PASSWORD_PEPPER']=os.environ['PASSWORD_PEPPER']
+          if os.environ.get('REVIEWER_API_KEY'): secrets['REVIEWER_API_KEY']=os.environ['REVIEWER_API_KEY']
+          if os.environ.get('MODERATOR_API_KEY'): secrets['MODERATOR_API_KEY']=os.environ['MODERATOR_API_KEY']
           Path('worker-secrets.json').write_text(json.dumps(secrets),encoding='utf-8')
           PY
           chmod 600 wrangler.toml worker-secrets.json
