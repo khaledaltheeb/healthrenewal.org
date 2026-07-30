@@ -10,6 +10,7 @@
 - المراكز الموضوعية: https://khaledaltheeb.github.io/pterminology-site/hubs/
 - سجل المصادر ومسارات التكامل: https://khaledaltheeb.github.io/pterminology-site/source-registry/
 - سجل المصادر بصيغة JSON: https://khaledaltheeb.github.io/pterminology-site/api/source-registry.json
+- إفادة الإتاحة وخطة التوافق: https://khaledaltheeb.github.io/pterminology-site/accessibility/
 - Instagram: https://www.instagram.com/pterminology/
 - YouTube: https://www.youtube.com/@psychology-term
 - Sitemap Index: https://khaledaltheeb.github.io/pterminology-site/sitemap-index.xml
@@ -26,6 +27,10 @@
 - نظام استيراد مستقبلي من CSV دون تعديل القوالب.
 - اختبارات تمنع التكرار ونقص الصفحات وفساد خرائط الموقع.
 - ملف تحقق Google Search Console محفوظ في جذر الموقع.
+
+## الإتاحة
+
+الهدف الهندسي المعلن هو الوصول إلى توافق موثق مع **WCAG 2.2 بالمستوى AA** والتقييم وفق **WCAG-EM 2.0**. لا يوجد حاليًا ادعاء امتثال كامل أو مراجعة مستقلة مكتملة أو شهادة خارجية. تسجل صفحة الإتاحة الحالة والقيود وخطة الاختبار بصياغة قابلة للمراجعة.
 
 ## خرائط الموقع
 
