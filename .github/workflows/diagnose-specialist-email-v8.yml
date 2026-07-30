@@ -1,0 +1,104 @@
+name: Diagnose specialist email delivery v8
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/diagnose-specialist-email-v8.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: diagnose-specialist-email-v8
+  cancel-in-progress: false
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      CONFIGURED_FROM: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
+      TO_EMAIL: pterminology@gmail.com
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Test configured sender and safe owner fallback
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python - <<'PY'
+          import json, os, urllib.error, urllib.request
+          from datetime import datetime, timezone
+
+          api_key=os.environ.get('RESEND_API_KEY','').strip()
+          configured=os.environ.get('CONFIGURED_FROM','').strip()
+          destination=os.environ['TO_EMAIL']
+
+          def attempt(sender, label):
+              if not api_key or not sender:
+                  return {'label':label,'attempted':False,'ok':False,'http_status':0,'error':'missing_configuration'}
+              payload={
+                  'from':sender,
+                  'to':[destination],
+                  'subject':'فحص تسليم بريد استعادة الحساب',
+                  'html':'<p>هذه رسالة اختبار آمنة للتحقق من إعداد إرسال روابط استعادة حساب المختصين.</p>'
+              }
+              request=urllib.request.Request(
+                  'https://api.resend.com/emails',
+                  method='POST',
+                  headers={'Authorization':f'Bearer {api_key}','Content-Type':'application/json','Idempotency-Key':f'specialist-email-diagnostic-{label}-20260730'},
+                  data=json.dumps(payload).encode()
+              )
+              try:
+                  with urllib.request.urlopen(request,timeout=45) as response:
+                      data=json.load(response)
+                      return {'label':label,'attempted':True,'ok':200 <= response.status < 300,'http_status':response.status,'provider_id_present':bool(data.get('id'))}
+              except urllib.error.HTTPError as error:
+                  body=error.read().decode('utf-8',errors='replace')
+                  try:
+                      parsed=json.loads(body)
+                  except Exception:
+                      parsed={}
+                  safe_error=str(parsed.get('name') or parsed.get('message') or f'http_{error.code}')[:240]
+                  return {'label':label,'attempted':True,'ok':False,'http_status':error.code,'error':safe_error}
+              except Exception as error:
+                  return {'label':label,'attempted':True,'ok':False,'http_status':0,'error':type(error).__name__}
+
+          configured_result=attempt(configured,'configured')
+          fallback_result={'label':'resend_owner_fallback','attempted':False,'ok':False,'http_status':0}
+          if not configured_result['ok']:
+              fallback_result=attempt('Psychology Terminology <onboarding@resend.dev>','resend_owner_fallback')
+
+          report={
+              'schema_version':1,
+              'checked_at':datetime.now(timezone.utc).isoformat(),
+              'configured_sender_present':bool(configured),
+              'api_key_present':bool(api_key),
+              'configured':configured_result,
+              'fallback':fallback_result,
+              'delivery_path_available':bool(configured_result.get('ok') or fallback_result.get('ok'))
+          }
+          with open('reports/specialist-email-v8.json','w',encoding='utf-8') as f:
+              json.dump(report,f,ensure_ascii=False,indent=2)
+              f.write('\n')
+          print(json.dumps(report,ensure_ascii=False,indent=2))
+          PY
+
+      - name: Commit safe diagnostic report
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/specialist-email-v8.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore: record specialist email delivery diagnostic v8"
+          git push origin HEAD:main
