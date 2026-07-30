@@ -5,6 +5,7 @@ on:
     branches: ["main"]
     paths:
       - ".github/workflows/verify-specialist-production-v6.yml"
+      - ".github/specialist-production-v6.trigger"
   workflow_run:
     workflows: ["Validate and deploy specialist identity v6"]
     types: [completed]
