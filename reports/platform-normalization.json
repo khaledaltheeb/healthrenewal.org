@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-30T06:29:24.363470+00:00",
+  "generated_at": "2026-07-30T04:09:00.052879+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -11,11 +11,11 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 214,
-  "html_pages_normalized_or_current": 213,
+  "html_pages_seen": 213,
+  "html_pages_normalized_or_current": 212,
   "counts": {
-    "current": 212,
-    "updated": 1,
+    "current": 204,
+    "updated": 8,
     "skipped": 1
   },
   "results": [
@@ -41,8 +41,8 @@
     },
     {
       "path": "family-guide/conditions/1p36-deletion-syndrome/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "family-guide/conditions/22q11-2-deletion-syndrome/index.html",
@@ -76,8 +76,8 @@
     },
     {
       "path": "family-guide/conditions/cdkl5-deficiency-disorder/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "family-guide/conditions/cerebral-palsy/index.html",
@@ -136,8 +136,8 @@
     },
     {
       "path": "family-guide/conditions/dravet-syndrome/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "family-guide/conditions/dyrk1a-syndrome/index.html",
@@ -156,8 +156,8 @@
     },
     {
       "path": "family-guide/conditions/foxg1-syndrome/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "family-guide/conditions/fragile-x-syndrome/index.html",
@@ -181,8 +181,8 @@
     },
     {
       "path": "family-guide/conditions/grin2b-related-neurodevelopmental-disorder/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "family-guide/conditions/hearing-loss-deafness/index.html",
@@ -221,8 +221,8 @@
     },
     {
       "path": "family-guide/conditions/kcnq2-related-disorders/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "family-guide/conditions/kleefstra-syndrome/index.html",
@@ -231,8 +231,8 @@
     },
     {
       "path": "family-guide/conditions/maternal-dup15q-syndrome/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "family-guide/conditions/mbd5-haploinsufficiency/index.html",
@@ -241,8 +241,8 @@
     },
     {
       "path": "family-guide/conditions/mecp2-duplication-syndrome/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "family-guide/conditions/med13l-syndrome/index.html",
@@ -276,8 +276,8 @@
     },
     {
       "path": "family-guide/conditions/prader-willi-syndrome/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "family-guide/conditions/pura-related-neurodevelopmental-disorder/index.html",
@@ -1031,11 +1031,6 @@
     },
     {
       "path": "special-needs/assistive-technology/training/index.html",
-      "status": "current",
-      "detail": ""
-    },
-    {
-      "path": "special-needs/conditions/prader-willi-syndrome/index.html",
       "status": "current",
       "detail": ""
     },
