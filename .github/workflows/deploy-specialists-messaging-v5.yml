@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: deploy-specialists-live-messaging-v5
@@ -176,3 +176,38 @@ jobs:
           done
           cat /tmp/messaging-health.json || true
           exit 1
+
+      - name: Record verified production deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          health = json.loads(Path('/tmp/messaging-health.json').read_text(encoding='utf-8'))
+          marker = {
+              'schemaVersion': '1.0.0',
+              'service': 'specialists-live-messaging',
+              'version': health['version'],
+              'status': 'verified',
+              'ownerDisplayName': health['ownerDisplayName'],
+              'checks': health['checks'],
+              'sourceCommit': os.environ['GITHUB_SHA'],
+              'workflowRunId': os.environ['GITHUB_RUN_ID'],
+              'deployedAt': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
+          }
+          path = Path('specialists-partners/data/messaging-deployment.json')
+          path.parent.mkdir(parents=True, exist_ok=True)
+          path.write_text(json.dumps(marker, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add specialists-partners/data/messaging-deployment.json
+          if git diff --cached --quiet; then
+            echo "Verified deployment marker already current."
+            exit 0
+          fi
+          git commit -m "ops: record verified messaging v5 deployment [skip ci]"
+          git push origin HEAD:main
