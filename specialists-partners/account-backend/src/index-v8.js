@@ -56,7 +56,7 @@ async function requestPasswordReset(request, env, cors) {
       const delivery = await issuePasswordReset(env, user, purpose, null, requestId);
       await identityAudit(env, null, 'password_email_sent', user.id, user.provider_id, {requestId, purpose, expiresAt:delivery.expiresAt, providerMessageId:delivery.providerMessageId});
     } catch (error) {
-      await identityAudit(env, null, 'password_email_failed', user.id, user.provider_id, {requestId, purpose, error:safeError(error)});
+      await identityAudit(env, null, 'password_email_failed', user.id, user.provider_id, {requestId, purpose, error:safeError(error), providerDetail:error.providerDetail || null});
       fail('تعذر إرسال رسالة الاستعادة الآن. أعد المحاولة بعد دقائق.', 503, 'email_delivery_failed');
     }
   } else {
@@ -73,9 +73,15 @@ async function ownerPasswordReset(request, env, cors) {
   if (!user) fail('حساب المالك غير موجود.', 404, 'owner_not_found');
   const requestId = crypto.randomUUID();
   const purpose = user.status === 'invited' ? 'setup' : 'reset';
-  const delivery = await issuePasswordReset(env, user, purpose, user.id, requestId);
-  await identityAudit(env, user.id, 'password_email_probe_sent', user.id, user.provider_id, {requestId, purpose, expiresAt:delivery.expiresAt, providerMessageId:delivery.providerMessageId});
-  return json({ok:true, requestId, delivery:'sent', expiresAt:delivery.expiresAt, providerMessageId:delivery.providerMessageId}, 200, cors);
+  try {
+    const delivery = await issuePasswordReset(env, user, purpose, user.id, requestId);
+    await identityAudit(env, user.id, 'password_email_probe_sent', user.id, user.provider_id, {requestId, purpose, expiresAt:delivery.expiresAt, providerMessageId:delivery.providerMessageId});
+    return json({ok:true, requestId, delivery:'sent', expiresAt:delivery.expiresAt, providerMessageId:delivery.providerMessageId}, 200, cors);
+  } catch (error) {
+    await identityAudit(env, user.id, 'password_email_probe_failed', user.id, user.provider_id, {requestId, purpose, error:safeError(error), providerDetail:error.providerDetail || null});
+    const status = Number(error.status) || 503;
+    return json({error:error.code || 'email_send_failed', message:error.message || 'تعذر تسليم البريد.', providerDetail:error.providerDetail || safeError(error)}, status, cors);
+  }
 }
 
 async function issuePasswordReset(env, user, purpose='reset', requestedBy=null, requestId=crypto.randomUUID()) {
@@ -130,8 +136,12 @@ async function sendEmail(env, message) {
     }
     if (attempt < 3) await sleep(attempt * 750);
   }
-  console.error('identity_email_failed_v8', safeError(lastError));
-  fail('تعذر تسليم البريد.', 503, 'email_send_failed');
+  const error = new Error('تعذر تسليم البريد.');
+  error.status = 503;
+  error.code = 'email_send_failed';
+  error.providerDetail = safeError(lastError);
+  console.error('identity_email_failed_v8', error.providerDetail);
+  throw error;
 }
 
 async function verifyTurnstile(tokenValue, request, env, allowedActions = []) {
@@ -144,7 +154,7 @@ async function verifyTurnstile(tokenValue, request, env, allowedActions = []) {
   form.set('idempotency_key', crypto.randomUUID());
   const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {method:'POST', body:form});
   const result = await response.json().catch(() => ({}));
-  const hosts = String(env.TURNSTILE_EXPECTED_HOSTNAMES || 'khaledaltheeb.github.io').split(',').map(v => v.trim()).filter(Boolean);
+  const hosts = String(env.TURNSTILE_EXPECTED_HOSTNAMES || 'khaledaltheeb.github.io').split(',').map(v=>v.trim()).filter(Boolean);
   const actionOk = !result.action || !allowedActions.length || allowedActions.includes(result.action);
   if (!response.ok || result.success !== true || !hosts.includes(result.hostname) || !actionOk) fail('تعذر التحقق من الاستخدام البشري.', 400, 'turnstile_failed');
 }
@@ -175,7 +185,7 @@ async function parseJson(request) {
 }
 
 function corsHeaders(origin, env) {
-  const allowed = String(env.ALLOWED_ORIGINS || 'https://khaledaltheeb.github.io').split(',').map(v => v.trim()).filter(Boolean);
+  const allowed = String(env.ALLOWED_ORIGINS || 'https://khaledaltheeb.github.io').split(',').map(v=>v.trim()).filter(Boolean);
   const headers = {
     'access-control-allow-methods':'GET,POST,PATCH,DELETE,OPTIONS',
     'access-control-allow-headers':'authorization,content-type,idempotency-key,x-requested-with,x-bootstrap-key',
