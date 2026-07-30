@@ -180,6 +180,8 @@ class SpecialistIdentityV6Tests(unittest.TestCase):
         self.assertIn("wrangler@4 deploy", workflow)
         self.assertIn("/v1/internal/bootstrap-owner", workflow)
         self.assertIn("/v1/applications", workflow)
+        self.assertIn("REVIEWER_API_KEY", workflow)
+        self.assertIn("MODERATOR_API_KEY", workflow)
         # A raw token must never be written as a workflow literal.
         self.assertNotRegex(workflow, r"CLOUDFLARE_API_TOKEN:\s*[A-Za-z0-9_-]{30,}")
 
