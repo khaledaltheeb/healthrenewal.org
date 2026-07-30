@@ -1,0 +1,95 @@
+name: الإبلاغ عن عائق في الإتاحة
+description: أبلغ عن مشكلة تمنع أو تصعّب استخدام المنصة بلوحة المفاتيح أو قارئ الشاشة أو التكبير أو الهاتف أو غير ذلك.
+title: "[إتاحة]: "
+labels:
+  - accessibility
+body:
+  - type: markdown
+    attributes:
+      value: |
+        شكرًا لمساعدتنا على تحسين المنصة. هذا البلاغ **عام** وقد يظهر للزوار ومحركات البحث.
+
+        اذكر المشكلة التقنية فقط. لا تنشر كلمات مرور أو رموز دخول أو معلومات صحية أو أسماء أو وثائق أو أرقام هواتف أو عناوين أو بريدًا خاصًا أو أي بيانات تعريفية تخصك أو تخص شخصًا آخر.
+
+        راجع [إفادة الإتاحة وخطة التوافق](https://khaledaltheeb.github.io/pterminology-site/accessibility/) لمعرفة الحالة الحالية والقيود المعروفة.
+
+  - type: input
+    id: page_url
+    attributes:
+      label: رابط الصفحة
+      description: الصق رابط الصفحة التي ظهر فيها العائق. استخدم رابطًا عامًا من المنصة، ولا تضف رموز دخول أو بيانات خاصة أو معاملات حساسة إلى الرابط.
+      placeholder: https://khaledaltheeb.github.io/pterminology-site/...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: barrier_type
+    attributes:
+      label: نوع العائق الأقرب
+      options:
+        - التنقل بلوحة المفاتيح أو مؤشر التركيز
+        - قارئ الشاشة أو البنية الدلالية
+        - التباين أو الألوان
+        - التكبير أو إعادة تدفق المحتوى
+        - الهاتف أو اتجاه RTL
+        - الحركة أو الوميض
+        - نموذج أو عنصر تفاعلي
+        - نص مخفي أو مقطوع
+        - صورة أو بديل نصي
+        - فيديو أو صوت أو تفريغ نصي
+        - لغة أو وضوح المحتوى
+        - أخرى
+    validations:
+      required: true
+
+  - type: textarea
+    id: observed
+    attributes:
+      label: ماذا حدث؟
+      description: صف الخطوات والنتيجة التي ظهرت بلغة مباشرة. لا تضع بيانات شخصية أو صحية أو نصوصًا من مستندات خاصة.
+      placeholder: عند الانتقال بزر Tab من ... لا يظهر مؤشر التركيز، ثم ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: ما النتيجة المتوقعة؟
+      placeholder: توقعت أن يظهر مؤشر واضح وأن أتمكن من تفعيل الرابط بزر Enter.
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: المتصفح والجهاز أو التقنية المساعدة
+      description: اختياري. اذكر البيئة التقنية فقط، مثل Firefox على Windows مع NVDA، أو Safari على iPhone، أو تكبير 400%.
+      placeholder: المتصفح، نظام التشغيل، الجهاز، قارئ الشاشة أو مستوى التكبير
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: أثر العائق
+      options:
+        - يمنع إكمال المهمة بالكامل
+        - يجعل المهمة صعبة جدًا
+        - يسبب ارتباكًا أو جهدًا إضافيًا
+        - ملاحظة تحسين عامة
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: هل وجدت طريقة بديلة؟
+      description: اختياري. صف الطريقة التقنية البديلة دون مشاركة بيانات شخصية أو صحية.
+
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: الخصوصية والنشر العام
+      options:
+        - label: تحققت من أن البلاغ لا يتضمن كلمات مرور أو رموز دخول أو معلومات صحية أو بيانات تعريفية أو وثائق خاصة.
+          required: true
+        - label: أفهم أن البلاغ عام وقد يظهر للزوار ومحركات البحث.
+          required: true
