@@ -222,6 +222,7 @@
       element('nav', { 'aria-label': 'روابط الحوكمة والشفافية' }, [
         element('a', { href: url('platform/'), text: 'دليل المنصة' }),
         element('a', { href: url('trust/'), text: 'الثقة والمنهجية' }),
+        element('a', { href: url('accessibility/'), text: 'الإتاحة' }),
         element('a', { href: url('copyright/'), text: 'حقوق النشر' }),
         element('a', { href: url('sitemap-html/'), text: 'دليل الأقسام' }),
         element('a', { href: url('api/'), text: 'واجهة البيانات' })
