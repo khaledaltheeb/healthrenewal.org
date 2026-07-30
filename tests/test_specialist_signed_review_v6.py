@@ -22,9 +22,10 @@ class SignedApplicationReviewV6Tests(unittest.TestCase):
         self.assertIn("request.method === 'GET'", self.handler)
         self.assertIn("request.method === 'POST'", self.handler)
         self.assertIn("effect:'view_only'", self.handler)
+        get_block = self.handler.split('async function handleReviewGet', 1)[1].split('async function handleReviewPost', 1)[0]
         self.assertNotRegex(
-            self.handler,
-            r"handleReviewGet[\s\S]{0,5000}UPDATE applications\s+SET status",
+            get_block,
+            r"UPDATE applications\s+SET status",
             'GET must never approve, reject, or otherwise change application status',
         )
         self.assertIn("form.get('confirm') !== '1'", self.handler)
