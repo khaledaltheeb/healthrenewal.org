@@ -1,10 +1,6 @@
 name: Bootstrap specialists Cloudflare
 
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - ".github/workflows/bootstrap-specialists-cloudflare.yml"
   workflow_dispatch:
     inputs:
       account_id:
@@ -46,11 +42,11 @@ jobs:
     timeout-minutes: 25
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      ACCOUNT_ID: ${{ inputs.account_id || '826ac34927c1e045c06145a327c2ac52' }}
-      WORKER_NAME: ${{ inputs.worker_name || 'pterminology-specialists' }}
-      DATABASE_NAME: ${{ inputs.database_name || 'pterminology-specialists' }}
-      WIDGET_NAME: ${{ inputs.widget_name || 'pterminology-specialists-forms' }}
-      ALLOWED_HOSTNAME: ${{ inputs.hostname || 'khaledaltheeb.github.io' }}
+      ACCOUNT_ID: ${{ inputs.account_id }}
+      WORKER_NAME: ${{ inputs.worker_name }}
+      DATABASE_NAME: ${{ inputs.database_name }}
+      WIDGET_NAME: ${{ inputs.widget_name }}
+      ALLOWED_HOSTNAME: ${{ inputs.hostname }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
       REVIEWER_API_KEY: ${{ secrets.SPECIALISTS_REVIEWER_API_KEY }}
@@ -359,13 +355,7 @@ jobs:
           for attempt in {1..18}; do
             code="$(curl -sS -o /tmp/health.json -w '%{http_code}' "${API_BASE%/}/health" || true)"
             if [[ "$code" == "200" ]]; then
-              python - <<'PY'
-              import json
-              data = json.load(open("/tmp/health.json", encoding="utf-8"))
-              if data.get("ok") is not True:
-                  raise SystemExit(data)
-              print(json.dumps(data, ensure_ascii=False, indent=2))
-              PY
+              python -c 'import json; data=json.load(open("/tmp/health.json", encoding="utf-8")); assert data.get("ok") is True, data; print(json.dumps(data, ensure_ascii=False, indent=2))'
               exit 0
             fi
             sleep 5
