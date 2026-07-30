@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-29T22:36:44.334566+00:00",
+  "generated_at": "2026-07-30T03:20:46.727742+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -11,10 +11,10 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 195,
-  "html_pages_normalized_or_current": 194,
+  "html_pages_seen": 205,
+  "html_pages_normalized_or_current": 204,
   "counts": {
-    "current": 193,
+    "current": 203,
     "skipped": 1,
     "updated": 1
   },
@@ -100,6 +100,16 @@
       "detail": ""
     },
     {
+      "path": "family-guide/conditions/ctnnb1-neurodevelopmental-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/ddx3x-related-neurodevelopmental-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "family-guide/conditions/developmental-coordination-disorder/index.html",
       "status": "current",
       "detail": ""
@@ -140,7 +150,22 @@
       "detail": ""
     },
     {
+      "path": "family-guide/conditions/gnb5-related-neurodevelopmental-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/gria2-related-neurodevelopmental-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "family-guide/conditions/hearing-loss-deafness/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/hnrnpu-related-neurodevelopmental-disorder/index.html",
       "status": "current",
       "detail": ""
     },
@@ -195,6 +220,11 @@
       "detail": ""
     },
     {
+      "path": "family-guide/conditions/okur-chung-neurodevelopmental-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "family-guide/conditions/phelan-mcdermid-syndrome/index.html",
       "status": "current",
       "detail": ""
@@ -210,6 +240,11 @@
       "detail": ""
     },
     {
+      "path": "family-guide/conditions/pura-related-neurodevelopmental-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "family-guide/conditions/rett-syndrome/index.html",
       "status": "current",
       "detail": ""
@@ -221,6 +256,11 @@
     },
     {
       "path": "family-guide/conditions/satb2-associated-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/conditions/setd1b-related-neurodevelopmental-disorder/index.html",
       "status": "current",
       "detail": ""
     },
@@ -306,7 +346,12 @@
     },
     {
       "path": "learning-paths/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/opportunities/index.html",
+      "status": "current",
       "detail": ""
     },
     {
@@ -912,6 +957,11 @@
     {
       "path": "sectors/index.html",
       "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "source-registry/index.html",
+      "status": "updated",
       "detail": ""
     },
     {
