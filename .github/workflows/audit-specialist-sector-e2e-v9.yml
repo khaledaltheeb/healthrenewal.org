@@ -85,7 +85,7 @@ jobs:
             'public':['قطاع المختصين'],
             'account':['حساب المختص'],
             'admin':['id="admin-forgot" type="button"','href="../recover/?v=8"'],
-            'recover':['استعادة الوصول'],
+            'recover':['استعادة الحساب','إرسال رابط إعادة التعيين'],
             'password_reset':['هذه صفحة مستقلة وآمنة','reset-v9.js?v=9.0.0'],
             'portal':['المحادثة'],
           }
