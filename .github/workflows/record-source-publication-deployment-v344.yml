@@ -2,7 +2,7 @@ name: Record restored pages deployment v345
 
 on:
   workflow_run:
-    workflows: ["Restore source-published pages to GitHub Pages v342"]
+    workflows: ["Restore source-published pages to GitHub Pages v346"]
     types: [completed]
 
 permissions:
@@ -55,7 +55,7 @@ jobs:
           report = json.loads(Path('/tmp/source-publication-parity-v342.json').read_text(encoding='utf-8'))
           assert re.fullmatch(r'[0-9a-f]{40}', deployment['commit']), deployment
           assert report['version'] == 342 and report['status'] == 'passed', report
-          assert report['restored_routes'] >= 60, report
+          assert report['source_backed_public_routes'] >= 60, report
           assert report['remaining_missing_routes'] == [], report
           assert report['broken_local_references'] == [], report
           assert report['critical_files_unchanged'] is True, report
