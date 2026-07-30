@@ -47,8 +47,8 @@ def main() -> None:
         '<a href="join.html" aria-current="page">الانضمام</a><a href="account/">حساب المختص</a><a href="portal/">بوابة المحادثة</a>',
     )
 
-    marker = '               f"  apiBase: {json.dumps(api)},\\n"\n'
-    account_line = '               \'  accountApiBase: "https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev",\\n\'\n'
+    marker = 'f"  apiBase: {json.dumps(api)},\\n"'
+    account_line = '\n              \'  accountApiBase: "https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev",\\n\''
     for relative in (
         ".github/workflows/bootstrap-specialists-cloudflare.yml",
         ".github/workflows/deploy-specialists-backend.yml",
@@ -58,7 +58,7 @@ def main() -> None:
         if "accountApiBase" not in text:
             if marker not in text:
                 raise SystemExit(f"Runtime config marker not found in {path}")
-            path.write_text(text.replace(marker, marker + account_line), encoding="utf-8")
+            path.write_text(text.replace(marker, marker + account_line, 1), encoding="utf-8")
 
     for path in chunk_paths:
         path.unlink()
