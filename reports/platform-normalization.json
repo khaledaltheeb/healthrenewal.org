@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-30T15:10:32.643302+00:00",
+  "generated_at": "2026-07-30T19:57:15.985341+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -11,10 +11,10 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 216,
-  "html_pages_normalized_or_current": 215,
+  "html_pages_seen": 217,
+  "html_pages_normalized_or_current": 216,
   "counts": {
-    "current": 214,
+    "current": 215,
     "skipped": 1,
     "updated": 1
   },
@@ -1056,8 +1056,8 @@
     },
     {
       "path": "specialists-partners/admin/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "specialists-partners/contact.html",
@@ -1077,6 +1077,11 @@
     {
       "path": "specialists-partners/portal/index.html",
       "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "specialists-partners/recover/index.html",
+      "status": "updated",
       "detail": ""
     },
     {
