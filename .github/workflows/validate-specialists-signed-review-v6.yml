@@ -1,0 +1,42 @@
+name: Validate specialists signed application review v6
+
+on:
+  pull_request:
+    paths:
+      - 'specialists-partners/backend/src/index-v4.js'
+      - 'specialists-partners/backend/src/application-review-v6.js'
+      - 'specialists-partners/backend/migrations/0005_signed_application_reviews.sql'
+      - 'tests/test_specialist_signed_review_v6.py'
+      - '.github/workflows/validate-specialists-signed-review-v6.yml'
+      - '.github/workflows/deploy-specialists-signed-review-v6.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'specialists-partners/backend/src/index-v4.js'
+      - 'specialists-partners/backend/src/application-review-v6.js'
+      - 'specialists-partners/backend/migrations/0005_signed_application_reviews.sql'
+      - 'tests/test_specialist_signed_review_v6.py'
+      - '.github/workflows/validate-specialists-signed-review-v6.yml'
+      - '.github/workflows/deploy-specialists-signed-review-v6.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate JavaScript syntax
+        run: |
+          node --check specialists-partners/backend/src/index-v4.js
+          node --check specialists-partners/backend/src/application-review-v6.js
+      - name: Validate signed-review security contracts
+        run: python -m unittest tests.test_specialist_signed_review_v6
