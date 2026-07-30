@@ -1,0 +1,95 @@
+name: PR restoration diagnostic v352
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/pr-diagnose-restoration-v352.yml"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Print the restoration run matching the latest deployed source
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          expected_sha="$(jq -r '.source_commit' pages-deployment-status-v329.json)"
+          deployment_run_id="$(jq -r '.deployment_workflow_run_id' pages-deployment-status-v329.json)"
+          source_run_id="$(jq -r '.source_workflow_run_id' pages-deployment-status-v329.json)"
+          [[ "${expected_sha}" =~ ^[0-9a-f]{40}$ ]]
+          completed=false
+          restore_run_id=""
+          for attempt in $(seq 1 60); do
+            gh api \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/restore-source-published-pages-v342.yml/runs?branch=main&event=workflow_run&per_page=100" \
+              > /tmp/runs.json
+            restore_run_id="$(jq -r --arg sha "${expected_sha}" '.workflow_runs[] | select(.head_sha == $sha) | .id' /tmp/runs.json | head -n 1)"
+            if [[ -n "${restore_run_id}" ]]; then
+              status="$(jq -r --argjson id "${restore_run_id}" '.workflow_runs[] | select(.id == $id) | .status' /tmp/runs.json)"
+              if [[ "${status}" == "completed" ]]; then
+                completed=true
+                break
+              fi
+            fi
+            sleep 10
+          done
+          test "${completed}" = true
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${restore_run_id}/jobs?per_page=100" > /tmp/jobs.json
+          EXPECTED_SHA="${expected_sha}" DEPLOYMENT_RUN_ID="${deployment_run_id}" SOURCE_RUN_ID="${source_run_id}" RESTORE_RUN_ID="${restore_run_id}" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          runs = json.loads(Path('/tmp/runs.json').read_text(encoding='utf-8'))
+          jobs = json.loads(Path('/tmp/jobs.json').read_text(encoding='utf-8'))
+          run = next(item for item in runs['workflow_runs'] if str(item['id']) == os.environ['RESTORE_RUN_ID'])
+          result = {
+              'expected_source_sha': os.environ['EXPECTED_SHA'],
+              'deployment_workflow_run_id': os.environ['DEPLOYMENT_RUN_ID'],
+              'source_workflow_run_id': os.environ['SOURCE_RUN_ID'],
+              'restoration_workflow_run': {
+                  'id': run['id'],
+                  'name': run['name'],
+                  'event': run['event'],
+                  'head_sha': run['head_sha'],
+                  'status': run['status'],
+                  'conclusion': run.get('conclusion'),
+                  'html_url': run.get('html_url'),
+                  'created_at': run.get('created_at'),
+                  'updated_at': run.get('updated_at'),
+              },
+              'jobs': [
+                  {
+                      'id': job['id'],
+                      'name': job['name'],
+                      'status': job['status'],
+                      'conclusion': job.get('conclusion'),
+                      'html_url': job.get('html_url'),
+                      'steps': [
+                          {
+                              'number': step['number'],
+                              'name': step['name'],
+                              'status': step['status'],
+                              'conclusion': step.get('conclusion'),
+                          }
+                          for step in job.get('steps', [])
+                      ],
+                  }
+                  for job in jobs.get('jobs', [])
+              ],
+          }
+          assert result['restoration_workflow_run']['head_sha'] == result['expected_source_sha'], result
+          print('RESTORATION_DIAGNOSTIC_BEGIN')
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          print('RESTORATION_DIAGNOSTIC_END')
+          PY
