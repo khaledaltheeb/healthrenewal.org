@@ -1,0 +1,153 @@
+name: Diagnose deployed source restoration v351
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/diagnose-deployed-restoration-v351.yml"
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: diagnose-deployed-source-restoration-v351
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Resolve current verified deployment target
+        id: target
+        run: |
+          set -euo pipefail
+          expected_sha="$(jq -r '.source_commit' pages-deployment-status-v329.json)"
+          deployment_run_id="$(jq -r '.deployment_workflow_run_id' pages-deployment-status-v329.json)"
+          [[ "${expected_sha}" =~ ^[0-9a-f]{40}$ ]]
+          [[ "${deployment_run_id}" =~ ^[0-9]+$ ]]
+          echo "expected_sha=${expected_sha}" >> "${GITHUB_OUTPUT}"
+          echo "deployment_run_id=${deployment_run_id}" >> "${GITHUB_OUTPUT}"
+
+      - name: Wait for matching workflow-run restoration
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXPECTED_SHA: ${{ steps.target.outputs.expected_sha }}
+          DEPLOYMENT_RUN_ID: ${{ steps.target.outputs.deployment_run_id }}
+        run: |
+          set -euo pipefail
+          workflow_path="restore-source-published-pages-v342.yml"
+          completed=false
+          run_id=""
+          for attempt in $(seq 1 60); do
+            gh api \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow_path}/runs?branch=main&event=workflow_run&per_page=50" \
+              > /tmp/restoration-workflow-runs.json
+            run_id="$(jq -r --arg sha "${EXPECTED_SHA}" '.workflow_runs[] | select(.head_sha == $sha) | .id' /tmp/restoration-workflow-runs.json | head -n 1)"
+            if [[ -n "${run_id}" ]]; then
+              status="$(jq -r --argjson id "${run_id}" '.workflow_runs[] | select(.id == $id) | .status' /tmp/restoration-workflow-runs.json)"
+              if [[ "${status}" == "completed" ]]; then
+                completed=true
+                break
+              fi
+            fi
+            sleep 10
+          done
+          test "${completed}" = true
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/jobs?per_page=100" \
+            > /tmp/restoration-workflow-jobs.json
+          RUN_ID="${run_id}" EXPECTED_SHA="${EXPECTED_SHA}" DEPLOYMENT_RUN_ID="${DEPLOYMENT_RUN_ID}" python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          runs = json.loads(Path('/tmp/restoration-workflow-runs.json').read_text(encoding='utf-8'))
+          jobs = json.loads(Path('/tmp/restoration-workflow-jobs.json').read_text(encoding='utf-8'))
+          run = next(item for item in runs['workflow_runs'] if str(item['id']) == os.environ['RUN_ID'])
+          normalized_jobs = []
+          for job in jobs.get('jobs', []):
+              normalized_jobs.append({
+                  'id': job['id'],
+                  'name': job['name'],
+                  'status': job['status'],
+                  'conclusion': job.get('conclusion'),
+                  'started_at': job.get('started_at'),
+                  'completed_at': job.get('completed_at'),
+                  'html_url': job.get('html_url'),
+                  'steps': [
+                      {
+                          'number': step['number'],
+                          'name': step['name'],
+                          'status': step['status'],
+                          'conclusion': step.get('conclusion'),
+                      }
+                      for step in job.get('steps', [])
+                  ],
+              })
+          diagnostic = {
+              'schema_version': 351,
+              'checked_at': datetime.now(timezone.utc).isoformat(),
+              'expected_source_sha': os.environ['EXPECTED_SHA'],
+              'trigger_deployment_workflow_run_id': os.environ['DEPLOYMENT_RUN_ID'],
+              'workflow_name': run['name'],
+              'workflow_run_id': run['id'],
+              'run_number': run['run_number'],
+              'run_attempt': run.get('run_attempt'),
+              'event': run['event'],
+              'head_branch': run['head_branch'],
+              'head_sha': run['head_sha'],
+              'status': run['status'],
+              'conclusion': run.get('conclusion'),
+              'created_at': run.get('created_at'),
+              'updated_at': run.get('updated_at'),
+              'html_url': run.get('html_url'),
+              'jobs': normalized_jobs,
+          }
+          assert diagnostic['event'] == 'workflow_run', diagnostic
+          assert diagnostic['head_sha'] == diagnostic['expected_source_sha'], diagnostic
+          Path('/tmp/source-publication-restoration-workflow-diagnostic-v351.json').write_text(
+              json.dumps(diagnostic, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(diagnostic, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Commit matching-run diagnostic ledger
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const path = 'source-publication-restoration-workflow-diagnostic-v351.json';
+            const content = fs.readFileSync('/tmp/source-publication-restoration-workflow-diagnostic-v351.json').toString('base64');
+            for (let attempt = 1; attempt <= 4; attempt++) {
+              let sha;
+              try {
+                const existing = await github.rest.repos.getContent({ owner, repo, path, ref: 'main' });
+                sha = existing.data.sha;
+              } catch (error) {
+                if (error.status !== 404) throw error;
+              }
+              try {
+                await github.rest.repos.createOrUpdateFileContents({
+                  owner,
+                  repo,
+                  path,
+                  branch: 'main',
+                  message: 'ci: record deployed restoration diagnostic v351 [skip ci]',
+                  content,
+                  ...(sha ? { sha } : {}),
+                });
+                return;
+              } catch (error) {
+                if (attempt === 4 || ![409, 422].includes(error.status)) throw error;
+                await new Promise(resolve => setTimeout(resolve, attempt * 1500));
+              }
+            }
