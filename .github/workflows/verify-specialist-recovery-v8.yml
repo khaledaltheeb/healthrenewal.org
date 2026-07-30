@@ -1,0 +1,93 @@
+name: Verify specialist recovery delivery v8
+
+on:
+  workflow_run:
+    workflows: ["Deploy specialist recovery overlay v8"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: verify-specialist-recovery-delivery-v8
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      ACCOUNT_API_BASE: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
+      ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Skip duplicate automatic delivery probe
+        id: guard
+        shell: bash
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_run" && -f reports/specialist-recovery-v8-delivery.json ]]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify Worker and send one real owner reset email
+        if: ${{ steps.guard.outputs.skip != 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "${ADMIN_API_KEY:-}" ]] || { echo "::error::SPECIALISTS_ADMIN_API_KEY missing"; exit 1; }
+          ready=false
+          for attempt in {1..36}; do
+            code="$(curl -sS -o /tmp/health.json -w '%{http_code}' "${ACCOUNT_API_BASE}/health?delivery-probe=${GITHUB_RUN_ID}-${attempt}" || true)"
+            if [[ "${code}" == "200" ]] && python - <<'PY'
+          import json
+          d=json.load(open('/tmp/health.json',encoding='utf-8'))
+          assert d.get('ok') is True and d.get('version') == '8.0.0', d
+          PY
+            then ready=true; break; fi
+            sleep 5
+          done
+          [[ "${ready}" == "true" ]] || { cat /tmp/health.json || true; exit 1; }
+
+          code="$(curl -sS -o /tmp/delivery.json -w '%{http_code}' -X POST -H "x-bootstrap-key: ${ADMIN_API_KEY}" -H 'content-type: application/json' --data '{}' "${ACCOUNT_API_BASE}/v1/internal/owner-password-reset" || true)"
+          [[ "${code}" == "200" ]] || { cat /tmp/delivery.json || true; exit 1; }
+          mkdir -p reports
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          d=json.load(open('/tmp/delivery.json',encoding='utf-8'))
+          assert d.get('ok') is True and d.get('delivery') == 'sent', d
+          assert d.get('providerMessageId'), d
+          report={
+            'schema_version':1,
+            'checked_at':datetime.now(timezone.utc).isoformat(),
+            'worker_version':'8.0.0',
+            'delivery':'sent',
+            'request_id':d.get('requestId'),
+            'provider_message_id':d.get('providerMessageId'),
+            'expires_at':d.get('expiresAt'),
+            'workflow_run_id':os.environ['GITHUB_RUN_ID'],
+          }
+          open('reports/specialist-recovery-v8-delivery.json','w',encoding='utf-8').write(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          PY
+
+      - name: Commit safe delivery receipt
+        if: ${{ steps.guard.outputs.skip != 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/specialist-recovery-v8-delivery.json
+          git commit -m "chore: record specialist recovery v8 delivery"
+          git pull --rebase origin main
+          git push origin HEAD:main
