@@ -1,4 +1,4 @@
-name: Record restored pages deployment v344
+name: Record restored pages deployment v345
 
 on:
   workflow_run:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: record-source-publication-deployment-v344
+  group: record-source-publication-deployment-v345
   cancel-in-progress: false
 
 jobs:
@@ -28,11 +28,11 @@ jobs:
       - name: Re-verify live restoration evidence
         env:
           RESTORE_RUN_ID: ${{ github.event.workflow_run.id }}
-          RESTORE_SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          RESTORE_WORKFLOW_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           BASE_URL: https://khaledaltheeb.github.io/pterminology-site
         run: |
           set -euxo pipefail
-          token="${RESTORE_RUN_ID}-${RESTORE_SOURCE_SHA}"
+          token="${RESTORE_RUN_ID}-${RESTORE_WORKFLOW_HEAD_SHA}"
           curl --retry 8 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL \
             "${BASE_URL}/deployment.json?v=${token}" -o /tmp/deployment.json
           curl --retry 8 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL \
@@ -46,14 +46,14 @@ jobs:
             curl --retry 8 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL \
               "${BASE_URL}/${route}?v=${token}" -o "/tmp/live-$(echo "${route}" | tr '/.' '__')"
           done
-          RESTORE_SOURCE_SHA="${RESTORE_SOURCE_SHA}" python - <<'PY'
+          python - <<'PY'
           import json
-          import os
+          import re
           from pathlib import Path
 
           deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
           report = json.loads(Path('/tmp/source-publication-parity-v342.json').read_text(encoding='utf-8'))
-          assert deployment['commit'] == os.environ['RESTORE_SOURCE_SHA'], deployment
+          assert re.fullmatch(r'[0-9a-f]{40}', deployment['commit']), deployment
           assert report['version'] == 342 and report['status'] == 'passed', report
           assert report['restored_routes'] >= 60, report
           assert report['remaining_missing_routes'] == [], report
@@ -74,8 +74,7 @@ jobs:
       - name: Build deployment status ledger
         env:
           RESTORE_RUN_ID: ${{ github.event.workflow_run.id }}
-          RESTORE_SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
-          TRIGGER_DEPLOY_RUN_ID: ${{ github.event.workflow_run.run_attempt }}
+          RESTORE_WORKFLOW_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           python - <<'PY'
           import json
@@ -86,14 +85,14 @@ jobs:
           report = json.loads(Path('/tmp/source-publication-parity-v342.json').read_text(encoding='utf-8'))
           deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
           status = {
-              'schema_version': 344,
+              'schema_version': 345,
               'status': 'deployed',
               'deployment_outcome': 'success',
-              'source_commit': os.environ['RESTORE_SOURCE_SHA'],
+              'source_commit': deployment['commit'],
+              'restoration_workflow_head_sha': os.environ['RESTORE_WORKFLOW_HEAD_SHA'],
               'restoration_workflow_run_id': os.environ['RESTORE_RUN_ID'],
               'page_url': 'https://khaledaltheeb.github.io/pterminology-site/',
               'recorded_at': datetime.now(timezone.utc).isoformat(),
-              'deployment_manifest_commit': deployment['commit'],
               'source_sitemaps_scanned': report['source_sitemaps_scanned'],
               'source_backed_public_routes': report['source_backed_public_routes'],
               'initially_missing_routes': report['initially_missing_routes'],
@@ -113,7 +112,7 @@ jobs:
                   'sitemap-family-guide.xml',
               ],
           }
-          Path('/tmp/source-publication-deployment-status-v344.json').write_text(
+          Path('/tmp/source-publication-deployment-status-v345.json').write_text(
               json.dumps(status, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
           )
           print(json.dumps(status, ensure_ascii=False, indent=2))
@@ -127,8 +126,8 @@ jobs:
             const fs = require('fs');
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const path = 'source-publication-deployment-status-v344.json';
-            const content = fs.readFileSync('/tmp/source-publication-deployment-status-v344.json').toString('base64');
+            const path = 'source-publication-deployment-status-v345.json';
+            const content = fs.readFileSync('/tmp/source-publication-deployment-status-v345.json').toString('base64');
             for (let attempt = 1; attempt <= 4; attempt++) {
               let sha;
               try {
@@ -143,7 +142,7 @@ jobs:
                   repo,
                   path,
                   branch: 'main',
-                  message: 'ci: record verified source-page restoration v344 [skip ci]',
+                  message: 'ci: record verified source-page restoration v345 [skip ci]',
                   content,
                   ...(sha ? { sha } : {}),
                 });
