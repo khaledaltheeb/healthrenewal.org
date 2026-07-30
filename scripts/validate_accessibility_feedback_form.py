@@ -170,6 +170,17 @@ def validate_text(text: str) -> list[str]:
     if unexpected:
         errors.append(f"unexpected public data-collection fields: {unexpected}")
 
+    # Sensitive identifiers and labels must be rejected even when the field is
+    # already unexpected. This produces an explicit safety signal in addition
+    # to the allow-list failure.
+    for field in fields:
+        normalized_id = field.field_id.casefold()
+        if any(part in normalized_id for part in FORBIDDEN_FIELD_ID_PARTS):
+            errors.append(f"sensitive field identifier is not allowed in a public issue: {field.field_id}")
+        for pattern in FORBIDDEN_COLLECTION_LABEL_PATTERNS:
+            if pattern.search(field.label):
+                errors.append(f"sensitive collection label is not allowed: {field.label}")
+
     by_id = {field.field_id: field for field in fields}
     for field_id, (expected_type, must_be_required) in EXPECTED_FIELDS.items():
         field = by_id.get(field_id)
@@ -181,13 +192,6 @@ def validate_text(text: str) -> list[str]:
             errors.append(f"{field_id} must be required")
         if not field.label:
             errors.append(f"{field_id} must have a visible label")
-
-        normalized_id = field.field_id.casefold()
-        if any(part in normalized_id for part in FORBIDDEN_FIELD_ID_PARTS):
-            errors.append(f"sensitive field identifier is not allowed in a public issue: {field.field_id}")
-        for pattern in FORBIDDEN_COLLECTION_LABEL_PATTERNS:
-            if pattern.search(field.label):
-                errors.append(f"sensitive collection label is not allowed: {field.label}")
 
     page_field = by_id.get("page_url")
     if page_field:
@@ -293,6 +297,7 @@ def run_self_test(root: Path) -> int:
 """
         assert_rejected(extra_sensitive, "unexpected public data-collection fields", "medical record field")
         assert_rejected(extra_sensitive, "sensitive field identifier", "sensitive field ID")
+        assert_rejected(extra_sensitive, "sensitive collection label", "sensitive field label")
 
         unsafe_upload = good.replace(
             "اذكر المشكلة التقنية فقط.",
