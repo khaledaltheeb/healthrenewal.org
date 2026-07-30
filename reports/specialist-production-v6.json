@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-07-30T15:42:39.938285+00:00",
-  "commit": "8f7849f1e7d1e7cb6170211c1e641106f6b1c58c",
+  "checked_at": "2026-07-30T15:48:19.909441+00:00",
+  "commit": "f4fb4c72663392edb6308e4f05a35e8ec1c6f0d4",
   "missing_secrets": [
     "CLOUDFLARE_ACCOUNT_ID",
     "D1_DATABASE_ID",
