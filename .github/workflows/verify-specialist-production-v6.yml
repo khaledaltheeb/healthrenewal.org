@@ -1,0 +1,151 @@
+name: Verify specialist production v6
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/verify-specialist-production-v6.yml"
+  workflow_run:
+    workflows: ["Validate and deploy specialist identity v6"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: verify-specialist-production-v6
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      D1_DATABASE_ID: ${{ secrets.SPECIALISTS_D1_DATABASE_ID }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
+      ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
+      RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}
+      FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
+      IDENTITY_URL: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
+      CORE_URL: https://pterminology-specialists.pterminology-826ac349.workers.dev
+      SITE_URL: https://khaledaltheeb.github.io/pterminology-site/specialists-partners
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Verify Cloudflare permissions, Workers and public pages
+        id: verify
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p reports
+          missing=()
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID D1_DATABASE_ID RESEND_API_KEY TURNSTILE_SECRET ADMIN_API_KEY RATE_LIMIT_SALT FROM_EMAIL; do
+            [[ -n "${!name:-}" ]] || missing+=("$name")
+          done
+
+          cf_token=false; cf_workers=false; cf_d1=false; cf_turnstile=false
+          if [[ -n "${CLOUDFLARE_API_TOKEN:-}" && -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]]; then
+            auth=(-H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json")
+            curl -fsS "${auth[@]}" https://api.cloudflare.com/client/v4/user/tokens/verify | python -c 'import json,sys; d=json.load(sys.stdin); raise SystemExit(0 if d.get("success") and d.get("result",{}).get("status")=="active" else 1)' && cf_token=true
+            curl -fsS "${auth[@]}" "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts" >/dev/null && cf_workers=true
+            curl -fsS "${auth[@]}" "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/d1/database" >/dev/null && cf_d1=true
+            curl -fsS "${auth[@]}" "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/challenges/widgets" >/dev/null && cf_turnstile=true
+          fi
+
+          identity_http=0; identity_ok=false; identity_version=""; identity_service=""
+          core_http=0; core_ok=false
+          join_http=0; account_http=0; admin_http=0
+          join_marker=false; account_marker=false; admin_marker=false
+          application_http=0; application_route=false
+
+          for attempt in {1..30}; do
+            identity_http="$(curl -sS -o /tmp/identity-health.json -w '%{http_code}' "${IDENTITY_URL}/health" || echo 0)"
+            if [[ "$identity_http" == "200" ]]; then
+              readarray -t identity_fields < <(python - <<'PY'
+          import json
+          try:
+              d=json.load(open('/tmp/identity-health.json',encoding='utf-8'))
+              print('true' if d.get('ok') is True else 'false')
+              print(d.get('version',''))
+              print(d.get('service',''))
+          except Exception:
+              print('false'); print(''); print('')
+          PY
+              )
+              identity_ok="${identity_fields[0]:-false}"
+              identity_version="${identity_fields[1]:-}"
+              identity_service="${identity_fields[2]:-}"
+            fi
+
+            core_http="$(curl -sS -o /tmp/core-health.json -w '%{http_code}' "${CORE_URL}/health" || echo 0)"
+            if [[ "$core_http" == "200" ]] && python -c 'import json; assert json.load(open("/tmp/core-health.json")).get("ok") is True' 2>/dev/null; then core_ok=true; fi
+
+            join_http="$(curl -sS -o /tmp/join.html -w '%{http_code}' "${SITE_URL}/join.html" || echo 0)"
+            account_http="$(curl -sS -o /tmp/account.html -w '%{http_code}' "${SITE_URL}/account/" || echo 0)"
+            admin_http="$(curl -sS -o /tmp/admin.html -w '%{http_code}' "${SITE_URL}/admin/" || echo 0)"
+            grep -q '/v1/applications' specialists-partners/assets/forms.js && join_marker=true
+            grep -q 'account.js?v=6.0.0' /tmp/account.html 2>/dev/null && account_marker=true
+            grep -q 'admin.js?v=6.0.0' /tmp/admin.html 2>/dev/null && admin_marker=true
+
+            if [[ "$identity_ok" == true && "$identity_version" == "6.0.0" && "$core_ok" == true && "$join_http" == "200" && "$account_marker" == true && "$admin_marker" == true ]]; then break; fi
+            sleep 5
+          done
+
+          application_http="$(curl -sS -o /tmp/application-contract.json -w '%{http_code}' -X POST -H 'content-type: application/json' --data '{}' "${CORE_URL}/v1/applications" || echo 0)"
+          [[ "$application_http" != "404" && "$application_http" != "000" && "$application_http" != "0" ]] && application_route=true
+
+          missing_json="$(printf '%s\n' "${missing[@]:-}" | python -c 'import json,sys; print(json.dumps([x.strip() for x in sys.stdin if x.strip()]))')"
+          export missing_json cf_token cf_workers cf_d1 cf_turnstile identity_http identity_ok identity_version identity_service core_http core_ok join_http account_http admin_http join_marker account_marker admin_marker application_http application_route
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          def b(name): return os.environ.get(name,'false').lower()=='true'
+          def i(name):
+              try: return int(os.environ.get(name,'0'))
+              except ValueError: return 0
+          report={
+            'schema_version':1,
+            'checked_at':datetime.now(timezone.utc).isoformat(),
+            'commit':os.environ.get('GITHUB_SHA',''),
+            'missing_secrets':json.loads(os.environ.get('missing_json','[]')),
+            'cloudflare':{
+              'token_active':b('cf_token'),'workers_access':b('cf_workers'),'d1_access':b('cf_d1'),'turnstile_access':b('cf_turnstile')
+            },
+            'identity_worker':{
+              'http_status':i('identity_http'),'ok':b('identity_ok'),'version':os.environ.get('identity_version',''),'service':os.environ.get('identity_service','')
+            },
+            'core_worker':{'http_status':i('core_http'),'ok':b('core_ok'),'application_route_http':i('application_http'),'application_route_present':b('application_route')},
+            'pages':{
+              'join_http':i('join_http'),'join_source_contract':b('join_marker'),
+              'account_http':i('account_http'),'account_v6':b('account_marker'),
+              'admin_http':i('admin_http'),'admin_v6':b('admin_marker')
+            }
+          }
+          report['passed']=(not report['missing_secrets'] and all(report['cloudflare'].values()) and report['identity_worker']['ok'] and report['identity_worker']['version']=='6.0.0' and report['core_worker']['ok'] and report['core_worker']['application_route_present'] and report['pages']['join_http']==200 and report['pages']['account_v6'] and report['pages']['admin_v6'])
+          open('reports/specialist-production-v6.json','w',encoding='utf-8').write(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps(report,ensure_ascii=False,indent=2))
+          PY
+
+      - name: Commit production verification report
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/specialist-production-v6.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore: record specialist production v6 verification"
+          git push origin HEAD:main
+
+      - name: Enforce successful production verification
+        shell: bash
+        run: python -c 'import json; d=json.load(open("reports/specialist-production-v6.json")); assert d.get("passed") is True, d'
