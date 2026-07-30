@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 env:
-  STATUS_TRIGGER: "2026-07-31T02:12:00+03:00"
+  STATUS_TRIGGER: "2026-07-31T02:14:00+03:00"
 
 jobs:
   report:
@@ -23,7 +23,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-      - name: Read latest recovery workflow runs
+      - name: Read recent recovery workflow runs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
@@ -52,24 +52,24 @@ jobs:
             'verify-specialist-recovery-v8.yml',
             'deploy-specialist-recovery-pages-v8.yml',
           ]
+          def compact(run):
+              return {
+                'id':run.get('id'),
+                'name':run.get('name'),
+                'status':run.get('status'),
+                'conclusion':run.get('conclusion'),
+                'event':run.get('event'),
+                'head_branch':run.get('head_branch'),
+                'head_sha':run.get('head_sha'),
+                'created_at':run.get('created_at'),
+                'updated_at':run.get('updated_at'),
+                'html_url':run.get('html_url'),
+              }
           result={}
           for name in names:
               data=json.loads((Path('/tmp/recovery-runs')/(name+'.json')).read_text(encoding='utf-8'))
-              runs=data.get('workflow_runs') or []
-              latest=runs[0] if runs else {}
-              result[name]={
-                'id':latest.get('id'),
-                'name':latest.get('name'),
-                'status':latest.get('status'),
-                'conclusion':latest.get('conclusion'),
-                'event':latest.get('event'),
-                'head_branch':latest.get('head_branch'),
-                'head_sha':latest.get('head_sha'),
-                'created_at':latest.get('created_at'),
-                'updated_at':latest.get('updated_at'),
-                'html_url':latest.get('html_url'),
-              }
-          report={'schema_version':1,'checked_at':datetime.now(timezone.utc).isoformat(),'workflows':result}
+              result[name]=[compact(run) for run in (data.get('workflow_runs') or [])[:5]]
+          report={'schema_version':2,'checked_at':datetime.now(timezone.utc).isoformat(),'workflows':result}
           Path('reports/specialist-recovery-v8-runs.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           print(json.dumps(report,ensure_ascii=False,indent=2))
           PY
