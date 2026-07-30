@@ -1,6 +1,6 @@
 {
-  "apiVersion": "1.3.0",
-  "generatedAt": "2026-07-29",
+  "apiVersion": "1.4.0",
+  "generatedAt": "2026-07-30",
   "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
   "alternateName": "مصطلحات علم النفس",
   "baseUrl": "https://khaledaltheeb.github.io/pterminology-site/",
@@ -93,11 +93,21 @@
       "title": "المجلة والأبحاث",
       "url": "https://khaledaltheeb.github.io/pterminology-site/magazine/",
       "tags": ["أبحاث", "دراسات", "تحليل"]
+    },
+    {
+      "id": "source-registry",
+      "type": "governed-source-catalogue",
+      "title": "سجل المصادر ومسارات التكامل",
+      "url": "https://khaledaltheeb.github.io/pterminology-site/source-registry/",
+      "dataUrl": "https://khaledaltheeb.github.io/pterminology-site/api/source-registry.json",
+      "tags": ["مصادر رسمية", "الترخيص", "الإسناد", "واجهات البيانات", "التدقيق"],
+      "relationshipPolicy": "independent_source_candidate_not_partner"
     }
   ],
   "endpoints": {
     "platform": "https://khaledaltheeb.github.io/pterminology-site/api/v1/platform.json",
     "openapi": "https://khaledaltheeb.github.io/pterminology-site/api/v1/openapi.json",
+    "sourceRegistry": "https://khaledaltheeb.github.io/pterminology-site/api/source-registry.json",
     "assistiveTechnologyResources": "https://khaledaltheeb.github.io/pterminology-site/api/v1/assistive-technology-resources.json",
     "assistiveTechnologyQualityFramework": "https://khaledaltheeb.github.io/pterminology-site/api/v1/assistive-technology-quality-framework.json",
     "resnaContinuingEducationProviders": "https://khaledaltheeb.github.io/pterminology-site/api/v1/resna-ce-providers.json",
@@ -115,10 +125,12 @@
   "integrationPolicy": {
     "externalCourseImport": "permission_required",
     "externalStandardsReuse": "link_and_citation_only_unless_license_allows_more",
+    "externalSourceCandidatePublication": "official_link_verified_and_relationship_disclaimer_required",
+    "externalSourceMetadataIngestion": "rights_technical_and_editorial_review_required",
     "providerPublication": "verification_and_written_consent_required",
     "providerAccuracy": "field_level_evidence_and_current_verification_ledger_required",
     "eventSpecificContinuingEducationVerification": "required_before_claiming_credit_or_approval",
     "requiredEvidence": ["source authorization", "content license", "provider identity", "provider qualification", "license when applicable", "field-level claim evidence", "written publication consent", "canonical source URL", "event-specific continuing-education evidence when claimed"],
-    "prohibited": ["circumventing access controls", "copying protected course materials", "copying protected standards or position papers", "removing attribution", "claiming external endorsement without written permission", "claiming all courses from an approved provider carry credit", "publishing unverified provider claims", "publishing client or child case data", "publishing sensitive verification documents", "paid ranking presented as neutral results"]
+    "prohibited": ["circumventing access controls", "copying protected course materials", "copying protected standards or position papers", "removing attribution", "claiming external endorsement without written permission", "claiming candidate sources are partners or reviewers", "claiming all courses from an approved provider carry credit", "publishing unverified provider claims", "publishing client or child case data", "publishing sensitive verification documents", "paid ranking presented as neutral results"]
   }
 }
