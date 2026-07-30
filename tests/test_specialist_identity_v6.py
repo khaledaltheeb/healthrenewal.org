@@ -111,6 +111,9 @@ class SpecialistIdentityV6Tests(unittest.TestCase):
         self.assertIn("actor.role==='reviewer'?env.REVIEWER_API_KEY", worker)
         self.assertIn("env.MODERATOR_API_KEY", worker)
         self.assertIn("login_token_used", worker)
+        self.assertIn("requiresSetup", worker)
+        self.assertIn("status=CASE WHEN status='invited' THEN 'active' ELSE status END", worker)
+        self.assertIn("phone_verified_at=CASE WHEN ?=1 THEN NULL", worker)
 
     def test_password_storage_is_derived_and_never_plaintext(self) -> None:
         worker = read("specialists-partners/account-backend/src/index.js")
@@ -141,6 +144,7 @@ class SpecialistIdentityV6Tests(unittest.TestCase):
         self.assertIn("استعادة", account_html)
         self.assertIn("إدارة الحسابات والصلاحيات", admin_html)
         self.assertIn("سجل المحادثات", account_html)
+        self.assertIn("current.required=!user.mustChangePassword", account_js)
 
     def test_admin_contract_covers_requested_owner_operations(self) -> None:
         worker = read("specialists-partners/account-backend/src/index.js")
