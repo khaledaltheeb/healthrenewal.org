@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "1.2",
+  "conditionId": "prader-willi-syndrome",
+  "titleAr": "متلازمة برادر ويلي",
+  "publicationStatus": "draft-unpublished",
+  "reviewedOn": "2026-07-29",
+  "scope": "سجل توثيق تحريري داخلي يربط الادعاءات الحساسة في الدليل بمصادرها، ولا يمثل تشخيصًا أو وصفة علاجية فردية.",
+  "claims": [
+    {
+      "id": "pws-definition-course",
+      "claim": "متلازمة برادر ويلي حالة وراثية نمائية عصبية متعددة الأجهزة، وقد تتغير صورتها من رخاوة وصعوبة تغذية في الرضاعة إلى فرط شهية ومخاطر زيادة الوزن لاحقًا.",
+      "strength": "guideline-and-rare-disease-reference",
+      "sources": ["shaikh-2024", "orphanet-739"]
+    },
+    {
+      "id": "pws-molecular-confirmation",
+      "claim": "الاشتباه السريري لا يكفي وحده، ويجب تأكيد التشخيص بفحص جزيئي مناسب ثم تحديد الآلية الجينية عند الحاجة للإرشاد الوراثي.",
+      "strength": "consensus-guidance",
+      "sources": ["goldstone-2008", "cassidy-2012", "orphanet-739"]
+    },
+    {
+      "id": "pws-multidisciplinary-care",
+      "claim": "تحتاج المتلازمة عادة إلى متابعة متعددة التخصصات تشمل النمو والغدد والنوم والتنفس والتغذية والحركة والتعلم والصحة النفسية والانتقال للرشد بحسب احتياجات الشخص.",
+      "strength": "clinical-guidance",
+      "sources": ["shaikh-2024", "goldstone-2008"]
+    },
+    {
+      "id": "pws-growth-hormone-specialist",
+      "claim": "السوماتروبين خيار علاجي تخصصي لبعض الأطفال المصابين بمتلازمة برادر ويلي، ويجب أن يبدأ ويُراقب بواسطة اختصاصي مع تقييم الاستجابة والسلامة بصورة فردية.",
+      "strength": "technology-appraisal-recommendation",
+      "sources": ["nice-ta188", "shaikh-2024"]
+    },
+    {
+      "id": "pws-food-environment",
+      "claim": "تنظيم البيئة الغذائية واتساق المواعيد والقواعد ممارسة مركزية منخفضة المخاطر نسبيًا، لكن تفاصيل القيود والإشراف يجب أن تكون فردية ومتناسبة وتحترم الكرامة.",
+      "strength": "clinical-consensus-and-practice",
+      "sources": ["shaikh-2024", "goldstone-2008"]
+    },
+    {
+      "id": "pws-evidence-limits",
+      "claim": "لا توجد خطة سلوكية أو غذائية أو دوائية واحدة مناسبة للجميع، كما أن بعض التدخلات الموجهة لفرط الشهية أو السلوك ما تزال محدودة الدليل أو مرتبطة بسياقات تنظيمية محددة.",
+      "strength": "evidence-limitation",
+      "sources": ["shaikh-2024"]
+    }
+  ],
+  "sources": {
+    "shaikh-2024": {
+      "organization": "Endocrine Connections",
+      "title": "Prader-Willi syndrome: guidance for children and transition into adulthood",
+      "published": "2024",
+      "doi": "10.1530/EC-24-0091",
+      "pmid": "38838713",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38838713/",
+      "type": "clinical-guidance-review",
+      "verification": {"checkedOn": "2026-07-29", "status": "identifier-and-record-verified"}
+    },
+    "goldstone-2008": {
+      "organization": "Journal of Clinical Endocrinology & Metabolism",
+      "title": "Recommendations for the diagnosis and management of Prader-Willi syndrome",
+      "published": "2008",
+      "pmid": "18697869",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/18697869/",
+      "type": "expert-consensus",
+      "verification": {"checkedOn": "2026-07-29", "status": "identifier-and-record-verified"}
+    },
+    "cassidy-2012": {
+      "organization": "Genetics in Medicine",
+      "title": "Prader-Willi syndrome",
+      "published": "2012",
+      "doi": "10.1038/gim.0b013e31822bead0",
+      "pmid": "22237428",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/22237428/",
+      "type": "clinical-review",
+      "verification": {"checkedOn": "2026-07-29", "status": "identifier-and-record-verified"}
+    },
+    "orphanet-739": {
+      "organization": "Orphanet",
+      "title": "Prader-Willi syndrome",
+      "orphaCode": "739",
+      "url": "https://www.orpha.net/en/disease/detail/739",
+      "type": "official-rare-disease-reference",
+      "verification": {"checkedOn": "2026-07-29", "status": "reachable-official-source"}
+    },
+    "nice-ta188": {
+      "organization": "National Institute for Health and Care Excellence",
+      "title": "Human growth hormone (somatropin) for the treatment of growth failure in children",
+      "guideline": "TA188",
+      "published": "2010-05-26",
+      "url": "https://www.nice.org.uk/guidance/ta188/chapter/1-Recommendations",
+      "type": "technology-appraisal-guidance",
+      "verification": {"checkedOn": "2026-07-29", "status": "reachable-official-source"}
+    }
+  },
+  "safety": {
+    "noProtectedScaleText": true,
+    "noIndividualDiagnosis": true,
+    "noIndividualTreatmentPrescription": true,
+    "publicApprovalClaim": false
+  }
+}
