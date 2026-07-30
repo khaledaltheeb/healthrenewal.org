@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-30T22:51:59.168130+00:00",
+  "workflows": {
+    "deploy-specialists-account-backend.yml": {
+      "id": 30588480536,
+      "name": "Validate and deploy specialist identity v6",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "head_branch": "main",
+      "head_sha": "2a428604b0612a17cea022382272b7aceeb2c2bf",
+      "created_at": "2026-07-30T22:49:35Z",
+      "updated_at": "2026-07-30T22:50:29Z",
+      "html_url": "https://github.com/khaledaltheeb/pterminology-site/actions/runs/30588480536"
+    },
+    "deploy-specialist-recovery-overlay-v8.yml": {
+      "id": 30588533771,
+      "name": "Deploy specialist recovery overlay v8",
+      "status": "completed",
+      "conclusion": "failure",
+      "event": "workflow_run",
+      "head_branch": "main",
+      "head_sha": "f9f4ce34016efa6bb09de83c548bf35d31a455b6",
+      "created_at": "2026-07-30T22:50:30Z",
+      "updated_at": "2026-07-30T22:50:40Z",
+      "html_url": "https://github.com/khaledaltheeb/pterminology-site/actions/runs/30588533771"
+    },
+    "verify-specialist-recovery-v8.yml": {
+      "id": 30588545221,
+      "name": "Verify specialist recovery delivery v8",
+      "status": "completed",
+      "conclusion": "skipped",
+      "event": "workflow_run",
+      "head_branch": "main",
+      "head_sha": "f9f4ce34016efa6bb09de83c548bf35d31a455b6",
+      "created_at": "2026-07-30T22:50:42Z",
+      "updated_at": "2026-07-30T22:50:43Z",
+      "html_url": "https://github.com/khaledaltheeb/pterminology-site/actions/runs/30588545221"
+    },
+    "deploy-specialist-recovery-pages-v8.yml": {
+      "id": 30588480509,
+      "name": "Deploy specialist recovery interface v8",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "head_branch": "main",
+      "head_sha": "2a428604b0612a17cea022382272b7aceeb2c2bf",
+      "created_at": "2026-07-30T22:49:35Z",
+      "updated_at": "2026-07-30T22:50:03Z",
+      "html_url": "https://github.com/khaledaltheeb/pterminology-site/actions/runs/30588480509"
+    }
+  }
+}
