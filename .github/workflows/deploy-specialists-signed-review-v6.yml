@@ -66,7 +66,11 @@ jobs:
           python -m unittest tests.test_specialist_signed_review_v6 tests.test_specialists_production_readiness
 
       - name: Enforce production readiness before migration
-        run: node scripts/check-specialists-production-readiness.mjs
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ ${#REVIEW_LINK_SECRET} -ge 32 ]]
+          node scripts/check-specialists-production-readiness.mjs
 
       - name: Generate production Worker configuration
         working-directory: specialists-partners/backend
