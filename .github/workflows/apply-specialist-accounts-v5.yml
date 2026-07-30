@@ -1,0 +1,55 @@
+name: Apply specialist accounts v5 patch
+
+on:
+  push:
+    branches: ["agent/specialist-accounts-cloudflare-v5"]
+    paths:
+      - "tools/apply_specialist_accounts_v5_patch.py"
+      - "tools/specialist_accounts_v5_payload.*"
+      - ".github/workflows/apply-specialist-accounts-v5.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-specialist-accounts-v5
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/specialist-accounts-cloudflare-v5
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Materialize reviewed patch
+        run: python tools/apply_specialist_accounts_v5_patch.py
+
+      - name: Validate generated implementation
+        run: |
+          set -euo pipefail
+          node --check specialists-partners/account-backend/src/index.js
+          node --check specialists-partners/account/account.js
+          python -m unittest -v tests.test_specialist_accounts_v5
+
+      - name: Commit generated implementation
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "feat: add Cloudflare specialist accounts v5"
+          git push origin HEAD:agent/specialist-accounts-cloudflare-v5
