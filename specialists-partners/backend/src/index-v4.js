@@ -53,13 +53,24 @@ export default {
 
       if (request.method === 'POST' && url.pathname === '/v1/applications') {
         const applicationRequest = request.clone();
-        const applicationBody = await applicationRequest.json().catch(() => ({}));
         const baseResponse = await baseWorker.fetch(request, env, ctx);
         if (baseResponse.status !== 201) return baseResponse;
 
+        const applicationBody = await applicationRequest.json().catch(() => ({}));
         const result = await baseResponse.clone().json();
-        const applicationId = String(applicationBody.submissionId || '').trim();
-        if (!applicationId || !result.referenceId) {
+        if (!result.referenceId) {
+          console.error('signed_review_missing_reference_id');
+          return baseResponse;
+        }
+
+        let applicationId = String(applicationBody.submissionId || '').trim();
+        if (!applicationId) {
+          const storedApplication = await env.DB.prepare(`
+            SELECT id FROM applications WHERE reference_id = ? LIMIT 1
+          `).bind(result.referenceId).first();
+          applicationId = String(storedApplication?.id || '').trim();
+        }
+        if (!applicationId) {
           console.error('signed_review_missing_application_identity');
           return baseResponse;
         }
