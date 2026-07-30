@@ -42,14 +42,18 @@ for (const name of optional) {
   if (value(name)) minLength(name, 32);
 }
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-for (const name of ['SPECIALISTS_FROM_EMAIL', 'SPECIALISTS_OWNER_EMAIL']) {
-  if (value(name) && !emailPattern.test(value(name))) {
-    errors.push(`${name}: invalid email format`);
-  }
-}
+const mailboxPattern = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
+const namedMailboxPattern = /^.{1,100}\s<([^\s@<>]+@[^\s@<>]+\.[^\s@<>]+)>$/;
+const validMailbox = (candidate, allowDisplayName = false) =>
+  mailboxPattern.test(candidate) || (allowDisplayName && namedMailboxPattern.test(candidate));
 
-if (value('SPECIALISTS_FROM_EMAIL') && !value('SPECIALISTS_FROM_EMAIL').includes('<')) {
+if (value('SPECIALISTS_OWNER_EMAIL') && !validMailbox(value('SPECIALISTS_OWNER_EMAIL'))) {
+  errors.push('SPECIALISTS_OWNER_EMAIL: invalid mailbox format');
+}
+if (value('SPECIALISTS_FROM_EMAIL') && !validMailbox(value('SPECIALISTS_FROM_EMAIL'), true)) {
+  errors.push('SPECIALISTS_FROM_EMAIL: use mailbox@example.org or Display Name <mailbox@example.org>');
+}
+if (value('SPECIALISTS_FROM_EMAIL') && mailboxPattern.test(value('SPECIALISTS_FROM_EMAIL'))) {
   warnings.push('SPECIALISTS_FROM_EMAIL: plain mailbox accepted; a verified sender name is recommended');
 }
 
