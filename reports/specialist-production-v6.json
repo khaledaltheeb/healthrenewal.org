@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-30T15:42:39.938285+00:00",
+  "commit": "8f7849f1e7d1e7cb6170211c1e641106f6b1c58c",
+  "missing_secrets": [
+    "CLOUDFLARE_ACCOUNT_ID",
+    "D1_DATABASE_ID",
+    "TURNSTILE_SECRET"
+  ],
+  "cloudflare": {
+    "token_active": false,
+    "workers_access": false,
+    "d1_access": false,
+    "turnstile_access": false
+  },
+  "identity_worker": {
+    "http_status": 404,
+    "ok": false,
+    "version": "",
+    "service": ""
+  },
+  "core_worker": {
+    "http_status": 200,
+    "ok": true,
+    "application_route_http": 400,
+    "application_route_present": true
+  },
+  "pages": {
+    "join_http": 200,
+    "join_source_contract": true,
+    "account_http": 200,
+    "account_v6": false,
+    "admin_http": 200,
+    "admin_v6": false
+  },
+  "passed": false
+}
