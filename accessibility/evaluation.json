@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "1.0",
+  "page": "/accessibility/",
+  "language": "ar",
+  "status": "baseline-in-progress",
+  "target": {
+    "standard": "WCAG 2.2",
+    "level": "AA",
+    "methodology": "WCAG-EM 2.0"
+  },
+  "conformanceClaim": {
+    "status": "none",
+    "date": null,
+    "scope": null,
+    "independentReview": false
+  },
+  "lastInternalReview": "2026-07-30",
+  "nextReviewDue": "2026-10-30",
+  "evaluationScope": {
+    "representativeRoutes": [
+      "/",
+      "/encyclopedia/",
+      "/special-needs/",
+      "/care-guides/",
+      "/library/",
+      "/guided-assessment/",
+      "/daily-tools/",
+      "/specialists-partners/"
+    ],
+    "browsersPlanned": [
+      "Chrome",
+      "Firefox",
+      "Edge",
+      "Safari"
+    ],
+    "assistiveTechnologyPlanned": [
+      "NVDA",
+      "Narrator",
+      "VoiceOver",
+      "TalkBack",
+      "keyboard-only",
+      "voice-input"
+    ]
+  },
+  "knownLimitations": [
+    {
+      "id": "independent-user-testing",
+      "status": "open",
+      "summary": "لم يكتمل اختبار مستقل شامل مع مستخدمين فعليين وتقنيات مساعدة متعددة."
+    },
+    {
+      "id": "full-manual-page-coverage",
+      "status": "open",
+      "summary": "لم تُراجع جميع الصفحات يدويًا؛ ستستخدم المنهجية قوالب وعينات ممثلة مع زحف آلي شامل."
+    },
+    {
+      "id": "legacy-documents-media",
+      "status": "open",
+      "summary": "قد تحتاج بعض المستندات والوسائط والأدوات القديمة إلى معالجة منفصلة."
+    }
+  ],
+  "feedback": {
+    "channel": "github-issues",
+    "public": true,
+    "url": "https://github.com/khaledaltheeb/pterminology-site/issues/new/choose",
+    "privacyWarning": "لا تنشر كلمات مرور أو رموز دخول أو بيانات صحية أو تعريفية أو وثائق خاصة؛ البلاغ عام."
+  },
+  "claims": {
+    "w3cCertified": false,
+    "thirdPartyCertified": false
+  }
+}
