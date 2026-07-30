@@ -1,0 +1,99 @@
+name: Audit specialists messaging v5 deployment
+
+on:
+  workflow_run:
+    workflows: ['Deploy specialists live messaging v5']
+    types: [completed]
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-specialists-messaging-v5-deployment.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: audit-specialists-messaging-v5-deployment
+  cancel-in-progress: false
+
+jobs:
+  audit-live-deployment:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      API_BASE: https://pterminology-specialists.pterminology-826ac349.workers.dev
+      SOURCE_COMMIT: ${{ github.event.workflow_run.head_sha || github.sha }}
+      SOURCE_RUN_ID: ${{ github.event.workflow_run.id || github.run_id }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify production health contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in {1..24}; do
+            status="$(curl -sS -o /tmp/messaging-health.json -w '%{http_code}' "${API_BASE%/}/health" || true)"
+            if [[ "$status" == "200" ]] && python - <<'PY'
+          import json
+          from pathlib import Path
+          health = json.loads(Path('/tmp/messaging-health.json').read_text(encoding='utf-8'))
+          assert health['ok'] is True, health
+          assert health['version'] == '5.0.0', health
+          assert health['ownerDisplayName'] == 'خالد الذيب', health
+          for name in ('database', 'email', 'ownerEmail', 'messagingV5', 'notificationPolicy', 'ownerIdentity'):
+              assert health['checks'].get(name) is True, (name, health)
+          PY
+            then
+              exit 0
+            fi
+            sleep 5
+          done
+          cat /tmp/messaging-health.json || true
+          exit 1
+
+      - name: Record verified deployment certificate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout -B deployment-audit origin/main
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          health = json.loads(Path('/tmp/messaging-health.json').read_text(encoding='utf-8'))
+          marker = {
+              'schemaVersion': '1.0.0',
+              'service': 'specialists-live-messaging',
+              'version': health['version'],
+              'status': 'verified',
+              'ownerDisplayName': health['ownerDisplayName'],
+              'checks': health['checks'],
+              'sourceCommit': os.environ['SOURCE_COMMIT'],
+              'workflowRunId': os.environ['SOURCE_RUN_ID'],
+              'deployedAt': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
+          }
+          path = Path('specialists-partners/data/messaging-deployment.json')
+          path.parent.mkdir(parents=True, exist_ok=True)
+          path.write_text(json.dumps(marker, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+          git add specialists-partners/data/messaging-deployment.json
+          if git diff --cached --quiet; then
+            echo "Verified deployment certificate already current."
+            exit 0
+          fi
+          git commit -m "ops: record verified messaging v5 deployment [skip ci]"
+          for attempt in {1..5}; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            git fetch origin main
+            git rebase origin/main
+          done
+          exit 1
