@@ -194,7 +194,6 @@ def main() -> None:
         'rel="manifest"',
         'rel="icon"',
         'rel="search"',
-        'name="keywords"',
         'property="og:image"',
         'name="twitter:image"',
         'application/ld+json',
@@ -206,6 +205,9 @@ def main() -> None:
     missing = [item for item in required if item not in text]
     if missing:
         raise SystemExit(f"Homepage source missing required markers: {missing}")
+
+    if re.search(r'<meta\s+name=["\']keywords["\']', text, re.IGNORECASE):
+        raise SystemExit("Homepage source must not publish obsolete meta keywords")
 
     forbidden = [
         'background:linear-gradient(145deg,var(--navy),var(--navy2))',
@@ -252,10 +254,11 @@ def main() -> None:
 
     expected_target_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
     report = {
-        "version": 219,
+        "version": 220,
         "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         "target_sha256": hashlib.sha256(TARGET.read_bytes()).hexdigest(),
         "source_transformed": True,
+        "meta_keywords_absent": True,
         "lab_tool_count": LAB_TOOL_COUNT,
         "lab_inventory_updated": True,
         "lab_inventory_metadata_updated": True,
