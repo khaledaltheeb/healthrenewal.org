@@ -36,7 +36,6 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '826ac34927c1e045c06145a327c2ac52' }}
       PREFERRED_D1_DATABASE_ID: ${{ secrets.SPECIALISTS_D1_DATABASE_ID }}
-      PREFERRED_TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
       REVIEWER_API_KEY: ${{ secrets.SPECIALISTS_REVIEWER_API_KEY }}
@@ -45,8 +44,6 @@ jobs:
       PASSWORD_PEPPER: ${{ secrets.SPECIALISTS_PASSWORD_PEPPER }}
       FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
       DATABASE_NAME: pterminology-specialists
-      TURNSTILE_WIDGET_NAME: pterminology-specialists-forms
-      ALLOWED_HOSTNAME: khaledaltheeb.github.io
       ACCOUNT_API_BASE: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
       CORE_API_BASE: https://pterminology-specialists.pterminology-826ac349.workers.dev
 
@@ -72,7 +69,7 @@ jobs:
           node --check specialists-partners/recover/recover.js
           python -m unittest -v tests.test_specialist_recovery_v8
 
-      - name: Validate secrets and discover Cloudflare resources
+      - name: Validate secrets and discover D1
         id: resources
         shell: bash
         run: |
@@ -83,70 +80,28 @@ jobs:
           done
           auth=(-H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json")
           curl -fsS "${auth[@]}" "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/tokens/verify" | python -c 'import json,sys; d=json.load(sys.stdin); assert d.get("success") and d.get("result",{}).get("status")=="active", d'
-          python - <<'PY'
-          import json, os, urllib.parse, urllib.request
-
-          account_id=os.environ['CLOUDFLARE_ACCOUNT_ID']
-          token=os.environ['CLOUDFLARE_API_TOKEN']
-          database_name=os.environ['DATABASE_NAME']
-          widget_name=os.environ['TURNSTILE_WIDGET_NAME']
-          hostname=os.environ['ALLOWED_HOSTNAME']
-          headers={'Authorization':f'Bearer {token}','Content-Type':'application/json'}
-
-          def call(url, method='GET', payload=None):
-              data=None if payload is None else json.dumps(payload).encode()
-              req=urllib.request.Request(url,method=method,headers=headers,data=data)
-              with urllib.request.urlopen(req,timeout=60) as response:
-                  result=json.load(response)
-              if result.get('success') is not True:
-                  raise SystemExit(result)
-              return result
-
-          preferred_db=os.environ.get('PREFERRED_D1_DATABASE_ID','').strip()
-          if preferred_db:
-              database_id=preferred_db
-          else:
-              d1_url=f'https://api.cloudflare.com/client/v4/accounts/{account_id}/d1/database?per_page=100'
-              databases=call(d1_url).get('result',[])
-              matches=[item for item in databases if item.get('name')==database_name]
-              if not matches or not matches[0].get('uuid'):
-                  raise SystemExit('D1 database not found')
-              database_id=matches[0]['uuid']
-
-          preferred_secret=os.environ.get('PREFERRED_TURNSTILE_SECRET','').strip()
-          widget_base=f'https://api.cloudflare.com/client/v4/accounts/{account_id}/challenges/widgets'
-          query=urllib.parse.urlencode({'filter':f'name:{widget_name}','per_page':100})
-          widgets=call(widget_base+'?'+query).get('result',[])
-          matches=[item for item in widgets if item.get('name')==widget_name]
-          if preferred_secret:
-              turnstile_secret=preferred_secret
-              sitekey=matches[0].get('sitekey') if matches else ''
-          elif matches:
-              sitekey=matches[0].get('sitekey')
-              rotated=call(f"{widget_base}/{urllib.parse.quote(sitekey,safe='')}/rotate_secret",'POST',{'invalidate_immediately':False}).get('result',{})
-              turnstile_secret=rotated.get('secret')
-              sitekey=rotated.get('sitekey') or sitekey
-          else:
-              widget=call(widget_base,'POST',{'domains':[hostname],'mode':'managed','name':widget_name,'clearance_level':'no_clearance','region':'world'}).get('result',{})
-              sitekey=widget.get('sitekey')
-              turnstile_secret=widget.get('secret')
-
-          if not database_id or not sitekey or not turnstile_secret:
-              raise SystemExit('Cloudflare resources incomplete')
-          print(f'::add-mask::{turnstile_secret}')
-          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as out:
-              out.write(f'database_id={database_id}\n')
-              out.write(f'turnstile_sitekey={sitekey}\n')
-              out.write(f'turnstile_secret={turnstile_secret}\n')
-          print(f'D1 ready: {database_name} ({database_id})')
-          print(f'Turnstile ready: {widget_name} ({sitekey})')
+          if [[ -n "${PREFERRED_D1_DATABASE_ID:-}" ]]; then
+            database_id="${PREFERRED_D1_DATABASE_ID}"
+          else
+            curl -fsS "${auth[@]}" "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/d1/database?per_page=100" -o /tmp/d1.json
+            database_id="$(python - <<'PY'
+          import json, os
+          data=json.load(open('/tmp/d1.json',encoding='utf-8'))
+          matches=[x for x in data.get('result',[]) if x.get('name')==os.environ['DATABASE_NAME']]
+          if not matches or not matches[0].get('uuid'):
+              raise SystemExit('D1 database not found')
+          print(matches[0]['uuid'])
           PY
+          )"
+          fi
+          [[ -n "${database_id}" ]] || { echo "::error::D1 database id missing"; exit 1; }
+          echo "database_id=${database_id}" >> "$GITHUB_OUTPUT"
+          echo "Existing Worker Turnstile secret will be preserved during deployment."
 
       - name: Generate Worker configuration and secrets
         working-directory: specialists-partners/account-backend
         env:
           D1_DATABASE_ID: ${{ steps.resources.outputs.database_id }}
-          TURNSTILE_SECRET: ${{ steps.resources.outputs.turnstile_secret }}
         shell: bash
         run: |
           set -euo pipefail
@@ -186,7 +141,6 @@ jobs:
           Path('wrangler-v8.toml').write_text(content,encoding='utf-8')
           secrets={
             'RESEND_API_KEY':os.environ['RESEND_API_KEY'],
-            'TURNSTILE_SECRET':os.environ['TURNSTILE_SECRET'],
             'ADMIN_API_KEY':os.environ['ADMIN_API_KEY'],
             'RATE_LIMIT_SALT':os.environ['RATE_LIMIT_SALT'],
           }
@@ -215,6 +169,7 @@ jobs:
           assert d.get('ok') is True, d
           assert d.get('version') == '8.0.0', d
           checks=d.get('checks') or {}
+          assert checks.get('turnstile') is True, checks
           assert checks.get('passwordResetBase') is True, checks
           assert checks.get('resendConfigured') is True, checks
           assert checks.get('recoveryOverlay') is True, checks
