@@ -1,0 +1,178 @@
+name: Deploy specialists live messaging v5
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'specialists-partners/backend/src/index-v3.js'
+      - 'specialists-partners/backend/src/messaging-v5-*.js'
+      - 'specialists-partners/backend/migrations/0004_messaging_notifications.sql'
+      - 'specialists-partners/assets/portal-live-v5.js'
+      - 'specialists-partners/portal/index.html'
+      - 'tests/test_specialist_messaging_v5.py'
+      - '.github/workflows/deploy-specialists-messaging-v5.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-specialists-live-messaging-v5
+  cancel-in-progress: false
+
+jobs:
+  validate-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      D1_DATABASE_ID: ${{ secrets.SPECIALISTS_D1_DATABASE_ID }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
+      ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
+      REVIEWER_API_KEY: ${{ secrets.SPECIALISTS_REVIEWER_API_KEY }}
+      MODERATOR_API_KEY: ${{ secrets.SPECIALISTS_MODERATOR_API_KEY }}
+      RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}
+      FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
+      OWNER_EMAIL_SECRET: ${{ secrets.SPECIALISTS_OWNER_EMAIL }}
+      API_BASE: https://pterminology-specialists.pterminology-826ac349.workers.dev
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate messaging contracts
+        run: |
+          set -euo pipefail
+          node --check specialists-partners/backend/src/index-v3.js
+          for file in specialists-partners/backend/src/messaging-v5-*.js; do node --check "$file"; done
+          node --check specialists-partners/assets/portal-live-v5.js
+          python -m unittest tests.test_specialist_messaging_v5
+
+      - name: Validate deployment secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID D1_DATABASE_ID
+            RESEND_API_KEY TURNSTILE_SECRET ADMIN_API_KEY RATE_LIMIT_SALT FROM_EMAIL
+          )
+          for name in "${required[@]}"; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "::error::$name is required"
+              exit 1
+            fi
+          done
+          [[ ${#ADMIN_API_KEY} -ge 32 ]]
+          [[ ${#RATE_LIMIT_SALT} -ge 32 ]]
+
+      - name: Generate production Worker configuration
+        working-directory: specialists-partners/backend
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          def toml(value: str) -> str:
+              return '"' + value.replace('\\', '\\\\').replace('"', '\\"') + '"'
+
+          owner_email = os.environ.get('OWNER_EMAIL_SECRET') or 'pterminology@gmail.com'
+          content = f'''name = "pterminology-specialists"
+          main = "src/index-v3.js"
+          compatibility_date = "2026-07-01"
+          workers_dev = true
+
+          [vars]
+          ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
+          OWNER_EMAIL = {toml(owner_email)}
+          OWNER_DISPLAY_NAME = "خالد الذيب"
+          PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
+          ADMIN_CONSOLE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/#conversations"
+          TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"
+          FROM_EMAIL = {toml(os.environ['FROM_EMAIL'])}
+          ADMIN_SESSION_MINUTES = "20"
+
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "pterminology-specialists"
+          database_id = {toml(os.environ['D1_DATABASE_ID'])}
+          migrations_dir = "migrations"
+
+          [triggers]
+          crons = ["17 2 * * *"]
+          '''
+          Path('wrangler.toml').write_text(content, encoding='utf-8')
+          PY
+
+      - name: Create ephemeral Worker secrets
+        working-directory: specialists-partners/backend
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          payload = {
+              'RESEND_API_KEY': os.environ['RESEND_API_KEY'],
+              'TURNSTILE_SECRET': os.environ['TURNSTILE_SECRET'],
+              'ADMIN_API_KEY': os.environ['ADMIN_API_KEY'],
+              'RATE_LIMIT_SALT': os.environ['RATE_LIMIT_SALT'],
+          }
+          for name in ('REVIEWER_API_KEY', 'MODERATOR_API_KEY'):
+              if os.environ.get(name):
+                  payload[name] = os.environ[name]
+          Path('worker-secrets.json').write_text(json.dumps(payload), encoding='utf-8')
+          PY
+          chmod 600 worker-secrets.json
+
+      - name: Apply D1 migrations
+        working-directory: specialists-partners/backend
+        run: npx --yes wrangler@4 d1 migrations apply pterminology-specialists --remote --config wrangler.toml
+
+      - name: Deploy messaging Worker v5
+        working-directory: specialists-partners/backend
+        run: npx --yes wrangler@4 deploy --config wrangler.toml --secrets-file worker-secrets.json --minify --keep-vars
+
+      - name: Remove ephemeral configuration
+        if: always()
+        working-directory: specialists-partners/backend
+        run: rm -f worker-secrets.json wrangler.toml
+
+      - name: Verify live messaging health
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in {1..12}; do
+            status="$(curl -sS -o /tmp/messaging-health.json -w '%{http_code}' "${API_BASE%/}/health" || true)"
+            if [[ "$status" == "200" ]]; then
+              python - <<'PY'
+              import json
+              from pathlib import Path
+              health = json.loads(Path('/tmp/messaging-health.json').read_text(encoding='utf-8'))
+              assert health['ok'] is True, health
+              assert health['version'] == '5.0.0', health
+              assert health['ownerDisplayName'] == 'خالد الذيب', health
+              for name in ('database', 'email', 'ownerEmail', 'messagingV5', 'notificationPolicy', 'ownerIdentity'):
+                  assert health['checks'].get(name) is True, (name, health)
+              print({
+                  'version': health['version'],
+                  'owner': health['ownerDisplayName'],
+                  'checks': health['checks'],
+              })
+              PY
+              exit 0
+            fi
+            sleep 5
+          done
+          cat /tmp/messaging-health.json || true
+          exit 1
