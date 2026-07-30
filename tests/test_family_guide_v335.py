@@ -75,6 +75,19 @@ text='\n'.join(p.read_text(encoding='utf-8') for p in (root/'family-guide').rglo
 assert 'معاقين' not in text
 assert 'TODO' not in text
 ET.parse(root/'sitemap-family-guide.xml')
-listed=(root/'sitemap-family-guide.xml').read_text(encoding='utf-8')
-for slug in slugs: assert f'/family-guide/conditions/{slug}/' in listed
-print({'status':'passed','conditions':len(slugs),'tools':3,'version':api['version']})
+family_sitemap=(root/'sitemap-family-guide.xml').read_text(encoding='utf-8')
+special_needs_sitemap=(root/'sitemap-special-needs.xml').read_text(encoding='utf-8')
+consolidated={
+    'prader-willi-syndrome':'/special-needs/conditions/prader-willi-syndrome/'
+}
+for slug in slugs:
+    family_path=f'/family-guide/conditions/{slug}/'
+    if family_path in family_sitemap:
+        continue
+    assert slug in consolidated, f'unlisted family guide condition: {slug}'
+    canonical_path=consolidated[slug]
+    page_text=(root/'family-guide/conditions'/slug/'index.html').read_text(encoding='utf-8')
+    assert 'content="noindex,follow,noarchive"' in page_text, slug
+    assert f'href="https://khaledaltheeb.github.io/pterminology-site{canonical_path}"' in page_text, slug
+    assert canonical_path in special_needs_sitemap, slug
+print({'status':'passed','conditions':len(slugs),'tools':3,'version':api['version'],'consolidated':len(consolidated)})
