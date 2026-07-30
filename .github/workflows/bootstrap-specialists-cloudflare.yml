@@ -1,6 +1,10 @@
 name: Bootstrap specialists Cloudflare
 
 on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/bootstrap-specialists-cloudflare.yml"
   workflow_dispatch:
     inputs:
       account_id:
