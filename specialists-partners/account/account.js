@@ -1,446 +1,52 @@
 (() => {
-  'use strict';
+'use strict';
+const config=window.PT_SPECIALIST_CONFIG||{};
+const SESSION_KEY='ptIdentitySessionV6';
+const $=id=>document.getElementById(id);
+const state={token:'',expiresAt:'',me:null,conversations:[],active:null,turnstile:{}};
 
-  const config = window.PT_SPECIALIST_CONFIG || {};
-  const SESSION_KEY = 'ptSpecialistAccountSession';
-  const $ = id => document.getElementById(id);
-  const state = {sessionToken:'', me:null, conversations:[], activeConversation:null};
+function base(){try{const u=new URL(String(config.accountApiBase||''));return u.protocol==='https:'&&!u.username&&!u.password&&!u.search&&!u.hash?u.href.replace(/\/$/,''):'';}catch(_){return '';}}
+function status(message,type='loading'){const box=$('account-status');box.hidden=false;box.dataset.state=type;box.textContent=message;box.focus?.();}
+function clearStatus(){const box=$('account-status');box.hidden=true;box.textContent='';}
+function randomId(prefix='request'){return `${prefix}-${crypto.randomUUID?.()||Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('')}`;}
+async function api(path,options={},auth=true){const root=base();if(!root)throw new Error('خدمة الحسابات غير مربوطة.');const headers=new Headers(options.headers||{});headers.set('accept','application/json');headers.set('x-requested-with','pterminology-identity-v6');if(options.body!=null)headers.set('content-type','application/json;charset=UTF-8');if(auth){if(!state.token)throw new Error('يلزم تسجيل الدخول.');headers.set('authorization',`Bearer ${state.token}`);}const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);let response;try{response=await fetch(`${root}${path}`,{...options,headers,cache:'no-store',credentials:'omit',redirect:'error',referrerPolicy:'no-referrer',signal:controller.signal});}finally{clearTimeout(timer);}const data=await response.json().catch(()=>({}));if(!response.ok){const e=new Error(data.message||'تعذر إكمال الطلب.');e.code=data.error||'request_failed';e.status=response.status;throw e;}return data;}
+function saveSession(result){state.token=result.sessionToken;state.expiresAt=result.expiresAt;sessionStorage.setItem(SESSION_KEY,JSON.stringify({token:state.token,expiresAt:state.expiresAt}));}
+function loadSession(){try{const x=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');if(x?.token&&Date.parse(x.expiresAt)>Date.now()){state.token=x.token;state.expiresAt=x.expiresAt;}}catch(_){sessionStorage.removeItem(SESSION_KEY);}}
+function clearSession(){state.token='';state.expiresAt='';state.me=null;state.conversations=[];state.active=null;sessionStorage.removeItem(SESSION_KEY);}
+function showAuth(){ $('auth-shell').hidden=false;$('dashboard').hidden=true; }
+function showDashboard(){ $('auth-shell').hidden=true;$('reset-panel').hidden=true;$('dashboard').hidden=false; }
+function listValue(value){return String(value||'').split(/[،,\n]/).map(v=>v.trim()).filter(Boolean);}
+function fmt(value){if(!value)return '—';const d=new Date(value);return Number.isNaN(d.getTime())?'—':d.toLocaleString('ar-JO',{dateStyle:'medium',timeStyle:'short'});}
+function label(value){return ({owner:'المالك',admin:'مدير',reviewer:'مراجع',moderator:'مشرف محادثات',specialist:'مختص',active:'نشط',invited:'بانتظار التفعيل',suspended:'موقوف',archived:'مؤرشف',open:'مفتوحة',closed:'مغلقة',blocked:'محظورة',published:'منشور',review:'قيد المراجعة',draft:'مسودة',submitted:'مرسلة للمراجعة',approved:'معتمدة',rejected:'مرفوضة',verified:'موثّق',pending:'قيد التحقق',provisional:'مؤقت',expired:'منتهي'})[value]||value||'—';}
+function node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n;}
+function hashToken(name){const q=new URLSearchParams(location.hash.replace(/^#/,''));const value=q.get(name)||'';if(value)history.replaceState(null,document.title,`${location.pathname}${location.search}`);return value;}
 
-  function apiBase() {
-    const candidate = String(config.accountApiBase || 'https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev').trim();
-    try {
-      const parsed = new URL(candidate);
-      if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.search || parsed.hash) return '';
-      return parsed.href.replace(/\/$/, '');
-    } catch (_) {
-      return '';
-    }
-  }
+function initTurnstile(){if(!config.turnstileSiteKey)return;const render=()=>{if(!window.turnstile)return;for(const [id,action] of [['turnstile-login','account_login'],['turnstile-reset','password_reset']]){const target=$(id);if(target&&!target.dataset.rendered){state.turnstile[id]=window.turnstile.render(target,{sitekey:config.turnstileSiteKey,theme:'light',language:'ar',action});target.dataset.rendered='true';}}};if(window.turnstile)render();else{const s=document.createElement('script');s.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';s.async=true;s.defer=true;s.onload=render;document.head.append(s);}}
+function turnstileToken(id){return $(id)?.querySelector('[name="cf-turnstile-response"]')?.value||'';}
+function resetTurnstile(id){try{window.turnstile?.reset?.(state.turnstile[id]);}catch(_){} }
 
-  function status(message, type = 'loading') {
-    const box = $('account-status');
-    box.hidden = false;
-    box.dataset.state = type;
-    box.textContent = message;
-    box.focus?.();
-  }
+async function login(event){event.preventDefault();const form=event.currentTarget;if(!form.reportValidity())return;const token=turnstileToken('turnstile-login');if(config.turnstileSiteKey&&!token){status('أكمل التحقق من الاستخدام البشري.','error');return;}const button=$('login-submit');button.disabled=true;status('جارٍ تسجيل الدخول…');try{const result=await api('/v1/auth/login',{method:'POST',body:JSON.stringify({email:$('login-email').value.trim(),password:$('login-password').value,turnstileToken:token})},false);saveSession(result);await loadDashboard();status('تم تسجيل الدخول بنجاح.','success');}catch(e){status(e.message,'error');resetTurnstile('turnstile-login');}finally{button.disabled=false;}}
+async function forgot(event){event.preventDefault();const form=event.currentTarget;if(!form.reportValidity())return;const token=turnstileToken('turnstile-reset');if(config.turnstileSiteKey&&!token){status('أكمل التحقق من الاستخدام البشري.','error');return;}const button=$('forgot-submit');button.disabled=true;status('جارٍ إرسال رابط الاستعادة…');try{const result=await api('/v1/auth/password/request',{method:'POST',body:JSON.stringify({email:$('forgot-email').value.trim(),turnstileToken:token})},false);status(result.message,'success');form.reset();resetTurnstile('turnstile-reset');}catch(e){status(e.message,'error');resetTurnstile('turnstile-reset');}finally{button.disabled=false;}}
+async function resetPassword(event){event.preventDefault();const form=event.currentTarget;if(!form.reportValidity())return;const password=$('new-password').value;if(password!==$('confirm-password').value){status('كلمتا المرور غير متطابقتين.','error');return;}const token=form.dataset.token;if(!token){status('رابط إعادة التعيين غير موجود.','error');return;}status('جارٍ حفظ كلمة المرور…');try{const result=await api('/v1/auth/password/reset',{method:'POST',body:JSON.stringify({token,password})},false);status(result.message,'success');form.reset();delete form.dataset.token;$('reset-panel').hidden=true;$('auth-shell').hidden=false;}catch(e){status(e.message,'error');}}
 
-  function clearStatus() {
-    const box = $('account-status');
-    box.hidden = true;
-    box.textContent = '';
-  }
+async function loadDashboard(){const data=await api('/v1/account/me');state.me=data;showDashboard();renderAccount();if(data.provider)await loadConversations();else{state.conversations=[];renderConversations();}}
+function renderAccount(){const {user,provider,session}=state.me;$('account-name').textContent=user.displayNameAr;$('account-role').textContent=`${label(user.role)} · ${label(user.status)}${user.verifiedAt?' · موثّق':''}`;$('overview-email').textContent=user.email;$('overview-phone').textContent=user.phone||'غير مضاف';$('overview-last-login').textContent=fmt(user.lastLoginAt);$('overview-session-expiry').textContent=fmt(session.expiresAt);$('settings-name-ar').value=user.displayNameAr||'';$('settings-name-en').value=user.displayNameEn||'';$('settings-phone').value=user.phone||'';$('settings-email-notifications').checked=user.emailNotifications;$('settings-message-notifications').checked=user.newMessageNotifications;$('kpi-verification').textContent=provider?label(provider.verificationStatus):'غير مرتبط';$('kpi-publication').textContent=provider?label(provider.publicationStatus):'غير مرتبط';renderDraft(provider?.draft||null,provider?.profile||null);}
+function renderDraft(draft,profile){const data=draft?.data||profile||{};$('profile-draft-status').textContent=draft?label(draft.status):'لا توجد مسودة';$('profile-title').value=data.professionalTitle||'';$('profile-city').value=data.location?.city||'';$('profile-bio').value=data.shortBio||'';$('profile-services').value=(data.services||[]).join('\n');$('profile-languages').value=(data.languages||[]).join('، ');$('profile-response').value=data.communication?.typicalResponse||'';$('profile-enabled').checked=data.communication?.enabled===true;$('profile-accepts').checked=data.communication?.acceptsNewRequests===true;const notes=$('profile-review-notes');notes.hidden=!draft?.reviewNotes;notes.textContent=draft?.reviewNotes||'';}
+async function saveSettings(event){event.preventDefault();if(!event.currentTarget.reportValidity())return;status('جارٍ حفظ إعدادات الحساب…');try{await api('/v1/account/me',{method:'PATCH',body:JSON.stringify({displayNameAr:$('settings-name-ar').value.trim(),displayNameEn:$('settings-name-en').value.trim(),phone:$('settings-phone').value.trim()||null,emailNotifications:$('settings-email-notifications').checked,newMessageNotifications:$('settings-message-notifications').checked})});await loadDashboard();status('تم حفظ الإعدادات.','success');}catch(e){status(e.message,'error');}}
+async function saveDraft(event){event.preventDefault();if(!state.me?.provider){status('الحساب غير مرتبط بملف مهني.','error');return;}status('جارٍ حفظ مسودة الملف…');try{const existing=state.me.provider.profile||{};await api('/v1/account/profile-draft',{method:'PATCH',body:JSON.stringify({...existing,displayName:state.me.user.displayNameAr,professionalTitle:$('profile-title').value.trim(),shortBio:$('profile-bio').value.trim(),services:listValue($('profile-services').value),languages:listValue($('profile-languages').value),location:{...(existing.location||{}),city:$('profile-city').value.trim()},communication:{...(existing.communication||{}),enabled:$('profile-enabled').checked,acceptsNewRequests:$('profile-accepts').checked,typicalResponse:$('profile-response').value.trim()}})});await loadDashboard();status('تم حفظ المسودة.','success');}catch(e){status(e.message,'error');}}
+async function submitDraft(){status('جارٍ إرسال المسودة للمراجعة…');try{await api('/v1/account/profile-draft/submit',{method:'POST',body:'{}'});await loadDashboard();status('تم إرسال المسودة للمراجعة.','success');}catch(e){status(e.message,'error');}}
+async function changePassword(event){event.preventDefault();const form=event.currentTarget;if(!form.reportValidity())return;if($('changed-password').value!==$('changed-password-confirm').value){status('كلمتا المرور الجديدتان غير متطابقتين.','error');return;}status('جارٍ تغيير كلمة المرور…');try{await api('/v1/account/password/change',{method:'POST',body:JSON.stringify({currentPassword:$('current-password').value,newPassword:$('changed-password').value})});form.reset();status('تم تغيير كلمة المرور وإلغاء الجلسات الأخرى.','success');}catch(e){status(e.message,'error');}}
 
-  function randomId(prefix = 'request') {
-    if (crypto.randomUUID) return `${prefix}-${crypto.randomUUID()}`;
-    const bytes = new Uint8Array(16);
-    crypto.getRandomValues(bytes);
-    return `${prefix}-${Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')}`;
-  }
+async function loadConversations(){const q=new URLSearchParams({limit:'100'}),f=$('status-filter').value;if(f)q.set('status',f);const data=await api(`/v1/specialist/conversations?${q}`);state.conversations=data.conversations||[];renderConversations();}
+function renderConversations(){const c=$('conversation-list');c.replaceChildren();$('conversation-count').textContent=String(state.conversations.length);$('kpi-conversations').textContent=String(state.conversations.length);$('kpi-open').textContent=String(state.conversations.filter(x=>x.status==='open').length);if(!state.conversations.length){c.append(node('p','small','لا توجد محادثات.'));return;}for(const x of state.conversations){const b=node('button','account-conversation-card');b.type='button';b.setAttribute('aria-current',state.active?.conversation?.id===x.id?'true':'false');b.append(node('strong','',x.visitorName||'مستخدم المنصة'),node('span','',x.topic||'دون موضوع'),node('small','',x.lastMessage||'لا توجد معاينة'));const row=node('div','account-card-row');row.append(node('span',`badge ${x.status}`,label(x.status)),node('time','',fmt(x.lastMessageAt)));b.append(row);b.addEventListener('click',()=>openConversation(x.id));c.append(b);}}
+async function openConversation(id){status('جارٍ تحميل المحادثة…');try{state.active=await api(`/v1/specialist/conversations/${encodeURIComponent(id)}`);renderActive();clearStatus();}catch(e){status(e.message,'error');}}
+function renderActive(){const d=state.active,x=d.conversation;$('conversation-title').textContent=`محادثة مع ${x.visitorName||'مستخدم المنصة'}`;$('conversation-summary').textContent=`${x.referenceId} · ${x.topic||''} · ${fmt(x.lastMessageAt)}`;$('conversation-status').textContent=label(x.status);$('conversation-status').className=`badge ${x.status}`;const context=$('conversation-context');context.replaceChildren();const dl=node('dl');for(const [k,v] of [['المرجع',x.referenceId],['الموضوع',x.topic],['الأولوية',x.urgency],['الفئة العمرية',x.context?.ageGroup],['طريقة الخدمة',x.context?.preferredMode]])if(v){const row=node('div');row.append(node('dt','',k),node('dd','',v));dl.append(row);}context.append(dl);context.hidden=!dl.children.length;const messages=$('message-list');messages.replaceChildren();for(const m of d.messages||[]){const mine=m.senderRole==='specialist',a=node('article',`message ${m.senderRole==='system'?'system':mine?'mine':'theirs'}`);a.append(node('p','',m.body),node('time','',fmt(m.createdAt)));messages.append(a);}messages.scrollTop=messages.scrollHeight;const form=$('message-form');form.hidden=false;const locked=['blocked','archived'].includes(x.status),closed=x.status==='closed';$('message-body').disabled=locked||closed;$('send-message').disabled=locked||closed;$('toggle-status').disabled=locked;$('toggle-status').dataset.next=closed?'open':'closed';$('toggle-status').textContent=closed?'إعادة فتح المحادثة':'إغلاق المحادثة';renderConversations();}
+async function sendMessage(event){event.preventDefault();const text=$('message-body').value.trim();if(!text||!state.active)return;const button=$('send-message');button.disabled=true;status('جارٍ إرسال الرد…');try{await api(`/v1/specialist/conversations/${state.active.conversation.id}/messages`,{method:'POST',headers:{'idempotency-key':randomId('message')},body:JSON.stringify({body:text})});$('message-body').value='';await openConversation(state.active.conversation.id);await loadConversations();status('تم إرسال الرد.','success');}catch(e){status(e.message,'error');}finally{button.disabled=false;}}
+async function toggleConversation(){if(!state.active)return;const next=$('toggle-status').dataset.next;status('جارٍ تحديث المحادثة…');try{await api(`/v1/specialist/conversations/${state.active.conversation.id}`,{method:'PATCH',body:JSON.stringify({status:next})});await openConversation(state.active.conversation.id);await loadConversations();status('تم تحديث الحالة.','success');}catch(e){status(e.message,'error');}}
+async function logout(){try{await api('/v1/auth/logout',{method:'POST',body:'{}'});}catch(_){}clearSession();showAuth();status('تم تسجيل الخروج.','success');}
+function tabs(){for(const b of document.querySelectorAll('[data-tab]'))b.addEventListener('click',()=>{for(const x of document.querySelectorAll('[data-tab]'))x.classList.toggle('active',x===b);for(const p of document.querySelectorAll('[data-panel]'))p.classList.toggle('active',p.dataset.panel===b.dataset.tab);});}
 
-  async function api(path, options = {}, authenticated = true) {
-    const base = apiBase();
-    if (!base) throw new Error('خدمة حسابات المختصين لم تُربط بعد.');
-    const headers = new Headers(options.headers || {});
-    headers.set('accept', 'application/json');
-    headers.set('x-requested-with', 'pterminology-specialist-account');
-    if (options.body != null) headers.set('content-type', 'application/json;charset=UTF-8');
-    if (authenticated) {
-      if (!state.sessionToken) throw new Error('يلزم تسجيل الدخول.');
-      headers.set('authorization', `Bearer ${state.sessionToken}`);
-    }
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 20_000);
-    let response;
-    try {
-      response = await fetch(`${base}${path}`, {
-        ...options,
-        headers,
-        cache:'no-store',
-        credentials:'omit',
-        redirect:'error',
-        referrerPolicy:'no-referrer',
-        signal:controller.signal
-      });
-    } finally {
-      window.clearTimeout(timeout);
-    }
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      const error = new Error(data.message || 'تعذر إكمال الطلب.');
-      error.code = data.error || 'request_failed';
-      error.status = response.status;
-      throw error;
-    }
-    return data;
-  }
-
-  function loadSession() {
-    try {
-      const raw = sessionStorage.getItem(SESSION_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (!parsed?.token || !parsed?.expiresAt || Date.parse(parsed.expiresAt) <= Date.now()) {
-        sessionStorage.removeItem(SESSION_KEY);
-        return;
-      }
-      state.sessionToken = parsed.token;
-    } catch (_) {
-      sessionStorage.removeItem(SESSION_KEY);
-    }
-  }
-
-  function saveSession(token, expiresAt) {
-    state.sessionToken = token;
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify({token, expiresAt}));
-  }
-
-  function clearSession() {
-    state.sessionToken = '';
-    state.me = null;
-    state.conversations = [];
-    state.activeConversation = null;
-    sessionStorage.removeItem(SESSION_KEY);
-  }
-
-  function showLogin() {
-    $('login-panel').hidden = false;
-    $('dashboard').hidden = true;
-  }
-
-  function showDashboard() {
-    $('login-panel').hidden = true;
-    $('dashboard').hidden = false;
-  }
-
-  function initTurnstile() {
-    const target = $('turnstile-box');
-    if (!target || !config.turnstileSiteKey) return;
-    const render = () => {
-      if (window.turnstile && !target.dataset.rendered) {
-        window.turnstile.render(target, {
-          sitekey:config.turnstileSiteKey,
-          theme:'light',
-          language:'ar',
-          action:'specialist_login'
-        });
-        target.dataset.rendered = 'true';
-      }
-    };
-    if (window.turnstile) render();
-    else {
-      const script = document.createElement('script');
-      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-      script.async = true;
-      script.defer = true;
-      script.onload = render;
-      document.head.append(script);
-    }
-  }
-
-  function turnstileToken(form) {
-    return form.querySelector('[name="cf-turnstile-response"]')?.value || '';
-  }
-
-  async function requestLogin(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    if (!form.reportValidity()) return;
-    const token = turnstileToken(form);
-    if (config.turnstileSiteKey && !token) {
-      status('أكمل التحقق من الاستخدام البشري.', 'error');
-      return;
-    }
-    const button = $('request-login');
-    button.disabled = true;
-    status('جارٍ إرسال رابط الدخول…', 'loading');
-    try {
-      const result = await api('/v1/specialist/session/request', {
-        method:'POST',
-        body:JSON.stringify({email:$('login-email').value.trim(), turnstileToken:token})
-      }, false);
-      status(result.message || 'تحقق من بريدك لفتح الحساب.', 'success');
-      form.reset();
-      window.turnstile?.reset?.();
-    } catch (error) {
-      status(error.message || 'تعذر إرسال رابط الدخول.', 'error');
-      window.turnstile?.reset?.();
-    } finally {
-      button.disabled = false;
-    }
-  }
-
-  function loginTokenFromFragment() {
-    const fragment = new URLSearchParams(location.hash.replace(/^#/, ''));
-    const token = fragment.get('loginToken') || '';
-    if (location.hash) history.replaceState(null, document.title, `${location.pathname}${location.search}`);
-    return token;
-  }
-
-  async function verifyMagicLink(token) {
-    status('جارٍ التحقق من رابط الدخول…', 'loading');
-    try {
-      const result = await api('/v1/specialist/session/verify', {
-        method:'POST',
-        body:JSON.stringify({token})
-      }, false);
-      saveSession(result.sessionToken, result.expiresAt);
-      status('تم تسجيل الدخول بنجاح.', 'success');
-      await loadDashboard();
-    } catch (error) {
-      clearSession();
-      showLogin();
-      status(error.message || 'رابط الدخول غير صالح أو انتهت صلاحيته.', 'error');
-    }
-  }
-
-  function labelStatus(value) {
-    return ({open:'مفتوحة',closed:'مغلقة',blocked:'محظورة',archived:'مؤرشفة',
-      published:'منشور',review:'قيد المراجعة',draft:'مسودة',suspended:'موقوف',
-      verified:'موثّق',provisional:'مؤقت',pending:'قيد التحقق',expired:'منتهي',
-      rejected:'مرفوض',approved:'معتمد',revoked:'مسحوب'})[value] || value || '—';
-  }
-
-  function formatDate(value) {
-    if (!value) return '—';
-    const date = new Date(value);
-    return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('ar-JO', {dateStyle:'medium', timeStyle:'short'});
-  }
-
-  function renderProfile(data) {
-    const provider = data.provider;
-    $('profile-title').textContent = provider.displayName;
-    $('profile-publication').textContent = labelStatus(provider.publicationStatus);
-    $('profile-verification').textContent = labelStatus(provider.verificationStatus);
-    $('profile-availability').textContent = provider.acceptsNewRequests ? 'يستقبل طلبات جديدة' : 'متوقف مؤقتًا';
-    $('session-expiry').textContent = formatDate(data.session.expiresAt);
-  }
-
-  function createElement(tag, className, text) {
-    const node = document.createElement(tag);
-    if (className) node.className = className;
-    if (text != null) node.textContent = text;
-    return node;
-  }
-
-  function renderConversationList() {
-    const container = $('conversation-list');
-    container.replaceChildren();
-    $('conversation-count').textContent = String(state.conversations.length);
-    if (!state.conversations.length) {
-      container.append(createElement('p', 'account-empty', 'لا توجد محادثات مطابقة.'));
-      return;
-    }
-    for (const conversation of state.conversations) {
-      const button = createElement('button', 'account-conversation-card');
-      button.type = 'button';
-      button.dataset.conversationId = conversation.id;
-      button.setAttribute('aria-current', state.activeConversation?.conversation?.id === conversation.id ? 'true' : 'false');
-      button.append(
-        createElement('strong', '', conversation.visitorName || 'مستخدم المنصة'),
-        createElement('span', '', conversation.topic || 'دون موضوع'),
-        createElement('small', '', conversation.lastMessage || 'لا توجد معاينة'),
-      );
-      const row = createElement('div', 'account-card-row');
-      const badge = createElement('span', `badge ${conversation.status}`, labelStatus(conversation.status));
-      const time = createElement('time', '', formatDate(conversation.lastMessageAt));
-      time.dateTime = conversation.lastMessageAt || '';
-      row.append(badge, time);
-      button.append(row);
-      button.addEventListener('click', () => openConversation(conversation.id));
-      container.append(button);
-    }
-  }
-
-  async function loadConversations() {
-    const statusFilter = $('status-filter').value;
-    const query = new URLSearchParams({limit:'100'});
-    if (statusFilter) query.set('status', statusFilter);
-    const data = await api(`/v1/specialist/conversations?${query}`);
-    state.conversations = data.conversations || [];
-    renderConversationList();
-  }
-
-  function renderContext(conversation) {
-    const container = $('conversation-context');
-    container.replaceChildren();
-    const values = [
-      ['المرجع', conversation.referenceId],
-      ['الاسم', conversation.visitorName],
-      ['الموضوع', conversation.topic],
-      ['الأولوية', conversation.urgency],
-      ['الفئة العمرية', conversation.context?.ageGroup],
-      ['طريقة الخدمة', conversation.context?.preferredMode],
-      ['وقت التواصل المفضل', conversation.context?.preferredContactTime]
-    ].filter(([, value]) => value);
-    const list = createElement('dl');
-    for (const [term, value] of values) {
-      const item = createElement('div');
-      item.append(createElement('dt', '', term), createElement('dd', '', value));
-      list.append(item);
-    }
-    container.append(list);
-    container.hidden = values.length === 0;
-  }
-
-  function renderMessages(messages) {
-    const container = $('message-list');
-    container.replaceChildren();
-    if (!messages.length) {
-      container.append(createElement('p', 'small', 'لا توجد رسائل بعد.'));
-      return;
-    }
-    for (const message of messages) {
-      const mine = message.senderRole === 'specialist';
-      const article = createElement('article', `message ${message.senderRole === 'system' ? 'system' : mine ? 'mine' : 'theirs'}`);
-      article.append(createElement('p', '', message.body));
-      const time = createElement('time', '', formatDate(message.createdAt));
-      time.dateTime = message.createdAt;
-      article.append(time);
-      container.append(article);
-    }
-    container.scrollTop = container.scrollHeight;
-  }
-
-  function renderActiveConversation() {
-    const data = state.activeConversation;
-    if (!data) return;
-    const conversation = data.conversation;
-    $('conversation-title').textContent = `محادثة مع ${conversation.visitorName || 'مستخدم المنصة'}`;
-    $('conversation-summary').textContent = `${conversation.referenceId} · ${conversation.topic} · آخر تحديث ${formatDate(conversation.lastMessageAt)}`;
-    const badge = $('conversation-status');
-    badge.textContent = labelStatus(conversation.status);
-    badge.className = `badge ${conversation.status}`;
-    renderContext(conversation);
-    renderMessages(data.messages || []);
-    const form = $('message-form');
-    form.hidden = false;
-    const locked = ['blocked','archived'].includes(conversation.status);
-    const closed = conversation.status === 'closed';
-    $('message-body').disabled = locked || closed;
-    $('send-message').disabled = locked || closed;
-    const toggle = $('toggle-status');
-    toggle.disabled = locked;
-    toggle.dataset.nextStatus = closed ? 'open' : 'closed';
-    toggle.textContent = closed ? 'إعادة فتح المحادثة' : 'إغلاق المحادثة';
-    renderConversationList();
-  }
-
-  async function openConversation(conversationId) {
-    status('جارٍ تحميل المحادثة…', 'loading');
-    try {
-      state.activeConversation = await api(`/v1/specialist/conversations/${encodeURIComponent(conversationId)}`);
-      renderActiveConversation();
-      clearStatus();
-    } catch (error) {
-      handleAuthError(error);
-      status(error.message || 'تعذر تحميل المحادثة.', 'error');
-    }
-  }
-
-  async function sendMessage(event) {
-    event.preventDefault();
-    if (!state.activeConversation) return;
-    const body = $('message-body').value.trim();
-    if (!body) return;
-    const button = $('send-message');
-    button.disabled = true;
-    status('جارٍ إرسال الرد…', 'loading');
-    try {
-      await api(`/v1/specialist/conversations/${encodeURIComponent(state.activeConversation.conversation.id)}/messages`, {
-        method:'POST',
-        headers:{'idempotency-key':randomId('specialist-message')},
-        body:JSON.stringify({body})
-      });
-      $('message-body').value = '';
-      await Promise.all([openConversation(state.activeConversation.conversation.id), loadConversations()]);
-      status('تم إرسال الرد وإشعار المستخدم.', 'success');
-    } catch (error) {
-      handleAuthError(error);
-      status(error.message || 'تعذر إرسال الرد.', 'error');
-    } finally {
-      button.disabled = false;
-    }
-  }
-
-  async function toggleConversationStatus() {
-    if (!state.activeConversation) return;
-    const button = $('toggle-status');
-    const nextStatus = button.dataset.nextStatus || 'closed';
-    button.disabled = true;
-    status('جارٍ تحديث حالة المحادثة…', 'loading');
-    try {
-      await api(`/v1/specialist/conversations/${encodeURIComponent(state.activeConversation.conversation.id)}`, {
-        method:'PATCH',
-        body:JSON.stringify({status:nextStatus})
-      });
-      await Promise.all([openConversation(state.activeConversation.conversation.id), loadConversations()]);
-      status(nextStatus === 'closed' ? 'تم إغلاق المحادثة.' : 'تمت إعادة فتح المحادثة.', 'success');
-    } catch (error) {
-      handleAuthError(error);
-      status(error.message || 'تعذر تحديث حالة المحادثة.', 'error');
-    } finally {
-      button.disabled = false;
-    }
-  }
-
-  function handleAuthError(error) {
-    if (error?.status === 401 || error?.code === 'session_expired') {
-      clearSession();
-      showLogin();
-      initTurnstile();
-    }
-  }
-
-  async function loadDashboard() {
-    showDashboard();
-    try {
-      const [me] = await Promise.all([api('/v1/specialist/me'), loadConversations()]);
-      state.me = me;
-      renderProfile(me);
-      clearStatus();
-    } catch (error) {
-      handleAuthError(error);
-      status(error.message || 'تعذر تحميل حساب المختص.', 'error');
-    }
-  }
-
-  async function logout() {
-    try {
-      if (state.sessionToken) await api('/v1/specialist/session/revoke', {method:'POST', body:'{}'});
-    } catch (_) {
-      // Local revocation still removes the browser credential.
-    }
-    clearSession();
-    showLogin();
-    initTurnstile();
-    status('تم تسجيل الخروج.', 'success');
-  }
-
-  async function refreshDashboard() {
-    status('جارٍ تحديث الحساب والمحادثات…', 'loading');
-    await loadDashboard();
-  }
-
-  document.addEventListener('DOMContentLoaded', async () => {
-    $('login-form').addEventListener('submit', requestLogin);
-    $('message-form').addEventListener('submit', sendMessage);
-    $('toggle-status').addEventListener('click', toggleConversationStatus);
-    $('status-filter').addEventListener('change', loadConversations);
-    $('refresh-dashboard').addEventListener('click', refreshDashboard);
-    $('logout').addEventListener('click', logout);
-
-    loadSession();
-    const magicToken = loginTokenFromFragment();
-    if (magicToken) {
-      await verifyMagicLink(magicToken);
-      return;
-    }
-    if (state.sessionToken) {
-      await loadDashboard();
-    } else {
-      showLogin();
-      initTurnstile();
-    }
-  });
+async function init(){loadSession();initTurnstile();tabs();$('login-form').addEventListener('submit',login);$('forgot-form').addEventListener('submit',forgot);$('reset-form').addEventListener('submit',resetPassword);$('settings-form').addEventListener('submit',saveSettings);$('profile-form').addEventListener('submit',saveDraft);$('submit-profile-review').addEventListener('click',submitDraft);$('password-form').addEventListener('submit',changePassword);$('status-filter').addEventListener('change',loadConversations);$('message-form').addEventListener('submit',sendMessage);$('toggle-status').addEventListener('click',toggleConversation);$('refresh-dashboard').addEventListener('click',loadDashboard);$('logout').addEventListener('click',logout);const resetToken=hashToken('resetToken');if(resetToken){$('reset-form').dataset.token=resetToken;$('reset-panel').hidden=false;$('auth-shell').hidden=true;return;}const magic=hashToken('loginToken');if(magic){status('جارٍ التحقق من رابط الدخول…');try{const result=await api('/v1/specialist/session/verify',{method:'POST',body:JSON.stringify({token:magic})},false);saveSession(result);await loadDashboard();status('تم تسجيل الدخول. أنشئ كلمة مرور من قسم الأمان لتثبيت الحساب.','success');return;}catch(e){status(e.message,'error');}}
+if(state.token){try{await loadDashboard();clearStatus();}catch(_){clearSession();showAuth();}}else showAuth();}
+init();
 })();
