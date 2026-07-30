@@ -1,10 +1,6 @@
 name: Verify specialist recovery delivery v8
 
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - ".github/workflows/verify-specialist-recovery-v8.yml"
   workflow_run:
     workflows: ["Deploy specialist recovery overlay v8"]
     types: [completed]
@@ -20,7 +16,6 @@ concurrency:
 jobs:
   verify:
     if: >-
-      github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
@@ -75,7 +70,7 @@ jobs:
           [[ "${stable}" -ge 3 ]] || { cat /tmp/health.json || true; echo "::error::Worker v8 did not remain stable"; exit 1; }
 
           sent=false
-          for attempt in {1..36}; do
+          for attempt in {1..20}; do
             code="$(curl -sS -o /tmp/delivery.json -w '%{http_code}' -X POST \
               -H "x-bootstrap-key: ${ADMIN_API_KEY}" \
               -H 'content-type: application/json' \
@@ -91,18 +86,26 @@ jobs:
               sent=true
               break
             fi
-            error="$(python - <<'PY'
+            readarray -t fields < <(python - <<'PY'
           import json
           try:
               d=json.load(open('/tmp/delivery.json',encoding='utf-8'))
-              print(d.get('error',''))
           except Exception:
-              print('')
+              d={}
+          print(d.get('error',''))
+          print(d.get('providerDetail',''))
           PY
-          )"
+          )
+            error="${fields[0]:-}"
+            detail="${fields[1]:-}"
             if [[ "${code}" == "403" ]]; then
               cat /tmp/delivery.json || true
               echo "::error::Owner delivery probe is forbidden"
+              exit 1
+            fi
+            if [[ "${error}" == "email_send_failed" || "${error}" == "email_delivery_failed" ]]; then
+              cat /tmp/delivery.json || true
+              echo "::error::Resend rejected the owner reset email: ${detail:-no safe detail returned}"
               exit 1
             fi
             echo "Delivery route not ready yet: HTTP ${code}, error=${error}, attempt=${attempt}"
