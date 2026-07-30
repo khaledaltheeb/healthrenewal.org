@@ -38,7 +38,7 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Resolve the exact deployed source commit
+      - name: Resolve the exact deployed source and artifact run
         id: target
         env:
           EVENT_NAME: ${{ github.event_name }}
@@ -48,8 +48,10 @@ jobs:
           test -f pages-deployment-status-v329.json
           expected_sha="$(jq -r '.source_commit' pages-deployment-status-v329.json)"
           deployment_run_id="$(jq -r '.deployment_workflow_run_id' pages-deployment-status-v329.json)"
+          source_workflow_run_id="$(jq -r '.source_workflow_run_id' pages-deployment-status-v329.json)"
           [[ "${expected_sha}" =~ ^[0-9a-f]{40}$ ]]
           [[ "${deployment_run_id}" =~ ^[0-9]+$ ]]
+          [[ "${source_workflow_run_id}" =~ ^[0-9]+$ ]]
           if [[ "${EVENT_NAME}" == "workflow_run" && "${deployment_run_id}" != "${TRIGGER_DEPLOY_RUN_ID}" ]]; then
             echo "A newer verified deployment ledger already superseded workflow run ${TRIGGER_DEPLOY_RUN_ID}; skipping stale restoration." >&2
             exit 1
@@ -58,8 +60,10 @@ jobs:
           git merge-base --is-ancestor "${expected_sha}" HEAD
           echo "expected_sha=${expected_sha}" >> "${GITHUB_OUTPUT}"
           echo "deployment_run_id=${deployment_run_id}" >> "${GITHUB_OUTPUT}"
+          echo "source_workflow_run_id=${source_workflow_run_id}" >> "${GITHUB_OUTPUT}"
           echo "Restoration controller: $(git rev-parse HEAD)"
           echo "Deployed source snapshot: ${expected_sha}"
+          echo "Validated artifact run: ${source_workflow_run_id}"
 
       - name: Materialize the deployed source snapshot
         env:
@@ -72,29 +76,47 @@ jobs:
           test -f source-snapshot/family-guide/index.html
           test -f source-snapshot/family-guide/conditions/autism/index.html
 
-      - name: Resolve the matching discovery-audited artifact run
-        id: source
+      - name: Verify the deployment-ledger artifact run
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EXPECTED_SHA: ${{ steps.target.outputs.expected_sha }}
+          SOURCE_RUN_ID: ${{ steps.target.outputs.source_workflow_run_id }}
         run: |
-          set -euo pipefail
-          run_id="$(
-            gh api --paginate \
-              "repos/${GITHUB_REPOSITORY}/actions/workflows/audit-production-discovery-v220.yml/runs?branch=main&status=success&per_page=50" \
-              --jq '.workflow_runs[] | select(.head_sha == env.EXPECTED_SHA) | .id' \
-              | head -n 1
-          )"
-          test -n "${run_id}"
-          echo "run_id=${run_id}" >> "${GITHUB_OUTPUT}"
-          echo "Matched discovery run ${run_id} to ${EXPECTED_SHA}"
+          set -euxo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}" > /tmp/source-run.json
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}/artifacts?per_page=100" > /tmp/source-artifacts.json
+          EXPECTED_SHA="${EXPECTED_SHA}" SOURCE_RUN_ID="${SOURCE_RUN_ID}" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
 
-      - name: Download the exact discovery-audited production artifact
+          run = json.loads(Path('/tmp/source-run.json').read_text(encoding='utf-8'))
+          artifacts = json.loads(Path('/tmp/source-artifacts.json').read_text(encoding='utf-8'))
+          assert str(run['id']) == os.environ['SOURCE_RUN_ID'], run
+          assert run['head_sha'] == os.environ['EXPECTED_SHA'], run
+          assert run['head_branch'] == 'main', run
+          assert run['status'] == 'completed' and run['conclusion'] == 'success', run
+          matches = [
+              item for item in artifacts.get('artifacts', [])
+              if item['name'] == 'validated-production-site' and not item.get('expired', False)
+          ]
+          assert len(matches) == 1, matches
+          assert matches[0]['workflow_run']['head_sha'] == os.environ['EXPECTED_SHA'], matches[0]
+          print({
+              'source_run_id': run['id'],
+              'source_sha': run['head_sha'],
+              'artifact_id': matches[0]['id'],
+              'artifact_size': matches[0]['size_in_bytes'],
+              'artifact_digest': matches[0].get('digest'),
+          })
+          PY
+
+      - name: Download the exact validated production artifact
         uses: actions/download-artifact@v4
         with:
           name: validated-production-site
           path: validated-site
-          run-id: ${{ steps.source.outputs.run_id }}
+          run-id: ${{ steps.target.outputs.source_workflow_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Restore every source-sitemap public route missing from production
@@ -219,9 +241,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: source-publication-parity-v346
+          name: source-publication-parity-v349
           path: |
             validated-site/api/source-publication-parity-v342.json
             validated-site/api/orphan-page-audit-v197.json
+            /tmp/source-run.json
+            /tmp/source-artifacts.json
           if-no-files-found: warn
           retention-days: 14
