@@ -1,0 +1,156 @@
+name: Record restored pages deployment v344
+
+on:
+  workflow_run:
+    workflows: ["Restore source-published pages to GitHub Pages v342"]
+    types: [completed]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: record-source-publication-deployment-v344
+  cancel-in-progress: false
+
+jobs:
+  record:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout current main for the deployment ledger
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Re-verify live restoration evidence
+        env:
+          RESTORE_RUN_ID: ${{ github.event.workflow_run.id }}
+          RESTORE_SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          BASE_URL: https://khaledaltheeb.github.io/pterminology-site
+        run: |
+          set -euxo pipefail
+          token="${RESTORE_RUN_ID}-${RESTORE_SOURCE_SHA}"
+          curl --retry 8 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL \
+            "${BASE_URL}/deployment.json?v=${token}" -o /tmp/deployment.json
+          curl --retry 8 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL \
+            "${BASE_URL}/api/source-publication-parity-v342.json?v=${token}" -o /tmp/source-publication-parity-v342.json
+          for route in \
+            family-guide/ \
+            family-guide/conditions/autism/ \
+            family-guide/conditions/gnb5-related-neurodevelopmental-disorder/ \
+            family-guide/tools/family-plan/ \
+            sitemap-family-guide.xml; do
+            curl --retry 8 --retry-delay 5 -H 'Cache-Control: no-cache' -fsSL \
+              "${BASE_URL}/${route}?v=${token}" -o "/tmp/live-$(echo "${route}" | tr '/.' '__')"
+          done
+          RESTORE_SOURCE_SHA="${RESTORE_SOURCE_SHA}" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          report = json.loads(Path('/tmp/source-publication-parity-v342.json').read_text(encoding='utf-8'))
+          assert deployment['commit'] == os.environ['RESTORE_SOURCE_SHA'], deployment
+          assert report['version'] == 342 and report['status'] == 'passed', report
+          assert report['restored_routes'] >= 60, report
+          assert report['remaining_missing_routes'] == [], report
+          assert report['broken_local_references'] == [], report
+          assert report['critical_files_unchanged'] is True, report
+          for name in (
+              '/tmp/live-family-guide_',
+              '/tmp/live-family-guide_conditions_autism_',
+              '/tmp/live-family-guide_conditions_gnb5-related-neurodevelopmental-disorder_',
+              '/tmp/live-family-guide_tools_family-plan_',
+          ):
+              text = Path(name).read_text(encoding='utf-8')
+              assert '<html' in text.lower() and 'noindex' not in text.lower(), name
+          sitemap = Path('/tmp/live-sitemap-family-guide_xml').read_text(encoding='utf-8')
+          assert '<urlset' in sitemap and sitemap.count('<url>') >= 60, sitemap[:500]
+          PY
+
+      - name: Build deployment status ledger
+        env:
+          RESTORE_RUN_ID: ${{ github.event.workflow_run.id }}
+          RESTORE_SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+          TRIGGER_DEPLOY_RUN_ID: ${{ github.event.workflow_run.run_attempt }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          report = json.loads(Path('/tmp/source-publication-parity-v342.json').read_text(encoding='utf-8'))
+          deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          status = {
+              'schema_version': 344,
+              'status': 'deployed',
+              'deployment_outcome': 'success',
+              'source_commit': os.environ['RESTORE_SOURCE_SHA'],
+              'restoration_workflow_run_id': os.environ['RESTORE_RUN_ID'],
+              'page_url': 'https://khaledaltheeb.github.io/pterminology-site/',
+              'recorded_at': datetime.now(timezone.utc).isoformat(),
+              'deployment_manifest_commit': deployment['commit'],
+              'source_sitemaps_scanned': report['source_sitemaps_scanned'],
+              'source_backed_public_routes': report['source_backed_public_routes'],
+              'initially_missing_routes': report['initially_missing_routes'],
+              'restored_routes': report['restored_routes'],
+              'restored_html_routes': report['restored_html_routes'],
+              'restored_top_level_surfaces': report['restored_top_level_surfaces'],
+              'restored_sitemaps': report['restored_sitemaps'],
+              'remaining_missing_routes': report['remaining_missing_routes'],
+              'blocked_routes_not_restored': report['blocked_routes_not_restored'],
+              'broken_local_references': report['broken_local_references'],
+              'critical_files_unchanged': report['critical_files_unchanged'],
+              'sample_live_routes': [
+                  'family-guide/',
+                  'family-guide/conditions/autism/',
+                  'family-guide/conditions/gnb5-related-neurodevelopmental-disorder/',
+                  'family-guide/tools/family-plan/',
+                  'sitemap-family-guide.xml',
+              ],
+          }
+          Path('/tmp/source-publication-deployment-status-v344.json').write_text(
+              json.dumps(status, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(status, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Commit verified deployment ledger to main
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const path = 'source-publication-deployment-status-v344.json';
+            const content = fs.readFileSync('/tmp/source-publication-deployment-status-v344.json').toString('base64');
+            for (let attempt = 1; attempt <= 4; attempt++) {
+              let sha;
+              try {
+                const existing = await github.rest.repos.getContent({ owner, repo, path, ref: 'main' });
+                sha = existing.data.sha;
+              } catch (error) {
+                if (error.status !== 404) throw error;
+              }
+              try {
+                await github.rest.repos.createOrUpdateFileContents({
+                  owner,
+                  repo,
+                  path,
+                  branch: 'main',
+                  message: 'ci: record verified source-page restoration v344 [skip ci]',
+                  content,
+                  ...(sha ? { sha } : {}),
+                });
+                core.info(`Recorded ${path} on attempt ${attempt}`);
+                return;
+              } catch (error) {
+                if (attempt === 4 || ![409, 422].includes(error.status)) throw error;
+                await new Promise(resolve => setTimeout(resolve, attempt * 1500));
+              }
+            }
