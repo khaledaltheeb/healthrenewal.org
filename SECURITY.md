@@ -8,6 +8,13 @@
 
 `https://github.com/khaledaltheeb/pterminology-site/issues/new?template=security-contact.yml`
 
+ينشر بناء GitHub Pages الحالي بيانات الاتصال القابلة للقراءة الآلية في مسارين متطابقين:
+
+- `https://khaledaltheeb.github.io/pterminology-site/.well-known/security.txt` — المسار القياسي داخل موقع المشروع.
+- `https://khaledaltheeb.github.io/pterminology-site/security.txt` — مسار توافق إضافي.
+
+لأن المنصة تعمل كموقع مشروع تحت `/pterminology-site/`، فلا يوجد الملف عند جذر النطاق `https://khaledaltheeb.github.io/.well-known/security.txt`. يتطلب الاكتشاف من جذر النطاق نطاقًا مخصصًا أو نشرًا تحت جذر حساب GitHub Pages.
+
 ## ما يجب تضمينه داخل البلاغ الخاص فقط
 
 - عنوان مختصر ووصف للأثر المحتمل.
@@ -39,6 +46,13 @@ Do not publish vulnerability details, exploit steps, personal or health data, cr
 First use GitHub **Private vulnerability reporting** through **Security → Advisories → Report a vulnerability**. If private reporting is unavailable, use the **Request a private security contact** issue form only to request a private channel. Do not identify the vulnerability class or include technical details or sensitive data:
 
 `https://github.com/khaledaltheeb/pterminology-site/issues/new?template=security-contact.yml`
+
+The current GitHub Pages build publishes identical machine-readable contacts at:
+
+- `https://khaledaltheeb.github.io/pterminology-site/.well-known/security.txt` — the standards-based location within the project site.
+- `https://khaledaltheeb.github.io/pterminology-site/security.txt` — an additional compatibility location.
+
+Because the platform is a project site under `/pterminology-site/`, the file is not available at the origin root `https://khaledaltheeb.github.io/.well-known/security.txt`. Origin-root discovery requires a custom domain or publication from the GitHub Pages account root.
 
 ## Include only in the private report
 
