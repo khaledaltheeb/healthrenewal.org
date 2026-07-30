@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-30T23:23:35.321819+00:00",
+  "pages": {
+    "public": {
+      "http_status": 200,
+      "markers": {
+        "قطاع المختصين": true
+      },
+      "passed": true
+    },
+    "account": {
+      "http_status": 200,
+      "markers": {
+        "حساب المختص": true
+      },
+      "passed": true
+    },
+    "admin": {
+      "http_status": 200,
+      "markers": {
+        "id=\"admin-forgot\" type=\"button\"": true,
+        "href=\"../recover/?v=8\"": true
+      },
+      "passed": true
+    },
+    "recover": {
+      "http_status": 200,
+      "markers": {
+        "استعادة الوصول": false
+      },
+      "passed": false
+    },
+    "password_reset": {
+      "http_status": 200,
+      "markers": {
+        "هذه صفحة مستقلة وآمنة": true,
+        "reset-v9.js?v=9.0.0": true
+      },
+      "passed": true
+    },
+    "portal": {
+      "http_status": 200,
+      "markers": {
+        "المحادثة": true
+      },
+      "passed": true
+    }
+  },
+  "identity": {
+    "http_status": 200,
+    "ok": true,
+    "service": "pterminology-specialist-identity",
+    "version": "8.0.0",
+    "checks": {
+      "database": true,
+      "accountSchema": true,
+      "identitySchema": true,
+      "email": true,
+      "turnstile": true,
+      "rateLimitSalt": true,
+      "accountBase": true,
+      "adminBase": true,
+      "coreApi": true,
+      "bootstrapKey": true,
+      "passwordResetBase": true,
+      "resendConfigured": true,
+      "recoveryOverlay": true
+    },
+    "passed": true
+  },
+  "core": {
+    "http_status": 200,
+    "ok": true,
+    "passed": true
+  },
+  "contracts": {
+    "recovery_contract": {
+      "http_status": 400,
+      "error": "missing_field",
+      "message": "أحد الحقول المطلوبة فارغ.",
+      "route_exists": true
+    },
+    "reset_contract": {
+      "http_status": 400,
+      "error": "missing_field",
+      "message": "أحد الحقول المطلوبة فارغ.",
+      "route_exists": true
+    },
+    "login_contract": {
+      "http_status": 401,
+      "error": "authentication_required",
+      "message": "يلزم تسجيل الدخول.",
+      "route_exists": true
+    },
+    "application_contract": {
+      "http_status": 400,
+      "error": "missing_field",
+      "message": "أحد الحقول المطلوبة فارغ.",
+      "route_exists": true
+    }
+  },
+  "password_reset_delivery": {
+    "http_status": 503,
+    "delivery": null,
+    "provider_message_id": null,
+    "error": "email_send_failed",
+    "provider_detail": "resend_http_401:API key is invalid",
+    "passed": false
+  },
+  "functional_without_email": false,
+  "fully_operational": false
+}
