@@ -1,17 +1,18 @@
-name: Diagnose direct source-publication restoration v348
+name: Monitor direct source-publication restoration v350
 
 on:
   push:
     branches: [main]
     paths:
       - ".github/workflows/diagnose-source-publication-restoration-v347.yml"
+      - ".github/workflows/restore-source-published-pages-v342.yml"
 
 permissions:
   actions: read
   contents: write
 
 concurrency:
-  group: diagnose-direct-source-publication-restoration-v348
+  group: monitor-direct-source-publication-restoration-v350
   cancel-in-progress: true
 
 jobs:
@@ -77,7 +78,7 @@ jobs:
                   ],
               })
           diagnostic = {
-              'schema_version': 348,
+              'schema_version': 350,
               'checked_at': datetime.now(timezone.utc).isoformat(),
               'workflow_name': run['name'],
               'workflow_run_id': run['id'],
@@ -94,7 +95,7 @@ jobs:
               'jobs': normalized_jobs,
           }
           assert diagnostic['event'] == 'push', diagnostic
-          Path('/tmp/source-publication-restoration-push-diagnostic-v348.json').write_text(
+          Path('/tmp/source-publication-restoration-push-diagnostic-v350.json').write_text(
               json.dumps(diagnostic, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
           )
           print(json.dumps(diagnostic, ensure_ascii=False, indent=2))
@@ -108,8 +109,8 @@ jobs:
             const fs = require('fs');
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const path = 'source-publication-restoration-push-diagnostic-v348.json';
-            const content = fs.readFileSync('/tmp/source-publication-restoration-push-diagnostic-v348.json').toString('base64');
+            const path = 'source-publication-restoration-push-diagnostic-v350.json';
+            const content = fs.readFileSync('/tmp/source-publication-restoration-push-diagnostic-v350.json').toString('base64');
             for (let attempt = 1; attempt <= 4; attempt++) {
               let sha;
               try {
@@ -124,7 +125,7 @@ jobs:
                   repo,
                   path,
                   branch: 'main',
-                  message: 'ci: record direct restoration diagnostic v348 [skip ci]',
+                  message: 'ci: record latest direct restoration diagnostic v350 [skip ci]',
                   content,
                   ...(sha ? { sha } : {}),
                 });
