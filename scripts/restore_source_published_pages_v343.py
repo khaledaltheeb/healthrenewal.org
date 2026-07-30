@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Safety wrapper for source-publication parity v342.
 
-The v342 policy remains authoritative. This wrapper hardens two implementation
+The v342 policy remains authoritative. This wrapper hardens three implementation
 edges before invoking it:
 
 1. A missing nested route inside an existing public section is merged into that
    route only; the existing top-level production section is never deleted.
-2. Robots directives are parsed regardless of HTML attribute order.
+2. Shared assets may be copied from an absent source section, but HTML is copied
+   only for routes explicitly declared by a source sitemap.
+3. Robots directives are parsed regardless of HTML attribute order.
 """
 from __future__ import annotations
 
@@ -34,6 +36,18 @@ def hardened_is_blocked_html(path: Path) -> tuple[bool, str | None]:
     return False, None
 
 
+def ignore_html(_directory: str, names: list[str]) -> list[str]:
+    """Keep shared assets while excluding undeclared HTML from bulk copies."""
+    return [name for name in names if name.lower().endswith((".html", ".htm"))]
+
+
+def copy_assets_then_exact_route(src_dir: Path, dst_dir: Path, src_page: Path, dst_page: Path) -> None:
+    dst_dir.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(src_dir, dst_dir, dirs_exist_ok=True, ignore=ignore_html)
+    dst_page.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src_page, dst_page)
+
+
 def incremental_copy_public_surface(source_root: Path, site_root: Path, route: str) -> list[str]:
     src = core.source_path(source_root, route)
     if not src.is_file():
@@ -44,19 +58,21 @@ def incremental_copy_public_surface(source_root: Path, site_root: Path, route: s
         top = parts[0]
         src_top = source_root / top
         dst_top = site_root / top
+        dst = core.output_path(site_root, route)
 
-        # A wholly absent section needs its shared assets, data and nested pages.
+        # For a wholly absent section, copy all non-HTML assets and then only the
+        # current sitemap-declared page. Subsequent declared routes add their own
+        # exact HTML files without exposing drafts or unlisted documents.
         if src_top.is_dir() and not dst_top.exists():
-            shutil.copytree(src_top, dst_top)
+            copy_assets_then_exact_route(src_top, dst_top, src, dst)
             return [top + "/"]
 
-        # For an existing section, merge only the missing route subtree. Never
-        # remove or replace the production section that already passed its gates.
+        # For an existing section, merge assets from only the missing route
+        # subtree and copy that route's exact declared HTML page.
         src_route_dir = source_root / route.rstrip("/")
         dst_route_dir = site_root / route.rstrip("/")
         if src_route_dir.is_dir():
-            dst_route_dir.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copytree(src_route_dir, dst_route_dir, dirs_exist_ok=True)
+            copy_assets_then_exact_route(src_route_dir, dst_route_dir, src, dst)
             return [route]
 
     dst = core.output_path(site_root, route)
