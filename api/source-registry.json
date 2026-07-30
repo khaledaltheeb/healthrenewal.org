@@ -1,0 +1,283 @@
+{
+  "schema_version": "1.0.0",
+  "updated_at": "2026-07-30",
+  "relationship_policy": "independent_source_candidate_not_partner",
+  "disclaimer_ar": "الإدراج لا يعني شراكة أو اعتمادًا أو تأييدًا. الربط متاح بعد التحقق من الرابط، أما الترجمة أو الاستيراد أو إعادة الاستخدام فتتطلب مراجعة الحقوق والجودة.",
+  "sources": [
+    {
+      "id": "aadmd",
+      "name": "American Academy of Developmental Medicine & Dentistry (AADMD)",
+      "name_ar": "الأكاديمية الأمريكية لطب وطب أسنان النمو",
+      "url": "https://www.aadmd.org/",
+      "category": "الرعاية الصحية والإعاقات النمائية",
+      "intended_use": "المناهج والكفاءات والموارد السريرية المتعلقة بصحة الأشخاص ذوي الإعاقات الذهنية والنمائية.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "liliane-fonds",
+      "name": "Liliane Fonds",
+      "name_ar": "مؤسسة ليليان فوندس",
+      "url": "https://www.lilianefonds.org/",
+      "category": "الدمج المجتمعي ودعم الأسرة",
+      "intended_use": "التعلم المؤسسي حول الدمج المجتمعي، مشاركة الطفل، دعم الأسرة، والصحة والتعليم في البيئات محدودة الموارد.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "bookshare",
+      "name": "Bookshare",
+      "name_ar": "بوكشير",
+      "url": "https://www.bookshare.org/",
+      "category": "القراءة الميسرة",
+      "intended_use": "إحالة قانونية إلى الكتب الميسرة وخيارات القراءة للأشخاص ذوي صعوبات الوصول إلى المطبوعات.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "ecta",
+      "name": "Early Childhood Technical Assistance Center (ECTA)",
+      "name_ar": "مركز المساعدة التقنية للطفولة المبكرة",
+      "url": "https://ectacenter.org/",
+      "category": "التدخل المبكر",
+      "intended_use": "الممارسات الموصى بها، التدخل المبكر، مشاركة الأسرة، الدمج، الانتقال، وأدوات التنفيذ.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "ncpmi",
+      "name": "National Center for Pyramid Model Innovations (NCPMI)",
+      "name_ar": "المركز الوطني لابتكارات نموذج الهرم",
+      "url": "https://challengingbehavior.org/",
+      "category": "النمو الاجتماعي والانفعالي",
+      "intended_use": "موارد نموذج الهرم، الوقاية، الدعم السلوكي الإيجابي، الشراكة مع الأسرة، وقياس جودة التنفيذ.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "ties-center",
+      "name": "TIES Center",
+      "name_ar": "مركز TIES",
+      "url": "https://tiescenter.org/",
+      "category": "التربية الدامجة",
+      "intended_use": "الوصول إلى المنهج العام، الانتماء، التواصل، التعليم الدامج، والتغيير على مستوى الأنظمة.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "ncdb",
+      "name": "National Center on Deafblindness (NCDB)",
+      "name_ar": "المركز الوطني للصمم المكفوف",
+      "url": "https://www.nationaldb.org/",
+      "category": "الصمم المكفوف والتواصل",
+      "intended_use": "التواصل، التقييم الفردي، تدريب المتدخلين، دعم الأسرة، والوصول التعليمي للأشخاص الصم المكفوفين.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "eucap",
+      "name": "European Council of Autistic People (EUCAP)",
+      "name_ar": "المجلس الأوروبي للأشخاص التوحديين",
+      "url": "https://eucap.eu/",
+      "category": "المناصرة بقيادة الأشخاص التوحديين",
+      "intended_use": "اللغة والحقوق والاستقلال والمشاركة وإدماج الخبرة المعاشة في مراجعة محتوى التوحد.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "asan",
+      "name": "Autistic Self Advocacy Network (ASAN)",
+      "name_ar": "شبكة المناصرة الذاتية للأشخاص التوحديين",
+      "url": "https://autisticadvocacy.org/",
+      "category": "المناصرة الذاتية والحقوق",
+      "intended_use": "مواد مبسطة وحقوقية حول الاستقلال والموافقة واتخاذ القرار المدعوم والحماية من الإساءة.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "pacer",
+      "name": "PACER Center",
+      "name_ar": "مركز PACER",
+      "url": "https://www.pacer.org/",
+      "category": "تمكين الأسرة والانتقال",
+      "intended_use": "تدريب الوالدين، التقنيات المساعدة، الانتقال، الوقاية من التنمر، والتمكين الأسري.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "p2pusa",
+      "name": "Parent to Parent USA",
+      "name_ar": "منظمة الوالد إلى الوالد في الولايات المتحدة",
+      "url": "https://www.p2pusa.org/",
+      "category": "دعم الأقران للأسرة",
+      "intended_use": "النموذج المنظم للدعم بين الأسر، معايير الجودة، والحدود بين دعم الأقران والرعاية السريرية.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "gudin",
+      "name": "Global University Disability & Inclusion Network (GUDIN)",
+      "name_ar": "الشبكة العالمية للإعاقة والدمج في الجامعات",
+      "url": "https://www.ahead.ie/gudin",
+      "category": "الدمج في التعليم العالي",
+      "intended_use": "الوصول الجامعي، التدريس والتقييم الميسران، الإفصاح، التكييفات، ومشاركة الطلبة.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "ucp",
+      "name": "United Cerebral Palsy (UCP)",
+      "name_ar": "منظمة الشلل الدماغي المتحدة",
+      "url": "https://ucp.org/",
+      "category": "الشلل الدماغي والمشاركة",
+      "intended_use": "المشاركة والاستقلال والتقنيات المساعدة والدعم المجتمعي وجودة الحياة للأشخاص ذوي الشلل الدماغي.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "ifglobal",
+      "name": "International Federation for Spina Bifida and Hydrocephalus (IF)",
+      "name_ar": "الاتحاد الدولي للسنسنة المشقوقة واستسقاء الدماغ",
+      "url": "https://www.ifglobal.org/",
+      "category": "السنسنة المشقوقة واستسقاء الدماغ",
+      "intended_use": "المعلومات الصحية والحقوق والمشاركة والدعم مدى الحياة والموارد الأسرية.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "aph",
+      "name": "American Printing House for the Blind (APH)",
+      "name_ar": "دار الطباعة الأمريكية للمكفوفين",
+      "url": "https://www.aph.org/",
+      "category": "إتاحة المواد لفاقدي البصر",
+      "intended_use": "المواد التعليمية الميسرة، البحث، قواعد اكتشاف الموارد، والوصول التعليمي للمكفوفين وضعاف البصر.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "daisy",
+      "name": "DAISY Consortium",
+      "name_ar": "اتحاد DAISY",
+      "url": "https://daisy.org/",
+      "category": "النشر الرقمي الميسر",
+      "intended_use": "معايير النشر الميسر وEPUB، دعم العربية والاتجاه من اليمين إلى اليسار، وقابلية التشغيل مع تقنيات القراءة.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "gin",
+      "name": "Guidelines International Network (G-I-N)",
+      "name_ar": "الشبكة الدولية للإرشادات",
+      "url": "https://g-i-n.net/",
+      "category": "الإرشادات والمنهجية",
+      "intended_use": "اكتشاف الإرشادات وتقييمها وتكييفها وتنفيذها وتحديثها وإدارة تضارب المصالح.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "crossref",
+      "name": "Crossref",
+      "name_ar": "كروس ريف",
+      "url": "https://www.crossref.org/",
+      "category": "بيانات البحوث والاستشهاد",
+      "intended_use": "DOI، العلاقات بين الإصدارات، التصحيحات والسحوبات، التمويل، التراخيص، والمراجع.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "datacite",
+      "name": "DataCite",
+      "name_ar": "داتا سايت",
+      "url": "https://datacite.org/",
+      "category": "معرفات مخرجات البحث",
+      "intended_use": "ربط المقالات بالبيانات والبرمجيات والتقارير والإصدارات، وحفظ المصدر والترخيص والمعرفات الدائمة.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "openalex",
+      "name": "OpenAlex",
+      "name_ar": "أوبن أليكس",
+      "url": "https://openalex.org/",
+      "category": "الرسم البياني العلمي",
+      "intended_use": "اكتشاف الأعمال والمؤلفين والمؤسسات والمفاهيم والاستشهادات ومواقع الوصول المفتوح دون اعتبارها حكمًا على الجودة.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "doaj",
+      "name": "Directory of Open Access Journals (DOAJ)",
+      "name_ar": "دليل دوريات الوصول المفتوح",
+      "url": "https://doaj.org/",
+      "category": "الوصول المفتوح",
+      "intended_use": "اكتشاف الدوريات والمقالات مفتوحة الوصول، التراخيص، حالة الإدراج، والروابط القانونية إلى الناشر.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "openaire",
+      "name": "OpenAIRE",
+      "name_ar": "أوبن إير",
+      "url": "https://www.openaire.eu/",
+      "category": "البحث المفتوح والمستودعات",
+      "intended_use": "ربط المنشورات بالبيانات والبرمجيات والمشاريع والممولين والمستودعات مع حفظ المصدر.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "prospero",
+      "name": "PROSPERO",
+      "name_ar": "سجل PROSPERO",
+      "url": "https://www.crd.york.ac.uk/prospero/",
+      "category": "بروتوكولات المراجعات المنهجية",
+      "intended_use": "ربط المراجعات المنهجية بسجلاتها المسبقة ومتابعة التعديلات والحالة دون اعتبار التسجيل إثباتًا للجودة.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "ror",
+      "name": "Research Organization Registry (ROR)",
+      "name_ar": "سجل مؤسسات البحث ROR",
+      "url": "https://ror.org/",
+      "category": "معرفات المؤسسات البحثية",
+      "intended_use": "توحيد أسماء المؤسسات والانتسابات والروابط بين الأعمال والمؤلفين والمنح مع دعم الأسماء العربية والمتغيرات.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    },
+    {
+      "id": "core",
+      "name": "CORE",
+      "name_ar": "منصة CORE",
+      "url": "https://core.ac.uk/",
+      "category": "اكتشاف النصوص مفتوحة الوصول",
+      "intended_use": "العثور على نسخ قانونية مفتوحة الوصول مع تمييز نسخة المستودع عن نسخة الناشر وحفظ الترخيص والمصدر.",
+      "status": "candidate",
+      "rights_review": "pending",
+      "contacted_at": "2026-07-30"
+    }
+  ]
+}
