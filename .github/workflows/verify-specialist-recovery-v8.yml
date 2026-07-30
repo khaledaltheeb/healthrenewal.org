@@ -1,6 +1,10 @@
 name: Verify specialist recovery delivery v8
 
 on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/verify-specialist-recovery-v8.yml"
   workflow_run:
     workflows: ["Deploy specialist recovery overlay v8"]
     types: [completed]
@@ -16,6 +20,7 @@ concurrency:
 jobs:
   verify:
     if: >-
+      github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
@@ -33,40 +38,83 @@ jobs:
         id: guard
         shell: bash
         run: |
-          if [[ "${GITHUB_EVENT_NAME}" == "workflow_run" && -f reports/specialist-recovery-v8-delivery.json ]]; then
+          if [[ -f reports/specialist-recovery-v8-delivery.json && "${GITHUB_EVENT_NAME}" != "workflow_dispatch" ]]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Verify Worker and send one real owner reset email
+      - name: Verify stable Worker v8 and send one real owner reset email
         if: ${{ steps.guard.outputs.skip != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
           [[ -n "${ADMIN_API_KEY:-}" ]] || { echo "::error::SPECIALISTS_ADMIN_API_KEY missing"; exit 1; }
-          ready=false
-          for attempt in {1..36}; do
-            code="$(curl -sS -o /tmp/health.json -w '%{http_code}' "${ACCOUNT_API_BASE}/health?delivery-probe=${GITHUB_RUN_ID}-${attempt}" || true)"
+
+          stable=0
+          for attempt in {1..60}; do
+            code="$(curl -sS -o /tmp/health.json -w '%{http_code}' "${ACCOUNT_API_BASE}/health?delivery-probe=${GITHUB_RUN_ID}-${attempt}-$(date +%s%N)" || true)"
             if [[ "${code}" == "200" ]] && python - <<'PY'
           import json
           d=json.load(open('/tmp/health.json',encoding='utf-8'))
           assert d.get('ok') is True and d.get('version') == '8.0.0', d
+          checks=d.get('checks') or {}
+          assert checks.get('turnstile') is True, checks
+          assert checks.get('resendConfigured') is True, checks
+          assert checks.get('passwordResetBase') is True, checks
           PY
-            then ready=true; break; fi
+            then
+              stable=$((stable+1))
+              if [[ "${stable}" -ge 3 ]]; then break; fi
+              sleep 2
+            else
+              stable=0
+              sleep 5
+            fi
+          done
+          [[ "${stable}" -ge 3 ]] || { cat /tmp/health.json || true; echo "::error::Worker v8 did not remain stable"; exit 1; }
+
+          sent=false
+          for attempt in {1..36}; do
+            code="$(curl -sS -o /tmp/delivery.json -w '%{http_code}' -X POST \
+              -H "x-bootstrap-key: ${ADMIN_API_KEY}" \
+              -H 'content-type: application/json' \
+              --data '{}' \
+              "${ACCOUNT_API_BASE}/v1/internal/owner-password-reset?probe=${GITHUB_RUN_ID}-${attempt}-$(date +%s%N)" || true)"
+            if [[ "${code}" == "200" ]] && python - <<'PY'
+          import json
+          d=json.load(open('/tmp/delivery.json',encoding='utf-8'))
+          assert d.get('ok') is True and d.get('delivery') == 'sent', d
+          assert d.get('providerMessageId'), d
+          PY
+            then
+              sent=true
+              break
+            fi
+            error="$(python - <<'PY'
+          import json
+          try:
+              d=json.load(open('/tmp/delivery.json',encoding='utf-8'))
+              print(d.get('error',''))
+          except Exception:
+              print('')
+          PY
+          )"
+            if [[ "${code}" == "403" ]]; then
+              cat /tmp/delivery.json || true
+              echo "::error::Owner delivery probe is forbidden"
+              exit 1
+            fi
+            echo "Delivery route not ready yet: HTTP ${code}, error=${error}, attempt=${attempt}"
             sleep 5
           done
-          [[ "${ready}" == "true" ]] || { cat /tmp/health.json || true; exit 1; }
+          [[ "${sent}" == "true" ]] || { cat /tmp/delivery.json || true; echo "::error::Owner reset email was not accepted by Resend"; exit 1; }
 
-          code="$(curl -sS -o /tmp/delivery.json -w '%{http_code}' -X POST -H "x-bootstrap-key: ${ADMIN_API_KEY}" -H 'content-type: application/json' --data '{}' "${ACCOUNT_API_BASE}/v1/internal/owner-password-reset" || true)"
-          [[ "${code}" == "200" ]] || { cat /tmp/delivery.json || true; exit 1; }
           mkdir -p reports
           python - <<'PY'
           import json, os
           from datetime import datetime, timezone
           d=json.load(open('/tmp/delivery.json',encoding='utf-8'))
-          assert d.get('ok') is True and d.get('delivery') == 'sent', d
-          assert d.get('providerMessageId'), d
           report={
             'schema_version':1,
             'checked_at':datetime.now(timezone.utc).isoformat(),
