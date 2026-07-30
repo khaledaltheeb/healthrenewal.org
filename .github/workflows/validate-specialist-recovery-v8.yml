@@ -44,15 +44,8 @@ jobs:
           node --check specialists-partners/admin/admin.js
           node --check specialists-partners/recover/recover.js
           python -m unittest -v tests.test_specialist_recovery_v8
-          python - <<'PY'
-          from pathlib import Path
-          import yaml
-          for path in [
-              '.github/workflows/validate-specialist-recovery-v8.yml',
-              '.github/workflows/deploy-specialist-recovery-overlay-v8.yml',
-              '.github/workflows/deploy-specialist-recovery-pages-v8.yml',
-              '.github/workflows/verify-specialist-recovery-v8.yml',
-          ]:
-              yaml.safe_load(Path(path).read_text(encoding='utf-8'))
-          print('specialist recovery v8 workflows parsed')
-          PY
+          ruby -e 'require "yaml"; ARGV.each { |path| YAML.load_file(path) }; puts "specialist recovery v8 workflows parsed"' \
+            .github/workflows/validate-specialist-recovery-v8.yml \
+            .github/workflows/deploy-specialist-recovery-overlay-v8.yml \
+            .github/workflows/deploy-specialist-recovery-pages-v8.yml \
+            .github/workflows/verify-specialist-recovery-v8.yml
