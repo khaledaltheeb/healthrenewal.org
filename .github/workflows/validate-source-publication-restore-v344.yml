@@ -1,0 +1,36 @@
+name: Validate source-publication restoration v344
+
+on:
+  pull_request:
+    paths:
+      - "scripts/restore_source_published_pages_v342.py"
+      - "scripts/restore_source_published_pages_v343.py"
+      - "tests/test_source_publication_restore_v344.py"
+      - ".github/workflows/restore-source-published-pages-v342.yml"
+      - ".github/workflows/validate-source-publication-restore-v344.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/restore_source_published_pages_v342.py"
+      - "scripts/restore_source_published_pages_v343.py"
+      - "tests/test_source_publication_restore_v344.py"
+      - ".github/workflows/restore-source-published-pages-v342.yml"
+      - ".github/workflows/validate-source-publication-restore-v344.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and test restoration safety contracts
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/restore_source_published_pages_v342.py \
+            scripts/restore_source_published_pages_v343.py \
+            tests/test_source_publication_restore_v344.py
+          python -m unittest -v tests.test_source_publication_restore_v344
