@@ -41,3 +41,23 @@ jobs:
         run: python scripts/validate_accessibility_governance.py --self-test
       - name: Validate public accessibility governance
         run: python scripts/validate_accessibility_governance.py
+      - name: Enforce a single normalized platform shell
+        shell: python
+        run: |
+          from pathlib import Path
+
+          page = Path("accessibility/index.html").read_text(encoding="utf-8")
+          required_once = {
+              "platform shell marker": "pt-platform-shell:v1",
+              "platform stylesheet": "../assets/platform/platform-core.css?v=1.1.0",
+              "platform script": "../assets/platform/platform-core.js?v=1.1.0",
+              "license link": '<link rel="license" href="../copyright/">',
+          }
+          failures = []
+          for label, fragment in required_once.items():
+              count = page.count(fragment)
+              if count != 1:
+                  failures.append(f"{label}: expected exactly once, found {count}")
+          if failures:
+              raise SystemExit("\n".join(failures))
+          print("single normalized platform shell: passed")
