@@ -1,0 +1,48 @@
+name: Validate specialists live messaging v5
+
+on:
+  pull_request:
+    paths:
+      - 'specialists-partners/backend/src/index-v3.js'
+      - 'specialists-partners/backend/src/messaging-v5-*.js'
+      - 'specialists-partners/backend/migrations/0004_messaging_notifications.sql'
+      - 'specialists-partners/assets/portal-live-v5.js'
+      - 'specialists-partners/portal/index.html'
+      - 'tests/test_specialist_messaging_v5.py'
+      - '.github/workflows/validate-specialists-messaging-v5.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'specialists-partners/backend/src/index-v3.js'
+      - 'specialists-partners/backend/src/messaging-v5-*.js'
+      - 'specialists-partners/backend/migrations/0004_messaging_notifications.sql'
+      - 'specialists-partners/assets/portal-live-v5.js'
+      - 'specialists-partners/portal/index.html'
+      - 'tests/test_specialist_messaging_v5.py'
+      - '.github/workflows/validate-specialists-messaging-v5.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate JavaScript syntax
+        run: |
+          set -euo pipefail
+          node --check specialists-partners/backend/src/index-v3.js
+          for file in specialists-partners/backend/src/messaging-v5-*.js; do
+            node --check "$file"
+          done
+          node --check specialists-partners/assets/portal-live-v5.js
+      - name: Validate migrations, notifications, privacy and portal contracts
+        run: python -m unittest tests.test_specialist_messaging_v5
