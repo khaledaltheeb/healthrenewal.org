@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-30T20:58:42.267839+00:00",
+  "configured_sender_present": true,
+  "api_key_present": true,
+  "configured": {
+    "label": "configured",
+    "attempted": true,
+    "ok": false,
+    "http_status": 403,
+    "error": "http_403"
+  },
+  "fallback": {
+    "label": "resend_owner_fallback",
+    "attempted": true,
+    "ok": false,
+    "http_status": 403,
+    "error": "http_403"
+  },
+  "delivery_path_available": false
+}
