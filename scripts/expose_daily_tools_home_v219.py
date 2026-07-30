@@ -24,17 +24,6 @@ def add_once(text: str, marker: str, addition: str, identity: str) -> str:
     return text.replace(marker, marker + addition, 1)
 
 
-def patch_keywords(text: str) -> str:
-    match = re.search(r'(<meta name="keywords" content=")([^"]*)(">)', text)
-    if not match:
-        raise SystemExit("Homepage keyword metadata is missing")
-    values = [item.strip() for item in match.group(2).split(",") if item.strip()]
-    for value in ("أدوات نفسية تفاعلية", "أدوات تنظيم التوتر", "أدوات متابعة النوم", "مسارات تعلم الصحة النفسية"):
-        if value not in values:
-            values.append(value)
-    return text[: match.start(2)] + ",".join(values) + text[match.end(2) :]
-
-
 def patch_jsonld(text: str) -> str:
     match = re.search(r'(<script type="application/ld\+json">)(.*?)(</script>)', text, re.S)
     if not match:
@@ -87,7 +76,7 @@ def upsert_card(text: str, identity: str, card: str, marker: str) -> str:
 
 
 def patch_index() -> None:
-    text = patch_jsonld(patch_keywords(INDEX.read_text(encoding="utf-8")))
+    text = patch_jsonld(INDEX.read_text(encoding="utf-8"))
     nav_marker = '<a href="provider-assessment-demo/">منصة التقييم</a>'
     missing_nav = ""
     if 'href="daily-tools/"' not in text:
