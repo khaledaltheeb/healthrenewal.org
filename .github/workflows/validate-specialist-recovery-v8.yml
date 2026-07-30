@@ -1,0 +1,51 @@
+name: Validate specialist recovery v8
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "specialists-partners/admin/**"
+      - "specialists-partners/account-backend/src/index-v8.js"
+      - "tests/test_specialist_recovery_v8.py"
+      - ".github/workflows/validate-specialist-recovery-v8.yml"
+      - ".github/workflows/deploy-specialist-recovery-overlay-v8.yml"
+      - ".github/workflows/deploy-specialist-recovery-pages-v8.yml"
+      - ".github/workflows/verify-specialist-recovery-v8.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "specialists-partners/admin/**"
+      - "specialists-partners/account-backend/src/index-v8.js"
+      - "tests/test_specialist_recovery_v8.py"
+      - ".github/workflows/validate-specialist-recovery-v8.yml"
+      - ".github/workflows/deploy-specialist-recovery-overlay-v8.yml"
+      - ".github/workflows/deploy-specialist-recovery-pages-v8.yml"
+      - ".github/workflows/verify-specialist-recovery-v8.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate JavaScript, recovery contracts, and workflow syntax
+        run: |
+          set -euo pipefail
+          node --check specialists-partners/account-backend/src/index-v8.js
+          node --check specialists-partners/admin/admin.js
+          node --check specialists-partners/recover/recover.js
+          python -m unittest -v tests.test_specialist_recovery_v8
+          ruby -e 'require "yaml"; ARGV.each { |path| YAML.load_file(path) }; puts "specialist recovery v8 workflows parsed"' \
+            .github/workflows/validate-specialist-recovery-v8.yml \
+            .github/workflows/deploy-specialist-recovery-overlay-v8.yml \
+            .github/workflows/deploy-specialist-recovery-pages-v8.yml \
+            .github/workflows/verify-specialist-recovery-v8.yml
