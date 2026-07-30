@@ -15,6 +15,7 @@
   const url = (path = '') => `${base}${String(path).replace(/^\/+/, '')}`;
   const currentPath = location.pathname.replace(/index\.html$/, '');
   const pageTitle = (doc.querySelector('h1')?.textContent || doc.title || 'المنصة').trim();
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   // Preserve section-level navigation, but avoid rendering the old home header
   // directly below the new global platform shell.
@@ -236,7 +237,9 @@
     title: 'العودة إلى أعلى الصفحة',
     text: '↑'
   });
-  backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  backToTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+  });
   body.append(backToTop);
 
   let ticking = false;
