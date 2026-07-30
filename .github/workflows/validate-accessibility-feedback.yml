@@ -1,0 +1,33 @@
+name: Validate accessibility feedback contract
+
+on:
+  pull_request:
+    paths:
+      - '.github/ISSUE_TEMPLATE/accessibility-barrier.yml'
+      - 'scripts/validate_accessibility_feedback_form.py'
+      - '.github/workflows/validate-accessibility-feedback.yml'
+      - 'docs/innovation-register.md'
+  push:
+    branches: [main]
+    paths:
+      - '.github/ISSUE_TEMPLATE/accessibility-barrier.yml'
+      - 'scripts/validate_accessibility_feedback_form.py'
+      - '.github/workflows/validate-accessibility-feedback.yml'
+      - 'docs/innovation-register.md'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile validator
+        run: python -m py_compile scripts/validate_accessibility_feedback_form.py
+      - name: Validate accessibility feedback contract
+        run: python scripts/validate_accessibility_feedback_form.py
