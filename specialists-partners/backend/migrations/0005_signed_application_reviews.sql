@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS application_review_invitations (
   application_id TEXT NOT NULL,
   reference_id TEXT NOT NULL,
   token_hash TEXT NOT NULL UNIQUE,
+  review_session_hash TEXT,
   csrf_hash TEXT,
   expires_at TEXT NOT NULL,
   opened_at TEXT,
@@ -19,6 +20,9 @@ CREATE TABLE IF NOT EXISTS application_review_invitations (
 
 CREATE INDEX IF NOT EXISTS idx_application_review_active
   ON application_review_invitations(application_id, expires_at, used_at, revoked_at);
+
+CREATE INDEX IF NOT EXISTS idx_application_review_session
+  ON application_review_invitations(review_session_hash, expires_at);
 
 CREATE INDEX IF NOT EXISTS idx_application_review_expiry
   ON application_review_invitations(expires_at);
