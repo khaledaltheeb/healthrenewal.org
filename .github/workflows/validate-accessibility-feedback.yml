@@ -1,0 +1,41 @@
+name: Validate accessibility feedback contract
+
+on:
+  pull_request:
+    paths:
+      - .github/ISSUE_TEMPLATE/accessibility-barrier.yml
+      - scripts/validate_accessibility_feedback_form.py
+      - .github/workflows/validate-accessibility-feedback.yml
+  push:
+    branches:
+      - main
+    paths:
+      - .github/ISSUE_TEMPLATE/accessibility-barrier.yml
+      - scripts/validate_accessibility_feedback_form.py
+      - .github/workflows/validate-accessibility-feedback.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: accessibility-feedback-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile validator
+        run: python -m py_compile scripts/validate_accessibility_feedback_form.py
+      - name: Run negative-path self-tests
+        run: python scripts/validate_accessibility_feedback_form.py --self-test
+      - name: Validate public feedback contract
+        run: python scripts/validate_accessibility_feedback_form.py
