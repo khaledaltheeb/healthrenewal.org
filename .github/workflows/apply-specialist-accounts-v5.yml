@@ -41,7 +41,18 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Detect transport payload
+        id: payload
+        shell: bash
+        run: |
+          if compgen -G 'tools/specialist_accounts_v5_payload.*' >/dev/null; then
+            echo 'present=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'present=false' >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Verify reviewed payload
+        if: steps.payload.outputs.present == 'true'
         shell: bash
         run: |
           python - <<'PY'
@@ -56,18 +67,23 @@ jobs:
           PY
 
       - name: Materialize reviewed patch
+        if: steps.payload.outputs.present == 'true'
         run: python tools/apply_specialist_accounts_v5_patch.py
 
       - name: Validate generated implementation
+        if: steps.payload.outputs.present == 'true'
         run: |
           set -euo pipefail
           node --check specialists-partners/account-backend/src/index.js
           node --check specialists-partners/account/account.js
           python -m unittest -v tests.test_specialist_accounts_v5
 
-      - name: Commit generated implementation
+      - name: Commit application files
+        if: steps.payload.outputs.present == 'true'
         run: |
           set -euo pipefail
+          rm -rf tests/__pycache__
+          git checkout HEAD -- .github/workflows
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
