@@ -49,11 +49,13 @@ export async function messagingHealth(baseWorker, env, cors) {
     console.error('messaging_v5_health_db_error', error);
   }
 
+  const deploymentCommit = String(env.RELEASE_COMMIT || '').trim();
   const checks = {
     ...(base.checks || {}),
     messagingV5,
     notificationPolicy,
-    ownerIdentity:Boolean(String(env.OWNER_DISPLAY_NAME || 'خالد الذيب').trim())
+    ownerIdentity:String(env.OWNER_DISPLAY_NAME || '').trim() === 'خالد الذيب',
+    releaseIdentity:/^[a-f0-9]{40}$/i.test(deploymentCommit)
   };
   const ready = Object.values(checks).every(Boolean);
   return json({
@@ -61,6 +63,7 @@ export async function messagingHealth(baseWorker, env, cors) {
     ok:ready,
     version:'5.0.0',
     ownerDisplayName:String(env.OWNER_DISPLAY_NAME || 'خالد الذيب').trim(),
+    deploymentCommit,
     checks,
     time:new Date().toISOString()
   }, ready ? 200 : 503, cors);
