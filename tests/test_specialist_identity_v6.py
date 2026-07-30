@@ -107,6 +107,10 @@ class SpecialistIdentityV6Tests(unittest.TestCase):
         self.assertIn("OWNER_EMAIL||'pterminology@gmail.com'", worker)
         self.assertIn("display_name_ar", worker)
         self.assertIn("display_name_en", worker)
+        self.assertIn("reset_token_id", worker)
+        self.assertIn("actor.role==='reviewer'?env.REVIEWER_API_KEY", worker)
+        self.assertIn("env.MODERATOR_API_KEY", worker)
+        self.assertIn("login_token_used", worker)
 
     def test_password_storage_is_derived_and_never_plaintext(self) -> None:
         worker = read("specialists-partners/account-backend/src/index.js")
