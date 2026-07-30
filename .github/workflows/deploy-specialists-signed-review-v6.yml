@@ -56,7 +56,12 @@ jobs:
           python -m unittest tests.test_specialist_signed_review_v6
 
       - name: Validate production readiness without exposing values
-        run: node scripts/check-specialists-production-readiness.mjs
+        shell: bash
+        run: |
+          set -euo pipefail
+          REVIEW_LINK_SECRET="$SPECIALISTS_REVIEW_LINK_SECRET"
+          [[ ${#REVIEW_LINK_SECRET} -ge 32 ]]
+          node scripts/check-specialists-production-readiness.mjs
 
       - name: Generate production Worker configuration
         working-directory: specialists-partners/backend
