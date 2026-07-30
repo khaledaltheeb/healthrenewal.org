@@ -1,0 +1,61 @@
+name: Materialize specialist auth recovery v7
+
+on:
+  push:
+    branches: ["agent/specialist-auth-recovery-v7"]
+    paths:
+      - "scripts/apply_specialist_auth_recovery_v7.py"
+      - "specialists-partners/recover/**"
+      - "tests/test_specialist_auth_recovery_v7.py"
+      - ".github/workflows/materialize-specialist-auth-recovery-v7.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: materialize-specialist-auth-recovery-v7
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/specialist-auth-recovery-v7
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Apply recovery hotfix
+        run: python scripts/apply_specialist_auth_recovery_v7.py
+      - name: Validate implementation
+        run: |
+          set -euo pipefail
+          node --check specialists-partners/recover/recover.js
+          node --check specialists-partners/account/account.js
+          node --check specialists-partners/admin/admin.js
+          node --check specialists-partners/backend/src/index-v2.js
+          python -m unittest -v tests.test_specialist_auth_recovery_v7 tests.test_specialist_accounts_v5 tests.test_specialist_identity_v6
+      - name: Commit materialized files
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/deploy-specialists-account-backend.yml \
+            specialists-partners/account/index.html \
+            specialists-partners/account/account.js \
+            specialists-partners/admin/index.html \
+            specialists-partners/admin/admin.js \
+            specialists-partners/backend/src/index-v2.js
+          if git diff --cached --quiet; then
+            echo "No materialized changes"
+            exit 0
+          fi
+          git commit -m "fix: recover specialist password and logout routes v7"
+          git push origin HEAD:agent/specialist-auth-recovery-v7
