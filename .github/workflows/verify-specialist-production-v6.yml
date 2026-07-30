@@ -24,10 +24,8 @@ jobs:
     timeout-minutes: 12
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      D1_DATABASE_ID: ${{ secrets.SPECIALISTS_D1_DATABASE_ID }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '826ac34927c1e045c06145a327c2ac52' }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-      TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
       ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
       RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}
       FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
@@ -42,20 +40,19 @@ jobs:
           fetch-depth: 0
 
       - name: Verify Cloudflare permissions, Workers and public pages
-        id: verify
         shell: bash
         run: |
           set -uo pipefail
           mkdir -p reports
           missing=()
-          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID D1_DATABASE_ID RESEND_API_KEY TURNSTILE_SECRET ADMIN_API_KEY RATE_LIMIT_SALT FROM_EMAIL; do
+          for name in CLOUDFLARE_API_TOKEN RESEND_API_KEY ADMIN_API_KEY RATE_LIMIT_SALT FROM_EMAIL; do
             [[ -n "${!name:-}" ]] || missing+=("$name")
           done
 
           cf_token=false; cf_workers=false; cf_d1=false; cf_turnstile=false
           if [[ -n "${CLOUDFLARE_API_TOKEN:-}" && -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]]; then
             auth=(-H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json")
-            curl -fsS "${auth[@]}" https://api.cloudflare.com/client/v4/user/tokens/verify | python -c 'import json,sys; d=json.load(sys.stdin); raise SystemExit(0 if d.get("success") and d.get("result",{}).get("status")=="active" else 1)' && cf_token=true
+            curl -fsS "${auth[@]}" "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/tokens/verify" | python -c 'import json,sys; d=json.load(sys.stdin); raise SystemExit(0 if d.get("success") and d.get("result",{}).get("status")=="active" else 1)' && cf_token=true
             curl -fsS "${auth[@]}" "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts" >/dev/null && cf_workers=true
             curl -fsS "${auth[@]}" "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/d1/database" >/dev/null && cf_d1=true
             curl -fsS "${auth[@]}" "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/challenges/widgets" >/dev/null && cf_turnstile=true
@@ -67,7 +64,7 @@ jobs:
           join_marker=false; account_marker=false; admin_marker=false
           application_http=0; application_route=false
 
-          for attempt in {1..30}; do
+          for attempt in {1..36}; do
             identity_http="$(curl -sS -o /tmp/identity-health.json -w '%{http_code}' "${IDENTITY_URL}/health" || echo 0)"
             if [[ "$identity_http" == "200" ]]; then
               readarray -t identity_fields < <(python - <<'PY'
@@ -113,9 +110,11 @@ jobs:
               try: return int(os.environ.get(name,'0'))
               except ValueError: return 0
           report={
-            'schema_version':1,
+            'schema_version':2,
             'checked_at':datetime.now(timezone.utc).isoformat(),
             'commit':os.environ.get('GITHUB_SHA',''),
+            'account_id_source':'secret_or_verified_repository_default',
+            'resource_mode':'discover_or_create_at_deploy_time',
             'missing_secrets':json.loads(os.environ.get('missing_json','[]')),
             'cloudflare':{
               'token_active':b('cf_token'),'workers_access':b('cf_workers'),'d1_access':b('cf_d1'),'turnstile_access':b('cf_turnstile')

@@ -176,17 +176,19 @@ class SpecialistIdentityV6Tests(unittest.TestCase):
         workflow = read(".github/workflows/deploy-specialists-account-backend.yml")
         self.assertIn("accountApiBase", runtime)
         self.assertIn("secrets.CLOUDFLARE_API_TOKEN", workflow)
-        self.assertIn("user/tokens/verify", workflow)
+        self.assertIn("/tokens/verify", workflow)
         self.assertIn("/workers/scripts", workflow)
         self.assertIn("/d1/database", workflow)
         self.assertIn("/challenges/widgets", workflow)
+        self.assertIn("Discover or create D1 and Turnstile resources", workflow)
+        self.assertIn("rotate_secret", workflow)
+        self.assertIn("database_created", workflow)
         self.assertIn("wrangler@4 d1 migrations apply", workflow)
         self.assertIn("wrangler@4 deploy", workflow)
         self.assertIn("/v1/internal/bootstrap-owner", workflow)
         self.assertIn("/v1/applications", workflow)
         self.assertIn("REVIEWER_API_KEY", workflow)
         self.assertIn("MODERATOR_API_KEY", workflow)
-        # A raw token must never be written as a workflow literal.
         self.assertNotRegex(workflow, r"CLOUDFLARE_API_TOKEN:\s*[A-Za-z0-9_-]{30,}")
 
     def test_javascript_is_syntactically_valid(self) -> None:
