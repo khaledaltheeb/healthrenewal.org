@@ -1,95 +1,189 @@
 name: Temporary domain diagnostics
 
 on:
-  pull_request:
-    branches: [main]
+  issues:
+    types: [opened]
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   audit:
+    if: github.event.issue.title == '[diagnostic] healthrenewal.org readiness audit'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Install tools
+      - name: Install diagnostic tools
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq dnsutils jq
 
-      - name: Audit healthrenewal.org
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Run external domain audit
         shell: bash
         run: |
           set +e
+          exec > >(tee /tmp/domain-audit.txt) 2>&1
           fail=0
-          expected=$'185.199.108.153\n185.199.109.153\n185.199.110.153\n185.199.111.153'
+          warn=0
 
-          echo '=== DNS A (apex) ==='
+          expected_a=$'185.199.108.153\n185.199.109.153\n185.199.110.153\n185.199.111.153'
+          expected_aaaa=$'2606:50c0:8000::153\n2606:50c0:8001::153\n2606:50c0:8002::153\n2606:50c0:8003::153'
+
+          echo '## healthrenewal.org external readiness audit'
+          echo
+          echo '### DNS'
+
           actual_a="$(dig +short A healthrenewal.org | sort -u)"
-          printf '%s\n' "$actual_a"
-          [[ "$actual_a" == "$expected" ]] || { echo 'ERROR: apex A records do not exactly match GitHub Pages.'; fail=1; }
+          echo "A apex: ${actual_a:-<none>}"
+          if [[ "$actual_a" != "$expected_a" ]]; then
+            echo 'ERROR: apex A records do not exactly match the four GitHub Pages IPv4 addresses.'
+            fail=1
+          fi
 
-          echo '=== DNS AAAA (apex) ==='
-          dig +short AAAA healthrenewal.org | sort -u
+          actual_aaaa="$(dig +short AAAA healthrenewal.org | sort -u)"
+          echo "AAAA apex: ${actual_aaaa:-<none>}"
+          if [[ -n "$actual_aaaa" && "$actual_aaaa" != "$expected_aaaa" ]]; then
+            echo 'ERROR: apex AAAA records exist but do not exactly match GitHub Pages IPv6 addresses.'
+            fail=1
+          fi
 
-          echo '=== DNS CNAME (www) ==='
           actual_cname="$(dig +short CNAME www.healthrenewal.org | sed 's/\.$//' | sort -u)"
-          printf '%s\n' "$actual_cname"
-          [[ "$actual_cname" == 'khaledaltheeb.github.io' ]] || { echo 'ERROR: www CNAME is missing or incorrect.'; fail=1; }
+          echo "CNAME www: ${actual_cname:-<none>}"
+          if [[ "$actual_cname" != 'khaledaltheeb.github.io' ]]; then
+            echo 'ERROR: www CNAME must point directly to khaledaltheeb.github.io.'
+            fail=1
+          fi
 
-          echo '=== Authoritative nameservers ==='
-          dig +short NS healthrenewal.org | sort -u
+          ns="$(dig +short NS healthrenewal.org | sort -u)"
+          echo "NS: ${ns:-<none>}"
+          [[ -n "$ns" ]] || { echo 'ERROR: no authoritative nameservers returned.'; fail=1; }
 
-          echo '=== HTTP and HTTPS ==='
-          for url in \
-            http://healthrenewal.org \
-            https://healthrenewal.org \
-            http://www.healthrenewal.org \
-            https://www.healthrenewal.org \
-            https://khaledaltheeb.github.io/pterminology-site/; do
-            result="$(curl -sS -L --max-time 30 -o /dev/null -w 'status=%{http_code} final=%{url_effective} remote_ip=%{remote_ip}' "$url" 2>&1)"
-            rc=$?
-            echo "$url -> $result"
-            if [[ "$url" == https://healthrenewal.org || "$url" == https://www.healthrenewal.org ]]; then
-              code="$(sed -n 's/.*status=\([0-9][0-9][0-9]\).*/\1/p' <<<"$result")"
-              if [[ $rc -ne 0 || -z "$code" || "$code" -lt 200 || "$code" -ge 400 ]]; then
-                echo "ERROR: $url is not healthy."
-                fail=1
-              fi
+          caa="$(dig +short CAA healthrenewal.org | sort -u)"
+          echo "CAA: ${caa:-<none>}"
+          if [[ -n "$caa" ]] && ! grep -qi 'letsencrypt.org' <<<"$caa"; then
+            echo 'ERROR: CAA records exist but do not authorize letsencrypt.org.'
+            fail=1
+          fi
+
+          verify_txt="$(dig +short TXT _github-pages-challenge-khaledaltheeb.healthrenewal.org | tr -d '"' | sort -u)"
+          echo "GitHub ownership TXT: ${verify_txt:-<none>}"
+          if [[ -z "$verify_txt" ]]; then
+            echo 'WARNING: GitHub account-level domain verification TXT record was not detected.'
+            warn=1
+          fi
+
+          wildcard="$(dig +short A github-pages-wildcard-audit-20260731.healthrenewal.org; dig +short CNAME github-pages-wildcard-audit-20260731.healthrenewal.org)"
+          if [[ -n "$wildcard" ]]; then
+            echo "ERROR: wildcard DNS appears active: $wildcard"
+            fail=1
+          else
+            echo 'Wildcard DNS: not detected'
+          fi
+
+          echo
+          echo '### Repository custom-domain file'
+          repo_cname="$(curl -fsSL --max-time 30 https://raw.githubusercontent.com/khaledaltheeb/pterminology-site/main/CNAME 2>/dev/null | tr -d '\r\n')"
+          echo "CNAME file: ${repo_cname:-<unavailable>}"
+          if [[ "$repo_cname" != 'healthrenewal.org' ]]; then
+            echo 'ERROR: repository CNAME file is missing or incorrect.'
+            fail=1
+          fi
+
+          echo
+          echo '### HTTP redirects and HTTPS responses'
+          for host in healthrenewal.org www.healthrenewal.org; do
+            http_meta="$(curl -sS --max-time 30 -o /dev/null -w 'code=%{http_code} redirect=%{redirect_url} ip=%{remote_ip}' "http://$host" 2>&1)"
+            echo "http://$host -> $http_meta"
+            http_code="$(sed -n 's/.*code=\([0-9][0-9][0-9]\).*/\1/p' <<<"$http_meta")"
+            http_redirect="$(sed -n 's/.*redirect=\([^ ]*\).*/\1/p' <<<"$http_meta")"
+            if [[ -z "$http_code" || "$http_code" -lt 300 || "$http_code" -ge 400 || "$http_redirect" != https://* ]]; then
+              echo "ERROR: http://$host does not redirect directly to HTTPS."
+              fail=1
+            fi
+
+            https_meta="$(curl -sS -L --max-time 30 -o /dev/null -w 'code=%{http_code} final=%{url_effective} ip=%{remote_ip}' "https://$host" 2>&1)"
+            echo "https://$host -> $https_meta"
+            https_code="$(sed -n 's/.*code=\([0-9][0-9][0-9]\).*/\1/p' <<<"$https_meta")"
+            final_url="$(sed -n 's/.*final=\([^ ]*\).*/\1/p' <<<"$https_meta")"
+            if [[ -z "$https_code" || "$https_code" -lt 200 || "$https_code" -ge 400 ]]; then
+              echo "ERROR: https://$host is not returning a successful response or redirect."
+              fail=1
+            fi
+            if [[ "$final_url" != https://healthrenewal.org* ]]; then
+              echo "ERROR: $host does not canonicalize to https://healthrenewal.org."
+              fail=1
             fi
           done
 
-          echo '=== TLS apex ==='
-          apex_tls="$(timeout 30 openssl s_client -connect healthrenewal.org:443 -servername healthrenewal.org </dev/null 2>/dev/null | openssl x509 -noout -subject -issuer -dates -ext subjectAltName 2>&1)"
-          echo "$apex_tls"
-          grep -q 'DNS:healthrenewal.org' <<<"$apex_tls" || { echo 'ERROR: apex certificate does not cover healthrenewal.org.'; fail=1; }
+          default_meta="$(curl -sS -L --max-time 30 -o /dev/null -w 'code=%{http_code} final=%{url_effective} ip=%{remote_ip}' https://khaledaltheeb.github.io/pterminology-site/ 2>&1)"
+          echo "Default Pages URL -> $default_meta"
 
-          echo '=== TLS www ==='
-          www_tls="$(timeout 30 openssl s_client -connect www.healthrenewal.org:443 -servername www.healthrenewal.org </dev/null 2>/dev/null | openssl x509 -noout -subject -issuer -dates -ext subjectAltName 2>&1)"
-          echo "$www_tls"
-          grep -q 'DNS:www.healthrenewal.org' <<<"$www_tls" || { echo 'ERROR: certificate does not cover www.healthrenewal.org.'; fail=1; }
+          echo
+          echo '### TLS certificates'
+          for host in healthrenewal.org www.healthrenewal.org; do
+            tls="$(timeout 30 openssl s_client -connect "$host:443" -servername "$host" </dev/null 2>/dev/null | openssl x509 -noout -subject -issuer -dates -ext subjectAltName 2>&1)"
+            echo "$host certificate:"
+            echo "$tls"
+            if ! grep -q "DNS:$host" <<<"$tls"; then
+              echo "ERROR: TLS certificate does not cover $host."
+              fail=1
+            fi
+          done
 
-          echo '=== GitHub Pages API ==='
-          pages_json="$(curl -sS --max-time 30 \
+          echo
+          echo '### GitHub Pages endpoint metadata'
+          pages_json="$(curl -sS --max-time 30 -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' https://api.github.com/repos/khaledaltheeb/pterminology-site/pages 2>/dev/null)"
+          echo "$pages_json" | jq '{status,cname,html_url,build_type,source,https_enforced,message}' 2>/dev/null || echo "$pages_json"
+          pages_cname="$(jq -r '.cname // empty' <<<"$pages_json" 2>/dev/null)"
+          pages_status="$(jq -r '.status // empty' <<<"$pages_json" 2>/dev/null)"
+          pages_https="$(jq -r '.https_enforced // empty' <<<"$pages_json" 2>/dev/null)"
+          if [[ -n "$pages_cname" && "$pages_cname" != 'healthrenewal.org' ]]; then
+            echo "ERROR: GitHub Pages API reports custom domain '$pages_cname'."
+            fail=1
+          fi
+          if [[ -n "$pages_status" && "$pages_status" != 'built' && "$pages_status" != 'building' ]]; then
+            echo "ERROR: GitHub Pages API reports status '$pages_status'."
+            fail=1
+          fi
+          if [[ -n "$pages_https" && "$pages_https" != 'true' ]]; then
+            echo 'ERROR: GitHub Pages API reports HTTPS enforcement disabled.'
+            fail=1
+          fi
+          if [[ -z "$pages_cname" ]]; then
+            echo 'NOTE: unauthenticated Pages API metadata was unavailable; live DNS/HTTP/TLS checks remain authoritative.'
+          fi
+
+          echo
+          echo '### Final result'
+          if [[ $fail -eq 0 && $warn -eq 0 ]]; then
+            echo 'PASS: functional and security checks passed.'
+            echo PASS > /tmp/domain-audit-result
+          elif [[ $fail -eq 0 ]]; then
+            echo 'PASS WITH SECURITY WARNING: site is functional, but GitHub account-level domain verification was not detected.'
+            echo WARNING > /tmp/domain-audit-result
+          else
+            echo 'FAIL: one or more required readiness checks failed.'
+            echo FAIL > /tmp/domain-audit-result
+          fi
+
+      - name: Publish audit result to issue
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          python3 - <<'PY' >/tmp/comment.json
+          import json
+          from pathlib import Path
+          report = Path('/tmp/domain-audit.txt').read_text(errors='replace') if Path('/tmp/domain-audit.txt').exists() else 'Audit did not produce output.'
+          result = Path('/tmp/domain-audit-result').read_text().strip() if Path('/tmp/domain-audit-result').exists() else 'UNKNOWN'
+          body = f"## Domain audit result: {result}\n\n```text\n{report[-55000:]}\n```"
+          print(json.dumps({'body': body}))
+          PY
+          curl -fsSL -X POST \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H 'Accept: application/vnd.github+json' \
             -H 'X-GitHub-Api-Version: 2022-11-28' \
-            https://api.github.com/repos/khaledaltheeb/pterminology-site/pages)"
-          echo "$pages_json" | jq '{url,status,cname,build_type,source,public,https_certificate,https_enforced}'
-
-          pages_cname="$(jq -r '.cname // empty' <<<"$pages_json")"
-          pages_status="$(jq -r '.status // empty' <<<"$pages_json")"
-          pages_https="$(jq -r '.https_enforced // false' <<<"$pages_json")"
-          [[ "$pages_cname" == 'healthrenewal.org' ]] || { echo "ERROR: GitHub Pages custom domain is '$pages_cname'."; fail=1; }
-          [[ "$pages_status" == 'built' || "$pages_status" == 'building' ]] || { echo "ERROR: GitHub Pages status is '$pages_status'."; fail=1; }
-          [[ "$pages_https" == 'true' ]] || { echo 'ERROR: GitHub Pages HTTPS enforcement is disabled.'; fail=1; }
-
-          echo '=== RESULT ==='
-          if [[ $fail -eq 0 ]]; then
-            echo 'PASS: domain, DNS, HTTPS, certificate, and GitHub Pages configuration are ready.'
-          else
-            echo 'FAIL: one or more required checks failed.'
-          fi
-          exit "$fail"
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
+            --data-binary @/tmp/comment.json
