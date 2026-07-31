@@ -1,0 +1,184 @@
+name: Verify final live E5 deployment
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/verify-e5-final-live-temp.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    if: github.head_ref == 'agent/e5-final-verification-20260801'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/e5-final-verification-20260801
+          fetch-depth: 0
+
+      - name: Verify live interface, manifest, shards, and robots
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import base64
+          import datetime
+          import hashlib
+          import json
+          import ssl
+          import urllib.request
+          from pathlib import Path
+
+          BASE = 'https://healthrenewal.org/'
+          ctx = ssl.create_default_context()
+          stamp = str(int(datetime.datetime.now(datetime.timezone.utc).timestamp()))
+
+          def fetch(path: str) -> tuple[bytes, dict]:
+              sep = '&' if '?' in path else '?'
+              url = BASE + path.lstrip('/') + sep + 'finalverify=' + stamp
+              req = urllib.request.Request(url, headers={
+                  'User-Agent': 'healthrenewal-final-e5-verifier/1.0',
+                  'Cache-Control': 'no-cache',
+                  'Pragma': 'no-cache',
+              })
+              with urllib.request.urlopen(req, timeout=60, context=ctx) as response:
+                  body = response.read()
+                  assert response.status == 200, (path, response.status)
+                  return body, {
+                      'status': response.status,
+                      'contentType': response.headers.get('content-type'),
+                      'etag': response.headers.get('etag'),
+                      'lastModified': response.headers.get('last-modified'),
+                  }
+
+          def sha(data: bytes) -> str:
+              return hashlib.sha256(data).hexdigest()
+
+          report = {
+              'schemaVersion': 1,
+              'passed': False,
+              'verifiedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'site': BASE,
+              'sourceHead': 'ba24eb8953fb3cb8c0efe3680b595489337cca9d',
+              'assets': [],
+              'manifest': {},
+              'shards': [],
+              'contracts': {},
+          }
+
+          assets = [
+              ('ai-search/index.html', Path('ai-search/index.html')),
+              ('ai-search/assets/app.js', Path('ai-search/assets/app.js')),
+              ('ai-search/assets/search-worker.js', Path('ai-search/assets/search-worker.js')),
+              ('ai-search/data/manifest.json', Path('ai-search/data/manifest.json')),
+          ]
+          live = {}
+          for path, source_path in assets:
+              body, headers = fetch(path)
+              source = source_path.read_bytes()
+              exact = body == source
+              assert exact, (path, len(source), len(body), sha(source), sha(body))
+              live[path] = body
+              report['assets'].append({
+                  'path': path,
+                  **headers,
+                  'sourceBytes': len(source),
+                  'liveBytes': len(body),
+                  'sourceSha256': sha(source),
+                  'liveSha256': sha(body),
+                  'exactByteMatch': exact,
+              })
+
+          manifest_bytes = live['ai-search/data/manifest.json']
+          manifest = json.loads(manifest_bytes)
+          assert manifest['version'] == 2
+          assert manifest['ready'] is True
+          assert manifest['model'] == 'intfloat/multilingual-e5-small'
+          assert manifest['browserModel'] == 'Xenova/multilingual-e5-small'
+          assert manifest['dimensions'] == 384
+          assert manifest['dtype'] == 'float16'
+          assert manifest['normalized'] is True
+          assert manifest['documentCount'] > 0
+          assert manifest['chunkCount'] > 0
+          assert manifest['queryPrefix'] == 'query: '
+          assert manifest['passagePrefix'] == 'passage: '
+          report['manifest'] = {
+              key: manifest[key]
+              for key in ('version','ready','generatedAt','model','modelRevision','browserModel','browserModelRevision','dimensions','dtype','normalized','documentCount','chunkCount')
+          }
+          report['manifest']['bytes'] = len(manifest_bytes)
+          report['manifest']['sha256'] = sha(manifest_bytes)
+
+          for shard in manifest['shards']:
+              meta_path = 'ai-search/data/' + shard['metadata']
+              json_path = 'ai-search/data/' + shard['embeddingsJson']
+              meta, _ = fetch(meta_path)
+              vectors_json, _ = fetch(json_path)
+              assert len(meta) == shard['metadataBytes']
+              assert sha(meta) == shard['metadataSha256']
+              assert len(vectors_json) == shard['embeddingsJsonBytes']
+              assert sha(vectors_json) == shard['embeddingsJsonSha256']
+              payload = json.loads(vectors_json)
+              raw = base64.b64decode(payload['data'], validate=True)
+              assert len(raw) == shard['embeddingBytes']
+              assert sha(raw) == shard['embeddingSha256']
+              assert len(raw) == shard['count'] * manifest['dimensions'] * 2
+              assert len(json.loads(meta)) == shard['count']
+              report['shards'].append({
+                  'metadata': shard['metadata'],
+                  'metadataBytes': len(meta),
+                  'metadataSha256': sha(meta),
+                  'embeddingsJson': shard['embeddingsJson'],
+                  'embeddingsJsonBytes': len(vectors_json),
+                  'embeddingsJsonSha256': sha(vectors_json),
+                  'embeddingBytes': len(raw),
+                  'embeddingSha256': sha(raw),
+                  'count': shard['count'],
+              })
+
+          robots_bytes, robots_headers = fetch('robots.txt')
+          robots = robots_bytes.decode('utf-8')
+          sitemap_lines = [line.strip() for line in robots.splitlines() if line.lower().startswith('sitemap:')]
+          assert sitemap_lines == ['Sitemap: https://healthrenewal.org/sitemap-index.xml'], sitemap_lines
+
+          page = live['ai-search/index.html'].decode('utf-8')
+          app = live['ai-search/assets/app.js'].decode('utf-8')
+          worker = live['ai-search/assets/search-worker.js'].decode('utf-8')
+          contracts = {
+              'pageCanonical': '<link rel="canonical" href="https://healthrenewal.org/ai-search/">' in page,
+              'pageLoadsAppModule': '<script type="module" src="assets/app.js"></script>' in page,
+              'retrievalOnlyNotice': 'لا تنشئ تشخيصًا أو إجابة طبية من خارج المحتوى' in page,
+              'appCreatesModuleWorker': "new Worker(new URL('./search-worker.js', import.meta.url), { type: 'module' })" in app,
+              'appUsesManifest': 'data/manifest.json' in app,
+              'workerPinnedModel': 'Xenova/multilingual-e5-small' in worker,
+              'workerPinnedRevision': manifest['browserModelRevision'] in worker,
+              'workerLoadsJsonVectors': 'fetchShardVectorBuffer' in worker and 'embeddingsJsonSha256' in worker,
+              'workerDigestCacheBust': 'shardArtifactUrl' in worker and "searchParams.set('v'" in worker,
+              'workerHasBinaryFallback': 'shard.embeddings' in worker and 'embeddingSha256' in worker,
+              'workerNoInvalidExplicitWasmDevice': "device: 'wasm'" not in worker and 'device: "wasm"' not in worker,
+              'robotsSitemapIndexOnly': sitemap_lines == ['Sitemap: https://healthrenewal.org/sitemap-index.xml'],
+          }
+          assert all(contracts.values()), {k:v for k,v in contracts.items() if not v}
+          report['contracts'] = contracts
+          report['robots'] = {**robots_headers, 'bytes': len(robots_bytes), 'sha256': sha(robots_bytes), 'sitemapLines': sitemap_lines}
+          report['passed'] = True
+
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/e5-final-live-verification.json').write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(report, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Commit temporary verification report
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/e5-final-live-verification.json
+          git commit -m 'verify: record final live E5 check'
+          git push origin HEAD:agent/e5-final-verification-20260801
