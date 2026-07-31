@@ -34,23 +34,21 @@ jobs:
 
           account=os.environ['CF_ACCOUNT_ID']; token=os.environ['CF_API_TOKEN']; worker=os.environ['WORKER']; base=os.environ['WORKER_URL']
           api='https://api.cloudflare.com/client/v4'
-          api_headers={'Authorization':f'Bearer {token}','Accept':'application/json','User-Agent':'pterminology-deployment-diagnostic/1.0'}
+          api_headers={'Authorization':f'Bearer {token}','Accept':'application/json','User-Agent':'pterminology-deployment-diagnostic/1.1'}
 
           def call(url, headers=None):
-              merged={'Accept':'application/json','User-Agent':'pterminology-deployment-diagnostic/1.0'}
+              merged={'Accept':'application/json','User-Agent':'pterminology-deployment-diagnostic/1.1'}
               if headers: merged.update(headers)
               request=urllib.request.Request(url,headers=merged)
               try:
                   with urllib.request.urlopen(request,timeout=30) as response:
-                      raw=response.read().decode('utf-8','replace')
-                      status=response.status
+                      raw=response.read().decode('utf-8','replace'); status=response.status
                       response_headers={k.lower():v for k,v in response.headers.items()}
               except urllib.error.HTTPError as error:
-                  raw=error.read().decode('utf-8','replace')
-                  status=error.code
+                  raw=error.read().decode('utf-8','replace'); status=error.code
                   response_headers={k.lower():v for k,v in (error.headers.items() if error.headers else [])}
               except Exception as error:
-                  return {'status':None,'error':type(error).__name__}
+                  return {'status':None,'json':None,'body_prefix':'','headers':{},'transport_error':type(error).__name__}
               try: parsed=json.loads(raw)
               except Exception: parsed=None
               return {
@@ -60,6 +58,9 @@ jobs:
                   'headers':{k:response_headers.get(k) for k in ('server','content-type','cf-ray','location','cache-control') if response_headers.get(k)}
               }
 
+          def safe_dict(value):
+              return value if isinstance(value,dict) else {}
+
           report={'schema_version':1,'checked_at':datetime.now(timezone.utc).isoformat()}
           endpoints={
               'account_subdomain':f'{api}/accounts/{account}/workers/subdomain',
@@ -67,37 +68,42 @@ jobs:
               'deployments':f'{api}/accounts/{account}/workers/scripts/{worker}/deployments',
               'versions':f'{api}/accounts/{account}/workers/scripts/{worker}/versions?per_page=10',
               'settings':f'{api}/accounts/{account}/workers/scripts/{worker}/settings',
+              'secrets':f'{api}/accounts/{account}/workers/scripts/{worker}/secrets',
           }
           for name,url in endpoints.items():
               response=call(url,api_headers)
-              payload=response.get('json') or {}
+              payload=safe_dict(response.get('json'))
               result=payload.get('result')
-              safe={'http_status':response.get('status'),'success':payload.get('success'),'errors':payload.get('errors',[])[:3]}
-              if name=='account_subdomain': safe['result']=result
-              elif name=='script_subdomain': safe['result']=result
+              safe={'http_status':response.get('status'),'success':payload.get('success'),'errors':(payload.get('errors') or [])[:3],'body_prefix':response.get('body_prefix')}
+              if name in {'account_subdomain','script_subdomain'}:
+                  safe['result']=result if isinstance(result,dict) else result
               elif name=='deployments':
-                  rows=result if isinstance(result,list) else []
+                  rows=result if isinstance(result,list) else ((result or {}).get('deployments',[]) if isinstance(result,dict) else [])
                   safe['result']=[{
                       'id':row.get('id'),'created_on':row.get('created_on'),'source':row.get('source'),
                       'strategy':row.get('strategy'),'versions':row.get('versions')
-                  } for row in rows[:6]]
+                  } for row in rows[:6] if isinstance(row,dict)]
               elif name=='versions':
-                  rows=(result or {}).get('items',[]) if isinstance(result,dict) else []
+                  rows=(result or {}).get('items',[]) if isinstance(result,dict) else (result if isinstance(result,list) else [])
                   safe['result']=[{
                       'id':row.get('id'),'created_on':row.get('created_on'),'number':row.get('number'),
                       'metadata':row.get('metadata')
-                  } for row in rows[:6]]
+                  } for row in rows[:6] if isinstance(row,dict)]
               elif name=='settings':
+                  settings=safe_dict(result)
                   safe['result']={
-                      'compatibility_date':(result or {}).get('compatibility_date') if isinstance(result,dict) else None,
-                      'usage_model':(result or {}).get('usage_model') if isinstance(result,dict) else None,
-                      'bindings':[{'name':item.get('name'),'type':item.get('type')} for item in ((result or {}).get('bindings') or [])] if isinstance(result,dict) else []
+                      'compatibility_date':settings.get('compatibility_date'),
+                      'usage_model':settings.get('usage_model'),
+                      'bindings':[{'name':item.get('name'),'type':item.get('type')} for item in (settings.get('bindings') or []) if isinstance(item,dict)]
                   }
+              elif name=='secrets':
+                  rows=result if isinstance(result,list) else []
+                  safe['result']={'names':sorted(str(item.get('name') or '') for item in rows if isinstance(item,dict))}
               report[name]=safe
 
           probes={}
           user_agents={
-              'diagnostic':'pterminology-deployment-diagnostic/1.0',
+              'diagnostic':'pterminology-deployment-diagnostic/1.1',
               'browser':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/150 Safari/537.36',
               'curl':'curl/8.12.1',
               'python':'Python-urllib/3.12',
@@ -110,9 +116,12 @@ jobs:
                       'headers':response.get('headers'),'json':response.get('json')
                   }
           report['probes']=probes
+          subdomain_result=safe_dict((report.get('script_subdomain') or {}).get('result'))
+          deployment_rows=(report.get('deployments') or {}).get('result') or []
           report['summary']={
-              'script_subdomain_enabled':bool(((report.get('script_subdomain') or {}).get('result') or {}).get('enabled')),
-              'deployment_count':len((report.get('deployments') or {}).get('result') or []),
+              'script_subdomain_enabled':subdomain_result.get('enabled') is True,
+              'deployment_count':len(deployment_rows),
+              'secret_names':((report.get('secrets') or {}).get('result') or {}).get('names',[]),
               'health_statuses':{key:value.get('http_status') for key,value in probes.items() if key.endswith(':/health')},
               'any_health_200':any(value.get('http_status')==200 for key,value in probes.items() if key.endswith(':/health')),
           }
