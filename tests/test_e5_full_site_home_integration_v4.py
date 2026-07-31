@@ -34,11 +34,12 @@ class FullSiteE5HomeIntegrationTests(unittest.TestCase):
         self.assertIn('if not coverage["passed"]', remote)
         self.assertIn("indexed_source_paths", remote)
 
-    def test_workflow_requires_complete_production_coverage(self) -> None:
+    def test_workflow_requires_complete_nonstarving_production_coverage(self) -> None:
         workflow = (ROOT / ".github/workflows/semantic-search-index.yml").read_text(encoding="utf-8")
         self.assertIn("'**/*.html'", workflow)
         self.assertIn("assets/platform/platform-core.js", workflow)
         self.assertIn("tests/test_e5_full_site_home_integration_v4.py", workflow)
+        self.assertIn("cancel-in-progress: ${{ github.event_name == 'pull_request' }}", workflow)
         self.assertIn("--minimum-success-ratio 1.0", workflow)
         self.assertIn("--minimum-indexed-ratio 1.0", workflow)
         self.assertIn("coverage['passed'] is True", workflow)
