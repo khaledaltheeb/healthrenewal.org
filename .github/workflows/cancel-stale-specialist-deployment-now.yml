@@ -1,0 +1,82 @@
+name: Cancel stale specialist deployment now
+
+on:
+  push:
+    branches:
+      - agent/inspect-cloudflare-specialists-now
+    paths:
+      - reports/cancel-stale-specialist-deployment-trigger.txt
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      STALE_RUN_ID: '30612943513'
+      EXPECTED_STALE_SHA: 59a6ff9e632a133fd7afedf3f3d4ccbba8ac8d04
+      EXPECTED_CURRENT_SHA: 563b7dd0943579e9597a4e89b6bdf2be5b5e30d1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/inspect-cloudflare-specialists-now
+      - name: Cancel only the verified stale deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, urllib.error, urllib.request
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; run_id=os.environ['STALE_RUN_ID']
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','User-Agent':'pterminology-stale-run-canceller'}
+          def call(url,method='GET'):
+              req=urllib.request.Request(url,method=method,headers=headers)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as response:
+                      raw=response.read().decode('utf-8','replace'); status=response.status
+              except urllib.error.HTTPError as error:
+                  raw=error.read().decode('utf-8','replace'); status=error.code
+              try: data=json.loads(raw) if raw else {}
+              except Exception: data={}
+              return status,data
+
+          status,run=call(f'https://api.github.com/repos/{repo}/actions/runs/{run_id}')
+          assert status==200, (status,run)
+          assert run.get('head_sha')==os.environ['EXPECTED_STALE_SHA'], run.get('head_sha')
+          assert run.get('name')=='Deploy specialist identity v10 production', run.get('name')
+          before={'status':run.get('status'),'conclusion':run.get('conclusion'),'head_sha':run.get('head_sha')}
+          cancelled=False
+          cancel_status=None
+          if run.get('status') in {'queued','pending','in_progress','waiting','requested'}:
+              cancel_status,_=call(f'https://api.github.com/repos/{repo}/actions/runs/{run_id}/cancel','POST')
+              assert cancel_status in {202,409}, cancel_status
+              cancelled=cancel_status==202
+          report={
+              'schema_version':1,
+              'checked_at':datetime.now(timezone.utc).isoformat(),
+              'stale_run_id':int(run_id),
+              'before':before,
+              'cancel_http_status':cancel_status,
+              'cancel_requested':cancelled,
+              'protected_new_head_sha':os.environ['EXPECTED_CURRENT_SHA'],
+              'new_run_not_cancelled':True
+          }
+          Path('reports/stale-specialist-deployment-cancelled-now.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(report,ensure_ascii=False))
+          PY
+      - name: Commit safe cancellation report
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/stale-specialist-deployment-cancelled-now.json
+          git commit -m "chore: record stale specialist deployment cancellation [skip ci]"
+          git push origin HEAD:agent/inspect-cloudflare-specialists-now
