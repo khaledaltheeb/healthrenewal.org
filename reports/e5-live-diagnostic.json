@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-07-31T20:28:08.348012+00:00",
+  "checkedAt": "2026-07-31T20:35:47.720998+00:00",
   "source": {
     "generatedAt": "2026-07-31T19:39:49.138610+00:00",
     "version": 2,
@@ -15,25 +15,64 @@
     "status": 200,
     "contentType": "application/json; charset=utf-8",
     "cacheControl": "max-age=600",
-    "etag": "\"6a6cebdb-1a2\"",
-    "lastModified": "Fri, 31 Jul 2026 18:39:23 GMT",
-    "bytes": 418,
-    "sha256": "f9875d7ff5d7375953cfbd7d1a7098b959f9275b8a93bb77ec7e39d73065e126"
+    "etag": "\"6a6d0700-4f2\"",
+    "lastModified": "Fri, 31 Jul 2026 20:35:12 GMT",
+    "bytes": 1266,
+    "sha256": "d7236901c57eedc18abffee410b09323c6ba5e0b7acf20514e6c10f6f1711647"
   },
   "liveParseError": null,
   "live": {
-    "version": 1,
-    "ready": false,
-    "generatedAt": null,
+    "version": 2,
+    "ready": true,
+    "generatedAt": "2026-07-31T19:39:49.138610+00:00",
     "model": "intfloat/multilingual-e5-small",
     "dimensions": 384,
-    "dtype": null,
-    "normalized": null,
-    "documentCount": 0,
-    "chunkCount": 0,
-    "shardCount": 0
+    "dtype": "float16",
+    "normalized": true,
+    "documentCount": 125,
+    "chunkCount": 1473,
+    "shardCount": 1
   },
-  "sameGeneratedAt": false,
-  "allArtifactsVerified": false,
-  "artifacts": []
+  "sameGeneratedAt": true,
+  "allArtifactsVerified": true,
+  "artifacts": [
+    {
+      "index": 0,
+      "count": 1473,
+      "metadata": {
+        "ok": true,
+        "status": 200,
+        "contentType": "application/json; charset=utf-8",
+        "cacheControl": "max-age=600",
+        "etag": "\"6a6d0700-25e625\"",
+        "lastModified": "Fri, 31 Jul 2026 20:35:12 GMT",
+        "bytes": 2483749,
+        "sha256": "ba324d5feb5a0cc2c03388f171a7841e37731b691c494fdbc20f731467a60afe",
+        "expectedSha256": "ba324d5feb5a0cc2c03388f171a7841e37731b691c494fdbc20f731467a60afe",
+        "expectedBytes": 2483749,
+        "shaMatches": true,
+        "bytesMatch": true,
+        "verified": true
+      },
+      "embeddingsJson": {
+        "ok": true,
+        "status": 200,
+        "contentType": "application/json; charset=utf-8",
+        "cacheControl": "max-age=600",
+        "etag": "\"6a6d0700-1704d2\"",
+        "lastModified": "Fri, 31 Jul 2026 20:35:12 GMT",
+        "bytes": 1508562,
+        "sha256": "82d2495c1c1de8e965592b5972bbcf6471261e70568869c48dafa11b57dd78bf",
+        "expectedSha256": "82d2495c1c1de8e965592b5972bbcf6471261e70568869c48dafa11b57dd78bf",
+        "expectedBytes": 1508562,
+        "shaMatches": true,
+        "bytesMatch": true,
+        "decodedBytes": 1131264,
+        "decodedSha256": "4f2083b3c245ef18a94e41b7893fd7d6dadc822e7ba7016f591bc7d7174d7f73",
+        "decodedShaMatches": true,
+        "decodedBytesMatch": true,
+        "verified": true
+      }
+    }
+  ]
 }
