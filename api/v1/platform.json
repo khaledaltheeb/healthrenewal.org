@@ -1,6 +1,6 @@
 {
-  "apiVersion": "1.4.0",
-  "generatedAt": "2026-07-30",
+  "apiVersion": "1.5.0",
+  "generatedAt": "2026-07-31",
   "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
   "alternateName": "مصطلحات علم النفس",
   "baseUrl": "https://khaledaltheeb.github.io/pterminology-site/",
@@ -115,6 +115,8 @@
     "specialistsPartnersDirectory": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/providers.json",
     "specialistsPartnersDirectoryFallback": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/providers.json",
     "specialistsPartnersRuntimeConfig": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/assets/runtime-config.js",
+    "specialistsPartnersDirectoryLogic": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/assets/directory-core.js",
+    "specialistsPartnersQuality": "https://khaledaltheeb.github.io/pterminology-site/api/specialists-partners-quality-v354.json",
     "specialistsPartnersAdmin": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/",
     "specialistsPartnersVerificationLedger": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/verification-ledger.json",
     "specialistsPartnersVerificationLedgerSchema": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/verification-ledger.schema.json",

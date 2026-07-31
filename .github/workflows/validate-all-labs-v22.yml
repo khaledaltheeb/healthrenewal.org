@@ -35,7 +35,7 @@ jobs:
       - name: Compile every audit and upgrade script
         run: |
           set -euxo pipefail
-          for f in scripts/audit_all_labs_v22.py scripts/audit_content_quality_v32.py scripts/upgrade_cognitive_batch1_v22.py scripts/upgrade_cognitive_batch2_v22.py scripts/fix_initial_cognitive_variation_v25.py scripts/fix_stroop_and_variation_v23.py scripts/complete_cognitive_remaining_v24.py scripts/fix_cognitive_quality_v26.py scripts/finalize_cognitive_lab_v202.py scripts/harden_cognitive_lab_v203.py scripts/publish_provider_assessment_route_v204.py scripts/publish_working_memory_updating_v205.py scripts/publish_prospective_memory_v206.py scripts/publish_associative_binding_v207.py scripts/publish_temporal_order_memory_v208.py scripts/publish_visual_change_detection_v210.py scripts/harden_cognitive_copy_v209.py scripts/finalize_pwa_v14.py scripts/stamp_deployment_v29.py scripts/publish_outside_the_box_v254.py scripts/publish_youth_sector_v353.py scripts/publish_daily_tools_v24.py scripts/verify_daily_tools_v24.py scripts/publish_sleep_log_v49.py scripts/verify_sleep_log_v49.py scripts/enforce_platform_identity_v201.py; do python -m py_compile "$f"; done
+          for f in scripts/audit_all_labs_v22.py scripts/audit_content_quality_v32.py scripts/audit_specialists_partners_v354.py scripts/audit_specialist_sector_e2e_v10.py scripts/upgrade_cognitive_batch1_v22.py scripts/upgrade_cognitive_batch2_v22.py scripts/fix_initial_cognitive_variation_v25.py scripts/fix_stroop_and_variation_v23.py scripts/complete_cognitive_remaining_v24.py scripts/fix_cognitive_quality_v26.py scripts/finalize_cognitive_lab_v202.py scripts/harden_cognitive_lab_v203.py scripts/publish_provider_assessment_route_v204.py scripts/publish_working_memory_updating_v205.py scripts/publish_prospective_memory_v206.py scripts/publish_associative_binding_v207.py scripts/publish_temporal_order_memory_v208.py scripts/publish_visual_change_detection_v210.py scripts/harden_cognitive_copy_v209.py scripts/finalize_pwa_v14.py scripts/stamp_deployment_v29.py scripts/publish_outside_the_box_v254.py scripts/publish_youth_sector_v353.py scripts/publish_daily_tools_v24.py scripts/verify_daily_tools_v24.py scripts/publish_sleep_log_v49.py scripts/verify_sleep_log_v49.py scripts/enforce_platform_identity_v201.py; do python -m py_compile "$f"; done
           python -m py_compile tests/test_platform_identity_v201.py
           node --check scripts/e2e_all_labs_v22.mjs
           node --check scripts/test_cognitive_variation_v23.mjs
@@ -120,6 +120,7 @@ jobs:
           python scripts/enforce_platform_identity_v201.py _site
           python scripts/audit_site_integrity_v13.py _site
           python scripts/audit_content_quality_v32.py _site
+          python scripts/audit_specialists_partners_v354.py _site
 
       - name: Enforce platform identity production contract
         run: |
@@ -249,6 +250,7 @@ jobs:
           daily=json.loads(Path('_site/api/daily-tools-v24.json').read_text())
           quality=json.loads(Path('_site/api/content-quality-v32.json').read_text())
           identity=json.loads(Path('_site/api/platform-identity-v201.json').read_text())
+          specialists=json.loads(Path('_site/api/specialists-partners-quality-v354.json').read_text())
           updating=json.loads(Path('_site/api/working-memory-updating-v205.json').read_text())
           prospective=json.loads(Path('_site/api/prospective-memory-v206.json').read_text())
           binding=json.loads(Path('_site/api/associative-binding-v207.json').read_text())
@@ -274,8 +276,9 @@ jobs:
           assert daily['version']==100 and daily['catalog_contract']==100 and daily['tools']==100 and daily['paths']==10 and daily['pages']==112 and daily['local_only'] is True,daily
           assert quality['pages_scanned'] > 0 and quality['critical_error_count']==0,quality
           assert identity['remaining_banned_pages']==[] and identity['missing_header_pages']==[] and identity['missing_footer_pages']==[],identity
+          assert specialists['version']==354 and specialists['status']=='passed' and specialists['interfaceCount']==9 and specialists['indexableInterfaceCount']==3 and specialists['privateInterfaceCount']==6 and specialists['errorCount']==0,specialists
           assert homepage['lab_tool_count']==93 and homepage['lab_inventory_metadata_updated'] is True,homepage
-          print({'site':'passed','cognitive':'53/53','assessments':'40/40','browser':'186/186','daily_tools':'100/100','learning_paths':'10/10','discovery_pages':112,'quality_pages':quality['pages_scanned'],'thin_candidates':quality['thin_page_candidates'],'pwa_pages':pwa['pages_scanned'],'identity_pages':identity['pages'],'homepage_lab_tools':homepage['lab_tool_count']})
+          print({'site':'passed','cognitive':'53/53','assessments':'40/40','browser':'186/186','daily_tools':'100/100','learning_paths':'10/10','discovery_pages':112,'quality_pages':quality['pages_scanned'],'thin_candidates':quality['thin_page_candidates'],'pwa_pages':pwa['pages_scanned'],'identity_pages':identity['pages'],'specialist_interfaces':specialists['interfaceCount'],'homepage_lab_tools':homepage['lab_tool_count']})
           PY
 
       - name: Stamp validated production build with SHA-256 evidence

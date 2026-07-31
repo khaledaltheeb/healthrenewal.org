@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "version": 354,
+  "status": "passed",
+  "reviewedAt": "2026-07-31T06:38:42+00:00",
+  "sector": "specialists-partners",
+  "interfaces": [
+    {
+      "id": "directory",
+      "path": "specialists-partners/index.html",
+      "indexable": true,
+      "cspConnectOrigins": [
+        "https://pterminology-specialists.pterminology-826ac349.workers.dev"
+      ],
+      "passed": true
+    },
+    {
+      "id": "join",
+      "path": "specialists-partners/join.html",
+      "indexable": true,
+      "cspConnectOrigins": [
+        "https://challenges.cloudflare.com",
+        "https://pterminology-specialists.pterminology-826ac349.workers.dev"
+      ],
+      "passed": true
+    },
+    {
+      "id": "contact",
+      "path": "specialists-partners/contact.html",
+      "indexable": false,
+      "cspConnectOrigins": [
+        "https://challenges.cloudflare.com",
+        "https://pterminology-specialists.pterminology-826ac349.workers.dev"
+      ],
+      "passed": true
+    },
+    {
+      "id": "verification",
+      "path": "specialists-partners/verification.html",
+      "indexable": true,
+      "cspConnectOrigins": [],
+      "passed": true
+    },
+    {
+      "id": "portal",
+      "path": "specialists-partners/portal/index.html",
+      "indexable": false,
+      "cspConnectOrigins": [
+        "https://pterminology-specialists.pterminology-826ac349.workers.dev"
+      ],
+      "passed": true
+    },
+    {
+      "id": "account",
+      "path": "specialists-partners/account/index.html",
+      "indexable": false,
+      "cspConnectOrigins": [
+        "https://challenges.cloudflare.com",
+        "https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev"
+      ],
+      "passed": true
+    },
+    {
+      "id": "admin",
+      "path": "specialists-partners/admin/index.html",
+      "indexable": false,
+      "cspConnectOrigins": [
+        "https://challenges.cloudflare.com",
+        "https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev",
+        "https://pterminology-specialists.pterminology-826ac349.workers.dev"
+      ],
+      "passed": true
+    },
+    {
+      "id": "recover",
+      "path": "specialists-partners/recover/index.html",
+      "indexable": false,
+      "cspConnectOrigins": [
+        "https://challenges.cloudflare.com",
+        "https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev"
+      ],
+      "passed": true
+    },
+    {
+      "id": "password_reset",
+      "path": "specialists-partners/password-reset/index.html",
+      "indexable": false,
+      "cspConnectOrigins": [
+        "https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev"
+      ],
+      "passed": true
+    }
+  ],
+  "interfaceCount": 9,
+  "indexableInterfaceCount": 3,
+  "privateInterfaceCount": 6,
+  "publishedProviderCount": 0,
+  "verificationLedgerRecordCount": 0,
+  "unsafePublishedProviderIds": [],
+  "directoryCore": {
+    "present": true,
+    "missingMarkers": []
+  },
+  "qualityQuestions": 6,
+  "workflowSafety": {
+    "checked": true,
+    "passed": true,
+    "forbiddenMarkersFound": []
+  },
+  "errors": [],
+  "errorCount": 0
+}
