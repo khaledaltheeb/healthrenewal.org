@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-07-31T08:15:27.531069+00:00",
+  "checked_at": "2026-07-31T13:28:41.106361+00:00",
   "account_subdomain": {
     "http_status": 200,
     "success": true,
@@ -24,8 +24,44 @@
     "http_status": 200,
     "success": true,
     "errors": [],
-    "body_prefix": "{ \"result\": { \"deployments\": [ { \"id\": \"d9298625-fbed-4bbd-83b0-73aa4f667eae\", \"source\": \"wrangler\", \"strategy\": \"percentage\", \"annotations\": { \"workers/triggered_by\": \"secret\" }, \"versions\": [ { \"version_id\"",
+    "body_prefix": "{ \"result\": { \"deployments\": [ { \"id\": \"17a8d84f-c2c2-4370-ac2c-4d22e5630bf4\", \"source\": \"wrangler\", \"strategy\": \"percentage\", \"author_email\": \"pterminology@gmail.com\", \"annotations\": { \"workers/triggered_by\": \"deployment\" },",
     "result": [
+      {
+        "id": "17a8d84f-c2c2-4370-ac2c-4d22e5630bf4",
+        "created_on": "2026-07-31T13:17:56.517789Z",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "versions": [
+          {
+            "version_id": "ba15e05d-2994-4521-a3de-15b5b8d967d5",
+            "percentage": 100
+          }
+        ]
+      },
+      {
+        "id": "a9645dd1-c9cc-47eb-ac57-963429a8c928",
+        "created_on": "2026-07-31T10:53:44.252404Z",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "versions": [
+          {
+            "version_id": "fff1f7d0-9a5c-49f1-8572-052194f3e594",
+            "percentage": 100
+          }
+        ]
+      },
+      {
+        "id": "89b53e82-db5f-4133-b0c1-1b81c8b73617",
+        "created_on": "2026-07-31T08:19:56.883942Z",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "versions": [
+          {
+            "version_id": "0c723e3e-d2c2-478a-93b6-cf18eeb3ac42",
+            "percentage": 100
+          }
+        ]
+      },
       {
         "id": "d9298625-fbed-4bbd-83b0-73aa4f667eae",
         "created_on": "2026-07-31T08:10:41.782517Z",
@@ -61,42 +97,6 @@
             "percentage": 100
           }
         ]
-      },
-      {
-        "id": "7607c799-f217-4c94-b5e3-418153e7e234",
-        "created_on": "2026-07-31T08:06:25.647178Z",
-        "source": "wrangler",
-        "strategy": "percentage",
-        "versions": [
-          {
-            "version_id": "9cedd3ba-4f72-45b0-bb42-9cb8d851cd10",
-            "percentage": 100
-          }
-        ]
-      },
-      {
-        "id": "6a9c233a-6967-411c-b330-276662d98301",
-        "created_on": "2026-07-31T07:30:12.905545Z",
-        "source": "wrangler",
-        "strategy": "percentage",
-        "versions": [
-          {
-            "version_id": "28b9b5cc-0c56-4bd8-b2cf-a5c406e52ed6",
-            "percentage": 100
-          }
-        ]
-      },
-      {
-        "id": "fb8343ce-bdbd-4e66-be3d-aa99018d49bd",
-        "created_on": "2026-07-31T07:29:39.469899Z",
-        "source": "wrangler",
-        "strategy": "percentage",
-        "versions": [
-          {
-            "version_id": "43f437f2-477b-4fb5-94cd-94e240e63f3a",
-            "percentage": 100
-          }
-        ]
       }
     ]
   },
@@ -104,8 +104,44 @@
     "http_status": 200,
     "success": true,
     "errors": [],
-    "body_prefix": "{ \"result\": { \"items\": [ { \"id\": \"d0904e0a-17eb-452a-863b-7b86ac9c6054\", \"number\": 20, \"metadata\": { \"created_on\": \"2026-07-31T08:10:41.782517Z\", \"source\": \"wrangler\", \"author_id\": \"315e50874e67f8b1a688df39afd103ae\", \"author",
+    "body_prefix": "{ \"result\": { \"items\": [ { \"id\": \"ba15e05d-2994-4521-a3de-15b5b8d967d5\", \"number\": 23, \"metadata\": { \"created_on\": \"2026-07-31T13:17:56.202556Z\", \"source\": \"wrangler\", \"author_id\": \"54edfe1614c6d08c17994a426ca47b0e\", \"author",
     "result": [
+      {
+        "id": "ba15e05d-2994-4521-a3de-15b5b8d967d5",
+        "created_on": null,
+        "number": 23,
+        "metadata": {
+          "created_on": "2026-07-31T13:17:56.202556Z",
+          "source": "wrangler",
+          "author_id": "54edfe1614c6d08c17994a426ca47b0e",
+          "author_email": "pterminology@gmail.com",
+          "has_preview": true
+        }
+      },
+      {
+        "id": "fff1f7d0-9a5c-49f1-8572-052194f3e594",
+        "created_on": null,
+        "number": 22,
+        "metadata": {
+          "created_on": "2026-07-31T10:53:43.967869Z",
+          "source": "wrangler",
+          "author_id": "54edfe1614c6d08c17994a426ca47b0e",
+          "author_email": "pterminology@gmail.com",
+          "has_preview": true
+        }
+      },
+      {
+        "id": "0c723e3e-d2c2-478a-93b6-cf18eeb3ac42",
+        "created_on": null,
+        "number": 21,
+        "metadata": {
+          "created_on": "2026-07-31T08:19:56.498752Z",
+          "source": "wrangler",
+          "author_id": "315e50874e67f8b1a688df39afd103ae",
+          "author_email": "",
+          "has_preview": true
+        }
+      },
       {
         "id": "d0904e0a-17eb-452a-863b-7b86ac9c6054",
         "created_on": null,
@@ -141,42 +177,6 @@
           "author_email": "",
           "has_preview": false
         }
-      },
-      {
-        "id": "9cedd3ba-4f72-45b0-bb42-9cb8d851cd10",
-        "created_on": null,
-        "number": 17,
-        "metadata": {
-          "created_on": "2026-07-31T08:06:25.245969Z",
-          "source": "wrangler",
-          "author_id": "54edfe1614c6d08c17994a426ca47b0e",
-          "author_email": "pterminology@gmail.com",
-          "has_preview": true
-        }
-      },
-      {
-        "id": "28b9b5cc-0c56-4bd8-b2cf-a5c406e52ed6",
-        "created_on": null,
-        "number": 16,
-        "metadata": {
-          "created_on": "2026-07-31T07:30:12.544594Z",
-          "source": "wrangler",
-          "author_id": "54edfe1614c6d08c17994a426ca47b0e",
-          "author_email": "pterminology@gmail.com",
-          "has_preview": true
-        }
-      },
-      {
-        "id": "43f437f2-477b-4fb5-94cd-94e240e63f3a",
-        "created_on": null,
-        "number": 15,
-        "metadata": {
-          "created_on": "2026-07-31T07:29:39.221371Z",
-          "source": "wrangler",
-          "author_id": "54edfe1614c6d08c17994a426ca47b0e",
-          "author_email": "pterminology@gmail.com",
-          "has_preview": true
-        }
       }
     ]
   },
@@ -188,33 +188,16 @@
     "result": {
       "compatibility_date": "2026-07-31",
       "usage_model": "standard",
-      "bindings": [
-        {
-          "name": "ADMIN_API_KEY",
-          "type": "secret_text"
-        },
-        {
-          "name": "RATE_LIMIT_SALT",
-          "type": "secret_text"
-        },
-        {
-          "name": "RESEND_API_KEY",
-          "type": "secret_text"
-        }
-      ]
+      "bindings": []
     }
   },
   "secrets": {
     "http_status": 200,
     "success": true,
     "errors": [],
-    "body_prefix": "{ \"result\": [ { \"name\": \"ADMIN_API_KEY\", \"type\": \"secret_text\" }, { \"name\": \"RATE_LIMIT_SALT\", \"type\": \"secret_text\" }, { \"name\": \"RESEND_API_KEY\", \"type\": \"secret_text\" } ], \"success\": true, \"errors\": [], \"messages\": [] }",
+    "body_prefix": "{ \"result\": [], \"success\": true, \"errors\": [], \"messages\": [] }",
     "result": {
-      "names": [
-        "ADMIN_API_KEY",
-        "RATE_LIMIT_SALT",
-        "RESEND_API_KEY"
-      ]
+      "names": []
     }
   },
   "probes": {
@@ -223,7 +206,7 @@
       "body_prefix": "",
       "headers": {
         "server": "cloudflare",
-        "cf-ray": "a23b27d16b2d23f8-SEA"
+        "cf-ray": "a23cf2a02e0afe99-IAD"
       },
       "json": null
     },
@@ -233,7 +216,7 @@
       "headers": {
         "server": "cloudflare",
         "content-type": "text/html",
-        "cf-ray": "a23b27d1aedc9343-SEA",
+        "cf-ray": "a23cf2a05ddff6f9-IAD",
         "cache-control": "public, max-age=0, must-revalidate"
       },
       "json": null
@@ -243,7 +226,7 @@
       "body_prefix": "",
       "headers": {
         "server": "cloudflare",
-        "cf-ray": "a23b27d28b4c9304-SEA"
+        "cf-ray": "a23cf2a0de3e13b9-IAD"
       },
       "json": null
     },
@@ -252,7 +235,7 @@
       "body_prefix": "",
       "headers": {
         "server": "cloudflare",
-        "cf-ray": "a23b27d2bd49df13-SEA"
+        "cf-ray": "a23cf2a10f5fc994-IAD"
       },
       "json": null
     },
@@ -262,7 +245,7 @@
       "headers": {
         "server": "cloudflare",
         "content-type": "text/html",
-        "cf-ray": "a23b27d2fc9476d0-SEA",
+        "cf-ray": "a23cf2a13aead6a9-IAD",
         "cache-control": "public, max-age=0, must-revalidate"
       },
       "json": null
@@ -272,7 +255,7 @@
       "body_prefix": "",
       "headers": {
         "server": "cloudflare",
-        "cf-ray": "a23b27d359577582-SEA"
+        "cf-ray": "a23cf2a16b21d909-IAD"
       },
       "json": null
     },
@@ -281,7 +264,7 @@
       "body_prefix": "",
       "headers": {
         "server": "cloudflare",
-        "cf-ray": "a23b27d38c5ea347-SEA"
+        "cf-ray": "a23cf2a1999cc9bf-IAD"
       },
       "json": null
     },
@@ -291,7 +274,7 @@
       "headers": {
         "server": "cloudflare",
         "content-type": "text/html",
-        "cf-ray": "a23b27d3ca1930b7-SEA",
+        "cf-ray": "a23cf2a1ca4b1459-IAD",
         "cache-control": "public, max-age=0, must-revalidate"
       },
       "json": null
@@ -301,17 +284,17 @@
       "body_prefix": "",
       "headers": {
         "server": "cloudflare",
-        "cf-ray": "a23b27d42d4475fa-SEA"
+        "cf-ray": "a23cf2a1fc289c72-IAD"
       },
       "json": null
     },
     "python:/health": {
       "http_status": 403,
-      "body_prefix": "{\"type\":\"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/\",\"title\":\"Error 1010: Access denied\",\"status\":403,\"detail\":\"The site owner has blocked access based on your browser's signature.\",\"instance\":\"a23b27d46edeb9d4\",\"error_code\":1010,\"e",
+      "body_prefix": "{\"type\":\"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/\",\"title\":\"Error 1010: Access denied\",\"status\":403,\"detail\":\"The site owner has blocked access based on your browser's signature.\",\"instance\":\"a23cf2a2381affb7\",\"error_code\":1010,\"e",
       "headers": {
         "server": "cloudflare",
         "content-type": "application/json; charset=utf-8",
-        "cf-ray": "a23b27d46edeb9d4-SEA",
+        "cf-ray": "a23cf2a2381affb7-IAD",
         "cache-control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0"
       },
       "json": {
@@ -319,12 +302,12 @@
         "title": "Error 1010: Access denied",
         "status": 403,
         "detail": "The site owner has blocked access based on your browser's signature.",
-        "instance": "a23b27d46edeb9d4",
+        "instance": "a23cf2a2381affb7",
         "error_code": 1010,
         "error_name": "browser_signature_banned",
         "error_category": "access_denied",
-        "ray_id": "a23b27d46edeb9d4",
-        "timestamp": "2026-07-31T08:15:29Z",
+        "ray_id": "a23cf2a2381affb7",
+        "timestamp": "2026-07-31T13:28:42Z",
         "zone": "pterminology-specialist-accounts.pterminology-826ac349.workers.dev",
         "cloudflare_error": true,
         "retryable": false,
@@ -335,11 +318,11 @@
     },
     "python:/": {
       "http_status": 403,
-      "body_prefix": "{\"type\":\"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/\",\"title\":\"Error 1010: Access denied\",\"status\":403,\"detail\":\"The site owner has blocked access based on your browser's signature.\",\"instance\":\"a23b27d49d89681d\",\"error_code\":1010,\"e",
+      "body_prefix": "{\"type\":\"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/\",\"title\":\"Error 1010: Access denied\",\"status\":403,\"detail\":\"The site owner has blocked access based on your browser's signature.\",\"instance\":\"a23cf2a25aa33934\",\"error_code\":1010,\"e",
       "headers": {
         "server": "cloudflare",
         "content-type": "application/json; charset=utf-8",
-        "cf-ray": "a23b27d49d89681d-SEA",
+        "cf-ray": "a23cf2a25aa33934-IAD",
         "cache-control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0"
       },
       "json": {
@@ -347,12 +330,12 @@
         "title": "Error 1010: Access denied",
         "status": 403,
         "detail": "The site owner has blocked access based on your browser's signature.",
-        "instance": "a23b27d49d89681d",
+        "instance": "a23cf2a25aa33934",
         "error_code": 1010,
         "error_name": "browser_signature_banned",
         "error_category": "access_denied",
-        "ray_id": "a23b27d49d89681d",
-        "timestamp": "2026-07-31T08:15:30Z",
+        "ray_id": "a23cf2a25aa33934",
+        "timestamp": "2026-07-31T13:28:42Z",
         "zone": "pterminology-specialist-accounts.pterminology-826ac349.workers.dev",
         "cloudflare_error": true,
         "retryable": false,
@@ -363,11 +346,11 @@
     },
     "python:/health?probe=deployment-diagnostic": {
       "http_status": 403,
-      "body_prefix": "{\"type\":\"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/\",\"title\":\"Error 1010: Access denied\",\"status\":403,\"detail\":\"The site owner has blocked access based on your browser's signature.\",\"instance\":\"a23b27d4c99376fa\",\"error_code\":1010,\"e",
+      "body_prefix": "{\"type\":\"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/\",\"title\":\"Error 1010: Access denied\",\"status\":403,\"detail\":\"The site owner has blocked access based on your browser's signature.\",\"instance\":\"a23cf2a28b5b8250\",\"error_code\":1010,\"e",
       "headers": {
         "server": "cloudflare",
         "content-type": "application/json; charset=utf-8",
-        "cf-ray": "a23b27d4c99376fa-SEA",
+        "cf-ray": "a23cf2a28b5b8250-IAD",
         "cache-control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0"
       },
       "json": {
@@ -375,12 +358,12 @@
         "title": "Error 1010: Access denied",
         "status": 403,
         "detail": "The site owner has blocked access based on your browser's signature.",
-        "instance": "a23b27d4c99376fa",
+        "instance": "a23cf2a28b5b8250",
         "error_code": 1010,
         "error_name": "browser_signature_banned",
         "error_category": "access_denied",
-        "ray_id": "a23b27d4c99376fa",
-        "timestamp": "2026-07-31T08:15:30Z",
+        "ray_id": "a23cf2a28b5b8250",
+        "timestamp": "2026-07-31T13:28:42Z",
         "zone": "pterminology-specialist-accounts.pterminology-826ac349.workers.dev",
         "cloudflare_error": true,
         "retryable": false,
@@ -393,11 +376,7 @@
   "summary": {
     "script_subdomain_enabled": true,
     "deployment_count": 6,
-    "secret_names": [
-      "ADMIN_API_KEY",
-      "RATE_LIMIT_SALT",
-      "RESEND_API_KEY"
-    ],
+    "secret_names": [],
     "health_statuses": {
       "diagnostic:/health": 404,
       "browser:/health": 404,
