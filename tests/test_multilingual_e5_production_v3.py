@@ -32,6 +32,20 @@ class MultilingualE5ProductionV3Tests(unittest.TestCase):
         self.assertIn("normalize_embeddings=True", builder)
         self.assertIn("pooling: 'mean', normalize: true", worker)
 
+    def test_cpu_only_build_is_enforced(self) -> None:
+        workflow = (ROOT / ".github/workflows/semantic-search-index.yml").read_text(encoding="utf-8")
+        requirements = (ROOT / "scripts/semantic-search-requirements.txt").read_text(encoding="utf-8")
+        self.assertIn("https://download.pytorch.org/whl/cpu", workflow)
+        self.assertIn("torch==2.13.0+cpu", workflow)
+        self.assertIn("torch.version.cuda is None", workflow)
+        self.assertIn("torch.cuda.is_available() is False", workflow)
+        self.assertNotIn("torch", "\n".join(
+            line for line in requirements.splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ).lower())
+        self.assertIn("sentence-transformers==5.6.1", requirements)
+        self.assertIn("transformers==5.14.1", requirements)
+
     def test_generated_results_are_unique_per_page(self) -> None:
         worker = (ROOT / "ai-search/assets/search-worker.js").read_text(encoding="utf-8")
         self.assertIn("function dedupeRankedByUrl", worker)
