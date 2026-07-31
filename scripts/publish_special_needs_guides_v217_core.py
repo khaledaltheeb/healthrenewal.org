@@ -14,6 +14,7 @@ import publish_special_needs_guides_v209_compat as batch209
 import publish_special_needs_guides_v210 as batch210
 import publish_special_needs_guides_v211 as batch211
 import publish_special_needs_guides_v212 as batch212
+import publish_special_needs_sleep_v336 as sleep336
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "https://healthrenewal.org/"
@@ -177,6 +178,21 @@ def publish(site: Path) -> dict[str, Any]:
 
     pages = [validate_page(site, slug, titles[slug]) for slug in all_slugs]
     discovery = validate_discovery(site, all_slugs)
+    sleep_report = sleep336.publish(site)
+    if sleep_report.get("version") != 336 or sleep_report.get("status") != "passed":
+        raise SystemExit(f"Sleep support production integration failed: {sleep_report}")
+    if not all(
+        sleep_report.get(key) is True
+        for key in (
+            "medication_boundary_visible",
+            "sleep_apnoea_escalation_visible",
+            "two_week_sleep_log_visible",
+            "hub_linked",
+            "sitemap_registered",
+        )
+    ):
+        raise SystemExit("Sleep support safety or discovery contract failed")
+
     report = {
         "version": 217,
         "status": "passed",
@@ -195,6 +211,7 @@ def publish(site: Path) -> dict[str, Any]:
         "source_citations_visible": True,
         "inclusive_language_gate": True,
         "unsafe_runtime_detected": False,
+        "sleep_support": sleep_report,
         **discovery,
         "batch_reports": [
             {

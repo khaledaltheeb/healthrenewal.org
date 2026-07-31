@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -65,6 +66,16 @@ def load_json(relative_path: str) -> dict:
     return json.loads((ROOT / relative_path).read_text(encoding="utf-8"))
 
 
+def heading_texts(source: str) -> list[str]:
+    values: list[str] = []
+    for match in re.finditer(r"<h([1-3])\b[^>]*>(.*?)</h\1>", source, re.IGNORECASE | re.DOTALL):
+        text = re.sub(r"<[^>]+>", " ", match.group(2))
+        text = re.sub(r"\s+", " ", unescape(text)).strip()
+        if text:
+            values.append(text)
+    return values
+
+
 def main() -> None:
     source = INDEX.read_text(encoding="utf-8")
     StrictHTMLParser().feed(source)
@@ -91,9 +102,15 @@ def main() -> None:
     for phrase in FORBIDDEN_OPERATIONAL_COPY:
         assert phrase not in source, f"Operational planning copy leaked to users: {phrase}"
 
-    assert len(re.findall(r"<h1\b", source)) == 1, "Homepage must contain exactly one h1"
-    assert len(re.findall(r"<h2\b", source)) >= 5, "Homepage needs structured H2 sections"
-    assert len(re.findall(r"<h3\b", source)) >= 24, "Homepage needs discoverable H3 cards"
+    h1_count = len(re.findall(r"<h1\b", source))
+    h2_count = len(re.findall(r"<h2\b", source))
+    h3_count = len(re.findall(r"<h3\b", source))
+    headings = heading_texts(source)
+    duplicates = sorted({text for text in headings if headings.count(text) > 1})
+    assert h1_count == 1, "Homepage must contain exactly one h1"
+    assert h2_count >= 5, "Homepage needs structured H2 sections"
+    assert 8 <= len(headings) <= 20, "Homepage heading outline must remain concise and proportional"
+    assert not duplicates, f"Homepage contains duplicate heading text: {duplicates}"
     assert 'href="#main"' in source, "Missing skip link"
     assert 'id="main"' in source, "Missing main landmark target"
     assert 'color-scheme" content="light"' in source, "Homepage must declare light color scheme"
@@ -109,18 +126,17 @@ def main() -> None:
     keywords = re.search(r'<meta name="keywords" content="([^"]+)"', source)
     assert keywords, "Missing thematic keyword metadata"
     keyword_items = [item.strip() for item in keywords.group(1).split(",") if item.strip()]
-    assert len(keyword_items) >= 28, "Homepage keyword coverage is too narrow"
+    assert len(keyword_items) >= 10, "Homepage thematic keywords are unexpectedly sparse"
     assert {
         "الصحة النفسية",
         "علم النفس",
         "التربية الدامجة",
-        "المكتبة النفسية",
-        "مقارنات نفسية",
+        "ذوو الاحتياجات الخاصة",
+        "التوحد",
+        "الموسوعة النفسية",
+        "المكتبة الأكاديمية",
+        "الأدوات النفسية التفاعلية",
         "الاختبارات النفسية",
-        "أدوات نفسية تفاعلية",
-        "أدوات تنظيم التوتر",
-        "أدوات متابعة النوم",
-        "مسارات تعلم الصحة النفسية",
     }.issubset(keyword_items)
 
     for required_meta in (
@@ -178,7 +194,7 @@ def main() -> None:
         json.dumps(
             {
                 "status": "passed",
-                "contract": "institutional-home-discovery-seo-v220",
+                "contract": "institutional-home-discovery-seo-v222",
                 "brand": BRAND,
                 "slogan": SLOGAN,
                 "required_links": len(REQUIRED_LINKS),
@@ -186,15 +202,17 @@ def main() -> None:
                 "description_chars": len(description.group(1)),
                 "keyword_items": len(keyword_items),
                 "jsonld_nodes": len(graph),
-                "h1": len(re.findall(r"<h1\b", source)),
-                "h2": len(re.findall(r"<h2\b", source)),
-                "h3": len(re.findall(r"<h3\b", source)),
+                "h1": h1_count,
+                "h2": h2_count,
+                "h3": h3_count,
+                "heading_count": len(headings),
+                "duplicate_headings": duplicates,
                 "comparisons_linked": True,
                 "library_linked": True,
                 "guided_assessment_linked": True,
                 "daily_tools_linked": True,
                 "learning_paths_linked": True,
-                "interactive_tools_discovery_contract": 220,
+                "interactive_tools_discovery_contract": 222,
                 "operational_copy_hidden": True,
                 "api_version": api_version,
                 "openapi": openapi["openapi"],

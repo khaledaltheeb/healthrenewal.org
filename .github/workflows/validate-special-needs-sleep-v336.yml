@@ -1,0 +1,56 @@
+name: Validate special-needs sleep support v336
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/v336/special-needs-guides/developmental-disabilities-sleep-support-plan.json"
+      - "scripts/publish_special_needs_sleep_v336.py"
+      - "scripts/publish_special_needs_guides_v217_core.py"
+      - "tests/test_special_needs_sleep_v336.py"
+      - ".github/workflows/validate-special-needs-sleep-v336.yml"
+  push:
+    branches: [main]
+    paths:
+      - "content/v336/special-needs-guides/developmental-disabilities-sleep-support-plan.json"
+      - "scripts/publish_special_needs_sleep_v336.py"
+      - "scripts/publish_special_needs_guides_v217_core.py"
+      - "tests/test_special_needs_sleep_v336.py"
+      - ".github/workflows/validate-special-needs-sleep-v336.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publisher, production integration and tests
+        run: |
+          python -m py_compile scripts/publish_special_needs_sleep_v336.py
+          python -m py_compile scripts/publish_special_needs_guides_v217_core.py
+          python -m py_compile tests/test_special_needs_sleep_v336.py
+      - name: Verify production publisher invokes and reports sleep support
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          source = Path('scripts/publish_special_needs_guides_v217_core.py').read_text(encoding='utf-8')
+          assert 'import publish_special_needs_sleep_v336 as sleep336' in source
+          assert 'sleep_report = sleep336.publish(site)' in source
+          assert '"sleep_support": sleep_report' in source
+          print({'production_integration': 'passed'})
+          PY
+      - name: Run source, safety, rendering, sitemap and API contracts
+        run: python -m unittest tests/test_special_needs_sleep_v336.py -v
+      - name: Verify prohibited terminology is absent from public content
+        run: |
+          if grep -RIn --include='*.json' 'معاقين' content/v336; then
+            echo 'Prohibited terminology found in public content' >&2
+            exit 1
+          fi
