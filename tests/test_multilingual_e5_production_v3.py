@@ -39,6 +39,8 @@ class MultilingualE5ProductionV3Tests(unittest.TestCase):
         self.assertIn("torch==2.13.0+cpu", workflow)
         self.assertIn("torch.version.cuda is None", workflow)
         self.assertIn("torch.cuda.is_available() is False", workflow)
+        self.assertIn("--no-cache-dir", workflow)
+        self.assertNotIn("cache: pip", workflow)
         self.assertNotIn("torch", "\n".join(
             line for line in requirements.splitlines()
             if line.strip() and not line.lstrip().startswith("#")
@@ -46,12 +48,17 @@ class MultilingualE5ProductionV3Tests(unittest.TestCase):
         self.assertIn("sentence-transformers==5.6.1", requirements)
         self.assertIn("transformers==5.14.1", requirements)
 
-    def test_browser_model_is_executed_in_smoke_gate(self) -> None:
+    def test_node_and_browser_models_are_executed_in_smoke_gate(self) -> None:
         workflow = (ROOT / ".github/workflows/semantic-search-index.yml").read_text(encoding="utf-8")
         self.assertIn("@huggingface/transformers@4.2.0", workflow)
         self.assertIn("Xenova/multilingual-e5-small", workflow)
         self.assertIn("761b726dd34fb83930e26aab4e9ac3899aa1fa78", workflow)
-        self.assertIn("device: 'wasm'", workflow)
+        self.assertIn("Verify Node ONNX query embeddings", workflow)
+        self.assertIn("device: 'cpu'", workflow)
+        self.assertIn("Verify browser WASM query embeddings", workflow)
+        self.assertIn("playwright-core@1.61.1", workflow)
+        self.assertIn("runtime: 'chromium-wasm'", workflow)
+        self.assertIn("No WASM runtime request was observed in Chromium", workflow)
         self.assertIn("dtype: 'q8'", workflow)
         self.assertIn("row.length !== 384", workflow)
         self.assertIn("relevant > unrelated", workflow)
