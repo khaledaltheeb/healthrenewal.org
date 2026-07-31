@@ -155,6 +155,51 @@ def _route_is_public(site: Path, route: str) -> bool:
     return not legacy.noindex(path.read_text(encoding="utf-8"))
 
 
+def _ensure_trust_evidence_anchor(site: Path) -> bool:
+    """Restore the public evidence anchor after legacy trust-page publication.
+
+    Several stable internal links target ``/trust/#evidence``. Some legacy build
+    paths preserve the section content but drop its identifier. Repair the
+    unique semantic section instead of weakening the broken-fragment audit or
+    rewriting every inbound link.
+    """
+    path = site / "trust/index.html"
+    if not path.is_file():
+        raise legacy.SectionDirectoryError("trust page is missing")
+
+    source = path.read_text(encoding="utf-8")
+    if 'id="evidence"' in source or "id='evidence'" in source:
+        return False
+
+    marker = "من الدراسة إلى يقين الدليل"
+    marker_index = source.find(marker)
+    if marker_index < 0 or source.find(marker, marker_index + len(marker)) >= 0:
+        raise legacy.SectionDirectoryError(
+            "trust evidence section marker is missing or ambiguous"
+        )
+
+    section_start = source.rfind("<section", 0, marker_index)
+    if section_start < 0:
+        raise legacy.SectionDirectoryError("trust evidence section wrapper is missing")
+    section_end = source.find(">", section_start, marker_index)
+    if section_end < 0:
+        raise legacy.SectionDirectoryError("trust evidence section tag is malformed")
+
+    opening = source[section_start:section_end]
+    if " id=" in opening:
+        raise legacy.SectionDirectoryError(
+            "trust evidence section already uses another identifier"
+        )
+
+    source = source[:section_end] + ' id="evidence"' + source[section_end:]
+    if source.count('id="evidence"') != 1:
+        raise legacy.SectionDirectoryError(
+            "trust evidence anchor could not be finalized uniquely"
+        )
+    path.write_text(source, encoding="utf-8")
+    return True
+
+
 def _refresh_home_metrics(site: Path, payload: dict[str, Any]) -> None:
     path = site / "index.html"
     source = path.read_text(encoding="utf-8")
@@ -188,6 +233,7 @@ def publish(site: Path, root: Path) -> dict[str, Any]:
     site = site.resolve()
     configure_legacy()
     report = legacy.publish(site, root)
+    trust_evidence_anchor_restored = _ensure_trust_evidence_anchor(site)
     payload = _read_directory(site)
     routes = {item.get("route") for item in payload["items"] if isinstance(item, dict)}
 
@@ -218,6 +264,7 @@ def publish(site: Path, root: Path) -> dict[str, Any]:
         "specialists_partners_registered": "specialists-partners/" in routes,
         "outside_the_box_registered": "outside-the-box/" in routes,
         "homepage_metrics_refreshed": True,
+        "trust_evidence_anchor_restored": trust_evidence_anchor_restored,
     }
     legacy.write_json(site / "api/section-directory-v322.json", upgraded)
     return upgraded
