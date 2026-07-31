@@ -6,6 +6,7 @@ import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -26,7 +27,7 @@ class SpecialNeedsSleepSupportV336Tests(unittest.TestCase):
         sitemap = (
             '<?xml version="1.0" encoding="UTF-8"?>\n'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-            '<url><loc>https://khaledaltheeb.github.io/pterminology-site/special-needs/</loc></url>'
+            '<url><loc>https://healthrenewal.org/special-needs/</loc></url>'
             '</urlset>'
         )
         (site / "sitemap-special-needs.xml").write_text(sitemap, encoding="utf-8")
@@ -58,9 +59,11 @@ class SpecialNeedsSleepSupportV336Tests(unittest.TestCase):
             self.assertIn("10.1542/peds.2012-0900I", json.dumps(publisher.load_data(), ensure_ascii=False))
             self.assertNotIn("معاقين", html)
             self.assertIn(report["canonical_url"], html)
+            self.assertNotIn("healthrenewal.org//", html)
             hub_html = (site / "special-needs" / "index.html").read_text(encoding="utf-8")
             self.assertIn("special-needs-guides-v336:start", hub_html)
-            self.assertIn(report["canonical_url"].removeprefix("https://khaledaltheeb.github.io"), hub_html)
+            canonical_path = urlparse(report["canonical_url"]).path
+            self.assertIn(f'href="{canonical_path}"', hub_html)
 
             root = ET.parse(site / "sitemap-special-needs.xml").getroot()
             urls = [node.text for node in root.findall("{*}url/{*}loc") if node.text]
