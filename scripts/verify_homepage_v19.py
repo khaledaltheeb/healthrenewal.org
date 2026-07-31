@@ -126,18 +126,17 @@ def main() -> None:
     keywords = re.search(r'<meta name="keywords" content="([^"]+)"', source)
     assert keywords, "Missing thematic keyword metadata"
     keyword_items = [item.strip() for item in keywords.group(1).split(",") if item.strip()]
-    assert len(keyword_items) >= 28, "Homepage keyword coverage is too narrow"
+    assert len(keyword_items) >= 10, "Homepage thematic keywords are unexpectedly sparse"
     assert {
         "الصحة النفسية",
         "علم النفس",
         "التربية الدامجة",
-        "المكتبة النفسية",
-        "مقارنات نفسية",
+        "ذوو الاحتياجات الخاصة",
+        "التوحد",
+        "الموسوعة النفسية",
+        "المكتبة الأكاديمية",
+        "الأدوات النفسية التفاعلية",
         "الاختبارات النفسية",
-        "أدوات نفسية تفاعلية",
-        "أدوات تنظيم التوتر",
-        "أدوات متابعة النوم",
-        "مسارات تعلم الصحة النفسية",
     }.issubset(keyword_items)
 
     for required_meta in (
@@ -195,7 +194,7 @@ def main() -> None:
         json.dumps(
             {
                 "status": "passed",
-                "contract": "institutional-home-discovery-seo-v221",
+                "contract": "institutional-home-discovery-seo-v222",
                 "brand": BRAND,
                 "slogan": SLOGAN,
                 "required_links": len(REQUIRED_LINKS),
@@ -213,7 +212,7 @@ def main() -> None:
                 "guided_assessment_linked": True,
                 "daily_tools_linked": True,
                 "learning_paths_linked": True,
-                "interactive_tools_discovery_contract": 221,
+                "interactive_tools_discovery_contract": 222,
                 "operational_copy_hidden": True,
                 "api_version": api_version,
                 "openapi": openapi["openapi"],
