@@ -1,0 +1,76 @@
+name: Inspect specialist Worker build trigger now
+
+on:
+  push:
+    branches:
+      - agent/inspect-cloudflare-specialists-now
+    paths:
+      - reports/inspect-specialist-worker-build-trigger.txt
+
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '826ac34927c1e045c06145a327c2ac52' }}
+      CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      WORKER_NAME: pterminology-specialist-accounts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/inspect-cloudflare-specialists-now
+      - name: Inspect Workers Builds metadata safely
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python - <<'PY'
+          import json, os, urllib.error, urllib.parse, urllib.request
+          from datetime import datetime, timezone
+          from pathlib import Path
+          account=os.environ['CF_ACCOUNT_ID']; token=os.environ['CF_API_TOKEN']; worker=os.environ['WORKER_NAME']
+          base='https://api.cloudflare.com/client/v4'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/json','Content-Type':'application/json','User-Agent':'pterminology-build-trigger-inspector/1.0'}
+          def call(url):
+              req=urllib.request.Request(url,headers=headers)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r: raw=r.read().decode('utf-8','replace'); status=r.status
+              except urllib.error.HTTPError as e: raw=e.read().decode('utf-8','replace'); status=e.code
+              except Exception as e: return {'http_status':None,'error':type(e).__name__}
+              try: data=json.loads(raw)
+              except Exception: data={}
+              return {'http_status':status,'success':data.get('success'),'errors':data.get('errors') or [],'result':data.get('result'),'body_prefix':' '.join(raw[:500].split())}
+          scripts=call(f'{base}/accounts/{account}/workers/scripts')
+          tag=None
+          rows=scripts.get('result') if isinstance(scripts.get('result'),list) else []
+          for row in rows:
+              if row.get('id')==worker: tag=row.get('tag'); break
+          builds=call(f'{base}/accounts/{account}/builds/workers/{tag}/builds') if tag else {'http_status':None,'error':'worker_tag_not_found'}
+          safe_builds=[]
+          result=builds.get('result')
+          if isinstance(result,list): source=result
+          elif isinstance(result,dict): source=result.get('builds') or result.get('items') or []
+          else: source=[]
+          for row in source[:10]:
+              meta=row.get('build_trigger_metadata') or {}
+              safe_builds.append({
+                'build_uuid':row.get('build_uuid'),'build_outcome':row.get('build_outcome'),'created_on':row.get('created_on'),'modified_on':row.get('modified_on'),
+                'branch':meta.get('branch'),'commit_hash':meta.get('commit_hash'),'author':meta.get('author'),'build_trigger_source':meta.get('build_trigger_source'),
+                'build_command':meta.get('build_command'),'deploy_command':meta.get('deploy_command'),'root_directory':meta.get('root_directory'),'trigger_uuid':meta.get('trigger_uuid')
+              })
+          report={'schema_version':1,'checked_at':datetime.now(timezone.utc).isoformat(),'worker':worker,'worker_tag_found':bool(tag),'scripts_http_status':scripts.get('http_status'),'builds_http_status':builds.get('http_status'),'builds_success':builds.get('success'),'builds_errors':builds.get('errors'),'builds':safe_builds}
+          Path('reports/specialist-worker-build-trigger-now.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          PY
+      - name: Commit safe report
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/specialist-worker-build-trigger-now.json
+          git commit -m "chore: record specialist Worker build trigger [skip ci]"
+          git pull --rebase origin agent/inspect-cloudflare-specialists-now
+          git push origin HEAD:agent/inspect-cloudflare-specialists-now
