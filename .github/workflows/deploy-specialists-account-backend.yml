@@ -1,0 +1,36 @@
+name: Validate specialist identity v6 compatibility
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "specialists-partners/account-backend/src/index.js"
+      - "specialists-partners/account/**"
+      - "specialists-partners/admin/admin.js"
+      - "tests/test_specialist_identity_v6.py"
+      - ".github/workflows/deploy-specialists-account-backend.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate retained v6 compatibility contracts
+        run: |
+          set -euo pipefail
+          node --check specialists-partners/account-backend/src/index.js
+          node --check specialists-partners/account/account.js
+          node --check specialists-partners/admin/admin.js
+          python -m unittest -v tests.test_specialist_accounts_v5 tests.test_specialist_identity_v6
+          echo "Legacy v6 is validation-only. Production deployment is owned by deploy-specialist-identity-v10.yml."
