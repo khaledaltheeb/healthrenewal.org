@@ -1,0 +1,171 @@
+name: Diagnose live E5 deployment now
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/diagnose-e5-live-now-temp.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    if: github.head_ref == 'agent/e5-live-diagnose-v2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/e5-live-diagnose-v2
+          fetch-depth: 0
+
+      - name: Probe and verify live artifacts
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+          import base64, datetime, hashlib, json, ssl, urllib.error, urllib.request
+          from pathlib import Path
+
+          ROOT='https://healthrenewal.org/ai-search/data/'
+          source_path=Path('ai-search/data/manifest.json')
+          source_bytes=source_path.read_bytes()
+          source=json.loads(source_bytes)
+          context=ssl.create_default_context()
+
+          def fetch(url: str):
+              req=urllib.request.Request(url,headers={
+                  'User-Agent':'healthrenewal-e5-production-verifier/1.0',
+                  'Cache-Control':'no-cache',
+                  'Pragma':'no-cache',
+              })
+              try:
+                  with urllib.request.urlopen(req,timeout=40,context=context) as response:
+                      data=response.read()
+                      return {
+                          'ok':True,
+                          'status':response.status,
+                          'contentType':response.headers.get('content-type'),
+                          'cacheControl':response.headers.get('cache-control'),
+                          'etag':response.headers.get('etag'),
+                          'lastModified':response.headers.get('last-modified'),
+                          'bytes':len(data),
+                          'sha256':hashlib.sha256(data).hexdigest(),
+                          '_data':data,
+                      }
+              except urllib.error.HTTPError as exc:
+                  data=exc.read()
+                  return {'ok':False,'status':exc.code,'error':str(exc),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'_data':data}
+              except Exception as exc:
+                  return {'ok':False,'status':None,'error':repr(exc),'bytes':0,'sha256':None,'_data':b''}
+
+          stamp=datetime.datetime.now(datetime.timezone.utc).timestamp()
+          manifest_url=f'{ROOT}manifest.json?diagnose={stamp}'
+          live_result=fetch(manifest_url)
+          live_bytes=live_result.pop('_data')
+          live=None
+          parse_error=None
+          if live_bytes:
+              try:
+                  live=json.loads(live_bytes)
+              except Exception as exc:
+                  parse_error=repr(exc)
+
+          report={
+              'schemaVersion':1,
+              'checkedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'source':{
+                  'generatedAt':source.get('generatedAt'),
+                  'version':source.get('version'),
+                  'ready':source.get('ready'),
+                  'documentCount':source.get('documentCount'),
+                  'chunkCount':source.get('chunkCount'),
+                  'manifestBytes':len(source_bytes),
+                  'manifestSha256':hashlib.sha256(source_bytes).hexdigest(),
+              },
+              'liveRequest':live_result,
+              'liveParseError':parse_error,
+              'live':None,
+              'sameGeneratedAt':False,
+              'allArtifactsVerified':False,
+              'artifacts':[],
+          }
+
+          if isinstance(live,dict):
+              report['live']={
+                  'version':live.get('version'),
+                  'ready':live.get('ready'),
+                  'generatedAt':live.get('generatedAt'),
+                  'model':live.get('model'),
+                  'dimensions':live.get('dimensions'),
+                  'dtype':live.get('dtype'),
+                  'normalized':live.get('normalized'),
+                  'documentCount':live.get('documentCount'),
+                  'chunkCount':live.get('chunkCount'),
+                  'shardCount':len(live.get('shards') or []),
+              }
+              report['sameGeneratedAt']=live.get('generatedAt') == source.get('generatedAt')
+
+              artifact_ok=True
+              for index,shard in enumerate(live.get('shards') or []):
+                  item={'index':index,'count':shard.get('count')}
+                  for field,sha_field,bytes_field in (
+                      ('metadata','metadataSha256','metadataBytes'),
+                      ('embeddingsJson','embeddingsJsonSha256','embeddingsJsonBytes'),
+                  ):
+                      name=shard.get(field)
+                      if not name:
+                          item[field]={'ok':False,'error':'missing filename'}
+                          artifact_ok=False
+                          continue
+                      expected_sha=shard.get(sha_field)
+                      expected_bytes=shard.get(bytes_field)
+                      result=fetch(f'{ROOT}{name}?v={str(expected_sha)[:20]}&diagnose={stamp}')
+                      data=result.pop('_data')
+                      result['expectedSha256']=expected_sha
+                      result['expectedBytes']=expected_bytes
+                      result['shaMatches']=bool(expected_sha and result.get('sha256') == expected_sha)
+                      result['bytesMatch']=expected_bytes == result.get('bytes')
+                      if field == 'embeddingsJson' and result.get('ok'):
+                          try:
+                              payload=json.loads(data)
+                              raw=base64.b64decode(payload['data'],validate=True)
+                              result['decodedBytes']=len(raw)
+                              result['decodedSha256']=hashlib.sha256(raw).hexdigest()
+                              result['decodedShaMatches']=result['decodedSha256'] == shard.get('embeddingSha256')
+                              result['decodedBytesMatch']=len(raw) == shard.get('embeddingBytes')
+                          except Exception as exc:
+                              result['decodeError']=repr(exc)
+                              result['decodedShaMatches']=False
+                              result['decodedBytesMatch']=False
+                      valid=(result.get('ok') and result['shaMatches'] and result['bytesMatch'])
+                      if field == 'embeddingsJson':
+                          valid=valid and result.get('decodedShaMatches') and result.get('decodedBytesMatch')
+                      result['verified']=bool(valid)
+                      artifact_ok=artifact_ok and bool(valid)
+                      item[field]=result
+                  report['artifacts'].append(item)
+              report['allArtifactsVerified']=bool(
+                  report['sameGeneratedAt']
+                  and live.get('version') == 2
+                  and live.get('ready') is True
+                  and live.get('dimensions') == 384
+                  and live.get('dtype') == 'float16'
+                  and live.get('normalized') is True
+                  and artifact_ok
+                  and bool(live.get('shards'))
+              )
+
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/e5-live-diagnostic.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(report,ensure_ascii=False,indent=2))
+          PY
+
+      - name: Commit diagnostic report
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/e5-live-diagnostic.json
+          git commit -m 'diagnose: record live E5 artifact state'
+          git push origin HEAD:agent/e5-live-diagnose-v2
