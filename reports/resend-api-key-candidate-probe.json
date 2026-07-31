@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T15:40:28.602368+00:00",
+  "source_sha": "7b78628fca4bcb263f2645fbfb14e06916428a70",
+  "selected_candidate": null,
+  "valid_candidate_found": false,
+  "candidates": {
+    "RESEND_API_KEY": {
+      "present": true,
+      "http_status": 401,
+      "auth_accepted": false,
+      "error_name": "validation_error"
+    },
+    "SPECIALISTS_RESEND_API_KEY": {
+      "present": false,
+      "http_status": null,
+      "auth_accepted": false,
+      "error_name": null
+    },
+    "SPECIALIST_RESEND_API_KEY": {
+      "present": false,
+      "http_status": null,
+      "auth_accepted": false,
+      "error_name": null
+    },
+    "RESEND_KEY": {
+      "present": false,
+      "http_status": null,
+      "auth_accepted": false,
+      "error_name": null
+    },
+    "RESEND_API_TOKEN": {
+      "present": false,
+      "http_status": null,
+      "auth_accepted": false,
+      "error_name": null
+    },
+    "PTERMINOLOGY_RESEND_API_KEY": {
+      "present": false,
+      "http_status": null,
+      "auth_accepted": false,
+      "error_name": null
+    }
+  },
+  "probe_sent_email": false,
+  "contains_secret_values": false
+}
