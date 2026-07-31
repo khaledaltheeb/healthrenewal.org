@@ -1,0 +1,130 @@
+name: Diagnose specialist identity deployment now
+
+on:
+  push:
+    branches:
+      - agent/inspect-cloudflare-specialists-now
+    paths:
+      - reports/diagnose-specialist-identity-deployment-trigger.txt
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '826ac34927c1e045c06145a327c2ac52' }}
+      CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      WORKER: pterminology-specialist-accounts
+      WORKER_URL: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/inspect-cloudflare-specialists-now
+      - name: Diagnose deployment and public route
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, urllib.error, urllib.request
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          account=os.environ['CF_ACCOUNT_ID']; token=os.environ['CF_API_TOKEN']; worker=os.environ['WORKER']; base=os.environ['WORKER_URL']
+          api='https://api.cloudflare.com/client/v4'
+          api_headers={'Authorization':f'Bearer {token}','Accept':'application/json','User-Agent':'pterminology-deployment-diagnostic/1.0'}
+
+          def call(url, headers=None):
+              merged={'Accept':'application/json','User-Agent':'pterminology-deployment-diagnostic/1.0'}
+              if headers: merged.update(headers)
+              request=urllib.request.Request(url,headers=merged)
+              try:
+                  with urllib.request.urlopen(request,timeout=30) as response:
+                      raw=response.read().decode('utf-8','replace')
+                      status=response.status
+                      response_headers={k.lower():v for k,v in response.headers.items()}
+              except urllib.error.HTTPError as error:
+                  raw=error.read().decode('utf-8','replace')
+                  status=error.code
+                  response_headers={k.lower():v for k,v in (error.headers.items() if error.headers else [])}
+              except Exception as error:
+                  return {'status':None,'error':type(error).__name__}
+              try: parsed=json.loads(raw)
+              except Exception: parsed=None
+              return {
+                  'status':status,
+                  'json':parsed,
+                  'body_prefix':' '.join(raw[:300].split()),
+                  'headers':{k:response_headers.get(k) for k in ('server','content-type','cf-ray','location','cache-control') if response_headers.get(k)}
+              }
+
+          report={'schema_version':1,'checked_at':datetime.now(timezone.utc).isoformat()}
+          endpoints={
+              'account_subdomain':f'{api}/accounts/{account}/workers/subdomain',
+              'script_subdomain':f'{api}/accounts/{account}/workers/scripts/{worker}/subdomain',
+              'deployments':f'{api}/accounts/{account}/workers/scripts/{worker}/deployments',
+              'versions':f'{api}/accounts/{account}/workers/scripts/{worker}/versions?per_page=10',
+              'settings':f'{api}/accounts/{account}/workers/scripts/{worker}/settings',
+          }
+          for name,url in endpoints.items():
+              response=call(url,api_headers)
+              payload=response.get('json') or {}
+              result=payload.get('result')
+              safe={'http_status':response.get('status'),'success':payload.get('success'),'errors':payload.get('errors',[])[:3]}
+              if name=='account_subdomain': safe['result']=result
+              elif name=='script_subdomain': safe['result']=result
+              elif name=='deployments':
+                  rows=result if isinstance(result,list) else []
+                  safe['result']=[{
+                      'id':row.get('id'),'created_on':row.get('created_on'),'source':row.get('source'),
+                      'strategy':row.get('strategy'),'versions':row.get('versions')
+                  } for row in rows[:6]]
+              elif name=='versions':
+                  rows=(result or {}).get('items',[]) if isinstance(result,dict) else []
+                  safe['result']=[{
+                      'id':row.get('id'),'created_on':row.get('created_on'),'number':row.get('number'),
+                      'metadata':row.get('metadata')
+                  } for row in rows[:6]]
+              elif name=='settings':
+                  safe['result']={
+                      'compatibility_date':(result or {}).get('compatibility_date') if isinstance(result,dict) else None,
+                      'usage_model':(result or {}).get('usage_model') if isinstance(result,dict) else None,
+                      'bindings':[{'name':item.get('name'),'type':item.get('type')} for item in ((result or {}).get('bindings') or [])] if isinstance(result,dict) else []
+                  }
+              report[name]=safe
+
+          probes={}
+          user_agents={
+              'diagnostic':'pterminology-deployment-diagnostic/1.0',
+              'browser':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/150 Safari/537.36',
+              'curl':'curl/8.12.1',
+              'python':'Python-urllib/3.12',
+          }
+          for label,ua in user_agents.items():
+              for path in ('/health','/','/health?probe=deployment-diagnostic'):
+                  response=call(base+path,{'User-Agent':ua,'Accept':'application/json','Cache-Control':'no-cache'})
+                  probes[f'{label}:{path}']={
+                      'http_status':response.get('status'),'body_prefix':response.get('body_prefix'),
+                      'headers':response.get('headers'),'json':response.get('json')
+                  }
+          report['probes']=probes
+          report['summary']={
+              'script_subdomain_enabled':bool(((report.get('script_subdomain') or {}).get('result') or {}).get('enabled')),
+              'deployment_count':len((report.get('deployments') or {}).get('result') or []),
+              'health_statuses':{key:value.get('http_status') for key,value in probes.items() if key.endswith(':/health')},
+              'any_health_200':any(value.get('http_status')==200 for key,value in probes.items() if key.endswith(':/health')),
+          }
+          Path('reports/specialist-identity-deployment-diagnostic-now.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(report['summary'],ensure_ascii=False))
+          PY
+      - name: Commit safe diagnostic report
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/specialist-identity-deployment-diagnostic-now.json
+          git commit -m "chore: record identity deployment diagnostic [skip ci]"
+          git push origin HEAD:agent/inspect-cloudflare-specialists-now
