@@ -173,6 +173,8 @@ class SpecialistsPartnersQualityV354Tests(unittest.TestCase):
             'EXPECTED_IDENTITY_VERSION = "10.2.0"',
             "/health?deep=1",
             'method="OPTIONS"',
+            'id="onboarding-form"',
+            'id="contact-form"',
             "audit_specialist_sector_e2e_v10.py",
             "SPECIALISTS_ADMIN_API_KEY",
             "upload-artifact@v4",
