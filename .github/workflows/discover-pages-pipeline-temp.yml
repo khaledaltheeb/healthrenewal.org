@@ -1,17 +1,15 @@
 name: Discover Pages pipeline temporary
 
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - ".github/workflows/discover-pages-pipeline-temp.yml"
-  workflow_dispatch:
+  issues:
+    types: [opened]
 
 permissions:
   contents: write
 
 jobs:
   discover:
+    if: github.event.issue.title == '[diagnostic] discover Pages pipeline'
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -51,7 +49,7 @@ jobs:
                   rows.append({
                       'path':path.as_posix(),
                       'indicators':indicators,
-                      'commands':commands[:120],
+                      'commands':commands[:160],
                   })
           report={
               'schema_version':1,
