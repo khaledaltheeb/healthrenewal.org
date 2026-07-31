@@ -8,44 +8,47 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: e5-live-verification-pr
+  cancel-in-progress: true
+
 jobs:
   verify-live:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
-      - name: Wait for live manifest and verify all artifacts
+      - name: Capture current live manifest
         run: |
           set -euo pipefail
           root='https://healthrenewal.org/ai-search/'
-          manifest_url="${root}data/manifest.json"
-          ok=0
-          for attempt in $(seq 1 60); do
-            if curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
-              "${manifest_url}?verify=${GITHUB_RUN_ID}-${attempt}" \
-              -o /tmp/manifest.json; then
-              if python - <<'PY'
+          curl -fsS --retry 3 -H 'Cache-Control: no-cache' \
+            "${root}data/manifest.json?verify=${GITHUB_RUN_ID}" \
+            -o /tmp/manifest.json
+          echo '--- live manifest ---'
+          cat /tmp/manifest.json
+          echo
+
+      - name: Verify live page, worker and shard integrity
+        run: |
+          set -euo pipefail
+          root='https://healthrenewal.org/ai-search/'
+          python - <<'PY'
           import json
           data=json.load(open('/tmp/manifest.json',encoding='utf-8'))
-          assert data.get('version') == 2
-          assert data.get('ready') is True
-          assert data.get('model') == 'intfloat/multilingual-e5-small'
-          assert data.get('modelRevision') == 'fd1525a9fd15316a2d503bf26ab031a61d056e98'
-          assert data.get('browserModel') == 'Xenova/multilingual-e5-small'
-          assert data.get('browserModelRevision') == '761b726dd34fb83930e26aab4e9ac3899aa1fa78'
-          assert data.get('corpusBaseUrl') == 'https://healthrenewal.org/'
-          assert data.get('dimensions') == 384
-          assert data.get('dtype') == 'float16'
-          assert data.get('normalized') is True
-          assert int(data.get('documentCount') or 0) > 0
-          assert int(data.get('chunkCount') or 0) >= int(data.get('documentCount') or 0)
-          assert data.get('shards')
+          assert data.get('version') == 2, data
+          assert data.get('ready') is True, data
+          assert data.get('model') == 'intfloat/multilingual-e5-small', data
+          assert data.get('modelRevision') == 'fd1525a9fd15316a2d503bf26ab031a61d056e98', data
+          assert data.get('browserModel') == 'Xenova/multilingual-e5-small', data
+          assert data.get('browserModelRevision') == '761b726dd34fb83930e26aab4e9ac3899aa1fa78', data
+          assert data.get('corpusBaseUrl') == 'https://healthrenewal.org/', data
+          assert data.get('dimensions') == 384, data
+          assert data.get('dtype') == 'float16', data
+          assert data.get('normalized') is True, data
+          assert int(data.get('documentCount') or 0) > 0, data
+          assert int(data.get('chunkCount') or 0) >= int(data.get('documentCount') or 0), data
+          assert data.get('shards'), data
           PY
-              then ok=1; break; fi
-            fi
-            echo "Waiting for deployment: ${attempt}/60"
-            sleep 10
-          done
-          test "$ok" = 1
 
           meta="$(python -c "import json;print(json.load(open('/tmp/manifest.json'))['shards'][0]['metadata'])")"
           vectors="$(python -c "import json;print(json.load(open('/tmp/manifest.json'))['shards'][0]['embeddings'])")"
