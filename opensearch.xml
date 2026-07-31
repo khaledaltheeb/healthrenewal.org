@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
-  <ShortName>الصحة النفسية</ShortName>
-  <Description>البحث في موسوعة الصحة النفسية ومصطلحات علم النفس</Description>
+  <ShortName>البحث الذكي</ShortName>
+  <Description>بحث دلالي عربي في منصة الصحة النفسية وذوي الاحتياجات الخاصة</Description>
   <InputEncoding>UTF-8</InputEncoding>
   <Image height="64" width="64" type="image/svg+xml">https://khaledaltheeb.github.io/pterminology-site/assets/brand/logo-mark.svg</Image>
-  <Url type="text/html" method="get" template="https://khaledaltheeb.github.io/pterminology-site/encyclopedia/?q={searchTerms}"/>
+  <Url type="text/html" method="get" template="https://khaledaltheeb.github.io/pterminology-site/ai-search/?q={searchTerms}"/>
 </OpenSearchDescription>
