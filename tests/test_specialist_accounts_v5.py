@@ -11,6 +11,7 @@ FRONTEND = ROOT / "specialists-partners" / "account" / "account.js"
 ACCOUNT_HTML = ROOT / "specialists-partners" / "account" / "index.html"
 MIGRATIONS = ROOT / "specialists-partners" / "backend" / "migrations"
 WORKFLOW = ROOT / ".github" / "workflows" / "deploy-specialist-identity-v10-production.yml"
+PROPAGATION = ROOT / "scripts" / "verify_specialist_identity_v10_production.py"
 RUNTIME = ROOT / "specialists-partners" / "assets" / "runtime-config.js"
 DIRECTORY = ROOT / "specialists-partners" / "index.html"
 JOIN = ROOT / "specialists-partners" / "join.html"
@@ -88,6 +89,7 @@ class SpecialistAccountsV5Tests(unittest.TestCase):
 
     def test_deployment_contract(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
+        verifier = PROPAGATION.read_text(encoding="utf-8")
         runtime = RUNTIME.read_text(encoding="utf-8")
         for marker in (
             "push:",
@@ -97,11 +99,14 @@ class SpecialistAccountsV5Tests(unittest.TestCase):
             "d1 migrations apply",
             "wrangler@4 deploy",
             "src/index-v10-production.js",
-            "x-bootstrap-key: ${ADMIN_API_KEY}",
+            "verify_specialist_identity_v10_production.py",
             "Deep health must not be public",
             "specialist-identity-v10-production.json",
         ):
             self.assertIn(marker, workflow)
+        self.assertIn('"x-bootstrap-key": ADMIN_KEY', verifier)
+        self.assertIn("public_deep_ok", verifier)
+        self.assertIn("if stable >= 3", verifier)
         self.assertIn("accountApiBase", runtime)
         self.assertIn('identityVersion: "10.2.0"', runtime)
         self.assertNotRegex(workflow, r"RESEND_API_KEY:\s*re_[A-Za-z0-9_-]+")
