@@ -59,6 +59,28 @@ jobs:
           cat .seo-bundle/chunks/enhance.* | base64 --decode | gzip --decompress > scripts/enhance_search_intent_v1.py
           echo "260b35428135d49b0b767f0e85c0ddf30db05d7c8a41f8e532fbaf6c05488386  scripts/audit_seo_intent_v1.py" | sha256sum --check
           echo "6c99043a2d0734ad749c2b787799221037eca11c87faad701c82ebd7953ec7c4  scripts/enhance_search_intent_v1.py" | sha256sum --check
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("scripts/enhance_search_intent_v1.py")
+          source = path.read_text(encoding="utf-8")
+          old = '''def iter_family_pages() -> Iterable[Path]:
+              for path in sorted(FAMILY_ROOT.glob("*/index.html")):
+                  if path.with_name("data.js").is_file():
+                      yield path
+          '''
+          new = '''def iter_family_pages() -> Iterable[Path]:
+              for path in sorted(FAMILY_ROOT.glob("*/index.html")):
+                  if not path.with_name("data.js").is_file():
+                      continue
+                  source = path.read_text(encoding="utf-8")
+                  if re.search(r'<meta\\s+name=["\\\']robots["\\\'][^>]*noindex', source, flags=re.I):
+                      continue
+                  yield path
+          '''
+          if old not in source:
+              raise SystemExit("Expected family iterator contract was not found")
+          path.write_text(source.replace(old, new, 1), encoding="utf-8")
+          PY
           chmod +x scripts/audit_seo_intent_v1.py scripts/enhance_search_intent_v1.py
 
       - name: Compile contract scripts
