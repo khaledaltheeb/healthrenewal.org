@@ -1,0 +1,83 @@
+name: Apply healthrenewal SEO migration
+
+on:
+  push:
+    branches:
+      - agent/fix-healthrenewal-homepage-seo-20260731
+    paths:
+      - scripts/fix_healthrenewal_seo.py
+      - .github/workflows/apply-healthrenewal-seo-migration.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: healthrenewal-seo-migration-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout migration branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Apply canonical-domain and homepage SEO fixes
+        run: python scripts/fix_healthrenewal_seo.py
+
+      - name: Validate sitemap discovery contract
+        run: python scripts/validate_sitemap_discovery_contract.py
+
+      - name: Validate homepage outline and image alternatives
+        run: |
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          class AuditParser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.headings = []
+                  self.images_without_alt = []
+                  self.external_links = 0
+              def handle_starttag(self, tag, attrs):
+                  values = dict(attrs)
+                  if tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
+                      self.headings.append(tag)
+                  if tag == "img" and not values.get("alt", "").strip():
+                      self.images_without_alt.append(values.get("src", "<unknown>"))
+                  if tag == "a" and values.get("href", "").startswith(("http://", "https://")):
+                      self.external_links += 1
+
+          parser = AuditParser()
+          parser.feed(Path("index.html").read_text(encoding="utf-8"))
+          assert parser.headings.count("h1") == 1, parser.headings
+          assert len(parser.headings) <= 20, len(parser.headings)
+          assert not parser.images_without_alt, parser.images_without_alt
+          assert parser.external_links >= 3, parser.external_links
+          print(f"Homepage audit passed: {len(parser.headings)} headings, {parser.external_links} external links.")
+          PY
+
+      - name: Check patch integrity
+        run: git diff --check
+
+      - name: Commit generated SEO fixes
+        run: |
+          if git diff --quiet; then
+            echo "No generated changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix healthrenewal canonical and homepage SEO"
+          git push origin HEAD:${GITHUB_REF_NAME}
