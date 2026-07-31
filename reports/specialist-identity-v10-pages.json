@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T01:07:58.087816+00:00",
+  "version": "10.2.0",
+  "source_artifact_run_id": "30593291722",
+  "workflow_run_id": "30595492534",
+  "pages": {
+    "admin": {
+      "http_status": 200,
+      "sha256": "741508c66484a5c990ba39fd49c909b7509ab553b6b935429e6b0e28f62d001b"
+    },
+    "runtime": {
+      "http_status": 200,
+      "sha256": "1740a2e40b2f153f2211c461ffb3ace78230228d76893873611db54741faebf4"
+    },
+    "password_reset": {
+      "http_status": 200,
+      "sha256": "9e6a069ef9d2895ac16e93d5130a9a33228dc026ee9be36cf4f60fd3c79a2178"
+    },
+    "password_reset_script": {
+      "http_status": 200,
+      "sha256": "80f52f2032c9b436edc532eca2734fd2ffb981596f77dab7968f7c5f8ae047a2"
+    },
+    "admin_recovery_script": {
+      "http_status": 200,
+      "sha256": "992b0dba8314829d2cbb40aecdc5aafea8bb93af08d7ec1ddc13bb2c0cff6442"
+    },
+    "admin_provider_script": {
+      "http_status": 200,
+      "sha256": "4967b05d0e27879418cfd51a3142330e42372bc8eddf5391cadc5092940689a7"
+    }
+  },
+  "contracts": {
+    "admin_forgot_button": true,
+    "owner_manual_recovery": true,
+    "authenticated_provider_status": true,
+    "arabic_password_reset": true
+  },
+  "passed": true
+}
