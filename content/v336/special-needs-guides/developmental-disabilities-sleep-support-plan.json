@@ -100,35 +100,68 @@
   "sources": [
     {
       "id": "nice-cg170-sleep",
+      "publisher": "National Institute for Health and Care Excellence",
       "organization": "National Institute for Health and Care Excellence",
       "title": "Autism spectrum disorder in under 19s: support and management — interventions for sleep problems",
       "url": "https://www.nice.org.uk/guidance/cg170/chapter/Recommendations#interventions-for-sleep-problems",
       "year": 2021,
+      "source_type": "official_guideline",
+      "verified_at": "2026-07-28",
+      "claims_supported": [
+        "تقييم نمط النوم والبيئة والحالات المصاحبة والأدوية وأثر المشكلة في الأسرة.",
+        "استخدام سجل نوم وخطة غير دوائية قبل التفكير في تدخل دوائي.",
+        "إحالة مؤشرات اضطراب التنفس أثناء النوم إلى تقييم متخصص."
+      ],
+      "status": "current",
       "use": "تقييم نوع مشكلة النوم والبيئة والحالات المصاحبة والأدوية، سجل أسبوعين، خطة النوم، إحالة اضطراب التنفس، وحدود العلاج الدوائي."
     },
     {
       "id": "who-cst-participants",
+      "publisher": "World Health Organization",
       "organization": "World Health Organization",
       "title": "Caregiver skills training — Participants’ guide: group sessions 1–9",
       "url": "https://www.who.int/publications/i/item/9789240048911",
       "year": 2022,
+      "source_type": "public_health_authority",
+      "verified_at": "2026-07-28",
+      "claims_supported": [
+        "اختيار أهداف منزلية محددة وقابلة للملاحظة.",
+        "دمج استراتيجيات الدعم داخل الروتين اليومي بالتعاون مع الأسرة."
+      ],
+      "status": "current",
       "use": "تحديد الأهداف واستخدام الروتين المنزلي واستراتيجيات قابلة للتطبيق مع الأسرة."
     },
     {
       "id": "who-cst-wellbeing",
+      "publisher": "World Health Organization",
       "organization": "World Health Organization",
       "title": "Caregiver skills training: caregiver well-being — facilitators’ and participants’ guides",
       "url": "https://www.who.int/publications/b/82481",
       "year": 2026,
+      "source_type": "public_health_authority",
+      "verified_at": "2026-07-28",
+      "claims_supported": [
+        "إدراج رفاه مقدم الرعاية وحل المشكلات وطلب الدعم ضمن الخطة الأسرية.",
+        "بناء خطة قابلة للاستمرار بدل زيادة العبء على الأسرة."
+      ],
+      "status": "current",
       "use": "حماية رفاه مقدم الرعاية وحل المشكلات وطلب الدعم ضمن خطة مستدامة."
     },
     {
       "id": "aap-autism-insomnia-pathway",
+      "publisher": "American Academy of Pediatrics",
       "organization": "American Academy of Pediatrics",
       "title": "A Practice Pathway for the Identification, Evaluation, and Management of Insomnia in Children and Adolescents With Autism Spectrum Disorders",
       "url": "https://publications.aap.org/pediatrics/article/130/Supplement_2/S106/30235/A-Practice-Pathway-for-the-Identification",
       "year": 2012,
       "doi": "10.1542/peds.2012-0900I",
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-28",
+      "claims_supported": [
+        "اتباع مسار منظم لتحديد الأرق وتقييم أسبابه لدى الأطفال واليافعين ذوي التوحد.",
+        "مراجعة الأسباب الطبية والدوائية والسلوكية قبل اختيار التدخل."
+      ],
+      "status": "current",
       "use": "مسار تقييم منظم للأرق لدى الأطفال واليافعين ذوي التوحد ومراجعة الأسباب الطبية والسلوكية."
     }
   ]
