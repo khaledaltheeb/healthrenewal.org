@@ -5,7 +5,7 @@ window.PT_SPECIALIST_CONFIG = Object.freeze({
   siteBase: "https://khaledaltheeb.github.io/pterminology-site",
   sectorBase: "https://khaledaltheeb.github.io/pterminology-site/specialists-partners",
   environment: "production",
-  identityVersion: "10.0.0"
+  identityVersion: "10.1.0"
 });
 
 (() => {
@@ -13,7 +13,7 @@ window.PT_SPECIALIST_CONFIG = Object.freeze({
   if (!/\/specialists-partners\/admin\/?$/.test(location.pathname)) return;
   if (document.querySelector('script[data-pt-admin-recovery-v10]')) return;
   const script = document.createElement('script');
-  script.src = '../admin/admin-recovery-v10.js?v=10.0.0';
+  script.src = '../admin/admin-recovery-v10-final.js?v=10.1.0';
   script.defer = true;
   script.dataset.ptAdminRecoveryV10 = 'true';
   document.head.append(script);
