@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-30T21:44:31.554450+00:00",
+  "generated_at": "2026-07-31T14:05:26.073263+00:00",
   "mode": "write",
   "root": "/home/runner/work/pterminology-site/pterminology-site",
   "runtime": {
@@ -11,12 +11,12 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 218,
-  "html_pages_normalized_or_current": 217,
+  "html_pages_seen": 220,
+  "html_pages_normalized_or_current": 219,
   "counts": {
-    "current": 216,
-    "skipped": 1,
-    "updated": 1
+    "current": 218,
+    "updated": 1,
+    "skipped": 1
   },
   "results": [
     {
@@ -30,6 +30,11 @@
       "detail": ""
     },
     {
+      "path": "ai-search/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "api/index.html",
       "status": "current",
       "detail": ""
@@ -37,6 +42,11 @@
     {
       "path": "copyright/index.html",
       "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "editorial-methodology/index.html",
+      "status": "updated",
       "detail": ""
     },
     {
@@ -1076,7 +1086,7 @@
     },
     {
       "path": "specialists-partners/password-reset/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
