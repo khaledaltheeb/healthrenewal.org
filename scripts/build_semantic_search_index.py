@@ -156,7 +156,7 @@ def extract_page_blocks(path: Path, root: Path) -> tuple[str, str, str, list[tup
     blocks: list[tuple[str, str]] = []
     current_heading = title
     main = soup.find("main") or soup.find("article") or soup.body or soup
-    for element in main.find_all(TEXT_TAGS):
+    for element in main.find_all(list(TEXT_TAGS)):
         text = clean_text(element.get_text(" ", strip=True))
         if not text:
             continue
