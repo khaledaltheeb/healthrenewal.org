@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T17:16:20.828464+00:00",
+  "workflow_run_id": "30650499219",
+  "status": "failed",
+  "selected_domain": null,
+  "test_message_accepted": false,
+  "provider_id_present": false,
+  "worker_ok": false,
+  "worker_version": null,
+  "email_auth_valid": null,
+  "sender_ready": null,
+  "sender_code": null,
+  "password_recovery_email_ready": null,
+  "contains_secret_values": false
+}
