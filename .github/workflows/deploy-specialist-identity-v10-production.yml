@@ -34,6 +34,7 @@ env:
   ACCOUNT_API_BASE: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
   CORE_API_BASE: https://pterminology-specialists.pterminology-826ac349.workers.dev
   DATABASE_NAME: pterminology-specialists
+  IDENTITY_WORKER_NAME: pterminology-specialist-accounts
 
 jobs:
   deploy:
@@ -43,12 +44,7 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '826ac34927c1e045c06145a327c2ac52' }}
       PREFERRED_D1_DATABASE_ID: ${{ secrets.SPECIALISTS_D1_DATABASE_ID }}
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
-      REVIEWER_API_KEY: ${{ secrets.SPECIALISTS_REVIEWER_API_KEY }}
-      MODERATOR_API_KEY: ${{ secrets.SPECIALISTS_MODERATOR_API_KEY }}
-      RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}
-      PASSWORD_PEPPER: ${{ secrets.SPECIALISTS_PASSWORD_PEPPER }}
       FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
     steps:
       - uses: actions/checkout@v4
@@ -83,18 +79,34 @@ jobs:
             tests.test_specialist_identity_v10 \
             tests.test_specialist_turnstile_persistence
 
-      - name: Validate deployment credentials and discover D1
+      - name: Validate Cloudflare access, required Worker secrets, and D1
         id: resources
         shell: bash
         run: |
           set -euo pipefail
-          required=(CLOUDFLARE_API_TOKEN RESEND_API_KEY ADMIN_API_KEY RATE_LIMIT_SALT FROM_EMAIL)
+          required=(CLOUDFLARE_API_TOKEN ADMIN_API_KEY FROM_EMAIL)
           for name in "${required[@]}"; do
             [[ -n "${!name:-}" ]] || { echo "::error::$name is required"; exit 1; }
           done
           auth=(-H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json")
           curl -fsS "${auth[@]}" "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/tokens/verify" \
             | python -c 'import json,sys; d=json.load(sys.stdin); assert d.get("success") and d.get("result",{}).get("status")=="active", d'
+
+          curl -fsS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${IDENTITY_WORKER_NAME}/secrets" \
+            -o /tmp/identity-worker-secrets.json
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/identity-worker-secrets.json',encoding='utf-8'))
+          assert data.get('success') is True, data
+          names={str(item.get('name') or '') for item in (data.get('result') or [])}
+          required={'TURNSTILE_SECRET','RESEND_API_KEY','ADMIN_API_KEY','RATE_LIMIT_SALT'}
+          missing=sorted(required-names)
+          if missing:
+              raise SystemExit('Missing required Worker secret names: '+', '.join(missing))
+          print({'required_secret_names_verified':sorted(required)})
+          PY
+
           if [[ -n "${PREFERRED_D1_DATABASE_ID:-}" ]]; then
             database_id="${PREFERRED_D1_DATABASE_ID}"
           else
@@ -120,16 +132,13 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json, os
+          import os
           from pathlib import Path
           def q(value): return '"' + str(value).replace('\\','\\\\').replace('"','\\"') + '"'
           content=f'''name = "pterminology-specialist-accounts"
           main = "src/index-v10-production.js"
           compatibility_date = "2026-07-01"
           workers_dev = true
-
-          [secrets]
-          required = ["TURNSTILE_SECRET", "RESEND_API_KEY", "ADMIN_API_KEY", "RATE_LIMIT_SALT"]
 
           [vars]
           ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
@@ -157,25 +166,16 @@ jobs:
           crons = ["31 2 * * *"]
           '''
           Path('wrangler-v10-production.toml').write_text(content,encoding='utf-8')
-          secrets={
-            'RESEND_API_KEY':os.environ['RESEND_API_KEY'],
-            'ADMIN_API_KEY':os.environ['ADMIN_API_KEY'],
-            'RATE_LIMIT_SALT':os.environ['RATE_LIMIT_SALT'],
-          }
-          if os.environ.get('PASSWORD_PEPPER'): secrets['PASSWORD_PEPPER']=os.environ['PASSWORD_PEPPER']
-          if os.environ.get('REVIEWER_API_KEY'): secrets['REVIEWER_API_KEY']=os.environ['REVIEWER_API_KEY']
-          if os.environ.get('MODERATOR_API_KEY'): secrets['MODERATOR_API_KEY']=os.environ['MODERATOR_API_KEY']
-          Path('worker-secrets-v10-production.json').write_text(json.dumps(secrets),encoding='utf-8')
           PY
-          chmod 600 wrangler-v10-production.toml worker-secrets-v10-production.json
+          chmod 600 wrangler-v10-production.toml
 
       - name: Apply D1 migrations
         working-directory: specialists-partners/account-backend
         run: npx --yes wrangler@4 d1 migrations apply pterminology-specialists --remote --config wrangler-v10-production.toml
 
-      - name: Deploy identity Worker 10.2.0 with required-secret validation
+      - name: Deploy identity Worker without replacing existing secrets
         working-directory: specialists-partners/account-backend
-        run: npx --yes wrangler@4 deploy --config wrangler-v10-production.toml --secrets-file worker-secrets-v10-production.json --minify --keep-vars
+        run: npx --yes wrangler@4 deploy --config wrangler-v10-production.toml --minify --keep-vars
 
       - name: Ensure the production workers.dev route is enabled
         shell: bash
@@ -186,7 +186,7 @@ jobs:
             -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
             -H "Content-Type: application/json" \
             --data '{"enabled":true,"previews_enabled":true}' \
-            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/pterminology-specialist-accounts/subdomain" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${IDENTITY_WORKER_NAME}/subdomain" \
             -o /tmp/identity-worker-subdomain.json
           python - <<'PY'
           import json
@@ -194,10 +194,6 @@ jobs:
           assert data.get('success') is True, data
           result=data.get('result') or {}
           assert result.get('enabled') is True, result
-          print({
-              'workers_dev_enabled': result.get('enabled'),
-              'preview_urls_enabled': result.get('previews_enabled'),
-          })
           PY
 
       - name: Verify stable production propagation and protected deep health
@@ -205,7 +201,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo "Deep health must not be public; all three contracts must pass in the same cycle."
           python scripts/verify_specialist_identity_v10_production.py
 
       - name: Record safe production report
@@ -229,12 +224,12 @@ jobs:
             'email_provider':{'http_status':int(os.environ.get('DEEP_STATUS') or 0),'configured':provider.get('configured'),'auth_valid':provider.get('authValid'),'access':provider.get('access'),'code':provider.get('code')},
             'deep_health_public':False,
             'stable_contract_cycles':3,
-            'turnstile_secret_required':True,
+            'required_secret_names_verified':True,
+            'deployment_replaced_secrets':False,
             'manual_recovery_available':bool((normal.get('capabilities') or {}).get('manualRecovery')),
             'fully_operational':normal.get('ok') is True and provider.get('authValid') is True,
           }
           open('reports/specialist-identity-v10-production.json','w',encoding='utf-8').write(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
-          print(json.dumps(report,ensure_ascii=False,indent=2))
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -251,4 +246,4 @@ jobs:
       - name: Remove ephemeral deployment files
         if: always()
         working-directory: specialists-partners/account-backend
-        run: rm -f wrangler-v10-production.toml worker-secrets-v10-production.json
+        run: rm -f wrangler-v10-production.toml
