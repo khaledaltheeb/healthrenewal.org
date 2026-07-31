@@ -1,0 +1,63 @@
+name: Apply E5 production sync
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/apply-e5-sync-temp.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-e5-production-sync
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    if: github.head_ref == 'agent/multilingual-e5-production-v4-sync'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/multilingual-e5-production-v4-sync
+          fetch-depth: 0
+
+      - name: Copy validated non-workflow E5 files
+        run: |
+          set -euxo pipefail
+          git fetch origin agent/multilingual-e5-production-v3
+          git checkout origin/agent/multilingual-e5-production-v3 -- \
+            ai-search/assets/search-worker.js \
+            ai-search/data/manifest.json \
+            scripts/build_remote_semantic_search_index.py \
+            scripts/build_semantic_search_index.py \
+            scripts/semantic-search-requirements.txt \
+            tests/test_ai_search_browser_index_v2.py \
+            tests/test_multilingual_e5_production_v3.py
+          python -m py_compile \
+            scripts/build_remote_semantic_search_index.py \
+            scripts/build_semantic_search_index.py \
+            tests/test_ai_search_browser_index_v2.py \
+            tests/test_multilingual_e5_production_v3.py
+          node --check ai-search/assets/search-worker.js
+
+      - name: Commit synchronized files
+        run: |
+          set -euxo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            ai-search/assets/search-worker.js \
+            ai-search/data/manifest.json \
+            scripts/build_remote_semantic_search_index.py \
+            scripts/build_semantic_search_index.py \
+            scripts/semantic-search-requirements.txt \
+            tests/test_ai_search_browser_index_v2.py \
+            tests/test_multilingual_e5_production_v3.py
+          if git diff --cached --quiet; then
+            echo 'E5 files already synchronized.'
+            exit 0
+          fi
+          git commit -m 'feat: synchronize production multilingual E5 files'
+          git push origin HEAD:agent/multilingual-e5-production-v4-sync
