@@ -55,6 +55,11 @@ jobs:
               raise SystemExit('Unable to locate deterministic E5 patch block')
           block = source[start + len(start_marker):end]
           script = textwrap.dedent(block)
+          strict_block = """for path in ('ai-search/index.html', 'ai-search/README.md'):\n    if (ROOT / path).exists():\n        replace_all(path, OLD_BASE, NEW_BASE, minimum=1)\n"""
+          tolerant_block = """replace_all('ai-search/index.html', OLD_BASE, NEW_BASE, minimum=1)\nreadme_path = ROOT / 'ai-search/README.md'\nif readme_path.exists() and OLD_BASE in readme_path.read_text(encoding='utf-8'):\n    replace_all('ai-search/README.md', OLD_BASE, NEW_BASE, minimum=1)\n"""
+          if strict_block not in script:
+              raise SystemExit('Unable to locate README replacement contract')
+          script = script.replace(strict_block, tolerant_block, 1)
           compile(script, '<e5-v3-patch>', 'exec')
           Path('/tmp/e5-v3-patch.py').write_text(script, encoding='utf-8')
           print(f'Extracted {len(script):,} bytes of deterministic patch code')
