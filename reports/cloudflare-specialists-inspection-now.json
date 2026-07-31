@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-07-31T08:11:45.427407+00:00",
+  "checked_at": "2026-07-31T09:58:17.763911+00:00",
   "no_email_sent": true,
   "no_reset_token_created": true,
   "token": {
@@ -43,13 +43,13 @@
   },
   "live": {
     "identity_health": {
-      "http_status": 404,
-      "content_type": "",
-      "service": null,
-      "version": null,
-      "ok": null,
+      "http_status": 503,
+      "content_type": "application/json; charset=utf-8",
+      "service": "pterminology-specialist-identity",
+      "version": "10.2.0",
+      "ok": false,
       "error": null,
-      "body_prefix": ""
+      "body_prefix": "{\"ok\":false,\"service\":\"pterminology-specialist-identity\",\"version\":\"10.2.0\",\"checks\":{\"database\":true,\"accountSchema\":true,\"identitySchema\":true,\"email\":true,\"turnstile\":false,\"rateLimitSalt\":true,\"accountBase\":true,\"adm"
     },
     "core_health": {
       "http_status": 200,
@@ -81,9 +81,9 @@
   },
   "deep_health": {
     "public": {
-      "http_status": 404,
-      "error": null,
-      "body_prefix": ""
+      "http_status": 403,
+      "error": "forbidden",
+      "body_prefix": "{\"error\":\"forbidden\",\"message\":\"الفحص العميق مقيد بالتشغيل.\"}"
     },
     "protected": {
       "http_status": null,
