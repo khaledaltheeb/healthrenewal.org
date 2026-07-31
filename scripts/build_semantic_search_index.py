@@ -9,6 +9,7 @@ plus normalized float16 vectors for client-side cosine similarity search.
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
 import re
@@ -299,7 +300,7 @@ def write_json(path: Path, payload: object) -> bytes:
 
 def remove_old_artifacts(output: Path) -> None:
     output.mkdir(parents=True, exist_ok=True)
-    for pattern in ("shard-*.meta.json", "shard-*.f16.bin"):
+    for pattern in ("shard-*.meta.json", "shard-*.f16.bin", "shard-*.f16.json"):
         for path in output.glob(pattern):
             path.unlink()
 
@@ -334,24 +335,45 @@ def build_index(args: argparse.Namespace) -> dict[str, object]:
         end = min(len(chunks), start + args.shard_size)
         metadata_name = f"shard-{shard_number:03d}.meta.json"
         embeddings_name = f"shard-{shard_number:03d}.f16.bin"
+        embeddings_json_name = f"shard-{shard_number:03d}.f16.json"
         metadata_path = output / metadata_name
         embeddings_path = output / embeddings_name
+        embeddings_json_path = output / embeddings_json_name
 
         metadata_payload = [asdict(chunk) for chunk in chunks[start:end]]
         metadata_bytes = write_json(metadata_path, metadata_payload)
         shard_vectors = embeddings[start:end]
         shard_vectors.tofile(embeddings_path)
         vector_bytes = embeddings_path.read_bytes()
+        vector_sha256 = sha256_bytes(vector_bytes)
+        embeddings_json_bytes = write_json(
+            embeddings_json_path,
+            {
+                "version": 1,
+                "encoding": "base64",
+                "dtype": "float16",
+                "endianness": "little",
+                "dimensions": DIMENSIONS,
+                "count": end - start,
+                "byteLength": len(vector_bytes),
+                "sha256": vector_sha256,
+                "data": base64.b64encode(vector_bytes).decode("ascii"),
+            },
+        )
 
         shards.append(
             {
                 "metadata": metadata_name,
                 "embeddings": embeddings_name,
+                "embeddingsJson": embeddings_json_name,
+                "encoding": "base64",
                 "count": end - start,
                 "metadataBytes": len(metadata_bytes),
                 "embeddingBytes": len(vector_bytes),
+                "embeddingsJsonBytes": len(embeddings_json_bytes),
                 "metadataSha256": sha256_bytes(metadata_bytes),
-                "embeddingSha256": sha256_bytes(vector_bytes),
+                "embeddingSha256": vector_sha256,
+                "embeddingsJsonSha256": sha256_bytes(embeddings_json_bytes),
             }
         )
 

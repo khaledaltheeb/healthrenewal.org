@@ -80,6 +80,34 @@ async function fetchBinary(url) {
   return response.arrayBuffer();
 }
 
+function decodeBase64ToArrayBuffer(value) {
+  const binary = atob(String(value || ''));
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+  return bytes.buffer;
+}
+
+async function fetchShardVectorBuffer(shard, manifestUrl) {
+  if (shard.embeddingsJson) {
+    const payload = await fetchJson(new URL(shard.embeddingsJson, manifestUrl));
+    if (payload?.version !== 1 || payload?.encoding !== 'base64') {
+      throw new Error('ترميز متجهات الفهرس غير مدعوم.');
+    }
+    if (payload.dtype !== 'float16' || payload.endianness !== 'little') {
+      throw new Error('نوع متجهات الفهرس غير متوافق.');
+    }
+    if (payload.dimensions !== DIMENSIONS || payload.count !== shard.count) {
+      throw new Error('أبعاد حزمة المتجهات غير متطابقة.');
+    }
+    const buffer = decodeBase64ToArrayBuffer(payload.data);
+    if (buffer.byteLength !== payload.byteLength || buffer.byteLength !== shard.embeddingBytes) {
+      throw new Error('حجم حزمة المتجهات غير صحيح.');
+    }
+    return buffer;
+  }
+  return fetchBinary(new URL(shard.embeddings, manifestUrl));
+}
+
 function halfToFloat(value) {
   const sign = value & 0x8000 ? -1 : 1;
   const exponent = (value >> 10) & 0x1f;
@@ -131,7 +159,7 @@ async function loadGeneratedIndex(manifestUrl) {
     postProgress(`تحميل جزء الفهرس ${shardIndex + 1} من ${manifest.shards.length}…`);
     const [metadata, buffer] = await Promise.all([
       fetchJson(new URL(shard.metadata, manifestUrl)),
-      fetchBinary(new URL(shard.embeddings, manifestUrl)),
+      fetchShardVectorBuffer(shard, manifestUrl),
     ]);
     if (!Array.isArray(metadata) || metadata.length !== shard.count) throw new Error('بيانات الفهرس غير متطابقة.');
     for (const document of metadata) {

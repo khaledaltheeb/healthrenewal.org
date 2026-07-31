@@ -66,6 +66,16 @@ class MultilingualE5ProductionV3Tests(unittest.TestCase):
         self.assertIn("report.dimensions !== 384", browser)
         self.assertIn("report.relevant > report.unrelated", browser)
 
+    def test_pages_compatible_base64_vector_artifact_is_generated(self) -> None:
+        builder = (ROOT / "scripts/build_semantic_search_index.py").read_text(encoding="utf-8")
+        worker = (ROOT / "ai-search/assets/search-worker.js").read_text(encoding="utf-8")
+        self.assertIn("shard-{shard_number:03d}.f16.json", builder)
+        self.assertIn("base64.b64encode", builder)
+        self.assertIn('"embeddingsJson"', builder)
+        self.assertIn('"encoding": "base64"', builder)
+        self.assertIn("fetchShardVectorBuffer", worker)
+        self.assertIn("decodeBase64ToArrayBuffer", worker)
+
     def test_generated_results_are_unique_per_page(self) -> None:
         worker = (ROOT / "ai-search/assets/search-worker.js").read_text(encoding="utf-8")
         self.assertIn("function dedupeRankedByUrl", worker)
