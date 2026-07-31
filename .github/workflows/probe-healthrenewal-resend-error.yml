@@ -1,0 +1,73 @@
+name: Probe healthrenewal Resend rejection
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/probe-healthrenewal-resend-error.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Probe one sender and record only safe provider error
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, urllib.error, urllib.request
+          from datetime import datetime, timezone
+          from pathlib import Path
+          payload={
+            'from':'PTerminology <no-reply@healthrenewal.org>',
+            'to':['pterminology@gmail.com'],
+            'subject':'PTerminology sender verification probe',
+            'text':'Safe sender verification probe.',
+          }
+          request=urllib.request.Request(
+            'https://api.resend.com/emails',
+            data=json.dumps(payload).encode('utf-8'),
+            headers={
+              'Authorization':'Bearer '+os.environ['RESEND_API_KEY'],
+              'Content-Type':'application/json',
+              'Idempotency-Key':'pt-healthrenewal-probe-'+os.environ['GITHUB_RUN_ID'],
+            },
+            method='POST',
+          )
+          try:
+            with urllib.request.urlopen(request,timeout=30) as response:
+              status=response.status
+              body=json.loads(response.read().decode('utf-8') or '{}')
+          except urllib.error.HTTPError as error:
+            status=error.code
+            try: body=json.loads(error.read().decode('utf-8') or '{}')
+            except Exception: body={}
+          report={
+            'schema_version':1,
+            'checked_at':datetime.now(timezone.utc).isoformat(),
+            'http_status':status,
+            'accepted':200 <= status < 300,
+            'error_name':body.get('name') if isinstance(body,dict) else None,
+            'error_message':body.get('message') if isinstance(body,dict) else None,
+            'provider_id_present':bool(body.get('id')) if isinstance(body,dict) else False,
+            'test_message_sent':200 <= status < 300,
+            'contains_secret_values':False,
+          }
+          Path('reports/healthrenewal-resend-rejection.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(report)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/healthrenewal-resend-rejection.json
+          git commit -m "chore: record healthrenewal Resend rejection [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main
