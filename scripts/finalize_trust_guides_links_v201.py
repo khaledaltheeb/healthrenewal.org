@@ -53,15 +53,16 @@ def _normalize_public_text(text: str) -> str:
     updated = text
     for origin in LEGACY_ORIGINS:
         updated = updated.replace(origin, CANONICAL_ORIGIN)
-    updated = updated.replace("/pterminology-site/blog/", "/magazine/")
-    updated = updated.replace("/pterminology-site/magazine/", "/magazine/")
-    updated = updated.replace("/pterminology-site/trust/", "/trust/")
+    updated = updated.replace("/pterminology-site/", "/")
+    updated = updated.replace('href="/blog/"', 'href="/magazine/"')
+    updated = updated.replace("href='/blog/'", "href='/magazine/'")
+    updated = updated.replace(f"{CANONICAL_ORIGIN}//", f"{CANONICAL_ORIGIN}/")
     return updated
 
 
 def _normalize_alias_source(text: str, canonical_route: str) -> str:
     updated = _normalize_public_text(text)
-    canonical = f'{CANONICAL_ORIGIN}{canonical_route}'
+    canonical = f"{CANONICAL_ORIGIN}{canonical_route}"
     canonical_tag = f'<link rel="canonical" href="{canonical}">'
     refresh_tag = f'<meta http-equiv="refresh" content="0;url={canonical_route}">'
 
@@ -90,8 +91,6 @@ def _normalize_alias_source(text: str, canonical_route: str) -> str:
         )
         if count != 1:
             raise SystemExit("Compatibility alias source is missing </head>")
-
-    updated = updated.replace(f'href="{canonical_route}"', f'href="{canonical_route}"')
     return updated
 
 
@@ -139,11 +138,7 @@ def _remove_alias_discovery_links(site: Path) -> tuple[list[str], list[str]]:
         if updated != text:
             path.write_text(updated, encoding="utf-8")
             changed.append(relative)
-        if any(
-            token in updated
-            for route in ALIAS_ROUTES
-            for token in (route, f'/pterminology-site{route}')
-        ):
+        if any(route in updated for route in ALIAS_ROUTES):
             remaining.append(relative)
     return changed, remaining
 
@@ -238,10 +233,24 @@ def finalize(site: Path) -> dict[str, object]:
         elif relative == PUBLIC_TARGET:
             page["publication_status"] = "public"
             page["indexable"] = True
+
+    previous_compatibility = report.get("link_compatibility", {})
+    previous_changed = (
+        previous_compatibility.get("changed_pages", [])
+        if isinstance(previous_compatibility, dict)
+        else []
+    )
+    stable_changed_pages = sorted(
+        {
+            str(item)
+            for item in [*previous_changed, *changed_pages]
+            if isinstance(item, str) and item
+        }
+    )
     report["link_compatibility"] = {
         "legacy_blog_route": "/blog/",
         "active_route": "/magazine/",
-        "changed_pages": changed_pages,
+        "changed_pages": stable_changed_pages,
         "remaining_legacy_links": [],
     }
     report["publication_contract"] = {
@@ -260,6 +269,7 @@ def finalize(site: Path) -> dict[str, object]:
     result = {
         "version": 355,
         "changed_pages": changed_pages,
+        "normalized_pages": stable_changed_pages,
         "restored_aliases": restored_aliases,
         "public_pages": [PUBLIC_TARGET],
         "sitemap_alias_urls": sitemap_pruned,
