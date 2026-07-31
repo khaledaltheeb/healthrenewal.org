@@ -33,71 +33,26 @@ class SpecialistIdentityV6Tests(unittest.TestCase):
             """
         )
         connection.executescript(read("specialists-partners/backend/migrations/0005_identity_password_admin.sql"))
-        tables = {
-            row[0]
-            for row in connection.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            )
-        }
-        self.assertTrue(
-            {
-                "identity_users",
-                "identity_sessions",
-                "password_reset_tokens",
-                "provider_account_drafts",
-                "identity_audit_log",
-            }.issubset(tables)
-        )
+        tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        self.assertTrue({"identity_users","identity_sessions","password_reset_tokens","provider_account_drafts","identity_audit_log"}.issubset(tables))
         connection.execute(
-            """
-            INSERT INTO identity_users (
-              id,email,phone_e164,display_name_ar,display_name_en,role,status
-            ) VALUES (?,?,?,?,?,'owner','invited')
-            """,
-            (
-                "owner-test",
-                "pterminology@gmail.com",
-                "+962795945817",
-                "خالد الذيب",
-                "Khaled Altheeb",
-            ),
+            """INSERT INTO identity_users (id,email,phone_e164,display_name_ar,display_name_en,role,status)
+            VALUES (?,?,?,?,?,'owner','invited')""",
+            ("owner-test","pterminology@gmail.com","+962795945817","خالد الذيب","Khaled Altheeb"),
         )
-        row = connection.execute(
-            "SELECT email,phone_e164,display_name_ar,display_name_en,role,status FROM identity_users"
-        ).fetchone()
-        self.assertEqual(
-            row,
-            (
-                "pterminology@gmail.com",
-                "+962795945817",
-                "خالد الذيب",
-                "Khaled Altheeb",
-                "owner",
-                "invited",
-            ),
-        )
+        row = connection.execute("SELECT email,phone_e164,display_name_ar,display_name_en,role,status FROM identity_users").fetchone()
+        self.assertEqual(row,("pterminology@gmail.com","+962795945817","خالد الذيب","Khaled Altheeb","owner","invited"))
         with self.assertRaises(sqlite3.IntegrityError):
-            connection.execute(
-                "INSERT INTO identity_users (id,email,display_name_ar,role,status) VALUES (?,?,?,?,?)",
-                ("bad-role", "bad@example.com", "Bad", "root", "active"),
-            )
+            connection.execute("INSERT INTO identity_users (id,email,display_name_ar,role,status) VALUES (?,?,?,?,?)",("bad-role","bad@example.com","Bad","root","active"))
 
     def test_worker_exposes_password_account_admin_and_compatibility_routes(self) -> None:
         worker = read("specialists-partners/account-backend/src/index.js")
         required_routes = (
-            "/v1/auth/login",
-            "/v1/auth/password/request",
-            "/v1/auth/password/reset",
-            "/v1/account/password/change",
-            "/v1/account/profile-draft",
-            "/v1/admin/users",
-            "/v1/admin/core-session",
-            "/v1/admin/profile-drafts",
-            "/v1/admin/identity-audit",
-            "/v1/internal/bootstrap-owner",
-            "/v1/specialist/session/request",
-            "/v1/specialist/session/verify",
-            "/v1/specialist/conversations",
+            "/v1/auth/login","/v1/auth/password/request","/v1/auth/password/reset",
+            "/v1/account/password/change","/v1/account/profile-draft","/v1/admin/users",
+            "/v1/admin/core-session","/v1/admin/profile-drafts","/v1/admin/identity-audit",
+            "/v1/internal/bootstrap-owner","/v1/specialist/session/request",
+            "/v1/specialist/session/verify","/v1/specialist/conversations",
         )
         for route in required_routes:
             self.assertIn(route, worker)
@@ -149,62 +104,51 @@ class SpecialistIdentityV6Tests(unittest.TestCase):
     def test_admin_contract_covers_requested_owner_operations(self) -> None:
         worker = read("specialists-partners/account-backend/src/index.js")
         admin = read("specialists-partners/admin/admin.js")
-        for operation in (
-            "createUser",
-            "updateUser",
-            "archiveUser",
-            "adminPasswordReset",
-            "verifyUser",
-            "reviewProfileDraft",
-            "identityAudit",
-        ):
+        for operation in ("createUser","updateUser","archiveUser","adminPasswordReset","verifyUser","reviewProfileDraft","identityAudit"):
             self.assertIn(operation, worker)
-        for action in (
-            "save-user",
-            "verify-user",
-            "reset-user",
-            "archive-user",
-        ):
+        for action in ("save-user","verify-user","reset-user","archive-user"):
             self.assertIn(action, admin)
         self.assertIn("applications", admin)
         self.assertIn("providers", admin)
         self.assertIn("conversations", admin)
         self.assertIn("profile-drafts", admin)
 
-    def test_runtime_and_deployment_verify_cloudflare_without_committed_token(self) -> None:
+    def test_runtime_and_production_deployment_use_v10_without_committed_secrets(self) -> None:
         runtime = read("specialists-partners/assets/runtime-config.js")
-        workflow = read(".github/workflows/deploy-specialists-account-backend.yml")
+        validation = read(".github/workflows/deploy-specialist-identity-v10.yml")
+        production = read(".github/workflows/deploy-specialist-identity-v10-production.yml")
+        legacy = read(".github/workflows/deploy-specialists-account-backend.yml")
         self.assertIn("accountApiBase", runtime)
-        self.assertIn("secrets.CLOUDFLARE_API_TOKEN", workflow)
-        self.assertIn("/tokens/verify", workflow)
-        self.assertIn("/workers/scripts", workflow)
-        self.assertIn("/d1/database", workflow)
-        self.assertIn("/challenges/widgets", workflow)
-        self.assertIn("Discover or create D1 and Turnstile resources", workflow)
-        self.assertIn("rotate_secret", workflow)
-        self.assertIn("database_created", workflow)
-        self.assertIn("wrangler@4 d1 migrations apply", workflow)
-        self.assertIn("wrangler@4 deploy", workflow)
-        self.assertIn("/v1/internal/bootstrap-owner", workflow)
-        self.assertIn("/v1/applications", workflow)
-        self.assertIn("REVIEWER_API_KEY", workflow)
-        self.assertIn("MODERATOR_API_KEY", workflow)
-        self.assertNotRegex(workflow, r"CLOUDFLARE_API_TOKEN:\s*[A-Za-z0-9_-]{30,}")
+        self.assertIn('identityVersion: "10.2.0"', runtime)
+        self.assertNotIn("wrangler@4 deploy", validation)
+        self.assertIn("secrets.CLOUDFLARE_API_TOKEN", production)
+        self.assertIn("/tokens/verify", production)
+        self.assertIn("/d1/database", production)
+        self.assertIn("wrangler@4 d1 migrations apply", production)
+        self.assertIn("wrangler@4 deploy", production)
+        self.assertIn('main = "src/index-v10-production.js"', production)
+        self.assertIn("x-bootstrap-key: ${ADMIN_API_KEY}", production)
+        self.assertIn("specialist-identity-v10-production.json", production)
+        self.assertNotIn("wrangler@4 deploy", legacy)
+        self.assertIn("validation-only", legacy)
+        self.assertNotRegex(production, r"CLOUDFLARE_API_TOKEN:\s*[A-Za-z0-9_-]{30,}")
 
     def test_javascript_is_syntactically_valid(self) -> None:
         files = (
             "specialists-partners/account-backend/src/index.js",
+            "specialists-partners/account-backend/src/index-v8.js",
+            "specialists-partners/account-backend/src/index-v10.js",
+            "specialists-partners/account-backend/src/index-v10-final.js",
+            "specialists-partners/account-backend/src/index-v10-production.js",
             "specialists-partners/account/account.js",
             "specialists-partners/admin/admin.js",
+            "specialists-partners/admin/admin-recovery-v10-final.js",
+            "specialists-partners/admin/admin-provider-status-v10.js",
+            "specialists-partners/password-reset/reset-v10.js",
         )
         for relative in files:
-            result = subprocess.run(
-                ["node", "--check", str(ROOT / relative)],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            self.assertEqual(result.returncode, 0, result.stderr)
+            result = subprocess.run(["node","--check",str(ROOT / relative)],capture_output=True,text=True,check=False)
+            self.assertEqual(result.returncode,0,result.stderr)
 
 
 if __name__ == "__main__":

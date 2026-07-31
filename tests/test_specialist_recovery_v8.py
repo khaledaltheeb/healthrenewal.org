@@ -12,7 +12,8 @@ class SpecialistRecoveryV8Tests(unittest.TestCase):
     def test_admin_recovery_button_does_not_navigate_away(self):
         html = self.read("specialists-partners/admin/index.html")
         self.assertIn('id="admin-forgot" type="button"', html)
-        self.assertIn('href="../recover/?v=8"', html)
+        self.assertIn('href="../recover/?v=10.2.0"', html)
+        self.assertIn('runtime-config.js?v=10.2.0', html)
         self.assertNotRegex(html, r'id="admin-forgot"[^>]+href=')
 
     def test_overlay_intercepts_recovery_and_delegates_other_routes(self):
