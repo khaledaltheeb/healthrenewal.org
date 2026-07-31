@@ -1,0 +1,156 @@
+name: Verify E5 live production once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-e5-live-temp.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: verify-e5-live-production-once
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Wait for the generated index to reach the custom domain
+        run: |
+          set -euo pipefail
+          manifest_url='https://healthrenewal.org/ai-search/data/manifest.json'
+          ready=0
+          for attempt in $(seq 1 60); do
+            if curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
+              "${manifest_url}?verification=${GITHUB_RUN_ID}-${attempt}" \
+              -o /tmp/e5-live-manifest.json; then
+              if python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('/tmp/e5-live-manifest.json').read_text(encoding='utf-8'))
+          assert data.get('version') == 2
+          assert data.get('ready') is True
+          assert data.get('model') == 'intfloat/multilingual-e5-small'
+          assert data.get('modelRevision') == 'fd1525a9fd15316a2d503bf26ab031a61d056e98'
+          assert data.get('browserModel') == 'Xenova/multilingual-e5-small'
+          assert data.get('browserModelRevision') == '761b726dd34fb83930e26aab4e9ac3899aa1fa78'
+          assert data.get('corpusBaseUrl') == 'https://healthrenewal.org/'
+          assert data.get('dimensions') == 384
+          assert data.get('dtype') == 'float16'
+          assert data.get('normalized') is True
+          assert int(data.get('documentCount') or 0) > 0
+          assert int(data.get('chunkCount') or 0) >= int(data.get('documentCount') or 0)
+          assert data.get('shards')
+          print({'documents':data['documentCount'],'chunks':data['chunkCount'],'shards':len(data['shards'])})
+          PY
+              then
+                ready=1
+                break
+              fi
+            fi
+            echo "Index not propagated yet (attempt ${attempt}/60)."
+            sleep 10
+          done
+          test "$ready" = 1
+
+      - name: Verify live page, worker and shard integrity
+        run: |
+          set -euo pipefail
+          base='https://healthrenewal.org/ai-search/data/'
+          page='https://healthrenewal.org/ai-search/'
+          worker='https://healthrenewal.org/ai-search/assets/search-worker.js'
+          meta="$(python -c "import json;print(json.load(open('/tmp/e5-live-manifest.json'))['shards'][0]['metadata'])")"
+          vectors="$(python -c "import json;print(json.load(open('/tmp/e5-live-manifest.json'))['shards'][0]['embeddings'])")"
+          curl -fsS --retry 3 -H 'Cache-Control: no-cache' "${page}?verification=${GITHUB_RUN_ID}" -o /tmp/e5-live-page.html
+          curl -fsS --retry 3 -H 'Cache-Control: no-cache' "${worker}?verification=${GITHUB_RUN_ID}" -o /tmp/e5-live-worker.js
+          curl -fsS --retry 3 -H 'Cache-Control: no-cache' "${base}${meta}?verification=${GITHUB_RUN_ID}" -o /tmp/e5-live-meta.json
+          curl -fsS --retry 3 -H 'Cache-Control: no-cache' "${base}${vectors}?verification=${GITHUB_RUN_ID}" -o /tmp/e5-live-vectors.bin
+
+          python - <<'PY'
+          import hashlib,json
+          from datetime import datetime,timezone
+          from pathlib import Path
+
+          manifest=json.loads(Path('/tmp/e5-live-manifest.json').read_text(encoding='utf-8'))
+          shard=manifest['shards'][0]
+          page=Path('/tmp/e5-live-page.html').read_text(encoding='utf-8',errors='replace')
+          worker=Path('/tmp/e5-live-worker.js').read_text(encoding='utf-8',errors='replace')
+          meta_path=Path('/tmp/e5-live-meta.json')
+          vector_path=Path('/tmp/e5-live-vectors.bin')
+          metadata=json.loads(meta_path.read_text(encoding='utf-8'))
+
+          def digest(path):
+              return hashlib.sha256(path.read_bytes()).hexdigest()
+
+          assert 'https://healthrenewal.org/ai-search/' in page
+          assert 'Xenova/multilingual-e5-small' in worker
+          assert '761b726dd34fb83930e26aab4e9ac3899aa1fa78' in worker
+          assert meta_path.stat().st_size == shard['metadataBytes']
+          assert vector_path.stat().st_size == shard['embeddingBytes']
+          assert digest(meta_path) == shard['metadataSha256']
+          assert digest(vector_path) == shard['embeddingSha256']
+          assert len(metadata) == shard['count']
+          assert vector_path.stat().st_size == shard['count'] * manifest['dimensions'] * 2
+
+          report={
+              'schema_version':1,
+              'checked_at':datetime.now(timezone.utc).isoformat(),
+              'source_index_commit':'31b6035f923a97a179eb11924050ba2dc9c4d439',
+              'workflow_run_id':__import__('os').environ['GITHUB_RUN_ID'],
+              'live_base_url':'https://healthrenewal.org/ai-search/',
+              'manifest':{
+                  'version':manifest['version'],
+                  'ready':manifest['ready'],
+                  'generatedAt':manifest['generatedAt'],
+                  'model':manifest['model'],
+                  'modelRevision':manifest['modelRevision'],
+                  'browserModel':manifest['browserModel'],
+                  'browserModelRevision':manifest['browserModelRevision'],
+                  'dimensions':manifest['dimensions'],
+                  'dtype':manifest['dtype'],
+                  'normalized':manifest['normalized'],
+                  'documentCount':manifest['documentCount'],
+                  'chunkCount':manifest['chunkCount'],
+                  'shardCount':len(manifest['shards']),
+              },
+              'first_shard':{
+                  'count':shard['count'],
+                  'metadataBytes':meta_path.stat().st_size,
+                  'embeddingBytes':vector_path.stat().st_size,
+                  'metadataSha256':digest(meta_path),
+                  'embeddingSha256':digest(vector_path),
+                  'metadataRecords':len(metadata),
+              },
+              'page_contract':True,
+              'worker_contract':True,
+              'hashes_match_manifest':True,
+              'passed':True,
+          }
+          Path('/tmp/e5-live-production.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(report,ensure_ascii=False,indent=2))
+          PY
+
+      - name: Publish safe report and remove this one-time workflow
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          cp /tmp/e5-live-production.json reports/e5-live-production.json
+          git rm .github/workflows/verify-e5-live-temp.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/e5-live-production.json
+          git commit -m 'chore: record E5 live production verification [skip ci]'
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            git rebase --abort || true
+            sleep $((attempt*3))
+          done
+          exit 1
