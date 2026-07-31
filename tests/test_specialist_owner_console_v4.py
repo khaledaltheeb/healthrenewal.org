@@ -131,13 +131,20 @@ class SpecialistOwnerConsoleV4Tests(unittest.TestCase):
 
     def test_public_directory_uses_live_registry_with_static_fallback(self) -> None:
         source = (SECTOR / "assets" / "sector.js").read_text(encoding="utf-8")
+        core = (SECTOR / "assets" / "directory-core.js").read_text(encoding="utf-8")
+        page = (SECTOR / "index.html").read_text(encoding="utf-8")
         self.assertIn("/v1/providers?limit=250", source)
         self.assertIn("data/providers.json", source)
         self.assertIn("live-verified-registry", source)
         self.assertIn("static-verified-fallback", source)
-        self.assertIn("p.publicationStatus==='published'", source)
-        self.assertIn("p.verification?.status==='verified'", source)
-        self.assertIn("p.consent?.publicProfileApproved===true", source)
+        self.assertIn("core.prepareProviders", source)
+        self.assertIn("provider?.publicationStatus === 'published'", core)
+        self.assertIn("provider?.verification?.status === 'verified'", core)
+        self.assertIn("provider?.consent?.publicProfileApproved === true", core)
+        self.assertLess(
+            page.index("assets/directory-core.js"),
+            page.index("assets/sector.js"),
+        )
         self.assertIn("protocol === 'https:'", source)
 
     def test_join_preview_and_conversation_transport_redact_secrets(self) -> None:

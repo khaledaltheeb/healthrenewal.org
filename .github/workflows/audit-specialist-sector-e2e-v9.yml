@@ -1,157 +1,93 @@
-name: Audit specialist sector end to end v9
+name: Audit specialist sector end to end v10.2
 
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - ".github/workflows/audit-specialist-sector-e2e-v9.yml"
+  workflow_run:
+    workflows:
+      - "Deploy validated main to GitHub Pages"
+      - "Deploy specialist identity v10 production"
+      - "Deploy specialists live messaging v5"
+    types: [completed]
+  schedule:
+    - cron: "23 3 * * *"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  actions: read
 
 concurrency:
-  group: audit-specialist-sector-e2e-v9
+  group: audit-specialist-sector-e2e-v10-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
-  audit:
+  read-only-audit:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
       SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/specialists-partners
       IDENTITY_API: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
       CORE_API: https://pterminology-specialists.pterminology-826ac349.workers.dev
-      ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
+      SPECIALISTS_ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
+      AUDIT_OUTPUT: ${{ runner.temp }}/specialist-sector-e2e-v10.json
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
-          fetch-depth: 0
 
-      - name: Audit live pages, APIs, and recovery delivery
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile the read-only auditor
+        run: python -m py_compile scripts/audit_specialist_sector_e2e_v10.py
+
+      - name: Audit live pages registries APIs and CORS without mutations
+        run: python scripts/audit_specialist_sector_e2e_v10.py
+
+      - name: Publish truthful operational summary
+        if: always()
         shell: bash
         run: |
-          set -euo pipefail
-          [[ -n "${ADMIN_API_KEY:-}" ]] || { echo "::error::SPECIALISTS_ADMIN_API_KEY missing"; exit 1; }
-          mkdir -p reports /tmp/specialist-e2e
-
-          probe_page() {
-            local name="$1" url="$2"
-            curl -sS -L --max-time 30 -o "/tmp/specialist-e2e/${name}.html" -w '%{http_code}' "${url}?e2e=${GITHUB_RUN_ID}-$(date +%s%N)" > "/tmp/specialist-e2e/${name}.status" || true
-          }
-          probe_page public "${SITE_BASE}/"
-          probe_page account "${SITE_BASE}/account/"
-          probe_page admin "${SITE_BASE}/admin/"
-          probe_page recover "${SITE_BASE}/recover/"
-          probe_page password_reset "${SITE_BASE}/password-reset/"
-          probe_page portal "${SITE_BASE}/portal/"
-
-          curl -sS --max-time 30 -o /tmp/specialist-e2e/identity-health.json -w '%{http_code}' "${IDENTITY_API}/health?e2e=${GITHUB_RUN_ID}" > /tmp/specialist-e2e/identity-health.status || true
-          curl -sS --max-time 30 -o /tmp/specialist-e2e/core-health.json -w '%{http_code}' "${CORE_API}/health?e2e=${GITHUB_RUN_ID}" > /tmp/specialist-e2e/core-health.status || true
-
-          api_post() {
-            local name="$1" url="$2" origin="$3" body="$4"
-            curl -sS --max-time 30 -o "/tmp/specialist-e2e/${name}.json" -w '%{http_code}' -X POST \
-              -H "Origin: ${origin}" -H 'content-type: application/json' -H 'x-requested-with: pterminology-e2e-v9' \
-              --data "${body}" "${url}" > "/tmp/specialist-e2e/${name}.status" || true
-          }
-          api_post recovery_contract "${IDENTITY_API}/v1/auth/password/request" "https://khaledaltheeb.github.io" '{}'
-          api_post reset_contract "${IDENTITY_API}/v1/auth/password/reset" "https://khaledaltheeb.github.io" '{}'
-          api_post login_contract "${IDENTITY_API}/v1/auth/password/login" "https://khaledaltheeb.github.io" '{}'
-          api_post application_contract "${CORE_API}/v1/applications" "https://khaledaltheeb.github.io" '{}'
-
-          curl -sS --max-time 30 -o /tmp/specialist-e2e/delivery.json -w '%{http_code}' -X POST \
-            -H "x-bootstrap-key: ${ADMIN_API_KEY}" -H 'content-type: application/json' --data '{}' \
-            "${IDENTITY_API}/v1/internal/owner-password-reset?e2e=${GITHUB_RUN_ID}" > /tmp/specialist-e2e/delivery.status || true
-
           python - <<'PY'
           import json
-          from datetime import datetime, timezone
+          import os
           from pathlib import Path
 
-          root=Path('/tmp/specialist-e2e')
-          def status(name):
-              try:return int((root/f'{name}.status').read_text().strip())
-              except:return 0
-          def text(name, suffix='html'):
-              try:return (root/f'{name}.{suffix}').read_text(encoding='utf-8',errors='replace')
-              except:return ''
-          def data(name):
-              try:return json.loads(text(name,'json'))
-              except:return {}
-
-          page_expectations={
-            'public':['قطاع المختصين'],
-            'account':['حساب المختص'],
-            'admin':['id="admin-forgot" type="button"','href="../recover/?v=8"'],
-            'recover':['استعادة الحساب','إرسال رابط إعادة التعيين'],
-            'password_reset':['هذه صفحة مستقلة وآمنة','reset-v9.js?v=9.0.0'],
-            'portal':['المحادثة'],
-          }
-          pages={}
-          for name,markers in page_expectations.items():
-              body=text(name)
-              pages[name]={
-                'http_status':status(name),
-                'markers':{marker:marker in body for marker in markers},
-                'passed':status(name)==200 and all(marker in body for marker in markers),
-              }
-
-          identity=data('identity-health')
-          core=data('core-health')
-          contracts={}
-          for name in ['recovery_contract','reset_contract','login_contract','application_contract']:
-              payload=data(name)
-              contracts[name]={
-                'http_status':status(name),
-                'error':payload.get('error'),
-                'message':payload.get('message'),
-                'route_exists':status(name) != 404,
-              }
-
-          delivery=data('delivery')
-          delivery_state={
-            'http_status':status('delivery'),
-            'delivery':delivery.get('delivery'),
-            'provider_message_id':delivery.get('providerMessageId'),
-            'error':delivery.get('error'),
-            'provider_detail':delivery.get('providerDetail'),
-            'passed':status('delivery')==200 and delivery.get('delivery')=='sent' and bool(delivery.get('providerMessageId')),
-          }
-          report={
-            'schema_version':1,
-            'checked_at':datetime.now(timezone.utc).isoformat(),
-            'pages':pages,
-            'identity':{
-              'http_status':status('identity-health'),
-              'ok':identity.get('ok'),
-              'service':identity.get('service'),
-              'version':identity.get('version'),
-              'checks':identity.get('checks'),
-              'passed':status('identity-health')==200 and identity.get('ok') is True and identity.get('version')=='8.0.0',
-            },
-            'core':{
-              'http_status':status('core-health'),
-              'ok':core.get('ok'),
-              'passed':status('core-health')==200 and core.get('ok') is True,
-            },
-            'contracts':contracts,
-            'password_reset_delivery':delivery_state,
-          }
-          report['functional_without_email']=all(x['passed'] for x in pages.values()) and report['identity']['passed'] and report['core']['passed'] and all(x['route_exists'] for x in contracts.values())
-          report['fully_operational']=report['functional_without_email'] and delivery_state['passed']
-          Path('reports/specialist-sector-e2e-v9.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          print(json.dumps(report,ensure_ascii=False,indent=2))
+          report_path = Path(os.environ["AUDIT_OUTPUT"])
+          if not report_path.is_file():
+              print("::error::The live audit did not produce an evidence file.")
+              raise SystemExit(1)
+          report = json.loads(report_path.read_text(encoding="utf-8"))
+          functional = report["functionalWithoutEmail"]
+          operational = report["fullyOperational"]
+          provider = report["protectedDeepHealth"]
+          summary = [
+              "## Specialist sector read-only audit v10.2",
+              "",
+              f"- Functional platform: **{functional}**",
+              f"- Fully operational email provider: **{operational}**",
+              f"- Live verified profiles: **{report['registries']['live']['providerCount']}**",
+              f"- Identity version: **{report['identity']['version']}**",
+              f"- Provider status code: **{provider.get('providerCode') or 'not checked'}**",
+          ]
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as target:
+              target.write("\n".join(summary) + "\n")
+          if not functional:
+              print("::error::The specialist sector failed a required read-only contract.")
+              raise SystemExit(1)
+          if not operational:
+              print("::warning::The platform is functional, but email-provider readiness is not confirmed.")
           PY
 
-      - name: Commit end-to-end audit report
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add reports/specialist-sector-e2e-v9.json
-          git commit -m "chore: record specialist sector end-to-end audit v9"
-          git pull --rebase origin main
-          git push origin HEAD:main
+      - name: Retain read-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: specialist-sector-e2e-v10-${{ github.run_id }}
+          path: ${{ env.AUDIT_OUTPUT }}
+          if-no-files-found: error
+          retention-days: 30

@@ -9,10 +9,15 @@ on:
       - "assets/platform/platform-core.js"
       - "api/v1/platform.json"
       - "api/v1/specialists-partners.json"
+      - "api/specialists-partners-quality-v354.json"
       - "sitemap-specialists-partners.xml"
       - "robots.txt"
+      - "scripts/audit_specialists_partners_v354.py"
+      - "scripts/audit_specialist_sector_e2e_v10.py"
       - "tests/test_specialists_partners_sector.py"
+      - "tests/test_specialists_partners_quality_v354.py"
       - ".github/workflows/validate-specialists-partners-sector.yml"
+      - ".github/workflows/audit-specialist-sector-e2e-v9.yml"
   workflow_dispatch:
 
 permissions:
@@ -37,9 +42,21 @@ jobs:
           python -m json.tool specialists-partners/data/provider.schema.json >/dev/null
           python -m json.tool api/v1/specialists-partners.json >/dev/null
           python -m json.tool api/v1/platform.json >/dev/null
+          python -m json.tool api/specialists-partners-quality-v354.json >/dev/null
       - name: Validate JavaScript syntax
         run: |
+          node --check specialists-partners/assets/directory-core.js
           node --check specialists-partners/assets/sector.js
           node --check assets/platform/platform-core.js
+      - name: Validate audit programs and static sector
+        run: |
+          python -m py_compile \
+            scripts/audit_specialists_partners_v354.py \
+            scripts/audit_specialist_sector_e2e_v10.py
+          python scripts/audit_specialists_partners_v354.py . \
+            --output /tmp/specialists-partners-quality-v354.json
       - name: Run sector contracts
-        run: python -m unittest -v tests.test_specialists_partners_sector
+        run: |
+          python -m unittest -v \
+            tests.test_specialists_partners_sector \
+            tests.test_specialists_partners_quality_v354

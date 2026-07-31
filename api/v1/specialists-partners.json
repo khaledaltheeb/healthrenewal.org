@@ -1,6 +1,7 @@
 {
-  "apiVersion": "2.0.0",
-  "generatedAt": "2026-07-29",
+  "apiVersion": "2.1.0",
+  "systemVersion": "4.1.0",
+  "generatedAt": "2026-07-31",
   "id": "specialists-partners",
   "status": "active",
   "title": "فريقنا وشركاؤنا ذوو الاختصاص",
@@ -12,6 +13,8 @@
   "directoryDataRole": "verified static fallback",
   "directoryApiPath": "/v1/providers",
   "runtimeConfig": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/assets/runtime-config.js",
+  "directoryLogic": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/assets/directory-core.js",
+  "qualityReport": "https://khaledaltheeb.github.io/pterminology-site/api/specialists-partners-quality-v354.json",
   "adminConsole": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/",
   "providerSchema": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/provider.schema.json",
   "verificationLedger": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/verification-ledger.json",

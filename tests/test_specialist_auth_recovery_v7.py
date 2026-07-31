@@ -32,14 +32,14 @@ class SpecialistAuthRecoveryV7Tests(unittest.TestCase):
         admin = read("specialists-partners/admin/index.html")
         for text in (account, admin):
             self.assertIn('../recover/', text)
-            self.assertIn('v=7', text)
             self.assertIn('no-store, no-cache', text)
         self.assertIn('account.js?v=7.0.0', account)
-        self.assertIn('admin.js?v=7.0.0', admin)
+        self.assertIn('v=7', account)
+        self.assertIn('admin.js?v=8.0.0', admin)
         self.assertIn('runtime-config.js?v=7.0.0', account)
-        self.assertIn('runtime-config.js?v=7.0.0', admin)
+        self.assertIn('runtime-config.js?v=10.2.0', admin)
         self.assertIn('href="../recover/?logout=1&amp;v=7"', account)
-        self.assertIn('href="../recover/?logout=1&amp;v=7"', admin)
+        self.assertIn('href="../recover/?logout=1&amp;v=10.2.0"', admin)
 
     def test_recovery_client_has_direct_and_fallback_api_paths(self) -> None:
         script = read("specialists-partners/recover/recover.js")

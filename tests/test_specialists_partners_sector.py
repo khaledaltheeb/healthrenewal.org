@@ -17,6 +17,7 @@ class SpecialistsPartnersSectorTests(unittest.TestCase):
             SECTOR / "join.html",
             SECTOR / "verification.html",
             SECTOR / "assets" / "sector.css",
+            SECTOR / "assets" / "directory-core.js",
             SECTOR / "assets" / "sector.js",
             SECTOR / "data" / "providers.json",
             SECTOR / "data" / "provider.schema.json",
@@ -24,6 +25,7 @@ class SpecialistsPartnersSectorTests(unittest.TestCase):
             ROOT / "team-and-partners" / "index.html",
             ROOT / "assets" / "platform" / "platform-core.js",
             ROOT / "api" / "v1" / "specialists-partners.json",
+            ROOT / "api" / "specialists-partners-quality-v354.json",
             ROOT / "sitemap-specialists-partners.xml",
         )
         for path in required:
@@ -80,11 +82,15 @@ class SpecialistsPartnersSectorTests(unittest.TestCase):
 
     def test_javascript_uses_local_dataset_and_safe_published_contacts(self) -> None:
         script = (SECTOR / "assets" / "sector.js").read_text(encoding="utf-8")
+        core = (SECTOR / "assets" / "directory-core.js").read_text(encoding="utf-8")
         self.assertIn("data/providers.json", script)
         self.assertIn("cache:'no-store'", script)
-        self.assertIn("p.publicationStatus==='published'", script)
-        self.assertIn("p.verification?.status==='verified'", script)
-        self.assertIn("p.consent?.publicProfileApproved===true", script)
+        self.assertIn("core.prepareProviders", script)
+        self.assertIn("provider?.publicationStatus === 'published'", core)
+        self.assertIn("provider?.verification?.status === 'verified'", core)
+        self.assertIn("provider?.consent?.publicProfileApproved === true", core)
+        self.assertIn("normalizeArabic", core)
+        self.assertIn("ageMatches", core)
         self.assertIn("['https:','mailto:','tel:']", script)
         self.assertIn("protocol === 'https:'", script)
         self.assertNotIn("XMLHttpRequest", script)
@@ -125,6 +131,10 @@ class SpecialistsPartnersSectorTests(unittest.TestCase):
         self.assertIn("specialists-partners", resources)
         self.assertEqual(resources["specialists-partners"]["type"], "directory")
         self.assertEqual(platform["endpoints"]["specialistsPartners"], f"{BASE}/api/v1/specialists-partners.json")
+        self.assertEqual(
+            platform["endpoints"]["specialistsPartnersQuality"],
+            f"{BASE}/api/specialists-partners-quality-v354.json",
+        )
         self.assertEqual(platform["integrationPolicy"]["providerPublication"], "verification_and_written_consent_required")
         self.assertIn("publishing client or child case data", platform["integrationPolicy"]["prohibited"])
 

@@ -14,7 +14,10 @@ on:
       - "pages-deployment-status.json"
       - "scripts/verify_specialists_partners_live.py"
       - "scripts/verify_specialists_partners_import_template.py"
+      - "scripts/audit_specialists_partners_v354.py"
+      - "scripts/audit_specialist_sector_e2e_v10.py"
       - "tests/test_specialists_partners_live.py"
+      - "tests/test_specialists_partners_quality_v354.py"
       - "tests/test_specialists_partners_import_template.py"
       - ".github/workflows/verify-specialists-partners-live.yml"
   workflow_run:
