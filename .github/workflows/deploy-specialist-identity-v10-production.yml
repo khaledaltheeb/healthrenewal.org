@@ -182,6 +182,13 @@ jobs:
         working-directory: specialists-partners/account-backend
         run: npx --yes wrangler@4 deploy --config wrangler-v10-production.toml --minify --keep-vars
 
+      - name: Persist verified sender as Worker secret
+        working-directory: specialists-partners/account-backend
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s' "${FROM_EMAIL}" | npx --yes wrangler@4 secret put FROM_EMAIL --name "${IDENTITY_WORKER_NAME}"
+
       - name: Ensure the production workers.dev route is enabled
         shell: bash
         run: |
