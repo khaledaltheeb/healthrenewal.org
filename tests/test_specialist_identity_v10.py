@@ -1,10 +1,14 @@
 import pathlib
+import subprocess
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 WORKER = ROOT / "specialists-partners/account-backend/src/index-v10.js"
 FINAL_WORKER = ROOT / "specialists-partners/account-backend/src/index-v10-final.js"
 PRODUCTION_WORKER = ROOT / "specialists-partners/account-backend/src/index-v10-production.js"
+MESSAGE_WORKER = ROOT / "specialists-partners/account-backend/src/specialist-message-v10.js"
+MESSAGE_RUNTIME = ROOT / "tests/specialist_message_v10_runtime.mjs"
+OUTBOX_MIGRATION = ROOT / "specialists-partners/backend/migrations/0006_specialist_message_outbox.sql"
 PROPAGATION = ROOT / "scripts/verify_specialist_identity_v10_production.py"
 ADMIN_RECOVERY = ROOT / "specialists-partners/admin/admin-recovery-v10-final.js"
 ADMIN_PROVIDER = ROOT / "specialists-partners/admin/admin-provider-status-v10.js"
@@ -24,6 +28,8 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         cls.worker = WORKER.read_text(encoding="utf-8")
         cls.final_worker = FINAL_WORKER.read_text(encoding="utf-8")
         cls.production_worker = PRODUCTION_WORKER.read_text(encoding="utf-8")
+        cls.message_worker = MESSAGE_WORKER.read_text(encoding="utf-8")
+        cls.outbox_migration = OUTBOX_MIGRATION.read_text(encoding="utf-8")
         cls.propagation = PROPAGATION.read_text(encoding="utf-8")
         cls.admin = ADMIN_RECOVERY.read_text(encoding="utf-8")
         cls.admin_provider = ADMIN_PROVIDER.read_text(encoding="utf-8")
@@ -62,6 +68,36 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("user_agent_hash", self.worker)
         self.assertIn("SESSION_BIND_IP", self.worker)
         self.assertIn("session_binding_mismatch", self.final_worker)
+
+    def test_specialist_reply_uses_authenticated_durable_delivery(self):
+        self.assertIn("SPECIALIST_MESSAGE_PATH", self.production_worker)
+        self.assertIn("authenticatedSession(request,env,ctx)", self.production_worker)
+        self.assertIn("handleSpecialistMessageV10", self.production_worker)
+        self.assertIn("processSpecialistMessageOutbox", self.production_worker)
+        self.assertIn("specialistMessageHealth", self.production_worker)
+        self.assertIn("const BUILD_VERSION='10.2.0'", self.production_worker)
+        self.assertIn("INSERT INTO conversation_tokens", self.message_worker)
+        self.assertIn("specialist_message_outbox", self.message_worker)
+        self.assertIn("identity_audit_log", self.message_worker)
+        self.assertIn("status='open'", self.message_worker)
+        self.assertIn("DELETE FROM conversation_tokens", self.message_worker)
+        self.assertIn("#conversation=", self.message_worker)
+        self.assertIn("processSpecialistMessageOutbox", self.message_worker)
+        self.assertIn("CREATE TABLE IF NOT EXISTS specialist_message_outbox", self.outbox_migration)
+        self.assertIn("payload_ciphertext", self.outbox_migration)
+        self.assertIn("next_attempt_at", self.outbox_migration)
+        self.assertNotIn("const link=String(env.PORTAL_BASE_URL||'')", self.production_worker)
+
+    def test_specialist_message_transaction_runtime(self):
+        result = subprocess.run(
+            ["node", str(MESSAGE_RUNTIME)],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("specialist_message_v10_runtime: ok", result.stdout)
 
     def test_admin_delivery_is_truthful_and_manual_fallback_exists(self):
         self.assertIn("/password-reset-link", self.worker)
@@ -103,6 +139,7 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("reset-v10.js?v=10.2.0", self.reset_html)
 
     def test_propagation_verifier_requires_atomic_stability(self):
+        self.assertIn('EXPECTED_VERSION = "10.2.0"', self.propagation)
         self.assertIn("for attempt in range(1, 241)", self.propagation)
         self.assertIn("normal_ok(normal_status, normal)", self.propagation)
         self.assertIn("public_deep_ok(public_status, public)", self.propagation)
