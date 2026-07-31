@@ -4,9 +4,9 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - sitemap.xml
-      - sitemap-index.xml
+      - 'sitemap*.xml'
       - robots.txt
+      - api/sitemap-index-v305.json
       - api/sitemap-completeness-v360.json
   workflow_dispatch:
 
@@ -32,11 +32,51 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Generate complete sitemap and robots policy
+      - name: Generate complete sitemap family
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/publish_complete_sitemap_v360.py
-          python scripts/publish_complete_sitemap_v360.py . --minimum-urls 1
+          python -m py_compile scripts/generate_sitemap_index_v304.py
+          python scripts/generate_sitemap_index_v304.py .
+          python - <<'PY'
+          import hashlib
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          root = Path('.')
+          source = json.loads((root / 'api/sitemap-index-v305.json').read_text(encoding='utf-8'))
+          count = int(source['indexable_pages'])
+          report = {
+              'version': 360,
+              'status': 'passed',
+              'generated_at': datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+              'base_url': source['base_url'],
+              'real_indexable_urls': count,
+              'claimed_target_urls': 3600,
+              'target_reached': count >= 3600,
+              'gap_to_claimed_target': max(0, 3600 - count),
+              'skipped_noindex': int(source['skipped_noindex']),
+              'skipped_verification': int(source['skipped_verification']),
+              'families': source['families'],
+              'sitemaps': source['sitemaps'],
+              'robots_policy': source['robots_policy'],
+              'protocol': {
+                  'https_only': True,
+                  'single_host': 'healthrenewal.org',
+                  'duplicates': 0,
+                  'legacy_urls': 0,
+                  'maximum_urls_per_sitemap': 50000,
+              },
+              'sha256': {},
+          }
+          for name in ['sitemap.xml', 'sitemap-index.xml', 'robots.txt']:
+              report['sha256'][name] = hashlib.sha256((root / name).read_bytes()).hexdigest()
+          (root / 'api/sitemap-completeness-v360.json').write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(report, ensure_ascii=False, indent=2))
+          PY
 
       - name: Validate exact coverage and crawl policy
         run: |
@@ -49,15 +89,18 @@ jobs:
 
           root = Path('.')
           report = json.loads((root / 'api/sitemap-completeness-v360.json').read_text(encoding='utf-8'))
+          source = json.loads((root / 'api/sitemap-index-v305.json').read_text(encoding='utf-8'))
           assert report['version'] == 360, report
           assert report['status'] == 'passed', report
-          assert report['real_indexable_urls'] > 0, report
+          assert report['real_indexable_urls'] == source['indexable_pages'] > 0, (report, source)
           assert report['protocol']['duplicates'] == 0, report
           assert report['protocol']['legacy_urls'] == 0, report
 
           ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
-          document = ET.parse(root / 'sitemap.xml')
-          urls = [node.text for node in document.findall('sm:url/sm:loc', ns)]
+          urls = [
+              node.text or ''
+              for node in ET.parse(root / 'sitemap.xml').findall('sm:url/sm:loc', ns)
+          ]
           assert len(urls) == report['real_indexable_urls'], (len(urls), report)
           assert len(urls) == len(set(urls)), 'duplicate URLs'
           for url in urls:
@@ -67,20 +110,42 @@ jobs:
               assert 'khaledaltheeb.github.io' not in url, url
               assert '/pterminology-site/' not in url, url
 
+          indexed = [
+              node.text or ''
+              for node in ET.parse(root / 'sitemap-index.xml').findall('sm:sitemap/sm:loc', ns)
+          ]
+          expected = [
+              'https://healthrenewal.org/' + item['filename']
+              for item in source['sitemaps']
+          ]
+          assert indexed == expected, (indexed, expected)
+          for item in source['sitemaps']:
+              child = root / item['filename']
+              assert child.is_file(), child
+              child_urls = [
+                  node.text or ''
+                  for node in ET.parse(child).findall('sm:url/sm:loc', ns)
+              ]
+              assert len(child_urls) == item['urls'], (item, len(child_urls))
+
           robots = (root / 'robots.txt').read_text(encoding='utf-8')
           assert 'User-agent: *' in robots, robots
           assert 'Allow: /' in robots, robots
-          assert 'Disallow:' not in robots, robots
-          assert 'Sitemap: https://healthrenewal.org/sitemap.xml' in robots, robots
+          assert not any(
+              line.strip().lower().startswith('disallow:')
+              for line in robots.splitlines()
+          ), robots
+          assert robots.count('Sitemap: https://healthrenewal.org/sitemap.xml') == 1, robots
+          assert robots.count('Sitemap: https://healthrenewal.org/sitemap-index.xml') == 1, robots
+          assert 'khaledaltheeb.github.io/pterminology-site' not in robots, robots
 
-          index = ET.parse(root / 'sitemap-index.xml')
-          indexed = [node.text for node in index.findall('sm:sitemap/sm:loc', ns)]
-          assert indexed == ['https://healthrenewal.org/sitemap.xml'], indexed
           print({
               'status': 'passed',
               'real_indexable_urls': len(urls),
               'claimed_target_urls': report['claimed_target_urls'],
               'target_reached': report['target_reached'],
+              'gap_to_claimed_target': report['gap_to_claimed_target'],
+              'skipped_noindex': report['skipped_noindex'],
               'robots': 'open',
           })
           PY
@@ -94,8 +159,9 @@ jobs:
           print('## Sitemap completeness v360')
           print()
           print(f"- Real indexable URLs: **{report['real_indexable_urls']}**")
-          print(f"- HTML files discovered: **{report['html_files_discovered']}**")
-          print(f"- Requested target of 3,600 reached: **{report['target_reached']}**")
+          print(f"- Requested 3,600 target reached: **{report['target_reached']}**")
+          print(f"- Gap to 3,600: **{report['gap_to_claimed_target']}**")
+          print(f"- Explicit noindex pages excluded: **{report['skipped_noindex']}**")
           print('- Domain: **https://healthrenewal.org/**')
           print('- Crawling: **allowed for all user agents**')
           print('- Duplicate URLs: **0**')
@@ -109,7 +175,8 @@ jobs:
           set -euxo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add sitemap.xml sitemap-index.xml robots.txt api/sitemap-completeness-v360.json
+          git add sitemap.xml sitemap-index.xml sitemap-family-*.xml robots.txt \
+            api/sitemap-index-v305.json api/sitemap-completeness-v360.json
           if git diff --cached --quiet; then
             echo 'Sitemap and robots are already synchronized.'
             exit 0
