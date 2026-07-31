@@ -148,8 +148,11 @@ def _read_directory(site: Path) -> dict[str, Any]:
     return payload
 
 
-def _route_exists(site: Path, route: str) -> bool:
-    return (site / route / "index.html").is_file()
+def _route_is_public(site: Path, route: str) -> bool:
+    path = site / route / "index.html"
+    if not path.is_file():
+        return False
+    return not legacy.noindex(path.read_text(encoding="utf-8"))
 
 
 def _refresh_home_metrics(site: Path, payload: dict[str, Any]) -> None:
@@ -189,10 +192,10 @@ def publish(site: Path, root: Path) -> dict[str, Any]:
     routes = {item.get("route") for item in payload["items"] if isinstance(item, dict)}
 
     # Build pipelines publish some top-level portals after the content catalog.
-    # Enforce registration for every route already present now, and let the
-    # final full-site audit enforce the complete publication surface.
+    # Enforce registration only for routes that are already public and indexable;
+    # noindex redirect stubs intentionally remain outside the public directory.
     available_required = {
-        route for route in REQUIRED_DIRECTORY_ROUTES if _route_exists(site, route)
+        route for route in REQUIRED_DIRECTORY_ROUTES if _route_is_public(site, route)
     }
     missing_available = sorted(available_required - routes)
     if missing_available:
