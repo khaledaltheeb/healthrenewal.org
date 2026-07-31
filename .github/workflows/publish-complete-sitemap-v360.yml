@@ -1,0 +1,118 @@
+name: Publish complete sitemap and open robots v360
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - sitemap.xml
+      - sitemap-index.xml
+      - robots.txt
+      - api/sitemap-completeness-v360.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-complete-sitemap-v360
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate complete sitemap and robots policy
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/publish_complete_sitemap_v360.py
+          python scripts/publish_complete_sitemap_v360.py . --minimum-urls 1
+
+      - name: Validate exact coverage and crawl policy
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          from xml.etree import ElementTree as ET
+
+          root = Path('.')
+          report = json.loads((root / 'api/sitemap-completeness-v360.json').read_text(encoding='utf-8'))
+          assert report['version'] == 360, report
+          assert report['status'] == 'passed', report
+          assert report['real_indexable_urls'] > 0, report
+          assert report['protocol']['duplicates'] == 0, report
+          assert report['protocol']['legacy_urls'] == 0, report
+
+          ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          document = ET.parse(root / 'sitemap.xml')
+          urls = [node.text for node in document.findall('sm:url/sm:loc', ns)]
+          assert len(urls) == report['real_indexable_urls'], (len(urls), report)
+          assert len(urls) == len(set(urls)), 'duplicate URLs'
+          for url in urls:
+              parsed = urlsplit(url)
+              assert parsed.scheme == 'https', url
+              assert parsed.netloc == 'healthrenewal.org', url
+              assert 'khaledaltheeb.github.io' not in url, url
+              assert '/pterminology-site/' not in url, url
+
+          robots = (root / 'robots.txt').read_text(encoding='utf-8')
+          assert 'User-agent: *' in robots, robots
+          assert 'Allow: /' in robots, robots
+          assert 'Disallow:' not in robots, robots
+          assert 'Sitemap: https://healthrenewal.org/sitemap.xml' in robots, robots
+
+          index = ET.parse(root / 'sitemap-index.xml')
+          indexed = [node.text for node in index.findall('sm:sitemap/sm:loc', ns)]
+          assert indexed == ['https://healthrenewal.org/sitemap.xml'], indexed
+          print({
+              'status': 'passed',
+              'real_indexable_urls': len(urls),
+              'claimed_target_urls': report['claimed_target_urls'],
+              'target_reached': report['target_reached'],
+              'robots': 'open',
+          })
+          PY
+
+      - name: Publish count in workflow summary
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          report = json.loads(Path('api/sitemap-completeness-v360.json').read_text(encoding='utf-8'))
+          print('## Sitemap completeness v360')
+          print()
+          print(f"- Real indexable URLs: **{report['real_indexable_urls']}**")
+          print(f"- HTML files discovered: **{report['html_files_discovered']}**")
+          print(f"- Requested target of 3,600 reached: **{report['target_reached']}**")
+          print('- Domain: **https://healthrenewal.org/**')
+          print('- Crawling: **allowed for all user agents**')
+          print('- Duplicate URLs: **0**')
+          print('- Legacy GitHub Pages URLs: **0**')
+          PY
+
+      - name: Commit generated discovery files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euxo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add sitemap.xml sitemap-index.xml robots.txt api/sitemap-completeness-v360.json
+          if git diff --cached --quiet; then
+            echo 'Sitemap and robots are already synchronized.'
+            exit 0
+          fi
+          git commit -m 'chore(seo): synchronize complete sitemap and robots'
+          git push origin HEAD:main
