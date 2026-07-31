@@ -35,7 +35,7 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("import recoveryWorker from './index-v8.js'", self.worker)
         self.assertIn("const BUILD_VERSION = '10.1.0'", self.final_worker)
         self.assertIn("import identityWorker from './index-v10.js'", self.final_worker)
-        self.assertIn("const BUILD_VERSION='10.2.0'", self.production_worker)
+        self.assertIn("const BUILD_VERSION='10.2.1'", self.production_worker)
         self.assertIn("import finalWorker from './index-v10-final.js'", self.production_worker)
 
     def test_deep_email_auth_probe_is_truthful(self):
@@ -62,6 +62,20 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("user_agent_hash", self.worker)
         self.assertIn("SESSION_BIND_IP", self.worker)
         self.assertIn("session_binding_mismatch", self.final_worker)
+
+    def test_specialist_reply_issues_usable_visitor_access(self):
+        self.assertIn("SPECIALIST_MESSAGE_PATH", self.production_worker)
+        self.assertIn("requireSpecialistIdentity(request,env)", self.production_worker)
+        self.assertIn("WHERE id=? AND provider_id=?", self.production_worker)
+        self.assertIn("INSERT INTO conversation_tokens", self.production_worker)
+        self.assertIn("VALUES (?,?,'visitor',?,?,?)", self.production_worker)
+        self.assertIn("deliveryLink:'visitor_fragment_token'", self.production_worker)
+        self.assertIn("visitorAccessIssued:true", self.production_worker)
+        self.assertIn(
+            "#conversation=${encodeURIComponent(conversationId)}&token=${encodeURIComponent(accessToken)}&role=${encodeURIComponent(role)}",
+            self.production_worker,
+        )
+        self.assertNotIn("const link=String(env.PORTAL_BASE_URL||'')", self.production_worker)
 
     def test_admin_delivery_is_truthful_and_manual_fallback_exists(self):
         self.assertIn("/password-reset-link", self.worker)
