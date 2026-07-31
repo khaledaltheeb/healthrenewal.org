@@ -77,7 +77,8 @@ def parse_metadata(text: str) -> MetadataState:
 
 
 def inject_before_head_close(text: str, payload: str) -> str:
-    updated, count = re.subn(r"</head\s*>", payload + "</head>", text, count=1, flags=re.I)
+    replacement = "\n" + payload.strip() + "\n</head>"
+    updated, count = re.subn(r"\s*</head\s*>", replacement, text, count=1, flags=re.I)
     if count != 1:
         raise ValueError("head_close_missing")
     return updated
@@ -105,9 +106,9 @@ def normalize_legacy_references(text: str) -> str:
 
 def enrich_page(text: str, canonical_url: str) -> tuple[str, dict[str, int]]:
     text = normalize_legacy_references(text)
-    text = CANONICAL_TAG_RE.sub("\n", text)
-    text = OG_URL_TAG_RE.sub("\n", text)
-    text = MANIFEST_TAG_RE.sub("\n", text)
+    text = CANONICAL_TAG_RE.sub("", text)
+    text = OG_URL_TAG_RE.sub("", text)
+    text = MANIFEST_TAG_RE.sub("", text)
     state = parse_metadata(text)
 
     additions = [
@@ -130,7 +131,7 @@ def enrich_page(text: str, canonical_url: str) -> tuple[str, dict[str, int]]:
         additions.append(f'<meta name="theme-color" content="{THEME_COLOR}">')
         counters["theme_color"] = 1
 
-    text = inject_before_head_close(text, "\n".join(additions) + "\n")
+    text = inject_before_head_close(text, "\n".join(additions))
     return text, counters
 
 
@@ -168,7 +169,7 @@ def main() -> None:
     verify_contract()
 
     stats = {
-        "version": 28,
+        "version": 27,
         "status": "passed",
         "base_url": BASE_URL,
         "pages_scanned": 0,
