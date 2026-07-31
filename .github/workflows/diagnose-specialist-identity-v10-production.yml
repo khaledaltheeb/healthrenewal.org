@@ -1,0 +1,279 @@
+name: Diagnose specialist identity v10 production
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/diagnose-specialist-identity-v10-production.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/diagnose-specialist-identity-v10-production.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: diagnose-specialist-identity-v10-production
+  cancel-in-progress: false
+
+env:
+  ACCOUNT_API_BASE: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
+  DATABASE_NAME: pterminology-specialists
+  IDENTITY_WORKER_NAME: pterminology-specialist-accounts
+
+jobs:
+  contract:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate diagnostic safety contract
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path=Path('.github/workflows/diagnose-specialist-identity-v10-production.yml')
+          text=path.read_text(encoding='utf-8')
+          required=(
+              'continue-on-error: true',
+              'specialist-identity-v10-production-diagnostic.json',
+              'Missing required Worker secret names',
+              'deep_health_publicly_blocked',
+              'failure_stage',
+              '[skip ci]',
+          )
+          missing=[marker for marker in required if marker not in text]
+          forbidden=tuple('echo "$'+name+'"' for name in ('CLOUDFLARE_API_TOKEN','ADMIN_API_KEY','RESEND_API_KEY'))
+          leaked=[marker for marker in forbidden if marker in text]
+          print({'missing':missing,'forbidden':leaked,'bytes':len(text.encode('utf-8'))})
+          if missing or leaked:
+              raise SystemExit(1)
+          PY
+
+  diagnose:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '826ac34927c1e045c06145a327c2ac52' }}
+      PREFERRED_D1_DATABASE_ID: ${{ secrets.SPECIALISTS_D1_DATABASE_ID }}
+      ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
+      FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}
+      PASSWORD_PEPPER: ${{ secrets.SPECIALISTS_PASSWORD_PEPPER }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Inspect GitHub secret presence
+        id: github_secrets
+        continue-on-error: true
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          required=('CLOUDFLARE_API_TOKEN','ADMIN_API_KEY','FROM_EMAIL')
+          recommended=('PREFERRED_D1_DATABASE_ID','RESEND_API_KEY','RATE_LIMIT_SALT','PASSWORD_PEPPER')
+          missing_required=[name for name in required if not os.environ.get(name)]
+          missing_recommended=[name for name in recommended if not os.environ.get(name)]
+          report={
+              'required_present':not missing_required,
+              'missing_required':missing_required,
+              'missing_recommended':missing_recommended,
+          }
+          Path('/tmp/diag-github-secrets.json').write_text(json.dumps(report),encoding='utf-8')
+          print(report)
+          if missing_required:
+              raise SystemExit(1)
+          PY
+
+      - name: Verify Cloudflare API token
+        id: cloudflare_token
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_API_TOKEN:-}"
+          curl -fsS \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/tokens/verify" \
+            -o /tmp/cloudflare-token.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.load(open('/tmp/cloudflare-token.json',encoding='utf-8'))
+          result=data.get('result') or {}
+          safe={'success':data.get('success') is True,'status':result.get('status')}
+          Path('/tmp/diag-cloudflare-token.json').write_text(json.dumps(safe),encoding='utf-8')
+          print(safe)
+          if not safe['success'] or safe['status']!='active':
+              raise SystemExit(1)
+          PY
+
+      - name: Verify required Worker secret names
+        id: worker_secrets
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_API_TOKEN:-}"
+          curl -fsS \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${IDENTITY_WORKER_NAME}/secrets" \
+            -o /tmp/worker-secrets.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.load(open('/tmp/worker-secrets.json',encoding='utf-8'))
+          names={str(item.get('name') or '') for item in (data.get('result') or [])}
+          required={'TURNSTILE_SECRET','RESEND_API_KEY','ADMIN_API_KEY','RATE_LIMIT_SALT'}
+          missing=sorted(required-names)
+          safe={
+              'api_success':data.get('success') is True,
+              'required_count':len(required),
+              'required_present_count':len(required)-len(missing),
+              'missing_required':missing,
+          }
+          Path('/tmp/diag-worker-secrets.json').write_text(json.dumps(safe),encoding='utf-8')
+          print(safe)
+          if not safe['api_success'] or missing:
+              raise SystemExit('Missing required Worker secret names: '+', '.join(missing))
+          PY
+
+      - name: Verify D1 database discovery
+        id: d1_database
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_API_TOKEN:-}"
+          curl -fsS \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/d1/database?per_page=100" \
+            -o /tmp/d1-list.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          data=json.load(open('/tmp/d1-list.json',encoding='utf-8'))
+          rows=data.get('result') or []
+          matches=[row for row in rows if row.get('name')==os.environ['DATABASE_NAME']]
+          preferred=os.environ.get('PREFERRED_D1_DATABASE_ID') or ''
+          preferred_matches=any(str(row.get('uuid') or '')==preferred for row in rows) if preferred else None
+          safe={
+              'api_success':data.get('success') is True,
+              'named_database_found':bool(matches and matches[0].get('uuid')),
+              'preferred_id_configured':bool(preferred),
+              'preferred_id_found':preferred_matches,
+          }
+          Path('/tmp/diag-d1.json').write_text(json.dumps(safe),encoding='utf-8')
+          print(safe)
+          if not safe['api_success'] or not safe['named_database_found']:
+              raise SystemExit(1)
+          if preferred and preferred_matches is not True:
+              raise SystemExit(1)
+          PY
+
+      - name: Probe live health contracts
+        id: live_health
+        continue-on-error: true
+        run: |
+          set -u
+          normal_status="$(curl -sS --max-time 30 -o /tmp/live-health.json -w '%{http_code}' "${ACCOUNT_API_BASE}/health" || printf '000')"
+          deep_status="$(curl -sS --max-time 30 -o /tmp/live-deep-public.json -w '%{http_code}' "${ACCOUNT_API_BASE}/health?deep=1" || printf '000')"
+          NORMAL_STATUS="$normal_status" DEEP_STATUS="$deep_status" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          def load(path):
+              try:
+                  value=json.load(open(path,encoding='utf-8'))
+                  return value if isinstance(value,dict) else {}
+              except Exception:
+                  return {}
+          normal=load('/tmp/live-health.json')
+          safe={
+              'normal_http_status':int(os.environ.get('NORMAL_STATUS') or 0),
+              'service':normal.get('service'),
+              'version':normal.get('version'),
+              'ok':normal.get('ok') is True,
+              'checks':normal.get('checks') if isinstance(normal.get('checks'),dict) else {},
+              'deep_public_http_status':int(os.environ.get('DEEP_STATUS') or 0),
+              'deep_health_publicly_blocked':os.environ.get('DEEP_STATUS')=='403',
+          }
+          Path('/tmp/diag-live-health.json').write_text(json.dumps(safe),encoding='utf-8')
+          print(safe)
+          if safe['normal_http_status']!=200 or safe['service']!='pterminology-specialist-identity':
+              raise SystemExit(1)
+          if not safe['deep_health_publicly_blocked']:
+              raise SystemExit(1)
+          PY
+
+      - name: Publish safe diagnostic report
+        if: always()
+        env:
+          GITHUB_SECRETS_OUTCOME: ${{ steps.github_secrets.outcome }}
+          CLOUDFLARE_TOKEN_OUTCOME: ${{ steps.cloudflare_token.outcome }}
+          WORKER_SECRETS_OUTCOME: ${{ steps.worker_secrets.outcome }}
+          D1_DATABASE_OUTCOME: ${{ steps.d1_database.outcome }}
+          LIVE_HEALTH_OUTCOME: ${{ steps.live_health.outcome }}
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python - <<'PY'
+          import json,os
+          from datetime import datetime,timezone
+          from pathlib import Path
+          stages=[
+              ('github_secrets',os.environ.get('GITHUB_SECRETS_OUTCOME')),
+              ('cloudflare_token',os.environ.get('CLOUDFLARE_TOKEN_OUTCOME')),
+              ('worker_secrets',os.environ.get('WORKER_SECRETS_OUTCOME')),
+              ('d1_database',os.environ.get('D1_DATABASE_OUTCOME')),
+              ('live_health',os.environ.get('LIVE_HEALTH_OUTCOME')),
+          ]
+          def load(name):
+              path=Path('/tmp')/name
+              try:
+                  value=json.loads(path.read_text(encoding='utf-8'))
+                  return value if isinstance(value,dict) else {}
+              except Exception:
+                  return {}
+          failure_stage=next((name for name,outcome in stages if outcome!='success'),None)
+          report={
+              'schema_version':1,
+              'checked_at':datetime.now(timezone.utc).isoformat(),
+              'source_sha':os.environ.get('GITHUB_SHA'),
+              'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),
+              'status':'passed' if failure_stage is None else 'failed',
+              'failure_stage':failure_stage,
+              'outcomes':dict(stages),
+              'github_secrets':load('diag-github-secrets.json'),
+              'cloudflare_token':load('diag-cloudflare-token.json'),
+              'worker_secrets':load('diag-worker-secrets.json'),
+              'd1_database':load('diag-d1.json'),
+              'live_health':load('diag-live-health.json'),
+              'contains_secret_values':False,
+          }
+          path=Path('reports/specialist-identity-v10-production-diagnostic.json')
+          path.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(report)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/specialist-identity-v10-production-diagnostic.json
+          git commit -m "chore: record specialist identity production diagnostic [skip ci]" || exit 0
+          for attempt in {1..5}; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            git rebase --abort || true
+            sleep $((attempt*3))
+          done
+          echo "::error::Could not publish safe production diagnostic"
+          exit 1
