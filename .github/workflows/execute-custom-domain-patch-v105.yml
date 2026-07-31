@@ -1,0 +1,51 @@
+name: Execute custom-domain identity patch v105
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/patch_custom_domain_identity_v105.py"
+      - ".github/workflows/execute-custom-domain-patch-v105.yml"
+      - ".github/workflows/patch-custom-domain-identity-v105.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: custom-domain-identity-patch-v105-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  patch:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Patch and validate branch
+        run: |
+          set -euo pipefail
+          python scripts/patch_custom_domain_identity_v105.py
+          rm -f \
+            scripts/patch_custom_domain_identity_v105.py \
+            .github/workflows/patch-custom-domain-identity-v105.yml \
+            .github/workflows/execute-custom-domain-patch-v105.yml
+          node --check specialists-partners/account-backend/src/index-v10.js
+          node --check specialists-partners/account-backend/src/index-v10-production.js
+          node --check tests/specialist_sender_policy_v104_runtime.mjs
+          node tests/specialist_sender_policy_v104_runtime.mjs
+          python -m unittest -v tests.test_specialist_identity_v10 tests.test_specialist_turnstile_persistence
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: prepare specialist identity for healthrenewal.org"
+          git push origin HEAD:${{ github.head_ref }}
