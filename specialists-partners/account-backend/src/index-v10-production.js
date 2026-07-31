@@ -1,4 +1,5 @@
 import finalWorker from './index-v10-final.js';
+import {SPECIALIST_MESSAGE_PATH,handleSpecialistReply} from './specialist-reply-v10.js';
 
 const BUILD_VERSION='10.2.0';
 const JSON_HEADERS={'content-type':'application/json; charset=utf-8'};
@@ -11,9 +12,15 @@ export default {
   async fetch(request,env,ctx){
     const url=new URL(request.url);
     const origin=request.headers.get('origin')||'';
+    const cors=corsHeaders(origin,env);
+    const specialistMessage=url.pathname.match(SPECIALIST_MESSAGE_PATH);
+
+    if(request.method==='POST'&&specialistMessage){
+      return handleSpecialistReply(request,env,ctx,cors,finalWorker,specialistMessage[1]);
+    }
 
     if(request.method==='GET'&&url.pathname==='/health'&&url.searchParams.get('deep')==='1'){
-      if(!bootstrapAuthorized(request,env))return json({error:'forbidden',message:'الفحص العميق مقيد بالتشغيل.'},403,corsHeaders(origin,env));
+      if(!bootstrapAuthorized(request,env))return json({error:'forbidden',message:'الفحص العميق مقيد بالتشغيل.'},403,cors);
       return withProductionVersion(await finalWorker.fetch(request,env,ctx),origin,env);
     }
 
@@ -26,7 +33,7 @@ export default {
       const sessionResponse=await finalWorker.fetch(sessionRequest,env,ctx);
       const session=await sessionResponse.clone().json().catch(()=>({}));
       if(!sessionResponse.ok)return sessionResponse;
-      if(!['owner','admin'].includes(session.user?.role))return json({error:'forbidden',message:'لا تملك الصلاحية المطلوبة.'},403,corsHeaders(origin,env));
+      if(!['owner','admin'].includes(session.user?.role))return json({error:'forbidden',message:'لا تملك الصلاحية المطلوبة.'},403,cors);
 
       const headers=new Headers(request.headers);
       headers.set('x-bootstrap-key',String(env.ADMIN_API_KEY||''));
@@ -42,7 +49,7 @@ export default {
         access:provider.access||'unknown',
         code:provider.code||'unknown',
         manualRecoveryAvailable:Boolean(deep.capabilities?.manualRecovery)
-      },provider.authValid===true?200:503,corsHeaders(origin,env));
+      },provider.authValid===true?200:503,cors);
     }
 
     const response=await finalWorker.fetch(request,env,ctx);
