@@ -10,7 +10,7 @@ WORKER = ROOT / "specialists-partners" / "account-backend" / "src" / "index.js"
 FRONTEND = ROOT / "specialists-partners" / "account" / "account.js"
 ACCOUNT_HTML = ROOT / "specialists-partners" / "account" / "index.html"
 MIGRATIONS = ROOT / "specialists-partners" / "backend" / "migrations"
-WORKFLOW = ROOT / ".github" / "workflows" / "deploy-specialists-account-backend.yml"
+WORKFLOW = ROOT / ".github" / "workflows" / "deploy-specialist-identity-v10.yml"
 RUNTIME = ROOT / "specialists-partners" / "assets" / "runtime-config.js"
 DIRECTORY = ROOT / "specialists-partners" / "index.html"
 JOIN = ROOT / "specialists-partners" / "join.html"
@@ -93,15 +93,17 @@ class SpecialistAccountsV5Tests(unittest.TestCase):
             "pull_request:",
             "pterminology-specialist-accounts",
             "SPECIALISTS_D1_DATABASE_ID",
-            "TURNSTILE_SECRET",
             "SPECIALISTS_RATE_LIMIT_SALT",
             "d1 migrations apply",
             "wrangler@4 deploy",
-            "/health",
+            "src/index-v10-final.js",
+            "health?deep=1",
+            "specialist-identity-v10-production.json",
         ):
             self.assertIn(marker, workflow)
         self.assertIn("accountApiBase", runtime)
-        self.assertNotIn("RESEND_API_KEY =", workflow)
+        self.assertIn('identityVersion: "10.1.0"', runtime)
+        self.assertNotRegex(workflow, r"RESEND_API_KEY:\s*re_[A-Za-z0-9_-]+")
 
     def test_account_entry_points_are_exposed_but_not_indexed(self) -> None:
         self.assertIn('href="account/"', DIRECTORY.read_text(encoding="utf-8"))
