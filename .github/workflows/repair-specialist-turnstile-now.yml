@@ -1,0 +1,161 @@
+name: Repair specialist Turnstile now
+
+on:
+  push:
+    branches:
+      - agent/inspect-cloudflare-specialists-now
+    paths:
+      - reports/repair-specialist-turnstile-trigger.txt
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '826ac34927c1e045c06145a327c2ac52' }}
+      TURNSTILE_SITEKEY: 0x4AAAAAAD_r2o__Ao1RmBTO
+      IDENTITY_WORKER: pterminology-specialist-accounts
+      CORE_WORKER: pterminology-specialists
+      IDENTITY_URL: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
+      CORE_URL: https://pterminology-specialists.pterminology-826ac349.workers.dev
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/inspect-cloudflare-specialists-now
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate widget and rotate secret safely
+        shell: bash
+        run: |
+          set -euo pipefail
+          auth=(-H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json")
+          curl -fsS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/challenges/widgets/${TURNSTILE_SITEKEY}" \
+            -o /tmp/widget.json
+          python - <<'PY'
+          import json, os
+          d=json.load(open('/tmp/widget.json',encoding='utf-8'))
+          assert d.get('success') is True, d
+          r=d.get('result') or {}
+          assert r.get('sitekey') == os.environ['TURNSTILE_SITEKEY'], r
+          assert 'khaledaltheeb.github.io' in (r.get('domains') or []), r.get('domains')
+          PY
+          curl -fsS "${auth[@]}" -X POST \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/challenges/widgets/${TURNSTILE_SITEKEY}/rotate_secret" \
+            --data '{"invalidate_immediately":false}' -o /tmp/rotation.json
+          python - <<'PY'
+          import json, os
+          d=json.load(open('/tmp/rotation.json',encoding='utf-8'))
+          assert d.get('success') is True, d
+          r=d.get('result') or {}
+          secret=str(r.get('secret') or '')
+          assert r.get('sitekey') == os.environ['TURNSTILE_SITEKEY'], r
+          assert len(secret) >= 20, 'Turnstile secret missing'
+          print(f'::add-mask::{secret}')
+          open('/tmp/turnstile-secret','w',encoding='utf-8').write(secret)
+          PY
+          chmod 600 /tmp/turnstile-secret
+
+      - name: Validate rotated secret without consuming a real token
+        shell: bash
+        run: |
+          set -euo pipefail
+          secret="$(cat /tmp/turnstile-secret)"
+          curl -fsS -X POST https://challenges.cloudflare.com/turnstile/v0/siteverify \
+            --data-urlencode "secret=${secret}" \
+            --data-urlencode "response=diagnostic-invalid-token" \
+            -o /tmp/siteverify.json
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/siteverify.json',encoding='utf-8'))
+          codes=set(d.get('error-codes') or [])
+          assert d.get('success') is False, d
+          assert 'invalid-input-secret' not in codes, d
+          assert 'missing-input-secret' not in codes, d
+          PY
+
+      - name: Install TURNSTILE_SECRET on both Workers
+        shell: bash
+        run: |
+          set -euo pipefail
+          secret="$(cat /tmp/turnstile-secret)"
+          for worker in "${IDENTITY_WORKER}" "${CORE_WORKER}"; do
+            printf '%s' "${secret}" | npx --yes wrangler@4 secret put TURNSTILE_SECRET --name "${worker}"
+          done
+
+      - name: Verify live health
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, time, urllib.error, urllib.request
+          targets={
+            'identity':(os.environ['IDENTITY_URL']+'/health','10.2.0'),
+            'core':(os.environ['CORE_URL']+'/health','4.0.0'),
+          }
+          final={}
+          for attempt in range(1,31):
+              current={}
+              ready=True
+              for name,(url,version) in targets.items():
+                  try:
+                      with urllib.request.urlopen(url,timeout=20) as response:
+                          status=response.status
+                          data=json.load(response)
+                  except urllib.error.HTTPError as error:
+                      status=error.code
+                      try: data=json.load(error)
+                      except Exception: data={}
+                  checks=data.get('checks') or {}
+                  current[name]={
+                      'http_status':status,
+                      'ok':data.get('ok'),
+                      'version':data.get('version'),
+                      'turnstile':checks.get('turnstile')
+                  }
+                  if not (status==200 and data.get('ok') is True and data.get('version')==version and checks.get('turnstile') is True):
+                      ready=False
+              final=current
+              if ready: break
+              time.sleep(8)
+          if not all(item.get('http_status')==200 and item.get('ok') is True and item.get('turnstile') is True for item in final.values()):
+              raise SystemExit(final)
+          open('/tmp/turnstile-health.json','w',encoding='utf-8').write(json.dumps(final,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps(final,ensure_ascii=False))
+          PY
+
+      - name: Commit safe repair report
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          health=json.load(open('/tmp/turnstile-health.json',encoding='utf-8'))
+          report={
+            'schema_version':1,
+            'repaired_at':datetime.now(timezone.utc).isoformat(),
+            'sitekey_unchanged':True,
+            'secret_rotated_with_grace_period':True,
+            'secret_not_recorded':True,
+            'workers':health,
+            'passed':all(item.get('http_status')==200 and item.get('ok') is True and item.get('turnstile') is True for item in health.values())
+          }
+          open('reports/specialist-turnstile-repair-now.json','w',encoding='utf-8').write(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/specialist-turnstile-repair-now.json
+          git commit -m "chore: record specialist Turnstile repair [skip ci]"
+          git push origin HEAD:agent/inspect-cloudflare-specialists-now
+
+      - name: Remove secret material
+        if: always()
+        run: rm -f /tmp/turnstile-secret /tmp/rotation.json /tmp/widget.json /tmp/siteverify.json
