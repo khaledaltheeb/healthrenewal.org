@@ -12,8 +12,8 @@ from typing import Any
 
 VERSION = 238
 UPDATED = "2026-07-25"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org"
+BASE_PATH = "/"
 EXPECTED_CONDITIONS = 20
 SITEMAP_NAME = "sitemap-provider-assessment.xml"
 DIRECTORY_START = "<!-- provider-condition-discovery-v238:directory:start -->"
