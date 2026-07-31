@@ -108,7 +108,7 @@ class SpecialistAccountsV5Tests(unittest.TestCase):
         self.assertIn("public_deep_ok", verifier)
         self.assertIn("if stable >= 3", verifier)
         self.assertIn("accountApiBase", runtime)
-        self.assertIn('identityVersion: "10.2.0"', runtime)
+        self.assertIn('identityVersion: "10.3.0"', runtime)
         self.assertNotRegex(workflow, r"RESEND_API_KEY:\s*re_[A-Za-z0-9_-]+")
 
     def test_account_entry_points_are_exposed_but_not_indexed(self) -> None:
