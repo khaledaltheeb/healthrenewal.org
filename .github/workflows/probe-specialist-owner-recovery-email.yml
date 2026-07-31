@@ -23,6 +23,7 @@ jobs:
     timeout-minutes: 10
     env:
       ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
+      FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,12 +43,30 @@ jobs:
             -H 'content-type: application/json' \
             --data '{}')"
           STATUS="$status" python - <<'PY'
-          import json,os
+          import json,os,re
           from pathlib import Path
           try:
               data=json.load(open('/tmp/owner-recovery-response.json',encoding='utf-8'))
           except Exception:
               data={}
+          raw_detail=str(data.get('providerDetail') or '')[:500]
+          lowered=raw_detail.lower()
+          if 'domain is not verified' in lowered or 'verify a domain' in lowered or 'domain not verified' in lowered:
+              rejection='sender_domain_not_verified'
+          elif 'only send testing emails' in lowered or 'testing emails to your own email' in lowered:
+              rejection='testing_recipient_restricted'
+          elif 'from' in lowered and ('invalid' in lowered or 'required' in lowered):
+              rejection='sender_address_invalid'
+          elif 'permission' in lowered or 'restricted' in lowered or 'forbidden' in lowered:
+              rejection='provider_permission_restricted'
+          elif raw_detail:
+              rejection='provider_rejected_other'
+          else:
+              rejection=None
+          safe_detail=re.sub(r're_[A-Za-z0-9_-]+','[redacted-key]',raw_detail)
+          safe_detail=re.sub(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}','[redacted-email]',safe_detail)[:300]
+          from_email=str(os.environ.get('FROM_EMAIL') or '').strip()
+          from_domain=from_email.rsplit('@',1)[1].lower() if '@' in from_email else None
           safe={
               'http_status':int(os.environ.get('STATUS') or 0),
               'ok':data.get('ok') is True,
@@ -56,6 +75,10 @@ jobs:
               'provider_message_id_present':bool(data.get('providerMessageId')),
               'expires_at':data.get('expiresAt'),
               'error':data.get('error'),
+              'rejection_class':rejection,
+              'provider_detail_sanitized':safe_detail or None,
+              'from_email_configured':bool(from_email),
+              'from_domain':from_domain,
           }
           Path('/tmp/owner-recovery-safe.json').write_text(json.dumps(safe),encoding='utf-8')
           print(safe)
@@ -77,7 +100,7 @@ jobs:
           except Exception:
               delivery={}
           report={
-              'schema_version':1,
+              'schema_version':2,
               'checked_at':datetime.now(timezone.utc).isoformat(),
               'source_sha':os.environ.get('GITHUB_SHA'),
               'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),
