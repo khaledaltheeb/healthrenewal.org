@@ -1,8 +1,8 @@
 {
-  "schema_version": 1,
-  "checked_at": "2026-07-31T16:09:16.234050+00:00",
-  "source_sha": "bc16dd34ba7ec0050f01d6791b046529e1f86e94",
-  "workflow_run_id": "30645930310",
+  "schema_version": 2,
+  "checked_at": "2026-07-31T16:11:10.030670+00:00",
+  "source_sha": "3835e8baf1164b9d79f4be713deff4b851510273",
+  "workflow_run_id": "30646055857",
   "status": "failed",
   "delivery": {
     "http_status": 503,
@@ -11,7 +11,11 @@
     "request_id_present": false,
     "provider_message_id_present": false,
     "expires_at": null,
-    "error": "email_send_failed"
+    "error": "email_send_failed",
+    "rejection_class": "sender_domain_not_verified",
+    "provider_detail_sanitized": "resend_http_403:The gmail.com domain is not verified. Please, add and verify your domain on https://resend.com/domains",
+    "from_email_configured": true,
+    "from_domain": "gmail.com"
   },
   "password_changed": false,
   "reset_token_recorded": false,
