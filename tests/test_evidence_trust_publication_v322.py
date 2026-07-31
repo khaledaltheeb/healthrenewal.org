@@ -14,6 +14,8 @@ if str(SCRIPTS) not in sys.path:
 
 import publish_evidence_literacy_library_v322 as publisher
 
+ORIGIN = "https://healthrenewal.org"
+
 
 class EvidenceTrustPublicationV322Tests(unittest.TestCase):
     def make_site(self, root: Path) -> Path:
@@ -23,7 +25,7 @@ class EvidenceTrustPublicationV322Tests(unittest.TestCase):
         library.write_text(
             '<!doctype html><html lang="ar" dir="rtl"><head>'
             '<meta charset="utf-8"><title>المكتبة</title>'
-            '<link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/library/">'
+            f'<link rel="canonical" href="{ORIGIN}/library/">'
             '<script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage"}</script>'
             '</head><body><main><h1>المكتبة</h1></main></body></html>',
             encoding="utf-8",
@@ -31,7 +33,7 @@ class EvidenceTrustPublicationV322Tests(unittest.TestCase):
         (site / "sitemap-library.xml").write_text(
             '<?xml version="1.0" encoding="utf-8"?>'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-            '<url><loc>https://khaledaltheeb.github.io/pterminology-site/library/</loc></url>'
+            f'<url><loc>{ORIGIN}/library/</loc></url>'
             '</urlset>',
             encoding="utf-8",
         )
@@ -41,7 +43,7 @@ class EvidenceTrustPublicationV322Tests(unittest.TestCase):
         trust = (ROOT / "trust" / "index.html").read_text(encoding="utf-8")
         self.assertGreaterEqual(publisher.words(trust), 1100)
         self.assertEqual(trust.count("<h1"), 1)
-        self.assertIn('rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/trust/"', trust)
+        self.assertIn(f'rel="canonical" href="{ORIGIN}/trust/"', trust)
         self.assertIn("application/ld+json", trust)
         for phrase in (
             "لا تتعامل المنهجية مع عدد الكلمات بوصفه جودة",
@@ -55,7 +57,7 @@ class EvidenceTrustPublicationV322Tests(unittest.TestCase):
         start = (ROOT / "start-here" / "index.html").read_text(encoding="utf-8")
         self.assertGreaterEqual(publisher.words(start), 900)
         self.assertEqual(start.count("<h1"), 1)
-        self.assertIn('rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/start-here/"', start)
+        self.assertIn(f'rel="canonical" href="{ORIGIN}/start-here/"', start)
         self.assertIn("application/ld+json", start)
         for phrase in (
             "المعلومات التثقيفية تساعد على الفهم والاستعداد للحوار مع المختص",
@@ -69,10 +71,7 @@ class EvidenceTrustPublicationV322Tests(unittest.TestCase):
         special = (ROOT / "special-needs" / "index.html").read_text(encoding="utf-8")
         self.assertGreaterEqual(publisher.words(special), 1300)
         self.assertEqual(special.count("<h1"), 1)
-        self.assertIn(
-            'rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/special-needs/"',
-            special,
-        )
+        self.assertIn(f'rel="canonical" href="{ORIGIN}/special-needs/"', special)
         self.assertIn("application/ld+json", special)
         self.assertIsNone(publisher.BANNED.search(special))
         for phrase in (
@@ -95,6 +94,9 @@ class EvidenceTrustPublicationV322Tests(unittest.TestCase):
             self.assertTrue(trust.is_file())
             self.assertTrue(start.is_file())
             self.assertTrue(special.is_file())
+            self.assertEqual(report["canonical_origin"], ORIGIN)
+            self.assertEqual(report["base_path"], "/")
+            self.assertEqual(report["legacy_origins_remaining"], 0)
             self.assertTrue(report["trust_page_published"])
             self.assertEqual(report["trust_page_path"], "trust/index.html")
             self.assertGreaterEqual(report["trust_page_words"], 1100)
@@ -124,22 +126,18 @@ class EvidenceTrustPublicationV322Tests(unittest.TestCase):
                 for node in ET.parse(site / "sitemap-library.xml").getroot().findall("{*}url/{*}loc")
                 if node.text
             ]
-            for url in (
-                "https://khaledaltheeb.github.io/pterminology-site/trust/",
-                "https://khaledaltheeb.github.io/pterminology-site/start-here/",
-            ):
+            for url in (f"{ORIGIN}/trust/", f"{ORIGIN}/start-here/"):
                 self.assertEqual(library_urls.count(url), 1)
             self.assertEqual(len(library_urls), len(set(library_urls)))
+            self.assertTrue(all(url.startswith(f"{ORIGIN}/") for url in library_urls))
             special_urls = [
                 (node.text or "").strip()
                 for node in ET.parse(site / "sitemap-special-needs.xml").getroot().findall("{*}url/{*}loc")
                 if node.text
             ]
-            self.assertEqual(
-                special_urls.count("https://khaledaltheeb.github.io/pterminology-site/special-needs/"),
-                1,
-            )
+            self.assertEqual(special_urls.count(f"{ORIGIN}/special-needs/"), 1)
             self.assertEqual(len(special_urls), len(set(special_urls)))
+            self.assertTrue(all(url.startswith(f"{ORIGIN}/") for url in special_urls))
 
 
 if __name__ == "__main__":
