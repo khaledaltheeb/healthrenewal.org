@@ -10,9 +10,12 @@ on:
       - "specialists-partners/admin/**"
       - "specialists-partners/password-reset/**"
       - "specialists-partners/assets/runtime-config.js"
+      - "tests/test_specialist_accounts_v5.py"
+      - "tests/test_specialist_identity_v6.py"
       - "tests/test_specialist_identity_v10.py"
       - ".github/workflows/deploy-specialist-identity-v10.yml"
       - ".github/workflows/deploy-specialist-identity-v10-production.yml"
+      - ".github/workflows/deploy-specialist-recovery-pages-v8.yml"
   workflow_dispatch:
 
 permissions:
@@ -38,6 +41,7 @@ jobs:
           node --check specialists-partners/account-backend/src/index-v10-production.js
           node --check specialists-partners/admin/admin-recovery-v10-final.js
           node --check specialists-partners/admin/admin-provider-status-v10.js
+          node --check specialists-partners/assets/runtime-config.js
           node --check specialists-partners/password-reset/reset-v10.js
           python -m unittest -v \
             tests.test_specialist_accounts_v5 \
