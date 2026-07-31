@@ -1,0 +1,51 @@
+name: Monitor specialist identity code restoration now
+
+on:
+  push:
+    branches:
+      - agent/restore-known-specialist-secrets-now
+    paths:
+      - reports/monitor-specialist-code-restore-trigger.txt
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/restore-known-specialist-secrets-now
+      - name: Read workflow runs safely
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python - <<'PY'
+          import json, os, urllib.request
+          from datetime import datetime, timezone
+          repo=os.environ['REPO']; token=os.environ['GH_TOKEN']
+          url=f'https://api.github.com/repos/{repo}/actions/workflows/restore-specialist-identity-code-now.yml/runs?branch=agent%2Frestore-known-specialist-secrets-now&per_page=10'
+          req=urllib.request.Request(url,headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'pterminology-restore-monitor/1.0'})
+          with urllib.request.urlopen(req,timeout=30) as r: data=json.load(r)
+          runs=[]
+          for row in data.get('workflow_runs',[])[:10]:
+              runs.append({k:row.get(k) for k in ('id','name','status','conclusion','event','head_sha','created_at','updated_at','html_url')})
+          report={'schema_version':1,'checked_at':datetime.now(timezone.utc).isoformat(),'runs':runs}
+          open('reports/specialist-code-restore-runs-now.json','w',encoding='utf-8').write(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          PY
+      - name: Commit report
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/specialist-code-restore-runs-now.json
+          git commit -m "chore: record specialist code restore runs [skip ci]"
+          git push origin HEAD:agent/restore-known-specialist-secrets-now
