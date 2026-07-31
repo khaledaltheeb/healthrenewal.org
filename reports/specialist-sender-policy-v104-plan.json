@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "status": "validation_pending",
+  "runtime_version": "10.3.0",
+  "sender_policy_version": "1",
+  "current_blocker": "sender_domain_not_verified",
+  "manual_recovery_available": true,
+  "contains_secret_values": false
+}
