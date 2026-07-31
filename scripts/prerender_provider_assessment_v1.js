@@ -2,9 +2,12 @@
 "use strict";
 
 /**
- * Pre-render every provider-assessment condition from the governed registry.
- * Browser JavaScript remains available for interaction, while crawlers and
- * no-script users receive the complete semantic content in initial HTML.
+ * Pre-render every governed provider-assessment condition.
+ *
+ * The browser application remains active, but the initial HTML contains the
+ * complete semantic pathway for crawlers, assistive technology and users with
+ * JavaScript disabled. Generated FAQ answers come only from the governed
+ * condition registry and fixed professional-safety rules.
  */
 const fs = require("node:fs");
 const path = require("node:path");
@@ -23,7 +26,8 @@ const escapeHtml = (value) => String(value ?? "")
   .replaceAll('"', "&quot;")
   .replaceAll("'", "&#039;");
 
-const list = (items, className = "list") => `<ul class="${className}">${(items || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+const list = (items, className = "list") =>
+  `<ul class="${className}">${(items || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
 
 function loadRegistry() {
   const source = fs.readFileSync(path.join(CONDITIONS, "conditions-data-v1.js"), "utf8");
@@ -40,10 +44,7 @@ function loadRegistry() {
 function faqItems(condition) {
   const firstAlert = (condition.alerts || [])[0] || "لا يعتمد القرار المهني على مقياس واحد أو نتيجة منفردة.";
   return [
-    [
-      `ما الذي يشمله تقييم ${condition.title}؟`,
-      condition.summary,
-    ],
+    [`ما الذي يشمله تقييم ${condition.title}؟`, condition.summary],
     [
       "هل يكفي مقياس واحد لاتخاذ القرار؟",
       `${firstAlert} تجمع الخطة بين التاريخ والملاحظة والمصادر المتعددة والوظيفة والمشاركة، مع توثيق حدود كل أداة.`,
@@ -52,10 +53,7 @@ function faqItems(condition) {
       "متى نحتاج تقييمًا مكمّلًا؟",
       "يطلب تقييم مكمّل عندما تتعارض النتائج بين المصادر أو البيئات، أو تبقى فجوة مهمة في الصحة أو اللغة أو المعرفة أو التكيف أو الحس أو الحركة أو السلامة.",
     ],
-    [
-      "ما الذي يجب أن يتضمنه التقرير النهائي؟",
-      (condition.deliverables || []).join(" "),
-    ],
+    ["ما الذي يجب أن يتضمنه التقرير النهائي؟", (condition.deliverables || []).join(" ")],
   ];
 }
 
@@ -144,18 +142,20 @@ function removeMetaKeywords(source) {
 }
 
 function ensureHreflang(source, canonical) {
-  const tag = `<link rel="canonical" href="${canonical}">`;
-  if (!source.includes(tag)) throw new Error(`Canonical not found: ${canonical}`);
+  const canonicalPattern = /<link\s+rel=["']canonical["'][^>]*href=["']([^"']+)["'][^>]*>/i;
+  const match = canonicalPattern.exec(source);
+  if (!match) throw new Error(`canonical missing; expected ${canonical}`);
+  if (match[1] !== canonical) throw new Error(`canonical mismatch: ${match[1]} != ${canonical}`);
   const additions = [];
-  if (!source.includes('hreflang="ar"')) additions.push(`<link rel="alternate" hreflang="ar" href="${canonical}">`);
-  if (!source.includes('hreflang="x-default"')) additions.push(`<link rel="alternate" hreflang="x-default" href="${canonical}">`);
-  return additions.length ? source.replace(tag, tag + additions.join("")) : source;
+  if (!/hreflang=["']ar["']/i.test(source)) additions.push(`<link rel="alternate" hreflang="ar" href="${canonical}">`);
+  if (!/hreflang=["']x-default["']/i.test(source)) additions.push(`<link rel="alternate" hreflang="x-default" href="${canonical}">`);
+  return additions.length ? source.replace(match[0], match[0] + additions.join("")) : source;
 }
 
 function replaceJsonLd(source, payload) {
   const script = `<script type="application/ld+json">${JSON.stringify(payload)}</script>`;
   const pattern = /<script\s+type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/i;
-  if (!pattern.test(source)) throw new Error("Primary JSON-LD block missing");
+  if (!pattern.test(source)) throw new Error("primary JSON-LD block missing");
   return source.replace(pattern, script);
 }
 
@@ -165,16 +165,28 @@ function replaceRoot(source, rendered) {
     const end = source.indexOf(END, start) + END.length;
     return source.slice(0, start) + rendered + source.slice(end);
   }
-  const start = source.indexOf('<div id="condition-root"');
-  if (start < 0) throw new Error("Condition root missing");
+
+  const rootPattern = /<div\b[^>]*\bid\s*=\s*["']condition-root["'][^>]*>/i;
+  const rootMatch = rootPattern.exec(source);
+  if (!rootMatch) throw new Error("condition root missing");
+  const start = rootMatch.index;
+
   const noScriptEnd = source.indexOf("</noscript>", start);
-  if (noScriptEnd < 0) throw new Error("No-script boundary missing");
-  return source.slice(0, start) + rendered + source.slice(noScriptEnd + "</noscript>".length);
+  if (noScriptEnd >= 0) {
+    return source.slice(0, start) + rendered + source.slice(noScriptEnd + "</noscript>".length);
+  }
+
+  const emptyRootPattern = /<div\b[^>]*\bid\s*=\s*["']condition-root["'][^>]*>\s*<\/div>/i;
+  if (emptyRootPattern.test(source)) {
+    return source.replace(emptyRootPattern, rendered);
+  }
+
+  throw new Error("condition root found but no safe replacement boundary exists");
 }
 
 function updatePage(condition, registry) {
   const file = path.join(CONDITIONS, condition.slug, "index.html");
-  if (!fs.existsSync(file)) throw new Error(`Condition page missing: ${condition.slug}`);
+  if (!fs.existsSync(file)) throw new Error("condition page missing");
   const canonical = `${ORIGIN}/provider-assessment-demo/conditions/${condition.slug}/`;
   let source = fs.readFileSync(file, "utf8");
   source = removeMetaKeywords(source);
@@ -189,16 +201,24 @@ function main() {
   if (!mode) throw new Error("Use --write or --check");
   const registry = loadRegistry();
   const changes = [];
+
   for (const condition of registry.conditions) {
-    const { file, source } = updatePage(condition, registry);
-    const current = fs.readFileSync(file, "utf8");
-    if (source !== current) changes.push({ file, source });
+    let result;
+    try {
+      result = updatePage(condition, registry);
+    } catch (error) {
+      throw new Error(`${condition.slug}: ${error.message}`);
+    }
+    const current = fs.readFileSync(result.file, "utf8");
+    if (result.source !== current) changes.push(result);
   }
+
   if (mode === "check") {
     for (const change of changes) console.log(path.relative(ROOT, change.file));
     process.exitCode = changes.length ? 1 : 0;
     return;
   }
+
   for (const change of changes) fs.writeFileSync(change.file, change.source, "utf8");
   console.log(`Updated ${changes.length} provider-assessment condition pages`);
 }
