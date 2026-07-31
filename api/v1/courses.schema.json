@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.schema.json",
+  "$id": "https://healthrenewal.org/api/v1/courses.schema.json",
   "title": "Authorized Course Feed",
   "description": "مخطط لاستيراد بيانات الدورات من مصادر مخولة فقط.",
   "type": "object",

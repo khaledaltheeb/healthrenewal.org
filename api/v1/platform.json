@@ -3,7 +3,7 @@
   "generatedAt": "2026-07-31",
   "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
   "alternateName": "مصطلحات علم النفس",
-  "baseUrl": "https://khaledaltheeb.github.io/pterminology-site/",
+  "baseUrl": "https://healthrenewal.org/",
   "language": "ar",
   "direction": "rtl",
   "licenseNotice": "تختلف حقوق المحتوى والأدوات والدورات حسب المصدر. لا يُعاد نشر محتوى خارجي أو استيراده إلا بإذن موثق وترخيص متوافق.",
@@ -13,21 +13,21 @@
       "id": "encyclopedia",
       "type": "collection",
       "title": "الموسوعة النفسية العربية",
-      "url": "https://khaledaltheeb.github.io/pterminology-site/encyclopedia/",
+      "url": "https://healthrenewal.org/encyclopedia/",
       "tags": ["علم النفس", "الصحة النفسية", "مصطلحات"]
     },
     {
       "id": "special-needs",
       "type": "collection",
       "title": "ذوو الاحتياجات الخاصة والتربية الدامجة",
-      "url": "https://khaledaltheeb.github.io/pterminology-site/special-needs/",
+      "url": "https://healthrenewal.org/special-needs/",
       "tags": ["التربية الدامجة", "التدخل المبكر", "الدعم الأسري"]
     },
     {
       "id": "assistive-technology",
       "type": "guide",
       "title": "دليل التقنيات المساعدة والتقييم والأمان",
-      "url": "https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/",
+      "url": "https://healthrenewal.org/special-needs/assistive-technology/",
       "tags": ["التقنيات المساعدة", "الإتاحة", "التقييم", "السلامة", "RESNA"],
       "sourcePolicy": "Arabic editorial guide referencing official external sources; no endorsement or official translation claimed"
     },
@@ -35,94 +35,94 @@
       "id": "assistive-technology-selection-checklist",
       "type": "checklist",
       "title": "قائمة فحص اختيار التقنية المساعدة",
-      "url": "https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/selection-checklist/",
+      "url": "https://healthrenewal.org/special-needs/assistive-technology/selection-checklist/",
       "tags": ["قائمة فحص", "التجربة", "الخصوصية", "الصيانة", "قياس النتائج"]
     },
     {
       "id": "assistive-technology-training",
       "type": "learning-path",
       "title": "مسار التدريب المهني في التقنيات المساعدة",
-      "url": "https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/training/",
+      "url": "https://healthrenewal.org/special-needs/assistive-technology/training/",
       "tags": ["التدريب", "التعليم المستمر", "الأخلاقيات", "RESNA Learn"]
     },
     {
       "id": "assistive-technology-ethics-service",
       "type": "quality-guide",
       "title": "أخلاقيات وجودة خدمات التقنيات المساعدة",
-      "url": "https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/ethics-and-service/",
+      "url": "https://healthrenewal.org/special-needs/assistive-technology/ethics-and-service/",
       "tags": ["الأخلاقيات", "حدود الكفاءة", "الخصوصية", "تضارب المصالح", "جودة الخدمة"]
     },
     {
       "id": "assistive-technology-innovation-review",
       "type": "review-framework",
       "title": "بوابة مراجعة ابتكارات التقنيات المساعدة",
-      "url": "https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/innovation-review/",
+      "url": "https://healthrenewal.org/special-needs/assistive-technology/innovation-review/",
       "tags": ["الابتكار", "التصميم المشترك", "السلامة", "البحث", "الحوكمة"]
     },
     {
       "id": "assistive-technology-continuing-education",
       "type": "verified-directory-guide",
       "title": "دليل التعليم المستمر ومزودي RESNA",
-      "url": "https://khaledaltheeb.github.io/pterminology-site/special-needs/assistive-technology/continuing-education/",
+      "url": "https://healthrenewal.org/special-needs/assistive-technology/continuing-education/",
       "tags": ["التعليم المستمر", "RESNA CE", "التحقق", "الدورات", "المزودون"]
     },
     {
       "id": "specialists-partners",
       "type": "directory",
       "title": "فريقنا وشركاؤنا ذوو الاختصاص",
-      "url": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/",
+      "url": "https://healthrenewal.org/specialists-partners/",
       "tags": ["التربية الخاصة", "النطق واللغة", "السمعيات", "المراكز المتخصصة", "الدليل المهني"]
     },
     {
       "id": "care-guides",
       "type": "collection",
       "title": "أدلة التعامل العملي",
-      "url": "https://khaledaltheeb.github.io/pterminology-site/care-guides/",
+      "url": "https://healthrenewal.org/care-guides/",
       "tags": ["أدلة عملية", "الأسرة", "مقدم الخدمة"]
     },
     {
       "id": "assessment",
       "type": "application",
       "title": "منصة التقييم والاستكشاف",
-      "url": "https://khaledaltheeb.github.io/pterminology-site/provider-assessment-demo/",
+      "url": "https://healthrenewal.org/provider-assessment-demo/",
       "tags": ["التقييم", "الاستكشاف", "التقارير"]
     },
     {
       "id": "magazine",
       "type": "collection",
       "title": "المجلة والأبحاث",
-      "url": "https://khaledaltheeb.github.io/pterminology-site/magazine/",
+      "url": "https://healthrenewal.org/magazine/",
       "tags": ["أبحاث", "دراسات", "تحليل"]
     },
     {
       "id": "source-registry",
       "type": "governed-source-catalogue",
       "title": "سجل المصادر ومسارات التكامل",
-      "url": "https://khaledaltheeb.github.io/pterminology-site/source-registry/",
-      "dataUrl": "https://khaledaltheeb.github.io/pterminology-site/api/source-registry.json",
+      "url": "https://healthrenewal.org/source-registry/",
+      "dataUrl": "https://healthrenewal.org/api/source-registry.json",
       "tags": ["مصادر رسمية", "الترخيص", "الإسناد", "واجهات البيانات", "التدقيق"],
       "relationshipPolicy": "independent_source_candidate_not_partner"
     }
   ],
   "endpoints": {
-    "platform": "https://khaledaltheeb.github.io/pterminology-site/api/v1/platform.json",
-    "openapi": "https://khaledaltheeb.github.io/pterminology-site/api/v1/openapi.json",
-    "sourceRegistry": "https://khaledaltheeb.github.io/pterminology-site/api/source-registry.json",
-    "assistiveTechnologyResources": "https://khaledaltheeb.github.io/pterminology-site/api/v1/assistive-technology-resources.json",
-    "assistiveTechnologyQualityFramework": "https://khaledaltheeb.github.io/pterminology-site/api/v1/assistive-technology-quality-framework.json",
-    "resnaContinuingEducationProviders": "https://khaledaltheeb.github.io/pterminology-site/api/v1/resna-ce-providers.json",
-    "specialistsPartners": "https://khaledaltheeb.github.io/pterminology-site/api/v1/specialists-partners.json",
-    "specialistsPartnersDirectory": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/providers.json",
-    "specialistsPartnersDirectoryFallback": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/providers.json",
-    "specialistsPartnersRuntimeConfig": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/assets/runtime-config.js",
-    "specialistsPartnersDirectoryLogic": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/assets/directory-core.js",
-    "specialistsPartnersQuality": "https://khaledaltheeb.github.io/pterminology-site/api/specialists-partners-quality-v354.json",
-    "specialistsPartnersAdmin": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/",
-    "specialistsPartnersVerificationLedger": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/verification-ledger.json",
-    "specialistsPartnersVerificationLedgerSchema": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/verification-ledger.schema.json",
-    "providerSchema": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/provider.schema.json",
-    "courseSchema": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.schema.json",
-    "courseExample": "https://khaledaltheeb.github.io/pterminology-site/api/v1/courses.example.json"
+    "platform": "https://healthrenewal.org/api/v1/platform.json",
+    "openapi": "https://healthrenewal.org/api/v1/openapi.json",
+    "sourceRegistry": "https://healthrenewal.org/api/source-registry.json",
+    "assistiveTechnologyResources": "https://healthrenewal.org/api/v1/assistive-technology-resources.json",
+    "assistiveTechnologyQualityFramework": "https://healthrenewal.org/api/v1/assistive-technology-quality-framework.json",
+    "resnaContinuingEducationProviders": "https://healthrenewal.org/api/v1/resna-ce-providers.json",
+    "specialistsPartners": "https://healthrenewal.org/api/v1/specialists-partners.json",
+    "specialistsPartnersDirectory": "https://healthrenewal.org/specialists-partners/data/providers.json",
+    "specialistsPartnersDirectoryFallback": "https://healthrenewal.org/specialists-partners/data/providers.json",
+    "specialistsPartnersRuntimeConfig": "https://healthrenewal.org/specialists-partners/assets/runtime-config.js",
+    "specialistsPartnersDirectoryLogic": "https://healthrenewal.org/specialists-partners/assets/directory-core.js",
+    "specialistsPartnersQuality": "https://healthrenewal.org/api/specialists-partners-quality-v354.json",
+    "specialistsPartnersAdmin": "https://healthrenewal.org/specialists-partners/admin/",
+    "specialistsPartnersVerificationLedger": "https://healthrenewal.org/specialists-partners/data/verification-ledger.json",
+    "specialistsPartnersVerificationLedgerSchema": "https://healthrenewal.org/specialists-partners/data/verification-ledger.schema.json",
+    "providerSchema": "https://healthrenewal.org/specialists-partners/data/provider.schema.json",
+    "courseSchema": "https://healthrenewal.org/api/v1/courses.schema.json",
+    "courseExample": "https://healthrenewal.org/api/v1/courses.example.json"
   },
   "integrationPolicy": {
     "externalCourseImport": "permission_required",

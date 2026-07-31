@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/verification-ledger.schema.json",
+  "$id": "https://healthrenewal.org/specialists-partners/data/verification-ledger.schema.json",
   "title": "Public-safe provider verification ledger",
   "type": "object",
   "additionalProperties": false,

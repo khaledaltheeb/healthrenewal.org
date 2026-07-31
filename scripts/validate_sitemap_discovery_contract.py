@@ -11,8 +11,8 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 ROBOTS = ROOT / "robots.txt"
-PUBLIC_ORIGIN = "https://khaledaltheeb.github.io"
-BASE_PATH = "/pterminology-site/"
+PUBLIC_ORIGIN = "https://healthrenewal.org"
+BASE_PATH = "/"
 SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 PLATFORM_TIMEZONE = ZoneInfo("Asia/Amman")

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/data/provider.schema.json",
+  "$id": "https://healthrenewal.org/specialists-partners/data/provider.schema.json",
   "title": "Public specialist, expert, center, or institutional partner profile",
   "type": "object",
   "additionalProperties": false,
