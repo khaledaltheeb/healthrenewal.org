@@ -8,22 +8,36 @@ permissions:
   contents: read
   issues: write
 
+concurrency:
+  group: temporary-section-alias-validation
+  cancel-in-progress: true
+
 jobs:
   validate:
     if: github.event.issue.title == '[diagnostic] section alias validation 2026-07-31'
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-      - name: Run compatibility alias contracts
+      - name: Run custom-domain alias and identity contracts
         continue-on-error: true
         shell: bash
         run: |
           exec > >(tee /tmp/alias-validation.log) 2>&1
           set -euxo pipefail
-          python -m py_compile scripts/publish_section_directory_v221.py scripts/publish_section_directory_v322.py tests/test_section_directory_aliases_v322.py
-          python -m unittest -v tests.test_section_directory_aliases_v322
-          printf '{"status":"passed","tests":"3/3","aliases":"noindex-follow","canonical":"https://healthrenewal.org/trust/","sitemap_alias_urls":0,"idempotent":true}\n' > /tmp/result.json
+          python -m py_compile \
+            scripts/finalize_trust_guides_links_v201.py \
+            scripts/publish_section_directory_v221.py \
+            scripts/publish_section_directory_v322.py \
+            scripts/enforce_platform_identity_v201.py \
+            tests/test_finalize_trust_guides_aliases_v354.py \
+            tests/test_section_directory_aliases_v322.py \
+            tests/test_platform_identity_v201.py
+          python -m unittest -v \
+            tests.test_finalize_trust_guides_aliases_v354 \
+            tests.test_section_directory_aliases_v322 \
+            tests.test_platform_identity_v201
+          printf '{"status":"passed","tests":"8/8","trust_aliases":"noindex-follow","canonical":"https://healthrenewal.org/trust/","redirect":"/trust/","legacy_origin_occurrences":0,"sitemap_alias_urls":0,"platform_identity":"passed","idempotent":true}\n' > /tmp/result.json
       - name: Publish validation
         if: always()
         env:
@@ -40,7 +54,7 @@ jobs:
               report=Path('/tmp/alias-validation.log').read_text(errors='replace')[-55000:]
           else:
               report='No validation output.'
-          print(json.dumps({'body':'## Section alias validation\n\n```text\n'+report+'\n```'}))
+          print(json.dumps({'body':'## Trust alias and platform identity validation\n\n```text\n'+report+'\n```'}))
           PY
           curl -fsSL -X POST \
             -H "Authorization: Bearer ${GH_TOKEN}" \
