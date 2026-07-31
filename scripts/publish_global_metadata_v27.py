@@ -32,6 +32,14 @@ MANIFEST_TAG_RE = re.compile(
     r"\s*<link\b(?=[^>]*\brel\s*=\s*([\"'])[^\"']*\bmanifest\b[^\"']*\1)[^>]*>\s*",
     re.IGNORECASE,
 )
+TWITTER_CARD_TAG_RE = re.compile(
+    r"\s*<meta\b(?=[^>]*\bname\s*=\s*([\"'])twitter:card\1)[^>]*>\s*",
+    re.IGNORECASE,
+)
+THEME_COLOR_TAG_RE = re.compile(
+    r"\s*<meta\b(?=[^>]*\bname\s*=\s*([\"'])theme-color\1)[^>]*>\s*",
+    re.IGNORECASE,
+)
 
 
 @dataclass
@@ -106,31 +114,29 @@ def normalize_legacy_references(text: str) -> str:
 
 def enrich_page(text: str, canonical_url: str) -> tuple[str, dict[str, int]]:
     text = normalize_legacy_references(text)
-    text = CANONICAL_TAG_RE.sub("", text)
-    text = OG_URL_TAG_RE.sub("", text)
-    text = MANIFEST_TAG_RE.sub("", text)
-    state = parse_metadata(text)
+    for pattern in (
+        CANONICAL_TAG_RE,
+        MANIFEST_TAG_RE,
+        OG_URL_TAG_RE,
+        TWITTER_CARD_TAG_RE,
+        THEME_COLOR_TAG_RE,
+    ):
+        text = pattern.sub("", text)
 
     additions = [
         f'<link rel="canonical" href="{html.escape(canonical_url, quote=True)}">',
         f'<link rel="manifest" href="{MANIFEST_HREF}">',
         f'<meta property="og:url" content="{html.escape(canonical_url, quote=True)}">',
+        '<meta name="twitter:card" content="summary_large_image">',
+        f'<meta name="theme-color" content="{THEME_COLOR}">',
     ]
     counters = {
         "canonical_normalized": 1,
         "manifest_normalized": 1,
         "og_url_normalized": 1,
-        "twitter_card": 0,
-        "theme_color": 0,
+        "twitter_card": 1,
+        "theme_color": 1,
     }
-
-    if not state.twitter_card:
-        additions.append('<meta name="twitter:card" content="summary_large_image">')
-        counters["twitter_card"] = 1
-    if not state.theme_color:
-        additions.append(f'<meta name="theme-color" content="{THEME_COLOR}">')
-        counters["theme_color"] = 1
-
     text = inject_before_head_close(text, "\n".join(additions))
     return text, counters
 
