@@ -1,0 +1,353 @@
+name: Recover specialist identity v10 production
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/recover-specialist-identity-v10-production.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: recover-specialist-identity-v10-production
+  cancel-in-progress: false
+
+env:
+  ACCOUNT_API_BASE: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
+  CORE_API_BASE: https://pterminology-specialists.pterminology-826ac349.workers.dev
+  DATABASE_NAME: pterminology-specialists
+  IDENTITY_WORKER_NAME: pterminology-specialist-accounts
+  TURNSTILE_SITEKEY: 0x4AAAAAAD_r2o__Ao1RmBTO
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '826ac34927c1e045c06145a327c2ac52' }}
+      ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
+      FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate recovery inputs
+        id: preflight
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          required=('CLOUDFLARE_API_TOKEN','CLOUDFLARE_ACCOUNT_ID','ADMIN_API_KEY','FROM_EMAIL','RESEND_API_KEY','RATE_LIMIT_SALT')
+          missing=[name for name in required if not os.environ.get(name)]
+          safe={'required_present':not missing,'missing_required':missing}
+          Path('/tmp/recovery-preflight.json').write_text(json.dumps(safe),encoding='utf-8')
+          print(safe)
+          if missing:
+              raise SystemExit(1)
+          PY
+          node --check specialists-partners/account-backend/src/index-v10-production.js
+          node --check specialists-partners/account-backend/src/specialist-message-v10.js
+          python -m py_compile scripts/verify_specialist_identity_v10_production.py
+
+      - name: Retrieve production Turnstile secret safely
+        id: turnstile
+        if: steps.preflight.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          curl -fsS \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/challenges/widgets/${TURNSTILE_SITEKEY}" \
+            -o /tmp/turnstile-widget.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          data=json.load(open('/tmp/turnstile-widget.json',encoding='utf-8'))
+          result=data.get('result') or {}
+          secret=str(result.get('secret') or '').strip()
+          domains=[str(item) for item in (result.get('domains') or [])]
+          safe={
+              'api_success':data.get('success') is True,
+              'sitekey_matches':result.get('sitekey')==os.environ['TURNSTILE_SITEKEY'],
+              'expected_domain_present':'khaledaltheeb.github.io' in domains,
+              'mode':result.get('mode'),
+              'secret_present':len(secret)>=20,
+          }
+          Path('/tmp/recovery-turnstile.json').write_text(json.dumps(safe),encoding='utf-8')
+          Path('/tmp/turnstile-secret.txt').write_text(secret,encoding='utf-8')
+          Path('/tmp/turnstile-secret.txt').chmod(0o600)
+          print(safe)
+          if not all((safe['api_success'],safe['sitekey_matches'],safe['expected_domain_present'],safe['secret_present'])):
+              raise SystemExit(1)
+          PY
+
+      - name: Discover production D1 database
+        id: d1
+        if: steps.preflight.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          curl -fsS \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/d1/database?per_page=100" \
+            -o /tmp/d1-list.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          data=json.load(open('/tmp/d1-list.json',encoding='utf-8'))
+          matches=[row for row in (data.get('result') or []) if row.get('name')==os.environ['DATABASE_NAME']]
+          database_id=str(matches[0].get('uuid') or '') if matches else ''
+          safe={'api_success':data.get('success') is True,'database_found':bool(database_id)}
+          Path('/tmp/recovery-d1.json').write_text(json.dumps(safe),encoding='utf-8')
+          print(safe)
+          if not safe['api_success'] or not database_id:
+              raise SystemExit(1)
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as handle:
+              handle.write(f'database_id={database_id}\n')
+          PY
+
+      - name: Generate production Worker configuration
+        id: config
+        if: steps.d1.outcome == 'success'
+        continue-on-error: true
+        working-directory: specialists-partners/account-backend
+        env:
+          D1_DATABASE_ID: ${{ steps.d1.outputs.database_id }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          def q(value): return '"'+str(value).replace('\\','\\\\').replace('"','\\"')+'"'
+          content=f'''name = "pterminology-specialist-accounts"
+          main = "src/index-v10-production.js"
+          compatibility_date = "2026-07-01"
+          workers_dev = true
+          keep_vars = true
+
+          [vars]
+          ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
+          ACCOUNT_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/account/"
+          ADMIN_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/"
+          PASSWORD_RESET_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/password-reset/"
+          PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
+          CORE_API_BASE = "{os.environ['CORE_API_BASE']}"
+          TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"
+          IDENTITY_SESSION_HOURS = "12"
+          SESSION_BIND_IP = "off"
+          OWNER_EMAIL = "pterminology@gmail.com"
+          OWNER_PHONE = "+962795945817"
+          OWNER_DISPLAY_NAME_AR = "خالد الذيب"
+          OWNER_DISPLAY_NAME_EN = "Khaled Altheeb"
+          FROM_EMAIL = {q(os.environ['FROM_EMAIL'])}
+
+          [secrets]
+          required = ["TURNSTILE_SECRET", "RESEND_API_KEY", "ADMIN_API_KEY", "RATE_LIMIT_SALT"]
+
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "pterminology-specialists"
+          database_id = {q(os.environ['D1_DATABASE_ID'])}
+          migrations_dir = "../backend/migrations"
+
+          [triggers]
+          crons = ["31 2 * * *"]
+          '''
+          path=Path('wrangler-v10-recovery.toml')
+          path.write_text(content,encoding='utf-8')
+          path.chmod(0o600)
+          PY
+
+      - name: Apply D1 migrations
+        id: migrate
+        if: steps.config.outcome == 'success'
+        continue-on-error: true
+        working-directory: specialists-partners/account-backend
+        run: npx --yes wrangler@4 d1 migrations apply pterminology-specialists --remote --config wrangler-v10-recovery.toml
+
+      - name: Deploy Worker with recovered secrets
+        id: deploy
+        if: steps.migrate.outcome == 'success' && steps.turnstile.outcome == 'success'
+        continue-on-error: true
+        working-directory: specialists-partners/account-backend
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          secret=Path('/tmp/turnstile-secret.txt').read_text(encoding='utf-8').strip()
+          payload={
+              'TURNSTILE_SECRET':secret,
+              'RESEND_API_KEY':os.environ['RESEND_API_KEY'],
+              'ADMIN_API_KEY':os.environ['ADMIN_API_KEY'],
+              'RATE_LIMIT_SALT':os.environ['RATE_LIMIT_SALT'],
+          }
+          path=Path('/tmp/identity-worker-secrets.json')
+          path.write_text(json.dumps(payload),encoding='utf-8')
+          path.chmod(0o600)
+          PY
+          npx --yes wrangler@4 deploy \
+            --config wrangler-v10-recovery.toml \
+            --secrets-file /tmp/identity-worker-secrets.json \
+            --minify \
+            --keep-vars
+          curl -fsS \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${IDENTITY_WORKER_NAME}/secrets" \
+            -o /tmp/recovered-worker-secrets.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.load(open('/tmp/recovered-worker-secrets.json',encoding='utf-8'))
+          names={str(row.get('name') or '') for row in (data.get('result') or [])}
+          required={'TURNSTILE_SECRET','RESEND_API_KEY','ADMIN_API_KEY','RATE_LIMIT_SALT'}
+          missing=sorted(required-names)
+          safe={'api_success':data.get('success') is True,'required_present':not missing,'missing_required':missing}
+          Path('/tmp/recovery-deploy.json').write_text(json.dumps(safe),encoding='utf-8')
+          print(safe)
+          if not safe['api_success'] or missing:
+              raise SystemExit(1)
+          PY
+
+      - name: Enable production workers.dev route
+        id: route
+        if: steps.deploy.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          curl -fsS \
+            -X POST \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"enabled":true,"previews_enabled":false}' \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${IDENTITY_WORKER_NAME}/subdomain" \
+            -o /tmp/recovery-route-response.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.load(open('/tmp/recovery-route-response.json',encoding='utf-8'))
+          result=data.get('result') or {}
+          safe={'api_success':data.get('success') is True,'enabled':result.get('enabled') is True}
+          Path('/tmp/recovery-route.json').write_text(json.dumps(safe),encoding='utf-8')
+          print(safe)
+          if not safe['api_success'] or not safe['enabled']:
+              raise SystemExit(1)
+          PY
+
+      - name: Verify stable production health
+        id: verify
+        if: steps.route.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          python scripts/verify_specialist_identity_v10_production.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          normal=json.load(open('/tmp/identity-health.json',encoding='utf-8'))
+          deep=json.load(open('/tmp/identity-deep-health.json',encoding='utf-8'))
+          provider=deep.get('emailProvider') or {}
+          safe={
+              'normal_ok':normal.get('ok') is True,
+              'version':normal.get('version'),
+              'checks':normal.get('checks') or {},
+              'email_configured':provider.get('configured'),
+              'email_auth_valid':provider.get('authValid'),
+              'email_code':provider.get('code'),
+          }
+          Path('/tmp/recovery-verify.json').write_text(json.dumps(safe),encoding='utf-8')
+          print(safe)
+          PY
+
+      - name: Publish safe recovery report
+        if: always()
+        env:
+          PREFLIGHT_OUTCOME: ${{ steps.preflight.outcome }}
+          TURNSTILE_OUTCOME: ${{ steps.turnstile.outcome }}
+          D1_OUTCOME: ${{ steps.d1.outcome }}
+          CONFIG_OUTCOME: ${{ steps.config.outcome }}
+          MIGRATE_OUTCOME: ${{ steps.migrate.outcome }}
+          DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
+          ROUTE_OUTCOME: ${{ steps.route.outcome }}
+          VERIFY_OUTCOME: ${{ steps.verify.outcome }}
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python - <<'PY'
+          import json,os
+          from datetime import datetime,timezone
+          from pathlib import Path
+          stages=[
+              ('preflight',os.environ.get('PREFLIGHT_OUTCOME')),
+              ('turnstile',os.environ.get('TURNSTILE_OUTCOME')),
+              ('d1',os.environ.get('D1_OUTCOME')),
+              ('config',os.environ.get('CONFIG_OUTCOME')),
+              ('migrate',os.environ.get('MIGRATE_OUTCOME')),
+              ('deploy',os.environ.get('DEPLOY_OUTCOME')),
+              ('route',os.environ.get('ROUTE_OUTCOME')),
+              ('verify',os.environ.get('VERIFY_OUTCOME')),
+          ]
+          def load(name):
+              path=Path('/tmp')/name
+              try:
+                  value=json.loads(path.read_text(encoding='utf-8'))
+                  return value if isinstance(value,dict) else {}
+              except Exception:
+                  return {}
+          failure_stage=next((name for name,outcome in stages if outcome!='success'),None)
+          report={
+              'schema_version':1,
+              'checked_at':datetime.now(timezone.utc).isoformat(),
+              'source_sha':os.environ.get('GITHUB_SHA'),
+              'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),
+              'status':'passed' if failure_stage is None else 'failed',
+              'failure_stage':failure_stage,
+              'outcomes':dict(stages),
+              'preflight':load('recovery-preflight.json'),
+              'turnstile':load('recovery-turnstile.json'),
+              'd1':load('recovery-d1.json'),
+              'deploy':load('recovery-deploy.json'),
+              'route':load('recovery-route.json'),
+              'verify':load('recovery-verify.json'),
+              'contains_secret_values':False,
+          }
+          Path('reports/specialist-identity-v10-production-recovery.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(report)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/specialist-identity-v10-production-recovery.json
+          git commit -m "chore: record specialist identity production recovery [skip ci]" || exit 0
+          for attempt in {1..5}; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            git rebase --abort || true
+            sleep $((attempt*3))
+          done
+          exit 1
+
+      - name: Remove ephemeral recovery files
+        if: always()
+        run: |
+          rm -f \
+            /tmp/turnstile-widget.json \
+            /tmp/turnstile-secret.txt \
+            /tmp/identity-worker-secrets.json \
+            specialists-partners/account-backend/wrangler-v10-recovery.toml
