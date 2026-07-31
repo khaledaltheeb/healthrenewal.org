@@ -1,0 +1,93 @@
+name: Verify E5 live deployment
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/e5-live-verification-pr.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Wait for live manifest and verify all artifacts
+        run: |
+          set -euo pipefail
+          root='https://healthrenewal.org/ai-search/'
+          manifest_url="${root}data/manifest.json"
+          ok=0
+          for attempt in $(seq 1 60); do
+            if curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
+              "${manifest_url}?verify=${GITHUB_RUN_ID}-${attempt}" \
+              -o /tmp/manifest.json; then
+              if python - <<'PY'
+          import json
+          data=json.load(open('/tmp/manifest.json',encoding='utf-8'))
+          assert data.get('version') == 2
+          assert data.get('ready') is True
+          assert data.get('model') == 'intfloat/multilingual-e5-small'
+          assert data.get('modelRevision') == 'fd1525a9fd15316a2d503bf26ab031a61d056e98'
+          assert data.get('browserModel') == 'Xenova/multilingual-e5-small'
+          assert data.get('browserModelRevision') == '761b726dd34fb83930e26aab4e9ac3899aa1fa78'
+          assert data.get('corpusBaseUrl') == 'https://healthrenewal.org/'
+          assert data.get('dimensions') == 384
+          assert data.get('dtype') == 'float16'
+          assert data.get('normalized') is True
+          assert int(data.get('documentCount') or 0) > 0
+          assert int(data.get('chunkCount') or 0) >= int(data.get('documentCount') or 0)
+          assert data.get('shards')
+          PY
+              then ok=1; break; fi
+            fi
+            echo "Waiting for deployment: ${attempt}/60"
+            sleep 10
+          done
+          test "$ok" = 1
+
+          meta="$(python -c "import json;print(json.load(open('/tmp/manifest.json'))['shards'][0]['metadata'])")"
+          vectors="$(python -c "import json;print(json.load(open('/tmp/manifest.json'))['shards'][0]['embeddings'])")"
+          curl -fsS --retry 3 -H 'Cache-Control: no-cache' "${root}?verify=${GITHUB_RUN_ID}" -o /tmp/page.html
+          curl -fsS --retry 3 -H 'Cache-Control: no-cache' "${root}assets/search-worker.js?verify=${GITHUB_RUN_ID}" -o /tmp/worker.js
+          curl -fsS --retry 3 -H 'Cache-Control: no-cache' "${root}data/${meta}?verify=${GITHUB_RUN_ID}" -o /tmp/meta.json
+          curl -fsS --retry 3 -H 'Cache-Control: no-cache' "${root}data/${vectors}?verify=${GITHUB_RUN_ID}" -o /tmp/vectors.bin
+
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+
+          manifest=json.load(open('/tmp/manifest.json',encoding='utf-8'))
+          shard=manifest['shards'][0]
+          page=Path('/tmp/page.html').read_text(encoding='utf-8',errors='replace')
+          worker=Path('/tmp/worker.js').read_text(encoding='utf-8',errors='replace')
+          meta=Path('/tmp/meta.json')
+          vectors=Path('/tmp/vectors.bin')
+          records=json.loads(meta.read_text(encoding='utf-8'))
+          sha=lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
+
+          assert 'https://healthrenewal.org/ai-search/' in page
+          assert 'Xenova/multilingual-e5-small' in worker
+          assert '761b726dd34fb83930e26aab4e9ac3899aa1fa78' in worker
+          assert meta.stat().st_size == shard['metadataBytes']
+          assert vectors.stat().st_size == shard['embeddingBytes']
+          assert sha(meta) == shard['metadataSha256']
+          assert sha(vectors) == shard['embeddingSha256']
+          assert len(records) == shard['count']
+          assert vectors.stat().st_size == shard['count'] * manifest['dimensions'] * 2
+
+          print(json.dumps({
+            'passed':True,
+            'generatedAt':manifest['generatedAt'],
+            'documentCount':manifest['documentCount'],
+            'chunkCount':manifest['chunkCount'],
+            'shardCount':len(manifest['shards']),
+            'dimensions':manifest['dimensions'],
+            'metadataBytes':meta.stat().st_size,
+            'embeddingBytes':vectors.stat().st_size,
+            'metadataSha256':sha(meta),
+            'embeddingSha256':sha(vectors),
+            'metadataRecords':len(records),
+          }, indent=2))
+          PY
