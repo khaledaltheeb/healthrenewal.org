@@ -186,12 +186,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Explicit contract: /workers/scripts/pterminology-specialist-accounts/subdomain
           curl -fsS \
             -X POST \
             -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
             -H "Content-Type: application/json" \
             --data '{"enabled":true,"previews_enabled":true}' \
-            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${IDENTITY_WORKER_NAME}/subdomain" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/pterminology-specialist-accounts/subdomain" \
             -o /tmp/identity-worker-subdomain.json
           python - <<'PY'
           import json
