@@ -42,12 +42,11 @@ EXCLUDED_PARTS = {
     "node_modules",
     "tests",
     "scripts",
-    "ai-search",
     "admin",
     "portal",
     "account",
 }
-EXCLUDED_FILES = {"404.html", "contact.html", "professional-console.html"}
+EXCLUDED_FILES = {"404.html", "professional-console.html"}
 REMOVABLE_TAGS = {
     "script",
     "style",
@@ -65,6 +64,7 @@ TEXT_TAGS = {"h1", "h2", "h3", "h4", "p", "li", "td", "th", "blockquote", "dd", 
 WHITESPACE_RE = re.compile(r"\s+")
 
 SECTION_LABELS = {
+    "ai-search": "البحث الذكي",
     "encyclopedia": "الموسوعة النفسية",
     "special-needs": "ذوو الاحتياجات الخاصة",
     "family-guide": "دليل الأسرة",
@@ -185,6 +185,9 @@ def extract_page_blocks(path: Path, root: Path) -> tuple[str, str, str, list[tup
         if len(text) >= 35:
             blocks.append((current_heading, text))
 
+    if not blocks and len(visible_text) >= 80:
+        blocks.append((title, visible_text))
+
     return title, url, visible_text, blocks
 
 
@@ -252,26 +255,30 @@ def chunk_blocks(
 
 def collect_chunks(root: Path, max_chars: int, overlap: int) -> list[Chunk]:
     chunks: list[Chunk] = []
-    seen_hashes: set[str] = set()
+    seen_page_hashes: set[tuple[str, str]] = set()
 
     html_files = sorted(path for path in root.rglob("*.html") if should_index(path, root))
     for path in html_files:
         title, url, page_text, blocks = extract_page_blocks(path, root)
-        if not title or not blocks:
+        if not title or not url or not blocks:
             continue
 
         relative_path = path.relative_to(root)
         section_key, section_label = infer_section(relative_path)
         audience = infer_audience(relative_path, page_text)
+        page_chunks = list(chunk_blocks(title, blocks, max_chars, overlap))
+        if not page_chunks and len(page_text) >= 80:
+            page_chunks = [(title, page_text)]
 
-        for ordinal, (heading, text) in enumerate(chunk_blocks(title, blocks, max_chars, overlap), start=1):
+        for ordinal, (heading, text) in enumerate(page_chunks, start=1):
             enriched = clean_text(f"{title}. {heading}. {text}")
-            if len(enriched) < 120:
+            if len(enriched) < 80:
                 continue
             content_hash = sha256_bytes(enriched.encode("utf-8"))
-            if content_hash in seen_hashes:
+            dedupe_key = (url, content_hash)
+            if dedupe_key in seen_page_hashes:
                 continue
-            seen_hashes.add(content_hash)
+            seen_page_hashes.add(dedupe_key)
 
             chunk_id = f"{sha256_bytes(str(relative_path).encode())[:12]}-{ordinal:03d}"
             chunks.append(

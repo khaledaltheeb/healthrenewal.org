@@ -33,6 +33,7 @@
 
   const navItems = [
     ['ابدأ', 'start-here/'],
+    ['البحث الذكي', 'ai-search/'],
     ['الموسوعة', 'encyclopedia/'],
     ['المقارنات', 'comparisons/'],
     ['المكتبة', 'library/'],
@@ -117,10 +118,10 @@
   const searchButton = element('button', {
     class: 'pt-search-button',
     type: 'button',
-    'aria-label': 'فتح البحث في المنصة',
+    'aria-label': 'فتح البحث الدلالي في المنصة',
     'aria-haspopup': 'dialog',
     'aria-controls': 'pt-platform-search'
-  }, [element('span', { text: 'بحث' }), element('span', { 'aria-hidden': 'true', text: '⌕' })]);
+  }, [element('span', { text: 'بحث ذكي' }), element('span', { 'aria-hidden': 'true', text: '⌕' })]);
 
   const actions = element('div', { class: 'pt-global-actions' }, [searchButton, menuButton]);
   const shellInner = element('div', { class: 'pt-global-shell__inner' }, [brand, nav, actions]);
@@ -176,21 +177,23 @@
   const searchInput = element('input', {
     type: 'search',
     name: 'q',
+    maxlength: '300',
     autocomplete: 'off',
-    placeholder: 'ابحث عن حالة أو مصطلح أو دليل…',
-    'aria-label': 'عبارة البحث'
+    spellcheck: 'false',
+    placeholder: 'اكتب سؤالك أو الحالة أو الدليل المطلوب…',
+    'aria-label': 'سؤال البحث الدلالي'
   });
 
-  const searchForm = element('form', { action: url('encyclopedia/'), method: 'get', role: 'search' }, [
+  const searchForm = element('form', { action: url('ai-search/'), method: 'get', role: 'search' }, [
     searchInput,
-    element('button', { type: 'submit', text: 'ابحث في الموسوعة' })
+    element('button', { type: 'submit', text: 'ابحث بذكاء' })
   ]);
 
   dialog.append(element('div', { class: 'pt-search-dialog__body' }, [
     element('div', { class: 'pt-search-dialog__head' }, [
       element('div', {}, [
-        element('h2', { id: 'pt-search-title', text: 'البحث في المنصة' }),
-        element('p', { text: 'ابدأ باسم الحالة أو المصطلح أو نوع الدليل الذي تحتاجه.' })
+        element('h2', { id: 'pt-search-title', text: 'البحث الذكي في المنصة' }),
+        element('p', { text: 'اكتب سؤالك بلغتك الطبيعية. يستخدم البحث multilingual-e5-small لترتيب صفحات المنصة حسب تقارب المعنى.' })
       ]),
       closeButton
     ]),

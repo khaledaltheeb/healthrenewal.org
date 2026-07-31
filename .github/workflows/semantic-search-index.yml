@@ -3,10 +3,16 @@ name: Semantic search index
 on:
   pull_request:
     paths:
+      - '**/*.html'
+      - 'content/**'
+      - '.generator-v6/**'
+      - '.v10bundle/**'
+      - 'assets/platform/platform-core.js'
       - 'ai-search/**'
       - 'tests/e5_*_smoke.mjs'
       - 'tests/test_ai_search_browser_index_v2.py'
       - 'tests/test_multilingual_e5_production_v3.py'
+      - 'tests/test_e5_full_site_home_integration_v4.py'
       - 'scripts/build_semantic_search_index.py'
       - 'scripts/build_remote_semantic_search_index.py'
       - 'scripts/semantic-search-requirements.txt'
@@ -14,10 +20,16 @@ on:
   push:
     branches: [main]
     paths:
+      - '**/*.html'
+      - 'content/**'
+      - '.generator-v6/**'
+      - '.v10bundle/**'
+      - 'assets/platform/platform-core.js'
       - 'ai-search/**'
       - 'tests/e5_*_smoke.mjs'
       - 'tests/test_ai_search_browser_index_v2.py'
       - 'tests/test_multilingual_e5_production_v3.py'
+      - 'tests/test_e5_full_site_home_integration_v4.py'
       - 'scripts/build_semantic_search_index.py'
       - 'scripts/build_remote_semantic_search_index.py'
       - 'scripts/semantic-search-requirements.txt'
@@ -52,7 +64,9 @@ jobs:
             scripts/build_semantic_search_index.py \
             scripts/build_remote_semantic_search_index.py \
             tests/test_ai_search_browser_index_v2.py \
-            tests/test_multilingual_e5_production_v3.py
+            tests/test_multilingual_e5_production_v3.py \
+            tests/test_e5_full_site_home_integration_v4.py
+          node --check assets/platform/platform-core.js
           node --check ai-search/assets/app.js
           node --check ai-search/assets/search-core.js
           node --check ai-search/assets/search-worker.js
@@ -60,7 +74,8 @@ jobs:
           node --check tests/e5_browser_smoke.mjs
           python -m unittest -v \
             tests.test_ai_search_browser_index_v2 \
-            tests.test_multilingual_e5_production_v3
+            tests.test_multilingual_e5_production_v3 \
+            tests.test_e5_full_site_home_integration_v4
           python - <<'PY'
           import json
           from pathlib import Path
@@ -124,15 +139,17 @@ jobs:
             --max-pages 12 \
             --workers 2 \
             --batch-size 8 \
-            --minimum-success-ratio 0.80
+            --minimum-success-ratio 0.80 \
+            --minimum-indexed-ratio 0.80
 
-      - name: Verify generated vector artifacts
+      - name: Verify generated vector artifacts and coverage
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
           root=Path('/tmp/semantic-search-smoke')
           manifest=json.loads((root/'manifest.json').read_text(encoding='utf-8'))
+          coverage=json.loads((root/'coverage.json').read_text(encoding='utf-8'))
           assert manifest['ready'] is True
           assert manifest['documentCount'] >= 1
           assert manifest['chunkCount'] >= manifest['documentCount']
@@ -142,13 +159,20 @@ jobs:
           assert manifest['modelRevision'] == 'fd1525a9fd15316a2d503bf26ab031a61d056e98'
           assert manifest['browserModelRevision'] == '761b726dd34fb83930e26aab4e9ac3899aa1fa78'
           assert manifest['corpusBaseUrl'] == 'https://healthrenewal.org/'
+          assert manifest['coverage']['passed'] is True
+          assert coverage['passed'] is True
+          assert coverage['indexCoverageRatio'] >= 0.80
+          assert coverage['downloadSuccessRatio'] >= 0.80
           assert manifest['shards']
           for shard in manifest['shards']:
               metadata=root/shard['metadata']
               vectors=root/shard['embeddings']
               assert metadata.is_file() and metadata.stat().st_size > 0
               assert vectors.is_file() and vectors.stat().st_size == shard['count'] * 384 * 2
-          print(f"Verified {manifest['documentCount']} pages, {manifest['chunkCount']} chunks and {len(manifest['shards'])} shards")
+          print(
+              f"Verified {manifest['documentCount']} pages, {manifest['chunkCount']} chunks, "
+              f"{len(manifest['shards'])} shards and {coverage['indexCoverageRatio']:.2%} coverage"
+          )
           PY
 
       - name: Install browser runtime test dependencies
@@ -197,13 +221,16 @@ jobs:
           assert torch.cuda.is_available() is False
           PY
 
-      - name: Preserve previous manifest
+      - name: Preserve previous coverage metadata
         run: |
           if [ -f ai-search/data/manifest.json ]; then
             cp ai-search/data/manifest.json /tmp/semantic-manifest-before.json
           fi
+          if [ -f ai-search/data/coverage.json ]; then
+            cp ai-search/data/coverage.json /tmp/semantic-coverage-before.json
+          fi
 
-      - name: Build index from all published sitemap pages
+      - name: Build index from every published sitemap page
         env:
           TOKENIZERS_PARALLELISM: 'false'
         run: |
@@ -212,24 +239,75 @@ jobs:
             --base-url https://healthrenewal.org/ \
             --output ai-search/data \
             --max-pages 10000 \
-            --workers 8
+            --workers 8 \
+            --minimum-success-ratio 1.0 \
+            --minimum-indexed-ratio 1.0
+
+      - name: Verify complete production corpus coverage
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('ai-search/data')
+          manifest=json.loads((root/'manifest.json').read_text(encoding='utf-8'))
+          coverage=json.loads((root/'coverage.json').read_text(encoding='utf-8'))
+          assert manifest['coverage']['passed'] is True
+          assert coverage['passed'] is True
+          assert coverage['downloadSuccessRatio'] == 1.0
+          assert coverage['indexCoverageRatio'] == 1.0
+          assert coverage['failedDownloadCount'] == 0
+          assert coverage['unindexedUrls'] == []
+          assert coverage['destinationCollisions'] == {}
+          assert coverage['unexpectedIndexedPaths'] == []
+          assert coverage['discoveredUrlCount'] == coverage['downloadedPageCount']
+          assert coverage['discoveredUrlCount'] == coverage['indexedUrlCount']
+          assert coverage['indexedUrlCount'] == manifest['documentCount']
+          print({
+              'passed': True,
+              'documents': manifest['documentCount'],
+              'chunks': manifest['chunkCount'],
+              'coverage': coverage['indexCoverageRatio'],
+          })
+          PY
 
       - name: Avoid timestamp-only commits
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          old_path=Path('/tmp/semantic-manifest-before.json')
-          new_path=Path('ai-search/data/manifest.json')
-          if not old_path.exists() or not new_path.exists():
+
+          old_manifest_path=Path('/tmp/semantic-manifest-before.json')
+          new_manifest_path=Path('ai-search/data/manifest.json')
+          old_coverage_path=Path('/tmp/semantic-coverage-before.json')
+          new_coverage_path=Path('ai-search/data/coverage.json')
+
+          if not old_manifest_path.exists() or not new_manifest_path.exists():
               raise SystemExit(0)
-          old=json.loads(old_path.read_text(encoding='utf-8'))
-          new=json.loads(new_path.read_text(encoding='utf-8'))
-          strip=lambda data: {key:value for key,value in data.items() if key != 'generatedAt'}
-          if strip(old) == strip(new):
-              new['generatedAt']=old.get('generatedAt')
-              new_path.write_text(json.dumps(new, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
-              print('Only generatedAt changed; preserved previous timestamp.')
+
+          old_manifest=json.loads(old_manifest_path.read_text(encoding='utf-8'))
+          new_manifest=json.loads(new_manifest_path.read_text(encoding='utf-8'))
+          strip_generated=lambda data: {key:value for key,value in data.items() if key != 'generatedAt'}
+
+          if strip_generated(old_manifest) != strip_generated(new_manifest):
+              raise SystemExit(0)
+
+          generated_at=old_manifest.get('generatedAt')
+          new_manifest['generatedAt']=generated_at
+          new_manifest_path.write_text(
+              json.dumps(new_manifest, ensure_ascii=False, separators=(',', ':')),
+              encoding='utf-8',
+          )
+
+          if old_coverage_path.exists() and new_coverage_path.exists():
+              old_coverage=json.loads(old_coverage_path.read_text(encoding='utf-8'))
+              new_coverage=json.loads(new_coverage_path.read_text(encoding='utf-8'))
+              if strip_generated(old_coverage) == strip_generated(new_coverage):
+                  new_coverage['generatedAt']=old_coverage.get('generatedAt', generated_at)
+                  new_coverage_path.write_text(
+                      json.dumps(new_coverage, ensure_ascii=False, separators=(',', ':')),
+                      encoding='utf-8',
+                  )
+          print('Only generation timestamps changed; preserved previous timestamps.')
           PY
 
       - name: Commit generated index
