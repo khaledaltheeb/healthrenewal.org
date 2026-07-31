@@ -1,0 +1,82 @@
+name: Temporary sitemap fix validation
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  validate:
+    if: github.event.issue.title == '[diagnostic] sitemap fix validation 2026-07-31'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate custom-domain metadata sitemap and robots
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/publish_global_metadata_v27.py scripts/generate_sitemap_index_v304.py scripts/audit_indexing_coverage_v303.py
+          rm -rf /tmp/sitemap-fixture
+          mkdir -p /tmp/sitemap-fixture/a /tmp/sitemap-fixture/private /tmp/sitemap-fixture/api
+          cat > /tmp/sitemap-fixture/index.html <<'HTML'
+          <!doctype html><html><head><title>Home</title><meta name="description" content="Home description"><link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/"><meta property="og:url" content="https://khaledaltheeb.github.io/pterminology-site/"></head><body><h1>Home</h1><a href="/pterminology-site/a/">A</a></body></html>
+          HTML
+          cat > /tmp/sitemap-fixture/a/index.html <<'HTML'
+          <!doctype html><html><head><title>A</title><meta name="description" content="A description"><link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/a/"></head><body><h1>A</h1></body></html>
+          HTML
+          cat > /tmp/sitemap-fixture/private/index.html <<'HTML'
+          <!doctype html><html><head><title>Private</title><meta name="description" content="Private description"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/private/"></head><body><h1>Private</h1></body></html>
+          HTML
+          printf 'google-site-verification: google644f1f7a8b7aaa2b.html\n' > /tmp/sitemap-fixture/google644f1f7a8b7aaa2b.html
+          cat > /tmp/sitemap-fixture/robots.txt <<'TXT'
+          User-agent: *
+          Disallow: /
+          Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap-index.xml
+          TXT
+
+          python scripts/publish_global_metadata_v27.py /tmp/sitemap-fixture
+          cp /tmp/sitemap-fixture/index.html /tmp/first-pass.html
+          python scripts/publish_global_metadata_v27.py /tmp/sitemap-fixture
+          cmp /tmp/first-pass.html /tmp/sitemap-fixture/index.html
+          python scripts/generate_sitemap_index_v304.py /tmp/sitemap-fixture
+          PYTHONPATH=scripts python scripts/audit_indexing_coverage_v303.py /tmp/sitemap-fixture
+
+          python - <<'PY' > /tmp/result.txt
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          root=Path('/tmp/sitemap-fixture')
+          ns={'s':'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          primary=[x.text for x in ET.parse(root/'sitemap.xml').findall('.//s:loc',ns)]
+          assert primary==['https://healthrenewal.org/','https://healthrenewal.org/a/'],primary
+          assert 'private' not in '\n'.join(primary)
+          robots=(root/'robots.txt').read_text()
+          assert 'Disallow:' not in robots,robots
+          assert robots.count('Sitemap: https://healthrenewal.org/sitemap.xml')==1,robots
+          assert robots.count('Sitemap: https://healthrenewal.org/sitemap-index.xml')==1,robots
+          for page in (root/'index.html',root/'a/index.html'):
+              text=page.read_text()
+              assert 'khaledaltheeb.github.io/pterminology-site' not in text,text
+              assert '/pterminology-site/' not in text,text
+              assert 'https://healthrenewal.org/' in text,text
+          report=json.loads((root/'api/indexing-coverage-audit-v303.json').read_text())
+          assert report['status']=='passed',report
+          print(json.dumps({'status':'passed','primary_urls':len(primary),'robots':'allow-all','canonical_domain':'healthrenewal.org','noindex_excluded':True},indent=2))
+          PY
+      - name: Publish result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          python3 - <<'PY' >/tmp/body.json
+          import json
+          from pathlib import Path
+          report=Path('/tmp/result.txt').read_text(errors='replace') if Path('/tmp/result.txt').exists() else 'Validation failed before producing a result.'
+          print(json.dumps({'body':'## Sitemap fix validation\n\n```text\n'+report+'\n```'}))
+          PY
+          curl -fsSL -X POST -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" --data-binary @/tmp/body.json
