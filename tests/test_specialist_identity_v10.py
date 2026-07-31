@@ -5,6 +5,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 WORKER = ROOT / "specialists-partners/account-backend/src/index-v10.js"
 FINAL_WORKER = ROOT / "specialists-partners/account-backend/src/index-v10-final.js"
 PRODUCTION_WORKER = ROOT / "specialists-partners/account-backend/src/index-v10-production.js"
+PROPAGATION = ROOT / "scripts/verify_specialist_identity_v10_production.py"
 ADMIN_RECOVERY = ROOT / "specialists-partners/admin/admin-recovery-v10-final.js"
 ADMIN_PROVIDER = ROOT / "specialists-partners/admin/admin-provider-status-v10.js"
 RUNTIME = ROOT / "specialists-partners/assets/runtime-config.js"
@@ -23,6 +24,7 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         cls.worker = WORKER.read_text(encoding="utf-8")
         cls.final_worker = FINAL_WORKER.read_text(encoding="utf-8")
         cls.production_worker = PRODUCTION_WORKER.read_text(encoding="utf-8")
+        cls.propagation = PROPAGATION.read_text(encoding="utf-8")
         cls.admin = ADMIN_RECOVERY.read_text(encoding="utf-8")
         cls.admin_provider = ADMIN_PROVIDER.read_text(encoding="utf-8")
         cls.runtime = RUNTIME.read_text(encoding="utf-8")
@@ -100,6 +102,16 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn('identityVersion: "10.2.0"', self.runtime)
         self.assertIn("reset-v10.js?v=10.2.0", self.reset_html)
 
+    def test_propagation_verifier_requires_atomic_stability(self):
+        self.assertIn("for attempt in range(1, 61)", self.propagation)
+        self.assertIn("normal_ok(normal_status, normal)", self.propagation)
+        self.assertIn("public_deep_ok(public_status, public)", self.propagation)
+        self.assertIn("protected_deep_ok(deep_status, deep)", self.propagation)
+        self.assertIn("if stable >= 3", self.propagation)
+        self.assertIn("x-bootstrap-key", self.propagation)
+        self.assertIn("/tmp/identity-health.json", self.propagation)
+        self.assertIn("/tmp/identity-deep-health.json", self.propagation)
+
     def test_validation_and_production_workflows_are_separated(self):
         self.assertTrue(VALIDATE.exists())
         self.assertTrue(DEPLOY.exists())
@@ -109,7 +121,8 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertNotIn("push:\n    branches", validation)
         self.assertIn('main = "src/index-v10-production.js"', production)
         self.assertIn("node --check specialists-partners/account-backend/src/index-v10-production.js", production)
-        self.assertIn("x-bootstrap-key: ${ADMIN_API_KEY}", production)
+        self.assertIn("verify_specialist_identity_v10_production.py", production)
+        self.assertIn("stable_contract_cycles", production)
         self.assertIn("Deep health must not be public", production)
         self.assertIn("tests.test_specialist_identity_v10", production)
         self.assertIn("specialist-identity-v10-production.json", production)

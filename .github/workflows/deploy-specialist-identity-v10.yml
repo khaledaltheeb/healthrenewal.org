@@ -10,6 +10,7 @@ on:
       - "specialists-partners/admin/**"
       - "specialists-partners/password-reset/**"
       - "specialists-partners/assets/runtime-config.js"
+      - "scripts/verify_specialist_identity_v10_production.py"
       - "tests/test_specialist_accounts_v5.py"
       - "tests/test_specialist_identity_v6.py"
       - "tests/test_specialist_identity_v10.py"
@@ -43,6 +44,7 @@ jobs:
           node --check specialists-partners/admin/admin-provider-status-v10.js
           node --check specialists-partners/assets/runtime-config.js
           node --check specialists-partners/password-reset/reset-v10.js
+          python -m py_compile scripts/verify_specialist_identity_v10_production.py
           python -m unittest -v \
             tests.test_specialist_accounts_v5 \
             tests.test_specialist_identity_v6 \
