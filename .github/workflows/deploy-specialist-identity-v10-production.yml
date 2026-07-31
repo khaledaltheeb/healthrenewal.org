@@ -15,6 +15,7 @@ on:
       - "specialists-partners/password-reset/**"
       - "specialists-partners/assets/runtime-config.js"
       - "specialists-partners/backend/migrations/**"
+      - "scripts/verify_specialist_identity_v10_production.py"
       - "tests/test_specialist_accounts_v5.py"
       - "tests/test_specialist_identity_v6.py"
       - "tests/test_specialist_identity_v10.py"
@@ -36,7 +37,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '826ac34927c1e045c06145a327c2ac52' }}
@@ -73,6 +74,7 @@ jobs:
           node --check specialists-partners/admin/admin-provider-status-v10.js
           node --check specialists-partners/recover/recover.js
           node --check specialists-partners/password-reset/reset-v10.js
+          python -m py_compile scripts/verify_specialist_identity_v10_production.py
           python -m unittest -v \
             tests.test_specialist_accounts_v5 \
             tests.test_specialist_identity_v6 \
@@ -170,43 +172,13 @@ jobs:
         working-directory: specialists-partners/account-backend
         run: npx --yes wrangler@4 deploy --config wrangler-v10-production.toml --secrets-file worker-secrets-v10-production.json --minify --keep-vars
 
-      - name: Verify production health and protected deep health
+      - name: Verify stable production propagation and protected deep health
         id: verify
         shell: bash
         run: |
           set -euo pipefail
-          ready=false
-          for attempt in {1..36}; do
-            status="$(curl -sS -o /tmp/identity-health.json -w '%{http_code}' "${ACCOUNT_API_BASE}/health?release=10.2.0-${GITHUB_RUN_ID}-${attempt}" || true)"
-            if [[ "${status}" == "200" ]] && python - <<'PY'
-          import json
-          data=json.load(open('/tmp/identity-health.json',encoding='utf-8'))
-          assert data.get('ok') is True, data
-          assert data.get('version') == '10.2.0', data
-          checks=data.get('checks') or {}
-          required=['database','identitySchema','turnstile','sessionBinding','singleActiveResetLink','truthfulAdminDelivery','manualRecovery','corsPreflight','strictPasswordPolicy','accountPasswordPolicy','protectedDeepHealth','adminProviderStatus']
-          for key in required:
-              assert checks.get(key) is True, (key,checks)
-          PY
-            then ready=true; break; fi
-            sleep 5
-          done
-          [[ "${ready}" == "true" ]] || { cat /tmp/identity-health.json || true; exit 1; }
-
-          public_deep="$(curl -sS -o /tmp/public-deep.json -w '%{http_code}' "${ACCOUNT_API_BASE}/health?deep=1&public=${GITHUB_RUN_ID}" || true)"
-          [[ "${public_deep}" == "403" ]] || { cat /tmp/public-deep.json || true; echo "::error::Deep health must not be public"; exit 1; }
-
-          deep_status="$(curl -sS -o /tmp/identity-deep-health.json -w '%{http_code}' -H "x-bootstrap-key: ${ADMIN_API_KEY}" "${ACCOUNT_API_BASE}/health?deep=1&release=10.2.0-${GITHUB_RUN_ID}" || true)"
-          [[ "${deep_status}" == "200" || "${deep_status}" == "503" ]] || { cat /tmp/identity-deep-health.json || true; exit 1; }
-          python - <<'PY'
-          import json
-          data=json.load(open('/tmp/identity-deep-health.json',encoding='utf-8'))
-          assert data.get('version') == '10.2.0', data
-          provider=data.get('emailProvider') or {}
-          assert provider.get('configured') is True, provider
-          assert provider.get('code') in {'ready','ready_sending_only','invalid_api_key','authentication_failed','rate_limited','provider_unavailable','provider_rejected','provider_unreachable'}, provider
-          PY
-          echo "deep_status=${deep_status}" >> "$GITHUB_OUTPUT"
+          echo "Deep health must not be public; all three contracts must pass in the same cycle."
+          python scripts/verify_specialist_identity_v10_production.py
 
       - name: Record safe production report
         env:
@@ -228,6 +200,7 @@ jobs:
             'worker':{'http_status':200,'ok':normal.get('ok') is True,'version':normal.get('version'),'checks':normal.get('checks') or {}},
             'email_provider':{'http_status':int(os.environ.get('DEEP_STATUS') or 0),'configured':provider.get('configured'),'auth_valid':provider.get('authValid'),'access':provider.get('access'),'code':provider.get('code')},
             'deep_health_public':False,
+            'stable_contract_cycles':3,
             'manual_recovery_available':bool((normal.get('capabilities') or {}).get('manualRecovery')),
             'fully_operational':normal.get('ok') is True and provider.get('authValid') is True,
           }
