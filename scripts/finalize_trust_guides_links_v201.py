@@ -3,14 +3,16 @@ from __future__ import annotations
 
 import json
 import re
-import shutil
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-LEGACY_BLOG = 'href="/pterminology-site/blog/"'
-MAGAZINE = 'href="/pterminology-site/magazine/"'
+CANONICAL_ORIGIN = "https://healthrenewal.org"
+LEGACY_ORIGINS = (
+    "https://khaledaltheeb.github.io/pterminology-site",
+    "http://khaledaltheeb.github.io/pterminology-site",
+)
 PUBLIC_TARGET = "guides/source-citation-and-update-transparency/index.html"
 ALIAS_TARGETS = {
     "editorial-methodology/index.html": "/trust/",
@@ -24,30 +26,100 @@ DISCOVERY_TARGETS = (
     "trust/index.html",
     "magazine/index.html",
 )
+CANONICAL_RE = re.compile(
+    r'<link\b(?=[^>]*\brel\s*=\s*(["\'])[^"\']*\bcanonical\b[^"\']*\1)[^>]*>',
+    re.I | re.S,
+)
+REFRESH_RE = re.compile(
+    r'<meta\b(?=[^>]*\bhttp-equiv\s*=\s*(["\'])refresh\1)[^>]*>',
+    re.I | re.S,
+)
 
 
 def _local_name(tag: str) -> str:
     return tag.rsplit("}", 1)[-1]
 
 
-def _remove_alias_urls(path: Path) -> int:
+def _custom_url(value: str) -> str:
+    normalized = value.strip()
+    for origin in LEGACY_ORIGINS:
+        normalized = normalized.replace(origin, CANONICAL_ORIGIN)
+    normalized = normalized.replace("/pterminology-site/", "/")
+    normalized = normalized.replace(f"{CANONICAL_ORIGIN}//", f"{CANONICAL_ORIGIN}/")
+    return normalized
+
+
+def _normalize_public_text(text: str) -> str:
+    updated = text
+    for origin in LEGACY_ORIGINS:
+        updated = updated.replace(origin, CANONICAL_ORIGIN)
+    updated = updated.replace("/pterminology-site/blog/", "/magazine/")
+    updated = updated.replace("/pterminology-site/magazine/", "/magazine/")
+    updated = updated.replace("/pterminology-site/trust/", "/trust/")
+    return updated
+
+
+def _normalize_alias_source(text: str, canonical_route: str) -> str:
+    updated = _normalize_public_text(text)
+    canonical = f'{CANONICAL_ORIGIN}{canonical_route}'
+    canonical_tag = f'<link rel="canonical" href="{canonical}">'
+    refresh_tag = f'<meta http-equiv="refresh" content="0;url={canonical_route}">'
+
+    if CANONICAL_RE.search(updated):
+        updated = CANONICAL_RE.sub(canonical_tag, updated, count=1)
+    else:
+        updated, count = re.subn(
+            r"\s*</head\s*>",
+            "\n" + canonical_tag + "\n</head>",
+            updated,
+            count=1,
+            flags=re.I,
+        )
+        if count != 1:
+            raise SystemExit("Compatibility alias source is missing </head>")
+
+    if REFRESH_RE.search(updated):
+        updated = REFRESH_RE.sub(refresh_tag, updated, count=1)
+    else:
+        updated, count = re.subn(
+            r"\s*</head\s*>",
+            "\n" + refresh_tag + "\n</head>",
+            updated,
+            count=1,
+            flags=re.I,
+        )
+        if count != 1:
+            raise SystemExit("Compatibility alias source is missing </head>")
+
+    updated = updated.replace(f'href="{canonical_route}"', f'href="{canonical_route}"')
+    return updated
+
+
+def _remove_alias_urls(path: Path) -> dict[str, int]:
     if not path.is_file():
-        return 0
+        return {"removed": 0, "normalized": 0}
     tree = ET.parse(path)
     root = tree.getroot()
     removed = 0
+    normalized_count = 0
     if _local_name(root.tag) == "urlset":
         for node in list(root):
             if _local_name(node.tag) != "url":
                 continue
             loc = next((child for child in node if _local_name(child.tag) == "loc"), None)
             value = (loc.text or "").strip() if loc is not None else ""
-            if any(value.endswith(route) for route in ALIAS_ROUTES):
+            normalized = _custom_url(value)
+            if any(normalized.endswith(route) for route in ALIAS_ROUTES):
                 root.remove(node)
                 removed += 1
-    if removed:
+                continue
+            if loc is not None and normalized != value:
+                loc.text = normalized
+                normalized_count += 1
+    if removed or normalized_count:
+        ET.indent(root, space="  ")
         tree.write(path, encoding="utf-8", xml_declaration=True)
-    return removed
+    return {"removed": removed, "normalized": normalized_count}
 
 
 def _remove_alias_discovery_links(site: Path) -> tuple[list[str], list[str]]:
@@ -55,7 +127,7 @@ def _remove_alias_discovery_links(site: Path) -> tuple[list[str], list[str]]:
     remaining: list[str] = []
     route_pattern = "|".join(re.escape(route.lstrip("/")) for route in ALIAS_ROUTES)
     item_re = re.compile(
-        rf'<li>\s*<a\b[^>]*href=(["\'])/pterminology-site/(?:{route_pattern})\1[^>]*>.*?</a>\s*</li>',
+        rf'<li>\s*<a\b[^>]*href=(["\'])(?:/pterminology-site)?/(?:{route_pattern})\1[^>]*>.*?</a>\s*</li>',
         re.I | re.S,
     )
     for relative in DISCOVERY_TARGETS:
@@ -63,11 +135,15 @@ def _remove_alias_discovery_links(site: Path) -> tuple[list[str], list[str]]:
         if not path.is_file():
             continue
         text = path.read_text(encoding="utf-8")
-        updated = item_re.sub("", text)
+        updated = _normalize_public_text(item_re.sub("", text))
         if updated != text:
             path.write_text(updated, encoding="utf-8")
             changed.append(relative)
-        if any(f'/pterminology-site/{route.lstrip("/")}' in updated for route in ALIAS_ROUTES):
+        if any(
+            token in updated
+            for route in ALIAS_ROUTES
+            for token in (route, f'/pterminology-site{route}')
+        ):
             remaining.append(relative)
     return changed, remaining
 
@@ -78,19 +154,21 @@ def _restore_alias_pages(site: Path) -> list[str]:
         source = ROOT / relative
         if not source.is_file():
             raise SystemExit(f"Missing repository alias source: {relative}")
-        text = source.read_text(encoding="utf-8")
+        text = _normalize_alias_source(source.read_text(encoding="utf-8"), canonical_route)
         required = (
             "data-legacy-path-alias=",
             'name="robots" content="noindex,follow"',
-            f'href="https://khaledaltheeb.github.io/pterminology-site{canonical_route}"',
-            f'content="0;url=/pterminology-site{canonical_route}"',
+            f'href="{CANONICAL_ORIGIN}{canonical_route}"',
+            f'content="0;url={canonical_route}"',
         )
         missing = [marker for marker in required if marker not in text]
         if missing:
             raise SystemExit(f"Invalid compatibility alias source {relative}: {missing}")
+        if any(origin in text for origin in LEGACY_ORIGINS) or "/pterminology-site/" in text:
+            raise SystemExit(f"Legacy origin or base path remains in compatibility alias: {relative}")
         destination = site / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, destination)
+        destination.write_text(text, encoding="utf-8")
         restored.append(relative)
     return restored
 
@@ -100,12 +178,14 @@ def _validate_alias_pages(site: Path) -> None:
         text = (site / relative).read_text(encoding="utf-8")
         if text.count("data-legacy-path-alias=") != 1:
             raise SystemExit(f"Alias marker missing or duplicated: {relative}")
-        if 'name="robots" content="noindex,follow"' not in text:
+        if text.count('name="robots" content="noindex,follow"') != 1:
             raise SystemExit(f"Alias robots contract failed: {relative}")
-        if f'href="https://khaledaltheeb.github.io/pterminology-site{canonical_route}"' not in text:
+        if text.count(f'href="{CANONICAL_ORIGIN}{canonical_route}"') != 1:
             raise SystemExit(f"Alias canonical contract failed: {relative}")
-        if f'content="0;url=/pterminology-site{canonical_route}"' not in text:
+        if text.count(f'content="0;url={canonical_route}"') != 1:
             raise SystemExit(f"Alias redirect contract failed: {relative}")
+        if any(origin in text for origin in LEGACY_ORIGINS) or "/pterminology-site/" in text:
+            raise SystemExit(f"Alias legacy-origin contract failed: {relative}")
 
 
 def finalize(site: Path) -> dict[str, object]:
@@ -119,14 +199,14 @@ def finalize(site: Path) -> dict[str, object]:
     for relative in generated_targets:
         path = site / relative
         text = path.read_text(encoding="utf-8")
-        updated = text.replace(LEGACY_BLOG, MAGAZINE)
+        updated = _normalize_public_text(text)
         if updated != text:
             path.write_text(updated, encoding="utf-8")
             changed_pages.append(relative)
-        if LEGACY_BLOG in updated:
+        if any(origin in updated for origin in LEGACY_ORIGINS) or "/pterminology-site/" in updated:
             remaining_legacy.append(relative)
     if remaining_legacy:
-        raise SystemExit(f"Legacy blog links remain in trust guides: {remaining_legacy}")
+        raise SystemExit(f"Legacy origins remain in trust guides: {remaining_legacy}")
 
     restored_aliases = _restore_alias_pages(site)
     _validate_alias_pages(site)
@@ -148,10 +228,13 @@ def finalize(site: Path) -> dict[str, object]:
         if not isinstance(page, dict):
             continue
         relative = str(page.get("path", ""))
+        if isinstance(page.get("url"), str):
+            page["url"] = _custom_url(str(page["url"]))
         if relative in ALIAS_TARGETS:
             page["publication_status"] = "compatibility-alias"
             page["indexable"] = False
             page["canonical_route"] = ALIAS_TARGETS[relative]
+            page["canonical_url"] = CANONICAL_ORIGIN + ALIAS_TARGETS[relative]
         elif relative == PUBLIC_TARGET:
             page["publication_status"] = "public"
             page["indexable"] = True
@@ -162,6 +245,7 @@ def finalize(site: Path) -> dict[str, object]:
         "remaining_legacy_links": [],
     }
     report["publication_contract"] = {
+        "canonical_origin": CANONICAL_ORIGIN,
         "public_pages": [PUBLIC_TARGET],
         "compatibility_aliases": sorted(ALIAS_TARGETS),
         "public_page_count": 1,
@@ -169,18 +253,20 @@ def finalize(site: Path) -> dict[str, object]:
         "aliases_indexable": False,
         "aliases_in_sitemaps": False,
         "aliases_in_discovery": False,
+        "legacy_origins_remaining": 0,
     }
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     result = {
-        "version": 354,
+        "version": 355,
         "changed_pages": changed_pages,
         "restored_aliases": restored_aliases,
         "public_pages": [PUBLIC_TARGET],
-        "sitemap_alias_urls_removed": sitemap_pruned,
+        "sitemap_alias_urls": sitemap_pruned,
         "discovery_pages_changed": discovery_changed,
         "remaining_legacy_links": [],
         "remaining_alias_discovery_links": [],
+        "canonical_origin": CANONICAL_ORIGIN,
         "active_route": "/magazine/",
         "alias_target": "/trust/",
         "status": "passed",
