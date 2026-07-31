@@ -15,7 +15,7 @@ permissions:
 
 concurrency:
   group: publish-complete-sitemap-v360
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -115,4 +115,5 @@ jobs:
             exit 0
           fi
           git commit -m 'chore(seo): synchronize complete sitemap and robots'
+          git pull --rebase origin main
           git push origin HEAD:main
