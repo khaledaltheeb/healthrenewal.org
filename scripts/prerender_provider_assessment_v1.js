@@ -4,10 +4,10 @@
 /**
  * Pre-render every governed provider-assessment condition.
  *
- * The browser application remains active, but the initial HTML contains the
- * complete semantic pathway for crawlers, assistive technology and users with
- * JavaScript disabled. Generated FAQ answers come only from the governed
- * condition registry and fixed professional-safety rules.
+ * Browser JavaScript remains active, but template-based pages expose complete
+ * initial HTML. Bespoke static guides are preserved and receive only safe
+ * metadata cleanup, so deep editorial content is never replaced by a generic
+ * pathway.
  */
 const fs = require("node:fs");
 const path = require("node:path");
@@ -18,6 +18,7 @@ const CONDITIONS = path.join(ROOT, "provider-assessment-demo", "conditions");
 const ORIGIN = "https://healthrenewal.org";
 const START = "<!-- provider-prerender:v1:start -->";
 const END = "<!-- provider-prerender:v1:end -->";
+const ROOT_PATTERN = /<div\b[^>]*\bid\s*=\s*["']condition-root["'][^>]*>/i;
 
 const escapeHtml = (value) => String(value ?? "")
   .replaceAll("&", "&amp;")
@@ -166,22 +167,21 @@ function replaceRoot(source, rendered) {
     return source.slice(0, start) + rendered + source.slice(end);
   }
 
-  const rootPattern = /<div\b[^>]*\bid\s*=\s*["']condition-root["'][^>]*>/i;
-  const rootMatch = rootPattern.exec(source);
+  const rootMatch = ROOT_PATTERN.exec(source);
   if (!rootMatch) throw new Error("condition root missing");
   const start = rootMatch.index;
-
   const noScriptEnd = source.indexOf("</noscript>", start);
   if (noScriptEnd >= 0) {
     return source.slice(0, start) + rendered + source.slice(noScriptEnd + "</noscript>".length);
   }
 
   const emptyRootPattern = /<div\b[^>]*\bid\s*=\s*["']condition-root["'][^>]*>\s*<\/div>/i;
-  if (emptyRootPattern.test(source)) {
-    return source.replace(emptyRootPattern, rendered);
-  }
-
+  if (emptyRootPattern.test(source)) return source.replace(emptyRootPattern, rendered);
   throw new Error("condition root found but no safe replacement boundary exists");
+}
+
+function isBespokeStaticGuide(source) {
+  return !source.includes(START) && !ROOT_PATTERN.test(source) && /<main\b/i.test(source) && /<h1\b/i.test(source) && /<h2\b/i.test(source);
 }
 
 function updatePage(condition, registry) {
@@ -191,9 +191,14 @@ function updatePage(condition, registry) {
   let source = fs.readFileSync(file, "utf8");
   source = removeMetaKeywords(source);
   source = ensureHreflang(source, canonical);
+
+  if (isBespokeStaticGuide(source)) {
+    return { file, source, mode: "preserved-bespoke" };
+  }
+
   source = replaceJsonLd(source, schema(condition, canonical));
   source = replaceRoot(source, render(condition, registry));
-  return { file, source };
+  return { file, source, mode: "prerendered-template" };
 }
 
 function main() {
@@ -201,6 +206,7 @@ function main() {
   if (!mode) throw new Error("Use --write or --check");
   const registry = loadRegistry();
   const changes = [];
+  const preserved = [];
 
   for (const condition of registry.conditions) {
     let result;
@@ -209,6 +215,7 @@ function main() {
     } catch (error) {
       throw new Error(`${condition.slug}: ${error.message}`);
     }
+    if (result.mode === "preserved-bespoke") preserved.push(condition.slug);
     const current = fs.readFileSync(result.file, "utf8");
     if (result.source !== current) changes.push(result);
   }
@@ -221,6 +228,7 @@ function main() {
 
   for (const change of changes) fs.writeFileSync(change.file, change.source, "utf8");
   console.log(`Updated ${changes.length} provider-assessment condition pages`);
+  if (preserved.length) console.log(`Preserved bespoke guides: ${preserved.join(", ")}`);
 }
 
 main();
