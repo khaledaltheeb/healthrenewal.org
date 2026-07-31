@@ -46,7 +46,7 @@ EXCLUDED_PARTS = {
     "portal",
     "account",
 }
-EXCLUDED_FILES = {"404.html", "professional-console.html"}
+EXCLUDED_FILES = {"404.html"}
 REMOVABLE_TAGS = {
     "script",
     "style",
