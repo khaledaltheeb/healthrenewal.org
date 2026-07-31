@@ -18,6 +18,7 @@ on:
       - ".github/workflows/seo-search-intent-v1.yml"
   pull_request:
     paths:
+      - ".seo-bundle/**"
       - "scripts/audit_seo_intent_v1.py"
       - "scripts/enhance_search_intent_v1.py"
       - "tests/test_seo_intent_contract_v1.py"
@@ -43,6 +44,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
       - uses: actions/setup-python@v5
         with:
@@ -65,12 +67,7 @@ jobs:
         run: python -m unittest tests.test_seo_intent_contract_v1 -v
 
       - name: Generate deterministic search-intent surface
-        if: github.event_name != 'pull_request'
         run: python scripts/enhance_search_intent_v1.py --write
-
-      - name: Reject stale generated pages on pull requests
-        if: github.event_name == 'pull_request'
-        run: python scripts/enhance_search_intent_v1.py --check
 
       - name: Audit the 100 priority URLs
         run: python scripts/audit_seo_intent_v1.py --scope priority --report reports/seo-intent-priority-v1.json
@@ -78,17 +75,13 @@ jobs:
       - name: Audit the complete sitemap surface
         run: python scripts/audit_seo_intent_v1.py --scope all --report reports/seo-intent-all-v1.json
 
-      - name: Enforce priority contract on pull requests
-        if: github.event_name == 'pull_request'
-        run: python scripts/audit_seo_intent_v1.py --scope priority --strict --report reports/seo-intent-priority-v1.json
-
       - name: Check generated diff
         run: git diff --check
 
       - name: Commit generated pages, scripts, and audit reports
-        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/sitewide-seo-intent-contract-v1-20260801'
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
         env:
-          BRANCH: feat/sitewide-seo-intent-contract-v1-20260801
+          BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
         shell: bash
         run: |
           if [[ -d .seo-bundle ]]; then
@@ -97,14 +90,18 @@ jobs:
           git add scripts family-guide magazine reports tests content docs .github/workflows/seo-search-intent-v1.yml
           if git diff --cached --quiet; then
             echo "Generated surface is current."
-            exit 0
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "feat(seo): pre-render intent content and audit priority URLs"
+            git push origin "HEAD:${BRANCH}"
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "feat(seo): pre-render intent content and audit priority URLs"
-          git push origin "HEAD:${BRANCH}"
+
+      - name: Enforce priority contract
+        run: python scripts/audit_seo_intent_v1.py --scope priority --strict --report reports/seo-intent-priority-v1.json
 
       - name: Upload audit reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: seo-search-intent-v1-${{ github.sha }}
