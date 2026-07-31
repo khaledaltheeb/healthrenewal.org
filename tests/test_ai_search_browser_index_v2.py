@@ -21,24 +21,31 @@ class BrowserSemanticSearchV2Tests(unittest.TestCase):
         self.assertIn("maxDocuments = 6000", core)
         self.assertIn("<sitemapindex", SITEMAP_INDEX.read_text(encoding="utf-8"))
 
-    def test_local_e5_vectors_are_cached_without_private_api(self) -> None:
+    def test_local_e5_reranking_is_bounded_and_private(self) -> None:
         core = CORE.read_text(encoding="utf-8")
         worker = WORKER.read_text(encoding="utf-8")
-        self.assertIn("indexedDB.open", core)
-        self.assertIn("writeVectorCache", worker)
+        self.assertIn("MAX_SEED_CANDIDATES = 96", worker)
+        self.assertIn("MAX_HYDRATED_CANDIDATES = 36", worker)
+        self.assertIn("candidatePool", worker)
+        self.assertIn("hydrateCandidates", worker)
         self.assertIn("Xenova/multilingual-e5-small", worker)
         self.assertIn("passage: ", worker)
         self.assertIn("query: ", worker)
+        self.assertIn("QUERY_ALIASES", worker)
+        self.assertNotIn("ensureLocalVectors", worker)
+        self.assertNotIn("documents.length * DIMENSIONS", worker)
         self.assertNotIn("OPENAI_API_KEY", core + worker)
         self.assertNotIn("ANTHROPIC_API_KEY", core + worker)
 
     def test_precomputed_index_remains_optional_acceleration(self) -> None:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         worker = WORKER.read_text(encoding="utf-8")
+        app = APP.read_text(encoding="utf-8")
         self.assertEqual(manifest["dimensions"], 384)
-        self.assertIn("loadGenerated", worker)
-        self.assertIn("local-sitemap", worker)
-        self.assertIn("indexMode", APP.read_text(encoding="utf-8"))
+        self.assertIn("loadGeneratedIndex", worker)
+        self.assertIn("local-rerank", worker)
+        self.assertIn("indexMode", app)
+        self.assertIn("مجموعة مرشحة محدودة", app)
 
     def test_search_is_retrieval_only(self) -> None:
         page = (ROOT / "ai-search" / "index.html").read_text(encoding="utf-8")

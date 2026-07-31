@@ -23,7 +23,8 @@ class SpecialistTurnstilePersistenceTests(unittest.TestCase):
         self.assertNotIn("secret put TURNSTILE_SECRET", self.workflow)
 
     def test_health_verifier_identifies_itself(self):
-        self.assertIn('PROBE_USER_AGENT = "pterminology-specialist-deploy-verifier/10.2"', self.verifier)
+        self.assertIn('EXPECTED_VERSION = "10.3.0"', self.verifier)
+        self.assertIn('PROBE_USER_AGENT = "pterminology-specialist-deploy-verifier/10.3"', self.verifier)
         self.assertIn('"user-agent": PROBE_USER_AGENT', self.verifier)
         self.assertIn('"pragma": "no-cache"', self.verifier)
 

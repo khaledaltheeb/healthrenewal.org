@@ -10,24 +10,12 @@ from typing import Any
 import publish_section_directory_v221 as legacy
 
 VERSION = 322
+COMPATIBILITY_ALIAS_ROUTES = {
+    "editorial-methodology/",
+    "evaluate-mental-health-information/",
+}
 
 ADDITIONS: OrderedDict[str, tuple[str, str, str]] = OrderedDict([
-    (
-        "editorial-methodology/",
-        (
-            "المنهجية التحريرية",
-            "كيف تتحول المصادر إلى صفحات عربية، وكيف تراجع الادعاءات والتحديثات وحدود المحتوى قبل النشر وبعده.",
-            "الحوكمة",
-        ),
-    ),
-    (
-        "evaluate-mental-health-information/",
-        (
-            "تقييم معلومات الصحة النفسية",
-            "دليل عملي لفحص المصدر والادعاء والسياق والتعارض والمخاطر قبل اعتماد معلومة نفسية أو مشاركتها.",
-            "المصادر",
-        ),
-    ),
     (
         "outside-the-box/",
         (
@@ -105,8 +93,6 @@ REQUIRED_DIRECTORY_ROUTES = {
     "api/",
     "platform/",
     "copyright/",
-    "editorial-methodology/",
-    "evaluate-mental-health-information/",
     "en/",
     "es/",
 }
@@ -114,20 +100,17 @@ REQUIRED_DIRECTORY_ROUTES = {
 
 def configure_legacy() -> None:
     definitions = OrderedDict(legacy.DEFINITIONS)
-
     rebuilt: OrderedDict[str, tuple[str, str, str]] = OrderedDict()
+
     for route, metadata in definitions.items():
+        if route in COMPATIBILITY_ALIAS_ROUTES:
+            continue
         rebuilt[route] = metadata
-        if route == "magazine/":
-            rebuilt["evaluate-mental-health-information/"] = ADDITIONS[
-                "evaluate-mental-health-information/"
-            ]
         if route == "magazine/":
             rebuilt["outside-the-box/"] = ADDITIONS["outside-the-box/"]
         if route == "provider-assessment-demo/":
             rebuilt["specialists-partners/"] = ADDITIONS["specialists-partners/"]
         if route == "partners/":
-            rebuilt["editorial-methodology/"] = ADDITIONS["editorial-methodology/"]
             rebuilt["platform/"] = ADDITIONS["platform/"]
             rebuilt["copyright/"] = ADDITIONS["copyright/"]
 
@@ -188,9 +171,18 @@ def publish(site: Path, root: Path) -> dict[str, Any]:
     payload = _read_directory(site)
     routes = {item.get("route") for item in payload["items"] if isinstance(item, dict)}
 
+    # Compatibility aliases remain in the production artifact so historical
+    # links resolve, but they canonicalize to /trust/, carry noindex, and are
+    # not independent public sections.
+    unexpected_aliases = sorted(COMPATIBILITY_ALIAS_ROUTES & routes)
+    if unexpected_aliases:
+        raise legacy.SectionDirectoryError(
+            f"compatibility aliases must not be public directory items: {unexpected_aliases}"
+        )
+
     # Build pipelines publish some top-level portals after the content catalog.
-    # Enforce registration for every route already present now, and let the
-    # final full-site audit enforce the complete publication surface.
+    # Enforce registration for every independent route already present now, and
+    # let the final full-site audit enforce the complete publication surface.
     available_required = {
         route for route in REQUIRED_DIRECTORY_ROUTES if _route_exists(site, route)
     }
@@ -214,6 +206,8 @@ def publish(site: Path, root: Path) -> dict[str, Any]:
         "featured_on_home": len(FEATURED),
         "specialists_partners_registered": "specialists-partners/" in routes,
         "outside_the_box_registered": "outside-the-box/" in routes,
+        "compatibility_alias_routes": sorted(COMPATIBILITY_ALIAS_ROUTES),
+        "compatibility_aliases_registered_as_sections": False,
         "homepage_metrics_refreshed": True,
     }
     legacy.write_json(site / "api/section-directory-v322.json", upgraded)

@@ -16,8 +16,8 @@ BASE = os.environ.get(
 ADMIN_KEY = os.environ.get("ADMIN_API_KEY", "")
 RUN_ID = os.environ.get("GITHUB_RUN_ID", "local")
 OUTPUT = os.environ.get("GITHUB_OUTPUT", "")
-EXPECTED_VERSION = "10.2.0"
-PROBE_USER_AGENT = "pterminology-specialist-deploy-verifier/10.2"
+EXPECTED_VERSION = "10.3.0"
+PROBE_USER_AGENT = "pterminology-specialist-deploy-verifier/10.3"
 REQUIRED_CHECKS = (
     "database",
     "identitySchema",
@@ -63,7 +63,7 @@ def request_json(path: str, headers: dict[str, str] | None = None) -> tuple[int,
     except urllib.error.HTTPError as error:
         status = error.code
         raw = error.read()
-    except Exception as error:  # network propagation/transient failure
+    except Exception as error:
         return 0, {"error": "request_failed", "detail": type(error).__name__}
     try:
         value = json.loads(raw.decode("utf-8"))
@@ -121,9 +121,8 @@ def main() -> int:
     latest_deep: dict = {}
     latest_deep_status = 0
 
-    # Cloudflare's workers.dev route can take substantially longer than the
-    # code upload to settle when a connected build overlaps a direct deploy.
-    # Keep checking the same read-only contracts for up to twenty minutes.
+    # A connected Cloudflare build can overlap the audited direct deployment.
+    # Require the same public and protected contracts to pass three times.
     for attempt in range(1, 241):
         nonce = f"{RUN_ID}-{attempt}-{time.time_ns()}"
         normal_status, normal = request_json(f"/health?release={EXPECTED_VERSION}&probe={nonce}")
@@ -158,7 +157,7 @@ def main() -> int:
             time.sleep(5)
 
     if stable < 3:
-        print("::error::Specialist identity 10.2.0 did not become stable across all contracts", file=sys.stderr)
+        print(f"::error::Specialist identity {EXPECTED_VERSION} did not become stable across all contracts", file=sys.stderr)
         return 1
 
     Path("/tmp/identity-health.json").write_text(
@@ -170,7 +169,7 @@ def main() -> int:
     if OUTPUT:
         with open(OUTPUT, "a", encoding="utf-8") as output:
             output.write(f"deep_status={latest_deep_status}\n")
-    print("Specialist identity 10.2.0 is stable across public and protected contracts.")
+    print(f"Specialist identity {EXPECTED_VERSION} is stable across public and protected contracts.")
     return 0
 
 

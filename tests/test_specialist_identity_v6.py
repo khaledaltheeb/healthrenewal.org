@@ -120,7 +120,7 @@ class SpecialistIdentityV6Tests(unittest.TestCase):
         verifier = read("scripts/verify_specialist_identity_v10_production.py")
         legacy = read(".github/workflows/deploy-specialists-account-backend.yml")
         self.assertIn("accountApiBase", runtime)
-        self.assertIn('identityVersion: "10.2.0"', runtime)
+        self.assertIn('identityVersion: "10.3.0"', runtime)
         self.assertNotIn("wrangler@4 deploy", validation)
         self.assertIn("secrets.CLOUDFLARE_API_TOKEN", production)
         self.assertIn("/tokens/verify", production)
@@ -148,6 +148,7 @@ class SpecialistIdentityV6Tests(unittest.TestCase):
             "specialists-partners/admin/admin-recovery-v10-final.js",
             "specialists-partners/admin/admin-provider-status-v10.js",
             "specialists-partners/password-reset/reset-v10.js",
+            "specialists-partners/recover/recover.js",
         )
         for relative in files:
             result = subprocess.run(["node","--check",str(ROOT / relative)],capture_output=True,text=True,check=False)
