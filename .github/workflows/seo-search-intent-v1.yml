@@ -1,0 +1,116 @@
+name: SEO search intent v1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/sitewide-seo-intent-contract-v1-20260801
+    paths:
+      - ".seo-bundle/**"
+      - "scripts/audit_seo_intent_v1.py"
+      - "scripts/enhance_search_intent_v1.py"
+      - "tests/test_seo_intent_contract_v1.py"
+      - "content/seo-priority-urls.txt"
+      - "docs/SEO_SEARCH_INTENT_CONTRACT.md"
+      - "family-guide/**"
+      - "magazine/**"
+      - "sitemap*.xml"
+      - ".github/workflows/seo-search-intent-v1.yml"
+  pull_request:
+    paths:
+      - "scripts/audit_seo_intent_v1.py"
+      - "scripts/enhance_search_intent_v1.py"
+      - "tests/test_seo_intent_contract_v1.py"
+      - "content/seo-priority-urls.txt"
+      - "docs/SEO_SEARCH_INTENT_CONTRACT.md"
+      - "family-guide/**"
+      - "magazine/**"
+      - "sitemap*.xml"
+      - ".github/workflows/seo-search-intent-v1.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: seo-search-intent-v1-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-and-apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Materialize staged contract scripts
+        shell: bash
+        run: |
+          if [[ -d .seo-bundle ]]; then
+            mkdir -p scripts
+            base64 --decode .seo-bundle/audit_seo_intent_v1.py.gz.b64 | gzip --decompress > scripts/audit_seo_intent_v1.py
+            base64 --decode .seo-bundle/enhance_search_intent_v1.py.gz.b64 | gzip --decompress > scripts/enhance_search_intent_v1.py
+            chmod +x scripts/audit_seo_intent_v1.py scripts/enhance_search_intent_v1.py
+          fi
+
+      - name: Compile contract scripts
+        run: python -m py_compile scripts/audit_seo_intent_v1.py scripts/enhance_search_intent_v1.py
+
+      - name: Run contract tests
+        run: python -m unittest tests.test_seo_intent_contract_v1 -v
+
+      - name: Generate deterministic search-intent surface
+        if: github.event_name != 'pull_request'
+        run: python scripts/enhance_search_intent_v1.py --write
+
+      - name: Reject stale generated pages on pull requests
+        if: github.event_name == 'pull_request'
+        run: python scripts/enhance_search_intent_v1.py --check
+
+      - name: Audit the 100 priority URLs
+        run: python scripts/audit_seo_intent_v1.py --scope priority --report reports/seo-intent-priority-v1.json
+
+      - name: Audit the complete sitemap surface
+        run: python scripts/audit_seo_intent_v1.py --scope all --report reports/seo-intent-all-v1.json
+
+      - name: Enforce priority contract on pull requests
+        if: github.event_name == 'pull_request'
+        run: python scripts/audit_seo_intent_v1.py --scope priority --strict --report reports/seo-intent-priority-v1.json
+
+      - name: Check generated diff
+        run: git diff --check
+
+      - name: Commit generated pages, scripts, and audit reports
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/sitewide-seo-intent-contract-v1-20260801'
+        env:
+          BRANCH: feat/sitewide-seo-intent-contract-v1-20260801
+        shell: bash
+        run: |
+          if [[ -d .seo-bundle ]]; then
+            git rm -r .seo-bundle
+          fi
+          git add scripts family-guide magazine reports tests content docs .github/workflows/seo-search-intent-v1.yml
+          if git diff --cached --quiet; then
+            echo "Generated surface is current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "feat(seo): pre-render intent content and audit priority URLs"
+          git push origin "HEAD:${BRANCH}"
+
+      - name: Upload audit reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-search-intent-v1-${{ github.sha }}
+          path: |
+            reports/seo-intent-priority-v1.json
+            reports/seo-intent-priority-v1.md
+            reports/seo-intent-all-v1.json
+            reports/seo-intent-all-v1.md
+          retention-days: 30
