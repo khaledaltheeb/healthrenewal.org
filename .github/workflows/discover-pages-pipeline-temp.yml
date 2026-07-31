@@ -1,0 +1,77 @@
+name: Discover Pages pipeline temporary
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/discover-pages-pipeline-temp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Discover workflow and build contracts
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,re
+          from datetime import datetime,timezone
+          from pathlib import Path
+
+          root=Path('.github/workflows')
+          rows=[]
+          for path in sorted(root.glob('*.y*ml')):
+              text=path.read_text(encoding='utf-8',errors='replace')
+              indicators=[]
+              for token in (
+                  'actions/deploy-pages','actions/upload-pages-artifact','github-pages',
+                  '_site','build_site.py','publish_site','jekyll','pages: write','id-token: write'
+              ):
+                  if token in text:
+                      indicators.append(token)
+              if indicators:
+                  commands=[]
+                  for line in text.splitlines():
+                      stripped=line.strip()
+                      if any(token in stripped for token in ('python ','python3 ','node ','bash ','./scripts/','scripts/','_site','deploy-pages','upload-pages-artifact')):
+                          clean=re.sub(r'\$\{\{[^}]+\}\}','${{…}}',stripped)
+                          commands.append(clean[:240])
+                  rows.append({
+                      'path':path.as_posix(),
+                      'indicators':indicators,
+                      'commands':commands[:120],
+                  })
+          report={
+              'schema_version':1,
+              'checked_at':datetime.now(timezone.utc).isoformat(),
+              'workflow_run_id':__import__('os').environ['GITHUB_RUN_ID'],
+              'matches':rows,
+              'contains_secret_values':False,
+          }
+          Path('reports/pages-pipeline-discovery.json').write_text(
+              json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8'
+          )
+          print(json.dumps(report,ensure_ascii=False))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/pages-pipeline-discovery.json
+          git commit -m "chore: record Pages pipeline discovery [skip ci]" || true
+          for attempt in {1..5}; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            git rebase --abort || true
+            sleep $((attempt*3))
+          done
+          exit 1
