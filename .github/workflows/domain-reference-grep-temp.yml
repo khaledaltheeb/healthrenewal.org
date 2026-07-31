@@ -1,0 +1,40 @@
+name: Temporary custom-domain reference audit
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    if: github.event.issue.title == '[diagnostic] custom domain references 2026-07-31'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find legacy production-domain references
+        shell: bash
+        run: |
+          {
+            echo '## Exact legacy base references'
+            grep -RIn --exclude-dir=.git --exclude='*.b64' --exclude='*.b85' --exclude='*.part*' 'https://khaledaltheeb.github.io/pterminology-site' . || true
+            echo
+            echo '## Root-prefix references in sitemap/indexing code and tests'
+            grep -RIn --exclude-dir=.git --exclude='*.b64' --exclude='*.b85' --exclude='*.part*' '/pterminology-site/' scripts tests .github/workflows robots.txt sitemap*.xml 2>/dev/null || true
+          } > /tmp/domain-refs.txt
+      - name: Publish report
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          python3 - <<'PY' >/tmp/body.json
+          import json
+          from pathlib import Path
+          report=Path('/tmp/domain-refs.txt').read_text(errors='replace') if Path('/tmp/domain-refs.txt').exists() else 'No report'
+          print(json.dumps({'body':'## Custom-domain reference audit\n\n```text\n'+report[-60000:]+'\n```'}))
+          PY
+          curl -fsSL -X POST -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" --data-binary @/tmp/body.json
