@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-07-31T18:12:01.529637+00:00",
-  "workflow_run_id": "30653605546",
+  "checked_at": "2026-07-31T18:13:45.268730+00:00",
+  "workflow_run_id": "30654199691",
   "worker": {
     "http_status": 200,
     "ok": true,
@@ -42,16 +42,16 @@
     "auth_valid": true,
     "access": "sending_only",
     "code": "ready_sending_only",
-    "sender_ready": false,
-    "sender_code": "sender_domain_not_verified",
-    "sender_domain": "gmail.com"
+    "sender_ready": true,
+    "sender_code": "sender_domain_candidate",
+    "sender_domain": "healthrenewal.org"
   },
   "deep_health_public": false,
   "stable_contract_cycles": 3,
   "required_secret_names_verified": true,
   "deployment_replaced_secrets": false,
   "manual_recovery_available": true,
-  "password_recovery_email_ready": false,
-  "operational_mode": "manual_recovery",
-  "fully_operational": false
+  "password_recovery_email_ready": true,
+  "operational_mode": "full",
+  "fully_operational": true
 }
