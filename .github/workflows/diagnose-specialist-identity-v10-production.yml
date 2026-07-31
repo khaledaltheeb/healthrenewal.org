@@ -46,7 +46,7 @@ jobs:
               '[skip ci]',
           )
           missing=[marker for marker in required if marker not in text]
-          forbidden=('echo "$CLOUDFLARE_API_TOKEN"','echo "$ADMIN_API_KEY"','echo "$RESEND_API_KEY"')
+          forbidden=tuple('echo "$'+name+'"' for name in ('CLOUDFLARE_API_TOKEN','ADMIN_API_KEY','RESEND_API_KEY'))
           leaked=[marker for marker in forbidden if marker in text]
           print({'missing':missing,'forbidden':leaked,'bytes':len(text.encode('utf-8'))})
           if missing or leaked:
