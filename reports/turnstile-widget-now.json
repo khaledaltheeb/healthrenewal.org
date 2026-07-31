@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T10:01:28.888528+00:00",
+  "http_status": 200,
+  "api_success": true,
+  "target_sitekey": "0x4AAAAAAD_r2o__Ao1RmBTO",
+  "matches": [
+    {
+      "sitekey": "0x4AAAAAAD_r2o__Ao1RmBTO",
+      "name": "pterminology-specialists-forms",
+      "mode": "managed",
+      "domains": [
+        "khaledaltheeb.github.io"
+      ],
+      "created_on": "2026-07-28T05:43:11.11861Z",
+      "modified_on": "2026-07-31T06:59:23.93404Z"
+    }
+  ],
+  "secret_values_recorded": false,
+  "errors": []
+}
