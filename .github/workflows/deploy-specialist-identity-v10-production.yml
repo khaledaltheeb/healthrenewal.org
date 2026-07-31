@@ -146,13 +146,13 @@ jobs:
           workers_dev = true
 
           [vars]
-          ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
+          ALLOWED_ORIGINS = "https://khaledaltheeb.github.io,https://healthrenewal.org,https://www.healthrenewal.org"
           ACCOUNT_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/account/"
           ADMIN_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/"
           PASSWORD_RESET_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/password-reset/"
           PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
           CORE_API_BASE = "{os.environ['CORE_API_BASE']}"
-          TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"
+          TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io,healthrenewal.org,www.healthrenewal.org"
           IDENTITY_SESSION_HOURS = "12"
           SESSION_BIND_IP = "off"
           OWNER_EMAIL = "pterminology@gmail.com"
@@ -223,18 +223,29 @@ jobs:
           normal=json.load(open('/tmp/identity-health.json',encoding='utf-8'))
           deep=json.load(open('/tmp/identity-deep-health.json',encoding='utf-8'))
           provider=deep.get('emailProvider') or {}
+          capabilities=deep.get('capabilities') or normal.get('capabilities') or {}
+          sender_ready=provider.get('senderReady') is True
+          recovery_email_ready=capabilities.get('passwordRecoveryEmail') is True
+          fully_operational=(
+              normal.get('ok') is True
+              and provider.get('authValid') is True
+              and sender_ready
+              and recovery_email_ready
+          )
           report={
             'schema_version':1,
             'checked_at':datetime.now(timezone.utc).isoformat(),
             'workflow_run_id':os.environ['GITHUB_RUN_ID'],
             'worker':{'http_status':200,'ok':normal.get('ok') is True,'version':normal.get('version'),'checks':normal.get('checks') or {}},
-            'email_provider':{'http_status':int(os.environ.get('DEEP_STATUS') or 0),'configured':provider.get('configured'),'auth_valid':provider.get('authValid'),'access':provider.get('access'),'code':provider.get('code')},
+            'email_provider':{'http_status':int(os.environ.get('DEEP_STATUS') or 0),'configured':provider.get('configured'),'auth_valid':provider.get('authValid'),'access':provider.get('access'),'code':provider.get('code'),'sender_ready':sender_ready,'sender_code':provider.get('senderCode'),'sender_domain':provider.get('senderDomain')},
             'deep_health_public':False,
             'stable_contract_cycles':3,
             'required_secret_names_verified':True,
             'deployment_replaced_secrets':False,
             'manual_recovery_available':bool((normal.get('capabilities') or {}).get('manualRecovery')),
-            'fully_operational':normal.get('ok') is True and provider.get('authValid') is True,
+            'password_recovery_email_ready':recovery_email_ready,
+            'operational_mode':'full' if fully_operational else 'manual_recovery',
+            'fully_operational':fully_operational,
           }
           open('reports/specialist-identity-v10-production.json','w',encoding='utf-8').write(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
           PY
