@@ -4,5 +4,17 @@ window.PT_SPECIALIST_CONFIG = Object.freeze({
   turnstileSiteKey: "0x4AAAAAAD_r2o__Ao1RmBTO",
   siteBase: "https://khaledaltheeb.github.io/pterminology-site",
   sectorBase: "https://khaledaltheeb.github.io/pterminology-site/specialists-partners",
-  environment: "production"
+  environment: "production",
+  identityVersion: "10.0.0"
 });
+
+(() => {
+  'use strict';
+  if (!/\/specialists-partners\/admin\/?$/.test(location.pathname)) return;
+  if (document.querySelector('script[data-pt-admin-recovery-v10]')) return;
+  const script = document.createElement('script');
+  script.src = '../admin/admin-recovery-v10.js?v=10.0.0';
+  script.defer = true;
+  script.dataset.ptAdminRecoveryV10 = 'true';
+  document.head.append(script);
+})();
