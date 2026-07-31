@@ -35,19 +35,22 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/patch_custom_domain_identity_v105.py
-
-          # GitHub Actions tokens cannot update workflow files. Keep the
-          # production workflow unchanged here; it is updated separately by
-          # the repository connector after this code-only commit succeeds.
-          git checkout -- .github/workflows/deploy-specialist-identity-v10-production.yml
           rm -rf tests/__pycache__
 
+          # Validate the complete intended state, including the production
+          # workflow contract, before excluding that workflow from this
+          # token-limited code commit.
           node --check specialists-partners/account-backend/src/index-v10.js
           node --check specialists-partners/account-backend/src/index-v10-production.js
           node --check tests/specialist_sender_policy_v104_runtime.mjs
           node tests/specialist_sender_policy_v104_runtime.mjs
           python -m unittest -v tests.test_specialist_identity_v10 tests.test_specialist_turnstile_persistence
           rm -rf tests/__pycache__
+
+          # GitHub Actions tokens cannot update workflow files. Keep the
+          # production workflow unchanged in this commit; the repository
+          # connector applies the already validated workflow change next.
+          git checkout -- .github/workflows/deploy-specialist-identity-v10-production.yml
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
