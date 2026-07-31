@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Build the semantic index from the fully published static website.
+"""Build and verify the semantic index from the fully published static website.
 
 The repository generates many public pages during its release pipeline. This
 wrapper discovers every HTML URL exposed through the sitemap index, downloads
-those pages into a temporary mirror, and delegates chunking/embedding/sharding
-to build_semantic_search_index.py. It therefore indexes the deployed site rather
-than only HTML files committed directly to git.
+those pages into a temporary mirror, delegates chunking/embedding/sharding to
+build_semantic_search_index.py, and fails closed when published-page coverage
+falls below the requested thresholds.
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import time
 import xml.etree.ElementTree as ET
@@ -28,7 +29,7 @@ import build_semantic_search_index as local_builder
 DEFAULT_SITEMAP = "https://healthrenewal.org/sitemap-index.xml"
 DEFAULT_BASE_URL = "https://healthrenewal.org/"
 LEGACY_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
-USER_AGENT = "HealthRenewalSemanticIndexer/2.0 (+https://healthrenewal.org/ai-search/)"
+USER_AGENT = "HealthRenewalSemanticIndexer/3.0 (+https://healthrenewal.org/ai-search/)"
 XML_NAMESPACE = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 SKIPPED_SUFFIXES = {
     ".xml", ".json", ".csv", ".pdf", ".zip", ".png", ".jpg", ".jpeg", ".gif", ".webp",
@@ -36,7 +37,7 @@ SKIPPED_SUFFIXES = {
 }
 
 
-def fetch_bytes(url: str, timeout: int, attempts: int = 3) -> bytes:
+def fetch_bytes(url: str, timeout: int, attempts: int = 5) -> bytes:
     last_error: Exception | None = None
     for attempt in range(1, attempts + 1):
         request = Request(
@@ -56,7 +57,7 @@ def fetch_bytes(url: str, timeout: int, attempts: int = 3) -> bytes:
         except (HTTPError, URLError, TimeoutError, RuntimeError) as exc:
             last_error = exc
             if attempt < attempts:
-                time.sleep(min(5, attempt * 1.5))
+                time.sleep(min(8, attempt * 1.5))
     raise RuntimeError(f"Failed to fetch {url}: {last_error}")
 
 
@@ -183,13 +184,13 @@ def destination_for_url(root: Path, url: str, base_url: str) -> Path:
 def download_page(url: str, destination: Path, timeout: int) -> tuple[str, bool, str]:
     try:
         data = fetch_bytes(url, timeout=timeout)
-        prefix = data[:500].lower()
+        prefix = data[:1000].lower()
         if b"<html" not in prefix and b"<!doctype html" not in prefix:
             return url, False, "response is not HTML"
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(data)
         return url, True, ""
-    except Exception as exc:  # isolated page failures must not abort the whole index
+    except Exception as exc:  # isolated failures are collected and evaluated by the coverage gate
         return url, False, str(exc)
 
 
@@ -234,6 +235,102 @@ def mirror_pages(
     return successes, failures
 
 
+def indexed_source_paths(output: Path, manifest: dict[str, object]) -> set[str]:
+    paths: set[str] = set()
+    shards = manifest.get("shards")
+    if not isinstance(shards, list):
+        raise RuntimeError("Generated manifest has no shard list")
+    for shard in shards:
+        if not isinstance(shard, dict) or not shard.get("metadata"):
+            raise RuntimeError("Generated manifest contains an invalid shard")
+        payload = json.loads((output / str(shard["metadata"])).read_text(encoding="utf-8"))
+        if not isinstance(payload, list):
+            raise RuntimeError(f"Invalid metadata payload: {shard['metadata']}")
+        for chunk in payload:
+            if isinstance(chunk, dict) and chunk.get("sourcePath"):
+                paths.add(str(chunk["sourcePath"]))
+    return paths
+
+
+def write_coverage_report(
+    args: argparse.Namespace,
+    urls: list[str],
+    mirror_root: Path,
+    successes: int,
+    failures: list[tuple[str, str]],
+    manifest: dict[str, object],
+) -> dict[str, object]:
+    output = args.output.resolve()
+    expected_paths: dict[str, list[str]] = {}
+    for url in urls:
+        path = destination_for_url(mirror_root, url, args.base_url).relative_to(mirror_root).as_posix()
+        expected_paths.setdefault(path, []).append(url)
+
+    collisions = {path: values for path, values in expected_paths.items() if len(values) > 1}
+    indexed_paths = indexed_source_paths(output, manifest)
+    failed_urls = {url for url, _ in failures}
+    indexed_urls = [
+        url
+        for path, path_urls in expected_paths.items()
+        if path in indexed_paths
+        for url in path_urls
+    ]
+    unindexed_urls = [
+        url
+        for path, path_urls in expected_paths.items()
+        if path not in indexed_paths
+        for url in path_urls
+    ]
+    unexpected_paths = sorted(indexed_paths.difference(expected_paths))
+    discovered_count = len(urls)
+    download_ratio = successes / max(1, discovered_count)
+    index_ratio = len(indexed_urls) / max(1, discovered_count)
+    passed = (
+        download_ratio >= args.minimum_success_ratio
+        and index_ratio >= args.minimum_indexed_ratio
+        and not collisions
+        and not unexpected_paths
+    )
+
+    report: dict[str, object] = {
+        "version": 1,
+        "passed": passed,
+        "generatedAt": manifest["generatedAt"],
+        "model": manifest["model"],
+        "modelRevision": manifest["modelRevision"],
+        "sitemapUrl": args.sitemap_url,
+        "baseUrl": args.base_url,
+        "discoveredUrlCount": discovered_count,
+        "downloadedPageCount": successes,
+        "failedDownloadCount": len(failures),
+        "indexedUrlCount": len(indexed_urls),
+        "indexedDocumentCount": manifest["documentCount"],
+        "chunkCount": manifest["chunkCount"],
+        "downloadSuccessRatio": download_ratio,
+        "indexCoverageRatio": index_ratio,
+        "requiredDownloadSuccessRatio": args.minimum_success_ratio,
+        "requiredIndexCoverageRatio": args.minimum_indexed_ratio,
+        "failedDownloads": [{"url": url, "error": error} for url, error in failures],
+        "unindexedUrls": unindexed_urls,
+        "destinationCollisions": collisions,
+        "unexpectedIndexedPaths": unexpected_paths,
+        "failedUrlsIndexedUnexpectedly": sorted(failed_urls.intersection(indexed_urls)),
+    }
+    local_builder.write_json(output / "coverage.json", report)
+
+    manifest["coverage"] = {
+        "passed": passed,
+        "report": "coverage.json",
+        "discoveredUrlCount": discovered_count,
+        "downloadedPageCount": successes,
+        "indexedUrlCount": len(indexed_urls),
+        "downloadSuccessRatio": download_ratio,
+        "indexCoverageRatio": index_ratio,
+    }
+    local_builder.write_json(output / "manifest.json", manifest)
+    return report
+
+
 def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sitemap-url", default=DEFAULT_SITEMAP)
@@ -243,6 +340,7 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--workers", type=int, default=8)
     parser.add_argument("--timeout", type=int, default=30)
     parser.add_argument("--minimum-success-ratio", type=float, default=0.90)
+    parser.add_argument("--minimum-indexed-ratio", type=float, default=0.90)
     parser.add_argument("--chunk-chars", type=int, default=local_builder.DEFAULT_CHUNK_CHARS)
     parser.add_argument("--overlap-chars", type=int, default=local_builder.DEFAULT_OVERLAP_CHARS)
     parser.add_argument("--shard-size", type=int, default=local_builder.DEFAULT_SHARD_SIZE)
@@ -255,6 +353,8 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
         parser.error("--max-pages must be between 1 and 10000")
     if not 0.5 <= args.minimum_success_ratio <= 1:
         parser.error("--minimum-success-ratio must be between 0.5 and 1")
+    if not 0.5 <= args.minimum_indexed_ratio <= 1:
+        parser.error("--minimum-indexed-ratio must be between 0.5 and 1")
     if not same_site(args.sitemap_url, args.base_url):
         parser.error("--sitemap-url must be under --base-url host and path")
     return args
@@ -273,7 +373,14 @@ def main(argv: Iterable[str] | None = None) -> int:
             raise RuntimeError("No indexable page URLs were discovered from the sitemap")
         print(f"Discovered {len(urls):,} public page URLs", flush=True)
 
-        with TemporaryDirectory(prefix="pterminology-semantic-mirror-") as temp_directory:
+        output = args.output.resolve()
+        output.mkdir(parents=True, exist_ok=True)
+        for stale_name in ("crawl-failures.txt", "coverage.json"):
+            stale = output / stale_name
+            if stale.exists():
+                stale.unlink()
+
+        with TemporaryDirectory(prefix="healthrenewal-semantic-mirror-") as temp_directory:
             mirror_root = Path(temp_directory)
             successes, failures = mirror_pages(
                 urls=urls,
@@ -284,9 +391,7 @@ def main(argv: Iterable[str] | None = None) -> int:
                 minimum_success_ratio=args.minimum_success_ratio,
             )
             if failures:
-                report_path = args.output.resolve() / "crawl-failures.txt"
-                report_path.parent.mkdir(parents=True, exist_ok=True)
-                report_path.write_text(
+                (output / "crawl-failures.txt").write_text(
                     "\n".join(f"{url}\t{error}" for url, error in failures),
                     encoding="utf-8",
                 )
@@ -294,17 +399,35 @@ def main(argv: Iterable[str] | None = None) -> int:
             manifest = local_builder.build_index(
                 SimpleNamespace(
                     root=mirror_root,
-                    output=args.output,
+                    output=output,
                     chunk_chars=args.chunk_chars,
                     overlap_chars=args.overlap_chars,
                     shard_size=args.shard_size,
                     batch_size=args.batch_size,
                 )
             )
+            coverage = write_coverage_report(
+                args=args,
+                urls=urls,
+                mirror_root=mirror_root,
+                successes=successes,
+                failures=failures,
+                manifest=manifest,
+            )
+
+        if not coverage["passed"]:
+            examples = ", ".join(coverage["unindexedUrls"][:5])
+            raise RuntimeError(
+                "Semantic index coverage gate failed: "
+                f"download={coverage['downloadSuccessRatio']:.2%}, "
+                f"indexed={coverage['indexCoverageRatio']:.2%}, "
+                f"unindexed examples={examples or 'none'}"
+            )
 
         print(
             f"Remote semantic index complete: {manifest['documentCount']:,} pages, "
-            f"{manifest['chunkCount']:,} chunks, {len(manifest['shards'])} shards",
+            f"{manifest['chunkCount']:,} chunks, {len(manifest['shards'])} shards, "
+            f"coverage={coverage['indexCoverageRatio']:.2%}",
             flush=True,
         )
         return 0
