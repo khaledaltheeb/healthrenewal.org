@@ -1,4 +1,4 @@
-import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0';
+import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.0.1';
 
 const MODEL_ID = 'Xenova/multilingual-e5-small';
 const MODEL_DTYPE = 'q8';
