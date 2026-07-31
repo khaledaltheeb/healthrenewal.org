@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "passed": true,
+  "verifiedAt": "2026-07-31T20:41:12.201320+00:00",
+  "site": "https://healthrenewal.org/ai-search/",
+  "assets": [
+    {
+      "name": "index.html",
+      "url": "https://healthrenewal.org/ai-search/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "etag": "\"6a6d0700-241c\"",
+      "lastModified": "Fri, 31 Jul 2026 20:35:12 GMT",
+      "sourceBytes": 9244,
+      "liveBytes": 9244,
+      "sourceSha256": "123c2dd05d8493398e8458b1eae697306709822e9c7006cbeabd9f876da27d25",
+      "liveSha256": "123c2dd05d8493398e8458b1eae697306709822e9c7006cbeabd9f876da27d25",
+      "exactByteMatch": true
+    },
+    {
+      "name": "app.js",
+      "url": "https://healthrenewal.org/ai-search/assets/app.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "etag": "\"6a6d0700-1e69\"",
+      "lastModified": "Fri, 31 Jul 2026 20:35:12 GMT",
+      "sourceBytes": 7785,
+      "liveBytes": 7785,
+      "sourceSha256": "3f9d1ea2557276bba3810daf9a1075b6cff861b6d405a46b874feff6b6e5626a",
+      "liveSha256": "3f9d1ea2557276bba3810daf9a1075b6cff861b6d405a46b874feff6b6e5626a",
+      "exactByteMatch": true
+    },
+    {
+      "name": "search-worker.js",
+      "url": "https://healthrenewal.org/ai-search/assets/search-worker.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "etag": "\"6a6d0700-5154\"",
+      "lastModified": "Fri, 31 Jul 2026 20:35:12 GMT",
+      "sourceBytes": 20820,
+      "liveBytes": 20820,
+      "sourceSha256": "c29c29c0f44b378dc3a7e02e2c3ee4351a84f361c28898ed466ba32b05b7e5c7",
+      "liveSha256": "c29c29c0f44b378dc3a7e02e2c3ee4351a84f361c28898ed466ba32b05b7e5c7",
+      "exactByteMatch": true
+    }
+  ],
+  "contracts": {
+    "pageCanonical": true,
+    "pageLoadsAppModule": true,
+    "pageRetrievalOnlyNotice": true,
+    "pageModelLabel": true,
+    "appCreatesModuleWorker": true,
+    "appUsesManifest": true,
+    "workerPinnedModel": true,
+    "workerPinnedRevision": true,
+    "workerLoadsJsonVectors": true,
+    "workerDigestCacheBust": true,
+    "workerHasBinaryFallback": true,
+    "workerNoInvalidExplicitWasmDevice": true,
+    "workerRetrievalOnly": true
+  }
+}
