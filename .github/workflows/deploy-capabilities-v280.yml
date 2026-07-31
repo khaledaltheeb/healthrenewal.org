@@ -1,0 +1,152 @@
+name: Deploy capabilities library v280 to GitHub Pages
+
+on:
+  workflow_run:
+    workflows: ["Publish capabilities library v280"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: validated-github-pages-v242
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download capabilities-complete validated artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify artifact evidence ancestry and rollback safety
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LIVE_URL: https://khaledaltheeb.github.io/pterminology-site/deployment.json
+        run: |
+          set -euxo pipefail
+          token="$(date +%s)"
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${LIVE_URL}?v=${token}" -o /tmp/live-before.json || printf '{}\n' > /tmp/live-before.json
+          python - <<'PY'
+          import hashlib,json,os,re,urllib.request
+          from pathlib import Path
+          root=Path('validated-site')
+          deployment=json.loads((root/'deployment.json').read_text(encoding='utf-8'))
+          report=json.loads((root/'api/capabilities-v280.json').read_text(encoding='utf-8'))
+          candidate=deployment.get('commit')
+          assert deployment.get('schema_version')==30,deployment
+          assert isinstance(candidate,str) and re.fullmatch(r'[0-9a-f]{40}',candidate),deployment
+          assert report.get('version')==280 and report.get('status')=='passed',report
+          assert (report.get('condition_count'),report.get('detailed_guide_count'))==(100,100),report
+          assert (report.get('generated_page_count'),report.get('sitemap_url_count'))==(104,104),report
+          assert (report.get('source_count'),report.get('curated_evidence_claim_count'))==(132,300),report
+          assert report.get('external_clinical_review_completed') is False,report
+          for name in ('index.html','sitemap.xml','manifest.webmanifest','sw.js'):
+              path=root/name; evidence=deployment['artifacts'][name]
+              assert path.is_file(),name
+              assert hashlib.sha256(path.read_bytes()).hexdigest()==evidence['sha256'],name
+              assert path.stat().st_size==evidence['bytes'],name
+          for route in ('capabilities/index.html','capabilities/registry/index.html','capabilities/autism/index.html','capabilities/down-syndrome/index.html','capabilities/cerebral-palsy/index.html','sitemap-capabilities.xml'):
+              assert (root/route).is_file(),route
+
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'capabilities-pages-v280'}
+          def api(path):
+              req=urllib.request.Request(f'https://api.github.com/repos/{repo}{path}',headers=headers)
+              with urllib.request.urlopen(req,timeout=30) as response:
+                  return json.loads(response.read().decode('utf-8'))
+          def compare(base,head):
+              if base==head: return 'identical'
+              return api(f'/compare/{base}...{head}').get('status')
+          current=api('/git/ref/heads/main')['object']['sha']
+          relationship=compare(candidate,current)
+          assert relationship in {'ahead','identical'},(candidate,current,relationship)
+          try:
+              live=json.loads(Path('/tmp/live-before.json').read_text(encoding='utf-8')).get('commit')
+          except Exception:
+              live=None
+          live_relationship=None
+          if live:
+              live_relationship=compare(live,candidate)
+              assert live_relationship in {'ahead','identical'},(live,candidate,live_relationship)
+          with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as handle:
+              handle.write(f'CANDIDATE_SHA={candidate}\n')
+          print({'candidate':candidate,'current_main':current,'relationship':relationship,'live_before':live,'live_relationship':live_relationship,'pages':104})
+          PY
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: validated-site
+
+      - name: Deploy capabilities-complete site
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify live SHA routes sitemap API and review boundary
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euxo pipefail
+          BASE="${PAGE_URL%/}/"; TOKEN="${CANDIDATE_SHA}"
+          matched=0
+          for i in $(seq 1 30); do
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}deployment.json?v=${TOKEN}-${i}" -o /tmp/deployment.json && \
+               EXPECTED_SHA="${TOKEN}" python -c "import json,os; d=json.load(open('/tmp/deployment.json',encoding='utf-8')); raise SystemExit(0 if d.get('commit')==os.environ['EXPECTED_SHA'] else 1)"; then
+              matched=1
+              break
+            fi
+            sleep 10
+          done
+          test "${matched}" -eq 1
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}api/capabilities-v280.json?v=${TOKEN}" -o /tmp/capabilities.json
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}capabilities/?v=${TOKEN}" -o /tmp/hub.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}capabilities/autism/?v=${TOKEN}" -o /tmp/autism.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}capabilities/down-syndrome/?v=${TOKEN}" -o /tmp/down.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}sitemap-capabilities.xml?v=${TOKEN}" -o /tmp/sitemap.xml
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          report=json.loads(Path('/tmp/capabilities.json').read_text(encoding='utf-8'))
+          assert report['version']==280 and report['status']=='passed',report
+          assert report['condition_count']==100 and report['detailed_guide_count']==100,report
+          assert report['generated_page_count']==104 and report['source_count']==132,report
+          assert report['curated_evidence_claim_count']==300,report
+          for name in ('hub','autism','down'):
+              text=Path(f'/tmp/{name}.html').read_text(encoding='utf-8')
+              assert '<h1' in text,name
+              assert 'لا توجد مصادقة أو مراجعة خارجية مستقلة' in text,name
+              assert 'معاقين' not in text,name
+          sitemap=Path('/tmp/sitemap.xml').read_text(encoding='utf-8')
+          assert sitemap.count('<url>')==104,sitemap.count('<url>')
+          print({'live_commit':os.environ['CANDIDATE_SHA'],'conditions':100,'pages':104,'sources':132,'claims':300,'status':'published-v280'})
+          PY
+
+      - name: Retain deployment provenance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capabilities-v280-pages-provenance
+          path: |
+            validated-site/deployment.json
+            validated-site/api/capabilities-v280.json
+          if-no-files-found: error
+          retention-days: 30
