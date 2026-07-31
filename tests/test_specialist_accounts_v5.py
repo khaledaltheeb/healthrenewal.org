@@ -16,7 +16,6 @@ RUNTIME = ROOT / "specialists-partners" / "assets" / "runtime-config.js"
 DIRECTORY = ROOT / "specialists-partners" / "index.html"
 JOIN = ROOT / "specialists-partners" / "join.html"
 PORTAL = ROOT / "specialists-partners" / "portal" / "index.html"
-ROBOTS = ROOT / "robots.txt"
 
 
 class SpecialistAccountsV5Tests(unittest.TestCase):
@@ -115,7 +114,8 @@ class SpecialistAccountsV5Tests(unittest.TestCase):
         self.assertIn('href="account/"', DIRECTORY.read_text(encoding="utf-8"))
         self.assertIn('href="account/"', JOIN.read_text(encoding="utf-8"))
         self.assertIn('href="../account/"', PORTAL.read_text(encoding="utf-8"))
-        self.assertIn("specialists-partners/account/", ROBOTS.read_text(encoding="utf-8"))
+        account_html = ACCOUNT_HTML.read_text(encoding="utf-8")
+        self.assertIn('content="noindex,nofollow,noarchive"', account_html)
 
 
 if __name__ == "__main__":
