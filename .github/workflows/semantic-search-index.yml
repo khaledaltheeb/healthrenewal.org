@@ -7,6 +7,8 @@ on:
       - 'content/**'
       - '.generator-v6/**'
       - '.v10bundle/**'
+      - 'family-guide/conditions/**/data.js'
+      - 'provider-assessment-demo/conditions/*data*.js'
       - 'assets/platform/platform-core.js'
       - 'ai-search/**'
       - 'tests/e5_*_smoke.mjs'
@@ -24,6 +26,8 @@ on:
       - 'content/**'
       - '.generator-v6/**'
       - '.v10bundle/**'
+      - 'family-guide/conditions/**/data.js'
+      - 'provider-assessment-demo/conditions/*data*.js'
       - 'assets/platform/platform-core.js'
       - 'ai-search/**'
       - 'tests/e5_*_smoke.mjs'
@@ -163,6 +167,8 @@ jobs:
           assert coverage['passed'] is True
           assert coverage['indexCoverageRatio'] >= 0.80
           assert coverage['downloadSuccessRatio'] >= 0.80
+          assert coverage['failedDataAssetCount'] == 0
+          assert coverage['dataAssetCount'] == coverage['downloadedDataAssetCount']
           assert manifest['shards']
           for shard in manifest['shards']:
               metadata=root/shard['metadata']
@@ -256,6 +262,8 @@ jobs:
           assert coverage['downloadSuccessRatio'] == 1.0
           assert coverage['indexCoverageRatio'] == 1.0
           assert coverage['failedDownloadCount'] == 0
+          assert coverage['failedDataAssetCount'] == 0
+          assert coverage['dataAssetCount'] == coverage['downloadedDataAssetCount']
           assert coverage['unindexedUrls'] == []
           assert coverage['destinationCollisions'] == {}
           assert coverage['unexpectedIndexedPaths'] == []
@@ -266,6 +274,7 @@ jobs:
               'passed': True,
               'documents': manifest['documentCount'],
               'chunks': manifest['chunkCount'],
+              'data_assets': coverage['dataAssetCount'],
               'coverage': coverage['indexCoverageRatio'],
           })
           PY
