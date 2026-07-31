@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "ready": false,
+  "generatedAt": null,
+  "model": "intfloat/multilingual-e5-small",
+  "browserModel": "Xenova/multilingual-e5-small",
+  "dimensions": 384,
+  "queryPrefix": "query: ",
+  "passagePrefix": "passage: ",
+  "documentCount": 0,
+  "chunkCount": 0,
+  "shards": [],
+  "note": "Placeholder manifest. The GitHub Actions workflow generates the full semantic index from repository HTML files."
+}
