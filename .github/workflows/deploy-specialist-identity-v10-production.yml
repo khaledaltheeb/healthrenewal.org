@@ -19,6 +19,7 @@ on:
       - "tests/test_specialist_accounts_v5.py"
       - "tests/test_specialist_identity_v6.py"
       - "tests/test_specialist_identity_v10.py"
+      - "tests/test_specialist_turnstile_persistence.py"
       - ".github/workflows/deploy-specialist-identity-v10-production.yml"
   workflow_dispatch:
 
@@ -79,7 +80,8 @@ jobs:
             tests.test_specialist_accounts_v5 \
             tests.test_specialist_identity_v6 \
             tests.test_specialist_recovery_v8 \
-            tests.test_specialist_identity_v10
+            tests.test_specialist_identity_v10 \
+            tests.test_specialist_turnstile_persistence
 
       - name: Validate deployment credentials and discover D1
         id: resources
@@ -126,6 +128,9 @@ jobs:
           compatibility_date = "2026-07-01"
           workers_dev = true
 
+          [secrets]
+          required = ["TURNSTILE_SECRET", "RESEND_API_KEY", "ADMIN_API_KEY", "RATE_LIMIT_SALT"]
+
           [vars]
           ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
           ACCOUNT_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/account/"
@@ -168,7 +173,7 @@ jobs:
         working-directory: specialists-partners/account-backend
         run: npx --yes wrangler@4 d1 migrations apply pterminology-specialists --remote --config wrangler-v10-production.toml
 
-      - name: Deploy identity Worker 10.2.0
+      - name: Deploy identity Worker 10.2.0 with required-secret validation
         working-directory: specialists-partners/account-backend
         run: npx --yes wrangler@4 deploy --config wrangler-v10-production.toml --secrets-file worker-secrets-v10-production.json --minify --keep-vars
 
@@ -224,6 +229,7 @@ jobs:
             'email_provider':{'http_status':int(os.environ.get('DEEP_STATUS') or 0),'configured':provider.get('configured'),'auth_valid':provider.get('authValid'),'access':provider.get('access'),'code':provider.get('code')},
             'deep_health_public':False,
             'stable_contract_cycles':3,
+            'turnstile_secret_required':True,
             'manual_recovery_available':bool((normal.get('capabilities') or {}).get('manualRecovery')),
             'fully_operational':normal.get('ok') is True and provider.get('authValid') is True,
           }
