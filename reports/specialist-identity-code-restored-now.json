@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-07-31T09:58:17.763911+00:00",
+  "worker": "pterminology-specialist-accounts",
+  "service": "pterminology-specialist-identity",
+  "version": "10.2.0",
+  "code_restored": true,
+  "d1_binding_present": true,
+  "account_schema_ready": true,
+  "identity_schema_ready": true,
+  "known_secrets_preserved": [
+    "ADMIN_API_KEY",
+    "RATE_LIMIT_SALT",
+    "RESEND_API_KEY"
+  ],
+  "turnstile_secret_present": false,
+  "workers_dev_enabled": true,
+  "http_status": 503,
+  "remaining_blocker": "TURNSTILE_SECRET",
+  "secret_values_recorded": false,
+  "restoration_verified": true
+}
