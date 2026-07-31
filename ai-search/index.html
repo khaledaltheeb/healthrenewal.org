@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>البحث الذكي في المنصة | بحث دلالي عربي</title>
+  <meta name="description" content="محرك بحث دلالي عربي مجاني داخل منصة الصحة النفسية وذوي الاحتياجات الخاصة، يعمل بنموذج multilingual-e5-small ويعرض النتائج من صفحات المنصة مع روابطها الأصلية.">
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+  <meta name="theme-color" content="#075f5b">
+  <link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/ai-search/">
+  <link rel="icon" href="../assets/brand/logo-mark.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ar_AR">
+  <meta property="og:title" content="البحث الذكي في المنصة">
+  <meta property="og:description" content="بحث دلالي عربي خاص بمحتوى المنصة، مع إظهار الصفحات والمقتطفات الأصلية.">
+  <meta property="og:url" content="https://khaledaltheeb.github.io/pterminology-site/ai-search/">
+  <link rel="stylesheet" href="assets/search.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"البحث الذكي في المنصة","url":"https://khaledaltheeb.github.io/pterminology-site/ai-search/","inLanguage":"ar","isPartOf":{"@type":"WebSite","name":"منصة الصحة النفسية وذوي الاحتياجات الخاصة","url":"https://khaledaltheeb.github.io/pterminology-site/"},"about":{"@type":"SoftwareApplication","name":"محرك البحث الدلالي العربي","applicationCategory":"SearchApplication","operatingSystem":"Web","isAccessibleForFree":true}}</script>
+</head>
+<body>
+  <a class="skip-link" href="#search-form">تجاوز إلى البحث</a>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../" aria-label="العودة إلى الصفحة الرئيسية">
+        <img src="../assets/brand/logo-mark.svg" width="48" height="48" alt="">
+        <span>
+          <strong>البحث الذكي</strong>
+          <small>منصة الصحة النفسية وذوي الاحتياجات الخاصة</small>
+        </span>
+      </a>
+      <nav aria-label="روابط مختصرة">
+        <a href="../start-here/">ابدأ من هنا</a>
+        <a href="../encyclopedia/">الموسوعة</a>
+        <a href="../special-needs/">ذوو الاحتياجات الخاصة</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">بحث دلالي عربي داخل محتوى المنصة</p>
+          <h1>اكتب سؤالك بلغتك الطبيعية</h1>
+          <p class="lead">يبحث النظام في صفحات المنصة، ويفهم تقارب المعنى بدل الاكتفاء بالتطابق الحرفي. النتائج تعرض مقتطفات وروابط أصلية ولا تنشئ تشخيصًا أو إجابة طبية من خارج المحتوى.</p>
+        </div>
+        <aside class="model-card" aria-label="معلومات تقنية">
+          <span class="badge">مجاني وخصوصي</span>
+          <strong>multilingual-e5-small</strong>
+          <p>تُنفذ عملية فهم السؤال في متصفحك. لا يُرسل نص السؤال إلى OpenAI أو Claude أو خادم مدفوع.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="search-section">
+      <div class="wrap">
+        <form id="search-form" class="search-panel" role="search">
+          <label for="query">ما المعلومة التي تبحث عنها؟</label>
+          <div class="search-row">
+            <input id="query" name="q" type="search" maxlength="300" autocomplete="off" spellcheck="false" placeholder="مثال: كيف أساعد طفلًا لديه حساسية من الأصوات في المدرسة؟" required>
+            <button id="search-button" type="submit">ابحث</button>
+          </div>
+
+          <div class="examples" aria-label="أسئلة مقترحة">
+            <button type="button" data-example="ما الفرق بين القلق والخوف؟">الفرق بين القلق والخوف</button>
+            <button type="button" data-example="علامات تستدعي تقييم اضطراب طيف التوحد لدى الطفل">علامات التوحد</button>
+            <button type="button" data-example="كيف تدعم الأسرة شخصًا لديه اضطراب فرط الحركة وتشتت الانتباه؟">دعم الأسرة مع ADHD</button>
+          </div>
+
+          <details class="advanced">
+            <summary>خيارات البحث</summary>
+            <div class="filters">
+              <label>
+                القسم
+                <select id="section-filter" name="section">
+                  <option value="">كل الأقسام</option>
+                </select>
+              </label>
+              <label>
+                الجمهور
+                <select id="audience-filter" name="audience">
+                  <option value="">الجميع</option>
+                  <option value="family">الأسرة ومقدمو الرعاية</option>
+                  <option value="professional">المختصون ومقدمو الخدمة</option>
+                  <option value="student">الطلاب والباحثون</option>
+                  <option value="general">الجمهور العام</option>
+                </select>
+              </label>
+              <label class="toggle">
+                <input id="semantic-toggle" type="checkbox" checked>
+                <span>استخدام فهم المعنى بالنموذج الدلالي</span>
+              </label>
+            </div>
+          </details>
+
+          <div id="status" class="status" role="status" aria-live="polite">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span id="status-text">جارٍ تجهيز فهرس البحث…</span>
+          </div>
+          <progress id="model-progress" value="0" max="100" hidden aria-label="تقدم تحميل النموذج"></progress>
+        </form>
+      </div>
+    </section>
+
+    <section class="results-section" aria-labelledby="results-title">
+      <div class="wrap">
+        <div class="results-heading">
+          <div>
+            <p class="eyebrow">النتائج المسترجعة من المنصة</p>
+            <h2 id="results-title">نتائج البحث</h2>
+          </div>
+          <p id="results-summary" class="results-summary">أدخل سؤالًا لعرض الصفحات الأكثر صلة.</p>
+        </div>
+        <div id="results" class="results" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="method-section">
+      <div class="wrap method-grid">
+        <article>
+          <h2>كيف يعمل؟</h2>
+          <ol>
+            <li>يحوّل السؤال إلى تمثيل رقمي باستخدام النموذج متعدد اللغات.</li>
+            <li>يقارن المعنى بفهرس المقاطع المستخرجة من صفحات المنصة.</li>
+            <li>يمزج التطابق الدلالي مع العنوان والكلمات الأساسية.</li>
+            <li>يعرض المقتطف والرابط بدل اختراع إجابة غير موثقة.</li>
+          </ol>
+        </article>
+        <article class="notice">
+          <h2>حدود الاستخدام</h2>
+          <p>هذه أداة استرجاع معلومات وليست أداة تشخيص. عند أول بحث دلالي قد ينزّل المتصفح نموذجًا مضغوطًا كبيرًا نسبيًا ثم يحتفظ به في الذاكرة المؤقتة للزيارات اللاحقة.</p>
+          <p>عند تعذر تشغيل النموذج، ينتقل النظام تلقائيًا إلى البحث النصي المحلي.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <p>© 2026 منصة الصحة النفسية وذوي الاحتياجات الخاصة</p>
+      <p><a href="../trust/">منهجية الثقة</a> · <a href="../privacy/">الخصوصية</a></p>
+    </div>
+  </footer>
+
+  <noscript><p class="noscript">يحتاج البحث الذكي إلى JavaScript. يمكنك استخدام <a href="../encyclopedia/">الموسوعة</a> مباشرة.</p></noscript>
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>
