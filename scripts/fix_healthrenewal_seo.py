@@ -7,25 +7,33 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SELF = Path(__file__).resolve()
 OLD_ORIGIN = "https://khaledaltheeb.github.io/pterminology-site"
-OLD_HOST = "https://khaledaltheeb.github.io"
 NEW_ORIGIN = "https://healthrenewal.org"
-TEXT_SUFFIXES = {
-    ".html", ".htm", ".xml", ".json", ".webmanifest", ".txt", ".md",
-    ".js", ".mjs", ".cjs", ".py", ".yml", ".yaml", ".css", ".csv",
+PUBLIC_SUFFIXES = {".html", ".htm", ".xml", ".json", ".webmanifest", ".txt"}
+SKIP_TOP_LEVEL = {
+    ".git",
+    ".github",
+    "node_modules",
+    ".venv",
+    "venv",
+    "dist",
+    "build",
+    "scripts",
+    "tests",
+    "docs",
 }
-SKIP_DIRS = {".git", "node_modules", ".venv", "venv", "dist", "build"}
 
 
 class SeoMigrationError(RuntimeError):
     pass
 
 
-def is_text_candidate(path: Path) -> bool:
+def is_public_text_candidate(path: Path) -> bool:
     if path.resolve() == SELF:
         return False
-    if any(part in SKIP_DIRS for part in path.parts):
+    relative = path.relative_to(ROOT)
+    if relative.parts and relative.parts[0] in SKIP_TOP_LEVEL:
         return False
-    return path.suffix.lower() in TEXT_SUFFIXES or path.name in {"CNAME", "LICENSE"}
+    return path.suffix.lower() in PUBLIC_SUFFIXES or path.name == "CNAME"
 
 
 def update_text_file(path: Path, transform) -> bool:
@@ -40,15 +48,12 @@ def update_text_file(path: Path, transform) -> bool:
     return True
 
 
-def migrate_origins(text: str) -> str:
-    # Replace the complete legacy project URL first, then any residual host-only constants.
-    text = text.replace(OLD_ORIGIN, NEW_ORIGIN)
-    text = text.replace(OLD_HOST, NEW_ORIGIN)
-    return text
+def migrate_origin(text: str) -> str:
+    return text.replace(OLD_ORIGIN, NEW_ORIGIN)
 
 
 def transform_homepage(html: str) -> str:
-    html = migrate_origins(html)
+    html = migrate_origin(html)
 
     old_h1 = (
         "<h1>المعرفة ليست صفحات مبعثرة.<br>"
@@ -68,7 +73,7 @@ def transform_homepage(html: str) -> str:
     html = html.replace('alt="" width="52" height="52"', f'alt="{logo_alt}" width="52" height="52"')
     html = html.replace('alt="" width="54" height="54"', f'alt="{logo_alt}" width="54" height="54"')
 
-    # Card and journey titles are visual labels, not document-outline headings.
+    # Card and journey labels are visual labels, not sections in the document outline.
     html = html.replace(".journey h3{", ".journey .item-title{")
     html = html.replace(".card h3{", ".card .item-title{")
     html = html.replace(".principle h3{", ".principle .item-title{")
@@ -131,13 +136,10 @@ def main() -> int:
     changed: list[Path] = []
 
     for path in ROOT.rglob("*"):
-        if not path.is_file() or not is_text_candidate(path):
+        if not path.is_file() or not is_public_text_candidate(path):
             continue
-        if path == ROOT / "index.html":
-            did_change = update_text_file(path, transform_homepage)
-        else:
-            did_change = update_text_file(path, migrate_origins)
-        if did_change:
+        transform = transform_homepage if path == ROOT / "index.html" else migrate_origin
+        if update_text_file(path, transform):
             changed.append(path)
 
     robots = ROOT / "robots.txt"
@@ -164,23 +166,22 @@ def main() -> int:
         )
         if validator_updated != validator_text:
             validator.write_text(validator_updated, encoding="utf-8")
-            if validator not in changed:
-                changed.append(validator)
+            changed.append(validator)
 
     legacy_hits: list[str] = []
     for path in ROOT.rglob("*"):
-        if not path.is_file() or not is_text_candidate(path):
+        if not path.is_file() or not is_public_text_candidate(path):
             continue
         try:
             text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
             continue
-        if OLD_ORIGIN in text or OLD_HOST in text:
+        if OLD_ORIGIN in text:
             legacy_hits.append(str(path.relative_to(ROOT)))
 
     if legacy_hits:
         raise SeoMigrationError(
-            "Legacy GitHub Pages origin remains in: " + ", ".join(legacy_hits[:30])
+            "Legacy GitHub Pages origin remains in public files: " + ", ".join(legacy_hits[:30])
         )
 
     homepage = (ROOT / "index.html").read_text(encoding="utf-8")
@@ -195,7 +196,7 @@ def main() -> int:
     if missing:
         raise SeoMigrationError("Homepage SEO migration incomplete: " + " | ".join(missing))
 
-    print(f"SEO migration complete; changed {len(changed)} files.")
+    print(f"SEO migration complete; changed {len(changed)} public files.")
     for path in sorted(changed):
         print(path.relative_to(ROOT))
     return 0
