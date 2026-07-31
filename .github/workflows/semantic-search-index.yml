@@ -5,16 +5,20 @@ on:
     paths:
       - 'ai-search/**'
       - 'scripts/build_semantic_search_index.py'
+      - 'scripts/build_remote_semantic_search_index.py'
       - 'scripts/semantic-search-requirements.txt'
       - '.github/workflows/semantic-search-index.yml'
   push:
     branches: [main]
     paths:
-      - '**/*.html'
+      - 'ai-search/**'
       - 'scripts/build_semantic_search_index.py'
+      - 'scripts/build_remote_semantic_search_index.py'
       - 'scripts/semantic-search-requirements.txt'
       - '.github/workflows/semantic-search-index.yml'
       - '!ai-search/data/**'
+  schedule:
+    - cron: '35 2 * * *'
   workflow_dispatch:
 
 permissions:
@@ -37,7 +41,7 @@ jobs:
           node-version: '22'
       - name: Validate source files
         run: |
-          python -m py_compile scripts/build_semantic_search_index.py
+          python -m py_compile scripts/build_semantic_search_index.py scripts/build_remote_semantic_search_index.py
           node --check ai-search/assets/app.js
           node --check ai-search/assets/search-worker.js
           python - <<'PY'
@@ -51,7 +55,7 @@ jobs:
     if: github.event_name != 'pull_request'
     needs: validate
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
         with:
@@ -72,10 +76,46 @@ jobs:
       - name: Install index dependencies
         run: python -m pip install --disable-pip-version-check -r scripts/semantic-search-requirements.txt
 
-      - name: Build semantic index
+      - name: Preserve previous manifest
+        run: |
+          if [ -f ai-search/data/manifest.json ]; then
+            cp ai-search/data/manifest.json /tmp/semantic-manifest-before.json
+          fi
+
+      - name: Build index from all published sitemap pages
         env:
           TOKENIZERS_PARALLELISM: 'false'
-        run: python scripts/build_semantic_search_index.py --root . --output ai-search/data
+        run: |
+          python scripts/build_remote_semantic_search_index.py \
+            --sitemap-url https://khaledaltheeb.github.io/pterminology-site/sitemap-index.xml \
+            --base-url https://khaledaltheeb.github.io/pterminology-site/ \
+            --output ai-search/data \
+            --max-pages 6000 \
+            --workers 8
+
+      - name: Avoid timestamp-only commits
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          old_path = Path('/tmp/semantic-manifest-before.json')
+          new_path = Path('ai-search/data/manifest.json')
+          if not old_path.exists() or not new_path.exists():
+              raise SystemExit(0)
+
+          old = json.loads(old_path.read_text(encoding='utf-8'))
+          new = json.loads(new_path.read_text(encoding='utf-8'))
+          old_compare = {key: value for key, value in old.items() if key != 'generatedAt'}
+          new_compare = {key: value for key, value in new.items() if key != 'generatedAt'}
+          if old_compare == new_compare:
+              new['generatedAt'] = old.get('generatedAt')
+              new_path.write_text(
+                  json.dumps(new, ensure_ascii=False, separators=(',', ':')),
+                  encoding='utf-8',
+              )
+              print('Only generatedAt changed; preserved the previous timestamp.')
+          PY
 
       - name: Commit generated index
         run: |
