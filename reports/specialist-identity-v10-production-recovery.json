@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T15:37:22.753865+00:00",
+  "source_sha": "89d4a6fa5cfb15cbfc59a12c0a017aba60fb7c23",
+  "workflow_run_id": "30643562349",
+  "status": "passed",
+  "failure_stage": null,
+  "outcomes": {
+    "preflight": "success",
+    "turnstile": "success",
+    "d1": "success",
+    "config": "success",
+    "migrate": "success",
+    "deploy": "success",
+    "route": "success",
+    "verify": "success"
+  },
+  "preflight": {
+    "required_present": true,
+    "missing_required": []
+  },
+  "turnstile": {
+    "api_success": true,
+    "sitekey_matches": true,
+    "expected_domain_present": true,
+    "mode": "managed",
+    "secret_present": true
+  },
+  "d1": {
+    "api_success": true,
+    "database_found": true
+  },
+  "deploy": {
+    "api_success": true,
+    "required_present": true,
+    "missing_required": []
+  },
+  "route": {
+    "api_success": true,
+    "enabled": true
+  },
+  "verify": {
+    "normal_ok": true,
+    "version": "10.3.0",
+    "checks": {
+      "database": true,
+      "accountSchema": true,
+      "identitySchema": true,
+      "email": true,
+      "turnstile": true,
+      "rateLimitSalt": true,
+      "accountBase": true,
+      "adminBase": true,
+      "coreApi": true,
+      "bootstrapKey": true,
+      "passwordResetBase": true,
+      "resendConfigured": true,
+      "recoveryOverlay": true,
+      "sessionBinding": true,
+      "singleActiveResetLink": true,
+      "truthfulAdminDelivery": true,
+      "manualRecovery": true,
+      "emailProviderConfigured": true,
+      "corsPreflight": true,
+      "strictPasswordPolicy": true,
+      "accountPasswordPolicy": true,
+      "specialistReplyLink": true,
+      "messageOutboxSchema": true,
+      "messageOutboxEncryption": true,
+      "protectedDeepHealth": true,
+      "adminProviderStatus": true
+    },
+    "email_configured": true,
+    "email_auth_valid": false,
+    "email_code": "invalid_api_key"
+  },
+  "contains_secret_values": false
+}
