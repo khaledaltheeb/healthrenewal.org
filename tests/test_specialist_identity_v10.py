@@ -8,8 +8,10 @@ PRODUCTION_WORKER = ROOT / "specialists-partners/account-backend/src/index-v10-p
 ADMIN_RECOVERY = ROOT / "specialists-partners/admin/admin-recovery-v10-final.js"
 ADMIN_PROVIDER = ROOT / "specialists-partners/admin/admin-provider-status-v10.js"
 RUNTIME = ROOT / "specialists-partners/assets/runtime-config.js"
+RESET_HTML = ROOT / "specialists-partners/password-reset/index.html"
 VALIDATE = ROOT / ".github/workflows/deploy-specialist-identity-v10.yml"
 DEPLOY = ROOT / ".github/workflows/deploy-specialist-identity-v10-production.yml"
+PAGES = ROOT / ".github/workflows/deploy-specialist-recovery-pages-v8.yml"
 LEGACY_V6 = ROOT / ".github/workflows/deploy-specialists-account-backend.yml"
 LEGACY_V8 = ROOT / ".github/workflows/deploy-specialist-recovery-overlay-v8.yml"
 
@@ -23,6 +25,7 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         cls.admin = ADMIN_RECOVERY.read_text(encoding="utf-8")
         cls.admin_provider = ADMIN_PROVIDER.read_text(encoding="utf-8")
         cls.runtime = RUNTIME.read_text(encoding="utf-8")
+        cls.reset_html = RESET_HTML.read_text(encoding="utf-8")
 
     def test_worker_uses_layered_v10_release(self):
         self.assertIn("const BUILD_VERSION = '10.0.0'", self.worker)
@@ -94,6 +97,7 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("admin-recovery-v10-final.js?v=10.2.0", self.runtime)
         self.assertIn("admin-provider-status-v10.js?v=10.2.0", self.runtime)
         self.assertIn('identityVersion: "10.2.0"', self.runtime)
+        self.assertIn("reset-v10.js?v=10.2.0", self.reset_html)
 
     def test_validation_and_production_workflows_are_separated(self):
         self.assertTrue(VALIDATE.exists())
@@ -108,6 +112,24 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("Deep health must not be public", production)
         self.assertIn("tests.test_specialist_identity_v10", production)
         self.assertIn("specialist-identity-v10-production.json", production)
+
+    def test_pages_deployment_patches_and_verifies_complete_interface(self):
+        self.assertTrue(PAGES.exists())
+        pages = PAGES.read_text(encoding="utf-8")
+        for path in (
+            "specialists-partners/admin/admin-recovery-v10-final.js",
+            "specialists-partners/admin/admin-provider-status-v10.js",
+            "specialists-partners/assets/runtime-config.js",
+            "specialists-partners/password-reset/index.html",
+            "specialists-partners/password-reset/reset-v10.js",
+            "specialists-partners/password-reset/reset-v9.css",
+        ):
+            self.assertIn(path, pages)
+        self.assertIn("Patch complete specialist identity interface", pages)
+        self.assertIn("Verify live specialist identity interface", pages)
+        self.assertIn("specialist-identity-v10-pages.json", pages)
+        self.assertIn("admin-provider-status-v10.js?v=10.2.0", pages)
+        self.assertIn("reset-v10.js?v=10.2.0", pages)
 
     def test_legacy_workflows_are_validation_only(self):
         for path in (LEGACY_V6, LEGACY_V8):
