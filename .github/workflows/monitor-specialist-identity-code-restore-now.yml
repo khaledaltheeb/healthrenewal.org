@@ -1,0 +1,65 @@
+name: Monitor specialist identity code restore now
+
+on:
+  push:
+    branches:
+      - agent/restore-known-specialist-secrets-now
+    paths:
+      - reports/monitor-specialist-identity-code-restore-trigger.txt
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/restore-known-specialist-secrets-now
+      - name: Read latest restoration runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/restore-specialist-identity-code-now.yml/runs?branch=agent%2Frestore-known-specialist-secrets-now&per_page=5" \
+            > /tmp/runs.json
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          data=json.load(open('/tmp/runs.json',encoding='utf-8'))
+          runs=[]
+          for row in data.get('workflow_runs',[])[:5]:
+              runs.append({
+                  'id':row.get('id'),
+                  'status':row.get('status'),
+                  'conclusion':row.get('conclusion'),
+                  'head_sha':row.get('head_sha'),
+                  'event':row.get('event'),
+                  'created_at':row.get('created_at'),
+                  'updated_at':row.get('updated_at'),
+                  'html_url':row.get('html_url'),
+              })
+          report={
+              'schema_version':1,
+              'checked_at':datetime.now(timezone.utc).isoformat(),
+              'workflow':'restore-specialist-identity-code-now.yml',
+              'runs':runs,
+          }
+          open('reports/specialist-identity-code-restore-runs-now.json','w',encoding='utf-8').write(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          PY
+      - name: Commit safe monitor report
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/specialist-identity-code-restore-runs-now.json
+          git commit -m "chore: record identity code restore runs [skip ci]"
+          git push origin HEAD:agent/restore-known-specialist-secrets-now
