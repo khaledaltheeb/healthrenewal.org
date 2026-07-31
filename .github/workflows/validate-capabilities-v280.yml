@@ -98,13 +98,25 @@ jobs:
 
       - name: Audit claim-level source metadata
         run: |
+          set +e
           python scripts/audit_source_evidence_v75.py . --output /tmp/source-evidence-v280.json
-          python - <<'PY'
+          audit_rc=$?
+          set -e
+          AUDIT_RC="$audit_rc" python - <<'PY'
           import json
+          import os
           from pathlib import Path
 
-          report = json.loads(Path('/tmp/source-evidence-v280.json').read_text(encoding='utf-8'))
-          relevant_errors = [item for item in report.get('errors', []) if 'content/v280/' in str(item)]
+          report_path = Path('/tmp/source-evidence-v280.json')
+          assert report_path.is_file() and report_path.stat().st_size > 0, 'source evidence report was not produced'
+          report = json.loads(report_path.read_text(encoding='utf-8'))
+          audit_rc = int(os.environ['AUDIT_RC'])
+          assert audit_rc in (0, 1), f'unexpected source evidence auditor exit code: {audit_rc}'
+
+          def is_v280_error(item):
+              return 'content/v280/' in json.dumps(item, ensure_ascii=False, sort_keys=True)
+
+          relevant_errors = [item for item in report.get('errors', []) if is_v280_error(item)]
           assert relevant_errors == [], relevant_errors[:10]
           base_records = [item for item in report['records'] if item['file'] == 'content/v280/capabilities-100-ar.json']
           selected_records = [item for item in report['records'] if item['file'].startswith('content/v280/evidence/')]
@@ -113,5 +125,5 @@ jobs:
           assert len(selected_records) == 112, len(selected_records)
           assert len(records) == 132, len(records)
           assert all(item['contract_ready'] for item in records), records
-          print({'base_sources':20,'selected_sources':112,'capabilities_sources':132,'v280_errors':0,'unrelated_repository_errors':report.get('error_count',0)})
+          print({'base_sources':20,'selected_sources':112,'capabilities_sources':132,'v280_errors':0,'unrelated_repository_errors':report.get('error_count',0),'auditor_exit_code':audit_rc})
           PY
