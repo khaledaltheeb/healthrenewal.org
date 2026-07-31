@@ -15,15 +15,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content" / "v192" / "platform-institutional-foundation-ar.json"
 SOURCE = ROOT / "magazine"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
+LEGACY_BASES = (
+    "https://khaledaltheeb.github.io/pterminology-site",
+    "http://khaledaltheeb.github.io/pterminology-site",
+)
 URL = BASE + "/magazine/"
-CONTRACT = 315
+CONTRACT = 316
 MIN_ARTICLES = 70
 TARGET_ARTICLES = 100
 FEED_LIMIT = 20
 EDITORIAL_UPDATED = "2026-07-27"
 ROBOTS_META = '<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">'
 ROBOTS_PATTERN = re.compile(r'<meta\s+[^>]*name=["\']robots["\'][^>]*>', re.I)
+CANONICAL_PATTERN = re.compile(
+    r'<link\b(?=[^>]*\brel\s*=\s*(["\'])[^"\']*\bcanonical\b[^"\']*\1)[^>]*>',
+    re.I | re.S,
+)
 ARTICLE_DATE_PATTERN = re.compile(r'"datePublished"\s*:\s*"(\d{4}-\d{2}-\d{2})"', re.I)
 SOURCE_LINK_PATTERN = re.compile(
     r'href="https://(?:doi\.org/|pubmed\.ncbi\.nlm\.nih\.gov/|etheses\.whiterose\.ac\.uk/|research-repository\.uwa\.edu\.au/)',
@@ -87,6 +95,24 @@ def load_methodology() -> dict:
     if data.get("status") != "internally-reviewed" or data.get("risk_level") != "low":
         raise SystemExit("Magazine methodology must remain internally reviewed and low risk")
     return data
+
+
+def normalize_article_text(text: str, filename: str) -> str:
+    updated = text
+    for origin in LEGACY_BASES:
+        updated = updated.replace(origin, BASE)
+    updated = updated.replace("/pterminology-site/", "/")
+    updated = updated.replace(f"{BASE}//", f"{BASE}/")
+    expected = f'<link rel="canonical" href="{URL}{filename}">'
+    matches = CANONICAL_PATTERN.findall(updated)
+    if not matches:
+        raise SystemExit(f"Research article lacks canonical metadata: {filename}")
+    if len(matches) > 1:
+        raise SystemExit(f"Research article contains duplicate canonical metadata: {filename}")
+    updated = CANONICAL_PATTERN.sub(expected, updated, count=1)
+    if any(origin in updated for origin in LEGACY_BASES) or "/pterminology-site/" in updated:
+        raise SystemExit(f"Research article retains a legacy origin or base path: {filename}")
+    return updated
 
 
 def ensure_robots_meta(text: str, filename: str) -> tuple[str, bool]:
@@ -238,7 +264,7 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
     hashes: dict[str, str] = {}
     for path in pages:
         filename = path.name
-        text = path.read_text(encoding="utf-8")
+        text = normalize_article_text(path.read_text(encoding="utf-8"), filename)
         required = (
             '<html lang="ar" dir="rtl">',
             '<meta name="description"',
@@ -277,7 +303,8 @@ def publish_files(site: Path, pages: list[Path]) -> dict[str, object]:
     shutil.copy2(SOURCE / "research.css", target / "research.css")
     added: list[str] = []
     for path in pages:
-        text, was_added = ensure_robots_meta(path.read_text(encoding="utf-8"), path.name)
+        source = normalize_article_text(path.read_text(encoding="utf-8"), path.name)
+        text, was_added = ensure_robots_meta(source, path.name)
         (target / path.name).write_text(text, encoding="utf-8")
         if was_added:
             added.append(path.name)
@@ -350,6 +377,8 @@ def publish(site: Path) -> dict[str, object]:
         "version": CONTRACT,
         "page": "magazine/index.html",
         "url": URL,
+        "canonical_origin": BASE,
+        "legacy_origins_remaining": 0,
         "methodology_published": True,
         "research_summaries_published": len(pages),
         "target_research_summaries": TARGET_ARTICLES,
