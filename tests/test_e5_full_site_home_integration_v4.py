@@ -13,12 +13,15 @@ class FullSiteE5HomeIntegrationTests(unittest.TestCase):
         self.assertIn("multilingual-e5-small", shell)
         self.assertIn("text: 'ابحث بذكاء'", shell)
 
-    def test_public_search_and_contact_pages_are_indexable(self) -> None:
+    def test_every_public_search_contact_and_provider_page_is_indexable(self) -> None:
         builder = (ROOT / "scripts/build_semantic_search_index.py").read_text(encoding="utf-8")
+        provider_sitemap = (ROOT / "sitemap-family-provider-platform.xml").read_text(encoding="utf-8")
         excluded_parts = builder.split("EXCLUDED_PARTS = {", 1)[1].split("}", 1)[0]
         excluded_files = builder.split("EXCLUDED_FILES = {", 1)[1].split("}", 1)[0]
         self.assertNotIn('"ai-search"', excluded_parts)
         self.assertNotIn('"contact.html"', excluded_files)
+        self.assertNotIn('"professional-console.html"', excluded_files)
+        self.assertIn("provider-assessment-demo/professional-console.html", provider_sitemap)
         self.assertIn('"ai-search": "البحث الذكي"', builder)
         self.assertIn("seen_page_hashes: set[tuple[str, str]]", builder)
         self.assertIn("dedupe_key = (url, content_hash)", builder)
