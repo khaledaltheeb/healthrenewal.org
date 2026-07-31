@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T15:43:21.917127+00:00",
+  "source_sha": "af078dead43544b38c621f3dcd99e92b8d121faa",
+  "workflow_run_id": "30644083511",
+  "status": "failed",
+  "failure_stage": "resend_auth",
+  "outcomes": {
+    "preflight": "success",
+    "resend_auth": "failure",
+    "install": "skipped",
+    "verify": "skipped"
+  },
+  "preflight": {
+    "required_present": true,
+    "missing_required": []
+  },
+  "resend_auth": {
+    "http_status": 401,
+    "auth_accepted": false,
+    "error_name": "validation_error",
+    "probe_sent_email": false
+  },
+  "install": {},
+  "verify": {},
+  "contains_secret_values": false
+}
