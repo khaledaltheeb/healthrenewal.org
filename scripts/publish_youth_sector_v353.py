@@ -45,7 +45,7 @@ def _alias_page(title: str, description: str, target: str) -> str:
     safe_target = html.escape(target, quote=True)
     absolute = html.escape(f"{BASE}{target.removeprefix(BASE_PATH)}", quote=True)
     return f"""<!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-legacy-path-alias="trust-governance-v354">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
