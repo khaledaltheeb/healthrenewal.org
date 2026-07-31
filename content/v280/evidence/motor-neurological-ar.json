@@ -1,0 +1,1166 @@
+{
+  "version": 280,
+  "language": "ar",
+  "category": "motor-neurological",
+  "title": "حزم الأدلة المنتقاة: الحركة والأعصاب والإصابات",
+  "search_updated": "2026-07-27",
+  "external_review_completed": false,
+  "selection_method": {
+    "scope": "تغطي هذه الموجة الحالات الـ20 كلها في فئة الحركة والأعصاب والإصابات، بثلاثة ادعاءات محدودة لكل حالة: حدود الملف، والوصول أو التدخل، والأمان أو التشخيص التفريقي.",
+    "selection_order": [
+      "إرشاد رسمي أو مهني حديث ومباشر للحالة أو للمجال الوظيفي.",
+      "مرجع سريري خبير مُراجع ومحدّث دوريًا للحالات الوراثية أو النادرة.",
+      "مراجعة منهجية أو تحليل تجميعي مباشر، مع التصريح بالتغاير ومحدودية الدراسات.",
+      "بحث محكم أو توافق خبراء فقط عندما لا يتوفر إرشاد أعلى، ومن دون تحويله إلى قاعدة جماعية."
+    ],
+    "exclusions": [
+      "المصادر الترويجية وقصص النجاح المنفردة بوصفها دليلًا على صفة أو تدخل.",
+      "نتائج البحث الحي في PubMed بوصفها قائمة مصادر منتقاة قبل الفرز والنقد.",
+      "بروتوكولات المراجعات التي لم تنشر نتائجها بعد بوصفها دليل فعالية.",
+      "أي استنتاج يربط التشخيص بموهبة أو ذكاء أو مهنة من دون قياس مباشر عند الشخص."
+    ],
+    "certainty_policy": "لا يعيّن المشروع درجة GRADE من تلقاء نفسه. يصف نوع المصدر، ومباشرة الدليل، والتغاير، وحدود النقل إلى الفرد. تبقى قوة التوصية الرسمية للجهة التي أصدرتها.",
+    "live_search_boundary": "رابط البحث الحي أداة تحديث للمراجع المتخصص، وليس مصدرًا مختارًا ولا إثباتًا لفعالية تدخل.",
+    "review_boundary": "الانتقاء والترجمة ومطابقة الادعاءات مراجعة داخلية قابلة للتدقيق، ولم تكتمل مراجعة خارجية مستقلة سريرية وتأهيلية ومن ذوي الخبرة المعاشة."
+  },
+  "evidence_character_labels": {
+    "official-current-guidance": "إرشاد رسمي أو بوابة ممارسة مهنية حالية؛ مباشر للممارسة، ولا يثبت نتيجة فردية مسبقًا.",
+    "guideline-backed": "توصية إرشادية مبنية على مراجعة أو توافق مهني؛ يلزم تطبيقها بحسب العمر والسياق والتفضيلات.",
+    "expert-reviewed-living-reference": "مرجع سريري خبير مُراجع ومحدّث دوريًا؛ يدعم الحدود والمراقبة ولا يثبت نتيجة وظيفية فردية.",
+    "systematic-review-direct-heterogeneous": "مراجعة منهجية مباشرة لكن الدراسات أو العينات أو المقاييس متغايرة؛ تصلح لتحديد اتجاه لا لضمان نتيجة.",
+    "systematic-review-limited-directness": "مراجعة منهجية ذات عدد قليل أو مباشرة جزئية للحالة؛ الاستنتاج حذر وتجريبي.",
+    "mixed-sources-no-causal-inference": "مزيج من إرشاد وبحث محكم أو خبرة معاشة؛ يحدد فرضية أو حدًا ولا يثبت السببية."
+  },
+  "sources": [
+    {
+      "id": "dicianno-spina-bifida-mobility-2020",
+      "publisher": "Spina Bifida Association",
+      "title": "Mobility guidelines for the care of people with spina bifida",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33325411/",
+      "year": 2020,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "spina-bifida-evidence-profile-boundary",
+        "spina-bifida-evidence-access-intervention",
+        "spina-bifida-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "cns-pediatric-hydrocephalus-guideline-2021",
+      "publisher": "Congress of Neurological Surgeons",
+      "title": "Pediatric hydrocephalus: systematic review and evidence-based guideline update",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34791462/",
+      "year": 2021,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "hydrocephalus-evidence-profile-boundary",
+        "hydrocephalus-evidence-access-intervention",
+        "hydrocephalus-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "nice-epilepsy-ng217-2022",
+      "publisher": "National Institute for Health and Care Excellence",
+      "title": "Epilepsies in children, young people and adults (NG217)",
+      "url": "https://www.nice.org.uk/guidance/ng217",
+      "year": 2022,
+      "source_type": "official_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "epilepsy-evidence-profile-boundary",
+        "epilepsy-evidence-access-intervention",
+        "epilepsy-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "incog-cognitive-rehabilitation-tbi-2023",
+      "publisher": "INCOG Expert Panel",
+      "title": "INCOG 2.0 Guidelines for Cognitive Rehabilitation Following Traumatic Brain Injury",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36594856/",
+      "year": 2023,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "traumatic-brain-injury-evidence-profile-boundary",
+        "traumatic-brain-injury-evidence-access-intervention",
+        "traumatic-brain-injury-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "nice-stroke-rehabilitation-ng236-2023",
+      "publisher": "National Institute for Health and Care Excellence",
+      "title": "Stroke rehabilitation in adults (NG236)",
+      "url": "https://www.nice.org.uk/guidance/ng236",
+      "year": 2023,
+      "source_type": "official_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "stroke-evidence-profile-boundary",
+        "stroke-evidence-access-intervention",
+        "stroke-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "fehlings-acute-sci-rehabilitation-2017",
+      "publisher": "AOSpine and Praxis Spinal Cord Institute",
+      "title": "Clinical Practice Guideline on the Type and Timing of Rehabilitation after Acute Spinal Cord Injury",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29164029/",
+      "year": 2017,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "spinal-cord-injury-evidence-profile-boundary",
+        "spinal-cord-injury-evidence-access-intervention",
+        "spinal-cord-injury-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-spinal-muscular-atrophy-2024",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Spinal Muscular Atrophy",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1352/",
+      "year": 2024,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "spinal-muscular-atrophy-evidence-profile-boundary",
+        "spinal-muscular-atrophy-evidence-access-intervention",
+        "spinal-muscular-atrophy-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "birnkrant-duchenne-care-part1-2018",
+      "publisher": "DMD Care Considerations Working Group",
+      "title": "Diagnosis and management of Duchenne muscular dystrophy, part 1",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29395989/",
+      "year": 2018,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "duchenne-muscular-dystrophy-evidence-profile-boundary",
+        "duchenne-muscular-dystrophy-evidence-access-intervention",
+        "duchenne-muscular-dystrophy-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-dystrophinopathies-2022",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Dystrophinopathies",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1119/",
+      "year": 2022,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "becker-muscular-dystrophy-evidence-profile-boundary",
+        "becker-muscular-dystrophy-evidence-access-intervention",
+        "becker-muscular-dystrophy-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-cmt-overview-2025",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Charcot-Marie-Tooth Hereditary Neuropathy Overview",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1358/",
+      "year": 2025,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "charcot-marie-tooth-disease-evidence-profile-boundary",
+        "charcot-marie-tooth-disease-evidence-access-intervention",
+        "charcot-marie-tooth-disease-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "corben-friedreich-ataxia-guideline-2022",
+      "publisher": "Clinical Management Guideline Working Group",
+      "title": "Clinical management guidelines for Friedreich ataxia",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36371255/",
+      "year": 2022,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "friedreich-ataxia-evidence-profile-boundary",
+        "friedreich-ataxia-evidence-access-intervention",
+        "friedreich-ataxia-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-spastic-paraplegia-2025",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Uncomplicated (Pure) Hereditary Spastic Paraplegia Overview",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1509/",
+      "year": 2025,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "hereditary-spastic-paraplegia-evidence-profile-boundary",
+        "hereditary-spastic-paraplegia-evidence-access-intervention",
+        "hereditary-spastic-paraplegia-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "narayanaswami-myasthenia-consensus-2021",
+      "publisher": "Myasthenia Gravis Foundation of America",
+      "title": "International Consensus Guidance for Management of Myasthenia Gravis: 2020 Update",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33144515/",
+      "year": 2021,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "myasthenia-gravis-evidence-profile-boundary",
+        "myasthenia-gravis-evidence-access-intervention",
+        "myasthenia-gravis-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "de-pauw-dystonia-rehabilitation-2018",
+      "publisher": "Journal of Neurology",
+      "title": "Systematic review of rehabilitation for cervical dystonia",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30009212/",
+      "year": 2018,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "dystonia-evidence-profile-boundary",
+        "dystonia-evidence-access-intervention",
+        "dystonia-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "arthrogryposis-rehabilitation-review-2023",
+      "publisher": "Children",
+      "title": "Rehabilitation interventions for children with arthrogryposis multiplex congenita: a systematic review",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10217713/",
+      "year": 2023,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "arthrogryposis-evidence-profile-boundary",
+        "arthrogryposis-evidence-access-intervention",
+        "arthrogryposis-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-osteogenesis-imperfecta-2025",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "COL1A1- and COL1A2-Related Osteogenesis Imperfecta",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1295/",
+      "year": 2025,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "osteogenesis-imperfecta-evidence-profile-boundary",
+        "osteogenesis-imperfecta-evidence-access-intervention",
+        "osteogenesis-imperfecta-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-achondroplasia-2023",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Achondroplasia",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1152/",
+      "year": 2023,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "achondroplasia-evidence-profile-boundary",
+        "achondroplasia-evidence-access-intervention",
+        "achondroplasia-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "va-dod-lower-limb-amputation-cpg-2024",
+      "publisher": "U.S. Department of Veterans Affairs and Department of Defense",
+      "title": "Clinical Practice Guideline for Rehabilitation of Individuals with Lower Limb Amputation",
+      "url": "https://www.healthquality.va.gov/guidelines/Rehab/amp/index.asp",
+      "year": 2024,
+      "source_type": "official_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "limb-difference-amputation-evidence-profile-boundary",
+        "limb-difference-amputation-evidence-access-intervention",
+        "limb-difference-amputation-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "burn-contracture-rehabilitation-review-2024",
+      "publisher": "Burns",
+      "title": "Rehabilitation interventions for burn scar contracture: a scoping review",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38250207/",
+      "year": 2024,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "severe-burns-contractures-evidence-profile-boundary",
+        "severe-burns-contractures-evidence-access-intervention",
+        "severe-burns-contractures-evidence-safety-differential"
+      ],
+      "status": "current"
+    }
+  ],
+  "evidence_packets": [
+    {
+      "slug": "cerebral-palsy",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "cerebral-palsy-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الشلل الدماغي لا يحدد الإدراك أو اللغة أو الاهتمامات؛ قد تجعل صعوبة الكلام أو الحركة الاختبار التقليدي يقلل تقدير القدرة. لذلك يظل تشخيص الشلل الدماغي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: فصل الفهم والتخطيط والمعرفة عن وسيلة الاستجابة، واختبار هدف يختاره الشخص بأداة وصول ووضعية مناسبة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الشلل الدماغي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "jackman-cp-guideline-2022",
+            "nice-cp-ng62"
+          ]
+        },
+        {
+          "id": "cerebral-palsy-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "AAC ومفاتيح أو تتبع عين عند الحاجة، وضعية وأدوات ملائمة، وقت استجابة، وممارسة المهمة الكاملة في سياقها. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن المهمة نفسها بوسيلة اليد المعتادة وبوسيلة وصول بديلة، وسجل جودة القرار والطاقة والمساعدة والسلامة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "jackman-cp-guideline-2022",
+            "nice-cp-ng62"
+          ]
+        },
+        {
+          "id": "cerebral-palsy-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع الألم والورك والعمود الفقري والجلد والبلع والتنفس والنوبات والنوم، واضبط الجلوس قبل الحكم على الأداء. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إنجاز مهمة يختارها الشخص بأقل جهد ومساعدة لازمين وبوسيلة وصول مستدامة، لا بطريقة حركية مفروضة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "jackman-cp-guideline-2022",
+            "nice-cp-ng62"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "spina-bifida",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "spina-bifida-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "السنسنة المشقوقة لا تمنح قوة محددة ولا تحدد الذكاء؛ قد تحجب صعوبات الحركة أو التنظيم أو استسقاء الدماغ معرفة الشخص. لذلك يظل تشخيص السنسنة المشقوقة وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار التعلم والاستقلال والتنظيم مع أدوات خارجية، وفصل المعرفة عن سرعة الحركة والعناية الطبية المعقدة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه السنسنة المشقوقة، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "dicianno-spina-bifida-mobility-2020"
+          ]
+        },
+        {
+          "id": "spina-bifida-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "وصول حركي ومقعد مناسب وأدوات نقل وعناية ذاتية، قوائم تنفيذ، ووقت مرن للرعاية الصحية. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: حلل روتين عناية أو دراسة إلى خطوات واستخدم قائمة وأدوات وصول، ثم قس الاستقلال والزمن والجلد والتعب.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "dicianno-spina-bifida-mobility-2020"
+          ]
+        },
+        {
+          "id": "spina-bifida-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع الجلد والضغط والمثانة والأمعاء والتحسس من اللاتكس والتحويلة والحبل المربوط والألم وفق الخطة؛ أي ضعف أو صداع أو تغير إخراج جديد يستلزم تقييمًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إدارة جزء متفق عليه من روتين العناية أو الدراسة بأمان وخصوصية مع معرفة متى يطلب الشخص المساعدة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "dicianno-spina-bifida-mobility-2020"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "hydrocephalus",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "hydrocephalus-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "استسقاء الدماغ لا يحدد ملفًا معرفيًا واحدًا؛ قد تتفاوت الذاكرة والانتباه والتنظيم والحركة والبصر، ويجب ألا يخفيها حكم عام. لذلك يظل تشخيص استسقاء الدماغ وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: قياس الفهم والمعرفة مع دعم الذاكرة التنفيذية، ومقارنة الأداء في مهمة منظمة وأخرى مفتوحة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه استسقاء الدماغ، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "cns-pediatric-hydrocephalus-guideline-2021"
+          ]
+        },
+        {
+          "id": "hydrocephalus-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "قوائم وخطوات وتذكيرات خارجية ووقت معالجة ودعم بصري أو حركي عند الحاجة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن تنفيذ مهمة متعددة الخطوات من الذاكرة وبقائمة مرئية، وكررها في يوم آخر بعد التحقق من الاستقرار.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "cns-pediatric-hydrocephalus-guideline-2021"
+          ]
+        },
+        {
+          "id": "hydrocephalus-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "صداع أو قيء أو نعاس أو تغير رؤية أو توازن أو سلوك قد يشير إلى مشكلة تحويلة أو ضغط ويحتاج مسارًا طبيًا عاجلًا، لا اختبار قدرة. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إكمال روتين تعلم أو استقلال بأداة تنظيم موثوقة مع معرفة علامات التحويلة وخطة طلب المساعدة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "cns-pediatric-hydrocephalus-guideline-2021"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "epilepsy",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "epilepsy-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الصرع لا يمنح قوة؛ قد تبقى القدرات واسعة، بينما تؤثر النوبات أو النوم أو الدواء أو القلق مؤقتًا في إظهارها. لذلك يظل تشخيص الصرع وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد المهارات المحفوظة وتقلب الأداء عبر أيام مستقرة، وعدم بناء حكم من جلسة حول نوبة أو حرمان نوم.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الصرع، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "nice-epilepsy-ng217-2022"
+          ]
+        },
+        {
+          "id": "epilepsy-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "جدولة مرنة ووقت استرداد وتعليمات مكتوبة وتعديل مخاطر البيئة، مع خطة نوبات يعرفها الشركاء. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: كرر مهمة قصيرة متكافئة في أيام مختلفة مع تسجيل النوم والنوبات وآثار الدواء، وقارن الاتساق والجودة والتعب.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "nice-epilepsy-ng217-2022"
+          ]
+        },
+        {
+          "id": "epilepsy-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "خطة إسعاف النوبات والدواء والنوم والمحفزات والقيود الفردية أولوية؛ تغير نمط النوبات أو الوعي أو إصابة يستلزم تقييمًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المشاركة في تعلم أو عمل مختار ضمن خطة أمان للنوبات ومرونة تحمي التعافي من دون خفض التوقعات تلقائيًا.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "nice-epilepsy-ng217-2022"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "traumatic-brain-injury",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "traumatic-brain-injury-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "قد تبقى معرفة وخبرات سابقة قوية بعد إصابة الدماغ بينما تتغير السرعة أو الذاكرة أو الانتباه أو الانفعال؛ لا تُنسب «مرونة» تلقائية للإصابة. لذلك يظل تشخيص إصابة الدماغ الرضّية وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد القدرات المحفوظة واستراتيجيات التعويض ووتيرة التعلم الجديدة، مع مقارنة الدقة بالسرعة والبيئة الهادئة بالمزدحمة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه إصابة الدماغ الرضّية، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "incog-cognitive-rehabilitation-tbi-2023"
+          ]
+        },
+        {
+          "id": "traumatic-brain-injury-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "جرعات قصيرة، روتين وقوائم وتذكيرات، تقليل مشتتات، راحة معرفية، ودعم عودة تدريجية للتعلم أو العمل. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن مهمة معرفية في جلسة ممتدة وبوحدات قصيرة مع فواصل، وسجل الدقة والتعب والأعراض بعد ساعات لا أثناءها فقط.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "incog-cognitive-rehabilitation-tbi-2023"
+          ]
+        },
+        {
+          "id": "traumatic-brain-injury-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع صداعًا أو قيئًا أو نوبات أو تدهورًا عصبيًا أو مزاجًا انتحاريًا أو تعاطي مواد؛ الأعراض الحادة أو المتفاقمة تحتاج رعاية. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إنجاز جزء متدرج من دور سابق أو جديد باستراتيجية تعويض وبلا تفاقم مستمر للأعراض.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "incog-cognitive-rehabilitation-tbi-2023"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "stroke",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "stroke-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "السكتة قد تؤثر في مجالات محددة وتترك أخرى محفوظة؛ الحبسة أو الشلل أو الإهمال لا يساوي فقد الفهم أو الهوية أو الخبرة. لذلك يظل تشخيص السكتة الدماغية وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: رسم خريطة اللغة والإدراك والرؤية والحركة والمهارات السابقة، واختبار القرارات بوسيلة تواصل ووصول مناسبة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه السكتة الدماغية، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "nice-stroke-rehabilitation-ng236-2023"
+          ]
+        },
+        {
+          "id": "stroke-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تواصل مدعوم وAAC، تكييف جانب الإهمال أو الرؤية، أدوات يد وحركة، ممارسة مهمة حقيقية، ووقت استجابة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: اختر نشاطًا سابقًا ذا معنى، قارن التنفيذ بالطريقة القديمة وبأداة أو استراتيجية تعويض، وسجل الجودة والمساعدة والعبء.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "nice-stroke-rehabilitation-ng236-2023"
+          ]
+        },
+        {
+          "id": "stroke-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "أعراض سكتة جديدة أو ألم صدر أو تغير وعي أو بلع غير آمن حالة طارئة؛ راجع السقوط والكتف والتعب والمزاج وعوامل الوقاية. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: استعادة أو إعادة تصميم دور يومي مختار مع تواصل آمن وانتقال المهارة إلى المنزل أو المجتمع.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "nice-stroke-rehabilitation-ng236-2023"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "spinal-cord-injury",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "spinal-cord-injury-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "إصابة الحبل الشوكي لا تمس الذكاء بذاتها؛ الحواجز الحركية والبيئية والرعاية اليومية قد تمنع الشخص من إظهار خبرته وقراره. لذلك يظل تشخيص إصابة الحبل الشوكي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار المعرفة والإدارة والتخطيط بأدوات وصول، وتحديد المهام التي يمكن إعادة تصميمها بدل الحكم من القدرة اليدوية أو المشي.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه إصابة الحبل الشوكي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "fehlings-acute-sci-rehabilitation-2017"
+          ]
+        },
+        {
+          "id": "spinal-cord-injury-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "وصول رقمي وصوتي، أجهزة تحكم وكرسي ووضعية مناسبة، بيئة قابلة للدخول، ومساعدة شخصية تحت توجيه الشخص. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن إنجاز مهمة رقمية أو منزلية بالطريقة المعتادة وتقنية مساندة، وسجل التحكم والطاقة والأعطال والمساعدة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "fehlings-acute-sci-rehabilitation-2017"
+          ]
+        },
+        {
+          "id": "spinal-cord-injury-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع خلل المنعكسات اللاإرادية والجلد والضغط والتنفس والمثانة والأمعاء والحرارة والألم؛ طبّق خطة الطوارئ الفردية. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إدارة مهمة أو فريق أو جهاز باستقلال قرار ووصول تقني مستدام مع حماية الجلد والصحة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "fehlings-acute-sci-rehabilitation-2017"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "spinal-muscular-atrophy",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "spinal-muscular-atrophy-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الضعف العضلي لا يحدد الفهم أو الطموح؛ قد تخفي محدودية الكلام أو اليد والطاقة قدرات معرفية وتواصلية محفوظة. لذلك يظل تشخيص الضمور العضلي الشوكي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: فصل جودة الفكرة والقرار عن قوة الحركة، واختبار إنتاج العمل بالإملاء أو المفتاح أو الشريك المنفذ مع توثيق صاحب القرار.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الضمور العضلي الشوكي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-spinal-muscular-atrophy-2024"
+          ]
+        },
+        {
+          "id": "spinal-muscular-atrophy-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "AAC ووصول حاسوبي ووضعية ومعدات نقل وراحة وحفظ طاقة، مع خطة صيانة وبديل للأجهزة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: أنجز مشروعًا صغيرًا بأداة وصول مختارة وقارن الطاقة والمساعدة بالوسيلة السابقة، مع مراقبة ما بعد المهمة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-spinal-muscular-atrophy-2024"
+          ]
+        },
+        {
+          "id": "spinal-muscular-atrophy-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع التنفس والبلع والتغذية والوضعية والتعب وفق فريق الأعصاب والتنفس؛ تغير التنفس أو البلع يحتاج تقييمًا عاجلًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إنتاج رسالة أو قرار أو مشروع بجودة يحددها الشخص ضمن حدود التنفس والطاقة وبأداة يمكن الاعتماد عليها.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-spinal-muscular-atrophy-2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "duchenne-muscular-dystrophy",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "duchenne-muscular-dystrophy-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "حثل دوشين لا يمنح قوة؛ قد تبقى المعرفة والاهتمامات قوية مع تغير الحركة والطاقة، وقد توجد احتياجات تعلم فردية يجب قياسها. لذلك يظل تشخيص حثل دوشين العضلي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار التعلم والتواصل والمشاركة بوسيلة لا تعتمد على الكتابة أو الوقوف، والتخطيط المبكر لانتقال الوصول مع تقدم الضعف.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه حثل دوشين العضلي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "birnkrant-duchenne-care-part1-2018"
+          ]
+        },
+        {
+          "id": "duchenne-muscular-dystrophy-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "وصول حاسوبي وصوتي وكرسي ووضعية ووقت مرن، تقليل حمل الكتابة، وتحديث التقنية قبل فقد الوظيفة لا بعده. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن مهمة مدرسية باليد وبالإملاء أو مفتاح وصول، وسجل الدقة والطاقة والوقت والاستقلال.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "birnkrant-duchenne-care-part1-2018"
+          ]
+        },
+        {
+          "id": "duchenne-muscular-dystrophy-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تُدار صحة القلب والتنفس والعظام والستيرويد والبلع والتقلصات مع الفريق؛ لا يُفرض مجهود أو تمدد غير موصوف. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: الاستمرار في تعلم أو هواية أو دور اجتماعي باستخدام تقنية تتكيف استباقيًا مع تغير الحركة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "birnkrant-duchenne-care-part1-2018"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "becker-muscular-dystrophy",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "becker-muscular-dystrophy-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "حثل بيكر لا ينتج موهبة؛ يختلف مساره، وقد تحجب محدودية الجهد أو الحركة قدرات دراسية ومهنية محفوظة. لذلك يظل تشخيص حثل بيكر العضلي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد ما يستطيع الشخص إنجازه بجودة عندما لا تكون السرعة أو التحمل معيارًا، والتخطيط لتقنية مساندة مبكرة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه حثل بيكر العضلي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-dystrophinopathies-2022"
+          ]
+        },
+        {
+          "id": "becker-muscular-dystrophy-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "جدولة وراحة ووصول حاسوبي ووضعية ومعدات حركة بحسب الحاجة، مع مرونة لا تسقط المسؤولية. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قسّم مهمة عملية أو رقمية إلى وحدات وقارنها بنسخة متصلة، وسجل الجودة والطاقة والأعراض المتأخرة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-dystrophinopathies-2022"
+          ]
+        },
+        {
+          "id": "becker-muscular-dystrophy-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع القلب والتنفس والعضلات والألم والسقوط مع الفريق، ولا تستخدم تمرينًا شديدًا أو إنهاكًا لإثبات القدرة. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المحافظة على دور تعليمي أو مهني مختار بتوزيع جهد وتقنية وصول يحميان القلب والعضلات.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-dystrophinopathies-2022"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "charcot-marie-tooth-disease",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "charcot-marie-tooth-disease-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "مرض شاركو–ماري–توث لا يحدد الإدراك؛ ضعف القدم أو اليد والإحساس قد يجعل الأداء البطيء يُفهم خطأً كضعف قدرة. لذلك يظل تشخيص مرض شاركو–ماري–توث وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار المعرفة والتخطيط بعد تكييف الكتابة والمشي، وتحديد المهام التي تستفيد من أداة أو طريقة إمساك أو إدخال بديلة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه مرض شاركو–ماري–توث، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-cmt-overview-2025"
+          ]
+        },
+        {
+          "id": "charcot-marie-tooth-disease-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "أحذية أو جبائر وأدوات يد ولوحة مفاتيح وراحة ووصول مكاني وفق التقييم، مع منع جعل السرعة معيارًا. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن مهمة يدوية بالأداة المعتادة وأداة معدلة أو إدخال صوتي، وسجل الدقة والألم والتعب.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-cmt-overview-2025"
+          ]
+        },
+        {
+          "id": "charcot-marie-tooth-disease-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع السقوط والقدم والجلد والألم والضعف والتنفس في الأنواع ذات الصلة، وناقش الأدوية العصبية الضارة مع الطبيب. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إتمام مهمة منزلية أو دراسية بأمان وبأداة تقلل الألم والسقوط وتحافظ على الاستقلال.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-cmt-overview-2025"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "friedreich-ataxia",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "friedreich-ataxia-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الرنح لا يحدد الذكاء أو الاهتمامات؛ صعوبة الحركة والكلام والطاقة قد تخفي الفهم والقرار. لذلك يظل تشخيص رنح فريدرايخ وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار المعرفة والتواصل بوسائل تقلل متطلبات التنسيق والسرعة، وتحديد دور يمكن الحفاظ عليه مع تغير الحركة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه رنح فريدرايخ، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "corben-friedreich-ataxia-guideline-2022"
+          ]
+        },
+        {
+          "id": "friedreich-ataxia-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "AAC أو إملاء ووصول حاسوبي وكرسي ووضعية ووقت استجابة، مع دعم رؤية وسمع عند الحاجة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن إنتاج فكرة بالكلام أو اليد وبوسيلة بديلة، وسجل وضوح القرار والطاقة لا سرعة الحركة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "corben-friedreich-ataxia-guideline-2022"
+          ]
+        },
+        {
+          "id": "friedreich-ataxia-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع القلب والسكري والجنف والبلع والسمع والبصر والتعب مع الفريق؛ ألم صدر أو ضيق نفس أو تدهور جديد يحتاج تقييمًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المشاركة في تعلم أو عمل أو قرار باستخدام وصول مستدام مع حدود قلبية وطاقة فردية.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "corben-friedreich-ataxia-guideline-2022"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "hereditary-spastic-paraplegia",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "hereditary-spastic-paraplegia-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الشلل التشنجي الوراثي لا يمنح قوة، وقد تبقى القدرات المعرفية والتواصلية محفوظة في أنواع كثيرة بينما تتأثر الحركة بدرجات مختلفة. لذلك يظل تشخيص الشلل التشنجي الوراثي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: فصل التخطيط والمعرفة عن المشي والسرعة، واختبار أداء المهمة باستخدام وسيلة حركة أو جلوس مناسبة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الشلل التشنجي الوراثي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-spastic-paraplegia-2025"
+          ]
+        },
+        {
+          "id": "hereditary-spastic-paraplegia-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "وسيلة تنقل وجبائر ومقعد وأدوات وصول وراحة، مع علاج موجه للهدف لا للشكل الحركي وحده. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: نفذ مهمة انتقال أو عمل بالطريقة المعتادة وبأداة حركة أو ترتيب بيئي بديل، وقارن السلامة والطاقة والاستقلال.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-spastic-paraplegia-2025"
+          ]
+        },
+        {
+          "id": "hereditary-spastic-paraplegia-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع السقوط والألم والتشنج والمثانة والجلد والتعب وأي أعراض عصبية إضافية مع الفريق. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: الوصول إلى نشاط مختار وإنجازه بأمان مع تقليل السقوط والطاقة من دون جعل المشي هدفًا إلزاميًا.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-spastic-paraplegia-2025"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "myasthenia-gravis",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "myasthenia-gravis-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الوهن العضلي لا ينتج قوة؛ تتقلب القدرة العضلية خلال اليوم وقد تبقى المعرفة كاملة، لذا لا يُحكم من جلسة واحدة. لذلك يظل تشخيص الوهن العضلي الوبيل وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: قياس جودة العمل عندما تضبط المواعيد والراحة، وفصل القدرة المعرفية عن التعب العضلي والكلام أو الرؤية المتقلبة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الوهن العضلي الوبيل، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "narayanaswami-myasthenia-consensus-2021"
+          ]
+        },
+        {
+          "id": "myasthenia-gravis-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "جدولة في وقت الأداء الأفضل، فواصل، أدوات تقلل الرفع والكتابة، وصول صوتي بديل عند وضوح الكلام، وخطة احتياط. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: كرر مهمة قصيرة في وقتين مع راحة متساوية وسجل الجودة والقوة والكلام والأعراض بعد المهمة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "narayanaswami-myasthenia-consensus-2021"
+          ]
+        },
+        {
+          "id": "myasthenia-gravis-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "صعوبة تنفس أو بلع أو ضعف سريع حالة عاجلة؛ تُراجع العدوى والدواء والحرارة والإجهاد مع الفريق ولا يُدفع الشخص عبر التعب. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إتمام مسؤولية مرنة في وقت مناسب وبفواصل تحمي التنفس والبلع مع خيار إيقاف فوري.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "narayanaswami-myasthenia-consensus-2021"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "dystonia",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "dystonia-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "خلل التوتر لا يحدد الفكر؛ الوضعيات أو الحركات أو الكلام قد تخفي المعرفة، وقد يتغير الأداء مع الألم والمهمة والسياق. لذلك يظل تشخيص خلل التوتر العضلي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار الهدف بأوضاع وأدوات ووسائل إدخال مختلفة لتحديد ما يقلل الحركة غير المرغوبة ويحسن القرار.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه خلل التوتر العضلي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "de-pauw-dystonia-rehabilitation-2018"
+          ]
+        },
+        {
+          "id": "dystonia-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "وضعية ودعم طرف وأدوات وصول ووقت استجابة وراحة، مع تكييف المهمة بدل إجبار حركة مثالية. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن تنفيذ مهمة يدوية أو تواصلية في وضعين أو بأداتين، وسجل الدقة والألم والطاقة والاستقلال.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "systematic-review-limited-directness",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "de-pauw-dystonia-rehabilitation-2018"
+          ]
+        },
+        {
+          "id": "dystonia-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع الألم والبلع والتنفس والسقوط وآثار الدواء أو التحفيز العميق وخطة الطوارئ في النوبات الشديدة. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إنجاز نشاط مختار بطريقة تقلل الألم والحركة المعيقة وتحافظ على التحكم والكرامة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "systematic-review-limited-directness",
+          "source_ids": [
+            "de-pauw-dystonia-rehabilitation-2018"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "arthrogryposis",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "arthrogryposis-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "تيبس المفاصل الخلقي لا يحدد الإدراك؛ مدى الحركة وشكل الطرف قد يحجبان المعرفة والمهارة إذا لم تعدل الأدوات. لذلك يظل تشخيص تيبس المفاصل الخلقي المتعدد وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار التخطيط وحل المشكلة مع تغيير ارتفاع السطح أو المقبض أو وسيلة الوصول، وقياس الكفاءة لا المظهر.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه تيبس المفاصل الخلقي المتعدد، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "arthrogryposis-rehabilitation-review-2023"
+          ]
+        },
+        {
+          "id": "arthrogryposis-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "أدوات ومقابض ووضعية وملابس وبيئة معدلة، تقنية مساندة، ومساعدة بشرية يوجهها الشخص. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن مهمة عناية أو حرفة بالأداة المعتادة وأداة مصممة حسب مدى الحركة، وسجل الاستقلال والراحة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "systematic-review-limited-directness",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "arthrogryposis-rehabilitation-review-2023"
+          ]
+        },
+        {
+          "id": "arthrogryposis-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع الجلد والألم والمفاصل والتنفس والبلع والجراحة السابقة، ولا تستخدم قوة أو تمديدًا خارج توصية الفريق. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إتمام خطوة يومية أو إنتاجية بأداة شخصية تقلل المساعدة وتحمي المفاصل والجلد.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "systematic-review-limited-directness",
+          "source_ids": [
+            "arthrogryposis-rehabilitation-review-2023"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "osteogenesis-imperfecta",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "osteogenesis-imperfecta-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "تكوّن العظم الناقص لا يمنح قوة نفسية أو فكرية؛ القدرات متنوعة ويجب ألا تؤدي الحماية الزائدة إلى حرمان الشخص من التعلم والقرار. لذلك يظل تشخيص تكوّن العظم الناقص وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار الاستقلال والتعلم في نشاط منخفض خطر الكسر مع أدوات وصول، وإشراك الشخص في تقييم المخاطر.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه تكوّن العظم الناقص، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-osteogenesis-imperfecta-2025"
+          ]
+        },
+        {
+          "id": "osteogenesis-imperfecta-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "مناولة ونقل ومقعد وأدوات مناسبة، وصول مكاني، تواصل خطة الكسر، وخيارات مشاركة لا تعتمد على الاحتكاك أو الرفع. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: أعد تصميم نشاط منزلي أو تعليمي لتقليل القوة والسقوط، وقارن الاستقلال والقلق والسلامة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-osteogenesis-imperfecta-2025"
+          ]
+        },
+        {
+          "id": "osteogenesis-imperfecta-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع الكسور والألم والسمع والأسنان والتنفس والقلب وفق النوع، ولا تنفذ نقلًا أو ضغطًا أو نشاطًا غير آمن. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المشاركة في روتين مختار باستقلال أكبر ضمن خطة مخاطر متفق عليها لا تقوم على المنع الشامل.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-osteogenesis-imperfecta-2025"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "achondroplasia",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "achondroplasia-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الأكوندروبلازيا اختلاف هيكلي لا يحدد الذكاء؛ الحواجز المبنية على طول متوسط قد تخلق اعتمادًا غير لازم. لذلك يظل تشخيص الأكوندروبلازيا وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد المهام التي يصبح فيها الشخص مستقلًا بعد تعديل الارتفاع والوصول، بدل نسبة الصعوبة للقدرة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الأكوندروبلازيا، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-achondroplasia-2023"
+          ]
+        },
+        {
+          "id": "achondroplasia-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "أثاث ودرجات وأدوات ومركبة ومرحاض ومطبخ قابلة للوصول، مع تصميم يمنع السقوط ويحترم الخصوصية. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن روتينًا على تجهيز قياسي وتجهيز معدل الارتفاع، وسجل الاستقلال والزمن والمخاطر.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-achondroplasia-2023"
+          ]
+        },
+        {
+          "id": "achondroplasia-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع ضغط الوصل القحفي الرقبي والنوم والتنفس والسمع واستسقاء الدماغ والعمود الفقري والألم مع الفريق، ولا تنفذ مناورات رقبة غير موصوفة. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: تنفيذ مهمة منزلية أو تعليمية كاملة في بيئة معدلة من دون مساعدة سببها ارتفاع الأشياء فقط.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-achondroplasia-2023"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "limb-difference-amputation",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "limb-difference-amputation-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "اختلاف الطرف أو فقده لا يمنح مثابرة أو موهبة تلقائيًا؛ القدرة تظهر عبر اختيار الاستراتيجية أو الطرف المتبقي أو الجهاز الأنسب. لذلك يظل تشخيص اختلاف الأطراف أو فقدان أحدها وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار المهمة من دون جهاز وبجهاز أو أداة بديلة وفق اختيار الشخص، وقياس التحكم والراحة لا التشابه بالحركة المعيارية.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه اختلاف الأطراف أو فقدان أحدها، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "va-dod-lower-limb-amputation-cpg-2024"
+          ]
+        },
+        {
+          "id": "limb-difference-amputation-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "طرف اصطناعي عند الرغبة والملاءمة، أدوات ثنائية أو أحادية اليد، إملاء أو مفاتيح، وبيئة تقلل الوصول غير الضروري. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: جرب استراتيجيتين لمهمة مختارة في جلسات قصيرة، وسجل الجودة والجلد والألم والطاقة والاستقلال.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "va-dod-lower-limb-amputation-cpg-2024"
+          ]
+        },
+        {
+          "id": "limb-difference-amputation-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع الجلد والضغط والألم الوهمي أو العصبي والإفراط في استخدام الطرف الآخر وملاءمة الجهاز. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إنجاز نشاط يختاره الشخص بالاستراتيجية الأكثر راحة واستدامة، سواء استخدم طرفًا اصطناعيًا أم لا.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "va-dod-lower-limb-amputation-cpg-2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "severe-burns-contractures",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "severe-burns-contractures-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "آثار الحروق لا تنتج قوة؛ الألم والحكة والتقلص والوصمة قد تحجب مهارات وخبرات موجودة وتحتاج تكييفًا وعلاجًا. لذلك يظل تشخيص آثار الحروق الشديدة والتقلصات وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد ما يستطيع الشخص إظهاره عندما يقل الألم وتعدل الحركة والأداة والحرارة، مع قياس المعرفة منفصلة عن مدى المفصل.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه آثار الحروق الشديدة والتقلصات، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "burn-contracture-rehabilitation-review-2024"
+          ]
+        },
+        {
+          "id": "severe-burns-contractures-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "أدوات ووضعية وملابس وبيئة حرارية مناسبة، فواصل للعناية بالجلد، ووصول نفسي واجتماعي يحمي من الوصم. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن مهمة يدوية أو مهنية قبل تعديل المقبض والوضعية وبعده، وسجل الألم والجلد والجودة والاستمرار.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "systematic-review-limited-directness",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "burn-contracture-rehabilitation-review-2024"
+          ]
+        },
+        {
+          "id": "severe-burns-contractures-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع الجلد والجرح والعدوى والتقلص والألم والحكة والحرارة والصحة النفسية؛ لا تستخدم شدًا أو حرارة أو احتكاكًا خارج خطة الفريق. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: العودة التدريجية إلى نشاط ذي معنى بأداة ووتيرة تحمي الجلد والمفاصل والصحة النفسية.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "systematic-review-limited-directness",
+          "source_ids": [
+            "burn-contracture-rehabilitation-review-2024"
+          ]
+        }
+      ]
+    }
+  ]
+}

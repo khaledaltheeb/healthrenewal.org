@@ -1,0 +1,948 @@
+{
+  "version": 280,
+  "language": "ar",
+  "updated_at": "2026-07-27",
+  "title": "لنرتقي بقدراتهم",
+  "subtitle": "من اختزال الشخص في التشخيص إلى اكتشاف قدراته وبناء فرص حقيقية",
+  "review_status": "مراجعة منهجية داخلية؛ المراجعة السريرية والتربوية الخارجية المستقلة مطلوبة قبل وصف المحتوى بأنه معتمد",
+  "external_review_completed": false,
+  "core_statement": "ليس لكل مرض فائدة، ولكن لكل شخص قيمة وقدرات محتملة. وقد تكشف بعض الحالات عن نمط مختلف في التفكير أو التعلم، بينما تفرض حالات أخرى صعوبات فقط. مسؤوليتنا ليست تجميل المرض، بل علاج المعاناة، وإزالة الحواجز، واكتشاف ما يستطيع الشخص فعله، ثم توفير البيئة والأدوات التي تسمح له بتحويل قدرته إلى استقلال ومشاركة وحياة ذات معنى.",
+  "scope_note": "هذا القسم سجل بحثي وبروتوكول تثقيفي لا يشخّص، ولا يصف علاجًا فرديًا، ولا يتنبأ بالمهنة من اسم الحالة. كلمة قوة تعني فرضية قابلة للاختبار عند شخص بعينه، وقد تكون قوة نسبية داخل ملفه لا تفوقًا على الآخرين.",
+  "selection_method": {
+    "title": "كيف اختيرت الحالات المئة؟",
+    "criteria": [
+      "وجود أثر محتمل طويل الأمد في التعلم أو التواصل أو الحركة أو الاستقلال أو المشاركة.",
+      "الحاجة إلى منع اختزال القدرة بسبب مظهر الحالة أو طريقة الكلام أو الحركة أو التعب.",
+      "توافر مسار معقول للتقييم الوظيفي والتكييف والتأهيل أو المشاركة.",
+      "تمثيل الحالات الشائعة والنادرة والنمائية والمكتسبة والحسية والجسدية والنفسية.",
+      "استبعاد الفروق الشكلية وحدها، والمفاهيم المختلف على صلاحيتها التشخيصية، والادعاءات الشعبية غير القابلة للاختبار."
+    ],
+    "not_a_ranking": "الترقيم تنظيمي وليس ترتيبًا للقيمة أو الانتشار أو فرص النجاح."
+  },
+  "evidence_routes": {
+    "context-dependent-emerging": {
+      "label": "دليل ناشئ وسياقي",
+      "meaning": "توجد دراسات أو خبرات معاشة تصف نقاط قوة، لكن ظهورها يتأثر بالسياق ولا يثبت أن التشخيص سببها أو أنها توجد لدى الجميع."
+    },
+    "relative-profile": {
+      "label": "قوة نسبية داخل الملف",
+      "meaning": "تظهر بعض القدرات أقوى نسبيًا من مجالات أخرى داخل المجموعة، مع تباين فردي كبير؛ لا تعني تفوقًا عامًا على غير المصابين."
+    },
+    "heterogeneous-no-group-gift": {
+      "label": "تباين كبير بلا موهبة جماعية مثبتة",
+      "meaning": "لا تدعم المراجعات ادعاء موهبة ثابتة مرتبطة بالحالة، لكن التباين يسمح بوجود نقاط قوة فردية يجب قياسها مباشرة."
+    },
+    "preserved-capability-access": {
+      "label": "قدرات محفوظة وإزالة حواجز",
+      "meaning": "لا تُنسب القوة إلى الحالة؛ يُبحث عما بقي قويًا أو ما يستطيع الشخص إظهاره بعد توفير الوصول والتقنية وتعديل المهمة."
+    },
+    "individual-discovery": {
+      "label": "اكتشاف فردي فقط",
+      "meaning": "لا يوجد أساس كافٍ لادعاء نمط قوة خاص بالحالة؛ يبدأ العمل من تفضيلات الشخص وأدائه الفعلي."
+    },
+    "stability-first": {
+      "label": "الاستقرار والصحة أولًا",
+      "meaning": "لا يجوز تحويل الألم أو الهوس أو الذهان أو النوبات أو الإرهاق أو الحرمان من النوم إلى قوة؛ تعالج المخاطر أولًا ثم تُكتشف القدرات في فترات الاستقرار."
+    }
+  },
+  "categories": {
+    "neurodevelopmental-learning": "النمو العصبي والتعلم والتواصل",
+    "genetic-metabolic": "المتلازمات الجينية والكروموسومية والاستقلابية",
+    "motor-neurological": "الحركة والأعصاب والإصابات",
+    "sensory-communication": "الحواس والوصول والتواصل",
+    "chronic-health": "الحالات الصحية المزمنة والمتقطعة",
+    "progressive-psychosocial": "الحالات التقدمية والنفسية ذات الأثر الوظيفي"
+  },
+  "protocol": {
+    "title": "بروتوكول اكتشاف وتنمية القدرة",
+    "principles": [
+      "الشخص شريك في اختيار الهدف وله حق الرفض والتوقف وتغيير المسار.",
+      "تعالج المخاطر الطبية والنفسية والألم والنوم والسمع والبصر والتواصل قبل تفسير الأداء.",
+      "اسم التشخيص لا يحدد الذكاء أو المهنة أو القدرة على القرار.",
+      "تُختبر القدرة في مهمة حقيقية مع تكييف مناسب، لا في انطباع أو قصة نجاح.",
+      "يقاس النجاح بجودة الأداء والاستقلال والرغبة والتعب والتعميم، لا بالإنتاج وحده.",
+      "لا يعد الإنجاز نجاحًا إذا كان يتطلب إخفاء السمات أو يسبب انهيارًا أو ألمًا متكررًا."
+    ],
+    "stages": [
+      {
+        "number": 1,
+        "title": "الأمان والاستقرار",
+        "actions": [
+          "مراجعة الألم والنوبات والنوم والتغذية والدواء والحواس والتغيرات الصحية الحديثة مع المختص المناسب.",
+          "تحديد إشارات التوقف والطوارئ وطريقة طلب المساعدة أو الرفض.",
+          "تأجيل اختبار الأداء إذا كان الشخص في أزمة أو تدهور حاد."
+        ],
+        "output": "قائمة مخاطر وحدود مشاركة آمنة."
+      },
+      {
+        "number": 2,
+        "title": "صوت الشخص وتفضيلاته",
+        "actions": [
+          "سؤال الشخص مباشرة وبوسيلة تواصل قابلة للوصول عما يحبه وما يرفضه وما يريد تحسينه.",
+          "جمع منظور الأسرة أو المدرسة أو العمل بوصفه مصدرًا إضافيًا لا بديلًا عن صوت الشخص.",
+          "اختيار هدف ذي معنى في الحياة اليومية بدل هدف يريح المؤسسة فقط."
+        ],
+        "output": "هدف يختاره الشخص أو يوافق عليه عمليًا."
+      },
+      {
+        "number": 3,
+        "title": "الملف الوظيفي",
+        "actions": [
+          "وصف التواصل والتعلم والحركة والتنظيم والعلاقات والعناية الذاتية والطاقة والمشاركة.",
+          "تسجيل ما ينجح مستقلًا وما يحتاج أداة أو تلميحًا أو مساعدة بشرية.",
+          "الفصل بين القدرة الحقيقية وطريقة إظهارها؛ صعوبة الكلام أو الكتابة أو الحركة لا تثبت ضعف الفهم."
+        ],
+        "output": "خريطة قدرات واحتياجات وحواجز."
+      },
+      {
+        "number": 4,
+        "title": "فرضيات قوة قابلة للدحض",
+        "actions": [
+          "صياغة ثلاث فرضيات فقط مثل: يتعلم أفضل بصريًا، يلاحظ الأخطاء، أو يحتفظ بالدقة مع وقت أطول.",
+          "كتابة دليل يؤيد كل فرضية ودليل قد ينفيها.",
+          "منع تحويل الاهتمام أو السمة إلى مهنة قبل الاختبار."
+        ],
+        "output": "ثلاث فرضيات محددة لا أوصاف عامة."
+      },
+      {
+        "number": 5,
+        "title": "تجارب مهام صغيرة",
+        "actions": [
+          "اختبار المهمة في نسختين أو ثلاث تختلف في طريقة العرض أو البيئة أو الأداة.",
+          "استخدام مدة قصيرة وتغذية راجعة واضحة وخط أساس قبل التدريب.",
+          "تكرار التجربة في أكثر من يوم لتجنب حكم مبني على مزاج أو تعب عابر."
+        ],
+        "output": "بيانات أداء قابلة للمقارنة."
+      },
+      {
+        "number": 6,
+        "title": "تعديل البيئة قبل الحكم",
+        "actions": [
+          "تجربة تواصل بديل أو قارئ شاشة أو تكبير أو إملاء صوتي أو أدوات حركة أو مكان هادئ أو جدول مرئي بحسب الحاجة.",
+          "تقليل الحمل غير المرتبط بالهدف مثل سرعة الكتابة عند قياس المعرفة.",
+          "تسجيل أثر كل تكييف بدل افتراض فائدته."
+        ],
+        "output": "مصفوفة الشخص × المهمة × البيئة × الدعم."
+      },
+      {
+        "number": 7,
+        "title": "هدف وظيفي قابل للقياس",
+        "actions": [
+          "تحديد سلوك قابل للملاحظة وسياق ومدة ومستوى مساعدة ومعيار جودة.",
+          "اختيار هدف قريب من حياة الشخص مثل إعداد طلب، استخدام أداة، شرح فكرة أو إتمام مهمة عمل.",
+          "تضمين حد للتعب أو الألم أو الضيق ضمن معيار النجاح."
+        ],
+        "output": "هدف زمني لا يختزل الشخص في درجة."
+      },
+      {
+        "number": 8,
+        "title": "التدريب والنقل",
+        "actions": [
+          "تدريب المهمة الكاملة في سياق حقيقي، مع تجزئة مؤقتة عند الحاجة.",
+          "خفض التلميحات تدريجيًا مع الحفاظ على أدوات الوصول الضرورية.",
+          "اختبار انتقال المهارة إلى شخص أو مكان أو مثال جديد."
+        ],
+        "output": "مهارة نافعة تتجاوز جلسة التدريب."
+      },
+      {
+        "number": 9,
+        "title": "المراجعة والقرار",
+        "actions": [
+          "مراجعة الجودة والاستقلال والرغبة والتعب والألم والتعميم والرضا.",
+          "الاستمرار أو التعديل أو التوقف وفق البيانات ورأي الشخص.",
+          "توثيق ما لم ينجح حتى لا يتحول الفشل إلى لوم أو تكرار."
+        ],
+        "output": "قرار مشترك وموعد مراجعة جديد."
+      }
+    ],
+    "minimum_measures": [
+      "جودة التنفيذ أو دقته.",
+      "مقدار ونوع المساعدة.",
+      "الوقت عندما يكون ذا معنى وليس معيارًا ظالمًا.",
+      "التعب أو الألم أو الحمل الحسي قبل المهمة وبعدها.",
+      "رغبة الشخص في تكرار النشاط.",
+      "القدرة على التعميم إلى سياق آخر.",
+      "أثر النشاط في الاستقلال والمشاركة وجودة الحياة."
+    ],
+    "stop_rules": [
+      "ألم أو ضيق أو إرهاق يتصاعد ولا يعود إلى خط الأساس.",
+      "فقدان مهارة أو تغير وعي أو نوبة أو تدهور صحي جديد.",
+      "رفض واضح أو سحب الموافقة أو غياب وسيلة موثوقة للتعبير عن التوقف.",
+      "زيادة الخطر أو الاستغلال أو التنمر أو إخفاء السمات على حساب الصحة.",
+      "عدم وجود فائدة ذات معنى بعد دورة متفق عليها رغم التكييف المناسب."
+    ]
+  },
+  "sources": [
+    {
+      "id": "who-icf-2001",
+      "publisher": "World Health Organization",
+      "title": "International Classification of Functioning, Disability and Health (ICF)",
+      "url": "https://www.who.int/standards/classifications/international-classification-of-functioning-disability-and-health",
+      "year": 2001,
+      "source_type": "diagnostic_manual_or_classification",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "functioning-participation-environment-framework",
+        "diagnosis-alone-does-not-describe-function"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "who-rehabilitation-2024",
+      "publisher": "World Health Organization",
+      "title": "Rehabilitation",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/rehabilitation",
+      "year": 2024,
+      "source_type": "public_health_authority",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "rehabilitation-optimizes-function",
+        "environment-assistive-products-task-adaptation"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "un-crpd-article-26",
+      "publisher": "United Nations",
+      "title": "CRPD Article 26 — Habilitation and rehabilitation",
+      "url": "https://social.desa.un.org/issues/disability/crpd/article-26-habilitation-and-rehabilitation",
+      "year": 2006,
+      "source_type": "official_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "habilitation-rights-and-participation",
+        "services-based-on-individual-needs-and-strengths"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "un-crpd-article-27",
+      "publisher": "United Nations",
+      "title": "CRPD Article 27 — Work and employment",
+      "url": "https://social.desa.un.org/issues/disability/crpd/article-27-work-and-employment",
+      "year": 2006,
+      "source_type": "official_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "equal-right-to-work",
+        "reasonable-accommodation-and-opportunity"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "nice-shared-decision-ng197",
+      "publisher": "National Institute for Health and Care Excellence",
+      "title": "Shared decision making (NG197)",
+      "url": "https://www.nice.org.uk/guidance/ng197",
+      "year": 2021,
+      "source_type": "official_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "shared-decisions-use-goals-and-preferences",
+        "accessible-information-and-deliberation"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "kang-person-centered-goals-2022",
+      "publisher": "Archives of Physical Medicine and Rehabilitation",
+      "title": "Person-Centered Goal Setting: A Systematic Review of Intervention Components and Level of Active Engagement in Rehabilitation Goal-Setting Interventions",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34375632/",
+      "year": 2022,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "active-engagement-in-goal-setting",
+        "need-for-coping-plan-and-follow-up"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "chow-autistic-strengths-2024",
+      "publisher": "Autism in Adulthood",
+      "title": "What Are the Lived Experiences of Strengths in Autistic Individuals? A Systematic Review and Thematic Synthesis",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/42369095/",
+      "year": 2024,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "autistic-strengths-are-context-dependent",
+        "focused-interests-and-self-knowledge-may-support-thriving"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "taylor-autism-strength-use-2023",
+      "publisher": "Autism",
+      "title": "Psychological strengths and well-being: Strengths use predicts quality of life, well-being and mental health in autism",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36639858/",
+      "year": 2023,
+      "source_type": "primary_research",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "strength-use-associated-with-better-outcomes-in-autistic-adults",
+        "association-does-not-prove-causation"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "rafael-adhd-strengths-2026",
+      "publisher": "Journal of Attention Disorders",
+      "title": "Attention Deficit/Hyperactivity Disorder (ADHD)-Related Strengths in Adults: A Scoping Review",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41889015/",
+      "year": 2026,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "adult-adhd-strengths-literature-map",
+        "creativity-interest-based-attention-energy-and-prosocial-reports",
+        "evidence-remains-heterogeneous-and-contextual"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "hotte-meunier-adhd-work-2024",
+      "publisher": "Neurodiversity",
+      "title": "Strengths and challenges to embrace attention-deficit/hyperactivity disorder in employment: A systematic review",
+      "url": "https://doi.org/10.1177/27546330241287655",
+      "year": 2024,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "adhd-person-environment-fit",
+        "workplace-accommodations-and-support"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "majeed-dyslexia-creativity-2021",
+      "publisher": "Dyslexia",
+      "title": "Developmental dyslexia and creativity: A meta-analysis",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33586314/",
+      "year": 2021,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "no-overall-creativity-advantage-in-dyslexia",
+        "subgroup-and-age-findings-require-caution"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "chamberlain-dyslexia-spatial-2018",
+      "publisher": "British Journal of Psychology",
+      "title": "Meta-analytic findings reveal lower means but higher variances in visuospatial ability in dyslexia",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29938776/",
+      "year": 2018,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "dyslexia-visuospatial-performance-is-highly-variable",
+        "no-universal-visuospatial-advantage"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "erbeli-dyslexia-creativity-2022",
+      "publisher": "Journal of Learning Disabilities",
+      "title": "No Evidence of Creative Benefit Accompanying Dyslexia",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33899570/",
+      "year": 2022,
+      "source_type": "primary_research",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "group-membership-does-not-establish-creative-gift",
+        "individual-creativity-still-requires-direct-assessment"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "onnivello-down-profiles-2022",
+      "publisher": "Scientific Reports",
+      "title": "Cognitive profiles in children and adolescents with Down syndrome",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35121796/",
+      "year": 2022,
+      "source_type": "primary_research",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "multiple-down-syndrome-cognitive-profiles",
+        "relative-nonverbal-strength-is-not-universal"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "yang-down-visuospatial-2014",
+      "publisher": "Research in Developmental Disabilities",
+      "title": "Visuo-spatial ability in individuals with Down syndrome: Is it really a strength?",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24755229/",
+      "year": 2014,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "down-visuospatial-profile-is-task-specific",
+        "relative-strength-language-requires-precise-comparison"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "aap-down-health-2022",
+      "publisher": "American Academy of Pediatrics",
+      "title": "Health Supervision for Children and Adolescents With Down Syndrome",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35490285/",
+      "year": 2022,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "down-syndrome-health-surveillance",
+        "hearing-vision-thyroid-sleep-and-development-can-affect-function"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "jackman-cp-guideline-2022",
+      "publisher": "Developmental Medicine & Child Neurology",
+      "title": "Interventions to improve physical function for children and young people with cerebral palsy: international clinical practice guideline",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34549424/",
+      "year": 2022,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "client-chosen-functional-goals",
+        "whole-task-goal-directed-practice",
+        "environment-equipment-and-assistive-technology"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "nice-cp-ng62",
+      "publisher": "National Institute for Health and Care Excellence",
+      "title": "Cerebral palsy in under 25s: assessment and management (NG62)",
+      "url": "https://www.nice.org.uk/guidance/ng62/chapter/recommendations",
+      "year": 2017,
+      "source_type": "official_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "cp-individualized-assessment-and-management",
+        "communication-pain-sleep-hearing-vision-and-mental-health-review"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "who-hearing-2026",
+      "publisher": "World Health Organization",
+      "title": "Deafness and hearing loss",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/deafness-and-hearing-loss",
+      "year": 2026,
+      "source_type": "public_health_authority",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "people-centred-hearing-care",
+        "early-access-language-and-rehabilitation"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "medline-genetics",
+      "publisher": "U.S. National Library of Medicine",
+      "title": "MedlinePlus Genetics",
+      "url": "https://medlineplus.gov/genetics/",
+      "year": 2026,
+      "source_type": "public_health_authority",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "plain-language-genetic-condition-reference",
+        "condition-specific-medical-facts-require-source-verification"
+      ],
+      "status": "current"
+    }
+  ],
+  "conditions": [
+    {"rank": 1, "slug": "autism", "title_ar": "اضطراب طيف التوحد", "title_en": "Autism Spectrum Disorder", "category": "neurodevelopmental-learning", "evidence_route": "context-dependent-emerging", "first_wave_guide": true},
+    {"rank": 2, "slug": "adhd", "title_ar": "اضطراب نقص الانتباه وفرط الحركة", "title_en": "Attention-Deficit/Hyperactivity Disorder", "category": "neurodevelopmental-learning", "evidence_route": "context-dependent-emerging", "first_wave_guide": true},
+    {"rank": 3, "slug": "intellectual-developmental-disorder", "title_ar": "اضطراب النمو الفكري واحتياجات السلوك التكيفي", "title_en": "Intellectual Developmental Disorder", "category": "neurodevelopmental-learning", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 4, "slug": "global-developmental-delay", "title_ar": "التأخر النمائي الشامل", "title_en": "Global Developmental Delay", "category": "neurodevelopmental-learning", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 5, "slug": "dyslexia", "title_ar": "صعوبة التعلم المحددة في القراءة وعسر القراءة", "title_en": "Specific Learning Disorder in Reading / Dyslexia", "category": "neurodevelopmental-learning", "evidence_route": "heterogeneous-no-group-gift", "first_wave_guide": true},
+    {"rank": 6, "slug": "written-expression-difficulty", "title_ar": "صعوبة التعبير الكتابي وعسر الكتابة", "title_en": "Specific Learning Disorder in Written Expression", "category": "neurodevelopmental-learning", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 7, "slug": "dyscalculia", "title_ar": "صعوبة التعلم المحددة في الرياضيات وعسر الحساب", "title_en": "Specific Learning Disorder in Mathematics / Dyscalculia", "category": "neurodevelopmental-learning", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 8, "slug": "developmental-coordination-disorder", "title_ar": "اضطراب التناسق الحركي النمائي", "title_en": "Developmental Coordination Disorder", "category": "neurodevelopmental-learning", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 9, "slug": "developmental-language-disorder", "title_ar": "اضطراب اللغة النمائي", "title_en": "Developmental Language Disorder", "category": "neurodevelopmental-learning", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 10, "slug": "speech-sound-disorder", "title_ar": "اضطراب أصوات الكلام", "title_en": "Speech Sound Disorder", "category": "neurodevelopmental-learning", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 11, "slug": "childhood-apraxia-of-speech", "title_ar": "تعذر الأداء النطقي في الطفولة", "title_en": "Childhood Apraxia of Speech", "category": "neurodevelopmental-learning", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 12, "slug": "stuttering", "title_ar": "التأتأة", "title_en": "Stuttering", "category": "neurodevelopmental-learning", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 13, "slug": "tourette-tic-disorders", "title_ar": "اضطرابات العرّات ومتلازمة توريت", "title_en": "Tic Disorders and Tourette Syndrome", "category": "neurodevelopmental-learning", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 14, "slug": "social-pragmatic-communication-disorder", "title_ar": "اضطراب التواصل الاجتماعي البراغماتي", "title_en": "Social Pragmatic Communication Disorder", "category": "neurodevelopmental-learning", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 15, "slug": "central-auditory-processing-difficulties", "title_ar": "صعوبات المعالجة السمعية المركزية", "title_en": "Central Auditory Processing Difficulties", "category": "neurodevelopmental-learning", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 16, "slug": "sensory-processing-differences", "title_ar": "اختلافات المعالجة الحسية", "title_en": "Sensory Processing Differences", "category": "neurodevelopmental-learning", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 17, "slug": "fetal-alcohol-spectrum-disorders", "title_ar": "اضطرابات طيف التعرض للكحول قبل الولادة", "title_en": "Fetal Alcohol Spectrum Disorders", "category": "neurodevelopmental-learning", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 18, "slug": "down-syndrome", "title_ar": "متلازمة داون", "title_en": "Down Syndrome", "category": "genetic-metabolic", "evidence_route": "relative-profile", "first_wave_guide": true},
+    {"rank": 19, "slug": "fragile-x-syndrome", "title_ar": "متلازمة الكروموسوم X الهش", "title_en": "Fragile X Syndrome", "category": "genetic-metabolic", "evidence_route": "relative-profile", "first_wave_guide": false},
+    {"rank": 20, "slug": "rett-syndrome", "title_ar": "متلازمة رِت", "title_en": "Rett Syndrome", "category": "genetic-metabolic", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 21, "slug": "angelman-syndrome", "title_ar": "متلازمة أنجلمان", "title_en": "Angelman Syndrome", "category": "genetic-metabolic", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 22, "slug": "prader-willi-syndrome", "title_ar": "متلازمة برادر–ويلي", "title_en": "Prader-Willi Syndrome", "category": "genetic-metabolic", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 23, "slug": "williams-syndrome", "title_ar": "متلازمة ويليامز", "title_en": "Williams Syndrome", "category": "genetic-metabolic", "evidence_route": "relative-profile", "first_wave_guide": false},
+    {"rank": 24, "slug": "cri-du-chat-syndrome", "title_ar": "متلازمة صرخة القطة", "title_en": "Cri-du-chat Syndrome", "category": "genetic-metabolic", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 25, "slug": "cornelia-de-lange-syndrome", "title_ar": "متلازمة كورنيليا دي لانج", "title_en": "Cornelia de Lange Syndrome", "category": "genetic-metabolic", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 26, "slug": "noonan-syndrome", "title_ar": "متلازمة نونان", "title_en": "Noonan Syndrome", "category": "genetic-metabolic", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 27, "slug": "turner-syndrome", "title_ar": "متلازمة تيرنر", "title_en": "Turner Syndrome", "category": "genetic-metabolic", "evidence_route": "relative-profile", "first_wave_guide": false},
+    {"rank": 28, "slug": "klinefelter-syndrome", "title_ar": "متلازمة كلاينفلتر", "title_en": "Klinefelter Syndrome", "category": "genetic-metabolic", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 29, "slug": "22q11-deletion-syndrome", "title_ar": "متلازمة حذف 22q11.2", "title_en": "22q11.2 Deletion Syndrome", "category": "genetic-metabolic", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 30, "slug": "smith-magenis-syndrome", "title_ar": "متلازمة سميث–ماجينيس", "title_en": "Smith-Magenis Syndrome", "category": "genetic-metabolic", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 31, "slug": "sotos-syndrome", "title_ar": "متلازمة سوتوس", "title_en": "Sotos Syndrome", "category": "genetic-metabolic", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 32, "slug": "charge-syndrome", "title_ar": "متلازمة CHARGE", "title_en": "CHARGE Syndrome", "category": "genetic-metabolic", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 33, "slug": "kabuki-syndrome", "title_ar": "متلازمة كابوكي", "title_en": "Kabuki Syndrome", "category": "genetic-metabolic", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 34, "slug": "rubinstein-taybi-syndrome", "title_ar": "متلازمة روبنشتاين–تايبي", "title_en": "Rubinstein-Taybi Syndrome", "category": "genetic-metabolic", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 35, "slug": "smith-lemli-opitz-syndrome", "title_ar": "متلازمة سميث–ليملي–أوبيتز", "title_en": "Smith-Lemli-Opitz Syndrome", "category": "genetic-metabolic", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 36, "slug": "joubert-syndrome", "title_ar": "متلازمة جوبير", "title_en": "Joubert Syndrome", "category": "genetic-metabolic", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 37, "slug": "tuberous-sclerosis-complex", "title_ar": "التصلب الحدبي", "title_en": "Tuberous Sclerosis Complex", "category": "genetic-metabolic", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 38, "slug": "neurofibromatosis-type-1", "title_ar": "الورام الليفي العصبي من النوع الأول", "title_en": "Neurofibromatosis Type 1", "category": "genetic-metabolic", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 39, "slug": "phenylketonuria", "title_ar": "بيلة الفينيل كيتون", "title_en": "Phenylketonuria", "category": "genetic-metabolic", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 40, "slug": "congenital-hypothyroidism", "title_ar": "قصور الغدة الدرقية الخلقي", "title_en": "Congenital Hypothyroidism", "category": "genetic-metabolic", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 41, "slug": "mitochondrial-diseases", "title_ar": "أمراض الميتوكوندريا", "title_en": "Mitochondrial Diseases", "category": "genetic-metabolic", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 42, "slug": "cerebral-palsy", "title_ar": "الشلل الدماغي", "title_en": "Cerebral Palsy", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": true},
+    {"rank": 43, "slug": "spina-bifida", "title_ar": "السنسنة المشقوقة", "title_en": "Spina Bifida", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 44, "slug": "hydrocephalus", "title_ar": "استسقاء الدماغ", "title_en": "Hydrocephalus", "category": "motor-neurological", "evidence_route": "individual-discovery", "first_wave_guide": false},
+    {"rank": 45, "slug": "epilepsy", "title_ar": "الصرع", "title_en": "Epilepsy", "category": "motor-neurological", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 46, "slug": "traumatic-brain-injury", "title_ar": "إصابة الدماغ الرضّية", "title_en": "Traumatic Brain Injury", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 47, "slug": "stroke", "title_ar": "السكتة الدماغية", "title_en": "Stroke", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 48, "slug": "spinal-cord-injury", "title_ar": "إصابة الحبل الشوكي", "title_en": "Spinal Cord Injury", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 49, "slug": "spinal-muscular-atrophy", "title_ar": "الضمور العضلي الشوكي", "title_en": "Spinal Muscular Atrophy", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 50, "slug": "duchenne-muscular-dystrophy", "title_ar": "حثل دوشين العضلي", "title_en": "Duchenne Muscular Dystrophy", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 51, "slug": "becker-muscular-dystrophy", "title_ar": "حثل بيكر العضلي", "title_en": "Becker Muscular Dystrophy", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 52, "slug": "charcot-marie-tooth-disease", "title_ar": "مرض شاركو–ماري–توث", "title_en": "Charcot-Marie-Tooth Disease", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 53, "slug": "friedreich-ataxia", "title_ar": "رنح فريدرايخ", "title_en": "Friedreich Ataxia", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 54, "slug": "hereditary-spastic-paraplegia", "title_ar": "الشلل التشنجي الوراثي", "title_en": "Hereditary Spastic Paraplegia", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 55, "slug": "myasthenia-gravis", "title_ar": "الوهن العضلي الوبيل", "title_en": "Myasthenia Gravis", "category": "motor-neurological", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 56, "slug": "dystonia", "title_ar": "خلل التوتر العضلي", "title_en": "Dystonia", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 57, "slug": "arthrogryposis", "title_ar": "تيبس المفاصل الخلقي المتعدد", "title_en": "Arthrogryposis Multiplex Congenita", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 58, "slug": "osteogenesis-imperfecta", "title_ar": "تكوّن العظم الناقص", "title_en": "Osteogenesis Imperfecta", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 59, "slug": "achondroplasia", "title_ar": "الأكوندروبلازيا", "title_en": "Achondroplasia", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 60, "slug": "limb-difference-amputation", "title_ar": "اختلاف الأطراف أو فقدان أحدها", "title_en": "Limb Difference or Amputation", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 61, "slug": "severe-burns-contractures", "title_ar": "آثار الحروق الشديدة والتقلصات", "title_en": "Severe Burn Sequelae and Contractures", "category": "motor-neurological", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 62, "slug": "blindness", "title_ar": "العمى", "title_en": "Blindness", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 63, "slug": "low-vision", "title_ar": "ضعف البصر", "title_en": "Low Vision", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 64, "slug": "cerebral-visual-impairment", "title_ar": "ضعف الرؤية الدماغي", "title_en": "Cerebral/Cortical Visual Impairment", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 65, "slug": "deafness", "title_ar": "الصمم", "title_en": "Deafness", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 66, "slug": "hearing-loss", "title_ar": "فقدان السمع وضعفه", "title_en": "Hearing Loss", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 67, "slug": "deafblindness", "title_ar": "الصمم الكففي", "title_en": "Deafblindness", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 68, "slug": "usher-syndrome", "title_ar": "متلازمة أشر", "title_en": "Usher Syndrome", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 69, "slug": "oculocutaneous-albinism", "title_ar": "المهق العيني الجلدي المصحوب بضعف البصر", "title_en": "Oculocutaneous Albinism with Visual Impairment", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 70, "slug": "retinitis-pigmentosa", "title_ar": "التهاب الشبكية الصباغي", "title_en": "Retinitis Pigmentosa", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 71, "slug": "optic-nerve-hypoplasia", "title_ar": "نقص تنسج العصب البصري", "title_en": "Optic Nerve Hypoplasia", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 72, "slug": "aphasia", "title_ar": "الحُبسة الكلامية", "title_en": "Aphasia", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 73, "slug": "acquired-apraxia-of-speech", "title_ar": "تعذر الأداء النطقي المكتسب", "title_en": "Acquired Apraxia of Speech", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 74, "slug": "dysarthria", "title_ar": "عسر التلفظ", "title_en": "Dysarthria", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 75, "slug": "moebius-syndrome", "title_ar": "متلازمة موبيوس", "title_en": "Moebius Syndrome", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 76, "slug": "cleft-lip-palate-communication", "title_ar": "شق الشفة والحنك المصحوب باحتياجات نطق أو سمع", "title_en": "Cleft Lip and Palate with Communication or Hearing Needs", "category": "sensory-communication", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 77, "slug": "cystic-fibrosis", "title_ar": "التليف الكيسي", "title_en": "Cystic Fibrosis", "category": "chronic-health", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 78, "slug": "sickle-cell-disease", "title_ar": "فقر الدم المنجلي", "title_en": "Sickle Cell Disease", "category": "chronic-health", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 79, "slug": "hemophilia", "title_ar": "الهيموفيليا", "title_en": "Hemophilia", "category": "chronic-health", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 80, "slug": "type-1-diabetes", "title_ar": "السكري من النوع الأول", "title_en": "Type 1 Diabetes", "category": "chronic-health", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 81, "slug": "chronic-kidney-disease", "title_ar": "مرض الكلى المزمن", "title_en": "Chronic Kidney Disease", "category": "chronic-health", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 82, "slug": "congenital-heart-disease", "title_ar": "أمراض القلب الخلقية", "title_en": "Congenital Heart Disease", "category": "chronic-health", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 83, "slug": "juvenile-idiopathic-arthritis", "title_ar": "التهاب المفاصل اليفعي مجهول السبب", "title_en": "Juvenile Idiopathic Arthritis", "category": "chronic-health", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 84, "slug": "systemic-lupus-erythematosus", "title_ar": "الذئبة الحمامية الجهازية", "title_en": "Systemic Lupus Erythematosus", "category": "chronic-health", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 85, "slug": "inflammatory-bowel-disease", "title_ar": "أمراض الأمعاء الالتهابية: داء كرون والتهاب القولون التقرحي", "title_en": "Inflammatory Bowel Disease: Crohn Disease and Ulcerative Colitis", "category": "chronic-health", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 86, "slug": "severe-asthma", "title_ar": "الربو الشديد", "title_en": "Severe Asthma", "category": "chronic-health", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 87, "slug": "severe-food-allergy", "title_ar": "الحساسية الغذائية الشديدة", "title_en": "Severe Food Allergy", "category": "chronic-health", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 88, "slug": "childhood-cancer-late-effects", "title_ar": "الآثار المتأخرة لعلاج السرطان في الطفولة", "title_en": "Late Effects of Childhood Cancer Treatment", "category": "chronic-health", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 89, "slug": "me-cfs", "title_ar": "التهاب الدماغ والنخاع العضلي/متلازمة التعب المزمن", "title_en": "ME/CFS", "category": "chronic-health", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 90, "slug": "long-covid", "title_ar": "كوفيد طويل الأمد", "title_en": "Long COVID", "category": "chronic-health", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 91, "slug": "multiple-sclerosis", "title_ar": "التصلب المتعدد", "title_en": "Multiple Sclerosis", "category": "progressive-psychosocial", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 92, "slug": "parkinson-disease", "title_ar": "مرض باركنسون", "title_en": "Parkinson Disease", "category": "progressive-psychosocial", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 93, "slug": "huntington-disease", "title_ar": "مرض هنتنغتون", "title_en": "Huntington Disease", "category": "progressive-psychosocial", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 94, "slug": "amyotrophic-lateral-sclerosis", "title_ar": "التصلب الجانبي الضموري", "title_en": "Amyotrophic Lateral Sclerosis", "category": "progressive-psychosocial", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 95, "slug": "ehlers-danlos-syndromes", "title_ar": "متلازمات إهلرز–دانلوس", "title_en": "Ehlers-Danlos Syndromes", "category": "progressive-psychosocial", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 96, "slug": "marfan-syndrome", "title_ar": "متلازمة مارفان", "title_en": "Marfan Syndrome", "category": "progressive-psychosocial", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 97, "slug": "severe-scoliosis", "title_ar": "الجنف الشديد", "title_en": "Severe Scoliosis", "category": "progressive-psychosocial", "evidence_route": "preserved-capability-access", "first_wave_guide": false},
+    {"rank": 98, "slug": "chronic-pain", "title_ar": "الألم المزمن", "title_en": "Chronic Pain", "category": "progressive-psychosocial", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 99, "slug": "schizophrenia-functional-support", "title_ar": "الفصام عند وجود احتياجات دعم وظيفي", "title_en": "Schizophrenia with Functional Support Needs", "category": "progressive-psychosocial", "evidence_route": "stability-first", "first_wave_guide": false},
+    {"rank": 100, "slug": "bipolar-disorder-functional-support", "title_ar": "الاضطراب ثنائي القطب عند وجود احتياجات دعم وظيفي", "title_en": "Bipolar Disorder with Functional Support Needs", "category": "progressive-psychosocial", "evidence_route": "stability-first", "first_wave_guide": false}
+  ],
+  "guides": [
+    {
+      "slug": "autism",
+      "title": "خريطة اكتشاف وتنمية القدرات لدى الشخص على طيف التوحد",
+      "evidence_label": "دليل ناشئ وسياقي — لا توجد حزمة مواهب موحدة",
+      "evidence_summary": [
+        "تجمع المراجعة النوعية الحديثة خبرات أشخاص على الطيف وتبين أن القوة قد تظهر في اهتمامات مركزة أو معرفة ذاتية أو أسلوب مختلف في المعالجة، لكنها مرتبطة بالسياق وبما إذا كانت البيئة تسمح باستخدامها.",
+        "وجدت دراسة ارتباطية أن استخدام الشخص لنقاط قوته ارتبط بجودة حياة ورفاه وصحة نفسية أفضل. هذه علاقة ارتباطية لا تثبت أن برنامجًا بعينه سيحقق النتيجة ولا أن التوحد هو سبب القوة.",
+        "القاعدة العملية هي اختبار فرضيات محددة عند الشخص نفسه، مع خفض الحمل الحسي والاجتماعي وتمكين التواصل. الاهتمام العميق ليس وظيفة جاهزة، والدقة ليست ثابتة في كل مهمة."
+      ],
+      "do_not_assume": [
+        "أن كل شخص على الطيف بارع في الحاسوب أو الرياضيات أو الحفظ.",
+        "أن قلة الكلام تعني قلة الفهم أو غياب القدرة على القرار.",
+        "أن تحمل الضوضاء أو التواصل البصري أو إخفاء السمات دليل تقدم.",
+        "أن الاهتمام المركز يجوز تحويله إلى تدريب قسري أو عمل غير عادل.",
+        "أن نجاح شخص مشهور يمكن تعميمه على بقية الطيف."
+      ],
+      "health_first": [
+        "الألم أو اضطراب النوم أو الصرع أو مشكلات الجهاز الهضمي أو القلق قد يغير الأداء ويجب تقييمه عند وجود مؤشرات.",
+        "يجب أن تتوفر وسيلة موثوقة لطلب الاستراحة والرفض والألم قبل أي تجربة.",
+        "لا تُختبر القدرة في بيئة حسية مؤلمة ثم يُفسر الانسحاب كعجز."
+      ],
+      "hypotheses": [
+        {
+          "name": "التركيز المستمر في موضوع مختار",
+          "claim": "قد يحافظ الشخص على الانتباه والدقة مدة أطول عندما يختار موضوع المهمة وتكون الحدود واضحة.",
+          "microtrial": "قارن مهمتين متساويتين في الصعوبة والمدة: واحدة ضمن اهتمام يختاره الشخص وأخرى محايدة، مع نفس طريقة العرض والاستراحة.",
+          "support": "تعليمات مكتوبة، هدف نهائي واضح، مؤقت مرئي، وحق التوقف.",
+          "measure": "زمن المشاركة، جودة الناتج، عدد التذكيرات، والعبء بعد المهمة.",
+          "stop_rule": "أوقف الفرضية إذا تحول الاهتمام إلى ضيق أو منع النوم أو صعوبة في الانتقال دون فائدة وظيفية."
+        },
+        {
+          "name": "ملاحظة الأنماط أو الأخطاء",
+          "claim": "قد يلتقط الشخص فروقًا صغيرة في مادة بصرية أو بيانات أو تسلسل عندما تكون المهمة مفهومة.",
+          "microtrial": "استخدم ثلاث عينات: كشف خطأ في قائمة، تصنيف عناصر وفق قاعدة، ومقارنة نسختين؛ أضف عينة مضبوطة لقياس التخمين.",
+          "support": "أمثلة تدريبية، تقليل اللغة الغامضة، وإزالة المشتتات.",
+          "measure": "الدقة ونوع الخطأ والوقت والثبات عبر يومين.",
+          "stop_rule": "لا تحول البطء أو التدقيق القهري أو القلق من الخطأ إلى مطلب إنتاجي."
+        },
+        {
+          "name": "التعلم البصري أو المنظومي",
+          "claim": "قد يتحسن فهم خطوات المهمة عندما تُعرض كخريطة أو نموذج بدل التعليمات الشفهية المتتابعة.",
+          "microtrial": "علّم نفس الروتين مرة بتعليم شفهي ومرة بمخطط بصري أو نموذج عملي مع تبديل ترتيب النسختين.",
+          "support": "صور واضحة أو قائمة تحقق أو نموذج مكتمل، مع اختبار الفهم لا الحفظ.",
+          "measure": "عدد الخطوات المستقلة والأخطاء ووقت البدء والتعميم إلى مثال جديد.",
+          "stop_rule": "إذا زادت الوسائط البصرية الحمل أو لم تحسن الاستقلال، غيّر وسيلة العرض."
+        },
+        {
+          "name": "الموثوقية في روتين ذي معنى",
+          "claim": "قد ينجح الشخص في مهمة متكررة إذا كان سببها مفهومًا ومسارها متوقعًا، لكن الروتين ليس قيمة بذاته.",
+          "microtrial": "جرّب روتينًا اختاره الشخص في ثلاثة سياقات متقاربة، ثم غيّر عنصرًا واحدًا مع إشعار مسبق.",
+          "support": "جدول متوقع، تهيئة للانتقال، وتفسير الغرض.",
+          "measure": "الاستقلال وجودة التنفيذ والمرونة عند التغيير والرضا.",
+          "stop_rule": "لا تستخدم الروتين لتقييد الاختيار أو إبقاء الشخص في عمل رتيب دون تطور."
+        }
+      ],
+      "adaptations": [
+        "خيارات تواصل متعددة تشمل AAC والكتابة والصورة والوقت الإضافي.",
+        "ملف حسي يحدد ما يؤلم وما يساعد بدل وصف الشخص بأنه غير متعاون.",
+        "تقليل الغموض الاجتماعي وتوضيح القواعد غير المكتوبة دون إجبار على التقليد.",
+        "تصميم فترات عمل واستراحة وانتقال قابلة للتوقع.",
+        "فصل جودة الفكرة عن سرعة الرد أو شكل التواصل البصري."
+      ],
+      "twelve_week_plan": [
+        "الأسبوعان 1–2: أمان وتواصل وتفضيلات وخط أساس في نشاطين يختارهما الشخص.",
+        "الأسابيع 3–5: اختبار ثلاث فرضيات قوة في مهام قصيرة وببيئتين.",
+        "الأسابيع 6–8: تدريب المهمة الأكثر معنى مع تكييف واحد في كل مرة.",
+        "الأسابيع 9–10: نقل المهارة إلى شخص أو مكان أو مثال جديد.",
+        "الأسبوعان 11–12: مراجعة الرغبة والعبء والاستقلال واتخاذ قرار الاستمرار أو التعديل أو التوقف."
+      ],
+      "source_ids": [
+        "who-icf-2001",
+        "chow-autistic-strengths-2024",
+        "taylor-autism-strength-use-2023",
+        "kang-person-centered-goals-2022",
+        "nice-shared-decision-ng197"
+      ]
+    },
+    {
+      "slug": "adhd",
+      "title": "خريطة اكتشاف وتنمية القدرات لدى الشخص المصاب باضطراب نقص الانتباه وفرط الحركة",
+      "evidence_label": "أبحاث نقاط القوة اتسعت في 2026، لكن السببية والتعميم ما زالا محدودين",
+      "evidence_summary": [
+        "حددت مراجعة نطاقية منشورة في 2026 عددًا كبيرًا من الدراسات التي وصفت الإبداع والانتباه القائم على الاهتمام والطاقة والسمات الاجتماعية والمرونة، لكنها أوضحت أن معظم الأدبيات درست نقاط قوة محددة مسبقًا وأن البحث لا يزال غير متجانس.",
+        "تعني النتيجة أن هذه صفات تستحق الاختبار وليست مزايا تشخيصية مضمونة. قد يظهر التركيز الشديد مع صعوبة التوقف أو الانتقال، وقد تولد سرعة الأفكار حلولًا أو أخطاءً بحسب المهمة والبيئة.",
+        "تؤكد مراجعة العمل أهمية ملاءمة الشخص والبيئة والتكييف والدعم. الهدف ليس البحث عن وظيفة سريعة لمجرد وجود ADHD، بل قياس أداء الشخص في أنماط مختلفة من العمل."
+      ],
+      "do_not_assume": [
+        "أن كل شخص مبدع أو ريادي أو يعمل أفضل تحت الضغط.",
+        "أن فرط التركيز قوة صافية؛ فقد يصاحبه نسيان الطعام أو الوقت أو الالتزامات.",
+        "أن الاندفاع شجاعة أو أن المخاطرة ميزة مهنية.",
+        "أن الطاقة العالية تعني قدرة غير محدودة على العمل.",
+        "أن نقاط القوة تلغي الحاجة إلى علاج أو تكييف أو نوم كافٍ."
+      ],
+      "health_first": [
+        "راجع النوم والقلق والاكتئاب وتعاطي المواد والآثار الدوائية والخطر الاندفاعي عند الصلة.",
+        "لا تستخدم الحرمان من النوم أو الموعد الطارئ المتكرر لتنشيط الأداء.",
+        "ضع حدودًا واضحة للقيادة والمال والإنترنت والمخاطر وفق العمر والحالة."
+      ],
+      "hypotheses": [
+        {
+          "name": "توليد بدائل متعددة",
+          "claim": "قد يولد الشخص عددًا أكبر من الحلول عندما يكون السؤال مفتوحًا والزمن قصيرًا ثم يحتاج مرحلة فرز منفصلة.",
+          "microtrial": "اطلب حلولًا لمشكلة واقعية خلال عشر دقائق دون نقد، ثم نفذ جولة ثانية لترتيب الحلول وفق ثلاثة معايير.",
+          "support": "لوحة أفكار، تسجيل صوتي، ومؤقت مرئي يفصل التوليد عن الاختيار.",
+          "measure": "عدد البدائل المفيدة، نسبة القابل للتنفيذ، وجودة الاختيار النهائي.",
+          "stop_rule": "إذا زادت الأفكار دون قرار أو تنفيذ، انتقل إلى دعم الفرز ولا تعد كثرة الأفكار نجاحًا وحدها."
+        },
+        {
+          "name": "أداء أفضل في دورات قصيرة ذات تغذية راجعة",
+          "claim": "قد يرتفع البدء والإكمال عندما تقسم المهمة إلى دورات قصيرة بنتيجة مرئية.",
+          "microtrial": "قارن جلسة واحدة مدتها 40 دقيقة بأربع دورات كل منها عشر دقائق مع نقطة تحقق بعد كل دورة.",
+          "support": "قائمة قصيرة، مؤقت، استراحة حركة، ومكافأة مرتبطة بالإكمال لا بالجلوس.",
+          "measure": "زمن البدء ونسبة الإكمال والأخطاء والتعب.",
+          "stop_rule": "إذا قطعت الدورات التركيز المفيد أو زادت الاستثارة، عدل الطول بدل تطبيق قاعدة ثابتة."
+        },
+        {
+          "name": "المرونة في البيئة المتغيرة",
+          "claim": "قد يستجيب الشخص بسرعة للتغير عندما تكون الأولويات ومعايير القرار واضحة.",
+          "microtrial": "نفذ محاكاة فيها ثلاثة تغييرات متوقعة، مع بطاقة تحدد ما هو عاجل وما يمكن تأجيله.",
+          "support": "قواعد أولوية خارجية، قناة واحدة للتعليمات، ومراجعة بعد المهمة.",
+          "measure": "صحة ترتيب الأولويات، عدد التحولات غير الضرورية، والنتيجة النهائية.",
+          "stop_rule": "لا تستخدم بيئة فوضوية أو طارئة إذا رفعت الأخطاء أو الخطر أو الاستنزاف."
+        },
+        {
+          "name": "انتباه عميق قائم على الاهتمام",
+          "claim": "قد يطيل الاهتمام الذاتي زمن المشاركة، لكن يلزم اختبار القدرة على التوقف والعودة للالتزامات.",
+          "microtrial": "اختبر مشروعًا يختاره الشخص في فترتين مع منبه انتقال وخطوة إغلاق محددة.",
+          "support": "حماية الوقت، تقليل الإشعارات، تذكير بالماء والدواء، وخطة توقف.",
+          "measure": "جودة الناتج، الالتزام بوقت التوقف، وما فات من مهام أخرى.",
+          "stop_rule": "إذا أضر التركيز بالنوم أو الصحة أو الالتزامات، فهو يحتاج تنظيمًا ولا يوصف كقوة مطلقة."
+        }
+      ],
+      "adaptations": [
+        "إخراج الذاكرة من الرأس إلى تقويم وقوائم وإنذارات ونقاط تحقق.",
+        "تبسيط قناة التعليمات وكتابة المطلوب والموعد ومعيار الإنجاز.",
+        "إتاحة الحركة والعمل واقفًا أو فترات استراحة قصيرة.",
+        "تقليل المهام المتزامنة وتحديد أولوية واحدة ظاهرة.",
+        "فصل جلسة توليد الأفكار عن جلسة الاختيار والمراجعة."
+      ],
+      "twelve_week_plan": [
+        "الأسبوعان 1–2: خط أساس للنوم والبدء والإكمال والأخطاء دون تغيير العلاج.",
+        "الأسابيع 3–5: مقارنة ثلاثة أنماط عمل: دورة قصيرة، مشروع اهتمام، ومهمة متغيرة.",
+        "الأسابيع 6–8: اختيار نظام تنظيم خارجي واحد وتدريب استخدامه.",
+        "الأسابيع 9–10: نقل النظام إلى دراسة أو عمل أو روتين منزلي حقيقي.",
+        "الأسبوعان 11–12: مراجعة الإنتاج والجودة والصحة والالتزام واتخاذ القرار مع الشخص والمختص."
+      ],
+      "source_ids": [
+        "who-icf-2001",
+        "rafael-adhd-strengths-2026",
+        "hotte-meunier-adhd-work-2024",
+        "kang-person-centered-goals-2022",
+        "nice-shared-decision-ng197"
+      ]
+    },
+    {
+      "slug": "dyslexia",
+      "title": "خريطة اكتشاف وتنمية القدرات لدى الشخص ذي عسر القراءة",
+      "evidence_label": "لا دليل على موهبة جماعية في الإبداع أو التفكير البصري؛ التباين الفردي هو الأساس",
+      "evidence_summary": [
+        "لم تجد المراجعة التجميعية فرقًا عامًا دالًا في الإبداع بين الأشخاص ذوي عسر القراءة وغيرهم، كما وجدت دراسة أخرى عدم وجود فائدة إبداعية جماعية.",
+        "أظهرت مراجعة للقدرات البصرية المكانية متوسطًا أدنى مع تباين أكبر لدى مجموعة عسر القراءة. هذا يعني وجود أشخاص مرتفعي الأداء وآخرين يحتاجون دعمًا، ولا يبرر افتراض أن عسر القراءة يمنح تفكيرًا ثلاثي الأبعاد.",
+        "القوة التي يمكن الاعتماد عليها هي ما يظهر مباشرة: معرفة شفهية، فهم مفاهيمي، سرد، خبرة عملية، تصميم أو قدرة مكانية عند الشخص نفسه. يجب في الوقت نفسه توفير تعليم قراءة متخصص وأدوات وصول كي لا تختلط صعوبة فك الكلمات بضعف المعرفة."
+      ],
+      "do_not_assume": [
+        "أن كل شخص ذي عسر قراءة مبدع أو بصري أو مهندس محتمل.",
+        "أن الكتب الصوتية بديل عن تعليم القراءة عند من يحتاجه.",
+        "أن القراءة البطيئة تعني ضعف الفهم أو انخفاض الذكاء.",
+        "أن الخطأ الإملائي يلغي جودة الفكرة.",
+        "أن إجبار القراءة العلنية يبني الثقة."
+      ],
+      "health_first": [
+        "تحقق من السمع والبصر واللغة وجودة التعليم والغياب والقلق قبل تفسير كل صعوبة على أنها عسر قراءة.",
+        "راقب أثر الفشل المتكرر في تقدير الذات والقلق وتجنب المدرسة.",
+        "افصل خطة دعم القراءة عن اختبار القدرات الأخرى."
+      ],
+      "hypotheses": [
+        {
+          "name": "الفهم الشفهي أقوى من فك النص",
+          "claim": "قد يشرح الشخص مفهومًا معقدًا بعد سماعه أفضل من أدائه عند قراءة النص نفسه.",
+          "microtrial": "قدم مادتين متكافئتين: واحدة صوتية وأخرى مكتوبة، ثم اسأل أسئلة فهم واستدلال متشابهة.",
+          "support": "قارئ نص، وقت كافٍ، وإتاحة الإجابة شفهيًا أو بخريطة.",
+          "measure": "دقة الفهم ونوعية الاستدلال والفارق بين القناتين.",
+          "stop_rule": "لا تستخدم النتيجة لحرمان الشخص من تعليم القراءة أو لحصره في القناة الصوتية."
+        },
+        {
+          "name": "السرد أو الشرح المفاهيمي",
+          "claim": "قد ينظم الشخص فكرة أو قصة شفهيًا بصورة أفضل من الكتابة الفورية.",
+          "microtrial": "اطلب شرح فكرة أولًا بالتسجيل الصوتي ثم حولها إلى نص باستخدام مخطط وإملاء صوتي.",
+          "support": "خريطة مفاهيم، مسودة صوتية، وتحرير مرحلي.",
+          "measure": "ترابط الفكرة وغنى الأمثلة والفارق بين المحتوى والشكل الكتابي.",
+          "stop_rule": "إذا كانت الصعوبة لغوية عامة لا كتابية فقط، أحل للتقييم بدل افتراض قوة شفهية."
+        },
+        {
+          "name": "قدرة بصرية مكانية فردية",
+          "claim": "قد ينجح بعض الأفراد في تدوير أو تركيب أو تصميم بصري، لكن ذلك لا يُستنتج من التشخيص.",
+          "microtrial": "استخدم مهامًا غير لفظية متعددة لا مهمة واحدة: تركيب نموذج، تصور مسار، وتحويل رسم ثنائي إلى مجسم.",
+          "support": "تعليمات عملية ونموذج ومحاولتان للتعلم.",
+          "measure": "الدقة وسرعة التعلم ونقل المهارة إلى مهمة أخرى.",
+          "stop_rule": "لا تصفها كقوة إذا لم تتكرر عبر مهمتين أو كانت ناتجة عن تدريب سابق فقط."
+        },
+        {
+          "name": "حل المشكلات العملية",
+          "claim": "قد يظهر الشخص معرفة لا تكشفها ورقة اختبار كثيفة القراءة.",
+          "microtrial": "قارن سؤالًا نصيًا طويلًا بمشكلة عملية مكافئة تتطلب نفس المفهوم.",
+          "support": "تقليل القراءة غير الضرورية وشرح الكلمات دون إعطاء الحل.",
+          "measure": "اختيار الاستراتيجية وصحة النتيجة وشرح السبب.",
+          "stop_rule": "لا تخفض صعوبة المفهوم؛ عدل فقط حاجز القراءة حتى يبقى القياس صالحًا."
+        }
+      ],
+      "adaptations": [
+        "قارئ نص وكتب صوتية وإملاء صوتي عند تقييم المعرفة.",
+        "وقت إضافي وتقليل النسخ اليدوي والقراءة العلنية القسرية.",
+        "تعليم قراءة منظم وصريح يقدمه مختص مناسب.",
+        "تقويم المحتوى منفصلًا عن الإملاء عندما لا يكون الإملاء هدف المهمة.",
+        "إتاحة خرائط المفاهيم والمسودات الصوتية والوسائط المتعددة."
+      ],
+      "twelve_week_plan": [
+        "الأسبوعان 1–2: تقييم قراءة وتعليم ولغة وحواس وتحديد مواقف يظهر فيها الفهم.",
+        "الأسابيع 3–5: مقارنة قنوات الصوت والنص والصورة والعمل العملي بمواد متكافئة.",
+        "الأسابيع 6–8: تدريب مهارة ذات معنى مع تكنولوجيا وصول وخطة قراءة منفصلة.",
+        "الأسابيع 9–10: إنتاج مشروع يثبت المعرفة بقناتين على الأقل.",
+        "الأسبوعان 11–12: مراجعة التعلم والاستقلال والثقة وعدم اختزال الشخص في سرعة القراءة."
+      ],
+      "source_ids": [
+        "who-icf-2001",
+        "majeed-dyslexia-creativity-2021",
+        "chamberlain-dyslexia-spatial-2018",
+        "erbeli-dyslexia-creativity-2022",
+        "kang-person-centered-goals-2022"
+      ]
+    },
+    {
+      "slug": "down-syndrome",
+      "title": "خريطة اكتشاف وتنمية القدرات لدى الشخص ذي متلازمة داون",
+      "evidence_label": "توجد ملفات نسبية محتملة، لكن الدراسات تكشف تباينًا كبيرًا بين الأفراد",
+      "evidence_summary": [
+        "تصف الأدبيات أحيانًا الأداء غير اللفظي أو بعض المعالجة البصرية بوصفه أقوى نسبيًا من المعالجة اللفظية، لكن المقارنة تعتمد على المهمة والمجموعة المرجعية وليست قوة واحدة شاملة.",
+        "أظهرت دراسة كبيرة نسبيًا ثلاثة ملفات معرفية مختلفة: غير لفظي أقوى، ولفظي أقوى، وأداء متقارب. لذلك لا يجوز بناء التعليم على صورة نمطية واحدة.",
+        "قد تخفي صعوبات التعبير ما يفهمه الشخص. كما قد تخفض مشكلات السمع أو البصر أو الغدة الدرقية أو النوم الأداء، ولهذا تسبق المراقبة الصحية تفسير القدرة."
+      ],
+      "do_not_assume": [
+        "أن كل شخص اجتماعي دائمًا أو يوافق على كل شيء أو يصلح لنوع واحد من العمل.",
+        "أن الابتسام أو الود يعني فهم الحدود أو الموافقة.",
+        "أن الكلام المحدود يعني فهمًا محدودًا.",
+        "أن التعلم البصري مناسب لكل مهمة ولكل شخص.",
+        "أن الحماية الزائدة أكثر أمانًا من تعليم القرار والخصوصية."
+      ],
+      "health_first": [
+        "متابعة السمع والبصر والغدة الدرقية والنوم والقلب والنمو وفق الخطة الطبية.",
+        "أي فقد مفاجئ للمهارات أو تغير سلوكي أو تعب شديد يحتاج تقييمًا ولا يفسر ككسل.",
+        "توفير طريقة تواصل مفهومة لطلب الألم والرفض والمساعدة."
+      ],
+      "hypotheses": [
+        {
+          "name": "التعلم بالنموذج البصري أو العملي",
+          "claim": "قد يتعلم الشخص تسلسلًا وظيفيًا أفضل بالمشاهدة والممارسة من تعليمات لفظية طويلة.",
+          "microtrial": "علّم نفس الروتين مرة بقائمة شفهية ومرة بصور ونموذج عملي مع مساواة عدد المحاولات.",
+          "support": "صور حقيقية للمكان، نموذج بطيء، وتكرار موزع.",
+          "measure": "عدد الخطوات المستقلة ونوع التلميح والثبات بعد أسبوع.",
+          "stop_rule": "إذا حفظ الشخص الصور دون فهم أو لم يعمم الروتين، عدل التدريب ولا تعد الحفظ استقلالًا."
+        },
+        {
+          "name": "الفهم أكبر من التعبير",
+          "claim": "قد يظهر الشخص اختيارًا أو فهمًا عبر الإشارة أو الصورة أو الفعل أكثر مما يظهره الكلام.",
+          "microtrial": "اطلب الاستجابة لنفس المفهوم بالكلام والاختيار البصري والتنفيذ العملي دون الضغط على سرعة الرد.",
+          "support": "وقت انتظار وAAC ولغة سهلة بلا تبسيط مهين.",
+          "measure": "اتساق الإجابة عبر القنوات وقدرة الشخص على شرح الاختيار.",
+          "stop_rule": "لا تفسر نعم المتكررة كموافقة قبل التحقق من فهم السؤال وطريقة الرفض."
+        },
+        {
+          "name": "إتقان روتين وظيفي متكرر",
+          "claim": "قد يبني الشخص استقلالًا جيدًا في مهمة متكررة إذا دُرّبت في مكانها الحقيقي.",
+          "microtrial": "اختر مهمة يومية من ست خطوات، دربها ثلاث مرات أسبوعيًا، وخفض التلميح وفق خطة مكتوبة.",
+          "support": "تحليل مهمة ونموذج وتعزيز طبيعي مرتبط بإكمال الهدف.",
+          "measure": "الخطوات المستقلة وجودة السلامة واستمرار المهارة بعد خفض التلميح.",
+          "stop_rule": "لا يبقى الشخص في مهمة بسيطة بعد إتقانها؛ أضف اختيارًا أو مسؤولية أو مهارة جديدة."
+        },
+        {
+          "name": "الدافعية من المشاركة الاجتماعية",
+          "claim": "قد تتحسن المشاركة عندما تكون المهمة مشتركة وذات دور واضح، لكن هذا لا يعني أن التفاعل الاجتماعي دائمًا مريح.",
+          "microtrial": "قارن نسخة فردية ونسخة تعاونية من نشاط يختاره الشخص مع شريك مدرب يحترم الوقت والرفض.",
+          "support": "دور محدد، شريك ثابت، وتعليم حدود وخصوصية.",
+          "measure": "المبادرة والاستمرار والجودة والرضا بعد النشاط.",
+          "stop_rule": "أوقف النسخة الاجتماعية إذا ظهر ضغط أو مسايرة أو استغلال أو فقدان حق الاختيار."
+        }
+      ],
+      "adaptations": [
+        "لغة سهلة ومباشرة مع صور أو إشارات أو AAC ووقت انتظار.",
+        "تدريب المهارات في البيئة الفعلية لا في أوراق مجردة فقط.",
+        "خيارات حقيقية قليلة وواضحة مع تعليم طريقة قول لا.",
+        "تكرار موزع ومراجعة بعد فاصل زمني بدل المساعدة المستمرة.",
+        "رفع التوقعات الوظيفية مع مراقبة الصحة والتعب وعدم الحماية الزائدة."
+      ],
+      "twelve_week_plan": [
+        "الأسبوعان 1–2: مراجعة صحية وتواصلية وخط أساس في اختيار ومهمة يومية.",
+        "الأسابيع 3–5: مقارنة التعلم اللفظي والبصري والعملي والتحقق من الفهم.",
+        "الأسابيع 6–8: تدريب روتين يختاره الشخص وخفض التلميحات تدريجيًا.",
+        "الأسابيع 9–10: تطبيق الروتين مع شخص أو مكان جديد وتعليم الخصوصية والرفض.",
+        "الأسبوعان 11–12: قياس الاستقلال والرضا والسلامة وتحديد الخطوة الأصعب التالية."
+      ],
+      "source_ids": [
+        "who-icf-2001",
+        "onnivello-down-profiles-2022",
+        "yang-down-visuospatial-2014",
+        "aap-down-health-2022",
+        "un-crpd-article-26"
+      ]
+    },
+    {
+      "slug": "cerebral-palsy",
+      "title": "خريطة اكتشاف وتنمية القدرات لدى الشخص المصاب بالشلل الدماغي",
+      "evidence_label": "لا توجد موهبة ناتجة عن الشلل الدماغي؛ الأولوية لكشف القدرة التي قد تحجبها الحركة أو الكلام",
+      "evidence_summary": [
+        "الشلل الدماغي يصف مجموعة اضطرابات في الحركة والوضعية، ولا يحدد وحده الإدراك أو اللغة أو الاهتمامات. قد تجعل صعوبة الكلام أو استخدام اليد أو الاستجابة البطيئة الاختبارات التقليدية تقلل تقدير القدرة.",
+        "توصي الإرشادات الدولية بأهداف يختارها الشخص وممارسة المهمة الكاملة في سياقها، مع استخدام المعدات والتقنية والتعديل البيئي لتعظيم الاستقلال وتقليل الطاقة والعبء.",
+        "لا تكون القوة هنا نتيجة للشلل. القيمة العلمية هي فصل القدرة المعرفية أو التواصلية عن وسيلة الاستجابة، ثم اختبار ما يستطيع الشخص فعله بوضعية وأداة ووقت مناسب."
+      ],
+      "do_not_assume": [
+        "أن الكلام غير الواضح أو الحركة اللاإرادية تعني ضعف الفهم.",
+        "أن المشي هو الهدف الأعلى لكل شخص أو أن الكرسي المتحرك فشل.",
+        "أن الحركة الصحيحة شكليًا أهم من إنجاز المهمة بأمان واستقلال.",
+        "أن التدريب الجسدي المكثف مناسب رغم الألم أو التعب.",
+        "أن المساعد يحق له الإجابة بدل الشخص."
+      ],
+      "health_first": [
+        "راجع الألم والورك والعمود الفقري والجلد والتغذية والبلع والتنفس والصرع والنوم عند الصلة.",
+        "اضبط الجلوس والوضعية والوصول قبل تقييم اليد أو التواصل أو الإدراك.",
+        "أي فقد وظيفة جديد أو ألم حاد أو صعوبة بلع أو تنفس يحتاج تقييمًا عاجلًا."
+      ],
+      "hypotheses": [
+        {
+          "name": "الفهم أكبر من الاستجابة الحركية أو الكلامية",
+          "claim": "قد يجيب الشخص بدقة عندما تتغير وسيلة الوصول ويُمنح زمن استجابة مناسب.",
+          "microtrial": "قدم أسئلة متكافئة عبر الكلام والإشارة ومسح الخيارات ومفتاح وصول أو تتبع عين وفق التقييم المتخصص.",
+          "support": "وضعية ثابتة، حجم هدف مناسب، وقت انتظار، وشريك لا يلقن الإجابة.",
+          "measure": "اتساق الاختيار والدقة وزمن الاستجابة والتعب عبر القنوات.",
+          "stop_rule": "إذا لم تكن وسيلة نعم/لا موثوقة، لا تبن استنتاجًا معرفيًا قبل تقييم تواصل ووصول متخصص."
+        },
+        {
+          "name": "إتقان مهمة كاملة بتقنية مساندة",
+          "claim": "قد يحقق الشخص هدفًا عمليًا عندما تُكيّف الأداة بدل تدريب وظيفة جسدية معزولة فقط.",
+          "microtrial": "اختر مهمة مثل إرسال رسالة أو إعداد مادة أو التحكم بجهاز، وقارن الأداة المعتادة بأداة مكيّفة.",
+          "support": "تقييم تقنية مساندة، تدريب في السياق، وخطة صيانة وبديل.",
+          "measure": "الاستقلال والوقت والطاقة والدقة وعدد الأعطال.",
+          "stop_rule": "لا تعتمد أداة تزيد الألم أو الضغط الجلدي أو تتطلب مساعدة أكثر من الفائدة."
+        },
+        {
+          "name": "التخطيط أو المعرفة في مجال مختار",
+          "claim": "قد تبقى القدرات الفكرية أو الإبداعية أو الأكاديمية قوية رغم صعوبة التنفيذ اليدوي.",
+          "microtrial": "اسمح بإنتاج المشروع عبر الإملاء أو التتبع أو الشريك المنفذ مع فصل صاحب القرار عن منفذ الحركة.",
+          "support": "توثيق من اختار ومن نفذ، وقت كافٍ، وأداة تحرير قابلة للوصول.",
+          "measure": "جودة القرارات والأفكار وقدرة الشخص على مراجعة الناتج وتصحيحه.",
+          "stop_rule": "إذا أصبح الشريك صاحب الأفكار، أعد تصميم الوصول ولا تنسب الناتج للشخص دون تحقق."
+        },
+        {
+          "name": "تحسن بالممارسة الموجهة للهدف",
+          "claim": "قد تتحسن مهمة حركية ذات معنى عند ممارسة المهمة نفسها بدل تمارين بعيدة عنها.",
+          "microtrial": "حدد هدفًا يختاره الشخص ودرّب المهمة الكاملة بجرعة يحددها المختص مع قياس خط أساس ومتابعة.",
+          "support": "تجزئة مؤقتة، معدات مناسبة، راحة، وتعزيز طبيعي.",
+          "measure": "تحقيق الهدف والسلامة والطاقة والاستقلال والمشاركة.",
+          "stop_rule": "أوقف أو عدل التدريب عند الألم أو التعب المتصاعد أو غياب الفائدة الوظيفية."
+        }
+      ],
+      "adaptations": [
+        "AAC ومفاتيح وصول وتتبع عين أو إملاء صوتي بعد تقييم متخصص.",
+        "مقعد ووضعية وطاولة وأدوات تقلل الجهد والضغط وتحسن الدقة.",
+        "وقت استجابة أطول ومنع إكمال الجمل أو القرارات نيابة عن الشخص.",
+        "تقييم المعرفة بطريقة لا تتطلب حركة دقيقة ليست هدف الاختبار.",
+        "ممارسة المهمة المختارة في مكانها الحقيقي مع تقنية ومعدات مناسبة."
+      ],
+      "twelve_week_plan": [
+        "الأسبوعان 1–2: مراجعة الألم والوضعية والتواصل والوصول وتحديد هدف يختاره الشخص.",
+        "الأسابيع 3–5: مقارنة وسيلتي وصول وتثبيت طريقة استجابة موثوقة.",
+        "الأسابيع 6–8: ممارسة مهمة كاملة ذات معنى مع قياس الطاقة والمساعدة.",
+        "الأسابيع 9–10: نقل المهمة إلى بيئة حقيقية وتدريب شريك التواصل أو العمل.",
+        "الأسبوعان 11–12: مراجعة الاستقلال والسلامة والعبء والصيانة واتخاذ قرار التوسع."
+      ],
+      "source_ids": [
+        "who-icf-2001",
+        "who-rehabilitation-2024",
+        "jackman-cp-guideline-2022",
+        "nice-cp-ng62",
+        "un-crpd-article-26"
+      ]
+    }
+  ]
+}

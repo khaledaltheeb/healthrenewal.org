@@ -1,0 +1,1397 @@
+{
+  "version": 280,
+  "language": "ar",
+  "category": "genetic-metabolic",
+  "title": "حزم الأدلة المنتقاة: المتلازمات الجينية والكروموسومية والاستقلابية",
+  "search_updated": "2026-07-27",
+  "external_review_completed": false,
+  "selection_method": {
+    "scope": "تغطي هذه الموجة الحالات الـ24 كلها في فئة المتلازمات الجينية والكروموسومية والاستقلابية، بثلاثة ادعاءات محدودة لكل حالة: حدود الملف، والوصول أو التدخل، والأمان أو التشخيص التفريقي.",
+    "selection_order": [
+      "إرشاد رسمي أو مهني حديث ومباشر للحالة أو للمجال الوظيفي.",
+      "مرجع سريري خبير مُراجع ومحدّث دوريًا للحالات الوراثية أو النادرة.",
+      "مراجعة منهجية أو تحليل تجميعي مباشر، مع التصريح بالتغاير ومحدودية الدراسات.",
+      "بحث محكم أو توافق خبراء فقط عندما لا يتوفر إرشاد أعلى، ومن دون تحويله إلى قاعدة جماعية."
+    ],
+    "exclusions": [
+      "المصادر الترويجية وقصص النجاح المنفردة بوصفها دليلًا على صفة أو تدخل.",
+      "نتائج البحث الحي في PubMed بوصفها قائمة مصادر منتقاة قبل الفرز والنقد.",
+      "بروتوكولات المراجعات التي لم تنشر نتائجها بعد بوصفها دليل فعالية.",
+      "أي استنتاج يربط التشخيص بموهبة أو ذكاء أو مهنة من دون قياس مباشر عند الشخص."
+    ],
+    "certainty_policy": "لا يعيّن المشروع درجة GRADE من تلقاء نفسه. يصف نوع المصدر، ومباشرة الدليل، والتغاير، وحدود النقل إلى الفرد. تبقى قوة التوصية الرسمية للجهة التي أصدرتها.",
+    "live_search_boundary": "رابط البحث الحي أداة تحديث للمراجع المتخصص، وليس مصدرًا مختارًا ولا إثباتًا لفعالية تدخل.",
+    "review_boundary": "الانتقاء والترجمة ومطابقة الادعاءات مراجعة داخلية قابلة للتدقيق، ولم تكتمل مراجعة خارجية مستقلة سريرية وتأهيلية ومن ذوي الخبرة المعاشة."
+  },
+  "evidence_character_labels": {
+    "official-current-guidance": "إرشاد رسمي أو بوابة ممارسة مهنية حالية؛ مباشر للممارسة، ولا يثبت نتيجة فردية مسبقًا.",
+    "guideline-backed": "توصية إرشادية مبنية على مراجعة أو توافق مهني؛ يلزم تطبيقها بحسب العمر والسياق والتفضيلات.",
+    "expert-reviewed-living-reference": "مرجع سريري خبير مُراجع ومحدّث دوريًا؛ يدعم الحدود والمراقبة ولا يثبت نتيجة وظيفية فردية.",
+    "systematic-review-direct-heterogeneous": "مراجعة منهجية مباشرة لكن الدراسات أو العينات أو المقاييس متغايرة؛ تصلح لتحديد اتجاه لا لضمان نتيجة.",
+    "systematic-review-limited-directness": "مراجعة منهجية ذات عدد قليل أو مباشرة جزئية للحالة؛ الاستنتاج حذر وتجريبي.",
+    "mixed-sources-no-causal-inference": "مزيج من إرشاد وبحث محكم أو خبرة معاشة؛ يحدد فرضية أو حدًا ولا يثبت السببية."
+  },
+  "sources": [
+    {
+      "id": "genereviews-fmr1-disorders-2024",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "FMR1 Disorders",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1384/",
+      "year": 2024,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "fragile-x-syndrome-evidence-profile-boundary",
+        "fragile-x-syndrome-evidence-access-intervention",
+        "fragile-x-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-mecp2-disorders-2019",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "MECP2 Disorders",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1497/",
+      "year": 2019,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "rett-syndrome-evidence-profile-boundary",
+        "rett-syndrome-evidence-access-intervention",
+        "rett-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-angelman-syndrome-2025",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Angelman Syndrome",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1144/",
+      "year": 2025,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "angelman-syndrome-evidence-profile-boundary",
+        "angelman-syndrome-evidence-access-intervention",
+        "angelman-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-prader-willi-syndrome-2024",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Prader-Willi Syndrome",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1330/",
+      "year": 2024,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "prader-willi-syndrome-evidence-profile-boundary",
+        "prader-willi-syndrome-evidence-access-intervention",
+        "prader-willi-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-williams-syndrome-2023",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Williams Syndrome",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1249/",
+      "year": 2023,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "williams-syndrome-evidence-profile-boundary",
+        "williams-syndrome-evidence-access-intervention",
+        "williams-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "liverani-cri-du-chat-care-2019",
+      "publisher": "American Journal of Medical Genetics Part A",
+      "title": "Children and adults affected by Cri du Chat syndrome: Care's recommendations",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30838120/",
+      "year": 2019,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "cri-du-chat-syndrome-evidence-profile-boundary",
+        "cri-du-chat-syndrome-evidence-access-intervention",
+        "cri-du-chat-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-cornelia-de-lange-2020",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Cornelia de Lange Syndrome",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1104/",
+      "year": 2020,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "cornelia-de-lange-syndrome-evidence-profile-boundary",
+        "cornelia-de-lange-syndrome-evidence-access-intervention",
+        "cornelia-de-lange-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-noonan-syndrome-2025",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Noonan Syndrome",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1124/",
+      "year": 2025,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "noonan-syndrome-evidence-profile-boundary",
+        "noonan-syndrome-evidence-access-intervention",
+        "noonan-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "gravholt-turner-guideline-2024",
+      "publisher": "Aarhus International Turner Syndrome Meeting",
+      "title": "Clinical practice guidelines for the care of girls and women with Turner syndrome",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38748847/",
+      "year": 2024,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "turner-syndrome-evidence-profile-boundary",
+        "turner-syndrome-evidence-access-intervention",
+        "turner-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "zitzmann-klinefelter-guideline-2021",
+      "publisher": "European Academy of Andrology",
+      "title": "European Academy of Andrology guidelines on Klinefelter Syndrome",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32959490/",
+      "year": 2021,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "klinefelter-syndrome-evidence-profile-boundary",
+        "klinefelter-syndrome-evidence-access-intervention",
+        "klinefelter-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-22q11-deletion-2025",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "22q11.2 Deletion Syndrome",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1523/",
+      "year": 2025,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "22q11-deletion-syndrome-evidence-profile-boundary",
+        "22q11-deletion-syndrome-evidence-access-intervention",
+        "22q11-deletion-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-smith-magenis-2025",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Smith-Magenis Syndrome",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1310/",
+      "year": 2025,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "smith-magenis-syndrome-evidence-profile-boundary",
+        "smith-magenis-syndrome-evidence-access-intervention",
+        "smith-magenis-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-sotos-syndrome-2025",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Sotos Syndrome",
+      "url": "https://www.ncbi.nlm.nih.gov/sites/books/NBK1479/",
+      "year": 2025,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "sotos-syndrome-evidence-profile-boundary",
+        "sotos-syndrome-evidence-access-intervention",
+        "sotos-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-chd7-disorder-2025",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "CHD7 Disorder",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1117/",
+      "year": 2025,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "charge-syndrome-evidence-profile-boundary",
+        "charge-syndrome-evidence-access-intervention",
+        "charge-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-kabuki-syndrome-2026",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Kabuki Syndrome",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK62111/",
+      "year": 2026,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "kabuki-syndrome-evidence-profile-boundary",
+        "kabuki-syndrome-evidence-access-intervention",
+        "kabuki-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-rubinstein-taybi-2023",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Rubinstein-Taybi Syndrome",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1526/",
+      "year": 2023,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "rubinstein-taybi-syndrome-evidence-profile-boundary",
+        "rubinstein-taybi-syndrome-evidence-access-intervention",
+        "rubinstein-taybi-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-smith-lemli-opitz-2020",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Smith-Lemli-Opitz Syndrome",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1143/",
+      "year": 2020,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "smith-lemli-opitz-syndrome-evidence-profile-boundary",
+        "smith-lemli-opitz-syndrome-evidence-access-intervention",
+        "smith-lemli-opitz-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "bachmann-gagescu-joubert-care-2020",
+      "publisher": "American Journal of Medical Genetics Part A",
+      "title": "Healthcare recommendations for Joubert syndrome",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31710777/",
+      "year": 2020,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "joubert-syndrome-evidence-profile-boundary",
+        "joubert-syndrome-evidence-access-intervention",
+        "joubert-syndrome-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-tuberous-sclerosis-2024",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Tuberous Sclerosis Complex",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1220/",
+      "year": 2024,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "tuberous-sclerosis-complex-evidence-profile-boundary",
+        "tuberous-sclerosis-complex-evidence-access-intervention",
+        "tuberous-sclerosis-complex-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-neurofibromatosis-1-2025",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Neurofibromatosis 1",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1109/",
+      "year": 2025,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "neurofibromatosis-type-1-evidence-profile-boundary",
+        "neurofibromatosis-type-1-evidence-access-intervention",
+        "neurofibromatosis-type-1-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "genereviews-pah-deficiency-2025",
+      "publisher": "GeneReviews®, University of Washington, Seattle",
+      "title": "Phenylalanine Hydroxylase Deficiency",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1504/",
+      "year": 2025,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "phenylketonuria-evidence-profile-boundary",
+        "phenylketonuria-evidence-access-intervention",
+        "phenylketonuria-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "van-trostenburg-congenital-hypothyroidism-2021",
+      "publisher": "ENDO-European Reference Network",
+      "title": "Congenital Hypothyroidism: A 2020–2021 Consensus Guidelines Update",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33272083/",
+      "year": 2021,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "congenital-hypothyroidism-evidence-profile-boundary",
+        "congenital-hypothyroidism-evidence-access-intervention",
+        "congenital-hypothyroidism-evidence-safety-differential"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "sue-mitochondrial-care-standards-australia-2022",
+      "publisher": "Royal Australasian College of Physicians",
+      "title": "Patient care standards for primary mitochondrial disease in Australia: an Australian adaptation of the Mitochondrial Medicine Society recommendations",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34505344/",
+      "year": 2022,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "mitochondrial-diseases-evidence-profile-boundary",
+        "mitochondrial-diseases-evidence-access-intervention",
+        "mitochondrial-diseases-evidence-safety-differential"
+      ],
+      "status": "current"
+    }
+  ],
+  "evidence_packets": [
+    {
+      "slug": "down-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "down-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "تظهر البحوث ملفات معرفية متعددة لا صورة واحدة؛ قد يكون مجال غير لفظي أو لفظي أقوى نسبيًا لدى شخص، ولا يعني ذلك تفوقًا عامًا. لذلك يظل تشخيص متلازمة داون وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: مقارنة التعلم اللفظي والبصري والعملي، واختبار الفهم بوسائل استجابة لا تعتمد على سرعة الكلام.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة داون، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "systematic-review-direct-heterogeneous",
+          "source_ids": [
+            "who-icf-2001",
+            "onnivello-down-profiles-2022",
+            "yang-down-visuospatial-2014",
+            "aap-down-health-2022"
+          ]
+        },
+        {
+          "id": "down-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "لغة سهلة وصور وAAC ووقت انتظار، وتدريب مهارات الحياة في بيئتها مع خفض التلميحات ورفع التوقعات الوظيفية. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: علّم مفهومًا أو روتينًا بثلاث طرق متكافئة، ثم اختبر الاستبقاء والتعميم والاستقلال بعد فاصل.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "onnivello-down-profiles-2022",
+            "yang-down-visuospatial-2014",
+            "aap-down-health-2022"
+          ]
+        },
+        {
+          "id": "down-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع السمع والبصر والغدة الدرقية والنوم والقلب والبلع وغيرها وفق الإشراف الصحي، ولا تفسر تراجع الأداء قبل فحص الصحة. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إتقان مهمة يومية يختارها الشخص مع تواصل موثوق وحق الرفض وانتقال المهارة إلى شريك أو مكان جديد.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "onnivello-down-profiles-2022",
+            "yang-down-visuospatial-2014",
+            "aap-down-health-2022"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "fragile-x-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "fragile-x-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "لا توجد موهبة ملازمة لمتلازمة X الهش؛ قد يظهر تعلم بصري أو تقليد أو اهتمام اجتماعي نسبيًا عند بعض الأشخاص ضمن ملف متباين. لذلك يظل تشخيص متلازمة الكروموسوم X الهش وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار الفهم والتعلم عندما ينخفض القلق والمطلب الاجتماعي، ومقارنة النمذجة البصرية بالتعليمات اللفظية الطويلة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة الكروموسوم X الهش، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-fmr1-disorders-2024"
+          ]
+        },
+        {
+          "id": "fragile-x-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "روتين متوقع، صور ونمذجة، تواصل بديل عند الحاجة، خفض الحمل الحسي، وتدرج في التفاعل الاجتماعي. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن تعلم روتين بنموذج بصري مباشر بتعلمه من شرح لفظي، مع قياس الاستقلال والقلق والتعميم.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-fmr1-disorders-2024"
+          ]
+        },
+        {
+          "id": "fragile-x-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع القلق والانتباه والنوم والسمع والنوبات عند الصلة، ولا تفسر تجنب النظر أو فرط الاستثارة على أنه رفض للتعلم. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: تنفيذ روتين تعلم أو مشاركة في بيئة منخفضة الضغط باستخدام التكييف الذي ثبتت فائدته.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-fmr1-disorders-2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "rett-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "rett-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "فقد الكلام واستخدام اليدين لا يثبت ضعف الفهم؛ قد تكشف النظرة والاختيار والاستجابة الاجتماعية قدرة لا تظهر في الاختبارات الحركية. لذلك يظل تشخيص متلازمة رِت وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تثبيت وسيلة نعم/لا واختيار بالنظر ثم اختبار الفهم والتفضيل من دون اشتراط كلام أو حركة يد دقيقة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة رِت، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-mecp2-disorders-2019"
+          ]
+        },
+        {
+          "id": "rett-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تتبع عين أو مسح خيارات وAAC، وضعية مستقرة، وقت استجابة، وشريك لا يلقن الإجابة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قدم اختيارات مألوفة وجديدة بترتيب متوازن عبر تتبع العين، وكررها في أيام مختلفة للتحقق من اتساق القرار.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-mecp2-disorders-2019"
+          ]
+        },
+        {
+          "id": "rett-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع التنفس والنوبات والتغذية والبلع والقلب والجنف والألم، وأوقف التقييم عند تغير التنفس أو الوعي أو التعب. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: استخدام وسيلة اختيار موثوقة للتعبير عن رغبة أو رفض والمشاركة في قرار يومي مع دعم وضعية وصحي مناسب.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-mecp2-disorders-2019"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "angelman-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "angelman-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "غياب الكلام أو قلته لا يصف الفهم؛ قد تكون الاستجابة الاجتماعية والتواصل غير اللفظي أقوى نسبيًا، مع تباين فردي كبير. لذلك يظل تشخيص متلازمة أنجلمان وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار الفهم والاختيار عبر صور وإشارات وAAC، وقياس المبادرة بدل انتظار الكلام المنطوق.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة أنجلمان، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-angelman-syndrome-2025"
+          ]
+        },
+        {
+          "id": "angelman-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "AAC مبكر ومتعدد الوسائط، نمذجة مستمرة من الشركاء، تعليم عملي قصير، ودعم الحركة والوضعية. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: اعرض نشاطين معروفين وآخرين جديدين عبر رموز واختيار فعلي، وسجل الاتساق والمبادرة وطلب التوقف.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-angelman-syndrome-2025"
+          ]
+        },
+        {
+          "id": "angelman-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع النوبات والنوم والبلع والتغذية والحركة، ولا تجعل الحماس أو الضحك دليل موافقة دون وسيلة رفض واضحة. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: بدء رسائل يومية مفهومة واختيار نشاط أو شخص أو استراحة باستخدام AAC عبر شريكين.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-angelman-syndrome-2025"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "prader-willi-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "prader-willi-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الروتين أو التعلم البصري قد يكونان مفيدين لبعض الأشخاص، لكن فرط الأكل والمشكلات الصحية ليست قوة ولا تُدار بالإرادة وحدها. لذلك يظل تشخيص متلازمة برادر–ويلي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار تعلم مهمة منظمة ذات حدود واضحة لا ترتبط بالطعام، وقياس المرونة عند انتقال مخطط له.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة برادر–ويلي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-prader-willi-syndrome-2024"
+          ]
+        },
+        {
+          "id": "prader-willi-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "جداول مرئية وقواعد ثابتة عادلة وبيئة غذائية آمنة غير تفاوضية، مع خيارات حقيقية في المجالات الأخرى. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: درّب روتين عمل مصورًا ثم أضف تغييرًا صغيرًا معلنًا مسبقًا، وسجل الاستقلال والضيق والتعافي.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-prader-willi-syndrome-2024"
+          ]
+        },
+        {
+          "id": "prader-willi-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تُدار سلامة الطعام والغدد والنوم والتنفس والجلد والصحة النفسية مع الفريق؛ لا يستخدم الطعام مكافأة ولا يُترك الخطر للتفاوض. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إتقان مسؤولية يومية خارج سياق الطعام ضمن بيئة آمنة مع تحمل تغيير مخطط ودعم متناقص.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-prader-willi-syndrome-2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "williams-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "williams-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "قد يظهر اهتمام اجتماعي أو موسيقي أو لغة تعبيرية نسبية لدى بعض الأشخاص، لكنه لا يساوي فهمًا اجتماعيًا آمنًا أو قوة عامة. لذلك يظل تشخيص متلازمة ويليامز وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار الذاكرة السمعية أو الموسيقية واللغة في تعلم هدف وظيفي، مع قياس الفهم لا السلاسة اللفظية وحدها.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة ويليامز، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-williams-syndrome-2023"
+          ]
+        },
+        {
+          "id": "williams-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تعليم يستخدم إيقاعًا أو لغة عند ثبوت فائدته، صور للمهام المكانية، وتدريب صريح على الحدود والخصوصية والرفض. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن تعلم تسلسل عملي عبر لحن أو شرح لفظي أو صور، ثم اختبر الفهم والتعميم بعيدًا عن المادة الأصلية.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-williams-syndrome-2023"
+          ]
+        },
+        {
+          "id": "williams-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع القلب وضغط الدم والكالسيوم والسمع والقلق، وطبّق احتياطات الإجراءات والتخدير وفق الفريق المختص. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: تعلم روتين وظيفي بوسيلة ثبتت فائدتها مع تطبيق حدود اجتماعية وسلامة قرار واضحة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-williams-syndrome-2023"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "cri-du-chat-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "cri-du-chat-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "لا تدعم الأدلة ادعاء قوة جماعية؛ قد يتجاوز الفهم أو الاستجابة الاجتماعية القدرة على الكلام والحركة عند بعض الأشخاص. لذلك يظل تشخيص متلازمة صرخة القطة وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: كشف الفهم والاختيار عبر تواصل غير منطوق، وتحديد ما يتعلمه الشخص بالتكرار العملي والنمذجة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة صرخة القطة، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "liverani-cri-du-chat-care-2019"
+          ]
+        },
+        {
+          "id": "cri-du-chat-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تدخل مبكر وAAC وصور وتحليل مهمة ودعم وضعية، مع وقت استجابة وتدريب للأسرة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن الاستجابة لتعليمات بالكلام والصورة والنموذج العملي، ثم أعد الاختبار بعد فاصل ومع شريك آخر.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "liverani-cri-du-chat-care-2019"
+          ]
+        },
+        {
+          "id": "cri-du-chat-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع التغذية والبلع والسمع والبصر والتنفس والحركة، وابحث عن الألم قبل تفسير السلوك. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: استخدام إشارة أو رمز موثوق لطلب احتياج وتنفيذ جزء مستقل من روتين عناية يومية.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "liverani-cri-du-chat-care-2019"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "cornelia-de-lange-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "cornelia-de-lange-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "قد يظهر تعلم للروتين أو ذاكرة للمواقف المألوفة، لكن التباين كبير والسلوك لا يُفسر كعناد قبل فحص الألم والتواصل. لذلك يظل تشخيص متلازمة كورنيليا دي لانج وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار التعلم في روتين مألوف مع تقليل متطلبات الكلام، ومقارنة الأداء قبل معالجة حاجز صحي أو حسي وبعده.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة كورنيليا دي لانج، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-cornelia-de-lange-2020"
+          ]
+        },
+        {
+          "id": "cornelia-de-lange-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تواصل متعدد الوسائط، جداول قابلة للتنبؤ، تدرج بطيء في الجديد، وتكييف الحركة والسمع والبصر. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: حلل روتينًا إلى خطوات وصور، وسجل الأداء والحمل في يوم مستقر ثم بعد تعديل حاجز محدد.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-cornelia-de-lange-2020"
+          ]
+        },
+        {
+          "id": "cornelia-de-lange-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع الارتجاع والبلع والأسنان والسمع والبصر والأطراف والألم وإيذاء الذات؛ أي تغير سلوكي يستدعي فحص سبب طبي. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المشاركة في روتين مألوف برسالة طلب أو رفض واضحة وانخفاض السلوك المرتبط بالألم أو عدم الفهم.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-cornelia-de-lange-2020"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "noonan-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "noonan-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "كثير من الأشخاص يملكون قدرات معرفية متنوعة وقد يكون الأداء ضمن النطاق المعتاد؛ المظهر أو التشخيص لا يبرران خفض التوقعات. لذلك يظل تشخيص متلازمة نونان وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: قياس القراءة واللغة والمهارات البصرية التنفيذية مباشرة وتحديد أي تفاوت فردي بدل افتراض صعوبة عامة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة نونان، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-noonan-syndrome-2025"
+          ]
+        },
+        {
+          "id": "noonan-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تكييف تعليمي للمهارة المتأثرة فقط، دعم سمعي وبصري عند الحاجة، ووقت مناسب من دون حماية زائدة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: اختر هدفًا أكاديميًا أو عمليًا، قارن الأداء بالطريقة القياسية وبتكييف واحد محدد، وسجل ما يتغير فعلًا.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-noonan-syndrome-2025"
+          ]
+        },
+        {
+          "id": "noonan-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع القلب والنزف والنمو والتغذية والسمع والبصر وفق خطة الاختصاصيين قبل نشاط جديد أو إجراء. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إتمام هدف تعليمي أو استقلالي متناسب مع القدرة المقاسة مع احترام القيود القلبية أو الصحية الفردية.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-noonan-syndrome-2025"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "turner-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "turner-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "قد تكون اللغة أو الذاكرة اللفظية أقوى نسبيًا من بعض المهارات البصرية المكانية أو التنفيذية لدى بعض الفتيات والنساء، ولا ينطبق ملف واحد على الجميع. لذلك يظل تشخيص متلازمة تيرنر وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: مقارنة الاستدلال اللفظي والبصري المكاني والتخطيط والحساب لتحديد الدعم دون اختزال الشخص في نمط متلازمي.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة تيرنر، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "gravholt-turner-guideline-2024"
+          ]
+        },
+        {
+          "id": "turner-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تعليم صريح للمكان والحساب والتنظيم عند الحاجة، خرائط وخطوات، دعم سمعي، وتوقعات أكاديمية كاملة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قدم مسألة مكانية أو تنظيمية بشرح بصري فقط ثم بشرح لفظي وخطوات، وقارن الدقة والاستقلال والتعميم.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "gravholt-turner-guideline-2024"
+          ]
+        },
+        {
+          "id": "turner-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع القلب وضغط الدم والسمع والغدة الدرقية والصحة الإنجابية والعظام وفق الرعاية المتخصصة. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إدارة مهمة تعليمية أو يومية متعددة الخطوات بأداة تنظيم مختارة مع متابعة الصحة وعدم خفض سقف المشاركة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "gravholt-turner-guideline-2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "klinefelter-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "klinefelter-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "لا توجد موهبة مرتبطة بالمتلازمة؛ قد يظهر تفاوت بين اللغة والمهارات غير اللفظية أو التنفيذية، ويجب قياس الفرد وعدم تأخير الدعم. لذلك يظل تشخيص متلازمة كلاينفلتر وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد أثر اللغة والتعلم والانتباه في إظهار المعرفة، واختبار الأداء غير اللفظي والعملي دون افتراض ضعف عام.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة كلاينفلتر، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "zitzmann-klinefelter-guideline-2021"
+          ]
+        },
+        {
+          "id": "klinefelter-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "دعم لغة وقراءة وتنظيم عند الحاجة، وقت معالجة، تعليمات مكتوبة، ودعم نفسي يحترم الهوية والخصوصية. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن شرح مفهوم بالكلام فقط بشرح مرئي وعملي، ثم اطلب إنتاجه شفهيًا وعمليًا لتمييز حاجز اللغة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "zitzmann-klinefelter-guideline-2021"
+          ]
+        },
+        {
+          "id": "klinefelter-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تُراجع الصحة الهرمونية والعظام والتمثيل الغذائي والسمع والصحة النفسية مع الفريق، ولا تُناقش المعلومات الحساسة دون موافقة. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إظهار معرفة أو مهارة في تعليم أو عمل بطريقة وصول مناسبة مع خطة مستقلة لدعم اللغة أو التنظيم.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "zitzmann-klinefelter-guideline-2021"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "22q11-deletion-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "22q11-deletion-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الملف المعرفي والنفسي شديد التباين؛ لا توجد قوة واحدة، وقد تحجب اللغة أو الانتباه أو القلق قدرةً في مجال آخر. لذلك يظل تشخيص متلازمة حذف 22q11.2 وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: مقارنة الفهم اللفظي والبصري والتعلم العملي والوظائف التنفيذية في سياق منخفض القلق.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة حذف 22q11.2، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-22q11-deletion-2025"
+          ]
+        },
+        {
+          "id": "22q11-deletion-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تعليمات قصيرة وصور وتكرار موزع ودعم لغة وتنظيم، مع بيئة اجتماعية آمنة ومراقبة انتقالات الحياة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: نفذ مهمة متعددة الخطوات مرة من الذاكرة ومرة بقائمة مرئية، وسجل الدقة والقلق والاستقلال بعد فاصل.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-22q11-deletion-2025"
+          ]
+        },
+        {
+          "id": "22q11-deletion-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع القلب والكالسيوم والمناعة والسمع والحنك والنوبات والصحة النفسية؛ تغير التفكير أو السلوك يحتاج تقييمًا مبكرًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إكمال روتين تعلم أو استقلال باستخدام أداة تنظيم مع متابعة أي تغير صحي أو نفسي يؤثر في الأداء.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-22q11-deletion-2025"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "smith-magenis-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "smith-magenis-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "قد يساعد الروتين والتعلم البصري بعض الأشخاص، لكن اضطراب النوم والسلوك أو إيذاء الذات ليس قوة وقد يخفيان الألم أو عدم الفهم. لذلك يظل تشخيص متلازمة سميث–ماجينيس وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار التعلم في الوقت الأفضل يقظةً وبنموذج بصري، مع فصل القدرة عن آثار اضطراب النوم.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة سميث–ماجينيس، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-smith-magenis-2025"
+          ]
+        },
+        {
+          "id": "smith-magenis-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "جدول مرئي ثابت، خيارات محدودة حقيقية، تواصل وظيفي، إعداد انتقالات، وخطة دعم سلوكي إيجابي. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن المهمة نفسها في وقتين مختلفين من اليوم وباستخدام نموذج مرئي، وسجل اليقظة والجودة والضيق.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-smith-magenis-2025"
+          ]
+        },
+        {
+          "id": "smith-magenis-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع النوم والسمع والبصر والألم والجنف وإيذاء الذات والصحة النفسية مع الفريق، وضع خطة أمان فردية. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: تنفيذ مسؤولية قصيرة في وقت يقظة مناسب مع وسيلة طلب استراحة وانخفاض التصعيد أو إيذاء الذات.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-smith-magenis-2025"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sotos-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "sotos-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "لا توجد قوة تشخيصية ثابتة؛ قد يتباين الكلام والفهم والحركة والانتباه، ويجب ألا يقود الطول أو المظهر إلى توقعات عمرية غير دقيقة. لذلك يظل تشخيص متلازمة سوتوس وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: قياس الفهم والتواصل والمهارات الأكاديمية والتكيفية كلًا على حدة، مع التحقق من أثر القلق والحركة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة سوتوس، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-sotos-syndrome-2025"
+          ]
+        },
+        {
+          "id": "sotos-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "تواصل واضح وصور ووقت معالجة ودعم حركة وتنظيم، مع توقعات تتبع الملف الفعلي لا حجم الجسم. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قدم روتينًا بحسب تعليمات عمرية معتادة ثم عدله وفق مستوى التواصل والحركة المقاس، وقارن الاستقلال والضغط.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-sotos-syndrome-2025"
+          ]
+        },
+        {
+          "id": "sotos-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع النوبات والقلب والكلى والجنف والسمع والبصر عند الصلة، وأي تراجع أو تغير جديد قبل زيادة المطالب. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المشاركة في مهمة مناسبة للعمر مع تكييف فردي يحافظ على الكرامة ويقيس الاستقلال الحقيقي.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-sotos-syndrome-2025"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "charge-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "charge-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "تعدد الحواجز الحسية والحركية والطبية قد يقلل تقدير القدرة؛ لا تعني الاستجابة البطيئة أو المتقطعة ضعف الفهم. لذلك يظل تشخيص متلازمة CHARGE وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد أفضل قناة تواصل وتعلم في ضوء السمع والبصر والتوازن واللمس، واختبار الاختيار بعد توفير وصول متعدد الحواس.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة CHARGE، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-chd7-disorder-2025"
+          ]
+        },
+        {
+          "id": "charge-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "لغة إشارة أو AAC ولمس رمزي حسب الفرد، وضعية مستقرة، ترتيب بيئي ثابت، وقت استجابة، وشريك تواصل مدرب. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قدم اختيارًا عبر قناتين موثوقتين وكرر الموضع بترتيب متوازن، وسجل الاتساق والتعب لا سرعة الإجابة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-chd7-disorder-2025"
+          ]
+        },
+        {
+          "id": "charge-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع مجرى الهواء والقلب والبلع والتغذية والسمع والبصر والتوازن والتخدير وفق الفريق متعدد التخصصات. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: استخدام قناة تواصل ثابتة للاختيار والرفض والتنقل في روتين مألوف بأمان.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-chd7-disorder-2025"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "kabuki-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "kabuki-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الملف متباين ولا يدعم موهبة جماعية؛ قد يكون الفهم أو التعلم البصري أقوى نسبيًا من بعض جوانب التعبير أو الحركة عند فرد. لذلك يظل تشخيص متلازمة كابوكي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: مقارنة التعلم بالنموذج والصورة والشرح، وقياس الفهم بوسيلة لا تعتمد على الكلام أو اليد فقط.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة كابوكي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-kabuki-syndrome-2026"
+          ]
+        },
+        {
+          "id": "kabuki-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "صور وAAC عند الحاجة، تعليم عملي متكرر، دعم السمع والحركة، وخفض العبء اللغوي غير الضروري. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: علّم مهارة صغيرة بالنموذج ثم بالصورة، واختبر الاستبقاء بعد فاصل وفي مكان ثانٍ.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-kabuki-syndrome-2026"
+          ]
+        },
+        {
+          "id": "kabuki-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع القلب والمناعة والسمع والتغذية والكلى والمفاصل والنوبات وفق الخطة الصحية، ولا تفسر التعب كضعف دافعية. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إتمام مهارة عناية أو تعلم ذات معنى بالطريقة الأكثر وصولًا مع مراقبة التعب والصحة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-kabuki-syndrome-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "rubinstein-taybi-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "rubinstein-taybi-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "لا توجد قوة ثابتة؛ قد يتجاوز الفهم أو الاهتمام الاجتماعي القدرة التعبيرية والحركية، ويتطلب ذلك قياسًا مباشرًا. لذلك يظل تشخيص متلازمة روبنشتاين–تايبي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار الاختيار والفهم والتعلم بالتقليد والصور مع فصل متطلبات الكلام والحركة الدقيقة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة روبنشتاين–تايبي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-rubinstein-taybi-2023"
+          ]
+        },
+        {
+          "id": "rubinstein-taybi-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "AAC وصور وتحليل مهمة وأدوات يد معدلة ووقت استجابة، مع تدريب الشركاء على عدم الإجابة نيابةً عن الشخص. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن أداء روتين بأداة معتادة وأداة معدلة وبنموذج مرئي، وسجل الدقة والمساعدة والراحة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-rubinstein-taybi-2023"
+          ]
+        },
+        {
+          "id": "rubinstein-taybi-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع مجرى الهواء والتخدير والقلب والكلى والسمع والبصر والأسنان والتغذية وفق الفريق المختص. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المشاركة المستقلة في خطوة أو أكثر من روتين يومي مع تواصل طلب ورفض موثوق.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-rubinstein-taybi-2023"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "smith-lemli-opitz-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "smith-lemli-opitz-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "لا يدعم الدليل ادعاء نمط قوة؛ يتركز العمل على كشف الفهم والتفضيل بعد معالجة الحواجز الطبية والحسية والتواصلية. لذلك يظل تشخيص متلازمة سميث–ليملي–أوبيتز وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار الاستجابة والتعلم في روتين قصير وبوسائل تواصل متعددة، مع مقارنة الأداء في حالة راحة وحالة عبء.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة سميث–ليملي–أوبيتز، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-smith-lemli-opitz-2020"
+          ]
+        },
+        {
+          "id": "smith-lemli-opitz-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "AAC وصور وروتين متوقع وتدرج بطيء ودعم وضعية وتغذية، مع تقليل المثيرات المؤلمة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قدم هدفًا عمليًا في جلسات قصيرة مع تكييف حسي، وسجل الاختيار والتعلم والتعب عبر أيام.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-smith-lemli-opitz-2020"
+          ]
+        },
+        {
+          "id": "smith-lemli-opitz-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تدار التغذية والنمو والتشوهات الخلقية والحساسية للضوء والسلوك المؤذي والألم مع الفريق؛ لا تُجرّب حمية أو مكملات خارج الخطة. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إظهار اختيار ثابت والمشاركة في جزء آمن من روتين يومي ضمن الحدود الطبية الفردية.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-smith-lemli-opitz-2020"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "joubert-syndrome",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "joubert-syndrome-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "صعوبة الحركة أو التنفس أو النظر لا تحدد الفهم؛ قد تكون القدرة المعرفية أو التواصلية أعلى مما يظهر في استجابة حركية غير مستقرة. لذلك يظل تشخيص متلازمة جوبير وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: اختبار الفهم عبر وسيلة وصول تقلل متطلبات حركة العين واليد والكلام، وتثبيت نعم/لا قبل الاستنتاج.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه متلازمة جوبير، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "bachmann-gagescu-joubert-care-2020"
+          ]
+        },
+        {
+          "id": "joubert-syndrome-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "AAC ومسح خيارات ووضعية وأهداف كبيرة ووقت استجابة، مع دعم الحركة والبصر حسب التقييم. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن إجابة حركية مباشرة بمسح خيارات أو مفتاح وصول، وكرر الأسئلة بترتيب عكسي للتحقق من الموثوقية.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "bachmann-gagescu-joubert-care-2020"
+          ]
+        },
+        {
+          "id": "joubert-syndrome-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع التنفس والنوبات والعين والكلى والكبد والتغذية وفق نوع المتلازمة، وأوقف المهمة عند تغير التنفس أو الوعي. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: استخدام استجابة موثوقة لاتخاذ قرار يومي وإتمام نشاط معرفي دون أن تكون الحركة الدقيقة معيار القدرة.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "bachmann-gagescu-joubert-care-2020"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "tuberous-sclerosis-complex",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "tuberous-sclerosis-complex-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "التصلب الحدبي لا يمنح قوة محددة، وتتفاوت القدرات بشدة تبعًا للنوبات والنمو العصبي والصحة؛ يجب بناء ملف فردي متكرر. لذلك يظل تشخيص التصلب الحدبي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد المهارات المحفوظة والتعلم في فترات استقرار النوبات، وقياس التواصل والانتباه والذاكرة والسلوك التكيفي منفصلة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه التصلب الحدبي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-tuberous-sclerosis-2024"
+          ]
+        },
+        {
+          "id": "tuberous-sclerosis-complex-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "بيئة تعلم واضحة، تواصل بديل عند الحاجة، دعم انتباه وسلوك إيجابي، وتنسيق المواعيد مع التعب والعلاج. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: نفذ مهمة قصيرة في أيام مستقرة مع تسجيل النوم والنوبات والدواء، وكررها لتجنب نسبة تقلب صحي إلى القدرة.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-tuberous-sclerosis-2024"
+          ]
+        },
+        {
+          "id": "tuberous-sclerosis-complex-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تُراجع النوبات والكلى والقلب والجلد والعين والرئة والصحة النفسية وفق المراقبة المتخصصة؛ أي فقد مهارة أو تغير سلوك يحتاج تقييمًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: اكتساب مهارة وظيفية قابلة للتعميم مع خطة نوبات وسلامة وتعديل الحمل حسب الاستقرار.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-tuberous-sclerosis-2024"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "neurofibromatosis-type-1",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "neurofibromatosis-type-1-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "لا توجد موهبة مرتبطة بـNF1؛ قد يتباين الذكاء مع صعوبات تعلم أو انتباه أو بصر أو حركة دقيقة ينبغي فصلها. لذلك يظل تشخيص الورام الليفي العصبي من النوع الأول وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: قياس المعرفة والاستدلال بعيدًا عن حاجز القراءة أو الانتباه أو البصر، وتحديد المجال الأكاديمي أو العملي المحفوظ.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه الورام الليفي العصبي من النوع الأول، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-neurofibromatosis-1-2025"
+          ]
+        },
+        {
+          "id": "neurofibromatosis-type-1-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "دعم تعلم وانتباه محدد، تكبير أو تكييف بصري عند الحاجة، وقت مناسب، وأدوات تنظيم. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن مهمة معرفة بنسخة تقلل القراءة أو الحمل البصري والتنفيذي، وسجل الدقة والجهد والتعلم.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-neurofibromatosis-1-2025"
+          ]
+        },
+        {
+          "id": "neurofibromatosis-type-1-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "راجع البصر وضغط الدم والألم والنمو والعمود الفقري والأورام والتغير العصبي مع الفريق؛ صداع أو ضعف أو ألم جديد يستلزم تقييمًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إظهار المعرفة وإنجاز هدف تعليمي بتكييف محدد مع مراقبة أي تغير بصري أو عصبي.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-neurofibromatosis-1-2025"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "phenylketonuria",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "phenylketonuria-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "العلاج الغذائي المبكر قد يحفظ قدرات واسعة؛ لا تنتج قوة من PKU، وقد تؤثر السيطرة الأيضية في الانتباه والتنفيذ. لذلك يظل تشخيص بيلة الفينيل كيتون وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تحديد المهارات الأكاديمية والمهنية المحفوظة وأثر عبء التنظيم أو تقلب السيطرة الأيضية في الأداء.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه بيلة الفينيل كيتون، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "genereviews-pah-deficiency-2025"
+          ]
+        },
+        {
+          "id": "phenylketonuria-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "أدوات تنظيم ومواعيد وبيئة تدعم الخطة الغذائية دون وصم، مع تكييف الانتباه أو الذاكرة إذا ثبتت الحاجة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: اختبر مهمة تنظيمية بقائمة خارجية ومن دونها عبر أيام مستقرة، وسجل الدقة والعبء لا مستوى الفينيل ألانين خارج الرعاية.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "genereviews-pah-deficiency-2025"
+          ]
+        },
+        {
+          "id": "phenylketonuria-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تدار الحمية والفحوص والمكملات والحمل والدواء حصريًا مع فريق الاستقلاب؛ لا تُعدّل الخطة لتناسب نشاطًا أو إنتاجية. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: إدارة جزء من روتين الدراسة أو العمل والعلاج بأداة تنظيم تقلل الأخطاء وتحافظ على الخطة الطبية.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "expert-reviewed-living-reference",
+          "source_ids": [
+            "genereviews-pah-deficiency-2025"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "congenital-hypothyroidism",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "congenital-hypothyroidism-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "لا توجد قوة ناتجة عن القصور؛ العلاج المبكر والمتابعة قد يحفظان النمو والقدرات، وأي تفاوت تعلم يُقاس مباشرة. لذلك يظل تشخيص قصور الغدة الدرقية الخلقي وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: تقييم اللغة والانتباه والحركة والتعلم بحسب العمر، وتحديد المهارة المحفوظة والحاجز القابل للتعليم أو التكييف.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه قصور الغدة الدرقية الخلقي، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "van-trostenburg-congenital-hypothyroidism-2021"
+          ]
+        },
+        {
+          "id": "congenital-hypothyroidism-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "دعم تعليمي محدد ووسائل بصرية وتنظيم عند الحاجة، مع توقعات تتبع الأداء الفعلي لا التشخيص. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قارن التعلم بطريقة صفية معتادة وبطريقة متعددة الوسائط، وأعد القياس بعد ثبات الخطة الصحية.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "van-trostenburg-congenital-hypothyroidism-2021"
+          ]
+        },
+        {
+          "id": "congenital-hypothyroidism-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تُراجع مستويات الغدة والالتزام والجرعة والنمو والسمع مع الفريق؛ التعب أو التراجع الجديد لا يُفسر كضعف إرادة. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: تحقيق هدف تعلم أو استقلال مناسب للعمر مع علاج مستقر ودعم موجه فقط للمجال المتأثر.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "van-trostenburg-congenital-hypothyroidism-2021"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "mitochondrial-diseases",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "mitochondrial-diseases-evidence-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "لا تنتج موهبة عن أمراض الميتوكوندريا؛ قد تبقى المعرفة أو الاهتمامات قوية بينما تقيد الطاقة والحركة والحواس إظهارها. لذلك يظل تشخيص أمراض الميتوكوندريا وصفًا لاحتياجات ومخاطر محتملة، وليس اختبارًا للذكاء أو القيمة أو الموهبة أو المهنة.",
+          "what_it_supports": "يدعم حصر الاستدلال في التغاير والوظيفة ثم قياس المجال المقترح مباشرةً عند الشخص: فصل جودة القرار والمعرفة عن التحمل، وقياس الأداء في جرعات قصيرة مع الوصول التقني والراحة.",
+          "what_it_does_not_support": "لا يدعم نسبة قدرة ثابتة إلى كل من لديه أمراض الميتوكوندريا، ولا اختيار مسار دراسي أو مهني من اسم التشخيص أو من قصة نجاح فردية.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "who-icf-2001",
+            "sue-mitochondrial-care-standards-australia-2022"
+          ]
+        },
+        {
+          "id": "mitochondrial-diseases-evidence-access-intervention",
+          "type": "access-and-intervention",
+          "statement": "جدولة مرنة، حفظ الطاقة، تقنية مساندة، مهام قصيرة قابلة للتوقف، وبدائل للتنقل والكتابة. ويُختار كل تكييف باتفاق الشخص، ثم يقاس أثره على جودة المهمة والاستقلال والتعب والرغبة والتعميم.",
+          "what_it_supports": "يدعم تجربة وصول صغيرة قابلة للعكس داخل مهمة ذات معنى، لا وصفة موحدة؛ والتطبيق العملي المقترح هو: قسّم مشروعًا إلى وحدات قصيرة مع راحة وقارن الجودة والطاقة بنسخة ممتدة، من دون تجاوز خطة الأمان.",
+          "what_it_does_not_support": "لا يضمن أن التكييف سينفع هذا الشخص، ولا يبرر جمع تدخلات كثيرة دفعة واحدة أو استبدال العلاج الموصوف بتجربة تعليمية أو وظيفية.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "who-rehabilitation-2024",
+            "sue-mitochondrial-care-standards-australia-2022"
+          ]
+        },
+        {
+          "id": "mitochondrial-diseases-evidence-safety-differential",
+          "type": "safety-and-differential",
+          "statement": "تُتبع خطة الفريق للقلب والتنفس والنوبات والسمع والبصر والتغذية والمرض الحاد؛ الصيام أو الإجهاد أو التمرين غير الموصوف قد يكون خطرًا. وتبقى قرارات التشخيص والعلاج والدواء والقيود الطبية وخطة الطوارئ ضمن الفريق السريري المختص.",
+          "what_it_supports": "يدعم تقديم الاستقرار والصحة على اختبار الأداء، ثم متابعة هدف وظيفي محدود بعد تحقق الأمان: المساهمة في مهمة ذات معنى بجودة ثابتة ضمن ميزانية طاقة صحية وخطة بديلة لأيام التفاقم.",
+          "what_it_does_not_support": "لا يدعم استعمال الصفحة للتشخيص الذاتي أو تعديل الدواء أو التغذية أو النشاط المحظور، ولا تأخير الإحالة عند عرض جديد أو تدهور أو طارئ.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "sue-mitochondrial-care-standards-australia-2022"
+          ]
+        }
+      ]
+    }
+  ]
+}
