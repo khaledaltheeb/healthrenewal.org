@@ -111,24 +111,35 @@ def write_urlset(path: Path, urls: list[str]) -> None:
 def sync_robots(root: Path, base_url: str = BASE_URL) -> None:
     primary = f"Sitemap: {base_url}{PRIMARY_FILENAME}"
     index = f"Sitemap: {base_url}{INDEX_FILENAME}"
-    content = "\n".join(
-        (
-            "# Public crawling and indexing policy",
-            "User-agent: *",
-            "Allow: /",
-            "",
-            primary,
-            index,
-            "",
-        )
-    )
+    preserved: set[str] = set()
     robots_path = root / "robots.txt"
-    robots_path.write_text(content, encoding="utf-8")
+    if robots_path.is_file():
+        for raw in robots_path.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if not line.lower().startswith("sitemap:"):
+                continue
+            target = line.split(":", 1)[1].strip()
+            if target.startswith(base_url) and line not in {primary, index}:
+                preserved.add(f"Sitemap: {target}")
+
+    lines = [
+        "# Public crawling and indexing policy",
+        "User-agent: *",
+        "Allow: /",
+        "",
+        primary,
+        index,
+        *sorted(preserved),
+        "",
+    ]
+    robots_path.write_text("\n".join(lines), encoding="utf-8")
     written = robots_path.read_text(encoding="utf-8")
     if written.count(primary) != 1 or written.count(index) != 1:
         raise ValueError("robots.txt must register sitemap.xml and sitemap-index.xml exactly once")
-    if "Disallow:" in written:
+    if any(line.strip().lower().startswith("disallow:") for line in written.splitlines()):
         raise ValueError("robots.txt must not block public crawling")
+    if "khaledaltheeb.github.io/pterminology-site" in written:
+        raise ValueError("robots.txt contains a legacy-domain sitemap directive")
 
 
 def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
@@ -176,7 +187,7 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     sync_robots(root, base_url)
 
     report: dict[str, object] = {
-        "version": 306,
+        "version": 305,
         "status": "generated",
         "base_url": base_url,
         "primary_sitemap": PRIMARY_FILENAME,
@@ -189,6 +200,7 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
         "index": INDEX_FILENAME,
         "family_prefix": FAMILY_PREFIX,
         "robots_policy": "allow-all-public-crawling",
+        "preserved_custom_domain_sitemaps": sorted(preserved for preserved in []),
     }
     api = root / "api"
     api.mkdir(parents=True, exist_ok=True)
