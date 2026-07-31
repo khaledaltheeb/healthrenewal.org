@@ -28,8 +28,8 @@ ALLOWED_PROVIDER_CODES = READY_PROVIDER_CODES | {
 
 PAGE_MARKERS = {
     "directory": ("", ('data-specialists-quality-v354="1"', "directory-health")),
-    "join": ("join.html", ("طلب الانضمام",)),
-    "contact": ("contact.html", ("تواصل مع المختص",)),
+    "join": ("join.html", ('id="onboarding-form"',)),
+    "contact": ("contact.html", ('id="contact-form"',)),
     "verification": ("verification.html", ("التحقق",)),
     "portal": ("portal/", ("المحادثة",)),
     "account": ("account/", ("حساب المختص",)),
