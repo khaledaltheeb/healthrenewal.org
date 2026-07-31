@@ -14,6 +14,7 @@ on:
       - "tests/test_specialist_accounts_v5.py"
       - "tests/test_specialist_identity_v6.py"
       - "tests/test_specialist_identity_v10.py"
+      - "tests/test_specialist_turnstile_persistence.py"
       - ".github/workflows/deploy-specialist-identity-v10.yml"
       - ".github/workflows/deploy-specialist-identity-v10-production.yml"
       - ".github/workflows/deploy-specialist-recovery-pages-v8.yml"
@@ -49,5 +50,6 @@ jobs:
             tests.test_specialist_accounts_v5 \
             tests.test_specialist_identity_v6 \
             tests.test_specialist_recovery_v8 \
-            tests.test_specialist_identity_v10
+            tests.test_specialist_identity_v10 \
+            tests.test_specialist_turnstile_persistence
           echo "Validation only. Production deployment is owned by deploy-specialist-identity-v10-production.yml."
