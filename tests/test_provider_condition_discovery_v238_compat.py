@@ -14,8 +14,8 @@ from urllib.parse import unquote, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLISHER = ROOT / "scripts" / "publish_provider_condition_discovery_v238_compat.py"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org"
+BASE_PATH = "/"
 CHILD_SITEMAP = f"{BASE}/sitemap-provider-assessment.xml"
 SLUGS = (
     "aac",
@@ -68,15 +68,13 @@ def route_for(path: Path, site: Path) -> str:
 def resolve_route(source: Path, href: str, site: Path) -> str | None:
     parsed = urlparse(href)
     if parsed.scheme in {"http", "https"}:
-        if not parsed.path.startswith(BASE_PATH):
+        if parsed.netloc != "healthrenewal.org" or not parsed.path.startswith(BASE_PATH):
             return None
         raw = parsed.path[len(BASE_PATH):]
     elif parsed.scheme or href.startswith(("#", "mailto:", "tel:", "javascript:")):
         return None
     elif parsed.path.startswith(BASE_PATH):
         raw = parsed.path[len(BASE_PATH):]
-    elif parsed.path.startswith("/"):
-        return None
     else:
         raw = (source.parent.relative_to(site) / unquote(parsed.path)).as_posix()
     target = (site / unquote(raw).lstrip("/")).resolve()
@@ -110,8 +108,8 @@ def provider_discovery_failures(site: Path) -> tuple[list[str], list[str]]:
             if not node.text:
                 continue
             parsed = urlparse(node.text.strip())
-            if parsed.path.startswith(BASE_PATH):
-                mapped.add(unquote(parsed.path[len(BASE_PATH):]).lstrip("/"))
+            if parsed.scheme == "https" and parsed.netloc == "healthrenewal.org":
+                mapped.add(unquote(parsed.path.lstrip("/")))
 
     provider = sorted(route for route in routes if route.startswith("provider-assessment-demo/"))
     return (
@@ -134,26 +132,27 @@ class ProviderConditionDiscoveryCompatV238Tests(unittest.TestCase):
     def _write_fixture(self) -> None:
         self._write(
             "index.html",
-            '<!doctype html><html lang="ar" dir="rtl"><head><title>الرئيسية</title></head>'
-            '<body><main><h1>الرئيسية</h1><a href="provider-assessment-demo/">منصة التقييم</a></main></body></html>',
+            f'<!doctype html><html lang="ar" dir="rtl"><head><title>الرئيسية</title>'
+            f'<meta name="description" content="الرئيسية"><link rel="canonical" href="{BASE}/">'
+            '</head><body><main><h1>الرئيسية</h1><a href="provider-assessment-demo/">منصة التقييم</a></main></body></html>',
         )
         self._write(
             "provider-assessment-demo/index.html",
             f'<!doctype html><html lang="ar" dir="rtl"><head><title>منصة التقييم</title>'
-            f'<link rel="canonical" href="{BASE}/provider-assessment-demo/">'
+            f'<meta name="description" content="منصة التقييم"><link rel="canonical" href="{BASE}/provider-assessment-demo/">'
             '</head><body><main><h1>منصة التقييم</h1>'
             '<a href="conditions/">مسارات الحالات</a></main></body></html>',
         )
         self._write(
             "provider-assessment-demo/conditions/index.html",
             f'<!doctype html><html lang="ar" dir="rtl"><head><title>مسارات الحالات</title>'
-            f'<link rel="canonical" href="{BASE}/provider-assessment-demo/conditions/">'
+            f'<meta name="description" content="مسارات الحالات"><link rel="canonical" href="{BASE}/provider-assessment-demo/conditions/">'
             '</head><body><main><h1>مسارات الحالات</h1></main></body></html>',
         )
         self._write(
             "provider-assessment-demo/training/index.html",
             f'<!doctype html><html lang="ar" dir="rtl"><head><title>أكاديمية التقييم المهني</title>'
-            f'<meta name="robots" content="index,follow">'
+            f'<meta name="description" content="أكاديمية التقييم"><meta name="robots" content="index,follow">'
             f'<link rel="canonical" href="{BASE}/provider-assessment-demo/training/">'
             '</head><body><main><h1>أكاديمية التقييم المهني</h1></main></body></html>',
         )
@@ -162,6 +161,7 @@ class ProviderConditionDiscoveryCompatV238Tests(unittest.TestCase):
                 f"provider-assessment-demo/conditions/{slug}/index.html",
                 f'<!doctype html><html lang="ar" dir="rtl"><head>'
                 f'<title>تقييم الحالة {index} | المسار المهني</title>'
+                f'<meta name="description" content="تقييم الحالة {index}">'
                 f'<meta name="robots" content="index,follow">'
                 f'<link rel="canonical" href="{BASE}/provider-assessment-demo/conditions/{slug}/">'
                 f'</head><body><main><h1>تقييم الحالة {index}</h1></main></body></html>',
@@ -189,7 +189,7 @@ class ProviderConditionDiscoveryCompatV238Tests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
         return json.loads((self.site / "api/provider-condition-discovery-v238.json").read_text(encoding="utf-8"))
 
-    def test_static_links_child_sitemap_robots_and_orphan_audit(self) -> None:
+    def test_static_links_complete_primary_sitemap_robots_and_orphan_audit(self) -> None:
         root_before = digest(self.site / "sitemap.xml")
         report = self.publish()
 
@@ -201,7 +201,9 @@ class ProviderConditionDiscoveryCompatV238Tests(unittest.TestCase):
         self.assertEqual(report["sitemap_routes"], 23)
         self.assertTrue(report["robots_sitemap_registered"])
         self.assertTrue(report["root_sitemap_unchanged"])
-        self.assertEqual(digest(self.site / "sitemap.xml"), root_before)
+        self.assertTrue(report["primary_sitemap_complete"])
+        self.assertEqual(report["custom_domain"], BASE)
+        self.assertNotEqual(digest(self.site / "sitemap.xml"), root_before)
 
         gateway = (self.site / "provider-assessment-demo/index.html").read_text(encoding="utf-8")
         directory = (self.site / "provider-assessment-demo/conditions/index.html").read_text(encoding="utf-8")
@@ -212,6 +214,8 @@ class ProviderConditionDiscoveryCompatV238Tests(unittest.TestCase):
         self.assertEqual(directory.count("data-provider-condition-discovery-v238-schema"), 1)
         self.assertIn('"@type": "ItemList"', directory)
         self.assertEqual(robots.count(f"Sitemap: {CHILD_SITEMAP}"), 1)
+        self.assertNotIn("khaledaltheeb.github.io/pterminology-site", robots)
+        self.assertFalse(any(line.lower().startswith("disallow:") for line in robots.splitlines()))
         for slug in SLUGS:
             self.assertEqual(directory.count(f'href="{slug}/"'), 1)
 
@@ -220,6 +224,13 @@ class ProviderConditionDiscoveryCompatV238Tests(unittest.TestCase):
         self.assertEqual(len(urls), 23)
         self.assertEqual(len(urls), len(set(urls)))
         self.assertIn(f"{BASE}/provider-assessment-demo/training/", urls)
+
+        primary = ET.parse(self.site / "sitemap.xml").getroot()
+        primary_urls = [(node.text or "").strip() for node in primary.findall("{*}url/{*}loc") if node.text]
+        self.assertEqual(len(primary_urls), 24)
+        self.assertEqual(len(primary_urls), len(set(primary_urls)))
+        self.assertEqual(primary_urls[0], f"{BASE}/")
+        self.assertTrue(all(url.startswith(f"{BASE}/") for url in primary_urls))
 
         orphans, unmapped = provider_discovery_failures(self.site)
         self.assertEqual(orphans, [])
@@ -231,6 +242,7 @@ class ProviderConditionDiscoveryCompatV238Tests(unittest.TestCase):
             self.site / "provider-assessment-demo/index.html",
             self.site / "provider-assessment-demo/conditions/index.html",
             self.site / "sitemap.xml",
+            self.site / "sitemap-index.xml",
             self.site / "sitemap-provider-assessment.xml",
             self.site / "robots.txt",
             self.site / "api/provider-condition-discovery-v238.json",
