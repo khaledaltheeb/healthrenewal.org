@@ -81,7 +81,7 @@ class SectionDirectoryCompatibilityAliasesV322Tests(unittest.TestCase):
             self.assertEqual(source.count('name="robots" content="noindex,follow"'), 1)
             self.assertEqual(source.count('rel="canonical" href="https://healthrenewal.org/trust/"'), 1)
             self.assertEqual(source.count('property="og:url" content="https://healthrenewal.org/trust/"'), 1)
-            self.assertNotIn("index,follow", source)
+            self.assertNotIn('name="robots" content="index,follow"', source)
 
         for sitemap in (self.site / "sitemap.xml", self.site / "sitemap-trust-guides.xml"):
             locations = self._locations(sitemap)
