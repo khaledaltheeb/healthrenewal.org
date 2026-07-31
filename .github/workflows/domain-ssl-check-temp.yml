@@ -10,11 +10,11 @@ permissions:
 
 jobs:
   check:
-    if: github.event.issue.title == '[diagnostic] healthrenewal.org SSL check'
+    if: startsWith(github.event.issue.title, '[diagnostic] healthrenewal.org')
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - name: Check DNS, HTTPS and certificate
+      - name: Check DNS, HTTPS, certificate and mixed content
         shell: bash
         run: |
           set +e
@@ -25,8 +25,6 @@ jobs:
           dig +short A healthrenewal.org | sort -u
           echo 'CNAME www:'
           dig +short CNAME www.healthrenewal.org | sed 's/\.$//' | sort -u
-          echo 'AAAA apex:'
-          dig +short AAAA healthrenewal.org | sort -u
 
           echo
           echo '## HTTP/HTTPS'
@@ -36,14 +34,61 @@ jobs:
           done
 
           echo
-          echo '## TLS apex'
+          echo '## TLS'
           timeout 30 openssl s_client -connect healthrenewal.org:443 -servername healthrenewal.org </dev/null 2>/dev/null \
             | openssl x509 -noout -subject -issuer -dates -ext subjectAltName || true
 
           echo
-          echo '## TLS www'
-          timeout 30 openssl s_client -connect www.healthrenewal.org:443 -servername www.healthrenewal.org </dev/null 2>/dev/null \
-            | openssl x509 -noout -subject -issuer -dates -ext subjectAltName || true
+          echo '## Mixed-content scan of rendered home page'
+          python3 - <<'PY'
+          import re
+          import urllib.request
+          from html.parser import HTMLParser
+          from urllib.parse import urljoin, urlparse
+
+          url = 'https://healthrenewal.org/'
+          request = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 domain-audit'})
+          with urllib.request.urlopen(request, timeout=30) as response:
+              html = response.read().decode('utf-8', errors='replace')
+              print('Fetched:', response.geturl(), 'status=', response.status, 'bytes=', len(html))
+
+          class Parser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.urls = []
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  for key in ('src', 'href', 'action', 'poster', 'data-src'):
+                      value = attrs.get(key)
+                      if value:
+                          self.urls.append((tag, key, value.strip()))
+                  srcset = attrs.get('srcset')
+                  if srcset:
+                      for part in srcset.split(','):
+                          value = part.strip().split(' ')[0]
+                          if value:
+                              self.urls.append((tag, 'srcset', value))
+
+          parser = Parser()
+          parser.feed(html)
+          insecure = []
+          for tag, attr, value in parser.urls:
+              absolute = urljoin(url, value)
+              if urlparse(absolute).scheme.lower() == 'http':
+                  insecure.append((tag, attr, value, absolute))
+
+          textual = sorted(set(re.findall(r'http://[^\s"\'<>]+', html)))
+          print('Active HTTP resource references:', len(insecure))
+          for row in insecure[:100]:
+              print('ACTIVE_HTTP:', row)
+          print('All textual http:// occurrences:', len(textual))
+          for item in textual[:100]:
+              print('TEXT_HTTP:', item)
+          PY
+
+          echo
+          echo '## Security headers'
+          curl -sS -I --max-time 30 https://healthrenewal.org/ | grep -Ei '^(HTTP/|strict-transport-security:|content-security-policy:|x-content-type-options:|referrer-policy:|permissions-policy:)' || true
 
           echo
           echo '## GitHub Pages API'
@@ -52,7 +97,7 @@ jobs:
             -H 'Accept: application/vnd.github+json' \
             -H 'X-GitHub-Api-Version: 2022-11-28' \
             https://api.github.com/repos/khaledaltheeb/pterminology-site/pages \
-            | jq '{status,cname,html_url,build_type,source,https_certificate,https_enforced,message}' || true
+            | jq '{cname,html_url,build_type,source,https_certificate,https_enforced,message}' || true
 
       - name: Publish result
         if: always()
@@ -64,7 +109,7 @@ jobs:
           import json
           from pathlib import Path
           report = Path('/tmp/report.txt').read_text(errors='replace') if Path('/tmp/report.txt').exists() else 'No report produced.'
-          print(json.dumps({'body': '## Live SSL diagnostic\n\n```text\n' + report[-55000:] + '\n```'}))
+          print(json.dumps({'body': '## Live security diagnostic\n\n```text\n' + report[-55000:] + '\n```'}))
           PY
           curl -fsSL -X POST \
             -H "Authorization: Bearer ${GH_TOKEN}" \
