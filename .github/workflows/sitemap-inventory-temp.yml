@@ -1,0 +1,92 @@
+name: Temporary sitemap inventory audit
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    if: github.event.issue.title == '[diagnostic] sitemap inventory 2026-07-31'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inventory published HTML
+        run: |
+          python3 - <<'PY' > /tmp/report.txt
+          from pathlib import Path
+          import collections, re, xml.etree.ElementTree as ET
+
+          root = Path('.')
+          excluded_roots = {'.git', '.github', 'node_modules', 'scripts', 'tests'}
+          html = []
+          for p in root.rglob('*.html'):
+              rel = p.relative_to(root)
+              if rel.parts and rel.parts[0] not in excluded_roots:
+                  html.append(rel)
+          html.sort(key=lambda p: p.as_posix())
+
+          def to_url(rel):
+              s = rel.as_posix()
+              if s == 'index.html': return 'https://healthrenewal.org/'
+              if s.endswith('/index.html'): return 'https://healthrenewal.org/' + s[:-10]
+              return 'https://healthrenewal.org/' + s
+
+          noindex_re = re.compile(r'<meta[^>]+(?:name=["\']robots["\'][^>]+content=["\'][^"\']*noindex|content=["\'][^"\']*noindex[^>]+name=["\']robots["\'])', re.I)
+          noindex=[]; oldcanon=[]; missingcanon=[]
+          canon_re = re.compile(r'<link[^>]+rel=["\']canonical["\'][^>]+href=["\']([^"\']+)', re.I)
+          canon_rev = re.compile(r'<link[^>]+href=["\']([^"\']+)["\'][^>]+rel=["\']canonical["\']', re.I)
+          counts=collections.Counter()
+          for rel in html:
+              counts[rel.parts[0] if len(rel.parts)>1 else '(root)'] += 1
+              text=(root/rel).read_text(encoding='utf-8',errors='ignore')
+              if noindex_re.search(text): noindex.append(rel.as_posix())
+              m=canon_re.search(text) or canon_rev.search(text)
+              if not m: missingcanon.append(rel.as_posix())
+              elif 'khaledaltheeb.github.io/pterminology-site' in m.group(1): oldcanon.append((rel.as_posix(),m.group(1)))
+
+          current=[]; parse_error='none'
+          try:
+              tree=ET.parse('sitemap.xml'); ns={'s':'http://www.sitemaps.org/schemas/sitemap/0.9'}
+              current=[x.text or '' for x in tree.findall('.//s:loc',ns)]
+          except Exception as e: parse_error=repr(e)
+
+          urls=[to_url(x) for x in html]
+          print('public_html=',len(html))
+          print('generated_unique_urls=',len(set(urls)))
+          print('generated_duplicates=',len(urls)-len(set(urls)))
+          print('existing_sitemap_urls=',len(current))
+          print('existing_old_domain_urls=',sum('khaledaltheeb.github.io/pterminology-site' in u for u in current))
+          print('existing_new_domain_urls=',sum(u.startswith('https://healthrenewal.org') for u in current))
+          print('sitemap_parse_error=',parse_error)
+          print('noindex_pages=',len(noindex))
+          print('old_domain_canonicals=',len(oldcanon))
+          print('missing_canonicals=',len(missingcanon))
+          print('\nTop-level HTML counts:')
+          for k,v in counts.most_common(): print(f'{k}: {v}')
+          print('\nNoindex sample:')
+          for x in noindex[:50]: print(x)
+          print('\nOld canonical sample:')
+          for x,c in oldcanon[:30]: print(x,'->',c)
+          print('\nURL sample:')
+          for u in sorted(set(urls))[:20]: print(u)
+          print('\nURL tail:')
+          for u in sorted(set(urls))[-20:]: print(u)
+          PY
+      - name: Publish report
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          python3 - <<'PY' > /tmp/body.json
+          import json
+          from pathlib import Path
+          report=Path('/tmp/report.txt').read_text(errors='replace') if Path('/tmp/report.txt').exists() else 'No report'
+          print(json.dumps({'body':'## Sitemap inventory\n\n```text\n'+report[-60000:]+'\n```'}))
+          PY
+          curl -fsSL -X POST -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" --data-binary @/tmp/body.json
