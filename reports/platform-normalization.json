@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-31T22:05:20.401951+00:00",
+  "generated_at": "2026-07-31T23:20:25.098328+00:00",
   "mode": "write",
   "root": "/home/runner/work/healthrenewal.org/healthrenewal.org",
   "runtime": {
@@ -11,12 +11,12 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 222,
-  "html_pages_normalized_or_current": 221,
+  "html_pages_seen": 223,
+  "html_pages_normalized_or_current": 222,
   "counts": {
-    "current": 219,
-    "skipped": 1,
-    "updated": 2
+    "current": 221,
+    "updated": 1,
+    "skipped": 1
   },
   "results": [
     {
@@ -38,6 +38,11 @@
       "path": "api/index.html",
       "status": "current",
       "detail": ""
+    },
+    {
+      "path": "contact/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "copyright/index.html",
@@ -686,7 +691,7 @@
     },
     {
       "path": "magazine/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -821,7 +826,7 @@
     },
     {
       "path": "outside-the-box/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
