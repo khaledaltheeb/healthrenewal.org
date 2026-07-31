@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "ready": false,
   "generatedAt": null,
   "model": "intfloat/multilingual-e5-small",
@@ -10,5 +10,10 @@
   "documentCount": 0,
   "chunkCount": 0,
   "shards": [],
-  "note": "Placeholder manifest. The GitHub Actions workflow generates the full semantic index from repository HTML files."
+  "note": "Placeholder manifest. The GitHub Actions workflow generates the full semantic index from repository HTML files.",
+  "modelRevision": "fd1525a9fd15316a2d503bf26ab031a61d056e98",
+  "browserModelRevision": "761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+  "corpusBaseUrl": "https://healthrenewal.org/",
+  "dtype": "float16",
+  "normalized": true
 }
