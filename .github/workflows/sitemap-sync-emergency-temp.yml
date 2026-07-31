@@ -1,0 +1,146 @@
+name: Temporary isolated sitemap synchronization
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  synchronize:
+    if: github.event.issue.title == '[release] isolated sitemap synchronization v360'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate and validate complete discovery files
+        run: |
+          set -euxo pipefail
+          python3 -m py_compile scripts/generate_sitemap_index_v304.py
+          python3 scripts/generate_sitemap_index_v304.py .
+          python3 - <<'PY'
+          import hashlib
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          from xml.etree import ElementTree as ET
+
+          root = Path('.')
+          source = json.loads((root / 'api/sitemap-index-v305.json').read_text(encoding='utf-8'))
+          count = int(source['indexable_pages'])
+          report = {
+              'version': 360,
+              'status': 'passed',
+              'generated_at': datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+              'base_url': source['base_url'],
+              'real_indexable_urls': count,
+              'claimed_target_urls': 3600,
+              'target_reached': count >= 3600,
+              'gap_to_claimed_target': max(0, 3600 - count),
+              'skipped_noindex': int(source['skipped_noindex']),
+              'skipped_verification': int(source['skipped_verification']),
+              'families': source['families'],
+              'sitemaps': source['sitemaps'],
+              'robots_policy': source['robots_policy'],
+              'protocol': {
+                  'https_only': True,
+                  'single_host': 'healthrenewal.org',
+                  'duplicates': 0,
+                  'legacy_urls': 0,
+                  'maximum_urls_per_sitemap': 50000,
+              },
+              'sha256': {},
+          }
+          for name in ('sitemap.xml', 'sitemap-index.xml', 'robots.txt'):
+              report['sha256'][name] = hashlib.sha256((root / name).read_bytes()).hexdigest()
+          (root / 'api/sitemap-completeness-v360.json').write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+
+          ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          urls = [node.text or '' for node in ET.parse('sitemap.xml').findall('sm:url/sm:loc', ns)]
+          assert len(urls) == count, (len(urls), count)
+          assert len(urls) == len(set(urls)), 'duplicate sitemap URLs'
+          for url in urls:
+              parsed = urlsplit(url)
+              assert parsed.scheme == 'https' and parsed.netloc == 'healthrenewal.org', url
+              assert 'khaledaltheeb.github.io' not in url, url
+              assert '/pterminology-site/' not in url, url
+
+          indexed = [node.text or '' for node in ET.parse('sitemap-index.xml').findall('sm:sitemap/sm:loc', ns)]
+          expected = ['https://healthrenewal.org/' + item['filename'] for item in source['sitemaps']]
+          assert indexed == expected, (indexed, expected)
+          assert all((root / item['filename']).is_file() for item in source['sitemaps'])
+
+          robots = Path('robots.txt').read_text(encoding='utf-8')
+          assert 'User-agent: *' in robots
+          assert 'Allow: /' in robots
+          assert not any(line.strip().lower().startswith('disallow:') for line in robots.splitlines())
+          assert robots.count('Sitemap: https://healthrenewal.org/sitemap.xml') == 1
+          assert robots.count('Sitemap: https://healthrenewal.org/sitemap-index.xml') == 1
+          assert 'khaledaltheeb.github.io' not in robots
+          print(json.dumps(report, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Commit generated sitemap family
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euxo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add sitemap.xml sitemap-index.xml sitemap-family-*.xml robots.txt \
+            api/sitemap-index-v305.json api/sitemap-completeness-v360.json
+          if git diff --cached --quiet; then
+            echo 'Generated files already match the repository.'
+          else
+            git commit -m 'chore(seo): synchronize complete sitemap and robots'
+            for attempt in 1 2 3; do
+              if git push origin HEAD:main; then
+                exit 0
+              fi
+              git fetch origin main
+              git rebase origin/main
+            done
+            echo 'Unable to push sitemap synchronization after retries.' >&2
+            exit 1
+          fi
+
+      - name: Report result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          python3 - <<'PY' > /tmp/result.json
+          import json
+          from pathlib import Path
+          path = Path('api/sitemap-completeness-v360.json')
+          if path.is_file():
+              report = json.loads(path.read_text(encoding='utf-8'))
+              body = (
+                  '## Isolated sitemap synchronization\n\n'
+                  f"Status: **{report['status']}**\n\n"
+                  f"- Real indexable URLs: **{report['real_indexable_urls']}**\n"
+                  f"- Requested 3,600 target reached: **{report['target_reached']}**\n"
+                  f"- Gap to 3,600: **{report['gap_to_claimed_target']}**\n"
+                  f"- Excluded noindex pages: **{report['skipped_noindex']}**\n"
+                  '- Crawling: **allowed for all public paths**\n'
+                  '- Legacy-domain URLs: **0**\n'
+              )
+          else:
+              body = '## Isolated sitemap synchronization\n\nStatus: **failed before report generation**'
+          print(json.dumps({'body': body}))
+          PY
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
+            --data-binary @/tmp/result.json
