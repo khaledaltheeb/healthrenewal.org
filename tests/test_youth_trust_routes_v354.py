@@ -54,6 +54,7 @@ class YouthTrustRoutesV354Tests(unittest.TestCase):
             path = site / slug / "index.html"
             self.assertTrue(path.is_file(), slug)
             source = path.read_text(encoding="utf-8")
+            self.assertIn('data-legacy-path-alias="trust-governance-v354"', source)
             self.assertIn('content="0;url=', source)
             self.assertIn(target, source)
             self.assertNotIn("#evidence", source)
