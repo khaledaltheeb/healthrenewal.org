@@ -50,15 +50,16 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Materialize staged contract scripts
+      - name: Materialize verified contract scripts
         shell: bash
         run: |
-          if [[ -d .seo-bundle ]]; then
-            mkdir -p scripts
-            base64 --decode .seo-bundle/audit_seo_intent_v1.py.gz.b64 | gzip --decompress > scripts/audit_seo_intent_v1.py
-            base64 --decode .seo-bundle/enhance_search_intent_v1.py.gz.b64 | gzip --decompress > scripts/enhance_search_intent_v1.py
-            chmod +x scripts/audit_seo_intent_v1.py scripts/enhance_search_intent_v1.py
-          fi
+          set -euo pipefail
+          mkdir -p scripts
+          cat .seo-bundle/chunks/audit.* | base64 --decode | gzip --decompress > scripts/audit_seo_intent_v1.py
+          cat .seo-bundle/chunks/enhance.* | base64 --decode | gzip --decompress > scripts/enhance_search_intent_v1.py
+          echo "260b35428135d49b0b767f0e85c0ddf30db05d7c8a41f8e532fbaf6c05488386  scripts/audit_seo_intent_v1.py" | sha256sum --check
+          echo "6c99043a2d0734ad749c2b787799221037eca11c87faad701c82ebd7953ec7c4  scripts/enhance_search_intent_v1.py" | sha256sum --check
+          chmod +x scripts/audit_seo_intent_v1.py scripts/enhance_search_intent_v1.py
 
       - name: Compile contract scripts
         run: python -m py_compile scripts/audit_seo_intent_v1.py scripts/enhance_search_intent_v1.py
@@ -84,9 +85,7 @@ jobs:
           BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
         shell: bash
         run: |
-          if [[ -d .seo-bundle ]]; then
-            git rm -r .seo-bundle
-          fi
+          git rm -r .seo-bundle
           git add scripts family-guide magazine reports tests content docs .github/workflows/seo-search-intent-v1.yml
           if git diff --cached --quiet; then
             echo "Generated surface is current."
