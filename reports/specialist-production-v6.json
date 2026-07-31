@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "checked_at": "2026-07-30T21:28:22.626828+00:00",
-  "commit": "d510987752a3366f6055b78694aebef63a147c33",
+  "checked_at": "2026-07-31T00:29:52.925185+00:00",
+  "commit": "cd98d06043256ced5910ebc8c43f583d71c7cba1",
   "account_id_source": "secret_or_verified_repository_default",
   "resource_mode": "discover_or_create_at_deploy_time",
   "missing_secrets": [],
@@ -14,7 +14,7 @@
   "identity_worker": {
     "http_status": 200,
     "ok": true,
-    "version": "6.0.0",
+    "version": "8.0.0",
     "service": "pterminology-specialist-identity"
   },
   "core_worker": {
