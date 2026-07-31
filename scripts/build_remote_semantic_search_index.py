@@ -25,9 +25,10 @@ from urllib.request import Request, urlopen
 
 import build_semantic_search_index as local_builder
 
-DEFAULT_SITEMAP = "https://khaledaltheeb.github.io/pterminology-site/sitemap-index.xml"
-DEFAULT_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
-USER_AGENT = "PterminologySemanticIndexer/1.0 (+https://khaledaltheeb.github.io/pterminology-site/ai-search/)"
+DEFAULT_SITEMAP = "https://healthrenewal.org/sitemap-index.xml"
+DEFAULT_BASE_URL = "https://healthrenewal.org/"
+LEGACY_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
+USER_AGENT = "HealthRenewalSemanticIndexer/2.0 (+https://healthrenewal.org/ai-search/)"
 XML_NAMESPACE = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 SKIPPED_SUFFIXES = {
     ".xml", ".json", ".csv", ".pdf", ".zip", ".png", ".jpg", ".jpeg", ".gif", ".webp",
@@ -80,8 +81,35 @@ def parse_sitemap(data: bytes) -> tuple[str, list[str]]:
     return root_type, locations
 
 
-def same_site(url: str, base_url: str) -> bool:
+def normalize_site_url(url: str, base_url: str) -> str:
     candidate = urlparse(url)
+    base = urlparse(base_url)
+    legacy = urlparse(LEGACY_BASE_URL)
+
+    if candidate.netloc == legacy.netloc and candidate.path.startswith(legacy.path):
+        suffix = candidate.path[len(legacy.path):]
+        target_path = f"{base.path.rstrip('/')}/{suffix.lstrip('/')}"
+        candidate = candidate._replace(
+            scheme=base.scheme,
+            netloc=base.netloc,
+            path=target_path,
+            query="",
+            fragment="",
+        )
+    elif candidate.netloc == "www.healthrenewal.org":
+        candidate = candidate._replace(
+            scheme="https",
+            netloc="healthrenewal.org",
+            query="",
+            fragment="",
+        )
+    else:
+        candidate = candidate._replace(fragment="")
+    return candidate.geturl()
+
+
+def same_site(url: str, base_url: str) -> bool:
+    candidate = urlparse(normalize_site_url(url, base_url))
     base = urlparse(base_url)
     return (
         candidate.scheme in {"http", "https"}
@@ -115,7 +143,8 @@ def discover_page_urls(sitemap_url: str, base_url: str, timeout: int, max_pages:
         root_type, locations = parse_sitemap(fetch_bytes(current, timeout=timeout))
 
         if root_type == "sitemapindex":
-            for location in locations:
+            for raw_location in locations:
+                location = normalize_site_url(raw_location, base_url)
                 if same_site(location, base_url) and location not in seen_sitemaps:
                     queue.append(location)
             continue
@@ -123,7 +152,8 @@ def discover_page_urls(sitemap_url: str, base_url: str, timeout: int, max_pages:
         if root_type != "urlset":
             raise RuntimeError(f"Unsupported sitemap root {root_type!r} at {current}")
 
-        for location in locations:
+        for raw_location in locations:
+            location = normalize_site_url(raw_location, base_url)
             if not is_indexable_page_url(location, base_url) or location in seen_pages:
                 continue
             seen_pages.add(location)
@@ -136,7 +166,7 @@ def discover_page_urls(sitemap_url: str, base_url: str, timeout: int, max_pages:
 
 
 def destination_for_url(root: Path, url: str, base_url: str) -> Path:
-    parsed = urlparse(url)
+    parsed = urlparse(normalize_site_url(url, base_url))
     base_path = urlparse(base_url).path
     relative = unquote(parsed.path[len(base_path):]).lstrip("/")
     pure = PurePosixPath(relative)

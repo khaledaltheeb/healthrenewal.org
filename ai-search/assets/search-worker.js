@@ -11,6 +11,8 @@ import {
 } from './search-core.js';
 
 const MODEL_ID = 'Xenova/multilingual-e5-small';
+const MODEL_REVISION = '761b726dd34fb83930e26aab4e9ac3899aa1fa78';
+const BUILDER_MODEL_ID = 'intfloat/multilingual-e5-small';
 const DTYPE = 'q8';
 const DIMENSIONS = 384;
 const QUERY_PREFIX = 'query: ';
@@ -108,7 +110,17 @@ function normalizeSemanticScore(rawScore) {
 async function loadGeneratedIndex(manifestUrl) {
   const manifest = await fetchJson(manifestUrl);
   if (!manifest?.ready || !Array.isArray(manifest.shards) || !manifest.shards.length) return false;
+  if (manifest.version < 2) throw new Error('نسخة الفهرس المسبق قديمة.');
   if (manifest.dimensions !== DIMENSIONS) throw new Error('أبعاد الفهرس المسبق غير متوافقة.');
+  if (manifest.model !== BUILDER_MODEL_ID) throw new Error('نموذج بناء الفهرس غير متوافق.');
+  if (manifest.browserModel !== MODEL_ID) throw new Error('نموذج المتصفح غير متوافق.');
+  if (manifest.browserModelRevision !== MODEL_REVISION) throw new Error('مراجعة نموذج المتصفح غير متوافقة.');
+  if (manifest.queryPrefix !== QUERY_PREFIX || manifest.passagePrefix !== PASSAGE_PREFIX) {
+    throw new Error('بادئات E5 في الفهرس غير متوافقة.');
+  }
+  if (manifest.normalized !== true || manifest.dtype !== 'float16') {
+    throw new Error('تنسيق متجهات الفهرس غير متوافق.');
+  }
 
   const loadedDocuments = [];
   const loadedShards = [];
@@ -181,6 +193,7 @@ async function createExtractor(requestId) {
       return await pipeline('feature-extraction', MODEL_ID, {
         dtype: DTYPE,
         device: 'webgpu',
+        revision: MODEL_REVISION,
         progress_callback: progressCallback,
       });
     } catch (_) {
@@ -191,6 +204,7 @@ async function createExtractor(requestId) {
   return pipeline('feature-extraction', MODEL_ID, {
     dtype: DTYPE,
     device: 'wasm',
+    revision: MODEL_REVISION,
     progress_callback: progressCallback,
   });
 }
@@ -387,6 +401,17 @@ async function searchLocal(message, query, queryTokens, normalizedQuery) {
   return { ranked: hydrated, resultMode: 'semantic' };
 }
 
+function dedupeRankedByUrl(ranked) {
+  const bestByUrl = new Map();
+  for (const item of ranked) {
+    const url = item?.document?.url;
+    if (!url) continue;
+    const previous = bestByUrl.get(url);
+    if (!previous || item.score > previous.score) bestByUrl.set(url, item);
+  }
+  return [...bestByUrl.values()].sort((left, right) => right.score - left.score);
+}
+
 function compactResult(item) {
   const document = item.document;
   return {
@@ -394,6 +419,7 @@ function compactResult(item) {
     title: document.title,
     section: document.section,
     url: document.url,
+    heading: document.heading,
     excerpt: document.excerpt || String(document.text || '').slice(0, 360),
     audience: document.audience,
     score: Math.max(0, Math.min(1, item.score)),
@@ -428,11 +454,12 @@ async function search(message) {
   }
 
   const limit = Math.max(1, Math.min(30, Number(message.limit) || 12));
+  const uniqueRanked = dedupeRankedByUrl(outcome.ranked.filter((item) => item.score > 0.01));
   self.postMessage({
     type: 'results',
     requestId: message.requestId,
     mode: outcome.resultMode,
-    results: outcome.ranked.filter((item) => item.score > 0.01).slice(0, limit).map(compactResult),
+    results: uniqueRanked.slice(0, limit).map(compactResult),
   });
 }
 
