@@ -18,6 +18,7 @@ from audit_publication_surface_v322 import (  # noqa: E402
 )
 from publish_section_directory_v322 import (  # noqa: E402
     ADDITIONS,
+    COMPATIBILITY_ALIAS_ROUTES,
     REQUIRED_DIRECTORY_ROUTES,
 )
 
@@ -85,18 +86,20 @@ class PublicationSurfaceAuditTests(unittest.TestCase):
         report = json.loads((site / "api/publication-surface-v322.json").read_text(encoding="utf-8"))
         self.assertIn("missing-route/", report["broken_home_links"])
 
-    def test_late_trust_guides_are_registered_in_the_directory_contract(self) -> None:
-        late_routes = {
+    def test_retired_trust_routes_are_noindex_compatibility_aliases(self) -> None:
+        expected = {
             "editorial-methodology/",
             "evaluate-mental-health-information/",
         }
-        self.assertTrue(late_routes <= set(ADDITIONS))
-        self.assertTrue(late_routes <= REQUIRED_DIRECTORY_ROUTES)
-        for route in late_routes:
-            title, summary, category = ADDITIONS[route]
-            self.assertGreaterEqual(len(title), 8)
-            self.assertGreaterEqual(len(summary), 50)
-            self.assertIn(category, {"الحوكمة", "المصادر"})
+        self.assertEqual(COMPATIBILITY_ALIAS_ROUTES, expected)
+        self.assertTrue(expected.isdisjoint(ADDITIONS))
+        self.assertTrue(expected.isdisjoint(REQUIRED_DIRECTORY_ROUTES))
+
+        for route in expected:
+            source = (ROOT / route / "index.html").read_text(encoding="utf-8")
+            self.assertIn('content="noindex,follow"', source)
+            self.assertIn('href="https://khaledaltheeb.github.io/pterminology-site/trust/', source)
+            self.assertIn('/pterminology-site/trust/', source)
 
 
 if __name__ == "__main__":
