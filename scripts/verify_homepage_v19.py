@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -65,6 +66,16 @@ def load_json(relative_path: str) -> dict:
     return json.loads((ROOT / relative_path).read_text(encoding="utf-8"))
 
 
+def heading_texts(source: str) -> list[str]:
+    values: list[str] = []
+    for match in re.finditer(r"<h([1-3])\b[^>]*>(.*?)</h\1>", source, re.IGNORECASE | re.DOTALL):
+        text = re.sub(r"<[^>]+>", " ", match.group(2))
+        text = re.sub(r"\s+", " ", unescape(text)).strip()
+        if text:
+            values.append(text)
+    return values
+
+
 def main() -> None:
     source = INDEX.read_text(encoding="utf-8")
     StrictHTMLParser().feed(source)
@@ -91,9 +102,15 @@ def main() -> None:
     for phrase in FORBIDDEN_OPERATIONAL_COPY:
         assert phrase not in source, f"Operational planning copy leaked to users: {phrase}"
 
-    assert len(re.findall(r"<h1\b", source)) == 1, "Homepage must contain exactly one h1"
-    assert len(re.findall(r"<h2\b", source)) >= 5, "Homepage needs structured H2 sections"
-    assert len(re.findall(r"<h3\b", source)) >= 24, "Homepage needs discoverable H3 cards"
+    h1_count = len(re.findall(r"<h1\b", source))
+    h2_count = len(re.findall(r"<h2\b", source))
+    h3_count = len(re.findall(r"<h3\b", source))
+    headings = heading_texts(source)
+    duplicates = sorted({text for text in headings if headings.count(text) > 1})
+    assert h1_count == 1, "Homepage must contain exactly one h1"
+    assert h2_count >= 5, "Homepage needs structured H2 sections"
+    assert 8 <= len(headings) <= 20, "Homepage heading outline must remain concise and proportional"
+    assert not duplicates, f"Homepage contains duplicate heading text: {duplicates}"
     assert 'href="#main"' in source, "Missing skip link"
     assert 'id="main"' in source, "Missing main landmark target"
     assert 'color-scheme" content="light"' in source, "Homepage must declare light color scheme"
@@ -124,12 +141,12 @@ def main() -> None:
     }.issubset(keyword_items)
 
     for required_meta in (
-        '<link rel="manifest" href="/pterminology-site/manifest.webmanifest">',
-        '<link rel="icon" href="/pterminology-site/assets/brand/logo-mark.svg" type="image/svg+xml">',
+        '<link rel="manifest" href="/manifest.webmanifest">',
+        '<link rel="icon" href="/assets/brand/logo-mark.svg" type="image/svg+xml">',
         '<link rel="search" type="application/opensearchdescription+xml"',
-        '<link rel="sitemap" type="application/xml" href="https://khaledaltheeb.github.io/pterminology-site/sitemap.xml">',
-        '<meta property="og:image" content="https://khaledaltheeb.github.io/pterminology-site/assets/brand/social-card.svg">',
-        '<meta name="twitter:image" content="https://khaledaltheeb.github.io/pterminology-site/assets/brand/social-card.svg">',
+        '<link rel="sitemap" type="application/xml" href="https://healthrenewal.org/sitemap.xml">',
+        '<meta property="og:image" content="https://healthrenewal.org/assets/brand/social-card.svg">',
+        '<meta name="twitter:image" content="https://healthrenewal.org/assets/brand/social-card.svg">',
     ):
         assert required_meta in source, f"Missing homepage discovery metadata: {required_meta}"
 
@@ -151,11 +168,11 @@ def main() -> None:
     parts = collection.get("hasPart", [])
     assert any(part.get("@type") == "WebAPI" for part in parts)
     part_urls = {part.get("url") for part in parts}
-    assert "https://khaledaltheeb.github.io/pterminology-site/comparisons/" in part_urls
-    assert "https://khaledaltheeb.github.io/pterminology-site/library/" in part_urls
-    assert "https://khaledaltheeb.github.io/pterminology-site/guided-assessment/" in part_urls
-    assert "https://khaledaltheeb.github.io/pterminology-site/daily-tools/" in part_urls
-    assert "https://khaledaltheeb.github.io/pterminology-site/learning-paths/" in part_urls
+    assert "https://healthrenewal.org/comparisons/" in part_urls
+    assert "https://healthrenewal.org/library/" in part_urls
+    assert "https://healthrenewal.org/guided-assessment/" in part_urls
+    assert "https://healthrenewal.org/daily-tools/" in part_urls
+    assert "https://healthrenewal.org/learning-paths/" in part_urls
 
     manifest = load_json("manifest.webmanifest")
     platform = load_json("api/v1/platform.json")
@@ -178,7 +195,7 @@ def main() -> None:
         json.dumps(
             {
                 "status": "passed",
-                "contract": "institutional-home-discovery-seo-v220",
+                "contract": "institutional-home-discovery-seo-v221",
                 "brand": BRAND,
                 "slogan": SLOGAN,
                 "required_links": len(REQUIRED_LINKS),
@@ -186,15 +203,17 @@ def main() -> None:
                 "description_chars": len(description.group(1)),
                 "keyword_items": len(keyword_items),
                 "jsonld_nodes": len(graph),
-                "h1": len(re.findall(r"<h1\b", source)),
-                "h2": len(re.findall(r"<h2\b", source)),
-                "h3": len(re.findall(r"<h3\b", source)),
+                "h1": h1_count,
+                "h2": h2_count,
+                "h3": h3_count,
+                "heading_count": len(headings),
+                "duplicate_headings": duplicates,
                 "comparisons_linked": True,
                 "library_linked": True,
                 "guided_assessment_linked": True,
                 "daily_tools_linked": True,
                 "learning_paths_linked": True,
-                "interactive_tools_discovery_contract": 220,
+                "interactive_tools_discovery_contract": 221,
                 "operational_copy_hidden": True,
                 "api_version": api_version,
                 "openapi": openapi["openapi"],
