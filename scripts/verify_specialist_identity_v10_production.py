@@ -114,7 +114,10 @@ def main() -> int:
     latest_deep: dict = {}
     latest_deep_status = 0
 
-    for attempt in range(1, 61):
+    # Cloudflare's workers.dev route can take substantially longer than the
+    # code upload to settle when a connected build overlaps a direct deploy.
+    # Keep checking the same read-only contracts for up to twenty minutes.
+    for attempt in range(1, 241):
         nonce = f"{RUN_ID}-{attempt}-{time.time_ns()}"
         normal_status, normal = request_json(f"/health?release={EXPECTED_VERSION}&probe={nonce}")
         public_status, public = request_json(f"/health?deep=1&public={nonce}")
