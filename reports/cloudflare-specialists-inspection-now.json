@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T06:52:02.425339+00:00",
+  "no_email_sent": true,
+  "no_reset_token_created": true,
+  "token": {
+    "http_status": 401,
+    "active": false
+  },
+  "account_workers_subdomain": {
+    "http_status": 200,
+    "success": true,
+    "subdomain": "pterminology-826ac349"
+  },
+  "worker_subdomains": {
+    "pterminology-specialist-accounts": {
+      "http_status": 200,
+      "success": true,
+      "enabled": true,
+      "previews_enabled": true,
+      "errors": []
+    },
+    "pterminology-specialists": {
+      "http_status": 200,
+      "success": true,
+      "enabled": true,
+      "previews_enabled": true,
+      "errors": []
+    }
+  },
+  "email_routing_destinations": {
+    "http_status": 200,
+    "success": true,
+    "owner_present": true,
+    "owner_verified": true,
+    "verified_count": 1,
+    "addresses": [
+      {
+        "email": "pterminology@gmail.com",
+        "verified": true
+      }
+    ]
+  },
+  "live": {
+    "identity_health": {
+      "http_status": 503,
+      "content_type": "application/json; charset=utf-8",
+      "service": "pterminology-specialist-identity",
+      "version": "10.2.0",
+      "ok": false,
+      "error": null,
+      "body_prefix": "{\"ok\":false,\"service\":\"pterminology-specialist-identity\",\"version\":\"10.2.0\",\"checks\":{\"database\":true,\"accountSchema\":true,\"identitySchema\":true,\"email\":true,\"turnstile\":false,\"rateLimitSalt\":true,\"accountBase\":true,\"adm"
+    },
+    "core_health": {
+      "http_status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "service": "pterminology-specialists",
+      "version": "4.0.0",
+      "ok": true,
+      "error": null,
+      "body_prefix": "{\"ok\":true,\"service\":\"pterminology-specialists\",\"version\":\"4.0.0\",\"checks\":{\"database\":true,\"registrySchema\":true,\"email\":true,\"turnstile\":true,\"adminAuth\":true,\"rateLimitSalt\":true,\"ownerEmail\":true},\"time\":\"2026-07-31T"
+    },
+    "admin_page": {
+      "http_status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "service": null,
+      "version": null,
+      "ok": null,
+      "error": null,
+      "body_prefix": "<!doctype html> <html lang=\"ar\" dir=\"rtl\"> <head> <meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"> <title>لوحة الإدارة المتقدمة | قطاع المختصين</title> <meta na"
+    },
+    "password_reset_page": {
+      "http_status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "service": null,
+      "version": null,
+      "ok": null,
+      "error": null,
+      "body_prefix": "<!doctype html> <html lang=\"ar\" dir=\"rtl\"> <head> <meta charset=\"utf-8\"> <meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"> <title>تعيين كلمة المرور | قطاع المختصين</title> <meta name="
+    }
+  },
+  "deep_health": {
+    "public": {
+      "http_status": 403,
+      "error": "forbidden",
+      "body_prefix": "{\"error\":\"forbidden\",\"message\":\"الفحص العميق مقيد بالتشغيل.\"}"
+    },
+    "protected": {
+      "http_status": null,
+      "version": null,
+      "ok": null,
+      "provider": null,
+      "body_prefix": null
+    }
+  },
+  "cloudflare_email_sending_probe": {
+    "http_status": 400,
+    "success": false,
+    "error_codes": [
+      10202
+    ],
+    "error_messages": [
+      "email.sending.error.email.invalid"
+    ],
+    "delivered": [],
+    "queued": [],
+    "body_prefix": "{\"success\":false,\"errors\":[{\"code\":10202,\"message\":\"email.sending.error.email.invalid\"}],\"messages\":[],\"result\":null}"
+  },
+  "summary": {
+    "token_active": false,
+    "identity_workers_dev_enabled": true,
+    "core_workers_dev_enabled": true,
+    "owner_destination_verified": true,
+    "identity_health_public": false,
+    "core_health_public": true,
+    "pages_ready": true,
+    "cloudflare_email_can_replace_resend_now": false,
+    "cloudflare_email_blocker": "undetermined"
+  }
+}
