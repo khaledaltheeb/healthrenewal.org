@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-07-31T20:12:48.140653+00:00",
+  "source": {
+    "generatedAt": "2026-07-31T19:39:49.138610+00:00",
+    "version": 2,
+    "ready": true,
+    "documentCount": 125,
+    "chunkCount": 1473,
+    "manifestBytes": 1266,
+    "manifestSha256": "d7236901c57eedc18abffee410b09323c6ba5e0b7acf20514e6c10f6f1711647"
+  },
+  "liveRequest": {
+    "ok": true,
+    "status": 200,
+    "contentType": "application/json; charset=utf-8",
+    "cacheControl": "max-age=600",
+    "etag": "\"6a6cebdb-1a2\"",
+    "lastModified": "Fri, 31 Jul 2026 18:39:23 GMT",
+    "bytes": 418,
+    "sha256": "f9875d7ff5d7375953cfbd7d1a7098b959f9275b8a93bb77ec7e39d73065e126"
+  },
+  "liveParseError": null,
+  "live": {
+    "version": 1,
+    "ready": false,
+    "generatedAt": null,
+    "model": "intfloat/multilingual-e5-small",
+    "dimensions": 384,
+    "dtype": null,
+    "normalized": null,
+    "documentCount": 0,
+    "chunkCount": 0,
+    "shardCount": 0
+  },
+  "sameGeneratedAt": false,
+  "allArtifactsVerified": false,
+  "artifacts": []
+}
