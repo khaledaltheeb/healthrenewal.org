@@ -108,7 +108,7 @@ def write_urlset(path: Path, urls: list[str]) -> None:
     ET.ElementTree(urlset).write(path, encoding="utf-8", xml_declaration=True)
 
 
-def sync_robots(root: Path, base_url: str = BASE_URL) -> None:
+def sync_robots(root: Path, base_url: str = BASE_URL) -> list[str]:
     primary = f"Sitemap: {base_url}{PRIMARY_FILENAME}"
     index = f"Sitemap: {base_url}{INDEX_FILENAME}"
     preserved: set[str] = set()
@@ -140,6 +140,7 @@ def sync_robots(root: Path, base_url: str = BASE_URL) -> None:
         raise ValueError("robots.txt must not block public crawling")
     if "khaledaltheeb.github.io/pterminology-site" in written:
         raise ValueError("robots.txt contains a legacy-domain sitemap directive")
+    return sorted(item.removeprefix("Sitemap: ") for item in preserved)
 
 
 def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
@@ -184,7 +185,7 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
         ET.SubElement(sitemap, "loc").text = base_url + str(item["filename"])
     ET.indent(sitemap_index, space="  ")
     ET.ElementTree(sitemap_index).write(root / INDEX_FILENAME, encoding="utf-8", xml_declaration=True)
-    sync_robots(root, base_url)
+    preserved_sitemaps = sync_robots(root, base_url)
 
     report: dict[str, object] = {
         "version": 305,
@@ -200,7 +201,7 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
         "index": INDEX_FILENAME,
         "family_prefix": FAMILY_PREFIX,
         "robots_policy": "allow-all-public-crawling",
-        "preserved_custom_domain_sitemaps": sorted(preserved for preserved in []),
+        "preserved_custom_domain_sitemaps": preserved_sitemaps,
     }
     api = root / "api"
     api.mkdir(parents=True, exist_ok=True)
