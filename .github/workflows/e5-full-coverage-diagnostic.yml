@@ -1,0 +1,88 @@
+name: Diagnose full multilingual E5 coverage
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/e5-full-coverage-diagnostic.yml'
+      - 'scripts/build_semantic_search_index.py'
+      - 'scripts/build_remote_semantic_search_index.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: diagnose-e5-full-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  full-coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache pinned multilingual E5 model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-multilingual-e5-small-v2-pinned
+
+      - name: Install CPU-only dependencies
+        run: |
+          python -m pip install --no-cache-dir --disable-pip-version-check --only-binary=:all: \
+            --index-url https://download.pytorch.org/whl/cpu \
+            torch==2.13.0+cpu
+          python -m pip install --no-cache-dir --disable-pip-version-check \
+            -r scripts/semantic-search-requirements.txt
+
+      - name: Build and require complete live sitemap coverage
+        env:
+          TOKENIZERS_PARALLELISM: 'false'
+        run: |
+          python scripts/build_remote_semantic_search_index.py \
+            --sitemap-url https://healthrenewal.org/sitemap-index.xml \
+            --base-url https://healthrenewal.org/ \
+            --output /tmp/e5-full-coverage \
+            --max-pages 10000 \
+            --workers 8 \
+            --minimum-success-ratio 1.0 \
+            --minimum-indexed-ratio 1.0
+
+      - name: Print strict coverage report
+        if: always()
+        run: |
+          if [ -f /tmp/e5-full-coverage/coverage.json ]; then
+            python -m json.tool /tmp/e5-full-coverage/coverage.json
+          fi
+          if [ -f /tmp/e5-full-coverage/crawl-failures.txt ]; then
+            cat /tmp/e5-full-coverage/crawl-failures.txt
+          fi
+
+      - name: Verify complete package
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('/tmp/e5-full-coverage')
+          manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+          coverage = json.loads((root / 'coverage.json').read_text(encoding='utf-8'))
+          assert coverage['passed'] is True
+          assert coverage['downloadSuccessRatio'] == 1.0
+          assert coverage['indexCoverageRatio'] == 1.0
+          assert coverage['failedDownloadCount'] == 0
+          assert coverage['unindexedUrls'] == []
+          assert coverage['destinationCollisions'] == {}
+          assert coverage['unexpectedIndexedPaths'] == []
+          assert coverage['discoveredUrlCount'] == coverage['downloadedPageCount']
+          assert coverage['discoveredUrlCount'] == coverage['indexedUrlCount']
+          assert coverage['indexedUrlCount'] == manifest['documentCount']
+          print(json.dumps({
+              'documents': manifest['documentCount'],
+              'chunks': manifest['chunkCount'],
+              'shards': len(manifest['shards']),
+              'coverage': coverage['indexCoverageRatio'],
+          }, ensure_ascii=False))
+          PY
