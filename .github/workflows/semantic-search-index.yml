@@ -63,17 +63,13 @@ jobs:
     if: github.event_name == 'pull_request'
     needs: validate
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-          cache-dependency-path: |
-            scripts/semantic-search-requirements.txt
-            .github/workflows/semantic-search-index.yml
 
       - uses: actions/setup-node@v4
         with:
@@ -85,7 +81,7 @@ jobs:
           path: ~/.cache/huggingface
           key: hf-multilingual-e5-small-v2-pinned
 
-      - name: Cache browser E5 model
+      - name: Cache Node E5 model
         uses: actions/cache@v4
         with:
           path: ~/.cache/transformers-js
@@ -93,10 +89,10 @@ jobs:
 
       - name: Install CPU-only index dependencies
         run: |
-          python -m pip install --disable-pip-version-check --only-binary=:all: \
+          python -m pip install --no-cache-dir --disable-pip-version-check --only-binary=:all: \
             --index-url https://download.pytorch.org/whl/cpu \
             torch==2.13.0+cpu
-          python -m pip install --disable-pip-version-check -r scripts/semantic-search-requirements.txt
+          python -m pip install --no-cache-dir --disable-pip-version-check -r scripts/semantic-search-requirements.txt
           python - <<'PY'
           import torch
           assert torch.__version__ == '2.13.0+cpu', torch.__version__
@@ -147,10 +143,10 @@ jobs:
           )
           PY
 
-      - name: Verify browser ONNX query embeddings
+      - name: Verify Node ONNX query embeddings
         run: |
           set -euxo pipefail
-          work=/tmp/e5-browser-smoke
+          work=/tmp/e5-node-smoke
           rm -rf "$work"
           mkdir -p "$work"
           cd "$work"
@@ -167,7 +163,7 @@ jobs:
           const extractor = await pipeline('feature-extraction', model, {
             revision,
             dtype: 'q8',
-            device: 'wasm',
+            device: 'cpu',
           });
           const output = await extractor([
             'query: طرق دعم اضطراب طيف التوحد',
@@ -176,7 +172,7 @@ jobs:
           ], { pooling: 'mean', normalize: true });
           const rows = output.tolist();
           if (rows.length !== 3 || rows.some((row) => row.length !== 384)) {
-            throw new Error(`Unexpected browser embedding shape: ${JSON.stringify(output.dims)}`);
+            throw new Error(`Unexpected Node embedding shape: ${JSON.stringify(output.dims)}`);
           }
           const dot = (left, right) => left.reduce((sum, value, index) => sum + value * right[index], 0);
           const norm = (row) => Math.sqrt(dot(row, row));
@@ -189,9 +185,126 @@ jobs:
           if (!(relevant > unrelated)) {
             throw new Error(`Semantic ordering failed: relevant=${relevant}, unrelated=${unrelated}`);
           }
-          console.log(JSON.stringify({ model, revision, dimensions: rows[0].length, relevant, unrelated }));
+          console.log(JSON.stringify({ runtime: 'node-cpu', model, revision, dimensions: rows[0].length, relevant, unrelated }));
           JS
           node smoke.mjs
+
+      - name: Verify browser WASM query embeddings
+        run: |
+          set -euxo pipefail
+          work=/tmp/e5-browser-wasm
+          rm -rf "$work"
+          mkdir -p "$work"
+          cd "$work"
+          npm init -y >/dev/null
+          npm install --no-save --no-package-lock playwright-core@1.61.1
+          CHROME_BIN="$(command -v google-chrome-stable || command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          export CHROME_BIN
+
+          cat > index.html <<'HTML'
+          <!doctype html>
+          <html lang="ar" dir="rtl">
+          <meta charset="utf-8">
+          <title>E5 browser WASM smoke</title>
+          <body>
+          <pre id="status">starting</pre>
+          <script type="module">
+          const status = document.querySelector('#status');
+          try {
+            const { env, pipeline } = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0');
+            env.allowLocalModels = false;
+            const model = 'Xenova/multilingual-e5-small';
+            const revision = '761b726dd34fb83930e26aab4e9ac3899aa1fa78';
+            const extractor = await pipeline('feature-extraction', model, {
+              revision,
+              dtype: 'q8',
+            });
+            const output = await extractor([
+              'query: طرق دعم اضطراب طيف التوحد',
+              'passage: تشمل خطط دعم اضطراب طيف التوحد التواصل الواضح والتدخل المبكر ودعم الأسرة.',
+              'passage: تتغير درجات الحرارة بين الفصول وتختلف كميات الأمطار من منطقة إلى أخرى.',
+            ], { pooling: 'mean', normalize: true });
+            const rows = output.tolist();
+            const dot = (left, right) => left.reduce((sum, value, index) => sum + value * right[index], 0);
+            const norm = (row) => Math.sqrt(dot(row, row));
+            if (rows.length !== 3 || rows.some((row) => row.length !== 384)) {
+              throw new Error(`Unexpected browser embedding shape: ${JSON.stringify(output.dims)}`);
+            }
+            for (const row of rows) {
+              const value = norm(row);
+              if (Math.abs(value - 1) > 0.015) throw new Error(`Embedding is not normalized: ${value}`);
+            }
+            const relevant = dot(rows[0], rows[1]);
+            const unrelated = dot(rows[0], rows[2]);
+            if (!(relevant > unrelated)) {
+              throw new Error(`Semantic ordering failed: relevant=${relevant}, unrelated=${unrelated}`);
+            }
+            window.__e5Smoke = {
+              done: true,
+              ok: true,
+              model,
+              revision,
+              dimensions: rows[0].length,
+              relevant,
+              unrelated,
+            };
+            status.textContent = JSON.stringify(window.__e5Smoke);
+          } catch (error) {
+            window.__e5Smoke = {
+              done: true,
+              ok: false,
+              error: String(error?.stack || error),
+            };
+            status.textContent = JSON.stringify(window.__e5Smoke);
+          }
+          </script>
+          </body>
+          </html>
+          HTML
+
+          python -m http.server 8765 --bind 127.0.0.1 >/tmp/e5-browser-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+
+          cat > browser-smoke.mjs <<'JS'
+          import { chromium } from 'playwright-core';
+
+          const wasmRequests = [];
+          const browser = await chromium.launch({
+            executablePath: process.env.CHROME_BIN,
+            headless: true,
+            args: ['--no-sandbox', '--disable-dev-shm-usage'],
+          });
+          try {
+            const page = await browser.newPage();
+            page.on('console', (message) => console.log(`[browser:${message.type()}] ${message.text()}`));
+            page.on('pageerror', (error) => console.error(`[browser:error] ${error.stack || error}`));
+            page.on('request', (request) => {
+              if (/\.wasm(?:\?|$)/i.test(request.url())) wasmRequests.push(request.url());
+            });
+            await page.goto('http://127.0.0.1:8765/', { waitUntil: 'domcontentloaded' });
+            await page.waitForFunction(() => globalThis.__e5Smoke?.done === true, null, { timeout: 300000 });
+            const report = await page.evaluate(() => globalThis.__e5Smoke);
+            if (!report?.ok) throw new Error(`Browser E5 failed: ${report?.error || 'unknown error'}`);
+            if (report.dimensions !== 384) throw new Error(`Unexpected browser dimensions: ${report.dimensions}`);
+            if (!(report.relevant > report.unrelated)) {
+              throw new Error(`Browser semantic ordering failed: ${JSON.stringify(report)}`);
+            }
+            if (wasmRequests.length === 0) {
+              throw new Error('No WASM runtime request was observed in Chromium');
+            }
+            console.log(JSON.stringify({
+              runtime: 'chromium-wasm',
+              ...report,
+              wasmRequestCount: wasmRequests.length,
+              wasmRequest: wasmRequests[0],
+            }));
+          } finally {
+            await browser.close();
+          }
+          JS
+          node browser-smoke.mjs
 
   build:
     if: github.event_name != 'pull_request'
@@ -206,10 +319,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-          cache-dependency-path: |
-            scripts/semantic-search-requirements.txt
-            .github/workflows/semantic-search-index.yml
 
       - name: Cache Hugging Face model
         uses: actions/cache@v4
@@ -219,10 +328,10 @@ jobs:
 
       - name: Install CPU-only index dependencies
         run: |
-          python -m pip install --disable-pip-version-check --only-binary=:all: \
+          python -m pip install --no-cache-dir --disable-pip-version-check --only-binary=:all: \
             --index-url https://download.pytorch.org/whl/cpu \
             torch==2.13.0+cpu
-          python -m pip install --disable-pip-version-check -r scripts/semantic-search-requirements.txt
+          python -m pip install --no-cache-dir --disable-pip-version-check -r scripts/semantic-search-requirements.txt
           python - <<'PY'
           import torch
           assert torch.__version__ == '2.13.0+cpu', torch.__version__
