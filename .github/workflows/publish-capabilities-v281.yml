@@ -38,11 +38,14 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Validate v281 structured content and publication contract
+      - name: Validate v281 reviewable sources and publication contract
         run: |
           set -euxo pipefail
+          python -m json.tool content/v281/metadata-ar.json >/dev/null
+          test "$(find content/v281/conditions -type f -name '*.jsonl' | wc -l)" -eq 3
+          python -m py_compile scripts/build_conditions_v281_data.py scripts/publish_conditions_v281.py tests/test_conditions_v281.py
+          python scripts/build_conditions_v281_data.py
           test -s content/v281/conditions-50-ar.json.zlib.b64
-          python -m py_compile scripts/publish_conditions_v281.py tests/test_conditions_v281.py
           python -m unittest -v tests.test_conditions_v281
           test -f validated-site/api/capabilities-v280.json
           test -f validated-site/sitemap-capabilities.xml
@@ -58,14 +61,18 @@ jobs:
           root=Path('validated-site')
           v280=json.loads((root/'api/capabilities-v280.json').read_text(encoding='utf-8'))
           v281=json.loads((root/'api/capabilities-v281.json').read_text(encoding='utf-8'))
+          source=json.loads((root/'api/capabilities-v281-source.json').read_text(encoding='utf-8'))
           assert v280['version']==280 and v280['condition_count']==100,v280
           assert v281['version']==281 and v281['status']=='passed',v281
           assert v281['condition_count']==50,v281
           assert v281['detail_page_count']==50,v281
           assert v281['generated_page_count']==51,v281
           assert v281['sitemap_url_count']==51,v281
+          assert v281['source_count']==50 and v281['unique_source_count']==50,v281
+          assert v281['minimum_page_word_count']>=1000,v281
           assert v281['external_clinical_review_completed'] is False,v281
           assert v281['diagnostic_automation'] is False,v281
+          assert len(source['conditions'])==50,source.keys()
           pages=[]
           hashes=set()
           for slug in v281['slugs']:
@@ -87,7 +94,7 @@ jobs:
           assert sitemap.count('<url>')==51,sitemap.count('<url>')
           all_capability_pages=list((root/'capabilities').rglob('index.html'))
           assert len(all_capability_pages)==155,len(all_capability_pages)
-          print({'existing_conditions':100,'new_conditions':50,'capability_pages':155,'v281_routes':51})
+          print({'existing_conditions':100,'new_conditions':50,'capability_pages':155,'v281_routes':51,'sources':50})
           PY
 
       - name: Re-finalize PWA metadata discovery and deployment evidence
@@ -138,6 +145,7 @@ jobs:
           path: |
             validated-site/api/capabilities-v280.json
             validated-site/api/capabilities-v281.json
+            validated-site/api/capabilities-v281-source.json
             validated-site/api/orphan-page-audit-v197.json
             validated-site/api/content-quality-v32.json
             validated-site/deployment.json
