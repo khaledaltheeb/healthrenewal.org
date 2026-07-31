@@ -10,9 +10,10 @@ from pathlib import Path
 from urllib.parse import urlparse
 from xml.etree import ElementTree as ET
 
-BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
-EXCLUDED_PARTS = {".git", "node_modules", "tests", "tmp", "vendor"}
+BASE_URL = "https://healthrenewal.org/"
+EXCLUDED_PARTS = {".git", ".github", "node_modules", "tests", "tmp", "vendor"}
 EXCLUDED_FILES = {"404.html", "google644f1f7a8b7aaa2b.html"}
+PRIMARY_FILENAME = "sitemap.xml"
 FAMILY_PREFIX = "sitemap-family-"
 INDEX_FILENAME = "sitemap-index.xml"
 REPORT_FILENAME = "sitemap-index-v305.json"
@@ -86,7 +87,7 @@ def normalized_url(path: Path, root: Path, base_url: str = BASE_URL) -> str:
 
 
 def family_for(url: str) -> str:
-    path = urlparse(url).path.removeprefix("/pterminology-site/")
+    path = urlparse(url).path.lstrip("/")
     for family, prefixes in FAMILIES:
         if any(path.startswith(prefix) for prefix in prefixes):
             return family
@@ -108,17 +109,26 @@ def write_urlset(path: Path, urls: list[str]) -> None:
 
 
 def sync_robots(root: Path, base_url: str = BASE_URL) -> None:
+    primary = f"Sitemap: {base_url}{PRIMARY_FILENAME}"
+    index = f"Sitemap: {base_url}{INDEX_FILENAME}"
+    content = "\n".join(
+        (
+            "# Public crawling and indexing policy",
+            "User-agent: *",
+            "Allow: /",
+            "",
+            primary,
+            index,
+            "",
+        )
+    )
     robots_path = root / "robots.txt"
-    if robots_path.is_file():
-        lines = [line.rstrip() for line in robots_path.read_text(encoding="utf-8").splitlines()]
-    else:
-        lines = ["User-agent: *", "Allow: /"]
-    directive = f"Sitemap: {base_url}{INDEX_FILENAME}"
-    lines = [line for line in lines if line != directive]
-    lines.append(directive)
-    robots_path.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
-    if robots_path.read_text(encoding="utf-8").count(directive) != 1:
-        raise ValueError("robots.txt must register sitemap-index.xml exactly once")
+    robots_path.write_text(content, encoding="utf-8")
+    written = robots_path.read_text(encoding="utf-8")
+    if written.count(primary) != 1 or written.count(index) != 1:
+        raise ValueError("robots.txt must register sitemap.xml and sitemap-index.xml exactly once")
+    if "Disallow:" in written:
+        raise ValueError("robots.txt must not block public crawling")
 
 
 def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
@@ -146,11 +156,16 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
         stale.unlink()
 
     generated: list[dict[str, object]] = []
+    all_urls: list[str] = []
     for family in sorted(grouped):
         urls = sorted(set(grouped[family]))
+        all_urls.extend(urls)
         filename = f"{FAMILY_PREFIX}{family}.xml"
         write_urlset(root / filename, urls)
         generated.append({"family": family, "filename": filename, "urls": len(urls)})
+
+    all_urls = sorted(set(all_urls))
+    write_urlset(root / PRIMARY_FILENAME, all_urls)
 
     sitemap_index = ET.Element("sitemapindex", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
     for item in generated:
@@ -161,16 +176,19 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     sync_robots(root, base_url)
 
     report: dict[str, object] = {
-        "version": 305,
+        "version": 306,
         "status": "generated",
         "base_url": base_url,
-        "indexable_pages": sum(int(item["urls"]) for item in generated),
+        "primary_sitemap": PRIMARY_FILENAME,
+        "primary_sitemap_urls": len(all_urls),
+        "indexable_pages": len(all_urls),
         "families": {str(item["family"]): int(item["urls"]) for item in generated},
         "sitemaps": generated,
         "skipped_noindex": skipped_noindex,
         "skipped_verification": skipped_verification,
         "index": INDEX_FILENAME,
         "family_prefix": FAMILY_PREFIX,
+        "robots_policy": "allow-all-public-crawling",
     }
     api = root / "api"
     api.mkdir(parents=True, exist_ok=True)
