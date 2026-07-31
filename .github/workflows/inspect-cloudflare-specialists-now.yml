@@ -1,0 +1,213 @@
+name: Inspect Cloudflare specialist services now
+
+on:
+  push:
+    branches:
+      - agent/inspect-cloudflare-specialists-now
+    paths:
+      - reports/cloudflare-specialists-inspection-trigger.txt
+
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CF_ACCOUNT_ID: 826ac34927c1e045c06145a327c2ac52
+      CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      ADMIN_API_KEY: ${{ secrets.ADMIN_API_KEY }}
+      OWNER_EMAIL: pterminology@gmail.com
+      ACCOUNT_WORKER: pterminology-specialist-accounts
+      CORE_WORKER: pterminology-specialists
+      ACCOUNT_URL: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
+      CORE_URL: https://pterminology-specialists.pterminology-826ac349.workers.dev
+      SITE_ORIGIN: https://khaledaltheeb.github.io
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/inspect-cloudflare-specialists-now
+
+      - name: Inspect Cloudflare and live specialist surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, urllib.error, urllib.request
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          token=os.environ['CF_API_TOKEN']
+          account=os.environ['CF_ACCOUNT_ID']
+          admin=os.environ.get('ADMIN_API_KEY','')
+          owner=os.environ['OWNER_EMAIL']
+          account_worker=os.environ['ACCOUNT_WORKER']
+          core_worker=os.environ['CORE_WORKER']
+          account_url=os.environ['ACCOUNT_URL']
+          core_url=os.environ['CORE_URL']
+          site_origin=os.environ['SITE_ORIGIN']
+
+          def call(url, method='GET', headers=None, body=None):
+              merged={'User-Agent':'pterminology-specialist-inspection/1.0','Accept':'application/json'}
+              if headers: merged.update(headers)
+              data=None if body is None else json.dumps(body).encode('utf-8')
+              if data is not None: merged['Content-Type']='application/json'
+              req=urllib.request.Request(url,data=data,method=method,headers=merged)
+              try:
+                  with urllib.request.urlopen(req,timeout=25) as response:
+                      raw=response.read().decode('utf-8','replace')
+                      status=response.status
+                      content_type=response.headers.get('content-type','')
+              except urllib.error.HTTPError as error:
+                  raw=error.read().decode('utf-8','replace')
+                  status=error.code
+                  content_type=error.headers.get('content-type','') if error.headers else ''
+              except Exception as error:
+                  return {'status':None,'content_type':None,'json':None,'body_prefix':None,'transport_error':type(error).__name__}
+              try: parsed=json.loads(raw)
+              except Exception: parsed=None
+              safe_prefix=' '.join(raw[:220].split()) if raw else ''
+              return {'status':status,'content_type':content_type,'json':parsed,'body_prefix':safe_prefix}
+
+          api_headers={'Authorization':f'Bearer {token}'}
+          report={
+              'schema_version':1,
+              'checked_at':datetime.now(timezone.utc).isoformat(),
+              'no_email_sent':True,
+              'no_reset_token_created':True,
+          }
+
+          verify=call('https://api.cloudflare.com/client/v4/user/tokens/verify',headers=api_headers)
+          report['token']={
+              'http_status':verify['status'],
+              'active':bool((verify.get('json') or {}).get('success') and ((verify.get('json') or {}).get('result') or {}).get('status')=='active')
+          }
+
+          account_subdomain=call(f'https://api.cloudflare.com/client/v4/accounts/{account}/workers/subdomain',headers=api_headers)
+          report['account_workers_subdomain']={
+              'http_status':account_subdomain['status'],
+              'success':bool((account_subdomain.get('json') or {}).get('success')),
+              'subdomain':((account_subdomain.get('json') or {}).get('result') or {}).get('subdomain')
+          }
+
+          scripts={}
+          for script in (account_worker,core_worker):
+              response=call(f'https://api.cloudflare.com/client/v4/accounts/{account}/workers/scripts/{script}/subdomain',headers=api_headers)
+              result=((response.get('json') or {}).get('result') or {})
+              scripts[script]={
+                  'http_status':response['status'],
+                  'success':bool((response.get('json') or {}).get('success')),
+                  'enabled':result.get('enabled'),
+                  'previews_enabled':result.get('previews_enabled'),
+                  'errors':(response.get('json') or {}).get('errors',[])[:2]
+              }
+          report['worker_subdomains']=scripts
+
+          addresses=call(f'https://api.cloudflare.com/client/v4/accounts/{account}/email/routing/addresses?verified=true&per_page=50',headers=api_headers)
+          address_rows=(addresses.get('json') or {}).get('result') or []
+          report['email_routing_destinations']={
+              'http_status':addresses['status'],
+              'success':bool((addresses.get('json') or {}).get('success')),
+              'owner_present':any(str(item.get('email','')).lower()==owner.lower() for item in address_rows),
+              'owner_verified':any(str(item.get('email','')).lower()==owner.lower() and bool(item.get('verified')) for item in address_rows),
+              'verified_count':sum(1 for item in address_rows if item.get('verified')),
+              'addresses':[{'email':item.get('email'),'verified':bool(item.get('verified'))} for item in address_rows]
+          }
+
+          live={}
+          for name,url in {
+              'identity_health':f'{account_url}/health',
+              'core_health':f'{core_url}/health',
+              'admin_page':'https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/?v=10.2.0',
+              'password_reset_page':'https://khaledaltheeb.github.io/pterminology-site/specialists-partners/password-reset/?v=10.2.0',
+          }.items():
+              response=call(url,headers={'Origin':site_origin})
+              parsed=response.get('json') or {}
+              live[name]={
+                  'http_status':response['status'],
+                  'content_type':response['content_type'],
+                  'service':parsed.get('service'),
+                  'version':parsed.get('version'),
+                  'ok':parsed.get('ok'),
+                  'error':parsed.get('error'),
+                  'body_prefix':response.get('body_prefix')
+              }
+          report['live']=live
+
+          deep_public=call(f'{account_url}/health?deep=1',headers={'Origin':site_origin})
+          deep_protected=call(f'{account_url}/health?deep=1',headers={'Origin':site_origin,'x-bootstrap-key':admin}) if admin else {'status':None,'json':None,'body_prefix':None}
+          report['deep_health']={
+              'public':{
+                  'http_status':deep_public['status'],
+                  'error':(deep_public.get('json') or {}).get('error'),
+                  'body_prefix':deep_public.get('body_prefix')
+              },
+              'protected':{
+                  'http_status':deep_protected['status'],
+                  'version':(deep_protected.get('json') or {}).get('version'),
+                  'ok':(deep_protected.get('json') or {}).get('ok'),
+                  'provider':(deep_protected.get('json') or {}).get('emailProvider'),
+                  'body_prefix':deep_protected.get('body_prefix')
+              }
+          }
+
+          # Safe entitlement probe: invalid, non-owned sender guarantees no delivery.
+          sending_probe=call(
+              f'https://api.cloudflare.com/client/v4/accounts/{account}/email/sending/send',
+              method='POST',
+              headers=api_headers,
+              body={
+                  'to':owner,
+                  'from':'diagnostic@invalid.example',
+                  'subject':'Cloudflare capability probe — must not deliver',
+                  'text':'This request deliberately uses an invalid sender and must not be delivered.'
+              }
+          )
+          sending_json=sending_probe.get('json') or {}
+          report['cloudflare_email_sending_probe']={
+              'http_status':sending_probe['status'],
+              'success':sending_json.get('success'),
+              'error_codes':[item.get('code') for item in sending_json.get('errors',[])[:3]],
+              'error_messages':[item.get('message') for item in sending_json.get('errors',[])[:3]],
+              'delivered':((sending_json.get('result') or {}).get('delivered') or []),
+              'queued':((sending_json.get('result') or {}).get('queued') or []),
+              'body_prefix':sending_probe.get('body_prefix')
+          }
+
+          report['summary']={
+              'token_active':report['token']['active'],
+              'identity_workers_dev_enabled':scripts.get(account_worker,{}).get('enabled') is True,
+              'core_workers_dev_enabled':scripts.get(core_worker,{}).get('enabled') is True,
+              'owner_destination_verified':report['email_routing_destinations']['owner_verified'],
+              'identity_health_public':live['identity_health']['http_status']==200,
+              'core_health_public':live['core_health']['http_status']==200,
+              'pages_ready':live['admin_page']['http_status']==200 and live['password_reset_page']['http_status']==200,
+              'cloudflare_email_can_replace_resend_now':False
+          }
+          probe_codes=set(report['cloudflare_email_sending_probe']['error_codes'])
+          probe_messages=' '.join(str(x) for x in report['cloudflare_email_sending_probe']['error_messages']).lower()
+          if sending_probe['status'] in (400,403) and ('sender' in probe_messages or 'domain' in probe_messages):
+              report['summary']['cloudflare_email_can_replace_resend_now']=False
+              report['summary']['cloudflare_email_blocker']='no_onboarded_sender_domain'
+          elif sending_probe['status']==403:
+              report['summary']['cloudflare_email_blocker']='account_not_entitled_or_sending_disabled'
+          elif sending_probe['status']==401:
+              report['summary']['cloudflare_email_blocker']='token_authentication'
+          else:
+              report['summary']['cloudflare_email_blocker']='undetermined'
+
+          Path('reports/cloudflare-specialists-inspection-now.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(report['summary'],ensure_ascii=False))
+          PY
+
+      - name: Commit safe inspection report
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/cloudflare-specialists-inspection-now.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore: record Cloudflare specialist inspection [skip ci]"
+          git push origin HEAD:agent/inspect-cloudflare-specialists-now
