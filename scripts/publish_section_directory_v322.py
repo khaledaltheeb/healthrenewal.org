@@ -2,14 +2,20 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
+import xml.etree.ElementTree as ET
 from collections import OrderedDict
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import publish_section_directory_v221 as legacy
 
 VERSION = 322
+CUSTOM_BASE = "https://healthrenewal.org/"
+TRUST_CANONICAL = CUSTOM_BASE + "trust/"
+ALIAS_MARKER = "<!-- compatibility-alias-v322 -->"
 COMPATIBILITY_ALIAS_ROUTES = {
     "editorial-methodology/",
     "evaluate-mental-health-information/",
@@ -97,6 +103,20 @@ REQUIRED_DIRECTORY_ROUTES = {
     "es/",
 }
 
+ROBOTS_META_RE = re.compile(
+    r"\s*<meta\b(?=[^>]*\bname\s*=\s*([\"'])robots\1)[^>]*>\s*",
+    re.I | re.S,
+)
+CANONICAL_LINK_RE = re.compile(
+    r"\s*<link\b(?=[^>]*\brel\s*=\s*([\"'])[^\"']*\bcanonical\b[^\"']*\1)[^>]*>\s*",
+    re.I | re.S,
+)
+OG_URL_META_RE = re.compile(
+    r"\s*<meta\b(?=[^>]*\bproperty\s*=\s*([\"'])og:url\1)[^>]*>\s*",
+    re.I | re.S,
+)
+ALIAS_MARKER_RE = re.compile(r"\s*<!--\s*compatibility-alias-v322\s*-->\s*", re.I)
+
 
 def configure_legacy() -> None:
     definitions = OrderedDict(legacy.DEFINITIONS)
@@ -143,8 +163,6 @@ def _refresh_home_metrics(site: Path, payload: dict[str, Any]) -> None:
     if section_count <= 0 or page_count <= 0:
         raise legacy.SectionDirectoryError("section directory counts are invalid")
 
-    import re
-
     source, sections_changed = re.subn(
         r'(<strong\b[^>]*data-surface-section-count[^>]*>).*?(</strong>)',
         rf"\g<1>{section_count:,}\g<2>",
@@ -164,9 +182,118 @@ def _refresh_home_metrics(site: Path, payload: dict[str, Any]) -> None:
     path.write_text(source, encoding="utf-8")
 
 
+def _normalize_alias_page(path: Path) -> bool:
+    source = path.read_text(encoding="utf-8")
+    updated = ALIAS_MARKER_RE.sub("", source)
+    updated = ROBOTS_META_RE.sub("", updated)
+    updated = CANONICAL_LINK_RE.sub("", updated)
+    updated = OG_URL_META_RE.sub("", updated)
+    managed = (
+        f"{ALIAS_MARKER}\n"
+        '<meta name="robots" content="noindex,follow">\n'
+        f'<link rel="canonical" href="{TRUST_CANONICAL}">\n'
+        f'<meta property="og:url" content="{TRUST_CANONICAL}">'
+    )
+    updated, count = re.subn(
+        r"\s*</head\s*>",
+        "\n" + managed + "\n</head>",
+        updated,
+        count=1,
+        flags=re.I,
+    )
+    if count != 1:
+        raise legacy.SectionDirectoryError(
+            f"compatibility alias is missing </head>: {path.as_posix()}"
+        )
+    if updated != source:
+        path.write_text(updated, encoding="utf-8")
+        return True
+    return False
+
+
+def _alias_metadata_valid(path: Path) -> bool:
+    source = path.read_text(encoding="utf-8")
+    if ALIAS_MARKER not in source or not legacy.noindex(source):
+        return False
+    canonicals = re.findall(
+        r'<link\b(?=[^>]*\brel\s*=\s*(["\'])[^"\']*\bcanonical\b[^"\']*\1)[^>]*\bhref\s*=\s*(["\'])(.*?)\2[^>]*>',
+        source,
+        flags=re.I | re.S,
+    )
+    values = [value[2].strip() for value in canonicals]
+    return values == [TRUST_CANONICAL]
+
+
+def _is_alias_url(value: str) -> bool:
+    parsed = urlparse(value.strip())
+    route = parsed.path.strip("/") + "/" if parsed.path.strip("/") else ""
+    if route.startswith("pterminology-site/"):
+        route = route.removeprefix("pterminology-site/")
+    return route in COMPATIBILITY_ALIAS_ROUTES
+
+
+def _prune_aliases_from_sitemaps(site: Path) -> dict[str, int]:
+    changed_files = 0
+    removed_urls = 0
+    for sitemap in sorted(site.glob("sitemap*.xml")):
+        try:
+            tree = ET.parse(sitemap)
+        except ET.ParseError as error:
+            raise legacy.SectionDirectoryError(
+                f"invalid sitemap while pruning compatibility aliases: {sitemap.name}: {error}"
+            ) from error
+        root = tree.getroot()
+        if not root.tag.endswith("urlset"):
+            continue
+        changed = False
+        for node in list(root):
+            if not node.tag.endswith("url"):
+                continue
+            loc = next((child for child in node if child.tag.endswith("loc")), None)
+            if loc is None or not loc.text or not _is_alias_url(loc.text):
+                continue
+            root.remove(node)
+            removed_urls += 1
+            changed = True
+        if changed:
+            ET.indent(root, space="  ")
+            tree.write(sitemap, encoding="utf-8", xml_declaration=True)
+            changed_files += 1
+    return {"sitemap_files_changed": changed_files, "sitemap_urls_removed": removed_urls}
+
+
+def normalize_compatibility_aliases(site: Path) -> dict[str, Any]:
+    existing: list[str] = []
+    changed: list[str] = []
+    invalid: list[str] = []
+    for route in sorted(COMPATIBILITY_ALIAS_ROUTES):
+        path = site / route / "index.html"
+        if not path.is_file():
+            continue
+        existing.append(route)
+        if _normalize_alias_page(path):
+            changed.append(route)
+        if not _alias_metadata_valid(path):
+            invalid.append(route)
+    if invalid:
+        raise legacy.SectionDirectoryError(
+            f"compatibility alias metadata contract failed: {invalid}"
+        )
+    sitemap = _prune_aliases_from_sitemaps(site)
+    return {
+        "declared": sorted(COMPATIBILITY_ALIAS_ROUTES),
+        "existing": existing,
+        "changed": changed,
+        "canonical": TRUST_CANONICAL,
+        "noindex_follow": True,
+        **sitemap,
+    }
+
+
 def publish(site: Path, root: Path) -> dict[str, Any]:
     site = site.resolve()
     configure_legacy()
+    aliases = normalize_compatibility_aliases(site)
     report = legacy.publish(site, root)
     payload = _read_directory(site)
     routes = {item.get("route") for item in payload["items"] if isinstance(item, dict)}
@@ -180,9 +307,6 @@ def publish(site: Path, root: Path) -> dict[str, Any]:
             f"compatibility aliases must not be public directory items: {unexpected_aliases}"
         )
 
-    # Build pipelines publish some top-level portals after the content catalog.
-    # Enforce registration for every independent route already present now, and
-    # let the final full-site audit enforce the complete publication surface.
     available_required = {
         route for route in REQUIRED_DIRECTORY_ROUTES if _route_exists(site, route)
     }
@@ -208,6 +332,7 @@ def publish(site: Path, root: Path) -> dict[str, Any]:
         "outside_the_box_registered": "outside-the-box/" in routes,
         "compatibility_alias_routes": sorted(COMPATIBILITY_ALIAS_ROUTES),
         "compatibility_aliases_registered_as_sections": False,
+        "compatibility_alias_normalization": aliases,
         "homepage_metrics_refreshed": True,
     }
     legacy.write_json(site / "api/section-directory-v322.json", upgraded)
