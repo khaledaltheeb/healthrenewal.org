@@ -27,9 +27,9 @@ jobs:
     timeout-minutes: 65
     env:
       GH_TOKEN: ${{ github.token }}
-      ISSUE_NUMBER: ${{ github.event.issue.number || 754 }}
+      ISSUE_NUMBER: ${{ github.event.issue.number || 767 }}
     steps:
-      - name: Follow newest main release pipeline
+      - name: Follow newest deployable main release pipeline
         continue-on-error: true
         shell: bash
         run: |
@@ -42,6 +42,7 @@ jobs:
           import os
           import time
           import urllib.error
+          import urllib.parse
           import urllib.request
 
           REPO = os.environ['GITHUB_REPOSITORY']
@@ -57,6 +58,7 @@ jobs:
           AUDIT = 'Audit production discovery contract v220'
           DEPLOY = 'Deploy validated main to GitHub Pages'
           BAD = {'failure', 'cancelled', 'timed_out', 'action_required', 'startup_failure'}
+          ACCEPTABLE_VALIDATION_EVENTS = {'push', 'workflow_dispatch'}
 
           def api(path: str) -> dict:
               request = urllib.request.Request(API + path, headers=HEADERS)
@@ -69,8 +71,47 @@ jobs:
           def recent_runs() -> list[dict]:
               return list(api('/actions/runs?branch=main&per_page=100').get('workflow_runs', []))
 
-          def newest(runs: list[dict], name: str, sha: str) -> dict | None:
-              matches = [r for r in runs if r.get('name') == name and r.get('head_sha') == sha]
+          compare_cache: dict[tuple[str, str], bool] = {}
+
+          def is_ancestor(candidate: str, head: str) -> bool:
+              key = (candidate, head)
+              if key in compare_cache:
+                  return compare_cache[key]
+              if candidate == head:
+                  compare_cache[key] = True
+                  return True
+              candidate_q = urllib.parse.quote(candidate, safe='')
+              head_q = urllib.parse.quote(head, safe='')
+              try:
+                  status = str(api(f'/compare/{candidate_q}...{head_q}').get('status', ''))
+              except urllib.error.HTTPError as error:
+                  if error.code in {404, 409, 422}:
+                      compare_cache[key] = False
+                      return False
+                  raise
+              result = status in {'ahead', 'identical'}
+              compare_cache[key] = result
+              return result
+
+          def newest_validation(runs: list[dict], head: str) -> dict | None:
+              candidates = [
+                  run for run in runs
+                  if run.get('name') == VALIDATE
+                  and run.get('event') in ACCEPTABLE_VALIDATION_EVENTS
+                  and isinstance(run.get('head_sha'), str)
+                  and len(str(run.get('head_sha'))) == 40
+              ]
+              candidates.sort(key=lambda item: str(item.get('created_at', '')), reverse=True)
+              for run in candidates:
+                  if is_ancestor(str(run['head_sha']), head):
+                      return run
+              return None
+
+          def newest_exact(runs: list[dict], name: str, sha: str) -> dict | None:
+              matches = [
+                  run for run in runs
+                  if run.get('name') == name and run.get('head_sha') == sha
+              ]
               matches.sort(key=lambda item: str(item.get('created_at', '')), reverse=True)
               return matches[0] if matches else None
 
@@ -81,9 +122,11 @@ jobs:
                   'id': run.get('id'),
                   'name': run.get('name'),
                   'head_sha': run.get('head_sha'),
+                  'event': run.get('event'),
                   'status': run.get('status'),
                   'conclusion': run.get('conclusion'),
                   'attempt': run.get('run_attempt'),
+                  'created_at': run.get('created_at'),
                   'url': run.get('html_url'),
               }
 
@@ -110,40 +153,56 @@ jobs:
               return output
 
           started = time.time()
-          target = ''
+          observed_main = ''
+          release_sha = ''
           observations = []
           result = {
               'status': 'timed-out',
               'main_head': None,
+              'release_sha': None,
+              'release_is_ancestor_of_main': False,
               'validation': None,
               'discovery_audit': None,
               'pages_deployment': None,
               'failed_jobs': [],
               'head_changes': [],
+              'release_changes': [],
           }
 
           while time.time() - started < 3600:
               try:
                   head = current_head()
-                  if head != target:
-                      if target:
-                          result['head_changes'].append({'from': target, 'to': head})
-                      target = head
-                      print(f'Following main head: {target}', flush=True)
+                  if head != observed_main:
+                      if observed_main:
+                          result['head_changes'].append({'from': observed_main, 'to': head})
+                      observed_main = head
+                      compare_cache.clear()
+                      print(f'Current main head: {observed_main}', flush=True)
 
                   runs = recent_runs()
-                  validation = newest(runs, VALIDATE, target)
-                  audit = newest(runs, AUDIT, target)
-                  deploy = newest(runs, DEPLOY, target)
+                  validation = newest_validation(runs, observed_main)
+                  candidate_release = str(validation.get('head_sha')) if validation else ''
+                  if candidate_release and candidate_release != release_sha:
+                      if release_sha:
+                          result['release_changes'].append({'from': release_sha, 'to': candidate_release})
+                      release_sha = candidate_release
+                      print(f'Following deployable release SHA: {release_sha}', flush=True)
+
+                  audit = newest_exact(runs, AUDIT, release_sha) if release_sha else None
+                  deploy = newest_exact(runs, DEPLOY, release_sha) if release_sha else None
+                  ancestor = bool(release_sha and is_ancestor(release_sha, observed_main))
                   result.update({
-                      'main_head': target,
+                      'main_head': observed_main,
+                      'release_sha': release_sha or None,
+                      'release_is_ancestor_of_main': ancestor,
                       'validation': compact(validation),
                       'discovery_audit': compact(audit),
                       'pages_deployment': compact(deploy),
                   })
 
                   snapshot = (
-                      target,
+                      observed_main,
+                      release_sha or None,
                       validation.get('status') if validation else None,
                       validation.get('conclusion') if validation else None,
                       audit.get('status') if audit else None,
@@ -178,7 +237,7 @@ jobs:
                   print(f'Monitor retry after error: {error!r}', flush=True)
               time.sleep(20)
 
-          result['observations'] = [list(item) for item in observations[-30:]]
+          result['observations'] = [list(item) for item in observations[-40:]]
           result['elapsed_seconds'] = round(time.time() - started, 1)
           print(json.dumps(result, ensure_ascii=False, indent=2))
           PY
