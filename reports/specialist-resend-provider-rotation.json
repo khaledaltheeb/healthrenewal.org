@@ -1,27 +1,42 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-07-31T15:43:21.917127+00:00",
-  "source_sha": "af078dead43544b38c621f3dcd99e92b8d121faa",
-  "workflow_run_id": "30644083511",
-  "status": "failed",
-  "failure_stage": "resend_auth",
+  "checked_at": "2026-07-31T16:06:59.823484+00:00",
+  "source_sha": "1780e0783a8be6d50f45dcca8fdb8601923c1d04",
+  "workflow_run_id": "30645760995",
+  "status": "passed",
+  "failure_stage": null,
   "outcomes": {
     "preflight": "success",
-    "resend_auth": "failure",
-    "install": "skipped",
-    "verify": "skipped"
+    "resend_auth": "success",
+    "install": "success",
+    "verify": "success"
   },
   "preflight": {
     "required_present": true,
     "missing_required": []
   },
   "resend_auth": {
-    "http_status": 401,
-    "auth_accepted": false,
-    "error_name": "validation_error",
+    "http_status": 422,
+    "auth_accepted": true,
+    "error_name": "missing_required_field",
     "probe_sent_email": false
   },
-  "install": {},
-  "verify": {},
+  "install": {
+    "api_success": true,
+    "binding_name": "RESEND_API_KEY",
+    "binding_type": "secret_text"
+  },
+  "verify": {
+    "normal_http_status": 200,
+    "normal_ok": true,
+    "version": "10.3.0",
+    "public_deep_http_status": 403,
+    "public_deep_blocked": true,
+    "protected_deep_http_status": 200,
+    "email_configured": true,
+    "email_auth_valid": true,
+    "email_access": "sending_only",
+    "email_code": "ready_sending_only"
+  },
   "contains_secret_values": false
 }
