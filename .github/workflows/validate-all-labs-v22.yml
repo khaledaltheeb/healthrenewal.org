@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: validate-all-labs-v31-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
 
