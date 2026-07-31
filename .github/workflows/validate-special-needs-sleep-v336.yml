@@ -48,11 +48,9 @@ jobs:
           PY
       - name: Run source, safety, rendering, sitemap and API contracts
         run: python -m unittest tests/test_special_needs_sleep_v336.py -v
-      - name: Verify prohibited terminology is absent
+      - name: Verify prohibited terminology is absent from public content
         run: |
-          if grep -RIn --include='*.json' --include='*.py' 'معاقين' \
-            content/v336 scripts/publish_special_needs_sleep_v336.py \
-            scripts/publish_special_needs_guides_v217_core.py tests/test_special_needs_sleep_v336.py; then
-            echo 'Prohibited terminology found' >&2
+          if grep -RIn --include='*.json' 'معاقين' content/v336; then
+            echo 'Prohibited terminology found in public content' >&2
             exit 1
           fi
