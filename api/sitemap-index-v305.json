@@ -1,0 +1,48 @@
+{
+  "version": 305,
+  "status": "generated",
+  "base_url": "https://healthrenewal.org/",
+  "primary_sitemap": "sitemap.xml",
+  "primary_sitemap_urls": 209,
+  "indexable_pages": 209,
+  "families": {
+    "learning-paths": 2,
+    "magazine": 80,
+    "main": 94,
+    "provider-platform": 25,
+    "special-needs": 8
+  },
+  "sitemaps": [
+    {
+      "family": "learning-paths",
+      "filename": "sitemap-family-learning-paths.xml",
+      "urls": 2
+    },
+    {
+      "family": "magazine",
+      "filename": "sitemap-family-magazine.xml",
+      "urls": 80
+    },
+    {
+      "family": "main",
+      "filename": "sitemap-family-main.xml",
+      "urls": 94
+    },
+    {
+      "family": "provider-platform",
+      "filename": "sitemap-family-provider-platform.xml",
+      "urls": 25
+    },
+    {
+      "family": "special-needs",
+      "filename": "sitemap-family-special-needs.xml",
+      "urls": 8
+    }
+  ],
+  "skipped_noindex": 10,
+  "skipped_verification": 2,
+  "index": "sitemap-index.xml",
+  "family_prefix": "sitemap-family-",
+  "robots_policy": "allow-all-public-crawling",
+  "preserved_custom_domain_sitemaps": []
+}

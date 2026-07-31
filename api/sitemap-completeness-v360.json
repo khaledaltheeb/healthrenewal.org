@@ -1,0 +1,59 @@
+{
+  "version": 360,
+  "status": "passed",
+  "generated_at": "2026-07-31T18:21:21+00:00",
+  "base_url": "https://healthrenewal.org/",
+  "real_indexable_urls": 209,
+  "claimed_target_urls": 3600,
+  "target_reached": false,
+  "gap_to_claimed_target": 3391,
+  "skipped_noindex": 10,
+  "skipped_verification": 2,
+  "families": {
+    "learning-paths": 2,
+    "magazine": 80,
+    "main": 94,
+    "provider-platform": 25,
+    "special-needs": 8
+  },
+  "sitemaps": [
+    {
+      "family": "learning-paths",
+      "filename": "sitemap-family-learning-paths.xml",
+      "urls": 2
+    },
+    {
+      "family": "magazine",
+      "filename": "sitemap-family-magazine.xml",
+      "urls": 80
+    },
+    {
+      "family": "main",
+      "filename": "sitemap-family-main.xml",
+      "urls": 94
+    },
+    {
+      "family": "provider-platform",
+      "filename": "sitemap-family-provider-platform.xml",
+      "urls": 25
+    },
+    {
+      "family": "special-needs",
+      "filename": "sitemap-family-special-needs.xml",
+      "urls": 8
+    }
+  ],
+  "robots_policy": "allow-all-public-crawling",
+  "protocol": {
+    "https_only": true,
+    "single_host": "healthrenewal.org",
+    "duplicates": 0,
+    "legacy_urls": 0,
+    "maximum_urls_per_sitemap": 50000
+  },
+  "sha256": {
+    "sitemap.xml": "5847f8fd4cb48c7d354f6381bd3f638ad825b06caa3cca35fcab64584d4d2b33",
+    "sitemap-index.xml": "073d7d273699cfb6cb1c305859933b6197bdb52d60fab14d703156a59d5ca58c",
+    "robots.txt": "f716357300cca4fca689eaa8a27e53ad2b16ad96b458cfecec0681bf70e60a9a"
+  }
+}
