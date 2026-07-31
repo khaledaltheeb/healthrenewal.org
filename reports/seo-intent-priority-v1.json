@@ -1,14 +1,14 @@
 {
   "summary": {
     "contract": "sitewide-semantic-seo-search-intent-v1",
-    "generated_at": "2026-07-31T23:37:44.331617+00:00",
+    "generated_at": "2026-08-01T00:00:00+00:00",
     "scope": "priority",
     "pages": 100,
     "indexable": 100,
-    "errors": 24,
-    "warnings": 35,
-    "passed": 83,
-    "failed": 17,
+    "errors": 0,
+    "warnings": 9,
+    "passed": 100,
+    "failed": 0,
     "by_kind": {
       "hub": 16,
       "tool": 4,
@@ -44,15 +44,9 @@
         "WebAPI",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/family-guide/",
@@ -82,31 +76,20 @@
       "indexable": true,
       "title": "مركز ذوي الاحتياجات الخاصة | دليل علمي وحقوقي عبر مراحل الحياة",
       "description": "مركز عربي مؤسسي موسع لفهم الاحتياجات الخاصة وبناء التقييم والدعم الفردي والتواصل والتعليم الدامج والرعاية الصحية وحماية الحقوق والانتقال إلى الرشد ودعم الأسرة دون اختزال الشخص في تشخيصه.",
-      "word_count": 2014,
+      "word_count": 2020,
       "h1": 1,
       "h2": 15,
-      "h3": 0,
-      "questions": 15,
+      "h3": 1,
+      "questions": 17,
       "schema_types": [
         "BreadcrumbList",
         "CollectionPage",
         "ListItem",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "h3_missing_for_deep_page",
-          "severity": "error",
-          "message": "Deep content needs at least one meaningful H3 under an H2"
-        },
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
-      "errors": 1,
-      "warnings": 1
+      "findings": [],
+      "errors": 0,
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/magazine/",
@@ -115,29 +98,18 @@
       "indexable": true,
       "title": "المجلة والأبحاث | أحدث الدراسات والرسائل العلمية بالعربية",
       "description": "فهرس المجلة والأبحاث يحتوي على 79 قراءة عربية نقدية للأبحاث المحكمة والرسائل الجامعية في الصحة النفسية وعلم النفس والأشخاص ذوي الاحتياجات الخاصة.",
-      "word_count": 3419,
+      "word_count": 3519,
       "h1": 1,
-      "h2": 79,
-      "h3": 0,
-      "questions": 152,
+      "h2": 80,
+      "h3": 2,
+      "questions": 154,
       "schema_types": [
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "h3_missing_for_deep_page",
-          "severity": "error",
-          "message": "Deep content needs at least one meaningful H3 under an H2"
-        },
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
-      "errors": 1,
-      "warnings": 1
+      "findings": [],
+      "errors": 0,
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/learning-paths/",
@@ -157,15 +129,9 @@
         "ListItem",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/learning-paths/opportunities/",
@@ -182,15 +148,9 @@
       "schema_types": [
         "CollectionPage"
       ],
-      "findings": [
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/ai-search/",
@@ -214,15 +174,10 @@
           "code": "image_alt_empty",
           "severity": "warning",
           "message": "Image 1 has empty alt without decorative semantics"
-        },
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
         }
       ],
       "errors": 0,
-      "warnings": 2
+      "warnings": 1
     },
     {
       "url": "https://healthrenewal.org/api/",
@@ -246,15 +201,10 @@
           "code": "image_alt_empty",
           "severity": "warning",
           "message": "Image 1 has empty alt without decorative semantics"
-        },
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
         }
       ],
       "errors": 0,
-      "warnings": 2
+      "warnings": 1
     },
     {
       "url": "https://healthrenewal.org/accessibility/",
@@ -272,15 +222,9 @@
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/source-registry/",
@@ -298,15 +242,9 @@
         "CollectionPage",
         "ItemList"
       ],
-      "findings": [
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/specialists-partners/",
@@ -331,15 +269,10 @@
           "code": "image_alt_empty",
           "severity": "warning",
           "message": "Image 1 has empty alt without decorative semantics"
-        },
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
         }
       ],
       "errors": 0,
-      "warnings": 2
+      "warnings": 1
     },
     {
       "url": "https://healthrenewal.org/special-needs/assistive-technology/",
@@ -359,15 +292,9 @@
         "MedicalWebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/special-needs/assistive-technology/selection-checklist/",
@@ -385,15 +312,9 @@
         "HowTo",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/special-needs/assistive-technology/training/",
@@ -411,15 +332,9 @@
         "LearningResource",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/special-needs/assistive-technology/continuing-education/",
@@ -438,15 +353,9 @@
         "CollectionPage",
         "ListItem"
       ],
-      "findings": [
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/special-needs/assistive-technology/ethics-and-service/",
@@ -465,15 +374,9 @@
         "ListItem",
         "TechArticle"
       ],
-      "findings": [
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/special-needs/assistive-technology/innovation-review/",
@@ -492,15 +395,9 @@
         "HowTo",
         "ListItem"
       ],
-      "findings": [
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/family-guide/tools/appointment-prep/",
@@ -523,15 +420,10 @@
           "code": "description_length",
           "severity": "warning",
           "message": "Description length is 66 characters"
-        },
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
         }
       ],
       "errors": 0,
-      "warnings": 2
+      "warnings": 1
     },
     {
       "url": "https://healthrenewal.org/family-guide/tools/behavior-log/",
@@ -539,86 +431,47 @@
       "kind": "tool",
       "indexable": true,
       "title": "سجل السلوك والسياق | دليل الأسرة",
-      "description": "نموذج ABC موسع يربط السلوك بالسياق والتواصل والصحة بدل افتراض النية.",
-      "word_count": 109,
+      "description": "أداة عربية قابلة للطباعة لتوثيق ما حدث قبل السلوك وأثناءه وبعده، مع عوامل الصحة والتواصل، بهدف تنظيم الملاحظة والأسئلة دون افتراض النية أو إثبات السبب.",
+      "word_count": 256,
       "h1": 1,
-      "h2": 0,
-      "h3": 0,
-      "questions": 4,
+      "h2": 2,
+      "h3": 2,
+      "questions": 10,
       "schema_types": [
-        "WebPage",
-        "WebSite"
+        "Answer",
+        "BreadcrumbList",
+        "FAQPage",
+        "ListItem",
+        "Question",
+        "WebPage"
       ],
-      "findings": [
-        {
-          "code": "description_length",
-          "severity": "warning",
-          "message": "Description length is 68 characters"
-        },
-        {
-          "code": "h2_missing",
-          "severity": "error",
-          "message": "Indexable content page needs at least one meaningful H2"
-        },
-        {
-          "code": "thin_static_html",
-          "severity": "error",
-          "message": "Initial HTML has 109 words; expected at least 120 for tool"
-        },
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
-      "errors": 2,
-      "warnings": 2
+      "findings": [],
+      "errors": 0,
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/family-guide/tools/family-plan/",
       "path": "family-guide/tools/family-plan/index.html",
       "kind": "tool",
       "indexable": true,
-      "title": "خطة الأسرة الفردية | دليل الأسرة",
-      "description": "نموذج منظم لتحويل الاحتياج إلى هدف وظيفي قابل للقياس ومراجعة.",
-      "word_count": 103,
+      "title": "خطة الأسرة الفردية | هدف وظيفي قابل للقياس والمراجعة",
+      "description": "أداة عربية قابلة للطباعة تساعد الأسرة على تحويل أولوية يومية إلى هدف وظيفي واضح، وخط أساس، واستراتيجيات ومسؤوليات ومؤشر نجاح وموعد مراجعة.",
+      "word_count": 298,
       "h1": 1,
-      "h2": 0,
-      "h3": 0,
-      "questions": 0,
+      "h2": 2,
+      "h3": 3,
+      "questions": 8,
       "schema_types": [
-        "WebPage",
-        "WebSite"
+        "Answer",
+        "BreadcrumbList",
+        "FAQPage",
+        "ListItem",
+        "Question",
+        "WebPage"
       ],
-      "findings": [
-        {
-          "code": "description_length",
-          "severity": "warning",
-          "message": "Description length is 61 characters"
-        },
-        {
-          "code": "h2_missing",
-          "severity": "error",
-          "message": "Indexable content page needs at least one meaningful H2"
-        },
-        {
-          "code": "thin_static_html",
-          "severity": "error",
-          "message": "Initial HTML has 103 words; expected at least 120 for tool"
-        },
-        {
-          "code": "search_intent_questions",
-          "severity": "error",
-          "message": "Found 0 visible search-intent questions; expected at least 2"
-        },
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
-      "errors": 3,
-      "warnings": 2
+      "findings": [],
+      "errors": 0,
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/family-guide/conditions/autism/",
@@ -1081,15 +934,9 @@
         "MedicalWebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/family-guide/conditions/spina-bifida/",
@@ -1936,18 +1783,22 @@
       "indexable": true,
       "title": "تدخلات التوحد الدوائية وغير الدوائية | تحليل تلوي 2026",
       "description": "ملخص عربي نقدي لتحليل تلوي حديث في Nature Mental Health قارن التدخلات الدوائية وغير الدوائية لأعراض التوحد الأساسية عبر 149 تجربة و9011 مشاركًا.",
-      "word_count": 520,
+      "word_count": 537,
       "h1": 1,
-      "h2": 8,
+      "h2": 9,
       "h3": 5,
       "questions": 14,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
-        "ScholarlyArticle"
+        "ScholarlyArticle",
+        "WebPage"
       ],
       "findings": [],
       "errors": 0,
@@ -1960,28 +1811,25 @@
       "indexable": true,
       "title": "تنظيم الانفعالات لدى الأطفال والمراهقين التوحديين | تحليل شبكي 2026",
       "description": "قراءة عربية نقدية لتحليل شبكي حديث قارن تدخلات تنظيم الانفعالات لدى الأطفال والمراهقين التوحديين في 38 دراسة و1895 مشاركًا.",
-      "word_count": 456,
+      "word_count": 473,
       "h1": 1,
-      "h2": 8,
+      "h2": 9,
       "h3": 5,
       "questions": 14,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "article_schema",
-          "severity": "error",
-          "message": "Research page needs article structured data"
-        }
-      ],
-      "errors": 1,
+      "findings": [],
+      "errors": 0,
       "warnings": 0
     },
     {
@@ -1991,28 +1839,25 @@
       "indexable": true,
       "title": "تكيف مقدمي الرعاية بعد تشخيص التوحد | مراجعة منهجية 2026",
       "description": "قراءة عربية لمراجعة منهجية حول قياس تكيف مقدمي الرعاية بعد تشخيص الطفل بالتوحد وفعالية التدخلات الداعمة.",
-      "word_count": 431,
+      "word_count": 448,
       "h1": 1,
-      "h2": 7,
+      "h2": 8,
       "h3": 5,
       "questions": 14,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "article_schema",
-          "severity": "error",
-          "message": "Research page needs article structured data"
-        }
-      ],
-      "errors": 1,
+      "findings": [],
+      "errors": 0,
       "warnings": 0
     },
     {
@@ -2022,28 +1867,25 @@
       "indexable": true,
       "title": "عوامل الصمود لدى والدي الأطفال التوحديين | مراجعة منهجية 2026",
       "description": "قراءة عربية لمراجعة منهجية حددت خمسة محاور مرتبطة بصمود والدي الأطفال التوحديين، مع تنبيه إلى غلبة الدراسات المقطعية.",
-      "word_count": 365,
+      "word_count": 382,
       "h1": 1,
-      "h2": 7,
+      "h2": 8,
       "h3": 5,
       "questions": 12,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "article_schema",
-          "severity": "error",
-          "message": "Research page needs article structured data"
-        }
-      ],
-      "errors": 1,
+      "findings": [],
+      "errors": 0,
       "warnings": 0
     },
     {
@@ -2053,28 +1895,25 @@
       "indexable": true,
       "title": "العلاج بالقبول والالتزام لوالدي الأطفال التوحديين | تحليل تلوي 2026",
       "description": "قراءة عربية لتحليل تلوي لسبع تجارب عشوائية حول العلاج بالقبول والالتزام لتقليل الضغط النفسي وتحسين المرونة النفسية والكفاءة الوالدية.",
-      "word_count": 422,
+      "word_count": 439,
       "h1": 1,
-      "h2": 7,
+      "h2": 8,
       "h3": 5,
       "questions": 12,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "article_schema",
-          "severity": "error",
-          "message": "Research page needs article structured data"
-        }
-      ],
-      "errors": 1,
+      "findings": [],
+      "errors": 0,
       "warnings": 0
     },
     {
@@ -2084,28 +1923,25 @@
       "indexable": true,
       "title": "تدريب القبول والالتزام لوالدي الأطفال التوحديين | تجربة 2026",
       "description": "ملخص عربي نقدي لتجربة عشوائية شملت 154 والدًا ووالدة وقيّمت برنامجًا جماعيًا من ثمانية أسابيع لخفض ضغط الرعاية وتحسين المرونة والكفاءة الوالدية.",
-      "word_count": 545,
+      "word_count": 562,
       "h1": 1,
-      "h2": 8,
+      "h2": 9,
       "h3": 5,
       "questions": 12,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "article_schema",
-          "severity": "error",
-          "message": "Research page needs article structured data"
-        }
-      ],
-      "errors": 1,
+      "findings": [],
+      "errors": 0,
       "warnings": 0
     },
     {
@@ -2115,18 +1951,22 @@
       "indexable": true,
       "title": "التأمل الوالدي وفهم خبرة الطفل التوحدي | تجربة عشوائية 2026",
       "description": "قراءة عربية نقدية لتجربة عشوائية شملت 249 والدًا ووالدة واختبرت برنامجًا افتراضيًا قصيرًا لتعزيز الوظيفة التأملية الوالدية، مع النتائج والقيود وما لا تثبته الدراسة.",
-      "word_count": 1072,
+      "word_count": 1089,
       "h1": 1,
-      "h2": 13,
+      "h2": 14,
       "h3": 5,
       "questions": 22,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
-        "ScholarlyArticle"
+        "ScholarlyArticle",
+        "WebPage"
       ],
       "findings": [],
       "errors": 0,
@@ -2139,18 +1979,22 @@
       "indexable": true,
       "title": "برنامج ASPEN المكيف ثقافيًا لأسر الأطفال التوحديين | تجربة عشوائية 2026",
       "description": "قراءة عربية نقدية لتجربة ASPEN العشوائية لدى أسر منخفضة الموارد: 90 أسرة عُشوئت، 45 أكملت البرنامج، ومقارنة 12 جلسة بأربع متابعات مختصرة مع نتائج الكفاءة الوالدية والانسحاب وحدود التعميم.",
-      "word_count": 1531,
+      "word_count": 1548,
       "h1": 1,
-      "h2": 16,
+      "h2": 17,
       "h3": 5,
       "questions": 25,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
-        "ScholarlyArticle"
+        "ScholarlyArticle",
+        "WebPage"
       ],
       "findings": [],
       "errors": 0,
@@ -2163,18 +2007,22 @@
       "indexable": true,
       "title": "برنامج Let's Play للأطفال التوحديين ومقدمي الرعاية | تجربة عشوائية 2026",
       "description": "قراءة عربية نقدية لتجربة عشوائية شملت 91 أسرة واختبرت برنامج Let's Play المجتمعي لمدة تسعة أسابيع، مع فصل النتائج الإيجابية عن النتائج غير الدالة وحدود قائمة الانتظار.",
-      "word_count": 1102,
+      "word_count": 1119,
       "h1": 1,
-      "h2": 13,
+      "h2": 14,
       "h3": 5,
       "questions": 18,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
-        "ScholarlyArticle"
+        "ScholarlyArticle",
+        "WebPage"
       ],
       "findings": [],
       "errors": 0,
@@ -2187,18 +2035,22 @@
       "indexable": true,
       "title": "برنامج الإرشاد بين الأقران للمراهقين ذوي التوحد | تجربة عشوائية تجريبية 2026",
       "description": "قراءة عربية نقدية لتجربة عشوائية تجريبية لبرنامج إرشاد افتراضي يقوده بالغون ذوو توحد للمراهقين ذوي التوحد، شملت 24 مراهقًا و23 جلسة أسبوعية، مع نتائج القبول والمؤشرات النفسية وحدود العينة الصغيرة.",
-      "word_count": 1214,
+      "word_count": 1231,
       "h1": 1,
-      "h2": 14,
+      "h2": 15,
       "h3": 5,
       "questions": 18,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
-        "ScholarlyArticle"
+        "ScholarlyArticle",
+        "WebPage"
       ],
       "findings": [
         {
@@ -2217,28 +2069,25 @@
       "indexable": true,
       "title": "انعدام الأمن الغذائي في أسر الأطفال التوحديين | تحليل تلوي 2026",
       "description": "ملخص عربي لتحليل تلوي قدر انتشار انعدام الأمن الغذائي في أسر الأطفال والشباب التوحديين بنحو 29% مع احتياجات حسية وغذائية خاصة.",
-      "word_count": 432,
+      "word_count": 449,
       "h1": 1,
-      "h2": 7,
+      "h2": 8,
       "h3": 5,
       "questions": 14,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "article_schema",
-          "severity": "error",
-          "message": "Research page needs article structured data"
-        }
-      ],
-      "errors": 1,
+      "findings": [],
+      "errors": 0,
       "warnings": 0
     },
     {
@@ -2248,16 +2097,19 @@
       "indexable": true,
       "title": "مقارنة تدخلات التهيج وفرط الحركة والسلوكيات لدى الأطفال التوحديين | يوليو 2026",
       "description": "ملخص عربي نقدي لأحدث تحليل شبكي منشور في 17 يوليو 2026 قارن تدخلات دوائية وغير دوائية عبر 67 تجربة و4203 أطفال ومراهقين توحديين.",
-      "word_count": 433,
+      "word_count": 450,
       "h1": 1,
-      "h2": 8,
+      "h2": 9,
       "h3": 5,
       "questions": 12,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
         "WebPage",
         "WebSite"
@@ -2267,14 +2119,9 @@
           "code": "title_length",
           "severity": "warning",
           "message": "Title length is 78 characters"
-        },
-        {
-          "code": "article_schema",
-          "severity": "error",
-          "message": "Research page needs article structured data"
         }
       ],
-      "errors": 1,
+      "errors": 0,
       "warnings": 1
     },
     {
@@ -2284,28 +2131,25 @@
       "indexable": true,
       "title": "اللياقة البدنية لدى الأطفال ذوي ADHD | تحليل تلوي 2026",
       "description": "ملخص عربي نقدي لمراجعة منهجية وتحليل تلوي شمل 13 دراسة و1814 مشاركًا حول اللياقة القلبية التنفسية والقوة والمرونة لدى الأطفال ذوي ADHD.",
-      "word_count": 539,
+      "word_count": 556,
       "h1": 1,
-      "h2": 8,
+      "h2": 9,
       "h3": 5,
       "questions": 14,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "article_schema",
-          "severity": "error",
-          "message": "Research page needs article structured data"
-        }
-      ],
-      "errors": 1,
+      "findings": [],
+      "errors": 0,
       "warnings": 0
     },
     {
@@ -2315,28 +2159,25 @@
       "indexable": true,
       "title": "وقت الشاشات لدى الأطفال ذوي ADHD | تحليل تلوي 2026",
       "description": "ملخص عربي لمراجعة منهجية وتحليل تلوي شمل 22 دراسة و235283 طفلًا ومراهقًا حول وقت الشاشات واضطراب فرط الحركة وتشتت الانتباه.",
-      "word_count": 544,
+      "word_count": 561,
       "h1": 1,
-      "h2": 8,
+      "h2": 9,
       "h3": 5,
       "questions": 18,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "article_schema",
-          "severity": "error",
-          "message": "Research page needs article structured data"
-        }
-      ],
-      "errors": 1,
+      "findings": [],
+      "errors": 0,
       "warnings": 0
     },
     {
@@ -2346,18 +2187,22 @@
       "indexable": true,
       "title": "تدخلات النوم لدى الأطفال والمراهقين ذوي ADHD | تحليل شبكي 2026",
       "description": "قراءة عربية منهجية لتحليل تلوي شبكي شمل 40 تجربة عشوائية عن التدخلات السلوكية والدوائية لمشكلات النوم لدى الأطفال والمراهقين ذوي ADHD.",
-      "word_count": 532,
+      "word_count": 549,
       "h1": 1,
-      "h2": 8,
+      "h2": 9,
       "h3": 5,
       "questions": 12,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
-        "ScholarlyArticle"
+        "ScholarlyArticle",
+        "WebPage"
       ],
       "findings": [],
       "errors": 0,
@@ -2370,28 +2215,25 @@
       "indexable": true,
       "title": "التدخلات التقنية للأطفال ذوي ADHD | تحليل تلوي 2026",
       "description": "ملخص عربي نقدي لمراجعة منهجية وتحليل تلوي عن التدخلات الرقمية الغامرة وغير الغامرة للوظائف التنفيذية لدى الأطفال والمراهقين ذوي ADHD.",
-      "word_count": 523,
+      "word_count": 540,
       "h1": 1,
-      "h2": 8,
+      "h2": 9,
       "h3": 5,
       "questions": 14,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "article_schema",
-          "severity": "error",
-          "message": "Research page needs article structured data"
-        }
-      ],
-      "errors": 1,
+      "findings": [],
+      "errors": 0,
       "warnings": 0
     },
     {
@@ -2401,28 +2243,25 @@
       "indexable": true,
       "title": "تدريب المهارات الاجتماعية المدرسي للطلاب ذوي ADHD | تحليل تلوي 2026",
       "description": "قراءة عربية نقدية لتحليل تلوي عن برامج المهارات الاجتماعية المدرسية للأطفال والمراهقين ذوي اضطراب فرط الحركة وتشتت الانتباه، وسبب كون الأثر المجمع ضئيلًا.",
-      "word_count": 441,
+      "word_count": 458,
       "h1": 1,
-      "h2": 8,
+      "h2": 9,
       "h3": 5,
       "questions": 18,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "article_schema",
-          "severity": "error",
-          "message": "Research page needs article structured data"
-        }
-      ],
-      "errors": 1,
+      "findings": [],
+      "errors": 0,
       "warnings": 0
     },
     {
@@ -2432,18 +2271,22 @@
       "indexable": true,
       "title": "التغذية الراجعة العصبية الشخصية لدى أطفال ADHD | تجربة وهمية مزدوجة التعمية 2026",
       "description": "قراءة عربية نقدية لتجربة عشوائية مزدوجة التعمية قارنت تغذية راجعة عصبية شخصية بتغذية وهمية لدى 48 طفلًا ذوي ADHD، وأظهرت تعلمًا دماغيًا دون تفوق في الأعراض الأساسية.",
-      "word_count": 986,
+      "word_count": 1003,
       "h1": 1,
-      "h2": 13,
+      "h2": 14,
       "h3": 5,
       "questions": 19,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
-        "ScholarlyArticle"
+        "ScholarlyArticle",
+        "WebPage"
       ],
       "findings": [
         {
@@ -2462,18 +2305,22 @@
       "indexable": true,
       "title": "ديكسامفيتامين أم ميثيلفينيديت لدى الأطفال ذوي ADHD؟ | دراسة عشوائية 2026",
       "description": "قراءة عربية نقدية لدراسة عشوائية مفتوحة قارنت ديكسامفيتامين وميثيلفينيديت لدى 100 طفل ومراهق ذوي ADHD خلال 12 شهرًا، مع النتائج والوزن وحدود التعمية.",
-      "word_count": 1127,
+      "word_count": 1144,
       "h1": 1,
-      "h2": 13,
+      "h2": 14,
       "h3": 5,
       "questions": 21,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
-        "ScholarlyArticle"
+        "ScholarlyArticle",
+        "WebPage"
       ],
       "findings": [],
       "errors": 0,
@@ -2486,18 +2333,22 @@
       "indexable": true,
       "title": "الألعاب الموسيقية الإيقاعية والوظائف التنفيذية لدى أطفال ADHD | تجربة عشوائية 2026",
       "description": "قراءة عربية نقدية لتجربة عشوائية شملت 64 طفلًا ذوي ADHD واختبرت ألعابًا موسيقية إيقاعية عبر جهاز لوحي لمدة 8 أسابيع، مع عرض النتائج والحدود وما لا تثبته الدراسة.",
-      "word_count": 1143,
+      "word_count": 1160,
       "h1": 1,
-      "h2": 14,
+      "h2": 15,
       "h3": 5,
       "questions": 17,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
-        "ScholarlyArticle"
+        "ScholarlyArticle",
+        "WebPage"
       ],
       "findings": [
         {
@@ -2516,18 +2367,22 @@
       "indexable": true,
       "title": "تمارين بادوانجين وكبح الاستجابة لدى أطفال ADHD | تجربة عشوائية 2026",
       "description": "قراءة عربية نقدية لتجربة عشوائية شملت 90 طفلًا ذوي ADHD قارنت تمارين بادوانجين بالنشاط البدني المعتاد وقائمة الانتظار خلال 12 أسبوعًا، مع نتائج سلوكية وكهروفسيولوجية وحدود الدليل.",
-      "word_count": 954,
+      "word_count": 971,
       "h1": 1,
-      "h2": 12,
+      "h2": 13,
       "h3": 5,
       "questions": 17,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
-        "ScholarlyArticle"
+        "ScholarlyArticle",
+        "WebPage"
       ],
       "findings": [],
       "errors": 0,
@@ -2540,18 +2395,22 @@
       "indexable": true,
       "title": "برنامج One Step Back الرقمي وخطر الاكتئاب لدى المراهقين | تجربة 2026",
       "description": "قراءة عربية نقدية لتجربة عشوائية شملت 114 مراهقًا معرضين لخطر الاكتئاب واختبرت برنامجًا رقميًا لتدريب التباعد النفسي خلال خمسة أسابيع، مع النتائج والقيود وحدود التطبيق.",
-      "word_count": 980,
+      "word_count": 997,
       "h1": 1,
-      "h2": 13,
+      "h2": 14,
       "h3": 5,
       "questions": 20,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
-        "ScholarlyArticle"
+        "ScholarlyArticle",
+        "WebPage"
       ],
       "findings": [],
       "errors": 0,
@@ -2564,18 +2423,22 @@
       "indexable": true,
       "title": "حملة مكافحة الوصمة ورعاية الاكتئاب للمراهقين | تجربة ARTEMIS 2026",
       "description": "قراءة عربية نقدية لتجربة ARTEMIS العنقودية التي شملت 3739 مراهقًا في 60 تجمعًا منخفض الموارد بالهند، وقاست الوصمة وخطر الاكتئاب والهدأة بعد 12 شهرًا.",
-      "word_count": 1095,
+      "word_count": 1112,
       "h1": 1,
-      "h2": 14,
+      "h2": 15,
       "h3": 5,
       "questions": 18,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
-        "ScholarlyArticle"
+        "ScholarlyArticle",
+        "WebPage"
       ],
       "findings": [],
       "errors": 0,
@@ -2588,28 +2451,25 @@
       "indexable": true,
       "title": "الاستشعار السلبي بالهاتف والصحة النفسية للمراهقين | تحليل تلوي 2026",
       "description": "قراءة عربية لتحليل تلوي متعدد المستويات عن العلاقة بين بيانات الهاتف السلبية ومؤشرات الصحة النفسية لدى المراهقين والشباب.",
-      "word_count": 443,
+      "word_count": 460,
       "h1": 1,
-      "h2": 8,
+      "h2": 9,
       "h3": 5,
       "questions": 14,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "article_schema",
-          "severity": "error",
-          "message": "Research page needs article structured data"
-        }
-      ],
-      "errors": 1,
+      "findings": [],
+      "errors": 0,
       "warnings": 0
     },
     {
@@ -2619,18 +2479,22 @@
       "indexable": true,
       "title": "الكتابة السردية الموجهة والقلق لدى طلاب المدارس | تجربة عنقودية 2026",
       "description": "قراءة عربية نقدية لتجربة عشوائية عنقودية شملت 211 طالبًا في مدرسة ريفية صينية، قارنت برنامجًا معرفيًا سلوكيًا قصيرًا مع كتابة سردية موجهة مقابل الرسم، مع نتائج القلق والاكتئاب وحدود التعميم.",
-      "word_count": 1218,
+      "word_count": 1235,
       "h1": 1,
-      "h2": 13,
+      "h2": 14,
       "h3": 5,
       "questions": 16,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
-        "ScholarlyArticle"
+        "ScholarlyArticle",
+        "WebPage"
       ],
       "findings": [],
       "errors": 0,
@@ -2643,18 +2507,22 @@
       "indexable": true,
       "title": "التدخلات الرقمية للألم المزمن والقلق لدى المراهقين | تحليل تلوي 2026",
       "description": "قراءة عربية نقدية لتحليل تلوي حديث عن التدخلات النفسية الرقمية للمراهقين الذين يعانون ألمًا مزمنًا مصحوبًا بالقلق أو الاكتئاب، مع النتائج والقيود والمصدر الأصلي.",
-      "word_count": 499,
+      "word_count": 516,
       "h1": 1,
-      "h2": 8,
+      "h2": 9,
       "h3": 5,
       "questions": 12,
       "schema_types": [
         "Answer",
+        "Article",
         "BreadcrumbList",
+        "CollectionPage",
         "FAQPage",
         "ListItem",
+        "Organization",
         "Question",
-        "ScholarlyArticle"
+        "ScholarlyArticle",
+        "WebPage"
       ],
       "findings": [],
       "errors": 0,
@@ -2667,59 +2535,26 @@
       "indexable": true,
       "title": "تجربة ARTEMIS لصحة المراهقين وخفض الوصمة | JAMA Psychiatry 2026",
       "description": "تحليل عربي لتجربة عشوائية عن حملة خفض الوصمة وتدخل رقمي يقوده عامل رعاية أولية لدى 3739 مراهقًا في 60 تجمعًا حضريًا منخفض الموارد.",
-      "word_count": 328,
+      "word_count": 495,
       "h1": 1,
-      "h2": 7,
-      "h3": 0,
-      "questions": 2,
+      "h2": 9,
+      "h3": 5,
+      "questions": 12,
       "schema_types": [
+        "Answer",
+        "Article",
+        "BreadcrumbList",
+        "CollectionPage",
+        "FAQPage",
+        "ListItem",
+        "Organization",
+        "Question",
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "h3_missing_for_deep_page",
-          "severity": "error",
-          "message": "Deep content needs at least one meaningful H3 under an H2"
-        },
-        {
-          "code": "search_intent_questions",
-          "severity": "error",
-          "message": "Found 2 visible search-intent questions; expected at least 4"
-        },
-        {
-          "code": "breadcrumb_schema",
-          "severity": "error",
-          "message": "Deep content must expose BreadcrumbList structured data"
-        },
-        {
-          "code": "faq_schema",
-          "severity": "error",
-          "message": "Visible intent questions must be represented by matching FAQPage data"
-        },
-        {
-          "code": "article_schema",
-          "severity": "error",
-          "message": "Research page needs article structured data"
-        },
-        {
-          "code": "hreflang_ar",
-          "severity": "warning",
-          "message": "Missing self-referential Arabic hreflang"
-        },
-        {
-          "code": "hreflang_default",
-          "severity": "warning",
-          "message": "Missing x-default hreflang"
-        },
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
-      "errors": 5,
-      "warnings": 3
+      "findings": [],
+      "errors": 0,
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/copyright/",
@@ -2737,15 +2572,9 @@
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "meta_keywords",
-          "severity": "warning",
-          "message": "Obsolete meta keywords tag is present; remove it rather than stuffing terms"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/sitemap.xml",
