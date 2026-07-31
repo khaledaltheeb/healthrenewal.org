@@ -141,7 +141,7 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         delivery = LEGACY_DELIVERY.read_text(encoding="utf-8")
         self.assertNotIn("owner-password-reset", delivery)
         self.assertNotIn("providerMessageId", delivery)
-        self.assertNotIn("reset token", delivery.lower())
+        self.assertNotIn("-X POST", delivery)
         self.assertIn("without creating a reset token or sending email", delivery)
 
 
