@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-07-31T06:50:25.531430+00:00",
-  "version": "10.2.0",
-  "source_artifact_run_id": "30597226698",
-  "workflow_run_id": "30610833432",
+  "checked_at": "2026-07-31T15:34:58.091614+00:00",
+  "version": "10.3.0",
+  "source_artifact_run_id": "30636081351",
+  "workflow_run_id": "30643471982",
   "pages": {
     "admin": {
       "http_status": 200,
@@ -11,15 +11,23 @@
     },
     "runtime": {
       "http_status": 200,
-      "sha256": "1740a2e40b2f153f2211c461ffb3ace78230228d76893873611db54741faebf4"
+      "sha256": "d8a1d341a1f337cf8395f5cc9333558c3ace56b2467d9eaf84c0c339ab2f16ca"
+    },
+    "recovery": {
+      "http_status": 200,
+      "sha256": "3d0d0a1baf28d9b32850bce57d3de6eb77d7942102188f693bef21b0bf1aafd9"
+    },
+    "recovery_script": {
+      "http_status": 200,
+      "sha256": "8a21a1e57e1ce679536c5b6b701b4cf1c7d1034fefc3e939df2fa566104ab26b"
     },
     "password_reset": {
       "http_status": 200,
-      "sha256": "00e54e8194f88512a7a5429f371a508227af3610a599f0f6622db1fa2ea1321f"
+      "sha256": "7339e879d477206b3da8b9bd5f5ae5e35a16e3cb9c86b7841348f1f75c0c1bab"
     },
     "password_reset_script": {
       "http_status": 200,
-      "sha256": "80f52f2032c9b436edc532eca2734fd2ffb981596f77dab7968f7c5f8ae047a2"
+      "sha256": "a8e19f86568bf29f007b938d08e4bf9a2fc8b197cc22cd336de1ffb76a989f71"
     },
     "admin_recovery_script": {
       "http_status": 200,
@@ -34,6 +42,8 @@
     "admin_forgot_button": true,
     "owner_manual_recovery": true,
     "authenticated_provider_status": true,
+    "recovery_dual_endpoint_csp": true,
+    "recovery_network_timeout": true,
     "arabic_password_reset": true
   },
   "passed": true
