@@ -17,6 +17,7 @@ ADMIN_KEY = os.environ.get("ADMIN_API_KEY", "")
 RUN_ID = os.environ.get("GITHUB_RUN_ID", "local")
 OUTPUT = os.environ.get("GITHUB_OUTPUT", "")
 EXPECTED_VERSION = "10.2.0"
+PROBE_USER_AGENT = "pterminology-specialist-deploy-verifier/10.2"
 REQUIRED_CHECKS = (
     "database",
     "identitySchema",
@@ -46,7 +47,13 @@ ALLOWED_PROVIDER_CODES = {
 def request_json(path: str, headers: dict[str, str] | None = None) -> tuple[int, dict]:
     request = urllib.request.Request(
         f"{BASE}{path}",
-        headers={"accept": "application/json", "cache-control": "no-cache", **(headers or {})},
+        headers={
+            "accept": "application/json",
+            "cache-control": "no-cache",
+            "pragma": "no-cache",
+            "user-agent": PROBE_USER_AGENT,
+            **(headers or {}),
+        },
         method="GET",
     )
     try:
