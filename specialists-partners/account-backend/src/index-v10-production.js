@@ -53,19 +53,6 @@ export default {
         ? await capturePasswordResetAttempt(request, env)
         : null;
       const sender = senderReadiness(env);
-      if (request.method === 'POST' && url.pathname === '/v1/auth/password/request' && !sender.ready) {
-        return senderUnavailableResponse(cors, sender, false);
-      }
-
-      const adminResetMatch = url.pathname.match(ADMIN_EMAIL_RESET_PATH);
-      if (request.method === 'POST' && adminResetMatch && !sender.ready) {
-        const session = await authenticatedSession(request, env, ctx);
-        if (!session.ok) return ensureCors(session.response, origin, env);
-        if (!['owner','admin'].includes(session.user?.role)) {
-          return json({error:'forbidden', message:'لا تملك الصلاحية المطلوبة.'}, 403, cors);
-        }
-        return senderUnavailableResponse(cors, sender, true);
-      }
 
       const specialistMessageMatch = url.pathname.match(SPECIALIST_MESSAGE_PATH);
       if (request.method === 'POST' && specialistMessageMatch) {
