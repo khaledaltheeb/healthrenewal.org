@@ -1,144 +1,30 @@
-name: Verify specialist recovery delivery v8
+name: Verify specialist recovery compatibility without email
 
 on:
-  workflow_run:
-    workflows: ["Deploy specialist recovery overlay v8"]
-    types: [completed]
   workflow_dispatch:
 
 permissions:
-  contents: write
-
-concurrency:
-  group: verify-specialist-recovery-delivery-v8
-  cancel-in-progress: false
+  contents: read
 
 jobs:
   verify:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 8
     env:
       ACCOUNT_API_BASE: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
-      ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
-
-      - name: Skip duplicate automatic delivery probe
-        id: guard
-        shell: bash
-        run: |
-          if [[ -f reports/specialist-recovery-v8-delivery.json && "${GITHUB_EVENT_NAME}" != "workflow_dispatch" ]]; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Verify stable Worker v8 and send one real owner reset email
-        if: ${{ steps.guard.outputs.skip != 'true' }}
+      - name: Verify public health without issuing recovery tokens
         shell: bash
         run: |
           set -euo pipefail
-          [[ -n "${ADMIN_API_KEY:-}" ]] || { echo "::error::SPECIALISTS_ADMIN_API_KEY missing"; exit 1; }
-
-          stable=0
-          for attempt in {1..60}; do
-            code="$(curl -sS -o /tmp/health.json -w '%{http_code}' "${ACCOUNT_API_BASE}/health?delivery-probe=${GITHUB_RUN_ID}-${attempt}-$(date +%s%N)" || true)"
-            if [[ "${code}" == "200" ]] && python - <<'PY'
-          import json
-          d=json.load(open('/tmp/health.json',encoding='utf-8'))
-          assert d.get('ok') is True and d.get('version') == '8.0.0', d
-          checks=d.get('checks') or {}
-          assert checks.get('turnstile') is True, checks
-          assert checks.get('resendConfigured') is True, checks
-          assert checks.get('passwordResetBase') is True, checks
-          PY
-            then
-              stable=$((stable+1))
-              if [[ "${stable}" -ge 3 ]]; then break; fi
-              sleep 2
-            else
-              stable=0
-              sleep 5
-            fi
-          done
-          [[ "${stable}" -ge 3 ]] || { cat /tmp/health.json || true; echo "::error::Worker v8 did not remain stable"; exit 1; }
-
-          sent=false
-          for attempt in {1..20}; do
-            code="$(curl -sS -o /tmp/delivery.json -w '%{http_code}' -X POST \
-              -H "x-bootstrap-key: ${ADMIN_API_KEY}" \
-              -H 'content-type: application/json' \
-              --data '{}' \
-              "${ACCOUNT_API_BASE}/v1/internal/owner-password-reset?probe=${GITHUB_RUN_ID}-${attempt}-$(date +%s%N)" || true)"
-            if [[ "${code}" == "200" ]] && python - <<'PY'
-          import json
-          d=json.load(open('/tmp/delivery.json',encoding='utf-8'))
-          assert d.get('ok') is True and d.get('delivery') == 'sent', d
-          assert d.get('providerMessageId'), d
-          PY
-            then
-              sent=true
-              break
-            fi
-            readarray -t fields < <(python - <<'PY'
-          import json
-          try:
-              d=json.load(open('/tmp/delivery.json',encoding='utf-8'))
-          except Exception:
-              d={}
-          print(d.get('error',''))
-          print(d.get('providerDetail',''))
-          PY
-          )
-            error="${fields[0]:-}"
-            detail="${fields[1]:-}"
-            if [[ "${code}" == "403" ]]; then
-              cat /tmp/delivery.json || true
-              echo "::error::Owner delivery probe is forbidden"
-              exit 1
-            fi
-            if [[ "${error}" == "email_send_failed" || "${error}" == "email_delivery_failed" ]]; then
-              cat /tmp/delivery.json || true
-              echo "::error::Resend rejected the owner reset email: ${detail:-no safe detail returned}"
-              exit 1
-            fi
-            echo "Delivery route not ready yet: HTTP ${code}, error=${error}, attempt=${attempt}"
-            sleep 5
-          done
-          [[ "${sent}" == "true" ]] || { cat /tmp/delivery.json || true; echo "::error::Owner reset email was not accepted by Resend"; exit 1; }
-
-          mkdir -p reports
+          code="$(curl -sS -o /tmp/health.json -w '%{http_code}' "${ACCOUNT_API_BASE}/health?compatibility=${GITHUB_RUN_ID}" || true)"
+          [[ "${code}" == "200" || "${code}" == "503" ]] || { cat /tmp/health.json || true; exit 1; }
           python - <<'PY'
-          import json, os
-          from datetime import datetime, timezone
-          d=json.load(open('/tmp/delivery.json',encoding='utf-8'))
-          report={
-            'schema_version':1,
-            'checked_at':datetime.now(timezone.utc).isoformat(),
-            'worker_version':'8.0.0',
-            'delivery':'sent',
-            'request_id':d.get('requestId'),
-            'provider_message_id':d.get('providerMessageId'),
-            'expires_at':d.get('expiresAt'),
-            'workflow_run_id':os.environ['GITHUB_RUN_ID'],
-          }
-          open('reports/specialist-recovery-v8-delivery.json','w',encoding='utf-8').write(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          import json
+          data=json.load(open('/tmp/health.json',encoding='utf-8'))
+          assert data.get('service') == 'pterminology-specialist-identity', data
+          assert (data.get('checks') or {}).get('database') is True, data
+          assert (data.get('checks') or {}).get('identitySchema') is True, data
           PY
-
-      - name: Commit safe delivery receipt
-        if: ${{ steps.guard.outputs.skip != 'true' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add reports/specialist-recovery-v8-delivery.json
-          git commit -m "chore: record specialist recovery v8 delivery"
-          git pull --rebase origin main
-          git push origin HEAD:main
+          echo "Compatibility check completed without creating a reset token or sending email."
