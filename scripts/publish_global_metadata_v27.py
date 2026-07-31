@@ -12,8 +12,26 @@ from pathlib import Path
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 VERIFY = "google644f1f7a8b7aaa2b.html"
-MANIFEST_HREF = "/pterminology-site/manifest.webmanifest"
+BASE_URL = "https://healthrenewal.org/"
+LEGACY_BASE_URLS = (
+    "https://khaledaltheeb.github.io/pterminology-site/",
+    "http://khaledaltheeb.github.io/pterminology-site/",
+)
+MANIFEST_HREF = "/manifest.webmanifest"
 THEME_COLOR = "#0b6b66"
+
+CANONICAL_TAG_RE = re.compile(
+    r"\s*<link\b(?=[^>]*\brel\s*=\s*([\"'])[^\"']*\bcanonical\b[^\"']*\1)[^>]*>\s*",
+    re.IGNORECASE,
+)
+OG_URL_TAG_RE = re.compile(
+    r"\s*<meta\b(?=[^>]*\bproperty\s*=\s*([\"'])og:url\1)[^>]*>\s*",
+    re.IGNORECASE,
+)
+MANIFEST_TAG_RE = re.compile(
+    r"\s*<link\b(?=[^>]*\brel\s*=\s*([\"'])[^\"']*\bmanifest\b[^\"']*\1)[^>]*>\s*",
+    re.IGNORECASE,
+)
 
 
 @dataclass
@@ -22,6 +40,7 @@ class MetadataState:
     twitter_card: bool = False
     theme_color: bool = False
     og_url: bool = False
+    og_url_value: str = ""
     canonical: str = ""
 
 
@@ -48,6 +67,7 @@ class MetadataParser(HTMLParser):
                 self.state.theme_color = True
             if prop == "og:url":
                 self.state.og_url = True
+                self.state.og_url_value = html.unescape(str(values.get("content") or "").strip())
 
 
 def parse_metadata(text: str) -> MetadataState:
@@ -63,46 +83,82 @@ def inject_before_head_close(text: str, payload: str) -> str:
     return updated
 
 
-def enrich_page(text: str) -> tuple[str, dict[str, int]]:
-    state = parse_metadata(text)
-    additions: list[str] = []
-    counters = {"manifest": 0, "twitter_card": 0, "theme_color": 0, "og_url": 0}
+def canonical_url_for(page: Path) -> str:
+    relative = page.relative_to(SITE).as_posix()
+    if relative == "index.html":
+        return BASE_URL
+    if relative.endswith("/index.html"):
+        return BASE_URL + relative[: -len("index.html")]
+    return BASE_URL + relative
 
-    if not state.manifest:
-        additions.append(f'<link rel="manifest" href="{MANIFEST_HREF}">')
-        counters["manifest"] = 1
+
+def normalize_legacy_references(text: str) -> str:
+    for legacy in LEGACY_BASE_URLS:
+        text = text.replace(legacy, BASE_URL)
+    text = text.replace("https://khaledaltheeb.github.io/pterminology-site", BASE_URL.rstrip("/"))
+    text = text.replace("http://khaledaltheeb.github.io/pterminology-site", BASE_URL.rstrip("/"))
+    text = text.replace("/pterminology-site/", "/")
+    text = text.replace("\\/pterminology-site\\/", "\\/")
+    text = text.replace("https://healthrenewal.org//", BASE_URL)
+    return text
+
+
+def enrich_page(text: str, canonical_url: str) -> tuple[str, dict[str, int]]:
+    text = normalize_legacy_references(text)
+    text = CANONICAL_TAG_RE.sub("\n", text)
+    text = OG_URL_TAG_RE.sub("\n", text)
+    text = MANIFEST_TAG_RE.sub("\n", text)
+    state = parse_metadata(text)
+
+    additions = [
+        f'<link rel="canonical" href="{html.escape(canonical_url, quote=True)}">',
+        f'<link rel="manifest" href="{MANIFEST_HREF}">',
+        f'<meta property="og:url" content="{html.escape(canonical_url, quote=True)}">',
+    ]
+    counters = {
+        "canonical_normalized": 1,
+        "manifest_normalized": 1,
+        "og_url_normalized": 1,
+        "twitter_card": 0,
+        "theme_color": 0,
+    }
+
     if not state.twitter_card:
         additions.append('<meta name="twitter:card" content="summary_large_image">')
         counters["twitter_card"] = 1
     if not state.theme_color:
         additions.append(f'<meta name="theme-color" content="{THEME_COLOR}">')
         counters["theme_color"] = 1
-    if not state.og_url:
-        if not state.canonical:
-            raise ValueError("canonical_missing_for_og_url")
-        additions.append(f'<meta property="og:url" content="{html.escape(state.canonical, quote=True)}">')
-        counters["og_url"] = 1
 
-    if additions:
-        text = inject_before_head_close(text, "".join(additions))
+    text = inject_before_head_close(text, "\n".join(additions) + "\n")
     return text, counters
 
 
 def verify_contract() -> None:
     sample = (
-        '<!doctype html><html><head><link href="https://example.test/page/" rel="canonical">'
-        '<title>Sample</title></head><body></body></html>'
+        '<!doctype html><html><head><link href="https://khaledaltheeb.github.io/pterminology-site/page/" rel="canonical">'
+        '<meta property="og:url" content="https://khaledaltheeb.github.io/pterminology-site/page/">'
+        '<title>Sample</title></head><body><a href="/pterminology-site/library/">Library</a></body></html>'
     )
-    enriched, counts = enrich_page(sample)
+    expected = "https://healthrenewal.org/page/"
+    enriched, counts = enrich_page(sample, expected)
     state = parse_metadata(enriched)
     if not all((state.manifest, state.twitter_card, state.theme_color, state.og_url)):
         raise SystemExit(f"Metadata enrichment contract failed: {state}")
-    if state.canonical != "https://example.test/page/":
-        raise SystemExit(f"Canonical preservation failed: {state.canonical}")
-    if counts != {"manifest": 1, "twitter_card": 1, "theme_color": 1, "og_url": 1}:
+    if state.canonical != expected or state.og_url_value != expected:
+        raise SystemExit(f"Custom-domain canonical contract failed: {state}")
+    if "/pterminology-site/" in enriched or "khaledaltheeb.github.io/pterminology-site" in enriched:
+        raise SystemExit("Legacy production base survived metadata normalization")
+    if counts != {
+        "canonical_normalized": 1,
+        "manifest_normalized": 1,
+        "og_url_normalized": 1,
+        "twitter_card": 1,
+        "theme_color": 1,
+    }:
         raise SystemExit(f"Metadata counters contract failed: {counts}")
-    second, second_counts = enrich_page(enriched)
-    if second != enriched or any(second_counts.values()):
+    second, _ = enrich_page(enriched, expected)
+    if second != enriched:
         raise SystemExit("Metadata enrichment is not idempotent")
 
 
@@ -112,20 +168,31 @@ def main() -> None:
     verify_contract()
 
     stats = {
-        "version": 27,
+        "version": 28,
         "status": "passed",
+        "base_url": BASE_URL,
         "pages_scanned": 0,
         "pages_changed": 0,
         "verification_files_skipped": 0,
-        "manifest_added": 0,
+        "canonical_normalized": 0,
+        "manifest_normalized": 0,
+        "og_url_normalized": 0,
         "twitter_card_added": 0,
         "theme_color_added": 0,
-        "og_url_added": 0,
-        "remaining_missing": {"manifest": [], "twitter_card": [], "theme_color": [], "og_url": []},
+        "legacy_base_occurrences_remaining": 0,
+        "remaining_missing": {
+            "manifest": [],
+            "twitter_card": [],
+            "theme_color": [],
+            "og_url": [],
+            "canonical": [],
+        },
         "contract": {
+            "base_url": BASE_URL,
             "manifest_href": MANIFEST_HREF,
             "theme_color": THEME_COLOR,
             "og_url_source": "canonical",
+            "legacy_base_removed": True,
             "idempotent": True,
         },
     }
@@ -138,28 +205,34 @@ def main() -> None:
         relative = page.relative_to(SITE).as_posix()
         original = page.read_text(encoding="utf-8")
         stats["pages_scanned"] += 1
+        expected_canonical = canonical_url_for(page)
         try:
-            updated, additions = enrich_page(original)
+            updated, additions = enrich_page(original, expected_canonical)
         except ValueError as error:
             failures.append(f"{relative}: {error}")
             continue
         if updated != original:
             page.write_text(updated, encoding="utf-8")
             stats["pages_changed"] += 1
-        stats["manifest_added"] += additions["manifest"]
+        stats["canonical_normalized"] += additions["canonical_normalized"]
+        stats["manifest_normalized"] += additions["manifest_normalized"]
+        stats["og_url_normalized"] += additions["og_url_normalized"]
         stats["twitter_card_added"] += additions["twitter_card"]
         stats["theme_color_added"] += additions["theme_color"]
-        stats["og_url_added"] += additions["og_url"]
 
         final = parse_metadata(updated)
         for key, present in {
             "manifest": final.manifest,
             "twitter_card": final.twitter_card,
             "theme_color": final.theme_color,
-            "og_url": final.og_url,
+            "og_url": final.og_url and final.og_url_value == expected_canonical,
+            "canonical": final.canonical == expected_canonical,
         }.items():
             if not present:
                 stats["remaining_missing"][key].append(relative)
+        if "/pterminology-site/" in updated or "khaledaltheeb.github.io/pterminology-site" in updated:
+            stats["legacy_base_occurrences_remaining"] += 1
+            failures.append(f"{relative}: legacy_base_remaining")
 
     remaining_count = sum(len(items) for items in stats["remaining_missing"].values())
     stats["remaining_missing_count"] = remaining_count
