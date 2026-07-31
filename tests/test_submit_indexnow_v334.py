@@ -81,7 +81,7 @@ class IndexNowTests(unittest.TestCase):
         )
         self.assertEqual([item.url_count for item in results], [10000, 1])
         self.assertTrue(all(item.accepted for item in results))
-        self.assertEqual(payloads[0]["host"], "khaledaltheeb.github.io")
+        self.assertEqual(payloads[0]["host"], "healthrenewal.org")
         self.assertEqual(len(payloads[0]["urlList"]), 10000)
 
     def test_non_success_status_fails_without_retry_for_403(self) -> None:
