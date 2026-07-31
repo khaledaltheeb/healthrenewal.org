@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T07:43:34.200175+00:00",
+  "stale_run_id": 30612943513,
+  "before": {
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "59a6ff9e632a133fd7afedf3f3d4ccbba8ac8d04"
+  },
+  "cancel_http_status": 202,
+  "cancel_requested": true,
+  "protected_new_head_sha": "563b7dd0943579e9597a4e89b6bdf2be5b5e30d1",
+  "new_run_not_cancelled": true
+}
