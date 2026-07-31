@@ -1,0 +1,74 @@
+name: Temporary domain SSL check
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    if: github.event.issue.title == '[diagnostic] healthrenewal.org SSL check'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check DNS, HTTPS and certificate
+        shell: bash
+        run: |
+          set +e
+          exec > >(tee /tmp/report.txt) 2>&1
+
+          echo '## DNS'
+          echo 'A apex:'
+          dig +short A healthrenewal.org | sort -u
+          echo 'CNAME www:'
+          dig +short CNAME www.healthrenewal.org | sed 's/\.$//' | sort -u
+          echo 'AAAA apex:'
+          dig +short AAAA healthrenewal.org | sort -u
+
+          echo
+          echo '## HTTP/HTTPS'
+          for url in http://healthrenewal.org https://healthrenewal.org http://www.healthrenewal.org https://www.healthrenewal.org; do
+            echo "$url"
+            curl -sS -I -L --max-time 30 -o /dev/null -w 'code=%{http_code} final=%{url_effective} ip=%{remote_ip} ssl_verify=%{ssl_verify_result}\n' "$url" || true
+          done
+
+          echo
+          echo '## TLS apex'
+          timeout 30 openssl s_client -connect healthrenewal.org:443 -servername healthrenewal.org </dev/null 2>/dev/null \
+            | openssl x509 -noout -subject -issuer -dates -ext subjectAltName || true
+
+          echo
+          echo '## TLS www'
+          timeout 30 openssl s_client -connect www.healthrenewal.org:443 -servername www.healthrenewal.org </dev/null 2>/dev/null \
+            | openssl x509 -noout -subject -issuer -dates -ext subjectAltName || true
+
+          echo
+          echo '## GitHub Pages API'
+          curl -sS --max-time 30 \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            https://api.github.com/repos/khaledaltheeb/pterminology-site/pages \
+            | jq '{status,cname,html_url,build_type,source,https_certificate,https_enforced,message}' || true
+
+      - name: Publish result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          python3 - <<'PY' >/tmp/comment.json
+          import json
+          from pathlib import Path
+          report = Path('/tmp/report.txt').read_text(errors='replace') if Path('/tmp/report.txt').exists() else 'No report produced.'
+          print(json.dumps({'body': '## Live SSL diagnostic\n\n```text\n' + report[-55000:] + '\n```'}))
+          PY
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
+            --data-binary @/tmp/comment.json
