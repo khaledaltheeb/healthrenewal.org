@@ -1,0 +1,59 @@
+name: Monitor specialist deployment now
+
+on:
+  push:
+    branches:
+      - agent/inspect-cloudflare-specialists-now
+    paths:
+      - reports/monitor-specialist-deployment-trigger.txt
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/inspect-cloudflare-specialists-now
+      - name: Record deployment workflow runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python - <<'PY'
+          import json, os, urllib.request
+          from datetime import datetime, timezone
+          repo=os.environ['GITHUB_REPOSITORY']
+          token=os.environ['GH_TOKEN']
+          workflows=[
+            'deploy-specialist-identity-v10-production.yml',
+            'audit-specialist-sector-v10.yml',
+          ]
+          report={'schema_version':1,'checked_at':datetime.now(timezone.utc).isoformat(),'workflows':{}}
+          for workflow in workflows:
+              url=f'https://api.github.com/repos/{repo}/actions/workflows/{workflow}/runs?branch=main&per_page=10'
+              req=urllib.request.Request(url,headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','User-Agent':'pterminology-monitor'})
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as response:
+                      data=json.load(response)
+              except Exception as error:
+                  report['workflows'][workflow]={'error':type(error).__name__,'runs':[]}
+                  continue
+              rows=[]
+              for item in data.get('workflow_runs',[]):
+                  rows.append({key:item.get(key) for key in ('id','name','status','conclusion','event','head_sha','created_at','updated_at','html_url')})
+              report['workflows'][workflow]={'runs':rows}
+          open('reports/specialist-deployment-runs-now.json','w',encoding='utf-8').write(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps(report,ensure_ascii=False))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/specialist-deployment-runs-now.json
+          git commit -m "chore: record specialist deployment state [skip ci]"
+          git push origin HEAD:agent/inspect-cloudflare-specialists-now
