@@ -42,7 +42,7 @@ jobs:
           python-version: '3.12'
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
       - name: Validate source files and bounded fallback contract
         run: |
           set -euxo pipefail
@@ -63,7 +63,7 @@ jobs:
     if: github.event_name == 'pull_request'
     needs: validate
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -75,11 +75,21 @@ jobs:
             scripts/semantic-search-requirements.txt
             .github/workflows/semantic-search-index.yml
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
       - name: Cache Hugging Face model
         uses: actions/cache@v4
         with:
           path: ~/.cache/huggingface
           key: hf-multilingual-e5-small-v2-pinned
+
+      - name: Cache browser E5 model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/transformers-js
+          key: transformers-js-e5-small-4.2.0-761b726d
 
       - name: Install CPU-only index dependencies
         run: |
@@ -136,6 +146,52 @@ jobs:
               f"{manifest['chunkCount']} chunks and {len(manifest['shards'])} vector shards"
           )
           PY
+
+      - name: Verify browser ONNX query embeddings
+        run: |
+          set -euxo pipefail
+          work=/tmp/e5-browser-smoke
+          rm -rf "$work"
+          mkdir -p "$work"
+          cd "$work"
+          npm init -y >/dev/null
+          npm install --no-save --no-package-lock @huggingface/transformers@4.2.0
+          cat > smoke.mjs <<'JS'
+          import { env, pipeline } from '@huggingface/transformers';
+
+          env.allowLocalModels = false;
+          env.cacheDir = `${process.env.HOME}/.cache/transformers-js`;
+
+          const model = 'Xenova/multilingual-e5-small';
+          const revision = '761b726dd34fb83930e26aab4e9ac3899aa1fa78';
+          const extractor = await pipeline('feature-extraction', model, {
+            revision,
+            dtype: 'q8',
+            device: 'wasm',
+          });
+          const output = await extractor([
+            'query: طرق دعم اضطراب طيف التوحد',
+            'passage: تشمل خطط دعم اضطراب طيف التوحد التواصل الواضح والتدخل المبكر ودعم الأسرة.',
+            'passage: تتغير درجات الحرارة بين الفصول وتختلف كميات الأمطار من منطقة إلى أخرى.',
+          ], { pooling: 'mean', normalize: true });
+          const rows = output.tolist();
+          if (rows.length !== 3 || rows.some((row) => row.length !== 384)) {
+            throw new Error(`Unexpected browser embedding shape: ${JSON.stringify(output.dims)}`);
+          }
+          const dot = (left, right) => left.reduce((sum, value, index) => sum + value * right[index], 0);
+          const norm = (row) => Math.sqrt(dot(row, row));
+          for (const row of rows) {
+            const value = norm(row);
+            if (Math.abs(value - 1) > 0.015) throw new Error(`Embedding is not normalized: ${value}`);
+          }
+          const relevant = dot(rows[0], rows[1]);
+          const unrelated = dot(rows[0], rows[2]);
+          if (!(relevant > unrelated)) {
+            throw new Error(`Semantic ordering failed: relevant=${relevant}, unrelated=${unrelated}`);
+          }
+          console.log(JSON.stringify({ model, revision, dimensions: rows[0].length, relevant, unrelated }));
+          JS
+          node smoke.mjs
 
   build:
     if: github.event_name != 'pull_request'
