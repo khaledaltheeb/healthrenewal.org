@@ -69,7 +69,6 @@ def style():return '<style data-provider-condition-depth-v231-style>.provider-co
 def enrich(path,site,c,stages):
  source=path.read_text(encoding='utf-8');before=visible_words(source);base={'slug':c['slug'],'path':path.relative_to(site).as_posix(),'before_words':before}
  if MARKER in source:return {**base,'status':'already_enriched','after_words':before,'below_minimum':before<MIN_WORDS}
- if before>=MIN_WORDS:return {**base,'status':'sufficient','after_words':before,'below_minimum':False}
  if '</head>' not in source:raise ValueError('missing head')
  if 'data-provider-condition-depth-v231-style' not in source:source=source.replace('</head>',style()+'</head>',1)
  block=build_block(c,stages)

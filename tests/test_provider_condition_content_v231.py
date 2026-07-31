@@ -107,6 +107,29 @@ class ProviderConditionContentTests(unittest.TestCase):
         self.assertIn('دليل مؤسسي موسع', text)
         self.assertGreaterEqual(module.visible_words(text), module.MIN_WORDS)
 
+    def test_rich_page_still_receives_the_required_depth_contract(self) -> None:
+        path = self.site / 'provider-assessment-demo/conditions/global-developmental-delay/index.html'
+        rich_source = path.read_text(encoding='utf-8').replace(
+            '</main>',
+            '<section data-existing-specialist-content><h2>محتوى تخصصي قائم</h2><p>'
+            + ' '.join(['معلومة موثقة'] * 950)
+            + '</p></section></main>',
+            1,
+        )
+        path.write_text(rich_source, encoding='utf-8')
+        self.assertGreaterEqual(module.visible_words(rich_source), module.MIN_WORDS)
+
+        report = module.run(self.site)
+        text = path.read_text(encoding='utf-8')
+
+        self.assertEqual(report['status'], 'passed')
+        self.assertIn('data-existing-specialist-content', text)
+        self.assertEqual(text.count(module.START), 1)
+        self.assertEqual(text.count(module.MARKER), 1)
+        self.assertEqual(text.count('data-provider-condition-depth-v231-style'), 1)
+        self.assertIn('id="condition-root"', text)
+        self.assertIn('conditions-ui-v1.js', text)
+
     def test_is_idempotent(self) -> None:
         module.run(self.site)
         path = self.site / 'provider-assessment-demo/conditions/aac/index.html'
