@@ -103,7 +103,7 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("reset-v10.js?v=10.2.0", self.reset_html)
 
     def test_propagation_verifier_requires_atomic_stability(self):
-        self.assertIn("for attempt in range(1, 61)", self.propagation)
+        self.assertIn("for attempt in range(1, 241)", self.propagation)
         self.assertIn("normal_ok(normal_status, normal)", self.propagation)
         self.assertIn("public_deep_ok(public_status, public)", self.propagation)
         self.assertIn("protected_deep_ok(deep_status, deep)", self.propagation)
@@ -124,6 +124,8 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("verify_specialist_identity_v10_production.py", production)
         self.assertIn("stable_contract_cycles", production)
         self.assertIn("Deep health must not be public", production)
+        self.assertIn("/workers/scripts/pterminology-specialist-accounts/subdomain", production)
+        self.assertIn('"enabled":true,"previews_enabled":true', production)
         self.assertIn("tests.test_specialist_identity_v10", production)
         self.assertIn("specialist-identity-v10-production.json", production)
 
