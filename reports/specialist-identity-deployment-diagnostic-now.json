@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T08:15:27.531069+00:00",
+  "account_subdomain": {
+    "http_status": 200,
+    "success": true,
+    "errors": [],
+    "body_prefix": "{ \"result\": { \"subdomain\": \"pterminology-826ac349\" }, \"success\": true, \"errors\": [], \"messages\": [] }",
+    "result": {
+      "subdomain": "pterminology-826ac349"
+    }
+  },
+  "script_subdomain": {
+    "http_status": 200,
+    "success": true,
+    "errors": [],
+    "body_prefix": "{ \"result\": { \"enabled\": true, \"previews_enabled\": true }, \"success\": true, \"errors\": [], \"messages\": [] }",
+    "result": {
+      "enabled": true,
+      "previews_enabled": true
+    }
+  },
+  "deployments": {
+    "http_status": 200,
+    "success": true,
+    "errors": [],
+    "body_prefix": "{ \"result\": { \"deployments\": [ { \"id\": \"d9298625-fbed-4bbd-83b0-73aa4f667eae\", \"source\": \"wrangler\", \"strategy\": \"percentage\", \"annotations\": { \"workers/triggered_by\": \"secret\" }, \"versions\": [ { \"version_id\"",
+    "result": [
+      {
+        "id": "d9298625-fbed-4bbd-83b0-73aa4f667eae",
+        "created_on": "2026-07-31T08:10:41.782517Z",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "versions": [
+          {
+            "version_id": "d0904e0a-17eb-452a-863b-7b86ac9c6054",
+            "percentage": 100
+          }
+        ]
+      },
+      {
+        "id": "5fdf7d1d-1ec9-45ec-b7d3-a716f0b10cca",
+        "created_on": "2026-07-31T08:10:39.344667Z",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "versions": [
+          {
+            "version_id": "e032d041-6c72-49df-89cf-13920d0d8fcc",
+            "percentage": 100
+          }
+        ]
+      },
+      {
+        "id": "d8a7a734-7a58-4b14-8536-761e39a11cd3",
+        "created_on": "2026-07-31T08:10:36.98541Z",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "versions": [
+          {
+            "version_id": "9f80e3b7-0092-453b-b631-2320a04a16a0",
+            "percentage": 100
+          }
+        ]
+      },
+      {
+        "id": "7607c799-f217-4c94-b5e3-418153e7e234",
+        "created_on": "2026-07-31T08:06:25.647178Z",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "versions": [
+          {
+            "version_id": "9cedd3ba-4f72-45b0-bb42-9cb8d851cd10",
+            "percentage": 100
+          }
+        ]
+      },
+      {
+        "id": "6a9c233a-6967-411c-b330-276662d98301",
+        "created_on": "2026-07-31T07:30:12.905545Z",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "versions": [
+          {
+            "version_id": "28b9b5cc-0c56-4bd8-b2cf-a5c406e52ed6",
+            "percentage": 100
+          }
+        ]
+      },
+      {
+        "id": "fb8343ce-bdbd-4e66-be3d-aa99018d49bd",
+        "created_on": "2026-07-31T07:29:39.469899Z",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "versions": [
+          {
+            "version_id": "43f437f2-477b-4fb5-94cd-94e240e63f3a",
+            "percentage": 100
+          }
+        ]
+      }
+    ]
+  },
+  "versions": {
+    "http_status": 200,
+    "success": true,
+    "errors": [],
+    "body_prefix": "{ \"result\": { \"items\": [ { \"id\": \"d0904e0a-17eb-452a-863b-7b86ac9c6054\", \"number\": 20, \"metadata\": { \"created_on\": \"2026-07-31T08:10:41.782517Z\", \"source\": \"wrangler\", \"author_id\": \"315e50874e67f8b1a688df39afd103ae\", \"author",
+    "result": [
+      {
+        "id": "d0904e0a-17eb-452a-863b-7b86ac9c6054",
+        "created_on": null,
+        "number": 20,
+        "metadata": {
+          "created_on": "2026-07-31T08:10:41.782517Z",
+          "source": "wrangler",
+          "author_id": "315e50874e67f8b1a688df39afd103ae",
+          "author_email": "",
+          "has_preview": false
+        }
+      },
+      {
+        "id": "e032d041-6c72-49df-89cf-13920d0d8fcc",
+        "created_on": null,
+        "number": 19,
+        "metadata": {
+          "created_on": "2026-07-31T08:10:39.344667Z",
+          "source": "wrangler",
+          "author_id": "315e50874e67f8b1a688df39afd103ae",
+          "author_email": "",
+          "has_preview": false
+        }
+      },
+      {
+        "id": "9f80e3b7-0092-453b-b631-2320a04a16a0",
+        "created_on": null,
+        "number": 18,
+        "metadata": {
+          "created_on": "2026-07-31T08:10:36.98541Z",
+          "source": "wrangler",
+          "author_id": "315e50874e67f8b1a688df39afd103ae",
+          "author_email": "",
+          "has_preview": false
+        }
+      },
+      {
+        "id": "9cedd3ba-4f72-45b0-bb42-9cb8d851cd10",
+        "created_on": null,
+        "number": 17,
+        "metadata": {
+          "created_on": "2026-07-31T08:06:25.245969Z",
+          "source": "wrangler",
+          "author_id": "54edfe1614c6d08c17994a426ca47b0e",
+          "author_email": "pterminology@gmail.com",
+          "has_preview": true
+        }
+      },
+      {
+        "id": "28b9b5cc-0c56-4bd8-b2cf-a5c406e52ed6",
+        "created_on": null,
+        "number": 16,
+        "metadata": {
+          "created_on": "2026-07-31T07:30:12.544594Z",
+          "source": "wrangler",
+          "author_id": "54edfe1614c6d08c17994a426ca47b0e",
+          "author_email": "pterminology@gmail.com",
+          "has_preview": true
+        }
+      },
+      {
+        "id": "43f437f2-477b-4fb5-94cd-94e240e63f3a",
+        "created_on": null,
+        "number": 15,
+        "metadata": {
+          "created_on": "2026-07-31T07:29:39.221371Z",
+          "source": "wrangler",
+          "author_id": "54edfe1614c6d08c17994a426ca47b0e",
+          "author_email": "pterminology@gmail.com",
+          "has_preview": true
+        }
+      }
+    ]
+  },
+  "settings": {
+    "http_status": 200,
+    "success": true,
+    "errors": [],
+    "body_prefix": "{ \"result\": { \"placement\": {}, \"compatibility_date\": \"2026-07-31\", \"compatibility_flags\": [ \"nodejs_compat\" ], \"usage_model\": \"standard\", \"tags\": [], \"tail_consumers\": [], \"logpush\": false, \"observability\": { \"enabled\": true, \"head_sampling_rat",
+    "result": {
+      "compatibility_date": "2026-07-31",
+      "usage_model": "standard",
+      "bindings": [
+        {
+          "name": "ADMIN_API_KEY",
+          "type": "secret_text"
+        },
+        {
+          "name": "RATE_LIMIT_SALT",
+          "type": "secret_text"
+        },
+        {
+          "name": "RESEND_API_KEY",
+          "type": "secret_text"
+        }
+      ]
+    }
+  },
+  "secrets": {
+    "http_status": 200,
+    "success": true,
+    "errors": [],
+    "body_prefix": "{ \"result\": [ { \"name\": \"ADMIN_API_KEY\", \"type\": \"secret_text\" }, { \"name\": \"RATE_LIMIT_SALT\", \"type\": \"secret_text\" }, { \"name\": \"RESEND_API_KEY\", \"type\": \"secret_text\" } ], \"success\": true, \"errors\": [], \"messages\": [] }",
+    "result": {
+      "names": [
+        "ADMIN_API_KEY",
+        "RATE_LIMIT_SALT",
+        "RESEND_API_KEY"
+      ]
+    }
+  },
+  "probes": {
+    "diagnostic:/health": {
+      "http_status": 404,
+      "body_prefix": "",
+      "headers": {
+        "server": "cloudflare",
+        "cf-ray": "a23b27d16b2d23f8-SEA"
+      },
+      "json": null
+    },
+    "diagnostic:/": {
+      "http_status": 200,
+      "body_prefix": "<!doctype html> <html lang=\"ar\" dir=\"rtl\"> <head> <meta charset=\"utf-8\"> <meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"> <title>منصة الصحة النفسية وذوي الاحتياجات الخاصة | المعرفة والأدلة والأدوات</title> <meta name=\"description\" content=\"بوابة عربية مؤسسية تجم",
+      "headers": {
+        "server": "cloudflare",
+        "content-type": "text/html",
+        "cf-ray": "a23b27d1aedc9343-SEA",
+        "cache-control": "public, max-age=0, must-revalidate"
+      },
+      "json": null
+    },
+    "diagnostic:/health?probe=deployment-diagnostic": {
+      "http_status": 404,
+      "body_prefix": "",
+      "headers": {
+        "server": "cloudflare",
+        "cf-ray": "a23b27d28b4c9304-SEA"
+      },
+      "json": null
+    },
+    "browser:/health": {
+      "http_status": 404,
+      "body_prefix": "",
+      "headers": {
+        "server": "cloudflare",
+        "cf-ray": "a23b27d2bd49df13-SEA"
+      },
+      "json": null
+    },
+    "browser:/": {
+      "http_status": 200,
+      "body_prefix": "<!doctype html> <html lang=\"ar\" dir=\"rtl\"> <head> <meta charset=\"utf-8\"> <meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"> <title>منصة الصحة النفسية وذوي الاحتياجات الخاصة | المعرفة والأدلة والأدوات</title> <meta name=\"description\" content=\"بوابة عربية مؤسسية تجم",
+      "headers": {
+        "server": "cloudflare",
+        "content-type": "text/html",
+        "cf-ray": "a23b27d2fc9476d0-SEA",
+        "cache-control": "public, max-age=0, must-revalidate"
+      },
+      "json": null
+    },
+    "browser:/health?probe=deployment-diagnostic": {
+      "http_status": 404,
+      "body_prefix": "",
+      "headers": {
+        "server": "cloudflare",
+        "cf-ray": "a23b27d359577582-SEA"
+      },
+      "json": null
+    },
+    "curl:/health": {
+      "http_status": 404,
+      "body_prefix": "",
+      "headers": {
+        "server": "cloudflare",
+        "cf-ray": "a23b27d38c5ea347-SEA"
+      },
+      "json": null
+    },
+    "curl:/": {
+      "http_status": 200,
+      "body_prefix": "<!doctype html> <html lang=\"ar\" dir=\"rtl\"> <head> <meta charset=\"utf-8\"> <meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"> <title>منصة الصحة النفسية وذوي الاحتياجات الخاصة | المعرفة والأدلة والأدوات</title> <meta name=\"description\" content=\"بوابة عربية مؤسسية تجم",
+      "headers": {
+        "server": "cloudflare",
+        "content-type": "text/html",
+        "cf-ray": "a23b27d3ca1930b7-SEA",
+        "cache-control": "public, max-age=0, must-revalidate"
+      },
+      "json": null
+    },
+    "curl:/health?probe=deployment-diagnostic": {
+      "http_status": 404,
+      "body_prefix": "",
+      "headers": {
+        "server": "cloudflare",
+        "cf-ray": "a23b27d42d4475fa-SEA"
+      },
+      "json": null
+    },
+    "python:/health": {
+      "http_status": 403,
+      "body_prefix": "{\"type\":\"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/\",\"title\":\"Error 1010: Access denied\",\"status\":403,\"detail\":\"The site owner has blocked access based on your browser's signature.\",\"instance\":\"a23b27d46edeb9d4\",\"error_code\":1010,\"e",
+      "headers": {
+        "server": "cloudflare",
+        "content-type": "application/json; charset=utf-8",
+        "cf-ray": "a23b27d46edeb9d4-SEA",
+        "cache-control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0"
+      },
+      "json": {
+        "type": "https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/",
+        "title": "Error 1010: Access denied",
+        "status": 403,
+        "detail": "The site owner has blocked access based on your browser's signature.",
+        "instance": "a23b27d46edeb9d4",
+        "error_code": 1010,
+        "error_name": "browser_signature_banned",
+        "error_category": "access_denied",
+        "ray_id": "a23b27d46edeb9d4",
+        "timestamp": "2026-07-31T08:15:29Z",
+        "zone": "pterminology-specialist-accounts.pterminology-826ac349.workers.dev",
+        "cloudflare_error": true,
+        "retryable": false,
+        "owner_action_required": true,
+        "what_you_should_do": "**Do not retry.** Your user-agent has been banned by the site owner.",
+        "footer": "This error was generated by Cloudflare on behalf of the website owner."
+      }
+    },
+    "python:/": {
+      "http_status": 403,
+      "body_prefix": "{\"type\":\"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/\",\"title\":\"Error 1010: Access denied\",\"status\":403,\"detail\":\"The site owner has blocked access based on your browser's signature.\",\"instance\":\"a23b27d49d89681d\",\"error_code\":1010,\"e",
+      "headers": {
+        "server": "cloudflare",
+        "content-type": "application/json; charset=utf-8",
+        "cf-ray": "a23b27d49d89681d-SEA",
+        "cache-control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0"
+      },
+      "json": {
+        "type": "https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/",
+        "title": "Error 1010: Access denied",
+        "status": 403,
+        "detail": "The site owner has blocked access based on your browser's signature.",
+        "instance": "a23b27d49d89681d",
+        "error_code": 1010,
+        "error_name": "browser_signature_banned",
+        "error_category": "access_denied",
+        "ray_id": "a23b27d49d89681d",
+        "timestamp": "2026-07-31T08:15:30Z",
+        "zone": "pterminology-specialist-accounts.pterminology-826ac349.workers.dev",
+        "cloudflare_error": true,
+        "retryable": false,
+        "owner_action_required": true,
+        "what_you_should_do": "**Do not retry.** Your user-agent has been banned by the site owner.",
+        "footer": "This error was generated by Cloudflare on behalf of the website owner."
+      }
+    },
+    "python:/health?probe=deployment-diagnostic": {
+      "http_status": 403,
+      "body_prefix": "{\"type\":\"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/\",\"title\":\"Error 1010: Access denied\",\"status\":403,\"detail\":\"The site owner has blocked access based on your browser's signature.\",\"instance\":\"a23b27d4c99376fa\",\"error_code\":1010,\"e",
+      "headers": {
+        "server": "cloudflare",
+        "content-type": "application/json; charset=utf-8",
+        "cf-ray": "a23b27d4c99376fa-SEA",
+        "cache-control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0"
+      },
+      "json": {
+        "type": "https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1010/",
+        "title": "Error 1010: Access denied",
+        "status": 403,
+        "detail": "The site owner has blocked access based on your browser's signature.",
+        "instance": "a23b27d4c99376fa",
+        "error_code": 1010,
+        "error_name": "browser_signature_banned",
+        "error_category": "access_denied",
+        "ray_id": "a23b27d4c99376fa",
+        "timestamp": "2026-07-31T08:15:30Z",
+        "zone": "pterminology-specialist-accounts.pterminology-826ac349.workers.dev",
+        "cloudflare_error": true,
+        "retryable": false,
+        "owner_action_required": true,
+        "what_you_should_do": "**Do not retry.** Your user-agent has been banned by the site owner.",
+        "footer": "This error was generated by Cloudflare on behalf of the website owner."
+      }
+    }
+  },
+  "summary": {
+    "script_subdomain_enabled": true,
+    "deployment_count": 6,
+    "secret_names": [
+      "ADMIN_API_KEY",
+      "RATE_LIMIT_SALT",
+      "RESEND_API_KEY"
+    ],
+    "health_statuses": {
+      "diagnostic:/health": 404,
+      "browser:/health": 404,
+      "curl:/health": 404,
+      "python:/health": 403
+    },
+    "any_health_200": false
+  }
+}
