@@ -14,6 +14,7 @@ DEPLOY = ROOT / ".github/workflows/deploy-specialist-identity-v10-production.yml
 PAGES = ROOT / ".github/workflows/deploy-specialist-recovery-pages-v8.yml"
 LEGACY_V6 = ROOT / ".github/workflows/deploy-specialists-account-backend.yml"
 LEGACY_V8 = ROOT / ".github/workflows/deploy-specialist-recovery-overlay-v8.yml"
+LEGACY_DELIVERY = ROOT / ".github/workflows/verify-specialist-recovery-v8.yml"
 
 
 class SpecialistIdentityV10Tests(unittest.TestCase):
@@ -131,12 +132,17 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("admin-provider-status-v10.js?v=10.2.0", pages)
         self.assertIn("reset-v10.js?v=10.2.0", pages)
 
-    def test_legacy_workflows_are_validation_only(self):
+    def test_legacy_workflows_are_validation_only_and_never_issue_links(self):
         for path in (LEGACY_V6, LEGACY_V8):
             text = path.read_text(encoding="utf-8")
             self.assertNotIn("wrangler@4 deploy", text)
             self.assertNotIn("push:\n    branches", text)
             self.assertIn("validation-only", text)
+        delivery = LEGACY_DELIVERY.read_text(encoding="utf-8")
+        self.assertNotIn("owner-password-reset", delivery)
+        self.assertNotIn("providerMessageId", delivery)
+        self.assertNotIn("reset token", delivery.lower())
+        self.assertIn("without creating a reset token or sending email", delivery)
 
 
 if __name__ == "__main__":
