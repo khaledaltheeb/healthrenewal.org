@@ -15,7 +15,7 @@ from publish_youth_sector_v353_base import *  # noqa: F401,F403
 
 TRUST_ROUTES = {
     "methodology": f"{BASE_PATH}/trust/",
-    "information_evaluation": f"{BASE_PATH}/trust/#evidence",
+    "information_evaluation": f"{BASE_PATH}/trust/",
 }
 
 _RETIRED_ROUTES = {
@@ -70,7 +70,7 @@ def _publish_compatibility_aliases(site: Path) -> None:
         ),
         "evaluate-mental-health-information": (
             "تقييم معلومات الصحة النفسية",
-            "نُقل دليل تقييم المعلومات النفسية إلى قسم قراءة الدليل داخل صفحة الثقة الموحدة.",
+            "نُقل دليل تقييم المعلومات النفسية إلى صفحة الثقة والمصادر والمراجعة الموحدة.",
             TRUST_ROUTES["information_evaluation"],
         ),
     }
