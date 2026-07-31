@@ -1,0 +1,106 @@
+name: Probe specialist owner recovery email
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/probe-specialist-owner-recovery-email.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: probe-specialist-owner-recovery-email
+  cancel-in-progress: false
+
+env:
+  ACCOUNT_API_BASE: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Send one protected owner recovery email
+        id: send
+        run: |
+          set -euo pipefail
+          test -n "${ADMIN_API_KEY:-}"
+          status="$(curl -sS --max-time 60 \
+            -o /tmp/owner-recovery-response.json \
+            -w '%{http_code}' \
+            -X POST "${ACCOUNT_API_BASE}/v1/internal/owner-password-reset" \
+            -H "x-bootstrap-key: ${ADMIN_API_KEY}" \
+            -H 'content-type: application/json' \
+            --data '{}')"
+          STATUS="$status" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          try:
+              data=json.load(open('/tmp/owner-recovery-response.json',encoding='utf-8'))
+          except Exception:
+              data={}
+          safe={
+              'http_status':int(os.environ.get('STATUS') or 0),
+              'ok':data.get('ok') is True,
+              'delivery':data.get('delivery'),
+              'request_id_present':bool(data.get('requestId')),
+              'provider_message_id_present':bool(data.get('providerMessageId')),
+              'expires_at':data.get('expiresAt'),
+              'error':data.get('error'),
+          }
+          Path('/tmp/owner-recovery-safe.json').write_text(json.dumps(safe),encoding='utf-8')
+          print(safe)
+          if not (safe['http_status']==200 and safe['ok'] and safe['delivery']=='sent' and safe['provider_message_id_present']):
+              raise SystemExit(1)
+          PY
+
+      - name: Publish safe delivery report
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python - <<'PY'
+          import json,os
+          from datetime import datetime,timezone
+          from pathlib import Path
+          try:
+              delivery=json.loads(Path('/tmp/owner-recovery-safe.json').read_text(encoding='utf-8'))
+          except Exception:
+              delivery={}
+          report={
+              'schema_version':1,
+              'checked_at':datetime.now(timezone.utc).isoformat(),
+              'source_sha':os.environ.get('GITHUB_SHA'),
+              'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),
+              'status':'passed' if delivery.get('ok') is True and delivery.get('provider_message_id_present') is True else 'failed',
+              'delivery':delivery,
+              'password_changed':False,
+              'reset_token_recorded':False,
+              'contains_secret_values':False,
+          }
+          Path('reports/specialist-owner-recovery-email-probe.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(report)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/specialist-owner-recovery-email-probe.json
+          git commit -m "chore: record owner recovery email probe [skip ci]" || exit 0
+          for attempt in {1..5}; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            git rebase --abort || true
+            sleep $((attempt*3))
+          done
+          exit 1
+
+      - name: Remove response body
+        if: always()
+        run: rm -f /tmp/owner-recovery-response.json /tmp/owner-recovery-safe.json
