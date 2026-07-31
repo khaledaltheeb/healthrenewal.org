@@ -1,0 +1,117 @@
+name: Validate capabilities library v280
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "content/v280/capabilities-100-ar.json"
+      - "content/v280/profiles/*.json"
+      - "content/v280/evidence/*.json"
+      - "scripts/build_capabilities_evidence_v280.py"
+      - "scripts/publish_capabilities_v280.py"
+      - "assets/css/capabilities-v280.css"
+      - "assets/js/capabilities-v280.js"
+      - "tests/test_capabilities_v280.py"
+      - ".github/workflows/validate-capabilities-v280.yml"
+      - ".github/workflows/publish-capabilities-v280.yml"
+      - ".github/workflows/deploy-capabilities-v280.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "content/v280/capabilities-100-ar.json"
+      - "content/v280/profiles/*.json"
+      - "content/v280/evidence/*.json"
+      - "scripts/build_capabilities_evidence_v280.py"
+      - "scripts/publish_capabilities_v280.py"
+      - "assets/css/capabilities-v280.css"
+      - "assets/js/capabilities-v280.js"
+      - "tests/test_capabilities_v280.py"
+      - ".github/workflows/validate-capabilities-v280.yml"
+      - ".github/workflows/publish-capabilities-v280.yml"
+      - ".github/workflows/deploy-capabilities-v280.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence-and-publication-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile structured source and runtimes
+        run: |
+          set -euxo pipefail
+          python -m json.tool content/v280/capabilities-100-ar.json >/dev/null
+          for profile in content/v280/profiles/*.json; do python -m json.tool "$profile" >/dev/null; done
+          for evidence in content/v280/evidence/*.json; do python -m json.tool "$evidence" >/dev/null; done
+          python -m py_compile scripts/build_capabilities_evidence_v280.py
+          python -m py_compile scripts/publish_capabilities_v280.py
+          python -m py_compile tests/test_capabilities_v280.py
+          node --check assets/js/capabilities-v280.js
+
+      - name: Enforce scientific safety language and publication contracts
+        run: |
+          python - <<'PY'
+          import unittest
+          from tests import test_capabilities_v280 as module
+
+          loaded = unittest.defaultTestLoader.loadTestsFromModule(module)
+          filtered = unittest.TestSuite()
+
+          def visit(suite):
+              for test in suite:
+                  if isinstance(test, unittest.TestSuite):
+                      visit(test)
+                  elif test._testMethodName != 'test_main_build_pipeline_invokes_v280_after_provider_pathways':
+                      filtered.addTest(test)
+
+          visit(loaded)
+          result = unittest.TextTestRunner(verbosity=2).run(filtered)
+          if not result.wasSuccessful():
+              raise SystemExit(1)
+          PY
+
+      - name: Enforce the audited-artifact publication and Pages deployment chain
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          publish=Path('.github/workflows/publish-capabilities-v280.yml').read_text(encoding='utf-8')
+          deploy=Path('.github/workflows/deploy-capabilities-v280.yml').read_text(encoding='utf-8')
+          assert 'Audit production discovery contract v220' in publish
+          assert 'python scripts/publish_capabilities_v280.py validated-site' in publish
+          assert 'python scripts/stamp_deployment_v29.py validated-site' in publish
+          assert 'actions/upload-artifact@v4' in publish
+          assert 'Publish capabilities library v280' in deploy
+          assert 'actions/deploy-pages@v4' in deploy
+          assert 'validated-github-pages-v242' in deploy
+          assert 'sitemap-capabilities.xml' in deploy
+          assert 'external_clinical_review_completed' in deploy
+          print({'source':'v280','publication':'post-audit','pages_deployment':'verified-chain'})
+          PY
+
+      - name: Audit claim-level source metadata
+        run: |
+          python scripts/audit_source_evidence_v75.py . --output /tmp/source-evidence-v280.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path('/tmp/source-evidence-v280.json').read_text(encoding='utf-8'))
+          relevant_errors = [item for item in report.get('errors', []) if 'content/v280/' in str(item)]
+          assert relevant_errors == [], relevant_errors[:10]
+          base_records = [item for item in report['records'] if item['file'] == 'content/v280/capabilities-100-ar.json']
+          selected_records = [item for item in report['records'] if item['file'].startswith('content/v280/evidence/')]
+          records = [*base_records, *selected_records]
+          assert len(base_records) == 20, len(base_records)
+          assert len(selected_records) == 112, len(selected_records)
+          assert len(records) == 132, len(records)
+          assert all(item['contract_ready'] for item in records), records
+          print({'base_sources':20,'selected_sources':112,'capabilities_sources':132,'v280_errors':0,'unrelated_repository_errors':report.get('error_count',0)})
+          PY

@@ -1,0 +1,1186 @@
+{
+  "version": 280,
+  "language": "ar",
+  "category": "neurodevelopmental-learning",
+  "title": "حزم الأدلة المنتقاة: النمو العصبي والتعلم والتواصل",
+  "search_updated": "2026-07-27",
+  "external_review_completed": false,
+  "selection_method": {
+    "scope": "تغطي هذه الموجة جميع الحالات السبع عشرة في فئة النمو العصبي والتعلم والتواصل، بثلاثة ادعاءات محدودة لكل حالة: حدود الملف، والوصول أو التدخل، والأمان أو التشخيص التفريقي.",
+    "selection_order": [
+      "إرشاد رسمي أو مهني حديث ومباشر للحالة أو للمجال الوظيفي.",
+      "مراجعة منهجية أو تحليل تجميعي مباشر، مع التصريح بالتغاير ومحدودية الدراسات.",
+      "بحث أولي محكم فقط عندما يجيب عن سؤال لا تغطيه المراجعات، ومن دون رفعه إلى قاعدة جماعية.",
+      "منظور الخبرة المعاشة عندما يكون السؤال عن تجربة الشخص، لا عن السببية أو فعالية العلاج."
+    ],
+    "exclusions": [
+      "المصادر الترويجية وقصص النجاح المنفردة بوصفها دليلًا على صفة أو تدخل.",
+      "نتائج البحث الحي في PubMed بوصفها قائمة مصادر منتقاة قبل الفرز والنقد.",
+      "بروتوكولات المراجعات التي لم تنشر نتائجها بعد بوصفها دليل فعالية.",
+      "أي استنتاج يربط التشخيص بموهبة أو ذكاء أو مهنة من دون قياس مباشر عند الشخص."
+    ],
+    "certainty_policy": "لا يعيّن المشروع درجة GRADE من تلقاء نفسه. يصف نوع المصدر، ومباشرة الدليل، والتغاير، وحدود النقل إلى الفرد. تبقى قوة التوصية الرسمية للجهة التي أصدرتها.",
+    "live_search_boundary": "رابط البحث الحي أداة تحديث للمراجع المتخصص، وليس مصدرًا مختارًا ولا إثباتًا لفعالية تدخل.",
+    "review_boundary": "الانتقاء والترجمة ومطابقة الادعاءات مراجعة داخلية قابلة للتدقيق، ولم تكتمل مراجعة خارجية مستقلة سريرية وتربوية ومن ذوي الخبرة المعاشة."
+  },
+  "evidence_character_labels": {
+    "official-current-guidance": "إرشاد رسمي أو بوابة ممارسة مهنية حالية؛ مباشر للممارسة، ولا يثبت نتيجة فردية مسبقًا.",
+    "guideline-backed": "توصية إرشادية مبنية على مراجعة أو توافق مهني؛ يلزم تطبيقها بحسب العمر والسياق والتفضيلات.",
+    "expert-reviewed-living-reference": "مرجع سريري خبير مُراجع ومحدّث دوريًا؛ يدعم الحدود والمراقبة ولا يثبت نتيجة وظيفية فردية.",
+    "systematic-review-direct-heterogeneous": "مراجعة منهجية مباشرة لكن الدراسات أو العينات أو المقاييس متغايرة؛ تصلح لتحديد اتجاه لا لضمان نتيجة.",
+    "systematic-review-limited-directness": "مراجعة منهجية ذات عدد قليل أو مباشرة جزئية للحالة؛ الاستنتاج حذر وتجريبي.",
+    "mixed-sources-no-causal-inference": "مزيج من إرشاد وبحث محكم أو خبرة معاشة؛ يحدد فرضية أو حدًا ولا يثبت السببية."
+  },
+  "sources": [
+    {
+      "id": "aap-autism-management-2020",
+      "publisher": "American Academy of Pediatrics",
+      "title": "Identification, Evaluation, and Management of Children With Autism Spectrum Disorder",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31843864/",
+      "year": 2020,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "autism-support-needs-span-health-education-communication-and-participation",
+        "co-occurring-conditions-and-functional-needs-require-individual-assessment"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "nice-adhd-ng87-2018",
+      "publisher": "National Institute for Health and Care Excellence",
+      "title": "Attention deficit hyperactivity disorder: diagnosis and management (NG87)",
+      "url": "https://www.nice.org.uk/guidance/ng87",
+      "year": 2018,
+      "source_type": "official_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "adhd-management-is-individualized-and-multimodal",
+        "impairment-coexisting-conditions-sleep-and-environment-require-review"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "cps-gdd-idd-2026",
+      "publisher": "Canadian Paediatric Society",
+      "title": "Assessing children and youth with global developmental delay and intellectual developmental disorder",
+      "url": "https://cps.ca/en/documents/position/Assessing-GDD-IDD",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "gdd-and-idd-require-domain-specific-longitudinal-functional-assessment",
+        "hearing-vision-health-and-regression-require-clinical-review",
+        "supports-should-be-individualized-and-strengths-based"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "kuld-idd-self-determination-2023",
+      "publisher": "Journal of Intellectual Disability Research",
+      "title": "Promoting self-determination of persons with severe or profound intellectual disabilities: a systematic review and meta-analysis",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37165964/",
+      "year": 2023,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "choice-independence-and-problem-solving-can-be-targeted",
+        "self-determination-evidence-is-heterogeneous-and-meta-analysis-was-limited"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "asha-intellectual-disability-2026",
+      "publisher": "American Speech-Language-Hearing Association",
+      "title": "Intellectual Disability — Practice Portal",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/intellectual-disability/",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "communication-assessment-must-be-functional-and-individualized",
+        "aac-and-natural-supports-may-expand-participation"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "asha-written-language-2026",
+      "publisher": "American Speech-Language-Hearing Association",
+      "title": "Written Language Disorders — Practice Portal",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/written-language-disorders/",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "written-language-assessment-covers-process-product-and-language-components",
+        "keyboard-scribe-and-other-accommodations-may-be-needed",
+        "assessment-must-be-culturally-and-linguistically-appropriate"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "ies-effective-writers-2018",
+      "publisher": "U.S. Institute of Education Sciences, What Works Clearinghouse",
+      "title": "Teaching Elementary School Students to Be Effective Writers",
+      "url": "https://ies.ed.gov/ncee/wwc/practiceguide/17",
+      "year": 2018,
+      "source_type": "official_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "explicit-writing-process-instruction-has-strong-support",
+        "handwriting-spelling-sentence-typing-fluency-instruction-has-moderate-support"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "haberstroh-dyscalculia-2019",
+      "publisher": "Deutsches Ärzteblatt International",
+      "title": "The Diagnosis and Treatment of Dyscalculia",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30905334/",
+      "year": 2019,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "dyscalculia-assessment-requires-history-testing-and-psychosocial-context",
+        "symptom-specific-mathematics-intervention-has-the-best-support",
+        "co-occurring-conditions-require-attention"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "mishra-dyscalculia-cognition-2023",
+      "publisher": "Child Neuropsychology",
+      "title": "Domain-general and domain-specific cognitive correlates of developmental dyscalculia: a systematic review of the last two decades' literature",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36440471/",
+      "year": 2023,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "dyscalculia-cognitive-pathways-are-heterogeneous",
+        "number-processing-and-working-memory-findings-do-not-define-every-individual"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "apta-dcd-cpg-2026",
+      "publisher": "American Physical Therapy Association Academy of Pediatric Physical Therapy",
+      "title": "Physical Therapy Management of Children With Developmental Coordination Disorder: A 2026 Evidence-Based Clinical Practice Guideline",
+      "url": "https://www.apta.org/patient-care/evidence-based-practice-resources/cpgs/physical-therapy-management-of-children-with-developmental-coordination-disorder",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "dcd-evaluation-and-management-are-function-and-participation-oriented",
+        "intervention-and-outcome-measures-require-individualized-selection"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "catalise-dld-terminology-2017",
+      "publisher": "Journal of Child Psychology and Psychiatry",
+      "title": "Phase 2 of CATALISE: a multinational and multidisciplinary Delphi consensus study of problems with language development: Terminology",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28369935/",
+      "year": 2017,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "developmental-language-disorder-terminology-and-boundaries",
+        "co-occurring-neurodevelopmental-difficulties-do-not-automatically-exclude-dld"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "neumann-dld-guideline-2024",
+      "publisher": "Deutsches Ärzteblatt International",
+      "title": "Interventions for Developmental Language Delay and Disorders",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38377329/",
+      "year": 2024,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "dld-intervention-should-match-language-profile-age-and-context",
+        "evidence-varies-by-target-and-intervention"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "asha-spoken-language-2026",
+      "publisher": "American Speech-Language-Hearing Association",
+      "title": "Spoken Language Disorders — Practice Portal",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/spoken-language-disorders/",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "screening-does-not-equal-diagnosis",
+        "language-assessment-must-consider-hearing-culture-dialect-and-multilingualism",
+        "functional-communication-goals-require-individualization"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "asha-speech-sound-2026",
+      "publisher": "American Speech-Language-Hearing Association",
+      "title": "Speech Sound Disorders: Articulation and Phonology — Practice Portal",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/articulation-and-phonology/",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "speech-sound-assessment-includes-hearing-language-structure-and-function",
+        "accent-dialect-and-language-difference-are-not-disorder",
+        "intervention-targets-depend-on-the-individual-error-system"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "kunnari-phonology-review-2024",
+      "publisher": "International Journal of Language & Communication Disorders",
+      "title": "Intervention studies with group design targeting expressive phonology for children with developmental speech and language disorder: A systematic review and meta-analysis",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39215448/",
+      "year": 2024,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "expressive-phonology-interventions-can-improve-speech-production-accuracy",
+        "intervention-studies-vary-in-methods-targets-and-populations"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "asha-cas-2026",
+      "publisher": "American Speech-Language-Hearing Association",
+      "title": "Childhood Apraxia of Speech — Practice Portal",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/childhood-apraxia-of-speech/",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "cas-is-a-motor-planning-programming-speech-disorder",
+        "differential-diagnosis-and-functional-communication-assessment-are-required",
+        "aac-can-support-communication-alongside-speech-treatment"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "morgan-cas-cochrane-2018",
+      "publisher": "Cochrane Database of Systematic Reviews",
+      "title": "Interventions for childhood apraxia of speech",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29845607/",
+      "year": 2018,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "cas-treatment-trial-evidence-was-small-and-limited",
+        "no-single-intervention-can-be-promised-for-every-child"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "adams-cas-aac-2026",
+      "publisher": "Augmentative and Alternative Communication",
+      "title": "A scoping review of augmentative and alternative communication use in children with childhood apraxia of speech",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41649066/",
+      "year": 2026,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "aac-may-complement-cas-management-and-support-communication",
+        "cas-specific-aac-literature-remains-small"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "asha-fluency-2026",
+      "publisher": "American Speech-Language-Hearing Association",
+      "title": "Stuttering, Cluttering, and Fluency — Practice Portal",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/fluency-disorders/",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "stuttering-assessment-includes-impact-participation-and-speaker-experience",
+        "treatment-goals-are-person-centered-and-not-limited-to-fluency-counts"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "laiho-stuttering-review-2022",
+      "publisher": "Journal of Communication Disorders",
+      "title": "Stuttering interventions for children, adolescents, and adults: a systematic review as a part of clinical guidelines",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35751980/",
+      "year": 2022,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "stuttering-intervention-evidence-varies-by-age-and-approach",
+        "adult-holistic-outcomes-and-covert-impact-matter"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "cdc-tourette-2026",
+      "publisher": "U.S. Centers for Disease Control and Prevention",
+      "title": "About Tourette Syndrome",
+      "url": "https://www.cdc.gov/tourette-syndrome/about/index.html",
+      "year": 2026,
+      "source_type": "public_health_authority",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "tics-are-sudden-repeated-movements-or-sounds-not-misbehavior",
+        "tourette-diagnosis-is-clinical-and-treatment-is-not-a-cure"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "aan-tic-guideline-2019",
+      "publisher": "American Academy of Neurology",
+      "title": "Practice guideline recommendations summary: Treatment of tics in people with Tourette syndrome and chronic tic disorders",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31061208/",
+      "year": 2019,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "tic-treatment-is-based-on-impairment-preferences-benefits-and-harms",
+        "watchful-waiting-and-cbit-are-options-in-appropriate-circumstances",
+        "co-occurring-conditions-require-assessment"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "asha-social-communication-2026",
+      "publisher": "American Speech-Language-Hearing Association",
+      "title": "Social Communication Disorder — Practice Portal",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/social-communication-disorder/",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "social-communication-assessment-requires-autism-language-and-cultural-differential",
+        "functional-context-and-person-centered-goals-are-required"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "adams-social-communication-rct-2012",
+      "publisher": "International Journal of Language & Communication Disorders",
+      "title": "The Social Communication Intervention Project: a randomized controlled trial of the effectiveness of speech and language therapy for school-age children who have pragmatic and social communication problems with or without autism spectrum disorder",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/22512510/",
+      "year": 2012,
+      "source_type": "primary_research",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "targeted-social-communication-intervention-can-improve-selected-outcomes",
+        "single-trial-results-do-not-establish-universal-program-effectiveness"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "norbury-spcd-review-2014",
+      "publisher": "Journal of Child Psychology and Psychiatry",
+      "title": "Practitioner review: Social (pragmatic) communication disorder conceptualization, evidence and clinical implications",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24117874/",
+      "year": 2014,
+      "source_type": "peer_reviewed_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "spcd-conceptual-and-diagnostic-boundaries-remain-important",
+        "pragmatic-difficulty-must-be-interpreted-with-language-autism-and-context"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "asha-capd-2026",
+      "publisher": "American Speech-Language-Hearing Association",
+      "title": "Central Auditory Processing Disorder — Practice Portal",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/central-auditory-processing-disorder/",
+      "year": 2026,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "capd-has-no-universal-reference-standard-and-requires-individualized-battery",
+        "hearing-language-attention-and-cognition-require-differential-assessment",
+        "environmental-modifications-may-support-listening-function"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "de-wit-capd-overlap-2018",
+      "publisher": "Ear and Hearing",
+      "title": "Same or Different: The Overlap Between Children With Auditory Processing Disorders and Children With Other Developmental Disorders: A Systematic Review",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28863035/",
+      "year": 2018,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "listening-difficulties-overlap-language-attention-and-learning-disorders",
+        "capd-label-alone-does-not-identify-a-single-mechanism"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "piller-sensory-interventions-2025",
+      "publisher": "Frontiers in Pediatrics",
+      "title": "Systematic review of sensory-based interventions for children and youth (2015–2024)",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41321460/",
+      "year": 2025,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "sensory-based-intervention-effects-are-intervention-and-outcome-specific",
+        "heterogeneity-prevents-a-universal-sensory-prescription"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "piller-ayres-si-2026",
+      "publisher": "American Journal of Occupational Therapy",
+      "title": "Occupational Therapy Interventions Using Ayres Sensory Integration for Children and Youth (2015–2024): A Systematic Review",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41324442/",
+      "year": 2026,
+      "source_type": "systematic_review",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "ayres-sensory-integration-evidence-applies-to-defined-populations-and-functional-outcomes",
+        "findings-do-not-support-all-sensory-products-or-all-people"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "cdc-fasd-treatment-2025",
+      "publisher": "U.S. Centers for Disease Control and Prevention",
+      "title": "Types of Treatment for Fetal Alcohol Spectrum Disorders",
+      "url": "https://www.cdc.gov/fasd/treatment/types.html",
+      "year": 2025,
+      "source_type": "public_health_authority",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "fasd-support-addresses-specific-impairments-and-builds-on-individual-strengths",
+        "treatment-needs-vary-and-only-some-programs-have-fasd-specific-testing",
+        "brain-based-challenges-should-not-be-framed-as-willful-misbehavior"
+      ],
+      "status": "current"
+    },
+    {
+      "id": "strieker-fasd-guideline-2025",
+      "publisher": "Neuropediatrics",
+      "title": "First Evidence-Based Guideline for Interventions in FASD",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40015329/",
+      "year": 2025,
+      "source_type": "professional_body_guideline",
+      "verified_at": "2026-07-26",
+      "claims_supported": [
+        "fasd-interventions-can-target-domain-specific-function-and-family-quality-of-life",
+        "recommendations-combine-evidence-and-formal-expert-consensus",
+        "evidence-does-not-promise-normalization-or-cure"
+      ],
+      "status": "current"
+    }
+  ],
+  "evidence_packets": [
+    {
+      "slug": "autism",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "autism-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "تصف المراجعات خبرات قوة لدى بعض الأشخاص ذوي التوحد، مثل معرفة الذات أو الاهتمام المتعمق، لكن ظهورها سياقي ومتفاوت ولا يثبت أن التشخيص أنشأ موهبة.",
+          "what_it_supports": "سؤال الشخص عن اهتماماته واستراتيجياته وما يراه نقطة قوة، ثم اختبار فائدتها في مهمة يختارها وبيئة قابلة للوصول.",
+          "what_it_does_not_support": "إسناد الدقة أو الذاكرة أو الإبداع أو تخصص دراسي أو مهني لكل شخص ذي توحد، أو اعتبار الاهتمام المقيد قدرة نافعة بذاته.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "chow-autistic-strengths-2024",
+            "taylor-autism-strength-use-2023"
+          ]
+        },
+        {
+          "id": "autism-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "ترتبط الاستفادة من نقاط القوة المبلغ عنها بجودة حياة أفضل في دراسات رصدية، بينما تتطلب الممارسة الفعلية أهدافًا فردية تشمل التواصل والصحة والتعليم والمشاركة.",
+          "what_it_supports": "إدراج استخدام القوة المختارة ضمن هدف وظيفي قابل للقياس، مع تكييف حسي وتواصلي ومراجعة أثره في المشاركة والعبء.",
+          "what_it_does_not_support": "القول إن برنامج «نقاط القوة» علاج للتوحد، أو أن الارتباط الرصدي يثبت السببية أو يغني عن الدعم الصحي والتعليمي المطلوب.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "taylor-autism-strength-use-2023",
+            "aap-autism-management-2020"
+          ]
+        },
+        {
+          "id": "autism-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "يتطلب الدعم مراجعة الاحتياجات المصاحبة مثل اللغة والنوم والألم والصرع والصحة النفسية؛ تغير الأداء أو الانسحاب لا يفسر تلقائيًا بأنه «سمة توحد».",
+          "what_it_supports": "فحص التغير الصحي والتواصلي والبيئي قبل الحكم على القدرة، وتوفير وسيلة رفض وتواصل متاحة وعدم مكافأة إخفاء السمات المؤذي.",
+          "what_it_does_not_support": "تجاهل الألم أو القلق أو فقد المهارة باسم التقبل، أو فرض التواصل البصري والتطبيع السلوكي معيارًا للنجاح.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "aap-autism-management-2020"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "adhd",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "adhd-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "تسجل مراجعة نطاقية لدى بالغين ذوي ADHD تقارير عن الإبداع والطاقة والانتباه المدفوع بالاهتمام وسمات اجتماعية، لكن الأدلة متغايرة وتعتمد على التقرير والسياق.",
+          "what_it_supports": "تحويل السمة التي يذكرها الشخص إلى فرضية مهمة محددة، ومقارنتها عبر سياقات ودرجات تنظيم ودعم مختلفة.",
+          "what_it_does_not_support": "اعتبار الاندفاع أو فرط الحركة أو «التركيز المفرط» موهبة ثابتة، أو افتراض الإبداع أو ريادة الأعمال أو مهنة مناسبة من التشخيص.",
+          "evidence_character": "systematic-review-direct-heterogeneous",
+          "source_ids": [
+            "rafael-adhd-strengths-2026"
+          ]
+        },
+        {
+          "id": "adhd-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "تشير مراجعة العمل إلى أهمية ملاءمة الشخص والبيئة والتكييف، بينما توصي الإرشادات بخطة متعددة المكونات بحسب العمر والاختلال والتفضيلات.",
+          "what_it_supports": "اختبار بنية مهمة واضحة، وتقليل المشتتات، وفواصل أو تذكيرات وأدوار محددة، مع قياس جودة الناتج والاستدامة لا سرعة النشاط وحدها.",
+          "what_it_does_not_support": "استخدام التكييف بديلًا تلقائيًا لكل علاج مطلوب، أو اعتبار بيئة سريعة وعالية الضغط مناسبة لكل شخص ذي ADHD.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "hotte-meunier-adhd-work-2024",
+            "nice-adhd-ng87-2018"
+          ]
+        },
+        {
+          "id": "adhd-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "ينبغي تفسير الأداء مع النوم والصحة النفسية والحالات المصاحبة والدواء والبيئة؛ النشاط الناتج عن حرمان النوم أو ضيق متصاعد ليس قدرة.",
+          "what_it_supports": "تثبيت النوم والسلامة ومراجعة الاختلال في أكثر من سياق، وإحالة القرارات الدوائية والتشخيصية إلى المختص المؤهل.",
+          "what_it_does_not_support": "إيقاف الدواء أو تغييره من البروتوكول، أو تشخيص ADHD من الإنتاجية المتقطعة، أو مكافأة الإفراط الذي يعقبه انهيار.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "nice-adhd-ng87-2018"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "intellectual-developmental-disorder",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "idd-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "اضطراب النمو الفكري يصف قيودًا في الأداء الفكري والتكيفي، لكنه لا يحدد مسبقًا وسيلة التواصل أو التفضيلات أو قابلية التعلم أو مقدار المشاركة الممكن.",
+          "what_it_supports": "بناء ملف مجال-بمجال لما يفعله الشخص مستقلًا ومع دعم، وفصل الفهم عن سرعة الكلام أو القراءة أو الحركة.",
+          "what_it_does_not_support": "استنتاج انعدام القرار أو التعلم أو العمل من درجة واحدة، أو وصف كل إنجاز بأنه استثنائي بسبب التشخيص.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "cps-gdd-idd-2026",
+            "asha-intellectual-disability-2026"
+          ]
+        },
+        {
+          "id": "idd-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "تستهدف تدخلات تقرير المصير الاختيار والاستقلال وحل المشكلات، لكن مراجعة 76 دراسة وجدت تغايرًا كبيرًا ولم تجمع تحليليًا إلا عددًا قليلًا من الدراسات المتشابهة.",
+          "what_it_supports": "تعليم اختيار وظيفي واحد أو خطوة استقلال بمساندة تواصل وتقنية وتدريب للشركاء، ثم قياس خفض التلميحات والتعميم.",
+          "what_it_does_not_support": "وعد أثر موحد لبرنامج واحد، أو مساواة تقرير المصير بترك الشخص بلا دعم، أو استخدام مساعدة الشريك لإلغاء صوته.",
+          "evidence_character": "systematic-review-direct-heterogeneous",
+          "source_ids": [
+            "kuld-idd-self-determination-2023",
+            "asha-intellectual-disability-2026"
+          ]
+        },
+        {
+          "id": "idd-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "يتطلب تغير الوظيفة مراجعة السمع والبصر والنوم والتغذية والألم والنوبات والأسباب الطبية؛ التراجع النمائي أو فقد المهارة يستدعي تقييمًا صحيًا عاجلًا.",
+          "what_it_supports": "فحص الصحة والحواس والمسار النمائي قبل نسبة الأداء إلى الإعاقة، ومواصلة الدعم الوظيفي بالتوازي مع البحث السببي.",
+          "what_it_does_not_support": "إجراء فحوص عشوائية بلا مؤشر، أو تأخير أدوات التواصل والتعلم حتى اكتمال التشخيص السببي، أو تفسير التراجع ككسل.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "cps-gdd-idd-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "global-developmental-delay",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "gdd-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "التأخر النمائي الشامل وصف للأطفال دون الخامسة مع تأخر في مجالين أو أكثر، وتظل النتائج اللاحقة متباينة؛ لذلك لا يصلح حكمًا نهائيًا على الذكاء أو الإمكانات.",
+          "what_it_supports": "قياس كل مجال على حدة ومتابعة المسار عبر الزمن، مع توثيق المهارات الناشئة والاستجابة للتعليم والتكييف.",
+          "what_it_does_not_support": "التنبؤ بمستوى فكري نهائي من تقييم مبكر واحد، أو افتراض أن التأخر متساوٍ في اللغة والحركة والتعلم والتكيف.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "cps-gdd-idd-2026"
+          ]
+        },
+        {
+          "id": "gdd-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "ينبغي أن تبدأ المساندة من الاحتياج الوظيفي الحالي وبأهداف فردية، لا أن تنتظر اكتمال البحث عن السبب أو ثبات تسمية تشخيصية لاحقة.",
+          "what_it_supports": "توفير تواصل بديل ولعب وتعليم وحركة وعناية ذاتية ملائمة للمجالات المتأثرة، وإشراك الطفل بوسيلة تناسب نموه.",
+          "what_it_does_not_support": "برنامجًا واحدًا لكل الأطفال أو جرعة علاج يحددها السجل، أو إيقاف الدعم إذا لم يُعرف السبب الجيني أو الطبي.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "cps-gdd-idd-2026"
+          ]
+        },
+        {
+          "id": "gdd-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "الفحص الشامل يشمل التاريخ والفحص والسمع والبصر، مع تحريات موجهة؛ أي فقد مهارة أو تراجع يستدعي انتباهًا طبيًا عاجلًا.",
+          "what_it_supports": "تحديد خط زمني للنمو ومراجعة الحواس والعلامات العصبية والاستقلابية، واختيار الاختبارات بواسطة الفريق الصحي وفق المؤشرات.",
+          "what_it_does_not_support": "قائمة فحوص ثابتة لكل طفل، أو تشخيصًا ذاتيًا من قائمة معالم، أو تفسير فقد المهارة بأنه تذبذب طبيعي بلا تقييم.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "cps-gdd-idd-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "dyslexia",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "dyslexia-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "لم يجد التحليل التجميعي أفضلية عامة في الإبداع، وأظهرت مراجعة القدرة البصرية المكانية تباينًا أكبر لا تفوقًا شاملًا؛ نقاط القوة تُقاس فرديًا.",
+          "what_it_supports": "اختبار التفكير أو التصميم أو التعبير الشفهي مباشرة عند الشخص ومن دون جعل القراءة بوابة لإظهار كل معرفة.",
+          "what_it_does_not_support": "وصف عسر القراءة بأنه «ميزة إبداعية» أو ضمان قدرة مكانية أو ريادية، أو اختيار مهنة بسببه.",
+          "evidence_character": "systematic-review-direct-heterogeneous",
+          "source_ids": [
+            "majeed-dyslexia-creativity-2021",
+            "chamberlain-dyslexia-spatial-2018",
+            "erbeli-dyslexia-creativity-2022"
+          ]
+        },
+        {
+          "id": "dyslexia-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "ينبغي فصل تعلم القراءة الصريح عن إتاحة المحتوى: يستمر التعليم المباشر الملائم، وتستخدم أدوات مثل النص المسموع أو الإملاء عندما يكون الهدف معرفة لا فك الرموز.",
+          "what_it_supports": "قياس فك الرموز والتهجئة والفهم كلًا على حدة، وتوفير قناة وصول بديلة مع إبقاء تدخل القراءة محدد الهدف.",
+          "what_it_does_not_support": "استبدال تعليم القراءة بالتقنية وحدها، أو منع التقنية بحجة أنها غش، أو اعتبار الخطأ الإملائي ضعفًا في الفكرة.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-written-language-2026"
+          ]
+        },
+        {
+          "id": "dyslexia-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "يجب أن يكون التقييم لغويًا وثقافيًا مناسبًا ويفصل بين فك الرموز والفهم واللغة والتهجئة والتعليم السابق؛ الفحص الأولي لا يساوي تشخيصًا.",
+          "what_it_supports": "تقييم القراءة والكتابة واللغة في لغات الشخص وسياق تعليمه، مع مراجعة السمع والبصر والحالات المصاحبة عند الحاجة.",
+          "what_it_does_not_support": "تشخيص عسر القراءة من عكس الحروف أو اختبار سريع أو أداء بلغة غير متمكنة، أو استخدام التشخيص لتخفيض التوقعات.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-written-language-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "written-expression-difficulty",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "written-expression-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الكتابة تجمع توليد الفكرة والتخطيط والصياغة والتهجئة والخط والمراجعة؛ الضعف في مكوّن لا يثبت ضعف الفكرة أو الفهم في المكونات الأخرى.",
+          "what_it_supports": "مقارنة الفكرة شفهيًا وبالطباعة والإملاء والخط، وتحليل المنتج والعملية بدل الاكتفاء بعدد الأخطاء.",
+          "what_it_does_not_support": "إسناد الإبداع أو ضعف الذكاء للحالة، أو تقييم المعرفة الأكاديمية من جودة الخط والتهجئة وحدهما.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-written-language-2026"
+          ]
+        },
+        {
+          "id": "written-expression-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "يدعم دليل الممارسة تعليم عملية الكتابة صراحة، ويدعم بدرجة أقل تعليم طلاقة الخط والتهجئة وبناء الجملة والطباعة؛ تختار الأهداف وفق المكوّن المتأثر.",
+          "what_it_supports": "تعليم التخطيط والمسودة والمراجعة بنماذج واضحة، مع تدريب المكوّن الضعيف وإتاحة لوحة مفاتيح أو كاتب عند ملاءمتها.",
+          "what_it_does_not_support": "حزمة واحدة لكل صعوبة كتابة، أو وعد بزوالها خلال مدة ثابتة، أو استخدام الإملاء الصوتي بديلًا عن كل تعليم كتابي.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "ies-effective-writers-2018",
+            "asha-written-language-2026"
+          ]
+        },
+        {
+          "id": "written-expression-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "التقييم الشامل يراجع اللغة المنطوقة والمكتوبة والحركة والانتباه والتعليم واللغة أو اللهجة؛ التكييف في التقييم ضروري كي لا يقيس حاجزًا غير مستهدف.",
+          "what_it_supports": "فريقًا تعليميًا ولغويًا ووظيفيًا عند الحاجة، وتوثيق ما إذا كان الهدف أفكارًا أو لغة أو تهجئة أو خطًا قبل اختيار الأداة.",
+          "what_it_does_not_support": "تسمية كل خط غير مقروء «عسر كتابة»، أو تشخيص اضطراب من ورقة واحدة، أو عقاب الشخص على أداة الوصول.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-written-language-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "dyscalculia",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "dyscalculia-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "عسر الحساب متغاير؛ قد تتداخل صعوبات معالجة العدد والذاكرة العاملة والوظائف التنفيذية بدرجات مختلفة، ولا يعرّف نمطًا واحدًا أو موهبة مقابلة.",
+          "what_it_supports": "تفكيك الرياضيات إلى معنى العدد والحقائق والإجراءات والاستدلال والمسائل اللفظية، وقياس كل مكوّن مع الدعم وبدونه.",
+          "what_it_does_not_support": "افتراض ضعف عام في المنطق أو الذكاء، أو الادعاء بميزة فنية أو لغوية تعويضية، أو تفسير كل خطأ حسابي بالتشخيص.",
+          "evidence_character": "systematic-review-direct-heterogeneous",
+          "source_ids": [
+            "mishra-dyscalculia-cognition-2023",
+            "haberstroh-dyscalculia-2019"
+          ]
+        },
+        {
+          "id": "dyscalculia-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "أفضل الدعم في المراجعة العلاجية يوجَّه إلى المحتوى الرياضي المحدد المتأثر، مع تعليم فردي واضح وممارسة؛ لا يكفي «تدريب الدماغ» العام.",
+          "what_it_supports": "اختيار هدف مثل ربط الكمية بالرمز أو استراتيجية حساب أو استخدام المال، وبناء خط أساس وقياس انتقاله إلى مهمة يومية.",
+          "what_it_does_not_support": "برنامجًا تجاريًا بعينه أو ضمان نقل تدريب الذاكرة إلى الرياضيات، أو استخدام الحاسبة بدل تعلم الهدف عندما يكون التعلم نفسه مطلوبًا.",
+          "evidence_character": "systematic-review-direct-heterogeneous",
+          "source_ids": [
+            "haberstroh-dyscalculia-2019"
+          ]
+        },
+        {
+          "id": "dyscalculia-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "التشخيص يتطلب تاريخًا وتعليمًا واختبارات رياضية وسياقًا نفسيًا، مع مراجعة صعوبات القراءة وADHD والقلق؛ الدرجة المنخفضة وحدها لا تكفي.",
+          "what_it_supports": "تقييمًا متعدد المصادر وتدخلًا مبكرًا للمجال الضعيف، مع حماية الشخص من الإذلال والقلق الناتج عن الضغط الزمني غير الضروري.",
+          "what_it_does_not_support": "التشخيص الذاتي من اختبار إنترنت، أو تفسير صعوبة الرياضيات بكسل، أو فرض سرعة الحساب معيارًا لكل هدف.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "haberstroh-dyscalculia-2019"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "developmental-coordination-disorder",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "dcd-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "اضطراب التناسق الحركي النمائي يؤثر في اكتساب وتنفيذ مهارات حركية ووظائف يومية، ولا يحدد الفهم أو جودة الفكرة أو القدرة الأكاديمية غير الحركية.",
+          "what_it_supports": "فصل القرار والمعرفة عن سرعة اليد أو التوازن، ومقارنة الأداء بأداة أو وضعية أو طريقة إدخال بديلة.",
+          "what_it_does_not_support": "استنتاج ضعف الدافعية أو الذكاء من البطء أو الفوضى الحركية، أو ادعاء قوة معرفية ناتجة عن الاضطراب.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "apta-dcd-cpg-2026"
+          ]
+        },
+        {
+          "id": "dcd-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "توجّه الإرشادات التقييم والتدخل إلى النشاط والمشاركة والأهداف ذات المعنى، مع اختيار مقاييس واستراتيجيات تناسب الطفل والسياق.",
+          "what_it_supports": "تدريب المهمة المطلوبة نفسها، وتعديل الأدوات والبيئة والمدة، وقياس الاستقلال والمشاركة والجهد لا المظهر الحركي فقط.",
+          "what_it_does_not_support": "تمرينًا عامًا واحدًا لكل شخص، أو ضمان أن تحسن مكوّن جسدي سينتقل تلقائيًا إلى المدرسة والمنزل، أو منع التقنية المساندة.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "apta-dcd-cpg-2026"
+          ]
+        },
+        {
+          "id": "dcd-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "يلزم تقييم متعدد التخصصات يستبعد سببًا عصبيًا أو عضليًا أو بصريًا آخر ويراجع الألم واللياقة والقلق والحالات المصاحبة.",
+          "what_it_supports": "إحالة التدهور أو الضعف الجديد أو الألم للفريق الصحي، وضبط جرعة المهمة لمنع الإصابة والإجهاد وتجنب التنمر.",
+          "what_it_does_not_support": "تشخيص DCD من سوء الخط وحده، أو دفع الشخص إلى تكرار مؤلم باسم التدريب، أو لومه على صعوبة التخطيط الحركي.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "apta-dcd-cpg-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "developmental-language-disorder",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "dld-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "اضطراب اللغة النمائي صعوبة مستمرة ذات أثر وظيفي في فهم اللغة أو إنتاجها، وقد يصاحب صعوبات أخرى؛ لا يعني ضعفًا عامًا في الذكاء أو الأفكار.",
+          "what_it_supports": "رسم ملف منفصل للمفردات والنحو والسرد والفهم والاستعمال، وإتاحة الصورة والكتابة وAAC لإظهار المعرفة عند الحاجة.",
+          "what_it_does_not_support": "افتراض أن الصمت أو الجملة القصيرة يعكسان مقدار الفهم، أو استنتاج موهبة بصرية مقابلة، أو إلغاء التشخيص بسبب ADHD أو DCD مصاحب.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "catalise-dld-terminology-2017",
+            "asha-spoken-language-2026"
+          ]
+        },
+        {
+          "id": "dld-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "توصي الإرشادات بتدخل لغوي يطابق العمر والملف والهدف والسياق، لكن قوة الدليل تختلف بين أهداف اللغة وأنواع التدخل.",
+          "what_it_supports": "اختيار هدف لغوي وظيفي واحد، وتدريبه في تواصل حقيقي، وقياس الفهم والإنتاج والتعميم مع شركاء مختلفين.",
+          "what_it_does_not_support": "طريقة علاج وحيدة أو جرعة ثابتة لكل DLD، أو وعد بتطبيع اللغة، أو تدريب قواعد معزولة بلا قياس أثر وظيفي.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "neumann-dld-guideline-2024",
+            "asha-spoken-language-2026"
+          ]
+        },
+        {
+          "id": "dld-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "الفحص لا يشخّص، والتقييم يجب أن يراجع السمع والتطور واللغة أو اللهجة والتعدد اللغوي والسياق الثقافي قبل وصف الفرق بأنه اضطراب.",
+          "what_it_supports": "عينات لغة متعددة السياقات واللغات ومعلومات الأسرة والمعلم وفحص السمع، مع إعادة التقييم عند تغير الوظيفة.",
+          "what_it_does_not_support": "تشخيص طفل متعدد اللغات باختبار أحادي غير مناسب، أو منع لغة المنزل، أو تفسير كل صعوبة تواصل بأنها DLD.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-spoken-language-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "speech-sound-disorder",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "ssd-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "اضطراب أصوات الكلام يؤثر في إدراك الأصوات أو إنتاجها وتنظيمها، ولا يحدد وحده اللغة أو الفهم أو الذكاء؛ قابلية الفهم ليست مقياس قيمة.",
+          "what_it_supports": "السماح بإجابة كتابية أو مصورة أو AAC عندما لا يكون وضوح النطق هدف المهمة، وقياس النظام الصوتي مباشرة عندما يكون هو الهدف.",
+          "what_it_does_not_support": "مساواة النطق غير الواضح بفكرة غير واضحة، أو افتراض قوة غير لفظية بسبب الاضطراب، أو إجبار الشخص على التكرار أمام الآخرين.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-speech-sound-2026"
+          ]
+        },
+        {
+          "id": "ssd-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "تظهر المراجعة التجميعية أثرًا إيجابيًا لتدخلات تستهدف الفونولوجيا التعبيرية، لكن المناهج والأهداف والسكان متغايرة ويجب مطابقة التدخل لنمط الأخطاء.",
+          "what_it_supports": "اختيار أصوات أو أنماط ذات أثر وظيفي، وتدريبها بجرعة يحددها المختص، وقياس الدقة وقابلية الفهم والتعميم.",
+          "what_it_does_not_support": "تمارين فموية غير كلامية أو تطبيقًا واحدًا لكل حالة، أو ضمان أن تحسن صوت داخل الجلسة سينتقل تلقائيًا إلى الحديث.",
+          "evidence_character": "systematic-review-direct-heterogeneous",
+          "source_ids": [
+            "kunnari-phonology-review-2024",
+            "asha-speech-sound-2026"
+          ]
+        },
+        {
+          "id": "ssd-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "يشمل التقييم السمع وبنية ووظيفة الفم واللغة والتاريخ النمائي، ويميز الاضطراب عن اختلاف اللهجة أو اللغة وعن تعذر الأداء أو عسر التلفظ.",
+          "what_it_supports": "فحصًا مناسبًا للغة والثقافة وإحالة مشكلات السمع أو البنية أو التراجع، مع حماية الطفل من التنمر والضغط.",
+          "what_it_does_not_support": "تشخيصًا من نطق صوت منفرد، أو علاج لهجة طبيعية كمرض، أو استمرار تدريب مؤلم أو مولد للإحباط بلا فائدة.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-speech-sound-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "childhood-apraxia-of-speech",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "cas-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "تعذر الأداء النطقي في الطفولة اضطراب في تخطيط أو برمجة حركات الكلام؛ صعوبة إنتاج الكلمة لا تثبت ضعف الفهم أو غياب اللغة الداخلية.",
+          "what_it_supports": "إتاحة إشارة أو صورة أو جهاز AAC أو كتابة لإظهار الاختيار والمعرفة، مع تقييم الكلام الحركي واللغة كلًا على حدة.",
+          "what_it_does_not_support": "افتراض إعاقة فكرية من قلة الكلام، أو اعتبار المثابرة على النطق موهبة، أو تأخير التواصل البديل حتى ينجح الكلام.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-cas-2026"
+          ]
+        },
+        {
+          "id": "cas-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "وجدت مراجعة كوكرين المكتملة أدلة تجريبية محدودة وصغيرة للتدخلات، بينما وجدت مراجعة AAC الحديثة 11 دراسة فقط ودورًا تكميليًا واعدًا للتواصل.",
+          "what_it_supports": "تدخلًا كلاميًا حركيًا يختاره المختص مع قياس متكرر، وإدخال AAC مبكرًا عند الحاجة بوصفه قناة تواصل موازية.",
+          "what_it_does_not_support": "ادعاء أفضل طريقة واحدة أو ضمان النتيجة، أو تقديم بروتوكول كوكرين المنشور عام 2026 وكأنه مراجعة نتائج مكتملة.",
+          "evidence_character": "systematic-review-limited-directness",
+          "source_ids": [
+            "morgan-cas-cochrane-2018",
+            "adams-cas-aac-2026"
+          ]
+        },
+        {
+          "id": "cas-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "التشخيص التفريقي بين CAS واضطرابات الأصوات وعسر التلفظ معقد ويحتاج مختصًا؛ قد تستلزم العلامات العصبية أو التراجع تقييمًا طبيًا أو جينيًا.",
+          "what_it_supports": "عينات متكررة وتقييم الاتساق والإيقاع والحركات الكلامية واللغة، وإحالة التغير الجديد أو صعوبات البلع والتنفس.",
+          "what_it_does_not_support": "تشخيص CAS من تأخر الكلام وحده، أو تمارين فموية مؤلمة بلا هدف كلامي، أو وصف شدة أو جرعة فردية عبر الموقع.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-cas-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "stuttering",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "stuttering-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "التأتأة تغير في طلاقة الكلام وقد تتذبذب؛ الشخص يعرف غالبًا ما يريد قوله، ولا تكشف نسبة التأتأة وحدها الفهم أو الكفاءة أو أثر الحالة في حياته.",
+          "what_it_supports": "إتاحة وقت الكلام وعدم المقاطعة، وقياس المشاركة والثقة والتجنب والعبء إلى جانب سمات الطلاقة عندما يختار الشخص ذلك.",
+          "what_it_does_not_support": "افتراض القلق أو ضعف الذكاء سببًا، أو اعتبار البلاغة أو الإصرار موهبة ناتجة عنها، أو تقييم القدرة من سرعة الكلام.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-fluency-2026"
+          ]
+        },
+        {
+          "id": "stuttering-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "تختلف أدلة التدخل حسب العمر والمنهج؛ توجد أدلة أقوى نسبيًا لبعض تدخلات الطفولة المبكرة، بينما تهم لدى الأكبر نتائج المشاركة والخبرة لا الطلاقة الظاهرة فقط.",
+          "what_it_supports": "أهدافًا يشارك الشخص في اختيارها، وقد تشمل سهولة التواصل وتقليل التجنب وإدارة الأثر النفسي والطلاقة بحسب الأولوية.",
+          "what_it_does_not_support": "وعد بطلاقة دائمة أو برنامجًا واحدًا لكل عمر، أو جعل إخفاء التأتأة شرطًا للنجاح، أو علاج القلق وحده بوصفه علاجًا للتأتأة.",
+          "evidence_character": "systematic-review-direct-heterogeneous",
+          "source_ids": [
+            "laiho-stuttering-review-2022",
+            "asha-fluency-2026"
+          ]
+        },
+        {
+          "id": "stuttering-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "يجب مراجعة التنمر والقلق والتجنب وأثر المدرسة أو العمل، كما أن بداية التأتأة المفاجئة بعد إصابة أو تغير عصبي تحتاج مسارًا طبيًا مختلفًا.",
+          "what_it_supports": "بيئة لا تستعجل الكلام، وخطة حماية من التنمر، وإحالة الصحة النفسية أو العصبية عند المؤشرات مع بقاء علاج التواصل متمحورًا حول الشخص.",
+          "what_it_does_not_support": "أوامر متكررة مثل «اهدأ وتكلم ببطء»، أو إكمال الجمل دون إذن، أو تفسير التأتأة المتزايدة بأنها نقص جهد.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-fluency-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "tourette-tic-disorders",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "tourette-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "العرّات حركات أو أصوات مفاجئة ومتكررة وليست سوء سلوك متعمدًا؛ وجودها لا يحدد الذكاء أو الشخصية ولا يثبت نقطة قوة مرتبطة بمتلازمة توريت.",
+          "what_it_supports": "تعديل البيئة كي لا يعاقب الشخص على العرّة، وفصل جودة المعرفة أو العمل عن القدرة على كبت الحركة أو الصوت.",
+          "what_it_does_not_support": "افتراض الشتائم أو السلوك العدواني من التشخيص، أو وصف سرعة الاستجابة والإبداع كسمات جماعية، أو طلب الكبت المستمر.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "cdc-tourette-2026"
+          ]
+        },
+        {
+          "id": "tourette-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "تربط إرشادات AAN العلاج بالاختلال والتفضيلات والمنافع والمخاطر؛ الانتظار مع المتابعة خيار عند غياب الاختلال، وCBIT خيار مناسب لبعض الأشخاص.",
+          "what_it_supports": "قرارًا مشتركًا، وتثقيف المدرسة، وفواصل أو مكان آمن للعرّات، وإحالة CBIT أو الدواء إلى مختص مؤهل عند الحاجة.",
+          "what_it_does_not_support": "ضرورة قمع كل عرّة، أو وصف CBIT أو دواء عبر الموقع، أو اعتبار عدم العلاج إهمالًا عندما لا تسبب العرّات اختلالًا.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "aan-tic-guideline-2019"
+          ]
+        },
+        {
+          "id": "tourette-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "قد يكون أثر ADHD أو الوسواس أو القلق أكبر من أثر العرّات، ويلزم فحصها؛ التغير السريع أو الحركات الجديدة يحتاج تشخيصًا تفريقيًا.",
+          "what_it_supports": "تقييم مصدر الاختلال قبل اختيار الهدف، ومراجعة الإصابة أو الألم من العرّات وخطر التنمر والآثار الجانبية للعلاج.",
+          "what_it_does_not_support": "نسبة كل حركة إلى توريت، أو إهمال الحالة المصاحبة، أو استخدام العقوبة أو التقييد الجسدي لإيقاف العرّة.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "aan-tic-guideline-2019",
+            "cdc-tourette-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "social-pragmatic-communication-disorder",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "spcd-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "تصف الحالة صعوبة في استخدام التواصل لفظيًا وغير لفظي لأغراض اجتماعية، ولا تعني غياب الرغبة في العلاقة أو ضعف الفهم أو نقص التعاطف.",
+          "what_it_supports": "تقييم الطلب والإصلاح والتناوب والسرد والاستدلال عبر شركاء وسياقات حقيقية، وسؤال الشخص عن أهدافه الاجتماعية.",
+          "what_it_does_not_support": "افتراض مهارة تقنية أو تفكير منطقي مقابل، أو الحكم من التواصل البصري، أو تدريب أسلوب اجتماعي واحد كأنه الطبيعي الوحيد.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "asha-social-communication-2026",
+            "norbury-spcd-review-2014"
+          ]
+        },
+        {
+          "id": "spcd-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "أظهرت تجربة عشوائية لتحسين التواصل الاجتماعي فوائد في نتائج مختارة لدى أطفال لديهم مشكلات براغماتية، لكنها دراسة واحدة وسكانها غير مطابقين لكل تشخيص SPCD.",
+          "what_it_supports": "تعليم استراتيجية وظيفية محددة مع أقران أو أسرة، وقياس انتقالها إلى سياق يهم الطفل بدل درجات الجلسة فقط.",
+          "what_it_does_not_support": "فعالية برنامج عالمي أو تعميم نتيجة التجربة على كل عمر ولغة وثقافة، أو فرض إخفاء الاختلاف الاجتماعي.",
+          "evidence_character": "systematic-review-limited-directness",
+          "source_ids": [
+            "adams-social-communication-rct-2012",
+            "asha-social-communication-2026"
+          ]
+        },
+        {
+          "id": "spcd-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "يتطلب التشخيص التفريق عن التوحد واضطراب اللغة والإعاقة الفكرية واختلاف الثقافة أو اللهجة، وفهم أن قواعد التواصل تختلف بين المجتمعات.",
+          "what_it_supports": "تقييمًا ثقافيًا ولغويًا مناسبًا ومعلومات من أكثر من سياق، مع أهداف تحمي الوكالة والقبول وتقلل سوء الفهم الوظيفي.",
+          "what_it_does_not_support": "تشخيصًا من اختبار مهارات اجتماعية منفرد، أو اعتبار قلة النظر أو الهدوء اضطرابًا، أو تدريب الطاعة بوصفها تواصلًا.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-social-communication-2026",
+            "norbury-spcd-review-2014"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "central-auditory-processing-difficulties",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "capd-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "لا يوجد معيار مرجعي واحد متفق عليه لصعوبات المعالجة السمعية المركزية، وتتداخل شكاوى الاستماع مع اللغة والانتباه والتعلم؛ الاسم لا يحدد آلية واحدة.",
+          "what_it_supports": "وصف الصعوبة الوظيفية بدقة مثل فهم الكلام في الضوضاء، واختبار الأداء سمعيًا وكتابيًا وبصريًا في سياقات مختلفة.",
+          "what_it_does_not_support": "تشخيصًا من شكوى أو اختبار واحد، أو اعتبار السمع الطرفي طبيعيًا إثباتًا لـCAPD، أو استنتاج موهبة بصرية مقابلة.",
+          "evidence_character": "systematic-review-direct-heterogeneous",
+          "source_ids": [
+            "asha-capd-2026",
+            "de-wit-capd-overlap-2018"
+          ]
+        },
+        {
+          "id": "capd-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "تتضمن الممارسة تعديلات بيئية واستراتيجيات تعويض وتدخلًا موجّهًا للعجز عند ثبوته، ويجب ربط كل تعديل بهدف استماع ومشاركة قابل للقياس.",
+          "what_it_supports": "خفض الضوضاء والمسافة، وتحسين وضوح التعليمات، ودعم بصري أو تكرار متفق عليه، ثم مقارنة الفهم والجهد في الموقف الحقيقي.",
+          "what_it_does_not_support": "جهازًا أو تدريبًا سمعيًا واحدًا لكل شخص، أو وعدًا بتحسين القراءة والانتباه تلقائيًا، أو شراء تقنية قبل تجربة منضبطة.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "asha-capd-2026"
+          ]
+        },
+        {
+          "id": "capd-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "يلزم فحص السمع الطرفي ثم تقييم متعدد التخصصات للغة والانتباه والمعرفة عند الحاجة؛ قد تفسر هذه العوامل جزءًا كبيرًا من صعوبة الاستماع.",
+          "what_it_supports": "تعاون اختصاصي السمع واللغة والتعليم أو النفس، واختيار بطارية فردية تراعي العمر واللغة والقدرة المعرفية.",
+          "what_it_does_not_support": "استبعاد ADHD أو DLD لمجرد وضع تسمية CAPD، أو علاج كل صعوبة استماع كتلف سمعي مركزي، أو اختبار غير مناسب للغة.",
+          "evidence_character": "systematic-review-direct-heterogeneous",
+          "source_ids": [
+            "de-wit-capd-overlap-2018",
+            "asha-capd-2026"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sensory-processing-differences",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "sensory-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "الاختلافات الحسية هنا وصف لملف وظيفي قد يصاحب حالات متعددة، لا ادعاء بأن كل اختلاف اضطراب مستقل أو أنه ينتج حدسًا أو إبداعًا أو «حاسة أقوى».",
+          "what_it_supports": "تحديد المدخلات التي تزيد الألم أو التنظيم أو المشاركة، وسؤال الشخص عما يساعده بدل تفسير السلوك من الخارج.",
+          "what_it_does_not_support": "تشخيصًا ذاتيًا أو موهبة حسية جماعية، أو تفسير كل تجنب وعنصر سلوكي بأنه حسي قبل فحص الصحة والتواصل والبيئة.",
+          "evidence_character": "mixed-sources-no-causal-inference",
+          "source_ids": [
+            "piller-sensory-interventions-2025",
+            "piller-ayres-si-2026"
+          ]
+        },
+        {
+          "id": "sensory-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "توجد آثار إيجابية لبعض التدخلات الحسية وASI في سكان ونتائج وظيفية محددة، لكن الأدلة لا تنتقل إلى كل أداة حسية أو كل حالة.",
+          "what_it_supports": "تجربة تعديل واحد آمن مثل الإضاءة أو الصوت أو الحركة، وتحديد هدف مشاركة، وخط أساس، ومدة مراجعة، وقاعدة إيقاف.",
+          "what_it_does_not_support": "«حمية حسية» عامة أو منتجًا تجاريًا أو بطانية أو فرشاة لكل شخص، أو وعدًا بتحسين شامل بلا هدف ومقياس.",
+          "evidence_character": "systematic-review-direct-heterogeneous",
+          "source_ids": [
+            "piller-sensory-interventions-2025",
+            "piller-ayres-si-2026"
+          ]
+        },
+        {
+          "id": "sensory-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "يجب فحص الألم والسمع والبصر والصداع والجلد والنوم والقلق والتواصل قبل إرجاع الضيق للحس، وألا تكون التجربة قسرية أو مؤلمة.",
+          "what_it_supports": "موافقة قابلة للسحب، وتعديلًا قابلًا للعكس، وقياس الضيق المتأخر، وإحالة الأعراض الجديدة أو فقد الوظيفة للمسار الصحي.",
+          "what_it_does_not_support": "تعريضًا قسريًا أو تحمل الضيق باسم التنظيم، أو إدخال معدات ذات خطر دون مختص، أو استمرار تدخل لا يقدم فائدة وظيفية.",
+          "evidence_character": "systematic-review-direct-heterogeneous",
+          "source_ids": [
+            "piller-sensory-interventions-2025"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "fetal-alcohol-spectrum-disorders",
+      "search_updated": "2026-07-27",
+      "review_state": "curated-not-externally-reviewed",
+      "claims": [
+        {
+          "id": "fasd-profile-boundary",
+          "type": "profile-boundary",
+          "statement": "اضطرابات طيف التعرض للكحول قبل الولادة ملفات نمائية متباينة؛ تبني الرعاية على الصعوبات ونقاط القوة الفردية، لا على لوم الشخص أو أسرته ولا على موهبة مفترضة.",
+          "what_it_supports": "خريطة مباشرة لما يتعلمه الشخص وكيف يتواصل وينظم يومه، مع لغة غير وصمية وتوقعات عملية تراعي الفروق بين الأداء اللفظي والتطبيق.",
+          "what_it_does_not_support": "صفة شخصية أو مسارًا مهنيًا من التشخيص، أو وصف السلوك بأنه تعمد، أو استخدام تاريخ التعرض للوصم أو نزع الحق في القرار.",
+          "evidence_character": "official-current-guidance",
+          "source_ids": [
+            "cdc-fasd-treatment-2025"
+          ]
+        },
+        {
+          "id": "fasd-access-and-intervention",
+          "type": "access-and-intervention",
+          "statement": "تقدم إرشادات 2025 توصيات تدخلية مبنية على مراجعة وتوافق، وتوضح CDC أن البرامج تستهدف مجالات محددة وأن قليلًا منها اختُبر خصيصًا في FASD.",
+          "what_it_supports": "روتينًا ثابتًا ولغة ملموسة وأمثلة ودعمًا للأسرة، مع اختيار تدخل مجال محدد وقياس الوظيفة وجودة الحياة.",
+          "what_it_does_not_support": "علاجًا شافيًا أو برنامجًا واحدًا لكل الأعمار والملفات، أو وعدًا بالوصول إلى «المعدل الطبيعي»، أو تدخلًا دوائيًا يحدده الموقع.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "strieker-fasd-guideline-2025",
+            "cdc-fasd-treatment-2025"
+          ]
+        },
+        {
+          "id": "fasd-safety-and-differential",
+          "type": "safety-and-differential",
+          "statement": "تختلف الاحتياجات الطبية والتعليمية والنفسية بين الأشخاص، وتحتاج الأعراض المصاحبة إلى تقييمها؛ بعض العلاجات البديلة غير مختبر ويجب موازنة مخاطره.",
+          "what_it_supports": "رعاية متعددة التخصصات، ومراجعة الدواء بواسطة الطبيب، ودعم مقدم الرعاية، وفحص السلامة والاستغلال وفهم الصعوبات النمائية قبل إسناد السلوك إلى سوء النية.",
+          "what_it_does_not_support": "تجربة مكملات أو أجهزة أو علاج بديل من الموقع، أو إهمال الصحة النفسية والنوم، أو تحميل الأم أو الشخص مسؤولية أخلاقية في صفحة الدعم.",
+          "evidence_character": "guideline-backed",
+          "source_ids": [
+            "cdc-fasd-treatment-2025",
+            "strieker-fasd-guideline-2025"
+          ]
+        }
+      ]
+    }
+  ]
+}
