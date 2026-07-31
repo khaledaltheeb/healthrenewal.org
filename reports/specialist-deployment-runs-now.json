@@ -1,8 +1,9 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-07-31T07:33:27.666182+00:00",
+  "checked_at": "2026-07-31T07:41:35.921484+00:00",
   "workflows": {
     "deploy-specialist-identity-v10-production.yml": {
+      "branch": "main",
       "runs": [
         {
           "id": 30613011641,
@@ -62,8 +63,74 @@
       ]
     },
     "audit-specialist-sector-v10.yml": {
+      "branch": "main",
       "error": "HTTPError",
       "runs": []
+    },
+    "inspect-cloudflare-specialists-now.yml": {
+      "branch": "agent/inspect-cloudflare-specialists-now",
+      "runs": [
+        {
+          "id": 30613375495,
+          "name": "Inspect Cloudflare specialist services now",
+          "status": "completed",
+          "conclusion": "success",
+          "event": "push",
+          "head_sha": "547a2e318e9677deca0d95267eb81c96ac3f1c23",
+          "created_at": "2026-07-31T07:35:55Z",
+          "updated_at": "2026-07-31T07:36:09Z",
+          "html_url": "https://github.com/khaledaltheeb/pterminology-site/actions/runs/30613375495"
+        },
+        {
+          "id": 30613090387,
+          "name": "Inspect Cloudflare specialist services now",
+          "status": "completed",
+          "conclusion": "success",
+          "event": "push",
+          "head_sha": "fe553331bc1424e8dbf4909e8afc6fca5072e890",
+          "created_at": "2026-07-31T07:31:00Z",
+          "updated_at": "2026-07-31T07:31:19Z",
+          "html_url": "https://github.com/khaledaltheeb/pterminology-site/actions/runs/30613090387"
+        },
+        {
+          "id": 30611685827,
+          "name": "Inspect Cloudflare specialist services now",
+          "status": "completed",
+          "conclusion": "success",
+          "event": "push",
+          "head_sha": "c3a4229625e9a96baf90848e86b76f0a0b820e56",
+          "created_at": "2026-07-31T07:05:53Z",
+          "updated_at": "2026-07-31T07:06:08Z",
+          "html_url": "https://github.com/khaledaltheeb/pterminology-site/actions/runs/30611685827"
+        },
+        {
+          "id": 30610931788,
+          "name": "Inspect Cloudflare specialist services now",
+          "status": "completed",
+          "conclusion": "success",
+          "event": "push",
+          "head_sha": "ba3de713d733f14d6fd70a7fe7ab56452b3e3f0f",
+          "created_at": "2026-07-31T06:51:57Z",
+          "updated_at": "2026-07-31T06:52:07Z",
+          "html_url": "https://github.com/khaledaltheeb/pterminology-site/actions/runs/30610931788"
+        }
+      ]
+    },
+    "diagnose-specialist-identity-deployment-now.yml": {
+      "branch": "agent/inspect-cloudflare-specialists-now",
+      "runs": [
+        {
+          "id": 30613504835,
+          "name": "Diagnose specialist identity deployment now",
+          "status": "completed",
+          "conclusion": "failure",
+          "event": "push",
+          "head_sha": "1b496f6ed984bec4c1d1ee0399bf17882c304ad9",
+          "created_at": "2026-07-31T07:38:09Z",
+          "updated_at": "2026-07-31T07:38:18Z",
+          "html_url": "https://github.com/khaledaltheeb/pterminology-site/actions/runs/30613504835"
+        }
+      ]
     }
   }
 }
