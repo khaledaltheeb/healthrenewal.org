@@ -18,14 +18,18 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Iterable, Iterator
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import numpy as np
 from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer
 
 MODEL_ID = "intfloat/multilingual-e5-small"
-BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
+MODEL_REVISION = "fd1525a9fd15316a2d503bf26ab031a61d056e98"
+BROWSER_MODEL_ID = "Xenova/multilingual-e5-small"
+BROWSER_MODEL_REVISION = "761b726dd34fb83930e26aab4e9ac3899aa1fa78"
+BASE_URL = "https://healthrenewal.org/"
+LEGACY_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
 DIMENSIONS = 384
 DEFAULT_CHUNK_CHARS = 900
 DEFAULT_OVERLAP_CHARS = 140
@@ -107,14 +111,27 @@ def should_index(path: Path, root: Path) -> bool:
 
 
 def canonical_url(soup: BeautifulSoup, relative_path: Path) -> str:
-    canonical = soup.find("link", rel=lambda value: value and "canonical" in value)
-    href = canonical.get("href") if canonical else None
-    if href:
-        return str(href)
     clean_path = relative_path.as_posix()
     if clean_path.endswith("index.html"):
         clean_path = clean_path[: -len("index.html")]
-    return urljoin(BASE_URL, clean_path)
+
+    canonical = soup.find("link", rel=lambda value: value and "canonical" in value)
+    href = str(canonical.get("href") or "").strip() if canonical else ""
+    candidate = urljoin(BASE_URL, href or clean_path)
+
+    if candidate.startswith(LEGACY_BASE_URL):
+        candidate = urljoin(BASE_URL, candidate[len(LEGACY_BASE_URL):])
+
+    parsed = urlparse(candidate)
+    if parsed.netloc == "www.healthrenewal.org":
+        candidate = parsed._replace(netloc="healthrenewal.org").geturl()
+        parsed = urlparse(candidate)
+
+    if parsed.scheme != "https" or parsed.netloc != "healthrenewal.org":
+        candidate = urljoin(BASE_URL, clean_path)
+
+    parsed = urlparse(candidate)
+    return parsed._replace(query="", fragment="").geturl()
 
 
 def infer_section(relative_path: Path) -> tuple[str, str]:
@@ -156,6 +173,7 @@ def extract_page_blocks(path: Path, root: Path) -> tuple[str, str, str, list[tup
     blocks: list[tuple[str, str]] = []
     current_heading = title
     main = soup.find("main") or soup.find("article") or soup.body or soup
+    visible_text = clean_text(main.get_text(" ", strip=True))
     for element in main.find_all(list(TEXT_TAGS)):
         text = clean_text(element.get_text(" ", strip=True))
         if not text:
@@ -166,7 +184,7 @@ def extract_page_blocks(path: Path, root: Path) -> tuple[str, str, str, list[tup
         if len(text) >= 35:
             blocks.append((current_heading, text))
 
-    return title, url, raw, blocks
+    return title, url, visible_text, blocks
 
 
 def split_long_text(text: str, max_chars: int, overlap: int) -> Iterator[str]:
@@ -237,13 +255,13 @@ def collect_chunks(root: Path, max_chars: int, overlap: int) -> list[Chunk]:
 
     html_files = sorted(path for path in root.rglob("*.html") if should_index(path, root))
     for path in html_files:
-        title, url, raw, blocks = extract_page_blocks(path, root)
+        title, url, page_text, blocks = extract_page_blocks(path, root)
         if not title or not blocks:
             continue
 
         relative_path = path.relative_to(root)
         section_key, section_label = infer_section(relative_path)
-        audience = infer_audience(relative_path, raw)
+        audience = infer_audience(relative_path, page_text)
 
         for ordinal, (heading, text) in enumerate(chunk_blocks(title, blocks, max_chars, overlap), start=1):
             enriched = clean_text(f"{title}. {heading}. {text}")
@@ -296,7 +314,7 @@ def build_index(args: argparse.Namespace) -> dict[str, object]:
         raise RuntimeError("No indexable HTML content was found")
 
     print(f"Collected {len(chunks):,} unique chunks", flush=True)
-    model = SentenceTransformer(MODEL_ID)
+    model = SentenceTransformer(MODEL_ID, revision=MODEL_REVISION)
     passages = [f"passage: {chunk.text}" for chunk in chunks]
     embeddings = model.encode(
         passages,
@@ -340,11 +358,14 @@ def build_index(args: argparse.Namespace) -> dict[str, object]:
     source_pages = len({chunk.sourcePath for chunk in chunks})
     sections = Counter(chunk.sectionKey for chunk in chunks)
     manifest = {
-        "version": 1,
+        "version": 2,
         "ready": True,
         "generatedAt": datetime.now(UTC).isoformat(),
         "model": MODEL_ID,
-        "browserModel": "Xenova/multilingual-e5-small",
+        "modelRevision": MODEL_REVISION,
+        "browserModel": BROWSER_MODEL_ID,
+        "browserModelRevision": BROWSER_MODEL_REVISION,
+        "corpusBaseUrl": BASE_URL,
         "dimensions": DIMENSIONS,
         "dtype": "float16",
         "normalized": True,

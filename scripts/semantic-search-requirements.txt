@@ -1,3 +1,5 @@
-beautifulsoup4>=4.12,<5
-numpy>=1.26,<3
-sentence-transformers>=3.4,<6
+# PyTorch 2.13.0+cpu is installed separately from the official CPU wheel index.
+beautifulsoup4==4.15.0
+numpy==2.5.1
+sentence-transformers==5.6.1
+transformers==5.14.1
