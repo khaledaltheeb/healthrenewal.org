@@ -1,0 +1,52 @@
+name: Apply E5 JSON publishing patch
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/apply-e5-json-publish-temp.yml'
+      - 'scripts/apply_e5_json_publish_patch.py'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-e5-json-publish-patch
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    if: github.head_ref == 'agent/e5-json-pages-publish-v1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/e5-json-pages-publish-v1
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Apply deterministic source patch
+        run: |
+          set -euxo pipefail
+          python scripts/apply_e5_json_publish_patch.py
+          python -m py_compile scripts/build_semantic_search_index.py tests/test_ai_search_browser_index_v2.py tests/test_multilingual_e5_production_v3.py
+          node --check ai-search/assets/search-worker.js
+          python -m unittest -v tests.test_ai_search_browser_index_v2 tests.test_multilingual_e5_production_v3
+
+      - name: Commit production files only
+        run: |
+          set -euxo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            ai-search/assets/search-worker.js \
+            scripts/build_semantic_search_index.py \
+            tests/test_ai_search_browser_index_v2.py \
+            tests/test_multilingual_e5_production_v3.py
+          git commit -m 'feat: package E5 vectors for static Pages publishing'
+          git push origin HEAD:agent/e5-json-pages-publish-v1
