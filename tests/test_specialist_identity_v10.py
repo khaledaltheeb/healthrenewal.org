@@ -3,21 +3,27 @@ import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 WORKER = ROOT / "specialists-partners/account-backend/src/index-v10.js"
-ADMIN_RECOVERY = ROOT / "specialists-partners/admin/admin-recovery-v10.js"
+FINAL_WORKER = ROOT / "specialists-partners/account-backend/src/index-v10-final.js"
+ADMIN_RECOVERY = ROOT / "specialists-partners/admin/admin-recovery-v10-final.js"
 RUNTIME = ROOT / "specialists-partners/assets/runtime-config.js"
 DEPLOY = ROOT / ".github/workflows/deploy-specialist-identity-v10.yml"
+LEGACY_V6 = ROOT / ".github/workflows/deploy-specialists-account-backend.yml"
+LEGACY_V8 = ROOT / ".github/workflows/deploy-specialist-recovery-overlay-v8.yml"
 
 
 class SpecialistIdentityV10Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.worker = WORKER.read_text(encoding="utf-8")
+        cls.final_worker = FINAL_WORKER.read_text(encoding="utf-8")
         cls.admin = ADMIN_RECOVERY.read_text(encoding="utf-8")
         cls.runtime = RUNTIME.read_text(encoding="utf-8")
 
     def test_worker_uses_v10_overlay(self):
         self.assertIn("const BUILD_VERSION = '10.0.0'", self.worker)
         self.assertIn("import recoveryWorker from './index-v8.js'", self.worker)
+        self.assertIn("const BUILD_VERSION = '10.1.0'", self.final_worker)
+        self.assertIn("import identityWorker from './index-v10.js'", self.final_worker)
 
     def test_deep_email_auth_probe_is_truthful(self):
         self.assertIn("https://api.resend.com/domains", self.worker)
@@ -31,8 +37,7 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("id<>? AND used_at IS NULL", self.worker)
 
     def test_reset_commit_is_batched(self):
-        marker = "const results = await env.DB.batch(["
-        self.assertIn(marker, self.worker)
+        self.assertIn("const results = await env.DB.batch([", self.worker)
         self.assertIn("reset_commit_failed", self.worker)
 
     def test_login_has_constant_time_dummy_path(self):
@@ -55,19 +60,35 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("RECOVERY_EXPORT_KEY", self.worker)
         self.assertIn("owner_recovery_exported", self.worker)
 
-    def test_admin_ui_injects_owner_manual_reset_control(self):
+    def test_final_worker_handles_preflight_and_strict_password(self):
+        self.assertIn("request.method === 'OPTIONS'", self.final_worker)
+        self.assertIn("strictPasswordPolicy:true", self.final_worker)
+        self.assertIn("/\\p{L}/u", self.final_worker)
+        self.assertNotIn("/\\s/u.test(password)", self.final_worker)
+
+    def test_admin_ui_activates_after_dynamic_load_and_login(self):
         self.assertIn("إنشاء رابط يدوي", self.admin)
         self.assertIn("password-reset-link", self.admin)
         self.assertIn("navigator.clipboard.writeText", self.admin)
-        self.assertIn("admin-recovery-v10.js?v=10.0.0", self.runtime)
+        self.assertIn("document.readyState==='loading'", self.admin)
+        self.assertIn("attributeFilter:['hidden']", self.admin)
+        self.assertIn("admin-recovery-v10-final.js?v=10.1.0", self.runtime)
 
     def test_production_workflow_exists(self):
         self.assertTrue(DEPLOY.exists())
         workflow = DEPLOY.read_text(encoding="utf-8")
-        self.assertIn('main = "src/index-v10.js"', workflow)
-        self.assertIn("node --check specialists-partners/account-backend/src/index-v10.js", workflow)
+        self.assertIn('main = "src/index-v10-final.js"', workflow)
+        self.assertIn("node --check specialists-partners/account-backend/src/index-v10-final.js", workflow)
         self.assertIn("health?deep=1", workflow)
         self.assertIn("tests.test_specialist_identity_v10", workflow)
+        self.assertIn("specialist-identity-v10-production.json", workflow)
+
+    def test_legacy_workflows_are_validation_only(self):
+        for path in (LEGACY_V6, LEGACY_V8):
+            text = path.read_text(encoding="utf-8")
+            self.assertNotIn("wrangler@4 deploy", text)
+            self.assertNotIn("push:\n    branches", text)
+            self.assertIn("validation-only", text)
 
 
 if __name__ == "__main__":
