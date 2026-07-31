@@ -1,0 +1,417 @@
+name: Temporary full repository publication audit
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    if: github.event.issue.title == '[diagnostic] full publication audit 2026-08-01'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Compare repository HTML with production
+        env:
+          AUDIT_NONCE: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from __future__ import annotations
+
+          import concurrent.futures
+          import hashlib
+          import json
+          import os
+          import re
+          import subprocess
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+          import xml.etree.ElementTree as ET
+          from collections import Counter
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          ROOT = Path('.').resolve()
+          BASE = 'https://healthrenewal.org/'
+          OLD = 'https://khaledaltheeb.github.io/pterminology-site'
+          NEW = 'https://healthrenewal.org'
+          NONCE = os.environ.get('AUDIT_NONCE', 'manual')
+          SKIP_TOP = {
+              '.git', '.github', 'node_modules', '.venv', 'venv', 'dist', 'build',
+              'scripts', 'tests', 'docs', 'reports', 'content', '.v10bundle',
+              '.generator-v6', '_site'
+          }
+          SKIP_PARTS = {'account-backend', 'backend', 'migrations'}
+          ERROR_FILES = {'404.html', '403.html', '500.html'}
+          VERIFY_NAME = re.compile(r'^(?:google[a-z0-9_-]+|bing[a-z0-9_-]+|yandex_[a-z0-9_-]+)\.html$', re.I)
+          VERIFY_CONTENT = re.compile(
+              r'^(?:google-site-verification|msvalidate\.01|p:domain_verify|facebook-domain-verification)\s*[:=]',
+              re.I,
+          )
+
+          class MetaParser(HTMLParser):
+              def __init__(self):
+                  super().__init__(convert_charrefs=True)
+                  self.robots = []
+                  self.canonicals = []
+                  self.title = ''
+                  self._in_title = False
+
+              def handle_starttag(self, tag, attrs):
+                  values = {str(k).lower(): (v or '') for k, v in attrs}
+                  if tag.lower() == 'meta' and values.get('name', '').lower() in {'robots', 'googlebot', 'bingbot'}:
+                      self.robots.append(values.get('content', ''))
+                  if tag.lower() == 'link' and 'canonical' in values.get('rel', '').lower().split():
+                      if values.get('href'):
+                          self.canonicals.append(values['href'])
+                  if tag.lower() == 'title':
+                      self._in_title = True
+
+              def handle_endtag(self, tag):
+                  if tag.lower() == 'title':
+                      self._in_title = False
+
+              def handle_data(self, data):
+                  if self._in_title:
+                      self.title += data
+
+          def parse_html(data: bytes) -> MetaParser:
+              parser = MetaParser()
+              parser.feed(data.decode('utf-8', errors='replace'))
+              return parser
+
+          def is_public_source(path: Path) -> bool:
+              rel = path.relative_to(ROOT)
+              if not rel.parts or rel.parts[0] in SKIP_TOP:
+                  return False
+              if any(part in SKIP_PARTS for part in rel.parts):
+                  return False
+              return True
+
+          def route_for(path: Path) -> str:
+              rel = path.relative_to(ROOT).as_posix()
+              if rel == 'index.html':
+                  return BASE
+              if rel.endswith('/index.html'):
+                  return BASE + rel[:-len('index.html')]
+              return BASE + rel
+
+          def classification(path: Path, source: bytes) -> str:
+              rel = path.relative_to(ROOT)
+              if rel.name.lower() in ERROR_FILES:
+                  return 'error'
+              if len(rel.parts) == 1 and VERIFY_NAME.fullmatch(rel.name):
+                  return 'verification'
+              text = source.decode('utf-8', errors='ignore').strip()
+              if len(rel.parts) == 1 and VERIFY_CONTENT.match(text):
+                  return 'verification'
+              return 'page'
+
+          def transformed_source(source: bytes) -> bytes:
+              try:
+                  text = source.decode('utf-8')
+              except UnicodeDecodeError:
+                  return source
+              return text.replace(OLD, NEW).encode('utf-8')
+
+          def cache_busted(url: str) -> str:
+              parts = urllib.parse.urlsplit(url)
+              query = urllib.parse.parse_qsl(parts.query, keep_blank_values=True)
+              query.append(('repo_audit', NONCE))
+              return urllib.parse.urlunsplit((parts.scheme, parts.netloc, parts.path, urllib.parse.urlencode(query), parts.fragment))
+
+          def fetch(url: str) -> dict:
+              target = cache_busted(url)
+              request = urllib.request.Request(
+                  target,
+                  headers={
+                      'User-Agent': 'healthrenewal-publication-audit/1.0',
+                      'Cache-Control': 'no-cache, no-store, max-age=0',
+                      'Pragma': 'no-cache',
+                      'Accept': 'text/html,application/xml,text/xml,*/*;q=0.8',
+                  },
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=35) as response:
+                      return {
+                          'status': int(response.status),
+                          'final_url': response.geturl(),
+                          'body': response.read(),
+                          'error': None,
+                      }
+              except urllib.error.HTTPError as exc:
+                  try:
+                      body = exc.read()
+                  except Exception:
+                      body = b''
+                  return {
+                      'status': int(exc.code),
+                      'final_url': exc.geturl(),
+                      'body': body,
+                      'error': f'HTTP {exc.code}',
+                  }
+              except Exception as exc:
+                  return {'status': 0, 'final_url': target, 'body': b'', 'error': repr(exc)}
+
+          def normalize_url(url: str) -> str:
+              parts = urllib.parse.urlsplit(url)
+              path = parts.path or '/'
+              if path.endswith('/index.html'):
+                  path = path[:-len('index.html')]
+              return urllib.parse.urlunsplit((parts.scheme.lower(), parts.netloc.lower(), path, '', ''))
+
+          def collect_sitemap_urls() -> tuple[set[str], list[dict]]:
+              documents = []
+              urls = set()
+              pending = [BASE + 'sitemap.xml', BASE + 'sitemap-index.xml']
+              seen = set()
+              while pending:
+                  current = pending.pop(0)
+                  if current in seen:
+                      continue
+                  seen.add(current)
+                  result = fetch(current)
+                  documents.append({'url': current, 'status': result['status'], 'error': result['error']})
+                  if result['status'] != 200:
+                      continue
+                  try:
+                      root = ET.fromstring(result['body'])
+                  except Exception as exc:
+                      documents[-1]['parse_error'] = repr(exc)
+                      continue
+                  local = root.tag.split('}', 1)[-1]
+                  if local == 'urlset':
+                      for node in root.iter():
+                          if node.tag.split('}', 1)[-1] == 'loc' and node.text:
+                              urls.add(normalize_url(node.text.strip()))
+                  elif local == 'sitemapindex':
+                      for node in root.iter():
+                          if node.tag.split('}', 1)[-1] == 'loc' and node.text:
+                              child = node.text.strip()
+                              if child.startswith(BASE):
+                                  pending.append(child)
+              return urls, documents
+
+          all_html = sorted(p for p in ROOT.rglob('*.html') if p.is_file())
+          public_html = [p for p in all_html if is_public_source(p)]
+          excluded_html = [p.relative_to(ROOT).as_posix() for p in all_html if not is_public_source(p)]
+
+          records = []
+          for path in public_html:
+              source = path.read_bytes()
+              meta = parse_html(source)
+              robots = ' '.join(meta.robots).lower()
+              rel = path.relative_to(ROOT).as_posix()
+              kind = classification(path, source)
+              records.append({
+                  'path': rel,
+                  'url': route_for(path),
+                  'kind': kind,
+                  'noindex': 'noindex' in robots,
+                  'canonical_local': meta.canonicals[0].strip() if meta.canonicals else '',
+                  'title_local': ' '.join(meta.title.split()),
+                  'expected': transformed_source(source),
+              })
+
+          sitemap_urls, sitemap_documents = collect_sitemap_urls()
+
+          with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+              live_results = list(executor.map(lambda r: fetch(r['url']), records))
+
+          problems = {
+              'not_live': [],
+              'stale_or_different_content': [],
+              'indexable_missing_from_sitemap': [],
+              'noindex_listed_in_sitemap': [],
+              'live_noindex_conflict': [],
+              'legacy_live_canonical': [],
+              'canonical_host_problem': [],
+              'canonical_route_mismatch': [],
+              'empty_live_body': [],
+          }
+          status_counts = Counter()
+          top_counts = Counter()
+          kind_counts = Counter()
+          exact_matches = 0
+          reachable = 0
+
+          source_urls = set()
+          indexable_urls = set()
+          noindex_urls = set()
+
+          for record, live in zip(records, live_results):
+              rel = record['path']
+              url = normalize_url(record['url'])
+              source_urls.add(url)
+              top_counts[rel.split('/', 1)[0] if '/' in rel else '(root)'] += 1
+              kind_counts[record['kind']] += 1
+              status_counts[str(live['status'])] += 1
+              expected_status = 404 if record['kind'] == 'error' else 200
+              if live['status'] == expected_status:
+                  reachable += 1
+              else:
+                  problems['not_live'].append({
+                      'path': rel, 'url': record['url'], 'expected_status': expected_status,
+                      'status': live['status'], 'error': live['error'], 'final_url': live['final_url'],
+                  })
+              if not live['body']:
+                  problems['empty_live_body'].append({'path': rel, 'url': record['url'], 'status': live['status']})
+
+              expected_sha = hashlib.sha256(record['expected']).hexdigest()
+              live_sha = hashlib.sha256(live['body']).hexdigest()
+              if expected_sha == live_sha:
+                  exact_matches += 1
+              else:
+                  problems['stale_or_different_content'].append({
+                      'path': rel, 'url': record['url'], 'status': live['status'],
+                      'expected_sha256': expected_sha, 'live_sha256': live_sha,
+                      'expected_bytes': len(record['expected']), 'live_bytes': len(live['body']),
+                  })
+
+              live_meta = parse_html(live['body'])
+              live_robots = ' '.join(live_meta.robots).lower()
+              live_canonical = live_meta.canonicals[0].strip() if live_meta.canonicals else ''
+
+              if record['kind'] == 'page':
+                  if record['noindex']:
+                      noindex_urls.add(url)
+                      if url in sitemap_urls:
+                          problems['noindex_listed_in_sitemap'].append({'path': rel, 'url': record['url']})
+                  else:
+                      indexable_urls.add(url)
+                      if url not in sitemap_urls:
+                          problems['indexable_missing_from_sitemap'].append({'path': rel, 'url': record['url']})
+                      if 'noindex' in live_robots:
+                          problems['live_noindex_conflict'].append({'path': rel, 'url': record['url'], 'robots': live_meta.robots})
+
+              if live_canonical:
+                  if 'khaledaltheeb.github.io/pterminology-site' in live_canonical:
+                      problems['legacy_live_canonical'].append({'path': rel, 'url': record['url'], 'canonical': live_canonical})
+                  parsed = urllib.parse.urlsplit(live_canonical)
+                  if parsed.netloc and parsed.netloc.lower() != 'healthrenewal.org':
+                      problems['canonical_host_problem'].append({'path': rel, 'url': record['url'], 'canonical': live_canonical})
+                  if record['kind'] == 'page' and not record['noindex'] and normalize_url(live_canonical) != url:
+                      problems['canonical_route_mismatch'].append({'path': rel, 'url': record['url'], 'canonical': live_canonical})
+
+          sitemap_extra = sorted(sitemap_urls - source_urls)
+          critical_keys = [
+              'not_live', 'stale_or_different_content', 'indexable_missing_from_sitemap',
+              'live_noindex_conflict', 'legacy_live_canonical', 'canonical_host_problem',
+              'canonical_route_mismatch', 'empty_live_body'
+          ]
+          critical_count = sum(len(problems[key]) for key in critical_keys)
+          passed = critical_count == 0
+
+          head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          report = {
+              'schema_version': 1,
+              'status': 'passed' if passed else 'failed',
+              'repository': os.environ.get('GITHUB_REPOSITORY', ''),
+              'head_sha': head,
+              'site': BASE,
+              'all_html_files_in_repository': len(all_html),
+              'public_html_files_in_deployment_scope': len(public_html),
+              'excluded_non_public_html_files': len(excluded_html),
+              'public_user_pages': kind_counts['page'],
+              'technical_verification_files': kind_counts['verification'],
+              'error_pages': kind_counts['error'],
+              'indexable_user_pages': len(indexable_urls),
+              'noindex_user_pages': len(noindex_urls),
+              'reachable_with_expected_status': reachable,
+              'exact_live_content_matches': exact_matches,
+              'sitemap_unique_urls': len(sitemap_urls),
+              'sitemap_extra_not_in_public_source': len(sitemap_extra),
+              'critical_problem_count': critical_count,
+              'status_counts': dict(status_counts),
+              'top_level_public_html_counts': dict(top_counts.most_common()),
+              'sitemap_documents': sitemap_documents,
+              'problem_counts': {key: len(value) for key, value in problems.items()},
+              'problems': {key: value[:120] for key, value in problems.items()},
+              'sitemap_extra_sample': sitemap_extra[:100],
+              'excluded_html_sample': excluded_html[:100],
+          }
+          Path('/tmp/publication-audit.json').write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+
+          lines = [
+              '## Full repository publication audit',
+              '',
+              f"Status: **{report['status']}**",
+              '',
+              f"- Audited main commit: `{head}`",
+              f"- HTML files anywhere in repository: **{len(all_html)}**",
+              f"- HTML files in actual deployment scope: **{len(public_html)}**",
+              f"- User-facing pages: **{kind_counts['page']}**",
+              f"- Indexable pages: **{len(indexable_urls)}**",
+              f"- Noindex pages: **{len(noindex_urls)}**",
+              f"- Technical verification files: **{kind_counts['verification']}**",
+              f"- Error pages: **{kind_counts['error']}**",
+              f"- Live with expected HTTP status: **{reachable}/{len(public_html)}**",
+              f"- Exact source-to-live content matches: **{exact_matches}/{len(public_html)}**",
+              f"- Unique URLs discovered in live sitemaps: **{len(sitemap_urls)}**",
+              f"- Critical problems: **{critical_count}**",
+              '',
+              '### Problem counts',
+              '',
+          ]
+          for key, value in report['problem_counts'].items():
+              lines.append(f'- `{key}`: **{value}**')
+          lines.extend(['', '### Top-level public HTML counts', ''])
+          for key, value in top_counts.most_common():
+              lines.append(f'- `{key}`: {value}')
+
+          for key, values in problems.items():
+              if not values:
+                  continue
+              lines.extend(['', f'### {key}', '', '```json'])
+              payload = json.dumps(values[:40], ensure_ascii=False, indent=2)
+              lines.append(payload[:12000])
+              lines.append('```')
+
+          if sitemap_extra:
+              lines.extend([
+                  '', '### Sitemap URLs not represented by current public-source HTML', '',
+                  'These can be generated or retained artifact pages; they are informational unless broken.',
+                  '', '```text', *sitemap_extra[:80], '```'
+              ])
+
+          body = '\n'.join(lines)
+          if len(body) > 60000:
+              body = body[:59000] + '\n\n_Report truncated; the summary and problem counts remain complete._'
+          Path('/tmp/issue-body.json').write_text(json.dumps({'body': body}), encoding='utf-8')
+          print(json.dumps({k: report[k] for k in [
+              'status', 'head_sha', 'all_html_files_in_repository',
+              'public_html_files_in_deployment_scope', 'indexable_user_pages',
+              'noindex_user_pages', 'reachable_with_expected_status',
+              'exact_live_content_matches', 'sitemap_unique_urls', 'critical_problem_count'
+          ]}, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Publish audit to issue
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          if [ ! -f /tmp/issue-body.json ]; then
+            printf '%s' '{"body":"## Full repository publication audit\n\nAudit failed before producing a report."}' > /tmp/issue-body.json
+          fi
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
+            --data-binary @/tmp/issue-body.json
