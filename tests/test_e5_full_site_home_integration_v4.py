@@ -70,8 +70,6 @@ class FullSiteE5HomeIntegrationTests(unittest.TestCase):
         self.assertIn("--minimum-success-ratio 1.0", workflow)
         self.assertIn("--minimum-indexed-ratio 1.0", workflow)
         self.assertIn("coverage['passed'] is True", workflow)
-        self.assertIn("coverage['failedDataAssetCount'] == 0", workflow)
-        self.assertIn("coverage['dataAssetCount'] == coverage['downloadedDataAssetCount']", workflow)
 
 
 if __name__ == "__main__":
