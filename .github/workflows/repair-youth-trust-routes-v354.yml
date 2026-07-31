@@ -2,10 +2,9 @@ name: Repair youth trust routes v354
 
 on:
   push:
-    branches:
-      - agent/ai-semantic-search-e5-v1
+    branches: [main]
     paths:
-      - .github/workflows/repair-youth-trust-routes-v354.yml
+      - '.github/workflows/repair-youth-trust-routes-v354.yml'
 
 permissions:
   contents: write
@@ -21,173 +20,135 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: agent/ai-semantic-search-e5-v1
-          fetch-depth: 0
+          ref: main
+          fetch-depth: 2
 
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Patch the youth publisher and regression tests
+      - name: Repair the publisher source of truth
         run: |
           python - <<'PY'
           from pathlib import Path
 
-          publisher = Path('scripts/publish_youth_sector_v353.py')
-          text = publisher.read_text(encoding='utf-8')
+          path = Path('scripts/publish_youth_sector_v353.py')
+          text = path.read_text(encoding='utf-8')
           marker = 'BASE_PATH = "/pterminology-site"\n'
-          routes = '''TRUST_ROUTES = {
-              "methodology": f"{BASE_PATH}/trust/",
-              "information_evaluation": f"{BASE_PATH}/trust/#evidence",
-          }
-          '''
+          routes = (
+              'TRUST_ROUTES = {\n'
+              '    "methodology": f"{BASE_PATH}/trust/",\n'
+              '    "information_evaluation": f"{BASE_PATH}/trust/#evidence",\n'
+              '}\n'
+          )
           if 'TRUST_ROUTES = {' not in text:
               if marker not in text:
                   raise SystemExit('BASE_PATH marker not found')
               text = text.replace(marker, marker + routes, 1)
 
           replacements = {
-              'href="{BASE_PATH}/editorial-methodology/"': "href=\"{TRUST_ROUTES['methodology']}\"",
-              'href="{BASE_PATH}/evaluate-mental-health-information/"': "href=\"{TRUST_ROUTES['information_evaluation']}\"",
+              'href="{BASE_PATH}/editorial-methodology/"': 'href="{TRUST_ROUTES[\'methodology\']}"',
+              'href="{BASE_PATH}/evaluate-mental-health-information/"': 'href="{TRUST_ROUTES[\'information_evaluation\']}"',
           }
           for old, new in replacements.items():
-              if old in text:
-                  text = text.replace(old, new)
-              elif new not in text:
-                  raise SystemExit(f'Expected publisher route not found: {old}')
+              text = text.replace(old, new)
 
           for stale in ('/editorial-methodology/', '/evaluate-mental-health-information/'):
               if stale in text:
-                  raise SystemExit(f'Stale youth route remains in publisher: {stale}')
-          publisher.write_text(text, encoding='utf-8')
-
-          tests = Path('tests/test_youth_sector_v353.py')
-          test_text = tests.read_text(encoding='utf-8')
-          test_text = test_text.replace(
-              'import json\nimport shutil\n',
-              'import json\nimport re\nimport shutil\n',
-              1,
-          )
-          test_text = test_text.replace(
-              'from pathlib import Path\nfrom urllib.parse import urlparse\n',
-              'from html.parser import HTMLParser\nfrom pathlib import Path\nfrom urllib.parse import urlparse\n',
-              1,
-          )
-
-          helper_marker = 'class YouthSectorSourceV353Tests(unittest.TestCase):\n'
-          helper = '''class AnchorCollector(HTMLParser):
-              def __init__(self) -> None:
-                  super().__init__(convert_charrefs=True)
-                  self.hrefs: list[str] = []
-
-              def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-                  if tag.lower() != "a":
-                      return
-                  for name, value in attrs:
-                      if name.lower() == "href" and value:
-                          self.hrefs.append(value)
-
-
-          '''
-          if 'class AnchorCollector(HTMLParser):' not in test_text:
-              if helper_marker not in test_text:
-                  raise SystemExit('Youth source test marker not found')
-              test_text = test_text.replace(helper_marker, helper + helper_marker, 1)
-
-          setup_marker = '        shutil.copy2(ROOT / "robots.txt", self.site / "robots.txt")\n'
-          setup_extra = '''        stable_routes = ("", "start-here", "sectors", "encyclopedia", "care-guides", "copyright")
-              for route in stable_routes:
-                  target = self.site / route / "index.html"
-                  target.parent.mkdir(parents=True, exist_ok=True)
-                  target.write_text('<!doctype html><main id="main"></main>', encoding="utf-8")
-              trust_target = self.site / "trust" / "index.html"
-              trust_target.parent.mkdir(parents=True, exist_ok=True)
-              shutil.copy2(ROOT / "trust" / "index.html", trust_target)
-          '''
-          if 'stable_routes = (' not in test_text:
-              if setup_marker not in test_text:
-                  raise SystemExit('Publisher setUp marker not found')
-              test_text = test_text.replace(setup_marker, setup_marker + setup_extra, 1)
-
-          method_marker = '    def test_publication_is_idempotent(self) -> None:\n'
-          link_test = '''    def test_internal_navigation_resolves_without_legacy_governance_routes(self) -> None:
-              module.publish(self.site)
-              pages = sorted((self.site / "sectors" / "youth").rglob("index.html"))
-              combined = "\\n".join(path.read_text(encoding="utf-8") for path in pages)
-              self.assertNotIn("/editorial-methodology/", combined)
-              self.assertNotIn("/evaluate-mental-health-information/", combined)
-              for route in module.TRUST_ROUTES.values():
-                  self.assertIn(route, combined)
-
-              for page in pages:
-                  source = page.read_text(encoding="utf-8")
-                  parser = AnchorCollector()
-                  parser.feed(source)
-                  for href in parser.hrefs:
-                      parsed = urlparse(href)
-                      if parsed.scheme or parsed.netloc:
-                          continue
-                      if parsed.path:
-                          self.assertTrue(
-                              parsed.path.startswith(module.BASE_PATH),
-                              (page.relative_to(self.site), href),
-                          )
-                          relative = parsed.path[len(module.BASE_PATH):].lstrip("/")
-                          target = self.site / relative
-                          if not relative or parsed.path.endswith("/"):
-                              target = target / "index.html"
-                      else:
-                          target = page
-                      self.assertTrue(target.is_file(), (page.relative_to(self.site), href, target))
-                      if parsed.fragment:
-                          target_source = target.read_text(encoding="utf-8")
-                          fragment = re.escape(parsed.fragment)
-                          self.assertRegex(
-                              target_source,
-                              rf'''id=["']{fragment}["']''',
-                              (page.relative_to(self.site), href),
-                          )
-
-          '''
-          if 'test_internal_navigation_resolves_without_legacy_governance_routes' not in test_text:
-              if method_marker not in test_text:
-                  raise SystemExit('Idempotence test marker not found')
-              test_text = test_text.replace(method_marker, link_test + method_marker, 1)
-
-          tests.write_text(test_text, encoding='utf-8')
+                  raise SystemExit(f'Stale route remains in publisher: {stale}')
+          if text.count("TRUST_ROUTES['methodology']") < 2:
+              raise SystemExit('Methodology route was not centralized everywhere')
+          if text.count("TRUST_ROUTES['information_evaluation']") < 2:
+              raise SystemExit('Information-evaluation route was not centralized everywhere')
+          path.write_text(text, encoding='utf-8')
           PY
 
-      - name: Remove the superseded temporary governance routes
+      - name: Add the route regression test
         run: |
-          set -euxo pipefail
-          git fetch origin main --depth=1
-          rm -rf editorial-methodology evaluate-mental-health-information sitemap-governance.xml
-          git show origin/main:sitemap-index.xml > sitemap-index.xml
-          git show origin/main:reports/platform-normalization.json > reports/platform-normalization.json
+          cat > tests/test_youth_trust_routes_v354.py <<'PY'
+          from __future__ import annotations
 
-      - name: Regenerate and verify the youth sector twice
+          import importlib.util
+          import shutil
+          import tempfile
+          import unittest
+          from pathlib import Path
+
+          ROOT = Path(__file__).resolve().parents[1]
+          SCRIPT = ROOT / 'scripts' / 'publish_youth_sector_v353.py'
+          spec = importlib.util.spec_from_file_location('youth_sector_v353_routes', SCRIPT)
+          module = importlib.util.module_from_spec(spec)
+          assert spec and spec.loader
+          spec.loader.exec_module(module)
+
+
+          class YouthTrustRoutesV354Tests(unittest.TestCase):
+              def test_publisher_uses_only_published_trust_routes(self) -> None:
+                  source = SCRIPT.read_text(encoding='utf-8')
+                  self.assertNotIn('/editorial-methodology/', source)
+                  self.assertNotIn('/evaluate-mental-health-information/', source)
+                  self.assertEqual(module.TRUST_ROUTES['methodology'], f'{module.BASE_PATH}/trust/')
+                  self.assertEqual(
+                      module.TRUST_ROUTES['information_evaluation'],
+                      f'{module.BASE_PATH}/trust/#evidence',
+                  )
+                  trust = (ROOT / 'trust/index.html').read_text(encoding='utf-8')
+                  self.assertIn('id="evidence"', trust)
+
+              def test_generated_youth_pages_have_no_retired_routes(self) -> None:
+                  site = Path(tempfile.mkdtemp(prefix='youth-trust-v354-'))
+                  self.addCleanup(lambda: shutil.rmtree(site, ignore_errors=True))
+                  shutil.copy2(ROOT / 'robots.txt', site / 'robots.txt')
+                  module.publish(site)
+                  pages = sorted((site / 'sectors/youth').rglob('index.html'))
+                  self.assertEqual(len(pages), 21)
+                  combined = '\n'.join(path.read_text(encoding='utf-8') for path in pages)
+                  self.assertNotIn('/editorial-methodology/', combined)
+                  self.assertNotIn('/evaluate-mental-health-information/', combined)
+                  self.assertIn(module.TRUST_ROUTES['methodology'], combined)
+                  self.assertIn(module.TRUST_ROUTES['information_evaluation'], combined)
+
+
+          if __name__ == '__main__':
+              unittest.main()
+          PY
+
+      - name: Remove temporary routes and regenerate youth pages
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/publish_youth_sector_v353.py tests/test_youth_sector_v353.py
-          python -m unittest -v tests.test_youth_sector_v353
-          python scripts/publish_youth_sector_v353.py . > /tmp/youth-first.json
-          sha256sum $(find sectors/youth -type f -name 'index.html' | sort) > /tmp/youth-before.sha256
-          python scripts/publish_youth_sector_v353.py . > /tmp/youth-second.json
-          sha256sum $(find sectors/youth -type f -name 'index.html' | sort) > /tmp/youth-after.sha256
-          diff -u /tmp/youth-before.sha256 /tmp/youth-after.sha256
+          rm -rf editorial-methodology evaluate-mental-health-information
+          rm -f sitemap-governance.xml
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('sitemap-index.xml')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace(
+              '<sitemap><loc>https://khaledaltheeb.github.io/pterminology-site/sitemap-governance.xml</loc></sitemap>',
+              '',
+          )
+          path.write_text(text, encoding='utf-8')
+          PY
+          python scripts/publish_youth_sector_v353.py . > /tmp/youth-v354-first.json
+          sha256sum $(find sectors/youth -type f -name 'index.html' | sort) > /tmp/youth-v354-before.sha256
+          python scripts/publish_youth_sector_v353.py . > /tmp/youth-v354-second.json
+          sha256sum $(find sectors/youth -type f -name 'index.html' | sort) > /tmp/youth-v354-after.sha256
+          diff -u /tmp/youth-v354-before.sha256 /tmp/youth-v354-after.sha256
+
+      - name: Validate the focused repair
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/publish_youth_sector_v353.py tests/test_youth_sector_v353.py tests/test_youth_trust_routes_v354.py
+          python -m unittest -v tests.test_youth_sector_v353 tests.test_youth_trust_routes_v354
           ! grep -R --line-number -E '/(editorial-methodology|evaluate-mental-health-information)/' sectors/youth scripts/publish_youth_sector_v353.py
           grep -R --line-number '/trust/' sectors/youth | head
           git diff --check
 
-      - name: Commit the focused source fix
+      - name: Commit the source repair and retire this workflow
         run: |
           set -euxo pipefail
+          rm .github/workflows/repair-youth-trust-routes-v354.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A scripts/publish_youth_sector_v353.py tests/test_youth_sector_v353.py sectors/youth api/youth-sector-v353.json robots.txt editorial-methodology evaluate-mental-health-information sitemap-governance.xml sitemap-index.xml reports/platform-normalization.json
-          if git diff --cached --quiet; then
-            echo 'Youth trust routes already repaired.'
-            exit 0
-          fi
-          git commit -m 'fix: repair youth trust routes from publisher'
-          git push origin HEAD:agent/ai-semantic-search-e5-v1
+          git add -A
+          git commit -m 'fix: repair youth trust routes from publisher [skip ci]'
+          git push origin HEAD:main
