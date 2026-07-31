@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "runtime_version": "10.3.0",
+  "sender_policy_version": "1",
+  "current_blocker": "sender_domain_not_verified",
+  "manual_recovery_available": true,
+  "validated_by": [
+    "Validate specialist sender policy v104",
+    "Validate specialist identity v10",
+    "Validate specialist identity v10 final",
+    "Validate specialist recovery v8",
+    "Validate specialist recovery v8 compatibility",
+    "Validate specialist owner console v4",
+    "Validate specialist operations v3",
+    "Validate specialists and partners sector",
+    "Verify specialists and partners live"
+  ],
+  "contains_secret_values": false
+}

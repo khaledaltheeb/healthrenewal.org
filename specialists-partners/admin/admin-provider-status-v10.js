@@ -21,6 +21,22 @@ function status(message,state='error'){
   box.focus?.();
 }
 
+function providerMessage(data){
+  if(data.senderReady===false){
+    if(data.senderCode==='sender_domain_not_verified'){
+      return 'تنبيه تشغيلي: مفتاح البريد صالح، لكن نطاق عنوان المرسل غير موثّق. استخدم «إنشاء رابط يدوي» حتى توثيق نطاق مخصص في Resend.';
+    }
+    if(data.senderCode==='resend_test_sender'){
+      return 'تنبيه تشغيلي: عنوان Resend التجريبي غير مناسب لاستعادة حسابات المختصين. استخدم «إنشاء رابط يدوي» حتى إعداد نطاق مرسل موثّق.';
+    }
+    return 'تنبيه تشغيلي: عنوان مرسل البريد غير جاهز. استخدم «إنشاء رابط يدوي» من بطاقة الحساب.';
+  }
+  if(data.authValid===false){
+    return 'تنبيه تشغيلي: اعتماد مزود البريد غير صالح أو غير متاح. استخدم «إنشاء رابط يدوي» من بطاقة الحساب.';
+  }
+  return '';
+}
+
 async function check(){
   const value=session();
   const consoleBox=document.getElementById('admin-console');
@@ -37,9 +53,8 @@ async function check(){
     });
     const data=await response.json().catch(()=>({}));
     if(response.status===403)return;
-    if(data.authValid===false){
-      status('تنبيه تشغيلي: البريد الآلي غير متاح. استخدم «إنشاء رابط يدوي» من بطاقة الحساب حتى استبدال اعتماد البريد.','error');
-    }
+    const message=providerMessage(data);
+    if(message)status(message,'error');
   }catch(_){checkedToken='';}
 }
 
