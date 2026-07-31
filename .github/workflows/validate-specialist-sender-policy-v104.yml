@@ -1,0 +1,34 @@
+name: Validate specialist sender policy v104
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "specialists-partners/account-backend/src/index-v10-production.js"
+      - "specialists-partners/admin/admin-provider-status-v10.js"
+      - "tests/specialist_sender_policy_v104_runtime.mjs"
+      - ".github/workflows/validate-specialist-sender-policy-v104.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Validate sender policy runtime
+        run: |
+          set -euo pipefail
+          node --check specialists-partners/account-backend/src/index-v10-production.js
+          node --check specialists-partners/admin/admin-provider-status-v10.js
+          node --check tests/specialist_sender_policy_v104_runtime.mjs
+          node tests/specialist_sender_policy_v104_runtime.mjs
+          grep -F "sender_domain_not_verified" specialists-partners/account-backend/src/index-v10-production.js
+          grep -F "manualRecoveryAvailable:true" specialists-partners/account-backend/src/index-v10-production.js
+          grep -F "نطاق عنوان المرسل غير موثّق" specialists-partners/admin/admin-provider-status-v10.js
