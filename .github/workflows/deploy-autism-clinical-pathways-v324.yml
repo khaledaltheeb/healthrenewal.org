@@ -1,0 +1,118 @@
+name: Deploy autism clinical pathways v324 to GitHub Pages
+
+on:
+  workflow_run:
+    workflows: ["Publish autism clinical pathways v324"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: validated-github-pages-v324
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download v324 validated production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify v324 artifact and prevent rollback
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import hashlib,json,os,re,urllib.request,xml.etree.ElementTree as ET
+          from pathlib import Path
+          root=Path('validated-site')
+          deployment=json.loads((root/'deployment.json').read_text(encoding='utf-8'))
+          report=json.loads((root/'api/autism-clinical-pathways-v324.json').read_text(encoding='utf-8'))
+          candidate=deployment.get('commit')
+          assert deployment.get('schema_version')==29 and re.fullmatch(r'[0-9a-f]{40}',candidate or ''),deployment
+          assert report.get('version')==324 and report.get('status')=='passed',report
+          assert (report.get('guide_count'),report.get('section_count'),report.get('source_count'))==(4,28,26),report
+          assert report.get('minimum_guide_words',0)>=1250,report
+          assert report.get('platform_shell_normalized') is True,report
+          assert report.get('external_clinical_review_completed') is False,report
+          for name in ('index.html','sitemap.xml','manifest.webmanifest','sw.js'):
+              path=root/name; evidence=deployment['artifacts'][name]
+              assert path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest()==evidence['sha256'],name
+              assert path.stat().st_size==evidence['bytes'],name
+          parent=(root/'special-needs/autism/index.html').read_text(encoding='utf-8')
+          assert parent.count('data-autism-clinical-pathways-v324')==1
+          urls=[(n.text or '').strip() for n in ET.parse(root/'sitemap-special-needs.xml').getroot().findall('{*}url/{*}loc')]
+          for slug in report['guide_slugs']:
+              page=root/'special-needs'/slug/'index.html'
+              source=page.read_text(encoding='utf-8')
+              assert page.is_file() and '<!-- pt-platform-shell:v1 -->' in source,slug
+              assert source.count('class="section-card"')==7 and 'MedicalWebPage' in source,slug
+              assert urls.count(f'https://khaledaltheeb.github.io/pterminology-site/special-needs/{slug}/')==1,slug
+          token=os.environ['GH_TOKEN']; repo=os.environ['GITHUB_REPOSITORY']
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','User-Agent':'pages-v324'}
+          def api(path):
+              with urllib.request.urlopen(urllib.request.Request(f'https://api.github.com/repos/{repo}{path}',headers=headers),timeout=30) as response:
+                  return json.loads(response.read().decode())
+          current=api('/git/ref/heads/main')['object']['sha']
+          status='identical' if candidate==current else api(f'/compare/{candidate}...{current}').get('status')
+          assert status in {'ahead','identical'},(candidate,current,status)
+          with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as handle:
+              handle.write(f'CANDIDATE_SHA={candidate}\n')
+          print({'candidate':candidate,'current_main':current,'relationship':status,'guides':4})
+          PY
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: validated-site
+      - name: Deploy v324 site
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Verify v324 live routes and content
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euxo pipefail
+          BASE="${PAGE_URL%/}/"; TOKEN="${CANDIDATE_SHA}"
+          matched=0
+          for i in $(seq 1 30); do
+            if curl -fsS -H 'Cache-Control: no-cache' "${BASE}deployment.json?v=${TOKEN}-${i}" -o /tmp/deployment.json && \
+               EXPECTED="${TOKEN}" python -c "import json,os; d=json.load(open('/tmp/deployment.json')); raise SystemExit(0 if d.get('commit')==os.environ['EXPECTED'] else 1)"; then matched=1; break; fi
+            sleep 10
+          done
+          test "$matched" -eq 1
+          curl -fsS -H 'Cache-Control: no-cache' "${BASE}api/autism-clinical-pathways-v324.json?v=${TOKEN}" -o /tmp/v324.json
+          python - <<'PY'
+          import json,os,subprocess,tempfile
+          report=json.load(open('/tmp/v324.json',encoding='utf-8'))
+          assert report['version']==324 and report['status']=='passed' and report['guide_count']==4,report
+          base=os.environ['PAGE_URL'].rstrip('/')+'/'
+          token=os.environ['CANDIDATE_SHA']
+          markers={
+              'autism-comprehensive-assessment-differential-diagnosis':'التقييم الشامل ليس جلسة واحدة ولا درجة في أداة',
+              'autism-late-diagnosis-adults-women-masking':'التمويه مفهوم بحثي متطور وليس اختبارًا تشخيصيًا مستقلًا',
+              'autism-aac-assessment-implementation':'التواصل المعزز والبديل ليس حلًا أخيرًا بعد فشل الكلام',
+              'autism-unsafe-unproven-treatments':'الاستخلاب أو السيكريتين أو الأكسجين عالي الضغط',
+          }
+          for slug,marker in markers.items():
+              with tempfile.NamedTemporaryFile() as handle:
+                  subprocess.run(['curl','-fsS','-H','Cache-Control: no-cache',f'{base}special-needs/{slug}/?v={token}','-o',handle.name],check=True)
+                  text=open(handle.name,encoding='utf-8').read()
+              assert marker in text and '<!-- pt-platform-shell:v1 -->' in text,(slug,marker)
+          print({'live_commit':token,'live_guides':4,'status':'published-v324'})
+          PY
