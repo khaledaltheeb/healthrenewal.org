@@ -54,6 +54,8 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("https://api.resend.com/domains", self.worker)
         self.assertIn("emailProviderAuth", self.worker)
         self.assertIn("invalid_api_key", self.worker)
+        self.assertIn("healthrenewal.org", self.worker)
+        self.assertIn("passwordResetBaseForRequest", self.worker)
         self.assertIn("user-agent':'pterminology-specialist-identity/10.0.0'", self.worker)
 
     def test_reset_links_are_single_use_and_supersede_older_links(self):
@@ -132,6 +134,8 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("'cross-origin-resource-policy':'cross-origin'", self.production_worker)
         self.assertIn("specialist_identity_v103_production_error", self.production_worker)
         self.assertIn("corsPreflight:true", self.production_worker)
+        self.assertIn("https://healthrenewal.org", self.production_worker)
+        self.assertIn("allowed.has(origin)", self.production_worker)
 
     def test_recovery_pages_allow_both_worker_hosts(self):
         identity = "https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev"
@@ -200,6 +204,9 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn('"enabled":true,"previews_enabled":true', production)
         self.assertIn("tests.test_specialist_identity_v10", production)
         self.assertIn("specialist-identity-v10-production.json", production)
+        self.assertIn("healthrenewal.org", production)
+        self.assertIn("sender_ready", production)
+        self.assertIn("operational_mode", production)
 
     def test_pages_deployment_patches_and_verifies_complete_interface(self):
         self.assertTrue(PAGES.exists())

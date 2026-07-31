@@ -199,7 +199,9 @@ async function withProductionVersion(response, origin, env) {
 
 export function senderReadiness(env = {}) {
   const from = String(env.FROM_EMAIL || '').trim().toLowerCase();
-  const match = from.match(/^[^\s@]+@([^\s@]+)$/);
+  const bracketed = from.match(/<\s*([^<>\s]+@[^<>\s]+)\s*>$/);
+  const address = bracketed ? bracketed[1] : from;
+  const match = address.match(/^[^\s@]+@([^\s@]+)$/);
   const domain = match ? match[1].replace(/\.$/, '') : null;
   const policyVersion = '1';
   if (!domain) {
@@ -270,10 +272,15 @@ function constantTimeEqual(a, b) {
 }
 
 function corsHeaders(origin, env) {
-  const allowed = String(env.ALLOWED_ORIGINS || 'https://khaledaltheeb.github.io')
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
+  const allowed = new Set([
+    'https://khaledaltheeb.github.io',
+    'https://healthrenewal.org',
+    'https://www.healthrenewal.org',
+    ...String(env.ALLOWED_ORIGINS || '')
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean),
+  ]);
   const headers = {
     'access-control-allow-methods':'GET,POST,PATCH,DELETE,OPTIONS',
     'access-control-allow-headers':'authorization,content-type,idempotency-key,x-requested-with,x-bootstrap-key,x-recovery-export-key',
@@ -287,7 +294,7 @@ function corsHeaders(origin, env) {
     'x-content-type-options':'nosniff',
     'x-frame-options':'DENY',
   };
-  if (origin && allowed.includes(origin)) headers['access-control-allow-origin'] = origin;
+  if (origin && allowed.has(origin)) headers['access-control-allow-origin'] = origin;
   return headers;
 }
 

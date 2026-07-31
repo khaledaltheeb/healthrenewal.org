@@ -21,6 +21,10 @@ class SpecialistTurnstilePersistenceTests(unittest.TestCase):
         self.assertIn("without replacing existing secrets", self.workflow)
         self.assertIn("deployment_replaced_secrets", self.workflow)
         self.assertNotIn("secret put TURNSTILE_SECRET", self.workflow)
+        self.assertIn("healthrenewal.org", self.workflow)
+        self.assertIn("TURNSTILE_EXPECTED_HOSTNAMES", self.workflow)
+        self.assertIn("sender_ready", self.workflow)
+        self.assertIn("fully_operational", self.workflow)
 
     def test_health_verifier_identifies_itself(self):
         self.assertIn('EXPECTED_VERSION = "10.3.0"', self.verifier)

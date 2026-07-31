@@ -29,13 +29,13 @@ export default {
       const manualResetMatch = url.pathname.match(/^\/v1\/admin\/users\/([a-z0-9-]+)\/password-reset-link$/i);
       if (request.method === 'POST' && manualResetMatch) {
         const actor = await requireIdentityBound(request, env);
-        return await adminManualPasswordReset(env, cors, actor, manualResetMatch[1]);
+        return await adminManualPasswordReset(request, env, cors, actor, manualResetMatch[1]);
       }
 
       const resetMatch = url.pathname.match(/^\/v1\/admin\/users\/([a-z0-9-]+)\/password-reset$/i);
       if (request.method === 'POST' && resetMatch) {
         const actor = await requireIdentityBound(request, env);
-        return await adminPasswordReset(env, cors, actor, resetMatch[1]);
+        return await adminPasswordReset(request, env, cors, actor, resetMatch[1]);
       }
 
       if (request.method === 'POST' && url.pathname === '/v1/admin/users') {
@@ -173,7 +173,7 @@ async function requestPasswordReset(request, env, cors) {
   if (user) {
     const purpose = user.status === 'invited' ? 'setup' : 'reset';
     try {
-      const delivery = await issuePasswordReset(env,user,purpose,null,requestId,true);
+      const delivery = await issuePasswordReset(env,user,purpose,null,requestId,true,passwordResetBaseForRequest(request,env));
       await identityAudit(env,null,'password_email_sent',user.id,user.provider_id,{requestId,purpose,expiresAt:delivery.expiresAt,providerMessageId:delivery.providerMessageId});
     } catch (error) {
       await identityAudit(env,null,'password_email_failed',user.id,user.provider_id,{requestId,purpose,error:safeError(error),providerDetail:error.providerDetail || null});
@@ -207,7 +207,7 @@ async function resetPassword(request, env, cors) {
   return json({ok:true,message:'تم تعيين كلمة المرور وإلغاء جميع الجلسات السابقة. يمكنك تسجيل الدخول الآن.'},200,cors);
 }
 
-async function adminPasswordReset(env, cors, actor, userId) {
+async function adminPasswordReset(request, env, cors, actor, userId) {
   requireRole(actor,['owner','admin']);
   const id = validId(userId,'معرف المستخدم');
   const user = await env.DB.prepare(`SELECT * FROM identity_users WHERE id=? AND status<>'archived'`).bind(id).first();
@@ -216,7 +216,7 @@ async function adminPasswordReset(env, cors, actor, userId) {
   const provider = await probeResend(env);
   if (provider.authValid !== true) fail('خدمة البريد غير متاحة؛ لم يُرسل رابط. استخدم إنشاء الرابط اليدوي بحساب المالك.',503,'email_service_unavailable');
   try {
-    const delivery = await issuePasswordReset(env,user,'admin_reset',actor.id,crypto.randomUUID(),true);
+    const delivery = await issuePasswordReset(env,user,'admin_reset',actor.id,crypto.randomUUID(),true,passwordResetBaseForRequest(request,env));
     await identityAudit(env,actor.id,'admin_password_email_sent',user.id,user.provider_id,{providerMessageId:delivery.providerMessageId,expiresAt:delivery.expiresAt});
     return json({ok:true,message:'تم إرسال رابط إعادة التعيين.',delivery:'sent',providerMessageId:delivery.providerMessageId},200,cors);
   } catch (error) {
@@ -225,13 +225,13 @@ async function adminPasswordReset(env, cors, actor, userId) {
   }
 }
 
-async function adminManualPasswordReset(env, cors, actor, userId) {
+async function adminManualPasswordReset(request, env, cors, actor, userId) {
   requireRole(actor,['owner']);
   const id = validId(userId,'معرف المستخدم');
   const user = await env.DB.prepare(`SELECT * FROM identity_users WHERE id=? AND status<>'archived'`).bind(id).first();
   if (!user) fail('الحساب غير موجود.',404,'user_not_found');
   enforceResetHierarchy(actor,user,true);
-  const delivery = await issuePasswordReset(env,user,'admin_reset',actor.id,crypto.randomUUID(),false);
+  const delivery = await issuePasswordReset(env,user,'admin_reset',actor.id,crypto.randomUUID(),false,passwordResetBaseForRequest(request,env));
   await identityAudit(env,actor.id,'manual_password_link_created',user.id,user.provider_id,{expiresAt:delivery.expiresAt});
   return json({ok:true,delivery:'manual',resetUrl:delivery.resetUrl,expiresAt:delivery.expiresAt,message:'تم إنشاء رابط يدوي لمرة واحدة. أرسله عبر قناة موثوقة.'},200,cors);
 }
@@ -272,7 +272,7 @@ async function createUser(request, env, cors, actor) {
     return json({ok:false,partialSuccess:true,user:publicUser(user),setupEmailQueued:false,emailDelivery:'failed',error:'email_service_unavailable',message:'تم إنشاء الحساب، لكن خدمة البريد غير متاحة ولم يُرسل رابط التفعيل. استخدم الرابط اليدوي من حساب المالك.'},503,cors);
   }
   try {
-    const delivery = await issuePasswordReset(env,user,'setup',actor.id,crypto.randomUUID(),true);
+    const delivery = await issuePasswordReset(env,user,'setup',actor.id,crypto.randomUUID(),true,passwordResetBaseForRequest(request,env));
     await identityAudit(env,actor.id,'user_setup_email_sent',id,providerId,{providerMessageId:delivery.providerMessageId,expiresAt:delivery.expiresAt});
     return json({ok:true,user:publicUser(user),setupEmailQueued:false,emailDelivery:'sent',providerMessageId:delivery.providerMessageId},201,cors);
   } catch (error) {
@@ -302,7 +302,7 @@ async function bootstrapOwner(request, env, cors) {
   const provider = await probeResend(env);
   if (provider.authValid !== true) return json({ok:true,user:publicUser(user),setupRequired:true,emailDelivery:'unavailable',message:'حساب المالك مهيأ، لكن البريد غير متاح. استخدم الاستعادة التشغيلية المشفرة.'},200,cors);
   try {
-    const delivery = await issuePasswordReset(env,user,'setup',user.id,crypto.randomUUID(),true);
+    const delivery = await issuePasswordReset(env,user,'setup',user.id,crypto.randomUUID(),true,passwordResetBaseForRequest(request,env));
     return json({ok:true,user:publicUser(user),setupRequired:true,emailDelivery:'sent',providerMessageId:delivery.providerMessageId},200,cors);
   } catch (error) {
     return json({ok:true,user:publicUser(user),setupRequired:true,emailDelivery:'failed',message:'حساب المالك مهيأ، لكن فشل البريد. استخدم الاستعادة التشغيلية المشفرة.'},200,cors);
@@ -323,7 +323,7 @@ async function ownerRecoveryExport(request, env, cors) {
   return json({ok:true,resetUrl:delivery.resetUrl,expiresAt:delivery.expiresAt},200,cors);
 }
 
-async function issuePasswordReset(env, user, purpose='reset', requestedBy=null, requestId=crypto.randomUUID(), deliver=true) {
+async function issuePasswordReset(env, user, purpose='reset', requestedBy=null, requestId=crypto.randomUUID(), deliver=true, resetBaseOverride='') {
   const raw = randomToken(32);
   const hash = await sha256(raw);
   const now = new Date().toISOString();
@@ -333,7 +333,7 @@ async function issuePasswordReset(env, user, purpose='reset', requestedBy=null, 
     env.DB.prepare(`UPDATE password_reset_tokens SET used_at=? WHERE user_id=? AND used_at IS NULL`).bind(now,user.id),
     env.DB.prepare(`INSERT INTO password_reset_tokens (id,user_id,token_hash,purpose,expires_at,requested_by_user_id,created_at) VALUES (?,?,?,?,?,?,?)`).bind(tokenId,user.id,hash,purpose,expiresAt,requestedBy,now)
   ]);
-  const base = validHttpsBase(env.PASSWORD_RESET_BASE_URL);
+  const base = validHttpsBase(resetBaseOverride || env.PASSWORD_RESET_BASE_URL);
   if (!base) {
     await env.DB.prepare(`DELETE FROM password_reset_tokens WHERE id=?`).bind(tokenId).run();
     fail('مسار إعادة التعيين غير مهيأ.',503,'reset_base_unavailable');
@@ -480,9 +480,14 @@ async function verifyTurnstile(tokenValue, request, env, allowedActions=[]) {
   form.set('idempotency_key',crypto.randomUUID());
   const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',body:form});
   const result = await response.json().catch(() => ({}));
-  const hosts = String(env.TURNSTILE_EXPECTED_HOSTNAMES || 'khaledaltheeb.github.io').split(',').map(v=>v.trim()).filter(Boolean);
+  const hosts = new Set([
+    'khaledaltheeb.github.io',
+    'healthrenewal.org',
+    'www.healthrenewal.org',
+    ...String(env.TURNSTILE_EXPECTED_HOSTNAMES || '').split(',').map(v=>v.trim()).filter(Boolean),
+  ]);
   const actionOk = !result.action || !allowedActions.length || allowedActions.includes(result.action);
-  if (!response.ok || result.success !== true || !hosts.includes(result.hostname) || !actionOk) fail('تعذر التحقق من الاستخدام البشري.',400,'turnstile_failed');
+  if (!response.ok || result.success !== true || !hosts.has(result.hostname) || !actionOk) fail('تعذر التحقق من الاستخدام البشري.',400,'turnstile_failed');
 }
 
 async function parseJson(request) {
@@ -515,6 +520,12 @@ function corsHeaders(origin, env) {
 }
 
 function publicUser(row) { return {id:row.id,email:row.email,phone:row.phone_e164 || null,displayNameAr:row.display_name_ar,displayNameEn:row.display_name_en || null,role:row.role,status:row.status,providerId:row.provider_id || null,verifiedAt:row.verified_at || null,emailVerifiedAt:row.email_verified_at || null,phoneVerifiedAt:row.phone_verified_at || null,emailNotifications:Number(row.email_notifications)===1,newMessageNotifications:Number(row.new_message_notifications)===1,mustChangePassword:Number(row.must_change_password)===1,lastLoginAt:row.last_login_at || null,createdAt:row.created_at,updatedAt:row.updated_at}; }
+function passwordResetBaseForRequest(request,env) {
+  const origin=String(request?.headers?.get('origin')||'').replace(/\/$/,'');
+  if(origin==='https://healthrenewal.org'||origin==='https://www.healthrenewal.org') return `${origin}/specialists-partners/password-reset/`;
+  if(origin==='https://khaledaltheeb.github.io') return 'https://khaledaltheeb.github.io/pterminology-site/specialists-partners/password-reset/';
+  return String(env.PASSWORD_RESET_BASE_URL||'');
+}
 function validHttpsBase(value) { try { const url=new URL(String(value || '')); if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) return ''; return url.href.replace(/\/$/,''); } catch (_) { return ''; } }
 function validEmail(value) { const email=cleanString(value,254,true).toLowerCase(); if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fail('البريد الإلكتروني غير صالح.',400,'invalid_email'); return email; }
 function validId(value,label='المعرف') { const id=cleanString(value,90,true); if (!/^[a-z0-9][a-z0-9-]{2,89}$/i.test(id)) fail(`${label} غير صالح.`,400,'invalid_id'); return id; }

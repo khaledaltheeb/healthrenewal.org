@@ -7,7 +7,8 @@ assert.equal(missing.code, 'sender_not_configured');
 
 const consumer = senderReadiness({FROM_EMAIL:'منصة الصحة النفسية <pterminology@gmail.com>'});
 assert.equal(consumer.ready, false);
-assert.equal(consumer.code, 'sender_not_configured');
+assert.equal(consumer.code, 'sender_domain_not_verified');
+assert.equal(consumer.domain, 'gmail.com');
 
 const gmail = senderReadiness({FROM_EMAIL:'pterminology@gmail.com'});
 assert.equal(gmail.ready, false);
