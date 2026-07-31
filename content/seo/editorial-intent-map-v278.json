@@ -1,7 +1,7 @@
 {
   "contract": 278,
   "reviewed_at": "2026-07-26",
-  "base_url": "https://khaledaltheeb.github.io/pterminology-site/",
+  "base_url": "https://healthrenewal.org/",
   "principles": [
     "كل عنقود له صفحة ركيزة واحدة لتقليل التنافس الداخلي.",
     "الصفحات الداعمة تجيب نية فرعية محددة ولا تعيد صياغة الصفحة الركيزة.",
@@ -13,7 +13,7 @@
     {
       "id": "mental-health-encyclopedia",
       "title_ar": "الموسوعة النفسية والمصطلحات",
-      "pillar_url": "https://khaledaltheeb.github.io/pterminology-site/encyclopedia/",
+      "pillar_url": "https://healthrenewal.org/encyclopedia/",
       "primary_intent": "تعريف وفهم المصطلحات والحالات النفسية والفروق بينها",
       "queries_ar": ["مصطلحات علم النفس", "موسوعة علم النفس", "ما معنى الاضطرابات النفسية", "الفرق بين الحالات النفسية", "شرح المصطلحات النفسية بالعربي", "أعراض الاضطرابات النفسية"],
       "queries_en": ["Arabic psychology encyclopedia", "mental health terms in Arabic"],
@@ -24,7 +24,7 @@
     {
       "id": "special-needs-inclusion",
       "title_ar": "الأشخاص ذوو الاحتياجات الخاصة والتربية الدامجة",
-      "pillar_url": "https://khaledaltheeb.github.io/pterminology-site/special-needs/",
+      "pillar_url": "https://healthrenewal.org/special-needs/",
       "primary_intent": "أدلة عملية محترمة للدمج والتواصل والمدرسة والاستقلال والحماية",
       "queries_ar": ["ذوو الاحتياجات الخاصة", "التربية الدامجة", "دعم الطفل في المدرسة", "التواصل مع ذوي الاحتياجات الخاصة", "الدمج المدرسي", "خطة انتقال إلى الرشد"],
       "queries_en": ["Arabic inclusive education resources", "special needs family guide Arabic"],
@@ -35,7 +35,7 @@
     {
       "id": "family-child-support",
       "title_ar": "الصحة النفسية للأسرة والطفل",
-      "pillar_url": "https://khaledaltheeb.github.io/pterminology-site/hubs/",
+      "pillar_url": "https://healthrenewal.org/hubs/",
       "primary_intent": "دعم الأسرة والطفل ومقدمي الرعاية بخطوات عملية وحدود واضحة",
       "queries_ar": ["الصحة النفسية للطفل", "دعم الأسرة نفسيًا", "كيف أستمع لطفلي", "تنظيم روتين الطفل", "إرشادات لمقدمي الرعاية", "متى أطلب مساعدة نفسية للطفل"],
       "queries_en": ["Arabic child mental health guide", "family mental health resources Arabic"],
@@ -46,7 +46,7 @@
     {
       "id": "practical-care-guides",
       "title_ar": "أدلة التعامل والوصول إلى المساعدة",
-      "pillar_url": "https://khaledaltheeb.github.io/pterminology-site/care-guides/",
+      "pillar_url": "https://healthrenewal.org/care-guides/",
       "primary_intent": "ماذا أفعل وكيف أستعد للمختص وما الفرق بين التوعية والتقييم والعلاج",
       "queries_ar": ["كيف أطلب مساعدة نفسية", "التحضير لزيارة الطبيب النفسي", "ماذا يحدث في التقييم النفسي", "كيف أساعد شخصًا متعبًا نفسيًا", "خطة أمان نفسية", "متى أذهب إلى مختص نفسي"],
       "queries_en": ["Arabic mental health care guide", "prepare for mental health appointment Arabic"],
@@ -57,7 +57,7 @@
     {
       "id": "assessments-safe-use",
       "title_ar": "الأسئلة الاستكشافية والمقاييس الآمنة",
-      "pillar_url": "https://khaledaltheeb.github.io/pterminology-site/guided-assessment/",
+      "pillar_url": "https://healthrenewal.org/guided-assessment/",
       "primary_intent": "فهم الاستخدام غير التشخيصي للأدوات والخصوصية والخطوة التالية",
       "queries_ar": ["اختبار نفسي غير تشخيصي", "هل المقياس النفسي يشخص", "تفسير نتيجة اختبار نفسي", "خصوصية الاختبارات النفسية", "متى أحتاج تقييمًا مهنيًا", "الفرق بين الفحص والتشخيص"],
       "queries_en": ["Arabic mental health screening guidance", "safe psychological assessment use Arabic"],
@@ -68,7 +68,7 @@
     {
       "id": "daily-tools",
       "title_ar": "الأدوات النفسية والتنظيمية اليومية",
-      "pillar_url": "https://khaledaltheeb.github.io/pterminology-site/daily-tools/",
+      "pillar_url": "https://healthrenewal.org/daily-tools/",
       "primary_intent": "أدوات عملية محلية للتنظيم والمتابعة دون تشخيص أو إرسال بيانات",
       "queries_ar": ["أدوات نفسية تفاعلية", "تمارين تنظيم التوتر", "سجل النوم بالعربي", "أداة دعم مقدم الرعاية", "خطة يوم صعب", "تمارين نفسية يومية"],
       "queries_en": ["Arabic mental health tools", "local privacy mental health tools Arabic"],
@@ -79,7 +79,7 @@
     {
       "id": "learning-paths",
       "title_ar": "مسارات التعلم القصيرة",
-      "pillar_url": "https://khaledaltheeb.github.io/pterminology-site/learning-paths/",
+      "pillar_url": "https://healthrenewal.org/learning-paths/",
       "primary_intent": "تعلم تدريجي قصير يحول المعرفة إلى تطبيق يومي آمن",
       "queries_ar": ["مسار تعلم الصحة النفسية", "خطة سبعة أيام للتوتر", "تعلم مهارات نفسية بالعربي", "مسار دعم الأسرة", "خطة تعلم لمقدم الرعاية", "تعليم نفسي قصير"],
       "queries_en": ["Arabic mental health learning paths", "psychoeducation course Arabic"],
@@ -90,7 +90,7 @@
     {
       "id": "research-magazine",
       "title_ar": "المجلة والأبحاث",
-      "pillar_url": "https://khaledaltheeb.github.io/pterminology-site/magazine/",
+      "pillar_url": "https://healthrenewal.org/magazine/",
       "primary_intent": "ملخصات عربية نقدية للدراسات والإرشادات مع القيود والدلالة العملية",
       "queries_ar": ["أحدث أبحاث الصحة النفسية", "ملخص دراسات علم النفس بالعربي", "مراجعات منهجية نفسية", "نتائج الدراسات النفسية", "حدود أبحاث الصحة النفسية", "مجلة علم النفس العربية"],
       "queries_en": ["Arabic mental health research summaries", "psychology systematic reviews Arabic"],
@@ -101,7 +101,7 @@
     {
       "id": "academic-library",
       "title_ar": "المكتبة الأكاديمية",
-      "pillar_url": "https://khaledaltheeb.github.io/pterminology-site/library/",
+      "pillar_url": "https://healthrenewal.org/library/",
       "primary_intent": "الوصول المنظم إلى المصادر والإرشادات والمراجع الأصلية",
       "queries_ar": ["مراجع علم النفس الموثوقة", "مصادر الصحة النفسية", "إرشادات نفسية عالمية", "كتب ومراجع علم النفس", "مصادر التقييم النفسي", "المكتبة النفسية العربية"],
       "queries_en": ["Arabic mental health academic library", "psychology references Arabic"],
@@ -112,7 +112,7 @@
     {
       "id": "psychology-comparisons",
       "title_ar": "المقارنات النفسية",
-      "pillar_url": "https://khaledaltheeb.github.io/pterminology-site/comparisons/",
+      "pillar_url": "https://healthrenewal.org/comparisons/",
       "primary_intent": "فهم الفروق بين الحالات والمفاهيم دون تشخيص ذاتي",
       "queries_ar": ["الفرق بين القلق والهلع", "الفرق بين الضغط والاكتئاب", "مقارنة الاضطرابات النفسية", "الفرق بين الحزن والاكتئاب", "الفرق بين الوسواس والقلق", "كيف أميز بين الحالات النفسية"],
       "queries_en": ["Arabic mental health comparisons", "difference between mental health conditions Arabic"],

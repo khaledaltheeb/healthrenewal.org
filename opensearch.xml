@@ -3,6 +3,6 @@
   <ShortName>البحث الذكي</ShortName>
   <Description>بحث دلالي عربي في منصة الصحة النفسية وذوي الاحتياجات الخاصة</Description>
   <InputEncoding>UTF-8</InputEncoding>
-  <Image height="64" width="64" type="image/svg+xml">https://khaledaltheeb.github.io/pterminology-site/assets/brand/logo-mark.svg</Image>
-  <Url type="text/html" method="get" template="https://khaledaltheeb.github.io/pterminology-site/ai-search/?q={searchTerms}"/>
+  <Image height="64" width="64" type="image/svg+xml">https://healthrenewal.org/assets/brand/logo-mark.svg</Image>
+  <Url type="text/html" method="get" template="https://healthrenewal.org/ai-search/?q={searchTerms}"/>
 </OpenSearchDescription>

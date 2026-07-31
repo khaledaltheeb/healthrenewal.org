@@ -7,7 +7,7 @@
     "license": {"name": "Rights vary by resource"}
   },
   "servers": [
-    {"url": "https://khaledaltheeb.github.io/pterminology-site"}
+    {"url": "https://healthrenewal.org"}
   ],
   "paths": {
     "/api/v1/platform.json": {

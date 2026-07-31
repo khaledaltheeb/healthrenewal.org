@@ -2,28 +2,28 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>المجلة والأبحاث | منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
-    <link>https://khaledaltheeb.github.io/pterminology-site/magazine/</link>
+    <link>https://healthrenewal.org/magazine/</link>
     <description>قراءات عربية أصلية للدراسات والمراجعات المنهجية والإرشادات المؤسسية في الصحة النفسية وذوي الاحتياجات الخاصة.</description>
     <language>ar</language>
-    <atom:link href="https://khaledaltheeb.github.io/pterminology-site/magazine/feed.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="https://healthrenewal.org/magazine/feed.xml" rel="self" type="application/rss+xml"/>
     <lastBuildDate>Sun, 26 Jul 2026 14:34:00 GMT</lastBuildDate>
     <ttl>60</ttl>
     <item>
       <title>هل تحسن التدخلات الرقمية الصحة النفسية لليافعين والشباب المصابين بالسرطان؟</title>
-      <link>https://khaledaltheeb.github.io/pterminology-site/magazine/aya-cancer-digital-mental-health-meta-analysis-2026.html</link>
-      <guid isPermaLink="true">https://khaledaltheeb.github.io/pterminology-site/magazine/aya-cancer-digital-mental-health-meta-analysis-2026.html</guid>
+      <link>https://healthrenewal.org/magazine/aya-cancer-digital-mental-health-meta-analysis-2026.html</link>
+      <guid isPermaLink="true">https://healthrenewal.org/magazine/aya-cancer-digital-mental-health-meta-analysis-2026.html</guid>
       <description>قراءة عربية لمراجعة منهجية وتحليل تلوي عن أثر التدخلات الصحية الرقمية في القلق والضيق وجودة الحياة والدعم الاجتماعي.</description>
     </item>
     <item>
       <title>الاستشعار السلبي بالهواتف الذكية والصحة النفسية للمراهقين</title>
-      <link>https://khaledaltheeb.github.io/pterminology-site/magazine/adolescent-passive-smartphone-sensing-meta-analysis-2026.html</link>
-      <guid isPermaLink="true">https://khaledaltheeb.github.io/pterminology-site/magazine/adolescent-passive-smartphone-sensing-meta-analysis-2026.html</guid>
+      <link>https://healthrenewal.org/magazine/adolescent-passive-smartphone-sensing-meta-analysis-2026.html</link>
+      <guid isPermaLink="true">https://healthrenewal.org/magazine/adolescent-passive-smartphone-sensing-meta-analysis-2026.html</guid>
       <description>قراءة نقدية للأدلة حول الاستشعار السلبي، وحدود التنبؤ، والخصوصية، وما لا تثبته البيانات الرقمية وحدها.</description>
     </item>
     <item>
       <title>التدخلات النفسية العابرة للتشخيص عبر الإنترنت لدى الشباب</title>
-      <link>https://khaledaltheeb.github.io/pterminology-site/magazine/youth-transdiagnostic-internet-rct-2026.html</link>
-      <guid isPermaLink="true">https://khaledaltheeb.github.io/pterminology-site/magazine/youth-transdiagnostic-internet-rct-2026.html</guid>
+      <link>https://healthrenewal.org/magazine/youth-transdiagnostic-internet-rct-2026.html</link>
+      <guid isPermaLink="true">https://healthrenewal.org/magazine/youth-transdiagnostic-internet-rct-2026.html</guid>
       <description>ملخص عربي لتجربة عشوائية مع عرض المنهج والنتائج والقيود والدلالة العملية دون تعميم يتجاوز الدراسة.</description>
     </item>
   </channel>
