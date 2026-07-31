@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>https://healthrenewal.org/</id>
+  <title>HealthRenewal | الصحة النفسية وذوو الاحتياجات الخاصة</title>
+  <updated>2026-08-01T00:00:00Z</updated>
+  <link href="https://healthrenewal.org/" />
+  <link href="https://healthrenewal.org/atom.xml" rel="self" type="application/atom+xml" />
+  <entry>
+    <id>https://healthrenewal.org/</id>
+    <title>منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
+    <updated>2026-08-01T00:00:00Z</updated>
+    <link href="https://healthrenewal.org/" />
+    <summary>بوابة عربية مؤسسية للمعرفة النفسية والتربية الدامجة والأدلة والأدوات.</summary>
+  </entry>
+  <entry>
+    <id>https://healthrenewal.org/encyclopedia/</id>
+    <title>الموسوعة النفسية العربية</title>
+    <updated>2026-08-01T00:00:00Z</updated>
+    <link href="https://healthrenewal.org/encyclopedia/" />
+    <summary>مصطلحات ومفاهيم نفسية منظمة ومترابطة.</summary>
+  </entry>
+  <entry>
+    <id>https://healthrenewal.org/special-needs/</id>
+    <title>ذوو الاحتياجات الخاصة والتربية الدامجة</title>
+    <updated>2026-08-01T00:00:00Z</updated>
+    <link href="https://healthrenewal.org/special-needs/" />
+    <summary>أدلة ومعرفة منظمة للأسر والمختصين ومقدمي الخدمات.</summary>
+  </entry>
+  <entry>
+    <id>https://healthrenewal.org/family-guide/</id>
+    <title>دليل الأسرة للرعاية والدعم</title>
+    <updated>2026-08-01T00:00:00Z</updated>
+    <link href="https://healthrenewal.org/family-guide/" />
+    <summary>إرشادات عملية لدعم الفهم والتواصل والرعاية الآمنة.</summary>
+  </entry>
+  <entry>
+    <id>https://healthrenewal.org/library/</id>
+    <title>المكتبة الأكاديمية والأبحاث</title>
+    <updated>2026-08-01T00:00:00Z</updated>
+    <link href="https://healthrenewal.org/library/" />
+    <summary>مواد أكاديمية ومصادر وأبحاث مرتبة مع إسناد واضح.</summary>
+  </entry>
+  <entry>
+    <id>https://healthrenewal.org/care-guides/</id>
+    <title>أدلة الرعاية والتعامل العملي</title>
+    <updated>2026-08-01T00:00:00Z</updated>
+    <link href="https://healthrenewal.org/care-guides/" />
+    <summary>أدلة تطبيقية للأسر والمعلمين والمختصين ومقدمي الخدمة.</summary>
+  </entry>
+  <entry>
+    <id>https://healthrenewal.org/daily-tools/</id>
+    <title>الأدوات النفسية التفاعلية</title>
+    <updated>2026-08-01T00:00:00Z</updated>
+    <link href="https://healthrenewal.org/daily-tools/" />
+    <summary>أدوات تثقيفية وتنظيمية لا تستبدل التقييم أو العلاج الفردي.</summary>
+  </entry>
+  <entry>
+    <id>https://healthrenewal.org/learning-paths/</id>
+    <title>مسارات التعلم</title>
+    <updated>2026-08-01T00:00:00Z</updated>
+    <link href="https://healthrenewal.org/learning-paths/" />
+    <summary>مسارات تعلم قصيرة ومنظمة تربط المفاهيم بالأدلة والتطبيق.</summary>
+  </entry>
+</feed>
