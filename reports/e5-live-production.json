@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "passed": true,
+  "verifiedAt": "2026-07-31T20:35:16.449050+00:00",
+  "site": "https://healthrenewal.org/",
+  "workflowRunId": "30663399956",
+  "workflowRunUrl": "https://github.com/khaledaltheeb/healthrenewal.org/actions/runs/30663399956",
+  "sourceCommit": "92a4f517bff770bf552290c80ebeb8b69ae06789",
+  "generatedAt": "2026-07-31T19:39:49.138610+00:00",
+  "model": "intfloat/multilingual-e5-small",
+  "modelRevision": "fd1525a9fd15316a2d503bf26ab031a61d056e98",
+  "browserModel": "Xenova/multilingual-e5-small",
+  "browserModelRevision": "761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+  "dimensions": 384,
+  "dtype": "float16",
+  "normalized": true,
+  "documentCount": 125,
+  "chunkCount": 1473,
+  "manifestBytes": 1266,
+  "manifestSha256": "d7236901c57eedc18abffee410b09323c6ba5e0b7acf20514e6c10f6f1711647",
+  "robotsSitemapIndexOnly": true,
+  "shards": [
+    {
+      "metadata": "shard-000.meta.json",
+      "metadataBytes": 2483749,
+      "metadataSha256": "ba324d5feb5a0cc2c03388f171a7841e37731b691c494fdbc20f731467a60afe",
+      "embeddingsJson": "shard-000.f16.json",
+      "embeddingsJsonBytes": 1508562,
+      "embeddingsJsonSha256": "82d2495c1c1de8e965592b5972bbcf6471261e70568869c48dafa11b57dd78bf",
+      "embeddingBytes": 1131264,
+      "embeddingSha256": "4f2083b3c245ef18a94e41b7893fd7d6dadc822e7ba7016f591bc7d7174d7f73",
+      "count": 1473
+    }
+  ]
+}
