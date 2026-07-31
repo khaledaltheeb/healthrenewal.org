@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T15:45:04.026458+00:00",
+  "worker_name": "pterminology-specialist-accounts",
+  "status": "blocked",
+  "failure_stage": "workers_builds_api_access",
+  "worker_tag_found": true,
+  "trigger_count_before": 0,
+  "trigger_count_after": null,
+  "deleted_trigger_count": 0,
+  "repository_connection_deleted": false,
+  "production_worker_modified": false,
+  "contains_secret_values": false,
+  "api_http_status": 401,
+  "api_error_codes": [
+    12006
+  ]
+}
