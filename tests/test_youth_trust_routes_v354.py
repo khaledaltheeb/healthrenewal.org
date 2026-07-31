@@ -16,6 +16,12 @@ spec.loader.exec_module(module)
 
 
 class YouthTrustRoutesV354Tests(unittest.TestCase):
+    def new_site(self, prefix: str) -> Path:
+        site = Path(tempfile.mkdtemp(prefix=prefix))
+        self.addCleanup(lambda: shutil.rmtree(site, ignore_errors=True))
+        shutil.copy2(ROOT / "robots.txt", site / "robots.txt")
+        return site
+
     def test_routes_point_to_published_trust_page(self) -> None:
         self.assertEqual(module.TRUST_ROUTES["methodology"], f"{module.BASE_PATH}/trust/")
         self.assertEqual(
@@ -25,11 +31,8 @@ class YouthTrustRoutesV354Tests(unittest.TestCase):
         trust = (ROOT / "trust/index.html").read_text(encoding="utf-8")
         self.assertIn('id="evidence"', trust)
 
-    def test_generated_pages_have_no_retired_routes(self) -> None:
-        site = Path(tempfile.mkdtemp(prefix="youth-trust-v354-"))
-        self.addCleanup(lambda: shutil.rmtree(site, ignore_errors=True))
-        shutil.copy2(ROOT / "robots.txt", site / "robots.txt")
-
+    def test_generated_youth_pages_use_unified_trust_routes(self) -> None:
+        site = self.new_site("youth-trust-v354-")
         report = module.publish(site)
         self.assertEqual(report["status"], "passed")
         pages = sorted((site / "sectors" / "youth").rglob("index.html"))
@@ -41,11 +44,24 @@ class YouthTrustRoutesV354Tests(unittest.TestCase):
         self.assertIn(module.TRUST_ROUTES["methodology"], combined)
         self.assertIn(module.TRUST_ROUTES["information_evaluation"], combined)
 
-    def test_publication_remains_idempotent(self) -> None:
-        site = Path(tempfile.mkdtemp(prefix="youth-trust-idempotence-v354-"))
-        self.addCleanup(lambda: shutil.rmtree(site, ignore_errors=True))
-        shutil.copy2(ROOT / "robots.txt", site / "robots.txt")
+    def test_production_output_contains_compatibility_aliases(self) -> None:
+        site = self.new_site("youth-aliases-v354-")
+        module.publish(site)
+        aliases = {
+            "editorial-methodology": module.TRUST_ROUTES["methodology"],
+            "evaluate-mental-health-information": module.TRUST_ROUTES["information_evaluation"],
+        }
+        for slug, target in aliases.items():
+            path = site / slug / "index.html"
+            self.assertTrue(path.is_file(), slug)
+            source = path.read_text(encoding="utf-8")
+            self.assertIn('content="0;url=', source)
+            self.assertIn(target, source)
+            self.assertIn('name="robots" content="noindex,follow"', source)
+            self.assertEqual(source.count("<h1"), 1)
 
+    def test_publication_remains_idempotent(self) -> None:
+        site = self.new_site("youth-trust-idempotence-v354-")
         module.publish(site)
         before = {
             path.relative_to(site): path.read_bytes()
