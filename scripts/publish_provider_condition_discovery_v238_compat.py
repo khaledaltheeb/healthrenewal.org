@@ -10,7 +10,7 @@ from typing import Any
 
 import publish_provider_condition_discovery_v238 as core
 
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 DISCOVERY_SITEMAPS = (
     "sitemap-provider-assessment.xml",
     "sitemap-special-needs.xml",
@@ -24,20 +24,29 @@ def sync_discovery_sitemaps(site: Path) -> list[str]:
     else:
         lines = ["User-agent: *", "Allow: /"]
 
+    # Remove all legacy discovery directives before registering only live,
+    # custom-domain maps. The central generator preserves these directives.
+    lines = [
+        line
+        for line in lines
+        if not (
+            line.strip().lower().startswith("sitemap:")
+            and any(line.strip().endswith(f"/{filename}") for filename in DISCOVERY_SITEMAPS)
+        )
+    ]
+
     registered: list[str] = []
     for filename in DISCOVERY_SITEMAPS:
-        directive = f"Sitemap: {BASE}/{filename}"
-        # Remove stale and duplicate directives first. Re-add exactly once only
-        # when the corresponding sitemap exists in the production artifact.
-        lines = [line for line in lines if line != directive]
         sitemap = site / filename
         if not sitemap.is_file():
             continue
-        lines.append(directive)
+        lines.append(f"Sitemap: {BASE}/{filename}")
         registered.append(filename)
 
     path.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
     normalized = path.read_text(encoding="utf-8")
+    if "khaledaltheeb.github.io/pterminology-site" in normalized:
+        raise ValueError("robots.txt contains a legacy discovery sitemap URL")
     for filename in DISCOVERY_SITEMAPS:
         directive = f"Sitemap: {BASE}/{filename}"
         expected = 1 if filename in registered else 0
@@ -76,6 +85,15 @@ def publish(site: Path) -> dict[str, Any]:
     report = core.publish(site)
     registered = sync_discovery_sitemaps(site)
     indexing = finalize_sitemap_coverage(site)
+
+    # The generator rewrites sitemap.xml as the complete canonical urlset and
+    # preserves the custom-domain discovery sitemap directives in robots.txt.
+    final_robots = (site / "robots.txt").read_text(encoding="utf-8")
+    for filename in registered:
+        directive = f"Sitemap: {BASE}/{filename}"
+        if final_robots.count(directive) != 1:
+            raise ValueError(f"Final robots registry lost discovery sitemap: {filename}")
+
     report["robots_registered_sitemaps"] = registered
     report["provider_assessment_sitemap_registered"] = "sitemap-provider-assessment.xml" in registered
     report["special_needs_sitemap_registered"] = "sitemap-special-needs.xml" in registered
@@ -85,6 +103,11 @@ def publish(site: Path) -> dict[str, Any]:
     report["sitemap_index_pages"] = indexing["expected_indexable_pages"]
     report["sitemap_index_urls"] = indexing["sitemap_urls"]
     report["sitemap_index_coverage_ratio"] = indexing["sitemap_coverage_ratio"]
+    report["primary_sitemap_complete"] = (
+        int(indexing["sitemap_urls"]) == int(indexing["expected_indexable_pages"])
+        and float(indexing["sitemap_coverage_ratio"]) == 1.0
+    )
+    report["custom_domain"] = BASE
     report_path = site / "api" / "provider-condition-discovery-v238.json"
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return report
