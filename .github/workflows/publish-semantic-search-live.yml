@@ -12,7 +12,7 @@ on:
 
 permissions:
   actions: write
-  contents: read
+  contents: write
 
 concurrency:
   group: publish-semantic-search-live
@@ -24,12 +24,12 @@ jobs:
       github.event_name != 'workflow_run' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Verify Pages-compatible semantic package
         id: package
@@ -54,11 +54,10 @@ jobs:
               and bool(manifest.get('shards'))
               and all(shard.get('embeddingsJson') for shard in manifest.get('shards',[]))
           )
-          output=os.environ['GITHUB_OUTPUT']
-          with open(output,'a',encoding='utf-8') as handle:
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as handle:
               handle.write(f"ready={'true' if ready else 'false'}\n")
           if not ready:
-              print('Pages-compatible E5 package is not available yet; the semantic build will trigger this workflow again.')
+              print('Pages-compatible E5 package is not available yet.')
               raise SystemExit(0)
 
           for shard in manifest['shards']:
@@ -80,12 +79,7 @@ jobs:
               assert shard['metadataSha256'] == hashlib.sha256(metadata_bytes).hexdigest()
               assert shard['embeddingsJsonBytes'] == len(json_bytes)
               assert shard['embeddingsJsonSha256'] == hashlib.sha256(json_bytes).hexdigest()
-          print({
-              'generatedAt':manifest['generatedAt'],
-              'documents':manifest['documentCount'],
-              'chunks':manifest['chunkCount'],
-              'shards':len(manifest['shards']),
-          })
+          print({'generatedAt':manifest['generatedAt'],'documents':manifest['documentCount'],'chunks':manifest['chunkCount'],'shards':len(manifest['shards'])})
           PY
 
       - name: Dispatch the existing institutional Pages deployment
@@ -114,7 +108,7 @@ jobs:
           root='https://healthrenewal.org/ai-search/'
           source_generated="$(python -c "import json;print(json.load(open('ai-search/data/manifest.json'))['generatedAt'])")"
           ready=0
-          for attempt in $(seq 1 120); do
+          for attempt in $(seq 1 240); do
             if curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
               "${root}data/manifest.json?publish=${GITHUB_RUN_ID}-${attempt}" \
               -o /tmp/live-manifest.json; then
@@ -133,22 +127,26 @@ jobs:
           PY
               then ready=1; break; fi
             fi
-            echo "Waiting for the E5 release: ${attempt}/120"
+            echo "Waiting for the E5 release: ${attempt}/240"
             sleep 5
           done
           test "$ready" = 1
 
           python - <<'PY'
-          import base64,hashlib,json,subprocess
+          import base64,datetime,hashlib,json,os,subprocess
           from pathlib import Path
 
           root='https://healthrenewal.org/ai-search/data/'
-          manifest=json.load(open('/tmp/live-manifest.json',encoding='utf-8'))
+          manifest_bytes=Path('/tmp/live-manifest.json').read_bytes()
+          manifest=json.loads(manifest_bytes)
+          receipt_shards=[]
           for index,shard in enumerate(manifest['shards']):
               metadata=Path(f'/tmp/live-meta-{index}.json')
               package=Path(f'/tmp/live-vectors-{index}.json')
-              subprocess.run(['curl','-fsS','--retry','3',root+shard['metadata']+f'?publish={index}', '-o',str(metadata)],check=True)
-              subprocess.run(['curl','-fsS','--retry','3',root+shard['embeddingsJson']+f'?publish={index}', '-o',str(package)],check=True)
+              metadata_url=root+shard['metadata']+f'?v={shard["metadataSha256"][:20]}'
+              package_url=root+shard['embeddingsJson']+f'?v={shard["embeddingsJsonSha256"][:20]}'
+              subprocess.run(['curl','-fsS','--retry','3',metadata_url,'-o',str(metadata)],check=True)
+              subprocess.run(['curl','-fsS','--retry','3',package_url,'-o',str(package)],check=True)
               metadata_bytes=metadata.read_bytes()
               package_bytes=package.read_bytes()
               payload=json.loads(package_bytes)
@@ -160,12 +158,64 @@ jobs:
               assert hashlib.sha256(package_bytes).hexdigest() == shard['embeddingsJsonSha256']
               assert len(raw) == shard['embeddingBytes'] == shard['count'] * manifest['dimensions'] * 2
               assert hashlib.sha256(raw).hexdigest() == shard['embeddingSha256'] == payload['sha256']
-          print({
+              receipt_shards.append({
+                  'metadata':shard['metadata'],
+                  'metadataBytes':len(metadata_bytes),
+                  'metadataSha256':hashlib.sha256(metadata_bytes).hexdigest(),
+                  'embeddingsJson':shard['embeddingsJson'],
+                  'embeddingsJsonBytes':len(package_bytes),
+                  'embeddingsJsonSha256':hashlib.sha256(package_bytes).hexdigest(),
+                  'embeddingBytes':len(raw),
+                  'embeddingSha256':hashlib.sha256(raw).hexdigest(),
+                  'count':shard['count'],
+              })
+
+          receipt={
+              'schemaVersion':1,
               'passed':True,
+              'verifiedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'site':'https://healthrenewal.org/',
+              'manifestUrl':'https://healthrenewal.org/ai-search/data/manifest.json',
+              'workflowRunId':os.environ['GITHUB_RUN_ID'],
+              'workflowRunUrl':f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}",
+              'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
               'generatedAt':manifest['generatedAt'],
-              'documents':manifest['documentCount'],
-              'chunks':manifest['chunkCount'],
-              'shards':len(manifest['shards']),
+              'model':manifest['model'],
+              'modelRevision':manifest['modelRevision'],
+              'browserModel':manifest['browserModel'],
+              'browserModelRevision':manifest['browserModelRevision'],
               'dimensions':manifest['dimensions'],
-          })
+              'dtype':manifest['dtype'],
+              'normalized':manifest['normalized'],
+              'documentCount':manifest['documentCount'],
+              'chunkCount':manifest['chunkCount'],
+              'manifestBytes':len(manifest_bytes),
+              'manifestSha256':hashlib.sha256(manifest_bytes).hexdigest(),
+              'shards':receipt_shards,
+          }
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/e5-live-production.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(receipt)
           PY
+
+      - name: Commit the verified production receipt
+        if: steps.package.outputs.ready == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/e5-live-production.json
+          if git diff --cached --quiet; then
+            echo 'Production receipt is unchanged.'
+            exit 0
+          fi
+          git commit -m 'chore: record live E5 production receipt [skip ci]'
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep 4
+          done
+          echo '::error::Unable to publish the production receipt after five attempts.'
+          exit 1
