@@ -15,7 +15,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content" / "v192" / "platform-institutional-foundation-ar.json"
 SOURCE = ROOT / "magazine"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
+LEGACY_BASE = "https://khaledaltheeb.github.io/pterminology-site"
 URL = BASE + "/magazine/"
 CONTRACT = 315
 MIN_ARTICLES = 70
@@ -24,6 +25,10 @@ FEED_LIMIT = 20
 EDITORIAL_UPDATED = "2026-07-27"
 ROBOTS_META = '<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">'
 ROBOTS_PATTERN = re.compile(r'<meta\s+[^>]*name=["\']robots["\'][^>]*>', re.I)
+CANONICAL_PATTERN = re.compile(
+    r'<link\b(?=[^>]*\brel=["\']canonical["\'])(?=[^>]*\bhref=["\'][^"\']+["\'])[^>]*>',
+    re.I,
+)
 ARTICLE_DATE_PATTERN = re.compile(r'"datePublished"\s*:\s*"(\d{4}-\d{2}-\d{2})"', re.I)
 SOURCE_LINK_PATTERN = re.compile(
     r'href="https://(?:doi\.org/|pubmed\.ncbi\.nlm\.nih\.gov/|etheses\.whiterose\.ac\.uk/|research-repository\.uwa\.edu\.au/)',
@@ -101,6 +106,18 @@ def ensure_robots_meta(text: str, filename: str) -> tuple[str, bool]:
     return updated, True
 
 
+def normalize_article_canonical(text: str, filename: str) -> tuple[str, bool]:
+    matches = CANONICAL_PATTERN.findall(text)
+    if len(matches) != 1:
+        raise SystemExit(
+            f"Magazine article must contain exactly one canonical link: {filename} ({len(matches)})"
+        )
+    expected = f'<link rel="canonical" href="{URL}{filename}">'
+    if matches[0] == expected:
+        return text, False
+    return CANONICAL_PATTERN.sub(expected, text, count=1), True
+
+
 def plain_text(fragment: str) -> str:
     text = re.sub(r"<[^>]+>", " ", fragment)
     return html.unescape(re.sub(r"\s+", " ", text)).strip()
@@ -121,7 +138,11 @@ def article_record(path: Path) -> dict[str, str]:
         "description": first_match(
             text,
             r'<p\s+class=["\']lead["\'][^>]*>(.*?)</p>',
-            first_match(text, r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']', "قراءة عربية نقدية للدراسة الأصلية."),
+            first_match(
+                text,
+                r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']',
+                "قراءة عربية نقدية للدراسة الأصلية.",
+            ),
         ),
     }
 
@@ -239,6 +260,7 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
     for path in pages:
         filename = path.name
         text = path.read_text(encoding="utf-8")
+        normalized, _ = normalize_article_canonical(text, filename)
         required = (
             '<html lang="ar" dir="rtl">',
             '<meta name="description"',
@@ -246,7 +268,7 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
             '<link rel="stylesheet" href="research.css">',
             '<h1>',
         )
-        absent = [marker for marker in required if marker not in text]
+        absent = [marker for marker in required if marker not in normalized]
         absent.extend(marker for marker in KNOWN_MARKERS.get(filename, ()) if marker not in text)
         if absent:
             raise SystemExit(f"Research article contract failed for {filename}: {absent}")
@@ -264,7 +286,7 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
             raise SystemExit(f"Generated magazine index must expose article twice: {filename}")
         if URL + filename not in rendered:
             raise SystemExit(f"Generated magazine JSON-LD does not include article: {filename}")
-        normalized, _ = ensure_robots_meta(text, filename)
+        normalized, _ = ensure_robots_meta(normalized, filename)
         hashes[filename] = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
     return hashes
 
@@ -275,16 +297,25 @@ def publish_files(site: Path, pages: list[Path]) -> dict[str, object]:
     (target / "index.html").write_text(render_index(pages), encoding="utf-8")
     (target / "feed.xml").write_text(render_feed(pages), encoding="utf-8")
     shutil.copy2(SOURCE / "research.css", target / "research.css")
-    added: list[str] = []
+    robots_added: list[str] = []
+    canonicals_normalized: list[str] = []
     for path in pages:
-        text, was_added = ensure_robots_meta(path.read_text(encoding="utf-8"), path.name)
+        text = path.read_text(encoding="utf-8")
+        text, canonical_changed = normalize_article_canonical(text, path.name)
+        text, robots_changed = ensure_robots_meta(text, path.name)
         (target / path.name).write_text(text, encoding="utf-8")
-        if was_added:
-            added.append(path.name)
+        if canonical_changed:
+            canonicals_normalized.append(path.name)
+        if robots_changed:
+            robots_added.append(path.name)
     return {
         "index_robots_added": False,
-        "article_robots_added": added,
-        "robots_normalized_pages": len(added),
+        "article_robots_added": robots_added,
+        "robots_normalized_pages": len(robots_added),
+        "article_canonicals_normalized": canonicals_normalized,
+        "canonical_normalized_pages": len(canonicals_normalized),
+        "canonical_base": BASE,
+        "legacy_canonical_base": LEGACY_BASE,
         "rss_items": min(FEED_LIMIT, len(pages)),
     }
 
@@ -365,6 +396,7 @@ def publish(site: Path) -> dict[str, object]:
         "source_heading_contract": "article-or-official-repository",
         "limitations_contract": "limitations-or-cautions-required",
         "robots_contract": "exactly-one-index-follow-meta-per-published-page",
+        "canonical_contract": "single-healthrenewal-custom-domain-canonical-per-published-page",
         "index_contract": "generated-from-discovered-articles-sorted-by-datePublished",
         "rss_contract": "latest-twenty-sorted-by-datePublished",
         "robots": robots,
@@ -372,7 +404,9 @@ def publish(site: Path) -> dict[str, object]:
     }
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
-    (api / "magazine-v201.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (api / "magazine-v201.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return report
 
