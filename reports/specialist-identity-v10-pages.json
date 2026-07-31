@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-07-31T15:34:58.091614+00:00",
+  "checked_at": "2026-07-31T16:27:35.857069+00:00",
   "version": "10.3.0",
   "source_artifact_run_id": "30636081351",
-  "workflow_run_id": "30643471982",
+  "workflow_run_id": "30647166746",
   "pages": {
     "admin": {
       "http_status": 200,
@@ -35,7 +35,7 @@
     },
     "admin_provider_script": {
       "http_status": 200,
-      "sha256": "4967b05d0e27879418cfd51a3142330e42372bc8eddf5391cadc5092940689a7"
+      "sha256": "d9ee44ca0c3640f2f66670c3b28c4038fcd0a92430618c8782e5dd7807f32ef0"
     }
   },
   "contracts": {
