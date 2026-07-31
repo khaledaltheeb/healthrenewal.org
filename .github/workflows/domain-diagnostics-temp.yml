@@ -6,7 +6,6 @@ on:
 
 permissions:
   contents: read
-  pages: read
 
 jobs:
   audit:
@@ -30,10 +29,7 @@ jobs:
           echo '=== DNS A (apex) ==='
           actual_a="$(dig +short A healthrenewal.org | sort -u)"
           printf '%s\n' "$actual_a"
-          if [[ "$actual_a" != "$expected" ]]; then
-            echo 'ERROR: apex A records do not exactly match GitHub Pages.'
-            fail=1
-          fi
+          [[ "$actual_a" == "$expected" ]] || { echo 'ERROR: apex A records do not exactly match GitHub Pages.'; fail=1; }
 
           echo '=== DNS AAAA (apex) ==='
           dig +short AAAA healthrenewal.org | sort -u
@@ -41,10 +37,7 @@ jobs:
           echo '=== DNS CNAME (www) ==='
           actual_cname="$(dig +short CNAME www.healthrenewal.org | sed 's/\.$//' | sort -u)"
           printf '%s\n' "$actual_cname"
-          if [[ "$actual_cname" != 'khaledaltheeb.github.io' ]]; then
-            echo 'ERROR: www CNAME is missing or incorrect.'
-            fail=1
-          fi
+          [[ "$actual_cname" == 'khaledaltheeb.github.io' ]] || { echo 'ERROR: www CNAME is missing or incorrect.'; fail=1; }
 
           echo '=== Authoritative nameservers ==='
           dig +short NS healthrenewal.org | sort -u
