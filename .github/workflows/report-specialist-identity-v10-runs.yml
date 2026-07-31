@@ -11,6 +11,9 @@ permissions:
   actions: read
   contents: write
 
+env:
+  STATUS_TRIGGER: "2026-07-31T01:27:00Z"
+
 jobs:
   report:
     runs-on: ubuntu-latest
