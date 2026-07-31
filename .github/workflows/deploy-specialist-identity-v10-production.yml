@@ -37,7 +37,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 40
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '826ac34927c1e045c06145a327c2ac52' }}
@@ -171,6 +171,29 @@ jobs:
       - name: Deploy identity Worker 10.2.0
         working-directory: specialists-partners/account-backend
         run: npx --yes wrangler@4 deploy --config wrangler-v10-production.toml --secrets-file worker-secrets-v10-production.json --minify --keep-vars
+
+      - name: Ensure the production workers.dev route is enabled
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS \
+            -X POST \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"enabled":true,"previews_enabled":true}' \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/pterminology-specialist-accounts/subdomain" \
+            -o /tmp/identity-worker-subdomain.json
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/identity-worker-subdomain.json',encoding='utf-8'))
+          assert data.get('success') is True, data
+          result=data.get('result') or {}
+          assert result.get('enabled') is True, result
+          print({
+              'workers_dev_enabled': result.get('enabled'),
+              'preview_urls_enabled': result.get('previews_enabled'),
+          })
+          PY
 
       - name: Verify stable production propagation and protected deep health
         id: verify
