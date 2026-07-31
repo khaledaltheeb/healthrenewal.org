@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T17:17:31.240228+00:00",
+  "http_status": 403,
+  "accepted": false,
+  "error_name": null,
+  "error_message": null,
+  "provider_id_present": false,
+  "test_message_sent": false,
+  "contains_secret_values": false
+}
