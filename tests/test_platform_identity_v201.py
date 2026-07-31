@@ -63,14 +63,25 @@ class PlatformIdentityV201Tests(unittest.TestCase):
             "magazine/feed.xml",
         ):
             self.assertTrue((site / relative).is_file(), relative)
+        for relative in (
+            "editorial-methodology/index.html",
+            "evaluate-mental-health-information/index.html",
+        ):
+            alias = (site / relative).read_text(encoding="utf-8")
+            self.assertIn("data-legacy-path-alias=", alias)
+            self.assertIn('name="robots" content="noindex,follow"', alias)
+            self.assertIn('/pterminology-site/trust/', alias)
+            self.assertEqual(alias.count('data-platform-shell="header"'), 1)
+            self.assertEqual(alias.count('data-platform-shell="footer"'), 1)
         index = (site / "magazine/index.html").read_text(encoding="utf-8")
         self.assertIn('"numberOfItems":79', index)
         self.assertEqual(index.count('class="card"'), 79)
         self.assertIn("الهدف المرحلي 100 قراءة", index)
         report = json.loads((site / "api/platform-identity-v201.json").read_text(encoding="utf-8"))
         self.assertEqual(report["pages"], 85)
-        self.assertEqual(report["headers_added"], 1)
-        self.assertEqual(report["footers_added"], 1)
+        self.assertEqual(report["headers_added"], 3)
+        self.assertEqual(report["footers_added"], 3)
+        self.assertEqual(report["styles_added"], 3)
         self.assertGreaterEqual(report["language_replacements"], 4)
         self.assertTrue(report["trust_guides_published"])
         self.assertFalse(report["section_directory_refreshed_after_trust_guides"])
