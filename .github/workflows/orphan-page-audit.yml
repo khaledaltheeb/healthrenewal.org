@@ -1,0 +1,47 @@
+name: Orphan page audit
+
+on:
+  pull_request:
+    paths:
+      - '**/*.html'
+      - 'scripts/audit-orphan-pages.mjs'
+      - '.github/workflows/orphan-page-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check audit script syntax
+        run: node --check scripts/audit-orphan-pages.mjs
+
+      - name: Audit reachability and internal HTML targets
+        env:
+          SITE_BASE_PATH: /pterminology-site
+        run: node scripts/audit-orphan-pages.mjs
+
+      - name: Add report to job summary
+        if: always()
+        run: cat artifacts/orphan-pages.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orphan-page-audit
+          path: artifacts/orphan-pages.*
+          if-no-files-found: error
+          retention-days: 14
