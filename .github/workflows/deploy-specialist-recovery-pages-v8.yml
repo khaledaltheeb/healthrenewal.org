@@ -1,9 +1,14 @@
-name: Deploy specialist identity interface v10.3
+name: Deploy specialist identity and canonical SEO surface v10.3
 
 on:
   push:
     branches: ["main"]
     paths:
+      - "index.html"
+      - "robots.txt"
+      - "CNAME"
+      - "sitemap*.xml"
+      - "scripts/fix_healthrenewal_seo.py"
       - "specialists-partners/admin/index.html"
       - "specialists-partners/admin/admin-recovery-v10-final.js"
       - "specialists-partners/admin/admin-provider-status-v10.js"
@@ -25,13 +30,13 @@ permissions:
   id-token: write
 
 concurrency:
-  group: specialist-identity-pages-v10
+  group: github-pages-production
   cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -49,7 +54,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Validate interface source and network contracts
+      - name: Validate interface source and canonical SEO contracts
         run: |
           set -euxo pipefail
           node --check specialists-partners/admin/admin-recovery-v10-final.js
@@ -58,8 +63,11 @@ jobs:
           node --check specialists-partners/recover/recover.js
           node --check specialists-partners/password-reset/reset-v10.js
           python -m unittest -v tests.test_specialist_identity_v10
+          python scripts/validate_sitemap_discovery_contract.py
           python - <<'PY'
+          from html.parser import HTMLParser
           from pathlib import Path
+
           runtime=Path('specialists-partners/assets/runtime-config.js').read_text(encoding='utf-8')
           recover=Path('specialists-partners/recover/index.html').read_text(encoding='utf-8')
           recover_js=Path('specialists-partners/recover/recover.js').read_text(encoding='utf-8')
@@ -78,6 +86,44 @@ jobs:
               assert 'AbortController' in script
               assert "mode: 'cors'" in script
               assert "redirect: 'error'" not in script
+
+          class AuditParser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.heading_stack=[]
+                  self.heading_text=[]
+                  self.images_without_alt=[]
+              def handle_starttag(self, tag, attrs):
+                  values=dict(attrs)
+                  if tag in {'h1','h2','h3','h4','h5','h6'}:
+                      self.heading_stack.append([tag, []])
+                  if tag == 'img' and not values.get('alt','').strip():
+                      self.images_without_alt.append(values.get('src','<unknown>'))
+              def handle_data(self, data):
+                  if self.heading_stack:
+                      self.heading_stack[-1][1].append(data)
+              def handle_endtag(self, tag):
+                  if self.heading_stack and self.heading_stack[-1][0] == tag:
+                      _, parts=self.heading_stack.pop()
+                      text=' '.join(''.join(parts).split())
+                      if text:
+                          self.heading_text.append(text)
+
+          homepage=Path('index.html').read_text(encoding='utf-8')
+          required=[
+              '<link rel="canonical" href="https://healthrenewal.org/">',
+              '<link rel="alternate" hreflang="ar" href="https://healthrenewal.org/">',
+              '<h1>منصة الصحة النفسية وذوي الاحتياجات الخاصة<br>',
+              'data-seo-external-sources="v1"',
+              'alt="شعار منصة الصحة النفسية وذوي الاحتياجات الخاصة"',
+          ]
+          for fragment in required:
+              assert fragment in homepage, fragment
+          assert 'https://khaledaltheeb.github.io/pterminology-site' not in homepage
+          parser=AuditParser(); parser.feed(homepage)
+          assert len(parser.heading_text) <= 20, parser.heading_text
+          assert len(parser.heading_text) == len(set(parser.heading_text)), parser.heading_text
+          assert not parser.images_without_alt, parser.images_without_alt
           PY
 
       - name: Discover latest validated production artifact
@@ -111,11 +157,11 @@ jobs:
         with:
           name: validated-production-site
           path: _site
-          repository: khaledaltheeb/pterminology-site
+          repository: khaledaltheeb/healthrenewal.org
           run-id: ${{ steps.artifact.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Patch complete specialist identity interface
+      - name: Patch specialist identity and canonical SEO surface
         shell: bash
         run: |
           set -euxo pipefail
@@ -136,28 +182,104 @@ jobs:
             mkdir -p "_site/$(dirname "${source}")"
             cp "${source}" "_site/${source}"
           done
-          touch _site/.nojekyll
           python - <<'PY'
+          from __future__ import annotations
+
+          import shutil
+          from html.parser import HTMLParser
           from pathlib import Path
-          admin=Path('_site/specialists-partners/admin/index.html').read_text(encoding='utf-8')
-          runtime=Path('_site/specialists-partners/assets/runtime-config.js').read_text(encoding='utf-8')
-          recover=Path('_site/specialists-partners/recover/index.html').read_text(encoding='utf-8')
-          recover_js=Path('_site/specialists-partners/recover/recover.js').read_text(encoding='utf-8')
-          reset=Path('_site/specialists-partners/password-reset/index.html').read_text(encoding='utf-8')
-          reset_js=Path('_site/specialists-partners/password-reset/reset-v10.js').read_text(encoding='utf-8')
-          recovery=Path('_site/specialists-partners/admin/admin-recovery-v10-final.js').read_text(encoding='utf-8')
-          provider=Path('_site/specialists-partners/admin/admin-provider-status-v10.js').read_text(encoding='utf-8')
-          assert 'id="admin-forgot" type="button"' in admin
-          assert 'identityVersion: "10.3.0"' in runtime
-          assert 'admin-recovery-v10-final.js?v=10.3.0' in runtime
-          assert 'admin-provider-status-v10.js?v=10.3.0' in runtime
-          assert 'recover.js?v=10.3.0' in recover
-          assert 'reset-v10.js?v=10.3.0' in reset
-          assert 'all_account_endpoints_unavailable' in recover_js
-          assert 'all_account_endpoints_unavailable' in reset_js
-          assert 'password-reset-link' in recovery
-          assert '/v1/admin/email-provider-status' in provider
+
+          root=Path('.')
+          site=Path('_site')
+          old='https://khaledaltheeb.github.io/pterminology-site'
+          new='https://healthrenewal.org'
+          public_suffixes={'.html','.htm','.xml','.json','.webmanifest','.txt'}
+          skip_top={'.git','.github','node_modules','.venv','venv','dist','build','scripts','tests','docs','reports','_site'}
+          copied=[]
+
+          for source in root.rglob('*'):
+              if not source.is_file():
+                  continue
+              relative=source.relative_to(root)
+              if not relative.parts or relative.parts[0] in skip_top:
+                  continue
+              if relative.as_posix() == 'deployment.json':
+                  continue
+              if source.suffix.lower() not in public_suffixes and source.name != 'CNAME':
+                  continue
+              destination=site / relative
+              destination.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copy2(source,destination)
+              copied.append(relative.as_posix())
+
+          normalized=[]
+          legacy=[]
+          for path in site.rglob('*'):
+              if not path.is_file():
+                  continue
+              if path.suffix.lower() not in public_suffixes and path.name != 'CNAME':
+                  continue
+              try:
+                  text=path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              updated=text.replace(old,new)
+              if updated != text:
+                  path.write_text(updated,encoding='utf-8')
+                  normalized.append(path.relative_to(site).as_posix())
+              if old in updated:
+                  legacy.append(path.relative_to(site).as_posix())
+
+          if legacy:
+              raise SystemExit('Legacy production origins remain: '+', '.join(legacy[:30]))
+          if len(copied) < 100:
+              raise SystemExit(f'Unexpectedly small public SEO overlay: {len(copied)} files')
+
+          class AuditParser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.stack=[]
+                  self.headings=[]
+                  self.images_without_alt=[]
+              def handle_starttag(self,tag,attrs):
+                  values=dict(attrs)
+                  if tag in {'h1','h2','h3','h4','h5','h6'}:
+                      self.stack.append([tag,[]])
+                  if tag == 'img' and not values.get('alt','').strip():
+                      self.images_without_alt.append(values.get('src','<unknown>'))
+              def handle_data(self,data):
+                  if self.stack:
+                      self.stack[-1][1].append(data)
+              def handle_endtag(self,tag):
+                  if self.stack and self.stack[-1][0] == tag:
+                      _,parts=self.stack.pop()
+                      text=' '.join(''.join(parts).split())
+                      if text:
+                          self.headings.append(text)
+
+          homepage=(site/'index.html').read_text(encoding='utf-8')
+          for fragment in (
+              '<link rel="canonical" href="https://healthrenewal.org/">',
+              '<link rel="alternate" hreflang="ar" href="https://healthrenewal.org/">',
+              '<h1>منصة الصحة النفسية وذوي الاحتياجات الخاصة<br>',
+              'data-seo-external-sources="v1"',
+              'alt="شعار منصة الصحة النفسية وذوي الاحتياجات الخاصة"',
+          ):
+              assert fragment in homepage, fragment
+          parser=AuditParser(); parser.feed(homepage)
+          assert len(parser.headings) <= 20, parser.headings
+          assert len(parser.headings) == len(set(parser.headings)), parser.headings
+          assert not parser.images_without_alt, parser.images_without_alt
+
+          robots=(site/'robots.txt').read_text(encoding='utf-8')
+          assert robots.count('Sitemap: https://healthrenewal.org/sitemap.xml') == 1, robots
+          assert robots.count('Sitemap: https://healthrenewal.org/sitemap-index.xml') == 1, robots
+          index=(site/'sitemap-index.xml').read_text(encoding='utf-8')
+          assert '<loc>https://healthrenewal.org/' in index, index[:1000]
+          assert old not in index
+          print({'copied_public_files':len(copied),'normalized_artifact_files':len(normalized),'homepage_headings':len(parser.headings)})
           PY
+          touch _site/.nojekyll
 
       - uses: actions/configure-pages@v5
 
@@ -170,25 +292,29 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify live specialist identity interface
+      - name: Verify live specialist identity and canonical SEO surface
         shell: bash
         env:
           SOURCE_RUN_ID: ${{ steps.artifact.outputs.run_id }}
         run: |
           set -euo pipefail
-          root="https://khaledaltheeb.github.io/pterminology-site/specialists-partners"
+          specialist_root="https://healthrenewal.org/specialists-partners"
+          canonical_root="https://healthrenewal.org"
           ready=false
           for attempt in {1..60}; do
             nonce="${GITHUB_RUN_ID}-${attempt}-$(date +%s%N)"
-            admin_code="$(curl -sS -L -o /tmp/admin.html -w '%{http_code}' "${root}/admin/?v=10.3.0&probe=${nonce}" || true)"
-            runtime_code="$(curl -sS -L -o /tmp/runtime.js -w '%{http_code}' "${root}/assets/runtime-config.js?v=10.3.0&probe=${nonce}" || true)"
-            recover_code="$(curl -sS -L -o /tmp/recover.html -w '%{http_code}' "${root}/recover/?v=10.3.0&probe=${nonce}" || true)"
-            recover_js_code="$(curl -sS -L -o /tmp/recover.js -w '%{http_code}' "${root}/recover/recover.js?v=10.3.0&probe=${nonce}" || true)"
-            reset_code="$(curl -sS -L -o /tmp/reset.html -w '%{http_code}' "${root}/password-reset/?v=10.3.0&probe=${nonce}" || true)"
-            reset_js_code="$(curl -sS -L -o /tmp/reset-v10.js -w '%{http_code}' "${root}/password-reset/reset-v10.js?v=10.3.0&probe=${nonce}" || true)"
-            recovery_code="$(curl -sS -L -o /tmp/admin-recovery.js -w '%{http_code}' "${root}/admin/admin-recovery-v10-final.js?v=10.3.0&probe=${nonce}" || true)"
-            provider_code="$(curl -sS -L -o /tmp/admin-provider.js -w '%{http_code}' "${root}/admin/admin-provider-status-v10.js?v=10.3.0&probe=${nonce}" || true)"
-            if [[ "${admin_code}" == "200" && "${runtime_code}" == "200" && "${recover_code}" == "200" && "${recover_js_code}" == "200" && "${reset_code}" == "200" && "${reset_js_code}" == "200" && "${recovery_code}" == "200" && "${provider_code}" == "200" ]] \
+            admin_code="$(curl -sS -L -o /tmp/admin.html -w '%{http_code}' "${specialist_root}/admin/?v=10.3.0&probe=${nonce}" || true)"
+            runtime_code="$(curl -sS -L -o /tmp/runtime.js -w '%{http_code}' "${specialist_root}/assets/runtime-config.js?v=10.3.0&probe=${nonce}" || true)"
+            recover_code="$(curl -sS -L -o /tmp/recover.html -w '%{http_code}' "${specialist_root}/recover/?v=10.3.0&probe=${nonce}" || true)"
+            recover_js_code="$(curl -sS -L -o /tmp/recover.js -w '%{http_code}' "${specialist_root}/recover/recover.js?v=10.3.0&probe=${nonce}" || true)"
+            reset_code="$(curl -sS -L -o /tmp/reset.html -w '%{http_code}' "${specialist_root}/password-reset/?v=10.3.0&probe=${nonce}" || true)"
+            reset_js_code="$(curl -sS -L -o /tmp/reset-v10.js -w '%{http_code}' "${specialist_root}/password-reset/reset-v10.js?v=10.3.0&probe=${nonce}" || true)"
+            recovery_code="$(curl -sS -L -o /tmp/admin-recovery.js -w '%{http_code}' "${specialist_root}/admin/admin-recovery-v10-final.js?v=10.3.0&probe=${nonce}" || true)"
+            provider_code="$(curl -sS -L -o /tmp/admin-provider.js -w '%{http_code}' "${specialist_root}/admin/admin-provider-status-v10.js?v=10.3.0&probe=${nonce}" || true)"
+            home_code="$(curl -sS -L -o /tmp/home.html -w '%{http_code}' "${canonical_root}/?seo_probe=${nonce}" || true)"
+            robots_code="$(curl -sS -L -o /tmp/robots.txt -w '%{http_code}' "${canonical_root}/robots.txt?seo_probe=${nonce}" || true)"
+            sitemap_code="$(curl -sS -L -o /tmp/sitemap-index.xml -w '%{http_code}' "${canonical_root}/sitemap-index.xml?seo_probe=${nonce}" || true)"
+            if [[ "${admin_code}" == "200" && "${runtime_code}" == "200" && "${recover_code}" == "200" && "${recover_js_code}" == "200" && "${reset_code}" == "200" && "${reset_js_code}" == "200" && "${recovery_code}" == "200" && "${provider_code}" == "200" && "${home_code}" == "200" && "${robots_code}" == "200" && "${sitemap_code}" == "200" ]] \
               && grep -q 'id="admin-forgot" type="button"' /tmp/admin.html \
               && grep -q 'identityVersion: "10.3.0"' /tmp/runtime.js \
               && grep -q 'admin-recovery-v10-final.js?v=10.3.0' /tmp/runtime.js \
@@ -198,13 +324,45 @@ jobs:
               && grep -q 'reset-v10.js?v=10.3.0' /tmp/reset.html \
               && grep -q 'all_account_endpoints_unavailable' /tmp/reset-v10.js \
               && grep -q 'password-reset-link' /tmp/admin-recovery.js \
-              && grep -q '/v1/admin/email-provider-status' /tmp/admin-provider.js; then
-              ready=true
-              break
+              && grep -q '/v1/admin/email-provider-status' /tmp/admin-provider.js \
+              && grep -q '<link rel="canonical" href="https://healthrenewal.org/">' /tmp/home.html \
+              && grep -q '<link rel="alternate" hreflang="ar" href="https://healthrenewal.org/">' /tmp/home.html \
+              && grep -q '<h1>منصة الصحة النفسية وذوي الاحتياجات الخاصة<br>' /tmp/home.html \
+              && grep -q 'data-seo-external-sources="v1"' /tmp/home.html \
+              && ! grep -q 'https://khaledaltheeb.github.io/pterminology-site' /tmp/home.html \
+              && grep -q 'Sitemap: https://healthrenewal.org/sitemap.xml' /tmp/robots.txt \
+              && grep -q 'Sitemap: https://healthrenewal.org/sitemap-index.xml' /tmp/robots.txt \
+              && grep -q '<loc>https://healthrenewal.org/' /tmp/sitemap-index.xml \
+              && ! grep -q 'khaledaltheeb.github.io/pterminology-site' /tmp/sitemap-index.xml; then
+              if python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          class Parser(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.stack=[]; self.headings=[]; self.missing=[]
+              def handle_starttag(self,tag,attrs):
+                  values=dict(attrs)
+                  if tag in {'h1','h2','h3','h4','h5','h6'}: self.stack.append([tag,[]])
+                  if tag == 'img' and not values.get('alt','').strip(): self.missing.append(values.get('src','<unknown>'))
+              def handle_data(self,data):
+                  if self.stack: self.stack[-1][1].append(data)
+              def handle_endtag(self,tag):
+                  if self.stack and self.stack[-1][0] == tag:
+                      _,parts=self.stack.pop(); text=' '.join(''.join(parts).split())
+                      if text: self.headings.append(text)
+
+          parser=Parser(); parser.feed(Path('/tmp/home.html').read_text(encoding='utf-8'))
+          assert len(parser.headings) <= 20, parser.headings
+          assert len(parser.headings) == len(set(parser.headings)), parser.headings
+          assert not parser.missing, parser.missing
+          print({'live_headings':len(parser.headings),'duplicate_headings':0,'images_without_alt':0})
+          PY
+              then ready=true; break; fi
             fi
             sleep 5
           done
-          [[ "${ready}" == "true" ]] || { echo "::error::Specialist identity interface v10.3 did not become live"; exit 1; }
+          [[ "${ready}" == "true" ]] || { echo "::error::Specialist identity and canonical SEO surface did not become live"; exit 1; }
 
           mkdir -p reports
           python - <<'PY'
@@ -220,13 +378,29 @@ jobs:
             'admin_recovery_script':'/tmp/admin-recovery.js',
             'admin_provider_script':'/tmp/admin-provider.js',
           }
+          seo_files={
+            'homepage':'/tmp/home.html',
+            'robots':'/tmp/robots.txt',
+            'sitemap_index':'/tmp/sitemap-index.xml',
+          }
           report={
-            'schema_version':1,
+            'schema_version':2,
             'checked_at':datetime.now(timezone.utc).isoformat(),
-            'version':'10.3.0',
+            'version':'10.3.0+seo-v361',
             'source_artifact_run_id':os.environ.get('SOURCE_RUN_ID'),
             'workflow_run_id':os.environ['GITHUB_RUN_ID'],
             'pages':{name:{'http_status':200,'sha256':hashlib.sha256(open(path,'rb').read()).hexdigest()} for name,path in files.items()},
+            'seo':{
+              'canonical_domain':'https://healthrenewal.org/',
+              'self_referential_hreflang':True,
+              'homepage_heading_count_at_most_20':True,
+              'duplicate_homepage_headings':0,
+              'homepage_images_without_alt':0,
+              'legacy_project_origin_present':False,
+              'robots_open':True,
+              'canonical_sitemaps_registered':True,
+              'files':{name:{'http_status':200,'sha256':hashlib.sha256(open(path,'rb').read()).hexdigest()} for name,path in seo_files.items()},
+            },
             'contracts':{
               'admin_forgot_button':True,
               'owner_manual_recovery':True,
@@ -248,11 +422,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add reports/specialist-identity-v10-pages.json
-          git commit -m "chore: record specialist identity v10 pages [skip ci]" || exit 0
+          git commit -m "chore: record canonical SEO and specialist pages [skip ci]" || exit 0
           for attempt in {1..5}; do
             git pull --rebase origin main && git push origin HEAD:main && exit 0
             git rebase --abort || true
             sleep $((attempt*3))
           done
-          echo "::error::Could not publish specialist identity pages receipt"
+          echo "::error::Could not publish canonical SEO deployment receipt"
           exit 1
