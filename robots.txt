@@ -1,4 +1,4 @@
-# Public crawling and canonical sitemap policy
+# Canonical public crawling and sitemap policy
 User-agent: *
 Allow: /
 
