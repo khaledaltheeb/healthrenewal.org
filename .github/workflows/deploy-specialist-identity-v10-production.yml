@@ -19,6 +19,7 @@ on:
       - "tests/test_specialist_accounts_v5.py"
       - "tests/test_specialist_identity_v6.py"
       - "tests/test_specialist_identity_v10.py"
+      - "tests/test_specialist_turnstile_persistence.py"
       - ".github/workflows/deploy-specialist-identity-v10-production.yml"
   workflow_dispatch:
 
@@ -33,7 +34,6 @@ env:
   ACCOUNT_API_BASE: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
   CORE_API_BASE: https://pterminology-specialists.pterminology-826ac349.workers.dev
   DATABASE_NAME: pterminology-specialists
-  WORKER_NAME: pterminology-specialist-accounts
 
 jobs:
   deploy:
@@ -80,7 +80,8 @@ jobs:
             tests.test_specialist_accounts_v5 \
             tests.test_specialist_identity_v6 \
             tests.test_specialist_recovery_v8 \
-            tests.test_specialist_identity_v10
+            tests.test_specialist_identity_v10 \
+            tests.test_specialist_turnstile_persistence
 
       - name: Validate deployment credentials and discover D1
         id: resources
@@ -119,13 +120,16 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
-          import os
+          import json, os
           from pathlib import Path
           def q(value): return '"' + str(value).replace('\\','\\\\').replace('"','\\"') + '"'
           content=f'''name = "pterminology-specialist-accounts"
           main = "src/index-v10-production.js"
           compatibility_date = "2026-07-01"
           workers_dev = true
+
+          [secrets]
+          required = ["TURNSTILE_SECRET", "RESEND_API_KEY", "ADMIN_API_KEY", "RATE_LIMIT_SALT"]
 
           [vars]
           ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
@@ -153,32 +157,25 @@ jobs:
           crons = ["31 2 * * *"]
           '''
           Path('wrangler-v10-production.toml').write_text(content,encoding='utf-8')
+          secrets={
+            'RESEND_API_KEY':os.environ['RESEND_API_KEY'],
+            'ADMIN_API_KEY':os.environ['ADMIN_API_KEY'],
+            'RATE_LIMIT_SALT':os.environ['RATE_LIMIT_SALT'],
+          }
+          if os.environ.get('PASSWORD_PEPPER'): secrets['PASSWORD_PEPPER']=os.environ['PASSWORD_PEPPER']
+          if os.environ.get('REVIEWER_API_KEY'): secrets['REVIEWER_API_KEY']=os.environ['REVIEWER_API_KEY']
+          if os.environ.get('MODERATOR_API_KEY'): secrets['MODERATOR_API_KEY']=os.environ['MODERATOR_API_KEY']
+          Path('worker-secrets-v10-production.json').write_text(json.dumps(secrets),encoding='utf-8')
           PY
-          chmod 600 wrangler-v10-production.toml
+          chmod 600 wrangler-v10-production.toml worker-secrets-v10-production.json
 
       - name: Apply D1 migrations
         working-directory: specialists-partners/account-backend
         run: npx --yes wrangler@4 d1 migrations apply pterminology-specialists --remote --config wrangler-v10-production.toml
 
-      - name: Deploy identity Worker 10.2.0 without replacing existing secrets
+      - name: Deploy identity Worker 10.2.0 with required-secret validation
         working-directory: specialists-partners/account-backend
-        run: npx --yes wrangler@4 deploy --config wrangler-v10-production.toml --minify --keep-vars
-
-      - name: Update managed secrets individually and preserve TURNSTILE_SECRET
-        working-directory: specialists-partners/account-backend
-        shell: bash
-        run: |
-          set -euo pipefail
-          put_secret() {
-            local name="$1"
-            local value="${!name:-}"
-            [[ -n "$value" ]] || return 0
-            printf '%s' "$value" | npx --yes wrangler@4 secret put "$name" --name "$WORKER_NAME"
-          }
-          for name in RESEND_API_KEY ADMIN_API_KEY RATE_LIMIT_SALT PASSWORD_PEPPER REVIEWER_API_KEY MODERATOR_API_KEY; do
-            put_secret "$name"
-          done
-          echo "TURNSTILE_SECRET was intentionally preserved and was not replaced by the deployment."
+        run: npx --yes wrangler@4 deploy --config wrangler-v10-production.toml --secrets-file worker-secrets-v10-production.json --minify --keep-vars
 
       - name: Verify stable production propagation and protected deep health
         id: verify
@@ -209,7 +206,7 @@ jobs:
             'email_provider':{'http_status':int(os.environ.get('DEEP_STATUS') or 0),'configured':provider.get('configured'),'auth_valid':provider.get('authValid'),'access':provider.get('access'),'code':provider.get('code')},
             'deep_health_public':False,
             'stable_contract_cycles':3,
-            'turnstile_secret_preserved':True,
+            'turnstile_secret_required':True,
             'manual_recovery_available':bool((normal.get('capabilities') or {}).get('manualRecovery')),
             'fully_operational':normal.get('ok') is True and provider.get('authValid') is True,
           }
@@ -231,4 +228,4 @@ jobs:
       - name: Remove ephemeral deployment files
         if: always()
         working-directory: specialists-partners/account-backend
-        run: rm -f wrangler-v10-production.toml
+        run: rm -f wrangler-v10-production.toml worker-secrets-v10-production.json
