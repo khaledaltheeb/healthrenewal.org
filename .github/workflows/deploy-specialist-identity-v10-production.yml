@@ -45,7 +45,7 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '826ac34927c1e045c06145a327c2ac52' }}
       PREFERRED_D1_DATABASE_ID: ${{ secrets.SPECIALISTS_D1_DATABASE_ID }}
       ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
-      FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
+      FROM_EMAIL: "PTerminology <no-reply@healthrenewal.org>"
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}
       PASSWORD_PEPPER: ${{ secrets.SPECIALISTS_PASSWORD_PEPPER }}
@@ -186,7 +186,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # Explicit contract: /workers/scripts/pterminology-specialist-accounts/subdomain
           curl -fsS \
             -X POST \
             -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
