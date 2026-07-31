@@ -32,7 +32,7 @@ jobs:
       IDENTITY_API: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
       CORE_API: https://pterminology-specialists.pterminology-826ac349.workers.dev
       SPECIALISTS_ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
-      AUDIT_OUTPUT: ${{ runner.temp }}/specialist-sector-e2e-v10.json
+      AUDIT_OUTPUT: specialist-sector-e2e-v10.json
     steps:
       - uses: actions/checkout@v4
         with:
