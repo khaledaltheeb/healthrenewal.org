@@ -2,7 +2,9 @@
   'use strict';
 
   const IDENTITY_API = 'https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev';
+  const CORE_API = 'https://pterminology-specialists.pterminology-826ac349.workers.dev';
   const RESET_PATH = '/v1/auth/password/reset';
+  const REQUEST_TIMEOUT_MS = 18_000;
   const form = document.getElementById('reset-form');
   const statusBox = document.getElementById('reset-status');
   const saveButton = document.getElementById('save-password');
@@ -26,10 +28,70 @@
     const groups = [
       /\p{L}/u.test(password),
       /\d/u.test(password),
-      /[^\p{L}\d\s]/u.test(password)
+      /[^\p{L}\d\s]/u.test(password),
     ].filter(Boolean).length;
     const latinCaseBonus = /[a-z]/.test(password) && /[A-Z]/.test(password);
-    return password.length >= 12 && password.length <= 128 && (groups >= 3 || (groups >= 2 && latinCaseBonus));
+    return password.length >= 12
+      && password.length <= 128
+      && (groups >= 3 || (groups >= 2 && latinCaseBonus));
+  }
+
+  async function fetchWithTimeout(url, options = {}, timeout = REQUEST_TIMEOUT_MS) {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), timeout);
+    try {
+      return await fetch(url, {
+        ...options,
+        mode: 'cors',
+        redirect: 'follow',
+        signal: controller.signal,
+      });
+    } catch (error) {
+      const networkError = new Error(
+        error?.name === 'AbortError'
+          ? 'انتهت مهلة الاتصال بخدمة الحسابات. اطلب رابطًا جديدًا إذا لم تُستهلك العملية.'
+          : 'تعذر الاتصال بخدمة الحسابات. لم نتمكن من تأكيد حفظ كلمة المرور.',
+      );
+      networkError.networkFailure = true;
+      throw networkError;
+    } finally {
+      window.clearTimeout(timer);
+    }
+  }
+
+  async function postPassword(base, password) {
+    const response = await fetchWithTimeout(`${base}${RESET_PATH}`, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'content-type': 'application/json;charset=UTF-8',
+        'x-requested-with': 'pterminology-password-reset-v10.3',
+      },
+      body: JSON.stringify({ token: resetToken, password }),
+      cache: 'no-store',
+      credentials: 'omit',
+      referrerPolicy: 'no-referrer',
+    });
+    const data = await response.json().catch(() => ({}));
+    return { response, data };
+  }
+
+  async function savePassword(password) {
+    try {
+      const primary = await postPassword(IDENTITY_API, password);
+      if (primary.response.status !== 404) return primary;
+    } catch (error) {
+      if (!error.networkFailure) throw error;
+    }
+
+    try {
+      return await postPassword(CORE_API, password);
+    } catch (error) {
+      if (!error.networkFailure) throw error;
+      const unavailable = new Error('تعذر الوصول إلى خدمة إعادة التعيين من عنوانَي التشغيل. لم نتمكن من تأكيد تغيير كلمة المرور؛ اطلب رابطًا جديدًا بعد عودة الخدمة.');
+      unavailable.code = 'all_account_endpoints_unavailable';
+      throw unavailable;
+    }
   }
 
   async function submit(event) {
@@ -56,29 +118,18 @@
     setStatus('جارٍ حفظ كلمة المرور وإلغاء الجلسات والروابط السابقة…');
 
     try {
-      const response = await fetch(`${IDENTITY_API}${RESET_PATH}`, {
-        method: 'POST',
-        headers: {
-          accept: 'application/json',
-          'content-type': 'application/json;charset=UTF-8',
-          'x-requested-with': 'pterminology-password-reset-v10'
-        },
-        body: JSON.stringify({ token: resetToken, password }),
-        cache: 'no-store',
-        credentials: 'omit',
-        redirect: 'error',
-        referrerPolicy: 'no-referrer'
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.message || `تعذر حفظ كلمة المرور (HTTP ${response.status}).`);
+      const result = await savePassword(password);
+      if (!result.response.ok) {
+        throw new Error(result.data.message || `تعذر حفظ كلمة المرور (HTTP ${result.response.status}).`);
+      }
 
       resetToken = '';
       form.reset();
       form.hidden = true;
       successActions.hidden = false;
-      setStatus(data.message || 'تم تعيين كلمة المرور وإلغاء الجلسات السابقة. يمكنك تسجيل الدخول الآن.', 'success');
+      setStatus(result.data.message || 'تم تعيين كلمة المرور وإلغاء الجلسات السابقة. يمكنك تسجيل الدخول الآن.', 'success');
     } catch (error) {
-      setStatus(error.message || 'تعذر حفظ كلمة المرور.', 'error');
+      setStatus(error.message || 'تعذر حفظ كلمة المرور. لم نتمكن من تأكيد التغيير.', 'error');
     } finally {
       saveButton.disabled = false;
     }

@@ -1,191 +1,449 @@
 import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0';
 import {
-  normalizeArabic, tokenize, discoverDocuments, buildSections, matchesFilters, lexicalScore, titleScore,
-  hydrateCandidates, readVectorCache, writeVectorCache
+  normalizeArabic,
+  tokenize,
+  discoverDocuments,
+  buildSections,
+  matchesFilters,
+  lexicalScore,
+  titleScore,
+  hydrateCandidates,
 } from './search-core.js';
 
 const MODEL_ID = 'Xenova/multilingual-e5-small';
 const DTYPE = 'q8';
-const DIM = 384;
+const DIMENSIONS = 384;
 const QUERY_PREFIX = 'query: ';
 const PASSAGE_PREFIX = 'passage: ';
-const pageCache = new Map();
-let documents = [], origin = '', basePath = '/', fingerprint = '';
-let localVectors = null, extractorPromise = null, generated = null;
-let mode = 'local-sitemap';
+const MAX_SEED_CANDIDATES = 96;
+const MAX_HYDRATED_CANDIDATES = 36;
+const EMBED_BATCH_SIZE = 12;
 
-function progress(message) { self.postMessage({ type:'index-progress', message }); }
-async function fetchJson(url) { const r = await fetch(url, { cache:'no-cache' }); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }
-async function fetchBinary(url) { const r = await fetch(url, { cache:'force-cache' }); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.arrayBuffer(); }
+const QUERY_ALIASES = [
+  [['التوحد', 'طيف التوحد'], ['autism', 'autistic', 'spectrum']],
+  [['فرط الحركه', 'تشتت الانتباه', 'اضطراب الانتباه'], ['adhd', 'attention', 'hyperactivity']],
+  [['متلازمه داون', 'داون'], ['down', 'syndrome']],
+  [['القلق', 'الخوف', 'الهلع'], ['anxiety', 'fear', 'panic']],
+  [['الاكتئاب'], ['depression', 'depressive']],
+  [['الوسواس القهري', 'الوسواس'], ['ocd', 'obsessive', 'compulsive']],
+  [['ثنائي القطب', 'الهوس'], ['bipolar', 'mania']],
+  [['الفصام', 'الذهان'], ['schizophrenia', 'psychosis']],
+  [['النطق', 'اللغه', 'التواصل'], ['speech', 'language', 'communication']],
+  [['السمع', 'الصمم'], ['hearing', 'deafness']],
+  [['البصر', 'العمى'], ['visual', 'blindness']],
+  [['الاعاقه الفكريه', 'القدرات الفكريه'], ['intellectual', 'disability']],
+  [['صعوبات التعلم', 'عسر القراءه'], ['learning', 'dyslexia']],
+  [['الشلل الدماغي'], ['cerebral', 'palsy']],
+  [['المعالجه الحسيه', 'الحساسيه الحسيه', 'الحواس'], ['sensory', 'processing']],
+  [['النوم', 'الارق'], ['sleep', 'insomnia']],
+  [['الصدمه', 'اضطراب ما بعد الصدمه'], ['trauma', 'ptsd']],
+  [['اضطرابات الاكل', 'فقدان الشهيه'], ['eating', 'anorexia']],
+  [['ايذاء النفس', 'الانتحار'], ['self', 'harm', 'suicide']],
+  [['الادمان', 'المواد'], ['addiction', 'substance']],
+  [['الاسره', 'الوالدين', 'الاهل'], ['family', 'parent', 'caregiver']],
+  [['المدرسه', 'التعليم', 'الدمج'], ['school', 'education', 'inclusion']],
+  [['التقنيات المساعده'], ['assistive', 'technology']],
+  [['العلاج الوظيفي'], ['occupational', 'therapy']],
+  [['العلاج الطبيعي'], ['physical', 'therapy']],
+  [['السلوك', 'الاضطرابات السلوكيه'], ['behavior', 'behavioral', 'emotional']],
+  [['التاخر النمائي', 'النمو'], ['developmental', 'delay']],
+  [['المتلازمات الوراثيه', 'وراثي'], ['genetic', 'syndrome']],
+  [['اصابه الدماغ', 'الذاكره', 'الوظائف التنفيذيه'], ['brain', 'injury', 'memory', 'executive']],
+  [['التوتر', 'الضغط النفسي'], ['stress']],
+  [['القلق الاجتماعي', 'الرهاب الاجتماعي'], ['social', 'anxiety']],
+];
+
+const pageCache = new Map();
+const vectorCache = new Map();
+let documents = [];
+let origin = '';
+let basePath = '/';
+let extractorPromise = null;
+let generatedIndex = null;
+let indexMode = 'local-rerank';
+
+function postProgress(message) {
+  self.postMessage({ type: 'index-progress', message });
+}
+
+async function fetchJson(url) {
+  const response = await fetch(url, { cache: 'no-cache' });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
+
+async function fetchBinary(url) {
+  const response = await fetch(url, { cache: 'force-cache' });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.arrayBuffer();
+}
 
 function halfToFloat(value) {
-  const sign = value & 0x8000 ? -1 : 1, exponent = value >> 10 & 0x1f, fraction = value & 0x03ff;
-  if (exponent === 0) return sign * 2 ** -14 * (fraction / 1024);
-  if (exponent === 31) return fraction ? NaN : sign * Infinity;
-  return sign * 2 ** (exponent - 15) * (1 + fraction / 1024);
+  const sign = value & 0x8000 ? -1 : 1;
+  const exponent = (value >> 10) & 0x1f;
+  const fraction = value & 0x03ff;
+  if (exponent === 0) return sign * (2 ** -14) * (fraction / 1024);
+  if (exponent === 31) return fraction ? Number.NaN : sign * Number.POSITIVE_INFINITY;
+  return sign * (2 ** (exponent - 15)) * (1 + fraction / 1024);
 }
-function dotHalf(query, data, offset) { let sum = 0; for (let i=0;i<DIM;i++) sum += query[i] * halfToFloat(data[offset+i]); return sum; }
-function dotFloat(query, data, offset) { let sum = 0; for (let i=0;i<DIM;i++) sum += query[i] * data[offset+i]; return sum; }
-function semanticScore(raw) { return Math.max(0, Math.min(1, (raw - .5) / .5)); }
 
-async function loadGenerated(manifestUrl) {
+function dotHalf(queryVector, halfVector, offset) {
+  let score = 0;
+  for (let index = 0; index < DIMENSIONS; index += 1) {
+    score += queryVector[index] * halfToFloat(halfVector[offset + index]);
+  }
+  return score;
+}
+
+function dotFloat(left, right, offset = 0) {
+  let score = 0;
+  for (let index = 0; index < DIMENSIONS; index += 1) score += left[index] * right[offset + index];
+  return score;
+}
+
+function normalizeSemanticScore(rawScore) {
+  return Math.max(0, Math.min(1, (rawScore - 0.5) / 0.5));
+}
+
+async function loadGeneratedIndex(manifestUrl) {
   const manifest = await fetchJson(manifestUrl);
-  if (!manifest?.ready || !manifest.shards?.length || manifest.dimensions !== DIM) return false;
-  const docs = [], shards = []; let start = 0;
-  for (let i=0;i<manifest.shards.length;i++) {
-    progress(`تحميل جزء الفهرس ${i+1} من ${manifest.shards.length}…`);
-    const shard = manifest.shards[i];
+  if (!manifest?.ready || !Array.isArray(manifest.shards) || !manifest.shards.length) return false;
+  if (manifest.dimensions !== DIMENSIONS) throw new Error('أبعاد الفهرس المسبق غير متوافقة.');
+
+  const loadedDocuments = [];
+  const loadedShards = [];
+  let globalOffset = 0;
+
+  for (let shardIndex = 0; shardIndex < manifest.shards.length; shardIndex += 1) {
+    const shard = manifest.shards[shardIndex];
+    postProgress(`تحميل جزء الفهرس ${shardIndex + 1} من ${manifest.shards.length}…`);
     const [metadata, buffer] = await Promise.all([
-      fetchJson(new URL(shard.metadata, manifestUrl)), fetchBinary(new URL(shard.embeddings, manifestUrl))
+      fetchJson(new URL(shard.metadata, manifestUrl)),
+      fetchBinary(new URL(shard.embeddings, manifestUrl)),
     ]);
-    if (!Array.isArray(metadata) || metadata.length !== shard.count) throw new Error('فهرس غير متطابق');
-    for (const doc of metadata) {
-      doc.normalizedTitle = normalizeArabic(doc.title);
-      doc.normalizedText = normalizeArabic(`${doc.title || ''} ${doc.section || ''} ${doc.text || ''}`);
-      docs.push(doc);
+    if (!Array.isArray(metadata) || metadata.length !== shard.count) throw new Error('بيانات الفهرس غير متطابقة.');
+    for (const document of metadata) {
+      document.normalizedTitle = normalizeArabic(document.title);
+      document.normalizedText = normalizeArabic(`${document.title || ''} ${document.section || ''} ${document.text || ''}`);
+      loadedDocuments.push(document);
     }
     const vectors = new Uint16Array(buffer);
-    if (vectors.length !== shard.count * DIM) throw new Error('حجم متجهات غير صحيح');
-    shards.push({ start, count:shard.count, vectors }); start += shard.count;
+    if (vectors.length !== shard.count * DIMENSIONS) throw new Error('حجم متجهات الفهرس غير صحيح.');
+    loadedShards.push({ start: globalOffset, count: shard.count, vectors });
+    globalOffset += shard.count;
   }
-  documents = docs; generated = { shards }; mode = 'generated';
+
+  documents = loadedDocuments;
+  generatedIndex = { shards: loadedShards };
+  indexMode = 'generated';
   return true;
 }
 
 async function initialize(message) {
   try {
-    progress('فحص الفهرس الدلالي…');
-    let ready = false;
-    try { ready = await loadGenerated(message.manifestUrl); } catch (_) { /* local fallback */ }
-    if (!ready) {
-      const discovered = await discoverDocuments(message.sitemapIndexUrl, message.fallbackUrl, progress);
-      ({ documents, origin, basePath, fingerprint } = discovered);
-      mode = 'local-sitemap';
+    postProgress('فحص الفهرس الدلالي المسبق…');
+    let loaded = false;
+    try {
+      loaded = await loadGeneratedIndex(message.manifestUrl);
+    } catch (_) {
+      loaded = false;
     }
+
+    if (!loaded) {
+      const discovered = await discoverDocuments(message.sitemapIndexUrl, message.fallbackUrl, postProgress);
+      ({ documents, origin, basePath } = discovered);
+      indexMode = 'local-rerank';
+    }
+
     self.postMessage({
-      type:'ready', semanticAvailable:documents.length > 0, indexMode:mode,
-      chunkCount:documents.length, sections:buildSections(documents), model:MODEL_ID
+      type: 'ready',
+      semanticAvailable: documents.length > 0,
+      indexMode,
+      chunkCount: documents.length,
+      sections: buildSections(documents),
+      model: MODEL_ID,
     });
-  } catch (error) { self.postMessage({ type:'error', message:`تعذر تجهيز البحث: ${error.message}` }); }
+  } catch (error) {
+    self.postMessage({ type: 'error', message: `تعذر تجهيز البحث: ${error.message}` });
+  }
 }
 
 async function createExtractor(requestId) {
-  const callback = (item) => self.postMessage({
-    type:'model-progress', requestId, progress:Math.max(0, Math.min(100, Number(item?.progress) || 0)),
-    message:item?.file ? `تحميل النموذج: ${item.file}` : 'تحميل نموذج فهم اللغة لأول مرة…'
+  const progressCallback = (item) => self.postMessage({
+    type: 'model-progress',
+    requestId,
+    progress: Math.max(0, Math.min(100, Number(item?.progress) || 0)),
+    message: item?.file ? `تحميل النموذج: ${item.file}` : 'تحميل نموذج فهم اللغة لأول مرة…',
   });
+
   if (self.navigator?.gpu) {
-    try { return await pipeline('feature-extraction', MODEL_ID, { dtype:DTYPE, device:'webgpu', progress_callback:callback }); }
-    catch (_) { /* use WASM */ }
-  }
-  return pipeline('feature-extraction', MODEL_ID, { dtype:DTYPE, device:'wasm', progress_callback:callback });
-}
-async function extractor(requestId) { if (!extractorPromise) extractorPromise = createExtractor(requestId); return extractorPromise; }
-
-async function embed(texts, prefix, requestId) {
-  const model = await extractor(requestId);
-  const input = texts.map((text) => `${prefix}${String(text || '').slice(0, 1400)}`);
-  const output = await model(input, { pooling:'mean', normalize:true });
-  const data = output.data instanceof Float32Array ? output.data : Float32Array.from(output.data);
-  if (data.length !== input.length * DIM) throw new Error('أبعاد النموذج غير متوقعة');
-  return data;
-}
-async function embedQuery(query, requestId) { return (await embed([query], QUERY_PREFIX, requestId)).slice(0, DIM); }
-
-async function ensureLocalVectors(requestId) {
-  if (localVectors?.length === documents.length * DIM) return localVectors;
-  const key = `${MODEL_ID}|${fingerprint}|${DIM}`;
-  const cached = await readVectorCache(key);
-  if (cached?.buffer && cached.count === documents.length && cached.dimensions === DIM) {
-    const restored = new Float32Array(cached.buffer);
-    if (restored.length === documents.length * DIM) {
-      localVectors = restored; progress(`استُعيد الفهرس المحفوظ: ${documents.length.toLocaleString('ar')} صفحة.`); return localVectors;
+    try {
+      return await pipeline('feature-extraction', MODEL_ID, {
+        dtype: DTYPE,
+        device: 'webgpu',
+        progress_callback: progressCallback,
+      });
+    } catch (_) {
+      // Fall through to portable WASM.
     }
   }
-  localVectors = new Float32Array(documents.length * DIM);
-  const batchSize = self.navigator?.gpu ? 80 : 20;
-  for (let start=0;start<documents.length;start+=batchSize) {
-    const batch = documents.slice(start, start+batchSize);
-    localVectors.set(await embed(batch.map((doc) => doc.seedText || doc.text), PASSAGE_PREFIX, requestId), start * DIM);
-    progress(`بناء الفهرس المحلي: ${Math.min(start+batch.length, documents.length).toLocaleString('ar')} من ${documents.length.toLocaleString('ar')} صفحة…`);
-  }
-  await writeVectorCache(key, { count:documents.length, dimensions:DIM, buffer:localVectors.buffer });
-  return localVectors;
+
+  return pipeline('feature-extraction', MODEL_ID, {
+    dtype: DTYPE,
+    device: 'wasm',
+    progress_callback: progressCallback,
+  });
 }
 
-function rankLexical(tokens, normalizedQuery, filters) {
-  const result = [];
-  for (const doc of documents) {
-    if (!matchesFilters(doc, filters)) continue;
-    const lexical = lexicalScore(tokens, normalizedQuery, doc), title = titleScore(tokens, doc);
-    const score = lexical * .78 + title * .22;
-    if (score > .005) result.push({ document:doc, lexical, title, score });
-  }
-  return result.sort((a,b) => b.score - a.score);
+async function getExtractor(requestId) {
+  if (!extractorPromise) extractorPromise = createExtractor(requestId);
+  return extractorPromise;
 }
 
-async function searchGenerated(message, query, tokens, normalizedQuery) {
-  let semantic = null;
+async function embedTexts(texts, prefix, requestId) {
+  const model = await getExtractor(requestId);
+  const allVectors = new Float32Array(texts.length * DIMENSIONS);
+
+  for (let start = 0; start < texts.length; start += EMBED_BATCH_SIZE) {
+    const batch = texts.slice(start, start + EMBED_BATCH_SIZE)
+      .map((text) => `${prefix}${String(text || '').slice(0, 1400)}`);
+    const output = await model(batch, { pooling: 'mean', normalize: true });
+    const data = output.data instanceof Float32Array ? output.data : Float32Array.from(output.data);
+    if (data.length !== batch.length * DIMENSIONS) throw new Error('أبعاد النموذج غير متوقعة.');
+    allVectors.set(data, start * DIMENSIONS);
+  }
+
+  return allVectors;
+}
+
+async function embedQuery(query, requestId) {
+  return (await embedTexts([query], QUERY_PREFIX, requestId)).slice(0, DIMENSIONS);
+}
+
+function textSignature(document) {
+  const value = `${document.url}|${String(document.text || document.seedText || '').slice(0, 1600)}`;
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `${document.url}|${(hash >>> 0).toString(16)}`;
+}
+
+async function embedDocuments(candidateDocuments, requestId) {
+  const output = new Float32Array(candidateDocuments.length * DIMENSIONS);
+  const missing = [];
+
+  candidateDocuments.forEach((document, index) => {
+    const signature = textSignature(document);
+    const cached = vectorCache.get(signature);
+    if (cached) output.set(cached, index * DIMENSIONS);
+    else missing.push({ document, index, signature });
+  });
+
+  if (missing.length) {
+    const vectors = await embedTexts(
+      missing.map(({ document }) => document.text || document.seedText || document.title),
+      PASSAGE_PREFIX,
+      requestId,
+    );
+    missing.forEach((item, position) => {
+      const vector = vectors.slice(position * DIMENSIONS, (position + 1) * DIMENSIONS);
+      output.set(vector, item.index * DIMENSIONS);
+      vectorCache.set(item.signature, vector);
+    });
+    while (vectorCache.size > 256) vectorCache.delete(vectorCache.keys().next().value);
+  }
+
+  return output;
+}
+
+function expandedQueryTokens(query) {
+  const normalized = normalizeArabic(query);
+  const result = new Set(tokenize(query));
+  for (const [phrases, aliases] of QUERY_ALIASES) {
+    if (phrases.some((phrase) => normalized.includes(normalizeArabic(phrase)))) {
+      aliases.forEach((alias) => result.add(alias));
+    }
+  }
+  return [...result];
+}
+
+function rankLexically(queryTokens, normalizedQuery, filters) {
+  const ranked = [];
+  for (const document of documents) {
+    if (!matchesFilters(document, filters)) continue;
+    const lexical = lexicalScore(queryTokens, normalizedQuery, document);
+    const title = titleScore(queryTokens, document);
+    const score = (lexical * 0.78) + (title * 0.22);
+    if (score > 0.003) ranked.push({ document, lexical, title, score });
+  }
+  return ranked.sort((left, right) => right.score - left.score);
+}
+
+function candidatePool(queryTokens, normalizedQuery, filters) {
+  const ranked = rankLexically(queryTokens, normalizedQuery, filters);
+  const selected = [];
+  const seen = new Set();
+
+  const add = (item) => {
+    if (!item?.document?.url || seen.has(item.document.url) || selected.length >= MAX_SEED_CANDIDATES) return;
+    seen.add(item.document.url);
+    selected.push(item);
+  };
+
+  ranked.slice(0, MAX_SEED_CANDIDATES).forEach(add);
+
+  if (selected.length < MAX_SEED_CANDIDATES) {
+    const sectionCounts = new Map();
+    const fillers = documents
+      .filter((document) => matchesFilters(document, filters))
+      .sort((left, right) => {
+        const leftDepth = new URL(left.url).pathname.split('/').filter(Boolean).length;
+        const rightDepth = new URL(right.url).pathname.split('/').filter(Boolean).length;
+        return leftDepth - rightDepth || left.url.localeCompare(right.url);
+      });
+
+    for (const document of fillers) {
+      const section = document.sectionKey || document.section || 'platform';
+      const count = sectionCounts.get(section) || 0;
+      if (count >= 8) continue;
+      sectionCounts.set(section, count + 1);
+      add({ document, lexical: 0, title: 0, score: 0 });
+      if (selected.length >= MAX_SEED_CANDIDATES) break;
+    }
+  }
+
+  return selected;
+}
+
+async function searchGenerated(message, query, queryTokens, normalizedQuery) {
+  let semanticScores = null;
   if (message.semantic) {
     const queryVector = await embedQuery(query, message.requestId);
-    semantic = new Float32Array(documents.length);
-    for (const shard of generated.shards) for (let i=0;i<shard.count;i++) semantic[shard.start+i] = dotHalf(queryVector, shard.vectors, i*DIM);
+    semanticScores = new Float32Array(documents.length);
+    for (const shard of generatedIndex.shards) {
+      for (let index = 0; index < shard.count; index += 1) {
+        semanticScores[shard.start + index] = dotHalf(queryVector, shard.vectors, index * DIMENSIONS);
+      }
+    }
   }
+
   const ranked = [];
-  for (let i=0;i<documents.length;i++) {
-    const doc = documents[i]; if (!matchesFilters(doc, message.filters)) continue;
-    const lexical = lexicalScore(tokens, normalizedQuery, doc), title = titleScore(tokens, doc);
-    const score = semantic ? semanticScore(semantic[i])*.67 + lexical*.23 + title*.10 : lexical*.78 + title*.22;
-    if (score > .01) ranked.push({ document:doc, score });
+  for (let index = 0; index < documents.length; index += 1) {
+    const document = documents[index];
+    if (!matchesFilters(document, message.filters)) continue;
+    const lexical = lexicalScore(queryTokens, normalizedQuery, document);
+    const title = titleScore(queryTokens, document);
+    const score = semanticScores
+      ? (normalizeSemanticScore(semanticScores[index]) * 0.67) + (lexical * 0.23) + (title * 0.10)
+      : (lexical * 0.78) + (title * 0.22);
+    if (score > 0.01) ranked.push({ document, score });
   }
-  ranked.sort((a,b) => b.score-a.score);
-  return { ranked, resultMode:semantic ? 'semantic' : 'lexical' };
+
+  ranked.sort((left, right) => right.score - left.score);
+  return { ranked, resultMode: semanticScores ? 'semantic' : 'lexical' };
 }
 
-async function searchLocal(message, query, tokens, normalizedQuery) {
+async function searchLocal(message, query, queryTokens, normalizedQuery) {
   if (!message.semantic) {
-    let ranked = await hydrateCandidates(rankLexical(tokens, normalizedQuery, message.filters), origin, basePath, pageCache);
-    for (const item of ranked) item.score = lexicalScore(tokens, normalizedQuery, item.document)*.78 + titleScore(tokens, item.document)*.22;
-    ranked.sort((a,b) => b.score-a.score); return { ranked, resultMode:'lexical' };
+    const initial = rankLexically(queryTokens, normalizedQuery, message.filters);
+    const hydrated = await hydrateCandidates(initial, origin, basePath, pageCache, MAX_HYDRATED_CANDIDATES);
+    for (const item of hydrated) {
+      item.score = (lexicalScore(queryTokens, normalizedQuery, item.document) * 0.78)
+        + (titleScore(queryTokens, item.document) * 0.22);
+    }
+    hydrated.sort((left, right) => right.score - left.score);
+    return { ranked: hydrated, resultMode: 'lexical' };
   }
-  const queryVector = await embedQuery(query, message.requestId), vectors = await ensureLocalVectors(message.requestId), candidates = [];
-  for (let i=0;i<documents.length;i++) {
-    const doc = documents[i]; if (!matchesFilters(doc, message.filters)) continue;
-    const seed = semanticScore(dotFloat(queryVector, vectors, i*DIM));
-    const lexical = lexicalScore(tokens, normalizedQuery, doc), title = titleScore(tokens, doc);
-    candidates.push({ document:doc, seed, score:seed*.76 + lexical*.17 + title*.07 });
+
+  const pool = candidatePool(queryTokens, normalizedQuery, message.filters);
+  if (!pool.length) return { ranked: [], resultMode: 'semantic' };
+
+  const queryVector = await embedQuery(query, message.requestId);
+  postProgress(`ترتيب ${pool.length.toLocaleString('ar')} مرشحًا دلاليًا…`);
+  const seedVectors = await embedDocuments(pool.map((item) => item.document), message.requestId);
+
+  for (let index = 0; index < pool.length; index += 1) {
+    const item = pool[index];
+    const semantic = normalizeSemanticScore(dotFloat(queryVector, seedVectors, index * DIMENSIONS));
+    item.seedSemantic = semantic;
+    item.score = (semantic * 0.74) + (item.lexical * 0.18) + (item.title * 0.08);
   }
-  candidates.sort((a,b) => b.score-a.score);
-  const hydrated = await hydrateCandidates(candidates, origin, basePath, pageCache);
-  const detail = await embed(hydrated.map((item) => item.document.text || item.document.seedText), PASSAGE_PREFIX, message.requestId);
-  for (let i=0;i<hydrated.length;i++) {
-    const item = hydrated[i], precise = semanticScore(dotFloat(queryVector, detail, i*DIM));
-    item.score = precise*.62 + item.seed*.23 + lexicalScore(tokens, normalizedQuery, item.document)*.10 + titleScore(tokens, item.document)*.05;
+  pool.sort((left, right) => right.score - left.score);
+
+  postProgress(`جلب محتوى أفضل ${MAX_HYDRATED_CANDIDATES.toLocaleString('ar')} صفحة للتحقق النهائي…`);
+  const hydrated = await hydrateCandidates(pool, origin, basePath, pageCache, MAX_HYDRATED_CANDIDATES);
+  const detailVectors = await embedDocuments(hydrated.map((item) => item.document), message.requestId);
+
+  for (let index = 0; index < hydrated.length; index += 1) {
+    const item = hydrated[index];
+    const preciseSemantic = normalizeSemanticScore(dotFloat(queryVector, detailVectors, index * DIMENSIONS));
+    const lexical = lexicalScore(queryTokens, normalizedQuery, item.document);
+    const title = titleScore(queryTokens, item.document);
+    item.score = (preciseSemantic * 0.64) + ((item.seedSemantic || 0) * 0.20) + (lexical * 0.11) + (title * 0.05);
   }
-  hydrated.sort((a,b) => b.score-a.score); return { ranked:hydrated, resultMode:'semantic' };
+  hydrated.sort((left, right) => right.score - left.score);
+  return { ranked: hydrated, resultMode: 'semantic' };
 }
 
-function compact(item) {
-  const doc = item.document;
-  return { id:doc.id, title:doc.title, section:doc.section, url:doc.url, excerpt:doc.excerpt || String(doc.text || '').slice(0,360), audience:doc.audience, score:Math.max(0,Math.min(1,item.score)) };
+function compactResult(item) {
+  const document = item.document;
+  return {
+    id: document.id,
+    title: document.title,
+    section: document.section,
+    url: document.url,
+    excerpt: document.excerpt || String(document.text || '').slice(0, 360),
+    audience: document.audience,
+    score: Math.max(0, Math.min(1, item.score)),
+  };
 }
 
 async function search(message) {
-  const query = String(message.query || '').trim().slice(0,300);
-  if (!query) return self.postMessage({ type:'results', requestId:message.requestId, mode:'lexical', results:[] });
-  const tokens = tokenize(query), normalizedQuery = normalizeArabic(query);
-  let outcome;
-  try { outcome = mode === 'generated' ? await searchGenerated(message, query, tokens, normalizedQuery) : await searchLocal(message, query, tokens, normalizedQuery); }
-  catch (error) {
-    self.postMessage({ type:'warning', requestId:message.requestId, message:`تعذر البحث الدلالي (${error.message})؛ استُخدم البحث النصي.` });
-    outcome = mode === 'generated' ? await searchGenerated({ ...message, semantic:false }, query, tokens, normalizedQuery) : await searchLocal({ ...message, semantic:false }, query, tokens, normalizedQuery);
+  const query = String(message.query || '').trim().slice(0, 300);
+  if (!query) {
+    self.postMessage({ type: 'results', requestId: message.requestId, mode: 'lexical', results: [] });
+    return;
   }
+
+  const normalizedQuery = normalizeArabic(query);
+  const queryTokens = expandedQueryTokens(query);
+  let outcome;
+
+  try {
+    outcome = indexMode === 'generated'
+      ? await searchGenerated(message, query, queryTokens, normalizedQuery)
+      : await searchLocal(message, query, queryTokens, normalizedQuery);
+  } catch (error) {
+    self.postMessage({
+      type: 'warning',
+      requestId: message.requestId,
+      message: `تعذر البحث الدلالي (${error.message})؛ استُخدم البحث النصي.`,
+    });
+    const lexicalMessage = { ...message, semantic: false };
+    outcome = indexMode === 'generated'
+      ? await searchGenerated(lexicalMessage, query, queryTokens, normalizedQuery)
+      : await searchLocal(lexicalMessage, query, queryTokens, normalizedQuery);
+  }
+
   const limit = Math.max(1, Math.min(30, Number(message.limit) || 12));
-  self.postMessage({ type:'results', requestId:message.requestId, mode:outcome.resultMode, results:outcome.ranked.filter((x) => x.score > .01).slice(0,limit).map(compact) });
+  self.postMessage({
+    type: 'results',
+    requestId: message.requestId,
+    mode: outcome.resultMode,
+    results: outcome.ranked.filter((item) => item.score > 0.01).slice(0, limit).map(compactResult),
+  });
 }
 
 self.addEventListener('message', (event) => {
   const message = event.data || {};
   if (message.type === 'initialize') initialize(message);
-  if (message.type === 'search') search(message).catch((error) => self.postMessage({ type:'error', requestId:message.requestId, message:`تعذر تنفيذ البحث: ${error.message}` }));
+  if (message.type === 'search') {
+    search(message).catch((error) => self.postMessage({
+      type: 'error',
+      requestId: message.requestId,
+      message: `تعذر تنفيذ البحث: ${error.message}`,
+    }));
+  }
 });

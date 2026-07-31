@@ -1,4 +1,4 @@
-name: Deploy specialist identity interface v10.2
+name: Deploy specialist identity interface v10.3
 
 on:
   push:
@@ -8,9 +8,13 @@ on:
       - "specialists-partners/admin/admin-recovery-v10-final.js"
       - "specialists-partners/admin/admin-provider-status-v10.js"
       - "specialists-partners/assets/runtime-config.js"
+      - "specialists-partners/recover/index.html"
+      - "specialists-partners/recover/recover.js"
+      - "specialists-partners/recover/recover.css"
       - "specialists-partners/password-reset/index.html"
       - "specialists-partners/password-reset/reset-v10.js"
       - "specialists-partners/password-reset/reset-v9.css"
+      - "tests/test_specialist_identity_v10.py"
       - ".github/workflows/deploy-specialist-recovery-pages-v8.yml"
   workflow_dispatch:
 
@@ -37,21 +41,43 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Validate interface source files
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate interface source and network contracts
         run: |
-          set -euo pipefail
+          set -euxo pipefail
           node --check specialists-partners/admin/admin-recovery-v10-final.js
           node --check specialists-partners/admin/admin-provider-status-v10.js
           node --check specialists-partners/assets/runtime-config.js
+          node --check specialists-partners/recover/recover.js
           node --check specialists-partners/password-reset/reset-v10.js
+          python -m unittest -v tests.test_specialist_identity_v10
           python - <<'PY'
           from pathlib import Path
           runtime=Path('specialists-partners/assets/runtime-config.js').read_text(encoding='utf-8')
+          recover=Path('specialists-partners/recover/index.html').read_text(encoding='utf-8')
+          recover_js=Path('specialists-partners/recover/recover.js').read_text(encoding='utf-8')
           reset=Path('specialists-partners/password-reset/index.html').read_text(encoding='utf-8')
-          assert 'identityVersion: "10.2.0"' in runtime
-          assert 'admin-recovery-v10-final.js?v=10.2.0' in runtime
-          assert 'admin-provider-status-v10.js?v=10.2.0' in runtime
-          assert 'reset-v10.js?v=10.2.0' in reset
+          reset_js=Path('specialists-partners/password-reset/reset-v10.js').read_text(encoding='utf-8')
+          core='https://pterminology-specialists.pterminology-826ac349.workers.dev'
+          identity='https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev'
+          assert 'identityVersion: "10.3.0"' in runtime
+          assert 'admin-recovery-v10-final.js?v=10.3.0' in runtime
+          assert 'admin-provider-status-v10.js?v=10.3.0' in runtime
+          assert 'recover.js?v=10.3.0' in recover
+          assert 'reset-v10.js?v=10.3.0' in reset
+          for page in (recover, reset):
+              assert identity in page and core in page
+          for script in (recover_js, reset_js):
+              assert 'AbortController' in script
+              assert "mode: 'cors'" in script
+              assert "redirect: 'error'" not in script
           PY
 
       - name: Discover latest validated production artifact
@@ -92,7 +118,7 @@ jobs:
       - name: Patch complete specialist identity interface
         shell: bash
         run: |
-          set -euo pipefail
+          set -euxo pipefail
           test -f _site/index.html
           test -f _site/deployment.json
           for source in \
@@ -100,6 +126,9 @@ jobs:
             specialists-partners/admin/admin-recovery-v10-final.js \
             specialists-partners/admin/admin-provider-status-v10.js \
             specialists-partners/assets/runtime-config.js \
+            specialists-partners/recover/index.html \
+            specialists-partners/recover/recover.js \
+            specialists-partners/recover/recover.css \
             specialists-partners/password-reset/index.html \
             specialists-partners/password-reset/reset-v10.js \
             specialists-partners/password-reset/reset-v9.css; do
@@ -112,14 +141,20 @@ jobs:
           from pathlib import Path
           admin=Path('_site/specialists-partners/admin/index.html').read_text(encoding='utf-8')
           runtime=Path('_site/specialists-partners/assets/runtime-config.js').read_text(encoding='utf-8')
+          recover=Path('_site/specialists-partners/recover/index.html').read_text(encoding='utf-8')
+          recover_js=Path('_site/specialists-partners/recover/recover.js').read_text(encoding='utf-8')
           reset=Path('_site/specialists-partners/password-reset/index.html').read_text(encoding='utf-8')
+          reset_js=Path('_site/specialists-partners/password-reset/reset-v10.js').read_text(encoding='utf-8')
           recovery=Path('_site/specialists-partners/admin/admin-recovery-v10-final.js').read_text(encoding='utf-8')
           provider=Path('_site/specialists-partners/admin/admin-provider-status-v10.js').read_text(encoding='utf-8')
           assert 'id="admin-forgot" type="button"' in admin
-          assert 'identityVersion: "10.2.0"' in runtime
-          assert 'admin-recovery-v10-final.js?v=10.2.0' in runtime
-          assert 'admin-provider-status-v10.js?v=10.2.0' in runtime
-          assert 'reset-v10.js?v=10.2.0' in reset
+          assert 'identityVersion: "10.3.0"' in runtime
+          assert 'admin-recovery-v10-final.js?v=10.3.0' in runtime
+          assert 'admin-provider-status-v10.js?v=10.3.0' in runtime
+          assert 'recover.js?v=10.3.0' in recover
+          assert 'reset-v10.js?v=10.3.0' in reset
+          assert 'all_account_endpoints_unavailable' in recover_js
+          assert 'all_account_endpoints_unavailable' in reset_js
           assert 'password-reset-link' in recovery
           assert '/v1/admin/email-provider-status' in provider
           PY
@@ -145,19 +180,23 @@ jobs:
           ready=false
           for attempt in {1..60}; do
             nonce="${GITHUB_RUN_ID}-${attempt}-$(date +%s%N)"
-            admin_code="$(curl -sS -L -o /tmp/admin.html -w '%{http_code}' "${root}/admin/?v=10.2.0&probe=${nonce}" || true)"
-            runtime_code="$(curl -sS -L -o /tmp/runtime.js -w '%{http_code}' "${root}/assets/runtime-config.js?v=10.2.0&probe=${nonce}" || true)"
-            reset_code="$(curl -sS -L -o /tmp/reset.html -w '%{http_code}' "${root}/password-reset/?v=10.2.0&probe=${nonce}" || true)"
-            reset_js_code="$(curl -sS -L -o /tmp/reset-v10.js -w '%{http_code}' "${root}/password-reset/reset-v10.js?v=10.2.0&probe=${nonce}" || true)"
-            recovery_code="$(curl -sS -L -o /tmp/admin-recovery.js -w '%{http_code}' "${root}/admin/admin-recovery-v10-final.js?v=10.2.0&probe=${nonce}" || true)"
-            provider_code="$(curl -sS -L -o /tmp/admin-provider.js -w '%{http_code}' "${root}/admin/admin-provider-status-v10.js?v=10.2.0&probe=${nonce}" || true)"
-            if [[ "${admin_code}" == "200" && "${runtime_code}" == "200" && "${reset_code}" == "200" && "${reset_js_code}" == "200" && "${recovery_code}" == "200" && "${provider_code}" == "200" ]] \
+            admin_code="$(curl -sS -L -o /tmp/admin.html -w '%{http_code}' "${root}/admin/?v=10.3.0&probe=${nonce}" || true)"
+            runtime_code="$(curl -sS -L -o /tmp/runtime.js -w '%{http_code}' "${root}/assets/runtime-config.js?v=10.3.0&probe=${nonce}" || true)"
+            recover_code="$(curl -sS -L -o /tmp/recover.html -w '%{http_code}' "${root}/recover/?v=10.3.0&probe=${nonce}" || true)"
+            recover_js_code="$(curl -sS -L -o /tmp/recover.js -w '%{http_code}' "${root}/recover/recover.js?v=10.3.0&probe=${nonce}" || true)"
+            reset_code="$(curl -sS -L -o /tmp/reset.html -w '%{http_code}' "${root}/password-reset/?v=10.3.0&probe=${nonce}" || true)"
+            reset_js_code="$(curl -sS -L -o /tmp/reset-v10.js -w '%{http_code}' "${root}/password-reset/reset-v10.js?v=10.3.0&probe=${nonce}" || true)"
+            recovery_code="$(curl -sS -L -o /tmp/admin-recovery.js -w '%{http_code}' "${root}/admin/admin-recovery-v10-final.js?v=10.3.0&probe=${nonce}" || true)"
+            provider_code="$(curl -sS -L -o /tmp/admin-provider.js -w '%{http_code}' "${root}/admin/admin-provider-status-v10.js?v=10.3.0&probe=${nonce}" || true)"
+            if [[ "${admin_code}" == "200" && "${runtime_code}" == "200" && "${recover_code}" == "200" && "${recover_js_code}" == "200" && "${reset_code}" == "200" && "${reset_js_code}" == "200" && "${recovery_code}" == "200" && "${provider_code}" == "200" ]] \
               && grep -q 'id="admin-forgot" type="button"' /tmp/admin.html \
-              && grep -q 'identityVersion: "10.2.0"' /tmp/runtime.js \
-              && grep -q 'admin-recovery-v10-final.js?v=10.2.0' /tmp/runtime.js \
-              && grep -q 'admin-provider-status-v10.js?v=10.2.0' /tmp/runtime.js \
-              && grep -q 'reset-v10.js?v=10.2.0' /tmp/reset.html \
-              && grep -q 'strongEnough' /tmp/reset-v10.js \
+              && grep -q 'identityVersion: "10.3.0"' /tmp/runtime.js \
+              && grep -q 'admin-recovery-v10-final.js?v=10.3.0' /tmp/runtime.js \
+              && grep -q 'admin-provider-status-v10.js?v=10.3.0' /tmp/runtime.js \
+              && grep -q 'recover.js?v=10.3.0' /tmp/recover.html \
+              && grep -q 'all_account_endpoints_unavailable' /tmp/recover.js \
+              && grep -q 'reset-v10.js?v=10.3.0' /tmp/reset.html \
+              && grep -q 'all_account_endpoints_unavailable' /tmp/reset-v10.js \
               && grep -q 'password-reset-link' /tmp/admin-recovery.js \
               && grep -q '/v1/admin/email-provider-status' /tmp/admin-provider.js; then
               ready=true
@@ -165,7 +204,7 @@ jobs:
             fi
             sleep 5
           done
-          [[ "${ready}" == "true" ]] || { echo "::error::Specialist identity interface v10.2 did not become live"; exit 1; }
+          [[ "${ready}" == "true" ]] || { echo "::error::Specialist identity interface v10.3 did not become live"; exit 1; }
 
           mkdir -p reports
           python - <<'PY'
@@ -174,6 +213,8 @@ jobs:
           files={
             'admin':'/tmp/admin.html',
             'runtime':'/tmp/runtime.js',
+            'recovery':'/tmp/recover.html',
+            'recovery_script':'/tmp/recover.js',
             'password_reset':'/tmp/reset.html',
             'password_reset_script':'/tmp/reset-v10.js',
             'admin_recovery_script':'/tmp/admin-recovery.js',
@@ -182,7 +223,7 @@ jobs:
           report={
             'schema_version':1,
             'checked_at':datetime.now(timezone.utc).isoformat(),
-            'version':'10.2.0',
+            'version':'10.3.0',
             'source_artifact_run_id':os.environ.get('SOURCE_RUN_ID'),
             'workflow_run_id':os.environ['GITHUB_RUN_ID'],
             'pages':{name:{'http_status':200,'sha256':hashlib.sha256(open(path,'rb').read()).hexdigest()} for name,path in files.items()},
@@ -190,6 +231,8 @@ jobs:
               'admin_forgot_button':True,
               'owner_manual_recovery':True,
               'authenticated_provider_status':True,
+              'recovery_dual_endpoint_csp':True,
+              'recovery_network_timeout':True,
               'arabic_password_reset':True,
             },
             'passed':True,

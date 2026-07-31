@@ -9,7 +9,10 @@ PROPAGATION = ROOT / "scripts/verify_specialist_identity_v10_production.py"
 ADMIN_RECOVERY = ROOT / "specialists-partners/admin/admin-recovery-v10-final.js"
 ADMIN_PROVIDER = ROOT / "specialists-partners/admin/admin-provider-status-v10.js"
 RUNTIME = ROOT / "specialists-partners/assets/runtime-config.js"
+RECOVER_HTML = ROOT / "specialists-partners/recover/index.html"
+RECOVER_SCRIPT = ROOT / "specialists-partners/recover/recover.js"
 RESET_HTML = ROOT / "specialists-partners/password-reset/index.html"
+RESET_SCRIPT = ROOT / "specialists-partners/password-reset/reset-v10.js"
 VALIDATE = ROOT / ".github/workflows/deploy-specialist-identity-v10.yml"
 DEPLOY = ROOT / ".github/workflows/deploy-specialist-identity-v10-production.yml"
 PAGES = ROOT / ".github/workflows/deploy-specialist-recovery-pages-v8.yml"
@@ -28,14 +31,17 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         cls.admin = ADMIN_RECOVERY.read_text(encoding="utf-8")
         cls.admin_provider = ADMIN_PROVIDER.read_text(encoding="utf-8")
         cls.runtime = RUNTIME.read_text(encoding="utf-8")
+        cls.recover_html = RECOVER_HTML.read_text(encoding="utf-8")
+        cls.recover_script = RECOVER_SCRIPT.read_text(encoding="utf-8")
         cls.reset_html = RESET_HTML.read_text(encoding="utf-8")
+        cls.reset_script = RESET_SCRIPT.read_text(encoding="utf-8")
 
     def test_worker_uses_layered_v10_release(self):
         self.assertIn("const BUILD_VERSION = '10.0.0'", self.worker)
         self.assertIn("import recoveryWorker from './index-v8.js'", self.worker)
         self.assertIn("const BUILD_VERSION = '10.1.0'", self.final_worker)
         self.assertIn("import identityWorker from './index-v10.js'", self.final_worker)
-        self.assertIn("const BUILD_VERSION='10.2.0'", self.production_worker)
+        self.assertIn("const BUILD_VERSION = '10.3.0'", self.production_worker)
         self.assertIn("import finalWorker from './index-v10-final.js'", self.production_worker)
 
     def test_deep_email_auth_probe_is_truthful(self):
@@ -83,8 +89,35 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("/\\p{L}/u", self.final_worker)
         self.assertNotIn("/\\s/u.test(password)", self.final_worker)
 
+    def test_production_wrapper_guarantees_cors_and_safe_errors(self):
+        self.assertIn("request.method === 'OPTIONS'", self.production_worker)
+        self.assertIn("return new Response(null, {status:204, headers:cors})", self.production_worker)
+        self.assertIn("ensureCors(response, origin, env)", self.production_worker)
+        self.assertIn("'cross-origin-resource-policy':'cross-origin'", self.production_worker)
+        self.assertIn("specialist_identity_v103_production_error", self.production_worker)
+        self.assertIn("corsPreflight:true", self.production_worker)
+
+    def test_recovery_pages_allow_both_worker_hosts(self):
+        identity = "https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev"
+        core = "https://pterminology-specialists.pterminology-826ac349.workers.dev"
+        for page in (self.recover_html, self.reset_html):
+            self.assertIn(identity, page)
+            self.assertIn(core, page)
+        self.assertIn("recover.js?v=10.3.0", self.recover_html)
+        self.assertIn("reset-v10.js?v=10.3.0", self.reset_html)
+
+    def test_recovery_network_failures_are_bounded_and_actionable(self):
+        for script in (self.recover_script, self.reset_script):
+            self.assertIn("AbortController", script)
+            self.assertIn("mode: 'cors'", script)
+            self.assertIn("redirect: 'follow'", script)
+            self.assertNotIn("redirect: 'error'", script)
+            self.assertIn("all_account_endpoints_unavailable", script)
+            self.assertIn("CORE_API", script)
+        self.assertNotIn("Failed to fetch", self.recover_script + self.reset_script)
+
     def test_deep_health_is_protected_and_admin_status_is_authenticated(self):
-        self.assertIn("bootstrapAuthorized(request,env)", self.production_worker)
+        self.assertIn("bootstrapAuthorized(request, env)", self.production_worker)
         self.assertIn("/v1/admin/email-provider-status", self.production_worker)
         self.assertIn("['owner','admin']", self.production_worker)
         self.assertIn("protectedDeepHealth:true", self.production_worker)
@@ -97,10 +130,9 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("navigator.clipboard.writeText", self.admin)
         self.assertIn("document.readyState==='loading'", self.admin)
         self.assertIn("attributeFilter:['hidden']", self.admin)
-        self.assertIn("admin-recovery-v10-final.js?v=10.2.0", self.runtime)
-        self.assertIn("admin-provider-status-v10.js?v=10.2.0", self.runtime)
-        self.assertIn('identityVersion: "10.2.0"', self.runtime)
-        self.assertIn("reset-v10.js?v=10.2.0", self.reset_html)
+        self.assertIn("admin-recovery-v10-final.js?v=10.3.0", self.runtime)
+        self.assertIn("admin-provider-status-v10.js?v=10.3.0", self.runtime)
+        self.assertIn('identityVersion: "10.3.0"', self.runtime)
 
     def test_propagation_verifier_requires_atomic_stability(self):
         self.assertIn("for attempt in range(1, 241)", self.propagation)
@@ -136,16 +168,19 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
             "specialists-partners/admin/admin-recovery-v10-final.js",
             "specialists-partners/admin/admin-provider-status-v10.js",
             "specialists-partners/assets/runtime-config.js",
+            "specialists-partners/recover/index.html",
+            "specialists-partners/recover/recover.js",
             "specialists-partners/password-reset/index.html",
             "specialists-partners/password-reset/reset-v10.js",
-            "specialists-partners/password-reset/reset-v9.css",
         ):
             self.assertIn(path, pages)
         self.assertIn("Patch complete specialist identity interface", pages)
         self.assertIn("Verify live specialist identity interface", pages)
         self.assertIn("specialist-identity-v10-pages.json", pages)
-        self.assertIn("admin-provider-status-v10.js?v=10.2.0", pages)
-        self.assertIn("reset-v10.js?v=10.2.0", pages)
+        self.assertIn("admin-provider-status-v10.js?v=10.3.0", pages)
+        self.assertIn("recover.js?v=10.3.0", pages)
+        self.assertIn("reset-v10.js?v=10.3.0", pages)
+        self.assertIn("recovery_dual_endpoint_csp", pages)
 
     def test_legacy_workflows_are_validation_only_and_never_issue_links(self):
         for path in (LEGACY_V6, LEGACY_V8):
