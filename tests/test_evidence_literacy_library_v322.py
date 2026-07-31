@@ -25,7 +25,7 @@ class EvidenceLiteracyLibraryV322Tests(unittest.TestCase):
         library.write_text(
             '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">'
             '<title>المكتبة الأكاديمية</title><meta name="description" content="مكتبة أكاديمية عربية.">'
-            '<meta name="robots" content="index,follow"><link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/library/">'
+            '<meta name="robots" content="index,follow"><link rel="canonical" href="https://healthrenewal.org/library/">'
             '<script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage"}</script>'
             '</head><body><main><h1>المكتبة الأكاديمية</h1><p>محتوى تمهيدي للمكتبة.</p></main></body></html>',
             encoding="utf-8",
@@ -33,7 +33,7 @@ class EvidenceLiteracyLibraryV322Tests(unittest.TestCase):
         (site / "sitemap-library.xml").write_text(
             '<?xml version="1.0" encoding="utf-8"?>'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-            '<url><loc>https://khaledaltheeb.github.io/pterminology-site/library/</loc></url>'
+            '<url><loc>https://healthrenewal.org/library/</loc></url>'
             '</urlset>',
             encoding="utf-8",
         )
@@ -42,7 +42,7 @@ class EvidenceLiteracyLibraryV322Tests(unittest.TestCase):
         weak.write_text(
             '<!doctype html><html lang="ar"><head><title>صفحة قصيرة</title>'
             '<meta name="description" content="صفحة قصيرة للاختبار.">'
-            '<link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/magazine/weak-page/">'
+            '<link rel="canonical" href="https://healthrenewal.org/magazine/weak-page/">'
             '<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article"}</script>'
             '</head><body><main><h1>صفحة قصيرة</h1><p>نص قصير.</p></main></body></html>',
             encoding="utf-8",
@@ -67,6 +67,9 @@ class EvidenceLiteracyLibraryV322Tests(unittest.TestCase):
             self.assertGreaterEqual(report["hub_words"], 500)
             self.assertFalse(report["external_methodology_review_completed"])
             self.assertEqual(report["next_review_due"], "2027-01-27")
+            self.assertEqual(report["canonical_origin"], "https://healthrenewal.org")
+            self.assertEqual(report["base_path"], "/")
+            self.assertEqual(report["legacy_origins_remaining"], 0)
 
             expected = {
                 "how-to-read-systematic-review": (
@@ -101,6 +104,8 @@ class EvidenceLiteracyLibraryV322Tests(unittest.TestCase):
                 self.assertIn("لم تكتمل مراجعة خارجية مستقلة من متخصص في منهجية البحث", source)
                 self.assertIsNone(library322.BANNED.search(source))
                 self.assertGreaterEqual(library322.words(source), 900)
+                self.assertNotIn("khaledaltheeb.github.io/pterminology-site", source)
+                self.assertNotIn("/pterminology-site/", source)
                 for phrase in phrases:
                     self.assertIn(phrase, source)
 
@@ -110,7 +115,8 @@ class EvidenceLiteracyLibraryV322Tests(unittest.TestCase):
             self.assertIn("جودة التقرير لا تساوي بالضرورة جودة الدراسة", hub)
             parent = (site / "library" / "index.html").read_text(encoding="utf-8")
             self.assertEqual(parent.count(library322.PARENT_MARKER), 1)
-            self.assertEqual(parent.count("/pterminology-site/library/evidence-literacy/"), 1)
+            self.assertEqual(parent.count("/library/evidence-literacy/"), 1)
+            self.assertNotIn("/pterminology-site/", parent)
 
             api = json.loads((site / "api" / "evidence-literacy-library-v322.json").read_text(encoding="utf-8"))
             self.assertEqual(api, report)
@@ -122,6 +128,7 @@ class EvidenceLiteracyLibraryV322Tests(unittest.TestCase):
             for route in ["/library/evidence-literacy/"] + [f"/library/evidence-literacy/{slug}/" for slug in expected]:
                 self.assertEqual(urls.count(library322.BASE + route), 1)
             self.assertEqual(len(urls), len(set(urls)))
+            self.assertTrue(all(url.startswith("https://healthrenewal.org/") for url in urls))
 
     def test_publication_and_audit_are_byte_stable(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
