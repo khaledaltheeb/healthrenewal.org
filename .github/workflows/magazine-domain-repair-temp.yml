@@ -62,7 +62,7 @@ CONTRACT = 316
     if not canonical_pattern.search(updated):
         raise SystemExit(f"Research article lacks canonical metadata: {filename}")
     updated = canonical_pattern.sub(expected, updated, count=1)
-    if canonical_pattern.findall(updated) and updated.count('rel="canonical"') > 1:
+    if updated.count('rel="canonical"') > 1:
         raise SystemExit(f"Research article contains duplicate canonical metadata: {filename}")
     if any(origin in updated for origin in LEGACY_BASES) or "/pterminology-site/" in updated:
         raise SystemExit(f"Research article retains a legacy origin or base path: {filename}")
@@ -138,10 +138,10 @@ CONTRACT = 316
           printf '{"status":"passed","magazine_contract":316,"canonical_origin":"https://healthrenewal.org","legacy_article_origins":0,"platform_identity":"passed"}\n' > /tmp/result.json
 
       - name: Commit verified repair
-        if: ${{ hashFiles('/tmp/result.json') != '' }}
         shell: bash
         run: |
           set -euxo pipefail
+          test -f /tmp/result.json
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add scripts/publish_magazine_v201.py
