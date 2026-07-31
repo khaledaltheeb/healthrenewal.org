@@ -12,13 +12,14 @@ class SpecialistTurnstilePersistenceTests(unittest.TestCase):
         cls.workflow = WORKFLOW.read_text(encoding="utf-8")
         cls.verifier = VERIFIER.read_text(encoding="utf-8")
 
-    def test_deploy_requires_existing_turnstile_secret(self):
-        self.assertIn("--secrets-file worker-secrets-v10-production.json", self.workflow)
-        self.assertIn('[secrets]', self.workflow)
-        self.assertIn('required = ["TURNSTILE_SECRET", "RESEND_API_KEY", "ADMIN_API_KEY", "RATE_LIMIT_SALT"]', self.workflow)
-        self.assertIn("with required-secret validation", self.workflow)
-        self.assertIn("turnstile_secret_required", self.workflow)
-        self.assertNotIn("'TURNSTILE_SECRET':os.environ", self.workflow)
+    def test_deploy_preserves_existing_worker_secrets(self):
+        self.assertNotIn("--secrets-file", self.workflow)
+        self.assertNotIn("worker-secrets-v10-production.json", self.workflow)
+        self.assertNotIn("[secrets]", self.workflow)
+        self.assertIn("/workers/scripts/${IDENTITY_WORKER_NAME}/secrets", self.workflow)
+        self.assertIn("'TURNSTILE_SECRET','RESEND_API_KEY','ADMIN_API_KEY','RATE_LIMIT_SALT'", self.workflow)
+        self.assertIn("without replacing existing secrets", self.workflow)
+        self.assertIn("deployment_replaced_secrets", self.workflow)
         self.assertNotIn("secret put TURNSTILE_SECRET", self.workflow)
 
     def test_health_verifier_identifies_itself(self):
