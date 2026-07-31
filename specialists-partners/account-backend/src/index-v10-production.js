@@ -1,11 +1,22 @@
 import finalWorker from './index-v10-final.js';
+import {
+  handleSpecialistMessageV10,
+  processSpecialistMessageOutbox,
+  specialistMessageHealth,
+} from './specialist-message-v10.js';
 
 const BUILD_VERSION = '10.3.0';
 const JSON_HEADERS = {'content-type':'application/json; charset=utf-8'};
+const SPECIALIST_MESSAGE_PATH = /^\/v1\/specialist\/conversations\/([a-z0-9-]+)\/messages$/i;
 
 export default {
   async scheduled(event, env, ctx) {
-    if (typeof finalWorker.scheduled === 'function') return finalWorker.scheduled(event, env, ctx);
+    if (typeof finalWorker.scheduled === 'function') {
+      ctx.waitUntil(Promise.resolve(finalWorker.scheduled(event, env, ctx)));
+    }
+    ctx.waitUntil(processSpecialistMessageOutbox(env).catch((error) => {
+      console.error('specialist_message_outbox_scheduled_error', safeError(error));
+    }));
   },
 
   async fetch(request, env, ctx) {
@@ -18,6 +29,28 @@ export default {
     }
 
     try {
+      const specialistMessageMatch = url.pathname.match(SPECIALIST_MESSAGE_PATH);
+      if (request.method === 'POST' && specialistMessageMatch) {
+        const session = await authenticatedSession(request, env, ctx);
+        if (!session.ok) return ensureCors(session.response, origin, env);
+        const actor = {
+          ...session.user,
+          provider_id:session.user.providerId || session.user.provider_id || null,
+        };
+        return ensureCors(
+          await handleSpecialistMessageV10(
+            request,
+            env,
+            ctx,
+            cors,
+            actor,
+            specialistMessageMatch[1],
+          ),
+          origin,
+          env,
+        );
+      }
+
       if (request.method === 'GET' && url.pathname === '/health' && url.searchParams.get('deep') === '1') {
         if (!bootstrapAuthorized(request, env)) {
           return json({error:'forbidden', message:'الفحص العميق مقيد بالتشغيل.'}, 403, cors);
@@ -26,14 +59,8 @@ export default {
       }
 
       if (request.method === 'GET' && url.pathname === '/v1/admin/email-provider-status') {
-        const sessionRequest = new Request(new URL('/v1/auth/session', request.url), {
-          method:'GET',
-          headers:request.headers,
-          redirect:'follow',
-        });
-        const sessionResponse = await finalWorker.fetch(sessionRequest, env, ctx);
-        const session = await sessionResponse.clone().json().catch(() => ({}));
-        if (!sessionResponse.ok) return ensureCors(sessionResponse, origin, env);
+        const session = await authenticatedSession(request, env, ctx);
+        if (!session.ok) return ensureCors(session.response, origin, env);
         if (!['owner','admin'].includes(session.user?.role)) {
           return json({error:'forbidden', message:'لا تملك الصلاحية المطلوبة.'}, 403, cors);
         }
@@ -75,12 +102,31 @@ export default {
   },
 };
 
+async function authenticatedSession(request, env, ctx) {
+  const sessionRequest = new Request(new URL('/v1/auth/session', request.url), {
+    method:'GET',
+    headers:request.headers,
+    redirect:'follow',
+  });
+  const response = await finalWorker.fetch(sessionRequest, env, ctx);
+  const data = await response.clone().json().catch(() => ({}));
+  if (!response.ok || !data.user) return {ok:false, response};
+  return {ok:true, user:data.user, response};
+}
+
 async function withProductionVersion(response, origin, env) {
   const data = await response.clone().json().catch(() => ({}));
   if (!data || typeof data !== 'object' || data.service !== 'pterminology-specialist-identity') {
     return ensureCors(response, origin, env);
   }
-  const checks = {...(data.checks || {}), protectedDeepHealth:true, adminProviderStatus:true, corsPreflight:true};
+  const messageChecks = await specialistMessageHealth(env);
+  const checks = {
+    ...(data.checks || {}),
+    ...messageChecks,
+    protectedDeepHealth:true,
+    adminProviderStatus:true,
+    corsPreflight:true,
+  };
   const ok = data.ok === true && Object.values(checks).every(Boolean);
   return json({...data, ok, version:BUILD_VERSION, checks}, ok ? 200 : 503, corsHeaders(origin, env));
 }
@@ -136,10 +182,10 @@ function corsHeaders(origin, env) {
   return headers;
 }
 
-function json(payload, status = 200, headers = {}) {
-  return new Response(JSON.stringify(payload), {status, headers:{...JSON_HEADERS, ...headers}});
-}
-
 function safeError(error) {
   return String(error?.message || error || 'unknown').slice(0, 240);
+}
+
+function json(payload, status = 200, headers = {}) {
+  return new Response(JSON.stringify(payload), {status, headers:{...JSON_HEADERS, ...headers}});
 }

@@ -7,6 +7,8 @@ on:
       - "specialists-partners/account-backend/src/index-v10.js"
       - "specialists-partners/account-backend/src/index-v10-final.js"
       - "specialists-partners/account-backend/src/index-v10-production.js"
+      - "specialists-partners/account-backend/src/specialist-message-v10.js"
+      - "specialists-partners/backend/migrations/0006_specialist_message_outbox.sql"
       - "specialists-partners/admin/**"
       - "specialists-partners/password-reset/**"
       - "specialists-partners/assets/runtime-config.js"
@@ -14,6 +16,7 @@ on:
       - "tests/test_specialist_accounts_v5.py"
       - "tests/test_specialist_identity_v6.py"
       - "tests/test_specialist_identity_v10.py"
+      - "tests/specialist_message_v10_runtime.mjs"
       - "tests/test_specialist_turnstile_persistence.py"
       - ".github/workflows/deploy-specialist-identity-v10.yml"
       - ".github/workflows/deploy-specialist-identity-v10-production.yml"
@@ -41,6 +44,8 @@ jobs:
           node --check specialists-partners/account-backend/src/index-v10.js
           node --check specialists-partners/account-backend/src/index-v10-final.js
           node --check specialists-partners/account-backend/src/index-v10-production.js
+          node --check specialists-partners/account-backend/src/specialist-message-v10.js
+          node --check tests/specialist_message_v10_runtime.mjs
           node --check specialists-partners/admin/admin-recovery-v10-final.js
           node --check specialists-partners/admin/admin-provider-status-v10.js
           node --check specialists-partners/assets/runtime-config.js
