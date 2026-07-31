@@ -1,0 +1,234 @@
+name: Rotate specialist Resend provider
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/rotate-specialist-resend-provider.yml"
+      - ".github/triggers/rotate-specialist-resend-provider.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rotate-specialist-resend-provider
+  cancel-in-progress: false
+
+env:
+  ACCOUNT_API_BASE: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
+  IDENTITY_WORKER_NAME: pterminology-specialist-accounts
+
+jobs:
+  rotate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '826ac34927c1e045c06145a327c2ac52' }}
+      ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate required secret presence
+        id: preflight
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          required=('CLOUDFLARE_API_TOKEN','CLOUDFLARE_ACCOUNT_ID','ADMIN_API_KEY','RESEND_API_KEY')
+          missing=[name for name in required if not os.environ.get(name)]
+          safe={'required_present':not missing,'missing_required':missing}
+          Path('/tmp/resend-rotation-preflight.json').write_text(json.dumps(safe),encoding='utf-8')
+          print(safe)
+          if missing:
+              raise SystemExit(1)
+          PY
+
+      - name: Validate Resend authentication without sending email
+        id: resend_auth
+        if: steps.preflight.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          status="$(curl -sS --max-time 30 \
+            -o /tmp/resend-auth-body.json \
+            -w '%{http_code}' \
+            -X POST 'https://api.resend.com/emails' \
+            -H "Authorization: Bearer ${RESEND_API_KEY}" \
+            -H 'Content-Type: application/json' \
+            -H 'User-Agent: pterminology-resend-rotation/1.0' \
+            --data '{}')"
+          STATUS="$status" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          try:
+              payload=json.load(open('/tmp/resend-auth-body.json',encoding='utf-8'))
+          except Exception:
+              payload={}
+          status=int(os.environ.get('STATUS') or 0)
+          error_name=str(payload.get('name') or payload.get('error') or '')[:80] or None
+          # Empty payload cannot send. Accepted authentication proceeds to field validation
+          # and returns a non-auth status such as 400 or 422.
+          auth_accepted=status not in (0,401,403)
+          safe={
+              'http_status':status,
+              'auth_accepted':auth_accepted,
+              'error_name':error_name,
+              'probe_sent_email':False,
+          }
+          Path('/tmp/resend-rotation-auth.json').write_text(json.dumps(safe),encoding='utf-8')
+          print(safe)
+          if not auth_accepted:
+              raise SystemExit(1)
+          PY
+
+      - name: Install validated Resend secret in Worker
+        id: install
+        if: steps.resend_auth.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          payload={'name':'RESEND_API_KEY','text':os.environ['RESEND_API_KEY'],'type':'secret_text'}
+          path=Path('/tmp/resend-worker-secret.json')
+          path.write_text(json.dumps(payload),encoding='utf-8')
+          path.chmod(0o600)
+          PY
+          curl -fsS \
+            -X PUT \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/resend-worker-secret.json \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${IDENTITY_WORKER_NAME}/secrets" \
+            -o /tmp/resend-worker-secret-response.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.load(open('/tmp/resend-worker-secret-response.json',encoding='utf-8'))
+          result=data.get('result') or {}
+          safe={
+              'api_success':data.get('success') is True,
+              'binding_name':result.get('name'),
+              'binding_type':result.get('type'),
+          }
+          Path('/tmp/resend-rotation-install.json').write_text(json.dumps(safe),encoding='utf-8')
+          print(safe)
+          if not safe['api_success'] or safe['binding_name']!='RESEND_API_KEY':
+              raise SystemExit(1)
+          PY
+
+      - name: Verify protected production health
+        id: verify
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          passed=0
+          for attempt in $(seq 1 12); do
+            normal_status="$(curl -sS --max-time 30 -o /tmp/resend-normal-health.json -w '%{http_code}' "${ACCOUNT_API_BASE}/health" || printf '000')"
+            public_status="$(curl -sS --max-time 30 -o /tmp/resend-public-deep.json -w '%{http_code}' "${ACCOUNT_API_BASE}/health?deep=1" || printf '000')"
+            protected_status="$(curl -sS --max-time 30 -o /tmp/resend-protected-deep.json -w '%{http_code}' \
+              -H "x-bootstrap-key: ${ADMIN_API_KEY}" "${ACCOUNT_API_BASE}/health?deep=1" || printf '000')"
+            NORMAL_STATUS="$normal_status" PUBLIC_STATUS="$public_status" PROTECTED_STATUS="$protected_status" python - <<'PY' && { passed=1; break; } || true
+          import json,os
+          def load(path):
+              try:
+                  value=json.load(open(path,encoding='utf-8'))
+                  return value if isinstance(value,dict) else {}
+              except Exception:
+                  return {}
+          normal=load('/tmp/resend-normal-health.json')
+          deep=load('/tmp/resend-protected-deep.json')
+          provider=deep.get('emailProvider') or {}
+          safe={
+              'normal_http_status':int(os.environ.get('NORMAL_STATUS') or 0),
+              'normal_ok':normal.get('ok') is True,
+              'version':normal.get('version'),
+              'public_deep_http_status':int(os.environ.get('PUBLIC_STATUS') or 0),
+              'public_deep_blocked':os.environ.get('PUBLIC_STATUS')=='403',
+              'protected_deep_http_status':int(os.environ.get('PROTECTED_STATUS') or 0),
+              'email_configured':provider.get('configured'),
+              'email_auth_valid':provider.get('authValid'),
+              'email_access':provider.get('access'),
+              'email_code':provider.get('code'),
+          }
+          open('/tmp/resend-rotation-verify.json','w',encoding='utf-8').write(json.dumps(safe))
+          print(safe)
+          if not (safe['normal_http_status']==200 and safe['normal_ok'] and safe['public_deep_blocked'] and safe['protected_deep_http_status']==200 and safe['email_auth_valid'] is True):
+              raise SystemExit(1)
+          PY
+            sleep 10
+          done
+          test "$passed" -eq 1
+
+      - name: Publish safe Resend rotation report
+        if: always()
+        env:
+          PREFLIGHT_OUTCOME: ${{ steps.preflight.outcome }}
+          RESEND_AUTH_OUTCOME: ${{ steps.resend_auth.outcome }}
+          INSTALL_OUTCOME: ${{ steps.install.outcome }}
+          VERIFY_OUTCOME: ${{ steps.verify.outcome }}
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python - <<'PY'
+          import json,os
+          from datetime import datetime,timezone
+          from pathlib import Path
+          stages=[
+              ('preflight',os.environ.get('PREFLIGHT_OUTCOME')),
+              ('resend_auth',os.environ.get('RESEND_AUTH_OUTCOME')),
+              ('install',os.environ.get('INSTALL_OUTCOME')),
+              ('verify',os.environ.get('VERIFY_OUTCOME')),
+          ]
+          def load(name):
+              path=Path('/tmp')/name
+              try:
+                  value=json.loads(path.read_text(encoding='utf-8'))
+                  return value if isinstance(value,dict) else {}
+              except Exception:
+                  return {}
+          failure_stage=next((name for name,outcome in stages if outcome!='success'),None)
+          report={
+              'schema_version':1,
+              'checked_at':datetime.now(timezone.utc).isoformat(),
+              'source_sha':os.environ.get('GITHUB_SHA'),
+              'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),
+              'status':'passed' if failure_stage is None else 'failed',
+              'failure_stage':failure_stage,
+              'outcomes':dict(stages),
+              'preflight':load('resend-rotation-preflight.json'),
+              'resend_auth':load('resend-rotation-auth.json'),
+              'install':load('resend-rotation-install.json'),
+              'verify':load('resend-rotation-verify.json'),
+              'contains_secret_values':False,
+          }
+          Path('reports/specialist-resend-provider-rotation.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(report)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/specialist-resend-provider-rotation.json
+          git commit -m "chore: record specialist Resend rotation [skip ci]" || exit 0
+          for attempt in {1..5}; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            git rebase --abort || true
+            sleep $((attempt*3))
+          done
+          exit 1
+
+      - name: Remove ephemeral secret files
+        if: always()
+        run: rm -f /tmp/resend-worker-secret.json /tmp/resend-auth-body.json /tmp/resend-worker-secret-response.json
