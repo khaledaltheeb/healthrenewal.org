@@ -2,21 +2,21 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-31T14:05:39.510251+00:00",
+  "generated_at": "2026-07-31T22:05:20.401951+00:00",
   "mode": "write",
-  "root": "/home/runner/work/",
+  "root": "/home/runner/work/healthrenewal.org/healthrenewal.org",
   "runtime": {
-    "source": "/home/runner/work/",
-    "target": "/home/runner/work/",
+    "source": "/home/runner/work/healthrenewal.org/healthrenewal.org",
+    "target": "/home/runner/work/healthrenewal.org/healthrenewal.org",
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 221,
-  "html_pages_normalized_or_current": 220,
+  "html_pages_seen": 222,
+  "html_pages_normalized_or_current": 221,
   "counts": {
     "current": 219,
-    "updated": 1,
-    "skipped": 1
+    "skipped": 1,
+    "updated": 2
   },
   "results": [
     {
@@ -51,7 +51,7 @@
     },
     {
       "path": "evaluate-mental-health-information/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -686,7 +686,7 @@
     },
     {
       "path": "magazine/index.html",
-      "status": "current",
+      "status": "updated",
       "detail": ""
     },
     {
@@ -817,6 +817,11 @@
     {
       "path": "outside-the-box/evidence-standard/index.html",
       "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "outside-the-box/index.html",
+      "status": "updated",
       "detail": ""
     },
     {
