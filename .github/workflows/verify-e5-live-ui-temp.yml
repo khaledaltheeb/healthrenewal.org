@@ -1,0 +1,127 @@
+name: Verify live E5 interface and Worker
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/verify-e5-live-ui-temp.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    if: github.head_ref == 'agent/e5-live-ui-verify-v1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/e5-live-ui-verify-v1
+          fetch-depth: 0
+
+      - name: Compare live interface assets with main source
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import datetime
+          import hashlib
+          import json
+          import ssl
+          import urllib.request
+          from pathlib import Path
+
+          context = ssl.create_default_context()
+          stamp = datetime.datetime.now(datetime.timezone.utc).timestamp()
+          assets = [
+              ('index.html', Path('ai-search/index.html'), f'https://healthrenewal.org/ai-search/?verify={stamp}'),
+              ('app.js', Path('ai-search/assets/app.js'), f'https://healthrenewal.org/ai-search/assets/app.js?verify={stamp}'),
+              ('search-worker.js', Path('ai-search/assets/search-worker.js'), f'https://healthrenewal.org/ai-search/assets/search-worker.js?verify={stamp}'),
+          ]
+
+          report = {
+              'schemaVersion': 1,
+              'passed': False,
+              'verifiedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'site': 'https://healthrenewal.org/ai-search/',
+              'assets': [],
+              'contracts': {},
+          }
+
+          live_payloads: dict[str, bytes] = {}
+          for name, source_path, url in assets:
+              source = source_path.read_bytes()
+              request = urllib.request.Request(
+                  url,
+                  headers={
+                      'User-Agent': 'healthrenewal-e5-ui-verifier/1.0',
+                      'Cache-Control': 'no-cache',
+                      'Pragma': 'no-cache',
+                  },
+              )
+              with urllib.request.urlopen(request, timeout=45, context=context) as response:
+                  live = response.read()
+                  status = response.status
+                  content_type = response.headers.get('content-type')
+                  etag = response.headers.get('etag')
+                  last_modified = response.headers.get('last-modified')
+              source_sha = hashlib.sha256(source).hexdigest()
+              live_sha = hashlib.sha256(live).hexdigest()
+              exact = source == live
+              assert status == 200, (name, status)
+              assert exact, (name, source_sha, live_sha, len(source), len(live))
+              live_payloads[name] = live
+              report['assets'].append({
+                  'name': name,
+                  'url': url.split('?')[0],
+                  'status': status,
+                  'contentType': content_type,
+                  'etag': etag,
+                  'lastModified': last_modified,
+                  'sourceBytes': len(source),
+                  'liveBytes': len(live),
+                  'sourceSha256': source_sha,
+                  'liveSha256': live_sha,
+                  'exactByteMatch': exact,
+              })
+
+          page = live_payloads['index.html'].decode('utf-8')
+          app = live_payloads['app.js'].decode('utf-8')
+          worker = live_payloads['search-worker.js'].decode('utf-8')
+
+          contracts = {
+              'pageCanonical': '<link rel="canonical" href="https://healthrenewal.org/ai-search/">' in page,
+              'pageLoadsAppModule': '<script type="module" src="assets/app.js"></script>' in page,
+              'pageRetrievalOnlyNotice': 'لا تنشئ تشخيصًا أو إجابة طبية من خارج المحتوى' in page,
+              'pageModelLabel': 'multilingual-e5-small' in page,
+              'appCreatesWorker': "new Worker('assets/search-worker.js'" in app or 'new Worker("assets/search-worker.js"' in app,
+              'appUsesManifest': 'data/manifest.json' in app,
+              'workerPinnedModel': "Xenova/multilingual-e5-small" in worker,
+              'workerPinnedRevision': '761b726dd34fb83930e26aab4e9ac3899aa1fa78' in worker,
+              'workerLoadsJsonVectors': 'fetchShardVectorBuffer' in worker and 'embeddingsJsonSha256' in worker,
+              'workerDigestCacheBust': 'shardArtifactUrl' in worker and "searchParams.set('v'" in worker,
+              'workerHasBinaryFallback': 'shard.embeddings' in worker and 'embeddingSha256' in worker,
+              'workerNoInvalidExplicitWasmDevice': "device: 'wasm'" not in worker and 'device: "wasm"' not in worker,
+              'workerRetrievalOnly': 'local-rerank' in worker,
+          }
+          assert all(contracts.values()), {key: value for key, value in contracts.items() if not value}
+          report['contracts'] = contracts
+          report['passed'] = True
+
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/e5-live-ui-verification.json').write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(report, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Commit temporary verification report
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/e5-live-ui-verification.json
+          git commit -m 'verify: record live E5 interface parity'
+          git push origin HEAD:agent/e5-live-ui-verify-v1
