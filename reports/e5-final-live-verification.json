@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "passed": true,
+  "verifiedAt": "2026-07-31T21:16:06.245349+00:00",
+  "site": "https://healthrenewal.org/",
+  "sourceHead": "ba24eb8953fb3cb8c0efe3680b595489337cca9d",
+  "assets": [
+    {
+      "path": "ai-search/index.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "etag": "\"6a6d0700-241c\"",
+      "lastModified": "Fri, 31 Jul 2026 20:35:12 GMT",
+      "sourceBytes": 9244,
+      "liveBytes": 9244,
+      "sourceSha256": "123c2dd05d8493398e8458b1eae697306709822e9c7006cbeabd9f876da27d25",
+      "liveSha256": "123c2dd05d8493398e8458b1eae697306709822e9c7006cbeabd9f876da27d25",
+      "exactByteMatch": true
+    },
+    {
+      "path": "ai-search/assets/app.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "etag": "\"6a6d0700-1e69\"",
+      "lastModified": "Fri, 31 Jul 2026 20:35:12 GMT",
+      "sourceBytes": 7785,
+      "liveBytes": 7785,
+      "sourceSha256": "3f9d1ea2557276bba3810daf9a1075b6cff861b6d405a46b874feff6b6e5626a",
+      "liveSha256": "3f9d1ea2557276bba3810daf9a1075b6cff861b6d405a46b874feff6b6e5626a",
+      "exactByteMatch": true
+    },
+    {
+      "path": "ai-search/assets/search-worker.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "etag": "\"6a6d0700-5154\"",
+      "lastModified": "Fri, 31 Jul 2026 20:35:12 GMT",
+      "sourceBytes": 20820,
+      "liveBytes": 20820,
+      "sourceSha256": "c29c29c0f44b378dc3a7e02e2c3ee4351a84f361c28898ed466ba32b05b7e5c7",
+      "liveSha256": "c29c29c0f44b378dc3a7e02e2c3ee4351a84f361c28898ed466ba32b05b7e5c7",
+      "exactByteMatch": true
+    },
+    {
+      "path": "ai-search/data/manifest.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "etag": "\"6a6d0700-4f2\"",
+      "lastModified": "Fri, 31 Jul 2026 20:35:12 GMT",
+      "sourceBytes": 1266,
+      "liveBytes": 1266,
+      "sourceSha256": "d7236901c57eedc18abffee410b09323c6ba5e0b7acf20514e6c10f6f1711647",
+      "liveSha256": "d7236901c57eedc18abffee410b09323c6ba5e0b7acf20514e6c10f6f1711647",
+      "exactByteMatch": true
+    }
+  ],
+  "manifest": {
+    "version": 2,
+    "ready": true,
+    "generatedAt": "2026-07-31T19:39:49.138610+00:00",
+    "model": "intfloat/multilingual-e5-small",
+    "modelRevision": "fd1525a9fd15316a2d503bf26ab031a61d056e98",
+    "browserModel": "Xenova/multilingual-e5-small",
+    "browserModelRevision": "761b726dd34fb83930e26aab4e9ac3899aa1fa78",
+    "dimensions": 384,
+    "dtype": "float16",
+    "normalized": true,
+    "documentCount": 125,
+    "chunkCount": 1473,
+    "bytes": 1266,
+    "sha256": "d7236901c57eedc18abffee410b09323c6ba5e0b7acf20514e6c10f6f1711647"
+  },
+  "shards": [
+    {
+      "metadata": "shard-000.meta.json",
+      "metadataBytes": 2483749,
+      "metadataSha256": "ba324d5feb5a0cc2c03388f171a7841e37731b691c494fdbc20f731467a60afe",
+      "embeddingsJson": "shard-000.f16.json",
+      "embeddingsJsonBytes": 1508562,
+      "embeddingsJsonSha256": "82d2495c1c1de8e965592b5972bbcf6471261e70568869c48dafa11b57dd78bf",
+      "embeddingBytes": 1131264,
+      "embeddingSha256": "4f2083b3c245ef18a94e41b7893fd7d6dadc822e7ba7016f591bc7d7174d7f73",
+      "count": 1473
+    }
+  ],
+  "contracts": {
+    "pageCanonical": true,
+    "pageLoadsAppModule": true,
+    "retrievalOnlyNotice": true,
+    "appCreatesModuleWorker": true,
+    "appUsesManifest": true,
+    "workerPinnedModel": true,
+    "workerPinnedRevision": true,
+    "workerLoadsJsonVectors": true,
+    "workerDigestCacheBust": true,
+    "workerHasBinaryFallback": true,
+    "workerNoInvalidExplicitWasmDevice": true,
+    "robotsSitemapIndexOnly": true
+  },
+  "robots": {
+    "status": 200,
+    "contentType": "text/plain; charset=utf-8",
+    "etag": "\"6a6d0700-7c\"",
+    "lastModified": "Fri, 31 Jul 2026 20:35:12 GMT",
+    "bytes": 124,
+    "sha256": "f152e8af7ef1a73c3147459a5bf4cecec6a0a3436f4b0f9d8e538ae2b07bab94",
+    "sitemapLines": [
+      "Sitemap: https://healthrenewal.org/sitemap-index.xml"
+    ]
+  }
+}
