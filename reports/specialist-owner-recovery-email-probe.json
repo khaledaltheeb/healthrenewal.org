@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T16:09:16.234050+00:00",
+  "source_sha": "bc16dd34ba7ec0050f01d6791b046529e1f86e94",
+  "workflow_run_id": "30645930310",
+  "status": "failed",
+  "delivery": {
+    "http_status": 503,
+    "ok": false,
+    "delivery": null,
+    "request_id_present": false,
+    "provider_message_id_present": false,
+    "expires_at": null,
+    "error": "email_send_failed"
+  },
+  "password_changed": false,
+  "reset_token_recorded": false,
+  "contains_secret_values": false
+}
