@@ -1,0 +1,110 @@
+name: Run multilingual E5 production patch
+
+on:
+  push:
+    branches:
+      - agent/multilingual-e5-production-v3
+    paths:
+      - .github/workflows/e5-v3-runner-temp.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/e5-v3-runner-temp.yml
+      - .github/workflows/e5-v3-patch-temp.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: multilingual-e5-production-v3-runner
+  cancel-in-progress: false
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/multilingual-e5-production-v3
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Extract and execute deterministic patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import textwrap
+
+          source = Path('.github/workflows/e5-v3-patch-temp.yml').read_text(encoding='utf-8')
+          start_marker = "          python - <<'PY'\n"
+          end_marker = "\n          PY\n\n      - name: Validate patched contracts"
+          start = source.find(start_marker)
+          end = source.find(end_marker, start + len(start_marker))
+          if start < 0 or end < 0:
+              raise SystemExit('Unable to locate deterministic E5 patch block')
+          block = source[start + len(start_marker):end]
+          script = textwrap.dedent(block)
+          compile(script, '<e5-v3-patch>', 'exec')
+          Path('/tmp/e5-v3-patch.py').write_text(script, encoding='utf-8')
+          print(f'Extracted {len(script):,} bytes of deterministic patch code')
+          PY
+          python /tmp/e5-v3-patch.py
+
+      - name: Validate production contracts
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/build_semantic_search_index.py \
+            scripts/build_remote_semantic_search_index.py \
+            tests/test_ai_search_browser_index_v2.py \
+            tests/test_multilingual_e5_production_v3.py
+          node --check ai-search/assets/app.js
+          node --check ai-search/assets/search-core.js
+          node --check ai-search/assets/search-worker.js
+          python -m unittest -v \
+            tests.test_ai_search_browser_index_v2 \
+            tests.test_multilingual_e5_production_v3
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest=json.loads(Path('ai-search/data/manifest.json').read_text(encoding='utf-8'))
+          assert manifest['version']==2, manifest
+          assert manifest['dimensions']==384, manifest
+          assert manifest['corpusBaseUrl']=='https://healthrenewal.org/', manifest
+          assert manifest['normalized'] is True, manifest
+          assert manifest['modelRevision'], manifest
+          assert manifest['browserModelRevision'], manifest
+          print(manifest)
+          PY
+          git diff --check
+
+      - name: Commit production patch and retire runners
+        shell: bash
+        run: |
+          set -euxo pipefail
+          rm -f \
+            .github/workflows/e5-v3-patch-temp.yml \
+            .github/workflows/e5-v3-runner-temp.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'feat: productionize multilingual E5 search'
+          for attempt in {1..5}; do
+            git pull --rebase origin agent/multilingual-e5-production-v3 && \
+              git push origin HEAD:agent/multilingual-e5-production-v3 && exit 0
+            git rebase --abort || true
+            sleep $((attempt*3))
+          done
+          exit 1
