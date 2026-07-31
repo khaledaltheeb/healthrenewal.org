@@ -1,0 +1,53 @@
+name: Fix specialist production sender source
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/fix-specialist-production-sender-source.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fix-specialist-production-sender-source
+  cancel-in-progress: false
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Pin the verified public sender in production deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path=Path('.github/workflows/deploy-specialist-identity-v10-production.yml')
+          text=path.read_text(encoding='utf-8')
+          old='      FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}'
+          new='      FROM_EMAIL: "PTerminology <no-reply@healthrenewal.org>"'
+          if old not in text:
+              if new in text:
+                  print('Verified sender is already pinned.')
+                  raise SystemExit(0)
+              raise SystemExit('Expected FROM_EMAIL source line was not found')
+          text=text.replace(old,new,1)
+          path.write_text(text,encoding='utf-8')
+          print({'updated':True,'sender_domain':'healthrenewal.org','secret_values_written':False})
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/deploy-specialist-identity-v10-production.yml
+          git commit -m "fix: pin verified specialist production sender"
+          for attempt in {1..5}; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            git rebase --abort || true
+            sleep $((attempt*3))
+          done
+          exit 1
