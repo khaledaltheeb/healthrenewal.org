@@ -46,6 +46,11 @@ jobs:
       PREFERRED_D1_DATABASE_ID: ${{ secrets.SPECIALISTS_D1_DATABASE_ID }}
       ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
       FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}
+      PASSWORD_PEPPER: ${{ secrets.SPECIALISTS_PASSWORD_PEPPER }}
+      REVIEWER_API_KEY: ${{ secrets.SPECIALISTS_REVIEWER_API_KEY }}
+      MODERATOR_API_KEY: ${{ secrets.SPECIALISTS_MODERATOR_API_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -201,6 +206,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          echo "Deep health must not be public; all three contracts must pass in the same cycle."
           python scripts/verify_specialist_identity_v10_production.py
 
       - name: Record safe production report
