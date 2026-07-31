@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-07-31T07:06:01.286955+00:00",
+  "checked_at": "2026-07-31T07:31:12.884666+00:00",
   "no_email_sent": true,
   "no_reset_token_created": true,
   "token": {
@@ -43,13 +43,13 @@
   },
   "live": {
     "identity_health": {
-      "http_status": 200,
-      "content_type": "application/json; charset=utf-8",
-      "service": "pterminology-specialist-identity",
-      "version": "10.2.0",
-      "ok": true,
+      "http_status": 404,
+      "content_type": "",
+      "service": null,
+      "version": null,
+      "ok": null,
       "error": null,
-      "body_prefix": "{\"ok\":true,\"service\":\"pterminology-specialist-identity\",\"version\":\"10.2.0\",\"checks\":{\"database\":true,\"accountSchema\":true,\"identitySchema\":true,\"email\":true,\"turnstile\":true,\"rateLimitSalt\":true,\"accountBase\":true,\"admin"
+      "body_prefix": ""
     },
     "core_health": {
       "http_status": 200,
@@ -81,9 +81,9 @@
   },
   "deep_health": {
     "public": {
-      "http_status": 403,
-      "error": "forbidden",
-      "body_prefix": "{\"error\":\"forbidden\",\"message\":\"الفحص العميق مقيد بالتشغيل.\"}"
+      "http_status": 404,
+      "error": null,
+      "body_prefix": ""
     },
     "protected": {
       "http_status": null,
@@ -111,7 +111,7 @@
     "identity_workers_dev_enabled": true,
     "core_workers_dev_enabled": true,
     "owner_destination_verified": true,
-    "identity_health_public": true,
+    "identity_health_public": false,
     "core_health_public": true,
     "pages_ready": true,
     "cloudflare_email_can_replace_resend_now": false,
