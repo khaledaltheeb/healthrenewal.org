@@ -3,12 +3,14 @@
 # may access all public content. Operational source paths are excluded.
 User-agent: *
 Allow: /
-Disallow: /.git/
-Disallow: /.github/
-Disallow: /scripts/
-Disallow: /tests/
-Disallow: /node_modules/
-Disallow: /api/private/
+
+# GitHub Pages project-path exclusions. These match the deployed URL paths.
+Disallow: /pterminology-site/.git/
+Disallow: /pterminology-site/.github/
+Disallow: /pterminology-site/scripts/
+Disallow: /pterminology-site/tests/
+Disallow: /pterminology-site/node_modules/
+Disallow: /pterminology-site/api/private/
 Disallow: /pterminology-site/specialists-partners/admin/
 Disallow: /pterminology-site/specialists-partners/portal/
 Disallow: /pterminology-site/specialists-partners/account/
