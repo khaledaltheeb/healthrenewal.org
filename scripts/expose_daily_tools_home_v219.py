@@ -24,17 +24,6 @@ def add_once(text: str, marker: str, addition: str, identity: str) -> str:
     return text.replace(marker, marker + addition, 1)
 
 
-def patch_keywords(text: str) -> str:
-    match = re.search(r'(<meta name="keywords" content=")([^"]*)(">)', text)
-    if not match:
-        raise SystemExit("Homepage keyword metadata is missing")
-    values = [item.strip() for item in match.group(2).split(",") if item.strip()]
-    for value in ("أدوات نفسية تفاعلية", "أدوات تنظيم التوتر", "أدوات متابعة النوم", "مسارات تعلم الصحة النفسية"):
-        if value not in values:
-            values.append(value)
-    return text[: match.start(2)] + ",".join(values) + text[match.end(2) :]
-
-
 def patch_jsonld(text: str) -> str:
     match = re.search(r'(<script type="application/ld\+json">)(.*?)(</script>)', text, re.S)
     if not match:
@@ -87,7 +76,7 @@ def upsert_card(text: str, identity: str, card: str, marker: str) -> str:
 
 
 def patch_index() -> None:
-    text = patch_jsonld(patch_keywords(INDEX.read_text(encoding="utf-8")))
+    text = patch_jsonld(INDEX.read_text(encoding="utf-8"))
     nav_marker = '<a href="provider-assessment-demo/">منصة التقييم</a>'
     missing_nav = ""
     if 'href="daily-tools/"' not in text:
@@ -125,6 +114,8 @@ def patch_index() -> None:
         raise SystemExit(f"Homepage interactive-tools discovery contract failed: {errors}")
     if f"{TOOL_COUNT} أداة عربية عملية" not in text or f"{PATH_COUNT} مسارات مترابطة" not in text:
         raise SystemExit("Homepage tool counts are stale")
+    if re.search(r'<meta\s+[^>]*name=["\']keywords["\'][^>]*>', text, re.IGNORECASE):
+        raise SystemExit("Homepage must not restore obsolete meta keywords")
     INDEX.write_text(text, encoding="utf-8")
 
 
@@ -204,7 +195,7 @@ def patch_verifier() -> None:
 def main() -> None:
     patch_index()
     patch_verifier()
-    print(json.dumps({"status": "passed", "release": RELEASE, "homepage_source_linked": True, "daily_tools": TOOL_COUNT, "categories": CATEGORY_COUNT, "learning_paths": PATH_COUNT, "duplicate_free": True}, ensure_ascii=False))
+    print(json.dumps({"status": "passed", "release": RELEASE, "homepage_source_linked": True, "daily_tools": TOOL_COUNT, "categories": CATEGORY_COUNT, "learning_paths": PATH_COUNT, "duplicate_free": True, "meta_keywords_absent": True}, ensure_ascii=False))
 
 
 if __name__ == "__main__":
