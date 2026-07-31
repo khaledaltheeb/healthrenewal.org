@@ -6,12 +6,6 @@ on:
       - agent/multilingual-e5-production-v3
     paths:
       - .github/workflows/e5-v3-runner-temp.yml
-  pull_request:
-    branches:
-      - main
-    paths:
-      - .github/workflows/e5-v3-runner-temp.yml
-      - .github/workflows/e5-v3-patch-temp.yml
 
 permissions:
   contents: write
@@ -103,16 +97,34 @@ jobs:
           PY
           git diff --check
 
-      - name: Commit production patch and retire runners
+      - name: Commit production files and stage workflow content
         shell: bash
         run: |
           set -euxo pipefail
-          rm -f \
-            .github/workflows/e5-v3-patch-temp.yml \
-            .github/workflows/e5-v3-runner-temp.yml
+          mkdir -p reports
+          cp .github/workflows/semantic-search-index.yml reports/semantic-search-index-v3-workflow.yml
+          git checkout HEAD -- .github/workflows/semantic-search-index.yml
+          find scripts tests -type d -name __pycache__ -prune -exec rm -rf {} +
+          find scripts tests -type f -name '*.pyc' -delete
+
+          if ! git diff --quiet -- .github/workflows; then
+            echo '::error::Workflow paths must not be changed by the GitHub App commit.'
+            git diff -- .github/workflows
+            exit 1
+          fi
+
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
+          git add \
+            ai-search/assets/search-worker.js \
+            ai-search/data/manifest.json \
+            ai-search/index.html \
+            scripts/build_remote_semantic_search_index.py \
+            scripts/build_semantic_search_index.py \
+            tests/test_ai_search_browser_index_v2.py \
+            tests/test_multilingual_e5_production_v3.py \
+            reports/semantic-search-index-v3-workflow.yml
+          git diff --cached --check
           git commit -m 'feat: productionize multilingual E5 search'
           for attempt in {1..5}; do
             git pull --rebase origin agent/multilingual-e5-production-v3 && \
