@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "checked_at": "2026-07-31T17:20:51.483415+00:00",
+  "workflow_run_id": "30650746415",
+  "status": "passed",
+  "selected_domain": "healthrenewal.org",
+  "attempts": [
+    {
+      "domain": "healthrenewal.org",
+      "http_status": 200,
+      "accepted": true,
+      "error_name": null,
+      "error_message": null
+    }
+  ],
+  "test_message_accepted": true,
+  "provider_id_present": true,
+  "worker_ok": true,
+  "worker_version": "10.3.0",
+  "email_auth_valid": true,
+  "sender_ready": true,
+  "sender_code": "sender_domain_candidate",
+  "password_recovery_email_ready": true,
+  "contains_secret_values": false
+}
