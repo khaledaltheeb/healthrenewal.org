@@ -8,10 +8,13 @@ on:
       - robots.txt
       - api/sitemap-index-v305.json
       - api/sitemap-completeness-v360.json
+  issues:
+    types: [opened]
   workflow_dispatch:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: publish-complete-sitemap-v360
@@ -19,6 +22,7 @@ concurrency:
 
 jobs:
   publish:
+    if: github.event_name != 'issues' || github.event.issue.title == '[release] synchronize sitemap v360'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -179,8 +183,41 @@ jobs:
             api/sitemap-index-v305.json api/sitemap-completeness-v360.json
           if git diff --cached --quiet; then
             echo 'Sitemap and robots are already synchronized.'
-            exit 0
+          else
+            git commit -m 'chore(seo): synchronize complete sitemap and robots'
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi
-          git commit -m 'chore(seo): synchronize complete sitemap and robots'
-          git pull --rebase origin main
-          git push origin HEAD:main
+
+      - name: Report explicit release result
+        if: always() && github.event_name == 'issues'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          python - <<'PY' > /tmp/sitemap-result.json
+          import json
+          from pathlib import Path
+          report_path = Path('api/sitemap-completeness-v360.json')
+          if report_path.is_file():
+              report = json.loads(report_path.read_text(encoding='utf-8'))
+              body = (
+                  '## Sitemap synchronization result\n\n'
+                  f"- Status: `{report['status']}`\n"
+                  f"- Real indexable URLs: **{report['real_indexable_urls']}**\n"
+                  f"- HTML target 3,600 reached: **{report['target_reached']}**\n"
+                  f"- Gap to 3,600: **{report['gap_to_claimed_target']}**\n"
+                  f"- Excluded noindex pages: **{report['skipped_noindex']}**\n"
+                  '- Crawling policy: **allow all public paths**\n'
+                  '- Domain: **https://healthrenewal.org/**\n'
+              )
+          else:
+              body = '## Sitemap synchronization result\n\nGeneration failed before the report was produced.'
+          print(json.dumps({'body': body}))
+          PY
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
+            --data-binary @/tmp/sitemap-result.json
