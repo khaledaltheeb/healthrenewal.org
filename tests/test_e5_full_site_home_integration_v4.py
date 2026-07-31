@@ -26,13 +26,40 @@ class FullSiteE5HomeIntegrationTests(unittest.TestCase):
         self.assertIn("seen_page_hashes: set[tuple[str, str]]", builder)
         self.assertIn("dedupe_key = (url, content_hash)", builder)
 
+    def test_dynamic_family_and_provider_condition_content_is_extracted(self) -> None:
+        builder = (ROOT / "scripts/build_semantic_search_index.py").read_text(encoding="utf-8")
+        remote = (ROOT / "scripts/build_remote_semantic_search_index.py").read_text(encoding="utf-8")
+        family_html = (ROOT / "family-guide/conditions/adhd/index.html").read_text(encoding="utf-8")
+        family_data = (ROOT / "family-guide/conditions/adhd/data.js").read_text(encoding="utf-8")
+        provider_html = (ROOT / "provider-assessment-demo/conditions/adhd/index.html").read_text(encoding="utf-8")
+        provider_data = (ROOT / "provider-assessment-demo/conditions/conditions-data-v1.js").read_text(encoding="utf-8")
+
+        self.assertIn("family_payload_blocks", builder)
+        self.assertIn("provider_payload_blocks", builder)
+        self.assertIn("sidecar_data_blocks", builder)
+        self.assertIn("structured_data_blocks", builder)
+        self.assertIn("meta_description_blocks", builder)
+        self.assertIn('basename == "data.js"', remote)
+        self.assertIn('basename.startswith("conditions-data")', remote)
+        self.assertIn("discover_index_data_assets", remote)
+
+        self.assertIn('src="data.js', family_html)
+        self.assertIn("برنامج تدريب والدين", family_data)
+        self.assertIn("ما يجب تجنبه", builder)
+        self.assertIn("conditions-data-v1.js", provider_html)
+        self.assertIn("Conners 4", provider_data)
+        self.assertIn("اختبار الأداء المستمر لا يشخّص منفردًا", provider_data)
+
     def test_remote_builder_writes_a_fail_closed_coverage_report(self) -> None:
         remote = (ROOT / "scripts/build_remote_semantic_search_index.py").read_text(encoding="utf-8")
         self.assertIn("--minimum-indexed-ratio", remote)
         self.assertIn('output / "coverage.json"', remote)
         self.assertIn('"indexCoverageRatio"', remote)
+        self.assertIn('"dataAssetCount"', remote)
+        self.assertIn('"failedDataAssetCount"', remote)
         self.assertIn('if not coverage["passed"]', remote)
         self.assertIn("indexed_source_paths", remote)
+        self.assertIn("and not data_asset_failures", remote)
 
     def test_workflow_requires_complete_nonstarving_production_coverage(self) -> None:
         workflow = (ROOT / ".github/workflows/semantic-search-index.yml").read_text(encoding="utf-8")
@@ -43,6 +70,8 @@ class FullSiteE5HomeIntegrationTests(unittest.TestCase):
         self.assertIn("--minimum-success-ratio 1.0", workflow)
         self.assertIn("--minimum-indexed-ratio 1.0", workflow)
         self.assertIn("coverage['passed'] is True", workflow)
+        self.assertIn("coverage['failedDataAssetCount'] == 0", workflow)
+        self.assertIn("coverage['dataAssetCount'] == coverage['downloadedDataAssetCount']", workflow)
 
 
 if __name__ == "__main__":
