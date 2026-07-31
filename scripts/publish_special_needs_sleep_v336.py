@@ -13,7 +13,7 @@ import publish_special_needs_guides_v209_compat as compat
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "content" / "v336" / "special-needs-guides" / "developmental-disabilities-sleep-support-plan.json"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 VERSION = 336
 START = "<!-- special-needs-guides-v336:start -->"
 END = "<!-- special-needs-guides-v336:end -->"
@@ -89,7 +89,12 @@ def render(data: dict[str, Any]) -> str:
         }
         for source in data["sources"]
     ]
-    return shared.render_guide(guide, citations)
+    old_base = shared.BASE
+    shared.BASE = BASE
+    try:
+        return shared.render_guide(guide, citations)
+    finally:
+        shared.BASE = old_base
 
 
 def link_hub(site: Path, data: dict[str, Any]) -> None:
