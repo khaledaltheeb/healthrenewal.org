@@ -171,31 +171,34 @@ class SpecialistIdentityV6Tests(unittest.TestCase):
         self.assertIn("conversations", admin)
         self.assertIn("profile-drafts", admin)
 
-    def test_runtime_and_deployment_verify_cloudflare_without_committed_token(self) -> None:
+    def test_runtime_and_production_deployment_use_v10_without_committed_secrets(self) -> None:
         runtime = read("specialists-partners/assets/runtime-config.js")
-        workflow = read(".github/workflows/deploy-specialists-account-backend.yml")
+        production = read(".github/workflows/deploy-specialist-identity-v10.yml")
+        legacy = read(".github/workflows/deploy-specialists-account-backend.yml")
         self.assertIn("accountApiBase", runtime)
-        self.assertIn("secrets.CLOUDFLARE_API_TOKEN", workflow)
-        self.assertIn("/tokens/verify", workflow)
-        self.assertIn("/workers/scripts", workflow)
-        self.assertIn("/d1/database", workflow)
-        self.assertIn("/challenges/widgets", workflow)
-        self.assertIn("Discover or create D1 and Turnstile resources", workflow)
-        self.assertIn("rotate_secret", workflow)
-        self.assertIn("database_created", workflow)
-        self.assertIn("wrangler@4 d1 migrations apply", workflow)
-        self.assertIn("wrangler@4 deploy", workflow)
-        self.assertIn("/v1/internal/bootstrap-owner", workflow)
-        self.assertIn("/v1/applications", workflow)
-        self.assertIn("REVIEWER_API_KEY", workflow)
-        self.assertIn("MODERATOR_API_KEY", workflow)
-        self.assertNotRegex(workflow, r"CLOUDFLARE_API_TOKEN:\s*[A-Za-z0-9_-]{30,}")
+        self.assertIn('identityVersion: "10.1.0"', runtime)
+        self.assertIn("secrets.CLOUDFLARE_API_TOKEN", production)
+        self.assertIn("/tokens/verify", production)
+        self.assertIn("/d1/database", production)
+        self.assertIn("wrangler@4 d1 migrations apply", production)
+        self.assertIn("wrangler@4 deploy", production)
+        self.assertIn('main = "src/index-v10-final.js"', production)
+        self.assertIn("health?deep=1", production)
+        self.assertIn("specialist-identity-v10-production.json", production)
+        self.assertNotIn("wrangler@4 deploy", legacy)
+        self.assertIn("validation-only", legacy)
+        self.assertNotRegex(production, r"CLOUDFLARE_API_TOKEN:\s*[A-Za-z0-9_-]{30,}")
 
     def test_javascript_is_syntactically_valid(self) -> None:
         files = (
             "specialists-partners/account-backend/src/index.js",
+            "specialists-partners/account-backend/src/index-v8.js",
+            "specialists-partners/account-backend/src/index-v10.js",
+            "specialists-partners/account-backend/src/index-v10-final.js",
             "specialists-partners/account/account.js",
             "specialists-partners/admin/admin.js",
+            "specialists-partners/admin/admin-recovery-v10-final.js",
+            "specialists-partners/password-reset/reset-v10.js",
         )
         for relative in files:
             result = subprocess.run(
