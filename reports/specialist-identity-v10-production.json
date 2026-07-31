@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-07-31T16:28:09.809445+00:00",
-  "workflow_run_id": "30647168789",
+  "checked_at": "2026-07-31T16:57:21.600544+00:00",
+  "workflow_run_id": "30649186137",
   "worker": {
     "http_status": 200,
     "ok": true,
@@ -41,12 +41,17 @@
     "configured": true,
     "auth_valid": true,
     "access": "sending_only",
-    "code": "ready_sending_only"
+    "code": "ready_sending_only",
+    "sender_ready": false,
+    "sender_code": "sender_domain_not_verified",
+    "sender_domain": "gmail.com"
   },
   "deep_health_public": false,
   "stable_contract_cycles": 3,
   "required_secret_names_verified": true,
   "deployment_replaced_secrets": false,
   "manual_recovery_available": true,
-  "fully_operational": true
+  "password_recovery_email_ready": false,
+  "operational_mode": "manual_recovery",
+  "fully_operational": false
 }
