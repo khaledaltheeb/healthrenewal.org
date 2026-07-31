@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "passed": true,
-  "verifiedAt": "2026-07-31T22:05:32.624577+00:00",
+  "verifiedAt": "2026-07-31T22:11:13.553872+00:00",
   "site": "https://healthrenewal.org/",
-  "workflowRunId": "30668750599",
-  "workflowRunUrl": "https://github.com/khaledaltheeb/healthrenewal.org/actions/runs/30668750599",
-  "sourceCommit": "cb4b5094843271fcd5c54bd34b2576ba8e3f7a57",
-  "generatedAt": "2026-07-31T19:39:49.138610+00:00",
+  "workflowRunId": "30669077383",
+  "workflowRunUrl": "https://github.com/khaledaltheeb/healthrenewal.org/actions/runs/30669077383",
+  "sourceCommit": "fa3a462976078b6c0fe0a49b79f7cbb3bbc865bd",
+  "generatedAt": "2026-07-31T22:10:07.748750+00:00",
   "model": "intfloat/multilingual-e5-small",
   "modelRevision": "fd1525a9fd15316a2d503bf26ab031a61d056e98",
   "browserModel": "Xenova/multilingual-e5-small",
@@ -15,21 +15,32 @@
   "dtype": "float16",
   "normalized": true,
   "documentCount": 125,
-  "chunkCount": 1473,
-  "manifestBytes": 1266,
-  "manifestSha256": "d7236901c57eedc18abffee410b09323c6ba5e0b7acf20514e6c10f6f1711647",
+  "chunkCount": 1552,
+  "manifestBytes": 1735,
+  "manifestSha256": "b1c04681bdfdf4189a39c1be83d274afaf5e4d7de993054d098c64655ec38832",
   "robotsSitemapIndexOnly": true,
   "shards": [
     {
       "metadata": "shard-000.meta.json",
-      "metadataBytes": 2483749,
-      "metadataSha256": "ba324d5feb5a0cc2c03388f171a7841e37731b691c494fdbc20f731467a60afe",
+      "metadataBytes": 2525129,
+      "metadataSha256": "0b1d1786ee9e4bdf1af595202f70cc75a52f65b3be2f1734f5a21a5d716732e2",
       "embeddingsJson": "shard-000.f16.json",
-      "embeddingsJsonBytes": 1508562,
-      "embeddingsJsonSha256": "82d2495c1c1de8e965592b5972bbcf6471261e70568869c48dafa11b57dd78bf",
-      "embeddingBytes": 1131264,
-      "embeddingSha256": "4f2083b3c245ef18a94e41b7893fd7d6dadc822e7ba7016f591bc7d7174d7f73",
-      "count": 1473
+      "embeddingsJsonBytes": 1536210,
+      "embeddingsJsonSha256": "b75c0d02ff5be95df78f0137dac436a6fa27e256d6c5aaf8b80ee884d705b42d",
+      "embeddingBytes": 1152000,
+      "embeddingSha256": "db00684f25e377e70d2cd53c7f3730dccc1f6c79e9473d74d3ea635e822ad0ce",
+      "count": 1500
+    },
+    {
+      "metadata": "shard-001.meta.json",
+      "metadataBytes": 94167,
+      "metadataSha256": "4e522e98bb8d889cb6e8f877bd35ee29601bdad1517318b5470b3a94dc7e3fc1",
+      "embeddingsJson": "shard-001.f16.json",
+      "embeddingsJsonBytes": 53454,
+      "embeddingsJsonSha256": "045014c41619b001e6c6d5836239d73531ab6eceab5c0cedcfa64afd2bb8a2d7",
+      "embeddingBytes": 39936,
+      "embeddingSha256": "a675bbf158cccfc275e791b06f0eebda17125a21cc0d801cf48541e3c4cd5b64",
+      "count": 52
     }
   ]
 }
