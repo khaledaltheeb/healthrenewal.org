@@ -42,8 +42,10 @@ def validate_root(root: Path) -> dict[str, Any]:
         "join": root / "specialists-partners" / "join.html",
         "verification": root / "specialists-partners" / "verification.html",
         "runtime": root / "specialists-partners" / "assets" / "sector.js",
+        "directory_core": root / "specialists-partners" / "assets" / "directory-core.js",
         "providers": root / "specialists-partners" / "data" / "providers.json",
         "schema": root / "specialists-partners" / "data" / "provider.schema.json",
+        "quality": root / "api" / "specialists-partners-quality-v354.json",
         "api": root / "api" / "v1" / "specialists-partners.json",
         "platform": root / "api" / "v1" / "platform.json",
         "sitemap": root / "sitemap-specialists-partners.xml",
@@ -59,6 +61,7 @@ def validate_root(root: Path) -> dict[str, Any]:
     join = read_text(paths["join"])
     verification = read_text(paths["verification"])
     runtime = read_text(paths["runtime"])
+    directory_core = read_text(paths["directory_core"])
     robots = read_text(paths["robots"])
     shell = read_text(paths["shell"])
 
@@ -73,6 +76,10 @@ def validate_root(root: Path) -> dict[str, Any]:
         ('rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/specialists-partners/"', "canonical"),
         ('id="directory"', "directory landmark"),
         ('id="matcher"', "matching journey"),
+        ('id="directory-health"', "live registry status"),
+        ("لا توجد ملفات مهنية منشورة حاليًا", "truthful empty state"),
+        ("ستة أسئلة قبل حجز الخدمة", "before-booking quality guidance"),
+        ("assets/directory-core.js?v=4.1.0", "directory core asset"),
     ):
         require(main, phrase, label)
 
@@ -88,13 +95,20 @@ def validate_root(root: Path) -> dict[str, Any]:
     for marker in (
         "/v1/providers?limit=250",
         "data/providers.json",
-        "p.publicationStatus==='published'",
-        "p.verification?.status==='verified'",
-        "p.consent?.publicProfileApproved===true",
+        "core.prepareProviders",
         "['https:','mailto:','tel:']",
         "protocol === 'https:'",
     ):
         require(runtime, marker, "runtime publication guard")
+    for marker in (
+        "provider?.publicationStatus === 'published'",
+        "provider?.verification?.status === 'verified'",
+        "provider?.consent?.publicProfileApproved === true",
+        "normalizeArabic",
+        "ageMatches",
+        "specialtyAny",
+    ):
+        require(directory_core, marker, "directory-core publication and matching guard")
 
     providers = read_json(paths["providers"])
     require(str(providers.get("publicationPolicy", "")), "written publication consent", "publication policy")
@@ -135,13 +149,32 @@ def validate_root(root: Path) -> dict[str, Any]:
     if api.get("status") != "active":
         raise AssertionError(f"Specialists API is not active: {api.get('status')}")
     require(json.dumps(api, ensure_ascii=False), "/specialists-partners/data/providers.json", "directory endpoint")
+    require(
+        json.dumps(api, ensure_ascii=False),
+        "/api/specialists-partners-quality-v354.json",
+        "quality report endpoint",
+    )
+
+    quality = read_json(paths["quality"])
+    if (
+        quality.get("version") != 354
+        or quality.get("status") != "passed"
+        or quality.get("interfaceCount") != 9
+        or quality.get("errorCount") != 0
+        or quality.get("unsafePublishedProviderIds") != []
+    ):
+        raise AssertionError(f"Invalid specialists quality report: {quality}")
 
     platform = read_json(paths["platform"])
     resource_ids = {item.get("id") for item in platform.get("resources", []) if isinstance(item, dict)}
     if "specialists-partners" not in resource_ids:
         raise AssertionError("Platform API does not register specialists-partners")
     endpoints = platform.get("endpoints", {})
-    if "specialistsPartners" not in endpoints or "specialistsPartnersDirectory" not in endpoints:
+    if (
+        "specialistsPartners" not in endpoints
+        or "specialistsPartnersDirectory" not in endpoints
+        or "specialistsPartnersQuality" not in endpoints
+    ):
         raise AssertionError("Platform API is missing specialists-partners endpoints")
 
     locations = [
@@ -169,13 +202,15 @@ def validate_root(root: Path) -> dict[str, Any]:
 
     return {
         "status": "passed",
-        "contract": "specialists-partners-production-v4",
+        "contract": "specialists-partners-production-v354",
         "provider_count": len(records),
         "sitemap_routes": len(locations),
         "global_navigation": True,
         "publication_guard": True,
         "written_consent_required": True,
         "live_registry_with_static_fallback": True,
+        "quality_report_version": quality["version"],
+        "interface_count": quality["interfaceCount"],
     }
 
 
@@ -261,9 +296,11 @@ def validate_live(
         "specialists-partners/join.html": "specialists-partners/join.html",
         "specialists-partners/verification.html": "specialists-partners/verification.html",
         "specialists-partners/assets/sector.js": "specialists-partners/assets/sector.js",
+        "specialists-partners/assets/directory-core.js": "specialists-partners/assets/directory-core.js",
         "specialists-partners/data/providers.json": "specialists-partners/data/providers.json",
         "specialists-partners/data/provider.schema.json": "specialists-partners/data/provider.schema.json",
         "api/v1/specialists-partners.json": "api/v1/specialists-partners.json",
+        "api/specialists-partners-quality-v354.json": "api/specialists-partners-quality-v354.json",
         "api/v1/platform.json": "api/v1/platform.json",
         "sitemap-specialists-partners.xml": "sitemap-specialists-partners.xml",
         "robots.txt": "robots.txt",
