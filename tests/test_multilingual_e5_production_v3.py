@@ -46,6 +46,16 @@ class MultilingualE5ProductionV3Tests(unittest.TestCase):
         self.assertIn("sentence-transformers==5.6.1", requirements)
         self.assertIn("transformers==5.14.1", requirements)
 
+    def test_browser_model_is_executed_in_smoke_gate(self) -> None:
+        workflow = (ROOT / ".github/workflows/semantic-search-index.yml").read_text(encoding="utf-8")
+        self.assertIn("@huggingface/transformers@4.2.0", workflow)
+        self.assertIn("Xenova/multilingual-e5-small", workflow)
+        self.assertIn("761b726dd34fb83930e26aab4e9ac3899aa1fa78", workflow)
+        self.assertIn("device: 'wasm'", workflow)
+        self.assertIn("dtype: 'q8'", workflow)
+        self.assertIn("row.length !== 384", workflow)
+        self.assertIn("relevant > unrelated", workflow)
+
     def test_generated_results_are_unique_per_page(self) -> None:
         worker = (ROOT / "ai-search/assets/search-worker.js").read_text(encoding="utf-8")
         self.assertIn("function dedupeRankedByUrl", worker)
