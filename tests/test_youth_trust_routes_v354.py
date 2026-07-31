@@ -22,14 +22,13 @@ class YouthTrustRoutesV354Tests(unittest.TestCase):
         shutil.copy2(ROOT / "robots.txt", site / "robots.txt")
         return site
 
-    def test_routes_point_to_published_trust_page(self) -> None:
-        self.assertEqual(module.TRUST_ROUTES["methodology"], f"{module.BASE_PATH}/trust/")
-        self.assertEqual(
-            module.TRUST_ROUTES["information_evaluation"],
-            f"{module.BASE_PATH}/trust/#evidence",
-        )
+    def test_routes_point_to_stable_published_trust_page(self) -> None:
+        expected = f"{module.BASE_PATH}/trust/"
+        self.assertEqual(module.TRUST_ROUTES["methodology"], expected)
+        self.assertEqual(module.TRUST_ROUTES["information_evaluation"], expected)
+        self.assertNotIn("#", module.TRUST_ROUTES["information_evaluation"])
         trust = (ROOT / "trust/index.html").read_text(encoding="utf-8")
-        self.assertIn('id="evidence"', trust)
+        self.assertIn('rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/trust/"', trust)
 
     def test_generated_youth_pages_use_unified_trust_routes(self) -> None:
         site = self.new_site("youth-trust-v354-")
@@ -41,8 +40,8 @@ class YouthTrustRoutesV354Tests(unittest.TestCase):
         combined = "\n".join(path.read_text(encoding="utf-8") for path in pages)
         self.assertNotIn("/editorial-methodology/", combined)
         self.assertNotIn("/evaluate-mental-health-information/", combined)
+        self.assertNotIn("/trust/#evidence", combined)
         self.assertIn(module.TRUST_ROUTES["methodology"], combined)
-        self.assertIn(module.TRUST_ROUTES["information_evaluation"], combined)
 
     def test_production_output_contains_compatibility_aliases(self) -> None:
         site = self.new_site("youth-aliases-v354-")
@@ -57,6 +56,7 @@ class YouthTrustRoutesV354Tests(unittest.TestCase):
             source = path.read_text(encoding="utf-8")
             self.assertIn('content="0;url=', source)
             self.assertIn(target, source)
+            self.assertNotIn("#evidence", source)
             self.assertIn('name="robots" content="noindex,follow"', source)
             self.assertEqual(source.count("<h1"), 1)
 
