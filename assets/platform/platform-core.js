@@ -10,7 +10,7 @@
   if (!doc.documentElement.lang) doc.documentElement.lang = 'ar';
   if (!doc.documentElement.dir) doc.documentElement.dir = 'rtl';
 
-  const projectSegment = '/pterminology-site/';
+  const projectSegment = '/';
   const base = location.pathname.includes(projectSegment) ? projectSegment : '/';
   const url = (path = '') => `${base}${String(path).replace(/^\/+/, '')}`;
   const currentPath = location.pathname.replace(/index\.html$/, '');

@@ -1,6 +1,6 @@
 /* v12 direct multi-stage assessment engine */
 (()=>{'use strict';
-const BASE='/pterminology-site/';const q=(s,r=document)=>r.querySelector(s);const qa=(s,r=document)=>[...r.querySelectorAll(s)];
+const BASE='/';const q=(s,r=document)=>r.querySelector(s);const qa=(s,r=document)=>[...r.querySelectorAll(s)];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));const now=()=>performance.now();const storageKey=d=>`pterminology:v12:${d.slug}`;
 const readDef=()=>{const n=q('#lab-definition');if(!n)return null;try{return JSON.parse(n.textContent)}catch(e){console.error(e);return null}};
 function pastelize(root=document){const scope=root instanceof Element?[root,...qa('main,section,article,aside,header,footer,nav,div',root)]:qa('body,main,section,article,aside,header,footer,nav,div',root);scope.forEach(el=>{if(el.dataset.m12Checked==='1')return;el.dataset.m12Checked='1';const s=getComputedStyle(el),m=s.backgroundColor.match(/rgba?\((\d+)[, ]+(\d+)[, ]+(\d+)/);if(!m)return;const [r,g,b]=m.slice(1).map(Number),lum=.2126*r+.7152*g+.0722*b;if(lum<75&&!el.classList.contains('m12-dark-replaced'))el.classList.add('m12-dark-replaced')});document.documentElement.dataset.marshmallow='v12'}

@@ -112,10 +112,10 @@
     "أعرف خدمات الطوارئ المحلية ولا أعتمد على الموعد العادي في الخطر الفوري."
   ],
   "internal_links": [
-    {"label": "أدلة التعامل", "href": "/pterminology-site/care-guides/"},
-    {"label": "الموسوعة النفسية", "href": "/pterminology-site/encyclopedia/"},
-    {"label": "المقاييس النفسية", "href": "/pterminology-site/assessments/"},
-    {"label": "منهج الثقة والمراجعة", "href": "/pterminology-site/trust/"}
+    {"label": "أدلة التعامل", "href": "/care-guides/"},
+    {"label": "الموسوعة النفسية", "href": "/encyclopedia/"},
+    {"label": "المقاييس النفسية", "href": "/assessments/"},
+    {"label": "منهج الثقة والمراجعة", "href": "/trust/"}
   ],
   "sources": [
     {

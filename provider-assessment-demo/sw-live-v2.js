@@ -2,7 +2,7 @@
 
 const RELEASE = "2026.07.24-live.7";
 const CACHE = `provider-assessment-${RELEASE}`;
-const SCOPE_PATH = "/pterminology-site/provider-assessment-demo/";
+const SCOPE_PATH = "/provider-assessment-demo/";
 
 self.addEventListener("install", () => self.skipWaiting());
 

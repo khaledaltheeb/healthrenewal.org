@@ -228,7 +228,7 @@ async function createConversation(request, env, ctx, cors) {
   ]);
   await audit(env, 'conversation_created', id, {referenceId, providerId, topic, urgency});
 
-  const portalBase = String(env.PORTAL_BASE_URL || 'https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/');
+  const portalBase = String(env.PORTAL_BASE_URL || 'https://healthrenewal.org/specialists-partners/portal/');
   const specialistLink = `${portalBase}?conversation=${encodeURIComponent(id)}&token=${encodeURIComponent(specialistAccess)}&role=specialist`;
   const visitorLink = `${portalBase}?conversation=${encodeURIComponent(id)}&token=${encodeURIComponent(visitorAccess)}&role=visitor`;
 
@@ -281,7 +281,7 @@ async function createMessage(request, env, ctx, cors, conversationId) {
   ]);
   await audit(env, 'message_created', conversationId, {senderRole:role});
 
-  const portalBase = String(env.PORTAL_BASE_URL || 'https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/');
+  const portalBase = String(env.PORTAL_BASE_URL || 'https://healthrenewal.org/specialists-partners/portal/');
   if (role === 'visitor') {
     const specialistToken = token();
     const specialistHash = await sha256(specialistToken);

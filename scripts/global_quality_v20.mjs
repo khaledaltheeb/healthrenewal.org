@@ -9,7 +9,7 @@ import {
   normalizeOddSampleCount
 } from './lighthouse_statistics_v201.mjs';
 
-const base = process.env.AUDIT_BASE_URL || 'http://127.0.0.1:8000/pterminology-site/';
+const base = process.env.AUDIT_BASE_URL || 'http://127.0.0.1:8000/';
 const outDir = process.env.AUDIT_OUT_DIR || '_site/api';
 const reportPath = path.join(outDir, 'global-quality-v20.json');
 fs.mkdirSync(outDir, { recursive: true });

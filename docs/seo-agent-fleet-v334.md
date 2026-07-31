@@ -21,7 +21,7 @@
 - السياسة الحالية تسمح أيضًا لروبوتات تدريب/تحسين النماذج، تنفيذًا لقرار مالك المشروع. يمكن فصل هذا القرار لاحقًا عبر الخيار `--disallow-training` من دون حجب Googlebot أو OAI-SearchBot أو PerplexityBot أو Applebot.
 - `llms.txt` مساعد اكتشاف تكميلي، وليس بديلًا من robots.txt أو خرائط الموقع أو الروابط الداخلية أو النص القابل للفهرسة.
 - السماح بالزحف لا يضمن الفهرسة أو الترتيب أو الاستشهاد داخل إجابة ذكاء اصطناعي.
-- لأن الموقع الحالي منشور تحت مسار مشروع GitHub Pages، فإن ملف `robots.txt` داخل `/pterminology-site/` ليس ملف التحكم الرسمي للمضيف. الملف الرسمي يجب أن يكون في `https://khaledaltheeb.github.io/robots.txt`. الوكيل يبلغ عن هذا كقيد معماري بدل الادعاء بأن سياسة المسار الفرعي ملزمة للزواحف. الانتقال إلى نطاق مخصص أو مستودع صفحة مستخدم يتيح التحكم الرسمي من الجذر.
+- لأن الموقع الحالي منشور تحت مسار مشروع GitHub Pages، فإن ملف `robots.txt` داخل `/` ليس ملف التحكم الرسمي للمضيف. الملف الرسمي يجب أن يكون في `https://khaledaltheeb.github.io/robots.txt`. الوكيل يبلغ عن هذا كقيد معماري بدل الادعاء بأن سياسة المسار الفرعي ملزمة للزواحف. الانتقال إلى نطاق مخصص أو مستودع صفحة مستخدم يتيح التحكم الرسمي من الجذر.
 
 ## صور المعاينة الاجتماعية
 
@@ -38,9 +38,9 @@ IndexNow يخص Bing والمحركات المشاركة. Google يعتمد Goog
 ```bash
 python -m unittest discover -s tests -p 'test_*v334*.py' -v
 python scripts/normalize_social_previews_v334.py _site \
-  --base-url https://khaledaltheeb.github.io/pterminology-site/
+  --base-url https://healthrenewal.org/
 python scripts/seo_agent_fleet_v334_hardened.py _site \
-  --base-url https://khaledaltheeb.github.io/pterminology-site/ \
+  --base-url https://healthrenewal.org/ \
   --report-dir api/seo-audit-v334 \
   --fail-on critical
 ```
@@ -49,7 +49,7 @@ python scripts/seo_agent_fleet_v334_hardened.py _site \
 
 ```bash
 python scripts/seo_agent_fleet_v334.py . \
-  --base-url https://khaledaltheeb.github.io/pterminology-site/ \
+  --base-url https://healthrenewal.org/ \
   --write-discovery-files
 ```
 
@@ -57,7 +57,7 @@ python scripts/seo_agent_fleet_v334.py . \
 
 ```bash
 python scripts/seo_agent_fleet_v334.py . \
-  --base-url https://khaledaltheeb.github.io/pterminology-site/ \
+  --base-url https://healthrenewal.org/ \
   --write-discovery-files \
   --disallow-training
 ```
@@ -66,7 +66,7 @@ python scripts/seo_agent_fleet_v334.py . \
 
 ```bash
 python scripts/submit_indexnow_v334.py _site \
-  --base-url https://khaledaltheeb.github.io/pterminology-site/ \
+  --base-url https://healthrenewal.org/ \
   --key a4f9d7c2e81b4630b5d6f7a912ce3048 \
   --prepare-only \
   --report api/indexnow-preparation-v334.json

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { chromium } from 'playwright';
 
-const base = process.env.AUDIT_BASE_URL || 'http://127.0.0.1:8000/pterminology-site/';
+const base = process.env.AUDIT_BASE_URL || 'http://127.0.0.1:8000/';
 const outDir = process.env.AUDIT_OUT_DIR || '_site/api';
 fs.mkdirSync(outDir, { recursive: true });
 const errors = [];

@@ -5,7 +5,7 @@ import {
 
 export async function messageNotifications(env, conversation, conversationId, messageId, role, now) {
   const portalBase = String(env.PORTAL_BASE_URL ||
-    'https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/');
+    'https://healthrenewal.org/specialists-partners/portal/');
   const notifications = [];
 
   if (role === 'visitor') {
@@ -48,7 +48,7 @@ export async function messageNotifications(env, conversation, conversationId, me
   if (env.OWNER_EMAIL) {
     const ownerName = String(env.OWNER_DISPLAY_NAME || 'خالد الذيب').trim();
     const adminUrl = safeAdminUrl(env.ADMIN_CONSOLE_URL ||
-      'https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/#conversations');
+      'https://healthrenewal.org/specialists-partners/admin/#conversations');
     const senderLabel = role === 'visitor' ? 'صاحب الطلب' : 'المختص';
     notifications.push({
       to:[env.OWNER_EMAIL],
@@ -145,6 +145,6 @@ function safeAdminUrl(value) {
     if (parsed.protocol !== 'https:' || parsed.username || parsed.password) throw new Error('invalid');
     return parsed.href;
   } catch {
-    return 'https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/#conversations';
+    return 'https://healthrenewal.org/specialists-partners/admin/#conversations';
   }
 }

@@ -648,7 +648,7 @@ async function createConversation(request, env, ctx, cors) {
   await audit(env, 'conversation_created', id, {referenceId, providerId, topic, urgency});
 
   const portalBase = String(env.PORTAL_BASE_URL ||
-    'https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/');
+    'https://healthrenewal.org/specialists-partners/portal/');
   const specialistLink = portalLink(portalBase, id, specialistAccess, 'specialist');
   const visitorLink = portalLink(portalBase, id, visitorAccess, 'visitor');
 
@@ -756,7 +756,7 @@ async function createMessage(request, env, ctx, cors, conversationId) {
   await audit(env, 'message_created', conversationId, {senderRole:role, messageId});
 
   const portalBase = String(env.PORTAL_BASE_URL ||
-    'https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/');
+    'https://healthrenewal.org/specialists-partners/portal/');
   if (role === 'visitor' && Number(conversation.provider_notification_enabled) === 1) {
     const specialistToken = await issueConversationToken(env, conversationId, 'specialist', now);
     const link = portalLink(portalBase, conversationId, specialistToken, 'specialist');

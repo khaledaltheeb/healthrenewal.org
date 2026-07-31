@@ -4,10 +4,10 @@
   "status": "passed",
   "generated_at": "2026-07-31T14:05:39.510251+00:00",
   "mode": "write",
-  "root": "/home/runner/work/pterminology-site/pterminology-site",
+  "root": "/home/runner/work/pterminology-site",
   "runtime": {
-    "source": "/home/runner/work/pterminology-site/pterminology-site",
-    "target": "/home/runner/work/pterminology-site/pterminology-site",
+    "source": "/home/runner/work/pterminology-site",
+    "target": "/home/runner/work/pterminology-site",
     "copied": false,
     "files": []
   },

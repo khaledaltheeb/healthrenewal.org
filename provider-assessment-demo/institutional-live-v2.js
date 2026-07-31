@@ -2,7 +2,7 @@
 
 (() => {
   const RELEASE = "2026.07.24-live.7";
-  const PATH = "/pterminology-site/provider-assessment-demo/";
+  const PATH = "/provider-assessment-demo/";
   const hasNewerInstitutionalContract = () =>
     document.documentElement.dataset.institutionalContract === "2026.07.25-v220" ||
     Boolean(document.querySelector('script[data-institutional-contract-v220]'));

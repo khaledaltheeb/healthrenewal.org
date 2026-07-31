@@ -4,16 +4,16 @@
 
 ## الروابط الرسمية
 
-- الموقع: https://khaledaltheeb.github.io/pterminology-site/
-- الموسوعة الموسعة: https://khaledaltheeb.github.io/pterminology-site/encyclopedia/
-- المعجم الأساسي: https://khaledaltheeb.github.io/pterminology-site/terms/
-- المراكز الموضوعية: https://khaledaltheeb.github.io/pterminology-site/hubs/
-- سجل المصادر ومسارات التكامل: https://khaledaltheeb.github.io/pterminology-site/source-registry/
-- سجل المصادر بصيغة JSON: https://khaledaltheeb.github.io/pterminology-site/api/source-registry.json
-- إفادة الإتاحة وخطة التوافق: https://khaledaltheeb.github.io/pterminology-site/accessibility/
+- الموقع: https://healthrenewal.org/
+- الموسوعة الموسعة: https://healthrenewal.org/encyclopedia/
+- المعجم الأساسي: https://healthrenewal.org/terms/
+- المراكز الموضوعية: https://healthrenewal.org/hubs/
+- سجل المصادر ومسارات التكامل: https://healthrenewal.org/source-registry/
+- سجل المصادر بصيغة JSON: https://healthrenewal.org/api/source-registry.json
+- إفادة الإتاحة وخطة التوافق: https://healthrenewal.org/accessibility/
 - Instagram: https://www.instagram.com/pterminology/
 - YouTube: https://www.youtube.com/@psychology-term
-- Sitemap Index: https://khaledaltheeb.github.io/pterminology-site/sitemap-index.xml
+- Sitemap Index: https://healthrenewal.org/sitemap-index.xml
 
 ## الإصدار الثامن
 

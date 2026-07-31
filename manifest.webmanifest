@@ -4,8 +4,8 @@
   "description": "موسوعة عربية للصحة النفسية والأشخاص ذوي الاحتياجات الخاصة والأدلة العملية والتربية الدامجة.",
   "lang": "ar",
   "dir": "rtl",
-  "start_url": "/pterminology-site/",
-  "scope": "/pterminology-site/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#075f5b",
@@ -16,7 +16,7 @@
   ],
   "icons": [
     {
-      "src": "/pterminology-site/assets/brand/logo-mark.svg",
+      "src": "/assets/brand/logo-mark.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
@@ -25,10 +25,10 @@
   "shortcuts": [
     {
       "name": "أدلة التعامل والرعاية",
-      "url": "/pterminology-site/care-guides/",
+      "url": "/care-guides/",
       "icons": [
         {
-          "src": "/pterminology-site/assets/brand/logo-mark.svg",
+          "src": "/assets/brand/logo-mark.svg",
           "sizes": "any",
           "type": "image/svg+xml"
         }
@@ -36,10 +36,10 @@
     },
     {
       "name": "الموسوعة",
-      "url": "/pterminology-site/encyclopedia/",
+      "url": "/encyclopedia/",
       "icons": [
         {
-          "src": "/pterminology-site/assets/brand/logo-mark.svg",
+          "src": "/assets/brand/logo-mark.svg",
           "sizes": "any",
           "type": "image/svg+xml"
         }
@@ -47,10 +47,10 @@
     },
     {
       "name": "ذوو الاحتياجات الخاصة",
-      "url": "/pterminology-site/special-needs/",
+      "url": "/special-needs/",
       "icons": [
         {
-          "src": "/pterminology-site/assets/brand/logo-mark.svg",
+          "src": "/assets/brand/logo-mark.svg",
           "sizes": "any",
           "type": "image/svg+xml"
         }
@@ -58,10 +58,10 @@
     },
     {
       "name": "منصة التقييم",
-      "url": "/pterminology-site/provider-assessment-demo/",
+      "url": "/provider-assessment-demo/",
       "icons": [
         {
-          "src": "/pterminology-site/assets/brand/logo-mark.svg",
+          "src": "/assets/brand/logo-mark.svg",
           "sizes": "any",
           "type": "image/svg+xml"
         }

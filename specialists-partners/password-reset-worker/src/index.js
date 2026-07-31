@@ -1,5 +1,5 @@
 const IDENTITY_RESET_URL = 'https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev/v1/auth/password/reset';
-const ADMIN_LOGIN_URL = 'https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/?v=10';
+const ADMIN_LOGIN_URL = 'https://healthrenewal.org/specialists-partners/admin/?v=10';
 const BUILD_VERSION = '1.0.0';
 const MAX_BODY_BYTES = 4096;
 

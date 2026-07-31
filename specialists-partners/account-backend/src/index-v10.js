@@ -523,7 +523,7 @@ function publicUser(row) { return {id:row.id,email:row.email,phone:row.phone_e16
 function passwordResetBaseForRequest(request,env) {
   const origin=String(request?.headers?.get('origin')||'').replace(/\/$/,'');
   if(origin==='https://healthrenewal.org'||origin==='https://www.healthrenewal.org') return `${origin}/specialists-partners/password-reset/`;
-  if(origin==='https://khaledaltheeb.github.io') return 'https://khaledaltheeb.github.io/pterminology-site/specialists-partners/password-reset/';
+  if(origin==='https://khaledaltheeb.github.io') return 'https://healthrenewal.org/specialists-partners/password-reset/';
   return String(env.PASSWORD_RESET_BASE_URL||'');
 }
 function validHttpsBase(value) { try { const url=new URL(String(value || '')); if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) return ''; return url.href.replace(/\/$/,''); } catch (_) { return ''; } }
