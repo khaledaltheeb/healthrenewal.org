@@ -1,111 +1,189 @@
 name: Temporary production CI status probe
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/production-ci-status-temp.yml
   issues:
     types: [opened]
+  workflow_dispatch:
 
 permissions:
   actions: read
   contents: read
   issues: write
 
+concurrency:
+  group: temporary-production-ci-monitor
+  cancel-in-progress: true
+
 jobs:
   inspect:
-    if: github.event.issue.title == '[diagnostic] production ci status 2026-07-31'
+    if: >-
+      github.event_name != 'issues' ||
+      github.event.issue.title == '[diagnostic] production ci status 2026-07-31'
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 65
     env:
       GH_TOKEN: ${{ github.token }}
-      ISSUE_NUMBER: ${{ github.event.issue.number }}
+      ISSUE_NUMBER: ${{ github.event.issue.number || 754 }}
     steps:
-      - name: Inspect compact production pipeline status
+      - name: Follow newest main release pipeline
         continue-on-error: true
         shell: bash
         run: |
           exec > >(tee /tmp/status.log) 2>&1
           set -euo pipefail
-          curl -fsSL \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H 'Accept: application/vnd.github+json' \
-            -H 'X-GitHub-Api-Version: 2022-11-28' \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/heads/main" \
-            -o /tmp/ref.json
-          curl -fsSL \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H 'Accept: application/vnd.github+json' \
-            -H 'X-GitHub-Api-Version: 2022-11-28' \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs?branch=main&per_page=40" \
-            -o /tmp/runs.json
-
           python3 - <<'PY' > /tmp/report.json
-          import json, os, urllib.request
-          from pathlib import Path
+          from __future__ import annotations
 
-          repo=os.environ['GITHUB_REPOSITORY']
-          token=os.environ['GH_TOKEN']
-          head=json.loads(Path('/tmp/ref.json').read_text())['object']['sha']
-          runs=json.loads(Path('/tmp/runs.json').read_text()).get('workflow_runs',[])
-          relevant_names={
-              'Validate every assessment and cognitive tool v31',
-              'Audit production discovery contract v220',
-              'Deploy validated main to GitHub Pages',
-          }
-          selected=[]
-          for run in runs:
-              if run.get('name') in relevant_names or run.get('head_sha')==head:
-                  selected.append({
-                      'id':run.get('id'),
-                      'name':run.get('name'),
-                      'head_sha':run.get('head_sha'),
-                      'event':run.get('event'),
-                      'status':run.get('status'),
-                      'conclusion':run.get('conclusion'),
-                      'attempt':run.get('run_attempt'),
-                      'url':run.get('html_url'),
-                  })
-              if len(selected)>=20:
-                  break
+          import json
+          import os
+          import time
+          import urllib.error
+          import urllib.request
 
-          headers={
-              'Authorization':f'Bearer {token}',
-              'Accept':'application/vnd.github+json',
-              'X-GitHub-Api-Version':'2022-11-28',
-              'User-Agent':'compact-ci-status-probe',
+          REPO = os.environ['GITHUB_REPOSITORY']
+          TOKEN = os.environ['GH_TOKEN']
+          API = f'https://api.github.com/repos/{REPO}'
+          HEADERS = {
+              'Authorization': f'Bearer {TOKEN}',
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+              'User-Agent': 'healthrenewal-production-monitor',
           }
-          failures=[]
-          for run in selected:
-              if run['conclusion'] not in {'failure','cancelled','timed_out','action_required','startup_failure'}:
-                  continue
-              request=urllib.request.Request(f"https://api.github.com/repos/{repo}/actions/runs/{run['id']}/jobs?per_page=30",headers=headers)
-              try:
-                  with urllib.request.urlopen(request,timeout=20) as response:
-                      jobs=json.load(response).get('jobs',[])
-              except Exception as exc:
-                  failures.append({'run_id':run['id'],'job_fetch_error':repr(exc)})
-                  continue
-              for job in jobs:
-                  if job.get('conclusion') not in {'failure','cancelled','timed_out','action_required','startup_failure'}:
+          VALIDATE = 'Validate every assessment and cognitive tool v31'
+          AUDIT = 'Audit production discovery contract v220'
+          DEPLOY = 'Deploy validated main to GitHub Pages'
+          BAD = {'failure', 'cancelled', 'timed_out', 'action_required', 'startup_failure'}
+
+          def api(path: str) -> dict:
+              request = urllib.request.Request(API + path, headers=HEADERS)
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  return json.loads(response.read().decode('utf-8'))
+
+          def current_head() -> str:
+              return str(api('/git/ref/heads/main')['object']['sha'])
+
+          def recent_runs() -> list[dict]:
+              return list(api('/actions/runs?branch=main&per_page=100').get('workflow_runs', []))
+
+          def newest(runs: list[dict], name: str, sha: str) -> dict | None:
+              matches = [r for r in runs if r.get('name') == name and r.get('head_sha') == sha]
+              matches.sort(key=lambda item: str(item.get('created_at', '')), reverse=True)
+              return matches[0] if matches else None
+
+          def compact(run: dict | None) -> dict | None:
+              if not run:
+                  return None
+              return {
+                  'id': run.get('id'),
+                  'name': run.get('name'),
+                  'head_sha': run.get('head_sha'),
+                  'status': run.get('status'),
+                  'conclusion': run.get('conclusion'),
+                  'attempt': run.get('run_attempt'),
+                  'url': run.get('html_url'),
+              }
+
+          def failed_jobs(run: dict) -> list[dict]:
+              output = []
+              for job in api(f"/actions/runs/{run['id']}/jobs?per_page=100").get('jobs', []):
+                  if job.get('conclusion') not in BAD:
                       continue
-                  failures.append({
-                      'run_id':run['id'],
-                      'workflow':run['name'],
-                      'job_id':job.get('id'),
-                      'job':job.get('name'),
-                      'conclusion':job.get('conclusion'),
-                      'failed_steps':[
-                          {'number':step.get('number'),'name':step.get('name'),'conclusion':step.get('conclusion')}
-                          for step in job.get('steps',[])
-                          if step.get('conclusion') in {'failure','cancelled','timed_out','action_required','startup_failure'}
+                  output.append({
+                      'job_id': job.get('id'),
+                      'job': job.get('name'),
+                      'conclusion': job.get('conclusion'),
+                      'url': job.get('html_url'),
+                      'failed_steps': [
+                          {
+                              'number': step.get('number'),
+                              'name': step.get('name'),
+                              'conclusion': step.get('conclusion'),
+                          }
+                          for step in job.get('steps', [])
+                          if step.get('conclusion') in BAD
                       ],
                   })
-          print(json.dumps({
-              'main_head':head,
-              'selected_runs':selected,
-              'failed_jobs':failures,
-          },indent=2))
+              return output
+
+          started = time.time()
+          target = ''
+          observations = []
+          result = {
+              'status': 'timed-out',
+              'main_head': None,
+              'validation': None,
+              'discovery_audit': None,
+              'pages_deployment': None,
+              'failed_jobs': [],
+              'head_changes': [],
+          }
+
+          while time.time() - started < 3600:
+              try:
+                  head = current_head()
+                  if head != target:
+                      if target:
+                          result['head_changes'].append({'from': target, 'to': head})
+                      target = head
+                      print(f'Following main head: {target}', flush=True)
+
+                  runs = recent_runs()
+                  validation = newest(runs, VALIDATE, target)
+                  audit = newest(runs, AUDIT, target)
+                  deploy = newest(runs, DEPLOY, target)
+                  result.update({
+                      'main_head': target,
+                      'validation': compact(validation),
+                      'discovery_audit': compact(audit),
+                      'pages_deployment': compact(deploy),
+                  })
+
+                  snapshot = (
+                      target,
+                      validation.get('status') if validation else None,
+                      validation.get('conclusion') if validation else None,
+                      audit.get('status') if audit else None,
+                      audit.get('conclusion') if audit else None,
+                      deploy.get('status') if deploy else None,
+                      deploy.get('conclusion') if deploy else None,
+                  )
+                  if not observations or observations[-1] != snapshot:
+                      observations.append(snapshot)
+                      print(snapshot, flush=True)
+
+                  if validation and validation.get('status') == 'completed':
+                      if validation.get('conclusion') in BAD:
+                          result['status'] = 'validation-failed'
+                          result['failed_jobs'] = failed_jobs(validation)
+                          break
+                      if validation.get('conclusion') == 'success':
+                          if audit and audit.get('status') == 'completed':
+                              if audit.get('conclusion') in BAD:
+                                  result['status'] = 'discovery-audit-failed'
+                                  result['failed_jobs'] = failed_jobs(audit)
+                                  break
+                              if audit.get('conclusion') == 'success':
+                                  if deploy and deploy.get('status') == 'completed':
+                                      if deploy.get('conclusion') == 'success':
+                                          result['status'] = 'passed'
+                                      else:
+                                          result['status'] = 'pages-deployment-failed'
+                                          result['failed_jobs'] = failed_jobs(deploy)
+                                      break
+              except (urllib.error.URLError, TimeoutError, KeyError, ValueError) as error:
+                  print(f'Monitor retry after error: {error!r}', flush=True)
+              time.sleep(20)
+
+          result['observations'] = [list(item) for item in observations[-30:]]
+          result['elapsed_seconds'] = round(time.time() - started, 1)
+          print(json.dumps(result, ensure_ascii=False, indent=2))
           PY
 
-      - name: Publish compact status
+      - name: Publish final monitor result
         if: always()
         shell: bash
         run: |
@@ -115,10 +193,10 @@ jobs:
           if Path('/tmp/report.json').exists():
               report=Path('/tmp/report.json').read_text(errors='replace')
           elif Path('/tmp/status.log').exists():
-              report=Path('/tmp/status.log').read_text(errors='replace')[-20000:]
+              report=Path('/tmp/status.log').read_text(errors='replace')[-25000:]
           else:
               report='No status report.'
-          print(json.dumps({'body':'## Production CI status\n\n```json\n'+report[:30000]+'\n```'}))
+          print(json.dumps({'body':'## Production pipeline monitor\n\n```json\n'+report[:45000]+'\n```'}))
           PY
           curl -fsSL -X POST \
             -H "Authorization: Bearer ${GH_TOKEN}" \
