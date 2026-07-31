@@ -1,17 +1,6 @@
-# Public search and AI-discovery policy
-# Search engines, answer engines, user-triggered assistants, and public model crawlers
-# may access all public content. Operational source paths are excluded.
+# Public crawling and indexing policy
 User-agent: *
 Allow: /
-Disallow: /.git/
-Disallow: /.github/
-Disallow: /scripts/
-Disallow: /tests/
-Disallow: /node_modules/
-Disallow: /api/private/
-Disallow: /pterminology-site/specialists-partners/admin/
-Disallow: /pterminology-site/specialists-partners/portal/
-Disallow: /pterminology-site/specialists-partners/account/
-Disallow: /pterminology-site/specialists-partners/contact.html
 
-Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap-index.xml
+Sitemap: https://healthrenewal.org/sitemap.xml
+Sitemap: https://healthrenewal.org/sitemap-index.xml
