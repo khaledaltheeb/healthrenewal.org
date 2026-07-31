@@ -7,6 +7,7 @@ import {
 
 const BUILD_VERSION = '10.3.0';
 const JSON_HEADERS = {'content-type':'application/json; charset=utf-8'};
+const PASSWORD_RESET_PATH = '/v1/auth/password/reset';
 const SPECIALIST_MESSAGE_PATH = /^\/v1\/specialist\/conversations\/([a-z0-9-]+)\/messages$/i;
 const ADMIN_EMAIL_RESET_PATH = /^\/v1\/admin\/users\/([a-z0-9-]+)\/password-reset$/i;
 const CONSUMER_SENDER_DOMAINS = new Set([
@@ -48,6 +49,9 @@ export default {
     }
 
     try {
+      const resetAttempt = request.method === 'POST' && url.pathname === PASSWORD_RESET_PATH
+        ? await capturePasswordResetAttempt(request, env)
+        : null;
       const sender = senderReadiness(env);
       if (request.method === 'POST' && url.pathname === '/v1/auth/password/request' && !sender.ready) {
         return senderUnavailableResponse(cors, sender, false);
@@ -126,6 +130,10 @@ export default {
       }
 
       const response = await finalWorker.fetch(request, env, ctx);
+      if (resetAttempt && response.status === 500) {
+        const recovered = await recoverCommittedPasswordReset(resetAttempt, env, cors);
+        if (recovered) return recovered;
+      }
       if (request.method === 'GET' && url.pathname === '/health') {
         return withProductionVersion(response, origin, env);
       }
@@ -153,6 +161,81 @@ export default {
     }
   },
 };
+
+async function capturePasswordResetAttempt(request, env) {
+  if (!env.DB) return null;
+  try {
+    const body = await request.clone().json().catch(() => ({}));
+    const rawToken = String(body.token || '').trim();
+    if (!/^[A-Za-z0-9_-]{32,500}$/.test(rawToken)) return null;
+    const tokenHash = await sha256(rawToken);
+    const now = new Date().toISOString();
+    const row = await env.DB.prepare(`
+      SELECT
+        t.id AS reset_token_id,
+        t.user_id,
+        t.used_at,
+        t.expires_at,
+        u.status AS user_status,
+        u.password_set_at
+      FROM password_reset_tokens t
+      JOIN identity_users u ON u.id=t.user_id
+      WHERE t.token_hash=?
+      LIMIT 1
+    `).bind(tokenHash).first();
+    if (!row || row.used_at || row.expires_at <= now || !['active','invited'].includes(row.user_status)) {
+      return null;
+    }
+    return {
+      resetTokenId:String(row.reset_token_id),
+      userId:String(row.user_id),
+      beforePasswordSetAt:row.password_set_at || null,
+      startedAt:now,
+    };
+  } catch (error) {
+    console.error('password_reset_precommit_probe_failed', safeError(error));
+    return null;
+  }
+}
+
+async function recoverCommittedPasswordReset(attempt, env, cors) {
+  if (!env.DB || !attempt) return null;
+  try {
+    const row = await env.DB.prepare(`
+      SELECT
+        t.used_at,
+        u.status AS user_status,
+        u.password_hash,
+        u.password_set_at,
+        u.must_change_password
+      FROM password_reset_tokens t
+      JOIN identity_users u ON u.id=t.user_id
+      WHERE t.id=? AND t.user_id=?
+      LIMIT 1
+    `).bind(attempt.resetTokenId, attempt.userId).first();
+    const passwordSetAt = String(row?.password_set_at || '');
+    const committed = Boolean(
+      row?.used_at
+      && row?.password_hash
+      && row?.user_status === 'active'
+      && Number(row?.must_change_password || 0) === 0
+      && passwordSetAt
+      && passwordSetAt >= attempt.startedAt
+      && passwordSetAt !== String(attempt.beforePasswordSetAt || ''),
+    );
+    if (!committed) return null;
+    console.error('password_reset_postcommit_response_recovered');
+    return json({
+      ok:true,
+      message:'تم تعيين كلمة المرور وإلغاء جميع الجلسات السابقة. يمكنك تسجيل الدخول الآن.',
+      recoveredAfterCommit:true,
+      version:BUILD_VERSION,
+    }, 200, cors);
+  } catch (error) {
+    console.error('password_reset_postcommit_probe_failed', safeError(error));
+    return null;
+  }
+}
 
 async function authenticatedSession(request, env, ctx) {
   const sessionRequest = new Request(new URL('/v1/auth/session', request.url), {
@@ -269,6 +352,11 @@ function constantTimeEqual(a, b) {
     diff |= (a.charCodeAt(index) || 0) ^ (b.charCodeAt(index) || 0);
   }
   return diff === 0;
+}
+
+async function sha256(value) {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(value)));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 function corsHeaders(origin, env) {
