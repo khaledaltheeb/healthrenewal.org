@@ -1,0 +1,75 @@
+name: Inspect production Turnstile widget now
+
+on:
+  push:
+    branches:
+      - agent/inspect-cloudflare-specialists-now
+    paths:
+      - reports/inspect-turnstile-widget-trigger.txt
+
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '826ac34927c1e045c06145a327c2ac52' }}
+      CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      SITEKEY: 0x4AAAAAAD_r2o__Ao1RmBTO
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/inspect-cloudflare-specialists-now
+      - name: Read widget metadata without secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          status=$(curl -sS -o /tmp/widgets.json -w '%{http_code}' \
+            -H "Authorization: Bearer ${CF_API_TOKEN}" \
+            -H "Accept: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/challenges/widgets")
+          STATUS="$status" python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          try:
+              data=json.load(open('/tmp/widgets.json',encoding='utf-8'))
+          except Exception:
+              data={}
+          target=os.environ['SITEKEY']
+          rows=data.get('result') if isinstance(data.get('result'),list) else []
+          matches=[]
+          for row in rows:
+              if str(row.get('sitekey') or '') != target:
+                  continue
+              matches.append({
+                  'sitekey':row.get('sitekey'),
+                  'name':row.get('name'),
+                  'mode':row.get('mode'),
+                  'domains':row.get('domains') or [],
+                  'created_on':row.get('created_on'),
+                  'modified_on':row.get('modified_on'),
+              })
+          report={
+              'schema_version':1,
+              'checked_at':datetime.now(timezone.utc).isoformat(),
+              'http_status':int(os.environ.get('STATUS') or 0),
+              'api_success':data.get('success'),
+              'target_sitekey':target,
+              'matches':matches,
+              'secret_values_recorded':False,
+              'errors':data.get('errors') or [],
+          }
+          open('reports/turnstile-widget-now.json','w',encoding='utf-8').write(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          PY
+      - name: Commit safe widget report
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/turnstile-widget-now.json
+          git commit -m "chore: record Turnstile widget metadata [skip ci]"
+          git push origin HEAD:agent/inspect-cloudflare-specialists-now
