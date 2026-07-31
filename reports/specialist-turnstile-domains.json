@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T16:59:39.201728+00:00",
+  "workflow_run_id": "30649372091",
+  "status": "passed",
+  "get_http_status": 200,
+  "update_http_status": 200,
+  "required_hostname": "healthrenewal.org",
+  "required_hostname_present": true,
+  "domains": [
+    "healthrenewal.org",
+    "khaledaltheeb.github.io"
+  ],
+  "mode": "managed",
+  "widget_name": "pterminology-specialists-forms",
+  "api_errors": [],
+  "secret_rotated": false,
+  "contains_secret_values": false
+}
