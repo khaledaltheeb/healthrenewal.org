@@ -1,0 +1,278 @@
+name: Deploy multilingual E5 live
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/deploy-semantic-search-live.yml'
+      - 'tests/test_e5_pages_deployment_v1.py'
+  workflow_run:
+    workflows: ['Semantic search index']
+    types: [completed]
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-semantic-search-live.yml'
+      - 'ai-search/**'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: canonical-seo-live-v363
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate deployment contract and E5 package
+        run: |
+          set -euo pipefail
+          python tests/test_e5_pages_deployment_v1.py
+          python - <<'PY'
+          import base64,hashlib,json
+          from pathlib import Path
+          root=Path('ai-search/data')
+          manifest=json.loads((root/'manifest.json').read_text(encoding='utf-8'))
+          assert manifest['version'] == 2 and manifest['ready'] is True
+          assert manifest['model'] == 'intfloat/multilingual-e5-small'
+          assert manifest['dimensions'] == 384 and manifest['dtype'] == 'float16' and manifest['normalized'] is True
+          assert manifest['shards']
+          for shard in manifest['shards']:
+              metadata=(root/shard['metadata']).read_bytes()
+              package=(root/shard['embeddingsJson']).read_bytes()
+              payload=json.loads(package)
+              raw=base64.b64decode(payload['data'],validate=True)
+              assert len(metadata) == shard['metadataBytes']
+              assert hashlib.sha256(metadata).hexdigest() == shard['metadataSha256']
+              assert len(package) == shard['embeddingsJsonBytes']
+              assert hashlib.sha256(package).hexdigest() == shard['embeddingsJsonSha256']
+              assert len(raw) == shard['embeddingBytes']
+              assert hashlib.sha256(raw).hexdigest() == shard['embeddingSha256'] == payload['sha256']
+          print({'documents':manifest['documentCount'],'chunks':manifest['chunkCount'],'shards':len(manifest['shards'])})
+          PY
+
+  deploy:
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate source E5 package
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64,hashlib,json
+          from pathlib import Path
+          root=Path('ai-search/data')
+          manifest_path=root/'manifest.json'
+          manifest_bytes=manifest_path.read_bytes()
+          manifest=json.loads(manifest_bytes)
+          assert manifest['version'] == 2 and manifest['ready'] is True
+          assert manifest['model'] == 'intfloat/multilingual-e5-small'
+          assert manifest['modelRevision'] == 'fd1525a9fd15316a2d503bf26ab031a61d056e98'
+          assert manifest['browserModelRevision'] == '761b726dd34fb83930e26aab4e9ac3899aa1fa78'
+          assert manifest['dimensions'] == 384 and manifest['dtype'] == 'float16' and manifest['normalized'] is True
+          assert manifest['documentCount'] > 0 and manifest['chunkCount'] > 0 and manifest['shards']
+          for shard in manifest['shards']:
+              metadata=(root/shard['metadata']).read_bytes()
+              package=(root/shard['embeddingsJson']).read_bytes()
+              payload=json.loads(package)
+              raw=base64.b64decode(payload['data'],validate=True)
+              assert len(metadata) == shard['metadataBytes']
+              assert hashlib.sha256(metadata).hexdigest() == shard['metadataSha256']
+              assert len(package) == shard['embeddingsJsonBytes']
+              assert hashlib.sha256(package).hexdigest() == shard['embeddingsJsonSha256']
+              assert len(raw) == shard['embeddingBytes'] == shard['count'] * manifest['dimensions'] * 2
+              assert hashlib.sha256(raw).hexdigest() == shard['embeddingSha256'] == payload['sha256']
+          print({'generatedAt':manifest['generatedAt'],'documents':manifest['documentCount'],'chunks':manifest['chunkCount']})
+          PY
+
+      - name: Discover latest validated production artifact
+        id: artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl -fsS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" \
+            -o /tmp/artifacts.json
+          python - <<'PY'
+          import json,os
+          items=[x for x in json.load(open('/tmp/artifacts.json',encoding='utf-8')).get('artifacts',[]) if not x.get('expired') and x.get('workflow_run',{}).get('id')]
+          if not items: raise SystemExit('No active validated-production-site artifact found')
+          item=sorted(items,key=lambda x:x.get('created_at',''),reverse=True)[0]
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as out:
+              out.write(f"run_id={item['workflow_run']['id']}\n")
+          print({'run_id':item['workflow_run']['id'],'created_at':item.get('created_at')})
+          PY
+
+      - name: Download validated production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.artifact.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Overlay current public source and verify deploy artifact
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64,hashlib,json,shutil
+          from pathlib import Path
+          root=Path('.')
+          site=Path('_site')
+          assert (site/'index.html').is_file()
+          text_suffixes={'.html','.htm','.xml','.json','.webmanifest','.txt','.js','.mjs','.css','.svg'}
+          skip_top={'.git','.github','node_modules','.venv','venv','dist','build','scripts','tests','docs','reports','content','.v10bundle','.generator-v6','_site'}
+          skip_parts={'account-backend','backend','migrations'}
+          copied=0
+          for source in root.rglob('*'):
+              if not source.is_file(): continue
+              rel=source.relative_to(root)
+              if not rel.parts or rel.parts[0] in skip_top or any(x in skip_parts for x in rel.parts): continue
+              if rel.as_posix() == 'deployment.json': continue
+              if source.suffix.lower() not in text_suffixes and source.name != 'CNAME': continue
+              dest=site/rel
+              dest.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copy2(source,dest)
+              copied += 1
+          old='https://khaledaltheeb.github.io/pterminology-site'
+          new='https://healthrenewal.org'
+          for path in site.rglob('*'):
+              if not path.is_file() or path.suffix.lower() not in text_suffixes: continue
+              try: text=path.read_text(encoding='utf-8')
+              except UnicodeDecodeError: continue
+              updated=text.replace(old,new)
+              if updated != text: path.write_text(updated,encoding='utf-8')
+              assert old not in updated, path
+          assert copied >= 100, copied
+          home=(site/'index.html').read_text(encoding='utf-8')
+          assert '<link rel="canonical" href="https://healthrenewal.org/">' in home
+          robots=(site/'robots.txt').read_text(encoding='utf-8')
+          assert 'Sitemap: https://healthrenewal.org/sitemap.xml' in robots
+          assert 'Sitemap: https://healthrenewal.org/sitemap-index.xml' in robots
+          manifest_root=site/'ai-search/data'
+          manifest_bytes=(manifest_root/'manifest.json').read_bytes()
+          manifest=json.loads(manifest_bytes)
+          assert manifest['version'] == 2 and manifest['ready'] is True and manifest['shards']
+          for shard in manifest['shards']:
+              metadata=(manifest_root/shard['metadata']).read_bytes()
+              package=(manifest_root/shard['embeddingsJson']).read_bytes()
+              payload=json.loads(package)
+              raw=base64.b64decode(payload['data'],validate=True)
+              assert len(metadata) == shard['metadataBytes']
+              assert hashlib.sha256(metadata).hexdigest() == shard['metadataSha256']
+              assert len(package) == shard['embeddingsJsonBytes']
+              assert hashlib.sha256(package).hexdigest() == shard['embeddingsJsonSha256']
+              assert len(raw) == shard['embeddingBytes']
+              assert hashlib.sha256(raw).hexdigest() == shard['embeddingSha256']
+          print({'copied':copied,'generatedAt':manifest['generatedAt'],'chunks':manifest['chunkCount']})
+          PY
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - name: Deploy Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify live E5 and write production receipt
+        run: |
+          set -euo pipefail
+          source_generated="$(python -c "import json;print(json.load(open('ai-search/data/manifest.json'))['generatedAt'])")"
+          ready=0
+          for attempt in $(seq 1 180); do
+            nonce="${GITHUB_RUN_ID}-${attempt}-$(date +%s%N)"
+            if curl -fsS --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/ai-search/data/manifest.json?release=${nonce}" -o /tmp/live-manifest.json; then
+              if SOURCE_GENERATED="$source_generated" python - <<'PY'
+          import json,os
+          m=json.load(open('/tmp/live-manifest.json',encoding='utf-8'))
+          assert m.get('version') == 2 and m.get('ready') is True
+          assert m.get('generatedAt') == os.environ['SOURCE_GENERATED']
+          assert m.get('dimensions') == 384 and m.get('dtype') == 'float16' and m.get('normalized') is True
+          assert m.get('shards') and all(x.get('embeddingsJson') for x in m['shards'])
+          PY
+              then ready=1; break; fi
+            fi
+            sleep 5
+          done
+          test "$ready" = 1
+          python - <<'PY'
+          import base64,datetime,hashlib,json,os,subprocess
+          from pathlib import Path
+          root='https://healthrenewal.org/ai-search/data/'
+          manifest_bytes=Path('/tmp/live-manifest.json').read_bytes()
+          manifest=json.loads(manifest_bytes)
+          shards=[]
+          for i,shard in enumerate(manifest['shards']):
+              meta=Path(f'/tmp/e5-meta-{i}.json')
+              package=Path(f'/tmp/e5-vectors-{i}.json')
+              subprocess.run(['curl','-fsS','--retry','3',root+shard['metadata']+'?v='+shard['metadataSha256'][:20],'-o',str(meta)],check=True)
+              subprocess.run(['curl','-fsS','--retry','3',root+shard['embeddingsJson']+'?v='+shard['embeddingsJsonSha256'][:20],'-o',str(package)],check=True)
+              mb=meta.read_bytes(); pb=package.read_bytes(); payload=json.loads(pb); raw=base64.b64decode(payload['data'],validate=True)
+              assert len(mb) == shard['metadataBytes'] and hashlib.sha256(mb).hexdigest() == shard['metadataSha256']
+              assert len(pb) == shard['embeddingsJsonBytes'] and hashlib.sha256(pb).hexdigest() == shard['embeddingsJsonSha256']
+              assert len(raw) == shard['embeddingBytes'] and hashlib.sha256(raw).hexdigest() == shard['embeddingSha256'] == payload['sha256']
+              shards.append({'metadata':shard['metadata'],'metadataBytes':len(mb),'metadataSha256':hashlib.sha256(mb).hexdigest(),'embeddingsJson':shard['embeddingsJson'],'embeddingsJsonBytes':len(pb),'embeddingsJsonSha256':hashlib.sha256(pb).hexdigest(),'embeddingBytes':len(raw),'embeddingSha256':hashlib.sha256(raw).hexdigest(),'count':shard['count']})
+          for url,path in [('https://healthrenewal.org/','/tmp/live-home.html'),('https://healthrenewal.org/robots.txt','/tmp/live-robots.txt'),('https://healthrenewal.org/sitemap-index.xml','/tmp/live-sitemap.xml')]:
+              subprocess.run(['curl','-fsS','--retry','3',url+'?e5_release='+os.environ['GITHUB_RUN_ID'],'-o',path],check=True)
+          home=Path('/tmp/live-home.html').read_text(encoding='utf-8')
+          robots=Path('/tmp/live-robots.txt').read_text(encoding='utf-8')
+          sitemap=Path('/tmp/live-sitemap.xml').read_text(encoding='utf-8')
+          assert '<link rel="canonical" href="https://healthrenewal.org/">' in home
+          assert 'Sitemap: https://healthrenewal.org/sitemap.xml' in robots
+          assert '<loc>https://healthrenewal.org/' in sitemap
+          receipt={'schemaVersion':1,'passed':True,'verifiedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'site':'https://healthrenewal.org/','workflowRunId':os.environ['GITHUB_RUN_ID'],'workflowRunUrl':f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}",'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'generatedAt':manifest['generatedAt'],'model':manifest['model'],'modelRevision':manifest['modelRevision'],'browserModel':manifest['browserModel'],'browserModelRevision':manifest['browserModelRevision'],'dimensions':manifest['dimensions'],'dtype':manifest['dtype'],'normalized':manifest['normalized'],'documentCount':manifest['documentCount'],'chunkCount':manifest['chunkCount'],'manifestBytes':len(manifest_bytes),'manifestSha256':hashlib.sha256(manifest_bytes).hexdigest(),'shards':shards}
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/e5-live-production.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(receipt,ensure_ascii=False,indent=2))
+          PY
+
+      - name: Commit production receipt
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/e5-live-production.json
+          git commit -m 'chore: record live E5 production receipt [skip ci]' || exit 0
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            git rebase --abort || true
+            sleep $((attempt*3))
+          done
+          exit 1
