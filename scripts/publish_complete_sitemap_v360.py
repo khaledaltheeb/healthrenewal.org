@@ -21,6 +21,7 @@ import hashlib
 import json
 import re
 import sys
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from urllib.parse import quote, urlsplit
@@ -107,10 +108,27 @@ def route_for(path: Path, root: Path) -> str:
 
 
 def canonical_host_is_allowed(value: str) -> bool:
+    """Accept current canonicals and the trusted pre-migration GitHub Pages host.
+
+    The public URL is always derived from the real file path and emitted on the
+    custom domain. The legacy host is accepted only so old canonical metadata
+    cannot make every genuine page disappear from the migration sitemap.
+    """
+
     parsed = urlsplit(value)
     if not parsed.scheme and not parsed.netloc:
         return True
-    return parsed.scheme == "https" and parsed.netloc.lower() == "healthrenewal.org"
+    if parsed.scheme not in {"http", "https"}:
+        return False
+    host = parsed.netloc.lower()
+    if host == "healthrenewal.org":
+        return True
+    if host == "khaledaltheeb.github.io":
+        legacy_path = parsed.path.rstrip("/")
+        return legacy_path == "/pterminology-site" or legacy_path.startswith(
+            "/pterminology-site/"
+        )
+    return False
 
 
 def discover(root: Path) -> tuple[list[str], dict[str, list[str] | int]]:
@@ -146,10 +164,11 @@ def discover(root: Path) -> tuple[list[str], dict[str, list[str] | int]]:
             continue
         urls.append(BASE_URL + route_for(path, root))
 
-    duplicates = sorted({url for url in urls if urls.count(url) > 1})
+    counts = Counter(urls)
+    duplicates = sorted(url for url, count in counts.items() if count > 1)
     if duplicates:
         raise SystemExit(f"Duplicate canonical sitemap URLs: {duplicates[:25]}")
-    urls = sorted(set(urls))
+    urls = sorted(counts)
     return urls, {
         "html_files_discovered": len(html_files),
         **excluded,
