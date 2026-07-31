@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T18:39:27.427917+00:00",
+  "release": "canonical-seo-v363",
+  "workflow_run_id": "30655990276",
+  "source_artifact_run_id": "30653545703",
+  "canonical_domain": "https://healthrenewal.org/",
+  "self_referential_hreflang": true,
+  "homepage_heading_count_at_most_20": true,
+  "duplicate_homepage_headings": 0,
+  "homepage_images_without_alt": 0,
+  "authoritative_external_links_at_least_3": true,
+  "legacy_project_origin_present": false,
+  "robots_open": true,
+  "canonical_sitemaps_registered": true,
+  "files": {
+    "homepage": {
+      "http_status": 200,
+      "sha256": "576c129814f3d13727f246a0538668cf9331a0719158cd44ffa68ab3c936b154"
+    },
+    "robots": {
+      "http_status": 200,
+      "sha256": "501b64643aa2b076d05f8c7de5b1e05f23b08d9b01f012bc700cf79a7c6f0c5b"
+    },
+    "sitemap_index": {
+      "http_status": 200,
+      "sha256": "073d7d273699cfb6cb1c305859933b6197bdb52d60fab14d703156a59d5ca58c"
+    }
+  },
+  "passed": true
+}
