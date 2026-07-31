@@ -7,7 +7,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org/"
 ROUTE = "/partners/"
 URL = BASE + ROUTE
 PARTNERS_LINK = '<a href="partners/">الشركاء والشفافية</a>'
@@ -50,7 +50,7 @@ a{{color:#086e69}}header,footer{{padding:18px max(4vw,20px);background:var(--sof
 <body>
 <header>
 <strong>منصة الصحة النفسية وذوي الاحتياجات الخاصة</strong>
-<nav aria-label="التنقل الرئيسي"><a href="/pterminology-site/">الرئيسية</a><a href="/pterminology-site/trust/">الثقة والمنهجية</a><a href="/pterminology-site/special-needs/">ذوو الاحتياجات الخاصة</a><a href="/pterminology-site/care-guides/">أدلة التعامل</a></nav>
+<nav aria-label="التنقل الرئيسي"><a href="/">الرئيسية</a><a href="/trust/">الثقة والمنهجية</a><a href="/special-needs/">ذوو الاحتياجات الخاصة</a><a href="/care-guides/">أدلة التعامل</a></nav>
 </header>
 <main>
 <h1>الشركاء والتعاون والشفافية</h1>
@@ -73,7 +73,7 @@ a{{color:#086e69}}header,footer{{padding:18px max(4vw,20px);background:var(--sof
 <section aria-labelledby="collaboration"><h2 id="collaboration">مجالات التعاون المقبولة</h2><p>يمكن أن يشمل التعاون مراجعة علمية مستقلة، إتاحة وتوطين المعرفة، تدريب مقدمي الخدمة، دعم تقني أو بحثي، تمويل معلن، أو إحالة إلى خدمات موثوقة. لا يعني التعاون اعتمادًا سريريًا أو قانونيًا تلقائيًا، ولا يحول المحتوى التثقيفي إلى تشخيص أو علاج فردي.</p></section>
 <section aria-labelledby="corrections"><h2 id="corrections">التصحيح والاعتراض</h2><p>عند اكتشاف وصف غير دقيق لعلاقة مؤسسية، تُراجع الوثائق ويُصحح السجل مع توضيح تاريخ التحديث. لا يُستخدم شعار جهة أو علامتها التجارية قبل التحقق من الإذن وشروط الاستخدام.</p></section>
 </main>
-<footer><p><strong>معرفة تحترم الإنسان. دعم يوسّع الإمكانات.</strong></p><p><a href="/pterminology-site/trust/">الثقة والمنهجية</a> · <a href="/pterminology-site/">العودة إلى الرئيسية</a></p></footer>
+<footer><p><strong>معرفة تحترم الإنسان. دعم يوسّع الإمكانات.</strong></p><p><a href="/trust/">الثقة والمنهجية</a> · <a href="/">العودة إلى الرئيسية</a></p></footer>
 </body>
 </html>'''
 

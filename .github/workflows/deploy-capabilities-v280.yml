@@ -37,7 +37,7 @@ jobs:
       - name: Verify artifact evidence ancestry and rollback safety
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LIVE_URL: https://khaledaltheeb.github.io/pterminology-site/deployment.json
+          LIVE_URL: https://healthrenewal.org/deployment.json
         run: |
           set -euxo pipefail
           token="$(date +%s)"

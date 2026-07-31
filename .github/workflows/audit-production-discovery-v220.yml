@@ -234,7 +234,7 @@ jobs:
           assert 'comparisons/' in required and 'library/' in required, required
           index = (root / 'index.html').read_text(encoding='utf-8')
           for route in required:
-              assert f'href="{route}"' in index or f'href="/{route}"' in index or f'href="/pterminology-site/{route}"' in index, route
+              assert f'href="{route}"' in index or f'href="/{route}"' in index or f'href="/{route}"' in index, route
           print({
               'status': report['status'],
               'pages': report['pages'],

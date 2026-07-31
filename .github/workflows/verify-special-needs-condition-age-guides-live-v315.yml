@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      BASE_URL: https://healthrenewal.org/
       MINIMUM_SHA: 97943ff2edf59dd5e3243c8e53f7f0f858e64c9f
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -132,7 +132,7 @@ jobs:
           import xml.etree.ElementTree as ET
           from pathlib import Path
 
-          base = 'https://khaledaltheeb.github.io/pterminology-site/'
+          base = 'https://healthrenewal.org/'
           age = json.loads(Path('/tmp/age.json').read_text(encoding='utf-8'))
           central = json.loads(Path('/tmp/central.json').read_text(encoding='utf-8'))
           pages = {
@@ -181,7 +181,7 @@ jobs:
 
               parent = parents[slug]
               assert parent.count(f'data-age-guide="{slug}"') == 1, slug
-              assert parent.count(f'/pterminology-site/special-needs/{slug}/') == 1, slug
+              assert parent.count(f'/special-needs/{slug}/') == 1, slug
 
           sitemap_urls = [
               (node.text or '').strip()

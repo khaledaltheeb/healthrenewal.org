@@ -168,7 +168,7 @@ jobs:
               assert 'noindex' not in text.lower(), page
           robots = (root / 'robots.txt').read_text(encoding='utf-8')
           assert robots.count('# women-sector-v244') == 1
-          assert 'Allow: /pterminology-site/sectors/women/' in robots
+          assert 'Allow: /sectors/women/' in robots
           print({'women_sector': 'passed', 'guides': len(pages), 'hub_words': report['hub_words'], 'minimum_article_words': report['minimum_article_words']})
           PY
       - name: Upload real generated women-sector evidence

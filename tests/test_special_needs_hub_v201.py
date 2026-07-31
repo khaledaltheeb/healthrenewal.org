@@ -88,8 +88,8 @@ class SpecialNeedsHubV201Tests(unittest.TestCase):
         text = (site / "special-needs/index.html").read_text(encoding="utf-8")
         self.assertIn("executable-instructions-adhd-learning-difficulties", text)
         self.assertIn("inclusive-language-disability", text)
-        self.assertNotIn('href="/pterminology-site/special-needs/caregiver-wellbeing/"', text)
-        self.assertNotIn('href="/pterminology-site/special-needs/accessible-arabic-digital-content/"', text)
+        self.assertNotIn('href="/special-needs/caregiver-wellbeing/"', text)
+        self.assertNotIn('href="/special-needs/accessible-arabic-digital-content/"', text)
 
 
 if __name__ == "__main__":

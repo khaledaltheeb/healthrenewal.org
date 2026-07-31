@@ -42,7 +42,7 @@ class VisibleText(HTMLParser):
 def fixture_page(definition: dict, kind: str) -> str:
     payload = json.dumps(definition, ensure_ascii=False).replace("</", "<\\/")
     title = definition["title"]
-    return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>{title}</title><meta name="description" content="قصير"><meta name="twitter:card" content="summary"><link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/{kind}-lab/sample/"><link rel="manifest" href="/pterminology-site/manifest.webmanifest"><script type="application/json" id="lab-definition">{payload}</script></head><body><main><section><h1>{title}</h1><p>مقدمة.</p><div data-v12-lab="{kind}"></div></section><footer>النهاية</footer></main></body></html>'''
+    return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>{title}</title><meta name="description" content="قصير"><meta name="twitter:card" content="summary"><link rel="canonical" href="https://healthrenewal.org/{kind}-lab/sample/"><link rel="manifest" href="/manifest.webmanifest"><script type="application/json" id="lab-definition">{payload}</script></head><body><main><section><h1>{title}</h1><p>مقدمة.</p><div data-v12-lab="{kind}"></div></section><footer>النهاية</footer></main></body></html>'''
 
 
 class LabDepthV193Tests(unittest.TestCase):
@@ -128,7 +128,7 @@ class LabDepthV193Tests(unittest.TestCase):
                 self.assertIn('name="twitter:title"', page)
                 self.assertIn('name="twitter:description"', page)
                 self.assertIn('"@type": "FAQPage"', page)
-                self.assertIn('/pterminology-site/privacy/', page)
+                self.assertIn('/privacy/', page)
                 self.assertNotIn('content="قصير"', page)
                 parser = VisibleText()
                 parser.feed(page)

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import { chromium } from "playwright";
 
-const url = process.argv[2] || "http://127.0.0.1:8765/pterminology-site/provider-assessment-demo/";
+const url = process.argv[2] || "http://127.0.0.1:8765/provider-assessment-demo/";
 const output = process.argv[3] || "/tmp/provider-layout-probe-v225.json";
 const executablePath = process.env.CHROME_PATH || chromium.executablePath();
 const browser = await chromium.launch({

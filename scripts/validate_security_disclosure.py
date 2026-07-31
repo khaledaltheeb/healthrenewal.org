@@ -15,10 +15,10 @@ CONTACT_FORM = ROOT / ".github" / "ISSUE_TEMPLATE" / "security-contact.yml"
 REGISTER = ROOT / "docs" / "innovation-register.md"
 GENERATOR_PART = ROOT / ".generator-v6" / "part03"
 
-ADVISORY_URL = "https://github.com/khaledaltheeb/pterminology-site/security/advisories/new"
-FALLBACK_URL = "https://github.com/khaledaltheeb/pterminology-site/issues/new?template=security-contact.yml"
-WELL_KNOWN_CANONICAL = "https://khaledaltheeb.github.io/pterminology-site/.well-known/security.txt"
-ROOT_CANONICAL = "https://khaledaltheeb.github.io/pterminology-site/security.txt"
+ADVISORY_URL = "https://github.com/khaledaltheeb/healthrenewal.org/security/advisories/new"
+FALLBACK_URL = "https://github.com/khaledaltheeb/healthrenewal.org/issues/new?template=security-contact.yml"
+WELL_KNOWN_CANONICAL = "https://healthrenewal.org/.well-known/security.txt"
+ROOT_CANONICAL = "https://healthrenewal.org/security.txt"
 
 
 def fail(message: str) -> None:

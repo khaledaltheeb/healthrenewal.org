@@ -14,7 +14,7 @@ from publish_evidence_literacy_library_v322 import publish as publish_evidence_l
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 ROOT = Path(__file__).resolve().parents[1]
-BASE = os.environ.get("SITE_BASE", "https://khaledaltheeb.github.io/pterminology-site/").rstrip("/") + "/"
+BASE = os.environ.get("SITE_BASE", "https://healthrenewal.org/").rstrip("/") + "/"
 BASE_PATH = "/" + BASE.split("/", 3)[-1].strip("/") + "/"
 TODAY = date.today().isoformat()
 SOURCES = [

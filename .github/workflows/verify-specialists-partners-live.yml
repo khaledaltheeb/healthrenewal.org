@@ -73,7 +73,7 @@ jobs:
     timeout-minutes: 15
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      BASE_URL: https://healthrenewal.org/
     steps:
       - uses: actions/checkout@v4
         with:

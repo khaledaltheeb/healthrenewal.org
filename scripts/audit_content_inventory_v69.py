@@ -12,9 +12,9 @@ from pathlib import Path
 from urllib.parse import urljoin, urlparse
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
-BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE_URL = "https://healthrenewal.org/"
 BASE_HOST = "khaledaltheeb.github.io"
-BASE_PATH = "/pterminology-site/"
+BASE_PATH = "/"
 WORD_RE = re.compile(r"[\w\u0600-\u06ff]+", re.UNICODE)
 SPACE_RE = re.compile(r"\s+")
 DIACRITICS_RE = re.compile(r"[\u0610-\u061a\u064b-\u065f\u0670\u06d6-\u06ed]")

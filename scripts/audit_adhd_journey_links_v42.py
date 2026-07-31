@@ -7,11 +7,11 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
-BASE_PATH = "/pterminology-site/"
+BASE_PATH = "/"
 TARGET = "care-guides/adhd-family-practical-guide/index.html"
 TARGET_HREF = f"{BASE_PATH}care-guides/adhd-family-practical-guide/"
-TARGET_URL = "https://khaledaltheeb.github.io" + TARGET_HREF
-CARE_SITEMAP_URL = "https://khaledaltheeb.github.io/pterminology-site/sitemap-care-guides.xml"
+TARGET_URL = "https://healthrenewal.org" + TARGET_HREF
+CARE_SITEMAP_URL = "https://healthrenewal.org/sitemap-care-guides.xml"
 
 
 def read(rel: str) -> str:

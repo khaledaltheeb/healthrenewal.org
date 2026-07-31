@@ -8,7 +8,7 @@ import urllib.request
 from pathlib import Path
 
 RELATIVE_PATH = "specialists-partners/data/provider-import-template.csv"
-LIVE_URL = "https://khaledaltheeb.github.io/pterminology-site/" + RELATIVE_PATH
+LIVE_URL = "https://healthrenewal.org/" + RELATIVE_PATH
 EXPECTED_HEADERS = (
     "id",
     "entityType",

@@ -20,7 +20,7 @@ jobs:
 
       - name: Verify generators and build v7 site
         env:
-          SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+          SITE_BASE: https://healthrenewal.org/
         run: |
           set -euo pipefail
           cat \
@@ -49,7 +49,7 @@ jobs:
 
           root = Path("_site").resolve()
           host = "khaledaltheeb.github.io"
-          base_path = "/pterminology-site/"
+          base_path = "/"
           errors: list[str] = []
           titles: list[str] = []
           canonicals: list[str] = []

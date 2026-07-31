@@ -17,8 +17,8 @@ from typing import Any
 from urllib.parse import urlparse
 
 VERSION = 247
-BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
-BASE_PATH = "/pterminology-site/"
+BASE_URL = "https://healthrenewal.org/"
+BASE_PATH = "/"
 BLOCKED_SLUG = "autism-family-practical-guide"
 MINIMUM_GUIDES = 100
 MINIMUM_VISIBLE_WORDS = 650

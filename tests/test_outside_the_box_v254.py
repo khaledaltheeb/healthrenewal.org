@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PUBLISHER = ROOT / "scripts" / "publish_outside_the_box_v254.py"
 DATA = ROOT / "content" / "v254" / "outside-the-box-conditions-ar.json"
 INSTRUMENTS = ROOT / "content" / "v254" / "outside-the-box-instruments-ar.json"
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 
 
 def load_publisher():
@@ -260,7 +260,7 @@ class OutsideTheBoxPublisherV254(unittest.TestCase):
         self.assertEqual(hub.count("outside-the-box-v254:start"), 1)
         self.assertEqual(hub.count("outside-the-box-v254:end"), 1)
         self.assertIn(
-            'href="/pterminology-site/outside-the-box/"',
+            'href="/outside-the-box/"',
             hub,
         )
         self.assertIn("تصفح 100 حالة", hub)

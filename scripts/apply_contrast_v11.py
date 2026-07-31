@@ -39,7 +39,7 @@ def main() -> int:
     if MARKER_JS not in current_js:
         js_target.write_text(current_js.rstrip() + "\n\n" + js_payload.rstrip() + "\n", encoding="utf-8")
 
-    site_base = os.environ.get("SITE_BASE", "https://khaledaltheeb.github.io/pterminology-site/")
+    site_base = os.environ.get("SITE_BASE", "https://healthrenewal.org/")
     base_path = urlparse(site_base).path.rstrip("/") + "/"
     css_url = f"{base_path}assets/css/theme-v10.css"
     js_url = f"{base_path}assets/js/app-v10.js"

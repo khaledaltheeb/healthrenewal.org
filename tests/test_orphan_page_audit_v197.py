@@ -22,7 +22,7 @@ class OrphanAuditTests(unittest.TestCase):
             target = site / "encyclopedia" / "index.html"
             target.parent.mkdir()
             target.write_text(PAGE.format(''), encoding="utf-8")
-            (site / "sitemap-content.xml").write_text('<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://khaledaltheeb.github.io/pterminology-site/</loc></url><url><loc>https://khaledaltheeb.github.io/pterminology-site/encyclopedia/</loc></url></urlset>', encoding="utf-8")
+            (site / "sitemap-content.xml").write_text('<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://healthrenewal.org/</loc></url><url><loc>https://healthrenewal.org/encyclopedia/</loc></url></urlset>', encoding="utf-8")
             report = module.audit(site)
             self.assertEqual(report["status"], "passed")
             (site / "index.html").write_text(PAGE.format(''), encoding="utf-8")
@@ -50,7 +50,7 @@ class OrphanAuditTests(unittest.TestCase):
                 PAGE.replace(
                     "</head>",
                     '<meta name="robots" content="noindex,follow">'
-                    '<meta http-equiv="refresh" content="0;url=/pterminology-site/learning-paths/current-path/">'
+                    '<meta http-equiv="refresh" content="0;url=/learning-paths/current-path/">'
                     "</head>",
                 ).format('<a href="../current-path/">المسار الحالي</a>'),
                 encoding="utf-8",
@@ -98,9 +98,9 @@ class OrphanAuditTests(unittest.TestCase):
                 page.write_text(PAGE.format(''), encoding="utf-8")
             (site / "sitemap-institutional.xml").write_text(
                 '<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-                '<url><loc>https://khaledaltheeb.github.io/pterminology-site/</loc></url>'
-                '<url><loc>https://khaledaltheeb.github.io/pterminology-site/magazine/</loc></url>'
-                '<url><loc>https://khaledaltheeb.github.io/pterminology-site/trust/</loc></url>'
+                '<url><loc>https://healthrenewal.org/</loc></url>'
+                '<url><loc>https://healthrenewal.org/magazine/</loc></url>'
+                '<url><loc>https://healthrenewal.org/trust/</loc></url>'
                 '</urlset>',
                 encoding="utf-8",
             )
@@ -123,8 +123,8 @@ class OrphanAuditTests(unittest.TestCase):
             (site / "index.html").write_text(PAGE.format('<a href="sections/">جميع الأقسام</a>'), encoding="utf-8")
             (site / "sitemap-sections.xml").write_text(
                 '<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-                '<url><loc>https://khaledaltheeb.github.io/pterminology-site/</loc></url>'
-                '<url><loc>https://khaledaltheeb.github.io/pterminology-site/sections/</loc></url>'
+                '<url><loc>https://healthrenewal.org/</loc></url>'
+                '<url><loc>https://healthrenewal.org/sections/</loc></url>'
                 '</urlset>',
                 encoding="utf-8",
             )

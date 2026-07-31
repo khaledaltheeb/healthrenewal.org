@@ -32,13 +32,13 @@ jobs:
           rm -rf /tmp/sitemap-fixture
           mkdir -p /tmp/sitemap-fixture/a /tmp/sitemap-fixture/private /tmp/sitemap-fixture/api
           cat > /tmp/sitemap-fixture/index.html <<'HTML'
-          <!doctype html><html><head><title>Home</title><meta name="description" content="Home description"><link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/"><meta property="og:url" content="https://khaledaltheeb.github.io/pterminology-site/"></head><body><h1>Home</h1><a href="/pterminology-site/a/">A</a></body></html>
+          <!doctype html><html><head><title>Home</title><meta name="description" content="Home description"><link rel="canonical" href="https://healthrenewal.org/"><meta property="og:url" content="https://healthrenewal.org/"></head><body><h1>Home</h1><a href="/a/">A</a></body></html>
           HTML
           cat > /tmp/sitemap-fixture/a/index.html <<'HTML'
-          <!doctype html><html><head><title>A</title><meta name="description" content="A description"><link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/a/"></head><body><h1>A</h1></body></html>
+          <!doctype html><html><head><title>A</title><meta name="description" content="A description"><link rel="canonical" href="https://healthrenewal.org/a/"></head><body><h1>A</h1></body></html>
           HTML
           cat > /tmp/sitemap-fixture/private/index.html <<'HTML'
-          <!doctype html><html><head><title>Private</title><meta name="description" content="Private description"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/private/"></head><body><h1>Private</h1></body></html>
+          <!doctype html><html><head><title>Private</title><meta name="description" content="Private description"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://healthrenewal.org/private/"></head><body><h1>Private</h1></body></html>
           HTML
           printf 'google-site-verification: google644f1f7a8b7aaa2b.html\n' > /tmp/sitemap-fixture/google644f1f7a8b7aaa2b.html
           cat > /tmp/sitemap-fixture/sitemap-provider-assessment.xml <<'XML'
@@ -47,7 +47,7 @@ jobs:
           cat > /tmp/sitemap-fixture/robots.txt <<'TXT'
           User-agent: *
           Disallow: /
-          Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap-index.xml
+          Sitemap: https://healthrenewal.org/sitemap-index.xml
           Sitemap: https://healthrenewal.org/sitemap-provider-assessment.xml
           TXT
 
@@ -72,11 +72,11 @@ jobs:
           assert robots.count('Sitemap: https://healthrenewal.org/sitemap.xml')==1,robots
           assert robots.count('Sitemap: https://healthrenewal.org/sitemap-index.xml')==1,robots
           assert robots.count('Sitemap: https://healthrenewal.org/sitemap-provider-assessment.xml')==1,robots
-          assert 'khaledaltheeb.github.io/pterminology-site' not in robots,robots
+          assert 'khaledaltheeb.github.io/' not in robots,robots
           for page in (root/'index.html',root/'a/index.html'):
               text=page.read_text()
-              assert 'khaledaltheeb.github.io/pterminology-site' not in text,text
-              assert '/pterminology-site/' not in text,text
+              assert 'khaledaltheeb.github.io/' not in text,text
+              assert '/' not in text,text
               assert 'https://healthrenewal.org/' in text,text
           report=json.loads((root/'api/indexing-coverage-audit-v303.json').read_text())
           assert report['status']=='passed',report

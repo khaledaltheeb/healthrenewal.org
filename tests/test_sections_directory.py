@@ -23,7 +23,7 @@ class SectionsDirectoryTests(unittest.TestCase):
 
     def test_metadata_and_structured_data(self) -> None:
         self.assertIn(
-            'rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/sections/"',
+            'rel="canonical" href="https://healthrenewal.org/sections/"',
             self.html,
         )
         self.assertIn('data-sections-directory="v1"', self.html)

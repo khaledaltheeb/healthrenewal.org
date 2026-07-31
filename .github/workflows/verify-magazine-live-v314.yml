@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      BASE_URL: https://healthrenewal.org/
     steps:
       - name: Download live magazine contracts
         run: |
@@ -44,7 +44,7 @@ jobs:
           from email.utils import parsedate_to_datetime
           from pathlib import Path
 
-          base = 'https://khaledaltheeb.github.io/pterminology-site/magazine/'
+          base = 'https://healthrenewal.org/magazine/'
           filename = 'college-digital-cbt-guided-self-help-rct-2026.html'
           api = json.loads(Path('/tmp/api.json').read_text(encoding='utf-8'))
           assert api['version'] >= 315, api['version']

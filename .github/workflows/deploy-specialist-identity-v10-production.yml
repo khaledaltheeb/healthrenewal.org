@@ -146,11 +146,11 @@ jobs:
           workers_dev = true
 
           [vars]
-          ALLOWED_ORIGINS = "https://khaledaltheeb.github.io,https://healthrenewal.org,https://www.healthrenewal.org"
-          ACCOUNT_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/account/"
-          ADMIN_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/"
-          PASSWORD_RESET_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/password-reset/"
-          PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
+          ALLOWED_ORIGINS = "https://healthrenewal.org,https://healthrenewal.org,https://www.healthrenewal.org"
+          ACCOUNT_BASE_URL = "https://healthrenewal.org/specialists-partners/account/"
+          ADMIN_BASE_URL = "https://healthrenewal.org/specialists-partners/admin/"
+          PASSWORD_RESET_BASE_URL = "https://healthrenewal.org/specialists-partners/password-reset/"
+          PORTAL_BASE_URL = "https://healthrenewal.org/specialists-partners/portal/"
           CORE_API_BASE = "{os.environ['CORE_API_BASE']}"
           TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io,healthrenewal.org,www.healthrenewal.org"
           IDENTITY_SESSION_HOURS = "12"

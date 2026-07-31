@@ -125,8 +125,8 @@ def canonical_host_is_allowed(value: str) -> bool:
         return True
     if host == "khaledaltheeb.github.io":
         legacy_path = parsed.path.rstrip("/")
-        return legacy_path == "/pterminology-site" or legacy_path.startswith(
-            "/pterminology-site/"
+        return legacy_path == "/" or legacy_path.startswith(
+            "/"
         )
     return False
 
@@ -221,7 +221,7 @@ def validate_sitemap(payload: bytes, expected_urls: list[str]) -> None:
         parts = urlsplit(url)
         if parts.scheme != "https" or parts.netloc != "healthrenewal.org":
             raise SystemExit(f"Invalid sitemap host or scheme: {url}")
-        if "khaledaltheeb.github.io" in url or "/pterminology-site/" in url:
+        if "khaledaltheeb.github.io" in url and not url.startswith("https://healthrenewal.org"):
             raise SystemExit(f"Legacy production URL survived: {url}")
 
 

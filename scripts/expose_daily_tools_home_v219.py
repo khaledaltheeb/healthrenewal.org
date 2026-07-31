@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "index.html"
 VERIFY = ROOT / "scripts" / "verify_homepage_v19.py"
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 RELEASE = 219
 TOOL_COUNT = 100
 PATH_COUNT = 10
@@ -158,18 +158,18 @@ def patch_verifier() -> None:
     )
     text = insert_after_once(text, assertion_marker, assertion_addition, "Interactive tools are not visibly described")
 
-    jsonld_marker = '    assert "https://khaledaltheeb.github.io/pterminology-site/guided-assessment/" in part_urls\n'
+    jsonld_marker = '    assert "https://healthrenewal.org/guided-assessment/" in part_urls\n'
     text = insert_after_once(
         text,
         jsonld_marker,
-        '    assert "https://khaledaltheeb.github.io/pterminology-site/daily-tools/" in part_urls\n',
-        '"https://khaledaltheeb.github.io/pterminology-site/daily-tools/" in part_urls',
+        '    assert "https://healthrenewal.org/daily-tools/" in part_urls\n',
+        '"https://healthrenewal.org/daily-tools/" in part_urls',
     )
     text = insert_after_once(
         text,
         jsonld_marker,
-        '    assert "https://khaledaltheeb.github.io/pterminology-site/learning-paths/" in part_urls\n',
-        '"https://khaledaltheeb.github.io/pterminology-site/learning-paths/" in part_urls',
+        '    assert "https://healthrenewal.org/learning-paths/" in part_urls\n',
+        '"https://healthrenewal.org/learning-paths/" in part_urls',
     )
 
     report_contract = re.search(r'"interactive_tools_discovery_contract"\s*:\s*(\d+)', text)
@@ -189,8 +189,8 @@ def patch_verifier() -> None:
         '    "daily-tools/",',
         '    "learning-paths/",',
         "Interactive tools are not visibly described",
-        '"https://khaledaltheeb.github.io/pterminology-site/daily-tools/" in part_urls',
-        '"https://khaledaltheeb.github.io/pterminology-site/learning-paths/" in part_urls',
+        '"https://healthrenewal.org/daily-tools/" in part_urls',
+        '"https://healthrenewal.org/learning-paths/" in part_urls',
         '"daily_tools_linked": True',
         '"learning_paths_linked": True',
         "interactive_tools_discovery_contract",

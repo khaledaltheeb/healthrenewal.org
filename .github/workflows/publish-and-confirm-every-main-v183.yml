@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+  SITE_BASE: https://healthrenewal.org/
 
 jobs:
   publish-and-confirm:

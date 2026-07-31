@@ -21,8 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
-      TOOLS_URL: https://khaledaltheeb.github.io/pterminology-site/tools/
-      DEPLOYMENT_URL: https://khaledaltheeb.github.io/pterminology-site/deployment.json
+      TOOLS_URL: https://healthrenewal.org/tools/
+      DEPLOYMENT_URL: https://healthrenewal.org/deployment.json
     steps:
       - uses: actions/setup-python@v5
         with:
@@ -100,7 +100,7 @@ jobs:
           evidence = {
               'version': 245,
               'status': 'passed',
-              'route': '/pterminology-site/tools/',
+              'route': '/tools/',
               'live_commit': commit,
               'design': 'marshmallow-v245',
               'light_cards_enforced': True,

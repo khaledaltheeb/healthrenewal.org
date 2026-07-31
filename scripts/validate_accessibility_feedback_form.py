@@ -16,8 +16,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 FORM_PATH = Path(".github/ISSUE_TEMPLATE/accessibility-barrier.yml")
-STATEMENT_URL = "https://khaledaltheeb.github.io/pterminology-site/accessibility/"
-PUBLIC_SITE_PREFIX = "https://khaledaltheeb.github.io/pterminology-site/"
+STATEMENT_URL = "https://healthrenewal.org/accessibility/"
+PUBLIC_SITE_PREFIX = "https://healthrenewal.org/"
 
 EXPECTED_FIELDS = {
     "page_url": ("input", True),
@@ -313,7 +313,7 @@ def run_self_test(root: Path) -> int:
         assert_rejected(duplicate_id, "duplicate issue-form field IDs", "duplicate field ID")
 
         external_placeholder = good.replace(
-            "placeholder: https://khaledaltheeb.github.io/pterminology-site/...",
+            "placeholder: https://healthrenewal.org/...",
             "placeholder: https://example.com/private?token=123",
             1,
         )

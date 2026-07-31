@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      BASE_URL: https://healthrenewal.org/
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       TRIGGER_REPORTED_SHA: ${{ github.event.workflow_run.head_sha }}
     steps:

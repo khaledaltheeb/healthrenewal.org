@@ -214,7 +214,7 @@ class ProviderConditionDiscoveryCompatV238Tests(unittest.TestCase):
         self.assertEqual(directory.count("data-provider-condition-discovery-v238-schema"), 1)
         self.assertIn('"@type": "ItemList"', directory)
         self.assertEqual(robots.count(f"Sitemap: {CHILD_SITEMAP}"), 1)
-        self.assertNotIn("khaledaltheeb.github.io/pterminology-site", robots)
+        self.assertNotIn("khaledaltheeb.github.io/", robots)
         self.assertFalse(any(line.lower().startswith("disallow:") for line in robots.splitlines()))
         for slug in SLUGS:
             self.assertEqual(directory.count(f'href="{slug}/"'), 1)

@@ -32,8 +32,8 @@ class TrustGuideLinkCompatibilityV201Tests(unittest.TestCase):
 
         page = site / "guides/source-citation-and-update-transparency/index.html"
         text = page.read_text(encoding="utf-8")
-        self.assertNotIn('href="/pterminology-site/blog/"', text)
-        self.assertIn('href="/pterminology-site/magazine/"', text)
+        self.assertNotIn('href="/blog/"', text)
+        self.assertIn('href="/magazine/"', text)
 
         report = json.loads((site / "api/trust-guides-v201.json").read_text(encoding="utf-8"))
         self.assertEqual(report["link_compatibility"]["active_route"], "/magazine/")

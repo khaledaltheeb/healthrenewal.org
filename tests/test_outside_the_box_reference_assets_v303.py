@@ -13,7 +13,7 @@ BASE_PUBLISHER = ROOT / "scripts" / "publish_outside_the_box_v254.py"
 TEN_PLAN_PUBLISHER = ROOT / "scripts" / "publish_outside_the_box_ten_plans_v302.py"
 REFERENCE_PUBLISHER = ROOT / "scripts" / "publish_outside_the_box_reference_assets_v303.py"
 INSTRUMENTS = ROOT / "content" / "v254" / "outside-the-box-instruments-ar.json"
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 
 
 def load(path: Path, name: str):
@@ -114,8 +114,8 @@ class OutsideTheBoxReferenceAssetsV303(unittest.TestCase):
         registry = (
             self.site / "outside-the-box/instruments/index.html"
         ).read_text(encoding="utf-8")
-        self.assertIn('/pterminology-site/outside-the-box/instruments/', evidence)
-        self.assertIn('/pterminology-site/api/outside-the-box-evidence-standard-v301.json', evidence)
+        self.assertIn('/outside-the-box/instruments/', evidence)
+        self.assertIn('/api/outside-the-box-evidence-standard-v301.json', evidence)
         self.assertIn('../evidence-standard/', registry)
         self.assertIn('../ten-plan-methodology/', registry)
 

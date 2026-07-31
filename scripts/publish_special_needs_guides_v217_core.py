@@ -16,7 +16,7 @@ import publish_special_needs_guides_v211 as batch211
 import publish_special_needs_guides_v212 as batch212
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org/"
 BATCHES: tuple[tuple[int, Callable[[Path], dict[str, Any]], Path], ...] = (
     (209, batch209.publish, ROOT / "content" / "v209" / "special-needs-guides-manifest-ar.json"),
     (210, batch210.publish, ROOT / "content" / "v210" / "special-needs-guides-manifest-ar.json"),
@@ -63,8 +63,8 @@ def validate_page(site: Path, slug: str, expected_title: str) -> dict[str, Any]:
         "متى نطلب مساعدة متخصصة؟",
         "المصادر والمنهج",
         "المراجعة الخارجية المتخصصة موصى بها",
-        "/pterminology-site/special-needs/",
-        "/pterminology-site/trust/",
+        "/special-needs/",
+        "/trust/",
     )
     missing = [marker for marker in required if marker not in source]
     if missing:
@@ -135,7 +135,7 @@ def validate_discovery(site: Path, slugs: list[str]) -> dict[str, Any]:
     for version in (209, 210, 211, 212):
         if f"<!-- special-needs-guides-v{version}:start -->" not in hub:
             raise SystemExit(f"Special-needs hub is missing v{version} guide block")
-    missing_links = [slug for slug in slugs if f"/pterminology-site/special-needs/{slug}/" not in hub]
+    missing_links = [slug for slug in slugs if f"/special-needs/{slug}/" not in hub]
     if missing_links:
         raise SystemExit(f"Special-needs hub is missing guide links: {missing_links}")
 

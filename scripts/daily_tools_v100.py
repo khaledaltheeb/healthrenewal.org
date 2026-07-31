@@ -127,7 +127,7 @@ def enhance_index(data: dict, site: Path) -> None:
     path = site / "daily-tools/index.html"
     text = path.read_text(encoding="utf-8")
     cards = "".join(
-        f'<article data-tool-card data-category="{e(tool["category_id"])}" data-search="{e(" ".join([tool["title"],tool["intent"],tool["category"],*tool["audience"]]))}"><span class="tool-kicker">{e(tool["category"])}</span><h2>{e(tool["title"])}</h2><p>{e(tool["intent"])}</p><div class="meta-row"><span class="meta">{e(tool["duration"])}</span><span class="meta">{e("، ".join(tool["audience"][:2]))}</span></div><a class="button" href="/pterminology-site/daily-tools/{e(tool["slug"])}/">فتح الأداة</a></article>'
+        f'<article data-tool-card data-category="{e(tool["category_id"])}" data-search="{e(" ".join([tool["title"],tool["intent"],tool["category"],*tool["audience"]]))}"><span class="tool-kicker">{e(tool["category"])}</span><h2>{e(tool["title"])}</h2><p>{e(tool["intent"])}</p><div class="meta-row"><span class="meta">{e(tool["duration"])}</span><span class="meta">{e("، ".join(tool["audience"][:2]))}</span></div><a class="button" href="/daily-tools/{e(tool["slug"])}/">فتح الأداة</a></article>'
         for tool in data["tools"]
     )
     options = "".join(f'<option value="{e(item["id"])}">{e(item["name"])} ({item["tool_count"]})</option>' for item in data["categories"])
@@ -160,7 +160,7 @@ def enhance_tool_pages(data: dict, site: Path) -> None:
             replacement = f'<section><h2>خطوات الاستخدام</h2><progress data-step-progress value="0" max="{len(items)}"></progress><p class="status" data-step-status aria-live="polite">أُنجز 0 من {len(items)}</p><ol class="step-list">{rendered}</ol></section>'
             text = text[:step_match.start()] + replacement + text[step_match.end():]
         related = [item for item in by_category[tool["category_id"]] if item["slug"] != tool["slug"]][:4]
-        related_html = "<section><h2>أدوات مرتبطة</h2><ul>" + "".join(f'<li><a href="/pterminology-site/daily-tools/{e(item["slug"])}/">{e(item["title"])}</a></li>' for item in related) + "</ul></section>"
+        related_html = "<section><h2>أدوات مرتبطة</h2><ul>" + "".join(f'<li><a href="/daily-tools/{e(item["slug"])}/">{e(item["title"])}</a></li>' for item in related) + "</ul></section>"
         sources_html = f'<section><h2>مصادر المنهج الخاصة بهذه الأداة</h2>{source_list(data, tool["source_ids"])}</section>'
         text, count = re.subn(r'<section><h2>مصادر المنهج</h2>.*?</section>', related_html + sources_html, text, count=1, flags=re.S)
         if count != 1:

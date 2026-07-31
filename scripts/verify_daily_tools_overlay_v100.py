@@ -90,8 +90,8 @@ def verify(site: Path) -> dict[str, object]:
             add_error(errors, "missing_legacy_path_alias", old_slug=old_slug, new_slug=new_slug)
             continue
         text = read(page)
-        expected_path = f"/pterminology-site/learning-paths/{new_slug}/"
-        expected_canonical = f"https://khaledaltheeb.github.io/pterminology-site/learning-paths/{new_slug}/"
+        expected_path = f"/learning-paths/{new_slug}/"
+        expected_canonical = f"https://healthrenewal.org/learning-paths/{new_slug}/"
         for marker in (
             '<meta name="robots" content="noindex,follow">',
             f'content="0;url={expected_path}"',

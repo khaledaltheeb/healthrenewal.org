@@ -47,7 +47,7 @@ jobs:
               if noindex_re.search(text): noindex.append(rel.as_posix())
               m=canon_re.search(text) or canon_rev.search(text)
               if not m: missingcanon.append(rel.as_posix())
-              elif 'khaledaltheeb.github.io/pterminology-site' in m.group(1): oldcanon.append((rel.as_posix(),m.group(1)))
+              elif 'khaledaltheeb.github.io/' in m.group(1): oldcanon.append((rel.as_posix(),m.group(1)))
 
           current=[]; parse_error='none'
           try:
@@ -60,7 +60,7 @@ jobs:
           print('generated_unique_urls=',len(set(urls)))
           print('generated_duplicates=',len(urls)-len(set(urls)))
           print('existing_sitemap_urls=',len(current))
-          print('existing_old_domain_urls=',sum('khaledaltheeb.github.io/pterminology-site' in u for u in current))
+          print('existing_old_domain_urls=',sum('khaledaltheeb.github.io/' in u for u in current))
           print('existing_new_domain_urls=',sum(u.startswith('https://healthrenewal.org') for u in current))
           print('sitemap_parse_error=',parse_error)
           print('noindex_pages=',len(noindex))

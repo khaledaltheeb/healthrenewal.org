@@ -10,7 +10,7 @@ from collections import OrderedDict
 from pathlib import Path
 from typing import Any
 
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 BRAND = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
 VERSION = 221
 START = "<!-- section-directory-v221:start -->"

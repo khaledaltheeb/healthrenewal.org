@@ -14,8 +14,8 @@ from care_guides_catalog_v246 import institutional_guides
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 RELEASE_DATE = "2026-07-26"
 CONTENT_RELEASE_VERSION = 246
 EXPECTED_LEGACY_SOURCE_GUIDES = 14

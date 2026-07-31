@@ -75,7 +75,7 @@ jobs:
           set -euxo pipefail
           grep -q 'href="sectors/"' index.html
           grep -q '"sectors/"' scripts/audit_publication_surface_v322.py
-          grep -q 'https://khaledaltheeb.github.io/pterminology-site/sectors/' sectors/index.html
+          grep -q 'https://healthrenewal.org/sectors/' sectors/index.html
           grep -q '"@type":"ItemList"' sectors/index.html
           grep -q '"@type":"FAQPage"' sectors/index.html
           grep -q 'مراجعة تحريرية ومنهجية داخلية' sectors/index.html

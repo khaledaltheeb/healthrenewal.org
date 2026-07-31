@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Any
 
 VERSION = 241
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 BANNED = re.compile(r"(?<!\w)(?:المعاقين|معاقين|المعاقون|معاقون|المعاقة|معاقة|المعاق|معاق)(?!\w)")
 PATHWAY_ANCHORS = (
     "pathway-communication",

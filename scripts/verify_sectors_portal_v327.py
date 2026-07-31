@@ -10,7 +10,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlparse
 
-CANONICAL = "https://khaledaltheeb.github.io/pterminology-site/sectors/"
+CANONICAL = "https://healthrenewal.org/sectors/"
 REQUIRED_SCHEMAS = {"CollectionPage", "BreadcrumbList", "ItemList", "FAQPage"}
 REQUIRED_SECTIONS = {
     "choose-sector",

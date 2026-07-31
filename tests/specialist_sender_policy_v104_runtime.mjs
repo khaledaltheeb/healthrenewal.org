@@ -40,16 +40,16 @@ assert.equal(declared.code, 'sender_domain_declared_verified');
 const response = await worker.fetch(
   new Request('https://pterminology-specialist-accounts.example/v1/auth/password/request', {
     method:'POST',
-    headers:{origin:'https://khaledaltheeb.github.io'},
+    headers:{origin:'https://healthrenewal.org'},
   }),
   {
     FROM_EMAIL:'pterminology@gmail.com',
-    ALLOWED_ORIGINS:'https://khaledaltheeb.github.io',
+    ALLOWED_ORIGINS:'https://healthrenewal.org',
   },
   {waitUntil() {}},
 );
 assert.equal(response.status, 503);
-assert.equal(response.headers.get('access-control-allow-origin'), 'https://khaledaltheeb.github.io');
+assert.equal(response.headers.get('access-control-allow-origin'), 'https://healthrenewal.org');
 const payload = await response.json();
 assert.equal(payload.error, 'email_sender_not_verified');
 assert.equal(payload.senderReady, false);

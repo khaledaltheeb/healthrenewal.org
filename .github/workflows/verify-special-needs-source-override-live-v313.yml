@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      BASE_URL: https://healthrenewal.org/
       MINIMUM_SHA: c3b20e228bc541009887ead3f61603f64d7df27b
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -134,7 +134,7 @@ jobs:
           import xml.etree.ElementTree as ET
           from pathlib import Path
 
-          base = 'https://khaledaltheeb.github.io/pterminology-site/'
+          base = 'https://healthrenewal.org/'
           corrected = 'https://apps.asha.org/EvidenceMaps/Maps/LandingPage/990772a6-9cd8-4203-a76c-6ccd91eac874'
           corrected_title = 'Augmentative and Alternative Communication (AAC) Evidence Map'
           obsolete = (

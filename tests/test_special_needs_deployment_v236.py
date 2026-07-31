@@ -43,7 +43,7 @@ class SpecialNeedsDeploymentV236Tests(unittest.TestCase):
             for version in BATCHES
         )
         links = "".join(
-            f'<a href="/pterminology-site/special-needs/{slug}/">{slug}</a>' for slug in SLUGS
+            f'<a href="/special-needs/{slug}/">{slug}</a>' for slug in SLUGS
         )
         (self.site / "special-needs/index.html").write_text(
             f"<!doctype html><html lang='ar'><head><meta name='robots' content='index,follow'></head><body><h1>المركز</h1>{markers}{links}</body></html>",
@@ -84,7 +84,7 @@ class SpecialNeedsDeploymentV236Tests(unittest.TestCase):
     def test_duplicate_hub_link_is_rejected(self) -> None:
         hub = self.site / "special-needs/index.html"
         text = hub.read_text(encoding="utf-8")
-        route = "/pterminology-site/special-needs/guide-00/"
+        route = "/special-needs/guide-00/"
         hub.write_text(text + f'<a href="{route}">duplicate</a>', encoding="utf-8")
         with self.assertRaisesRegex(AssertionError, "duplicate guide links"):
             verify(self.site, "artifact", SHA)

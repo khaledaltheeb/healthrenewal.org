@@ -159,6 +159,37 @@ body.pt-platform button,
 body.pt-platform .button,
 body.pt-platform .btn {
   min-height: 44px;
+  color: var(--pt-ink);
+  background: #fff;
+  border: 1px solid var(--pt-line);
+  border-radius: 11px;
+  padding: 0.6rem 0.9rem;
+  font-weight: 800;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+body.pt-platform .hero .button,
+body.pt-platform .hero .btn,
+body.pt-platform .hero a,
+body.pt-platform .hero button {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, var(--pt-brand-strong) 0%, var(--pt-brand) 100%) !important;
+  border-color: var(--pt-brand-strong) !important;
+  box-shadow: 0 10px 24px rgba(6, 74, 71, 0.18);
+}
+
+body.pt-platform .hero .button:hover,
+body.pt-platform .hero .btn:hover,
+body.pt-platform .hero a:hover,
+body.pt-platform .hero button:hover {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, var(--pt-brand) 0%, #0b8078 100%) !important;
+  border-color: var(--pt-brand) !important;
+  box-shadow: 0 12px 26px rgba(6, 74, 71, 0.22);
 }
 
 /* Universal platform shell: fixed over a pre-reserved area to prevent CLS. */

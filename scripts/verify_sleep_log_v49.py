@@ -35,7 +35,7 @@ def write_minimal_sitemap(site: Path) -> None:
         '<!doctype html><html lang="ar" dir="rtl"><head><title>منصة اختبار</title>'
         '<meta name="keywords" content="الصحة النفسية">'
         '<script type="application/ld+json">'
-        '{"@context":"https://schema.org","@graph":[{"@type":"CollectionPage","@id":"https://khaledaltheeb.github.io/pterminology-site/#home","hasPart":[]}]}'
+        '{"@context":"https://schema.org","@graph":[{"@type":"CollectionPage","@id":"https://healthrenewal.org/#home","hasPart":[]}]}'
         '</script></head><body><nav><a href="provider-assessment-demo/">منصة التقييم</a></nav>'
         '<article><a href="cognitive-tests/">فتح المهام</a></article></body></html>',
         encoding="utf-8",

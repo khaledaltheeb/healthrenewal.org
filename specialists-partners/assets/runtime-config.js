@@ -2,7 +2,7 @@ window.PT_SPECIALIST_CONFIG = Object.freeze({
   apiBase: "https://pterminology-specialists.pterminology-826ac349.workers.dev",
   accountApiBase: "https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev",
   turnstileSiteKey: "0x4AAAAAAD_r2o__Ao1RmBTO",
-  siteBase: "https://khaledaltheeb.github.io/pterminology-site",
+  siteBase: "https://healthrenewal.org/",
   sectorBase: "https://healthrenewal.org/specialists-partners",
   environment: "production",
   identityVersion: "10.3.0"

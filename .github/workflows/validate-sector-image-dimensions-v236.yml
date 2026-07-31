@@ -54,10 +54,10 @@ jobs:
           <svg xmlns="http://www.w3.org/2000/svg" width="960" height="640" viewBox="0 0 960 640"><rect width="960" height="640"/></svg>
           SVG
           cat > "$SITE/sectors/child/example/index.html" <<'HTML'
-          <html><body><main><img src="/pterminology-site/assets/illustrations/child.svg" alt="طفل"></main></body></html>
+          <html><body><main><img src="/assets/illustrations/child.svg" alt="طفل"></main></body></html>
           HTML
           cat > "$SITE/sectors/family/index.html" <<'HTML'
-          <html><body><main><img src="https://khaledaltheeb.github.io/pterminology-site/assets/illustrations/family.svg" width="960" alt="أسرة"></main></body></html>
+          <html><body><main><img src="https://healthrenewal.org/assets/illustrations/family.svg" width="960" alt="أسرة"></main></body></html>
           HTML
           python scripts/finalize_sector_image_dimensions_v236.py "$SITE" | tee /tmp/dimensions-first.json
           python scripts/finalize_sector_image_dimensions_v236.py "$SITE" | tee /tmp/dimensions-second.json

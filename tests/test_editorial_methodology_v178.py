@@ -31,7 +31,7 @@ class EditorialMethodologyTests(unittest.TestCase):
 
     def test_metadata_schema_and_accessibility(self):
         self.assertIn('<html lang="ar" dir="rtl">', self.html)
-        self.assertIn('<link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/editorial-methodology/">', self.html)
+        self.assertIn('<link rel="canonical" href="https://healthrenewal.org/editorial-methodology/">', self.html)
         self.assertIn('application/ld+json', self.html)
         self.assertIn('"Article"', self.html)
         self.assertIn('"BreadcrumbList"', self.html)

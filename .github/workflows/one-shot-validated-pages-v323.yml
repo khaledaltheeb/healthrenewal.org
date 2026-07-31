@@ -212,8 +212,8 @@ jobs:
           text=target.read_text(encoding='utf-8')
           marker='concurrency:\n  group: validate-all-labs-v31-main\n  cancel-in-progress: true\n'
           if marker not in text:
-              anchor='env:\n  SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/\n\njobs:\n'
-              replacement='env:\n  SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/\n\n'+marker+'\njobs:\n'
+              anchor='env:\n  SITE_BASE: https://healthrenewal.org/\n\njobs:\n'
+              replacement='env:\n  SITE_BASE: https://healthrenewal.org/\n\n'+marker+'\njobs:\n'
               if anchor not in text:
                   raise SystemExit('v31 workflow anchor is missing')
               target.write_text(text.replace(anchor,replacement,1),encoding='utf-8')

@@ -10,8 +10,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
-PATH_PREFIX = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+PATH_PREFIX = "/"
 CLAIMS_PATH = ROOT / "data" / "verified-institutional-claims.json"
 URGENT_PATH = ROOT / "data" / "urgent-help-governance.json"
 DISABILITY_PATH = ROOT / "data" / "disability-dignity-safety.json"
@@ -217,7 +217,7 @@ def make_page(
 <li>يجب تمييز المعلومة العامة عن القرار الطبي أو القانوني الفردي.</li>
 <li>تُسجل تواريخ المراجعة، وتزال الادعاءات المنتهية أو المسحوبة من الواجهات العامة.</li>
 <li>لا تُحذف الآثار التدقيقية الضرورية لفهم سبب التصحيح أو السحب.</li>
-<li>يمكن الإبلاغ عن خطأ تقني أو تحريري عبر <a href="https://github.com/khaledaltheeb/pterminology-site/issues" rel="noopener noreferrer">سجل مشكلات المشروع</a>.</li>
+<li>يمكن الإبلاغ عن خطأ تقني أو تحريري عبر <a href="https://github.com/khaledaltheeb/healthrenewal.org/issues" rel="noopener noreferrer">سجل مشكلات المشروع</a>.</li>
 </ul>
 </section>
 

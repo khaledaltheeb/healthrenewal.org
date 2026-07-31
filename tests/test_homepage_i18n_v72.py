@@ -13,7 +13,7 @@ PUBLISHER = ROOT / "scripts" / "publish_homepage_i18n_v72.py"
 AUDITOR = ROOT / "scripts" / "audit_site_integrity_v13.py"
 APPLY_HOMEPAGE = ROOT / "scripts" / "apply_homepage_v20.py"
 SOURCE_HOME = ROOT / "index.html"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 
 
 class HomepageI18nV72Tests(unittest.TestCase):

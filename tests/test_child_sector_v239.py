@@ -19,7 +19,7 @@ spec.loader.exec_module(module)
 
 
 def shell(title: str, canonical: str) -> str:
-    return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title><meta name="description" content="وصف قديم"><meta name="robots" content="index,follow"><link rel="canonical" href="{canonical}"><link rel="manifest" href="/pterminology-site/manifest.webmanifest"></head><body><header id="global-header"><nav>التنقل</nav></header><main><p>مسار قديم</p></main><main><h1>{title}</h1></main><main><p>محتوى أولي.</p></main><footer id="global-footer">الحقوق</footer><script>navigator.serviceWorker.register('/pterminology-site/sw.js')</script></body></html>'''
+    return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title><meta name="description" content="وصف قديم"><meta name="robots" content="index,follow"><link rel="canonical" href="{canonical}"><link rel="manifest" href="/manifest.webmanifest"></head><body><header id="global-header"><nav>التنقل</nav></header><main><p>مسار قديم</p></main><main><h1>{title}</h1></main><main><p>محتوى أولي.</p></main><footer id="global-footer">الحقوق</footer><script>navigator.serviceWorker.register('/sw.js')</script></body></html>'''
 
 
 class ChildSectorV239Tests(unittest.TestCase):
@@ -96,8 +96,8 @@ class ChildSectorV239Tests(unittest.TestCase):
 
         robots = (self.site / "robots.txt").read_text(encoding="utf-8")
         self.assertEqual(robots.count("# child-sector-v239"), 1)
-        self.assertIn("Allow: /pterminology-site/sectors/child/", robots)
-        self.assertIn("Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml", robots)
+        self.assertIn("Allow: /sectors/child/", robots)
+        self.assertIn("Sitemap: https://healthrenewal.org/sitemap.xml", robots)
         evidence = json.loads((self.site / "api" / "child-sector-v239.json").read_text(encoding="utf-8"))
         self.assertEqual(evidence, report)
 
@@ -118,7 +118,7 @@ class ChildSectorV239Tests(unittest.TestCase):
 
     def test_rejects_explicit_robots_block(self) -> None:
         (self.site / "robots.txt").write_text(
-            "User-agent: *\nDisallow: /pterminology-site/sectors/child/\n",
+            "User-agent: *\nDisallow: /sectors/child/\n",
             encoding="utf-8",
         )
         with self.assertRaisesRegex(ValueError, "robots_disallows_child_sector"):

@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 DATA = ROOT / "content" / "v181" / "evaluate-mental-health-information-ar.json"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org/"
 ROUTE = "/evaluate-mental-health-information/"
 
 

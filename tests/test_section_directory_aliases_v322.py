@@ -27,8 +27,8 @@ class SectionDirectoryCompatibilityAliasesV322Tests(unittest.TestCase):
                 "<!doctype html><html><head>"
                 f'<title>{route}</title>'
                 '<meta name="robots" content="index,follow">'
-                f'<link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/{route}">'
-                f'<meta property="og:url" content="https://khaledaltheeb.github.io/pterminology-site/{route}">'
+                f'<link rel="canonical" href="https://healthrenewal.org/{route}">'
+                f'<meta property="og:url" content="https://healthrenewal.org/{route}">'
                 "</head><body><main><h1>Compatibility page</h1></main></body></html>",
                 encoding="utf-8",
             )
@@ -37,7 +37,7 @@ class SectionDirectoryCompatibilityAliasesV322Tests(unittest.TestCase):
             [
                 "https://healthrenewal.org/trust/",
                 "https://healthrenewal.org/editorial-methodology/",
-                "https://khaledaltheeb.github.io/pterminology-site/evaluate-mental-health-information/",
+                "https://healthrenewal.org/evaluate-mental-health-information/",
             ],
         )
         self._write_urlset(

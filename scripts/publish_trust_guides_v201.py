@@ -10,8 +10,8 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 BRAND = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
 SLOGAN = "معرفة تحترم الإنسان. دعم يوسّع الإمكانات."
 SITEMAP_NAME = "sitemap-trust-guides.xml"

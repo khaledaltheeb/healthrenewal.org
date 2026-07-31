@@ -49,7 +49,7 @@ class WomenSectorDeploymentV245Tests(unittest.TestCase):
             "diagnostic_claim_present": False,
         }, ensure_ascii=False), encoding="utf-8")
 
-        links = "".join(f'<a href="/pterminology-site/sectors/women/{item["slug"]}/">{item["title"]}</a>' for item in articles)
+        links = "".join(f'<a href="/sectors/women/{item["slug"]}/">{item["title"]}</a>' for item in articles)
         filler = " ".join(f"مركز{i}" for i in range(2250))
         hub = (
             f'<!doctype html><html lang="ar"><head><meta name="description" content="وصف"><meta name="keywords" content="كلمات">'
@@ -75,7 +75,7 @@ class WomenSectorDeploymentV245Tests(unittest.TestCase):
             (folder / "index.html").write_text(page, encoding="utf-8")
 
         (site / "robots.txt").write_text(
-            "Allow: /pterminology-site/sectors/women/\nSitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml\n",
+            "Allow: /sectors/women/\nSitemap: https://healthrenewal.org/sitemap.xml\n",
             encoding="utf-8",
         )
         return site, source

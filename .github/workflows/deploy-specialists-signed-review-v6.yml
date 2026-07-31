@@ -89,11 +89,11 @@ jobs:
           workers_dev = true
 
           [vars]
-          ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
+          ALLOWED_ORIGINS = "https://healthrenewal.org"
           OWNER_EMAIL = {toml(owner_email)}
           OWNER_DISPLAY_NAME = "خالد الذيب"
-          PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
-          ADMIN_CONSOLE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/#applications"
+          PORTAL_BASE_URL = "https://healthrenewal.org/specialists-partners/portal/"
+          ADMIN_CONSOLE_URL = "https://healthrenewal.org/specialists-partners/admin/#applications"
           REVIEW_BASE_URL = "https://pterminology-specialists.pterminology-826ac349.workers.dev/v1/reviews/applications"
           REVIEW_LINK_TTL_MINUTES = "30"
           TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"

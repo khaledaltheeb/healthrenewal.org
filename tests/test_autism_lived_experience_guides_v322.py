@@ -34,7 +34,7 @@ class AutismLivedExperienceGuidesV322Test(unittest.TestCase):
         sitemap.write_text(
             '<?xml version="1.0" encoding="utf-8"?>'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-            '<url><loc>https://khaledaltheeb.github.io/pterminology-site/special-needs/autism/</loc></url>'
+            '<url><loc>https://healthrenewal.org/special-needs/autism/</loc></url>'
             '</urlset>',
             encoding="utf-8",
         )
@@ -91,7 +91,7 @@ class AutismLivedExperienceGuidesV322Test(unittest.TestCase):
             root = ET.parse(site / "sitemap-special-needs.xml").getroot()
             urls = [(row.findtext("{*}loc") or "").strip() for row in root.findall("{*}url")]
             for slug in first["guide_slugs"]:
-                expected = f"https://khaledaltheeb.github.io/pterminology-site/special-needs/{slug}/"
+                expected = f"https://healthrenewal.org/special-needs/{slug}/"
                 self.assertEqual(urls.count(expected), 1)
 
             report = json.loads((site / "api" / "autism-lived-experience-guides-v322.json").read_text(encoding="utf-8"))

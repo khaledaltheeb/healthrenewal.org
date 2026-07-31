@@ -10,8 +10,8 @@ from pathlib import Path
 from typing import Any
 
 VERSION = 353
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE = ROOT / "content" / "v353" / "youth-sector-ar.json"
 REPORT_NAME = "youth-sector-v353.json"
@@ -409,10 +409,10 @@ def update_robots(site: Path) -> bool:
     source = path.read_text(encoding="utf-8")
     block = (
         f"{ROBOTS_MARKER}\n"
-        "Allow: /pterminology-site/sectors/youth/\n"
+        "Allow: /sectors/youth/\n"
     )
     pattern = re.compile(
-        rf"{re.escape(ROBOTS_MARKER)}\nAllow: /pterminology-site/sectors/youth/\n?",
+        rf"{re.escape(ROBOTS_MARKER)}\nAllow: /sectors/youth/\n?",
         flags=re.I,
     )
     updated = pattern.sub("", source).rstrip() + "\n\n" + block

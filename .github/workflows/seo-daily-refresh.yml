@@ -1,0 +1,52 @@
+name: SEO daily refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-seo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Regenerate sitemap and robots from published HTML
+        run: |
+          set -euo pipefail
+          python3 scripts/publish_complete_sitemap_v360.py . --minimum-urls 1
+
+      - name: Submit IndexNow updates
+        continue-on-error: true
+        env:
+          INDEXNOW_KEY: a4f9d7c2e81b4630b5d6f7a912ce3048
+        run: |
+          set -euo pipefail
+          python3 scripts/submit_indexnow_v334.py . \
+            --base-url https://healthrenewal.org/ \
+            --key "$INDEXNOW_KEY" \
+            --submit \
+            --continue-on-error \
+            --report api/indexnow-submission-v334.json
+
+      - name: Commit and push refreshed SEO files
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add robots.txt sitemap.xml sitemap-index.xml api/sitemap-completeness-v360.json api/indexnow-submission-v334.json
+          if git diff --cached --quiet; then
+            echo 'No SEO changes to commit.'
+          else
+            git commit -m "chore: refresh SEO sitemap and IndexNow submission"
+            git push
+          fi

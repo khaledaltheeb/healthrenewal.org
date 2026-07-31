@@ -44,7 +44,7 @@ def main() -> None:
     assert expected_urls == expected_pages, report
     assert actual_pages == expected_pages, (actual_pages, report)
     assert actual_urls == expected_urls, (actual_urls, report, parsed_urls)
-    assert all(url.startswith("https://khaledaltheeb.github.io/pterminology-site/care-guides/") for url in parsed_urls), parsed_urls
+    assert all(url.startswith("https://healthrenewal.org/care-guides/") for url in parsed_urls), parsed_urls
     assert report["all_have_sources"] and report["all_have_unique_titles"]
     assert enhanced["status"] == "passed" and enhanced["published_pages"] == expected_pages, enhanced
     assert enhanced["sitemap_urls"] == expected_urls and enhanced["pages_with_keywords"] == expected_pages, enhanced

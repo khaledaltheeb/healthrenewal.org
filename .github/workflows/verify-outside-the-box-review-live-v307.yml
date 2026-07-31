@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 28
     env:
-      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      BASE_URL: https://healthrenewal.org/
       MINIMUM_SHA: a3e69b9575a436f7123cbe14f33eeba182f46449
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -83,7 +83,7 @@ jobs:
           import xml.etree.ElementTree as ET
           from pathlib import Path
 
-          base = 'https://khaledaltheeb.github.io/pterminology-site/'
+          base = 'https://healthrenewal.org/'
           v254 = json.loads(Path('/tmp/v254.json').read_text(encoding='utf-8'))
           v302 = json.loads(Path('/tmp/v302.json').read_text(encoding='utf-8'))
           v305 = json.loads(Path('/tmp/v305.json').read_text(encoding='utf-8'))

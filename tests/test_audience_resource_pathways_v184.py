@@ -9,7 +9,7 @@ from subprocess import run
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "content" / "v184" / "audience-resource-pathways-ar.json"
 SCRIPT = ROOT / "scripts" / "publish_audience_resource_pathways_v184.py"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 
 
 class Collector(HTMLParser):
@@ -76,7 +76,7 @@ class AudienceResourcePathwaysTests(unittest.TestCase):
             portal = (site / "audiences" / "index.html").read_text(encoding="utf-8")
             parser = Collector(); parser.feed(portal)
             for role in ["person", "family", "teacher", "student", "professional"]:
-                self.assertIn(f"/pterminology-site/audiences/{role}/", parser.links)
+                self.assertIn(f"/audiences/{role}/", parser.links)
             self.assertTrue(all(not link.startswith("/encyclopedia") for link in parser.links))
 
     def test_worksheets_and_infographics_are_print_ready_and_non_diagnostic(self):

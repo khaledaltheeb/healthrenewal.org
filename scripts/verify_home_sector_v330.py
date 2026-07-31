@@ -17,10 +17,10 @@ PAGES = {
     "interventions": ROOT / "sectors" / "home" / "interventions" / "index.html",
 }
 CANONICALS = {
-    "index": "https://khaledaltheeb.github.io/pterminology-site/sectors/home/",
-    "library": "https://khaledaltheeb.github.io/pterminology-site/sectors/home/library/",
-    "assessment": "https://khaledaltheeb.github.io/pterminology-site/sectors/home/assessment/",
-    "interventions": "https://khaledaltheeb.github.io/pterminology-site/sectors/home/interventions/",
+    "index": "https://healthrenewal.org/sectors/home/",
+    "library": "https://healthrenewal.org/sectors/home/library/",
+    "assessment": "https://healthrenewal.org/sectors/home/assessment/",
+    "interventions": "https://healthrenewal.org/sectors/home/interventions/",
 }
 MIN_WORDS = {"index": 850, "library": 600, "assessment": 600, "interventions": 800}
 REQUIRED_MARKERS = {

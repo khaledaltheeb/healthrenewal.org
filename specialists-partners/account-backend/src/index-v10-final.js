@@ -142,7 +142,7 @@ async function identityAudit(env,actorUserId,eventType,targetUserId,entityId,met
 }
 
 function corsHeaders(origin, env) {
-  const allowed = String(env.ALLOWED_ORIGINS || 'https://khaledaltheeb.github.io').split(',').map(value=>value.trim()).filter(Boolean);
+  const allowed = String(env.ALLOWED_ORIGINS || 'https://healthrenewal.org').split(',').map(value=>value.trim()).filter(Boolean);
   const headers = {
     'access-control-allow-methods':'GET,POST,PATCH,DELETE,OPTIONS',
     'access-control-allow-headers':'authorization,content-type,idempotency-key,x-requested-with,x-bootstrap-key,x-recovery-export-key',

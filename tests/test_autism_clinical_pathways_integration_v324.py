@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PUBLISHER = ROOT / "scripts" / "publish_special_needs_guides_v217.py"
 AUDITOR = ROOT / "scripts" / "audit_unpublished_content_v201.py"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 SLUGS = (
     "autism-comprehensive-assessment-differential-diagnosis",
     "autism-late-diagnosis-adults-women-masking",
@@ -116,7 +116,7 @@ class AutismClinicalPathwaysIntegrationV324(unittest.TestCase):
             self.assertIn("لم تكتمل مراجعة سريرية خارجية مستقلة", source)
             self.assertIn("<!-- pt-platform-shell:v1 -->", source)
             self.assertIn('data-pt-normalized="1.1.0"', source)
-            self.assertEqual(parent_text.count(f"/pterminology-site/special-needs/{slug}/"), 1)
+            self.assertEqual(parent_text.count(f"/special-needs/{slug}/"), 1)
             tracked.append(page)
 
         urls = [

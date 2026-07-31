@@ -23,8 +23,8 @@ from zoneinfo import ZoneInfo
 STATEMENT_PATH = Path("accessibility/index.html")
 EVALUATION_PATH = Path("accessibility/evaluation.json")
 README_PATH = Path("README.md")
-CANONICAL_URL = "https://khaledaltheeb.github.io/pterminology-site/accessibility/"
-FEEDBACK_URL = "https://github.com/khaledaltheeb/pterminology-site/issues/new/choose"
+CANONICAL_URL = "https://healthrenewal.org/accessibility/"
+FEEDBACK_URL = "https://github.com/khaledaltheeb/healthrenewal.org/issues/new/choose"
 ALLOWED_STATUSES = {"baseline-in-progress", "partial", "conformant"}
 ALLOWED_LIMITATION_STATUSES = {"open", "monitoring", "resolved"}
 
@@ -336,14 +336,14 @@ def write_fixture(root: Path) -> None:
         """<!doctype html><html lang="ar" dir="rtl"><head>
 <title>إفادة الإتاحة</title>
 <meta name="description" content="وصف عربي واضح وطويل بما يكفي للتحقق من إفادة الإتاحة المنشورة وحالتها الحالية.">
-<link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/accessibility/">
+<link rel="canonical" href="https://healthrenewal.org/accessibility/">
 <link rel="alternate" type="application/json" href="evaluation.json">
 </head><body><a class="skip" href="#main">تجاوز</a><main id="main">
 <h1>إفادة الإتاحة</h1><p>WCAG 2.2 بالمستوى AA وWCAG-EM 2.0.</p>
 <p>لا يوجد في هذه المرحلة ادعاء امتثال كامل.</p>
 <p>هذه الصفحة لا تمثل اعتمادًا صادرًا عن W3C.</p>
 <p>لا تنشر بيانات صحية أو تعريفية.</p>
-<a href="https://github.com/khaledaltheeb/pterminology-site/issues/new/choose">بلاغ</a>
+<a href="https://github.com/khaledaltheeb/healthrenewal.org/issues/new/choose">بلاغ</a>
 </main></body></html>""",
         encoding="utf-8",
     )

@@ -18,10 +18,10 @@ NAV_LINK = '<a href="care-guides/">أدلة التعامل</a>'
 ACTION_MARKER = '<a class="btn secondary" href="tips/">افتح الأدلة العملية</a>'
 ACTION_LINK = '<a class="btn secondary" href="care-guides/">أدلة التعامل مع الحالات</a>'
 
-ADHD_HREF = "/pterminology-site/care-guides/adhd-family-practical-guide/"
-AUTISM_HREF = "/pterminology-site/care-guides/autism-family-practical-guide/"
+ADHD_HREF = "/care-guides/adhd-family-practical-guide/"
+AUTISM_HREF = "/care-guides/autism-family-practical-guide/"
 AUTISM_ROUTE_TOKEN = "care-guides/autism-family-practical-guide/"
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 
 FAMILY_ADHD_BLOCK = f'''<!-- adhd-family-journey-v42 -->
 <section class="care-v21__section" aria-labelledby="adhd-family-guide-link">
@@ -59,9 +59,9 @@ ADHD_RELATED_BLOCK = '''<!-- adhd-related-journey-v42 -->
 <section class="care-v21__section" aria-labelledby="adhd-related-links">
   <h2 id="adhd-related-links">أكمل رحلة الفهم والدعم</h2>
   <ul>
-    <li><a href="/pterminology-site/care-guides/">تصفح مكتبة أدلة التعامل والأسرة</a></li>
-    <li><a href="/pterminology-site/sectors/family/">انتقل إلى مركز الأسرة ومسارات الدعم</a></li>
-    <li><a href="/pterminology-site/encyclopedia/?q=ADHD">راجع مصطلحات ADHD والفروق المرتبطة في الموسوعة</a></li>
+    <li><a href="/care-guides/">تصفح مكتبة أدلة التعامل والأسرة</a></li>
+    <li><a href="/sectors/family/">انتقل إلى مركز الأسرة ومسارات الدعم</a></li>
+    <li><a href="/encyclopedia/?q=ADHD">راجع مصطلحات ADHD والفروق المرتبطة في الموسوعة</a></li>
   </ul>
   <p>هذه الروابط للتثقيف والتنظيم ولا تحول الدليل أو نتائج البحث إلى تشخيص.</p>
 </section>
@@ -71,9 +71,9 @@ AUTISM_RELATED_BLOCK = '''<!-- autism-related-journey-v73 -->
 <section class="care-v21__section" aria-labelledby="autism-related-links">
   <h2 id="autism-related-links">أكمل رحلة الفهم والدعم</h2>
   <ul>
-    <li><a href="/pterminology-site/care-guides/">تصفح مكتبة أدلة التعامل والأسرة</a></li>
-    <li><a href="/pterminology-site/sectors/family/">انتقل إلى مركز الأسرة ومسارات الدعم</a></li>
-    <li><a href="/pterminology-site/encyclopedia/?q=اضطراب%20طيف%20التوحد">راجع مصطلحات طيف التوحد والفروق المرتبطة في الموسوعة</a></li>
+    <li><a href="/care-guides/">تصفح مكتبة أدلة التعامل والأسرة</a></li>
+    <li><a href="/sectors/family/">انتقل إلى مركز الأسرة ومسارات الدعم</a></li>
+    <li><a href="/encyclopedia/?q=اضطراب%20طيف%20التوحد">راجع مصطلحات طيف التوحد والفروق المرتبطة في الموسوعة</a></li>
   </ul>
   <p>المحتوى للتثقيف والدعم العام، ولا يقدّم تشخيصًا فرديًا أو خطة علاجية شخصية.</p>
 </section>
@@ -266,10 +266,10 @@ def main() -> None:
     autism_inbound_from_care_hub = AUTISM_HREF in care_hub_text
     autism_inbound_from_family_hub = AUTISM_HREF in family_text
     autism_inbound_from_encyclopedia_hub = AUTISM_HREF in encyclopedia_text
-    autism_outgoing_to_care_hub = "/pterminology-site/care-guides/" in autism_text
-    autism_outgoing_to_family_hub = "/pterminology-site/sectors/family/" in autism_text
+    autism_outgoing_to_care_hub = "/care-guides/" in autism_text
+    autism_outgoing_to_family_hub = "/sectors/family/" in autism_text
     autism_outgoing_to_encyclopedia_search = (
-        "/pterminology-site/encyclopedia/?q=اضطراب%20طيف%20التوحد" in autism_text
+        "/encyclopedia/?q=اضطراب%20طيف%20التوحد" in autism_text
     )
     blocked_review_links_removed = (
         autism_published
@@ -326,9 +326,9 @@ def main() -> None:
         "adhd_inbound_from_care_hub": ADHD_HREF in care_hub_text,
         "adhd_inbound_from_family_hub": ADHD_HREF in family_text,
         "adhd_inbound_from_encyclopedia_hub": ADHD_HREF in encyclopedia_text,
-        "adhd_outgoing_to_care_hub": "/pterminology-site/care-guides/" in adhd_text,
-        "adhd_outgoing_to_family_hub": "/pterminology-site/sectors/family/" in adhd_text,
-        "adhd_outgoing_to_encyclopedia_search": "/pterminology-site/encyclopedia/?q=ADHD" in adhd_text,
+        "adhd_outgoing_to_care_hub": "/care-guides/" in adhd_text,
+        "adhd_outgoing_to_family_hub": "/sectors/family/" in adhd_text,
+        "adhd_outgoing_to_encyclopedia_search": "/encyclopedia/?q=ADHD" in adhd_text,
         "autism_published": autism_published,
         "autism_inbound_from_care_hub": autism_inbound_from_care_hub,
         "autism_inbound_from_family_hub": autism_inbound_from_family_hub,

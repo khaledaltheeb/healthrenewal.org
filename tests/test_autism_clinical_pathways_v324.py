@@ -24,7 +24,7 @@ class AutismClinicalPathwaysV324Tests(unittest.TestCase):
         parent.write_text(
             '<!doctype html><html lang="ar" dir="rtl"><head>'
             '<meta charset="utf-8"><title>التوحد</title>'
-            '<link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/special-needs/autism/">'
+            '<link rel="canonical" href="https://healthrenewal.org/special-needs/autism/">'
             '<script type="application/ld+json">{"@context":"https://schema.org","@type":"MedicalWebPage"}</script>'
             '</head><body><main><h1>دليل التوحد</h1>'
             '<section class="source-area" id="sources"><h2>المراجع</h2></section>'
@@ -34,8 +34,8 @@ class AutismClinicalPathwaysV324Tests(unittest.TestCase):
         (site / "sitemap-special-needs.xml").write_text(
             '<?xml version="1.0" encoding="utf-8"?>'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-            '<url><loc>https://khaledaltheeb.github.io/pterminology-site/special-needs/</loc></url>'
-            '<url><loc>https://khaledaltheeb.github.io/pterminology-site/special-needs/autism/</loc></url>'
+            '<url><loc>https://healthrenewal.org/special-needs/</loc></url>'
+            '<url><loc>https://healthrenewal.org/special-needs/autism/</loc></url>'
             '</urlset>',
             encoding="utf-8",
         )
@@ -117,7 +117,7 @@ class AutismClinicalPathwaysV324Tests(unittest.TestCase):
             parent = (site / "special-needs" / "autism" / "index.html").read_text(encoding="utf-8")
             self.assertEqual(parent.count(module.PARENT_MARKER), 1)
             for slug in module.EXPECTED:
-                self.assertEqual(parent.count(f"/pterminology-site/special-needs/{slug}/"), 1)
+                self.assertEqual(parent.count(f"/special-needs/{slug}/"), 1)
                 page = site / "special-needs" / slug / "index.html"
                 self.assertTrue(page.is_file(), slug)
                 source = page.read_text(encoding="utf-8")

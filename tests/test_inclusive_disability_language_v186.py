@@ -78,7 +78,7 @@ class InclusiveDisabilityLanguageTests(unittest.TestCase):
             self.assertIn('property="og:title"', html)
             self.assertIn("citation", html)
             href = "/special-needs/inclusive-language-disability/"
-            canonical = "https://khaledaltheeb.github.io/pterminology-site" + href
+            canonical = "https://healthrenewal.org" + href
             for relative in ["special-needs/index.html", "audiences/family/index.html", "audiences/teacher/index.html"]:
                 self.assertIn(href, (site / relative).read_text(encoding="utf-8"))
             sitemap = site / module.SITEMAP_NAME

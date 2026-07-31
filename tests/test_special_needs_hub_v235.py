@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PUBLISHER = ROOT / "scripts" / "publish_special_needs_guides_v217.py"
 LIVE_VERIFIER = ROOT / "scripts" / "verify_special_needs_hub_live_v241.py"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 TEST_SHA = "a" * 40
 BANNED = re.compile(r"(?<!\w)(?:المعاقين|معاقين|المعاقون|معاقون|المعاقة|معاقة|المعاق|معاق)(?!\w)")
 
@@ -66,7 +66,7 @@ class SpecialNeedsHubV235Tests(unittest.TestCase):
                 encoding="utf-8",
             )
         (self.site / "robots.txt").write_text(
-            "User-agent: *\nAllow: /\nSitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml\n",
+            "User-agent: *\nAllow: /\nSitemap: https://healthrenewal.org/sitemap.xml\n",
             encoding="utf-8",
         )
 
@@ -156,7 +156,7 @@ class SpecialNeedsHubV235Tests(unittest.TestCase):
             self.assertIn(f'href="#{anchor}"', source)
 
         for slug in report["guide_slugs"]:
-            route = f"/pterminology-site/special-needs/{slug}/"
+            route = f"/special-needs/{slug}/"
             self.assertEqual(source.count(route), 1, slug)
 
     def test_live_verifier_accepts_exact_generated_contract(self) -> None:

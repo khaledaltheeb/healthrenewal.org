@@ -16,7 +16,7 @@ spec.loader.exec_module(module)
 
 
 def page(title, body, path, *, links="", source="", robots="", canonical=None, headings=True):
-    canonical = canonical or f"https://khaledaltheeb.github.io/pterminology-site/{path}"
+    canonical = canonical or f"https://healthrenewal.org/{path}"
     if path.endswith("index.html"):
         canonical = canonical[:-len("index.html")]
     h = f"<h1>{title}</h1><h2>تفاصيل</h2>" if headings else ""
@@ -107,7 +107,7 @@ class ContentInventoryTests(unittest.TestCase):
 
     def test_relative_link_resolution_uses_current_directory(self):
         self.assertEqual(module.site_path("../b/", "a/index.html"), "b/index.html")
-        self.assertEqual(module.site_path("/pterminology-site/c/"), "c/index.html")
+        self.assertEqual(module.site_path("/c/"), "c/index.html")
         self.assertIsNone(module.site_path("https://example.com/a"))
 
 

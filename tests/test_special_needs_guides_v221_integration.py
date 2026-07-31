@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PUBLISHER = ROOT / "scripts" / "publish_special_needs_guides_v217.py"
 AUDITOR = ROOT / "scripts" / "audit_unpublished_content_v201.py"
 PRODUCTION_MANIFEST = ROOT / "content" / "v221" / "special-needs-guides-production-manifest-ar.json"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 VERSIONS = (209, 210, 211, 212, 214)
 CONDITION_SOURCE_FILES = {
     "content/v302/special-needs-condition-hubs-ar.json",
@@ -158,7 +158,7 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
             self.assertEqual(hub.count(f"special-needs-guides-v{version}:end"), 1)
         for slug in first["guide_slugs"]:
             self.assertTrue((self.site / "special-needs" / slug / "index.html").is_file())
-            self.assertEqual(hub.count(f"/pterminology-site/special-needs/{slug}/"), 1)
+            self.assertEqual(hub.count(f"/special-needs/{slug}/"), 1)
 
         parent_children = {
             "autism": ("autism-signs-by-age", "autism-screening-vs-diagnosis"),
@@ -170,7 +170,7 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
         for parent, children in parent_children.items():
             parent_path = self.site / "special-needs" / parent / "index.html"
             self.assertTrue(parent_path.is_file())
-            self.assertEqual(hub.count(f"/pterminology-site/special-needs/{parent}/"), 1)
+            self.assertEqual(hub.count(f"/special-needs/{parent}/"), 1)
             parent_page = parent_path.read_text(encoding="utf-8")
             self.assertIn('"@type": "FAQPage"', parent_page)
             self.assertIn('id="quality-and-faq"', parent_page)
@@ -178,9 +178,9 @@ class SpecialNeedsGuidesV221Integration(unittest.TestCase):
 
             age_slug, decision_slug = children
             self.assertEqual(parent_page.count(f'data-age-guide="{age_slug}"'), 1)
-            self.assertEqual(parent_page.count(f'/pterminology-site/special-needs/{age_slug}/'), 1)
+            self.assertEqual(parent_page.count(f'/special-needs/{age_slug}/'), 1)
             self.assertEqual(parent_page.count(f'data-diagnostic-guide="{decision_slug}"'), 1)
-            self.assertEqual(parent_page.count(f'/pterminology-site/special-needs/{decision_slug}/'), 1)
+            self.assertEqual(parent_page.count(f'/special-needs/{decision_slug}/'), 1)
 
             age_page = (self.site / "special-needs" / age_slug / "index.html").read_text(encoding="utf-8")
             self.assertEqual(age_page.count("<h1"), 1)

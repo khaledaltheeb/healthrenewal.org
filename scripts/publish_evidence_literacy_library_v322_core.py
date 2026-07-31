@@ -12,8 +12,8 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content" / "v322" / "evidence-literacy-library-ar.json"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BP = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BP = "/"
 VERSION = 322
 PARENT_MARKER = 'data-evidence-literacy-library-v322="parent-link"'
 BANNED = re.compile(r"(?<!\w)(?:المعاقين|معاقين|المعاقون|معاقون|المعاقة|معاقة|المعاق|معاق)(?!\w)")

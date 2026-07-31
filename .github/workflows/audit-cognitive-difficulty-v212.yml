@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 env:
-  SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+  SITE_BASE: https://healthrenewal.org/
 
 jobs:
   cognitive-difficulty-audit:

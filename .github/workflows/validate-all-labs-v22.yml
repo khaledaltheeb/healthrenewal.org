@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+  SITE_BASE: https://healthrenewal.org/
 
 jobs:
   exhaustive-labs:
@@ -234,12 +234,12 @@ jobs:
         run: |
           set -euxo pipefail
           mkdir -p preview
-          ln -s "$PWD/_site" preview/pterminology-site
+          ln -s "$PWD/_site" preview/
           python -m http.server 8000 --directory preview >/tmp/all-labs-v31-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID || true' EXIT
-          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/pterminology-site/ >/dev/null && break; sleep 1; done
-          AUDIT_BASE_URL=http://127.0.0.1:8000/pterminology-site/ AUDIT_OUT_DIR=_site/api node scripts/e2e_all_labs_v22.mjs
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/ >/dev/null && break; sleep 1; done
+          AUDIT_BASE_URL=http://127.0.0.1:8000/ AUDIT_OUT_DIR=_site/api node scripts/e2e_all_labs_v22.mjs
 
       - name: Enforce final complete pass counts
         run: |

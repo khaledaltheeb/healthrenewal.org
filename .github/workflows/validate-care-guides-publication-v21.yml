@@ -12,7 +12,7 @@ jobs:
   validate-care-guides-publication:
     runs-on: ubuntu-latest
     env:
-      SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+      SITE_BASE: https://healthrenewal.org/
     steps:
       - uses: actions/checkout@v4
       - name: Restore and compile production sources

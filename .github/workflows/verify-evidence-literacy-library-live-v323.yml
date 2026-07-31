@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 22
     env:
-      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      BASE_URL: https://healthrenewal.org/
       MINIMUM_SHA: 71ebed26f6d3bd7fda2b8c0dea320d2c20f6188f
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -120,7 +120,7 @@ jobs:
           import json, re, xml.etree.ElementTree as ET
           from pathlib import Path
 
-          base = 'https://khaledaltheeb.github.io/pterminology-site'
+          base = 'https://healthrenewal.org/'
           report = json.loads(Path('/tmp/library.json').read_text(encoding='utf-8'))
           parent = Path('/tmp/library.html').read_text(encoding='utf-8')
           hub = Path('/tmp/hub.html').read_text(encoding='utf-8')
@@ -140,7 +140,7 @@ jobs:
           assert report['review_status'] == 'internally-reviewed-external-methodology-review-required', report
           assert report['next_review_due'] == '2027-01-27', report
           assert parent.count('data-evidence-literacy-library-v322="parent-link"') == 1
-          assert parent.count('/pterminology-site/library/evidence-literacy/') == 1
+          assert parent.count('/library/evidence-literacy/') == 1
           assert hub.count('class="card"') == 4
           assert 'جودة التقرير لا تساوي بالضرورة جودة الدراسة' in hub
 

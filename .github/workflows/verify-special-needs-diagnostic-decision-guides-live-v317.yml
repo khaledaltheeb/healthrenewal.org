@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      BASE_URL: https://healthrenewal.org/
       MINIMUM_SHA: 211f87fdc6ec4047a3728134599cc096715f4fb1
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -132,7 +132,7 @@ jobs:
           import xml.etree.ElementTree as ET
           from pathlib import Path
 
-          base = 'https://khaledaltheeb.github.io/pterminology-site/'
+          base = 'https://healthrenewal.org/'
           report = json.loads(Path('/tmp/decision.json').read_text(encoding='utf-8'))
           central = json.loads(Path('/tmp/central.json').read_text(encoding='utf-8'))
           pages = {
@@ -178,7 +178,7 @@ jobs:
                   assert f'id="{source_id}"' in text, (slug, source_id)
               parent = parents[slug]
               assert parent.count(f'data-diagnostic-guide="{slug}"') == 1, slug
-              assert parent.count(f'/pterminology-site/special-needs/{slug}/') == 1, slug
+              assert parent.count(f'/special-needs/{slug}/') == 1, slug
 
           autism = pages['autism-screening-vs-diagnosis']
           assert 'النتيجة الإيجابية تعني زيادة الحاجة إلى تقييم أعمق' in autism

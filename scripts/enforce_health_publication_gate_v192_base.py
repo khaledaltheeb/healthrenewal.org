@@ -15,8 +15,8 @@ DATA_FILES = [
     ROOT / "content/v18/care-guides-autism-ar.json",
 ]
 BLOCKED_REVIEW_STATUSES = {"needs-specialist-review"}
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 SCHEMA_PATTERN = re.compile(
     r'(<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>)(.*?)(</script>)',
     re.IGNORECASE | re.DOTALL,

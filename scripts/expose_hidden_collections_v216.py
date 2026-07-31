@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "index.html"
 VERIFY = ROOT / "scripts" / "verify_homepage_v19.py"
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 
 
 def replace_once(text: str, old: str, new: str, label: str) -> str:
@@ -60,7 +60,7 @@ def patch_index() -> dict:
     )
     text = replace_once(text, meta_anchor, meta_block, "institutional metadata")
 
-    search_link = '<link rel="search" type="application/opensearchdescription+xml" title="البحث في منصة الصحة النفسية" href="/pterminology-site/opensearch.xml">'
+    search_link = '<link rel="search" type="application/opensearchdescription+xml" title="البحث في منصة الصحة النفسية" href="/opensearch.xml">'
     search_block = search_link + "\n" + "\n".join(
         (
             f'<link rel="sitemap" type="application/xml" href="{BASE}sitemap.xml">',

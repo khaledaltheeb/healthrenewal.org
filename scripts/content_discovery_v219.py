@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE_URL = "https://healthrenewal.org/"
 API_BASE = f"{BASE_URL}api/v1/"
 SCHEMA_VERSION = 219
 SHARD_SIZE = 400
@@ -379,7 +379,7 @@ def build_discovery_page() -> str:
 <meta name="description" content="توثيق فهرس API للصفحات العامة: دفعات محدودة الحجم، لغات وأقسام وموضوعات، دون بيانات شخصية أو سجلات صحية.">
 <meta name="keywords" content="فهرس المحتوى,API عربي,تصنيف موضوعي,بيانات منظمة,الصحة النفسية,علم النفس,تكامل المواقع">
 <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large"><meta name="theme-color" content="#075f5b">
-<link rel="canonical" href="{canonical}"><link rel="manifest" href="/pterminology-site/manifest.webmanifest"><link rel="icon" href="../../assets/brand/logo-mark.svg" type="image/svg+xml">
+<link rel="canonical" href="{canonical}"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="../../assets/brand/logo-mark.svg" type="image/svg+xml">
 <meta property="og:type" content="article"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة"><meta property="og:title" content="فهرس المحتوى والتصنيف الموضوعي"><meta property="og:description" content="بيانات وصفية منظمة للصفحات العامة في دفعات قابلة للاستهلاك."><meta property="og:url" content="{canonical}"><meta property="og:image" content="{BASE_URL}assets/brand/social-card.svg">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="فهرس المحتوى والتصنيف الموضوعي"><meta name="twitter:description" content="واجهة قراءة عامة للصفحات واللغات والأقسام والموضوعات."><meta name="twitter:image" content="{BASE_URL}assets/brand/social-card.svg">
 <script type="application/ld+json">{schema}</script>

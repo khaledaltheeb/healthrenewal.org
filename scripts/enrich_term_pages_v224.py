@@ -177,7 +177,7 @@ def build_block(term: dict[str, Any], related: list[dict[str, Any]]) -> str:
     profile_name = CATEGORY_PROFILE.get(term["category"], "psychosocial")
     profile = PROFILE_COPY[profile_name]
     relation_links = [
-        f'<a href="/pterminology-site/terms/{escape(item["slug"])}/">{escape(item["ar"])}</a> — {escape(item["en"])}'
+        f'<a href="/terms/{escape(item["slug"])}/">{escape(item["ar"])}</a> — {escape(item["en"])}'
         for item in related
     ]
     dimensions = [escape(item) for item in profile["dimensions"]]

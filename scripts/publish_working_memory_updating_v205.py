@@ -15,7 +15,7 @@ SLUG = "working-memory-updating"
 TITLE = "تحديث الذاكرة العاملة المتسلسل"
 CATEGORY = "الذاكرة العاملة"
 SUMMARY = "مهمة تدريبية غير تشخيصية تتطلب الاحتفاظ بقيم قصيرة وتحديثها بعد تعليمات متتابعة، بخيارات متعددة وخمسة مستويات متدرجة."
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 CANONICAL = BASE + "cognitive-lab/" + SLUG + "/"
 TODAY = date.today().isoformat()
 

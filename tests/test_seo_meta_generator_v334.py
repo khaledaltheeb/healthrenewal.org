@@ -13,7 +13,7 @@ from scripts.seo_meta_generator_v334 import (
 class SeoMetaGeneratorTests(unittest.TestCase):
     def setUp(self) -> None:
         self.generator = SEOMetaGenerator(
-            base_url="https://khaledaltheeb.github.io/pterminology-site/",
+            base_url="https://healthrenewal.org/",
             site_name="منصة الصحة النفسية وذوي الاحتياجات الخاصة",
             publisher=EntityIdentity(
                 name="منصة الصحة النفسية وذوي الاحتياجات الخاصة",
@@ -141,7 +141,7 @@ class SeoMetaGeneratorTests(unittest.TestCase):
     def test_canonical_stays_inside_project_path(self):
         output = self.generator.generate_head_tags(self.page())
         self.assertIn(
-            'rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/encyclopedia/autism-spectrum/"',
+            'rel="canonical" href="https://healthrenewal.org/encyclopedia/autism-spectrum/"',
             output,
         )
         with self.assertRaises(ValueError):

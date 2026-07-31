@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PUBLISHER = ROOT / "scripts" / "publish_partners_v201.py"
 SOURCE_SITEMAP = ROOT / "sitemap.xml"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 URL = BASE + "/partners/"
 PARTNERS_LINK = '<a href="partners/">الشركاء والشفافية</a>'
 
@@ -21,7 +21,7 @@ class PartnersV201Tests(unittest.TestCase):
         (site / "index.html").write_text(
             '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>الرئيسية</title></head>'
             '<body><main><h1>الرئيسية</h1></main><footer><div class="footer-links">'
-            '<a href="/pterminology-site/">الرئيسية</a></div></footer></body></html>',
+            '<a href="/">الرئيسية</a></div></footer></body></html>',
             encoding="utf-8",
         )
         self.addCleanup(shutil.rmtree, site, True)

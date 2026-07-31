@@ -32,8 +32,8 @@ class SpecialNeedsSupportInterventionsV318Tests(unittest.TestCase):
         (site / "sitemap-special-needs.xml").write_text(
             '<?xml version="1.0" encoding="utf-8"?>'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-            '<url><loc>https://khaledaltheeb.github.io/pterminology-site/special-needs/autism/</loc></url>'
-            '<url><loc>https://khaledaltheeb.github.io/pterminology-site/special-needs/down-syndrome/</loc></url>'
+            '<url><loc>https://healthrenewal.org/special-needs/autism/</loc></url>'
+            '<url><loc>https://healthrenewal.org/special-needs/down-syndrome/</loc></url>'
             '</urlset>',
             encoding="utf-8",
         )
@@ -100,7 +100,7 @@ class SpecialNeedsSupportInterventionsV318Tests(unittest.TestCase):
 
                 parent = (site / "special-needs" / spec["parent"] / "index.html").read_text(encoding="utf-8")
                 self.assertEqual(parent.count(f'data-support-guide="{slug}"'), 1)
-                self.assertEqual(parent.count(f'/pterminology-site/special-needs/{slug}/'), 1)
+                self.assertEqual(parent.count(f'/special-needs/{slug}/'), 1)
 
             api = json.loads(
                 (site / "api" / "special-needs-support-interventions-v318.json").read_text(encoding="utf-8")

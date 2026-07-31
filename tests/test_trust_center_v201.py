@@ -61,7 +61,7 @@ class TrustCenterV201Tests(unittest.TestCase):
         self.assertTrue(report["navigation_link_added"])
         self.assertTrue(report["footer_link_added"])
         sitemap = site.joinpath("sitemap.xml").read_text(encoding="utf-8")
-        self.assertIn("/pterminology-site/trust/", sitemap)
+        self.assertIn("/trust/", sitemap)
 
     def test_adds_navigation_link_when_footer_already_contains_trust(self) -> None:
         site = self.make_site(footer_has_trust=True)

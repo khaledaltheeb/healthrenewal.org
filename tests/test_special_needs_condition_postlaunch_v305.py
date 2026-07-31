@@ -35,7 +35,7 @@ class SpecialNeedsConditionPostlaunchV305Tests(unittest.TestCase):
         (site / "sitemap-special-needs.xml").write_text(
             '<?xml version="1.0" encoding="utf-8"?>\n'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-            '<url><loc>https://khaledaltheeb.github.io/pterminology-site/special-needs/</loc></url>'
+            '<url><loc>https://healthrenewal.org/special-needs/</loc></url>'
             '</urlset>',
             encoding="utf-8",
         )

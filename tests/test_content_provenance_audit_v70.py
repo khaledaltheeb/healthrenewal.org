@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "audit_content_provenance_v70.py"
 
 
-def page(*, title="Page", h1="Heading", canonical="https://khaledaltheeb.github.io/pterminology-site/", body="", json_ld=None):
+def page(*, title="Page", h1="Heading", canonical="https://healthrenewal.org/", body="", json_ld=None):
     ld = ""
     if json_ld is not None:
         ld = f'<script type="application/ld+json">{json_ld}</script>'
@@ -40,7 +40,7 @@ class ContentProvenanceAuditTests(unittest.TestCase):
             "encyclopedia/anxiety/index.html": page(
                 title="القلق",
                 h1="القلق",
-                canonical="https://khaledaltheeb.github.io/pterminology-site/encyclopedia/anxiety/",
+                canonical="https://healthrenewal.org/encyclopedia/anxiety/",
                 body='<h2>المصادر</h2><p>آخر مراجعة: 2026-07-22</p><a href="https://www.who.int/">WHO</a>',
                 json_ld='{"@context":"https://schema.org","@type":"Article","dateModified":"2026-07-22","citation":"https://www.who.int/"}',
             ),
@@ -71,7 +71,7 @@ class ContentProvenanceAuditTests(unittest.TestCase):
     def test_sensitive_missing_provenance_is_measured_not_hidden(self):
         result, report = self.run_audit({
             "care-guides/example/index.html": page(
-                canonical="https://khaledaltheeb.github.io/pterminology-site/care-guides/example/"
+                canonical="https://healthrenewal.org/care-guides/example/"
             )
         })
         self.assertEqual(result.returncode, 0)

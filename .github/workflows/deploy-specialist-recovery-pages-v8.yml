@@ -119,7 +119,7 @@ jobs:
           ]
           for fragment in required:
               assert fragment in homepage, fragment
-          assert 'https://khaledaltheeb.github.io/pterminology-site' not in homepage
+          assert 'https://healthrenewal.org/' not in homepage
           parser=AuditParser(); parser.feed(homepage)
           assert len(parser.heading_text) <= 20, parser.heading_text
           assert len(parser.heading_text) == len(set(parser.heading_text)), parser.heading_text
@@ -191,7 +191,7 @@ jobs:
 
           root=Path('.')
           site=Path('_site')
-          old='https://khaledaltheeb.github.io/pterminology-site'
+          old='https://healthrenewal.org/'
           new='https://healthrenewal.org'
           public_suffixes={'.html','.htm','.xml','.json','.webmanifest','.txt'}
           skip_top={'.git','.github','node_modules','.venv','venv','dist','build','scripts','tests','docs','reports','_site'}
@@ -329,11 +329,11 @@ jobs:
               && grep -q '<link rel="alternate" hreflang="ar" href="https://healthrenewal.org/">' /tmp/home.html \
               && grep -q '<h1>منصة الصحة النفسية وذوي الاحتياجات الخاصة<br>' /tmp/home.html \
               && grep -q 'data-seo-external-sources="v1"' /tmp/home.html \
-              && ! grep -q 'https://khaledaltheeb.github.io/pterminology-site' /tmp/home.html \
+              && ! grep -q 'https://healthrenewal.org/' /tmp/home.html \
               && grep -q 'Sitemap: https://healthrenewal.org/sitemap.xml' /tmp/robots.txt \
               && grep -q 'Sitemap: https://healthrenewal.org/sitemap-index.xml' /tmp/robots.txt \
               && grep -q '<loc>https://healthrenewal.org/' /tmp/sitemap-index.xml \
-              && ! grep -q 'khaledaltheeb.github.io/pterminology-site' /tmp/sitemap-index.xml; then
+              && ! grep -q 'khaledaltheeb.github.io/' /tmp/sitemap-index.xml; then
               if python - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path

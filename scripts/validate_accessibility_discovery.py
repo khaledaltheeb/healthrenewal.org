@@ -14,8 +14,8 @@ PAGE = Path("accessibility/index.html")
 SHELL = Path("assets/platform/platform-core.js")
 INDEX = Path("sitemap-index.xml")
 SITEMAP = Path("sitemap-accessibility.xml")
-PAGE_URL = "https://khaledaltheeb.github.io/pterminology-site/accessibility/"
-MAP_URL = "https://khaledaltheeb.github.io/pterminology-site/sitemap-accessibility.xml"
+PAGE_URL = "https://healthrenewal.org/accessibility/"
+MAP_URL = "https://healthrenewal.org/sitemap-accessibility.xml"
 FOOTER_FRAGMENT = "element('a', { href: url('accessibility/'), text: 'الإتاحة' })"
 NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 

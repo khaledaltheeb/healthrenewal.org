@@ -11,8 +11,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "content" / "v305" / "special-needs-condition-postlaunch-ar.json"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 VERSION = 305
 SLUGS = ("autism", "down-syndrome")
 WORD_RE = re.compile(r"[\w\u0600-\u06FF]+", re.UNICODE)

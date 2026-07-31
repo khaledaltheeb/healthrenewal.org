@@ -1,0 +1,60 @@
+{
+  "version": 216,
+  "site": "/workspaces/healthrenewal.org",
+  "base_url": "https://healthrenewal.org/",
+  "social_image": "https://healthrenewal.org/assets/brand/social-card.svg",
+  "totals": {
+    "article": 7,
+    "article_tags_added": 56,
+    "html_pages": 222,
+    "keywords_added": 170,
+    "keywords_augmented": 43,
+    "modified": 213,
+    "modified_pages": 213,
+    "open_graph_added": 1196,
+    "robots_added": 5,
+    "schema_added": 62,
+    "skipped_noindex": 7,
+    "skipped_special": 2,
+    "twitter_added": 1032
+  },
+  "languages": {
+    "ar": 213
+  },
+  "routes": {
+    "accessibility": 1,
+    "ai-search": 1,
+    "api": 1,
+    "child": 4,
+    "copyright": 1,
+    "editorial-methodology": 1,
+    "evaluate-mental-health-information": 1,
+    "family": 8,
+    "family-guide": 67,
+    "index.html": 1,
+    "learning-paths": 2,
+    "magazine": 80,
+    "outside-the-box": 2,
+    "platform": 1,
+    "provider-assessment-demo": 25,
+    "sections": 1,
+    "sectors": 1,
+    "source-registry": 1,
+    "special-needs": 8,
+    "specialists-partners": 3,
+    "start-here": 1,
+    "team-and-partners": 1,
+    "trust": 1
+  },
+  "failure_count": 0,
+  "failures": [],
+  "policy": {
+    "keyword_limit": 15,
+    "keyword_character_limit": 480,
+    "no_keyword_stuffing": true,
+    "preserve_existing_metadata": true,
+    "skip_noindex_pages": true,
+    "canonical_scope": "https://healthrenewal.org/",
+    "course_import_permission_required": true
+  }
+}

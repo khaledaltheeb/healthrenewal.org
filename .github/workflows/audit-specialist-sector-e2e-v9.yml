@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
-      SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/specialists-partners
+      SITE_BASE: https://healthrenewal.org/specialists-partners
       IDENTITY_API: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
       CORE_API: https://pterminology-specialists.pterminology-826ac349.workers.dev
       SPECIALISTS_ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}

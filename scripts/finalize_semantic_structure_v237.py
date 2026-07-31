@@ -8,7 +8,7 @@ from pathlib import Path
 
 VERSION = 237
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
-BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE_URL = "https://healthrenewal.org/"
 VERIFY = "google644f1f7a8b7aaa2b.html"
 ERROR_MARKER = "data-error-page-jsonld-v237"
 HEADING_RE = re.compile(r"<h([1-6])(\b[^>]*)>(.*?)</h\1\s*>", re.IGNORECASE | re.DOTALL)

@@ -6,7 +6,7 @@ from pathlib import Path
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
 TARGET = SITE / "provider-assessment-demo" / "index.html"
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 
 PAGE = f'''<!doctype html>
 <html lang="ar" dir="rtl">

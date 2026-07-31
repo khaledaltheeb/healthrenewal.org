@@ -7,7 +7,7 @@ from pathlib import Path
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
 PATTERN = re.compile(
-    r"<script\b[^>]*\bsrc\s*=\s*([\"'])(?:https?://khaledaltheeb\.github\.io)?/pterminology-site/assets/js/lab-v12\.js(?:\?[^\"']*)?\1[^>]*>\s*</script>",
+    r"<script\b[^>]*\bsrc\s*=\s*([\"'])(?:https?://khaledaltheeb\.github\.io)?/assets/js/lab-v12\.js(?:\?[^\"']*)?\1[^>]*>\s*</script>",
     re.IGNORECASE,
 )
 LAB_ROOTS = ("assessment-lab/", "cognitive-lab/", "assessments/", "cognitive-tests/")

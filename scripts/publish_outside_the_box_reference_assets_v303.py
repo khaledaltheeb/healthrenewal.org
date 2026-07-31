@@ -22,8 +22,8 @@ CONDITIONS_PATH = ROOT / "content" / "v254" / "outside-the-box-conditions-ar.jso
 EVIDENCE_PAGE = ROOT / "outside-the-box" / "evidence-standard" / "index.html"
 EVIDENCE_API = ROOT / "api" / "outside-the-box-evidence-standard-v301.json"
 
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 UPDATED = "2026-07-27"
 VERSION = 303
 

@@ -11,14 +11,14 @@ body:
 
         اذكر المشكلة التقنية فقط. لا تنشر كلمات مرور أو رموز دخول أو معلومات صحية أو أسماء أو وثائق أو أرقام هواتف أو عناوين أو بريدًا خاصًا أو أي بيانات تعريفية تخصك أو تخص شخصًا آخر.
 
-        راجع [إفادة الإتاحة وخطة التوافق](https://khaledaltheeb.github.io/pterminology-site/accessibility/) لمعرفة الحالة الحالية والقيود المعروفة.
+        راجع [إفادة الإتاحة وخطة التوافق](https://healthrenewal.org/accessibility/) لمعرفة الحالة الحالية والقيود المعروفة.
 
   - type: input
     id: page_url
     attributes:
       label: رابط الصفحة
       description: الصق رابط الصفحة التي ظهر فيها العائق. استخدم رابطًا عامًا من المنصة، ولا تضف رموز دخول أو بيانات خاصة أو معاملات حساسة إلى الرابط.
-      placeholder: https://khaledaltheeb.github.io/pterminology-site/...
+      placeholder: https://healthrenewal.org/...
     validations:
       required: true
 

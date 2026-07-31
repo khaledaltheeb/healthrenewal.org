@@ -20,8 +20,8 @@ from collections import defaultdict
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
-BASE_PATH = "/pterminology-site/"
-BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE_PATH = "/"
+BASE_URL = "https://healthrenewal.org/"
 CRITICAL_FILES = ("index.html", "sitemap.xml", "manifest.webmanifest", "sw.js")
 BLOCK_MARKERS = (
     "draft-unpublished",

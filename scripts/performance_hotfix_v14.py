@@ -6,11 +6,11 @@ import sys
 from pathlib import Path
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
-BASE = "/pterminology-site/"
+BASE = "/"
 
 RUNTIME = r'''/* v14 performance-safe runtime: no global mutation loop */
 (()=>{'use strict';
-const BASE='/pterminology-site/';
+const BASE='/';
 const q=(s,r=document)=>r.querySelector(s);const qa=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));const now=()=>performance.now();const storageKey=d=>`pterminology:v12:${d.slug}`;
 const readDef=()=>{const n=q('#lab-definition');if(!n)return null;try{return JSON.parse(n.textContent)}catch(e){console.error(e);return null}};

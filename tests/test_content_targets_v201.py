@@ -13,7 +13,7 @@ SCRIPT = ROOT / "scripts" / "audit_content_targets_v201.py"
 
 def page(title: str, canonical: str, words: int = 30, placeholder: str = "") -> str:
     body = " ".join(["محتوى"] * words)
-    return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>{title}</title><meta name="description" content="وصف عربي منظم وكامل يشرح الغرض والخطوات العملية والحدود المهنية بصورة واضحة ودقيقة للزائر."><link rel="canonical" href="{canonical}"><script type="application/ld+json">{{"@context":"https://schema.org","@type":"Article"}}</script></head><body><header>هيدر</header><main><h1>{title}</h1><p>{body}</p><p>{placeholder}</p><a href="/pterminology-site/trust/">الثقة</a><a href="../">الرئيسية</a><a href="other/">مرتبط</a></main><footer>فوتر</footer></body></html>'''
+    return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>{title}</title><meta name="description" content="وصف عربي منظم وكامل يشرح الغرض والخطوات العملية والحدود المهنية بصورة واضحة ودقيقة للزائر."><link rel="canonical" href="{canonical}"><script type="application/ld+json">{{"@context":"https://schema.org","@type":"Article"}}</script></head><body><header>هيدر</header><main><h1>{title}</h1><p>{body}</p><p>{placeholder}</p><a href="/trust/">الثقة</a><a href="../">الرئيسية</a><a href="other/">مرتبط</a></main><footer>فوتر</footer></body></html>'''
 
 
 class ContentTargetsV201Tests(unittest.TestCase):

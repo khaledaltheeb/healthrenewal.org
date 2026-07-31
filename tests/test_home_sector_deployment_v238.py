@@ -33,7 +33,7 @@ class HomeSectorDeploymentV238Tests(unittest.TestCase):
             '<header class="site-header-v10">التنقل</header>'
             f'<main>{body}</main>'
             '<footer class="site-footer-v10">الحقوق</footer>'
-            '<script>navigator.serviceWorker.register("/pterminology-site/sw.js")</script>'
+            '<script>navigator.serviceWorker.register("/sw.js")</script>'
             '</body></html>'
         )
 
@@ -48,7 +48,7 @@ class HomeSectorDeploymentV238Tests(unittest.TestCase):
         )
 
         filler_hub = " ".join(f"مركز{i}" for i in range(3000))
-        links = "".join(f'<a href="/pterminology-site/sectors/home/{item["slug"]}/">{item["title"]}</a>' for item in articles)
+        links = "".join(f'<a href="/sectors/home/{item["slug"]}/">{item["title"]}</a>' for item in articles)
         schemas = "CollectionPage BreadcrumbList ItemList FAQPage"
         hub = self.shell(
             "قطاع الأسرة",
@@ -89,7 +89,7 @@ class HomeSectorDeploymentV238Tests(unittest.TestCase):
             }), encoding="utf-8"
         )
         (site / "robots.txt").write_text(
-            "Allow: /pterminology-site/sectors/home/\nSitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml\n",
+            "Allow: /sectors/home/\nSitemap: https://healthrenewal.org/sitemap.xml\n",
             encoding="utf-8",
         )
         return site, source

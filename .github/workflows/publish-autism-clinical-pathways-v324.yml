@@ -132,7 +132,7 @@ jobs:
               assert source.count('<h1')==1 and source.count('class="section-card"')==7,slug
               assert '<!-- pt-platform-shell:v1 -->' in source and 'data-pt-normalized="1.1.0"' in source,slug
               assert 'MedicalWebPage' in source and 'لم تكتمل مراجعة سريرية خارجية مستقلة' in source,slug
-              assert urls.count(f'https://khaledaltheeb.github.io/pterminology-site/special-needs/{slug}/')==1,slug
+              assert urls.count(f'https://healthrenewal.org/special-needs/{slug}/')==1,slug
           print({'status':'passed','guides':4,'sections':28,'sources':26,'minimum_words':report['minimum_guide_words']})
           PY
       - name: Re-audit discovery and content quality

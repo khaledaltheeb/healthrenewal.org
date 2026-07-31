@@ -29,7 +29,7 @@ jobs:
         env:
           RESTORE_RUN_ID: ${{ github.event.workflow_run.id }}
           RESTORE_WORKFLOW_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-          BASE_URL: https://khaledaltheeb.github.io/pterminology-site
+          BASE_URL: https://healthrenewal.org/
         run: |
           set -euxo pipefail
           token="${RESTORE_RUN_ID}-${RESTORE_WORKFLOW_HEAD_SHA}"
@@ -91,7 +91,7 @@ jobs:
               'source_commit': deployment['commit'],
               'restoration_workflow_head_sha': os.environ['RESTORE_WORKFLOW_HEAD_SHA'],
               'restoration_workflow_run_id': os.environ['RESTORE_RUN_ID'],
-              'page_url': 'https://khaledaltheeb.github.io/pterminology-site/',
+              'page_url': 'https://healthrenewal.org/',
               'recorded_at': datetime.now(timezone.utc).isoformat(),
               'source_sitemaps_scanned': report['source_sitemaps_scanned'],
               'source_backed_public_routes': report['source_backed_public_routes'],

@@ -4,10 +4,10 @@ compatibility_date = "2026-07-01"
 workers_dev = true
 
 [vars]
-ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
+ALLOWED_ORIGINS = "https://healthrenewal.org"
 OWNER_EMAIL = "pterminology@gmail.com"
-PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
-TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"
+PORTAL_BASE_URL = "https://healthrenewal.org/specialists-partners/portal/"
+TURNSTILE_EXPECTED_HOSTNAMES = "healthrenewal.org"
 FROM_EMAIL = "منصة المختصين <notifications@your-verified-domain.example>"
 ADMIN_SESSION_MINUTES = "20"
 

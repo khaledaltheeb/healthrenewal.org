@@ -59,7 +59,7 @@ class SemanticStructureV237Tests(unittest.TestCase):
             self.assertEqual(len(blocks), 1)
             schema = json.loads(blocks[0])
             self.assertEqual(schema["@type"], "WebPage")
-            self.assertEqual(schema["url"], "https://khaledaltheeb.github.io/pterminology-site/404.html")
+            self.assertEqual(schema["url"], "https://healthrenewal.org/404.html")
             self.assertEqual(schema["inLanguage"], "ar")
 
             index_before = index_text

@@ -29,7 +29,7 @@ jobs:
           <html><body><main><a href="tips/">النصائح</a><a class="btn secondary" href="tips/">افتح الأدلة العملية</a></main></body></html>
           HTML
           cat > _site/care-guides/index.html <<'HTML'
-          <html><body><main><a href="/pterminology-site/care-guides/adhd-family-practical-guide/">دليل ADHD</a><a href="/pterminology-site/care-guides/autism-family-practical-guide/">دليل التوحد</a></main></body></html>
+          <html><body><main><a href="/care-guides/adhd-family-practical-guide/">دليل ADHD</a><a href="/care-guides/autism-family-practical-guide/">دليل التوحد</a></main></body></html>
           HTML
           cat > _site/sectors/family/index.html <<'HTML'
           <html><body><main><h1>مركز الأسرة</h1></main></body></html>
@@ -38,18 +38,18 @@ jobs:
           <html><body><main><h1>الموسوعة</h1></main></body></html>
           HTML
           cat > _site/care-guides/adhd-family-practical-guide/index.html <<'HTML'
-          <html><head><link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/care-guides/adhd-family-practical-guide/"><script type="application/ld+json">{"@type":"Article"}</script><script type="application/ld+json">{"@type":"BreadcrumbList"}</script></head><body><main><h1>دليل ADHD</h1></main></body></html>
+          <html><head><link rel="canonical" href="https://healthrenewal.org/care-guides/adhd-family-practical-guide/"><script type="application/ld+json">{"@type":"Article"}</script><script type="application/ld+json">{"@type":"BreadcrumbList"}</script></head><body><main><h1>دليل ADHD</h1></main></body></html>
           HTML
           cat > _site/care-guides/autism-family-practical-guide/index.html <<'HTML'
-          <html><head><link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/care-guides/autism-family-practical-guide/"><script type="application/ld+json">{"@type":"Article"}</script><script type="application/ld+json">{"@type":"BreadcrumbList"}</script></head><body><main><h1>دليل التوحد</h1></main></body></html>
+          <html><head><link rel="canonical" href="https://healthrenewal.org/care-guides/autism-family-practical-guide/"><script type="application/ld+json">{"@type":"Article"}</script><script type="application/ld+json">{"@type":"BreadcrumbList"}</script></head><body><main><h1>دليل التوحد</h1></main></body></html>
           HTML
           cat > _site/sitemap-care-guides.xml <<'XML'
           <?xml version="1.0" encoding="UTF-8"?>
-          <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://khaledaltheeb.github.io/pterminology-site/care-guides/adhd-family-practical-guide/</loc></url><url><loc>https://khaledaltheeb.github.io/pterminology-site/care-guides/autism-family-practical-guide/</loc></url></urlset>
+          <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://healthrenewal.org/care-guides/adhd-family-practical-guide/</loc></url><url><loc>https://healthrenewal.org/care-guides/autism-family-practical-guide/</loc></url></urlset>
           XML
           cat > _site/sitemap.xml <<'XML'
           <?xml version="1.0" encoding="UTF-8"?>
-          <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://khaledaltheeb.github.io/pterminology-site/</loc></url><sitemap><loc>https://khaledaltheeb.github.io/pterminology-site/sitemap-care-guides.xml</loc></sitemap></urlset>
+          <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://healthrenewal.org/</loc></url><sitemap><loc>https://healthrenewal.org/sitemap-care-guides.xml</loc></sitemap></urlset>
           XML
       - name: Link journeys, repair mixed sitemap and prove idempotence
         run: |
@@ -82,8 +82,8 @@ jobs:
           assert local(root.tag)=='urlset'
           assert not any(local(child.tag)=='sitemap' for child in root)
           urls={node.text.strip() for node in root.findall('{*}url/{*}loc') if node.text}
-          assert 'https://khaledaltheeb.github.io/pterminology-site/care-guides/adhd-family-practical-guide/' in urls
-          assert 'https://khaledaltheeb.github.io/pterminology-site/care-guides/autism-family-practical-guide/' in urls
+          assert 'https://healthrenewal.org/care-guides/adhd-family-practical-guide/' in urls
+          assert 'https://healthrenewal.org/care-guides/autism-family-practical-guide/' in urls
           PY
       - name: Upload link evidence
         if: always()

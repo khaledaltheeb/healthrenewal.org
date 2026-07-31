@@ -2,8 +2,8 @@ from __future__ import annotations
 
 VERSION = 249
 REVIEWED_AT = "2026-07-26"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 
 SOURCES = [
     ("منظمة الصحة العالمية: إرشادات تدخلات دعم الوالدية", "https://www.who.int/teams/social-determinants-of-health/violence-prevention/parenting-guidelines"),

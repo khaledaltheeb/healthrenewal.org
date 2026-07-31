@@ -230,11 +230,11 @@ def validate_source(data: dict[str, Any]) -> list[dict[str, Any]]:
 def update_robots(site: Path) -> bool:
     path = site / "robots.txt"
     current = path.read_text(encoding="utf-8") if path.is_file() else "User-agent: *\nAllow: /\n"
-    if re.search(r"(?im)^\s*Disallow:\s*/pterminology-site/sectors/women/?\s*$", current):
+    if re.search(r"(?im)^\s*Disallow:\s*/sectors/women/?\s*$", current):
         raise ValueError("robots_disallows_women_sector")
     if "# women-sector-v244" in current:
         return False
-    block = "\n# women-sector-v244\nAllow: /pterminology-site/sectors/women/\nSitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml\n"
+    block = "\n# women-sector-v244\nAllow: /sectors/women/\nSitemap: https://healthrenewal.org/sitemap.xml\n"
     path.write_text(current.rstrip() + block, encoding="utf-8")
     return True
 

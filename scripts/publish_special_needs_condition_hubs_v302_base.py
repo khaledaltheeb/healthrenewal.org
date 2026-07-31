@@ -6,7 +6,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 ROOT=Path(__file__).resolve().parents[1]
-BASE='https://khaledaltheeb.github.io/pterminology-site'; BP='/pterminology-site/'
+BASE='https://healthrenewal.org/'; BP='/'
 MANIFEST=ROOT/'content/v302/special-needs-condition-hubs-ar.json'; PROVIDERS=ROOT/'content/v302/special-needs-providers-ar.json'
 SOURCE_OVERRIDE_FILE=ROOT/'content/v312/special-needs-condition-source-url-overrides.json'
 VERSION=302; UPDATED='2026-07-27'; MARK='data-condition-hubs-v302'; HUB_MARKER=MARK; PROVIDERS_FILE=PROVIDERS; INSERT='<section class="section" id="method">'

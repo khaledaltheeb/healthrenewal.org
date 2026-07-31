@@ -26,8 +26,8 @@ JS_PATH = ROOT / "assets" / "js" / "outside-the-box-v254.js"
 
 VERSION = 254
 UPDATED = "2026-07-26"
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 SECTION = "outside-the-box"
 SITEMAP_NAME = "sitemap-outside-the-box.xml"
 SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"

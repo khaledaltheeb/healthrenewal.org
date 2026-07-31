@@ -15,7 +15,7 @@ SLUG = "associative-context-binding"
 TITLE = "ذاكرة الربط بين العنصر والسياق"
 CATEGORY = "الذاكرة الترابطية"
 SUMMARY = "مهمة تدريبية غير تشخيصية لتذكر الروابط بين عناصر وسياقات أو مواقع، بخيارات متعددة وخمسة مستويات متدرجة للأطفال والبالغين."
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 CANONICAL = BASE + "cognitive-lab/" + SLUG + "/"
 TODAY = date.today().isoformat()
 

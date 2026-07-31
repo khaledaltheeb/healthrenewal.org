@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+      SITE_BASE: https://healthrenewal.org/
     steps:
       - uses: actions/setup-python@v5
         with:
@@ -56,7 +56,7 @@ jobs:
           from datetime import datetime, timezone
           from pathlib import Path
 
-          base = "https://khaledaltheeb.github.io/pterminology-site/"
+          base = "https://healthrenewal.org/"
           report = json.loads(Path('/tmp/tools-descendants-report.json').read_text(encoding='utf-8'))
           deployment = json.loads(Path('/tmp/live-deployment.json').read_text(encoding='utf-8'))
 
@@ -197,7 +197,7 @@ jobs:
           from pathlib import Path
           from playwright.sync_api import sync_playwright
 
-          url = f"https://khaledaltheeb.github.io/pterminology-site/tools/quiz/?v={int(time.time())}"
+          url = f"https://healthrenewal.org/tools/quiz/?v={int(time.time())}"
           with sync_playwright() as playwright:
               browser = playwright.chromium.launch(headless=True)
               page = browser.new_page(

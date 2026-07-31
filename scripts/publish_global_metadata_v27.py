@@ -14,8 +14,8 @@ SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 VERIFY = "google644f1f7a8b7aaa2b.html"
 BASE_URL = "https://healthrenewal.org/"
 LEGACY_BASE_URLS = (
-    "https://khaledaltheeb.github.io/pterminology-site/",
-    "http://khaledaltheeb.github.io/pterminology-site/",
+    "https://healthrenewal.org/",
+    "https://healthrenewal.org/",
 )
 MANIFEST_HREF = "/manifest.webmanifest"
 THEME_COLOR = "#0b6b66"
@@ -104,10 +104,10 @@ def canonical_url_for(page: Path) -> str:
 def normalize_legacy_references(text: str) -> str:
     for legacy in LEGACY_BASE_URLS:
         text = text.replace(legacy, BASE_URL)
-    text = text.replace("https://khaledaltheeb.github.io/pterminology-site", BASE_URL.rstrip("/"))
-    text = text.replace("http://khaledaltheeb.github.io/pterminology-site", BASE_URL.rstrip("/"))
-    text = text.replace("/pterminology-site/", "/")
-    text = text.replace("\\/pterminology-site\\/", "\\/")
+    text = text.replace("https://healthrenewal.org/", BASE_URL.rstrip("/"))
+    text = text.replace("https://healthrenewal.org/", BASE_URL.rstrip("/"))
+    text = text.replace("/", "/")
+    text = text.replace("\\/\\/", "\\/")
     text = text.replace("https://healthrenewal.org//", BASE_URL)
     return text
 
@@ -143,9 +143,9 @@ def enrich_page(text: str, canonical_url: str) -> tuple[str, dict[str, int]]:
 
 def verify_contract() -> None:
     sample = (
-        '<!doctype html><html><head><link href="https://khaledaltheeb.github.io/pterminology-site/page/" rel="canonical">'
-        '<meta property="og:url" content="https://khaledaltheeb.github.io/pterminology-site/page/">'
-        '<title>Sample</title></head><body><a href="/pterminology-site/library/">Library</a></body></html>'
+        '<!doctype html><html><head><link href="https://healthrenewal.org/page/" rel="canonical">'
+        '<meta property="og:url" content="https://healthrenewal.org/page/">'
+        '<title>Sample</title></head><body><a href="/library/">Library</a></body></html>'
     )
     expected = "https://healthrenewal.org/page/"
     enriched, counts = enrich_page(sample, expected)
@@ -154,7 +154,7 @@ def verify_contract() -> None:
         raise SystemExit(f"Metadata enrichment contract failed: {state}")
     if state.canonical != expected or state.og_url_value != expected:
         raise SystemExit(f"Custom-domain canonical contract failed: {state}")
-    if "/pterminology-site/" in enriched or "khaledaltheeb.github.io/pterminology-site" in enriched:
+    if "/" in enriched or "khaledaltheeb.github.io/" in enriched:
         raise SystemExit("Legacy production base survived metadata normalization")
     if counts != {
         "canonical_normalized": 1,
@@ -237,7 +237,7 @@ def main() -> None:
         }.items():
             if not present:
                 stats["remaining_missing"][key].append(relative)
-        if "/pterminology-site/" in updated or "khaledaltheeb.github.io/pterminology-site" in updated:
+        if "/" in updated or "khaledaltheeb.github.io/" in updated:
             stats["legacy_base_occurrences_remaining"] += 1
             failures.append(f"{relative}: legacy_base_remaining")
 

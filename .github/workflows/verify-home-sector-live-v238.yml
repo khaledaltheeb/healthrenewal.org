@@ -47,7 +47,7 @@ jobs:
     env:
       EXPECTED_SHA: ${{ github.event.workflow_run.head_sha }}
       REQUIRED_HOME_SHA: 322e2a36ab6925788050d66026799ca5500f471b
-      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      BASE_URL: https://healthrenewal.org/
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout the deployed source commit

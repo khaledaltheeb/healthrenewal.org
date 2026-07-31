@@ -501,7 +501,7 @@ async function parseJson(request) {
 }
 
 function corsHeaders(origin, env) {
-  const allowed = String(env.ALLOWED_ORIGINS || 'https://khaledaltheeb.github.io').split(',').map(v=>v.trim()).filter(Boolean);
+  const allowed = String(env.ALLOWED_ORIGINS || 'https://healthrenewal.org').split(',').map(v=>v.trim()).filter(Boolean);
   const headers = {
     'access-control-allow-methods':'GET,POST,PATCH,DELETE,OPTIONS',
     'access-control-allow-headers':'authorization,content-type,idempotency-key,x-requested-with,x-bootstrap-key,x-recovery-export-key',
@@ -523,7 +523,7 @@ function publicUser(row) { return {id:row.id,email:row.email,phone:row.phone_e16
 function passwordResetBaseForRequest(request,env) {
   const origin=String(request?.headers?.get('origin')||'').replace(/\/$/,'');
   if(origin==='https://healthrenewal.org'||origin==='https://www.healthrenewal.org') return `${origin}/specialists-partners/password-reset/`;
-  if(origin==='https://khaledaltheeb.github.io') return 'https://healthrenewal.org/specialists-partners/password-reset/';
+  if(origin==='https://healthrenewal.org') return 'https://healthrenewal.org/specialists-partners/password-reset/';
   return String(env.PASSWORD_RESET_BASE_URL||'');
 }
 function validHttpsBase(value) { try { const url=new URL(String(value || '')); if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) return ''; return url.href.replace(/\/$/,''); } catch (_) { return ''; } }

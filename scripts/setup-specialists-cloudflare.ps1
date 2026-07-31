@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Repository = "khaledaltheeb/pterminology-site",
+    [string]$Repository = "khaledaltheeb/",
     [string]$AccountId = "826ac34927c1e045c06145a327c2ac52",
     [string]$WorkerName = "pterminology-specialists",
     [string]$DatabaseName = "pterminology-specialists",
@@ -242,8 +242,8 @@ if ($LASTEXITCODE -eq 0 -and $runtime) {
 }
 
 Write-Host "`nResource setup, deployment, and frontend connection completed." -ForegroundColor Green
-Write-Host "Sector page: https://khaledaltheeb.github.io/pterminology-site/specialists-partners/"
-Write-Host "Admin page: https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/"
+Write-Host "Sector page: https://healthrenewal.org/specialists-partners/"
+Write-Host "Admin page: https://healthrenewal.org/specialists-partners/admin/"
 Write-Host "`nTo recover the admin key locally:" -ForegroundColor Yellow
 Write-Host "(Import-Clixml '$credentialPath').GetNetworkCredential().Password"
 Write-Host "`nAfter a successful live test, revoke the temporary Cloudflare token or replace it with an operational token." -ForegroundColor Yellow

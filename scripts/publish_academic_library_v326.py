@@ -11,8 +11,8 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BP = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BP = "/"
 VERSION = 326
 REVIEWED_AT = "2026-07-28"
 NEXT_REVIEW = "2027-01-28"

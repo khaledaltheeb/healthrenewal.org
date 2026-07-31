@@ -79,7 +79,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+      SITE_BASE: https://healthrenewal.org/
     steps:
       - uses: actions/checkout@v4
         with:
@@ -173,8 +173,8 @@ jobs:
               assert 'noindex' not in text.lower(), page
           robots = (root / 'robots.txt').read_text(encoding='utf-8')
           assert robots.count('# home-sector-v234') == 1
-          assert 'Allow: /pterminology-site/sectors/home/' in robots
-          assert 'Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml' in robots
+          assert 'Allow: /sectors/home/' in robots
+          assert 'Sitemap: https://healthrenewal.org/sitemap.xml' in robots
           print({'home_sector': 'passed', 'guides': len(pages), 'hub_words': report['hub_words'], 'minimum_article_words': report['minimum_article_words']})
           PY
       - name: Upload real generated section evidence

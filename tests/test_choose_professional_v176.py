@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "content" / "v176" / "choosing-mental-health-professional-ar.json"
 SCRIPT = ROOT / "scripts" / "publish_choose_professional_v176.py"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 
 
 class ChooseProfessionalGuideTests(unittest.TestCase):

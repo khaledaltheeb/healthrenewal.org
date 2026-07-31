@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PUBLISHER = ROOT / "scripts" / "publish_special_needs_guides_v217.py"
 AUDITOR = ROOT / "scripts" / "audit_unpublished_content_v201.py"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 
 
 class SpecialNeedsSupportIntegrationV318Tests(unittest.TestCase):
@@ -90,7 +90,7 @@ class SpecialNeedsSupportIntegrationV318Tests(unittest.TestCase):
             self.assertEqual(page.count('data-diagnostic-guide="'), 1)
             self.assertEqual(page.count('data-support-guide="'), 1)
             for slug in children:
-                self.assertEqual(page.count(f'/pterminology-site/special-needs/{slug}/'), 1)
+                self.assertEqual(page.count(f'/special-needs/{slug}/'), 1)
                 self.assertTrue((self.site / "special-needs" / slug / "index.html").is_file())
 
         autism = (

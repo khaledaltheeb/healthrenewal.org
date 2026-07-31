@@ -19,7 +19,7 @@ spec.loader.exec_module(module)
 
 
 def shell(title: str, canonical: str, body: str) -> str:
-    return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title><meta name="description" content="وصف قديم"><meta name="robots" content="index,follow"><link rel="canonical" href="{canonical}"><link rel="stylesheet" href="/pterminology-site/assets/css/theme-v10.css"></head><body><header id="global-header"><nav>التنقل</nav></header><main>{body}</main><footer id="global-footer">الحقوق</footer><script>navigator.serviceWorker.register('/pterminology-site/sw.js')</script></body></html>'''
+    return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title><meta name="description" content="وصف قديم"><meta name="robots" content="index,follow"><link rel="canonical" href="{canonical}"><link rel="stylesheet" href="/assets/css/theme-v10.css"></head><body><header id="global-header"><nav>التنقل</nav></header><main>{body}</main><footer id="global-footer">الحقوق</footer><script>navigator.serviceWorker.register('/sw.js')</script></body></html>'''
 
 
 class HomeSectorV234Tests(unittest.TestCase):
@@ -113,8 +113,8 @@ class HomeSectorV234Tests(unittest.TestCase):
 
         robots = (self.site / "robots.txt").read_text(encoding="utf-8")
         self.assertEqual(robots.count("# home-sector-v234"), 1)
-        self.assertIn("Allow: /pterminology-site/sectors/home/", robots)
-        self.assertIn("Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml", robots)
+        self.assertIn("Allow: /sectors/home/", robots)
+        self.assertIn("Sitemap: https://healthrenewal.org/sitemap.xml", robots)
         evidence = json.loads((self.site / "api" / "home-sector-v234.json").read_text(encoding="utf-8"))
         self.assertEqual(evidence["source_articles"], 20)
         self.assertEqual(evidence["word_count_method"], "semantic-visible-tokens-v244")
@@ -157,7 +157,7 @@ class HomeSectorV234Tests(unittest.TestCase):
 
     def test_rejects_explicit_robots_block(self) -> None:
         (self.site / "robots.txt").write_text(
-            "User-agent: *\nDisallow: /pterminology-site/sectors/home/\n",
+            "User-agent: *\nDisallow: /sectors/home/\n",
             encoding="utf-8",
         )
         with self.assertRaisesRegex(ValueError, "robots_disallows_home_sector"):

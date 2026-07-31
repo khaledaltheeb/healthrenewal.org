@@ -20,10 +20,10 @@ jobs:
         run: |
           {
             echo '## Exact legacy base references'
-            grep -RIn --exclude-dir=.git --exclude='*.b64' --exclude='*.b85' --exclude='*.part*' 'https://khaledaltheeb.github.io/pterminology-site' . || true
+            grep -RIn --exclude-dir=.git --exclude='*.b64' --exclude='*.b85' --exclude='*.part*' 'https://healthrenewal.org/' . || true
             echo
             echo '## Root-prefix references in sitemap/indexing code and tests'
-            grep -RIn --exclude-dir=.git --exclude='*.b64' --exclude='*.b85' --exclude='*.part*' '/pterminology-site/' scripts tests .github/workflows robots.txt sitemap*.xml 2>/dev/null || true
+            grep -RIn --exclude-dir=.git --exclude='*.b64' --exclude='*.b85' --exclude='*.part*' '/' scripts tests .github/workflows robots.txt sitemap*.xml 2>/dev/null || true
           } > /tmp/domain-refs.txt
       - name: Publish report
         if: always()

@@ -9,8 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 RELEASE_DATE = "2026-07-25"
 ENHANCEMENT_VERSION = 234
 SITE = Path("_site").resolve()
@@ -370,7 +370,7 @@ def write_robots() -> None:
         (
             "User-agent: *",
             "Allow: /",
-            "Disallow: /pterminology-site/api/",
+            "Disallow: /api/",
             f"Sitemap: {BASE}sitemap.xml",
             f"Sitemap: {BASE}sitemap-care-guides.xml",
             "",

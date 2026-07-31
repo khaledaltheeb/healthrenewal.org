@@ -39,7 +39,7 @@ jobs:
                   locs=[(x.text or '').strip() for x in tree.iter() if x.tag.endswith('loc')]
                   urls=[u for u in locs if not u.endswith('.xml')]
                   maps=[u for u in locs if u.endswith('.xml')]
-                  print(f'{p.name}: locs={len(locs)} urls={len(urls)} child_sitemaps={len(maps)} old_domain={sum("khaledaltheeb.github.io/pterminology-site" in u for u in locs)} new_domain={sum(u.startswith("https://healthrenewal.org") for u in locs)}')
+                  print(f'{p.name}: locs={len(locs)} urls={len(urls)} child_sitemaps={len(maps)} old_domain={sum("khaledaltheeb.github.io/" in u for u in locs)} new_domain={sum(u.startswith("https://healthrenewal.org") for u in locs)}')
                   all_locs.extend(urls)
               except Exception as e:
                   print(f'{p.name}: PARSE_ERROR {e!r}')

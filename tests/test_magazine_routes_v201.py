@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PUBLISHER = ROOT / "scripts" / "publish_magazine_v201.py"
 SOURCE = ROOT / "magazine"
 SOURCE_SITEMAP = ROOT / "sitemap.xml"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 URL = BASE + "/magazine/"
 ROBOTS_PATTERN = re.compile(r'<meta\s+[^>]*name=["\']robots["\'][^>]*>', re.I)
 SPEC = importlib.util.spec_from_file_location("publish_magazine_routes_v320", PUBLISHER)

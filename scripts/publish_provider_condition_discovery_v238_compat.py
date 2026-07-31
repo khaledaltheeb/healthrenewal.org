@@ -45,7 +45,7 @@ def sync_discovery_sitemaps(site: Path) -> list[str]:
 
     path.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
     normalized = path.read_text(encoding="utf-8")
-    if "khaledaltheeb.github.io/pterminology-site" in normalized:
+    if "khaledaltheeb.github.io/" in normalized:
         raise ValueError("robots.txt contains a legacy discovery sitemap URL")
     for filename in DISCOVERY_SITEMAPS:
         directive = f"Sitemap: {BASE}/{filename}"

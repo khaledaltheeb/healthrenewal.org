@@ -27,7 +27,7 @@ class HealthGateHeaderIntegrationV233Tests(unittest.TestCase):
         page.write_text(
             '<!doctype html><html lang="ar" dir="rtl"><head><title>الطفل</title></head><body>'
             '<main><h1>الصحة النفسية للطفل</h1>'
-            '<img src="https://khaledaltheeb.github.io/pterminology-site/assets/illustrations/child.svg" alt="رسم توضيحي للطفل">'
+            '<img src="https://healthrenewal.org/assets/illustrations/child.svg" alt="رسم توضيحي للطفل">'
             '</main></body></html>',
             encoding="utf-8",
         )

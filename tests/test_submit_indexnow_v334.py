@@ -16,7 +16,7 @@ from submit_indexnow_v334 import (  # noqa: E402
     submit_urls,
 )
 
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 KEY = "a4f9d7c2e81b4630b5d6f7a912ce3048"
 
 

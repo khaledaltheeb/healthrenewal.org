@@ -24,8 +24,8 @@ HOME = '''<!doctype html><html lang="ar" dir="rtl"><head><title>الرئيسية
 <footer><div class="footer-links"><a href="trust/">الثقة والمنهجية</a></div></footer>
 </body></html>'''
 SITEMAP = '''<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url><loc>https://khaledaltheeb.github.io/pterminology-site/</loc></url>
-<url><loc>https://khaledaltheeb.github.io/pterminology-site/trust/</loc></url>
+<url><loc>https://healthrenewal.org/</loc></url>
+<url><loc>https://healthrenewal.org/trust/</loc></url>
 </urlset>'''
 
 
@@ -51,7 +51,7 @@ class PartnersDiscoveryV228Tests(unittest.TestCase):
             self.assertFalse(report["unverified_partners_claimed"])
             self.assertEqual(homepage.count(publisher.PARTNERS_LINK), 1)
             self.assertIn("لا توجد جهات مدرجة", page)
-            self.assertIn("/pterminology-site/partners/", sitemap)
+            self.assertIn("/partners/", sitemap)
 
             audit = orphan.audit(site)
             self.assertNotIn("partners/", audit["critical_orphans"])

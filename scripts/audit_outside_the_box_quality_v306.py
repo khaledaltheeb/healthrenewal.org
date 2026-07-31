@@ -20,8 +20,8 @@ from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 CONDITIONS_PATH = ROOT / "content" / "v254" / "outside-the-box-conditions-ar.json"
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 SECTION = "outside-the-box"
 ROUTE = "quality-audit"
 VERSION = 306

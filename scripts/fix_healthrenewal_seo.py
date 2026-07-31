@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SELF = Path(__file__).resolve()
-OLD_ORIGIN = "https://khaledaltheeb.github.io/pterminology-site"
+OLD_ORIGIN = "https://healthrenewal.org/"
 NEW_ORIGIN = "https://healthrenewal.org"
 PUBLIC_SUFFIXES = {".html", ".htm", ".xml", ".json", ".webmanifest", ".txt"}
 SKIP_TOP_LEVEL = {
@@ -158,10 +158,10 @@ def main() -> int:
     if validator.is_file():
         validator_text = validator.read_text(encoding="utf-8")
         validator_updated = validator_text.replace(
-            'PUBLIC_ORIGIN = "https://khaledaltheeb.github.io"',
+            'PUBLIC_ORIGIN = "https://healthrenewal.org"',
             'PUBLIC_ORIGIN = "https://healthrenewal.org"',
         ).replace(
-            'BASE_PATH = "/pterminology-site/"',
+            'BASE_PATH = "/"',
             'BASE_PATH = "/"',
         )
         if validator_updated != validator_text:

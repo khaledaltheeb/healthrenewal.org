@@ -16,7 +16,7 @@ from normalize_social_previews_v334 import (  # noqa: E402
     rewrite_meta_tag,
 )
 
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 
 
 class SocialPreviewNormalizerTests(unittest.TestCase):

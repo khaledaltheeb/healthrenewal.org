@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 22
     env:
-      BASE_URL: https://khaledaltheeb.github.io/pterminology-site/
+      BASE_URL: https://healthrenewal.org/
       MINIMUM_SHA: 0ce54b49539f542b9c3b7a4be7f7e786c6fc26e3
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -131,7 +131,7 @@ jobs:
           import xml.etree.ElementTree as ET
           from pathlib import Path
 
-          base = 'https://khaledaltheeb.github.io/pterminology-site/'
+          base = 'https://healthrenewal.org/'
           deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
           postlaunch = json.loads(Path('/tmp/postlaunch.json').read_text(encoding='utf-8'))
           trust = json.loads(Path('/tmp/trust.json').read_text(encoding='utf-8'))
@@ -192,24 +192,24 @@ jobs:
 
           expected_links = {
               'autism': (
-                  '/pterminology-site/special-needs/autism-daily-participation-support/',
-                  '/pterminology-site/special-needs/aac-daily-communication-access/',
-                  '/pterminology-site/special-needs/sensory-regulation-daily-environment-plan/',
-                  '/pterminology-site/special-needs/visual-schedules-transitions-home-school-plan/',
-                  '/pterminology-site/special-needs/early-intervention-family-action-plan/',
-                  '/pterminology-site/special-needs/provider-center-quality-selection-checklist/',
-                  '/pterminology-site/special-needs/caregiver-wellbeing-sustainable-support-plan/',
-                  '/pterminology-site/special-needs/safeguarding-bullying-abuse-response-plan/',
+                  '/special-needs/autism-daily-participation-support/',
+                  '/special-needs/aac-daily-communication-access/',
+                  '/special-needs/sensory-regulation-daily-environment-plan/',
+                  '/special-needs/visual-schedules-transitions-home-school-plan/',
+                  '/special-needs/early-intervention-family-action-plan/',
+                  '/special-needs/provider-center-quality-selection-checklist/',
+                  '/special-needs/caregiver-wellbeing-sustainable-support-plan/',
+                  '/special-needs/safeguarding-bullying-abuse-response-plan/',
               ),
               'down': (
-                  '/pterminology-site/special-needs/early-intervention-family-action-plan/',
-                  '/pterminology-site/special-needs/individual-learning-support-plan/',
-                  '/pterminology-site/special-needs/accessible-learning-materials-arabic/',
-                  '/pterminology-site/special-needs/family-school-collaboration-meeting/',
-                  '/pterminology-site/special-needs/transition-adulthood-employment-independence/',
-                  '/pterminology-site/special-needs/provider-center-quality-selection-checklist/',
-                  '/pterminology-site/special-needs/caregiver-wellbeing-sustainable-support-plan/',
-                  '/pterminology-site/special-needs/safeguarding-bullying-abuse-response-plan/',
+                  '/special-needs/early-intervention-family-action-plan/',
+                  '/special-needs/individual-learning-support-plan/',
+                  '/special-needs/accessible-learning-materials-arabic/',
+                  '/special-needs/family-school-collaboration-meeting/',
+                  '/special-needs/transition-adulthood-employment-independence/',
+                  '/special-needs/provider-center-quality-selection-checklist/',
+                  '/special-needs/caregiver-wellbeing-sustainable-support-plan/',
+                  '/special-needs/safeguarding-bullying-abuse-response-plan/',
               ),
           }
           for name in ('autism', 'down'):
@@ -239,8 +239,8 @@ jobs:
                   assert text.count(f'href="{href}"') == 1, (name, href)
 
           hub = Path('/tmp/hub.html').read_text(encoding='utf-8')
-          assert hub.count('/pterminology-site/special-needs/autism/') == 1
-          assert hub.count('/pterminology-site/special-needs/down-syndrome/') == 1
+          assert hub.count('/special-needs/autism/') == 1
+          assert hub.count('/special-needs/down-syndrome/') == 1
 
           sitemap_urls = {
               (node.text or '').strip()

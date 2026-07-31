@@ -98,8 +98,8 @@ class PublicationSurfaceAuditTests(unittest.TestCase):
         for route in expected:
             source = (ROOT / route / "index.html").read_text(encoding="utf-8")
             self.assertIn('content="noindex,follow"', source)
-            self.assertIn('href="https://khaledaltheeb.github.io/pterminology-site/trust/', source)
-            self.assertIn('/pterminology-site/trust/', source)
+            self.assertIn('href="https://healthrenewal.org/trust/', source)
+            self.assertIn('/trust/', source)
 
 
 if __name__ == "__main__":

@@ -85,8 +85,8 @@ jobs:
         run: |
           set -euxo pipefail
           rm -rf /tmp/provider-v225 /tmp/provider-v225-chrome
-          mkdir -p /tmp/provider-v225/pterminology-site
-          ln -s "$GITHUB_WORKSPACE/provider-assessment-demo" /tmp/provider-v225/pterminology-site/provider-assessment-demo
+          mkdir -p /tmp/provider-v225/
+          ln -s "$GITHUB_WORKSPACE/provider-assessment-demo" /tmp/provider-v225/provider-assessment-demo
           python -m http.server 8765 --directory /tmp/provider-v225 >/tmp/provider-v225-http.log 2>&1 &
           SERVER_PID=$!
           CHROME_PATH="$(node -e "console.log(require('playwright').chromium.executablePath())")"
@@ -100,11 +100,11 @@ jobs:
           CHROME_PID=$!
           trap 'kill $CHROME_PID $SERVER_PID 2>/dev/null || true' EXIT
           for attempt in $(seq 1 30); do
-            curl -fsS http://127.0.0.1:8765/pterminology-site/provider-assessment-demo/ >/dev/null && break
+            curl -fsS http://127.0.0.1:8765/provider-assessment-demo/ >/dev/null && break
             sleep 1
           done
           CHROME_PATH="$CHROME_PATH" node tests/probe_provider_layout_v225.mjs \
-            http://127.0.0.1:8765/pterminology-site/provider-assessment-demo/ \
+            http://127.0.0.1:8765/provider-assessment-demo/ \
             /tmp/provider-layout-probe-v225.json
           for attempt in $(seq 1 30); do
             curl -fsS http://127.0.0.1:9222/json/version >/dev/null && break
@@ -112,7 +112,7 @@ jobs:
           done
           set +e
           npx lighthouse \
-            http://127.0.0.1:8765/pterminology-site/provider-assessment-demo/ \
+            http://127.0.0.1:8765/provider-assessment-demo/ \
             --port=9222 \
             --output=json \
             --output-path=/tmp/provider-v225-lighthouse.json \

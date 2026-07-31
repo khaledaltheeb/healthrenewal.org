@@ -10,7 +10,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 DATA = ROOT / "content/v18/care-guides-ar.json"
 TRUSTED_HOSTS = {"www.who.int", "www.unicef.org", "www.nice.org.uk", "www.cuh.nhs.uk"}
 
@@ -100,7 +100,7 @@ class CareGuidesV234Tests(unittest.TestCase):
                 self.assertEqual(len(ids), len(set(ids)), page)
             robots = (site / "robots.txt").read_text(encoding="utf-8")
             self.assertIn(f"Sitemap: {BASE}sitemap-care-guides.xml", robots)
-            self.assertIn("Disallow: /pterminology-site/api/", robots)
+            self.assertIn("Disallow: /api/", robots)
 
 
 if __name__ == "__main__":

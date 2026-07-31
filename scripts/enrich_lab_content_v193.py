@@ -185,7 +185,7 @@ def cognitive_body(definition: dict, contract: dict, prefix: str) -> str:
 
 def base_prefix(page: str) -> str:
     match = re.search(r'href="([^"]*)manifest\.webmanifest"', page)
-    return match.group(1) if match else "/pterminology-site/"
+    return match.group(1) if match else "/"
 
 
 def replace_marked(page: str, start: str, end: str, fragment: str) -> str:

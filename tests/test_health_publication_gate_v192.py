@@ -18,7 +18,7 @@ BLOCKED_SLUG = "autism-family-practical-guide"
 APPROVED_SLUG = "adhd-family-practical-guide"
 BLOCKED_ROUTE = f"care-guides/{BLOCKED_SLUG}/"
 APPROVED_ROUTE = f"care-guides/{APPROVED_SLUG}/"
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 
 
 class HealthPublicationGateV192Tests(unittest.TestCase):
@@ -49,7 +49,7 @@ class HealthPublicationGateV192Tests(unittest.TestCase):
         family = (
             '<html><main><section id="approved-family">مسار عائلي معتمد</section>'
             '<!-- autism-family-journey-v73 -->'
-            f'<section><a href="/pterminology-site/{BLOCKED_ROUTE}">رابط محجوب</a></section>'
+            f'<section><a href="/{BLOCKED_ROUTE}">رابط محجوب</a></section>'
             '<!-- /autism-family-journey-v73 -->'
             '</main></html>'
         )

@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "content" / "v209" / "special-needs-guides-manifest-ar.json"
 GUIDE_DIR = ROOT / "content" / "v209" / "special-needs-guides"
 PUBLISHER = ROOT / "scripts" / "publish_special_needs_guides_v209_compat.py"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 BANNED = re.compile(r"(?<!\w)(?:المعاقين|معاقين|المعاقون|معاقون|المعاقة|معاقة|المعاق|معاق)(?!\w)")
 
@@ -160,7 +160,7 @@ class SpecialNeedsGuidesV209Tests(unittest.TestCase):
         site = self.make_site()
         (site / "sitemap.xml").write_text(
             '<?xml version="1.0"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-            '<sitemap><loc>https://khaledaltheeb.github.io/pterminology-site/sitemap-core.xml</loc></sitemap>'
+            '<sitemap><loc>https://healthrenewal.org/sitemap-core.xml</loc></sitemap>'
             '</sitemapindex>',
             encoding="utf-8",
         )

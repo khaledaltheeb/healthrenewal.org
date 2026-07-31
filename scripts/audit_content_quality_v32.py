@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 BASE_HOST = "khaledaltheeb.github.io"
-BASE_PATH = "/pterminology-site/"
+BASE_PATH = "/"
 DIAGNOSTIC_CONTRACT_VERSION = 313
 VERIFY_RE = re.compile(
     r"^(?:google-site-verification|msvalidate\.01|p:domain_verify|facebook-domain-verification)\s*[:=]",

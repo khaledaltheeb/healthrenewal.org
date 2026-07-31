@@ -112,7 +112,7 @@ jobs:
               assert parsed.scheme == 'https', url
               assert parsed.netloc == 'healthrenewal.org', url
               assert 'khaledaltheeb.github.io' not in url, url
-              assert '/pterminology-site/' not in url, url
+              assert '/' not in url, url
 
           indexed = [
               node.text or ''
@@ -141,7 +141,7 @@ jobs:
           ), robots
           assert robots.count('Sitemap: https://healthrenewal.org/sitemap.xml') == 1, robots
           assert robots.count('Sitemap: https://healthrenewal.org/sitemap-index.xml') == 1, robots
-          assert 'khaledaltheeb.github.io/pterminology-site' not in robots, robots
+          assert 'khaledaltheeb.github.io/' not in robots, robots
 
           print({
               'status': 'passed',

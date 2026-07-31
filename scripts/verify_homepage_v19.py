@@ -124,12 +124,12 @@ def main() -> None:
     }.issubset(keyword_items)
 
     for required_meta in (
-        '<link rel="manifest" href="/pterminology-site/manifest.webmanifest">',
-        '<link rel="icon" href="/pterminology-site/assets/brand/logo-mark.svg" type="image/svg+xml">',
+        '<link rel="manifest" href="/manifest.webmanifest">',
+        '<link rel="icon" href="/assets/brand/logo-mark.svg" type="image/svg+xml">',
         '<link rel="search" type="application/opensearchdescription+xml"',
-        '<link rel="sitemap" type="application/xml" href="https://khaledaltheeb.github.io/pterminology-site/sitemap.xml">',
-        '<meta property="og:image" content="https://khaledaltheeb.github.io/pterminology-site/assets/brand/social-card.svg">',
-        '<meta name="twitter:image" content="https://khaledaltheeb.github.io/pterminology-site/assets/brand/social-card.svg">',
+        '<link rel="sitemap" type="application/xml" href="https://healthrenewal.org/sitemap.xml">',
+        '<meta property="og:image" content="https://healthrenewal.org/assets/brand/social-card.svg">',
+        '<meta name="twitter:image" content="https://healthrenewal.org/assets/brand/social-card.svg">',
     ):
         assert required_meta in source, f"Missing homepage discovery metadata: {required_meta}"
 
@@ -151,11 +151,11 @@ def main() -> None:
     parts = collection.get("hasPart", [])
     assert any(part.get("@type") == "WebAPI" for part in parts)
     part_urls = {part.get("url") for part in parts}
-    assert "https://khaledaltheeb.github.io/pterminology-site/comparisons/" in part_urls
-    assert "https://khaledaltheeb.github.io/pterminology-site/library/" in part_urls
-    assert "https://khaledaltheeb.github.io/pterminology-site/guided-assessment/" in part_urls
-    assert "https://khaledaltheeb.github.io/pterminology-site/daily-tools/" in part_urls
-    assert "https://khaledaltheeb.github.io/pterminology-site/learning-paths/" in part_urls
+    assert "https://healthrenewal.org/comparisons/" in part_urls
+    assert "https://healthrenewal.org/library/" in part_urls
+    assert "https://healthrenewal.org/guided-assessment/" in part_urls
+    assert "https://healthrenewal.org/daily-tools/" in part_urls
+    assert "https://healthrenewal.org/learning-paths/" in part_urls
 
     manifest = load_json("manifest.webmanifest")
     platform = load_json("api/v1/platform.json")

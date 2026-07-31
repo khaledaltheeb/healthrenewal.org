@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Any
 
 VERSION = 240
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 CORRECTED_GRIEF_TEXT = "تربط النوم بالموت"
 CORRUPTED_GRIEF_TEXT = "قد أراد العتودة"
 
@@ -177,9 +177,9 @@ def verify(site: Path, source_file: Path, expected_sha: str | None = None, mode:
     if not robots_path.is_file():
         fail("Missing robots.txt")
     robots = robots_path.read_text(encoding="utf-8")
-    if "Allow: /pterminology-site/sectors/child/" not in robots:
+    if "Allow: /sectors/child/" not in robots:
         fail("Child-sector Allow rule is missing from robots.txt")
-    if "Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml" not in robots:
+    if "Sitemap: https://healthrenewal.org/sitemap.xml" not in robots:
         fail("Main sitemap declaration is missing from robots.txt")
 
     result = {

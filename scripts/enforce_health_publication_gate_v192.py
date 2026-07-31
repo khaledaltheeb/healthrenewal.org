@@ -21,7 +21,7 @@ for _name in dir(_base):
         globals()[_name] = getattr(_base, _name)
 
 SITE = _base.SITE
-CARE_GUIDE_ABSOLUTE_LINK = '<a href="/pterminology-site/care-guides/">أدلة التعامل</a>'
+CARE_GUIDE_ABSOLUTE_LINK = '<a href="/care-guides/">أدلة التعامل</a>'
 CARE_GUIDE_RELATIVE_LINK = '<a href="care-guides/">أدلة التعامل</a>'
 
 

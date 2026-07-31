@@ -22,7 +22,7 @@ from urllib.parse import unquote, urljoin, urlparse, urlunparse
 from xml.etree import ElementTree as ET
 
 VERSION = 334
-DEFAULT_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
+DEFAULT_BASE_URL = "https://healthrenewal.org/"
 REPORT_JSON = f"seo-agent-report-v{VERSION}.json"
 REPORT_MD = f"seo-agent-report-v{VERSION}.md"
 

@@ -12,7 +12,7 @@ from pathlib import Path
 from statistics import median
 from urllib.parse import urlparse
 
-BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE_URL = "https://healthrenewal.org/"
 REPORT_NAME = "editorial-page-quality-v309.json"
 VERIFY_RE = re.compile(
     r"^(?:google-site-verification|msvalidate\.01|p:domain_verify|facebook-domain-verification)\s*[:=]",
@@ -300,7 +300,7 @@ class PageParser(HTMLParser):
             if href:
                 parsed = urlparse(href)
                 if parsed.scheme in {"http", "https"}:
-                    if parsed.netloc.lower().endswith("khaledaltheeb.github.io") and parsed.path.startswith("/pterminology-site/"):
+                    if parsed.netloc.lower().endswith("khaledaltheeb.github.io") and parsed.path.startswith("/"):
                         self.page.internal_links.append(href)
                     else:
                         self.page.external_links.append(href)

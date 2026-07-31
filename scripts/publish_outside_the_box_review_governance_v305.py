@@ -22,8 +22,8 @@ FRAMEWORK_PATH = ROOT / "content" / "v302" / "outside-the-box-ten-plan-framework
 GOVERNANCE_PATH = ROOT / "content" / "v305" / "outside-the-box-review-governance-ar.json"
 CSS_PATH = ROOT / "assets" / "css" / "outside-the-box-review-governance-v305.css"
 
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 SECTION = "outside-the-box"
 ROUTE = "review-governance"
 VERSION = 305

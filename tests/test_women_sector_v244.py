@@ -20,7 +20,7 @@ spec.loader.exec_module(module)
 
 
 def shell(title: str, canonical: str) -> str:
-    return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title><meta name="description" content="وصف قديم"><meta name="robots" content="index,follow"><link rel="canonical" href="{canonical}"><link rel="manifest" href="/pterminology-site/manifest.webmanifest"></head><body><header id="global-header"><nav>التنقل</nav></header><main><p>محتوى قديم أول.</p></main><main><h1>{title}</h1><p>محتوى قديم ثان.</p></main><footer id="global-footer">الحقوق</footer><script>navigator.serviceWorker.register('/pterminology-site/sw.js')</script></body></html>'''
+    return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title><meta name="description" content="وصف قديم"><meta name="robots" content="index,follow"><link rel="canonical" href="{canonical}"><link rel="manifest" href="/manifest.webmanifest"></head><body><header id="global-header"><nav>التنقل</nav></header><main><p>محتوى قديم أول.</p></main><main><h1>{title}</h1><p>محتوى قديم ثان.</p></main><footer id="global-footer">الحقوق</footer><script>navigator.serviceWorker.register('/sw.js')</script></body></html>'''
 
 
 class WomenSectorV244Tests(unittest.TestCase):
@@ -110,8 +110,8 @@ class WomenSectorV244Tests(unittest.TestCase):
 
         robots = (self.site / "robots.txt").read_text(encoding="utf-8")
         self.assertEqual(robots.count("# women-sector-v244"), 1)
-        self.assertIn("Allow: /pterminology-site/sectors/women/", robots)
-        self.assertIn("Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml", robots)
+        self.assertIn("Allow: /sectors/women/", robots)
+        self.assertIn("Sitemap: https://healthrenewal.org/sitemap.xml", robots)
         evidence = json.loads((self.site / "api" / "women-sector-v244.json").read_text(encoding="utf-8"))
         self.assertEqual(evidence, report)
 
@@ -123,7 +123,7 @@ class WomenSectorV244Tests(unittest.TestCase):
         self.assertFalse(second["robots_updated"])
 
     def test_rejects_explicit_robots_block(self) -> None:
-        (self.site / "robots.txt").write_text("User-agent: *\nDisallow: /pterminology-site/sectors/women/\n", encoding="utf-8")
+        (self.site / "robots.txt").write_text("User-agent: *\nDisallow: /sectors/women/\n", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "robots_disallows_women_sector"):
             self.run_upgrade()
 

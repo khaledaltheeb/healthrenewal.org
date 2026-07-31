@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+      SITE_BASE: https://healthrenewal.org/
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -76,7 +76,7 @@ jobs:
                   'faq_schema': '"@type": "FAQPage"' in text,
                   'twitter_title': 'name="twitter:title"' in text,
                   'twitter_description': 'name="twitter:description"' in text,
-                  'privacy_link': '/pterminology-site/privacy/' in text,
+                  'privacy_link': '/privacy/' in text,
                   'not_published_claim': 'status: published' not in text.lower(),
               }
               bad=[key for key,value in checks.items() if not value]

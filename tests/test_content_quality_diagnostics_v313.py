@@ -33,7 +33,7 @@ class ContentQualityDiagnosticsV313Tests(unittest.TestCase):
             f"<title>{title}</title>"
             f"<meta name=\"description\" content=\"{description}\">"
             f"<meta name=\"robots\" content=\"{robots}\">"
-            f"<link rel=\"canonical\" href=\"https://khaledaltheeb.github.io/pterminology-site/{canonical_route}\">"
+            f"<link rel=\"canonical\" href=\"https://healthrenewal.org/{canonical_route}\">"
             f"<meta property=\"og:title\" content=\"{title}\">"
             f"<meta property=\"og:description\" content=\"{description}\">"
             "<meta name=\"twitter:card\" content=\"summary\">"

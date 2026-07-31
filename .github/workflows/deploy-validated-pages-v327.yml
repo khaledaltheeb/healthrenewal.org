@@ -112,7 +112,7 @@ jobs:
         run: |
           set -euxo pipefail
           python scripts/normalize_social_previews_v334.py _site \
-            --base-url https://khaledaltheeb.github.io/pterminology-site/
+            --base-url https://healthrenewal.org/
           test -f _site/assets/social-card-v334.png
           test -f _site/api/social-preview-normalization-v334.json
 
@@ -120,7 +120,7 @@ jobs:
         run: |
           set -euxo pipefail
           python scripts/submit_indexnow_v334.py _site \
-            --base-url https://khaledaltheeb.github.io/pterminology-site/ \
+            --base-url https://healthrenewal.org/ \
             --key a4f9d7c2e81b4630b5d6f7a912ce3048 \
             --prepare-only \
             --report api/indexnow-preparation-v334.json

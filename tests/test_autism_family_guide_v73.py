@@ -128,7 +128,7 @@ class AutismFamilyGuideV73Tests(unittest.TestCase):
             namespace = "http://www.sitemaps.org/schemas/sitemap/0.9"
             root = ET.Element("urlset", xmlns=namespace)
             node = ET.SubElement(root, "url")
-            ET.SubElement(node, "loc").text = "https://khaledaltheeb.github.io/pterminology-site/"
+            ET.SubElement(node, "loc").text = "https://healthrenewal.org/"
             ET.ElementTree(root).write(site / "sitemap.xml", encoding="utf-8", xml_declaration=True)
 
             for _ in range(2):

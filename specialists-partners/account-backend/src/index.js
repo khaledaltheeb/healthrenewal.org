@@ -96,7 +96,7 @@ export default {
 };
 
 function corsHeaders(origin, env) {
-  const allowed = String(env.ALLOWED_ORIGINS || 'https://khaledaltheeb.github.io').split(',').map(v => v.trim()).filter(Boolean);
+  const allowed = String(env.ALLOWED_ORIGINS || 'https://healthrenewal.org').split(',').map(v => v.trim()).filter(Boolean);
   const headers = {
     'access-control-allow-methods':'GET,POST,PATCH,DELETE,OPTIONS',
     'access-control-allow-headers':'authorization,content-type,idempotency-key,x-requested-with,x-bootstrap-key',

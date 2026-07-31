@@ -45,7 +45,7 @@ class ChildSectorDeploymentV240Tests(unittest.TestCase):
 
         filler_hub = " ".join(f"مركز{i}" for i in range(2250))
         links = "".join(
-            f'<a href="/pterminology-site/sectors/child/{item["slug"]}/">{item["title"]}</a>'
+            f'<a href="/sectors/child/{item["slug"]}/">{item["title"]}</a>'
             for item in articles
         )
         schemas = "CollectionPage BreadcrumbList ItemList FAQPage"
@@ -72,8 +72,8 @@ class ChildSectorDeploymentV240Tests(unittest.TestCase):
             (folder / "index.html").write_text(page, encoding="utf-8")
 
         (site / "robots.txt").write_text(
-            "Allow: /pterminology-site/sectors/child/\n"
-            "Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml\n",
+            "Allow: /sectors/child/\n"
+            "Sitemap: https://healthrenewal.org/sitemap.xml\n",
             encoding="utf-8",
         )
         return site, source

@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 EXPECTED_IDENTITY_VERSION = "10.2.0"
-ORIGIN = "https://khaledaltheeb.github.io"
+ORIGIN = "https://healthrenewal.org"
 READY_PROVIDER_CODES = {"ready", "ready_sending_only"}
 ALLOWED_PROVIDER_CODES = READY_PROVIDER_CODES | {
     "invalid_api_key",
@@ -180,7 +180,7 @@ def main() -> int:
         "--site-base",
         default=os.environ.get(
             "SITE_BASE",
-            "https://khaledaltheeb.github.io/pterminology-site/specialists-partners",
+            "https://healthrenewal.org/specialists-partners",
         ),
     )
     parser.add_argument(

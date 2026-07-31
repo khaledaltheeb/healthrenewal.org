@@ -282,8 +282,8 @@ def main() -> None:
         raise SystemExit(f"Expected one sleep-log style block, found {count}")
 
     text = text.replace(
-        '<a href="/pterminology-site/daily-tools/">الأدوات اليومية</a>',
-        '<a href="/pterminology-site/daily-tools/">الأدوات التفاعلية</a>',
+        '<a href="/daily-tools/">الأدوات اليومية</a>',
+        '<a href="/daily-tools/">الأدوات التفاعلية</a>',
         1,
     )
     header_marker = '<header><p>أداة تنظيمية غير تشخيصية للبالغين ومقدمي الرعاية</p>'

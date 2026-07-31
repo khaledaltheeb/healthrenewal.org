@@ -12,7 +12,7 @@ jobs:
   validate-v10:
     runs-on: ubuntu-latest
     env:
-      SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+      SITE_BASE: https://healthrenewal.org/
     steps:
       - uses: actions/checkout@v4
 

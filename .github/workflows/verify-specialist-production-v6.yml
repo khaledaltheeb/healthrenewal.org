@@ -31,7 +31,7 @@ jobs:
       FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
       IDENTITY_URL: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
       CORE_URL: https://pterminology-specialists.pterminology-826ac349.workers.dev
-      SITE_URL: https://khaledaltheeb.github.io/pterminology-site/specialists-partners
+      SITE_URL: https://healthrenewal.org/specialists-partners
 
     steps:
       - uses: actions/checkout@v4

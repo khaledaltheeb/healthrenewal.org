@@ -98,7 +98,7 @@ jobs:
           assert hub.count('<!-- special-needs-expansion-v322:start -->')==1
           urls=[(n.text or '').strip() for n in ET.parse(root/'sitemap-special-needs.xml').getroot().findall('{*}url/{*}loc')]
           for slug in report['guide_slugs']:
-              url=f'https://khaledaltheeb.github.io/pterminology-site/special-needs/{slug}/'
+              url=f'https://healthrenewal.org/special-needs/{slug}/'
               assert urls.count(url)==1,(url,urls.count(url))
               page=(root/'special-needs'/slug/'index.html').read_text(encoding='utf-8')
               assert page.count('<h1')==1 and len(re.findall(r'<h2\b',page))>=11

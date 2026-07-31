@@ -50,7 +50,7 @@ class SpecialNeedsExpansionV322Tests(unittest.TestCase):
         hub = (self.site / "special-needs/index.html").read_text(encoding="utf-8")
         self.assertEqual(hub.count(publisher.MARKER_START), 1)
         for slug in publisher.EXPECTED_SLUGS:
-            self.assertEqual(hub.count(f"/pterminology-site/special-needs/{slug}/"), 2)
+            self.assertEqual(hub.count(f"/special-needs/{slug}/"), 2)
             page = (self.site / "special-needs" / slug / "index.html").read_text(encoding="utf-8")
             self.assertEqual(page.count("<h1"), 1)
             self.assertGreaterEqual(len(re.findall(r"<h2\b", page)), 11)

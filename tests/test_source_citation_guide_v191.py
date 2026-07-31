@@ -57,7 +57,7 @@ class SourceCitationGuideTests(unittest.TestCase):
             href = "/guides/source-citation-and-update-transparency/"
             for relative in ["encyclopedia/index.html", "blog/index.html", "trust/index.html"]:
                 self.assertIn(href, (site / relative).read_text(encoding="utf-8"))
-            canonical = "https://khaledaltheeb.github.io/pterminology-site" + href
+            canonical = "https://healthrenewal.org" + href
             self.assertEqual((site / module.SITEMAP_NAME).read_text(encoding="utf-8").count(canonical), 1)
 
     def test_idempotence_and_unpublished_state(self):

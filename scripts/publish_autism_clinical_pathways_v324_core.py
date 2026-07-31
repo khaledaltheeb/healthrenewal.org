@@ -13,8 +13,8 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content" / "v324" / "autism-clinical-pathways-ar.json.gz"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BP = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BP = "/"
 VERSION = 324
 PARENT_MARKER = "data-autism-clinical-pathways-v324"
 PARENT_INSERT = '<section class="source-area" id="sources">'

@@ -10,9 +10,9 @@ from pathlib import Path
 from urllib.parse import unquote, urlparse
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
-BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE_URL = "https://healthrenewal.org/"
 BASE_HOST = "khaledaltheeb.github.io"
-BASE_PATH = "/pterminology-site/"
+BASE_PATH = "/"
 VERIFY = "google644f1f7a8b7aaa2b.html"
 LOCALE_CONTRACTS = {
     "en": ("en", "ltr"),

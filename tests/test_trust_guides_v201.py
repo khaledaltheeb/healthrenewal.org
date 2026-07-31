@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "publish_trust_guides_v201.py"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 EXPECTED = {
     "editorial-methodology/index.html": BASE + "/editorial-methodology/",
     "evaluate-mental-health-information/index.html": BASE + "/evaluate-mental-health-information/",
@@ -122,7 +122,7 @@ class TrustGuidesV201Tests(unittest.TestCase):
             self.assertEqual(text.count("trust-guides-v201"), 1)
             for canonical in EXPECTED.values():
                 route = canonical.removeprefix(BASE + "/")
-                self.assertIn(f'/pterminology-site/{route}', text)
+                self.assertIn(f'/{route}', text)
 
     def test_sources_retain_declared_review_states(self) -> None:
         sources = [

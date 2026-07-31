@@ -15,7 +15,7 @@ SLUG = "visual-change-detection"
 TITLE = "تحديد التغير في الذاكرة البصرية"
 CATEGORY = "الذاكرة البصرية العاملة"
 SUMMARY = "مهمة تدريبية غير تشخيصية لمقارنة عرضين بصريين وتحديد موضع التغير، بخيارات متعددة وخمسة مستويات متدرجة للأطفال والبالغين."
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 CANONICAL = BASE + "cognitive-lab/" + SLUG + "/"
 TODAY = date.today().isoformat()
 

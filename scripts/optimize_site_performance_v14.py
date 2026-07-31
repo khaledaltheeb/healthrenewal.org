@@ -7,13 +7,13 @@ import sys
 from pathlib import Path
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
-BASE = "/pterminology-site/"
+BASE = "/"
 LAB_SCRIPT = f'<script src="{BASE}assets/js/lab-v12.js" defer></script>'
 PAGE_SIZE = 48
 
 INDEX_JS = r'''/* v20 encyclopedia paginated search with stable initial render */
 (()=>{'use strict';
- const BASE='/pterminology-site/';const PAGE_SIZE=48;
+ const BASE='/';const PAGE_SIZE=48;
  const q=s=>document.querySelector(s);let all=[],filtered=[],page=1,loaded=false;
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function normalize(s){return String(s||'').toLowerCase().normalize('NFKD').replace(/[\u064b-\u065f\u0670]/g,'').replace(/أ|إ|آ/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه')}

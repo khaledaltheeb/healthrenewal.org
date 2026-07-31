@@ -7,7 +7,7 @@ from xml.etree import ElementTree as ET
 from scripts.audit_search_architecture_v162 import audit, write_csv
 
 
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
 

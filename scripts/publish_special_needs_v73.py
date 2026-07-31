@@ -12,8 +12,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "content" / "v73" / "special-needs-executable-instructions-ar.json"
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 
 
 def e(value: Any) -> str:

@@ -33,9 +33,9 @@ SHELL_MARKER = "<!-- pt-platform-shell:v1 -->"
 SHELL_HEAD = """<!-- pt-platform-shell:v1 -->
 <meta name="copyright" content="© 2026 Khaled Altheeb — منصة الصحة النفسية وذوي الاحتياجات الخاصة">
 <meta name="rights" content="All rights reserved">
-<link rel="license" href="/pterminology-site/copyright/">
-<link rel="stylesheet" href="/pterminology-site/assets/platform/platform-core.css?v=1.1.0">
-<script defer src="/pterminology-site/assets/platform/platform-core.js?v=1.1.0"></script>
+<link rel="license" href="/copyright/">
+<link rel="stylesheet" href="/assets/platform/platform-core.css?v=1.1.0">
+<script defer src="/assets/platform/platform-core.js?v=1.1.0"></script>
 """
 
 

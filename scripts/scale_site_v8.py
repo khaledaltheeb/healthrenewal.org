@@ -13,7 +13,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 ROOT = Path('_site')
-BASE = os.environ.get('SITE_BASE', 'https://khaledaltheeb.github.io/pterminology-site/').rstrip('/') + '/'
+BASE = os.environ.get('SITE_BASE', 'https://healthrenewal.org/').rstrip('/') + '/'
 TODAY = date.today().isoformat()
 
 DOMAINS = [

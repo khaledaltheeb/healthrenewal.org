@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PUBLISHER = ROOT / "scripts" / "publish_special_needs_guides_v217.py"
 AUDITOR = ROOT / "scripts" / "audit_unpublished_content_v201.py"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 SLUGS = (
     "autism-sensory-profile-overload",
     "autism-communication-stimming-neurodiversity",
@@ -91,7 +91,7 @@ class AutismLivedExperienceIntegrationV322Test(unittest.TestCase):
             self.assertIn("National Autistic Society", html)
             self.assertIn("لم تكتمل مراجعة سريرية خارجية مستقلة", html)
             self.assertEqual(parent_html.count(f'data-autism-guide="{slug}"'), 1)
-            self.assertEqual(parent_html.count(f"/pterminology-site/special-needs/{slug}/"), 1)
+            self.assertEqual(parent_html.count(f"/special-needs/{slug}/"), 1)
 
         sensory = (self.site / "special-needs/autism-sensory-profile-overload/index.html").read_text(encoding="utf-8")
         self.assertIn("الحواس الثماني", sensory)

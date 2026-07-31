@@ -28,7 +28,7 @@ class YouthTrustRoutesV354Tests(unittest.TestCase):
         self.assertEqual(module.TRUST_ROUTES["information_evaluation"], expected)
         self.assertNotIn("#", module.TRUST_ROUTES["information_evaluation"])
         trust = (ROOT / "trust/index.html").read_text(encoding="utf-8")
-        self.assertIn('rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/trust/"', trust)
+        self.assertIn('rel="canonical" href="https://healthrenewal.org/trust/"', trust)
 
     def test_generated_youth_pages_use_unified_trust_routes(self) -> None:
         site = self.new_site("youth-trust-v354-")

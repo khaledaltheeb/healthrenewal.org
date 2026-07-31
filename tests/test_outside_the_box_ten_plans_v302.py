@@ -14,7 +14,7 @@ BASE_PUBLISHER = ROOT / "scripts" / "publish_outside_the_box_v254.py"
 PUBLISHER = ROOT / "scripts" / "publish_outside_the_box_ten_plans_v302.py"
 DATA = ROOT / "content" / "v254" / "outside-the-box-conditions-ar.json"
 FRAMEWORK = ROOT / "content" / "v302" / "outside-the-box-ten-plan-framework-ar.json"
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 
 
 def load_module(path: Path, name: str):

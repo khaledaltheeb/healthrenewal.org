@@ -15,7 +15,7 @@ SLUG = "prospective-memory-cues"
 TITLE = "ذاكرة النوايا والإشارات المستقبلية"
 CATEGORY = "الذاكرة التنفيذية"
 SUMMARY = "مهمة تدريبية غير تشخيصية تربط نية مؤجلة بإشارة مناسبة بعد نشاط فاصل، بخيارات متعددة وخمسة مستويات متدرجة للأطفال والبالغين."
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 CANONICAL = BASE + "cognitive-lab/" + SLUG + "/"
 TODAY = date.today().isoformat()
 

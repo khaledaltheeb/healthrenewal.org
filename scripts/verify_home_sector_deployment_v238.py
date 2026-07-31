@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Any
 
 VERSION = 244
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 MINIMUM_HUB_WORDS = 2919
 MINIMUM_ARTICLE_WORDS = 819
 WORD_COUNT_METHOD = "semantic-visible-tokens-v244"
@@ -212,9 +212,9 @@ def verify(site: Path, source_file: Path, expected_sha: str | None = None, mode:
     if not robots_path.is_file():
         fail("Missing robots.txt")
     robots = robots_path.read_text(encoding="utf-8")
-    if "Allow: /pterminology-site/sectors/home/" not in robots:
+    if "Allow: /sectors/home/" not in robots:
         fail("Home-sector Allow rule is missing from robots.txt")
-    if "Sitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml" not in robots:
+    if "Sitemap: https://healthrenewal.org/sitemap.xml" not in robots:
         fail("Main sitemap declaration is missing from robots.txt")
 
     minimum_live_article_words = min(item["words"] for item in pages)

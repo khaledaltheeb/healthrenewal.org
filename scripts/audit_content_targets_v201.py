@@ -106,7 +106,7 @@ def page_metrics(path: Path, site: Path, placeholder_phrases: list[str]) -> dict
         "has_schema": "application/ld+json" in text,
         "has_header": bool(re.search(r"<header\b", text, re.I)),
         "has_footer": bool(re.search(r"<footer\b", text, re.I)),
-        "internal_link_count": len(re.findall(r'<a\b[^>]*href=["\'](?:/pterminology-site/|\.\.?/|[^:/#][^"\']*)["\']', text, re.I)),
+        "internal_link_count": len(re.findall(r'<a\b[^>]*href=["\'](?:/|\.\.?/|[^:/#][^"\']*)["\']', text, re.I)),
         "placeholder_phrases": placeholders,
     }
 

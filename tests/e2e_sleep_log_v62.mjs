@@ -8,7 +8,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const OUT = path.join(ROOT, 'artifacts', 'sleep-log-browser-v62');
-const SITE_PATH = '/pterminology-site/daily-tools/sleep-wind-down-plan/';
+const SITE_PATH = '/daily-tools/sleep-wind-down-plan/';
 const CHART_ACCESSIBLE_NAME = 'اتجاهات النوم والجودة والطاقة. الوصف النصي المتجدد يظهر قبل الرسم.';
 
 function run(command, args, options = {}) {
@@ -204,7 +204,7 @@ async function main() {
   await writeFile(path.join(site, 'sitemap.xml'), '<?xml version="1.0"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>\n', 'utf8');
   await writeFile(
     path.join(site, 'index.html'),
-    '<!doctype html><html lang="ar" dir="rtl"><head><title>منصة اختبار</title><meta name="keywords" content="الصحة النفسية,ذوو الاحتياجات الخاصة,أدلة الدعم,أدوات التقييم"><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"CollectionPage","@id":"https://khaledaltheeb.github.io/pterminology-site/#home","name":"منصة الصحة النفسية وذوي الاحتياجات الخاصة","url":"https://khaledaltheeb.github.io/pterminology-site/","hasPart":[]}]}</script></head><body><nav><a href="provider-assessment-demo/">منصة التقييم</a></nav><article class="card"><h3>المهام المعرفية</h3><a href="cognitive-tests/">فتح المهام</a></article></body></html>',
+    '<!doctype html><html lang="ar" dir="rtl"><head><title>منصة اختبار</title><meta name="keywords" content="الصحة النفسية,ذوو الاحتياجات الخاصة,أدلة الدعم,أدوات التقييم"><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"CollectionPage","@id":"https://healthrenewal.org/#home","name":"منصة الصحة النفسية وذوي الاحتياجات الخاصة","url":"https://healthrenewal.org/","hasPart":[]}]}</script></head><body><nav><a href="provider-assessment-demo/">منصة التقييم</a></nav><article class="card"><h3>المهام المعرفية</h3><a href="cognitive-tests/">فتح المهام</a></article></body></html>',
     'utf8',
   );
   await run('python', [path.join(ROOT, 'scripts', 'publish_daily_tools_v24.py'), site]);

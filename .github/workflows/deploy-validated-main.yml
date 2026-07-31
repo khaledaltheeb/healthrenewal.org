@@ -64,8 +64,8 @@ jobs:
               assert path.stat().st_size == evidence['bytes'], (name, path.stat().st_size, evidence)
 
           manifest = json.loads((root / 'manifest.webmanifest').read_text(encoding='utf-8'))
-          assert manifest.get('scope') == '/pterminology-site/', manifest
-          assert manifest.get('start_url') == '/pterminology-site/', manifest
+          assert manifest.get('scope') == '/', manifest
+          assert manifest.get('start_url') == '/', manifest
           sw = (root / 'sw.js').read_text(encoding='utf-8')
           assert 'pterminology-v23-resilient-core' in sw
           assert 'Promise.allSettled' in sw and 'cached===0' in sw and 'cache.addAll' not in sw
@@ -104,7 +104,7 @@ jobs:
       - name: Accept a validated main ancestor and prevent rollback
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LIVE_URL: https://khaledaltheeb.github.io/pterminology-site/deployment.json
+          LIVE_URL: https://healthrenewal.org/deployment.json
         run: |
           set -euxo pipefail
           token="$(date +%s)"
@@ -232,8 +232,8 @@ jobs:
               assert path.stat().st_size == evidence['bytes'], (name, path.stat().st_size, evidence)
 
           manifest = json.loads(files['manifest.webmanifest'].read_text(encoding='utf-8'))
-          assert manifest.get('scope') == '/pterminology-site/', manifest
-          assert manifest.get('start_url') == '/pterminology-site/', manifest
+          assert manifest.get('scope') == '/', manifest
+          assert manifest.get('start_url') == '/', manifest
           index = files['index.html'].read_text(encoding='utf-8')
           sw = files['sw.js'].read_text(encoding='utf-8')
           assert 'navigator.serviceWorker.register' in index and 'sw.js' in index

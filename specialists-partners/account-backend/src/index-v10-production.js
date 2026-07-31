@@ -348,7 +348,7 @@ async function sha256(value) {
 
 function corsHeaders(origin, env) {
   const allowed = new Set([
-    'https://khaledaltheeb.github.io',
+    'https://healthrenewal.org',
     'https://healthrenewal.org',
     'https://www.healthrenewal.org',
     ...String(env.ALLOWED_ORIGINS || '')

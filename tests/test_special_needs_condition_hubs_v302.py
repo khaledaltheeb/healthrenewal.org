@@ -28,7 +28,7 @@ class SpecialNeedsConditionHubsV302Tests(unittest.TestCase):
         (site / "sitemap-special-needs.xml").write_text(
             '<?xml version="1.0" encoding="utf-8"?>\n'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-            '<url><loc>https://khaledaltheeb.github.io/pterminology-site/special-needs/</loc></url>'
+            '<url><loc>https://healthrenewal.org/special-needs/</loc></url>'
             '</urlset>',
             encoding="utf-8",
         )
@@ -84,12 +84,12 @@ class SpecialNeedsConditionHubsV302Tests(unittest.TestCase):
                 self.assertIn("لا توجد حاليًا سجلات محلية مكتملة التحقق", page)
                 self.assertNotIn("قيد الإعداد", page)
                 self.assertNotIn("special-needs-providers-ar.json", page)
-                self.assertIn('/pterminology-site/encyclopedia/', page)
+                self.assertIn('/encyclopedia/', page)
                 self.assertIsNone(publisher.BANNED.search(page))
 
             autism = (site / "special-needs" / "autism" / "index.html").read_text(encoding="utf-8")
             down = (site / "special-needs" / "down-syndrome" / "index.html").read_text(encoding="utf-8")
-            self.assertIn('/pterminology-site/hubs/topic-058/', autism)
+            self.assertIn('/hubs/topic-058/', autism)
             self.assertIn('المسار الموسوعي للتوحد', autism)
             self.assertIn('الموسوعة النفسية العربية', down)
 
@@ -138,14 +138,14 @@ class SpecialNeedsConditionHubsV302Tests(unittest.TestCase):
 
             encyclopedia = (site / "encyclopedia" / "index.html").read_text(encoding="utf-8")
             self.assertEqual(encyclopedia.count(publisher.ENCYCLOPEDIA_BRIDGE_MARKER), 1)
-            self.assertEqual(encyclopedia.count('/pterminology-site/special-needs/autism/'), 1)
-            self.assertEqual(encyclopedia.count('/pterminology-site/special-needs/down-syndrome/'), 1)
+            self.assertEqual(encyclopedia.count('/special-needs/autism/'), 1)
+            self.assertEqual(encyclopedia.count('/special-needs/down-syndrome/'), 1)
             self.assertIn("بوابات علمية متخصصة للتوحد ومتلازمة داون", encyclopedia)
             self.assertIn("خارج قائمة الموضوعات المئة", encyclopedia)
 
             autism_topic = (site / "hubs" / "topic-058" / "index.html").read_text(encoding="utf-8")
             self.assertEqual(autism_topic.count(publisher.AUTISM_TOPIC_BRIDGE_MARKER), 1)
-            self.assertEqual(autism_topic.count('/pterminology-site/special-needs/autism/'), 1)
+            self.assertEqual(autism_topic.count('/special-needs/autism/'), 1)
             self.assertIn("الدليل العلمي المتخصص للتوحد", autism_topic)
 
             api = json.loads((site / "api" / "special-needs-condition-hubs-v302.json").read_text(encoding="utf-8"))

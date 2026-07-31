@@ -120,7 +120,7 @@ jobs:
           for url in primary:
               p=urlparse(url)
               if p.scheme!='https' or p.netloc!='healthrenewal.org': bad_domain.append(url)
-              if '/pterminology-site/' in url or 'khaledaltheeb.github.io' in url: legacy.append(url)
+              if '/' in url or 'khaledaltheeb.github.io' in url: legacy.append(url)
               if p.query or p.fragment: query_fragment.append(url)
           if bad_domain: failures.append(f'bad-domain URLs={len(bad_domain)} sample={bad_domain[:5]}')
           if legacy: failures.append(f'legacy URLs={len(legacy)} sample={legacy[:5]}')

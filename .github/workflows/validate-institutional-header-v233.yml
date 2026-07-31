@@ -88,11 +88,11 @@ jobs:
               'sectors/family/', 'sectors/home/', 'provider-assessment-demo/',
               'api/', 'trust/'
           ):
-              assert f'href="/pterminology-site/{route}"' in page, route
+              assert f'href="/{route}"' in page, route
           for label, route in (
-              ('العربية', '/pterminology-site/'),
-              ('English', '/pterminology-site/en/'),
-              ('Español', '/pterminology-site/es/'),
+              ('العربية', '/'),
+              ('English', '/en/'),
+              ('Español', '/es/'),
           ):
               assert label in page and f'href="{route}"' in page, (label, route)
           print({'header': 'passed', 'sections': 12, 'languages': 3, 'idempotent': True})

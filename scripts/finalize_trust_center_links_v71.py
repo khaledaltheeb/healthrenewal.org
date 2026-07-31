@@ -6,8 +6,8 @@ from pathlib import Path
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 OPTIONAL_LINKS = (
-    ("/pterminology-site/care-guides/", "care-guides/index.html"),
-    ("/pterminology-site/daily-tools/", "daily-tools/index.html"),
+    ("/care-guides/", "care-guides/index.html"),
+    ("/daily-tools/", "daily-tools/index.html"),
 )
 
 

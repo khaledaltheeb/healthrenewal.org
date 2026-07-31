@@ -13,7 +13,7 @@
 - `https://healthrenewal.org/.well-known/security.txt` — المسار القياسي داخل موقع المشروع.
 - `https://healthrenewal.org/security.txt` — مسار توافق إضافي.
 
-لأن المنصة تعمل كموقع مشروع تحت `/`، فلا يوجد الملف عند جذر النطاق `https://khaledaltheeb.github.io/.well-known/security.txt`. يتطلب الاكتشاف من جذر النطاق نطاقًا مخصصًا أو نشرًا تحت جذر حساب GitHub Pages.
+لأن المنصة تعمل كموقع مشروع تحت `/`، فلا يوجد الملف عند جذر النطاق `https://healthrenewal.org/.well-known/security.txt`. يتطلب الاكتشاف من جذر النطاق نطاقًا مخصصًا أو نشرًا تحت جذر حساب GitHub Pages.
 
 ## ما يجب تضمينه داخل البلاغ الخاص فقط
 
@@ -52,7 +52,7 @@ The current GitHub Pages build publishes identical machine-readable contacts at:
 - `https://healthrenewal.org/.well-known/security.txt` — the standards-based location within the project site.
 - `https://healthrenewal.org/security.txt` — an additional compatibility location.
 
-Because the platform is a project site under `/`, the file is not available at the origin root `https://khaledaltheeb.github.io/.well-known/security.txt`. Origin-root discovery requires a custom domain or publication from the GitHub Pages account root.
+Because the platform is a project site under `/`, the file is not available at the origin root `https://healthrenewal.org/.well-known/security.txt`. Origin-root discovery requires a custom domain or publication from the GitHub Pages account root.
 
 ## Include only in the private report
 

@@ -82,7 +82,7 @@ class AccessibleArabicContentV190Tests(unittest.TestCase):
                 "audiences/family/index.html",
             ]:
                 self.assertIn(href, (site / relative).read_text(encoding="utf-8"))
-            canonical = "https://khaledaltheeb.github.io/pterminology-site" + href
+            canonical = "https://healthrenewal.org" + href
             sitemap = (site / module.SITEMAP_NAME).read_text(encoding="utf-8")
             self.assertEqual(sitemap.count(canonical), 1)
 

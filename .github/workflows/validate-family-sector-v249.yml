@@ -170,7 +170,7 @@ jobs:
               assert '"@type":"Article"' in text, page
               assert 'noindex' not in text.lower(), page
           robots = (root / 'robots.txt').read_text(encoding='utf-8')
-          assert robots.count('Allow: /pterminology-site/sectors/family/') == 1
+          assert robots.count('Allow: /sectors/family/') == 1
           print({'family_sector': 'passed', 'guides': len(pages), 'hub_words': report['hub_words'], 'minimum_article_words': report['minimum_article_words']})
           PY
       - name: Upload real generated family-sector evidence

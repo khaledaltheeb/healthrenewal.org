@@ -10,7 +10,7 @@ from typing import Any
 from urllib.parse import urlsplit
 
 VERSION = 322
-BASE_PATH = "/pterminology-site/"
+BASE_PATH = "/"
 TECHNICAL = {
     ".well-known", "assets", "css", "downloads", "fonts", "images", "js",
     "media", "node_modules", "scripts", "sections", "styles", "coverage",

@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "content" / "seo" / "editorial-intent-map-v278.json"
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 BANNED = (
     "الأفضل في العالم",
     "الأول عربيًا",

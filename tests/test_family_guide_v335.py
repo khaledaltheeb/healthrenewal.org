@@ -88,6 +88,6 @@ for slug in slugs:
     canonical_path=consolidated[slug]
     page_text=(root/'family-guide/conditions'/slug/'index.html').read_text(encoding='utf-8')
     assert 'content="noindex,follow,noarchive"' in page_text, slug
-    assert f'href="https://khaledaltheeb.github.io/pterminology-site{canonical_path}"' in page_text, slug
+    assert f'href="https://healthrenewal.org{canonical_path}"' in page_text, slug
     assert canonical_path in special_needs_sitemap, slug
 print({'status':'passed','conditions':len(slugs),'tools':3,'version':api['version'],'consolidated':len(consolidated)})

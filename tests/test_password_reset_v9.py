@@ -13,7 +13,7 @@ class PasswordResetV9Tests(unittest.TestCase):
         self.assertIn('noindex,nofollow,noarchive', html)
         self.assertEqual(html.count('rel="canonical"'), 1)
         self.assertIn(
-            'href="https://khaledaltheeb.github.io/pterminology-site/specialists-partners/password-reset/"',
+            'href="https://healthrenewal.org/specialists-partners/password-reset/"',
             html,
         )
         self.assertIn('reset-v9.js?v=9.0.0', html)
@@ -30,7 +30,7 @@ class PasswordResetV9Tests(unittest.TestCase):
     def test_issuance_targets_isolated_page(self):
         workflow = WORKFLOW.read_text(encoding="utf-8")
         self.assertIn(
-            "RESET_PAGE: https://khaledaltheeb.github.io/pterminology-site/"
+            "RESET_PAGE: https://healthrenewal.org/"
             "specialists-partners/password-reset/",
             workflow,
         )

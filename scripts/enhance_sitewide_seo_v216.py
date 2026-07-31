@@ -11,7 +11,7 @@ from urllib.parse import quote
 
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
-BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE_URL = "https://healthrenewal.org/"
 SOCIAL_IMAGE = BASE_URL + "assets/brand/social-card.svg"
 SKIP_FILES = {"404.html", "offline.html", "google644f1f7a8b7aaa2b.html"}
 SKIP_PREFIXES = ("coverage/", "reports/", "tmp/", "node_modules/")

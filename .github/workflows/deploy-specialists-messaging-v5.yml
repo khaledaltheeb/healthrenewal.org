@@ -95,12 +95,12 @@ jobs:
           workers_dev = true
 
           [vars]
-          ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
+          ALLOWED_ORIGINS = "https://healthrenewal.org"
           OWNER_EMAIL = {toml(owner_email)}
           OWNER_DISPLAY_NAME = "خالد الذيب"
           RELEASE_COMMIT = {toml(os.environ['GITHUB_SHA'])}
-          PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
-          ADMIN_CONSOLE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/#conversations"
+          PORTAL_BASE_URL = "https://healthrenewal.org/specialists-partners/portal/"
+          ADMIN_CONSOLE_URL = "https://healthrenewal.org/specialists-partners/admin/#conversations"
           TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"
           FROM_EMAIL = {toml(os.environ['FROM_EMAIL'])}
           ADMIN_SESSION_MINUTES = "20"

@@ -9,7 +9,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
-BASE_PATH = "/pterminology-site/"
+BASE_PATH = "/"
 CRITICAL_PREFIXES = (
     "sections/",
     "encyclopedia/",

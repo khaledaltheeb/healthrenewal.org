@@ -4,15 +4,15 @@ import json
 from pathlib import Path
 
 SITE = Path('_site')
-BASE = '/pterminology-site/'
+BASE = '/'
 
 SW = r'''/* v14 performance-safe service worker */
 const CACHE = 'pterminology-v14-performance';
 const CORE = [
-  '/pterminology-site/',
-  '/pterminology-site/offline.html',
-  '/pterminology-site/assets/css/marshmallow-v12.css',
-  '/pterminology-site/assets/js/lab-v12.js'
+  '/',
+  '/offline.html',
+  '/assets/css/marshmallow-v12.css',
+  '/assets/js/lab-v12.js'
 ];
 self.addEventListener('install', event => {
   self.skipWaiting();
@@ -31,7 +31,7 @@ async function networkFirst(request) {
     if (response && response.ok) cache.put(request, response.clone());
     return response;
   } catch (error) {
-    return (await cache.match(request)) || (await cache.match('/pterminology-site/offline.html'));
+    return (await cache.match(request)) || (await cache.match('/offline.html'));
   }
 }
 async function staleWhileRevalidate(request) {
@@ -53,7 +53,7 @@ self.addEventListener('fetch', event => {
 });
 '''
 
-OFFLINE = '''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>غير متصل | مصطلحات علم النفس</title><style>body{font-family:system-ui,Tahoma,sans-serif;background:linear-gradient(135deg,#fff4f8,#e7fbf8);color:#173d40;display:grid;place-items:center;min-height:100vh;margin:0;padding:24px}.box{max-width:620px;background:#fff;border:1px solid #d9efec;border-radius:24px;padding:32px;box-shadow:0 18px 55px rgba(45,110,112,.12)}a{color:#087c79}</style></head><body><main class="box"><h1>لا يوجد اتصال بالإنترنت</h1><p>تعذر تحميل الصفحة الجديدة. تحقق من الاتصال ثم أعد المحاولة.</p><p><a href="/pterminology-site/">العودة إلى الصفحة الرئيسية</a></p></main></body></html>'''
+OFFLINE = '''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>غير متصل | مصطلحات علم النفس</title><style>body{font-family:system-ui,Tahoma,sans-serif;background:linear-gradient(135deg,#fff4f8,#e7fbf8);color:#173d40;display:grid;place-items:center;min-height:100vh;margin:0;padding:24px}.box{max-width:620px;background:#fff;border:1px solid #d9efec;border-radius:24px;padding:32px;box-shadow:0 18px 55px rgba(45,110,112,.12)}a{color:#087c79}</style></head><body><main class="box"><h1>لا يوجد اتصال بالإنترنت</h1><p>تعذر تحميل الصفحة الجديدة. تحقق من الاتصال ثم أعد المحاولة.</p><p><a href="/">العودة إلى الصفحة الرئيسية</a></p></main></body></html>'''
 
 
 def main() -> None:

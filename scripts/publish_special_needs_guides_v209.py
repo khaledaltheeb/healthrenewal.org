@@ -13,8 +13,8 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "content" / "v209" / "special-needs-guides-manifest-ar.json"
 GUIDE_DIR = ROOT / "content" / "v209" / "special-needs-guides"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 BRAND = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
 SLOGAN = "معرفة تحترم الإنسان. دعم يوسّع الإمكانات."
 START = "<!-- special-needs-guides-v209:start -->"

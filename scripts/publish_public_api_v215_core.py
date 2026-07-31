@@ -15,7 +15,7 @@ SOURCE_MANIFEST = ROOT / "content" / "integrations" / "course-sources-v215.json"
 FALLBACK_IMPORT = ROOT / "content" / "integrations" / "imported-courses-v215.json"
 BUILD_IMPORT = ROOT / ".build" / "authorized-courses-v215.json"
 SCHEMA_VERSION = 215
-BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE_URL = "https://healthrenewal.org/"
 API_BASE = f"{BASE_URL}api/v1/"
 
 
@@ -215,7 +215,7 @@ def build_developers_html(course_count: int, source_count: int) -> str:
 <meta name="description" content="توثيق واجهة API العامة: اكتشاف الأقسام، بيانات المنصة، ومصادر الدورات المصرح بها وفق إذن مكتوب ورفض افتراضي.">
 <meta name="keywords" content="واجهة API,API عربي,بيانات الصحة النفسية,تكامل المواقع,OpenAPI,فهرس الدورات,ترخيص المحتوى,مصادر موثقة">
 <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large"><meta name="theme-color" content="#075f5b">
-<link rel="canonical" href="{BASE_URL}developers/"><link rel="manifest" href="/pterminology-site/manifest.webmanifest"><link rel="icon" href="../assets/brand/logo-mark.svg" type="image/svg+xml"><link rel="search" type="application/opensearchdescription+xml" title="البحث في المنصة" href="../opensearch.xml">
+<link rel="canonical" href="{BASE_URL}developers/"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="../assets/brand/logo-mark.svg" type="image/svg+xml"><link rel="search" type="application/opensearchdescription+xml" title="البحث في المنصة" href="../opensearch.xml">
 <meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة"><meta property="og:title" content="واجهة المطورين وAPI"><meta property="og:description" content="واجهات JSON وعقد OpenAPI وسياسة تمنع استيراد أي دورة بلا إذن موثق."><meta property="og:url" content="{BASE_URL}developers/"><meta property="og:image" content="{BASE_URL}assets/brand/social-card.svg">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="واجهة المطورين وAPI"><meta name="twitter:description" content="واجهة قراءة عامة وعقد تكامل موحد وسياسة إذن موثق."><meta name="twitter:image" content="{BASE_URL}assets/brand/social-card.svg">
 <script type="application/ld+json">{schema}</script>

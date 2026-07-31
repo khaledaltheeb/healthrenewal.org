@@ -59,9 +59,9 @@ UPDATED = "2026-07-27"
 # when this evidence wave was published. This avoids treating same-day
 # verification in Asia/Amman as a future date on UTC CI runners.
 SOURCE_VERIFIED_THROUGH = "2026-07-26"
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
-BASE_ORIGIN = "https://khaledaltheeb.github.io"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_ORIGIN = "https://healthrenewal.org"
+BASE_PATH = "/"
 SECTION = "capabilities"
 SITEMAP_NAME = "sitemap-capabilities.xml"
 SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"

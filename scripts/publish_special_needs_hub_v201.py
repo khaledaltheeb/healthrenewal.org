@@ -11,8 +11,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content" / "v201" / "special-needs-hub-ar.json"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 BRAND = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
 SLOGAN = "معرفة تحترم الإنسان. دعم يوسّع الإمكانات."
 OUTSIDE_BOX_START = "<!-- outside-the-box-v254:start -->"

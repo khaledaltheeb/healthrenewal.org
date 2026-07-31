@@ -22,8 +22,8 @@ DATA_PATH = ROOT / "content" / "v254" / "outside-the-box-conditions-ar.json"
 FRAMEWORK_PATH = ROOT / "content" / "v302" / "outside-the-box-ten-plan-framework-ar.json"
 CSS_PATH = ROOT / "assets" / "css" / "outside-the-box-ten-plans-v302.css"
 
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 SECTION = "outside-the-box"
 VERSION = 302
 UPDATED = "2026-07-27"

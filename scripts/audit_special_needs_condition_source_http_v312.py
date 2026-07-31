@@ -28,7 +28,7 @@ BROKEN_STATUSES = {404, 410}
 LEGAL_RESTRICTION_STATUSES = {451}
 USER_AGENT = (
     "Mozilla/5.0 (compatible; PTerminologySourceAudit/312; "
-    "+https://khaledaltheeb.github.io/pterminology-site/)"
+    "+https://healthrenewal.org/)"
 )
 
 

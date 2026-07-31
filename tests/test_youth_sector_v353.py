@@ -99,7 +99,7 @@ class YouthSectorPublisherV353Tests(unittest.TestCase):
 
         robots = (self.site / "robots.txt").read_text(encoding="utf-8")
         self.assertEqual(robots.count(module.ROBOTS_MARKER), 1)
-        self.assertIn("Allow: /pterminology-site/sectors/youth/", robots)
+        self.assertIn("Allow: /sectors/youth/", robots)
         evidence = json.loads(
             (self.site / "api/youth-sector-v353.json").read_text(encoding="utf-8")
         )

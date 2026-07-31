@@ -9,11 +9,11 @@ from pathlib import Path
 from defer_encyclopedia_index_v20 import main as defer_encyclopedia_index
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
-BASE = "/pterminology-site/"
+BASE = "/"
 
 SERVICE_WORKER = r'''/* pterminology v23 resilient performance service worker */
 const CACHE='pterminology-v23-resilient-core';
-const HOME='/pterminology-site/';
+const HOME='/';
 const CORE=[HOME,HOME+'manifest.webmanifest',HOME+'assets/css/marshmallow-v12.css',HOME+'assets/css/encyclopedia-v14.css',HOME+'assets/js/encyclopedia-v14.js'];
 async function cacheCoreIndependently(){
   const cache=await caches.open(CACHE);

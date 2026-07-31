@@ -15,7 +15,7 @@ SLUG = "temporal-order-memory"
 TITLE = "ذاكرة ترتيب الأحداث"
 CATEGORY = "الذاكرة الزمنية"
 SUMMARY = "مهمة تدريبية غير تشخيصية لتذكر ترتيب عناصر أو أحداث قصيرة، بخيارات متعددة وخمسة مستويات متدرجة للأطفال والبالغين."
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 CANONICAL = BASE + "cognitive-lab/" + SLUG + "/"
 TODAY = date.today().isoformat()
 

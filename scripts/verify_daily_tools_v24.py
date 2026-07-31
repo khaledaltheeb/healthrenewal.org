@@ -147,7 +147,7 @@ def main() -> None:
 
         sitemap_index = ET.parse(SITE / "sitemap.xml").getroot()
         assert sitemap_index.tag == f"{{{NS}}}sitemapindex"
-        target = "https://khaledaltheeb.github.io/pterminology-site/sitemap-tools-paths.xml"
+        target = "https://healthrenewal.org/sitemap-tools-paths.xml"
         matches = [item.text for item in sitemap_index.findall(f"{{{NS}}}sitemap/{{{NS}}}loc") if item.text == target]
         assert len(matches) == 1
 

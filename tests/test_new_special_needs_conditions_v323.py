@@ -31,7 +31,7 @@ class NewSpecialNeedsConditionsV323Tests(unittest.TestCase):
         (site / "sitemap-special-needs.xml").write_text(
             '<?xml version="1.0" encoding="utf-8"?>'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-            '<url><loc>https://khaledaltheeb.github.io/pterminology-site/special-needs/</loc></url>'
+            '<url><loc>https://healthrenewal.org/special-needs/</loc></url>'
             '</urlset>',
             encoding="utf-8",
         )
@@ -87,7 +87,7 @@ class NewSpecialNeedsConditionsV323Tests(unittest.TestCase):
             hub = (site / "special-needs" / "index.html").read_text(encoding="utf-8")
             self.assertEqual(hub.count(module.HUB_MARKER), 1)
             for slug in module.EXPECTED:
-                self.assertIn(f"/pterminology-site/special-needs/{slug}/", hub)
+                self.assertIn(f"/special-needs/{slug}/", hub)
 
             urls = [
                 (node.text or "").strip()

@@ -47,7 +47,7 @@ export default {
 };
 
 function corsHeaders(origin, env) {
-  const allowed = String(env.ALLOWED_ORIGINS || 'https://khaledaltheeb.github.io')
+  const allowed = String(env.ALLOWED_ORIGINS || 'https://healthrenewal.org')
     .split(',').map(value => value.trim()).filter(Boolean);
   const selected = allowed.includes(origin) ? origin : allowed[0] || '';
   return {

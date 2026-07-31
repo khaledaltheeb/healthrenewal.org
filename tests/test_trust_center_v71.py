@@ -92,7 +92,7 @@ class TrustCenterPublisherTests(unittest.TestCase):
         (self.site / "sitemap.xml").write_text(
             '<?xml version="1.0" encoding="utf-8"?>'
             '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-            '<sitemap><loc>https://khaledaltheeb.github.io/pterminology-site/sitemap-core.xml</loc></sitemap>'
+            '<sitemap><loc>https://healthrenewal.org/sitemap-core.xml</loc></sitemap>'
             "</sitemapindex>",
             encoding="utf-8",
         )
@@ -103,7 +103,7 @@ class TrustCenterPublisherTests(unittest.TestCase):
         self.assertEqual(page.count("<h1>"), 1)
         self.assertIn('<html lang="ar" dir="rtl">', page)
         self.assertIn(
-            '<link rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/trust/">',
+            '<link rel="canonical" href="https://healthrenewal.org/trust/">',
             page,
         )
         self.assertIn('type="application/ld+json"', page)
@@ -127,21 +127,21 @@ class TrustCenterPublisherTests(unittest.TestCase):
         refs = [
             node.text
             for node in tree.findall("s:sitemap/s:loc", ns)
-            if node.text == "https://khaledaltheeb.github.io/pterminology-site/sitemap-trust.xml"
+            if node.text == "https://healthrenewal.org/sitemap-trust.xml"
         ]
         self.assertEqual(len(refs), 1)
         trust_tree = ET.parse(self.site / "sitemap-trust.xml")
         urls = trust_tree.findall("s:url/s:loc", ns)
         self.assertEqual(
             [node.text for node in urls],
-            ["https://khaledaltheeb.github.io/pterminology-site/trust/"],
+            ["https://healthrenewal.org/trust/"],
         )
 
     def test_urlset_root_is_supported_without_mixing_contracts(self):
         (self.site / "sitemap.xml").write_text(
             '<?xml version="1.0" encoding="utf-8"?>'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-            '<url><loc>https://khaledaltheeb.github.io/pterminology-site/</loc></url>'
+            '<url><loc>https://healthrenewal.org/</loc></url>'
             "</urlset>",
             encoding="utf-8",
         )
@@ -151,7 +151,7 @@ class TrustCenterPublisherTests(unittest.TestCase):
         self.assertTrue(root.tag.endswith("urlset"))
         ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
         locs = [node.text for node in tree.findall("s:url/s:loc", ns)]
-        self.assertEqual(locs.count("https://khaledaltheeb.github.io/pterminology-site/trust/"), 1)
+        self.assertEqual(locs.count("https://healthrenewal.org/trust/"), 1)
         self.assertEqual(tree.findall("s:sitemap", ns), [])
 
     def test_unverified_urgent_service_blocks_publication(self):

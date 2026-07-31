@@ -16,7 +16,7 @@ PUBLISHER = ROOT / "scripts" / "publish_special_needs_v73.py"
 PIPELINE = ROOT / "scripts" / "apply_homepage_v20.py"
 SOURCE_HOME = ROOT / "index.html"
 SOURCE_SITEMAP = ROOT / "sitemap.xml"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
+BASE = "https://healthrenewal.org"
 NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 
 

@@ -56,7 +56,7 @@ class SitewideSeoV216Tests(unittest.TestCase):
         self.assertIn('property="article:tag"', source)
         self.assertIn('type="application/ld+json"', source)
         self.assertIn(
-            'href="https://khaledaltheeb.github.io/pterminology-site/encyclopedia/anxiety/"',
+            'href="https://healthrenewal.org/encyclopedia/anxiety/"',
             source,
         )
 

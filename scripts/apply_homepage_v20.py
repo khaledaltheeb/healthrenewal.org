@@ -14,7 +14,7 @@ SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 SOURCE = ROOT / "index.html"
 TARGET = SITE / "index.html"
 LAB_TOOL_COUNT = 93
-BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE_URL = "https://healthrenewal.org/"
 
 
 def run_publisher(script: str) -> None:

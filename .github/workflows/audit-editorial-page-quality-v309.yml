@@ -38,7 +38,7 @@ jobs:
           from pathlib import Path
 
           root = Path('quality-fixture')
-          base = 'https://khaledaltheeb.github.io/pterminology-site/'
+          base = 'https://healthrenewal.org/'
           strong = root / 'comparisons/strong/index.html'
           strong.parent.mkdir(parents=True, exist_ok=True)
           paragraphs = []

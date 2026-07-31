@@ -3,7 +3,7 @@ export const MAX_BODY_BYTES = 96_000;
 export const MAX_MESSAGE_LENGTH = 3_000;
 
 export function corsHeaders(origin, env) {
-  const allowed = String(env.ALLOWED_ORIGINS || 'https://khaledaltheeb.github.io')
+  const allowed = String(env.ALLOWED_ORIGINS || 'https://healthrenewal.org')
     .split(',').map(value => value.trim()).filter(Boolean);
   const selected = origin ? (allowed.includes(origin) ? origin : '') : (allowed[0] || '');
   const headers = {

@@ -10,7 +10,7 @@ CSS_PATH = SITE / "assets/css/encyclopedia-v14.css"
 
 RUNTIME = r'''/* v31 encyclopedia search: prerender first results, honor shared query URLs, and defer full index until intent */
 (()=>{'use strict';
- const BASE='/pterminology-site/';const PAGE_SIZE=48;
+ const BASE='/';const PAGE_SIZE=48;
  const q=s=>document.querySelector(s);let all=[],filtered=[],page=1,loaded=false,loading=null,timer=0;
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function normalize(s){return String(s||'').toLowerCase().normalize('NFKD').replace(/[\u064b-\u065f\u0670]/g,'').replace(/أ|إ|آ/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه')}

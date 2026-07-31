@@ -12,9 +12,9 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
-BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE_URL = "https://healthrenewal.org/"
 MINIMUM_SHA = "5851636aff33ed79f222ded748a9b43c437178e4"
-DEFAULT_REPOSITORY = "khaledaltheeb/pterminology-site"
+DEFAULT_REPOSITORY = "khaledaltheeb/"
 BANNED = re.compile(r"\bمعاق(?:ون|ين)?\b")
 SHA_PATTERN = re.compile(r"[0-9a-f]{40}")
 
@@ -73,7 +73,7 @@ def validate_root(root: Path) -> dict[str, Any]:
         ("السمع والنطق", "hearing and speech focus"),
         ("CollectionPage", "structured data"),
         ("BreadcrumbList", "breadcrumbs"),
-        ('rel="canonical" href="https://khaledaltheeb.github.io/pterminology-site/specialists-partners/"', "canonical"),
+        ('rel="canonical" href="https://healthrenewal.org/specialists-partners/"', "canonical"),
         ('id="directory"', "directory landmark"),
         ('id="matcher"', "matching journey"),
         ('id="directory-health"', "live registry status"),

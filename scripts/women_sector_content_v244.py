@@ -2,8 +2,8 @@ from __future__ import annotations
 
 VERSION = 244
 REVIEWED_AT = "2026-07-26"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 
 SOURCES = [
     ("منظمة الصحة العالمية: صحة المرأة", "https://www.who.int/health-topics/women-s-health"),

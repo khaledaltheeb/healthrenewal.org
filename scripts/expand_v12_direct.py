@@ -8,7 +8,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-BASE = os.environ.get("SITE_BASE", "https://khaledaltheeb.github.io/pterminology-site/")
+BASE = os.environ.get("SITE_BASE", "https://healthrenewal.org/")
 BASE_PATH = "/" + BASE.split("/", 3)[-1].strip("/") + "/"
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 SRC = Path("content/v12-direct")

@@ -10,7 +10,7 @@ function renderCondition(){
  if(!c){root.innerHTML='<section class="card warning"><h1>الصفحة غير متاحة</h1><p>تعذر العثور على بيانات الحالة.</p></section>';return;}
  document.title=`دليل الأسرة: ${c.title} | ما الحالة وماذا نفعل؟`;
  const signs=Object.entries(c.signs).map(([k,v])=>`<h3>${esc(k)}</h3>${list(v)}`).join('');
- const related=c.related.map(([n,u])=>`<li><a href="${u.startsWith('/')?'/pterminology-site'+u:u}">${esc(n)}</a></li>`).join('');
+ const related=c.related.map(([n,u])=>`<li><a href="${u.startsWith('/')?'/'+u:u}">${esc(n)}</a></li>`).join('');
  const sources=c.sources.map(([n,u])=>`<li><a href="${esc(u)}" rel="noopener noreferrer">${esc(n)}</a></li>`).join('');
  root.innerHTML=`
  <section class="hero"><div class="wrap"><p class="kicker">دليل الأسرة حسب الحالة</p><h1>${esc(c.title)}</h1><p class="lead">${esc(c.summary)}</p><div class="toolbar"><a class="button" href="../../">العودة إلى دليل الأسرة</a><button type="button" onclick="window.print()">طباعة الدليل</button></div><p class="notice"><b>تنبيه:</b> هذه الصفحة تساعد على فهم الخطوات وتنظيم الأسئلة، ولا تثبت التشخيص ولا تحدد علاجًا أو دواءً لشخص بعينه. الأعراض المفاجئة أو الخطر المباشر تستلزم خدمة طبية أو طوارئ مناسبة.</p></div></section>

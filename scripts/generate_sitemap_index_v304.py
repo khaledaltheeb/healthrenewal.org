@@ -138,7 +138,7 @@ def sync_robots(root: Path, base_url: str = BASE_URL) -> list[str]:
         raise ValueError("robots.txt must register sitemap.xml and sitemap-index.xml exactly once")
     if any(line.strip().lower().startswith("disallow:") for line in written.splitlines()):
         raise ValueError("robots.txt must not block public crawling")
-    if "khaledaltheeb.github.io/pterminology-site" in written:
+    if "khaledaltheeb.github.io/" in written:
         raise ValueError("robots.txt contains a legacy-domain sitemap directive")
     return sorted(item.removeprefix("Sitemap: ") for item in preserved)
 

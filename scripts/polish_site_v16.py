@@ -12,7 +12,7 @@ from pathlib import Path
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 VERIFY = "google644f1f7a8b7aaa2b.html"
-BASE_PATH = "/pterminology-site/"
+BASE_PATH = "/"
 LAB_SLASH_SENTINEL = "__PTERMINOLOGY_LITERAL_SLASH_V198__"
 LAB_DEFINITION_PATTERN = re.compile(
     r'(<script\b[^>]*type=["\']application/json["\'][^>]*id=["\']lab-definition["\'][^>]*>)(.*?)(</script>)',

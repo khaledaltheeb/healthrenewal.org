@@ -23,7 +23,7 @@ from seo_agent_fleet_v334 import (  # noqa: E402
     safe_json_for_html,
 )
 
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 
 
 def page_html(

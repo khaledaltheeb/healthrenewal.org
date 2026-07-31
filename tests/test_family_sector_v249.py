@@ -29,7 +29,7 @@ class FamilySectorV249Tests(unittest.TestCase):
         data = json.loads(SOURCE.read_text(encoding="utf-8"))
         source.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
 
-        shell = '''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>قديم</title><meta name="description" content="قديم"><meta name="robots" content="noindex"></head><body><header><a href="/pterminology-site/">الرئيسية</a></header><main><h1>صفحة قديمة</h1><p>محتوى مختصر</p></main><footer>حقوق المنصة</footer></body></html>'''
+        shell = '''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>قديم</title><meta name="description" content="قديم"><meta name="robots" content="noindex"></head><body><header><a href="/">الرئيسية</a></header><main><h1>صفحة قديمة</h1><p>محتوى مختصر</p></main><footer>حقوق المنصة</footer></body></html>'''
         hub = site / "sectors" / "family" / "index.html"
         hub.parent.mkdir(parents=True)
         hub.write_text(shell, encoding="utf-8")
@@ -38,7 +38,7 @@ class FamilySectorV249Tests(unittest.TestCase):
             page.parent.mkdir(parents=True)
             page.write_text(shell, encoding="utf-8")
         (site / "robots.txt").write_text(
-            "User-agent: *\nAllow: /pterminology-site/\nSitemap: https://khaledaltheeb.github.io/pterminology-site/sitemap.xml\n",
+            "User-agent: *\nAllow: /\nSitemap: https://healthrenewal.org/sitemap.xml\n",
             encoding="utf-8",
         )
         return site, source, data
@@ -91,7 +91,7 @@ class FamilySectorV249Tests(unittest.TestCase):
         self.assertIn("الأشخاص ذوي الاحتياجات الخاصة", hub)
         self.assertIn("خطة أسرية لمدة 30 يومًا", hub)
         for item in data["articles"]:
-            self.assertIn(f'/pterminology-site/sectors/family/{item["slug"]}/', hub)
+            self.assertIn(f'/sectors/family/{item["slug"]}/', hub)
             page = site / "sectors" / "family" / item["slug"] / "index.html"
             text = page.read_text(encoding="utf-8")
             self.assertEqual(text.count("<main"), 1, item["slug"])
@@ -105,7 +105,7 @@ class FamilySectorV249Tests(unittest.TestCase):
             self.assertNotIn("noindex", text.lower(), item["slug"])
 
         robots = (site / "robots.txt").read_text(encoding="utf-8")
-        self.assertEqual(robots.count("Allow: /pterminology-site/sectors/family/"), 1)
+        self.assertEqual(robots.count("Allow: /sectors/family/"), 1)
         written = json.loads((site / "api/family-sector-v249.json").read_text(encoding="utf-8"))
         self.assertEqual(written, report)
 

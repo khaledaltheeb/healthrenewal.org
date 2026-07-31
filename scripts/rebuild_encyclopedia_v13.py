@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
-BASE = os.environ.get("SITE_BASE", "https://khaledaltheeb.github.io/pterminology-site/").rstrip("/") + "/"
+BASE = os.environ.get("SITE_BASE", "https://healthrenewal.org/").rstrip("/") + "/"
 TODAY = date.today().isoformat()
 VERIFY = "google644f1f7a8b7aaa2b.html"
 ORG = "مصطلحات علم النفس"

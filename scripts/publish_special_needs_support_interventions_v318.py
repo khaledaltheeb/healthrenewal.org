@@ -11,8 +11,8 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content" / "v318" / "special-needs-support-interventions-ar.json"
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BP = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BP = "/"
 VERSION = 318
 MARKER = "data-support-interventions-v318"
 PARENT_INSERT = '<section class="source-area" id="sources">'

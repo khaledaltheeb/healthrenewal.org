@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Any
 
 VERSION = 236
-BASE = "https://khaledaltheeb.github.io/pterminology-site"
-BASE_PATH = "/pterminology-site/"
+BASE = "https://healthrenewal.org/"
+BASE_PATH = "/"
 BATCHES = (209, 210, 211, 212, 214)
 V214_SLUGS = (
     "assessment-homework-accommodations-plan",

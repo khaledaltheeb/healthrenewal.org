@@ -12,8 +12,8 @@ from typing import Any
 from urllib.parse import urldefrag, urljoin, urlparse, urlunparse
 from xml.etree import ElementTree as ET
 
-BASE_ORIGIN = "https://khaledaltheeb.github.io"
-BASE_PATH = "/pterminology-site/"
+BASE_ORIGIN = "https://healthrenewal.org"
+BASE_PATH = "/"
 BASE_URL = BASE_ORIGIN + BASE_PATH
 SPACE_RE = re.compile(r"\s+")
 WORD_RE = re.compile(r"[\w\u0600-\u06ff]+", re.UNICODE)

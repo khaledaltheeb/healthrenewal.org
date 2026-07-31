@@ -9,7 +9,7 @@ from pathlib import Path
 
 VERSION = 233
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
-BASE_PATH = "/pterminology-site/"
+BASE_PATH = "/"
 
 SECTION_LINKS = (
     ("ابدأ من هنا", "start-here/"),

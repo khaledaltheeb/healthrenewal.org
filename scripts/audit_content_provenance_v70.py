@@ -10,7 +10,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 BASE_HOST = "khaledaltheeb.github.io"
-BASE_PATH = "/pterminology-site/"
+BASE_PATH = "/"
 VERIFY_RE = re.compile(
     r"^(?:google-site-verification|msvalidate\.01|p:domain_verify|facebook-domain-verification)\s*[:=]",
     re.I,

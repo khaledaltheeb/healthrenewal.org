@@ -67,7 +67,7 @@ class CaregiverWellbeingV188Tests(unittest.TestCase):
             self.assertIn(href, (site / "special-needs/index.html").read_text(encoding="utf-8"))
             self.assertIn(href, (site / "audiences/family/index.html").read_text(encoding="utf-8"))
             sitemap = (site / module.SITEMAP_NAME).read_text(encoding="utf-8")
-            self.assertEqual(sitemap.count("https://khaledaltheeb.github.io/pterminology-site" + href), 1)
+            self.assertEqual(sitemap.count("https://healthrenewal.org" + href), 1)
             report = json.loads((site / "api" / "caregiver-wellbeing-v188.json").read_text(encoding="utf-8"))
             self.assertEqual(report["sitemap"], f"/{module.SITEMAP_NAME}")
 

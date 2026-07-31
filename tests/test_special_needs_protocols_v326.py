@@ -27,7 +27,7 @@ class SpecialNeedsProtocolsV326Tests(unittest.TestCase):
             encoding="utf-8")
         (self.tmp/"sitemap-special-needs.xml").write_text(
             '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-            '<url><loc>https://khaledaltheeb.github.io/pterminology-site/special-needs/</loc></url></urlset>',
+            '<url><loc>https://healthrenewal.org/special-needs/</loc></url></urlset>',
             encoding="utf-8")
     def tearDown(self):
         shutil.rmtree(self.tmp,ignore_errors=True)
@@ -68,7 +68,7 @@ class SpecialNeedsProtocolsV326Tests(unittest.TestCase):
         urls=[(n.text or "").strip() for n in ET.parse(self.tmp/"sitemap-special-needs.xml").getroot().findall("{*}url/{*}loc")]
         self.assertEqual(len([u for u in urls if "/special-needs/protocols/" in u]),51)
         for slug in first["protocol_slugs"]:
-            u=f"https://khaledaltheeb.github.io/pterminology-site/special-needs/protocols/{slug}/"
+            u=f"https://healthrenewal.org/special-needs/protocols/{slug}/"
             self.assertEqual(urls.count(u),1)
             text=(self.tmp/"special-needs"/"protocols"/slug/"index.html").read_text(encoding="utf-8")
             self.assertEqual(text.count("<h1"),1)

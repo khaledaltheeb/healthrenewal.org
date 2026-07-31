@@ -12,7 +12,7 @@ jobs:
   validate-v13:
     runs-on: ubuntu-latest
     env:
-      SITE_BASE: https://khaledaltheeb.github.io/pterminology-site/
+      SITE_BASE: https://healthrenewal.org/
     steps:
       - uses: actions/checkout@v4
 
@@ -87,7 +87,7 @@ jobs:
           if (root/'sitemap-terms-2.xml').read_text().count('<url>')!=1000:audit['errors'].append('sitemap terms 2 count')
           sitemap_hubs=(root/'sitemap-hubs.xml').read_text(encoding='utf-8')
           if sitemap_hubs.count('<url>')!=202:audit['errors'].append('sitemap hubs count')
-          if 'https://khaledaltheeb.github.io/pterminology-site/encyclopedia/all/' not in sitemap_hubs:audit['errors'].append('detail archive missing from sitemap')
+          if 'https://healthrenewal.org/encyclopedia/all/' not in sitemap_hubs:audit['errors'].append('detail archive missing from sitemap')
           if not (root/'encyclopedia/all/index.html').is_file():audit['errors'].append('detail archive page missing')
           index=(root/'encyclopedia/index.html').read_text(encoding='utf-8')
           if index.count('class="ency-topic-v2__card topic-item"')!=100:audit['errors'].append('primary topic card count')

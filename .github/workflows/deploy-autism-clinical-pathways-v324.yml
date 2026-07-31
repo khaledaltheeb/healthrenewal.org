@@ -63,7 +63,7 @@ jobs:
               source=page.read_text(encoding='utf-8')
               assert page.is_file() and '<!-- pt-platform-shell:v1 -->' in source,slug
               assert source.count('class="section-card"')==7 and 'MedicalWebPage' in source,slug
-              assert urls.count(f'https://khaledaltheeb.github.io/pterminology-site/special-needs/{slug}/')==1,slug
+              assert urls.count(f'https://healthrenewal.org/special-needs/{slug}/')==1,slug
           token=os.environ['GH_TOKEN']; repo=os.environ['GITHUB_REPOSITORY']
           headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','User-Agent':'pages-v324'}
           def api(path):

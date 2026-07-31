@@ -34,8 +34,8 @@ class LegacyLearningPathAliasV333Tests(unittest.TestCase):
         self,
         *,
         robots: str = "noindex,follow",
-        refresh: str = "/pterminology-site/learning-paths/new-path/",
-        canonical: str = "https://khaledaltheeb.github.io/pterminology-site/learning-paths/new-path/",
+        refresh: str = "/learning-paths/new-path/",
+        canonical: str = "https://healthrenewal.org/learning-paths/new-path/",
     ) -> None:
         self.alias.write_text(
             "<!doctype html>"
@@ -60,7 +60,7 @@ class LegacyLearningPathAliasV333Tests(unittest.TestCase):
     def test_alias_rejects_indexing_and_target_mismatch(self) -> None:
         self.write_alias(
             robots="index,follow",
-            canonical="https://khaledaltheeb.github.io/pterminology-site/learning-paths/other-path/",
+            canonical="https://healthrenewal.org/learning-paths/other-path/",
         )
         parser = self.module.parse_page(self.alias)
         is_alias, _, errors = self.module.legacy_alias_contract(self.alias, parser)

@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content" / "v192" / "platform-institutional-foundation-ar.json"
-BASE_URL = "https://khaledaltheeb.github.io/pterminology-site"
+BASE_URL = "https://healthrenewal.org/"
 SITEMAP_NAME = "sitemap-institutional-foundation.xml"
 START = "<!-- institutional-footer-v192:start -->"
 END = "<!-- institutional-footer-v192:end -->"
