@@ -231,7 +231,6 @@ async function createExtractor(requestId) {
 
   return pipeline('feature-extraction', MODEL_ID, {
     dtype: DTYPE,
-    device: 'wasm',
     revision: MODEL_REVISION,
     progress_callback: progressCallback,
   });
