@@ -112,6 +112,14 @@ sitemap_report = normalize_hubs_sitemap_namespace(module.SITE)
 
 fix_homepage_heading_hierarchy(module.SITE)
 
+GUIDE_SOURCE = Path(__file__).with_name("publish_adjustment_disorder_v335.py")
+guide_spec = importlib.util.spec_from_file_location("adjustment_disorder_v335", GUIDE_SOURCE)
+if guide_spec is None or guide_spec.loader is None:
+    raise SystemExit("Unable to load adjustment-disorder publisher")
+guide_module = importlib.util.module_from_spec(guide_spec)
+guide_spec.loader.exec_module(guide_module)
+guide_report = guide_module.publish(module.SITE)
+
 AUDIT_SOURCE = Path(__file__).with_name("audit_site_integrity_v13.py")
 audit_spec = importlib.util.spec_from_file_location("site_integrity_v13", AUDIT_SOURCE)
 if audit_spec is None or audit_spec.loader is None:
@@ -121,4 +129,4 @@ audit_spec.loader.exec_module(audit_module)
 audit_module.SITE = module.SITE
 audit_result = audit_module.main()
 
-print(json.dumps({"encyclopedia": build_report, "topic_hubs": topic_report, "hubs_sitemap": sitemap_report, "integrity_audit_exit": audit_result}, ensure_ascii=False, indent=2))
+print(json.dumps({"encyclopedia": build_report, "topic_hubs": topic_report, "hubs_sitemap": sitemap_report, "adjustment_disorder": guide_report, "integrity_audit_exit": audit_result}, ensure_ascii=False, indent=2))
