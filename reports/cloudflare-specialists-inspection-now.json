@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-07-31T06:52:02.425339+00:00",
+  "checked_at": "2026-07-31T07:06:01.286955+00:00",
   "no_email_sent": true,
   "no_reset_token_created": true,
   "token": {
@@ -43,13 +43,13 @@
   },
   "live": {
     "identity_health": {
-      "http_status": 503,
+      "http_status": 200,
       "content_type": "application/json; charset=utf-8",
       "service": "pterminology-specialist-identity",
       "version": "10.2.0",
-      "ok": false,
+      "ok": true,
       "error": null,
-      "body_prefix": "{\"ok\":false,\"service\":\"pterminology-specialist-identity\",\"version\":\"10.2.0\",\"checks\":{\"database\":true,\"accountSchema\":true,\"identitySchema\":true,\"email\":true,\"turnstile\":false,\"rateLimitSalt\":true,\"accountBase\":true,\"adm"
+      "body_prefix": "{\"ok\":true,\"service\":\"pterminology-specialist-identity\",\"version\":\"10.2.0\",\"checks\":{\"database\":true,\"accountSchema\":true,\"identitySchema\":true,\"email\":true,\"turnstile\":true,\"rateLimitSalt\":true,\"accountBase\":true,\"admin"
     },
     "core_health": {
       "http_status": 200,
@@ -111,7 +111,7 @@
     "identity_workers_dev_enabled": true,
     "core_workers_dev_enabled": true,
     "owner_destination_verified": true,
-    "identity_health_public": false,
+    "identity_health_public": true,
     "core_health_public": true,
     "pages_ready": true,
     "cloudflare_email_can_replace_resend_now": false,
