@@ -4,9 +4,12 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 WORKER = ROOT / "specialists-partners/account-backend/src/index-v10.js"
 FINAL_WORKER = ROOT / "specialists-partners/account-backend/src/index-v10-final.js"
+PRODUCTION_WORKER = ROOT / "specialists-partners/account-backend/src/index-v10-production.js"
 ADMIN_RECOVERY = ROOT / "specialists-partners/admin/admin-recovery-v10-final.js"
+ADMIN_PROVIDER = ROOT / "specialists-partners/admin/admin-provider-status-v10.js"
 RUNTIME = ROOT / "specialists-partners/assets/runtime-config.js"
-DEPLOY = ROOT / ".github/workflows/deploy-specialist-identity-v10.yml"
+VALIDATE = ROOT / ".github/workflows/deploy-specialist-identity-v10.yml"
+DEPLOY = ROOT / ".github/workflows/deploy-specialist-identity-v10-production.yml"
 LEGACY_V6 = ROOT / ".github/workflows/deploy-specialists-account-backend.yml"
 LEGACY_V8 = ROOT / ".github/workflows/deploy-specialist-recovery-overlay-v8.yml"
 
@@ -16,14 +19,18 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
     def setUpClass(cls):
         cls.worker = WORKER.read_text(encoding="utf-8")
         cls.final_worker = FINAL_WORKER.read_text(encoding="utf-8")
+        cls.production_worker = PRODUCTION_WORKER.read_text(encoding="utf-8")
         cls.admin = ADMIN_RECOVERY.read_text(encoding="utf-8")
+        cls.admin_provider = ADMIN_PROVIDER.read_text(encoding="utf-8")
         cls.runtime = RUNTIME.read_text(encoding="utf-8")
 
-    def test_worker_uses_v10_overlay(self):
+    def test_worker_uses_layered_v10_release(self):
         self.assertIn("const BUILD_VERSION = '10.0.0'", self.worker)
         self.assertIn("import recoveryWorker from './index-v8.js'", self.worker)
         self.assertIn("const BUILD_VERSION = '10.1.0'", self.final_worker)
         self.assertIn("import identityWorker from './index-v10.js'", self.final_worker)
+        self.assertIn("const BUILD_VERSION='10.2.0'", self.production_worker)
+        self.assertIn("import finalWorker from './index-v10-final.js'", self.production_worker)
 
     def test_deep_email_auth_probe_is_truthful(self):
         self.assertIn("https://api.resend.com/domains", self.worker)
@@ -48,6 +55,7 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("session_binding_mismatch", self.worker)
         self.assertIn("user_agent_hash", self.worker)
         self.assertIn("SESSION_BIND_IP", self.worker)
+        self.assertIn("session_binding_mismatch", self.final_worker)
 
     def test_admin_delivery_is_truthful_and_manual_fallback_exists(self):
         self.assertIn("/password-reset-link", self.worker)
@@ -60,11 +68,22 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("RECOVERY_EXPORT_KEY", self.worker)
         self.assertIn("owner_recovery_exported", self.worker)
 
-    def test_final_worker_handles_preflight_and_strict_password(self):
+    def test_final_worker_unifies_password_and_preflight_contracts(self):
         self.assertIn("request.method === 'OPTIONS'", self.final_worker)
         self.assertIn("strictPasswordPolicy:true", self.final_worker)
+        self.assertIn("accountPasswordPolicy:true", self.final_worker)
+        self.assertIn("password_reuse", self.final_worker)
+        self.assertIn("resetLinksRevoked:true", self.final_worker)
         self.assertIn("/\\p{L}/u", self.final_worker)
         self.assertNotIn("/\\s/u.test(password)", self.final_worker)
+
+    def test_deep_health_is_protected_and_admin_status_is_authenticated(self):
+        self.assertIn("bootstrapAuthorized(request,env)", self.production_worker)
+        self.assertIn("/v1/admin/email-provider-status", self.production_worker)
+        self.assertIn("['owner','admin']", self.production_worker)
+        self.assertIn("protectedDeepHealth:true", self.production_worker)
+        self.assertIn("authorization:`Bearer ${value.token}`", self.admin_provider)
+        self.assertNotIn("/health?deep=1", self.admin_provider)
 
     def test_admin_ui_activates_after_dynamic_load_and_login(self):
         self.assertIn("إنشاء رابط يدوي", self.admin)
@@ -72,16 +91,23 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
         self.assertIn("navigator.clipboard.writeText", self.admin)
         self.assertIn("document.readyState==='loading'", self.admin)
         self.assertIn("attributeFilter:['hidden']", self.admin)
-        self.assertIn("admin-recovery-v10-final.js?v=10.1.0", self.runtime)
+        self.assertIn("admin-recovery-v10-final.js?v=10.2.0", self.runtime)
+        self.assertIn("admin-provider-status-v10.js?v=10.2.0", self.runtime)
+        self.assertIn('identityVersion: "10.2.0"', self.runtime)
 
-    def test_production_workflow_exists(self):
+    def test_validation_and_production_workflows_are_separated(self):
+        self.assertTrue(VALIDATE.exists())
         self.assertTrue(DEPLOY.exists())
-        workflow = DEPLOY.read_text(encoding="utf-8")
-        self.assertIn('main = "src/index-v10-final.js"', workflow)
-        self.assertIn("node --check specialists-partners/account-backend/src/index-v10-final.js", workflow)
-        self.assertIn("health?deep=1", workflow)
-        self.assertIn("tests.test_specialist_identity_v10", workflow)
-        self.assertIn("specialist-identity-v10-production.json", workflow)
+        validation = VALIDATE.read_text(encoding="utf-8")
+        production = DEPLOY.read_text(encoding="utf-8")
+        self.assertNotIn("wrangler@4 deploy", validation)
+        self.assertNotIn("push:\n    branches", validation)
+        self.assertIn('main = "src/index-v10-production.js"', production)
+        self.assertIn("node --check specialists-partners/account-backend/src/index-v10-production.js", production)
+        self.assertIn("x-bootstrap-key: ${ADMIN_API_KEY}", production)
+        self.assertIn("Deep health must not be public", production)
+        self.assertIn("tests.test_specialist_identity_v10", production)
+        self.assertIn("specialist-identity-v10-production.json", production)
 
     def test_legacy_workflows_are_validation_only(self):
         for path in (LEGACY_V6, LEGACY_V8):
