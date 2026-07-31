@@ -1,0 +1,211 @@
+name: Restore specialist identity code now
+
+on:
+  push:
+    branches:
+      - agent/restore-known-specialist-secrets-now
+    paths:
+      - reports/restore-specialist-identity-code-trigger.txt
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '826ac34927c1e045c06145a327c2ac52' }}
+      PREFERRED_D1_DATABASE_ID: ${{ secrets.SPECIALISTS_D1_DATABASE_ID }}
+      DATABASE_NAME: pterminology-specialists
+      WORKER_NAME: pterminology-specialist-accounts
+      CORE_API_BASE: https://pterminology-specialists.pterminology-826ac349.workers.dev
+      WORKER_URL: https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev
+      FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate source and discover D1
+        id: resources
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(CLOUDFLARE_API_TOKEN FROM_EMAIL)
+          for name in "${required[@]}"; do
+            [[ -n "${!name:-}" ]] || { echo "::error::$name is required"; exit 1; }
+          done
+          node --check specialists-partners/account-backend/src/index-v10-production.js
+          auth=(-H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json")
+          curl -fsS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${WORKER_NAME}/secrets" \
+            -o /tmp/secrets-before.json
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/secrets-before.json',encoding='utf-8'))
+          assert data.get('success') is True, data
+          names={str(item.get('name') or '') for item in (data.get('result') or [])}
+          required={'RESEND_API_KEY','ADMIN_API_KEY','RATE_LIMIT_SALT'}
+          missing=sorted(required-names)
+          if missing: raise SystemExit('Known Worker secrets missing before code restore: '+', '.join(missing))
+          PY
+          if [[ -n "${PREFERRED_D1_DATABASE_ID:-}" ]]; then
+            database_id="${PREFERRED_D1_DATABASE_ID}"
+          else
+            curl -fsS "${auth[@]}" "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/d1/database?per_page=100" -o /tmp/d1.json
+            database_id="$(python - <<'PY'
+          import json, os
+          data=json.load(open('/tmp/d1.json',encoding='utf-8'))
+          matches=[item for item in data.get('result',[]) if item.get('name')==os.environ['DATABASE_NAME']]
+          if not matches or not matches[0].get('uuid'): raise SystemExit('D1 database not found')
+          print(matches[0]['uuid'])
+          PY
+          )"
+          fi
+          [[ -n "$database_id" ]] || { echo "::error::D1 database id missing"; exit 1; }
+          echo "database_id=$database_id" >> "$GITHUB_OUTPUT"
+
+      - name: Generate ephemeral Worker configuration
+        working-directory: specialists-partners/account-backend
+        env:
+          D1_DATABASE_ID: ${{ steps.resources.outputs.database_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          def q(value): return '"'+str(value).replace('\\','\\\\').replace('"','\\"')+'"'
+          content=f'''name = "pterminology-specialist-accounts"
+          main = "src/index-v10-production.js"
+          compatibility_date = "2026-07-01"
+          workers_dev = true
+
+          [vars]
+          ALLOWED_ORIGINS = "https://khaledaltheeb.github.io"
+          ACCOUNT_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/account/"
+          ADMIN_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/admin/"
+          PASSWORD_RESET_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/password-reset/"
+          PORTAL_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/specialists-partners/portal/"
+          CORE_API_BASE = "{os.environ['CORE_API_BASE']}"
+          TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"
+          IDENTITY_SESSION_HOURS = "12"
+          SESSION_BIND_IP = "off"
+          OWNER_EMAIL = "pterminology@gmail.com"
+          OWNER_PHONE = "+962795945817"
+          OWNER_DISPLAY_NAME_AR = "خالد الذيب"
+          OWNER_DISPLAY_NAME_EN = "Khaled Altheeb"
+          FROM_EMAIL = {q(os.environ['FROM_EMAIL'])}
+
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "pterminology-specialists"
+          database_id = {q(os.environ['D1_DATABASE_ID'])}
+          migrations_dir = "../backend/migrations"
+
+          [triggers]
+          crons = ["31 2 * * *"]
+          '''
+          Path('wrangler-restore-code.toml').write_text(content,encoding='utf-8')
+          PY
+          chmod 600 wrangler-restore-code.toml
+
+      - name: Restore code and D1 without replacing secrets
+        working-directory: specialists-partners/account-backend
+        run: npx --yes wrangler@4 deploy --config wrangler-restore-code.toml --minify --keep-vars
+
+      - name: Enable route and verify bindings and identity response
+        shell: bash
+        run: |
+          set -euo pipefail
+          auth=(-H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json")
+          curl -fsS "${auth[@]}" -X POST \
+            --data '{"enabled":true,"previews_enabled":true}' \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${WORKER_NAME}/subdomain" \
+            -o /tmp/subdomain.json
+          curl -fsS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${WORKER_NAME}/settings" \
+            -o /tmp/settings.json
+          curl -fsS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${WORKER_NAME}/secrets" \
+            -o /tmp/secrets-after.json
+          python - <<'PY'
+          import json
+          subdomain=json.load(open('/tmp/subdomain.json',encoding='utf-8'))
+          settings=json.load(open('/tmp/settings.json',encoding='utf-8'))
+          secrets=json.load(open('/tmp/secrets-after.json',encoding='utf-8'))
+          assert subdomain.get('success') is True and (subdomain.get('result') or {}).get('enabled') is True, subdomain
+          assert settings.get('success') is True, settings
+          bindings=(settings.get('result') or {}).get('bindings') or []
+          binding_names={str(item.get('name') or '') for item in bindings}
+          assert 'DB' in binding_names, binding_names
+          names={str(item.get('name') or '') for item in (secrets.get('result') or [])}
+          required={'RESEND_API_KEY','ADMIN_API_KEY','RATE_LIMIT_SALT'}
+          assert required.issubset(names), sorted(required-names)
+          safe={'binding_names':sorted(binding_names),'secret_names':sorted(names),'workers_dev_enabled':True}
+          open('/tmp/code-restore-state.json','w',encoding='utf-8').write(json.dumps(safe,ensure_ascii=False,indent=2)+'\n')
+          PY
+          python - <<'PY'
+          import json, os, time, urllib.error, urllib.request
+          url=os.environ['WORKER_URL']+'/health'
+          headers={'User-Agent':'pterminology-identity-code-restoration/1.0','Accept':'application/json','Cache-Control':'no-cache'}
+          final={}
+          for attempt in range(1,41):
+              request=urllib.request.Request(url,headers=headers)
+              try:
+                  with urllib.request.urlopen(request,timeout=20) as response:
+                      status=response.status; data=json.load(response)
+              except urllib.error.HTTPError as error:
+                  status=error.code
+                  try: data=json.load(error)
+                  except Exception: data={}
+              except Exception as error:
+                  status=0; data={'transport_error':type(error).__name__}
+              final={'http_status':status,'service':data.get('service'),'version':data.get('version'),'ok':data.get('ok'),'checks':data.get('checks') or {}}
+              if status in {200,503} and data.get('service')=='pterminology-specialist-identity' and data.get('version')=='10.2.0': break
+              time.sleep(6)
+          if not (final.get('http_status') in {200,503} and final.get('service')=='pterminology-specialist-identity' and final.get('version')=='10.2.0'):
+              raise SystemExit(final)
+          open('/tmp/code-restore-health.json','w',encoding='utf-8').write(json.dumps(final,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps(final,ensure_ascii=False))
+          PY
+
+      - name: Commit safe restoration report
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          state=json.load(open('/tmp/code-restore-state.json',encoding='utf-8'))
+          health=json.load(open('/tmp/code-restore-health.json',encoding='utf-8'))
+          report={
+            'schema_version':1,
+            'restored_at':datetime.now(timezone.utc).isoformat(),
+            'worker':'pterminology-specialist-accounts',
+            'code_restored':True,
+            'd1_binding_present':'DB' in state['binding_names'],
+            'existing_secrets_preserved':all(name in state['secret_names'] for name in ('ADMIN_API_KEY','RATE_LIMIT_SALT','RESEND_API_KEY')),
+            'turnstile_present':'TURNSTILE_SECRET' in state['secret_names'],
+            'workers_dev_enabled':state['workers_dev_enabled'],
+            'health':health,
+            'passed':health.get('http_status') in (200,503) and health.get('service')=='pterminology-specialist-identity' and health.get('version')=='10.2.0'
+          }
+          open('reports/specialist-identity-code-restored-now.json','w',encoding='utf-8').write(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/specialist-identity-code-restored-now.json
+          git commit -m "chore: record specialist identity code restoration [skip ci]"
+          git push origin HEAD:agent/restore-known-specialist-secrets-now
+
+      - name: Remove ephemeral files
+        if: always()
+        run: rm -f specialists-partners/account-backend/wrangler-restore-code.toml /tmp/*.json
