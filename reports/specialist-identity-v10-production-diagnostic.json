@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-31T15:31:09.128389+00:00",
+  "source_sha": "32eab5ee0bbe66b0eb957733a0848f8eb173f0fe",
+  "workflow_run_id": "30643103572",
+  "status": "failed",
+  "failure_stage": "worker_secrets",
+  "outcomes": {
+    "github_secrets": "success",
+    "cloudflare_token": "success",
+    "worker_secrets": "failure",
+    "d1_database": "success",
+    "live_health": "failure"
+  },
+  "github_secrets": {
+    "required_present": true,
+    "missing_required": [],
+    "missing_recommended": [
+      "PREFERRED_D1_DATABASE_ID",
+      "PASSWORD_PEPPER"
+    ]
+  },
+  "cloudflare_token": {
+    "success": true,
+    "status": "active"
+  },
+  "worker_secrets": {
+    "api_success": true,
+    "required_count": 4,
+    "required_present_count": 0,
+    "missing_required": [
+      "ADMIN_API_KEY",
+      "RATE_LIMIT_SALT",
+      "RESEND_API_KEY",
+      "TURNSTILE_SECRET"
+    ]
+  },
+  "d1_database": {
+    "api_success": true,
+    "named_database_found": true,
+    "preferred_id_configured": false,
+    "preferred_id_found": null
+  },
+  "live_health": {
+    "normal_http_status": 404,
+    "service": null,
+    "version": null,
+    "ok": false,
+    "checks": {},
+    "deep_public_http_status": 404,
+    "deep_health_publicly_blocked": false
+  },
+  "contains_secret_values": false
+}
