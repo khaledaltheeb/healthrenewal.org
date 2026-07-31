@@ -1,0 +1,72 @@
+name: Record canonical SEO v363 result
+
+on:
+  workflow_run:
+    workflows: ["Deploy canonical SEO live v363"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: canonical-seo-v363-result
+  cancel-in-progress: true
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Record triggering workflow result
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+
+          event=json.load(open(os.environ['GITHUB_EVENT_PATH'],encoding='utf-8'))
+          run=event['workflow_run']
+          report={
+            'schema_version':1,
+            'recorded_at':datetime.now(timezone.utc).isoformat(),
+            'workflow_name':run.get('name'),
+            'workflow_run_id':run.get('id'),
+            'run_attempt':run.get('run_attempt'),
+            'event':run.get('event'),
+            'status':run.get('status'),
+            'conclusion':run.get('conclusion'),
+            'head_branch':run.get('head_branch'),
+            'head_sha':run.get('head_sha'),
+            'created_at':run.get('created_at'),
+            'updated_at':run.get('updated_at'),
+            'html_url':run.get('html_url'),
+            'passed':run.get('conclusion') == 'success',
+          }
+          open('reports/canonical-seo-v363-workflow-result.json','w',encoding='utf-8').write(
+              json.dumps(report,ensure_ascii=False,indent=2)+'\n'
+          )
+          print(json.dumps(report,ensure_ascii=False,indent=2))
+          PY
+
+      - name: Commit result receipt
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/canonical-seo-v363-workflow-result.json
+          git commit -m "chore: record canonical SEO workflow result [skip ci]" || exit 0
+          for attempt in {1..8}; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            git rebase --abort || true
+            sleep $((attempt*2))
+          done
+          echo "::error::Could not publish canonical SEO workflow result"
+          exit 1
