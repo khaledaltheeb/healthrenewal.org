@@ -1,5 +1,6 @@
-# Canonical public crawling and sitemap policy
+# Public crawling and indexing policy
 User-agent: *
 Allow: /
 
+Sitemap: https://healthrenewal.org/sitemap.xml
 Sitemap: https://healthrenewal.org/sitemap-index.xml

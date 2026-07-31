@@ -1,84 +1,58 @@
 {
   "version": 360,
   "status": "passed",
-  "generated_at": "2026-07-31T18:58:34+00:00",
+  "generated_at": "2026-07-31T22:22:42+00:00",
   "base_url": "https://healthrenewal.org/",
-  "sitemap": "sitemap.xml",
-  "sitemap_index": "sitemap-index.xml",
-  "robots": "robots.txt",
-  "real_indexable_urls": 209,
+  "real_indexable_urls": 211,
   "claimed_target_urls": 3600,
   "target_reached": false,
-  "html_files_discovered": 221,
-  "excluded_counts": {
-    "excluded_directory": 0,
-    "error_or_offline_page": 1,
-    "search_verification_file": 1,
-    "explicit_noindex": 10,
-    "external_canonical": 0,
-    "unreadable": 0
+  "gap_to_claimed_target": 3389,
+  "skipped_noindex": 9,
+  "skipped_verification": 2,
+  "families": {
+    "learning-paths": 2,
+    "magazine": 80,
+    "main": 96,
+    "provider-platform": 25,
+    "special-needs": 8
   },
-  "excluded_pages": {
-    "excluded_directory": [],
-    "error_or_offline_page": [
-      "404.html"
-    ],
-    "search_verification_file": [
-      "google644f1f7a8b7aaa2b.html"
-    ],
-    "explicit_noindex": [
-      "editorial-methodology/index.html",
-      "evaluate-mental-health-information/index.html",
-      "family-guide/conditions/prader-willi-syndrome/index.html",
-      "specialists-partners/account/index.html",
-      "specialists-partners/admin/index.html",
-      "specialists-partners/contact.html",
-      "specialists-partners/password-reset/index.html",
-      "specialists-partners/portal/index.html",
-      "specialists-partners/recover/index.html",
-      "team-and-partners/index.html"
-    ],
-    "external_canonical": [],
-    "unreadable": []
-  },
+  "sitemaps": [
+    {
+      "family": "learning-paths",
+      "filename": "sitemap-family-learning-paths.xml",
+      "urls": 2
+    },
+    {
+      "family": "magazine",
+      "filename": "sitemap-family-magazine.xml",
+      "urls": 80
+    },
+    {
+      "family": "main",
+      "filename": "sitemap-family-main.xml",
+      "urls": 96
+    },
+    {
+      "family": "provider-platform",
+      "filename": "sitemap-family-provider-platform.xml",
+      "urls": 25
+    },
+    {
+      "family": "special-needs",
+      "filename": "sitemap-family-special-needs.xml",
+      "urls": 8
+    }
+  ],
+  "robots_policy": "allow-all-public-crawling",
   "protocol": {
-    "maximum_urls_per_sitemap": 50000,
-    "maximum_uncompressed_bytes": 52428800,
-    "actual_bytes": 22718,
     "https_only": true,
     "single_host": "healthrenewal.org",
     "duplicates": 0,
     "legacy_urls": 0
   },
   "sha256": {
-    "sitemap.xml": "17daf543b6f180432480b2c2b61ae0f4ecd85a2a12db509e0ab73dcf2391cb33",
-    "sitemap-index.xml": "41c7faf5cbb40b054bfa5b391c8d343bacdfdf3baf20612a02ffe49e4898a880",
-    "robots.txt": "775d46ea75a7cfa782eff67503977738ee58f3d387782f722a698862c0fadc60"
-  },
-  "sample": {
-    "first": [
-      "https://healthrenewal.org/",
-      "https://healthrenewal.org/accessibility/",
-      "https://healthrenewal.org/ai-search/",
-      "https://healthrenewal.org/api/",
-      "https://healthrenewal.org/copyright/",
-      "https://healthrenewal.org/family-guide/",
-      "https://healthrenewal.org/family-guide/conditions/16p11-2-deletion-syndrome/",
-      "https://healthrenewal.org/family-guide/conditions/1p36-deletion-syndrome/",
-      "https://healthrenewal.org/family-guide/conditions/22q11-2-deletion-syndrome/",
-      "https://healthrenewal.org/family-guide/conditions/acquired-brain-injury/"
-    ],
-    "last": [
-      "https://healthrenewal.org/special-needs/assistive-technology/ethics-and-service/",
-      "https://healthrenewal.org/special-needs/assistive-technology/innovation-review/",
-      "https://healthrenewal.org/special-needs/assistive-technology/selection-checklist/",
-      "https://healthrenewal.org/special-needs/assistive-technology/training/",
-      "https://healthrenewal.org/special-needs/conditions/prader-willi-syndrome/",
-      "https://healthrenewal.org/specialists-partners/",
-      "https://healthrenewal.org/specialists-partners/join.html",
-      "https://healthrenewal.org/specialists-partners/verification.html",
-      "https://healthrenewal.org/start-here/",
-      "https://healthrenewal.org/trust/"
-    ]
+    "sitemap.xml": "9c69dcb10b55635053ff912b149040a29168a41bdcaeeaf9ce69f1a50663f8af",
+    "sitemap-index.xml": "073d7d273699cfb6cb1c305859933b6197bdb52d60fab14d703156a59d5ca58c",
+    "robots.txt": "f716357300cca4fca689eaa8a27e53ad2b16ad96b458cfecec0681bf70e60a9a"
   }
 }

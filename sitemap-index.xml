@@ -1,6 +1,18 @@
 <?xml version='1.0' encoding='utf-8'?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
-    <loc>https://healthrenewal.org/sitemap.xml</loc>
+    <loc>https://healthrenewal.org/sitemap-family-learning-paths.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-family-magazine.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-family-main.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-family-provider-platform.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-family-special-needs.xml</loc>
   </sitemap>
 </sitemapindex>
