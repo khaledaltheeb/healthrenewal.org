@@ -1,6 +1,11 @@
 name: Audit specialist sector end to end v10.2
 
 on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/audit-specialist-sector-e2e-v9.yml"
+      - "scripts/audit_specialist_sector_e2e_v10.py"
   workflow_run:
     workflows:
       - "Deploy validated main to GitHub Pages"
