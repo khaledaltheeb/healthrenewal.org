@@ -1,9 +1,9 @@
 name: Apply healthrenewal SEO migration
 
 on:
-  push:
+  pull_request:
     branches:
-      - agent/fix-healthrenewal-homepage-seo-20260731
+      - main
     paths:
       - scripts/fix_healthrenewal_seo.py
       - .github/workflows/apply-healthrenewal-seo-migration.yml
@@ -13,17 +13,21 @@ permissions:
   contents: write
 
 concurrency:
-  group: healthrenewal-seo-migration-${{ github.ref }}
+  group: healthrenewal-seo-migration-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: false
 
 jobs:
   migrate:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      TARGET_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
     steps:
       - name: Checkout migration branch
         uses: actions/checkout@v4
         with:
+          ref: ${{ env.TARGET_BRANCH }}
           fetch-depth: 0
 
       - name: Set up Python
@@ -80,4 +84,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "Fix healthrenewal canonical and homepage SEO"
-          git push origin HEAD:${GITHUB_REF_NAME}
+          git push origin HEAD:${TARGET_BRANCH}
