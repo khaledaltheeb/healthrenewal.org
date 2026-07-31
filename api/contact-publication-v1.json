@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "status": "repository-validated",
+  "contact_url": "https://healthrenewal.org/contact/",
+  "email": "contact@healthrenewal.org",
+  "footer_changed": true,
+  "contact": {
+    "title": "تواصل معنا | منصة Health Renewal للصحة النفسية والتأهيل",
+    "description_length": 163,
+    "canonical": "https://healthrenewal.org/contact/",
+    "robots": "index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1",
+    "mailtos": 2,
+    "json_ld_documents": 1,
+    "external_form_processor": false
+  },
+  "sitemap_urls": 212
+}
