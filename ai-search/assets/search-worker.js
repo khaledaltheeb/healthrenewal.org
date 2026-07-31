@@ -80,6 +80,12 @@ async function fetchBinary(url) {
   return response.arrayBuffer();
 }
 
+function shardArtifactUrl(name, sha256, manifestUrl) {
+  const url = new URL(name, manifestUrl);
+  if (sha256) url.searchParams.set('v', String(sha256).slice(0, 20));
+  return url;
+}
+
 function decodeBase64ToArrayBuffer(value) {
   const binary = atob(String(value || ''));
   const bytes = new Uint8Array(binary.length);
@@ -89,7 +95,7 @@ function decodeBase64ToArrayBuffer(value) {
 
 async function fetchShardVectorBuffer(shard, manifestUrl) {
   if (shard.embeddingsJson) {
-    const payload = await fetchJson(new URL(shard.embeddingsJson, manifestUrl));
+    const payload = await fetchJson(shardArtifactUrl(shard.embeddingsJson, shard.embeddingsJsonSha256, manifestUrl));
     if (payload?.version !== 1 || payload?.encoding !== 'base64') {
       throw new Error('ترميز متجهات الفهرس غير مدعوم.');
     }
@@ -105,7 +111,7 @@ async function fetchShardVectorBuffer(shard, manifestUrl) {
     }
     return buffer;
   }
-  return fetchBinary(new URL(shard.embeddings, manifestUrl));
+  return fetchBinary(shardArtifactUrl(shard.embeddings, shard.embeddingSha256, manifestUrl));
 }
 
 function halfToFloat(value) {
@@ -158,7 +164,7 @@ async function loadGeneratedIndex(manifestUrl) {
     const shard = manifest.shards[shardIndex];
     postProgress(`تحميل جزء الفهرس ${shardIndex + 1} من ${manifest.shards.length}…`);
     const [metadata, buffer] = await Promise.all([
-      fetchJson(new URL(shard.metadata, manifestUrl)),
+      fetchJson(shardArtifactUrl(shard.metadata, shard.metadataSha256, manifestUrl)),
       fetchShardVectorBuffer(shard, manifestUrl),
     ]);
     if (!Array.isArray(metadata) || metadata.length !== shard.count) throw new Error('بيانات الفهرس غير متطابقة.');
