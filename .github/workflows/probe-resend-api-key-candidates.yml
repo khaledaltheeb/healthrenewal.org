@@ -1,0 +1,100 @@
+name: Probe safe Resend API key candidates
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/probe-resend-api-key-candidates.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  CANDIDATE_RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+  CANDIDATE_SPECIALISTS_RESEND_API_KEY: ${{ secrets.SPECIALISTS_RESEND_API_KEY }}
+  CANDIDATE_SPECIALIST_RESEND_API_KEY: ${{ secrets.SPECIALIST_RESEND_API_KEY }}
+  CANDIDATE_RESEND_KEY: ${{ secrets.RESEND_KEY }}
+  CANDIDATE_RESEND_API_TOKEN: ${{ secrets.RESEND_API_TOKEN }}
+  CANDIDATE_PTERMINOLOGY_RESEND_API_KEY: ${{ secrets.PTERMINOLOGY_RESEND_API_KEY }}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Test candidate authentication without sending email
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os,subprocess,tempfile
+          from datetime import datetime,timezone
+          from pathlib import Path
+
+          candidates={
+              'RESEND_API_KEY':os.environ.get('CANDIDATE_RESEND_API_KEY',''),
+              'SPECIALISTS_RESEND_API_KEY':os.environ.get('CANDIDATE_SPECIALISTS_RESEND_API_KEY',''),
+              'SPECIALIST_RESEND_API_KEY':os.environ.get('CANDIDATE_SPECIALIST_RESEND_API_KEY',''),
+              'RESEND_KEY':os.environ.get('CANDIDATE_RESEND_KEY',''),
+              'RESEND_API_TOKEN':os.environ.get('CANDIDATE_RESEND_API_TOKEN',''),
+              'PTERMINOLOGY_RESEND_API_KEY':os.environ.get('CANDIDATE_PTERMINOLOGY_RESEND_API_KEY',''),
+          }
+          results={}
+          for name,value in candidates.items():
+              value=value.strip()
+              if not value:
+                  results[name]={'present':False,'http_status':None,'auth_accepted':False,'error_name':None}
+                  continue
+              with tempfile.NamedTemporaryFile() as body:
+                  proc=subprocess.run([
+                      'curl','-sS','--max-time','30','-o',body.name,'-w','%{http_code}',
+                      '-X','POST','https://api.resend.com/emails',
+                      '-H',f'Authorization: Bearer {value}',
+                      '-H','Content-Type: application/json',
+                      '-H','User-Agent: pterminology-resend-key-probe/1.0',
+                      '--data','{}',
+                  ],capture_output=True,text=True)
+                  status=int(proc.stdout[-3:]) if proc.returncode==0 and proc.stdout[-3:].isdigit() else 0
+                  try:
+                      payload=json.loads(Path(body.name).read_text(encoding='utf-8'))
+                  except Exception:
+                      payload={}
+              error_name=str(payload.get('name') or payload.get('error') or '')[:80] or None
+              # Empty payload cannot send an email. Authentication is accepted when
+              # Resend reaches request validation instead of returning auth errors.
+              auth_accepted=status not in (0,401,403)
+              results[name]={
+                  'present':True,
+                  'http_status':status,
+                  'auth_accepted':auth_accepted,
+                  'error_name':error_name,
+              }
+          selected=next((name for name,row in results.items() if row['auth_accepted']),None)
+          report={
+              'schema_version':1,
+              'checked_at':datetime.now(timezone.utc).isoformat(),
+              'source_sha':os.environ.get('GITHUB_SHA'),
+              'selected_candidate':selected,
+              'valid_candidate_found':selected is not None,
+              'candidates':results,
+              'probe_sent_email':False,
+              'contains_secret_values':False,
+          }
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/resend-api-key-candidate-probe.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+          print(report)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/resend-api-key-candidate-probe.json
+          git commit -m "chore: record safe Resend key probe [skip ci]" || exit 0
+          for attempt in {1..5}; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            git rebase --abort || true
+            sleep $((attempt*3))
+          done
+          exit 1
