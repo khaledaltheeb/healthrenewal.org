@@ -17,6 +17,14 @@
   const pageTitle = (doc.querySelector('h1')?.textContent || doc.title || 'المنصة').trim();
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+  if (!doc.querySelector('script[data-pt-discoverability-loader]')) {
+    const discoverabilityScript = doc.createElement('script');
+    discoverabilityScript.src = url('assets/platform/discoverability-cards.js?v=1.0.0');
+    discoverabilityScript.async = false;
+    discoverabilityScript.dataset.ptDiscoverabilityLoader = 'v1';
+    doc.head.append(discoverabilityScript);
+  }
+
   // Preserve section-level navigation, but avoid rendering the old home header
   // directly below the new global platform shell.
   const existingTopHeader = [...body.children].find((child) => child.tagName === 'HEADER');
