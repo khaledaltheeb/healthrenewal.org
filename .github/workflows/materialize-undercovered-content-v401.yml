@@ -7,6 +7,7 @@ on:
       - "content/v401/**"
       - "scripts/publish_undercovered_content_v401.py"
       - "scripts/publish_undercovered_content_v402.py"
+      - "scripts/publish_undercovered_content_v403.py"
       - "scripts/publish_special_needs_guides_v217.py"
       - "tests/test_undercovered_content_v401.py"
       - ".github/workflows/materialize-undercovered-content-v401.yml"
@@ -35,6 +36,7 @@ jobs:
         run: |
           python -m py_compile scripts/publish_undercovered_content_v401.py
           python -m py_compile scripts/publish_undercovered_content_v402.py
+          python -m py_compile scripts/publish_undercovered_content_v403.py
           python -m unittest -v tests.test_undercovered_content_v401
       - name: Generate one hundred static pages
         run: python scripts/publish_undercovered_content_v401.py . > /tmp/undercovered-v401-report.json
@@ -48,10 +50,11 @@ jobs:
           report = json.loads(Path("api/undercovered-content-v401.json").read_text(encoding="utf-8"))
           assert report["status"] == "passed", report
           assert report["version"] == 401, report
-          assert report["engine_revision"] == 402, report
+          assert report["engine_revision"] == 403, report
           assert report["page_count"] == 100, report
           assert report["unique_routes"] == 100, report
           assert report["profile_count"] == 12, report
+          assert report["specialized_safety_check_pages"] == 100, report
           assert report["generic_placeholder_pages"] == 0, report
           assert report["distribution"] == {
               "special-needs": 60,
@@ -61,7 +64,7 @@ jobs:
               "home": 7,
           }, report
           assert report["minimum_words"] >= 1800, report
-          assert report["minimum_h2"] >= 18, report
+          assert report["minimum_h2"] >= 20, report
           assert report["minimum_citations"] >= 3, report
           assert report["minimum_topic_mentions"] >= 18, report
           assert all(report["quality_gates"].values()), report
@@ -70,7 +73,8 @@ jobs:
               page = Path(route) / "index.html"
               assert page.is_file(), route
               source = page.read_text(encoding="utf-8")
-              assert 'data-content-engine="v402"' in source, route
+              assert 'data-content-engine="v403"' in source, route
+              assert "يرتبط مباشرة بـ" not in source, route
               assert not placeholder.search(source), route
           print(json.dumps({
               "page_count": report["page_count"],
@@ -103,5 +107,5 @@ jobs:
             echo "Generated publication tree is already current."
             exit 0
           fi
-          git commit -m "content(v401): materialize 100 topic-specific sector pages"
+          git commit -m "content(v401): materialize 100 edited topic-specific pages"
           git push --force origin HEAD:automation/materialize-undercovered-v401
