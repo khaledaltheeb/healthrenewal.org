@@ -16,6 +16,17 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
+try:
+    from scripts.encyclopedia_seo_contract_v1 import (
+        EXPECTED_DETAIL_PAGES, FAQ_MARKER, SEARCH_INTENT_MARKER,
+        faq_items, meta_description, search_intent_for, seo_title,
+    )
+except ModuleNotFoundError:  # Direct execution: python scripts/rebuild_encyclopedia_v13.py
+    from encyclopedia_seo_contract_v1 import (
+        EXPECTED_DETAIL_PAGES, FAQ_MARKER, SEARCH_INTENT_MARKER,
+        faq_items, meta_description, search_intent_for, seo_title,
+    )
+
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 BASE = os.environ.get("SITE_BASE", "https://healthrenewal.org/").rstrip("/") + "/"
 TODAY = date.today().isoformat()
@@ -106,6 +117,8 @@ V13_CSS = r'''
 .ency-v13__sources{padding:18px;border-radius:20px;background:#f3fbfa;border:1px solid #cde9e5}.ency-v13__sources a{overflow-wrap:anywhere}
 .ency-v13__search{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin:20px 0}.ency-v13__search input,.ency-v13__search select{width:100%;padding:14px;border:1px solid #bcded9;border-radius:14px;background:#fff;color:#17383d}
 .ency-v13__crumbs{font-size:.92rem;margin:8px 0 18px;color:#58747a}.ency-v13__crumbs a{color:#146e77}
+.ency-v13__intent{margin:28px 0;padding:clamp(18px,3vw,28px);border:1px solid #b9ded8;border-radius:24px;background:linear-gradient(145deg,#f4fffd,#fff3f8)}
+.ency-v13__intent-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:14px}.ency-v13__intent-card{padding:16px;border-radius:18px;background:#fff;border:1px solid #d6e9e6}.ency-v13__intent-card h3{margin-top:0}.ency-v13__intent-query{font-weight:800;color:#174b52}.ency-v13__faq article{padding:14px 0;border-bottom:1px solid #dcebea}.ency-v13__faq article:last-child{border-bottom:0}
 @media(max-width:760px){.ency-v13{width:calc(100% - 14px)}.ency-v13__hero,.ency-v13__article{border-radius:22px;padding:20px}.ency-v13__search{grid-template-columns:1fr}.ency-v13__article p,.ency-v13__article li{font-size:1rem}}
 '''
 
@@ -233,8 +246,9 @@ def entries() -> list[dict[str, Any]]:
 
 def head(title: str, description: str, path: str, schema: dict[str, Any], keywords: list[str]) -> str:
     canonical = BASE + path.lstrip("/")
-    image = BASE + "assets/logo.svg"
-    return f'''<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{esc(title)}</title><meta name="description" content="{esc(description)}"><meta name="keywords" content="{esc(', '.join(keywords))}"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#fff0f6"><link rel="canonical" href="{esc(canonical)}"><link rel="alternate" hreflang="ar" href="{esc(canonical)}"><link rel="alternate" hreflang="x-default" href="{esc(canonical)}"><link rel="manifest" href="{BASE}manifest.webmanifest"><link rel="stylesheet" href="{BASE}assets/css/theme-v10.css"><link rel="stylesheet" href="{BASE}assets/css/marshmallow-v12.css"><link rel="stylesheet" href="{BASE}assets/css/encyclopedia-v13.css"><meta property="og:locale" content="ar_AR"><meta property="og:type" content="article"><meta property="og:site_name" content="{ORG}"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(canonical)}"><meta property="og:image" content="{esc(image)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(description)}"><meta name="twitter:image" content="{esc(image)}"><script type="application/ld+json">{json.dumps(schema, ensure_ascii=False, separators=(',', ':'))}</script>'''
+    image = BASE + "assets/brand/social-card.svg"
+    keyword_text = ", ".join(dict.fromkeys(str(value).strip() for value in keywords if str(value).strip()))
+    return f'''<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{esc(title)}</title><meta name="description" content="{esc(description)}"><meta name="keywords" content="{esc(keyword_text)}"><meta name="author" content="{ORG}"><meta name="application-name" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة"><meta name="subject" content="علم النفس والصحة النفسية والتربية الدامجة"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="bingbot" content="index,follow,max-image-preview:large,max-snippet:-1"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="theme-color" content="#fff0f6"><link rel="canonical" href="{esc(canonical)}"><link rel="alternate" hreflang="ar" href="{esc(canonical)}"><link rel="alternate" hreflang="x-default" href="{esc(canonical)}"><link rel="manifest" href="{BASE}manifest.webmanifest"><link rel="stylesheet" href="{BASE}assets/css/theme-v10.css"><link rel="stylesheet" href="{BASE}assets/css/marshmallow-v12.css"><link rel="stylesheet" href="{BASE}assets/css/encyclopedia-v13.css"><meta property="og:locale" content="ar_AR"><meta property="og:type" content="article"><meta property="og:site_name" content="{ORG}"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(canonical)}"><meta property="og:image" content="{esc(image)}"><meta property="og:image:alt" content="بطاقة منصة الصحة النفسية وذوي الاحتياجات الخاصة"><meta property="article:modified_time" content="{TODAY}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(description)}"><meta name="twitter:image" content="{esc(image)}"><meta name="twitter:image:alt" content="بطاقة منصة الصحة النفسية وذوي الاحتياجات الخاصة"><script type="application/ld+json">{json.dumps(schema, ensure_ascii=False, separators=(',', ':'))}</script>'''
 
 
 def source_links(sources: list[tuple[str, str]]) -> str:
@@ -266,18 +280,115 @@ def concept_html(item: dict[str, Any], related: list[dict[str, Any]]) -> tuple[s
     facet = item["facet"]
     profile = profile_for(domain, item["category"])
     sources = choose_sources(domain, facet["key"], item["category"])
-    description = f"شرح عربي موسع وموثوق عن {item['ar']}، يشمل التعريف والفروق والمظاهر والتقييم والخطوات العملية ومتى تُطلب المساعدة."
+    intent = search_intent_for(item)
+    title = seo_title(item)
+    description = meta_description(item)
     canonical = BASE + f"encyclopedia/{item['slug']}/"
-    keywords = [domain, item["domain_en"], facet["ar"], item["category"], "علم النفس", "الصحة النفسية"]
-    schema = {"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":BASE+"#organization","name":ORG,"url":BASE},{"@type":"DefinedTerm","@id":canonical+"#term","name":item["ar"],"alternateName":item["en"],"description":description,"inDefinedTermSet":BASE+"encyclopedia/","url":canonical},{"@type":"WebPage","@id":canonical+"#webpage","url":canonical,"name":item["ar"],"description":description,"inLanguage":"ar","dateModified":TODAY,"isPartOf":{"@id":BASE+"#website"},"about":{"@id":canonical+"#term"},"publisher":{"@id":BASE+"#organization"},"citation":[url for _,url in sources]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"الرئيسية","item":BASE},{"@type":"ListItem","position":2,"name":"الموسوعة","item":BASE+"encyclopedia/"},{"@type":"ListItem","position":3,"name":domain,"item":BASE+f"hubs/topic-{item['domain_index']:03d}/"},{"@type":"ListItem","position":4,"name":facet["ar"],"item":canonical}]}]}
+    keywords = [
+        domain,
+        item["domain_en"],
+        facet["ar"],
+        facet["en"],
+        item["category"],
+        intent["primary_query"],
+        *intent["secondary_queries"][:3],
+        "علم النفس",
+        "الصحة النفسية",
+    ]
+    faq = faq_items(item, profile, intent)
+    breadcrumb_id = canonical + "#breadcrumb"
+    faq_id = canonical + "#faq"
+    article_id = canonical + "#article"
+    schema = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Organization",
+                "@id": BASE + "#organization",
+                "name": ORG,
+                "url": BASE,
+                "logo": {"@type": "ImageObject", "url": BASE + "assets/brand/logo-mark.svg"},
+            },
+            {
+                "@type": "WebSite",
+                "@id": BASE + "#website",
+                "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+                "url": BASE,
+                "inLanguage": "ar",
+                "publisher": {"@id": BASE + "#organization"},
+            },
+            {
+                "@type": "DefinedTerm",
+                "@id": canonical + "#term",
+                "name": item["ar"],
+                "alternateName": item["en"],
+                "description": description,
+                "inDefinedTermSet": BASE + "encyclopedia/",
+                "url": canonical,
+            },
+            {
+                "@type": "Article",
+                "@id": article_id,
+                "headline": title,
+                "name": item["ar"],
+                "description": description,
+                "url": canonical,
+                "inLanguage": "ar",
+                "dateModified": TODAY,
+                "author": {"@id": BASE + "#organization"},
+                "publisher": {"@id": BASE + "#organization"},
+                "mainEntityOfPage": {"@id": canonical + "#webpage"},
+                "about": {"@id": canonical + "#term"},
+                "keywords": keywords,
+                "citation": [url for _, url in sources],
+            },
+            {
+                "@type": "WebPage",
+                "@id": canonical + "#webpage",
+                "url": canonical,
+                "name": title,
+                "description": description,
+                "inLanguage": "ar",
+                "dateModified": TODAY,
+                "isPartOf": {"@id": BASE + "#website"},
+                "about": {"@id": canonical + "#term"},
+                "mainEntity": [{"@id": article_id}, {"@id": faq_id}],
+                "breadcrumb": {"@id": breadcrumb_id},
+                "publisher": {"@id": BASE + "#organization"},
+                "audience": {"@type": "Audience", "audienceType": intent["audience"]},
+                "keywords": keywords,
+                "citation": [url for _, url in sources],
+            },
+            {
+                "@type": "BreadcrumbList",
+                "@id": breadcrumb_id,
+                "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "الرئيسية", "item": BASE},
+                    {"@type": "ListItem", "position": 2, "name": "الموسوعة", "item": BASE + "encyclopedia/"},
+                    {"@type": "ListItem", "position": 3, "name": domain, "item": BASE + f"hubs/topic-{item['domain_index']:03d}/"},
+                    {"@type": "ListItem", "position": 4, "name": facet["ar"], "item": canonical},
+                ],
+            },
+            {
+                "@type": "FAQPage",
+                "@id": faq_id,
+                "mainEntity": [
+                    {"@type": "Question", "name": question, "acceptedAnswer": {"@type": "Answer", "text": answer}}
+                    for question, answer in faq
+                ],
+            },
+        ],
+    }
     observations = profile["observations"] + [f"في زاوية {facet['ar']}، اسأل تحديدًا: {question}" for question in facet["questions"]]
     obs_html = "".join(f"<li>{esc(x)}</li>" for x in observations)
     distinctions = profile["distinctions"] + [f"عند تناول {facet['ar']} في {domain}، يجب التمييز بين المعلومات التثقيفية وبين قرار التقييم أو العلاج الفردي."]
     distinction_html = "".join(f"<li>{esc(x)}</li>" for x in distinctions)
-    actions = [f"{action} طبّق ذلك في سياق {domain} مع مراعاة العمر والبيئة والهدف." for action in facet["actions"]] + [f"حدّد أثر {domain} على مجال واحد قابل للقياس مثل النوم أو الدراسة أو العمل أو العلاقات.",f"راجع التغير في {domain} خلال فترة زمنية واضحة بدل الحكم من موقف منفرد.","عند وجود خطر على السلامة أو تدهور سريع أو تعطيل شديد، تكون الأولوية للتواصل مع خدمة طوارئ محلية أو مختص مؤهل."]
+    actions = [f"{action} طبّق ذلك في سياق {domain} مع مراعاة العمر والبيئة والهدف." for action in facet["actions"]] + [f"حدّد أثر {domain} على مجال واحد قابل للقياس مثل النوم أو الدراسة أو العمل أو العلاقات.", f"راجع التغير في {domain} خلال فترة زمنية واضحة بدل الحكم من موقف منفرد.", "عند وجود خطر على السلامة أو تدهور سريع أو تعطيل شديد، تكون الأولوية للتواصل مع خدمة طوارئ محلية أو مختص مؤهل."]
     actions_html = "".join(f"<li>{esc(x)}</li>" for x in actions)
     related_html = "".join(f'<li><a href="{BASE}encyclopedia/{x["slug"]}/">{esc(x["ar"])}</a><span lang="en" dir="ltr"> — {esc(x["en"])}</span></li>' for x in related)
-    body = f'''<!doctype html><html lang="ar" dir="rtl"><head>{head(item['ar'] + ' | ' + ORG, description, f"encyclopedia/{item['slug']}/", schema, keywords)}</head><body><main class="ency-v13" data-v13-page="concept"><nav class="ency-v13__crumbs" aria-label="مسار التنقل"><a href="{BASE}">الرئيسية</a> ← <a href="{BASE}encyclopedia/">الموسوعة</a> ← <a href="{BASE}hubs/topic-{item['domain_index']:03d}/">{esc(domain)}</a> ← {esc(facet['ar'])}</nav><header class="ency-v13__hero"><div class="ency-v13__meta"><span class="ency-v13__tag">{esc(item['category'])}</span><span class="ency-v13__tag">مراجعة: {TODAY}</span><span class="ency-v13__tag">المدخل {item['id']} من 2000</span></div><h1>{esc(item['ar'])}</h1><p lang="en" dir="ltr">{esc(item['en'])}</p><p>{esc(profile['definition'])} وتركز هذه الصفحة على <strong>{esc(facet['focus'])}</strong>.</p></header><article class="ency-v13__article" data-v13-article="1"><section><h2>تعريف دقيق وسياق الاستخدام</h2><p>{esc(profile['definition'])}</p><p>عند الحديث عن <strong>{esc(item['ar'])}</strong> لا يكفي ذكر الاسم أو علامة واحدة. الفهم المسؤول يجمع بين ما يحدث، ومتى بدأ، وكم يتكرر، ومدى شدته، وما إذا كان يغيّر أداء الشخص أو أمانه أو قدرته على الدراسة والعمل والتواصل. زاوية <strong>{esc(facet['ar'])}</strong> تضيف سؤالًا محددًا: {esc(facet['focus'])}.</p></section><section><h2>{esc(facet['section'])}: ما الذي ينبغي ملاحظته؟</h2><p>تختلف صورة {esc(domain)} بين الأشخاص، وقد تتأثر بالعمر والصحة والنوم والضغط والبيئة والخبرة السابقة. لذلك تُستخدم النقاط التالية كمنظم للملاحظة والحوار، لا كقائمة تشخيص ذاتي:</p><ul>{obs_html}</ul></section><section><h2>الفروق التي تمنع الخلط</h2><p>تزداد دقة المعرفة عندما نعرف حدود المصطلح وما الذي قد يشبهه. في موضوع {esc(domain)}، تساعد الفروق الآتية على تجنب التعميم والوصم:</p><ul>{distinction_html}</ul></section><section><h2>كيف يُجمع فهم متكامل؟</h2><p>يبدأ الفهم بخط زمني: ما الوضع المعتاد؟ ما التغير الجديد؟ ما المواقف التي تزيد أو تخفف الصعوبة؟ ثم تُراجع الوظائف المهمة مثل النوم والتعلم والعمل والعلاقات والرعاية الذاتية. في الأطفال أو المراهقين، تكون معلومات الأسرة والمدرسة والتاريخ النمائي مهمة، بينما يحتاج التغير المفاجئ أو الجسدي إلى مراجعة طبية مناسبة.</p><div class="ency-v13__callout"><strong>قاعدة عملية:</strong> لا توجد نتيجة إلكترونية أو صفحة واحدة تستطيع تشخيص {esc(domain)}. المقاييس قد تدعم الفحص والمتابعة، لكن التشخيص أو الخطة العلاجية قرار مهني يعتمد على معلومات متعددة.</div></section><section><h2>خطوات عملية مرتبطة بـ{esc(facet['ar'])}</h2><ol>{actions_html}</ol></section><section><h2>دور الأسرة أو شبكة الدعم</h2><p>الدعم المفيد يجمع بين الاستماع والاحترام والحدود. يمكن للأسرة أن تساعد في تنظيم المواعيد، توثيق التغير، تخفيف العوائق اليومية، ودعم الالتزام بالخطة دون تحويل الشخص إلى “حالة” أو مراقبته بصورة مهينة. عند الأطفال وذوي الاحتياجات الخاصة، يُفضّل بناء خطة مشتركة توضح نقاط القوة والاحتياجات وطريقة التواصل وما الذي يهدئ وما الذي يفاقم الضغط.</p><p>لا ينبغي تفسير العنف أو الإكراه أو الإهمال على أنه مجرد عرض نفسي. في وجود خطر مباشر تكون السلامة وطلب المساعدة المحلية العاجلة أولوية.</p></section><section><h2>متى تكون المساعدة المهنية مهمة؟</h2><ul><li>عندما يستمر الأثر أو يتفاقم بدل التحسن.</li><li>عند تعطّل النوم أو الدراسة أو العمل أو العلاقات أو الرعاية الذاتية.</li><li>عند ظهور سلوك خطِر أو أفكار إيذاء النفس أو الآخرين أو فقد الاتصال بالواقع.</li><li>عندما تكون الصورة معقدة أو تتداخل مع حالة طبية أو دوائية أو نمائية.</li></ul></section><section><h2>أسئلة تساعدك قبل الموعد</h2><details><summary>ما أهم المعلومات التي أدوّنها؟</summary><p>وقت البداية، التكرار، الشدة، المحفزات، ما الذي يخففها، أثرها اليومي، الأدوية والحالة الصحية، والتغيرات التي لاحظها أشخاص موثوقون.</p></details><details><summary>كيف أعرف أن الخطة مفيدة؟</summary><p>حدد مؤشرات عملية مثل تحسن النوم أو الحضور أو القدرة على إكمال مهمة أو انخفاض التجنب، وراجعها دوريًا مع المختص بدل الاعتماد على الشعور العام وحده.</p></details><details><summary>هل يمكن الاكتفاء بالمعلومات العامة؟</summary><p>المعلومات العامة تساعد في الفهم والاستعداد، لكنها لا تكفي عندما توجد معاناة مستمرة أو تعطيل أو خطر أو حاجة إلى تشخيص وعلاج فردي.</p></details></section><section><h2>موضوعات مرتبطة</h2><ul>{related_html}</ul></section><section class="ency-v13__sources"><h2>مصادر رسمية للمراجعة</h2><p>تم ربط المدخل بمصادر مؤسسية عامة تساعد على التحقق والتوسع. قد تتغير التوصيات بمرور الوقت، لذلك تُراجع المصادر الأصلية عند اتخاذ قرار صحي.</p><ul>{source_links(sources)}</ul></section><aside class="ency-v13__callout ency-v13__warning"><strong>حدود المحتوى:</strong> هذا شرح تثقيفي منظم، وليس تشخيصًا أو وصفة علاجية أو بديلًا عن الطبيب أو الأخصائي النفسي المرخّص.</aside></article></main><script src="{BASE}assets/js/app-v10.js" defer></script><script src="{BASE}assets/js/lab-v12.js" defer></script></body></html>'''
+    intent_queries_html = "".join(f"<li>{esc(query)}</li>" for query in intent["all_queries"])
+    faq_html = "".join(f'<article><h3>{esc(question)}</h3><p>{esc(answer)}</p></article>' for question, answer in faq)
+    body = f'''<!doctype html><html lang="ar" dir="rtl"><head>{head(title, description, f"encyclopedia/{item['slug']}/", schema, keywords)}</head><body><main class="ency-v13" data-v13-page="concept" data-encyclopedia-seo="v1"><nav class="ency-v13__crumbs" aria-label="مسار التنقل"><a href="{BASE}">الرئيسية</a> ← <a href="{BASE}encyclopedia/">الموسوعة</a> ← <a href="{BASE}hubs/topic-{item['domain_index']:03d}/">{esc(domain)}</a> ← {esc(facet['ar'])}</nav><header class="ency-v13__hero"><div class="ency-v13__meta"><span class="ency-v13__tag">{esc(item['category'])}</span><span class="ency-v13__tag">مراجعة: {TODAY}</span><span class="ency-v13__tag">المدخل {item['id']} من 2000</span><span class="ency-v13__tag">نية البحث: {esc(intent['type_ar'])}</span></div><h1>{esc(item['ar'])}</h1><p lang="en" dir="ltr">{esc(item['en'])}</p><p>{esc(profile['definition'])} وتركز هذه الصفحة على <strong>{esc(facet['focus'])}</strong>.</p></header><article class="ency-v13__article" data-v13-article="1"><section><h2>تعريف دقيق وسياق الاستخدام</h2><p>{esc(profile['definition'])}</p><p>عند الحديث عن <strong>{esc(item['ar'])}</strong> لا يكفي ذكر الاسم أو علامة واحدة. الفهم المسؤول يجمع بين ما يحدث، ومتى بدأ، وكم يتكرر، ومدى شدته، وما إذا كان يغيّر أداء الشخص أو أمانه أو قدرته على الدراسة والعمل والتواصل. زاوية <strong>{esc(facet['ar'])}</strong> تضيف سؤالًا محددًا: {esc(facet['focus'])}.</p></section><section class="ency-v13__intent" id="search-intent" {SEARCH_INTENT_MARKER}><h2>نوايا البحث التي تجيب عنها الصفحة</h2><p>صُممت صفحة {esc(item['ar'])} لتلبية نية بحث <strong>{esc(intent['type_ar'])}</strong> في مرحلة <strong>{esc(intent['stage'])}</strong>. هدفها في موضوع {esc(domain)} وزاوية {esc(facet['ar'])} هو {esc(intent['goal'])} دون تحويل المعلومات العامة إلى تشخيص أو خطة فردية.</p><div class="ency-v13__intent-grid"><div class="ency-v13__intent-card"><h3>السؤال الرئيسي</h3><p class="ency-v13__intent-query">{esc(intent['primary_query'])}</p></div><div class="ency-v13__intent-card"><h3>نطاق الإجابة</h3><p>{esc(intent['answer_scope'])}</p></div><div class="ency-v13__intent-card"><h3>لمن تفيد؟</h3><p>{esc('، '.join(intent['audience']))}</p></div></div><h3>عبارات بحث مرتبطة</h3><ul>{intent_queries_html}</ul></section><section><h2>{esc(facet['section'])}: ما الذي ينبغي ملاحظته؟</h2><p>تختلف صورة {esc(domain)} بين الأشخاص، وقد تتأثر بالعمر والصحة والنوم والضغط والبيئة والخبرة السابقة. لذلك تُستخدم النقاط التالية كمنظم للملاحظة والحوار، لا كقائمة تشخيص ذاتي:</p><ul>{obs_html}</ul></section><section><h2>الفروق التي تمنع الخلط</h2><p>تزداد دقة المعرفة عندما نعرف حدود المصطلح وما الذي قد يشبهه. في موضوع {esc(domain)}، تساعد الفروق الآتية على تجنب التعميم والوصم:</p><ul>{distinction_html}</ul></section><section><h2>كيف يُجمع فهم متكامل؟</h2><p>في تقييم {esc(item['ar'])} يبدأ الفهم بخط زمني: ما الوضع المعتاد؟ ما التغير الجديد؟ ما المواقف التي تزيد أو تخفف الصعوبة؟ ثم تُراجع الوظائف المهمة مثل النوم والتعلم والعمل والعلاقات والرعاية الذاتية. وتختلف أهمية هذه المعلومات في زاوية {esc(facet['ar'])} بحسب العمر والسياق؛ ففي الأطفال أو المراهقين تكون معلومات الأسرة والمدرسة والتاريخ النمائي مهمة، بينما يحتاج التغير المفاجئ أو الجسدي إلى مراجعة طبية مناسبة.</p><div class="ency-v13__callout"><strong>قاعدة عملية:</strong> لا توجد نتيجة إلكترونية أو صفحة واحدة تستطيع تشخيص {esc(domain)}. المقاييس قد تدعم الفحص والمتابعة، لكن التشخيص أو الخطة العلاجية قرار مهني يعتمد على معلومات متعددة.</div></section><section><h2>خطوات عملية مرتبطة بـ{esc(facet['ar'])}</h2><ol>{actions_html}</ol></section><section><h2>دور الأسرة أو شبكة الدعم</h2><p>في سياق {esc(domain)} وخصوصًا عند مناقشة {esc(facet['ar'])}، يجمع الدعم المفيد بين الاستماع والاحترام والحدود. يمكن للأسرة أن تساعد في تنظيم المواعيد، توثيق التغير، تخفيف العوائق اليومية، ودعم الالتزام بالخطة دون تحويل الشخص إلى “حالة” أو مراقبته بصورة مهينة. عند الأطفال وذوي الاحتياجات الخاصة، يُفضّل بناء خطة مشتركة توضح نقاط القوة والاحتياجات وطريقة التواصل وما الذي يهدئ وما الذي يفاقم الضغط.</p><p>مهما كان تفسير {esc(domain)} أو زاوية {esc(facet['ar'])}، لا ينبغي تفسير العنف أو الإكراه أو الإهمال على أنه مجرد عرض نفسي. في وجود خطر مباشر تكون السلامة وطلب المساعدة المحلية العاجلة أولوية.</p></section><section><h2>متى تكون المساعدة المهنية مهمة؟</h2><ul><li>عندما يستمر الأثر أو يتفاقم بدل التحسن.</li><li>عند تعطّل النوم أو الدراسة أو العمل أو العلاقات أو الرعاية الذاتية.</li><li>عند ظهور سلوك خطِر أو أفكار إيذاء النفس أو الآخرين أو فقد الاتصال بالواقع.</li><li>عندما تكون الصورة معقدة أو تتداخل مع حالة طبية أو دوائية أو نمائية.</li></ul></section><section class="ency-v13__faq" id="faq" {FAQ_MARKER}><h2>أسئلة شائعة مرتبطة بنية البحث</h2>{faq_html}</section><section><h2>أسئلة تساعدك قبل الموعد</h2><details><summary>ما أهم المعلومات التي أدوّنها؟</summary><p>قبل موعد يتعلق بـ{esc(item['ar'])} دوّن وقت البداية، التكرار، الشدة، المحفزات، ما الذي يخففها، أثرها اليومي، الأدوية والحالة الصحية، والتغيرات التي لاحظها أشخاص موثوقون.</p></details><details><summary>كيف أعرف أن الخطة مفيدة؟</summary><p>في متابعة {esc(domain)} من زاوية {esc(facet['ar'])} حدد مؤشرات عملية مثل تحسن النوم أو الحضور أو القدرة على إكمال مهمة أو انخفاض التجنب، وراجعها دوريًا مع المختص بدل الاعتماد على الشعور العام وحده.</p></details><details><summary>هل يمكن الاكتفاء بالمعلومات العامة؟</summary><p>المعلومات العامة حول {esc(item['ar'])} تساعد في الفهم والاستعداد، لكنها لا تكفي عندما توجد معاناة مستمرة أو تعطيل أو خطر أو حاجة إلى تشخيص وعلاج فردي.</p></details></section><section><h2>موضوعات مرتبطة</h2><ul>{related_html}</ul></section><section class="ency-v13__sources"><h2>مصادر رسمية للمراجعة</h2><p>تم ربط مدخل {esc(item['ar'])} بمصادر مؤسسية عامة تساعد على التحقق والتوسع. قد تتغير التوصيات بمرور الوقت، لذلك تُراجع المصادر الأصلية عند اتخاذ قرار صحي متعلق بـ{esc(domain)}.</p><ul>{source_links(sources)}</ul></section><aside class="ency-v13__callout ency-v13__warning"><strong>حدود المحتوى:</strong> هذا شرح تثقيفي منظم، وليس تشخيصًا أو وصفة علاجية أو بديلًا عن الطبيب أو الأخصائي النفسي المرخّص.</aside></article></main><script src="{BASE}assets/js/app-v10.js" defer></script><script src="{BASE}assets/js/lab-v12.js" defer></script></body></html>'''
     return body, description
 
 
@@ -306,14 +417,38 @@ def build() -> dict[str, Any]:
     domain_map = by_domain
 
     descriptions: list[str] = []
+    seo_titles: list[str] = []
+    primary_queries: list[str] = []
     concept_urls: list[str] = []
     article_hashes: set[str] = set()
     long_paragraphs: Counter[str] = Counter()
+    seo_complete_pages = 0
+    search_intent_sections = 0
+    faq_schema_pages = 0
     min_chars = 10**9
     for item in items:
         related = related_for(item, by_domain, by_facet, domain_map)
         markup, description = concept_html(item, related)
+        intent = search_intent_for(item)
         descriptions.append(description)
+        seo_titles.append(seo_title(item))
+        primary_queries.append(intent["primary_query"])
+        required_fragments = (
+            '<meta name="description"', '<meta name="robots"', '<meta name="googlebot"',
+            '<link rel="canonical"', 'hreflang="ar"', 'hreflang="x-default"',
+            'property="og:title"', 'property="og:image:alt"', 'name="twitter:image:alt"',
+            'data-encyclopedia-seo="v1"', SEARCH_INTENT_MARKER, FAQ_MARKER,
+            '"@type":"DefinedTerm"', '"@type":"Article"',
+            '"@type":"WebPage"', '"@type":"BreadcrumbList"', '"@type":"FAQPage"',
+        )
+        missing = [fragment for fragment in required_fragments if fragment not in markup]
+        if missing:
+            raise SystemExit(f"Incomplete encyclopedia SEO for {item['slug']}: {missing}")
+        if markup.count(SEARCH_INTENT_MARKER) != 1 or markup.count(FAQ_MARKER) != 1:
+            raise SystemExit(f"Search-intent marker count failed: {item['slug']}")
+        seo_complete_pages += 1
+        search_intent_sections += 1
+        faq_schema_pages += 1
         path = SITE/"encyclopedia"/item["slug"]/"index.html"
         write(path, markup)
         concept_urls.append(BASE+f"encyclopedia/{item['slug']}/")
@@ -366,10 +501,37 @@ def build() -> dict[str, Any]:
     if len(hub_urls) != 200:
         raise SystemExit(f"Expected 200 hubs, got {len(hub_urls)}")
 
-    api_items = [{"id":x["id"],"slug":x["slug"],"ar":x["ar"],"en":x["en"],"domain":x["domain_ar"],"category":x["category"],"facet":x["facet"]["ar"],"url":BASE+f"encyclopedia/{x['slug']}/","reviewed_at":TODAY} for x in items]
-    write(SITE/"api/encyclopedia-v13.json", json.dumps({"version":13,"count":2000,"items":api_items}, ensure_ascii=False, separators=(",",":")))
+    api_items = []
+    csv_items = []
+    for x in items:
+        intent = search_intent_for(x)
+        record = {
+            "id": x["id"], "slug": x["slug"], "ar": x["ar"], "en": x["en"],
+            "domain": x["domain_ar"], "category": x["category"], "facet": x["facet"]["ar"],
+            "url": BASE + f"encyclopedia/{x['slug']}/", "reviewed_at": TODAY,
+            "seo_title": seo_title(x), "meta_description": meta_description(x),
+            "search_intent": intent,
+        }
+        api_items.append(record)
+        csv_items.append({
+            "id": x["id"], "slug": x["slug"], "ar": x["ar"], "en": x["en"],
+            "domain": x["domain_ar"], "category": x["category"], "facet": x["facet"]["ar"],
+            "url": record["url"], "reviewed_at": TODAY, "seo_title": record["seo_title"],
+            "meta_description": record["meta_description"],
+            "search_intent_type": intent["type"], "primary_query": intent["primary_query"],
+            "secondary_queries": " | ".join(intent["secondary_queries"]),
+        })
+    write(SITE/"api/encyclopedia-v13.json", json.dumps({"version":13,"count":EXPECTED_DETAIL_PAGES,"seo_contract":"encyclopedia-search-intent-v1","items":api_items}, ensure_ascii=False, separators=(",",":")))
+    write(SITE/"api/encyclopedia-seo-search-intent-v1.json", json.dumps({
+        "version": 1, "status": "passed", "pages": EXPECTED_DETAIL_PAGES,
+        "unique_titles": len(set(seo_titles)), "unique_descriptions": len(set(descriptions)),
+        "unique_primary_queries": len(set(primary_queries)), "search_intent_sections": search_intent_sections,
+        "faq_schema_pages": faq_schema_pages, "seo_complete_pages": seo_complete_pages,
+        "items": [{"slug": item["slug"], "url": item["url"], "seo_title": item["seo_title"], "meta_description": item["meta_description"], "search_intent": item["search_intent"]} for item in api_items],
+    }, ensure_ascii=False, separators=(",",":")))
+    (SITE/"downloads").mkdir(parents=True, exist_ok=True)
     with (SITE/"downloads/encyclopedia-2000-v13.csv").open("w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=list(api_items[0].keys())); writer.writeheader(); writer.writerows(api_items)
+        writer = csv.DictWriter(f, fieldnames=list(csv_items[0].keys())); writer.writeheader(); writer.writerows(csv_items)
     cards = "".join(f'<article class="ency-v13__card ency-item" data-domain="{esc(x["domain_ar"])}" data-category="{esc(x["category"])}" data-q="{esc(normalize(x["ar"]+" "+x["en"]+" "+x["category"]+" "+x["facet"]["ar"]))}"><span class="ency-v13__tag">{esc(x["category"])}</span><h2><a href="{BASE}encyclopedia/{x["slug"]}/">{esc(x["ar"])}</a></h2><p lang="en" dir="ltr">{esc(x["en"])}</p></article>' for x in items)
     domain_options = "".join(f'<option value="{esc(x)}">{esc(x)}</option>' for x in by_domain)
     category_options = "".join(f'<option value="{esc(x)}">{esc(x)}</option>' for x in sorted({x["category"] for x in items}))
@@ -397,11 +559,17 @@ def build() -> dict[str, Any]:
     if duplicates:
         sample = next(iter(duplicates.items()))
         raise SystemExit(f"excessive repeated long paragraph: {sample}")
-    if len(set(descriptions)) != 2000:
+    if len(set(descriptions)) != EXPECTED_DETAIL_PAGES:
         raise SystemExit("duplicate meta descriptions")
+    if len(set(seo_titles)) != EXPECTED_DETAIL_PAGES:
+        raise SystemExit("duplicate SEO titles")
+    if len(set(primary_queries)) != EXPECTED_DETAIL_PAGES:
+        raise SystemExit("duplicate primary search-intent queries")
+    if seo_complete_pages != EXPECTED_DETAIL_PAGES or search_intent_sections != EXPECTED_DETAIL_PAGES or faq_schema_pages != EXPECTED_DETAIL_PAGES:
+        raise SystemExit("incomplete encyclopedia SEO/search-intent coverage")
     if min_chars < 1800:
         raise SystemExit(f"article too short: minimum normalized chars {min_chars}")
-    report = {"version":13,"concept_pages":2000,"domain_hubs":100,"facet_hubs":20,"application_hubs":80,"hub_pages":200,"unique_titles":len({x['ar'] for x in items}),"unique_article_hashes":len(article_hashes),"unique_descriptions":len(set(descriptions)),"minimum_article_characters":min_chars,"repeated_long_paragraphs_over_25":len(duplicates),"old_boilerplate_removed":True,"generated":TODAY}
+    report = {"version":13,"concept_pages":EXPECTED_DETAIL_PAGES,"domain_hubs":100,"facet_hubs":20,"application_hubs":80,"hub_pages":200,"unique_titles":len({x['ar'] for x in items}),"unique_seo_titles":len(set(seo_titles)),"unique_article_hashes":len(article_hashes),"unique_descriptions":len(set(descriptions)),"unique_primary_queries":len(set(primary_queries)),"seo_complete_pages":seo_complete_pages,"search_intent_sections":search_intent_sections,"faq_schema_pages":faq_schema_pages,"minimum_article_characters":min_chars,"repeated_long_paragraphs_over_25":len(duplicates),"old_boilerplate_removed":True,"generated":TODAY}
     write(SITE/"api/encyclopedia-audit-v13.json", json.dumps(report, ensure_ascii=False, indent=2))
     return report
 
