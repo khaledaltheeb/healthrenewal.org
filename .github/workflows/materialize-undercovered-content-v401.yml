@@ -8,6 +8,7 @@ on:
       - "scripts/publish_undercovered_content_v401.py"
       - "scripts/publish_undercovered_content_v402.py"
       - "scripts/publish_undercovered_content_v403.py"
+      - "scripts/publish_undercovered_content_v404.py"
       - "scripts/publish_special_needs_guides_v217.py"
       - "tests/test_undercovered_content_v401.py"
       - ".github/workflows/materialize-undercovered-content-v401.yml"
@@ -37,6 +38,7 @@ jobs:
           python -m py_compile scripts/publish_undercovered_content_v401.py
           python -m py_compile scripts/publish_undercovered_content_v402.py
           python -m py_compile scripts/publish_undercovered_content_v403.py
+          python -m py_compile scripts/publish_undercovered_content_v404.py
           python -m unittest -v tests.test_undercovered_content_v401
       - name: Generate one hundred static pages
         run: python scripts/publish_undercovered_content_v401.py . > /tmp/undercovered-v401-report.json
