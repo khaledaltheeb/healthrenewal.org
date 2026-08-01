@@ -1,0 +1,313 @@
+name: Release undercovered v401 Pages from issue
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  actions: read
+  contents: write
+  issues: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: force-undercovered-v401-pages-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.event.issue.title == '[release] deploy undercovered v401 pages 2026-08-01'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate final v403 corpus
+        id: corpus
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('api/undercovered-content-v401.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed'
+          assert report['engine_revision'] == 403
+          assert report['page_count'] == 100
+          assert report['unique_routes'] == 100
+          assert report['minimum_words'] >= 2700
+          assert report['minimum_h2'] >= 20
+          assert report['minimum_citations'] >= 3
+          assert report['generic_placeholder_pages'] == 0
+          assert report['quality_gates']['specialized_safety_checks']
+          assert report['quality_gates']['stable_sitemap_report']
+          assert report['quality_gates']['stable_hub_whitespace']
+          for route in report['routes']:
+              page = Path(route) / 'index.html'
+              assert page.is_file(), route
+              source = page.read_text(encoding='utf-8')
+              assert 'data-content-engine="v403"' in source, route
+              assert 'حدود الاستخدام والقرار الآمن' in source, route
+          print(json.dumps({'pageCount': 100, 'totalWords': report['total_words'], 'engineRevision': 403}, ensure_ascii=False))
+          PY
+
+      - name: Select latest validated production artifact
+        id: artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl -fsS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" \
+            -o /tmp/artifacts.json
+          python - <<'PY'
+          import json, os
+          artifacts = [item for item in json.load(open('/tmp/artifacts.json', encoding='utf-8')).get('artifacts', []) if not item.get('expired') and item.get('workflow_run', {}).get('id')]
+          if not artifacts:
+              raise SystemExit('No active validated-production-site artifact found')
+          selected = max(artifacts, key=lambda item: item.get('created_at', ''))
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f"run_id={selected['workflow_run']['id']}\n")
+              output.write(f"artifact_id={selected['id']}\n")
+              output.write(f"created_at={selected.get('created_at', '')}\n")
+          print({'artifact_id': selected['id'], 'run_id': selected['workflow_run']['id'], 'created_at': selected.get('created_at')})
+          PY
+
+      - name: Download validated production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.artifact.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Overlay v403 pages hubs and discovery files
+        run: |
+          set -euo pipefail
+          test -f _site/index.html
+          mkdir -p _site/special-needs _site/sectors _site/api _site/assets/platform
+          rm -rf _site/special-needs/practical
+          cp -a special-needs/practical _site/special-needs/practical
+          cp special-needs/index.html _site/special-needs/index.html
+          rm -rf _site/learning-paths
+          cp -a learning-paths _site/learning-paths
+          for sector in child family home; do
+            mkdir -p "_site/sectors/${sector}"
+            rm -rf "_site/sectors/${sector}/guides"
+            cp -a "sectors/${sector}/guides" "_site/sectors/${sector}/guides"
+            cp "sectors/${sector}/index.html" "_site/sectors/${sector}/index.html"
+          done
+          cp api/undercovered-content-v401.json _site/api/
+          cp sitemap-special-needs.xml sitemap-family-special-needs.xml sitemap-family-learning-paths.xml sitemap-family-main.xml sitemap-index.xml robots.txt CNAME _site/
+          cp assets/platform/platform-core.css assets/platform/platform-core.js _site/assets/platform/
+          test -d copyright && cp -a copyright _site/ || true
+          touch _site/.nojekyll
+
+      - name: Verify deployment tree
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          site = Path('_site')
+          report = json.loads((site / 'api/undercovered-content-v401.json').read_text(encoding='utf-8'))
+          assert report['page_count'] == 100 and report['engine_revision'] == 403
+          for route in report['routes']:
+              source = (site / route / 'index.html').read_text(encoding='utf-8')
+              assert 'data-content-engine="v403"' in source, route
+          checks = {
+              'sitemap-special-needs.xml': 60,
+              'sitemap-family-special-needs.xml': 60,
+              'sitemap-family-learning-paths.xml': 15,
+              'sitemap-family-main.xml': 25,
+          }
+          for filename, required in checks.items():
+              root = ET.parse(site / filename).getroot()
+              urls = [(node.text or '').strip() for node in root.findall('{*}url/{*}loc') if node.text]
+              assert len(urls) == len(set(urls)), filename
+              matches = [url for url in urls if '/special-needs/practical/' in url or '/learning-paths/' in url or '/sectors/child/guides/' in url or '/sectors/family/guides/' in url or '/sectors/home/guides/' in url]
+              assert len(matches) >= required, (filename, len(matches), required)
+          PY
+
+      - uses: actions/configure-pages@v5
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy GitHub Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Probe DNS and live endpoints without blocking deployment
+        id: probe
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -u
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          import urllib.parse
+          import urllib.request
+          from pathlib import Path
+
+          page_url = os.environ['PAGE_URL'].rstrip('/') + '/'
+          run_id = os.environ['RUN_ID']
+          result = {
+              'pageUrl': page_url,
+              'dnsGoogle': None,
+              'dnsCloudflare': None,
+              'reportReachable': False,
+              'samplePagesReachable': 0,
+              'sitemapReachable': False,
+              'robotsReachable': False,
+              'errors': [],
+          }
+
+          def fetch_json(url, timeout=15):
+              req = urllib.request.Request(url, headers={'User-Agent': 'healthrenewal-production-verifier/1.0', 'Cache-Control': 'no-cache'})
+              with urllib.request.urlopen(req, timeout=timeout) as response:
+                  return json.loads(response.read().decode('utf-8'))
+
+          def fetch_text(url, timeout=15):
+              req = urllib.request.Request(url, headers={'User-Agent': 'healthrenewal-production-verifier/1.0', 'Cache-Control': 'no-cache'})
+              with urllib.request.urlopen(req, timeout=timeout) as response:
+                  return response.read().decode('utf-8', errors='replace')
+
+          for label, endpoint in (
+              ('dnsGoogle', 'https://dns.google/resolve?name=healthrenewal.org&type=A'),
+              ('dnsCloudflare', 'https://cloudflare-dns.com/dns-query?name=healthrenewal.org&type=A'),
+          ):
+              try:
+                  req = urllib.request.Request(endpoint, headers={'Accept': 'application/dns-json', 'User-Agent': 'healthrenewal-production-verifier/1.0'})
+                  with urllib.request.urlopen(req, timeout=15) as response:
+                      payload = json.loads(response.read().decode('utf-8'))
+                  result[label] = {'Status': payload.get('Status'), 'Answer': payload.get('Answer', [])}
+              except Exception as exc:
+                  result['errors'].append(f'{label}: {exc}')
+
+          try:
+              report = fetch_json(page_url + 'api/undercovered-content-v401.json?release=' + run_id)
+              result['reportReachable'] = report.get('status') == 'passed' and report.get('engine_revision') == 403 and report.get('page_count') == 100
+          except Exception as exc:
+              result['errors'].append(f'report: {exc}')
+
+          samples = [
+              'special-needs/practical/functional-communication-profile/',
+              'special-needs/practical/self-injury-safety-response/',
+              'learning-paths/evidence-literacy/',
+              'sectors/child/guides/developmental-observation/',
+              'sectors/family/guides/family-strengths-map/',
+              'sectors/home/guides/home-accessibility-audit/',
+          ]
+          for path in samples:
+              try:
+                  source = fetch_text(page_url + path + '?release=' + run_id)
+                  if 'data-content-engine="v403"' in source and 'حدود الاستخدام والقرار الآمن' in source:
+                      result['samplePagesReachable'] += 1
+              except Exception as exc:
+                  result['errors'].append(f'{path}: {exc}')
+
+          try:
+              sitemap = fetch_text(page_url + 'sitemap-special-needs.xml?release=' + run_id)
+              result['sitemapReachable'] = 'special-needs/practical/functional-communication-profile/' in sitemap
+          except Exception as exc:
+              result['errors'].append(f'sitemap: {exc}')
+
+          try:
+              robots = fetch_text(page_url + 'robots.txt?release=' + run_id)
+              result['robotsReachable'] = 'sitemap-index.xml' in robots
+          except Exception as exc:
+              result['errors'].append(f'robots: {exc}')
+
+          Path('/tmp/live-probe.json').write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Commit Pages deployment receipt
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          RUN_ID: ${{ github.run_id }}
+          ARTIFACT_RUN_ID: ${{ steps.artifact.outputs.run_id }}
+          ARTIFACT_ID: ${{ steps.artifact.outputs.artifact_id }}
+          ARTIFACT_CREATED_AT: ${{ steps.artifact.outputs.created_at }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import datetime, json, os, subprocess
+          from pathlib import Path
+          report = json.loads(Path('api/undercovered-content-v401.json').read_text(encoding='utf-8'))
+          probe = json.loads(Path('/tmp/live-probe.json').read_text(encoding='utf-8'))
+          receipt = {
+              'schemaVersion': 2,
+              'passed': True,
+              'deploymentAccepted': True,
+              'verifiedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'site': os.environ['PAGE_URL'],
+              'workflowRunId': int(os.environ['RUN_ID']),
+              'workflowRunUrl': f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['RUN_ID']}",
+              'sourceCommit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              'baselineArtifactId': int(os.environ['ARTIFACT_ID']),
+              'baselineWorkflowRunId': int(os.environ['ARTIFACT_RUN_ID']),
+              'baselineArtifactCreatedAt': os.environ['ARTIFACT_CREATED_AT'],
+              'engineRevision': report['engine_revision'],
+              'pageCount': report['page_count'],
+              'totalWords': report['total_words'],
+              'minimumWords': report['minimum_words'],
+              'minimumSections': report['minimum_h2'],
+              'distribution': report['distribution'],
+              'liveProbe': probe,
+          }
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/undercovered-v401-live-production.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/undercovered-v401-live-production.json
+          git commit -m 'chore: record verified v401 Pages deployment [skip ci]'
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            git rebase --abort || true
+            sleep $((attempt * 3))
+          done
+          exit 1
+
+      - name: Comment release result
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ job.status }}';
+            const pageUrl = '${{ steps.deployment.outputs.page_url }}';
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = status === 'success'
+              ? `تم قبول نشر الصفحات المئة في GitHub Pages.\n\n- الحالة: success\n- رابط Pages: ${pageUrl}\n- التشغيل: ${runUrl}\n- التقرير: reports/undercovered-v401-live-production.json`
+              : `فشل مسار نشر الصفحات المئة قبل اكتمال الإيصال.\n\n- الحالة: ${status}\n- التشغيل: ${runUrl}`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
