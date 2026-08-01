@@ -197,9 +197,8 @@ def publish(site: Path) -> dict[str, Any]:
             "quality_gates",
         )
 
-    repaired_urls = normalize_canonical_sitemap_urls(site)
-    if repaired_urls:
-        report["canonical_sitemap_urls_repaired"] = repaired_urls
+    normalize_canonical_sitemap_urls(site)
+    report["canonical_sitemap_urls_normalized"] = True
 
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
