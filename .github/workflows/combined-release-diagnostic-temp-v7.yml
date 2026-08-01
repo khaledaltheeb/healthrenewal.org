@@ -1,0 +1,116 @@
+name: Temporary combined release stage diagnostics
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+jobs:
+  diagnose:
+    if: github.event.issue.title == '[diagnostic] combined release stages v7'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Source checks
+        id: source
+        shell: bash
+        run: |
+          set +e
+          python -m pip install --quiet pytest >/tmp/pip.log 2>&1
+          { node --check assets/platform/platform-core.js; node --check assets/platform/discoverability-cards.js; python -m pytest -q tests/test_discoverability_cards_loader_v1.py; } >/tmp/source.log 2>&1
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Download artifact
+        id: download
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: _artifact
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: 30701223192
+          github-token: ${{ github.token }}
+
+      - name: Inspect download and combine
+        id: combine
+        shell: bash
+        run: |
+          set +e
+          python - <<'PY' >/tmp/combine.log 2>&1
+          import shutil, json
+          from pathlib import Path
+          from xml.etree import ElementTree as ET
+          root=Path('.'); artifact=Path('_artifact'); site=Path('_site')
+          print('artifact files', [str(x) for x in artifact.rglob('*') if x.is_file()][:20])
+          tar=artifact/'artifact.tar'
+          assert tar.is_file(), tar
+          import tarfile
+          site.mkdir(exist_ok=True)
+          with tarfile.open(tar) as tf: tf.extractall(site)
+          baseline_html=sum(1 for _ in site.rglob('*.html'))
+          print('baseline_html',baseline_html)
+          assert baseline_html>=3600
+          suffixes={'.html','.htm','.xml','.json','.webmanifest','.txt','.js','.mjs','.css','.svg'}
+          skip_top={'.git','.github','node_modules','.venv','venv','dist','build','scripts','tests','docs','reports','content','.v10bundle','.generator-v6','_site','_artifact'}
+          skip_parts={'account-backend','backend','migrations'}
+          copied=[]
+          for source in root.rglob('*'):
+            if not source.is_file():continue
+            rel=source.relative_to(root)
+            if not rel.parts or rel.parts[0] in skip_top or any(x in skip_parts for x in rel.parts):continue
+            if rel.as_posix()=='deployment.json':continue
+            if source.suffix.lower() not in suffixes and source.name!='CNAME':continue
+            dest=site/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,dest);copied.append(rel.as_posix())
+          print('copied',len(copied))
+          required=['contact/index.html','family-guide/index.html','source-registry/index.html','team-and-partners/index.html','assets/platform/platform-core.js','assets/platform/discoverability-cards.js','special-needs/assistive-technology/index.html','provider-assessment-demo/training/index.html']
+          for rel in required:print('required',rel,(site/rel).is_file())
+          missing=[rel for rel in required if not (site/rel).is_file()]
+          assert not missing,missing
+          sitemap=site/'sitemap.xml';print('sitemap exists',sitemap.is_file(),'size',sitemap.stat().st_size if sitemap.is_file() else None)
+          rootxml=ET.parse(sitemap).getroot();urls=[n.text.strip() for n in rootxml.iter() if n.tag.split('}',1)[-1]=='loc' and n.text]
+          print('sitemap unique',len(set(urls)))
+          checks=['https://healthrenewal.org/contact/','https://healthrenewal.org/family-guide/','https://healthrenewal.org/source-registry/','https://healthrenewal.org/team-and-partners/']
+          for u in checks:print('url',u,u in urls)
+          assert len(set(urls))>=3600,len(set(urls))
+          assert all(u in urls for u in checks)
+          print('final_html',sum(1 for _ in site.rglob('*.html')))
+          PY
+          code=$?
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Report exact stages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          SOURCE_CODE: ${{ steps.source.outputs.code }}
+          DOWNLOAD_OUTCOME: ${{ steps.download.outcome }}
+          COMBINE_CODE: ${{ steps.combine.outputs.code }}
+        run: |
+          python - <<'PY' >/tmp/body.json
+          import json,os
+          def tail(p):
+            try:return open(p,encoding='utf-8',errors='replace').read()[-5000:]
+            except:return '(no log)'
+          body='## تشخيص مراحل الإصدار الموحّد\n\n'
+          body+=f"- المصدر والاختبارات: **code {os.environ.get('SOURCE_CODE')}**\n"
+          body+=f"- تنزيل الحزمة: **{os.environ.get('DOWNLOAD_OUTCOME')}**\n"
+          body+=f"- الاستخراج والدمج والخريطة: **code {os.environ.get('COMBINE_CODE')}**\n\n"
+          body+='### Source\n```\n'+tail('/tmp/source.log')+'\n```\n\n### Combine\n```\n'+tail('/tmp/combine.log')+'\n```'
+          print(json.dumps({'body':body},ensure_ascii=False))
+          PY
+          curl -fsSL -X POST -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" --data-binary @/tmp/body.json
