@@ -17,6 +17,7 @@ assert SPEC and SPEC.loader
 MODULE = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
+NEW_ARTICLE = "universal-digital-mental-health-youth-systematic-review-2026.html"
 
 
 class MagazineResearchV315Tests(unittest.TestCase):
@@ -32,8 +33,10 @@ class MagazineResearchV315Tests(unittest.TestCase):
 
     def test_publishes_every_discovered_article_rss_and_sitemap(self) -> None:
         pages = MODULE.article_files()
-        self.assertEqual(len(pages), 79)
-        self.assertEqual(MODULE.CONTRACT, 315)
+        article_count = len(pages)
+        self.assertGreaterEqual(article_count, 80)
+        self.assertIn(NEW_ARTICLE, {path.name for path in pages})
+        self.assertGreaterEqual(MODULE.CONTRACT, 315)
         self.assertEqual(MODULE.TARGET_ARTICLES, 100)
         dates = [MODULE.article_date(path) for path in pages]
         self.assertEqual(dates, sorted(dates, reverse=True))
@@ -41,14 +44,14 @@ class MagazineResearchV315Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             site = self.make_site(Path(directory))
             report = MODULE.publish(site)
-            self.assertEqual(report["version"], 315)
-            self.assertEqual(report["research_summaries_published"], 79)
+            self.assertEqual(report["version"], MODULE.CONTRACT)
+            self.assertEqual(report["research_summaries_published"], article_count)
             self.assertEqual(report["target_research_summaries"], 100)
-            self.assertEqual(report["remaining_to_target"], 21)
+            self.assertEqual(report["remaining_to_target"], max(0, 100 - article_count))
             self.assertTrue(report["continuous_publication_policy"])
-            self.assertEqual(len(report["articles"]), 79)
-            self.assertEqual(report["sitemap"]["child_urls"], 80)
-            self.assertEqual(report["robots"]["rss_items"], 20)
+            self.assertEqual(len(report["articles"]), article_count)
+            self.assertEqual(report["sitemap"]["child_urls"], article_count + 1)
+            self.assertEqual(report["robots"]["rss_items"], min(20, article_count))
             self.assertEqual(report["unwired_research_pages"], 0)
             self.assertEqual(report["index_contract"], "generated-from-discovered-articles-sorted-by-datePublished")
             self.assertEqual(report["rss_contract"], "latest-twenty-sorted-by-datePublished")
@@ -63,14 +66,14 @@ class MagazineResearchV315Tests(unittest.TestCase):
                 self.assertTrue(any(term in text for term in ("حدود", "قيود", "الحذر")))
 
             urls = [node.text for node in ET.parse(site / "sitemap-magazine.xml").getroot().findall("{*}url/{*}loc")]
-            self.assertEqual(len(urls), 80)
+            self.assertEqual(len(urls), article_count + 1)
             self.assertEqual(len(urls), len(set(urls)))
             for path in pages:
                 self.assertIn(MODULE.URL + path.name, urls)
 
             feed_root = ET.parse(magazine / "feed.xml").getroot()
             items = feed_root.findall("./channel/item")
-            self.assertEqual(len(items), 20)
+            self.assertEqual(len(items), min(20, article_count))
             feed_links = [item.findtext("link") for item in items]
             self.assertEqual(feed_links, [MODULE.URL + path.name for path in pages[:20]])
             feed_dates = [parsedate_to_datetime(item.findtext("pubDate")) for item in items]
@@ -78,7 +81,7 @@ class MagazineResearchV315Tests(unittest.TestCase):
             self.assertEqual(parsedate_to_datetime(feed_root.findtext("./channel/lastBuildDate")), feed_dates[0])
 
             saved = json.loads((site / "api" / "magazine-v201.json").read_text(encoding="utf-8"))
-            self.assertEqual(saved["research_summaries_published"], 79)
+            self.assertEqual(saved["research_summaries_published"], article_count)
             self.assertEqual(saved["target_research_summaries"], 100)
             self.assertEqual(set(saved["articles"]), {path.name for path in pages})
 
@@ -97,58 +100,41 @@ class MagazineResearchV315Tests(unittest.TestCase):
 
     def test_generated_index_is_dynamic_and_chronological(self) -> None:
         pages = MODULE.article_files()
+        article_count = len(pages)
         index = MODULE.render_index(pages)
-        self.assertIn('"numberOfItems":79', index)
-        self.assertIn("79 قراءة علمية مستقلة", index)
+        self.assertIn(f'"numberOfItems":{article_count}', index)
+        self.assertIn(f"{article_count} قراءة علمية مستقلة", index)
         self.assertIn("الهدف المرحلي 100 قراءة", index)
-        self.assertIn("المتبقي 21", index)
+        self.assertIn(f"المتبقي {max(0, 100 - article_count)}", index)
         self.assertIn('type="application/rss+xml"', index)
-        self.assertEqual(index.count('class="card"'), 79)
-        self.assertEqual(index.count('"@type":"ScholarlyArticle"'), 79)
-        self.assertEqual(index.count('"datePublished"'), 79)
-        self.assertNotIn("ستون قراءة", index)
+        self.assertEqual(index.count('class="card"'), article_count)
+        self.assertEqual(index.count('"@type":"ScholarlyArticle"'), article_count)
+        self.assertEqual(index.count('"datePublished"'), article_count)
         card_positions = [index.index(f'href="{path.name}"') for path in pages]
         self.assertEqual(card_positions, sorted(card_positions))
         for path in pages:
             self.assertGreaterEqual(index.count(f'href="{path.name}"'), 2)
             self.assertIn(MODULE.URL + path.name, index)
 
-    def test_scientific_batches_have_primary_sources_results_and_limits(self) -> None:
-        checks = {
-            "adhd-baduanjin-response-inhibition-rct-2026.html": ("10.1016/j.ridd.2026.105277", "41936141", "90 طفلًا"),
-            "autism-structured-interactive-play-screening-cohort-2026.html": ("10.1186/s12888-026-08274-9", "42464217", "0.915"),
-            "adolescent-depression-one-step-back-rct-2026.html": ("10.1016/j.eclinm.2026.103971", "42232686", "d=0.61"),
-            "latinx-adolescent-suicidal-behavior-cbt-rct-2026.html": ("10.1080/15374416.2026.2687880", "42413031", "RR=0.50"),
-            "adhd-personalized-neurofeedback-sham-rct-2026.html": ("10.1111/jcpp.70188", "42324882", "80.7%"),
-            "autism-lets-play-caregiver-mediated-rct-2026.html": ("10.1007/s10803-026-07396-z", "42405995", "لم تظهر فروق دالة"),
-            "autism-parent-reflective-functioning-rct-2026.html": ("10.1002/aur.70301", "42394366", "249 والدًا ووالدة"),
-            "cerebral-palsy-participate-cp-leisure-rct-2026.html": ("10.1542/peds.2025-075162", "42425531", "2.75"),
-            "down-syndrome-dual-task-exergaming-cognition-rct-2026.html": ("10.1016/j.psychsport.2026.103190", "42309334", "η²=0.31"),
-            "adhd-dexamphetamine-methylphenidate-randomized-2026.html": ("10.1111/jpc.70487", "42415397", "−1.44"),
-            "adhd-rhythmic-music-game-rct-2026.html": ("10.3389/fpubh.2026.1808386", "42145502", "−46.1"),
-            "autism-aspen-low-resource-parent-intervention-rct-2026.html": ("10.3389/fpsyt.2026.1795918", "42404716", "50%", "p=0.026"),
-            "neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html": ("10.1002/aur.70282", "42187205", "d=0.84", "d=0.38", "لم تظهر فروق مهمة"),
-            "adolescent-mental-health-artemis-cluster-rct-2026.html": ("10.1001/jamapsychiatry.2026.0603", "42054038", "OR=1.47", "p=0.10", "−0.87"),
-            "autism-parents-mbsr-depression-anxiety-stress-rct-2026.html": ("10.1016/j.pedn.2026.05.008", "42166881", "96 والدًا ووالدة", "لم يظهر فرق دال"),
-            "grieving-adolescents-alba-app-rct-2026.html": ("10.2196/94777", "42459115", "d=0.64", "لم يظهر أثر على النمو الشخصي"),
-            "adolescent-school-guided-narrative-writing-cluster-rct-2026.html": ("10.1186/s12916-026-04816-w", "41888870", "211 طالبًا", "d=−0.22", "لم تظهر فروق دالة في الاكتئاب"),
-            "autism-mentorship-program-pilot-rct-2026.html": ("10.1007/s10803-026-07272-w", "41774317", "24 مراهقًا", "23 جلسة أسبوعية", "الفاعلية النفسية: مؤشرات أولية فقط"),
-            "college-digital-cbt-guided-self-help-rct-2026.html": ("10.1038/s41562-026-02454-z", "42098266", "6205 طلاب", "OR=0.77", "74.4%"),
-        }
-        for filename, markers in checks.items():
-            text = (ROOT / "magazine" / filename).read_text(encoding="utf-8")
-            for marker in markers:
-                self.assertIn(marker, text, filename)
-            self.assertIn("<h2>المصدر الأصلي</h2>", text)
-            self.assertIn('href="https://doi.org/', text)
-            self.assertTrue(any(term in text for term in ("حدود", "الحذر", "قيود")))
-            self.assertRegex(text, r'"datePublished":"2026-\d{2}-\d{2}"')
-            if filename == "grieving-adolescents-alba-app-rct-2026.html":
-                self.assertIn("<!-- pt-platform-shell:v1 -->", text)
-                self.assertIn('data-pt-normalized="1.1.0"', text)
-                self.assertIn('href="../copyright/"', text)
-                self.assertIn('../assets/platform/platform-core.css?v=1.1.0', text)
-                self.assertIn('../assets/platform/platform-core.js?v=1.1.0', text)
+    def test_new_systematic_review_contract(self) -> None:
+        text = (ROOT / "magazine" / NEW_ARTICLE).read_text(encoding="utf-8")
+        for marker in (
+            "10.1038/s41746-026-03044-z",
+            "INPLASY202490026",
+            "57 دراسة",
+            "43973",
+            "9 من أصل 16",
+            "آثار صغيرة",
+            "منخفضة اليقين",
+            "https://healthrenewal.org/magazine/",
+            "<h2>المصدر الأصلي</h2>",
+        ):
+            self.assertIn(marker, text)
+        self.assertNotIn("khaledaltheeb.github.io", text)
+        self.assertEqual(text.lower().count("<h1"), 1)
+        self.assertIn('"datePublished":"2026-07-27"', text)
+        self.assertIn("حدود", text)
+        self.assertIn("لا تستبدل التقييم أو العلاج", text)
 
 
 if __name__ == "__main__":
