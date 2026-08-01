@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "pageCount": 100,
+  "engineRevision": 403,
+  "totalWords": 288545,
+  "artifactTreeDigest": "1f110f0cb7c9def7479cee5d2eb268d78be9bb1594bff17e57b6e112ecbf79c4",
+  "sitemaps": {
+    "sitemap-special-needs.xml": {
+      "total": 68,
+      "v401_matched": 60
+    },
+    "sitemap-family-special-needs.xml": {
+      "total": 68,
+      "v401_matched": 60
+    },
+    "sitemap-family-learning-paths.xml": {
+      "total": 17,
+      "v401_matched": 17
+    },
+    "sitemap-family-main.xml": {
+      "total": 114,
+      "v401_matched": 25
+    }
+  },
+  "schemaVersion": 1,
+  "verifiedAt": "2026-08-01T13:14:28.153031+00:00",
+  "sourceCommit": "49b6e3dffbf51be088640bd9bd1699d440651fbd",
+  "baselineArtifactId": 8802973435,
+  "baselineWorkflowRunId": 30653545703,
+  "baselineArtifactCreatedAt": "2026-07-31T18:29:02Z"
+}
