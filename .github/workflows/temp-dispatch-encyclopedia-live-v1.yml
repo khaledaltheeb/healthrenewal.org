@@ -7,13 +7,15 @@ on:
 permissions:
   actions: read
   contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
   verify-production-run:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - name: Locate and wait for encyclopedia production workflow
+      - name: Locate, report and wait for encyclopedia production workflow
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -21,6 +23,7 @@ jobs:
           python - <<'PY'
           import json
           import os
+          import subprocess
           import time
           import urllib.request
 
@@ -53,6 +56,8 @@ jobs:
 
           run_id = int(run['id'])
           run_url = f'https://api.github.com/repos/{repo}/actions/runs/{run_id}'
+          report = f'ENCYCLOPEDIA_PRODUCTION_RUN run_id={run_id} created_at={run.get("created_at")} status={run.get("status")}'
+          subprocess.run(['gh', 'api', f'repos/{repo}/issues/812/comments', '-f', f'body={report}'], check=True)
           print(json.dumps({'run_id': run_id, 'created_at': run.get('created_at'), 'html_url': run.get('html_url')}, ensure_ascii=False))
 
           for attempt in range(150):
@@ -61,6 +66,8 @@ jobs:
               conclusion = current.get('conclusion')
               print(json.dumps({'attempt': attempt + 1, 'run_id': run_id, 'status': status, 'conclusion': conclusion}, ensure_ascii=False))
               if status == 'completed':
+                  final = f'ENCYCLOPEDIA_PRODUCTION_RESULT run_id={run_id} conclusion={conclusion}'
+                  subprocess.run(['gh', 'api', f'repos/{repo}/issues/812/comments', '-f', f'body={final}'], check=True)
                   if conclusion != 'success':
                       raise SystemExit(f'Encyclopedia production workflow failed: {conclusion}; run_id={run_id}')
                   print(json.dumps({'status': 'success', 'run_id': run_id, 'conclusion': conclusion}, ensure_ascii=False))
