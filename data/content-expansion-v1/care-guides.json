@@ -1,0 +1,122 @@
+[
+  {
+    "sector": "care-guides",
+    "cluster": "care",
+    "slug": "first-30-days-after-diagnosis",
+    "title": "أول 30 يومًا بعد التشخيص",
+    "audience": "الأسر ومقدمو الرعاية",
+    "focus": "تنظيم المعلومات والمواعيد والأولويات وتجنب القرارات المتسرعة أو الوعود غير المثبتة.",
+    "kind": "care-guide",
+    "source_keys": ["who_cst","who_caregiver_wellbeing","unicef_caregiver_guide","who_icf","un_crpd"]
+  },
+  {
+    "sector": "care-guides",
+    "cluster": "care",
+    "slug": "preparing-for-developmental-assessment",
+    "title": "الاستعداد للتقييم النمائي",
+    "audience": "الأسر",
+    "focus": "جمع التاريخ والأمثلة والسجلات والأسئلة بحيث يعكس التقييم الحياة اليومية.",
+    "kind": "care-guide",
+    "source_keys": ["who_cst","who_caregiver_wellbeing","unicef_caregiver_guide","who_icf","un_crpd"]
+  },
+  {
+    "sector": "care-guides",
+    "cluster": "care",
+    "slug": "preparing-for-school-meeting",
+    "title": "الاستعداد لاجتماع المدرسة",
+    "audience": "الأسر والطلاب",
+    "focus": "ترتيب الأولويات والأدلة والأسئلة والاتفاقات المكتوبة قبل الاجتماع وبعده.",
+    "kind": "care-guide",
+    "source_keys": ["who_cst","who_caregiver_wellbeing","unicef_caregiver_guide","who_icf","un_crpd"]
+  },
+  {
+    "sector": "care-guides",
+    "cluster": "care",
+    "slug": "home-school-communication",
+    "title": "بناء تواصل فعال بين المنزل والمدرسة",
+    "audience": "الأسر والمعلمون",
+    "focus": "تبادل معلومات محددة وقابلة للتصرف دون لوم أو رسائل مرهقة.",
+    "kind": "care-guide",
+    "source_keys": ["who_cst","who_caregiver_wellbeing","unicef_caregiver_guide","who_icf","un_crpd"]
+  },
+  {
+    "sector": "care-guides",
+    "cluster": "care",
+    "slug": "building-daily-communication-opportunities",
+    "title": "بناء فرص التواصل اليومية",
+    "audience": "الأسر ومقدمو الرعاية",
+    "focus": "تحويل اللعب والوجبات والروتين إلى فرص اختيار وطلب وتعليق دون ضغط.",
+    "kind": "care-guide",
+    "source_keys": ["who_cst","who_caregiver_wellbeing","unicef_caregiver_guide","who_icf","un_crpd"]
+  },
+  {
+    "sector": "care-guides",
+    "cluster": "care",
+    "slug": "managing-transitions-and-change",
+    "title": "إدارة الانتقالات والتغيير",
+    "audience": "الأسر والمدارس",
+    "focus": "التهيئة المسبقة والدعم البصري والخيارات وخطة التعافي بعد التغيير.",
+    "kind": "care-guide",
+    "source_keys": ["who_cst","who_caregiver_wellbeing","unicef_caregiver_guide","who_icf","un_crpd"]
+  },
+  {
+    "sector": "care-guides",
+    "cluster": "care",
+    "slug": "safer-mealtimes",
+    "title": "وجبات أكثر أمانًا وهدوءًا",
+    "audience": "الأسر ومقدمو الرعاية",
+    "focus": "تنظيم الجلسة والبيئة والمراقبة ومؤشرات الإحالة دون إجبار أو صراع.",
+    "kind": "care-guide",
+    "source_keys": ["who_cst","who_caregiver_wellbeing","unicef_caregiver_guide","who_icf","un_crpd"]
+  },
+  {
+    "sector": "care-guides",
+    "cluster": "care",
+    "slug": "sleep-routine-planning",
+    "title": "تخطيط روتين النوم",
+    "audience": "الأسر",
+    "focus": "بناء خط أساس وروتين ثابت وبيئة مناسبة ومراجعة الأسباب الطبية والسلوكية.",
+    "kind": "care-guide",
+    "source_keys": ["who_cst","who_caregiver_wellbeing","unicef_caregiver_guide","who_icf","un_crpd"]
+  },
+  {
+    "sector": "care-guides",
+    "cluster": "care",
+    "slug": "responding-to-behavior-safely",
+    "title": "الاستجابة الآمنة للسلوك الصعب",
+    "audience": "الأسر والمدارس",
+    "focus": "حماية الجميع وتقليل التصعيد وفهم الوظيفة وتعليم بديل قابل للاستخدام.",
+    "kind": "care-guide",
+    "source_keys": ["who_cst","who_caregiver_wellbeing","unicef_caregiver_guide","who_icf","un_crpd"]
+  },
+  {
+    "sector": "care-guides",
+    "cluster": "care",
+    "slug": "caregiver-burnout-prevention",
+    "title": "الوقاية من إنهاك مقدم الرعاية",
+    "audience": "الأسر وشبكات الدعم",
+    "focus": "اكتشاف علامات الإنهاك وتوزيع الأدوار وطلب المساندة وبناء خطة استدامة.",
+    "kind": "care-guide",
+    "source_keys": ["who_cst","who_caregiver_wellbeing","unicef_caregiver_guide","who_icf","un_crpd"]
+  },
+  {
+    "sector": "care-guides",
+    "cluster": "care",
+    "slug": "emergency-information-pack",
+    "title": "حقيبة معلومات الطوارئ",
+    "audience": "الأسر ومقدمو الرعاية",
+    "focus": "تجميع معلومات الصحة والتواصل والأدوية والحس والطوارئ في صيغة محدثة.",
+    "kind": "care-guide",
+    "source_keys": ["who_cst","who_caregiver_wellbeing","unicef_caregiver_guide","who_icf","un_crpd"]
+  },
+  {
+    "sector": "care-guides",
+    "cluster": "care",
+    "slug": "choosing-a-service-provider",
+    "title": "اختيار مقدم خدمة موثوق",
+    "audience": "الأسر والأشخاص ذوو الاحتياجات الخاصة",
+    "focus": "فحص المؤهلات والمنهج والقياس والحقوق والتكلفة والشكاوى قبل التعاقد.",
+    "kind": "care-guide",
+    "source_keys": ["who_cst","who_caregiver_wellbeing","unicef_caregiver_guide","who_icf","un_crpd"]
+  }
+]
