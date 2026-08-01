@@ -1,0 +1,45 @@
+name: Validate encyclopedia SEO and search intent v1
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - scripts/encyclopedia_seo_contract_v1.py
+      - scripts/rebuild_encyclopedia_v13.py
+      - scripts/run_encyclopedia_v13.py
+      - scripts/audit_site_integrity_v13.py
+      - tests/test_encyclopedia_seo_search_intent_v1.py
+      - tests/test_encyclopedia_topic_hubs_v2.py
+      - .github/workflows/validate-encyclopedia-seo-search-intent-v1.yml
+  push:
+    branches: [main]
+    paths:
+      - scripts/encyclopedia_seo_contract_v1.py
+      - scripts/rebuild_encyclopedia_v13.py
+      - scripts/run_encyclopedia_v13.py
+      - scripts/audit_site_integrity_v13.py
+      - tests/test_encyclopedia_seo_search_intent_v1.py
+      - tests/test_encyclopedia_topic_hubs_v2.py
+      - .github/workflows/validate-encyclopedia-seo-search-intent-v1.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SITE_BASE: https://healthrenewal.org/
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile contracts
+        run: |
+          python -m py_compile scripts/encyclopedia_seo_contract_v1.py scripts/rebuild_encyclopedia_v13.py scripts/run_encyclopedia_v13.py scripts/audit_site_integrity_v13.py tests/test_encyclopedia_seo_search_intent_v1.py tests/test_encyclopedia_topic_hubs_v2.py
+      - name: Validate all 2000 pages, SEO, intents, FAQ and sitemaps
+        run: |
+          python -m unittest -v tests.test_encyclopedia_seo_search_intent_v1 tests.test_encyclopedia_topic_hubs_v2
