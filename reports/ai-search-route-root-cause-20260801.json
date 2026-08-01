@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-01",
+  "route": "/ai-search/",
+  "rootCause": "A later partial GitHub Pages publisher downloaded an older validated-production-site artifact and overlaid only selected sector and discovery files. The deployment replaced the complete Pages artifact without copying the ai-search directory, although ai-search/index.html remained present on main.",
+  "causingWorkflow": ".github/workflows/publish-women-youth-v406-on-issue.yml",
+  "remediation": [
+    "retire the partial one-time publisher",
+    "assemble Pages from the complete current public repository surface",
+    "require ai-search page, runtime assets, manifest, coverage report and vector shards",
+    "verify /ai-search/ and /ai-search/index.html after deployment",
+    "run a scheduled repair guard that redeploys only when the live route is absent or stale"
+  ]
+}
