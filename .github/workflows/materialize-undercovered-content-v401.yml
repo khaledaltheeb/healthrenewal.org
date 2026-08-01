@@ -18,7 +18,7 @@ permissions:
 
 concurrency:
   group: materialize-undercovered-content-v401
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   materialize:
