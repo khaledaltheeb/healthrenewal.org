@@ -1,0 +1,54 @@
+name: Validate conditions expansion v281
+
+on:
+  pull_request:
+    paths:
+      - "content/v281/**"
+      - "scripts/build_conditions_v281_data.py"
+      - "scripts/publish_conditions_v281.py"
+      - "tests/test_conditions_v281.py"
+      - ".github/workflows/validate-capabilities-v281.yml"
+      - ".github/workflows/publish-capabilities-v281.yml"
+      - ".github/workflows/deploy-capabilities-v281.yml"
+  push:
+    branches: [main]
+    paths:
+      - "content/v281/**"
+      - "scripts/build_conditions_v281_data.py"
+      - "scripts/publish_conditions_v281.py"
+      - "tests/test_conditions_v281.py"
+      - ".github/workflows/validate-capabilities-v281.yml"
+      - ".github/workflows/publish-capabilities-v281.yml"
+      - ".github/workflows/deploy-capabilities-v281.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate reviewable sources builder and publisher
+        run: |
+          set -euxo pipefail
+          python -m json.tool content/v281/metadata-ar.json >/dev/null
+          test "$(find content/v281/conditions -type f -name '*.jsonl' | wc -l)" -eq 3
+          python -m py_compile scripts/build_conditions_v281_data.py scripts/publish_conditions_v281.py tests/test_conditions_v281.py
+          python scripts/build_conditions_v281_data.py
+          python - <<'PY'
+          import base64,json,zlib
+          from pathlib import Path
+          encoded=Path("content/v281/conditions-50-ar.json.zlib.b64").read_text(encoding="ascii").strip()
+          payload=json.loads(zlib.decompress(base64.b64decode(encoded)).decode("utf-8"))
+          assert payload["version"]==281 and len(payload["conditions"])==50,payload.keys()
+          assert [item["rank"] for item in payload["conditions"]]==list(range(101,151))
+          assert len({item["slug"] for item in payload["conditions"]})==50
+          assert len({item["source_url"] for item in payload["conditions"]})==50
+          print({"conditions":50,"version":281,"source_records":50})
+          PY
+          python -m unittest -v tests.test_conditions_v281

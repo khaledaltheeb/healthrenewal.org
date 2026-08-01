@@ -1,0 +1,168 @@
+name: Deploy conditions expansion v281 to GitHub Pages
+
+on:
+  workflow_run:
+    workflows: ["Publish conditions expansion v281"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: validated-github-pages-v242
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download the 150-condition validated artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify artifact ancestry reports routes and rollback safety
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LIVE_URL: https://khaledaltheeb.github.io/pterminology-site/deployment.json
+        run: |
+          set -euxo pipefail
+          token="$(date +%s)"
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${LIVE_URL}?v=${token}" -o /tmp/live-before.json || printf '{}\n' > /tmp/live-before.json
+          python - <<'PY'
+          import hashlib,json,os,re,urllib.request
+          from pathlib import Path
+
+          root=Path('validated-site')
+          deployment=json.loads((root/'deployment.json').read_text(encoding='utf-8'))
+          v280=json.loads((root/'api/capabilities-v280.json').read_text(encoding='utf-8'))
+          v281=json.loads((root/'api/capabilities-v281.json').read_text(encoding='utf-8'))
+          candidate=deployment.get('commit')
+          assert deployment.get('schema_version')==30,deployment
+          assert isinstance(candidate,str) and re.fullmatch(r'[0-9a-f]{40}',candidate),deployment
+          assert v280.get('version')==280 and v280.get('condition_count')==100,v280
+          assert v281.get('version')==281 and v281.get('status')=='passed',v281
+          assert v281.get('condition_count')==50,v281
+          assert v281.get('generated_page_count')==51,v281
+          assert v281.get('sitemap_url_count')==51,v281
+          assert v281.get('external_clinical_review_completed') is False,v281
+          assert v281.get('diagnostic_automation') is False,v281
+          for name in ('index.html','sitemap.xml','manifest.webmanifest','sw.js'):
+              path=root/name; evidence=deployment['artifacts'][name]
+              assert path.is_file(),name
+              assert hashlib.sha256(path.read_bytes()).hexdigest()==evidence['sha256'],name
+              assert path.stat().st_size==evidence['bytes'],name
+          for route in (
+              'capabilities/index.html',
+              'capabilities/expanded/index.html',
+              'capabilities/phelan-mcdermid-syndrome/index.html',
+              'capabilities/dravet-syndrome/index.html',
+              'capabilities/metachromatic-leukodystrophy/index.html',
+              'sitemap-capabilities.xml',
+              'sitemap-capabilities-v281.xml',
+          ):
+              assert (root/route).is_file(),route
+          assert len(list((root/'capabilities').rglob('index.html')))==155
+
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'capabilities-pages-v281'}
+          def api(path):
+              req=urllib.request.Request(f'https://api.github.com/repos/{repo}{path}',headers=headers)
+              with urllib.request.urlopen(req,timeout=30) as response:
+                  return json.loads(response.read().decode('utf-8'))
+          def compare(base,head):
+              if base==head: return 'identical'
+              return api(f'/compare/{base}...{head}').get('status')
+          current=api('/git/ref/heads/main')['object']['sha']
+          relationship=compare(candidate,current)
+          assert relationship in {'ahead','identical'},(candidate,current,relationship)
+          try:
+              live=json.loads(Path('/tmp/live-before.json').read_text(encoding='utf-8')).get('commit')
+          except Exception:
+              live=None
+          live_relationship=None
+          if live:
+              live_relationship=compare(live,candidate)
+              assert live_relationship in {'ahead','identical'},(live,candidate,live_relationship)
+          with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as handle:
+              handle.write(f'CANDIDATE_SHA={candidate}\n')
+          print({'candidate':candidate,'current_main':current,'relationship':relationship,'live_before':live,'live_relationship':live_relationship,'conditions':150,'pages':155})
+          PY
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: validated-site
+
+      - name: Deploy the 150-condition site
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify live SHA routes sitemap API and review boundary
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euxo pipefail
+          BASE="${PAGE_URL%/}/"; TOKEN="${CANDIDATE_SHA}"
+          matched=0
+          for i in $(seq 1 30); do
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsS "${BASE}deployment.json?v=${TOKEN}-${i}" -o /tmp/deployment.json && \
+               EXPECTED_SHA="${TOKEN}" python -c "import json,os; d=json.load(open('/tmp/deployment.json',encoding='utf-8')); raise SystemExit(0 if d.get('commit')==os.environ['EXPECTED_SHA'] else 1)"; then
+              matched=1
+              break
+            fi
+            sleep 10
+          done
+          test "${matched}" -eq 1
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}api/capabilities-v281.json?v=${TOKEN}" -o /tmp/v281.json
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}capabilities/expanded/?v=${TOKEN}" -o /tmp/expanded.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}capabilities/phelan-mcdermid-syndrome/?v=${TOKEN}" -o /tmp/phelan.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}capabilities/dravet-syndrome/?v=${TOKEN}" -o /tmp/dravet.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}capabilities/metachromatic-leukodystrophy/?v=${TOKEN}" -o /tmp/mld.html
+          curl --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' -fsS "${BASE}sitemap-capabilities-v281.xml?v=${TOKEN}" -o /tmp/sitemap-v281.xml
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          report=json.loads(Path('/tmp/v281.json').read_text(encoding='utf-8'))
+          assert report['version']==281 and report['status']=='passed',report
+          assert report['condition_count']==50,report
+          assert report['generated_page_count']==51,report
+          assert report['external_clinical_review_completed'] is False,report
+          for name in ('expanded','phelan','dravet','mld'):
+              text=Path(f'/tmp/{name}.html').read_text(encoding='utf-8')
+              assert '<h1' in text,name
+              assert 'محتوى تثقيفي' in text,name
+              assert 'معاقين' not in text,name
+          sitemap=Path('/tmp/sitemap-v281.xml').read_text(encoding='utf-8')
+          assert sitemap.count('<url>')==51,sitemap.count('<url>')
+          print({'live_commit':os.environ['CANDIDATE_SHA'],'existing_conditions':100,'new_conditions':50,'new_routes':51,'status':'published-v281'})
+          PY
+
+      - name: Retain v281 deployment provenance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capabilities-v281-pages-provenance
+          path: |
+            validated-site/deployment.json
+            validated-site/api/capabilities-v280.json
+            validated-site/api/capabilities-v281.json
+            validated-site/sitemap-capabilities-v281.xml
+          if-no-files-found: error
+          retention-days: 30
