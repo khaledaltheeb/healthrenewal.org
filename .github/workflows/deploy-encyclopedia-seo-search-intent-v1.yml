@@ -14,6 +14,7 @@ on:
 permissions:
   actions: read
   contents: read
+  issues: write
   pages: write
   id-token: write
 
@@ -135,3 +136,10 @@ jobs:
             sleep 5
           done
           exit 1
+
+      - name: Report deployment result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/issues/804/comments" -f body="ENCYCLOPEDIA_DEPLOY_V1 status=${{ job.status }} sha=${{ github.sha }} run_id=${{ github.run_id }}"
