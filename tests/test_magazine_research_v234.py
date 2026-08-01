@@ -12,14 +12,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / "scripts" / "publish_magazine_v201.py"
-SPEC = importlib.util.spec_from_file_location("publish_magazine_v315", MODULE_PATH)
+SPEC = importlib.util.spec_from_file_location("publish_magazine_v316", MODULE_PATH)
 assert SPEC and SPEC.loader
 MODULE = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
 
 
-class MagazineResearchV315Tests(unittest.TestCase):
+class MagazineResearchV316Tests(unittest.TestCase):
     def make_site(self, root: Path) -> Path:
         site = root / "_site"
         site.mkdir()
@@ -33,7 +33,7 @@ class MagazineResearchV315Tests(unittest.TestCase):
     def test_publishes_every_discovered_article_rss_and_sitemap(self) -> None:
         pages = MODULE.article_files()
         self.assertEqual(len(pages), 79)
-        self.assertEqual(MODULE.CONTRACT, 315)
+        self.assertEqual(MODULE.CONTRACT, 316)
         self.assertEqual(MODULE.TARGET_ARTICLES, 100)
         dates = [MODULE.article_date(path) for path in pages]
         self.assertEqual(dates, sorted(dates, reverse=True))
@@ -41,7 +41,7 @@ class MagazineResearchV315Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             site = self.make_site(Path(directory))
             report = MODULE.publish(site)
-            self.assertEqual(report["version"], 315)
+            self.assertEqual(report["version"], 316)
             self.assertEqual(report["research_summaries_published"], 79)
             self.assertEqual(report["target_research_summaries"], 100)
             self.assertEqual(report["remaining_to_target"], 21)
