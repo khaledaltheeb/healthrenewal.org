@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 2,
+  "passed": true,
+  "deploymentAccepted": true,
+  "verifiedAt": "2026-08-01T13:21:30.228739+00:00",
+  "site": "https://healthrenewal.org/",
+  "workflowRunId": 30701533987,
+  "workflowRunUrl": "https://github.com/khaledaltheeb/healthrenewal.org/actions/runs/30701533987",
+  "sourceCommit": "bd10360359039306b92032437b5b5988caad0b60",
+  "baselineArtifactId": 8802973435,
+  "baselineWorkflowRunId": 30653545703,
+  "baselineArtifactCreatedAt": "2026-07-31T18:29:02Z",
+  "engineRevision": 403,
+  "pageCount": 100,
+  "totalWords": 288545,
+  "minimumWords": 2763,
+  "minimumSections": 20,
+  "distribution": {
+    "special-needs": 60,
+    "learning-paths": 15,
+    "child": 10,
+    "family": 8,
+    "home": 7
+  },
+  "liveProbe": {
+    "pageUrl": "https://healthrenewal.org/",
+    "dnsGoogle": {
+      "Status": 0,
+      "Answer": [
+        {
+          "name": "healthrenewal.org.",
+          "type": 1,
+          "TTL": 14400,
+          "data": "185.199.108.153"
+        },
+        {
+          "name": "healthrenewal.org.",
+          "type": 1,
+          "TTL": 14400,
+          "data": "185.199.110.153"
+        },
+        {
+          "name": "healthrenewal.org.",
+          "type": 1,
+          "TTL": 14400,
+          "data": "185.199.109.153"
+        },
+        {
+          "name": "healthrenewal.org.",
+          "type": 1,
+          "TTL": 14400,
+          "data": "185.199.111.153"
+        }
+      ]
+    },
+    "dnsCloudflare": {
+      "Status": 0,
+      "Answer": [
+        {
+          "name": "healthrenewal.org",
+          "type": 1,
+          "TTL": 14400,
+          "data": "185.199.110.153"
+        },
+        {
+          "name": "healthrenewal.org",
+          "type": 1,
+          "TTL": 14400,
+          "data": "185.199.109.153"
+        },
+        {
+          "name": "healthrenewal.org",
+          "type": 1,
+          "TTL": 14400,
+          "data": "185.199.111.153"
+        },
+        {
+          "name": "healthrenewal.org",
+          "type": 1,
+          "TTL": 14400,
+          "data": "185.199.108.153"
+        }
+      ]
+    },
+    "reportReachable": true,
+    "samplePagesReachable": 6,
+    "sitemapReachable": true,
+    "robotsReachable": false,
+    "errors": []
+  }
+}
