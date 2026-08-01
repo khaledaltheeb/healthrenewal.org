@@ -1,0 +1,92 @@
+name: Materialize undercovered content v401
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "content/v401/**"
+      - "scripts/publish_undercovered_content_v401.py"
+      - "scripts/publish_special_needs_guides_v217.py"
+      - "tests/test_undercovered_content_v401.py"
+      - ".github/workflows/materialize-undercovered-content-v401.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: materialize-undercovered-content-v401
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate source contract
+        run: |
+          python -m py_compile scripts/publish_undercovered_content_v401.py
+          python -m unittest tests.test_undercovered_content_v401
+      - name: Generate one hundred static pages
+        run: python scripts/publish_undercovered_content_v401.py . > /tmp/undercovered-v401-report.json
+      - name: Verify generated corpus
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path("api/undercovered-content-v401.json").read_text(encoding="utf-8"))
+          assert report["status"] == "passed", report
+          assert report["page_count"] == 100, report
+          assert report["unique_routes"] == 100, report
+          assert report["distribution"] == {
+              "special-needs": 60,
+              "learning-paths": 15,
+              "child": 10,
+              "family": 8,
+              "home": 7,
+          }, report
+          assert report["minimum_words"] >= 1200, report
+          assert report["minimum_h2"] >= 15, report
+          assert report["minimum_citations"] >= 3, report
+          assert all(report["quality_gates"].values()), report
+          for route in report["routes"]:
+              assert (Path(route) / "index.html").is_file(), route
+          print(json.dumps({
+              "page_count": report["page_count"],
+              "total_words": report["total_words"],
+              "minimum_words": report["minimum_words"],
+              "distribution": report["distribution"],
+          }, ensure_ascii=False, indent=2))
+          PY
+      - name: Commit generated pages to publication branch
+        run: |
+          set -euo pipefail
+          git config user.name "healthrenewal-content-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout -B automation/materialize-undercovered-v401
+          git add \
+            special-needs/practical \
+            learning-paths \
+            sectors/child \
+            sectors/family \
+            sectors/home \
+            special-needs/index.html \
+            sitemap-special-needs.xml \
+            sitemap-family-special-needs.xml \
+            sitemap-family-learning-paths.xml \
+            sitemap-family-main.xml \
+            api/undercovered-content-v401.json
+          if git diff --cached --quiet; then
+            echo "Generated publication tree is already current."
+            exit 0
+          fi
+          git commit -m "content(v401): materialize 100 undercovered sector pages"
+          git push --force origin HEAD:automation/materialize-undercovered-v401
