@@ -112,6 +112,16 @@ def normalize_canonical_sitemap_urls(site: Path) -> int:
     return repaired
 
 
+def sitemap_url_count(path: Path) -> int:
+    if not path.is_file():
+        return 0
+    return len({
+        (node.text or "").strip()
+        for node in ET.parse(path).getroot().findall("{*}url/{*}loc")
+        if (node.text or "").strip()
+    })
+
+
 def reset_generated_condition_sitemap_urls(site: Path) -> None:
     """Remove canonical and historical duplicate-slash forms before rebuilding condition layers."""
     path = site / "sitemap-special-needs.xml"
@@ -210,7 +220,9 @@ def publish(site: Path) -> dict[str, Any]:
             "quality_gates",
         )
 
+    special_sitemap = site / "sitemap-special-needs.xml"
     normalize_canonical_sitemap_urls(site)
+    report["special_sitemap_urls"] = sitemap_url_count(special_sitemap)
     report["canonical_sitemap_urls_normalized"] = True
 
     api = site / "api"
