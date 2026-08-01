@@ -73,13 +73,14 @@ class UndercoveredContentV401Tests(unittest.TestCase):
 
             self.assertEqual(report["status"], "passed")
             self.assertEqual(report["version"], 401)
-            self.assertEqual(report["engine_revision"], 402)
+            self.assertEqual(report["engine_revision"], 403)
             self.assertEqual(report["page_count"], 100)
             self.assertEqual(report["unique_routes"], 100)
             self.assertEqual(report["profile_count"], 12)
+            self.assertEqual(report["specialized_safety_check_pages"], 100)
             self.assertEqual(report["generic_placeholder_pages"], 0)
             self.assertGreaterEqual(report["minimum_words"], 1800)
-            self.assertGreaterEqual(report["minimum_h2"], 18)
+            self.assertGreaterEqual(report["minimum_h2"], 20)
             self.assertGreaterEqual(report["minimum_citations"], 3)
             self.assertGreaterEqual(report["minimum_topic_mentions"], 18)
             self.assertGreater(report["total_words"], 190000)
@@ -95,12 +96,14 @@ class UndercoveredContentV401Tests(unittest.TestCase):
                 source = page.read_text(encoding="utf-8")
                 item = by_route[route]
                 self.assertIn('<html lang="ar" dir="rtl">', source)
-                self.assertIn('data-content-engine="v402"', source)
+                self.assertIn('data-content-engine="v403"', source)
                 self.assertIn(item["title"], source)
                 self.assertIn(item["objective"], source)
                 self.assertIn("حدود الاستخدام", source)
                 self.assertIn("متى نطلب مساعدة متخصصة؟", source)
+                self.assertIn("تحقق", source)
                 self.assertIn("المراجعة الخارجية المتخصصة موصى بها", source)
+                self.assertNotIn("يرتبط مباشرة بـ", source)
                 self.assertNotRegex(source, self.publisher.FORBIDDEN)
                 self.assertNotRegex(source, self.publisher.PLACEHOLDER_RE)
 
@@ -127,7 +130,8 @@ class UndercoveredContentV401Tests(unittest.TestCase):
 
             api = json.loads((site / "api" / "undercovered-content-v401.json").read_text(encoding="utf-8"))
             self.assertEqual(api["page_count"], 100)
-            self.assertEqual(api["engine_revision"], 402)
+            self.assertEqual(api["engine_revision"], 403)
+            self.assertEqual(api["specialized_safety_check_pages"], 100)
             self.assertTrue(all(api["quality_gates"].values()))
 
     def test_repeated_publish_is_byte_stable(self) -> None:
