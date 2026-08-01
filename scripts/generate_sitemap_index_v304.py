@@ -7,6 +7,8 @@ from pathlib import Path
 
 import generate_sitemap_index_v304_core as core
 from ai_machine_readable_v1 import AI_USER_AGENTS, enhance_site, sync_robots as sync_ai_robots
+from audit_publication_discovery_v1 import run as audit_publication_discovery
+from ensure_complete_discovery_v1 import run as publish_complete_discovery
 
 BASE_URL = core.BASE_URL
 EXCLUDED_PARTS = core.EXCLUDED_PARTS
@@ -32,8 +34,25 @@ def sync_robots(root: Path, base_url: str = BASE_URL) -> list[str]:
 def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     root = root.resolve()
     base_url = base_url.rstrip("/") + "/"
+
+    # First build the canonical sitemap families from the complete artifact.
     report = core.generate(root, base_url)
+
+    # Then expose every published route through static HTML cards and complete
+    # section catalogues. This runs after all content generators in the Pages
+    # workflow, so generated hubs cannot overwrite the discovery layer.
+    discovery_publication = publish_complete_discovery(root)
+
+    # Generate AI-readable surfaces after the discovery pages exist so search
+    # engines and AI clients see the same final route inventory as users.
     machine = enhance_site(root, base_url)
+
+    # Compare the final artifact with current main and fail closed on missing
+    # public files, broken links/resources, orphan pages, pages without visible
+    # cards, missing sitemap URLs, invalid metadata, or canonical conflicts.
+    repo_root = Path.cwd().resolve()
+    discovery_audit = audit_publication_discovery(root, repo_root)
+
     report["robots_policy"] = "explicit-ai-and-public-crawling"
     report["explicit_ai_user_agents"] = list(AI_USER_AGENTS)
     report["preserved_custom_domain_sitemaps"] = machine["preserved_custom_domain_sitemaps"]
@@ -41,6 +60,21 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
         key: value
         for key, value in machine.items()
         if key not in {"explicit_ai_user_agents", "preserved_custom_domain_sitemaps"}
+    }
+    report["complete_discovery_publication"] = discovery_publication
+    report["publication_discovery_audit"] = {
+        "status": discovery_audit["status"],
+        "source_public_files": discovery_audit["sourcePublicFiles"],
+        "missing_source_files": len(discovery_audit["missingSourceFiles"]),
+        "published_html_routes": discovery_audit["publishedHtmlRoutes"],
+        "indexable_html_routes": discovery_audit["indexableHtmlRoutes"],
+        "broken_internal_links": len(discovery_audit["brokenInternalLinks"]),
+        "broken_internal_resources": len(discovery_audit["brokenInternalResources"]),
+        "orphan_indexable_routes": len(discovery_audit["orphanIndexableRoutes"]),
+        "routes_without_visible_cards": len(discovery_audit["indexableRoutesWithoutVisibleCard"]),
+        "sitemap_missing_routes": len(discovery_audit["sitemapMissingIndexableRoutes"]),
+        "metadata_issues": len(discovery_audit["metadataIssues"]),
+        "canonical_issues": len(discovery_audit["canonicalIssues"]),
     }
     api = root / "api"
     api.mkdir(parents=True, exist_ok=True)
