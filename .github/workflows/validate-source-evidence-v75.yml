@@ -6,7 +6,9 @@ on:
       - 'content/**/*.json'
       - 'data/**/*.json'
       - 'scripts/audit_source_evidence_v75.py'
+      - 'scripts/audit_source_evidence_v76.py'
       - 'tests/test_source_evidence_v75.py'
+      - 'tests/test_source_evidence_v76.py'
       - 'docs/SOURCE_EVIDENCE_V75_AR.md'
       - '.github/workflows/validate-source-evidence-v75.yml'
   push:
@@ -15,7 +17,9 @@ on:
       - 'content/**/*.json'
       - 'data/**/*.json'
       - 'scripts/audit_source_evidence_v75.py'
+      - 'scripts/audit_source_evidence_v76.py'
       - 'tests/test_source_evidence_v75.py'
+      - 'tests/test_source_evidence_v76.py'
       - 'docs/SOURCE_EVIDENCE_V75_AR.md'
       - '.github/workflows/validate-source-evidence-v75.yml'
   workflow_dispatch:
@@ -32,12 +36,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Compile source evidence auditor
-        run: python -m py_compile scripts/audit_source_evidence_v75.py
+      - name: Compile source evidence auditors
+        run: |
+          python -m py_compile scripts/audit_source_evidence_v75.py
+          python -m py_compile scripts/audit_source_evidence_v76.py
       - name: Run source evidence unit tests
-        run: python -m unittest tests/test_source_evidence_v75.py
+        run: python -m unittest tests/test_source_evidence_v75.py tests/test_source_evidence_v76.py
       - name: Audit repository source records
-        run: python scripts/audit_source_evidence_v75.py . --output artifacts/source-evidence-v75.json
+        run: python scripts/audit_source_evidence_v76.py . --output artifacts/source-evidence-v75.json
       - name: Upload source evidence report
         if: always()
         uses: actions/upload-artifact@v4

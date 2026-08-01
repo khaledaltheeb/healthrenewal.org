@@ -1,0 +1,154 @@
+name: Publish conditions expansion v281
+
+on:
+  workflow_run:
+    workflows: ["Publish capabilities library v280"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: capabilities-v281-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  publish-v281:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout the exact audited source commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Download the v280-complete validated artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate v281 reviewable sources and publication contract
+        run: |
+          set -euxo pipefail
+          python -m json.tool content/v281/metadata-ar.json >/dev/null
+          test "$(find content/v281/conditions -type f -name '*.jsonl' | wc -l)" -eq 3
+          python -m py_compile scripts/build_conditions_v281_data.py scripts/publish_conditions_v281.py tests/test_conditions_v281.py
+          python scripts/build_conditions_v281_data.py
+          test -s content/v281/conditions-50-ar.json.zlib.b64
+          python -m unittest -v tests.test_conditions_v281
+          test -f validated-site/api/capabilities-v280.json
+          test -f validated-site/sitemap-capabilities.xml
+
+      - name: Publish 50 new non-repeated condition guides
+        run: |
+          set -euxo pipefail
+          python scripts/publish_conditions_v281.py validated-site | tee /tmp/capabilities-v281-output.json
+          python - <<'PY'
+          import json,re
+          from pathlib import Path
+
+          root=Path('validated-site')
+          v280=json.loads((root/'api/capabilities-v280.json').read_text(encoding='utf-8'))
+          v281=json.loads((root/'api/capabilities-v281.json').read_text(encoding='utf-8'))
+          source=json.loads((root/'api/capabilities-v281-source.json').read_text(encoding='utf-8'))
+          assert v280['version']==280 and v280['condition_count']==100,v280
+          assert v281['version']==281 and v281['status']=='passed',v281
+          assert v281['condition_count']==50,v281
+          assert v281['detail_page_count']==50,v281
+          assert v281['generated_page_count']==51,v281
+          assert v281['sitemap_url_count']==51,v281
+          assert v281['source_count']==50 and v281['unique_source_count']==50,v281
+          assert v281['minimum_page_word_count']>=1000,v281
+          assert v281['external_clinical_review_completed'] is False,v281
+          assert v281['diagnostic_automation'] is False,v281
+          assert len(source['conditions'])==50,source.keys()
+          pages=[]
+          hashes=set()
+          for slug in v281['slugs']:
+              path=root/'capabilities'/slug/'index.html'
+              assert path.is_file(),path
+              text=path.read_text(encoding='utf-8')
+              plain=re.sub(r'<[^>]+>',' ',text)
+              words=re.findall(r'[\u0600-\u06ffA-Za-z0-9]+',plain)
+              assert len(words)>=1000,(slug,len(words))
+              assert text.count('<h1')==1,slug
+              assert text.count('<h2>')>=14,slug
+              assert 'معاقين' not in text,slug
+              assert 'محتوى تثقيفي' in text,slug
+              digest=__import__('hashlib').sha256(re.sub(r'\s+',' ',plain).encode()).hexdigest()
+              assert digest not in hashes,slug
+              hashes.add(digest); pages.append(path)
+          assert (root/'capabilities/expanded/index.html').is_file()
+          sitemap=(root/'sitemap-capabilities-v281.xml').read_text(encoding='utf-8')
+          assert sitemap.count('<url>')==51,sitemap.count('<url>')
+          all_capability_pages=list((root/'capabilities').rglob('index.html'))
+          assert len(all_capability_pages)==155,len(all_capability_pages)
+          print({'existing_conditions':100,'new_conditions':50,'capability_pages':155,'v281_routes':51,'sources':50})
+          PY
+
+      - name: Re-finalize PWA metadata discovery and deployment evidence
+        env:
+          RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euxo pipefail
+          python scripts/finalize_pwa_v14.py validated-site
+          GITHUB_SHA="${RELEASE_SHA}" GITHUB_RUN_ID="${GITHUB_RUN_ID}" python scripts/stamp_deployment_v29.py validated-site
+          python scripts/audit_orphan_pages_v197.py validated-site --fail-on-critical --require-gateways
+          python scripts/audit_content_quality_v32.py validated-site
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          root=Path('validated-site')
+          deployment=json.loads((root/'deployment.json').read_text(encoding='utf-8'))
+          v281=json.loads((root/'api/capabilities-v281.json').read_text(encoding='utf-8'))
+          discovery=json.loads((root/'api/orphan-page-audit-v197.json').read_text(encoding='utf-8'))
+          assert deployment['schema_version']==30,deployment
+          assert deployment['commit']==os.environ['RELEASE_SHA'],deployment
+          assert v281['status']=='passed' and v281['generated_page_count']==51,v281
+          assert discovery['status']=='passed',discovery
+          for key in ('critical_orphans','critical_unmapped','missing_gateways','gateway_orphans','gateway_unmapped'):
+              assert discovery.get(key)==[],(key,discovery.get(key))
+          for name in ('index.html','sitemap.xml','manifest.webmanifest','sw.js'):
+              path=root/name; evidence=deployment['artifacts'][name]
+              assert hashlib.sha256(path.read_bytes()).hexdigest()==evidence['sha256'],name
+              assert path.stat().st_size==evidence['bytes'],name
+          sitemap_index=(root/'sitemap.xml').read_text(encoding='utf-8')
+          assert sitemap_index.count('sitemap-capabilities.xml')==1
+          assert sitemap_index.count('sitemap-capabilities-v281.xml')==1
+          print({'commit':deployment['commit'],'v281':'passed','discovery':'passed'})
+          PY
+
+      - name: Upload the 150-condition validated production artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Retain v281 publication evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capabilities-v281-publication-evidence
+          path: |
+            validated-site/api/capabilities-v280.json
+            validated-site/api/capabilities-v281.json
+            validated-site/api/capabilities-v281-source.json
+            validated-site/api/orphan-page-audit-v197.json
+            validated-site/api/content-quality-v32.json
+            validated-site/deployment.json
+            validated-site/sitemap-capabilities-v281.xml
+          if-no-files-found: warn
+          retention-days: 30
