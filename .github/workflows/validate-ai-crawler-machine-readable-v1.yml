@@ -1,0 +1,97 @@
+name: Validate AI crawler machine-readable surface v1
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "robots.txt"
+      - "llms.txt"
+      - "llms-full.txt"
+      - "feed.xml"
+      - "atom.xml"
+      - "api/v1/content-index.json"
+      - "api/v1/ai-discovery.json"
+      - "api/v1/ai-discovery.openapi.json"
+      - "scripts/generate_sitemap_index_v304.py"
+      - "scripts/generate_sitemap_index_v304_core.py"
+      - "scripts/ai_machine_readable_v1.py"
+      - "tests/test_ai_crawler_machine_readable_v1.py"
+      - ".github/workflows/validate-ai-crawler-machine-readable-v1.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "robots.txt"
+      - "llms.txt"
+      - "llms-full.txt"
+      - "feed.xml"
+      - "atom.xml"
+      - "api/v1/content-index.json"
+      - "api/v1/ai-discovery.json"
+      - "api/v1/ai-discovery.openapi.json"
+      - "scripts/generate_sitemap_index_v304.py"
+      - "scripts/generate_sitemap_index_v304_core.py"
+      - "scripts/ai_machine_readable_v1.py"
+      - "tests/test_ai_crawler_machine_readable_v1.py"
+      - ".github/workflows/validate-ai-crawler-machine-readable-v1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-crawler-machine-readable-v1-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile generator and regression test
+        run: |
+          python -m py_compile \
+            scripts/generate_sitemap_index_v304.py \
+            scripts/generate_sitemap_index_v304_core.py \
+            scripts/ai_machine_readable_v1.py \
+            tests/test_ai_crawler_machine_readable_v1.py
+      - name: Run AI crawler and machine-readable regression suite
+        run: python -m unittest discover -s tests -p 'test_ai_crawler_machine_readable_v1.py' -v
+      - name: Validate committed public artifacts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from xml.etree import ElementTree as ET
+
+          for path in (
+              Path("api/v1/content-index.json"),
+              Path("api/v1/ai-discovery.json"),
+              Path("api/v1/ai-discovery.openapi.json"),
+          ):
+              json.loads(path.read_text(encoding="utf-8"))
+
+          ET.parse("feed.xml")
+          ET.parse("atom.xml")
+
+          robots = Path("robots.txt").read_text(encoding="utf-8")
+          for agent in (
+              "OAI-SearchBot",
+              "GPTBot",
+              "ChatGPT-User",
+              "ClaudeBot",
+              "Claude-SearchBot",
+              "Claude-User",
+              "PerplexityBot",
+              "Perplexity-User",
+              "Google-Extended",
+          ):
+              assert robots.count(f"User-agent: {agent}\nAllow: /") == 1, agent
+          assert robots.count("Sitemap: https://healthrenewal.org/sitemap.xml") == 1
+          assert robots.count("Sitemap: https://healthrenewal.org/sitemap-index.xml") == 1
+          assert "Disallow:" not in robots
+          assert "research.xml" not in Path("llms.txt").read_text(encoding="utf-8")
+          PY

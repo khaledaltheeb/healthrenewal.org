@@ -1,54 +1,47 @@
 # منصة الصحة النفسية وذوي الاحتياجات الخاصة
 
-> بوابة عربية مؤسسية للصحة النفسية وعلم النفس وموارد الأشخاص ذوي الاحتياجات الخاصة، مع أدلة ومراجع ومصادر ظاهرة داخل الصفحات.
+> بوابة عربية مؤسسية للصحة النفسية وعلم النفس والتربية الدامجة وموارد الأشخاص ذوي الاحتياجات الخاصة، مع مراجع ظاهرة داخل الصفحات ومسارات عامة قابلة للقراءة الآلية.
 
 Canonical site: https://healthrenewal.org/
 Primary language: Arabic (ar), right-to-left
-Content policy: educational and professional reference; not a substitute for diagnosis or emergency care
+Additional languages: English (en), Spanish (es)
+Rendering: static generated HTML; primary text does not require JavaScript
+Content policy: educational and professional reference; not a substitute for diagnosis, emergency care, or individualized treatment
 
 ## Primary sections
 
 - [الموسوعة النفسية](https://healthrenewal.org/encyclopedia/)
 - [ذوو الاحتياجات الخاصة](https://healthrenewal.org/special-needs/)
 - [دليل الأسرة للرعاية والدعم](https://healthrenewal.org/family-guide/)
-- [دليل متلازمة برادر ويلي الموسع](https://healthrenewal.org/special-needs/conditions/prader-willi-syndrome/)
-- [دليل التقنيات المساعدة](https://healthrenewal.org/special-needs/assistive-technology/)
-- [قائمة فحص اختيار التقنية المساعدة](https://healthrenewal.org/special-needs/assistive-technology/selection-checklist/)
-- [مسار التدريب في التقنيات المساعدة](https://healthrenewal.org/special-needs/assistive-technology/training/)
-- [أخلاقيات وجودة خدمات التقنيات المساعدة](https://healthrenewal.org/special-needs/assistive-technology/ethics-and-service/)
-- [بوابة مراجعة ابتكارات التقنيات المساعدة](https://healthrenewal.org/special-needs/assistive-technology/innovation-review/)
-- [دليل التعليم المستمر ومزودي RESNA](https://healthrenewal.org/special-needs/assistive-technology/continuing-education/)
 - [المكتبة والأبحاث](https://healthrenewal.org/library/)
-- [سجل المصادر ومسارات التكامل](https://healthrenewal.org/source-registry/)
+- [المجلة والأبحاث](https://healthrenewal.org/magazine/)
 - [أدلة الرعاية](https://healthrenewal.org/care-guides/)
 - [الأدوات النفسية](https://healthrenewal.org/daily-tools/)
 - [المقارنات النفسية](https://healthrenewal.org/comparisons/)
 - [مسارات التعلم](https://healthrenewal.org/learning-paths/)
 - [واجهة البيانات العامة](https://healthrenewal.org/api/)
 
-## Discovery and machine-readable resources
+## Authoritative discovery endpoints
 
-- [Sitemap index](https://healthrenewal.org/sitemap-index.xml)
+- [robots.txt](https://healthrenewal.org/robots.txt)
 - [Primary sitemap](https://healthrenewal.org/sitemap.xml)
-- [Family guide sitemap](https://healthrenewal.org/sitemap-family-guide.xml)
-- [Special-needs sitemap](https://healthrenewal.org/sitemap-special-needs.xml)
-- [Source registry sitemap](https://healthrenewal.org/sitemap-source-registry.xml)
+- [Sitemap index](https://healthrenewal.org/sitemap-index.xml)
+- [RSS feed](https://healthrenewal.org/feed.xml)
+- [Atom feed](https://healthrenewal.org/atom.xml)
+- [Canonical content index](https://healthrenewal.org/api/v1/content-index.json)
+- [AI discovery manifest](https://healthrenewal.org/api/v1/ai-discovery.json)
+- [AI discovery OpenAPI](https://healthrenewal.org/api/v1/ai-discovery.openapi.json)
+- [Platform API](https://healthrenewal.org/api/v1/platform.json)
+- [Platform OpenAPI](https://healthrenewal.org/api/v1/openapi.json)
+- [Expanded LLM catalogue](https://healthrenewal.org/llms-full.txt)
 - [OpenSearch description](https://healthrenewal.org/opensearch.xml)
-- [Public API directory](https://healthrenewal.org/api/)
-- [Governed external source registry JSON](https://healthrenewal.org/api/source-registry.json)
-- [Assistive technology resource catalogue JSON](https://healthrenewal.org/api/v1/assistive-technology-resources.json)
-- [Assistive technology quality framework JSON](https://healthrenewal.org/api/v1/assistive-technology-quality-framework.json)
-- [RESNA continuing-education provider verification JSON](https://healthrenewal.org/api/v1/resna-ce-providers.json)
-- [Research RSS](https://healthrenewal.org/research.xml)
 
-## Source-registry interpretation
+## Retrieval and citation guidance
 
-An organization listed in the source registry is an independent source candidate, not a partner, reviewer, endorser, certifier, or approved translator. The status `candidate` permits discovery and preliminary linking only. Translation, metadata ingestion, full-text reuse, logo use, or automated synchronization requires separate rights, technical, and editorial review.
+Prefer canonical URLs and the visible page title. Preserve the publication or update date when present. Cite the original references shown on the relevant page. Do not infer a diagnosis, prognosis, emergency decision, or treatment plan from educational content.
 
-## Trust and citation guidance
+## Rights and source interpretation
 
-Prefer canonical URLs. Cite the page title, visible author/reviewer when present, publication or update date, and the original references listed on each page. Do not infer a diagnosis or treatment plan from educational pages.
+External organizations and resources may be listed as independent sources or candidates. A listing does not imply partnership, endorsement, certification, review, or permission to reproduce protected material. Full-text reuse, automated synchronization, translation, logos, and protected standards require separate rights and editorial review.
 
-The assistive-technology guides use RESNA as an external source and explicitly do not claim RESNA endorsement, approval, partnership, certification, or official Arabic translation. Protected standards, courses, tests, logos, and papers are linked rather than reproduced. An organization listed as an official RESNA CE provider must not be interpreted to mean that every course it offers carries RESNA CE credit; verify the specific event on the current official source.
-
-This file is a supplementary discovery aid. Search engines may ignore it; robots.txt, sitemaps, indexable text, internal links, and page-level metadata remain authoritative.
+This file is a supplementary discovery aid. The authoritative controls remain robots.txt, canonical HTML, page-level metadata, structured data, internal links, public APIs, feeds, and sitemaps.

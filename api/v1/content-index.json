@@ -1,0 +1,140 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-08-01T00:00:00Z",
+  "canonicalBase": "https://healthrenewal.org/",
+  "count": 12,
+  "items": [
+    {
+      "url": "https://healthrenewal.org/",
+      "path": "index.html",
+      "title": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+      "description": "بوابة عربية مؤسسية للمعرفة النفسية والتربية الدامجة والأدلة العملية والأدوات.",
+      "language": "ar",
+      "schemaType": "CollectionPage",
+      "published": "",
+      "updated": "2026-08-01T00:00:00Z",
+      "semantic": {"hasMain": true, "hasArticle": false, "hasH1": true, "hasJsonLd": true}
+    },
+    {
+      "url": "https://healthrenewal.org/encyclopedia/",
+      "path": "encyclopedia/index.html",
+      "title": "الموسوعة النفسية العربية",
+      "description": "مصطلحات ومفاهيم نفسية منظمة ومترابطة للقراءة والاستشهاد.",
+      "language": "ar",
+      "schemaType": "MedicalWebPage",
+      "published": "",
+      "updated": "2026-08-01T00:00:00Z",
+      "semantic": {"hasMain": true, "hasArticle": false, "hasH1": true, "hasJsonLd": true}
+    },
+    {
+      "url": "https://healthrenewal.org/special-needs/",
+      "path": "special-needs/index.html",
+      "title": "ذوو الاحتياجات الخاصة والتربية الدامجة",
+      "description": "أدلة ومعرفة منظمة للأسر والمختصين ومقدمي الخدمات.",
+      "language": "ar",
+      "schemaType": "MedicalWebPage",
+      "published": "",
+      "updated": "2026-08-01T00:00:00Z",
+      "semantic": {"hasMain": true, "hasArticle": false, "hasH1": true, "hasJsonLd": true}
+    },
+    {
+      "url": "https://healthrenewal.org/family-guide/",
+      "path": "family-guide/index.html",
+      "title": "دليل الأسرة للرعاية والدعم",
+      "description": "إرشادات عملية للأسرة لدعم الفهم والتواصل والرعاية الآمنة.",
+      "language": "ar",
+      "schemaType": "MedicalWebPage",
+      "published": "",
+      "updated": "2026-08-01T00:00:00Z",
+      "semantic": {"hasMain": true, "hasArticle": false, "hasH1": true, "hasJsonLd": true}
+    },
+    {
+      "url": "https://healthrenewal.org/library/",
+      "path": "library/index.html",
+      "title": "المكتبة الأكاديمية والأبحاث",
+      "description": "مواد أكاديمية ومصادر وأبحاث مرتبة مع إسناد واضح.",
+      "language": "ar",
+      "schemaType": "Article",
+      "published": "",
+      "updated": "2026-08-01T00:00:00Z",
+      "semantic": {"hasMain": true, "hasArticle": true, "hasH1": true, "hasJsonLd": true}
+    },
+    {
+      "url": "https://healthrenewal.org/magazine/",
+      "path": "magazine/index.html",
+      "title": "المجلة والأبحاث",
+      "description": "تحليلات وملخصات بحثية عربية منظمة ومسنَدة.",
+      "language": "ar",
+      "schemaType": "Article",
+      "published": "",
+      "updated": "2026-08-01T00:00:00Z",
+      "semantic": {"hasMain": true, "hasArticle": true, "hasH1": true, "hasJsonLd": true}
+    },
+    {
+      "url": "https://healthrenewal.org/care-guides/",
+      "path": "care-guides/index.html",
+      "title": "أدلة الرعاية والتعامل العملي",
+      "description": "أدلة تطبيقية للأسر والمعلمين والمختصين ومقدمي الخدمة.",
+      "language": "ar",
+      "schemaType": "MedicalWebPage",
+      "published": "",
+      "updated": "2026-08-01T00:00:00Z",
+      "semantic": {"hasMain": true, "hasArticle": false, "hasH1": true, "hasJsonLd": true}
+    },
+    {
+      "url": "https://healthrenewal.org/daily-tools/",
+      "path": "daily-tools/index.html",
+      "title": "الأدوات النفسية التفاعلية",
+      "description": "أدوات تثقيفية وتنظيمية لا تستبدل التقييم أو العلاج الفردي.",
+      "language": "ar",
+      "schemaType": "WebApplication",
+      "published": "",
+      "updated": "2026-08-01T00:00:00Z",
+      "semantic": {"hasMain": true, "hasArticle": false, "hasH1": true, "hasJsonLd": true}
+    },
+    {
+      "url": "https://healthrenewal.org/comparisons/",
+      "path": "comparisons/index.html",
+      "title": "المقارنات النفسية",
+      "description": "مقارنات منهجية لتوضيح الفروق بين المفاهيم والحالات المتقاربة.",
+      "language": "ar",
+      "schemaType": "CollectionPage",
+      "published": "",
+      "updated": "2026-08-01T00:00:00Z",
+      "semantic": {"hasMain": true, "hasArticle": false, "hasH1": true, "hasJsonLd": true}
+    },
+    {
+      "url": "https://healthrenewal.org/learning-paths/",
+      "path": "learning-paths/index.html",
+      "title": "مسارات التعلم",
+      "description": "مسارات تعلم قصيرة ومنظمة تربط المفاهيم بالأدلة والتطبيقات.",
+      "language": "ar",
+      "schemaType": "CollectionPage",
+      "published": "",
+      "updated": "2026-08-01T00:00:00Z",
+      "semantic": {"hasMain": true, "hasArticle": false, "hasH1": true, "hasJsonLd": true}
+    },
+    {
+      "url": "https://healthrenewal.org/en/",
+      "path": "en/index.html",
+      "title": "HealthRenewal English gateway",
+      "description": "English discovery gateway for selected public educational resources.",
+      "language": "en",
+      "schemaType": "CollectionPage",
+      "published": "",
+      "updated": "2026-08-01T00:00:00Z",
+      "semantic": {"hasMain": true, "hasArticle": false, "hasH1": true, "hasJsonLd": true}
+    },
+    {
+      "url": "https://healthrenewal.org/es/",
+      "path": "es/index.html",
+      "title": "Portal de HealthRenewal en español",
+      "description": "Portal de descubrimiento en español para recursos educativos públicos seleccionados.",
+      "language": "es",
+      "schemaType": "CollectionPage",
+      "published": "",
+      "updated": "2026-08-01T00:00:00Z",
+      "semantic": {"hasMain": true, "hasArticle": false, "hasH1": true, "hasJsonLd": true}
+    }
+  ]
+}

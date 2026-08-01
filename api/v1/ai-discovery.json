@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-08-01T00:00:00Z",
+  "name": "HealthRenewal machine-readable discovery surface",
+  "canonicalBase": "https://healthrenewal.org/",
+  "languages": ["ar", "en", "es"],
+  "rendering": {
+    "mode": "static-generated-html",
+    "javascriptRequiredForPrimaryText": false,
+    "semanticHtmlExpected": true
+  },
+  "crawling": {
+    "policy": "public-allow",
+    "robots": "https://healthrenewal.org/robots.txt",
+    "explicitUserAgents": [
+      "OAI-SearchBot",
+      "GPTBot",
+      "ChatGPT-User",
+      "ClaudeBot",
+      "Claude-SearchBot",
+      "Claude-User",
+      "Claude-Web",
+      "PerplexityBot",
+      "Perplexity-User",
+      "Google-Extended"
+    ]
+  },
+  "endpoints": {
+    "sitemap": "https://healthrenewal.org/sitemap.xml",
+    "sitemapIndex": "https://healthrenewal.org/sitemap-index.xml",
+    "rss": "https://healthrenewal.org/feed.xml",
+    "atom": "https://healthrenewal.org/atom.xml",
+    "contentIndex": "https://healthrenewal.org/api/v1/content-index.json",
+    "openApi": "https://healthrenewal.org/api/v1/ai-discovery.openapi.json",
+    "platformApi": "https://healthrenewal.org/api/v1/platform.json",
+    "platformOpenApi": "https://healthrenewal.org/api/v1/openapi.json",
+    "llms": "https://healthrenewal.org/llms.txt",
+    "llmsFull": "https://healthrenewal.org/llms-full.txt"
+  },
+  "security": {
+    "verificationRule": "Never trust User-Agent alone. Combine the declared crawler identity with official IP verification when the provider publishes a manifest.",
+    "openAiIpManifest": "https://openai.com/searchbot.json",
+    "perplexityIpManifest": "https://www.perplexity.ai/perplexitybot.json",
+    "anthropicVerification": "Follow the current official Anthropic crawler documentation and apply conservative rate limits; do not invent an IP allowlist.",
+    "recommendedActions": [
+      "Allow verified crawlers before generic bot-blocking rules",
+      "Do not issue CAPTCHA or JavaScript challenges to verified crawlers",
+      "Retain abuse rate limits, request logging, and anomaly detection",
+      "Review provider documentation before changing allowlists"
+    ]
+  },
+  "safety": {
+    "purpose": "educational discovery, retrieval, and citation",
+    "notFor": [
+      "diagnosis",
+      "emergency triage",
+      "individual treatment decisions"
+    ]
+  }
+}
