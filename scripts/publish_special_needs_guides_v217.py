@@ -69,6 +69,11 @@ def validate_undercovered_expansion(report: dict[str, Any]) -> None:
         raise SystemExit(f"v401 quality gates failed: {gates}")
 
 
+def full_site_hubs_available(site: Path) -> bool:
+    """Keep legacy minimal-fixture builds compatible while publishing v401 on the full site."""
+    return all((site / path).is_file() for path in expansion401.HUB_PATHS.values())
+
+
 def reset_clinical_outputs(site: Path) -> None:
     """Remove only generated v324 outputs so repeated central builds start equally."""
     for slug in clinical324.EXPECTED:
@@ -107,8 +112,6 @@ def publish(site: Path) -> dict[str, Any]:
     report = pipeline.publish(site)
     clinical_report = clinical324.publish(site)
     validate_clinical_pathways(clinical_report)
-    expansion_report = expansion401.publish(site)
-    validate_undercovered_expansion(expansion_report)
 
     report["autism_clinical_pathways_contract"] = 324
     report.setdefault("condition_hubs", {})["autism_clinical_pathways"] = pipeline.pick(
@@ -131,26 +134,30 @@ def publish(site: Path) -> dict[str, Any]:
         "external_clinical_review_completed",
         "content_source",
     )
-    report["undercovered_content_contract"] = 401
-    report["undercovered_content"] = pipeline.pick(
-        expansion_report,
-        "version",
-        "status",
-        "page_count",
-        "distribution",
-        "minimum_words",
-        "total_words",
-        "minimum_h2",
-        "minimum_citations",
-        "unique_routes",
-        "source_count",
-        "hub_counts",
-        "sitemap_updates",
-        "reviewed_at",
-        "next_review_due",
-        "external_specialist_review_completed",
-        "quality_gates",
-    )
+
+    if full_site_hubs_available(site):
+        expansion_report = expansion401.publish(site)
+        validate_undercovered_expansion(expansion_report)
+        report["undercovered_content_contract"] = 401
+        report["undercovered_content"] = pipeline.pick(
+            expansion_report,
+            "version",
+            "status",
+            "page_count",
+            "distribution",
+            "minimum_words",
+            "total_words",
+            "minimum_h2",
+            "minimum_citations",
+            "unique_routes",
+            "source_count",
+            "hub_counts",
+            "sitemap_updates",
+            "reviewed_at",
+            "next_review_due",
+            "external_specialist_review_completed",
+            "quality_gates",
+        )
 
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
