@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
-  "recorded_at": "2026-07-31T22:05:59.134003+00:00",
+  "recorded_at": "2026-08-01T00:07:21.404768+00:00",
   "workflow_name": "Deploy canonical SEO live v363",
-  "workflow_run_id": 30668750725,
+  "workflow_run_id": 30674682612,
   "run_attempt": 1,
   "event": "push",
   "status": "completed",
-  "conclusion": "failure",
+  "conclusion": "success",
   "head_branch": "main",
-  "head_sha": "cb4b5094843271fcd5c54bd34b2576ba8e3f7a57",
-  "created_at": "2026-07-31T22:04:39Z",
-  "updated_at": "2026-07-31T22:05:50Z",
-  "html_url": "https://github.com/khaledaltheeb/healthrenewal.org/actions/runs/30668750725",
-  "passed": false
+  "head_sha": "529cae754a98763b92247e7158439e0edfc8460d",
+  "created_at": "2026-08-01T00:06:36Z",
+  "updated_at": "2026-08-01T00:07:08Z",
+  "html_url": "https://github.com/khaledaltheeb/healthrenewal.org/actions/runs/30674682612",
+  "passed": true
 }
