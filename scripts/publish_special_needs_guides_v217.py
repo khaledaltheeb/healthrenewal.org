@@ -11,6 +11,7 @@ from typing import Any
 
 import publish_autism_clinical_pathways_v324 as clinical324
 import publish_special_needs_guides_v217_pipeline_core as pipeline
+import publish_undercovered_content_v401 as expansion401
 from publish_special_needs_guides_v217_pipeline_core import *  # noqa: F401,F403
 
 
@@ -31,6 +32,41 @@ def validate_clinical_pathways(report: dict[str, Any]) -> None:
         raise SystemExit("v324 discovery or sitemap contract failed")
     if report.get("external_clinical_review_completed") is not False:
         raise SystemExit("v324 must not overstate external clinical review")
+
+
+def validate_undercovered_expansion(report: dict[str, Any]) -> None:
+    expected_distribution = {
+        "special-needs": 60,
+        "learning-paths": 15,
+        "child": 10,
+        "family": 8,
+        "home": 7,
+    }
+    if report.get("version") != 401 or report.get("status") != "passed":
+        raise SystemExit(f"Undercovered content v401 contract failed: {report}")
+    if report.get("page_count") != 100 or report.get("unique_routes") != 100:
+        raise SystemExit("v401 must publish exactly one hundred unique pages")
+    if report.get("distribution") != expected_distribution:
+        raise SystemExit(f"v401 distribution changed unexpectedly: {report.get('distribution')}")
+    if report.get("minimum_words", 0) < 1200 or report.get("minimum_h2", 0) < 15:
+        raise SystemExit("v401 depth or hierarchy is below the production threshold")
+    if report.get("minimum_citations", 0) < 3 or report.get("source_count", 0) < 10:
+        raise SystemExit("v401 source visibility is below the production threshold")
+    if report.get("external_specialist_review_completed") is not False:
+        raise SystemExit("v401 must not overstate external specialist review")
+    required_gates = {
+        "functional_icf_frame",
+        "rights_based_frame",
+        "professional_limits_visible",
+        "urgent_escalation_visible",
+        "measurement_and_decision_rules",
+        "inclusive_language_gate",
+        "external_review_not_overstated",
+        "no_client_side_network_runtime",
+    }
+    gates = report.get("quality_gates", {})
+    if not required_gates.issubset(gates) or not all(gates.get(key) is True for key in required_gates):
+        raise SystemExit(f"v401 quality gates failed: {gates}")
 
 
 def reset_clinical_outputs(site: Path) -> None:
@@ -71,6 +107,8 @@ def publish(site: Path) -> dict[str, Any]:
     report = pipeline.publish(site)
     clinical_report = clinical324.publish(site)
     validate_clinical_pathways(clinical_report)
+    expansion_report = expansion401.publish(site)
+    validate_undercovered_expansion(expansion_report)
 
     report["autism_clinical_pathways_contract"] = 324
     report.setdefault("condition_hubs", {})["autism_clinical_pathways"] = pipeline.pick(
@@ -92,6 +130,26 @@ def publish(site: Path) -> dict[str, Any]:
         "next_review_due",
         "external_clinical_review_completed",
         "content_source",
+    )
+    report["undercovered_content_contract"] = 401
+    report["undercovered_content"] = pipeline.pick(
+        expansion_report,
+        "version",
+        "status",
+        "page_count",
+        "distribution",
+        "minimum_words",
+        "total_words",
+        "minimum_h2",
+        "minimum_citations",
+        "unique_routes",
+        "source_count",
+        "hub_counts",
+        "sitemap_updates",
+        "reviewed_at",
+        "next_review_due",
+        "external_specialist_review_completed",
+        "quality_gates",
     )
 
     api = site / "api"
