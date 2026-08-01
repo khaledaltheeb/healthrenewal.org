@@ -128,13 +128,14 @@ jobs:
       - name: Enforce the complete sitemap contract
         run: python scripts/audit_seo_intent_v1.py --scope all --strict --report reports/seo-intent-all-v1.json
 
-      - name: Verify deterministic generators
+      - name: Verify deterministic composed generation
         if: success()
         run: |
-          python scripts/apply_static_seo_fixes_v1.py --check
-          python scripts/enhance_search_intent_v1.py --check
-          python scripts/upgrade_magazine_intent_v2.py --check
-          node scripts/prerender_provider_assessment_v1.js --check
+          python scripts/apply_static_seo_fixes_v1.py --write
+          python scripts/enhance_search_intent_v1.py --write
+          python scripts/upgrade_magazine_intent_v2.py --write
+          node scripts/prerender_provider_assessment_v1.js --write
+          git diff --exit-code -- . ':!reports/seo-intent-priority-v1.json' ':!reports/seo-intent-priority-v1.md' ':!reports/seo-intent-all-v1.json' ':!reports/seo-intent-all-v1.md'
 
       - name: Upload audit reports
         if: always()
