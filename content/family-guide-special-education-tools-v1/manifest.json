@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "version": "1.0.0",
+  "reviewStatus": "internally-reviewed-external-specialist-review-recommended",
+  "reviewedAt": "2026-08-02",
+  "nextReviewDue": "2027-02-02",
+  "title": "مركز أدوات التربية الخاصة ودعم الأسرة",
+  "sources": {
+    "crpd24": {
+      "title": "اتفاقية حقوق الأشخاص ذوي الإعاقة — المادة 24: التعليم",
+      "publisher": "الأمم المتحدة",
+      "url": "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"
+    },
+    "unicef-inclusive": {
+      "title": "Inclusive education",
+      "publisher": "UNICEF",
+      "url": "https://www.unicef.org/education/inclusive-education"
+    },
+    "who-icf": {
+      "title": "International Classification of Functioning, Disability and Health (ICF)",
+      "publisher": "World Health Organization",
+      "url": "https://www.who.int/standards/classifications/international-classification-of-functioning-disability-and-health"
+    },
+    "cast-udl": {
+      "title": "Universal Design for Learning Guidelines 3.0",
+      "publisher": "CAST",
+      "url": "https://udlguidelines.cast.org/"
+    },
+    "idea-iep": {
+      "title": "Individualized Education Program (IEP)",
+      "publisher": "U.S. Department of Education — IDEA",
+      "url": "https://sites.ed.gov/idea/regs/b/d/300.320"
+    },
+    "ncii-progress": {
+      "title": "Progress Monitoring",
+      "publisher": "National Center on Intensive Intervention",
+      "url": "https://intensiveintervention.org/progress-monitoring"
+    },
+    "pbis-fba": {
+      "title": "Functional Behavioral Assessment",
+      "publisher": "Center on PBIS",
+      "url": "https://www.pbis.org/resource/functional-behavioral-assessment-fba"
+    },
+    "asha-aac": {
+      "title": "Augmentative and Alternative Communication (AAC)",
+      "publisher": "American Speech-Language-Hearing Association",
+      "url": "https://www.asha.org/practice-portal/professional-issues/augmentative-and-alternative-communication/"
+    },
+    "who-at": {
+      "title": "Global report on assistive technology",
+      "publisher": "WHO and UNICEF",
+      "url": "https://www.who.int/publications/i/item/9789240049451"
+    },
+    "idea-transition": {
+      "title": "Transition services",
+      "publisher": "U.S. Department of Education — IDEA",
+      "url": "https://sites.ed.gov/idea/regs/b/a/300.43"
+    },
+    "unesco-inclusion": {
+      "title": "A guide for ensuring inclusion and equity in education",
+      "publisher": "UNESCO",
+      "url": "https://unesdoc.unesco.org/ark:/48223/pf0000248254"
+    },
+    "ed-at-guidance": {
+      "title": "Myths and Facts Surrounding Assistive Technology Devices and Services",
+      "publisher": "U.S. Department of Education",
+      "url": "https://sites.ed.gov/idea/idea-files/at-guidance/"
+    }
+  }
+}

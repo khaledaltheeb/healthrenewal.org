@@ -1,0 +1,114 @@
+name: Materialize special education family tools
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/materialize-family-guide-special-education-tools-v1.yml"
+      - "content/family-guide-special-education-tools-v1/**"
+      - "scripts/family_tools_v1_common.py"
+      - "scripts/family_tools_v1_render.py"
+      - "scripts/publish_family_guide_special_education_tools_v1.py"
+      - "tests/test_family_guide_special_education_tools_v1.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/materialize-family-guide-special-education-tools-v1.yml"
+      - "content/family-guide-special-education-tools-v1/**"
+      - "scripts/family_tools_v1_common.py"
+      - "scripts/family_tools_v1_render.py"
+      - "scripts/publish_family_guide_special_education_tools_v1.py"
+      - "tests/test_family_guide_special_education_tools_v1.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: materialize-family-guide-special-education-tools-v1
+  cancel-in-progress: false
+
+jobs:
+  validate-and-materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main' }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile generator and run contract tests
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/family_tools_v1_common.py \
+            scripts/family_tools_v1_render.py \
+            scripts/publish_family_guide_special_education_tools_v1.py
+          python tests/test_family_guide_special_education_tools_v1.py
+
+      - name: Generate static pages in the repository tree
+        run: |
+          set -euo pipefail
+          python scripts/publish_family_guide_special_education_tools_v1.py .
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+
+          report = json.loads(Path("api/family-guide-special-education-tools-v1.json").read_text(encoding="utf-8"))
+          assert report["status"] == "passed", report
+          assert report["tool_count"] == 15, report
+          assert report["generated_pages"] == 16, report
+          assert report["minimum_page_words"] >= 1200, report
+          assert report["median_page_words"] >= 1200, report
+          assert report["source_count"] >= 10, report
+          assert report["parent_card_linked"] is True, report
+          assert report["all_tool_cards_static"] is True, report
+
+          hub = Path("family-guide/tools/index.html").read_text(encoding="utf-8")
+          assert hub.count('class="tool-card"') == 15
+          root = Path("family-guide/index.html").read_text(encoding="utf-8")
+          assert 'href="tools/"' in root
+          assert root.count('class="tool-card"') >= 6
+
+          pages = sorted(Path("family-guide/tools").glob("*/index.html"))
+          assert len(pages) == 15, len(pages)
+          for page in pages:
+              source = page.read_text(encoding="utf-8")
+              assert len(re.findall(r"<h1\b", source, re.I)) == 1, page
+              assert 'rel="canonical"' in source, page
+              assert 'name="robots" content="index,follow' in source, page
+              assert 'type="application/ld+json"' in source, page
+              assert 'class="card tool-form"' in source, page
+              assert source.count('class="source-card"') >= 4, page
+          print({
+              "tools": report["tool_count"],
+              "minimumWords": report["minimum_page_words"],
+              "medianWords": report["median_page_words"],
+              "maximumWords": report["maximum_page_words"],
+              "sources": report["source_count"],
+          })
+          PY
+          git diff --check
+
+      - name: Commit deterministic generated pages to main
+        if: github.event_name != 'pull_request'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            family-guide/index.html \
+            family-guide/tools \
+            api/family-guide-special-education-tools-v1.json
+          if git diff --cached --quiet; then
+            echo "Generated pages are already current."
+            exit 0
+          fi
+          git commit -m "content(family-guide): materialize 15 special education tools"
+          git push origin HEAD:main
