@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - agent/encyclopedia-2000-seo-search-intent-20260801
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -23,6 +26,7 @@ jobs:
       - name: Checkout implementation branch
         uses: actions/checkout@v4
         with:
+          ref: agent/encyclopedia-2000-seo-search-intent-20260801
           fetch-depth: 0
 
       - name: Reassemble verified patch from PR transport
