@@ -18,7 +18,7 @@ jobs:
       - name: Wait for corrected encyclopedia deployment
         env:
           GH_TOKEN: ${{ github.token }}
-          TARGET_SHA: 4a85d9817bca2b456e9f17d559550db9e448cf87
+          TARGET_SHA: 928badb6bb61855384a1f288f1a394f3e755bab3
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euxo pipefail
