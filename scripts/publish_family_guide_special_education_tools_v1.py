@@ -69,8 +69,12 @@ def replace_root_tools(root_html: Path, tools: list[dict]) -> None:
     if not pattern.search(source):
         raise SystemExit("family-guide root tools section not found")
     updated = pattern.sub(block, source, count=1)
-    for old, new in ROOT_COPY_REPLACEMENTS.items():
-        updated = updated.replace(old, new)
+    for _ in range(4):
+        previous = updated
+        for old, new in ROOT_COPY_REPLACEMENTS.items():
+            updated = updated.replace(old, new)
+        if updated == previous:
+            break
     bad = [phrase for phrase in BAD_ROOT_COPY if phrase in updated]
     if bad:
         raise SystemExit({"invalid_arabic_parent_copy": bad})
