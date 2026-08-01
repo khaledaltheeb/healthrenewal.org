@@ -1,0 +1,85 @@
+name: Temporary verify encyclopedia production release v2
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  verify-production-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Wait for corrected encyclopedia deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_SHA: 4a85d9817bca2b456e9f17d559550db9e448cf87
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          import time
+          import urllib.request
+
+          repo = os.environ['GITHUB_REPOSITORY']
+          token = os.environ['GH_TOKEN']
+          target_sha = os.environ['TARGET_SHA']
+          pr_number = os.environ['PR_NUMBER']
+          headers = {
+              'Authorization': f'Bearer {token}',
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+              'User-Agent': 'encyclopedia-production-verifier-v2',
+          }
+
+          def get_json(url):
+              request = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  return json.load(response)
+
+          list_url = f'https://api.github.com/repos/{repo}/actions/runs?head_sha={target_sha}&per_page=100'
+          run = None
+          for attempt in range(60):
+              data = get_json(list_url)
+              candidates = [
+                  item for item in data.get('workflow_runs', [])
+                  if item.get('name') == 'Deploy encyclopedia SEO and search intent v1'
+                  and item.get('head_sha') == target_sha
+              ]
+              if candidates:
+                  run = max(candidates, key=lambda item: item.get('created_at', ''))
+                  break
+              print({'attempt': attempt + 1, 'status': 'waiting_for_run'})
+              time.sleep(5)
+          if not run:
+              raise SystemExit(f'No corrected deployment run found for {target_sha}')
+
+          run_id = int(run['id'])
+          run_url = f'https://api.github.com/repos/{repo}/actions/runs/{run_id}'
+          subprocess.run([
+              'gh', 'api', f'repos/{repo}/issues/{pr_number}/comments',
+              '-f', f'body=ENCYCLOPEDIA_V2_RUN run_id={run_id} sha={target_sha} status={run.get("status")}'
+          ], check=True)
+
+          for attempt in range(180):
+              current = get_json(run_url)
+              status = current.get('status')
+              conclusion = current.get('conclusion')
+              print({'attempt': attempt + 1, 'run_id': run_id, 'status': status, 'conclusion': conclusion})
+              if status == 'completed':
+                  body = f'ENCYCLOPEDIA_V2_RESULT run_id={run_id} sha={target_sha} conclusion={conclusion}'
+                  subprocess.run(['gh', 'api', f'repos/{repo}/issues/{pr_number}/comments', '-f', f'body={body}'], check=True)
+                  if conclusion != 'success':
+                      raise SystemExit(f'Corrected deployment failed: {conclusion}; run_id={run_id}')
+                  raise SystemExit(0)
+              time.sleep(10)
+          raise SystemExit(f'Timed out waiting for corrected deployment run_id={run_id}')
+          PY
