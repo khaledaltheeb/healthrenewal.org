@@ -194,7 +194,6 @@ def main() -> None:
         'rel="manifest"',
         'rel="icon"',
         'rel="search"',
-        'name="keywords"',
         'property="og:image"',
         'name="twitter:image"',
         'application/ld+json',
