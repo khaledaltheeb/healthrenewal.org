@@ -2,7 +2,7 @@
   "contract": "sitewide-heading-search-intent-v2",
   "pages": 212,
   "indexable": 212,
-  "changed": 24,
+  "changed": 0,
   "failed": 0,
   "all_indexable_have_exactly_one_h1": true,
   "all_indexable_have_h2": true,
@@ -19,7 +19,7 @@
       "h3": 5,
       "questions": 6,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -32,7 +32,7 @@
       "h3": 3,
       "questions": 8,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -45,7 +45,7 @@
       "h3": 3,
       "questions": 9,
       "minimum_questions": 3,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -58,7 +58,7 @@
       "h3": 10,
       "questions": 6,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -84,7 +84,7 @@
       "h3": 3,
       "questions": 6,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -97,7 +97,7 @@
       "h3": 11,
       "questions": 7,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -929,7 +929,7 @@
       "h3": 3,
       "questions": 12,
       "minimum_questions": 3,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -981,7 +981,7 @@
       "h3": 3,
       "questions": 6,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2060,7 +2060,7 @@
       "h3": 3,
       "questions": 6,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2073,7 +2073,7 @@
       "h3": 8,
       "questions": 7,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2086,7 +2086,7 @@
       "h3": 3,
       "questions": 6,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2099,7 +2099,7 @@
       "h3": 9,
       "questions": 6,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2372,7 +2372,7 @@
       "h3": 16,
       "questions": 6,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2385,7 +2385,7 @@
       "h3": 3,
       "questions": 6,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2398,7 +2398,7 @@
       "h3": 27,
       "questions": 6,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2502,7 +2502,7 @@
       "h3": 29,
       "questions": 7,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2515,7 +2515,7 @@
       "h3": 27,
       "questions": 6,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2554,7 +2554,7 @@
       "h3": 32,
       "questions": 6,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2580,7 +2580,7 @@
       "h3": 28,
       "questions": 6,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2619,7 +2619,7 @@
       "h3": 3,
       "questions": 8,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2632,7 +2632,7 @@
       "h3": 3,
       "questions": 15,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2645,7 +2645,7 @@
       "h3": 3,
       "questions": 35,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2658,7 +2658,7 @@
       "h3": 3,
       "questions": 6,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
@@ -2671,7 +2671,7 @@
       "h3": 3,
       "questions": 9,
       "minimum_questions": 2,
-      "changed": true,
+      "changed": false,
       "error": ""
     },
     {
