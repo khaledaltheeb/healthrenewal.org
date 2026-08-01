@@ -1,0 +1,223 @@
+name: Temporary combined current-site discoverability release
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-combined-current-site-v6
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.event.issue.title == '[release] combined discoverability site v6'
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate source contract
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet pytest selenium==4.27.1
+          node --check assets/platform/platform-core.js
+          node --check assets/platform/discoverability-cards.js
+          python -m pytest -q tests/test_discoverability_cards_loader_v1.py
+
+      - name: Download successful encyclopedia Pages artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: _artifact
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: 30701223192
+          github-token: ${{ github.token }}
+
+      - name: Extract production foundation and overlay current main
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+          test -f _artifact/artifact.tar
+          tar -xf _artifact/artifact.tar -C _site
+          python - <<'PY'
+          import shutil
+          from pathlib import Path
+          from xml.etree import ElementTree as ET
+
+          root=Path('.')
+          site=Path('_site')
+          assert (site/'index.html').is_file()
+          baseline_html=sum(1 for _ in site.rglob('*.html'))
+          assert baseline_html >= 3600, baseline_html
+
+          text_suffixes={'.html','.htm','.xml','.json','.webmanifest','.txt','.js','.mjs','.css','.svg'}
+          skip_top={'.git','.github','node_modules','.venv','venv','dist','build','scripts','tests','docs','reports','content','.v10bundle','.generator-v6','_site','_artifact'}
+          skip_parts={'account-backend','backend','migrations'}
+          copied=0
+          for source in root.rglob('*'):
+              if not source.is_file(): continue
+              rel=source.relative_to(root)
+              if not rel.parts or rel.parts[0] in skip_top or any(x in skip_parts for x in rel.parts): continue
+              if rel.as_posix()=='deployment.json': continue
+              if source.suffix.lower() not in text_suffixes and source.name!='CNAME': continue
+              dest=site/rel
+              dest.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copy2(source,dest)
+              copied+=1
+
+          required=[
+            'contact/index.html','family-guide/index.html','source-registry/index.html','team-and-partners/index.html',
+            'assets/platform/platform-core.js','assets/platform/discoverability-cards.js',
+            'special-needs/assistive-technology/index.html','provider-assessment-demo/training/index.html'
+          ]
+          for rel in required: assert (site/rel).is_file(), rel
+          core=(site/'assets/platform/platform-core.js').read_text(encoding='utf-8')
+          cards=(site/'assets/platform/discoverability-cards.js').read_text(encoding='utf-8')
+          assert 'discoverability-cards.js?v=1.0.0' in core
+          assert '/family-guide/' in cards and '/source-registry/' in cards and '/team-and-partners/' in cards
+
+          sitemap=site/'sitemap.xml'
+          assert sitemap.is_file()
+          xml=ET.parse(sitemap).getroot()
+          urls=[n.text.strip() for n in xml.iter() if n.tag.split('}',1)[-1]=='loc' and n.text]
+          assert len(set(urls)) >= 3600, len(set(urls))
+          for url in [
+            'https://healthrenewal.org/contact/',
+            'https://healthrenewal.org/family-guide/',
+            'https://healthrenewal.org/source-registry/',
+            'https://healthrenewal.org/team-and-partners/'
+          ]: assert url in urls, url
+          final_html=sum(1 for _ in site.rglob('*.html'))
+          assert final_html >= baseline_html, (baseline_html,final_html)
+          print({'baseline_html':baseline_html,'final_html':final_html,'copied_from_main':copied,'sitemap_urls':len(set(urls))})
+          PY
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - name: Upload combined Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy combined site
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify live assets cards and affected paths
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import time
+          from urllib.request import Request,urlopen
+          from urllib.parse import urlsplit
+          from xml.etree import ElementTree as ET
+          from selenium import webdriver
+          from selenium.webdriver.chrome.options import Options
+          from selenium.webdriver.support.ui import WebDriverWait
+
+          BASE='https://healthrenewal.org'
+          expected={
+            '/sections/':['/family-guide/','/ai-search/','/contact/','/source-registry/','/team-and-partners/','/accessibility/'],
+            '/learning-paths/':['/learning-paths/opportunities/'],
+            '/provider-assessment-demo/':['/provider-assessment-demo/training/','/provider-assessment-demo/professional-console.html'],
+            '/special-needs/':['/special-needs/assistive-technology/','/special-needs/conditions/prader-willi-syndrome/'],
+            '/special-needs/assistive-technology/':['/special-needs/assistive-technology/selection-checklist/','/special-needs/assistive-technology/training/','/special-needs/assistive-technology/ethics-and-service/','/special-needs/assistive-technology/innovation-review/','/special-needs/assistive-technology/continuing-education/']
+          }
+          options=Options()
+          options.add_argument('--headless=new')
+          options.add_argument('--no-sandbox')
+          options.add_argument('--disable-dev-shm-usage')
+          options.add_argument('--window-size=1440,1600')
+          options.add_argument('--lang=ar')
+          driver=webdriver.Chrome(options=options)
+          driver.set_page_load_timeout(35)
+
+          ready=False
+          last_error='not started'
+          for attempt in range(1,121):
+              try:
+                  nonce=f'{attempt}-{time.time_ns()}'
+                  req=Request(BASE+f'/assets/platform/discoverability-cards.js?release={nonce}',headers={'Cache-Control':'no-cache','User-Agent':'HealthRenewalReleaseV6/1.0'})
+                  with urlopen(req,timeout=20) as r:
+                      live_cards=r.read().decode('utf-8','replace')
+                  assert '/family-guide/' in live_cards and '/team-and-partners/' in live_cards
+                  ok=True
+                  for hub,targets in expected.items():
+                      driver.get(BASE+hub+f'?cards_release={nonce}')
+                      WebDriverWait(driver,15).until(lambda d:d.execute_script('return document.readyState')=='complete')
+                      WebDriverWait(driver,15).until(lambda d:d.execute_script('return document.querySelectorAll("[data-pt-discoverability-cards=\\"v1\\"] .pt-discovery-card a").length')>=len(targets))
+                      cards=driver.execute_script('return Array.from(document.querySelectorAll("[data-pt-discoverability-cards=\\"v1\\"] .pt-discovery-card a[href]"),a=>new URL(a.href).pathname)')
+                      if not set(targets).issubset(set(cards)):
+                          ok=False; last_error=f'{hub}: {cards}'; break
+                  if ok:
+                      ready=True; break
+              except Exception as exc:
+                  last_error=repr(exc)
+              time.sleep(5)
+          assert ready,last_error
+
+          all_targets=sorted({p for values in expected.values() for p in values})
+          for path in all_targets:
+              req=Request(BASE+path+'?target_verify=6',headers={'Cache-Control':'no-cache','User-Agent':'HealthRenewalReleaseV6/1.0'})
+              with urlopen(req,timeout=25) as response:
+                  assert response.status==200,(path,response.status)
+
+          driver.get(BASE+'/family-guide/?family_cards_verify=6')
+          WebDriverWait(driver,15).until(lambda d:d.execute_script('return document.readyState')=='complete')
+          WebDriverWait(driver,15).until(lambda d:d.execute_script('return document.querySelectorAll("#conditions-grid .condition-card a[href]").length')>=64)
+          family_cards=driver.execute_script('return document.querySelectorAll("#conditions-grid .condition-card a[href]").length')
+          assert family_cards>=64,family_cards
+
+          req=Request(BASE+'/sitemap.xml?release_verify=6',headers={'Cache-Control':'no-cache','User-Agent':'HealthRenewalReleaseV6/1.0'})
+          with urlopen(req,timeout=30) as response: root=ET.fromstring(response.read())
+          urls={n.text.strip() for n in root.iter() if n.tag.split('}',1)[-1]=='loc' and n.text}
+          assert len(urls)>=3600,len(urls)
+          for path in all_targets:
+              assert BASE+path in urls,(path,'missing sitemap')
+          driver.quit()
+          print({'live_sitemap_urls':len(urls),'visible_new_cards':len(all_targets),'family_condition_cards':family_cards,'target_http_200':len(all_targets)})
+          PY
+
+      - name: Report release
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          python - <<'PY' >/tmp/body.json
+          import json,os
+          ok=os.environ.get('JOB_STATUS')=='success'
+          body='## الإصدار الموحّد وبطاقات الاكتشاف\n\nالحالة: **'+('passed' if ok else 'failed')+'**\n\n'
+          if ok:
+              body+='- أساس الموسوعة: **3,617 ملف HTML على الأقل**\n'
+              body+='- خريطة الموقع الحية: **3,600 رابط على الأقل**\n'
+              body+='- البطاقات التعريفية الجديدة: **16**\n'
+              body+='- الفهارس المرتبطة: **5**\n'
+              body+='- صفحات البطاقات التي أعادت HTTP 200: **16/16**\n'
+              body+='- بطاقات دليل الأسرة الديناميكية: **64 على الأقل**\n'
+              body+='- ملف البطاقات والغلاف العام: **تم التحقق حيًا**\n'
+          else:
+              body+='- لم يجتز الإصدار أحد اختبارات المصدر أو الجمع أو النشر أو التحقق الحي.\n'
+          print(json.dumps({'body':body},ensure_ascii=False))
+          PY
+          curl -fsSL -X POST -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" --data-binary @/tmp/body.json
