@@ -74,6 +74,33 @@ def full_site_hubs_available(site: Path) -> bool:
     return all((site / path).is_file() for path in expansion401.HUB_PATHS.values())
 
 
+def normalize_canonical_sitemap_urls(site: Path) -> int:
+    """Repair historical duplicate slash canonical URLs without dropping sitemap rows."""
+    path = site / "sitemap-special-needs.xml"
+    if not path.is_file():
+        return 0
+    tree = ET.parse(path)
+    root = tree.getroot()
+    changed = 0
+    duplicate_prefix = "https://healthrenewal.org//"
+    canonical_prefix = "https://healthrenewal.org/"
+    for node in root.findall("{*}url/{*}loc"):
+        value = (node.text or "").strip()
+        if value.startswith(duplicate_prefix):
+            node.text = canonical_prefix + value[len(duplicate_prefix):]
+            changed += 1
+    locations = [(node.text or "").strip() for node in root.findall("{*}url/{*}loc")]
+    if len(locations) != len(set(locations)):
+        raise SystemExit("Canonical URL normalization exposed duplicate sitemap rows")
+    if changed:
+        ET.register_namespace("", "http://www.sitemaps.org/schemas/sitemap/0.9")
+        children = sorted(root.findall("{*}url"), key=lambda row: (row.findtext("{*}loc") or "").strip())
+        root[:] = children
+        ET.indent(tree, space="  ")
+        tree.write(path, encoding="utf-8", xml_declaration=True)
+    return changed
+
+
 def reset_clinical_outputs(site: Path) -> None:
     """Remove only generated v324 outputs so repeated central builds start equally."""
     for slug in clinical324.EXPECTED:
@@ -158,6 +185,10 @@ def publish(site: Path) -> dict[str, Any]:
             "external_specialist_review_completed",
             "quality_gates",
         )
+
+    repaired_urls = normalize_canonical_sitemap_urls(site)
+    if repaired_urls:
+        report["canonical_sitemap_urls_repaired"] = repaired_urls
 
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
