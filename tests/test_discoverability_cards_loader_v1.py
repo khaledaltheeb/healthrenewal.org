@@ -30,7 +30,7 @@ def test_platform_shell_loads_discoverability_catalog():
 
 def test_catalog_exposes_all_previously_hidden_pages():
     catalog = (ROOT / "assets/platform/discoverability-cards.js").read_text(encoding="utf-8")
-    assert catalog.count("data.ptDiscoverabilityCards = 'v1'") == 1
+    assert catalog.count("section.dataset.ptDiscoverabilityCards = 'v1'") == 1
     assert catalog.count(".pt-discovery-card") >= 1
     for target in TARGETS:
         assert target in catalog, target
