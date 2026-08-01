@@ -112,6 +112,35 @@ def normalize_canonical_sitemap_urls(site: Path) -> int:
     return repaired
 
 
+def reset_generated_condition_sitemap_urls(site: Path) -> None:
+    """Remove canonical and historical duplicate-slash forms before rebuilding condition layers."""
+    path = site / "sitemap-special-needs.xml"
+    if not path.is_file():
+        return
+    slugs = set(pipeline.CONDITION_SLUGS) | set(clinical324.EXPECTED)
+    targets = {
+        candidate
+        for slug in slugs
+        for candidate in (
+            f"https://healthrenewal.org/special-needs/{slug}/",
+            f"https://healthrenewal.org//special-needs/{slug}/",
+        )
+    }
+    tree = ET.parse(path)
+    root = tree.getroot()
+    removed = False
+    for row in list(root.findall("{*}url")):
+        if (row.findtext("{*}loc") or "").strip() in targets:
+            root.remove(row)
+            removed = True
+    if removed:
+        ET.register_namespace("", "http://www.sitemaps.org/schemas/sitemap/0.9")
+        children = sorted(root.findall("{*}url"), key=lambda row: (row.findtext("{*}loc") or "").strip())
+        root[:] = children
+        ET.indent(tree, space="  ")
+        tree.write(path, encoding="utf-8", xml_declaration=True)
+
+
 def reset_clinical_outputs(site: Path) -> None:
     """Remove only generated v324 outputs so repeated central builds start equally."""
     for slug in clinical324.EXPECTED:
@@ -127,25 +156,9 @@ def reset_clinical_outputs(site: Path) -> None:
             raise SystemExit("Unable to reset prior v324 autism parent block")
         parent.write_text(source, encoding="utf-8")
 
-    sitemap = site / "sitemap-special-needs.xml"
-    if sitemap.is_file():
-        tree = ET.parse(sitemap)
-        root = tree.getroot()
-        targets = {
-            f"{clinical324.BASE}/special-needs/{slug}/"
-            for slug in clinical324.EXPECTED
-        }
-        for row in list(root.findall("{*}url")):
-            loc = (row.findtext("{*}loc") or "").strip()
-            if loc in targets:
-                root.remove(row)
-        ET.register_namespace("", "http://www.sitemaps.org/schemas/sitemap/0.9")
-        ET.indent(tree, space="  ")
-        tree.write(sitemap, encoding="utf-8", xml_declaration=True)
-        clinical324.normalize_sitemap(sitemap)
-
 
 def publish(site: Path) -> dict[str, Any]:
+    reset_generated_condition_sitemap_urls(site)
     reset_clinical_outputs(site)
     report = pipeline.publish(site)
     clinical_report = clinical324.publish(site)
