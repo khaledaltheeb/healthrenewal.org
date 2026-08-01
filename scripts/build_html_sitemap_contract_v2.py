@@ -14,7 +14,10 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from urllib.parse import urlparse
 
-from enforce_sitewide_heading_intent_v2 import DEFAULT_BASE_URLS, DEFAULT_ROOT, sitemap_urls
+try:
+    from .enforce_sitewide_heading_intent_v2 import DEFAULT_BASE_URLS, DEFAULT_ROOT, sitemap_urls
+except ImportError:
+    from enforce_sitewide_heading_intent_v2 import DEFAULT_BASE_URLS, DEFAULT_ROOT, sitemap_urls
 
 NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 ET.register_namespace("", NS)
