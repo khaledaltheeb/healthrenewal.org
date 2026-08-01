@@ -1,0 +1,303 @@
+name: Repair sitemap discovery v405 from issue
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  actions: read
+  contents: write
+  issues: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages-production
+  cancel-in-progress: false
+
+jobs:
+  repair-and-deploy:
+    if: github.event.issue.title == '[release] repair sitemap discovery v405 2026-08-01'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile and test discovery builder
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/rebuild_sitemap_discovery_v405.py
+          python -m unittest -v tests.test_sitemap_discovery_v405
+
+      - name: Rebuild complete sitemap discovery graph
+        run: |
+          set -euo pipefail
+          python scripts/rebuild_sitemap_discovery_v405.py . > /tmp/sitemap-discovery-v405.json
+          python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          report = json.loads(Path('api/sitemap-discovery-v405.json').read_text(encoding='utf-8'))
+          assert report['version'] == 405
+          assert report['status'] == 'passed'
+          assert report['undercovered_page_count'] == 100
+          assert report['undercovered_routes_exposed'] == 100
+          assert report['undercovered_routes_missing'] == []
+          assert report['sitemap_count'] >= 5
+          assert all(report['quality_gates'].values())
+          required = {
+              'sitemap.xml',
+              'sitemap-special-needs.xml',
+              'sitemap-family-special-needs.xml',
+              'sitemap-family-learning-paths.xml',
+              'sitemap-family-main.xml',
+          }
+          assert required.issubset(set(report['indexed_sitemaps']))
+
+          root = ET.parse('sitemap-index.xml').getroot()
+          locations = [(node.text or '').strip() for node in root.findall('{*}sitemap/{*}loc')]
+          assert len(locations) == len(set(locations)) == report['sitemap_count']
+          assert 'https://healthrenewal.org/sitemap-special-needs.xml' in locations
+          robots = Path('robots.txt').read_text(encoding='utf-8')
+          assert 'Sitemap: https://healthrenewal.org/sitemap-index.xml' in robots
+          print(json.dumps({
+              'sitemaps': report['sitemap_count'],
+              'published_urls': report['published_url_count'],
+              'undercovered_routes': report['undercovered_routes_exposed'],
+              'rejected': report['rejected_count'],
+          }, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Commit tested discovery contract
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add sitemap-index.xml robots.txt api/sitemap-discovery-v405.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'fix(seo): expose complete sitemap graph v405'
+            for attempt in 1 2 3 4 5; do
+              git pull --rebase origin main
+              if git push origin HEAD:main; then break; fi
+              git rebase --abort || true
+              sleep $((attempt * 3))
+              if [ "$attempt" = 5 ]; then exit 1; fi
+            done
+          fi
+
+      - name: Select latest validated production artifact
+        id: artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl -fsS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" \
+            -o /tmp/artifacts.json
+          python - <<'PY'
+          import json, os
+          artifacts = [
+              item for item in json.load(open('/tmp/artifacts.json', encoding='utf-8')).get('artifacts', [])
+              if not item.get('expired') and item.get('workflow_run', {}).get('id')
+          ]
+          if not artifacts:
+              raise SystemExit('No active validated-production-site artifact found')
+          selected = max(artifacts, key=lambda item: item.get('created_at', ''))
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f"run_id={selected['workflow_run']['id']}\n")
+              output.write(f"artifact_id={selected['id']}\n")
+              output.write(f"created_at={selected.get('created_at', '')}\n")
+          print({'artifact_id': selected['id'], 'run_id': selected['workflow_run']['id'], 'created_at': selected.get('created_at')})
+          PY
+
+      - name: Download validated production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.artifact.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Overlay current pages hubs and all discovery files
+        run: |
+          set -euo pipefail
+          test -f _site/index.html
+          mkdir -p _site/special-needs _site/sectors _site/api _site/assets/platform
+
+          rm -rf _site/special-needs/practical
+          cp -a special-needs/practical _site/special-needs/practical
+          cp special-needs/index.html _site/special-needs/index.html
+
+          rm -rf _site/learning-paths
+          cp -a learning-paths _site/learning-paths
+
+          for sector in child family home; do
+            mkdir -p "_site/sectors/${sector}"
+            rm -rf "_site/sectors/${sector}/guides"
+            cp -a "sectors/${sector}/guides" "_site/sectors/${sector}/guides"
+            cp "sectors/${sector}/index.html" "_site/sectors/${sector}/index.html"
+          done
+
+          find . -maxdepth 1 -type f -name 'sitemap*.xml' -exec cp '{}' _site/ ';'
+          cp robots.txt CNAME _site/
+          cp api/undercovered-content-v401.json api/sitemap-discovery-v405.json _site/api/
+          cp assets/platform/platform-core.css assets/platform/platform-core.js _site/assets/platform/
+          test -d copyright && cp -a copyright _site/ || true
+          touch _site/.nojekyll
+
+      - name: Verify deployment artifact
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          site = Path('_site')
+          discovery = json.loads((site / 'api/sitemap-discovery-v405.json').read_text(encoding='utf-8'))
+          content = json.loads((site / 'api/undercovered-content-v401.json').read_text(encoding='utf-8'))
+          assert discovery['status'] == 'passed'
+          assert discovery['undercovered_routes_exposed'] == 100
+          assert content['page_count'] == 100 and content['engine_revision'] == 403
+          for route in content['routes']:
+              page = site / route / 'index.html'
+              assert page.is_file(), route
+          index = ET.parse(site / 'sitemap-index.xml').getroot()
+          locations = [(node.text or '').strip() for node in index.findall('{*}sitemap/{*}loc')]
+          assert len(locations) == discovery['sitemap_count']
+          assert 'https://healthrenewal.org/sitemap-special-needs.xml' in locations
+          robots = (site / 'robots.txt').read_text(encoding='utf-8')
+          assert 'Sitemap: https://healthrenewal.org/sitemap-index.xml' in robots
+          PY
+
+      - uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify live sitemap discovery
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          base="${PAGE_URL%/}"
+          ready=0
+          for attempt in $(seq 1 60); do
+            nonce="${RUN_ID}-${attempt}-$(date +%s%N)"
+            if curl -fsS --retry 2 -H 'Cache-Control: no-cache' "${base}/robots.txt?release=${nonce}" -o /tmp/live-robots.txt && \
+               curl -fsS --retry 2 -H 'Cache-Control: no-cache' "${base}/sitemap-index.xml?release=${nonce}" -o /tmp/live-index.xml && \
+               curl -fsS --retry 2 -H 'Cache-Control: no-cache' "${base}/api/sitemap-discovery-v405.json?release=${nonce}" -o /tmp/live-discovery.json && \
+               curl -fsS --retry 2 -H 'Cache-Control: no-cache' "${base}/special-needs/practical/functional-communication-profile/?release=${nonce}" -o /tmp/live-page.html; then
+              if python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          robots = Path('/tmp/live-robots.txt').read_text(encoding='utf-8')
+          assert 'Sitemap: https://healthrenewal.org/sitemap-index.xml' in robots
+          root = ET.parse('/tmp/live-index.xml').getroot()
+          locations = [(node.text or '').strip() for node in root.findall('{*}sitemap/{*}loc')]
+          assert 'https://healthrenewal.org/sitemap-special-needs.xml' in locations
+          assert 'https://healthrenewal.org/sitemap-family-special-needs.xml' in locations
+          assert 'https://healthrenewal.org/sitemap-family-learning-paths.xml' in locations
+          assert 'https://healthrenewal.org/sitemap-family-main.xml' in locations
+          report = json.loads(Path('/tmp/live-discovery.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed'
+          assert report['undercovered_routes_exposed'] == 100
+          page = Path('/tmp/live-page.html').read_text(encoding='utf-8')
+          assert 'data-content-engine="v403"' in page
+          PY
+              then ready=1; break; fi
+            fi
+            sleep 3
+          done
+          test "$ready" = 1
+
+      - name: Commit live discovery receipt
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          RUN_ID: ${{ github.run_id }}
+          ARTIFACT_RUN_ID: ${{ steps.artifact.outputs.run_id }}
+          ARTIFACT_ID: ${{ steps.artifact.outputs.artifact_id }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import datetime, json, os, subprocess, xml.etree.ElementTree as ET
+          from pathlib import Path
+          discovery = json.loads(Path('api/sitemap-discovery-v405.json').read_text(encoding='utf-8'))
+          live_index = ET.parse('/tmp/live-index.xml').getroot()
+          live_locations = [(node.text or '').strip() for node in live_index.findall('{*}sitemap/{*}loc')]
+          receipt = {
+              'schemaVersion': 1,
+              'passed': True,
+              'deploymentAccepted': True,
+              'verifiedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'site': os.environ['PAGE_URL'],
+              'workflowRunId': int(os.environ['RUN_ID']),
+              'workflowRunUrl': f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['RUN_ID']}",
+              'sourceCommit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              'baselineArtifactId': int(os.environ['ARTIFACT_ID']),
+              'baselineWorkflowRunId': int(os.environ['ARTIFACT_RUN_ID']),
+              'sitemapCount': discovery['sitemap_count'],
+              'publishedUrlCount': discovery['published_url_count'],
+              'undercoveredRoutesExposed': discovery['undercovered_routes_exposed'],
+              'liveIndexSitemapCount': len(live_locations),
+              'robotsDeclaresIndex': True,
+              'representativePageReachable': True,
+              'requiredSitemapsLive': True,
+          }
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/sitemap-discovery-v405-live.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/sitemap-discovery-v405-live.json
+          git commit -m 'chore: record verified sitemap discovery v405 [skip ci]'
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            git rebase --abort || true
+            sleep $((attempt * 3))
+          done
+          exit 1
+
+      - name: Comment release result
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ job.status }}';
+            const pageUrl = '${{ steps.deployment.outputs.page_url }}';
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = status === 'success'
+              ? `اكتمل إصلاح اكتشاف خرائط الموقع ونشره حيًا.\n\n- الحالة: success\n- رابط Pages: ${pageUrl}\n- التشغيل: ${runUrl}\n- الإيصال: reports/sitemap-discovery-v405-live.json`
+              : `فشل إصلاح اكتشاف خرائط الموقع قبل اكتمال النشر.\n\n- الحالة: ${status}\n- التشغيل: ${runUrl}`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
