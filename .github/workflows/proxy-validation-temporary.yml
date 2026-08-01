@@ -1,0 +1,159 @@
+name: Temporary Proxy Validation
+
+on:
+  push:
+    branches:
+      - automation/proxy-check-20260801
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Validate public proxies twice
+        shell: bash
+        run: |
+          cat > /tmp/check_proxies.py <<'PY'
+          import concurrent.futures
+          import ipaddress
+          import random
+          import re
+          import subprocess
+          import time
+          import urllib.request
+
+          SOURCES = [
+              ("http", "https://cdn.jsdelivr.net/gh/proxifly/free-proxy-list@main/proxies/protocols/http/data.txt"),
+              ("socks4", "https://cdn.jsdelivr.net/gh/proxifly/free-proxy-list@main/proxies/protocols/socks4/data.txt"),
+              ("socks5h", "https://cdn.jsdelivr.net/gh/proxifly/free-proxy-list@main/proxies/protocols/socks5/data.txt"),
+              ("http", "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt"),
+              ("socks4", "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt"),
+              ("socks5h", "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt"),
+              ("http", "https://raw.githubusercontent.com/iplocate/free-proxy-list/main/protocols/http.txt"),
+              ("socks4", "https://raw.githubusercontent.com/iplocate/free-proxy-list/main/protocols/socks4.txt"),
+              ("socks5h", "https://raw.githubusercontent.com/iplocate/free-proxy-list/main/protocols/socks5.txt"),
+          ]
+
+          PROXY_RE = re.compile(r"^(?:(?:https?|socks4|socks5|socks5h)://)?([0-9a-fA-F:.]+):(\d{1,5})$")
+
+          def fetch(url):
+              req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 proxy-validator"})
+              with urllib.request.urlopen(req, timeout=20) as r:
+                  return r.read().decode("utf-8", "ignore")
+
+          def direct_ip():
+              for url in ("https://api.ipify.org", "https://icanhazip.com"):
+                  try:
+                      out = subprocess.check_output(
+                          ["curl", "-fsSL", "--connect-timeout", "4", "--max-time", "8", url],
+                          text=True,
+                      ).strip()
+                      ipaddress.ip_address(out)
+                      return out
+                  except Exception:
+                      pass
+              return None
+
+          candidates = []
+          seen = set()
+          for default_scheme, url in SOURCES:
+              try:
+                  text = fetch(url)
+              except Exception:
+                  continue
+              for raw in text.splitlines():
+                  raw = raw.strip()
+                  if not raw or raw.startswith("#"):
+                      continue
+                  scheme = default_scheme
+                  if "://" in raw:
+                      given, raw = raw.split("://", 1)
+                      given = given.lower()
+                      scheme = "socks5h" if given == "socks5" else given
+                  m = PROXY_RE.match(raw)
+                  if not m:
+                      continue
+                  host, port_s = m.groups()
+                  try:
+                      port = int(port_s)
+                      if not 1 <= port <= 65535:
+                          continue
+                      ipaddress.ip_address(host)
+                  except Exception:
+                      continue
+                  proxy = f"{scheme}://{host}:{port}"
+                  if proxy not in seen:
+                      seen.add(proxy)
+                      candidates.append(proxy)
+
+          random.Random(20260801).shuffle(candidates)
+          candidates = candidates[:6000]
+          origin = direct_ip()
+
+          def check(item, endpoint, timeout=8):
+              start = time.monotonic()
+              try:
+                  proc = subprocess.run(
+                      [
+                          "curl", "-fsSL",
+                          "--connect-timeout", "3",
+                          "--max-time", str(timeout),
+                          "--proxy", item,
+                          endpoint,
+                      ],
+                      stdout=subprocess.PIPE,
+                      stderr=subprocess.DEVNULL,
+                      text=True,
+                      check=False,
+                  )
+                  if proc.returncode != 0:
+                      return None
+                  body = proc.stdout.strip().splitlines()[0].strip()
+                  ipaddress.ip_address(body)
+                  if origin and body == origin:
+                      return None
+                  elapsed = time.monotonic() - start
+                  return item, elapsed, body
+              except Exception:
+                  return None
+
+          first = []
+          with concurrent.futures.ThreadPoolExecutor(max_workers=180) as pool:
+              futures = [pool.submit(check, p, "https://api.ipify.org", 8) for p in candidates]
+              for fut in concurrent.futures.as_completed(futures):
+                  result = fut.result()
+                  if result:
+                      first.append(result)
+
+          first.sort(key=lambda x: x[1])
+          shortlist = first[:350]
+          time.sleep(2)
+
+          second = []
+          with concurrent.futures.ThreadPoolExecutor(max_workers=120) as pool:
+              futures = {
+                  pool.submit(check, p, "https://icanhazip.com", 8): (p, latency, ip)
+                  for p, latency, ip in shortlist
+              }
+              for fut in concurrent.futures.as_completed(futures):
+                  result = fut.result()
+                  if result:
+                      p, latency2, ip2 = result
+                      latency1 = futures[fut][1]
+                      second.append((p, max(latency1, latency2), (latency1 + latency2) / 2, ip2))
+
+          second.sort(key=lambda x: (x[1], x[2]))
+          final = [p for p, *_ in second[:100]]
+
+          print("PROXY_LIST_BEGIN")
+          for p in final:
+              print(p)
+          print("PROXY_LIST_END")
+          print(f"VALIDATED_COUNT={len(final)}")
+          if len(final) < 100:
+              raise SystemExit(2)
+          PY
+          python /tmp/check_proxies.py
