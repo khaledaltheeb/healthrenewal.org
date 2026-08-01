@@ -75,30 +75,41 @@ def full_site_hubs_available(site: Path) -> bool:
 
 
 def normalize_canonical_sitemap_urls(site: Path) -> int:
-    """Repair historical duplicate slash canonical URLs without dropping sitemap rows."""
+    """Repair historical duplicate-slash URLs and collapse canonical duplicates."""
     path = site / "sitemap-special-needs.xml"
     if not path.is_file():
         return 0
     tree = ET.parse(path)
     root = tree.getroot()
-    changed = 0
     duplicate_prefix = "https://healthrenewal.org//"
     canonical_prefix = "https://healthrenewal.org/"
-    for node in root.findall("{*}url/{*}loc"):
+    changed = 0
+    removed = 0
+    seen: set[str] = set()
+
+    for row in list(root.findall("{*}url")):
+        node = row.find("{*}loc")
+        if node is None:
+            continue
         value = (node.text or "").strip()
         if value.startswith(duplicate_prefix):
-            node.text = canonical_prefix + value[len(duplicate_prefix):]
+            value = canonical_prefix + value[len(duplicate_prefix):]
+            node.text = value
             changed += 1
-    locations = [(node.text or "").strip() for node in root.findall("{*}url/{*}loc")]
-    if len(locations) != len(set(locations)):
-        raise SystemExit("Canonical URL normalization exposed duplicate sitemap rows")
-    if changed:
+        if value in seen:
+            root.remove(row)
+            removed += 1
+            continue
+        seen.add(value)
+
+    repaired = changed + removed
+    if repaired:
         ET.register_namespace("", "http://www.sitemaps.org/schemas/sitemap/0.9")
         children = sorted(root.findall("{*}url"), key=lambda row: (row.findtext("{*}loc") or "").strip())
         root[:] = children
         ET.indent(tree, space="  ")
         tree.write(path, encoding="utf-8", xml_declaration=True)
-    return changed
+    return repaired
 
 
 def reset_clinical_outputs(site: Path) -> None:
