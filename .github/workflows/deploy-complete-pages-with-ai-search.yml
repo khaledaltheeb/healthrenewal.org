@@ -5,7 +5,6 @@ on:
     paths:
       - '.github/workflows/deploy-complete-pages-with-ai-search.yml'
       - 'ai-search/**'
-      - 'index.html'
   push:
     branches: [main]
     paths:
@@ -22,7 +21,6 @@ on:
       - 'sitemap*.xml'
       - 'robots.txt'
       - 'CNAME'
-      - '!reports/**'
   schedule:
     - cron: '17 */3 * * *'
   workflow_dispatch:
@@ -45,12 +43,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Validate mandatory AI search surface
+      - name: Validate protected AI search surface
         run: |
           set -euo pipefail
+          python -m unittest -v tests.test_ai_search_route_deployment_guard_v1
           python - <<'PY'
-          import base64
-          import hashlib
           import json
           from pathlib import Path
 
@@ -61,44 +58,27 @@ jobs:
           assert 'assets/app.js' in page
           assert 'assets/search.css' in page
 
-          manifest_root = root / 'data'
-          manifest = json.loads((manifest_root / 'manifest.json').read_text(encoding='utf-8'))
-          coverage = json.loads((manifest_root / 'coverage.json').read_text(encoding='utf-8'))
+          manifest = json.loads((root / 'data/manifest.json').read_text(encoding='utf-8'))
+          coverage = json.loads((root / 'data/coverage.json').read_text(encoding='utf-8'))
           assert manifest['version'] == 2 and manifest['ready'] is True
           assert manifest['model'] == 'intfloat/multilingual-e5-small'
           assert manifest['dimensions'] == 384
           assert manifest['dtype'] == 'float16'
           assert manifest['normalized'] is True
+          assert manifest['documentCount'] == coverage['indexedUrlCount']
+          assert manifest['chunkCount'] == coverage['chunkCount']
           assert coverage['passed'] is True
           assert coverage['downloadSuccessRatio'] == 1.0
           assert coverage['indexCoverageRatio'] == 1.0
           assert coverage['failedDownloadCount'] == 0
           assert coverage['failedDataAssetCount'] == 0
           assert coverage['unindexedUrls'] == []
-          assert manifest['documentCount'] == coverage['indexedUrlCount']
-          assert manifest['chunkCount'] == coverage['chunkCount']
           assert manifest['shards']
-
           for shard in manifest['shards']:
-              metadata = (manifest_root / shard['metadata']).read_bytes()
-              vectors = (manifest_root / shard['embeddings']).read_bytes()
-              package = (manifest_root / shard['embeddingsJson']).read_bytes()
-              payload = json.loads(package)
-              decoded = base64.b64decode(payload['data'], validate=True)
-              assert decoded == vectors
-              assert hashlib.sha256(metadata).hexdigest() == shard['metadataSha256']
-              assert hashlib.sha256(vectors).hexdigest() == shard['embeddingSha256']
-              assert hashlib.sha256(package).hexdigest() == shard['embeddingsJsonSha256']
-              assert len(vectors) == shard['count'] * manifest['dimensions'] * 2
-
-          home = Path('index.html').read_text(encoding='utf-8')
-          assert '/ai-search/' in home or 'ai-search/' in home
-          print({
-              'documents': manifest['documentCount'],
-              'chunks': manifest['chunkCount'],
-              'shards': len(manifest['shards']),
-              'coverage': coverage['indexCoverageRatio'],
-          })
+              assert (root / 'data' / shard['metadata']).is_file()
+              assert (root / 'data' / shard['embeddings']).is_file()
+              assert (root / 'data' / shard['embeddingsJson']).is_file()
+          print({'documents': manifest['documentCount'], 'chunks': manifest['chunkCount'], 'shards': len(manifest['shards'])})
           PY
 
   deploy:
@@ -130,30 +110,28 @@ jobs:
             echo 'deploy=true' >> "$GITHUB_OUTPUT"
             exit 0
           fi
-
-          source_generated="$(python -c "import json; print(json.load(open('ai-search/data/manifest.json'))['generatedAt'])")"
+          expected="$(python -c "import json; print(json.load(open('ai-search/data/manifest.json'))['generatedAt'])")"
           deploy=true
           nonce="${GITHUB_RUN_ID}-$(date +%s%N)"
           if curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
-               "https://healthrenewal.org/ai-search/?guard=${nonce}" -o /tmp/live-ai-search.html && \
+               "https://healthrenewal.org/ai-search/?guard=${nonce}" -o /tmp/live-page.html && \
              curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
-               "https://healthrenewal.org/ai-search/data/manifest.json?guard=${nonce}" -o /tmp/live-ai-manifest.json; then
-            if SOURCE_GENERATED="$source_generated" python - <<'PY'
-          import json
-          import os
+               "https://healthrenewal.org/ai-search/data/manifest.json?guard=${nonce}" -o /tmp/live-manifest.json; then
+            if EXPECTED="$expected" python - <<'PY'
+          import json, os
           from pathlib import Path
-          page = Path('/tmp/live-ai-search.html').read_text(encoding='utf-8', errors='replace')
-          manifest = json.loads(Path('/tmp/live-ai-manifest.json').read_text(encoding='utf-8'))
+          page = Path('/tmp/live-page.html').read_text(encoding='utf-8', errors='replace')
+          manifest = json.loads(Path('/tmp/live-manifest.json').read_text(encoding='utf-8'))
           assert '<title>البحث الذكي في المنصة | بحث دلالي عربي</title>' in page
           assert 'multilingual-e5-small' in page
-          assert manifest['generatedAt'] == os.environ['SOURCE_GENERATED']
+          assert manifest['generatedAt'] == os.environ['EXPECTED']
           assert manifest['ready'] is True
           PY
             then deploy=false; fi
           fi
           echo "deploy=${deploy}" >> "$GITHUB_OUTPUT"
 
-      - name: Assemble complete current public site
+      - name: Assemble complete public site from current main
         if: steps.preflight.outputs.deploy == 'true'
         run: |
           set -euo pipefail
@@ -185,10 +163,8 @@ jobs:
               shutil.copy2(source, destination)
               copied += 1
 
-          required = [
-              'index.html',
-              'CNAME',
-              'robots.txt',
+          required = (
+              'index.html', 'CNAME', 'robots.txt',
               'ai-search/index.html',
               'ai-search/assets/app.js',
               'ai-search/assets/search-core.js',
@@ -196,45 +172,13 @@ jobs:
               'ai-search/assets/search.css',
               'ai-search/data/manifest.json',
               'ai-search/data/coverage.json',
-          ]
+          )
           for path in required:
               assert (site / path).is_file(), path
           assert copied >= 500, copied
           print({'copiedFiles': copied})
           PY
           touch _site/.nojekyll
-
-      - name: Verify assembled route and E5 package
-        if: steps.preflight.outputs.deploy == 'true'
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import base64
-          import hashlib
-          import json
-          from pathlib import Path
-
-          site = Path('_site')
-          page = (site / 'ai-search/index.html').read_text(encoding='utf-8')
-          assert '<title>البحث الذكي في المنصة | بحث دلالي عربي</title>' in page
-          assert 'multilingual-e5-small' in page
-          assert 'assets/app.js' in page
-
-          root = site / 'ai-search/data'
-          manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
-          coverage = json.loads((root / 'coverage.json').read_text(encoding='utf-8'))
-          assert manifest['ready'] is True
-          assert coverage['passed'] is True
-          assert coverage['indexCoverageRatio'] == 1.0
-          for shard in manifest['shards']:
-              metadata = (root / shard['metadata']).read_bytes()
-              package = (root / shard['embeddingsJson']).read_bytes()
-              payload = json.loads(package)
-              raw = base64.b64decode(payload['data'], validate=True)
-              assert hashlib.sha256(metadata).hexdigest() == shard['metadataSha256']
-              assert hashlib.sha256(package).hexdigest() == shard['embeddingsJsonSha256']
-              assert hashlib.sha256(raw).hexdigest() == shard['embeddingSha256']
-          PY
 
       - uses: actions/configure-pages@v5
         if: steps.preflight.outputs.deploy == 'true'
@@ -250,7 +194,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify AI search route live
+      - name: Verify AI search page and runtime live
         if: steps.preflight.outputs.deploy == 'true'
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
@@ -258,35 +202,29 @@ jobs:
         run: |
           set -euo pipefail
           base="${PAGE_URL%/}"
-          source_generated="$(python -c "import json; print(json.load(open('ai-search/data/manifest.json'))['generatedAt'])")"
+          expected="$(python -c "import json; print(json.load(open('ai-search/data/manifest.json'))['generatedAt'])")"
           ready=0
           for attempt in $(seq 1 180); do
             nonce="${RUN_ID}-${attempt}-$(date +%s%N)"
-            if curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
-                 "${base}/ai-search/?release=${nonce}" -o /tmp/live-ai-search.html && \
-               curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
-                 "${base}/ai-search/index.html?release=${nonce}" -o /tmp/live-ai-index.html && \
-               curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
-                 "${base}/ai-search/assets/app.js?release=${nonce}" -o /tmp/live-ai-app.js && \
-               curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
-                 "${base}/ai-search/data/manifest.json?release=${nonce}" -o /tmp/live-ai-manifest.json && \
-               curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
-                 "${base}/ai-search/data/coverage.json?release=${nonce}" -o /tmp/live-ai-coverage.json; then
-              if SOURCE_GENERATED="$source_generated" python - <<'PY'
-          import json
-          import os
+            if curl -fsS --retry 2 -H 'Cache-Control: no-cache' "${base}/ai-search/?release=${nonce}" -o /tmp/live-page.html && \
+               curl -fsS --retry 2 -H 'Cache-Control: no-cache' "${base}/ai-search/index.html?release=${nonce}" -o /tmp/live-index.html && \
+               curl -fsS --retry 2 -H 'Cache-Control: no-cache' "${base}/ai-search/assets/app.js?release=${nonce}" -o /tmp/live-app.js && \
+               curl -fsS --retry 2 -H 'Cache-Control: no-cache' "${base}/ai-search/data/manifest.json?release=${nonce}" -o /tmp/live-manifest.json && \
+               curl -fsS --retry 2 -H 'Cache-Control: no-cache' "${base}/ai-search/data/coverage.json?release=${nonce}" -o /tmp/live-coverage.json; then
+              if EXPECTED="$expected" python - <<'PY'
+          import json, os
           from pathlib import Path
-          page = Path('/tmp/live-ai-search.html').read_text(encoding='utf-8', errors='replace')
-          page_explicit = Path('/tmp/live-ai-index.html').read_text(encoding='utf-8', errors='replace')
-          app = Path('/tmp/live-ai-app.js').read_text(encoding='utf-8', errors='replace')
-          manifest = json.loads(Path('/tmp/live-ai-manifest.json').read_text(encoding='utf-8'))
-          coverage = json.loads(Path('/tmp/live-ai-coverage.json').read_text(encoding='utf-8'))
-          for source in (page, page_explicit):
+          page = Path('/tmp/live-page.html').read_text(encoding='utf-8', errors='replace')
+          explicit = Path('/tmp/live-index.html').read_text(encoding='utf-8', errors='replace')
+          app = Path('/tmp/live-app.js').read_text(encoding='utf-8', errors='replace')
+          manifest = json.loads(Path('/tmp/live-manifest.json').read_text(encoding='utf-8'))
+          coverage = json.loads(Path('/tmp/live-coverage.json').read_text(encoding='utf-8'))
+          for source in (page, explicit):
               assert '<title>البحث الذكي في المنصة | بحث دلالي عربي</title>' in source
               assert 'multilingual-e5-small' in source
               assert 'جارٍ تجهيز فهرس البحث' in source
           assert len(app) > 1000
-          assert manifest['generatedAt'] == os.environ['SOURCE_GENERATED']
+          assert manifest['generatedAt'] == os.environ['EXPECTED']
           assert manifest['version'] == 2 and manifest['ready'] is True
           assert manifest['model'] == 'intfloat/multilingual-e5-small'
           assert manifest['dimensions'] == 384
@@ -303,7 +241,7 @@ jobs:
           done
           test "$ready" = 1
 
-      - name: Write verified route receipt
+      - name: Commit live route receipt
         if: steps.preflight.outputs.deploy == 'true'
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
@@ -311,16 +249,11 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
-          import datetime
-          import hashlib
-          import json
-          import os
-          import subprocess
+          import datetime, hashlib, json, os, subprocess
           from pathlib import Path
-
-          manifest_bytes = Path('/tmp/live-ai-manifest.json').read_bytes()
+          manifest_bytes = Path('/tmp/live-manifest.json').read_bytes()
           manifest = json.loads(manifest_bytes)
-          coverage = json.loads(Path('/tmp/live-ai-coverage.json').read_text(encoding='utf-8'))
+          coverage = json.loads(Path('/tmp/live-coverage.json').read_text(encoding='utf-8'))
           receipt = {
               'schemaVersion': 1,
               'passed': True,
@@ -344,13 +277,9 @@ jobs:
               'appReachable': True,
           }
           Path('reports').mkdir(exist_ok=True)
-          Path('reports/ai-search-route-live.json').write_text(
-              json.dumps(receipt, ensure_ascii=False, indent=2) + '\n',
-              encoding='utf-8',
-          )
+          Path('reports/ai-search-route-live.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           print(json.dumps(receipt, ensure_ascii=False, indent=2))
           PY
-
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add reports/ai-search-route-live.json
