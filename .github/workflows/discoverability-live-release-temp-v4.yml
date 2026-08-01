@@ -1,0 +1,200 @@
+name: Temporary live discoverability release verifier
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-discoverability-release-v4
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.event.issue.title == '[release] deploy discoverability cards v4'
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate source contract
+        run: |
+          set -euo pipefail
+          node --check assets/platform/platform-core.js
+          node --check assets/platform/discoverability-cards.js
+          python -m pytest -q tests/test_discoverability_cards_loader_v1.py
+      - name: Select latest validated production artifact
+        id: artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fsS -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" -o /tmp/artifacts.json
+          python - <<'PY'
+          import json,os
+          items=[x for x in json.load(open('/tmp/artifacts.json',encoding='utf-8')).get('artifacts',[]) if not x.get('expired') and x.get('workflow_run',{}).get('id')]
+          if not items: raise SystemExit('validated-production-site artifact unavailable')
+          item=sorted(items,key=lambda x:x.get('created_at',''),reverse=True)[0]
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as out: out.write(f"run_id={item['workflow_run']['id']}\n")
+          print({'run_id':item['workflow_run']['id'],'created_at':item.get('created_at')})
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.artifact.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Overlay current public source
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import shutil
+          from pathlib import Path
+          root=Path('.'); site=Path('_site')
+          assert (site/'index.html').is_file()
+          suffixes={'.html','.htm','.xml','.json','.webmanifest','.txt','.js','.mjs','.css','.svg'}
+          skip_top={'.git','.github','node_modules','.venv','venv','dist','build','scripts','tests','docs','reports','content','.v10bundle','.generator-v6','_site'}
+          skip_parts={'account-backend','backend','migrations'}
+          copied=0
+          for source in root.rglob('*'):
+            if not source.is_file(): continue
+            rel=source.relative_to(root)
+            if not rel.parts or rel.parts[0] in skip_top or any(x in skip_parts for x in rel.parts): continue
+            if rel.as_posix()=='deployment.json': continue
+            if source.suffix.lower() not in suffixes and source.name!='CNAME': continue
+            dest=site/rel; dest.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(source,dest); copied+=1
+          assert (site/'assets/platform/discoverability-cards.js').is_file()
+          shell=(site/'assets/platform/platform-core.js').read_text(encoding='utf-8')
+          assert 'discoverability-cards.js?v=1.0.0' in shell
+          print({'copied':copied})
+          PY
+          touch _site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - name: Deploy current site
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Install browser audit dependency
+        run: python -m pip install --quiet selenium==4.27.1
+      - name: Verify rendered cards and all-site discoverability
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import re,time
+          from collections import Counter,defaultdict,deque
+          from urllib.parse import urlsplit
+          from urllib.request import Request,urlopen
+          from xml.etree import ElementTree as ET
+          from selenium import webdriver
+          from selenium.webdriver.chrome.options import Options
+          from selenium.webdriver.support.ui import WebDriverWait
+
+          BASE='https://healthrenewal.org'
+          expected={
+            '/sections/':['/family-guide/','/ai-search/','/contact/','/source-registry/','/team-and-partners/','/accessibility/'],
+            '/learning-paths/':['/learning-paths/opportunities/'],
+            '/provider-assessment-demo/':['/provider-assessment-demo/training/','/provider-assessment-demo/professional-console.html'],
+            '/special-needs/':['/special-needs/assistive-technology/','/special-needs/conditions/prader-willi-syndrome/'],
+            '/special-needs/assistive-technology/':['/special-needs/assistive-technology/selection-checklist/','/special-needs/assistive-technology/training/','/special-needs/assistive-technology/ethics-and-service/','/special-needs/assistive-technology/innovation-review/','/special-needs/assistive-technology/continuing-education/']
+          }
+          options=Options(); options.add_argument('--headless=new'); options.add_argument('--no-sandbox'); options.add_argument('--disable-dev-shm-usage'); options.add_argument('--window-size=1440,1600'); options.add_argument('--lang=ar')
+          driver=webdriver.Chrome(options=options); driver.set_page_load_timeout(30)
+
+          ready=False
+          for attempt in range(1,121):
+            try:
+              ok=True
+              for hub,targets in expected.items():
+                driver.get(BASE+hub+f'?cards_release={attempt}-{time.time_ns()}')
+                WebDriverWait(driver,12).until(lambda d:d.execute_script('return document.readyState')=='complete')
+                WebDriverWait(driver,12).until(lambda d:d.execute_script('return document.querySelectorAll("[data-pt-discoverability-cards=\\"v1\\"] .pt-discovery-card a").length')>=len(targets))
+                cards=driver.execute_script('return Array.from(document.querySelectorAll("[data-pt-discoverability-cards=\\"v1\\"] .pt-discovery-card a[href]"),a=>new URL(a.href).pathname)')
+                if not set(targets).issubset(set(cards)): ok=False; break
+              if ok: ready=True; break
+            except Exception: pass
+            time.sleep(5)
+          assert ready,'live cards did not become ready'
+
+          req=Request(BASE+'/sitemap.xml?discoverability_v4=1',headers={'Cache-Control':'no-cache','User-Agent':'HealthRenewalDiscoverabilityV4/1.0'})
+          with urlopen(req,timeout=30) as response: root=ET.fromstring(response.read())
+          routes=sorted({urlsplit(n.text.strip()).path or '/' for n in root.iter() if n.tag.split('}',1)[-1]=='loc' and n.text and urlsplit(n.text.strip()).netloc=='healthrenewal.org'})
+          aliases={}
+          for route in routes:
+            aliases[route]=route
+            if route!='/' and route.endswith('/'):
+              aliases[route.rstrip('/')]=route; aliases[route+'index.html']=route
+          def normalize(href):
+            p=urlsplit(href)
+            if p.netloc not in {'healthrenewal.org','www.healthrenewal.org'}: return None
+            path=re.sub(r'/+','/',p.path or '/')
+            if path.endswith('/index.html'): path=path[:-10]
+            for candidate in (path,path.rstrip('/'),path.rstrip('/')+'/'):
+              if candidate in aliases:return aliases[candidate]
+            return None
+          js='''const visible=el=>{if(!el||el.closest('[hidden],[aria-hidden="true"]'))return false;const s=getComputedStyle(el),r=el.getBoundingClientRect();return s.display!=="none"&&s.visibility!=="hidden"&&Number(s.opacity||1)!==0&&r.width>0&&r.height>0};return Array.from(document.querySelectorAll('a[href]')).filter(visible).map(a=>({href:a.href,card:Boolean(a.closest('article,li,.card,[class*="card"],[class*="tile"],[class*="feature"],[class*="resource"],[class*="condition"],[class*="guide"]'))}));'''
+          edges=defaultdict(set); card_edges=defaultdict(set); errors=[]
+          for route in routes:
+            try:
+              driver.get(BASE+route+'?discoverability_crawl=4')
+              WebDriverWait(driver,10).until(lambda d:d.execute_script('return document.readyState')=='complete')
+              time.sleep(.25)
+              for item in driver.execute_script(js) or []:
+                target=normalize(item['href'])
+                if target and target!=route:
+                  edges[route].add(target)
+                  if item['card']: card_edges[route].add(target)
+            except Exception as exc: errors.append((route,str(exc)[:160]))
+          driver.quit()
+          inbound=Counter(); card_inbound=Counter()
+          for source,targets in edges.items():
+            for target in targets: inbound[target]+=1
+          for source,targets in card_edges.items():
+            for target in targets: card_inbound[target]+=1
+          roots=[x for x in ('/','/sections/','/start-here/') if x in routes]
+          reachable=set(roots); queue=deque(roots)
+          while queue:
+            source=queue.popleft()
+            for target in edges.get(source,()):
+              if target not in reachable: reachable.add(target); queue.append(target)
+          orphans=[r for r in routes if r!='/' and inbound[r]==0]
+          unreachable=[r for r in routes if r not in reachable]
+          no_card=[r for r in routes if r!='/' and card_inbound[r]==0]
+          assert not errors,errors[:5]
+          assert not orphans,orphans[:20]
+          assert not unreachable,unreachable[:20]
+          assert not no_card,no_card[:20]
+          print({'sitemap_pages':len(routes),'cards_added':16,'orphans':0,'unreachable':0,'cardless':0,'render_errors':0})
+          PY
+      - name: Report result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          python - <<'PY' >/tmp/body.json
+          import json,os
+          ok=os.environ.get('JOB_STATUS')=='success'
+          body='## نشر وإصلاح ظهور الصفحات\n\nالحالة: **'+('passed' if ok else 'failed')+'**\n\n'
+          if ok: body+='- البطاقات الجديدة: **16**\n- الفهارس المغطاة: **5**\n- الصفحات اليتيمة: **0**\n- الصفحات غير القابلة للوصول: **0**\n- الصفحات بلا بطاقة: **0**\n- أخطاء العرض: **0**\n'
+          else: body+='- فشل اختبار أو نشر أو تدقيق حي؛ راجع سجل المهمة قبل اعتماد النتيجة.\n'
+          print(json.dumps({'body':body},ensure_ascii=False))
+          PY
+          curl -fsSL -X POST -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" --data-binary @/tmp/body.json
