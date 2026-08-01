@@ -123,21 +123,9 @@ def main() -> None:
 
     description = re.search(r'<meta name="description" content="([^"]+)"', source)
     assert description and 120 <= len(description.group(1)) <= 220
-    keywords = re.search(r'<meta name="keywords" content="([^"]+)"', source)
-    assert keywords, "Missing thematic keyword metadata"
-    keyword_items = [item.strip() for item in keywords.group(1).split(",") if item.strip()]
-    assert len(keyword_items) >= 10, "Homepage thematic keywords are unexpectedly sparse"
-    assert {
-        "الصحة النفسية",
-        "علم النفس",
-        "التربية الدامجة",
-        "ذوو الاحتياجات الخاصة",
-        "التوحد",
-        "الموسوعة النفسية",
-        "المكتبة الأكاديمية",
-        "الأدوات النفسية التفاعلية",
-        "الاختبارات النفسية",
-    }.issubset(keyword_items)
+    assert not re.search(r'<meta\s+name=["\']keywords["\']', source, re.IGNORECASE), (
+        "Homepage must not publish obsolete meta keywords metadata"
+    )
 
     for required_meta in (
         '<link rel="manifest" href="/manifest.webmanifest">',
@@ -194,13 +182,13 @@ def main() -> None:
         json.dumps(
             {
                 "status": "passed",
-                "contract": "institutional-home-discovery-seo-v222",
+                "contract": "institutional-home-discovery-seo-v223",
                 "brand": BRAND,
                 "slogan": SLOGAN,
                 "required_links": len(REQUIRED_LINKS),
                 "required_files": len(REQUIRED_FILES),
                 "description_chars": len(description.group(1)),
-                "keyword_items": len(keyword_items),
+                "meta_keywords_absent": True,
                 "jsonld_nodes": len(graph),
                 "h1": h1_count,
                 "h2": h2_count,
@@ -212,7 +200,7 @@ def main() -> None:
                 "guided_assessment_linked": True,
                 "daily_tools_linked": True,
                 "learning_paths_linked": True,
-                "interactive_tools_discovery_contract": 222,
+                "interactive_tools_discovery_contract": 223,
                 "operational_copy_hidden": True,
                 "api_version": api_version,
                 "openapi": openapi["openapi"],
