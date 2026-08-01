@@ -12,6 +12,26 @@ from family_tools_v1_render import hub, page
 
 DEFAULT_CONTENT = Path("content/family-guide-special-education-tools-v1")
 
+ROOT_COPY_REPLACEMENTS = {
+    "دليل الأسرة للأشخاص ذوي الاحتياجات الخاصة | 64 دليلًا للرعاية والدعم":
+        "دليل الأسرة للأشخاص ذوي الاحتياجات الخاصة | 64 دليل حالة و15 أداة للرعاية والدعم",
+    "مرجع عربي منهجي للأسرة يضم 64 دليلًا عمليًا للحالات النمائية والعصبية والحركية والحسية والوراثية":
+        "مرجع عربي منهجي للأسرة يضم 64 دليل حالة و15 أداة عملية للحالات النمائية والعصبية والحركية والحسية والوراثية",
+    "مسار عملي من فهم الحالة إلى التقييم والخطة والمتابعة والاستقلال عبر 64 دليلًا أسريًا.":
+        "مسار عملي من فهم الحالة إلى التقييم والخطة والمتابعة والاستقلال عبر 64 دليل حالة و15 أداة أسرية.",
+    "يضم الإصدار الحالي 64 دليلًا مترابطًا مع مسارات التقييم والخدمات.":
+        "يضم الإصدار الحالي 64 دليل حالة و15 أداة مترابطة مع مسارات التقييم والخدمات.",
+    "64 دليلًا منشورًا وقابلًا للتوسع":
+        "64 دليل حالة و15 أداة منشورة وقابلة للتوسع",
+}
+
+BAD_ROOT_COPY = (
+    "15 أداة عمليًا",
+    "15 أداة أسريًا",
+    "15 أداة مترابطًا",
+    "15 أداة منشورًا",
+)
+
 def load_payload(content: Path) -> dict:
     if content.is_dir():
         payload = json.loads((content / "manifest.json").read_text(encoding="utf-8"))
@@ -31,7 +51,11 @@ def replace_root_tools(root_html: Path, tools: list[dict]) -> None:
     if not pattern.search(source):
         raise SystemExit("family-guide root tools section not found")
     updated = pattern.sub(block, source, count=1)
-    updated = updated.replace("64 دليلًا", "64 دليل حالة و15 أداة")
+    for old, new in ROOT_COPY_REPLACEMENTS.items():
+        updated = updated.replace(old, new)
+    bad = [phrase for phrase in BAD_ROOT_COPY if phrase in updated]
+    if bad:
+        raise SystemExit({"invalid_arabic_parent_copy": bad})
     root_html.write_text(updated, encoding="utf-8")
 
 
