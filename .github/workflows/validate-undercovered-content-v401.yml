@@ -1,0 +1,36 @@
+name: Validate undercovered content v401
+
+on:
+  pull_request:
+    paths:
+      - "content/v401/**"
+      - "scripts/publish_undercovered_content_v401.py"
+      - "scripts/publish_special_needs_guides_v217.py"
+      - "tests/test_undercovered_content_v401.py"
+      - ".github/workflows/validate-undercovered-content-v401.yml"
+  push:
+    branches: [main]
+    paths:
+      - "content/v401/**"
+      - "scripts/publish_undercovered_content_v401.py"
+      - "scripts/publish_special_needs_guides_v217.py"
+      - "tests/test_undercovered_content_v401.py"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile publishers
+        run: |
+          python -m py_compile scripts/publish_undercovered_content_v401.py
+          python -m py_compile scripts/publish_special_needs_guides_v217.py
+      - name: Run v401 contract tests
+        run: python -m unittest tests.test_undercovered_content_v401
