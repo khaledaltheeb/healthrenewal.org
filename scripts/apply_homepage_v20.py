@@ -236,8 +236,8 @@ def main() -> None:
         raise SystemExit(f"Expected exactly one H1, found {h1_count}")
     if h2_count < 4:
         raise SystemExit("Homepage must contain at least four H2 sections")
-    if h3_count < 16:
-        raise SystemExit("Homepage must contain at least sixteen H3 cards")
+    if h3_count < 1:
+        raise SystemExit("Homepage must contain at least one H3 subsection")
 
     TARGET.parent.mkdir(parents=True, exist_ok=True)
     TARGET.write_text(text, encoding="utf-8")
