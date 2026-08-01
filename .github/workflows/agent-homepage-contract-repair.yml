@@ -1,0 +1,73 @@
+name: Agent repair homepage metadata contract
+
+on:
+  push:
+    branches:
+      - fix/homepage-verifier-no-meta-keywords-v20260801
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/homepage-verifier-no-meta-keywords-v20260801
+          fetch-depth: 0
+      - name: Patch publisher contract and add regression tests
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          script_path = Path("scripts/apply_homepage_v20.py")
+          text = script_path.read_text(encoding="utf-8")
+
+          obsolete_required = "        'name=\"keywords\"',\n"
+          if text.count(obsolete_required) != 1:
+              raise SystemExit("Unexpected obsolete meta-keywords requirement count")
+          text = text.replace(obsolete_required, "", 1)
+
+          helper_anchor = "    return text\n\n\ndef synchronize_care_guides_report() -> None:\n"
+          helper_block = '''    return text\n\n\ndef enforce_homepage_metadata_contract(text: str) -> None:\n    if re.search(r'<meta\\s+name=[\"\\\']keywords[\"\\\']', text, re.IGNORECASE):\n        raise SystemExit(\n            "Homepage must not publish obsolete meta keywords metadata"\n        )\n\n\ndef synchronize_care_guides_report() -> None:\n'''
+          if text.count(helper_anchor) != 1:
+              raise SystemExit("Homepage metadata helper insertion anchor is missing or ambiguous")
+          text = text.replace(helper_anchor, helper_block, 1)
+
+          call_anchor = "    text = synchronize_homepage_lab_inventory(source_text)\n"
+          call_block = call_anchor + "    enforce_homepage_metadata_contract(text)\n"
+          if text.count(call_anchor) != 1:
+              raise SystemExit("Homepage metadata guard call anchor is missing or ambiguous")
+          text = text.replace(call_anchor, call_block, 1)
+
+          report_anchor = '        "source_transformed": True,\n'
+          report_block = report_anchor + '        "meta_keywords_absent": True,\n'
+          if text.count(report_anchor) != 1:
+              raise SystemExit("Homepage report insertion anchor is missing or ambiguous")
+          text = text.replace(report_anchor, report_block, 1)
+
+          script_path.write_text(text, encoding="utf-8")
+
+          test_path = Path("tests/test_homepage_metadata_contract_v223.py")
+          test_path.write_text(
+              '''from __future__ import annotations\n\nimport unittest\nfrom pathlib import Path\n\nfrom scripts import apply_homepage_v20 as publisher\n\n\nROOT = Path(__file__).resolve().parents[1]\n\n\nclass HomepageMetadataContractV223Tests(unittest.TestCase):\n    def test_current_homepage_has_no_meta_keywords(self) -> None:\n        source = (ROOT / "index.html").read_text(encoding="utf-8")\n        publisher.enforce_homepage_metadata_contract(source)\n\n    def test_publisher_rejects_meta_keywords_regression(self) -> None:\n        source = '<head><meta NAME = "keywords" content="obsolete"></head>'\n        with self.assertRaisesRegex(\n            SystemExit,\n            "must not publish obsolete meta keywords metadata",\n        ):\n            publisher.enforce_homepage_metadata_contract(source)\n\n    def test_publisher_no_longer_requires_meta_keywords(self) -> None:\n        script = (ROOT / "scripts" / "apply_homepage_v20.py").read_text(\n            encoding="utf-8"\n        )\n        self.assertNotIn("'name=\\\"keywords\\\"',", script)\n        self.assertIn('"meta_keywords_absent": True', script)\n\n\nif __name__ == "__main__":\n    unittest.main()\n''',
+              encoding="utf-8",
+          )
+
+          workflow_path = Path(".github/workflows/agent-homepage-contract-repair.yml")
+          workflow_path.unlink()
+          PY
+      - name: Run focused validation
+        run: |
+          python -m py_compile scripts/apply_homepage_v20.py scripts/verify_homepage_v19.py tests/test_homepage_metadata_contract_v223.py
+          python -m unittest tests.test_homepage_metadata_contract_v223
+          python scripts/verify_homepage_v19.py
+      - name: Commit repaired contract
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/apply_homepage_v20.py tests/test_homepage_metadata_contract_v223.py .github/workflows/agent-homepage-contract-repair.yml
+          git commit -m "fix(ci): complete homepage metadata contract"
+          git push origin HEAD:fix/homepage-verifier-no-meta-keywords-v20260801
