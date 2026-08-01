@@ -263,7 +263,9 @@
     "language_editor_pass": true,
     "specialized_safety_checks": true,
     "stable_sitemap_report": true,
-    "stable_hub_whitespace": true
+    "stable_hub_whitespace": true,
+    "complete_social_metadata": true
   },
-  "specialized_safety_check_pages": 100
+  "specialized_safety_check_pages": 100,
+  "social_metadata_pages": 100
 }
