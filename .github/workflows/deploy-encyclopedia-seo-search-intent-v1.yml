@@ -1,0 +1,137 @@
+name: Deploy encyclopedia SEO and search intent v1
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/encyclopedia_seo_contract_v1.py
+      - scripts/rebuild_encyclopedia_v13.py
+      - scripts/run_encyclopedia_v13.py
+      - tests/test_encyclopedia_seo_search_intent_v1.py
+      - .github/workflows/deploy-encyclopedia-seo-search-intent-v1.yml
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: encyclopedia-seo-live-v1
+  cancel-in-progress: true
+
+env:
+  SITE_BASE: https://healthrenewal.org/
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Test 2000-page contract
+        run: |
+          set -euxo pipefail
+          python -m unittest -v tests.test_encyclopedia_seo_search_intent_v1 tests.test_encyclopedia_topic_hubs_v2
+
+      - name: Locate validated production artifact
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" > /tmp/artifacts.json
+          python - <<'PY'
+          import json,os
+          items=[x for x in json.load(open('/tmp/artifacts.json'))['artifacts'] if not x['expired'] and x.get('workflow_run',{}).get('head_branch')=='main']
+          item=max(items,key=lambda x:x['created_at'])
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write(f"run_id={item['workflow_run']['id']}\n")
+          print(item['workflow_run'])
+          PY
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.source.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Build encyclopedia and all sitemap families
+        run: |
+          set -euxo pipefail
+          test -f _site/index.html
+          python scripts/run_encyclopedia_v13.py _site
+          python scripts/performance_hotfix_v14.py _site
+          python scripts/optimize_site_performance_v14.py _site
+          python scripts/strip_nonlab_runtime_v14.py _site
+          python scripts/finalize_pwa_v14.py _site
+          python scripts/enforce_platform_identity_v201.py _site
+          python - <<'PY'
+          from pathlib import Path
+          for p in Path('_site').rglob('*'):
+              if not p.is_file() or p.suffix.lower() not in {'.html','.xml','.json','.txt','.js','.css','.svg','.webmanifest'}:continue
+              try:t=p.read_text(encoding='utf-8')
+              except UnicodeDecodeError:continue
+              t=t.replace('https://khaledaltheeb.github.io/pterminology-site','https://healthrenewal.org').replace('/pterminology-site/','/')
+              p.write_text(t,encoding='utf-8')
+          PY
+          python scripts/generate_sitemap_index_v304.py _site
+          touch _site/.nojekyll
+
+      - name: Verify exact SEO and sitemap coverage
+        run: |
+          python - <<'PY'
+          import json,re
+          from pathlib import Path
+          root=Path('_site');pages=sorted((root/'encyclopedia').glob('concept-*/index.html'))
+          assert len(pages)==2000
+          titles=set();descriptions=set();queries=set()
+          for page in pages:
+              text=page.read_text(encoding='utf-8')
+              for mark in ('data-encyclopedia-seo="v1"','data-search-intent="encyclopedia-v1"','data-search-intent-faq="encyclopedia-v1"','"@type":"FAQPage"','rel="canonical"'):
+                  assert mark in text,(page,mark)
+              titles.add(re.search(r'<title>(.*?)</title>',text,re.S).group(1))
+              descriptions.add(re.search(r'<meta name="description" content="([^"]+)">',text).group(1))
+              queries.add(re.search(r'<p class="ency-v13__intent-query">(.*?)</p>',text,re.S).group(1))
+          assert len(titles)==len(descriptions)==len(queries)==2000
+          audit=json.loads((root/'api/encyclopedia-audit-v13.json').read_text())
+          seo=json.loads((root/'api/encyclopedia-seo-search-intent-v1.json').read_text())
+          sm=json.loads((root/'api/sitemap-index-v305.json').read_text())
+          for key in ('concept_pages','unique_seo_titles','unique_descriptions','unique_primary_queries','seo_complete_pages','search_intent_sections','faq_schema_pages'):assert audit[key]==2000,(key,audit[key])
+          assert seo['status']=='passed' and len(seo['items'])==2000
+          assert sm['families']['encyclopedia']==2002
+          family=(root/'sitemap-family-encyclopedia.xml').read_text()
+          urls=re.findall(r'https://healthrenewal.org/encyclopedia/concept-\d{4}/',family)
+          assert family.count('<url>')==2002 and len(set(urls))==2000
+          print({'pages':len(pages),'seo':audit['seo_complete_pages'],'sitemap_urls':family.count('<url>')})
+          PY
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify live endpoints
+        run: |
+          for n in $(seq 1 60); do
+            if curl -fsSL "https://healthrenewal.org/encyclopedia/concept-0001/?v=${GITHUB_RUN_ID}-${n}" | grep -q 'data-search-intent="encyclopedia-v1"' \
+              && curl -fsSL "https://healthrenewal.org/encyclopedia/concept-2000/?v=${GITHUB_RUN_ID}-${n}" | grep -q 'data-search-intent-faq="encyclopedia-v1"' \
+              && curl -fsSL "https://healthrenewal.org/api/encyclopedia-seo-search-intent-v1.json?v=${GITHUB_RUN_ID}-${n}" | grep -q '"pages": 2000' \
+              && test "$(curl -fsSL "https://healthrenewal.org/sitemap-family-encyclopedia.xml?v=${GITHUB_RUN_ID}-${n}" | grep -c '<url>')" = 2002; then exit 0; fi
+            sleep 5
+          done
+          exit 1
