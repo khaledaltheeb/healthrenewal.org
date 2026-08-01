@@ -1,0 +1,5 @@
+{
+  "status": "pending-deployment",
+  "route": "/ai-search/",
+  "expectedPublisher": ".github/workflows/deploy-complete-pages-with-ai-search.yml"
+}
