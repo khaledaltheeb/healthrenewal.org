@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "passed": true,
+  "deploymentAccepted": true,
+  "verifiedAt": "2026-08-01T13:56:10.166535+00:00",
+  "site": "https://healthrenewal.org/",
+  "workflowRunId": 30702711565,
+  "workflowRunUrl": "https://github.com/khaledaltheeb/healthrenewal.org/actions/runs/30702711565",
+  "sourceCommit": "6784fad60738f1cc966a517782da188d6dbda317",
+  "baselineArtifactId": 8802973435,
+  "baselineWorkflowRunId": 30653545703,
+  "pageCount": 30,
+  "hubCount": 2,
+  "distribution": {
+    "women": 15,
+    "youth": 15
+  },
+  "totalWords": 84810,
+  "minimumWords": 2742,
+  "minimumSections": 20,
+  "specializedSafetyPages": 30,
+  "womenHubReachable": true,
+  "youthHubReachable": true,
+  "criticalWomenPageReachable": true,
+  "criticalYouthPageReachable": true,
+  "sitemapDiscoveryLive": true
+}
