@@ -18,7 +18,6 @@ jobs:
       - name: Wait for final non-cancelled encyclopedia deployment
         env:
           GH_TOKEN: ${{ github.token }}
-          TARGET_SHA: 928badb6bb61855384a1f288f1a394f3e755bab3
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euxo pipefail
@@ -31,13 +30,13 @@ jobs:
 
           repo = os.environ['GITHUB_REPOSITORY']
           token = os.environ['GH_TOKEN']
-          target_sha = os.environ['TARGET_SHA']
           pr_number = os.environ['PR_NUMBER']
+          minimum_run_id = 30701221133
           headers = {
               'Authorization': f'Bearer {token}',
               'Accept': 'application/vnd.github+json',
               'X-GitHub-Api-Version': '2022-11-28',
-              'User-Agent': 'encyclopedia-production-verifier-v3',
+              'User-Agent': 'encyclopedia-production-verifier-v4',
           }
 
           def get_json(url):
@@ -45,29 +44,30 @@ jobs:
               with urllib.request.urlopen(request, timeout=30) as response:
                   return json.load(response)
 
-          list_url = f'https://api.github.com/repos/{repo}/actions/runs?head_sha={target_sha}&event=workflow_dispatch&per_page=100'
+          list_url = f'https://api.github.com/repos/{repo}/actions/workflows/deploy-encyclopedia-seo-search-intent-v1.yml/runs?event=workflow_dispatch&branch=main&per_page=100'
           run = None
           for attempt in range(90):
               data = get_json(list_url)
               candidates = [
                   item for item in data.get('workflow_runs', [])
-                  if item.get('name') == 'Deploy encyclopedia SEO and search intent v1'
-                  and item.get('head_sha') == target_sha
+                  if int(item.get('id', 0)) > minimum_run_id
+                  and item.get('name') == 'Deploy encyclopedia SEO and search intent v1'
                   and item.get('conclusion') != 'cancelled'
               ]
               if candidates:
-                  run = max(candidates, key=lambda item: item.get('created_at', ''))
+                  run = max(candidates, key=lambda item: int(item['id']))
                   break
-              print({'attempt': attempt + 1, 'status': 'waiting_for_non_cancelled_run'})
+              print({'attempt': attempt + 1, 'status': 'waiting_for_final_run'})
               time.sleep(5)
           if not run:
-              raise SystemExit(f'No non-cancelled deployment run found for {target_sha}')
+              raise SystemExit('No final non-cancelled deployment run found')
 
           run_id = int(run['id'])
+          head_sha = str(run.get('head_sha') or '')
           run_url = f'https://api.github.com/repos/{repo}/actions/runs/{run_id}'
           subprocess.run([
               'gh', 'api', f'repos/{repo}/issues/{pr_number}/comments',
-              '-f', f'body=ENCYCLOPEDIA_FINAL_RUN run_id={run_id} sha={target_sha} status={run.get("status")}'
+              '-f', f'body=ENCYCLOPEDIA_FINAL_RUN run_id={run_id} sha={head_sha} status={run.get("status")}'
           ], check=True)
 
           for attempt in range(180):
@@ -76,7 +76,7 @@ jobs:
               conclusion = current.get('conclusion')
               print({'attempt': attempt + 1, 'run_id': run_id, 'status': status, 'conclusion': conclusion})
               if status == 'completed':
-                  body = f'ENCYCLOPEDIA_FINAL_RESULT run_id={run_id} sha={target_sha} conclusion={conclusion}'
+                  body = f'ENCYCLOPEDIA_FINAL_RESULT run_id={run_id} sha={head_sha} conclusion={conclusion}'
                   subprocess.run(['gh', 'api', f'repos/{repo}/issues/{pr_number}/comments', '-f', f'body={body}'], check=True)
                   if conclusion != 'success':
                       raise SystemExit(f'Final deployment failed: {conclusion}; run_id={run_id}')
