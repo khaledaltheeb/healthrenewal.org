@@ -1,7 +1,7 @@
 {
   "contract": "sitewide-heading-search-intent-v2",
   "root": "/home/runner/work/healthrenewal.org/healthrenewal.org",
-  "sitemap": "/home/runner/work/healthrenewal.org/healthrenewal.org/sitemap-index.xml",
+  "sitemap": "/tmp/sitewide-html-sitemap-v2.xml",
   "base_urls": [
     "https://healthrenewal.org/"
   ],
