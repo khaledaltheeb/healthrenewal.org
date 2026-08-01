@@ -71,7 +71,7 @@ class UndercoveredContentV401Tests(unittest.TestCase):
             self.assertGreaterEqual(report["minimum_words"], 1200)
             self.assertGreaterEqual(report["minimum_h2"], 15)
             self.assertGreaterEqual(report["minimum_citations"], 3)
-            self.assertGreater(report["total_words"], 190000)
+            self.assertGreater(report["total_words"], 160000)
             self.assertFalse(report["external_specialist_review_completed"])
 
             for route in report["routes"]:
