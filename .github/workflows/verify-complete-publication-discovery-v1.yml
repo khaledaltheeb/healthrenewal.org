@@ -1,0 +1,144 @@
+name: Verify complete publication discovery v1
+
+on:
+  workflow_run:
+    workflows: ["Deploy complete generated site"]
+    types: [completed]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  verify-live:
+    if: >-
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.event == 'push' &&
+      (contains(github.event.workflow_run.head_commit.message, 'discovery') ||
+       contains(github.event.workflow_run.head_commit.message, 'publication'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+      SOURCE_RUN_URL: ${{ github.event.workflow_run.html_url }}
+      SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+      SOURCE_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+    steps:
+      - name: Verify live publication audit and visible catalogues
+        id: verify
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          test "$SOURCE_CONCLUSION" = success
+          ready=0
+          for attempt in $(seq 1 120); do
+            nonce="${SOURCE_RUN_ID}-${attempt}-$(date +%s%N)"
+            if curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/publication-discovery-audit-v1.json?verify=${nonce}" \
+              -o /tmp/audit.json; then
+              if python - <<'PY'
+          import json
+          report=json.load(open('/tmp/audit.json',encoding='utf-8'))
+          assert report['status']=='passed'
+          assert report['sourcePublicFiles'] >= 100
+          assert report['publishedHtmlRoutes'] >= 3800
+          assert report['indexableHtmlRoutes'] >= 3700
+          for key in (
+              'missingSourceFiles','brokenInternalLinks','brokenInternalResources',
+              'orphanIndexableRoutes','indexableRoutesWithoutVisibleCard',
+              'sitemapMissingIndexableRoutes','invalidSitemaps','metadataIssues',
+              'canonicalIssues',
+          ):
+              assert report[key] == [], (key, report[key][:10])
+          PY
+              then
+                ready=1
+                break
+              fi
+            fi
+            sleep 5
+          done
+          test "$ready" = 1
+
+          for route in \
+            sections/ \
+            family-guide/ \
+            developers/all-pages/ \
+            guides/all-pages/ \
+            library/all-pages/ \
+            outside-the-box/all-pages/ \
+            provider-assessment-demo/all-pages/ \
+            sectors/all-pages/ \
+            special-needs/all-pages/
+          do
+            curl -fsSL --retry 3 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/${route}?verify=${SOURCE_RUN_ID}" \
+              -o "/tmp/${route//\//_}.html"
+          done
+
+          grep -q 'data-complete-discovery-style-v1' /tmp/family-guide_.html
+          grep -q 'complete-discovery-card' /tmp/family-guide_.html
+          grep -q 'COMPLETE ROOT DISCOVERY V1' /tmp/sections_.html
+          for file in /tmp/*_all-pages_.html; do
+            grep -q 'complete-discovery-card' "$file"
+            grep -q 'الفهرس الكامل' "$file"
+          done
+
+          curl -fsSL --retry 3 -H 'Cache-Control: no-cache' \
+            "https://healthrenewal.org/sitemap-index.xml?verify=${SOURCE_RUN_ID}" \
+            -o /tmp/sitemap-index.xml
+          grep -q 'sitemap-complete-discovery-v1.xml' /tmp/sitemap-index.xml
+          grep -q 'sitemap-family-guide.xml' /tmp/sitemap-index.xml
+          grep -q 'sitemap-family-guide-phase8.xml' /tmp/sitemap-index.xml
+
+          python - <<'PY'
+          import json
+          report=json.load(open('/tmp/audit.json',encoding='utf-8'))
+          summary={
+              'status':report['status'],
+              'sourcePublicFiles':report['sourcePublicFiles'],
+              'publishedHtmlRoutes':report['publishedHtmlRoutes'],
+              'indexableHtmlRoutes':report['indexableHtmlRoutes'],
+              'internalLinks':report['internalLinks'],
+              'missingSourceFiles':len(report['missingSourceFiles']),
+              'brokenInternalLinks':len(report['brokenInternalLinks']),
+              'brokenInternalResources':len(report['brokenInternalResources']),
+              'orphanIndexableRoutes':len(report['orphanIndexableRoutes']),
+              'routesWithoutVisibleCards':len(report['indexableRoutesWithoutVisibleCard']),
+              'sitemapMissingRoutes':len(report['sitemapMissingIndexableRoutes']),
+              'metadataIssues':len(report['metadataIssues']),
+              'canonicalIssues':len(report['canonicalIssues']),
+          }
+          open('/tmp/summary.json','w',encoding='utf-8').write(json.dumps(summary,ensure_ascii=False,indent=2)+'\n')
+          PY
+
+      - name: Publish auditable verification receipt
+        env:
+          VERIFY_OUTCOME: ${{ steps.verify.outcome }}
+        run: |
+          set -euo pipefail
+          title="Complete publication discovery verification — ${SOURCE_RUN_ID}"
+          {
+            echo "## Complete repository-to-site publication receipt"
+            echo
+            echo "- Source workflow: ${SOURCE_RUN_URL}"
+            echo "- Source commit: \`${SOURCE_SHA}\`"
+            echo "- Deployment conclusion: \`${SOURCE_CONCLUSION}\`"
+            echo "- Live verification: \`${VERIFY_OUTCOME}\`"
+            echo "- Verified at: \`$(date -u +%Y-%m-%dT%H:%M:%SZ)\`"
+            echo
+            if [ -f /tmp/summary.json ]; then
+              echo '```json'
+              cat /tmp/summary.json
+              echo '```'
+            else
+              echo "The deployment or live publication audit failed. Inspect the source workflow logs."
+            fi
+          } > /tmp/body.md
+          url="$(gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file /tmp/body.md)"
+          number="${url##*/}"
+          if [ "$VERIFY_OUTCOME" = success ] && [ "$SOURCE_CONCLUSION" = success ]; then
+            gh issue close "$number" --repo "$GITHUB_REPOSITORY" --reason completed
+          fi
+          echo "receipt_issue=${url}"
