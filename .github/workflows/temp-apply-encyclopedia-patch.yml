@@ -51,8 +51,7 @@ jobs:
           chunks = {}
           pattern = re.compile(r'^ENCYPATCH-V1-(\d{2})-OF-06\n([A-Za-z0-9+/=]+)\s*$')
           for item in comments:
-              body = str(item.get('body') or '')
-              match = pattern.match(body)
+              match = pattern.match(str(item.get('body') or ''))
               if match:
                   chunks[int(match.group(1))] = match.group(2)
           expected = set(range(6))
@@ -65,14 +64,8 @@ jobs:
           Path('/tmp/encyclopedia-patch.tar.gz').write_bytes(raw)
           print({'chunks': len(chunks), 'bytes': len(raw), 'sha256': digest})
           PY
-          tar -tzf /tmp/encyclopedia-patch.tar.gz
           tar -xzf /tmp/encyclopedia-patch.tar.gz -C .
-
-      - name: Remove temporary transport workflows
-        run: |
-          set -euxo pipefail
-          rm -f .github/workflows/temp-repo-snapshot-encyclopedia.yml
-          rm -f .github/workflows/temp-apply-encyclopedia-patch.yml
+          git restore .github/workflows
 
       - name: Validate focused encyclopedia contracts
         run: |
@@ -99,13 +92,12 @@ jobs:
             scripts/run_encyclopedia_v13.py \
             scripts/audit_site_integrity_v13.py \
             tests/test_encyclopedia_seo_search_intent_v1.py \
-            tests/test_encyclopedia_topic_hubs_v2.py \
-            .github/workflows/validate-v13.yml \
-            .github/workflows/validate-encyclopedia-topic-hubs-v2.yml \
-            .github/workflows/deploy-encyclopedia-seo-search-intent-v1.yml \
-            .github/workflows/temp-repo-snapshot-encyclopedia.yml \
-            .github/workflows/temp-apply-encyclopedia-patch.yml
+            tests/test_encyclopedia_topic_hubs_v2.py
           git diff --cached --check
           git diff --cached --stat
+          if git diff --cached --quiet; then
+            echo 'Implementation already applied.'
+            exit 0
+          fi
           git commit -m 'feat: publish 2000-page encyclopedia SEO and search intent'
           git push origin HEAD:agent/encyclopedia-2000-seo-search-intent-20260801
