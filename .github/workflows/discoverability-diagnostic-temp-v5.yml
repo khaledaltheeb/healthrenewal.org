@@ -1,0 +1,90 @@
+name: Temporary discoverability release diagnostics
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+jobs:
+  diagnose:
+    if: github.event.issue.title == '[diagnostic] discoverability release v5'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate source
+        id: source
+        shell: bash
+        run: |
+          set +e
+          { node --check assets/platform/platform-core.js; node --check assets/platform/discoverability-cards.js; python -m pytest -q tests/test_discoverability_cards_loader_v1.py; } >/tmp/source.log 2>&1
+          code=$?
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Check validated artifact
+        id: artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set +e
+          curl -fsS -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=10" -o /tmp/artifacts.json
+          code=$?
+          python - <<'PY' >/tmp/artifact.log 2>&1
+          import json
+          data=json.load(open('/tmp/artifacts.json',encoding='utf-8'))
+          items=[x for x in data.get('artifacts',[]) if not x.get('expired')]
+          print({'count':len(items),'latest':items[0].get('created_at') if items else None})
+          raise SystemExit(0 if items else 2)
+          PY
+          py=$?
+          test $code -eq 0 || py=$code
+          echo "code=$py" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Check live assets
+        id: live
+        shell: bash
+        run: |
+          set +e
+          nonce="${GITHUB_RUN_ID}-$(date +%s%N)"
+          curl -fsS -H 'Cache-Control: no-cache' "https://healthrenewal.org/assets/platform/discoverability-cards.js?diag=${nonce}" -o /tmp/live-cards.js
+          c1=$?
+          curl -fsS -H 'Cache-Control: no-cache' "https://healthrenewal.org/assets/platform/platform-core.js?diag=${nonce}" -o /tmp/live-core.js
+          c2=$?
+          grep -q '/family-guide/' /tmp/live-cards.js 2>/dev/null; g1=$?
+          grep -q 'discoverability-cards.js?v=1.0.0' /tmp/live-core.js 2>/dev/null; g2=$?
+          code=$((c1 || c2 || g1 || g2))
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          printf 'curl_cards=%s curl_core=%s grep_cards=%s grep_loader=%s\n' "$c1" "$c2" "$g1" "$g2" >/tmp/live.log
+          exit 0
+      - name: Report diagnostics
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          SOURCE_CODE: ${{ steps.source.outputs.code }}
+          ARTIFACT_CODE: ${{ steps.artifact.outputs.code }}
+          LIVE_CODE: ${{ steps.live.outputs.code }}
+        run: |
+          python - <<'PY' >/tmp/body.json
+          import json,os
+          def tail(path):
+            try:return open(path,encoding='utf-8',errors='replace').read()[-2500:]
+            except:return '(no log)'
+          body='## تشخيص نشر بطاقات الاكتشاف\n\n'
+          body+=f"- فحص المصدر والاختبار: **code {os.environ.get('SOURCE_CODE')}**\n"
+          body+=f"- حزمة الإنتاج المعتمدة: **code {os.environ.get('ARTIFACT_CODE')}**\n"
+          body+=f"- الملفات على الموقع الحي: **code {os.environ.get('LIVE_CODE')}**\n\n"
+          body+='### Source\n```\n'+tail('/tmp/source.log')+'\n```\n\n### Artifact\n```\n'+tail('/tmp/artifact.log')+'\n```\n\n### Live\n```\n'+tail('/tmp/live.log')+'\n```'
+          print(json.dumps({'body':body},ensure_ascii=False))
+          PY
+          curl -fsSL -X POST -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" --data-binary @/tmp/body.json
