@@ -15,6 +15,13 @@ if spec is None or spec.loader is None:
 core = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(core)
 
+core.ROOT = ROOT
+core.BASE_PUBLISHER = ROOT / "scripts/publish_outside_the_box_v254.py"
+core.TEN_PUBLISHER = ROOT / "scripts/publish_outside_the_box_ten_plans_v302.py"
+core.REFERENCE_PUBLISHER = ROOT / "scripts/publish_outside_the_box_reference_assets_v303.py"
+core.REVIEW_PUBLISHER = ROOT / "scripts/publish_outside_the_box_review_governance_v305.py"
+core.AUDITOR = ROOT / "scripts/audit_outside_the_box_quality_v306.py"
+
 
 class OutsideBoxQualityAuditV306(core.OutsideBoxQualityAuditV306):
     def setUp(self) -> None:
