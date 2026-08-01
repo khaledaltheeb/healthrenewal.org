@@ -1,0 +1,114 @@
+{
+  "who_icf": {
+    "title": "WHO — International Classification of Functioning, Disability and Health (ICF)",
+    "url": "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
+    "organization": "World Health Organization",
+    "year": "2001–2026",
+    "scope": "إطار دولي لوصف الوظائف والأنشطة والمشاركة والعوامل البيئية دون اختزال الشخص في التشخيص."
+  },
+  "who_whodas": {
+    "title": "WHO — Disability Assessment Schedule 2.0 (WHODAS 2.0)",
+    "url": "https://www.who.int/standards/classifications/international-classification-of-functioning-disability-and-health/who-disability-assessment-schedule",
+    "organization": "World Health Organization",
+    "year": "2012",
+    "scope": "مرجع عام لقياس مجالات الأداء لدى البالغين؛ لا يُستخدم هنا كتشخيص أو كأداة أهلية منفردة."
+  },
+  "un_crpd": {
+    "title": "United Nations — Convention on the Rights of Persons with Disabilities",
+    "url": "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
+    "organization": "United Nations / OHCHR",
+    "year": "2006",
+    "scope": "الأساس الحقوقي للكرامة والمساواة والإتاحة والاختيار والمشاركة وعدم التمييز."
+  },
+  "unicef_inclusive_education": {
+    "title": "UNICEF — Inclusive education",
+    "url": "https://www.unicef.org/education/inclusive-education",
+    "organization": "UNICEF",
+    "year": "محدث باستمرار",
+    "scope": "مبادئ بناء نظم تعليمية تزيل العوائق وتتيح التعلم والمشاركة لجميع الأطفال."
+  },
+  "unicef_caregiver_guide": {
+    "title": "UNICEF Innocenti — Caregivers’ Guide to Inclusive Education",
+    "url": "https://www.unicef.org/innocenti/reports/caregivers-guide-inclusive-education",
+    "organization": "UNICEF Innocenti",
+    "year": "2026",
+    "scope": "إرشاد الأسر في فهم الحقوق والعوائق والعمل مع المدرسة ودعم المشاركة."
+  },
+  "unesco_inclusion": {
+    "title": "UNESCO — A guide for ensuring inclusion and equity in education",
+    "url": "https://www.unesco.org/en/articles/guide-ensuring-inclusion-and-equity-education-0",
+    "organization": "UNESCO",
+    "year": "2017، محدث 2025",
+    "scope": "إطار لمراجعة السياسات والممارسات التعليمية من منظور الشمول والإنصاف."
+  },
+  "who_cst": {
+    "title": "WHO — Caregiver Skills Training for families of children with developmental delays or disabilities",
+    "url": "https://www.who.int/publications/i/item/9789240048836",
+    "organization": "World Health Organization",
+    "year": "2022",
+    "scope": "حزمة تدريبية لدعم مشاركة الطفل وتواصله وسلوكه الإيجابي ومهارات الحياة اليومية ورفاه الأسرة."
+  },
+  "who_caregiver_wellbeing": {
+    "title": "WHO — Caregiver well-being facilitators’ and participants’ guides",
+    "url": "https://www.who.int/publications/b/82481",
+    "organization": "World Health Organization",
+    "year": "2026",
+    "scope": "مادة إضافية منظمة لدعم رفاه مقدمي الرعاية ضمن حزمة تدريب المهارات."
+  },
+  "asha_aac": {
+    "title": "ASHA Practice Portal — Augmentative and Alternative Communication (AAC)",
+    "url": "https://www.asha.org/practice-portal/professional-issues/augmentative-and-alternative-communication/",
+    "organization": "American Speech-Language-Hearing Association",
+    "year": "محدث باستمرار",
+    "scope": "مرجع مهني للتقييم والتدخل والتقنيات وتدريب شركاء التواصل عبر مراحل الحياة."
+  },
+  "resna_service": {
+    "title": "RESNA — Position Papers and Service Provision Guidelines",
+    "url": "https://www.resna.org/Resources/Position-Papers-and-Service-Provision-Guidelines",
+    "organization": "Rehabilitation Engineering and Assistive Technology Society of North America",
+    "year": "محدث باستمرار",
+    "scope": "مبادئ مهنية لتقديم خدمات التقنيات المساعدة والتجربة والتدريب والمتابعة."
+  },
+  "who_assistive_technology": {
+    "title": "WHO and UNICEF — Global report on assistive technology",
+    "url": "https://www.who.int/publications/i/item/9789240049451",
+    "organization": "World Health Organization and UNICEF",
+    "year": "2022",
+    "scope": "إطار عالمي للوصول العادل إلى التقنيات المساعدة والأنظمة والخدمات الداعمة."
+  },
+  "nice_autism_support": {
+    "title": "NICE CG170 — Autism spectrum disorder in under 19s: support and management",
+    "url": "https://www.nice.org.uk/guidance/cg170",
+    "organization": "National Institute for Health and Care Excellence",
+    "year": "2013، محدث 2021، مراجع 2025",
+    "scope": "مبادئ دعم منسق ومتعدد التخصصات ومراعاة الأسرة والمشاركة والانتقال."
+  },
+  "nice_challenging_behaviour": {
+    "title": "NICE NG11 — Challenging behaviour and learning disabilities",
+    "url": "https://www.nice.org.uk/guidance/ng11",
+    "organization": "National Institute for Health and Care Excellence",
+    "year": "2015، محدث ومراجع دوريًا",
+    "scope": "الوقاية والتقييم الوظيفي والتدخلات الأقل تقييدًا ومراجعة العوامل الصحية والبيئية."
+  },
+  "nice_cerebral_palsy": {
+    "title": "NICE NG62 — Cerebral palsy in under 25s: assessment and management",
+    "url": "https://www.nice.org.uk/guidance/ng62",
+    "organization": "National Institute for Health and Care Excellence",
+    "year": "2017، محدث دوريًا",
+    "scope": "إدارة متعددة التخصصات تشمل الحركة والتواصل والتغذية والألم والنوم والمشاركة."
+  },
+  "who_rehabilitation": {
+    "title": "WHO — Rehabilitation 2030",
+    "url": "https://www.who.int/initiatives/rehabilitation-2030",
+    "organization": "World Health Organization",
+    "year": "2017–2026",
+    "scope": "تقوية نظم التأهيل المتمحورة حول الشخص ودمجها في الخدمات الصحية."
+  },
+  "unicef_humanitarian_disability": {
+    "title": "UNICEF — Including Children with Disabilities in Humanitarian Action: Education",
+    "url": "https://www.unicef.org/disabilities/documents/inclusive-humanitarian-action-education-guidance",
+    "organization": "UNICEF",
+    "year": "إصدار متاح بالعربية",
+    "scope": "إدماج الأطفال ذوي الإعاقة في التخطيط والاستجابة الإنسانية والتعليم في الطوارئ."
+  }
+}
