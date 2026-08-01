@@ -176,11 +176,12 @@ class EncyclopediaTopicHubsV2Tests(unittest.TestCase):
         self.assertEqual(report["primary_navigation"], "topic-first")
         self.assertEqual(report["topic_hubs"], 100)
 
-    def test_run_script_integrates_publisher_before_integrity_audit(self):
+    def test_run_script_integrates_publisher_before_focused_audit(self):
         runner = (ROOT / "scripts/run_encyclopedia_v13.py").read_text(encoding="utf-8")
         self.assertIn('Path(__file__).with_name("publish_encyclopedia_topic_hubs_v2.py")', runner)
         self.assertIn("topic_report = topic_module.publish(module)", runner)
-        self.assertLess(runner.index("topic_report = topic_module.publish(module)"), runner.index("audit_result = audit_module.main()"))
+        self.assertIn("audit_report = audit_encyclopedia_surface(module.SITE)", runner)
+        self.assertLess(runner.index("topic_report = topic_module.publish(module)"), runner.index("audit_report = audit_encyclopedia_surface(module.SITE)"))
 
 
 if __name__ == "__main__":

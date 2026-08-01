@@ -11,8 +11,9 @@ from urllib.parse import unquote, urlparse
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 BASE_URL = "https://healthrenewal.org/"
-BASE_HOST = "khaledaltheeb.github.io"
-BASE_PATH = "/"
+_BASE_PARSED = urlparse(BASE_URL)
+BASE_HOST = _BASE_PARSED.netloc
+BASE_PATH = _BASE_PARSED.path or "/"
 VERIFY = "google644f1f7a8b7aaa2b.html"
 LOCALE_CONTRACTS = {
     "en": ("en", "ltr"),
