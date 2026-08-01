@@ -1,0 +1,172 @@
+name: Diagnose undercovered v401 predeployment once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/diagnose-undercovered-v401-predeployment-once.yml'
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate source corpus
+        id: source
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('api/undercovered-content-v401.json').read_text(encoding='utf-8'))
+          assert report['engine_revision'] == 403
+          assert report['page_count'] == 100
+          assert report['minimum_words'] >= 2700
+          assert report['minimum_h2'] >= 20
+          assert report['generic_placeholder_pages'] == 0
+          assert report['quality_gates']['specialized_safety_checks']
+          assert report['quality_gates']['stable_sitemap_report']
+          assert report['quality_gates']['stable_hub_whitespace']
+          for route in report['routes']:
+              source = (Path(route) / 'index.html').read_text(encoding='utf-8')
+              assert 'data-content-engine="v403"' in source, route
+          print({'source_pages': report['page_count'], 'source_words': report['total_words']})
+          PY
+
+      - name: Discover production artifact
+        id: artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl -fsS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" \
+            -o /tmp/artifacts.json
+          python - <<'PY'
+          import json, os
+          artifacts = [item for item in json.load(open('/tmp/artifacts.json', encoding='utf-8')).get('artifacts', []) if not item.get('expired') and item.get('workflow_run', {}).get('id')]
+          if not artifacts:
+              raise SystemExit('No active validated-production-site artifact found')
+          selected = max(artifacts, key=lambda item: item.get('created_at', ''))
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f"run_id={selected['workflow_run']['id']}\n")
+              output.write(f"artifact_id={selected['id']}\n")
+              output.write(f"created_at={selected.get('created_at', '')}\n")
+          print({'artifact_id': selected['id'], 'run_id': selected['workflow_run']['id'], 'created_at': selected.get('created_at')})
+          PY
+
+      - name: Download production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.artifact.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Overlay and validate corpus
+        run: |
+          set -euo pipefail
+          test -f _site/index.html
+          mkdir -p _site/special-needs _site/sectors _site/api _site/assets/platform
+          rm -rf _site/special-needs/practical
+          cp -a special-needs/practical _site/special-needs/practical
+          cp special-needs/index.html _site/special-needs/index.html
+          rm -rf _site/learning-paths
+          cp -a learning-paths _site/learning-paths
+          for sector in child family home; do
+            mkdir -p "_site/sectors/${sector}"
+            rm -rf "_site/sectors/${sector}/guides"
+            cp -a "sectors/${sector}/guides" "_site/sectors/${sector}/guides"
+            cp "sectors/${sector}/index.html" "_site/sectors/${sector}/index.html"
+          done
+          cp api/undercovered-content-v401.json _site/api/undercovered-content-v401.json
+          cp sitemap-special-needs.xml sitemap-family-special-needs.xml sitemap-family-learning-paths.xml sitemap-family-main.xml sitemap-index.xml robots.txt CNAME _site/
+          cp assets/platform/platform-core.css assets/platform/platform-core.js _site/assets/platform/
+          touch _site/.nojekyll
+          python - <<'PY'
+          import hashlib
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          site = Path('_site')
+          report = json.loads((site / 'api/undercovered-content-v401.json').read_text(encoding='utf-8'))
+          assert report['page_count'] == 100 and report['engine_revision'] == 403
+          for route in report['routes']:
+              page = site / route / 'index.html'
+              assert page.is_file(), route
+              assert 'data-content-engine="v403"' in page.read_text(encoding='utf-8'), route
+          expected = {
+              'sitemap-special-needs.xml': 60,
+              'sitemap-family-special-needs.xml': 60,
+              'sitemap-family-learning-paths.xml': 15,
+              'sitemap-family-main.xml': 25,
+          }
+          counts = {}
+          for filename, minimum_new in expected.items():
+              root = ET.parse(site / filename).getroot()
+              urls = [(node.text or '').strip() for node in root.findall('{*}url/{*}loc') if node.text]
+              assert len(urls) == len(set(urls)), filename
+              matched = [url for url in urls if '/special-needs/practical/' in url or '/learning-paths/' in url or '/sectors/child/guides/' in url or '/sectors/family/guides/' in url or '/sectors/home/guides/' in url]
+              assert len(matched) >= minimum_new, (filename, len(matched), minimum_new)
+              counts[filename] = {'total': len(urls), 'v401_matched': len(matched)}
+          payload = {
+              'passed': True,
+              'pageCount': report['page_count'],
+              'engineRevision': report['engine_revision'],
+              'totalWords': report['total_words'],
+              'artifactTreeDigest': hashlib.sha256('\n'.join(sorted(report['routes'])).encode()).hexdigest(),
+              'sitemaps': counts,
+          }
+          Path('/tmp/predeploy.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
+          print(json.dumps(payload, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Commit predeployment receipt
+        env:
+          ARTIFACT_RUN_ID: ${{ steps.artifact.outputs.run_id }}
+          ARTIFACT_ID: ${{ steps.artifact.outputs.artifact_id }}
+          ARTIFACT_CREATED_AT: ${{ steps.artifact.outputs.created_at }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import datetime, json, os, subprocess
+          from pathlib import Path
+          payload = json.loads(Path('/tmp/predeploy.json').read_text(encoding='utf-8'))
+          payload.update({
+              'schemaVersion': 1,
+              'verifiedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'sourceCommit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              'baselineArtifactId': int(os.environ['ARTIFACT_ID']),
+              'baselineWorkflowRunId': int(os.environ['ARTIFACT_RUN_ID']),
+              'baselineArtifactCreatedAt': os.environ['ARTIFACT_CREATED_AT'],
+          })
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/undercovered-v401-predeployment.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/undercovered-v401-predeployment.json
+          git commit -m 'chore: record verified v401 predeployment receipt [skip ci]'
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            git rebase --abort || true
+            sleep $((attempt * 3))
+          done
+          exit 1
