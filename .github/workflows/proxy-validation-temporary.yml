@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - automation/proxy-check-20260801
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
