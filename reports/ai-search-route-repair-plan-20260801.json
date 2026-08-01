@@ -1,0 +1,12 @@
+{
+  "route": "https://healthrenewal.org/ai-search/",
+  "requiredChecks": [
+    "HTTP retrieval of /ai-search/",
+    "HTTP retrieval of /ai-search/index.html",
+    "page title and multilingual-e5-small marker",
+    "browser app.js availability",
+    "manifest generatedAt matches main",
+    "coverage passed with 100 percent ratios",
+    "all vector and metadata hashes validated before deployment"
+  ]
+}
