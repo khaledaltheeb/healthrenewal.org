@@ -63,10 +63,10 @@
   };
 
   const config = catalog[currentPath];
-  const main = doc.querySelector('main');
-  if (!config || !main || main.querySelector('[data-pt-discoverability-cards="v1"]')) return;
+  if (!config) return;
 
-  if (!doc.getElementById('pt-discoverability-card-styles')) {
+  const ensureStyles = () => {
+    if (doc.getElementById('pt-discoverability-card-styles')) return;
     const style = doc.createElement('style');
     style.id = 'pt-discoverability-card-styles';
     style.textContent = `
@@ -84,43 +84,69 @@
       @media(max-width:640px){.pt-discovery-section{width:min(100% - 18px,var(--pt-content,1180px))}.pt-discovery-card{min-height:0}}
     `;
     doc.head.append(style);
+  };
+
+  const render = () => {
+    const main = doc.querySelector('main');
+    if (!main || main.querySelector('[data-pt-discoverability-cards="v1"]')) return false;
+    ensureStyles();
+
+    const section = doc.createElement('section');
+    section.className = 'pt-discovery-section';
+    section.dataset.ptDiscoverabilityCards = 'v1';
+    const titleId = `pt-discovery-${currentPath.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'root'}`;
+    section.setAttribute('aria-labelledby', titleId);
+
+    const eyebrow = doc.createElement('p');
+    eyebrow.className = 'pt-discovery-section__eyebrow';
+    eyebrow.textContent = config.eyebrow;
+    const heading = doc.createElement('h2');
+    heading.id = titleId;
+    heading.textContent = config.title;
+    const intro = doc.createElement('p');
+    intro.className = 'pt-discovery-section__intro';
+    intro.textContent = config.intro;
+    const grid = doc.createElement('div');
+    grid.className = 'pt-discovery-grid';
+
+    config.cards.forEach(([tag, title, description, href]) => {
+      const card = doc.createElement('article');
+      card.className = 'pt-discovery-card';
+      const badge = doc.createElement('span');
+      badge.className = 'pt-discovery-card__tag';
+      badge.textContent = tag;
+      const cardTitle = doc.createElement('h3');
+      cardTitle.textContent = title;
+      const text = doc.createElement('p');
+      text.textContent = description;
+      const link = doc.createElement('a');
+      link.href = href;
+      link.textContent = 'فتح الصفحة ←';
+      card.append(badge, cardTitle, text, link);
+      grid.append(card);
+    });
+
+    section.append(eyebrow, heading, intro, grid);
+    main.append(section);
+    return true;
+  };
+
+  const scheduleRender = () => {
+    render();
+    [50, 250, 750, 1500, 3000, 6000].forEach((delay) => window.setTimeout(render, delay));
+  };
+
+  if (doc.readyState === 'loading') {
+    doc.addEventListener('DOMContentLoaded', scheduleRender, { once: true });
+  } else {
+    scheduleRender();
   }
+  window.addEventListener('load', scheduleRender, { once: true });
 
-  const section = doc.createElement('section');
-  section.className = 'pt-discovery-section';
-  section.dataset.ptDiscoverabilityCards = 'v1';
-  const titleId = `pt-discovery-${currentPath.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'root'}`;
-  section.setAttribute('aria-labelledby', titleId);
-
-  const eyebrow = doc.createElement('p');
-  eyebrow.className = 'pt-discovery-section__eyebrow';
-  eyebrow.textContent = config.eyebrow;
-  const heading = doc.createElement('h2');
-  heading.id = titleId;
-  heading.textContent = config.title;
-  const intro = doc.createElement('p');
-  intro.className = 'pt-discovery-section__intro';
-  intro.textContent = config.intro;
-  const grid = doc.createElement('div');
-  grid.className = 'pt-discovery-grid';
-
-  config.cards.forEach(([tag, title, description, href]) => {
-    const card = doc.createElement('article');
-    card.className = 'pt-discovery-card';
-    const badge = doc.createElement('span');
-    badge.className = 'pt-discovery-card__tag';
-    badge.textContent = tag;
-    const cardTitle = doc.createElement('h3');
-    cardTitle.textContent = title;
-    const text = doc.createElement('p');
-    text.textContent = description;
-    const link = doc.createElement('a');
-    link.href = href;
-    link.textContent = 'فتح الصفحة ←';
-    card.append(badge, cardTitle, text, link);
-    grid.append(card);
+  const observer = new MutationObserver(() => {
+    if (!doc.querySelector('[data-pt-discoverability-cards="v1"]')) render();
   });
-
-  section.append(eyebrow, heading, intro, grid);
-  main.append(section);
+  observer.observe(doc.documentElement, { childList: true, subtree: true });
+  window.setTimeout(() => observer.disconnect(), 20000);
+  window.addEventListener('pagehide', () => observer.disconnect(), { once: true });
 })();
