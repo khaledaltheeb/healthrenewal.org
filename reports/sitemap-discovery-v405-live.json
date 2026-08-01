@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "passed": true,
+  "deploymentAccepted": true,
+  "verifiedAt": "2026-08-01T13:30:17.261636+00:00",
+  "site": "https://healthrenewal.org/",
+  "workflowRunId": 30701835879,
+  "workflowRunUrl": "https://github.com/khaledaltheeb/healthrenewal.org/actions/runs/30701835879",
+  "sourceCommit": "b280abae6520d25722ad02ac856bb3eb99d5d833",
+  "baselineArtifactId": 8802973435,
+  "baselineWorkflowRunId": 30653545703,
+  "sitemapCount": 14,
+  "publishedUrlCount": 315,
+  "undercoveredRoutesExposed": 100,
+  "liveIndexSitemapCount": 14,
+  "robotsDeclaresIndex": true,
+  "representativePageReachable": true,
+  "requiredSitemapsLive": true
+}
