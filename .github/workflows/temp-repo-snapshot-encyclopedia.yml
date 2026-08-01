@@ -1,0 +1,30 @@
+name: Temporary repository snapshot for encyclopedia repair
+
+on:
+  push:
+    branches:
+      - agent/encyclopedia-2000-seo-search-intent-20260801
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Package repository snapshot
+        run: |
+          set -euxo pipefail
+          tar --exclude=.git --exclude=.github/workflows/temp-repo-snapshot-encyclopedia.yml -czf /tmp/healthrenewal-source.tar.gz .
+      - name: Upload snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: healthrenewal-source-snapshot
+          path: /tmp/healthrenewal-source.tar.gz
+          if-no-files-found: error
+          retention-days: 1
