@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - fix/homepage-verifier-no-meta-keywords-v20260801
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
