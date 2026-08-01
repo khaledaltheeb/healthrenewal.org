@@ -1,0 +1,196 @@
+name: Temporary rendered user discoverability audit
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    if: github.event.issue.title == '[diagnostic] rendered user discoverability audit 2026-08-01'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser driver
+        run: |
+          python -m pip install --quiet selenium==4.27.1
+          google-chrome --version || chromium --version || true
+          chromedriver --version || true
+      - name: Crawl rendered live DOM and audit visible cards
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, re, time
+          from collections import Counter, defaultdict, deque
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          from urllib.request import Request, urlopen
+          from xml.etree import ElementTree as ET
+          from selenium import webdriver
+          from selenium.webdriver.chrome.options import Options
+          from selenium.webdriver.support.ui import WebDriverWait
+
+          BASE='https://healthrenewal.org'
+          req=Request(BASE+'/sitemap.xml?rendered_audit=1',headers={'Cache-Control':'no-cache','User-Agent':'HealthRenewalRenderedAudit/2.0'})
+          with urlopen(req,timeout=30) as response: xml=response.read()
+          root=ET.fromstring(xml)
+          routes=[]
+          for node in root.iter():
+              if node.tag.split('}',1)[-1]=='loc' and node.text:
+                  parsed=urlsplit(node.text.strip())
+                  if parsed.netloc=='healthrenewal.org': routes.append(parsed.path or '/')
+          routes=sorted(set(routes))
+          assert routes, 'sitemap has no routes'
+
+          options=Options()
+          options.add_argument('--headless=new')
+          options.add_argument('--no-sandbox')
+          options.add_argument('--disable-dev-shm-usage')
+          options.add_argument('--disable-gpu')
+          options.add_argument('--window-size=1440,1600')
+          options.add_argument('--lang=ar')
+          options.page_load_strategy='normal'
+          driver=webdriver.Chrome(options=options)
+          driver.set_page_load_timeout(30)
+
+          script=r'''
+          const visible = (el) => {
+            if (!el || el.closest('[hidden],[aria-hidden="true"]')) return false;
+            const s=getComputedStyle(el), r=el.getBoundingClientRect();
+            return s.display !== 'none' && s.visibility !== 'hidden' && Number(s.opacity || 1) !== 0 && r.width > 0 && r.height > 0;
+          };
+          return Array.from(document.querySelectorAll('a[href]')).filter(visible).map(a => ({
+            href:a.href,
+            text:(a.innerText||a.textContent||'').replace(/\s+/g,' ').trim().slice(0,240),
+            card:Boolean(a.closest('article,li,.card,[class*="card"],[class*="tile"],[class*="feature"],[class*="resource"],[class*="condition"],[class*="guide"]')),
+            context:(a.closest('article,li,.card,[class*="card"],[class*="tile"],[class*="feature"],[class*="resource"],[class*="condition"],[class*="guide"]')?.className||'').toString().slice(0,160)
+          }));
+          '''
+
+          pages={}
+          errors=[]
+          for index,route in enumerate(routes,1):
+              url=BASE+route+('?' if '?' not in route else '&')+'rendered_audit=2'
+              try:
+                  driver.get(url)
+                  WebDriverWait(driver,10).until(lambda d:d.execute_script('return document.readyState')=='complete')
+                  time.sleep(0.35)
+                  links=driver.execute_script(script) or []
+                  title=driver.title.strip()
+                  pages[route]={'title':title,'links':links,'url':driver.current_url}
+                  print(index,len(routes),route,len(links),title[:80])
+              except Exception as exc:
+                  errors.append({'route':route,'error':str(exc)[:240]})
+                  pages[route]={'title':'','links':[],'url':url}
+          driver.quit()
+
+          aliases={}
+          for route in routes:
+              aliases[route]=route
+              if route!='/' and route.endswith('/'):
+                  aliases[route.rstrip('/')]=route
+                  aliases[route+'index.html']=route
+
+          def normalize(href):
+              try: parsed=urlsplit(href)
+              except Exception: return None
+              if parsed.netloc not in {'healthrenewal.org','www.healthrenewal.org'}: return None
+              path=re.sub(r'/+','/',parsed.path or '/')
+              if path.endswith('/index.html'): path=path[:-10]
+              for candidate in (path,path.rstrip('/'),path.rstrip('/')+'/'):
+                  if candidate in aliases:return aliases[candidate]
+              return None
+
+          edges=defaultdict(set); card_edges=defaultdict(set); link_text=defaultdict(dict)
+          for source,meta in pages.items():
+              for item in meta['links']:
+                  target=normalize(item.get('href',''))
+                  if target and target!=source:
+                      edges[source].add(target)
+                      link_text[source][target]=item.get('text','')
+                      if item.get('card'): card_edges[source].add(target)
+
+          inbound=Counter();card_inbound=Counter();sources=defaultdict(set);card_sources=defaultdict(set)
+          for source,targets in edges.items():
+              for target in targets: inbound[target]+=1;sources[target].add(source)
+          for source,targets in card_edges.items():
+              for target in targets: card_inbound[target]+=1;card_sources[target].add(source)
+
+          roots=[x for x in ('/','/sections/','/start-here/') if x in pages]
+          reachable=set(roots);queue=deque(roots)
+          while queue:
+              source=queue.popleft()
+              for target in edges.get(source,()):
+                  if target not in reachable:reachable.add(target);queue.append(target)
+
+          def nearest_hub(route):
+              if route=='/':return None
+              parts=route.strip('/').split('/')
+              if not route.endswith('/') and '.' in parts[-1]:parts=parts[:-1]
+              for cut in range(len(parts)-1,0,-1):
+                  candidate='/'+('/'.join(parts[:cut]))+'/'
+                  if candidate in pages and candidate!=route:return candidate
+              return '/sections/' if '/sections/' in pages else '/'
+
+          rows=[]
+          for route in routes:
+              hub=nearest_hub(route)
+              rows.append({'route':route,'title':pages[route]['title'],'inbound':inbound[route],'card_inbound':card_inbound[route],
+                'reachable':route in reachable,'nearest_hub':hub,'hub_links_directly':bool(hub and route in edges.get(hub,set())),
+                'hub_has_card':bool(hub and route in card_edges.get(hub,set())),'sources':sorted(sources[route])[:10],
+                'card_sources':sorted(card_sources[route])[:10]})
+
+          orphans=[x for x in rows if x['route']!='/' and x['inbound']==0]
+          unreachable=[x for x in rows if x['route'] not in reachable]
+          missing_hub_link=[x for x in rows if x['nearest_hub'] and not x['hub_links_directly']]
+          missing_hub_card=[x for x in rows if x['nearest_hub'] and not x['hub_has_card']]
+          no_card=[x for x in rows if x['route']!='/' and x['card_inbound']==0]
+
+          def group(items):
+              out=Counter()
+              for x in items:
+                  first=x['route'].strip('/').split('/')[0] if x['route']!='/' else '(root)'
+                  out[first]+=1
+              return dict(out.most_common())
+
+          report={'status':'passed' if not orphans and not unreachable and not errors else 'attention_required','sitemap_pages':len(routes),
+            'render_errors':errors,'orphan_pages':orphans,'unreachable_pages':unreachable,'missing_direct_hub_link':missing_hub_link,
+            'missing_hub_card':missing_hub_card,'no_card_anywhere':no_card,
+            'groups':{'orphans':group(orphans),'unreachable':group(unreachable),'missing_hub_card':group(missing_hub_card),'no_card':group(no_card)}}
+          Path('/tmp/rendered-discoverability.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+          def list_items(items,limit=100):
+              if not items:return ['- لا يوجد.']
+              result=[]
+              for x in items[:limit]:result.append(f"- `{x['route']}` — {x['title']} — hub: `{x['nearest_hub']}` — inbound: {x['inbound']} — cards: {x['card_inbound']}")
+              if len(items)>limit:result.append(f"- … و{len(items)-limit} صفحة إضافية.")
+              return result
+          def group_lines(mapping):
+              return [f"- `{k}`: **{v}**" for k,v in mapping.items()] or ['- لا يوجد.']
+
+          body=['## تدقيق الظهور الفعلي بعد تنفيذ JavaScript','',f"الحالة: **{report['status']}**",'',
+            f"- صفحات sitemap المفحوصة: **{len(routes)}**",f"- أخطاء العرض: **{len(errors)}**",f"- صفحات يتيمة بلا رابط مرئي: **{len(orphans)}**",
+            f"- صفحات غير قابلة للوصول من واجهات البداية: **{len(unreachable)}**",f"- صفحات لا يربطها فهرس القسم الأقرب: **{len(missing_hub_link)}**",
+            f"- صفحات بلا بطاقة في فهرس القسم الأقرب: **{len(missing_hub_card)}**",f"- صفحات بلا أي بطاقة مرئية في الموقع: **{len(no_card)}**",'',
+            '### التجمعات — الصفحات اليتيمة',*group_lines(report['groups']['orphans']),'','### التجمعات — غير القابلة للوصول',*group_lines(report['groups']['unreachable']),'',
+            '### الصفحات اليتيمة الحقيقية بعد العرض',*list_items(orphans),'','### غير القابلة للوصول من البداية',*list_items(unreachable),'',
+            '### بلا بطاقة في فهرس القسم المباشر',*list_items(missing_hub_card),'','### بلا أي بطاقة مرئية',*list_items(no_card)]
+          payload=json.dumps({'body':'\n'.join(body)},ensure_ascii=False).encode('utf-8')
+          req=Request(f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/issues/{os.environ['ISSUE_NUMBER']}/comments",data=payload,method='POST',
+            headers={'Authorization':f"Bearer {os.environ['GH_TOKEN']}",'Accept':'application/vnd.github+json','Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'})
+          with urlopen(req,timeout=30) as response:print(response.status)
+          print(json.dumps({'status':report['status'],'pages':len(routes),'errors':len(errors),'orphans':len(orphans),'unreachable':len(unreachable),'missing_hub_card':len(missing_hub_card),'no_card':len(no_card),'groups':report['groups']},ensure_ascii=False,indent=2))
+          PY
