@@ -1,0 +1,20 @@
+{
+  "version": 334,
+  "generated_at": "2026-08-01T08:21:22+00:00",
+  "base_url": "https://healthrenewal.org/",
+  "endpoint": "https://api.indexnow.org/indexnow",
+  "key_location": "https://healthrenewal.org/a4f9d7c2e81b4630b5d6f7a912ce3048.txt",
+  "discovered_urls": 312,
+  "submitted_urls": 0,
+  "status": "failed",
+  "warnings": [],
+  "submissions": [
+    {
+      "batch": 1,
+      "url_count": 312,
+      "status": 403,
+      "accepted": false,
+      "error": "HTTP 403: Forbidden"
+    }
+  ]
+}
