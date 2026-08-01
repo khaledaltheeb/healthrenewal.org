@@ -15,7 +15,7 @@
   "sources_file": "data/content-expansion-v1/sources.json",
   "clusters_file": "data/content-expansion-v1/clusters.json",
   "page_files": [
-    "data/content-expansion-v1/special-needs.json",
+    "data/content-expansion-v1/special-needs.tsv",
     "data/content-expansion-v1/care-guides.json",
     "data/content-expansion-v1/learning-paths.json",
     "data/content-expansion-v1/comparisons.json",
