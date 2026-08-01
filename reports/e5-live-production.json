@@ -1,12 +1,12 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "passed": true,
-  "verifiedAt": "2026-07-31T22:11:13.553872+00:00",
+  "verifiedAt": "2026-08-01T00:37:33.079556+00:00",
   "site": "https://healthrenewal.org/",
-  "workflowRunId": "30669077383",
-  "workflowRunUrl": "https://github.com/khaledaltheeb/healthrenewal.org/actions/runs/30669077383",
-  "sourceCommit": "fa3a462976078b6c0fe0a49b79f7cbb3bbc865bd",
-  "generatedAt": "2026-07-31T22:10:07.748750+00:00",
+  "workflowRunId": "30675977587",
+  "workflowRunUrl": "https://github.com/khaledaltheeb/healthrenewal.org/actions/runs/30675977587",
+  "sourceCommit": "706979eac7231b55a9528b072c8174901c695ea5",
+  "generatedAt": "2026-08-01T00:29:55.876335+00:00",
   "model": "intfloat/multilingual-e5-small",
   "modelRevision": "fd1525a9fd15316a2d503bf26ab031a61d056e98",
   "browserModel": "Xenova/multilingual-e5-small",
@@ -14,33 +14,46 @@
   "dimensions": 384,
   "dtype": "float16",
   "normalized": true,
-  "documentCount": 125,
-  "chunkCount": 1552,
-  "manifestBytes": 1735,
-  "manifestSha256": "b1c04681bdfdf4189a39c1be83d274afaf5e4d7de993054d098c64655ec38832",
-  "robotsSitemapIndexOnly": true,
+  "documentCount": 212,
+  "chunkCount": 5523,
+  "dataAssetCount": 64,
+  "downloadedDataAssetCount": 64,
+  "downloadSuccessRatio": 1.0,
+  "indexCoverageRatio": 1.0,
+  "manifestSha256": "afa503daa71a9c23e9919f971b4d32c5889f03e738db74369f0cbeefc4e9581e",
+  "homepageSearchConnected": true,
   "shards": [
     {
       "metadata": "shard-000.meta.json",
-      "metadataBytes": 2525129,
-      "metadataSha256": "0b1d1786ee9e4bdf1af595202f70cc75a52f65b3be2f1734f5a21a5d716732e2",
+      "metadataSha256": "d8590e8d3818d0aef248be82884de6a7c3197f3f8e834f822709c0a798fce626",
       "embeddingsJson": "shard-000.f16.json",
-      "embeddingsJsonBytes": 1536210,
-      "embeddingsJsonSha256": "b75c0d02ff5be95df78f0137dac436a6fa27e256d6c5aaf8b80ee884d705b42d",
-      "embeddingBytes": 1152000,
-      "embeddingSha256": "db00684f25e377e70d2cd53c7f3730dccc1f6c79e9473d74d3ea635e822ad0ce",
+      "embeddingsJsonSha256": "dc6b71f3f9864b5c7f2d8f5f58716ef3e7cfc45bcb0291d094fe654043561251",
+      "embeddingSha256": "219e0633945a47a5260a5885dd034e4c702af41523efecc865bd252f7ced90d0",
       "count": 1500
     },
     {
       "metadata": "shard-001.meta.json",
-      "metadataBytes": 94167,
-      "metadataSha256": "4e522e98bb8d889cb6e8f877bd35ee29601bdad1517318b5470b3a94dc7e3fc1",
+      "metadataSha256": "3a8f04309ef1a8e5f2265d19342195933d56d61f3e8872eaee761870e445b6c1",
       "embeddingsJson": "shard-001.f16.json",
-      "embeddingsJsonBytes": 53454,
-      "embeddingsJsonSha256": "045014c41619b001e6c6d5836239d73531ab6eceab5c0cedcfa64afd2bb8a2d7",
-      "embeddingBytes": 39936,
-      "embeddingSha256": "a675bbf158cccfc275e791b06f0eebda17125a21cc0d801cf48541e3c4cd5b64",
-      "count": 52
+      "embeddingsJsonSha256": "a1493ed5e3f4d0626c8bd0143f193d9554f8e01d56adcde0edfe1480b88f4229",
+      "embeddingSha256": "da2c1479b08aee23c9b2551e18fd9d134148c8b2020acef13687785435507372",
+      "count": 1500
+    },
+    {
+      "metadata": "shard-002.meta.json",
+      "metadataSha256": "7e09ee38751dee9a5163536a186526238af98408db4d847511fdcad80395479e",
+      "embeddingsJson": "shard-002.f16.json",
+      "embeddingsJsonSha256": "a6344d184e3f8a698c56650c757e50ab8f70cbcc1ddde9918ae9ddd40d8ab815",
+      "embeddingSha256": "73b169d7f5e1411605ad2e9897e94774e31e3b0e766fcaeac01bdf69da651eec",
+      "count": 1500
+    },
+    {
+      "metadata": "shard-003.meta.json",
+      "metadataSha256": "4ecff9dac110f2b1b8d3c532247d45e92500785dcf1c330e4f194e7cd0b04730",
+      "embeddingsJson": "shard-003.f16.json",
+      "embeddingsJsonSha256": "044301789ca42733c60b8b6abf09061cc2614e9c97c633e03fe6e14e694d649d",
+      "embeddingSha256": "d948e164a7d153fc0cc5a32234868cb2263790bb7356b129dfdfb27483aa3c94",
+      "count": 1023
     }
   ]
 }
