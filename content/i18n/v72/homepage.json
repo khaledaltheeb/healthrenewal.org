@@ -3,7 +3,7 @@
   "entity_id": "page.home",
   "source_locale": "ar",
   "source_path": "index.html",
-  "updated_at": "2026-07-22",
+  "updated_at": "2026-08-02",
   "required_fields": [
     "brand",
     "title",
@@ -21,7 +21,7 @@
   "allowed_statuses": ["draft", "translated", "reviewed", "published"],
   "locales": {
     "en": {
-      "status": "translated",
+      "status": "draft",
       "verification": {
         "method": "field-completeness, structural parity and safety-language checks",
         "human_review_recorded": false
@@ -73,7 +73,7 @@
       "footer": "© Psychology Terminology — an Arabic-first structured educational platform."
     },
     "es": {
-      "status": "translated",
+      "status": "draft",
       "verification": {
         "method": "field-completeness, structural parity and safety-language checks",
         "human_review_recorded": false
