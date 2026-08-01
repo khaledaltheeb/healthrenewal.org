@@ -25,7 +25,8 @@ class AiSearchRouteDeploymentGuardTests(unittest.TestCase):
     def test_complete_pages_workflow_protects_route(self) -> None:
         workflow = ROOT / ".github/workflows/deploy-complete-pages-with-ai-search.yml"
         source = workflow.read_text(encoding="utf-8")
-        self.assertIn("cp", source)
+        self.assertIn("Assemble complete public site from current main", source)
+        self.assertIn("shutil.copy2", source)
         self.assertIn("ai-search/index.html", source)
         self.assertIn("https://healthrenewal.org/ai-search/", source)
         self.assertIn("actions/deploy-pages@v4", source)
