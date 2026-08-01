@@ -240,12 +240,15 @@ def main() -> None:
     h1_count = len(re.findall(r'<h1\b', text))
     h2_count = len(re.findall(r'<h2\b', text))
     h3_count = len(re.findall(r'<h3\b', text))
+    heading_count = h1_count + h2_count + h3_count
     if h1_count != 1:
         raise SystemExit(f"Expected exactly one H1, found {h1_count}")
-    if h2_count < 4:
-        raise SystemExit("Homepage must contain at least four H2 sections")
-    if h3_count < 16:
-        raise SystemExit("Homepage must contain at least sixteen H3 cards")
+    if h2_count < 5:
+        raise SystemExit("Homepage must contain at least five H2 sections")
+    if not 8 <= heading_count <= 20:
+        raise SystemExit(
+            "Homepage heading outline must remain between eight and twenty headings"
+        )
 
     TARGET.parent.mkdir(parents=True, exist_ok=True)
     TARGET.write_text(text, encoding="utf-8")
@@ -270,6 +273,7 @@ def main() -> None:
         "h1": h1_count,
         "h2": h2_count,
         "h3": h3_count,
+        "heading_count": heading_count,
         "brand": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
         "founding_name": "مصطلحات علم النفس",
         "slogan": "معرفة تحترم الإنسان. دعم يوسّع الإمكانات.",
