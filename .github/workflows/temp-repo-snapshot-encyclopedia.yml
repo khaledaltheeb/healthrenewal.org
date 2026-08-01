@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - agent/encyclopedia-2000-seo-search-intent-20260801
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
