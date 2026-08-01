@@ -161,20 +161,41 @@ def remove_sitemap_entries(tokens: tuple[str, ...]) -> int:
     return removed
 
 
-def sitemap_url_count(path: Path) -> int:
+def sitemap_urls(path: Path) -> list[str]:
     if not path.is_file():
         raise SystemExit(f"Missing sitemap after health publication gate: {path.name}")
-    return len(ET.parse(path).getroot().findall("{*}url"))
+    return sorted(
+        {
+            (node.text or "").strip()
+            for node in ET.parse(path).getroot().findall("{*}url/{*}loc")
+            if node.text and node.text.strip()
+        }
+    )
+
+
+def care_guide_page_urls(care_root: Path) -> list[str]:
+    urls: list[str] = []
+    for page in care_root.rglob("index.html"):
+        relative = page.parent.relative_to(SITE).as_posix().strip("/")
+        urls.append(BASE + relative + "/")
+    return sorted(set(urls))
 
 
 def update_reports(blocked: list[dict], removed_links: int, removed_sitemaps: int) -> dict:
     blocked_slugs = [guide["slug"] for guide in blocked]
     care_root = SITE / "care-guides"
-    page_count = len(list(care_root.rglob("index.html")))
-    sitemap_count = sitemap_url_count(SITE / "sitemap-care-guides.xml")
-    if page_count != sitemap_count:
+    page_urls = care_guide_page_urls(care_root)
+    sitemap_entries = sitemap_urls(SITE / "sitemap-care-guides.xml")
+    page_count = len(page_urls)
+    sitemap_count = len(sitemap_entries)
+    if page_urls != sitemap_entries:
+        missing_from_sitemap = sorted(set(page_urls) - set(sitemap_entries))
+        extra_in_sitemap = sorted(set(sitemap_entries) - set(page_urls))
         raise SystemExit(
-            f"Health gate page/sitemap mismatch: pages={page_count}, sitemap_urls={sitemap_count}"
+            "Health gate page/sitemap mismatch: "
+            f"pages={page_count}, sitemap_urls={sitemap_count}, "
+            f"missing_from_sitemap={missing_from_sitemap}, "
+            f"extra_in_sitemap={extra_in_sitemap}"
         )
 
     care_report_path = SITE / "api" / "care-guides-v21.json"
