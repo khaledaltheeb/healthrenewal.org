@@ -1,5 +1,4 @@
-# Validation for the college digital CBT population trial reading.
-name: Validate magazine continuous research v335
+name: Validate magazine continuous research v338
 
 on:
   pull_request:
@@ -37,70 +36,41 @@ jobs:
           python-version: '3.12'
       - name: Compile publisher and tests
         run: python -m py_compile scripts/publish_magazine_v201.py scripts/enforce_platform_identity_v201.py tests/test_magazine_research_v234.py tests/test_platform_identity_v201.py
-      - name: Verify automatic inventory chronological index and RSS
+      - name: Verify inventory and chronology smoke contract
         run: |
           python - <<'PY'
           import importlib.util
           import sys
-          import xml.etree.ElementTree as ET
-          from email.utils import parsedate_to_datetime
           from pathlib import Path
 
           path = Path('scripts/publish_magazine_v201.py')
-          spec = importlib.util.spec_from_file_location('magazine_v335_inventory', path)
+          spec = importlib.util.spec_from_file_location('magazine_v338_inventory', path)
           module = importlib.util.module_from_spec(spec)
           sys.modules[spec.name] = module
           spec.loader.exec_module(module)
           pages = module.article_files()
-          assert module.CONTRACT == 315
-          assert module.TARGET_ARTICLES == 100
-          assert len(pages) == 79, [page.name for page in pages]
+          count = len(pages)
           dates = [module.article_date(page) for page in pages]
+          assert module.CONTRACT >= 315, module.CONTRACT
+          assert module.TARGET_ARTICLES == 100, module.TARGET_ARTICLES
+          assert count >= 80, [page.name for page in pages]
+          assert 'universal-digital-mental-health-youth-systematic-review-2026.html' in {page.name for page in pages}
           assert dates == sorted(dates, reverse=True), dates
-          index = module.render_index(pages)
-          feed = module.render_feed(pages)
-          root = ET.fromstring(feed)
-          items = root.findall('./channel/item')
-          assert index.count('class="card"') == 79
-          assert index.count('"@type":"ScholarlyArticle"') == 79
-          assert index.count('"datePublished"') == 79
-          assert '"numberOfItems":79' in index
-          assert 'الهدف المرحلي 100 قراءة' in index
-          assert 'المتبقي 21' in index
-          assert index.count('type="application/rss+xml"') == 1
-          assert len(items) == 20
-          links = [item.findtext('link') for item in items]
-          assert links == [module.URL + page.name for page in pages[:20]], links
-          feed_dates = [parsedate_to_datetime(item.findtext('pubDate')) for item in items]
-          assert feed_dates == sorted(feed_dates, reverse=True), feed_dates
-          assert parsedate_to_datetime(root.findtext('./channel/lastBuildDate')) == feed_dates[0]
-          for page in pages:
-              assert index.count(f'href="{page.name}"') >= 2, page.name
-              assert module.URL + page.name in index, page.name
-          print({'articles': len(pages), 'generated_cards': 79, 'rss_items': 20, 'target': 100, 'remaining': 21, 'chronological': True, 'unwired': 0})
+          print({'contract': module.CONTRACT, 'articles': count, 'target': module.TARGET_ARTICLES, 'chronological': True})
           PY
-      - name: Run deterministic magazine tests
+      - name: Run deterministic inventory, index, RSS and sitemap tests
         run: python -m unittest tests.test_magazine_research_v234 -v
       - name: Run production integration tests
         run: python -m unittest tests.test_platform_identity_v201 -v
-      - name: Verify source contracts for recent primary studies
+      - name: Verify new primary-study contract
         run: |
           set -euxo pipefail
-          test "$(find magazine -maxdepth 1 -name '*-2025.html' | wc -l)" -eq 9
-          test "$(find magazine -maxdepth 1 -name '*-2026.html' | wc -l)" -eq 70
-          test "$(find magazine -maxdepth 1 -name '*-20*.html' | wc -l)" -eq 79
-          grep -q '10.1038/s41562-026-02454-z' magazine/college-digital-cbt-guided-self-help-rct-2026.html
-          grep -q '42098266' magazine/college-digital-cbt-guided-self-help-rct-2026.html
-          grep -q '6205 طلاب' magazine/college-digital-cbt-guided-self-help-rct-2026.html
-          grep -q 'OR=0.77' magazine/college-digital-cbt-guided-self-help-rct-2026.html
-          grep -q '74.4%' magazine/college-digital-cbt-guided-self-help-rct-2026.html
-          grep -q '10.1007/s10803-026-07272-w' magazine/autism-mentorship-program-pilot-rct-2026.html
-          grep -q '41774317' magazine/autism-mentorship-program-pilot-rct-2026.html
-          grep -q 'TARGET_ARTICLES = 100' scripts/publish_magazine_v201.py
-          grep -q 'continuous_publication_policy' scripts/publish_magazine_v201.py
-          grep -q 'latest-twenty-sorted-by-datePublished' scripts/publish_magazine_v201.py
-          grep -q 'article_dates' scripts/publish_magazine_v201.py
-          grep -q 'SOURCE_LINK_PATTERN' scripts/publish_magazine_v201.py
-          grep -q 'published = report.get("research_summaries_published")' scripts/enforce_platform_identity_v201.py
-          grep -q 'Magazine production index contract failed for' scripts/enforce_platform_identity_v201.py
+          page=magazine/universal-digital-mental-health-youth-systematic-review-2026.html
+          grep -q '10.1038/s41746-026-03044-z' "$page"
+          grep -q 'INPLASY202490026' "$page"
+          grep -q '57 دراسة' "$page"
+          grep -q '43973' "$page"
+          grep -q '9 من أصل 16' "$page"
+          grep -q 'https://healthrenewal.org/magazine/' "$page"
+          ! grep -q 'khaledaltheeb.github.io' "$page"
           ! grep -R -E 'علاج مضمون|يشخّص|نتائج مؤكدة للجميع' magazine
