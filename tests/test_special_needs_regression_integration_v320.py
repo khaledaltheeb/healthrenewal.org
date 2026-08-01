@@ -4,6 +4,7 @@ import hashlib
 import json
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
@@ -37,6 +38,29 @@ class SpecialNeedsRegressionIntegrationV320Tests(unittest.TestCase):
     @staticmethod
     def digest(path: Path) -> str:
         return hashlib.sha256(path.read_bytes()).hexdigest()
+
+    @classmethod
+    def report_differences(cls, first: object, second: object, path: str = "report") -> list[str]:
+        differences: list[str] = []
+        if isinstance(first, dict) and isinstance(second, dict):
+            for key in sorted(set(first) | set(second)):
+                child = f"{path}.{key}"
+                if key not in first:
+                    differences.append(f"{child}: missing from first")
+                elif key not in second:
+                    differences.append(f"{child}: missing from second")
+                else:
+                    differences.extend(cls.report_differences(first[key], second[key], child))
+            return differences
+        if isinstance(first, list) and isinstance(second, list):
+            if len(first) != len(second):
+                differences.append(f"{path}.length: {len(first)!r} != {len(second)!r}")
+            for index, (left, right) in enumerate(zip(first, second)):
+                differences.extend(cls.report_differences(left, right, f"{path}[{index}]"))
+            return differences
+        if first != second:
+            differences.append(f"{path}: {first!r} != {second!r}")
+        return differences
 
     def run_publisher(self) -> dict:
         result = subprocess.run(
@@ -138,6 +162,10 @@ class SpecialNeedsRegressionIntegrationV320Tests(unittest.TestCase):
         second = self.run_publisher()
         after = [self.digest(path) for path in tracked]
         self.assertEqual(second["condition_hubs"]["regression_coexisting"]["guide_count"], 2)
+        differences = self.report_differences(first, second)
+        if differences:
+            print("\n".join(f"REPORT_DIFF {item}" for item in differences), file=sys.stderr)
+        self.assertEqual(first, second)
         self.assertEqual(before, after)
 
     def test_repository_audit_classifies_v320_as_production_reachable(self) -> None:

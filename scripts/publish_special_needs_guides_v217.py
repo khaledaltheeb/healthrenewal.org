@@ -11,6 +11,7 @@ from typing import Any
 
 import publish_autism_clinical_pathways_v324 as clinical324
 import publish_special_needs_guides_v217_pipeline_core as pipeline
+import publish_undercovered_content_v401 as expansion401
 from publish_special_needs_guides_v217_pipeline_core import *  # noqa: F401,F403
 
 
@@ -33,6 +34,123 @@ def validate_clinical_pathways(report: dict[str, Any]) -> None:
         raise SystemExit("v324 must not overstate external clinical review")
 
 
+def validate_undercovered_expansion(report: dict[str, Any]) -> None:
+    expected_distribution = {
+        "special-needs": 60,
+        "learning-paths": 15,
+        "child": 10,
+        "family": 8,
+        "home": 7,
+    }
+    if report.get("version") != 401 or report.get("status") != "passed":
+        raise SystemExit(f"Undercovered content v401 contract failed: {report}")
+    if report.get("page_count") != 100 or report.get("unique_routes") != 100:
+        raise SystemExit("v401 must publish exactly one hundred unique pages")
+    if report.get("distribution") != expected_distribution:
+        raise SystemExit(f"v401 distribution changed unexpectedly: {report.get('distribution')}")
+    if report.get("minimum_words", 0) < 1200 or report.get("minimum_h2", 0) < 15:
+        raise SystemExit("v401 depth or hierarchy is below the production threshold")
+    if report.get("minimum_citations", 0) < 3 or report.get("source_count", 0) < 10:
+        raise SystemExit("v401 source visibility is below the production threshold")
+    if report.get("external_specialist_review_completed") is not False:
+        raise SystemExit("v401 must not overstate external specialist review")
+    required_gates = {
+        "functional_icf_frame",
+        "rights_based_frame",
+        "professional_limits_visible",
+        "urgent_escalation_visible",
+        "measurement_and_decision_rules",
+        "inclusive_language_gate",
+        "external_review_not_overstated",
+        "no_client_side_network_runtime",
+    }
+    gates = report.get("quality_gates", {})
+    if not required_gates.issubset(gates) or not all(gates.get(key) is True for key in required_gates):
+        raise SystemExit(f"v401 quality gates failed: {gates}")
+
+
+def full_site_hubs_available(site: Path) -> bool:
+    """Keep legacy minimal-fixture builds compatible while publishing v401 on the full site."""
+    return all((site / path).is_file() for path in expansion401.HUB_PATHS.values())
+
+
+def normalize_canonical_sitemap_urls(site: Path) -> int:
+    """Repair historical duplicate-slash URLs and collapse canonical duplicates."""
+    path = site / "sitemap-special-needs.xml"
+    if not path.is_file():
+        return 0
+    tree = ET.parse(path)
+    root = tree.getroot()
+    duplicate_prefix = "https://healthrenewal.org//"
+    canonical_prefix = "https://healthrenewal.org/"
+    changed = 0
+    removed = 0
+    seen: set[str] = set()
+
+    for row in list(root.findall("{*}url")):
+        node = row.find("{*}loc")
+        if node is None:
+            continue
+        value = (node.text or "").strip()
+        if value.startswith(duplicate_prefix):
+            value = canonical_prefix + value[len(duplicate_prefix):]
+            node.text = value
+            changed += 1
+        if value in seen:
+            root.remove(row)
+            removed += 1
+            continue
+        seen.add(value)
+
+    repaired = changed + removed
+    if repaired:
+        ET.register_namespace("", "http://www.sitemaps.org/schemas/sitemap/0.9")
+        children = sorted(root.findall("{*}url"), key=lambda row: (row.findtext("{*}loc") or "").strip())
+        root[:] = children
+        ET.indent(tree, space="  ")
+        tree.write(path, encoding="utf-8", xml_declaration=True)
+    return repaired
+
+
+def sitemap_url_count(path: Path) -> int:
+    if not path.is_file():
+        return 0
+    return len({
+        (node.text or "").strip()
+        for node in ET.parse(path).getroot().findall("{*}url/{*}loc")
+        if (node.text or "").strip()
+    })
+
+
+def reset_generated_condition_sitemap_urls(site: Path) -> None:
+    """Remove canonical and historical duplicate-slash forms before rebuilding condition layers."""
+    path = site / "sitemap-special-needs.xml"
+    if not path.is_file():
+        return
+    slugs = set(pipeline.CONDITION_SLUGS) | set(clinical324.EXPECTED)
+    targets = {
+        candidate
+        for slug in slugs
+        for candidate in (
+            f"https://healthrenewal.org/special-needs/{slug}/",
+            f"https://healthrenewal.org//special-needs/{slug}/",
+        )
+    }
+    tree = ET.parse(path)
+    root = tree.getroot()
+    removed = False
+    for row in list(root.findall("{*}url")):
+        if (row.findtext("{*}loc") or "").strip() in targets:
+            root.remove(row)
+            removed = True
+    if removed:
+        ET.register_namespace("", "http://www.sitemaps.org/schemas/sitemap/0.9")
+        children = sorted(root.findall("{*}url"), key=lambda row: (row.findtext("{*}loc") or "").strip())
+        root[:] = children
+        ET.indent(tree, space="  ")
+        tree.write(path, encoding="utf-8", xml_declaration=True)
+
+
 def reset_clinical_outputs(site: Path) -> None:
     """Remove only generated v324 outputs so repeated central builds start equally."""
     for slug in clinical324.EXPECTED:
@@ -48,25 +166,9 @@ def reset_clinical_outputs(site: Path) -> None:
             raise SystemExit("Unable to reset prior v324 autism parent block")
         parent.write_text(source, encoding="utf-8")
 
-    sitemap = site / "sitemap-special-needs.xml"
-    if sitemap.is_file():
-        tree = ET.parse(sitemap)
-        root = tree.getroot()
-        targets = {
-            f"{clinical324.BASE}/special-needs/{slug}/"
-            for slug in clinical324.EXPECTED
-        }
-        for row in list(root.findall("{*}url")):
-            loc = (row.findtext("{*}loc") or "").strip()
-            if loc in targets:
-                root.remove(row)
-        ET.register_namespace("", "http://www.sitemaps.org/schemas/sitemap/0.9")
-        ET.indent(tree, space="  ")
-        tree.write(sitemap, encoding="utf-8", xml_declaration=True)
-        clinical324.normalize_sitemap(sitemap)
-
 
 def publish(site: Path) -> dict[str, Any]:
+    reset_generated_condition_sitemap_urls(site)
     reset_clinical_outputs(site)
     report = pipeline.publish(site)
     clinical_report = clinical324.publish(site)
@@ -93,6 +195,35 @@ def publish(site: Path) -> dict[str, Any]:
         "external_clinical_review_completed",
         "content_source",
     )
+
+    if full_site_hubs_available(site):
+        expansion_report = expansion401.publish(site)
+        validate_undercovered_expansion(expansion_report)
+        report["undercovered_content_contract"] = 401
+        report["undercovered_content"] = pipeline.pick(
+            expansion_report,
+            "version",
+            "status",
+            "page_count",
+            "distribution",
+            "minimum_words",
+            "total_words",
+            "minimum_h2",
+            "minimum_citations",
+            "unique_routes",
+            "source_count",
+            "hub_counts",
+            "sitemap_updates",
+            "reviewed_at",
+            "next_review_due",
+            "external_specialist_review_completed",
+            "quality_gates",
+        )
+
+    special_sitemap = site / "sitemap-special-needs.xml"
+    normalize_canonical_sitemap_urls(site)
+    report["special_sitemap_urls"] = sitemap_url_count(special_sitemap)
+    report["canonical_sitemap_urls_normalized"] = True
 
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
