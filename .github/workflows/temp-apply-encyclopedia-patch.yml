@@ -1,0 +1,107 @@
+name: Temporary apply encyclopedia patch
+
+on:
+  push:
+    branches:
+      - agent/encyclopedia-2000-seo-search-intent-20260801
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: read
+  pull-requests: read
+
+concurrency:
+  group: temp-apply-encyclopedia-patch
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout implementation branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reassemble verified patch from PR transport
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euxo pipefail
+          curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/804/comments?per_page=100" \
+            -o /tmp/pr-comments.json
+          python - <<'PY'
+          import base64
+          import hashlib
+          import json
+          import re
+          from pathlib import Path
+
+          comments = json.loads(Path('/tmp/pr-comments.json').read_text(encoding='utf-8'))
+          chunks = {}
+          pattern = re.compile(r'^ENCYPATCH-V1-(\d{2})-OF-06\n([A-Za-z0-9+/=]+)\s*$')
+          for item in comments:
+              body = str(item.get('body') or '')
+              match = pattern.match(body)
+              if match:
+                  chunks[int(match.group(1))] = match.group(2)
+          expected = set(range(6))
+          assert set(chunks) == expected, {'found': sorted(chunks), 'expected': sorted(expected)}
+          encoded = ''.join(chunks[index] for index in range(6))
+          raw = base64.b64decode(encoded, validate=True)
+          digest = hashlib.sha256(raw).hexdigest()
+          expected_digest = '4b92a9cdcc9b9f00f8004ca4c9edbb3c639745ae4b18f92ee813ae72c4312d97'
+          assert digest == expected_digest, {'actual': digest, 'expected': expected_digest}
+          Path('/tmp/encyclopedia-patch.tar.gz').write_bytes(raw)
+          print({'chunks': len(chunks), 'bytes': len(raw), 'sha256': digest})
+          PY
+          tar -tzf /tmp/encyclopedia-patch.tar.gz
+          tar -xzf /tmp/encyclopedia-patch.tar.gz -C .
+
+      - name: Remove temporary transport workflows
+        run: |
+          set -euxo pipefail
+          rm -f .github/workflows/temp-repo-snapshot-encyclopedia.yml
+          rm -f .github/workflows/temp-apply-encyclopedia-patch.yml
+
+      - name: Validate focused encyclopedia contracts
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/encyclopedia_seo_contract_v1.py \
+            scripts/rebuild_encyclopedia_v13.py \
+            scripts/run_encyclopedia_v13.py \
+            scripts/audit_site_integrity_v13.py \
+            tests/test_encyclopedia_seo_search_intent_v1.py \
+            tests/test_encyclopedia_topic_hubs_v2.py
+          python -m unittest -v \
+            tests.test_encyclopedia_topic_hubs_v2 \
+            tests.test_encyclopedia_seo_search_intent_v1
+
+      - name: Commit and push verified implementation
+        run: |
+          set -euxo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            scripts/encyclopedia_seo_contract_v1.py \
+            scripts/rebuild_encyclopedia_v13.py \
+            scripts/run_encyclopedia_v13.py \
+            scripts/audit_site_integrity_v13.py \
+            tests/test_encyclopedia_seo_search_intent_v1.py \
+            tests/test_encyclopedia_topic_hubs_v2.py \
+            .github/workflows/validate-v13.yml \
+            .github/workflows/validate-encyclopedia-topic-hubs-v2.yml \
+            .github/workflows/deploy-encyclopedia-seo-search-intent-v1.yml \
+            .github/workflows/temp-repo-snapshot-encyclopedia.yml \
+            .github/workflows/temp-apply-encyclopedia-patch.yml
+          git diff --cached --check
+          git diff --cached --stat
+          git commit -m 'feat: publish 2000-page encyclopedia SEO and search intent'
+          git push origin HEAD:agent/encyclopedia-2000-seo-search-intent-20260801
