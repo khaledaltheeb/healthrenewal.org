@@ -126,16 +126,92 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify live endpoints
+      - name: Verify live encyclopedia release
         run: |
-          for n in $(seq 1 60); do
-            if curl -fsSL "https://healthrenewal.org/encyclopedia/concept-0001/?v=${GITHUB_RUN_ID}-${n}" | grep -q 'data-search-intent="encyclopedia-v1"' \
-              && curl -fsSL "https://healthrenewal.org/encyclopedia/concept-2000/?v=${GITHUB_RUN_ID}-${n}" | grep -q 'data-search-intent-faq="encyclopedia-v1"' \
-              && curl -fsSL "https://healthrenewal.org/api/encyclopedia-seo-search-intent-v1.json?v=${GITHUB_RUN_ID}-${n}" | grep -q '"pages": 2000' \
-              && test "$(curl -fsSL "https://healthrenewal.org/sitemap-family-encyclopedia.xml?v=${GITHUB_RUN_ID}-${n}" | grep -c '<url>')" = 2002; then exit 0; fi
-            sleep 5
-          done
-          exit 1
+          python - <<'PY'
+          import json
+          import re
+          import time
+          import urllib.error
+          import urllib.request
+          import xml.etree.ElementTree as ET
+
+          base = 'https://healthrenewal.org'
+          headers = {
+              'Accept': 'text/html,application/json,application/xml;q=0.9,*/*;q=0.8',
+              'Cache-Control': 'no-cache',
+              'Pragma': 'no-cache',
+              'User-Agent': 'HealthRenewal-Encyclopedia-Release-Verifier/1.0',
+          }
+
+          def fetch(path: str, nonce: str) -> bytes:
+              separator = '&' if '?' in path else '?'
+              request = urllib.request.Request(f'{base}{path}{separator}v={nonce}', headers=headers)
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  if response.status != 200:
+                      raise RuntimeError(f'{path}: HTTP {response.status}')
+                  return response.read()
+
+          last_error = None
+          for attempt in range(1, 91):
+              nonce = f'${{ github.run_id }}-{attempt}-{time.time_ns()}'
+              try:
+                  first = fetch('/encyclopedia/concept-0001/', nonce).decode('utf-8')
+                  last = fetch('/encyclopedia/concept-2000/', nonce).decode('utf-8')
+                  seo = json.loads(fetch('/api/encyclopedia-seo-search-intent-v1.json', nonce).decode('utf-8'))
+                  family_xml = fetch('/sitemap-family-encyclopedia.xml', nonce)
+
+                  assert 'data-encyclopedia-seo="v1"' in first
+                  assert 'data-search-intent="encyclopedia-v1"' in first
+                  assert 'data-search-intent-faq="encyclopedia-v1"' in first
+                  assert '"@type":"FAQPage"' in first
+                  assert 'rel="canonical" href="https://healthrenewal.org/encyclopedia/concept-0001/"' in first
+                  assert '/pterminology-site/' not in first
+
+                  assert 'data-encyclopedia-seo="v1"' in last
+                  assert 'data-search-intent="encyclopedia-v1"' in last
+                  assert 'data-search-intent-faq="encyclopedia-v1"' in last
+                  assert '"@type":"FAQPage"' in last
+                  assert 'rel="canonical" href="https://healthrenewal.org/encyclopedia/concept-2000/"' in last
+                  assert '/pterminology-site/' not in last
+
+                  assert seo['status'] == 'passed', seo
+                  assert seo['pages'] == 2000, seo.get('pages')
+                  assert seo['seo_complete_pages'] == 2000, seo.get('seo_complete_pages')
+                  assert seo['search_intent_sections'] == 2000, seo.get('search_intent_sections')
+                  assert seo['faq_schema_pages'] == 2000, seo.get('faq_schema_pages')
+
+                  root = ET.fromstring(family_xml)
+                  namespace = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+                  locations = [node.text for node in root.findall('.//sm:loc', namespace) if node.text]
+                  concept_urls = [
+                      url for url in locations
+                      if re.fullmatch(r'https://healthrenewal\.org/encyclopedia/concept-\d{4}/', url)
+                  ]
+                  assert len(locations) == 2002, len(locations)
+                  assert len(concept_urls) == 2000, len(concept_urls)
+                  assert len(set(concept_urls)) == 2000
+                  assert f'{base}/encyclopedia/' in locations
+                  assert f'{base}/encyclopedia/all/' in locations
+
+                  print(json.dumps({
+                      'status': 'passed',
+                      'attempt': attempt,
+                      'live_pages': seo['pages'],
+                      'live_seo_complete_pages': seo['seo_complete_pages'],
+                      'live_search_intent_sections': seo['search_intent_sections'],
+                      'live_faq_schema_pages': seo['faq_schema_pages'],
+                      'live_sitemap_urls': len(locations),
+                      'live_concept_urls': len(concept_urls),
+                  }, ensure_ascii=False, indent=2))
+                  raise SystemExit(0)
+              except Exception as exc:
+                  last_error = f'{type(exc).__name__}: {exc}'
+                  print(json.dumps({'attempt': attempt, 'status': 'waiting', 'error': last_error}, ensure_ascii=False))
+                  time.sleep(5)
+
+          raise SystemExit(f'Live encyclopedia verification failed after 90 attempts: {last_error}')
+          PY
 
       - name: Report deployment result
         if: always()
