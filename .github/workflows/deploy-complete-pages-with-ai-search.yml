@@ -1,0 +1,364 @@
+name: Deploy complete Pages with AI search
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/deploy-complete-pages-with-ai-search.yml'
+      - 'ai-search/**'
+      - 'index.html'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-complete-pages-with-ai-search.yml'
+      - '**/*.html'
+      - 'ai-search/**'
+      - 'assets/**'
+      - 'api/**'
+      - 'sectors/**'
+      - 'special-needs/**'
+      - 'family-guide/**'
+      - 'encyclopedia/**'
+      - 'learning-paths/**'
+      - 'sitemap*.xml'
+      - 'robots.txt'
+      - 'CNAME'
+      - '!reports/**'
+  schedule:
+    - cron: '17 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages-production
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate mandatory AI search surface
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path('ai-search')
+          page = (root / 'index.html').read_text(encoding='utf-8')
+          assert '<title>البحث الذكي في المنصة | بحث دلالي عربي</title>' in page
+          assert 'multilingual-e5-small' in page
+          assert 'assets/app.js' in page
+          assert 'assets/search.css' in page
+
+          manifest_root = root / 'data'
+          manifest = json.loads((manifest_root / 'manifest.json').read_text(encoding='utf-8'))
+          coverage = json.loads((manifest_root / 'coverage.json').read_text(encoding='utf-8'))
+          assert manifest['version'] == 2 and manifest['ready'] is True
+          assert manifest['model'] == 'intfloat/multilingual-e5-small'
+          assert manifest['dimensions'] == 384
+          assert manifest['dtype'] == 'float16'
+          assert manifest['normalized'] is True
+          assert coverage['passed'] is True
+          assert coverage['downloadSuccessRatio'] == 1.0
+          assert coverage['indexCoverageRatio'] == 1.0
+          assert coverage['failedDownloadCount'] == 0
+          assert coverage['failedDataAssetCount'] == 0
+          assert coverage['unindexedUrls'] == []
+          assert manifest['documentCount'] == coverage['indexedUrlCount']
+          assert manifest['chunkCount'] == coverage['chunkCount']
+          assert manifest['shards']
+
+          for shard in manifest['shards']:
+              metadata = (manifest_root / shard['metadata']).read_bytes()
+              vectors = (manifest_root / shard['embeddings']).read_bytes()
+              package = (manifest_root / shard['embeddingsJson']).read_bytes()
+              payload = json.loads(package)
+              decoded = base64.b64decode(payload['data'], validate=True)
+              assert decoded == vectors
+              assert hashlib.sha256(metadata).hexdigest() == shard['metadataSha256']
+              assert hashlib.sha256(vectors).hexdigest() == shard['embeddingSha256']
+              assert hashlib.sha256(package).hexdigest() == shard['embeddingsJsonSha256']
+              assert len(vectors) == shard['count'] * manifest['dimensions'] * 2
+
+          home = Path('index.html').read_text(encoding='utf-8')
+          assert '/ai-search/' in home or 'ai-search/' in home
+          print({
+              'documents': manifest['documentCount'],
+              'chunks': manifest['chunkCount'],
+              'shards': len(manifest['shards']),
+              'coverage': coverage['indexCoverageRatio'],
+          })
+          PY
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Decide whether scheduled repair is required
+        id: preflight
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" != 'schedule' ]; then
+            echo 'deploy=true' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          source_generated="$(python -c "import json; print(json.load(open('ai-search/data/manifest.json'))['generatedAt'])")"
+          deploy=true
+          nonce="${GITHUB_RUN_ID}-$(date +%s%N)"
+          if curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
+               "https://healthrenewal.org/ai-search/?guard=${nonce}" -o /tmp/live-ai-search.html && \
+             curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
+               "https://healthrenewal.org/ai-search/data/manifest.json?guard=${nonce}" -o /tmp/live-ai-manifest.json; then
+            if SOURCE_GENERATED="$source_generated" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          page = Path('/tmp/live-ai-search.html').read_text(encoding='utf-8', errors='replace')
+          manifest = json.loads(Path('/tmp/live-ai-manifest.json').read_text(encoding='utf-8'))
+          assert '<title>البحث الذكي في المنصة | بحث دلالي عربي</title>' in page
+          assert 'multilingual-e5-small' in page
+          assert manifest['generatedAt'] == os.environ['SOURCE_GENERATED']
+          assert manifest['ready'] is True
+          PY
+            then deploy=false; fi
+          fi
+          echo "deploy=${deploy}" >> "$GITHUB_OUTPUT"
+
+      - name: Assemble complete current public site
+        if: steps.preflight.outputs.deploy == 'true'
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+          python - <<'PY'
+          import shutil
+          from pathlib import Path
+
+          root = Path('.')
+          site = Path('_site')
+          skip_top = {
+              '.git', '.github', '.venv', 'venv', 'node_modules', '_site',
+              'tests', 'scripts', 'reports', 'content', 'docs', 'dist', 'build',
+              '.v10bundle', '.generator-v6',
+          }
+          skip_parts = {'backend', 'account-backend', 'migrations', '__pycache__'}
+          copied = 0
+          for source in root.rglob('*'):
+              if not source.is_file():
+                  continue
+              relative = source.relative_to(root)
+              if not relative.parts or relative.parts[0] in skip_top:
+                  continue
+              if any(part in skip_parts for part in relative.parts):
+                  continue
+              destination = site / relative
+              destination.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copy2(source, destination)
+              copied += 1
+
+          required = [
+              'index.html',
+              'CNAME',
+              'robots.txt',
+              'ai-search/index.html',
+              'ai-search/assets/app.js',
+              'ai-search/assets/search-core.js',
+              'ai-search/assets/search-worker.js',
+              'ai-search/assets/search.css',
+              'ai-search/data/manifest.json',
+              'ai-search/data/coverage.json',
+          ]
+          for path in required:
+              assert (site / path).is_file(), path
+          assert copied >= 500, copied
+          print({'copiedFiles': copied})
+          PY
+          touch _site/.nojekyll
+
+      - name: Verify assembled route and E5 package
+        if: steps.preflight.outputs.deploy == 'true'
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64
+          import hashlib
+          import json
+          from pathlib import Path
+
+          site = Path('_site')
+          page = (site / 'ai-search/index.html').read_text(encoding='utf-8')
+          assert '<title>البحث الذكي في المنصة | بحث دلالي عربي</title>' in page
+          assert 'multilingual-e5-small' in page
+          assert 'assets/app.js' in page
+
+          root = site / 'ai-search/data'
+          manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+          coverage = json.loads((root / 'coverage.json').read_text(encoding='utf-8'))
+          assert manifest['ready'] is True
+          assert coverage['passed'] is True
+          assert coverage['indexCoverageRatio'] == 1.0
+          for shard in manifest['shards']:
+              metadata = (root / shard['metadata']).read_bytes()
+              package = (root / shard['embeddingsJson']).read_bytes()
+              payload = json.loads(package)
+              raw = base64.b64decode(payload['data'], validate=True)
+              assert hashlib.sha256(metadata).hexdigest() == shard['metadataSha256']
+              assert hashlib.sha256(package).hexdigest() == shard['embeddingsJsonSha256']
+              assert hashlib.sha256(raw).hexdigest() == shard['embeddingSha256']
+          PY
+
+      - uses: actions/configure-pages@v5
+        if: steps.preflight.outputs.deploy == 'true'
+
+      - name: Upload complete Pages artifact
+        if: steps.preflight.outputs.deploy == 'true'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy complete Pages artifact
+        if: steps.preflight.outputs.deploy == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify AI search route live
+        if: steps.preflight.outputs.deploy == 'true'
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          base="${PAGE_URL%/}"
+          source_generated="$(python -c "import json; print(json.load(open('ai-search/data/manifest.json'))['generatedAt'])")"
+          ready=0
+          for attempt in $(seq 1 180); do
+            nonce="${RUN_ID}-${attempt}-$(date +%s%N)"
+            if curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
+                 "${base}/ai-search/?release=${nonce}" -o /tmp/live-ai-search.html && \
+               curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
+                 "${base}/ai-search/index.html?release=${nonce}" -o /tmp/live-ai-index.html && \
+               curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
+                 "${base}/ai-search/assets/app.js?release=${nonce}" -o /tmp/live-ai-app.js && \
+               curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
+                 "${base}/ai-search/data/manifest.json?release=${nonce}" -o /tmp/live-ai-manifest.json && \
+               curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
+                 "${base}/ai-search/data/coverage.json?release=${nonce}" -o /tmp/live-ai-coverage.json; then
+              if SOURCE_GENERATED="$source_generated" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          page = Path('/tmp/live-ai-search.html').read_text(encoding='utf-8', errors='replace')
+          page_explicit = Path('/tmp/live-ai-index.html').read_text(encoding='utf-8', errors='replace')
+          app = Path('/tmp/live-ai-app.js').read_text(encoding='utf-8', errors='replace')
+          manifest = json.loads(Path('/tmp/live-ai-manifest.json').read_text(encoding='utf-8'))
+          coverage = json.loads(Path('/tmp/live-ai-coverage.json').read_text(encoding='utf-8'))
+          for source in (page, page_explicit):
+              assert '<title>البحث الذكي في المنصة | بحث دلالي عربي</title>' in source
+              assert 'multilingual-e5-small' in source
+              assert 'جارٍ تجهيز فهرس البحث' in source
+          assert len(app) > 1000
+          assert manifest['generatedAt'] == os.environ['SOURCE_GENERATED']
+          assert manifest['version'] == 2 and manifest['ready'] is True
+          assert manifest['model'] == 'intfloat/multilingual-e5-small'
+          assert manifest['dimensions'] == 384
+          assert coverage['passed'] is True
+          assert coverage['downloadSuccessRatio'] == 1.0
+          assert coverage['indexCoverageRatio'] == 1.0
+          assert coverage['failedDownloadCount'] == 0
+          assert coverage['failedDataAssetCount'] == 0
+          assert coverage['unindexedUrls'] == []
+          PY
+              then ready=1; break; fi
+            fi
+            sleep 5
+          done
+          test "$ready" = 1
+
+      - name: Write verified route receipt
+        if: steps.preflight.outputs.deploy == 'true'
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import datetime
+          import hashlib
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          manifest_bytes = Path('/tmp/live-ai-manifest.json').read_bytes()
+          manifest = json.loads(manifest_bytes)
+          coverage = json.loads(Path('/tmp/live-ai-coverage.json').read_text(encoding='utf-8'))
+          receipt = {
+              'schemaVersion': 1,
+              'passed': True,
+              'verifiedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'site': os.environ['PAGE_URL'],
+              'route': '/ai-search/',
+              'workflowRunId': int(os.environ['RUN_ID']),
+              'workflowRunUrl': f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['RUN_ID']}",
+              'sourceCommit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              'generatedAt': manifest['generatedAt'],
+              'model': manifest['model'],
+              'dimensions': manifest['dimensions'],
+              'documentCount': manifest['documentCount'],
+              'chunkCount': manifest['chunkCount'],
+              'shardCount': len(manifest['shards']),
+              'downloadSuccessRatio': coverage['downloadSuccessRatio'],
+              'indexCoverageRatio': coverage['indexCoverageRatio'],
+              'manifestSha256': hashlib.sha256(manifest_bytes).hexdigest(),
+              'pageReachable': True,
+              'explicitIndexReachable': True,
+              'appReachable': True,
+          }
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/ai-search-route-live.json').write_text(
+              json.dumps(receipt, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(receipt, ensure_ascii=False, indent=2))
+          PY
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/ai-search-route-live.json
+          git commit -m 'chore: record verified AI search route [skip ci]' || exit 0
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            git rebase --abort || true
+            sleep $((attempt * 3))
+          done
+          exit 1
