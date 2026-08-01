@@ -44,8 +44,9 @@ jobs:
           python -m json.tool content/v280/capabilities-100-ar.json >/dev/null
           for profile in content/v280/profiles/*.json; do python -m json.tool "$profile" >/dev/null; done
           for evidence in content/v280/evidence/*.json; do python -m json.tool "$evidence" >/dev/null; done
-          python -m py_compile scripts/build_capabilities_evidence_v280.py scripts/publish_capabilities_v280.py tests/test_capabilities_v280.py
+          python -m py_compile scripts/build_capabilities_evidence_v280.py scripts/publish_capabilities_v280.py scripts/enforce_sitewide_heading_intent_v2.py tests/test_capabilities_v280.py tests/test_sitewide_heading_intent_v2.py
           node --check assets/js/capabilities-v280.js
+          python -m unittest tests.test_sitewide_heading_intent_v2 -v
           python - <<'PY'
           import unittest
           from tests import test_capabilities_v280 as module
@@ -69,19 +70,27 @@ jobs:
           from pathlib import Path
           workflow=Path('.github/workflows/publish-capabilities-v280.yml').read_text(encoding='utf-8')
           assert 'python scripts/publish_capabilities_v280.py validated-site' in workflow
+          assert 'scripts/enforce_sitewide_heading_intent_v2.py' in workflow
           assert 'Audit production discovery contract v220' in workflow
-          print({'integration':'post-audit-artifact','publisher':'v280'})
+          print({'integration':'post-audit-artifact','publisher':'v280','semantic_contract':'v2'})
           PY
 
       - name: Publish all 100 condition protocols into the audited artifact
         run: |
           set -euxo pipefail
           python scripts/publish_capabilities_v280.py validated-site > /tmp/capabilities-v280.json
+          python scripts/enforce_sitewide_heading_intent_v2.py \
+            --write \
+            --root validated-site \
+            --sitemap validated-site/sitemap-capabilities.xml \
+            --base-url https://healthrenewal.org/ \
+            --report validated-site/api/sitewide-heading-intent-v280.json
           python - <<'PY'
           import json
           from pathlib import Path
           root=Path('validated-site')
           report=json.loads((root/'api/capabilities-v280.json').read_text(encoding='utf-8'))
+          semantic=json.loads((root/'api/sitewide-heading-intent-v280.json').read_text(encoding='utf-8'))
           assert report['version']==280 and report['status']=='passed',report
           assert report['condition_count']==100,report
           assert report['detailed_guide_count']==100,report
@@ -94,17 +103,24 @@ jobs:
           assert report['curated_evidence_remaining_count']==0,report
           assert report['external_clinical_review_completed'] is False,report
           assert report['diagnostic_automation'] is False,report
+          assert semantic['pages']==104 and semantic['failed']==0,semantic
+          assert semantic['all_indexable_have_exactly_one_h1'] is True,semantic
+          assert semantic['all_indexable_have_h2'] is True,semantic
+          assert semantic['all_indexable_have_h3'] is True,semantic
+          assert semantic['all_indexable_meet_question_floor'] is True,semantic
           pages=list((root/'capabilities').rglob('index.html'))
           assert len(pages)==104,len(pages)
           for path in pages:
               text=path.read_text(encoding='utf-8')
               assert text.count('<h1')==1,path
+              assert '<h2' in text,path
+              assert '<h3' in text,path
               assert 'لا توجد مصادقة أو مراجعة خارجية مستقلة' in text,path
               assert 'معاقين' not in text,path
           assert (root/'capabilities/autism/index.html').is_file()
           assert (root/'capabilities/down-syndrome/index.html').is_file()
           assert (root/'capabilities/cerebral-palsy/index.html').is_file()
-          print({'pages':len(pages),'conditions':100,'sources':132,'claims':300})
+          print({'pages':len(pages),'conditions':100,'sources':132,'claims':300,'semantic_contract':'passed'})
           PY
 
       - name: Re-finalize PWA metadata platform shell sitemap coverage and deployment evidence
@@ -122,10 +138,12 @@ jobs:
           root=Path('validated-site')
           deployment=json.loads((root/'deployment.json').read_text(encoding='utf-8'))
           report=json.loads((root/'api/capabilities-v280.json').read_text(encoding='utf-8'))
+          semantic=json.loads((root/'api/sitewide-heading-intent-v280.json').read_text(encoding='utf-8'))
           discovery=json.loads((root/'api/orphan-page-audit-v197.json').read_text(encoding='utf-8'))
           assert deployment['schema_version']==30,deployment
           assert deployment['commit']==os.environ['RELEASE_SHA'],deployment
           assert report['status']=='passed' and report['generated_page_count']==104,report
+          assert semantic['pages']==104 and semantic['failed']==0,semantic
           assert discovery['status']=='passed',discovery
           for key in ('critical_orphans','critical_unmapped','missing_gateways','gateway_orphans','gateway_unmapped'):
               assert discovery.get(key)==[],(key,discovery.get(key))
@@ -136,7 +154,7 @@ jobs:
           sitemap=(root/'sitemap-capabilities.xml').read_text(encoding='utf-8')
           assert sitemap.count('<url>')==104,sitemap.count('<url>')
           assert (root/'sitemap.xml').read_text(encoding='utf-8').count('sitemap-capabilities.xml')==1
-          print({'commit':deployment['commit'],'capability_pages':104,'discovery':'passed'})
+          print({'commit':deployment['commit'],'capability_pages':104,'discovery':'passed','semantic_contract':'passed'})
           PY
 
       - name: Upload the capabilities-complete validated artifact
@@ -154,6 +172,7 @@ jobs:
           name: capabilities-v280-publication-evidence
           path: |
             validated-site/api/capabilities-v280.json
+            validated-site/api/sitewide-heading-intent-v280.json
             validated-site/api/orphan-page-audit-v197.json
             validated-site/api/content-quality-v32.json
             validated-site/deployment.json
