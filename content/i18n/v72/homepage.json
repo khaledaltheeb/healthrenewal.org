@@ -3,7 +3,7 @@
   "entity_id": "page.home",
   "source_locale": "ar",
   "source_path": "index.html",
-  "updated_at": "2026-07-22",
+  "updated_at": "2026-08-01",
   "required_fields": [
     "brand",
     "title",
@@ -46,7 +46,7 @@
       },
       "stats": [
         ["2000+", "pages on psychology concepts and topics"],
-        ["88", "educational assessments, tools and cognitive activities"],
+        ["93", "educational assessments, tools and cognitive activities"],
         ["Arabic + English", "search using Arabic and English terminology"]
       ],
       "sections": {
@@ -98,7 +98,7 @@
       },
       "stats": [
         ["2000+", "páginas sobre conceptos y temas de psicología"],
-        ["88", "evaluaciones educativas, herramientas y actividades cognitivas"],
+        ["93", "evaluaciones educativas, herramientas y actividades cognitivas"],
         ["Árabe + inglés", "búsqueda con terminología árabe e inglesa"]
       ],
       "sections": {
