@@ -7,6 +7,7 @@ on:
       - "scripts/publish_undercovered_content_v401.py"
       - "scripts/publish_undercovered_content_v402.py"
       - "scripts/publish_undercovered_content_v403.py"
+      - "scripts/publish_undercovered_content_v404.py"
       - "scripts/publish_special_needs_guides_v217.py"
       - "tests/test_undercovered_content_v401.py"
       - ".github/workflows/validate-undercovered-content-v401.yml"
@@ -17,6 +18,7 @@ on:
       - "scripts/publish_undercovered_content_v401.py"
       - "scripts/publish_undercovered_content_v402.py"
       - "scripts/publish_undercovered_content_v403.py"
+      - "scripts/publish_undercovered_content_v404.py"
       - "scripts/publish_special_needs_guides_v217.py"
       - "tests/test_undercovered_content_v401.py"
 
@@ -37,6 +39,7 @@ jobs:
           python -m py_compile scripts/publish_undercovered_content_v401.py
           python -m py_compile scripts/publish_undercovered_content_v402.py
           python -m py_compile scripts/publish_undercovered_content_v403.py
+          python -m py_compile scripts/publish_undercovered_content_v404.py
           python -m py_compile scripts/publish_special_needs_guides_v217.py
       - name: Run topic-specific v401 contract tests
         run: python -m unittest -v tests.test_undercovered_content_v401
