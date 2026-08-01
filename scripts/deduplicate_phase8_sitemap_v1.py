@@ -22,8 +22,11 @@ def locs(path: Path) -> set[str]:
     }
 
 
-def render_deduplicated() -> bytes:
+def render_deduplicated() -> tuple[bytes, int]:
     phase8 = locs(PHASE8)
+    if not phase8:
+        raise SystemExit(f"No URLs found in {PHASE8.name}")
+
     tree = ET.parse(MAIN)
     root = tree.getroot()
     removed = 0
@@ -32,10 +35,21 @@ def render_deduplicated() -> bytes:
         if loc is not None and loc.text and loc.text.strip() in phase8:
             root.remove(url)
             removed += 1
-    if removed != len(phase8):
-        raise SystemExit(f"Expected to remove {len(phase8)} phase-8 URLs; removed {removed}")
+
+    remaining = {
+        node.text.strip()
+        for node in root.findall(f"{{{NS}}}url/{{{NS}}}loc")
+        if node.text and node.text.strip()
+    }
+    overlap = remaining & phase8
+    if overlap:
+        raise SystemExit(
+            "Phase-8 URLs still appear in the main sitemap: " + ", ".join(sorted(overlap))
+        )
+
     ET.indent(tree, space="  ")
-    return ET.tostring(root, encoding="utf-8", xml_declaration=True)
+    rendered = ET.tostring(root, encoding="utf-8", xml_declaration=True) + b"\n"
+    return rendered, removed
 
 
 def main() -> int:
@@ -45,12 +59,21 @@ def main() -> int:
     mode.add_argument("--check", action="store_true")
     args = parser.parse_args()
 
-    expected = render_deduplicated()
+    expected, removed = render_deduplicated()
     current = MAIN.read_bytes()
     if args.check:
-        return 0 if current == expected else 1
+        if current != expected:
+            print(f"{MAIN.name} is not in the deterministic deduplicated form")
+            return 1
+        print(f"{MAIN.name} has unique phase-8 ownership")
+        return 0
+
+    if current == expected:
+        print(f"{MAIN.name} is already deduplicated")
+        return 0
+
     MAIN.write_bytes(expected)
-    print(f"Deduplicated {len(locs(PHASE8))} phase-8 URLs from {MAIN.name}")
+    print(f"Removed {removed} duplicate phase-8 URLs from {MAIN.name}")
     return 0
 
 
