@@ -1,101 +1,13 @@
-name: Deploy special-needs expansion v322 to GitHub Pages
+name: Retired partial Pages publisher - special needs expansion v322
 
 on:
-  workflow_run:
-    workflows: ["Publish special-needs expansion v322"]
-    types: [completed]
+  workflow_dispatch:
 
 permissions:
-  actions: read
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: validated-github-pages-v322
-  cancel-in-progress: false
 
 jobs:
-  deploy:
-    if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == 'main'
+  retired:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Download expanded validated artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: validated-production-site
-          path: validated-site
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Verify v322 artifact and prevent rollback
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euxo pipefail
-          python - <<'PY'
-          import hashlib,json,os,re,urllib.request
-          from pathlib import Path
-          root=Path('validated-site')
-          deployment=json.loads((root/'deployment.json').read_text(encoding='utf-8'))
-          report=json.loads((root/'api/special-needs-expansion-v322.json').read_text(encoding='utf-8'))
-          candidate=deployment.get('commit')
-          assert deployment.get('schema_version') in {29,30} and re.fullmatch(r'[0-9a-f]{40}',candidate or ''),deployment
-          assert report.get('version')==322 and report.get('status')=='passed',report
-          assert (report.get('guide_count'),report.get('section_count'),report.get('source_count'))==(5,40,25),report
-          assert report.get('minimum_rendered_words',0)>=1200 and report.get('external_clinical_review_completed') is False,report
-          for name in ('index.html','sitemap.xml','manifest.webmanifest','sw.js'):
-              path=root/name; evidence=deployment['artifacts'][name]
-              assert path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest()==evidence['sha256'],name
-              assert path.stat().st_size==evidence['bytes'],name
-          hub=(root/'special-needs/index.html').read_text(encoding='utf-8')
-          assert hub.count('<!-- special-needs-expansion-v322:start -->')==1
-          for slug in report['guide_slugs']:
-              page=root/'special-needs'/slug/'index.html'
-              assert page.is_file() and 'data-special-needs-expansion-v322' in page.read_text(encoding='utf-8'),slug
-          token=os.environ['GH_TOKEN']; repo=os.environ['GITHUB_REPOSITORY']
-          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','User-Agent':'pages-v322'}
-          def api(path):
-              with urllib.request.urlopen(urllib.request.Request(f'https://api.github.com/repos/{repo}{path}',headers=headers),timeout=30) as r:
-                  return json.loads(r.read().decode())
-          current=api('/git/ref/heads/main')['object']['sha']
-          status='identical' if candidate==current else api(f'/compare/{candidate}...{current}').get('status')
-          assert status in {'ahead','identical'},(candidate,current,status)
-          with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as h: h.write(f'CANDIDATE_SHA={candidate}\n')
-          print({'candidate':candidate,'current_main':current,'relationship':status,'guides':5})
-          PY
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with: {path: validated-site}
-      - name: Deploy expanded site
-        id: deployment
-        uses: actions/deploy-pages@v4
-      - name: Verify v322 live routes
-        env:
-          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
-        run: |
-          set -euxo pipefail
-          BASE="${PAGE_URL%/}/"; TOKEN="${CANDIDATE_SHA}"
-          matched=0
-          for i in $(seq 1 30); do
-            if curl -fsS -H 'Cache-Control: no-cache' "${BASE}deployment.json?v=${TOKEN}-${i}" -o /tmp/deployment.json && \
-               EXPECTED="${TOKEN}" python -c "import json,os; d=json.load(open('/tmp/deployment.json')); raise SystemExit(0 if d.get('commit')==os.environ['EXPECTED'] else 1)"; then matched=1; break; fi
-            sleep 10
-          done
-          test "$matched" -eq 1
-          curl -fsS -H 'Cache-Control: no-cache' "${BASE}api/special-needs-expansion-v322.json?v=${TOKEN}" -o /tmp/v322.json
-          python - <<'PY'
-          import json,os,subprocess
-          report=json.load(open('/tmp/v322.json',encoding='utf-8'))
-          assert report['version']==322 and report['status']=='passed' and report['guide_count']==5,report
-          base=os.environ['PAGE_URL'].rstrip('/')+'/'
-          token=os.environ['CANDIDATE_SHA']
-          for slug in report['guide_slugs']:
-              subprocess.run(['curl','-fsS','-H','Cache-Control: no-cache',f'{base}special-needs/{slug}/?v={token}'],check=True,stdout=subprocess.DEVNULL)
-          print({'live_commit':token,'live_guides':len(report['guide_slugs']),'status':'published-v322'})
-          PY
+      - run: echo "Retired. Complete site deployment is owned by deploy-complete-pages-with-ai-search.yml."
