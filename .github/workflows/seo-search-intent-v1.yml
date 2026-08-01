@@ -54,6 +54,7 @@ jobs:
             scripts/enhance_search_intent_v1.py \
             scripts/upgrade_magazine_intent_v2.py \
             scripts/apply_static_seo_fixes_v1.py \
+            scripts/remediate_seo_warnings_v1.py \
             scripts/summarize_seo_warnings_v1.py
           node --check scripts/prerender_provider_assessment_v1.js
 
@@ -71,6 +72,9 @@ jobs:
 
       - name: Pre-render provider assessment pathways
         run: node scripts/prerender_provider_assessment_v1.js --write
+
+      - name: Resolve remaining title description and image warnings
+        run: python scripts/remediate_seo_warnings_v1.py --write
 
       - name: Audit the 100 priority URLs
         run: python scripts/audit_seo_intent_v1.py --scope priority --report reports/seo-intent-priority-v1.json
@@ -93,6 +97,20 @@ jobs:
         run: |
           python scripts/summarize_seo_warnings_v1.py reports/seo-intent-priority-v1.json reports/seo-warnings-priority-v1.json
           python scripts/summarize_seo_warnings_v1.py reports/seo-intent-all-v1.json reports/seo-warnings-all-v1.json
+
+      - name: Enforce zero unresolved warnings
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          failed = []
+          for path in (Path("reports/seo-warnings-priority-v1.json"), Path("reports/seo-warnings-all-v1.json")):
+              payload = json.loads(path.read_text(encoding="utf-8"))
+              if payload["warnings"]:
+                  failed.append(f"{path}: {payload['warnings']} warnings")
+          if failed:
+              raise SystemExit("\n".join(failed))
+          PY
 
       - name: Check generated diff
         run: git diff --check
@@ -125,6 +143,7 @@ jobs:
           python scripts/enhance_search_intent_v1.py --write
           python scripts/upgrade_magazine_intent_v2.py --write
           node scripts/prerender_provider_assessment_v1.js --write
+          python scripts/remediate_seo_warnings_v1.py --write
           git diff --exit-code -- . \
             ':!reports/seo-intent-priority-v1.json' \
             ':!reports/seo-intent-priority-v1.md' \
