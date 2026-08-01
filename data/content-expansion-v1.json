@@ -1,1 +1,24 @@
-PLACEHOLDER
+{
+  "schema_version": "1.0.0",
+  "generated_for": "healthrenewal.org",
+  "editorial_status": "evidence-guided-draft-for-internal-review",
+  "review_disclosure": "محتوى تثقيفي مؤسسي مولد من ملف بيانات تحريري ومراجع أصلية. لم تُدّعَ مراجعة سريرية خارجية. يلزم تحديث دوري ومراجعة اختصاصية بحسب مستوى الخطورة قبل استخدامه في السياسات أو القرارات الفردية.",
+  "publication_date": "2026-08-01",
+  "minimum_page_words": 1800,
+  "distribution": {
+    "special-needs": 70,
+    "care-guides": 12,
+    "learning-paths": 8,
+    "comparisons": 6,
+    "daily-tools": 4
+  },
+  "sources_file": "data/content-expansion-v1/sources.json",
+  "clusters_file": "data/content-expansion-v1/clusters.json",
+  "page_files": [
+    "data/content-expansion-v1/special-needs.json",
+    "data/content-expansion-v1/care-guides.json",
+    "data/content-expansion-v1/learning-paths.json",
+    "data/content-expansion-v1/comparisons.json",
+    "data/content-expansion-v1/daily-tools.json"
+  ]
+}
