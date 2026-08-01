@@ -93,6 +93,24 @@ jobs:
       - name: Enforce H1 H2 H3 and search-intent questions on every indexable page
         run: python scripts/enforce_sitewide_heading_intent_v2.py --write --report reports/sitewide-heading-intent-v2.json
 
+      - name: Normalize generated fallback whitespace
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          marker = 'data-sitewide-heading-intent="v2"'
+          for path in Path(".").rglob("*.html"):
+              source = path.read_text(encoding="utf-8")
+              if marker not in source:
+                  continue
+              trailing_newline = source.endswith("\n")
+              normalized = "\n".join(line.rstrip() for line in source.splitlines())
+              if trailing_newline:
+                  normalized += "\n"
+              if normalized != source:
+                  path.write_text(normalized, encoding="utf-8")
+          PY
+
       - name: Audit the 100 priority URLs
         run: python scripts/audit_seo_intent_v1.py --scope priority --report reports/seo-intent-priority-v1.json
 
