@@ -36,6 +36,7 @@ class OutsideBoxQualityAuditV306(unittest.TestCase):
             ("special-needs", "مركز ذوي الاحتياجات الخاصة"),
             ("provider-assessment-demo", "منصة مقدم الخدمة"),
             ("trust", "الثقة والمنهجية"),
+            ("copyright", "حقوق النشر وإعادة الاستخدام"),
         ):
             target = self.site / route
             target.mkdir(parents=True)
@@ -46,6 +47,15 @@ class OutsideBoxQualityAuditV306(unittest.TestCase):
         (self.site / "assets/brand").mkdir(parents=True)
         (self.site / "assets/brand/logo-mark.svg").write_text(
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><title>شعار</title></svg>',
+            encoding="utf-8",
+        )
+        (self.site / "assets/platform").mkdir(parents=True)
+        (self.site / "assets/platform/platform-core.css").write_text(
+            ":root{color-scheme:light}",
+            encoding="utf-8",
+        )
+        (self.site / "assets/platform/platform-core.js").write_text(
+            "window.__PT_PLATFORM_TEST_FIXTURE__ = true;\n",
             encoding="utf-8",
         )
         (self.site / "index.html").write_text(

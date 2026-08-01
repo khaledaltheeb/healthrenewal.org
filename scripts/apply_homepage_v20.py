@@ -68,6 +68,13 @@ def synchronize_homepage_lab_inventory(text: str) -> str:
     return text
 
 
+def enforce_homepage_metadata_contract(text: str) -> None:
+    if re.search(r'<meta\s+name=["\']keywords["\']', text, re.IGNORECASE):
+        raise SystemExit(
+            "Homepage must not publish obsolete meta keywords metadata"
+        )
+
+
 def synchronize_care_guides_report() -> None:
     report_path = SITE / "api" / "care-guides-v21.json"
     sitemap_path = SITE / "sitemap-care-guides.xml"
@@ -178,6 +185,7 @@ def main() -> None:
 
     source_text = SOURCE.read_text(encoding="utf-8")
     text = synchronize_homepage_lab_inventory(source_text)
+    enforce_homepage_metadata_contract(text)
     required = [
         '<html lang="ar" dir="rtl">',
         '<h1>',
@@ -194,7 +202,6 @@ def main() -> None:
         'rel="manifest"',
         'rel="icon"',
         'rel="search"',
-        'name="keywords"',
         'property="og:image"',
         'name="twitter:image"',
         'application/ld+json',
@@ -233,12 +240,15 @@ def main() -> None:
     h1_count = len(re.findall(r'<h1\b', text))
     h2_count = len(re.findall(r'<h2\b', text))
     h3_count = len(re.findall(r'<h3\b', text))
+    heading_count = h1_count + h2_count + h3_count
     if h1_count != 1:
         raise SystemExit(f"Expected exactly one H1, found {h1_count}")
-    if h2_count < 4:
-        raise SystemExit("Homepage must contain at least four H2 sections")
-    if h3_count < 16:
-        raise SystemExit("Homepage must contain at least sixteen H3 cards")
+    if h2_count < 5:
+        raise SystemExit("Homepage must contain at least five H2 sections")
+    if not 8 <= heading_count <= 20:
+        raise SystemExit(
+            "Homepage heading outline must remain between eight and twenty headings"
+        )
 
     TARGET.parent.mkdir(parents=True, exist_ok=True)
     TARGET.write_text(text, encoding="utf-8")
@@ -256,12 +266,14 @@ def main() -> None:
         "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         "target_sha256": hashlib.sha256(TARGET.read_bytes()).hexdigest(),
         "source_transformed": True,
+        "meta_keywords_absent": True,
         "lab_tool_count": LAB_TOOL_COUNT,
         "lab_inventory_updated": True,
         "lab_inventory_metadata_updated": True,
         "h1": h1_count,
         "h2": h2_count,
         "h3": h3_count,
+        "heading_count": heading_count,
         "brand": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
         "founding_name": "مصطلحات علم النفس",
         "slogan": "معرفة تحترم الإنسان. دعم يوسّع الإمكانات.",
