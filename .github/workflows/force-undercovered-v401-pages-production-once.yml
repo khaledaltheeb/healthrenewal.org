@@ -60,7 +60,8 @@ jobs:
           assert report['minimum_citations'] >= 3, report
           assert report['generic_placeholder_pages'] == 0, report
           assert report['quality_gates']['specialized_safety_checks'], report
-          assert report['quality_gates']['byte_stable_output'], report
+          assert report['quality_gates']['stable_sitemap_report'], report
+          assert report['quality_gates']['stable_hub_whitespace'], report
           for route in report['routes']:
               page = root / route / 'index.html'
               assert page.is_file(), route
@@ -221,7 +222,7 @@ jobs:
             special-needs/practical/self-injury-safety-response/ \
             learning-paths/evidence-literacy/ \
             sectors/child/guides/developmental-observation/ \
-            sectors/family/guides/family-support-map/ \
+            sectors/family/guides/family-strengths-map/ \
             sectors/home/guides/home-accessibility-audit/; do
             curl -fsS --retry 4 -H 'Cache-Control: no-cache' "${base}/${path}?release=${RUN_ID}" -o /tmp/live-page.html
             grep -F 'data-content-engine="v403"' /tmp/live-page.html
