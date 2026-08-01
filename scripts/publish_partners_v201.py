@@ -7,7 +7,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-BASE = "https://healthrenewal.org/"
+BASE = "https://healthrenewal.org"
 ROUTE = "/partners/"
 URL = BASE + ROUTE
 PARTNERS_LINK = '<a href="partners/">الشركاء والشفافية</a>'
