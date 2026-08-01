@@ -1,86 +1,13 @@
-name: Publish and confirm every completed main change v183
+name: Retired partial Pages publisher - publish every main v183
 
 on:
-  workflow_run:
-    workflows: ["Validate every assessment and cognitive tool v31"]
-    types: [completed]
+  workflow_dispatch:
 
 permissions:
   contents: read
-  actions: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: github-pages-confirmed-publication
-  cancel-in-progress: false
-
-env:
-  SITE_BASE: https://healthrenewal.org/
 
 jobs:
-  publish-and-confirm:
-    if: >-
-      ${{
-        github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.head_branch == 'main'
-      }}
+  retired:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
-      - name: Check out the exact validated main commit
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
-
-      - name: Download the exact validated production artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: validated-production-site
-          path: _site
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
-
-      - name: Compile the publication confirmation engine
-        run: python -m py_compile scripts/publish_and_confirm_v183.py
-
-      - name: Prepare full release manifest and live delta
-        run: >-
-          python scripts/publish_and_confirm_v183.py prepare _site
-          --expected-sha "${{ github.event.workflow_run.head_sha }}"
-          --base-url "$SITE_BASE"
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Package the validated artifact for GitHub Pages
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: _site
-
-      - name: Deploy the validated artifact to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-      - name: Confirm the exact commit and every changed live file
-        run: >-
-          python scripts/publish_and_confirm_v183.py verify _site
-          --expected-sha "${{ github.event.workflow_run.head_sha }}"
-          --base-url "${{ steps.deployment.outputs.page_url }}"
-
-      - name: Upload publication proof
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: live-publication-confirmation-v183-${{ github.event.workflow_run.head_sha }}
-          path: |
-            artifacts/live-publication-v183.json
-            _site/deployment.json
-            _site/release-manifest.json
-            _site/api/deployment-change-set-v183.json
-          if-no-files-found: warn
-          retention-days: 30
+      - run: echo "Retired. Complete site deployment is owned by deploy-complete-pages-with-ai-search.yml."
