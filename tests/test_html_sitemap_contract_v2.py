@@ -1,3 +1,4 @@
+"""Regression coverage for separating HTML pages from sitemap resources."""
 from __future__ import annotations
 
 import tempfile
