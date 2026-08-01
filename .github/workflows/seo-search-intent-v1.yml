@@ -2,9 +2,9 @@ name: SEO search intent v1
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches:
-      - feat/sitewide-seo-intent-contract-v1-20260801
+      - main
     paths:
       - "scripts/**"
       - "tests/test_seo_intent_contract_v1.py"
@@ -23,6 +23,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: seo-search-intent-v1-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
 jobs:
   validate-and-apply:
     runs-on: ubuntu-latest
@@ -33,7 +37,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.ref_name }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
       - uses: actions/setup-python@v5
         with:
@@ -95,7 +99,7 @@ jobs:
 
       - name: Commit generated pages, sources, and reports
         env:
-          BRANCH: ${{ github.ref_name }}
+          BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
         shell: bash
         run: |
           git add -A
