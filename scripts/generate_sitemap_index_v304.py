@@ -103,6 +103,24 @@ def restore_missing_public_source(site: Path, repo_root: Path) -> list[str]:
     return sorted(restored)
 
 
+def load_discovery_publication_report(root: Path) -> tuple[Path, dict[str, object]]:
+    """Load the report written by ``ensure_complete_discovery_v1.run``.
+
+    The publisher intentionally writes its result as an artifact and prints it,
+    but does not return a Python value. Loading the artifact keeps the public
+    report as the single source of truth and avoids a false deployment failure
+    after successful card and catalogue generation.
+    """
+
+    report_path = root / "api" / "discovery-publication-v1.json"
+    if not report_path.is_file():
+        raise SystemExit(f"Missing discovery publication report: {report_path}")
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    if payload.get("status") != "published":
+        raise SystemExit({"invalid_discovery_publication_report": payload})
+    return report_path, payload
+
+
 def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     root = root.resolve()
     base_url = base_url.rstrip("/") + "/"
@@ -125,9 +143,14 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
 
     # Expose every published route through static HTML cards and complete
     # section catalogues after all other content generators have finished.
-    discovery_publication = complete_discovery.run(root)
+    complete_discovery.run(root)
+    discovery_report_path, discovery_publication = load_discovery_publication_report(root)
     discovery_publication["restoredSourceFiles"] = restored_source_files
     discovery_publication["restoredSourceFileCount"] = len(restored_source_files)
+    discovery_report_path.write_text(
+        json.dumps(discovery_publication, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
 
     # Generate AI-readable surfaces after the discovery pages exist so search
     # engines and AI clients see the same final route inventory as users.
