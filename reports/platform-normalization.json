@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-07-31T23:20:25.098328+00:00",
+  "generated_at": "2026-08-01T01:46:17.439067+00:00",
   "mode": "write",
   "root": "/home/runner/work/healthrenewal.org/healthrenewal.org",
   "runtime": {
@@ -11,12 +11,12 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 223,
-  "html_pages_normalized_or_current": 222,
+  "html_pages_seen": 323,
+  "html_pages_normalized_or_current": 322,
   "counts": {
-    "current": 221,
-    "updated": 1,
-    "skipped": 1
+    "current": 222,
+    "skipped": 1,
+    "updated": 100
   },
   "results": [
     {
@@ -41,8 +41,8 @@
     },
     {
       "path": "contact/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "copyright/index.html",
@@ -410,6 +410,46 @@
       "detail": ""
     },
     {
+      "path": "learning-paths/aac-partner/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/accessible-content-creator/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/assistive-technology-coordinator/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/caregiver-foundations/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/emergency-readiness-leader/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/evidence-literacy/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/inclusive-school-leader/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/inclusive-teacher/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
       "path": "learning-paths/index.html",
       "status": "current",
       "detail": ""
@@ -417,6 +457,41 @@
     {
       "path": "learning-paths/opportunities/index.html",
       "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/positive-behavior-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/self-advocacy/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/sensory-access/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/service-quality-audit/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/special-educator-evidence/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/supported-employment/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/transition-coordinator/index.html",
+      "status": "updated",
       "detail": ""
     },
     {
@@ -970,6 +1045,56 @@
       "detail": ""
     },
     {
+      "path": "sectors/child/guides/accessible-playground/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/guides/bullying-protection/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/guides/child-communication-access/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/guides/child-health-visit/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/guides/developmental-observation/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/guides/early-routines/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/guides/executive-function-routines/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/guides/friendship-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/guides/play-participation/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/child/guides/preschool-transition/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
       "path": "sectors/child/index.html",
       "status": "current",
       "detail": ""
@@ -990,6 +1115,46 @@
       "detail": ""
     },
     {
+      "path": "sectors/family/guides/caregiver-load-review/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/guides/family-emergency-plan/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/guides/family-routine-redesign/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/guides/family-strengths-map/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/guides/monthly-family-review/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/guides/service-navigation/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/guides/shared-family-decisions/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/family/guides/sibling-wellbeing/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
       "path": "sectors/family/index.html",
       "status": "current",
       "detail": ""
@@ -1007,6 +1172,41 @@
     {
       "path": "sectors/home/assessment/index.html",
       "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/home/guides/home-accessibility-audit/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/home/guides/home-calm-environment/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/home/guides/home-evacuation/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/home/guides/home-mealtime-routine/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/home/guides/home-personal-care/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/home/guides/safe-home-movement/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "sectors/home/guides/visual-home-routines/index.html",
+      "status": "updated",
       "detail": ""
     },
     {
@@ -1072,6 +1272,306 @@
     {
       "path": "special-needs/index.html",
       "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/aac-needs-assessment-plan/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/accessible-arabic-documents/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/accessible-forms-authentication/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/accessible-homework/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/accessible-instructions/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/activity-transition-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/arabic-multilingual-aac/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/assessment-accommodations/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/assistive-device-backup-maintenance/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/assistive-technology-needs-matching/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/assistive-technology-trial/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/calm-space-design/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/choice-consent-communication/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/classroom-participation-baseline/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/co-regulation-plan/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/communication-breakdown-repair/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/communication-partner-training/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/community-participation/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/community-sensory-planning/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/core-vocabulary-daily-routines/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/daily-data-notebook/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/dental-visit-preparation/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/device-abandonment-prevention/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/distress-prevention-plan/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/emergency-preparedness/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/emotional-communication-map/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/employment-discovery/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/functional-behavior-observation/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/functional-communication-profile/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/goal-prioritization/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/hospital-communication-passport/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/independent-living-supports/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/lighting-visual-load/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/low-tech-supports/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/mealtime-participation/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/mobility-positioning-participation/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/money-skills-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/multidisciplinary-meeting/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/noise-management-plan/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/pain-communication/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/peer-participation-plan/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/personal-care-independence/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/personal-care-sensory-plan/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/post-crisis-debrief/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/predictable-transitions/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/public-transport-readiness/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/restrictive-practice-reduction/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/safeguarding-boundaries/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/school-home-communication/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/school-reentry-plan/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/self-injury-safety-response/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/sensory-environment-audit/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/shared-support-plan/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/sibling-inclusion-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/supported-decision-making/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/toileting-dignity-plan/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/transition-needs-assessment/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/trauma-informed-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/universal-design-lesson-adaptation/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/practical/workplace-accommodations/index.html",
+      "status": "updated",
       "detail": ""
     },
     {
