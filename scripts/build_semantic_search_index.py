@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """Build a browser-readable semantic search index for the static site.
 
-The builder extracts meaningful Arabic text from HTML files, chunks it, embeds
-passages with intfloat/multilingual-e5-small, and writes sharded JSON metadata
-plus normalized float16 vectors for client-side cosine similarity search.
+The builder extracts meaningful Arabic text from HTML files and their approved
+structured-data sidecars, chunks it, embeds passages with
+intfloat/multilingual-e5-small, and writes sharded JSON metadata plus normalized
+float16 vectors for client-side cosine similarity search.
 """
 
 from __future__ import annotations
 
 import argparse
+import ast
 import base64
 import hashlib
 import json
@@ -19,7 +21,7 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Iterable, Iterator
-from urllib.parse import urljoin, urlparse
+from urllib.parse import unquote, urljoin, urlparse
 
 import numpy as np
 from bs4 import BeautifulSoup
@@ -62,6 +64,10 @@ REMOVABLE_TAGS = {
 }
 TEXT_TAGS = {"h1", "h2", "h3", "h4", "p", "li", "td", "th", "blockquote", "dd", "dt"}
 WHITESPACE_RE = re.compile(r"\s+")
+JS_STRING_RE = re.compile(
+    r'"(?P<double>(?:\\.|[^"\\])*)"|\'(?P<single>(?:\\.|[^\'\\])*)\'',
+    re.DOTALL,
+)
 
 SECTION_LABELS = {
     "ai-search": "البحث الذكي",
@@ -77,6 +83,26 @@ SECTION_LABELS = {
     "sectors": "القطاعات",
     "tips": "النصائح",
     "learning-paths": "مسارات التعلم",
+}
+
+FAMILY_FIELD_LABELS = {
+    "title": "اسم الحالة",
+    "en": "الاسم الإنجليزي",
+    "classification": "التصنيف",
+    "summary": "ملخص الحالة",
+    "causes": "الأسباب والعوامل المرتبطة",
+    "signs": "العلامات والشروط المهمة",
+    "related": "المسارات ذات الصلة",
+    "first_steps": "الخطوات الأولى",
+    "avoid": "ما يجب تجنبه",
+    "daily": "التعامل اليومي",
+    "plan30": "خطة أول 30 يومًا",
+    "plan90": "خطة أول 90 يومًا",
+    "plan_year": "الخطة السنوية",
+    "urgent": "علامات تستدعي تصعيدًا عاجلًا",
+    "professionals": "الفريق المهني",
+    "questions": "أسئلة للمختص",
+    "sources": "المصادر",
 }
 
 
@@ -155,6 +181,201 @@ def infer_audience(relative_path: Path, text: str) -> list[str]:
     return sorted(audiences)
 
 
+def unique_texts(values: Iterable[str]) -> list[str]:
+    seen: set[str] = set()
+    result: list[str] = []
+    for raw in values:
+        value = clean_text(raw)
+        if not value or value in seen:
+            continue
+        if value.startswith(("http://", "https://", "/", "mailto:")):
+            continue
+        seen.add(value)
+        result.append(value)
+    return result
+
+
+def flatten_structured_strings(value: object) -> list[str]:
+    values: list[str] = []
+    if isinstance(value, str):
+        values.append(value)
+    elif isinstance(value, dict):
+        for item in value.values():
+            values.extend(flatten_structured_strings(item))
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            values.extend(flatten_structured_strings(item))
+    return unique_texts(values)
+
+
+def decode_js_string(quote: str, value: str) -> str:
+    try:
+        decoded = ast.literal_eval(f"{quote}{value}{quote}")
+        return decoded if isinstance(decoded, str) else str(decoded)
+    except (SyntaxError, ValueError):
+        replacements = {
+            r"\\": "\\",
+            r"\/": "/",
+            r"\n": " ",
+            r"\r": " ",
+            r"\t": " ",
+            rf"\{quote}": quote,
+        }
+        decoded = value
+        for escaped, replacement in replacements.items():
+            decoded = decoded.replace(escaped, replacement)
+        return decoded
+
+
+def extract_js_string_literals(source: str) -> list[str]:
+    strings: list[str] = []
+    for match in JS_STRING_RE.finditer(source):
+        if match.group("double") is not None:
+            strings.append(decode_js_string('"', match.group("double")))
+        else:
+            strings.append(decode_js_string("'", match.group("single") or ""))
+    return unique_texts(strings)
+
+
+def balanced_object(source: str, start: int) -> str:
+    if start < 0 or start >= len(source) or source[start] != "{":
+        return ""
+
+    depth = 0
+    quote = ""
+    escaped = False
+    for index in range(start, len(source)):
+        character = source[index]
+        if quote:
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == quote:
+                quote = ""
+            continue
+
+        if character in {'"', "'"}:
+            quote = character
+        elif character == "{":
+            depth += 1
+        elif character == "}":
+            depth -= 1
+            if depth == 0:
+                return source[start:index + 1]
+    return ""
+
+
+def structured_data_blocks(soup: BeautifulSoup) -> list[tuple[str, str]]:
+    blocks: list[tuple[str, str]] = []
+    for script in soup.find_all("script", attrs={"type": re.compile(r"application/ld\+json", re.I)}):
+        raw = script.string or script.get_text(" ", strip=True)
+        if not raw:
+            continue
+        try:
+            payload = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        values = flatten_structured_strings(payload)
+        if values:
+            blocks.append(("البيانات المنظمة", "؛ ".join(values)))
+    return blocks
+
+
+def meta_description_blocks(soup: BeautifulSoup) -> list[tuple[str, str]]:
+    values: list[str] = []
+    for attrs in (
+        {"name": re.compile(r"^description$", re.I)},
+        {"property": re.compile(r"^og:description$", re.I)},
+        {"name": re.compile(r"^twitter:description$", re.I)},
+    ):
+        tag = soup.find("meta", attrs=attrs)
+        if tag and tag.get("content"):
+            values.append(str(tag.get("content")))
+    descriptions = unique_texts(values)
+    return [("وصف الصفحة", "؛ ".join(descriptions))] if descriptions else []
+
+
+def safe_sidecar_path(page_path: Path, root: Path, src: str) -> Path | None:
+    parsed_path = unquote(urlparse(src).path)
+    if not parsed_path:
+        return None
+    candidate = (root / parsed_path.lstrip("/")) if parsed_path.startswith("/") else (page_path.parent / parsed_path)
+    try:
+        resolved = candidate.resolve()
+        resolved.relative_to(root.resolve())
+    except (OSError, ValueError):
+        return None
+    return resolved
+
+
+def family_payload_blocks(source: str) -> list[tuple[str, str]]:
+    marker = source.rfind("})(")
+    start = source.find("{", marker + 3 if marker >= 0 else 0)
+    payload_source = balanced_object(source, start)
+    if not payload_source:
+        return []
+
+    try:
+        payload = json.loads(payload_source)
+    except json.JSONDecodeError:
+        return []
+
+    if not isinstance(payload, dict):
+        return []
+
+    blocks: list[tuple[str, str]] = []
+    for key, value in payload.items():
+        if key == "slug":
+            continue
+        strings = flatten_structured_strings(value)
+        if strings:
+            blocks.append((FAMILY_FIELD_LABELS.get(key, key.replace("_", " ")), "؛ ".join(strings)))
+    return blocks
+
+
+def provider_payload_blocks(source: str, slug: str) -> list[tuple[str, str]]:
+    if not slug:
+        return []
+    match = re.search(rf"\bslug\s*:\s*([\"']){re.escape(slug)}\1", source)
+    if not match:
+        return []
+
+    start = source.rfind("{", 0, match.start())
+    payload_source = balanced_object(source, start)
+    if not payload_source:
+        return []
+
+    values = extract_js_string_literals(payload_source)
+    values = [value for value in values if value != slug]
+    if not values:
+        return []
+    return [("مسار التقييم المهني", "؛ ".join(values))]
+
+
+def sidecar_data_blocks(path: Path, root: Path, soup: BeautifulSoup) -> list[tuple[str, str]]:
+    slug = clean_text(str(soup.body.get("data-condition") or "")) if soup.body else ""
+    blocks: list[tuple[str, str]] = []
+
+    for script in soup.find_all("script", src=True):
+        src = str(script.get("src") or "")
+        basename = Path(unquote(urlparse(src).path)).name.lower()
+        if basename != "data.js" and not basename.startswith("conditions-data"):
+            continue
+
+        sidecar = safe_sidecar_path(path, root, src)
+        if not sidecar or not sidecar.is_file():
+            continue
+        source = sidecar.read_text(encoding="utf-8", errors="ignore")
+
+        if basename == "data.js":
+            blocks.extend(family_payload_blocks(source))
+        else:
+            blocks.extend(provider_payload_blocks(source, slug))
+
+    return blocks
+
+
 def extract_page_blocks(path: Path, root: Path) -> tuple[str, str, str, list[tuple[str, str]]]:
     raw = path.read_text(encoding="utf-8", errors="ignore")
     soup = BeautifulSoup(raw, "html.parser")
@@ -163,15 +384,19 @@ def extract_page_blocks(path: Path, root: Path) -> tuple[str, str, str, list[tup
     if robots and "noindex" in str(robots.get("content", "")).lower():
         return "", "", "", []
 
-    for tag_name in REMOVABLE_TAGS:
-        for tag in soup.find_all(tag_name):
-            tag.decompose()
-
     title_tag = soup.find("h1") or soup.find("title")
     title = clean_text(title_tag.get_text(" ", strip=True) if title_tag else path.stem)
     url = canonical_url(soup, path.relative_to(root))
 
     blocks: list[tuple[str, str]] = []
+    blocks.extend(meta_description_blocks(soup))
+    blocks.extend(structured_data_blocks(soup))
+    blocks.extend(sidecar_data_blocks(path, root, soup))
+
+    for tag_name in REMOVABLE_TAGS:
+        for tag in soup.find_all(tag_name):
+            tag.decompose()
+
     current_heading = title
     main = soup.find("main") or soup.find("article") or soup.body or soup
     visible_text = clean_text(main.get_text(" ", strip=True))
@@ -185,10 +410,22 @@ def extract_page_blocks(path: Path, root: Path) -> tuple[str, str, str, list[tup
         if len(text) >= 35:
             blocks.append((current_heading, text))
 
-    if not blocks and len(visible_text) >= 80:
-        blocks.append((title, visible_text))
+    deduplicated: list[tuple[str, str]] = []
+    seen_blocks: set[tuple[str, str]] = set()
+    for heading, text in blocks:
+        heading = clean_text(heading) or title
+        text = clean_text(text)
+        key = (heading, text)
+        if len(text) < 20 or key in seen_blocks:
+            continue
+        seen_blocks.add(key)
+        deduplicated.append(key)
 
-    return title, url, visible_text, blocks
+    if not deduplicated and len(visible_text) >= 20:
+        deduplicated.append((title, visible_text))
+
+    page_text = clean_text(" ".join([visible_text, *(text for _, text in deduplicated)]))
+    return title, url, page_text, deduplicated
 
 
 def split_long_text(text: str, max_chars: int, overlap: int) -> Iterator[str]:
@@ -267,7 +504,7 @@ def collect_chunks(root: Path, max_chars: int, overlap: int) -> list[Chunk]:
         section_key, section_label = infer_section(relative_path)
         audience = infer_audience(relative_path, page_text)
         page_chunks = list(chunk_blocks(title, blocks, max_chars, overlap))
-        if not page_chunks and len(page_text) >= 80:
+        if not page_chunks and len(page_text) >= 20:
             page_chunks = [(title, page_text)]
 
         for ordinal, (heading, text) in enumerate(page_chunks, start=1):

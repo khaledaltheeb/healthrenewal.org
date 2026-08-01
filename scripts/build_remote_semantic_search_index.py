@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Build and verify the semantic index from the fully published static website.
 
-The repository generates many public pages during its release pipeline. This
-wrapper discovers every HTML URL exposed through the sitemap index, downloads
-those pages into a temporary mirror, delegates chunking/embedding/sharding to
-build_semantic_search_index.py, and fails closed when published-page coverage
-falls below the requested thresholds.
+The wrapper discovers every HTML URL exposed through the sitemap index,
+downloads those pages plus approved structured-data sidecars used by
+JavaScript-rendered condition pages, delegates chunking/embedding/sharding to
+build_semantic_search_index.py, and fails closed unless the published corpus is
+fully represented.
 """
 
 from __future__ import annotations
@@ -21,15 +21,17 @@ from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from typing import Iterable
 from urllib.error import HTTPError, URLError
-from urllib.parse import unquote, urlparse
+from urllib.parse import unquote, urljoin, urlparse
 from urllib.request import Request, urlopen
+
+from bs4 import BeautifulSoup
 
 import build_semantic_search_index as local_builder
 
 DEFAULT_SITEMAP = "https://healthrenewal.org/sitemap-index.xml"
 DEFAULT_BASE_URL = "https://healthrenewal.org/"
 LEGACY_BASE_URL = "https://khaledaltheeb.github.io/pterminology-site/"
-USER_AGENT = "HealthRenewalSemanticIndexer/3.0 (+https://healthrenewal.org/ai-search/)"
+USER_AGENT = "HealthRenewalSemanticIndexer/4.0 (+https://healthrenewal.org/ai-search/)"
 XML_NAMESPACE = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 SKIPPED_SUFFIXES = {
     ".xml", ".json", ".csv", ".pdf", ".zip", ".png", ".jpg", ".jpeg", ".gif", ".webp",
@@ -44,7 +46,7 @@ def fetch_bytes(url: str, timeout: int, attempts: int = 5) -> bytes:
             url,
             headers={
                 "User-Agent": USER_AGENT,
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.6",
+                "Accept": "text/html,application/xhtml+xml,application/javascript,application/xml;q=0.9,*/*;q=0.6",
                 "Accept-Encoding": "identity",
             },
         )
@@ -109,6 +111,11 @@ def normalize_site_url(url: str, base_url: str) -> str:
     return candidate.geturl()
 
 
+def normalized_asset_url(url: str, base_url: str) -> str:
+    parsed = urlparse(normalize_site_url(url, base_url))
+    return parsed._replace(query="", fragment="").geturl()
+
+
 def same_site(url: str, base_url: str) -> bool:
     candidate = urlparse(normalize_site_url(url, base_url))
     base = urlparse(base_url)
@@ -127,6 +134,13 @@ def is_indexable_page_url(url: str, base_url: str) -> bool:
         return False
     suffix = PurePosixPath(parsed.path).suffix.lower()
     return suffix not in SKIPPED_SUFFIXES
+
+
+def is_index_data_asset(url: str, base_url: str) -> bool:
+    if not same_site(url, base_url):
+        return False
+    basename = PurePosixPath(urlparse(url).path).name.lower()
+    return basename == "data.js" or basename.startswith("conditions-data")
 
 
 def discover_page_urls(sitemap_url: str, base_url: str, timeout: int, max_pages: int) -> list[str]:
@@ -181,6 +195,17 @@ def destination_for_url(root: Path, url: str, base_url: str) -> Path:
     return root.joinpath(*safe_parts)
 
 
+def destination_for_asset(root: Path, url: str, base_url: str) -> Path:
+    parsed = urlparse(normalized_asset_url(url, base_url))
+    base_path = urlparse(base_url).path
+    relative = unquote(parsed.path[len(base_path):]).lstrip("/")
+    pure = PurePosixPath(relative)
+    safe_parts = [part for part in pure.parts if part not in {"", ".", ".."}]
+    if not safe_parts or not PurePosixPath(*safe_parts).suffix:
+        raise ValueError(f"Data asset has no safe filename: {url}")
+    return root.joinpath(*safe_parts)
+
+
 def download_page(url: str, destination: Path, timeout: int) -> tuple[str, bool, str]:
     try:
         data = fetch_bytes(url, timeout=timeout)
@@ -190,7 +215,7 @@ def download_page(url: str, destination: Path, timeout: int) -> tuple[str, bool,
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(data)
         return url, True, ""
-    except Exception as exc:  # isolated failures are collected and evaluated by the coverage gate
+    except Exception as exc:
         return url, False, str(exc)
 
 
@@ -235,6 +260,81 @@ def mirror_pages(
     return successes, failures
 
 
+def discover_index_data_assets(
+    page_urls: list[str],
+    root: Path,
+    base_url: str,
+) -> list[str]:
+    assets: set[str] = set()
+    for page_url in page_urls:
+        page_path = destination_for_url(root, page_url, base_url)
+        if not page_path.is_file():
+            continue
+        soup = BeautifulSoup(page_path.read_text(encoding="utf-8", errors="ignore"), "html.parser")
+        for script in soup.find_all("script", src=True):
+            src = str(script.get("src") or "").strip()
+            if not src:
+                continue
+            asset_url = normalized_asset_url(urljoin(page_url, src), base_url)
+            if is_index_data_asset(asset_url, base_url):
+                assets.add(asset_url)
+    return sorted(assets)
+
+
+def download_data_asset(
+    url: str,
+    destination: Path,
+    timeout: int,
+) -> tuple[str, bool, str]:
+    try:
+        data = fetch_bytes(url, timeout=timeout)
+        if not data.strip():
+            return url, False, "empty data asset"
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(data)
+        return url, True, ""
+    except Exception as exc:
+        return url, False, str(exc)
+
+
+def mirror_index_data_assets(
+    asset_urls: list[str],
+    root: Path,
+    base_url: str,
+    timeout: int,
+    workers: int,
+) -> tuple[int, list[tuple[str, str]]]:
+    failures: list[tuple[str, str]] = []
+    successes = 0
+    if not asset_urls:
+        return successes, failures
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = {
+            executor.submit(
+                download_data_asset,
+                url,
+                destination_for_asset(root, url, base_url),
+                timeout,
+            ): url
+            for url in asset_urls
+        }
+        total = len(futures)
+        for completed, future in enumerate(as_completed(futures), start=1):
+            url, ok, error = future.result()
+            if ok:
+                successes += 1
+            else:
+                failures.append((url, error))
+            if completed % 50 == 0 or completed == total:
+                print(
+                    f"Downloaded {completed:,}/{total:,} structured data assets "
+                    f"({successes:,} successful)",
+                    flush=True,
+                )
+    return successes, failures
+
+
 def indexed_source_paths(output: Path, manifest: dict[str, object]) -> set[str]:
     paths: set[str] = set()
     shards = manifest.get("shards")
@@ -258,6 +358,9 @@ def write_coverage_report(
     mirror_root: Path,
     successes: int,
     failures: list[tuple[str, str]],
+    data_asset_urls: list[str],
+    data_asset_successes: int,
+    data_asset_failures: list[tuple[str, str]],
     manifest: dict[str, object],
 ) -> dict[str, object]:
     output = args.output.resolve()
@@ -288,12 +391,13 @@ def write_coverage_report(
     passed = (
         download_ratio >= args.minimum_success_ratio
         and index_ratio >= args.minimum_indexed_ratio
+        and not data_asset_failures
         and not collisions
         and not unexpected_paths
     )
 
     report: dict[str, object] = {
-        "version": 1,
+        "version": 2,
         "passed": passed,
         "generatedAt": manifest["generatedAt"],
         "model": manifest["model"],
@@ -303,6 +407,9 @@ def write_coverage_report(
         "discoveredUrlCount": discovered_count,
         "downloadedPageCount": successes,
         "failedDownloadCount": len(failures),
+        "dataAssetCount": len(data_asset_urls),
+        "downloadedDataAssetCount": data_asset_successes,
+        "failedDataAssetCount": len(data_asset_failures),
         "indexedUrlCount": len(indexed_urls),
         "indexedDocumentCount": manifest["documentCount"],
         "chunkCount": manifest["chunkCount"],
@@ -311,6 +418,7 @@ def write_coverage_report(
         "requiredDownloadSuccessRatio": args.minimum_success_ratio,
         "requiredIndexCoverageRatio": args.minimum_indexed_ratio,
         "failedDownloads": [{"url": url, "error": error} for url, error in failures],
+        "failedDataAssets": [{"url": url, "error": error} for url, error in data_asset_failures],
         "unindexedUrls": unindexed_urls,
         "destinationCollisions": collisions,
         "unexpectedIndexedPaths": unexpected_paths,
@@ -323,6 +431,8 @@ def write_coverage_report(
         "report": "coverage.json",
         "discoveredUrlCount": discovered_count,
         "downloadedPageCount": successes,
+        "dataAssetCount": len(data_asset_urls),
+        "downloadedDataAssetCount": data_asset_successes,
         "indexedUrlCount": len(indexed_urls),
         "downloadSuccessRatio": download_ratio,
         "indexCoverageRatio": index_ratio,
@@ -375,7 +485,7 @@ def main(argv: Iterable[str] | None = None) -> int:
 
         output = args.output.resolve()
         output.mkdir(parents=True, exist_ok=True)
-        for stale_name in ("crawl-failures.txt", "coverage.json"):
+        for stale_name in ("crawl-failures.txt", "data-asset-failures.txt", "coverage.json"):
             stale = output / stale_name
             if stale.exists():
                 stale.unlink()
@@ -395,7 +505,26 @@ def main(argv: Iterable[str] | None = None) -> int:
                     "\n".join(f"{url}\t{error}" for url, error in failures),
                     encoding="utf-8",
                 )
-            print(f"Mirrored {successes:,} pages; building multilingual E5 index", flush=True)
+
+            data_asset_urls = discover_index_data_assets(urls, mirror_root, args.base_url)
+            data_asset_successes, data_asset_failures = mirror_index_data_assets(
+                asset_urls=data_asset_urls,
+                root=mirror_root,
+                base_url=args.base_url,
+                timeout=args.timeout,
+                workers=args.workers,
+            )
+            if data_asset_failures:
+                (output / "data-asset-failures.txt").write_text(
+                    "\n".join(f"{url}\t{error}" for url, error in data_asset_failures),
+                    encoding="utf-8",
+                )
+
+            print(
+                f"Mirrored {successes:,} pages and {data_asset_successes:,} structured data assets; "
+                "building multilingual E5 index",
+                flush=True,
+            )
             manifest = local_builder.build_index(
                 SimpleNamespace(
                     root=mirror_root,
@@ -412,6 +541,9 @@ def main(argv: Iterable[str] | None = None) -> int:
                 mirror_root=mirror_root,
                 successes=successes,
                 failures=failures,
+                data_asset_urls=data_asset_urls,
+                data_asset_successes=data_asset_successes,
+                data_asset_failures=data_asset_failures,
                 manifest=manifest,
             )
 
@@ -420,6 +552,7 @@ def main(argv: Iterable[str] | None = None) -> int:
             raise RuntimeError(
                 "Semantic index coverage gate failed: "
                 f"download={coverage['downloadSuccessRatio']:.2%}, "
+                f"data-assets={coverage['downloadedDataAssetCount']}/{coverage['dataAssetCount']}, "
                 f"indexed={coverage['indexCoverageRatio']:.2%}, "
                 f"unindexed examples={examples or 'none'}"
             )
@@ -427,6 +560,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         print(
             f"Remote semantic index complete: {manifest['documentCount']:,} pages, "
             f"{manifest['chunkCount']:,} chunks, {len(manifest['shards'])} shards, "
+            f"data-assets={coverage['downloadedDataAssetCount']:,}, "
             f"coverage={coverage['indexCoverageRatio']:.2%}",
             flush=True,
         )
