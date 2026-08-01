@@ -56,6 +56,16 @@ FORBIDDEN_OPERATIONAL_COPY = (
     "قيد الإعداد",
     "قيد التوسع",
 )
+THEMATIC_TERMS = {
+    "الصحة النفسية",
+    "علم النفس",
+    "التربية الدامجة",
+    "ذوي الاحتياجات الخاصة",
+    "الموسوعة",
+    "المكتبة الأكاديمية",
+    "الأدوات النفسية التفاعلية",
+    "مسارات التعلم",
+}
 
 
 class StrictHTMLParser(HTMLParser):
@@ -74,6 +84,15 @@ def heading_texts(source: str) -> list[str]:
         if text:
             values.append(text)
     return values
+
+
+def meta_content(source: str, name: str) -> str:
+    match = re.search(
+        rf'<meta\b(?=[^>]*\bname=["\']{re.escape(name)}["\'])[^>]*\bcontent=["\']([^"\']*)["\'][^>]*>',
+        source,
+        flags=re.IGNORECASE,
+    )
+    return unescape(match.group(1)).strip() if match else ""
 
 
 def main() -> None:
@@ -123,21 +142,17 @@ def main() -> None:
 
     description = re.search(r'<meta name="description" content="([^"]+)"', source)
     assert description and 120 <= len(description.group(1)) <= 220
-    keywords = re.search(r'<meta name="keywords" content="([^"]+)"', source)
-    assert keywords, "Missing thematic keyword metadata"
-    keyword_items = [item.strip() for item in keywords.group(1).split(",") if item.strip()]
-    assert len(keyword_items) >= 10, "Homepage thematic keywords are unexpectedly sparse"
-    assert {
-        "الصحة النفسية",
-        "علم النفس",
-        "التربية الدامجة",
-        "ذوو الاحتياجات الخاصة",
-        "التوحد",
-        "الموسوعة النفسية",
-        "المكتبة الأكاديمية",
-        "الأدوات النفسية التفاعلية",
-        "الاختبارات النفسية",
-    }.issubset(keyword_items)
+    assert not re.search(r'<meta\b[^>]*\bname=["\']keywords["\']', source, re.IGNORECASE), (
+        "Homepage must not rely on the obsolete meta keywords field"
+    )
+    semantic_surface = unescape(" ".join((
+        description.group(1),
+        meta_content(source, "subject"),
+        meta_content(source, "audience"),
+        re.sub(r"<[^>]+>", " ", source),
+    )))
+    missing_terms = sorted(term for term in THEMATIC_TERMS if term not in semantic_surface)
+    assert not missing_terms, f"Homepage semantic topic coverage is incomplete: {missing_terms}"
 
     for required_meta in (
         '<link rel="manifest" href="/manifest.webmanifest">',
@@ -194,13 +209,14 @@ def main() -> None:
         json.dumps(
             {
                 "status": "passed",
-                "contract": "institutional-home-discovery-seo-v222",
+                "contract": "institutional-home-discovery-seo-v223",
                 "brand": BRAND,
                 "slogan": SLOGAN,
                 "required_links": len(REQUIRED_LINKS),
                 "required_files": len(REQUIRED_FILES),
                 "description_chars": len(description.group(1)),
-                "keyword_items": len(keyword_items),
+                "semantic_topic_terms": len(THEMATIC_TERMS),
+                "obsolete_meta_keywords_absent": True,
                 "jsonld_nodes": len(graph),
                 "h1": h1_count,
                 "h2": h2_count,
@@ -212,7 +228,7 @@ def main() -> None:
                 "guided_assessment_linked": True,
                 "daily_tools_linked": True,
                 "learning_paths_linked": True,
-                "interactive_tools_discovery_contract": 222,
+                "interactive_tools_discovery_contract": 223,
                 "operational_copy_hidden": True,
                 "api_version": api_version,
                 "openapi": openapi["openapi"],

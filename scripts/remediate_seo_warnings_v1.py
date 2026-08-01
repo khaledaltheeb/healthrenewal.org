@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Resolve the remaining reviewable SEO warnings deterministically.
+"""Resolve reviewable SEO warnings deterministically across sitemap HTML pages.
 
-The script is intentionally narrow:
-- empty alt text is retained only for images already intended as decorative,
-  while adding explicit presentational semantics;
-- overlong search titles are replaced with concise, intent-preserving titles;
-- one undersized description is expanded and synchronized across social tags.
+The processor preserves existing editorial metadata and only completes or
+normalizes fields that are absent or explicitly mapped for correction:
+- decorative image semantics for intentionally empty alt text;
+- concise intent-preserving titles for known overlong titles;
+- synchronized descriptions for known undersized descriptions;
+- complete Open Graph and Twitter cards using the platform social image.
 """
 from __future__ import annotations
 
@@ -14,6 +15,8 @@ import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from urllib.parse import unquote, urlparse
+
+from social_metadata_v2 import ensure_social_metadata
 
 ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = "https://healthrenewal.org"
@@ -146,6 +149,7 @@ def collect_changes() -> list[tuple[Path, str]]:
             updated = replace_title(updated, TITLE_MAP[relative])
         if relative in DESCRIPTION_MAP:
             updated = replace_description(updated, DESCRIPTION_MAP[relative])
+        updated = ensure_social_metadata(updated)
         if updated != current:
             changes.append((path, updated))
     return changes
