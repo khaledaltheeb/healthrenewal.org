@@ -32,7 +32,7 @@ class HomepageMetadataContractV223Tests(unittest.TestCase):
 
     def test_publisher_heading_contract_matches_verified_homepage(self) -> None:
         source = (ROOT / "index.html").read_text(encoding="utf-8")
-        counts = [len(re.findall(rf"<h{level}\\b", source)) for level in (1, 2, 3)]
+        counts = [len(re.findall(rf"<h{level}\b", source)) for level in (1, 2, 3)]
         self.assertEqual(counts[0], 1)
         self.assertGreaterEqual(counts[1], 5)
         self.assertGreaterEqual(sum(counts), 8)
