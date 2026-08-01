@@ -52,7 +52,7 @@ jobs:
           sys.modules[spec.name] = module
           spec.loader.exec_module(module)
           pages = module.article_files()
-          assert module.CONTRACT == 315
+          assert module.CONTRACT == 316
           assert module.TARGET_ARTICLES == 100
           assert len(pages) == 79, [page.name for page in pages]
           dates = [module.article_date(page) for page in pages]
