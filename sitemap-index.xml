@@ -3,4 +3,43 @@
   <sitemap>
     <loc>https://healthrenewal.org/sitemap.xml</loc>
   </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-accessibility.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-ai-search.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-family-guide-phase8.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-family-guide.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-family-learning-paths.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-family-magazine.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-family-main.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-family-provider-platform.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-family-special-needs.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-outside-the-box-evidence.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-source-registry.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-special-needs.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-specialists-partners.xml</loc>
+  </sitemap>
 </sitemapindex>

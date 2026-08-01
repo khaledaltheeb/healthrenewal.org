@@ -1,0 +1,47 @@
+{
+  "version": 405,
+  "status": "passed",
+  "base_url": "https://healthrenewal.org",
+  "index": "sitemap-index.xml",
+  "robots": "robots.txt",
+  "sitemap_count": 14,
+  "urlset_count": 14,
+  "nested_index_count": 0,
+  "rejected_count": 0,
+  "rejected": [],
+  "indexed_sitemaps": [
+    "sitemap.xml",
+    "sitemap-accessibility.xml",
+    "sitemap-ai-search.xml",
+    "sitemap-family-guide-phase8.xml",
+    "sitemap-family-guide.xml",
+    "sitemap-family-learning-paths.xml",
+    "sitemap-family-magazine.xml",
+    "sitemap-family-main.xml",
+    "sitemap-family-provider-platform.xml",
+    "sitemap-family-special-needs.xml",
+    "sitemap-outside-the-box-evidence.xml",
+    "sitemap-source-registry.xml",
+    "sitemap-special-needs.xml",
+    "sitemap-specialists-partners.xml"
+  ],
+  "published_url_count": 315,
+  "undercovered_page_count": 100,
+  "undercovered_routes_exposed": 100,
+  "undercovered_routes_missing": [],
+  "required_sitemaps": [
+    "sitemap-family-learning-paths.xml",
+    "sitemap-family-main.xml",
+    "sitemap-family-special-needs.xml",
+    "sitemap-special-needs.xml",
+    "sitemap.xml"
+  ],
+  "quality_gates": {
+    "all_required_sitemaps_present": true,
+    "all_index_locations_unique": true,
+    "all_sitemap_urls_https": true,
+    "all_undercovered_routes_exposed": true,
+    "robots_declares_sitemap_index": true,
+    "deterministic_output": true
+  }
+}
