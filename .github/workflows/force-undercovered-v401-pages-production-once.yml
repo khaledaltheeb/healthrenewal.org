@@ -1,0 +1,296 @@
+name: Force verified undercovered v401 Pages production once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/force-undercovered-v401-pages-production-once.yml'
+
+permissions:
+  actions: read
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: force-undercovered-v401-pages-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate committed v403 corpus
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('.')
+          report = json.loads((root / 'api/undercovered-content-v401.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['engine_revision'] == 403, report
+          assert report['page_count'] == 100, report
+          assert report['unique_routes'] == 100, report
+          assert report['distribution'] == {
+              'special-needs': 60,
+              'learning-paths': 15,
+              'child': 10,
+              'family': 8,
+              'home': 7,
+          }, report
+          assert report['minimum_words'] >= 2700, report
+          assert report['minimum_h2'] >= 20, report
+          assert report['minimum_citations'] >= 3, report
+          assert report['generic_placeholder_pages'] == 0, report
+          assert report['quality_gates']['specialized_safety_checks'], report
+          assert report['quality_gates']['byte_stable_output'], report
+          for route in report['routes']:
+              page = root / route / 'index.html'
+              assert page.is_file(), route
+              source = page.read_text(encoding='utf-8')
+              assert 'data-content-engine="v403"' in source, route
+              assert 'حدود الاستخدام والقرار الآمن' in source, route
+              assert 'المراجعة الخارجية المتخصصة موصى بها' in source, route
+          print(json.dumps({
+              'pages': report['page_count'],
+              'words': report['total_words'],
+              'minimum_words': report['minimum_words'],
+              'engine_revision': report['engine_revision'],
+          }, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Discover latest validated production site
+        id: artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl -fsS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" \
+            -o /tmp/artifacts.json
+          python - <<'PY'
+          import json, os
+          artifacts = [
+              item for item in json.load(open('/tmp/artifacts.json', encoding='utf-8')).get('artifacts', [])
+              if not item.get('expired') and item.get('workflow_run', {}).get('id')
+          ]
+          if not artifacts:
+              raise SystemExit('No active validated-production-site artifact found')
+          selected = max(artifacts, key=lambda item: item.get('created_at', ''))
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f"run_id={selected['workflow_run']['id']}\n")
+              output.write(f"artifact_id={selected['id']}\n")
+          print({'artifact_id': selected['id'], 'run_id': selected['workflow_run']['id'], 'created_at': selected.get('created_at')})
+          PY
+
+      - name: Download validated production site
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.artifact.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Overlay the final v403 corpus and discovery files
+        run: |
+          set -euo pipefail
+          test -f _site/index.html
+
+          mkdir -p _site/special-needs _site/sectors _site/api _site/assets/platform
+          rm -rf _site/special-needs/practical
+          cp -a special-needs/practical _site/special-needs/practical
+          cp special-needs/index.html _site/special-needs/index.html
+
+          rm -rf _site/learning-paths
+          cp -a learning-paths _site/learning-paths
+
+          for sector in child family home; do
+            mkdir -p "_site/sectors/${sector}"
+            rm -rf "_site/sectors/${sector}/guides"
+            cp -a "sectors/${sector}/guides" "_site/sectors/${sector}/guides"
+            cp "sectors/${sector}/index.html" "_site/sectors/${sector}/index.html"
+          done
+
+          cp api/undercovered-content-v401.json _site/api/undercovered-content-v401.json
+          cp sitemap-special-needs.xml _site/sitemap-special-needs.xml
+          cp sitemap-family-special-needs.xml _site/sitemap-family-special-needs.xml
+          cp sitemap-family-learning-paths.xml _site/sitemap-family-learning-paths.xml
+          cp sitemap-family-main.xml _site/sitemap-family-main.xml
+          cp sitemap-index.xml _site/sitemap-index.xml
+          cp robots.txt _site/robots.txt
+          cp CNAME _site/CNAME
+          cp assets/platform/platform-core.css _site/assets/platform/platform-core.css
+          cp assets/platform/platform-core.js _site/assets/platform/platform-core.js
+          test -d copyright && cp -a copyright _site/ || true
+          touch _site/.nojekyll
+
+      - name: Verify production artifact before deployment
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          site = Path('_site')
+          report = json.loads((site / 'api/undercovered-content-v401.json').read_text(encoding='utf-8'))
+          assert report['engine_revision'] == 403
+          assert report['page_count'] == 100
+          for route in report['routes']:
+              page = site / route / 'index.html'
+              assert page.is_file(), route
+              source = page.read_text(encoding='utf-8')
+              assert 'data-content-engine="v403"' in source, route
+
+          expected = {
+              'sitemap-special-needs.xml': 60,
+              'sitemap-family-special-needs.xml': 60,
+              'sitemap-family-learning-paths.xml': 15,
+              'sitemap-family-main.xml': 25,
+          }
+          for filename, minimum_new in expected.items():
+              root = ET.parse(site / filename).getroot()
+              urls = [(node.text or '').strip() for node in root.findall('{*}url/{*}loc') if node.text]
+              assert len(urls) == len(set(urls)), filename
+              matched = [url for url in urls if '/special-needs/practical/' in url or '/learning-paths/' in url or '/sectors/child/guides/' in url or '/sectors/family/guides/' in url or '/sectors/home/guides/' in url]
+              assert len(matched) >= minimum_new, (filename, len(matched), minimum_new)
+          print({'verified_pages': 100, 'engine_revision': 403})
+          PY
+
+      - uses: actions/configure-pages@v5
+
+      - name: Upload production Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy production Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify live pages and discovery
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          base="${PAGE_URL%/}"
+          ready=0
+          for attempt in $(seq 1 120); do
+            nonce="${RUN_ID}-${attempt}-$(date +%s%N)"
+            if curl -fsS --retry 2 -H 'Cache-Control: no-cache' \
+              "${base}/api/undercovered-content-v401.json?release=${nonce}" \
+              -o /tmp/live-report.json; then
+              if python - <<'PY'
+          import json
+          report = json.load(open('/tmp/live-report.json', encoding='utf-8'))
+          assert report['status'] == 'passed'
+          assert report['engine_revision'] == 403
+          assert report['page_count'] == 100
+          assert report['minimum_words'] >= 2700
+          PY
+              then ready=1; break; fi
+            fi
+            sleep 5
+          done
+          test "$ready" = 1
+
+          for path in \
+            special-needs/practical/functional-communication-profile/ \
+            special-needs/practical/self-injury-safety-response/ \
+            learning-paths/evidence-literacy/ \
+            sectors/child/guides/developmental-observation/ \
+            sectors/family/guides/family-support-map/ \
+            sectors/home/guides/home-accessibility-audit/; do
+            curl -fsS --retry 4 -H 'Cache-Control: no-cache' "${base}/${path}?release=${RUN_ID}" -o /tmp/live-page.html
+            grep -F 'data-content-engine="v403"' /tmp/live-page.html
+            grep -F 'حدود الاستخدام والقرار الآمن' /tmp/live-page.html
+          done
+
+          curl -fsS --retry 4 "${base}/sitemap-special-needs.xml?release=${RUN_ID}" -o /tmp/live-sitemap.xml
+          grep -F 'special-needs/practical/functional-communication-profile/' /tmp/live-sitemap.xml
+          curl -fsS --retry 4 "${base}/robots.txt?release=${RUN_ID}" -o /tmp/live-robots.txt
+          grep -F 'sitemap-index.xml' /tmp/live-robots.txt
+
+      - name: Write verified production receipt
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          RUN_ID: ${{ github.run_id }}
+          ARTIFACT_RUN_ID: ${{ steps.artifact.outputs.run_id }}
+          ARTIFACT_ID: ${{ steps.artifact.outputs.artifact_id }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import datetime
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          report = json.loads(Path('api/undercovered-content-v401.json').read_text(encoding='utf-8'))
+          receipt = {
+              'schemaVersion': 1,
+              'passed': True,
+              'verifiedAt': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'site': os.environ['PAGE_URL'],
+              'workflowRunId': int(os.environ['RUN_ID']),
+              'workflowRunUrl': f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['RUN_ID']}",
+              'sourceCommit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+              'baselineArtifactId': int(os.environ['ARTIFACT_ID']),
+              'baselineWorkflowRunId': int(os.environ['ARTIFACT_RUN_ID']),
+              'engineRevision': report['engine_revision'],
+              'pageCount': report['page_count'],
+              'totalWords': report['total_words'],
+              'minimumWords': report['minimum_words'],
+              'minimumSections': report['minimum_h2'],
+              'distribution': report['distribution'],
+              'liveChecks': {
+                  'report': True,
+                  'sixRepresentativePages': True,
+                  'specialNeedsSitemap': True,
+                  'robotsSitemapIndex': True,
+              },
+          }
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/undercovered-v401-live-production.json').write_text(
+              json.dumps(receipt, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(receipt, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Commit verified production receipt
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/undercovered-v401-live-production.json
+          git commit -m 'chore: record verified v401 live production receipt [skip ci]'
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            git rebase --abort || true
+            sleep $((attempt * 3))
+          done
+          exit 1
