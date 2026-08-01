@@ -1,71 +1,7 @@
 {
   "scope": "priority",
-  "warnings": 9,
-  "warning_codes": {
-    "title_length": 5,
-    "image_alt_empty": 3,
-    "description_length": 1
-  },
-  "warning_kinds": {
-    "research_article": 4,
-    "hub": 2,
-    "tool": 2,
-    "family_condition": 1
-  },
-  "urls": {
-    "https://healthrenewal.org/ai-search/": [
-      {
-        "code": "image_alt_empty",
-        "message": "Image 1 has empty alt without decorative semantics"
-      }
-    ],
-    "https://healthrenewal.org/api/": [
-      {
-        "code": "image_alt_empty",
-        "message": "Image 1 has empty alt without decorative semantics"
-      }
-    ],
-    "https://healthrenewal.org/family-guide/conditions/neurofibromatosis-type-1/": [
-      {
-        "code": "title_length",
-        "message": "Title length is 76 characters"
-      }
-    ],
-    "https://healthrenewal.org/family-guide/tools/appointment-prep/": [
-      {
-        "code": "description_length",
-        "message": "Description length is 66 characters"
-      }
-    ],
-    "https://healthrenewal.org/magazine/adhd-personalized-neurofeedback-sham-rct-2026.html": [
-      {
-        "code": "title_length",
-        "message": "Title length is 80 characters"
-      }
-    ],
-    "https://healthrenewal.org/magazine/adhd-rhythmic-music-game-rct-2026.html": [
-      {
-        "code": "title_length",
-        "message": "Title length is 82 characters"
-      }
-    ],
-    "https://healthrenewal.org/magazine/autism-behavioral-domains-network-meta-analysis-2026.html": [
-      {
-        "code": "title_length",
-        "message": "Title length is 78 characters"
-      }
-    ],
-    "https://healthrenewal.org/magazine/autism-mentorship-program-pilot-rct-2026.html": [
-      {
-        "code": "title_length",
-        "message": "Title length is 76 characters"
-      }
-    ],
-    "https://healthrenewal.org/specialists-partners/": [
-      {
-        "code": "image_alt_empty",
-        "message": "Image 1 has empty alt without decorative semantics"
-      }
-    ]
-  }
+  "warnings": 0,
+  "warning_codes": {},
+  "warning_kinds": {},
+  "urls": {}
 }

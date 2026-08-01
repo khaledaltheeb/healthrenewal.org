@@ -6,7 +6,7 @@
     "pages": 211,
     "indexable": 211,
     "errors": 0,
-    "warnings": 29,
+    "warnings": 0,
     "passed": 211,
     "failed": 0,
     "by_kind": {
@@ -85,15 +85,9 @@
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/api/",
@@ -112,15 +106,9 @@
         "ListItem",
         "TechArticle"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/copyright/",
@@ -1312,13 +1300,13 @@
       "path": "family-guide/conditions/neurofibromatosis-type-1/index.html",
       "kind": "family_condition",
       "indexable": true,
-      "title": "دليل الأسرة: الورام الليفي العصبي من النوع الأول NF1 | ما الحالة وماذا نفعل؟",
+      "title": "الورام الليفي العصبي النوع الأول NF1 | دليل الأسرة",
       "description": "دليل أسري منهجي حول NF1: الجلد والعين والأورام العصبية والألم والضغط والعظام والتعلم والمتابعة السنوية وعلامات الخطر.",
-      "word_count": 1145,
+      "word_count": 1140,
       "h1": 1,
       "h2": 13,
       "h3": 14,
-      "questions": 30,
+      "questions": 29,
       "schema_types": [
         "Answer",
         "BreadcrumbList",
@@ -1329,15 +1317,9 @@
         "MedicalWebPage",
         "Question"
       ],
-      "findings": [
-        {
-          "code": "title_length",
-          "severity": "warning",
-          "message": "Title length is 76 characters"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/family-guide/conditions/okur-chung-neurodevelopmental-syndrome/",
@@ -1813,7 +1795,7 @@
       "kind": "tool",
       "indexable": true,
       "title": "تحضير موعد التقييم | دليل الأسرة",
-      "description": "قائمة عملية للتقارير والأمثلة والأسئلة والأهداف قبل مقابلة المختص.",
+      "description": "قائمة عربية قابلة للطباعة لتحضير موعد الطبيب أو المختص: الأعراض والأدوية والتغيرات والأسئلة والأهداف، مع تنظيم المعلومات دون استبدال التقييم المهني.",
       "word_count": 146,
       "h1": 1,
       "h2": 2,
@@ -1823,15 +1805,9 @@
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "description_length",
-          "severity": "warning",
-          "message": "Description length is 66 characters"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/family-guide/tools/behavior-log/",
@@ -2003,9 +1979,9 @@
       "path": "magazine/adhd-personalized-neurofeedback-sham-rct-2026.html",
       "kind": "research_article",
       "indexable": true,
-      "title": "التغذية الراجعة العصبية الشخصية لدى أطفال ADHD | تجربة وهمية مزدوجة التعمية 2026",
+      "title": "التغذية الراجعة العصبية وADHD | تجربة عشوائية 2026",
       "description": "قراءة عربية نقدية لتجربة عشوائية مزدوجة التعمية قارنت تغذية راجعة عصبية شخصية بتغذية وهمية لدى 48 طفلًا ذوي ADHD، وأظهرت تعلمًا دماغيًا دون تفوق في الأعراض الأساسية.",
-      "word_count": 1003,
+      "word_count": 998,
       "h1": 1,
       "h2": 14,
       "h3": 5,
@@ -2022,15 +1998,9 @@
         "ScholarlyArticle",
         "WebPage"
       ],
-      "findings": [
-        {
-          "code": "title_length",
-          "severity": "warning",
-          "message": "Title length is 80 characters"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/magazine/adhd-physical-fitness-meta-analysis-2026.html",
@@ -2065,9 +2035,9 @@
       "path": "magazine/adhd-rhythmic-music-game-rct-2026.html",
       "kind": "research_article",
       "indexable": true,
-      "title": "الألعاب الموسيقية الإيقاعية والوظائف التنفيذية لدى أطفال ADHD | تجربة عشوائية 2026",
+      "title": "لعبة موسيقية إيقاعية لأعراض ADHD | تجربة عشوائية 2026",
       "description": "قراءة عربية نقدية لتجربة عشوائية شملت 64 طفلًا ذوي ADHD واختبرت ألعابًا موسيقية إيقاعية عبر جهاز لوحي لمدة 8 أسابيع، مع عرض النتائج والحدود وما لا تثبته الدراسة.",
-      "word_count": 1160,
+      "word_count": 1157,
       "h1": 1,
       "h2": 15,
       "h3": 5,
@@ -2084,15 +2054,9 @@
         "ScholarlyArticle",
         "WebPage"
       ],
-      "findings": [
-        {
-          "code": "title_length",
-          "severity": "warning",
-          "message": "Title length is 82 characters"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/magazine/adhd-school-social-skills-meta-analysis-2026.html",
@@ -2407,9 +2371,9 @@
       "path": "magazine/autism-behavioral-domains-network-meta-analysis-2026.html",
       "kind": "research_article",
       "indexable": true,
-      "title": "مقارنة تدخلات التهيج وفرط الحركة والسلوكيات لدى الأطفال التوحديين | يوليو 2026",
+      "title": "تدخلات التوحد حسب المجالات السلوكية | تحليل شبكي 2026",
       "description": "ملخص عربي نقدي لأحدث تحليل شبكي منشور في 17 يوليو 2026 قارن تدخلات دوائية وغير دوائية عبر 67 تجربة و4203 أطفال ومراهقين توحديين.",
-      "word_count": 450,
+      "word_count": 447,
       "h1": 1,
       "h2": 9,
       "h3": 5,
@@ -2426,15 +2390,9 @@
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "title_length",
-          "severity": "warning",
-          "message": "Title length is 78 characters"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/magazine/autism-caregiver-adjustment-review-2026.html",
@@ -2581,9 +2539,9 @@
       "path": "magazine/autism-mentorship-program-pilot-rct-2026.html",
       "kind": "research_article",
       "indexable": true,
-      "title": "برنامج الإرشاد بين الأقران للمراهقين ذوي التوحد | تجربة عشوائية تجريبية 2026",
+      "title": "برنامج إرشاد للأشخاص ذوي التوحد | دراسة تجريبية 2026",
       "description": "قراءة عربية نقدية لتجربة عشوائية تجريبية لبرنامج إرشاد افتراضي يقوده بالغون ذوو توحد للمراهقين ذوي التوحد، شملت 24 مراهقًا و23 جلسة أسبوعية، مع نتائج القبول والمؤشرات النفسية وحدود العينة الصغيرة.",
-      "word_count": 1231,
+      "word_count": 1228,
       "h1": 1,
       "h2": 15,
       "h3": 5,
@@ -2600,15 +2558,9 @@
         "ScholarlyArticle",
         "WebPage"
       ],
-      "findings": [
-        {
-          "code": "title_length",
-          "severity": "warning",
-          "message": "Title length is 76 characters"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/magazine/autism-parent-act-meta-analysis-2026.html",
@@ -2867,9 +2819,9 @@
       "path": "magazine/aya-cancer-digital-mental-health-meta-analysis-2026.html",
       "kind": "research_article",
       "indexable": true,
-      "title": "التدخلات الرقمية للصحة النفسية لدى اليافعين والشباب المصابين بالسرطان | 2026",
+      "title": "الصحة النفسية الرقمية لليافعين المصابين بالسرطان | تحليل 2026",
       "description": "قراءة عربية لمراجعة منهجية وتحليل تلوي عن أثر التدخلات الصحية الرقمية في القلق والضيق وجودة الحياة والدعم الاجتماعي لدى اليافعين والشباب المصابين بالسرطان.",
-      "word_count": 529,
+      "word_count": 527,
       "h1": 1,
       "h2": 9,
       "h3": 5,
@@ -2886,15 +2838,9 @@
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "title_length",
-          "severity": "warning",
-          "message": "Title length is 76 characters"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/magazine/cerebral-palsy-participate-cp-leisure-rct-2026.html",
@@ -3489,9 +3435,9 @@
       "path": "magazine/intellectual-disability-healthcare-transition-review-2026.html",
       "kind": "research_article",
       "indexable": true,
-      "title": "الانتقال من رعاية الأطفال إلى رعاية البالغين لذوي الاحتياجات الذهنية | مراجعة 2026",
+      "title": "الانتقال للرعاية الصحية لدى ذوي الإعاقة الذهنية | مراجعة 2026",
       "description": "قراءة عربية لمراجعة نطاقية عن العوامل التي تنجح أو تعرقل انتقال الشباب ذوي الاحتياجات الذهنية من خدمات الأطفال إلى خدمات البالغين.",
-      "word_count": 425,
+      "word_count": 422,
       "h1": 1,
       "h2": 8,
       "h3": 5,
@@ -3508,15 +3454,9 @@
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "title_length",
-          "severity": "warning",
-          "message": "Title length is 82 characters"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/magazine/intellectual-disability-youth-healthcare-access-review-2026.html",
@@ -3663,9 +3603,9 @@
       "path": "magazine/neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html",
       "kind": "research_article",
       "indexable": true,
-      "title": "Navigator ACT لضغط والدي الأطفال ذوي الاحتياجات النمائية | تجربة عشوائية 2026",
+      "title": "Navigator ACT لضغط والدي ذوي الإعاقات النمائية | تجربة 2026",
       "description": "قراءة عربية نقدية لتجربة Navigator ACT العشوائية لدى 137 والدًا ووالدة لأطفال ذوي احتياجات نمائية، مع النتائج بالأرقام والحدود والدلالة العملية وما لا تثبته الدراسة.",
-      "word_count": 1609,
+      "word_count": 1607,
       "h1": 1,
       "h2": 18,
       "h3": 5,
@@ -3682,15 +3622,9 @@
         "ScholarlyArticle",
         "WebPage"
       ],
-      "findings": [
-        {
-          "code": "title_length",
-          "severity": "warning",
-          "message": "Title length is 77 characters"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/magazine/neurodevelopmental-exercise-executive-function-meta-analysis-2026.html",
@@ -4890,15 +4824,9 @@
         "ItemList",
         "ListItem"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/sectors/",
@@ -4923,15 +4851,9 @@
         "Question",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/sectors/child/",
@@ -4956,15 +4878,9 @@
         "Question",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/sectors/child/assessment/",
@@ -4983,15 +4899,9 @@
         "ListItem",
         "MedicalWebPage"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/sectors/child/interventions/",
@@ -5010,15 +4920,9 @@
         "ListItem",
         "MedicalWebPage"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/sectors/child/library/",
@@ -5037,15 +4941,9 @@
         "CollectionPage",
         "ListItem"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/sectors/family/",
@@ -5070,15 +4968,9 @@
         "Question",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/sectors/family/assessment/",
@@ -5097,15 +4989,9 @@
         "ListItem",
         "MedicalWebPage"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/sectors/family/interventions/",
@@ -5124,15 +5010,9 @@
         "ListItem",
         "MedicalWebPage"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/sectors/family/library/",
@@ -5151,15 +5031,9 @@
         "CollectionPage",
         "ListItem"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/sectors/home/",
@@ -5182,15 +5056,9 @@
         "MedicalWebPage",
         "Question"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/sectors/home/assessment/",
@@ -5209,15 +5077,9 @@
         "ListItem",
         "MedicalWebPage"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/sectors/home/interventions/",
@@ -5236,15 +5098,9 @@
         "ListItem",
         "MedicalWebPage"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/sectors/home/library/",
@@ -5263,15 +5119,9 @@
         "CollectionPage",
         "ListItem"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/source-registry/",
@@ -5481,15 +5331,9 @@
         "ListItem",
         "Thing"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/specialists-partners/join.html",
@@ -5507,15 +5351,9 @@
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/specialists-partners/verification.html",
@@ -5533,15 +5371,9 @@
         "WebPage",
         "WebSite"
       ],
-      "findings": [
-        {
-          "code": "image_alt_empty",
-          "severity": "warning",
-          "message": "Image 1 has empty alt without decorative semantics"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     },
     {
       "url": "https://healthrenewal.org/start-here/",
@@ -5590,9 +5422,9 @@
       "path": "trust/index.html",
       "kind": "hub",
       "indexable": true,
-      "title": "منهجية المصادر والمراجعة والتصحيح | منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+      "title": "منهجية الثقة والمصادر والمراجعة | منصة الصحة النفسية",
       "description": "منهجية مؤسسية عربية تشرح اختيار المصادر ومراتب الدليل وتقييم التحيز ويقين النتائج وصياغة التوصيات والمراجعة الخارجية والتحديث والتصحيح وتعارض المصالح وحدود المحتوى الصحي.",
-      "word_count": 1414,
+      "word_count": 1411,
       "h1": 1,
       "h2": 13,
       "h3": 1,
@@ -5603,15 +5435,9 @@
         "ListItem",
         "Organization"
       ],
-      "findings": [
-        {
-          "code": "title_length",
-          "severity": "warning",
-          "message": "Title length is 77 characters"
-        }
-      ],
+      "findings": [],
       "errors": 0,
-      "warnings": 1
+      "warnings": 0
     }
   ]
 }

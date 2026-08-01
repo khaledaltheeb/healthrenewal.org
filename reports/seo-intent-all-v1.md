@@ -5,6 +5,6 @@
 - Passed: **211**
 - Failed: **0**
 - Errors: **0**
-- Warnings: **29**
+- Warnings: **0**
 
 ## Failed URLs
