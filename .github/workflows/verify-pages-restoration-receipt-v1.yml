@@ -1,0 +1,102 @@
+name: Verify Pages restoration receipt v1
+
+on:
+  workflow_run:
+    workflows: ["Deploy complete generated site"]
+    types: [completed]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  receipt:
+    if: >-
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.event == 'push' &&
+      (contains(github.event.workflow_run.head_commit.message, 'restore all generated Pages routes') ||
+       contains(github.event.workflow_run.head_commit.message, 'verify restored Pages live'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+      SOURCE_RUN_URL: ${{ github.event.workflow_run.html_url }}
+      SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+      SOURCE_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+    steps:
+      - name: Verify live route inventory
+        id: verify
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          test "$SOURCE_CONCLUSION" = success
+          ready=0
+          for attempt in $(seq 1 60); do
+            nonce="${SOURCE_RUN_ID}-${attempt}-$(date +%s%N)"
+            if curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/complete-route-inventory-v1.json?receipt=${nonce}" \
+              -o /tmp/inventory.json; then
+              if python - <<'PY'
+          import json
+          report=json.load(open('/tmp/inventory.json',encoding='utf-8'))
+          assert report['status'] == 'passed'
+          assert report['missingBaselineRoutes'] == 0
+          assert report['contracts']['encyclopediaConcepts'] == 2000
+          assert report['contracts']['dailyTools'] == 100
+          assert report['contracts']['comparisons'] >= 100
+          assert report['contracts']['careGuides'] >= 6
+          assert report['contracts']['familyGuides'] >= 64
+          assert report['contracts']['academicLibraryEntries'] == 80
+          PY
+              then ready=1; break; fi
+            fi
+            sleep 5
+          done
+          test "$ready" = 1
+          for route in encyclopedia comparisons library care-guides daily-tools learning-paths family-guide ai-search; do
+            curl -fsSL --retry 3 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/${route}/?receipt=${SOURCE_RUN_ID}" -o /dev/null
+          done
+          python - <<'PY'
+          import json
+          report=json.load(open('/tmp/inventory.json',encoding='utf-8'))
+          summary={
+              'status':report['status'],
+              'baselineRoutes':report['baselineRoutes'],
+              'finalRoutes':report['finalRoutes'],
+              'missingBaselineRoutes':report['missingBaselineRoutes'],
+              'contracts':report['contracts'],
+          }
+          open('/tmp/summary.json','w',encoding='utf-8').write(json.dumps(summary,ensure_ascii=False,indent=2)+'\n')
+          PY
+
+      - name: Publish auditable GitHub issue receipt
+        env:
+          VERIFY_OUTCOME: ${{ steps.verify.outcome }}
+        run: |
+          set -euo pipefail
+          title="Pages restoration verification — ${SOURCE_RUN_ID}"
+          {
+            echo "## Complete Pages restoration receipt"
+            echo
+            echo "- Source workflow: ${SOURCE_RUN_URL}"
+            echo "- Source commit: \`${SOURCE_SHA}\`"
+            echo "- Deployment conclusion: \`${SOURCE_CONCLUSION}\`"
+            echo "- Live verification step: \`${VERIFY_OUTCOME}\`"
+            echo "- Verified at: \`$(date -u +%Y-%m-%dT%H:%M:%SZ)\`"
+            echo
+            if [ -f /tmp/summary.json ]; then
+              echo '```json'
+              cat /tmp/summary.json
+              echo '```'
+            else
+              echo "The complete deployment or live route inventory did not pass. Inspect the source workflow logs."
+            fi
+          } > /tmp/body.md
+          url="$(gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file /tmp/body.md)"
+          number="${url##*/}"
+          if [ "$VERIFY_OUTCOME" = success ] && [ "$SOURCE_CONCLUSION" = success ]; then
+            gh issue close "$number" --repo "$GITHUB_REPOSITORY" --reason completed
+          fi
+          echo "receipt_issue=${url}"
