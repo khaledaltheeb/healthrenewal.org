@@ -132,7 +132,6 @@ jobs:
           import json
           import re
           import time
-          import urllib.error
           import urllib.request
           import xml.etree.ElementTree as ET
 
@@ -215,7 +214,10 @@ jobs:
 
       - name: Report deployment result
         if: always()
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh api "repos/${GITHUB_REPOSITORY}/issues/804/comments" -f body="ENCYCLOPEDIA_DEPLOY_V1 status=${{ job.status }} sha=${{ github.sha }} run_id=${{ github.run_id }}"
+          gh api "repos/${GITHUB_REPOSITORY}/issues/804/comments" \
+            -f body="ENCYCLOPEDIA_DEPLOY_V1 status=${{ job.status }} sha=${{ github.sha }} run_id=${{ github.run_id }}" \
+            || echo 'Deployment completed; reporting comment could not be written.'
