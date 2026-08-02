@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 VERSION = 236
-BASE = "https://healthrenewal.org/"
+BASE = "https://healthrenewal.org"
 BASE_PATH = "/"
 BATCHES = (209, 210, 211, 212, 214)
 V214_SLUGS = (

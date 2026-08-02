@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content" / "v322" / "special-needs-condition-expansion-ar.parts"
-BASE = "https://healthrenewal.org/"
+BASE = "https://healthrenewal.org"
 BP = "/"
 VERSION = 322
 MARKER_START = "<!-- special-needs-expansion-v322:start -->"

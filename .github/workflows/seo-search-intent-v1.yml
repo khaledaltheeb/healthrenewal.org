@@ -171,7 +171,11 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git commit -m "feat(seo): complete sitemap semantic and search-intent migration"
-            git push origin "HEAD:${BRANCH}"
+            if [ "${{ github.event_name }}" = "pull_request" ]; then
+              echo "Committed generated state locally for deterministic PR validation; remote branch is unchanged."
+            else
+              git push origin "HEAD:${BRANCH}"
+            fi
           fi
 
       - name: Enforce the priority contract

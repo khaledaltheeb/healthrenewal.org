@@ -8,14 +8,15 @@ import sys
 from dataclasses import dataclass
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import urljoin
 
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 VERIFY = "google644f1f7a8b7aaa2b.html"
 BASE_URL = "https://healthrenewal.org/"
 LEGACY_BASE_URLS = (
-    "https://healthrenewal.org/",
-    "https://healthrenewal.org/",
+    "https://khaledaltheeb.github.io/pterminology-site/",
+    "https://khaledaltheeb.github.io/",
 )
 MANIFEST_HREF = "/manifest.webmanifest"
 THEME_COLOR = "#0b6b66"
@@ -50,6 +51,8 @@ class MetadataState:
     og_url: bool = False
     og_url_value: str = ""
     canonical: str = ""
+    legacy_alias: bool = False
+    refresh_url: str = ""
 
 
 class MetadataParser(HTMLParser):
@@ -59,7 +62,9 @@ class MetadataParser(HTMLParser):
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = {key.lower(): value for key, value in attrs}
-        if tag.lower() == "link":
+        if tag.lower() == "html":
+            self.state.legacy_alias = bool(values.get("data-legacy-path-alias"))
+        elif tag.lower() == "link":
             rels = str(values.get("rel") or "").lower().split()
             href = str(values.get("href") or "").strip()
             if "manifest" in rels:
@@ -69,6 +74,7 @@ class MetadataParser(HTMLParser):
         elif tag.lower() == "meta":
             name = str(values.get("name") or "").lower()
             prop = str(values.get("property") or "").lower()
+            http_equiv = str(values.get("http-equiv") or "").lower()
             if name == "twitter:card":
                 self.state.twitter_card = True
             if name == "theme-color":
@@ -76,6 +82,11 @@ class MetadataParser(HTMLParser):
             if prop == "og:url":
                 self.state.og_url = True
                 self.state.og_url_value = html.unescape(str(values.get("content") or "").strip())
+            if http_equiv == "refresh":
+                content = html.unescape(str(values.get("content") or ""))
+                match = re.match(r"^\s*0\s*;\s*url\s*=\s*(.+?)\s*$", content, re.I)
+                if match:
+                    self.state.refresh_url = match.group(1).strip("\"' ")
 
 
 def parse_metadata(text: str) -> MetadataState:
@@ -101,13 +112,28 @@ def canonical_url_for(page: Path) -> str:
     return BASE_URL + relative
 
 
+def canonical_url_for_page(page: Path, text: str) -> str:
+    """Preserve the destination canonical for explicit noindex redirect aliases."""
+    state = parse_metadata(text)
+    if not state.legacy_alias:
+        return canonical_url_for(page)
+    if state.refresh_url:
+        return urljoin(canonical_url_for(page), state.refresh_url)
+    if state.canonical:
+        return state.canonical
+    raise ValueError("legacy_alias_target_missing")
+
+
 def normalize_legacy_references(text: str) -> str:
     for legacy in LEGACY_BASE_URLS:
         text = text.replace(legacy, BASE_URL)
-    text = text.replace("https://healthrenewal.org/", BASE_URL.rstrip("/"))
-    text = text.replace("https://healthrenewal.org/", BASE_URL.rstrip("/"))
-    text = text.replace("/", "/")
-    text = text.replace("\\/\\/", "\\/")
+    text = text.replace(
+        "https://khaledaltheeb.github.io/pterminology-site",
+        BASE_URL.rstrip("/"),
+    )
+    text = text.replace("https://khaledaltheeb.github.io", BASE_URL.rstrip("/"))
+    text = text.replace("/pterminology-site/", "/")
+    text = text.replace("\\/pterminology-site\\/", "\\/")
     text = text.replace("https://healthrenewal.org//", BASE_URL)
     return text
 
@@ -154,7 +180,7 @@ def verify_contract() -> None:
         raise SystemExit(f"Metadata enrichment contract failed: {state}")
     if state.canonical != expected or state.og_url_value != expected:
         raise SystemExit(f"Custom-domain canonical contract failed: {state}")
-    if "/" in enriched or "khaledaltheeb.github.io/" in enriched:
+    if "/pterminology-site/" in enriched or "khaledaltheeb.github.io/" in enriched:
         raise SystemExit("Legacy production base survived metadata normalization")
     if counts != {
         "canonical_normalized": 1,
@@ -212,7 +238,11 @@ def main() -> None:
         relative = page.relative_to(SITE).as_posix()
         original = page.read_text(encoding="utf-8")
         stats["pages_scanned"] += 1
-        expected_canonical = canonical_url_for(page)
+        try:
+            expected_canonical = canonical_url_for_page(page, original)
+        except ValueError as error:
+            failures.append(f"{relative}: {error}")
+            continue
         try:
             updated, additions = enrich_page(original, expected_canonical)
         except ValueError as error:
@@ -237,7 +267,7 @@ def main() -> None:
         }.items():
             if not present:
                 stats["remaining_missing"][key].append(relative)
-        if "/" in updated or "khaledaltheeb.github.io/" in updated:
+        if "/pterminology-site/" in updated or "khaledaltheeb.github.io/" in updated:
             stats["legacy_base_occurrences_remaining"] += 1
             failures.append(f"{relative}: legacy_base_remaining")
 

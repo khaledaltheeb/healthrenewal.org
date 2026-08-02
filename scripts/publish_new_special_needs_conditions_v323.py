@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content" / "v323" / "new-special-needs-conditions-ar.json"
-BASE = "https://healthrenewal.org/"
+BASE = "https://healthrenewal.org"
 BP = "/"
 VERSION = 323
 HUB_MARKER = "data-genetic-developmental-v323"

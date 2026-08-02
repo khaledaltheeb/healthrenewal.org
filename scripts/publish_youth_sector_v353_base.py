@@ -10,8 +10,8 @@ from pathlib import Path
 from typing import Any
 
 VERSION = 353
-BASE = "https://healthrenewal.org/"
-BASE_PATH = "/"
+BASE = "https://healthrenewal.org"
+BASE_PATH = ""
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE = ROOT / "content" / "v353" / "youth-sector-ar.json"
 REPORT_NAME = "youth-sector-v353.json"
@@ -482,6 +482,7 @@ def publish(site: Path, source_path: Path = DEFAULT_SOURCE) -> dict[str, Any]:
     hub_path = site / "sectors" / "youth" / "index.html"
     hub_path.parent.mkdir(parents=True, exist_ok=True)
     hub_path.write_text(hub, encoding="utf-8")
+    published_pages = [hub_path]
 
     collection_words: dict[str, int] = {}
     for collection in data["collections"]:
@@ -531,6 +532,7 @@ def publish(site: Path, source_path: Path = DEFAULT_SOURCE) -> dict[str, Any]:
         target = site / "sectors" / "youth" / collection["slug"] / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(page, encoding="utf-8")
+        published_pages.append(target)
         collection_words[collection["slug"]] = visible_words(page)
 
     guide_words: dict[str, int] = {}
@@ -575,10 +577,11 @@ def publish(site: Path, source_path: Path = DEFAULT_SOURCE) -> dict[str, Any]:
         target = site / "sectors" / "youth" / guide["slug"] / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(page, encoding="utf-8")
+        published_pages.append(target)
         guide_words[guide["slug"]] = visible_words(page)
 
     robots_updated = update_robots(site)
-    pages = sorted((site / "sectors" / "youth").rglob("index.html"))
+    pages = sorted(published_pages)
     all_text = "\n".join(path.read_text(encoding="utf-8") for path in pages)
     structural_errors: list[str] = []
     for path in pages:

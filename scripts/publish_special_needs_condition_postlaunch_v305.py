@@ -11,7 +11,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "content" / "v305" / "special-needs-condition-postlaunch-ar.json"
-BASE = "https://healthrenewal.org/"
+BASE = "https://healthrenewal.org"
 BASE_PATH = "/"
 VERSION = 305
 SLUGS = ("autism", "down-syndrome")

@@ -12,6 +12,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from publish_evidence_literacy_library_v322 import publish as publish_evidence_literacy
+from publish_partners_v201 import publish as publish_partners
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,6 +27,8 @@ SOURCES = [
 ]
 
 CURRENT_PUBLIC_TREES = (
+    Path("api"),
+    Path("source-registry"),
     Path("special-needs/guides"),
     Path("special-needs/practical"),
 )
@@ -154,6 +157,9 @@ def main() -> None:
     if evidence.get("guide_count") != 4 or int(evidence.get("minimum_guide_words", 0)) < 900:
         raise SystemExit({"insufficient_evidence_literacy_v322": evidence})
     restored_public_files = restore_current_public_trees()
+    partners = publish_partners(SITE)
+    if partners.get("version") != 228 or partners.get("unverified_partners_claimed") is not False:
+        raise SystemExit({"invalid_partners_registry": partners})
     sw = SITE / "sw.js"
     if sw.exists(): sw.write_text(sw.read_text(encoding="utf-8").replace("pterminology-v14-performance", "pterminology-v15-core-sections"), encoding="utf-8")
     report = {
@@ -169,6 +175,7 @@ def main() -> None:
         "evidence_literacy_minimum_words": evidence["minimum_guide_words"],
         "evidence_literacy_sources": evidence["source_count"],
         "restored_current_public_files": restored_public_files,
+        "partners_registry_version": partners["version"],
     }
     api = SITE / "api"; api.mkdir(exist_ok=True); (api / "core-sections-v15.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))

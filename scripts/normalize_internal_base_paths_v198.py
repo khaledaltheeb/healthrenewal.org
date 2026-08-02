@@ -301,7 +301,7 @@ def normalize_site(site: Path, *, check_only: bool = False) -> dict[str, object]
         "remaining_error_files": len(remaining),
         "remaining_errors": remaining,
         "example_fixed": {
-            "legacy_project_route": "/pterminology-site/care-guides/",
+            "legacy_project_route_removed": True,
             "correct_route": "/care-guides/",
         },
     }

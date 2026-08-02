@@ -21,6 +21,13 @@ STATIC_PUBLIC_ROUTES = (
 )
 
 
+def preserve_generated_sector_pages(directory: str, names: list[str]) -> set[str]:
+    """Keep the v353 youth hub while importing the additional static youth guides."""
+    if Path(directory).resolve() == (ROOT / "sectors" / "youth").resolve():
+        return {"index.html"} & set(names)
+    return set()
+
+
 def restore_static_public_routes() -> dict[str, int]:
     restored: dict[str, int] = {}
     for route in STATIC_PUBLIC_ROUTES:
@@ -28,7 +35,8 @@ def restore_static_public_routes() -> dict[str, int]:
         target = SITE / route
         if not source.is_dir():
             raise SystemExit(f"Missing repository public route: {route}/")
-        shutil.copytree(source, target, dirs_exist_ok=True)
+        ignore = preserve_generated_sector_pages if route == "sectors" else None
+        shutil.copytree(source, target, dirs_exist_ok=True, ignore=ignore)
         pages = list(target.rglob("*.html"))
         if not pages:
             raise SystemExit(f"Restored public route has no HTML pages: {route}/")

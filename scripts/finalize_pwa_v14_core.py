@@ -277,14 +277,17 @@ a{border:1px solid var(--line);color:var(--brand);background:#fff}
 </head>
 <body>
 <main>
+<header>
 <img src="/assets/brand/pwa-192.png" alt="">
 <p><strong>HealthRenewal</strong></p>
 <h1>الاتصال بالإنترنت غير متاح</h1>
 <p>يمكنك متابعة الصفحات التي سبق فتحها وحُفظت على جهازك. أعد المحاولة عند عودة الاتصال للحصول على أحدث نسخة من المحتوى.</p>
+</header>
 <div class="actions">
 <button type="button" onclick="location.reload()">إعادة المحاولة</button>
 <a href="/">العودة إلى الصفحة الرئيسية</a>
 </div>
+<footer><p><small>صفحة احتياطية آمنة للاستخدام عند انقطاع الاتصال.</small></p></footer>
 </main>
 </body>
 </html>

@@ -40,7 +40,7 @@ ns={'s':'http://www.sitemaps.org/schemas/sitemap/0.9'}
 tree=ET.parse(SITE/'sitemap-tips.xml'); urls=[x.text for x in tree.getroot().findall('s:url/s:loc',ns) if x.text]
 if len(urls)!=21: errors.append(f'tips sitemap={len(urls)}')
 service_worker=(SITE/'sw.js').read_text(encoding='utf-8')
-supported=('pterminology-v15-core-sections','pterminology-v20-global-quality','pterminology-v21-global-quality','pterminology-v23-resilient-core')
+supported=('pterminology-v15-core-sections','pterminology-v20-global-quality','pterminology-v21-global-quality','pterminology-v23-resilient-core','healthrenewal-v24-resilient-core')
 if not any(name in service_worker for name in supported): errors.append('supported cache missing')
 if 'pterminology-v23-resilient-core' in service_worker:
     if 'Promise.allSettled' not in service_worker: errors.append('resilient core cache missing')

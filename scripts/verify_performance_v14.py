@@ -33,6 +33,7 @@ def main() -> None:
         "pterminology-v20-global-quality",
         "pterminology-v21-global-quality",
         "pterminology-v23-resilient-core",
+        "healthrenewal-v24-resilient-core",
     )
     checks = {
         "mutation_observer_absent": "MutationObserver" not in runtime,

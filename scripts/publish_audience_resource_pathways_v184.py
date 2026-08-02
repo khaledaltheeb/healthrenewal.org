@@ -11,7 +11,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 DATA = ROOT / "content" / "v184" / "audience-resource-pathways-ar.json"
-BASE = "https://healthrenewal.org/"
+BASE = "https://healthrenewal.org"
 BASE_PATH = "/"
 
 
@@ -59,7 +59,7 @@ def head(title: str, description: str, canonical: str, page_type: str = "WebPage
 
 
 def nav() -> str:
-    return f'''<nav class="nav" aria-label="التنقل الرئيسي"><a href="{BASE_PATH}">الرئيسية</a><a href="{BASE_PATH}start-here/">ابدأ من هنا</a><a href="{BASE_PATH}audiences/">المسارات</a><a href="{BASE_PATH}resources/">المواد العملية</a><a href="{BASE_PATH}encyclopedia/">الموسوعة</a><a href="{BASE_PATH}terms/">القاموس</a><a href="{BASE_PATH}special-needs/">ذوو الإعاقة</a><a href="{BASE_PATH}trust/">الثقة والمنهج</a></nav>'''
+    return f'''<nav class="nav" aria-label="التنقل الرئيسي"><a href="{BASE_PATH}">الرئيسية</a><a href="{BASE_PATH}start-here/">ابدأ من هنا</a><a href="{BASE_PATH}audiences/">المسارات</a><a href="{BASE_PATH}resources/">المواد العملية</a><a href="{BASE_PATH}resources/infographics/">الإنفوجرافيك</a><a href="{BASE_PATH}terms/">القاموس</a><a href="{BASE_PATH}special-needs/">ذوو الإعاقة</a><a href="{BASE_PATH}trust/">الثقة والمنهج</a></nav>'''
 
 
 def shell(title: str, description: str, canonical: str, body: str, page_type: str = "WebPage") -> str:
@@ -72,7 +72,7 @@ def render_audience_index(data: dict[str, Any]) -> str:
         for item in data["audiences"]
     )
     formats = "".join(
-        f'<article class="card"><h3>{e(item["title"])}</h3><p>{e(item["summary"])}</p><a href="{e(internal_href(item["href"]))}">فتح القسم</a></article>'
+        f'<article class="card"><h3>{e(item["title"])}</h3><p>{e(item["summary"])}</p><a href="{e(internal_href("/resources/" if item["id"] == "plain-language" else item["href"]))}">فتح القسم</a></article>'
         for item in data["content_formats"]
     )
     body = f'''<header><p><strong>خمسة مسارات واضحة</strong></p><h1>{e(data["title"])}</h1><p class="lead">{e(data["description"])}</p><p><strong>آخر مراجعة:</strong> <time datetime="{e(data["reviewed_at"])}">{e(data["reviewed_at"])}</time></p></header><section><h2>اختر حسب دورك</h2><div class="grid">{cards}</div></section><section><h2>اختر شكل المحتوى</h2><div class="cards">{formats}</div></section><section class="notice"><h2>حدود الاستخدام</h2><p>{e(data["safety_note"])}</p></section>'''

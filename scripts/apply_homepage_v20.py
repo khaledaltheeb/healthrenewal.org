@@ -260,11 +260,24 @@ def main() -> None:
     TARGET.write_text(text, encoding="utf-8")
     restored_routes = {
         "provider-assessment-demo": restore_static_route("provider-assessment-demo"),
+        "family-guide": restore_static_route("family-guide"),
+        "special-needs-conditions": restore_static_route("special-needs/conditions"),
+        "contact": restore_static_route("contact"),
+        "accessibility": restore_static_route("accessibility"),
         "brand_assets": restore_static_tree("assets/brand"),
         "api_v1": restore_static_tree("api/v1"),
     }
-    for relative_path in ("api/index.html", "manifest.webmanifest", "opensearch.xml"):
+    for relative_path in (
+        "api/index.html",
+        "manifest.webmanifest",
+        "opensearch.xml",
+        "sitemap-family-guide.xml",
+        "sitemap-family-guide-phase8.xml",
+        "sitemap-special-needs.xml",
+    ):
         restore_static_file(relative_path)
+    register_sitemap("sitemap-family-guide.xml")
+    register_sitemap("sitemap-family-guide-phase8.xml")
 
     expected_target_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
     report = {

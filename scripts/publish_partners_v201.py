@@ -50,7 +50,7 @@ a{{color:#086e69}}header,footer{{padding:18px max(4vw,20px);background:var(--sof
 <body>
 <header>
 <strong>منصة الصحة النفسية وذوي الاحتياجات الخاصة</strong>
-<nav aria-label="التنقل الرئيسي"><a href="/">الرئيسية</a><a href="/trust/">الثقة والمنهجية</a><a href="/special-needs/">ذوو الاحتياجات الخاصة</a><a href="/care-guides/">أدلة التعامل</a></nav>
+<nav aria-label="التنقل الرئيسي"><a href="/">الرئيسية</a><a href="/trust/">الثقة والمنهجية</a><a href="/special-needs/">ذوو الاحتياجات الخاصة</a><a href="/library/">المكتبة</a></nav>
 </header>
 <main>
 <h1>الشركاء والتعاون والشفافية</h1>

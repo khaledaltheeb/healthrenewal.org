@@ -13,7 +13,7 @@ from urllib.parse import unquote, urlparse
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 BASE_URL = "https://healthrenewal.org/"
-BASE_HOST = "khaledaltheeb.github.io"
+BASE_HOST = urlparse(BASE_URL).netloc
 BASE_PATH = "/"
 VERIFY = "google644f1f7a8b7aaa2b.html"
 
@@ -514,7 +514,7 @@ def main() -> int:
         if not target.exists():
             errors.append(f"Sitemap target missing: {url}")
 
-    expected_counts = {"encyclopedia": 2002, "hubs": 201, "assessment-lab": 41, "cognitive-lab": 49, "tips": 21}
+    expected_counts = {"encyclopedia": 2003, "hubs": 201, "assessment-lab": 41, "cognitive-lab": 49, "tips": 21}
     for section, expected in expected_counts.items():
         actual = section_counts.get(section, 0)
         if actual != expected:

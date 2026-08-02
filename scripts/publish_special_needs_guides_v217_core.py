@@ -17,7 +17,7 @@ import publish_special_needs_guides_v212 as batch212
 import publish_special_needs_sleep_v336 as sleep336
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = "https://healthrenewal.org/"
+BASE = "https://healthrenewal.org"
 BATCHES: tuple[tuple[int, Callable[[Path], dict[str, Any]], Path], ...] = (
     (209, batch209.publish, ROOT / "content" / "v209" / "special-needs-guides-manifest-ar.json"),
     (210, batch210.publish, ROOT / "content" / "v210" / "special-needs-guides-manifest-ar.json"),
