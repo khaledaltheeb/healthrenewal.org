@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 import traceback
@@ -13,10 +14,11 @@ if str(ROOT) not in sys.path:
 
 from scripts import apply_homepage_v20 as homepage
 
-CONTRACT = 322
+CONTRACT = 323
 REPORT = homepage.SITE / "api" / "homepage-publisher-progress-v221.json"
 LAST_COMPLETED: str | None = None
 OUTPUT_LIMIT = 16_000
+PROMOTED_HEADINGS = 0
 
 
 class PublisherExecutionError(RuntimeError):
@@ -39,6 +41,31 @@ def stamp(payload: dict) -> None:
         **payload,
     }
     REPORT.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def prepare_semantic_homepage_source() -> int:
+    source = homepage.SOURCE
+    if not source.is_file():
+        raise RuntimeError(f"Homepage source is missing: {source}")
+
+    text = source.read_text(encoding="utf-8")
+    pattern = re.compile(r'<p class="item-title">([^<]+)</p>')
+    transformed, promoted = pattern.subn(r'<h3 class="item-title">\1</h3>', text)
+    total_h3 = len(re.findall(r'<h3\b', transformed))
+
+    if promoted < 11:
+        raise RuntimeError(
+            f"Expected at least 11 homepage card titles to promote, found {promoted}"
+        )
+    if total_h3 < 16:
+        raise RuntimeError(
+            f"Semantic homepage source still has fewer than 16 H3 headings: {total_h3}"
+        )
+
+    generated_source = homepage.SITE.parent / ".homepage-semantic-v323.html"
+    generated_source.write_text(transformed, encoding="utf-8")
+    homepage.SOURCE = generated_source
+    return promoted
 
 
 def execute(script: str, command: list[str]) -> None:
@@ -114,9 +141,11 @@ def verify_linked_sections() -> list[str]:
 
 
 def main() -> None:
+    global PROMOTED_HEADINGS
     homepage.run_publisher = traced_publisher
     stamp({"status": "starting", "last_started": None, "last_completed": None})
     try:
+        PROMOTED_HEADINGS = prepare_semantic_homepage_source()
         homepage.main()
         verified_sections = verify_linked_sections()
     except Exception as exc:
@@ -130,6 +159,7 @@ def main() -> None:
             "status": "failed",
             "last_started": current.get("last_started"),
             "last_completed": current.get("last_completed"),
+            "promoted_homepage_card_headings": PROMOTED_HEADINGS,
             "error_type": current.get("error_type", type(exc).__name__),
             "error": current.get("error", str(exc)),
             "traceback": current.get("traceback", traceback.format_exc()),
@@ -144,6 +174,7 @@ def main() -> None:
             "status": "passed",
             "last_started": None,
             "last_completed": "all",
+            "promoted_homepage_card_headings": PROMOTED_HEADINGS,
             "verified_linked_sections": verified_sections,
         }
     )
