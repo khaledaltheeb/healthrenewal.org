@@ -90,6 +90,10 @@ def migrate_consumers() -> list[str]:
             ('t["sources"]', 't["source_refs"]'),
             ("t['sources']", "t['source_refs']"),
         ],
+        "tests/test_family_guide_special_education_tools_v1.py": [
+            ('tool["sources"]', 'tool["source_refs"]'),
+            ("tool['sources']", "tool['source_refs']"),
+        ],
     }
     for relative, replacements in updates.items():
         path = ROOT / relative
@@ -121,6 +125,7 @@ def migrate_scope_gate() -> list[str]:
         '    "scripts/family_tools_v1_render.py",\n'
         '    "scripts/publish_family_guide_special_education_tools_v1.py",\n'
         '    "scripts/publish_women_youth_v406.py",\n'
+        '    "tests/test_family_guide_special_education_tools_v1.py",\n'
         '    "sitemap-family-main.xml",\n'
     )
     source = path.read_text(encoding="utf-8")
@@ -146,6 +151,10 @@ def validate() -> None:
 
     women_youth = json.loads((ROOT / "content/v406/women-youth-expansion-ar.json").read_text(encoding="utf-8"))
     assert all("source_refs" in item and "sources" not in item for item in women_youth["pages"])
+
+    family_test = (ROOT / "tests/test_family_guide_special_education_tools_v1.py").read_text(encoding="utf-8")
+    assert 'tool["source_refs"]' in family_test
+    assert 'tool["sources"]' not in family_test
 
 
 def main() -> None:
