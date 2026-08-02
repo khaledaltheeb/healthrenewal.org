@@ -256,6 +256,7 @@ def write_offline_page() -> Path:
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>الاتصال غير متاح | HealthRenewal</title>
 <meta name="description" content="صفحة احتياطية تظهر عند تعذر الاتصال بالإنترنت.">
+<link rel="canonical" href="https://healthrenewal.org/offline/">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/assets/brand/pwa-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="/assets/brand/pwa-192.png" sizes="192x192">

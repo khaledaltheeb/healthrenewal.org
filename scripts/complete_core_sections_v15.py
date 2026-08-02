@@ -25,6 +25,33 @@ SOURCES = [
     ("UNICEF Parenting — الحوار مع الطفل حول الصحة النفسية", "https://www.unicef.org/parenting/mental-health/how-to-talk-to-kids-mental-health"),
 ]
 
+CURRENT_PUBLIC_TREES = (
+    Path("special-needs/guides"),
+    Path("special-needs/practical"),
+)
+
+
+def restore_current_public_trees() -> int:
+    copied = 0
+    for relative in CURRENT_PUBLIC_TREES:
+        source = ROOT / relative
+        if not source.is_dir():
+            continue
+        target = SITE / relative
+        before = (
+            {path.relative_to(target).as_posix() for path in target.rglob("*") if path.is_file()}
+            if target.is_dir()
+            else set()
+        )
+        shutil.copytree(source, target, dirs_exist_ok=True)
+        after = {
+            path.relative_to(target).as_posix()
+            for path in target.rglob("*")
+            if path.is_file()
+        }
+        copied += len(after - before)
+    return copied
+
 
 def esc(value: object) -> str:
     return html.escape(str(value), quote=True)
@@ -126,6 +153,7 @@ def main() -> None:
         raise SystemExit({"invalid_evidence_literacy_v322": evidence})
     if evidence.get("guide_count") != 4 or int(evidence.get("minimum_guide_words", 0)) < 900:
         raise SystemExit({"insufficient_evidence_literacy_v322": evidence})
+    restored_public_files = restore_current_public_trees()
     sw = SITE / "sw.js"
     if sw.exists(): sw.write_text(sw.read_text(encoding="utf-8").replace("pterminology-v14-performance", "pterminology-v15-core-sections"), encoding="utf-8")
     report = {
@@ -140,6 +168,7 @@ def main() -> None:
         "evidence_literacy_guides": evidence["guide_count"],
         "evidence_literacy_minimum_words": evidence["minimum_guide_words"],
         "evidence_literacy_sources": evidence["source_count"],
+        "restored_current_public_files": restored_public_files,
     }
     api = SITE / "api"; api.mkdir(exist_ok=True); (api / "core-sections-v15.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))

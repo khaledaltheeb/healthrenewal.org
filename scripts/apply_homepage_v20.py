@@ -368,6 +368,7 @@ def main() -> None:
     register_sitemap("sitemap-accessible-arabic-content.xml")
     run_publisher("publish_daily_tools_v24.py")
     publish_api_sitemap()
+    run_publisher("normalize_internal_base_paths_v198.py")
     run_publisher("enhance_sitewide_seo_v216.py")
     run_publisher("publish_content_catalog_v219.py")
     run_publisher("verify_sitewide_seo_v216.py")

@@ -347,7 +347,7 @@ def update_sitemap(site: Path, routes: list[str]) -> None:
         return
     tree = ET.parse(index_path)
     index_root = tree.getroot()
-    target = f"{BASE}/{sitemap_name}"
+    target = f"{BASE}{sitemap_name}"
     existing = [(node.text or "").strip() for node in index_root.findall("{*}sitemap/{*}loc")]
     if target not in existing:
         node = ET.SubElement(index_root, "sitemap")

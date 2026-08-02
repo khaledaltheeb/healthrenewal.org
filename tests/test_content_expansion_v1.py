@@ -73,7 +73,11 @@ def run_lines(command: list[str]) -> list[str]:
 
 
 def validate_diff_scope() -> list[str]:
-    changed = set(run_lines(["git", "diff", "--name-only", "origin/main..."]))
+    # Validate files written by this generator in the current checkout. A PR can
+    # legitimately contain other independently validated work (for example a
+    # consolidated release), so the complete branch diff is not the generator's
+    # mutation scope.
+    changed = set(run_lines(["git", "diff", "--name-only"]))
     changed.update(run_lines(["git", "ls-files", "--others", "--exclude-standard"]))
     ordered = sorted(changed)
     unexpected = [

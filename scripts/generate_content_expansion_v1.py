@@ -309,7 +309,7 @@ def main() -> None:
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(render_hub(
             title,
-            f"مركز يضم {len(sector_pages)} صفحة عربية منهجية طويلة مع التطبيق والقياس والسلامة والمراجع.",
+            f"مركز يضم {len(sector_pages)} صفحة عربية منهجية طويلة تربط الاحتياجات اليومية بالأدلة والتطبيق والقياس والسلامة والمراجع الرسمية وخطوات المتابعة واتخاذ القرار.",
             f"{BASE}/{Path(base).as_posix()}/",
             cards,
         ), encoding="utf-8")

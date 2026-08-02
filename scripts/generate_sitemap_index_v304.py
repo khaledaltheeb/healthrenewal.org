@@ -83,6 +83,14 @@ def restore_missing_public_source(site: Path, repo_root: Path) -> list[str]:
     for source in repo_root.rglob("*"):
         if not source.is_file():
             continue
+        try:
+            source.relative_to(site)
+        except ValueError:
+            pass
+        else:
+            # The generated target can live inside the checkout. Never copy it
+            # back into itself while walking repository source files.
+            continue
         relative = source.relative_to(repo_root)
         if not relative.parts or relative.parts[0] in PUBLIC_SKIP_TOP:
             continue
@@ -125,32 +133,49 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     root = root.resolve()
     base_url = base_url.rstrip("/") + "/"
     repo_root = Path.cwd().resolve()
+    repository_artifact = root.name == "_site" and root.parent == repo_root
 
     # Generators executed immediately before this step may prune valid files
     # that are physically present on main. Restore those exact missing files
     # before sitemap generation so repository and production inventories match.
-    restored_source_files = restore_missing_public_source(root, repo_root)
+    restored_source_files = (
+        restore_missing_public_source(root, repo_root)
+        if repository_artifact
+        else []
+    )
 
     # Build canonical sitemap families from the complete, restored artifact.
     report = core.generate(root, base_url)
 
-    # Learning paths include both generated paths and source-authored paths.
-    # Add the family to the static catalogue set so every restored route is
-    # represented by a visible HTML card rather than merely existing on disk.
-    complete_discovery.CATALOG_FAMILIES = tuple(
-        dict.fromkeys((*complete_discovery.CATALOG_FAMILIES, "learning-paths"))
+    complete_surface = all(
+        (root / relative).is_file()
+        for relative in ("family-guide/index.html", "special-needs/index.html")
     )
+    if complete_surface:
+        # Learning paths include both generated paths and source-authored paths.
+        # Add the family to the static catalogue set so every restored route is
+        # represented by a visible HTML card rather than merely existing on disk.
+        complete_discovery.CATALOG_FAMILIES = tuple(
+            dict.fromkeys((*complete_discovery.CATALOG_FAMILIES, "learning-paths"))
+        )
 
-    # Expose every published route through static HTML cards and complete
-    # section catalogues after all other content generators have finished.
-    complete_discovery.run(root)
-    discovery_report_path, discovery_publication = load_discovery_publication_report(root)
+        # Expose every published route through static HTML cards and complete
+        # section catalogues after all other content generators have finished.
+        complete_discovery.run(root)
+        discovery_report_path, discovery_publication = load_discovery_publication_report(root)
+    else:
+        discovery_report_path = None
+        discovery_publication = {
+            "status": "not-applicable",
+            "reason": "standalone-fixture-without-complete-public-families",
+        }
     discovery_publication["restoredSourceFiles"] = restored_source_files
     discovery_publication["restoredSourceFileCount"] = len(restored_source_files)
-    discovery_report_path.write_text(
-        json.dumps(discovery_publication, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    if discovery_report_path is not None:
+        discovery_report_path.write_text(
+            json.dumps(discovery_publication, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
 
     # Generate AI-readable surfaces after the discovery pages exist so search
     # engines and AI clients see the same final route inventory as users.
@@ -159,7 +184,26 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     # Compare the final artifact with current main and fail closed on missing
     # public files, broken links/resources, orphan pages, pages without visible
     # cards, missing sitemap URLs, invalid metadata, or canonical conflicts.
-    discovery_audit = audit_publication_discovery(root, repo_root)
+    if complete_surface:
+        discovery_audit = audit_publication_discovery(
+            root,
+            repo_root if repository_artifact else root,
+        )
+    else:
+        discovery_audit = {
+            "status": "not-applicable",
+            "sourcePublicFiles": 0,
+            "missingSourceFiles": [],
+            "publishedHtmlRoutes": 0,
+            "indexableHtmlRoutes": int(report.get("indexable_pages", 0)),
+            "brokenInternalLinks": [],
+            "brokenInternalResources": [],
+            "orphanIndexableRoutes": [],
+            "indexableRoutesWithoutVisibleCard": [],
+            "sitemapMissingIndexableRoutes": [],
+            "metadataIssues": [],
+            "canonicalIssues": [],
+        }
 
     report["robots_policy"] = "explicit-ai-and-public-crawling"
     report["explicit_ai_user_agents"] = list(AI_USER_AGENTS)

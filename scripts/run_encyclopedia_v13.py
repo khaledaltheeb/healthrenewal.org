@@ -129,6 +129,19 @@ guide_module = importlib.util.module_from_spec(guide_spec)
 guide_spec.loader.exec_module(guide_module)
 guide_report = guide_module.publish(module.SITE)
 
+# Earlier build generations can still carry the retired GitHub Pages origin in
+# sitemap indexes. Normalize the assembled site before the integrity audit so
+# every workflow validates the production origin, not an intermediate artifact.
+NORMALIZER_SOURCE = Path(__file__).with_name("normalize_internal_base_paths_v198.py")
+normalizer_spec = importlib.util.spec_from_file_location("internal_base_paths_v198", NORMALIZER_SOURCE)
+if normalizer_spec is None or normalizer_spec.loader is None:
+    raise SystemExit("Unable to load internal base-path normalizer")
+normalizer_module = importlib.util.module_from_spec(normalizer_spec)
+normalizer_spec.loader.exec_module(normalizer_module)
+normalizer_report = normalizer_module.normalize_site(module.SITE)
+if normalizer_report.get("status") != "passed":
+    raise SystemExit({"internal_base_path_normalization_failed": normalizer_report})
+
 AUDIT_SOURCE = Path(__file__).with_name("audit_site_integrity_v13.py")
 audit_spec = importlib.util.spec_from_file_location("site_integrity_v13", AUDIT_SOURCE)
 if audit_spec is None or audit_spec.loader is None:
@@ -145,6 +158,7 @@ print(json.dumps({
     "topic_hubs": topic_report,
     "hubs_sitemap": sitemap_report,
     "adjustment_disorder": guide_report,
+    "internal_base_paths": normalizer_report,
     "integrity_audit_exit": audit_result,
     "encyclopedia_audit": audit_report,
 }, ensure_ascii=False, indent=2))

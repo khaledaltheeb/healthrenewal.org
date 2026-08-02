@@ -19,7 +19,7 @@ RESET_HTML = ROOT / "specialists-partners/password-reset/index.html"
 RESET_SCRIPT = ROOT / "specialists-partners/password-reset/reset-v10.js"
 VALIDATE = ROOT / ".github/workflows/deploy-specialist-identity-v10.yml"
 DEPLOY = ROOT / ".github/workflows/deploy-specialist-identity-v10-production.yml"
-PAGES = ROOT / ".github/workflows/deploy-specialist-recovery-pages-v8.yml"
+PAGES = ROOT / ".github/workflows/deploy-complete-pages-with-ai-search.yml"
 LEGACY_V6 = ROOT / ".github/workflows/deploy-specialists-account-backend.yml"
 LEGACY_V8 = ROOT / ".github/workflows/deploy-specialist-recovery-overlay-v8.yml"
 LEGACY_DELIVERY = ROOT / ".github/workflows/verify-specialist-recovery-v8.yml"
@@ -220,14 +220,12 @@ class SpecialistIdentityV10Tests(unittest.TestCase):
             "specialists-partners/password-reset/index.html",
             "specialists-partners/password-reset/reset-v10.js",
         ):
-            self.assertIn(path, pages)
-        self.assertIn("Patch complete specialist identity interface", pages)
-        self.assertIn("Verify live specialist identity interface", pages)
-        self.assertIn("specialist-identity-v10-pages.json", pages)
-        self.assertIn("admin-provider-status-v10.js?v=10.3.0", pages)
-        self.assertIn("recover.js?v=10.3.0", pages)
-        self.assertIn("reset-v10.js?v=10.3.0", pages)
-        self.assertIn("recovery_dual_endpoint_csp", pages)
+            self.assertTrue((ROOT / path).is_file(), path)
+        self.assertIn("Overlay current public source without deleting generated pages", pages)
+        self.assertIn('skip_parts = {"account-backend", "backend", "migrations"}', pages)
+        self.assertIn("Normalize canonical origin", pages)
+        self.assertIn("actions/upload-pages-artifact@v4", pages)
+        self.assertIn("path: _site", pages)
 
     def test_legacy_workflows_are_validation_only_and_never_issue_links(self):
         for path in (LEGACY_V6, LEGACY_V8):
