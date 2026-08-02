@@ -10,7 +10,7 @@ def schema(tool: dict, source_map: dict) -> str:
         {"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}}
         for q, a in faq_pairs(tool)
     ]
-    citations = [source_map[s]["url"] for s in tool["sources"]]
+    citations = [source_map[s]["url"] for s in tool["source_refs"]]
     payload = {
       "@context":"https://schema.org",
       "@graph":[
@@ -54,7 +54,7 @@ def page(tool: dict, source_map: dict, all_tools: list[dict]) -> str:
     faq_html = "\n".join(f"<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>" for q, a in faq_pairs(tool))
     sources_html = "\n".join(
       f'<article class="source-card"><a href="{esc(source_map[s]["url"])}" rel="noopener noreferrer">{esc(source_map[s]["title"])}</a><p>{esc(source_map[s]["publisher"])}</p></article>'
-      for s in tool["sources"]
+      for s in tool["source_refs"]
     )
     related_candidates = [x for x in all_tools if x["slug"] != tool["slug"]]
     related_candidates.sort(key=lambda x: (x["category"] != tool["category"], x["title"]))

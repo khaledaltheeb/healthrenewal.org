@@ -132,7 +132,7 @@ def validate_catalog(catalog: dict[str, Any]) -> None:
             raise ValueError(f"Unknown profile: {item['profile']}")
         if len(item.get("domains", [])) < 5 or len(item.get("metrics", [])) < 4:
             raise ValueError(f"Insufficient topic detail: {item['slug']}")
-        source_ids = item.get("sources", [])
+        source_ids = item.get("source_refs", [])
         if len(source_ids) < 3 or any(source_id not in SOURCES for source_id in source_ids):
             raise ValueError(f"Invalid sources: {item['slug']}")
 
@@ -162,7 +162,7 @@ def render_page(item: dict[str, Any]) -> str:
     description = f"دليل عربي موسع حول {title}: تقييم وظيفي، خطوات تطبيق، مؤشرات قرار، سلامة وإحالة اعتمادًا على مراجع دولية رسمية."
     audience = AUDIENCES[section]
     domains, steps, metrics = item["domains"], PROFILE_STEPS[profile], item["metrics"]
-    sources = [SOURCES[source_id] for source_id in item["sources"]]
+    sources = [SOURCES[source_id] for source_id in item["source_refs"]]
     domain_cards = "".join(f'<article class="card"><h3>{index}. {esc(domain)}</h3><p>في موضوع «{esc(title)}»، اجمع مثالًا على النجاح وآخر على التعثر في مجال {esc(domain)}. افصل بين قدرة الشخص ومتطلبات {esc(context)}، وسجل الحاجز والميسر ونوع المساعدة ورأي المرأة أو الشاب. لا تحول الملاحظة إلى صفة ثابتة؛ الهدف هو معرفة ما يمكن تغييره لتحقيق «{esc(purpose)}» بأقل تدخل لازم.</p></article>' for index, domain in enumerate(domains, 1))
     step_cards = "".join(f'<article class="card"><h3>الخطوة {index}</h3><p><strong>{esc(step)}.</strong> طبّق هذه الخطوة في موقف محدد من {esc(context)}، وحدد من ينفذها ومتى وما علامة النجاح والتوقف. اربطها مباشرة بهدف الصفحة، ولا تجمع معلومات لا تغير قرارًا أو لا تعود بفائدة على الشخص.</p></article>' for index, step in enumerate(steps, 1))
     role_cards = "".join(f'<article class="card"><h3>{index}. دور واضح</h3><p>{esc(role)}. يجب توثيق حدود الدور وطريقة التواصل وموعد المراجعة حتى لا يتحول التنسيق إلى نقل مسؤولية أو مراقبة زائدة.</p></article>' for index, role in enumerate(ROLE_MAP[section], 1))

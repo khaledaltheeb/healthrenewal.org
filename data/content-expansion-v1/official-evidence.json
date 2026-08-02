@@ -1,30 +1,11 @@
 {
-  "sources": {
-    "icf": {"title": "WHO — International Classification of Functioning, Disability and Health (ICF)", "url": "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health"},
-    "crpd": {"title": "OHCHR — Convention on the Rights of Persons with Disabilities", "url": "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"},
-    "who_inclusive_health": {"title": "WHO — Disability-inclusive health services toolkit", "url": "https://www.who.int/publications/i/item/9789290618928"},
-    "nice_epilepsy": {"title": "NICE NG217 — Epilepsies in children, young people and adults", "url": "https://www.nice.org.uk/guidance/ng217"},
-    "nice_transition": {"title": "NICE NG43 — Transition from children’s to adults’ services", "url": "https://www.nice.org.uk/guidance/ng43"},
-    "nice_medicines": {"title": "NICE NG5 — Medicines optimisation", "url": "https://www.nice.org.uk/guidance/ng5"},
-    "nice_pain": {"title": "NICE NG193 — Chronic pain assessment and management", "url": "https://www.nice.org.uk/guidance/ng193"},
-    "nice_behavior": {"title": "NICE NG11 — Challenging behaviour and learning disabilities", "url": "https://www.nice.org.uk/guidance/ng11"},
-    "asha_aac": {"title": "ASHA Practice Portal — Augmentative and Alternative Communication", "url": "https://www.asha.org/practice-portal/professional-issues/augmentative-and-alternative-communication/"},
-    "asha_pediatric_feeding": {"title": "ASHA Practice Portal — Pediatric Feeding and Swallowing", "url": "https://www.asha.org/practice-portal/clinical-topics/pediatric-feeding-and-swallowing/"},
-    "asha_adult_dysphagia": {"title": "ASHA Practice Portal — Adult Dysphagia", "url": "https://www.asha.org/practice-portal/clinical-topics/adult-dysphagia/"},
-    "asha_hearing": {"title": "ASHA Practice Portal — Hearing Loss in Children", "url": "https://www.asha.org/practice-portal/clinical-topics/hearing-loss-in-children/"},
-    "who_wheelchair": {"title": "WHO — Wheelchair provision guidelines", "url": "https://www.who.int/publications/i/item/9789240074521/"},
-    "who_assistive": {"title": "WHO and UNICEF — Global report on assistive technology", "url": "https://www.who.int/publications/i/item/9789240049451"},
-    "wcag22": {"title": "W3C — Web Content Accessibility Guidelines (WCAG) 2.2", "url": "https://www.w3.org/TR/WCAG22/"},
-    "cast_udl": {"title": "CAST — Universal Design for Learning Guidelines 3.0", "url": "https://udlguidelines.cast.org/"},
-    "unicef_inclusive_education": {"title": "UNICEF — Inclusive education", "url": "https://www.unicef.org/education/inclusive-education"},
-    "who_cst": {"title": "WHO — Caregiver Skills Training", "url": "https://www.who.int/publications/i/item/9789240048836"},
-    "who_rehabilitation": {"title": "WHO — Rehabilitation 2030", "url": "https://www.who.int/initiatives/rehabilitation-2030"}
-  },
   "profiles": [
     {
       "id": "epilepsy-safety",
-      "match": ["epilepsy", "seizure"],
-      "sources": ["nice_epilepsy", "who_inclusive_health"],
+      "match": [
+        "epilepsy",
+        "seizure"
+      ],
       "principles": [
         "النوبة المشتبه بها لأول مرة تحتاج تقييمًا متخصصًا عاجلًا؛ وصف الحدث والفيديو الآمن إن توفر يساعدان، ولا يكفي الانطباع وحده.",
         "تُفرق خطة السلامة بين الإسعاف الأولي المعتاد، تعليمات دواء الإنقاذ الموصوفة للشخص، ومعايير طلب الطوارئ المحلية.",
@@ -37,13 +18,30 @@
         "تدريب الأسرة والمدرسة على حماية الرأس وإبعاد الخطر وعدم تقييد الحركة أو وضع شيء في الفم.",
         "مراجعة الخطة بعد كل حدث غير معتاد أو تغير في النمط أو العلاج."
       ],
-      "measures": ["اكتمال سجل الأحداث", "زمن الوصول للمساعدة المناسبة", "اتساق تنفيذ الخطة بين البيئات", "عدد الأخطاء أو التدخلات غير الآمنة"],
-      "boundaries": ["تغير النمط أو نوبة مطولة أو صعوبة تنفس أو إصابة شديدة يستدعي المسار العاجل المحدد محليًا.", "الصفحة لا تختار دواءً ولا جرعة ولا تشخّص نوع النوبة."]
+      "measures": [
+        "اكتمال سجل الأحداث",
+        "زمن الوصول للمساعدة المناسبة",
+        "اتساق تنفيذ الخطة بين البيئات",
+        "عدد الأخطاء أو التدخلات غير الآمنة"
+      ],
+      "boundaries": [
+        "تغير النمط أو نوبة مطولة أو صعوبة تنفس أو إصابة شديدة يستدعي المسار العاجل المحدد محليًا.",
+        "الصفحة لا تختار دواءً ولا جرعة ولا تشخّص نوع النوبة."
+      ],
+      "source_refs": [
+        "nice_epilepsy",
+        "who_inclusive_health"
+      ]
     },
     {
       "id": "feeding-swallowing",
-      "match": ["feeding", "eating", "mealtime", "swallow", "dysphagia"],
-      "sources": ["asha_pediatric_feeding", "asha_adult_dysphagia", "who_inclusive_health"],
+      "match": [
+        "feeding",
+        "eating",
+        "mealtime",
+        "swallow",
+        "dysphagia"
+      ],
       "principles": [
         "التغذية تشمل مهارات الأكل والسلوك والخبرة الحسية والتفاعل، بينما البلع يتعلق بسلامة انتقال الطعام والسوائل؛ قد يجتمعان لكنهما ليسا الشيء نفسه.",
         "الأولوية هي السلامة وكفاية التغذية والسوائل وجودة الحياة، ضمن تقييم متعدد التخصصات يراعي الشخص والأسرة والسياق.",
@@ -56,13 +54,27 @@
         "طلب تقييم نطق وبلع وتغذية وطب عند وجود مؤشرات خطر، مع مشاركة تفضيلات الشخص والأسرة.",
         "وضع تعليمات مكتوبة ومتطابقة للمنزل والمدرسة ومقدمي الرعاية، ومراجعتها بعد أي تغير صحي."
       ],
-      "measures": ["علامات السعال أو الاختناق", "كفاية السوائل والتغذية", "زمن الوجبة والتعب", "المشاركة والاستقلال والرضا"],
-      "boundaries": ["الاختناق أو صعوبة التنفس حالة طارئة.", "لا توصي الصفحة بقوام أو سماكة أو مناورة بلع لشخص بعينه."]
+      "measures": [
+        "علامات السعال أو الاختناق",
+        "كفاية السوائل والتغذية",
+        "زمن الوجبة والتعب",
+        "المشاركة والاستقلال والرضا"
+      ],
+      "boundaries": [
+        "الاختناق أو صعوبة التنفس حالة طارئة.",
+        "لا توصي الصفحة بقوام أو سماكة أو مناورة بلع لشخص بعينه."
+      ],
+      "source_refs": [
+        "asha_pediatric_feeding",
+        "asha_adult_dysphagia",
+        "who_inclusive_health"
+      ]
     },
     {
       "id": "pain-recognition",
-      "match": ["pain"],
-      "sources": ["nice_pain", "who_inclusive_health", "icf"],
+      "match": [
+        "pain"
+      ],
       "principles": [
         "ألم الشخص معتبر حتى عندما لا يستطيع وصفه بالكلام، ويُفسر التغير مقارنة بخط أساسه لا وفق سلوك واحد منفرد.",
         "قد يظهر الألم كتغير في النوم أو الحركة أو الأكل أو المزاج أو المشاركة أو الحماية الجسدية، لكن هذه العلامات غير نوعية وتحتاج فحص الأسباب.",
@@ -75,13 +87,28 @@
         "إتاحة وسيلة اختيار أو رفض أو تحديد مكان الألم بالصور أو الإشارة أو الجهاز.",
         "طلب تقييم طبي أو سني مناسب عند تغير حاد أو مستمر، ثم متابعة الاستجابة للخطة."
       ],
-      "measures": ["العودة إلى النشاط المعتاد", "تحسن النوم أو الأكل", "انخفاض مؤشرات الضيق", "قدرة الشخص على التعبير عن الراحة أو الألم"],
-      "boundaries": ["الألم الحاد مع تغير وعي أو تنفس أو إصابة أو ضعف جديد يحتاج تقييمًا عاجلًا.", "لا يُستخدم مقياس سلوكي منفرد لتحديد السبب أو العلاج."]
+      "measures": [
+        "العودة إلى النشاط المعتاد",
+        "تحسن النوم أو الأكل",
+        "انخفاض مؤشرات الضيق",
+        "قدرة الشخص على التعبير عن الراحة أو الألم"
+      ],
+      "boundaries": [
+        "الألم الحاد مع تغير وعي أو تنفس أو إصابة أو ضعف جديد يحتاج تقييمًا عاجلًا.",
+        "لا يُستخدم مقياس سلوكي منفرد لتحديد السبب أو العلاج."
+      ],
+      "source_refs": [
+        "nice_pain",
+        "who_inclusive_health",
+        "icf"
+      ]
     },
     {
       "id": "medicines-review",
-      "match": ["medication", "medicine"],
-      "sources": ["nice_medicines", "who_inclusive_health"],
+      "match": [
+        "medication",
+        "medicine"
+      ],
       "principles": [
         "تحسين استخدام الدواء يبدأ بمطابقة القائمة الفعلية مع الوصفات وتحديد سبب كل دواء والنتيجة المطلوبة.",
         "المراجعة تشمل الفائدة والآثار الجانبية والتداخلات والالتزام وقدرة الشخص على الفهم أو الإدارة والدعم المتاح.",
@@ -94,13 +121,34 @@
         "تسجيل الآثار الجديدة وتوقيت ظهورها بدل تغيير عدة أدوية في وقت واحد.",
         "تحديث القائمة بعد كل خروج من مستشفى أو تغير مقدم خدمة وإعطاء نسخة مفهومة للشخص."
       ],
-      "measures": ["دقة قائمة الأدوية", "وضوح الهدف والمتابعة", "الأخطاء أو الجرعات الفائتة", "الفائدة والآثار الجانبية المبلغ عنها"],
-      "boundaries": ["لا توقف أو تعدل أي دواء دون الواصف.", "الأعراض الشديدة أو التحسس أو التسمم المحتمل تستلزم مساعدة عاجلة."]
+      "measures": [
+        "دقة قائمة الأدوية",
+        "وضوح الهدف والمتابعة",
+        "الأخطاء أو الجرعات الفائتة",
+        "الفائدة والآثار الجانبية المبلغ عنها"
+      ],
+      "boundaries": [
+        "لا توقف أو تعدل أي دواء دون الواصف.",
+        "الأعراض الشديدة أو التحسس أو التسمم المحتمل تستلزم مساعدة عاجلة."
+      ],
+      "source_refs": [
+        "nice_medicines",
+        "who_inclusive_health"
+      ]
     },
     {
       "id": "transition-services",
-      "match": ["transition", "adult", "higher-education", "vocational", "employment", "independent-living", "supported-living", "aging", "financial-capacity"],
-      "sources": ["nice_transition", "crpd", "who_rehabilitation"],
+      "match": [
+        "transition",
+        "adult",
+        "higher-education",
+        "vocational",
+        "employment",
+        "independent-living",
+        "supported-living",
+        "aging",
+        "financial-capacity"
+      ],
       "principles": [
         "الانتقال عملية مخططة قبل النقل وأثناءه وبعده، وليس موعد إحالة منفردًا.",
         "تكون الخطة متمحورة حول الشاب وقائمة على نقاط القوة، وتشمل الصحة والتعليم والعمل والسكن والمشاركة والعلاقات والدعم الأسري.",
@@ -113,13 +161,31 @@
         "تجربة مهارات القرار والتنقل والمواعيد والمال أو العمل في سياقات حقيقية مع دعم متدرج.",
         "متابعة الحضور والاستمرارية بعد النقل ووضع مسار بديل إذا لم تقبل الخدمة أو انقطع التواصل."
       ],
-      "measures": ["وجود منسق وخطة مكتوبة", "اكتمال النقل دون فجوة", "مشاركة الشاب في القرارات", "تحقق أهداف الحياة لا الإحالات فقط"],
-      "boundaries": ["القوانين والأعمار والأهلية تختلف محليًا ويجب التحقق منها.", "لا يعني عدم أهلية خدمة محددة انتهاء مسؤولية التخطيط للبدائل."]
+      "measures": [
+        "وجود منسق وخطة مكتوبة",
+        "اكتمال النقل دون فجوة",
+        "مشاركة الشاب في القرارات",
+        "تحقق أهداف الحياة لا الإحالات فقط"
+      ],
+      "boundaries": [
+        "القوانين والأعمار والأهلية تختلف محليًا ويجب التحقق منها.",
+        "لا يعني عدم أهلية خدمة محددة انتهاء مسؤولية التخطيط للبدائل."
+      ],
+      "source_refs": [
+        "nice_transition",
+        "crpd",
+        "who_rehabilitation"
+      ]
     },
     {
       "id": "wheelchair-mobility",
-      "match": ["wheelchair", "mobility", "positioning", "pressure-injury", "falls-risk"],
-      "sources": ["who_wheelchair", "who_assistive", "icf"],
+      "match": [
+        "wheelchair",
+        "mobility",
+        "positioning",
+        "pressure-injury",
+        "falls-risk"
+      ],
       "principles": [
         "أفضل نتائج الكرسي المتحرك ترتبط بعملية فردية تشمل التقييم والاختيار والملاءمة والتدريب والمتابعة بواسطة أفراد مدربين.",
         "لا يوجد نموذج أو مقاس واحد يناسب الجميع؛ تُراجع احتياجات الجلوس والدفع والنقل والبيئة والجلد والأنشطة والأهداف.",
@@ -132,13 +198,29 @@
         "تدريب المستخدم والداعم على التشغيل والنقل والعناية بالجلد والصيانة الأساسية وخطة الأعطال.",
         "تحديد موعد متابعة بعد التسليم وعند النمو أو الألم أو تغير الوظيفة أو تلف الجهاز."
       ],
-      "measures": ["الجلوس المريح والآمن", "الوصول للأنشطة", "سلامة الجلد", "الأعطال وزمن إصلاحها"],
-      "boundaries": ["الألم أو تغير الجلد أو السقوط المتكرر يحتاج مراجعة مهنية.", "الصفحة لا تحدد مقاسًا أو وسادة أو وضعية لشخص بعينه."]
+      "measures": [
+        "الجلوس المريح والآمن",
+        "الوصول للأنشطة",
+        "سلامة الجلد",
+        "الأعطال وزمن إصلاحها"
+      ],
+      "boundaries": [
+        "الألم أو تغير الجلد أو السقوط المتكرر يحتاج مراجعة مهنية.",
+        "الصفحة لا تحدد مقاسًا أو وسادة أو وضعية لشخص بعينه."
+      ],
+      "source_refs": [
+        "who_wheelchair",
+        "who_assistive",
+        "icf"
+      ]
     },
     {
       "id": "aac-communication",
-      "match": ["aac", "communication", "easy-read"],
-      "sources": ["asha_aac", "crpd", "icf"],
+      "match": [
+        "aac",
+        "communication",
+        "easy-read"
+      ],
       "principles": [
         "التواصل حق ووظيفة يومية؛ لا يُشترط عمر أو مهارة كلام أو مستوى معرفي مسبق للسماح بتقييم AAC.",
         "التقييم ديناميكي ويشمل الشخص واللغة والحواس والحركة والشركاء والبيئات والمهام، وقد يجمع الكلام والإشارة والصور والكتابة والجهاز.",
@@ -151,13 +233,29 @@
         "تدريب الشركاء على الانتظار والنمذجة واحترام كل المحاولات وعدم اختبار الشخص باستمرار.",
         "وضع نسخة احتياطية وخطة شحن وصيانة ونقل البيانات والخصوصية."
       ],
-      "measures": ["عدد الرسائل المستقلة", "تنوع وظائف التواصل", "استخدام النظام عبر البيئات", "قدرة الشخص على الرفض وطلب المساعدة"],
-      "boundaries": ["صعوبة استخدام جهاز واحد لا تعني عدم أهلية AAC.", "لا يُجبر الشخص على التواصل البصري أو الكلام قبل إتاحة وسيلة فعالة."]
+      "measures": [
+        "عدد الرسائل المستقلة",
+        "تنوع وظائف التواصل",
+        "استخدام النظام عبر البيئات",
+        "قدرة الشخص على الرفض وطلب المساعدة"
+      ],
+      "boundaries": [
+        "صعوبة استخدام جهاز واحد لا تعني عدم أهلية AAC.",
+        "لا يُجبر الشخص على التواصل البصري أو الكلام قبل إتاحة وسيلة فعالة."
+      ],
+      "source_refs": [
+        "asha_aac",
+        "crpd",
+        "icf"
+      ]
     },
     {
       "id": "digital-accessibility",
-      "match": ["digital-accessibility", "smart-home", "accessible-information"],
-      "sources": ["wcag22", "crpd", "who_assistive"],
+      "match": [
+        "digital-accessibility",
+        "smart-home",
+        "accessible-information"
+      ],
       "principles": [
         "الإتاحة الرقمية تُراجع وفق قابلية الإدراك والتشغيل والفهم والمتانة، مع اختبار بشري وتقني لا فحص آلي وحده.",
         "ينبغي أن تعمل الوظائف بلوحة المفاتيح، وأن تحتفظ الصفحة بالمعلومات عند التكبير وإعادة التدفق، وأن تُعرّف اللغة والأسماء والأدوار برمجيًا.",
@@ -170,13 +268,37 @@
         "إشراك مستخدمين ذوي احتياجات مختلفة في اختبار مهام حقيقية.",
         "تسجيل العائق وأثره ومعيار النجاح والمسؤول وموعد الإصلاح وإعادة الاختبار."
       ],
-      "measures": ["إتمام المهمة دون مساعدة", "عدد العوائق الحرجة", "زمن المهمة والأخطاء", "نجاح الاختبار مع تقنيات مساعدة مختلفة"],
-      "boundaries": ["مطابقة معيار تقني لا تضمن ملاءمة كل مستخدم.", "الأنظمة المنزلية أو الصحية تحتاج أيضًا مراجعة أمان وخصوصية وفشل آمن."]
+      "measures": [
+        "إتمام المهمة دون مساعدة",
+        "عدد العوائق الحرجة",
+        "زمن المهمة والأخطاء",
+        "نجاح الاختبار مع تقنيات مساعدة مختلفة"
+      ],
+      "boundaries": [
+        "مطابقة معيار تقني لا تضمن ملاءمة كل مستخدم.",
+        "الأنظمة المنزلية أو الصحية تحتاج أيضًا مراجعة أمان وخصوصية وفشل آمن."
+      ],
+      "source_refs": [
+        "wcag22",
+        "crpd",
+        "who_assistive"
+      ]
     },
     {
       "id": "inclusive-education-udl",
-      "match": ["education", "school", "classroom", "curriculum", "attendance", "peer-inclusion", "universal-design", "accommodation", "modification", "inclusion", "integration"],
-      "sources": ["cast_udl", "unicef_inclusive_education", "crpd"],
+      "match": [
+        "education",
+        "school",
+        "classroom",
+        "curriculum",
+        "attendance",
+        "peer-inclusion",
+        "universal-design",
+        "accommodation",
+        "modification",
+        "inclusion",
+        "integration"
+      ],
       "principles": [
         "التعليم الدامج يزيل العوائق في النظام والبيئة والمنهج والتقييم بدل وضع عبء التكيف كله على المتعلم.",
         "التصميم الشامل للتعلم يوفر خيارات متعددة للمشاركة وتمثيل المعلومات والفعل والتعبير مع أهداف تعليمية واضحة وتحد مناسب.",
@@ -189,13 +311,31 @@
         "جمع صوت الطالب والأسرة والمعلم ومقارنة الأداء عبر مواد ومواقف مختلفة.",
         "مراجعة أسباب الغياب أو العزلة أو السلوك من منظور البيئة والتواصل والصحة قبل العقوبة."
       ],
-      "measures": ["الوصول إلى الهدف التعليمي", "المشاركة والانتماء", "الحضور والاستمرار", "الاستقلال وطلب التيسير"],
-      "boundaries": ["لا ينبغي أن يؤدي التيسير إلى خفض توقعات التعلم تلقائيًا.", "المتطلبات القانونية والخطط الفردية تختلف حسب البلد والنظام."]
+      "measures": [
+        "الوصول إلى الهدف التعليمي",
+        "المشاركة والانتماء",
+        "الحضور والاستمرار",
+        "الاستقلال وطلب التيسير"
+      ],
+      "boundaries": [
+        "لا ينبغي أن يؤدي التيسير إلى خفض توقعات التعلم تلقائيًا.",
+        "المتطلبات القانونية والخطط الفردية تختلف حسب البلد والنظام."
+      ],
+      "source_refs": [
+        "cast_udl",
+        "unicef_inclusive_education",
+        "crpd"
+      ]
     },
     {
       "id": "behavior-support",
-      "match": ["behavior", "meltdown", "distress", "sensory-regulation", "sensory-environment"],
-      "sources": ["nice_behavior", "who_cst", "icf"],
+      "match": [
+        "behavior",
+        "meltdown",
+        "distress",
+        "sensory-regulation",
+        "sensory-environment"
+      ],
       "principles": [
         "السلوك الذي يسبب قلقًا يُفهم ضمن وظيفة وسياق، مع فحص الألم والصحة والنوم والتواصل والمتطلبات والعوامل الحسية والبيئية.",
         "التدخل الوقائي يغير المحفزات ويعلّم مهارة بديلة ويعزز المشاركة، ويستخدم أقل استجابة تقييدًا.",
@@ -208,13 +348,27 @@
         "تجربة تعديل بيئي وتعليم بديل وظيفي مع خطة استجابة هادئة ومتسقة.",
         "مراجعة البيانات والآثار غير المقصودة وإشراك الشخص والأسرة في القرار."
       ],
-      "measures": ["تحسن التواصل الوظيفي", "انخفاض الضيق والخطر", "زيادة المشاركة", "انخفاض التدخلات التقييدية"],
-      "boundaries": ["الخطر المباشر يحتاج خطة طوارئ وحماية مناسبة.", "لا تبرر الخطة الإذلال أو الألم أو الحرمان أو تقييدًا غير قانوني."]
+      "measures": [
+        "تحسن التواصل الوظيفي",
+        "انخفاض الضيق والخطر",
+        "زيادة المشاركة",
+        "انخفاض التدخلات التقييدية"
+      ],
+      "boundaries": [
+        "الخطر المباشر يحتاج خطة طوارئ وحماية مناسبة.",
+        "لا تبرر الخطة الإذلال أو الألم أو الحرمان أو تقييدًا غير قانوني."
+      ],
+      "source_refs": [
+        "nice_behavior",
+        "who_cst",
+        "icf"
+      ]
     },
     {
       "id": "hearing-access",
-      "match": ["hearing"],
-      "sources": ["asha_hearing", "who_inclusive_health", "crpd"],
+      "match": [
+        "hearing"
+      ],
       "principles": [
         "الأشخاص الصم وضعاف السمع مجموعة متنوعة في اللغة والهوية والتقنيات والتفضيلات، ويُسأل الشخص والأسرة عن طريقة التواصل المفضلة.",
         "تقييم السمع الشامل يسبق اختيار التقنية أو التيسير، وتُراجع اللغة والتواصل والوصول في المنزل والمدرسة والمجتمع.",
@@ -227,13 +381,33 @@
         "تحسين صوت الصف وإضاءة الوجه وإتاحة النص أو لغة الإشارة وفق الاحتياج.",
         "تدريب الشركاء على جذب الانتباه وتأكيد الفهم دون لوم الشخص."
       ],
-      "measures": ["الوصول للتعليمات والمحادثة", "المشاركة في الصف والمجتمع", "استخدام التيسيرات", "رضا الشخص عن طريقة التواصل"],
-      "boundaries": ["لا يُفترض أن جهازًا واحدًا يلبي كل البيئات.", "اختيارات اللغة والتقنية فردية ولا يحددها التشخيص وحده."]
+      "measures": [
+        "الوصول للتعليمات والمحادثة",
+        "المشاركة في الصف والمجتمع",
+        "استخدام التيسيرات",
+        "رضا الشخص عن طريقة التواصل"
+      ],
+      "boundaries": [
+        "لا يُفترض أن جهازًا واحدًا يلبي كل البيئات.",
+        "اختيارات اللغة والتقنية فردية ولا يحددها التشخيص وحده."
+      ],
+      "source_refs": [
+        "asha_hearing",
+        "who_inclusive_health",
+        "crpd"
+      ]
     },
     {
       "id": "health-access",
-      "match": ["health", "oral", "vision", "sleep", "appointment", "assessment", "service-quality"],
-      "sources": ["who_inclusive_health", "icf", "crpd"],
+      "match": [
+        "health",
+        "oral",
+        "vision",
+        "sleep",
+        "appointment",
+        "assessment",
+        "service-quality"
+      ],
       "principles": [
         "الحق في الصحة يشمل الوصول إلى المبنى والمعلومة والتواصل والموافقة والفحص والمتابعة بنفس جودة الخدمة.",
         "تُحدد التيسيرات مسبقًا مثل وقت أطول أو موعد هادئ أو شريك تواصل أو معلومات سهلة أو وضعية فحص بديلة.",
@@ -246,13 +420,30 @@
         "تسجيل الخطة والنتائج بلغة مفهومة وتحديد من يتابع ومتى.",
         "مراجعة العوائق التي حدثت وتحويلها إلى تحسين خدمة قابل للقياس."
       ],
-      "measures": ["إتمام الفحص المطلوب", "فهم الخطة والموافقة", "زمن الانتظار والتيسيرات", "استمرارية المتابعة"],
-      "boundaries": ["الأعراض الحادة تتبع مسار الطوارئ المحلي.", "الصفحة لا تشخّص أو تختار فحصًا أو علاجًا فرديًا."]
+      "measures": [
+        "إتمام الفحص المطلوب",
+        "فهم الخطة والموافقة",
+        "زمن الانتظار والتيسيرات",
+        "استمرارية المتابعة"
+      ],
+      "boundaries": [
+        "الأعراض الحادة تتبع مسار الطوارئ المحلي.",
+        "الصفحة لا تشخّص أو تختار فحصًا أو علاجًا فرديًا."
+      ],
+      "source_refs": [
+        "who_inclusive_health",
+        "icf",
+        "crpd"
+      ]
     },
     {
       "id": "assistive-technology-service",
-      "match": ["assistive-technology", "device-training", "device-trial", "smart-home"],
-      "sources": ["who_assistive", "who_wheelchair", "crpd"],
+      "match": [
+        "assistive-technology",
+        "device-training",
+        "device-trial",
+        "smart-home"
+      ],
       "principles": [
         "التقنية المساعدة خدمة ونتيجة وظيفية وليست شراء جهاز؛ تبدأ بهدف مهم للشخص وتقييم البيئة والقدرات والدعم.",
         "التجربة والمقارنة والتخصيص والتدريب والمتابعة والصيانة عناصر أساسية لتقليل هجر الأجهزة.",
@@ -265,13 +456,32 @@
         "وضع خطة تدريب للمستخدم والشركاء وخطة صيانة ونسخة احتياطية.",
         "مراجعة النتيجة بعد التسليم وإعادة التقييم عند التغير أو عدم الاستخدام."
       ],
-      "measures": ["استخدام فعلي مستمر", "تحسن النشاط والمشاركة", "الراحة والرضا", "الأعطال وزمن الدعم"],
-      "boundaries": ["المواصفات العامة لا تغني عن التقييم الفردي.", "التقنيات المتصلة تحتاج تقييم خصوصية وأمن وفشل آمن."]
+      "measures": [
+        "استخدام فعلي مستمر",
+        "تحسن النشاط والمشاركة",
+        "الراحة والرضا",
+        "الأعطال وزمن الدعم"
+      ],
+      "boundaries": [
+        "المواصفات العامة لا تغني عن التقييم الفردي.",
+        "التقنيات المتصلة تحتاج تقييم خصوصية وأمن وفشل آمن."
+      ],
+      "source_refs": [
+        "who_assistive",
+        "who_wheelchair",
+        "crpd"
+      ]
     },
     {
       "id": "safeguarding-rights",
-      "match": ["safeguarding", "abuse", "bullying", "sexuality", "emergency", "disaster"],
-      "sources": ["crpd", "who_inclusive_health", "unicef_inclusive_education"],
+      "match": [
+        "safeguarding",
+        "abuse",
+        "bullying",
+        "sexuality",
+        "emergency",
+        "disaster"
+      ],
       "principles": [
         "الحماية الفعالة تجمع الوقاية والإتاحة والتعليم وطريق الإبلاغ والاستجابة، ولا تعتمد على مطالبة الشخص بالدفاع عن نفسه وحده.",
         "تُقدّم معلومات عن الحدود والموافقة والخصوصية والعلاقات والسلامة بلغة وطريقة تواصل يمكن فهمها واستخدامها.",
@@ -284,13 +494,33 @@
         "إنشاء قناة إبلاغ ميسرة ومستقلة وخطة استجابة يعرفها الموظفون والأسرة.",
         "تسجيل الوقائع بدقة وإحالة الاشتباه إلى الجهة المختصة دون تحقيق غير مهني."
       ],
-      "measures": ["معرفة طرق الإبلاغ", "سرعة الاستجابة", "إغلاق العوائق البيئية", "شعور الشخص بالأمان والمشاركة"],
-      "boundaries": ["الخطر المباشر أو الاشتباه الجدي يتبع نظام الحماية والطوارئ المحلي فورًا.", "لا تعد الصفحة بديلًا عن التحقيق أو الدعم الطبي والقانوني المتخصص."]
+      "measures": [
+        "معرفة طرق الإبلاغ",
+        "سرعة الاستجابة",
+        "إغلاق العوائق البيئية",
+        "شعور الشخص بالأمان والمشاركة"
+      ],
+      "boundaries": [
+        "الخطر المباشر أو الاشتباه الجدي يتبع نظام الحماية والطوارئ المحلي فورًا.",
+        "لا تعد الصفحة بديلًا عن التحقيق أو الدعم الطبي والقانوني المتخصص."
+      ],
+      "source_refs": [
+        "crpd",
+        "who_inclusive_health",
+        "unicef_inclusive_education"
+      ]
     },
     {
       "id": "family-caregiver",
-      "match": ["caregiver", "family", "sibling", "respite", "home-routine", "home-school", "first-30-days"],
-      "sources": ["who_cst", "crpd", "icf"],
+      "match": [
+        "caregiver",
+        "family",
+        "sibling",
+        "respite",
+        "home-routine",
+        "home-school",
+        "first-30-days"
+      ],
       "principles": [
         "الشراكة الأسرية تعترف بخبرة الأسرة وأهداف الشخص وموارد المنزل، ولا تحول الأسرة إلى منفذ دائم لخطة غير قابلة للحياة.",
         "رفاه مقدم الرعاية عامل في استدامة الدعم ويحتاج تقييم العبء والنوم والدعم الاجتماعي والوصول إلى الراحة والخدمات.",
@@ -303,13 +533,27 @@
         "تدريب الاستراتيجية داخل روتين حقيقي وقياس أثرها على الجميع.",
         "مراجعة الإجهاد والراحة وطلب خدمة أو دعم عند تجاوز القدرة الآمنة."
       ],
-      "measures": ["تحقق هدف يومي مهم", "عبء مقدم الرعاية", "استمرارية الروتين", "رضا الشخص والأسرة"],
-      "boundaries": ["لا تعني الرعاية الأسرية نقل مسؤولية النظام إلى الأسرة.", "الأزمة النفسية أو خطر الأذى يحتاج دعمًا عاجلًا مناسبًا."]
+      "measures": [
+        "تحقق هدف يومي مهم",
+        "عبء مقدم الرعاية",
+        "استمرارية الروتين",
+        "رضا الشخص والأسرة"
+      ],
+      "boundaries": [
+        "لا تعني الرعاية الأسرية نقل مسؤولية النظام إلى الأسرة.",
+        "الأزمة النفسية أو خطر الأذى يحتاج دعمًا عاجلًا مناسبًا."
+      ],
+      "source_refs": [
+        "who_cst",
+        "crpd",
+        "icf"
+      ]
     },
     {
       "id": "functioning-participation-default",
-      "match": ["*"],
-      "sources": ["icf", "crpd", "who_rehabilitation"],
+      "match": [
+        "*"
+      ],
       "principles": [
         "تُفهم الإعاقة كتفاعل بين الوظائف والأنشطة والمشاركة والعوامل البيئية والشخصية، لا كتشخيص منفرد.",
         "يبدأ التخطيط مما يهم الشخص في الحياة اليومية ويحدد العوائق والميسرات ونقاط القوة والدعم المطلوب.",
@@ -322,8 +566,99 @@
         "اختيار تعديل قابل للرجوع وتحديد المسؤول والموعد.",
         "مراجعة النتيجة والضرر غير المقصود مع الشخص والفريق."
       ],
-      "measures": ["المشاركة", "مستوى المساعدة", "الاختيار والرضا", "استدامة النتيجة"],
-      "boundaries": ["الإطار لا يشخّص ولا يحدد أهلية قانونية.", "تُراجع القوانين والخدمات والسياق المحلي قبل القرار الفردي."]
+      "measures": [
+        "المشاركة",
+        "مستوى المساعدة",
+        "الاختيار والرضا",
+        "استدامة النتيجة"
+      ],
+      "boundaries": [
+        "الإطار لا يشخّص ولا يحدد أهلية قانونية.",
+        "تُراجع القوانين والخدمات والسياق المحلي قبل القرار الفردي."
+      ],
+      "source_refs": [
+        "icf",
+        "crpd",
+        "who_rehabilitation"
+      ]
     }
-  ]
+  ],
+  "source_registry": {
+    "icf": {
+      "title": "WHO — International Classification of Functioning, Disability and Health (ICF)",
+      "url": "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health"
+    },
+    "crpd": {
+      "title": "OHCHR — Convention on the Rights of Persons with Disabilities",
+      "url": "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"
+    },
+    "who_inclusive_health": {
+      "title": "WHO — Disability-inclusive health services toolkit",
+      "url": "https://www.who.int/publications/i/item/9789290618928"
+    },
+    "nice_epilepsy": {
+      "title": "NICE NG217 — Epilepsies in children, young people and adults",
+      "url": "https://www.nice.org.uk/guidance/ng217"
+    },
+    "nice_transition": {
+      "title": "NICE NG43 — Transition from children’s to adults’ services",
+      "url": "https://www.nice.org.uk/guidance/ng43"
+    },
+    "nice_medicines": {
+      "title": "NICE NG5 — Medicines optimisation",
+      "url": "https://www.nice.org.uk/guidance/ng5"
+    },
+    "nice_pain": {
+      "title": "NICE NG193 — Chronic pain assessment and management",
+      "url": "https://www.nice.org.uk/guidance/ng193"
+    },
+    "nice_behavior": {
+      "title": "NICE NG11 — Challenging behaviour and learning disabilities",
+      "url": "https://www.nice.org.uk/guidance/ng11"
+    },
+    "asha_aac": {
+      "title": "ASHA Practice Portal — Augmentative and Alternative Communication",
+      "url": "https://www.asha.org/practice-portal/professional-issues/augmentative-and-alternative-communication/"
+    },
+    "asha_pediatric_feeding": {
+      "title": "ASHA Practice Portal — Pediatric Feeding and Swallowing",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/pediatric-feeding-and-swallowing/"
+    },
+    "asha_adult_dysphagia": {
+      "title": "ASHA Practice Portal — Adult Dysphagia",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/adult-dysphagia/"
+    },
+    "asha_hearing": {
+      "title": "ASHA Practice Portal — Hearing Loss in Children",
+      "url": "https://www.asha.org/practice-portal/clinical-topics/hearing-loss-in-children/"
+    },
+    "who_wheelchair": {
+      "title": "WHO — Wheelchair provision guidelines",
+      "url": "https://www.who.int/publications/i/item/9789240074521/"
+    },
+    "who_assistive": {
+      "title": "WHO and UNICEF — Global report on assistive technology",
+      "url": "https://www.who.int/publications/i/item/9789240049451"
+    },
+    "wcag22": {
+      "title": "W3C — Web Content Accessibility Guidelines (WCAG) 2.2",
+      "url": "https://www.w3.org/TR/WCAG22/"
+    },
+    "cast_udl": {
+      "title": "CAST — Universal Design for Learning Guidelines 3.0",
+      "url": "https://udlguidelines.cast.org/"
+    },
+    "unicef_inclusive_education": {
+      "title": "UNICEF — Inclusive education",
+      "url": "https://www.unicef.org/education/inclusive-education"
+    },
+    "who_cst": {
+      "title": "WHO — Caregiver Skills Training",
+      "url": "https://www.who.int/publications/i/item/9789240048836"
+    },
+    "who_rehabilitation": {
+      "title": "WHO — Rehabilitation 2030",
+      "url": "https://www.who.int/initiatives/rehabilitation-2030"
+    }
+  }
 }

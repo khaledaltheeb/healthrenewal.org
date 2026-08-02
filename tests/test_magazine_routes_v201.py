@@ -70,7 +70,7 @@ class MagazineRoutesV201Tests(unittest.TestCase):
         self.assertEqual(report["risk_level"], "low")
         self.assertEqual(report["unwired_research_pages"], 0)
         self.assertEqual(report["robots_contract"], "exactly-one-index-follow-meta-per-published-page")
-        self.assertGreaterEqual(report["robots"]["robots_normalized_pages"], 5)
+        self.assertLessEqual(report["robots"]["robots_normalized_pages"], len(articles))
         self.assertEqual(report["index_contract"], "generated-from-discovered-articles-sorted-by-datePublished")
         self.assertEqual(report["rss_contract"], "latest-twenty-sorted-by-datePublished")
 

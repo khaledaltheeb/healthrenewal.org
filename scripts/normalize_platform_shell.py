@@ -170,20 +170,37 @@ def normalize_head_assets(source: str, path: Path, root: Path) -> str:
 
     prefix = relative_prefix(path, root)
     css = f'<link rel="stylesheet" href="{prefix}assets/platform/platform-core.css?v={SHELL_VERSION}">'
-    if PLATFORM_CSS_RE.search(source):
-        source = PLATFORM_CSS_RE.sub(css, source, count=1)
-    else:
+    css_seen = False
+
+    def replace_css(match: re.Match[str]) -> str:
+        nonlocal css_seen
+        if css_seen:
+            return ""
+        css_seen = True
+        return css
+
+    source = PLATFORM_CSS_RE.sub(replace_css, source)
+    if not css_seen:
         source = HEAD_CLOSE_RE.sub(css + "\n</head>", source, count=1)
 
-    if enhancer_allowed(path, root):
-        script = f'<script defer src="{prefix}assets/platform/platform-core.js?v={SHELL_VERSION}"></script>'
-        if PLATFORM_SCRIPT_RE.search(source):
-            source = PLATFORM_SCRIPT_RE.sub("\n" + script + "\n", source, count=1)
-        else:
-            source = HEAD_CLOSE_RE.sub(script + "\n</head>", source, count=1)
-        return source
+    script = f'<script defer src="{prefix}assets/platform/platform-core.js?v={SHELL_VERSION}"></script>'
+    script_seen = False
 
-    return PLATFORM_SCRIPT_RE.sub("\n", source)
+    def replace_script(match: re.Match[str]) -> str:
+        nonlocal script_seen
+        if script_seen or not enhancer_allowed(path, root):
+            return ""
+        script_seen = True
+        raw = match.group(0)
+        leading = raw[: len(raw) - len(raw.lstrip())]
+        trailing = raw[len(raw.rstrip()) :]
+        return leading + script + trailing
+
+    source = PLATFORM_SCRIPT_RE.sub(replace_script, source)
+    if enhancer_allowed(path, root):
+        if not script_seen:
+            source = HEAD_CLOSE_RE.sub(script + "\n</head>", source, count=1)
+    return source
 
 
 def normalize_body(source: str, path: Path, root: Path) -> tuple[str, bool]:
@@ -247,6 +264,7 @@ def normalize_file(path: Path, root: Path, *, check_only: bool) -> Result:
 
     injection = head_injection(path, root, normalized)
     normalized = HEAD_CLOSE_RE.sub(injection + "</head>", normalized, count=1)
+    normalized = normalize_head_assets(normalized, path, root)
 
     if check_only:
         return Result(relative, "needs-update")

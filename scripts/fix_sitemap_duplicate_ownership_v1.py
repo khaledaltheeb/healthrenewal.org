@@ -194,6 +194,13 @@ def main() -> None:
             "reason": "child-url" if is_child else "duplicate-root-owner",
         })
 
+    # Persist first-pass migrations before reloading the indexed graph. Without
+    # this checkpoint, newly created family maps are re-opened as empty files
+    # and the broad sitemap appears to retain the routes just migrated.
+    for filename in sorted(touched | created_maps):
+        if filename in loaded:
+            save_urlset(filename, loaded[filename][0])
+
     # Resolve any remaining duplicate ownership by keeping the semantic owner.
     ensure_index_entries(created_maps)
     files = indexed_sitemaps()

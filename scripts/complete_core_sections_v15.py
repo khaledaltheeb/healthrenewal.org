@@ -9,13 +9,14 @@ import sys
 import xml.etree.ElementTree as ET
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlparse
 
 from publish_evidence_literacy_library_v322 import publish as publish_evidence_literacy
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
 ROOT = Path(__file__).resolve().parents[1]
 BASE = os.environ.get("SITE_BASE", "https://healthrenewal.org/").rstrip("/") + "/"
-BASE_PATH = "/" + BASE.split("/", 3)[-1].strip("/") + "/"
+BASE_PATH = urlparse(BASE).path.rstrip("/") + "/"
 TODAY = date.today().isoformat()
 SOURCES = [
     ("منظمة الصحة العالمية — التعامل مع الضغط", "https://www.who.int/news-room/questions-and-answers/item/stress"),

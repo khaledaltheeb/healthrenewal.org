@@ -89,8 +89,8 @@ class ToolPublishingTests(unittest.TestCase):
     def test_source_keys_and_urls_are_valid(self):
         sources = self.payload["sources"]
         for tool in self.payload["tools"]:
-            self.assertGreaterEqual(len(tool["sources"]), 4)
-            for key in tool["sources"]:
+            self.assertGreaterEqual(len(tool["source_refs"]), 4)
+            for key in tool["source_refs"]:
                 self.assertIn(key, sources)
                 self.assertRegex(sources[key]["url"], r"^https://")
 

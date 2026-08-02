@@ -98,7 +98,7 @@ def publish(site: Path, content: Path) -> dict:
     slugs = [t["slug"] for t in tools]
     if len(set(slugs)) != len(slugs):
         raise SystemExit("duplicate tool slugs")
-    missing_sources = sorted({s for t in tools for s in t["sources"] if s not in sources})
+    missing_sources = sorted({s for t in tools for s in t["source_refs"] if s not in sources})
     if missing_sources:
         raise SystemExit({"missing_sources": missing_sources})
     target = site / "family-guide" / "tools"; target.mkdir(parents=True, exist_ok=True)

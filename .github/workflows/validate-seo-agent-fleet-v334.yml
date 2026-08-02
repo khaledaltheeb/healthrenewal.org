@@ -17,7 +17,8 @@ on:
       - "tests/test_submit_indexnow_v334.py"
       - ".github/workflows/validate-seo-agent-fleet-v334.yml"
       - ".github/workflows/validate-full-site-v16.yml"
-      - ".github/workflows/deploy-validated-pages-v327.yml"
+      - ".github/workflows/deploy-complete-pages-with-ai-search.yml"
+      - ".github/workflows/seo-daily-refresh.yml"
   push:
     branches: ["main"]
     paths:
@@ -34,7 +35,8 @@ on:
       - "tests/test_submit_indexnow_v334.py"
       - ".github/workflows/validate-seo-agent-fleet-v334.yml"
       - ".github/workflows/validate-full-site-v16.yml"
-      - ".github/workflows/deploy-validated-pages-v327.yml"
+      - ".github/workflows/deploy-complete-pages-with-ai-search.yml"
+      - ".github/workflows/seo-daily-refresh.yml"
   workflow_dispatch:
 
 permissions:
@@ -71,10 +73,12 @@ jobs:
           assert 'GPTBot' in policy['training_or_model_user_agents'], policy
           robots = Path('robots.txt').read_text(encoding='utf-8')
           llms = Path('llms.txt').read_text(encoding='utf-8')
-          deployment = Path('.github/workflows/deploy-validated-pages-v327.yml').read_text(encoding='utf-8')
+          deployment = Path('.github/workflows/deploy-complete-pages-with-ai-search.yml').read_text(encoding='utf-8')
+          refresh = Path('.github/workflows/seo-daily-refresh.yml').read_text(encoding='utf-8')
           assert 'Allow: /' in robots and 'sitemap-index.xml' in robots, robots
           assert policy['canonical_site'] in llms and 'Sitemap index' in llms, llms
-          assert 'submit_indexnow_v334.py' in deployment, deployment
+          assert 'Deploy complete generated site' in deployment, deployment
+          assert 'submit_indexnow_v334.py' in refresh, refresh
           print({'status': 'passed', 'policy_version': policy['version']})
           PY
       - name: Upload reviewed SEO implementation bundle
@@ -97,6 +101,7 @@ jobs:
             api/ai-crawler-policy.json
             .github/workflows/validate-seo-agent-fleet-v334.yml
             .github/workflows/validate-full-site-v16.yml
-            .github/workflows/deploy-validated-pages-v327.yml
+            .github/workflows/deploy-complete-pages-with-ai-search.yml
+            .github/workflows/seo-daily-refresh.yml
           if-no-files-found: error
           retention-days: 30

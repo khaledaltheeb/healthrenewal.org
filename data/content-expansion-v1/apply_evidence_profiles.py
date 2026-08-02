@@ -72,7 +72,7 @@ def render(page: dict, selected: list[dict], sources: dict) -> tuple[str, list[s
     profile_ids = [profile["id"] for profile in selected]
     source_ids: list[str] = []
     for profile in selected:
-        source_ids.extend(profile.get("sources", []))
+        source_ids.extend(profile.get("source_refs", []))
     source_ids = list(dict.fromkeys(source_ids))
     source_links = "".join(
         f'<li><a href="{html.escape(sources[source_id]["url"], quote=True)}" rel="noopener">'
@@ -131,7 +131,7 @@ def main() -> None:
     config = json.loads((DATA / "official-evidence.json").read_text(encoding="utf-8"))
     overrides_path = DATA / "official-evidence-overrides.json"
     overrides = json.loads(overrides_path.read_text(encoding="utf-8")) if overrides_path.exists() else {}
-    sources = {**config["sources"], **overrides.get("sources", {})}
+    sources = {**config["source_registry"], **overrides.get("source_registry", {})}
     profiles = [*overrides.get("profiles", []), *config["profiles"]]
     pages = inventory()
     report = json.loads(REPORT.read_text(encoding="utf-8"))

@@ -15,7 +15,7 @@ VERSION = 354
 CORE_ORIGIN = "https://pterminology-specialists.pterminology-826ac349.workers.dev"
 IDENTITY_ORIGIN = "https://pterminology-specialist-accounts.pterminology-826ac349.workers.dev"
 TURNSTILE_ORIGIN = "https://challenges.cloudflare.com"
-PWA_REGISTRATION_HASH = "'sha256-3jfpqmh00E4Lw3TtEDacYYqJgHXVjwAXXpGIe2XO1ek='"
+PWA_REGISTRATION_HASH = "'sha256-BvSDsrK+y6wytL+FTl8l8mf29w+riVmJMj7HpNbYEH0='"
 
 PAGES = {
     "directory": ("specialists-partners/index.html", True, {CORE_ORIGIN}),

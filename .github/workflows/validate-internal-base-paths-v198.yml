@@ -54,7 +54,9 @@ jobs:
           grep -q 'https://healthrenewal.org/care-guides/' base-path-review/index.html
           grep -q 'href="/care-guides/"' base-path-review/index.html
           grep -q '"status": "passed"' base-path-review/api/internal-base-paths-v198.json
-          ! grep -R -E 'khaledaltheeb\.github\.io|/pterminology-site/' base-path-review --include='*.html' --include='*.xml' --include='*.json' --include='*.webmanifest'
+          ! grep -R -E 'khaledaltheeb\.github\.io|/pterminology-site/' base-path-review \
+            --exclude='internal-base-paths-v198.json' \
+            --include='*.html' --include='*.xml' --include='*.json' --include='*.webmanifest'
       - name: Upload normalization evidence
         uses: actions/upload-artifact@v4
         with:

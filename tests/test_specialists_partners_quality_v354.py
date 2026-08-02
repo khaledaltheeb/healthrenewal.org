@@ -130,7 +130,7 @@ class SpecialistsPartnersQualityV354Tests(unittest.TestCase):
             self.assertIn("base-uri 'none'", policy, path)
             self.assertIn("upgrade-insecure-requests", policy, path)
             self.assertIn(
-                "'sha256-3jfpqmh00E4Lw3TtEDacYYqJgHXVjwAXXpGIe2XO1ek='",
+                "'sha256-BvSDsrK+y6wytL+FTl8l8mf29w+riVmJMj7HpNbYEH0='",
                 policy,
                 path,
             )
@@ -153,7 +153,7 @@ class SpecialistsPartnersQualityV354Tests(unittest.TestCase):
         ).decode("ascii")
         self.assertEqual(
             digest,
-            "3jfpqmh00E4Lw3TtEDacYYqJgHXVjwAXXpGIe2XO1ek=",
+            "BvSDsrK+y6wytL+FTl8l8mf29w+riVmJMj7HpNbYEH0=",
         )
 
     def test_live_audit_is_read_only_and_checks_current_contracts(self) -> None:

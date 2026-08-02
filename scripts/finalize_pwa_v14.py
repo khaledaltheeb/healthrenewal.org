@@ -30,6 +30,11 @@ def load_core():
     return module
 
 
+# Preserve the public constant used by focused CSP/hash contract tests while
+# keeping the implementation in the byte-preserved core module.
+REGISTRATION = load_core().REGISTRATION
+
+
 def copy_public_pwa_assets(site: Path) -> list[str]:
     copied: list[str] = []
     sources = (
