@@ -1,0 +1,97 @@
+name: Audit live search discovery v1
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_urls:
+        description: Maximum number of live sitemap URLs to audit
+        required: false
+        default: "5000"
+  schedule:
+    - cron: "37 2 * * *"
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/audit_live_search_discovery_v1.py"
+      - "tests/test_live_search_discovery_v1.py"
+      - ".github/workflows/audit-live-search-discovery-v1.yml"
+      - "docs/operations/live-search-discovery-audit-v1.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-search-discovery-v1-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      MAX_URLS: ${{ github.event.inputs.max_urls || '5000' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate auditor and unit tests
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/audit_live_search_discovery_v1.py
+          python -m unittest tests.test_live_search_discovery_v1
+
+      - name: Run read-only live audit
+        id: live
+        shell: bash
+        run: |
+          set +e
+          mkdir -p reports
+          python scripts/audit_live_search_discovery_v1.py \
+            --base-url https://healthrenewal.org/ \
+            --max-urls "$MAX_URLS" \
+            --workers 20 \
+            --timeout 20 \
+            --output-json reports/live-search-discovery-v1.json \
+            --output-markdown reports/live-search-discovery-v1.md
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Publish audit summary
+        if: always()
+        run: |
+          if [[ -f reports/live-search-discovery-v1.md ]]; then
+            cat reports/live-search-discovery-v1.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Live discovery report was not generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload immutable audit reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-search-discovery-v1-${{ github.run_id }}
+          path: |
+            reports/live-search-discovery-v1.json
+            reports/live-search-discovery-v1.md
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Enforce critical live findings
+        if: always()
+        run: |
+          code="${{ steps.live.outputs.exit_code }}"
+          if [[ -z "$code" ]]; then
+            echo "Audit did not return an exit code."
+            exit 1
+          fi
+          if [[ "$code" != "0" ]]; then
+            echo "Live discovery audit reported critical findings."
+            exit "$code"
+          fi
