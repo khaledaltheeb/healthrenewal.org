@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -113,6 +114,40 @@ class LiveSearchDiscoveryAuditTests(unittest.TestCase):
                 ("x-default", "https://healthrenewal.org/guide/"),
             ),
         )
+
+    def test_fetch_with_retries_recovers_from_transient_503(self) -> None:
+        first = audit.FetchResult(
+            requested_url="https://healthrenewal.org/a/",
+            final_url="https://healthrenewal.org/a/",
+            status=503,
+            content_type="text/html",
+            body=b"",
+            elapsed_ms=1,
+            error="HTTP 503",
+        )
+        second = audit.FetchResult(
+            requested_url="https://healthrenewal.org/a/",
+            final_url="https://healthrenewal.org/a/",
+            status=200,
+            content_type="text/html",
+            body=b"<html></html>",
+            elapsed_ms=1,
+        )
+        with (
+            mock.patch.object(
+                audit,
+                "request_url",
+                side_effect=[first, second],
+            ) as request,
+            mock.patch.object(audit.time, "sleep"),
+        ):
+            result = audit.fetch_with_retries(
+                "https://healthrenewal.org/a/",
+                timeout=1,
+                limit=100,
+            )
+        self.assertEqual(result.status, 200)
+        self.assertEqual(request.call_count, 2)
 
     def test_same_origin_rejects_www_variant(self) -> None:
         self.assertTrue(
