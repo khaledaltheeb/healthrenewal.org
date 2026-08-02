@@ -10,13 +10,22 @@ on:
       - scripts/generate_content_expansion_v1.py
       - tests/test_content_expansion_v1.py
       - .github/workflows/generate-content-expansion-v1.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - data/content-expansion-v1.json
+      - data/content-expansion-v1/**
+      - scripts/generate_content_expansion_v1.py
+      - tests/test_content_expansion_v1.py
+      - .github/workflows/generate-content-expansion-v1.yml
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: content-expansion-v1-${{ github.ref }}
+  group: content-expansion-v1-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -24,11 +33,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Check out branch
+      - name: Check out source branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.ref_name }}
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -62,4 +71,4 @@ jobs:
             exit 0
           fi
           git commit -m "build: materialize 100 evidence-guided pages"
-          git push origin HEAD:${{ github.ref_name }}
+          git push origin HEAD:${{ github.head_ref || github.ref_name }}
