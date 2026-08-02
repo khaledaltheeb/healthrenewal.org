@@ -37,6 +37,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Normalize diversification repository root
+        run: sed -i '0,/parents\[1\]/s//parents[2]/' data/content-expansion-v1/diversify.py
+
       - name: Compile publication scripts and tests
         run: |
           python -m py_compile scripts/generate_content_expansion_v1.py
