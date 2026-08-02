@@ -16,7 +16,8 @@ MANIFEST = json.loads((ROOT / "data/content-expansion-v1.json").read_text(encodi
 REPORT_PATH = ROOT / "reports/content-expansion-v1.json"
 ALLOWED_SOURCE_HOSTS = {
     "www.who.int", "www.ohchr.org", "www.unicef.org", "www.unesco.org",
-    "www.asha.org", "www.resna.org", "www.nice.org.uk",
+    "www.asha.org", "www.resna.org", "www.nice.org.uk", "www.w3.org",
+    "udlguidelines.cast.org",
 }
 ALLOWED_DIFF_PATTERNS = (
     ".github/workflows/generate-content-expansion-v1.yml",
@@ -55,16 +56,29 @@ def shingles(markup: str, size: int = 5) -> set[tuple[str, ...]]:
     return {tuple(words[index:index + size]) for index in range(max(0, len(words) - size + 1))}
 
 
-def validate_diff_scope() -> list[str]:
-    command = ["git", "diff", "--name-only", "origin/main..."]
+def run_lines(command: list[str]) -> list[str]:
     result = subprocess.run(command, cwd=ROOT, check=True, capture_output=True, text=True)
-    changed = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
+
+
+def validate_diff_scope() -> list[str]:
+    changed = set(run_lines(["git", "diff", "--name-only", "origin/main..."]))
+    changed.update(run_lines(["git", "ls-files", "--others", "--exclude-standard"]))
+    ordered = sorted(changed)
     unexpected = [
-        path for path in changed
+        path for path in ordered
         if not any(fnmatch.fnmatch(path, pattern) for pattern in ALLOWED_DIFF_PATTERNS)
     ]
     assert not unexpected, f"Unexpected files outside expansion scope: {unexpected[:20]}"
-    return changed
+    return ordered
+
+
+def normalize_citations(value) -> set[str]:
+    if isinstance(value, str):
+        return {value}
+    if isinstance(value, list):
+        return {item for item in value if isinstance(item, str)}
+    return set()
 
 
 def main() -> None:
@@ -74,6 +88,9 @@ def main() -> None:
     assert report["pageCount"] == 100
     assert report["distribution"] == MANIFEST["distribution"]
     assert len(report["pages"]) == 100
+    assert report.get("topicSpecificLayer") is True
+    assert report.get("officialEvidenceLayer") is True
+    assert report.get("officialEvidenceProfiles"), "Official evidence profile distribution is missing"
 
     paths = [item["path"] for item in report["pages"]]
     urls = [item["url"] for item in report["pages"]]
@@ -92,7 +109,8 @@ def main() -> None:
         'id="scope"', 'id="framework"', 'id="questions"', 'id="baseline"',
         'id="implementation"', 'id="environment"', 'id="communication"',
         'id="team"', 'id="measurement"', 'id="errors"', 'id="safety"',
-        'id="plan"', 'id="checklist"', 'id="faq"', 'id="sources"',
+        'id="plan"', 'id="checklist"', 'id="faq"', 'id="official-evidence"',
+        'id="sources"',
     )
 
     for item in report["pages"]:
@@ -122,10 +140,30 @@ def main() -> None:
         for href in hrefs:
             assert urlparse(href).netloc.lower() in ALLOWED_SOURCE_HOSTS, (item["path"], href)
 
+        profiles = item.get("evidenceProfiles") or []
+        official_urls = item.get("officialEvidenceSources") or []
+        assert profiles, f"No official evidence profile: {item['path']}"
+        assert official_urls, f"No official evidence sources: {item['path']}"
+        assert 'data-evidence-profiles="' in markup
+        assert "official-evidence-profile-v1:start" in markup
+        assert "official-evidence-profile-v1:end" in markup
+        evidence_block = re.search(r'id="official-evidence".*?</section>', markup, flags=re.I | re.S)
+        assert evidence_block, item["path"]
+        evidence_hrefs = set(re.findall(r'href=[\'\"](https://[^\'\"]+)[\'\"]', evidence_block.group(0)))
+        assert set(official_urls).issubset(evidence_hrefs), (item["path"], official_urls, evidence_hrefs)
+        for href in official_urls:
+            assert urlparse(href).netloc.lower() in ALLOWED_SOURCE_HOSTS, (item["path"], href)
+
         blocks = re.findall(r'<script type="application/ld\+json">(.*?)</script>', markup, flags=re.I | re.S)
         assert blocks
+        structured_citations: set[str] = set()
         for block in blocks:
-            json.loads(html.unescape(block))
+            payload = json.loads(html.unescape(block))
+            if isinstance(payload, dict):
+                structured_citations.update(normalize_citations(payload.get("citation")))
+        assert set(official_urls).issubset(structured_citations), (
+            item["path"], official_urls, sorted(structured_citations)
+        )
         page_shingles.append((item["path"], shingles(markup)))
 
     maximum_similarity = 0.0
@@ -169,6 +207,7 @@ def main() -> None:
         "distribution": report["distribution"],
         "minimumWords": report["minimumObservedWords"],
         "averageWords": report["averageWords"],
+        "officialEvidenceProfiles": report["officialEvidenceProfiles"],
         "maximumFiveGramJaccard": round(maximum_similarity, 4),
         "mostSimilarPair": maximum_pair,
         "changedFileCount": len(changed),
