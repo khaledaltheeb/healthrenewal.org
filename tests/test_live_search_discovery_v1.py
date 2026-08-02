@@ -26,6 +26,17 @@ class LiveSearchDiscoveryAuditTests(unittest.TestCase):
             "https://healthrenewal.org/path",
         )
 
+    def test_normalize_url_percent_encodes_arabic_path(self) -> None:
+        self.assertEqual(
+            audit.normalize_url(
+                "https://healthrenewal.org/categories/الأساسيات/"
+            ),
+            (
+                "https://healthrenewal.org/categories/"
+                "%D8%A7%D9%84%D8%A3%D8%B3%D8%A7%D8%B3%D9%8A%D8%A7%D8%AA/"
+            ),
+        )
+
     def test_robots_sitemaps_are_resolved_and_deduplicated(self) -> None:
         text = """
         User-agent: *
