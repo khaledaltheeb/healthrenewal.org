@@ -8,6 +8,7 @@ on:
       - 'specialists-partners/backend/src/application-review-v6.js'
       - 'specialists-partners/backend/migrations/0005_signed_application_reviews.sql'
       - 'tests/test_specialist_signed_review_v6.py'
+      - 'tests/test_specialists_signed_review_deployment_safety.py'
       - '.github/workflows/deploy-specialists-signed-review-v6.yml'
   workflow_dispatch:
 
@@ -20,22 +21,17 @@ concurrency:
 
 jobs:
   validate-and-deploy:
+    environment: specialists-production
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       D1_DATABASE_ID: ${{ secrets.SPECIALISTS_D1_DATABASE_ID }}
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-      TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
-      ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}
-      REVIEWER_API_KEY: ${{ secrets.SPECIALISTS_REVIEWER_API_KEY }}
-      MODERATOR_API_KEY: ${{ secrets.SPECIALISTS_MODERATOR_API_KEY }}
-      RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}
-      REVIEW_LINK_SECRET: ${{ secrets.SPECIALISTS_REVIEW_LINK_SECRET }}
       FROM_EMAIL: ${{ secrets.SPECIALISTS_FROM_EMAIL }}
       OWNER_EMAIL_SECRET: ${{ secrets.SPECIALISTS_OWNER_EMAIL }}
       API_BASE: https://pterminology-specialists.pterminology-826ac349.workers.dev
+      WORKER_NAME: pterminology-specialists
 
     steps:
       - uses: actions/checkout@v4
@@ -46,29 +42,57 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Validate signed-review contracts
+      - name: Validate signed-review and deployment-safety contracts
         run: |
           set -euo pipefail
           node --check specialists-partners/backend/src/index-v4.js
           node --check specialists-partners/backend/src/application-review-v6.js
-          python -m unittest tests.test_specialist_signed_review_v6
+          python -m unittest \
+            tests.test_specialist_signed_review_v6 \
+            tests.test_specialists_signed_review_deployment_safety
 
-      - name: Validate deployment secrets
+      - name: Validate Cloudflare access, configuration, and existing Worker secret names
         shell: bash
         run: |
           set -euo pipefail
-          required=(CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID D1_DATABASE_ID RESEND_API_KEY TURNSTILE_SECRET ADMIN_API_KEY RATE_LIMIT_SALT FROM_EMAIL)
+          required=(CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID D1_DATABASE_ID FROM_EMAIL OWNER_EMAIL_SECRET)
           for name in "${required[@]}"; do
-            if [[ -z "${!name:-}" ]]; then
-              echo "::error::$name is required"
-              exit 1
-            fi
+            [[ -n "${!name:-}" ]] || { echo "::error::$name is required"; exit 1; }
           done
-          [[ ${#ADMIN_API_KEY} -ge 32 ]]
-          [[ ${#RATE_LIMIT_SALT} -ge 32 ]]
-          if [[ -n "${REVIEW_LINK_SECRET:-}" ]]; then
-            [[ ${#REVIEW_LINK_SECRET} -ge 32 ]]
-          fi
+          [[ "$CLOUDFLARE_ACCOUNT_ID" =~ ^[a-fA-F0-9]{32}$ ]] || { echo "::error::CLOUDFLARE_ACCOUNT_ID has invalid format"; exit 1; }
+          [[ "$D1_DATABASE_ID" =~ ^[a-fA-F0-9-]{36}$ ]] || { echo "::error::D1_DATABASE_ID has invalid format"; exit 1; }
+
+          auth=(-H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json")
+          curl -fsS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/tokens/verify" \
+            -o /tmp/specialists-token-verify.json
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/specialists-token-verify.json',encoding='utf-8'))
+          assert data.get('success') is True, data
+          assert (data.get('result') or {}).get('status') == 'active', data
+          PY
+
+          curl -fsS "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${WORKER_NAME}/secrets" \
+            -o /tmp/specialists-worker-secrets.json
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/specialists-worker-secrets.json',encoding='utf-8'))
+          assert data.get('success') is True, data
+          names={str(item.get('name') or '') for item in (data.get('result') or [])}
+          required={
+              'RESEND_API_KEY',
+              'TURNSTILE_SECRET',
+              'ADMIN_API_KEY',
+              'RATE_LIMIT_SALT',
+              'REVIEW_LINK_SECRET',
+          }
+          missing=sorted(required-names)
+          if missing:
+              raise SystemExit('Missing required Worker secret names: '+', '.join(missing))
+          print({'required_worker_secret_names_verified':sorted(required)})
+          PY
 
       - name: Generate production Worker configuration
         working-directory: specialists-partners/backend
@@ -82,21 +106,20 @@ jobs:
           def toml(value: str) -> str:
               return '"' + value.replace('\\', '\\\\').replace('"', '\\"') + '"'
 
-          owner_email = os.environ.get('OWNER_EMAIL_SECRET') or 'pterminology@gmail.com'
           content = f'''name = "pterminology-specialists"
           main = "src/index-v4.js"
           compatibility_date = "2026-07-01"
           workers_dev = true
 
           [vars]
-          ALLOWED_ORIGINS = "https://healthrenewal.org"
-          OWNER_EMAIL = {toml(owner_email)}
+          ALLOWED_ORIGINS = "https://healthrenewal.org,https://www.healthrenewal.org,https://khaledaltheeb.github.io"
+          OWNER_EMAIL = {toml(os.environ['OWNER_EMAIL_SECRET'])}
           OWNER_DISPLAY_NAME = "خالد الذيب"
           PORTAL_BASE_URL = "https://healthrenewal.org/specialists-partners/portal/"
           ADMIN_CONSOLE_URL = "https://healthrenewal.org/specialists-partners/admin/#applications"
           REVIEW_BASE_URL = "https://pterminology-specialists.pterminology-826ac349.workers.dev/v1/reviews/applications"
           REVIEW_LINK_TTL_MINUTES = "30"
-          TURNSTILE_EXPECTED_HOSTNAMES = "khaledaltheeb.github.io"
+          TURNSTILE_EXPECTED_HOSTNAMES = "healthrenewal.org,www.healthrenewal.org,khaledaltheeb.github.io"
           FROM_EMAIL = {toml(os.environ['FROM_EMAIL'])}
           ADMIN_SESSION_MINUTES = "20"
 
@@ -111,51 +134,20 @@ jobs:
           '''
           Path('wrangler.toml').write_text(content, encoding='utf-8')
           PY
-
-      - name: Create ephemeral Worker secrets
-        working-directory: specialists-partners/backend
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import hashlib
-          import hmac
-          import json
-          import os
-          from pathlib import Path
-
-          dedicated = os.environ.get('REVIEW_LINK_SECRET', '')
-          review_secret = dedicated or hmac.new(
-              os.environ['RATE_LIMIT_SALT'].encode(),
-              b'pterminology/application-review-v6',
-              hashlib.sha256,
-          ).hexdigest()
-          payload = {
-              'RESEND_API_KEY': os.environ['RESEND_API_KEY'],
-              'TURNSTILE_SECRET': os.environ['TURNSTILE_SECRET'],
-              'ADMIN_API_KEY': os.environ['ADMIN_API_KEY'],
-              'RATE_LIMIT_SALT': os.environ['RATE_LIMIT_SALT'],
-              'REVIEW_LINK_SECRET': review_secret,
-          }
-          for name in ('REVIEWER_API_KEY', 'MODERATOR_API_KEY'):
-              if os.environ.get(name):
-                  payload[name] = os.environ[name]
-          Path('worker-secrets.json').write_text(json.dumps(payload), encoding='utf-8')
-          PY
-          chmod 600 worker-secrets.json
+          chmod 600 wrangler.toml
 
       - name: Apply D1 migrations
         working-directory: specialists-partners/backend
         run: npx --yes wrangler@4 d1 migrations apply pterminology-specialists --remote --config wrangler.toml
 
-      - name: Deploy signed-review Worker v6
+      - name: Deploy signed-review Worker v6 without replacing existing secrets
         working-directory: specialists-partners/backend
-        run: npx --yes wrangler@4 deploy --config wrangler.toml --secrets-file worker-secrets.json --minify --keep-vars
+        run: npx --yes wrangler@4 deploy --config wrangler.toml --minify --keep-vars
 
       - name: Remove ephemeral configuration
         if: always()
         working-directory: specialists-partners/backend
-        run: rm -f worker-secrets.json wrangler.toml
+        run: rm -f wrangler.toml
 
       - name: Verify live signed-review health
         shell: bash
