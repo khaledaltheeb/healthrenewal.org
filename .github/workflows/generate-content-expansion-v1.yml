@@ -44,10 +44,12 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Compile and apply source-reference contract migration
+      - name: Compile and apply repository contracts
         run: |
           python -m py_compile scripts/migrate_source_reference_contract_v1.py
+          python -m py_compile data/content-expansion-v1/register_sitemap_scope.py
           python scripts/migrate_source_reference_contract_v1.py
+          python data/content-expansion-v1/register_sitemap_scope.py
 
       - name: Normalize diversification repository root
         run: sed -i '0,/parents\[1\]/s//parents[2]/' data/content-expansion-v1/diversify.py
@@ -86,7 +88,7 @@ jobs:
       - name: Update only relevant sitemap families and public manifest
         run: python scripts/update_content_expansion_sitemaps_v1.py
 
-      - name: Resolve duplicate URL ownership in broad sitemap
+      - name: Resolve URL ownership and validate sitemap discovery
         run: |
           python scripts/fix_sitemap_duplicate_ownership_v1.py
           python scripts/validate_sitemap_discovery_contract.py
