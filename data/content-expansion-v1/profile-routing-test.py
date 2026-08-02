@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 REPORT = json.loads((ROOT / "reports/content-expansion-v1.json").read_text(encoding="utf-8"))
 
 
@@ -67,7 +67,7 @@ def main() -> None:
         "special-needs/guides/mobility-at/wheelchair-seating-service/index.html"
     ]
     assert "inclusive-education-udl" in profiles[
-        "special-needs/guides/education/universal-design-learning/index.html"
+        "special-needs/guides/education/universal-design-for-learning/index.html"
     ]
 
     print(json.dumps({
