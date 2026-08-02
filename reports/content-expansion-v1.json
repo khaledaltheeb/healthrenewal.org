@@ -11,8 +11,8 @@
     "daily-tools": 4
   },
   "minimumRequiredWords": 1800,
-  "minimumObservedWords": 2791,
-  "averageWords": 2972.2,
+  "minimumObservedWords": 2837,
+  "averageWords": 2983.6,
   "maximumObservedWords": 3252,
   "pages": [
     {
@@ -21,14 +21,14 @@
       "title": "التخطيط المتمحور حول الشخص",
       "path": "special-needs/guides/assessment/person-centered-support-planning/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/assessment/person-centered-support-planning/",
-      "words": 3013,
+      "words": 3052,
       "evidenceProfiles": [
-        "health-access"
+        "assessment-functioning"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/publications/i/item/9789290618928",
         "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
-        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"
+        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
+        "https://www.who.int/initiatives/rehabilitation-2030"
       ]
     },
     {
@@ -37,14 +37,14 @@
       "title": "بناء ملف الأداء والمشاركة وفق ICF",
       "path": "special-needs/guides/assessment/icf-functioning-participation/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/assessment/icf-functioning-participation/",
-      "words": 3010,
+      "words": 3049,
       "evidenceProfiles": [
-        "health-access"
+        "assessment-functioning"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/publications/i/item/9789290618928",
         "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
-        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"
+        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
+        "https://www.who.int/initiatives/rehabilitation-2030"
       ]
     },
     {
@@ -53,14 +53,14 @@
       "title": "ملف نقاط القوة والاحتياجات",
       "path": "special-needs/guides/assessment/strengths-needs-profile/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/assessment/strengths-needs-profile/",
-      "words": 3005,
+      "words": 3044,
       "evidenceProfiles": [
-        "health-access"
+        "assessment-functioning"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/publications/i/item/9789290618928",
         "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
-        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"
+        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
+        "https://www.who.int/initiatives/rehabilitation-2030"
       ]
     },
     {
@@ -69,14 +69,14 @@
       "title": "التقييم متعدد التخصصات",
       "path": "special-needs/guides/assessment/multidisciplinary-assessment/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/assessment/multidisciplinary-assessment/",
-      "words": 2939,
+      "words": 2978,
       "evidenceProfiles": [
-        "health-access"
+        "assessment-functioning"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/publications/i/item/9789290618928",
         "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
-        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"
+        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
+        "https://www.who.int/initiatives/rehabilitation-2030"
       ]
     },
     {
@@ -85,14 +85,14 @@
       "title": "المراقبة النمائية والإحالة المبكرة",
       "path": "special-needs/guides/assessment/developmental-monitoring-referral/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/assessment/developmental-monitoring-referral/",
-      "words": 3011,
+      "words": 3050,
       "evidenceProfiles": [
-        "health-access"
+        "assessment-functioning"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/publications/i/item/9789290618928",
         "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
-        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"
+        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
+        "https://www.who.int/initiatives/rehabilitation-2030"
       ]
     },
     {
@@ -101,14 +101,14 @@
       "title": "صياغة الأهداف الوظيفية القابلة للقياس",
       "path": "special-needs/guides/assessment/functional-goal-setting/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/assessment/functional-goal-setting/",
-      "words": 2994,
+      "words": 3033,
       "evidenceProfiles": [
-        "health-access"
+        "assessment-functioning"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/publications/i/item/9789290618928",
         "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
-        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"
+        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
+        "https://www.who.int/initiatives/rehabilitation-2030"
       ]
     },
     {
@@ -117,14 +117,14 @@
       "title": "قياس النتائج وجودة الحياة",
       "path": "special-needs/guides/assessment/outcome-measurement/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/assessment/outcome-measurement/",
-      "words": 2964,
+      "words": 3003,
       "evidenceProfiles": [
-        "health-access"
+        "assessment-functioning"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/publications/i/item/9789290618928",
         "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
-        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"
+        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
+        "https://www.who.int/initiatives/rehabilitation-2030"
       ]
     },
     {
@@ -133,14 +133,15 @@
       "title": "اتخاذ القرار المشترك",
       "path": "special-needs/guides/assessment/shared-decision-making/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/assessment/shared-decision-making/",
-      "words": 2896,
+      "words": 3118,
       "evidenceProfiles": [
-        "health-access"
+        "decision-support",
+        "assessment-functioning"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/publications/i/item/9789290618928",
+        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
         "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
-        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"
+        "https://www.who.int/initiatives/rehabilitation-2030"
       ]
     },
     {
@@ -149,14 +150,15 @@
       "title": "اتخاذ القرار المدعوم",
       "path": "special-needs/guides/assessment/supported-decision-making/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/assessment/supported-decision-making/",
-      "words": 2929,
+      "words": 3151,
       "evidenceProfiles": [
-        "health-access"
+        "decision-support",
+        "assessment-functioning"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/publications/i/item/9789290618928",
+        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
         "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
-        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"
+        "https://www.who.int/initiatives/rehabilitation-2030"
       ]
     },
     {
@@ -950,14 +952,14 @@
       "title": "المشاركة المجتمعية",
       "path": "special-needs/guides/participation/community-participation/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/participation/community-participation/",
-      "words": 2835,
+      "words": 2881,
       "evidenceProfiles": [
-        "functioning-participation-default"
+        "participation-community"
       ],
       "officialEvidenceSources": [
         "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
         "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
-        "https://www.who.int/initiatives/rehabilitation-2030"
+        "https://www.who.int/publications/i/item/9789240049451"
       ]
     },
     {
@@ -966,14 +968,14 @@
       "title": "الدمج في الرياضة والترفيه",
       "path": "special-needs/guides/participation/recreation-sport-inclusion/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/participation/recreation-sport-inclusion/",
-      "words": 2914,
+      "words": 2920,
       "evidenceProfiles": [
-        "inclusive-education-udl"
+        "participation-community"
       ],
       "officialEvidenceSources": [
-        "https://udlguidelines.cast.org/",
-        "https://www.unicef.org/education/inclusive-education",
-        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"
+        "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
+        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
+        "https://www.who.int/publications/i/item/9789240049451"
       ]
     },
     {
@@ -982,14 +984,14 @@
       "title": "إتاحة النقل العام",
       "path": "special-needs/guides/participation/public-transport-access/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/participation/public-transport-access/",
-      "words": 2791,
+      "words": 2837,
       "evidenceProfiles": [
-        "functioning-participation-default"
+        "participation-community"
       ],
       "officialEvidenceSources": [
         "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
         "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
-        "https://www.who.int/initiatives/rehabilitation-2030"
+        "https://www.who.int/publications/i/item/9789240049451"
       ]
     },
     {
@@ -1049,14 +1051,13 @@
       "title": "القدرة المالية والتنقل بين المنافع",
       "path": "special-needs/guides/transition/financial-capacity-benefits-navigation/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/transition/financial-capacity-benefits-navigation/",
-      "words": 3031,
+      "words": 3049,
       "evidenceProfiles": [
-        "transition-services"
+        "decision-support"
       ],
       "officialEvidenceSources": [
-        "https://www.nice.org.uk/guidance/ng43",
         "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
-        "https://www.who.int/initiatives/rehabilitation-2030"
+        "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health"
       ]
     },
     {
@@ -1164,14 +1165,14 @@
       "title": "مراجعة أهداف التأهيل",
       "path": "special-needs/guides/system-quality/rehabilitation-goal-review/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/system-quality/rehabilitation-goal-review/",
-      "words": 2868,
+      "words": 2907,
       "evidenceProfiles": [
-        "functioning-participation-default"
+        "service-quality-system"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
+        "https://www.who.int/initiatives/rehabilitation-2030",
         "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
-        "https://www.who.int/initiatives/rehabilitation-2030"
+        "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health"
       ]
     },
     {
@@ -1180,14 +1181,14 @@
       "title": "تدقيق جودة خدمات الإعاقة",
       "path": "special-needs/guides/system-quality/service-quality-audit/index.html",
       "url": "https://healthrenewal.org/special-needs/guides/system-quality/service-quality-audit/",
-      "words": 2908,
+      "words": 2918,
       "evidenceProfiles": [
-        "health-access"
+        "service-quality-system"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/publications/i/item/9789290618928",
-        "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
-        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"
+        "https://www.who.int/initiatives/rehabilitation-2030",
+        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
+        "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health"
       ]
     },
     {
@@ -1375,14 +1376,14 @@
       "title": "اختيار مقدم خدمة موثوق",
       "path": "care-guides/evidence-guided/choosing-a-service-provider/index.html",
       "url": "https://healthrenewal.org/care-guides/evidence-guided/choosing-a-service-provider/",
-      "words": 2884,
+      "words": 2923,
       "evidenceProfiles": [
-        "functioning-participation-default"
+        "service-quality-system"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
+        "https://www.who.int/initiatives/rehabilitation-2030",
         "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
-        "https://www.who.int/initiatives/rehabilitation-2030"
+        "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health"
       ]
     },
     {
@@ -1407,9 +1408,9 @@
       "title": "تطبيق ICF للممارسين",
       "path": "learning-paths/evidence-guided/icf-for-practitioners/index.html",
       "url": "https://healthrenewal.org/learning-paths/evidence-guided/icf-for-practitioners/",
-      "words": 2850,
+      "words": 2918,
       "evidenceProfiles": [
-        "functioning-participation-default"
+        "assessment-functioning"
       ],
       "officialEvidenceSources": [
         "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
@@ -1615,9 +1616,9 @@
       "title": "قالب الملف الوظيفي والمشاركة",
       "path": "daily-tools/disability-support/functional-profile-template/index.html",
       "url": "https://healthrenewal.org/daily-tools/disability-support/functional-profile-template/",
-      "words": 2859,
+      "words": 2927,
       "evidenceProfiles": [
-        "functioning-participation-default"
+        "assessment-functioning"
       ],
       "officialEvidenceSources": [
         "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
@@ -1631,14 +1632,14 @@
       "title": "قالب اجتماع الفريق متعدد التخصصات",
       "path": "daily-tools/disability-support/multidisciplinary-meeting-template/index.html",
       "url": "https://healthrenewal.org/daily-tools/disability-support/multidisciplinary-meeting-template/",
-      "words": 2843,
+      "words": 2882,
       "evidenceProfiles": [
-        "functioning-participation-default"
+        "service-quality-system"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
+        "https://www.who.int/initiatives/rehabilitation-2030",
         "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
-        "https://www.who.int/initiatives/rehabilitation-2030"
+        "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health"
       ]
     },
     {
@@ -1647,14 +1648,14 @@
       "title": "قائمة مراجعة خطة الدعم",
       "path": "daily-tools/disability-support/support-plan-review-checklist/index.html",
       "url": "https://healthrenewal.org/daily-tools/disability-support/support-plan-review-checklist/",
-      "words": 2884,
+      "words": 2923,
       "evidenceProfiles": [
-        "functioning-participation-default"
+        "service-quality-system"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
+        "https://www.who.int/initiatives/rehabilitation-2030",
         "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
-        "https://www.who.int/initiatives/rehabilitation-2030"
+        "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health"
       ]
     },
     {
@@ -1663,21 +1664,23 @@
       "title": "بطاقة تقييم جودة الخدمة",
       "path": "daily-tools/disability-support/service-quality-scorecard/index.html",
       "url": "https://healthrenewal.org/daily-tools/disability-support/service-quality-scorecard/",
-      "words": 2875,
+      "words": 2885,
       "evidenceProfiles": [
-        "health-access"
+        "service-quality-system"
       ],
       "officialEvidenceSources": [
-        "https://www.who.int/publications/i/item/9789290618928",
-        "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
-        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities"
+        "https://www.who.int/initiatives/rehabilitation-2030",
+        "https://www.ohchr.org/en/instruments-mechanisms/instruments/convention-rights-persons-disabilities",
+        "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health"
       ]
     }
   ],
   "topicSpecificLayer": true,
   "officialEvidenceProfiles": {
-    "health-access": 28,
+    "assessment-functioning": 11,
+    "decision-support": 3,
     "aac-communication": 10,
+    "health-access": 17,
     "digital-accessibility": 3,
     "behavior-support": 8,
     "feeding-swallowing": 4,
@@ -1687,11 +1690,13 @@
     "hearing-access": 1,
     "wheelchair-mobility": 9,
     "assistive-technology-service": 3,
-    "inclusive-education-udl": 17,
-    "transition-services": 11,
+    "inclusive-education-udl": 16,
+    "transition-services": 10,
     "safeguarding-rights": 6,
     "family-caregiver": 8,
-    "functioning-participation-default": 11
+    "participation-community": 3,
+    "service-quality-system": 6,
+    "functioning-participation-default": 3
   },
   "officialEvidenceLayer": true
 }
