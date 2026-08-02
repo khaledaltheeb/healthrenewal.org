@@ -7,9 +7,16 @@ on:
     paths:
       - data/content-expansion-v1.json
       - data/content-expansion-v1/**
+      - content/family-guide-special-education-tools-v1/**
+      - content/v406/women-youth-expansion-ar.json
       - scripts/generate_content_expansion_v1.py
       - scripts/create_content_expansion_root_hubs_v1.py
       - scripts/update_content_expansion_sitemaps_v1.py
+      - scripts/migrate_source_reference_contract_v1.py
+      - scripts/fix_sitemap_duplicate_ownership_v1.py
+      - scripts/family_tools_v1_render.py
+      - scripts/publish_family_guide_special_education_tools_v1.py
+      - scripts/publish_women_youth_v406.py
       - tests/test_content_expansion_v1.py
       - .github/workflows/generate-content-expansion-v1.yml
   workflow_dispatch:
@@ -24,7 +31,7 @@ concurrency:
 jobs:
   generate-and-validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - name: Check out source branch
         uses: actions/checkout@v4
@@ -37,6 +44,11 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Compile and apply source-reference contract migration
+        run: |
+          python -m py_compile scripts/migrate_source_reference_contract_v1.py
+          python scripts/migrate_source_reference_contract_v1.py
+
       - name: Normalize diversification repository root
         run: sed -i '0,/parents\[1\]/s//parents[2]/' data/content-expansion-v1/diversify.py
 
@@ -48,7 +60,16 @@ jobs:
           python -m py_compile data/content-expansion-v1/profile-routing-test.py
           python -m py_compile scripts/create_content_expansion_root_hubs_v1.py
           python -m py_compile scripts/update_content_expansion_sitemaps_v1.py
+          python -m py_compile scripts/fix_sitemap_duplicate_ownership_v1.py
+          python -m py_compile scripts/family_tools_v1_render.py
+          python -m py_compile scripts/publish_family_guide_special_education_tools_v1.py
+          python -m py_compile scripts/publish_women_youth_v406.py
           python -m py_compile tests/test_content_expansion_v1.py
+
+      - name: Validate migrated legacy content generators
+        run: |
+          python tests/test_family_guide_special_education_tools_v1.py
+          python -m unittest tests/test_women_youth_v406.py
 
       - name: Generate 100 static pages and collection hubs
         run: python scripts/generate_content_expansion_v1.py
@@ -65,11 +86,19 @@ jobs:
       - name: Update only relevant sitemap families and public manifest
         run: python scripts/update_content_expansion_sitemaps_v1.py
 
+      - name: Resolve duplicate URL ownership in broad sitemap
+        run: |
+          python scripts/fix_sitemap_duplicate_ownership_v1.py
+          python scripts/validate_sitemap_discovery_contract.py
+
       - name: Validate depth evidence semantics similarity and publication scope
         run: python tests/test_content_expansion_v1.py
 
       - name: Validate semantic routing of official evidence profiles
         run: python data/content-expansion-v1/profile-routing-test.py
+
+      - name: Validate repository-wide source evidence contract
+        run: python scripts/audit_source_evidence_v76.py . --output reports/source-evidence-contract-v1.json
 
       - name: Remove transient Python files
         run: find . -type d -name __pycache__ -prune -exec rm -rf {} +
