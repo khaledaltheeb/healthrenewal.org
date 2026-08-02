@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-08-01T01:46:17.439067+00:00",
+  "generated_at": "2026-08-02T18:35:41.378160+00:00",
   "mode": "write",
   "root": "/home/runner/work/healthrenewal.org/healthrenewal.org",
   "runtime": {
@@ -11,12 +11,12 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 323,
-  "html_pages_normalized_or_current": 322,
+  "html_pages_seen": 512,
+  "html_pages_normalized_or_current": 511,
   "counts": {
-    "current": 222,
-    "skipped": 1,
-    "updated": 100
+    "current": 395,
+    "updated": 116,
+    "skipped": 1
   },
   "results": [
     {
@@ -40,12 +40,152 @@
       "detail": ""
     },
     {
+      "path": "care-guides/evidence-guided/building-daily-communication-opportunities/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "care-guides/evidence-guided/caregiver-burnout-prevention/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "care-guides/evidence-guided/choosing-a-service-provider/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "care-guides/evidence-guided/emergency-information-pack/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "care-guides/evidence-guided/first-30-days-after-diagnosis/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "care-guides/evidence-guided/home-school-communication/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "care-guides/evidence-guided/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "care-guides/evidence-guided/managing-transitions-and-change/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "care-guides/evidence-guided/preparing-for-developmental-assessment/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "care-guides/evidence-guided/preparing-for-school-meeting/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "care-guides/evidence-guided/responding-to-behavior-safely/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "care-guides/evidence-guided/safer-mealtimes/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "care-guides/evidence-guided/sleep-routine-planning/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "care-guides/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "comparisons/disability-support/aac-vs-speech-only/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "comparisons/disability-support/accommodation-vs-modification/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "comparisons/disability-support/behavior-plan-vs-punishment/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "comparisons/disability-support/diagnosis-vs-functioning-profile/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "comparisons/disability-support/inclusion-vs-integration/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "comparisons/disability-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "comparisons/disability-support/therapy-goals-vs-life-participation-goals/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "comparisons/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "contact/index.html",
       "status": "current",
       "detail": ""
     },
     {
       "path": "copyright/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "daily-tools/disability-support/functional-profile-template/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "daily-tools/disability-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "daily-tools/disability-support/multidisciplinary-meeting-template/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "daily-tools/disability-support/service-quality-scorecard/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "daily-tools/disability-support/support-plan-review-checklist/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "daily-tools/index.html",
       "status": "current",
       "detail": ""
     },
@@ -385,7 +525,17 @@
       "detail": ""
     },
     {
+      "path": "family-guide/tools/accommodations-modifications/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "family-guide/tools/appointment-prep/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/assistive-technology-trial/index.html",
       "status": "current",
       "detail": ""
     },
@@ -395,7 +545,62 @@
       "detail": ""
     },
     {
+      "path": "family-guide/tools/communication-aac-profile/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "family-guide/tools/family-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/functional-behavior-support-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/inclusive-classroom-observation/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/individualized-education-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/measurable-goals/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/present-levels-baseline/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/progress-monitoring/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/school-family-meeting-record/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/sensory-environment-access/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/transition-to-adulthood-plan/index.html",
       "status": "current",
       "detail": ""
     },
@@ -410,47 +615,152 @@
       "detail": ""
     },
     {
+      "path": "learning-paths/aac-classroom-community-implementation/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "learning-paths/aac-partner/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/accessible-content-creator/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/accessible-fair-multimodal-assessment/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/assistive-technology-coordinator/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/assistive-technology-selection-trial-implementation/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/caregiver-foundations/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/co-teaching-special-education/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/data-based-individualization-special-education/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/emergency-readiness-leader/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/evidence-guided/aac-foundations/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/evidence-guided/assistive-technology-service-delivery/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/evidence-guided/disability-rights-foundations/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/evidence-guided/family-centered-practice-course/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/evidence-guided/icf-for-practitioners/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/evidence-guided/inclusive-education-foundations/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/evidence-guided/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/evidence-guided/positive-behavior-support-foundations/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/evidence-guided/transition-to-adulthood-course/index.html",
       "status": "updated",
       "detail": ""
     },
     {
       "path": "learning-paths/evidence-literacy/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/explicit-systematic-instruction-special-education/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/family-school-partnership-special-education/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/functional-behavior-assessment-positive-support/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/iep-goals-progress-monitoring/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/inclusive-education-quality-audit/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/inclusive-school-leader/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/inclusive-teacher/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/intensive-arabic-reading-intervention/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/intensive-mathematics-intervention-special-education/index.html",
       "status": "current",
       "detail": ""
     },
@@ -460,38 +770,68 @@
       "detail": ""
     },
     {
+      "path": "learning-paths/paraprofessional-support-student-independence/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "learning-paths/positive-behavior-support/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/postsecondary-transition-planning/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/self-advocacy/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/sensory-access/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/service-quality-audit/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/special-education/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/special-educator-evidence/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/student-led-iep-self-determination/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/supported-employment/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/task-analysis-prompting-fading/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/transition-coordinator/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/writing-spelling-intervention-arabic/index.html",
+      "status": "current",
       "detail": ""
     },
     {
@@ -860,6 +1200,11 @@
       "detail": ""
     },
     {
+      "path": "magazine/universal-digital-mental-health-youth-systematic-review-2026.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "magazine/visual-impairment-mental-health-review-2026.html",
       "status": "current",
       "detail": ""
@@ -1046,52 +1391,52 @@
     },
     {
       "path": "sectors/child/guides/accessible-playground/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/bullying-protection/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/child-communication-access/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/child-health-visit/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/developmental-observation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/early-routines/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/executive-function-routines/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/friendship-support/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/play-participation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/preschool-transition/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -1116,42 +1461,42 @@
     },
     {
       "path": "sectors/family/guides/caregiver-load-review/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/family/guides/family-emergency-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/family/guides/family-routine-redesign/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/family/guides/family-strengths-map/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/family/guides/monthly-family-review/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/family/guides/service-navigation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/family/guides/shared-family-decisions/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/family/guides/sibling-wellbeing/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -1176,37 +1521,37 @@
     },
     {
       "path": "sectors/home/guides/home-accessibility-audit/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/home/guides/home-calm-environment/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/home/guides/home-evacuation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/home/guides/home-mealtime-routine/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/home/guides/home-personal-care/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/home/guides/safe-home-movement/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/home/guides/visual-home-routines/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -1230,7 +1575,172 @@
       "detail": ""
     },
     {
+      "path": "sectors/women/guides/birth-trauma-informed-support/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/body-image-eating-warning-signs/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/caregiving-load-wellbeing-review/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/chronic-illness-disability-mental-health/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/cycle-mood-pattern-tracking/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/infertility-treatment-emotional-support/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/intimate-partner-violence-safe-help/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/perimenopause-mental-health-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/perinatal-mental-health-check-in/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/postpartum-changes-and-urgent-signs/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/pregnancy-anxiety-support-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/pregnancy-loss-grief-support/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/refugee-migrant-women-access/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/sleep-life-transition-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/work-care-accommodations/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/anxiety-school-attendance/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/bullying-cyberbullying-response/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/depression-warning-response/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/early-psychosis-assessment/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/eating-disorder-warning-signs/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/help-seeking-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/loneliness-friendship-conflict/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/mental-health-literacy/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/school-exam-stress/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/school-to-university-work-transition/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/self-harm-immediate-response/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/shared-decision-participation/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/sleep-digital-habits/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/substance-use-early-support/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/suicide-safety-escalation/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "source-registry/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "source-registry/rights/index.html",
       "status": "current",
       "detail": ""
     },
@@ -1265,8 +1775,443 @@
       "detail": ""
     },
     {
+      "path": "special-needs/conditions/cerebral-palsy/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/conditions/cornelia-de-lange-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/conditions/fragile-x-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/conditions/global-developmental-delay/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "special-needs/conditions/prader-willi-syndrome/index.html",
       "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/conditions/rett-syndrome/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/assessment/developmental-monitoring-referral/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/assessment/functional-goal-setting/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/assessment/icf-functioning-participation/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/assessment/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/assessment/multidisciplinary-assessment/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/assessment/outcome-measurement/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/assessment/person-centered-support-planning/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/assessment/shared-decision-making/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/assessment/strengths-needs-profile/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/assessment/supported-decision-making/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/communication/aac-high-tech-systems/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/communication/aac-low-tech-systems/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/communication/aac-readiness-and-assessment/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/communication/accessible-information-easy-read/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/communication/communication-access-assessment/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/communication/communication-partner-training/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/communication/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/education/attendance-participation-barriers/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/education/classroom-accommodations/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/education/curriculum-access/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/education/inclusive-assessment-school/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/education/inclusive-early-childhood/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/education/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/education/individualized-education-planning/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/education/peer-inclusion-belonging/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/education/school-transition-planning/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/education/universal-design-for-learning/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/family/caregiver-wellbeing/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/family/family-centered-practice/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/family/home-routine-design/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/family/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/family/respite-care-planning/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/family/sibling-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/health/epilepsy-safety-plan/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/health/feeding-eating-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/health/hearing-access-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/health/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/health/medication-review-developmental-disability/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/health/oral-health-access/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/health/pain-recognition-nonspeaking/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/health/sleep-assessment-developmental-disability/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/health/swallowing-safety-referral/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/health/vision-access-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/mobility-at/assistive-technology-assessment/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/mobility-at/assistive-technology-trial/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/mobility-at/device-training-maintenance/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/mobility-at/digital-accessibility-cognitive/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/mobility-at/falls-risk-and-safe-mobility/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/mobility-at/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/mobility-at/mobility-and-positioning/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/mobility-at/pressure-injury-prevention/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/mobility-at/smart-home-accessibility/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/mobility-at/wheelchair-seating-service/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/participation/community-participation/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/participation/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/participation/public-transport-access/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/participation/recreation-sport-inclusion/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/safeguarding/bullying-prevention-disability/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/safeguarding/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/safeguarding/safeguarding-abuse-prevention/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/safeguarding/sexuality-education-disability/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/sensory-behavior/behavior-functional-assessment/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/sensory-behavior/distress-and-meltdown-prevention/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/sensory-behavior/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/sensory-behavior/positive-behavior-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/sensory-behavior/sensory-environment-audit/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/sensory-behavior/sensory-regulation-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/system-quality/disaster-inclusive-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/system-quality/emergency-preparedness-disability/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/system-quality/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/system-quality/rehabilitation-goal-review/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/system-quality/service-quality-audit/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/transition/aging-with-developmental-disability/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/transition/financial-capacity-benefits-navigation/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/transition/health-transition-pediatric-adult/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/transition/higher-education-access/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/transition/independent-living-skills/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/transition/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/transition/supported-living-quality/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/transition/transition-to-adulthood/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/guides/transition/vocational-profile-supported-employment/index.html",
+      "status": "updated",
       "detail": ""
     },
     {
@@ -1276,302 +2221,302 @@
     },
     {
       "path": "special-needs/practical/aac-needs-assessment-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/accessible-arabic-documents/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/accessible-forms-authentication/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/accessible-homework/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/accessible-instructions/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/activity-transition-support/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/arabic-multilingual-aac/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/assessment-accommodations/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/assistive-device-backup-maintenance/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/assistive-technology-needs-matching/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/assistive-technology-trial/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/calm-space-design/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/choice-consent-communication/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/classroom-participation-baseline/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/co-regulation-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/communication-breakdown-repair/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/communication-partner-training/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/community-participation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/community-sensory-planning/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/core-vocabulary-daily-routines/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/daily-data-notebook/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/dental-visit-preparation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/device-abandonment-prevention/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/distress-prevention-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/emergency-preparedness/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/emotional-communication-map/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/employment-discovery/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/functional-behavior-observation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/functional-communication-profile/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/goal-prioritization/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/hospital-communication-passport/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/independent-living-supports/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/lighting-visual-load/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/low-tech-supports/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/mealtime-participation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/mobility-positioning-participation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/money-skills-support/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/multidisciplinary-meeting/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/noise-management-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/pain-communication/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/peer-participation-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/personal-care-independence/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/personal-care-sensory-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/post-crisis-debrief/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/predictable-transitions/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/public-transport-readiness/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/restrictive-practice-reduction/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/safeguarding-boundaries/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/school-home-communication/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/school-reentry-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/self-injury-safety-response/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/sensory-environment-audit/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/shared-support-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/sibling-inclusion-support/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/supported-decision-making/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/toileting-dignity-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/transition-needs-assessment/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/trauma-informed-support/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/universal-design-lesson-adaptation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/workplace-accommodations/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
