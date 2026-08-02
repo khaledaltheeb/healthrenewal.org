@@ -126,8 +126,15 @@ def normalize_url(url: str) -> str:
         or (scheme == "http" and port == 80)
     ):
         netloc = f"{host}:{port}"
-    path = parsed.path or "/"
-    return urllib.parse.urlunsplit((scheme, netloc, path, parsed.query, ""))
+    path = urllib.parse.quote(
+        urllib.parse.unquote(parsed.path or "/"),
+        safe="/%:@!$&'()*+,;=-._~",
+    )
+    query = urllib.parse.quote(
+        urllib.parse.unquote(parsed.query),
+        safe="=&?/:;+,%@-._~",
+    )
+    return urllib.parse.urlunsplit((scheme, netloc, path, query, ""))
 
 
 def same_origin(url: str, origin: str) -> bool:
@@ -146,8 +153,9 @@ def same_origin(url: str, origin: str) -> bool:
 
 def request_url(url: str, *, timeout: int, limit: int) -> FetchResult:
     started = time.monotonic()
+    request_target = normalize_url(url)
     request = urllib.request.Request(
-        url,
+        request_target,
         headers={
             "User-Agent": USER_AGENT,
             "Accept": (
