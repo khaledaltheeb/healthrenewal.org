@@ -1,0 +1,820 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-08-02",
+  "passed": true,
+  "pageCount": 100,
+  "distribution": {
+    "special-needs": 70,
+    "care-guides": 12,
+    "learning-paths": 8,
+    "comparisons": 6,
+    "daily-tools": 4
+  },
+  "minimumRequiredWords": 1800,
+  "minimumObservedWords": 2611,
+  "averageWords": 2722.0,
+  "maximumObservedWords": 2871,
+  "pages": [
+    {
+      "sector": "special-needs",
+      "cluster": "assessment",
+      "title": "التخطيط المتمحور حول الشخص",
+      "path": "special-needs/guides/assessment/person-centered-support-planning/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/assessment/person-centered-support-planning/",
+      "words": 2803
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "assessment",
+      "title": "بناء ملف الأداء والمشاركة وفق ICF",
+      "path": "special-needs/guides/assessment/icf-functioning-participation/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/assessment/icf-functioning-participation/",
+      "words": 2798
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "assessment",
+      "title": "ملف نقاط القوة والاحتياجات",
+      "path": "special-needs/guides/assessment/strengths-needs-profile/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/assessment/strengths-needs-profile/",
+      "words": 2795
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "assessment",
+      "title": "التقييم متعدد التخصصات",
+      "path": "special-needs/guides/assessment/multidisciplinary-assessment/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/assessment/multidisciplinary-assessment/",
+      "words": 2730
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "assessment",
+      "title": "المراقبة النمائية والإحالة المبكرة",
+      "path": "special-needs/guides/assessment/developmental-monitoring-referral/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/assessment/developmental-monitoring-referral/",
+      "words": 2801
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "assessment",
+      "title": "صياغة الأهداف الوظيفية القابلة للقياس",
+      "path": "special-needs/guides/assessment/functional-goal-setting/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/assessment/functional-goal-setting/",
+      "words": 2783
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "assessment",
+      "title": "قياس النتائج وجودة الحياة",
+      "path": "special-needs/guides/assessment/outcome-measurement/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/assessment/outcome-measurement/",
+      "words": 2754
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "assessment",
+      "title": "اتخاذ القرار المشترك",
+      "path": "special-needs/guides/assessment/shared-decision-making/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/assessment/shared-decision-making/",
+      "words": 2687
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "assessment",
+      "title": "اتخاذ القرار المدعوم",
+      "path": "special-needs/guides/assessment/supported-decision-making/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/assessment/supported-decision-making/",
+      "words": 2720
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "communication",
+      "title": "تقييم إتاحة التواصل",
+      "path": "special-needs/guides/communication/communication-access-assessment/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/communication/communication-access-assessment/",
+      "words": 2779
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "communication",
+      "title": "تقييم الحاجة إلى التواصل المعزز والبديل AAC",
+      "path": "special-needs/guides/communication/aac-readiness-and-assessment/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/communication/aac-readiness-and-assessment/",
+      "words": 2871
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "communication",
+      "title": "أنظمة AAC منخفضة التقنية",
+      "path": "special-needs/guides/communication/aac-low-tech-systems/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/communication/aac-low-tech-systems/",
+      "words": 2786
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "communication",
+      "title": "أنظمة AAC عالية التقنية",
+      "path": "special-needs/guides/communication/aac-high-tech-systems/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/communication/aac-high-tech-systems/",
+      "words": 2722
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "communication",
+      "title": "تدريب شركاء التواصل",
+      "path": "special-needs/guides/communication/communication-partner-training/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/communication/communication-partner-training/",
+      "words": 2778
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "communication",
+      "title": "المعلومات المبسطة سهلة القراءة",
+      "path": "special-needs/guides/communication/accessible-information-easy-read/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/communication/accessible-information-easy-read/",
+      "words": 2761
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "sensory_behavior",
+      "title": "تدقيق البيئة الحسية",
+      "path": "special-needs/guides/sensory-behavior/sensory-environment-audit/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/sensory-behavior/sensory-environment-audit/",
+      "words": 2752
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "sensory_behavior",
+      "title": "دعم التنظيم الحسي",
+      "path": "special-needs/guides/sensory-behavior/sensory-regulation-support/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/sensory-behavior/sensory-regulation-support/",
+      "words": 2774
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "sensory_behavior",
+      "title": "التقييم الوظيفي للسلوك",
+      "path": "special-needs/guides/sensory-behavior/behavior-functional-assessment/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/sensory-behavior/behavior-functional-assessment/",
+      "words": 2732
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "sensory_behavior",
+      "title": "الدعم السلوكي الإيجابي",
+      "path": "special-needs/guides/sensory-behavior/positive-behavior-support/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/sensory-behavior/positive-behavior-support/",
+      "words": 2743
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "sensory_behavior",
+      "title": "الوقاية من الضيق والانهيار",
+      "path": "special-needs/guides/sensory-behavior/distress-and-meltdown-prevention/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/sensory-behavior/distress-and-meltdown-prevention/",
+      "words": 2839
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "health",
+      "title": "تقييم النوم لدى ذوي الإعاقات النمائية",
+      "path": "special-needs/guides/health/sleep-assessment-developmental-disability/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/health/sleep-assessment-developmental-disability/",
+      "words": 2766
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "health",
+      "title": "دعم الأكل والتغذية الانتقائية",
+      "path": "special-needs/guides/health/feeding-eating-support/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/health/feeding-eating-support/",
+      "words": 2723
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "health",
+      "title": "سلامة البلع ومتى تلزم الإحالة",
+      "path": "special-needs/guides/health/swallowing-safety-referral/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/health/swallowing-safety-referral/",
+      "words": 2758
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "health",
+      "title": "التعرف إلى الألم لدى غير الناطقين",
+      "path": "special-needs/guides/health/pain-recognition-nonspeaking/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/health/pain-recognition-nonspeaking/",
+      "words": 2779
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "health",
+      "title": "خطة أمان الصرع والنوبات",
+      "path": "special-needs/guides/health/epilepsy-safety-plan/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/health/epilepsy-safety-plan/",
+      "words": 2747
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "health",
+      "title": "مراجعة الأدوية لدى ذوي الإعاقات النمائية",
+      "path": "special-needs/guides/health/medication-review-developmental-disability/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/health/medication-review-developmental-disability/",
+      "words": 2785
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "health",
+      "title": "إتاحة صحة الفم والأسنان",
+      "path": "special-needs/guides/health/oral-health-access/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/health/oral-health-access/",
+      "words": 2708
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "health",
+      "title": "دعم الوصول عند الإعاقة البصرية",
+      "path": "special-needs/guides/health/vision-access-support/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/health/vision-access-support/",
+      "words": 2747
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "health",
+      "title": "دعم الوصول عند فقدان السمع",
+      "path": "special-needs/guides/health/hearing-access-support/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/health/hearing-access-support/",
+      "words": 2723
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "mobility_at",
+      "title": "الحركة والتموضع الوظيفي",
+      "path": "special-needs/guides/mobility-at/mobility-and-positioning/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/mobility-at/mobility-and-positioning/",
+      "words": 2705
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "mobility_at",
+      "title": "خدمة الكراسي المتحركة والجلوس",
+      "path": "special-needs/guides/mobility-at/wheelchair-seating-service/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/mobility-at/wheelchair-seating-service/",
+      "words": 2660
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "mobility_at",
+      "title": "الوقاية من إصابات الضغط",
+      "path": "special-needs/guides/mobility-at/pressure-injury-prevention/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/mobility-at/pressure-injury-prevention/",
+      "words": 2712
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "mobility_at",
+      "title": "مخاطر السقوط والحركة الآمنة",
+      "path": "special-needs/guides/mobility-at/falls-risk-and-safe-mobility/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/mobility-at/falls-risk-and-safe-mobility/",
+      "words": 2713
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "mobility_at",
+      "title": "تقييم التقنيات المساعدة",
+      "path": "special-needs/guides/mobility-at/assistive-technology-assessment/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/mobility-at/assistive-technology-assessment/",
+      "words": 2717
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "mobility_at",
+      "title": "تجربة التقنية المساعدة قبل الاعتماد",
+      "path": "special-needs/guides/mobility-at/assistive-technology-trial/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/mobility-at/assistive-technology-trial/",
+      "words": 2742
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "mobility_at",
+      "title": "تدريب وصيانة الأجهزة المساعدة",
+      "path": "special-needs/guides/mobility-at/device-training-maintenance/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/mobility-at/device-training-maintenance/",
+      "words": 2704
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "mobility_at",
+      "title": "إتاحة المنزل الذكي",
+      "path": "special-needs/guides/mobility-at/smart-home-accessibility/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/mobility-at/smart-home-accessibility/",
+      "words": 2722
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "mobility_at",
+      "title": "الإتاحة الرقمية والمعرفية",
+      "path": "special-needs/guides/mobility-at/digital-accessibility-cognitive/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/mobility-at/digital-accessibility-cognitive/",
+      "words": 2741
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "education",
+      "title": "الدمج في الطفولة المبكرة",
+      "path": "special-needs/guides/education/inclusive-early-childhood/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/education/inclusive-early-childhood/",
+      "words": 2765
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "education",
+      "title": "التصميم الشامل للتعلم UDL",
+      "path": "special-needs/guides/education/universal-design-for-learning/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/education/universal-design-for-learning/",
+      "words": 2670
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "education",
+      "title": "التيسيرات الصفية",
+      "path": "special-needs/guides/education/classroom-accommodations/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/education/classroom-accommodations/",
+      "words": 2699
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "education",
+      "title": "بناء الخطة التعليمية الفردية",
+      "path": "special-needs/guides/education/individualized-education-planning/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/education/individualized-education-planning/",
+      "words": 2649
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "education",
+      "title": "الوصول إلى المنهج",
+      "path": "special-needs/guides/education/curriculum-access/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/education/curriculum-access/",
+      "words": 2725
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "education",
+      "title": "التقييم المدرسي الدامج",
+      "path": "special-needs/guides/education/inclusive-assessment-school/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/education/inclusive-assessment-school/",
+      "words": 2708
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "education",
+      "title": "الانتقال بين المراحل والمدارس",
+      "path": "special-needs/guides/education/school-transition-planning/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/education/school-transition-planning/",
+      "words": 2657
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "education",
+      "title": "عوائق الحضور والمشاركة المدرسية",
+      "path": "special-needs/guides/education/attendance-participation-barriers/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/education/attendance-participation-barriers/",
+      "words": 2690
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "education",
+      "title": "الاندماج مع الأقران والشعور بالانتماء",
+      "path": "special-needs/guides/education/peer-inclusion-belonging/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/education/peer-inclusion-belonging/",
+      "words": 2732
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "safeguarding",
+      "title": "منع التنمر المرتبط بالإعاقة",
+      "path": "special-needs/guides/safeguarding/bullying-prevention-disability/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/safeguarding/bullying-prevention-disability/",
+      "words": 2720
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "safeguarding",
+      "title": "التربية الجنسية الآمنة لذوي الإعاقة",
+      "path": "special-needs/guides/safeguarding/sexuality-education-disability/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/safeguarding/sexuality-education-disability/",
+      "words": 2738
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "safeguarding",
+      "title": "الحماية من الإساءة والاستغلال",
+      "path": "special-needs/guides/safeguarding/safeguarding-abuse-prevention/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/safeguarding/safeguarding-abuse-prevention/",
+      "words": 2727
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "family",
+      "title": "الممارسة المتمحورة حول الأسرة",
+      "path": "special-needs/guides/family/family-centered-practice/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/family/family-centered-practice/",
+      "words": 2748
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "family",
+      "title": "رفاه مقدمي الرعاية",
+      "path": "special-needs/guides/family/caregiver-wellbeing/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/family/caregiver-wellbeing/",
+      "words": 2705
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "family",
+      "title": "دعم الإخوة والأخوات",
+      "path": "special-needs/guides/family/sibling-support/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/family/sibling-support/",
+      "words": 2689
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "family",
+      "title": "تخطيط الرعاية البديلة والاستراحة",
+      "path": "special-needs/guides/family/respite-care-planning/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/family/respite-care-planning/",
+      "words": 2676
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "family",
+      "title": "تصميم الروتين المنزلي الداعم",
+      "path": "special-needs/guides/family/home-routine-design/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/family/home-routine-design/",
+      "words": 2714
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "participation",
+      "title": "المشاركة المجتمعية",
+      "path": "special-needs/guides/participation/community-participation/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/participation/community-participation/",
+      "words": 2656
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "participation",
+      "title": "الدمج في الرياضة والترفيه",
+      "path": "special-needs/guides/participation/recreation-sport-inclusion/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/participation/recreation-sport-inclusion/",
+      "words": 2693
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "participation",
+      "title": "إتاحة النقل العام",
+      "path": "special-needs/guides/participation/public-transport-access/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/participation/public-transport-access/",
+      "words": 2611
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "transition",
+      "title": "الانتقال إلى الرشد",
+      "path": "special-needs/guides/transition/transition-to-adulthood/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/transition/transition-to-adulthood/",
+      "words": 2695
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "transition",
+      "title": "الملف المهني والعمل المدعوم",
+      "path": "special-needs/guides/transition/vocational-profile-supported-employment/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/transition/vocational-profile-supported-employment/",
+      "words": 2723
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "transition",
+      "title": "الوصول إلى التعليم العالي",
+      "path": "special-needs/guides/transition/higher-education-access/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/transition/higher-education-access/",
+      "words": 2645
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "transition",
+      "title": "القدرة المالية والتنقل بين المنافع",
+      "path": "special-needs/guides/transition/financial-capacity-benefits-navigation/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/transition/financial-capacity-benefits-navigation/",
+      "words": 2806
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "transition",
+      "title": "مهارات العيش المستقل",
+      "path": "special-needs/guides/transition/independent-living-skills/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/transition/independent-living-skills/",
+      "words": 2716
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "transition",
+      "title": "جودة السكن المدعوم",
+      "path": "special-needs/guides/transition/supported-living-quality/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/transition/supported-living-quality/",
+      "words": 2654
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "transition",
+      "title": "الانتقال من خدمات الأطفال إلى البالغين",
+      "path": "special-needs/guides/transition/health-transition-pediatric-adult/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/transition/health-transition-pediatric-adult/",
+      "words": 2716
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "transition",
+      "title": "التقدم في العمر مع الإعاقات النمائية",
+      "path": "special-needs/guides/transition/aging-with-developmental-disability/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/transition/aging-with-developmental-disability/",
+      "words": 2763
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "system_quality",
+      "title": "الاستعداد للطوارئ مع الإعاقة",
+      "path": "special-needs/guides/system-quality/emergency-preparedness-disability/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/system-quality/emergency-preparedness-disability/",
+      "words": 2684
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "system_quality",
+      "title": "الدعم الدامج في الكوارث",
+      "path": "special-needs/guides/system-quality/disaster-inclusive-support/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/system-quality/disaster-inclusive-support/",
+      "words": 2702
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "system_quality",
+      "title": "مراجعة أهداف التأهيل",
+      "path": "special-needs/guides/system-quality/rehabilitation-goal-review/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/system-quality/rehabilitation-goal-review/",
+      "words": 2688
+    },
+    {
+      "sector": "special-needs",
+      "cluster": "system_quality",
+      "title": "تدقيق جودة خدمات الإعاقة",
+      "path": "special-needs/guides/system-quality/service-quality-audit/index.html",
+      "url": "https://healthrenewal.org/special-needs/guides/system-quality/service-quality-audit/",
+      "words": 2698
+    },
+    {
+      "sector": "care-guides",
+      "cluster": "care",
+      "title": "أول 30 يومًا بعد التشخيص",
+      "path": "care-guides/evidence-guided/first-30-days-after-diagnosis/index.html",
+      "url": "https://healthrenewal.org/care-guides/evidence-guided/first-30-days-after-diagnosis/",
+      "words": 2775
+    },
+    {
+      "sector": "care-guides",
+      "cluster": "care",
+      "title": "الاستعداد للتقييم النمائي",
+      "path": "care-guides/evidence-guided/preparing-for-developmental-assessment/index.html",
+      "url": "https://healthrenewal.org/care-guides/evidence-guided/preparing-for-developmental-assessment/",
+      "words": 2697
+    },
+    {
+      "sector": "care-guides",
+      "cluster": "care",
+      "title": "الاستعداد لاجتماع المدرسة",
+      "path": "care-guides/evidence-guided/preparing-for-school-meeting/index.html",
+      "url": "https://healthrenewal.org/care-guides/evidence-guided/preparing-for-school-meeting/",
+      "words": 2679
+    },
+    {
+      "sector": "care-guides",
+      "cluster": "care",
+      "title": "بناء تواصل فعال بين المنزل والمدرسة",
+      "path": "care-guides/evidence-guided/home-school-communication/index.html",
+      "url": "https://healthrenewal.org/care-guides/evidence-guided/home-school-communication/",
+      "words": 2756
+    },
+    {
+      "sector": "care-guides",
+      "cluster": "care",
+      "title": "بناء فرص التواصل اليومية",
+      "path": "care-guides/evidence-guided/building-daily-communication-opportunities/index.html",
+      "url": "https://healthrenewal.org/care-guides/evidence-guided/building-daily-communication-opportunities/",
+      "words": 2754
+    },
+    {
+      "sector": "care-guides",
+      "cluster": "care",
+      "title": "إدارة الانتقالات والتغيير",
+      "path": "care-guides/evidence-guided/managing-transitions-and-change/index.html",
+      "url": "https://healthrenewal.org/care-guides/evidence-guided/managing-transitions-and-change/",
+      "words": 2673
+    },
+    {
+      "sector": "care-guides",
+      "cluster": "care",
+      "title": "وجبات أكثر أمانًا وهدوءًا",
+      "path": "care-guides/evidence-guided/safer-mealtimes/index.html",
+      "url": "https://healthrenewal.org/care-guides/evidence-guided/safer-mealtimes/",
+      "words": 2717
+    },
+    {
+      "sector": "care-guides",
+      "cluster": "care",
+      "title": "تخطيط روتين النوم",
+      "path": "care-guides/evidence-guided/sleep-routine-planning/index.html",
+      "url": "https://healthrenewal.org/care-guides/evidence-guided/sleep-routine-planning/",
+      "words": 2714
+    },
+    {
+      "sector": "care-guides",
+      "cluster": "care",
+      "title": "الاستجابة الآمنة للسلوك الصعب",
+      "path": "care-guides/evidence-guided/responding-to-behavior-safely/index.html",
+      "url": "https://healthrenewal.org/care-guides/evidence-guided/responding-to-behavior-safely/",
+      "words": 2722
+    },
+    {
+      "sector": "care-guides",
+      "cluster": "care",
+      "title": "الوقاية من إنهاك مقدم الرعاية",
+      "path": "care-guides/evidence-guided/caregiver-burnout-prevention/index.html",
+      "url": "https://healthrenewal.org/care-guides/evidence-guided/caregiver-burnout-prevention/",
+      "words": 2746
+    },
+    {
+      "sector": "care-guides",
+      "cluster": "care",
+      "title": "حقيبة معلومات الطوارئ",
+      "path": "care-guides/evidence-guided/emergency-information-pack/index.html",
+      "url": "https://healthrenewal.org/care-guides/evidence-guided/emergency-information-pack/",
+      "words": 2693
+    },
+    {
+      "sector": "care-guides",
+      "cluster": "care",
+      "title": "اختيار مقدم خدمة موثوق",
+      "path": "care-guides/evidence-guided/choosing-a-service-provider/index.html",
+      "url": "https://healthrenewal.org/care-guides/evidence-guided/choosing-a-service-provider/",
+      "words": 2703
+    },
+    {
+      "sector": "learning-paths",
+      "cluster": "learning",
+      "title": "أسس حقوق الأشخاص ذوي الإعاقة",
+      "path": "learning-paths/evidence-guided/disability-rights-foundations/index.html",
+      "url": "https://healthrenewal.org/learning-paths/evidence-guided/disability-rights-foundations/",
+      "words": 2680
+    },
+    {
+      "sector": "learning-paths",
+      "cluster": "learning",
+      "title": "تطبيق ICF للممارسين",
+      "path": "learning-paths/evidence-guided/icf-for-practitioners/index.html",
+      "url": "https://healthrenewal.org/learning-paths/evidence-guided/icf-for-practitioners/",
+      "words": 2670
+    },
+    {
+      "sector": "learning-paths",
+      "cluster": "learning",
+      "title": "أسس التعليم الدامج",
+      "path": "learning-paths/evidence-guided/inclusive-education-foundations/index.html",
+      "url": "https://healthrenewal.org/learning-paths/evidence-guided/inclusive-education-foundations/",
+      "words": 2660
+    },
+    {
+      "sector": "learning-paths",
+      "cluster": "learning",
+      "title": "أسس التواصل المعزز والبديل AAC",
+      "path": "learning-paths/evidence-guided/aac-foundations/index.html",
+      "url": "https://healthrenewal.org/learning-paths/evidence-guided/aac-foundations/",
+      "words": 2711
+    },
+    {
+      "sector": "learning-paths",
+      "cluster": "learning",
+      "title": "أسس الدعم السلوكي الإيجابي",
+      "path": "learning-paths/evidence-guided/positive-behavior-support-foundations/index.html",
+      "url": "https://healthrenewal.org/learning-paths/evidence-guided/positive-behavior-support-foundations/",
+      "words": 2648
+    },
+    {
+      "sector": "learning-paths",
+      "cluster": "learning",
+      "title": "تقديم خدمة التقنيات المساعدة",
+      "path": "learning-paths/evidence-guided/assistive-technology-service-delivery/index.html",
+      "url": "https://healthrenewal.org/learning-paths/evidence-guided/assistive-technology-service-delivery/",
+      "words": 2679
+    },
+    {
+      "sector": "learning-paths",
+      "cluster": "learning",
+      "title": "مسار الممارسة المتمحورة حول الأسرة",
+      "path": "learning-paths/evidence-guided/family-centered-practice-course/index.html",
+      "url": "https://healthrenewal.org/learning-paths/evidence-guided/family-centered-practice-course/",
+      "words": 2675
+    },
+    {
+      "sector": "learning-paths",
+      "cluster": "learning",
+      "title": "تخطيط الانتقال إلى الرشد",
+      "path": "learning-paths/evidence-guided/transition-to-adulthood-course/index.html",
+      "url": "https://healthrenewal.org/learning-paths/evidence-guided/transition-to-adulthood-course/",
+      "words": 2688
+    },
+    {
+      "sector": "comparisons",
+      "cluster": "comparison",
+      "title": "التشخيص مقابل ملف الأداء الوظيفي",
+      "path": "comparisons/disability-support/diagnosis-vs-functioning-profile/index.html",
+      "url": "https://healthrenewal.org/comparisons/disability-support/diagnosis-vs-functioning-profile/",
+      "words": 2793
+    },
+    {
+      "sector": "comparisons",
+      "cluster": "comparison",
+      "title": "التيسير مقابل تعديل المنهج",
+      "path": "comparisons/disability-support/accommodation-vs-modification/index.html",
+      "url": "https://healthrenewal.org/comparisons/disability-support/accommodation-vs-modification/",
+      "words": 2689
+    },
+    {
+      "sector": "comparisons",
+      "cluster": "comparison",
+      "title": "الدمج الشامل مقابل الإلحاق أو الدمج الجزئي",
+      "path": "comparisons/disability-support/inclusion-vs-integration/index.html",
+      "url": "https://healthrenewal.org/comparisons/disability-support/inclusion-vs-integration/",
+      "words": 2719
+    },
+    {
+      "sector": "comparisons",
+      "cluster": "comparison",
+      "title": "خطة الدعم السلوكي مقابل العقاب",
+      "path": "comparisons/disability-support/behavior-plan-vs-punishment/index.html",
+      "url": "https://healthrenewal.org/comparisons/disability-support/behavior-plan-vs-punishment/",
+      "words": 2702
+    },
+    {
+      "sector": "comparisons",
+      "cluster": "comparison",
+      "title": "AAC مقابل الاعتماد على الكلام وحده",
+      "path": "comparisons/disability-support/aac-vs-speech-only/index.html",
+      "url": "https://healthrenewal.org/comparisons/disability-support/aac-vs-speech-only/",
+      "words": 2767
+    },
+    {
+      "sector": "comparisons",
+      "cluster": "comparison",
+      "title": "أهداف العلاج مقابل أهداف المشاركة في الحياة",
+      "path": "comparisons/disability-support/therapy-goals-vs-life-participation-goals/index.html",
+      "url": "https://healthrenewal.org/comparisons/disability-support/therapy-goals-vs-life-participation-goals/",
+      "words": 2761
+    },
+    {
+      "sector": "daily-tools",
+      "cluster": "tool",
+      "title": "قالب الملف الوظيفي والمشاركة",
+      "path": "daily-tools/disability-support/functional-profile-template/index.html",
+      "url": "https://healthrenewal.org/daily-tools/disability-support/functional-profile-template/",
+      "words": 2678
+    },
+    {
+      "sector": "daily-tools",
+      "cluster": "tool",
+      "title": "قالب اجتماع الفريق متعدد التخصصات",
+      "path": "daily-tools/disability-support/multidisciplinary-meeting-template/index.html",
+      "url": "https://healthrenewal.org/daily-tools/disability-support/multidisciplinary-meeting-template/",
+      "words": 2661
+    },
+    {
+      "sector": "daily-tools",
+      "cluster": "tool",
+      "title": "قائمة مراجعة خطة الدعم",
+      "path": "daily-tools/disability-support/support-plan-review-checklist/index.html",
+      "url": "https://healthrenewal.org/daily-tools/disability-support/support-plan-review-checklist/",
+      "words": 2703
+    },
+    {
+      "sector": "daily-tools",
+      "cluster": "tool",
+      "title": "بطاقة تقييم جودة الخدمة",
+      "path": "daily-tools/disability-support/service-quality-scorecard/index.html",
+      "url": "https://healthrenewal.org/daily-tools/disability-support/service-quality-scorecard/",
+      "words": 2665
+    }
+  ],
+  "topicSpecificLayer": true
+}

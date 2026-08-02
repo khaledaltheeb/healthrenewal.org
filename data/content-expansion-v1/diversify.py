@@ -8,7 +8,7 @@ import json
 import re
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data/content-expansion-v1"
 REPORT = ROOT / "reports/content-expansion-v1.json"
 MARKER = "<!-- content-expansion-specific-v1 -->"

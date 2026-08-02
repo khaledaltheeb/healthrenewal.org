@@ -1,13 +1,16 @@
 <?xml version='1.0' encoding='utf-8'?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
-    <loc>https://healthrenewal.org/sitemap.xml</loc>
-  </sitemap>
-  <sitemap>
     <loc>https://healthrenewal.org/sitemap-accessibility.xml</loc>
   </sitemap>
   <sitemap>
     <loc>https://healthrenewal.org/sitemap-ai-search.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-family-care-guides.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap-family-comparisons.xml</loc>
   </sitemap>
   <sitemap>
     <loc>https://healthrenewal.org/sitemap-family-guide-phase8.xml</loc>
@@ -31,6 +34,9 @@
     <loc>https://healthrenewal.org/sitemap-family-special-needs.xml</loc>
   </sitemap>
   <sitemap>
+    <loc>https://healthrenewal.org/sitemap-family-tools.xml</loc>
+  </sitemap>
+  <sitemap>
     <loc>https://healthrenewal.org/sitemap-outside-the-box-evidence.xml</loc>
   </sitemap>
   <sitemap>
@@ -47,5 +53,8 @@
   </sitemap>
   <sitemap>
     <loc>https://healthrenewal.org/sitemap-specialists-partners.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://healthrenewal.org/sitemap.xml</loc>
   </sitemap>
 </sitemapindex>
