@@ -3,6 +3,10 @@
   <ShortName>البحث الذكي</ShortName>
   <Description>بحث دلالي عربي في منصة روافد</Description>
   <InputEncoding>UTF-8</InputEncoding>
+  <Language>ar</Language>
+  <SyndicationRight>open</SyndicationRight>
   <Image height="64" width="64" type="image/svg+xml">https://healthrenewal.org/assets/brand/logo-mark.svg</Image>
-  <Url type="text/html" method="get" template="https://healthrenewal.org/ai-search/?q={searchTerms}"/>
+  <Url type="application/opensearchdescription+xml" rel="self" template="https://healthrenewal.org/opensearch.xml"/>
+  <Url type="text/html" rel="results" method="get" template="https://healthrenewal.org/ai-search/?q={searchTerms}"/>
+  <Query role="example" searchTerms="القلق"/>
 </OpenSearchDescription>
