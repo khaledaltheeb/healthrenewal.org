@@ -1,0 +1,72 @@
+name: Generate evidence-guided content expansion v1
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - data/content-expansion-v1.json
+      - data/content-expansion-v1/**
+      - scripts/generate_content_expansion_v1.py
+      - scripts/create_content_expansion_root_hubs_v1.py
+      - scripts/update_content_expansion_sitemaps_v1.py
+      - tests/test_content_expansion_v1.py
+      - .github/workflows/generate-content-expansion-v1.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: content-expansion-v1-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  generate-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out source branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile publication scripts and tests
+        run: |
+          python -m py_compile scripts/generate_content_expansion_v1.py
+          python -m py_compile scripts/create_content_expansion_root_hubs_v1.py
+          python -m py_compile scripts/update_content_expansion_sitemaps_v1.py
+          python -m py_compile tests/test_content_expansion_v1.py
+
+      - name: Generate 100 static pages and collection hubs
+        run: python scripts/generate_content_expansion_v1.py
+
+      - name: Create missing root sector hubs
+        run: python scripts/create_content_expansion_root_hubs_v1.py
+
+      - name: Update only relevant sitemap families and public manifest
+        run: python scripts/update_content_expansion_sitemaps_v1.py
+
+      - name: Validate depth evidence semantics similarity and publication scope
+        run: python tests/test_content_expansion_v1.py
+
+      - name: Remove transient Python files
+        run: find . -type d -name __pycache__ -prune -exec rm -rf {} +
+
+      - name: Commit generated publication surface
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+            exit 0
+          fi
+          git commit -m "build: materialize scoped 100-page expansion"
+          git push origin HEAD:${{ github.head_ref || github.ref_name }}
