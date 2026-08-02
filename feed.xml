@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>HealthRenewal | الصحة النفسية وذوو الاحتياجات الخاصة</title>
     <link>https://healthrenewal.org/</link>
+    <atom:link href="https://healthrenewal.org/feed.xml" rel="self" type="application/rss+xml" />
     <description>الخلاصة العامة للمحتوى التعليمي القابل للاكتشاف والاستشهاد في منصة HealthRenewal.</description>
     <language>ar</language>
     <lastBuildDate>Sat, 01 Aug 2026 00:00:00 +0000</lastBuildDate>
     <generator>HealthRenewal machine-readable surface v1</generator>
     <item>
-      <title>منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
+      <title>منصة الصحة النفسية وذوو الاحتياجات الخاصة</title>
       <link>https://healthrenewal.org/</link>
       <guid isPermaLink="true">https://healthrenewal.org/</guid>
       <description>بوابة عربية مؤسسية للمعرفة النفسية والتربية الدامجة والأدلة والأدوات.</description>
