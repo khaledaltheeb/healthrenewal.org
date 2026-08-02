@@ -37,6 +37,7 @@ ALLOWED_DIFF_PATTERNS = (
     "scripts/publish_women_youth_v406.py",
     "tests/test_family_guide_special_education_tools_v1.py",
     "sitemap-family-main.xml",
+    "sitemap-family-sectors.xml",
     "learning-paths/index.html", "learning-paths/evidence-guided/**",
     "reports/content-expansion-v1.json",
     "scripts/generate_content_expansion_v1.py",
