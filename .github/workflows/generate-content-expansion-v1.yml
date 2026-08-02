@@ -44,6 +44,7 @@ jobs:
         run: |
           python -m py_compile scripts/generate_content_expansion_v1.py
           python -m py_compile data/content-expansion-v1/diversify.py
+          python -m py_compile data/content-expansion-v1/apply_evidence_profiles.py
           python -m py_compile scripts/create_content_expansion_root_hubs_v1.py
           python -m py_compile scripts/update_content_expansion_sitemaps_v1.py
           python -m py_compile tests/test_content_expansion_v1.py
@@ -53,6 +54,9 @@ jobs:
 
       - name: Add topic-specific decision layers
         run: python data/content-expansion-v1/diversify.py
+
+      - name: Apply official topic-specific evidence profiles
+        run: python data/content-expansion-v1/apply_evidence_profiles.py
 
       - name: Create missing root sector hubs
         run: python scripts/create_content_expansion_root_hubs_v1.py
