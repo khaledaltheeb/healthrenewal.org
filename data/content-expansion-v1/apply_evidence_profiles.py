@@ -53,9 +53,15 @@ def select_profiles(page: dict, profiles: list[dict]) -> list[dict]:
     searchable = " ".join(
         [page_path(page), page.get("slug", ""), page.get("title", ""), page.get("focus", "")]
     ).lower()
-    specific = [profile for profile in profiles if "*" not in profile.get("match", []) and matches(profile, searchable)]
+    specific = [
+        profile for profile in profiles
+        if "*" not in profile.get("match", []) and matches(profile, searchable)
+    ]
+    exclusive = [profile for profile in specific if profile.get("exclusive") is True]
     default = [profile for profile in profiles if "*" in profile.get("match", [])]
-    return (specific[:2] if specific else default[:1])
+    if exclusive:
+        return exclusive[:2]
+    return specific[:2] if specific else default[:1]
 
 
 def list_html(items: list[str]) -> str:
@@ -123,8 +129,10 @@ def word_count(markup: str) -> int:
 
 def main() -> None:
     config = json.loads((DATA / "official-evidence.json").read_text(encoding="utf-8"))
-    sources = config["sources"]
-    profiles = config["profiles"]
+    overrides_path = DATA / "official-evidence-overrides.json"
+    overrides = json.loads(overrides_path.read_text(encoding="utf-8")) if overrides_path.exists() else {}
+    sources = {**config["sources"], **overrides.get("sources", {})}
+    profiles = [*overrides.get("profiles", []), *config["profiles"]]
     pages = inventory()
     report = json.loads(REPORT.read_text(encoding="utf-8"))
     distribution: dict[str, int] = {}
