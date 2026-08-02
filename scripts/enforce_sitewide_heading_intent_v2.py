@@ -22,6 +22,8 @@ from urllib.parse import unquote, urlparse
 DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BASE_URLS = ("https://healthrenewal.org/",)
 MARKER = 'data-sitewide-heading-intent="v2"'
+LINK_MARKER = 'data-sitewide-internal-links="v2"'
+SCHEMA_MARKER = 'data-sitewide-structured-data="v2"'
 QUESTION_PREFIXES = ("ما هو", "ما هي", "كيف ", "متى ", "هل ", "لماذا ", "ما الفرق", "ماذا ", "لمن ")
 CAPABILITY_HUBS = {"", "expanded", "methodology", "protocol", "registry"}
 
@@ -45,6 +47,8 @@ class PageStatus:
     h3: int
     questions: int
     minimum_questions: int
+    internal_links: int = 0
+    structured_data: bool = False
     changed: bool = False
     error: str = ""
 
@@ -59,6 +63,9 @@ class PageParser(HTMLParser):
         self.headings: list[tuple[int, str]] = []
         self.visible_parts: list[str] = []
         self.meta_name: dict[str, str] = {}
+        self.links: list[str] = []
+        self.jsonld_parts: list[list[str]] = []
+        self.in_jsonld = False
 
     @staticmethod
     def attrs_dict(attrs: list[tuple[str, str | None]]) -> dict[str, str]:
@@ -71,10 +78,15 @@ class PageParser(HTMLParser):
             self.in_title = True
         if tag in {"script", "style", "template", "svg"}:
             self.skip_depth += 1
+        if tag == "script" and data.get("type", "").lower() == "application/ld+json":
+            self.in_jsonld = True
+            self.jsonld_parts.append([])
         if tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
             self.current_heading = (int(tag[1]), [])
         if tag == "meta" and data.get("name"):
             self.meta_name[data["name"].lower()] = data.get("content", "").strip()
+        if tag == "a" and data.get("href"):
+            self.links.append(data["href"].strip())
 
     def handle_endtag(self, tag: str) -> None:
         tag = tag.lower()
@@ -82,12 +94,17 @@ class PageParser(HTMLParser):
             self.in_title = False
         if tag in {"script", "style", "template", "svg"} and self.skip_depth:
             self.skip_depth -= 1
+        if tag == "script" and self.in_jsonld:
+            self.in_jsonld = False
         if self.current_heading and tag == f"h{self.current_heading[0]}":
             level, parts = self.current_heading
             self.headings.append((level, clean_text(" ".join(parts))))
             self.current_heading = None
 
     def handle_data(self, data: str) -> None:
+        if self.in_jsonld and self.jsonld_parts:
+            self.jsonld_parts[-1].append(data)
+            return
         if self.in_title:
             self.title_parts.append(data)
         if self.current_heading is not None:
@@ -115,6 +132,23 @@ def parse_page(source: str) -> PageParser:
     parser.feed(source)
     parser.close()
     return parser
+
+
+def is_internal_href(href: str) -> bool:
+    if not href or href.startswith(("#", "mailto:", "tel:", "javascript:")):
+        return False
+    parsed = urlparse(href)
+    return not parsed.netloc or parsed.netloc == "healthrenewal.org"
+
+
+def has_valid_jsonld(parser: PageParser) -> bool:
+    for parts in parser.jsonld_parts:
+        try:
+            if json.loads("".join(parts)):
+                return True
+        except json.JSONDecodeError:
+            continue
+    return False
 
 
 def count_questions(parser: PageParser) -> int:
@@ -260,6 +294,31 @@ def render_section(kind: str, label: str, description: str) -> str:
     return "\n".join(parts)
 
 
+def render_related_links() -> str:
+    return "\n".join((
+        f'<nav class="seo-related-links" {LINK_MARKER} aria-label="مسارات مرتبطة">',
+        '<a href="/">الرئيسية</a>',
+        '<a href="/library/">المكتبة</a>',
+        '<a href="/resources/">الموارد</a>',
+        "</nav>",
+    ))
+
+
+def render_structured_data(target: PageTarget, parser: PageParser) -> str:
+    label = first_h1(parser)
+    payload = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "@id": target.url,
+        "url": target.url,
+        "name": label,
+        "description": safe_description(parser, label),
+        "inLanguage": "ar",
+    }
+    encoded = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+    return f'<script type="application/ld+json" {SCHEMA_MARKER}>{encoded}</script>'
+
+
 def insert_before_main_end(source: str, section: str) -> str:
     matches = list(re.finditer(r"</main\s*>", source, flags=re.I))
     if len(matches) != 1:
@@ -278,6 +337,17 @@ def insert_before_main_end(source: str, section: str) -> str:
     if prefix and not prefix.endswith("\n"):
         prefix += "\n"
     return prefix + rendered + "\n" + source[insertion_at:]
+
+
+def insert_before_head_end(source: str, block: str) -> str:
+    matches = list(re.finditer(r"</head\s*>", source, flags=re.I))
+    if len(matches) != 1:
+        raise RuntimeError(f"Expected exactly one </head>; found {len(matches)}")
+    match = matches[0]
+    prefix = source[:match.start()]
+    if prefix and not prefix.endswith("\n"):
+        prefix += "\n"
+    return prefix + block + "\n" + source[match.start():]
 
 
 def url_to_local(url: str, root: Path, base_urls: tuple[str, ...]) -> tuple[Path, str] | None:
@@ -351,6 +421,8 @@ def status_for(root: Path, target: PageTarget, source: str, *, changed: bool = F
         h3=levels.count(3),
         questions=count_questions(parser),
         minimum_questions=minimum_questions(kind),
+        internal_links=sum(is_internal_href(href) for href in parser.links),
+        structured_data=has_valid_jsonld(parser),
         changed=changed,
     )
 
@@ -371,6 +443,10 @@ def validate_status(status: PageStatus) -> str:
         failures.append(f"h3={status.h3}, expected at least 1")
     if status.questions < status.minimum_questions:
         failures.append(f"questions={status.questions}, expected at least {status.minimum_questions}")
+    if status.internal_links < 3:
+        failures.append(f"internal_links={status.internal_links}, expected at least 3")
+    if not status.structured_data:
+        failures.append("valid JSON-LD structured data is missing")
     return "; ".join(failures)
 
 
@@ -410,6 +486,27 @@ def collect(root: Path, sitemap: Path, base_urls: tuple[str, ...], *, write: boo
                 statuses.append(replace(before, error=str(exc)))
                 continue
             changed = updated != source
+        enriched = status_for(root, target, updated)
+        if enriched.indexable and enriched.internal_links < 3:
+            if LINK_MARKER in updated:
+                statuses.append(replace(enriched, error="internal-link marker exists but contract still fails"))
+                continue
+            try:
+                updated = insert_before_main_end(updated, render_related_links())
+            except RuntimeError as exc:
+                statuses.append(replace(enriched, error=str(exc)))
+                continue
+        enriched = status_for(root, target, updated)
+        if enriched.indexable and not enriched.structured_data:
+            if SCHEMA_MARKER in updated:
+                statuses.append(replace(enriched, error="structured-data marker exists but contract still fails"))
+                continue
+            try:
+                updated = insert_before_head_end(updated, render_structured_data(target, parse_page(updated)))
+            except RuntimeError as exc:
+                statuses.append(replace(enriched, error=str(exc)))
+                continue
+        changed = updated != source
         after = status_for(root, target, updated, changed=changed)
         error = validate_status(after)
         if error:
@@ -443,6 +540,8 @@ def write_report(path: Path, statuses: list[PageStatus], *, applied: int, unsupp
         "all_indexable_have_h2": all(not item.indexable or item.h2 >= 1 for item in statuses),
         "all_indexable_have_h3": all(not item.indexable or item.h3 >= 1 for item in statuses),
         "all_indexable_meet_question_floor": all(not item.indexable or item.questions >= item.minimum_questions for item in statuses),
+        "all_indexable_have_three_internal_links": all(not item.indexable or item.internal_links >= 3 for item in statuses),
+        "all_indexable_have_structured_data": all(not item.indexable or item.structured_data for item in statuses),
         "results": [asdict(item) for item in statuses],
     }
     path.parent.mkdir(parents=True, exist_ok=True)

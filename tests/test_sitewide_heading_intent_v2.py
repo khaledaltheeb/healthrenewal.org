@@ -89,8 +89,11 @@ class SitewideHeadingIntentV2Tests(unittest.TestCase):
     def test_preserves_compliant_page(self) -> None:
         page = '''<!doctype html><html lang="ar" dir="rtl"><head>
 <meta name="robots" content="index,follow"><meta name="description" content="وصف عربي يشرح القسم ومحتواه بوضوح.">
-<title>قسم تجريبي</title></head><body><main><h1>القسم التجريبي</h1><h2>أسئلة</h2>
-<h3>ماذا يقدم هذا القسم؟</h3><p>شرح.</p><h3>كيف أبدأ؟</h3><p>ابدأ هنا.</p></main></body></html>'''
+<title>قسم تجريبي</title><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage"}</script>
+</head><body><main><h1>القسم التجريبي</h1><h2>أسئلة</h2>
+<h3>ماذا يقدم هذا القسم؟</h3><p>شرح.</p><h3>كيف أبدأ؟</h3><p>ابدأ هنا.</p>
+<nav><a href="/">الرئيسية</a><a href="/library/">المكتبة</a><a href="/resources/">الموارد</a></nav>
+</main></body></html>'''
         directory = self.make_site(page)
         root = Path(directory.name)
         try:
@@ -188,6 +191,8 @@ class SitewideHeadingIntentV2Tests(unittest.TestCase):
             loaded = json.loads(report.read_text(encoding="utf-8"))
             self.assertTrue(loaded["all_indexable_have_h3"])
             self.assertTrue(loaded["all_indexable_meet_question_floor"])
+            self.assertTrue(loaded["all_indexable_have_three_internal_links"])
+            self.assertTrue(loaded["all_indexable_have_structured_data"])
         finally:
             directory.cleanup()
 

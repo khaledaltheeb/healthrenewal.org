@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import ast
-import re
 import unittest
 from pathlib import Path
 
@@ -9,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class DeploymentSchemaV353Tests(unittest.TestCase):
-    def test_stamp_and_primary_pages_deployer_use_schema_30(self) -> None:
+    def test_stamp_uses_schema_30_and_complete_deployer_is_canonical(self) -> None:
         stamp_path = ROOT / "scripts/stamp_deployment_v29.py"
         tree = ast.parse(stamp_path.read_text(encoding="utf-8"))
         assignments = {
@@ -22,14 +21,10 @@ class DeploymentSchemaV353Tests(unittest.TestCase):
         }
         self.assertEqual(assignments["DEPLOYMENT_SCHEMA_VERSION"], 30)
 
-        deploy = (
-            ROOT / ".github/workflows/deploy-validated-main.yml"
-        ).read_text(encoding="utf-8")
-        self.assertEqual(
-            len(re.findall(r"schema_version'\)\s*==\s*30", deploy)),
-            2,
-        )
-        self.assertNotRegex(deploy, r"schema_version'\)\s*==\s*29")
+        deploy = (ROOT / ".github/workflows/deploy-complete-pages-with-ai-search.yml").read_text(encoding="utf-8")
+        self.assertIn("name: Deploy complete generated site", deploy)
+        self.assertIn("actions/deploy-pages@v4", deploy)
+        self.assertIn("path: _site", deploy)
 
     def test_legacy_overlay_consumers_accept_29_and_30_during_migration(self) -> None:
         scripts = (
@@ -44,10 +39,14 @@ class DeploymentSchemaV353Tests(unittest.TestCase):
             source = (ROOT / "scripts" / name).read_text(encoding="utf-8")
             self.assertIn("not in {29, 30}", source, name)
 
-        one_shot = (
-            ROOT / ".github/workflows/one-shot-validated-pages-v323.yml"
-        ).read_text(encoding="utf-8")
-        self.assertIn("data.get('schema_version') == 30", one_shot)
+        for workflow in (
+            "deploy-validated-main.yml",
+            "one-shot-validated-pages-v323.yml",
+        ):
+            source = (ROOT / ".github/workflows" / workflow).read_text(encoding="utf-8")
+            self.assertIn("Retired partial Pages publisher", source, workflow)
+            self.assertNotIn("actions/deploy-pages@", source, workflow)
+            self.assertNotIn("pages: write", source, workflow)
 
 
 if __name__ == "__main__":
