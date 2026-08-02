@@ -34,6 +34,7 @@ SITEMAP_LIMIT = 50 * 1024 * 1024
 DEFAULT_TIMEOUT = 20
 MAX_SITEMAP_DEPTH = 4
 SUPPORTED_HTML_TYPES = {"text/html", "application/xhtml+xml"}
+TRANSIENT_STATUSES = {0, 429, 500, 502, 503, 504}
 
 
 @dataclasses.dataclass(frozen=True)
@@ -222,6 +223,22 @@ def request_url(url: str, *, timeout: int, limit: int) -> FetchResult:
         )
 
 
+def fetch_with_retries(
+    url: str,
+    *,
+    timeout: int,
+    limit: int,
+    attempts: int = 3,
+) -> FetchResult:
+    result = request_url(url, timeout=timeout, limit=limit)
+    for retry in range(1, max(1, attempts)):
+        if result.status not in TRANSIENT_STATUSES:
+            break
+        time.sleep(min(0.5 * retry, 2.0))
+        result = request_url(url, timeout=timeout, limit=limit)
+    return result
+
+
 def decode_body(result: FetchResult) -> str:
     if not result.body:
         return ""
@@ -300,7 +317,11 @@ def discover_sitemaps(
             )
             continue
 
-        result = request_url(url, timeout=timeout, limit=SITEMAP_LIMIT)
+        result = fetch_with_retries(
+            url,
+            timeout=timeout,
+            limit=SITEMAP_LIMIT,
+        )
         record: dict[str, object] = {
             "url": url,
             "finalUrl": result.final_url,
@@ -337,7 +358,11 @@ def parse_page_signals(result: FetchResult) -> PageSignals:
 
 
 def audit_page(url: str, *, origin: str, timeout: int) -> dict[str, object]:
-    result = request_url(url, timeout=timeout, limit=HTML_LIMIT)
+    result = fetch_with_retries(
+        url,
+        timeout=timeout,
+        limit=HTML_LIMIT,
+    )
     record: dict[str, object] = {
         "url": url,
         "finalUrl": result.final_url,
@@ -504,7 +529,7 @@ def main() -> int:
 
     origin = normalize_url(args.base_url)
     robots_url = urllib.parse.urljoin(origin, "/robots.txt")
-    robots_result = request_url(
+    robots_result = fetch_with_retries(
         robots_url,
         timeout=args.timeout,
         limit=HTML_LIMIT,
