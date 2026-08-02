@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "status": "published",
+  "changedBrokenLinkFiles": 2,
+  "staticFamilyGuideCards": 63,
+  "catalogs": [
+    {
+      "family": "outside-the-box",
+      "route": "/outside-the-box/all-pages/",
+      "entries": 1
+    },
+    {
+      "family": "provider-assessment-demo",
+      "route": "/provider-assessment-demo/all-pages/",
+      "entries": 24
+    },
+    {
+      "family": "sectors",
+      "route": "/sectors/all-pages/",
+      "entries": 69
+    },
+    {
+      "family": "special-needs",
+      "route": "/special-needs/all-pages/",
+      "entries": 149
+    },
+    {
+      "family": "learning-paths",
+      "route": "/learning-paths/all-pages/",
+      "entries": 43
+    }
+  ],
+  "rootCards": 18,
+  "indexableRoutes": 496,
+  "restoredSourceFiles": [],
+  "restoredSourceFileCount": 0
+}

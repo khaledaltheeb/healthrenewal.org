@@ -3,20 +3,33 @@
   "status": "generated",
   "base_url": "https://healthrenewal.org/",
   "primary_sitemap": "sitemap.xml",
-  "primary_sitemap_urls": 212,
-  "indexable_pages": 212,
+  "primary_sitemap_urls": 491,
+  "indexable_pages": 491,
   "families": {
-    "learning-paths": 2,
+    "care-guides": 13,
+    "comparisons": 7,
+    "learning-paths": 44,
     "magazine": 80,
-    "main": 97,
+    "main": 167,
     "provider-platform": 25,
-    "special-needs": 8
+    "special-needs": 150,
+    "tools": 5
   },
   "sitemaps": [
     {
+      "family": "care-guides",
+      "filename": "sitemap-family-care-guides.xml",
+      "urls": 13
+    },
+    {
+      "family": "comparisons",
+      "filename": "sitemap-family-comparisons.xml",
+      "urls": 7
+    },
+    {
       "family": "learning-paths",
       "filename": "sitemap-family-learning-paths.xml",
-      "urls": 2
+      "urls": 44
     },
     {
       "family": "magazine",
@@ -26,7 +39,7 @@
     {
       "family": "main",
       "filename": "sitemap-family-main.xml",
-      "urls": 97
+      "urls": 167
     },
     {
       "family": "provider-platform",
@@ -36,7 +49,12 @@
     {
       "family": "special-needs",
       "filename": "sitemap-family-special-needs.xml",
-      "urls": 8
+      "urls": 150
+    },
+    {
+      "family": "tools",
+      "filename": "sitemap-family-tools.xml",
+      "urls": 5
     }
   ],
   "skipped_noindex": 9,

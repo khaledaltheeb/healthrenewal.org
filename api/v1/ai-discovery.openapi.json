@@ -3,95 +3,91 @@
   "info": {
     "title": "HealthRenewal AI discovery interface",
     "version": "1.0.0",
-    "description": "Read-only machine-readable discovery endpoints for search engines, AI retrieval systems, and citation tools. These endpoints provide public educational metadata and do not provide diagnosis or individualized treatment advice."
+    "description": "Read-only discovery endpoints for search engines, AI retrieval systems, and citation tools."
   },
   "servers": [
-    {"url": "https://healthrenewal.org"}
+    {
+      "url": "https://healthrenewal.org"
+    }
   ],
   "paths": {
     "/api/v1/ai-discovery.json": {
       "get": {
-        "summary": "Get the AI crawler and machine-readable discovery policy",
-        "operationId": "getAiDiscovery",
-        "responses": {"200": {"description": "AI discovery manifest", "content": {"application/json": {"schema": {"type": "object"}}}}}
+        "summary": "AI discovery policy",
+        "responses": {
+          "200": {
+            "description": "Public read-only response"
+          }
+        }
       }
     },
     "/api/v1/content-index.json": {
       "get": {
-        "summary": "Get the canonical public page catalogue",
-        "operationId": "getContentIndex",
-        "responses": {"200": {"description": "Canonical content records", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ContentIndex"}}}}}
+        "summary": "Canonical page catalogue",
+        "responses": {
+          "200": {
+            "description": "Public read-only response"
+          }
+        }
       }
     },
     "/feed.xml": {
       "get": {
-        "summary": "Get the RSS discovery feed",
-        "operationId": "getRssFeed",
-        "responses": {"200": {"description": "RSS 2.0 feed", "content": {"application/rss+xml": {"schema": {"type": "string"}}}}}
+        "summary": "RSS feed",
+        "responses": {
+          "200": {
+            "description": "Public read-only response"
+          }
+        }
       }
     },
     "/atom.xml": {
       "get": {
-        "summary": "Get the Atom discovery feed",
-        "operationId": "getAtomFeed",
-        "responses": {"200": {"description": "Atom feed", "content": {"application/atom+xml": {"schema": {"type": "string"}}}}}
+        "summary": "Atom feed",
+        "responses": {
+          "200": {
+            "description": "Public read-only response"
+          }
+        }
       }
     },
     "/llms.txt": {
       "get": {
-        "summary": "Get the concise LLM discovery guide",
-        "operationId": "getLlmsGuide",
-        "responses": {"200": {"description": "Plain-text discovery guide", "content": {"text/plain": {"schema": {"type": "string"}}}}}
+        "summary": "Concise LLM guide",
+        "responses": {
+          "200": {
+            "description": "Public read-only response"
+          }
+        }
       }
     },
     "/llms-full.txt": {
       "get": {
-        "summary": "Get the expanded LLM catalogue",
-        "operationId": "getLlmsFullCatalogue",
-        "responses": {"200": {"description": "Expanded plain-text catalogue", "content": {"text/plain": {"schema": {"type": "string"}}}}}
+        "summary": "Expanded LLM catalogue",
+        "responses": {
+          "200": {
+            "description": "Public read-only response"
+          }
+        }
       }
     },
     "/sitemap.xml": {
       "get": {
-        "summary": "Get the complete canonical sitemap",
-        "operationId": "getSitemap",
-        "responses": {"200": {"description": "XML sitemap", "content": {"application/xml": {"schema": {"type": "string"}}}}}
+        "summary": "Canonical sitemap",
+        "responses": {
+          "200": {
+            "description": "Public read-only response"
+          }
+        }
       }
     },
     "/sitemap-index.xml": {
       "get": {
-        "summary": "Get the family sitemap index",
-        "operationId": "getSitemapIndex",
-        "responses": {"200": {"description": "XML sitemap index", "content": {"application/xml": {"schema": {"type": "string"}}}}}
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "ContentRecord": {
-        "type": "object",
-        "required": ["url", "path", "title", "language", "schemaType", "updated"],
-        "properties": {
-          "url": {"type": "string", "format": "uri"},
-          "path": {"type": "string"},
-          "title": {"type": "string"},
-          "description": {"type": "string"},
-          "language": {"type": "string"},
-          "schemaType": {"type": "string"},
-          "published": {"type": "string"},
-          "updated": {"type": "string"},
-          "semantic": {"type": "object"}
-        }
-      },
-      "ContentIndex": {
-        "type": "object",
-        "required": ["schemaVersion", "generatedAt", "canonicalBase", "count", "items"],
-        "properties": {
-          "schemaVersion": {"type": "string"},
-          "generatedAt": {"type": "string", "format": "date-time"},
-          "canonicalBase": {"type": "string", "format": "uri"},
-          "count": {"type": "integer", "minimum": 0},
-          "items": {"type": "array", "items": {"$ref": "#/components/schemas/ContentRecord"}}
+        "summary": "Sitemap index",
+        "responses": {
+          "200": {
+            "description": "Public read-only response"
+          }
         }
       }
     }

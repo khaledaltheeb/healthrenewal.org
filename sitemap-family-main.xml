@@ -25,6 +25,9 @@
     <loc>https://healthrenewal.org/family-guide/conditions/16p11-2-deletion-syndrome/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/family-guide/conditions/1p36-deletion-syndrome/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/family-guide/conditions/22q11-2-deletion-syndrome/</loc>
   </url>
   <url>
@@ -41,6 +44,9 @@
   </url>
   <url>
     <loc>https://healthrenewal.org/family-guide/conditions/autism/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/conditions/cdkl5-deficiency-disorder/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/family-guide/conditions/cerebral-palsy/</loc>
@@ -76,6 +82,9 @@
     <loc>https://healthrenewal.org/family-guide/conditions/down-syndrome/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/family-guide/conditions/dravet-syndrome/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/family-guide/conditions/dyrk1a-syndrome/</loc>
   </url>
   <url>
@@ -83,6 +92,9 @@
   </url>
   <url>
     <loc>https://healthrenewal.org/family-guide/conditions/fetal-alcohol-spectrum-disorders/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/conditions/foxg1-syndrome/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/family-guide/conditions/fragile-x-syndrome/</loc>
@@ -95,6 +107,9 @@
   </url>
   <url>
     <loc>https://healthrenewal.org/family-guide/conditions/gria2-related-neurodevelopmental-disorder/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/conditions/grin2b-related-neurodevelopmental-disorder/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/family-guide/conditions/hearing-loss-deafness/</loc>
@@ -118,10 +133,19 @@
     <loc>https://healthrenewal.org/family-guide/conditions/kbg-syndrome/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/family-guide/conditions/kcnq2-related-disorders/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/family-guide/conditions/kleefstra-syndrome/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/family-guide/conditions/maternal-dup15q-syndrome/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/family-guide/conditions/mbd5-haploinsufficiency/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/conditions/mecp2-duplication-syndrome/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/family-guide/conditions/med13l-syndrome/</loc>
@@ -187,13 +211,52 @@
     <loc>https://healthrenewal.org/family-guide/conditions/williams-syndrome/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/family-guide/tools/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/accommodations-modifications/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/family-guide/tools/appointment-prep/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/assistive-technology-trial/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/family-guide/tools/behavior-log/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/family-guide/tools/communication-aac-profile/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/family-guide/tools/family-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/functional-behavior-support-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/inclusive-classroom-observation/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/individualized-education-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/measurable-goals/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/present-levels-baseline/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/progress-monitoring/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/school-family-meeting-record/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/sensory-environment-access/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/transition-to-adulthood-plan/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/outside-the-box/</loc>
@@ -218,63 +281,33 @@
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/child/guides/accessible-playground/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/child/guides/bullying-protection/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/child/guides/child-communication-access/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/child/guides/child-health-visit/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/child/guides/developmental-observation/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/child/guides/early-routines/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/child/guides/executive-function-routines/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/child/guides/friendship-support/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/child/guides/play-participation/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/child/guides/preschool-transition/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/child/interventions/</loc>
@@ -290,51 +323,27 @@
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/family/guides/caregiver-load-review/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/family/guides/family-emergency-plan/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/family/guides/family-routine-redesign/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/family/guides/family-strengths-map/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/family/guides/monthly-family-review/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/family/guides/service-navigation/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/family/guides/shared-family-decisions/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/family/guides/sibling-wellbeing/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/family/interventions/</loc>
@@ -350,51 +359,126 @@
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/home/guides/home-accessibility-audit/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/home/guides/home-calm-environment/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/home/guides/home-evacuation/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/home/guides/home-mealtime-routine/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/home/guides/home-personal-care/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/home/guides/safe-home-movement/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/home/guides/visual-home-routines/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/home/interventions/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/sectors/home/library/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/birth-trauma-informed-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/body-image-eating-warning-signs/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/caregiving-load-wellbeing-review/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/chronic-illness-disability-mental-health/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/cycle-mood-pattern-tracking/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/infertility-treatment-emotional-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/intimate-partner-violence-safe-help/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/perimenopause-mental-health-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/perinatal-mental-health-check-in/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/postpartum-changes-and-urgent-signs/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/pregnancy-anxiety-support-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/pregnancy-loss-grief-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/refugee-migrant-women-access/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/sleep-life-transition-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/work-care-accommodations/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/anxiety-school-attendance/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/bullying-cyberbullying-response/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/depression-warning-response/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/early-psychosis-assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/eating-disorder-warning-signs/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/help-seeking-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/loneliness-friendship-conflict/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/mental-health-literacy/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/school-exam-stress/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/school-to-university-work-transition/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/self-harm-immediate-response/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/shared-decision-participation/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/sleep-digital-habits/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/substance-use-early-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/suicide-safety-escalation/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/source-registry/</loc>

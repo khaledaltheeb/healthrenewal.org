@@ -1,0 +1,1165 @@
+{
+  "schemaVersion": 1,
+  "status": "failed",
+  "verifiedAt": "2026-08-02T02:16:00.502532+00:00",
+  "sourcePublicFiles": 780,
+  "missingSourceFiles": [],
+  "publishedHtmlRoutes": 507,
+  "indexableHtmlRoutes": 496,
+  "internalLinks": 4299,
+  "brokenInternalLinks": [
+    {
+      "source": "/",
+      "target": "/encyclopedia/",
+      "href": "encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/library/",
+      "href": "library/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/care-guides/",
+      "href": "care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/daily-tools/",
+      "href": "daily-tools/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/encyclopedia/",
+      "href": "encyclopedia/",
+      "kind": "body",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/care-guides/",
+      "href": "care-guides/",
+      "kind": "body",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/encyclopedia/",
+      "href": "encyclopedia/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/care-guides/",
+      "href": "care-guides/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/guided-assessment/",
+      "href": "guided-assessment/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/library/",
+      "href": "library/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/encyclopedia/",
+      "href": "encyclopedia/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/terms/",
+      "href": "terms/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/hubs/",
+      "href": "hubs/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/comparisons/",
+      "href": "comparisons/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/library/",
+      "href": "library/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/care-guides/",
+      "href": "care-guides/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/tips/",
+      "href": "tips/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/guided-assessment/",
+      "href": "guided-assessment/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/assessments/",
+      "href": "assessments/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/assessment-lab/",
+      "href": "assessment-lab/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/cognitive-tests/",
+      "href": "cognitive-tests/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/cognitive-lab/",
+      "href": "cognitive-lab/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/daily-tools/",
+      "href": "daily-tools/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/partners/",
+      "href": "partners/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/developers/",
+      "href": "developers/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/en/",
+      "href": "en/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/es/",
+      "href": "es/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/encyclopedia/",
+      "href": "encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/library/",
+      "href": "library/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/daily-tools/",
+      "href": "daily-tools/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/partners/",
+      "href": "partners/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/",
+      "target": "/developers/",
+      "href": "developers/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/404.html",
+      "target": "/encyclopedia/",
+      "href": "encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/404.html",
+      "target": "/care-guides/",
+      "href": "care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/source-registry/",
+      "target": "/library/",
+      "href": "/library/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/source-registry/",
+      "target": "/partners/",
+      "href": "/partners/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/source-registry/",
+      "target": "/partners/",
+      "href": "/partners/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/special-needs/",
+      "target": "/library/",
+      "href": "/library/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/special-needs/",
+      "target": "/library/evidence-literacy/",
+      "href": "/library/evidence-literacy/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/trust/",
+      "target": "/library/",
+      "href": "/library/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/trust/",
+      "target": "/library/evidence-literacy/",
+      "href": "/library/evidence-literacy/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/trust/",
+      "target": "/library/evidence-literacy/",
+      "href": "/library/evidence-literacy/",
+      "kind": "body",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adhd-personalized-neurofeedback-sham-rct-2026.html",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adhd-personalized-neurofeedback-sham-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-parent-act-randomized-trial-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-parent-reflective-functioning-rct-2026.html",
+      "target": "/special-needs/autism/",
+      "href": "../special-needs/autism/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-parent-reflective-functioning-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adhd-physical-fitness-meta-analysis-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adolescent-mental-health-artemis-cluster-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adolescent-chronic-pain-digital-psychological-interventions-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/school-resilience-children-2025.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-caregiver-adjustment-review-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-sleep-disorders-prevalence-meta-analysis-2026.html",
+      "target": "/daily-tools/",
+      "href": "../daily-tools/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/youth-digital-depression-anxiety-network-meta-analysis-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adolescent-depression-one-step-back-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adolescent-depression-one-step-back-rct-2026.html",
+      "target": "/assessments/",
+      "href": "../assessments/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-lets-play-caregiver-mediated-rct-2026.html",
+      "target": "/special-needs/autism/",
+      "href": "../special-needs/autism/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-lets-play-caregiver-mediated-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/grieving-adolescents-alba-app-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/youth-single-session-self-administered-interventions-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adhd-screen-time-meta-analysis-2026.html",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adolescent-school-guided-narrative-writing-cluster-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-aspen-low-resource-parent-intervention-rct-2026.html",
+      "target": "/special-needs/autism/",
+      "href": "../special-needs/autism/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-aspen-low-resource-parent-intervention-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/neurodevelopmental-sleep-family-wellbeing-review-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/cerebral-palsy-participate-cp-leisure-rct-2026.html",
+      "target": "/outside-the-box/cerebral-palsy/",
+      "href": "../outside-the-box/cerebral-palsy/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/cerebral-palsy-participate-cp-leisure-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/neurodevelopmental-video-game-interventions-meta-analysis-2026.html",
+      "target": "/cognitive-lab/",
+      "href": "../cognitive-lab/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adhd-dexamphetamine-methylphenidate-randomized-2026.html",
+      "target": "/outside-the-box/adhd/",
+      "href": "../outside-the-box/adhd/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adhd-dexamphetamine-methylphenidate-randomized-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-structured-interactive-play-screening-cohort-2026.html",
+      "target": "/special-needs/autism/",
+      "href": "../special-needs/autism/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-structured-interactive-play-screening-cohort-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adhd-baduanjin-response-inhibition-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-mentorship-program-pilot-rct-2026.html",
+      "target": "/special-needs/autism/",
+      "href": "../special-needs/autism/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-mentorship-program-pilot-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/aya-cancer-digital-mental-health-meta-analysis-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/artemis-adolescent-mental-health-stigma-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adhd-rhythmic-music-game-rct-2026.html",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adhd-rhythmic-music-game-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/family-carer-coping-mental-health-meta-analysis-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/digital-eating-disorder-interventions-meta-analysis-2026.html",
+      "target": "/daily-tools/",
+      "href": "../daily-tools/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/high-school-digital-literacy-physical-activity-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/latinx-adolescent-suicidal-behavior-cbt-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-parents-mbsr-depression-anxiety-stress-rct-2026.html",
+      "target": "/special-needs/autism/",
+      "href": "../special-needs/autism/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-parents-mbsr-depression-anxiety-stress-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/youth-transdiagnostic-internet-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/homeless-youth-mental-disorders-meta-analysis-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/adhd-technology-interventions-meta-analysis-2026.html",
+      "target": "/daily-tools/",
+      "href": "../daily-tools/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/youth-self-harm-interventions-meta-analysis-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-parent-act-meta-analysis-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/down-syndrome-dual-task-exergaming-cognition-rct-2026.html",
+      "target": "/special-needs/down-syndrome/",
+      "href": "../special-needs/down-syndrome/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/down-syndrome-dual-task-exergaming-cognition-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/autism-parent-resilience-factors-review-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/mobile-stress-interventions-2025.html",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/intensive-community-care-adolescents-2026.html",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/college-digital-cbt-guided-self-help-rct-2026.html",
+      "target": "/daily-tools/",
+      "href": "../daily-tools/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/magazine/college-digital-cbt-guided-self-help-rct-2026.html",
+      "target": "/library/",
+      "href": "../library/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/ai-search/",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/ai-search/",
+      "target": "/privacy/",
+      "href": "../privacy/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/ai-search/",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "body",
+      "hidden": false
+    },
+    {
+      "source": "/start-here/",
+      "target": "/library/",
+      "href": "/library/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/start-here/",
+      "target": "/encyclopedia/",
+      "href": "/encyclopedia/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/start-here/",
+      "target": "/comparisons/",
+      "href": "/comparisons/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/start-here/",
+      "target": "/assessment-lab/",
+      "href": "/assessment-lab/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/start-here/",
+      "target": "/cognitive-lab/",
+      "href": "/cognitive-lab/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/start-here/",
+      "target": "/tips/",
+      "href": "/tips/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/start-here/",
+      "target": "/library/",
+      "href": "/library/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/start-here/",
+      "target": "/library/evidence-literacy/",
+      "href": "/library/evidence-literacy/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/",
+      "target": "/daily-tools/",
+      "href": "../daily-tools/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/",
+      "target": "/comparisons/",
+      "href": "../comparisons/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/",
+      "target": "/library/",
+      "href": "../library/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/",
+      "target": "/library/",
+      "href": "../library/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sections/",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sections/",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/sections/",
+      "target": "/terms/",
+      "href": "../terms/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/sections/",
+      "target": "/hubs/",
+      "href": "../hubs/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/sections/",
+      "target": "/comparisons/",
+      "href": "../comparisons/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/sections/",
+      "target": "/library/",
+      "href": "../library/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/sections/",
+      "target": "/care-guides/",
+      "href": "../care-guides/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/sections/",
+      "target": "/daily-tools/",
+      "href": "../daily-tools/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/sections/",
+      "target": "/guided-assessment/",
+      "href": "../guided-assessment/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/platform/",
+      "target": "/tips/",
+      "href": "../tips/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/platform/",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/platform/",
+      "target": "/library/",
+      "href": "../library/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/platform/",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/platform/",
+      "target": "/comparisons/",
+      "href": "../comparisons/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/platform/",
+      "target": "/tips/",
+      "href": "../tips/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/platform/",
+      "target": "/assessments/",
+      "href": "../assessments/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/platform/",
+      "target": "/library/",
+      "href": "../library/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/platform/",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/learning-paths/",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/copyright/",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/copyright/",
+      "target": "/library/",
+      "href": "../library/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/copyright/",
+      "target": "/encyclopedia/",
+      "href": "../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/family-guide/conditions/tourette-syndrome/",
+      "target": "/guides/mental-health-guide/",
+      "href": "/guides/mental-health-guide/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/family-guide/conditions/pura-related-neurodevelopmental-disorder/",
+      "target": "/tips/better-sleep/",
+      "href": "/tips/better-sleep/",
+      "kind": "card",
+      "hidden": false
+    },
+    {
+      "source": "/provider-assessment-demo/conditions/",
+      "target": "/methodology/",
+      "href": "../../methodology/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/provider-assessment-demo/conditions/",
+      "target": "/privacy/",
+      "href": "../../privacy/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/outside-the-box/evidence-standard/",
+      "target": "/outside-the-box/methodology/",
+      "href": "/outside-the-box/methodology/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/outside-the-box/evidence-standard/",
+      "target": "/outside-the-box/instruments/",
+      "href": "/outside-the-box/instruments/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/special-needs/conditions/prader-willi-syndrome/",
+      "target": "/care-guides/",
+      "href": "../../../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/family/",
+      "target": "/encyclopedia/",
+      "href": "../../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/family/",
+      "target": "/care-guides/",
+      "href": "../../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/child/",
+      "target": "/encyclopedia/",
+      "href": "../../encyclopedia/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/child/",
+      "target": "/care-guides/",
+      "href": "../../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/home/",
+      "target": "/care-guides/",
+      "href": "../../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/family/library/",
+      "target": "/care-guides/",
+      "href": "../../../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/family/interventions/",
+      "target": "/care-guides/",
+      "href": "../../../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/family/assessment/",
+      "target": "/care-guides/",
+      "href": "../../../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/child/library/",
+      "target": "/care-guides/",
+      "href": "../../../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/child/interventions/",
+      "target": "/care-guides/",
+      "href": "../../../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/child/assessment/",
+      "target": "/care-guides/",
+      "href": "../../../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    },
+    {
+      "source": "/sectors/home/library/",
+      "target": "/care-guides/",
+      "href": "../../../care-guides/",
+      "kind": "navigation",
+      "hidden": false
+    }
+  ],
+  "brokenInternalResources": [],
+  "orphanIndexableRoutes": [
+    "/care-guides/evidence-guided/",
+    "/comparisons/disability-support/",
+    "/daily-tools/disability-support/"
+  ],
+  "indexableRoutesWithoutVisibleCard": [
+    "/care-guides/evidence-guided/",
+    "/comparisons/disability-support/",
+    "/daily-tools/disability-support/"
+  ],
+  "sitemapMissingIndexableRoutes": [],
+  "invalidSitemaps": [],
+  "metadataIssues": [],
+  "canonicalIssues": [],
+  "families": {
+    "accessibility": 1,
+    "ai-search": 1,
+    "api": 1,
+    "care-guides": 13,
+    "comparisons": 7,
+    "contact": 1,
+    "copyright": 1,
+    "daily-tools": 5,
+    "family-guide": 80,
+    "learning-paths": 45,
+    "magazine": 80,
+    "outside-the-box": 3,
+    "platform": 1,
+    "provider-assessment-demo": 26,
+    "root": 1,
+    "sections": 1,
+    "sectors": 71,
+    "source-registry": 1,
+    "special-needs": 151,
+    "specialists-partners": 3,
+    "start-here": 1,
+    "team-and-partners": 1,
+    "trust": 1
+  }
+}

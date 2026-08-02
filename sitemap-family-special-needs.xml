@@ -25,363 +25,429 @@
     <loc>https://healthrenewal.org/special-needs/conditions/prader-willi-syndrome/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/special-needs/guides/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/developmental-monitoring-referral/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/functional-goal-setting/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/icf-functioning-participation/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/multidisciplinary-assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/outcome-measurement/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/person-centered-support-planning/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/shared-decision-making/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/strengths-needs-profile/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/supported-decision-making/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/communication/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/communication/aac-high-tech-systems/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/communication/aac-low-tech-systems/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/communication/aac-readiness-and-assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/communication/accessible-information-easy-read/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/communication/communication-access-assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/communication/communication-partner-training/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/attendance-participation-barriers/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/classroom-accommodations/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/curriculum-access/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/inclusive-assessment-school/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/inclusive-early-childhood/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/individualized-education-planning/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/peer-inclusion-belonging/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/school-transition-planning/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/universal-design-for-learning/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/family/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/family/caregiver-wellbeing/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/family/family-centered-practice/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/family/home-routine-design/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/family/respite-care-planning/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/family/sibling-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/epilepsy-safety-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/feeding-eating-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/hearing-access-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/medication-review-developmental-disability/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/oral-health-access/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/pain-recognition-nonspeaking/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/sleep-assessment-developmental-disability/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/swallowing-safety-referral/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/vision-access-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/assistive-technology-assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/assistive-technology-trial/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/device-training-maintenance/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/digital-accessibility-cognitive/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/falls-risk-and-safe-mobility/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/mobility-and-positioning/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/pressure-injury-prevention/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/smart-home-accessibility/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/wheelchair-seating-service/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/participation/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/participation/community-participation/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/participation/public-transport-access/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/participation/recreation-sport-inclusion/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/safeguarding/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/safeguarding/bullying-prevention-disability/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/safeguarding/safeguarding-abuse-prevention/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/safeguarding/sexuality-education-disability/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/sensory-behavior/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/sensory-behavior/behavior-functional-assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/sensory-behavior/distress-and-meltdown-prevention/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/sensory-behavior/positive-behavior-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/sensory-behavior/sensory-environment-audit/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/sensory-behavior/sensory-regulation-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/system-quality/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/system-quality/disaster-inclusive-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/system-quality/emergency-preparedness-disability/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/system-quality/rehabilitation-goal-review/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/system-quality/service-quality-audit/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/aging-with-developmental-disability/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/financial-capacity-benefits-navigation/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/health-transition-pediatric-adult/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/higher-education-access/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/independent-living-skills/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/supported-living-quality/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/transition-to-adulthood/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/vocational-profile-supported-employment/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/special-needs/practical/aac-needs-assessment-plan/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/accessible-arabic-documents/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/accessible-forms-authentication/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/accessible-homework/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/accessible-instructions/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/activity-transition-support/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/arabic-multilingual-aac/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/assessment-accommodations/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/assistive-device-backup-maintenance/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/assistive-technology-needs-matching/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/assistive-technology-trial/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/calm-space-design/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/choice-consent-communication/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/classroom-participation-baseline/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/co-regulation-plan/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/communication-breakdown-repair/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/communication-partner-training/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/community-participation/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/community-sensory-planning/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/core-vocabulary-daily-routines/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/daily-data-notebook/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/dental-visit-preparation/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/device-abandonment-prevention/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/distress-prevention-plan/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/emergency-preparedness/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/emotional-communication-map/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/employment-discovery/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/functional-behavior-observation/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/functional-communication-profile/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/goal-prioritization/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/hospital-communication-passport/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/independent-living-supports/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/lighting-visual-load/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/low-tech-supports/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/mealtime-participation/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/mobility-positioning-participation/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/money-skills-support/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/multidisciplinary-meeting/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/noise-management-plan/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/pain-communication/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/peer-participation-plan/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/personal-care-independence/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/personal-care-sensory-plan/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/post-crisis-debrief/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/predictable-transitions/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/public-transport-readiness/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/restrictive-practice-reduction/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/safeguarding-boundaries/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/school-home-communication/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/school-reentry-plan/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/self-injury-safety-response/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/sensory-environment-audit/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/shared-support-plan/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/sibling-inclusion-support/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/supported-decision-making/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/toileting-dignity-plan/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/transition-needs-assessment/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/trauma-informed-support/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/universal-design-lesson-adaptation/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/workplace-accommodations/</loc>
-    <lastmod>2026-08-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
   </url>
 </urlset>

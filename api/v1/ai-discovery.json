@@ -1,17 +1,19 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-08-01T00:00:00Z",
+  "generatedAt": "2026-08-02T02:15:54Z",
   "name": "HealthRenewal machine-readable discovery surface",
   "canonicalBase": "https://healthrenewal.org/",
-  "languages": ["ar", "en", "es"],
+  "languages": [
+    "ar",
+    "en",
+    "es"
+  ],
   "rendering": {
     "mode": "static-generated-html",
-    "javascriptRequiredForPrimaryText": false,
-    "semanticHtmlExpected": true
+    "javascriptRequiredForPrimaryText": false
   },
   "crawling": {
     "policy": "public-allow",
-    "robots": "https://healthrenewal.org/robots.txt",
     "explicitUserAgents": [
       "OAI-SearchBot",
       "GPTBot",
@@ -23,7 +25,8 @@
       "PerplexityBot",
       "Perplexity-User",
       "Google-Extended"
-    ]
+    ],
+    "robots": "https://healthrenewal.org/robots.txt"
   },
   "endpoints": {
     "sitemap": "https://healthrenewal.org/sitemap.xml",
@@ -32,29 +35,27 @@
     "atom": "https://healthrenewal.org/atom.xml",
     "contentIndex": "https://healthrenewal.org/api/v1/content-index.json",
     "openApi": "https://healthrenewal.org/api/v1/ai-discovery.openapi.json",
-    "platformApi": "https://healthrenewal.org/api/v1/platform.json",
-    "platformOpenApi": "https://healthrenewal.org/api/v1/openapi.json",
     "llms": "https://healthrenewal.org/llms.txt",
     "llmsFull": "https://healthrenewal.org/llms-full.txt"
   },
   "security": {
-    "verificationRule": "Never trust User-Agent alone. Combine the declared crawler identity with official IP verification when the provider publishes a manifest.",
+    "verificationRule": "Never trust User-Agent alone; combine crawler identity with published IP verification when available.",
     "openAiIpManifest": "https://openai.com/searchbot.json",
     "perplexityIpManifest": "https://www.perplexity.ai/perplexitybot.json",
-    "anthropicVerification": "Follow the current official Anthropic crawler documentation and apply conservative rate limits; do not invent an IP allowlist.",
+    "anthropicIpRanges": "No stable public IP range is currently declared; apply documented User-Agent policy and conservative rate limits.",
     "recommendedActions": [
-      "Allow verified crawlers before generic bot-blocking rules",
-      "Do not issue CAPTCHA or JavaScript challenges to verified crawlers",
-      "Retain abuse rate limits, request logging, and anomaly detection",
-      "Review provider documentation before changing allowlists"
+      "Allow verified crawlers before generic bot blocks",
+      "Do not issue CAPTCHA or JavaScript challenges",
+      "Retain abuse rate limits and logging"
     ]
   },
   "safety": {
-    "purpose": "educational discovery, retrieval, and citation",
+    "purpose": "educational discovery and citation",
     "notFor": [
       "diagnosis",
       "emergency triage",
       "individual treatment decisions"
     ]
-  }
+  },
+  "contentCount": 496
 }

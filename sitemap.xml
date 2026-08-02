@@ -13,10 +13,85 @@
     <loc>https://healthrenewal.org/api/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/care-guides/evidence-guided/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/care-guides/evidence-guided/building-daily-communication-opportunities/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/care-guides/evidence-guided/caregiver-burnout-prevention/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/care-guides/evidence-guided/choosing-a-service-provider/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/care-guides/evidence-guided/emergency-information-pack/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/care-guides/evidence-guided/first-30-days-after-diagnosis/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/care-guides/evidence-guided/home-school-communication/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/care-guides/evidence-guided/managing-transitions-and-change/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/care-guides/evidence-guided/preparing-for-developmental-assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/care-guides/evidence-guided/preparing-for-school-meeting/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/care-guides/evidence-guided/responding-to-behavior-safely/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/care-guides/evidence-guided/safer-mealtimes/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/care-guides/evidence-guided/sleep-routine-planning/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/comparisons/disability-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/comparisons/disability-support/aac-vs-speech-only/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/comparisons/disability-support/accommodation-vs-modification/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/comparisons/disability-support/behavior-plan-vs-punishment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/comparisons/disability-support/diagnosis-vs-functioning-profile/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/comparisons/disability-support/inclusion-vs-integration/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/comparisons/disability-support/therapy-goals-vs-life-participation-goals/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/contact/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/copyright/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/daily-tools/disability-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/daily-tools/disability-support/functional-profile-template/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/daily-tools/disability-support/multidisciplinary-meeting-template/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/daily-tools/disability-support/service-quality-scorecard/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/daily-tools/disability-support/support-plan-review-checklist/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/family-guide/</loc>
@@ -211,16 +286,58 @@
     <loc>https://healthrenewal.org/family-guide/conditions/williams-syndrome/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/family-guide/tools/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/accommodations-modifications/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/family-guide/tools/appointment-prep/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/assistive-technology-trial/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/family-guide/tools/behavior-log/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/family-guide/tools/communication-aac-profile/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/family-guide/tools/family-plan/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/family-guide/tools/functional-behavior-support-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/inclusive-classroom-observation/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/individualized-education-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/measurable-goals/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/present-levels-baseline/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/progress-monitoring/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/school-family-meeting-record/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/sensory-environment-access/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/family-guide/tools/transition-to-adulthood-plan/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/learning-paths/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/aac-classroom-community-implementation/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/learning-paths/aac-partner/</loc>
@@ -229,16 +346,70 @@
     <loc>https://healthrenewal.org/learning-paths/accessible-content-creator/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/learning-paths/accessible-fair-multimodal-assessment/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/learning-paths/assistive-technology-coordinator/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/assistive-technology-selection-trial-implementation/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/learning-paths/caregiver-foundations/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/learning-paths/co-teaching-special-education/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/data-based-individualization-special-education/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/learning-paths/emergency-readiness-leader/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/learning-paths/evidence-guided/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/evidence-guided/aac-foundations/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/evidence-guided/assistive-technology-service-delivery/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/evidence-guided/disability-rights-foundations/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/evidence-guided/family-centered-practice-course/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/evidence-guided/icf-for-practitioners/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/evidence-guided/inclusive-education-foundations/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/evidence-guided/positive-behavior-support-foundations/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/evidence-guided/transition-to-adulthood-course/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/learning-paths/evidence-literacy/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/explicit-systematic-instruction-special-education/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/family-school-partnership-special-education/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/functional-behavior-assessment-positive-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/iep-goals-progress-monitoring/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/inclusive-education-quality-audit/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/learning-paths/inclusive-school-leader/</loc>
@@ -247,10 +418,22 @@
     <loc>https://healthrenewal.org/learning-paths/inclusive-teacher/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/learning-paths/intensive-arabic-reading-intervention/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/intensive-mathematics-intervention-special-education/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/learning-paths/opportunities/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/learning-paths/paraprofessional-support-student-independence/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/learning-paths/positive-behavior-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/postsecondary-transition-planning/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/learning-paths/self-advocacy/</loc>
@@ -262,13 +445,25 @@
     <loc>https://healthrenewal.org/learning-paths/service-quality-audit/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/learning-paths/special-education/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/learning-paths/special-educator-evidence/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/student-led-iep-self-determination/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/learning-paths/supported-employment/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/learning-paths/task-analysis-prompting-fading/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/learning-paths/transition-coordinator/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/learning-paths/writing-spelling-intervention-arabic/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/magazine/</loc>
@@ -712,6 +907,102 @@
     <loc>https://healthrenewal.org/sectors/home/library/</loc>
   </url>
   <url>
+    <loc>https://healthrenewal.org/sectors/women/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/birth-trauma-informed-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/body-image-eating-warning-signs/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/caregiving-load-wellbeing-review/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/chronic-illness-disability-mental-health/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/cycle-mood-pattern-tracking/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/infertility-treatment-emotional-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/intimate-partner-violence-safe-help/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/perimenopause-mental-health-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/perinatal-mental-health-check-in/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/postpartum-changes-and-urgent-signs/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/pregnancy-anxiety-support-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/pregnancy-loss-grief-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/refugee-migrant-women-access/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/sleep-life-transition-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/women/guides/work-care-accommodations/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/anxiety-school-attendance/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/bullying-cyberbullying-response/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/depression-warning-response/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/early-psychosis-assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/eating-disorder-warning-signs/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/help-seeking-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/loneliness-friendship-conflict/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/mental-health-literacy/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/school-exam-stress/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/school-to-university-work-transition/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/self-harm-immediate-response/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/shared-decision-participation/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/sleep-digital-habits/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/substance-use-early-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/sectors/youth/guides/suicide-safety-escalation/</loc>
+  </url>
+  <url>
     <loc>https://healthrenewal.org/source-registry/</loc>
   </url>
   <url>
@@ -737,6 +1028,252 @@
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/conditions/prader-willi-syndrome/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/developmental-monitoring-referral/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/functional-goal-setting/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/icf-functioning-participation/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/multidisciplinary-assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/outcome-measurement/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/person-centered-support-planning/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/shared-decision-making/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/strengths-needs-profile/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/assessment/supported-decision-making/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/communication/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/communication/aac-high-tech-systems/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/communication/aac-low-tech-systems/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/communication/aac-readiness-and-assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/communication/accessible-information-easy-read/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/communication/communication-access-assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/communication/communication-partner-training/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/attendance-participation-barriers/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/classroom-accommodations/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/curriculum-access/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/inclusive-assessment-school/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/inclusive-early-childhood/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/individualized-education-planning/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/peer-inclusion-belonging/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/school-transition-planning/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/education/universal-design-for-learning/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/family/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/family/caregiver-wellbeing/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/family/family-centered-practice/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/family/home-routine-design/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/family/respite-care-planning/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/family/sibling-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/epilepsy-safety-plan/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/feeding-eating-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/hearing-access-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/medication-review-developmental-disability/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/oral-health-access/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/pain-recognition-nonspeaking/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/sleep-assessment-developmental-disability/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/swallowing-safety-referral/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/health/vision-access-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/assistive-technology-assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/assistive-technology-trial/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/device-training-maintenance/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/digital-accessibility-cognitive/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/falls-risk-and-safe-mobility/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/mobility-and-positioning/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/pressure-injury-prevention/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/smart-home-accessibility/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/mobility-at/wheelchair-seating-service/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/participation/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/participation/community-participation/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/participation/public-transport-access/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/participation/recreation-sport-inclusion/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/safeguarding/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/safeguarding/bullying-prevention-disability/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/safeguarding/safeguarding-abuse-prevention/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/safeguarding/sexuality-education-disability/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/sensory-behavior/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/sensory-behavior/behavior-functional-assessment/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/sensory-behavior/distress-and-meltdown-prevention/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/sensory-behavior/positive-behavior-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/sensory-behavior/sensory-environment-audit/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/sensory-behavior/sensory-regulation-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/system-quality/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/system-quality/disaster-inclusive-support/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/system-quality/emergency-preparedness-disability/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/system-quality/rehabilitation-goal-review/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/system-quality/service-quality-audit/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/aging-with-developmental-disability/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/financial-capacity-benefits-navigation/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/health-transition-pediatric-adult/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/higher-education-access/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/independent-living-skills/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/supported-living-quality/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/transition-to-adulthood/</loc>
+  </url>
+  <url>
+    <loc>https://healthrenewal.org/special-needs/guides/transition/vocational-profile-supported-employment/</loc>
   </url>
   <url>
     <loc>https://healthrenewal.org/special-needs/practical/aac-needs-assessment-plan/</loc>

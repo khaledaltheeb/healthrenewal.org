@@ -1,19 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
-    <loc>https://healthrenewal.org/sitemap.xml</loc>
+    <loc>https://healthrenewal.org/sitemap-family-care-guides.xml</loc>
   </sitemap>
   <sitemap>
-    <loc>https://healthrenewal.org/sitemap-accessibility.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://healthrenewal.org/sitemap-ai-search.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://healthrenewal.org/sitemap-family-guide-phase8.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://healthrenewal.org/sitemap-family-guide.xml</loc>
+    <loc>https://healthrenewal.org/sitemap-family-comparisons.xml</loc>
   </sitemap>
   <sitemap>
     <loc>https://healthrenewal.org/sitemap-family-learning-paths.xml</loc>
@@ -31,21 +22,9 @@
     <loc>https://healthrenewal.org/sitemap-family-special-needs.xml</loc>
   </sitemap>
   <sitemap>
-    <loc>https://healthrenewal.org/sitemap-outside-the-box-evidence.xml</loc>
+    <loc>https://healthrenewal.org/sitemap-family-tools.xml</loc>
   </sitemap>
-  <sitemap>
-    <loc>https://healthrenewal.org/sitemap-sector-women.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://healthrenewal.org/sitemap-sector-youth.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://healthrenewal.org/sitemap-source-registry.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://healthrenewal.org/sitemap-special-needs.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://healthrenewal.org/sitemap-specialists-partners.xml</loc>
-  </sitemap>
+  <sitemap><loc>https://healthrenewal.org/sitemap-family-guide.xml</loc><lastmod>2026-08-02</lastmod></sitemap>
+  <sitemap><loc>https://healthrenewal.org/sitemap-family-guide-phase8.xml</loc><lastmod>2026-08-02</lastmod></sitemap>
+  <sitemap><loc>https://healthrenewal.org/sitemap-complete-discovery-v1.xml</loc><lastmod>2026-08-02</lastmod></sitemap>
 </sitemapindex>
