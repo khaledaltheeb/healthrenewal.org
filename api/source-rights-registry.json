@@ -1,0 +1,316 @@
+{
+  "schema_version": "1.0.0",
+  "updated_at": "2026-07-31",
+  "relationship_policy": "independent_source_not_partner",
+  "disclaimer_ar": "هذا السجل يوثق حدود الاستعمال التي تأكدت من الجهة أو من شروطها الرسمية. الإدراج لا يعني شراكة أو اعتمادًا أو تأييدًا. عند تعارض هذا الملخص مع الترخيص أو الشروط الأصلية، تكون الوثيقة الأصلية هي المرجع الحاكم.",
+  "permission_values": [
+    "allowed",
+    "not_allowed",
+    "permission_required",
+    "not_confirmed",
+    "not_available"
+  ],
+  "rights_status_values": [
+    "open_reuse",
+    "link_only",
+    "referral_only",
+    "source_specific_review",
+    "commercial_agreement_required"
+  ],
+  "sources": [
+    {
+      "id": "openstax",
+      "name": "OpenStax",
+      "name_ar": "أوبن ستاكس",
+      "official_url": "https://openstax.org/",
+      "rights_status": "open_reuse",
+      "access_mode": "open_educational_resources",
+      "relationship_status": "independent_source_not_partner",
+      "licence": {
+        "name": "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International",
+        "short_name": "CC BY-NC-SA 4.0",
+        "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en"
+      },
+      "permissions": {
+        "link": "allowed",
+        "copy": "allowed",
+        "translate": "allowed",
+        "adapt": "allowed",
+        "redistribute": "allowed",
+        "embed": "not_confirmed",
+        "commercial_use": "permission_required",
+        "logo_use": "not_confirmed",
+        "automated_catalogue": "not_confirmed"
+      },
+      "requirements": [
+        "نسبة المحتوى إلى OpenStax بصورة واضحة.",
+        "إضافة رابط إلى ترخيص CC BY-NC-SA 4.0.",
+        "بيان الترجمة أو التعديلات التي أجرتها المنصة.",
+        "نشر العمل المشتق بالترخيص نفسه.",
+        "مراجعة أي عناصر أو صور أو مواد لطرف ثالث بصورة منفصلة.",
+        "استخدام نموذج OpenStax المخصص قبل أي استعمال تجاري."
+      ],
+      "recommended_platform_use": [
+        "إنشاء مسارات تعلم عربية غير تجارية مع مراجعة بشرية.",
+        "ترجمة أو تكييف فصول مختارة مع سجل إسناد وإصدارات.",
+        "إحالة المستخدم إلى الكتاب والفصل الأصليين."
+      ],
+      "evidence": {
+        "type": "direct_written_confirmation",
+        "confirmed_at": "2026-07-30",
+        "summary": "أكد دعم OpenStax إمكان النسخ والمشاركة والتكييف والترجمة للأغراض التعليمية وغير التجارية وفق CC BY-NC-SA 4.0، مع الإسناد وبيان التعديلات والمشاركة بالمثل."
+      },
+      "review_due": "2027-01-31"
+    },
+    {
+      "id": "nptel",
+      "name": "National Programme on Technology Enhanced Learning (NPTEL)",
+      "name_ar": "البرنامج الوطني للتعلم المعزز بالتكنولوجيا",
+      "official_url": "https://nptel.ac.in/courses",
+      "rights_status": "open_reuse",
+      "access_mode": "open_course_catalogue",
+      "relationship_status": "independent_source_not_partner",
+      "licence": {
+        "name": "Creative Commons Attribution-NonCommercial-ShareAlike",
+        "short_name": "CC BY-NC-SA",
+        "url": null,
+        "note": "لم تحدد رسالة التأكيد رقم إصدار الترخيص؛ يجب التحقق من صفحة المادة المحددة قبل الاشتقاق أو النشر."
+      },
+      "permissions": {
+        "link": "allowed",
+        "copy": "allowed",
+        "translate": "allowed",
+        "adapt": "allowed",
+        "redistribute": "allowed",
+        "embed": "not_confirmed",
+        "commercial_use": "not_allowed",
+        "logo_use": "not_confirmed",
+        "automated_catalogue": "not_confirmed"
+      },
+      "requirements": [
+        "الاقتصار على الاستعمال غير التجاري.",
+        "نسبة المادة إلى NPTEL والجهة والمدرس كما تظهر في المصدر.",
+        "تطبيق شرط المشاركة بالمثل على المشتقات.",
+        "التحقق من إصدار الترخيص ومن أي مواد لطرف ثالث على مستوى كل دورة."
+      ],
+      "recommended_platform_use": [
+        "فهرسة الدورات المناسبة وإحالة المتعلم إلى الصفحة الرسمية.",
+        "نشر وصف عربي مستقل ومسارات تعلم مصنفة.",
+        "ترجمة مواد مختارة فقط بعد مراجعة ترخيص الدورة ومكوناتها."
+      ],
+      "evidence": {
+        "type": "direct_written_confirmation",
+        "confirmed_at": "2026-07-30",
+        "summary": "أكد دعم NPTEL أن المحتوى المستضاف في كتالوج الدورات موزع بترخيص CC BY-NC-SA ويمكن إعادة استعماله لأغراض غير تجارية."
+      },
+      "review_due": "2027-01-31"
+    },
+    {
+      "id": "fao-elearning-academy",
+      "name": "FAO elearning Academy",
+      "name_ar": "أكاديمية منظمة الأغذية والزراعة للتعلم الإلكتروني",
+      "official_url": "https://elearning.fao.org/",
+      "rights_status": "link_only",
+      "access_mode": "free_registration_and_self_paced_learning",
+      "relationship_status": "independent_source_not_partner",
+      "licence": {
+        "name": null,
+        "short_name": null,
+        "url": null,
+        "note": "مجانية الوصول لا تعني تلقائيًا السماح بالنسخ أو الترجمة أو إعادة التوزيع."
+      },
+      "permissions": {
+        "link": "allowed",
+        "copy": "not_confirmed",
+        "translate": "not_confirmed",
+        "adapt": "not_confirmed",
+        "redistribute": "not_confirmed",
+        "embed": "not_confirmed",
+        "commercial_use": "not_confirmed",
+        "logo_use": "not_confirmed",
+        "automated_catalogue": "not_confirmed"
+      },
+      "requirements": [
+        "إكمال التسجيل والتعلم والشهادة داخل منصة FAO الرسمية.",
+        "التحقق من شروط كل دورة أو مادة قبل أي إعادة استعمال.",
+        "عدم تقديم الدورة بوصفها مقدمة أو معتمدة من Psychology Terminology."
+      ],
+      "recommended_platform_use": [
+        "دليل إحالة عربي للدورات المجانية ومتعددة اللغات.",
+        "قسم للتعلم الذاتي ومنخفض الاتصال.",
+        "عرض بيانات وصفية مستقلة مع تاريخ آخر تحقق."
+      ],
+      "evidence": {
+        "type": "official_service_response",
+        "confirmed_at": "2026-07-29",
+        "summary": "وصفت FAO Academy الدورات بأنها مجانية ومتعددة اللغات وذاتية التعلم، مع إمكان التعلم عبر الإنترنت أو تنزيل بعض المواد للاتصال الضعيف؛ لم يؤكد الرد ترخيص إعادة الاستخدام."
+      },
+      "review_due": "2026-10-31"
+    },
+    {
+      "id": "bmj-learning",
+      "name": "BMJ Learning",
+      "name_ar": "بي إم جي للتعلم",
+      "official_url": "https://new-learning.bmj.com/discover/free-courses",
+      "rights_status": "commercial_agreement_required",
+      "access_mode": "free_and_subscription_courses",
+      "relationship_status": "independent_source_not_partner",
+      "licence": {
+        "name": "Proprietary content",
+        "short_name": "All rights reserved",
+        "url": null
+      },
+      "permissions": {
+        "link": "allowed",
+        "copy": "permission_required",
+        "translate": "permission_required",
+        "adapt": "permission_required",
+        "redistribute": "permission_required",
+        "embed": "permission_required",
+        "commercial_use": "permission_required",
+        "logo_use": "permission_required",
+        "automated_catalogue": "not_confirmed"
+      },
+      "requirements": [
+        "استخدام الروابط الرسمية المباشرة للإحالة فقط ما لم يوجد اتفاق مكتوب.",
+        "عدم نسخ الوحدات أو الأسئلة أو الصور أو المواد التعليمية.",
+        "الحصول على اتفاق تجاري قبل الترجمة أو الترخيص أو إعادة الاستعمال."
+      ],
+      "recommended_platform_use": [
+        "فهرسة الدورات المجانية المتاحة حاليًا مع رابط المصدر.",
+        "فحص دوري للتوفر والسعر والشهادة.",
+        "إظهار أن التسجيل والإكمال والاعتماد يتم لدى BMJ."
+      ],
+      "evidence": {
+        "type": "direct_written_confirmation",
+        "confirmed_at": "2026-07-30",
+        "summary": "أكدت الجهة إمكان استخدام الروابط الرسمية للدورات، وأن الترجمة أو الترخيص أو إعادة الاستعمال تتطلب اتفاقًا تجاريًا."
+      },
+      "review_due": "2026-10-31"
+    },
+    {
+      "id": "disasterready",
+      "name": "DisasterReady",
+      "name_ar": "دزاستر ريدي",
+      "official_url": "https://www.disasterready.org/",
+      "rights_status": "referral_only",
+      "access_mode": "account_required_training_portal",
+      "relationship_status": "independent_source_not_partner",
+      "licence": {
+        "name": "Proprietary portal content",
+        "short_name": "Referral only",
+        "url": null
+      },
+      "permissions": {
+        "link": "allowed",
+        "copy": "not_confirmed",
+        "translate": "not_confirmed",
+        "adapt": "not_confirmed",
+        "redistribute": "not_confirmed",
+        "embed": "not_confirmed",
+        "commercial_use": "not_confirmed",
+        "logo_use": "not_confirmed",
+        "automated_catalogue": "not_available"
+      },
+      "requirements": [
+        "المستخدم يحتاج إلى حساب DisasterReady وتسجيل الدخول للوصول إلى التدريب.",
+        "لا توجد قائمة آلية أو تغذية كتالوج خارجية متاحة حاليًا.",
+        "عدم استضافة الدروس أو الاختبارات أو الشهادات داخل المنصة."
+      ],
+      "recommended_platform_use": [
+        "اختيار عناوين مناسبة من الكتالوج وإحالة المستخدمين إلى البوابة.",
+        "إنشاء مسار عربي للتدريب الإنساني والصون والدعم النفسي الاجتماعي.",
+        "تسجيل تاريخ التحقق لأن العناوين والتوفر قد يتغيران."
+      ],
+      "evidence": {
+        "type": "direct_written_confirmation",
+        "confirmed_at": "2026-07-29",
+        "summary": "أكد فريق DisasterReady عدم وجود قوائم آلية، وأن المؤسسات تستطيع اقتراح عناوين تدريب مع توجيه المستخدم إلى البوابة وتسجيل الدخول."
+      },
+      "review_due": "2026-10-31"
+    },
+    {
+      "id": "research-data-alliance",
+      "name": "Research Data Alliance (RDA)",
+      "name_ar": "تحالف بيانات البحث",
+      "official_url": "https://www.rd-alliance.org/recommendations-and-outputs/outputs/",
+      "rights_status": "source_specific_review",
+      "access_mode": "public_recommendations_and_group_outputs",
+      "relationship_status": "independent_source_not_partner",
+      "licence": {
+        "name": null,
+        "short_name": null,
+        "url": null,
+        "note": "يجب مراجعة صفحة وترخيص كل مخرج على حدة قبل الترجمة أو إعادة التوزيع."
+      },
+      "permissions": {
+        "link": "allowed",
+        "copy": "not_confirmed",
+        "translate": "not_confirmed",
+        "adapt": "not_confirmed",
+        "redistribute": "not_confirmed",
+        "embed": "not_confirmed",
+        "commercial_use": "not_confirmed",
+        "logo_use": "not_confirmed",
+        "automated_catalogue": "not_confirmed"
+      },
+      "requirements": [
+        "التحقق من ترخيص المخرج المحدد قبل الترجمة أو الاشتقاق.",
+        "نسبة التوصية إلى مجموعة RDA والمؤلفين والإصدار الصحيح.",
+        "عدم وصف العضوية الفردية بأنها شراكة أو اعتماد للمنصة."
+      ],
+      "recommended_platform_use": [
+        "تطبيق FAIR والبيانات الوصفية والاستشهاد والإصدارات في حوكمة المنصة.",
+        "الربط إلى التوصيات والمخرجات الأصلية.",
+        "المشاركة الفردية في المجموعات ذات الصلة بعد قبول العضوية."
+      ],
+      "evidence": {
+        "type": "direct_written_guidance",
+        "confirmed_at": "2026-07-30",
+        "summary": "أرسلت RDA قائمة مخصصة من المخرجات والمجموعات ذات الصلة بالبيانات الوصفية وFAIR والاستشهاد والإصدارات والبيانات الصحية والذكاء الاصطناعي، وأوضحت أن العضوية الفردية مجانية."
+      },
+      "review_due": "2026-10-31"
+    },
+    {
+      "id": "national-autistic-society",
+      "name": "National Autistic Society",
+      "name_ar": "الجمعية الوطنية للتوحد",
+      "official_url": "https://www.autism.org.uk/advice-and-guidance/about-autism",
+      "rights_status": "link_only",
+      "access_mode": "public_guidance_and_paid_services",
+      "relationship_status": "independent_source_not_partner",
+      "licence": {
+        "name": "Proprietary content",
+        "short_name": "Link only unless authorised",
+        "url": null
+      },
+      "permissions": {
+        "link": "allowed",
+        "copy": "not_confirmed",
+        "translate": "permission_required",
+        "adapt": "permission_required",
+        "redistribute": "permission_required",
+        "embed": "permission_required",
+        "commercial_use": "permission_required",
+        "logo_use": "permission_required",
+        "automated_catalogue": "not_confirmed"
+      },
+      "requirements": [
+        "استخدام الروابط العامة بوصفها مصادر وإحالات مستقلة.",
+        "عدم نسخ أو ترجمة المحتوى أو استخدام العلامة دون تصريح.",
+        "عدم وصف الجهة بأنها راعٍ أو مراجع أو شريك."
+      ],
+      "recommended_platform_use": [
+        "المقارنة المرجعية مع إرشادات التوحد العامة.",
+        "إحالة المستخدم إلى مواردهم ودليل الخدمات عند ملاءمة ذلك.",
+        "تحديد الخدمات المدفوعة كاحتياج تمويل مستقبلي لا كالتزام قائم."
+      ],
+      "evidence": {
+        "type": "direct_written_response",
+        "confirmed_at": "2026-07-27",
+        "summary": "قدمت الجهة روابط عامة مفيدة، وأوضحت أن التدريب والمراجعة والخدمات الأخرى مدفوعة وأنها لا تقدم حاليًا منحًا أو مقاعد مجانية للمشروع."
+      },
+      "review_due": "2026-10-31"
+    }
+  ]
+}

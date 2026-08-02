@@ -2,7 +2,13 @@
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
   <ShortName>البحث الذكي</ShortName>
   <Description>بحث دلالي عربي في منصة الصحة النفسية وذوي الاحتياجات الخاصة</Description>
+  <Language>ar</Language>
   <InputEncoding>UTF-8</InputEncoding>
+  <OutputEncoding>UTF-8</OutputEncoding>
+  <SyndicationRight>open</SyndicationRight>
   <Image height="64" width="64" type="image/svg+xml">https://healthrenewal.org/assets/brand/logo-mark.svg</Image>
-  <Url type="text/html" method="get" template="https://healthrenewal.org/ai-search/?q={searchTerms}"/>
+  <Url type="application/opensearchdescription+xml" rel="self" template="https://healthrenewal.org/opensearch.xml"/>
+  <Url type="text/html" rel="results" method="get" template="https://healthrenewal.org/ai-search/?q={searchTerms}"/>
+  <SearchForm>https://healthrenewal.org/ai-search/</SearchForm>
+  <Query role="example" searchTerms="القلق"/>
 </OpenSearchDescription>

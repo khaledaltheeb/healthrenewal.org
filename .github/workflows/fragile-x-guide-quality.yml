@@ -1,0 +1,189 @@
+name: Fragile X guide quality
+
+on:
+  pull_request:
+    paths:
+      - 'special-needs/conditions/fragile-x-syndrome/index.html'
+      - '.github/workflows/fragile-x-guide-quality.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-fragile-x-guide:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate scientific, safety, structure, schema and accessibility gates
+        shell: python
+        run: |
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import json
+          import re
+          import sys
+          from urllib.parse import urlparse
+
+          path = Path('special-needs/conditions/fragile-x-syndrome/index.html')
+          failures = []
+          if not path.exists():
+              failures.append(f'Missing guide: {path}')
+              text = ''
+          else:
+              text = path.read_text(encoding='utf-8')
+
+          class GuideParser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.h1 = 0
+                  self.ids = set()
+                  self.hrefs = []
+                  self.jsonld = []
+                  self._jsonld = False
+                  self._json_buf = []
+                  self.lang = None
+                  self.dir = None
+                  self.viewport = False
+                  self.canonical = []
+                  self.robots = []
+                  self.skip_links = []
+                  self.tip_depth = 0
+                  self.tip_count = 0
+              def handle_starttag(self, tag, attrs):
+                  a = dict(attrs)
+                  if tag == 'html':
+                      self.lang, self.dir = a.get('lang'), a.get('dir')
+                  if tag == 'h1':
+                      self.h1 += 1
+                  if a.get('id'):
+                      self.ids.add(a['id'])
+                  if tag == 'a' and a.get('href'):
+                      self.hrefs.append(a['href'])
+                      if a.get('class') and 'skip' in a.get('class', '').split():
+                          self.skip_links.append(a['href'])
+                  if tag == 'meta' and a.get('name', '').lower() == 'viewport':
+                      self.viewport = True
+                  if tag == 'meta' and a.get('name', '').lower() == 'robots':
+                      self.robots.append(a.get('content', '').lower())
+                  if tag == 'link' and a.get('rel') == 'canonical':
+                      self.canonical.append(a.get('href'))
+                  if tag == 'script' and a.get('type') == 'application/ld+json':
+                      self._jsonld = True
+                      self._json_buf = []
+                  if tag == 'ol' and 'tips' in a.get('class', '').split():
+                      self.tip_depth += 1
+                  elif tag == 'li' and self.tip_depth:
+                      self.tip_count += 1
+              def handle_endtag(self, tag):
+                  if tag == 'script' and self._jsonld:
+                      self.jsonld.append(''.join(self._json_buf))
+                      self._jsonld = False
+                  if tag == 'ol' and self.tip_depth:
+                      self.tip_depth -= 1
+              def handle_data(self, data):
+                  if self._jsonld:
+                      self._json_buf.append(data)
+
+          parser = GuideParser()
+          if text:
+              try:
+                  parser.feed(text)
+              except Exception as exc:
+                  failures.append(f'HTML parser error: {exc}')
+
+          required_sections = {
+              'definition', 'genetics', 'signs', 'variation', 'assessment',
+              'health', 'daily', 'communication', 'education', 'safety',
+              'transition', 'tips', 'avoid', 'evidence', 'faq', 'references'
+          }
+          missing_sections = sorted(required_sections - parser.ids)
+          if missing_sections:
+              failures.append('Missing required sections: ' + ', '.join(missing_sections))
+          if parser.h1 != 1:
+              failures.append(f'Expected exactly one H1; found {parser.h1}')
+          if parser.tip_count < 20:
+              failures.append(f'Expected at least 20 practical tips; found {parser.tip_count}')
+          if parser.lang != 'ar' or parser.dir != 'rtl':
+              failures.append(f'Expected html lang=ar and dir=rtl; found lang={parser.lang!r}, dir={parser.dir!r}')
+          if not parser.viewport:
+              failures.append('Missing viewport meta tag')
+          if '#content' not in parser.skip_links:
+              failures.append('Missing working skip link to #content')
+          if 'content' not in parser.ids:
+              failures.append('Missing #content main target')
+
+          canonical = 'https://healthrenewal.org/special-needs/conditions/fragile-x-syndrome/'
+          if parser.canonical != [canonical]:
+              failures.append(f'Canonical must be exactly {canonical}; found {parser.canonical}')
+          if re.search(r'<meta\s+[^>]*name=["\']keywords["\']', text, re.I):
+              failures.append('Meta keywords are forbidden')
+
+          for href in parser.hrefs:
+              if href.startswith('#') and href[1:] and href[1:] not in parser.ids:
+                  failures.append(f'Broken internal anchor: {href}')
+              if href.startswith(('http://', 'https://')):
+                  parsed = urlparse(href)
+                  if parsed.scheme not in ('http', 'https') or not parsed.netloc:
+                      failures.append(f'Invalid external URL: {href}')
+
+          required_visible_terms = [
+              'FMR1', 'CGG', 'الطفرة الكاملة', 'الطفرة السابقة', 'الفسيفسائية',
+              'الاستشارة الجينية', 'التشخيص التفريقي', 'السمع', 'البصر', 'النوبات',
+              'النوم', 'التواصل المعزز', 'التنمر', 'الخصوصية', 'الاستغلال',
+              'الانتقال', 'القرار المدعوم', 'دليل محدود', 'لا يوجد حاليًا علاج شافٍ'
+          ]
+          for term in required_visible_terms:
+              if term not in text:
+                  failures.append(f'Missing required scientific/safety concept: {term}')
+
+          source_requirements = {
+              'GeneReviews': 'https://www.ncbi.nlm.nih.gov/books/NBK1384/',
+              'CDC about FXS': 'https://www.cdc.gov/fragile-x-syndrome/about/index.html',
+              'CDC provider facts': 'https://www.cdc.gov/fragile-x-syndrome/hcp/facts/index.html',
+              'AAP DOI': '10.1542/peds.2010-3500',
+              'ACMG DOI': '10.1038/gim.2013.61',
+              'ACMG PMID': '23765048'
+          }
+          for label, needle in source_requirements.items():
+              if needle not in text:
+                  failures.append(f'Missing required source identifier: {label}')
+
+          schemas = []
+          for raw in parser.jsonld:
+              try:
+                  schemas.append(json.loads(raw))
+              except json.JSONDecodeError as exc:
+                  failures.append(f'Invalid JSON-LD: {exc}')
+          schema_types = set()
+          for schema in schemas:
+              value = schema.get('@type') if isinstance(schema, dict) else None
+              if isinstance(value, list):
+                  schema_types.update(value)
+              elif value:
+                  schema_types.add(value)
+          for required_type in ('MedicalWebPage', 'BreadcrumbList'):
+              if required_type not in schema_types:
+                  failures.append(f'Missing JSON-LD type: {required_type}')
+          medical_pages = [s for s in schemas if isinstance(s, dict) and s.get('@type') == 'MedicalWebPage']
+          if not medical_pages or medical_pages[0].get('about', {}).get('@type') != 'MedicalCondition':
+              failures.append('MedicalWebPage must visibly describe a MedicalCondition')
+
+          if 'هذا الدليل للتوعية' not in text or 'ليس للتشخيص' not in text:
+              failures.append('Missing clear non-diagnostic use limitation')
+          if 'لا تنشر المنصة أي اختبار محمي' not in text:
+              failures.append('Missing protected-assessment safeguard')
+          if '@media(max-width:700px)' not in text:
+              failures.append('Missing mobile layout rule')
+          if '@media(prefers-reduced-motion:reduce)' not in text:
+              failures.append('Missing reduced-motion support')
+          if '@media print' not in text:
+              failures.append('Missing print support')
+
+          if failures:
+              print('Fragile X guide quality gate failed:', file=sys.stderr)
+              for failure in failures:
+                  print(f' - {failure}', file=sys.stderr)
+              raise SystemExit(1)
+          print('Fragile X guide quality gate passed.')

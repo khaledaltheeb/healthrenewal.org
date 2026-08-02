@@ -12,7 +12,7 @@ from pathlib import Path
 BRAND = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
 FOUNDER = "مصطلحات علم النفس"
 SLOGAN = "معرفة تحترم الإنسان. دعم يوسّع الإمكانات."
-BASE_PATH = "/pterminology-site/"
+BASE_PATH = "/"
 VERIFY_FILE = "google644f1f7a8b7aaa2b.html"
 TOOLS_ROUTE = "tools/index.html"
 TOOLS_DESIGN = "marshmallow-v245"

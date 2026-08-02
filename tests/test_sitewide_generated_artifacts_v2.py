@@ -80,7 +80,7 @@ class GeneratedArtifactHeadingIntentV2Tests(unittest.TestCase):
         statuses_281, changed_281, unsupported_281 = semantic.collect(
             self.site,
             self.site / "sitemap-capabilities-v281.xml",
-            ("https://khaledaltheeb.github.io/pterminology-site/",),
+            ("https://healthrenewal.org/",),
             write=True,
         )
         self.assertEqual([], unsupported_281)
@@ -89,7 +89,7 @@ class GeneratedArtifactHeadingIntentV2Tests(unittest.TestCase):
         final_281, remaining_281, _ = semantic.collect(
             self.site,
             self.site / "sitemap-capabilities-v281.xml",
-            ("https://khaledaltheeb.github.io/pterminology-site/",),
+            ("https://healthrenewal.org/",),
             write=False,
         )
         self.assertEqual([], remaining_281)

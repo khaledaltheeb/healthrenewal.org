@@ -59,7 +59,7 @@ jobs:
             --write \
             --root validated-site \
             --sitemap validated-site/sitemap-capabilities-v281.xml \
-            --base-url https://khaledaltheeb.github.io/pterminology-site/ \
+            --base-url https://healthrenewal.org/ \
             --report validated-site/api/sitewide-heading-intent-v281.json
           python - <<'PY'
           import json,re

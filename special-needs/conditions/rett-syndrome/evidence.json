@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1.2",
+  "conditionId": "rett-syndrome",
+  "titleAr": "متلازمة ريت",
+  "publicationStatus": "draft-unpublished",
+  "reviewedOn": "2026-07-30",
+  "scope": "سجل توثيق تحريري داخلي يربط الادعاءات الحساسة بمصادرها، ولا يمثل تشخيصًا أو وصفة علاجية فردية.",
+  "claims": [
+    {
+      "id": "rett-definition-course",
+      "claim": "متلازمة ريت اضطراب نمائي عصبي يرتبط غالبًا بمتغيرات ممرضة في MECP2، وتتميز الصورة الكلاسيكية بفترة تطور أولي يعقبها فقد جزئي أو كامل لمهارات اليد الهادفة واللغة المكتسبة مع اضطراب المشي وحركات يد نمطية، ثم استقرار نسبي بدرجات متفاوتة.",
+      "strength": "clinical-criteria-and-genereview",
+      "sources": ["genereviews-2025", "neul-2010"]
+    },
+    {
+      "id": "rett-diagnosis",
+      "claim": "التشخيص سريري مدعوم بالفحص الجيني؛ وجود متغير في MECP2 وحده لا يكفي لتسمية الصورة السريرية متلازمة ريت دون توافق المعايير، كما أن النتيجة السلبية لا تنفي جميع الاضطرابات المشابهة.",
+      "strength": "clinical-genetic-guidance",
+      "sources": ["genereviews-2025", "neul-2010"]
+    },
+    {
+      "id": "rett-lifespan-care",
+      "claim": "الرعاية تحتاج متابعة متعددة التخصصات عبر العمر تشمل التغذية والهضم والعظام والجنف والحركة والنوم والتنفس والصرع والقلب والتواصل والصحة النفسية والأسنان والسلامة.",
+      "strength": "consensus-guideline",
+      "sources": ["fu-2020", "genereviews-2025"]
+    },
+    {
+      "id": "rett-communication",
+      "claim": "يجب افتراض وجود إمكان للتواصل، وتوفير تقييم تواصل متكرر ودعم تواصل معزز وبديل مناسب للوصول الحركي والبصري بدل مساواة ضعف الكلام بغياب الفهم أو النية التواصلية.",
+      "strength": "international-consensus",
+      "sources": ["townend-2020"]
+    },
+    {
+      "id": "rett-evidence-limits",
+      "claim": "لا توجد خطة علاجية أو تعليمية واحدة مناسبة للجميع؛ كثير من القرارات تعتمد على المراقبة الفردية والإجماع السريري، ويجب فصل التدخلات الداعمة منخفضة المخاطر عن العلاجات الدوائية أو التخصصية التي تتطلب وصفًا ومتابعة.",
+      "strength": "evidence-limitation",
+      "sources": ["fu-2020", "genereviews-2025"]
+    }
+  ],
+  "sources": {
+    "genereviews-2025": {
+      "organization": "NCBI Bookshelf / GeneReviews",
+      "title": "MECP2 Disorders",
+      "authors": "Kaur S, Christodoulou J",
+      "revised": "2025-12-04",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1497/",
+      "type": "expert-authored-clinical-reference",
+      "verification": {"checkedOn": "2026-07-30", "status": "reachable-current-revision"}
+    },
+    "fu-2020": {
+      "organization": "BMJ Paediatrics Open",
+      "title": "Consensus guidelines on managing Rett syndrome across the lifespan",
+      "published": "2020",
+      "doi": "10.1136/bmjpo-2020-000717",
+      "pmid": "32984552",
+      "pmcid": "PMC7488790",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32984552/",
+      "type": "consensus-guideline",
+      "verification": {"checkedOn": "2026-07-30", "status": "identifier-and-record-verified"}
+    },
+    "townend-2020": {
+      "organization": "Augmentative and Alternative Communication",
+      "title": "Development of consensus-based guidelines for managing communication of individuals with Rett syndrome",
+      "published": "2020",
+      "doi": "10.1080/07434618.2020.1785009",
+      "pmid": "32720526",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32720526/",
+      "type": "communication-consensus-guideline",
+      "verification": {"checkedOn": "2026-07-30", "status": "identifier-and-record-verified"}
+    },
+    "neul-2010": {
+      "organization": "Annals of Neurology",
+      "title": "Rett syndrome: revised diagnostic criteria and nomenclature",
+      "published": "2010",
+      "doi": "10.1002/ana.22124",
+      "pmid": "21154482",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21154482/",
+      "type": "diagnostic-criteria-consensus",
+      "verification": {"checkedOn": "2026-07-30", "status": "identifier-and-record-verified"}
+    }
+  },
+  "safety": {
+    "noProtectedScaleText": true,
+    "noIndividualDiagnosis": true,
+    "noIndividualTreatmentPrescription": true,
+    "publicApprovalClaim": false
+  }
+}

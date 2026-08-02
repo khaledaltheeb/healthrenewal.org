@@ -1,0 +1,105 @@
+name: Validate PWA responsive UX v370
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "manifest.webmanifest"
+      - "assets/brand/pwa-192.png"
+      - "assets/brand/pwa-512.png"
+      - "assets/brand/pwa-maskable-512.png"
+      - "assets/platform/platform-ux-v370.css"
+      - "assets/platform/platform-ux-v370.js"
+      - "scripts/normalize_pwa_ux_v370.py"
+      - "scripts/finalize_pwa_v14.py"
+      - "tests/test_pwa_responsive_ux_v370.py"
+      - ".github/workflows/validate-pwa-responsive-ux-v370.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "manifest.webmanifest"
+      - "assets/brand/pwa-192.png"
+      - "assets/brand/pwa-512.png"
+      - "assets/brand/pwa-maskable-512.png"
+      - "assets/platform/platform-ux-v370.css"
+      - "assets/platform/platform-ux-v370.js"
+      - "scripts/normalize_pwa_ux_v370.py"
+      - "scripts/finalize_pwa_v14.py"
+      - "tests/test_pwa_responsive_ux_v370.py"
+      - ".github/workflows/validate-pwa-responsive-ux-v370.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pwa-responsive-ux-v370-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile PWA production contracts
+        run: |
+          python -m py_compile \
+            scripts/normalize_pwa_ux_v370.py \
+            scripts/finalize_pwa_v14.py \
+            tests/test_pwa_responsive_ux_v370.py
+
+      - name: Run PWA and responsive UX regression tests
+        run: |
+          python -m unittest discover \
+            -s tests \
+            -p 'test_pwa_responsive_ux_v370.py' \
+            -v
+
+      - name: Validate committed manifest and PNG headers
+        run: |
+          python - <<'PY'
+          import json
+          import struct
+          from pathlib import Path
+
+          manifest = json.loads(Path("manifest.webmanifest").read_text(encoding="utf-8"))
+          assert manifest["id"] == "/"
+          assert manifest["start_url"] == "/"
+          assert manifest["scope"] == "/"
+          assert manifest["display"] == "standalone"
+          assert manifest["theme_color"] == "#075f5b"
+          assert manifest["prefer_related_applications"] is False
+
+          expected = {
+              "assets/brand/pwa-192.png": (192, 192),
+              "assets/brand/pwa-512.png": (512, 512),
+              "assets/brand/pwa-maskable-512.png": (512, 512),
+          }
+          for name, dimensions in expected.items():
+              data = Path(name).read_bytes()
+              assert data[:8] == b"\x89PNG\r\n\x1a\n", name
+              assert struct.unpack(">II", data[16:24]) == dimensions, name
+
+          icons = {(item["src"], item.get("purpose")) for item in manifest["icons"]}
+          assert ("/assets/brand/pwa-192.png", "any") in icons
+          assert ("/assets/brand/pwa-512.png", "any") in icons
+          assert ("/assets/brand/pwa-maskable-512.png", "maskable") in icons
+          print({"manifest": "passed", "icons": len(icons)})
+          PY
+
+      - name: Reject legacy PWA branding and incomplete offline fallback
+        run: |
+          ! grep -R "pterminology-v23-resilient-core" \
+            scripts/finalize_pwa_v14.py \
+            manifest.webmanifest \
+            assets/platform/platform-ux-v370.*
+          grep -F "healthrenewal-v24-resilient-core" scripts/finalize_pwa_v14.py
+          grep -F "const OFFLINE='/offline/';" scripts/finalize_pwa_v14.py
+          grep -F "navigationPreload.enable" scripts/finalize_pwa_v14.py
+          grep -F "normalize_pwa_ux_before_registration" scripts/finalize_pwa_v14.py

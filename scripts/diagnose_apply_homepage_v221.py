@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 import traceback
@@ -13,7 +14,7 @@ if str(ROOT) not in sys.path:
 
 from scripts import apply_homepage_v20 as homepage
 
-CONTRACT = 322
+CONTRACT = 323
 REPORT = homepage.SITE / "api" / "homepage-publisher-progress-v221.json"
 LAST_COMPLETED: str | None = None
 OUTPUT_LIMIT = 16_000
@@ -100,6 +101,40 @@ def traced_publisher(script: str) -> None:
     stamp({"status": "running", "last_started": script, "last_completed": LAST_COMPLETED})
 
 
+def normalize_homepage_hreflang() -> list[str]:
+    index_path = homepage.SITE / "index.html"
+    html = index_path.read_text(encoding="utf-8")
+    removed: list[str] = []
+
+    for locale in ("en", "es"):
+        locale_index = homepage.SITE / locale / "index.html"
+        if locale_index.is_file():
+            continue
+        pattern = re.compile(
+            rf'^\s*<link\s+rel="alternate"\s+hreflang="{locale}"\s+'
+            rf'href="https://healthrenewal\.org/{locale}/"\s*/?>\s*$',
+            re.MULTILINE,
+        )
+        html, count = pattern.subn("", html)
+        if count:
+            removed.append(locale)
+
+    required = (
+        '<link rel="alternate" hreflang="ar" href="https://healthrenewal.org/">',
+        '<link rel="alternate" hreflang="x-default" href="https://healthrenewal.org/">',
+    )
+    missing = [tag for tag in required if tag not in html]
+    if missing:
+        raise RuntimeError(f"Homepage hreflang baseline is incomplete: {missing}")
+
+    for locale in removed:
+        if f'hreflang="{locale}"' in html:
+            raise RuntimeError(f"Unpublished homepage locale still advertised: {locale}")
+
+    index_path.write_text(html, encoding="utf-8")
+    return removed
+
+
 def verify_linked_sections() -> list[str]:
     expected = (
         "daily-tools/index.html",
@@ -118,6 +153,7 @@ def main() -> None:
     stamp({"status": "starting", "last_started": None, "last_completed": None})
     try:
         homepage.main()
+        removed_hreflang_locales = normalize_homepage_hreflang()
         verified_sections = verify_linked_sections()
     except Exception as exc:
         current = {}
@@ -144,6 +180,7 @@ def main() -> None:
             "status": "passed",
             "last_started": None,
             "last_completed": "all",
+            "removed_unpublished_hreflang_locales": removed_hreflang_locales,
             "verified_linked_sections": verified_sections,
         }
     )

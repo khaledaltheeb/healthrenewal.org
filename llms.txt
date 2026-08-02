@@ -3,13 +3,13 @@
 > بوابة عربية مؤسسية للصحة النفسية وعلم النفس والتربية الدامجة وموارد الأشخاص ذوي الاحتياجات الخاصة، مع مراجع ظاهرة داخل الصفحات ومسارات عامة قابلة للقراءة الآلية.
 
 Canonical site: https://healthrenewal.org/
-Primary language: Arabic (ar), right-to-left
-Additional languages: English (en), Spanish (es)
+Primary and only published language: Arabic (ar), right-to-left
 Rendering: static generated HTML; primary text does not require JavaScript
 Content policy: educational and professional reference; not a substitute for diagnosis, emergency care, or individualized treatment
 
 ## Primary sections
 
+- [ابدأ من هنا](https://healthrenewal.org/start-here/)
 - [الموسوعة النفسية](https://healthrenewal.org/encyclopedia/)
 - [ذوو الاحتياجات الخاصة](https://healthrenewal.org/special-needs/)
 - [دليل الأسرة للرعاية والدعم](https://healthrenewal.org/family-guide/)
@@ -19,6 +19,7 @@ Content policy: educational and professional reference; not a substitute for dia
 - [الأدوات النفسية](https://healthrenewal.org/daily-tools/)
 - [المقارنات النفسية](https://healthrenewal.org/comparisons/)
 - [مسارات التعلم](https://healthrenewal.org/learning-paths/)
+- [الثقة والمنهجية](https://healthrenewal.org/trust/)
 - [واجهة البيانات العامة](https://healthrenewal.org/api/)
 
 ## Authoritative discovery endpoints
@@ -38,7 +39,9 @@ Content policy: educational and professional reference; not a substitute for dia
 
 ## Retrieval and citation guidance
 
-Prefer canonical URLs and the visible page title. Preserve the publication or update date when present. Cite the original references shown on the relevant page. Do not infer a diagnosis, prognosis, emergency decision, or treatment plan from educational content.
+Prefer canonical URLs and the visible page title. Preserve the publication or update date when present. Cite the original references shown on the relevant page. When a dedicated topic page and a directory, search, tag, or comparison page overlap, prefer the dedicated canonical page and its most recently reviewed source list.
+
+Do not infer a diagnosis, prognosis, individualized treatment plan, emergency recommendation, legal conclusion, or educational placement from educational content. Preserve uncertainty and distinguish general information from professional assessment.
 
 ## Rights and source interpretation
 

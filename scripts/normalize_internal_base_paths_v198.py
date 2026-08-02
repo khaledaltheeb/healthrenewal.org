@@ -6,9 +6,11 @@ import re
 from pathlib import Path
 from typing import Iterable
 
-HOST = "khaledaltheeb.github.io"
-BASE_PATH = "/pterminology-site/"
-BASE_URL = f"https://{HOST}{BASE_PATH.rstrip('/')}"
+HOST = "healthrenewal.org"
+LEGACY_HOST = "khaledaltheeb.github.io"
+LEGACY_BASE_PATH = "/pterminology-site/"
+BASE_PATH = "/"
+BASE_URL = f"https://{HOST}"
 VERSION = 198
 REPORT_RELATIVE = Path("api/internal-base-paths-v198.json")
 TEXT_SUFFIXES = {
@@ -51,37 +53,46 @@ ROUTE_REPAIRS = (
 
 ABSOLUTE_INTERNAL_RE = re.compile(
     r"(?P<prefix>(?:https?:)?//)"
+    r"(?P<host>"
     + re.escape(HOST)
+    + r"|"
+    + re.escape(LEGACY_HOST)
+    + r")"
     + r"(?P<path>/[^\s\"'<>)]*)?",
     re.IGNORECASE,
 )
-# Match only a complete quoted root-relative URL value. Requiring the same
-# closing quote prevents JavaScript regular expressions such as /"/g from
-# being mistaken for a string that starts with a root-relative path.
-QUOTED_ROOT_RE = re.compile(
-    r"(?P<quote>[\"'])(?P<path>/(?!/|pterminology-site(?:/|(?=[\"']))|[?#])"
-    r"[A-Za-z0-9._~!$&()*+,;=:@%/?#-]*)(?=(?P=quote))"
+# Match only complete URL values that still carry the retired GitHub Pages
+# project prefix. Root-relative URLs are the canonical form on healthrenewal.org.
+QUOTED_LEGACY_RE = re.compile(
+    r"(?P<quote>[\"'])(?P<path>/pterminology-site(?:/"
+    r"[A-Za-z0-9._~!$&()*+,;=:@%/?#-]*)?)(?=(?P=quote))"
 )
-UNQUOTED_ATTRIBUTE_RE = re.compile(
+UNQUOTED_LEGACY_ATTRIBUTE_RE = re.compile(
     r"(?P<prefix>\b(?:href|src|action|poster|data)\s*=\s*)"
-    r"(?P<path>/(?!/|pterminology-site(?:/|\b)|[?#])[^\s>]+)",
+    r"(?P<path>/pterminology-site(?:/[^\s>]+)?)",
     re.IGNORECASE,
 )
-CSS_URL_RE = re.compile(
-    r"(?P<prefix>url\(\s*)(?P<path>/(?!/|pterminology-site(?:/|\b)|[?#])[^\s)]+)(?P<suffix>\s*\))",
+LEGACY_CSS_URL_RE = re.compile(
+    r"(?P<prefix>url\(\s*)(?P<path>/pterminology-site(?:/[^\s)]+)?)(?P<suffix>\s*\))",
     re.IGNORECASE,
 )
 
 
 def normalize_absolute(match: re.Match[str]) -> str:
     path = match.group("path") or "/"
-    if path == "/":
-        return BASE_URL + "/"
-    if path == BASE_PATH.rstrip("/"):
-        return BASE_URL
-    if path.startswith(BASE_PATH):
-        return "https://" + HOST + path
+    legacy_root = LEGACY_BASE_PATH.rstrip("/")
+    if path == legacy_root:
+        path = "/"
+    elif path.startswith(LEGACY_BASE_PATH):
+        path = path[len(legacy_root) :]
     return BASE_URL + path
+
+
+def normalize_legacy_path(path: str) -> str:
+    legacy_root = LEGACY_BASE_PATH.rstrip("/")
+    if path == legacy_root:
+        return "/"
+    return path[len(legacy_root) :]
 
 
 def normalize_text(text: str) -> tuple[str, int]:
@@ -97,29 +108,29 @@ def normalize_text(text: str) -> tuple[str, int]:
 
     text = ABSOLUTE_INTERNAL_RE.sub(replace_absolute, text)
 
-    def replace_quoted(match: re.Match[str]) -> str:
+    def replace_quoted_legacy(match: re.Match[str]) -> str:
         nonlocal replacements
         replacements += 1
-        return f'{match.group("quote")}{BASE_PATH}{match.group("path").lstrip("/")}'
+        return f'{match.group("quote")}{normalize_legacy_path(match.group("path"))}'
 
-    text = QUOTED_ROOT_RE.sub(replace_quoted, text)
+    text = QUOTED_LEGACY_RE.sub(replace_quoted_legacy, text)
 
-    def replace_unquoted(match: re.Match[str]) -> str:
+    def replace_unquoted_legacy(match: re.Match[str]) -> str:
         nonlocal replacements
         replacements += 1
-        return f'{match.group("prefix")}{BASE_PATH}{match.group("path").lstrip("/")}'
+        return f'{match.group("prefix")}{normalize_legacy_path(match.group("path"))}'
 
-    text = UNQUOTED_ATTRIBUTE_RE.sub(replace_unquoted, text)
+    text = UNQUOTED_LEGACY_ATTRIBUTE_RE.sub(replace_unquoted_legacy, text)
 
-    def replace_css(match: re.Match[str]) -> str:
+    def replace_legacy_css(match: re.Match[str]) -> str:
         nonlocal replacements
         replacements += 1
         return (
-            f'{match.group("prefix")}{BASE_PATH}'
-            f'{match.group("path").lstrip("/")}{match.group("suffix")}'
+            f'{match.group("prefix")}{normalize_legacy_path(match.group("path"))}'
+            f'{match.group("suffix")}'
         )
 
-    text = CSS_URL_RE.sub(replace_css, text)
+    text = LEGACY_CSS_URL_RE.sub(replace_legacy_css, text)
     return text, replacements
 
 
@@ -150,22 +161,37 @@ def repair_missing_routes(
     for repair in repairs:
         missing = str(repair["missing"])
         fallback = str(repair["fallback"])
-        missing_relative = missing.lstrip("/")
-        fallback_relative = fallback.lstrip("/")
-        # Root-relative links have already been normalized to BASE_PATH by
-        # normalize_text. Avoid a raw text.replace('/route/', ...) because it
-        # can corrupt JavaScript regular-expression literals.
-        variants = (
-            (BASE_URL + missing, BASE_URL + fallback),
-            (BASE_PATH + missing_relative, BASE_PATH + fallback_relative),
-        )
         route_count = 0
-        for old, new in variants:
+        absolute_old = BASE_URL + missing
+        absolute_new = BASE_URL + fallback
+        occurrences = text.count(absolute_old)
+        if occurrences:
+            text = text.replace(absolute_old, absolute_new)
+            total += occurrences
+            route_count += occurrences
+
+        # At the production root, replace only complete URL values. A raw
+        # replacement of /blog/, for example, would corrupt JavaScript regexes.
+        for quote in ('"', "'"):
+            old = quote + missing + quote
+            new = quote + fallback + quote
             occurrences = text.count(old)
             if occurrences:
                 text = text.replace(old, new)
                 total += occurrences
                 route_count += occurrences
+        attribute_re = re.compile(
+            r"(?P<prefix>\b(?:href|src|action|poster|data)\s*=\s*)"
+            + re.escape(missing)
+            + r"(?=[\s>])",
+            re.IGNORECASE,
+        )
+        text, occurrences = attribute_re.subn(
+            lambda match: match.group("prefix") + fallback,
+            text,
+        )
+        total += occurrences
+        route_count += occurrences
         for old, new in dict(repair.get("text", {})).items():
             occurrences = text.count(old)
             if occurrences:
@@ -188,19 +214,25 @@ def bad_references(text: str, repairs: list[dict[str, object]]) -> list[str]:
     errors: list[str] = []
     for match in ABSOLUTE_INTERNAL_RE.finditer(text):
         path = match.group("path") or "/"
-        if path == "/" or not (
-            path == BASE_PATH.rstrip("/") or path.startswith(BASE_PATH)
-        ):
+        if match.group("host").lower() != HOST or path == LEGACY_BASE_PATH.rstrip("/") or path.startswith(LEGACY_BASE_PATH):
             errors.append(match.group(0))
-    errors.extend(match.group(0) for match in QUOTED_ROOT_RE.finditer(text))
-    errors.extend(match.group(0) for match in UNQUOTED_ATTRIBUTE_RE.finditer(text))
-    errors.extend(match.group(0) for match in CSS_URL_RE.finditer(text))
+    errors.extend(match.group(0) for match in QUOTED_LEGACY_RE.finditer(text))
+    errors.extend(match.group(0) for match in UNQUOTED_LEGACY_ATTRIBUTE_RE.finditer(text))
+    errors.extend(match.group(0) for match in LEGACY_CSS_URL_RE.finditer(text))
     for repair in repairs:
         missing = str(repair["missing"])
-        missing_relative = missing.lstrip("/")
-        for variant in (BASE_URL + missing, BASE_PATH + missing_relative):
-            if variant in text:
-                errors.append(variant)
+        if BASE_URL + missing in text:
+            errors.append(BASE_URL + missing)
+        if any(quote + missing + quote in text for quote in ('"', "'")):
+            errors.append(missing)
+        attribute_re = re.compile(
+            r"\b(?:href|src|action|poster|data)\s*=\s*"
+            + re.escape(missing)
+            + r"(?=[\s>])",
+            re.IGNORECASE,
+        )
+        if attribute_re.search(text):
+            errors.append(missing)
     return sorted(set(errors))
 
 
@@ -269,8 +301,8 @@ def normalize_site(site: Path, *, check_only: bool = False) -> dict[str, object]
         "remaining_error_files": len(remaining),
         "remaining_errors": remaining,
         "example_fixed": {
-            "missing_prefix_route": "/care-guides/",
-            "correct_route": "/pterminology-site/care-guides/",
+            "legacy_project_route": "/pterminology-site/care-guides/",
+            "correct_route": "/care-guides/",
         },
     }
 

@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://healthrenewal.org/sitemap.xml
+User-agent: OAI-SearchBot
+Allow: /
+
+Sitemap: https://healthrenewal.org/sitemap-index.xml

@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content" / "v186" / "inclusive-disability-language-ar.json"
-BASE_URL = "https://healthrenewal.org/"
+BASE_URL = "https://healthrenewal.org"
 SITEMAP_NAME = "sitemap-inclusive-disability-language.xml"
 
 

@@ -1,4 +1,4 @@
-name: Validate internal GitHub Pages base paths v198
+name: Validate internal production-root paths v198
 
 on:
   pull_request:
@@ -37,7 +37,7 @@ jobs:
         run: python -m py_compile scripts/normalize_internal_base_paths_v198.py tests/test_internal_base_paths_v198.py scripts/apply_homepage_v20.py scripts/polish_site_v16.py
       - name: Run absolute and root-relative URL contracts
         run: python -m unittest -v tests/test_internal_base_paths_v198.py
-      - name: Build synthetic site and prove zero missing repository prefixes
+      - name: Build synthetic site and prove canonical production-root paths
         run: |
           set -euxo pipefail
           rm -rf base-path-review
@@ -51,10 +51,10 @@ jobs:
           printf '{"start_url":"/","scope":"/"}\n' > base-path-review/manifest.webmanifest
           python scripts/normalize_internal_base_paths_v198.py base-path-review
           python scripts/normalize_internal_base_paths_v198.py base-path-review --check-only
-          grep -q 'https://khaledaltheeb.github.io/pterminology-site/care-guides/' base-path-review/index.html
-          grep -q 'href="/pterminology-site/care-guides/"' base-path-review/index.html
+          grep -q 'https://healthrenewal.org/care-guides/' base-path-review/index.html
+          grep -q 'href="/care-guides/"' base-path-review/index.html
           grep -q '"status": "passed"' base-path-review/api/internal-base-paths-v198.json
-          ! grep -R -E 'https?://khaledaltheeb\.github\.io/(?!pterminology-site/)' base-path-review --include='*.html' --include='*.xml' --include='*.json' --include='*.webmanifest' -P
+          ! grep -R -E 'khaledaltheeb\.github\.io|/pterminology-site/' base-path-review --include='*.html' --include='*.xml' --include='*.json' --include='*.webmanifest'
       - name: Upload normalization evidence
         uses: actions/upload-artifact@v4
         with:

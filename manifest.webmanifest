@@ -1,12 +1,19 @@
 {
+  "id": "/",
   "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
-  "short_name": "الصحة النفسية",
+  "short_name": "HealthRenewal",
   "description": "موسوعة عربية للصحة النفسية والأشخاص ذوي الاحتياجات الخاصة والأدلة العملية والتربية الدامجة.",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
   "background_color": "#ffffff",
   "theme_color": "#075f5b",
   "categories": [
@@ -14,56 +21,82 @@
     "health",
     "medical"
   ],
+  "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
   "icons": [
+    {
+      "src": "/assets/brand/pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/brand/pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/brand/pwa-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
     {
       "src": "/assets/brand/logo-mark.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "shortcuts": [
     {
       "name": "أدلة التعامل والرعاية",
+      "short_name": "أدلة الرعاية",
       "url": "/care-guides/",
       "icons": [
         {
-          "src": "/assets/brand/logo-mark.svg",
-          "sizes": "any",
-          "type": "image/svg+xml"
+          "src": "/assets/brand/pwa-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
     {
       "name": "الموسوعة",
+      "short_name": "الموسوعة",
       "url": "/encyclopedia/",
       "icons": [
         {
-          "src": "/assets/brand/logo-mark.svg",
-          "sizes": "any",
-          "type": "image/svg+xml"
+          "src": "/assets/brand/pwa-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
     {
       "name": "ذوو الاحتياجات الخاصة",
+      "short_name": "الاحتياجات الخاصة",
       "url": "/special-needs/",
       "icons": [
         {
-          "src": "/assets/brand/logo-mark.svg",
-          "sizes": "any",
-          "type": "image/svg+xml"
+          "src": "/assets/brand/pwa-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
     {
-      "name": "منصة التقييم",
-      "url": "/provider-assessment-demo/",
+      "name": "البحث الذكي",
+      "short_name": "البحث",
+      "url": "/ai-search/",
       "icons": [
         {
-          "src": "/assets/brand/logo-mark.svg",
-          "sizes": "any",
-          "type": "image/svg+xml"
+          "src": "/assets/brand/pwa-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     }

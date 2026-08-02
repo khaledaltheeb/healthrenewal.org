@@ -1,0 +1,53 @@
+name: Validate source rights registry
+
+on:
+  pull_request:
+    paths:
+      - "api/source-rights-registry.json"
+      - "source-registry/rights/index.html"
+      - "sitemap-source-registry.xml"
+      - "docs/governance/source-rights-and-reuse-policy.md"
+      - "scripts/validate_source_rights_registry.py"
+      - "tests/test_source_rights_registry.py"
+      - ".github/workflows/validate-source-rights-registry.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "api/source-rights-registry.json"
+      - "source-registry/rights/index.html"
+      - "sitemap-source-registry.xml"
+      - "docs/governance/source-rights-and-reuse-policy.md"
+      - "scripts/validate_source_rights_registry.py"
+      - "tests/test_source_rights_registry.py"
+      - ".github/workflows/validate-source-rights-registry.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: source-rights-registry-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile validator
+        run: python -m py_compile scripts/validate_source_rights_registry.py
+
+      - name: Validate governed registry
+        run: python scripts/validate_source_rights_registry.py --json
+
+      - name: Run regression tests
+        run: python -m unittest tests.test_source_rights_registry -v

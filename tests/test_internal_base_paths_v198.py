@@ -70,50 +70,50 @@ const blogPattern=/blog/;
             self.make_site(site)
             report = module.normalize_site(site)
             self.assertEqual(report["status"], "passed")
-            self.assertGreaterEqual(report["replacements"], 15)
+            self.assertGreaterEqual(report["replacements"], 8)
             self.assertGreaterEqual(report["missing_route_replacements"], 3)
             self.assertEqual(report["remaining_error_files"], 0)
             self.assertEqual(len(report["active_route_repairs"]), 3)
 
             html = (site / "index.html").read_text(encoding="utf-8")
             self.assertIn(
-                "https://khaledaltheeb.github.io/pterminology-site/care-guides/",
+                "https://healthrenewal.org/care-guides/",
                 html,
             )
-            self.assertIn('href="/pterminology-site/care-guides/"', html)
-            self.assertIn('href="/pterminology-site/manifest.webmanifest"', html)
-            self.assertIn('src=/pterminology-site/assets/logo.svg', html)
-            self.assertIn('url(/pterminology-site/assets/hero.svg)', html)
+            self.assertIn('href="/care-guides/"', html)
+            self.assertIn('href="/manifest.webmanifest"', html)
+            self.assertIn('src=/assets/logo.svg', html)
+            self.assertIn('url(/assets/hero.svg)', html)
             self.assertIn("https://example.org/care-guides/", html)
             self.assertNotIn(
                 "https://khaledaltheeb.github.io/pterminology-site/pterminology-site/",
                 html,
             )
 
-            self.assertIn('href="/pterminology-site/trust/"', html)
+            self.assertIn('href="/trust/"', html)
             self.assertIn("مركز الثقة ومنهجية تقييم المحتوى", html)
-            self.assertIn('href="/pterminology-site/encyclopedia/"', html)
+            self.assertIn('href="/encyclopedia/"', html)
             self.assertIn("ابحث في الموسوعة", html)
-            self.assertIn('href="/pterminology-site/tips/"', html)
+            self.assertIn('href="/tips/"', html)
             self.assertIn("استعرض النصائح والمحتوى التثقيفي", html)
             self.assertNotIn("/guides/evaluate-mental-health-information/", html)
             self.assertNotIn("/search/", html)
             self.assertNotIn("/blog/", html)
 
             manifest = json.loads((site / "manifest.webmanifest").read_text(encoding="utf-8"))
-            self.assertEqual(manifest["start_url"], "/pterminology-site/")
-            self.assertEqual(manifest["scope"], "/pterminology-site/")
-            self.assertEqual(manifest["icons"][0]["src"], "/pterminology-site/assets/icon.png")
+            self.assertEqual(manifest["start_url"], "/")
+            self.assertEqual(manifest["scope"], "/")
+            self.assertEqual(manifest["icons"][0]["src"], "/assets/icon.png")
 
             script = (site / "assets" / "app.js").read_text(encoding="utf-8")
-            self.assertIn('"/pterminology-site/start-here/"', script)
+            self.assertIn('"/start-here/"', script)
             self.assertIn(
-                "https://khaledaltheeb.github.io/pterminology-site/api/info.json",
+                "https://healthrenewal.org/api/info.json",
                 script,
             )
             self.assertIn('replace(/"/g,\'&quot;\')', script)
             self.assertIn("const blogPattern=/blog/;", script)
-            self.assertNotIn('/"/pterminology-site/g', script)
+            self.assertNotIn("/pterminology-site/", script)
 
     def test_does_not_rewrite_a_route_when_the_original_target_exists(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -127,7 +127,7 @@ const blogPattern=/blog/;
             active = {item["missing"] for item in report["active_route_repairs"]}
             self.assertNotIn("/search/", active)
             html = (site / "index.html").read_text(encoding="utf-8")
-            self.assertIn('href="/pterminology-site/search/"', html)
+            self.assertIn('href="/search/"', html)
             self.assertIn("ابحث في الموقع", html)
 
     def test_is_idempotent_and_writes_audit_report(self):
@@ -143,7 +143,7 @@ const blogPattern=/blog/;
                 (site / "api" / "internal-base-paths-v198.json").read_text(encoding="utf-8")
             )
             self.assertEqual(stored["status"], "passed")
-            self.assertEqual(stored["required_base_path"], "/pterminology-site/")
+            self.assertEqual(stored["required_base_path"], "/")
 
     def test_check_only_fails_to_hide_bad_links(self):
         with tempfile.TemporaryDirectory() as temporary:

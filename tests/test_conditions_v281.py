@@ -150,9 +150,9 @@ class ConditionsV281Contract(unittest.TestCase):
         self.assertIn("capabilities-v281.json", publish)
         self.assertIn("sitemap-capabilities-v281.xml", publish)
         self.assertIn("capabilities-v281-source.json", publish)
-        self.assertIn("capabilities-v281.json", deploy)
-        self.assertIn("condition_count']==50", deploy)
-        self.assertIn("generated_page_count']==51", deploy)
+        self.assertIn("Retired partial Pages publisher", deploy)
+        self.assertIn("deploy-complete-pages-with-ai-search.yml", deploy)
+        self.assertNotIn("actions/deploy-pages@", deploy)
 
 
 if __name__ == "__main__":

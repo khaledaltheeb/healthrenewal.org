@@ -21,7 +21,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "content" / "v281" / "conditions-50-ar.json.zlib.b64"
-BASE = "https://khaledaltheeb.github.io/pterminology-site/"
+BASE = "https://healthrenewal.org/"
 SECTION = "capabilities"
 INDEX_ROUTE = "capabilities/expanded"
 SITEMAP = "sitemap-capabilities-v281.xml"
@@ -93,13 +93,13 @@ def layout(title: str, description: str, canonical: str, body: str, schema: dict
 <meta property="og:type" content="article"><meta property="og:locale" content="ar_AR">
 <meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(description)}">
 <meta property="og:url" content="{e(canonical)}"><meta name="twitter:card" content="summary">
-<link rel="stylesheet" href="/pterminology-site/assets/css/capabilities-v280.css">
+<link rel="stylesheet" href="/assets/css/capabilities-v280.css">
 <script type="application/ld+json">{json.dumps(schema, ensure_ascii=False)}</script>
 </head><body>
 <a class="skip" href="#main">تخطَّ إلى المحتوى</a>
-<header class="site-header"><div class="shell"><a href="/pterminology-site/">المنصة</a><nav aria-label="التنقل الرئيسي"><a href="/pterminology-site/special-needs/">مركز ذوي الاحتياجات الخاصة</a><a href="/pterminology-site/capabilities/">أدلة القدرات</a><a href="/pterminology-site/capabilities/expanded/">التوسعة النادرة</a></nav></div></header>
+<header class="site-header"><div class="shell"><a href="/">المنصة</a><nav aria-label="التنقل الرئيسي"><a href="/special-needs/">مركز ذوي الاحتياجات الخاصة</a><a href="/capabilities/">أدلة القدرات</a><a href="/capabilities/expanded/">التوسعة النادرة</a></nav></div></header>
 <main id="main" class="shell">{body}</main>
-<footer class="site-footer"><div class="shell"><p>محتوى تثقيفي داخلي المراجعة، وليس تشخيصًا أو وصفة علاجية فردية.</p><a href="/pterminology-site/trust/">الثقة والمنهجية</a></div></footer>
+<footer class="site-footer"><div class="shell"><p>محتوى تثقيفي داخلي المراجعة، وليس تشخيصًا أو وصفة علاجية فردية.</p><a href="/trust/">الثقة والمنهجية</a></div></footer>
 </body></html>'''
 
 
@@ -111,7 +111,7 @@ def condition_page(data: dict[str, Any], condition: dict[str, Any]) -> str:
         "التقييم، المتابعة، التدخل، الأمان، وخطة الأسرة ومقدم الخدمة."
     )
     body = f'''
-<nav aria-label="مسار التنقل" class="breadcrumbs"><a href="/pterminology-site/">الرئيسية</a> ← <a href="/pterminology-site/capabilities/">أدلة القدرات</a> ← <a href="/pterminology-site/capabilities/expanded/">50 حالة إضافية</a></nav>
+<nav aria-label="مسار التنقل" class="breadcrumbs"><a href="/">الرئيسية</a> ← <a href="/capabilities/">أدلة القدرات</a> ← <a href="/capabilities/expanded/">50 حالة إضافية</a></nav>
 <article>
 <header class="hero"><p class="eyebrow">الحالة رقم {condition["rank"]} · {e(category["label"])}</p><h1>{e(condition["title_ar"])}</h1><p lang="en">{e(condition["title_en"])}</p><p class="lead">{e(description)}</p><div class="notice"><strong>حدود الدليل:</strong> {e(data["scope_note"])}</div></header>
 <section><h2>الخلاصة التنفيذية</h2><p>{e(condition["pattern"])}</p><p>تبدأ الخطة بتثبيت الصحة والأمان والوصول، ثم توصيف الأداء الحقيقي في المنزل والتعليم والمجتمع. لا يكفي اسم التشخيص لتحديد الذكاء أو الاستقلال أو طريقة التواصل أو المهنة الممكنة.</p></section>
@@ -162,10 +162,10 @@ def condition_page(data: dict[str, Any], condition: dict[str, Any]) -> str:
 def index_page(data: dict[str, Any]) -> str:
     canonical = BASE + INDEX_ROUTE + "/"
     cards = "".join(
-        f'<article class="card"><p class="eyebrow">#{item["rank"]}</p><h2><a href="/pterminology-site/capabilities/{e(item["slug"])}/">{e(item["title_ar"])}</a></h2><p lang="en">{e(item["title_en"])}</p><p>{e(item["pattern"])}</p></article>'
+        f'<article class="card"><p class="eyebrow">#{item["rank"]}</p><h2><a href="/capabilities/{e(item["slug"])}/">{e(item["title_ar"])}</a></h2><p lang="en">{e(item["title_en"])}</p><p>{e(item["pattern"])}</p></article>'
         for item in data["conditions"]
     )
-    body = f'''<nav aria-label="مسار التنقل" class="breadcrumbs"><a href="/pterminology-site/">الرئيسية</a> ← <a href="/pterminology-site/capabilities/">أدلة القدرات</a></nav>
+    body = f'''<nav aria-label="مسار التنقل" class="breadcrumbs"><a href="/">الرئيسية</a> ← <a href="/capabilities/">أدلة القدرات</a></nav>
 <header class="hero"><p class="eyebrow">الإصدار 281</p><h1>{e(data["title"])}</h1><p class="lead">خمسون دليلًا جديدًا للحالات النادرة تربط الوصف المرجعي بالمتابعة والتأهيل والتعليم وخطة الأسرة ومقدم الخدمة.</p><div class="notice">{e(data["review_status"])}</div></header>
 <section><h2>منهجية الدفعة</h2>{list_html(["لكل حالة مصدر مباشر من جهة صحية أو مرجع GeneReviews/NCBI.","لا توجد جرعات أو تشخيص آلي أو ادعاء اعتماد خارجي.","القدرات فرضيات فردية قابلة للاختبار وليست مواهب مرتبطة بالتشخيص.","تحتوي كل صفحة على خطة للأسرة ومقدم الخدمة ومراقبة صحية وحدود أمان."])}</section>
 <section><h2>الحالات الخمسون</h2><div class="grid">{cards}</div></section>'''
@@ -182,7 +182,7 @@ def inject_bridge(path: Path) -> None:
     if not path.is_file():
         return
     text = path.read_text(encoding="utf-8")
-    block = f'''{BRIDGE_START}<section class="capabilities-v281-bridge"><h2>50 دليلًا إضافيًا للحالات النادرة</h2><p>دفعة منهجية جديدة غير مكررة تشمل متلازمات نمائية عصبية واضطرابات صرعية واستقلابية.</p><a href="/pterminology-site/capabilities/expanded/">استعرض الدفعة الجديدة</a></section>{BRIDGE_END}'''
+    block = f'''{BRIDGE_START}<section class="capabilities-v281-bridge"><h2>50 دليلًا إضافيًا للحالات النادرة</h2><p>دفعة منهجية جديدة غير مكررة تشمل متلازمات نمائية عصبية واضطرابات صرعية واستقلابية.</p><a href="/capabilities/expanded/">استعرض الدفعة الجديدة</a></section>{BRIDGE_END}'''
     text = re.sub(re.escape(BRIDGE_START) + r".*?" + re.escape(BRIDGE_END), "", text, flags=re.S)
     if "</main>" in text:
         text = text.replace("</main>", block + "</main>", 1)
