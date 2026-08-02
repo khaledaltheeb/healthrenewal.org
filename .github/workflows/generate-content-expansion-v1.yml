@@ -45,6 +45,7 @@ jobs:
           python -m py_compile scripts/generate_content_expansion_v1.py
           python -m py_compile data/content-expansion-v1/diversify.py
           python -m py_compile data/content-expansion-v1/apply_evidence_profiles.py
+          python -m py_compile data/content-expansion-v1/profile-routing-test.py
           python -m py_compile scripts/create_content_expansion_root_hubs_v1.py
           python -m py_compile scripts/update_content_expansion_sitemaps_v1.py
           python -m py_compile tests/test_content_expansion_v1.py
@@ -66,6 +67,9 @@ jobs:
 
       - name: Validate depth evidence semantics similarity and publication scope
         run: python tests/test_content_expansion_v1.py
+
+      - name: Validate semantic routing of official evidence profiles
+        run: python data/content-expansion-v1/profile-routing-test.py
 
       - name: Remove transient Python files
         run: find . -type d -name __pycache__ -prune -exec rm -rf {} +
