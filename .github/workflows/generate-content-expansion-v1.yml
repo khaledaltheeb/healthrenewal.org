@@ -8,6 +8,7 @@ on:
       - data/content-expansion-v1.json
       - data/content-expansion-v1/**
       - scripts/generate_content_expansion_v1.py
+      - scripts/diversify_content_expansion_v1.py
       - scripts/create_content_expansion_root_hubs_v1.py
       - scripts/update_content_expansion_sitemaps_v1.py
       - tests/test_content_expansion_v1.py
@@ -40,12 +41,16 @@ jobs:
       - name: Compile publication scripts and tests
         run: |
           python -m py_compile scripts/generate_content_expansion_v1.py
+          python -m py_compile scripts/diversify_content_expansion_v1.py
           python -m py_compile scripts/create_content_expansion_root_hubs_v1.py
           python -m py_compile scripts/update_content_expansion_sitemaps_v1.py
           python -m py_compile tests/test_content_expansion_v1.py
 
       - name: Generate 100 static pages and collection hubs
         run: python scripts/generate_content_expansion_v1.py
+
+      - name: Add topic-specific decision layers
+        run: python scripts/diversify_content_expansion_v1.py
 
       - name: Create missing root sector hubs
         run: python scripts/create_content_expansion_root_hubs_v1.py
