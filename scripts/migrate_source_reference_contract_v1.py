@@ -108,6 +108,30 @@ def migrate_consumers() -> list[str]:
     return changed
 
 
+def migrate_scope_gate() -> list[str]:
+    path = ROOT / "tests/test_content_expansion_v1.py"
+    marker = '    "data/content-expansion-v1.json", "data/content-expansion-v1/**",\n'
+    additions = (
+        '    "content/family-guide-special-education-tools-v1/**",\n'
+        '    "content/v406/women-youth-expansion-ar.json",\n'
+        '    "reports/source-evidence-contract-v1.json",\n'
+        '    "reports/sitemap-duplicate-ownership-v1.json",\n'
+        '    "scripts/migrate_source_reference_contract_v1.py",\n'
+        '    "scripts/fix_sitemap_duplicate_ownership_v1.py",\n'
+        '    "scripts/family_tools_v1_render.py",\n'
+        '    "scripts/publish_family_guide_special_education_tools_v1.py",\n'
+        '    "scripts/publish_women_youth_v406.py",\n'
+        '    "sitemap-family-main.xml",\n'
+    )
+    source = path.read_text(encoding="utf-8")
+    if additions.strip() in source:
+        return []
+    if marker not in source:
+        raise SystemExit("expansion scope marker not found")
+    path.write_text(source.replace(marker, marker + additions, 1), encoding="utf-8")
+    return [path.relative_to(ROOT).as_posix()]
+
+
 def validate() -> None:
     evidence = json.loads((ROOT / "data/content-expansion-v1/official-evidence.json").read_text(encoding="utf-8"))
     assert "source_registry" in evidence and "sources" not in evidence
@@ -130,6 +154,7 @@ def main() -> None:
         *migrate_family_tools(),
         *migrate_women_youth(),
         *migrate_consumers(),
+        *migrate_scope_gate(),
     ]
     validate()
     print(json.dumps({"changed": sorted(changed), "count": len(changed)}, ensure_ascii=False, indent=2))
