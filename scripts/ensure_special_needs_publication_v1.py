@@ -2,11 +2,11 @@
 from __future__ import annotations
 
 import json
-import re
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
+from html.parser import HTMLParser
 from pathlib import Path
 
 BASE_URL = "https://healthrenewal.org"
@@ -52,6 +52,27 @@ class Inventory:
     counts: dict[str, int]
     routes: dict[str, list[str]]
     missing_roots: list[str]
+
+
+class PageMetadataParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.h1_count = 0
+        self.canonicals: list[str] = []
+        self.robots: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        lowered = tag.lower()
+        values = {name.lower(): (value or "").strip() for name, value in attrs}
+        if lowered == "h1":
+            self.h1_count += 1
+        elif lowered == "link":
+            rel_tokens = {token.lower() for token in values.get("rel", "").split()}
+            href = values.get("href", "")
+            if "canonical" in rel_tokens and href:
+                self.canonicals.append(href)
+        elif lowered == "meta" and values.get("name", "").lower() == "robots":
+            self.robots.append(values.get("content", "").lower())
 
 
 def _route_for(path: Path, root: Path) -> str:
@@ -170,20 +191,31 @@ def _validate_page(path: Path, route: str) -> list[str]:
         text = path.read_text(encoding="utf-8")
     except UnicodeDecodeError:
         return ["not_utf8"]
+
     if len(text.encode("utf-8")) < 500:
         problems.append("too_small")
-    if "<h1" not in text.lower():
+
+    parser = PageMetadataParser()
+    try:
+        parser.feed(text)
+        parser.close()
+    except Exception:
+        return [*problems, "invalid_html_parse"]
+
+    if parser.h1_count == 0:
         problems.append("missing_h1")
-    if re.search(r'<meta[^>]+name=["\']robots["\'][^>]+content=["\'][^"\']*noindex', text, re.I):
+    if any("noindex" in directive for directive in parser.robots):
         problems.append("noindex")
-    canonical = re.search(r'<link[^>]+rel=["\']canonical["\'][^>]+href=["\']([^"\']+)', text, re.I)
-    if not canonical:
+
+    expected = (BASE_URL + route).rstrip("/")
+    normalized_canonicals = [value.rstrip("/") for value in parser.canonicals]
+    if not normalized_canonicals:
         problems.append("missing_canonical")
-    else:
-        value = canonical.group(1).strip()
-        expected = BASE_URL + route
-        if value.rstrip("/") != expected.rstrip("/"):
-            problems.append("canonical_mismatch")
+    elif expected not in normalized_canonicals:
+        problems.append("canonical_mismatch")
+    if len(set(normalized_canonicals)) > 1:
+        problems.append("conflicting_canonicals")
+
     return problems
 
 
