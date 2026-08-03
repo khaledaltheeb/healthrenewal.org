@@ -1,0 +1,139 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-08-03",
+  "publisher": {
+    "name": "Health Renewal",
+    "url": "https://healthrenewal.org"
+  },
+  "sourceContext": {
+    "name": "Cochrane",
+    "officialUrl": "https://www.cochrane.org/",
+    "relationshipStatus": "independent_directory_and_original_arabic_learning_content",
+    "partnershipConfirmed": false,
+    "menaExpansionInquirySent": "2026-08-03",
+    "referredContact": "kduquejacome@cochrane.org",
+    "supportTicket": "CSO00352836"
+  },
+  "rightsPolicy": {
+    "fairLegalLinking": true,
+    "originalArabicExplanation": true,
+    "automatedScraping": false,
+    "republishProtectedContent": false,
+    "translateProtectedContentWithoutApproval": false,
+    "useCochraneLogoOrBrandWithoutApproval": false,
+    "structuredDataIntegration": "pending_written_permission_or_applicable_terms"
+  },
+  "academy": {
+    "url": "https://healthrenewal.org/cochrane/evidence-academy/",
+    "language": "ar",
+    "audiences": [
+      "الأفراد والجمهور",
+      "المرضى والأسر ومقدمو الرعاية",
+      "الطلاب والمتدربون",
+      "الممارسون الصحيون والاجتماعيون",
+      "الباحثون ومعدو المراجعات",
+      "صناع السياسات ومديرو الخدمات",
+      "المترجمون والمتطوعون"
+    ],
+    "pages": [
+      {
+        "id": "academy-home",
+        "titleAr": "أكاديمية الدليل الصحي العربية",
+        "url": "https://healthrenewal.org/cochrane/evidence-academy/",
+        "type": "collection_hub",
+        "scope": ["فهم الدليل", "التعلم", "المشاركة", "الموضوعات المتخصصة", "الحوكمة"]
+      },
+      {
+        "id": "evidence-literacy-and-use",
+        "titleAr": "الثقافة الدليلية والبحث والاستخدام",
+        "url": "https://healthrenewal.org/cochrane/evidence-academy/evidence-literacy-and-use/",
+        "type": "original_arabic_educational_guide",
+        "scope": ["PICO", "أنواع الدراسات", "حجم الأثر", "درجة اليقين", "التحيز", "البحث في أدلة كوكرين", "القرار المشترك"]
+      },
+      {
+        "id": "learning-participation",
+        "titleAr": "مسارات التعلم والمشاركة والترجمة",
+        "url": "https://healthrenewal.org/cochrane/evidence-academy/learning-participation/",
+        "type": "original_arabic_learning_and_participation_guide",
+        "scope": ["الأسر والجمهور", "الممارسون", "الباحثون", "صناع السياسات", "التطوع", "الخبرة المعاشة", "الترجمة الرسمية"]
+      },
+      {
+        "id": "mental-health-addiction",
+        "titleAr": "أدلة الصحة النفسية والإدمان",
+        "url": "https://healthrenewal.org/cochrane/evidence-academy/mental-health-addiction/",
+        "type": "topic_evidence_pathway",
+        "scope": ["الأعراض", "الوظيفة", "الضرر", "الانسحاب", "الانتكاس", "جودة الحياة", "عبء الأسرة", "الإنصاف"]
+      },
+      {
+        "id": "child-rehabilitation-equity",
+        "titleAr": "أدلة الطفولة والتأهيل والاحتياجات الخاصة والإنصاف",
+        "url": "https://healthrenewal.org/cochrane/evidence-academy/child-rehabilitation-equity/",
+        "type": "topic_and_transferability_pathway",
+        "scope": ["النمو", "الوظيفة", "المشاركة", "الاستقلال", "جودة الحياة", "الأسرة", "قابلية النقل", "الأردن", "المنطقة العربية"]
+      },
+      {
+        "id": "governance-methods",
+        "titleAr": "حوكمة الحقوق والمنهجيات والندوات",
+        "url": "https://healthrenewal.org/cochrane/evidence-academy/governance-methods/",
+        "type": "rights_and_methods_framework",
+        "scope": ["الربط", "الترجمة", "إعادة الاستخدام", "العلامة", "البيانات", "مخاطر التحيز", "GRADE", "التحليل التلوي", "الأدلة النوعية", "الندوات"]
+      }
+    ]
+  },
+  "officialEntryPoints": [
+    {
+      "id": "cochrane-evidence",
+      "name": "Cochrane Evidence",
+      "url": "https://www.cochrane.org/evidence",
+      "purposeAr": "البحث في ملخصات الأدلة بلغة مبسطة والوصول إلى المراجعات الرسمية."
+    },
+    {
+      "id": "evidence-essentials",
+      "name": "Cochrane Evidence Essentials",
+      "url": "https://www.cochrane.org/learn/courses-and-resources/evidence-essentials",
+      "purposeAr": "مقدمة مجانية للأدلة الصحية والتجارب والمراجعات واستخدامها."
+    },
+    {
+      "id": "courses-resources",
+      "name": "Cochrane Courses and Resources",
+      "url": "https://www.cochrane.org/learn/courses-and-resources",
+      "purposeAr": "موارد المنهجية والبرمجيات والتعلم التمهيدي وإشراك المرضى والجمهور."
+    },
+    {
+      "id": "webinars",
+      "name": "Cochrane Webinars",
+      "url": "https://www.cochrane.org/learn/webinars",
+      "purposeAr": "ندوات مجانية وتسجيلات في طرق تركيب الدليل والأدوات والأخلاقيات."
+    },
+    {
+      "id": "get-involved",
+      "name": "Get involved with Cochrane",
+      "url": "https://www.cochrane.org/get-involved",
+      "purposeAr": "المشاركة بالخبرة المعاشة والبحث والمواطنة العلمية والترجمة."
+    },
+    {
+      "id": "translate",
+      "name": "Translate Cochrane evidence",
+      "url": "https://www.cochrane.org/get-involved/translate-our-evidence",
+      "purposeAr": "المسار الرسمي للانضمام إلى أنشطة الترجمة متعددة اللغات."
+    },
+    {
+      "id": "groups",
+      "name": "Cochrane Groups",
+      "url": "https://www.cochrane.org/about-us/who-we-are/our-groups",
+      "purposeAr": "المجموعات الموضوعية والمنهجية والجغرافية وحقول الخبرة."
+    },
+    {
+      "id": "website-terms",
+      "name": "Cochrane Website Terms and Conditions",
+      "url": "https://www.cochrane.org/website-terms-and-conditions",
+      "purposeAr": "المرجع الحقوقي لاستخدام محتوى نطاق cochrane.org والربط وإعادة الاستخدام."
+    },
+    {
+      "id": "library-data-download",
+      "name": "Cochrane Library Data Download",
+      "url": "https://www.cochranelibrary.com/about/data-download",
+      "purposeAr": "شروط وخيارات بيانات وتنزيلات مكتبة كوكرين قبل أي تكامل تقني."
+    }
+  ]
+}
