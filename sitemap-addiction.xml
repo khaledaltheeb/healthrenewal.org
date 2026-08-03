@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://healthrenewal.org/addiction/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://healthrenewal.org/addiction/protocol-atlas/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://healthrenewal.org/addiction/withdrawal-safety/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://healthrenewal.org/addiction/recovery-roadmap/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://healthrenewal.org/addiction/family-guide/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://healthrenewal.org/addiction/sources/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://healthrenewal.org/addiction/audiences/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/audiences/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://healthrenewal.org/addiction/audiences/person/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://healthrenewal.org/addiction/audiences/family/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://healthrenewal.org/addiction/audiences/trainer/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://healthrenewal.org/addiction/audiences/community/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://healthrenewal.org/addiction/audiences/clinician/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://healthrenewal.org/addiction/conditions/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/conditions/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://healthrenewal.org/addiction/methodology/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://healthrenewal.org/addiction/alcohol-use-disorder/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://healthrenewal.org/addiction/opioid-use-disorder/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
@@ -24,4 +24,18 @@
   <url><loc>https://healthrenewal.org/addiction/gaming-disorder/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://healthrenewal.org/addiction/inhalant-use-disorder/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://healthrenewal.org/addiction/polysubstance-use-and-overdose-risk/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/populations/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/populations/adolescents-young-adults/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/populations/pregnancy-postpartum/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/populations/older-adults/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/populations/co-occurring-mental-health/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/populations/chronic-pain/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/populations/disability-special-needs/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/tools/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/tools/family-first-conversation-plan/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/tools/family-boundaries-plan/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/tools/overdose-emergency-plan/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/tools/lapse-relapse-response-plan/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/tools/treatment-provider-checklist/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://healthrenewal.org/addiction/tools/discharge-follow-up-plan/</loc><lastmod>2026-08-03</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>

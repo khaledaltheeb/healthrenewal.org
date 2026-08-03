@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ROBOTS = ROOT / "robots.txt"
 PUBLIC_ORIGIN = "https://healthrenewal.org"
 SITEMAP_INDEX_URL = f"{PUBLIC_ORIGIN}/sitemap-index.xml"
+MASTER_SITEMAP_NAME = "sitemap.xml"
 SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 PLATFORM_TIMEZONE = ZoneInfo("Asia/Amman")
@@ -59,27 +60,19 @@ def parse_xml(path: Path) -> ET.Element:
         raise ContractError(f"Invalid XML file {path.relative_to(ROOT)}: {exc}") from exc
 
 
-def validate_urlset(path: Path, global_seen: dict[str, Path]) -> int:
+def validate_urlset(path: Path) -> set[str]:
     root = parse_xml(path)
     if root.tag != f"{{{SITEMAP_NS}}}urlset":
         raise ContractError(f"Expected urlset in {path.relative_to(ROOT)}")
 
-    count = 0
-    local_seen: set[str] = set()
+    urls: set[str] = set()
     for node in root.findall(f"{{{SITEMAP_NS}}}url"):
         loc = (node.findtext(f"{{{SITEMAP_NS}}}loc") or "").strip()
         if not loc:
             raise ContractError(f"Missing loc in {path.relative_to(ROOT)}")
-        if loc in local_seen:
+        if loc in urls:
             raise ContractError(f"Duplicate URL inside {path.relative_to(ROOT)}: {loc}")
-        local_seen.add(loc)
-        if loc in global_seen:
-            previous = global_seen[loc].relative_to(ROOT)
-            raise ContractError(
-                f"URL appears in multiple indexed child sitemaps: "
-                f"{loc} ({previous}, {path.relative_to(ROOT)})"
-            )
-        global_seen[loc] = path
+        urls.add(loc)
 
         parsed = urlparse(loc)
         if f"{parsed.scheme}://{parsed.netloc}" != PUBLIC_ORIGIN:
@@ -89,11 +82,10 @@ def validate_urlset(path: Path, global_seen: dict[str, Path]) -> int:
         lastmod = (node.findtext(f"{{{SITEMAP_NS}}}lastmod") or "").strip()
         if lastmod:
             validate_lastmod(lastmod, f"{path.relative_to(ROOT)} -> {loc}")
-        count += 1
 
-    if count == 0:
+    if not urls:
         raise ContractError(f"Empty sitemap: {path.relative_to(ROOT)}")
-    return count
+    return urls
 
 
 def read_robots_sitemaps() -> list[str]:
@@ -120,14 +112,22 @@ def read_robots_sitemaps() -> list[str]:
     return lines
 
 
-def validate_canonical_index(index_path: Path) -> tuple[list[str], int]:
+def validate_canonical_index(index_path: Path) -> tuple[list[str], int, int]:
+    """Validate the canonical sitemap graph.
+
+    ``sitemap.xml`` is the compatibility/master inventory and may intentionally
+    repeat URLs contained in specialized sector sitemaps. Specialized child
+    sitemaps must remain mutually exclusive so Search Console reporting and
+    sector ownership stay deterministic. Duplicates inside any single sitemap
+    are always rejected.
+    """
+
     root = parse_xml(index_path)
     if root.tag != f"{{{SITEMAP_NS}}}sitemapindex":
         raise ContractError("sitemap-index.xml must be a sitemapindex")
 
     child_urls: list[str] = []
-    indexed_urls = 0
-    global_seen: dict[str, Path] = {}
+    child_sets: list[tuple[Path, set[str]]] = []
     for node in root.findall(f"{{{SITEMAP_NS}}}sitemap"):
         loc = (node.findtext(f"{{{SITEMAP_NS}}}loc") or "").strip()
         if not loc:
@@ -147,30 +147,46 @@ def validate_canonical_index(index_path: Path) -> tuple[list[str], int]:
             raise ContractError(
                 f"Referenced child sitemap does not exist: {child_path.relative_to(ROOT)}"
             )
-        indexed_urls += validate_urlset(child_path, global_seen)
+        child_sets.append((child_path, validate_urlset(child_path)))
 
     if not child_urls:
         raise ContractError("Sitemap index contains no child sitemaps")
-    return child_urls, indexed_urls
+
+    master_entries = [item for item in child_sets if item[0].name == MASTER_SITEMAP_NAME]
+    if len(master_entries) > 1:
+        raise ContractError(f"Multiple master sitemaps named {MASTER_SITEMAP_NAME}")
+    master_urls = master_entries[0][1] if master_entries else set()
+
+    specialized_seen: dict[str, Path] = {}
+    specialized_urls: set[str] = set()
+    for path, urls in child_sets:
+        if path.name == MASTER_SITEMAP_NAME:
+            continue
+        for url in urls:
+            if url in specialized_seen:
+                previous = specialized_seen[url].relative_to(ROOT)
+                raise ContractError(
+                    "URL appears in multiple specialized child sitemaps: "
+                    f"{url} ({previous}, {path.relative_to(ROOT)})"
+                )
+            specialized_seen[url] = path
+        specialized_urls.update(urls)
+
+    all_unique_urls = master_urls | specialized_urls
+    master_specialized_overlap = len(master_urls & specialized_urls)
+    return child_urls, len(all_unique_urls), master_specialized_overlap
 
 
 def validate_direct_robots_sitemaps(
     robots_sitemaps: list[str], child_urls: list[str]
 ) -> tuple[int, int]:
-    """Validate standalone leaf sitemaps advertised directly in robots.txt.
-
-    A direct leaf sitemap is a valid discovery endpoint and is not required to be
-    listed again in the canonical sitemap index. It is validated independently
-    because a compatibility/root sitemap may intentionally overlap URLs already
-    grouped across indexed child sitemaps.
-    """
+    """Validate standalone leaf sitemaps advertised directly in robots.txt."""
 
     direct_entries = [url for url in robots_sitemaps if url != SITEMAP_INDEX_URL]
     validated_entries = 0
     validated_urls = 0
     for url in direct_entries:
         if url in child_urls:
-            # Already fully validated through the canonical index.
             continue
         path = public_url_to_path(url)
         root = parse_xml(path)
@@ -178,7 +194,7 @@ def validate_direct_robots_sitemaps(
             raise ContractError(
                 f"Additional robots sitemap must be a urlset: {path.relative_to(ROOT)}"
             )
-        validated_urls += validate_urlset(path, {})
+        validated_urls += len(validate_urlset(path))
         validated_entries += 1
     return validated_entries, validated_urls
 
@@ -186,7 +202,7 @@ def validate_direct_robots_sitemaps(
 def main() -> int:
     robots_sitemaps = read_robots_sitemaps()
     index_path = public_url_to_path(SITEMAP_INDEX_URL)
-    child_urls, indexed_urls = validate_canonical_index(index_path)
+    child_urls, indexed_urls, master_overlap = validate_canonical_index(index_path)
     direct_entries, direct_urls = validate_direct_robots_sitemaps(
         robots_sitemaps, child_urls
     )
@@ -194,7 +210,8 @@ def main() -> int:
     print(
         f"Sitemap discovery contract passed: {len(robots_sitemaps)} robots entries; "
         f"canonical index {index_path.name}; {len(child_urls)} child sitemaps; "
-        f"{indexed_urls} unique indexed URLs; {direct_entries} standalone leaf "
+        f"{indexed_urls} unique indexed URLs; {master_overlap} intentional "
+        f"master-to-specialized overlap URLs; {direct_entries} standalone leaf "
         f"sitemap(s) with {direct_urls} independently validated URLs; publishing "
         f"date {platform_today().isoformat()} ({PLATFORM_TIMEZONE.key})."
     )

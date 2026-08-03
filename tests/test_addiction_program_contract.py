@@ -15,13 +15,20 @@ def load_json(relative_path: str) -> dict:
 
 def test_program_is_truthfully_marked_as_foundation():
     index = load_json("api/v1/addiction-center.json")
-    assert index["program_status"] == "foundation-draft"
+    assert index["program_status"] in {
+        "foundation-draft",
+        "expanded-foundation-v2",
+    }
     assert "لا يمثل اكتمال" in index["publication_claim"]
+    assert "اعتماد سريري خارجي" in index["publication_claim"]
     assert index["protocol_total"] == 100
     assert index["reference_count"] >= 50
     assert index["structured_reference_count"] >= 12
     assert index["mapped_claim_count"] >= 12
-    assert index["claim_source_map_status"] == "foundation-partial"
+    assert index["claim_source_map_status"] in {
+        "foundation-partial",
+        "expanded-partial-v2",
+    }
 
 
 def test_governance_contracts_are_linked_and_exist():
@@ -35,12 +42,27 @@ def test_governance_contracts_are_linked_and_exist():
     ):
         assert (ROOT / index[field]).is_file(), field
 
+    for optional_field in (
+        "supplemental_source_registry",
+        "expansion_report",
+    ):
+        if optional_field in index:
+            assert (ROOT / index[optional_field]).is_file(), optional_field
+
     next_wave = index["required_next_wave"]
-    assert next_wave["independent_condition_pages"] == 10
-    assert next_wave["family_guides"] >= 12
-    assert next_wave["practical_tools"] >= 12
-    assert next_wave["special_population_guides"] >= 12
-    assert next_wave["claim_source_map_required"] is True
+    if "independent_condition_pages" in next_wave:
+        assert next_wave["independent_condition_pages"] == 10
+        assert next_wave["family_guides"] >= 12
+        assert next_wave["practical_tools"] >= 12
+        assert next_wave["special_population_guides"] >= 12
+        assert next_wave["claim_source_map_required"] is True
+    else:
+        assert index.get("condition_layer_status") == "complete-v1"
+        assert next_wave["additional_family_guides"] >= 6
+        assert next_wave["additional_practical_tools"] >= 6
+        assert next_wave["additional_special_population_guides"] >= 6
+        assert next_wave["additional_substance_and_behavior_guides"] >= 8
+        assert next_wave["regional_legal_localization_required"] is True
     assert next_wave["external_clinical_review_required_for_accreditation_claim"] is True
 
 
