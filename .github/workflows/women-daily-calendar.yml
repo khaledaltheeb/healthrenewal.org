@@ -4,6 +4,10 @@ on:
   pull_request:
     paths:
       - "sectors/women/daily-calendar/**"
+      - "sectors/women/index.html"
+      - "api/women-daily-calendar-v1.json"
+      - "scripts/apply_homepage_v20.py"
+      - "index.html"
       - "tests/test_women_daily_calendar.py"
       - "sitemap-women-calendar.xml"
       - "sitemap-index.xml"
@@ -13,6 +17,10 @@ on:
       - agent/women-daily-calendar-v1
     paths:
       - "sectors/women/daily-calendar/**"
+      - "sectors/women/index.html"
+      - "api/women-daily-calendar-v1.json"
+      - "scripts/apply_homepage_v20.py"
+      - "index.html"
       - "tests/test_women_daily_calendar.py"
       - "sitemap-women-calendar.xml"
       - "sitemap-index.xml"
@@ -33,8 +41,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Check JavaScript syntax
-        run: node --check sectors/women/daily-calendar/calendar.js
+      - name: Check JavaScript and publisher syntax
+        run: |
+          node --check sectors/women/daily-calendar/calendar.js
+          python -m py_compile scripts/apply_homepage_v20.py tests/test_women_daily_calendar.py
       - name: Run calendar contract without external dependencies
         run: |
           python - <<'PY'
