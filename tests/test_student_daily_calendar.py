@@ -99,6 +99,8 @@ def test_student_daily_calendar_contract() -> None:
     assert editorial["privacy"]["remoteSubmission"] is False
     assert api["status"] == "passed"
     assert api["sector"] == "calendars"
+    assert api["sectorDirectoryLinked"] is True
+    assert api["localCalendarDateSafe"] is True
     assert api["standardYearDays"] == 365
     assert api["dailyCalendarEvents"] == 3
     assert api["spacedIntervalsDays"] == [1, 3, 7, 14, 30]
