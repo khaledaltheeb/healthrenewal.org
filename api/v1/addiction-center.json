@@ -3,6 +3,8 @@
   "generated_at": "2026-08-03T01:00:00Z",
   "language": "ar",
   "canonical": "https://healthrenewal.org/addiction/",
+  "program_status": "foundation-draft",
+  "publication_claim": "تأسيس أولي قابل للمراجعة؛ لا يمثل اكتمال المرجع النهائي أو اعتمادًا سريريًا خارجيًا.",
   "medical_disclaimer": "Educational content only; not diagnosis, dosing, emergency care, or an individual treatment plan.",
   "condition_groups": [
     {"slug":"alcohol-use-disorder","name_ar":"اضطراب استخدام الكحول","name_en":"Alcohol Use Disorder","protocol_count":10,"atlas_anchor":"https://healthrenewal.org/addiction/protocol-atlas/#alcohol"},
@@ -26,6 +28,19 @@
   ],
   "protocol_total": 100,
   "reference_count": 53,
+  "structured_reference_count": 12,
   "governance_document": "docs/addiction-editorial-governance.md",
-  "review_policy": "Annual review and immediate review after major guideline updates."
+  "safety_contract": "docs/addiction-safety-contract.md",
+  "information_architecture": "docs/addiction-information-architecture.md",
+  "structured_source_registry": "data/addiction-evidence/source-registry.json",
+  "coordination_issue": "https://github.com/khaledaltheeb/healthrenewal.org/issues/918",
+  "required_next_wave": {
+    "independent_condition_pages": 10,
+    "family_guides": 12,
+    "practical_tools": 12,
+    "special_population_guides": 12,
+    "claim_source_map_required": true,
+    "external_clinical_review_required_for_accreditation_claim": true
+  },
+  "review_policy": "Quarterly link and editorial review, immediate safety review after major guideline updates, and annual comprehensive review."
 }
