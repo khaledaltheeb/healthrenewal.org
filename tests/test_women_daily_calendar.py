@@ -88,7 +88,7 @@ def test_women_daily_calendar_static_contract() -> None:
     assert 'restore_static_route(\n            "sectors/women/daily-calendar"' in publisher
     assert 'restore_static_file(relative_path)' in publisher
     assert 'register_sitemap("sitemap-women-calendar.xml")' in publisher
-    assert 'href=\\"sectors/women/daily-calendar/\\"' in publisher
+    assert route in publisher
 
 
 def test_women_daily_calendar_has_no_remote_health_data_submission() -> None:
