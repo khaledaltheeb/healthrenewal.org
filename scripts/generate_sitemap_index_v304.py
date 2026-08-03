@@ -84,6 +84,18 @@ def restore_missing_public_source(site: Path, repo_root: Path) -> list[str]:
     for source in repo_root.rglob("*"):
         if not source.is_file():
             continue
+
+        # Test fixtures and local production artifacts may live below the
+        # repository root. Never treat files already inside the destination as
+        # source files, otherwise the destination is recursively copied into
+        # itself until the operating system rejects the path length.
+        try:
+            source.relative_to(site)
+        except ValueError:
+            pass
+        else:
+            continue
+
         relative = source.relative_to(repo_root)
         if not relative.parts or relative.parts[0] in PUBLIC_SKIP_TOP:
             continue
