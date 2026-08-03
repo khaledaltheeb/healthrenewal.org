@@ -122,7 +122,7 @@
   };
 
   const patchStaticCopy = () => {
-    document.title = "منصة التقييم وإدارة السجلات | مصطلحات علم النفس";
+    document.title = "منصة التقييم وإدارة السجلات | منصة روافد";
     const description = document.querySelector('meta[name="description"]');
     if (description) description.content = "منصة عربية تشغيلية لإدارة الحالات والجلسات الاستكشافية ومسارات تطبيق المقاييس المهنية وتوثيق النتائج محليًا ضمن UID مستقل.";
 
@@ -149,7 +149,7 @@
     }
 
     const footer = document.querySelector(".site-footer p");
-    if (footer) footer.textContent = "© منصة مصطلحات علم النفس — تشغيل محلي لإدارة الاستكشاف ومسارات التقييم. لا تستخدم للطوارئ أو التشخيص الآلي أو تقرير الأهلية.";
+    if (footer) footer.textContent = "© منصة منصة روافد — تشغيل محلي لإدارة الاستكشاف ومسارات التقييم. لا تستخدم للطوارئ أو التشخيص الآلي أو تقرير الأهلية.";
   };
 
   const patchLocalAccount = () => {
