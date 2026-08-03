@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - agent/women-daily-calendar-v1
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/one-time-add-women-noon-checkin.yml"
 
 permissions:
   contents: write
@@ -111,24 +116,8 @@ jobs:
 '''
               js = js.replace('  function renderToday() {', noon_function + '  function renderToday() {', 1)
 
-          old_render = '''    ensureMorningCard().textContent = content.morning;
-    $("dailyFact").textContent = content.fact;'''
-          new_render = '''    ensureMorningCard().textContent = content.morning;
-    const noonCard = ensureNoonCard();
-    noonCard.querySelector("#dailyNoonBoost").textContent = content.noon;
-    $("dailyFact").textContent = content.fact;'''
-          js = js.replace(old_render, new_render, 1)
-
-          old_entry = '''    const entry = state.logs[key] || {};
-    $("mood").value = entry.mood ?? "";'''
-          new_entry = '''    const entry = state.logs[key] || {};
-    noonCard.querySelectorAll("button[data-feeling]").forEach((button) => {
-      button.setAttribute("aria-pressed", String(button.dataset.feeling === entry.noonFeeling));
-    });
-    $("noonStatus").textContent = entry.noonFeeling ? `شعور الظهر المسجل: ${entry.noonFeeling}` : "";
-    $("mood").value = entry.mood ?? "";'''
-          js = js.replace(old_entry, new_entry, 1)
-
+          js = js.replace('    ensureMorningCard().textContent = content.morning;\n    $("dailyFact").textContent = content.fact;', '    ensureMorningCard().textContent = content.morning;\n    const noonCard = ensureNoonCard();\n    noonCard.querySelector("#dailyNoonBoost").textContent = content.noon;\n    $("dailyFact").textContent = content.fact;', 1)
+          js = js.replace('    const entry = state.logs[key] || {};\n    $("mood").value = entry.mood ?? "";', '    const entry = state.logs[key] || {};\n    noonCard.querySelectorAll("button[data-feeling]").forEach((button) => {\n      button.setAttribute("aria-pressed", String(button.dataset.feeling === entry.noonFeeling));\n    });\n    $("noonStatus").textContent = entry.noonFeeling ? `شعور الظهر المسجل: ${entry.noonFeeling}` : "";\n    $("mood").value = entry.mood ?? "";', 1)
           js = js.replace('    $("dailyTime").value = s.dailyTime;\n', '    $("dailyTime").value = s.dailyTime;\n    $("noonTime").value = s.noonTime;\n', 1)
           js = js.replace('      dailyTime: /^\\d{2}:\\d{2}$/.test($("dailyTime").value) ? $("dailyTime").value : "08:00",\n', '      dailyTime: /^\\d{2}:\\d{2}$/.test($("dailyTime").value) ? $("dailyTime").value : "08:00",\n      noonTime: /^\\d{2}:\\d{2}$/.test($("noonTime").value) ? $("noonTime").value : "12:30",\n', 1)
           js = js.replace('    if (kind === "period") return state.settings.privacyMode === "explicit" ? "نافذة الدورة المتوقعة" : "متابعة شخصية";\n', '    if (kind === "period") return state.settings.privacyMode === "explicit" ? "نافذة الدورة المتوقعة" : "متابعة شخصية";\n    if (kind === "noon") return state.settings.privacyMode === "neutral" ? "وقفة شخصية" : "كيف أشعر الآن؟";\n', 1)
@@ -143,7 +132,6 @@ jobs:
           loop_end = '    }\n    const info = state.settings.includeCycleInExport ? cycleInfo(today) : null;'
           if 'UID:noon-${isoDate(date)}' not in js:
               js = js.replace(loop_end, noon_ics + loop_end, 1)
-
           js = js.replace('details: `رسالة الصباح: ${content.morning}\\n\\nتطبيق 10 دقائق: ${content.ten}', 'details: `رسالة الصباح: ${content.morning}\\n\\nوقفة الظهر: كيف تشعرين الآن؟ — ${content.noon}\\n\\nتطبيق 10 دقائق: ${content.ten}', 1)
           js_path.write_text(js, encoding='utf-8')
 
