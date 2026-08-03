@@ -1,0 +1,60 @@
+name: Validate recovered content publication v1
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/generate_sitemap_index_v304.py"
+      - "scripts/normalize_rawafid_production_v1.py"
+      - "scripts/publish_new_special_needs_conditions_v323.py"
+      - "scripts/publish_women_youth_v406.py"
+      - "content/v323/**"
+      - "content/v406/**"
+      - "tests/test_recovered_content_publication_v1.py"
+      - "tests/test_new_special_needs_conditions_v323.py"
+      - "tests/test_women_youth_v406.py"
+      - ".github/workflows/validate-recovered-content-publication-v1.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/generate_sitemap_index_v304.py"
+      - "scripts/normalize_rawafid_production_v1.py"
+      - "scripts/publish_new_special_needs_conditions_v323.py"
+      - "scripts/publish_women_youth_v406.py"
+      - "content/v323/**"
+      - "content/v406/**"
+      - "tests/test_recovered_content_publication_v1.py"
+      - "tests/test_new_special_needs_conditions_v323.py"
+      - "tests/test_women_youth_v406.py"
+      - ".github/workflows/validate-recovered-content-publication-v1.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: recovered-content-v1-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile recovery publishers and gates
+        run: |
+          python -m py_compile \
+            scripts/generate_sitemap_index_v304.py \
+            scripts/normalize_rawafid_production_v1.py \
+            scripts/publish_new_special_needs_conditions_v323.py \
+            scripts/publish_women_youth_v406.py \
+            tests/test_recovered_content_publication_v1.py
+      - name: Run focused recovery and publisher tests
+        run: |
+          python -m unittest -v \
+            tests.test_recovered_content_publication_v1 \
+            tests.test_new_special_needs_conditions_v323 \
+            tests.test_women_youth_v406
