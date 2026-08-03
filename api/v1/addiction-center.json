@@ -1,10 +1,11 @@
 {
   "schema_version": "addiction-center-v1",
-  "generated_at": "2026-08-03T05:15:00Z",
+  "generated_at": "2026-08-03T05:21:00Z",
   "language": "ar",
   "canonical": "https://healthrenewal.org/addiction/",
-  "program_status": "foundation-expanded",
-  "publication_claim": "تأسيس مؤسسي موسع قابل للمراجعة؛ لا يمثل اكتمال جميع موجات المحتوى أو اعتمادًا سريريًا خارجيًا.",
+  "program_status": "foundation-draft",
+  "audience_layer_status": "complete-v1",
+  "publication_claim": "تأسيس مؤسسي موسع قابل للمراجعة؛ اكتملت طبقة الجماهير الأولى، بينما تبقى موجات الحالات والأدوات والفئات الخاصة قيد التوسع، ولا يوجد اعتماد سريري خارجي.",
   "medical_disclaimer": "Educational content only; not diagnosis, dosing, emergency care, or an individual treatment plan.",
   "condition_groups": [
     {"slug":"alcohol-use-disorder","name_ar":"اضطراب استخدام الكحول","name_en":"Alcohol Use Disorder","protocol_count":10,"atlas_anchor":"https://healthrenewal.org/addiction/protocol-atlas/#alcohol"},
