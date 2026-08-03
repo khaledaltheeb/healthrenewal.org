@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-08-03",
+  "publisher": {
+    "name": "Health Renewal",
+    "url": "https://healthrenewal.org"
+  },
+  "source": {
+    "name": "Cochrane",
+    "url": "https://www.cochrane.org/"
+  },
+  "relationship": {
+    "status": "independent_resource_directory",
+    "formalExpansionInquirySent": "2026-08-03",
+    "partnershipConfirmed": false,
+    "noticeAr": "هذا الدليل مستقل ولا يعني وجود شراكة أو اعتماد أو مراجعة من كوكرين. أُرسل استفسار رسمي بشأن التوسع في الشرق الأوسط وشمال أفريقيا، وتبقى الترجمة وإعادة الاستخدام واستخدام الهوية البصرية خاضعة لموافقة وشروط كوكرين."
+  },
+  "usagePolicy": {
+    "linkToOfficialSource": true,
+    "republishProtectedContent": false,
+    "translateWithoutPermission": false,
+    "useLogoWithoutPermission": false,
+    "verifyCurrentTermsBeforeReuse": true
+  },
+  "resources": [
+    {
+      "id": "evidence-essentials",
+      "titleAr": "أساسيات الدليل من كوكرين",
+      "titleEn": "Cochrane Evidence Essentials",
+      "audiences": ["الجمهور", "المرضى", "الأسر", "صانعو السياسات", "فرق الرعاية الصحية"],
+      "access": "free_with_free_cochrane_account",
+      "url": "https://www.cochrane.org/learn/courses-and-resources/evidence-essentials",
+      "useAr": "مدخل لفهم الطب المبني على الدليل، التجارب السريرية، المراجعات المنهجية وكيفية تفسير الأدلة الصحية."
+    },
+    {
+      "id": "interactive-learning-module-1",
+      "titleAr": "مدخل إلى إجراء المراجعات المنهجية",
+      "titleEn": "Cochrane Interactive Learning: Module 1",
+      "audiences": ["الطلاب", "الباحثون", "الممارسون", "معدّو المراجعات"],
+      "access": "official_learning_resource",
+      "url": "https://www.cochrane.org/learn/courses-and-resources/interactive-learning/module-1-introduction-conducting-systematic-reviews",
+      "useAr": "تعريف منظم بالخطوات الأساسية لإجراء مراجعة منهجية."
+    },
+    {
+      "id": "courses-and-resources",
+      "titleAr": "دورات وموارد كوكرين التعليمية",
+      "titleEn": "Cochrane Courses and Resources",
+      "audiences": ["المبتدئون", "الممارسون", "الباحثون", "معدّو الأدلة"],
+      "access": "mixed_free_and_account_based",
+      "url": "https://www.cochrane.org/learn/courses-and-resources",
+      "useAr": "بوابة موحدة لموارد المنهجية، نطاق المراجعة وPICO، مخاطر التحيز، إشراك المرضى، البرمجيات وغيرها."
+    },
+    {
+      "id": "webinars",
+      "titleAr": "ندوات كوكرين المباشرة والتسجيلات",
+      "titleEn": "Cochrane Webinars",
+      "audiences": ["الجمهور", "الطلاب", "الممارسون", "الباحثون"],
+      "access": "free_events_and_recordings",
+      "url": "https://www.cochrane.org/learn/webinars",
+      "useAr": "ندوات مجانية وتسجيلات في المنهجية، GRADE، التحليل التلوي، مخاطر التحيز، الأخلاقيات، إشراك الجمهور وأدوات المراجعات."
+    },
+    {
+      "id": "evidence-search",
+      "titleAr": "البحث في أدلة كوكرين",
+      "titleEn": "Cochrane Evidence",
+      "audiences": ["الجمهور", "الأسر", "الممارسون", "الباحثون", "صانعو القرار"],
+      "access": "search_and_plain_language_summaries",
+      "url": "https://www.cochrane.org/evidence",
+      "useAr": "العثور على المراجعات وملخصاتها بلغة مبسطة بحسب الموضوع الصحي أو التدخل."
+    },
+    {
+      "id": "geographic-groups",
+      "titleAr": "مجموعات كوكرين الجغرافية",
+      "titleEn": "Cochrane Geographic Groups",
+      "audiences": ["المؤسسات", "الجامعات", "شبكات الأدلة", "المجتمع المدني"],
+      "access": "official_group_directory",
+      "url": "https://resources.cochrane.org/cochrane-groups/geographic-groups",
+      "useAr": "التعرف على البنية الجغرافية لكوكرين ومتابعة مسارات الانتشار وبناء القدرات الإقليمية."
+    },
+    {
+      "id": "website-terms",
+      "titleAr": "شروط استخدام موقع كوكرين",
+      "titleEn": "Cochrane.org Terms and Conditions",
+      "audiences": ["المحررون", "المطورون", "المترجمون", "مديرو المحتوى"],
+      "access": "public_terms",
+      "url": "https://www.cochrane.org/website-terms-and-conditions",
+      "useAr": "مرجع إلزامي قبل إعادة الاستخدام أو الترجمة أو التخزين أو إنشاء منتجات مشتقة."
+    },
+    {
+      "id": "library-data-download",
+      "titleAr": "بيانات وتنزيلات مكتبة كوكرين",
+      "titleEn": "Cochrane Library Data Download",
+      "audiences": ["المطورون", "الباحثون", "مديرو البيانات"],
+      "access": "terms_and_permissions_apply",
+      "url": "https://www.cochranelibrary.com/about/data-download",
+      "useAr": "فهم ما يتاح من بيانات وشروط التنزيل والاستخدام التقني قبل أي تكامل آلي."
+    },
+    {
+      "id": "library-access",
+      "titleAr": "الوصول المجاني إلى مكتبة كوكرين حسب البلد أو الإقليم",
+      "titleEn": "Cochrane Library Access",
+      "audiences": ["الطلاب", "الممارسون", "الباحثون", "المؤسسات"],
+      "access": "country_and_territory_dependent",
+      "url": "https://www.cochranelibrary.com/help/access",
+      "useAr": "التحقق من توافر الوصول المجاني أو المؤسسي بحسب الدولة أو المنطقة."
+    }
+  ]
+}
