@@ -33,15 +33,30 @@ jobs:
         run: |
           python -m py_compile \
             scripts/rawafid_brand_consistency.py \
+            scripts/rawafid_brand_runner.py \
             scripts/sitecustomize.py \
             scripts/apply_rawafid_brand.py
 
       - name: Repair and audit public source
         run: |
-          python scripts/rawafid_brand_consistency.py \
-            --root . \
-            --fix \
-            --report reports/rawafid-brand-consistency-v2.json
+          python - <<'PY'
+          import json
+          from dataclasses import asdict
+          from pathlib import Path
+          import sys
+
+          sys.path.insert(0, 'scripts')
+          from rawafid_brand_runner import normalize_root
+
+          report = normalize_root(
+              Path('.'),
+              fix=True,
+              production=False,
+              report_path=Path('reports/rawafid-brand-consistency-v2.json'),
+          )
+          print(json.dumps(asdict(report), ensure_ascii=False, indent=2))
+          raise SystemExit(0 if report.status == 'passed' else 1)
+          PY
 
       - name: Validate report contract
         run: |
