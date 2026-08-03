@@ -1,6 +1,11 @@
 name: Materialize Arabic addiction reference
 
 on:
+  push:
+    branches:
+      - agent/addiction-reference-arabic-20260803
+    paths:
+      - .github/workflows/materialize-addiction-reference-v1.yml
   workflow_dispatch:
 
 permissions:
