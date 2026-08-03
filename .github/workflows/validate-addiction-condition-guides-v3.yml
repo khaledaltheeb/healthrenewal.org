@@ -1,0 +1,43 @@
+name: Validate addiction condition guides v3
+
+on:
+  pull_request:
+    paths:
+      - "addiction/**"
+      - "assets/addiction/**"
+      - "api/addiction-condition-guides-v3.json"
+      - "sitemap-addiction.xml"
+      - "tests/test_addiction_condition_guides_v3.py"
+      - ".github/workflows/validate-addiction-condition-guides-v3.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-addiction-condition-guides-v3-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and execute static contracts
+        run: |
+          set -euxo pipefail
+          python -m py_compile tests/test_addiction_condition_guides_v3.py
+          python - <<'PY'
+          import runpy
+          namespace = runpy.run_path('tests/test_addiction_condition_guides_v3.py')
+          tests = [value for name, value in sorted(namespace.items()) if name.startswith('test_') and callable(value)]
+          if len(tests) != 2:
+              raise SystemExit(f'Expected 2 tests, found {len(tests)}')
+          for test in tests:
+              test()
+              print(f'PASS {test.__name__}')
+          PY
