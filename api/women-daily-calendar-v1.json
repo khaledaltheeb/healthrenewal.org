@@ -1,8 +1,8 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "status": "passed",
   "route": "https://healthrenewal.org/sectors/women/daily-calendar/",
-  "dailyElements": 6,
+  "dailyElements": 8,
   "standardYearDays": 365,
   "leapDaySupported": true,
   "monthlyPrograms": 12,
@@ -12,12 +12,18 @@
   "fertilityPrediction": false,
   "contraceptionUse": false,
   "icsExport": true,
-  "calendarRanges": [30, 90, 365],
+  "calendarRanges": [
+    30,
+    90,
+    365
+  ],
   "phoneReminders": true,
   "neutralEventTitlesDefault": true,
   "positiveMorningMessage": true,
   "pinkProfessionalDesign": true,
   "qualityGate": "tests/test_women_daily_calendar.py",
   "reviewedAt": "2026-08-03",
-  "integrationTrigger": "noon-check-in-execute"
+  "middayCheckIn": true,
+  "feminineNoonBoost": true,
+  "defaultNoonTime": "12:30"
 }

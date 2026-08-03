@@ -43,6 +43,33 @@
     "ابدئي من الواقع كما هو، لا من الصورة التي يفترضها الآخرون."
   ];
 
+  const noonBoostBank = [
+    "منتصف اليوم ليس اختبارًا لقدرتك؛ خذي نفسًا واختاري ما تحتاجينه الآن.",
+    "أنوثتك ليست قالبًا واحدًا؛ هي طريقتك الخاصة في الحضور والاختيار والاعتناء بنفسك.",
+    "ربما لا تحتاجين إلى مزيد من القوة الآن؛ ربما تحتاجين إلى دقيقة أمان وهدوء.",
+    "ارفعي كتفيك ثم اتركيهما يهبطان؛ ليس عليك حمل اليوم كله دفعة واحدة.",
+    "ضعي لمستك الجميلة في بقية اليوم: كلمة رقيقة لنفسك وحد واضح مع الآخرين.",
+    "أنتِ أكثر من قائمة مهام؛ اختاري لحظة صغيرة تعيدك إلى نفسك.",
+    "لا تهملي إشارات جسدك كي تكملي الصورة المثالية؛ الإصغاء شكل من أشكال القوة.",
+    "رتبي ما بقي من اليوم حول طاقتك الحقيقية، لا حول توقعات غير واقعية.",
+    "لمسة عطر تحبينها أو كوب دافئ أو ضوء لطيف قد تكون إشارة عودة لا رفاهية زائدة.",
+    "قولي لنفسك: أستطيع تعديل الخطة من دون أن أعتذر عن احتياجي.",
+    "اختاري الآن شيئًا واحدًا يخفف عنك بدل إضافة مهمة جديدة.",
+    "الجمال في هذا الظهر أن تمنحي نفسك حضورًا كاملًا ولو لدقيقة.",
+    "إن كان الصباح ثقيلًا، فالظهر بداية ثانية لا تحتاج إلى إذن.",
+    "كوني حنونة وحازمة معًا: رقيقة مع نفسك وواضحة مع ما يستنزفك.",
+    "لا تقارني إيقاعك بإيقاع امرأة أخرى؛ لكل جسد وحياة موسم مختلف.",
+    "اسألي جسدك الآن: ماء أم حركة أم طعام أم هدوء أم دعم؟ ثم اختاري الأقرب.",
+    "يمكنك أن تكوني طموحة وأن تستريحي؛ الأمران لا يتعارضان.",
+    "اجعلي بقية اليوم أخف بدرجة واحدة فقط؛ هذا تعديل كافٍ ومؤثر.",
+    "قوتك اليوم قد تظهر في طلب المساعدة أو تأجيل ما لا يحتمل طاقتك.",
+    "احتفظي بمساحة وردية صغيرة في يومك: شيء تختارينه أنتِ لنفسك فقط.",
+    "لا يلزم أن تكوني بخير تمامًا كي تكملي بلطف ووعي.",
+    "انظري لما أنجزته منذ الصباح، ثم اختاري الخطوة التالية بلا جلد للذات.",
+    "الهدوء ليس غياب الإنجاز؛ أحيانًا هو الطريقة الأذكى لحماية طاقتك.",
+    "امنحي نفسك جملة صادقة: أنا أستحق أن أُعامل باحترام، مني ومن الآخرين."
+  ];
+
   const factBank = [
     "تسجيل بداية النزف والألم والمزاج والنوم عبر عدة دورات يعطي وصفًا أفضل من الاعتماد على الذاكرة وحدها.",
     "الصحة النفسية والجسدية تتأثران بالنوم والضغط والعلاقات والموارد، وليس بعامل واحد فقط.",
@@ -164,6 +191,7 @@
       weekStart: 6,
       calendarSystem: "gregory",
       dailyTime: "08:00",
+      noonTime: "12:30",
       cycleEnabled: false,
       lastPeriodStart: "",
       cycleLength: 28,
@@ -241,6 +269,7 @@
     const day = date.getDate();
     return {
       morning: pick(morningBank, ordinal + month * 3),
+      noon: pick(noonBoostBank, ordinal * 13 + month * 19),
       fact: pick(factBank, day + month * 5),
       tip: pick(tipBank, day * 3 + month * 7),
       idea: pick(ideaBank, day * 5 + month * 11),
@@ -290,11 +319,53 @@
     return target;
   }
 
+
+  function ensureNoonCard() {
+    let card = $("noonCheckIn");
+    if (card) return card;
+    card = document.createElement("section");
+    card.id = "noonCheckIn";
+    card.className = "daily-item noon-checkin";
+    card.innerHTML = `
+      <span>وقفة الظهر · 12:30</span>
+      <h3>كيف تشعرين الآن؟</h3>
+      <div class="noon-feelings" role="group" aria-label="اختاري شعورك الآن">
+        <button type="button" class="noon-feeling" data-feeling="هادئة" aria-pressed="false">هادئة</button>
+        <button type="button" class="noon-feeling" data-feeling="بخير" aria-pressed="false">بخير</button>
+        <button type="button" class="noon-feeling" data-feeling="متعبة" aria-pressed="false">متعبة</button>
+        <button type="button" class="noon-feeling" data-feeling="قلقة" aria-pressed="false">قلقة</button>
+        <button type="button" class="noon-feeling" data-feeling="أحتاج استراحة" aria-pressed="false">أحتاج استراحة</button>
+      </div>
+      <p id="dailyNoonBoost" class="noon-boost"></p>
+      <p id="noonStatus" class="noon-status" aria-live="polite"></p>`;
+    card.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-feeling]");
+      if (!button) return;
+      const key = isoDate(selectedDate);
+      state.logs[key] = {
+        ...(state.logs[key] || {}),
+        noonFeeling: button.dataset.feeling,
+        noonCheckedAt: new Date().toISOString()
+      };
+      saveState();
+      card.querySelectorAll("button[data-feeling]").forEach((item) => {
+        item.setAttribute("aria-pressed", String(item === button));
+      });
+      $("noonStatus").textContent = `سُجل شعورك: ${button.dataset.feeling}. خذي من الدفعة ما يناسبك واتركي الباقي.`;
+    });
+    const grid = document.querySelector(".daily-grid");
+    const morning = ensureMorningCard().closest("section");
+    grid.insertBefore(card, morning.nextSibling);
+    return card;
+  }
+
   function renderToday() {
     const content = dailyContent(selectedDate);
     $("selectedDate").textContent = formatDate(selectedDate);
     $("monthTheme").textContent = `${content.theme} — ${content.focus}`;
     ensureMorningCard().textContent = content.morning;
+    const noonCard = ensureNoonCard();
+    noonCard.querySelector("#dailyNoonBoost").textContent = content.noon;
     $("dailyFact").textContent = content.fact;
     $("dailyTip").textContent = content.tip;
     $("dailyIdea").textContent = content.idea;
@@ -303,6 +374,10 @@
     const key = isoDate(selectedDate);
     $("completeDay").checked = Boolean(state.completions[key]);
     const entry = state.logs[key] || {};
+    noonCard.querySelectorAll("button[data-feeling]").forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.feeling === entry.noonFeeling));
+    });
+    $("noonStatus").textContent = entry.noonFeeling ? `شعور الظهر المسجل: ${entry.noonFeeling}` : "";
     $("mood").value = entry.mood ?? "";
     $("energy").value = entry.energy ?? "";
     $("pain").value = entry.pain ?? "";
@@ -399,6 +474,7 @@
     $("weekStart").value = String(s.weekStart);
     $("calendarSystem").value = s.calendarSystem;
     $("dailyTime").value = s.dailyTime;
+    $("noonTime").value = s.noonTime;
     $("lastPeriodStart").value = s.lastPeriodStart;
     $("cycleLength").value = s.cycleLength;
     $("bleedLength").value = s.bleedLength;
@@ -415,6 +491,7 @@
       weekStart: clamp($("weekStart").value, 0, 6, 6),
       calendarSystem: $("calendarSystem").value === "dual" ? "dual" : "gregory",
       dailyTime: /^\d{2}:\d{2}$/.test($("dailyTime").value) ? $("dailyTime").value : "08:00",
+      noonTime: /^\d{2}:\d{2}$/.test($("noonTime").value) ? $("noonTime").value : "12:30",
       lastPeriodStart: $("lastPeriodStart").value,
       cycleLength: clamp($("cycleLength").value, 15, 90, 28),
       bleedLength: clamp($("bleedLength").value, 1, 14, 5),
@@ -460,6 +537,7 @@
   }
   function eventTitle(kind = "daily") {
     if (kind === "period") return state.settings.privacyMode === "explicit" ? "نافذة الدورة المتوقعة" : "متابعة شخصية";
+    if (kind === "noon") return state.settings.privacyMode === "neutral" ? "وقفة شخصية" : "كيف أشعر الآن؟";
     return state.settings.privacyMode === "neutral" ? "موعد شخصي" : "10 دقائق لصحتي";
   }
   function alarmTrigger(minutes) {
@@ -478,6 +556,12 @@
       const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute + 10);
       const end = icsLocal(endDate, `${String(endDate.getHours()).padStart(2, "0")}:${String(endDate.getMinutes()).padStart(2, "0")}`);
       lines.push("BEGIN:VEVENT", `UID:daily-${isoDate(date)}@healthrenewal.org`, `DTSTAMP:${icsStamp(now)}`, `DTSTART;TZID=${state.settings.timezone}:${start}`, `DTEND;TZID=${state.settings.timezone}:${end}`, `SUMMARY:${icsEscape(eventTitle())}`, `DESCRIPTION:${icsEscape(`رسالة الصباح: ${content.morning}\nتطبيق 10 دقائق: ${content.ten}\nhttps://healthrenewal.org/sectors/women/daily-calendar/`)}`, "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsEscape(eventTitle())}`, alarmTrigger(state.settings.reminderMinutes), "END:VALARM", "END:VEVENT");
+      const [noonHour, noonMinute] = state.settings.noonTime.split(":").map(Number);
+      const noonStartDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), noonHour, noonMinute);
+      const noonEndDate = new Date(noonStartDate.getTime() + 5 * 60000);
+      const noonStart = icsLocal(noonStartDate, state.settings.noonTime);
+      const noonEnd = icsLocal(noonEndDate, `${String(noonEndDate.getHours()).padStart(2, "0")}:${String(noonEndDate.getMinutes()).padStart(2, "0")}`);
+      lines.push("BEGIN:VEVENT", `UID:noon-${isoDate(date)}@healthrenewal.org`, `DTSTAMP:${icsStamp(now)}`, `DTSTART;TZID=${state.settings.timezone}:${noonStart}`, `DTEND;TZID=${state.settings.timezone}:${noonEnd}`, `SUMMARY:${icsEscape(eventTitle("noon"))}`, `DESCRIPTION:${icsEscape(`كيف تشعرين الآن؟\nدفعة الظهر: ${content.noon}\nhttps://healthrenewal.org/sectors/women/daily-calendar/`)}`, "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsEscape(eventTitle("noon"))}`, alarmTrigger(state.settings.reminderMinutes), "END:VALARM", "END:VEVENT");
     }
     const info = state.settings.includeCycleInExport ? cycleInfo(today) : null;
     if (info) {
@@ -514,7 +598,7 @@
     const start = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), hour, minute);
     const end = new Date(start.getTime() + 10 * 60000);
     const compact = (date) => `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}T${String(date.getHours()).padStart(2, "0")}${String(date.getMinutes()).padStart(2, "0")}00`;
-    const params = new URLSearchParams({ action: "TEMPLATE", text: eventTitle(), dates: `${compact(start)}/${compact(end)}`, details: `رسالة الصباح: ${content.morning}\n\nتطبيق 10 دقائق: ${content.ten}\n\nhttps://healthrenewal.org/sectors/women/daily-calendar/`, ctz: state.settings.timezone });
+    const params = new URLSearchParams({ action: "TEMPLATE", text: eventTitle(), dates: `${compact(start)}/${compact(end)}`, details: `رسالة الصباح: ${content.morning}\n\nوقفة الظهر: كيف تشعرين الآن؟ — ${content.noon}\n\nتطبيق 10 دقائق: ${content.ten}\n\nhttps://healthrenewal.org/sectors/women/daily-calendar/`, ctz: state.settings.timezone });
     window.open(`https://calendar.google.com/calendar/render?${params}`, "_blank", "noopener,noreferrer");
   }
 

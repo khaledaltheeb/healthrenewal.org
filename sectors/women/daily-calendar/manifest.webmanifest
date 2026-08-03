@@ -1,7 +1,7 @@
 {
   "name": "تقويم صحة المرأة اليومي | Health Renewal",
   "short_name": "تقويم صحتي",
-  "description": "تقويم يومي عربي لصحة المرأة مع رسالة صباحية إيجابية، محتوى يومي، تطبيق عشر دقائق، وتتبع اختياري ومحلي للدورة.",
+  "description": "تقويم يومي عربي لصحة المرأة مع رسالة صباحية، وقفة ظهر تفاعلية ودفعة نفسية أنثوية، تطبيق عشر دقائق، وتتبع اختياري ومحلي للدورة.",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/sectors/women/daily-calendar/",
@@ -9,7 +9,11 @@
   "display": "standalone",
   "background_color": "#fffafc",
   "theme_color": "#702857",
-  "categories": ["health", "lifestyle", "productivity"],
+  "categories": [
+    "health",
+    "lifestyle",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "icon.svg",

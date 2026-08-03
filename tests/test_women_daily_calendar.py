@@ -46,9 +46,15 @@ def test_women_daily_calendar_static_contract() -> None:
     assert "ليس وسيلة لمنع الحمل" in html
     assert "تُحفظ محليًا" in html
     assert "تقويم الهاتف" in html
+    assert "id=\"noonTime\"" in html
+    assert "كيف تشعرين الآن؟" in html
 
     assert "صباح إيجابي" in js
     assert "morningBank" in js
+    assert "noonBoostBank" in js
+    assert "كيف تشعرين الآن؟" in js
+    assert "UID:noon-${isoDate(date)}" in js
+    assert "noonTime" in js
     assert "factBank" in js
     assert "tipBank" in js
     assert "ideaBank" in js
@@ -67,7 +73,9 @@ def test_women_daily_calendar_static_contract() -> None:
 
     assert manifest["yearCoverage"]["standardYearDays"] == 365
     assert manifest["yearCoverage"]["leapDaySupported"] is True
-    assert len(manifest["yearCoverage"]["dailyRequiredElements"]) == 6
+    assert len(manifest["yearCoverage"]["dailyRequiredElements"]) == 8
+    assert manifest["calendarIntegration"]["middayReminder"] is True
+    assert manifest["calendarIntegration"]["defaultNoonTime"] == "12:30"
     assert manifest["monthlyPrograms"] == 12
     assert manifest["cycleTracking"]["localStorageDefault"] is True
     assert manifest["cycleTracking"]["fertilityPrediction"] is False
@@ -76,7 +84,9 @@ def test_women_daily_calendar_static_contract() -> None:
     assert manifest["calendarIntegration"]["rangesInDays"] == [30, 90, 365]
 
     assert api_report["status"] == "passed"
-    assert api_report["dailyElements"] == 6
+    assert api_report["dailyElements"] == 8
+    assert api_report["middayCheckIn"] is True
+    assert api_report["feminineNoonBoost"] is True
     assert api_report["positiveMorningMessage"] is True
     assert api_report["pinkProfessionalDesign"] is True
     assert api_report["localFirst"] is True
