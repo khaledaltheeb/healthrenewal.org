@@ -1,47 +1,121 @@
 #!/usr/bin/env python3
-"""Materialize the evidence-based Arabic addiction reference from staged payload chunks."""
+"""Materialize and validate the evidence-based Arabic addiction reference.
+
+The source package is split into small, checksum-protected text chunks so the
+static pages can be rebuilt reproducibly inside the canonical deployment job.
+The generator never deletes source files and never overwrites an existing
+sitemap index; it merges the addiction sitemap into the current index.
+"""
 from __future__ import annotations
 
+import argparse
 import base64
 import hashlib
 import io
 import json
 import lzma
+import shutil
 import tarfile
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-ROOT = Path(__file__).resolve().parents[1]
-CHUNKS = sorted((ROOT / "scripts").glob(".addiction_payload_*"))
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+CHUNKS = sorted((REPOSITORY_ROOT / "scripts").glob(".addiction_payload_*"))
 EXPECTED_CHUNKS = 7
 EXPECTED_XZ_SHA256 = "717927d839784e453091d3086d17ae3689251f93545c1b1222e119473c1f0d63"
-SELF = ROOT / "scripts" / "materialize_addiction_reference_v1.py"
-WORKFLOW = ROOT / ".github" / "workflows" / "materialize-addiction-reference-v1.yml"
+SITEMAP_NAMESPACE = "http://www.sitemaps.org/schemas/sitemap/0.9"
+SITEMAP_URL = "https://healthrenewal.org/sitemap-addiction.xml"
 
 
 def fail(message: str) -> None:
     raise SystemExit(message)
 
 
-def safe_extract(payload: bytes) -> list[str]:
+def load_payload() -> bytes:
+    if len(CHUNKS) != EXPECTED_CHUNKS:
+        fail(f"Expected {EXPECTED_CHUNKS} payload chunks, found {len(CHUNKS)}")
+    encoded = "".join(path.read_text(encoding="ascii").strip() for path in CHUNKS)
+    try:
+        compressed = base64.b64decode(encoded, validate=True)
+    except ValueError as exc:
+        fail(f"Invalid addiction payload encoding: {exc}")
+    digest = hashlib.sha256(compressed).hexdigest()
+    if digest != EXPECTED_XZ_SHA256:
+        fail(f"Payload checksum mismatch: {digest}")
+    try:
+        return lzma.decompress(compressed)
+    except lzma.LZMAError as exc:
+        fail(f"Unable to decompress addiction payload: {exc}")
+
+
+def safe_extract(payload: bytes, destination: Path) -> list[str]:
+    destination.mkdir(parents=True, exist_ok=True)
+    destination_resolved = destination.resolve()
     extracted: list[str] = []
+
     with tarfile.open(fileobj=io.BytesIO(payload), mode="r:") as archive:
         for member in archive.getmembers():
-            path = Path(member.name)
-            if path.is_absolute() or ".." in path.parts:
+            relative = Path(member.name)
+            if relative.is_absolute() or ".." in relative.parts:
                 fail(f"Unsafe archive path: {member.name}")
             if member.issym() or member.islnk() or member.isdev():
                 fail(f"Unsupported archive member: {member.name}")
-            target = (ROOT / path).resolve()
-            if ROOT.resolve() not in target.parents and target != ROOT.resolve():
-                fail(f"Archive member escapes repository: {member.name}")
+            if member.name == "sitemap-index.xml":
+                continue
+
+            target = (destination / relative).resolve()
+            if target != destination_resolved and destination_resolved not in target.parents:
+                fail(f"Archive member escapes destination: {member.name}")
+
+            if member.isdir():
+                target.mkdir(parents=True, exist_ok=True)
+                continue
+            if not member.isfile():
+                fail(f"Unsupported archive member type: {member.name}")
+
+            source = archive.extractfile(member)
+            if source is None:
+                fail(f"Unable to read archive member: {member.name}")
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with source, target.open("wb") as output:
+                shutil.copyfileobj(source, output)
             extracted.append(member.name)
-        archive.extractall(ROOT)
+
     return extracted
 
 
-def validate() -> dict[str, object]:
-    manifest_path = ROOT / "addiction" / "editorial-manifest.json"
+def merge_sitemap_index(destination: Path) -> None:
+    index_path = destination / "sitemap-index.xml"
+    ET.register_namespace("", SITEMAP_NAMESPACE)
+    qualified = f"{{{SITEMAP_NAMESPACE}}}"
+
+    if index_path.exists():
+        try:
+            tree = ET.parse(index_path)
+        except ET.ParseError as exc:
+            fail(f"Existing sitemap-index.xml is invalid: {exc}")
+        root = tree.getroot()
+        if root.tag not in {"sitemapindex", f"{qualified}sitemapindex"}:
+            fail(f"Unexpected sitemap index root: {root.tag}")
+    else:
+        root = ET.Element(f"{qualified}sitemapindex")
+        tree = ET.ElementTree(root)
+
+    existing = {
+        (node.text or "").strip()
+        for node in root.findall(f"{qualified}sitemap/{qualified}loc")
+    }
+    if SITEMAP_URL not in existing:
+        sitemap = ET.SubElement(root, f"{qualified}sitemap")
+        ET.SubElement(sitemap, f"{qualified}loc").text = SITEMAP_URL
+
+    if hasattr(ET, "indent"):
+        ET.indent(tree, space="  ")
+    tree.write(index_path, encoding="utf-8", xml_declaration=True)
+
+
+def validate(destination: Path) -> dict[str, object]:
+    manifest_path = destination / "addiction" / "editorial-manifest.json"
     if not manifest_path.exists():
         fail("Missing addiction/editorial-manifest.json")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -55,82 +129,98 @@ def validate() -> dict[str, object]:
     if protocol_total != 100:
         fail(f"Expected 100 protocols in manifest, found {protocol_total}")
 
-    html_pages = sorted((ROOT / "addiction").glob("**/index.html"))
+    html_pages = sorted((destination / "addiction").glob("**/index.html"))
     if len(html_pages) != 15:
         fail(f"Expected 15 addiction HTML pages, found {len(html_pages)}")
 
+    required_markers = (
+        '<html lang="ar" dir="rtl">',
+        "<title>",
+        'name="description"',
+        'rel="canonical"',
+        "<h1",
+        'type="application/ld+json"',
+    )
     for page in html_pages:
         text = page.read_text(encoding="utf-8")
-        required = [
-            '<html lang="ar" dir="rtl">',
-            "<title>",
-            'name="description"',
-            'rel="canonical"',
-            "<h1",
-            'type="application/ld+json"',
-        ]
-        missing = [marker for marker in required if marker not in text]
+        missing = [marker for marker in required_markers if marker not in text]
         if missing:
-            fail(f"{page.relative_to(ROOT)} missing: {', '.join(missing)}")
+            fail(f"{page.relative_to(destination)} missing: {', '.join(missing)}")
 
     for item in condition_pages:
-        page = ROOT / "addiction" / item["slug"] / "index.html"
+        page = destination / "addiction" / item["slug"] / "index.html"
+        if not page.exists():
+            fail(f"Missing condition page: {page.relative_to(destination)}")
         text = page.read_text(encoding="utf-8")
         count = text.count('class="protocol"')
         if count != 10:
-            fail(f"{page.relative_to(ROOT)} has {count} protocols, expected 10")
-        if "اطلب الطوارئ" not in text and "الطوارئ" not in text:
-            fail(f"{page.relative_to(ROOT)} lacks emergency safety language")
+            fail(f"{page.relative_to(destination)} has {count} protocols, expected 10")
+        if "الطوارئ" not in text:
+            fail(f"{page.relative_to(destination)} lacks emergency safety language")
 
-    evidence_text = (ROOT / "addiction" / "evidence-library" / "index.html").read_text(
-        encoding="utf-8"
-    )
+    evidence_text = (
+        destination / "addiction" / "evidence-library" / "index.html"
+    ).read_text(encoding="utf-8")
     if evidence_text.count('class="source"') != 50:
         fail("Evidence library does not contain exactly 50 source cards")
 
-    ET.parse(ROOT / "sitemap-addiction.xml")
-    ET.parse(ROOT / "sitemap-index.xml")
-    if "sitemap-addiction.xml" not in (ROOT / "sitemap-index.xml").read_text(
-        encoding="utf-8"
-    ):
+    ET.parse(destination / "sitemap-addiction.xml")
+    ET.parse(destination / "sitemap-index.xml")
+    if SITEMAP_URL not in (destination / "sitemap-index.xml").read_text(encoding="utf-8"):
         fail("sitemap-index.xml does not advertise sitemap-addiction.xml")
 
-    banned_fragments = ["جرعة:", " ملغ", " mg ", "خفض الجرعة بنسبة", "تناول حبة"]
+    banned_fragments = ("جرعة:", " ملغ", " mg ", "خفض الجرعة بنسبة", "تناول حبة")
     corpus = "\n".join(page.read_text(encoding="utf-8") for page in html_pages)
     found = [fragment for fragment in banned_fragments if fragment in corpus]
     if found:
         fail(f"Unsafe self-treatment dosing fragments found: {found}")
 
     return {
+        "schemaVersion": 1,
         "status": "passed",
-        "html_pages": len(html_pages),
-        "condition_pages": len(condition_pages),
+        "generatedAt": "2026-08-03",
+        "htmlPages": len(html_pages),
+        "conditionPages": len(condition_pages),
         "protocols": protocol_total,
         "references": manifest["reference_count"],
         "sitemap": "sitemap-addiction.xml",
+        "safety": manifest.get("safety_contract", {}),
     }
 
 
+def materialize(destination: Path) -> dict[str, object]:
+    payload = load_payload()
+    extracted = safe_extract(payload, destination)
+    merge_sitemap_index(destination)
+    report = validate(destination)
+    report["extractedMembers"] = len(extracted)
+
+    api = destination / "api"
+    api.mkdir(parents=True, exist_ok=True)
+    (api / "addiction-reference-v1.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return report
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "destination",
+        nargs="?",
+        default="_site",
+        help="Static site output directory (default: _site)",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
-    if len(CHUNKS) != EXPECTED_CHUNKS:
-        fail(f"Expected {EXPECTED_CHUNKS} payload chunks, found {len(CHUNKS)}")
-
-    encoded = "".join(path.read_text(encoding="ascii").strip() for path in CHUNKS)
-    compressed = base64.b64decode(encoded, validate=True)
-    digest = hashlib.sha256(compressed).hexdigest()
-    if digest != EXPECTED_XZ_SHA256:
-        fail(f"Payload checksum mismatch: {digest}")
-
-    tar_payload = lzma.decompress(compressed)
-    extracted = safe_extract(tar_payload)
-    report = validate()
-
-    for path in CHUNKS:
-        path.unlink(missing_ok=True)
-    SELF.unlink(missing_ok=True)
-    WORKFLOW.unlink(missing_ok=True)
-
-    report["extracted_members"] = len(extracted)
+    args = parse_args()
+    destination = Path(args.destination)
+    if not destination.is_absolute():
+        destination = REPOSITORY_ROOT / destination
+    report = materialize(destination)
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 
