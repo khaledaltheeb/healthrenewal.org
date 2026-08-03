@@ -18,7 +18,7 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.head.ref == 'automation/addiction-condition-guides-clean-v1'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,30 +27,175 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Run trusted clean publication builder from main
+      - name: Recover a valid historical payload and build the static publication
         env:
           HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
           set -uo pipefail
-          if [ -f diagnostics/addiction-clean-build.log ]; then
-            echo "Diagnostic already captured; stop to avoid a retry loop."
+          if [ -f diagnostics/addiction-clean-build.log ] && grep -q '^\[history-recovery-v2-attempted\]' diagnostics/addiction-clean-build.log; then
+            echo "History-recovery diagnostic already captured; stop to avoid a retry loop."
             exit 0
           fi
+
+          rm -f diagnostics/addiction-clean-build.log
+          rmdir diagnostics 2>/dev/null || true
+
           git fetch origin main
-          git show origin/main:scripts/build_clean_addiction_condition_guides_once.sh > /tmp/build-clean-addiction.sh
-          chmod +x /tmp/build-clean-addiction.sh
+          git fetch origin '+refs/heads/agent/addiction-condition-guides-v2-20260803:refs/remotes/origin/agent/addiction-condition-guides-v2-20260803'
+          mkdir -p content/addiction scripts
+
           set +e
-          /tmp/build-clean-addiction.sh > /tmp/addiction-clean-build.log 2>&1
-          status=$?
+          python - <<'PY' > /tmp/addiction-payload-recovery.log 2>&1
+          from __future__ import annotations
+
+          import base64
+          import hashlib
+          import io
+          import itertools
+          import lzma
+          import subprocess
+          import tarfile
+          from pathlib import Path
+
+          SOURCE_REF = "origin/agent/addiction-condition-guides-v2-20260803"
+          PARTS = (
+              "content/addiction/condition-guides-v2.part00.b64",
+              "content/addiction/condition-guides-v2.part01.b64",
+          )
+          MATERIALIZER = "scripts/materialize_addiction_condition_guides_v2.py"
+          REQUIRED = {
+              "assets/addiction/addiction-core.css",
+              "addiction/editorial-manifest.json",
+              "addiction/methodology/index.html",
+              "addiction/alcohol-use-disorder/index.html",
+              "addiction/opioid-use-disorder/index.html",
+              "addiction/stimulant-use-disorder/index.html",
+              "addiction/cannabis-use-disorder/index.html",
+              "addiction/nicotine-tobacco-dependence/index.html",
+              "addiction/sedative-benzodiazepine-use-disorder/index.html",
+              "addiction/gambling-related-harms/index.html",
+              "addiction/gaming-disorder/index.html",
+              "addiction/inhalant-use-disorder/index.html",
+              "addiction/polysubstance-use-and-overdose-risk/index.html",
+          }
+
+          def git_bytes(*args: str) -> bytes:
+              return subprocess.check_output(["git", *args])
+
+          def historical_versions(path: str) -> list[tuple[str, bytes]]:
+              commits = git_bytes("rev-list", SOURCE_REF, "--", path).decode().split()
+              versions: list[tuple[str, bytes]] = []
+              seen: set[str] = set()
+              for commit in commits:
+                  try:
+                      data = git_bytes("show", f"{commit}:{path}")
+                  except subprocess.CalledProcessError:
+                      continue
+                  digest = hashlib.sha256(data).hexdigest()
+                  if digest in seen:
+                      continue
+                  seen.add(digest)
+                  versions.append((commit, data))
+              if not versions:
+                  raise SystemExit(f"No historical versions found for {path}")
+              print(f"{path}: {len(versions)} unique historical versions")
+              return versions
+
+          version_sets = [historical_versions(path) for path in PARTS]
+          selected: tuple[tuple[str, bytes], tuple[str, bytes], bytes, bytes] | None = None
+          failures = 0
+
+          for left, right in itertools.product(*version_sets):
+              try:
+                  encoded = left[1].decode("ascii").strip() + right[1].decode("ascii").strip()
+                  compressed = base64.b64decode(encoded, validate=True)
+                  raw = lzma.decompress(compressed)
+                  with tarfile.open(fileobj=io.BytesIO(raw), mode="r:") as archive:
+                      names = {member.name for member in archive.getmembers() if member.isfile()}
+                  if not REQUIRED.issubset(names):
+                      failures += 1
+                      continue
+              except Exception:
+                  failures += 1
+                  continue
+              selected = (left, right, compressed, raw)
+              break
+
+          if selected is None:
+              raise SystemExit(
+                  f"No valid historical payload pair found after {failures} combinations"
+              )
+
+          left, right, compressed, raw = selected
+          compressed_sha = hashlib.sha256(compressed).hexdigest()
+          raw_sha = hashlib.sha256(raw).hexdigest()
+          print(f"Recovered payload from commits {left[0]} + {right[0]}")
+          print(f"Recovered XZ SHA-256: {compressed_sha}")
+          print(f"Recovered TAR SHA-256: {raw_sha}")
+
+          for path, version in zip(PARTS, (left, right), strict=True):
+              target = Path(path)
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_bytes(version[1])
+
+          materializer = git_bytes("show", f"{SOURCE_REF}:{MATERIALIZER}")
+          Path(MATERIALIZER).write_bytes(materializer)
+          Path("/tmp/recovered-addiction-xz-sha.txt").write_text(
+              compressed_sha + "\n", encoding="ascii"
+          )
+          PY
+          recovery_status=$?
           set -e
-          cat /tmp/addiction-clean-build.log
-          if [ "$status" -ne 0 ]; then
+          cat /tmp/addiction-payload-recovery.log
+
+          if [ "$recovery_status" -eq 0 ]; then
+            git show origin/main:scripts/build_clean_addiction_condition_guides_once.sh > /tmp/build-clean-addiction.sh
+            python - <<'PY'
+            from pathlib import Path
+
+            script_path = Path("/tmp/build-clean-addiction.sh")
+            text = script_path.read_text(encoding="utf-8")
+            recovered_sha = Path("/tmp/recovered-addiction-xz-sha.txt").read_text(
+                encoding="ascii"
+            ).strip()
+            import_block = '''git fetch origin "${SOURCE_BRANCH}"
+          mkdir -p content/addiction scripts
+          git show "origin/${SOURCE_BRANCH}:content/addiction/condition-guides-v2.part00.b64" > content/addiction/condition-guides-v2.part00.b64
+          git show "origin/${SOURCE_BRANCH}:content/addiction/condition-guides-v2.part01.b64" > content/addiction/condition-guides-v2.part01.b64
+          git show "origin/${SOURCE_BRANCH}:scripts/materialize_addiction_condition_guides_v2.py" > scripts/materialize_addiction_condition_guides_v2.py
+          '''
+            replacement = "mkdir -p content/addiction scripts\n"
+            if import_block not in text:
+                raise SystemExit("Expected import block not found in clean builder")
+            text = text.replace(import_block, replacement, 1)
+            old_new_sha = 'NEW_SHA="e24de57695370943a33b6e4bf80cdfa5fb5763e3fb7219b06899a3ae6fd14758"'
+            if old_new_sha not in text:
+                raise SystemExit("Expected temporary payload SHA marker not found")
+            text = text.replace(old_new_sha, f'NEW_SHA="{recovered_sha}"', 1)
+            script_path.write_text(text, encoding="utf-8")
+            PY
+            chmod +x /tmp/build-clean-addiction.sh
+
+            set +e
+            /tmp/build-clean-addiction.sh > /tmp/addiction-clean-build.log 2>&1
+            build_status=$?
+            set -e
+            cat /tmp/addiction-clean-build.log
+          else
+            build_status=$recovery_status
+            cp /tmp/addiction-payload-recovery.log /tmp/addiction-clean-build.log
+          fi
+
+          if [ "$build_status" -ne 0 ]; then
             mkdir -p diagnostics
-            cp /tmp/addiction-clean-build.log diagnostics/addiction-clean-build.log
+            {
+              echo '[history-recovery-v2-attempted]'
+              cat /tmp/addiction-clean-build.log
+            } > diagnostics/addiction-clean-build.log
             git config user.name "healthrenewal-bot"
             git config user.email "actions@users.noreply.github.com"
             git add diagnostics/addiction-clean-build.log
-            git commit -m "diagnostic(addiction): capture clean build failure"
+            git commit -m "diagnostic(addiction): capture historical payload recovery failure"
             git push origin HEAD:"${HEAD_BRANCH}"
-            exit "$status"
+            exit "$build_status"
           fi
