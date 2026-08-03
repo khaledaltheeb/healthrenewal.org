@@ -1,0 +1,68 @@
+name: Validate addiction evidence and safety program
+
+on:
+  pull_request:
+    paths:
+      - "addiction/**"
+      - "api/v1/addiction-center.json"
+      - "data/addiction-evidence/**"
+      - "docs/addiction-*.md"
+      - "tests/test_addiction_*.py"
+      - "robots.txt"
+      - "sitemap-addiction.xml"
+      - "sitemap-index.xml"
+      - ".github/workflows/validate-addiction-program.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "addiction/**"
+      - "api/v1/addiction-center.json"
+      - "data/addiction-evidence/**"
+      - "docs/addiction-*.md"
+      - "tests/test_addiction_*.py"
+      - "robots.txt"
+      - "sitemap-addiction.xml"
+      - "sitemap-index.xml"
+      - ".github/workflows/validate-addiction-program.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile addiction contracts
+        run: |
+          python -m py_compile tests/test_addiction_center.py
+          python -m py_compile tests/test_addiction_program_contract.py
+      - name: Execute dependency-free addiction tests
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import runpy
+
+          files = (
+              Path("tests/test_addiction_center.py"),
+              Path("tests/test_addiction_program_contract.py"),
+          )
+          executed = 0
+          for path in files:
+              namespace = runpy.run_path(str(path))
+              for name, value in sorted(namespace.items()):
+                  if name.startswith("test_") and callable(value):
+                      value()
+                      executed += 1
+                      print(f"PASS {path}:{name}")
+          if executed < 10:
+              raise SystemExit(f"Expected at least 10 addiction tests, executed {executed}")
+          print(f"Executed {executed} addiction contract tests")
+          PY
+      - name: Validate sitemap discovery
+        run: python scripts/validate_sitemap_discovery_contract.py
