@@ -63,6 +63,38 @@ class SpecialNeedsPublicationInventoryTests(unittest.TestCase):
                 self.assertEqual(inventory.counts[key], 1, key)
             self.assertEqual(inventory.counts["capability_condition_pages"], 1)
 
+    def test_metadata_parser_accepts_canonical_attribute_order_variants(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            page = Path(tmp) / "index.html"
+            route = "/special-needs/practical/example/"
+            padding = "محتوى علمي منظم " * 40
+            page.write_text(
+                "<!doctype html><html lang='ar'><head>"
+                "<link href='https://healthrenewal.org/special-needs/practical/example/' rel='canonical'>"
+                "<meta content='index,follow' name='robots'>"
+                "</head><body><h1>دليل تطبيقي</h1><p>"
+                + padding
+                + "</p></body></html>",
+                encoding="utf-8",
+            )
+            self.assertEqual(self.ns["_validate_page"](page, route), [])
+
+    def test_metadata_parser_rejects_noindex_independent_of_attribute_order(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            page = Path(tmp) / "index.html"
+            route = "/special-needs/practical/example/"
+            padding = "محتوى علمي منظم " * 40
+            page.write_text(
+                "<!doctype html><html lang='ar'><head>"
+                "<link href='https://healthrenewal.org/special-needs/practical/example/' rel='canonical'>"
+                "<meta content='follow,noindex' name='robots'>"
+                "</head><body><h1>دليل تطبيقي</h1><p>"
+                + padding
+                + "</p></body></html>",
+                encoding="utf-8",
+            )
+            self.assertIn("noindex", self.ns["_validate_page"](page, route))
+
     def test_source_checkout_is_never_materialized_by_repair(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp).resolve()
