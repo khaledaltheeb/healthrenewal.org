@@ -1,0 +1,57 @@
+name: Materialize Arabic addiction reference PR
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "scripts/.addiction_payload_*"
+      - "scripts/materialize_addiction_reference_v1.py"
+      - "addiction/editorial-manifest.json"
+      - ".github/workflows/materialize-addiction-reference-v1.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: materialize-addiction-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    if: github.head_ref == 'agent/addiction-reference-arabic-20260803'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout the trusted head branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Detect pending payload
+        id: pending
+        shell: bash
+        run: |
+          if [[ -f scripts/materialize_addiction_reference_v1.py ]]; then
+            echo "value=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Materialize and validate section
+        if: steps.pending.outputs.value == 'true'
+        run: python scripts/materialize_addiction_reference_v1.py
+
+      - name: Restore temporary branch workflow and commit final section
+        if: steps.pending.outputs.value == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout origin/main -- .github/workflows/audit-live-search-discovery-v1.yml
+          git config user.name "healthrenewal-content-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "content: add evidence-based Arabic addiction reference"
+          git push origin "HEAD:${{ github.head_ref }}"
