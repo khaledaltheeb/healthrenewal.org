@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "status": "passed",
+  "route": "https://healthrenewal.org/sectors/women/daily-calendar/",
+  "dailyElements": 6,
+  "standardYearDays": 365,
+  "leapDaySupported": true,
+  "monthlyPrograms": 12,
+  "localFirst": true,
+  "accountRequired": false,
+  "cycleTrackingOptional": true,
+  "fertilityPrediction": false,
+  "contraceptionUse": false,
+  "icsExport": true,
+  "calendarRanges": [30, 90, 365],
+  "phoneReminders": true,
+  "neutralEventTitlesDefault": true,
+  "positiveMorningMessage": true,
+  "pinkProfessionalDesign": true,
+  "qualityGate": "tests/test_women_daily_calendar.py",
+  "reviewedAt": "2026-08-03"
+}
