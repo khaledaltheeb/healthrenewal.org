@@ -39,3 +39,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+# Explicit one-time push trigger; no runtime behavior change.
