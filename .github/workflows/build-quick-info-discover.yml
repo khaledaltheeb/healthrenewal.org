@@ -9,6 +9,7 @@ on:
       - "scripts/generate_quick_info.py"
       - "scripts/render_quick_info_cards_v2.py"
       - "scripts/enrich_quick_info_content.py"
+      - "scripts/register_quick_info_discovery.py"
       - ".github/workflows/build-quick-info-discover.yml"
   pull_request:
     branches:
@@ -21,8 +22,10 @@ on:
       - "scripts/generate_quick_info.py"
       - "scripts/render_quick_info_cards_v2.py"
       - "scripts/enrich_quick_info_content.py"
+      - "scripts/register_quick_info_discovery.py"
       - "api/v1/quick-info.json"
       - "sitemap-quick-info.xml"
+      - "sitemap-index.xml"
       - "sitemap.xml"
       - "robots.txt"
       - "index.html"
@@ -75,17 +78,21 @@ jobs:
             scripts/quick_info_topics.py \
             scripts/generate_quick_info.py \
             scripts/render_quick_info_cards_v2.py \
-            scripts/enrich_quick_info_content.py
+            scripts/enrich_quick_info_content.py \
+            scripts/register_quick_info_discovery.py
 
-      - name: Generate, illustrate and enrich section
+      - name: Generate, illustrate, enrich, and register section
         run: |
           python scripts/generate_quick_info.py
           python scripts/render_quick_info_cards_v2.py
           python scripts/enrich_quick_info_content.py
+          python scripts/register_quick_info_discovery.py
 
       - name: Validate content and Discover contracts
         run: |
           python scripts/generate_quick_info.py --check
+          python scripts/register_quick_info_discovery.py
+          python scripts/verify_homepage_v19.py
           test "$(find quick-info -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 150
           test "$(find assets/quick-info/cards -maxdepth 1 -name '*.jpg' | wc -l)" -eq 150
           test "$(grep -rl 'data-quality="enriched-v2"' quick-info/*/index.html | wc -l)" -eq 150
@@ -104,16 +111,69 @@ jobs:
           grep -q 'السؤال الحاسم' quick-info/care-or-monitoring/index.html
           grep -q '<strong class="item-title">حزن أم اكتئاب؟</strong>' index.html
           ! grep -q '<h3 class="item-title">حزن أم اكتئاب؟</h3>' index.html
+          test "$(grep -c '^Sitemap:' robots.txt)" -eq 1
+          grep -q 'Sitemap: https://healthrenewal.org/sitemap-index.xml' robots.txt
+          grep -q 'https://healthrenewal.org/sitemap-quick-info.xml' sitemap-index.xml
 
-      - name: Commit generated static section
+      - name: Commit generated static section safely
         shell: bash
+        env:
+          SOURCE_BRANCH: ${{ steps.source.outputs.branch }}
         run: |
+          set -euo pipefail
           git config user.name "Rawafid Quick Information Automation"
           git config user.email "actions@users.noreply.github.com"
-          git add quick-info assets/quick-info api/v1/quick-info.json sitemap-quick-info.xml sitemap.xml robots.txt index.html reports/quick-info-discover-150.json
+
+          GENERATED_PATHS=(
+            quick-info
+            assets/quick-info
+            api/v1/quick-info.json
+            sitemap-quick-info.xml
+            sitemap-index.xml
+            sitemap.xml
+            robots.txt
+            index.html
+            reports/quick-info-discover-150.json
+          )
+
+          git add "${GENERATED_PATHS[@]}"
           if git diff --cached --quiet; then
             echo "No generated changes to commit"
             exit 0
           fi
           git commit -m "feat(quick-info): publish 150 enriched Discover pages"
-          git push origin "HEAD:${{ steps.source.outputs.branch }}"
+
+          for attempt in 1 2 3; do
+            echo "Push attempt ${attempt}"
+            git fetch origin "${SOURCE_BRANCH}"
+            if ! git merge-base --is-ancestor "origin/${SOURCE_BRANCH}" HEAD; then
+              if ! git rebase "origin/${SOURCE_BRANCH}"; then
+                git rebase --abort || true
+                echo "Rebase failed on attempt ${attempt}"
+                sleep 2
+                continue
+              fi
+
+              # Rebuild after incorporating newer branch commits so generated
+              # output always matches the latest generator and registry code.
+              python scripts/generate_quick_info.py
+              python scripts/render_quick_info_cards_v2.py
+              python scripts/enrich_quick_info_content.py
+              python scripts/register_quick_info_discovery.py
+              python scripts/generate_quick_info.py --check
+              python scripts/verify_homepage_v19.py
+              git add "${GENERATED_PATHS[@]}"
+              if ! git diff --cached --quiet; then
+                git commit --amend --no-edit
+              fi
+            fi
+
+            if git push origin "HEAD:${SOURCE_BRANCH}"; then
+              echo "Generated output pushed to ${SOURCE_BRANCH}"
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "Failed to push generated output after three synchronized attempts"
+          exit 1
