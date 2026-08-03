@@ -1,6 +1,6 @@
 {
   "schema_version": "addiction-center-v1",
-  "generated_at": "2026-08-03T00:55:00Z",
+  "generated_at": "2026-08-03T01:00:00Z",
   "language": "ar",
   "canonical": "https://healthrenewal.org/addiction/",
   "medical_disclaimer": "Educational content only; not diagnosis, dosing, emergency care, or an individual treatment plan.",
@@ -21,9 +21,11 @@
     "https://healthrenewal.org/addiction/protocol-atlas/",
     "https://healthrenewal.org/addiction/withdrawal-safety/",
     "https://healthrenewal.org/addiction/recovery-roadmap/",
+    "https://healthrenewal.org/addiction/family-guide/",
     "https://healthrenewal.org/addiction/sources/"
   ],
   "protocol_total": 100,
   "reference_count": 53,
+  "governance_document": "docs/addiction-editorial-governance.md",
   "review_policy": "Annual review and immediate review after major guideline updates."
 }
