@@ -1,0 +1,364 @@
+name: Materialize downloads SEO page
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/materialize-downloads-seo-v1.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: materialize-downloads-seo-v1
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Locate latest complete validated artifact
+        id: artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" \
+            -o /tmp/artifacts.json
+          python - <<'PY'
+          import json
+          import os
+
+          payload = json.load(open("/tmp/artifacts.json", encoding="utf-8"))
+          candidates = [
+              item
+              for item in payload.get("artifacts", [])
+              if not item.get("expired")
+              and item.get("workflow_run", {}).get("id")
+              and item.get("workflow_run", {}).get("head_branch") == "main"
+          ]
+          if not candidates:
+              raise SystemExit("No active validated-production-site artifact from main")
+          artifact = max(candidates, key=lambda item: item.get("created_at", ""))
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"id={artifact['id']}\n")
+              output.write(f"created_at={artifact.get('created_at', '')}\n")
+          print({
+              "artifact_id": artifact["id"],
+              "created_at": artifact.get("created_at"),
+              "workflow_run_id": artifact.get("workflow_run", {}).get("id"),
+          })
+          PY
+
+      - name: Restore the existing downloads page
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ steps.artifact.outputs.id }}
+        run: |
+          set -euo pipefail
+          curl -fsSL -L \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            -o /tmp/validated-production-site.zip
+          rm -rf /tmp/validated-production-site
+          mkdir -p /tmp/validated-production-site
+          unzip -q /tmp/validated-production-site.zip -d /tmp/validated-production-site
+          source_page="$(find /tmp/validated-production-site -type f -path '*/downloads/index.html' -print -quit)"
+          if [ -z "${source_page}" ]; then
+            echo "downloads/index.html was not found in the validated production artifact" >&2
+            find /tmp/validated-production-site -maxdepth 3 -type f | sort | head -200 >&2
+            exit 1
+          fi
+          mkdir -p downloads
+          cp "${source_page}" downloads/index.html
+          test -s downloads/index.html
+          echo "Restored ${source_page} from artifact ${ARTIFACT_ID}"
+
+      - name: Add visible description and complete SEO metadata
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import re
+          from pathlib import Path
+
+          path = Path("downloads/index.html")
+          html = path.read_text(encoding="utf-8")
+
+          title = "مكتبة التحميلات المجانية | أدلة ونماذج قابلة للطباعة | منصة روافد"
+          description = (
+              "مكتبة تحميلات عربية مجانية من منصة روافد تضم أدلة ونماذج وأوراق عمل "
+              "قابلة للطباعة في الصحة النفسية والتعافي والدمج والتربية الخاصة، مع إرشادات استخدام آمن."
+          )
+          social_description = (
+              "أدلة ونماذج وأوراق عمل عربية مجانية قابلة للطباعة لدعم الصحة النفسية "
+              "والتعافي والدمج والتربية الخاصة."
+          )
+          canonical = "https://healthrenewal.org/downloads/"
+          image = "https://healthrenewal.org/assets/brand/rawafid-social-card.jpg"
+
+          if not re.search(r"<html\b", html, re.I):
+              raise SystemExit("Invalid downloads page: missing html element")
+          if not re.search(r"</head\s*>", html, re.I):
+              raise SystemExit("Invalid downloads page: missing closing head")
+
+          if re.search(r"<title\b[^>]*>.*?</title\s*>", html, re.I | re.S):
+              html = re.sub(
+                  r"<title\b[^>]*>.*?</title\s*>",
+                  f"<title>{title}</title>",
+                  html,
+                  count=1,
+                  flags=re.I | re.S,
+              )
+          else:
+              html = re.sub(
+                  r"(<head\b[^>]*>)",
+                  rf"\1\n<title>{title}</title>",
+                  html,
+                  count=1,
+                  flags=re.I,
+              )
+
+          html = re.sub(
+              r"\s*<!-- downloads-seo:v1 -->.*?<!-- /downloads-seo:v1 -->\s*",
+              "\n",
+              html,
+              flags=re.I | re.S,
+          )
+          html = re.sub(
+              r"\s*<script\b[^>]*\bid=[\"']downloads-collection-schema[\"'][^>]*>.*?</script\s*>\s*",
+              "\n",
+              html,
+              flags=re.I | re.S,
+          )
+
+          attributes = [
+              ("meta", "name", "description"),
+              ("meta", "name", "robots"),
+              ("meta", "property", "og:type"),
+              ("meta", "property", "og:locale"),
+              ("meta", "property", "og:site_name"),
+              ("meta", "property", "og:title"),
+              ("meta", "property", "og:description"),
+              ("meta", "property", "og:url"),
+              ("meta", "property", "og:image"),
+              ("meta", "property", "og:image:alt"),
+              ("meta", "name", "twitter:card"),
+              ("meta", "name", "twitter:title"),
+              ("meta", "name", "twitter:description"),
+              ("meta", "name", "twitter:image"),
+              ("meta", "name", "twitter:image:alt"),
+          ]
+          for tag, attribute, value in attributes:
+              pattern = (
+                  rf"\s*<{tag}\b(?=[^>]*\b{attribute}\s*=\s*[\"']"
+                  rf"{re.escape(value)}[\"'])[^>]*>\s*"
+              )
+              html = re.sub(pattern, "\n", html, flags=re.I)
+
+          html = re.sub(
+              r"\s*<link\b(?=[^>]*\brel\s*=\s*[\"']canonical[\"'])[^>]*>\s*",
+              "\n",
+              html,
+              flags=re.I,
+          )
+          html = re.sub(
+              r"\s*<link\b(?=[^>]*\brel\s*=\s*[\"']alternate[\"'])(?=[^>]*\bhreflang\s*=\s*[\"'](?:ar|x-default)[\"'])[^>]*>\s*",
+              "\n",
+              html,
+              flags=re.I,
+          )
+
+          schema = {
+              "@context": "https://schema.org",
+              "@type": "CollectionPage",
+              "name": "مكتبة التحميلات المجانية",
+              "headline": title,
+              "description": description,
+              "url": canonical,
+              "inLanguage": "ar",
+              "isAccessibleForFree": True,
+              "dateModified": "2026-08-04",
+              "isPartOf": {
+                  "@type": "WebSite",
+                  "name": "منصة روافد",
+                  "url": "https://healthrenewal.org/",
+              },
+              "publisher": {
+                  "@type": "Organization",
+                  "name": "منصة روافد",
+                  "url": "https://healthrenewal.org/",
+                  "logo": {
+                      "@type": "ImageObject",
+                      "url": "https://healthrenewal.org/assets/brand/rawafid-logo.png",
+                  },
+              },
+              "breadcrumb": {
+                  "@type": "BreadcrumbList",
+                  "itemListElement": [
+                      {
+                          "@type": "ListItem",
+                          "position": 1,
+                          "name": "الرئيسية",
+                          "item": "https://healthrenewal.org/",
+                      },
+                      {
+                          "@type": "ListItem",
+                          "position": 2,
+                          "name": "مكتبة التحميلات",
+                          "item": canonical,
+                      },
+                  ],
+              },
+          }
+          schema_text = json.dumps(schema, ensure_ascii=False, separators=(",", ":"))
+          seo_block = f"""
+          <!-- downloads-seo:v1 -->
+          <meta name="description" content="{description}">
+          <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+          <link rel="canonical" href="{canonical}">
+          <link rel="alternate" hreflang="ar" href="{canonical}">
+          <link rel="alternate" hreflang="x-default" href="{canonical}">
+          <meta property="og:type" content="website">
+          <meta property="og:locale" content="ar_AR">
+          <meta property="og:site_name" content="منصة روافد">
+          <meta property="og:title" content="{title}">
+          <meta property="og:description" content="{social_description}">
+          <meta property="og:url" content="{canonical}">
+          <meta property="og:image" content="{image}">
+          <meta property="og:image:alt" content="مكتبة التحميلات المجانية في منصة روافد">
+          <meta name="twitter:card" content="summary_large_image">
+          <meta name="twitter:title" content="{title}">
+          <meta name="twitter:description" content="{social_description}">
+          <meta name="twitter:image" content="{image}">
+          <meta name="twitter:image:alt" content="مكتبة التحميلات المجانية في منصة روافد">
+          <script id="downloads-collection-schema" type="application/ld+json">{schema_text}</script>
+          <!-- /downloads-seo:v1 -->
+          """.strip()
+
+          html = re.sub(
+              r"</head\s*>",
+              seo_block + "\n</head>",
+              html,
+              count=1,
+              flags=re.I,
+          )
+
+          visible_marker = 'data-downloads-description="v1"'
+          visible_description = (
+              '<p class="lead" data-downloads-description="v1">'
+              "تصفح أدلة منصة روافد ونماذجها وأوراق عملها العربية المجانية القابلة "
+              "للطباعة لدعم الصحة النفسية والتعافي والدمج والتربية الخاصة. "
+              "راجع تعليمات كل ملف وحدود استخدامه قبل التنزيل."
+              "</p>"
+          )
+          if visible_marker not in html:
+              if re.search(r"</h1\s*>", html, re.I):
+                  html = re.sub(
+                      r"(</h1\s*>)",
+                      r"\1\n" + visible_description,
+                      html,
+                      count=1,
+                      flags=re.I,
+                  )
+              elif re.search(r"<main\b[^>]*>", html, re.I):
+                  html = re.sub(
+                      r"(<main\b[^>]*>)",
+                      r"\1\n" + visible_description,
+                      html,
+                      count=1,
+                      flags=re.I,
+                  )
+              else:
+                  raise SystemExit("Invalid downloads page: no h1 or main for visible description")
+
+          path.write_text(html, encoding="utf-8")
+          PY
+
+      - name: Validate SEO and page preservation
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+
+          path = Path("downloads/index.html")
+          html = path.read_text(encoding="utf-8")
+          expected = "https://healthrenewal.org/downloads/"
+
+          assert html.count('name="description"') == 1
+          assert html.count('rel="canonical"') == 1
+          assert html.count('name="robots"') == 1
+          assert 'content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"' in html
+          assert 'name="twitter:card" content="summary_large_image"' in html
+          assert 'property="og:image"' in html
+          assert expected in html
+          assert 'data-downloads-description="v1"' in html
+          assert not re.search(r'name=["\']robots["\'][^>]*\bnoindex\b', html, re.I)
+
+          title = re.search(r"<title\b[^>]*>(.*?)</title\s*>", html, re.I | re.S)
+          assert title and "مكتبة التحميلات المجانية" in title.group(1)
+
+          schema_match = re.search(
+              r'<script\b[^>]*id="downloads-collection-schema"[^>]*>(.*?)</script\s*>',
+              html,
+              re.I | re.S,
+          )
+          assert schema_match
+          schema = json.loads(schema_match.group(1))
+          assert schema["@type"] == "CollectionPage"
+          assert schema["url"] == expected
+          assert schema["isAccessibleForFree"] is True
+
+          assert len(html.encode("utf-8")) > 10000, "Existing page content appears to have been lost"
+          print({
+              "page_bytes": len(html.encode("utf-8")),
+              "canonical": expected,
+              "schema": schema["@type"],
+              "visible_description": True,
+          })
+          PY
+          git diff --check
+
+      - name: Commit the permanent source page
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add downloads/index.html
+          if git diff --cached --quiet; then
+            echo "downloads/index.html is already current."
+            exit 0
+          fi
+          git commit -m "fix(seo): materialize and enrich downloads page"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((attempt * 5))
+          done
+          echo "Failed to push downloads SEO page after retries" >&2
+          exit 1
