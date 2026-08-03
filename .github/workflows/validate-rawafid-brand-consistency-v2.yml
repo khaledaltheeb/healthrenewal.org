@@ -1,0 +1,107 @@
+name: Validate Rawafid brand consistency v2
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '**/*.html'
+      - '**/*.htm'
+      - '**/*.json'
+      - '**/*.webmanifest'
+      - '**/*.xml'
+      - '**/*.svg'
+      - '**/*.css'
+      - '**/*.js'
+      - 'scripts/rawafid_brand_consistency.py'
+      - 'scripts/rawafid_brand_runner.py'
+      - 'scripts/repair_homepage_heading_semantics.py'
+      - 'scripts/normalize_platform_shell.py'
+      - 'scripts/sitecustomize.py'
+      - 'scripts/apply_rawafid_brand.py'
+      - '.github/workflows/validate-rawafid-brand-consistency-v2.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**/*.html'
+      - '**/*.htm'
+      - '**/*.json'
+      - '**/*.webmanifest'
+      - '**/*.xml'
+      - '**/*.svg'
+      - '**/*.css'
+      - '**/*.js'
+      - 'scripts/rawafid_brand_consistency.py'
+      - 'scripts/rawafid_brand_runner.py'
+      - 'scripts/repair_homepage_heading_semantics.py'
+      - 'scripts/normalize_platform_shell.py'
+      - 'scripts/sitecustomize.py'
+      - 'scripts/apply_rawafid_brand.py'
+      - '.github/workflows/validate-rawafid-brand-consistency-v2.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rawafid-brand-consistency-v2-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile validators
+        run: |
+          python -m py_compile \
+            scripts/rawafid_brand_consistency.py \
+            scripts/rawafid_brand_runner.py \
+            scripts/repair_homepage_heading_semantics.py \
+            scripts/normalize_platform_shell.py \
+            scripts/sitecustomize.py \
+            scripts/apply_rawafid_brand.py \
+            scripts/verify_homepage_v19.py
+
+      - name: Validate homepage semantics
+        run: |
+          python scripts/repair_homepage_heading_semantics.py index.html
+          python scripts/verify_homepage_v19.py
+
+      - name: Validate shared platform shell
+        run: python scripts/normalize_platform_shell.py --check --no-report
+
+      - name: Audit source identity and metadata
+        run: |
+          python - <<'PY'
+          import json
+          from dataclasses import asdict
+          from pathlib import Path
+          import sys
+
+          sys.path.insert(0, 'scripts')
+          from rawafid_brand_runner import normalize_root
+
+          report = normalize_root(
+              Path('.'),
+              fix=False,
+              production=False,
+              report_path=Path('/tmp/rawafid-brand-consistency-v2.json'),
+          )
+          payload = asdict(report)
+          print(json.dumps(payload, ensure_ascii=False, indent=2))
+          assert report.status == 'passed', payload
+          assert report.legacy_occurrences == 0, payload
+          assert report.legacy_files == 0, payload
+          assert report.html_duplicate_meta_tags == 0, payload
+          assert report.files_needing_changes == 0, payload
+          assert report.manifest_valid is True, payload
+          assert report.manifest_errors == [], payload
+          assert report.missing_assets == [], payload
+          PY
