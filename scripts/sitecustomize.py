@@ -32,7 +32,7 @@ def _normalize_production_brand() -> None:
     if _TARGET is None:
         return
     try:
-        from rawafid_brand_consistency import normalize_root
+        from rawafid_brand_runner import normalize_root
 
         report = normalize_root(
             _TARGET,
