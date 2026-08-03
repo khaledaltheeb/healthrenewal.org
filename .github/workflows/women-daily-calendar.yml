@@ -50,11 +50,7 @@ jobs:
           python - <<'PY'
           import runpy
           namespace = runpy.run_path("tests/test_women_daily_calendar.py")
-          tests = [
-              value
-              for name, value in sorted(namespace.items())
-              if name.startswith("test_") and callable(value)
-          ]
+          tests = [value for name, value in sorted(namespace.items()) if name.startswith("test_") and callable(value)]
           if len(tests) != 2:
               raise SystemExit(f"Expected 2 tests, found {len(tests)}")
           for test in tests:
@@ -82,7 +78,6 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-
           targets = [
               Path("sectors/women/daily-calendar/index.html"),
               Path("sectors/women/daily-calendar/calendar.js"),
@@ -138,32 +133,25 @@ jobs:
               if text != original:
                   path.write_text(text, encoding="utf-8")
                   changed.append(str(path))
-
           test_path = Path("tests/test_women_daily_calendar.py")
           test_text = test_path.read_text(encoding="utf-8")
           anchor = '    assert "كيف تشعرين الآن؟" in html\n'
-          block = '''    assert "الحيض" in html
-    assert "الفاصل بين بدايات الحيض" in html
-    for forbidden_term in ("الدورة الشهرية", "الدورة"):
-        assert forbidden_term not in html
-        assert forbidden_term not in js
-    assert "طول الحيض" not in html
-    assert "طول الحيض" not in js
-'''
+          block = (
+              '    assert "الحيض" in html\n'
+              '    assert "الفاصل بين بدايات الحيض" in html\n'
+              '    for forbidden_term in ("الدورة الشهرية", "الدورة"):\n'
+              '        assert forbidden_term not in html\n'
+              '        assert forbidden_term not in js\n'
+              '    assert "طول الحيض" not in html\n'
+              '    assert "طول الحيض" not in js\n'
+          )
           if block not in test_text:
               if anchor not in test_text:
                   raise SystemExit("Could not locate terminology-test insertion point")
               test_text = test_text.replace(anchor, anchor + block, 1)
               test_path.write_text(test_text, encoding="utf-8")
               changed.append(str(test_path))
-
-          app_text = "\n".join(
-              p.read_text(encoding="utf-8")
-              for p in [
-                  Path("sectors/women/daily-calendar/index.html"),
-                  Path("sectors/women/daily-calendar/calendar.js"),
-              ]
-          )
+          app_text = "\n".join(p.read_text(encoding="utf-8") for p in [Path("sectors/women/daily-calendar/index.html"), Path("sectors/women/daily-calendar/calendar.js")])
           forbidden = [term for term in ("الدورة الشهرية", "الدورة", "طول الحيض") if term in app_text]
           if forbidden:
               raise SystemExit(f"Forbidden or inaccurate terminology remains: {forbidden}")
