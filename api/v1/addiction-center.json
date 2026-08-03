@@ -29,10 +29,13 @@
   "protocol_total": 100,
   "reference_count": 53,
   "structured_reference_count": 12,
+  "mapped_claim_count": 12,
+  "claim_source_map_status": "foundation-partial",
   "governance_document": "docs/addiction-editorial-governance.md",
   "safety_contract": "docs/addiction-safety-contract.md",
   "information_architecture": "docs/addiction-information-architecture.md",
   "structured_source_registry": "data/addiction-evidence/source-registry.json",
+  "claim_source_map": "data/addiction-evidence/claim-source-map.json",
   "coordination_issue": "https://github.com/khaledaltheeb/healthrenewal.org/issues/918",
   "required_next_wave": {
     "independent_condition_pages": 10,
