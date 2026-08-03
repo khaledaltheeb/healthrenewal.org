@@ -8,6 +8,7 @@ from pathlib import Path
 
 import ensure_complete_discovery_v1 as complete_discovery
 import generate_sitemap_index_v304_core as core
+import materialize_addiction_condition_guides_v2 as addiction_condition_guides
 from ai_machine_readable_v1 import AI_USER_AGENTS, enhance_site, sync_robots as sync_ai_robots
 from audit_publication_discovery_v1 import run as audit_publication_discovery
 
@@ -131,8 +132,18 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     # before sitemap generation so repository and production inventories match.
     restored_source_files = restore_missing_public_source(root, repo_root)
 
+    # Extend the already-published addiction center with ten detailed condition
+    # guides. The materializer checks its signed payload and verifies that the
+    # hub, protocol atlas, withdrawal guide, recovery roadmap, family guide, and
+    # 53-source registry are byte-for-byte untouched.
+    addiction_condition_report = addiction_condition_guides.materialize(root)
+
     # Build canonical sitemap families from the complete, restored artifact.
     report = core.generate(root, base_url)
+
+    # The canonical generator rebuilds sitemap-index.xml. Re-register the
+    # dedicated addiction sitemap without replacing any generated family map.
+    addiction_condition_guides.merge_discovery(root)
 
     # Learning paths include both generated paths and source-authored paths.
     # Add the family to the static catalogue set so every restored route is
@@ -170,6 +181,7 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
         if key not in {"explicit_ai_user_agents", "preserved_custom_domain_sitemaps"}
     }
     report["restored_source_files"] = restored_source_files
+    report["addiction_condition_guides"] = addiction_condition_report
     report["complete_discovery_publication"] = discovery_publication
     report["publication_discovery_audit"] = {
         "status": discovery_audit["status"],
