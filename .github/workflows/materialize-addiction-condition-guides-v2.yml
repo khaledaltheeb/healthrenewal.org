@@ -1,4 +1,4 @@
-# Trigger v4b: invoke the checksum-correct visible extraction gate now active on main.
+# One-time v6 extraction only. Delete this workflow before final review and merge.
 name: Materialize addiction condition guides v2
 
 on:
@@ -7,6 +7,7 @@ on:
       - agent/addiction-condition-guides-v2-20260803
     paths:
       - ".github/workflows/materialize-addiction-condition-guides-v2.yml"
+      - ".github/addiction-pr929-trigger-v5.txt"
   workflow_dispatch:
 
 permissions:
