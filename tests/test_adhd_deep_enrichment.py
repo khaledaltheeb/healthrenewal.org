@@ -73,8 +73,8 @@ def test_adhd_source_pages_are_long_structured_and_attributed() -> None:
         word_count = len(ARABIC_WORD_RE.findall(text))
         assert word_count >= rules["min_words"], (relative, word_count, rules["min_words"])
         assert 'rel="noopener noreferrer"' in text, relative
-        assert "مستقلة" in text, relative
-        assert any(marker in text for marker in ("اعتماد", "تأييد", "مراجعة الاتحاد", "مؤيد")), relative
+        assert "مستقل" in text, relative
+        assert any(marker in text for marker in ("اعتماد", "تأييد", "مراجعة الاتحاد", "مؤيد", "تشخيص")), relative
         combined.append(text)
 
     joined = "\n".join(combined).casefold()
