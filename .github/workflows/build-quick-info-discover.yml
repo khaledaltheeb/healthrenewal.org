@@ -12,6 +12,7 @@ on:
   pull_request:
     branches:
       - main
+    types: [opened, reopened, synchronize]
     paths:
       - "quick-info/**"
       - "assets/quick-info/**"
@@ -31,17 +32,29 @@ permissions:
   contents: write
 
 concurrency:
-  group: quick-info-discover-${{ github.ref }}
+  group: quick-info-discover-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: false
 
 jobs:
   build:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Checkout branch
+      - name: Resolve source branch
+        id: source
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "branch=${{ github.event.pull_request.head.ref }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout source branch
         uses: actions/checkout@v4
         with:
+          ref: ${{ steps.source.outputs.branch }}
           fetch-depth: 0
 
       - name: Configure Python
@@ -74,6 +87,7 @@ jobs:
           test "$(find quick-info -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 150
           test "$(find assets/quick-info/cards -maxdepth 1 -name '*.jpg' | wc -l)" -eq 150
           test "$(grep -rl 'data-quality="enriched-v2"' quick-info/*/index.html | wc -l)" -eq 150
+          test "$(grep -rl 'G-VLZMV8Y4JP' quick-info/index.html quick-info/*/index.html | wc -l)" -eq 151
           test -s quick-info/index.html
           test -s quick-info/feed.xml
           test -s sitemap-quick-info.xml
@@ -86,7 +100,7 @@ jobs:
           grep -q 'يصبح هذا المؤشر أكثر أهمية' quick-info/five-tips-after-breakup/index.html
 
       - name: Commit generated static section
-        if: github.event_name == 'push'
+        shell: bash
         run: |
           git config user.name "Rawafid Quick Information Automation"
           git config user.email "actions@users.noreply.github.com"
@@ -96,4 +110,4 @@ jobs:
             exit 0
           fi
           git commit -m "feat(quick-info): enrich 150 Discover-ready pages"
-          git push origin HEAD:agent/quick-info-discover-150
+          git push origin "HEAD:${{ steps.source.outputs.branch }}"
