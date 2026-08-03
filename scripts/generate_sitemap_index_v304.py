@@ -137,7 +137,12 @@ def load_discovery_publication_report(root: Path) -> tuple[Path, dict[str, objec
 def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     root = root.resolve()
     base_url = base_url.rstrip("/") + "/"
-    repo_root = Path.cwd().resolve()
+
+    # Resolve source files from the script location, not the caller's current
+    # working directory. CI fixtures and production jobs may invoke this script
+    # from another directory; using cwd previously hid shared assets and caused
+    # false broken-resource failures.
+    repo_root = Path(__file__).resolve().parents[1]
 
     # Generators executed immediately before this step may prune valid files
     # that are physically present on main. Restore those exact missing files
