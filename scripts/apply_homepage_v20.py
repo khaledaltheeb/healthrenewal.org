@@ -68,6 +68,40 @@ def synchronize_homepage_lab_inventory(text: str) -> str:
     return text
 
 
+def prepare_homepage_card_semantics(text: str) -> str:
+    text = re.sub(
+        r'<p class="item-title">(.*?)</p>',
+        r'<h3 class="item-title">\1</h3>',
+        text,
+        flags=re.DOTALL,
+    )
+
+    calendar_url = 'href="sectors/women/daily-calendar/"'
+    if calendar_url not in text:
+        women_card = (
+            '<article class="card"><span class="tag">المرأة</span>'
+            '<h3 class="item-title">الصحة النفسية للمرأة</h3>'
+            '<p>مسارات عبر مراحل الحياة والسياق الصحي والاجتماعي.</p>'
+            '<a href="sectors/women/">فتح قسم المرأة</a></article>'
+        )
+        calendar_card = (
+            '<article class="card" data-women-daily-calendar-v1>'
+            '<span class="tag">صباح إيجابي · 365 يومًا</span>'
+            '<h3 class="item-title">تقويم صحة المرأة اليومي</h3>'
+            '<p>رسالة صباحية ومعلومة ونصيحة وفكرة واقتراح وتطبيق لعشر دقائق، '
+            'مع تتبع اختياري ومحلي للدورة ودمج بتقويم الهاتف.</p>'
+            '<a href="sectors/women/daily-calendar/">فتح التقويم اليومي</a>'
+            '</article>'
+        )
+        if women_card not in text:
+            raise SystemExit("Women homepage card marker was not found")
+        text = text.replace(women_card, women_card + calendar_card, 1)
+
+    if calendar_url not in text:
+        raise SystemExit("Women daily calendar homepage link was not integrated")
+    return text
+
+
 def synchronize_care_guides_report() -> None:
     report_path = SITE / "api" / "care-guides-v21.json"
     sitemap_path = SITE / "sitemap-care-guides.xml"
@@ -177,7 +211,9 @@ def main() -> None:
         raise SystemExit(f"Missing site output: {SITE}")
 
     source_text = SOURCE.read_text(encoding="utf-8")
-    text = synchronize_homepage_lab_inventory(source_text)
+    text = prepare_homepage_card_semantics(
+        synchronize_homepage_lab_inventory(source_text)
+    )
     required = [
         '<html lang="ar" dir="rtl">',
         '<h1>',
@@ -188,6 +224,7 @@ def main() -> None:
         'href="sectors/family/"',
         'href="sectors/child/"',
         'href="sectors/home/"',
+        'href="sectors/women/daily-calendar/"',
         'href="special-needs/"',
         'href="care-guides/"',
         'href="api/"',
@@ -243,15 +280,26 @@ def main() -> None:
     TARGET.write_text(text, encoding="utf-8")
     restored_routes = {
         "provider-assessment-demo": restore_static_route("provider-assessment-demo"),
+        "women_daily_calendar": restore_static_route(
+            "sectors/women/daily-calendar"
+        ),
         "brand_assets": restore_static_tree("assets/brand"),
         "api_v1": restore_static_tree("api/v1"),
     }
-    for relative_path in ("api/index.html", "manifest.webmanifest", "opensearch.xml"):
+    for relative_path in (
+        "api/index.html",
+        "api/women-daily-calendar-v1.json",
+        "manifest.webmanifest",
+        "opensearch.xml",
+        "sectors/women/index.html",
+        "sitemap-women-calendar.xml",
+    ):
         restore_static_file(relative_path)
+    register_sitemap("sitemap-women-calendar.xml")
 
     expected_target_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
     report = {
-        "version": 219,
+        "version": 220,
         "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         "target_sha256": hashlib.sha256(TARGET.read_bytes()).hexdigest(),
         "source_transformed": True,
@@ -282,6 +330,9 @@ def main() -> None:
         "core_sections_linked": True,
         "api_v1_published": True,
         "brand_assets_published": True,
+        "women_daily_calendar_published": True,
+        "women_daily_calendar_homepage_linked": True,
+        "women_daily_calendar_sitemap_registered": True,
         "restored_static_routes": restored_routes,
         "trust_center_publisher": 201,
         "partners_publisher": 201,
