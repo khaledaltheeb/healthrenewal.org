@@ -10,7 +10,7 @@ permissions:
 
 concurrency:
   group: rawafid-brand-consistency-v2-${{ github.event.pull_request.number }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   repair-and-audit:
