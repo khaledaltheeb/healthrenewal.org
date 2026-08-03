@@ -1,0 +1,107 @@
+name: Synchronize Rawafid PR 971
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: synchronize-rawafid-pr-971
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.event.pull_request.number == 971 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'fix/rawafid-brand-consistency-v2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout Rawafid branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/rawafid-brand-consistency-v2
+          fetch-depth: 0
+
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install generator dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pillow
+
+      - name: Merge current main while preserving reviewed Rawafid repairs
+        run: |
+          git config user.name "Rawafid Main Sync"
+          git config user.email "actions@users.noreply.github.com"
+          git fetch origin main
+          git merge --no-edit -X ours origin/main
+
+      - name: Regenerate Quick Info discovery surfaces
+        run: |
+          python -m py_compile scripts/build_quick_info.py
+          python scripts/build_quick_info.py
+
+      - name: Reapply semantic shell and Rawafid identity
+        run: |
+          python scripts/repair_homepage_heading_semantics.py index.html --fix
+          python scripts/normalize_platform_shell.py --no-report
+          python scripts/normalize_platform_shell.py --no-report
+          python - <<'PY'
+          from pathlib import Path
+          import sys
+
+          sys.path.insert(0, 'scripts')
+          from rawafid_brand_runner import normalize_root
+
+          report = normalize_root(
+              Path('.'),
+              fix=True,
+              production=False,
+              report_path=Path('reports/rawafid-brand-consistency-v2.json'),
+          )
+          raise SystemExit(0 if report.status == 'passed' else 1)
+          PY
+
+      - name: Validate Quick Info library
+        run: |
+          python - <<'PY'
+          import runpy
+          namespace = runpy.run_path('tests/test_quick_info_section.py')
+          tests = [value for name, value in sorted(namespace.items()) if name.startswith('test_') and callable(value)]
+          if not tests:
+              raise SystemExit('No Quick Info tests were discovered')
+          for test in tests:
+              test()
+              print(f'PASS {test.__name__}')
+          PY
+
+      - name: Validate Rawafid and homepage contracts
+        run: |
+          python scripts/repair_homepage_heading_semantics.py index.html
+          python scripts/normalize_platform_shell.py --check --no-report
+          python scripts/verify_homepage_v19.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('reports/rawafid-brand-consistency-v2.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['legacy_occurrences'] == 0, report
+          assert report['html_duplicate_meta_tags'] == 0, report
+          assert report['files_needing_changes'] == 0, report
+          assert report['manifest_valid'] is True, report
+          assert report['missing_assets'] == [], report
+          print(report)
+          PY
+
+      - name: Commit and push synchronized branch
+        run: |
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(brand): integrate Quick Info while preserving Rawafid contracts"
+          fi
+          git push origin HEAD:fix/rawafid-brand-consistency-v2
