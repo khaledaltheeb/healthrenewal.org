@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import re
+from html import unescape
 from pathlib import Path
 
 ITEM_TITLE_RE = re.compile(
@@ -11,16 +12,57 @@ ITEM_TITLE_RE = re.compile(
     r'(?P<body>.*?)</p\s*>',
     re.IGNORECASE | re.DOTALL,
 )
+HEADING_RE = re.compile(
+    r'<h(?P<level>[1-3])\b(?P<attrs>[^>]*)>(?P<body>.*?)</h(?P=level)\s*>',
+    re.IGNORECASE | re.DOTALL,
+)
+DUPLICATE_RENAMES = {
+    "فريقنا وشركاؤنا ذوو الاختصاص": (
+        "فريقنا وشركاؤنا ذوو الاختصاص",
+        "دليل الفريق والشركاء ذوي الاختصاص",
+    ),
+}
+
+
+def plain_text(value: str) -> str:
+    value = re.sub(r"<[^>]+>", " ", value)
+    return re.sub(r"\s+", " ", unescape(value)).strip()
 
 
 def repair(text: str) -> tuple[str, int]:
-    def replacement(match: re.Match[str]) -> str:
+    changes = 0
+
+    def convert_item_title(match: re.Match[str]) -> str:
+        nonlocal changes
+        changes += 1
         quote = match.group("quote")
         attrs = match.group("attrs")
         body = match.group("body")
         return f'<h3 class={quote}item-title{quote}{attrs}>{body}</h3>'
 
-    return ITEM_TITLE_RE.subn(replacement, text)
+    text = ITEM_TITLE_RE.sub(convert_item_title, text)
+
+    occurrences: dict[str, int] = {}
+
+    def disambiguate_heading(match: re.Match[str]) -> str:
+        nonlocal changes
+        level = match.group("level")
+        attrs = match.group("attrs")
+        body = match.group("body")
+        heading = plain_text(body)
+        names = DUPLICATE_RENAMES.get(heading)
+        if not names:
+            return match.group(0)
+        index = occurrences.get(heading, 0)
+        occurrences[heading] = index + 1
+        replacement = names[min(index, len(names) - 1)]
+        if replacement == heading:
+            return match.group(0)
+        changes += 1
+        return f"<h{level}{attrs}>{replacement}</h{level}>"
+
+    text = HEADING_RE.sub(disambiguate_heading, text)
+    return text, changes
 
 
 def validate(text: str) -> None:
@@ -28,6 +70,8 @@ def validate(text: str) -> None:
     h2_count = len(re.findall(r"<h2\b", text, re.IGNORECASE))
     h3_count = len(re.findall(r"<h3\b", text, re.IGNORECASE))
     residual_item_paragraphs = len(ITEM_TITLE_RE.findall(text))
+    headings = [plain_text(match.group("body")) for match in HEADING_RE.finditer(text)]
+    duplicate_headings = sorted({heading for heading in headings if headings.count(heading) > 1})
 
     if h1_count != 1:
         raise SystemExit(f"Expected exactly one homepage H1, found {h1_count}")
@@ -39,6 +83,8 @@ def validate(text: str) -> None:
         raise SystemExit(
             f"Homepage still contains {residual_item_paragraphs} paragraph-based item titles"
         )
+    if duplicate_headings:
+        raise SystemExit(f"Homepage contains duplicate heading text: {duplicate_headings}")
 
 
 def main() -> int:
@@ -57,7 +103,7 @@ def main() -> int:
         raise SystemExit(f"Homepage requires {changed} semantic heading repairs")
 
     validate(text)
-    print({"status": "passed", "converted_item_titles": changed})
+    print({"status": "passed", "semantic_repairs": changed})
     return 0
 
 
