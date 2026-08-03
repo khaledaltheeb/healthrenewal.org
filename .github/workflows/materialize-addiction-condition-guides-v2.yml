@@ -1,0 +1,57 @@
+name: Materialize addiction condition guides v2
+
+on:
+  push:
+    branches:
+      - agent/addiction-condition-guides-v2-20260803
+    paths:
+      - ".github/workflows/materialize-addiction-condition-guides-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: materialize-addiction-condition-guides-v2
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/addiction-condition-guides-v2-20260803
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Materialize reviewed static files
+        run: python scripts/materialize_addiction_condition_guides_v2.py .
+      - name: Run isolated condition-guide contract tests
+        run: |
+          python - <<'PY'
+          import runpy
+          namespace = runpy.run_path('tests/test_addiction_condition_guides_v2.py')
+          executed = 0
+          for name, value in sorted(namespace.items()):
+              if name.startswith('test_') and callable(value):
+                  value()
+                  executed += 1
+                  print(f'PASS {name}')
+          if executed != 2:
+              raise SystemExit(f'Expected 2 tests, executed {executed}')
+          PY
+      - name: Commit visible publication files
+        run: |
+          set -euxo pipefail
+          git config user.name "healthrenewal-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add addiction api assets/addiction sitemap.xml sitemap-addiction.xml sitemap-index.xml
+          if git diff --cached --quiet; then
+            echo "No materialized changes"
+            exit 0
+          fi
+          git commit -m "content(addiction): materialize ten static condition guides"
+          git push origin HEAD:agent/addiction-condition-guides-v2-20260803
