@@ -1,0 +1,183 @@
+{
+  "version": "1.0.0",
+  "status": "published",
+  "language": "ar",
+  "updatedAt": "2026-08-03",
+  "permission": {
+    "date": "2026-08-03",
+    "grantor": "World Federation of ADHD",
+    "scope": "Written materials available on the World Federation of ADHD website",
+    "archivedInternally": true,
+    "independentArabicAdaptation": true,
+    "reviewedOrEndorsedByFederation": false,
+    "logoUseAuthorized": false
+  },
+  "hub": {
+    "title": "مركز ADHD العربي",
+    "url": "https://healthrenewal.org/adhd/",
+    "publisher": "منصة تجدد الصحة"
+  },
+  "pages": [
+    {
+      "slug": "adhd",
+      "title": "مركز ADHD العربي",
+      "url": "https://healthrenewal.org/adhd/",
+      "type": "hub"
+    },
+    {
+      "slug": "federation-guide",
+      "title": "دليل الاتحاد العالمي لاضطراب ADHD",
+      "url": "https://healthrenewal.org/adhd/federation-guide/",
+      "type": "independent-summary-and-adaptation"
+    },
+    {
+      "slug": "consensus",
+      "title": "بيان الإجماع الدولي حول ADHD",
+      "url": "https://healthrenewal.org/adhd/consensus/",
+      "type": "navigation-and-explanatory-summary"
+    },
+    {
+      "slug": "transfer-of-care",
+      "title": "إحالة ADHD وانتقال الرعاية",
+      "url": "https://healthrenewal.org/adhd/transfer-of-care/",
+      "type": "localized-adaptation-and-template"
+    },
+    {
+      "slug": "language-guide",
+      "title": "دليل اللغة عند الحديث عن ADHD",
+      "url": "https://healthrenewal.org/adhd/language-guide/",
+      "type": "third-party-source-summary-and-adaptation"
+    },
+    {
+      "slug": "adult-coaching",
+      "title": "تدريب ADHD للبالغين",
+      "url": "https://healthrenewal.org/adhd/adult-coaching/",
+      "type": "third-party-source-summary-and-adaptation"
+    },
+    {
+      "slug": "expert-questions",
+      "title": "أسئلة خبراء ADHD",
+      "url": "https://healthrenewal.org/adhd/expert-questions/",
+      "type": "safety-restricted-synthesis"
+    },
+    {
+      "slug": "practice-guidelines",
+      "title": "إرشادات ADHD المهنية",
+      "url": "https://healthrenewal.org/adhd/practice-guidelines/",
+      "type": "source-navigation-and-comparison"
+    },
+    {
+      "slug": "sources-and-rights",
+      "title": "مصادر وحقوق قسم ADHD",
+      "url": "https://healthrenewal.org/adhd/sources-and-rights/",
+      "type": "governance-registry"
+    },
+    {
+      "slug": "adhd-family-practical-guide",
+      "title": "دليل الأسرة العملي لاضطراب ADHD",
+      "url": "https://healthrenewal.org/care-guides/adhd-family-practical-guide/",
+      "type": "original-multi-source-guide"
+    }
+  ],
+  "sources": [
+    {
+      "publisher": "World Federation of ADHD",
+      "title": "Official website",
+      "url": "https://www.adhd-federation.org/",
+      "ownership": "federation-site",
+      "use": "discovery-attribution"
+    },
+    {
+      "publisher": "World Federation of ADHD",
+      "title": "The World Federation of ADHD Guide",
+      "url": "https://www.adhd-federation.org/publications/adhd-guide.html",
+      "ownership": "federation-published-written-material",
+      "use": "independent-Arabic-summary-and-adaptation"
+    },
+    {
+      "publisher": "World Federation of ADHD",
+      "title": "International Consensus Statement",
+      "url": "https://www.adhd-federation.org/publications/international-consensus-statement.html",
+      "ownership": "federation-published-written-material",
+      "use": "navigation-summary-and-link-to-official-Arabic-version"
+    },
+    {
+      "publisher": "World Federation of ADHD",
+      "title": "ADHD Referral Toolkit and Transfer of Care Policy",
+      "url": "https://www.adhd-federation.org/publications/adhd-referral-toolkit.html",
+      "ownership": "federation-published-written-material",
+      "use": "localized-general-adaptation-with-local-law-warning"
+    },
+    {
+      "publisher": "World Federation of ADHD",
+      "title": "Psychopharmacology of ADHD — Meet the Experts",
+      "url": "https://www.adhd-federation.org/congresses-meetings/psychopharmacology-of-adhd.html",
+      "ownership": "federation-published-written-material",
+      "use": "safety-restricted-summary-no-dosing"
+    },
+    {
+      "publisher": "World Federation of ADHD",
+      "title": "Psychological Approaches to Treatment and Diagnosis — Meet the Experts",
+      "url": "https://www.adhd-federation.org/congresses-meetings/psychological-approaches-to-treatment-and-diagnosis.html",
+      "ownership": "federation-published-written-material",
+      "use": "safety-restricted-summary"
+    },
+    {
+      "publisher": "World Federation of ADHD",
+      "title": "Links to Practice Guidelines",
+      "url": "https://www.adhd-federation.org/publications/practise-guidelines.html",
+      "ownership": "federation-directory-to-third-party-sources",
+      "use": "source-navigation"
+    },
+    {
+      "publisher": "AADPA",
+      "title": "Talking about ADHD",
+      "url": "https://aadpa.com.au/talking-about-adhd/",
+      "ownership": "third-party-linked-or-endorsed-material",
+      "use": "independent-summary-not-full-republication"
+    },
+    {
+      "publisher": "ADHD Europe",
+      "title": "ADHD Coaching: A Practical Guide for Adults with ADHD",
+      "url": "https://www.adhd-federation.org/publications/adhd-coaching-a-practical-guide-for-adults-with-adhd.html",
+      "ownership": "third-party-material-hosted-or-linked-by-federation",
+      "use": "independent-summary-not-full-republication"
+    },
+    {
+      "publisher": "CADDRA",
+      "title": "Canadian ADHD Practice Guidelines",
+      "url": "https://www.caddra.ca/canadian-adhd-practice-guidelines/",
+      "ownership": "third-party-guideline",
+      "use": "direct-link-and-comparison"
+    },
+    {
+      "publisher": "EUNETHYDIS / EAGG",
+      "title": "European ADHD Guidelines Group",
+      "url": "https://eunethydis.eu/eunethydis-initiatives/european-adhd-guideline-group/",
+      "ownership": "third-party-guideline-group",
+      "use": "direct-link-and-comparison"
+    },
+    {
+      "publisher": "AWMF",
+      "title": "ADHD Guideline 028-045",
+      "url": "https://register.awmf.org/de/leitlinien/detail/028-045",
+      "ownership": "third-party-guideline-registry",
+      "use": "direct-link-and-comparison"
+    },
+    {
+      "publisher": "NICE",
+      "title": "NG87 Attention deficit hyperactivity disorder: diagnosis and management",
+      "url": "https://www.nice.org.uk/guidance/ng87",
+      "ownership": "third-party-guideline",
+      "use": "direct-link-and-comparison"
+    }
+  ],
+  "safety": {
+    "educationalOnly": true,
+    "individualDiagnosis": false,
+    "individualPrescribing": false,
+    "doseInstructionsPublished": false,
+    "emergencyEscalationIncluded": true,
+    "localClinicalAndLegalReviewRequired": true
+  }
+}
