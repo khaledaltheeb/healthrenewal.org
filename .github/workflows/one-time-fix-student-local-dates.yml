@@ -1,0 +1,79 @@
+name: One-time fix student calendar local dates
+
+on:
+  push:
+    branches:
+      - agent/women-daily-calendar-v1
+    paths:
+      - ".github/workflows/one-time-fix-student-local-dates.yml"
+      - "api/student-daily-calendar-v1.json"
+
+permissions:
+  contents: write
+
+jobs:
+  apply-fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/women-daily-calendar-v1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Patch local calendar-day calculations
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("sectors/calendars/students/student-calendar.js")
+          text = path.read_text(encoding="utf-8")
+          old = '''  function isoDate(date) { return new Date(date).toISOString().slice(0,10); }
+          function parseDate(value) { return startOfDay(new Date(`${value}T12:00:00`)); }
+          function addDays(date, days) { return new Date(startOfDay(date).getTime() + days * DAY_MS); }
+          function daysBetween(a, b) { return Math.ceil((startOfDay(b) - startOfDay(a)) / DAY_MS); }'''
+          new = '''  function isoDate(date) { const d = new Date(date); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+          function parseDate(value) { const [year, month, day] = String(value).split("-").map(Number); return startOfDay(new Date(year, (month || 1) - 1, day || 1)); }
+          function addDays(date, days) { const d = startOfDay(date); d.setDate(d.getDate() + Number(days || 0)); return d; }
+          function utcDayNumber(date) { const d = new Date(date); return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / DAY_MS; }
+          function daysBetween(a, b) { return Math.round(utcDayNumber(b) - utcDayNumber(a)); }'''
+          if old not in text:
+              raise SystemExit("Expected date helper block not found")
+          text = text.replace(old, new, 1)
+          old_day_index = '  function dayIndex(date) { return Math.floor(startOfDay(date).getTime() / DAY_MS); }'
+          new_day_index = '  function dayIndex(date) { return Math.floor(utcDayNumber(date)); }'
+          if old_day_index not in text:
+              raise SystemExit("Expected dayIndex block not found")
+          text = text.replace(old_day_index, new_day_index, 1)
+          old_available = '    let available = Math.max(10, total - wrap - recall);'
+          new_available = '    let available = Math.max(5, total - wrap - recall);'
+          if old_available not in text:
+              raise SystemExit("Expected short-plan calculation not found")
+          text = text.replace(old_available, new_available, 1)
+          path.write_text(text, encoding="utf-8")
+          PY
+      - name: Validate corrected application
+        run: |
+          node --check sectors/calendars/students/student-calendar.js
+          python - <<'PY'
+          import runpy
+          namespace = runpy.run_path("tests/test_student_daily_calendar.py")
+          for name, test in sorted(namespace.items()):
+              if name.startswith("test_") and callable(test):
+                  test()
+                  print(f"PASS {name}")
+          PY
+      - name: Commit correction
+        run: |
+          if git diff --quiet; then
+            echo "No changes required"
+            exit 0
+          fi
+          git config user.name "healthrenewal-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add sectors/calendars/students/student-calendar.js
+          git commit -m "fix(students): use local calendar dates"
+          git push origin HEAD:agent/women-daily-calendar-v1
