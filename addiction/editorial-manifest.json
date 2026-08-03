@@ -3,20 +3,74 @@
   "published": "2026-08-03",
   "language": "ar",
   "hub": "https://healthrenewal.org/addiction/",
-  "materialization_pending": true,
   "condition_pages": [
-    {"slug":"alcohol-use-disorder","title":"اضطراب استخدام الكحول","protocol_count":10,"references":["R05","R06","R21","R30","R31","R35","R44"]},
-    {"slug":"opioid-use-disorder","title":"اضطراب استخدام الأفيونات","protocol_count":10,"references":["R04","R10","R17","R22","R26","R33","R36","R46"]},
-    {"slug":"stimulant-use-disorder","title":"اضطراب استخدام المنبهات","protocol_count":10,"references":["R13","R32","R37","R50"]},
-    {"slug":"cannabis-use-disorder","title":"اضطراب استخدام القنب","protocol_count":10,"references":["R32","R45","R49"]},
-    {"slug":"nicotine-tobacco-dependence","title":"الاعتماد على النيكوتين والتبغ","protocol_count":10,"references":["R09","R40"]},
-    {"slug":"sedative-benzodiazepine-use-disorder","title":"اضطراب استخدام المهدئات والبنزوديازيبينات","protocol_count":10,"references":["R18","R38","R42"]},
-    {"slug":"gambling-related-harms","title":"أضرار المقامرة واضطراب المقامرة","protocol_count":10,"references":["R34","R24"]},
-    {"slug":"gaming-disorder","title":"اضطراب الألعاب الرقمية","protocol_count":10,"references":["R02","R11","R24"]},
-    {"slug":"inhalant-use-disorder","title":"اضطراب استخدام المستنشقات","protocol_count":10,"references":["R01","R03","R27","R42"]},
-    {"slug":"polysubstance-use-and-overdose-risk","title":"استخدام مواد متعددة وخطر الجرعة الزائدة","protocol_count":10,"references":["R01","R13","R18","R22","R23","R39","R42","R47"]}
+    {
+      "slug": "alcohol-use-disorder",
+      "title": "اضطراب استخدام الكحول",
+      "protocol_count": 10,
+      "references": ["R05", "R06", "R21", "R30", "R31", "R35", "R44"]
+    },
+    {
+      "slug": "opioid-use-disorder",
+      "title": "اضطراب استخدام الأفيونات",
+      "protocol_count": 10,
+      "references": ["R04", "R10", "R17", "R22", "R26", "R33", "R36", "R46"]
+    },
+    {
+      "slug": "stimulant-use-disorder",
+      "title": "اضطراب استخدام المنبهات",
+      "protocol_count": 10,
+      "references": ["R13", "R32", "R37", "R50"]
+    },
+    {
+      "slug": "cannabis-use-disorder",
+      "title": "اضطراب استخدام القنب",
+      "protocol_count": 10,
+      "references": ["R32", "R45", "R49"]
+    },
+    {
+      "slug": "nicotine-tobacco-dependence",
+      "title": "الاعتماد على النيكوتين والتبغ",
+      "protocol_count": 10,
+      "references": ["R09", "R40"]
+    },
+    {
+      "slug": "sedative-benzodiazepine-use-disorder",
+      "title": "اضطراب استخدام المهدئات والبنزوديازيبينات",
+      "protocol_count": 10,
+      "references": ["R18", "R38", "R42"]
+    },
+    {
+      "slug": "gambling-related-harms",
+      "title": "أضرار المقامرة واضطراب المقامرة",
+      "protocol_count": 10,
+      "references": ["R34", "R24"]
+    },
+    {
+      "slug": "gaming-disorder",
+      "title": "اضطراب الألعاب الرقمية",
+      "protocol_count": 10,
+      "references": ["R02", "R11", "R24"]
+    },
+    {
+      "slug": "inhalant-use-disorder",
+      "title": "اضطراب استخدام المستنشقات",
+      "protocol_count": 10,
+      "references": ["R01", "R03", "R27", "R42"]
+    },
+    {
+      "slug": "polysubstance-use-and-overdose-risk",
+      "title": "استخدام مواد متعددة وخطر الجرعة الزائدة",
+      "protocol_count": 10,
+      "references": ["R01", "R13", "R18", "R22", "R23", "R39", "R42", "R47"]
+    }
   ],
-  "support_pages":["withdrawal-safety","recovery-plan","methodology","evidence-library"],
-  "reference_count":50,
-  "safety_contract":{"no_individual_dosing":true,"no_home_detox_plan":true,"emergency_red_flags":true,"withdrawal_is_not_treatment":true}
+  "support_pages": ["withdrawal-safety", "recovery-plan", "methodology", "evidence-library"],
+  "reference_count": 50,
+  "safety_contract": {
+    "no_individual_dosing": true,
+    "no_home_detox_plan": true,
+    "emergency_red_flags": true,
+    "withdrawal_is_not_treatment": true
+  }
 }
