@@ -1,6 +1,12 @@
 name: Materialize addiction reference center v1
 
 on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".addiction-payload/**"
+      - "scripts/materialize_addiction_center_v1.py"
+      - ".github/workflows/materialize-addiction-center-v1.yml"
   push:
     branches: ["agent/addiction-reference-center-v1"]
     paths:
