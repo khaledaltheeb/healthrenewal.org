@@ -1,0 +1,73 @@
+name: Repair Rawafid brand consistency v2
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rawafid-brand-consistency-v2-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  repair-and-audit:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'fix/rawafid-brand-consistency-v2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repair branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/rawafid-brand-consistency-v2
+          fetch-depth: 0
+
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile consistency tools
+        run: |
+          python -m py_compile \
+            scripts/rawafid_brand_consistency.py \
+            scripts/sitecustomize.py \
+            scripts/apply_rawafid_brand.py
+
+      - name: Repair and audit public source
+        run: |
+          python scripts/rawafid_brand_consistency.py \
+            --root . \
+            --fix \
+            --report reports/rawafid-brand-consistency-v2.json
+
+      - name: Validate report contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path('reports/rawafid-brand-consistency-v2.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['legacy_occurrences'] == 0, report
+          assert report['html_duplicate_meta_tags'] == 0, report
+          assert report['files_needing_changes'] == 0, report
+          assert report['manifest_valid'] is True, report
+          assert report['missing_assets'] == [], report
+          print(report)
+          PY
+
+      - name: Commit deterministic repairs
+        run: |
+          git config user.name "Rawafid Consistency Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git restore --source=HEAD --worktree --staged .github
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No consistency changes to commit"
+            exit 0
+          fi
+          git commit -m "fix(brand): eliminate legacy identity and metadata ambiguity"
+          git push origin HEAD:fix/rawafid-brand-consistency-v2
