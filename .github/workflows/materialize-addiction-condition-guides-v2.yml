@@ -1,4 +1,4 @@
-# Trigger v3: invoke the trusted one-time visible extraction gate on main.
+# Trigger v4: invoke the checksum-correct visible extraction gate on main.
 name: Materialize addiction condition guides v2
 
 on:
