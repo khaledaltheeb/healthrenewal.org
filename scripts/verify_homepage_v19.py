@@ -9,7 +9,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "index.html"
 BRAND = "منصة روافد"
+BRAND_EN = "Rawafid Platform"
+MANIFEST_NAME = "منصة روافد للعافية النفسية والدمج والتمكين"
 SLOGAN = "للعافية النفسية والدمج والتمكين"
+LEGACY_IDENTITIES = (
+    "الاسم المؤسس: مصطلحات علم النفس",
+    "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+    "بوابة الصحة النفسية وذوي الاحتياجات الخاصة",
+    "Psychology Terminology",
+    "Health Renewal",
+)
 REQUIRED_LINKS = (
     "start-here/",
     "encyclopedia/",
@@ -40,6 +49,9 @@ REQUIRED_FILES = (
     "assets/brand/logo-mark.svg",
     "assets/brand/logo.svg",
     "assets/brand/social-card.svg",
+    "assets/brand/rawafid-brand.css",
+    "assets/brand/rawafid-brand.js",
+    "assets/brand/rawafid-social-card.jpg",
     "api/index.html",
     "api/v1/platform.json",
     "api/v1/openapi.json",
@@ -102,7 +114,9 @@ def main() -> None:
     assert 'lang="ar"' in source and 'dir="rtl"' in source
     assert BRAND in source, "Homepage is missing the unified platform name"
     assert SLOGAN in source, "Homepage is missing the approved slogan"
-    assert "الاسم المؤسس: مصطلحات علم النفس" in source, "Founding name must remain visible"
+    assert "الاسم المؤسس: منصة روافد" in source, "The official institutional name must remain visible"
+    for legacy in LEGACY_IDENTITIES:
+        assert legacy not in source, f"Legacy identity remains visible on homepage: {legacy}"
     assert "ثلاثين شرحًا" not in source, "Homepage contains obsolete 30-item claim"
     assert "2,000+" in source, "Homepage must expose the production-backed encyclopedia scale"
     assert "200" in source, "Homepage must expose the production-backed hub count"
@@ -121,15 +135,19 @@ def main() -> None:
     for phrase in FORBIDDEN_OPERATIONAL_COPY:
         assert phrase not in source, f"Operational planning copy leaked to users: {phrase}"
 
-    h1_count = len(re.findall(r"<h1\b", source))
-    h2_count = len(re.findall(r"<h2\b", source))
-    h3_count = len(re.findall(r"<h3\b", source))
+    h1_count = len(re.findall(r"<h1\b", source, re.IGNORECASE))
+    h2_count = len(re.findall(r"<h2\b", source, re.IGNORECASE))
+    h3_count = len(re.findall(r"<h3\b", source, re.IGNORECASE))
     headings = heading_texts(source)
     duplicates = sorted({text for text in headings if headings.count(text) > 1})
     assert h1_count == 1, "Homepage must contain exactly one h1"
     assert h2_count >= 5, "Homepage needs structured H2 sections"
-    assert 8 <= len(headings) <= 20, "Homepage heading outline must remain concise and proportional"
+    assert h3_count >= 16, "Homepage cards must expose semantic H3 headings"
+    assert 22 <= len(headings) <= 80, "Homepage heading outline must remain structured and proportional"
     assert not duplicates, f"Homepage contains duplicate heading text: {duplicates}"
+    assert not re.search(r'<p\s+class=["\']item-title["\']', source, re.IGNORECASE), (
+        "Homepage card titles must use semantic headings, not paragraphs"
+    )
     assert 'href="#main"' in source, "Missing skip link"
     assert 'id="main"' in source, "Missing main landmark target"
     assert 'color-scheme" content="light"' in source, "Homepage must declare light color scheme"
@@ -156,7 +174,7 @@ def main() -> None:
 
     for required_meta in (
         '<link rel="manifest" href="/manifest.webmanifest">',
-        '<link rel="icon" href="/assets/brand/logo-mark.svg" type="image/svg+xml">',
+        '<link rel="icon" type="image/svg+xml" href="/assets/brand/logo-mark.svg">',
         '<link rel="search" type="application/opensearchdescription+xml"',
         '<link rel="sitemap" type="application/xml" href="https://healthrenewal.org/sitemap.xml">',
         '<meta property="og:image" content="https://healthrenewal.org/assets/brand/rawafid-social-card.jpg">',
@@ -177,7 +195,11 @@ def main() -> None:
     assert website.get("potentialAction", {}).get("@type") == "SearchAction"
     assert organization.get("name") == BRAND
     assert organization.get("slogan") == SLOGAN
-    assert "مصطلحات علم النفس" in organization.get("alternateName", [])
+    alternate_names = organization.get("alternateName", [])
+    if isinstance(alternate_names, str):
+        alternate_names = [alternate_names]
+    assert BRAND_EN in alternate_names
+    assert all(legacy not in alternate_names for legacy in LEGACY_IDENTITIES)
     assert organization.get("logo", {}).get("url", "").endswith("/assets/brand/logo-mark.svg")
     parts = collection.get("hasPart", [])
     assert any(part.get("@type") == "WebAPI" for part in parts)
@@ -193,8 +215,12 @@ def main() -> None:
     openapi = load_json("api/v1/openapi.json")
     course_schema = load_json("api/v1/courses.schema.json")
     course_example = load_json("api/v1/courses.example.json")
-    assert manifest.get("name") == BRAND
+    assert manifest.get("name") == MANIFEST_NAME
+    assert manifest.get("short_name") == "روافد"
+    assert manifest.get("id") == "/"
     assert manifest.get("dir") == "rtl" and manifest.get("lang") == "ar"
+    assert platform.get("name") == BRAND
+    assert platform.get("alternateName") == BRAND_EN
     api_version = str(platform.get("apiVersion", ""))
     assert re.fullmatch(r"1\.\d+\.\d+", api_version), (
         f"Platform API must remain compatible with the supported 1.x semantic-version contract: {api_version!r}"
@@ -209,7 +235,7 @@ def main() -> None:
         json.dumps(
             {
                 "status": "passed",
-                "contract": "institutional-home-discovery-seo-v223",
+                "contract": "institutional-home-discovery-seo-v224",
                 "brand": BRAND,
                 "slogan": SLOGAN,
                 "required_links": len(REQUIRED_LINKS),
@@ -217,6 +243,7 @@ def main() -> None:
                 "description_chars": len(description.group(1)),
                 "semantic_topic_terms": len(THEMATIC_TERMS),
                 "obsolete_meta_keywords_absent": True,
+                "legacy_identity_absent": True,
                 "jsonld_nodes": len(graph),
                 "h1": h1_count,
                 "h2": h2_count,
@@ -228,7 +255,7 @@ def main() -> None:
                 "guided_assessment_linked": True,
                 "daily_tools_linked": True,
                 "learning_paths_linked": True,
-                "interactive_tools_discovery_contract": 223,
+                "interactive_tools_discovery_contract": 224,
                 "operational_copy_hidden": True,
                 "api_version": api_version,
                 "openapi": openapi["openapi"],
