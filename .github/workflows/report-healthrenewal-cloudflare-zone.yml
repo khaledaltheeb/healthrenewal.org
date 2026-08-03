@@ -1,0 +1,50 @@
+name: Report healthrenewal Cloudflare zone result
+
+on:
+  workflow_run:
+    workflows: ["Bootstrap healthrenewal Cloudflare zone"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Publish bootstrap result receipt
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          title="Cloudflare DNS zone bootstrap result: healthrenewal.org"
+          body=$(cat <<EOF
+          ## Cloudflare zone bootstrap result
+
+          - **Result:** ${CONCLUSION:-unknown}
+          - **Run:** ${RUN_URL}
+          - **Run ID:** ${RUN_ID}
+          - **Commit:** ${HEAD_SHA}
+          - **Checked:** $(date -u +'%Y-%m-%dT%H:%M:%SZ')
+
+          A success means the Cloudflare zone exists and its apex/`www` website records were configured for GitHub Pages while imported mail and verification records were preserved. A failure requires inspecting the linked run log.
+          EOF
+          )
+          number=$(gh issue list --repo "$GITHUB_REPOSITORY" --state all --limit 100 --json number,title --jq ".[] | select(.title == \"${title}\") | .number" | head -n 1)
+          if [ -z "$number" ]; then
+            number=$(gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body" | sed -n 's#.*/##p')
+          else
+            gh issue comment "$number" --repo "$GITHUB_REPOSITORY" --body "$body"
+          fi
+          if [ "${CONCLUSION:-unknown}" = "success" ]; then
+            gh issue close "$number" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Cloudflare zone bootstrap completed successfully." || true
+          else
+            gh issue reopen "$number" --repo "$GITHUB_REPOSITORY" || true
+          fi
