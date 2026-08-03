@@ -66,8 +66,7 @@ def test_high_risk_pages_include_emergency_boundaries():
 
 def test_trainer_page_enforces_non_clinical_scope():
     html = read(AUDIENCE_ROUTES["trainer"])
-    required = ("لا يشخّص", "لا يصف دواءً", "لا يدير انسحابًا", "الإحالة الدافئة", "الإشراف")
-    for marker in required:
+    for marker in ("لا يشخّص", "لا يصف دواءً", "لا يدير انسحابًا", "الإحالة الدافئة", "الإشراف"):
         assert marker in html, marker
 
 
@@ -101,8 +100,7 @@ def test_sitemap_contains_all_audience_routes_without_duplicates():
     locs = [node.text for node in tree.findall("s:url/s:loc", ns)]
     assert len(locs) == len(set(locs))
     for path in AUDIENCE_ROUTES.values():
-        expected = BASE_URL + path.removesuffix("index.html")
-        assert expected in locs, expected
+        assert BASE_URL + path.removesuffix("index.html") in locs
 
 
 def test_api_exposes_five_distinct_audiences_and_gateway():
@@ -114,6 +112,8 @@ def test_api_exposes_five_distinct_audiences_and_gateway():
     ids = [item["id"] for item in audiences]
     assert ids == ["person", "family", "trainer", "community", "clinician"]
     assert len({item["route"] for item in audiences}) == 5
-    assert data["program_status"] in {"foundation-draft", "expanded-foundation-v2"}
+    assert data["program_status"] in {
+        "foundation-draft", "expanded-foundation-v2", "expanded-foundation-v3"
+    }
     assert "لا يمثل اكتمال" in data["publication_claim"]
     assert data["audience_layer_status"] == "complete-v1"

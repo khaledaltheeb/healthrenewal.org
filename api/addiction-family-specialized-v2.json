@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "addiction-family-specialized-v2",
+  "status": "passed-local",
+  "generatedAt": "2026-08-03T21:55:00+03:00",
+  "familyGuidePages": 7,
+  "specializedFamilyGuides": 6,
+  "totalToolPages": 13,
+  "newTools": 6,
+  "familyClaims": 12,
+  "newStructuredSources": 4,
+  "sitemapRoutes": 51,
+  "safety": {
+    "childrenNotAssignedAdultSafety": true,
+    "violenceNotExcusedByAddiction": true,
+    "noCoerciveTreatmentInstructions": true,
+    "noIndividualDosing": true,
+    "noAbruptMedicationStop": true,
+    "countrySpecificLegalReviewRequired": true,
+    "hiddenPayload": false,
+    "selfWritingWorkflow": false
+  },
+  "tracking": {"programIssue":918,"familyWaveIssue":962,"parentPullRequest":961}
+}

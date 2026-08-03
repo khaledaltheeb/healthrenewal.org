@@ -1,0 +1,12 @@
+{
+  "schema_version": "addiction-family-evidence-registry-v2",
+  "status": "reviewed-foundation",
+  "verified_on": "2026-08-03",
+  "sources": [
+    {"id":"samhsa-family-coping-2025","organization":"Substance Abuse and Mental Health Services Administration","title":"Helping Families Cope with Mental Health and Substance Use Disorders","publication_year":2025,"resource_type":"family support resource","population_scope":"families affected by mental health and substance use disorders","url":"https://www.samhsa.gov/mental-health/children-and-families/coping-resources","topics":["family-support","starting-conversations","caregiver-wellbeing"],"next_review_on":"2026-11-03"},
+    {"id":"samhsa-family-multimedia-guide-2024","organization":"Substance Abuse and Mental Health Services Administration","title":"Mental Health Multimedia Resources for Children and Families","publication_year":2024,"resource_type":"public family support guide and communication resources","population_scope":"families and caregivers","url":"https://www.samhsa.gov/mental-health/children-and-families/coping-resources/multimedia","topics":["family-support","communication","caregiver-health"],"next_review_on":"2026-11-03"},
+    {"id":"nctsn-trauma-substance-use-2026","organization":"National Child Traumatic Stress Network","title":"Trauma and Substance Use","publication_year":2026,"resource_type":"child trauma clinical and educational resource","population_scope":"children adolescents and families affected by substance use and trauma","url":"https://www.nctsn.org/what-is-child-trauma/populations-at-risk/trauma-and-substance-use","topics":["children","trauma","caregiver-substance-use","violence"],"next_review_on":"2026-11-03"},
+    {"id":"nctsn-substance-use-professionals-2026","organization":"National Child Traumatic Stress Network","title":"Understanding and Addressing the Intersection of Substance Use and Child Trauma: For Mental Health and Substance Use Treatment Professionals","publication_year":2026,"resource_type":"professional practice resource","population_scope":"professionals supporting youth and families","url":"https://www.nctsn.org/resources/substance-use-mh-professionals","topics":["child-trauma","family-care","integrated-treatment","safeguarding"],"next_review_on":"2026-11-03"}
+  ],
+  "rules": {"claim_source_ids_required":true,"no_country_specific_legal_claim_without_review":true,"no_coercive_family_intervention_claim":true,"no_dosing_extraction":true}
+}
