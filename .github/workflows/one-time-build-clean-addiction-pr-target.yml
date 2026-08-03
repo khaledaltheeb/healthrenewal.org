@@ -1,0 +1,36 @@
+name: One-time build clean addiction PR target
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: one-time-build-clean-addiction-pr-target
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'automation/addiction-condition-guides-clean-v1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run trusted clean publication builder from main
+        run: |
+          set -euxo pipefail
+          git fetch origin main
+          git show origin/main:scripts/build_clean_addiction_condition_guides_once.sh > /tmp/build-clean-addiction.sh
+          chmod +x /tmp/build-clean-addiction.sh
+          /tmp/build-clean-addiction.sh
