@@ -48,6 +48,13 @@ def test_women_daily_calendar_static_contract() -> None:
     assert "تقويم الهاتف" in html
     assert "id=\"noonTime\"" in html
     assert "كيف تشعرين الآن؟" in html
+    assert "الحيض" in html
+    assert "الفاصل بين بدايات الحيض" in html
+    for forbidden_term in ("الدورة الشهرية", "الدورة"):
+        assert forbidden_term not in html
+        assert forbidden_term not in js
+    assert "طول الحيض" not in html
+    assert "طول الحيض" not in js
 
     assert "صباح إيجابي" in js
     assert "morningBank" in js
