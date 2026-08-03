@@ -9,6 +9,7 @@ on:
       - ".github/quick-info-payload/**"
       - ".github/workflows/build-quick-info-150.yml"
       - "scripts/build_quick_info.py"
+      - "scripts/enhance_quick_info_discover.py"
       - "quick-info/**"
       - "assets/quick-info/**"
       - "api/v1/quick-info.json"
@@ -17,6 +18,7 @@ on:
       - "index.html"
       - "tests/test_quick_info_section.py"
       - "reports/quick-info-build.json"
+      - "reports/quick-info-discover-observability.json"
   workflow_dispatch:
 
 permissions:
@@ -24,7 +26,7 @@ permissions:
 
 concurrency:
   group: quick-info-150-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -49,18 +51,22 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pillow
 
-      - name: Restore and compile generator
+      - name: Restore and compile generators
         run: |
           if [ ! -f scripts/build_quick_info.py ]; then
             mkdir -p scripts
             cat .github/quick-info-payload/part-* | base64 --decode | gzip --decompress > scripts/build_quick_info.py
           fi
-          python -m py_compile scripts/build_quick_info.py
+          python -m py_compile \
+            scripts/build_quick_info.py \
+            scripts/enhance_quick_info_discover.py
 
-      - name: Generate 150-page section
-        run: python scripts/build_quick_info.py
+      - name: Generate and enhance 150-page section
+        run: |
+          python scripts/build_quick_info.py
+          python scripts/enhance_quick_info_discover.py
 
-      - name: Validate content, metadata, images, and discovery files
+      - name: Validate original section contracts
         run: |
           python - <<'PY'
           import runpy
@@ -77,6 +83,28 @@ jobs:
               print(f"PASS {test.__name__}")
           PY
 
+      - name: Validate Discover measurement contracts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("reports/quick-info-discover-observability.json").read_text(encoding="utf-8"))
+          assert report["pages"] == 150, report
+          assert report["analyticsPages"] == 151, report
+          assert report["articleMetadataPages"] == 150, report
+          assert report["prioritizedCoverImages"] == 150, report
+          assert report["rssItems"] == 150, report
+          assert report["canonicalUrlsPreserved"] is True, report
+          assert report["titlesPreserved"] is True, report
+          assert report["failures"] == [], report
+          print(report)
+          PY
+          test "$(grep -rl 'G-VLZMV8Y4JP' quick-info/index.html quick-info/*/index.html | wc -l)" -eq 151
+          test "$(grep -rl 'fetchpriority="high"' quick-info/*/index.html | wc -l)" -eq 150
+          test "$(grep -rl 'property="article:published_time"' quick-info/*/index.html | wc -l)" -eq 150
+          test "$(grep -o '<item>' quick-info/feed.xml | wc -l)" -eq 150
+          python scripts/verify_homepage_v19.py
+
       - name: Remove bootstrap payload
         run: rm -rf .github/quick-info-payload
 
@@ -89,5 +117,5 @@ jobs:
             echo "No generated changes to commit"
             exit 0
           fi
-          git commit -m "feat(content): publish 150 quick info pages"
+          git commit -m "feat(quick-info): add Discover measurement and feed"
           git push origin HEAD:agent/quick-info-150
