@@ -37,17 +37,24 @@ jobs:
           old = '''    if HEAD_CLOSE_RE.search(text):
               text = HEAD_CLOSE_RE.sub(FAVICON_BLOCK + "\\n</head>", text, count=1)
           return text
-          '''
+
+
+          def local_target'''.replace('          ', '')
           new = '''    text = re.sub(r"\\s*</head\\s*>", "\\n</head>", text, count=1, flags=re.I)
               if HEAD_CLOSE_RE.search(text):
                   text = HEAD_CLOSE_RE.sub(FAVICON_BLOCK + "\\n</head>", text, count=1)
               return text
-          '''
-          old = old.replace('          ', '')
-          new = new.replace('          ', '')
+
+
+          def local_target'''.replace('          ', '')
           if old not in source:
-              raise SystemExit('Expected normalize_brand_assets tail not found')
-          source = source.replace(old, new, 1)
+              marker = '    if HEAD_CLOSE_RE.search(text):\n        text = HEAD_CLOSE_RE.sub(FAVICON_BLOCK + "\\n</head>", text, count=1)\n    return text\n\n\ndef local_target'
+              replacement = '    text = re.sub(r"\\s*</head\\s*>", "\\n</head>", text, count=1, flags=re.I)\n    if HEAD_CLOSE_RE.search(text):\n        text = HEAD_CLOSE_RE.sub(FAVICON_BLOCK + "\\n</head>", text, count=1)\n    return text\n\n\ndef local_target'
+              if marker not in source:
+                  raise SystemExit('Expected normalize_brand_assets tail not found')
+              source = source.replace(marker, replacement, 1)
+          else:
+              source = source.replace(old, new, 1)
           path.write_text(source, encoding='utf-8')
           PY
       - name: Align institutional homepage verifier
