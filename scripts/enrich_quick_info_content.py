@@ -3,19 +3,35 @@
 
 The base generator intentionally centralizes evidence profiles. This pass combines
 profile-specific factors, markers and actions so list cards do not repeat generic
-paragraphs and every article has an additional contextual interpretation section.
+paragraphs, adds a contextual interpretation section, and applies the site's
+existing Google Analytics measurement tag to the section and all article pages.
 """
 from __future__ import annotations
 
 import html
 import re
-from pathlib import Path
 
 from generate_quick_info import OUT, TOPICS, profile
+
+GA_SNIPPET = """<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VLZMV8Y4JP"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VLZMV8Y4JP');
+</script>
+"""
 
 
 def esc(value: str) -> str:
     return html.escape(value, quote=True)
+
+
+def add_analytics(text: str) -> str:
+    if "G-VLZMV8Y4JP" not in text:
+        text = text.replace("<head>", "<head>\n" + GA_SNIPPET, 1)
+    return text
 
 
 def enrich_five(text: str, title: str) -> str:
@@ -77,7 +93,7 @@ def main() -> None:
     changed = 0
     for slug, title, kind, _category in TOPICS:
         path = OUT / slug / "index.html"
-        text = path.read_text(encoding="utf-8")
+        text = add_analytics(path.read_text(encoding="utf-8"))
         if kind == "five":
             text = enrich_five(text, title)
         elif kind in {"relationship", "habit", "family"}:
@@ -90,7 +106,10 @@ def main() -> None:
             )
         path.write_text(text, encoding="utf-8")
         changed += 1
-    print({"enriched_pages": changed, "quality_marker": "enriched-v2"})
+
+    index_path = OUT / "index.html"
+    index_path.write_text(add_analytics(index_path.read_text(encoding="utf-8")), encoding="utf-8")
+    print({"enriched_pages": changed, "analytics_pages": changed + 1, "quality_marker": "enriched-v2"})
 
 
 if __name__ == "__main__":
