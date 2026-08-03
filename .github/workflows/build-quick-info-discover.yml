@@ -1,0 +1,89 @@
+name: Build Quick Information Discover section
+
+on:
+  push:
+    branches:
+      - agent/quick-info-discover-150
+    paths:
+      - "scripts/quick_info_topics.py"
+      - "scripts/generate_quick_info.py"
+      - ".github/workflows/build-quick-info-discover.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "quick-info/**"
+      - "assets/quick-info/**"
+      - "scripts/quick_info_topics.py"
+      - "scripts/generate_quick_info.py"
+      - "api/v1/quick-info.json"
+      - "sitemap-quick-info.xml"
+      - "sitemap.xml"
+      - "robots.txt"
+      - "index.html"
+      - "reports/quick-info-discover-150.json"
+      - ".github/workflows/build-quick-info-discover.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: quick-info-discover-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install image and Arabic font support
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-core fonts-noto-extra
+          python -m pip install --upgrade pip
+          python -m pip install pillow
+
+      - name: Compile generators
+        run: |
+          python -m py_compile scripts/quick_info_topics.py scripts/generate_quick_info.py
+
+      - name: Generate section
+        run: python scripts/generate_quick_info.py
+
+      - name: Validate content and Discover contracts
+        run: |
+          python scripts/generate_quick_info.py --check
+          test "$(find quick-info -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 150
+          test "$(find assets/quick-info/cards -maxdepth 1 -name '*.jpg' | wc -l)" -eq 150
+          test -s quick-info/index.html
+          test -s quick-info/feed.xml
+          test -s sitemap-quick-info.xml
+          test -s api/v1/quick-info.json
+          test -s reports/quick-info-discover-150.json
+          grep -q 'max-image-preview:large' quick-info/sadness-or-depression/index.html
+          grep -q 'og:image:width.*1280' quick-info/sadness-or-depression/index.html
+          grep -q 'معلومات سريعة' index.html
+
+      - name: Commit generated static section
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "Rawafid Quick Information Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add quick-info assets/quick-info api/v1/quick-info.json sitemap-quick-info.xml sitemap.xml robots.txt index.html reports/quick-info-discover-150.json
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit"
+            exit 0
+          fi
+          git commit -m "feat(quick-info): generate 150 Discover-ready pages"
+          git push origin HEAD:agent/quick-info-discover-150
