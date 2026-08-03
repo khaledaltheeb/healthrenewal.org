@@ -31,7 +31,7 @@ EXPECTED_JSON_SHA256 = "0afeb714ceb04a83b0c2debce97004f87aa104328a7d0070d892b437
 
 SHELL_MARKER = "<!-- pt-platform-shell:v1 -->"
 SHELL_HEAD = """<!-- pt-platform-shell:v1 -->
-<meta name="copyright" content="© 2026 Khaled Altheeb — منصة الصحة النفسية وذوي الاحتياجات الخاصة">
+<meta name="copyright" content="© 2026 Khaled Altheeb — منصة روافد">
 <meta name="rights" content="All rights reserved">
 <link rel="license" href="/copyright/">
 <link rel="stylesheet" href="/assets/platform/platform-core.css?v=1.1.0">

@@ -1,0 +1,74 @@
+name: Apply Rawafid brand across site
+
+on:
+  push:
+    branches:
+      - brand/rawafid-full-site
+    paths:
+      - .github/workflows/apply-rawafid-brand.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rawafid-brand-rollout
+  cancel-in-progress: false
+
+jobs:
+  apply-brand:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout rollout branch
+        uses: actions/checkout@v4
+        with:
+          ref: brand/rawafid-full-site
+          fetch-depth: 0
+
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Arabic fonts and image renderers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-core fonts-noto-extra libcairo2
+          python -m pip install --upgrade pip
+          python -m pip install pillow cairosvg
+
+      - name: Apply approved Rawafid identity
+        run: python scripts/apply_rawafid_brand.py
+
+      - name: Validate generated identity assets
+        run: |
+          python -m py_compile scripts/apply_rawafid_brand.py
+          test -s assets/brand/logo-mark.svg
+          test -s assets/brand/logo-lockup.svg
+          test -s assets/brand/rawafid-mark.png
+          test -s assets/brand/rawafid-logo.png
+          test -s assets/brand/rawafid-social-card.jpg
+          test -s favicon.ico
+          test -s manifest.webmanifest
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('reports/rawafid-brand-rollout.json').read_text(encoding='utf-8'))
+          assert report['html_files'] > 0, report
+          assert report['stale_brand_files'] == 0, report
+          assert report['html_files_enriched'] > 0, report
+          print(report)
+          PY
+
+      - name: Commit complete site-wide rollout
+        run: |
+          git config user.name "Rawafid Brand Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit"
+            exit 0
+          fi
+          git commit -m "feat(brand): adopt Rawafid identity across the full site"
+          git push origin HEAD:brand/rawafid-full-site

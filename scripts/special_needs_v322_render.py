@@ -47,13 +47,13 @@ def render_guide(guide: dict[str, Any], payload: dict[str, Any]) -> str:
 <meta property="og:url" content="{url}">
 <meta property="og:title" content="{e(guide["title"])}">
 <meta property="og:description" content="{e(guide["meta_description"])}">
-<meta property="og:image" content="{BASE}/assets/brand/social-card.svg">
+<meta property="og:image" content="{BASE}/assets/brand/rawafid-social-card.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{e(guide["title"])}">
 <meta name="twitter:description" content="{e(guide["meta_description"])}">
 <script type="application/ld+json">{page_schema(guide, payload)}</script>
 <!-- pt-platform-shell:v1 -->
-<meta name="copyright" content="© 2026 Khaled Altheeb — منصة الصحة النفسية وذوي الاحتياجات الخاصة">
+<meta name="copyright" content="© 2026 Khaled Altheeb — منصة روافد">
 <meta name="rights" content="All rights reserved">
 <link rel="license" href="{BP}copyright/">
 <link rel="stylesheet" href="{BP}assets/platform/platform-core.css?v=1.1.0">
@@ -62,7 +62,7 @@ def render_guide(guide: dict[str, Any], payload: dict[str, Any]) -> str:
 </head>
 <body class="pt-platform" data-pt-normalized="1.1.0" data-pt-enhancer="true" data-special-needs-expansion-v322>
 <a class="skip" href="#main">انتقل إلى المحتوى</a>
-<header><div class="wrap head"><a href="{BP}">منصة الصحة النفسية وذوي الاحتياجات الخاصة</a><nav aria-label="التنقل"><a href="{BP}">الرئيسية</a><a href="{BP}special-needs/">المركز</a><a href="{BP}methodology/">المنهجية</a><a href="{BP}trust/">الثقة والمصادر</a></nav></div></header>
+<header><div class="wrap head"><a href="{BP}">منصة روافد</a><nav aria-label="التنقل"><a href="{BP}">الرئيسية</a><a href="{BP}special-needs/">المركز</a><a href="{BP}methodology/">المنهجية</a><a href="{BP}trust/">الثقة والمصادر</a></nav></div></header>
 <main id="main">
 <section class="hero"><div class="wrap"><p class="eyebrow">{e(guide["category"])}</p><h1>{e(guide["short_title"])}</h1><p class="lead">{e(guide["lead"])}</p><div class="notice"><strong>حدود الاستخدام:</strong> {e(guide["warning"])}</div><p><a class="button" href="{related_url}">فتح الخطة العملية المرتبطة</a><a class="button" href="{BP}special-needs/">العودة إلى المركز</a></p></div></section>
 <div class="wrap grid">

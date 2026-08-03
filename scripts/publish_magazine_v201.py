@@ -197,7 +197,7 @@ def render_index(pages: list[Path]) -> str:
 </head>
 <body>
 <a class="skip" href="#main">تجاوز إلى المحتوى</a>
-<header><div class="wrap header-inner"><a class="brand" href="../">منصة الصحة النفسية وذوي الاحتياجات الخاصة</a><nav aria-label="التنقل الرئيسي"><a href="../">الرئيسية</a><a href="../encyclopedia/">الموسوعة</a><a href="../special-needs/">ذوو الاحتياجات الخاصة</a><a href="./" aria-current="page">المجلة والأبحاث</a></nav></div></header>
+<header><div class="wrap header-inner"><a class="brand" href="../">منصة روافد</a><nav aria-label="التنقل الرئيسي"><a href="../">الرئيسية</a><a href="../encyclopedia/">الموسوعة</a><a href="../special-needs/">ذوو الاحتياجات الخاصة</a><a href="./" aria-current="page">المجلة والأبحاث</a></nav></div></header>
 <main id="main">
 <section class="hero"><div class="wrap"><p class="eyebrow">مرصد عربي للأدلة العلمية</p><h1>المجلة والأبحاث</h1><p class="lead">ملخصات عربية نقدية للأوراق المحكمة والرسائل الجامعية الحديثة، تشمل تصميم الدراسة والعينة والنتائج والقيود والدلالة العملية والمصدر الأصلي.</p><div class="notice"><strong>حالة القسم:</strong> {len(records)} قراءة علمية مستقلة: {peer_count} ورقة أو مراجعة محكمة و{thesis_count} رسائل جامعية. الهدف المرحلي 100 قراءة؛ المتبقي {remaining}. تتم الإضافة على دفعات بعد فحص المصدر الأصلي.</div><div class="filters" aria-label="التصنيفات"><span class="chip">أبحاث 2026</span><span class="chip">دراسات أصلية</span><span class="chip">تحليلات تلوية وشبكية</span><span class="chip">تجارب عشوائية</span><span class="chip">دراسات أتراب</span><span class="chip">نتائج محايدة وسلبية</span><span class="chip">رسائل جامعية</span><span class="chip">الصحة النفسية</span><span class="chip">النمو والتأهيل</span></div><p><a class="source" href="feed.xml">الاشتراك في خلاصة RSS</a></p></div></section>
 <section class="wrap grid" aria-label="أحدث القراءات البحثية">
@@ -230,7 +230,7 @@ def render_feed(pages: list[Path]) -> str:
     return f'''<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>المجلة والأبحاث | منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
+    <title>المجلة والأبحاث | منصة روافد</title>
     <link>{URL}</link>
     <description>قراءات عربية نقدية للدراسات الأصلية والمراجعات المنهجية والرسائل الجامعية في الصحة النفسية وذوي الاحتياجات الخاصة.</description>
     <language>ar</language>

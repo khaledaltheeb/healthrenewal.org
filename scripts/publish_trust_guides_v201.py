@@ -12,8 +12,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "https://healthrenewal.org/"
 BASE_PATH = "/"
-BRAND = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
-SLOGAN = "معرفة تحترم الإنسان. دعم يوسّع الإمكانات."
+BRAND = "منصة روافد"
+SLOGAN = "للعافية النفسية والدمج والتمكين"
 SITEMAP_NAME = "sitemap-trust-guides.xml"
 
 EDITORIAL_PATH = ROOT / "content" / "v178" / "editorial-methodology-ar.json"

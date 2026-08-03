@@ -9,9 +9,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-BRAND = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
+BRAND = "منصة روافد"
 FOUNDER = "مصطلحات علم النفس"
-SLOGAN = "معرفة تحترم الإنسان. دعم يوسّع الإمكانات."
+SLOGAN = "للعافية النفسية والدمج والتمكين"
 BASE_PATH = "/pterminology-site/"
 VERIFY_FILE = "google644f1f7a8b7aaa2b.html"
 TOOLS_ROUTE = "tools/index.html"

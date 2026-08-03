@@ -741,7 +741,7 @@ def render_methodology(data: dict[str, Any], framework: dict[str, Any]) -> str:
     return f"""<!doctype html>
 <html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{e(framework['title'])} | منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
+<title>{e(framework['title'])} | منصة روافد</title>
 <meta name="description" content="منهجية إنشاء عشر خطط كاملة لكل واحدة من مئة حالة، مع حقول التنفيذ والقياس والسلامة والمراجعة والمصادر.">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="{BASE}{SECTION}/{METHODOLOGY_SLUG}/">
@@ -749,7 +749,7 @@ def render_methodology(data: dict[str, Any], framework: dict[str, Any]) -> str:
 <link rel="stylesheet" href="{BASE_PATH}assets/css/{CSS_PATH.name}">
 <script type="application/ld+json">{compact_json(schema)}</script></head>
 <body class="otb-page"><a class="otb-skip" href="#main">تجاوز إلى المحتوى</a>
-<header class="otb-header"><div class="otb-wrap otb-header-inner"><a class="otb-brand" href="{BASE_PATH}">منصة الصحة النفسية وذوي الاحتياجات الخاصة</a>
+<header class="otb-header"><div class="otb-wrap otb-header-inner"><a class="otb-brand" href="{BASE_PATH}">منصة روافد</a>
 <nav class="otb-nav"><a href="../">المسارات المئة</a><a href="../methodology/">المنهجية الأساسية</a><a aria-current="page" href="./">منهجية الخطط العشر</a><a href="../evidence-standard/">معيار الأدلة</a></nav></div></header>
 <main id="main"><section class="otb-page-hero"><div class="otb-wrap"><p class="otb-eyebrow">100 حالة × 10 خطط = 1000 مثيل خطة قابل للتدقيق</p>
 <h1>{e(framework['title'])}</h1><p class="otb-lead">{e(framework['plan_definition'])}</p>

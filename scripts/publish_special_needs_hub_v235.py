@@ -14,9 +14,9 @@ BASE_PATH = "/"
 COURSE_DATA = ROOT / "content" / "v73" / "special-needs-executable-instructions-ar.json"
 PRODUCTION_MANIFEST = ROOT / "content" / "v221" / "special-needs-guides-production-manifest-ar.json"
 UPDATED = "2026-07-25"
-BRAND = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
+BRAND = "منصة روافد"
 FOUNDING_NAME = "مصطلحات علم النفس"
-SLOGAN = "معرفة تحترم الإنسان. دعم يوسّع الإمكانات."
+SLOGAN = "للعافية النفسية والدمج والتمكين"
 BANNED = re.compile(r"(?<!\w)(?:المعاقين|معاقين|المعاقون|معاقون|المعاقة|معاقة|المعاق|معاق)(?!\w)")
 
 
@@ -217,7 +217,7 @@ def structured_data(item_list: list[dict[str, Any]], faqs: list[tuple[str, str]]
             "@type": "Organization",
             "@id": f"{BASE}/#organization",
             "name": BRAND,
-            "alternateName": [FOUNDING_NAME, "Psychology Terminology"],
+            "alternateName": [FOUNDING_NAME, "Rawafid Platform"],
             "url": f"{BASE}/",
             "logo": {"@type": "ImageObject", "url": f"{BASE}/assets/brand/logo-mark.svg"},
         },
@@ -326,13 +326,13 @@ def render(course: dict[str, Any], manifest: dict[str, Any]) -> str:
 <meta property="og:url" content="{canonical}">
 <meta property="og:title" content="{e(title)}">
 <meta property="og:description" content="{e(description)}">
-<meta property="og:image" content="{BASE}/assets/brand/social-card.svg">
-<meta property="og:image:alt" content="شعار منصة الصحة النفسية وذوي الاحتياجات الخاصة">
+<meta property="og:image" content="{BASE}/assets/brand/rawafid-social-card.jpg">
+<meta property="og:image:alt" content="شعار منصة روافد">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{e(title)}">
 <meta name="twitter:description" content="{e(description)}">
-<meta name="twitter:image" content="{BASE}/assets/brand/social-card.svg">
-<meta name="twitter:image:alt" content="شعار منصة الصحة النفسية وذوي الاحتياجات الخاصة">
+<meta name="twitter:image" content="{BASE}/assets/brand/rawafid-social-card.jpg">
+<meta name="twitter:image:alt" content="شعار منصة روافد">
 <script type="application/ld+json">{schema}</script>
 <style>
 :root{{--ink:#103e43;--muted:#4e6d71;--brand:#075f5b;--brand2:#08776e;--accent:#823353;--line:#c5e3df;--mint:#effbf8;--pink:#fff1f6;--lilac:#f3f0ff;--peach:#fff5ed;--white:#fff;--shadow:0 16px 42px rgba(16,76,76,.10)}}

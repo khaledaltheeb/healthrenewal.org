@@ -137,7 +137,7 @@ def build_openapi(existing: dict[str, Any] | None = None) -> dict[str, Any]:
     info = document.setdefault("info", {})
     info.update(
         {
-            "title": "واجهة منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+            "title": "واجهة منصة روافد",
             "version": "1.0.0",
             "description": (
                 "واجهة قراءة عامة ثابتة لاكتشاف المنصة والبيانات المنشورة "
@@ -205,22 +205,22 @@ def build_developers_html(course_count: int, source_count: int) -> str:
             "description": "توثيق واجهات JSON العامة وسياسة استيراد الدورات المصرح بها.",
             "publisher": {
                 "@type": "Organization",
-                "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+                "name": "منصة روافد",
             },
         },
         ensure_ascii=False,
     )
     return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>واجهة المطورين وAPI | منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
+<title>واجهة المطورين وAPI | منصة روافد</title>
 <meta name="description" content="توثيق واجهة API العامة: اكتشاف الأقسام، بيانات المنصة، ومصادر الدورات المصرح بها وفق إذن مكتوب ورفض افتراضي.">
 <meta name="keywords" content="واجهة API,API عربي,بيانات الصحة النفسية,تكامل المواقع,OpenAPI,فهرس الدورات,ترخيص المحتوى,مصادر موثقة">
 <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large"><meta name="theme-color" content="#075f5b">
 <link rel="canonical" href="{BASE_URL}developers/"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="../assets/brand/logo-mark.svg" type="image/svg+xml"><link rel="search" type="application/opensearchdescription+xml" title="البحث في المنصة" href="../opensearch.xml">
-<meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة"><meta property="og:title" content="واجهة المطورين وAPI"><meta property="og:description" content="واجهات JSON وعقد OpenAPI وسياسة تمنع استيراد أي دورة بلا إذن موثق."><meta property="og:url" content="{BASE_URL}developers/"><meta property="og:image" content="{BASE_URL}assets/brand/social-card.svg">
+<meta property="og:type" content="website"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="منصة روافد"><meta property="og:title" content="واجهة المطورين وAPI"><meta property="og:description" content="واجهات JSON وعقد OpenAPI وسياسة تمنع استيراد أي دورة بلا إذن موثق."><meta property="og:url" content="{BASE_URL}developers/"><meta property="og:image" content="{BASE_URL}assets/brand/social-card.svg">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="واجهة المطورين وAPI"><meta name="twitter:description" content="واجهة قراءة عامة وعقد تكامل موحد وسياسة إذن موثق."><meta name="twitter:image" content="{BASE_URL}assets/brand/social-card.svg">
 <script type="application/ld+json">{schema}</script>
 <style>:root{{--ink:#143f44;--muted:#527275;--brand:#0b6b66;--line:#b9ddd8;--soft:#e5faf7}}*{{box-sizing:border-box}}body{{margin:0;font-family:Tahoma,Arial,sans-serif;line-height:1.85;color:var(--ink);background:linear-gradient(145deg,#fff,var(--soft))}}a{{color:#076b65}}.wrap{{width:min(1080px,92%);margin:auto}}header{{background:#fff;border-bottom:1px solid var(--line)}}header .wrap{{display:flex;align-items:center;gap:12px;padding:15px 0}}header img{{width:48px;height:48px}}main{{padding:54px 0}}h1{{font-size:clamp(2.2rem,6vw,4.4rem);line-height:1.2}}h2{{margin-top:2.2rem}}.lead,.note{{color:var(--muted)}}.panel{{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;margin:18px 0;box-shadow:0 16px 40px rgba(31,105,104,.09)}}table{{width:100%;border-collapse:collapse;background:#fff}}th,td{{padding:12px;border:1px solid var(--line);text-align:right;vertical-align:top}}code{{direction:ltr;unicode-bidi:embed;word-break:break-all}}.status{{display:flex;gap:12px;flex-wrap:wrap}}.status span{{background:var(--soft);padding:8px 12px;border-radius:999px;font-weight:800}}footer{{border-top:1px solid var(--line);padding:30px 0;margin-top:40px}}@media(max-width:720px){{table,thead,tbody,tr,th,td{{display:block}}th{{background:var(--soft)}}}}</style></head><body>
-<header><div class="wrap"><a href="../"><img src="../assets/brand/logo-mark.svg" alt="شعار المنصة"></a><strong>منصة الصحة النفسية وذوي الاحتياجات الخاصة</strong></div></header><main class="wrap"><p><a href="../">الرئيسية</a> ← واجهة المطورين</p><h1>واجهة المطورين وAPI</h1>
+<header><div class="wrap"><a href="../"><img src="../assets/brand/logo-mark.svg" alt="شعار المنصة"></a><strong>منصة روافد</strong></div></header><main class="wrap"><p><a href="../">الرئيسية</a> ← واجهة المطورين</p><h1>واجهة المطورين وAPI</h1>
 <p class="lead">واجهة قراءة عامة ثابتة تساعد المواقع والتطبيقات على اكتشاف أقسام المنصة وقراءة الفهارس المصرح بها. لا تحتوي على بنود مقاييس محمية، ولا تمنح ترخيصًا تلقائيًا لإعادة النشر، ولا تُستخدم لبناء تشخيص آلي.</p>
 <div class="status"><span>الإصدار: v1</span><span>المصادر المصرح بها: {source_count}</span><span>الدورات المنشورة: {course_count}</span><span>السياسة: رفض افتراضي</span></div>
 <section class="panel"><h2>نقاط النهاية</h2><table><thead><tr><th>الرابط</th><th>الغرض</th></tr></thead><tbody>{rows}</tbody></table></section>
@@ -286,7 +286,7 @@ def publish(
     write_json(
         api / "site.json",
         {
-            "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+            "name": "منصة روافد",
             "founding_name": "مصطلحات علم النفس",
             "language": "ar",
             "direction": "rtl",

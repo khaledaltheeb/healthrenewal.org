@@ -26,7 +26,7 @@ def esc(x):return html.escape(str(x),quote=True)
 def rt(rel):return Path(rel).parts[0] if Path(rel).parts and Path(rel).parts[0]!='index.html' else 'home'
 def topic(p,rel):
  x=' '.join(p.h or p.t) or Path(rel).parent.name.replace('-',' ')
- for b in ('منصة الصحة النفسية وذوي الاحتياجات الخاصة','مصطلحات علم النفس'):x=x.replace(b,'')
+ for b in ('منصة روافد','مصطلحات علم النفس'):x=x.replace(b,'')
  return re.split(r'\s*[|—–]\s*',x,maxsplit=1)[0].strip(' -|—–') or 'الموضوع'
 def noindex(x):return bool(re.search(r'<meta\b(?=[^>]*name=["\']robots["\'])(?=[^>]*content=["\'][^"\']*noindex)',x,re.I|re.S))
 def lang(x):

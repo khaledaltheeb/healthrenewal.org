@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 BASE = "https://healthrenewal.org/"
-BRAND = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
+BRAND = "منصة روافد"
 VERSION = 221
 START = "<!-- section-directory-v221:start -->"
 END = "<!-- section-directory-v221:end -->"
@@ -195,7 +195,7 @@ def directory_html(items: list[dict[str, Any]]) -> str:
         "@graph": [
             {
                 "@type": "CollectionPage",
-                "name": "دليل أقسام منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+                "name": "دليل أقسام منصة روافد",
                 "description": "دليل منظم للوصول إلى أقسام المعرفة والدعم والأدوات والمصادر.",
                 "url": canonical,
                 "inLanguage": "ar",

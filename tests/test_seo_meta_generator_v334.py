@@ -14,9 +14,9 @@ class SeoMetaGeneratorTests(unittest.TestCase):
     def setUp(self) -> None:
         self.generator = SEOMetaGenerator(
             base_url="https://healthrenewal.org/",
-            site_name="منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+            site_name="منصة روافد",
             publisher=EntityIdentity(
-                name="منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+                name="منصة روافد",
                 url="/",
                 entity_type="Organization",
             ),

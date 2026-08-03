@@ -107,9 +107,9 @@ def render_language_links() -> str:
 def render_header() -> str:
     return f'''<header class="institutional-header" aria-label="الترويسة الرئيسية" data-institutional-header-v233>
   <div class="wrap header-shell">
-    <a class="institutional-brand" href="{BASE_PATH}" aria-label="العودة إلى الصفحة الرئيسية لمنصة الصحة النفسية وذوي الاحتياجات الخاصة">
+    <a class="institutional-brand" href="{BASE_PATH}" aria-label="العودة إلى الصفحة الرئيسية لمنصة روافد">
       <img src="{BASE_PATH}assets/brand/logo-mark.svg" width="52" height="52" alt="">
-      <span class="brand-copy"><strong>منصة الصحة النفسية وذوي الاحتياجات الخاصة</strong><small>مصطلحات علم النفس — معرفة تحترم الإنسان</small></span>
+      <span class="brand-copy"><strong>منصة روافد</strong><small>مصطلحات علم النفس — معرفة تحترم الإنسان</small></span>
     </a>
     <nav class="institutional-nav" aria-label="التنقل الرئيسي">
       <details class="header-menu sections-menu">

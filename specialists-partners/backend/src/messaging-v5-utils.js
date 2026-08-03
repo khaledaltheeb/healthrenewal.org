@@ -152,7 +152,7 @@ export async function audit(env, eventType, entityId, metadata) {
 }
 
 export function emailLayout(title, body) {
-  return `<!doctype html><html lang="ar" dir="rtl"><body style="font-family:Arial,Tahoma,sans-serif;background:#f4f8f7;color:#12383d;padding:24px"><div style="max-width:680px;margin:auto;background:#fff;border:1px solid #c8e1de;border-radius:18px;padding:24px"><h1 style="font-size:24px;color:#075f5b">${escapeHtml(title)}</h1>${body}<hr style="border:0;border-top:1px solid #c8e1de"><p style="font-size:13px;color:#567176">منصة الصحة النفسية وذوي الاحتياجات الخاصة — قطاع المختصين والشراكات المهنية</p></div></body></html>`;
+  return `<!doctype html><html lang="ar" dir="rtl"><body style="font-family:Arial,Tahoma,sans-serif;background:#f4f8f7;color:#12383d;padding:24px"><div style="max-width:680px;margin:auto;background:#fff;border:1px solid #c8e1de;border-radius:18px;padding:24px"><h1 style="font-size:24px;color:#075f5b">${escapeHtml(title)}</h1>${body}<hr style="border:0;border-top:1px solid #c8e1de"><p style="font-size:13px;color:#567176">منصة روافد — قطاع المختصين والشراكات المهنية</p></div></body></html>`;
 }
 
 export function escapeHtml(value) {

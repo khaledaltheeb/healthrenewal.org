@@ -60,16 +60,16 @@ def transform_homepage(html: str) -> str:
         "<span>إنها طريق واضح إلى الخطوة التالية.</span></h1>"
     )
     new_h1 = (
-        "<h1>منصة الصحة النفسية وذوي الاحتياجات الخاصة<br>"
+        "<h1>منصة روافد<br>"
         "<span>معرفة موثقة وأدلة وأدوات تقود إلى الخطوة التالية.</span></h1>"
     )
     html = html.replace(old_h1, new_h1)
     html = html.replace(
         '<p class="lead">تجمع المنصة الموسوعة النفسية،',
-        '<p class="lead">منصة الصحة النفسية وذوي الاحتياجات الخاصة هي بوابة عربية مؤسسية تجمع الموسوعة النفسية،',
+        '<p class="lead">منصة روافد هي بوابة عربية مؤسسية تجمع الموسوعة النفسية،',
     )
 
-    logo_alt = "شعار منصة الصحة النفسية وذوي الاحتياجات الخاصة"
+    logo_alt = "شعار منصة روافد"
     html = html.replace('alt="" width="52" height="52"', f'alt="{logo_alt}" width="52" height="52"')
     html = html.replace('alt="" width="54" height="54"', f'alt="{logo_alt}" width="54" height="54"')
 
@@ -85,8 +85,8 @@ def transform_homepage(html: str) -> str:
         ".footer p{color:var(--muted)}.footer-title{font-weight:900}",
     )
     html = html.replace(
-        "<p><strong>منصة الصحة النفسية وذوي الاحتياجات الخاصة</strong><br>",
-        '<p><span class="footer-title">منصة الصحة النفسية وذوي الاحتياجات الخاصة</span><br>',
+        "<p><strong>منصة روافد</strong><br>",
+        '<p><span class="footer-title">منصة روافد</span><br>',
     )
 
     html = html.replace('href="assessment-lab/">فتح المختبر</a>', 'href="assessment-lab/">فتح مختبر المقاييس</a>')
@@ -124,9 +124,9 @@ def transform_homepage(html: str) -> str:
 
     if 'name="twitter:image:alt"' not in html:
         html = html.replace(
-            '<meta name="twitter:image" content="https://healthrenewal.org/assets/brand/social-card.svg">',
-            '<meta name="twitter:image" content="https://healthrenewal.org/assets/brand/social-card.svg">\n'
-            '<meta name="twitter:image:alt" content="شعار منصة الصحة النفسية وذوي الاحتياجات الخاصة">',
+            '<meta name="twitter:image" content="https://healthrenewal.org/assets/brand/rawafid-social-card.jpg">',
+            '<meta name="twitter:image" content="https://healthrenewal.org/assets/brand/rawafid-social-card.jpg">\n'
+            '<meta name="twitter:image:alt" content="شعار منصة روافد">',
         )
 
     return html
@@ -188,9 +188,9 @@ def main() -> int:
     required_fragments = [
         '<link rel="canonical" href="https://healthrenewal.org/">',
         '<link rel="alternate" hreflang="ar" href="https://healthrenewal.org/">',
-        '<h1>منصة الصحة النفسية وذوي الاحتياجات الخاصة<br>',
+        '<h1>منصة روافد<br>',
         'data-seo-external-sources="v1"',
-        'alt="شعار منصة الصحة النفسية وذوي الاحتياجات الخاصة"',
+        'alt="شعار منصة روافد"',
     ]
     missing = [fragment for fragment in required_fragments if fragment not in homepage]
     if missing:

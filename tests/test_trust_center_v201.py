@@ -9,8 +9,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "publish_trust_center_v201.py"
-BRAND = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
-SLOGAN = "معرفة تحترم الإنسان. دعم يوسّع الإمكانات."
+BRAND = "منصة روافد"
+SLOGAN = "للعافية النفسية والدمج والتمكين"
 LINK = '<a href="trust/">الثقة والمنهجية</a>'
 
 

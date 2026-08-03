@@ -42,7 +42,7 @@ def article_graph(title: str, url: str, items: list[tuple[str, str]]) -> dict:
                 },
                 "publisher": {
                     "@type": "Organization",
-                    "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+                    "name": "منصة روافد",
                     "url": base.ORIGIN + "/",
                 },
                 "breadcrumb": {"@id": url + "#breadcrumb"},

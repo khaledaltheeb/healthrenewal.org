@@ -23,7 +23,7 @@ from scripts.publish_daily_tools_v24_core import *  # noqa: F401,F403
 from scripts.stabilize_provider_layout_v225 import stabilize as stabilize_provider_layout
 
 SEO_CONTRACT = 219
-SITE_NAME = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
+SITE_NAME = "منصة روافد"
 FOUNDING_NAME = "مصطلحات علم النفس"
 SOCIAL_IMAGE = _core.BASE + "assets/brand/social-card.svg"
 LOGO = _core.PATH + "assets/brand/logo-mark.svg"

@@ -43,7 +43,7 @@ class ContentDiscoveryTests(unittest.TestCase):
         )
         (site / "index.html").write_text(
             page(
-                title="منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+                title="منصة روافد",
                 canonical=module.BASE_URL,
                 keywords="الصحة النفسية,علم النفس,مصطلحات علم النفس,الدعم النفسي",
                 h1="منصة الصحة النفسية",

@@ -148,7 +148,7 @@ def head_injection(path: Path, root: Path, source: str) -> str:
     lowered = source.lower()
     if 'name="copyright"' not in lowered and "name='copyright'" not in lowered:
         items.append(
-            '<meta name="copyright" content="© 2026 Khaled Altheeb — منصة الصحة النفسية وذوي الاحتياجات الخاصة">'
+            '<meta name="copyright" content="© 2026 Khaled Altheeb — منصة روافد">'
         )
     if 'name="rights"' not in lowered and "name='rights'" not in lowered:
         items.append('<meta name="rights" content="All rights reserved">')

@@ -25,9 +25,9 @@ class CognitiveTitleDisambiguationV314Tests(unittest.TestCase):
         page.parent.mkdir(parents=True, exist_ok=True)
         page.write_text(
             "<!doctype html><html lang=\"ar\" dir=\"rtl\"><head>"
-            "<title>التناظر اللفظي | منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>"
-            "<meta property=\"og:title\" content=\"التناظر اللفظي | منصة الصحة النفسية وذوي الاحتياجات الخاصة\">"
-            "<meta content=\"التناظر اللفظي | منصة الصحة النفسية وذوي الاحتياجات الخاصة\" name=\"twitter:title\">"
+            "<title>التناظر اللفظي | منصة روافد</title>"
+            "<meta property=\"og:title\" content=\"التناظر اللفظي | منصة روافد\">"
+            "<meta content=\"التناظر اللفظي | منصة روافد\" name=\"twitter:title\">"
             "<script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"name\":\"التناظر اللفظي\"}</script>"
             "</head><body><main><h1>التناظر اللفظي</h1><p>محتوى المهمة التراثية.</p></main></body></html>",
             encoding="utf-8",
@@ -79,14 +79,14 @@ class CognitiveTitleDisambiguationV314Tests(unittest.TestCase):
         page = (self.site / publisher.LEGACY_ROUTE).read_text(encoding="utf-8")
         full_title = (
             publisher.LEGACY_NEW_TITLE
-            + " | منصة الصحة النفسية وذوي الاحتياجات الخاصة"
+            + " | منصة روافد"
         )
         self.assertEqual(page.count(f"<title>{full_title}</title>"), 1)
         self.assertEqual(page.count(f"<h1>{publisher.LEGACY_NEW_TITLE}</h1>"), 1)
         self.assertEqual(page.count(f'content="{full_title}"'), 2)
         self.assertIn(f'"name":"{publisher.LEGACY_NEW_TITLE}"', page)
         self.assertNotIn(
-            "<title>التناظر اللفظي | منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>",
+            "<title>التناظر اللفظي | منصة روافد</title>",
             page,
         )
 

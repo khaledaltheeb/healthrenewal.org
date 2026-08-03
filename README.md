@@ -1,4 +1,4 @@
-# مصطلحات علم النفس | Psychology Terminology
+# منصة روافد | Rawafid Platform
 
 موسوعة عربية منظمة في علم النفس والصحة النفسية، مرتبطة بالمحتوى المرئي المنشور عبر **@pterminology**.
 
@@ -77,4 +77,4 @@ content/README.md
 
 ---
 
-**Psychology Terminology** is an Arabic-first structured psychology encyclopedia with 2,000 indexable concept pages, 200 topic hubs, split sitemaps, reusable data imports, a governed external-source registry, and automated release validation.
+**Rawafid Platform** is an Arabic-first structured psychology encyclopedia with 2,000 indexable concept pages, 200 topic hubs, split sitemaps, reusable data imports, a governed external-source registry, and automated release validation.

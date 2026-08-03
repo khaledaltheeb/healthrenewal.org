@@ -11,7 +11,7 @@
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     const replacements = new Map([
       ["خدمة خارجية", "تقرير خارجي فقط"],
-      ["مصطلحات علم النفس", "منصة الصحة النفسية وذوي الاحتياجات الخاصة"],
+      ["مصطلحات علم النفس", "منصة روافد"],
       ["مقدم خدمة تجريبي", "مقدم خدمة محلي"],
       ["الدخول التجريبي", "مساحة مقدم الخدمة"],
       ["النسخة التجريبية المنشورة", "النسخة المؤسسية المحلية المنشورة"],
@@ -29,14 +29,14 @@
   const applyInstitutionalCopy = () => {
     if (hasNewerInstitutionalContract()) return;
     document.documentElement.dataset.release = RELEASE;
-    document.title = "منصة التقييم والسجل المهني | منصة الصحة النفسية وذوي الاحتياجات الخاصة";
+    document.title = "منصة التقييم والسجل المهني | منصة روافد";
     const description = document.querySelector('meta[name="description"]');
     if (description) description.content = "منصة عربية مؤسسية محلية لإدارة الحالات والجلسات والأدوات الاستكشافية وسجلات الخدمات المهنية، مع 20 دليل حالة وتقارير متعددة الإصدارات. تبقى المقاييس المحمية مقفلة حتى اكتمال الترخيص والمراجعة المؤسسية.";
     const applicationVersion = document.querySelector('meta[name="application-version"]');
     if (applicationVersion) applicationVersion.content = RELEASE;
 
     const brand = document.querySelector(".brand");
-    if (brand) brand.textContent = "منصة الصحة النفسية وذوي الاحتياجات الخاصة";
+    if (brand) brand.textContent = "منصة روافد";
     const product = document.querySelector(".product-name");
     if (product) product.textContent = "منصة التقييم والسجل المهني";
     const notice = document.querySelector(".notice-bar");
@@ -65,7 +65,7 @@
     }
 
     const footer = document.querySelector(".site-footer p");
-    if (footer) footer.textContent = `© منصة الصحة النفسية وذوي الاحتياجات الخاصة — منصة التقييم والسجل المهني، الإصدار ${RELEASE}. التخزين محلي داخل UID مستقل؛ لا تشخيص آلي ولا نسخ لأدوات محمية.`;
+    if (footer) footer.textContent = `© منصة روافد — منصة التقييم والسجل المهني، الإصدار ${RELEASE}. التخزين محلي داخل UID مستقل؛ لا تشخيص آلي ولا نسخ لأدوات محمية.`;
     replaceText(document.body);
   };
 

@@ -58,8 +58,8 @@ class SpecialNeedsHubV201Tests(unittest.TestCase):
         self.publish(site)
         output = site / "special-needs/index.html"
         text = output.read_text(encoding="utf-8")
-        self.assertIn("منصة الصحة النفسية وذوي الاحتياجات الخاصة", text)
-        self.assertIn("معرفة تحترم الإنسان. دعم يوسّع الإمكانات.", text)
+        self.assertIn("منصة روافد", text)
+        self.assertIn("للعافية النفسية والدمج والتمكين", text)
         self.assertEqual(len(re.findall(r'class="detail" id="', text)), 16)
         self.assertEqual(len(re.findall(r'class="path-card"', text)), 16)
         self.assertNotIn("قيد الإعداد", text)

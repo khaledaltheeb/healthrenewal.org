@@ -370,7 +370,7 @@ def build_discovery_page() -> str:
             "description": "توثيق فهرس الصفحات العامة وتصنيف اللغات والأقسام والموضوعات.",
             "inLanguage": "ar",
             "url": canonical,
-            "publisher": {"@type": "Organization", "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة"},
+            "publisher": {"@type": "Organization", "name": "منصة روافد"},
         },
         ensure_ascii=False,
     )
@@ -380,7 +380,7 @@ def build_discovery_page() -> str:
 <meta name="keywords" content="فهرس المحتوى,API عربي,تصنيف موضوعي,بيانات منظمة,الصحة النفسية,علم النفس,تكامل المواقع">
 <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large"><meta name="theme-color" content="#075f5b">
 <link rel="canonical" href="{canonical}"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="../../assets/brand/logo-mark.svg" type="image/svg+xml">
-<meta property="og:type" content="article"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة"><meta property="og:title" content="فهرس المحتوى والتصنيف الموضوعي"><meta property="og:description" content="بيانات وصفية منظمة للصفحات العامة في دفعات قابلة للاستهلاك."><meta property="og:url" content="{canonical}"><meta property="og:image" content="{BASE_URL}assets/brand/social-card.svg">
+<meta property="og:type" content="article"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="منصة روافد"><meta property="og:title" content="فهرس المحتوى والتصنيف الموضوعي"><meta property="og:description" content="بيانات وصفية منظمة للصفحات العامة في دفعات قابلة للاستهلاك."><meta property="og:url" content="{canonical}"><meta property="og:image" content="{BASE_URL}assets/brand/social-card.svg">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="فهرس المحتوى والتصنيف الموضوعي"><meta name="twitter:description" content="واجهة قراءة عامة للصفحات واللغات والأقسام والموضوعات."><meta name="twitter:image" content="{BASE_URL}assets/brand/social-card.svg">
 <script type="application/ld+json">{schema}</script>
 <style>:root{{--ink:#143f44;--muted:#527275;--brand:#0b6b66;--line:#b9ddd8;--soft:#e5faf7}}*{{box-sizing:border-box}}body{{margin:0;font-family:Tahoma,Arial,sans-serif;line-height:1.85;color:var(--ink);background:linear-gradient(145deg,#fff,var(--soft))}}a{{color:#076b65}}.wrap{{width:min(980px,92%);margin:auto}}header{{background:#fff;border-bottom:1px solid var(--line)}}header .wrap{{display:flex;align-items:center;gap:12px;padding:15px 0}}header img{{width:48px;height:48px}}main{{padding:54px 0}}h1{{font-size:clamp(2.2rem,6vw,4rem);line-height:1.2}}.lead{{color:var(--muted);font-size:1.1rem}}.panel{{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;margin:18px 0;box-shadow:0 16px 40px rgba(31,105,104,.09)}}code,pre{{direction:ltr;text-align:left;unicode-bidi:embed;word-break:break-word}}pre{{overflow:auto;background:#f5fbfa;border:1px solid var(--line);padding:14px;border-radius:14px}}footer{{border-top:1px solid var(--line);padding:30px 0}}</style></head><body>

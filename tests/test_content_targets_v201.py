@@ -25,7 +25,7 @@ class ContentTargetsV201Tests(unittest.TestCase):
         roadmap.write_text(json.dumps({
             "version": 201,
             "status": "test",
-            "platform_name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+            "platform_name": "منصة روافد",
             "quality_contract": {"forbid_placeholder_phrases": ["قيد الإعداد"]},
             "targets": {
                 "practical_tips": {

@@ -1,24 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
-  <title id="title">منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
-  <desc id="desc">بطاقة مشاركة اجتماعية للمنصة العربية</desc>
-  <defs>
-    <linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#eaf9f6"/><stop offset="1" stop-color="#f2efff"/></linearGradient>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#075f5b"/><stop offset="1" stop-color="#119287"/></linearGradient>
-    <linearGradient id="leaf" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#f1c96f"/><stop offset="1" stop-color="#fff3bd"/></linearGradient>
-  </defs>
-  <rect width="1200" height="630" fill="url(#canvas)"/>
-  <circle cx="1060" cy="85" r="180" fill="#dff5f0" opacity=".8"/>
-  <circle cx="140" cy="580" r="220" fill="#eee8ff" opacity=".8"/>
-  <g transform="translate(70 137) scale(1.35)">
-    <rect x="8" y="8" width="240" height="240" rx="68" fill="url(#bg)"/>
-    <path d="M127 49c-28 0-51 21-53 48-20 7-34 26-34 48 0 29 23 52 52 52 12 0 23-4 32-11 9 7 20 11 32 11 29 0 52-23 52-52 0-22-14-41-34-48-2-27-25-48-53-48z" fill="#fff" opacity=".97"/>
-    <path d="M126 67v118M95 80c-13 9-19 22-17 37M159 80c13 9 19 22 17 37M78 124c8-6 18-8 28-5M176 124c-8-6-18-8-28-5M88 165c10-2 20 1 27 8M166 165c-10-2-20 1-27 8" fill="none" stroke="#0b6b66" stroke-width="9" stroke-linecap="round"/>
-    <path d="M128 142c18-30 43-39 64-31-4 28-25 49-61 54" fill="url(#leaf)" stroke="#a87924" stroke-width="4"/>
-    <path d="M131 161c13-17 28-29 46-40" fill="none" stroke="#8b6826" stroke-width="4" stroke-linecap="round"/>
-  </g>
-  <text x="1110" y="220" text-anchor="end" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-weight="700" font-size="70" fill="#103e43">منصة الصحة النفسية</text>
-  <text x="1110" y="310" text-anchor="end" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-weight="700" font-size="64" fill="#075f5b">وذوي الاحتياجات الخاصة</text>
-  <text x="1110" y="390" text-anchor="end" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="34" fill="#526f73">موسوعة عربية · أدلة عملية · تربية دامجة · تقييم استكشافي</text>
-  <rect x="585" y="443" width="525" height="72" rx="24" fill="#ffffff" stroke="#c6e3df" stroke-width="2"/>
-  <text x="1080" y="490" text-anchor="end" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-weight="700" font-size="30" fill="#a33f6a">معرفة تحترم الإنسان. دعم يوسّع الإمكانات.</text>
+<title id="title">منصة روافد</title><desc id="desc">للعافية النفسية والدمج والتمكين</desc>
+<defs><linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e7fffd"/><stop offset=".55" stop-color="#ffffff"/><stop offset="1" stop-color="#fff4cc"/></linearGradient><filter id="soft"><feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#075f62" flood-opacity=".18"/></filter></defs>
+<rect width="1200" height="630" fill="url(#card)"/><circle cx="120" cy="90" r="230" fill="#16c6c7" opacity=".12"/><circle cx="1110" cy="590" r="260" fill="#f4b942" opacity=".16"/><rect x="34" y="34" width="1132" height="562" rx="48" fill="none" stroke="#0b8f92" stroke-opacity=".28" stroke-width="4"/>
+<g transform="translate(58,72) scale(.84)" filter="url(#soft)">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#063f49"/><stop offset=".5" stop-color="#087e82"/><stop offset="1" stop-color="#0d555c"/></linearGradient>
+  <radialGradient id="halo"><stop stop-color="#efff67" stop-opacity=".92"/><stop offset="1" stop-color="#efff67" stop-opacity="0"/></radialGradient>
+  <linearGradient id="aqua" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#00a7c2"/><stop offset=".52" stop-color="#12d8d0"/><stop offset="1" stop-color="#66f3de"/></linearGradient>
+  <linearGradient id="green" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#159b57"/><stop offset=".55" stop-color="#74d43c"/><stop offset="1" stop-color="#d7f33b"/></linearGradient>
+  <linearGradient id="gold" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#f08a16"/><stop offset=".55" stop-color="#ffc52f"/><stop offset="1" stop-color="#fff36b"/></linearGradient>
+  <radialGradient id="sun"><stop stop-color="#fff76a"/><stop offset=".45" stop-color="#ffc72c"/><stop offset="1" stop-color="#f28a13"/></radialGradient>
+  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="11" stdDeviation="10" flood-color="#001a20" flood-opacity=".38"/></filter>
+</defs>
+<rect x="18" y="18" width="476" height="476" rx="112" fill="url(#bg)" stroke="#35d9d0" stroke-opacity=".38" stroke-width="5"/>
+<circle cx="303" cy="155" r="118" fill="url(#halo)" filter="url(#glow)"/>
+<g filter="url(#shadow)">
+  <circle cx="274" cy="142" r="36" fill="url(#sun)" stroke="#df7112" stroke-width="3"/>
+  <path d="M244 395C203 322 203 231 255 171C272 245 275 318 244 395Z" fill="url(#aqua)" stroke="#006e89" stroke-width="3"/>
+  <path d="M250 391C270 295 318 221 391 189C381 278 333 349 250 391Z" fill="url(#green)" stroke="#218d42" stroke-width="3"/>
+  <path d="M237 391C229 314 191 255 132 222C132 298 169 358 237 391Z" fill="url(#aqua)" stroke="#0087a2" stroke-width="3"/>
+  <path d="M245 394C249 317 284 257 343 221C339 297 306 357 245 394Z" fill="url(#gold)" stroke="#db7c13" stroke-width="3"/>
+  <path d="M226 396C203 345 164 316 111 305C126 355 166 390 226 396Z" fill="url(#green)" stroke="#2c9639" stroke-width="3"/>
+  <path d="M255 404C309 352 368 330 434 342C395 389 334 410 255 404Z" fill="url(#aqua)" stroke="#008ba7" stroke-width="3"/>
+  <path d="M83 409C180 447 313 445 445 385C348 471 202 488 83 427Z" fill="url(#aqua)" stroke="#007c98" stroke-width="4"/>
+  <path d="M172 457C269 469 363 447 443 402C375 473 276 497 172 474Z" fill="url(#gold)" stroke="#d77d16" stroke-width="3"/>
+</g>
+</g>
+<text x="1135" y="260" direction="rtl" text-anchor="end" font-family="Noto Kufi Arabic, Noto Sans Arabic, Tahoma, Arial, sans-serif" font-size="92" font-weight="900" fill="#087e86">منصة روافد</text>
+<text x="1135" y="355" direction="rtl" text-anchor="end" font-family="Noto Sans Arabic, Tahoma, Arial, sans-serif" font-size="43" font-weight="700" fill="#0b6f72">للعافية النفسية والدمج والتمكين</text>
+<text x="1135" y="430" direction="rtl" text-anchor="end" font-family="Noto Sans Arabic, Tahoma, Arial, sans-serif" font-size="28" fill="#456f73">معرفة موثوقة • أدلة عملية • أدوات داعمة</text>
 </svg>
