@@ -1,0 +1,198 @@
+name: Dispatch and verify addiction v3 production
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: dispatch-and-verify-addiction-v3-production
+  cancel-in-progress: false
+
+jobs:
+  dispatch-and-verify:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'automation/deploy-addiction-v3-live'
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - name: Dispatch the canonical complete-site publisher
+        id: dispatch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          started_epoch="$(date -u +%s)"
+          started_iso="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "started_epoch=${started_epoch}" >> "$GITHUB_OUTPUT"
+          echo "started_iso=${started_iso}" >> "$GITHUB_OUTPUT"
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-complete-pages-with-ai-search.yml/dispatches" \
+            -d '{"ref":"main"}'
+          echo "Canonical workflow_dispatch accepted at ${started_iso}."
+
+      - name: Locate the dispatched production run
+        id: run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STARTED_EPOCH: ${{ steps.dispatch.outputs.started_epoch }}
+        run: |
+          set -euo pipefail
+          found=0
+          for attempt in $(seq 1 60); do
+            curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-complete-pages-with-ai-search.yml/runs?event=workflow_dispatch&branch=main&per_page=20" \
+              -o /tmp/canonical-runs.json
+            set +e
+            run_id="$(python - <<'PY'
+          import json
+          import os
+          from datetime import datetime
+
+          started = int(os.environ['STARTED_EPOCH']) - 30
+          payload = json.load(open('/tmp/canonical-runs.json', encoding='utf-8'))
+          matches = []
+          for run in payload.get('workflow_runs', []):
+              created = datetime.fromisoformat(run['created_at'].replace('Z', '+00:00')).timestamp()
+              if (
+                  run.get('event') == 'workflow_dispatch'
+                  and run.get('head_branch') == 'main'
+                  and created >= started
+              ):
+                  matches.append(run)
+          if matches:
+              latest = max(matches, key=lambda item: item['created_at'])
+              print(latest['id'])
+          PY
+            )"
+            status=$?
+            set -e
+            if [ "$status" -eq 0 ] && [ -n "$run_id" ]; then
+              echo "run_id=${run_id}" >> "$GITHUB_OUTPUT"
+              echo "Found canonical production run ${run_id}."
+              found=1
+              break
+            fi
+            sleep 5
+          done
+          test "$found" -eq 1
+
+      - name: Wait for the canonical deployment to complete
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ steps.run.outputs.run_id }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 390); do
+            curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}" \
+              -o /tmp/canonical-run.json
+            state="$(python - <<'PY'
+          import json
+          run = json.load(open('/tmp/canonical-run.json', encoding='utf-8'))
+          print(f"{run.get('status')}|{run.get('conclusion') or ''}")
+          PY
+            )"
+            echo "Canonical run ${RUN_ID}: ${state}"
+            case "$state" in
+              completed\|success)
+                exit 0
+                ;;
+              completed\|*)
+                cat /tmp/canonical-run.json
+                exit 1
+                ;;
+            esac
+            sleep 10
+          done
+          echo "Canonical deployment did not complete inside the verification window."
+          exit 1
+
+      - name: Verify the live addiction v3 report
+        env:
+          CACHE_TOKEN: ${{ github.run_id }}-${{ steps.run.outputs.run_id }}
+        run: |
+          set -euo pipefail
+          verified=0
+          for attempt in $(seq 1 60); do
+            if curl -fsSL \
+              -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/addiction-condition-guides-v3.json?v=${CACHE_TOKEN}-${attempt}" \
+              -o /tmp/live-addiction-v3.json; then
+              if python - <<'PY'
+          import json
+          report = json.load(open('/tmp/live-addiction-v3.json', encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['version'] == '3.0.0', report
+          assert report['scope']['audiencePathways'] == 5, report
+          assert report['scope']['conditionGuides'] == 10, report
+          assert report['scope']['structuredProtocols'] == 100, report
+          assert report['scope']['addictionSitemapRoutes'] == 24, report
+          assert report['safety']['noIndividualDosing'] is True, report
+          assert report['safety']['noHomeDetoxPlan'] is True, report
+          assert report['safety']['noAbruptBenzodiazepineStop'] is True, report
+          assert report['architecture']['staticFilesReviewableInGit'] is True, report
+          assert report['architecture']['noRuntimeGeneratorRequired'] is True, report
+          print(report)
+          PY
+              then
+                verified=1
+                break
+              fi
+            fi
+            sleep 10
+          done
+          test "$verified" -eq 1
+
+      - name: Verify all live audience and condition routes
+        env:
+          CACHE_TOKEN: ${{ github.run_id }}-${{ steps.run.outputs.run_id }}
+        run: |
+          set -euo pipefail
+          routes=(
+            addiction/
+            addiction/conditions/
+            addiction/methodology/
+            addiction/audiences/person/
+            addiction/audiences/family/
+            addiction/audiences/trainer/
+            addiction/audiences/community/
+            addiction/audiences/clinician/
+            addiction/alcohol-use-disorder/
+            addiction/opioid-use-disorder/
+            addiction/stimulant-use-disorder/
+            addiction/cannabis-use-disorder/
+            addiction/nicotine-tobacco-dependence/
+            addiction/sedative-benzodiazepine-use-disorder/
+            addiction/gambling-related-harms/
+            addiction/gaming-disorder/
+            addiction/inhalant-use-disorder/
+            addiction/polysubstance-use-and-overdose-risk/
+          )
+          for route in "${routes[@]}"; do
+            url="https://healthrenewal.org/${route}?v=${CACHE_TOKEN}"
+            curl -fsSL -H 'Cache-Control: no-cache' "$url" -o /tmp/live-route.html
+            grep -qi '<html' /tmp/live-route.html
+            grep -qi '<h1' /tmp/live-route.html
+            grep -qi 'healthrenewal.org' /tmp/live-route.html
+            echo "VERIFIED ${route}"
+          done
+          curl -fsSL -H 'Cache-Control: no-cache' \
+            "https://healthrenewal.org/sitemap-addiction.xml?v=${CACHE_TOKEN}" \
+            -o /tmp/live-sitemap-addiction.xml
+          grep -q 'https://healthrenewal.org/addiction/audiences/person/' /tmp/live-sitemap-addiction.xml
+          grep -q 'https://healthrenewal.org/addiction/polysubstance-use-and-overdose-risk/' /tmp/live-sitemap-addiction.xml
+          echo 'Live addiction v3 production verification passed.'
