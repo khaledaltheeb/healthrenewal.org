@@ -50,86 +50,14 @@ jobs:
           python - <<'PY'
           import runpy
           namespace = runpy.run_path("tests/test_women_daily_calendar.py")
-          tests = [value for name, value in sorted(namespace.items()) if name.startswith("test_") and callable(value)]
+          tests = [
+              value
+              for name, value in sorted(namespace.items())
+              if name.startswith("test_") and callable(value)
+          ]
           if len(tests) != 2:
               raise SystemExit(f"Expected 2 tests, found {len(tests)}")
           for test in tests:
               test()
               print(f"PASS {test.__name__}")
           PY
-
-  remove-legacy-terminology:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: agent/women-daily-calendar-v1
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      - name: Remove legacy terminology everywhere in calendar surface
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          paths = [
-              Path("sectors/women/daily-calendar/index.html"),
-              Path("sectors/women/daily-calendar/calendar.js"),
-              Path("sectors/women/daily-calendar/editorial-manifest.json"),
-              Path("sectors/women/daily-calendar/manifest.webmanifest"),
-              Path("sectors/women/daily-calendar/service-worker.js"),
-              Path("sectors/women/index.html"),
-              Path("sectors/calendars/index.html"),
-              Path("sectors/calendars/women/index.html"),
-              Path("index.html"),
-              Path("scripts/apply_homepage_v20.py"),
-          ]
-          for path in paths:
-              if not path.exists():
-                  continue
-              text = path.read_text(encoding="utf-8")
-              updated = text.replace("الدورة الشهرية", "الحيض").replace("الدورات", "مرات الحيض").replace("الدورة", "الحيض")
-              updated = updated.replace("متوسط طول الحيض", "متوسط الفاصل بين بدايات الحيض").replace("طول الحيض", "الفاصل بين بدايات الحيض")
-              if updated != text:
-                  path.write_text(updated, encoding="utf-8")
-          app_files = [
-              Path("sectors/women/daily-calendar/index.html"),
-              Path("sectors/women/daily-calendar/calendar.js"),
-              Path("sectors/women/daily-calendar/editorial-manifest.json"),
-              Path("sectors/women/daily-calendar/manifest.webmanifest"),
-          ]
-          combined = "\n".join(path.read_text(encoding="utf-8") for path in app_files)
-          for term in ("الدورة الشهرية", "الدورة", "طول الحيض"):
-              if term in combined:
-                  raise SystemExit(f"Legacy or inaccurate term remains: {term}")
-          for term in ("الحيض", "الفاصل بين بدايات الحيض"):
-              if term not in combined:
-                  raise SystemExit(f"Approved term missing: {term}")
-          PY
-      - name: Validate and commit
-        run: |
-          node --check sectors/women/daily-calendar/calendar.js
-          python -m py_compile tests/test_women_daily_calendar.py
-          python - <<'PY'
-          import runpy
-          namespace = runpy.run_path("tests/test_women_daily_calendar.py")
-          for name, test in sorted(namespace.items()):
-              if name.startswith("test_") and callable(test):
-                  test()
-                  print(f"PASS {name}")
-          PY
-          git config user.name "healthrenewal-actions"
-          git config user.email "actions@users.noreply.github.com"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "No legacy terminology remains"
-            exit 0
-          fi
-          git commit -m "fix(women): remove remaining legacy menstruation terms"
-          git push origin HEAD:agent/women-daily-calendar-v1
