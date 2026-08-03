@@ -1,0 +1,29 @@
+{
+  "schema_version": "addiction-condition-guides-v3",
+  "status": "clean-static-review",
+  "generated_on": "2026-08-03",
+  "condition_count": 10,
+  "protocols_per_condition": 10,
+  "protocol_total": 100,
+  "routes": [
+    "/addiction/alcohol-use-disorder/",
+    "/addiction/opioid-use-disorder/",
+    "/addiction/stimulant-use-disorder/",
+    "/addiction/cannabis-use-disorder/",
+    "/addiction/nicotine-tobacco-dependence/",
+    "/addiction/sedative-benzodiazepine-use-disorder/",
+    "/addiction/gambling-related-harms/",
+    "/addiction/gaming-disorder/",
+    "/addiction/inhalant-use-disorder/",
+    "/addiction/polysubstance-use-and-overdose-risk/"
+  ],
+  "index": "/addiction/conditions/",
+  "methodology": "/addiction/methodology/",
+  "safety": {
+    "individual_doses": false,
+    "home_detox_schedules": false,
+    "emergency_section_required": true,
+    "family_section_required": true
+  },
+  "source_policy": "official-primary-guidelines-first"
+}
