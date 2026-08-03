@@ -31,7 +31,11 @@ jobs:
       - name: Exit after finalization
         id: guard
         run: |
-          if [ -f api/addiction-condition-guides-v3.json ] && [ ! -f content/addiction-v3-static.tar.xz.b64 ]; then
+          if [ -f api/addiction-condition-guides-v3.json ] \
+             && [ ! -f content/addiction-v3-static.part00.b64 ] \
+             && [ ! -f content/addiction-v3-static.part01.b64 ] \
+             && [ ! -f content/addiction-v3-static.tar.xz.b64 ] \
+             && [ ! -f scripts/materialize_addiction_v3_once.py ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
@@ -40,6 +44,8 @@ jobs:
         if: steps.guard.outputs.skip != 'true'
         run: |
           set -euxo pipefail
+          test -f content/addiction-v3-static.part00.b64
+          test -f content/addiction-v3-static.part01.b64
           python scripts/materialize_addiction_v3_once.py
           test -f addiction/index.html
           test -f addiction/conditions/index.html
@@ -54,6 +60,8 @@ jobs:
         if: steps.guard.outputs.skip != 'true'
         run: |
           set -euxo pipefail
+          rm -f content/addiction-v3-static.part00.b64
+          rm -f content/addiction-v3-static.part01.b64
           rm -f content/addiction-v3-static.tar.xz.b64
           rm -f scripts/materialize_addiction_v3_once.py
           rm -f scripts/build_clean_addiction_condition_guides_once.sh
@@ -61,6 +69,10 @@ jobs:
           rm -rf diagnostics
           find .github/workflows -maxdepth 1 -type f -name 'one-time-*addiction*' -delete
           rm -f .github/workflows/finalize-addiction-v3-pr.yml
+          test ! -e content/addiction-v3-static.part00.b64
+          test ! -e content/addiction-v3-static.part01.b64
+          test ! -e content/addiction-v3-static.tar.xz.b64
+          test ! -e scripts/materialize_addiction_v3_once.py
       - name: Execute static contract
         if: steps.guard.outputs.skip != 'true'
         run: |
