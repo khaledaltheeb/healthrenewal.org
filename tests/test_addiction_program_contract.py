@@ -3,8 +3,10 @@ from __future__ import annotations
 from datetime import date
 from pathlib import Path
 import json
+import re
 
 ROOT = Path(__file__).resolve().parents[1]
+KEBAB_ID = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
 def load_json(relative_path: str) -> dict:
@@ -18,6 +20,8 @@ def test_program_is_truthfully_marked_as_foundation():
     assert index["protocol_total"] == 100
     assert index["reference_count"] >= 50
     assert index["structured_reference_count"] >= 12
+    assert index["mapped_claim_count"] >= 12
+    assert index["claim_source_map_status"] == "foundation-partial"
 
 
 def test_governance_contracts_are_linked_and_exist():
@@ -27,6 +31,7 @@ def test_governance_contracts_are_linked_and_exist():
         "safety_contract",
         "information_architecture",
         "structured_source_registry",
+        "claim_source_map",
     ):
         assert (ROOT / index[field]).is_file(), field
 
@@ -45,6 +50,7 @@ def test_structured_source_registry_is_reviewable():
     assert len(sources) >= 12
     identifiers = [item["id"] for item in sources]
     assert len(identifiers) == len(set(identifiers))
+    assert all(KEBAB_ID.fullmatch(identifier) for identifier in identifiers)
 
     required_fields = set(registry["required_fields"])
     verified_on = date.fromisoformat(registry["verified_on"])
@@ -55,6 +61,8 @@ def test_structured_source_registry_is_reviewable():
         assert date.fromisoformat(source["verified_on"]) <= verified_on
         assert date.fromisoformat(source["next_review_on"]) > verified_on
         assert source["topics"]
+        assert source["name"] == source["title"]
+        assert source["organization"] == source["authority"]
         authorities.add(source["authority"])
 
     assert {
@@ -66,6 +74,32 @@ def test_structured_source_registry_is_reviewable():
         "U.S. Department of Veterans Affairs and Department of Defense",
         "Centers for Disease Control and Prevention",
     }.issubset(authorities)
+
+
+def test_claim_map_resolves_every_source_id_and_declares_gaps():
+    registry = load_json("data/addiction-evidence/source-registry.json")
+    source_ids = {source["id"] for source in registry["sources"]}
+    claim_map = load_json("data/addiction-evidence/claim-source-map.json")
+    claims = claim_map["claims"]
+    assert len(claims) >= 12
+
+    claim_ids = [claim["id"] for claim in claims]
+    assert len(claim_ids) == len(set(claim_ids))
+    assert all(KEBAB_ID.fullmatch(identifier) for identifier in claim_ids)
+
+    for claim in claims:
+        assert claim["statement_ar"].strip()
+        assert claim["source_ids"]
+        assert set(claim["source_ids"]).issubset(source_ids), claim["id"]
+        assert claim["publication_status"] in {
+            "draft",
+            "approved-for-general-education",
+            "external-clinical-review-required",
+        }
+        assert claim["safety_flags"]
+
+    gap_domains = {gap["domain"] for gap in claim_map["coverage_gaps"]}
+    assert {"cannabis-use-disorder", "gaming-disorder", "inhalant-use-disorder"}.issubset(gap_domains)
 
 
 def test_safety_contract_contains_non_negotiable_guardrails():
