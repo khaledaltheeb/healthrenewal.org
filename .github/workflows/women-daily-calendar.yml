@@ -1,0 +1,39 @@
+name: Women daily calendar quality
+
+on:
+  pull_request:
+    paths:
+      - "sectors/women/daily-calendar/**"
+      - "tests/test_women_daily_calendar.py"
+      - "sitemap-women-calendar.xml"
+      - "sitemap-index.xml"
+      - ".github/workflows/women-daily-calendar.yml"
+  push:
+    branches:
+      - agent/women-daily-calendar-v1
+    paths:
+      - "sectors/women/daily-calendar/**"
+      - "tests/test_women_daily_calendar.py"
+      - "sitemap-women-calendar.xml"
+      - "sitemap-index.xml"
+      - ".github/workflows/women-daily-calendar.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  static-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check JavaScript syntax
+        run: node --check sectors/women/daily-calendar/calendar.js
+      - name: Run calendar contract
+        run: python -m pytest -q tests/test_women_daily_calendar.py
