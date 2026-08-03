@@ -24,6 +24,8 @@ def test_women_daily_calendar_static_contract() -> None:
     html = (APP / "index.html").read_text(encoding="utf-8")
     css = (APP / "calendar.css").read_text(encoding="utf-8")
     js = (APP / "calendar.js").read_text(encoding="utf-8")
+    webmanifest_text = (APP / "manifest.webmanifest").read_text(encoding="utf-8")
+    service_worker = (APP / "service-worker.js").read_text(encoding="utf-8")
     manifest = json.loads((APP / "editorial-manifest.json").read_text(encoding="utf-8"))
     api_report = json.loads(
         (ROOT / "api" / "women-daily-calendar-v1.json").read_text(encoding="utf-8")
@@ -32,6 +34,9 @@ def test_women_daily_calendar_static_contract() -> None:
     women_index = (ROOT / "sectors" / "women" / "index.html").read_text(
         encoding="utf-8"
     )
+    calendars_index = (
+        ROOT / "sectors" / "calendars" / "index.html"
+    ).read_text(encoding="utf-8")
     publisher = (ROOT / "scripts" / "apply_homepage_v20.py").read_text(
         encoding="utf-8"
     )
@@ -50,11 +55,18 @@ def test_women_daily_calendar_static_contract() -> None:
     assert "كيف تشعرين الآن؟" in html
     assert "الحيض" in html
     assert "الفاصل بين بدايات الحيض" in html
+
     for forbidden_term in ("الدورة الشهرية", "الدورة"):
         assert forbidden_term not in html
         assert forbidden_term not in js
-    assert "طول الحيض" not in html
-    assert "طول الحيض" not in js
+    for forbidden_phrase in (
+        "الدورة الشهرية",
+        "تتبع اختياري للدورة",
+        "تتبع اختياري ومحلي للدورة",
+        "طول الحيض",
+    ):
+        for surface in (html, js, webmanifest_text, women_index, calendars_index):
+            assert forbidden_phrase not in surface
 
     assert "صباح إيجابي" in js
     assert "morningBank" in js
@@ -74,6 +86,7 @@ def test_women_daily_calendar_static_contract() -> None:
     assert "includeCycleInExport" in js
     assert "fertile" not in js.lower()
     assert "ovulation" not in js.lower()
+    assert 'CACHE_NAME = "hr-women-calendar-v3"' in service_worker
 
     for pink_token in ("#702857", "#fffafc", "#f8edf3", "#5b2148"):
         assert pink_token in css or pink_token in html
@@ -97,11 +110,16 @@ def test_women_daily_calendar_static_contract() -> None:
     assert api_report["positiveMorningMessage"] is True
     assert api_report["pinkProfessionalDesign"] is True
     assert api_report["localFirst"] is True
+    assert api_report["menstruationTerminology"] == "الحيض"
+    assert api_report["menstrualIntervalLabel"] == "الفاصل بين بدايات الحيض"
+    assert api_report["legacyMenstrualTerminologyRemoved"] is True
+    assert api_report["pwaCacheVersion"] == 3
 
     route = 'href="sectors/women/daily-calendar/"'
     assert route in homepage
     assert len(re.findall(r"<h3\b", homepage)) >= 16
     assert "/sectors/women/daily-calendar/" in women_index
+    assert "متابعة اختيارية للحيض" in calendars_index
     assert 'restore_static_route(\n            "sectors/women/daily-calendar"' in publisher
     assert 'restore_static_file(relative_path)' in publisher
     assert 'register_sitemap("sitemap-women-calendar.xml")' in publisher
