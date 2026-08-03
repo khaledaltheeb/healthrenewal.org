@@ -8,6 +8,8 @@
 - الموسوعة الموسعة: https://healthrenewal.org/encyclopedia/
 - المعجم الأساسي: https://healthrenewal.org/terms/
 - المراكز الموضوعية: https://healthrenewal.org/hubs/
+- بوابة كوكرين العربية للأدلة والتعلّم: https://healthrenewal.org/cochrane/
+- فهرس موارد كوكرين بصيغة JSON: https://healthrenewal.org/api/v1/cochrane-resources.json
 - سجل المصادر ومسارات التكامل: https://healthrenewal.org/source-registry/
 - سجل المصادر بصيغة JSON: https://healthrenewal.org/api/source-registry.json
 - إفادة الإتاحة وخطة التوافق: https://healthrenewal.org/accessibility/
@@ -24,6 +26,7 @@
 - صفحات مستقلة بعناوين ووصف وCanonical وhreflang وJSON-LD.
 - ملفات API وCSV قابلة للتنزيل.
 - سجل محكوم للمصادر الرسمية المرشحة، يفصل بين المصدر والشريك ويمنع الاستيراد قبل مراجعة الحقوق والجودة.
+- بوابة عربية مستقلة لموارد كوكرين الرسمية، مع فصل واضح بين الإحالة والشراكة والترجمة وإعادة الاستخدام.
 - نظام استيراد مستقبلي من CSV دون تعديل القوالب.
 - اختبارات تمنع التكرار ونقص الصفحات وفساد خرائط الموقع.
 - ملف تحقق Google Search Console محفوظ في جذر الموقع.
@@ -40,6 +43,7 @@
 - `sitemap-hubs.xml`: المراكز الموضوعية.
 - `sitemap-core.xml`: الصفحات الأساسية والأدلة والأدوات.
 - `sitemap-source-registry.xml`: سجل المصادر ومسارات التكامل.
+- `sitemap-cochrane.xml`: بوابة كوكرين وفهرس مواردها القابل للقراءة آليًا.
 
 ## توسيع المحتوى
 
