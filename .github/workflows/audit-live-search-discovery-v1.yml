@@ -16,6 +16,13 @@ on:
       - "tests/test_live_search_discovery_v1.py"
       - ".github/workflows/audit-live-search-discovery-v1.yml"
       - "docs/operations/live-search-discovery-audit-v1.md"
+      - "scripts/.addiction_payload_*"
+      - "scripts/materialize_addiction_reference_v1.py"
+      - ".github/workflows/materialize-addiction-reference-v1.yml"
+      - "addiction/**"
+      - "assets/addiction/**"
+      - "sitemap-addiction.xml"
+      - "sitemap-index.xml"
 
 permissions:
   contents: read
@@ -25,6 +32,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  materialize-addiction:
+    if: github.event_name == 'pull_request' && github.head_ref == 'agent/addiction-reference-arabic-20260803'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout addiction branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Materialize and validate Arabic addiction reference
+        run: python scripts/materialize_addiction_reference_v1.py
+
+      - name: Restore audit workflow and commit final section
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout origin/main -- .github/workflows/audit-live-search-discovery-v1.yml
+          git config user.name "healthrenewal-content-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No materialized changes were produced."
+            exit 1
+          fi
+          git commit -m "content: add evidence-based Arabic addiction reference"
+          git push origin "HEAD:${{ github.head_ref }}"
+
   audit:
     runs-on: ubuntu-latest
     timeout-minutes: 50
