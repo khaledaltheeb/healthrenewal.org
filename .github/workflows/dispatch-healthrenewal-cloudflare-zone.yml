@@ -1,0 +1,26 @@
+name: Dispatch healthrenewal Cloudflare zone bootstrap
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/dispatch-healthrenewal-cloudflare-zone.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Dispatch the bootstrap workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run "bootstrap-healthrenewal-cloudflare-zone.yml" \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main
