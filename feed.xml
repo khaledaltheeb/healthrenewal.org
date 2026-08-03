@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>HealthRenewal | الصحة النفسية وذوو الاحتياجات الخاصة</title>
     <link>https://healthrenewal.org/</link>
+    <atom:link href="https://healthrenewal.org/feed.xml" rel="self" type="application/rss+xml" />
     <description>الخلاصة العامة للمحتوى التعليمي القابل للاكتشاف والاستشهاد في منصة HealthRenewal.</description>
     <language>ar</language>
-    <lastBuildDate>Sat, 01 Aug 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 03 Aug 2026 05:15:00 +0000</lastBuildDate>
     <generator>HealthRenewal machine-readable surface v1</generator>
     <item>
       <title>منصة روافد</title>
@@ -15,11 +16,11 @@
       <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
     </item>
     <item>
-      <title>الموسوعة النفسية العربية</title>
-      <link>https://healthrenewal.org/encyclopedia/</link>
-      <guid isPermaLink="true">https://healthrenewal.org/encyclopedia/</guid>
-      <description>مصطلحات ومفاهيم نفسية منظمة ومترابطة.</description>
-      <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
+      <title>ابدأ من هنا</title>
+      <link>https://healthrenewal.org/start-here/</link>
+      <guid isPermaLink="true">https://healthrenewal.org/start-here/</guid>
+      <description>نقطة دخول منظمة تساعد القارئ على اختيار القسم أو الدليل أو الأداة المناسبة لحاجته.</description>
+      <pubDate>Mon, 03 Aug 2026 05:15:00 +0000</pubDate>
     </item>
     <item>
       <title>ذوو الاحتياجات الخاصة والتربية الدامجة</title>
@@ -36,18 +37,18 @@
       <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
     </item>
     <item>
-      <title>المكتبة الأكاديمية والأبحاث</title>
-      <link>https://healthrenewal.org/library/</link>
-      <guid isPermaLink="true">https://healthrenewal.org/library/</guid>
-      <description>مواد أكاديمية ومصادر وأبحاث مرتبة مع إسناد واضح.</description>
-      <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
+      <title>المجلة العلمية</title>
+      <link>https://healthrenewal.org/magazine/</link>
+      <guid isPermaLink="true">https://healthrenewal.org/magazine/</guid>
+      <description>ملخصات وتحليلات عربية للأبحاث والدراسات الحديثة مع روابط المصادر الأصلية.</description>
+      <pubDate>Mon, 03 Aug 2026 05:15:00 +0000</pubDate>
     </item>
     <item>
-      <title>أدلة الرعاية والتعامل العملي</title>
-      <link>https://healthrenewal.org/care-guides/</link>
-      <guid isPermaLink="true">https://healthrenewal.org/care-guides/</guid>
-      <description>أدلة تطبيقية للأسر والمعلمين والمختصين ومقدمي الخدمة.</description>
-      <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
+      <title>مركز الإدمان والتعافي</title>
+      <link>https://healthrenewal.org/addiction/</link>
+      <guid isPermaLink="true">https://healthrenewal.org/addiction/</guid>
+      <description>أدلة سلامة وعلاج وتعافٍ مبنية على المراجع المعلنة، دون وصمة أو وصفات ذاتية.</description>
+      <pubDate>Mon, 03 Aug 2026 05:15:00 +0000</pubDate>
     </item>
     <item>
       <title>الأدوات النفسية التفاعلية</title>
