@@ -201,10 +201,11 @@
   function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
   function uid(prefix) { return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`; }
   function startOfDay(date) { const d = new Date(date); d.setHours(0,0,0,0); return d; }
-  function isoDate(date) { return new Date(date).toISOString().slice(0,10); }
-  function parseDate(value) { return startOfDay(new Date(`${value}T12:00:00`)); }
-  function addDays(date, days) { return new Date(startOfDay(date).getTime() + days * DAY_MS); }
-  function daysBetween(a, b) { return Math.ceil((startOfDay(b) - startOfDay(a)) / DAY_MS); }
+  function isoDate(date) { const d = new Date(date); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+  function parseDate(value) { const [year, month, day] = String(value).split("-").map(Number); return startOfDay(new Date(year, (month || 1) - 1, day || 1)); }
+  function addDays(date, days) { const d = startOfDay(date); d.setDate(d.getDate() + Number(days || 0)); return d; }
+  function utcDayNumber(date) { const d = new Date(date); return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / DAY_MS; }
+  function daysBetween(a, b) { return Math.round(utcDayNumber(b) - utcDayNumber(a)); }
   function escapeICS(value) { return String(value || "").replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;"); }
   function pad(n) { return String(n).padStart(2,"0"); }
   function icsDateTime(date, time) {
@@ -213,7 +214,7 @@
     return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
   }
   function dateLabel(date) { return new Intl.DateTimeFormat("ar", {weekday:"long", year:"numeric", month:"long", day:"numeric"}).format(date); }
-  function dayIndex(date) { return Math.floor(startOfDay(date).getTime() / DAY_MS); }
+  function dayIndex(date) { return Math.floor(utcDayNumber(date)); }
   function pick(bank, date, offset = 0) { return bank[Math.abs(dayIndex(date) + offset) % bank.length]; }
   function setStatus(id, text) { const el = $(id); if (el) el.textContent = text; }
   function downloadFile(name, content, type) {
@@ -289,7 +290,7 @@
     if (mode === "project" && energy !== "low") focus = Math.max(focus, 45);
     const wrap = Math.max(5, Math.round(total * .08));
     const recall = mode === "review" ? Math.max(10, Math.round(total * .25)) : Math.max(5, Math.round(total * .12));
-    let available = Math.max(10, total - wrap - recall);
+    let available = Math.max(5, total - wrap - recall);
     const sessions = [];
     let count = 1;
     while (available > 0 && count <= 10) {
