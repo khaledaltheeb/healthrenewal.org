@@ -184,78 +184,15 @@ jobs:
                   test()
                   print(f"PASS {name}")
           PY
-      - name: Restore read-only workflow and commit
+      - name: Commit correction
         run: |
           rm -f .github/workflows/one-time-adopt-menstruation-term.yml
-          python - <<'PY'
-          from pathlib import Path
-          Path(".github/workflows/women-daily-calendar.yml").write_text('''name: Women daily calendar quality
-
-on:
-  pull_request:
-    paths:
-      - "sectors/women/daily-calendar/**"
-      - "sectors/women/index.html"
-      - "api/women-daily-calendar-v1.json"
-      - "scripts/apply_homepage_v20.py"
-      - "index.html"
-      - "tests/test_women_daily_calendar.py"
-      - "sitemap-women-calendar.xml"
-      - "sitemap-index.xml"
-      - ".github/workflows/women-daily-calendar.yml"
-  push:
-    branches:
-      - agent/women-daily-calendar-v1
-    paths:
-      - "sectors/women/daily-calendar/**"
-      - "sectors/women/index.html"
-      - "api/women-daily-calendar-v1.json"
-      - "scripts/apply_homepage_v20.py"
-      - "index.html"
-      - "tests/test_women_daily_calendar.py"
-      - "sitemap-women-calendar.xml"
-      - "sitemap-index.xml"
-      - ".github/workflows/women-daily-calendar.yml"
-
-permissions:
-  contents: read
-
-jobs:
-  static-contract:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      - name: Check JavaScript and publisher syntax
-        run: |
-          node --check sectors/women/daily-calendar/calendar.js
-          python -m py_compile scripts/apply_homepage_v20.py tests/test_women_daily_calendar.py
-      - name: Run calendar contract without external dependencies
-        run: |
-          python - <<'PY'
-          import runpy
-          namespace = runpy.run_path("tests/test_women_daily_calendar.py")
-          tests = [
-              value
-              for name, value in sorted(namespace.items())
-              if name.startswith("test_") and callable(value)
-          ]
-          if len(tests) != 2:
-              raise SystemExit(f"Expected 2 tests, found {len(tests)}")
-          for test in tests:
-              test()
-              print(f"PASS {test.__name__}")
-          PY
-''', encoding="utf-8")
-          PY
           git config user.name "healthrenewal-actions"
           git config user.email "actions@users.noreply.github.com"
           git add -A
+          if git diff --cached --quiet; then
+            echo "No terminology changes remain"
+            exit 0
+          fi
           git commit -m "fix(women): use الحيض terminology consistently"
           git push origin HEAD:agent/women-daily-calendar-v1
