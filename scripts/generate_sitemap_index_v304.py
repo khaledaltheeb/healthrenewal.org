@@ -7,6 +7,7 @@ import shutil
 from pathlib import Path
 
 import ensure_complete_discovery_v1 as complete_discovery
+import ensure_special_needs_publication_v1 as special_needs_publication
 import generate_sitemap_index_v304_core as core
 from ai_machine_readable_v1 import AI_USER_AGENTS, enhance_site, sync_robots as sync_ai_robots
 from audit_publication_discovery_v1 import run as audit_publication_discovery
@@ -83,6 +84,18 @@ def restore_missing_public_source(site: Path, repo_root: Path) -> list[str]:
     for source in repo_root.rglob("*"):
         if not source.is_file():
             continue
+
+        # Test fixtures and local production artifacts may live below the
+        # repository root. Never treat files already inside the destination as
+        # source files, otherwise the destination is recursively copied into
+        # itself until the operating system rejects the path length.
+        try:
+            source.relative_to(site)
+        except ValueError:
+            pass
+        else:
+            continue
+
         relative = source.relative_to(repo_root)
         if not relative.parts or relative.parts[0] in PUBLIC_SKIP_TOP:
             continue
@@ -124,12 +137,26 @@ def load_discovery_publication_report(root: Path) -> tuple[Path, dict[str, objec
 def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     root = root.resolve()
     base_url = base_url.rstrip("/") + "/"
-    repo_root = Path.cwd().resolve()
+
+    # Resolve source files from the script location, not the caller's current
+    # working directory. CI fixtures and production jobs may invoke this script
+    # from another directory; using cwd previously hid shared assets and caused
+    # false broken-resource failures.
+    repo_root = Path(__file__).resolve().parents[1]
 
     # Generators executed immediately before this step may prune valid files
     # that are physically present on main. Restore those exact missing files
     # before sitemap generation so repository and production inventories match.
     restored_source_files = restore_missing_public_source(root, repo_root)
+
+    # The capability library is generated into the production artifact rather
+    # than stored as 155 source pages. Rebuild it automatically when the chosen
+    # baseline artifact is incomplete so a stale baseline can never erase the
+    # 150 condition protocols during an otherwise successful deployment.
+    special_needs_repair = special_needs_publication.repair_missing_generated_families(
+        root,
+        repo_root,
+    )
 
     # Build canonical sitemap families from the complete, restored artifact.
     report = core.generate(root, base_url)
@@ -161,6 +188,15 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     # cards, missing sitemap URLs, invalid metadata, or canonical conflicts.
     discovery_audit = audit_publication_discovery(root, repo_root)
 
+    # Apply an explicit sector-level contract after sitemap and catalogue
+    # generation. The deployment cannot proceed unless every condition,
+    # protocol, practical guide, family tool, learning path, and sector guide is
+    # present, indexable, canonical, and listed in a sitemap.
+    special_needs_inventory = special_needs_publication.validate_publication_inventory(
+        root,
+        repair=special_needs_repair,
+    )
+
     report["robots_policy"] = "explicit-ai-and-public-crawling"
     report["explicit_ai_user_agents"] = list(AI_USER_AGENTS)
     report["preserved_custom_domain_sitemaps"] = machine["preserved_custom_domain_sitemaps"]
@@ -171,6 +207,15 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     }
     report["restored_source_files"] = restored_source_files
     report["complete_discovery_publication"] = discovery_publication
+    report["special_needs_publication_inventory"] = {
+        "status": special_needs_inventory["status"],
+        "counts": special_needs_inventory["counts"],
+        "target_route_count": special_needs_inventory["targetRouteCount"],
+        "repair_actions": special_needs_inventory["repair"].get("actions", []),
+        "missing_roots": len(special_needs_inventory["missingRoots"]),
+        "page_issues": len(special_needs_inventory["pageIssues"]),
+        "sitemap_missing_routes": len(special_needs_inventory["sitemapMissingRoutes"]),
+    }
     report["publication_discovery_audit"] = {
         "status": discovery_audit["status"],
         "source_public_files": discovery_audit["sourcePublicFiles"],
