@@ -33,7 +33,7 @@ KEYWORD_DELIMITER_RE = re.compile(r"[,،]+")
 
 LOCALE = {"ar": "ar_AR", "en": "en_US", "es": "es_ES"}
 BRAND = {
-    "ar": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+    "ar": "منصة روافد",
     "en": "Mental Health and Special Needs Platform",
     "es": "Plataforma de Salud Mental y Necesidades Especiales",
 }
@@ -202,7 +202,7 @@ def title_topic(title: str, language: str) -> str:
         BRAND[language],
         BRAND["ar"],
         "مصطلحات علم النفس",
-        "Psychology Terminology",
+        "Rawafid Platform",
     ):
         topic = topic.replace(value, "")
     topic = re.split(r"\s*[|—–]\s*", topic, maxsplit=1)[0]
@@ -261,7 +261,7 @@ def generic_description(topic: str, language: str) -> str:
     elif language == "es":
         value = f"Guía estructurada y basada en evidencia sobre {topic}, con contexto práctico, temas relacionados y límites profesionales claros."
     else:
-        value = f"دليل عربي منظم حول {topic} يوضح السياق العملي والموضوعات المرتبطة والحدود المهنية ضمن منصة الصحة النفسية وذوي الاحتياجات الخاصة."
+        value = f"دليل عربي منظم حول {topic} يوضح السياق العملي والموضوعات المرتبطة والحدود المهنية ضمن منصة روافد."
     return value[:220]
 
 

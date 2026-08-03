@@ -224,7 +224,7 @@ const patchReleaseCopy = () => {
   document.documentElement.dataset.institutionalContract = RELEASE;
   const meta = document.querySelector('meta[name="application-version"]'); if (meta) meta.content = RELEASE;
   const notice = document.querySelector(".notice-bar"); if (notice) notice.textContent = "الأدوات الاستكشافية تعمل ضمن عقد غير تشخيصي، والسجل المهني يفرض الغرض والمصادر والبيئات والصلاحية والحقوق والمراجعة. المواد المحمية تبقى مقفلة حتى الترخيص والمؤهل المناسب.";
-  const footer = document.querySelector(".site-footer p"); if (footer) footer.textContent = `© منصة الصحة النفسية وذوي الاحتياجات الخاصة — عقد التقييم والسجل المهني ${RELEASE}. تخزين محلي داخل UID مستقل؛ لا تشخيص آلي ولا أهلية من أداة منفردة.`;
+  const footer = document.querySelector(".site-footer p"); if (footer) footer.textContent = `© منصة روافد — عقد التقييم والسجل المهني ${RELEASE}. تخزين محلي داخل UID مستقل؛ لا تشخيص آلي ولا أهلية من أداة منفردة.`;
 };
 
 window.PA_V220_HOOKS = { decorateProfessionalRecords };

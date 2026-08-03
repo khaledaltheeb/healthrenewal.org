@@ -122,7 +122,7 @@ class SpecialNeedsGuidesV210Tests(unittest.TestCase):
             self.assertIn('<html lang="ar" dir="rtl">', page)
             self.assertIn('rel="canonical"', page)
             self.assertIn("application/ld+json", page)
-            self.assertIn("منصة الصحة النفسية وذوي الاحتياجات الخاصة", page)
+            self.assertIn("منصة روافد", page)
             self.assertIn("متى نطلب مساعدة متخصصة؟", page)
             self.assertIsNone(BANNED.search(page), slug)
             parser = TextParser()

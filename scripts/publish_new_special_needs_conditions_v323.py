@@ -186,7 +186,7 @@ def render_condition(guide: dict, data: dict, guides: list[dict]) -> str:
 <meta property="og:description" content="{e(guide["meta_description"])}"><meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">{schema_page(guide, data)}</script><style>{CSS}</style></head>
 <body data-condition-guide-v323="{e(guide["slug"])}"><a class="skip" href="#main">انتقل إلى المحتوى</a>
-<header><div class="wrap head"><a href="{BP}">منصة الصحة النفسية وذوي الاحتياجات الخاصة</a><nav><a href="{BP}">الرئيسية</a><a href="{BP}special-needs/">ذوو الاحتياجات الخاصة</a><a href="{cluster_path}">المتلازمات النمائية والجينية</a></nav></div></header>
+<header><div class="wrap head"><a href="{BP}">منصة روافد</a><nav><a href="{BP}">الرئيسية</a><a href="{BP}special-needs/">ذوو الاحتياجات الخاصة</a><a href="{cluster_path}">المتلازمات النمائية والجينية</a></nav></div></header>
 <main id="main"><section class="hero"><div class="wrap"><p class="eyebrow">دليل حالة جديد - مراجعة داخلية موثقة</p>
 <h1>{e(guide["short_title"])}</h1><p class="lead">{e(guide["lead"])}</p><div class="warning"><strong>حدود وسلامة:</strong> {e(guide["warning"])}</div></div></section>
 <section class="wrap" aria-labelledby="facts-title"><h2 id="facts-title">خمس حقائق تأسيسية</h2><div class="facts">{facts}</div></section>
@@ -233,7 +233,7 @@ def render_cluster(data: dict, guides: list[dict]) -> str:
 <link rel="alternate" hreflang="ar" href="{url}"><link rel="alternate" hreflang="x-default" href="{url}">
 <script type="application/ld+json">{cluster_schema(data, guides)}</script><style>{CSS}</style></head>
 <body data-condition-cluster-v323="true"><a class="skip" href="#main">انتقل إلى المحتوى</a><header><div class="wrap head">
-<a href="{BP}">منصة الصحة النفسية وذوي الاحتياجات الخاصة</a><nav><a href="{BP}">الرئيسية</a><a href="{BP}special-needs/">ذوو الاحتياجات الخاصة</a></nav></div></header>
+<a href="{BP}">منصة روافد</a><nav><a href="{BP}">الرئيسية</a><a href="{BP}special-needs/">ذوو الاحتياجات الخاصة</a></nav></div></header>
 <main id="main"><section class="hero"><div class="wrap"><p class="eyebrow">مركز جديد للحالات غير المغطاة سابقًا</p><h1>المتلازمات النمائية والجينية</h1>
 <p class="lead">{e(cluster["lead"])}</p><div class="review"><strong>حالة المراجعة:</strong> مراجعة تحريرية داخلية؛ المراجعة السريرية الخارجية لم تكتمل بعد.</div></div></section>
 <section class="wrap"><h2>الأدلة المنشورة في الدفعة الأولى</h2><div class="cards">{cards}</div></section>

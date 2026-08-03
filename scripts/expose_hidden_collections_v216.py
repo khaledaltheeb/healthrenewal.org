@@ -32,7 +32,7 @@ def patch_index() -> dict:
     text = regex_once(
         text,
         r"<title>.*?</title>",
-        "<title>منصة الصحة النفسية وذوي الاحتياجات الخاصة | موسوعة ومكتبة ومقارنات عربية</title>",
+        "<title>منصة روافد | موسوعة ومكتبة ومقارنات عربية</title>",
         "title",
     )
     text = regex_once(
@@ -51,7 +51,7 @@ def patch_index() -> dict:
     meta_anchor = '<meta name="color-scheme" content="light">'
     meta_block = meta_anchor + "\n" + "\n".join(
         (
-            '<meta name="application-name" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة">',
+            '<meta name="application-name" content="منصة روافد">',
             '<meta name="subject" content="الصحة النفسية وعلم النفس والتربية الدامجة وذوو الاحتياجات الخاصة">',
             '<meta name="audience" content="الأفراد والأسر والمعلمون والمرشدون والمختصون ومقدمو الخدمات">',
             '<meta name="distribution" content="global">',
@@ -60,7 +60,7 @@ def patch_index() -> dict:
     )
     text = replace_once(text, meta_anchor, meta_block, "institutional metadata")
 
-    search_link = '<link rel="search" type="application/opensearchdescription+xml" title="البحث في منصة الصحة النفسية" href="/opensearch.xml">'
+    search_link = '<link rel="search" type="application/opensearchdescription+xml" title="البحث في منصة روافد" href="/opensearch.xml">'
     search_block = search_link + "\n" + "\n".join(
         (
             f'<link rel="sitemap" type="application/xml" href="{BASE}sitemap.xml">',
@@ -97,7 +97,7 @@ def patch_index() -> dict:
     text = replace_once(
         text,
         twitter_image,
-        twitter_image + '\n<meta name="twitter:image:alt" content="شعار منصة الصحة النفسية وذوي الاحتياجات الخاصة">',
+        twitter_image + '\n<meta name="twitter:image:alt" content="شعار منصة روافد">',
         "Twitter image alt",
     )
 

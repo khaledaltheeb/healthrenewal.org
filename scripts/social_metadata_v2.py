@@ -6,8 +6,8 @@ import html
 import re
 from html.parser import HTMLParser
 
-SOCIAL_IMAGE = "https://healthrenewal.org/assets/brand/social-card.svg"
-SITE_NAME = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
+SOCIAL_IMAGE = "https://healthrenewal.org/assets/brand/rawafid-social-card.jpg"
+SITE_NAME = "منصة روافد"
 
 
 class HeadMetadataParser(HTMLParser):

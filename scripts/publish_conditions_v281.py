@@ -139,7 +139,7 @@ def condition_page(data: dict[str, Any], condition: dict[str, Any]) -> str:
                 "name": condition["title_ar"], "headline": condition["title_ar"],
                 "description": description, "inLanguage": "ar", "dateModified": data["updated_at"],
                 "isPartOf": {"@type": "CollectionPage", "url": BASE + "capabilities/expanded/"},
-                "author": {"@type": "Organization", "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة"},
+                "author": {"@type": "Organization", "name": "منصة روافد"},
                 "citation": [condition["source_url"]] + [s["url"] for s in data.get("common_sources", [])],
             },
             {

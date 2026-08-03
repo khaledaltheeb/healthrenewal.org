@@ -1,14 +1,14 @@
 {
-  "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
-  "short_name": "الصحة النفسية",
-  "description": "موسوعة عربية للصحة النفسية والأشخاص ذوي الاحتياجات الخاصة والأدلة العملية والتربية الدامجة.",
+  "name": "منصة روافد للعافية النفسية والدمج والتمكين",
+  "short_name": "روافد",
+  "description": "منصة روافد منصة عربية للعافية النفسية والدمج والتمكين، تقدم موسوعة موثقة، أدلة عملية، أدوات تفاعلية، ومسارات معرفية داعمة للأفراد والأسر والمختصين والمجتمع.",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#075f5b",
+  "background_color": "#f7fffe",
+  "theme_color": "#0b8f92",
   "categories": [
     "education",
     "health",
@@ -16,9 +16,15 @@
   ],
   "icons": [
     {
-      "src": "/assets/brand/logo-mark.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],

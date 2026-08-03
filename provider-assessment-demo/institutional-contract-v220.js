@@ -12,7 +12,7 @@
     document.documentElement.dataset.compatibilityRelease = compatibilityRelease;
     document.documentElement.dataset.professionalDraftFallback = compatibilityRelease;
     document.documentElement.dataset.professionalTemplateDraft = compatibilityRelease;
-    document.title = "عقد التقييم والسجل المهني v220 | منصة الصحة النفسية وذوي الاحتياجات الخاصة";
+    document.title = "عقد التقييم والسجل المهني v220 | منصة روافد";
     const description = document.querySelector('meta[name="description"]');
     if (description) description.content = "منصة عربية مؤسسية لإدارة الحالات والجلسات والأدوات الاستكشافية والسجل المهني ضمن عقد v220 يضبط الغرض والمصادر والبيئات والصلاحية والحقوق والمراجعة وخطط المتابعة، دون تشخيص آلي أو فتح مواد محمية.";
     const productName = document.querySelector(".product-name");

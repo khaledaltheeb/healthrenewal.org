@@ -8,8 +8,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "index.html"
-BRAND = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
-SLOGAN = "معرفة تحترم الإنسان. دعم يوسّع الإمكانات."
+BRAND = "منصة روافد"
+SLOGAN = "للعافية النفسية والدمج والتمكين"
 REQUIRED_LINKS = (
     "start-here/",
     "encyclopedia/",
@@ -159,8 +159,8 @@ def main() -> None:
         '<link rel="icon" href="/assets/brand/logo-mark.svg" type="image/svg+xml">',
         '<link rel="search" type="application/opensearchdescription+xml"',
         '<link rel="sitemap" type="application/xml" href="https://healthrenewal.org/sitemap.xml">',
-        '<meta property="og:image" content="https://healthrenewal.org/assets/brand/social-card.svg">',
-        '<meta name="twitter:image" content="https://healthrenewal.org/assets/brand/social-card.svg">',
+        '<meta property="og:image" content="https://healthrenewal.org/assets/brand/rawafid-social-card.jpg">',
+        '<meta name="twitter:image" content="https://healthrenewal.org/assets/brand/rawafid-social-card.jpg">',
     ):
         assert required_meta in source, f"Missing homepage discovery metadata: {required_meta}"
 

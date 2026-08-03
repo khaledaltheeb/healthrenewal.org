@@ -13,7 +13,7 @@ import re
 from pathlib import Path
 
 VERSION = 230
-INSTITUTIONAL_NAME = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
+INSTITUTIONAL_NAME = "منصة روافد"
 REQUIRED_HREFS = (
     "sections/",
     "partners/",

@@ -21,7 +21,7 @@ def write_page(root: Path, relative: str, body: str, *, header: bool = True, foo
     path = root / relative
     path.parent.mkdir(parents=True, exist_ok=True)
     shell_header = '<header><nav aria-label="الرئيسية"></nav></header>' if header else ""
-    shell_footer = '<footer><p>منصة الصحة النفسية وذوي الاحتياجات الخاصة</p></footer>' if footer else ""
+    shell_footer = '<footer><p>منصة روافد</p></footer>' if footer else ""
     path.write_text(
         f'<!doctype html><html lang="ar" dir="rtl"><body>{shell_header}<main><h1>اختبار</h1>{body}</main>{shell_footer}</body></html>',
         encoding="utf-8",

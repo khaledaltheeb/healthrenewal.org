@@ -97,13 +97,13 @@ a{color:#075f5b;text-underline-offset:.2em}.ys-skip{position:absolute;inset-inli
 def shell_header() -> str:
     return f"""<a class="ys-skip" href="#main">تجاوز إلى المحتوى</a>
 <header class="ys-site-header"><div class="ys-wrap ys-head">
-<a class="ys-brand" href="{BASE_PATH}/"><img src="{BASE_PATH}/assets/brand/logo-mark.svg" alt="" width="46" height="46"><span>منصة الصحة النفسية وذوي الاحتياجات الخاصة</span></a>
+<a class="ys-brand" href="{BASE_PATH}/"><img src="{BASE_PATH}/assets/brand/logo-mark.svg" alt="" width="46" height="46"><span>منصة روافد</span></a>
 <nav class="ys-nav" aria-label="التنقل الرئيسي"><a href="{BASE_PATH}/start-here/">ابدأ</a><a href="{BASE_PATH}/sectors/">القطاعات</a><a href="{BASE_PATH}/encyclopedia/">الموسوعة</a><a href="{BASE_PATH}/care-guides/">الأدلة</a><a href="{BASE_PATH}/trust/">المنهجية</a></nav>
 </div></header>"""
 
 
 def shell_footer(reviewed_at: str) -> str:
-    return f"""<footer class="ys-footer"><div class="ys-wrap"><p><strong>منصة الصحة النفسية وذوي الاحتياجات الخاصة</strong> — معرفة تحترم الإنسان. دعم يوسّع الإمكانات.</p>
+    return f"""<footer class="ys-footer"><div class="ys-wrap"><p><strong>منصة روافد</strong> — للعافية النفسية والدمج والتمكين</p>
 <p>المحتوى للتثقيف والدعم العام، ولا يستبدل التقييم أو العلاج الفردي. آخر مراجعة مصدرية لقطاع الشباب: {esc(reviewed_at)}.</p>
 <nav class="ys-footer-links" aria-label="روابط التذييل"><a href="{BASE_PATH}/sectors/youth/">قطاع الشباب</a><a href="{BASE_PATH}/sectors/">كل القطاعات</a><a href="{BASE_PATH}/editorial-methodology/">المنهجية التحريرية</a><a href="{BASE_PATH}/copyright/">حقوق النشر</a></nav></div></footer>"""
 
@@ -127,14 +127,14 @@ def document(
 <meta name="description" content="{esc(meta_description(description))}">
 <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
 <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
-<meta name="author" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة">
+<meta name="author" content="منصة روافد">
 <link rel="canonical" href="{esc(canonical)}">
 <link rel="alternate" hreflang="ar" href="{esc(canonical)}">
 <link rel="alternate" hreflang="x-default" href="{esc(canonical)}">
 <link rel="manifest" href="{BASE_PATH}/manifest.webmanifest">
 <meta property="og:locale" content="ar_AR">
 <meta property="og:type" content="article">
-<meta property="og:site_name" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة">
+<meta property="og:site_name" content="منصة روافد">
 <meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(meta_description(description))}">
 <meta property="og:url" content="{esc(canonical)}">
@@ -445,7 +445,7 @@ def publish(site: Path, source_path: Path = DEFAULT_SOURCE) -> dict[str, Any]:
             "url": hub_canonical,
             "inLanguage": "ar",
             "dateModified": data["reviewed_at"],
-            "isPartOf": {"@type": "WebSite", "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة", "url": BASE + "/"},
+            "isPartOf": {"@type": "WebSite", "name": "منصة روافد", "url": BASE + "/"},
         },
         {
             "@context": "https://schema.org",
@@ -546,7 +546,7 @@ def publish(site: Path, source_path: Path = DEFAULT_SOURCE) -> dict[str, Any]:
                 "url": canonical,
                 "inLanguage": "ar",
                 "dateModified": data["reviewed_at"],
-                "author": {"@type": "Organization", "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة"},
+                "author": {"@type": "Organization", "name": "منصة روافد"},
                 "citation": [sources[source_id]["url"] for source_id in guide["sources"]],
             },
             {

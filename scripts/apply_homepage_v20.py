@@ -198,8 +198,8 @@ def main() -> None:
         'name="twitter:image"',
         'application/ld+json',
         'color-scheme" content="light"',
-        'منصة الصحة النفسية وذوي الاحتياجات الخاصة',
-        'معرفة تحترم الإنسان. دعم يوسّع الإمكانات.',
+        'منصة روافد',
+        'للعافية النفسية والدمج والتمكين',
         f'<strong>{LAB_TOOL_COUNT}</strong><span>مقياسًا وأداة وقدرة معرفية',
     ]
     missing = [item for item in required if item not in text]
@@ -261,9 +261,9 @@ def main() -> None:
         "h1": h1_count,
         "h2": h2_count,
         "h3": h3_count,
-        "brand": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+        "brand": "منصة روافد",
         "founding_name": "مصطلحات علم النفس",
-        "slogan": "معرفة تحترم الإنسان. دعم يوسّع الإمكانات.",
+        "slogan": "للعافية النفسية والدمج والتمكين",
         "target_counts_are_labeled": False,
         "production_counts_are_contextualized": True,
         "operational_copy_hidden": True,

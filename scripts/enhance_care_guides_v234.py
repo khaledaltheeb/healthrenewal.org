@@ -96,7 +96,7 @@ def keywords_for(title: str, search_intent: list[str] | None = None) -> str:
         "التعامل مع الاضطرابات النفسية",
         "الدعم النفسي الأولي",
         "متى أطلب مساعدة نفسية",
-        "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+        "منصة روافد",
         "مصطلحات علم النفس",
     ]
     values.extend(search_intent or [])
@@ -141,7 +141,7 @@ def head(title: str, description: str, canonical: str, schema: str, keywords: st
     safe_title = esc(title)
     safe_desc = esc(description)
     safe_canonical = esc(canonical)
-    return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{safe_title} | منصة الصحة النفسية وذوي الاحتياجات الخاصة</title><meta name="description" content="{safe_desc}"><meta name="keywords" content="{esc(keywords)}"><meta name="author" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة"><meta name="publisher" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="bingbot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#075f5b"><meta name="color-scheme" content="light"><link rel="canonical" href="{safe_canonical}"><link rel="alternate" hreflang="ar" href="{safe_canonical}"><link rel="alternate" hreflang="x-default" href="{safe_canonical}"><link rel="manifest" href="{BASE_PATH}manifest.webmanifest"><link rel="stylesheet" href="{BASE_PATH}assets/css/theme-v10.css"><link rel="stylesheet" href="{BASE_PATH}assets/css/marshmallow-v12.css"><link rel="stylesheet" href="{BASE_PATH}assets/css/care-guides-v234.css"><meta property="og:type" content="{esc(page_type)}"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة"><meta property="og:title" content="{safe_title}"><meta property="og:description" content="{safe_desc}"><meta property="og:url" content="{safe_canonical}"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="{safe_title}"><meta name="twitter:description" content="{safe_desc}"><meta property="article:section" content="أدلة التعامل والرعاية"><meta property="article:modified_time" content="{RELEASE_DATE}"><script type="application/ld+json">{schema}</script></head>'''
+    return f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{safe_title} | منصة روافد</title><meta name="description" content="{safe_desc}"><meta name="keywords" content="{esc(keywords)}"><meta name="author" content="منصة روافد"><meta name="publisher" content="منصة روافد"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="bingbot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#075f5b"><meta name="color-scheme" content="light"><link rel="canonical" href="{safe_canonical}"><link rel="alternate" hreflang="ar" href="{safe_canonical}"><link rel="alternate" hreflang="x-default" href="{safe_canonical}"><link rel="manifest" href="{BASE_PATH}manifest.webmanifest"><link rel="stylesheet" href="{BASE_PATH}assets/css/theme-v10.css"><link rel="stylesheet" href="{BASE_PATH}assets/css/marshmallow-v12.css"><link rel="stylesheet" href="{BASE_PATH}assets/css/care-guides-v234.css"><meta property="og:type" content="{esc(page_type)}"><meta property="og:locale" content="ar_AR"><meta property="og:site_name" content="منصة روافد"><meta property="og:title" content="{safe_title}"><meta property="og:description" content="{safe_desc}"><meta property="og:url" content="{safe_canonical}"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="{safe_title}"><meta name="twitter:description" content="{safe_desc}"><meta property="article:section" content="أدلة التعامل والرعاية"><meta property="article:modified_time" content="{RELEASE_DATE}"><script type="application/ld+json">{schema}</script></head>'''
 
 def support_sections(title: str, related: list[tuple[str, str]] | None = None) -> str:
     items = faq_items(title)
@@ -212,8 +212,8 @@ def enhance_extension_page(path: Path, all_meta: list[GuideMeta]) -> None:
     text = re.sub(r"<h2([^>]*)>(.*?)</h2>", add_id, text, flags=re.I | re.S)
     additions = [
         f'<meta name="keywords" content="{esc(keywords_for(title))}">',
-        '<meta name="author" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة">',
-        '<meta name="publisher" content="منصة الصحة النفسية وذوي الاحتياجات الخاصة">',
+        '<meta name="author" content="منصة روافد">',
+        '<meta name="publisher" content="منصة روافد">',
         '<meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">',
         '<meta name="bingbot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">',
         f'<meta property="article:section" content="أدلة التعامل والرعاية"><meta property="article:modified_time" content="{RELEASE_DATE}">',

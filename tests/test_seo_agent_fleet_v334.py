@@ -79,10 +79,10 @@ class Fixture:
         (self.root / "section").mkdir(parents=True)
         (self.root / "index.html").write_text(
             page_html(
-                title="منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+                title="منصة روافد",
                 description="بوابة عربية مؤسسية موثقة تجمع المعرفة النفسية والأدلة التطبيقية والمراجع الأصلية وموارد الأشخاص ذوي الاحتياجات الخاصة.",
                 canonical=BASE,
-                h1="منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+                h1="منصة روافد",
                 body=body,
                 extra_body='<a href="section/">القسم العلمي</a>',
             ),

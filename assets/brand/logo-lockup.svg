@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 480" role="img" aria-labelledby="title desc">
+<title id="title">منصة روافد</title><desc id="desc">للعافية النفسية والدمج والتمكين</desc>
+<defs><linearGradient id="word" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#086f7c"/><stop offset=".55" stop-color="#08aeb4"/><stop offset="1" stop-color="#0d7f86"/></linearGradient></defs>
+<g transform="translate(26,-16) scale(.93)">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#063f49"/><stop offset=".5" stop-color="#087e82"/><stop offset="1" stop-color="#0d555c"/></linearGradient>
+  <radialGradient id="halo"><stop stop-color="#efff67" stop-opacity=".92"/><stop offset="1" stop-color="#efff67" stop-opacity="0"/></radialGradient>
+  <linearGradient id="aqua" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#00a7c2"/><stop offset=".52" stop-color="#12d8d0"/><stop offset="1" stop-color="#66f3de"/></linearGradient>
+  <linearGradient id="green" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#159b57"/><stop offset=".55" stop-color="#74d43c"/><stop offset="1" stop-color="#d7f33b"/></linearGradient>
+  <linearGradient id="gold" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#f08a16"/><stop offset=".55" stop-color="#ffc52f"/><stop offset="1" stop-color="#fff36b"/></linearGradient>
+  <radialGradient id="sun"><stop stop-color="#fff76a"/><stop offset=".45" stop-color="#ffc72c"/><stop offset="1" stop-color="#f28a13"/></radialGradient>
+  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="11" stdDeviation="10" flood-color="#001a20" flood-opacity=".38"/></filter>
+</defs>
+<rect x="18" y="18" width="476" height="476" rx="112" fill="url(#bg)" stroke="#35d9d0" stroke-opacity=".38" stroke-width="5"/>
+<circle cx="303" cy="155" r="118" fill="url(#halo)" filter="url(#glow)"/>
+<g filter="url(#shadow)">
+  <circle cx="274" cy="142" r="36" fill="url(#sun)" stroke="#df7112" stroke-width="3"/>
+  <path d="M244 395C203 322 203 231 255 171C272 245 275 318 244 395Z" fill="url(#aqua)" stroke="#006e89" stroke-width="3"/>
+  <path d="M250 391C270 295 318 221 391 189C381 278 333 349 250 391Z" fill="url(#green)" stroke="#218d42" stroke-width="3"/>
+  <path d="M237 391C229 314 191 255 132 222C132 298 169 358 237 391Z" fill="url(#aqua)" stroke="#0087a2" stroke-width="3"/>
+  <path d="M245 394C249 317 284 257 343 221C339 297 306 357 245 394Z" fill="url(#gold)" stroke="#db7c13" stroke-width="3"/>
+  <path d="M226 396C203 345 164 316 111 305C126 355 166 390 226 396Z" fill="url(#green)" stroke="#2c9639" stroke-width="3"/>
+  <path d="M255 404C309 352 368 330 434 342C395 389 334 410 255 404Z" fill="url(#aqua)" stroke="#008ba7" stroke-width="3"/>
+  <path d="M83 409C180 447 313 445 445 385C348 471 202 488 83 427Z" fill="url(#aqua)" stroke="#007c98" stroke-width="4"/>
+  <path d="M172 457C269 469 363 447 443 402C375 473 276 497 172 474Z" fill="url(#gold)" stroke="#d77d16" stroke-width="3"/>
+</g>
+</g>
+<text x="1360" y="214" direction="rtl" text-anchor="end" font-family="Noto Kufi Arabic, Noto Sans Arabic, Tahoma, Arial, sans-serif" font-size="112" font-weight="900" fill="url(#word)">منصة روافد</text>
+<text x="1360" y="310" direction="rtl" text-anchor="end" font-family="Noto Sans Arabic, Tahoma, Arial, sans-serif" font-size="46" font-weight="700" fill="#0b6f72">للعافية النفسية والدمج والتمكين</text>
+<path d="M610 345H1355" stroke="#f4b942" stroke-width="8" stroke-linecap="round" opacity=".85"/>
+</svg>

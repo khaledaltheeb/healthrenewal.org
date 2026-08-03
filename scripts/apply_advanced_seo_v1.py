@@ -12,7 +12,7 @@ ROOT = Path.cwd()
 BASE_URL = "https://healthrenewal.org/"
 SOCIAL_IMAGE = f"{BASE_URL}assets/brand/social-card.svg"
 SITE_NAME = {
-    "ar": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+    "ar": "منصة روافد",
     "en": "Mental Health and Special Needs Platform",
 }
 DEFAULT_ROBOTS = "index,follow,max-snippet:-1,max-image-preview:large"

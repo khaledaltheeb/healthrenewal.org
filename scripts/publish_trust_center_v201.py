@@ -9,9 +9,9 @@ from typing import Any
 import publish_trust_center_v71 as legacy
 
 SITE = Path(sys.argv[1] if len(sys.argv) > 1 else "_site").resolve()
-BRAND = "منصة الصحة النفسية وذوي الاحتياجات الخاصة"
+BRAND = "منصة روافد"
 FOUNDER = "مصطلحات علم النفس"
-SLOGAN = "معرفة تحترم الإنسان. دعم يوسّع الإمكانات."
+SLOGAN = "للعافية النفسية والدمج والتمكين"
 TRUST_LINK = '<a href="trust/">الثقة والمنهجية</a>'
 
 

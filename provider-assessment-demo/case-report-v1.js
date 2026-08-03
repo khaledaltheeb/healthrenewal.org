@@ -110,7 +110,7 @@
     const reportId = data.reportId || "مسودة جديدة";
     return `
       <article data-report-preview>
-        <header><p class="eyebrow">منصة الصحة النفسية وذوي الاحتياجات الخاصة</p><h2>تقرير تقييم ومتابعة مهني</h2><p><strong>الإصدار:</strong> ${esc(reportId)} — <strong>الحالة:</strong> ${esc(statusLabel(data.reviewStatus || "draft"))}</p></header>
+        <header><p class="eyebrow">منصة روافد</p><h2>تقرير تقييم ومتابعة مهني</h2><p><strong>الإصدار:</strong> ${esc(reportId)} — <strong>الحالة:</strong> ${esc(statusLabel(data.reviewStatus || "draft"))}</p></header>
         <section><h3>بيانات الحالة</h3><dl class="summary-grid"><div><dt>الاسم المستعار</dt><dd>${esc(caseRecord.alias)}</dd></div><div><dt>رقم الحالة</dt><dd>${esc(caseRecord.caseId)}</dd></div><div><dt>الفئة العمرية</dt><dd>${esc(ageLabel(caseRecord.ageGroup))}</dd></div><div><dt>اللغة</dt><dd>${esc(caseRecord.language)}</dd></div><div><dt>مصدر المعلومات</dt><dd>${esc(caseRecord.informant)}</dd></div><div><dt>حالة السجل</dt><dd>${esc(statusLabel(caseRecord.status))}</dd></div></dl></section>
         ${pathway ? `<section><h3>مسار الحالة المختار</h3><p><strong>${esc(pathway.title)}</strong></p></section>` : ""}
         <section><h3>غرض التقرير وسؤال الإحالة</h3><p>${esc(data.purpose || caseRecord.question || "غير مسجل")}</p></section>

@@ -18,12 +18,12 @@ def render_page() -> str:
         "@context": "https://schema.org",
         "@type": "WebPage",
         "name": "الشركاء والتعاون والشفافية",
-        "description": "سجل علني يوضح معايير الشراكات والتعاون والإفصاح في منصة الصحة النفسية وذوي الاحتياجات الخاصة.",
+        "description": "سجل علني يوضح معايير الشراكات والتعاون والإفصاح في منصة روافد.",
         "url": URL,
         "inLanguage": "ar",
         "isPartOf": {
             "@type": "WebSite",
-            "name": "منصة الصحة النفسية وذوي الاحتياجات الخاصة",
+            "name": "منصة روافد",
             "url": BASE + "/",
         },
     }
@@ -32,7 +32,7 @@ def render_page() -> str:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>الشركاء والتعاون والشفافية | منصة الصحة النفسية وذوي الاحتياجات الخاصة</title>
+<title>الشركاء والتعاون والشفافية | منصة روافد</title>
 <meta name="description" content="سجل علني لمعايير الشراكات والتعاون والإفصاح، مع منع عرض أي جهة كشريك رسمي دون اتفاق موثق وساري.">
 <link rel="canonical" href="{URL}">
 <meta property="og:title" content="الشركاء والتعاون والشفافية">
@@ -49,7 +49,7 @@ a{{color:#086e69}}header,footer{{padding:18px max(4vw,20px);background:var(--sof
 </head>
 <body>
 <header>
-<strong>منصة الصحة النفسية وذوي الاحتياجات الخاصة</strong>
+<strong>منصة روافد</strong>
 <nav aria-label="التنقل الرئيسي"><a href="/">الرئيسية</a><a href="/trust/">الثقة والمنهجية</a><a href="/special-needs/">ذوو الاحتياجات الخاصة</a><a href="/care-guides/">أدلة التعامل</a></nav>
 </header>
 <main>
@@ -73,7 +73,7 @@ a{{color:#086e69}}header,footer{{padding:18px max(4vw,20px);background:var(--sof
 <section aria-labelledby="collaboration"><h2 id="collaboration">مجالات التعاون المقبولة</h2><p>يمكن أن يشمل التعاون مراجعة علمية مستقلة، إتاحة وتوطين المعرفة، تدريب مقدمي الخدمة، دعم تقني أو بحثي، تمويل معلن، أو إحالة إلى خدمات موثوقة. لا يعني التعاون اعتمادًا سريريًا أو قانونيًا تلقائيًا، ولا يحول المحتوى التثقيفي إلى تشخيص أو علاج فردي.</p></section>
 <section aria-labelledby="corrections"><h2 id="corrections">التصحيح والاعتراض</h2><p>عند اكتشاف وصف غير دقيق لعلاقة مؤسسية، تُراجع الوثائق ويُصحح السجل مع توضيح تاريخ التحديث. لا يُستخدم شعار جهة أو علامتها التجارية قبل التحقق من الإذن وشروط الاستخدام.</p></section>
 </main>
-<footer><p><strong>معرفة تحترم الإنسان. دعم يوسّع الإمكانات.</strong></p><p><a href="/trust/">الثقة والمنهجية</a> · <a href="/">العودة إلى الرئيسية</a></p></footer>
+<footer><p><strong>للعافية النفسية والدمج والتمكين</strong></p><p><a href="/trust/">الثقة والمنهجية</a> · <a href="/">العودة إلى الرئيسية</a></p></footer>
 </body>
 </html>'''
 

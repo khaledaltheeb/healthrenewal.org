@@ -229,7 +229,7 @@
 
   const footer = element('footer', { class: 'pt-global-footer', 'data-platform-footer': 'v1' }, [
     element('div', { class: 'pt-global-footer__inner' }, [
-      element('p', { text: `© ${new Date().getFullYear()} منصة الصحة النفسية وذوي الاحتياجات الخاصة. جميع الحقوق محفوظة.` }),
+      element('p', { text: `© ${new Date().getFullYear()} منصة روافد. جميع الحقوق محفوظة.` }),
       element('nav', { 'aria-label': 'روابط الحوكمة والشفافية' }, [
         element('a', { href: url('platform/'), text: 'دليل المنصة' }),
         element('a', { href: url('trust/'), text: 'الثقة والمنهجية' }),
