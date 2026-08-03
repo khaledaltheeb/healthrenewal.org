@@ -28,9 +28,29 @@ jobs:
         with:
           python-version: "3.12"
       - name: Run trusted clean publication builder from main
+        env:
+          HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
-          set -euxo pipefail
+          set -uo pipefail
+          if [ -f diagnostics/addiction-clean-build.log ]; then
+            echo "Diagnostic already captured; stop to avoid a retry loop."
+            exit 0
+          fi
           git fetch origin main
           git show origin/main:scripts/build_clean_addiction_condition_guides_once.sh > /tmp/build-clean-addiction.sh
           chmod +x /tmp/build-clean-addiction.sh
-          /tmp/build-clean-addiction.sh
+          set +e
+          /tmp/build-clean-addiction.sh > /tmp/addiction-clean-build.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/addiction-clean-build.log
+          if [ "$status" -ne 0 ]; then
+            mkdir -p diagnostics
+            cp /tmp/addiction-clean-build.log diagnostics/addiction-clean-build.log
+            git config user.name "healthrenewal-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add diagnostics/addiction-clean-build.log
+            git commit -m "diagnostic(addiction): capture clean build failure"
+            git push origin HEAD:"${HEAD_BRANCH}"
+            exit "$status"
+          fi
