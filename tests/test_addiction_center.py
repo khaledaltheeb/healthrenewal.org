@@ -11,6 +11,7 @@ def test_addiction_core_pages_exist_and_are_indexable():
         ROOT / "addiction" / "protocol-atlas" / "index.html",
         ROOT / "addiction" / "withdrawal-safety" / "index.html",
         ROOT / "addiction" / "recovery-roadmap" / "index.html",
+        ROOT / "addiction" / "family-guide" / "index.html",
         ROOT / "addiction" / "sources" / "index.html",
     ]
     for page in expected:
@@ -38,16 +39,19 @@ def test_machine_readable_index_matches_atlas_contract():
     assert data["protocol_total"] == 100
     assert data["reference_count"] >= 50
     assert len(data["condition_groups"]) == 10
+    assert len(data["core_pages"]) == 6
     assert all(item["protocol_count"] == 10 for item in data["condition_groups"])
+    assert (ROOT / data["governance_document"]).exists()
 
 
 def test_addiction_sitemap_and_index_are_valid():
     ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
     sitemap_root = ET.parse(ROOT / "sitemap-addiction.xml").getroot()
     locs = [node.text for node in sitemap_root.findall("s:url/s:loc", ns)]
-    assert len(locs) == 5
+    assert len(locs) == 6
     assert len(locs) == len(set(locs))
     assert all(url.startswith("https://healthrenewal.org/addiction/") for url in locs)
+    assert "https://healthrenewal.org/addiction/family-guide/" in locs
 
     index_root = ET.parse(ROOT / "sitemap-index.xml").getroot()
     sitemap_locs = [node.text for node in index_root.findall("s:sitemap/s:loc", ns)]
@@ -77,3 +81,15 @@ def test_sources_registry_has_at_least_fifty_entries():
     assert text.count('class="source"') >= 50
     for authority in ["WHO", "UNODC", "SAMHSA", "NIDA", "ASAM", "NICE", "CDC", "VA/DoD"]:
         assert authority in text
+
+
+def test_editorial_governance_defines_five_roles():
+    text = (ROOT / "docs" / "addiction-editorial-governance.md").read_text(encoding="utf-8")
+    for role in [
+        "باحث الأدلة والمراجع",
+        "منسق هندسة المعرفة",
+        "مراجع السلامة السريرية",
+        "المحرر العربي وإزالة الوصمة",
+        "مسؤول SEO والنشر والاكتشاف الآلي",
+    ]:
+        assert role in text
