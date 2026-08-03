@@ -64,6 +64,7 @@ jobs:
         run: |
           git config user.name "Rawafid Brand Automation"
           git config user.email "actions@users.noreply.github.com"
+          git restore --source=HEAD --worktree --staged .github
           git add -A
           if git diff --cached --quiet; then
             echo "No generated changes to commit"
