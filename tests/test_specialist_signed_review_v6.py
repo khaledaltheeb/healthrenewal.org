@@ -23,11 +23,7 @@ class SignedApplicationReviewV6Tests(unittest.TestCase):
         self.assertIn("request.method === 'POST'", self.handler)
         self.assertIn("effect:'view_only'", self.handler)
         get_block = self.handler.split('async function handleReviewGet', 1)[1].split('async function handleReviewPost', 1)[0]
-        self.assertNotRegex(
-            get_block,
-            r"UPDATE applications\s+SET status",
-            'GET must never approve, reject, or otherwise change application status',
-        )
+        self.assertNotRegex(get_block, r"UPDATE applications\s+SET status", 'GET must never approve, reject, or otherwise change application status')
         self.assertIn("form.get('confirm') !== '1'", self.handler)
         self.assertIn("['approved','rejected']", self.handler)
 
@@ -47,10 +43,7 @@ class SignedApplicationReviewV6Tests(unittest.TestCase):
         self.assertIn("cleanUrl.search = ''", get_block)
 
     def test_csrf_cookie_origin_and_session_controls(self):
-        for expected in (
-            'HttpOnly', 'SameSite=Strict', 'Secure', 'review_session_hash', 'csrf_hash',
-            'enforceSameOrigin(request)', "origin !== expected", "csrf_mismatch",
-        ):
+        for expected in ('HttpOnly', 'SameSite=Strict', 'Secure', 'review_session_hash', 'csrf_hash', 'enforceSameOrigin(request)', "origin !== expected", "csrf_mismatch"):
             self.assertIn(expected, self.handler + self.migration)
         self.assertIn("content-security-policy", self.handler)
         self.assertIn("form-action 'self'", self.handler)
@@ -66,8 +59,7 @@ class SignedApplicationReviewV6Tests(unittest.TestCase):
 
     def test_page_excludes_private_contact_and_documents(self):
         render_block = self.handler.split('function renderReviewPage', 1)[1].split('function renderResultPage', 1)[0]
-        forbidden = ('privateEmail', 'phone', 'whatsapp', 'document', 'credentialUrl', 'certificate')
-        for value in forbidden:
+        for value in ('privateEmail', 'phone', 'whatsapp', 'document', 'credentialUrl', 'certificate'):
             self.assertNotIn(value, render_block)
         for allowed in ('display_name', 'entity_type', 'specialties', 'region'):
             self.assertIn(allowed, render_block)
@@ -88,20 +80,16 @@ class SignedApplicationReviewV6Tests(unittest.TestCase):
         connection.executescript('CREATE TABLE applications (id TEXT PRIMARY KEY);')
         connection.executescript(self.migration)
         columns = {row[1] for row in connection.execute("PRAGMA table_info('application_review_invitations')")}
-        required = {
-            'id', 'application_id', 'token_hash', 'review_session_hash', 'csrf_hash',
-            'expires_at', 'used_at', 'revoked_at', 'decision', 'decided_by',
-        }
+        required = {'id', 'application_id', 'token_hash', 'review_session_hash', 'csrf_hash', 'expires_at', 'used_at', 'revoked_at', 'decision', 'decided_by'}
         self.assertTrue(required.issubset(columns), required - columns)
 
-    def test_deployment_contract_requires_secret_and_live_health(self):
-        for expected in (
-            'src/index-v4.js', '0005_signed_application_reviews.sql',
-            'REVIEW_LINK_SECRET', 'SPECIALISTS_REVIEW_LINK_SECRET',
-            "health['version'] == '6.0.0'", "'signedReviews'", "'signedReviewSchema'",
-        ):
+    def test_deployment_contract_requires_worker_secret_name_and_live_health(self):
+        for expected in ('src/index-v4.js', '0005_signed_application_reviews.sql', "'REVIEW_LINK_SECRET'", 'Missing required Worker secret names', "health['version'] == '6.0.0'", "'signedReviews'", "'signedReviewSchema'"):
             self.assertIn(expected, self.deploy)
-        self.assertRegex(self.deploy, r"\[\[ \$\{#REVIEW_LINK_SECRET\} -ge 32 \]\]")
+        self.assertIn('/workers/scripts/${WORKER_NAME}/secrets', self.deploy)
+        self.assertNotIn('SPECIALISTS_REVIEW_LINK_SECRET', self.deploy)
+        self.assertNotIn('REVIEW_LINK_SECRET: ${{ secrets.', self.deploy)
+        self.assertNotIn('--secrets-file', self.deploy)
 
 
 if __name__ == '__main__':
