@@ -3,6 +3,14 @@ import json
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
+CORE_URLS = {
+    "https://healthrenewal.org/addiction/",
+    "https://healthrenewal.org/addiction/protocol-atlas/",
+    "https://healthrenewal.org/addiction/withdrawal-safety/",
+    "https://healthrenewal.org/addiction/recovery-roadmap/",
+    "https://healthrenewal.org/addiction/family-guide/",
+    "https://healthrenewal.org/addiction/sources/",
+}
 
 
 def test_addiction_core_pages_exist_and_are_indexable():
@@ -48,10 +56,10 @@ def test_addiction_sitemap_and_index_are_valid():
     ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
     sitemap_root = ET.parse(ROOT / "sitemap-addiction.xml").getroot()
     locs = [node.text for node in sitemap_root.findall("s:url/s:loc", ns)]
-    assert len(locs) == 6
+    assert len(locs) >= len(CORE_URLS)
     assert len(locs) == len(set(locs))
     assert all(url.startswith("https://healthrenewal.org/addiction/") for url in locs)
-    assert "https://healthrenewal.org/addiction/family-guide/" in locs
+    assert CORE_URLS.issubset(set(locs))
 
     index_root = ET.parse(ROOT / "sitemap-index.xml").getroot()
     sitemap_locs = [node.text for node in index_root.findall("s:sitemap/s:loc", ns)]
