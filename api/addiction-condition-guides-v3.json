@@ -1,0 +1,81 @@
+{
+  "status": "passed",
+  "version": "3.0.0",
+  "generatedAt": "2026-08-03T09:00:00+03:00",
+  "center": "addiction",
+  "conditionPages": 10,
+  "detailedProtocols": 100,
+  "audiencePathways": 5,
+  "routesTotal": 24,
+  "sourceFamilies": 12,
+  "centralSourceRegistryMinimum": 53,
+  "safety": {
+    "noIndividualDosing": true,
+    "noHomeDetoxPlan": true,
+    "noAbruptBenzodiazepineStop": true,
+    "noGuaranteedOutcome": true,
+    "emergencyEscalationOnEveryCondition": true
+  },
+  "quality": {
+    "rtl": true,
+    "titles": true,
+    "metaDescriptions": true,
+    "canonicals": true,
+    "jsonLd": true,
+    "audienceIntegration": true,
+    "sitemap": true,
+    "staticFilesOnly": true
+  },
+  "conditions": [
+    {
+      "slug": "alcohol-use-disorder",
+      "url": "/addiction/alcohol-use-disorder/",
+      "protocols": 10
+    },
+    {
+      "slug": "opioid-use-disorder",
+      "url": "/addiction/opioid-use-disorder/",
+      "protocols": 10
+    },
+    {
+      "slug": "stimulant-use-disorder",
+      "url": "/addiction/stimulant-use-disorder/",
+      "protocols": 10
+    },
+    {
+      "slug": "cannabis-use-disorder",
+      "url": "/addiction/cannabis-use-disorder/",
+      "protocols": 10
+    },
+    {
+      "slug": "nicotine-tobacco-dependence",
+      "url": "/addiction/nicotine-tobacco-dependence/",
+      "protocols": 10
+    },
+    {
+      "slug": "sedative-benzodiazepine-use-disorder",
+      "url": "/addiction/sedative-benzodiazepine-use-disorder/",
+      "protocols": 10
+    },
+    {
+      "slug": "gambling-related-harms",
+      "url": "/addiction/gambling-related-harms/",
+      "protocols": 10
+    },
+    {
+      "slug": "gaming-disorder",
+      "url": "/addiction/gaming-disorder/",
+      "protocols": 10
+    },
+    {
+      "slug": "inhalant-use-disorder",
+      "url": "/addiction/inhalant-use-disorder/",
+      "protocols": 10
+    },
+    {
+      "slug": "polysubstance-use-and-overdose-risk",
+      "url": "/addiction/polysubstance-use-and-overdose-risk/",
+      "protocols": 10
+    }
+  ]
+}
