@@ -9,6 +9,9 @@ from pathlib import Path
 import ensure_complete_discovery_v1 as complete_discovery
 import ensure_special_needs_publication_v1 as special_needs_publication
 import generate_sitemap_index_v304_core as core
+import normalize_rawafid_production_v1 as rawafid_production
+import publish_new_special_needs_conditions_v323 as special_needs_v323
+import publish_women_youth_v406 as women_youth_v406
 from ai_machine_readable_v1 import AI_USER_AGENTS, enhance_site, sync_robots as sync_ai_robots
 from audit_publication_discovery_v1 import run as audit_publication_discovery
 
@@ -134,6 +137,50 @@ def load_discovery_publication_report(root: Path) -> tuple[Path, dict[str, objec
     return report_path, payload
 
 
+def recover_previously_published_content(root: Path, repo_root: Path) -> dict[str, object]:
+    """Re-materialize reviewed route families lost by historical partial deploys.
+
+    The source checkout must remain clean. Recovery therefore runs only against
+    a production-style artifact (normally ``_site`` or a directory containing
+    the custom-domain marker) and always uses the existing validated publishers.
+    """
+
+    production_artifact = root != repo_root and (root.name == "_site" or (root / "CNAME").is_file())
+    if not production_artifact:
+        return {"status": "skipped-non-production-artifact", "publishers": {}}
+
+    special_needs_report = special_needs_v323.publish(root)
+    women_youth_report = women_youth_v406.publish(root)
+    return {
+        "status": "published",
+        "publishers": {
+            "special_needs_v323": {
+                "status": special_needs_report["status"],
+                "condition_count": special_needs_report["condition_count"],
+                "generated_pages": len(special_needs_report["generated_pages"]),
+                "external_clinical_review_completed": special_needs_report[
+                    "external_clinical_review_completed"
+                ],
+            },
+            "women_youth_v406": {
+                "status": women_youth_report["status"],
+                "page_count": women_youth_report["page_count"],
+                "hub_count": women_youth_report["hub_count"],
+                "external_specialist_review_completed": women_youth_report[
+                    "external_specialist_review_completed"
+                ],
+            },
+        },
+    }
+
+
+def normalize_production_identity(root: Path, repo_root: Path) -> dict[str, object]:
+    production_artifact = root != repo_root and (root.name == "_site" or (root / "CNAME").is_file())
+    if not production_artifact:
+        return {"status": "skipped-non-production-artifact"}
+    return rawafid_production.normalize(root)
+
+
 def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     root = root.resolve()
     base_url = base_url.rstrip("/") + "/"
@@ -158,6 +205,11 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
         repo_root,
     )
 
+    # Re-run the reviewed publishers that were previously released through
+    # partial overlays and later disappeared when a complete artifact replaced
+    # them. They now become deterministic members of the single-site build.
+    recovered_content = recover_previously_published_content(root, repo_root)
+
     # Build canonical sitemap families from the complete, restored artifact.
     report = core.generate(root, base_url)
 
@@ -179,8 +231,13 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
         encoding="utf-8",
     )
 
-    # Generate AI-readable surfaces after the discovery pages exist so search
-    # engines and AI clients see the same final route inventory as users.
+    # Normalize every source-authored and generated page after discovery pages
+    # have been materialized, so recovered content cannot reintroduce a retired
+    # identity or inconsistent application metadata.
+    rawafid_identity = normalize_production_identity(root, repo_root)
+
+    # Generate AI-readable surfaces after the discovery pages and identity are
+    # final, so search engines and AI clients see the same inventory as users.
     machine = enhance_site(root, base_url)
 
     # Compare the final artifact with current main and fail closed on missing
@@ -206,6 +263,8 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
         if key not in {"explicit_ai_user_agents", "preserved_custom_domain_sitemaps"}
     }
     report["restored_source_files"] = restored_source_files
+    report["recovered_previously_published_content"] = recovered_content
+    report["rawafid_production_identity"] = rawafid_identity
     report["complete_discovery_publication"] = discovery_publication
     report["special_needs_publication_inventory"] = {
         "status": special_needs_inventory["status"],
