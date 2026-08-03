@@ -110,4 +110,5 @@ def test_api_exposes_five_distinct_audiences_and_gateway():
     ids = [item["id"] for item in audiences]
     assert ids == ["person", "family", "trainer", "community", "clinician"]
     assert len({item["route"] for item in audiences}) == 5
-    assert data["program_status"] == "foundation-expanded"
+    assert data["program_status"] == "foundation-draft"
+    assert data["audience_layer_status"] == "complete-v1"
