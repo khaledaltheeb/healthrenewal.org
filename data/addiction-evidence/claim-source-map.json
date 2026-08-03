@@ -1,0 +1,136 @@
+{
+  "schema_version": "addiction-claim-source-map-v1",
+  "status": "foundation",
+  "verified_on": "2026-08-03",
+  "source_registry": "data/addiction-evidence/source-registry.json",
+  "scope_note_ar": "هذه المصفوفة لا تنشئ خطة علاج فردية. تربط الادعاءات التحريرية عالية الأهمية بالمصادر المحورية وتمنع نشرها بلا أثر تدقيقي.",
+  "claims": [
+    {
+      "id": "alcohol-withdrawal-can-be-medical-emergency",
+      "domain": "alcohol-use-disorder",
+      "statement_ar": "قد يكون انسحاب الكحول حالة طبية خطرة، ولا ينبغي تقديم خطة انسحاب منزلية شخصية دون تقييم مستوى الخطورة.",
+      "source_ids": ["asam-alcohol-withdrawal", "who-mhgap-third-edition-2023"],
+      "evidence_class": "clinical-guideline-consensus",
+      "publication_status": "approved-for-general-education",
+      "safety_flags": ["seizures", "delirium", "medical-supervision"]
+    },
+    {
+      "id": "alcohol-withdrawal-management-is-not-complete-treatment",
+      "domain": "alcohol-use-disorder",
+      "statement_ar": "إدارة الانسحاب مرحلة سلامة وتثبيت، وليست بديلًا عن علاج اضطراب استخدام الكحول والمتابعة الممتدة.",
+      "source_ids": ["who-unodc-treatment-standards-2020", "nice-cg115-alcohol"],
+      "evidence_class": "international-standard-and-guideline",
+      "publication_status": "approved-for-general-education",
+      "safety_flags": ["continuity-of-care"]
+    },
+    {
+      "id": "opioid-medications-are-core-treatment",
+      "domain": "opioid-use-disorder",
+      "statement_ar": "الأدوية المعتمدة لاضطراب استخدام الأفيونات جزء أساسي من العلاج القائم على الدليل، وليست مجرد بديل مؤقت لإزالة السموم.",
+      "source_ids": ["samhsa-tip-63", "samhsa-otp-guidelines-2024"],
+      "evidence_class": "treatment-protocol-and-program-guideline",
+      "publication_status": "approved-for-general-education",
+      "safety_flags": ["overdose-prevention", "retention"]
+    },
+    {
+      "id": "opioid-care-should-prioritize-retention-not-punishment",
+      "domain": "opioid-use-disorder",
+      "statement_ar": "الرعاية المتمحورة حول الشخص والاحتفاظ بالعلاج أولويات سلامة؛ التعثر لا يبرر تلقائيًا طرد الشخص أو سحب علاج ناجح.",
+      "source_ids": ["samhsa-otp-guidelines-2024", "samhsa-tip-63"],
+      "evidence_class": "program-guideline",
+      "publication_status": "approved-for-general-education",
+      "safety_flags": ["treatment-retention", "non-punitive-care"]
+    },
+    {
+      "id": "stimulant-contingency-management-has-strong-support",
+      "domain": "stimulant-use-disorder",
+      "statement_ar": "إدارة الطوارئ التحفيزية من أقوى التدخلات السلوكية المدعومة لاضطراب استخدام المنشطات، مع تكييف التطبيق قانونيًا وعمليًا.",
+      "source_ids": ["asam-aaap-stimulant-guideline"],
+      "evidence_class": "clinical-guideline",
+      "publication_status": "approved-for-general-education",
+      "safety_flags": ["implementation-context"]
+    },
+    {
+      "id": "stimulant-acute-toxicity-needs-emergency-triage",
+      "domain": "stimulant-use-disorder",
+      "statement_ar": "ألم الصدر أو الحرارة الشديدة أو الاختلاجات أو الذهان الخطر أثناء استخدام المنشطات يستلزم فرزًا إسعافيًا.",
+      "source_ids": ["asam-aaap-stimulant-guideline"],
+      "evidence_class": "clinical-guideline",
+      "publication_status": "approved-for-general-education",
+      "safety_flags": ["cardiovascular", "hyperthermia", "psychosis", "seizures"]
+    },
+    {
+      "id": "benzodiazepines-should-not-be-stopped-abruptly",
+      "domain": "sedative-benzodiazepine-use",
+      "statement_ar": "لا ينبغي إيقاف البنزوديازيبينات فجأة بعد الاستخدام المنتظم عندما توجد احتمالية اعتماد جسدي.",
+      "source_ids": ["asam-benzodiazepine-tapering-2025"],
+      "evidence_class": "joint-clinical-guideline",
+      "publication_status": "approved-for-general-education",
+      "safety_flags": ["withdrawal", "seizures"]
+    },
+    {
+      "id": "benzodiazepine-tapering-is-individualized",
+      "domain": "sedative-benzodiazepine-use",
+      "statement_ar": "خفض البنزوديازيبينات قرار تدريجي وفردي قائم على الموازنة بين الفوائد والمخاطر والمشاركة في القرار، وليس جدولًا عامًا ثابتًا.",
+      "source_ids": ["asam-benzodiazepine-tapering-2025"],
+      "evidence_class": "joint-clinical-guideline",
+      "publication_status": "approved-for-general-education",
+      "safety_flags": ["no-self-taper", "shared-decision-making"]
+    },
+    {
+      "id": "tobacco-treatment-combines-behavioral-and-medication-options",
+      "domain": "nicotine-tobacco-dependence",
+      "statement_ar": "علاج اعتماد التبغ يستفيد من التدخل السريري المنظم، ويشمل دعمًا سلوكيًا وخيارات دوائية مناسبة عند عدم وجود موانع.",
+      "source_ids": ["cdc-tobacco-clinical-interventions"],
+      "evidence_class": "clinical-implementation-resource",
+      "publication_status": "approved-for-general-education",
+      "safety_flags": ["contraindication-review"]
+    },
+    {
+      "id": "gambling-harms-require-suicide-and-family-assessment",
+      "domain": "gambling-related-harms",
+      "statement_ar": "تقييم أضرار المقامرة يجب أن يشمل الخطر المالي والنفسي والأسري وخطر الانتحار، لا مقدار المال وحده.",
+      "source_ids": ["nice-ng248-gambling-2025"],
+      "evidence_class": "clinical-guideline",
+      "publication_status": "approved-for-general-education",
+      "safety_flags": ["suicide-risk", "financial-harm", "family-harm"]
+    },
+    {
+      "id": "affected-others-need-independent-support",
+      "domain": "family-and-affected-others",
+      "statement_ar": "الأشخاص المتأثرون بمقامرة أو استخدام شخص قريب قد يحتاجون تقييمًا ودعمًا مستقلين، حتى إن لم يدخل الشخص الأساسي العلاج.",
+      "source_ids": ["nice-ng248-gambling-2025", "who-unodc-treatment-standards-2020"],
+      "evidence_class": "guideline-and-international-standard",
+      "publication_status": "approved-for-general-education",
+      "safety_flags": ["children", "violence", "financial-safety"]
+    },
+    {
+      "id": "polysubstance-care-needs-integrated-risk-prioritization",
+      "domain": "polysubstance-use",
+      "statement_ar": "الاستخدام المتعدد يحتاج تقييمًا موحدًا يرتب أخطار التنفس والاختلاجات والقلب والحرارة والذهان والانتحار، بدل جمع نصائح منفصلة لكل مادة.",
+      "source_ids": ["who-unodc-treatment-standards-2020", "va-dod-sud-guideline-2021"],
+      "evidence_class": "international-standard-and-clinical-guideline",
+      "publication_status": "approved-for-general-education",
+      "safety_flags": ["respiratory-depression", "seizures", "cardiovascular", "suicide-risk"]
+    }
+  ],
+  "coverage_gaps": [
+    {
+      "domain": "cannabis-use-disorder",
+      "required_next_step": "إضافة إرشادات ومراجعات منهجية خاصة بالقنب قبل اعتماد ادعاءات علاجية تفصيلية."
+    },
+    {
+      "domain": "gaming-disorder",
+      "required_next_step": "إضافة مصادر WHO/ICD-11 ومراجعات علاجية مستقلة مع الفصل بين التصنيف والدليل العلاجي."
+    },
+    {
+      "domain": "inhalant-use-disorder",
+      "required_next_step": "إضافة مصادر سمية وعلاج متخصصة قبل نشر مدد انسحاب أو توصيات تفصيلية."
+    },
+    {
+      "domain": "special-populations",
+      "required_next_step": "إنشاء مصفوفات مستقلة للمراهقين والحمل وكبار السن والألم المزمن والاضطرابات المصاحبة."
+    }
+  ],
+  "publication_rule": "Any new major clinical claim must reference at least one existing registry id and pass clinical safety review before publication."
+}
