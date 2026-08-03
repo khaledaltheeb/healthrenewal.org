@@ -115,6 +115,8 @@ REPLACEMENTS=(
 
 def eligible(path:Path)->bool:
     rel=path.relative_to(ROOT)
+    if path.suffix.lower() == ".html" and re.fullmatch(r"(?:google|bing|yandex|baidu)[A-Za-z0-9._-]*\.html", path.name, re.I):
+        return False
     return rel not in SKIP_FILES and path.suffix.lower() in TEXT_EXTENSIONS and not any(part in SKIP_DIRS for part in rel.parts)
 
 
