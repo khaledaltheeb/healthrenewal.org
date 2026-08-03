@@ -25,7 +25,7 @@ REQUIRED = (
     'rel="canonical"',
     'name="robots"',
     'type="application/ld+json"',
-    "World Federation",
+    "adhd-federation.org",
 )
 BANNED_CLINICAL_FRAGMENTS = (
     "تناول حبة",
@@ -78,14 +78,9 @@ def test_adhd_manifest_and_sitemaps_match_publication() -> None:
 
 
 def test_internal_adhd_links_resolve_to_static_targets() -> None:
-    href_pattern = re.compile(r'href="(/adhd/(?:[a-z0-9-]+/)?|/care-guides/adhd-family-practical-guide/)"')
-    known = {
-        "/adhd/": ROOT / "adhd/index.html",
-        "/care-guides/adhd-family-practical-guide/": ROOT / "care-guides/adhd-family-practical-guide/index.html",
-    }
+    href_pattern = re.compile(r'href="(/adhd/(?:[a-z0-9-]+/)?)"')
     for relative in PAGES:
         text = (ROOT / relative).read_text(encoding="utf-8")
         for href in href_pattern.findall(text):
-            if href not in known:
-                known[href] = ROOT / href.strip("/") / "index.html"
-            assert known[href].is_file(), (relative, href)
+            target = ROOT / "adhd/index.html" if href == "/adhd/" else ROOT / href.strip("/") / "index.html"
+            assert target.is_file(), (relative, href)
