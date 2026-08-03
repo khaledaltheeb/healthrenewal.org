@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-08-04",
+  "section": "معلومات سريعة",
+  "pages": 150,
+  "categories": {
+    "أسباب وعلامات": 30,
+    "الأسرة والنمو": 10,
+    "العلاقات والتعافي": 30,
+    "النوم والعادات": 20,
+    "فحوص توعوية": 25,
+    "مقارنات": 35
+  },
+  "discover": {
+    "large_image_width": 1280,
+    "large_image_height": 720,
+    "max_image_preview_large": true,
+    "unique_images": 150
+  },
+  "quality": {
+    "non_diagnostic_notice": true,
+    "official_sources": true,
+    "unique_titles": 150,
+    "unique_slugs": 150,
+    "errors": []
+  }
+}

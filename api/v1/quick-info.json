@@ -1,0 +1,1361 @@
+{
+  "name": "معلومات سريعة",
+  "url": "https://healthrenewal.org/quick-info/",
+  "language": "ar",
+  "generated_at": "2026-08-04",
+  "count": 150,
+  "editorial_status": "internally-reviewed",
+  "external_specialist_review_claimed": false,
+  "items": [
+    {
+      "id": 1,
+      "slug": "sadness-or-depression",
+      "title": "حزن أم اكتئاب؟ 7 فروق لا ينبغي تجاهلها",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/sadness-or-depression/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/sadness-or-depression.jpg"
+    },
+    {
+      "id": 2,
+      "slug": "fatigue-or-laziness",
+      "title": "إرهاق أم كسل؟ ما الذي يحدث فعلًا؟",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/fatigue-or-laziness/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/fatigue-or-laziness.jpg"
+    },
+    {
+      "id": 3,
+      "slug": "normal-anxiety-or-disorder",
+      "title": "قلق طبيعي أم اضطراب قلق؟ متى يتجاوز الحد؟",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/normal-anxiety-or-disorder/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/normal-anxiety-or-disorder.jpg"
+    },
+    {
+      "id": 4,
+      "slug": "stress-or-burnout",
+      "title": "ضغط نفسي أم احتراق نفسي؟ الفرق الذي يغيّر طريقة التعامل",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/stress-or-burnout/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/stress-or-burnout.jpg"
+    },
+    {
+      "id": 5,
+      "slug": "shyness-or-social-anxiety",
+      "title": "خجل أم قلق اجتماعي؟ لا تخلط بينهما",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/shyness-or-social-anxiety/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/shyness-or-social-anxiety.jpg"
+    },
+    {
+      "id": 6,
+      "slug": "introversion-or-isolation",
+      "title": "انطواء أم عزلة؟ متى يصبح الابتعاد مؤلمًا؟",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/introversion-or-isolation/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/introversion-or-isolation.jpg"
+    },
+    {
+      "id": 7,
+      "slug": "love-or-attachment",
+      "title": "حب أم تعلق؟ 6 إشارات تكشف الفرق",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/love-or-attachment/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/love-or-attachment.jpg"
+    },
+    {
+      "id": 8,
+      "slug": "admiration-or-love",
+      "title": "إعجاب أم حب؟ ما الذي يبقى بعد الحماس الأول؟",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/admiration-or-love/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/admiration-or-love.jpg"
+    },
+    {
+      "id": 9,
+      "slug": "jealousy-or-control",
+      "title": "غيرة طبيعية أم سيطرة؟ الخط الفاصل بين الاهتمام والأذى",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/jealousy-or-control/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/jealousy-or-control.jpg"
+    },
+    {
+      "id": 10,
+      "slug": "conflict-or-harmful-relationship",
+      "title": "خلاف عابر أم علاقة مؤذية؟ راقب النمط لا الحادثة",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/conflict-or-harmful-relationship/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/conflict-or-harmful-relationship.jpg"
+    },
+    {
+      "id": 11,
+      "slug": "care-or-monitoring",
+      "title": "اهتمام أم مراقبة؟ متى يتحول السؤال إلى انتهاك؟",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/care-or-monitoring/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/care-or-monitoring.jpg"
+    },
+    {
+      "id": 12,
+      "slug": "grief-or-depression",
+      "title": "حزن الفقد أم اكتئاب؟ كيف تلاحظ الفرق دون تشخيص ذاتي",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/grief-or-depression/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/grief-or-depression.jpg"
+    },
+    {
+      "id": 13,
+      "slug": "insomnia-or-short-sleep",
+      "title": "أرق أم قلة نوم؟ المشكلة ليست في عدد الساعات فقط",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/insomnia-or-short-sleep/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/insomnia-or-short-sleep.jpg"
+    },
+    {
+      "id": 14,
+      "slug": "physical-or-mental-exhaustion",
+      "title": "تعب جسدي أم إنهاك نفسي؟ 5 دلائل تساعدك",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/physical-or-mental-exhaustion/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/physical-or-mental-exhaustion.jpg"
+    },
+    {
+      "id": 15,
+      "slug": "forgetfulness-or-poor-focus",
+      "title": "نسيان طبيعي أم مشكلة تركيز؟ متى يستحق الانتباه؟",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/forgetfulness-or-poor-focus/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/forgetfulness-or-poor-focus.jpg"
+    },
+    {
+      "id": 16,
+      "slug": "distraction-or-adhd",
+      "title": "تشتت أم ADHD؟ التشابه لا يعني التشخيص",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/distraction-or-adhd/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/distraction-or-adhd.jpg"
+    },
+    {
+      "id": 17,
+      "slug": "habit-or-addiction",
+      "title": "عادة أم إدمان؟ الاختبار الحقيقي هو فقدان السيطرة",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/habit-or-addiction/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/habit-or-addiction.jpg"
+    },
+    {
+      "id": 18,
+      "slug": "phone-use-or-digital-addiction",
+      "title": "استخدام هاتف أم إدمان رقمي؟ راقب الأثر لا الوقت وحده",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/phone-use-or-digital-addiction/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/phone-use-or-digital-addiction.jpg"
+    },
+    {
+      "id": 19,
+      "slug": "fear-or-panic",
+      "title": "خوف طبيعي أم نوبة هلع؟ ماذا يحدث في الدقائق الأولى؟",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/fear-or-panic/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/fear-or-panic.jpg"
+    },
+    {
+      "id": 20,
+      "slug": "intrusive-thought-or-ocd",
+      "title": "وسواس عابر أم وسواس قهري؟ الفرق في التكرار والطقوس",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/intrusive-thought-or-ocd/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/intrusive-thought-or-ocd.jpg"
+    },
+    {
+      "id": 21,
+      "slug": "mood-change-or-bipolar",
+      "title": "تقلب مزاج أم اضطراب ثنائي القطب؟ لا تختصر التشخيص في المزاج",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/mood-change-or-bipolar/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/mood-change-or-bipolar.jpg"
+    },
+    {
+      "id": 22,
+      "slug": "irritability-or-anxiety",
+      "title": "عصبية أم قلق؟ أحيانًا يظهر الخوف على شكل غضب",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/irritability-or-anxiety/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/irritability-or-anxiety.jpg"
+    },
+    {
+      "id": 23,
+      "slug": "hunger-or-emotional-eating",
+      "title": "جوع أم أكل عاطفي؟ اسأل نفسك هذه الأسئلة قبل الأكل",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/hunger-or-emotional-eating/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/hunger-or-emotional-eating.jpg"
+    },
+    {
+      "id": 24,
+      "slug": "laziness-or-procrastination",
+      "title": "كسل أم تسويف؟ لماذا تعرف ما يجب فعله ولا تبدأ؟",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/laziness-or-procrastination/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/laziness-or-procrastination.jpg"
+    },
+    {
+      "id": 25,
+      "slug": "rest-or-avoidance",
+      "title": "راحة أم هروب؟ متى يصبح التوقف وسيلة لتجنب الحياة؟",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/rest-or-avoidance/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/rest-or-avoidance.jpg"
+    },
+    {
+      "id": 26,
+      "slug": "confidence-or-narcissism",
+      "title": "ثقة بالنفس أم نرجسية؟ الفرق ليس في حب الذات",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/confidence-or-narcissism/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/confidence-or-narcissism.jpg"
+    },
+    {
+      "id": 27,
+      "slug": "empathy-or-people-pleasing",
+      "title": "تعاطف أم إرضاء للآخرين؟ متى تختفي احتياجاتك؟",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/empathy-or-people-pleasing/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/empathy-or-people-pleasing.jpg"
+    },
+    {
+      "id": 28,
+      "slug": "support-or-rescuing",
+      "title": "دعم أم إنقاذ مفرط؟ المساعدة التي تستنزف الطرفين",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/support-or-rescuing/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/support-or-rescuing.jpg"
+    },
+    {
+      "id": 29,
+      "slug": "boundaries-or-cruelty",
+      "title": "حدود صحية أم قسوة؟ كيف تقول لا دون إيذاء؟",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/boundaries-or-cruelty/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/boundaries-or-cruelty.jpg"
+    },
+    {
+      "id": 30,
+      "slug": "longing-or-painful-attachment",
+      "title": "اشتياق أم تعلق مؤلم؟ لماذا لا تستطيع التوقف عن التفكير؟",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/longing-or-painful-attachment/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/longing-or-painful-attachment.jpg"
+    },
+    {
+      "id": 31,
+      "slug": "caution-or-hypervigilance",
+      "title": "حذر أم فرط يقظة؟ عندما يبقى جسمك مستعدًا للخطر",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/caution-or-hypervigilance/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/caution-or-hypervigilance.jpg"
+    },
+    {
+      "id": 32,
+      "slug": "bad-memory-or-stress",
+      "title": "ذاكرة سيئة أم ضغط نفسي؟ كيف يسرق التوتر تركيزك؟",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/bad-memory-or-stress/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/bad-memory-or-stress.jpg"
+    },
+    {
+      "id": 33,
+      "slug": "self-love-or-selfishness",
+      "title": "حب الذات أم أنانية؟ الحدود التي لا يشرحها الناس",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/self-love-or-selfishness/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/self-love-or-selfishness.jpg"
+    },
+    {
+      "id": 34,
+      "slug": "loneliness-or-solitude",
+      "title": "وحدة أم احتياج للهدوء؟ الفرق يظهر بعد انتهاء العزلة",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/loneliness-or-solitude/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/loneliness-or-solitude.jpg"
+    },
+    {
+      "id": 35,
+      "slug": "silence-or-emotional-withdrawal",
+      "title": "صمت أم انسحاب عاطفي؟ متى يصبح السكوت عقابًا؟",
+      "type": "comparison",
+      "category": "مقارنات",
+      "url": "https://healthrenewal.org/quick-info/silence-or-emotional-withdrawal/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/silence-or-emotional-withdrawal.jpg"
+    },
+    {
+      "id": 36,
+      "slug": "simple-mental-health-check",
+      "title": "اختبار الصحة النفسية البسيط: 10 أسئلة لمراجعة حالتك",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/simple-mental-health-check/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/simple-mental-health-check.jpg"
+    },
+    {
+      "id": 37,
+      "slug": "do-you-have-insomnia",
+      "title": "هل تعاني من أرق؟ فحص توعوي لا يستبدل التشخيص",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/do-you-have-insomnia/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/do-you-have-insomnia.jpg"
+    },
+    {
+      "id": 38,
+      "slug": "does-anxiety-control-your-day",
+      "title": "هل القلق يسيطر على يومك؟ راقب هذه الإشارات",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/does-anxiety-control-your-day/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/does-anxiety-control-your-day.jpg"
+    },
+    {
+      "id": 39,
+      "slug": "are-you-in-toxic-relationship",
+      "title": "هل أنت في علاقة سامة؟ افحص السلوك لا اللقب",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/are-you-in-toxic-relationship/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/are-you-in-toxic-relationship.jpg"
+    },
+    {
+      "id": 40,
+      "slug": "do-you-miss-person-or-idea",
+      "title": "هل تشتاق لشخص أم لفكرة عنه؟ 9 أسئلة صريحة",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/do-you-miss-person-or-idea/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/do-you-miss-person-or-idea.jpg"
+    },
+    {
+      "id": 41,
+      "slug": "do-you-need-mental-break",
+      "title": "هل تحتاج إلى استراحة نفسية؟ علامات لا تعالجها القهوة",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/do-you-need-mental-break/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/do-you-need-mental-break.jpg"
+    },
+    {
+      "id": 42,
+      "slug": "are-you-emotionally-exhausted",
+      "title": "هل أنت مرهق عاطفيًا؟ اختبر أثر الاستنزاف على يومك",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/are-you-emotionally-exhausted/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/are-you-emotionally-exhausted.jpg"
+    },
+    {
+      "id": 43,
+      "slug": "is-phone-stealing-your-sleep",
+      "title": "هل هاتفك يسرق نومك؟ افحص عادات آخر ساعة",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/is-phone-stealing-your-sleep/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/is-phone-stealing-your-sleep.jpg"
+    },
+    {
+      "id": 44,
+      "slug": "are-you-overthinking-life",
+      "title": "هل تفكر أكثر مما تعيش؟ علامات الاجترار الذهني",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/are-you-overthinking-life/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/are-you-overthinking-life.jpg"
+    },
+    {
+      "id": 45,
+      "slug": "do-you-fear-people-opinion",
+      "title": "هل تخاف من رأي الناس؟ فحص سريع للخوف من التقييم",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/do-you-fear-people-opinion/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/do-you-fear-people-opinion.jpg"
+    },
+    {
+      "id": 46,
+      "slug": "do-you-say-yes-while-wanting-no",
+      "title": "هل تقول نعم وأنت تريد الرفض؟ افحص حدودك",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/do-you-say-yes-while-wanting-no/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/do-you-say-yes-while-wanting-no.jpg"
+    },
+    {
+      "id": 47,
+      "slug": "is-relationship-draining-you",
+      "title": "هل علاقتك تستنزفك؟ 10 أسئلة قبل تجاهل الإشارات",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/is-relationship-draining-you/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/is-relationship-draining-you.jpg"
+    },
+    {
+      "id": 48,
+      "slug": "are-you-stuck-after-breakup",
+      "title": "هل أنت عالق بعد الانفصال؟ راقب ما يبقيك في الماضي",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/are-you-stuck-after-breakup/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/are-you-stuck-after-breakup.jpg"
+    },
+    {
+      "id": 49,
+      "slug": "do-you-avoid-people-from-anxiety",
+      "title": "هل تتجنب الناس بسبب القلق؟ فحص للأثر الوظيفي",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/do-you-avoid-people-from-anxiety/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/do-you-avoid-people-from-anxiety.jpg"
+    },
+    {
+      "id": 50,
+      "slug": "low-mood-two-weeks",
+      "title": "هل مزاجك منخفض منذ أسبوعين؟ متى تطلب تقييمًا؟",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/low-mood-two-weeks/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/low-mood-two-weeks.jpg"
+    },
+    {
+      "id": 51,
+      "slug": "do-you-monitor-partner",
+      "title": "هل تراقب شريكك باستمرار؟ ما وراء الحاجة إلى التأكد",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/do-you-monitor-partner/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/do-you-monitor-partner.jpg"
+    },
+    {
+      "id": 52,
+      "slug": "lonely-among-people",
+      "title": "هل تشعر بالوحدة وسط الناس؟ افحص جودة الاتصال لا عدده",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/lonely-among-people/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/lonely-among-people.jpg"
+    },
+    {
+      "id": 53,
+      "slug": "is-procrastination-blocking-life",
+      "title": "هل التسويف يعطل حياتك؟ 8 أسئلة تكشف النمط",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/is-procrastination-blocking-life/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/is-procrastination-blocking-life.jpg"
+    },
+    {
+      "id": 54,
+      "slug": "does-anger-hide-exhaustion",
+      "title": "هل غضبك يخفي تعبًا نفسيًا؟ راقب ما يسبق الانفجار",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/does-anger-hide-exhaustion/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/does-anger-hide-exhaustion.jpg"
+    },
+    {
+      "id": 55,
+      "slug": "child-anxiety-or-phase",
+      "title": "هل طفلك قلق أم يمر بمرحلة؟ مؤشرات تحتاج متابعة",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/child-anxiety-or-phase/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/child-anxiety-or-phase.jpg"
+    },
+    {
+      "id": 56,
+      "slug": "teen-needs-support",
+      "title": "هل ابنك المراهق يحتاج دعمًا؟ علامات تتطلب إنصاتًا",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/teen-needs-support/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/teen-needs-support.jpg"
+    },
+    {
+      "id": 57,
+      "slug": "distraction-needs-evaluation",
+      "title": "هل تشتتك طبيعي أم يحتاج تقييمًا؟ لا تعتمد على فيديو قصير",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/distraction-needs-evaluation/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/distraction-needs-evaluation.jpg"
+    },
+    {
+      "id": 58,
+      "slug": "burnout-signs-check",
+      "title": "هل لديك علامات احتراق وظيفي؟ فحص واقعي للعمل والطاقة",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/burnout-signs-check/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/burnout-signs-check.jpg"
+    },
+    {
+      "id": 59,
+      "slug": "is-your-sleep-insufficient",
+      "title": "هل نومك غير كافٍ؟ افحص الجودة والتوقيت والأثر",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/is-your-sleep-insufficient/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/is-your-sleep-insufficient.jpg"
+    },
+    {
+      "id": 60,
+      "slug": "is-your-relationship-psychologically-safe",
+      "title": "هل علاقتك آمنة نفسيًا؟ 10 أسئلة عن الاحترام والخوف",
+      "type": "check",
+      "category": "فحوص توعوية",
+      "url": "https://healthrenewal.org/quick-info/is-your-relationship-psychologically-safe/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/is-your-relationship-psychologically-safe.jpg"
+    },
+    {
+      "id": 61,
+      "slug": "five-psychological-causes-of-fatigue",
+      "title": "5 أسباب نفسية قد تجعلك متعبًا طوال الوقت",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-psychological-causes-of-fatigue/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-psychological-causes-of-fatigue.jpg"
+    },
+    {
+      "id": 62,
+      "slug": "five-external-factors-raise-anxiety",
+      "title": "5 عوامل خارجية ترفع القلق دون أن تنتبه",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-external-factors-raise-anxiety/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-external-factors-raise-anxiety.jpg"
+    },
+    {
+      "id": 63,
+      "slug": "five-reasons-thinking-of-ex",
+      "title": "5 أسباب تجعلك تفكر بشخص قديم",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-thinking-of-ex/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-thinking-of-ex.jpg"
+    },
+    {
+      "id": 64,
+      "slug": "five-signs-stress-in-body",
+      "title": "5 علامات أن الضغط النفسي وصل إلى جسدك",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-signs-stress-in-body/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-signs-stress-in-body.jpg"
+    },
+    {
+      "id": 65,
+      "slug": "five-reasons-waking-at-night",
+      "title": "5 أسباب محتملة للاستيقاظ في منتصف الليل",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-waking-at-night/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-waking-at-night.jpg"
+    },
+    {
+      "id": 66,
+      "slug": "five-habits-worsen-insomnia",
+      "title": "5 عادات مسائية تزيد الأرق",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-habits-worsen-insomnia/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-habits-worsen-insomnia.jpg"
+    },
+    {
+      "id": 67,
+      "slug": "five-reasons-feeling-empty",
+      "title": "5 أسباب محتملة للشعور بالفراغ",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-feeling-empty/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-feeling-empty.jpg"
+    },
+    {
+      "id": 68,
+      "slug": "five-signs-you-need-boundaries",
+      "title": "5 علامات أنك تحتاج إلى حدود أوضح",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-signs-you-need-boundaries/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-signs-you-need-boundaries.jpg"
+    },
+    {
+      "id": 69,
+      "slug": "five-reasons-fear-rejection",
+      "title": "5 أسباب نفسية قد تجعلك تخاف الرفض",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-fear-rejection/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-fear-rejection.jpg"
+    },
+    {
+      "id": 70,
+      "slug": "five-signs-painful-attachment",
+      "title": "5 علامات على تعلق عاطفي مؤلم",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-signs-painful-attachment/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-signs-painful-attachment.jpg"
+    },
+    {
+      "id": 71,
+      "slug": "five-reasons-procrastination",
+      "title": "5 أسباب للتسويف لا علاقة لها بالكسل",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-procrastination/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-procrastination.jpg"
+    },
+    {
+      "id": 72,
+      "slug": "five-signs-burnout",
+      "title": "5 علامات أن الإرهاق تحول إلى احتراق نفسي",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-signs-burnout/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-signs-burnout.jpg"
+    },
+    {
+      "id": 73,
+      "slug": "five-reasons-sudden-irritability",
+      "title": "5 أسباب محتملة للعصبية المفاجئة",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-sudden-irritability/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-sudden-irritability.jpg"
+    },
+    {
+      "id": 74,
+      "slug": "five-factors-weaken-focus",
+      "title": "5 عوامل تضعف التركيز حتى لدى الأذكياء",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-factors-weaken-focus/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-factors-weaken-focus.jpg"
+    },
+    {
+      "id": 75,
+      "slug": "five-reasons-social-withdrawal",
+      "title": "5 أسباب تجعلك تنسحب من الناس",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-social-withdrawal/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-social-withdrawal.jpg"
+    },
+    {
+      "id": 76,
+      "slug": "five-signs-unbalanced-relationship",
+      "title": "5 علامات أن علاقتك غير متوازنة",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-signs-unbalanced-relationship/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-signs-unbalanced-relationship.jpg"
+    },
+    {
+      "id": 77,
+      "slug": "five-reasons-excessive-jealousy",
+      "title": "5 أسباب وراء الغيرة الزائدة",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-excessive-jealousy/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-excessive-jealousy.jpg"
+    },
+    {
+      "id": 78,
+      "slug": "five-signs-people-pleasing",
+      "title": "5 علامات أنك ترضي الجميع على حساب نفسك",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-signs-people-pleasing/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-signs-people-pleasing.jpg"
+    },
+    {
+      "id": 79,
+      "slug": "five-reasons-waking-tired",
+      "title": "5 أسباب تجعلك تستيقظ متعبًا رغم النوم",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-waking-tired/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-waking-tired.jpg"
+    },
+    {
+      "id": 80,
+      "slug": "five-psychological-factors-appetite",
+      "title": "5 عوامل نفسية قد تؤثر على الشهية",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-psychological-factors-appetite/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-psychological-factors-appetite.jpg"
+    },
+    {
+      "id": 81,
+      "slug": "five-reasons-emotional-eating",
+      "title": "5 أسباب للأكل العاطفي وكيف تلاحظها",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-emotional-eating/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-emotional-eating.jpg"
+    },
+    {
+      "id": 82,
+      "slug": "five-signs-carrying-others",
+      "title": "5 علامات أنك تحمل مسؤوليات الآخرين",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-signs-carrying-others/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-signs-carrying-others.jpg"
+    },
+    {
+      "id": 83,
+      "slug": "five-reasons-breakup-hurts",
+      "title": "5 أسباب تجعل الانفصال مؤلمًا حتى عندما كان ضروريًا",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-breakup-hurts/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-breakup-hurts.jpg"
+    },
+    {
+      "id": 84,
+      "slug": "five-signs-not-healed",
+      "title": "5 علامات أنك لم تتعاف بعد من العلاقة",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-signs-not-healed/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-signs-not-healed.jpg"
+    },
+    {
+      "id": 85,
+      "slug": "five-reasons-fear-confrontation",
+      "title": "5 أسباب تجعلك تخاف من المواجهة",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-fear-confrontation/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-fear-confrontation.jpg"
+    },
+    {
+      "id": 86,
+      "slug": "five-habits-destroy-calm",
+      "title": "5 عادات يومية تقتل راحتك النفسية",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-habits-destroy-calm/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-habits-destroy-calm.jpg"
+    },
+    {
+      "id": 87,
+      "slug": "five-signs-self-criticism",
+      "title": "5 علامات أنك تقسو على نفسك",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-signs-self-criticism/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-signs-self-criticism.jpg"
+    },
+    {
+      "id": 88,
+      "slug": "five-reasons-work-drains-you",
+      "title": "5 أسباب تجعل العمل يستنزفك نفسيًا",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-work-drains-you/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-work-drains-you.jpg"
+    },
+    {
+      "id": 89,
+      "slug": "five-factors-child-mood",
+      "title": "5 عوامل تؤثر على مزاج الطفل",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-factors-child-mood/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-factors-child-mood.jpg"
+    },
+    {
+      "id": 90,
+      "slug": "five-signs-teen-needs-listening",
+      "title": "5 علامات أن المراهق يحتاج إلى إنصات لا محاضرة",
+      "type": "five",
+      "category": "أسباب وعلامات",
+      "url": "https://healthrenewal.org/quick-info/five-signs-teen-needs-listening/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-signs-teen-needs-listening.jpg"
+    },
+    {
+      "id": 91,
+      "slug": "five-tips-after-breakup",
+      "title": "5 نصائح بعد الانفصال تساعدك دون إنكار الألم",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/five-tips-after-breakup/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-tips-after-breakup.jpg"
+    },
+    {
+      "id": 92,
+      "slug": "stop-texting-uninterested-person",
+      "title": "كيف تتوقف عن مراسلة شخص لا يبادلك الاهتمام؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/stop-texting-uninterested-person/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/stop-texting-uninterested-person.jpg"
+    },
+    {
+      "id": 93,
+      "slug": "when-someone-ghosts-you",
+      "title": "ماذا تفعل عندما يختفي شخص فجأة؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/when-someone-ghosts-you/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/when-someone-ghosts-you.jpg"
+    },
+    {
+      "id": 94,
+      "slug": "set-boundaries-without-guilt",
+      "title": "كيف تضع حدودًا دون شعور بالذنب؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/set-boundaries-without-guilt/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/set-boundaries-without-guilt.jpg"
+    },
+    {
+      "id": 95,
+      "slug": "deal-with-emotional-neglect",
+      "title": "كيف تتعامل مع التجاهل العاطفي؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/deal-with-emotional-neglect/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/deal-with-emotional-neglect.jpg"
+    },
+    {
+      "id": 96,
+      "slug": "why-miss-someone-who-hurt-you",
+      "title": "لماذا نشتاق لمن آذانا؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/why-miss-someone-who-hurt-you/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/why-miss-someone-who-hurt-you.jpg"
+    },
+    {
+      "id": 97,
+      "slug": "how-to-know-real-apology",
+      "title": "كيف تعرف أن الاعتذار حقيقي؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/how-to-know-real-apology/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/how-to-know-real-apology.jpg"
+    },
+    {
+      "id": 98,
+      "slug": "when-jealousy-becomes-harmful",
+      "title": "متى تصبح الغيرة مؤذية؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/when-jealousy-becomes-harmful/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/when-jealousy-becomes-harmful.jpg"
+    },
+    {
+      "id": 99,
+      "slug": "leave-draining-relationship-safely",
+      "title": "كيف تخرج من علاقة تستنزفك بأمان؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/leave-draining-relationship-safely/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/leave-draining-relationship-safely.jpg"
+    },
+    {
+      "id": 100,
+      "slug": "why-return-to-same-relationship",
+      "title": "لماذا تعود إلى العلاقة نفسها؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/why-return-to-same-relationship/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/why-return-to-same-relationship.jpg"
+    },
+    {
+      "id": 101,
+      "slug": "deal-with-inconsistent-person",
+      "title": "كيف تتعامل مع شخص متقلب؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/deal-with-inconsistent-person/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/deal-with-inconsistent-person.jpg"
+    },
+    {
+      "id": 102,
+      "slug": "is-silent-treatment-abuse",
+      "title": "هل الصمت العقابي إساءة؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/is-silent-treatment-abuse/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/is-silent-treatment-abuse.jpg"
+    },
+    {
+      "id": 103,
+      "slug": "love-or-possession",
+      "title": "كيف تفرق بين الحب والتملك؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/love-or-possession/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/love-or-possession.jpg"
+    },
+    {
+      "id": 104,
+      "slug": "fear-loneliness-after-breakup",
+      "title": "لماذا تخاف من الوحدة بعد الانفصال؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/fear-loneliness-after-breakup/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/fear-loneliness-after-breakup.jpg"
+    },
+    {
+      "id": 105,
+      "slug": "stop-checking-ex-social-media",
+      "title": "كيف تمنع نفسك من مراقبة حساباته؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/stop-checking-ex-social-media/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/stop-checking-ex-social-media.jpg"
+    },
+    {
+      "id": 106,
+      "slug": "when-no-closure",
+      "title": "ماذا تفعل عندما لا تحصل على إغلاق للعلاقة؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/when-no-closure/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/when-no-closure.jpg"
+    },
+    {
+      "id": 107,
+      "slug": "rebuild-trust-after-betrayal",
+      "title": "كيف تستعيد ثقتك بنفسك بعد الخيانة؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/rebuild-trust-after-betrayal/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/rebuild-trust-after-betrayal.jpg"
+    },
+    {
+      "id": 108,
+      "slug": "deal-with-emotional-manipulation",
+      "title": "كيف تتعامل مع التلاعب العاطفي؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/deal-with-emotional-manipulation/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/deal-with-emotional-manipulation.jpg"
+    },
+    {
+      "id": 109,
+      "slug": "can-long-distance-work",
+      "title": "هل العلاقة البعيدة قابلة للاستمرار؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/can-long-distance-work/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/can-long-distance-work.jpg"
+    },
+    {
+      "id": 110,
+      "slug": "when-to-stop-trying",
+      "title": "متى يجب أن تتوقف عن المحاولة في العلاقة؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/when-to-stop-trying/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/when-to-stop-trying.jpg"
+    },
+    {
+      "id": 111,
+      "slug": "say-no-without-long-explanation",
+      "title": "كيف تقول لا دون شرح طويل؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/say-no-without-long-explanation/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/say-no-without-long-explanation.jpg"
+    },
+    {
+      "id": 112,
+      "slug": "deal-with-constant-criticism",
+      "title": "كيف تتعامل مع النقد المستمر؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/deal-with-constant-criticism/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/deal-with-constant-criticism.jpg"
+    },
+    {
+      "id": 113,
+      "slug": "attracted-to-unavailable-person",
+      "title": "لماذا تنجذب إلى شخص غير متاح عاطفيًا؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/attracted-to-unavailable-person/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/attracted-to-unavailable-person.jpg"
+    },
+    {
+      "id": 114,
+      "slug": "protect-from-emotional-drain",
+      "title": "كيف تحمي نفسك من الاستنزاف العاطفي؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/protect-from-emotional-drain/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/protect-from-emotional-drain.jpg"
+    },
+    {
+      "id": 115,
+      "slug": "relationship-reduces-self-worth",
+      "title": "ماذا تفعل عندما تقلل العلاقة من قيمتك؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/relationship-reduces-self-worth/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/relationship-reduces-self-worth.jpg"
+    },
+    {
+      "id": 116,
+      "slug": "build-safe-relationship-after-harm",
+      "title": "كيف تبني علاقة آمنة بعد تجربة مؤذية؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/build-safe-relationship-after-harm/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/build-safe-relationship-after-harm.jpg"
+    },
+    {
+      "id": 117,
+      "slug": "love-someone-and-leave",
+      "title": "هل يمكن أن تحب شخصًا وتبتعد عنه؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/love-someone-and-leave/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/love-someone-and-leave.jpg"
+    },
+    {
+      "id": 118,
+      "slug": "deal-with-nostalgia-after-breakup",
+      "title": "كيف تتعامل مع الحنين بعد الانفصال؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/deal-with-nostalgia-after-breakup/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/deal-with-nostalgia-after-breakup.jpg"
+    },
+    {
+      "id": 119,
+      "slug": "communicate-needs-clearly",
+      "title": "كيف تتحدث عن احتياجاتك بوضوح؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/communicate-needs-clearly/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/communicate-needs-clearly.jpg"
+    },
+    {
+      "id": 120,
+      "slug": "healthy-distance-in-relationship",
+      "title": "متى تكون المسافة في العلاقة صحية؟",
+      "type": "relationship",
+      "category": "العلاقات والتعافي",
+      "url": "https://healthrenewal.org/quick-info/healthy-distance-in-relationship/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/healthy-distance-in-relationship.jpg"
+    },
+    {
+      "id": 121,
+      "slug": "sleep-when-mind-wont-stop",
+      "title": "كيف تنام عندما لا يتوقف عقلك؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/sleep-when-mind-wont-stop/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/sleep-when-mind-wont-stop.jpg"
+    },
+    {
+      "id": 122,
+      "slug": "why-wake-at-three-am",
+      "title": "لماذا تستيقظ في الثالثة صباحًا؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/why-wake-at-three-am/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/why-wake-at-three-am.jpg"
+    },
+    {
+      "id": 123,
+      "slug": "after-night-without-sleep",
+      "title": "ماذا تفعل بعد ليلة بلا نوم؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/after-night-without-sleep/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/after-night-without-sleep.jpg"
+    },
+    {
+      "id": 124,
+      "slug": "does-nap-fix-sleep-loss",
+      "title": "هل القيلولة تعالج قلة النوم؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/does-nap-fix-sleep-loss/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/does-nap-fix-sleep-loss.jpg"
+    },
+    {
+      "id": 125,
+      "slug": "caffeine-and-anxiety",
+      "title": "كيف يؤثر الكافيين على القلق؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/caffeine-and-anxiety/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/caffeine-and-anxiety.jpg"
+    },
+    {
+      "id": 126,
+      "slug": "why-phone-increases-stress",
+      "title": "لماذا يزيد الهاتف التوتر؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/why-phone-increases-stress/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/why-phone-increases-stress.jpg"
+    },
+    {
+      "id": 127,
+      "slug": "stop-thinking-before-sleep",
+      "title": "كيف توقف التفكير قبل النوم؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/stop-thinking-before-sleep/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/stop-thinking-before-sleep.jpg"
+    },
+    {
+      "id": 128,
+      "slug": "does-deep-breathing-reduce-anxiety",
+      "title": "هل التنفس العميق يخفف القلق؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/does-deep-breathing-reduce-anxiety/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/does-deep-breathing-reduce-anxiety.jpg"
+    },
+    {
+      "id": 129,
+      "slug": "tired-despite-sleep",
+      "title": "لماذا تشعر بالتعب رغم النوم؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/tired-despite-sleep/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/tired-despite-sleep.jpg"
+    },
+    {
+      "id": 130,
+      "slug": "restore-focus-after-stress",
+      "title": "كيف تستعيد تركيزك بعد الضغط؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/restore-focus-after-stress/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/restore-focus-after-stress.jpg"
+    },
+    {
+      "id": 131,
+      "slug": "what-stress-does-to-body",
+      "title": "ماذا يحدث لجسمك عند التوتر؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/what-stress-does-to-body/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/what-stress-does-to-body.jpg"
+    },
+    {
+      "id": 132,
+      "slug": "start-day-without-anxiety",
+      "title": "كيف تبدأ يومك دون أن يقودك القلق؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/start-day-without-anxiety/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/start-day-without-anxiety.jpg"
+    },
+    {
+      "id": 133,
+      "slug": "does-exercise-help-mood",
+      "title": "هل الرياضة تساعد المزاج؟ ما الذي تقوله الأدلة؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/does-exercise-help-mood/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/does-exercise-help-mood.jpg"
+    },
+    {
+      "id": 134,
+      "slug": "reduce-news-anxiety",
+      "title": "كيف تقلل قلق الأخبار دون الانفصال عن الواقع؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/reduce-news-anxiety/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/reduce-news-anxiety.jpg"
+    },
+    {
+      "id": 135,
+      "slug": "when-gaming-becomes-problem",
+      "title": "متى تصبح الألعاب الإلكترونية مشكلة؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/when-gaming-becomes-problem/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/when-gaming-becomes-problem.jpg"
+    },
+    {
+      "id": 136,
+      "slug": "break-phone-checking-habit",
+      "title": "كيف تكسر عادة التحقق من الهاتف؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/break-phone-checking-habit/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/break-phone-checking-habit.jpg"
+    },
+    {
+      "id": 137,
+      "slug": "why-open-phone-without-reason",
+      "title": "لماذا تفتح الهاتف دون سبب؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/why-open-phone-without-reason/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/why-open-phone-without-reason.jpg"
+    },
+    {
+      "id": 138,
+      "slug": "realistic-sleep-routine",
+      "title": "كيف تصنع روتين نوم واقعيًا؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/realistic-sleep-routine/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/realistic-sleep-routine.jpg"
+    },
+    {
+      "id": 139,
+      "slug": "does-music-help-sleep",
+      "title": "هل الموسيقى تساعد على النوم؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/does-music-help-sleep/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/does-music-help-sleep.jpg"
+    },
+    {
+      "id": 140,
+      "slug": "deal-with-recurring-nightmare",
+      "title": "كيف تتعامل مع كابوس متكرر؟",
+      "type": "habit",
+      "category": "النوم والعادات",
+      "url": "https://healthrenewal.org/quick-info/deal-with-recurring-nightmare/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/deal-with-recurring-nightmare.jpg"
+    },
+    {
+      "id": 141,
+      "slug": "stubborn-child-or-sensory-exhaustion",
+      "title": "هل طفلك عنيد أم مرهق حسيًا؟",
+      "type": "family",
+      "category": "الأسرة والنمو",
+      "url": "https://healthrenewal.org/quick-info/stubborn-child-or-sensory-exhaustion/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/stubborn-child-or-sensory-exhaustion.jpg"
+    },
+    {
+      "id": 142,
+      "slug": "tantrum-or-sensory-meltdown",
+      "title": "نوبة غضب أم انهيار حسي؟",
+      "type": "family",
+      "category": "الأسرة والنمو",
+      "url": "https://healthrenewal.org/quick-info/tantrum-or-sensory-meltdown/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/tantrum-or-sensory-meltdown.jpg"
+    },
+    {
+      "id": 143,
+      "slug": "child-distraction-or-adhd",
+      "title": "تشتت الطفل أم ADHD؟ متى نطلب تقييمًا؟",
+      "type": "family",
+      "category": "الأسرة والنمو",
+      "url": "https://healthrenewal.org/quick-info/child-distraction-or-adhd/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/child-distraction-or-adhd.jpg"
+    },
+    {
+      "id": 144,
+      "slug": "speech-delay-or-needs-evaluation",
+      "title": "تأخر كلام أم اختلاف يحتاج تقييمًا؟",
+      "type": "family",
+      "category": "الأسرة والنمو",
+      "url": "https://healthrenewal.org/quick-info/speech-delay-or-needs-evaluation/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/speech-delay-or-needs-evaluation.jpg"
+    },
+    {
+      "id": 145,
+      "slug": "support-anxious-child",
+      "title": "كيف تدعم طفلًا قلقًا دون تعزيز الخوف؟",
+      "type": "family",
+      "category": "الأسرة والنمو",
+      "url": "https://healthrenewal.org/quick-info/support-anxious-child/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/support-anxious-child.jpg"
+    },
+    {
+      "id": 146,
+      "slug": "talk-to-depressed-teen",
+      "title": "كيف تتحدث مع مراهق مكتئب؟",
+      "type": "family",
+      "category": "الأسرة والنمو",
+      "url": "https://healthrenewal.org/quick-info/talk-to-depressed-teen/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/talk-to-depressed-teen.jpg"
+    },
+    {
+      "id": 147,
+      "slug": "help-relapsing-person-without-rescuing",
+      "title": "كيف تساعد شخصًا ينتكس دون أن تنقذه من كل نتيجة؟",
+      "type": "family",
+      "category": "الأسرة والنمو",
+      "url": "https://healthrenewal.org/quick-info/help-relapsing-person-without-rescuing/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/help-relapsing-person-without-rescuing.jpg"
+    },
+    {
+      "id": 148,
+      "slug": "when-habit-becomes-addiction",
+      "title": "متى تتحول العادة إلى إدمان؟",
+      "type": "family",
+      "category": "الأسرة والنمو",
+      "url": "https://healthrenewal.org/quick-info/when-habit-becomes-addiction/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/when-habit-becomes-addiction.jpg"
+    },
+    {
+      "id": 149,
+      "slug": "protect-family-from-addiction-effects",
+      "title": "كيف تحمي الأسرة من آثار الإدمان؟",
+      "type": "family",
+      "category": "الأسرة والنمو",
+      "url": "https://healthrenewal.org/quick-info/protect-family-from-addiction-effects/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/protect-family-from-addiction-effects.jpg"
+    },
+    {
+      "id": 150,
+      "slug": "caregiver-needs-support",
+      "title": "هل مقدم الرعاية يحتاج دعمًا؟ علامات الإنهاك الصامت",
+      "type": "family",
+      "category": "الأسرة والنمو",
+      "url": "https://healthrenewal.org/quick-info/caregiver-needs-support/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/caregiver-needs-support.jpg"
+    }
+  ]
+}
