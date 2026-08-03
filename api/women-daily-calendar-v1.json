@@ -1,5 +1,5 @@
 {
-  "version": "1.1.1",
+  "version": "1.1.2",
   "status": "passed",
   "route": "https://healthrenewal.org/sectors/women/daily-calendar/",
   "dailyElements": 8,
@@ -11,6 +11,7 @@
   "cycleTrackingOptional": true,
   "menstruationTerminology": "الحيض",
   "menstrualIntervalLabel": "الفاصل بين بدايات الحيض",
+  "terminologyMigrationRequested": true,
   "fertilityPrediction": false,
   "contraceptionUse": false,
   "icsExport": true,
