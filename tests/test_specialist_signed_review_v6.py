@@ -94,14 +94,17 @@ class SignedApplicationReviewV6Tests(unittest.TestCase):
         }
         self.assertTrue(required.issubset(columns), required - columns)
 
-    def test_deployment_contract_requires_secret_and_live_health(self):
+    def test_deployment_contract_requires_worker_secret_name_and_live_health(self):
         for expected in (
             'src/index-v4.js', '0005_signed_application_reviews.sql',
-            'REVIEW_LINK_SECRET', 'SPECIALISTS_REVIEW_LINK_SECRET',
+            "'REVIEW_LINK_SECRET'", 'Missing required Worker secret names',
             "health['version'] == '6.0.0'", "'signedReviews'", "'signedReviewSchema'",
         ):
             self.assertIn(expected, self.deploy)
-        self.assertRegex(self.deploy, r"\[\[ \$\{#REVIEW_LINK_SECRET\} -ge 32 \]\]")
+        self.assertIn('/workers/scripts/${WORKER_NAME}/secrets', self.deploy)
+        self.assertNotIn('SPECIALISTS_REVIEW_LINK_SECRET', self.deploy)
+        self.assertNotIn('REVIEW_LINK_SECRET: ${{ secrets.', self.deploy)
+        self.assertNotIn('--secrets-file', self.deploy)
 
 
 if __name__ == '__main__':
