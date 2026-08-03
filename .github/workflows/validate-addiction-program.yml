@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "addiction/**"
+      - "assets/addiction/**"
       - "api/v1/addiction-center.json"
       - "data/addiction-evidence/**"
       - "docs/addiction-*.md"
@@ -16,6 +17,7 @@ on:
     branches: ["main"]
     paths:
       - "addiction/**"
+      - "assets/addiction/**"
       - "api/v1/addiction-center.json"
       - "data/addiction-evidence/**"
       - "docs/addiction-*.md"
@@ -42,6 +44,7 @@ jobs:
         run: |
           python -m py_compile tests/test_addiction_center.py
           python -m py_compile tests/test_addiction_program_contract.py
+          python -m py_compile tests/test_addiction_audience_hubs_v3.py
       - name: Execute dependency-free addiction tests
         run: |
           python - <<'PY'
@@ -51,6 +54,7 @@ jobs:
           files = (
               Path("tests/test_addiction_center.py"),
               Path("tests/test_addiction_program_contract.py"),
+              Path("tests/test_addiction_audience_hubs_v3.py"),
           )
           executed = 0
           for path in files:
@@ -60,8 +64,8 @@ jobs:
                       value()
                       executed += 1
                       print(f"PASS {path}:{name}")
-          if executed < 10:
-              raise SystemExit(f"Expected at least 10 addiction tests, executed {executed}")
+          if executed < 18:
+              raise SystemExit(f"Expected at least 18 addiction tests, executed {executed}")
           print(f"Executed {executed} addiction contract tests")
           PY
       - name: Validate sitemap discovery

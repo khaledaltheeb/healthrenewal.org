@@ -1,10 +1,11 @@
 {
   "schema_version": "addiction-center-v1",
-  "generated_at": "2026-08-03T01:00:00Z",
+  "generated_at": "2026-08-03T05:23:00Z",
   "language": "ar",
   "canonical": "https://healthrenewal.org/addiction/",
   "program_status": "foundation-draft",
-  "publication_claim": "تأسيس أولي قابل للمراجعة؛ لا يمثل اكتمال المرجع النهائي أو اعتمادًا سريريًا خارجيًا.",
+  "audience_layer_status": "complete-v1",
+  "publication_claim": "تأسيس مؤسسي موسع قابل للمراجعة؛ اكتملت طبقة الجماهير الأولى، لكنه لا يمثل اكتمال المرجع النهائي أو موجات الحالات والأدوات والفئات الخاصة، ولا يوجد اعتماد سريري خارجي.",
   "medical_disclaimer": "Educational content only; not diagnosis, dosing, emergency care, or an individual treatment plan.",
   "condition_groups": [
     {"slug":"alcohol-use-disorder","name_ar":"اضطراب استخدام الكحول","name_en":"Alcohol Use Disorder","protocol_count":10,"atlas_anchor":"https://healthrenewal.org/addiction/protocol-atlas/#alcohol"},
@@ -25,6 +26,15 @@
     "https://healthrenewal.org/addiction/recovery-roadmap/",
     "https://healthrenewal.org/addiction/family-guide/",
     "https://healthrenewal.org/addiction/sources/"
+  ],
+  "audience_gateway": "https://healthrenewal.org/addiction/audiences/",
+  "audience_page_count": 6,
+  "audiences": [
+    {"id":"person","name_ar":"الشخص المتأثر بالإدمان","route":"https://healthrenewal.org/addiction/audiences/person/","primary_decisions":["emergency-safety","level-of-care","recovery-plan","harm-reduction","rights"]},
+    {"id":"family","name_ar":"الأسرة وأهل الشخص المتأثر","route":"https://healthrenewal.org/addiction/audiences/family/","primary_decisions":["first-conversation","boundaries","children-safety","financial-safety","caregiver-support"]},
+    {"id":"trainer","name_ar":"المدرب وميسّر التعافي","route":"https://healthrenewal.org/addiction/audiences/trainer/","primary_decisions":["scope-of-practice","peer-competencies","group-facilitation","warm-referral","supervision"]},
+    {"id":"community","name_ar":"المجتمع والمؤسسات","route":"https://healthrenewal.org/addiction/audiences/community/","primary_decisions":["local-data","prevention","harm-reduction","service-linkage","institutional-quality"]},
+    {"id":"clinician","name_ar":"المعالج والفريق السريري","route":"https://healthrenewal.org/addiction/audiences/clinician/","primary_decisions":["triage","multidomain-assessment","level-of-care","evidence-based-treatment","outcome-monitoring"]}
   ],
   "protocol_total": 100,
   "reference_count": 53,
