@@ -1,3 +1,4 @@
+# Triggered only to invoke the one-time trusted materialization gate on main.
 name: Materialize addiction condition guides v2
 
 on:
