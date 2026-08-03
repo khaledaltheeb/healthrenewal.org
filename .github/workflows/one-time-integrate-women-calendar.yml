@@ -1,0 +1,53 @@
+name: One-time integrate women daily calendar
+
+on:
+  push:
+    branches:
+      - agent/women-daily-calendar-v1
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-time-integrate-women-daily-calendar
+  cancel-in-progress: false
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/women-daily-calendar-v1
+          fetch-depth: 0
+      - name: Add interactive calendar card to women sector
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("sectors/women/index.html")
+          text = path.read_text(encoding="utf-8")
+          marker = "/sectors/women/daily-calendar/"
+          if marker not in text:
+              needle = '<section><h2>الأدلة المنشورة</h2><div class="grid">'
+              if needle not in text:
+                  raise SystemExit("Women guides section marker was not found")
+              block = '''<section aria-labelledby="daily-calendar-title"><h2 id="daily-calendar-title">أداة المرأة اليومية</h2><div class="grid"><article class="card" style="background:linear-gradient(135deg,#fff7fb,#f8e8f1);border-color:#d9b7ca"><span class="tag" style="background:#efd4e2;color:#5b2148">365 يومًا · قابل للضبط المحلي</span><h2>تقويم صحة المرأة اليومي</h2><p>رسالة صباحية إيجابية، معلومة، نصيحة، فكرة، اقتراح، وتطبيق لعشر دقائق كل يوم، مع تتبع اختياري للدورة ودمج آمن بتقويم الهاتف وتذكيراته.</p><p><strong>الخصوصية:</strong> بيانات الدورة والسجل اليومي تبقى في الجهاز افتراضيًا، ولا يلزم إنشاء حساب.</p><a href="/sectors/women/daily-calendar/">فتح التقويم اليومي ←</a></article></div></section>'''
+              text = text.replace(needle, block + needle, 1)
+              path.write_text(text, encoding="utf-8")
+          PY
+      - name: Remove one-time workflow
+        run: rm -f .github/workflows/one-time-integrate-women-calendar.yml
+      - name: Commit integration
+        run: |
+          set -euo pipefail
+          git config user.name "healthrenewal-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add sectors/women/index.html .github/workflows/one-time-integrate-women-calendar.yml
+          if git diff --cached --quiet; then
+            echo "No integration changes needed"
+            exit 0
+          fi
+          git commit -m "feat(women): integrate daily calendar into sector"
+          git push origin HEAD:agent/women-daily-calendar-v1
