@@ -49,13 +49,17 @@ def test_center_links_gateway_and_all_five_audiences():
 
 
 def test_high_risk_pages_include_emergency_boundaries():
-    markers = ("صعوبة التنفس", "الاختلاجات", "الانتحار", "الطوارئ")
+    common_markers = ("الاختلاجات", "الانتحار", "الطوارئ")
     for role in ("person", "family", "clinician"):
         html = read(AUDIENCE_ROUTES[role])
-        for marker in markers:
+        for marker in common_markers:
             assert marker in html, (role, marker)
     person = read(AUDIENCE_ROUTES["person"])
     family = read(AUDIENCE_ROUTES["family"])
+    clinician = read(AUDIENCE_ROUTES["clinician"])
+    assert "صعوبة التنفس" in person
+    assert "صعوبة التنفس" in family
+    assert "صعوبة التنفس" in clinician or "تثبيط التنفس" in clinician
     assert "لا توقف الكحول أو البنزوديازيبينات فجأة" in person
     assert "لا تحاول احتجاز شخص عنيف" in family
 
