@@ -1,0 +1,69 @@
+name: One-time homepage calendar semantics
+
+on:
+  push:
+    branches:
+      - agent/women-daily-calendar-v1
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-time-homepage-calendar-semantics
+  cancel-in-progress: false
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/women-daily-calendar-v1
+          fetch-depth: 0
+      - name: Normalize card headings and add calendar entry
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path("index.html")
+          text = path.read_text(encoding="utf-8")
+
+          text = re.sub(
+              r'<p class="item-title">(.*?)</p>',
+              r'<h3 class="item-title">\1</h3>',
+              text,
+              flags=re.DOTALL,
+          )
+
+          calendar_url = 'href="sectors/women/daily-calendar/"'
+          if calendar_url not in text:
+              women_card = '''<article class="card"><span class="tag">المرأة</span><h3 class="item-title">الصحة النفسية للمرأة</h3><p>مسارات عبر مراحل الحياة والسياق الصحي والاجتماعي.</p><a href="sectors/women/">فتح قسم المرأة</a></article>'''
+              calendar_card = '''<article class="card" data-women-daily-calendar-v1><span class="tag">صباح إيجابي · 365 يومًا</span><h3 class="item-title">تقويم صحة المرأة اليومي</h3><p>رسالة صباحية ومعلومة ونصيحة وفكرة واقتراح وتطبيق لعشر دقائق، مع تتبع اختياري ومحلي للدورة ودمج بتقويم الهاتف.</p><a href="sectors/women/daily-calendar/">فتح التقويم اليومي</a></article>'''
+              if women_card not in text:
+                  raise SystemExit("Women homepage card marker not found after semantic normalization")
+              text = text.replace(women_card, women_card + calendar_card, 1)
+
+          h3_count = len(re.findall(r'<h3\b', text))
+          if h3_count < 16:
+              raise SystemExit(f"Expected at least 16 homepage H3 headings, found {h3_count}")
+          if calendar_url not in text:
+              raise SystemExit("Calendar homepage link was not integrated")
+
+          path.write_text(text, encoding="utf-8")
+          PY
+      - name: Remove one-time workflow
+        run: rm -f .github/workflows/one-time-homepage-calendar-semantics.yml
+      - name: Commit semantic integration
+        run: |
+          set -euo pipefail
+          git config user.name "healthrenewal-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html .github/workflows/one-time-homepage-calendar-semantics.yml
+          if git diff --cached --quiet; then
+            echo "No homepage integration changes needed"
+            exit 0
+          fi
+          git commit -m "feat(women): feature daily calendar on homepage"
+          git push origin HEAD:agent/women-daily-calendar-v1
