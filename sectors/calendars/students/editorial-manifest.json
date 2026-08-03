@@ -1,0 +1,48 @@
+{
+  "version": "1.0.0",
+  "route": "/sectors/calendars/students/",
+  "name": "تقويم الطلاب التفاعلي",
+  "audiences": ["طلاب المدارس", "طلاب الثانوية", "طلاب الكليات والجامعات", "طلاب الدراسات العليا", "المتعلمون ذاتيًا"],
+  "dailyRequiredElements": [
+    "morningOrientation",
+    "dailyStudyIdea",
+    "memorySkill",
+    "studentWellbeingTip",
+    "tenMinuteChallenge",
+    "middayFocusCheckIn",
+    "eveningReflection"
+  ],
+  "planningModules": {
+    "adaptiveDailyPlan": true,
+    "tasksAndDeadlines": true,
+    "focusTimer": true,
+    "spacedReviewIntervalsDays": [1, 3, 7, 14, 30],
+    "examCountdownAndBackwardPlan": true,
+    "balancedWeeklyPlan": true
+  },
+  "calendarIntegration": {
+    "ics": true,
+    "rangesDays": [7, 30, 90, 365],
+    "dailyEvents": ["morning", "midday", "evening"],
+    "examEvents": true,
+    "valarm": true,
+    "neutralTitlesDefault": true,
+    "defaultTimes": {"morning": "07:00", "midday": "12:30", "evening": "19:30"}
+  },
+  "privacy": {
+    "localFirst": true,
+    "accountRequired": false,
+    "remoteSubmission": false,
+    "jsonBackup": true,
+    "clearLocalData": true
+  },
+  "safety": {
+    "diagnosis": false,
+    "treatmentReplacement": false,
+    "academicGuarantee": false,
+    "highStressEscalation": true,
+    "directRiskEmergencyBoundary": true
+  },
+  "qualityGate": "tests/test_student_daily_calendar.py",
+  "reviewedAt": "2026-08-04"
+}
