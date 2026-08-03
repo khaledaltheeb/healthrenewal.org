@@ -1,1 +1,1 @@
-Trigger the one-time visible extraction gate v5 with PR 929 based on current main.
+Trigger the one-time visible extraction gate v6 for PR 929. Final review requires deletion of this trigger, the materializer workflow, diagnostics, scripts, and Base64 payload after all static files are visible.
