@@ -1,0 +1,126 @@
+name: Enhance Quick Information Discover observability
+
+on:
+  push:
+    branches:
+      - agent/quick-info-discover-observability-v2
+    paths:
+      - "scripts/enhance_quick_info_discover.py"
+      - ".github/workflows/enhance-quick-info-discover.yml"
+  pull_request:
+    branches:
+      - main
+    types: [opened, reopened, synchronize]
+    paths:
+      - "scripts/enhance_quick_info_discover.py"
+      - "quick-info/**"
+      - "reports/quick-info-discover-observability.json"
+      - ".github/workflows/enhance-quick-info-discover.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: quick-info-observability-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  enhance:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Resolve source branch
+        id: source
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "branch=${{ github.event.pull_request.head.ref }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout source branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.source.outputs.branch }}
+          fetch-depth: 0
+
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile and run enhancement
+        run: |
+          python -m py_compile scripts/enhance_quick_info_discover.py
+          python scripts/enhance_quick_info_discover.py
+
+      - name: Preserve existing section contracts
+        run: |
+          python - <<'PY'
+          import runpy
+          ns = runpy.run_path('tests/test_quick_info_section.py')
+          tests = [value for name, value in sorted(ns.items()) if name.startswith('test_') and callable(value)]
+          if not tests:
+              raise SystemExit('No existing Quick Information tests found')
+          for test in tests:
+              test()
+              print(f'PASS {test.__name__}')
+          PY
+          python scripts/verify_homepage_v19.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('reports/quick-info-discover-observability.json').read_text(encoding='utf-8'))
+          assert report['pages'] == 150, report
+          assert report['analyticsPages'] == 151, report
+          assert report['articleMetadataPages'] == 150, report
+          assert report['prioritizedCoverImages'] == 150, report
+          assert report['rssItems'] == 150, report
+          assert report['canonicalUrlsPreserved'] is True, report
+          assert report['titlesPreserved'] is True, report
+          assert report['failures'] == [], report
+          print(report)
+          PY
+          test "$(grep -rl 'G-VLZMV8Y4JP' quick-info/index.html quick-info/*/index.html | wc -l)" -eq 151
+          test "$(grep -rl 'fetchpriority="high"' quick-info/*/index.html | wc -l)" -eq 150
+          test "$(grep -rl 'property="article:published_time"' quick-info/*/index.html | wc -l)" -eq 150
+          test "$(grep -o '<item>' quick-info/feed.xml | wc -l)" -eq 150
+
+      - name: Commit generated enhancement safely
+        shell: bash
+        env:
+          SOURCE_BRANCH: ${{ steps.source.outputs.branch }}
+        run: |
+          set -euo pipefail
+          git config user.name "Rawafid Quick Information Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add quick-info reports/quick-info-discover-observability.json
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit"
+            exit 0
+          fi
+          git commit -m "feat(quick-info): add Discover measurement and feed"
+
+          for attempt in 1 2 3; do
+            git fetch origin "${SOURCE_BRANCH}"
+            if ! git merge-base --is-ancestor "origin/${SOURCE_BRANCH}" HEAD; then
+              if ! git rebase "origin/${SOURCE_BRANCH}"; then
+                git rebase --abort || true
+                sleep 2
+                continue
+              fi
+              python scripts/enhance_quick_info_discover.py
+              git add quick-info reports/quick-info-discover-observability.json
+              if ! git diff --cached --quiet; then
+                git commit --amend --no-edit
+              fi
+            fi
+            if git push origin "HEAD:${SOURCE_BRANCH}"; then
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
