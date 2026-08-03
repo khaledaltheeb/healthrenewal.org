@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.1.1",
   "status": "passed",
   "route": "https://healthrenewal.org/sectors/women/daily-calendar/",
   "dailyElements": 8,
@@ -9,6 +9,8 @@
   "localFirst": true,
   "accountRequired": false,
   "cycleTrackingOptional": true,
+  "menstruationTerminology": "الحيض",
+  "menstrualIntervalLabel": "الفاصل بين بدايات الحيض",
   "fertilityPrediction": false,
   "contraceptionUse": false,
   "icsExport": true,
@@ -22,7 +24,7 @@
   "positiveMorningMessage": true,
   "pinkProfessionalDesign": true,
   "qualityGate": "tests/test_women_daily_calendar.py",
-  "reviewedAt": "2026-08-03",
+  "reviewedAt": "2026-08-04",
   "middayCheckIn": true,
   "feminineNoonBoost": true,
   "defaultNoonTime": "12:30"
