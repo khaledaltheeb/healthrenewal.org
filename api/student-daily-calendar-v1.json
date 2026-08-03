@@ -1,10 +1,12 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "passed",
   "sector": "calendars",
+  "sectorDirectoryLinked": true,
   "route": "https://healthrenewal.org/sectors/calendars/students/",
   "standardYearDays": 365,
   "leapDaySupported": true,
+  "localCalendarDateSafe": true,
   "dailyElements": 7,
   "dailyCheckpoints": 3,
   "adaptiveStudyPlan": true,
