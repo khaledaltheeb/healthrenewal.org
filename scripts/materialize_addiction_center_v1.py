@@ -16,6 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PARTS = [ROOT / ".addiction-payload" / f"part{i:02d}" for i in range(5)]
+ACTIVATION_VERSION = 2
 
 
 def main() -> int:
@@ -36,7 +37,7 @@ def main() -> int:
         archive.extractall(ROOT, filter="data")
 
     digest = hashlib.sha256(raw).hexdigest()
-    print({"status": "materialized", "files": len(members), "sha256": digest})
+    print({"status": "materialized", "activation": ACTIVATION_VERSION, "files": len(members), "sha256": digest})
     return 0
 
 
