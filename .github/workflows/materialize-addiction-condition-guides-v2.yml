@@ -1,4 +1,4 @@
-# Trigger v4: invoke the checksum-correct visible extraction gate on main.
+# Trigger v4b: invoke the checksum-correct visible extraction gate now active on main.
 name: Materialize addiction condition guides v2
 
 on:
@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: materialize-addiction-condition-guides-v2
-  cancel-in-progress: false
+  cancel-in_progress: false
 
 jobs:
   materialize:
