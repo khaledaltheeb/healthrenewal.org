@@ -7,7 +7,6 @@ on:
       - "sectors/women/index.html"
       - "api/women-daily-calendar-v1.json"
       - "scripts/apply_homepage_v20.py"
-      - "scripts/apply_women_noon_checkin_once.py"
       - "index.html"
       - "tests/test_women_daily_calendar.py"
       - "sitemap-women-calendar.xml"
@@ -21,7 +20,6 @@ on:
       - "sectors/women/index.html"
       - "api/women-daily-calendar-v1.json"
       - "scripts/apply_homepage_v20.py"
-      - "scripts/apply_women_noon_checkin_once.py"
       - "index.html"
       - "tests/test_women_daily_calendar.py"
       - "sitemap-women-calendar.xml"
@@ -29,7 +27,7 @@ on:
       - ".github/workflows/women-daily-calendar.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   static-contract:
@@ -63,48 +61,3 @@ jobs:
               test()
               print(f"PASS {test.__name__}")
           PY
-
-  apply-noon-checkin:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: agent/women-daily-calendar-v1
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      - name: Apply one-time noon integration
-        run: |
-          if [ ! -f scripts/apply_women_noon_checkin_once.py ]; then
-            echo "No one-time integrator remains"
-            exit 0
-          fi
-          python scripts/apply_women_noon_checkin_once.py
-          node --check sectors/women/daily-calendar/calendar.js
-          python -m py_compile tests/test_women_daily_calendar.py
-          python - <<'PY'
-          import runpy
-          namespace = runpy.run_path("tests/test_women_daily_calendar.py")
-          for name, value in sorted(namespace.items()):
-              if name.startswith("test_") and callable(value):
-                  value()
-                  print(f"PASS {name}")
-          PY
-      - name: Commit integrated noon experience
-        run: |
-          set -euo pipefail
-          git config user.name "healthrenewal-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "No integration changes to commit"
-            exit 0
-          fi
-          git commit -m "feat(women): add interactive noon wellbeing check-in"
-          git push origin HEAD:agent/women-daily-calendar-v1
