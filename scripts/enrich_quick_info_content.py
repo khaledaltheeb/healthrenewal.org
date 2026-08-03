@@ -3,15 +3,16 @@
 
 The base generator intentionally centralizes evidence profiles. This pass combines
 profile-specific factors, markers and actions so list cards do not repeat generic
-paragraphs, adds a contextual interpretation section, and applies the site's
-existing Google Analytics measurement tag to the section and all article pages.
+paragraphs, adds a contextual interpretation section, applies the site's existing
+Google Analytics measurement tag, and keeps the homepage heading outline within
+its institutional content contract.
 """
 from __future__ import annotations
 
 import html
 import re
 
-from generate_quick_info import OUT, TOPICS, profile
+from generate_quick_info import OUT, ROOT, TOPICS, profile
 
 GA_SNIPPET = """<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-VLZMV8Y4JP"></script>
@@ -89,6 +90,21 @@ def contextual_section(title: str) -> str:
     )
 
 
+def keep_homepage_outline_concise() -> None:
+    """Keep Quick Information cards visible without inflating h1-h6 outline."""
+    path = ROOT / "index.html"
+    text = path.read_text(encoding="utf-8")
+    replacements = {
+        '<h3 class="item-title">حزن أم اكتئاب؟</h3>': '<strong class="item-title">حزن أم اكتئاب؟</strong>',
+        '<h3 class="item-title">إرهاق أم كسل؟</h3>': '<strong class="item-title">إرهاق أم كسل؟</strong>',
+        '<h3 class="item-title">هل العلاقة آمنة؟</h3>': '<strong class="item-title">هل العلاقة آمنة؟</strong>',
+        '<h3 class="item-title">فحص الصحة النفسية</h3>': '<strong class="item-title">فحص الصحة النفسية</strong>',
+    }
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    path.write_text(text, encoding="utf-8")
+
+
 def main() -> None:
     changed = 0
     for slug, title, kind, _category in TOPICS:
@@ -109,6 +125,7 @@ def main() -> None:
 
     index_path = OUT / "index.html"
     index_path.write_text(add_analytics(index_path.read_text(encoding="utf-8")), encoding="utf-8")
+    keep_homepage_outline_concise()
     print({"enriched_pages": changed, "analytics_pages": changed + 1, "quality_marker": "enriched-v2"})
 
 
