@@ -57,7 +57,10 @@ jobs:
             scripts/publish_daily_tools_v24.py \
             scripts/repair_comparisons_v331.py \
             scripts/publish_evidence_literacy_library_v322.py \
+            scripts/materialize_addiction_reference_v1.py \
             scripts/generate_sitemap_index_v304.py
+          rm -rf /tmp/addiction-reference-v1
+          python scripts/materialize_addiction_reference_v1.py /tmp/addiction-reference-v1
           python - <<'PY'
           from pathlib import Path
           canonical = Path(".github/workflows/deploy-complete-pages-with-ai-search.yml")
@@ -67,6 +70,8 @@ jobs:
               "scripts/publish_daily_tools_v24.py _site",
               "scripts/repair_comparisons_v331.py _site",
               "scripts/publish_evidence_literacy_library_v322.py _site",
+              "scripts/materialize_addiction_reference_v1.py _site",
+              "addiction/index.html",
               "baseline-routes.json",
               "actions/deploy-pages@v4",
           )
@@ -229,6 +234,7 @@ jobs:
           python scripts/repair_comparisons_v331.py _site
           python scripts/publish_evidence_literacy_library_v322.py _site
           python scripts/generate_sitemap_index_v304.py _site
+          python scripts/materialize_addiction_reference_v1.py _site
 
       - name: Normalize canonical origin
         run: |
@@ -292,6 +298,7 @@ jobs:
               "learning-paths/index.html",
               "family-guide/index.html",
               "ai-search/index.html",
+              "addiction/index.html",
           )
           missing = [path for path in required_roots if not (site / path).is_file()]
           if missing:
@@ -309,12 +316,20 @@ jobs:
               if path != site / "care-guides/index.html"
           ]
           family_guides = list((site / "family-guide/conditions").glob("*/index.html"))
+          addiction_pages = list((site / "addiction").glob("**/index.html"))
           assert len(encyclopedia) == 2000, len(encyclopedia)
           assert len(daily_tools) == 100, len(daily_tools)
           assert len(learning_paths) >= 10, len(learning_paths)
           assert len(comparisons) >= 100, len(comparisons)
           assert len(care_guides) >= 6, len(care_guides)
           assert len(family_guides) >= 64, len(family_guides)
+          assert len(addiction_pages) == 15, len(addiction_pages)
+
+          addiction = json.loads((site / "api/addiction-reference-v1.json").read_text(encoding="utf-8"))
+          assert addiction["status"] == "passed"
+          assert addiction["conditionPages"] == 10
+          assert addiction["protocols"] == 100
+          assert addiction["references"] == 50
 
           academic = json.loads((site / "api/academic-library-v326.json").read_text(encoding="utf-8"))
           assert academic["status"] == "passed"
@@ -333,6 +348,7 @@ jobs:
           if not sitemap.is_file():
               sitemap = site / "sitemap.xml"
           ET.parse(sitemap)
+          assert "sitemap-addiction.xml" in sitemap.read_text(encoding="utf-8")
 
           families = Counter(
               route.strip("/").split("/", 1)[0] if route != "/" else "root"
@@ -358,6 +374,9 @@ jobs:
                   "careGuides": len(care_guides),
                   "familyGuides": len(family_guides),
                   "academicLibraryEntries": academic["total_entries"],
+                  "addictionPages": addiction["htmlPages"],
+                  "addictionProtocols": addiction["protocols"],
+                  "addictionReferences": addiction["references"],
               },
               "routes": sorted(final),
           }
@@ -398,6 +417,9 @@ jobs:
               "https://healthrenewal.org/daily-tools/" \
               "https://healthrenewal.org/family-guide/" \
               "https://healthrenewal.org/ai-search/" \
+              "https://healthrenewal.org/addiction/" \
+              "https://healthrenewal.org/addiction/withdrawal-safety/" \
+              "https://healthrenewal.org/api/addiction-reference-v1.json" \
               "https://healthrenewal.org/api/complete-route-inventory-v1.json"
             do
               curl -fsSL --retry 2 -H "Cache-Control: no-cache" "${url}?restore=${nonce}" -o /dev/null || ok=0
@@ -416,6 +438,9 @@ jobs:
           assert report["contracts"]["comparisons"] >= 100
           assert report["contracts"]["careGuides"] >= 6
           assert report["contracts"]["academicLibraryEntries"] == 80
+          assert report["contracts"]["addictionPages"] == 15
+          assert report["contracts"]["addictionProtocols"] == 100
+          assert report["contracts"]["addictionReferences"] == 50
           PY
               then
                 ready=1
