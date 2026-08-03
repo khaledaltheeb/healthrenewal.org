@@ -1,0 +1,63 @@
+{
+  "version": "1.0.0",
+  "language": "ar",
+  "direction": "rtl",
+  "publishedPath": "/sectors/women/daily-calendar/",
+  "productType": "local-first daily health calendar",
+  "yearCoverage": {
+    "standardYearDays": 365,
+    "leapDaySupported": true,
+    "dailyRequiredElements": [
+      "positiveMorningMessage",
+      "fact",
+      "tip",
+      "idea",
+      "suggestion",
+      "tenMinutePractice"
+    ]
+  },
+  "monthlyPrograms": 12,
+  "cycleTracking": {
+    "optional": true,
+    "predictionIsApproximate": true,
+    "fertilityPrediction": false,
+    "contraceptionUse": false,
+    "localStorageDefault": true,
+    "serverAccountRequired": false
+  },
+  "calendarIntegration": {
+    "icsExport": true,
+    "googleCalendarEvent": true,
+    "rangesInDays": [30, 90, 365],
+    "reminders": true,
+    "neutralEventTitlesByDefault": true
+  },
+  "localization": {
+    "timezones": true,
+    "weekStartOptions": ["Saturday", "Sunday", "Monday"],
+    "gregorianDisplay": true,
+    "dualHijriDisplayOptional": true
+  },
+  "accessibility": {
+    "responsive": true,
+    "keyboardFocus": true,
+    "reducedMotion": true,
+    "highContrast": true,
+    "printMode": true
+  },
+  "evidenceSources": [
+    "WHO menstrual health",
+    "WHO self-care for health and well-being",
+    "Office on Women's Health menstrual cycle tracking",
+    "ACOG heavy and abnormal periods",
+    "CDC heavy menstrual bleeding",
+    "Health Renewal cycle mood pattern tracking guide"
+  ],
+  "review": {
+    "medicalScope": "education, organization and pattern tracking only",
+    "individualDiagnosis": false,
+    "individualMedicationAdvice": false,
+    "externalClinicalReviewRecommended": true,
+    "nextReview": "2027-02-03"
+  }
+}
