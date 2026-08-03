@@ -1,0 +1,220 @@
+{
+  "program": "addiction-condition-guides-v3",
+  "version": "3.0.0",
+  "reviewed_on": "2026-08-03",
+  "language": "ar",
+  "direction": "rtl",
+  "integration": {
+    "extends_existing_center": true,
+    "audience_pathways": [
+      "person",
+      "family",
+      "trainer",
+      "community",
+      "clinician"
+    ],
+    "core_routes": [
+      "protocol-atlas",
+      "withdrawal-safety",
+      "recovery-roadmap",
+      "family-guide",
+      "sources"
+    ]
+  },
+  "safety": {
+    "individual_dosing": false,
+    "home_detox_plan": false,
+    "abrupt_benzodiazepine_discontinuation": false,
+    "guaranteed_outcomes": false,
+    "emergency_section_each_page": true
+  },
+  "counts": {
+    "condition_pages": 10,
+    "protocol_modules": 100,
+    "audience_pathways": 5,
+    "official_source_families": 12
+  },
+  "condition_pages": [
+    {
+      "slug": "alcohol-use-disorder",
+      "title_ar": "اضطراب استخدام الكحول",
+      "title_en": "Alcohol Use Disorder",
+      "url": "/addiction/alcohol-use-disorder/",
+      "protocol_count": 10,
+      "audiences": [
+        "person",
+        "family",
+        "trainer",
+        "community",
+        "clinician"
+      ],
+      "sources": [
+        "ASAM_ALCOHOL",
+        "WHO_UNODC"
+      ]
+    },
+    {
+      "slug": "opioid-use-disorder",
+      "title_ar": "اضطراب استخدام الأفيونات",
+      "title_en": "Opioid Use Disorder",
+      "url": "/addiction/opioid-use-disorder/",
+      "protocol_count": 10,
+      "audiences": [
+        "person",
+        "family",
+        "trainer",
+        "community",
+        "clinician"
+      ],
+      "sources": [
+        "SAMHSA_OUD",
+        "CDC_NALOXONE",
+        "WHO_UNODC"
+      ]
+    },
+    {
+      "slug": "stimulant-use-disorder",
+      "title_ar": "اضطراب استخدام المنبهات",
+      "title_en": "Stimulant Use Disorder",
+      "url": "/addiction/stimulant-use-disorder/",
+      "protocol_count": 10,
+      "audiences": [
+        "person",
+        "family",
+        "trainer",
+        "community",
+        "clinician"
+      ],
+      "sources": [
+        "ASAM_STIM",
+        "CDC_POLY",
+        "WHO_UNODC"
+      ]
+    },
+    {
+      "slug": "cannabis-use-disorder",
+      "title_ar": "اضطراب استخدام القنب",
+      "title_en": "Cannabis Use Disorder",
+      "url": "/addiction/cannabis-use-disorder/",
+      "protocol_count": 10,
+      "audiences": [
+        "person",
+        "family",
+        "trainer",
+        "community",
+        "clinician"
+      ],
+      "sources": [
+        "NIDA_CANNABIS",
+        "WHO_UNODC"
+      ]
+    },
+    {
+      "slug": "nicotine-tobacco-dependence",
+      "title_ar": "الاعتماد على النيكوتين والتبغ",
+      "title_en": "Nicotine and Tobacco Dependence",
+      "url": "/addiction/nicotine-tobacco-dependence/",
+      "protocol_count": 10,
+      "audiences": [
+        "person",
+        "family",
+        "trainer",
+        "community",
+        "clinician"
+      ],
+      "sources": [
+        "WHO_TOBACCO"
+      ]
+    },
+    {
+      "slug": "sedative-benzodiazepine-use-disorder",
+      "title_ar": "اضطراب استخدام المهدئات والبنزوديازيبينات",
+      "title_en": "Sedative and Benzodiazepine Use Disorder",
+      "url": "/addiction/sedative-benzodiazepine-use-disorder/",
+      "protocol_count": 10,
+      "audiences": [
+        "person",
+        "family",
+        "trainer",
+        "community",
+        "clinician"
+      ],
+      "sources": [
+        "ASAM_BZD",
+        "WHO_UNODC"
+      ]
+    },
+    {
+      "slug": "gambling-related-harms",
+      "title_ar": "أضرار المقامرة واضطرابها",
+      "title_en": "Gambling-related Harms",
+      "url": "/addiction/gambling-related-harms/",
+      "protocol_count": 10,
+      "audiences": [
+        "person",
+        "family",
+        "trainer",
+        "community",
+        "clinician"
+      ],
+      "sources": [
+        "NICE_GAMBLING"
+      ]
+    },
+    {
+      "slug": "gaming-disorder",
+      "title_ar": "اضطراب الألعاب الرقمية",
+      "title_en": "Gaming Disorder",
+      "url": "/addiction/gaming-disorder/",
+      "protocol_count": 10,
+      "audiences": [
+        "person",
+        "family",
+        "trainer",
+        "community",
+        "clinician"
+      ],
+      "sources": [
+        "WHO_GAMING",
+        "WHO_UNODC"
+      ]
+    },
+    {
+      "slug": "inhalant-use-disorder",
+      "title_ar": "اضطراب استخدام المستنشقات",
+      "title_en": "Inhalant Use Disorder",
+      "url": "/addiction/inhalant-use-disorder/",
+      "protocol_count": 10,
+      "audiences": [
+        "person",
+        "family",
+        "trainer",
+        "community",
+        "clinician"
+      ],
+      "sources": [
+        "NIDA_INHALANTS",
+        "WHO_UNODC"
+      ]
+    },
+    {
+      "slug": "polysubstance-use-and-overdose-risk",
+      "title_ar": "استخدام مواد متعددة وخطر الجرعة الزائدة",
+      "title_en": "Polysubstance Use and Overdose Risk",
+      "url": "/addiction/polysubstance-use-and-overdose-risk/",
+      "protocol_count": 10,
+      "audiences": [
+        "person",
+        "family",
+        "trainer",
+        "community",
+        "clinician"
+      ],
+      "sources": [
+        "CDC_POLY",
+        "CDC_NALOXONE",
+        "WHO_UNODC"
+      ]
+    }
+  ]
+}
