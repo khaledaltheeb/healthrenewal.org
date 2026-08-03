@@ -1,0 +1,29 @@
+{
+  "schema_version": "addiction-center-v1",
+  "generated_at": "2026-08-03T00:55:00Z",
+  "language": "ar",
+  "canonical": "https://healthrenewal.org/addiction/",
+  "medical_disclaimer": "Educational content only; not diagnosis, dosing, emergency care, or an individual treatment plan.",
+  "condition_groups": [
+    {"slug":"alcohol-use-disorder","name_ar":"اضطراب استخدام الكحول","name_en":"Alcohol Use Disorder","protocol_count":10,"atlas_anchor":"https://healthrenewal.org/addiction/protocol-atlas/#alcohol"},
+    {"slug":"opioid-use-disorder","name_ar":"اضطراب استخدام الأفيونات","name_en":"Opioid Use Disorder","protocol_count":10,"atlas_anchor":"https://healthrenewal.org/addiction/protocol-atlas/#opioids"},
+    {"slug":"stimulant-use-disorder","name_ar":"اضطراب استخدام المنشطات","name_en":"Stimulant Use Disorder","protocol_count":10,"atlas_anchor":"https://healthrenewal.org/addiction/protocol-atlas/#stimulants"},
+    {"slug":"cannabis-use-disorder","name_ar":"اضطراب استخدام القنب","name_en":"Cannabis Use Disorder","protocol_count":10,"atlas_anchor":"https://healthrenewal.org/addiction/protocol-atlas/#cannabis"},
+    {"slug":"benzodiazepine-sedative-use-disorder","name_ar":"اضطراب استخدام البنزوديازيبينات والمهدئات","name_en":"Benzodiazepine and Sedative Use Disorder","protocol_count":10,"atlas_anchor":"https://healthrenewal.org/addiction/protocol-atlas/#sedatives"},
+    {"slug":"nicotine-tobacco-dependence","name_ar":"اعتماد النيكوتين والتبغ","name_en":"Nicotine and Tobacco Dependence","protocol_count":10,"atlas_anchor":"https://healthrenewal.org/addiction/protocol-atlas/#nicotine"},
+    {"slug":"gambling-disorder","name_ar":"اضطراب المقامرة","name_en":"Gambling Disorder","protocol_count":10,"atlas_anchor":"https://healthrenewal.org/addiction/protocol-atlas/#gambling"},
+    {"slug":"gaming-disorder","name_ar":"اضطراب الألعاب الرقمية","name_en":"Gaming Disorder","protocol_count":10,"atlas_anchor":"https://healthrenewal.org/addiction/protocol-atlas/#gaming"},
+    {"slug":"inhalant-use-disorder","name_ar":"اضطراب استخدام المستنشقات","name_en":"Inhalant Use Disorder","protocol_count":10,"atlas_anchor":"https://healthrenewal.org/addiction/protocol-atlas/#inhalants"},
+    {"slug":"polysubstance-use","name_ar":"الاستخدام المتعدد للمواد","name_en":"Polysubstance Use","protocol_count":10,"atlas_anchor":"https://healthrenewal.org/addiction/protocol-atlas/#poly"}
+  ],
+  "core_pages": [
+    "https://healthrenewal.org/addiction/",
+    "https://healthrenewal.org/addiction/protocol-atlas/",
+    "https://healthrenewal.org/addiction/withdrawal-safety/",
+    "https://healthrenewal.org/addiction/recovery-roadmap/",
+    "https://healthrenewal.org/addiction/sources/"
+  ],
+  "protocol_total": 100,
+  "reference_count": 53,
+  "review_policy": "Annual review and immediate review after major guideline updates."
+}
