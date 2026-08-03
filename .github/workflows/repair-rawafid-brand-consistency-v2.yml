@@ -34,8 +34,14 @@ jobs:
           python -m py_compile \
             scripts/rawafid_brand_consistency.py \
             scripts/rawafid_brand_runner.py \
+            scripts/repair_homepage_heading_semantics.py \
             scripts/sitecustomize.py \
             scripts/apply_rawafid_brand.py
+
+      - name: Repair homepage heading semantics
+        run: |
+          python scripts/repair_homepage_heading_semantics.py index.html --fix
+          python scripts/repair_homepage_heading_semantics.py index.html
 
       - name: Repair and audit public source
         run: |
