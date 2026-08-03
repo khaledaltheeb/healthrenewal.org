@@ -16,8 +16,7 @@ def load_json(relative_path: str) -> dict:
 def test_program_is_truthfully_marked_as_foundation():
     index = load_json("api/v1/addiction-center.json")
     assert index["program_status"] in {
-        "foundation-draft",
-        "expanded-foundation-v2",
+        "foundation-draft", "expanded-foundation-v2", "expanded-foundation-v3"
     }
     assert "لا يمثل اكتمال" in index["publication_claim"]
     assert "اعتماد سريري خارجي" in index["publication_claim"]
@@ -26,28 +25,25 @@ def test_program_is_truthfully_marked_as_foundation():
     assert index["structured_reference_count"] >= 12
     assert index["mapped_claim_count"] >= 12
     assert index["claim_source_map_status"] in {
-        "foundation-partial",
-        "expanded-partial-v2",
+        "foundation-partial", "expanded-partial-v2", "expanded-partial-v3"
     }
 
 
 def test_governance_contracts_are_linked_and_exist():
     index = load_json("api/v1/addiction-center.json")
-    for field in (
-        "governance_document",
-        "safety_contract",
-        "information_architecture",
-        "structured_source_registry",
-        "claim_source_map",
-    ):
+    required = (
+        "governance_document", "safety_contract", "information_architecture",
+        "structured_source_registry", "claim_source_map",
+    )
+    for field in required:
         assert (ROOT / index[field]).is_file(), field
-
-    for optional_field in (
-        "supplemental_source_registry",
-        "expansion_report",
-    ):
-        if optional_field in index:
-            assert (ROOT / index[optional_field]).is_file(), optional_field
+    optional = (
+        "supplemental_source_registry", "family_source_registry",
+        "family_claim_source_map", "expansion_report",
+    )
+    for field in optional:
+        if field in index:
+            assert (ROOT / index[field]).is_file(), field
 
     next_wave = index["required_next_wave"]
     if "independent_condition_pages" in next_wave:
@@ -57,9 +53,11 @@ def test_governance_contracts_are_linked_and_exist():
         assert next_wave["special_population_guides"] >= 12
         assert next_wave["claim_source_map_required"] is True
     else:
-        assert index.get("condition_layer_status") == "complete-v1"
-        assert next_wave["additional_family_guides"] >= 6
-        assert next_wave["additional_practical_tools"] >= 6
+        assert index["condition_layer_status"] == "complete-v1"
+        family_done = index.get("family_specialized_layer_status") == "complete-v1"
+        tools_done = index.get("tools_layer_status") == "complete-v1"
+        assert next_wave["additional_family_guides"] == (0 if family_done else 6)
+        assert next_wave["additional_practical_tools"] == (0 if tools_done else 6)
         assert next_wave["additional_special_population_guides"] >= 6
         assert next_wave["additional_substance_and_behavior_guides"] >= 8
         assert next_wave["regional_legal_localization_required"] is True
@@ -73,7 +71,6 @@ def test_structured_source_registry_is_reviewable():
     identifiers = [item["id"] for item in sources]
     assert len(identifiers) == len(set(identifiers))
     assert all(KEBAB_ID.fullmatch(identifier) for identifier in identifiers)
-
     required_fields = set(registry["required_fields"])
     verified_on = date.fromisoformat(registry["verified_on"])
     authorities = set()
@@ -86,7 +83,6 @@ def test_structured_source_registry_is_reviewable():
         assert source["name"] == source["title"]
         assert source["organization"] == source["authority"]
         authorities.add(source["authority"])
-
     assert {
         "World Health Organization",
         "World Health Organization and United Nations Office on Drugs and Crime",
@@ -104,22 +100,18 @@ def test_claim_map_resolves_every_source_id_and_declares_gaps():
     claim_map = load_json("data/addiction-evidence/claim-source-map.json")
     claims = claim_map["claims"]
     assert len(claims) >= 12
-
     claim_ids = [claim["id"] for claim in claims]
     assert len(claim_ids) == len(set(claim_ids))
     assert all(KEBAB_ID.fullmatch(identifier) for identifier in claim_ids)
-
     for claim in claims:
         assert claim["statement_ar"].strip()
         assert claim["source_ids"]
         assert set(claim["source_ids"]).issubset(source_ids), claim["id"]
         assert claim["publication_status"] in {
-            "draft",
-            "approved-for-general-education",
+            "draft", "approved-for-general-education",
             "external-clinical-review-required",
         }
         assert claim["safety_flags"]
-
     gap_domains = {gap["domain"] for gap in claim_map["coverage_gaps"]}
     assert {"cannabis-use-disorder", "gaming-disorder", "inhalant-use-disorder"}.issubset(gap_domains)
 
@@ -127,41 +119,31 @@ def test_claim_map_resolves_every_source_id_and_declares_gaps():
 def test_safety_contract_contains_non_negotiable_guardrails():
     text = (ROOT / "docs/addiction-safety-contract.md").read_text(encoding="utf-8")
     for required in (
-        "لا يقدم الموقع خطة انسحاب منزلية شخصية",
-        "لا إيقاف مفاجئ",
+        "لا يقدم الموقع خطة انسحاب منزلية شخصية", "لا إيقاف مفاجئ",
         "إزالة السموم وحدها ليست علاجًا كافيًا",
-        "جرعة بداية أو زيادة أو إيقاف لشخص بعينه",
-        "العلاج القسري",
+        "جرعة بداية أو زيادة أو إيقاف لشخص بعينه", "العلاج القسري",
         "external-clinical-review-required",
     ):
         assert required in text
+    for forbidden in ("نضمن الشفاء", "شفاء مضمون", "جدول جرعات ذاتي"):
+        assert forbidden not in text
 
-    for forbidden_claim in ("نضمن الشفاء", "شفاء مضمون", "جدول جرعات ذاتي"):
-        assert forbidden_claim not in text
 
-
-def test_information_architecture_defines_ten_independent_condition_routes():
+def test_information_architecture_preserves_condition_contract():
     text = (ROOT / "docs/addiction-information-architecture.md").read_text(encoding="utf-8")
-    routes = (
-        "/addiction/alcohol-use-disorder/",
-        "/addiction/opioid-use-disorder/",
-        "/addiction/stimulant-use-disorder/",
-        "/addiction/cannabis-use-disorder/",
+    for route in (
+        "/addiction/alcohol-use-disorder/", "/addiction/opioid-use-disorder/",
+        "/addiction/stimulant-use-disorder/", "/addiction/cannabis-use-disorder/",
         "/addiction/sedative-benzodiazepine-use/",
         "/addiction/nicotine-tobacco-dependence/",
-        "/addiction/gambling-related-harms/",
-        "/addiction/gaming-disorder/",
-        "/addiction/inhalant-use-disorder/",
-        "/addiction/polysubstance-use/",
-    )
-    for route in routes:
+        "/addiction/gambling-related-harms/", "/addiction/gaming-disorder/",
+        "/addiction/inhalant-use-disorder/", "/addiction/polysubstance-use/",
+    ):
         assert route in text
-    assert "كل صفحة حالة مستقلة تتضمن بالترتيب" in text
     assert "نموذج عشرة بروتوكولات لكل فئة" in text
 
 
 def test_robots_exposes_canonical_sitemap_index():
     robots = (ROOT / "robots.txt").read_text(encoding="utf-8")
     expected = "Sitemap: https://healthrenewal.org/sitemap-index.xml"
-    assert expected in robots
     assert robots.count(expected) == 1

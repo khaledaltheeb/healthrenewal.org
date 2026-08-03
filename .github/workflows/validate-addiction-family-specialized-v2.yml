@@ -1,0 +1,46 @@
+name: Validate addiction family specialized v2
+
+on:
+  pull_request:
+    paths:
+      - "addiction/family-guides/**"
+      - "addiction/tools/**"
+      - "data/addiction-evidence/source-registry-family-v2.json"
+      - "data/addiction-evidence/claim-source-map-family-v2.json"
+      - "api/addiction-family-specialized-v2.json"
+      - "api/v1/addiction-center.json"
+      - "tests/test_addiction_family_specialized_v2.py"
+      - "sitemap-addiction.xml"
+      - ".github/workflows/validate-addiction-family-specialized-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: addiction-family-v2-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and run family contracts
+        run: |
+          set -euxo pipefail
+          python -m py_compile tests/test_addiction_family_specialized_v2.py
+          python - <<'PY'
+          import runpy
+          ns = runpy.run_path("tests/test_addiction_family_specialized_v2.py")
+          tests = [v for k,v in sorted(ns.items()) if k.startswith("test_") and callable(v)]
+          if len(tests) != 4:
+              raise SystemExit(f"Expected 4 tests, found {len(tests)}")
+          for test in tests:
+              test()
+              print(f"PASS {test.__name__}")
+          PY
