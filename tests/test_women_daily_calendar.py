@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,6 +25,16 @@ def test_women_daily_calendar_static_contract() -> None:
     css = (APP / "calendar.css").read_text(encoding="utf-8")
     js = (APP / "calendar.js").read_text(encoding="utf-8")
     manifest = json.loads((APP / "editorial-manifest.json").read_text(encoding="utf-8"))
+    api_report = json.loads(
+        (ROOT / "api" / "women-daily-calendar-v1.json").read_text(encoding="utf-8")
+    )
+    homepage = (ROOT / "index.html").read_text(encoding="utf-8")
+    women_index = (ROOT / "sectors" / "women" / "index.html").read_text(
+        encoding="utf-8"
+    )
+    publisher = (ROOT / "scripts" / "apply_homepage_v20.py").read_text(
+        encoding="utf-8"
+    )
 
     assert '<html lang="ar" dir="rtl">' in html
     assert "تقويم صحة المرأة اليومي" in html
@@ -63,6 +74,21 @@ def test_women_daily_calendar_static_contract() -> None:
     assert manifest["cycleTracking"]["contraceptionUse"] is False
     assert manifest["calendarIntegration"]["icsExport"] is True
     assert manifest["calendarIntegration"]["rangesInDays"] == [30, 90, 365]
+
+    assert api_report["status"] == "passed"
+    assert api_report["dailyElements"] == 6
+    assert api_report["positiveMorningMessage"] is True
+    assert api_report["pinkProfessionalDesign"] is True
+    assert api_report["localFirst"] is True
+
+    route = 'href="sectors/women/daily-calendar/"'
+    assert route in homepage
+    assert len(re.findall(r"<h3\b", homepage)) >= 16
+    assert "/sectors/women/daily-calendar/" in women_index
+    assert 'restore_static_route(\n            "sectors/women/daily-calendar"' in publisher
+    assert 'restore_static_file(relative_path)' in publisher
+    assert 'register_sitemap("sitemap-women-calendar.xml")' in publisher
+    assert 'href=\\"sectors/women/daily-calendar/\\"' in publisher
 
 
 def test_women_daily_calendar_has_no_remote_health_data_submission() -> None:
