@@ -6,7 +6,7 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-from rawafid_brand_consistency import normalize_root
+from rawafid_brand_runner import normalize_root
 
 
 def main() -> int:
