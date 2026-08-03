@@ -1,32 +1,28 @@
 name: Materialize Arabic addiction reference PR
 
 on:
-  pull_request:
+  push:
     branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
     paths:
-      - "scripts/.addiction_payload_*"
-      - "scripts/materialize_addiction_reference_v1.py"
-      - "addiction/editorial-manifest.json"
-      - ".github/workflows/materialize-addiction-reference-v1.yml"
+      - ".github/workflows/materialize-addiction-pr-v1.yml"
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: materialize-addiction-pr-${{ github.event.pull_request.number }}
+  group: materialize-addiction-v1
   cancel-in-progress: false
 
 jobs:
   materialize:
-    if: github.head_ref == 'agent/addiction-reference-arabic-20260803'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout the trusted head branch
+      - name: Checkout the trusted addiction branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: agent/addiction-reference-arabic-20260803
           fetch-depth: 0
 
       - name: Detect pending payload
@@ -54,4 +50,4 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add -A
           git commit -m "content: add evidence-based Arabic addiction reference"
-          git push origin "HEAD:${{ github.head_ref }}"
+          git push origin HEAD:agent/addiction-reference-arabic-20260803
