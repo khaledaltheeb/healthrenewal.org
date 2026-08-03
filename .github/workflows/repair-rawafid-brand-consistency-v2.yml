@@ -35,15 +35,35 @@ jobs:
             scripts/rawafid_brand_consistency.py \
             scripts/rawafid_brand_runner.py \
             scripts/repair_homepage_heading_semantics.py \
+            scripts/normalize_platform_shell.py \
             scripts/sitecustomize.py \
-            scripts/apply_rawafid_brand.py
+            scripts/apply_rawafid_brand.py \
+            scripts/verify_homepage_v19.py
 
       - name: Repair homepage heading semantics
         run: |
           python scripts/repair_homepage_heading_semantics.py index.html --fix
           python scripts/repair_homepage_heading_semantics.py index.html
 
-      - name: Repair and audit public source
+      - name: Apply initial Rawafid normalization
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import sys
+
+          sys.path.insert(0, 'scripts')
+          from rawafid_brand_runner import normalize_root
+
+          report = normalize_root(Path('.'), fix=True, production=False)
+          raise SystemExit(0 if report.status == 'passed' else 1)
+          PY
+
+      - name: Converge shared platform shell
+        run: |
+          python scripts/normalize_platform_shell.py --no-report
+          python scripts/normalize_platform_shell.py --no-report
+
+      - name: Finalize and audit Rawafid identity
         run: |
           python - <<'PY'
           import json
@@ -63,6 +83,12 @@ jobs:
           print(json.dumps(asdict(report), ensure_ascii=False, indent=2))
           raise SystemExit(0 if report.status == 'passed' else 1)
           PY
+
+      - name: Validate platform shell and homepage contracts
+        run: |
+          python scripts/normalize_platform_shell.py --check --no-report
+          python scripts/repair_homepage_heading_semantics.py index.html
+          python scripts/verify_homepage_v19.py
 
       - name: Validate report contract
         run: |
@@ -91,5 +117,5 @@ jobs:
             echo "No consistency changes to commit"
             exit 0
           fi
-          git commit -m "fix(brand): eliminate legacy identity and metadata ambiguity"
+          git commit -m "fix(brand): converge identity, metadata and semantic shell"
           git push origin HEAD:fix/rawafid-brand-consistency-v2
