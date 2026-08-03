@@ -1,4 +1,4 @@
-const CACHE_NAME = "hr-women-calendar-v2";
+const CACHE_NAME = "hr-women-calendar-v3";
 const APP_SHELL = [
   "/sectors/women/daily-calendar/",
   "/sectors/women/daily-calendar/index.html",
