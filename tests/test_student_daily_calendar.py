@@ -70,6 +70,9 @@ def test_student_daily_calendar_contract() -> None:
         "morning-${isoDate(date)}",
         "noon-${isoDate(date)}",
         "evening-${isoDate(date)}",
+        "utcDayNumber",
+        "d.setDate(d.getDate() + Number(days || 0))",
+        "Math.max(5, total - wrap - recall)",
         "localStorage",
         "exportData",
         "importData",
@@ -83,6 +86,7 @@ def test_student_daily_calendar_contract() -> None:
     for token in forbidden_remote_submission:
         assert token not in js, f"Unexpected remote submission primitive: {token}"
 
+    assert "toISOString().slice(0,10)" not in js
     assert "dashboard-grid" in css
     assert "week-grid" in css
     assert "@media print" in css
