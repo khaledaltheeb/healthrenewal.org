@@ -73,6 +73,10 @@ def restore_missing_public_source(site: Path, repo_root: Path) -> list[str]:
     deliberately non-destructive: it copies a source file only when the final
     artifact no longer contains that relative path and never overwrites a page
     produced by a current generator.
+
+    Test fixtures and other output directories may live inside the repository.
+    Files already inside ``site`` must therefore be ignored, or the walk would
+    recursively copy the output tree into itself.
     """
 
     site = site.resolve()
@@ -83,6 +87,9 @@ def restore_missing_public_source(site: Path, repo_root: Path) -> list[str]:
     restored: list[str] = []
     for source in repo_root.rglob("*"):
         if not source.is_file():
+            continue
+        source = source.resolve()
+        if source == site or site in source.parents:
             continue
         relative = source.relative_to(repo_root)
         if not relative.parts or relative.parts[0] in PUBLIC_SKIP_TOP:
@@ -102,6 +109,30 @@ def restore_missing_public_source(site: Path, repo_root: Path) -> list[str]:
         restored.append(relative.as_posix())
 
     return sorted(restored)
+
+
+def materialize_addiction_guides(root: Path) -> dict[str, object]:
+    """Build detailed guides only when the complete addiction center is present.
+
+    The sitemap engine is also exercised against small synthetic fixtures that
+    intentionally contain no addiction center. A fully absent center is a valid
+    non-applicable case; a partially present center is an integrity error.
+    """
+
+    routes = addiction_condition_guides.AUTHORITATIVE_EXISTING_ROUTES
+    present = [relative for relative in routes if (root / relative).is_file()]
+    if not present:
+        return {
+            "schemaVersion": 2,
+            "status": "not-applicable",
+            "reason": "addiction-center-not-present",
+            "conditionPages": 0,
+            "detailedProtocols": 0,
+        }
+    if len(present) != len(routes):
+        missing = sorted(set(routes) - set(present))
+        raise SystemExit({"partial_addiction_center": True, "missing": missing})
+    return addiction_condition_guides.materialize(root)
 
 
 def load_discovery_publication_report(root: Path) -> tuple[Path, dict[str, object]]:
@@ -135,15 +166,17 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     # Extend the already-published addiction center with ten detailed condition
     # guides. The materializer checks its signed payload and verifies that the
     # hub, protocol atlas, withdrawal guide, recovery roadmap, family guide, and
-    # 53-source registry are byte-for-byte untouched.
-    addiction_condition_report = addiction_condition_guides.materialize(root)
+    # 53-source registry are byte-for-byte untouched. Synthetic sitemap fixtures
+    # without an addiction center are intentionally treated as not applicable.
+    addiction_condition_report = materialize_addiction_guides(root)
 
     # Build canonical sitemap families from the complete, restored artifact.
     report = core.generate(root, base_url)
 
     # The canonical generator rebuilds sitemap-index.xml. Re-register the
     # dedicated addiction sitemap without replacing any generated family map.
-    addiction_condition_guides.merge_discovery(root)
+    if addiction_condition_report.get("status") == "passed":
+        addiction_condition_guides.merge_discovery(root)
 
     # Learning paths include both generated paths and source-authored paths.
     # Add the family to the static catalogue set so every restored route is
