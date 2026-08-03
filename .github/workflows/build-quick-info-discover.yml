@@ -7,6 +7,7 @@ on:
     paths:
       - "scripts/quick_info_topics.py"
       - "scripts/generate_quick_info.py"
+      - "scripts/render_quick_info_cards_v2.py"
       - "scripts/enrich_quick_info_content.py"
       - ".github/workflows/build-quick-info-discover.yml"
   pull_request:
@@ -18,6 +19,7 @@ on:
       - "assets/quick-info/**"
       - "scripts/quick_info_topics.py"
       - "scripts/generate_quick_info.py"
+      - "scripts/render_quick_info_cards_v2.py"
       - "scripts/enrich_quick_info_content.py"
       - "api/v1/quick-info.json"
       - "sitemap-quick-info.xml"
@@ -33,7 +35,7 @@ permissions:
 
 concurrency:
   group: quick-info-discover-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -62,10 +64,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install image and Arabic font support
+      - name: Install image support
         run: |
-          sudo apt-get update
-          sudo apt-get install -y fonts-noto-core fonts-noto-extra
           python -m pip install --upgrade pip
           python -m pip install pillow
 
@@ -74,11 +74,13 @@ jobs:
           python -m py_compile \
             scripts/quick_info_topics.py \
             scripts/generate_quick_info.py \
+            scripts/render_quick_info_cards_v2.py \
             scripts/enrich_quick_info_content.py
 
-      - name: Generate and enrich section
+      - name: Generate, illustrate and enrich section
         run: |
           python scripts/generate_quick_info.py
+          python scripts/render_quick_info_cards_v2.py
           python scripts/enrich_quick_info_content.py
 
       - name: Validate content and Discover contracts
@@ -87,6 +89,7 @@ jobs:
           test "$(find quick-info -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 150
           test "$(find assets/quick-info/cards -maxdepth 1 -name '*.jpg' | wc -l)" -eq 150
           test "$(grep -rl 'data-quality="enriched-v2"' quick-info/*/index.html | wc -l)" -eq 150
+          test "$(grep -rl 'data-comparison-quality="pair-specific-v3"' quick-info/*/index.html | wc -l)" -eq 35
           test "$(grep -rl 'G-VLZMV8Y4JP' quick-info/index.html quick-info/*/index.html | wc -l)" -eq 151
           test -s quick-info/index.html
           test -s quick-info/feed.xml
@@ -98,6 +101,9 @@ jobs:
           grep -q 'معلومات سريعة' index.html
           grep -q 'الخطوة العملية الأقرب' quick-info/five-reasons-procrastination/index.html
           grep -q 'يصبح هذا المؤشر أكثر أهمية' quick-info/five-tips-after-breakup/index.html
+          grep -q 'السؤال الحاسم' quick-info/care-or-monitoring/index.html
+          grep -q '<strong class="item-title">حزن أم اكتئاب؟</strong>' index.html
+          ! grep -q '<h3 class="item-title">حزن أم اكتئاب؟</h3>' index.html
 
       - name: Commit generated static section
         shell: bash
@@ -109,5 +115,5 @@ jobs:
             echo "No generated changes to commit"
             exit 0
           fi
-          git commit -m "feat(quick-info): enrich 150 Discover-ready pages"
+          git commit -m "feat(quick-info): publish 150 enriched Discover pages"
           git push origin "HEAD:${{ steps.source.outputs.branch }}"
