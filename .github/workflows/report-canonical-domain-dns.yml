@@ -1,0 +1,64 @@
+name: Report canonical domain DNS result
+
+on:
+  workflow_run:
+    workflows: ["Repair canonical domain DNS"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Publish an auditable GitHub issue receipt
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          title="Domain DNS audit: healthrenewal.org"
+          status="${CONCLUSION:-unknown}"
+          body=$(cat <<EOF
+          ## Canonical domain DNS audit
+
+          - **Domain:** https://healthrenewal.org
+          - **Result:** ${status}
+          - **Run:** ${RUN_URL}
+          - **Run ID:** ${RUN_ID}
+          - **Commit:** ${HEAD_SHA}
+          - **Checked:** $(date -u +'%Y-%m-%dT%H:%M:%SZ')
+
+          The repair workflow manages only the apex and `www` website A/AAAA/CNAME records. MX and TXT records used by email, SPF, DKIM, DMARC, and service verification are preserved.
+          EOF
+          )
+
+          number=$(gh issue list \
+            --repo "$GITHUB_REPOSITORY" \
+            --state all \
+            --limit 100 \
+            --json number,title \
+            --jq ".[] | select(.title == \"${title}\") | .number" \
+            | head -n 1)
+
+          if [ -z "$number" ]; then
+            number=$(gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body" --label "operations" 2>/dev/null | sed -n 's#.*/##p' || true)
+            if [ -z "$number" ]; then
+              number=$(gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body" | sed -n 's#.*/##p')
+            fi
+          else
+            gh issue comment "$number" --repo "$GITHUB_REPOSITORY" --body "$body"
+          fi
+
+          if [ "$status" = "success" ]; then
+            gh issue close "$number" --repo "$GITHUB_REPOSITORY" --reason completed --comment "DNS repair and live verification completed successfully." || true
+          else
+            gh issue reopen "$number" --repo "$GITHUB_REPOSITORY" || true
+          fi
