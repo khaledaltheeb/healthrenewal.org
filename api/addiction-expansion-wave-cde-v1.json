@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "addiction-expansion-wave-cde-v1",
+  "status": "passed-local",
+  "generatedAt": "2026-08-03T20:55:00+03:00",
+  "populationGuides": 6,
+  "practicalTools": 6,
+  "collectionIndexes": 2,
+  "newRoutes": [
+    "/addiction/populations/",
+    "/addiction/populations/adolescents-young-adults/",
+    "/addiction/populations/pregnancy-postpartum/",
+    "/addiction/populations/older-adults/",
+    "/addiction/populations/co-occurring-mental-health/",
+    "/addiction/populations/chronic-pain/",
+    "/addiction/populations/disability-special-needs/",
+    "/addiction/tools/",
+    "/addiction/tools/family-first-conversation-plan/",
+    "/addiction/tools/family-boundaries-plan/",
+    "/addiction/tools/overdose-emergency-plan/",
+    "/addiction/tools/lapse-relapse-response-plan/",
+    "/addiction/tools/treatment-provider-checklist/",
+    "/addiction/tools/discharge-follow-up-plan/"
+  ],
+  "claimCount": 18,
+  "supplementalSourceCount": 8,
+  "sitemapRoutes": 38,
+  "safety": {
+    "noIndividualDosing": true,
+    "noHomeDetoxPlan": true,
+    "emergencyEscalationOnEveryPage": true,
+    "countryScopedLegalLanguage": true,
+    "hiddenPayload": false,
+    "selfWritingWorkflow": false
+  },
+  "tracking": {
+    "programIssue": 918,
+    "waveIssue": 958,
+    "evidenceIssue": 959
+  }
+}
