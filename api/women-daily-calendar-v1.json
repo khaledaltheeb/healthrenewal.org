@@ -18,5 +18,6 @@
   "positiveMorningMessage": true,
   "pinkProfessionalDesign": true,
   "qualityGate": "tests/test_women_daily_calendar.py",
-  "reviewedAt": "2026-08-03"
+  "reviewedAt": "2026-08-03",
+  "integrationTrigger": "noon-check-in"
 }
