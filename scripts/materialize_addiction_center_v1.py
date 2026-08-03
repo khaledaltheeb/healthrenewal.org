@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PARTS = [ROOT / ".addiction-payload" / f"part{i:02d}" for i in range(5)]
-ACTIVATION_VERSION = 2
+ACTIVATION_VERSION = 3
 
 
 def main() -> int:
