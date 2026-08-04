@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
-"""Apply the shared platform shell to every production HTML page.
+"""Apply one deterministic shared platform shell to production HTML pages.
 
-The migration is deliberately idempotent. Existing pages keep their content and
-local navigation; the script adds shared presentation assets, rights metadata,
-and stable body markers. It can operate on the repository source tree or on the
-generated ``_site`` production artifact.
-
-When the target is a generated artifact, the script also copies the platform
-runtime and public governance pages into that artifact before normalization.
-Pages with strict single-runtime application contracts receive the shared CSS
-and rights metadata but not the optional platform JavaScript enhancer.
+The migration preserves page content and local navigation. It normalizes only
+shared platform assets, rights metadata and body markers. The transformation is
+idempotent by construction: existing platform asset tags are removed from the
+head and one canonical set is inserted in a stable location.
 """
 
 from __future__ import annotations
@@ -52,13 +47,14 @@ BODY_OPEN_RE = re.compile(r"<body\b(?P<attrs>[^>]*)>", re.IGNORECASE)
 CLASS_RE = re.compile(r"\bclass\s*=\s*([\"'])(?P<value>.*?)\1", re.IGNORECASE | re.DOTALL)
 DATA_ATTR_RE_TEMPLATE = r"\s+{name}\s*=\s*([\"']).*?\1"
 PLATFORM_SCRIPT_RE = re.compile(
-    r"\s*<script\b[^>]*\bsrc\s*=\s*([\"'])[^\"']*assets/platform/platform-core\.js\?v=[^\"']*\1[^>]*>\s*</script>\s*",
+    r"[ \t]*<script\b[^>]*\bsrc\s*=\s*([\"'])[^\"']*assets/platform/platform-core\.js\?v=[^\"']*\1[^>]*>\s*</script>[ \t]*(?:\r?\n)?",
     re.IGNORECASE,
 )
 PLATFORM_CSS_RE = re.compile(
-    r"<link\b[^>]*\bhref\s*=\s*([\"'])[^\"']*assets/platform/platform-core\.css\?v=[^\"']*\1[^>]*>",
+    r"[ \t]*<link\b[^>]*\bhref\s*=\s*([\"'])[^\"']*assets/platform/platform-core\.css\?v=[^\"']*\1[^>]*>[ \t]*(?:\r?\n)?",
     re.IGNORECASE,
 )
+MARKER_RE = re.compile(r"[ \t]*<!--\s*pt-platform-shell:v1\s*-->[ \t]*(?:\r?\n)?", re.IGNORECASE)
 
 
 @dataclass
@@ -141,51 +137,6 @@ def remove_data_attribute(attrs: str, name: str) -> str:
     return pattern.sub("", attrs)
 
 
-def head_injection(path: Path, root: Path, source: str) -> str:
-    prefix = relative_prefix(path, root)
-    items = [MARKER]
-
-    lowered = source.lower()
-    if 'name="copyright"' not in lowered and "name='copyright'" not in lowered:
-        items.append(
-            '<meta name="copyright" content="© 2026 Khaled Altheeb — منصة روافد">'
-        )
-    if 'name="rights"' not in lowered and "name='rights'" not in lowered:
-        items.append('<meta name="rights" content="All rights reserved">')
-    if 'rel="license"' not in lowered and "rel='license'" not in lowered:
-        items.append(f'<link rel="license" href="{prefix}copyright/">')
-
-    items.append(
-        f'<link rel="stylesheet" href="{prefix}assets/platform/platform-core.css?v={SHELL_VERSION}">'
-    )
-    if enhancer_allowed(path, root):
-        items.append(
-            f'<script defer src="{prefix}assets/platform/platform-core.js?v={SHELL_VERSION}"></script>'
-        )
-    return "\n".join(items) + "\n"
-
-
-def normalize_head_assets(source: str, path: Path, root: Path) -> str:
-    """Keep asset versions and optional enhancer presence aligned with the page contract."""
-
-    prefix = relative_prefix(path, root)
-    css = f'<link rel="stylesheet" href="{prefix}assets/platform/platform-core.css?v={SHELL_VERSION}">'
-    if PLATFORM_CSS_RE.search(source):
-        source = PLATFORM_CSS_RE.sub(css, source, count=1)
-    else:
-        source = HEAD_CLOSE_RE.sub(css + "\n</head>", source, count=1)
-
-    if enhancer_allowed(path, root):
-        script = f'<script defer src="{prefix}assets/platform/platform-core.js?v={SHELL_VERSION}"></script>'
-        if PLATFORM_SCRIPT_RE.search(source):
-            source = PLATFORM_SCRIPT_RE.sub("\n" + script + "\n", source, count=1)
-        else:
-            source = HEAD_CLOSE_RE.sub(script + "\n</head>", source, count=1)
-        return source
-
-    return PLATFORM_SCRIPT_RE.sub("\n", source)
-
-
 def normalize_body(source: str, path: Path, root: Path) -> tuple[str, bool]:
     match = BODY_OPEN_RE.search(source)
     if not match:
@@ -218,6 +169,59 @@ def normalize_body(source: str, path: Path, root: Path) -> tuple[str, bool]:
     return source[: match.start()] + opening + source[match.end() :], True
 
 
+def canonical_head_injection(path: Path, root: Path, head: str) -> str:
+    prefix = relative_prefix(path, root)
+    lowered = head.lower()
+    items = [MARKER]
+
+    if 'name="copyright"' not in lowered and "name='copyright'" not in lowered:
+        items.append('<meta name="copyright" content="© 2026 Khaled Altheeb — منصة روافد">')
+    if 'name="rights"' not in lowered and "name='rights'" not in lowered:
+        items.append('<meta name="rights" content="All rights reserved">')
+    if 'rel="license"' not in lowered and "rel='license'" not in lowered:
+        items.append(f'<link rel="license" href="{prefix}copyright/">')
+
+    items.append(
+        f'<link rel="stylesheet" href="{prefix}assets/platform/platform-core.css?v={SHELL_VERSION}">'
+    )
+    if enhancer_allowed(path, root):
+        items.append(
+            f'<script defer src="{prefix}assets/platform/platform-core.js?v={SHELL_VERSION}"></script>'
+        )
+    return "\n".join(items)
+
+
+def normalize_head(source: str, path: Path, root: Path) -> tuple[str, bool]:
+    match = HEAD_CLOSE_RE.search(source)
+    if not match:
+        return source, False
+
+    head = source[: match.start()]
+    tail = source[match.end() :]
+
+    # Remove every previous shared-shell marker/asset. This avoids duplicate
+    # tags on pages that already carried platform assets before migration.
+    head = MARKER_RE.sub("", head)
+    head = PLATFORM_CSS_RE.sub("", head)
+    head = PLATFORM_SCRIPT_RE.sub("", head)
+    head = head.rstrip()
+
+    injection = canonical_head_injection(path, root, head)
+    normalized = f"{head}\n{injection}\n</head>{tail}"
+    return normalized, True
+
+
+def normalize_source(source: str, path: Path, root: Path) -> tuple[str, str | None]:
+    normalized, has_body = normalize_body(source, path, root)
+    if not has_body:
+        return source, "missing <body>"
+
+    normalized, has_head = normalize_head(normalized, path, root)
+    if not has_head:
+        return source, "missing </head>"
+    return normalized, None
+
+
 def normalize_file(path: Path, root: Path, *, check_only: bool) -> Result:
     relative = path.relative_to(root).as_posix()
     try:
@@ -225,34 +229,24 @@ def normalize_file(path: Path, root: Path, *, check_only: bool) -> Result:
     except UnicodeDecodeError as exc:
         return Result(relative, "error", f"not UTF-8: {exc}")
 
-    if MARKER in original:
-        normalized, has_body = normalize_body(original, path, root)
-        if not has_body:
-            return Result(relative, "error", "missing <body>")
-        normalized = normalize_head_assets(normalized, path, root)
-        if normalized == original:
-            return Result(relative, "current")
-        if check_only:
-            return Result(relative, "needs-update", "platform shell drift")
-        path.write_text(normalized, encoding="utf-8", newline="\n")
-        detail = "removed optional enhancer for strict application runtime" if not enhancer_allowed(path, root) else "updated stable platform shell"
-        return Result(relative, "updated", detail)
+    normalized, problem = normalize_source(original, path, root)
+    if problem:
+        # Historical fragments without a complete document shell remain
+        # untouched and are reported rather than destructively rewritten.
+        return Result(relative, "skipped", problem)
 
-    if not HEAD_CLOSE_RE.search(original):
-        return Result(relative, "skipped", "missing </head>")
-
-    normalized, has_body = normalize_body(original, path, root)
-    if not has_body:
-        return Result(relative, "skipped", "missing <body>")
-
-    injection = head_injection(path, root, normalized)
-    normalized = HEAD_CLOSE_RE.sub(injection + "</head>", normalized, count=1)
-
+    if normalized == original:
+        return Result(relative, "current")
     if check_only:
-        return Result(relative, "needs-update")
+        return Result(relative, "needs-update", "platform shell drift")
 
     path.write_text(normalized, encoding="utf-8", newline="\n")
-    return Result(relative, "updated")
+    detail = (
+        "removed optional enhancer for strict application runtime"
+        if not enhancer_allowed(path, root)
+        else "updated stable platform shell"
+    )
+    return Result(relative, "updated", detail)
 
 
 def build_report(
