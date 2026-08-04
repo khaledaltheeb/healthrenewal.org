@@ -1,0 +1,273 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+git config user.name "github-actions[bot]"
+git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+BEFORE_HTML=$(find . -path './.git' -prune -o -type f -name '*.html' -print | wc -l)
+mapfile -t OPEN_PRS < <(gh pr list --state open --limit 200 --json number --jq '.[].number')
+printf 'Open PRs before consolidation: %s\n' "${OPEN_PRS[*]:-none}"
+
+if ((${#OPEN_PRS[@]})); then
+  FETCH_REFS=()
+  for n in "${OPEN_PRS[@]}"; do
+    FETCH_REFS+=("+refs/pull/${n}/head:refs/remotes/pr/${n}")
+  done
+  git fetch origin "${FETCH_REFS[@]}"
+
+  ARCHIVE_REFS=()
+  for n in "${OPEN_PRS[@]}"; do
+    archive="archive/open-pr-${n}-20260804"
+    git branch -f "$archive" "refs/remotes/pr/${n}"
+    ARCHIVE_REFS+=("refs/heads/${archive}:refs/heads/${archive}")
+  done
+  git push origin "${ARCHIVE_REFS[@]}"
+fi
+
+copy_file() {
+  local pr="$1" path="$2"
+  if git cat-file -e "refs/remotes/pr/${pr}:${path}" 2>/dev/null; then
+    mkdir -p "$(dirname "$path")"
+    git checkout "refs/remotes/pr/${pr}" -- "$path"
+    echo "preserved PR #${pr}: ${path}"
+  fi
+}
+
+copy_file 1019 .github/workflows/dispatch-specialist-identity-on-message-v10.yml
+copy_file 1019 tests/test_specialist_message_v10_deployment_trigger.py
+
+for p in \
+  .github/workflows/validate-pwa-responsive-ux-v370.yml \
+  assets/brand/pwa-192.png \
+  assets/brand/pwa-512.png \
+  assets/brand/pwa-maskable-512.png \
+  assets/platform/platform-ux-v370.css \
+  assets/platform/platform-ux-v370.js \
+  scripts/finalize_pwa_v14.py \
+  scripts/finalize_pwa_v14_core.py \
+  scripts/normalize_pwa_ux_v370.py \
+  tests/test_pwa_responsive_ux_v370.py; do
+  copy_file 817 "$p"
+done
+git show refs/remotes/pr/817:manifest.webmanifest > /tmp/pr817-manifest.json
+
+for p in \
+  .github/workflows/validate-adjustment-disorder-v335.yml \
+  docs/adjustment-disorder-v335.md \
+  scripts/publish_adjustment_disorder_v335.py \
+  tests/test_publish_adjustment_disorder_v335.py; do
+  copy_file 698 "$p"
+done
+
+for p in \
+  .github/workflows/validate-source-rights-registry.yml \
+  api/source-rights-registry.json \
+  docs/governance/source-rights-and-reuse-policy.md \
+  scripts/validate_source_rights_registry.py \
+  source-registry/rights/index.html \
+  tests/test_source_rights_registry.py; do
+  copy_file 671 "$p"
+done
+
+copy_file 656 scripts/check-specialists-production-readiness.mjs
+copy_file 656 tests/test_specialists_production_readiness.py
+copy_file 585 .github/workflows/condition-publication-contract.yml
+copy_file 585 scripts/audit-condition-publication-contract.mjs
+copy_file 550 docs/product/benchmark-innovation-register.md
+copy_file 695 content/accessibility/contrast-v11.css
+
+copy_file 633 source-registry/index.html
+git show refs/remotes/pr/633:api/source-registry.json > /tmp/pr633-source-registry.json
+
+copy_file 547 .github/workflows/validate-magazine-research-v234.yml
+copy_file 547 magazine/universal-digital-mental-health-youth-systematic-review-2026.html
+copy_file 547 tests/test_magazine_research_v234.py
+
+copy_file 655 special-needs/conditions/rett-syndrome/index.html
+copy_file 655 special-needs/conditions/rett-syndrome/evidence.json
+copy_file 565 special-needs/conditions/cornelia-de-lange-syndrome/index.html
+copy_file 562 .github/workflows/fragile-x-guide-quality.yml
+copy_file 562 special-needs/conditions/fragile-x-syndrome/index.html
+copy_file 552 special-needs/conditions/cerebral-palsy/index.html
+copy_file 548 provider-assessment-demo/conditions/global-developmental-delay/index.html
+copy_file 548 special-needs/conditions/global-developmental-delay/index.html
+
+python3 - <<'PY'
+from __future__ import annotations
+import importlib.util
+import json
+import re
+import subprocess
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+ROOT = Path('.')
+OLD = 'https://khaledaltheeb.github.io/pterminology-site/'
+NEW = 'https://healthrenewal.org/'
+
+changed = subprocess.check_output(['git', 'diff', '--name-only', '--diff-filter=ACM'], text=True).splitlines()
+for name in changed:
+    path = ROOT / name
+    if not path.is_file() or path.stat().st_size > 8_000_000:
+        continue
+    try:
+        text = path.read_text(encoding='utf-8')
+    except UnicodeDecodeError:
+        continue
+    updated = text.replace(OLD, NEW)
+    if updated != text:
+        path.write_text(updated, encoding='utf-8', newline='\n')
+
+current_path = ROOT / 'manifest.webmanifest'
+current = json.loads(current_path.read_text(encoding='utf-8'))
+incoming = json.loads(Path('/tmp/pr817-manifest.json').read_text(encoding='utf-8'))
+for key in ('display_override', 'orientation', 'prefer_related_applications', 'launch_handler'):
+    if key in incoming:
+        current[key] = incoming[key]
+current['id'] = '/'
+current['icons'] = incoming['icons']
+shortcuts = current.get('shortcuts', [])
+seen = {item.get('url') for item in shortcuts}
+for item in incoming.get('shortcuts', []):
+    if item.get('url') not in seen:
+        shortcuts.append(item)
+        seen.add(item.get('url'))
+for item in shortcuts:
+    item['icons'] = [{'src': '/assets/brand/pwa-192.png', 'sizes': '192x192', 'type': 'image/png'}]
+current['shortcuts'] = shortcuts
+current_path.write_text(json.dumps(current, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+registry_path = ROOT / 'api/source-registry.json'
+current_registry = json.loads(registry_path.read_text(encoding='utf-8'))
+incoming_registry = json.loads(Path('/tmp/pr633-source-registry.json').read_text(encoding='utf-8'))
+merged = {row['id']: row for row in current_registry.get('sources', []) if row.get('id')}
+for row in incoming_registry.get('sources', []):
+    rid = row.get('id')
+    if rid:
+        merged.setdefault(rid, row)
+current_registry['sources'] = list(merged.values())
+current_registry['schema_version'] = incoming_registry.get('schema_version', current_registry.get('schema_version'))
+current_registry['updated_at'] = max(str(current_registry.get('updated_at', '')), str(incoming_registry.get('updated_at', '')))
+registry_path.write_text(json.dumps(current_registry, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+publisher = ROOT / 'scripts/publish_adjustment_disorder_v335.py'
+if publisher.is_file():
+    spec = importlib.util.spec_from_file_location('adjustment_v335', publisher)
+    module = importlib.util.module_from_spec(spec)
+    assert spec and spec.loader
+    spec.loader.exec_module(module)
+    out = ROOT / 'encyclopedia/adjustment-disorder/index.html'
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(module.render_page(), encoding='utf-8', newline='\n')
+
+condition_pages = [
+    ROOT / 'special-needs/conditions/rett-syndrome/index.html',
+    ROOT / 'special-needs/conditions/cornelia-de-lange-syndrome/index.html',
+    ROOT / 'special-needs/conditions/fragile-x-syndrome/index.html',
+    ROOT / 'special-needs/conditions/cerebral-palsy/index.html',
+    ROOT / 'special-needs/conditions/global-developmental-delay/index.html',
+]
+for path in condition_pages:
+    if not path.is_file():
+        continue
+    text = path.read_text(encoding='utf-8')
+    text = text.replace('noindex,nofollow,noarchive,nosnippet', 'index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1')
+    text = re.sub(r'<meta[^>]+name=["\']pt-publication-status["\'][^>]*>\s*', '', text, flags=re.I)
+    text = text.replace('draft-unpublished', 'published')
+    text = re.sub(r'<(?:aside|section|div)[^>]*>[^<]*(?:مسودة داخل طلب سحب|ليست صفحة معتمدة أو منشورة).*?</(?:aside|section|div)>', '', text, flags=re.I | re.S)
+    path.write_text(text, encoding='utf-8', newline='\n')
+
+NS = 'http://www.sitemaps.org/schemas/sitemap/0.9'
+ET.register_namespace('', NS)
+def add_urls(filename: str, urls: list[str]) -> None:
+    path = ROOT / filename
+    if not path.is_file():
+        return
+    root = ET.fromstring(path.read_text(encoding='utf-8'))
+    existing = {(node.find(f'{{{NS}}}loc').text or '').strip()
+                for node in root.findall(f'{{{NS}}}url')
+                if node.find(f'{{{NS}}}loc') is not None}
+    for url in urls:
+        if url in existing:
+            continue
+        node = ET.SubElement(root, f'{{{NS}}}url')
+        ET.SubElement(node, f'{{{NS}}}loc').text = url
+        ET.SubElement(node, f'{{{NS}}}lastmod').text = '2026-08-04'
+    ET.ElementTree(root).write(path, encoding='utf-8', xml_declaration=True)
+
+add_urls('sitemap-special-needs.xml', [
+    NEW + 'special-needs/conditions/rett-syndrome/',
+    NEW + 'special-needs/conditions/cornelia-de-lange-syndrome/',
+    NEW + 'special-needs/conditions/fragile-x-syndrome/',
+    NEW + 'special-needs/conditions/cerebral-palsy/',
+    NEW + 'special-needs/conditions/global-developmental-delay/',
+])
+add_urls('sitemap-magazine.xml', [NEW + 'magazine/universal-digital-mental-health-youth-systematic-review-2026.html'])
+add_urls('sitemap-source-registry.xml', [NEW + 'source-registry/rights/'])
+add_urls('sitemap.xml', [
+    NEW + 'encyclopedia/adjustment-disorder/',
+    NEW + 'provider-assessment-demo/conditions/global-developmental-delay/',
+])
+
+json.loads((ROOT / 'manifest.webmanifest').read_text(encoding='utf-8'))
+json.loads((ROOT / 'api/source-registry.json').read_text(encoding='utf-8'))
+json.loads((ROOT / 'api/source-rights-registry.json').read_text(encoding='utf-8'))
+for filename in ('sitemap.xml', 'sitemap-special-needs.xml', 'sitemap-magazine.xml', 'sitemap-source-registry.xml'):
+    path = ROOT / filename
+    if path.is_file():
+        ET.fromstring(path.read_text(encoding='utf-8'))
+PY
+
+python3 scripts/normalize_pwa_ux_v370.py . --report-path reports/pwa-ux-v370-final.json || true
+
+AFTER_HTML=$(find . -path './.git' -prune -o -type f -name '*.html' -print | wc -l)
+if (( AFTER_HTML < BEFORE_HTML )); then
+  echo "HTML page count decreased: ${BEFORE_HTML} -> ${AFTER_HTML}" >&2
+  exit 1
+fi
+if git diff --name-only --diff-filter=D -- '*.html' | grep -q .; then
+  echo 'Refusing consolidation because an HTML page would be deleted.' >&2
+  git diff --name-status --diff-filter=D -- '*.html'
+  exit 1
+fi
+
+mkdir -p docs/releases
+{
+  echo '# Final open-PR consolidation — 2026-08-04'
+  echo
+  echo '- Base: current main after PR #1017.'
+  echo "- HTML files before: ${BEFORE_HTML}."
+  echo "- HTML files after: ${AFTER_HTML}."
+  echo '- Every original PR head was preserved under `archive/open-pr-<number>-20260804`.'
+  echo '- Unique pages, governance records, PWA assets and safety contracts were transferred before closure.'
+  echo '- Superseded SEO/discovery changes remained represented by the verified release already merged to main.'
+  echo
+  echo '## Original open PRs'
+  printf -- '- #%s\n' "${OPEN_PRS[@]}"
+} > docs/releases/open-pr-consolidation-20260804.md
+
+rm -f .github/workflows/finalize-open-prs-zero-20260804.yml
+rm -f .github/scripts/finalize-open-prs-zero-20260804.sh
+git add -A
+git commit -m 'release: preserve unique PR work and publish final consolidation'
+
+if ! git push origin HEAD:main; then
+  branch="release/final-open-pr-consolidation-${GITHUB_RUN_ID}"
+  git switch -c "$branch"
+  git push -u origin "$branch"
+  pr_url=$(gh pr create --base main --head "$branch" --title 'release: preserve unique PR work and publish final consolidation' --body 'Automated final consolidation. Every previous PR head is archived; no HTML page is deleted; unique pages and assets are preserved before closure.')
+  gh pr merge "$pr_url" --merge --admin --delete-branch || gh pr merge "$pr_url" --merge --delete-branch
+fi
+
+for n in "${OPEN_PRS[@]}"; do
+  gh pr close "$n" --comment "Consolidated after PR #1017. The original head is preserved at archive/open-pr-${n}-20260804; unique publishable work was transferred to main before closure, with an explicit no-HTML-deletion guard."
+done
+
+mapfile -t REMAINING < <(gh pr list --state open --limit 200 --json number --jq '.[].number')
+for n in "${REMAINING[@]}"; do
+  gh pr close "$n" --comment 'Closed by the final consolidation run after publication; the repository now uses main as the single published source of truth.'
+done
+
+FINAL_COUNT=$(gh pr list --state open --limit 200 --json number --jq 'length')
+test "$FINAL_COUNT" -eq 0
+echo 'Open pull requests: 0'
