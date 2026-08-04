@@ -1,0 +1,32 @@
+name: Validate Rett syndrome guide
+
+on:
+  pull_request:
+    paths:
+      - "special-needs/conditions/rett-syndrome/**"
+      - "special-needs/conditions/index.html"
+      - "sitemap-rett-syndrome.xml"
+      - "sitemap-index.xml"
+      - "tests/test_rett_syndrome_publication_contract.py"
+      - ".github/workflows/validate-rett-syndrome-guide.yml"
+  push:
+    branches: [main]
+    paths:
+      - "special-needs/conditions/rett-syndrome/**"
+      - "special-needs/conditions/index.html"
+      - "sitemap-rett-syndrome.xml"
+      - "sitemap-index.xml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python tests/test_rett_syndrome_publication_contract.py
