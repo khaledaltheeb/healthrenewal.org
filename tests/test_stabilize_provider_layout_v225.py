@@ -22,7 +22,7 @@ class StabilizeProviderLayoutV225Tests(unittest.TestCase):
         demo = root / "provider-assessment-demo"
         demo.mkdir(parents=True)
         (demo / "index.html").write_text(
-            '<html data-institutional-contract="2026.07.25-v220"><body>'
+            f'<html data-institutional-contract="{MODULE.CONTRACT}"><body>'
             '<script src="activation.js"></script>'
             '<script data-institutional-contract-v220 src="institutional-contract-v220-integration.js"></script>'
             '</body></html>',
@@ -32,7 +32,7 @@ class StabilizeProviderLayoutV225Tests(unittest.TestCase):
             '''"use strict";
 (() => {
   const patchStaticCopy = () => {
-    document.title = "منصة التقييم وإدارة السجلات | مصطلحات علم النفس";
+    document.title = "منصة التقييم وإدارة السجلات | منصة روافد";
   };
   const installRecordsView = () => {};
   const renderProfessionalRecords = () => {};
@@ -45,15 +45,16 @@ class StabilizeProviderLayoutV225Tests(unittest.TestCase):
         )
         return temp, root
 
-    def test_injects_newer_contract_guard_and_preserves_records_runtime(self):
+    def test_injects_newer_contract_guard_and_preserves_current_brand(self):
         temp, root = self.make_root()
         self.addCleanup(temp.cleanup)
         report = MODULE.stabilize(root)
         self.assertTrue(report["changed"])
         source = (root / "provider-assessment-demo/activation.js").read_text(encoding="utf-8")
         self.assertIn(MODULE.MARKER, source)
-        self.assertIn('dataset.institutionalContract === "2026.07.25-v220"', source)
+        self.assertIn(f'dataset.institutionalContract === "{MODULE.CONTRACT}"', source)
         self.assertIn("script[data-institutional-contract-v220]", source)
+        self.assertIn("| منصة روافد", source)
         self.assertIn("installRecordsView();", source)
         self.assertIn("renderProfessionalRecords();", source)
 
@@ -80,8 +81,9 @@ class StabilizeProviderLayoutV225Tests(unittest.TestCase):
         temp, root = self.make_root()
         self.addCleanup(temp.cleanup)
         runtime = root / "provider-assessment-demo/activation.js"
-        runtime.write_text(runtime.read_text(encoding="utf-8").replace(MODULE.NEEDLE, ""), encoding="utf-8")
-        with self.assertRaises(SystemExit):
+        source = runtime.read_text(encoding="utf-8")
+        runtime.write_text(source.replace(MODULE.FUNCTION_OPENING, MODULE.FUNCTION_OPENING * 2), encoding="utf-8")
+        with self.assertRaisesRegex(SystemExit, "missing or ambiguous"):
             MODULE.stabilize(root)
 
 
