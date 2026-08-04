@@ -142,26 +142,58 @@ jobs:
           grep -q 'كيف تستعد لجلسة التعارف والتقييم الأولي' quick-info/prepare-therapy-intake-session/index.html
           python scripts/verify_homepage_v19.py
 
-      - name: Commit generated section
+      - name: Commit generated section safely
         env:
           SOURCE_BRANCH: ${{ steps.source.outputs.branch }}
         run: |
           set -euo pipefail
           git config user.name "Quick Info Automation"
           git config user.email "actions@users.noreply.github.com"
-          git add \
-            quick-info \
-            assets/quick-info \
-            api/v1/quick-info.json \
-            sitemap-quick-info.xml \
-            sitemap-index.xml \
-            index.html \
-            tests/test_quick_info_section.py \
-            reports/quick-info-build.json \
+
+          GENERATED_PATHS=(
+            quick-info
+            assets/quick-info
+            api/v1/quick-info.json
+            sitemap-quick-info.xml
+            sitemap-index.xml
+            index.html
+            tests/test_quick_info_section.py
+            reports/quick-info-build.json
             reports/quick-info-discover-observability.json
+          )
+
+          git add "${GENERATED_PATHS[@]}"
           if git diff --cached --quiet; then
             echo "No generated changes to commit"
             exit 0
           fi
           git commit -m "feat(quick-info): publish 250-page section"
-          git push origin "HEAD:${SOURCE_BRANCH}"
+
+          for attempt in 1 2 3; do
+            echo "Synchronized push attempt ${attempt}"
+            git fetch origin "${SOURCE_BRANCH}"
+
+            if ! git merge-base --is-ancestor "origin/${SOURCE_BRANCH}" HEAD; then
+              if ! git rebase "origin/${SOURCE_BRANCH}"; then
+                git rebase --abort || true
+                sleep 2
+                continue
+              fi
+
+              python scripts/run_extend_quick_info_250.py
+              python scripts/enhance_quick_info_discover_250.py
+              git add "${GENERATED_PATHS[@]}"
+              if ! git diff --cached --quiet; then
+                git commit --amend --no-edit
+              fi
+            fi
+
+            if git push origin "HEAD:${SOURCE_BRANCH}"; then
+              echo "Generated section pushed to ${SOURCE_BRANCH}"
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "Unable to push synchronized generated output"
+          exit 1
