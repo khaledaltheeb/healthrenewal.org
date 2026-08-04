@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "condition": {"ar": "الشلل الدماغي", "en": "Cerebral palsy"},
+  "page_url": "https://healthrenewal.org/special-needs/conditions/cerebral-palsy/",
+  "reviewed_on": "2026-08-04",
+  "next_scheduled_review": "2027-02-04",
+  "evidence_levels": {
+    "A": "إرشاد سريري رسمي أو مسار رعاية مهني أو مراجعة منهجية عالية الصلة",
+    "B": "إرشاد إجماعي أو مراجعة منهجية مع قيود",
+    "C": "دراسة رصدية أو خبرة منظمة تستخدم بحذر",
+    "D": "خبرة معاشة لتحديد الأولويات لا لإثبات الفعالية"
+  },
+  "sources": [
+    {"id":"NICE-NG62","level":"A","title":"Cerebral palsy in under 25s: assessment and management","publisher":"NICE","reviewed":"2024-09-19","url":"https://www.nice.org.uk/guidance/ng62","supports":["التشخيص والتقييم","الرعاية متعددة التخصصات","التواصل والتغذية والألم والنوم والصحة النفسية","الانتقال"]},
+    {"id":"NICE-NG119","level":"A","title":"Cerebral palsy in adults","publisher":"NICE","reviewed":"2024-09-19","url":"https://www.nice.org.uk/guidance/ng119","supports":["رعاية البالغين","المشاركة والاستقلال","النشاط البدني والتقنية المساعدة"]},
+    {"id":"NICE-CG145","level":"A","title":"Spasticity in under 19s: management","publisher":"NICE","url":"https://www.nice.org.uk/guidance/cg145","supports":["التشنج والعلاج الطبيعي","الجبائر والبوتولينوم والباكلوفين والجراحة","القرار المشترك"]},
+    {"id":"AACPDM-EARLY","level":"A","title":"Early Detection of Cerebral Palsy Care Pathway","publisher":"AACPDM","url":"https://www.aacpdm.org/publications/care-pathways/early-detection-of-cerebral-palsy","supports":["الاكتشاف المبكر","GMA وHINE والتصوير","التدخل المبكر"]},
+    {"id":"AACPDM-HIP","level":"A","title":"Hip Surveillance in Cerebral Palsy","publisher":"AACPDM","url":"https://www.aacpdm.org/publications/care-pathways/hip-surveillance-in-cerebral-palsy","supports":["مراقبة الورك","GMFCS ونسبة الهجرة","الإحالة المبكرة"]},
+    {"id":"AACPDM-DYSTONIA-2024","level":"A","title":"Cerebral Palsy and Dystonia Care Pathway","publisher":"AACPDM","updated":"2024-04","url":"https://www.aacpdm.org/publications/care-pathways/dystonia-in-cerebral-palsy","supports":["تقييم خلل التوتر","العلاج المتمركز حول الأهداف"]},
+    {"id":"AACPDM-RESPIRATORY","level":"A","title":"Respiratory Health in Cerebral Palsy","publisher":"AACPDM","url":"https://www.aacpdm.org/publications/care-pathways/respiratory-health-in-cerebral-palsy","supports":["الشفط والبلع","النوم والتنفس","الوقاية التنفسية"]},
+    {"id":"AACPDM-SIALORRHEA","level":"A","title":"Sialorrhea in Cerebral Palsy","publisher":"AACPDM","url":"https://www.aacpdm.org/publications/care-pathways/sialorrhea-in-cerebral-palsy","supports":["سيلان اللعاب الأمامي والخلفي","توازن الفائدة ومخاطر الإفرازات والبلع"]},
+    {"id":"AACPDM-OSTEOPOROSIS","level":"B","title":"Osteoporosis in Cerebral Palsy","publisher":"AACPDM","url":"https://www.aacpdm.org/publications/care-pathways/osteoporosis-in-cerebral-palsy","supports":["خطر الكسور","فيتامين د والكالسيوم والتحميل الوزني","تقييم كثافة العظام"]},
+    {"id":"EARLY-CP-GUIDELINE-2021","level":"A","title":"Early Intervention for Children Aged 0 to 2 Years With or at High Risk of Cerebral Palsy","year":2021,"pmid":"33999106","url":"https://pubmed.ncbi.nlm.nih.gov/33999106/","supports":["التدخل المبكر الموجه للأهداف","الحركة والتواصل والأكل والرؤية والنوم ودعم الأسرة"]},
+    {"id":"TRAFFIC-LIGHTS-2020","level":"A","title":"State of the Evidence Traffic Lights 2019","year":2020,"pmid":"32086598","url":"https://pubmed.ncbi.nlm.nih.gov/32086598/","supports":["اختيار التدخلات","التمييز بين الدليل والفائدة غير المثبتة"]},
+    {"id":"WHO-PIR-NEURO","level":"A","title":"Package of interventions for rehabilitation: neurological conditions","publisher":"WHO","year":2023,"url":"https://www.who.int/publications/i/item/9789240071155","supports":["حزمة التأهيل","القوى العاملة والتقنيات المساعدة","التنفيذ ضمن النظم الصحية"]},
+    {"id":"WHO-ASSISTIVE","level":"A","title":"Assistive technology fact sheet","publisher":"WHO","url":"https://www.who.int/news-room/fact-sheets/detail/assistive-technology","supports":["الوصول للتقنية المساعدة","التعليم والعمل والمشاركة"]},
+    {"id":"AAC-SR-2021","level":"B","title":"Effectiveness of AAC interventions in cerebral palsy","year":2021,"pmid":"34378726","url":"https://pubmed.ncbi.nlm.nih.gov/34378726/","supports":["التواصل المعزز والبديل","محددات النجاح"]},
+    {"id":"MOTOR-REHAB-2023","level":"B","title":"Evidence-based management and motor rehabilitation of cerebral palsy","year":2023,"pmid":"37305763","url":"https://pubmed.ncbi.nlm.nih.gov/37305763/","supports":["التأهيل الحركي","الأهداف الفردية والأنشطة المناسبة للعمر"]}
+  ],
+  "claim_matrix": [
+    {"claim":"الشلل الدماغي اضطراب غير تقدمي في الدماغ النامي لكن الوظيفة والمضاعفات تتغير عبر العمر","sources":["NICE-NG62","NICE-NG119"],"level":"A"},
+    {"claim":"يمكن تحديد الشلل الدماغي أو خطره مبكرا باستخدام تقييمات معيارية مع التصوير والسياق السريري","sources":["AACPDM-EARLY","EARLY-CP-GUIDELINE-2021"],"level":"A"},
+    {"claim":"مراقبة الورك المنظمة حسب العمر وGMFCS تقلل تأخر اكتشاف الإزاحة","sources":["AACPDM-HIP"],"level":"A"},
+    {"claim":"التدخلات الموجهة للهدف والنشاط والمشاركة أفضل من البرامج السلبية غير المحددة","sources":["TRAFFIC-LIGHTS-2020","MOTOR-REHAB-2023","EARLY-CP-GUIDELINE-2021"],"level":"A-B"},
+    {"claim":"التواصل وAAC يجب تقييمهما مبكرا وعدم ربطهما بقدرة الكلام وحدها","sources":["NICE-NG62","AAC-SR-2021"],"level":"A-B"},
+    {"claim":"رعاية البالغين تحتاج مراجعة الألم والتعب والحركة والصحة النفسية والمشاركة والاستقلال","sources":["NICE-NG119"],"level":"A"},
+    {"claim":"التقنية المساعدة خدمة تشمل الاختيار والملاءمة والتدريب والصيانة لا منتجا منفردا","sources":["WHO-ASSISTIVE","WHO-PIR-NEURO"],"level":"A"}
+  ]
+}
