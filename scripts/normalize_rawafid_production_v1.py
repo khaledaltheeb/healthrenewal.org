@@ -2,13 +2,15 @@
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import re
 from pathlib import Path
-
-import apply_rawafid_brand as brand
+from types import ModuleType
 
 VERSION = 1
+BRAND_NAME = "منصة روافد"
+TAGLINE = "للعافية النفسية والدمج والتمكين"
 LEGACY_HEALTH_RENEWAL = re.compile(r"(?<![\w.-])health\s+renewal(?![\w.-])", re.IGNORECASE)
 TEXT_SUFFIXES = {
     ".html", ".htm", ".xml", ".json", ".webmanifest", ".md", ".txt", ".csv",
@@ -34,7 +36,7 @@ def _replace_health_renewal(root: Path) -> tuple[int, int]:
             text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
             continue
-        updated, count = LEGACY_HEALTH_RENEWAL.subn(brand.BRAND_NAME, text)
+        updated, count = LEGACY_HEALTH_RENEWAL.subn(BRAND_NAME, text)
         if count:
             path.write_text(updated, encoding="utf-8")
             changed += 1
@@ -59,13 +61,28 @@ def _legacy_examples(root: Path) -> list[str]:
     return examples
 
 
+def _load_brand_module() -> ModuleType:
+    """Load the image-capable brand implementation only for real production builds.
+
+    Sitemap and discovery unit tests import this module to inspect wiring but do
+    not normalize HTML or generate visual assets. Keeping Pillow behind this
+    execution boundary prevents unrelated lightweight checks from failing while
+    preserving the complete production implementation.
+    """
+
+    return importlib.import_module("apply_rawafid_brand")
+
+
 def normalize(root: Path) -> dict[str, object]:
     root = root.resolve()
     if not (root / "index.html").is_file():
         raise SystemExit({"missing_production_homepage": str(root / "index.html")})
 
     # Reuse the established Rawafid identity implementation against the final
-    # production artifact rather than against the source checkout.
+    # production artifact rather than against the source checkout. It is loaded
+    # lazily because its visual asset routines depend on Pillow, while callers
+    # that only import the sitemap generator do not need those routines.
+    brand = _load_brand_module()
     brand.ROOT = root
     brand.BRAND_DIR = root / "assets" / "brand"
     brand.BRAND_DIR.mkdir(parents=True, exist_ok=True)
@@ -84,8 +101,8 @@ def normalize(root: Path) -> dict[str, object]:
     report: dict[str, object] = {
         "schemaVersion": VERSION,
         "status": "passed",
-        "brand": brand.BRAND_NAME,
-        "tagline": brand.TAGLINE,
+        "brand": BRAND_NAME,
+        "tagline": TAGLINE,
         "textFilesChanged": changed,
         "textReplacements": replacements,
         "healthRenewalFilesChanged": health_files,
