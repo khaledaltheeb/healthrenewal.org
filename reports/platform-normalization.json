@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-08-04T20:22:59.291027+00:00",
+  "generated_at": "2026-08-04T23:03:46.396574+00:00",
   "mode": "write",
   "root": "/home/runner/work/healthrenewal.org/healthrenewal.org",
   "runtime": {
@@ -11,10 +11,10 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 801,
-  "html_pages_normalized_or_current": 800,
+  "html_pages_seen": 807,
+  "html_pages_normalized_or_current": 806,
   "counts": {
-    "current": 793,
+    "current": 799,
     "skipped": 1,
     "updated": 7
   },
@@ -3596,6 +3596,36 @@
     },
     {
       "path": "special-needs/assistive-technology/training/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/conditions/cerebral-palsy/communication-education/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/conditions/cerebral-palsy/detection-diagnosis/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/conditions/cerebral-palsy/family-adulthood/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/conditions/cerebral-palsy/health-lifespan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/conditions/cerebral-palsy/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "special-needs/conditions/cerebral-palsy/movement-rehabilitation/index.html",
       "status": "current",
       "detail": ""
     },
