@@ -1,67 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>HealthRenewal | الصحة النفسية وذوو الاحتياجات الخاصة</title>
+    <title>منصة روافد | العافية النفسية والدمج والتمكين</title>
     <link>https://healthrenewal.org/</link>
-    <description>الخلاصة العامة للمحتوى التعليمي القابل للاكتشاف والاستشهاد في منصة HealthRenewal.</description>
+    <atom:link href="https://healthrenewal.org/feed.xml" rel="self" type="application/rss+xml" />
+    <description>الخلاصة العامة للمحتوى التعليمي القابل للاكتشاف والاستشهاد في منصة روافد.</description>
     <language>ar</language>
-    <lastBuildDate>Sat, 01 Aug 2026 00:00:00 +0000</lastBuildDate>
-    <generator>HealthRenewal machine-readable surface v1</generator>
+    <lastBuildDate>Tue, 04 Aug 2026 10:20:00 +0000</lastBuildDate>
+    <generator>Rawafid machine-readable surface v2</generator>
     <item>
       <title>منصة روافد</title>
       <link>https://healthrenewal.org/</link>
       <guid isPermaLink="true">https://healthrenewal.org/</guid>
-      <description>بوابة عربية مؤسسية للمعرفة النفسية والتربية الدامجة والأدلة والأدوات.</description>
-      <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
+      <description>بوابة عربية مؤسسية للعافية النفسية والدمج والتمكين.</description>
+      <pubDate>Tue, 04 Aug 2026 10:20:00 +0000</pubDate>
     </item>
     <item>
-      <title>الموسوعة النفسية العربية</title>
-      <link>https://healthrenewal.org/encyclopedia/</link>
-      <guid isPermaLink="true">https://healthrenewal.org/encyclopedia/</guid>
-      <description>مصطلحات ومفاهيم نفسية منظمة ومترابطة.</description>
-      <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
+      <title>ابدأ من هنا</title>
+      <link>https://healthrenewal.org/start-here/</link>
+      <guid isPermaLink="true">https://healthrenewal.org/start-here/</guid>
+      <description>نقطة دخول منظمة لاختيار القسم أو الدليل أو الأداة المناسبة.</description>
+      <pubDate>Tue, 04 Aug 2026 10:20:00 +0000</pubDate>
     </item>
     <item>
       <title>ذوو الاحتياجات الخاصة والتربية الدامجة</title>
       <link>https://healthrenewal.org/special-needs/</link>
       <guid isPermaLink="true">https://healthrenewal.org/special-needs/</guid>
       <description>أدلة ومعرفة منظمة للأسر والمختصين ومقدمي الخدمات.</description>
-      <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 04 Aug 2026 10:20:00 +0000</pubDate>
     </item>
     <item>
       <title>دليل الأسرة للرعاية والدعم</title>
       <link>https://healthrenewal.org/family-guide/</link>
       <guid isPermaLink="true">https://healthrenewal.org/family-guide/</guid>
       <description>إرشادات عملية لدعم الفهم والتواصل والرعاية الآمنة.</description>
-      <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 04 Aug 2026 10:20:00 +0000</pubDate>
     </item>
     <item>
-      <title>المكتبة الأكاديمية والأبحاث</title>
-      <link>https://healthrenewal.org/library/</link>
-      <guid isPermaLink="true">https://healthrenewal.org/library/</guid>
-      <description>مواد أكاديمية ومصادر وأبحاث مرتبة مع إسناد واضح.</description>
-      <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
+      <title>المجلة العلمية</title>
+      <link>https://healthrenewal.org/magazine/</link>
+      <guid isPermaLink="true">https://healthrenewal.org/magazine/</guid>
+      <description>ملخصات وتحليلات عربية للأبحاث مع روابط المصادر الأصلية.</description>
+      <pubDate>Tue, 04 Aug 2026 10:20:00 +0000</pubDate>
     </item>
     <item>
-      <title>أدلة الرعاية والتعامل العملي</title>
-      <link>https://healthrenewal.org/care-guides/</link>
-      <guid isPermaLink="true">https://healthrenewal.org/care-guides/</guid>
-      <description>أدلة تطبيقية للأسر والمعلمين والمختصين ومقدمي الخدمة.</description>
-      <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
+      <title>مركز الإدمان والتعافي</title>
+      <link>https://healthrenewal.org/addiction/</link>
+      <guid isPermaLink="true">https://healthrenewal.org/addiction/</guid>
+      <description>أدلة سلامة وعلاج وتعافٍ مبنية على المراجع المعلنة.</description>
+      <pubDate>Tue, 04 Aug 2026 10:20:00 +0000</pubDate>
     </item>
     <item>
       <title>الأدوات النفسية التفاعلية</title>
       <link>https://healthrenewal.org/daily-tools/</link>
       <guid isPermaLink="true">https://healthrenewal.org/daily-tools/</guid>
       <description>أدوات تثقيفية وتنظيمية لا تستبدل التقييم أو العلاج الفردي.</description>
-      <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 04 Aug 2026 10:20:00 +0000</pubDate>
     </item>
     <item>
       <title>مسارات التعلم</title>
       <link>https://healthrenewal.org/learning-paths/</link>
       <guid isPermaLink="true">https://healthrenewal.org/learning-paths/</guid>
-      <description>مسارات تعلم قصيرة ومنظمة تربط المفاهيم بالأدلة والتطبيق.</description>
-      <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
+      <description>مسارات منظمة تربط المفاهيم بالأدلة والتطبيق.</description>
+      <pubDate>Tue, 04 Aug 2026 10:20:00 +0000</pubDate>
     </item>
   </channel>
 </rss>
