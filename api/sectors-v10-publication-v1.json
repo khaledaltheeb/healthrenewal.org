@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "publisher": "materialize_sectors_v10_v1",
+  "pageCount": 37,
+  "hubCount": 1,
+  "articleCount": 125,
+  "sourceReferenceCount": 151,
+  "qualityRejectedCount": 1,
+  "categoryCounts": {
+    "family-inclusion": 15,
+    "mental-health": 16,
+    "services-evidence": 6
+  },
+  "routes": [
+    "/evidence-guides/aac-home-school-guide/",
+    "/evidence-guides/adjustment-disorder-safe-guide/",
+    "/evidence-guides/anxiety-fear-differences-guide/",
+    "/evidence-guides/autism-adhd-differences-guide/",
+    "/evidence-guides/bipolar-disorder-safe-guide/",
+    "/evidence-guides/body-dysmorphic-disorder-safe-guide/",
+    "/evidence-guides/borderline-personality-safe-guide/",
+    "/evidence-guides/caregiver-wellbeing/",
+    "/evidence-guides/clinical-anxiety/",
+    "/evidence-guides/dissociation-safe-guide/",
+    "/evidence-guides/early-psychosis-safe-guide/",
+    "/evidence-guides/eating-disorders-safe-guide/",
+    "/evidence-guides/first-mental-health-appointment-guide/",
+    "/evidence-guides/grief-and-loss/",
+    "/evidence-guides/inclusive-digital-safety-and-exploitation-prevention-guide/",
+    "/evidence-guides/inclusive-family-support/",
+    "/evidence-guides/inclusive-safeguarding-guide/",
+    "/evidence-guides/inclusive-school-transition/",
+    "/evidence-guides/inclusive-toileting-personal-care-guide/",
+    "/evidence-guides/insomnia-and-sleep/",
+    "/evidence-guides/mental-health-foundations/",
+    "/evidence-guides/pain-distress-communication-support-guide/",
+    "/evidence-guides/panic-disorder-safe-guide/",
+    "/evidence-guides/predictable-routines-transitions-guide/",
+    "/evidence-guides/ptsd-safe-guide/",
+    "/evidence-guides/puberty-body-safety-inclusive-guide/",
+    "/evidence-guides/research-digital-mental-health/",
+    "/evidence-guides/safe-screening-tools-explainer/",
+    "/evidence-guides/safe-screening-tools/",
+    "/evidence-guides/school-attendance-distress-support-guide/",
+    "/evidence-guides/selective-mutism-safe-guide/",
+    "/evidence-guides/service-access-guides/",
+    "/evidence-guides/sibling-and-family-balance/",
+    "/evidence-guides/sleep-mental-health-evidence-brief/",
+    "/evidence-guides/stress-burnout-depression-differences-guide/",
+    "/evidence-guides/supported-adulthood-transition/",
+    "/evidence-guides/supported-decision-making-transition-guide/"
+  ],
+  "skipped": [
+    {
+      "source": "content/sectors-v10/child.json",
+      "reason": "legacy-already-published"
+    },
+    {
+      "source": "content/sectors-v10/family.json",
+      "reason": "legacy-already-published"
+    },
+    {
+      "source": "content/sectors-v10/home.json",
+      "reason": "legacy-already-published"
+    },
+    {
+      "source": "content/sectors-v10/schema.json",
+      "reason": "quality-contract-rejected",
+      "detail": "/home/runner/work/healthrenewal.org/healthrenewal.org/content/sectors-v10/schema.json: missing required fields: ['key', 'subtitle', 'sources', 'articles']"
+    },
+    {
+      "source": "content/sectors-v10/tips.json",
+      "reason": "legacy-already-published"
+    },
+    {
+      "source": "content/sectors-v10/women.json",
+      "reason": "legacy-already-published"
+    }
+  ],
+  "qualityGates": {
+    "minimumPages": true,
+    "allRoutesUnique": true,
+    "allSourcesValidated": true,
+    "manualReviewSourcesExcluded": true,
+    "legacySourcesNotDuplicated": true
+  }
+}

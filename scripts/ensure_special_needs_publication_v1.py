@@ -154,11 +154,24 @@ def repair_missing_generated_families(root: Path, repo_root: Path) -> dict[str, 
 
     # Never materialize generated production families into the source checkout.
     # The canonical Pages workflow passes a separate _site directory here.
-    if root != repo_root and before.counts["capability_pages"] < MINIMUM_COUNTS["capability_pages"]:
-        _run_publisher(repo_root, "publish_capabilities_v280.py", root)
-        actions.append("publish_capabilities_v280.py")
-        _run_publisher(repo_root, "publish_conditions_v281.py", root)
-        actions.append("publish_conditions_v281.py")
+    if root != repo_root:
+        if before.counts["capability_pages"] < MINIMUM_COUNTS["capability_pages"]:
+            _run_publisher(repo_root, "publish_capabilities_v280.py", root)
+            actions.append("publish_capabilities_v280.py")
+            _run_publisher(repo_root, "publish_conditions_v281.py", root)
+            actions.append("publish_conditions_v281.py")
+
+        # These 15 long-form tools are committed as a public snapshot, but their
+        # authoritative source lives under content/. Rebuild them on every full
+        # production artifact so edits to the manifest or split tool bundles can
+        # never remain unpublished or drift from the visible pages. The publisher
+        # also refreshes the family-guide parent card and writes its API report.
+        _run_publisher(
+            repo_root,
+            "publish_family_guide_special_education_tools_v1.py",
+            root,
+        )
+        actions.append("publish_family_guide_special_education_tools_v1.py")
 
     after = collect_inventory(root)
     return {
