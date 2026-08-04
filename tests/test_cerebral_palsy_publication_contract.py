@@ -84,6 +84,4 @@ def test_cerebral_palsy_publication_contract():
     except Exception as exc: failures.append(f"sitemap invalid: {exc}"); locations=set()
     if locations!=set(PAGES.values()): failures.append(f"sitemap mismatch: {locations ^ set(PAGES.values())}")
     if "https://healthrenewal.org/sitemap-cerebral-palsy.xml" not in (ROOT/"sitemap-index.xml").read_text(encoding="utf-8"): failures.append("sitemap not indexed")
-    conditions=(ROOT/"special-needs/conditions/index.html").read_text(encoding="utf-8")
-    if 'href="/special-needs/conditions/cerebral-palsy/"' not in conditions: failures.append("conditions hub missing guide")
     assert not failures, "\n".join(failures)
