@@ -1,0 +1,68 @@
+name: Student daily calendar quality
+
+on:
+  pull_request:
+    paths:
+      - "sectors/calendars/**"
+      - "api/student-daily-calendar-v1.json"
+      - "tests/test_student_daily_calendar.py"
+      - "sitemap-calendars.xml"
+      - "sitemap-index.xml"
+      - ".github/workflows/student-daily-calendar.yml"
+  push:
+    branches:
+      - agent/women-daily-calendar-v1
+      - agent/student-daily-planner-v1
+    paths:
+      - "sectors/calendars/**"
+      - "api/student-daily-calendar-v1.json"
+      - "tests/test_student_daily_calendar.py"
+      - "sitemap-calendars.xml"
+      - "sitemap-index.xml"
+      - ".github/workflows/student-daily-calendar.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  static-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate JavaScript and Python syntax
+        run: |
+          node --check sectors/calendars/students/student-calendar.js
+          node --check sectors/calendars/students/service-worker.js
+          python -m py_compile tests/test_student_daily_calendar.py
+      - name: Validate JSON manifests
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for path in [
+              Path("sectors/calendars/students/manifest.webmanifest"),
+              Path("sectors/calendars/students/editorial-manifest.json"),
+              Path("api/student-daily-calendar-v1.json"),
+          ]:
+              json.loads(path.read_text(encoding="utf-8"))
+              print(f"PASS {path}")
+          PY
+      - name: Run static contract without external dependencies
+        run: |
+          python - <<'PY'
+          import runpy
+          namespace = runpy.run_path("tests/test_student_daily_calendar.py")
+          tests = [value for name, value in sorted(namespace.items()) if name.startswith("test_") and callable(value)]
+          if len(tests) != 2:
+              raise SystemExit(f"Expected 2 tests, found {len(tests)}")
+          for test in tests:
+              test()
+              print(f"PASS {test.__name__}")
+          PY

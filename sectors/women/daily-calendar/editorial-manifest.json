@@ -1,0 +1,75 @@
+{
+  "version": "2.0.0",
+  "brand": "منصة روافد",
+  "language": "ar",
+  "direction": "rtl",
+  "publishedPath": "/sectors/women/daily-calendar/",
+  "productType": "local-first daily health and wellbeing calendar",
+  "yearCoverage": {
+    "standardYearDays": 365,
+    "leapDaySupported": true,
+    "dailyRequiredElements": [
+      "positiveMorningMessage",
+      "fact",
+      "tip",
+      "idea",
+      "suggestion",
+      "tenMinutePractice",
+      "middayCheckIn",
+      "feminineNoonBoost",
+      "eveningCheckIn",
+      "eveningBoost"
+    ]
+  },
+  "dailyCheckpoints": ["morning", "midday", "evening"],
+  "weeklyInsight": {
+    "days": 7,
+    "localOnly": true,
+    "descriptiveOnly": true,
+    "diagnostic": false,
+    "metrics": ["loggedDays", "averageMood", "averageEnergy", "maximumPain", "middayCheckIns", "eveningCheckIns"]
+  },
+  "monthlyPrograms": 12,
+  "menstruationTracking": {
+    "optional": true,
+    "approvedArabicTerm": "الحيض",
+    "intervalLabel": "الفاصل بين بدايات الحيض",
+    "predictionIsApproximate": true,
+    "fertilityPrediction": false,
+    "contraceptionUse": false,
+    "localStorageDefault": true,
+    "serverAccountRequired": false
+  },
+  "calendarIntegration": {
+    "icsExport": true,
+    "googleCalendarEvent": true,
+    "rangesInDays": [30, 90, 365],
+    "reminders": true,
+    "neutralEventTitlesByDefault": true,
+    "middayReminder": true,
+    "eveningReminder": true,
+    "eveningReminderRangeDays": 30,
+    "defaultNoonTime": "12:30",
+    "defaultEveningTime": "20:30"
+  },
+  "privacy": {
+    "localFirst": true,
+    "remoteSubmission": false,
+    "accountRequired": false,
+    "preserveCheckInFieldsWhenSavingLog": true
+  },
+  "accessibility": {
+    "responsive": true,
+    "keyboardFocus": true,
+    "reducedMotion": true,
+    "highContrast": true,
+    "printMode": true
+  },
+  "evidenceScope": {
+    "medicalScope": "education, organization and pattern tracking only",
+    "individualDiagnosis": false,
+    "individualMedicationAdvice": false,
+    "externalClinicalReviewRecommended": true,
+    "nextReview": "2027-02-04"
+  }
+}
