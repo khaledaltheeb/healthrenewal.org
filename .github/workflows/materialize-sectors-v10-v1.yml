@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "content/sectors-v10/**"
+      - "data/content-reviews/sectors-v10-editorial-release-v2.json"
       - "scripts/materialize_sectors_v10_v1.py"
       - "scripts/materialize_sectors_v10_compat_v2.py"
       - "tests/test_materialize_sectors_v10_v1.py"
@@ -14,6 +15,7 @@ on:
     branches: [main]
     paths:
       - "content/sectors-v10/**"
+      - "data/content-reviews/sectors-v10-editorial-release-v2.json"
       - "scripts/materialize_sectors_v10_v1.py"
       - "scripts/materialize_sectors_v10_compat_v2.py"
       - "tests/test_materialize_sectors_v10_v1.py"
@@ -68,7 +70,7 @@ jobs:
 
           report = json.loads(Path("api/sectors-v10-publication-v1.json").read_text(encoding="utf-8"))
           assert report["status"] == "passed", report
-          assert report["pageCount"] >= 30, report
+          assert report["pageCount"] == 37, report
           assert report["hubCount"] == 1, report
           assert report["pageCount"] == len(report["routes"]), report
           assert report["qualityRejectedCount"] <= 1, report
@@ -80,15 +82,28 @@ jobs:
           pages = list(Path("evidence-guides").glob("*/index.html"))
           assert len(pages) == report["pageCount"], (len(pages), report["pageCount"])
           required_routes = {
+              "/evidence-guides/aac-home-school-guide/",
+              "/evidence-guides/adjustment-disorder-safe-guide/",
               "/evidence-guides/anxiety-fear-differences-guide/",
               "/evidence-guides/autism-adhd-differences-guide/",
               "/evidence-guides/first-mental-health-appointment-guide/",
               "/evidence-guides/inclusive-safeguarding-guide/",
+              "/evidence-guides/inclusive-school-transition/",
+              "/evidence-guides/mental-health-foundations/",
               "/evidence-guides/safe-screening-tools-explainer/",
               "/evidence-guides/sleep-mental-health-evidence-brief/",
               "/evidence-guides/stress-burnout-depression-differences-guide/",
           }
-          assert required_routes <= set(report["routes"]), required_routes - set(report["routes"])
+          routes = set(report["routes"])
+          assert required_routes <= routes, required_routes - routes
+          released_sources = {
+              "content/sectors-v10/aac-home-school-guide.json",
+              "content/sectors-v10/inclusive-school-transition.json",
+              "content/sectors-v10/mental-health-foundations.json",
+          }
+          skipped_sources = {entry["source"] for entry in report["skipped"]}
+          assert not (released_sources & skipped_sources), released_sources & skipped_sources
+
           for path in pages:
               text = path.read_text(encoding="utf-8")
               assert text.count("<h1") == 1, path

@@ -13,6 +13,13 @@ if str(SCRIPT_DIR) not in sys.path:
 
 import materialize_sectors_v10_v1 as base
 
+REVIEW_LEDGER = Path("data/content-reviews/sectors-v10-editorial-release-v2.json")
+RELEASED_MANUAL_REVIEW_SOURCES = {
+    "aac-home-school-guide.json",
+    "inclusive-school-transition.json",
+    "mental-health-foundations.json",
+}
+
 # Keep the user's prohibited wording out of public content while preserving
 # exact legal/institutional names such as the UN Convention on the Rights of
 # Persons with Disabilities. Rewriting official titles would reduce accuracy.
@@ -139,15 +146,54 @@ def validate_source(path: Path, payload: dict[str, Any]) -> None:
 base.validate_source = validate_source
 
 
+def validated_editorial_release(repo_root: Path) -> set[str]:
+    ledger_path = repo_root / REVIEW_LEDGER
+    if not ledger_path.is_file():
+        raise base.PublicationError(f"Editorial release ledger not found: {ledger_path}")
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    if not isinstance(ledger, dict):
+        raise base.PublicationError("Editorial release ledger must be a JSON object")
+    if ledger.get("clinicalReviewClaimed") is not False:
+        raise base.PublicationError(
+            "Editorial release must explicitly state that clinical review is not claimed"
+        )
+    if ledger.get("reviewType") != "internal-editorial-and-source-structure-review":
+        raise base.PublicationError("Unexpected editorial review type")
+
+    released = ledger.get("releasedSources")
+    if not isinstance(released, list):
+        raise base.PublicationError("releasedSources must be a list")
+    names = {
+        Path(str(item.get("path") or "")).name
+        for item in released
+        if isinstance(item, dict) and item.get("decision") == "publish-educational-content"
+    }
+    if names != RELEASED_MANUAL_REVIEW_SOURCES:
+        raise base.PublicationError(
+            f"Editorial release mismatch: expected {sorted(RELEASED_MANUAL_REVIEW_SOURCES)}, got {sorted(names)}"
+        )
+    for name in names:
+        source_path = repo_root / base.CONTENT_DIR / name
+        if not source_path.is_file():
+            raise base.PublicationError(f"Released source is missing: {source_path}")
+    return names
+
+
 def write_publication(repo_root: Path, *, check: bool = False) -> dict[str, Any]:
-    return base.write_publication(repo_root, check=check)
+    released = validated_editorial_release(repo_root)
+    original_manual_review_sources = set(base.MANUAL_REVIEW_SOURCES)
+    base.MANUAL_REVIEW_SOURCES = original_manual_review_sources - released
+    try:
+        return base.write_publication(repo_root, check=check)
+    finally:
+        base.MANUAL_REVIEW_SOURCES = original_manual_review_sources
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Materialize reviewed sectors-v10 sources with structured-reference "
-            "compatibility."
+            "compatibility and an explicit internal editorial release ledger."
         )
     )
     parser.add_argument("repo_root", nargs="?", type=Path, default=Path("."))
