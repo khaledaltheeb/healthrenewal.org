@@ -82,8 +82,10 @@ class RecoveredContentPublicationTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (root / "index.html").write_text(
-                "<!doctype html><html lang='ar'><head><title>Health Renewal</title></head>"
-                "<body><h1>Health Renewal</h1></body></html>",
+                "<!doctype html><html lang='ar'><head><title>Health Renewal</title>"
+                "<meta property='og:image' content='https://healthrenewal.org/assets/brand/rawafid-social-card.jpg'>"
+                "</head><body><img src='/assets/brand/logo-mark.svg' alt='شعار منصة روافد'>"
+                "<h1>Health Renewal</h1><p>للعافية النفسية والدمج والتمكين</p></body></html>",
                 encoding="utf-8",
             )
             report = rawafid.normalize(root)
