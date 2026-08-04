@@ -9,6 +9,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "index.html"
 BRAND = "منصة روافد"
+BRAND_EN = "Rawafid Platform"
+MANIFEST_NAME = "منصة روافد للعافية النفسية والدمج والتمكين"
+BRAND_EN = "Rawafid Platform"
+MANIFEST_NAME = "منصة روافد للعافية النفسية والدمج والتمكين"
 SLOGAN = "للعافية النفسية والدمج والتمكين"
 REQUIRED_LINKS = (
     "start-here/",
@@ -102,7 +106,7 @@ def main() -> None:
     assert 'lang="ar"' in source and 'dir="rtl"' in source
     assert BRAND in source, "Homepage is missing the unified platform name"
     assert SLOGAN in source, "Homepage is missing the approved slogan"
-    assert "الاسم المؤسس: مصطلحات علم النفس" in source, "Founding name must remain visible"
+    assert "الاسم المؤسس: منصة روافد" in source, "The official institutional name must remain visible"
     assert "ثلاثين شرحًا" not in source, "Homepage contains obsolete 30-item claim"
     assert "2,000+" in source, "Homepage must expose the production-backed encyclopedia scale"
     assert "200" in source, "Homepage must expose the production-backed hub count"
@@ -128,7 +132,9 @@ def main() -> None:
     duplicates = sorted({text for text in headings if headings.count(text) > 1})
     assert h1_count == 1, "Homepage must contain exactly one h1"
     assert h2_count >= 5, "Homepage needs structured H2 sections"
-    assert 8 <= len(headings) <= 20, "Homepage heading outline must remain concise and proportional"
+    assert h3_count >= 16, "Homepage cards must expose semantic H3 headings"
+    assert 22 <= len(headings) <= 100, "Homepage heading outline must remain structured and proportional"
+    assert not re.search(r'<p\s+class=["\']item-title["\']', source, re.IGNORECASE), "Homepage card titles must use semantic headings"
     assert not duplicates, f"Homepage contains duplicate heading text: {duplicates}"
     assert 'href="#main"' in source, "Missing skip link"
     assert 'id="main"' in source, "Missing main landmark target"
@@ -156,7 +162,7 @@ def main() -> None:
 
     for required_meta in (
         '<link rel="manifest" href="/manifest.webmanifest">',
-        '<link rel="icon" href="/assets/brand/logo-mark.svg" type="image/svg+xml">',
+        '<link rel="icon" type="image/svg+xml" href="/assets/brand/logo-mark.svg">',
         '<link rel="search" type="application/opensearchdescription+xml"',
         '<link rel="sitemap" type="application/xml" href="https://healthrenewal.org/sitemap.xml">',
         '<meta property="og:image" content="https://healthrenewal.org/assets/brand/rawafid-social-card.jpg">',
@@ -177,7 +183,11 @@ def main() -> None:
     assert website.get("potentialAction", {}).get("@type") == "SearchAction"
     assert organization.get("name") == BRAND
     assert organization.get("slogan") == SLOGAN
-    assert "مصطلحات علم النفس" in organization.get("alternateName", [])
+    alternate_names = organization.get("alternateName", [])
+    if isinstance(alternate_names, str):
+        alternate_names = [alternate_names]
+    assert BRAND_EN in alternate_names
+    assert "مصطلحات علم النفس" not in alternate_names
     assert organization.get("logo", {}).get("url", "").endswith("/assets/brand/logo-mark.svg")
     parts = collection.get("hasPart", [])
     assert any(part.get("@type") == "WebAPI" for part in parts)
@@ -193,8 +203,12 @@ def main() -> None:
     openapi = load_json("api/v1/openapi.json")
     course_schema = load_json("api/v1/courses.schema.json")
     course_example = load_json("api/v1/courses.example.json")
-    assert manifest.get("name") == BRAND
+    assert manifest.get("name") == MANIFEST_NAME
+    assert manifest.get("short_name") == "روافد"
+    assert manifest.get("id") == "/"
     assert manifest.get("dir") == "rtl" and manifest.get("lang") == "ar"
+    assert platform.get("name") == BRAND
+    assert platform.get("alternateName") == BRAND_EN
     api_version = str(platform.get("apiVersion", ""))
     assert re.fullmatch(r"1\.\d+\.\d+", api_version), (
         f"Platform API must remain compatible with the supported 1.x semantic-version contract: {api_version!r}"
