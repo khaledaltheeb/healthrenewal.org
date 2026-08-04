@@ -10,6 +10,7 @@ on:
       - "scripts/build_quick_info.py"
       - "scripts/extend_quick_info_200.py"
       - "scripts/extend_quick_info_250.py"
+      - "scripts/run_extend_quick_info_250.py"
       - "scripts/enhance_quick_info_discover.py"
       - "scripts/enhance_quick_info_discover_250.py"
   pull_request:
@@ -22,6 +23,7 @@ on:
       - "scripts/build_quick_info.py"
       - "scripts/extend_quick_info_200.py"
       - "scripts/extend_quick_info_250.py"
+      - "scripts/run_extend_quick_info_250.py"
       - "scripts/enhance_quick_info_discover.py"
       - "scripts/enhance_quick_info_discover_250.py"
       - "quick-info/**"
@@ -81,12 +83,13 @@ jobs:
             scripts/build_quick_info.py \
             scripts/extend_quick_info_200.py \
             scripts/extend_quick_info_250.py \
+            scripts/run_extend_quick_info_250.py \
             scripts/enhance_quick_info_discover.py \
             scripts/enhance_quick_info_discover_250.py
 
       - name: Build and enhance 250 pages
         run: |
-          python scripts/extend_quick_info_250.py
+          python scripts/run_extend_quick_info_250.py
           python scripts/enhance_quick_info_discover_250.py
 
       - name: Validate section contracts
@@ -136,7 +139,7 @@ jobs:
           test "$(grep -o '<url>' sitemap-quick-info.xml | wc -l)" -eq 251
           grep -q '250 صفحة' quick-info/index.html
           grep -q 'مسامحة أم مصالحة' quick-info/forgiveness-vs-reconciliation/index.html
-          grep -q 'كيف تستعد لأول جلسة علاج نفسي' quick-info/prepare-first-therapy-session/index.html
+          grep -q 'كيف تستعد لجلسة التعارف والتقييم الأولي' quick-info/prepare-therapy-intake-session/index.html
           python scripts/verify_homepage_v19.py
 
       - name: Commit generated section
