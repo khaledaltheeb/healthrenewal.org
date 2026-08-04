@@ -38,6 +38,7 @@ def test_women_daily_calendar_static_contract() -> None:
     editorial = json.loads(read(APP / "editorial-manifest.json"))
     api = json.loads(read(ROOT / "api" / "women-daily-calendar-v1.json"))
     publisher = read(ROOT / "scripts" / "apply_homepage_v20.py")
+    calendar_publisher = read(ROOT / "scripts" / "publish_calendars_v221.py")
 
     for token in (
         "تقويم صحة المرأة اليومي",
@@ -84,13 +85,14 @@ def test_women_daily_calendar_static_contract() -> None:
     assert api["weeklyInsightDiagnostic"] is False
     assert api["pwaCacheVersion"] == 4
 
-    assert "apply_homepage_v20_core.py" in publisher
-    assert 'copy_tree("sectors/calendars")' in publisher
-    assert 'copy_tree("sectors/women/daily-calendar")' in publisher
-    assert 'register_sitemap("sitemap-calendars.xml")' in publisher
-    assert 'register_sitemap("sitemap-women-calendar.xml")' in publisher
-    assert 'href="sectors/women/daily-calendar/"' in publisher
-    assert "منصة روافد" in publisher
+    assert 'run_publisher("publish_calendars_v221.py")' in publisher
+    assert publisher.index('run_publisher("publish_calendars_v221.py")') < publisher.index('run_publisher("enforce_health_publication_gate_v192.py")')
+    assert 'copy_tree("sectors/calendars")' in calendar_publisher
+    assert 'copy_tree("sectors/women/daily-calendar")' in calendar_publisher
+    assert 'register_sitemap("sitemap-calendars.xml")' in calendar_publisher
+    assert 'register_sitemap("sitemap-women-calendar.xml")' in calendar_publisher
+    assert 'href="sectors/women/daily-calendar/"' in calendar_publisher
+    assert "منصة روافد" in calendar_publisher
 
 
 def test_women_daily_calendar_has_no_remote_health_data_submission() -> None:

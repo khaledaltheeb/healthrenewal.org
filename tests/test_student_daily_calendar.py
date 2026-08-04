@@ -18,6 +18,7 @@ def test_calendars_sector_contract() -> None:
     women_gateway = read(CALENDARS / "women" / "index.html")
     sitemap = read(ROOT / "sitemap-calendars.xml")
     publisher = read(ROOT / "scripts" / "apply_homepage_v20.py")
+    calendar_publisher = read(ROOT / "scripts" / "publish_calendars_v221.py")
 
     assert "التقويمات التفاعلية" in landing
     assert "تقويم المرأة" in landing
@@ -27,9 +28,10 @@ def test_calendars_sector_contract() -> None:
     assert "/sectors/women/daily-calendar/" in women_gateway
     assert "https://healthrenewal.org/sectors/calendars/" in sitemap
     assert "https://healthrenewal.org/sectors/calendars/students/" in sitemap
-    assert 'copy_tree("sectors/calendars")' in publisher
-    assert 'register_sitemap("sitemap-calendars.xml")' in publisher
-    assert 'href="sectors/calendars/"' in publisher
+    assert 'run_publisher("publish_calendars_v221.py")' in publisher
+    assert 'copy_tree("sectors/calendars")' in calendar_publisher
+    assert 'register_sitemap("sitemap-calendars.xml")' in calendar_publisher
+    assert 'href="sectors/calendars/"' in calendar_publisher
 
 
 def test_student_daily_calendar_contract() -> None:
