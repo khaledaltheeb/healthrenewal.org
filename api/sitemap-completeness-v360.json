@@ -1,15 +1,15 @@
 {
   "version": 360,
   "status": "passed",
-  "generated_at": "2026-08-03T09:46:07+00:00",
+  "generated_at": "2026-08-04T08:36:48+00:00",
   "base_url": "https://healthrenewal.org/",
   "sitemap": "sitemap.xml",
   "sitemap_index": "sitemap-index.xml",
   "robots": "robots.txt",
-  "real_indexable_urls": 415,
+  "real_indexable_urls": 782,
   "claimed_target_urls": 3600,
   "target_reached": false,
-  "html_files_discovered": 426,
+  "html_files_discovered": 793,
   "excluded_counts": {
     "excluded_directory": 0,
     "error_or_offline_page": 1,
@@ -43,14 +43,14 @@
   "protocol": {
     "maximum_urls_per_sitemap": 50000,
     "maximum_uncompressed_bytes": 52428800,
-    "actual_bytes": 43762,
+    "actual_bytes": 79152,
     "https_only": true,
     "single_host": "healthrenewal.org",
     "duplicates": 0,
     "legacy_urls": 0
   },
   "sha256": {
-    "sitemap.xml": "5862a313c46a116b55a8a54a21c0f3b3b158e80cb5789f47ec19ccaf7fdd5b64",
+    "sitemap.xml": "3ceaf941a3f5e6334fa8c6ec9b737facb1020b7f03025d470332e7f8ca8cdfd8",
     "sitemap-index.xml": "41c7faf5cbb40b054bfa5b391c8d343bacdfdf3baf20612a02ffe49e4898a880",
     "robots.txt": "775d46ea75a7cfa782eff67503977738ee58f3d387782f722a698862c0fadc60"
   },
@@ -58,26 +58,26 @@
     "first": [
       "https://healthrenewal.org/",
       "https://healthrenewal.org/accessibility/",
+      "https://healthrenewal.org/accessibility/accessible-participation-travel/",
       "https://healthrenewal.org/addiction/",
       "https://healthrenewal.org/addiction/alcohol-use-disorder/",
       "https://healthrenewal.org/addiction/audiences/",
       "https://healthrenewal.org/addiction/audiences/clinician/",
       "https://healthrenewal.org/addiction/audiences/community/",
       "https://healthrenewal.org/addiction/audiences/family/",
-      "https://healthrenewal.org/addiction/audiences/person/",
-      "https://healthrenewal.org/addiction/audiences/trainer/"
+      "https://healthrenewal.org/addiction/audiences/person/"
     ],
     "last": [
-      "https://healthrenewal.org/special-needs/practical/transition-needs-assessment/",
-      "https://healthrenewal.org/special-needs/practical/trauma-informed-support/",
-      "https://healthrenewal.org/special-needs/practical/universal-design-lesson-adaptation/",
       "https://healthrenewal.org/special-needs/practical/workplace-accommodations/",
       "https://healthrenewal.org/specialists-partners/",
       "https://healthrenewal.org/specialists-partners/join.html",
       "https://healthrenewal.org/specialists-partners/verification.html",
       "https://healthrenewal.org/start-here/",
       "https://healthrenewal.org/team-and-partners/",
-      "https://healthrenewal.org/trust/"
+      "https://healthrenewal.org/terms/",
+      "https://healthrenewal.org/tips/",
+      "https://healthrenewal.org/trust/",
+      "https://healthrenewal.org/verified-resources/"
     ]
   }
 }
