@@ -11,6 +11,8 @@ INDEX = ROOT / "index.html"
 BRAND = "منصة روافد"
 BRAND_EN = "Rawafid Platform"
 MANIFEST_NAME = "منصة روافد للعافية النفسية والدمج والتمكين"
+BRAND_EN = "Rawafid Platform"
+MANIFEST_NAME = "منصة روافد للعافية النفسية والدمج والتمكين"
 SLOGAN = "للعافية النفسية والدمج والتمكين"
 REQUIRED_LINKS = (
     "start-here/",

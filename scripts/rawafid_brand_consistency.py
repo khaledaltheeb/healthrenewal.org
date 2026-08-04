@@ -253,6 +253,7 @@ def normalize_brand_assets(text: str) -> str:
         text,
     )
     text = re.sub(r"\s*</head\s*>", "\n</head>", text, count=1, flags=re.I)
+    text = re.sub(r"\s*</head\s*>", "\n</head>", text, count=1, flags=re.I)
     if HEAD_CLOSE_RE.search(text):
         text = HEAD_CLOSE_RE.sub(FAVICON_BLOCK + "\n</head>", text, count=1)
     return text
