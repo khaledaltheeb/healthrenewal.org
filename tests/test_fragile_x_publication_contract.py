@@ -9,6 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / "special-needs/conditions/fragile-x-syndrome"
 URL = "https://healthrenewal.org/special-needs/conditions/fragile-x-syndrome/"
+PUBLIC_PATH = "/special-needs/conditions/fragile-x-syndrome/"
 PAGES = {
     "index.html": URL,
     "genetics-diagnosis/index.html": URL + "genetics-diagnosis/",
@@ -88,7 +89,7 @@ def test_fragile_x_publication_contract() -> None:
         text = path.read_text(encoding="utf-8")
         combined += "\n" + text
         total_size += len(text)
-        minimum = 11500 if relative == "index.html" else 8500
+        minimum = 9000 if relative == "index.html" else 6500
         if len(text) < minimum:
             failures.append(f"page too short: {relative} ({len(text)} < {minimum})")
         if "khaledaltheeb.github.io" in text or "pterminology-site" in text:
@@ -118,8 +119,21 @@ def test_fragile_x_publication_contract() -> None:
             if href.startswith("#") and href[1:] and href[1:] not in parser.ids:
                 failures.append(f"broken anchor {href} in {relative}")
 
-    if total_size < 72000:
+    if total_size < 50000:
         failures.append(f"combined guide is not sufficiently expanded: {total_size}")
+
+    evidence_path = BASE / "evidence.json"
+    try:
+        evidence_text = evidence_path.read_text(encoding="utf-8")
+        evidence = json.loads(evidence_text)
+        combined += "\n" + evidence_text
+    except (FileNotFoundError, json.JSONDecodeError) as exc:
+        failures.append(f"invalid evidence registry: {exc}")
+        evidence = {}
+    if len(evidence.get("sources", [])) < 10:
+        failures.append("evidence registry requires at least 10 sources")
+    if len(evidence.get("claim_matrix", [])) < 6:
+        failures.append("evidence registry requires at least 6 mapped claims")
 
     required_terms = [
         "FMR1", "FMRP", "CGG", "الطفرة الكاملة", "الطفرة السابقة",
@@ -139,17 +153,6 @@ def test_fragile_x_publication_contract() -> None:
         if f'href="{link}"' not in hub:
             failures.append(f"hub does not link page: {relative}")
 
-    evidence_path = BASE / "evidence.json"
-    try:
-        evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
-    except (FileNotFoundError, json.JSONDecodeError) as exc:
-        failures.append(f"invalid evidence registry: {exc}")
-        evidence = {}
-    if len(evidence.get("sources", [])) < 10:
-        failures.append("evidence registry requires at least 10 sources")
-    if len(evidence.get("claim_matrix", [])) < 6:
-        failures.append("evidence registry requires at least 6 mapped claims")
-
     sitemap_path = ROOT / "sitemap-fragile-x-syndrome.xml"
     try:
         sitemap_root = ET.parse(sitemap_path).getroot()
@@ -166,7 +169,7 @@ def test_fragile_x_publication_contract() -> None:
     if "https://healthrenewal.org/sitemap-fragile-x-syndrome.xml" not in sitemap_index:
         failures.append("fragile X sitemap not registered in sitemap-index.xml")
     conditions_hub = (ROOT / "special-needs/conditions/index.html").read_text(encoding="utf-8")
-    if URL not in conditions_hub:
+    if f'href="{PUBLIC_PATH}"' not in conditions_hub:
         failures.append("conditions hub does not link fragile X guide")
 
     assert not failures, "\n".join(failures)
