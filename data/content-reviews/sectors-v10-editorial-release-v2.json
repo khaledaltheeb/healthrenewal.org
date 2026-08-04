@@ -4,6 +4,12 @@
   "reviewType": "internal-editorial-and-source-structure-review",
   "clinicalReviewClaimed": false,
   "scope": "Eligibility for public educational publication in the Rawafid evidence-guides library. This decision does not represent independent clinical peer review or individualized medical approval.",
+  "publicationRequest": {
+    "requestedAt": "2026-08-04T06:29:00+03:00",
+    "reason": "Materialize the three editorially released sources after merge and dispatch the single complete production publisher.",
+    "targetPageCount": 37,
+    "targetHubCount": 1
+  },
   "checks": [
     "Arabic title, subtitle and summaries are complete and readable",
     "Every article contains practical steps, observable signals, suggested phrases and an avoidance note",
