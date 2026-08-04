@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "status": "observed-gap",
+  "observedAt": "2026-08-04",
+  "sourceHeadSha": "9462a0dc0ef0b60242d404d5db8efd23533c4079",
+  "generatorReportVersion": 305,
+  "indexablePagesReported": 212,
+  "primarySitemapUrlsReported": 212,
+  "familiesReported": 5,
+  "preservedCustomDomainSitemaps": 0,
+  "requiredCompletionFields": [
+    "indexable_html_pages",
+    "sitemap_urls",
+    "missing_from_sitemaps",
+    "orphan_sitemap_urls",
+    "excluded_with_reason"
+  ],
+  "mergePolicy": "fail-closed-on-unexplained-coverage-gap"
+}
