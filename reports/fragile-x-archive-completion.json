@@ -1,0 +1,18 @@
+{
+  "archive_source_pr": 562,
+  "status": "ready_for_publication",
+  "reviewed_on": "2026-08-04",
+  "public_pages": 6,
+  "evidence_registry": "special-needs/conditions/fragile-x-syndrome/evidence.json",
+  "sitemap": "sitemap-fragile-x-syndrome.xml",
+  "publication_test": "tests/test_fragile_x_publication_contract.py",
+  "content_domains": [
+    "genetics_and_diagnosis",
+    "lifespan_health",
+    "communication_and_education",
+    "behavior_and_intervention",
+    "family_safety_and_transition"
+  ],
+  "content_loss": false,
+  "legacy_domain_present": false
+}
