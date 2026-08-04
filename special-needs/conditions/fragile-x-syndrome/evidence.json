@@ -1,0 +1,162 @@
+{
+  "schema_version": "1.0",
+  "condition": {
+    "ar": "متلازمة الكروموسوم X الهش",
+    "en": "Fragile X syndrome",
+    "gene": "FMR1"
+  },
+  "page_url": "https://healthrenewal.org/special-needs/conditions/fragile-x-syndrome/",
+  "reviewed_on": "2026-08-04",
+  "review_policy": {
+    "next_scheduled_review": "2027-02-04",
+    "earlier_review_triggers": [
+      "تحديث GeneReviews أو CDC أو AAP أو ACMG",
+      "اعتماد تنظيمي لعلاج خاص بمتلازمة X الهش",
+      "إرشاد جديد للفحص أو المتابعة الصحية",
+      "تصحيح مصدر أو رابط أو ادعاء"
+    ]
+  },
+  "evidence_levels": {
+    "A": "مرجع سريري أو وكالة رسمية أو معيار مهني معتمد",
+    "B": "إرشاد إجماعي أو مراجعة منهجية حديثة",
+    "C": "دراسة رصدية أو خبرة سريرية منظمة",
+    "D": "خبرة معاشة منخفضة المخاطر تستخدم لتحديد الأولويات لا لإثبات السببية"
+  },
+  "sources": [
+    {
+      "id": "GENEREVIEWS-2024",
+      "level": "A",
+      "title": "FMR1 Disorders",
+      "publisher": "GeneReviews / NCBI Bookshelf",
+      "updated": "2024-05-16",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1384/",
+      "supports": ["التعريف والفئات الجينية", "التشخيص الموجه", "الوراثة", "التقييم والمتابعة"]
+    },
+    {
+      "id": "CDC-ABOUT-2026",
+      "level": "A",
+      "title": "About Fragile X Syndrome",
+      "publisher": "CDC",
+      "updated": "2026-04-28",
+      "url": "https://www.cdc.gov/fragile-x-syndrome/about/index.html",
+      "supports": ["التوعية العامة", "العلامات والفحص والدعم"]
+    },
+    {
+      "id": "CDC-HCP-2026",
+      "level": "A",
+      "title": "Top 5 Things to Know About FXS",
+      "publisher": "CDC",
+      "updated": "2026-04-27",
+      "url": "https://www.cdc.gov/fragile-x-syndrome/hcp/facts/index.html",
+      "supports": ["مؤشرات الفحص", "غياب التاريخ العائلي لا يستبعد الحالة"]
+    },
+    {
+      "id": "AAP-2011-REAFFIRMED-2023",
+      "level": "A",
+      "title": "Health Supervision for Children With Fragile X Syndrome",
+      "publisher": "American Academy of Pediatrics",
+      "updated": "2023-11",
+      "doi": "10.1542/peds.2010-3500",
+      "url": "https://doi.org/10.1542/peds.2010-3500",
+      "supports": ["الإشراف الصحي حسب العمر", "الإحالة للوراثة"]
+    },
+    {
+      "id": "ACMG-2013",
+      "level": "A",
+      "title": "ACMG Standards and Guidelines for Fragile X Testing",
+      "publisher": "ACMG",
+      "year": 2013,
+      "doi": "10.1038/gim.2013.61",
+      "pmid": "23765048",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23765048/",
+      "supports": ["تقنيات فحص CGG والمثيلة", "تفسير النتيجة"]
+    },
+    {
+      "id": "HOLISTIC-2024",
+      "level": "B",
+      "title": "A holistic approach to fragile X syndrome integrated guidance for person-centred care",
+      "year": 2024,
+      "doi": "10.1111/jar.13214",
+      "pmid": "38383947",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38383947/",
+      "supports": ["الرعاية المتمركزة حول الشخص", "الانتقال والحقوق والمشاركة"]
+    },
+    {
+      "id": "PHARM-REVIEW-2024",
+      "level": "B",
+      "title": "Pharmacological management of fragile X syndrome",
+      "year": 2024,
+      "doi": "10.1080/14656566.2024.2323605",
+      "pmid": "38393835",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38393835/",
+      "supports": ["حدود الأدلة الدوائية", "العلاج العرضي"]
+    },
+    {
+      "id": "FXCRC-ASSESSMENT-2021",
+      "level": "B",
+      "title": "Assessment of Fragile X Syndrome — For Clinicians",
+      "publisher": "Fragile X Clinical & Research Consortium",
+      "updated": "2021-05",
+      "url": "https://fragilex.org/resources/treatment/assessment-fxs-clinicians/",
+      "supports": ["تكييف الاختبارات", "التقييم متعدد المجالات"]
+    },
+    {
+      "id": "FXCRC-SLEEP-2025",
+      "level": "B",
+      "title": "Sleep in Children with Fragile X Syndrome",
+      "publisher": "Fragile X Clinical & Research Consortium",
+      "updated": "2025-04",
+      "url": "https://fragilex.org/resources/treatment/sleep-children-fxs-care-team/",
+      "supports": ["تقييم النوم والتدخل المتدرج"]
+    },
+    {
+      "id": "FXCRC-EDUCATION",
+      "level": "B",
+      "title": "General Educational Recommendations for Students with FXS",
+      "publisher": "Fragile X Clinical & Research Consortium",
+      "url": "https://fragilex.org/resources/treatment/edu-general/",
+      "supports": ["التعليم الفردي والدمج"]
+    },
+    {
+      "id": "FDA-ORPHAN-2024",
+      "level": "A",
+      "title": "FDA Orphan Drug Designation — not approved for orphan indication",
+      "publisher": "U.S. FDA",
+      "year": 2024,
+      "url": "https://www.accessdata.fda.gov/scripts/opdlisting/oopd/detailedIndex.cfm?cfgridkey=1046524",
+      "supports": ["التعيين اليتيم لا يساوي الاعتماد"]
+    }
+  ],
+  "claim_matrix": [
+    {
+      "claim": "الطفرة الكاملة تتجاوز 200 تكرار CGG غالبا وترتبط بالمثيلة ونقص FMRP",
+      "sources": ["GENEREVIEWS-2024", "ACMG-2013"],
+      "level": "A"
+    },
+    {
+      "claim": "الإكسوم أو الجينوم الاعتيادي قد لا يكشف توسع FMR1 ويحتاج الفحص إلى تحليل موجه",
+      "sources": ["GENEREVIEWS-2024", "ACMG-2013"],
+      "level": "A"
+    },
+    {
+      "claim": "التأخر النمائي أو الإعاقة الذهنية أو طيف التوحد غير المفسر يستحق تقييما جينيا يتضمن FXS بحسب السياق",
+      "sources": ["CDC-HCP-2026", "AAP-2011-REAFFIRMED-2023"],
+      "level": "A"
+    },
+    {
+      "claim": "الرعاية متعددة المجالات والتعليم والتواصل وعلاج الأعراض هي أساس الإدارة الحالية",
+      "sources": ["GENEREVIEWS-2024", "AAP-2011-REAFFIRMED-2023", "HOLISTIC-2024"],
+      "level": "A-B"
+    },
+    {
+      "claim": "الأدلة الدوائية المستهدفة لا تثبت علاجا شافيا أو نهجا واحدا للجميع",
+      "sources": ["PHARM-REVIEW-2024", "FDA-ORPHAN-2024"],
+      "level": "A-B"
+    },
+    {
+      "claim": "تكييف التقييم للقلق واللغة ومستوى النمو يحسن دقة الاستنتاج",
+      "sources": ["FXCRC-ASSESSMENT-2021", "HOLISTIC-2024"],
+      "level": "B"
+    }
+  ]
+}
