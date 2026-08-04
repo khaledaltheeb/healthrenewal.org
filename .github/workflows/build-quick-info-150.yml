@@ -1,23 +1,29 @@
-name: Build quick info 200
+name: Build quick info 250
 
 on:
   push:
     branches:
-      - agent/quick-info-200
+      - agent/quick-info-250
     paths:
       - ".github/workflows/build-quick-info-150.yml"
+      - "content/quick-info-extension-v250.tsv"
       - "scripts/build_quick_info.py"
       - "scripts/extend_quick_info_200.py"
+      - "scripts/extend_quick_info_250.py"
       - "scripts/enhance_quick_info_discover.py"
+      - "scripts/enhance_quick_info_discover_250.py"
   pull_request:
     branches:
       - main
     types: [opened, reopened, synchronize]
     paths:
       - ".github/workflows/build-quick-info-150.yml"
+      - "content/quick-info-extension-v250.tsv"
       - "scripts/build_quick_info.py"
       - "scripts/extend_quick_info_200.py"
+      - "scripts/extend_quick_info_250.py"
       - "scripts/enhance_quick_info_discover.py"
+      - "scripts/enhance_quick_info_discover_250.py"
       - "quick-info/**"
       - "assets/quick-info/**"
       - "api/v1/quick-info.json"
@@ -33,14 +39,14 @@ permissions:
   contents: write
 
 concurrency:
-  group: quick-info-200-${{ github.event.pull_request.number || github.ref }}
+  group: quick-info-250-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
-    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'agent/quick-info-200')
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'agent/quick-info-250')
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
 
     steps:
       - name: Resolve source branch
@@ -74,12 +80,14 @@ jobs:
           python -m py_compile \
             scripts/build_quick_info.py \
             scripts/extend_quick_info_200.py \
-            scripts/enhance_quick_info_discover.py
+            scripts/extend_quick_info_250.py \
+            scripts/enhance_quick_info_discover.py \
+            scripts/enhance_quick_info_discover_250.py
 
-      - name: Build and enhance 200 pages
+      - name: Build and enhance 250 pages
         run: |
-          python scripts/extend_quick_info_200.py
-          python scripts/enhance_quick_info_discover.py
+          python scripts/extend_quick_info_250.py
+          python scripts/enhance_quick_info_discover_250.py
 
       - name: Validate section contracts
         run: |
@@ -104,15 +112,15 @@ jobs:
 
           build = json.loads(Path("reports/quick-info-build.json").read_text(encoding="utf-8"))
           discover = json.loads(Path("reports/quick-info-discover-observability.json").read_text(encoding="utf-8"))
-          assert build["pages"] == 200, build
+          assert build["pages"] == 250, build
           assert build["newPages"] == 50, build
-          assert build["images"] == 201, build
+          assert build["images"] == 251, build
           assert build["errors"] == [], build
-          assert discover["pages"] == 200, discover
-          assert discover["analyticsPages"] == 201, discover
-          assert discover["articleMetadataPages"] == 200, discover
-          assert discover["prioritizedCoverImages"] == 200, discover
-          assert discover["rssItems"] == 200, discover
+          assert discover["pages"] == 250, discover
+          assert discover["analyticsPages"] == 251, discover
+          assert discover["articleMetadataPages"] == 250, discover
+          assert discover["prioritizedCoverImages"] == 250, discover
+          assert discover["rssItems"] == 250, discover
           assert discover["canonicalUrlsPreserved"] is True, discover
           assert discover["titlesPreserved"] is True, discover
           assert discover["failures"] == [], discover
@@ -120,15 +128,15 @@ jobs:
           print(discover)
           PY
 
-          test "$(find quick-info -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 200
-          test "$(find assets/quick-info/cards -maxdepth 1 -name '*.png' | wc -l)" -eq 200
-          test "$(grep -rl 'G-VLZMV8Y4JP' quick-info/index.html quick-info/*/index.html | wc -l)" -eq 201
-          test "$(grep -rl 'fetchpriority="high"' quick-info/*/index.html | wc -l)" -eq 200
-          test "$(grep -o '<item>' quick-info/feed.xml | wc -l)" -eq 200
-          test "$(grep -o '<url>' sitemap-quick-info.xml | wc -l)" -eq 201
-          grep -q '200 صفحة' quick-info/index.html
-          grep -q 'خدر عاطفي أم هدوء' quick-info/emotional-numbness-vs-calm/index.html
-          grep -q 'كيف تستعد لموعد الطبيب النفسي' quick-info/prepare-psychiatry-appointment/index.html
+          test "$(find quick-info -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 250
+          test "$(find assets/quick-info/cards -maxdepth 1 -name '*.png' | wc -l)" -eq 250
+          test "$(grep -rl 'G-VLZMV8Y4JP' quick-info/index.html quick-info/*/index.html | wc -l)" -eq 251
+          test "$(grep -rl 'fetchpriority="high"' quick-info/*/index.html | wc -l)" -eq 250
+          test "$(grep -o '<item>' quick-info/feed.xml | wc -l)" -eq 250
+          test "$(grep -o '<url>' sitemap-quick-info.xml | wc -l)" -eq 251
+          grep -q '250 صفحة' quick-info/index.html
+          grep -q 'مسامحة أم مصالحة' quick-info/forgiveness-vs-reconciliation/index.html
+          grep -q 'كيف تستعد لأول جلسة علاج نفسي' quick-info/prepare-first-therapy-session/index.html
           python scripts/verify_homepage_v19.py
 
       - name: Commit generated section
@@ -152,5 +160,5 @@ jobs:
             echo "No generated changes to commit"
             exit 0
           fi
-          git commit -m "feat(quick-info): publish 200-page section"
+          git commit -m "feat(quick-info): publish 250-page section"
           git push origin "HEAD:${SOURCE_BRANCH}"
