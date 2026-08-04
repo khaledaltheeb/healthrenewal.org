@@ -6,14 +6,18 @@ on:
     paths:
       - "content/sectors-v10/**"
       - "scripts/materialize_sectors_v10_v1.py"
+      - "scripts/materialize_sectors_v10_compat_v2.py"
       - "tests/test_materialize_sectors_v10_v1.py"
+      - "tests/test_materialize_sectors_v10_compat_v2.py"
       - ".github/workflows/materialize-sectors-v10-v1.yml"
   push:
     branches: [main]
     paths:
       - "content/sectors-v10/**"
       - "scripts/materialize_sectors_v10_v1.py"
+      - "scripts/materialize_sectors_v10_compat_v2.py"
       - "tests/test_materialize_sectors_v10_v1.py"
+      - "tests/test_materialize_sectors_v10_compat_v2.py"
       - ".github/workflows/materialize-sectors-v10-v1.yml"
   workflow_dispatch:
 
@@ -44,23 +48,30 @@ jobs:
       - name: Compile publisher and run tests
         run: |
           set -euo pipefail
-          python -m py_compile scripts/materialize_sectors_v10_v1.py tests/test_materialize_sectors_v10_v1.py
-          python -m unittest -v tests/test_materialize_sectors_v10_v1.py
+          python -m py_compile \
+            scripts/materialize_sectors_v10_v1.py \
+            scripts/materialize_sectors_v10_compat_v2.py \
+            tests/test_materialize_sectors_v10_v1.py \
+            tests/test_materialize_sectors_v10_compat_v2.py
+          python -m unittest -v \
+            tests/test_materialize_sectors_v10_v1.py \
+            tests/test_materialize_sectors_v10_compat_v2.py
 
       - name: Materialize reviewed public pages
         run: |
           set -euo pipefail
-          python scripts/materialize_sectors_v10_v1.py .
-          python scripts/materialize_sectors_v10_v1.py . --check
+          python scripts/materialize_sectors_v10_compat_v2.py .
+          python scripts/materialize_sectors_v10_compat_v2.py . --check
           python - <<'PY'
           import json
           from pathlib import Path
 
           report = json.loads(Path("api/sectors-v10-publication-v1.json").read_text(encoding="utf-8"))
           assert report["status"] == "passed", report
-          assert report["pageCount"] >= 20, report
+          assert report["pageCount"] >= 30, report
           assert report["hubCount"] == 1, report
           assert report["pageCount"] == len(report["routes"]), report
+          assert report["qualityRejectedCount"] <= 1, report
           assert report["qualityGates"]["minimumPages"] is True, report
           assert report["qualityGates"]["allRoutesUnique"] is True, report
           assert report["qualityGates"]["manualReviewSourcesExcluded"] is True, report
@@ -68,6 +79,16 @@ jobs:
 
           pages = list(Path("evidence-guides").glob("*/index.html"))
           assert len(pages) == report["pageCount"], (len(pages), report["pageCount"])
+          required_routes = {
+              "/evidence-guides/anxiety-fear-differences-guide/",
+              "/evidence-guides/autism-adhd-differences-guide/",
+              "/evidence-guides/first-mental-health-appointment-guide/",
+              "/evidence-guides/inclusive-safeguarding-guide/",
+              "/evidence-guides/safe-screening-tools-explainer/",
+              "/evidence-guides/sleep-mental-health-evidence-brief/",
+              "/evidence-guides/stress-burnout-depression-differences-guide/",
+          }
+          assert required_routes <= set(report["routes"]), required_routes - set(report["routes"])
           for path in pages:
               text = path.read_text(encoding="utf-8")
               assert text.count("<h1") == 1, path
@@ -75,6 +96,7 @@ jobs:
               assert '<link rel="canonical"' in text, path
               assert "منصة روافد" in text, path
               assert "<script>alert(" not in text, path
+              assert "معاقين" not in text, path
           print({
               "pages": report["pageCount"],
               "articles": report["articleCount"],
