@@ -1,10 +1,10 @@
-# HealthRenewal machine-readable catalogue
+# Rawafid machine-readable catalogue
 
-> Expanded canonical page list for retrieval, citation, and agent discovery.
+> Expanded verified page list for retrieval, citation, and agent discovery.
 
-Generated: 2026-08-01T00:00:00Z
+Generated: 2026-08-04T10:25:00Z
 Canonical site: https://healthrenewal.org/
-Primary language: Arabic; selected English and Spanish gateways are included.
+Published language: Arabic (ar).
 Rendering: static generated HTML; primary text does not require JavaScript.
 Safety: Educational content only; do not infer diagnosis, emergency decisions, or individualized treatment.
 
@@ -21,20 +21,16 @@ Safety: Educational content only; do not infer diagnosis, emergency decisions, o
 - [Platform API](https://healthrenewal.org/api/v1/platform.json)
 - [Platform OpenAPI](https://healthrenewal.org/api/v1/openapi.json)
 
-## Canonical pages
+## Verified canonical pages
 
-- [منصة روافد](https://healthrenewal.org/) — بوابة عربية مؤسسية للمعرفة النفسية والتربية الدامجة والأدلة العملية والأدوات.
-- [الموسوعة النفسية العربية](https://healthrenewal.org/encyclopedia/) — مصطلحات ومفاهيم نفسية منظمة ومترابطة للقراءة والاستشهاد.
+- [منصة روافد](https://healthrenewal.org/) — بوابة عربية مؤسسية للعافية النفسية والدمج والتمكين.
+- [ابدأ من هنا](https://healthrenewal.org/start-here/) — نقطة دخول منظمة إلى الصفحات والأقسام المنشورة.
 - [ذوو الاحتياجات الخاصة والتربية الدامجة](https://healthrenewal.org/special-needs/) — أدلة ومعرفة منظمة للأسر والمختصين ومقدمي الخدمات.
 - [دليل الأسرة للرعاية والدعم](https://healthrenewal.org/family-guide/) — إرشادات عملية للأسرة لدعم الفهم والتواصل والرعاية الآمنة.
-- [المكتبة الأكاديمية والأبحاث](https://healthrenewal.org/library/) — مواد أكاديمية ومصادر وأبحاث مرتبة مع إسناد واضح.
 - [المجلة والأبحاث](https://healthrenewal.org/magazine/) — تحليلات وملخصات بحثية عربية منظمة ومسنَدة.
-- [أدلة الرعاية والتعامل العملي](https://healthrenewal.org/care-guides/) — أدلة تطبيقية للأسر والمعلمين والمختصين ومقدمي الخدمة.
-- [الأدوات النفسية التفاعلية](https://healthrenewal.org/daily-tools/) — أدوات تثقيفية وتنظيمية لا تستبدل التقييم أو العلاج الفردي.
-- [المقارنات النفسية](https://healthrenewal.org/comparisons/) — مقارنات منهجية لتوضيح الفروق بين المفاهيم والحالات المتقاربة.
-- [مسارات التعلم](https://healthrenewal.org/learning-paths/) — مسارات قصيرة ومنظمة تربط المفاهيم بالأدلة والتطبيقات.
-- [HealthRenewal English gateway](https://healthrenewal.org/en/) — English discovery gateway for selected public educational resources.
-- [Portal de HealthRenewal en español](https://healthrenewal.org/es/) — Portal de descubrimiento para recursos educativos públicos seleccionados.
+- [مركز الإدمان والتعافي](https://healthrenewal.org/addiction/) — أدلة سلامة وعلاج وتعافٍ مبنية على المراجع المعلنة.
+- [مسارات التعلم](https://healthrenewal.org/learning-paths/) — مسارات منظمة تربط المفاهيم بالأدلة والتطبيقات.
+- [واجهة البيانات العامة](https://healthrenewal.org/api/) — توثيق واجهات القراءة العامة وعقود التكامل.
 
 ## Citation rules
 
