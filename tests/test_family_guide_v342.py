@@ -65,14 +65,21 @@ assert 'meta name="keywords"' not in index
 assert '**64 دليل حالة**' in readme
 assert '24 دليل' not in index+readme
 
-for sitemap in ['sitemap-family-guide.xml','sitemap-family-guide-phase8.xml','sitemap-index.xml']:
+for sitemap in ['sitemap.xml','sitemap-family-guide.xml','sitemap-family-guide-phase8.xml','sitemap-index.xml']:
     ET.parse(root/sitemap)
+main_sitemap=(root/'sitemap.xml').read_text(encoding='utf-8')
 phase_sitemap=(root/'sitemap-family-guide-phase8.xml').read_text(encoding='utf-8')
 index_sitemap=(root/'sitemap-index.xml').read_text(encoding='utf-8')
-for slug in expected: assert f'/family-guide/conditions/{slug}/' in phase_sitemap
-assert 'sitemap-family-guide-phase8.xml' in index_sitemap
+for slug in expected:
+    route=f'/family-guide/conditions/{slug}/'
+    assert route in phase_sitemap
+    assert route in main_sitemap
+# Preserve the phase-specific source file for audit/history, but advertise the
+# URLs once through the authoritative main sitemap to avoid duplicate ownership.
+assert 'sitemap-family-guide-phase8.xml' not in index_sitemap
+assert 'sitemap.xml' in index_sitemap
 
-checked_texts.extend([index,readme,phase_sitemap,index_sitemap])
+checked_texts.extend([index,readme,main_sitemap,phase_sitemap,index_sitemap])
 checked='\n'.join(checked_texts)
 assert 'معاقين' not in checked
 assert 'TODO' not in checked
