@@ -1,0 +1,148 @@
+{
+  "schema_version": "1.0.0",
+  "page": "https://healthrenewal.org/special-needs/conditions/rett-syndrome/",
+  "title": "متلازمة ريت: دليل متكامل للرعاية والتواصل والصحة عبر الحياة",
+  "language": "ar",
+  "reviewed_at": "2026-08-04",
+  "next_review_due": "2027-02-04",
+  "editorial_policy": {
+    "scope": "تثقيفي مؤسسي للأسرة والمختصين، لا تشخيص فردي ولا جرعات",
+    "evidence_hierarchy": [
+      "تنظيمي وتجارب عشوائية",
+      "إرشادات ومعايير إجماعية",
+      "دراسات رصدية",
+      "خبرة معاشة منخفضة المخاطر"
+    ],
+    "copyright": "صياغة أصلية وروابط إلى المصادر؛ لا نسخ لمقاييس محمية"
+  },
+  "sources": [
+    {
+      "id": "genereviews-2025",
+      "title": "MECP2 Disorders — GeneReviews",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1497/",
+      "type": "living_reference",
+      "publisher": "NCBI Bookshelf / University of Washington",
+      "year": 2025,
+      "evidence_level": "مرجع سريري جيني محدث",
+      "supports": ["التعريف", "الطيف السريري", "الوراثة", "التشخيص الجزيئي", "المتابعة"]
+    },
+    {
+      "id": "neul-2010",
+      "title": "Rett syndrome: revised diagnostic criteria and nomenclature",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3058521/",
+      "doi": "10.1002/ana.22124",
+      "pmid": "21154482",
+      "type": "international_consensus",
+      "year": 2010,
+      "evidence_level": "معايير تشخيص دولية",
+      "supports": ["التشخيص السريري", "التصنيف", "التشخيص التفريقي"]
+    },
+    {
+      "id": "fu-2020",
+      "title": "Consensus guidelines on managing Rett syndrome across the lifespan",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7488790/",
+      "doi": "10.1136/bmjpo-2020-000717",
+      "pmid": "32984552",
+      "type": "international_consensus",
+      "year": 2020,
+      "evidence_level": "إرشاد إجماعي متعدد التخصصات",
+      "supports": ["المتابعة الصحية", "التغذية", "القلب", "التنفس", "النوم", "الرشد"]
+    },
+    {
+      "id": "townend-2020",
+      "title": "Development of consensus-based guidelines for managing communication of individuals with Rett syndrome",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32720526/",
+      "doi": "10.1080/07434618.2020.1785009",
+      "pmid": "32720526",
+      "type": "international_consensus",
+      "year": 2020,
+      "evidence_level": "إرشاد إجماعي للتواصل وAAC",
+      "supports": ["التواصل", "AAC", "تدريب شركاء التواصل", "المشاركة"]
+    },
+    {
+      "id": "jefferson-2016",
+      "title": "Clinical Guidelines for Management of Bone Health in Rett Syndrome",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4743907/",
+      "doi": "10.1371/journal.pone.0146824",
+      "pmid": "26849438",
+      "type": "expert_consensus",
+      "year": 2016,
+      "evidence_level": "إرشاد إجماعي لصحة العظام",
+      "supports": ["الكسور", "كثافة العظام", "التغذية", "الحركة"]
+    },
+    {
+      "id": "downs-2009",
+      "title": "Guidelines for management of scoliosis in Rett syndrome",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/19644320/",
+      "doi": "10.1097/BRS.0b013e3181a95ca4",
+      "pmid": "19644320",
+      "type": "practice_guideline",
+      "year": 2009,
+      "evidence_level": "إرشاد إجماعي للجنف",
+      "supports": ["الجنف", "المراقبة", "الجراحة", "الحركة"]
+    },
+    {
+      "id": "neul-2023",
+      "title": "Trofinetide for the treatment of Rett syndrome: a randomized phase 3 study",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10287558/",
+      "doi": "10.1038/s41591-023-02398-1",
+      "pmid": "37291210",
+      "type": "randomized_controlled_trial",
+      "year": 2023,
+      "evidence_level": "تجربة عشوائية محكمة من المرحلة الثالثة",
+      "supports": ["تروفينيتايد", "الفعالية", "السلامة", "حدود الدليل"]
+    },
+    {
+      "id": "fda-2023",
+      "title": "FDA approves first treatment for Rett syndrome",
+      "url": "https://www.fda.gov/drugs/news-events-human-drugs/fda-approves-first-treatment-rett-syndrome",
+      "type": "regulatory",
+      "year": 2023,
+      "evidence_level": "قرار تنظيمي رسمي",
+      "supports": ["الاعتماد", "العمر المعتمد", "الآثار الجانبية الشائعة"]
+    },
+    {
+      "id": "dailymed-2026",
+      "title": "DAYBUE / DAYBUE STIX — Official drug label",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=67e6f2d9-21f6-466f-9def-826c6a4b8257",
+      "type": "regulatory_label",
+      "year": 2026,
+      "evidence_level": "نشرة دوائية رسمية محدثة",
+      "supports": ["الاستطباب", "التحذيرات", "السلامة", "المتابعة"]
+    }
+  ],
+  "claim_register": [
+    {
+      "claim": "التشخيص سريري وتدعمه الفحوص الجينية",
+      "source_ids": ["neul-2010", "genereviews-2025"],
+      "strength": "high"
+    },
+    {
+      "claim": "الرعاية تحتاج متابعة متعددة التخصصات عبر العمر",
+      "source_ids": ["fu-2020", "genereviews-2025"],
+      "strength": "consensus"
+    },
+    {
+      "claim": "AAC وتدريب الشركاء حقان مركزيان في التواصل",
+      "source_ids": ["townend-2020"],
+      "strength": "consensus"
+    },
+    {
+      "claim": "صحة العظام والجنف تحتاجان مراقبة فردية منظمة",
+      "source_ids": ["jefferson-2016", "downs-2009"],
+      "strength": "consensus"
+    },
+    {
+      "claim": "تروفينيتايد معتمد أمريكيًا لعمر سنتين فأكثر وليس علاجًا شافيًا",
+      "source_ids": ["fda-2023", "dailymed-2026", "neul-2023"],
+      "strength": "regulatory_and_trial"
+    }
+  ],
+  "safety_flags": [
+    "لا جرعات أو تعديل دواء",
+    "لا تشخيص ذاتي",
+    "لا ادعاء شفاء",
+    "التوافر التنظيمي يختلف حسب الدولة",
+    "الطوارئ تتبع الخدمات المحلية والخطة الفردية"
+  ]
+}
