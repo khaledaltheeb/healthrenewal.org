@@ -1,0 +1,62 @@
+name: Verify live special-needs publication v1
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/verify-live-special-needs-publication-v1.yml"
+      - "scripts/verify_live_special_needs_publication_v1.py"
+      - "tests/test_verify_live_special_needs_publication_v1.py"
+  workflow_run:
+    workflows: ["Deploy complete generated site"]
+    types: [completed]
+  schedule:
+    - cron: "47 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-special-needs-publication-proof
+  cancel-in-progress: true
+
+jobs:
+  validate-contract:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and test the live verifier
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/verify_live_special_needs_publication_v1.py
+          python -m unittest tests.test_verify_live_special_needs_publication_v1
+
+  verify-live:
+    if: >-
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify every published special-needs route
+        run: |
+          set -euo pipefail
+          python scripts/verify_live_special_needs_publication_v1.py \
+            --base-url https://healthrenewal.org \
+            --timeout 25 \
+            --retries 3 \
+            --workers 10
