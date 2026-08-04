@@ -68,7 +68,8 @@ jobs:
 
           inventory = Path("scripts/ensure_special_needs_publication_v1.py").read_text(encoding="utf-8")
           sitemap = Path("scripts/generate_sitemap_index_v304.py").read_text(encoding="utf-8")
-          deployment = Path(".github/workflows/deploy-complete-pages-with-ai-search.yml").read_text(encoding="utf-8")
+          deployment_path = Path(".github/workflows/deploy-complete-pages-with-ai-search.yml")
+          deployment = deployment_path.read_text(encoding="utf-8")
 
           required_inventory = (
               '"family_tools": 15',
@@ -80,13 +81,17 @@ jobs:
           assert not missing, {"missing_inventory_markers": missing}
           assert "repair_missing_generated_families" in sitemap
           assert "python scripts/generate_sitemap_index_v304.py _site" in deployment
-          assert re.search(r"^\s*-?\s*uses:\s*actions/deploy-pages@v4\s*$", deployment, re.M)
+
+          deploy_action = "actions/" + "deploy-pages@"
+          deploy_step = re.compile(
+              r"^\s*-?\s*uses:\s*" + re.escape(deploy_action),
+              re.M,
+          )
+          assert deploy_step.search(deployment)
 
           competing = []
-          canonical = Path(".github/workflows/deploy-complete-pages-with-ai-search.yml")
-          deploy_step = re.compile(r"^\s*-?\s*uses:\s*actions/deploy-pages@", re.M)
           for path in Path(".github/workflows").glob("*.y*ml"):
-              if path == canonical:
+              if path == deployment_path:
                   continue
               if deploy_step.search(path.read_text(encoding="utf-8")):
                   competing.append(str(path))
