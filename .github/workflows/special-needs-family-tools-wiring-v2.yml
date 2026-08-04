@@ -63,6 +63,7 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
+          import re
           from pathlib import Path
 
           inventory = Path("scripts/ensure_special_needs_publication_v1.py").read_text(encoding="utf-8")
@@ -79,14 +80,15 @@ jobs:
           assert not missing, {"missing_inventory_markers": missing}
           assert "repair_missing_generated_families" in sitemap
           assert "python scripts/generate_sitemap_index_v304.py _site" in deployment
-          assert "actions/deploy-pages@v4" in deployment
+          assert re.search(r"^\s*-?\s*uses:\s*actions/deploy-pages@v4\s*$", deployment, re.M)
 
           competing = []
           canonical = Path(".github/workflows/deploy-complete-pages-with-ai-search.yml")
+          deploy_step = re.compile(r"^\s*-?\s*uses:\s*actions/deploy-pages@", re.M)
           for path in Path(".github/workflows").glob("*.y*ml"):
               if path == canonical:
                   continue
-              if "actions/deploy-pages@" in path.read_text(encoding="utf-8"):
+              if deploy_step.search(path.read_text(encoding="utf-8")):
                   competing.append(str(path))
           assert not competing, {"competing_pages_publishers": competing}
           print({
