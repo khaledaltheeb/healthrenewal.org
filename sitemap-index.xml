@@ -1,12 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>https://healthrenewal.org/sitemap.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://healthrenewal.org/sitemap-rett-syndrome.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://healthrenewal.org/sitemap-fragile-x-syndrome.xml</loc>
-  </sitemap>
+  <sitemap><loc>https://healthrenewal.org/sitemap.xml</loc></sitemap>
+  <sitemap><loc>https://healthrenewal.org/sitemap-rett-syndrome.xml</loc></sitemap>
+  <sitemap><loc>https://healthrenewal.org/sitemap-fragile-x-syndrome.xml</loc></sitemap>
+  <sitemap><loc>https://healthrenewal.org/sitemap-cerebral-palsy.xml</loc></sitemap>
 </sitemapindex>
