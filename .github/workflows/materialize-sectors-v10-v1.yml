@@ -1,0 +1,115 @@
+name: Materialize reviewed sectors v10 content
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/sectors-v10/**"
+      - "scripts/materialize_sectors_v10_v1.py"
+      - "tests/test_materialize_sectors_v10_v1.py"
+      - ".github/workflows/materialize-sectors-v10-v1.yml"
+  push:
+    branches: [main]
+    paths:
+      - "content/sectors-v10/**"
+      - "scripts/materialize_sectors_v10_v1.py"
+      - "tests/test_materialize_sectors_v10_v1.py"
+      - ".github/workflows/materialize-sectors-v10-v1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: materialize-sectors-v10-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main' }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile publisher and run tests
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/materialize_sectors_v10_v1.py tests/test_materialize_sectors_v10_v1.py
+          python -m unittest -v tests/test_materialize_sectors_v10_v1.py
+
+      - name: Materialize reviewed public pages
+        run: |
+          set -euo pipefail
+          python scripts/materialize_sectors_v10_v1.py .
+          python scripts/materialize_sectors_v10_v1.py . --check
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path("api/sectors-v10-publication-v1.json").read_text(encoding="utf-8"))
+          assert report["status"] == "passed", report
+          assert report["pageCount"] >= 20, report
+          assert report["hubCount"] == 1, report
+          assert report["pageCount"] == len(report["routes"]), report
+          assert report["qualityGates"]["minimumPages"] is True, report
+          assert report["qualityGates"]["allRoutesUnique"] is True, report
+          assert report["qualityGates"]["manualReviewSourcesExcluded"] is True, report
+          assert report["qualityGates"]["legacySourcesNotDuplicated"] is True, report
+
+          pages = list(Path("evidence-guides").glob("*/index.html"))
+          assert len(pages) == report["pageCount"], (len(pages), report["pageCount"])
+          for path in pages:
+              text = path.read_text(encoding="utf-8")
+              assert text.count("<h1") == 1, path
+              assert 'data-publication="sectors-v10-v1"' in text, path
+              assert '<link rel="canonical"' in text, path
+              assert "منصة روافد" in text, path
+              assert "<script>alert(" not in text, path
+          print({
+              "pages": report["pageCount"],
+              "articles": report["articleCount"],
+              "references": report["sourceReferenceCount"],
+              "quality_rejected": report["qualityRejectedCount"],
+              "skipped": len(report["skipped"]),
+          })
+          PY
+
+      - name: Commit generated source pages
+        if: github.event_name != 'pull_request'
+        id: commit
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add evidence-guides api/sectors-v10-publication-v1.json
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No materialization changes."
+          else
+            git commit -m "content: materialize reviewed sectors-v10 evidence guides"
+            git push origin HEAD:main
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Dispatch the single complete Pages publisher
+        if: github.event_name != 'pull_request' && steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-complete-pages-with-ai-search.yml/dispatches" \
+            -d '{"ref":"main"}'
