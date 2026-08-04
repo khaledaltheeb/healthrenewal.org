@@ -149,11 +149,12 @@ def main() -> None:
         "version": 221,
         "status": "passed",
         "brand": "منصة روافد",
-        "routes": routes,
+        "calendarsSectorPublished": True,
+        "womenDailyCalendarPublished": True,
+        "publishedCalendarFileCount": sum(routes.values()),
         "womenDailyCheckpoints": 3,
         "womenWeeklyInsight": True,
         "menstruationTerminology": "الحيض",
-        "sitemaps": ["sitemap-calendars.xml", "sitemap-women-calendar.xml"],
     }, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
