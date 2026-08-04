@@ -56,7 +56,9 @@ for slug in expected:
 
 index=(root/'family-guide/index.html').read_text(encoding='utf-8')
 readme=(root/'family-guide/README.md').read_text(encoding='utf-8')
-assert '64 دليلًا' in index
+# The public wording was tightened for search clarity while preserving the
+# governed inventory: 56 core guides + 8 phase-eight guides = 64 case guides.
+assert '64 دليل حالة' in index
 assert 'numberOfItems":64' in index
 assert 'family-guide-phase8-data.js?v=1.7.0' in index
 assert 'meta name="keywords"' not in index
