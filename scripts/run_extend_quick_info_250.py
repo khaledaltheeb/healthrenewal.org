@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 """Run the 250-page generator with reviewed compatibility corrections."""
 
-import shutil
-
 import extend_quick_info_250 as edition
 
 OLD_SLUG = "prepare-first-therapy-session"
-NEW_SLUG = "review-therapy-plan-after-first-sessions"
-NEW_TITLE = "كيف تراجع خطة العلاج النفسي بعد الجلسات الأولى؟"
-STALE_SLUGS = {"prepare-therapy-intake-session"}
+NEW_SLUG = "prepare-therapy-intake-session"
+NEW_TITLE = "كيف تستعد لجلسة التعارف والتقييم الأولي مع المعالج النفسي؟"
 DOMAIN_ALIASES = {
     "teen": "child",
 }
@@ -24,14 +21,14 @@ def main() -> None:
     topic["title"] = NEW_TITLE
     edition.DETAILS.pop(OLD_SLUG)
     edition.DETAILS[NEW_SLUG] = {
-        "summary": "مراجعة الخطة بعد الجلسات الأولى تساعدك على فهم الأهداف وطريقة العمل ومؤشرات التقدم، وتتيح تعديل ما لا يناسبك بدل الاستمرار بصمت.",
-        "key": "اسأل: ما الهدف الحالي، كيف سنعرف أن هناك تقدمًا، ومتى نعيد تقييم الطريقة أو الإحالة؟",
+        "summary": "جلسة التقييم الأولي تجمع التاريخ الصحي والنفسي والأدوية والأعراض الحالية وعوامل الأمان، وقد تختلف عن بدء العلاج المنتظم أو الاتفاق على خطة طويلة.",
+        "key": "جهّز تسلسلًا زمنيًا مختصرًا: متى بدأ التغير، ما أثره الآن، وما الأدوية أو الظروف الصحية والمخاطر التي يجب معرفتها؟",
         "items": [
-            "هل أصبحت أهداف العلاج أوضح؟",
-            "هل تفهم ما يحدث داخل الجلسات ولماذا؟",
-            "هل توجد طريقة لمتابعة التقدم أو التعطل؟",
-            "هل تستطيع مناقشة عدم الارتياح أو الخلاف؟",
-            "هل تحتاج الخطة إلى تعديل أو تقييم إضافي؟",
+            "توقيت بداية الأعراض والتغيرات المهمة",
+            "الأدوية والمكملات والحالات الصحية الحالية",
+            "أثر المشكلة في النوم والعمل والعلاقات",
+            "العلاجات السابقة وما ساعد أو لم يساعد",
+            "أي مخاطر حالية أو أفكار إيذاء أو استخدام مواد",
         ],
     }
 
@@ -43,14 +40,6 @@ def main() -> None:
             remapped += 1
     if remapped != 2:
         raise SystemExit(f"Expected two teen-domain topics, remapped {remapped}")
-
-    for stale_slug in STALE_SLUGS:
-        stale_page = edition.base.ROOT / "quick-info" / stale_slug
-        stale_image = edition.base.ROOT / "assets/quick-info/cards" / f"{stale_slug}.png"
-        if stale_page.exists():
-            shutil.rmtree(stale_page)
-        if stale_image.exists():
-            stale_image.unlink()
 
     edition.main()
 
