@@ -15,6 +15,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -44,7 +45,7 @@ jobs:
       github.event_name == 'schedule' ||
       github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - name: Checkout verifier source
         uses: actions/checkout@v4
@@ -53,6 +54,65 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Wait for the matching canonical Pages deployment
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          ready=0
+          for attempt in $(seq 1 180); do
+            gh api \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-complete-pages-with-ai-search.yml/runs?branch=main&event=push&per_page=30" \
+              > /tmp/pages-runs.json
+            set +e
+            python - <<'PY'
+          import json
+          import os
+
+          payload = json.load(open("/tmp/pages-runs.json", encoding="utf-8"))
+          candidates = [
+              run for run in payload.get("workflow_runs", [])
+              if run.get("head_sha") == os.environ["BASE_SHA"]
+          ]
+          if not candidates:
+              print({"base_sha": os.environ["BASE_SHA"], "deployment_run": "not-found"})
+              raise SystemExit(2)
+          run = max(candidates, key=lambda value: value.get("created_at", ""))
+          summary = {
+              key: run.get(key)
+              for key in (
+                  "id",
+                  "event",
+                  "status",
+                  "conclusion",
+                  "head_sha",
+                  "created_at",
+                  "run_started_at",
+                  "updated_at",
+                  "html_url",
+              )
+          }
+          print(summary)
+          if run.get("status") != "completed":
+              raise SystemExit(2)
+          if run.get("conclusion") != "success":
+              raise SystemExit(1)
+          PY
+            code=$?
+            set -e
+            if [ "$code" = 0 ]; then
+              ready=1
+              break
+            fi
+            if [ "$code" = 1 ]; then
+              echo "The matching canonical Pages deployment failed."
+              exit 1
+            fi
+            sleep 5
+          done
+          test "$ready" = 1
       - name: Verify every published special-needs route
         run: |
           set -euo pipefail
