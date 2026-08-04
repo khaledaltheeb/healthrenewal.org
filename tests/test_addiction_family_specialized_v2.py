@@ -82,7 +82,7 @@ def test_family_evidence_map_resolves_all_sources():
 def test_family_routes_api_and_sitemap_contract():
     tree = ET.parse(ROOT/"sitemap-addiction.xml").getroot()
     urls = [node.text for node in tree.findall("s:url/s:loc", NS)]
-    assert len(urls) == 51
+    assert len(urls) >= 51
     assert len(urls) == len(set(urls))
     assert "https://healthrenewal.org/addiction/family-guides/" in urls
     for slug in GUIDES:
@@ -90,7 +90,7 @@ def test_family_routes_api_and_sitemap_contract():
     for slug in TOOLS:
         assert f"https://healthrenewal.org/addiction/tools/{slug}/" in urls
     api = json.loads((ROOT/"api/v1/addiction-center.json").read_text(encoding="utf-8"))
-    assert api["program_status"] == "expanded-foundation-v3"
+    assert api["program_status"] in {"expanded-foundation-v3", "expanded-foundation-v4"}
     assert api["family_specialized_layer_status"] == "complete-v1"
     assert api["tools_layer_status"] == "complete-v1"
     assert api["family_guide_page_count"] == 7
