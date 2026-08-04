@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: live-special-needs-publication-proof
+  group: live-special-needs-publication-proof-${{ github.event_name }}-${{ github.event.pull_request.number || 'production' }}
   cancel-in-progress: true
 
 jobs:
@@ -39,16 +39,17 @@ jobs:
 
   verify-live:
     if: >-
+      github.event_name == 'pull_request' ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
       github.event_name == 'schedule' ||
       github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Checkout current main
+      - name: Checkout verifier source
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main' }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
