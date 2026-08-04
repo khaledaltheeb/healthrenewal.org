@@ -13,8 +13,6 @@ if str(SCRIPT_DIR) not in sys.path:
 
 import materialize_sectors_v10_v1 as base
 
-VERSION = 2
-
 # Keep the user's prohibited wording out of public content while preserving
 # exact legal/institutional names such as the UN Convention on the Rights of
 # Persons with Disabilities. Rewriting official titles would reduce accuracy.
@@ -45,7 +43,9 @@ def _normalized_sources(payload: dict[str, Any]) -> list[dict[str, Any]]:
             continue
         record = dict(source)
         record["name"] = _source_name(source)
-        record["url"] = str(source.get("url") or source.get("href") or source.get("link") or "").strip()
+        record["url"] = str(
+            source.get("url") or source.get("href") or source.get("link") or ""
+        ).strip()
         normalized.append(record)
     return normalized
 
@@ -72,7 +72,9 @@ def _stringify_item(value: Any) -> str:
     return str(value).strip()
 
 
-def _first_substantive_list(article: dict[str, Any], keys: tuple[str, ...]) -> list[str]:
+def _first_substantive_list(
+    article: dict[str, Any], keys: tuple[str, ...]
+) -> list[str]:
     for key in keys:
         values = article.get(key)
         if not isinstance(values, list):
@@ -88,7 +90,9 @@ def _normalize_article(article: dict[str, Any]) -> dict[str, Any]:
     normalized = dict(article)
     title = str(article.get("title") or "هذا المحور").strip()
 
-    if not isinstance(normalized.get("signals"), list) or len(normalized.get("signals") or []) < 3:
+    if not isinstance(normalized.get("signals"), list) or len(
+        normalized.get("signals") or []
+    ) < 3:
         signals = _first_substantive_list(
             article,
             (
@@ -106,7 +110,9 @@ def _normalize_article(article: dict[str, Any]) -> dict[str, Any]:
         if len(signals) >= 3:
             normalized["signals"] = signals
 
-    if not isinstance(normalized.get("phrases"), list) or len(normalized.get("phrases") or []) < 2:
+    if not isinstance(normalized.get("phrases"), list) or len(
+        normalized.get("phrases") or []
+    ) < 2:
         normalized["phrases"] = [
             f"لن نحسم «{title}» من علامة واحدة؛ سنراجع السياق والتاريخ والأثر الوظيفي.",
             "سنبدأ بالسلامة والاحتياج العملي، ثم نحدد إن كان التقييم المتخصص مطلوبًا.",
@@ -134,31 +140,15 @@ base.validate_source = validate_source
 
 
 def write_publication(repo_root: Path, *, check: bool = False) -> dict[str, Any]:
-    report = base.write_publication(repo_root, check=check)
-    report["compatibilityVersion"] = VERSION
-    report["referenceSchemasSupported"] = [
-        "name+url",
-        "publisher+title+url",
-        "title+url",
-        "name+href",
-    ]
-    report["officialLegalNamesPreserved"] = True
-
-    # In write mode, persist the compatibility metadata in the public report.
-    # In check mode, base has already compared deterministic output and this
-    # metadata is validated separately by CI to avoid mutating the checkout.
-    if not check:
-        report_path = repo_root / base.REPORT_PATH
-        report_path.write_text(
-            json.dumps(report, ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
-    return report
+    return base.write_publication(repo_root, check=check)
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Materialize reviewed sectors-v10 sources with structured-reference compatibility."
+        description=(
+            "Materialize reviewed sectors-v10 sources with structured-reference "
+            "compatibility."
+        )
     )
     parser.add_argument("repo_root", nargs="?", type=Path, default=Path("."))
     parser.add_argument("--check", action="store_true")
