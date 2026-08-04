@@ -1,0 +1,15 @@
+{
+  "name": "تقويم الطلاب التفاعلي | Health Renewal",
+  "short_name": "تقويم الطلاب",
+  "description": "خطط دراسة يومية وأسبوعية، مهام واختبارات، مراجعة متباعدة، جلسات تركيز وتذكيرات مع حفظ محلي.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fc",
+  "theme_color": "#294f9c",
+  "icons": [
+    {"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ]
+}
