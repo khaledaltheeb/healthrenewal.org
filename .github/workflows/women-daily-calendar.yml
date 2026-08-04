@@ -9,6 +9,8 @@ on:
       - "api/women-daily-calendar-v1.json"
       - "scripts/apply_homepage_v20.py"
       - "scripts/apply_homepage_v20_core.py"
+      - "scripts/publish_calendars_v221.py"
+      - "scripts/integrate_calendar_publisher_once.py"
       - "tests/test_women_daily_calendar.py"
       - "sitemap-women-calendar.xml"
       - "sitemap-calendars.xml"
@@ -24,6 +26,8 @@ on:
       - "api/women-daily-calendar-v1.json"
       - "scripts/apply_homepage_v20.py"
       - "scripts/apply_homepage_v20_core.py"
+      - "scripts/publish_calendars_v221.py"
+      - "scripts/integrate_calendar_publisher_once.py"
       - "tests/test_women_daily_calendar.py"
       - "sitemap-women-calendar.xml"
       - "sitemap-calendars.xml"
@@ -50,7 +54,7 @@ jobs:
           node --check sectors/women/daily-calendar/calendar-core.js
           node --check sectors/women/daily-calendar/calendar-enhancements.js
           node --check sectors/women/daily-calendar/service-worker.js
-          python -m py_compile scripts/apply_homepage_v20.py scripts/apply_homepage_v20_core.py tests/test_women_daily_calendar.py
+          python -m py_compile scripts/apply_homepage_v20.py scripts/apply_homepage_v20_core.py scripts/publish_calendars_v221.py tests/test_women_daily_calendar.py
       - name: Validate JSON manifests
         run: |
           python - <<'PY'
@@ -76,3 +80,45 @@ jobs:
               test()
               print(f"PASS {test.__name__}")
           PY
+
+  integrate-publisher:
+    if: github.event_name == 'pull_request' && github.head_ref == 'agent/women-calendar-publish-v3'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/women-calendar-publish-v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Integrate publisher while preserving legacy contracts
+        run: python scripts/integrate_calendar_publisher_once.py
+      - name: Validate integrated publisher and calendars
+        run: |
+          node --check sectors/women/daily-calendar/calendar.js
+          node --check sectors/women/daily-calendar/calendar-core.js
+          node --check sectors/women/daily-calendar/calendar-enhancements.js
+          python -m py_compile scripts/apply_homepage_v20.py scripts/publish_calendars_v221.py tests/test_women_daily_calendar.py tests/test_student_daily_calendar.py
+          python -m unittest tests.test_health_publication_gate_v192
+          python - <<'PY'
+          import runpy
+          for path in ('tests/test_women_daily_calendar.py', 'tests/test_student_daily_calendar.py'):
+              namespace = runpy.run_path(path)
+              for name, test in sorted(namespace.items()):
+                  if name.startswith('test_') and callable(test):
+                      test()
+                      print(f'PASS {path}: {name}')
+          PY
+      - name: Commit integrated publisher
+        run: |
+          git config user.name "rawafid-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "fix(calendars): preserve publisher safety contracts"
+          git push origin HEAD:agent/women-calendar-publish-v3
