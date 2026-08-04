@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>https://healthrenewal.org/sitemap.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://healthrenewal.org/sitemap-addiction.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://healthrenewal.org/sitemap-iris.xml</loc>
-  </sitemap>
-<sitemap><loc>https://healthrenewal.org/sitemap-quick-info.xml</loc></sitemap></sitemapindex>
+  <sitemap><loc>https://healthrenewal.org/sitemap.xml</loc></sitemap>
+  <sitemap><loc>https://healthrenewal.org/sitemap-addiction.xml</loc></sitemap>
+  <sitemap><loc>https://healthrenewal.org/sitemap-iris.xml</loc></sitemap>
+  <sitemap><loc>https://healthrenewal.org/sitemap-quick-info.xml</loc></sitemap>
+  <sitemap><loc>https://healthrenewal.org/sitemap-verified-resources.xml</loc></sitemap>
+</sitemapindex>
