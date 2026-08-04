@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Enhance the published Quick Information section without changing its content.
+"""Enhance the 200-page Quick Information section for Discover measurement.
 
-Preserves all 150 slugs, titles, bodies, canonical URLs and images. Adds the
-site's existing Analytics tag, richer social/article metadata, prioritized cover
+Preserves every slug, title, body, canonical URL and image. Adds the site's
+existing Analytics tag, richer social/article metadata, prioritized cover
 loading, and a deterministic RSS feed generated from the section API.
 """
 from __future__ import annotations
@@ -19,8 +19,9 @@ API_PATH = ROOT / "api" / "v1" / "quick-info.json"
 REPORT_PATH = ROOT / "reports" / "quick-info-discover-observability.json"
 BASE = "https://healthrenewal.org"
 GA_ID = "G-VLZMV8Y4JP"
-PUBLISHED_ISO = "2026-08-04T09:00:00+03:00"
-PUBLISHED_RFC822 = "Tue, 04 Aug 2026 09:00:00 +0300"
+EXPECTED_COUNT = 200
+PUBLISHED_ISO = "2026-08-04T09:08:00+03:00"
+PUBLISHED_RFC822 = "Tue, 04 Aug 2026 09:08:00 +0300"
 
 GA_SNIPPET = f"""<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
@@ -35,10 +36,14 @@ GA_SNIPPET = f"""<!-- Google tag (gtag.js) -->
 def load_payload() -> dict:
     payload = json.loads(API_PATH.read_text(encoding="utf-8"))
     items = payload.get("items", [])
-    if payload.get("count") != 150 or len(items) != 150:
-        raise ValueError(f"Expected 150 Quick Information entries, found {len(items)}")
-    if len({item["slug"] for item in items}) != 150:
+    if payload.get("count") != EXPECTED_COUNT or len(items) != EXPECTED_COUNT:
+        raise ValueError(
+            f"Expected {EXPECTED_COUNT} Quick Information entries, found {len(items)}"
+        )
+    if len({item["slug"] for item in items}) != EXPECTED_COUNT:
         raise ValueError("Quick Information slugs are not unique")
+    if len({item["title"] for item in items}) != EXPECTED_COUNT:
+        raise ValueError("Quick Information titles are not unique")
     return payload
 
 
@@ -95,7 +100,10 @@ def enhance_article(path: Path, item: dict) -> None:
 def enhance_index() -> None:
     path = SECTION / "index.html"
     text = add_analytics(path.read_text(encoding="utf-8"))
-    feed_link = f'<link rel="alternate" type="application/rss+xml" title="معلومات سريعة" href="{BASE}/quick-info/feed.xml">'
+    feed_link = (
+        f'<link rel="alternate" type="application/rss+xml" '
+        f'title="معلومات سريعة" href="{BASE}/quick-info/feed.xml">'
+    )
     if feed_link not in text:
         text = text.replace("</head>", feed_link + "</head>", 1)
     path.write_text(text, encoding="utf-8")
@@ -117,7 +125,7 @@ def build_feed(items: list[dict]) -> str:
     return (
         '<?xml version="1.0" encoding="UTF-8"?>'
         '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel>'
-        '<title>معلومات سريعة | منصة الصحة النفسية</title>'
+        '<title>معلومات سريعة | منصة روافد</title>'
         f'<link>{BASE}/quick-info/</link>'
         '<description>مقارنات وفحوص تثقيفية وأدلة عملية قصيرة في الصحة النفسية والعلاقات والنوم والأسرة.</description>'
         '<language>ar</language>'
@@ -133,13 +141,17 @@ def validate(items: list[dict]) -> dict:
     article_metadata_pages = 0
     prioritized_images = 0
 
-    all_pages = [SECTION / "index.html"] + [SECTION / item["slug"] / "index.html" for item in items]
+    all_pages = [SECTION / "index.html"] + [
+        SECTION / item["slug"] / "index.html" for item in items
+    ]
     for page in all_pages:
         text = page.read_text(encoding="utf-8")
         if text.count(GA_ID) == 2:
             analytics_pages += 1
         else:
-            failures.append(f"{page.relative_to(ROOT)}: Analytics count is {text.count(GA_ID)}")
+            failures.append(
+                f"{page.relative_to(ROOT)}: Analytics count is {text.count(GA_ID)}"
+            )
 
     for item in items:
         page = SECTION / item["slug"] / "index.html"
@@ -156,15 +168,26 @@ def validate(items: list[dict]) -> dict:
         if all(token in text for token in metadata):
             article_metadata_pages += 1
         else:
-            failures.append(f"{page.relative_to(ROOT)}: article/social metadata incomplete")
+            failures.append(
+                f"{page.relative_to(ROOT)}: article/social metadata incomplete"
+            )
         cover = re.search(r'<img class="cover"\s+([^>]+)>', text)
-        if cover and 'fetchpriority="high"' in cover.group(1) and 'decoding="async"' in cover.group(1):
+        if (
+            cover
+            and 'fetchpriority="high"' in cover.group(1)
+            and 'decoding="async"' in cover.group(1)
+        ):
             prioritized_images += 1
         else:
-            failures.append(f"{page.relative_to(ROOT)}: cover priority attributes missing")
+            failures.append(
+                f"{page.relative_to(ROOT)}: cover priority attributes missing"
+            )
 
         expected_canonical = f'<link rel="canonical" href="{item["url"]}">'
-        expected_title = f'<meta property="og:title" content="{html.escape(item["title"], quote=True)}">'
+        expected_title = (
+            f'<meta property="og:title" '
+            f'content="{html.escape(item["title"], quote=True)}">'
+        )
         if expected_canonical not in text:
             failures.append(f"{page.relative_to(ROOT)}: canonical changed")
         if expected_title not in text:
@@ -174,20 +197,28 @@ def validate(items: list[dict]) -> dict:
     feed_items = 0
     if feed_path.exists():
         feed_items = feed_path.read_text(encoding="utf-8").count("<item>")
-    if feed_items != 150:
-        failures.append(f"quick-info/feed.xml: expected 150 items, found {feed_items}")
-    if "/quick-info/feed.xml" not in (SECTION / "index.html").read_text(encoding="utf-8"):
+    if feed_items != EXPECTED_COUNT:
+        failures.append(
+            f"quick-info/feed.xml: expected {EXPECTED_COUNT} items, found {feed_items}"
+        )
+    if "/quick-info/feed.xml" not in (
+        SECTION / "index.html"
+    ).read_text(encoding="utf-8"):
         failures.append("quick-info/index.html: RSS discovery link missing")
 
     report = {
         "generatedAt": PUBLISHED_ISO,
-        "pages": 150,
+        "pages": EXPECTED_COUNT,
         "analyticsPages": analytics_pages,
         "articleMetadataPages": article_metadata_pages,
         "prioritizedCoverImages": prioritized_images,
         "rssItems": feed_items,
-        "canonicalUrlsPreserved": not any("canonical changed" in item for item in failures),
-        "titlesPreserved": not any("published title changed" in item for item in failures),
+        "canonicalUrlsPreserved": not any(
+            "canonical changed" in item for item in failures
+        ),
+        "titlesPreserved": not any(
+            "published title changed" in item for item in failures
+        ),
         "failures": failures,
     }
     if failures:
@@ -204,10 +235,14 @@ def main() -> None:
             raise FileNotFoundError(page)
         enhance_article(page, item)
     enhance_index()
-    (SECTION / "feed.xml").write_text(build_feed(items), encoding="utf-8")
+    (SECTION / "feed.xml").write_text(
+        build_feed(items), encoding="utf-8"
+    )
     report = validate(items)
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    REPORT_PATH.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 
