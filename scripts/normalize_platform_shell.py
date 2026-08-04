@@ -172,8 +172,11 @@ def normalize_body(source: str, path: Path, root: Path) -> tuple[str, bool]:
 def canonical_head_injection(path: Path, root: Path, head: str) -> str:
     prefix = relative_prefix(path, root)
     lowered = head.lower()
-    items = [MARKER]
+    items: list[str] = []
 
+    # Rights metadata comes before the shell marker. Pages that receive these
+    # tags for the first time therefore have the same ordering on every later
+    # pass; their existing editorial metadata remains untouched.
     if 'name="copyright"' not in lowered and "name='copyright'" not in lowered:
         items.append('<meta name="copyright" content="© 2026 Khaled Altheeb — منصة روافد">')
     if 'name="rights"' not in lowered and "name='rights'" not in lowered:
@@ -181,6 +184,7 @@ def canonical_head_injection(path: Path, root: Path, head: str) -> str:
     if 'rel="license"' not in lowered and "rel='license'" not in lowered:
         items.append(f'<link rel="license" href="{prefix}copyright/">')
 
+    items.append(MARKER)
     items.append(
         f'<link rel="stylesheet" href="{prefix}assets/platform/platform-core.css?v={SHELL_VERSION}">'
     )
