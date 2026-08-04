@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-08-04T20:22:59.291027+00:00",
+  "generated_at": "2026-08-04T20:51:14.513092+00:00",
   "mode": "write",
   "root": "/home/runner/work/healthrenewal.org/healthrenewal.org",
   "runtime": {
@@ -11,12 +11,12 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 801,
-  "html_pages_normalized_or_current": 800,
+  "html_pages_seen": 807,
+  "html_pages_normalized_or_current": 806,
   "counts": {
-    "current": 793,
+    "current": 800,
     "skipped": 1,
-    "updated": 7
+    "updated": 6
   },
   "results": [
     {
@@ -3600,39 +3600,69 @@
       "detail": ""
     },
     {
-      "path": "special-needs/conditions/fragile-x-syndrome/behavior-intervention/index.html",
+      "path": "special-needs/conditions/cerebral-palsy/communication-education/index.html",
       "status": "updated",
       "detail": "updated stable platform shell"
+    },
+    {
+      "path": "special-needs/conditions/cerebral-palsy/detection-diagnosis/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "special-needs/conditions/cerebral-palsy/family-adulthood/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "special-needs/conditions/cerebral-palsy/health-lifespan/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "special-needs/conditions/cerebral-palsy/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "special-needs/conditions/cerebral-palsy/movement-rehabilitation/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "special-needs/conditions/fragile-x-syndrome/behavior-intervention/index.html",
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/fragile-x-syndrome/communication-education/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/fragile-x-syndrome/family-safety-transition/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/fragile-x-syndrome/genetics-diagnosis/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/fragile-x-syndrome/health-lifespan/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/fragile-x-syndrome/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/prader-willi-syndrome/index.html",
