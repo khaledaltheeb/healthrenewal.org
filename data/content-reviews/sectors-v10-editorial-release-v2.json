@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-08-04",
+  "reviewType": "internal-editorial-and-source-structure-review",
+  "clinicalReviewClaimed": false,
+  "scope": "Eligibility for public educational publication in the Rawafid evidence-guides library. This decision does not represent independent clinical peer review or individualized medical approval.",
+  "checks": [
+    "Arabic title, subtitle and summaries are complete and readable",
+    "Every article contains practical steps, observable signals, suggested phrases and an avoidance note",
+    "References use HTTPS and point to recognized institutional or professional sources",
+    "The content distinguishes education and support from diagnosis and individualized treatment",
+    "Safety, privacy, autonomy and escalation boundaries are stated where relevant",
+    "No prohibited wording using the Arabic word معاقين is present"
+  ],
+  "releasedSources": [
+    {
+      "path": "content/sectors-v10/aac-home-school-guide.json",
+      "decision": "publish-educational-content",
+      "reason": "Complete AAC home-school implementation, communication-rights, privacy and safeguarding guidance with ASHA, WHO and UNICEF references."
+    },
+    {
+      "path": "content/sectors-v10/inclusive-school-transition.json",
+      "decision": "publish-educational-content",
+      "reason": "Complete inclusive school-transition planning, communication, safety, participation and review guidance with UNICEF and WHO references."
+    },
+    {
+      "path": "content/sectors-v10/mental-health-foundations.json",
+      "decision": "publish-educational-content",
+      "reason": "Complete foundational mental-health literacy, help-seeking and information-quality guidance with WHO references and explicit non-diagnostic boundaries."
+    }
+  ],
+  "limitations": [
+    "External specialist or clinical peer review has not been claimed.",
+    "Public pages must retain the educational disclaimer and urgent-risk escalation language.",
+    "Source links and reviewed_at dates remain subject to continuing maintenance."
+  ]
+}
