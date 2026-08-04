@@ -1,0 +1,37 @@
+name: Validate Fragile X guide
+
+on:
+  pull_request:
+    paths:
+      - 'special-needs/conditions/fragile-x-syndrome/**'
+      - 'special-needs/conditions/index.html'
+      - 'sitemap-fragile-x-syndrome.xml'
+      - 'sitemap-index.xml'
+      - 'tests/test_fragile_x_publication_contract.py'
+      - '.github/workflows/validate-fragile-x-guide.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'special-needs/conditions/fragile-x-syndrome/**'
+      - 'special-needs/conditions/index.html'
+      - 'sitemap-fragile-x-syndrome.xml'
+      - 'sitemap-index.xml'
+      - 'tests/test_fragile_x_publication_contract.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publication-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test runner
+        run: python -m pip install --disable-pip-version-check pytest
+      - name: Validate comprehensive multi-page guide
+        run: python -m pytest -q tests/test_fragile_x_publication_contract.py
