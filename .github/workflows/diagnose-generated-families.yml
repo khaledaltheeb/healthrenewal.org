@@ -1,0 +1,161 @@
+name: Diagnose generated route families
+
+on:
+  push:
+    branches:
+      - diagnostics/generated-families-20260805
+    paths:
+      - ".github/workflows/diagnose-generated-families.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  BASELINE_ARTIFACT: validated-production-site
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout diagnostic branch
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Locate latest complete validated artifact from main
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=${BASELINE_ARTIFACT}&per_page=100" \
+            -o /tmp/artifacts.json
+          python - <<'PY'
+          import json
+          import os
+
+          payload = json.load(open("/tmp/artifacts.json", encoding="utf-8"))
+          candidates = [
+              item for item in payload.get("artifacts", [])
+              if not item.get("expired")
+              and item.get("workflow_run", {}).get("id")
+              and item.get("workflow_run", {}).get("head_branch") == "main"
+          ]
+          if not candidates:
+              raise SystemExit("No active validated-production-site artifact from main")
+          item = max(candidates, key=lambda value: value.get("created_at", ""))
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"run_id={item['workflow_run']['id']}\n")
+              output.write(f"artifact_id={item['id']}\n")
+          print({"artifact_id": item["id"], "run_id": item["workflow_run"]["id"]})
+          PY
+
+      - name: Restore complete validated baseline
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.BASELINE_ARTIFACT }}
+          path: _site
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.baseline.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Verify baseline
+        run: |
+          set -euxo pipefail
+          test -f _site/index.html
+          find _site -name index.html | wc -l
+
+      - name: Overlay current public source
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import shutil
+          from pathlib import Path
+
+          root = Path(".")
+          site = Path("_site")
+          text_suffixes = {
+              ".html", ".htm", ".xml", ".json", ".webmanifest",
+              ".txt", ".js", ".mjs", ".css", ".svg",
+          }
+          skip_top = {
+              ".git", ".github", "node_modules", ".venv", "venv",
+              "dist", "build", "scripts", "tests", "docs", "reports",
+              "content", ".v10bundle", ".generator-v6", "_site",
+          }
+          skip_parts = {"account-backend", "backend", "migrations"}
+          copied = 0
+          for source in root.rglob("*"):
+              if not source.is_file():
+                  continue
+              relative = source.relative_to(root)
+              if not relative.parts or relative.parts[0] in skip_top:
+                  continue
+              if any(part in skip_parts for part in relative.parts):
+                  continue
+              if relative.as_posix() == "deployment.json":
+                  continue
+              if source.suffix.lower() not in text_suffixes and source.name != "CNAME":
+                  continue
+              destination = site / relative
+              destination.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copy2(source, destination)
+              copied += 1
+          if copied < 100:
+              raise SystemExit({"public_overlay_too_small": copied})
+          print({"current_public_files_overlaid": copied})
+          PY
+
+      - name: Compile all generators
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/run_encyclopedia_v13.py \
+            scripts/publish_daily_tools_v24.py \
+            scripts/repair_comparisons_v331.py \
+            scripts/publish_evidence_literacy_library_v322.py \
+            scripts/generate_sitemap_index_v304.py
+
+      - name: Generate encyclopedia family
+        run: |
+          set -euxo pipefail
+          python scripts/run_encyclopedia_v13.py _site
+
+      - name: Generate daily tools family
+        run: |
+          set -euxo pipefail
+          python scripts/publish_daily_tools_v24.py _site
+
+      - name: Repair comparisons family
+        run: |
+          set -euxo pipefail
+          python scripts/repair_comparisons_v331.py _site
+
+      - name: Generate evidence literacy library
+        run: |
+          set -euxo pipefail
+          python scripts/publish_evidence_literacy_library_v322.py _site
+
+      - name: Generate sitemap index
+        run: |
+          set -euxo pipefail
+          python scripts/generate_sitemap_index_v304.py _site
+
+      - name: Summarize generated families
+        if: always()
+        run: |
+          set +e
+          printf 'encyclopedia='; find _site/encyclopedia -path '*/index.html' 2>/dev/null | wc -l
+          printf 'daily_tools='; find _site/daily-tools -path '*/index.html' 2>/dev/null | wc -l
+          printf 'comparisons='; find _site/comparisons -path '*/index.html' 2>/dev/null | wc -l
+          printf 'library='; find _site/library -path '*/index.html' 2>/dev/null | wc -l
+          test -f _site/sitemap-index.xml && echo sitemap_index=present || echo sitemap_index=missing
