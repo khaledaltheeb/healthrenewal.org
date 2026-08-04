@@ -59,7 +59,11 @@ class ReleaseDiscoveryContract(unittest.TestCase):
     def test_crawler_and_opensearch_contracts_are_explicit(self):
         robots = (ROOT / "robots.txt").read_text(encoding="utf-8")
         self.assertIn("User-agent: OAI-SearchBot", robots)
-        self.assertIn("Sitemap: https://healthrenewal.org/sitemap.xml", robots)
+        self.assertIn("Sitemap: https://healthrenewal.org/sitemap-index.xml", robots)
+
+        sitemap_index = (ROOT / "sitemap-index.xml").read_text(encoding="utf-8")
+        ET.fromstring(sitemap_index)
+        self.assertIn("https://healthrenewal.org/sitemap.xml", sitemap_index)
 
         opensearch = (ROOT / "opensearch.xml").read_text(encoding="utf-8")
         ET.fromstring(opensearch)
