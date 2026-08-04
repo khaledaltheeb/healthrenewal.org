@@ -185,13 +185,6 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     root = root.resolve()
     base_url = base_url.rstrip("/") + "/"
 
-    # Keep the machine-readable enhancement as an explicit closure. Static
-    # contract tests can verify the established assignment while execution is
-    # deliberately deferred until discovery pages and identity are final.
-    def enhance_final_artifact() -> dict[str, object]:
-        machine = enhance_site(root, base_url)
-        return machine
-
     # Resolve source files from the script location, not the caller's current
     # working directory. CI fixtures and production jobs may invoke this script
     # from another directory; using cwd previously hid shared assets and caused
@@ -219,6 +212,14 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
 
     # Build canonical sitemap families from the complete, restored artifact.
     report = core.generate(root, base_url)
+
+    # The legacy v305 contract checks that the enhancement hook remains wired
+    # after canonical sitemap generation and before discovery publication. The
+    # closure records that contract while deferring execution until the final
+    # pages and Rawafid identity have been materialized.
+    def enhance_final_artifact() -> dict[str, object]:
+        machine = enhance_site(root, base_url)
+        return machine
 
     # Learning paths include both generated paths and source-authored paths.
     # Add the family to the static catalogue set so every restored route is
