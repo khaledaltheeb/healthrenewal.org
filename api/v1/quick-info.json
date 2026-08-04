@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "generatedAt": "2026-08-04T09:00:00+03:00",
-  "count": 200,
+  "count": 250,
   "items": [
     {
       "slug": "sadness-vs-depression",
@@ -1802,6 +1802,456 @@
       "summary": "التحضير الجيد يساعد الطبيب على فهم المدة والشدة والأثر والأدوية والمخاطر بدل الاعتماد على ذاكرة مضغوطة داخل الموعد.",
       "url": "https://healthrenewal.org/quick-info/prepare-psychiatry-appointment/",
       "image": "https://healthrenewal.org/assets/quick-info/cards/prepare-psychiatry-appointment.png"
+    },
+    {
+      "slug": "openness-vs-oversharing",
+      "title": "انفتاح أم إفراط في الإفصاح؟ الصراحة لا تعني كشف كل شيء فورًا",
+      "format": "comparison",
+      "domain": "relationships",
+      "summary": "الانفتاح يبني الثقة تدريجيًا مع مراعاة الأمان والسياق، بينما قد يأتي الإفراط في الإفصاح من حاجة عاجلة للقبول ثم يترك ندمًا أو شعورًا بالانكشاف.",
+      "url": "https://healthrenewal.org/quick-info/openness-vs-oversharing/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/openness-vs-oversharing.png"
+    },
+    {
+      "slug": "empathy-vs-emotional-absorption",
+      "title": "تعاطف أم امتصاص لمشاعر الآخرين؟ فهم الألم لا يتطلب أن تغرق فيه",
+      "format": "comparison",
+      "domain": "care",
+      "summary": "التعاطف يتيح فهم الآخر مع بقاء حدودك وقدرتك على التعافي، أما الامتصاص العاطفي فيجعل مزاج الآخرين يسيطر على جسمك وقراراتك.",
+      "url": "https://healthrenewal.org/quick-info/empathy-vs-emotional-absorption/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/empathy-vs-emotional-absorption.png"
+    },
+    {
+      "slug": "forgiveness-vs-reconciliation",
+      "title": "مسامحة أم مصالحة؟ يمكنك تخفيف حملك دون إعادة العلاقة",
+      "format": "comparison",
+      "domain": "relationships",
+      "summary": "المسامحة عملية داخلية قد تقلل التعلق بالأذى، بينما المصالحة قرار علائقي يحتاج أمانًا ومسؤولية وتغيرًا يمكن ملاحظته.",
+      "url": "https://healthrenewal.org/quick-info/forgiveness-vs-reconciliation/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/forgiveness-vs-reconciliation.png"
+    },
+    {
+      "slug": "accountability-vs-self-blame",
+      "title": "تحمل مسؤولية أم جلد ذات؟ الإصلاح لا يحتاج إهانة نفسك",
+      "format": "comparison",
+      "domain": "general",
+      "summary": "تحمل المسؤولية يحدد السلوك والأثر والخطوة التصحيحية، بينما جلد الذات يحول الخطأ إلى حكم شامل بالعجز أو عدم الاستحقاق.",
+      "url": "https://healthrenewal.org/quick-info/accountability-vs-self-blame/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/accountability-vs-self-blame.png"
+    },
+    {
+      "slug": "confidence-vs-defensiveness",
+      "title": "ثقة أم دفاعية؟ الشخص الواثق يستطيع سماع الملاحظة",
+      "format": "comparison",
+      "domain": "general",
+      "summary": "الثقة تسمح بمراجعة المعلومة دون انهيار القيمة الذاتية، بينما الدفاعية تفسر النقد كله كتهديد وترد بالإنكار أو الهجوم.",
+      "url": "https://healthrenewal.org/quick-info/confidence-vs-defensiveness/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/confidence-vs-defensiveness.png"
+    },
+    {
+      "slug": "support-vs-enabling",
+      "title": "دعم أم تمكين للسلوك المؤذي؟ المساعدة لا تعني إلغاء النتائج",
+      "format": "comparison",
+      "domain": "care",
+      "summary": "الدعم يقوي المسؤولية ويقدم موارد وحدودًا، أما تغطية الضرر فتحمي السلوك من نتائجه وتحمّل المساند أعباء لا تخصه.",
+      "url": "https://healthrenewal.org/quick-info/support-vs-enabling/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/support-vs-enabling.png"
+    },
+    {
+      "slug": "routine-vs-rigidity",
+      "title": "روتين أم جمود؟ النظام المفيد يتكيف عندما تتغير الحياة",
+      "format": "comparison",
+      "domain": "general",
+      "summary": "الروتين يقلل الفوضى ويدعم الطاقة مع إمكانية التعديل، بينما الجمود يجعل أي تغيير مصدر تهديد ويقدم القاعدة على الاحتياج الحقيقي.",
+      "url": "https://healthrenewal.org/quick-info/routine-vs-rigidity/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/routine-vs-rigidity.png"
+    },
+    {
+      "slug": "healthy-anger-vs-aggression",
+      "title": "غضب صحي أم عدوان؟ قوة الشعور لا تبرر الأذى",
+      "format": "comparison",
+      "domain": "general",
+      "summary": "الغضب إشارة يمكن التعبير عنها بحدود وكلمات، بينما العدوان سلوك يهدد أو يهين أو يؤذي ويحتاج إيقافًا ومسؤولية.",
+      "url": "https://healthrenewal.org/quick-info/healthy-anger-vs-aggression/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/healthy-anger-vs-aggression.png"
+    },
+    {
+      "slug": "disappointment-vs-hopelessness",
+      "title": "خيبة أمل أم يأس؟ فشل واحد لا يساوي مستقبلًا مغلقًا",
+      "format": "comparison",
+      "domain": "depression",
+      "summary": "خيبة الأمل ترتبط بنتيجة أو توقع محدد، بينما اليأس يعمم العجز على المستقبل كله وقد يصاحب انخفاضًا شديدًا في المزاج والدافعية.",
+      "url": "https://healthrenewal.org/quick-info/disappointment-vs-hopelessness/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/disappointment-vs-hopelessness.png"
+    },
+    {
+      "slug": "fatigue-vs-sleepiness",
+      "title": "إرهاق أم نعاس؟ قد تكون مستنزفًا دون رغبة فعلية في النوم",
+      "format": "comparison",
+      "domain": "sleep",
+      "summary": "الإرهاق انخفاض في الطاقة الجسدية أو الذهنية، أما النعاس فهو ميل مباشر للنوم وقد يشير إلى نقص نوم أو اضطراب يحتاج مراجعة.",
+      "url": "https://healthrenewal.org/quick-info/fatigue-vs-sleepiness/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/fatigue-vs-sleepiness.png"
+    },
+    {
+      "slug": "focus-break-vs-digital-distraction",
+      "title": "استراحة تركيز أم تشتت رقمي؟ الهاتف قد يطيل التعب بدل تخفيفه",
+      "format": "comparison",
+      "domain": "digital",
+      "summary": "الاستراحة المقصودة لها بداية ونهاية وتعيد الانتباه، بينما التشتت الرقمي يجر إلى محتوى متتابع ويجعل العودة للمهمة أصعب.",
+      "url": "https://healthrenewal.org/quick-info/focus-break-vs-digital-distraction/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/focus-break-vs-digital-distraction.png"
+    },
+    {
+      "slug": "child-opposition-vs-overwhelm",
+      "title": "معارضة أم غمر نفسي؟ الطفل قد يرفض لأنه لم يعد قادرًا على التنظيم",
+      "format": "comparison",
+      "domain": "child",
+      "summary": "المعارضة تتضمن قدرة على التفاوض والاختيار، بينما الغمر يحدث عندما تتجاوز المطالب أو المثيرات قدرة الطفل على الفهم والتنظيم.",
+      "url": "https://healthrenewal.org/quick-info/child-opposition-vs-overwhelm/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/child-opposition-vs-overwhelm.png"
+    },
+    {
+      "slug": "teen-privacy-vs-withdrawal",
+      "title": "خصوصية المراهق أم انسحاب مقلق؟ الباب المغلق ليس الدليل الوحيد",
+      "format": "comparison",
+      "domain": "child",
+      "summary": "الخصوصية الطبيعية تتعايش مع بعض الاتصال والوظائف، بينما الانسحاب المقلق يترافق مع تراجع مستمر في العلاقات أو الدراسة أو العناية بالنفس.",
+      "url": "https://healthrenewal.org/quick-info/teen-privacy-vs-withdrawal/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/teen-privacy-vs-withdrawal.png"
+    },
+    {
+      "slug": "advice-vs-control",
+      "title": "نصيحة أم سيطرة؟ عرض الرأي لا يمنحك حق القرار عن الآخر",
+      "format": "comparison",
+      "domain": "relationships",
+      "summary": "النصيحة تقدم معلومة وتترك القرار لصاحبه، بينما السيطرة تستخدم الضغط أو الذنب أو العقاب لفرض اختيار محدد.",
+      "url": "https://healthrenewal.org/quick-info/advice-vs-control/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/advice-vs-control.png"
+    },
+    {
+      "slug": "resilience-vs-emotional-denial",
+      "title": "مرونة أم إنكار للمشاعر؟ الاستمرار لا يعني أنك لم تتأثر",
+      "format": "comparison",
+      "domain": "trauma",
+      "summary": "المرونة تعترف بالأثر وتستخدم الدعم ثم تستعيد الوظيفة، بينما الإنكار يدفع المشاعر بعيدًا وقد تظهر لاحقًا في الجسد أو العلاقات.",
+      "url": "https://healthrenewal.org/quick-info/resilience-vs-emotional-denial/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/resilience-vs-emotional-denial.png"
+    },
+    {
+      "slug": "family-emotional-safety-check",
+      "title": "هل أسرتك آمنة عاطفيًا؟ 10 أسئلة عن الخوف والاحترام والإصلاح",
+      "format": "check",
+      "domain": "relationships",
+      "summary": "الأمان العاطفي لا يعني غياب الخلاف، بل القدرة على الكلام والرفض والاعتذار دون إذلال أو تهديد أو عقاب طويل.",
+      "url": "https://healthrenewal.org/quick-info/family-emotional-safety-check/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/family-emotional-safety-check.png"
+    },
+    {
+      "slug": "workplace-bullying-check",
+      "title": "هل تتعرض لتنمر وظيفي؟ افحص النمط المتكرر لا يومًا سيئًا",
+      "format": "check",
+      "domain": "work",
+      "summary": "التنمر الوظيفي نمط متكرر من الإهانة أو العزل أو التخويف أو تقويض العمل، وليس مجرد ملاحظة مهنية أو خلاف عابر.",
+      "url": "https://healthrenewal.org/quick-info/workplace-bullying-check/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/workplace-bullying-check.png"
+    },
+    {
+      "slug": "panic-avoidance-check",
+      "title": "هل بدأت تتجنب حياتك خوفًا من نوبة هلع؟ فحص للأثر لا للتشخيص",
+      "format": "check",
+      "domain": "anxiety",
+      "summary": "الخوف من تكرار نوبة الهلع قد يدفع إلى تجنب المواصلات أو الأماكن أو الجهد، ومع الوقت يصبح التجنب نفسه جزءًا من المشكلة.",
+      "url": "https://healthrenewal.org/quick-info/panic-avoidance-check/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/panic-avoidance-check.png"
+    },
+    {
+      "slug": "sleep-debt-check",
+      "title": "هل تراكم عليك دين نوم؟ راقب الأداء لا عطلة نهاية الأسبوع فقط",
+      "format": "check",
+      "domain": "sleep",
+      "summary": "دين النوم يتراكم عندما يقل النوم عن احتياجك عبر أيام، وقد يظهر في المزاج والتركيز والنعاس حتى لو حاولت التعويض يومًا واحدًا.",
+      "url": "https://healthrenewal.org/quick-info/sleep-debt-check/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/sleep-debt-check.png"
+    },
+    {
+      "slug": "decision-fatigue-check",
+      "title": "هل تعاني إرهاق القرار؟ عندما تصبح الاختيارات الصغيرة عبئًا",
+      "format": "check",
+      "domain": "general",
+      "summary": "كثرة القرارات والضغط وقلة النوم قد تخفض جودة الاختيار وتزيد التأجيل أو الاندفاع في نهاية اليوم.",
+      "url": "https://healthrenewal.org/quick-info/decision-fatigue-check/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/decision-fatigue-check.png"
+    },
+    {
+      "slug": "caregiver-resentment-check",
+      "title": "هل بدأ الاستياء يتسلل إلى دور الرعاية؟ فحص بلا لوم",
+      "format": "check",
+      "domain": "care",
+      "summary": "الاستياء قد يكون إشارة إلى حمل غير موزع وحدود غائبة واحتياجات مؤجلة، ولا يعني أن مقدم الرعاية شخص سيئ.",
+      "url": "https://healthrenewal.org/quick-info/caregiver-resentment-check/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/caregiver-resentment-check.png"
+    },
+    {
+      "slug": "child-sensory-overload-check",
+      "title": "هل يتعرض طفلك لغمر حسي؟ راقب ما يحدث قبل الانفجار",
+      "format": "check",
+      "domain": "child",
+      "summary": "الغمر الحسي يحدث عندما تتراكم الأصوات أو الأضواء أو اللمس أو المطالب فوق قدرة الطفل على التنظيم، ولا يُحسم من سلوك واحد.",
+      "url": "https://healthrenewal.org/quick-info/child-sensory-overload-check/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/child-sensory-overload-check.png"
+    },
+    {
+      "slug": "friendship-balance-check",
+      "title": "هل صداقتك متوازنة؟ 10 أسئلة عن المبادرة والاحترام والدعم",
+      "format": "check",
+      "domain": "relationships",
+      "summary": "الصداقة المتوازنة لا تتطلب حسابًا دقيقًا لكل موقف، لكنها لا تجعل طرفًا واحدًا مسؤولًا دائمًا عن الاتصال والاحتواء والإصلاح.",
+      "url": "https://healthrenewal.org/quick-info/friendship-balance-check/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/friendship-balance-check.png"
+    },
+    {
+      "slug": "conflict-repair-check",
+      "title": "هل تعرفان إصلاح الخلاف؟ الفارق ليس في عدم الغضب بل في العودة الآمنة",
+      "format": "check",
+      "domain": "relationships",
+      "summary": "الإصلاح يشمل تهدئة ومسؤولية وفهم الأثر واتفاقًا عمليًا، لا مجرد إنهاء الحديث أو العودة المؤقتة للود.",
+      "url": "https://healthrenewal.org/quick-info/conflict-repair-check/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/conflict-repair-check.png"
+    },
+    {
+      "slug": "therapy-readiness-check",
+      "title": "هل أنت مستعد لبدء العلاج النفسي؟ لا تحتاج أن تكون منهارًا",
+      "format": "check",
+      "domain": "care",
+      "summary": "الاستعداد للعلاج لا يعني معرفة كل ما ستقوله؛ يكفي وجود سؤال أو نمط تريد فهمه واستعداد لتجربة علاقة مهنية آمنة.",
+      "url": "https://healthrenewal.org/quick-info/therapy-readiness-check/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/therapy-readiness-check.png"
+    },
+    {
+      "slug": "five-reasons-emotional-distance",
+      "title": "خمس أسباب قد تصنع مسافة عاطفية رغم وجود الحب",
+      "format": "factors",
+      "domain": "relationships",
+      "summary": "المسافة العاطفية قد تنتج من ضغط أو خوف أو نزاعات غير محلولة، ولا تعني تلقائيًا انتهاء العلاقة.",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-emotional-distance/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-emotional-distance.png"
+    },
+    {
+      "slug": "five-factors-sunday-anxiety",
+      "title": "خمس عوامل تجعل قلق مساء العطلة أثقل",
+      "format": "factors",
+      "domain": "work",
+      "summary": "القلق قبل بداية أسبوع العمل قد يجمع بين عبء حقيقي وعادات نوم وتوقعات سلبية وحدود عمل غير واضحة.",
+      "url": "https://healthrenewal.org/quick-info/five-factors-sunday-anxiety/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-factors-sunday-anxiety.png"
+    },
+    {
+      "slug": "five-reasons-children-lie",
+      "title": "خمس أسباب تجعل الطفل لا يقول الحقيقة",
+      "format": "factors",
+      "domain": "child",
+      "summary": "عدم قول الحقيقة قد يكون محاولة لتجنب عقاب أو حماية خصوصية أو اختبار خيال، ويُفهم بحسب العمر والسياق لا بوصف الطفل بالكذب.",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-children-lie/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-children-lie.png"
+    },
+    {
+      "slug": "five-factors-low-self-worth",
+      "title": "خمس عوامل تغذي الشعور بانخفاض القيمة الذاتية",
+      "format": "factors",
+      "domain": "general",
+      "summary": "قيمة الذات لا تنخفض بسبب عامل واحد؛ قد تتأثر بالتجارب والعلاقات والمقارنة والضغط وطريقة الحديث الداخلي.",
+      "url": "https://healthrenewal.org/quick-info/five-factors-low-self-worth/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-factors-low-self-worth.png"
+    },
+    {
+      "slug": "five-reasons-restless-sleep",
+      "title": "خمس أسباب محتملة لنوم متقطع وغير مريح",
+      "format": "factors",
+      "domain": "sleep",
+      "summary": "تقطع النوم قد يرتبط بالبيئة أو العادات أو الضغط أو حالة صحية، ويستحق تقييمًا إذا استمر أو صاحبه اختناق أو نعاس خطر.",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-restless-sleep/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-restless-sleep.png"
+    },
+    {
+      "slug": "five-factors-workplace-anxiety",
+      "title": "خمس عوامل قد تزيد القلق داخل بيئة العمل",
+      "format": "factors",
+      "domain": "work",
+      "summary": "قلق العمل قد يرتبط بالمهمة أو البيئة أو الحدود أو الصحة النفسية، ولا يُحل دائمًا بإدارة الوقت وحدها.",
+      "url": "https://healthrenewal.org/quick-info/five-factors-workplace-anxiety/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-factors-workplace-anxiety.png"
+    },
+    {
+      "slug": "five-reasons-boundary-guilt",
+      "title": "خمس أسباب تجعلك تشعر بالذنب بعد وضع حد صحي",
+      "format": "factors",
+      "domain": "relationships",
+      "summary": "الشعور بالذنب بعد الحد لا يثبت أن الحد خاطئ؛ قد يكون أثرًا لتربية أو علاقة اعتادت أن تقدم احتياجات الآخرين دائمًا.",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-boundary-guilt/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-boundary-guilt.png"
+    },
+    {
+      "slug": "five-factors-social-exhaustion",
+      "title": "خمس عوامل تجعل التواصل الاجتماعي مرهقًا جدًا",
+      "format": "factors",
+      "domain": "general",
+      "summary": "الإرهاق الاجتماعي قد يأتي من كثافة المثيرات أو القلق أو إخفاء الذات أو نقص النوم، وليس دليلًا وحده على الانطواء أو اضطراب.",
+      "url": "https://healthrenewal.org/quick-info/five-factors-social-exhaustion/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-factors-social-exhaustion.png"
+    },
+    {
+      "slug": "five-reasons-relationship-doubt",
+      "title": "خمس أسباب تجعل الشك يتكرر داخل العلاقة",
+      "format": "factors",
+      "domain": "relationships",
+      "summary": "الشك قد يكون إشارة إلى سلوك واقعي أو خوف قديم أو غموض في الاتفاقات؛ المطلوب جمع الحقائق لا المراقبة القهرية.",
+      "url": "https://healthrenewal.org/quick-info/five-reasons-relationship-doubt/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-reasons-relationship-doubt.png"
+    },
+    {
+      "slug": "five-factors-caregiver-guilt",
+      "title": "خمس عوامل تغذي شعور مقدم الرعاية بالذنب",
+      "format": "factors",
+      "domain": "care",
+      "summary": "الذنب قد يجعل مقدم الرعاية يرفض الراحة ويقدم أكثر من قدرته، ما يضر به وبجودة الرعاية على المدى الطويل.",
+      "url": "https://healthrenewal.org/quick-info/five-factors-caregiver-guilt/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/five-factors-caregiver-guilt.png"
+    },
+    {
+      "slug": "rebuild-routine-after-low-mood",
+      "title": "كيف تعيد بناء روتينك بعد فترة مزاج منخفض دون خطة مثالية؟",
+      "format": "practical",
+      "domain": "depression",
+      "summary": "العودة تبدأ بمرساة يومية صغيرة للنوم والطعام والحركة، ثم توسع تدريجيًا وفق الطاقة لا وفق جلد الذات.",
+      "url": "https://healthrenewal.org/quick-info/rebuild-routine-after-low-mood/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/rebuild-routine-after-low-mood.png"
+    },
+    {
+      "slug": "talk-about-therapy-with-family",
+      "title": "كيف تتحدث مع أسرتك عن ذهابك للعلاج النفسي؟",
+      "format": "practical",
+      "domain": "care",
+      "summary": "يمكنك شرح أن العلاج مساحة مهنية للفهم والمهارات دون مشاركة تفاصيل جلساتك أو طلب موافقة الجميع.",
+      "url": "https://healthrenewal.org/quick-info/talk-about-therapy-with-family/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/talk-about-therapy-with-family.png"
+    },
+    {
+      "slug": "prepare-child-first-therapy-session",
+      "title": "كيف تهيئ طفلك لأول جلسة دعم نفسي دون تخويف أو وعود؟",
+      "format": "practical",
+      "domain": "child",
+      "summary": "التهيئة الجيدة تشرح المكان والدور والمدة بلغة عمرية، وتؤكد أن الطفل ليس في اختبار أو عقاب.",
+      "url": "https://healthrenewal.org/quick-info/prepare-child-first-therapy-session/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/prepare-child-first-therapy-session.png"
+    },
+    {
+      "slug": "support-partner-with-anxiety",
+      "title": "كيف تدعم شريكًا يعاني القلق دون أن تصبح مصدر الطمأنة الوحيد؟",
+      "format": "relationship",
+      "domain": "relationships",
+      "summary": "الدعم يجمع بين الاستماع وخطوات عملية وتشجيع العلاج، مع تجنب الدخول في دائرة فحص وطمأنة لا تنتهي.",
+      "url": "https://healthrenewal.org/quick-info/support-partner-with-anxiety/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/support-partner-with-anxiety.png"
+    },
+    {
+      "slug": "handle-workplace-gossip",
+      "title": "كيف تتعامل مع الشائعات في العمل دون تغذية النزاع؟",
+      "format": "practical",
+      "domain": "work",
+      "summary": "تعامل مع الوقائع والقنوات الرسمية، وتجنب الرد بنشر شائعة مقابلة أو مواجهة انفعالية بلا توثيق.",
+      "url": "https://healthrenewal.org/quick-info/handle-workplace-gossip/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/handle-workplace-gossip.png"
+    },
+    {
+      "slug": "stop-ruminating-after-embarrassment",
+      "title": "كيف توقف إعادة موقف محرج في ذهنك طوال اليوم؟",
+      "format": "practical",
+      "domain": "anxiety",
+      "summary": "الاجترار يكرر الحدث بحثًا عن ضمان مستحيل؛ الأفضل فصل الحقيقة عن التخمين ثم إعادة الانتباه إلى الحاضر.",
+      "url": "https://healthrenewal.org/quick-info/stop-ruminating-after-embarrassment/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/stop-ruminating-after-embarrassment.png"
+    },
+    {
+      "slug": "create-sleep-wind-down",
+      "title": "كيف تصنع ساعة تهدئة قبل النوم يمكن الالتزام بها؟",
+      "format": "practical",
+      "domain": "sleep",
+      "summary": "روتين التهدئة يقلل التنبيه تدريجيًا ويعطي الجسم إشارات ثابتة، ولا يحتاج أن يكون طويلًا أو مثاليًا.",
+      "url": "https://healthrenewal.org/quick-info/create-sleep-wind-down/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/create-sleep-wind-down.png"
+    },
+    {
+      "slug": "recover-from-people-pleasing",
+      "title": "كيف تبدأ التعافي من إرضاء الآخرين دون التحول إلى قسوة؟",
+      "format": "practical",
+      "domain": "relationships",
+      "summary": "التعافي يعني إضافة احتياجاتك إلى المعادلة، لا إلغاء التعاطف أو رفض كل طلب.",
+      "url": "https://healthrenewal.org/quick-info/recover-from-people-pleasing/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/recover-from-people-pleasing.png"
+    },
+    {
+      "slug": "respond-to-body-comments",
+      "title": "كيف ترد على التعليقات المتكررة عن جسدك أو وزنك؟",
+      "format": "practical",
+      "domain": "relationships",
+      "summary": "يمكنك وضع حد مباشر يحول الحديث عن الشكل إلى موضوع آخر، دون الدخول في دفاع أو تبرير صحي شخصي.",
+      "url": "https://healthrenewal.org/quick-info/respond-to-body-comments/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/respond-to-body-comments.png"
+    },
+    {
+      "slug": "manage-family-boundaries-holidays",
+      "title": "كيف تحافظ على حدودك في التجمعات العائلية والمناسبات؟",
+      "format": "practical",
+      "domain": "relationships",
+      "summary": "الاستعداد المسبق يقلل الضغط: حدد مدة الحضور والموضوعات غير القابلة للنقاش وطريقة المغادرة الآمنة.",
+      "url": "https://healthrenewal.org/quick-info/manage-family-boundaries-holidays/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/manage-family-boundaries-holidays.png"
+    },
+    {
+      "slug": "explain-mental-health-to-child",
+      "title": "كيف تشرح الصحة النفسية لطفل بلغة بسيطة وآمنة؟",
+      "format": "practical",
+      "domain": "child",
+      "summary": "اشرح أن الأفكار والمشاعر والجسم تحتاج رعاية مثل الصحة الجسدية، وأن طلب المساعدة ليس عقابًا أو سرًا مخجلًا.",
+      "url": "https://healthrenewal.org/quick-info/explain-mental-health-to-child/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/explain-mental-health-to-child.png"
+    },
+    {
+      "slug": "help-teen-friendship-breakup",
+      "title": "كيف تساعد مراهقًا بعد انتهاء صداقة مهمة؟",
+      "format": "practical",
+      "domain": "child",
+      "summary": "فقد الصداقة قد يكون عميقًا للمراهق؛ يحتاج اعترافًا بالألم ومساندة دون تحقيق أو إجبار على صلح سريع.",
+      "url": "https://healthrenewal.org/quick-info/help-teen-friendship-breakup/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/help-teen-friendship-breakup.png"
+    },
+    {
+      "slug": "build-personal-overwhelm-plan",
+      "title": "كيف تبني خطة شخصية عندما تشعر أن كل شيء أكثر من قدرتك؟",
+      "format": "practical",
+      "domain": "general",
+      "summary": "الخطة القصيرة تحدد إشارات الإنذار وخطوات خفض المثيرات وشخصًا للتواصل ومهمة واحدة ضرورية.",
+      "url": "https://healthrenewal.org/quick-info/build-personal-overwhelm-plan/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/build-personal-overwhelm-plan.png"
+    },
+    {
+      "slug": "return-to-work-after-burnout",
+      "title": "كيف تعود إلى العمل بعد احتراق نفسي دون تكرار الظروف نفسها؟",
+      "format": "practical",
+      "domain": "work",
+      "summary": "العودة المستدامة تحتاج تدرجًا وحدودًا وتعديلًا لمصدر العبء، لا مجرد استراحة ثم استئناف النمط القديم.",
+      "url": "https://healthrenewal.org/quick-info/return-to-work-after-burnout/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/return-to-work-after-burnout.png"
+    },
+    {
+      "slug": "prepare-therapy-intake-session",
+      "title": "كيف تستعد لجلسة التعارف والتقييم الأولي مع المعالج النفسي؟",
+      "format": "practical",
+      "domain": "care",
+      "summary": "لا تحتاج قصة مرتبة؛ دوّن سبب الحضور والأثر الحالي والأدوية أو الظروف المهمة والأسئلة عن المنهج والسرية والخطة.",
+      "url": "https://healthrenewal.org/quick-info/prepare-therapy-intake-session/",
+      "image": "https://healthrenewal.org/assets/quick-info/cards/prepare-therapy-intake-session.png"
     }
   ]
 }
