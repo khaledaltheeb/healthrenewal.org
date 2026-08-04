@@ -1,0 +1,105 @@
+name: Special-needs family tools production wiring
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "content/family-guide-special-education-tools-v1/**"
+      - "scripts/ensure_special_needs_publication_v1.py"
+      - "scripts/publish_family_guide_special_education_tools_v1.py"
+      - "scripts/family_tools_v1_common.py"
+      - "scripts/family_tools_v1_render.py"
+      - "scripts/generate_sitemap_index_v304.py"
+      - "tests/test_family_guide_special_education_tools_v1.py"
+      - "tests/test_special_needs_family_tools_wiring_v2.py"
+      - ".github/workflows/special-needs-family-tools-wiring-v2.yml"
+  push:
+    branches: [main]
+    paths:
+      - "content/family-guide-special-education-tools-v1/**"
+      - "scripts/ensure_special_needs_publication_v1.py"
+      - "scripts/publish_family_guide_special_education_tools_v1.py"
+      - "scripts/family_tools_v1_common.py"
+      - "scripts/family_tools_v1_render.py"
+      - "scripts/generate_sitemap_index_v304.py"
+      - "tests/test_family_guide_special_education_tools_v1.py"
+      - "tests/test_special_needs_family_tools_wiring_v2.py"
+      - ".github/workflows/special-needs-family-tools-wiring-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-family-tools-wiring:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile publisher, inventory and tests
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/ensure_special_needs_publication_v1.py \
+            scripts/publish_family_guide_special_education_tools_v1.py \
+            scripts/family_tools_v1_common.py \
+            scripts/family_tools_v1_render.py \
+            scripts/generate_sitemap_index_v304.py \
+            tests/test_family_guide_special_education_tools_v1.py \
+            tests/test_special_needs_family_tools_wiring_v2.py
+
+      - name: Run source publisher and production-wiring tests
+        run: |
+          set -euo pipefail
+          python -m unittest -v \
+            tests/test_family_guide_special_education_tools_v1.py \
+            tests/test_special_needs_family_tools_wiring_v2.py
+
+      - name: Enforce single-site integration markers
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          inventory = Path("scripts/ensure_special_needs_publication_v1.py").read_text(encoding="utf-8")
+          sitemap = Path("scripts/generate_sitemap_index_v304.py").read_text(encoding="utf-8")
+          deployment_path = Path(".github/workflows/deploy-complete-pages-with-ai-search.yml")
+          deployment = deployment_path.read_text(encoding="utf-8")
+
+          required_inventory = (
+              '"family_tools": 15',
+              '"family-guide/tools/index.html"',
+              '"publish_family_guide_special_education_tools_v1.py"',
+              'if root != repo_root:',
+          )
+          missing = [marker for marker in required_inventory if marker not in inventory]
+          assert not missing, {"missing_inventory_markers": missing}
+          assert "repair_missing_generated_families" in sitemap
+          assert "python scripts/generate_sitemap_index_v304.py _site" in deployment
+
+          deploy_action = "actions/" + "deploy-pages@"
+          deploy_step = re.compile(
+              r"^\s*-?\s*uses:\s*" + re.escape(deploy_action),
+              re.M,
+          )
+          assert deploy_step.search(deployment)
+
+          competing = []
+          for path in Path(".github/workflows").glob("*.y*ml"):
+              if path == deployment_path:
+                  continue
+              if deploy_step.search(path.read_text(encoding="utf-8")):
+                  competing.append(str(path))
+          assert not competing, {"competing_pages_publishers": competing}
+          print({
+              "family_tools": 15,
+              "source_publisher": "publish_family_guide_special_education_tools_v1.py",
+              "production_entrypoint": "generate_sitemap_index_v304.py",
+              "competing_publishers": 0,
+          })
+          PY
