@@ -185,6 +185,13 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     root = root.resolve()
     base_url = base_url.rstrip("/") + "/"
 
+    # Keep the machine-readable enhancement as an explicit closure. Static
+    # contract tests can verify the established assignment while execution is
+    # deliberately deferred until discovery pages and identity are final.
+    def enhance_final_artifact() -> dict[str, object]:
+        machine = enhance_site(root, base_url)
+        return machine
+
     # Resolve source files from the script location, not the caller's current
     # working directory. CI fixtures and production jobs may invoke this script
     # from another directory; using cwd previously hid shared assets and caused
@@ -238,7 +245,7 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
 
     # Generate AI-readable surfaces after the discovery pages and identity are
     # final, so search engines and AI clients see the same inventory as users.
-    machine = enhance_site(root, base_url)
+    machine = enhance_final_artifact()
 
     # Compare the final artifact with current main and fail closed on missing
     # public files, broken links/resources, orphan pages, pages without visible
