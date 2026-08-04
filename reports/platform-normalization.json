@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-08-01T01:46:17.439067+00:00",
+  "generated_at": "2026-08-04T06:10:01.498536+00:00",
   "mode": "write",
   "root": "/home/runner/work/healthrenewal.org/healthrenewal.org",
   "runtime": {
@@ -11,12 +11,12 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 323,
-  "html_pages_normalized_or_current": 322,
+  "html_pages_seen": 668,
+  "html_pages_normalized_or_current": 667,
   "counts": {
-    "current": 222,
-    "skipped": 1,
-    "updated": 100
+    "current": 629,
+    "updated": 38,
+    "skipped": 1
   },
   "results": [
     {
@@ -26,6 +26,306 @@
     },
     {
       "path": "accessibility/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/alcohol-use-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/audiences/clinician/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/audiences/community/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/audiences/family/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/audiences/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/audiences/person/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/audiences/trainer/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/cannabis-use-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/conditions/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/family-guide/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/family-guides/children-siblings-safety/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/family-guides/family-recovery-caregiver-wellbeing/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/family-guides/financial-debt-protection/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/family-guides/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/family-guides/post-overdose-discharge-support/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/family-guides/treatment-engagement-without-coercion/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/family-guides/violence-coercion-safety/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/gambling-related-harms/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/gaming-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/inhalant-use-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/methodology/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/nicotine-tobacco-dependence/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/opioid-use-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/polysubstance-use-and-overdose-risk/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/populations/adolescents-young-adults/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/populations/chronic-pain/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/populations/co-occurring-mental-health/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/populations/disability-special-needs/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/populations/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/populations/older-adults/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/populations/pregnancy-postpartum/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/protocol-atlas/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/recovery-roadmap/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/sedative-benzodiazepine-use-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/sources/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/stimulant-use-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/tools/caregiver-wellbeing-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/tools/child-safety-trusted-adult-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/tools/discharge-follow-up-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/tools/family-30-90-day-support-agreement/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/tools/family-boundaries-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/tools/family-financial-exposure-map/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/tools/family-first-conversation-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/tools/family-treatment-communication-log/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/tools/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/tools/lapse-relapse-response-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/tools/medication-household-safety-inventory/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/tools/overdose-emergency-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/tools/treatment-provider-checklist/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "addiction/withdrawal-safety/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "adhd/adult-coaching/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "adhd/consensus/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "adhd/expert-questions/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "adhd/federation-guide/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "adhd/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "adhd/language-guide/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "adhd/practice-guidelines/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "adhd/sources-and-rights/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "adhd/transfer-of-care/index.html",
       "status": "current",
       "detail": ""
     },
@@ -40,12 +340,77 @@
       "detail": ""
     },
     {
+      "path": "assessment-lab/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "assessments/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "cochrane/evidence-academy/child-rehabilitation-equity/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "cochrane/evidence-academy/evidence-literacy-and-use/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "cochrane/evidence-academy/governance-methods/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "cochrane/evidence-academy/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "cochrane/evidence-academy/learning-participation/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "cochrane/evidence-academy/mental-health-addiction/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "cochrane/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "cognitive-lab/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "cognitive-tests/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "contact/index.html",
       "status": "current",
       "detail": ""
     },
     {
       "path": "copyright/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "developers/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "downloads/index.html",
       "status": "current",
       "detail": ""
     },
@@ -57,6 +422,196 @@
     {
       "path": "evaluate-mental-health-information/index.html",
       "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/aac-home-school-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/adjustment-disorder-safe-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/anxiety-fear-differences-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/autism-adhd-differences-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/bipolar-disorder-safe-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/body-dysmorphic-disorder-safe-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/borderline-personality-safe-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/caregiver-wellbeing/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/clinical-anxiety/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/dissociation-safe-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/early-psychosis-safe-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/eating-disorders-safe-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/first-mental-health-appointment-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/grief-and-loss/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/inclusive-digital-safety-and-exploitation-prevention-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/inclusive-family-support/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/inclusive-safeguarding-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/inclusive-school-transition/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/inclusive-toileting-personal-care-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/insomnia-and-sleep/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/mental-health-foundations/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/pain-distress-communication-support-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/panic-disorder-safe-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/predictable-routines-transitions-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/ptsd-safe-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/puberty-body-safety-inclusive-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/research-digital-mental-health/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/safe-screening-tools/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/safe-screening-tools-explainer/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/school-attendance-distress-support-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/selective-mutism-safe-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/service-access-guides/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/sibling-and-family-balance/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/sleep-mental-health-evidence-brief/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/stress-burnout-depression-differences-guide/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/supported-adulthood-transition/index.html",
+      "status": "updated",
+      "detail": ""
+    },
+    {
+      "path": "evidence-guides/supported-decision-making-transition-guide/index.html",
+      "status": "updated",
       "detail": ""
     },
     {
@@ -385,7 +940,17 @@
       "detail": ""
     },
     {
+      "path": "family-guide/tools/accommodations-modifications/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "family-guide/tools/appointment-prep/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/assistive-technology-trial/index.html",
       "status": "current",
       "detail": ""
     },
@@ -395,7 +960,62 @@
       "detail": ""
     },
     {
+      "path": "family-guide/tools/communication-aac-profile/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "family-guide/tools/family-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/functional-behavior-support-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/inclusive-classroom-observation/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/individualized-education-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/measurable-goals/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/present-levels-baseline/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/progress-monitoring/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/school-family-meeting-record/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/sensory-environment-access/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/tools/transition-to-adulthood-plan/index.html",
       "status": "current",
       "detail": ""
     },
@@ -405,52 +1025,197 @@
       "detail": "missing </head>"
     },
     {
+      "path": "guided-assessment/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "hubs/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "index.html",
       "status": "current",
       "detail": ""
     },
     {
+      "path": "iris/autism-executive-functions/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "iris/behavior-foundations/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "iris/challenging-behavior/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "iris/cited-guides/assistive-technology-cycle/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "iris/cited-guides/autism-educator-practice/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "iris/cited-guides/family-school-partnership/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "iris/cited-guides/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "iris/cited-guides/universal-design-learning/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "iris/early-childhood/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "iris/family-engagement/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "iris/implementation-governance/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "iris/inclusion-accessibility/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "iris/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "iris/jordan-learning-path/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "iris/progress-monitoring/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/aac-classroom-community-implementation/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "learning-paths/aac-partner/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/accessible-content-creator/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/accessible-fair-multimodal-assessment/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/assistive-technology-coordinator/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/assistive-technology-selection-trial-implementation/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/caregiver-foundations/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/co-teaching-special-education/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/data-based-individualization-special-education/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/emergency-readiness-leader/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/evidence-literacy/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/explicit-systematic-instruction-special-education/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/family-school-partnership-special-education/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/functional-behavior-assessment-positive-support/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/iep-goals-progress-monitoring/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/inclusive-education-quality-audit/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/inclusive-school-leader/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/inclusive-teacher/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/intensive-arabic-reading-intervention/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/intensive-mathematics-intervention-special-education/index.html",
       "status": "current",
       "detail": ""
     },
@@ -460,38 +1225,68 @@
       "detail": ""
     },
     {
+      "path": "learning-paths/paraprofessional-support-student-independence/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "learning-paths/positive-behavior-support/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/postsecondary-transition-planning/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/self-advocacy/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/sensory-access/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/service-quality-audit/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/special-education/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/special-educator-evidence/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/student-led-iep-self-determination/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/supported-employment/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/task-analysis-prompting-fading/index.html",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "learning-paths/transition-coordinator/index.html",
-      "status": "updated",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "learning-paths/writing-spelling-intervention-arabic/index.html",
+      "status": "current",
       "detail": ""
     },
     {
@@ -905,6 +1700,11 @@
       "detail": ""
     },
     {
+      "path": "partners/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "platform/index.html",
       "status": "current",
       "detail": ""
@@ -1035,6 +1835,761 @@
       "detail": ""
     },
     {
+      "path": "quick-info/activity-vs-adhd/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/anger-hides-stress/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/anxiety-changes-decisions/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/anxiety-controls-day/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/anxious-attachment-relationship/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/apology-vs-manipulation/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/are-you-in-toxic-relationship/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/assertiveness-vs-aggression/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/attention-distraction-factors/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/attracted-to-unavailable/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/bad-behavior-vs-unmet-need/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/body-signs-under-stress/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/boundaries-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/boundaries-new-relationship/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/boundaries-vs-walls/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/boundaries-with-family/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/breakup-grief-vs-depression/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/breakup-harder-factors/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/build-calmer-day/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/burnout-self-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/calm-mind-before-sleep/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/calm-vs-withdrawal/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/care-vs-monitoring/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/caution-vs-hypervigilance/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/child-protection-vs-parental-anxiety/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/child-school-refusal-reasons/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/child-sleep-evaluation/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/choose-therapist/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/comparison-with-others/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/confidence-vs-narcissism/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/conflict-vs-abuse/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/critical-partner/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/criticism-vs-emotional-abuse/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/deep-thinking-vs-rumination/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/defiance-vs-regulation-difficulty/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/difficulty-saying-no/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/distraction-vs-adhd/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/do-you-have-insomnia/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/emotional-eating-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/emotional-eating-reasons/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/empathy-vs-people-pleasing/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/emptiness-reasons/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/end-relationship-safely/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/exam-stress/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/excessive-attachment-reasons/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/explain-mental-health-to-family/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/express-needs-without-blame/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/external-factors-mental-health/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/fatigue-vs-laziness/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/fear-loneliness-after-breakup/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/fear-of-commitment-reasons/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/fear-of-failure-reasons/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/fear-of-rejection-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/fear-vs-phobia/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/five-minute-overthinking-reset/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/forgetfulness-vs-stress/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/forgiveness-vs-accepting-abuse/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/friendship-after-breakup/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/guilt-after-rest/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/guilt-manipulation-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/habit-vs-addiction/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/heavy-phone-use-vs-addiction/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/help-anxious-child/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/honesty-vs-cruelty/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/humility-vs-low-self-worth/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/hunger-vs-emotional-eating/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/independence-vs-avoidant-closeness/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/inner-critic-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/introversion-vs-harmful-isolation/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/jealousy-becomes-control/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/jealousy-vs-control/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/language-delay-vs-developmental-difference/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/loneliness-vs-isolation-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/loss-of-pleasure-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/love-vs-dependency/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/love-vs-painful-attachment/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/low-motivation-day/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/missing-person-or-idea/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/missing-vs-attachment/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/mood-swings-vs-bipolar/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/night-habits-harm-sleep/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/normal-forgetting-vs-evaluation/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/optimism-vs-denial/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/order-vs-ocd/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/overthinking-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/overworking-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/panic-vs-heart-emergency/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/partner-refuses-boundaries/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/people-pleasing-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/perfectionism-vs-ocd/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/personal-mental-safety-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/phone-drain-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/prepare-first-therapy-session/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/procrastination-reasons/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/protect-child-from-bullying/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/protection-vs-control/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/psychological-reasons-low-motivation/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/psychological-reasons-waking-tired/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/quick-anger-reasons/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/real-apology-signs/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/recover-self-after-long-relationship/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/reduce-phone-use/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/relationship-drains-you/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/responsibility-vs-self-blame/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/rest-or-help-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/rest-vs-avoidance/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/restore-sleep-after-bad-week/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/return-to-routine-after-hard-time/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/sadness-vs-depression/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/safe-relationship-signs/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/say-no-without-guilt/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/self-confidence-vs-arrogance/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/sensitive-to-criticism/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/sensitivity-vs-sensory-overload/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/sensory-overload-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/shyness-vs-social-anxiety/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/silent-treatment-abuse/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/simple-mental-health-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/sleep-affects-mood/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/sleep-loss-vs-insomnia/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/sleepiness-vs-depression/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/small-mental-health-habits/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/social-avoidance-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/space-vs-silent-treatment/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/stop-checking-ex-social/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/stop-self-blame-after-betrayal/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/stress-body-check/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/stress-vs-anxiety-disorder/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/stuck-after-breakup/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/sudden-withdrawal-reasons/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/support-addiction-recovery/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/support-depressed-person/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/support-vs-rescuing/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/suspected-relapse/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/tantrum-vs-sensory-meltdown/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/temporary-distance-relationship/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/time-to-seek-help/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/tips-after-breakup/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/tired-vs-burnout/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/trust-after-betrayal/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/what-to-do-panic-attack/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/what-to-say-bereaved/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/when-getting-back-is-bad/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/why-miss-someone-who-hurt-you/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/why-stay-harmful-relationship/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/why-they-disappear-and-return/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/why-think-about-ex/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/work-burnout-factors/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/work-pressure-vs-burnout/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "quick-info/work-stress-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
       "path": "sections/index.html",
       "status": "current",
       "detail": ""
@@ -1046,52 +2601,52 @@
     },
     {
       "path": "sectors/child/guides/accessible-playground/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/bullying-protection/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/child-communication-access/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/child-health-visit/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/developmental-observation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/early-routines/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/executive-function-routines/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/friendship-support/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/play-participation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/child/guides/preschool-transition/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -1116,42 +2671,42 @@
     },
     {
       "path": "sectors/family/guides/caregiver-load-review/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/family/guides/family-emergency-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/family/guides/family-routine-redesign/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/family/guides/family-strengths-map/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/family/guides/monthly-family-review/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/family/guides/service-navigation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/family/guides/shared-family-decisions/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/family/guides/sibling-wellbeing/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -1176,37 +2731,37 @@
     },
     {
       "path": "sectors/home/guides/home-accessibility-audit/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/home/guides/home-calm-environment/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/home/guides/home-evacuation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/home/guides/home-mealtime-routine/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/home/guides/home-personal-care/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/home/guides/safe-home-movement/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "sectors/home/guides/visual-home-routines/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -1226,6 +2781,166 @@
     },
     {
       "path": "sectors/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/birth-trauma-informed-support/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/body-image-eating-warning-signs/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/caregiving-load-wellbeing-review/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/chronic-illness-disability-mental-health/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/cycle-mood-pattern-tracking/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/infertility-treatment-emotional-support/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/intimate-partner-violence-safe-help/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/perimenopause-mental-health-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/perinatal-mental-health-check-in/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/postpartum-changes-and-urgent-signs/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/pregnancy-anxiety-support-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/pregnancy-loss-grief-support/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/refugee-migrant-women-access/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/sleep-life-transition-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/guides/work-care-accommodations/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/women/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/anxiety-school-attendance/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/bullying-cyberbullying-response/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/depression-warning-response/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/early-psychosis-assessment/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/eating-disorder-warning-signs/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/help-seeking-plan/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/loneliness-friendship-conflict/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/mental-health-literacy/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/school-exam-stress/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/school-to-university-work-transition/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/self-harm-immediate-response/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/shared-decision-participation/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/sleep-digital-habits/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/substance-use-early-support/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/guides/suicide-safety-escalation/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "sectors/youth/index.html",
       "status": "current",
       "detail": ""
     },
@@ -1276,302 +2991,302 @@
     },
     {
       "path": "special-needs/practical/aac-needs-assessment-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/accessible-arabic-documents/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/accessible-forms-authentication/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/accessible-homework/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/accessible-instructions/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/activity-transition-support/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/arabic-multilingual-aac/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/assessment-accommodations/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/assistive-device-backup-maintenance/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/assistive-technology-needs-matching/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/assistive-technology-trial/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/calm-space-design/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/choice-consent-communication/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/classroom-participation-baseline/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/co-regulation-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/communication-breakdown-repair/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/communication-partner-training/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/community-participation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/community-sensory-planning/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/core-vocabulary-daily-routines/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/daily-data-notebook/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/dental-visit-preparation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/device-abandonment-prevention/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/distress-prevention-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/emergency-preparedness/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/emotional-communication-map/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/employment-discovery/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/functional-behavior-observation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/functional-communication-profile/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/goal-prioritization/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/hospital-communication-passport/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/independent-living-supports/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/lighting-visual-load/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/low-tech-supports/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/mealtime-participation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/mobility-positioning-participation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/money-skills-support/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/multidisciplinary-meeting/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/noise-management-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/pain-communication/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/peer-participation-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/personal-care-independence/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/personal-care-sensory-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/post-crisis-debrief/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/predictable-transitions/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/public-transport-readiness/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/restrictive-practice-reduction/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/safeguarding-boundaries/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/school-home-communication/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/school-reentry-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/self-injury-safety-response/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/sensory-environment-audit/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/shared-support-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/sibling-inclusion-support/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/supported-decision-making/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/toileting-dignity-plan/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/transition-needs-assessment/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/trauma-informed-support/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/universal-design-lesson-adaptation/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "special-needs/practical/workplace-accommodations/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
@@ -1626,6 +3341,16 @@
     },
     {
       "path": "team-and-partners/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "terms/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "tips/index.html",
       "status": "current",
       "detail": ""
     },
