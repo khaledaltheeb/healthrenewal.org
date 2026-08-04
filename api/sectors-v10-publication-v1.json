@@ -2,17 +2,18 @@
   "schemaVersion": 1,
   "status": "passed",
   "publisher": "materialize_sectors_v10_v1",
-  "pageCount": 34,
+  "pageCount": 37,
   "hubCount": 1,
-  "articleCount": 114,
-  "sourceReferenceCount": 138,
+  "articleCount": 125,
+  "sourceReferenceCount": 151,
   "qualityRejectedCount": 1,
   "categoryCounts": {
-    "family-inclusion": 13,
-    "mental-health": 15,
+    "family-inclusion": 15,
+    "mental-health": 16,
     "services-evidence": 6
   },
   "routes": [
+    "/evidence-guides/aac-home-school-guide/",
     "/evidence-guides/adjustment-disorder-safe-guide/",
     "/evidence-guides/anxiety-fear-differences-guide/",
     "/evidence-guides/autism-adhd-differences-guide/",
@@ -29,8 +30,10 @@
     "/evidence-guides/inclusive-digital-safety-and-exploitation-prevention-guide/",
     "/evidence-guides/inclusive-family-support/",
     "/evidence-guides/inclusive-safeguarding-guide/",
+    "/evidence-guides/inclusive-school-transition/",
     "/evidence-guides/inclusive-toileting-personal-care-guide/",
     "/evidence-guides/insomnia-and-sleep/",
+    "/evidence-guides/mental-health-foundations/",
     "/evidence-guides/pain-distress-communication-support-guide/",
     "/evidence-guides/panic-disorder-safe-guide/",
     "/evidence-guides/predictable-routines-transitions-guide/",
@@ -50,10 +53,6 @@
   ],
   "skipped": [
     {
-      "source": "content/sectors-v10/aac-home-school-guide.json",
-      "reason": "manual-publication-review-required"
-    },
-    {
       "source": "content/sectors-v10/child.json",
       "reason": "legacy-already-published"
     },
@@ -64,14 +63,6 @@
     {
       "source": "content/sectors-v10/home.json",
       "reason": "legacy-already-published"
-    },
-    {
-      "source": "content/sectors-v10/inclusive-school-transition.json",
-      "reason": "manual-publication-review-required"
-    },
-    {
-      "source": "content/sectors-v10/mental-health-foundations.json",
-      "reason": "manual-publication-review-required"
     },
     {
       "source": "content/sectors-v10/schema.json",
