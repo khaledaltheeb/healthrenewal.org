@@ -1,15 +1,31 @@
-name: Build quick info 150
+name: Build quick info 200
 
 on:
+  push:
+    branches:
+      - agent/quick-info-200
+    paths:
+      - ".github/workflows/build-quick-info-150.yml"
+      - "scripts/build_quick_info.py"
+      - "scripts/extend_quick_info_200.py"
+      - "scripts/enhance_quick_info_discover.py"
   pull_request:
     branches:
       - main
     types: [opened, reopened, synchronize]
     paths:
-      - ".github/quick-info-payload/**"
       - ".github/workflows/build-quick-info-150.yml"
+      - "scripts/build_quick_info.py"
+      - "scripts/extend_quick_info_200.py"
       - "scripts/enhance_quick_info_discover.py"
       - "quick-info/**"
+      - "assets/quick-info/**"
+      - "api/v1/quick-info.json"
+      - "sitemap-quick-info.xml"
+      - "sitemap-index.xml"
+      - "index.html"
+      - "tests/test_quick_info_section.py"
+      - "reports/quick-info-build.json"
       - "reports/quick-info-discover-observability.json"
   workflow_dispatch:
 
@@ -17,20 +33,30 @@ permissions:
   contents: write
 
 concurrency:
-  group: quick-info-150-${{ github.event.pull_request.number || github.ref }}
+  group: quick-info-200-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
-    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'agent/quick-info-150')
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'agent/quick-info-200')
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
-      - name: Checkout Quick Information branch
+      - name: Resolve source branch
+        id: source
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "branch=${{ github.event.pull_request.head.ref }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout source branch
         uses: actions/checkout@v4
         with:
-          ref: agent/quick-info-150
+          ref: ${{ steps.source.outputs.branch }}
           fetch-depth: 0
 
       - name: Configure Python
@@ -38,18 +64,24 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install image test dependency
+      - name: Install image dependency
         run: |
           python -m pip install --upgrade pip
           python -m pip install pillow
 
-      - name: Compile enhancement
-        run: python -m py_compile scripts/enhance_quick_info_discover.py
+      - name: Compile generators
+        run: |
+          python -m py_compile \
+            scripts/build_quick_info.py \
+            scripts/extend_quick_info_200.py \
+            scripts/enhance_quick_info_discover.py
 
-      - name: Enhance existing 150-page section
-        run: python scripts/enhance_quick_info_discover.py
+      - name: Build and enhance 200 pages
+        run: |
+          python scripts/extend_quick_info_200.py
+          python scripts/enhance_quick_info_discover.py
 
-      - name: Validate original section contracts
+      - name: Validate section contracts
         run: |
           python - <<'PY'
           import runpy
@@ -66,38 +98,59 @@ jobs:
               print(f"PASS {test.__name__}")
           PY
 
-      - name: Validate Discover measurement contracts
-        run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          report = json.loads(Path("reports/quick-info-discover-observability.json").read_text(encoding="utf-8"))
-          assert report["pages"] == 150, report
-          assert report["analyticsPages"] == 151, report
-          assert report["articleMetadataPages"] == 150, report
-          assert report["prioritizedCoverImages"] == 150, report
-          assert report["rssItems"] == 150, report
-          assert report["canonicalUrlsPreserved"] is True, report
-          assert report["titlesPreserved"] is True, report
-          assert report["failures"] == [], report
-          print(report)
+
+          build = json.loads(Path("reports/quick-info-build.json").read_text(encoding="utf-8"))
+          discover = json.loads(Path("reports/quick-info-discover-observability.json").read_text(encoding="utf-8"))
+          assert build["pages"] == 200, build
+          assert build["newPages"] == 50, build
+          assert build["images"] == 201, build
+          assert build["errors"] == [], build
+          assert discover["pages"] == 200, discover
+          assert discover["analyticsPages"] == 201, discover
+          assert discover["articleMetadataPages"] == 200, discover
+          assert discover["prioritizedCoverImages"] == 200, discover
+          assert discover["rssItems"] == 200, discover
+          assert discover["canonicalUrlsPreserved"] is True, discover
+          assert discover["titlesPreserved"] is True, discover
+          assert discover["failures"] == [], discover
+          print(build)
+          print(discover)
           PY
-          test "$(grep -rl 'G-VLZMV8Y4JP' quick-info/index.html quick-info/*/index.html | wc -l)" -eq 151
-          test "$(grep -rl 'fetchpriority="high"' quick-info/*/index.html | wc -l)" -eq 150
-          test "$(grep -rl 'property="article:published_time"' quick-info/*/index.html | wc -l)" -eq 150
-          test "$(grep -o '<item>' quick-info/feed.xml | wc -l)" -eq 150
 
-      - name: Remove bootstrap trigger
-        run: rm -rf .github/quick-info-payload
+          test "$(find quick-info -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 200
+          test "$(find assets/quick-info/cards -maxdepth 1 -name '*.png' | wc -l)" -eq 200
+          test "$(grep -rl 'G-VLZMV8Y4JP' quick-info/index.html quick-info/*/index.html | wc -l)" -eq 201
+          test "$(grep -rl 'fetchpriority="high"' quick-info/*/index.html | wc -l)" -eq 200
+          test "$(grep -o '<item>' quick-info/feed.xml | wc -l)" -eq 200
+          test "$(grep -o '<url>' sitemap-quick-info.xml | wc -l)" -eq 201
+          grep -q '200 صفحة' quick-info/index.html
+          grep -q 'خدر عاطفي أم هدوء' quick-info/emotional-numbness-vs-calm/index.html
+          grep -q 'كيف تستعد لموعد الطبيب النفسي' quick-info/prepare-psychiatry-appointment/index.html
+          python scripts/verify_homepage_v19.py
 
-      - name: Commit generated enhancement
+      - name: Commit generated section
+        env:
+          SOURCE_BRANCH: ${{ steps.source.outputs.branch }}
         run: |
+          set -euo pipefail
           git config user.name "Quick Info Automation"
           git config user.email "actions@users.noreply.github.com"
-          git add quick-info reports/quick-info-discover-observability.json .github/quick-info-payload
+          git add \
+            quick-info \
+            assets/quick-info \
+            api/v1/quick-info.json \
+            sitemap-quick-info.xml \
+            sitemap-index.xml \
+            index.html \
+            tests/test_quick_info_section.py \
+            reports/quick-info-build.json \
+            reports/quick-info-discover-observability.json
           if git diff --cached --quiet; then
             echo "No generated changes to commit"
             exit 0
           fi
-          git commit -m "feat(quick-info): publish Discover measurement and feed"
-          git push origin HEAD:agent/quick-info-150
+          git commit -m "feat(quick-info): publish 200-page section"
+          git push origin "HEAD:${SOURCE_BRANCH}"
