@@ -9,6 +9,7 @@ on:
       - "api/women-daily-calendar-v1.json"
       - "scripts/apply_homepage_v20.py"
       - "scripts/publish_calendars_v221.py"
+      - "scripts/finalize_calendar_release_once.py"
       - "tests/test_women_daily_calendar.py"
       - "sitemap-women-calendar.xml"
       - "sitemap-calendars.xml"
@@ -24,6 +25,7 @@ on:
       - "api/women-daily-calendar-v1.json"
       - "scripts/apply_homepage_v20.py"
       - "scripts/publish_calendars_v221.py"
+      - "scripts/finalize_calendar_release_once.py"
       - "tests/test_women_daily_calendar.py"
       - "sitemap-women-calendar.xml"
       - "sitemap-calendars.xml"
@@ -76,3 +78,52 @@ jobs:
               test()
               print(f"PASS {test.__name__}")
           PY
+
+  finalize-release:
+    if: github.event_name == 'pull_request' && github.head_ref == 'agent/women-calendar-publish-v3'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/women-calendar-publish-v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Apply final release cleanup
+        run: python scripts/finalize_calendar_release_once.py
+      - name: Validate calendar-owned release surfaces
+        run: |
+          node --check sectors/women/daily-calendar/calendar.js
+          node --check sectors/women/daily-calendar/calendar-core.js
+          node --check sectors/women/daily-calendar/calendar-enhancements.js
+          python -m py_compile scripts/apply_homepage_v20.py scripts/publish_calendars_v221.py tests/test_women_daily_calendar.py tests/test_student_daily_calendar.py
+          python - <<'PY'
+          import runpy
+          from pathlib import Path
+          from scripts.normalize_platform_shell import normalize_file
+          root = Path('.').resolve()
+          for relative in ('sectors/calendars/index.html', 'sectors/calendars/women/index.html'):
+              result = normalize_file(root / relative, root, check_only=True)
+              if result.status != 'current':
+                  raise SystemExit(f'{relative}: {result.status} {result.detail}')
+              print(f'PASS normalized {relative}')
+          for path in ('tests/test_women_daily_calendar.py', 'tests/test_student_daily_calendar.py'):
+              namespace = runpy.run_path(path)
+              for name, test in sorted(namespace.items()):
+                  if name.startswith('test_') and callable(test):
+                      test()
+                      print(f'PASS {path}: {name}')
+          PY
+      - name: Commit final release cleanup
+        run: |
+          git config user.name "rawafid-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "fix(calendars): finalize public release surfaces"
+          git push origin HEAD:agent/women-calendar-publish-v3
