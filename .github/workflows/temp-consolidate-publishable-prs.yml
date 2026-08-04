@@ -1,154 +1,159 @@
-name: Temporary consolidate publishable pull requests
+name: Temporary consolidate publishable repairs
 
 on:
-  issues:
-    types: [opened]
+  push:
+    branches: [main]
+    paths:
+      - .github/consolidation-trigger.txt
 
 permissions:
   contents: write
   pull-requests: write
-  issues: write
 
 jobs:
   consolidate:
-    if: github.event.issue.title == '[TEMP] Consolidate publishable PRs'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Checkout latest main
+      - name: Checkout current main
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      - name: Rebuild safe changes on current main
-        id: consolidate
+      - name: Build current-main publication repair
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          branch="release/consolidate-publishable-${ISSUE_NUMBER}"
+          branch="release/current-main-publication-repair-${GITHUB_RUN_ID}"
           git checkout -B "$branch" origin/main
 
-          # These are small, scoped PRs whose stated fixes remain relevant on the
-          # current publication surface. Conflicting PRs are skipped rather than
-          # forcing stale code over newer main changes.
-          prs=(934 931 912 899 898 895 892 891 889 887 884 882 870 855 575 567)
-          applied=()
-          skipped=()
-
-          for pr in "${prs[@]}"; do
-            remote_ref="refs/remotes/origin/pr-${pr}"
-            if ! git fetch --no-tags origin "pull/${pr}/head:${remote_ref}"; then
-              skipped+=("#${pr}:fetch-failed")
-              continue
-            fi
-            sha="$(git rev-parse "$remote_ref")"
-            if git cherry-pick -x "$sha"; then
-              applied+=("#${pr}")
-            else
-              git cherry-pick --abort || true
-              skipped+=("#${pr}:conflict")
-            fi
-          done
-
-          # Apply current-main-safe repairs for changes whose old branch context
-          # may conflict, while preserving the latest branding and generators.
           python3 - <<'PY'
           from pathlib import Path
           import json
           import re
           import xml.etree.ElementTree as ET
 
-          def read(path: str) -> str:
-              return Path(path).read_text(encoding="utf-8")
+          def update_text(path: str, transform) -> None:
+              file = Path(path)
+              text = file.read_text(encoding="utf-8")
+              file.write_text(transform(text), encoding="utf-8")
 
-          def write(path: str, text: str) -> None:
-              Path(path).write_text(text, encoding="utf-8")
+          # Correct public language signals. The English and Spanish source
+          # records remain drafts until actual published HTML exists.
+          update_text(
+              "index.html",
+              lambda text: re.sub(
+                  r'^<link rel="alternate" hreflang="(?:en|es)"[^\n]*>\n?',
+                  "",
+                  text,
+                  flags=re.M,
+              ),
+          )
 
-          # robots.txt: explicit AI-search crawler permission without changing
-          # the current authoritative sitemap decision.
+          def repair_homepage_headings(text: str) -> str:
+              return re.sub(
+                  r'<p class="item-title">(.*?)</p>',
+                  r'<h3 class="item-title">\1</h3>',
+                  text,
+                  flags=re.S,
+              )
+          update_text("index.html", repair_homepage_headings)
+
+          update_text(
+              "llms.txt",
+              lambda text: text.replace(
+                  "Additional languages: English (en), Spanish (es)",
+                  "Published languages: Arabic (ar)",
+              ),
+          )
+
+          def repair_llms_full(text: str) -> str:
+              text = text.replace(
+                  "Primary language: Arabic; selected English and Spanish gateways are included.",
+                  "Published language: Arabic (ar).",
+              )
+              text = re.sub(r'^- \[HealthRenewal English gateway\].*\n?', "", text, flags=re.M)
+              text = re.sub(r'^- \[Portal de HealthRenewal en español\].*\n?', "", text, flags=re.M)
+              return re.sub(r'^Generated: .*$', "Generated: 2026-08-04T10:15:00Z", text, flags=re.M)
+          update_text("llms-full.txt", repair_llms_full)
+
+          i18n_path = Path("content/i18n/v72/homepage.json")
+          data = json.loads(i18n_path.read_text(encoding="utf-8"))
+          for locale in ("en", "es"):
+              record = data.get("locales", {}).get(locale)
+              if not record:
+                  continue
+              record["status"] = "draft"
+              for row in record.get("stats", []):
+                  if isinstance(row, list) and row and row[0] == "88":
+                      row[0] = "93"
+          data["updated_at"] = "2026-08-04"
+          i18n_path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+          # Repair RSS by publishing only source-backed HTML destinations.
+          Path("feed.xml").write_text('''<?xml version="1.0" encoding="utf-8"?>
+          <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+            <channel>
+              <title>منصة روافد | العافية النفسية والدمج والتمكين</title>
+              <link>https://healthrenewal.org/</link>
+              <atom:link href="https://healthrenewal.org/feed.xml" rel="self" type="application/rss+xml" />
+              <description>الخلاصة العامة للمحتوى التعليمي القابل للاكتشاف والاستشهاد في منصة روافد.</description>
+              <language>ar</language>
+              <lastBuildDate>Tue, 04 Aug 2026 10:15:00 +0000</lastBuildDate>
+              <generator>Rawafid machine-readable surface v2</generator>
+              <item><title>منصة روافد</title><link>https://healthrenewal.org/</link><guid isPermaLink="true">https://healthrenewal.org/</guid><description>بوابة عربية مؤسسية للعافية النفسية والدمج والتمكين.</description><pubDate>Tue, 04 Aug 2026 10:15:00 +0000</pubDate></item>
+              <item><title>ابدأ من هنا</title><link>https://healthrenewal.org/start-here/</link><guid isPermaLink="true">https://healthrenewal.org/start-here/</guid><description>نقطة دخول منظمة لاختيار القسم أو الدليل أو الأداة المناسبة.</description><pubDate>Tue, 04 Aug 2026 10:15:00 +0000</pubDate></item>
+              <item><title>ذوو الاحتياجات الخاصة والتربية الدامجة</title><link>https://healthrenewal.org/special-needs/</link><guid isPermaLink="true">https://healthrenewal.org/special-needs/</guid><description>أدلة ومعرفة منظمة للأسر والمختصين ومقدمي الخدمات.</description><pubDate>Tue, 04 Aug 2026 10:15:00 +0000</pubDate></item>
+              <item><title>دليل الأسرة للرعاية والدعم</title><link>https://healthrenewal.org/family-guide/</link><guid isPermaLink="true">https://healthrenewal.org/family-guide/</guid><description>إرشادات عملية لدعم الفهم والتواصل والرعاية الآمنة.</description><pubDate>Tue, 04 Aug 2026 10:15:00 +0000</pubDate></item>
+              <item><title>المجلة العلمية</title><link>https://healthrenewal.org/magazine/</link><guid isPermaLink="true">https://healthrenewal.org/magazine/</guid><description>ملخصات وتحليلات عربية للأبحاث مع روابط المصادر الأصلية.</description><pubDate>Tue, 04 Aug 2026 10:15:00 +0000</pubDate></item>
+              <item><title>مركز الإدمان والتعافي</title><link>https://healthrenewal.org/addiction/</link><guid isPermaLink="true">https://healthrenewal.org/addiction/</guid><description>أدلة سلامة وعلاج وتعافٍ مبنية على المراجع المعلنة.</description><pubDate>Tue, 04 Aug 2026 10:15:00 +0000</pubDate></item>
+              <item><title>الأدوات النفسية التفاعلية</title><link>https://healthrenewal.org/daily-tools/</link><guid isPermaLink="true">https://healthrenewal.org/daily-tools/</guid><description>أدوات تثقيفية وتنظيمية لا تستبدل التقييم أو العلاج الفردي.</description><pubDate>Tue, 04 Aug 2026 10:15:00 +0000</pubDate></item>
+              <item><title>مسارات التعلم</title><link>https://healthrenewal.org/learning-paths/</link><guid isPermaLink="true">https://healthrenewal.org/learning-paths/</guid><description>مسارات منظمة تربط المفاهيم بالأدلة والتطبيق.</description><pubDate>Tue, 04 Aug 2026 10:15:00 +0000</pubDate></item>
+            </channel>
+          </rss>
+          '''.replace("          ", ""), encoding="utf-8")
+
+          # Explicit crawler permission while preserving the current primary sitemap.
           robots_path = Path("robots.txt")
           robots = robots_path.read_text(encoding="utf-8")
           if "User-agent: OAI-SearchBot" not in robots:
-              block = "User-agent: OAI-SearchBot\nAllow: /\n\n"
-              robots = block + robots
-              robots_path.write_text(robots, encoding="utf-8")
+              robots = "User-agent: OAI-SearchBot\nAllow: /\n\n" + robots
+          robots_path.write_text(robots, encoding="utf-8")
 
-          # Published locale contract: source and public discovery must not claim
-          # unpublished English/Spanish pages.
-          index_path = Path("index.html")
-          index = index_path.read_text(encoding="utf-8")
-          index = re.sub(r'^<link rel="alternate" hreflang="(?:en|es)"[^\n]*>\n?', "", index, flags=re.M)
-          index_path.write_text(index, encoding="utf-8")
-
-          llms_path = Path("llms.txt")
-          llms = llms_path.read_text(encoding="utf-8")
-          llms = llms.replace(
-              "Additional languages: English (en), Spanish (es)",
-              "Published languages: Arabic (ar)",
-          )
-          llms_path.write_text(llms, encoding="utf-8")
-
-          full_path = Path("llms-full.txt")
-          full = full_path.read_text(encoding="utf-8")
-          full = full.replace(
-              "Primary language: Arabic; selected English and Spanish gateways are included.",
-              "Published language: Arabic (ar).",
-          )
-          full = re.sub(r'^- \[HealthRenewal English gateway\].*\n?', "", full, flags=re.M)
-          full = re.sub(r'^- \[Portal de HealthRenewal en español\].*\n?', "", full, flags=re.M)
-          full = re.sub(r'^Generated: .*$', "Generated: 2026-08-04T10:00:00Z", full, flags=re.M)
-          full_path.write_text(full, encoding="utf-8")
-
-          i18n_path = Path("content/i18n/v72/homepage.json")
-          if i18n_path.exists():
-              data = json.loads(i18n_path.read_text(encoding="utf-8"))
-              for locale in ("en", "es"):
-                  if locale in data.get("locales", {}):
-                      data["locales"][locale]["status"] = "draft"
-                      stats = data["locales"][locale].get("stats", [])
-                      for row in stats:
-                          if isinstance(row, list) and row and row[0] == "88":
-                              row[0] = "93"
-              data["updated_at"] = "2026-08-04"
-              i18n_path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
-          # Remove non-HTML API endpoints from URL sitemaps.
-          sitemap_api_urls = {
+          # Remove machine endpoints from URL sitemaps; APIs remain discoverable
+          # through documentation and API manifests, not page-index sitemaps.
+          api_urls = {
               "sitemap-specialists-partners.xml": "https://healthrenewal.org/api/v1/specialists-partners.json",
               "sitemap-source-registry.xml": "https://healthrenewal.org/api/source-registry.json",
               "sitemap-outside-the-box-evidence.xml": "https://healthrenewal.org/api/outside-the-box-evidence-standard-v301.json",
           }
-          for filename, target_url in sitemap_api_urls.items():
+          namespace = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
+          ET.register_namespace("", "http://www.sitemaps.org/schemas/sitemap/0.9")
+          for filename, target in api_urls.items():
               path = Path(filename)
-              if not path.exists():
-                  continue
               root = ET.fromstring(path.read_text(encoding="utf-8"))
-              ns = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
               for node in list(root):
-                  loc = node.find(f"{ns}loc")
-                  if loc is not None and (loc.text or "").strip() == target_url:
+                  loc = node.find(namespace + "loc")
+                  if loc is not None and (loc.text or "").strip() == target:
                       root.remove(node)
-              ET.register_namespace("", "http://www.sitemaps.org/schemas/sitemap/0.9")
               ET.ElementTree(root).write(path, encoding="utf-8", xml_declaration=True)
 
-          # Ensure current family-guide metadata uses a focused title consistently.
-          family_path = Path("family-guide/index.html")
-          family = family_path.read_text(encoding="utf-8")
-          old_title = "دليل الأسرة للأشخاص ذوي الاحتياجات الخاصة | 64 دليل حالة و15 أداة للرعاية والدعم"
-          new_title = "دليل الأسرة للرعاية والدعم | 64 حالة و15 أداة عملية"
-          family = family.replace(old_title, new_title)
-          family_path.write_text(family, encoding="utf-8")
+          # Focus the family guide title consistently across title and social metadata.
+          update_text(
+              "family-guide/index.html",
+              lambda text: text.replace(
+                  "دليل الأسرة للأشخاص ذوي الاحتياجات الخاصة | 64 دليل حالة و15 أداة للرعاية والدعم",
+                  "دليل الأسرة للرعاية والدعم | 64 حالة و15 أداة عملية",
+              ),
+          )
 
-          # Make OpenSearch contract explicit while preserving the current search route.
-          opensearch_path = Path("opensearch.xml")
-          opensearch = '''<?xml version="1.0" encoding="UTF-8"?>
+          # Explicit OpenSearch contract using the existing AI-search route.
+          Path("opensearch.xml").write_text('''<?xml version="1.0" encoding="UTF-8"?>
           <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
             <ShortName>البحث الذكي</ShortName>
             <Description>بحث دلالي عربي في منصة روافد</Description>
@@ -161,52 +166,103 @@ jobs:
             <Url type="text/html" rel="results" method="get" template="https://healthrenewal.org/ai-search/?q={searchTerms}"/>
             <Query role="example" searchTerms="الصحة النفسية"/>
           </OpenSearchDescription>
-          '''
-          opensearch = "\n".join(line.strip() for line in opensearch.strip().splitlines()) + "\n"
-          opensearch_path.write_text(opensearch, encoding="utf-8")
+          '''.replace("          ", ""), encoding="utf-8")
 
-          # Validate all modified XML files before commit.
-          for xml_file in [
+          # Match visible breadcrumb navigation to the existing BreadcrumbList schema.
+          api_path = Path("api/index.html")
+          api = api_path.read_text(encoding="utf-8")
+          if 'class="breadcrumbs"' not in api:
+              api = api.replace(
+                  "main{padding:50px 0}",
+                  "main{padding:50px 0}.breadcrumbs{margin:0 0 18px;color:var(--muted);font-size:.95rem}.breadcrumbs ol{display:flex;flex-wrap:wrap;gap:.45rem;list-style:none;padding:0;margin:0}.breadcrumbs li+li::before{content:\"/\";margin-inline-end:.45rem;color:var(--muted)}.breadcrumbs a{color:var(--brand)}",
+                  1,
+              )
+              api = api.replace(
+                  '<main><div class="wrap">\n',
+                  '<main><div class="wrap">\n<nav class="breadcrumbs" aria-label="مسار التنقل"><ol><li><a href="../">الرئيسية</a></li><li aria-current="page">واجهة API والتكامل</li></ol></nav>\n',
+                  1,
+              )
+          api_path.write_text(api, encoding="utf-8")
+
+          # Add a focused regression contract for the release surface.
+          Path("tests/test_release_discovery_contract.py").write_text(r'''import json
+          import re
+          import unittest
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          ROOT = Path(__file__).resolve().parents[1]
+
+          class ReleaseDiscoveryContract(unittest.TestCase):
+              def test_only_published_homepage_locales_are_advertised(self):
+                  home = (ROOT / "index.html").read_text(encoding="utf-8")
+                  self.assertNotIn('hreflang="en"', home)
+                  self.assertNotIn('hreflang="es"', home)
+                  self.assertGreaterEqual(len(re.findall(r'<h3 class="item-title">', home)), 16)
+
+                  source = json.loads((ROOT / "content/i18n/v72/homepage.json").read_text(encoding="utf-8"))
+                  self.assertEqual(source["locales"]["en"]["status"], "draft")
+                  self.assertEqual(source["locales"]["es"]["status"], "draft")
+
+              def test_machine_discovery_surfaces_are_consistent(self):
+                  llms = (ROOT / "llms.txt").read_text(encoding="utf-8")
+                  full = (ROOT / "llms-full.txt").read_text(encoding="utf-8")
+                  self.assertIn("Published languages: Arabic (ar)", llms)
+                  self.assertNotIn("Additional languages:", llms)
+                  self.assertNotIn("/en/", full)
+                  self.assertNotIn("/es/", full)
+
+                  feed = (ROOT / "feed.xml").read_text(encoding="utf-8")
+                  ET.fromstring(feed)
+                  for missing in ("/encyclopedia/", "/library/", "/care-guides/"):
+                      self.assertNotIn(missing, feed)
+                  self.assertIn('rel="self"', feed)
+
+              def test_url_sitemaps_contain_html_routes_only(self):
+                  for filename in (
+                      "sitemap-specialists-partners.xml",
+                      "sitemap-source-registry.xml",
+                      "sitemap-outside-the-box-evidence.xml",
+                  ):
+                      text = (ROOT / filename).read_text(encoding="utf-8")
+                      ET.fromstring(text)
+                      self.assertNotIn(".json</loc>", text)
+
+              def test_search_crawler_and_opensearch_contracts(self):
+                  robots = (ROOT / "robots.txt").read_text(encoding="utf-8")
+                  self.assertIn("User-agent: OAI-SearchBot", robots)
+                  opensearch = (ROOT / "opensearch.xml").read_text(encoding="utf-8")
+                  ET.fromstring(opensearch)
+                  self.assertIn("<Language>ar</Language>", opensearch)
+                  self.assertIn('rel="self"', opensearch)
+                  self.assertIn('rel="results"', opensearch)
+
+              def test_visible_api_breadcrumb_and_family_title(self):
+                  api = (ROOT / "api/index.html").read_text(encoding="utf-8")
+                  self.assertIn('aria-label="مسار التنقل"', api)
+                  family = (ROOT / "family-guide/index.html").read_text(encoding="utf-8")
+                  title = re.search(r"<title>(.*?)</title>", family).group(1)
+                  self.assertLessEqual(len(title), 60)
+
+          if __name__ == "__main__":
+              unittest.main()
+          '''.replace("          ", ""), encoding="utf-8")
+
+          # Parse every modified XML before allowing the branch to be published.
+          for filename in (
               "feed.xml", "opensearch.xml", "sitemap-specialists-partners.xml",
               "sitemap-source-registry.xml", "sitemap-outside-the-box-evidence.xml",
               "sitemap.xml", "sitemap-index.xml",
-          ]:
-              if Path(xml_file).exists():
-                  ET.parse(xml_file)
+          ):
+              ET.parse(filename)
           PY
 
+          python3 -m unittest tests.test_release_discovery_contract
           git add -A
-          if git diff --cached --quiet; then
-            gh issue comment "$ISSUE_NUMBER" --body "No remaining safe changes were found on current main. Applied: ${applied[*]:-none}. Skipped: ${skipped[*]:-none}."
-            exit 0
-          fi
-
-          git commit -m "fix: consolidate publishable SEO and discovery repairs"
+          git commit -m "fix: consolidate current publication and discovery repairs"
           git push --force-with-lease origin "$branch"
-
-          applied_text="${applied[*]:-none}"
-          skipped_text="${skipped[*]:-none}"
-          body=$(cat <<EOF
-          ## Purpose
-          Rebuild safe, scoped publication fixes on the current main branch instead of merging stale or conflicting historical branches.
-
-          ## Automatically applied PR commits
-          ${applied_text}
-
-          ## Skipped because of conflicts or fetch failures
-          ${skipped_text}
-
-          ## Current-main repairs included
-          - Remove unpublished en/es hreflang and discovery claims.
-          - Remove JSON API endpoints from URL sitemaps.
-          - Repair RSS discovery routes and self-identification.
-          - Add explicit OAI-SearchBot permission without changing the current sitemap authority.
-          - Focus family-guide title metadata.
-          - Make OpenSearch language, self, and results contracts explicit.
-          - Align i18n locale status and inventory counts.
-
-          This PR must be reviewed against the final head SHA and merged only after its relevant CI gates complete.
-          EOF
-          )
-          pr_url=$(gh pr create --base main --head "$branch" --title "fix: consolidate publishable SEO and discovery repairs" --body "$body")
-          gh issue comment "$ISSUE_NUMBER" --body "CONSOLIDATION_READY\n${pr_url}\nApplied: ${applied_text}\nSkipped: ${skipped_text}"
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "fix: consolidate current publication and discovery repairs" \
+            --body "Rebuilds the safe, still-relevant publication fixes directly on current main. Corrects broken RSS routes, unpublished locale signals, JSON entries in URL sitemaps, OpenSearch metadata, API breadcrumb parity, family-guide title length, crawler permission, semantic homepage card headings, and i18n status/count drift. Includes a focused regression contract."
