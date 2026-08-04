@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "special-needs/conditions/cerebral-palsy/**"
+      - "special-needs/conditions/index.html"
       - "sitemap-cerebral-palsy.xml"
       - "sitemap-index.xml"
       - "tests/test_cerebral_palsy_publication_contract.py"
@@ -11,6 +12,7 @@ on:
   pull_request:
     paths:
       - "special-needs/conditions/cerebral-palsy/**"
+      - "special-needs/conditions/index.html"
       - "sitemap-cerebral-palsy.xml"
       - "sitemap-index.xml"
       - "tests/test_cerebral_palsy_publication_contract.py"
