@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "addiction-expansion-v4",
+  "status": "passed-local",
+  "generatedAt": "2026-08-04T09:11:00+03:00",
+  "newPopulationGuides": 6,
+  "totalPopulationGuides": 12,
+  "newEmergingGuides": 8,
+  "emergingGatewayPages": 9,
+  "newStructuredSources": 12,
+  "newMappedClaims": 28,
+  "totalStructuredSources": 36,
+  "totalMappedClaims": 70,
+  "sitemapRoutes": 66,
+  "safety": {
+    "classificationBoundaryOnEveryEmergingGuide": true,
+    "noIndividualDosing": true,
+    "noAbruptSedativeWithdrawalInstructions": true,
+    "noHomeDetoxProtocol": true,
+    "noGuaranteedCure": true,
+    "externalReviewForUnsettledClassification": true,
+    "hiddenPayload": false,
+    "selfWritingWorkflow": false
+  },
+  "tracking": {
+    "programIssue": 918,
+    "waveIssue": 965
+  }
+}

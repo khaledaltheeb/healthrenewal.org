@@ -1,0 +1,47 @@
+name: Validate addiction expansion v4
+
+on:
+  pull_request:
+    paths:
+      - "addiction/populations/**"
+      - "addiction/emerging/**"
+      - "api/addiction-expansion-v4.json"
+      - "api/v1/addiction-center.json"
+      - "data/addiction-evidence/source-registry-v4.json"
+      - "data/addiction-evidence/claim-source-map-v4.json"
+      - "docs/addiction-expansion-v4.md"
+      - "tests/test_addiction_expansion_v4.py"
+      - "sitemap-addiction.xml"
+      - ".github/workflows/validate-addiction-expansion-v4.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: addiction-expansion-v4-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and run v4 contracts
+        run: |
+          set -euxo pipefail
+          python -m py_compile tests/test_addiction_expansion_v4.py
+          python - <<'PY'
+          import runpy
+          ns = runpy.run_path("tests/test_addiction_expansion_v4.py")
+          tests = [v for k, v in sorted(ns.items()) if k.startswith("test_") and callable(v)]
+          if len(tests) != 5:
+              raise SystemExit(f"Expected 5 tests, found {len(tests)}")
+          for test in tests:
+              test()
+              print(f"PASS {test.__name__}")
+          PY

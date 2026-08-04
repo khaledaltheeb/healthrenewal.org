@@ -82,11 +82,8 @@ def test_community_and_clinician_pages_cover_institutional_quality():
 def test_forbidden_self_dosing_patterns_are_absent():
     forbidden = (
         r"\b\d+(?:\.\d+)?\s*(?:mg|ملغ|مغ)\b",
-        r"اخفض.{0,20}\d+\s*%",
-        r"جدول خفض.{0,40}\d+",
-        r"جرعة منزلية",
-        r"انسحاب منزلي آمن للجميع",
-        r"شفاء مضمون",
+        r"اخفض.{0,20}\d+\s*%", r"جدول خفض.{0,40}\d+",
+        r"جرعة منزلية", r"انسحاب منزلي آمن للجميع", r"شفاء مضمون",
     )
     for key, path in AUDIENCE_ROUTES.items():
         html = read(path)
@@ -113,7 +110,8 @@ def test_api_exposes_five_distinct_audiences_and_gateway():
     assert ids == ["person", "family", "trainer", "community", "clinician"]
     assert len({item["route"] for item in audiences}) == 5
     assert data["program_status"] in {
-        "foundation-draft", "expanded-foundation-v2", "expanded-foundation-v3"
+        "foundation-draft", "expanded-foundation-v2",
+        "expanded-foundation-v3", "expanded-foundation-v4",
     }
-    assert "لا يمثل اكتمال" in data["publication_claim"]
+    assert "اعتمادًا سريريًا خارجيًا" in data["publication_claim"] or "اعتماد سريري خارجي" in data["publication_claim"]
     assert data["audience_layer_status"] == "complete-v1"

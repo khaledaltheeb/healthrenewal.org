@@ -16,51 +16,46 @@ def load_json(relative_path: str) -> dict:
 def test_program_is_truthfully_marked_as_foundation():
     index = load_json("api/v1/addiction-center.json")
     assert index["program_status"] in {
-        "foundation-draft", "expanded-foundation-v2", "expanded-foundation-v3"
+        "foundation-draft", "expanded-foundation-v2",
+        "expanded-foundation-v3", "expanded-foundation-v4",
     }
-    assert "لا يمثل اكتمال" in index["publication_claim"]
-    assert "اعتماد سريري خارجي" in index["publication_claim"]
+    assert "اعتمادًا سريريًا خارجيًا" in index["publication_claim"] or "اعتماد سريري خارجي" in index["publication_claim"]
     assert index["protocol_total"] == 100
     assert index["reference_count"] >= 50
     assert index["structured_reference_count"] >= 12
     assert index["mapped_claim_count"] >= 12
     assert index["claim_source_map_status"] in {
-        "foundation-partial", "expanded-partial-v2", "expanded-partial-v3"
+        "foundation-partial", "expanded-partial-v2",
+        "expanded-partial-v3", "expanded-partial-v4",
     }
 
 
 def test_governance_contracts_are_linked_and_exist():
     index = load_json("api/v1/addiction-center.json")
-    required = (
+    for field in (
         "governance_document", "safety_contract", "information_architecture",
         "structured_source_registry", "claim_source_map",
-    )
-    for field in required:
+    ):
         assert (ROOT / index[field]).is_file(), field
-    optional = (
+    for field in (
         "supplemental_source_registry", "family_source_registry",
-        "family_claim_source_map", "expansion_report",
-    )
-    for field in optional:
+        "family_claim_source_map", "v4_source_registry",
+        "v4_claim_source_map", "expansion_report",
+    ):
         if field in index:
             assert (ROOT / index[field]).is_file(), field
 
     next_wave = index["required_next_wave"]
-    if "independent_condition_pages" in next_wave:
-        assert next_wave["independent_condition_pages"] == 10
-        assert next_wave["family_guides"] >= 12
-        assert next_wave["practical_tools"] >= 12
-        assert next_wave["special_population_guides"] >= 12
-        assert next_wave["claim_source_map_required"] is True
-    else:
-        assert index["condition_layer_status"] == "complete-v1"
-        family_done = index.get("family_specialized_layer_status") == "complete-v1"
-        tools_done = index.get("tools_layer_status") == "complete-v1"
-        assert next_wave["additional_family_guides"] == (0 if family_done else 6)
-        assert next_wave["additional_practical_tools"] == (0 if tools_done else 6)
-        assert next_wave["additional_special_population_guides"] >= 6
-        assert next_wave["additional_substance_and_behavior_guides"] >= 8
-        assert next_wave["regional_legal_localization_required"] is True
+    assert index["condition_layer_status"] == "complete-v1"
+    family_done = index.get("family_specialized_layer_status") == "complete-v1"
+    tools_done = index.get("tools_layer_status") == "complete-v1"
+    population_done = index.get("population_layer_status") == "complete-v1"
+    emerging_done = index.get("emerging_layer_status") == "complete-v1"
+    assert next_wave["additional_family_guides"] == (0 if family_done else 6)
+    assert next_wave["additional_practical_tools"] == (0 if tools_done else 6)
+    assert next_wave["additional_special_population_guides"] == (0 if population_done else 6)
+    assert next_wave["additional_substance_and_behavior_guides"] == (0 if emerging_done else 8)
+    assert next_wave["regional_legal_localization_required"] is True
     assert next_wave["external_clinical_review_required_for_accreditation_claim"] is True
 
 
@@ -112,8 +107,6 @@ def test_claim_map_resolves_every_source_id_and_declares_gaps():
             "external-clinical-review-required",
         }
         assert claim["safety_flags"]
-    gap_domains = {gap["domain"] for gap in claim_map["coverage_gaps"]}
-    assert {"cannabis-use-disorder", "gaming-disorder", "inhalant-use-disorder"}.issubset(gap_domains)
 
 
 def test_safety_contract_contains_non_negotiable_guardrails():

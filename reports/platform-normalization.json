@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-08-04T06:10:01.498536+00:00",
+  "generated_at": "2026-08-04T07:10:05.549211+00:00",
   "mode": "write",
   "root": "/home/runner/work/healthrenewal.org/healthrenewal.org",
   "runtime": {
@@ -11,11 +11,11 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 668,
-  "html_pages_normalized_or_current": 667,
+  "html_pages_seen": 683,
+  "html_pages_normalized_or_current": 682,
   "counts": {
-    "current": 629,
-    "updated": 38,
+    "current": 665,
+    "updated": 17,
     "skipped": 1
   },
   "results": [
@@ -75,6 +75,51 @@
       "detail": ""
     },
     {
+      "path": "addiction/emerging/anabolic-steroid-performance-drug-misuse/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "addiction/emerging/caffeine-excessive-use-withdrawal/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "addiction/emerging/compulsive-buying-financial-behaviour/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "addiction/emerging/compulsive-sexual-behaviour/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "addiction/emerging/dissociative-drug-related-harms/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "addiction/emerging/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "addiction/emerging/prescription-medicine-misuse/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "addiction/emerging/problematic-internet-social-media-use/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "addiction/emerging/psychedelic-hallucinogen-related-harms/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
       "path": "addiction/family-guide/index.html",
       "status": "current",
       "detail": ""
@@ -126,8 +171,8 @@
     },
     {
       "path": "addiction/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "addiction/inhalant-use-disorder/index.html",
@@ -170,14 +215,34 @@
       "detail": ""
     },
     {
+      "path": "addiction/populations/complex-medical-conditions/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
       "path": "addiction/populations/disability-special-needs/index.html",
       "status": "current",
       "detail": ""
     },
     {
+      "path": "addiction/populations/homelessness-housing-instability/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
       "path": "addiction/populations/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "addiction/populations/injection-related-infections-integrated-care/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "addiction/populations/justice-reentry/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "addiction/populations/older-adults/index.html",
@@ -188,6 +253,16 @@
       "path": "addiction/populations/pregnancy-postpartum/index.html",
       "status": "current",
       "detail": ""
+    },
+    {
+      "path": "addiction/populations/refugees-displacement-complex-trauma/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "addiction/populations/rural-remote-limited-resources/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "addiction/protocol-atlas/index.html",
@@ -426,192 +501,192 @@
     },
     {
       "path": "evidence-guides/aac-home-school-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/adjustment-disorder-safe-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/anxiety-fear-differences-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/autism-adhd-differences-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/bipolar-disorder-safe-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/body-dysmorphic-disorder-safe-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/borderline-personality-safe-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/caregiver-wellbeing/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/clinical-anxiety/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/dissociation-safe-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/early-psychosis-safe-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/eating-disorders-safe-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/first-mental-health-appointment-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/grief-and-loss/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/inclusive-digital-safety-and-exploitation-prevention-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/inclusive-family-support/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/inclusive-safeguarding-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/inclusive-school-transition/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/inclusive-toileting-personal-care-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/insomnia-and-sleep/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/mental-health-foundations/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/pain-distress-communication-support-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/panic-disorder-safe-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/predictable-routines-transitions-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/ptsd-safe-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/puberty-body-safety-inclusive-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/research-digital-mental-health/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/safe-screening-tools/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/safe-screening-tools-explainer/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/school-attendance-distress-support-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/selective-mutism-safe-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/service-access-guides/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/sibling-and-family-balance/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/sleep-mental-health-evidence-brief/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/stress-burnout-depression-differences-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/supported-adulthood-transition/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
       "path": "evidence-guides/supported-decision-making-transition-guide/index.html",
-      "status": "updated",
+      "status": "current",
       "detail": ""
     },
     {
