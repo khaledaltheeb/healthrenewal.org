@@ -28,6 +28,8 @@ class SpecialistsSignedReviewDeploymentSafetyTests(unittest.TestCase):
             "RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}",
             "TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}",
             "ADMIN_API_KEY: ${{ secrets.SPECIALISTS_ADMIN_API_KEY }}",
+            "REVIEWER_API_KEY: ${{ secrets.SPECIALISTS_REVIEWER_API_KEY }}",
+            "MODERATOR_API_KEY: ${{ secrets.SPECIALISTS_MODERATOR_API_KEY }}",
             "RATE_LIMIT_SALT: ${{ secrets.SPECIALISTS_RATE_LIMIT_SALT }}",
             "REVIEW_LINK_SECRET: ${{ secrets.SPECIALISTS_REVIEW_LINK_SECRET }}",
         ):
@@ -40,10 +42,20 @@ class SpecialistsSignedReviewDeploymentSafetyTests(unittest.TestCase):
             "'RESEND_API_KEY'",
             "'TURNSTILE_SECRET'",
             "'ADMIN_API_KEY'",
+            "'REVIEWER_API_KEY'",
+            "'MODERATOR_API_KEY'",
             "'RATE_LIMIT_SALT'",
             "'REVIEW_LINK_SECRET'",
         ):
             self.assertIn(required_name, self.text)
+
+    def test_role_credentials_are_required_before_deployment(self):
+        required_block = self.text.split("required={", 1)[1].split("}", 1)[0]
+        self.assertIn("'REVIEWER_API_KEY'", required_block)
+        self.assertIn("'MODERATOR_API_KEY'", required_block)
+        deploy_position = self.text.index("Deploy signed-review Worker v6 without replacing existing secrets")
+        preflight_position = self.text.index("Missing required Worker secret names")
+        self.assertLess(preflight_position, deploy_position)
 
     def test_live_health_contract_remains_required(self):
         self.assertIn("Verify live signed-review health", self.text)
