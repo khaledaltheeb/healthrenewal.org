@@ -166,4 +166,11 @@ def test_cerebral_palsy_publication_contract():
     if "https://healthrenewal.org/sitemap-cerebral-palsy.xml" not in sitemap_index:
         failures.append("sitemap not indexed")
 
+    conditions_hub = (ROOT / "special-needs/conditions/index.html").read_text(encoding="utf-8")
+    public_href = 'href="/special-needs/conditions/cerebral-palsy/"'
+    if public_href not in conditions_hub:
+        failures.append("conditions hub missing cerebral palsy link")
+    if "الشلل الدماغي" not in conditions_hub:
+        failures.append("conditions hub missing cerebral palsy title")
+
     assert not failures, "\n".join(failures)
