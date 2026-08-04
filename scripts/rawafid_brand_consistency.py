@@ -252,6 +252,7 @@ def normalize_brand_assets(text: str) -> str:
         lambda match: "" if "rawafid-brand.js" in attrs(match.group(0)).get("src", "") else match.group(0),
         text,
     )
+    text = re.sub(r"\s*</head\s*>", "\n</head>", text, count=1, flags=re.I)
     if HEAD_CLOSE_RE.search(text):
         text = HEAD_CLOSE_RE.sub(FAVICON_BLOCK + "\n</head>", text, count=1)
     return text

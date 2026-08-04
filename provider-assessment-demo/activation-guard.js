@@ -50,7 +50,7 @@
 
   const patchCopy = () => {
     if (hasNewerInstitutionalContract()) return;
-    document.title = "منصة التقييم وإدارة السجلات | مصطلحات علم النفس";
+    document.title = "منصة التقييم وإدارة السجلات | منصة روافد";
     const description = document.querySelector('meta[name="description"]');
     if (description) description.content = "منصة عربية لإدارة الحالات والجلسات الاستكشافية وسجلات الخدمات المهنية محليًا ضمن UID مستقل، مع إبقاء المقاييس المهنية المحمية مقفلة حتى اكتمال الترخيص والمراجعة المؤسسية.";
     const notice = document.querySelector(".notice-bar");
@@ -84,7 +84,7 @@
       if (input) input.placeholder = "رقم أو اسم التقرير الخارجي فقط؛ لا تدخل مفاتيح تصحيح";
     }
     const footer = document.querySelector(".site-footer p");
-    if (footer) footer.textContent = "© منصة مصطلحات علم النفس — تشغيل محلي لإدارة الاستكشاف والسجلات، مع دليل وصول حقوقي للمقاييس المهنية. لا تستخدم للطوارئ أو التشخيص الآلي أو تقرير الأهلية.";
+    if (footer) footer.textContent = "© منصة منصة روافد — تشغيل محلي لإدارة الاستكشاف والسجلات، مع دليل وصول حقوقي للمقاييس المهنية. لا تستخدم للطوارئ أو التشخيص الآلي أو تقرير الأهلية.";
   };
 
   const applyRightsUi = () => {

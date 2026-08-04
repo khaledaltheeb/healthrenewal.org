@@ -15,7 +15,7 @@
       "title_ar": "الموسوعة النفسية والمصطلحات",
       "pillar_url": "https://healthrenewal.org/encyclopedia/",
       "primary_intent": "تعريف وفهم المصطلحات والحالات النفسية والفروق بينها",
-      "queries_ar": ["مصطلحات علم النفس", "موسوعة علم النفس", "ما معنى الاضطرابات النفسية", "الفرق بين الحالات النفسية", "شرح المصطلحات النفسية بالعربي", "أعراض الاضطرابات النفسية"],
+      "queries_ar": ["منصة روافد", "موسوعة علم النفس", "ما معنى الاضطرابات النفسية", "الفرق بين الحالات النفسية", "شرح المصطلحات النفسية بالعربي", "أعراض الاضطرابات النفسية"],
       "queries_en": ["Arabic psychology encyclopedia", "mental health terms in Arabic"],
       "supporting_routes": ["/comparisons/", "/library/", "/guided-assessment/", "/care-guides/"],
       "recommended_entities": ["MentalHealthCondition", "DefinedTerm", "MedicalCondition"],
