@@ -95,6 +95,27 @@ def meta_content(source: str, name: str) -> str:
     return unescape(match.group(1)).strip() if match else ""
 
 
+def has_link(source: str, *, rel: str, href: str, type_: str | None = None) -> bool:
+    """Match a link element by attributes without depending on attribute order."""
+    for match in re.finditer(r"<link\b[^>]*>", source, re.IGNORECASE):
+        tag = match.group(0)
+        attrs = {
+            name.lower(): value
+            for name, _, value in re.findall(
+                r"([:\w-]+)\s*=\s*([\"\'])(.*?)\2",
+                tag,
+                flags=re.DOTALL,
+            )
+        }
+        rel_tokens = {token.lower() for token in attrs.get("rel", "").split()}
+        if rel.lower() not in rel_tokens or attrs.get("href") != href:
+            continue
+        if type_ is not None and attrs.get("type", "").lower() != type_.lower():
+            continue
+        return True
+    return False
+
+
 def main() -> None:
     source = INDEX.read_text(encoding="utf-8")
     StrictHTMLParser().feed(source)
@@ -156,13 +177,18 @@ def main() -> None:
 
     for required_meta in (
         '<link rel="manifest" href="/manifest.webmanifest">',
-        '<link rel="icon" href="/assets/brand/logo-mark.svg" type="image/svg+xml">',
         '<link rel="search" type="application/opensearchdescription+xml"',
         '<link rel="sitemap" type="application/xml" href="https://healthrenewal.org/sitemap.xml">',
         '<meta property="og:image" content="https://healthrenewal.org/assets/brand/rawafid-social-card.jpg">',
         '<meta name="twitter:image" content="https://healthrenewal.org/assets/brand/rawafid-social-card.jpg">',
     ):
         assert required_meta in source, f"Missing homepage discovery metadata: {required_meta}"
+    assert has_link(
+        source,
+        rel="icon",
+        href="/assets/brand/logo-mark.svg",
+        type_="image/svg+xml",
+    ), "Missing SVG favicon discovery metadata"
 
     structured = re.search(
         r'<script type="application/ld\+json">(.*?)</script>', source, re.DOTALL
