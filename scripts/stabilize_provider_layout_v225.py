@@ -10,15 +10,13 @@ MARKER = "provider-layout-stability-v225"
 CONTRACT = "2026.07.25-v220"
 TARGET = Path("provider-assessment-demo/activation.js")
 INDEX = Path("provider-assessment-demo/index.html")
-NEEDLE = '''  const patchStaticCopy = () => {
-    document.title = "منصة التقييم وإدارة السجلات | مصطلحات علم النفس";'''
-REPLACEMENT = f'''  const patchStaticCopy = () => {{
-    // {MARKER}: do not replace final v220 copy with an older operational draft.
+FUNCTION_OPENING = "  const patchStaticCopy = () => {\n"
+GUARD = f'''    // {MARKER}: do not replace final v220 copy with an older operational draft.
     if (
       document.documentElement.dataset.institutionalContract === "{CONTRACT}" ||
       document.querySelector('script[data-institutional-contract-v220]')
     ) return;
-    document.title = "منصة التقييم وإدارة السجلات | مصطلحات علم النفس";'''
+'''
 
 
 def stabilize(root: Path | str) -> dict[str, object]:
@@ -44,9 +42,9 @@ def stabilize(root: Path | str) -> dict[str, object]:
     if MARKER in source:
         changed = False
     else:
-        if source.count(NEEDLE) != 1:
+        if source.count(FUNCTION_OPENING) != 1:
             raise SystemExit("Activation patchStaticCopy contract is missing or ambiguous")
-        source = source.replace(NEEDLE, REPLACEMENT, 1)
+        source = source.replace(FUNCTION_OPENING, FUNCTION_OPENING + GUARD, 1)
         target.write_text(source, encoding="utf-8")
         changed = True
 
