@@ -1,0 +1,56 @@
+name: Live cerebral palsy archive gate
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "special-needs/conditions/cerebral-palsy/**"
+      - "special-needs/conditions/index.html"
+      - "sitemap-cerebral-palsy.xml"
+      - "sitemap-index.xml"
+      - "scripts/check_cerebral_palsy_live.py"
+      - "tests/test_cerebral_palsy_publication_contract.py"
+      - ".github/workflows/live-cerebral-palsy-archive.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "special-needs/conditions/cerebral-palsy/**"
+      - "special-needs/conditions/index.html"
+      - "sitemap-cerebral-palsy.xml"
+      - "sitemap-index.xml"
+      - "scripts/check_cerebral_palsy_live.py"
+      - "tests/test_cerebral_palsy_publication_contract.py"
+      - ".github/workflows/live-cerebral-palsy-archive.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cerebral-palsy-archive-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m py_compile scripts/check_cerebral_palsy_live.py
+      - run: python -m pip install --disable-pip-version-check pytest
+      - run: python -m pytest -q tests/test_cerebral_palsy_publication_contract.py
+
+  live-production:
+    if: github.event_name != 'pull_request'
+    needs: repository-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify only the published cerebral palsy archive
+        run: python scripts/check_cerebral_palsy_live.py --attempts 24 --delay 15 --timeout 20
