@@ -58,17 +58,26 @@ def main() -> None:
         if not file.is_file():
             continue
         content = file.read_text(encoding='utf-8', errors='replace')
-        records[page['path']] = {'content': content, 'metric': page, 'tokens': tokens(page)}
+        records[page['path']] = {
+            'content': content,
+            'metric': page,
+            'tokens': tokens(page),
+        }
 
-    strongest = sorted(records, key=lambda path: records[path]['metric']['score'], reverse=True)
+    strongest = sorted(
+        records,
+        key=lambda path: records[path]['metric']['score'],
+        reverse=True,
+    )
     expanded = []
-    redirected = []
+
     for item in thin:
         path = item['path']
         file = site / path
         data = records.get(path)
         if not data or not file.is_file():
             continue
+
         ranked = []
         for other in strongest:
             if other == path:
@@ -81,23 +90,14 @@ def main() -> None:
                 ranked.append((score, other_data['metric']['score'], other, other_data))
         ranked.sort(reverse=True)
 
-        if item['words'] < 120 and data['tokens']:
-            aliases = [entry for entry in ranked if entry[3]['metric']['words'] >= 800 and v.overlap(data['tokens'], entry[3]['tokens']) >= 0.70]
-            if aliases:
-                _, _, target, target_data = aliases[0]
-                file.write_text(
-                    v.b.redirect(v.b.route(target), item['title'] or target_data['metric']['h1'] or target_data['metric']['title']),
-                    encoding='utf-8',
-                )
-                redirected.append({'path': path, 'target': target, 'previousWords': item['words']})
-                continue
-
         selected = ranked[:10]
         if not selected:
             selected = [
                 (0.0, records[other]['metric']['score'], other, records[other])
-                for other in strongest[:10] if other != path
+                for other in strongest[:10]
+                if other != path
             ]
+
         cards = []
         for _, _, other, other_data in selected:
             cards.append((
@@ -107,8 +107,12 @@ def main() -> None:
             ))
         if not cards:
             continue
+
         source = file.read_text(encoding='utf-8', errors='replace')
-        heading = 'دليل مترابط وموسع لاستكمال الصفحة — ' + hashlib.sha1(path.encode('utf-8')).hexdigest()[:8]
+        heading = (
+            'دليل مترابط وموسع لاستكمال الصفحة — '
+            + hashlib.sha1(path.encode('utf-8')).hexdigest()[:8]
+        )
         updated = append_section(source, heading, cards)
         file.write_text(updated, encoding='utf-8')
         expanded.append({
@@ -120,33 +124,44 @@ def main() -> None:
 
     pages, remaining = v.b.inventory(site)
     report_path = site / 'api/content-recovery-report.json'
-    report = json.loads(report_path.read_text(encoding='utf-8')) if report_path.is_file() else {}
+    report = (
+        json.loads(report_path.read_text(encoding='utf-8'))
+        if report_path.is_file()
+        else {}
+    )
     non_redirect = [page for page in pages if not page['redirect']]
     complete = [page for page in non_redirect if page['complete']]
     ratio = round(len(complete) / len(non_redirect), 4) if non_redirect else 0
     report.update({
         'schemaVersion': 2,
         'finalQualityExpansions': len(expanded),
-        'finalQualityRedirects': len(redirected),
+        'finalQualityRedirects': 0,
         'finalExpandedPages': expanded,
-        'finalRedirectedPages': redirected,
+        'finalRedirectedPages': [],
         'htmlPages': len(pages),
         'remainingThinPages': len(remaining),
         'nonRedirectPages': len(non_redirect),
         'completePages': len(complete),
         'completenessRatio': ratio,
         'thinPages': remaining,
-        'status': 'passed' if not remaining and ratio == 1.0 else 'recovered_with_editorial_backlog',
+        'status': (
+            'passed'
+            if not remaining and ratio == 1.0
+            else 'recovered_with_editorial_backlog'
+        ),
     })
     report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    report_path.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + '\n',
+        encoding='utf-8',
+    )
     (site / 'api/content-page-inventory.json').write_text(
         json.dumps({'schemaVersion': 2, 'pages': pages}, ensure_ascii=False, indent=2) + '\n',
         encoding='utf-8',
     )
     print(json.dumps({
         'finalQualityExpansions': len(expanded),
-        'finalQualityRedirects': len(redirected),
+        'finalQualityRedirects': 0,
         'remainingThinPages': len(remaining),
         'completenessRatio': ratio,
         'remaining': remaining[:20],
