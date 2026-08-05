@@ -1,0 +1,26 @@
+name: Validate specialist message v10 deployment trigger
+
+on:
+  pull_request:
+    paths:
+      - "specialists-partners/account-backend/src/specialist-message-v10.js"
+      - "specialists-partners/account-backend/migrations/**"
+      - ".github/workflows/dispatch-specialist-identity-on-message-v10.yml"
+      - ".github/workflows/validate-specialist-message-v10-deployment-trigger.yml"
+      - "tests/test_specialist_message_v10_deployment_trigger.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate dispatcher contract
+        run: python -m unittest -v tests.test_specialist_message_v10_deployment_trigger
