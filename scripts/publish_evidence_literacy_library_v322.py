@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import publish_evidence_literacy_library_v322_core as core
-from enhance_academic_reference_v400 import enhance as enhance_academic_reference
+from enhance_academic_reference_v401 import enhance as enhance_academic_reference
 from publish_academic_library_v326 import publish as publish_academic_library
 from publish_evidence_literacy_library_v322_core import *  # noqa: F401,F403
 
@@ -220,8 +220,8 @@ def publish(site: Path) -> dict:
     restore_evidence_library_parent_contract(site)
 
     reference = enhance_academic_reference(site)
-    if reference.get("version") != 400 or reference.get("status") != "passed":
-        raise SystemExit({"invalid_academic_reference_v400": reference})
+    if reference.get("version") != 401 or reference.get("status") != "passed":
+        raise SystemExit({"invalid_academic_reference_v401": reference})
     if reference.get("generated_reference_pages") != 80:
         raise SystemExit({"academic_reference_inventory_failed": reference})
     if int(reference.get("minimum_entry_words", 0)) < 1000:
@@ -273,7 +273,7 @@ def publish(site: Path) -> dict:
             "academic_reference_unique_index_entries": reference["all_pages_unique_entries"],
             "academic_reference_governance_present": reference["editorial_governance_present"],
             "academic_reference_external_review_completed": reference["external_specialist_review_completed"],
-            "academic_reference_report": "api/academic-library-reference-v400.json",
+            "academic_reference_report": "api/academic-library-reference-v401.json",
             "evidence_library_parent_marker_preserved": True,
             "academic_library_seo_keyword_seeded": True,
         }
