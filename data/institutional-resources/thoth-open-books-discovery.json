@@ -1,0 +1,109 @@
+{
+  "id": "thoth-open-books-discovery",
+  "title_ar": "اكتشاف الكتب المفتوحة عبر بيانات Thoth",
+  "provider": "Thoth Open Metadata",
+  "provider_url": "https://thoth.pub/",
+  "classification": "open-license-metadata",
+  "license": {
+    "metadata": "CC0-1.0",
+    "metadata_terms_url": "https://thoth.pub/docs/policies/terms-thoth-metadata",
+    "site_content": "CC-BY-4.0 unless otherwise noted",
+    "important_boundary": "ترخيص البيانات الوصفية لا يثبت تلقائيًا أن ملف الكتاب أو الغلاف أو النص الكامل مفتوح لإعادة الاستخدام. يجب التحقق من رخصة كل عمل وصفحة الناشر الأصلية قبل الإحالة أو التنزيل."
+  },
+  "permission_scope": {
+    "allowed": [
+      "استخدام بيانات Thoth الوصفية CC0 للاكتشاف والفهرسة والتحليل",
+      "عرض بيانات ببليوغرافية مختارة مع رابط المصدر القانوني",
+      "كتابة أوصاف عربية أصلية مستقلة ومسارات تصفح محلية",
+      "الربط إلى صفحة الكتاب أو الناشر الأصلية بعد التحقق"
+    ],
+    "prohibited": [
+      "إنشاء Health Renewal كناشر لكتب لا ينشرها",
+      "إدارة بيانات ناشر طرف ثالث دون إذن صريح وتنسيق مباشر",
+      "استيراد الأغلفة أو النصوص الكاملة أو ملفات الكتب اعتمادًا على CC0 للبيانات الوصفية",
+      "عرض رخصة أو رابط تنزيل دون التحقق من صفحة الناشر أو السجل القانوني للعمل",
+      "ادعاء شراكة أو اعتماد أو مراجعة من Thoth أو الناشر"
+    ]
+  },
+  "official_resources": [
+    {
+      "name": "شروط بيانات Thoth الوصفية",
+      "url": "https://thoth.pub/docs/policies/terms-thoth-metadata",
+      "purpose": "مرجع الحقوق وحدود استخدام البيانات الوصفية"
+    },
+    {
+      "name": "فهرس الكتب",
+      "url": "https://thoth.pub/books",
+      "purpose": "اكتشاف السجلات المتاحة"
+    },
+    {
+      "name": "فهرس الناشرين",
+      "url": "https://thoth.pub/publishers",
+      "purpose": "العودة إلى هوية الناشر والسجل الأصلي"
+    },
+    {
+      "name": "وثائق Thoth",
+      "url": "https://thoth.pub/docs",
+      "purpose": "فهم GraphQL وExport API ومسارات الاستخدام الرسمية"
+    }
+  ],
+  "verification": {
+    "verified_on": "2026-08-05",
+    "next_review_due": "2026-11-05",
+    "status": "internally-reviewed-not-externally-endorsed",
+    "findings": [
+      "شروط Thoth الحالية تنص على أن البيانات الوصفية متاحة عبر الفهارس وGraphQL API وExport API وتخضع لـCC0 1.0.",
+      "فهرس الكتب الحالي يوضح أن السجلات الوصفية المولدة عبر Export API مرخصة CC0.",
+      "Health Renewal منصة اكتشاف طرف ثالث وليست الناشر الأصلي؛ لذلك لا تُنشئ أو تدير سجلات ناشر باسم طرف آخر دون إذن."
+    ]
+  },
+  "publication": {
+    "page_path": "/resources/open-books-discovery/",
+    "canonical": "https://healthrenewal.org/resources/open-books-discovery/",
+    "review_state": "draft-pending-ci-and-live-verification",
+    "last_updated": "2026-08-05"
+  },
+  "record_contract": {
+    "required_fields": [
+      "title",
+      "publisher",
+      "landing_page",
+      "work_identifier",
+      "language",
+      "publication_date",
+      "license_url",
+      "license_verified_on",
+      "metadata_source_url",
+      "publisher_source_url",
+      "access_status",
+      "review_status"
+    ],
+    "optional_fields": [
+      "isbn",
+      "doi",
+      "orcid",
+      "ror",
+      "edition",
+      "subjects",
+      "abstract_ar_original",
+      "accessibility_features"
+    ],
+    "quality_rules": [
+      "لا يُعرض زر تنزيل إلا إذا كان رابط الملف والرخصة مؤكدين من المصدر القانوني.",
+      "أي وصف عربي يُكتب من الصفر ولا يُقدم كترجمة رسمية للناشر.",
+      "تعرض حالة التحقق وتاريخه بوضوح، وتزال السجلات القديمة أو المكسورة من الواجهة.",
+      "لا تستخدم صورة غلاف إلا بترخيص مستقل قابل للتحقق.",
+      "لا تُستنتج الجودة العلمية من وجود السجل في Thoth وحده."
+    ]
+  },
+  "professional_boundaries": [
+    "الدليل أداة اكتشاف وليس توصية علاجية أو تشخيصية أو اعتمادًا علميًا للكتاب.",
+    "وجود كتاب في فهرس مفتوح لا يعني ملاءمته لكل قارئ أو صحة جميع ادعاءاته.",
+    "تقييم المحتوى الصحي يتطلب مراجعة المصدر، المؤلف، تاريخ النشر، المنهجية، والتعارضات المحتملة."
+  ],
+  "attribution": {
+    "required_text_ar": "تعتمد بيانات الاكتشاف الوصفية على Thoth Open Metadata وتخضع لـCC0 1.0. تبقى حقوق الكتاب والغلاف والنص الكامل ورخصته لدى أصحابها كما تظهر في المصدر الأصلي.",
+    "no_partnership_claim": true,
+    "logo_use": false
+  }
+}
