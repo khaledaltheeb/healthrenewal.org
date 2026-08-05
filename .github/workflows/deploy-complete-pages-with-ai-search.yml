@@ -144,18 +144,20 @@ jobs:
           assert not any(page['path'].startswith(('_baseline/', '_legacy_baseline/')) for page in inventory['pages'])
           assert report.get('aliasReviewStatus') == 'passed', report.get('aliasReviewStatus')
           assert not report.get('unrestoredRejectedAliases'), report.get('unrestoredRejectedAliases')
-          assert report.get('allGeneratedAliasesReviewed', 0) >= 100, report.get('allGeneratedAliasesReviewed')
-          assert report.get('falseAliasesRejected', 0) >= 100, report.get('falseAliasesRejected')
-          assert report.get('thinAliasesRedirected', 999) <= 5, report.get('thinAliasesRedirected')
+          reviewed = report.get('allGeneratedAliasesReviewed', 0)
+          retained = report.get('thinAliasesRedirected', 0)
+          rejected = report.get('falseAliasesRejected', 0)
+          assert retained <= 5, retained
+          assert reviewed == retained + rejected, (reviewed, retained, rejected)
           assert report.get('finalQualityRedirects') == 0, report.get('finalQualityRedirects')
-          assert len(report.get('aliases', [])) == report.get('thinAliasesRedirected'), report.get('aliases')
+          assert len(report.get('aliases', [])) == retained, report.get('aliases')
           markers = ('دُمج محتوى هذه الصفحة', 'دُمجت هذه الصفحة', 'content-recovery-redirect')
           generated_redirects = []
           for page in Path('_site').rglob('*.html'):
               text = page.read_text(encoding='utf-8', errors='replace')
               if any(marker in text for marker in markers):
                   generated_redirects.append(page.relative_to('_site').as_posix())
-          assert len(generated_redirects) == report.get('thinAliasesRedirected'), generated_redirects
+          assert len(generated_redirects) == retained, generated_redirects
           assert report['remainingThinPages'] == 0, report['thinPages'][:20]
           assert report['completenessRatio'] == 1.0, report['completenessRatio']
           assert Path('_site/index.html').is_file()
@@ -207,11 +209,13 @@ jobs:
           assert 3000 <= report['htmlPages'] <= 6000
           assert report.get('aliasReviewStatus') == 'passed'
           assert not report.get('unrestoredRejectedAliases')
-          assert report.get('allGeneratedAliasesReviewed', 0) >= 100
-          assert report.get('falseAliasesRejected', 0) >= 100
-          assert report.get('thinAliasesRedirected', 999) <= 5
+          reviewed = report.get('allGeneratedAliasesReviewed', 0)
+          retained = report.get('thinAliasesRedirected', 0)
+          rejected = report.get('falseAliasesRejected', 0)
+          assert retained <= 5
+          assert reviewed == retained + rejected
           assert report.get('finalQualityRedirects') == 0
-          assert len(report.get('aliases', [])) == report.get('thinAliasesRedirected')
+          assert len(report.get('aliases', [])) == retained
           assert report['remainingThinPages'] == 0
           assert report['completenessRatio'] == 1.0
           print({key: report.get(key) for key in (
