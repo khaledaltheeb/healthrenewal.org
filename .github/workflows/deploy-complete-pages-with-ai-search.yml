@@ -147,6 +147,15 @@ jobs:
           assert report.get('allGeneratedAliasesReviewed', 0) >= 100, report.get('allGeneratedAliasesReviewed')
           assert report.get('falseAliasesRejected', 0) >= 100, report.get('falseAliasesRejected')
           assert report.get('thinAliasesRedirected', 999) <= 5, report.get('thinAliasesRedirected')
+          assert report.get('finalQualityRedirects') == 0, report.get('finalQualityRedirects')
+          assert len(report.get('aliases', [])) == report.get('thinAliasesRedirected'), report.get('aliases')
+          markers = ('دُمج محتوى هذه الصفحة', 'دُمجت هذه الصفحة', 'content-recovery-redirect')
+          generated_redirects = []
+          for page in Path('_site').rglob('*.html'):
+              text = page.read_text(encoding='utf-8', errors='replace')
+              if any(marker in text for marker in markers):
+                  generated_redirects.append(page.relative_to('_site').as_posix())
+          assert len(generated_redirects) == report.get('thinAliasesRedirected'), generated_redirects
           assert report['remainingThinPages'] == 0, report['thinPages'][:20]
           assert report['completenessRatio'] == 1.0, report['completenessRatio']
           assert Path('_site/index.html').is_file()
@@ -158,6 +167,7 @@ jobs:
               'finalQualityRedirects', 'remainingThinPages',
               'completenessRatio'
           )})
+          print({'generatedRedirects': generated_redirects})
           PY
           touch _site/.nojekyll
 
@@ -200,14 +210,16 @@ jobs:
           assert report.get('allGeneratedAliasesReviewed', 0) >= 100
           assert report.get('falseAliasesRejected', 0) >= 100
           assert report.get('thinAliasesRedirected', 999) <= 5
+          assert report.get('finalQualityRedirects') == 0
+          assert len(report.get('aliases', [])) == report.get('thinAliasesRedirected')
           assert report['remainingThinPages'] == 0
           assert report['completenessRatio'] == 1.0
           print({key: report.get(key) for key in (
               'status', 'htmlPages', 'historicalPagesRestored',
               'allGeneratedAliasesReviewed', 'thinAliasesRedirected',
               'falseAliasesRejected', 'thinPagesExpanded',
-              'finalQualityExpansions', 'remainingThinPages',
-              'completenessRatio'
+              'finalQualityExpansions', 'finalQualityRedirects',
+              'remainingThinPages', 'completenessRatio'
           )})
           PY
               then
