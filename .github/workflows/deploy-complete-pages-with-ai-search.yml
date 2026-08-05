@@ -1,4 +1,4 @@
-name: Recover, audit, and deploy complete site
+name: Recover, consolidate, and deploy complete site
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -40,13 +41,57 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Recover richest historical content and consolidate duplicates
+      - name: Locate latest validated complete-site baseline
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          python -m py_compile scripts/recover_content_v1.py
-          python scripts/recover_content_v1.py --root . --site _site --days 10
+          curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" \
+            -o /tmp/baselines.json
+          python - <<'PY'
+          import json, os
+          payload = json.load(open('/tmp/baselines.json', encoding='utf-8'))
+          candidates = [
+              item for item in payload.get('artifacts', [])
+              if not item.get('expired')
+              and item.get('workflow_run', {}).get('head_branch') == 'main'
+              and item.get('workflow_run', {}).get('id')
+          ]
+          if not candidates:
+              raise SystemExit('No active validated-production-site artifact from main')
+          item = max(candidates, key=lambda x: x.get('created_at', ''))
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f"run_id={item['workflow_run']['id']}\n")
+              output.write(f"artifact_id={item['id']}\n")
+              output.write(f"created_at={item.get('created_at', '')}\n")
+          print({'baselineArtifactId': item['id'], 'runId': item['workflow_run']['id'], 'createdAt': item.get('created_at')})
+          PY
 
-      - name: Enforce recovery inventory
+      - name: Download validated complete-site baseline
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _baseline
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.baseline.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Recover richest versions, merge duplicates, and expand thin pages
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/recover_content_v1.py scripts/recover_content_v2.py
+          python scripts/recover_content_v2.py \
+            --root . \
+            --site _site \
+            --baseline _baseline \
+            --days 10
+
+      - name: Enforce complete editorial inventory
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -54,30 +99,43 @@ jobs:
           from pathlib import Path
           report = json.loads(Path('_site/api/content-recovery-report.json').read_text(encoding='utf-8'))
           inventory = json.loads(Path('_site/api/content-page-inventory.json').read_text(encoding='utf-8'))
+          assert report['schemaVersion'] == 2
           assert report['htmlPages'] == len(inventory['pages'])
-          assert report['htmlPages'] >= 100
-          assert report['nonRedirectPages'] > 0
+          assert report['htmlPages'] >= 3000, report['htmlPages']
+          assert report['remainingThinPages'] == 0, report['thinPages'][:20]
+          assert report['completenessRatio'] == 1.0, report['completenessRatio']
           assert Path('_site/index.html').is_file()
           print({key: report[key] for key in (
               'status', 'htmlPages', 'historicalPagesRestored',
               'duplicateRoutesConsolidated', 'duplicateGroupsMerged',
-              'remainingThinPages', 'completenessRatio'
+              'thinAliasesRedirected', 'thinPagesExpanded',
+              'remainingThinPagesExpanded', 'remainingThinPages',
+              'completenessRatio'
           )})
           PY
           touch _site/.nojekyll
 
+      - name: Preserve validated complete site for 90 days
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          include-hidden-files: true
+          retention-days: 90
+          compression-level: 6
+
       - uses: actions/configure-pages@v5
 
-      - name: Upload recovered complete site
+      - name: Upload complete Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: _site
 
-      - name: Deploy recovered complete site
+      - name: Deploy complete recovered site
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify recovery report is live
+      - name: Verify complete recovery report live
         run: |
           set -euo pipefail
           ready=0
@@ -89,11 +147,14 @@ jobs:
               if python - <<'PY'
           import json
           report = json.load(open('/tmp/live-recovery.json', encoding='utf-8'))
-          assert report['htmlPages'] >= 100
-          assert report['nonRedirectPages'] > 0
+          assert report['schemaVersion'] == 2
+          assert report['htmlPages'] >= 3000
+          assert report['remainingThinPages'] == 0
+          assert report['completenessRatio'] == 1.0
           print({key: report[key] for key in (
               'status', 'htmlPages', 'historicalPagesRestored',
-              'duplicateRoutesConsolidated', 'remainingThinPages',
+              'duplicateRoutesConsolidated', 'thinAliasesRedirected',
+              'thinPagesExpanded', 'remainingThinPages',
               'completenessRatio'
           )})
           PY
