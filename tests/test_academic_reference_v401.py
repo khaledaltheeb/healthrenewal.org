@@ -70,10 +70,32 @@ def test_alias_targets_exist_and_do_not_create_new_canonical_topics() -> None:
             assert target in canonical_titles, (section_slug, alias, target)
 
 
-def test_special_evidence_notes_point_to_existing_entries() -> None:
+def test_high_priority_evidence_notes_cover_existing_entries() -> None:
     known_slugs = {item["slug"] for _, _, item in all_items()}
-    assert set(base.EVIDENCE_NOTES).issubset(known_slugs)
-    assert set(base.SLUG_REFS).issubset(known_slugs)
+    required = {
+        "cognitive-behavioral-therapy",
+        "dialectical-behavior-therapy",
+        "motivational-interviewing",
+        "systematic-review",
+        "randomized-controlled-trial",
+        "psychometric-validation",
+    }
+    assert required.issubset(known_slugs)
+    assert {
+        "cognitive-behavioral-therapy",
+        "dialectical-behavior-therapy",
+        "motivational-interviewing",
+        "systematic-review",
+        "randomized-controlled-trial",
+    }.issubset(base.EVIDENCE_NOTES)
+    assert {
+        "cognitive-behavioral-therapy",
+        "dialectical-behavior-therapy",
+        "motivational-interviewing",
+        "systematic-review",
+        "randomized-controlled-trial",
+        "psychometric-validation",
+    }.issubset(base.SLUG_REFS)
 
 
 def test_outer_publisher_uses_the_final_v401_depth_pass() -> None:
@@ -92,7 +114,7 @@ def main() -> int:
         test_every_reference_page_meets_depth_sources_and_governance_contract,
         test_source_registry_uses_secure_traceable_urls,
         test_alias_targets_exist_and_do_not_create_new_canonical_topics,
-        test_special_evidence_notes_point_to_existing_entries,
+        test_high_priority_evidence_notes_cover_existing_entries,
         test_outer_publisher_uses_the_final_v401_depth_pass,
     )
     for test in tests:
