@@ -1,0 +1,64 @@
+name: Audit full content recovery v1
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_full_content_recovery_v1.py'
+      - '.github/workflows/full-content-recovery-v1.yml'
+      - 'docs/full-content-recovery-policy-v1.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recovery-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout complete history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch every branch and tag without rewriting refs
+        shell: bash
+        run: |
+          git fetch --prune --tags origin '+refs/heads/*:refs/remotes/origin/*'
+          git branch -a
+
+      - name: Compile audit
+        run: python -m py_compile scripts/audit_full_content_recovery_v1.py
+
+      - name: Run non-destructive recovery inventory
+        run: python scripts/audit_full_content_recovery_v1.py --output reports/full-content-recovery-v1
+
+      - name: Verify audit policy and outputs
+        shell: bash
+        run: |
+          test -s reports/full-content-recovery-v1/inventory.json
+          test -s reports/full-content-recovery-v1/summary.md
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('reports/full-content-recovery-v1/inventory.json').read_text(encoding='utf-8'))
+          assert p['policy']['nonDestructive'] is True
+          assert p['policy']['noDelete'] is True
+          assert p['policy']['noTruncate'] is True
+          assert p['policy']['noRedirectAsRecovery'] is True
+          assert p['refsScanned'] >= 2
+          assert p['pagesDiscovered'] >= 50
+          assert isinstance(p['pages'], list) and p['pages']
+          for page in p['pages']:
+              assert page['path']
+              assert 'variants' in page
+              assert page['mergeRule']
+          PY
+
+      - name: Upload comparison inventory
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-content-recovery-v1
+          path: reports/full-content-recovery-v1/
+          if-no-files-found: error
+          retention-days: 30
