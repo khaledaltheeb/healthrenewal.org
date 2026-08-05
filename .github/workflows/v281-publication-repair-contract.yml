@@ -74,17 +74,25 @@ jobs:
           from pathlib import Path
 
           root = Path(os.environ["SITE_ROOT"])
-          report_path = root / "reports" / "conditions-v281.json"
+          report_path = root / "api" / "capabilities-v281.json"
           if not report_path.is_file():
               raise SystemExit(f"Missing v281 publication report: {report_path}")
           report = json.loads(report_path.read_text(encoding="utf-8"))
-          if report.get("count") != 50:
-              raise SystemExit({"unexpected_v281_count": report.get("count")})
+          if report.get("condition_count") != 50:
+              raise SystemExit({"unexpected_v281_count": report.get("condition_count")})
+          if report.get("status") != "passed":
+              raise SystemExit({"unexpected_v281_status": report.get("status")})
 
           capability_pages = sorted((root / "capabilities").glob("*/index.html"))
           if len(capability_pages) < 150:
               raise SystemExit({"capability_condition_pages": len(capability_pages)})
-          print({"v281_count": report["count"], "capability_pages": len(capability_pages)})
+          print(
+              {
+                  "v281_count": report["condition_count"],
+                  "v281_status": report["status"],
+                  "capability_pages": len(capability_pages),
+              }
+          )
           PY
 
       - name: Verify generated payload is not committed
