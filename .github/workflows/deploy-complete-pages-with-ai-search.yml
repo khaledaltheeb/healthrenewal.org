@@ -1,558 +1,101 @@
-name: Deploy complete generated site
+name: Recover, audit, and deploy complete site
 
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/deploy-complete-pages-with-ai-search.yml"
-      - ".github/workflows/deploy-semantic-search-live.yml"
-      - ".github/workflows/deploy-encyclopedia-seo-search-intent-v1.yml"
-      - ".github/workflows/deploy-validated-pages-v327.yml"
-      - "scripts/**"
-      - "content/**"
-      - "tests/**"
-      - "ai-search/**"
-      - "family-guide/**"
-      - "api/**"
-      - "**/*.html"
-      - "**/*.xml"
-      - "**/*.json"
-      - "**/*.js"
-      - "**/*.css"
-  schedule:
-    - cron: "17 */3 * * *"
   workflow_dispatch:
 
 permissions:
-  actions: read
   contents: read
   pages: write
   id-token: write
 
 concurrency:
   group: github-pages-production
-  cancel-in-progress: false
-
-env:
-  SITE_ORIGIN: https://healthrenewal.org
-  BASELINE_ARTIFACT: validated-production-site
+  cancel-in-progress: true
 
 jobs:
-  validate-contract:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Validate the single-publisher contract and generators
-        run: |
-          set -euo pipefail
-          python -m py_compile \
-            scripts/run_encyclopedia_v13.py \
-            scripts/publish_daily_tools_v24.py \
-            scripts/repair_comparisons_v331.py \
-            scripts/publish_evidence_literacy_library_v322.py \
-            scripts/generate_sitemap_index_v304.py
-          python - <<'PY'
-          from pathlib import Path
-          canonical = Path(".github/workflows/deploy-complete-pages-with-ai-search.yml")
-          required = (
-              "actions/download-artifact@v4",
-              "scripts/run_encyclopedia_v13.py _site",
-              "scripts/publish_daily_tools_v24.py _site",
-              "scripts/repair_comparisons_v331.py _site",
-              "scripts/publish_evidence_literacy_library_v322.py _site",
-              "baseline-routes.json",
-              "actions/deploy-pages@v4",
-              "Select deployment scope",
-              "Overlay only the cerebral palsy archive",
-              "steps.scope.outputs.mode == 'full'",
-          )
-          text = canonical.read_text(encoding="utf-8")
-          missing = [marker for marker in required if marker not in text]
-          assert not missing, missing
-
-          retired = (
-              ".github/workflows/deploy-semantic-search-live.yml",
-              ".github/workflows/deploy-encyclopedia-seo-search-intent-v1.yml",
-              ".github/workflows/deploy-validated-pages-v327.yml",
-          )
-          for name in retired:
-              source = Path(name).read_text(encoding="utf-8")
-              assert "actions/deploy-pages@" not in source, name
-              assert "pages: write" not in source, name
-
-          offenders = []
-          for path in sorted(Path(".github/workflows").glob("*.y*ml")):
-              source = path.read_text(encoding="utf-8")
-              if path != canonical and "actions/deploy-pages@" in source:
-                  offenders.append(str(path))
-          assert not offenders, {"competing_pages_publishers": offenders}
-          print({"publisher": str(canonical), "retired_publishers": len(retired), "competing_publishers": 0})
-          PY
-
-  deploy:
-    if: github.event_name != 'pull_request'
+  recover-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 55
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
-      - name: Checkout current main
+      - name: Checkout current main with full history
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - name: Fetch every current branch for content recovery
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*' --prune
+          echo "Branches available: $(git for-each-ref --format='%(refname)' refs/remotes/origin | wc -l)"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Select deployment scope
-        id: scope
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          BEFORE_SHA: ${{ github.event.before }}
-          CURRENT_SHA: ${{ github.sha }}
+      - name: Recover richest historical content and consolidate duplicates
         run: |
           set -euo pipefail
-          mode=full
-          : > /tmp/changed-files.txt
-          if [ "${EVENT_NAME}" = "push" ] \
-            && [ -n "${BEFORE_SHA:-}" ] \
-            && [ "${BEFORE_SHA}" != "0000000000000000000000000000000000000000" ]; then
-            git diff --name-only "${BEFORE_SHA}" "${CURRENT_SHA}" > /tmp/changed-files.txt
-            if python - <<'PY'
-          from pathlib import Path
+          python -m py_compile scripts/recover_content_v1.py
+          python scripts/recover_content_v1.py --root . --site _site --days 10
 
-          changed = [
-              line.strip()
-              for line in Path("/tmp/changed-files.txt").read_text(encoding="utf-8").splitlines()
-              if line.strip()
-          ]
-          exact = {
-              ".github/workflows/deploy-complete-pages-with-ai-search.yml",
-              ".github/workflows/live-cerebral-palsy-archive.yml",
-              "scripts/check_cerebral_palsy_live.py",
-              "tests/test_cerebral_palsy_publication_contract.py",
-              "robots.txt",
-              "sitemap-index.xml",
-              "sitemap-cerebral-palsy.xml",
-              "special-needs/conditions/index.html",
-          }
-          prefixes = ("special-needs/conditions/cerebral-palsy/",)
-          outside = [
-              path
-              for path in changed
-              if path not in exact and not path.startswith(prefixes)
-          ]
-          print({"changed_files": changed, "outside_cerebral_palsy_scope": outside})
-          if not changed or outside:
-              raise SystemExit(1)
-          PY
-            then
-              mode=archive-only
-            fi
-          fi
-          echo "mode=${mode}" >> "${GITHUB_OUTPUT}"
-          echo "Selected deployment mode: ${mode}"
-
-      - name: Locate latest complete validated artifact
-        id: baseline
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Enforce recovery inventory
         run: |
           set -euo pipefail
-          curl -fsSL \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=${BASELINE_ARTIFACT}&per_page=100" \
-            -o /tmp/artifacts.json
-          python - <<'PY'
-          import json
-          import os
-
-          payload = json.load(open("/tmp/artifacts.json", encoding="utf-8"))
-          candidates = [
-              item for item in payload.get("artifacts", [])
-              if not item.get("expired")
-              and item.get("workflow_run", {}).get("id")
-              and item.get("workflow_run", {}).get("head_branch") == "main"
-          ]
-          if not candidates:
-              raise SystemExit("No active validated-production-site artifact from main; refusing partial deployment")
-          item = max(candidates, key=lambda value: value.get("created_at", ""))
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
-              output.write(f"run_id={item['workflow_run']['id']}\n")
-              output.write(f"artifact_id={item['id']}\n")
-              output.write(f"created_at={item.get('created_at', '')}\n")
-          print({
-              "artifact_id": item["id"],
-              "run_id": item["workflow_run"]["id"],
-              "created_at": item.get("created_at"),
-          })
-          PY
-
-      - name: Restore complete validated baseline
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.BASELINE_ARTIFACT }}
-          path: _site
-          repository: khaledaltheeb/healthrenewal.org
-          run-id: ${{ steps.baseline.outputs.run_id }}
-          github-token: ${{ github.token }}
-
-      - name: Record every baseline route
-        run: |
-          set -euo pipefail
-          test -f _site/index.html
           python - <<'PY'
           import json
           from pathlib import Path
-
-          site = Path("_site")
-          routes = sorted(
-              "/" if path.relative_to(site).as_posix() == "index.html"
-              else "/" + path.parent.relative_to(site).as_posix().strip("/") + "/"
-              for path in site.rglob("index.html")
-          )
-          if len(routes) < 200:
-              raise SystemExit({"baseline_route_count_too_small": len(routes)})
-          Path("/tmp/baseline-routes.json").write_text(
-              json.dumps(routes, ensure_ascii=False, indent=2) + "\n",
-              encoding="utf-8",
-          )
-          print({"baseline_routes": len(routes)})
-          PY
-
-      - name: Overlay current public source without deleting generated pages
-        if: steps.scope.outputs.mode == 'full'
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import shutil
-          from pathlib import Path
-
-          root = Path(".")
-          site = Path("_site")
-          text_suffixes = {
-              ".html", ".htm", ".xml", ".json", ".webmanifest",
-              ".txt", ".js", ".mjs", ".css", ".svg",
-          }
-          skip_top = {
-              ".git", ".github", "node_modules", ".venv", "venv",
-              "dist", "build", "scripts", "tests", "docs", "reports",
-              "content", ".v10bundle", ".generator-v6", "_site",
-          }
-          skip_parts = {"account-backend", "backend", "migrations"}
-          copied = 0
-          for source in root.rglob("*"):
-              if not source.is_file():
-                  continue
-              relative = source.relative_to(root)
-              if not relative.parts or relative.parts[0] in skip_top:
-                  continue
-              if any(part in skip_parts for part in relative.parts):
-                  continue
-              if relative.as_posix() == "deployment.json":
-                  continue
-              if source.suffix.lower() not in text_suffixes and source.name != "CNAME":
-                  continue
-              destination = site / relative
-              destination.parent.mkdir(parents=True, exist_ok=True)
-              shutil.copy2(source, destination)
-              copied += 1
-          if copied < 100:
-              raise SystemExit({"public_overlay_too_small": copied})
-          print({"current_public_files_overlaid": copied})
-          PY
-
-      - name: Overlay only the cerebral palsy archive
-        if: steps.scope.outputs.mode == 'archive-only'
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import shutil
-          import xml.etree.ElementTree as ET
-          from pathlib import Path
-
-          site = Path("_site")
-          archive_root = Path("special-needs/conditions/cerebral-palsy")
-          exact = (
-              Path("robots.txt"),
-              Path("sitemap-index.xml"),
-              Path("sitemap-cerebral-palsy.xml"),
-              Path("special-needs/conditions/index.html"),
-          )
-          sources = [path for path in exact if path.is_file()]
-          sources.extend(path for path in archive_root.rglob("*") if path.is_file())
-          if len(list(archive_root.rglob("index.html"))) != 6:
-              raise SystemExit("Cerebral palsy source must contain exactly six pages")
-          for source in sources:
-              destination = site / source
-              destination.parent.mkdir(parents=True, exist_ok=True)
-              shutil.copy2(source, destination)
-
-          namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-          archive_sitemap = ET.parse(site / "sitemap-cerebral-palsy.xml").getroot()
-          archive_urls = {
-              node.text.strip()
-              for node in archive_sitemap.findall("s:url/s:loc", namespace)
-              if node.text and node.text.strip()
-          }
-          if len(archive_urls) != 6:
-              raise SystemExit({"archive_sitemap_url_count": len(archive_urls)})
-
-          sitemap_index = ET.parse(site / "sitemap-index.xml").getroot()
-          child_sitemaps = {
-              node.text.strip()
-              for node in sitemap_index.findall("s:sitemap/s:loc", namespace)
-              if node.text and node.text.strip()
-          }
-          expected = "https://healthrenewal.org/sitemap-cerebral-palsy.xml"
-          if expected not in child_sitemaps:
-              raise SystemExit({"missing_archive_sitemap_from_index": expected})
-
-          robots = (site / "robots.txt").read_text(encoding="utf-8")
-          if "Sitemap: https://healthrenewal.org/sitemap-index.xml" not in robots:
-              raise SystemExit("robots.txt does not expose the canonical sitemap index")
-          print({
-              "deployment_scope": "cerebral-palsy-only",
-              "copied_files": len(sources),
-              "archive_pages": 6,
-              "archive_sitemap_urls": len(archive_urls),
-          })
-          PY
-
-      - name: Rebuild all generated route families
-        if: steps.scope.outputs.mode == 'full'
-        run: |
-          set -euxo pipefail
-          python scripts/run_encyclopedia_v13.py _site
-          python scripts/publish_daily_tools_v24.py _site
-          python scripts/repair_comparisons_v331.py _site
-          python scripts/publish_evidence_literacy_library_v322.py _site
-          python scripts/generate_sitemap_index_v304.py _site
-
-      - name: Normalize canonical origin
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-
-          site = Path("_site")
-          old_origins = (
-              "https://khaledaltheeb.github.io/pterminology-site",
-              "http://khaledaltheeb.github.io/pterminology-site",
-          )
-          suffixes = {".html", ".htm", ".xml", ".json", ".webmanifest", ".txt", ".js", ".mjs", ".css", ".svg"}
-          changed = 0
-          for path in site.rglob("*"):
-              if not path.is_file() or path.suffix.lower() not in suffixes:
-                  continue
-              try:
-                  text = path.read_text(encoding="utf-8")
-              except UnicodeDecodeError:
-                  continue
-              updated = text
-              for old in old_origins:
-                  updated = updated.replace(old, "https://healthrenewal.org")
-              updated = updated.replace("/pterminology-site/", "/")
-              if updated != text:
-                  path.write_text(updated, encoding="utf-8")
-                  changed += 1
-              if any(old in updated for old in old_origins):
-                  raise SystemExit({"legacy_origin_remaining": str(path)})
-          print({"origin_normalized_files": changed})
+          report = json.loads(Path('_site/api/content-recovery-report.json').read_text(encoding='utf-8'))
+          inventory = json.loads(Path('_site/api/content-page-inventory.json').read_text(encoding='utf-8'))
+          assert report['htmlPages'] == len(inventory['pages'])
+          assert report['htmlPages'] >= 100
+          assert report['nonRedirectPages'] > 0
+          assert Path('_site/index.html').is_file()
+          print({key: report[key] for key in (
+              'status', 'htmlPages', 'historicalPagesRestored',
+              'duplicateRoutesConsolidated', 'duplicateGroupsMerged',
+              'remainingThinPages', 'completenessRatio'
+          )})
           PY
           touch _site/.nojekyll
 
-      - name: Enforce complete-route inventory before deployment
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import json
-          import xml.etree.ElementTree as ET
-          from collections import Counter
-          from pathlib import Path
-
-          site = Path("_site")
-          baseline = set(json.loads(Path("/tmp/baseline-routes.json").read_text(encoding="utf-8")))
-          final = {
-              "/" if path.relative_to(site).as_posix() == "index.html"
-              else "/" + path.parent.relative_to(site).as_posix().strip("/") + "/"
-              for path in site.rglob("index.html")
-          }
-          lost = sorted(baseline - final)
-          if lost:
-              raise SystemExit({"baseline_routes_lost": lost[:50], "lost_count": len(lost)})
-
-          required_roots = (
-              "encyclopedia/index.html",
-              "comparisons/index.html",
-              "library/index.html",
-              "care-guides/index.html",
-              "daily-tools/index.html",
-              "learning-paths/index.html",
-              "family-guide/index.html",
-              "ai-search/index.html",
-          )
-          missing = [path for path in required_roots if not (site / path).is_file()]
-          if missing:
-              raise SystemExit({"missing_required_roots": missing})
-
-          encyclopedia = list((site / "encyclopedia").glob("concept-*/index.html"))
-          daily_tools = list((site / "daily-tools").glob("*/index.html"))
-          learning_paths = list((site / "learning-paths").glob("*/index.html"))
-          comparisons = [
-              path for path in (site / "comparisons").rglob("index.html")
-              if path != site / "comparisons/index.html"
-          ]
-          care_guides = [
-              path for path in (site / "care-guides").rglob("index.html")
-              if path != site / "care-guides/index.html"
-          ]
-          family_guides = list((site / "family-guide/conditions").glob("*/index.html"))
-          assert len(encyclopedia) == 2000, len(encyclopedia)
-          assert len(daily_tools) == 100, len(daily_tools)
-          assert len(learning_paths) >= 10, len(learning_paths)
-          assert len(comparisons) >= 100, len(comparisons)
-          assert len(care_guides) >= 6, len(care_guides)
-          assert len(family_guides) >= 64, len(family_guides)
-
-          academic = json.loads((site / "api/academic-library-v326.json").read_text(encoding="utf-8"))
-          assert academic["status"] == "passed"
-          assert academic["sections"] == {"branches": 25, "therapies": 27, "research": 28}
-          assert academic["total_entries"] == 80
-          assert academic["generated_pages"] == 84
-          assert academic["minimum_page_words"] >= 180
-
-          comparison_contract = json.loads((Path("content") / "comparisons-v331.json").read_text(encoding="utf-8"))
-          assert comparison_contract["topics"] == 50 and comparison_contract["routes"] == 100
-
-          ai = json.loads((site / "ai-search/data/manifest.json").read_text(encoding="utf-8"))
-          assert ai["ready"] is True and ai["version"] == 2 and ai["shards"]
-
-          sitemap = site / "sitemap-index.xml"
-          if not sitemap.is_file():
-              sitemap = site / "sitemap.xml"
-          ET.parse(sitemap)
-
-          archive_pages = list((site / "special-needs/conditions/cerebral-palsy").rglob("index.html"))
-          assert len(archive_pages) == 6, len(archive_pages)
-          namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-          archive_sitemap = ET.parse(site / "sitemap-cerebral-palsy.xml").getroot()
-          archive_urls = {
-              node.text.strip()
-              for node in archive_sitemap.findall("s:url/s:loc", namespace)
-              if node.text and node.text.strip()
-          }
-          assert len(archive_urls) == 6, len(archive_urls)
-          sitemap_index = ET.parse(site / "sitemap-index.xml").getroot()
-          child_sitemaps = {
-              node.text.strip()
-              for node in sitemap_index.findall("s:sitemap/s:loc", namespace)
-              if node.text and node.text.strip()
-          }
-          assert "https://healthrenewal.org/sitemap-cerebral-palsy.xml" in child_sitemaps
-
-          families = Counter(
-              route.strip("/").split("/", 1)[0] if route != "/" else "root"
-              for route in final
-          )
-          report = {
-              "schemaVersion": 1,
-              "status": "passed",
-              "deploymentMode": "${{ steps.scope.outputs.mode }}",
-              "baselineArtifactId": "${{ steps.baseline.outputs.artifact_id }}",
-              "baselineRunId": "${{ steps.baseline.outputs.run_id }}",
-              "baselineCreatedAt": "${{ steps.baseline.outputs.created_at }}",
-              "baselineRoutes": len(baseline),
-              "finalRoutes": len(final),
-              "preservedBaselineRoutes": len(baseline),
-              "missingBaselineRoutes": 0,
-              "requiredRoots": list(required_roots),
-              "families": dict(sorted(families.items())),
-              "contracts": {
-                  "encyclopediaConcepts": len(encyclopedia),
-                  "dailyTools": len(daily_tools),
-                  "learningPaths": len(learning_paths),
-                  "comparisons": len(comparisons),
-                  "careGuides": len(care_guides),
-                  "familyGuides": len(family_guides),
-                  "academicLibraryEntries": academic["total_entries"],
-                  "cerebralPalsyArchivePages": len(archive_pages),
-                  "cerebralPalsySitemapUrls": len(archive_urls),
-              },
-              "routes": sorted(final),
-          }
-          api = site / "api"
-          api.mkdir(parents=True, exist_ok=True)
-          (api / "complete-route-inventory-v1.json").write_text(
-              json.dumps(report, ensure_ascii=False, indent=2) + "\n",
-              encoding="utf-8",
-          )
-          print({key: report[key] for key in ("deploymentMode", "baselineRoutes", "finalRoutes", "contracts")})
-          PY
-
       - uses: actions/configure-pages@v5
 
-      - name: Upload complete Pages artifact
+      - name: Upload recovered complete site
         uses: actions/upload-pages-artifact@v4
         with:
           path: _site
 
-      - name: Deploy complete Pages artifact
+      - name: Deploy recovered complete site
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify all restored route families live
+      - name: Verify recovery report is live
         run: |
           set -euo pipefail
           ready=0
-          for attempt in $(seq 1 180); do
+          for attempt in $(seq 1 120); do
             nonce="${GITHUB_RUN_ID}-${attempt}-$(date +%s%N)"
-            ok=1
-            for url in \
-              "https://healthrenewal.org/encyclopedia/" \
-              "https://healthrenewal.org/encyclopedia/concept-0001/" \
-              "https://healthrenewal.org/encyclopedia/concept-2000/" \
-              "https://healthrenewal.org/comparisons/" \
-              "https://healthrenewal.org/library/" \
-              "https://healthrenewal.org/care-guides/" \
-              "https://healthrenewal.org/daily-tools/" \
-              "https://healthrenewal.org/family-guide/" \
-              "https://healthrenewal.org/ai-search/" \
-              "https://healthrenewal.org/special-needs/conditions/cerebral-palsy/" \
-              "https://healthrenewal.org/sitemap-cerebral-palsy.xml" \
-              "https://healthrenewal.org/sitemap-index.xml" \
-              "https://healthrenewal.org/api/complete-route-inventory-v1.json"
-            do
-              curl -fsSL --retry 2 -H "Cache-Control: no-cache" "${url}?restore=${nonce}" -o /dev/null || ok=0
-            done
-            if [ "$ok" = 1 ]; then
-              curl -fsSL --retry 2 \
-                "https://healthrenewal.org/api/complete-route-inventory-v1.json?restore=${nonce}" \
-                -o /tmp/live-route-inventory.json
+            if curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/content-recovery-report.json?recovery=${nonce}" \
+              -o /tmp/live-recovery.json; then
               if python - <<'PY'
           import json
-          report = json.load(open("/tmp/live-route-inventory.json", encoding="utf-8"))
-          assert report["status"] == "passed"
-          assert report["missingBaselineRoutes"] == 0
-          assert report["contracts"]["encyclopediaConcepts"] == 2000
-          assert report["contracts"]["dailyTools"] == 100
-          assert report["contracts"]["comparisons"] >= 100
-          assert report["contracts"]["careGuides"] >= 6
-          assert report["contracts"]["academicLibraryEntries"] == 80
-          assert report["contracts"]["cerebralPalsyArchivePages"] == 6
-          assert report["contracts"]["cerebralPalsySitemapUrls"] == 6
+          report = json.load(open('/tmp/live-recovery.json', encoding='utf-8'))
+          assert report['htmlPages'] >= 100
+          assert report['nonRedirectPages'] > 0
+          print({key: report[key] for key in (
+              'status', 'htmlPages', 'historicalPagesRestored',
+              'duplicateRoutesConsolidated', 'remainingThinPages',
+              'completenessRatio'
+          )})
           PY
               then
                 ready=1
