@@ -1,0 +1,18 @@
+{
+  "resource_id": "enat-accessible-travel",
+  "title_ar": "موارد ENAT للتخطيط للسفر الميسّر",
+  "provider": "European Network for Accessible Tourism (ENAT)",
+  "classification": "link-and-attribution-only",
+  "permission_basis": "written-permission-recorded-in-issue-948",
+  "verified_at": "2026-08-05",
+  "next_review_at": "2026-11-05",
+  "review_status": "internal-editorial-review",
+  "allowed": ["link_to_official_resources", "publish_original_arabic_guidance"],
+  "prohibited": ["copy_or_republish_protected_content", "translate_source_documents_without_separate_permission", "use_enat_logo", "claim_membership_partnership_endorsement_or_certification", "guarantee_accessibility_of_any_destination_or_service"],
+  "sources": [
+    {"id":"enat-guide","url":"https://www.accessibletourism.org/?i=enat.en.news.1910","status":"available-at-verification"},
+    {"id":"enat-phrasebook","url":"https://www.accessibletourism.org/?i=enat.en.reports.2064","status":"available-at-verification"},
+    {"id":"pantou","url":"https://pantou.org/","status":"available-at-verification"},
+    {"id":"enat-home","url":"https://www.accessibletourism.org/","status":"available-at-verification"}
+  ]
+}
