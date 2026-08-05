@@ -1,0 +1,59 @@
+{
+  "resource_id": "enat-accessible-travel",
+  "title_ar": "موارد ENAT للتخطيط للسفر الميسّر",
+  "provider": "European Network for Accessible Tourism (ENAT)",
+  "classification": "link-and-attribution-only",
+  "permission_basis": "written-permission-recorded-in-issue-948",
+  "verified_at": "2026-08-05",
+  "next_review_at": "2026-11-05",
+  "review_status": "internal-editorial-review",
+  "attribution_ar": "المصادر المرجعية الخارجية مقدمة من الشبكة الأوروبية للسياحة الميسّرة (ENAT) ومنصة Pantou. الدليل العربي من إعداد Health Renewal ولا يمثل شراكة أو اعتمادًا من هذه الجهات.",
+  "allowed": [
+    "link_to_official_resources",
+    "reference_enat_as_an_international_accessible-tourism-resource",
+    "publish_original_arabic_guidance"
+  ],
+  "prohibited": [
+    "copy_or_republish_protected_content",
+    "translate_source_documents_without_separate_permission",
+    "use_enat_logo",
+    "claim_membership_partnership_endorsement_or_certification",
+    "guarantee_accessibility_of_any_destination_or_service"
+  ],
+  "scope_limits": [
+    "general-planning-information-only",
+    "requirements-vary-by-country-provider-airline-and-individual-need",
+    "travellers-must-confirm-current-details-directly-with-providers",
+    "medical-and-emergency-plans-require-qualified-professional-input-when-needed"
+  ],
+  "sources": [
+    {
+      "id": "enat-travelling-with-disability",
+      "url": "https://www.accessibletourism.org/?i=enat.en.news.1910",
+      "type": "official-resource-page",
+      "status": "available-at-verification",
+      "notes": "ENAT page for the first edition of a free accessible travel guide; use as a reference link only."
+    },
+    {
+      "id": "enat-accessible-travel-phrasebook",
+      "url": "https://www.accessibletourism.org/?i=enat.en.reports.2064",
+      "type": "official-resource-page",
+      "status": "available-at-verification",
+      "notes": "Accessible travel phrasebook resource; do not reproduce or translate without separate permission."
+    },
+    {
+      "id": "pantou-directory",
+      "url": "https://pantou.org/",
+      "type": "external-directory",
+      "status": "available-at-verification",
+      "notes": "Discovery directory only; every listing must be independently verified with the provider."
+    },
+    {
+      "id": "enat-home",
+      "url": "https://www.accessibletourism.org/",
+      "type": "official-homepage",
+      "status": "available-at-verification",
+      "notes": "Primary provider reference."
+    }
+  ]
+}
