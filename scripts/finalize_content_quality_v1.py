@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse, hashlib, html, json
 from pathlib import Path, PurePosixPath
 import recover_content_v2 as v
+import final_site_integrity_v1 as integrity
 
 
 def append_section(source: str, heading: str, items: list[tuple[str, str, str]]) -> str:
@@ -122,6 +123,7 @@ def main() -> None:
             'relatedPages': [card[0] for card in cards],
         })
 
+    integrity_report = integrity.run(site)
     pages, remaining = v.b.inventory(site)
     report_path = site / 'api/content-recovery-report.json'
     report = (
@@ -144,9 +146,16 @@ def main() -> None:
         'completePages': len(complete),
         'completenessRatio': ratio,
         'thinPages': remaining,
+        'integrityStatus': integrity_report['status'],
+        'integrityInternalReferencesChecked': integrity_report['internalReferencesChecked'],
+        'integrityMissingInternalPaths': integrity_report['missingInternalPaths'],
+        'integrityMissingInternalReferences': integrity_report['missingInternalReferences'],
+        'integrityQuickInfoFallbackFilesCreated': integrity_report['quickInfoFallbackFilesCreated'],
+        'integrityRedirectCanonicalRepairs': integrity_report['redirectCanonicalRepairs'],
+        'integrityLegacyUrlRewrites': integrity_report['legacyUrlRewrites'],
         'status': (
             'passed'
-            if not remaining and ratio == 1.0
+            if not remaining and ratio == 1.0 and integrity_report['status'] == 'passed'
             else 'recovered_with_editorial_backlog'
         ),
     })
@@ -164,6 +173,10 @@ def main() -> None:
         'finalQualityRedirects': 0,
         'remainingThinPages': len(remaining),
         'completenessRatio': ratio,
+        'integrityStatus': integrity_report['status'],
+        'integrityInternalReferencesChecked': integrity_report['internalReferencesChecked'],
+        'integrityMissingInternalPaths': integrity_report['missingInternalPaths'],
+        'integrityQuickInfoFallbackFilesCreated': integrity_report['quickInfoFallbackFilesCreated'],
         'remaining': remaining[:20],
     }, ensure_ascii=False))
 
