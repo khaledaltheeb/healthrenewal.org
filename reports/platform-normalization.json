@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-08-04T23:04:02.742552+00:00",
+  "generated_at": "2026-08-05T16:41:40.414689+00:00",
   "mode": "write",
   "root": "/home/runner/work/healthrenewal.org/healthrenewal.org",
   "runtime": {
@@ -11,10 +11,10 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 807,
-  "html_pages_normalized_or_current": 806,
+  "html_pages_seen": 808,
+  "html_pages_normalized_or_current": 807,
   "counts": {
-    "current": 799,
+    "current": 800,
     "skipped": 1,
     "updated": 7
   },
@@ -1123,6 +1123,11 @@
       "path": "guided-assessment/index.html",
       "status": "current",
       "detail": ""
+    },
+    {
+      "path": "guides/accessible-travel-planning/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "hubs/index.html",
@@ -3601,68 +3606,68 @@
     },
     {
       "path": "special-needs/conditions/cerebral-palsy/communication-education/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "special-needs/conditions/cerebral-palsy/detection-diagnosis/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "special-needs/conditions/cerebral-palsy/family-adulthood/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "special-needs/conditions/cerebral-palsy/health-lifespan/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "special-needs/conditions/cerebral-palsy/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "special-needs/conditions/cerebral-palsy/movement-rehabilitation/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
+      "path": "special-needs/conditions/fragile-x-syndrome/behavior-intervention/index.html",
       "status": "current",
       "detail": ""
     },
     {
-      "path": "special-needs/conditions/fragile-x-syndrome/behavior-intervention/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
-    },
-    {
       "path": "special-needs/conditions/fragile-x-syndrome/communication-education/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/fragile-x-syndrome/family-safety-transition/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/fragile-x-syndrome/genetics-diagnosis/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/fragile-x-syndrome/health-lifespan/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/fragile-x-syndrome/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/prader-willi-syndrome/index.html",
