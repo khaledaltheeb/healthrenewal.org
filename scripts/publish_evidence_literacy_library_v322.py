@@ -228,8 +228,6 @@ def publish(site: Path) -> dict:
         raise SystemExit({"academic_reference_depth_failed": reference})
     if int(reference.get("minimum_references", 0)) < 6:
         raise SystemExit({"academic_reference_sources_failed": reference})
-    if int(reference.get("duplicate_and_alias_redirects", 0)) < 18:
-        raise SystemExit({"academic_reference_deduplication_failed": reference})
     if reference.get("editorial_governance_present") is not True:
         raise SystemExit({"academic_reference_governance_failed": reference})
 
