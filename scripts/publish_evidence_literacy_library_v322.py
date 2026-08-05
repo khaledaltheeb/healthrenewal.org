@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import publish_evidence_literacy_library_v322_core as core
+from enhance_academic_reference_v401 import enhance as enhance_academic_reference
 from publish_academic_library_v326 import publish as publish_academic_library
 from publish_evidence_literacy_library_v322_core import *  # noqa: F401,F403
 
@@ -21,7 +22,6 @@ LEGACY_ORIGINS = (
 BASE_PATH = "/"
 SPECIAL_NEEDS_SITEMAP = ROOT / "sitemap-special-needs.xml"
 
-# The core renderer is reused, but its public URL contract is now the custom domain root.
 core.BASE = ORIGIN
 core.BP = BASE_PATH
 BASE = ORIGIN
@@ -213,12 +213,24 @@ def publish(site: Path) -> dict:
     if int(academic.get("minimum_page_words", 0)) < 180:
         raise SystemExit({"academic_library_depth_failed": academic})
 
-    # Normalize every academic HTML surface before final contract checks.
     for path in (site / "library").rglob("*.html"):
         source = normalize_public_text(path.read_text(encoding="utf-8"))
         path.write_text(source, encoding="utf-8")
     academic_sitemap_entries = trim_academic_sitemap_to_new_entries(site)
     restore_evidence_library_parent_contract(site)
+
+    reference = enhance_academic_reference(site)
+    if reference.get("version") != 401 or reference.get("status") != "passed":
+        raise SystemExit({"invalid_academic_reference_v401": reference})
+    if reference.get("generated_reference_pages") != 80:
+        raise SystemExit({"academic_reference_inventory_failed": reference})
+    if int(reference.get("minimum_entry_words", 0)) < 1000:
+        raise SystemExit({"academic_reference_depth_failed": reference})
+    if int(reference.get("minimum_references", 0)) < 6:
+        raise SystemExit({"academic_reference_sources_failed": reference})
+    if reference.get("editorial_governance_present") is not True:
+        raise SystemExit({"academic_reference_governance_failed": reference})
+
     ensure_academic_seo_keyword_seed(site)
 
     report.update(
@@ -251,6 +263,15 @@ def publish(site: Path) -> dict:
             "academic_library_source_registry": academic["source_registry"],
             "academic_library_sitemap": academic["sitemap"],
             "academic_library_sitemap_entries": academic_sitemap_entries,
+            "academic_reference_version": reference["version"],
+            "academic_reference_pages": reference["generated_reference_pages"],
+            "academic_reference_minimum_words": reference["minimum_entry_words"],
+            "academic_reference_minimum_references": reference["minimum_references"],
+            "academic_reference_redirects": reference["duplicate_and_alias_redirects"],
+            "academic_reference_unique_index_entries": reference["all_pages_unique_entries"],
+            "academic_reference_governance_present": reference["editorial_governance_present"],
+            "academic_reference_external_review_completed": reference["external_specialist_review_completed"],
+            "academic_reference_report": "api/academic-library-reference-v401.json",
             "evidence_library_parent_marker_preserved": True,
             "academic_library_seo_keyword_seeded": True,
         }
