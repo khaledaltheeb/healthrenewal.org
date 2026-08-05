@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "condition": "cerebral-palsy",
+  "verified_on": "2026-08-05",
+  "next_review_due": "2027-02-05",
+  "verification_scope": "Official publisher availability, guideline identity, review or update status, and claim-to-source suitability. This record is not an external clinical endorsement.",
+  "sources": [
+    {
+      "source_id": "NICE-NG62",
+      "publisher": "NICE",
+      "url": "https://www.nice.org.uk/guidance/ng62",
+      "status": "verified",
+      "publisher_reviewed_on": "2024-09-19",
+      "supports": ["assessment", "management under 25", "multidisciplinary care", "communication", "nutrition", "transition"],
+      "jurisdiction_note": "UK clinical guidance; Arabic readers need local service and legal adaptation."
+    },
+    {
+      "source_id": "NICE-NG119",
+      "publisher": "NICE",
+      "url": "https://www.nice.org.uk/guidance/ng119",
+      "status": "verified",
+      "publisher_reviewed_on": "2024-09-19",
+      "latest_minor_update": "2024-09",
+      "supports": ["adult care", "participation", "independent living", "ongoing review", "accessible services"],
+      "jurisdiction_note": "UK clinical guidance; Arabic readers need local service and legal adaptation."
+    },
+    {
+      "source_id": "AACPDM-HIP",
+      "publisher": "AACPDM",
+      "url": "https://www.aacpdm.org/publications/care-pathways/hip-surveillance-in-cerebral-palsy",
+      "status": "verified",
+      "supports": ["hip surveillance", "GMFCS-informed monitoring", "migration percentage", "early referral"],
+      "jurisdiction_note": "Professional care pathway; implementation intervals and referral thresholds require qualified local clinical teams."
+    }
+  ],
+  "rights": {
+    "use_mode": "link and summarize with attribution",
+    "copied_content": false,
+    "logos_used": false,
+    "partnership_claimed": false
+  },
+  "review_status": "internally-verified",
+  "external_review": "not-completed"
+}
