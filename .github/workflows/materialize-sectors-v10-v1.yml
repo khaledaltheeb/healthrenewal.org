@@ -8,8 +8,10 @@ on:
       - "data/content-reviews/sectors-v10-editorial-release-v2.json"
       - "scripts/materialize_sectors_v10_v1.py"
       - "scripts/materialize_sectors_v10_compat_v2.py"
+      - "scripts/materialize_sectors_v10_metadata_v3.py"
       - "tests/test_materialize_sectors_v10_v1.py"
       - "tests/test_materialize_sectors_v10_compat_v2.py"
+      - "tests/test_materialize_sectors_v10_metadata_v3.py"
       - ".github/workflows/materialize-sectors-v10-v1.yml"
   push:
     branches: [main]
@@ -18,8 +20,10 @@ on:
       - "data/content-reviews/sectors-v10-editorial-release-v2.json"
       - "scripts/materialize_sectors_v10_v1.py"
       - "scripts/materialize_sectors_v10_compat_v2.py"
+      - "scripts/materialize_sectors_v10_metadata_v3.py"
       - "tests/test_materialize_sectors_v10_v1.py"
       - "tests/test_materialize_sectors_v10_compat_v2.py"
+      - "tests/test_materialize_sectors_v10_metadata_v3.py"
       - ".github/workflows/materialize-sectors-v10-v1.yml"
   workflow_dispatch:
 
@@ -53,17 +57,20 @@ jobs:
           python -m py_compile \
             scripts/materialize_sectors_v10_v1.py \
             scripts/materialize_sectors_v10_compat_v2.py \
+            scripts/materialize_sectors_v10_metadata_v3.py \
             tests/test_materialize_sectors_v10_v1.py \
-            tests/test_materialize_sectors_v10_compat_v2.py
+            tests/test_materialize_sectors_v10_compat_v2.py \
+            tests/test_materialize_sectors_v10_metadata_v3.py
           python -m unittest -v \
             tests/test_materialize_sectors_v10_v1.py \
-            tests/test_materialize_sectors_v10_compat_v2.py
+            tests/test_materialize_sectors_v10_compat_v2.py \
+            tests/test_materialize_sectors_v10_metadata_v3.py
 
       - name: Materialize reviewed public pages
         run: |
           set -euo pipefail
-          python scripts/materialize_sectors_v10_compat_v2.py .
-          python scripts/materialize_sectors_v10_compat_v2.py . --check
+          python scripts/materialize_sectors_v10_metadata_v3.py .
+          python scripts/materialize_sectors_v10_metadata_v3.py . --check
           python - <<'PY'
           import json
           from pathlib import Path
@@ -112,6 +119,15 @@ jobs:
               assert "منصة روافد" in text, path
               assert "<script>alert(" not in text, path
               assert "معاقين" not in text, path
+          clinical = Path("evidence-guides/clinical-anxiety/index.html").read_text(encoding="utf-8")
+          assert clinical.count('id="governance"') == 1
+          assert clinical.count('id="practical-questions"') == 1
+          assert clinical.count('id="related-links"') == 1
+          assert '"@type":["MedicalWebPage","CollectionPage"]' in clinical
+          assert 'https://healthrenewal.org/evidence-guides/clinical-anxiety/' in clinical
+          assert "مراجعة خارجية موصى بها ولم تكتمل" in clinical
+          assert "@media print" in clinical
+          assert '<html lang="ar" dir="rtl">' in clinical
           print({
               "pages": report["pageCount"],
               "articles": report["articleCount"],
