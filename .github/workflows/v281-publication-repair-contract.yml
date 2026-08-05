@@ -63,6 +63,13 @@ jobs:
           }
           trap cleanup EXIT
 
+          mkdir -p "$site_root/special-needs" "$site_root/outside-the-box"
+          cp index.html "$site_root/index.html"
+          cp special-needs/index.html "$site_root/special-needs/index.html"
+          cp outside-the-box/index.html "$site_root/outside-the-box/index.html"
+          if [ -f sitemap.xml ]; then cp sitemap.xml "$site_root/sitemap.xml"; fi
+          if [ -f robots.txt ]; then cp robots.txt "$site_root/robots.txt"; fi
+
           python scripts/publish_capabilities_v280.py "$site_root"
           python scripts/build_conditions_v281_data.py
           test -s "$payload"
