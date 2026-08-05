@@ -128,6 +128,8 @@ jobs:
             scripts/publish_daily_tools_v24.py \
             scripts/repair_comparisons_v331.py \
             scripts/publish_evidence_literacy_library_v322.py \
+            scripts/publish_capabilities_v280.py \
+            scripts/publish_conditions_v281.py \
             scripts/generate_sitemap_index_v304.py
 
       - name: Generate encyclopedia family
@@ -149,6 +151,37 @@ jobs:
         run: |
           set -euxo pipefail
           python scripts/publish_evidence_literacy_library_v322.py _site
+
+      - name: Generate capability protocols preflight
+        run: |
+          set -euxo pipefail
+          python scripts/publish_capabilities_v280.py _site
+
+      - name: Generate condition guides preflight
+        run: |
+          set +e
+          python scripts/publish_conditions_v281.py _site > /tmp/v281-publisher.log 2>&1
+          status=$?
+          cat /tmp/v281-publisher.log
+          if [ "$status" -ne 0 ]; then
+            python - <<'PY'
+          import os
+          from pathlib import Path
+
+          text = Path("/tmp/v281-publisher.log").read_text(encoding="utf-8", errors="replace")
+          start = text.rfind("Traceback (most recent call last):")
+          if start < 0:
+              start = max(0, len(text) - 20000)
+          snippet = text[start : start + 20000]
+          escaped = snippet.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+          print(f"::error title=v281 condition publisher traceback::{escaped}")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("### v281 condition publisher traceback\n\n```text\n")
+              summary.write(snippet)
+              summary.write("\n```\n")
+          PY
+            exit "$status"
+          fi
 
       - name: Generate sitemap index
         run: |
@@ -184,4 +217,5 @@ jobs:
           printf 'daily_tools='; find _site/daily-tools -path '*/index.html' 2>/dev/null | wc -l
           printf 'comparisons='; find _site/comparisons -path '*/index.html' 2>/dev/null | wc -l
           printf 'library='; find _site/library -path '*/index.html' 2>/dev/null | wc -l
+          printf 'capabilities='; find _site/capabilities -path '*/index.html' 2>/dev/null | wc -l
           test -f _site/sitemap-index.xml && echo sitemap_index=present || echo sitemap_index=missing
