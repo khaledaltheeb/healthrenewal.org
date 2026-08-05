@@ -14,7 +14,8 @@ class ReducedMotionContract:
     """Small source validator used by both production checks and negative fixtures."""
 
     MEDIA_QUERY = re.compile(
-        r"@media\s*\(\s*prefers-reduced-motion\s*:\s*reduce\s*\)\s*\{(?P<body>.*?)\n\}",
+        r"@media\s*\(\s*prefers-reduced-motion\s*:\s*reduce\s*\)\s*\{"
+        r"(?P<body>.*?)(?=\n@media\s|\Z)",
         re.DOTALL,
     )
 
