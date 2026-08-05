@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "auditDate": "2026-08-06",
+  "base": {
+    "branch": "main",
+    "sha": "d4984c93f829e43e2e989f476377132e2f1305e7"
+  },
+  "policy": {
+    "preferLongestCompleteVersion": true,
+    "mergeUniqueUsefulMaterial": true,
+    "deleteOrShortenContent": false,
+    "importLegacyDeploymentWorkflows": false,
+    "reason": "Legacy branches are compared file-by-file. Old branches are never merged wholesale when newer production sources already contain longer, safer, or operationally current implementations."
+  },
+  "auditedBranches": [
+    {
+      "branch": "recovery/pre-content-restore-2026-08-05",
+      "disposition": "historical-pointer-only",
+      "reason": "No unique commits were identified relative to the current recovery baseline. The branch is retained as history and must not be merged as a content source.",
+      "recoveries": []
+    },
+    {
+      "branch": "agent/platform-content-recovery-v201",
+      "mergeBase": "f641c3f49e09bbdf3b4b5a454f45d72b6d3ea827",
+      "behindMainBy": 1670,
+      "aheadOfMergeBaseBy": 97,
+      "disposition": "superseded-content-already-present-on-main",
+      "reason": "The principal content assets and recovery ledgers from this branch are already present on main. Its historical publishers and workflows must not be reintroduced wholesale because current publication and CI contracts supersede them.",
+      "comparedPaths": [
+        {
+          "path": "content/v201/special-needs-hub-ar.json",
+          "mainBlobSha": "3ba42a302cd6a5ac1717a1f105bb8e53cff96814",
+          "decision": "retain-main",
+          "reason": "The complete Arabic special-needs hub source exists on main with governance, professional limits, review status and structured pathways."
+        },
+        {
+          "path": "data/recovery-dispositions-v201.json",
+          "mainBlobSha": "37d69d6ec0f2e50cf01032a226ea0093108d178a",
+          "decision": "retain-main",
+          "reason": "The recovery disposition ledger already records superseded publishers and their active replacements."
+        }
+      ],
+      "recoveries": []
+    },
+    {
+      "branch": "agent/specialist-recovery-audit-v8",
+      "mergeBase": "ae0a848312c20529717a0547a1cc8aacabd01449",
+      "behindMainBy": 737,
+      "aheadOfMergeBaseBy": 8,
+      "disposition": "retain-history-no-content-import",
+      "reason": "The branch contains obsolete specialist deployment workflows plus an older recovery overlay. Current main contains the v8 source and substantially larger v10 and current workers; importing the old deployment workflows would recreate competing publishers.",
+      "comparedPaths": [
+        {
+          "path": "specialists-partners/account-backend/src/index-v8.js",
+          "legacyBlobSha": "094553aa4ddb6cf53c2232b334c1cf426a9ced25",
+          "mainBlobSha": "81ff701f2b36190abdf2b8a7fdbf23880b4904db",
+          "decision": "retain-main-and-newer-v10",
+          "reason": "Main preserves the v8 recovery source and also contains index-v10-final.js, index-v10-production.js, index-v10.js and the larger current index.js. The legacy branch is not the longest or operationally current basis."
+        },
+        {
+          "path": "specialists-partners/admin/index.html",
+          "decision": "retain-main",
+          "reason": "The legacy branch changes only six lines against an admin page that has since evolved across hundreds of main commits. Reapplying it without current UI and security context risks regression."
+        },
+        {
+          "path": ".github/workflows/deploy-specialist-recovery-overlay-v8.yml",
+          "decision": "do-not-import",
+          "reason": "Historical deployment workflow. Current main already preserves a safely reduced archival form and has newer specialist identity deployment contracts."
+        },
+        {
+          "path": ".github/workflows/deploy-specialist-recovery-pages-v8.yml",
+          "decision": "do-not-import",
+          "reason": "Would create a parallel Pages deployment path and violate the single-publisher rule."
+        },
+        {
+          "path": "tests/test_specialist_recovery_v8.py",
+          "decision": "retain-history",
+          "reason": "The test is coupled to the obsolete overlay and deployment contract. Relevant password-reset and specialist recovery behavior is covered by newer v10 and production validation paths."
+        }
+      ],
+      "recoveries": []
+    }
+  ],
+  "summary": {
+    "branchesAudited": 3,
+    "pathsCompared": 7,
+    "contentFilesRestored": 0,
+    "contentLossDetected": false,
+    "unsafeLegacyWorkflowsRejected": 2,
+    "nextCandidates": [
+      "Compare closed and archived content PR branches against current source-of-truth JSON files, prioritizing pages whose current HTML is materially shorter than historical versions.",
+      "Audit generated HTML only after locating its authoritative source and generator; never restore generated output over a newer source-of-truth file.",
+      "Continue with one page family per PR and add exact source/branch/blob evidence for every recovered section."
+    ]
+  }
+}
