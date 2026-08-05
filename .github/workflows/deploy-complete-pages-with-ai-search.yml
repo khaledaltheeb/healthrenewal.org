@@ -81,7 +81,23 @@ jobs:
           run-id: ${{ steps.baseline.outputs.run_id }}
           github-token: ${{ github.token }}
 
-      - name: Recover richest versions, review aliases, and complete thin pages
+      - name: Download pre-merge validated baseline for false-alias restoration
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf _legacy_baseline
+          mkdir -p _legacy_baseline
+          curl -fsSL -L \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/8802973435/zip" \
+            -o /tmp/pre-merge-baseline.zip
+          unzip -q /tmp/pre-merge-baseline.zip -d _legacy_baseline
+          test -f _legacy_baseline/index.html
+
+      - name: Recover richest versions, review all aliases, and complete thin pages
         run: |
           set -euo pipefail
           python -m py_compile \
@@ -97,6 +113,7 @@ jobs:
           python scripts/review_content_aliases_v1.py \
             --site _site \
             --baseline _baseline \
+            --legacy-baseline _legacy_baseline \
             --days 10
           python scripts/finalize_content_quality_v1.py --site _site
 
@@ -124,16 +141,19 @@ jobs:
           assert report['htmlPages'] >= 3000, report['htmlPages']
           assert report.get('aliasReviewStatus') == 'passed', report.get('aliasReviewStatus')
           assert not report.get('unrestoredRejectedAliases'), report.get('unrestoredRejectedAliases')
+          assert report.get('allGeneratedAliasesReviewed', 0) >= 100, report.get('allGeneratedAliasesReviewed')
+          assert report.get('falseAliasesRejected', 0) >= 100, report.get('falseAliasesRejected')
+          assert report.get('thinAliasesRedirected', 999) <= 5, report.get('thinAliasesRedirected')
           assert report['remainingThinPages'] == 0, report['thinPages'][:20]
           assert report['completenessRatio'] == 1.0, report['completenessRatio']
           assert Path('_site/index.html').is_file()
           print({key: report.get(key) for key in (
               'status', 'htmlPages', 'historicalPagesRestored',
-              'duplicateRoutesConsolidated', 'duplicateGroupsMerged',
-              'thinAliasesRedirected', 'falseAliasesRejected',
-              'thinPagesExpanded', 'remainingThinPagesExpanded',
-              'finalQualityExpansions', 'finalQualityRedirects',
-              'remainingThinPages', 'completenessRatio'
+              'allGeneratedAliasesReviewed', 'thinAliasesRedirected',
+              'falseAliasesRejected', 'thinPagesExpanded',
+              'remainingThinPagesExpanded', 'finalQualityExpansions',
+              'finalQualityRedirects', 'remainingThinPages',
+              'completenessRatio'
           )})
           PY
           touch _site/.nojekyll
@@ -173,13 +193,18 @@ jobs:
           assert report['schemaVersion'] == 2
           assert report['htmlPages'] >= 3000
           assert report.get('aliasReviewStatus') == 'passed'
+          assert not report.get('unrestoredRejectedAliases')
+          assert report.get('allGeneratedAliasesReviewed', 0) >= 100
+          assert report.get('falseAliasesRejected', 0) >= 100
+          assert report.get('thinAliasesRedirected', 999) <= 5
           assert report['remainingThinPages'] == 0
           assert report['completenessRatio'] == 1.0
           print({key: report.get(key) for key in (
               'status', 'htmlPages', 'historicalPagesRestored',
-              'thinAliasesRedirected', 'falseAliasesRejected',
-              'thinPagesExpanded', 'finalQualityExpansions',
-              'remainingThinPages', 'completenessRatio'
+              'allGeneratedAliasesReviewed', 'thinAliasesRedirected',
+              'falseAliasesRejected', 'thinPagesExpanded',
+              'finalQualityExpansions', 'remainingThinPages',
+              'completenessRatio'
           )})
           PY
               then
