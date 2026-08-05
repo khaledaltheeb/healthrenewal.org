@@ -1,0 +1,52 @@
+name: Academic library reference v401
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/enhance_academic_reference_v400.py"
+      - "scripts/enhance_academic_reference_v401.py"
+      - "scripts/publish_academic_library_v326.py"
+      - "scripts/publish_evidence_literacy_library_v322.py"
+      - "tests/test_academic_reference_v401.py"
+      - ".github/workflows/academic-reference-v401.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/enhance_academic_reference_v400.py"
+      - "scripts/enhance_academic_reference_v401.py"
+      - "scripts/publish_academic_library_v326.py"
+      - "scripts/publish_evidence_literacy_library_v322.py"
+      - "tests/test_academic_reference_v401.py"
+      - ".github/workflows/academic-reference-v401.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: academic-reference-v401-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile reference generators
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/enhance_academic_reference_v400.py \
+            scripts/enhance_academic_reference_v401.py \
+            scripts/publish_academic_library_v326.py \
+            scripts/publish_evidence_literacy_library_v322.py \
+            tests/test_academic_reference_v401.py
+      - name: Enforce inventory, depth, sources, governance and aliases
+        run: |
+          set -euo pipefail
+          python tests/test_academic_reference_v401.py
