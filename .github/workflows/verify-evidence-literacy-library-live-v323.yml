@@ -1,0 +1,90 @@
+name: Verify evidence literacy library live v323 (archived manual verifier)
+
+# Historical verifier retained for auditability.
+# The generated v322 JSON report is no longer part of the production contract,
+# so automatic schedule/workflow_run triggers are intentionally disabled.
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Live origin to verify
+        required: false
+        default: https://healthrenewal.org/
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evidence-literacy-library-live-v323-manual
+  cancel-in-progress: true
+
+jobs:
+  live-publication-manual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      BASE_URL: ${{ inputs.base_url }}
+    steps:
+      - name: Verify retained evidence-literacy routes without obsolete report dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="${BASE_URL%/}/"
+          token="manual-v323-$(date +%s)"
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${base}deployment.json?v=${token}" -o /tmp/deployment.json
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${base}library/?v=${token}" -o /tmp/library.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${base}library/evidence-literacy/?v=${token}" -o /tmp/hub.html
+          curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${base}sitemap-library.xml?v=${token}" -o /tmp/sitemap-library.xml
+          for slug in \
+            how-to-read-systematic-review \
+            certainty-of-evidence-and-recommendations \
+            study-designs-bias-and-causality \
+            appraise-clinical-guideline; do
+            curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${base}library/evidence-literacy/${slug}/?v=${token}" -o "/tmp/${slug}.html"
+          done
+
+      - name: Enforce live semantic routes, structure, and discovery
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          commit = deployment.get('commit')
+          assert isinstance(commit, str) and re.fullmatch(r'[0-9a-f]{40}', commit), deployment
+
+          hub = Path('/tmp/hub.html').read_text(encoding='utf-8')
+          parent = Path('/tmp/library.html').read_text(encoding='utf-8')
+          slugs = (
+              'how-to-read-systematic-review',
+              'certainty-of-evidence-and-recommendations',
+              'study-designs-bias-and-causality',
+              'appraise-clinical-guideline',
+          )
+          assert '/library/evidence-literacy/' in parent
+          assert '<main' in hub and '<h1' in hub
+
+          for slug in slugs:
+              text = Path(f'/tmp/{slug}.html').read_text(encoding='utf-8')
+              assert text.count('<h1') == 1, slug
+              assert '<main' in text, slug
+              assert 'canonical' in text, slug
+              assert 'BreadcrumbList' in text, slug
+              ids = re.findall(r'\bid="([^"]+)"', text)
+              assert len(ids) == len(set(ids)), (slug, ids)
+
+          urls = [
+              (node.text or '').strip()
+              for node in ET.parse('/tmp/sitemap-library.xml').getroot().findall('{*}url/{*}loc')
+              if node.text
+          ]
+          expected = ['https://healthrenewal.org/library/evidence-literacy/'] + [
+              f'https://healthrenewal.org/library/evidence-literacy/{slug}/' for slug in slugs
+          ]
+          for url in expected:
+              assert urls.count(url) == 1, url
+          assert len(urls) == len(set(urls))
+          print({'status': 'manual-live-verifier-passed', 'live_commit': commit, 'routes': len(expected)})
+          PY
