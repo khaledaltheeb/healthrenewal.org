@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -70,6 +71,25 @@ def test_alias_targets_exist_and_do_not_create_new_canonical_topics() -> None:
             assert target in canonical_titles, (section_slug, alias, target)
 
 
+def test_deduplication_converts_eighteen_legacy_routes_to_canonical_redirects() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        site = Path(temp)
+        for section_slug, section in academic.SECTIONS.items():
+            for index, item in enumerate(section["entries"][:6], start=1):
+                page = site / "library" / section_slug / f"{section_slug}-{index:02d}" / "index.html"
+                page.parent.mkdir(parents=True, exist_ok=True)
+                page.write_text(f"<!doctype html><html lang='ar'><body><h1>{item['title']}</h1></body></html>", encoding="utf-8")
+        redirects = base.deduplicate(site)
+        assert len(redirects) == 18
+        for redirect in redirects:
+            source = site / redirect["source"].strip("/") / "index.html"
+            rendered = source.read_text(encoding="utf-8")
+            assert 'name="robots" content="noindex,follow"' in rendered
+            assert 'rel="canonical"' in rendered
+            assert "location.replace" in rendered
+            assert redirect["target"].startswith("/library/")
+
+
 def test_high_priority_evidence_notes_cover_existing_entries() -> None:
     known_slugs = {item["slug"] for _, _, item in all_items()}
     required = {
@@ -104,7 +124,6 @@ def test_outer_publisher_uses_the_final_v401_depth_pass() -> None:
     assert 'reference.get("version") != 401' in source
     assert 'reference.get("minimum_entry_words", 0)) < 1000' in source
     assert 'reference.get("minimum_references", 0)) < 6' in source
-    assert 'reference.get("duplicate_and_alias_redirects", 0)) < 18' in source
     assert '"api/academic-library-reference-v401.json"' in source
 
 
@@ -114,6 +133,7 @@ def main() -> int:
         test_every_reference_page_meets_depth_sources_and_governance_contract,
         test_source_registry_uses_secure_traceable_urls,
         test_alias_targets_exist_and_do_not_create_new_canonical_topics,
+        test_deduplication_converts_eighteen_legacy_routes_to_canonical_redirects,
         test_high_priority_evidence_notes_cover_existing_entries,
         test_outer_publisher_uses_the_final_v401_depth_pass,
     )
