@@ -1,0 +1,109 @@
+name: V281 publication repair contract
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "scripts/ensure_special_needs_publication_v1.py"
+      - "scripts/build_conditions_v281_data.py"
+      - "scripts/publish_conditions_v281.py"
+      - "content/v281/**"
+      - "tests/test_ensure_special_needs_publication_v1.py"
+      - ".github/workflows/v281-publication-repair-contract.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "scripts/ensure_special_needs_publication_v1.py"
+      - "scripts/build_conditions_v281_data.py"
+      - "scripts/publish_conditions_v281.py"
+      - "content/v281/**"
+      - "tests/test_ensure_special_needs_publication_v1.py"
+      - ".github/workflows/v281-publication-repair-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile publication scripts
+        run: |
+          set -euxo pipefail
+          python -m py_compile \
+            scripts/ensure_special_needs_publication_v1.py \
+            scripts/build_conditions_v281_data.py \
+            scripts/publish_conditions_v281.py
+
+      - name: Run repair contract unit tests
+        run: |
+          set -euxo pipefail
+          python -m unittest -v tests/test_ensure_special_needs_publication_v1.py
+
+      - name: Run deterministic v281 build and publication chain
+        run: |
+          set -euxo pipefail
+          site_root="$(mktemp -d)"
+          payload="content/v281/conditions-50-ar.json.zlib.b64"
+          cleanup() {
+            rm -f "$payload"
+            rm -rf "$site_root"
+          }
+          trap cleanup EXIT
+
+          mkdir -p "$site_root/special-needs" "$site_root/outside-the-box"
+          cp index.html "$site_root/index.html"
+          cp special-needs/index.html "$site_root/special-needs/index.html"
+          cp outside-the-box/index.html "$site_root/outside-the-box/index.html"
+          if [ -f sitemap.xml ]; then cp sitemap.xml "$site_root/sitemap.xml"; fi
+          if [ -f robots.txt ]; then cp robots.txt "$site_root/robots.txt"; fi
+
+          python scripts/publish_capabilities_v280.py "$site_root"
+          python scripts/build_conditions_v281_data.py
+          test -s "$payload"
+          python scripts/publish_conditions_v281.py "$site_root"
+
+          SITE_ROOT="$site_root" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["SITE_ROOT"])
+          report_path = root / "api" / "capabilities-v281.json"
+          if not report_path.is_file():
+              raise SystemExit(f"Missing v281 publication report: {report_path}")
+          report = json.loads(report_path.read_text(encoding="utf-8"))
+          if report.get("condition_count") != 50:
+              raise SystemExit({"unexpected_v281_count": report.get("condition_count")})
+          if report.get("status") != "passed":
+              raise SystemExit({"unexpected_v281_status": report.get("status")})
+
+          capability_pages = sorted((root / "capabilities").glob("*/index.html"))
+          if len(capability_pages) < 150:
+              raise SystemExit({"capability_condition_pages": len(capability_pages)})
+          print(
+              {
+                  "v281_count": report["condition_count"],
+                  "v281_status": report["status"],
+                  "capability_pages": len(capability_pages),
+              }
+          )
+          PY
+
+      - name: Verify generated payload is not committed
+        run: |
+          set -euxo pipefail
+          test ! -e content/v281/conditions-50-ar.json.zlib.b64
+          test -z "$(git status --porcelain -- content/v281/conditions-50-ar.json.zlib.b64)"

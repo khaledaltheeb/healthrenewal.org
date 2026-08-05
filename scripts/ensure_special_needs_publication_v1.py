@@ -11,6 +11,7 @@ from pathlib import Path
 
 BASE_URL = "https://healthrenewal.org"
 REPORT_PATH = Path("api/special-needs-publication-inventory-v1.json")
+V281_PAYLOAD_PATH = Path("content/v281/conditions-50-ar.json.zlib.b64")
 
 MINIMUM_COUNTS: dict[str, int] = {
     "capability_pages": 155,
@@ -135,14 +136,68 @@ def validate_counts(
     return failures
 
 
-def _run_publisher(repo_root: Path, script_name: str, site_root: Path) -> None:
+def _run_script(repo_root: Path, script_name: str, *args: str | Path) -> None:
     script = repo_root / "scripts" / script_name
     if not script.is_file():
-        raise SystemExit({"missing_repair_publisher": str(script)})
-    subprocess.run(
-        [sys.executable, str(script), str(site_root)],
+        raise FileNotFoundError(f"Required publication script is missing: {script}")
+
+    completed = subprocess.run(
+        [sys.executable, str(script), *(str(argument) for argument in args)],
         cwd=repo_root,
-        check=True,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    if completed.stdout:
+        print(completed.stdout, end="" if completed.stdout.endswith("\n") else "\n")
+    if completed.stderr:
+        print(
+            completed.stderr,
+            file=sys.stderr,
+            end="" if completed.stderr.endswith("\n") else "\n",
+        )
+
+    if completed.returncode != 0:
+        details = [
+            f"{script_name} failed with exit code {completed.returncode}.",
+        ]
+        if completed.stdout.strip():
+            details.append("stdout:\n" + completed.stdout.strip())
+        if completed.stderr.strip():
+            details.append("stderr:\n" + completed.stderr.strip())
+        raise RuntimeError("\n".join(details))
+
+
+def _publish_v281_conditions(repo_root: Path, site_root: Path) -> list[str]:
+    payload = repo_root / V281_PAYLOAD_PATH
+    if payload.exists() and not payload.is_file():
+        raise RuntimeError(f"v281 payload path is not a regular file: {payload}")
+
+    previous_payload = payload.read_bytes() if payload.is_file() else None
+    actions: list[str] = []
+    try:
+        _run_script(repo_root, "build_conditions_v281_data.py")
+        actions.append("build_conditions_v281_data.py")
+
+        if not payload.is_file() or payload.stat().st_size == 0:
+            raise RuntimeError(f"v281 builder did not create a non-empty payload: {payload}")
+
+        _run_script(repo_root, "publish_conditions_v281.py", site_root)
+        actions.append("publish_conditions_v281.py")
+        return actions
+    finally:
+        if previous_payload is None:
+            payload.unlink(missing_ok=True)
+        else:
+            payload.parent.mkdir(parents=True, exist_ok=True)
+            payload.write_bytes(previous_payload)
+
+
+def _capability_repair_required(inventory: Inventory) -> bool:
+    return any(
+        inventory.counts.get(name, 0) < MINIMUM_COUNTS[name]
+        for name in ("capability_pages", "capability_condition_pages")
     )
 
 
@@ -155,18 +210,17 @@ def repair_missing_generated_families(root: Path, repo_root: Path) -> dict[str, 
     # Never materialize generated production families into the source checkout.
     # The canonical Pages workflow passes a separate _site directory here.
     if root != repo_root:
-        if before.counts["capability_pages"] < MINIMUM_COUNTS["capability_pages"]:
-            _run_publisher(repo_root, "publish_capabilities_v280.py", root)
+        if _capability_repair_required(before):
+            _run_script(repo_root, "publish_capabilities_v280.py", root)
             actions.append("publish_capabilities_v280.py")
-            _run_publisher(repo_root, "publish_conditions_v281.py", root)
-            actions.append("publish_conditions_v281.py")
+            actions.extend(_publish_v281_conditions(repo_root, root))
 
         # These 15 long-form tools are committed as a public snapshot, but their
         # authoritative source lives under content/. Rebuild them on every full
         # production artifact so edits to the manifest or split tool bundles can
         # never remain unpublished or drift from the visible pages. The publisher
         # also refreshes the family-guide parent card and writes its API report.
-        _run_publisher(
+        _run_script(
             repo_root,
             "publish_family_guide_special_education_tools_v1.py",
             root,
