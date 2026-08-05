@@ -1,0 +1,60 @@
+{
+  "contractVersion": "1.0.0",
+  "issue": 900,
+  "scope": "platform-shell",
+  "language": "ar",
+  "direction": "rtl",
+  "skipLink": {
+    "required": true,
+    "mustBeFirstFocusable": true,
+    "label": "تجاوز إلى المحتوى الرئيسي",
+    "targetId": "main-content",
+    "visibleOnFocus": true
+  },
+  "mainLandmark": {
+    "selector": "main",
+    "requiredCount": 1,
+    "id": "main-content",
+    "mustNotBeObscuredByFixedShell": true
+  },
+  "breadcrumbs": {
+    "enabledFor": "informational-pages",
+    "disabledFor": [
+      "multi-step-transactions",
+      "authentication-flows"
+    ],
+    "container": {
+      "element": "nav",
+      "ariaLabel": "مسار التنقل"
+    },
+    "listElement": "ol",
+    "homeLabel": "الرئيسية",
+    "currentItemUsesAriaCurrent": "page",
+    "decorativeSeparatorsAreAriaHidden": true,
+    "mobileFallback": "العودة إلى القسم السابق"
+  },
+  "focus": {
+    "selector": ":focus-visible",
+    "minimumOutlineWidthPx": 3,
+    "minimumOutlineOffsetPx": 2,
+    "mustRemainVisibleAtZoom": [200, 400],
+    "mustNotBeCoveredByFixedUi": true
+  },
+  "responsive": {
+    "minimumViewportWidthPx": 320,
+    "preventUnnecessaryHorizontalScroll": true,
+    "supportsPrint": true,
+    "supportsReducedMotion": true
+  },
+  "negativeRules": {
+    "forbidLocalBreadcrumbCss": true,
+    "forbidTextSeparatorsAnnouncedByScreenReaders": true,
+    "forbidDuplicateMainIds": true,
+    "forbidHiddenSkipLinkOnFocus": true
+  },
+  "review": {
+    "status": "internal-contract-approved",
+    "verifiedAt": "2026-08-05",
+    "nextReview": "2026-11-05"
+  }
+}
