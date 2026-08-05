@@ -84,3 +84,22 @@ def test_outer_publisher_uses_the_final_v401_depth_pass() -> None:
     assert 'reference.get("minimum_references", 0)) < 6' in source
     assert 'reference.get("duplicate_and_alias_redirects", 0)) < 18' in source
     assert '"api/academic-library-reference-v401.json"' in source
+
+
+def main() -> int:
+    tests = (
+        test_reference_inventory_and_unique_routes,
+        test_every_reference_page_meets_depth_sources_and_governance_contract,
+        test_source_registry_uses_secure_traceable_urls,
+        test_alias_targets_exist_and_do_not_create_new_canonical_topics,
+        test_special_evidence_notes_point_to_existing_entries,
+        test_outer_publisher_uses_the_final_v401_depth_pass,
+    )
+    for test in tests:
+        test()
+    print({"academic_reference_v401_tests": len(tests), "status": "passed"})
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
