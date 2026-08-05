@@ -10,6 +10,7 @@ on:
       - "sitemap-index.xml"
       - "scripts/check_cerebral_palsy_live.py"
       - "tests/test_cerebral_palsy_publication_contract.py"
+      - ".github/workflows/deploy-complete-pages-with-ai-search.yml"
       - ".github/workflows/live-cerebral-palsy-archive.yml"
   push:
     branches:
@@ -21,6 +22,7 @@ on:
       - "sitemap-index.xml"
       - "scripts/check_cerebral_palsy_live.py"
       - "tests/test_cerebral_palsy_publication_contract.py"
+      - ".github/workflows/deploy-complete-pages-with-ai-search.yml"
       - ".github/workflows/live-cerebral-palsy-archive.yml"
 
 permissions:
