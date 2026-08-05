@@ -81,27 +81,12 @@ jobs:
           run-id: ${{ steps.baseline.outputs.run_id }}
           github-token: ${{ github.token }}
 
-      - name: Download pre-merge validated baseline outside public source
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          rm -rf /tmp/pre-merge-baseline
-          mkdir -p /tmp/pre-merge-baseline
-          curl -fsSL -L \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/8802973435/zip" \
-            -o /tmp/pre-merge-baseline.zip
-          unzip -q /tmp/pre-merge-baseline.zip -d /tmp/pre-merge-baseline
-          test -f /tmp/pre-merge-baseline/index.html
-          test ! -e _baseline
-          test ! -e _legacy_baseline
-
       - name: Recover richest versions, review all aliases, and complete thin pages
         run: |
           set -euo pipefail
+          test -f /tmp/validated-baseline/index.html
+          test ! -e _baseline
+          test ! -e _legacy_baseline
           python -m py_compile \
             scripts/recover_content_v1.py \
             scripts/recover_content_v2.py \
@@ -115,7 +100,6 @@ jobs:
           python scripts/review_content_aliases_v1.py \
             --site _site \
             --baseline /tmp/validated-baseline \
-            --legacy-baseline /tmp/pre-merge-baseline \
             --days 10
           python scripts/finalize_content_quality_v1.py --site _site
 
