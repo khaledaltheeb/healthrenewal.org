@@ -162,12 +162,15 @@ jobs:
           from pathlib import Path
 
           text = Path("/tmp/sitemap-generator.log").read_text(encoding="utf-8", errors="replace")
-          tail = text[-12000:]
-          escaped = tail.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+          start = text.rfind("Traceback (most recent call last):")
+          if start < 0:
+              start = max(0, len(text) - 20000)
+          snippet = text[start : start + 20000]
+          escaped = snippet.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
           print(f"::error title=Sitemap generator traceback::{escaped}")
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
               summary.write("### Sitemap generator traceback\n\n```text\n")
-              summary.write(tail)
+              summary.write(snippet)
               summary.write("\n```\n")
           PY
             exit "$status"
