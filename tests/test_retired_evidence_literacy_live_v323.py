@@ -5,33 +5,39 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OBSOLETE_WORKFLOW = (
-    ROOT / ".github/workflows/verify-evidence-literacy-library-live-v323.yml"
-)
+WORKFLOW = ROOT / ".github/workflows/verify-evidence-literacy-library-live-v323.yml"
 
 
-class RetiredEvidenceLiteracyLiveV323Tests(unittest.TestCase):
-    def test_obsolete_live_verifier_is_not_reintroduced(self) -> None:
-        """The v323 verifier targeted a generated report no longer shipped by main."""
-        self.assertFalse(
-            OBSOLETE_WORKFLOW.exists(),
-            "Do not restore the stale v323 verifier without restoring its production artifact contract.",
-        )
+class RetainedEvidenceLiteracyLiveV323Tests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.text = WORKFLOW.read_text(encoding="utf-8")
 
-    def test_no_workflow_references_removed_v322_report(self) -> None:
-        workflow_dir = ROOT / ".github/workflows"
-        offenders: list[str] = []
-        marker = "api/evidence-literacy-library-v322.json"
-        for pattern in ("*.yml", "*.yaml"):
-            for path in workflow_dir.glob(pattern):
-                if marker in path.read_text(encoding="utf-8"):
-                    offenders.append(path.name)
+    def test_historical_workflow_is_retained(self) -> None:
+        self.assertTrue(WORKFLOW.exists())
+        self.assertIn("workflow_dispatch:", self.text)
+        self.assertIn("archived manual verifier", self.text)
 
-        self.assertEqual(
-            [],
-            sorted(offenders),
-            "A workflow still depends on the removed v322 live report artifact.",
-        )
+    def test_obsolete_automatic_triggers_are_disabled(self) -> None:
+        self.assertNotIn("workflow_run:", self.text)
+        self.assertNotIn("schedule:", self.text)
+        self.assertNotIn("pull_request:", self.text)
+
+    def test_removed_report_is_not_a_runtime_dependency(self) -> None:
+        self.assertNotIn("api/evidence-literacy-library-v322.json", self.text)
+        self.assertIn("sitemap-library.xml", self.text)
+        self.assertIn("deployment.json", self.text)
+
+    def test_manual_verifier_keeps_semantic_publication_checks(self) -> None:
+        for marker in (
+            "library/evidence-literacy/",
+            "how-to-read-systematic-review",
+            "certainty-of-evidence-and-recommendations",
+            "study-designs-bias-and-causality",
+            "appraise-clinical-guideline",
+            "BreadcrumbList",
+            "canonical",
+        ):
+            self.assertIn(marker, self.text)
 
 
 if __name__ == "__main__":
