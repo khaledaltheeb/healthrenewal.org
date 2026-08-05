@@ -152,8 +152,26 @@ jobs:
 
       - name: Generate sitemap index
         run: |
-          set -euxo pipefail
-          python scripts/generate_sitemap_index_v304.py _site
+          set +e
+          python scripts/generate_sitemap_index_v304.py _site > /tmp/sitemap-generator.log 2>&1
+          status=$?
+          cat /tmp/sitemap-generator.log
+          if [ "$status" -ne 0 ]; then
+            python - <<'PY'
+          import os
+          from pathlib import Path
+
+          text = Path("/tmp/sitemap-generator.log").read_text(encoding="utf-8", errors="replace")
+          tail = text[-12000:]
+          escaped = tail.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+          print(f"::error title=Sitemap generator traceback::{escaped}")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("### Sitemap generator traceback\n\n```text\n")
+              summary.write(tail)
+              summary.write("\n```\n")
+          PY
+            exit "$status"
+          fi
 
       - name: Summarize generated families
         if: always()
