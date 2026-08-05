@@ -1,0 +1,32 @@
+{
+  "id": "pacer-assistive-technology",
+  "organization": "PACER Center",
+  "resource_title": "Assistive Technology guidance",
+  "resource_type": "family guidance and assistive technology education",
+  "official_urls": [
+    "https://www.pacer.org/advice-guidance/topic-assistive-technology/",
+    "https://www.pacer.org/guides/assistive-technology/at-100/",
+    "https://www.pacer.org/guides/assistive-technology/at-200/",
+    "https://www.pacer.org/assistive-technology/"
+  ],
+  "rights_classification": "translation-permitted",
+  "permission_basis": "Written permission recorded in repository Issue #948 permits linking and translating PACER information when PACER Center is credited as the original source.",
+  "required_attribution_ar": "المصدر الأصلي: PACER Center. أعدّت منصة روافد هذا الدليل العربي مع التوطين والتحليل المستقل.",
+  "prohibited_uses": [
+    "PACER logo or brand assets",
+    "claim of partnership, endorsement, accreditation, or external review",
+    "presenting Minnesota-specific IEP, 504, funding, lending, or service rules as applicable in Arab jurisdictions",
+    "copying whole pages or reproducing images"
+  ],
+  "adaptation": {
+    "type": "original Arabic guide informed by permitted source material",
+    "changes": "Reorganized around functional goals, structured trials, outcome observation, procurement safety, team roles, and Arab-context localization; removed US-specific legal conclusions from the operational guidance.",
+    "internal_page": "https://healthrenewal.org/family-guide/assistive-technology-selection/"
+  },
+  "verified_at": "2026-08-05",
+  "next_review_due": "2027-02-05",
+  "source_status": "current",
+  "review_status": "internal-editorial-review",
+  "jurisdiction_note": "PACER guidance is developed in the United States and includes Minnesota-specific services and US education law references. Local rights, funding, school procedures, insurance, import rules, and professional scopes must be verified locally.",
+  "relationship_disclosure": "No partnership, endorsement, accreditation, or external review is claimed."
+}
