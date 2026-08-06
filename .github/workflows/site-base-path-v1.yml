@@ -1,0 +1,60 @@
+name: Validate site base path v1
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/site_base_path_v1.py"
+      - "scripts/expand_v12_direct.py"
+      - "scripts/expand_v12_direct_legacy_v1.py"
+      - "scripts/complete_core_sections_v15.py"
+      - "scripts/complete_core_sections_v15_legacy_v1.py"
+      - "tests/test_site_base_path_v1.py"
+      - ".github/workflows/site-base-path-v1.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/site_base_path_v1.py"
+      - "scripts/expand_v12_direct.py"
+      - "scripts/expand_v12_direct_legacy_v1.py"
+      - "scripts/complete_core_sections_v15.py"
+      - "scripts/complete_core_sections_v15_legacy_v1.py"
+      - "tests/test_site_base_path_v1.py"
+      - ".github/workflows/site-base-path-v1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile preserved generators and wrappers
+        run: |
+          python -m py_compile \
+            scripts/site_base_path_v1.py \
+            scripts/expand_v12_direct.py \
+            scripts/expand_v12_direct_legacy_v1.py \
+            scripts/complete_core_sections_v15.py \
+            scripts/complete_core_sections_v15_legacy_v1.py \
+            tests/test_site_base_path_v1.py
+      - name: Run path normalization regression contract
+        env:
+          SITE_BASE: https://healthrenewal.org/
+        run: python -m unittest -v tests/test_site_base_path_v1.py
+      - name: Assert wrappers keep root URLs absolute-path based
+        env:
+          SITE_BASE: https://healthrenewal.org/
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, 'scripts')
+          import expand_v12_direct
+          import complete_core_sections_v15
+          assert expand_v12_direct.legacy.BASE_PATH == '/', expand_v12_direct.legacy.BASE_PATH
+          assert complete_core_sections_v15.legacy.BASE_PATH == '/', complete_core_sections_v15.legacy.BASE_PATH
+          print({'site_base_path': '/', 'protocol_relative_prefix': False})
+          PY
