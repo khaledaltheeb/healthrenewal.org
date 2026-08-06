@@ -76,6 +76,20 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
                 self.assertNotIn(phrase, combined)
         self.assertIsNone(re.search(r'href=["\']/(family)/["\']', combined))
 
+    def test_generated_evidence_guides_do_not_restore_legacy_family_route(self) -> None:
+        guides = sorted((ROOT / "evidence-guides").glob("*/index.html"))
+        self.assertGreaterEqual(len(guides), 30)
+        legacy_pattern = re.compile(r'href=["\']/family/["\']')
+        canonical_link_count = 0
+
+        for guide in guides:
+            page = guide.read_text(encoding="utf-8")
+            with self.subTest(guide=guide.relative_to(ROOT).as_posix()):
+                self.assertIsNone(legacy_pattern.search(page))
+            canonical_link_count += page.count('href="/sectors/family/"')
+
+        self.assertGreaterEqual(canonical_link_count, 10)
+
 
 if __name__ == "__main__":
     unittest.main()
