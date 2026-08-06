@@ -245,6 +245,7 @@ def main() -> int:
     robots = (
         "User-agent: *\n"
         "Allow: /\n\n"
+        f"Sitemap: {BASE_URL}sitemap-index.xml\n"
         f"Sitemap: {BASE_URL}sitemap.xml\n"
     ).encode("utf-8")
 
