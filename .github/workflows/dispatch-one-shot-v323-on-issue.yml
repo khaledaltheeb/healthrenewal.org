@@ -1,4 +1,4 @@
-name: Dispatch one-shot Pages v323 from release issue
+name: Dispatch production workflow from release issue
 
 on:
   issues:
@@ -11,37 +11,46 @@ permissions:
 
 jobs:
   dispatch:
-    if: github.event.issue.title == '[release-v323] deploy validated publication surface'
+    if: >-
+      github.event.issue.title == '[release-v323] deploy validated publication surface' ||
+      github.event.issue.title == '[release-complete-site] deploy current main'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Dispatch validated Pages release
+      - name: Dispatch the selected authoritative release workflow
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
         run: |
           python - <<'PY'
           import json
           import os
           import urllib.request
 
-          repo=os.environ['GITHUB_REPOSITORY']
-          token=os.environ['GH_TOKEN']
-          payload=json.dumps({'ref':'main'}).encode('utf-8')
-          request=urllib.request.Request(
-              f'https://api.github.com/repos/{repo}/actions/workflows/one-shot-validated-pages-v323.yml/dispatches',
+          repo = os.environ['GITHUB_REPOSITORY']
+          token = os.environ['GH_TOKEN']
+          title = os.environ['ISSUE_TITLE']
+          workflows = {
+              '[release-v323] deploy validated publication surface': 'one-shot-validated-pages-v323.yml',
+              '[release-complete-site] deploy current main': 'deploy-complete-pages-with-ai-search.yml',
+          }
+          workflow = workflows[title]
+          payload = json.dumps({'ref': 'main'}).encode('utf-8')
+          request = urllib.request.Request(
+              f'https://api.github.com/repos/{repo}/actions/workflows/{workflow}/dispatches',
               data=payload,
               method='POST',
               headers={
-                  'Authorization':f'Bearer {token}',
-                  'Accept':'application/vnd.github+json',
-                  'Content-Type':'application/json',
-                  'X-GitHub-Api-Version':'2022-11-28',
-                  'User-Agent':'release-v323-dispatcher',
+                  'Authorization': f'Bearer {token}',
+                  'Accept': 'application/vnd.github+json',
+                  'Content-Type': 'application/json',
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'User-Agent': 'healthrenewal-release-dispatcher',
               },
           )
-          with urllib.request.urlopen(request,timeout=30) as response:
+          with urllib.request.urlopen(request, timeout=30) as response:
               response.read()
-          print({'dispatched':'one-shot-validated-pages-v323.yml','ref':'main'})
+          print({'dispatched': workflow, 'ref': 'main', 'issueTitle': title})
           PY
 
       - name: Close release trigger issue
@@ -53,19 +62,20 @@ jobs:
           import json
           import os
           import urllib.request
-          repo=os.environ['GITHUB_REPOSITORY']
-          request=urllib.request.Request(
+
+          repo = os.environ['GITHUB_REPOSITORY']
+          request = urllib.request.Request(
               f"https://api.github.com/repos/{repo}/issues/{os.environ['ISSUE_NUMBER']}",
-              data=json.dumps({'state':'closed','state_reason':'completed'}).encode('utf-8'),
+              data=json.dumps({'state': 'closed', 'state_reason': 'completed'}).encode('utf-8'),
               method='PATCH',
               headers={
-                  'Authorization':f"Bearer {os.environ['GH_TOKEN']}",
-                  'Accept':'application/vnd.github+json',
-                  'Content-Type':'application/json',
-                  'X-GitHub-Api-Version':'2022-11-28',
-                  'User-Agent':'release-v323-dispatcher',
+                  'Authorization': f"Bearer {os.environ['GH_TOKEN']}",
+                  'Accept': 'application/vnd.github+json',
+                  'Content-Type': 'application/json',
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'User-Agent': 'healthrenewal-release-dispatcher',
               },
           )
-          with urllib.request.urlopen(request,timeout=30) as response:
+          with urllib.request.urlopen(request, timeout=30) as response:
               response.read()
           PY
