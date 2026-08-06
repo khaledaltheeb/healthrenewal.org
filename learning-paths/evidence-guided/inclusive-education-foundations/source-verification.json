@@ -1,0 +1,129 @@
+{
+  "id": "inclusive-education-foundations-source-verification-v2",
+  "page": "/learning-paths/evidence-guided/inclusive-education-foundations/",
+  "canonical": "https://healthrenewal.org/learning-paths/evidence-guided/inclusive-education-foundations/",
+  "review_status": "internally-reviewed",
+  "external_review": "recommended-not-completed",
+  "risk_level": "moderate",
+  "verified_at": "2026-08-06",
+  "next_review_at": "2027-02-06",
+  "professional_limits": "هذه المادة للتثقيف والتخطيط المدرسي ولا تنشئ قرار قبول أو تشخيصًا تربويًا أو ترتيبًا تيسيريًا ملزمًا أو رأيًا قانونيًا لشخص بعينه. يجب تطبيق الحقوق والإجراءات وفق الأنظمة الأردنية النافذة وتعليمات وزارة التربية والتعليم والمجلس الأعلى لحقوق الأشخاص ذوي الإعاقة، مع إشراك المتعلم والأسرة والفريق المختص.",
+  "editorial_claims": [
+    {
+      "claim": "التعليم الدامج يتطلب مراجعة الحواجز في السياسات والثقافة والممارسة، ولا يُقاس بمجرد وجود المتعلم داخل مبنى أو صف عام.",
+      "source_ids": ["unesco-inclusion-guide", "unesco-inclusion-overview"]
+    },
+    {
+      "claim": "تطوير نظام دامج يحتاج تغييرات مترابطة في تدريب المعلمين وإتاحة المباني والمواد والمواقف المجتمعية والسياسات والبيانات.",
+      "source_ids": ["unicef-inclusive-education"]
+    },
+    {
+      "claim": "المادة 24 من اتفاقية حقوق الأشخاص ذوي الإعاقة تؤسس للحق في التعليم ضمن نظام تعليمي دامج وعلى أساس تكافؤ الفرص.",
+      "source_ids": ["un-crpd-article-24"]
+    },
+    {
+      "claim": "التصميم الشامل للتعلم يوفر إطارًا لتعدد وسائل المشاركة والعرض والفعل والتعبير، لكنه لا يلغي الحاجة إلى ترتيبات ودعم فردي.",
+      "source_ids": ["cast-udl-3"]
+    },
+    {
+      "claim": "في الأردن توجد أطر وخطط وطنية حالية تشمل الاستراتيجية العشرية للتعليم الدامج، خطتها التنفيذية 2024–2027، إطار الإدماج والتنوع، وخطة التعليم 2026–2030.",
+      "source_ids": ["jordan-hcd-executive-plan", "unesco-jordan-framework", "unesco-jordan-esp-2026"]
+    }
+  ],
+  "sources": [
+    {
+      "id": "unesco-inclusion-guide",
+      "organization": "UNESCO",
+      "title": "A guide for ensuring inclusion and equity in education",
+      "url": "https://www.unesco.org/en/articles/guide-ensuring-inclusion-and-equity-education-0",
+      "source_type": "official_guidance",
+      "year": 2017,
+      "last_update": "2025-11-25",
+      "verified_at": "2026-08-06",
+      "rights": "link-and-summarize-only"
+    },
+    {
+      "id": "unesco-inclusion-overview",
+      "organization": "UNESCO",
+      "title": "What you need to know about inclusion in education",
+      "url": "https://www.unesco.org/en/inclusion-education/need-know",
+      "source_type": "official_explainer",
+      "year": 2026,
+      "last_update": "2026-03-05",
+      "verified_at": "2026-08-06",
+      "rights": "link-and-summarize-only"
+    },
+    {
+      "id": "unicef-inclusive-education",
+      "organization": "UNICEF",
+      "title": "Inclusive education",
+      "url": "https://www.unicef.org/education/inclusive-education",
+      "source_type": "official_programme_guidance",
+      "year": null,
+      "last_update": "not-displayed-on-source-page",
+      "verified_at": "2026-08-06",
+      "rights": "link-and-summarize-only"
+    },
+    {
+      "id": "un-crpd-article-24",
+      "organization": "United Nations",
+      "title": "Convention on the Rights of Persons with Disabilities — Article 24",
+      "url": "https://www.ohchr.org/Documents/HRBodies/CRPD/CRPD_ENG.pdf",
+      "source_type": "international_treaty",
+      "year": 2006,
+      "last_update": "not-applicable",
+      "verified_at": "2026-08-06",
+      "rights": "link-and-summarize-only"
+    },
+    {
+      "id": "cast-udl-3",
+      "organization": "CAST",
+      "title": "Universal Design for Learning Guidelines 3.0",
+      "url": "https://udlguidelines.cast.org/",
+      "source_type": "professional_framework",
+      "year": 2024,
+      "last_update": "2024-07-30",
+      "verified_at": "2026-08-06",
+      "rights": "link-and-summarize-only"
+    },
+    {
+      "id": "unesco-jordan-framework",
+      "organization": "UNESCO Jordan",
+      "title": "Jordan launches the National Framework for Inclusion and Diversity in Education",
+      "url": "https://www.unesco.org/en/articles/jordan-launches-national-framework-inclusion-and-diversity-education-unesco",
+      "source_type": "official_national_framework_notice",
+      "year": 2025,
+      "last_update": "2026-02-15",
+      "verified_at": "2026-08-06",
+      "rights": "link-and-summarize-only"
+    },
+    {
+      "id": "jordan-hcd-executive-plan",
+      "organization": "Higher Council for the Rights of Persons with Disabilities — Jordan",
+      "title": "Executive plan for the ten-year inclusive education strategy 2024–2027",
+      "url": "https://hcd.gov.jo/Ar/NewsDetails/%D8%A7%D8%B7%D9%84%D8%A7%D9%82_%D8%A7%D9%84%D8%AE%D8%B7%D8%A9_%D8%A7%D9%84%D8%AA%D9%86%D9%81%D9%8A%D8%B0%D9%8A%D8%A9_%D9%84%D9%84%D8%A7%D8%B3%D8%AA%D8%B1%D8%A7%D8%AA%D9%8A%D8%AC%D9%8A%D8%A9_%D8%A7%D9%84%D8%B9%D8%B4%D8%B1%D9%8A%D8%A9_%D9%84%D9%84%D8%AA%D8%B9%D9%84%D9%8A%D9%85_%D8%A7%D9%84%D8%AF%D8%A7%D9%85%D8%AC_%D9%84%D9%84%D8%A3%D8%B9%D9%88%D8%A7%D9%85_20242027",
+      "source_type": "official_national_plan",
+      "year": 2026,
+      "last_update": "2026-07",
+      "verified_at": "2026-08-06",
+      "rights": "link-and-summarize-only"
+    },
+    {
+      "id": "unesco-jordan-esp-2026",
+      "organization": "UNESCO and Jordan Ministry of Education",
+      "title": "Jordan Education Strategic Plan 2026–2030 launch",
+      "url": "https://www.unesco.org/en/articles/unesco-and-ministry-education-launch-jordans-education-strategic-plan-2026-2030",
+      "source_type": "official_national_strategy_notice",
+      "year": 2026,
+      "last_update": "2026-07-01",
+      "verified_at": "2026-08-06",
+      "rights": "link-and-summarize-only"
+    }
+  ],
+  "non_claims": [
+    "لا توجد شراكة أو مصادقة أو مراجعة خارجية من الجهات المذكورة.",
+    "لا تقدم الصفحة قرارًا قانونيًا أو تربويًا ملزمًا لشخص بعينه.",
+    "لا يفترض أن التشخيص وحده يحدد مكان التعليم أو نوع الدعم.",
+    "لا يُستخدم التصميم الشامل للتعلم ذريعة لرفض الترتيبات التيسيرية أو الدعم الفردي."
+  ]
+}
