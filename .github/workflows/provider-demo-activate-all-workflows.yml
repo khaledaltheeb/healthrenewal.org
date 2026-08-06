@@ -34,6 +34,7 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
+          import re
           from pathlib import Path
 
           index = Path('provider-assessment-demo/index.html')
@@ -59,9 +60,15 @@ jobs:
           if not registry_text.strip():
               raise SystemExit('Professional assessment registry is empty')
 
-          forbidden_ci_mutation_tokens = ('git push', 'git commit', 'rm -f .github/workflows/')
+          # Match mutation commands semantically without embedding the exact
+          # forbidden command strings in the audit source itself.
+          forbidden_ci_mutation_patterns = (
+              r'git\s+push(?:\s|$)',
+              r'git\s+commit(?:\s|$)',
+              r'rm\s+-f\s+\.github/workflows/',
+          )
           workflow = Path('.github/workflows/provider-demo-activate-all-workflows.yml').read_text(encoding='utf-8')
-          violations = [token for token in forbidden_ci_mutation_tokens if token in workflow]
+          violations = [pattern for pattern in forbidden_ci_mutation_patterns if re.search(pattern, workflow)]
           if violations:
               raise SystemExit(f'Read-only CI contract violated: {violations}')
 
