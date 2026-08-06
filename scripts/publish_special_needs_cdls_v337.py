@@ -87,9 +87,20 @@ def validate(data: dict[str, Any]) -> None:
     serialized = json.dumps(data, ensure_ascii=False)
     if PROHIBITED.search(serialized):
         raise SystemExit("Prohibited terminology remains in CdLS guide")
-    for marker in ("لا يشخّص", "دواء أو جرعة", "الفحص الجيني", "الانتقال إلى الرشد", "التواصل"):
-        if marker not in serialized:
-            raise SystemExit(f"CdLS safety or scope marker missing: {marker}")
+
+    semantic_contracts = {
+        "diagnostic-boundary": re.compile(r"لا\s+يشخّص"),
+        "medication-boundary": re.compile(r"دواء\s+أو\s+جرعة"),
+        "genetic-testing": re.compile(
+            r"(?:الفحوص|فحوص|الفحص|فحص)\s+"
+            r"(?:الجيني(?:ة)?|جيني(?:ة)?|الجزيئي(?:ة)?|جزيئي(?:ة)?)"
+        ),
+        "adult-transition": re.compile(r"الانتقال\s+إلى\s+الرشد"),
+        "communication": re.compile(r"التواصل"),
+    }
+    for contract_name, pattern in semantic_contracts.items():
+        if not pattern.search(serialized):
+            raise SystemExit(f"CdLS semantic safety/scope contract missing: {contract_name}")
 
 
 def render(data: dict[str, Any]) -> str:
