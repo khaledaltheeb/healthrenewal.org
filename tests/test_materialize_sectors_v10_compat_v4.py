@@ -92,6 +92,25 @@ class MaterializeSectorsV10CompatV4Tests(unittest.TestCase):
             payload["source_log"]["limitations"],
         )
 
+    def test_legacy_family_route_is_canonicalized_without_losing_label(self) -> None:
+        payload = {
+            "articles": [],
+            "internal_links": [
+                "/family/",
+                {"label": "دليل الأسرة", "url": "/family/"},
+                "/services/",
+            ],
+        }
+        v4.normalize_payload(payload)
+
+        self.assertNotIn("/family/", payload["internal_links"])
+        self.assertEqual(payload["internal_links"].count("/sectors/family/"), 2)
+        self.assertIn("/services/", payload["internal_links"])
+        self.assertEqual(
+            payload["_internal_link_labels"]["/sectors/family/"],
+            "دليل الأسرة",
+        )
+
     def test_validation_and_rendering_publish_all_five_units(self) -> None:
         payload = copy.deepcopy(self.source)
         v4.validate_source(SOURCE_PATH, payload)

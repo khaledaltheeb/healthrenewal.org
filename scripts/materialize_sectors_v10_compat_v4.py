@@ -26,6 +26,18 @@ base = metadata.base
 PublicationItem = metadata.PublicationItem
 PublicationError = metadata.PublicationError
 
+# Historical generated sources used /family/ before the institutional family
+# sector was standardized. Keep source payloads intact on disk, while publishing
+# the current canonical route and preserving any supplied human-readable label.
+LEGACY_ROUTE_MAP = {
+    "/family/": "/sectors/family/",
+}
+
+
+def _canonical_internal_route(value: Any) -> str:
+    route = str(value or "").strip()
+    return LEGACY_ROUTE_MAP.get(route, route)
+
 
 def normalize_payload(payload: dict[str, Any]) -> None:
     """Add compatibility fields without deleting richer source fields."""
@@ -48,13 +60,13 @@ def normalize_payload(payload: dict[str, Any]) -> None:
         labels: dict[str, str] = {}
         for entry in links:
             if isinstance(entry, str):
-                url = entry.strip()
+                url = _canonical_internal_route(entry)
                 if url:
                     normalized_links.append(url)
                 continue
             if not isinstance(entry, dict):
                 continue
-            url = str(entry.get("url") or "").strip()
+            url = _canonical_internal_route(entry.get("url"))
             if not url:
                 continue
             normalized_links.append(url)
@@ -92,6 +104,8 @@ def _internal_links_section(payload: dict[str, Any]) -> str:
         "/daily-tools/medical-visit-preparation/": "التحضير للزيارة الطبية",
         "/assessment-lab/": "مختبر التقييمات النفسية الآمنة",
         "/safety/": "السلامة وطلب المساعدة",
+        "/services/": "دليل الخدمات والمسارات",
+        "/sectors/family/": "قطاع الأسرة",
         "/encyclopedia/": "الموسوعة",
     }
     custom = payload.get("_internal_link_labels")
@@ -107,7 +121,7 @@ def _internal_links_section(payload: dict[str, Any]) -> str:
     items: list[str] = []
     seen: set[str] = set()
     for value in links:
-        url = str(value).strip()
+        url = _canonical_internal_route(value)
         if (
             not url.startswith("/")
             or url.startswith("//")
