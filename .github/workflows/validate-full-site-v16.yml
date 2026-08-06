@@ -1,9 +1,20 @@
 name: Validate full site audit v16
 
 on:
-  pull_request:
+  push:
     branches: ["main"]
+    paths:
+      - ".generator-v6/**"
+      - ".v10bundle/**"
+      - "content/**"
+      - "scripts/**"
+      - "tests/**"
+      - "assets/**"
+      - "index.html"
+      - ".github/workflows/validate-full-site-v16.yml"
   workflow_dispatch:
+  schedule:
+    - cron: "17 1 * * 1"
 
 permissions:
   contents: read
