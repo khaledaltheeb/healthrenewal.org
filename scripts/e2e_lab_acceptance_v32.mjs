@@ -27,7 +27,7 @@ async function contextFor(browser, profile) {
   const context = await browser.newContext(profile.context);
   await context.addInitScript(() => {
     const native = window.setTimeout;
-    window.setTimeout = (fn, ms, ...args) => native(fn, Math.min(Number(ms) || 0, 15), ...args);
+    window.setTimeout = (fn, ms, ...args) => native(fn, Math.min(Number(ms) || 0, 200), ...args);
   });
   return context;
 }
@@ -150,8 +150,9 @@ async function runCognitive(browser, slug, profile) {
     const labels = (await choices.allTextContents()).map(value => value.trim());
     if (labels.length < 2 || new Set(labels).size !== labels.length) throw new Error(`invalid choices ${JSON.stringify(labels)}`);
     if (profile.touch) await choices.first().tap(); else { await choices.first().focus(); await choices.first().press('Enter'); }
-    await page.waitForTimeout(25);
-    const feedback = await page.locator('.trial-feedback').innerText();
+    const feedbackNode = page.locator('.trial-feedback');
+    await feedbackNode.waitFor({ state: 'visible', timeout: 3000 });
+    const feedback = await feedbackNode.innerText();
     if (!feedback.trim()) throw new Error('missing feedback');
     const saved = await page.evaluate(key => JSON.parse(localStorage.getItem(key) || 'null'), `pterminology:v12:${slug}`);
     const last = saved?.trials?.at(-1);
