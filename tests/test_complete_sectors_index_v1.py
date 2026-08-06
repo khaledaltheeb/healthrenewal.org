@@ -91,5 +91,13 @@ class CompleteSectorsIndexV1Tests(unittest.TestCase):
         self.assertIn(".pt-global-footer", css)
 
 
+def load_tests(loader, tests, pattern):
+    """Extend the sectors contract with the inclusive-education guide contract."""
+    from tests import test_inclusive_education_foundations_v2 as inclusive_education
+
+    tests.addTests(loader.loadTestsFromModule(inclusive_education))
+    return tests
+
+
 if __name__ == "__main__":
     unittest.main()
