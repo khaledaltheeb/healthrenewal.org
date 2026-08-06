@@ -6,6 +6,8 @@ import json
 import re
 from pathlib import Path
 
+import add_lab_data_controls_v32 as lab_data_controls
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "content" / "v32" / "official-scale-provenance-ar.json"
 START = "<!-- scale-provenance-v32:start -->"
@@ -127,16 +129,18 @@ def apply(site: Path) -> dict:
         })
 
     runtime = patch_runtime(site)
+    controls = lab_data_controls.patch(site)
     failures = [row for row in pages if not all(row[key] for key in ("status_visible", "rights_visible", "arabic_evidence_visible"))]
     report = {
         "version": 32,
-        "status": "passed" if found == EXPECTED and len(pages) == 4 and not failures and all(runtime[key] for key in ("generic_notice", "who5_adapted_label", "who5_no_validated_arabic_claim")) else "failed",
+        "status": "passed" if found == EXPECTED and len(pages) == 4 and not failures and all(runtime[key] for key in ("generic_notice", "who5_adapted_label", "who5_no_validated_arabic_claim")) and controls.get("status") == "passed" and controls.get("total_tools") == 93 else "failed",
         "reviewed_at": data["reviewed_at"],
         "expected": sorted(EXPECTED),
         "found": sorted(found),
         "pages": pages,
         "failures": failures,
         "runtime": runtime,
+        "data_controls": controls,
         "who5_policy": "adapted_arabic_descriptive_only",
         "arabic_exact_text_required_before_validated_claim": True,
     }
