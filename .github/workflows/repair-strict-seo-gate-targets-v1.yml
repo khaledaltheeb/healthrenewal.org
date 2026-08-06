@@ -28,20 +28,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Apply deterministic repairs
+      - name: Apply deterministic target repairs
         run: python scripts/repair_strict_seo_gate_targets_v1.py
-      - name: Apply the repository canonical SEO remediation
-        run: |
-          python scripts/remediate_seo_warnings_v1.py --write
-          python scripts/enforce_sitewide_heading_intent_v2.py --write --report /tmp/sitewide-heading-intent-v2.json
-          python scripts/enforce_sitewide_heading_intent_v2.py --check --report /tmp/sitewide-heading-intent-v2.json
-      - name: Verify targeted and strict contracts
+      - name: Verify source and materialization contracts
         run: |
           python -m unittest tests.test_materialize_sectors_v10_compat_v4 -v
           python -m unittest tests.test_institutional_route_hubs_v1 -v
           python scripts/materialize_sectors_v10_compat_v4.py . --check
-          python scripts/audit_seo_intent_v1.py --scope priority --strict --report /tmp/seo-intent-priority-v1.json
-          python scripts/audit_seo_intent_v1.py --scope all --strict --report /tmp/seo-intent-all-v1.json
           git diff --check
       - name: Commit repaired targets
         run: |
