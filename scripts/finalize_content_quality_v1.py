@@ -4,6 +4,7 @@ import argparse, hashlib, html, json
 from pathlib import Path, PurePosixPath
 import recover_content_v2 as v
 import final_site_integrity_v1 as integrity
+import consolidate_duplicate_pages_v1 as duplicate_pages
 
 
 def append_section(source: str, heading: str, items: list[tuple[str, str, str]]) -> str:
@@ -50,6 +51,9 @@ def main() -> None:
     parser.add_argument('--site', default='_site')
     args = parser.parse_args()
     site = Path(args.site).resolve()
+
+    duplicate_result = duplicate_pages.consolidate(site)
+
     pages, thin = v.b.inventory(site)
     records = {}
     for page in pages:
@@ -169,6 +173,9 @@ def main() -> None:
         encoding='utf-8',
     )
     print(json.dumps({
+        'duplicateRoutesConsolidated': duplicate_result['duplicateRoutesConsolidated'],
+        'duplicateGroupsMerged': duplicate_result['duplicateGroupsMerged'],
+        'mergedUniqueSections': duplicate_result['mergedUniqueSections'],
         'finalQualityExpansions': len(expanded),
         'finalQualityRedirects': 0,
         'remainingThinPages': len(remaining),
