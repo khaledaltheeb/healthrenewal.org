@@ -36,7 +36,7 @@ BLOCK = r'''
  };
  const mount=()=>{
   const d=readDefinition(),host=document.querySelector('[data-v12-lab]');
-  if(!d?.slug||!host||host.querySelector('.lab-data-controls-v32'))return;
+  if(!d?.slug||!host||document.querySelector('.lab-data-controls-v32'))return;
   const section=document.createElement('section');
   section.className='lab-data-controls-v32';
   section.setAttribute('aria-labelledby','lab-data-controls-v32-title');
@@ -54,7 +54,7 @@ BLOCK = r'''
    <button type="button" data-lab-print>طباعة الصفحة</button>
    <button type="button" class="lab-data-controls-v32__danger" data-lab-delete>حذف السجل المحلي</button>
   </div><p class="lab-data-controls-v32__status" role="status" aria-live="polite"></p>`;
-  host.appendChild(section);
+  host.insertAdjacentElement('afterend',section);
   section.querySelector('[data-lab-export]').addEventListener('click',()=>{
    const state=safeState(d);
    download(`${d.slug}-local-session.json`,{schema_version:32,slug:d.slug,title:d.title||d.slug,exported_at:new Date().toISOString(),storage:'local-only',state});
@@ -86,6 +86,7 @@ def patch(site: Path) -> dict:
     cognitive = sorted((site / "cognitive-lab").glob("*/index.html"))
     checks = {
         "marker": START in source and END in source,
+        "outside_rerendering_host": "host.insertAdjacentElement('afterend',section)" in source,
         "export_local_json": "new Blob([JSON.stringify(payload,null,2)]" in source and "URL.createObjectURL(blob)" in source,
         "print": "window.print()" in source,
         "delete_local_only": "localStorage.removeItem(keyFor(d))" in source,
