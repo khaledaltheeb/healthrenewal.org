@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'content/v32/lab-methods-ar.json'
+      - 'content/v32/monitor-items/**'
+      - 'scripts/publish_monitor_items_v32.py'
+      - 'scripts/harden_monitor_runtime_v32.py'
       - 'scripts/enrich_lab_content_v32.py'
       - 'scripts/harden_lab_runtime_v32.py'
       - 'scripts/e2e_lab_acceptance_v32.mjs'
@@ -12,6 +16,10 @@ on:
   push:
     branches: [main]
     paths:
+      - 'content/v32/lab-methods-ar.json'
+      - 'content/v32/monitor-items/**'
+      - 'scripts/publish_monitor_items_v32.py'
+      - 'scripts/harden_monitor_runtime_v32.py'
       - 'scripts/enrich_lab_content_v32.py'
       - 'scripts/harden_lab_runtime_v32.py'
       - 'scripts/e2e_lab_acceptance_v32.mjs'
@@ -57,7 +65,7 @@ jobs:
       - name: Compile Issue 20 publishers tests and browser audit
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/enrich_lab_content_v32.py scripts/harden_lab_runtime_v32.py tests/test_lab_issue20_v32.py
+          python -m py_compile scripts/publish_monitor_items_v32.py scripts/harden_monitor_runtime_v32.py scripts/enrich_lab_content_v32.py scripts/harden_lab_runtime_v32.py tests/test_lab_issue20_v32.py
           node --check scripts/e2e_lab_acceptance_v32.mjs
           node --check scripts/e2e_all_labs_v22.mjs
 
@@ -85,7 +93,9 @@ jobs:
           python scripts/fix_stroop_and_variation_v23.py _site
           python scripts/complete_cognitive_remaining_v24.py _site
           python scripts/fix_cognitive_quality_v26.py _site
+          python scripts/publish_monitor_items_v32.py _site
           python scripts/harden_lab_runtime_v32.py _site
+          python scripts/harden_monitor_runtime_v32.py _site
           python scripts/enrich_lab_content_v32.py _site
           python scripts/audit_all_labs_v22.py _site
           node --check _site/assets/js/lab-v12.js
@@ -98,6 +108,8 @@ jobs:
           root=Path('_site/api')
           depth=json.loads((root/'lab-depth-v32.json').read_text(encoding='utf-8'))
           runtime=json.loads((root/'lab-runtime-v32.json').read_text(encoding='utf-8'))
+          monitor_items=json.loads((root/'monitor-items-v32.json').read_text(encoding='utf-8'))
+          monitor_runtime=json.loads((root/'monitor-runtime-v32.json').read_text(encoding='utf-8'))
           static=json.loads((root/'all-labs-v22.json').read_text(encoding='utf-8'))
           assert depth['status']=='passed', depth
           assert depth['assessment_pages']==40 and depth['cognitive_pages']==53 and depth['total_tools']==93, depth
@@ -107,8 +119,14 @@ jobs:
           assert depth['who5_arabic_zero_option_repaired'] is True, depth
           assert runtime['status']=='passed', runtime
           assert all(value is True for key,value in runtime.items() if key not in {'version','status','runtime'}), runtime
+          assert monitor_items['status']=='passed', monitor_items
+          assert monitor_items['monitor_pages']==36 and monitor_items['profiles']==36, monitor_items
+          assert monitor_items['total_items']==432 and monitor_items['unique_items']==432, monitor_items
+          assert monitor_items['generic_template_items']==0 and monitor_items['written_failures']==[], monitor_items
+          assert monitor_runtime['status']=='passed', monitor_runtime
+          assert all(value is True for key,value in monitor_runtime.items() if key not in {'version','status','runtime'}), monitor_runtime
           assert static['assessment_count']==40 and static['cognitive_count']==53 and static['error_count']==0, static
-          print({'depth':depth['minimum_actual_words'],'median':depth['median_words'],'runtime':'passed','tools':93})
+          print({'depth':depth['minimum_actual_words'],'median':depth['median_words'],'runtime':'passed','monitor_items':'432/432 unique','monitor_runtime':'passed','tools':93})
           PY
 
       - name: Install Chromium
@@ -152,6 +170,8 @@ jobs:
             _site/assets/js/lab-v12.js
             _site/api/lab-depth-v32.json
             _site/api/lab-runtime-v32.json
+            _site/api/monitor-items-v32.json
+            _site/api/monitor-runtime-v32.json
             _site/api/all-labs-v22.json
             _site/api/all-labs-e2e-v22.json
             _site/api/lab-acceptance-v32.json
