@@ -1,0 +1,50 @@
+{
+  "version": 32,
+  "reviewed_at": "2026-08-07",
+  "instruments": {
+    "phq9": {
+      "label": "PHQ-9",
+      "status": "الأداة الأصلية موثقة، لكن المستودع لا يثبت حتى الآن أن الصياغة العربية الرقمية المعروضة مطابقة حرفيًا للنسخة العربية التي خضعت للتحقق. لذلك تُنسب حدود الدرجات إلى الأداة الأصلية، ولا توصف هذه الصياغة الرقمية بأنها نسخة عربية متحقق من صدقها وثباتها قبل مطابقة النص والإصدار.",
+      "original_reference": "Kroenke K, Spitzer RL, Williams JBW. The PHQ-9: validity of a brief depression severity measure. J Gen Intern Med. 2001.",
+      "original_url": "https://pubmed.ncbi.nlm.nih.gov/11556941/",
+      "arabic_reference": "AlHadi AN et al. An arabic translation, reliability, and validation of Patient Health Questionnaire in a Saudi sample. Ann Gen Psychiatry. 2017;16:32.",
+      "arabic_url": "https://pubmed.ncbi.nlm.nih.gov/28878812/",
+      "arabic_evidence": "دراسة 2017 اختبرت نسخة عربية من وحدات PHQ في عينة من 731 طالبًا جامعيًا في السعودية، وأبلغت اتساقًا داخليًا لـPHQ-9 بقيمة ألفا 0.857. هذا يدعم نسخة الدراسة في ذلك المجتمع ولا يثبت تلقائيًا أي إعادة صياغة عربية أخرى أو تعميم الخصائص على كل السكان.",
+      "rights": "PHQ-9 موصوف في مراجع الاستخدام بأنه متاح في الملك العام ولا يتطلب إذنًا لإعادة الإنتاج أو الترجمة أو العرض؛ مع ذلك يجب الحفاظ على نسبة الأداة ومصدر النسخة المستخدمة وتاريخها.",
+      "usage_rule": "قبل وصف الصفحة بأنها النسخة العربية المتحقق منها: طابق البنود والخيارات والترميز كلمةً بإصدار محدد، وسجل مرجع الترجمة ومجتمع التحقق. إلى ذلك الحين يكون الاستخدام فحصًا تثقيفيًا غير تشخيصي مع الإفصاح عن حالة الصياغة."
+    },
+    "gad7": {
+      "label": "GAD-7",
+      "status": "الأداة الأصلية موثقة، لكن مطابقة البنود العربية الحالية لنص عربي متحقق منه لم تُثبت داخل المستودع. لذلك لا تُنقل خصائص الصدق والثبات أو أداء نقطة القطع إلى الصياغة الحالية دون توثيق الإصدار العربي المطابق.",
+      "original_reference": "Spitzer RL, Kroenke K, Williams JBW, Löwe B. A brief measure for assessing generalized anxiety disorder: the GAD-7. Arch Intern Med. 2006.",
+      "original_url": "https://pubmed.ncbi.nlm.nih.gov/16717171/",
+      "arabic_reference": "AlHadi AN et al. An arabic translation, reliability, and validation of Patient Health Questionnaire in a Saudi sample. Ann Gen Psychiatry. 2017;16:32.",
+      "arabic_url": "https://pubmed.ncbi.nlm.nih.gov/28878812/",
+      "arabic_evidence": "دراسة 2017 تضمنت GAD-7 ضمن النسخة العربية من PHQ وأبلغت ألفا 0.763 في العينة السعودية. النتيجة خاصة بالنص والإجراء والعينة المدروسة، ولا تجعل كل ترجمة عربية أو كل مجتمع عربي مكافئًا لها.",
+      "rights": "GAD-7 مدرج مع مقاييس PHQ المفتوحة للاستخدام وإعادة الإنتاج والترجمة في مراجع حقوق هذه الحزمة؛ يظل توثيق المصدر والإصدار العربي أمرًا لازمًا للشفافية العلمية.",
+      "usage_rule": "اعرض مجموع الأعراض بوصفه نتيجة فحص لا تشخيصًا، وصرّح بأن حدود الشدة تعود إلى الأداة الأصلية حتى يتم إثبات مطابقة الصياغة العربية الحالية لنسخة عربية متحقق منها."
+    },
+    "who5": {
+      "label": "WHO-5",
+      "status": "WHO تنشر صفحة ووثيقة عربية للأداة، لكن الوثيقة نفسها توضح أن الترجمة المعروضة أُنجزت قبل انتقال حقوق النسخة الإنجليزية إلى WHO في 2024 وأن WHO لا تضمن دقة تلك الترجمة. الصياغة الموجودة في الموقع ليست مطابقة حرفيًا للنص العربي المعروض في وثيقة WHO؛ لذلك يجب تعريف الصفحة الحالية كعرض عربي متكيف مستلهم من WHO-5 لا كنسخة عربية رسمية أو متحقق منها.",
+      "original_reference": "World Health Organization. The World Health Organization-Five Well-Being Index (WHO-5). Geneva: WHO; 2024.",
+      "original_url": "https://www.who.int/publications/m/item/WHO-UCN-MSD-MHE-2024.01",
+      "arabic_reference": "World Health Organization publication page and Arabic translation file for WHO-5, 2024 distribution of a pre-2024 Arabic translation.",
+      "arabic_url": "https://www.who.int/ar/publications/m/item/WHO-UCN-MSD-MHE-2024.01",
+      "arabic_evidence": "الوثيقة العربية المنشورة عبر WHO تعرض خمسة بنود وست درجات وتذكر أن الأعلى عافية أفضل. وهي تنص أيضًا على أن الترجمة سابقة لنقل حقوق النسخة الإنجليزية إلى WHO وأن النسخة الإنجليزية هي المرجع عند التعارض.",
+      "rights": "منشور WHO-5 لعام 2024 متاح بترخيص CC BY-NC-SA 3.0 IGO: إعادة الاستخدام والترجمة والتكييف لأغراض غير تجارية مع الإسناد وشروط الترخيص والإخلاء المناسب، ومن دون إيحاء بتأييد WHO أو استعمال شعارها. الاستخدام التجاري يحتاج مراجعة إذن WHO.",
+      "usage_rule": "تحافظ الصفحة الحالية على الحساب الوصفي 0–25 والتحويل الحسابي إلى 0–100 للتتبع فقط، لكن لا تستخدم نقاط قطع سريرية ولا تدعي صلاحية النسخة العربية الرسمية ما دامت البنود معاد صياغتها. إذا تقرر لاحقًا اعتماد نص WHO العربي حرفيًا فيلزم تطبيق شروط الترخيص والإسناد والإخلاء بوضوح."
+    },
+    "audit_guided": {
+      "label": "AUDIT-10 — عرض إرشادي",
+      "status": "الموقع لا يطبق ترميز AUDIT الرسمي بندًا بندًا؛ بدائل الإجابة موحدة ومختلفة عن بنية المقياس الأصلي. إبقاء الصفحة كعرض إرشادي بلا درجة AUDIT رسمية هو القرار الصحيح ما لم تُعتمد النسخة الأصلية وترميزها ومصدر الترجمة كما هي.",
+      "original_reference": "Babor TF, Higgins-Biddle JC, Saunders JB, Monteiro MG. AUDIT: The Alcohol Use Disorders Identification Test. Guidelines for Use in Primary Care. 2nd ed. World Health Organization; 2001.",
+      "original_url": "https://www.who.int/publications/i/item/WHO-MSD-MSB-01.6a",
+      "arabic_reference": "لا يعتمد هذا المسار حاليًا نسخة عربية معيارية من AUDIT؛ البنود معروضة للتثقيف ومراجعة المحاور فقط.",
+      "arabic_url": "https://www.who.int/publications/i/item/WHO-MSD-MSB-01.6a",
+      "arabic_evidence": "لا توجد في الصفحة الحالية درجة رسمية أو نقطة قطع؛ وهذا يمنع إسناد صلاحية غير موجودة إلى بدائل إجابة لا تطبق ترميز AUDIT الأصلي.",
+      "rights": "حقوق إعادة استخدام مواد WHO القديمة يجب فحصها وفق إشعار المنشور وسياسات WHO السارية؛ هذه الصفحة لا ينبغي أن تدعي أنها نسخة WHO الرسمية ما دامت الصياغة والترميز مختلفين.",
+      "usage_rule": "لا تعرض نسبة شدة أو تشخيصًا أو توصية انسحاب. إذا أضيف AUDIT الرسمي مستقبلًا يجب توثيق النسخة والترجمة والترميز والحقوق ثم اختبار كل بند ونقاط التفسير من المصدر."
+    }
+  }
+}
