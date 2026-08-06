@@ -4,7 +4,10 @@
   "subtitle": "محتوى عربي أصيل يشرح الفروق بين النوبات والأعراض والاضطرابات، ويربط التوعية بالتقييم المهني والمساعدة المبنية على الدليل.",
   "description": "دليل عربي عملي يوضح الفرق بين القلق الطبيعي واضطرابات القلق ونوبة الهلع واضطراب الهلع والأفكار الاقتحامية والوسواس القهري، مع مؤشرات طلب التقييم، أسئلة التحضير للموعد، حدود مهنية ومصادر رسمية.",
   "canonical": "https://healthrenewal.org/evidence-guides/clinical-anxiety/",
-  "schema_types": ["MedicalWebPage", "CollectionPage"],
+  "schema_types": [
+    "MedicalWebPage",
+    "CollectionPage"
+  ],
   "illustration": "mental-health.svg",
   "accent": "blue",
   "review_status": "internally-reviewed",
@@ -17,43 +20,93 @@
   "disclaimer": "هذه الصفحة للتثقيف ولا تثبت تشخيصًا ولا تستبدل التقييم الطبي أو النفسي. الأعراض الجسدية الجديدة أو الشديدة، وخطر إيذاء النفس أو الآخرين، والارتباك الحاد تستلزم مساعدة عاجلة وفق خدمات الطوارئ المحلية.",
   "sources": [
     {
+      "id": "who-anxiety-disorders-2025",
       "name": "WHO — Anxiety disorders",
+      "title": "Anxiety disorders",
       "url": "https://www.who.int/news-room/fact-sheets/detail/anxiety-disorders",
       "type": "official-fact-sheet",
+      "source_type": "institutional_fact_sheet",
       "publisher": "World Health Organization",
+      "year": 2025,
       "verified_at": "2026-08-06",
+      "status": "current",
+      "claims_supported": [
+        "تعريف اضطرابات القلق وتمييزها عن القلق العابر",
+        "العبء الوظيفي والأنماط الشائعة وفجوة الوصول إلى العلاج",
+        "مكان التدخلات النفسية المبنية على مبادئ العلاج المعرفي السلوكي"
+      ],
       "use": "التعريف العام، الأثر الوظيفي، الأنماط الشائعة وفجوة الوصول للعلاج"
     },
     {
+      "id": "nice-cg113-anxiety-panic-adults",
       "name": "NICE CG113 — Generalised anxiety disorder and panic disorder in adults",
+      "title": "Generalised anxiety disorder and panic disorder in adults: management",
       "url": "https://www.nice.org.uk/guidance/cg113",
       "type": "clinical-guideline",
+      "source_type": "official_guideline",
       "publisher": "National Institute for Health and Care Excellence",
+      "year": 2020,
       "verified_at": "2026-08-06",
+      "status": "current",
+      "claims_supported": [
+        "التقييم المتدرج للقلق المعمم واضطراب الهلع لدى البالغين",
+        "القرار المشترك واختيار تدخلات نفسية أو دوائية مناسبة",
+        "متابعة الاستجابة والآثار الجانبية وخيارات التصعيد"
+      ],
       "use": "التقييم المتدرج، القرار المشترك، العلاج النفسي وخيارات الرعاية للبالغين"
     },
     {
+      "id": "nice-cg31-ocd-bdd",
       "name": "NICE CG31 — Obsessive-compulsive disorder and body dysmorphic disorder",
+      "title": "Obsessive-compulsive disorder and body dysmorphic disorder: treatment",
       "url": "https://www.nice.org.uk/guidance/cg31",
       "type": "clinical-guideline",
+      "source_type": "official_guideline",
       "publisher": "National Institute for Health and Care Excellence",
+      "year": 2005,
       "verified_at": "2026-08-06",
+      "status": "current",
+      "claims_supported": [
+        "التعرف على الوسواس القهري وتقييم الضيق والتعطيل",
+        "العلاج المعرفي السلوكي المتضمن التعرض ومنع الاستجابة",
+        "دور الأسرة وتقليل المشاركة في الطقوس والطمأنة القهرية"
+      ],
       "use": "التعرف والتقييم والعلاج ودور الأسرة في الوسواس القهري"
     },
     {
+      "id": "nimh-panic-disorder-2025",
       "name": "NIMH — Panic Disorder: What You Need to Know",
+      "title": "Panic Disorder: What You Need to Know",
       "url": "https://www.nimh.nih.gov/health/publications/panic-disorder-when-fear-overwhelms",
       "type": "official-patient-information",
+      "source_type": "institutional_fact_sheet",
       "publisher": "National Institute of Mental Health",
+      "year": 2025,
       "verified_at": "2026-08-06",
+      "status": "current",
+      "claims_supported": [
+        "أعراض نوبات الهلع والفرق بين النوبة المنفردة واضطراب الهلع",
+        "أهمية استبعاد الأسباب الطبية ومراجعة الأثر الوظيفي",
+        "خيارات العلاج النفسي والدوائي تحت إشراف مهني"
+      ],
       "use": "أعراض نوبات الهلع والفرق عن اضطراب الهلع ومسارات المساعدة"
     },
     {
+      "id": "nimh-ocd-topic-2024",
       "name": "NIMH — Obsessive-Compulsive Disorder",
+      "title": "Obsessive-Compulsive Disorder (OCD)",
       "url": "https://www.nimh.nih.gov/health/topics/obsessive-compulsive-disorder-ocd",
       "type": "official-topic-page",
+      "source_type": "institutional_fact_sheet",
       "publisher": "National Institute of Mental Health",
+      "year": 2024,
       "verified_at": "2026-08-06",
+      "status": "current",
+      "claims_supported": [
+        "تعريف الوساوس والأفعال القهرية والأثر في الحياة اليومية",
+        "تداخل الوسواس القهري مع اضطرابات نفسية أخرى",
+        "توفر علاجات تساعد على إدارة الأعراض وتحسين الأداء"
+      ],
       "use": "الوساوس والأفعال القهرية والأثر الوظيفي والعلاجات المبنية على الدليل"
     }
   ],
