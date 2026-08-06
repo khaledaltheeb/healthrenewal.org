@@ -69,7 +69,7 @@ function v32DistinctCognitiveTrial(d,stage,index,sessionSeed,rnd,ri,pick,symbols
    if(stage===1)return Math.floor(Math.max(0,trial)/3)%2===0?'color':'shape';
    if(stage===2)return Math.floor(Math.max(0,trial)/2)%2===0?'color':'shape';
    if(stage===3)return Math.max(0,trial)%2===0?'color':'shape';
-   return stableHash(`${slug}|${stage}|${Number(sessionSeed)||0}|${Math.max(0,trial)}`)%2===0?'color':'shape';
+   return (stableHash(`${slug}|${stage}|${Number(sessionSeed)||0}|${Math.max(0,trial)}`)>>>7)%2===0?'color':'shape';
   };
   const current=ruleAt(index),previous=ruleAt(index-1),switchTrial=index>0&&current!==previous,answer=current==='color'?color[0]:shape;
   return{prompt:`إشارة القاعدة: ${current==='color'?'لون':'شكل'}. <span style="color:${color[1]};font-size:2em;font-weight:900">${shape}</span>`,answer,options:current==='color'?colors.map(item=>item[0]):symbols.slice(0,6),attentionRule:current,previousAttentionRule:index>0?previous:'none',switchTrial,explanation:`طُبقت قاعدة ${current==='color'?'اللون':'الشكل'}${switchTrial?' بعد تبدل القاعدة':' دون تبدل عن المحاولة السابقة'}.`};
