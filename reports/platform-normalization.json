@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-08-06T05:49:53.200152+00:00",
+  "generated_at": "2026-08-06T06:46:49.173240+00:00",
   "mode": "write",
   "root": "/home/runner/work/healthrenewal.org/healthrenewal.org",
   "runtime": {
@@ -11,10 +11,10 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 813,
-  "html_pages_normalized_or_current": 812,
+  "html_pages_seen": 814,
+  "html_pages_normalized_or_current": 813,
   "counts": {
-    "current": 811,
+    "current": 812,
     "skipped": 1,
     "updated": 1
   },
@@ -1241,8 +1241,8 @@
     },
     {
       "path": "learning-paths/all-pages/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "learning-paths/assistive-technology-coordinator/index.html",
@@ -3213,6 +3213,11 @@
       "path": "sections/index.html",
       "status": "current",
       "detail": ""
+    },
+    {
+      "path": "sectors/all-pages/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "sectors/calendars/index.html",
