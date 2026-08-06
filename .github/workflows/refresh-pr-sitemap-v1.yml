@@ -1,0 +1,68 @@
+name: Refresh PR sitemap from route inventory
+
+on:
+  push:
+    branches:
+      - fix/institutional-route-hubs-v1
+    paths:
+      - .github/workflows/refresh-pr-sitemap-v1.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-pr-sitemap-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/institutional-route-hubs-v1
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Regenerate deterministic sitemap inventory
+        run: python scripts/publish_complete_sitemap_v360.py . --minimum-urls 1
+      - name: Verify institutional routes are discoverable
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from xml.etree import ElementTree as ET
+
+          root = ET.parse('sitemap.xml').getroot()
+          ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          urls = {node.text for node in root.findall('sm:url/sm:loc', ns)}
+          required = {
+              'https://healthrenewal.org/safety/',
+              'https://healthrenewal.org/services/',
+              'https://healthrenewal.org/sectors/family/',
+          }
+          missing = sorted(required - urls)
+          if missing:
+              raise SystemExit(f'Missing required sitemap routes: {missing}')
+
+          report = json.loads(
+              Path('api/sitemap-completeness-v360.json').read_text(encoding='utf-8')
+          )
+          if report.get('status') != 'passed':
+              raise SystemExit('Sitemap completeness report did not pass')
+          if report.get('protocol', {}).get('duplicates') != 0:
+              raise SystemExit('Sitemap contains duplicate routes')
+          PY
+          git diff --check
+      - name: Commit regenerated sitemap inventory
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add sitemap.xml sitemap-index.xml robots.txt api/sitemap-completeness-v360.json
+          if git diff --cached --quiet; then
+            echo 'Sitemap inventory already current.'
+            exit 0
+          fi
+          git commit -m 'chore(seo): discover institutional safety and services routes [sitemap-refresh]'
+          git push origin HEAD:fix/institutional-route-hubs-v1
