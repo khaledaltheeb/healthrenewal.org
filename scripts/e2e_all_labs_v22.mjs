@@ -88,7 +88,11 @@ async function runCognitive(browser,slug,profile){
       const start=page.locator('button.start');if(await start.count())await start.click();
       await page.waitForSelector('button.choice-button',{timeout:5000});
       const choices=page.locator('button.choice-button');
-      const count=await choices.count();if(count<2)throw new Error(`fewer than two choices at ${i}`);
+      const count=await choices.count();
+      if(slug==='simple-reaction'){
+        if(count!==1)throw new Error(`simple reaction choices ${count} at ${i}`);
+        const label=(await choices.first().innerText()).trim();if(label!=='اضغط الآن')throw new Error(`simple reaction label ${label}`);
+      }else if(count<2)throw new Error(`fewer than two choices at ${i}`);
       if(slug.startsWith('stroop')){
         const visual=await page.locator('.stroop-word').evaluate(node=>({
           word:node.dataset.word||'',ink:node.dataset.ink||'',computed:getComputedStyle(node).color,
@@ -168,7 +172,7 @@ try{
   }
 }finally{await browser.close();}
 
-const report={version:30,profiles:2,assessmentDefinitions:assessments.length,cognitiveDefinitions:cognitive.length,expectedRuns:(assessments.length+cognitive.length)*2,completedRuns:rows.length,passedRuns:rows.filter(x=>x.status==='passed').length,failedRuns:rows.filter(x=>x.status==='failed').length,errorCount:errors.length,errors,tools:rows};
+const report={version:32,profiles:2,assessmentDefinitions:assessments.length,cognitiveDefinitions:cognitive.length,expectedRuns:(assessments.length+cognitive.length)*2,completedRuns:rows.length,passedRuns:rows.filter(x=>x.status==='passed').length,failedRuns:rows.filter(x=>x.status==='failed').length,errorCount:errors.length,errors,tools:rows};
 fs.writeFileSync(path.join(outDir,'all-labs-e2e-v22.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
 if(errors.length)process.exit(1);
