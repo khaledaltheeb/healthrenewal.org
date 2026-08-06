@@ -7,6 +7,10 @@ import final_site_integrity_v1 as integrity
 import consolidate_duplicate_pages_v1 as duplicate_pages
 import publish_special_needs_cdls_v337 as cdls
 import publish_self_advocacy_v170 as self_advocacy
+import publish_monitor_items_v32 as monitor_items
+import harden_lab_runtime_v32 as lab_runtime
+import harden_monitor_runtime_v32 as monitor_runtime
+import enrich_lab_content_v32 as lab_depth
 
 
 def append_section(source: str, heading: str, items: list[tuple[str, str, str]]) -> str:
@@ -48,6 +52,58 @@ def relation_score(path: str, data: dict, other: str, other_data: dict) -> float
     return score
 
 
+def require_issue20_laboratory_contract(site: Path) -> tuple[dict, dict, dict, dict]:
+    item_result = monitor_items.publish(site)
+    if (
+        item_result.get('status') != 'passed'
+        or item_result.get('monitor_pages') != 36
+        or item_result.get('profiles') != 36
+        or item_result.get('total_items') != 432
+        or item_result.get('unique_items') != 432
+        or item_result.get('generic_template_items') != 0
+        or item_result.get('written_total_items') != 432
+        or item_result.get('written_unique_items') != 432
+        or item_result.get('written_failures')
+    ):
+        raise SystemExit({'monitorItemPublication': item_result})
+
+    lab_runtime_result = lab_runtime.patch_runtime(site)
+    if (
+        lab_runtime_result.get('status') != 'passed'
+        or not all(
+            value is True
+            for key, value in lab_runtime_result.items()
+            if key not in {'version', 'status', 'runtime'}
+        )
+    ):
+        raise SystemExit({'laboratoryRuntime': lab_runtime_result})
+
+    monitor_runtime_result = monitor_runtime.patch_runtime(site)
+    if (
+        monitor_runtime_result.get('status') != 'passed'
+        or not all(
+            value is True
+            for key, value in monitor_runtime_result.items()
+            if key not in {'version', 'status', 'runtime'}
+        )
+    ):
+        raise SystemExit({'monitorRuntime': monitor_runtime_result})
+
+    depth_result = lab_depth.enrich(site)
+    if (
+        depth_result.get('status') != 'passed'
+        or depth_result.get('assessment_pages') != 40
+        or depth_result.get('cognitive_pages') != 53
+        or depth_result.get('total_tools') != 93
+        or depth_result.get('minimum_actual_words', 0) < 850
+        or depth_result.get('pages_below_depth')
+        or depth_result.get('missing_task_profiles')
+        or depth_result.get('unexpected_score_types')
+    ):
+        raise SystemExit({'laboratoryDepth': depth_result})
+    return item_result, lab_runtime_result, monitor_runtime_result, depth_result
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--site', default='_site')
@@ -65,6 +121,10 @@ def main() -> None:
     cdls_result = cdls.publish(site)
     if cdls_result.get('status') != 'passed' or not cdls_result.get('single_canonical_route'):
         raise SystemExit({'cdlsPublication': cdls_result})
+
+    monitor_item_result, lab_runtime_result, monitor_runtime_result, lab_depth_result = (
+        require_issue20_laboratory_contract(site)
+    )
 
     duplicate_result = duplicate_pages.consolidate(site)
 
@@ -161,6 +221,19 @@ def main() -> None:
         'cdlsPublicationStatus': cdls_result['status'],
         'cdlsCanonicalUrl': cdls_result['canonical_url'],
         'cdlsGeneratedPage': cdls_result['generated_page'],
+        'monitorItemPublicationStatus': monitor_item_result['status'],
+        'monitorItemProfiles': monitor_item_result['profiles'],
+        'monitorItemTotal': monitor_item_result['total_items'],
+        'monitorItemUnique': monitor_item_result['unique_items'],
+        'monitorItemGenericTemplates': monitor_item_result['generic_template_items'],
+        'monitorItemCriticalProfiles': len(monitor_item_result['critical_profiles']),
+        'laboratoryRuntimeStatus': lab_runtime_result['status'],
+        'monitorRuntimeStatus': monitor_runtime_result['status'],
+        'laboratoryDepthStatus': lab_depth_result['status'],
+        'laboratoryAssessmentPages': lab_depth_result['assessment_pages'],
+        'laboratoryCognitivePages': lab_depth_result['cognitive_pages'],
+        'laboratoryTotalTools': lab_depth_result['total_tools'],
+        'laboratoryMinimumVisibleWords': lab_depth_result['minimum_actual_words'],
         'finalQualityExpansions': len(expanded),
         'finalQualityRedirects': 0,
         'finalExpandedPages': expanded,
@@ -180,7 +253,15 @@ def main() -> None:
         'integrityLegacyUrlRewrites': integrity_report['legacyUrlRewrites'],
         'status': (
             'passed'
-            if not remaining and ratio == 1.0 and integrity_report['status'] == 'passed'
+            if (
+                not remaining
+                and ratio == 1.0
+                and integrity_report['status'] == 'passed'
+                and monitor_item_result['status'] == 'passed'
+                and lab_runtime_result['status'] == 'passed'
+                and monitor_runtime_result['status'] == 'passed'
+                and lab_depth_result['status'] == 'passed'
+            )
             else 'recovered_with_editorial_backlog'
         ),
     })
@@ -199,6 +280,15 @@ def main() -> None:
         'selfAdvocacyStandalonePagesCreated': self_advocacy_result['standalonePagesCreated'],
         'cdlsPublicationStatus': cdls_result['status'],
         'cdlsCanonicalUrl': cdls_result['canonical_url'],
+        'monitorItemPublicationStatus': monitor_item_result['status'],
+        'monitorItemProfiles': monitor_item_result['profiles'],
+        'monitorItemUnique': monitor_item_result['unique_items'],
+        'monitorItemGenericTemplates': monitor_item_result['generic_template_items'],
+        'laboratoryRuntimeStatus': lab_runtime_result['status'],
+        'monitorRuntimeStatus': monitor_runtime_result['status'],
+        'laboratoryDepthStatus': lab_depth_result['status'],
+        'laboratoryTotalTools': lab_depth_result['total_tools'],
+        'laboratoryMinimumVisibleWords': lab_depth_result['minimum_actual_words'],
         'duplicateRoutesConsolidated': duplicate_result['duplicateRoutesConsolidated'],
         'duplicateGroupsMerged': duplicate_result['duplicateGroupsMerged'],
         'mergedUniqueSections': duplicate_result['mergedUniqueSections'],
