@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-08-06T09:31:13.944318+00:00",
+  "generated_at": "2026-08-06T09:35:59.860369+00:00",
   "mode": "write",
   "root": "/home/runner/work/healthrenewal.org/healthrenewal.org",
   "runtime": {
@@ -14,8 +14,8 @@
   "html_pages_seen": 816,
   "html_pages_normalized_or_current": 815,
   "counts": {
-    "current": 814,
-    "updated": 1,
+    "current": 772,
+    "updated": 43,
     "skipped": 1
   },
   "results": [
@@ -511,43 +511,43 @@
     },
     {
       "path": "evidence-guides/aac-home-school-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/adjustment-disorder-safe-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/anxiety-fear-differences-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/autism-adhd-differences-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/bipolar-disorder-safe-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/body-dysmorphic-disorder-safe-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/borderline-personality-safe-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/caregiver-wellbeing/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/clinical-anxiety/index.html",
@@ -556,153 +556,153 @@
     },
     {
       "path": "evidence-guides/dissociation-safe-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/early-psychosis-safe-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/eating-disorders-safe-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/first-mental-health-appointment-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/grief-and-loss/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/inclusive-digital-safety-and-exploitation-prevention-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/inclusive-family-support/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/inclusive-safeguarding-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/inclusive-school-transition/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/inclusive-toileting-personal-care-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/insomnia-and-sleep/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/mental-health-foundations/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/pain-distress-communication-support-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/panic-disorder-safe-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/predictable-routines-transitions-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/ptsd-safe-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/puberty-body-safety-inclusive-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/research-digital-mental-health/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/safe-screening-tools/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/safe-screening-tools-explainer/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/school-attendance-distress-support-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/selective-mutism-safe-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/service-access-guides/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/sibling-and-family-balance/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/sleep-mental-health-evidence-brief/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/stress-burnout-depression-differences-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/supported-adulthood-transition/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "evidence-guides/supported-decision-making-transition-guide/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "family-guide/assistive-technology-selection/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "family-guide/conditions/16p11-2-deletion-syndrome/index.html",
@@ -1136,8 +1136,8 @@
     },
     {
       "path": "guides/accessible-travel-planning/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "hubs/index.html",
@@ -1296,8 +1296,8 @@
     },
     {
       "path": "learning-paths/how-to-read-health-evidence/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "learning-paths/iep-goals-progress-monitoring/index.html",
@@ -1341,8 +1341,8 @@
     },
     {
       "path": "learning-paths/iris-special-education/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "learning-paths/opportunities/index.html",
@@ -3221,8 +3221,8 @@
     },
     {
       "path": "resources/open-books-discovery/index.html",
-      "status": "current",
-      "detail": ""
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "safety/index.html",
