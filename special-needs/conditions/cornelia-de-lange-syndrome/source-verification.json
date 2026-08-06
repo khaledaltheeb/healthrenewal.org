@@ -1,0 +1,139 @@
+{
+  "schema_version": 2,
+  "record_id": "cornelia-de-lange-syndrome-source-verification-v2",
+  "condition": {
+    "name_ar": "متلازمة كورنيليا دي لانج",
+    "name_en": "Cornelia de Lange syndrome",
+    "canonical_slug": "cornelia-de-lange-syndrome",
+    "orpha_code": "ORPHA:199"
+  },
+  "status": {
+    "review_status": "internally-reviewed",
+    "external_review": "recommended-not-completed",
+    "publication_status": "production-source-wired",
+    "verified_at": "2026-08-05",
+    "next_review_due": "2026-11-05"
+  },
+  "professional_boundaries": {
+    "purpose": "سجل حوكمة للمصادر التي بُني عليها الدليل العربي، وليس أداة تشخيص أو خطة علاج فردية.",
+    "prohibited_uses": [
+      "التشخيص الذاتي أو تشخيص طفل أو بالغ من السمات الظاهرة وحدها",
+      "اقتراح جرعات أو تعديل دواء أو مكمل أو جهاز دون تقييم مهني فردي",
+      "تقديم الفحوص الجينية أو نتائجها كتفسير منفصل عن الاستشارة الوراثية والسياق السريري",
+      "ادعاء اعتماد أو مراجعة خارجية أو شراكة مع أي جهة مصدر"
+    ]
+  },
+  "rights_and_attribution": {
+    "classification": "link-cite-and-original-summary-only",
+    "allowed": [
+      "الربط إلى المصدر الأصلي",
+      "الاستشهاد الببليوغرافي الدقيق",
+      "كتابة تحليل عربي أصلي مع الإسناد"
+    ],
+    "not_allowed_without_separate_permission": [
+      "نسخ النصوص أو الجداول أو الصور أو الرسوم",
+      "ترجمة مطولة أو إعادة نشر للمحتوى المحمي",
+      "استخدام الشعارات أو الهوية البصرية",
+      "ادعاء التأييد أو الشراكة أو المراجعة الخارجية"
+    ],
+    "attribution_note_ar": "تُنسب المعلومات العلمية إلى مصادرها الأصلية، وتبقى الصياغة العربية تحليلًا مستقلًا لمنصة روافد."
+  },
+  "sources": [
+    {
+      "id": "genereviews-2026",
+      "tier": "primary-clinical-reference",
+      "publisher": "NCBI Bookshelf / GeneReviews",
+      "title": "Cornelia de Lange Syndrome",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK1104/",
+      "initial_posting": "2005-09-16",
+      "last_update": "2026-06-16",
+      "verified_at": "2026-08-05",
+      "use": "الخصائص السريرية، التشخيص الجزيئي، المتابعة عبر العمر، الاستشارة الوراثية، وحدود التباين الظاهري.",
+      "cautions": "مرجع سريري أمريكي/دولي يحتاج تكييفًا مع توفر الخدمات والفحوص في كل بلد عربي؛ لا يُحوّل إلى تعليمات فردية."
+    },
+    {
+      "id": "international-consensus-2018",
+      "tier": "international-consensus",
+      "publisher": "Nature Reviews Disease Primers",
+      "title": "Diagnosis and management of Cornelia de Lange syndrome: first international consensus statement",
+      "doi": "10.1038/s41576-018-0031-0",
+      "pmid": "29995837",
+      "pmcid": "PMC7136165",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7136165/",
+      "published": "2018",
+      "verified_at": "2026-08-05",
+      "use": "إطار الإجماع للتشخيص والمتابعة متعددة التخصصات والسلوك والصحة النفسية والانتقال عبر العمر.",
+      "cautions": "يجب تمييز توصيات الإجماع عن الدليل التجريبي المباشر، ومراجعة أي نقطة قد تكون تغيرت بعد تحديث GeneReviews لعام 2026."
+    },
+    {
+      "id": "orphanet-199",
+      "tier": "official-rare-disease-registry",
+      "publisher": "Orphanet",
+      "title": "Cornelia de Lange syndrome",
+      "orpha_code": "ORPHA:199",
+      "url": "https://www.orpha.net/en/disease/detail/199",
+      "last_update": "2021-09",
+      "verified_at": "2026-08-05",
+      "use": "التعريف والتصنيف والمرادفات والمعرفات المرجعية والمعلومات الوبائية العامة.",
+      "cautions": "صفحة المرض أقدم من GeneReviews 2026؛ لا تُستخدم منفردة لقرارات المتابعة أو التشخيص."
+    },
+    {
+      "id": "nord-2023",
+      "tier": "supplementary-patient-reference",
+      "publisher": "National Organization for Rare Disorders",
+      "title": "Cornelia de Lange Syndrome",
+      "url": "https://rarediseases.org/rare-diseases/cornelia-de-lange-syndrome/",
+      "last_update": "2023-07-20",
+      "verified_at": "2026-08-05",
+      "use": "مصدر تكميلي لتحديد أسئلة الأسرة واللغة المفهومة، وليس مصدرًا وحيدًا للادعاءات السريرية.",
+      "cautions": "لا يُنسخ أو يُترجم النص، ولا تُعامل معلومات الخدمات أو الدعم الأمريكية كحقوق أو خدمات محلية."
+    }
+  ],
+  "claim_governance": [
+    {
+      "claim_area": "التشخيص والطيف الظاهري",
+      "required_sources": ["genereviews-2026", "international-consensus-2018"],
+      "rule": "يُعرض التشخيص كتقييم سريري وجزيئي متخصص، مع توضيح أن المظهر متباين وأن غياب السمات الكلاسيكية لا ينفي الحالة."
+    },
+    {
+      "claim_area": "المتابعة الصحية والتدخلات",
+      "required_sources": ["genereviews-2026", "international-consensus-2018"],
+      "rule": "يُفصل بين المراقبة العامة والقرار الفردي، ولا تُذكر جرعات أو جداول دوائية أو تدخلات جراحية بوصفها توصية مباشرة للقارئ."
+    },
+    {
+      "claim_area": "السلوك والصحة النفسية والتواصل",
+      "required_sources": ["genereviews-2026", "international-consensus-2018"],
+      "rule": "تُستخدم لغة غير وصمية، ويُبحث عن الألم والتواصل والبيئة والحالات المصاحبة قبل تفسير السلوك كصفة ثابتة."
+    },
+    {
+      "claim_area": "الانتقال للرشد ودعم الأسرة",
+      "required_sources": ["genereviews-2026", "international-consensus-2018", "nord-2023"],
+      "rule": "يُكتب محتوى عربي أصلي يميز المبادئ العامة عن الخدمات والحقوق الخاصة بكل دولة."
+    }
+  ],
+  "publication_requirements": {
+    "canonical_path": "/special-needs/conditions/cornelia-de-lange-syndrome/",
+    "single_slug_only": true,
+    "required_schema": ["Article", "BreadcrumbList"],
+    "required_sections": [
+      "نظرة عامة",
+      "متى يلزم تقييم متخصص",
+      "التشخيص والتشخيص التفريقي التوعوي",
+      "الصحة والمتابعة عبر العمر",
+      "التواصل والتعليم والمشاركة",
+      "السلوك والصحة النفسية",
+      "دعم الأسرة والانتقال للرشد",
+      "ما يجب تجنبه",
+      "20 خطوة عملية على الأقل",
+      "المصادر وحدود الاستخدام"
+    ],
+    "quality_gates": [
+      "محتوى عربي أصلي غير منسوخ",
+      "عنوان ووصف وcanonical فريدة",
+      "روابط داخلية وسجل خريطة قسم دون صفحة يتيمة",
+      "RTL والهاتف والطباعة وإتاحة لوحة المفاتيح",
+      "عدم ادعاء مراجعة خارجية أو اعتماد",
+      "اختبار الصفحة الناتجة داخل _site قبل النشر"
+    ]
+  }
+}
