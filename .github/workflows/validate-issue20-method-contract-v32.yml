@@ -1,0 +1,58 @@
+name: Validate Issue 20 method contract v32
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/v32/lab-methods-ar.json'
+      - 'scripts/enrich_lab_content_v32.py'
+      - 'tests/test_lab_issue20_v32.py'
+      - '.github/workflows/validate-issue20-method-contract-v32.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/v32/lab-methods-ar.json'
+      - 'scripts/enrich_lab_content_v32.py'
+      - 'tests/test_lab_issue20_v32.py'
+      - '.github/workflows/validate-issue20-method-contract-v32.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  method-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate JSON and compile publisher
+        run: |
+          set -euxo pipefail
+          python -m json.tool content/v32/lab-methods-ar.json >/dev/null
+          python -m py_compile scripts/enrich_lab_content_v32.py tests/test_lab_issue20_v32.py
+      - name: Enforce complete distinct method inventory
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('content/v32/lab-methods-ar.json').read_text(encoding='utf-8'))
+          assert set(data)=={'official','category_method','task_methods'}, data.keys()
+          assert set(data['official'])=={'phq9','gad7','who5','audit_guided'}, data['official'].keys()
+          assert len(data['category_method'])==11, len(data['category_method'])
+          assert len(data['task_methods'])==53, len(data['task_methods'])
+          methods=list(data['task_methods'].values())
+          assert len(methods)==len(set(methods)), 'duplicate task methodology'
+          assert all(len(value)>=55 for value in methods), 'task methodology too short'
+          serialized=json.dumps(data,ensure_ascii=False)
+          for forbidden in ('يشخص نهائيًا','يرفع الذكاء','يمنع الخرف','معتمد سريريًا لكل الفئات'):
+              assert forbidden not in serialized, forbidden
+          for required in ('لا تُحتسب في هذه الصفحة درجة AUDIT الرسمية','الأعلى يعني عافية أفضل','البند التاسع','ليست درجة ذكاء'):
+              assert required in serialized, required
+          print({'official':4,'categories':11,'task_methods':53,'distinct':len(set(methods))})
+          PY
+      - name: Run focused unit tests
+        run: python -m unittest -v tests/test_lab_issue20_v32.py
