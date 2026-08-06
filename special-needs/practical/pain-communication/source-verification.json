@@ -1,0 +1,98 @@
+{
+  "id": "pain-communication-source-verification-v1",
+  "page": "/special-needs/practical/pain-communication/",
+  "canonical": "https://healthrenewal.org/special-needs/practical/pain-communication/",
+  "review_status": "internally-reviewed",
+  "external_review": "recommended-not-completed",
+  "risk_level": "moderate",
+  "verified_at": "2026-08-06",
+  "next_review_at": "2027-02-06",
+  "professional_limits": "سجل المصادر هذا يساند التثقيف والتخطيط ولا يثبت تشخيصًا ولا يحدد علاجًا أو دواءً أو أداة تقييم بعينها لشخص محدد. يبقى التقرير الذاتي للشخص هو المصدر الأول متى أمكن، وتُستخدم الملاحظة أو معلومات الأسرة والمرافقين بوصفها قرائن مساعدة لا بديلًا تلقائيًا عن صوته أو موافقته.",
+  "editorial_claims": [
+    {
+      "claim": "يجب تهيئة التواصل قبل الموعد ومعرفة الطريقة التي يفضلها الشخص، وإتاحة وقت إضافي ووسائل بصرية أو تواصل بديل عند الحاجة.",
+      "source_ids": ["nice-ng96-communication"]
+    },
+    {
+      "claim": "قد يختلف التعبير السلوكي عن الألم لدى الأشخاص ذوي صعوبات التواصل، ويجب سؤال الأسرة أو المرافق المألوف عن خط الأساس والتغيرات مع عدم اختزال الضيق في السلوك.",
+      "source_ids": ["nice-ng62-pain"]
+    },
+    {
+      "claim": "التقييم الجيد للألم يتمحور حول الشخص ويبحث أثر الألم في الوظيفة والحياة والمشاركة، لا شدة رقمية منفصلة فقط.",
+      "source_ids": ["nice-ng193-person-centred"]
+    },
+    {
+      "claim": "يمكن أن يظهر التواصل غير اللفظي عن الألم عبر تعابير الوجه والأصوات والوضعيات والحركات الواقية، وتُفهم هذه الإشارات ضمن السياق الاجتماعي والتواصلي.",
+      "source_ids": ["iasp-pain-communication"]
+    }
+  ],
+  "practice_questions": [
+    "كيف يعبّر الشخص عادةً عن الراحة والألم والرفض والموافقة؟",
+    "ما السلوك أو الحركة أو الصوت الذي تغير عن خط الأساس، ومتى بدأ؟",
+    "هل توجد أسباب عاجلة محتملة مثل إصابة، صعوبة تنفس أو بلع، حرارة، نزف، ألم أسنان، إمساك شديد، احتباس بول، أو أثر جانبي دوائي؟",
+    "ما وسيلة التواصل التي يجب أن تبقى مع الشخص أثناء الفحص ولا يجوز سحبها؟",
+    "ما الذي يساعد على الفحص: وقت أطول، بيئة أهدأ، وضعية مختلفة، شرح بصري، استراحة، أو حضور شخص مألوف؟",
+    "كيف سنوثق الاستجابة للتدخل ومتى نعيد التقييم أو نصعّد الإحالة؟"
+  ],
+  "sources": [
+    {
+      "id": "nice-ng96-communication",
+      "organization": "National Institute for Health and Care Excellence",
+      "title": "Care and support of people growing older with learning disabilities — Recommendations",
+      "url": "https://www.nice.org.uk/guidance/ng96/chapter/recommendations",
+      "source_type": "official_guideline",
+      "year": 2018,
+      "status": "current",
+      "verified_at": "2026-08-06",
+      "claims_supported": ["communication_preferences", "accessible_information", "appointment_adjustments", "aac_and_visual_support"],
+      "rights": "link-and-summarize-only",
+      "notes": "إرشاد بريطاني؛ تُنقل مبادئ الإتاحة والتواصل ولا تُفترض مطابقة الخدمات أو الحقوق القانونية للسياق العربي."
+    },
+    {
+      "id": "nice-ng62-pain",
+      "organization": "National Institute for Health and Care Excellence",
+      "title": "Cerebral palsy in under 25s: assessment and management — Pain assessment recommendations",
+      "url": "https://www.nice.org.uk/guidance/ng62/chapter/Recommendations",
+      "source_type": "official_guideline",
+      "year": 2017,
+      "status": "current",
+      "verified_at": "2026-08-06",
+      "claims_supported": ["caregiver_role", "atypical_pain_behaviour", "communication_difficulty", "consider_other_causes_of_distress"],
+      "rights": "link-and-summarize-only",
+      "notes": "ينطبق مباشرة على الأطفال واليافعين المصابين بالشلل الدماغي؛ لا يُعمم على جميع الأعمار أو الحالات دون حكم مهني."
+    },
+    {
+      "id": "nice-ng193-person-centred",
+      "organization": "National Institute for Health and Care Excellence",
+      "title": "Chronic pain in over 16s: assessment and management — Person-centred assessment",
+      "url": "https://www.nice.org.uk/guidance/ng193/chapter/recommendations",
+      "source_type": "official_guideline",
+      "year": 2021,
+      "status": "current",
+      "verified_at": "2026-08-06",
+      "claims_supported": ["person_centred_assessment", "functional_impact", "shared_decision_making"],
+      "rights": "link-and-summarize-only",
+      "notes": "خاص بالبالغين فوق 16 سنة وبالألم المزمن؛ يُستخدم لدعم إطار التقييم المتمحور حول الشخص فقط."
+    },
+    {
+      "id": "iasp-pain-communication",
+      "organization": "International Association for the Study of Pain",
+      "title": "Pain communication through body posture: The many postures of pain",
+      "url": "https://www.iasp-pain.org/publications/relief-news/article/pain-communication-body-posture/",
+      "source_type": "professional_organization_resource",
+      "year": null,
+      "publication_date": "not-displayed-on-source-page",
+      "status": "accessible-reference",
+      "verified_at": "2026-08-06",
+      "claims_supported": ["nonverbal_pain_communication", "social_context", "body_posture_cues"],
+      "rights": "link-and-summarize-only",
+      "notes": "مورد تثقيفي مهني لا يعرض تاريخ نشر الصفحة، ويلخص دراسة منشورة عام 2014؛ ليس إرشادًا سريريًا أو أداة تشخيص."
+    }
+  ],
+  "non_claims": [
+    "لا توجد شراكة أو مصادقة أو مراجعة خارجية من الجهات المذكورة.",
+    "لا يوصي السجل بمقياس محمي أو أداة واحدة لجميع الأشخاص.",
+    "لا يثبت السلوك وحده وجود الألم أو سببه أو شدته.",
+    "لا يجوز تأخير التقييم العاجل بحجة استكمال نموذج تواصل أو خط أساس."
+  ]
+}
