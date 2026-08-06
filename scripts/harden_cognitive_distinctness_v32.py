@@ -21,6 +21,15 @@ function v32DistinctCognitiveTrial(d,stage,index,sessionSeed,rnd,ri,pick,symbols
   }
   return shuffle([answer,...variants.slice(0,3)],rnd);
  };
+ if(mode==='choice_reaction'){
+  const target=pick(arrows),minimum=Math.max(220,520-stage*45),maximum=980+stage*150;
+  return{kind:'reaction',prompt:`اختر اتجاه السهم الظاهر: <span style="font-size:${2+stage*.15}em;font-weight:900">${target}</span>`,answer:target,options:[...arrows],delay:ri(minimum,maximum),choiceReactionMapping:'arrow-direction',reactionForeperiodMin:minimum,reactionForeperiodMax:maximum,explanation:`الاتجاه المطابق هو ${target}.`};
+ }
+ if(mode==='visual_reaction'){
+  const positions=['أعلى اليمين','أسفل اليمين','أسفل اليسار','أعلى اليسار'],answer=pick(positions),targetSize=[32,28,24,20,18][stage],minimum=Math.max(220,540-stage*45),maximum=1000+stage*150;
+  const cells=positions.map(position=>`<span style="display:grid;place-items:center;width:2.5rem;height:2.5rem;border:1px solid #9fb8b4">${position===answer?`<b style="font-size:${targetSize}px">●</b>`:'&nbsp;'}</span>`).join('');
+  return{kind:'reaction',prompt:`حدّد موضع الإشارة داخل الشبكة: <span aria-label="شبكة بصرية ذات إشارة واحدة" style="display:inline-grid;grid-template-columns:repeat(2,2.5rem);gap:.25rem;vertical-align:middle">${cells}</span>`,answer,options:[...positions],delay:ri(minimum,maximum),visualReactionTargetSize:targetSize,visualReactionPosition:answer,reactionForeperiodMin:minimum,reactionForeperiodMax:maximum,explanation:`ظهرت الإشارة في موضع ${answer}.`};
+ }
  if(mode==='simple_reaction'){
   const target=pick(symbols),minimum=Math.max(250,600-stage*50),maximum=1100+stage*180;
   return{kind:'reaction',singleResponse:true,prompt:`ظهرت الإشارة ${target}. اضغط الزر الآن.`,answer:'اضغط الآن',options:['اضغط الآن'],delay:ri(minimum,maximum),reactionForeperiodMin:minimum,reactionForeperiodMax:maximum,explanation:'سُجل الزمن من ظهور الإشارة حتى بدء الضغط؛ لا يتضمن زمن الانتظار قبل ظهورها.'};
@@ -83,6 +92,14 @@ function v32DistinctCognitiveTrial(d,stage,index,sessionSeed,rnd,ri,pick,symbols
 '''
 
 DEFINITION_UPDATES = {
+    "choice-reaction": {
+        "instrument_type": "مهمة زمن اختيار بين أربعة اتجاهات",
+        "summary": "يُطابق المشارك اتجاه سهم بصري بأحد أربعة بدائل بعد فترة انتظار متغيرة؛ تجمع المهمة زمن الكشف واختيار الاستجابة.",
+    },
+    "visual-reaction": {
+        "instrument_type": "مهمة زمن اختيار موضع إشارة بصرية",
+        "summary": "تظهر إشارة واحدة داخل شبكة رباعية ويحدد المشارك موضعها؛ يصغر الهدف تدريجيًا عبر المراحل دون تحويل المهمة إلى بحث بصري كثيف.",
+    },
     "simple-reaction": {
         "instrument_type": "مهمة زمن استجابة أحادية الزر داخل المتصفح",
         "summary": "تظهر إشارة بعد فترة انتظار متغيرة، ثم يستخدم المشارك زر استجابة واحدًا. الزمن تقني داخل الجهاز وليس قياسًا عصبيًا معياريًا.",
