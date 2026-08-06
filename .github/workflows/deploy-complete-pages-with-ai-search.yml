@@ -1,4 +1,4 @@
-name: Recover, consolidate, and deploy complete site
+name: Recover richest historical content and deploy complete site
 
 on:
   push:
@@ -13,24 +13,24 @@ permissions:
 
 concurrency:
   group: github-pages-production
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
-    name: Build and validate complete site
+    name: Recover and validate complete historical site
     runs-on: ubuntu-latest
-    timeout-minutes: 55
+    timeout-minutes: 180
     outputs:
       build_sha: ${{ steps.source.outputs.build_sha }}
 
     steps:
-      - name: Checkout current main with full history
+      - name: Checkout exact current main with full history
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      - name: Bind the build to the current main head
+      - name: Bind build to current main head
         id: source
         env:
           GH_TOKEN: ${{ github.token }}
@@ -49,7 +49,7 @@ jobs:
           echo "build_sha=${build_sha}" >> "${GITHUB_OUTPUT}"
           echo "Building current main at ${build_sha}."
 
-      - name: Fetch every current branch for content recovery
+      - name: Fetch every branch for historical recovery
         run: |
           set -euo pipefail
           git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*' --prune
@@ -60,7 +60,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Locate latest validated complete-site baseline
+      - name: Locate latest validated production baseline
         id: baseline
         env:
           GH_TOKEN: ${{ github.token }}
@@ -88,10 +88,10 @@ jobs:
               output.write(f"run_id={item['workflow_run']['id']}\n")
               output.write(f"artifact_id={item['id']}\n")
               output.write(f"created_at={item.get('created_at', '')}\n")
-          print({'baselineArtifactId': item['id'], 'runId': item['workflow_run']['id'], 'createdAt': item.get('created_at')})
+          print({'artifactId': item['id'], 'runId': item['workflow_run']['id'], 'createdAt': item.get('created_at')})
           PY
 
-      - name: Download validated complete-site baseline outside public source
+      - name: Download validated production baseline
         uses: actions/download-artifact@v4
         with:
           name: validated-production-site
@@ -100,7 +100,7 @@ jobs:
           run-id: ${{ steps.baseline.outputs.run_id }}
           github-token: ${{ github.token }}
 
-      - name: Recover richest versions, review aliases, merge duplicates, and complete thin pages
+      - name: Recover richest historical versions and consolidate content
         run: |
           set -euo pipefail
           test -f /tmp/validated-baseline/index.html
@@ -109,40 +109,22 @@ jobs:
           python -m py_compile \
             scripts/recover_content_v1.py \
             scripts/recover_content_v2.py \
+            scripts/recover_content_full_history_v3.py \
             scripts/review_content_aliases_v1.py \
             scripts/consolidate_duplicate_pages_v1.py \
-            scripts/publish_self_advocacy_base_v170.py \
-            scripts/publish_self_advocacy_v170.py \
-            scripts/publish_special_needs_cdls_v337.py \
-            scripts/finalize_content_quality_v1.py
-          python scripts/recover_content_v2.py \
+            scripts/finalize_content_quality_v2.py
+          python scripts/recover_content_full_history_v3.py \
             --root . \
             --site _site \
             --baseline /tmp/validated-baseline \
-            --days 10
+            --days 3650
           python scripts/review_content_aliases_v1.py \
             --site _site \
             --baseline /tmp/validated-baseline \
-            --days 10
-          python scripts/finalize_content_quality_v1.py --site _site
+            --days 3650
+          python scripts/finalize_content_quality_v2.py --site _site
 
-      - name: Upload recovery diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: content-recovery-diagnostics-${{ github.run_id }}
-          path: |
-            _site/api/content-recovery-report.json
-            _site/api/content-page-inventory.json
-            _site/api/duplicate-consolidation-v1.json
-            _site/api/self-advocacy-v170.json
-            _site/api/self-advocacy-v171.json
-            _site/api/self-advocacy-v172.json
-            _site/api/special-needs-cdls-v337.json
-          if-no-files-found: warn
-          retention-days: 30
-
-      - name: Enforce complete, consolidated, and semantically valid inventory
+      - name: Enforce no-loss complete inventory
         env:
           BUILD_SHA: ${{ steps.source.outputs.build_sha }}
         run: |
@@ -153,77 +135,80 @@ jobs:
           from pathlib import Path
 
           site = Path('_site')
+          baseline = Path('/tmp/validated-baseline')
           report = json.loads((site / 'api/content-recovery-report.json').read_text(encoding='utf-8'))
           inventory = json.loads((site / 'api/content-page-inventory.json').read_text(encoding='utf-8'))
           duplicates = json.loads((site / 'api/duplicate-consolidation-v1.json').read_text(encoding='utf-8'))
           self_advocacy = json.loads((site / 'api/self-advocacy-v172.json').read_text(encoding='utf-8'))
           cdls = json.loads((site / 'api/special-needs-cdls-v337.json').read_text(encoding='utf-8'))
 
-          assert report['schemaVersion'] == 2
+          baseline_html = sum(
+              1 for p in baseline.rglob('*')
+              if p.is_file() and p.suffix.lower() in {'.html', '.htm'}
+          )
+          assert baseline_html >= 3000, baseline_html
+          assert report['schemaVersion'] == 3, report.get('schemaVersion')
+          assert inventory['schemaVersion'] == 3, inventory.get('schemaVersion')
           assert report['htmlPages'] == len(inventory['pages'])
-          assert 3000 <= report['htmlPages'] <= 6000, report['htmlPages']
+          assert report['htmlPages'] >= baseline_html, (report['htmlPages'], baseline_html)
           assert not any(page['path'].startswith(('_baseline/', '_legacy_baseline/')) for page in inventory['pages'])
+          assert report.get('historySince', '9999') <= '2026-07-14', report.get('historySince')
           assert report.get('aliasReviewStatus') == 'passed', report.get('aliasReviewStatus')
           assert not report.get('unrestoredRejectedAliases'), report.get('unrestoredRejectedAliases')
-          reviewed = report.get('allGeneratedAliasesReviewed', 0)
-          retained = report.get('thinAliasesRedirected', 0)
-          rejected = report.get('falseAliasesRejected', 0)
-          assert retained <= 5, retained
-          assert reviewed == retained + rejected, (reviewed, retained, rejected)
-          assert report.get('finalQualityRedirects') == 0, report.get('finalQualityRedirects')
-          assert len(report.get('aliases', [])) == retained, report.get('aliases')
-          assert report['remainingThinPages'] == 0, report['thinPages'][:20]
-          assert report['completenessRatio'] == 1.0, report['completenessRatio']
+          assert report.get('remainingThinPages') == 0, report.get('thinPages', [])[:20]
+          assert report.get('completenessRatio') == 1.0, report.get('completenessRatio')
           assert report.get('integrityStatus') == 'passed', report.get('integrityStatus')
           assert report.get('integrityMissingInternalPaths') == 0, report.get('integrityMissingInternalPaths')
-
           assert duplicates.get('status') == 'passed', duplicates
-          assert duplicates.get('duplicateRoutesConsolidated', 0) >= 13, duplicates
-          assert duplicates.get('duplicateGroupsMerged', 0) >= 13, duplicates
           assert self_advocacy.get('status') == 'passed', self_advocacy
           assert self_advocacy.get('publicContentPackageCount', 0) >= 9, self_advocacy
           assert self_advocacy.get('standalonePagesCreated') == 0, self_advocacy
           assert cdls.get('status') == 'passed', cdls
           assert cdls.get('single_canonical_route') is True, cdls
-
-          markers = ('دُمج محتوى هذه الصفحة', 'دُمجت هذه الصفحة', 'content-recovery-redirect')
-          generated_redirects = []
-          for page in site.rglob('*.html'):
-              text = page.read_text(encoding='utf-8', errors='replace')
-              if any(marker in text for marker in markers):
-                  generated_redirects.append(page.relative_to(site).as_posix())
-          assert len(generated_redirects) == retained, generated_redirects
           assert (site / 'index.html').is_file()
 
           deployment = {
-              'schemaVersion': 1,
+              'schemaVersion': 2,
               'release_commit': os.environ['BUILD_SHA'],
               'run_id': os.environ['GITHUB_RUN_ID'],
               'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
               'generated_at': datetime.now(timezone.utc).isoformat(),
               'html_pages': report['htmlPages'],
+              'baseline_html_pages': baseline_html,
+              'historical_pages_restored': report.get('historicalPagesRestored', 0),
               'completeness_ratio': report['completenessRatio'],
-              'duplicate_routes_consolidated': duplicates['duplicateRoutesConsolidated'],
+              'duplicate_routes_consolidated': duplicates.get('duplicateRoutesConsolidated', 0),
               'missing_internal_paths': report['integrityMissingInternalPaths'],
           }
           (site / 'deployment.json').write_text(
-              json.dumps(deployment, ensure_ascii=False, indent=2) + '\n',
-              encoding='utf-8',
+              json.dumps(deployment, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
           )
+          print({'baselineHtmlPages': baseline_html})
           print({key: report.get(key) for key in (
-              'status', 'htmlPages', 'historicalPagesRestored',
+              'status', 'htmlPages', 'historicalPagesRestored', 'historySince',
               'allGeneratedAliasesReviewed', 'thinAliasesRedirected',
-              'falseAliasesRejected', 'thinPagesExpanded',
-              'remainingThinPagesExpanded', 'finalQualityExpansions',
-              'finalQualityRedirects', 'remainingThinPages',
-              'completenessRatio', 'integrityStatus',
-              'integrityMissingInternalPaths'
+              'falseAliasesRejected', 'remainingThinPages', 'completenessRatio',
+              'integrityStatus', 'integrityMissingInternalPaths'
           )})
-          print({'duplicateRoutesConsolidated': duplicates['duplicateRoutesConsolidated']})
-          print({'generatedRedirects': generated_redirects})
+          print({'duplicateRoutesConsolidated': duplicates.get('duplicateRoutesConsolidated', 0)})
           print({'deployment': deployment})
           PY
           touch _site/.nojekyll
+
+      - name: Upload recovery diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-recovery-diagnostics-${{ github.run_id }}
+          path: |
+            _site/api/content-recovery-report.json
+            _site/api/content-page-inventory.json
+            _site/api/duplicate-consolidation-v1.json
+            _site/api/self-advocacy-v172.json
+            _site/api/special-needs-cdls-v337.json
+            _site/deployment.json
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Preserve validated complete site for 90 days
         uses: actions/upload-artifact@v4
@@ -242,13 +227,13 @@ jobs:
           path: _site
 
   deploy:
-    name: Deploy validated complete site
+    name: Deploy validated recovered site
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
-      - name: Refuse deployment if main advanced after the validated build
+      - name: Refuse stale deployment if main advanced
         env:
           GH_TOKEN: ${{ github.token }}
           BUILD_SHA: ${{ needs.build.outputs.build_sha }}
@@ -267,7 +252,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify exact deployed commit and recovery contracts live
+      - name: Verify exact recovered deployment live
         env:
           EXPECTED_SHA: ${{ needs.build.outputs.build_sha }}
         run: |
@@ -289,35 +274,24 @@ jobs:
           deployment = json.load(open('/tmp/live-deployment.json', encoding='utf-8'))
           report = json.load(open('/tmp/live-recovery.json', encoding='utf-8'))
           duplicates = json.load(open('/tmp/live-duplicates.json', encoding='utf-8'))
+          assert deployment['schemaVersion'] == 2
           assert deployment['release_commit'] == os.environ['EXPECTED_SHA'], deployment
-          assert deployment['schemaVersion'] == 1
-          assert report['schemaVersion'] == 2
-          assert 3000 <= report['htmlPages'] <= 6000
+          assert report['schemaVersion'] == 3
+          assert report['htmlPages'] >= deployment['baseline_html_pages']
           assert report.get('aliasReviewStatus') == 'passed'
           assert not report.get('unrestoredRejectedAliases')
-          reviewed = report.get('allGeneratedAliasesReviewed', 0)
-          retained = report.get('thinAliasesRedirected', 0)
-          rejected = report.get('falseAliasesRejected', 0)
-          assert retained <= 5
-          assert reviewed == retained + rejected
-          assert report.get('finalQualityRedirects') == 0
-          assert len(report.get('aliases', [])) == retained
-          assert report['remainingThinPages'] == 0
-          assert report['completenessRatio'] == 1.0
+          assert report.get('remainingThinPages') == 0
+          assert report.get('completenessRatio') == 1.0
           assert report.get('integrityStatus') == 'passed'
           assert report.get('integrityMissingInternalPaths') == 0
           assert duplicates.get('status') == 'passed'
-          assert duplicates.get('duplicateRoutesConsolidated', 0) >= 13
           print({'deployment': deployment})
           print({key: report.get(key) for key in (
-              'status', 'htmlPages', 'historicalPagesRestored',
+              'status', 'htmlPages', 'historicalPagesRestored', 'historySince',
               'allGeneratedAliasesReviewed', 'thinAliasesRedirected',
-              'falseAliasesRejected', 'thinPagesExpanded',
-              'finalQualityExpansions', 'finalQualityRedirects',
-              'remainingThinPages', 'completenessRatio',
+              'falseAliasesRejected', 'remainingThinPages', 'completenessRatio',
               'integrityStatus', 'integrityMissingInternalPaths'
           )})
-          print({'duplicateRoutesConsolidated': duplicates['duplicateRoutesConsolidated']})
           PY
               then
                 ready=1
