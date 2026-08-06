@@ -1,0 +1,233 @@
+{
+  "version": 32,
+  "reviewed_at": "2026-08-07",
+  "principles": {
+    "official_instrument": "يربط المصدر بالأداة الأصلية وطريقة الحساب، مع فصل واضح بين الأصل المنشور وبين الصياغة العربية الرقمية الموجودة في الموقع. لا تُوصف النسخة بأنها مترجمة أو متحققة معياريًا ما لم يوجد دليل خاص بهذه النسخة.",
+    "original_monitor": "الأداة من إنشاء الموقع وغير معيارية. المصادر تؤطر المجال الوظيفي أو السلامة أو الدعم، لكنها لا تثبت الصدق أو الثبات أو نقاط القطع أو قابلية المقارنة بالسكان.",
+    "site_cognitive_task": "المهمة تنفيذ تجريبي خاص بالموقع. مصادر RDoC تعرّف البناء المعرفي وطرائق القياس السلوكي، ولا تجعل التنفيذ اختبارًا عصبيًا نفسيًا مقننًا أو مكافئًا لأداة منشورة تحمل اسمًا مشابهًا.",
+    "source_scope": "يجب أن يوضح كل استشهاد: ما الذي يسنده، وما الذي لا يسنده، وكيف استُخدم في الصفحة."
+  },
+  "sources": {
+    "who-icf": {
+      "title_ar": "التصنيف الدولي للأداء الوظيفي والعجز والصحة (ICF)",
+      "publisher": "منظمة الصحة العالمية",
+      "url": "https://www.who.int/classifications/international-classification-of-functioning-disability-and-health",
+      "supports_ar": "تأطير الأداء والأنشطة والمشاركة والعوامل البيئية بدل اختزال الحاجة في التشخيص أو مجموع الأعراض.",
+      "does_not_support_ar": "لا يثبت صلاحية أي استبيان أصلي في الموقع ولا يقدم نقاط قطع له.",
+      "kind": "official_framework"
+    },
+    "who-rehabilitation": {
+      "title_ar": "التأهيل وتحسين الأداء والمشاركة",
+      "publisher": "منظمة الصحة العالمية",
+      "url": "https://www.who.int/health-topics/rehabilitation",
+      "supports_ar": "مبادئ الاستقلال والمشاركة والتكييف وتقليل أثر الحالة الصحية في الحياة اليومية.",
+      "does_not_support_ar": "لا يحول بنود المتابعة إلى تقييم تأهيلي معياري أو خطة علاج فردية.",
+      "kind": "official_framework"
+    },
+    "who-mhgap": {
+      "title_ar": "دليل mhGAP للتدخل في الاضطرابات النفسية والعصبية واضطرابات استخدام المواد — الإصدار 2.0",
+      "publisher": "منظمة الصحة العالمية",
+      "url": "https://www.who.int/publications/i/item/9789241549790",
+      "supports_ar": "مبادئ التقييم الأوسع، التعطل الوظيفي، السلامة، الإحالة، وعدم اختزال القرار السريري في نتيجة ذاتية واحدة.",
+      "does_not_support_ar": "لا يعتمد أدوات المتابعة الأصلية في الموقع ولا يمنحها تشخيصًا أو حساسية أو نوعية.",
+      "kind": "official_guideline"
+    },
+    "who-stress": {
+      "title_ar": "افعل ما يهم في أوقات الضغط",
+      "publisher": "منظمة الصحة العالمية",
+      "url": "https://www.who.int/publications/i/item/9789240003927",
+      "supports_ar": "مبادئ ملاحظة التجربة والعودة للحاضر والمرونة والتعاطف مع الذات وطلب المساعدة عند عدم كفاية المساعدة الذاتية.",
+      "does_not_support_ar": "لا يثبت صلاحية نسبة المتابعة ولا يجعل الصفحة تدخلًا نفسيًا كاملًا.",
+      "kind": "official_self_help_guidance"
+    },
+    "who-cst": {
+      "title_ar": "تدريب مهارات مقدمي الرعاية لأسر الأطفال ذوي التأخر النمائي أو الاحتياجات الخاصة",
+      "publisher": "منظمة الصحة العالمية",
+      "url": "https://www.who.int/publications/i/item/9789240048836",
+      "supports_ar": "المشاركة في الروتين اليومي والتواصل الإتاحة والسلوك الإيجابي ومهارات الحياة ودور مقدم الرعاية.",
+      "does_not_support_ar": "لا يجعل متابعات الأسرة نسخة من برنامج CST ولا يغني عن تدريب وإشراف مناسبين.",
+      "kind": "official_toolkit"
+    },
+    "who-cst-wellbeing": {
+      "title_ar": "رفاه مقدمي الرعاية ضمن حزمة تدريب مهارات مقدمي الرعاية",
+      "publisher": "منظمة الصحة العالمية",
+      "url": "https://www.who.int/publications/i/item/9789240120983",
+      "supports_ar": "تأطير عبء مقدم الرعاية والراحة وطلب الدعم والرفاه ضمن سياق الأسرة.",
+      "does_not_support_ar": "لا يثبت أن أداة إجهاد مقدم الرعاية في الموقع مقياس سريري أو جزء رسمي من الحزمة.",
+      "kind": "official_toolkit"
+    },
+    "who-ipv": {
+      "title_ar": "الاستجابة الصحية للعنف من الشريك أو العنف الجنسي",
+      "publisher": "منظمة الصحة العالمية",
+      "url": "https://www.who.int/publications-detail-redirect/9789241513005",
+      "supports_ar": "قراءة التهديد والإكراه والعنف كإشارات مستقلة، وتعزيز السلامة والدعم المتمركز حول الناجي أو الناجية.",
+      "does_not_support_ar": "لا ينتج من مؤشر الموقع حكم قانوني أو درجة أمان كلية ولا يستبدل خطة سلامة متخصصة.",
+      "kind": "official_safety_guidance"
+    },
+    "who-perinatal": {
+      "title_ar": "دمج الصحة النفسية في خدمات صحة الأم والطفل خلال الفترة المحيطة بالولادة",
+      "publisher": "منظمة الصحة العالمية",
+      "url": "https://www.who.int/publications/i/item/9789240057142",
+      "supports_ar": "أهمية بيئة آمنة غير وصمية لاكتشاف الصعوبات النفسية والاستجابة لها وإحالتها ضمن خدمات الأم والطفل.",
+      "does_not_support_ar": "لا يجعل متابعة ما بعد الولادة في الموقع أداة فحص معيارية ولا يكفي لتقدير الذهان أو خطر الإيذاء.",
+      "kind": "official_guidance"
+    },
+    "samhsa-recovery": {
+      "title_ar": "التعافي والدعم في اضطرابات استخدام المواد",
+      "publisher": "إدارة خدمات إساءة استخدام المواد والصحة النفسية (SAMHSA)",
+      "url": "https://www.samhsa.gov/substance-use/recovery",
+      "supports_ar": "مبادئ التعافي الفردي والدعم والموارد والخطوات المستدامة وتقليل عوامل الانتكاس.",
+      "does_not_support_ar": "لا يقيس مؤشر خطة التعافي شدة الاعتماد ولا يحدد الانسحاب الآمن أو العلاج.",
+      "kind": "government_guidance"
+    },
+    "samhsa-safety-plan": {
+      "title_ar": "خطة السلامة",
+      "publisher": "إدارة خدمات إساءة استخدام المواد والصحة النفسية (SAMHSA)",
+      "url": "https://www.samhsa.gov/resource/988/safety-plan",
+      "supports_ar": "فكرة تحويل إشارات الخطر والاتصالات والبيئة وخطوات التصعيد إلى خطة قابلة للاستخدام.",
+      "does_not_support_ar": "لا يجعل أداة الموقع بديلًا لخطة سلامة معدة مع مختص أو استجابة طارئة.",
+      "kind": "government_safety_resource"
+    },
+    "cdc-sleep": {
+      "title_ar": "موارد النوم والسلامة المرتبطة بالنعاس",
+      "publisher": "المراكز الأمريكية لمكافحة الأمراض والوقاية منها",
+      "url": "https://www.cdc.gov/sleep/resources/index.html",
+      "supports_ar": "أهمية جودة النوم والنعاس النهاري ومخاطر القيادة مع النعاس وطلب التقييم عند الاشتباه باضطراب نوم.",
+      "does_not_support_ar": "لا يثبت صلاحية متابعة جودة النوم في الموقع ولا يشخص الأرق أو انقطاع النفس أثناء النوم.",
+      "kind": "government_health_guidance"
+    },
+    "nimh-rdoc": {
+      "title_ar": "مصفوفة معايير مجالات البحث (RDoC)",
+      "publisher": "المعهد الوطني الأمريكي للصحة النفسية",
+      "url": "https://www.nimh.nih.gov/research/research-funded-by-nimh/rdoc/constructs/rdoc-matrix",
+      "supports_ar": "تعريف المجالات والبنى المعرفية وفصلها إلى انتباه وإدراك وذاكرة ولغة وتحكم معرفي وذاكرة عاملة وعمليات اجتماعية.",
+      "does_not_support_ar": "لا يعتمد ألعاب الموقع ولا يمنحها معايير عمرية أو صدقًا تشخيصيًا أو تكافؤًا مع مهام بحثية منشورة.",
+      "kind": "official_research_framework"
+    },
+    "nimh-behavioral-methods": {
+      "title_ar": "طرائق التقييم السلوكي لبنى RDoC",
+      "publisher": "المجلس الاستشاري الوطني للصحة النفسية / NIMH",
+      "url": "https://www.nimh.nih.gov/about/advisory-boards-and-groups/namhc/reports/behavioral-assessment-methods-for-rdoc-constructs",
+      "supports_ar": "ضرورة مطابقة المهمة بالبناء المقصود وفحص خصائص القياس وحدود المهمة وعدم افتراض أن كل نموذج رقمي صالح تلقائيًا.",
+      "does_not_support_ar": "لا يعني ذكر نموذج بحثي أن تنفيذ الموقع نسخة رسمية أو متحقق منها سيكومتريًا.",
+      "kind": "official_methodology_report"
+    },
+    "nimh-attention": {
+      "title_ar": "بناء الانتباه في RDoC",
+      "publisher": "المعهد الوطني الأمريكي للصحة النفسية",
+      "url": "https://www.nimh.nih.gov/research/research-funded-by-nimh/rdoc/constructs/attention",
+      "supports_ar": "تأطير الانتقائية والاستمرار والتقسيم والمنافسة على الموارد المحدودة.",
+      "does_not_support_ar": "لا يجعل مهام البحث أو اليقظة في الموقع اختبارات انتباه معيارية.",
+      "kind": "official_construct_definition"
+    },
+    "nimh-working-memory": {
+      "title_ar": "بناء الذاكرة العاملة في RDoC",
+      "publisher": "المعهد الوطني الأمريكي للصحة النفسية",
+      "url": "https://www.nimh.nih.gov/research/research-funded-by-nimh/rdoc/constructs/working-memory",
+      "supports_ar": "الصيانة النشطة والتحديث المرن والسعة المحدودة ومقاومة التداخل.",
+      "does_not_support_ar": "لا يجعل امتداد الأرقام أو n-back في الموقع مكافئًا لاختبار مقنن أو تقييم عصبي نفسي.",
+      "kind": "official_construct_definition"
+    },
+    "nimh-cognitive-control": {
+      "title_ar": "بناء التحكم المعرفي في RDoC",
+      "publisher": "المعهد الوطني الأمريكي للصحة النفسية",
+      "url": "https://www.nimh.nih.gov/research/research-funded-by-nimh/rdoc/constructs/cognitive-control",
+      "supports_ar": "اختيار الهدف والاستجابة والكبح والمراقبة والتعامل مع قواعد أو سياقات جديدة.",
+      "does_not_support_ar": "لا يجعل مهام ستروب أو Go/No-Go أو التبديل في الموقع قياسًا سريريًا للوظائف التنفيذية.",
+      "kind": "official_construct_definition"
+    },
+    "nimh-social-processes": {
+      "title_ar": "مجال العمليات الاجتماعية في RDoC",
+      "publisher": "المعهد الوطني الأمريكي للصحة النفسية",
+      "url": "https://www.nimh.nih.gov/research/research-funded-by-nimh/rdoc/constructs/social-processes",
+      "supports_ar": "تأطير التواصل الاجتماعي وفهم الذات والآخر والإشارات الاجتماعية ضمن سياقات تفاعلية.",
+      "does_not_support_ar": "لا تجعل سيناريوهات الموقع اختبارًا للتعاطف أو النية أو الشخصية ولا تتجاوز أثر الثقافة واللغة.",
+      "kind": "official_construct_definition"
+    }
+  },
+  "monitor_source_groups": {
+    "developmental_family_support": {
+      "slugs": [
+        "adhd-family-support",
+        "autism-family-load",
+        "cerebral-palsy-family",
+        "down-syndrome-family",
+        "hearing-support-family",
+        "intellectual-disability-support",
+        "learning-difficulty-support",
+        "speech-language-support",
+        "visual-support-family"
+      ],
+      "source_ids": ["who-icf", "who-rehabilitation", "who-cst"],
+      "use_ar": "تُستخدم المصادر لتأطير المشاركة والتكييف والتواصل والاستقلال ودور الأسرة؛ البنود نفسها بنك أصلي للموقع وليست مقتبسة من مقياس منشور."
+    },
+    "caregiver_and_family_function": {
+      "slugs": [
+        "caregiver-strain",
+        "chronic-illness-family",
+        "family-communication",
+        "parenting-stress",
+        "school-wellbeing",
+        "social-support"
+      ],
+      "source_ids": ["who-icf", "who-cst-wellbeing", "who-cst"],
+      "use_ar": "تؤطر المصادر عبء الرعاية والدعم والمشاركة والروتين؛ لا تنقل الصفحة مقياسًا رسميًا ولا نقاط قطع."
+    },
+    "mental_health_and_daily_function": {
+      "slugs": [
+        "attention-daily",
+        "breakup-recovery",
+        "burnout-risk",
+        "compulsive-pattern",
+        "daily-function",
+        "emotional-regulation",
+        "emotionally-detached",
+        "executive-function",
+        "grief-adjustment",
+        "loneliness",
+        "mood-daily",
+        "panic-pattern",
+        "self-compassion",
+        "sensory-overload",
+        "stress-load",
+        "trauma-recovery",
+        "worry-cycle"
+      ],
+      "source_ids": ["who-mhgap", "who-stress", "who-icf"],
+      "use_ar": "تُستخدم المصادر لتأطير السلامة والتعطل والوظيفة والمساعدة الذاتية المحدودة وطلب التقييم؛ النسبة أداة تتبع ذاتي داخلية فقط."
+    },
+    "perinatal_support": {
+      "slugs": ["postpartum-support"],
+      "source_ids": ["who-perinatal", "who-mhgap"],
+      "use_ar": "تؤطر المصادر التعرف إلى الصعوبات النفسية بعد الولادة والتصعيد الآمن؛ الصفحة ليست مقياس اكتئاب أو ذهان ما بعد الولادة."
+    },
+    "relationship_safety": {
+      "slugs": ["relationship-safety"],
+      "source_ids": ["who-ipv", "samhsa-safety-plan"],
+      "use_ar": "تُقرأ إشارات التهديد والإكراه والعنف بصورة مستقلة عن العدد، مع أولوية خطة السلامة والدعم المتخصص."
+    },
+    "recovery_safety": {
+      "slugs": ["recovery-safety"],
+      "source_ids": ["samhsa-recovery", "samhsa-safety-plan", "who-mhgap"],
+      "use_ar": "تؤطر المصادر عناصر الدعم وخطة التصعيد وتقليل الوصول للمحفزات؛ الأداة لا تقيس شدة الاعتماد أو سلامة الانسحاب."
+    },
+    "sleep_function": {
+      "slugs": ["sleep-quality"],
+      "source_ids": ["cdc-sleep", "who-icf"],
+      "use_ar": "تؤطر المصادر أثر النوم في الوظيفة والسلامة وضرورة التقييم عند النعاس الخطير أو مؤشرات اضطراب النوم؛ الصفحة ليست أداة تشخيص."
+    }
+  },
+  "cognitive_category_sources": {
+    "السرعة": ["nimh-rdoc", "nimh-behavioral-methods", "nimh-attention"],
+    "الكبح": ["nimh-rdoc", "nimh-behavioral-methods", "nimh-cognitive-control"],
+    "الذاكرة العاملة": ["nimh-rdoc", "nimh-behavioral-methods", "nimh-working-memory"],
+    "الذاكرة": ["nimh-rdoc", "nimh-behavioral-methods", "nimh-working-memory"],
+    "الانتباه": ["nimh-rdoc", "nimh-behavioral-methods", "nimh-attention"],
+    "الاستدلال": ["nimh-rdoc", "nimh-behavioral-methods", "nimh-cognitive-control"],
+    "المرونة": ["nimh-rdoc", "nimh-behavioral-methods", "nimh-cognitive-control"],
+    "القدرات المكانية": ["nimh-rdoc", "nimh-behavioral-methods"],
+    "الوظائف التنفيذية": ["nimh-rdoc", "nimh-behavioral-methods", "nimh-cognitive-control"],
+    "المعالجة الاجتماعية": ["nimh-rdoc", "nimh-behavioral-methods", "nimh-social-processes"],
+    "اللغة": ["nimh-rdoc", "nimh-behavioral-methods"]
+  }
+}
