@@ -134,9 +134,24 @@ def render_page(item: PublicationItem) -> str:
     original = compat._internal_links_section
     compat._internal_links_section = _internal_links_section
     try:
-        return metadata.render_page(item)
+        page = metadata.render_page(item)
     finally:
         compat._internal_links_section = original
+
+    boundary = str(item.payload.get("professional_boundary") or "").strip()
+    disclaimer = str(item.payload.get("disclaimer") or "").strip()
+    if boundary and boundary != disclaimer and boundary not in page:
+        marker = '<aside class="safety"><h2>حدود الاستخدام والسلامة</h2>'
+        if marker not in page:
+            raise PublicationError(
+                "Rendered governed page is missing the safety section required for professional boundaries."
+            )
+        page = page.replace(
+            marker,
+            marker + f"<p>{base.esc(boundary)}</p>",
+            1,
+        )
+    return page
 
 
 @contextmanager
