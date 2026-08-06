@@ -5,6 +5,7 @@ from pathlib import Path, PurePosixPath
 import recover_content_v2 as v
 import final_site_integrity_v1 as integrity
 import consolidate_duplicate_pages_v1 as duplicate_pages
+import publish_special_needs_cdls_v337 as cdls
 
 
 def append_section(source: str, heading: str, items: list[tuple[str, str, str]]) -> str:
@@ -51,6 +52,10 @@ def main() -> None:
     parser.add_argument('--site', default='_site')
     args = parser.parse_args()
     site = Path(args.site).resolve()
+
+    cdls_result = cdls.publish(site)
+    if cdls_result.get('status') != 'passed' or not cdls_result.get('single_canonical_route'):
+        raise SystemExit({'cdlsPublication': cdls_result})
 
     duplicate_result = duplicate_pages.consolidate(site)
 
@@ -140,6 +145,9 @@ def main() -> None:
     ratio = round(len(complete) / len(non_redirect), 4) if non_redirect else 0
     report.update({
         'schemaVersion': 2,
+        'cdlsPublicationStatus': cdls_result['status'],
+        'cdlsCanonicalUrl': cdls_result['canonical_url'],
+        'cdlsGeneratedPage': cdls_result['generated_page'],
         'finalQualityExpansions': len(expanded),
         'finalQualityRedirects': 0,
         'finalExpandedPages': expanded,
@@ -173,6 +181,8 @@ def main() -> None:
         encoding='utf-8',
     )
     print(json.dumps({
+        'cdlsPublicationStatus': cdls_result['status'],
+        'cdlsCanonicalUrl': cdls_result['canonical_url'],
         'duplicateRoutesConsolidated': duplicate_result['duplicateRoutesConsolidated'],
         'duplicateGroupsMerged': duplicate_result['duplicateGroupsMerged'],
         'mergedUniqueSections': duplicate_result['mergedUniqueSections'],
