@@ -55,12 +55,16 @@ def main() -> None:
     site = Path(args.site).resolve()
 
     self_advocacy_result = self_advocacy.publish(site)
+    expected_self_advocacy_sources = len(self_advocacy.PUBLIC_PACKAGES) + 1
     if (
         self_advocacy_result.get('status') != 'passed'
-        or self_advocacy_result.get('sourcePackageCount') != 9
+        or self_advocacy_result.get('sourcePackageCount') != expected_self_advocacy_sources
         or self_advocacy_result.get('standalonePagesCreated') != 0
     ):
-        raise SystemExit({'selfAdvocacyPublication': self_advocacy_result})
+        raise SystemExit({
+            'selfAdvocacyPublication': self_advocacy_result,
+            'expectedSourcePackageCount': expected_self_advocacy_sources,
+        })
 
     cdls_result = cdls.publish(site)
     if cdls_result.get('status') != 'passed' or not cdls_result.get('single_canonical_route'):
@@ -157,7 +161,6 @@ def main() -> None:
         'selfAdvocacyPublicationStatus': self_advocacy_result['status'],
         'selfAdvocacyCanonicalUrl': self_advocacy_result['canonicalUrl'],
         'selfAdvocacySourcePackageCount': self_advocacy_result['sourcePackageCount'],
-        'selfAdvocacyStandalonePagesCreated': self_advocacy_result['standalonePagesCreated'],
         'cdlsPublicationStatus': cdls_result['status'],
         'cdlsCanonicalUrl': cdls_result['canonical_url'],
         'cdlsGeneratedPage': cdls_result['generated_page'],
@@ -196,7 +199,6 @@ def main() -> None:
     print(json.dumps({
         'selfAdvocacyPublicationStatus': self_advocacy_result['status'],
         'selfAdvocacySourcePackageCount': self_advocacy_result['sourcePackageCount'],
-        'selfAdvocacyStandalonePagesCreated': self_advocacy_result['standalonePagesCreated'],
         'cdlsPublicationStatus': cdls_result['status'],
         'cdlsCanonicalUrl': cdls_result['canonical_url'],
         'duplicateRoutesConsolidated': duplicate_result['duplicateRoutesConsolidated'],
