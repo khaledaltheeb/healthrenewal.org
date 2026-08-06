@@ -73,10 +73,13 @@ def publish(site: Path) -> dict[str, Any]:
         raise SystemExit("Core self-advocacy packages must be published before continuity plan")
 
     clean = strip_existing(source)
+    render_data = dict(data)
+    render_data["description"] = str(data.get("summary") or "").strip()
+    render_data.pop("summary", None)
     rendered = base.render_package(
         SOURCE.name,
         "خطة انتقال الخدمة واستمراريتها في المناصرة الذاتية",
-        data,
+        render_data,
     )
     block = START + "\n" + rendered + "\n" + END
     updated = clean.replace(base.END, block + "\n" + base.END, 1)
