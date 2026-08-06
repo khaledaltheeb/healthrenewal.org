@@ -8,8 +8,6 @@ on:
   workflow_run:
     workflows: ["Deploy validated main to GitHub Pages"]
     types: [completed]
-  schedule:
-    - cron: "57 */2 * * *"
   workflow_dispatch:
 
 permissions:
@@ -17,7 +15,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: special-needs-diagnostic-decision-guides-live-v317-${{ github.event_name }}
+  group: special-needs-diagnostic-decision-guides-live-v317-${{ github.event.workflow_run.head_sha || github.sha }}
   cancel-in-progress: true
 
 jobs:
@@ -27,31 +25,39 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Validate v317 live workflow contract
+        with:
+          persist-credentials: false
+      - name: Validate read-only SHA-bound live workflow contract
         run: |
-          set -euxo pipefail
+          set -euo pipefail
           python - <<'PY'
           from pathlib import Path
 
           path = Path('.github/workflows/verify-special-needs-diagnostic-decision-guides-live-v317.yml')
           text = path.read_text(encoding='utf-8')
-          required = (
-              'Deploy validated main to GitHub Pages',
-              'MINIMUM_SHA: 211f87fdc6ec4047a3728134599cc096715f4fb1',
-              'special-needs/autism-screening-vs-diagnosis/',
-              'special-needs/down-syndrome-prenatal-screening-vs-diagnosis/',
-              'special-needs-diagnostic-decision-guides-v316.json',
-              'diagnostic_decision_guides_contract',
-              'data-diagnostic-guide="autism-screening-vs-diagnosis"',
-              'data-diagnostic-guide="down-syndrome-prenatal-screening-vs-diagnosis"',
-              'للمريضة الحق في قبول التحري أو الاختبار التشخيصي أو رفضهما',
-              'لا تفسر نتيجة تحرٍ إيجابية على أنها تشخيص مؤكد',
-              'لا يعتمد على أداة تشخيصية واحدة وحدها',
-              'sitemap-special-needs.xml',
-          )
-          missing = [marker for marker in required if marker not in text]
-          assert not missing, missing
-          print({'workflow': path.name, 'required_markers': len(required), 'status': 'static-contract-passed'})
+          required = {
+              'pages-trigger': 'Deploy validated main to GitHub Pages',
+              'sha-binding': 'github.event.workflow_run.head_sha || github.sha',
+              'release-commit': "deployment.get('release_commit')",
+              'legacy-commit': "deployment.get('commit')",
+              'artifact-report': 'special-needs-diagnostic-decision-guides-live-v317-report',
+              'autism-guide': 'special-needs/autism-screening-vs-diagnosis/',
+              'prenatal-guide': 'special-needs/down-syndrome-prenatal-screening-vs-diagnosis/',
+              'report-api': 'special-needs-diagnostic-decision-guides-v316.json',
+              'central-contract': 'diagnostic_decision_guides_contract',
+              'special-needs-sitemap': 'sitemap-special-needs.xml',
+          }
+          missing = {name: marker for name, marker in required.items() if marker not in text}
+          forbidden = {
+              'periodic-schedule': '\n  schedule:',
+              'fixed-minimum-sha': 'MINIMUM_SHA:',
+              'source-push': 'git push',
+              'source-commit': 'git commit',
+          }
+          present_forbidden = {name: marker for name, marker in forbidden.items() if marker in text}
+          if missing or present_forbidden:
+              raise SystemExit({'missing': missing, 'forbidden': present_forbidden})
+          print({'workflow': path.name, 'required_contracts': len(required), 'status': 'passed'})
           PY
 
   live-publication:
@@ -60,47 +66,35 @@ jobs:
       (github.event_name != 'workflow_run' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'))
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 12
     env:
       BASE_URL: https://healthrenewal.org/
-      MINIMUM_SHA: 211f87fdc6ec4047a3728134599cc096715f4fb1
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      EXPECTED_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
     steps:
-      - name: Wait for a non-rollback deployment containing v316
+      - name: Wait for the exact Pages deployment SHA
         run: |
           set -euo pipefail
+          mkdir -p /tmp/live-v317
           matched=0
-          for i in $(seq 1 90); do
-            token="${MINIMUM_SHA}-${i}-$(date +%s)"
-            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o /tmp/deployment.json; then
+          for i in $(seq 1 36); do
+            token="${EXPECTED_SHA}-${i}-${GITHUB_RUN_ID}"
+            if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL \
+              "${BASE_URL}deployment.json?v=${token}" -o /tmp/live-v317/deployment.json; then
               if python - <<'PY'
           import json
           import os
-          import urllib.error
-          import urllib.request
           from pathlib import Path
 
-          deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
-          live = deployment.get('commit')
-          minimum = os.environ['MINIMUM_SHA']
-          assert isinstance(live, str) and len(live) == 40, deployment
-          if live == minimum:
-              raise SystemExit(0)
-          request = urllib.request.Request(
-              f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/compare/{minimum}...{live}",
-              headers={
-                  'Authorization': f"Bearer {os.environ['GH_TOKEN']}",
-                  'Accept': 'application/vnd.github+json',
-                  'X-GitHub-Api-Version': '2022-11-28',
-                  'User-Agent': 'special-needs-diagnostic-decision-guides-live-v317',
-              },
-          )
-          try:
-              with urllib.request.urlopen(request, timeout=30) as response:
-                  status = json.loads(response.read().decode('utf-8')).get('status')
-          except urllib.error.HTTPError:
-              raise SystemExit(1)
-          raise SystemExit(0 if status in {'ahead', 'identical'} else 1)
+          deployment = json.loads(Path('/tmp/live-v317/deployment.json').read_text(encoding='utf-8'))
+          release_commit = deployment.get('release_commit')
+          legacy_commit = deployment.get('commit')
+          if release_commit and legacy_commit and release_commit != legacy_commit:
+              raise SystemExit(f'deployment SHA fields disagree: release_commit={release_commit} commit={legacy_commit}')
+          live_sha = release_commit or legacy_commit
+          expected_sha = os.environ['EXPECTED_SHA']
+          if not isinstance(live_sha, str) or len(live_sha) != 40:
+              raise SystemExit(f'invalid live deployment SHA: {live_sha!r}')
+          raise SystemExit(0 if live_sha == expected_sha else 1)
           PY
               then
                 matched=1
@@ -109,57 +103,72 @@ jobs:
             fi
             sleep 10
           done
-          test "${matched}" -eq 1
+          if [ "${matched}" -ne 1 ]; then
+            echo "Live deployment did not reach expected SHA ${EXPECTED_SHA}" >&2
+            exit 1
+          fi
 
       - name: Download live decision guides parent pages reports and sitemap
         run: |
-          set -euxo pipefail
-          token="${MINIMUM_SHA}-live-$(date +%s)"
-          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/autism-screening-vs-diagnosis/?v=${token}" -o /tmp/autism-decision.html
-          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/down-syndrome-prenatal-screening-vs-diagnosis/?v=${token}" -o /tmp/down-decision.html
-          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/autism/?v=${token}" -o /tmp/autism-parent.html
-          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/down-syndrome/?v=${token}" -o /tmp/down-parent.html
-          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-diagnostic-decision-guides-v316.json?v=${token}" -o /tmp/decision.json
-          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-guides-v221.json?v=${token}" -o /tmp/central.json
-          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sitemap-special-needs.xml?v=${token}" -o /tmp/sitemap.xml
+          set -euo pipefail
+          token="${EXPECTED_SHA}-${GITHUB_RUN_ID}"
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/autism-screening-vs-diagnosis/?v=${token}" -o /tmp/live-v317/autism-decision.html
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/down-syndrome-prenatal-screening-vs-diagnosis/?v=${token}" -o /tmp/live-v317/down-decision.html
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/autism/?v=${token}" -o /tmp/live-v317/autism-parent.html
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}special-needs/down-syndrome/?v=${token}" -o /tmp/live-v317/down-parent.html
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-diagnostic-decision-guides-v316.json?v=${token}" -o /tmp/live-v317/decision.json
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}api/special-needs-guides-v221.json?v=${token}" -o /tmp/live-v317/central.json
+          curl --retry 6 --retry-delay 4 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}sitemap-special-needs.xml?v=${token}" -o /tmp/live-v317/sitemap.xml
 
       - name: Enforce live screening diagnosis choice evidence and discovery contracts
         run: |
-          set -euxo pipefail
+          set -euo pipefail
           python - <<'PY'
+          import hashlib
           import json
+          import os
           import re
           import xml.etree.ElementTree as ET
           from pathlib import Path
 
+          root = Path('/tmp/live-v317')
           base = 'https://healthrenewal.org/'
-          report = json.loads(Path('/tmp/decision.json').read_text(encoding='utf-8'))
-          central = json.loads(Path('/tmp/central.json').read_text(encoding='utf-8'))
+          report = json.loads((root / 'decision.json').read_text(encoding='utf-8'))
+          central = json.loads((root / 'central.json').read_text(encoding='utf-8'))
+          deployment = json.loads((root / 'deployment.json').read_text(encoding='utf-8'))
+          live_sha = deployment.get('release_commit') or deployment.get('commit')
+          expected_sha = os.environ['EXPECTED_SHA']
+          assert live_sha == expected_sha, {'expected_sha': expected_sha, 'live_sha': live_sha}
+
           pages = {
-              'autism-screening-vs-diagnosis': Path('/tmp/autism-decision.html').read_text(encoding='utf-8'),
-              'down-syndrome-prenatal-screening-vs-diagnosis': Path('/tmp/down-decision.html').read_text(encoding='utf-8'),
+              'autism-screening-vs-diagnosis': (root / 'autism-decision.html').read_text(encoding='utf-8'),
+              'down-syndrome-prenatal-screening-vs-diagnosis': (root / 'down-decision.html').read_text(encoding='utf-8'),
           }
           parents = {
-              'autism-screening-vs-diagnosis': Path('/tmp/autism-parent.html').read_text(encoding='utf-8'),
-              'down-syndrome-prenatal-screening-vs-diagnosis': Path('/tmp/down-parent.html').read_text(encoding='utf-8'),
+              'autism-screening-vs-diagnosis': (root / 'autism-parent.html').read_text(encoding='utf-8'),
+              'down-syndrome-prenatal-screening-vs-diagnosis': (root / 'down-parent.html').read_text(encoding='utf-8'),
           }
 
           assert report['version'] == 316 and report['status'] == 'passed', report
           assert report['review_status'] == 'internally-reviewed-external-clinical-review-required'
           assert report['external_clinical_review_completed'] is False
-          assert report['guide_count'] == 2
-          assert report['section_count'] == 10
-          assert report['source_count'] == 8
-          assert report['decision_step_count'] == 10
-          assert report['parent_links_added'] == 2
+          expected_counts = {
+              'guide_count': 2,
+              'section_count': 10,
+              'source_count': 8,
+              'decision_step_count': 10,
+              'parent_links_added': 2,
+          }
+          for key, expected in expected_counts.items():
+              assert report[key] == expected, {'contract': key, 'expected': expected, 'actual': report.get(key)}
           assert report['sitemap_registered'] is True
           assert report['next_review_due'] == '2027-01-27'
 
           assert central['status'] == 'passed'
           assert central['diagnostic_decision_guides_contract'] == 316
           embedded = central['condition_hubs']['diagnostic_decision_guides']
-          for key in ('guide_count', 'guide_slugs', 'section_count', 'source_count', 'decision_step_count', 'parent_links_added', 'next_review_due'):
-              assert embedded[key] == report[key], (key, embedded.get(key), report.get(key))
+          for key in (*expected_counts, 'guide_slugs', 'next_review_due'):
+              assert embedded[key] == report[key], {'contract': key, 'embedded': embedded.get(key), 'report': report.get(key)}
           assert embedded['external_clinical_review_completed'] is False
 
           expected_sources = {
@@ -167,18 +176,18 @@ jobs:
               'down-syndrome-prenatal-screening-vs-diagnosis': ('source-DP1', 'source-DP2', 'source-DP3', 'source-DP4'),
           }
           for slug, text in pages.items():
-              assert text.count('<h1') == 1, slug
-              assert text.count('class="section-card"') == 5, slug
-              assert 'MedicalWebPage' in text and 'BreadcrumbList' in text, slug
-              assert 'لم تكتمل مراجعة سريرية خارجية مستقلة' in text, slug
-              assert '2027-01-27' in text, slug
+              assert text.count('<h1') == 1, {'contract': 'single-h1', 'slug': slug}
+              assert text.count('class="section-card"') == 5, {'contract': 'five-sections', 'slug': slug}
+              assert 'MedicalWebPage' in text and 'BreadcrumbList' in text, {'contract': 'structured-data', 'slug': slug}
+              assert 'لم تكتمل مراجعة سريرية خارجية مستقلة' in text, {'contract': 'review-disclosure', 'slug': slug}
+              assert '2027-01-27' in text, {'contract': 'review-date', 'slug': slug}
               ids = re.findall(r'\bid="([^"]+)"', text)
-              assert len(ids) == len(set(ids)), (slug, ids)
+              assert len(ids) == len(set(ids)), {'contract': 'unique-ids', 'slug': slug}
               for source_id in expected_sources[slug]:
-                  assert f'id="{source_id}"' in text, (slug, source_id)
+                  assert f'id="{source_id}"' in text, {'contract': 'source-anchor', 'slug': slug, 'source_id': source_id}
               parent = parents[slug]
-              assert parent.count(f'data-diagnostic-guide="{slug}"') == 1, slug
-              assert parent.count(f'/special-needs/{slug}/') == 1, slug
+              assert parent.count(f'data-diagnostic-guide="{slug}"') == 1, {'contract': 'parent-marker', 'slug': slug}
+              assert parent.count(f'/special-needs/{slug}/') == 1, {'contract': 'parent-link', 'slug': slug}
 
           autism = pages['autism-screening-vs-diagnosis']
           assert 'النتيجة الإيجابية تعني زيادة الحاجة إلى تقييم أعمق' in autism
@@ -190,20 +199,43 @@ jobs:
 
           sitemap_urls = [
               (node.text or '').strip()
-              for node in ET.parse('/tmp/sitemap.xml').getroot().findall('{*}url/{*}loc')
+              for node in ET.parse(root / 'sitemap.xml').getroot().findall('{*}url/{*}loc')
               if node.text
           ]
           for slug in pages:
-              assert sitemap_urls.count(base + f'special-needs/{slug}/') == 1, slug
-          assert len(sitemap_urls) == len(set(sitemap_urls))
+              expected_url = base + f'special-needs/{slug}/'
+              assert sitemap_urls.count(expected_url) == 1, {'contract': 'sitemap-url', 'url': expected_url}
+          assert len(sitemap_urls) == len(set(sitemap_urls)), {'contract': 'unique-sitemap-urls'}
 
-          deployment = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
-          print({
-              'live_commit': deployment.get('commit'),
-              'decision_guides': report['guide_count'],
-              'sections': report['section_count'],
-              'sources': report['source_count'],
-              'parent_links': report['parent_links_added'],
-              'status': 'special-needs-diagnostic-decision-guides-live-v317-verified',
-          })
+          digests = {
+              path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+              for path in sorted(root.iterdir())
+              if path.is_file()
+          }
+          verification = {
+              'status': 'passed',
+              'workflow': 'special-needs-diagnostic-decision-guides-live-v317',
+              'run_id': os.environ['GITHUB_RUN_ID'],
+              'expected_sha': expected_sha,
+              'live_sha': live_sha,
+              'guide_count': report['guide_count'],
+              'section_count': report['section_count'],
+              'source_count': report['source_count'],
+              'parent_links_added': report['parent_links_added'],
+              'file_sha256': digests,
+          }
+          (root / 'verification-report.json').write_text(
+              json.dumps(verification, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(verification, ensure_ascii=False))
           PY
+
+      - name: Upload auditable live verification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: special-needs-diagnostic-decision-guides-live-v317-report-${{ github.run_id }}
+          path: /tmp/live-v317/
+          if-no-files-found: error
+          retention-days: 30
