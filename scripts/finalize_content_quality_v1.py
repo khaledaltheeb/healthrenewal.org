@@ -161,6 +161,7 @@ def main() -> None:
         'selfAdvocacyPublicationStatus': self_advocacy_result['status'],
         'selfAdvocacyCanonicalUrl': self_advocacy_result['canonicalUrl'],
         'selfAdvocacySourcePackageCount': self_advocacy_result['sourcePackageCount'],
+        'selfAdvocacyStandalonePagesCreated': self_advocacy_result['standalonePagesCreated'],
         'cdlsPublicationStatus': cdls_result['status'],
         'cdlsCanonicalUrl': cdls_result['canonical_url'],
         'cdlsGeneratedPage': cdls_result['generated_page'],
@@ -199,6 +200,7 @@ def main() -> None:
     print(json.dumps({
         'selfAdvocacyPublicationStatus': self_advocacy_result['status'],
         'selfAdvocacySourcePackageCount': self_advocacy_result['sourcePackageCount'],
+        'selfAdvocacyStandalonePagesCreated': self_advocacy_result['standalonePagesCreated'],
         'cdlsPublicationStatus': cdls_result['status'],
         'cdlsCanonicalUrl': cdls_result['canonical_url'],
         'duplicateRoutesConsolidated': duplicate_result['duplicateRoutesConsolidated'],
