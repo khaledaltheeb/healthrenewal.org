@@ -1,0 +1,66 @@
+name: Inject Google Tag Manager
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/inject_google_tag_manager.py
+      - .github/workflows/inject-google-tag-manager.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: inject-google-tag-manager-main
+  cancel-in-progress: false
+
+jobs:
+  inject:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Inject GTM into every HTML page
+        run: python3 scripts/inject_google_tag_manager.py --root .
+
+      - name: Validate GTM placement
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          gtm_id = "GTM-WBLQVBG4"
+          failures = []
+          for path in Path('.').rglob('*.html'):
+              if any(part in {'.git', 'node_modules', 'vendor', 'dist', 'build', 'coverage'} for part in path.parts):
+                  continue
+              text = path.read_text(encoding='utf-8-sig', errors='strict')
+              head = re.search(r'<head\b[^>]*>', text, re.I)
+              body = re.search(r'<body\b[^>]*>', text, re.I)
+              if head and gtm_id not in text[head.end():head.end() + 1200]:
+                  failures.append(f"{path}: GTM script is not directly after <head>")
+              if body and f"ns.html?id={gtm_id}" not in text[body.end():body.end() + 800]:
+                  failures.append(f"{path}: GTM noscript is not directly after <body>")
+
+          if failures:
+              raise SystemExit('\n'.join(failures[:100]))
+          print('Validated GTM placement in all HTML documents containing <head> and <body>.')
+          PY
+
+      - name: Commit generated HTML changes
+        run: |
+          if git diff --quiet; then
+            echo "No HTML changes were required."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- '*.html'
+          git commit -m "Add Google Tag Manager to all HTML pages"
+          git push
