@@ -119,5 +119,13 @@ class IrisSpecialEducationResourceContract(unittest.TestCase):
             self.assertIn("noreferrer", rel)
 
 
+def load_tests(loader, tests, pattern):
+    """Extend the institutional-resource gate with the sectors index contract."""
+    from tests import test_complete_sectors_index_v1 as complete_sectors
+
+    tests.addTests(loader.loadTestsFromModule(complete_sectors))
+    return tests
+
+
 if __name__ == "__main__":
     unittest.main()
