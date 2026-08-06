@@ -1,0 +1,234 @@
+{
+  "schema_version": "1.0.0",
+  "resource_family_id": "iris-special-education",
+  "title_ar": "مسار IRIS للتربية الخاصة والممارسة الصفية",
+  "provider": {
+    "name": "IRIS Center",
+    "canonical_url": "https://iris.peabody.vanderbilt.edu/",
+    "terms_url": "https://iris.peabody.vanderbilt.edu/terms-of-use/"
+  },
+  "rights": {
+    "classification": "deep-linking-and-independent-arabic-descriptions-permitted",
+    "allowed": [
+      "عرض عنوان الوحدة وموضوعها والجمهور والوقت التقديري وحالة الشهادة",
+      "كتابة وصف عربي مستقل ومسار تعلم عربي من إعداد Health Renewal",
+      "استخدام الروابط العميقة الثابتة إلى الوحدات الرسمية"
+    ],
+    "prohibited": [
+      "نسخ أو ترجمة نصوص الوحدات أو الاختبارات أو الأنشطة الداخلية",
+      "استضافة الوحدة أو إدخالها في نظام تعلم خارجي",
+      "استخدام صور IRIS أو شعاراتها أو أغلفة مواردها",
+      "الادعاء بوجود شراكة أو اعتماد أو مراجعة من IRIS"
+    ],
+    "required_attribution_ar": "المورد الأصلي مقدم من IRIS Center. الوصف العربي وترتيب المسار من إعداد Health Renewal، والتعلم يتم على موقع IRIS الرسمي.",
+    "partnership_claim": false
+  },
+  "verification": {
+    "verified_at": "2026-08-05",
+    "next_review_at": "2027-02-05",
+    "review_status": "rights-verified-content-link-only",
+    "source": "written-email-permission-recorded-in-github-issue-948"
+  },
+  "audiences": [
+    "المعلمون ومعلمو التربية الخاصة",
+    "المرشدون وقادة المدارس",
+    "أخصائيو الدعم التعليمي",
+    "طلبة إعداد المعلمين",
+    "الأسر الراغبة في فهم لغة المدرسة دون استبدال التقييم المهني"
+  ],
+  "learning_principles": [
+    "ابدأ بفهم الاحتياج قبل اختيار الاستراتيجية",
+    "اربط الدعم بالمشاركة والوظيفة اليومية لا بالملصق التشخيصي وحده",
+    "استخدم البيانات لمراجعة القرار بدل تثبيت خطة لا تتغير",
+    "افصل المعلومات العامة عن التقييم الفردي والالتزامات القانونية المحلية",
+    "حوّل التعلم إلى تجربة صفية صغيرة قابلة للقياس والمراجعة"
+  ],
+  "modules": [
+    {
+      "id": "iris-asd1",
+      "title_ar": "التوحد للمعلمين",
+      "title_en": "Autism Spectrum Disorder",
+      "url": "https://iris.peabody.vanderbilt.edu/module/asd1/",
+      "track": "understanding-learning-needs",
+      "audience": "المعلمون والمتدربون",
+      "arabic_description": "مدخل تربوي لفهم أثر التوحد في التواصل والمشاركة والتعلم، مع توجيه المتعلم إلى بناء دعم صفّي واضح بدل اختزال الطالب في التشخيص.",
+      "local_action": "اختر موقفًا صفّيًا واحدًا وحدد حاجز المشاركة والتكييف المقترح وطريقة قياس أثره.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    },
+    {
+      "id": "iris-ef1",
+      "title_ar": "فهم الوظائف التنفيذية",
+      "title_en": "Executive Functions, Part 1",
+      "url": "https://iris.peabody.vanderbilt.edu/module/ef1/",
+      "track": "understanding-learning-needs",
+      "audience": "المعلمون والأسر ومقدمو الدعم",
+      "arabic_description": "مدخل لفهم التخطيط والذاكرة العاملة والمرونة وضبط الاستجابة بوصفها وظائف تؤثر في الأداء اليومي وليست دليلًا على الكسل أو ضعف الدافعية.",
+      "local_action": "حوّل مهمة دراسية معقدة إلى خطوات مرئية وحدد نقطة التوقف التي يحتاج عندها الطالب إلى دعم.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    },
+    {
+      "id": "iris-ef2",
+      "title_ar": "دعم الوظائف التنفيذية",
+      "title_en": "Executive Functions, Part 2",
+      "url": "https://iris.peabody.vanderbilt.edu/module/ef2/",
+      "track": "instructional-support",
+      "audience": "المعلمون وأخصائيو الدعم",
+      "arabic_description": "ينقل المتعلم من فهم الصعوبة إلى اختيار استراتيجيات تنظيم ومتابعة ومراجعة يمكن دمجها في الروتين التعليمي.",
+      "local_action": "صمم تذكيرًا بصريًا وجدول مراجعة قصيرًا ثم قارن الأداء قبل الدعم وبعده.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    },
+    {
+      "id": "iris-scd",
+      "title_ar": "الإعاقات المعرفية الشديدة والدمج",
+      "title_en": "Students with Significant Cognitive Disabilities",
+      "url": "https://iris.peabody.vanderbilt.edu/module/scd/",
+      "track": "inclusive-education",
+      "audience": "المعلمون وقادة المدارس",
+      "arabic_description": "مسار لفهم المشاركة في المنهج والبيئة المدرسية مع المحافظة على توقعات تعليمية ذات معنى وتكييف الوصول دون عزل الطالب عن أقرانه.",
+      "local_action": "راجع نشاطًا جماعيًا وحدد كيف يمكن للطالب المشاركة في الهدف نفسه بوسيلة استجابة مختلفة.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    },
+    {
+      "id": "iris-fam",
+      "title_ar": "الشراكة مع الأسرة",
+      "title_en": "Family Engagement",
+      "url": "https://iris.peabody.vanderbilt.edu/module/fam/",
+      "track": "family-school-partnership",
+      "audience": "المعلمون والمرشدون وقادة المدارس",
+      "arabic_description": "يركز على التواصل المتبادل واحترام معرفة الأسرة وتحديد قرارات مشتركة قابلة للمتابعة بدل الاكتفاء بإبلاغ الأسرة بعد اتخاذ القرار.",
+      "local_action": "أعد صياغة اجتماع أسرة ليبدأ بهدف مشترك وسؤال مفتوح وينتهي بمسؤوليات وتاريخ مراجعة.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    },
+    {
+      "id": "iris-acc",
+      "title_ar": "التسهيلات التعليمية والاختبارات",
+      "title_en": "Accommodations",
+      "url": "https://iris.peabody.vanderbilt.edu/module/acc/",
+      "track": "inclusive-education",
+      "audience": "المعلمون ومنسقو الدعم",
+      "arabic_description": "يساعد على التمييز بين إزالة حاجز الوصول وتغيير الهدف التعليمي، وعلى ربط التسهيل بحاجة موثقة ومراجعة أثره بدل اعتماده تلقائيًا.",
+      "local_action": "اختر تسهيلًا واحدًا واكتب الحاجة التي يعالجها ومؤشر نجاحه وموعد مراجعته.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    },
+    {
+      "id": "iris-at",
+      "title_ar": "التقنية المساندة",
+      "title_en": "Assistive Technology",
+      "url": "https://iris.peabody.vanderbilt.edu/module/at/",
+      "track": "inclusive-education",
+      "audience": "المعلمون والأخصائيون والأسر",
+      "arabic_description": "مدخل لاختيار التقنية وفق المهمة والبيئة وتفضيلات المستخدم، مع تجربة واقعية ومتابعة الاستخدام بدل البدء بالجهاز باعتباره الحل.",
+      "local_action": "عرّف المهمة أولًا ثم قارن خيارين منخفضي وعاليي التقنية وفق الاستقلال وسهولة الاستخدام.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    },
+    {
+      "id": "iris-udl",
+      "title_ar": "التصميم الشامل للتعلم",
+      "title_en": "Universal Design for Learning",
+      "url": "https://iris.peabody.vanderbilt.edu/module/udl/",
+      "track": "inclusive-education",
+      "audience": "المعلمون ومصممو التعلم",
+      "arabic_description": "مسار لتقليل الحواجز مسبقًا عبر تنويع المشاركة والعرض وطرق التعبير، مع المحافظة على وضوح الهدف ومعايير النجاح.",
+      "local_action": "أعد تصميم درس واحد بثلاثة مداخل للمشاركة وطريقتين لفهم المحتوى وخيارين لإظهار التعلم.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    },
+    {
+      "id": "iris-env",
+      "title_ar": "بيئات الطفولة المبكرة",
+      "title_en": "Early Childhood Environments",
+      "url": "https://iris.peabody.vanderbilt.edu/module/env/",
+      "track": "early-childhood",
+      "audience": "معلمو الطفولة المبكرة وقادة البرامج",
+      "arabic_description": "يركز على تنظيم البيئة والروتين والإشارات البصرية والانتقالات لتقليل الحواجز وزيادة الاستقلال والمشاركة في السنوات المبكرة.",
+      "local_action": "راقب انتقالًا يوميًا واحدًا وحدد التغيير البيئي الذي يقلل الانتظار والارتباك.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    },
+    {
+      "id": "iris-bp",
+      "title_ar": "مبادئ السلوك",
+      "title_en": "Behavior Principles",
+      "url": "https://iris.peabody.vanderbilt.edu/module/bp/",
+      "track": "positive-behavior-support",
+      "audience": "المعلمون والمرشدون",
+      "arabic_description": "مدخل لقراءة السلوك في سياقه ووصف ما يحدث قبل السلوك وبعده دون وصم الطالب أو افتراض النية.",
+      "local_action": "اكتب ملاحظة وصفية لسلوك واحد تتجنب الأحكام وتفصل السابق والسلوك والنتيجة.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    },
+    {
+      "id": "iris-beh1",
+      "title_ar": "إدارة السلوك الصفي",
+      "title_en": "Classroom Behavior Management, Part 1",
+      "url": "https://iris.peabody.vanderbilt.edu/module/beh1/",
+      "track": "positive-behavior-support",
+      "audience": "المعلمون وقادة الصفوف",
+      "arabic_description": "يركز على الوقاية والوضوح وتعليم التوقعات والتعزيز المتزن قبل اللجوء إلى استجابات عقابية واسعة.",
+      "local_action": "حدد توقعًا صفّيًا غامضًا وحوله إلى سلوك قابل للتعليم والملاحظة والتغذية الراجعة.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    },
+    {
+      "id": "iris-fba-elem",
+      "title_ar": "التقييم الوظيفي للسلوك — المرحلة الابتدائية",
+      "title_en": "Functional Behavioral Assessment: Elementary",
+      "url": "https://iris.peabody.vanderbilt.edu/module/fba-elem/",
+      "track": "positive-behavior-support",
+      "audience": "فرق الدعم المدرسي المؤهلة",
+      "arabic_description": "يوضح منطق جمع البيانات وصياغة فرضية وظيفة السلوك في المرحلة الابتدائية، مع ضرورة مراعاة الصلاحيات المهنية والنظام المحلي.",
+      "local_action": "استخدم التعلم لفهم العملية فقط، ولا تنفذ تقييمًا فرديًا خارج صلاحيتك أو دون موافقات المدرسة والأسرة.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    },
+    {
+      "id": "iris-fba-sec",
+      "title_ar": "التقييم الوظيفي للسلوك — المرحلة الثانوية",
+      "title_en": "Functional Behavioral Assessment: Secondary",
+      "url": "https://iris.peabody.vanderbilt.edu/module/fba-sec/",
+      "track": "positive-behavior-support",
+      "audience": "فرق الدعم المدرسي المؤهلة",
+      "arabic_description": "يعرض اعتبارات التقييم الوظيفي لدى اليافعين، بما في ذلك السياق والاختيار والكرامة والمشاركة في القرار.",
+      "local_action": "راجع كيف ستشرك الطالب في تعريف المشكلة والهدف والحلول بدل التعامل معه كمصدر بيانات فقط.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    },
+    {
+      "id": "iris-bip-elem",
+      "title_ar": "خطة التدخل السلوكي — المرحلة الابتدائية",
+      "title_en": "Behavior Intervention Plan: Elementary",
+      "url": "https://iris.peabody.vanderbilt.edu/module/bip-elem/",
+      "track": "positive-behavior-support",
+      "audience": "فرق الدعم المدرسي المؤهلة",
+      "arabic_description": "يبني على فهم وظيفة السلوك لتطوير دعم وقائي وتعليم بديل قابل للقياس، لا خطة عقوبة موحدة.",
+      "local_action": "تحقق أن الخطة تعلم مهارة بديلة وتعدل البيئة وتحدد متابعة، ولا تقتصر على نتيجة بعد السلوك.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    },
+    {
+      "id": "iris-bip-sec",
+      "title_ar": "خطة التدخل السلوكي — المرحلة الثانوية",
+      "title_en": "Behavior Intervention Plan: Secondary",
+      "url": "https://iris.peabody.vanderbilt.edu/module/bip-sec/",
+      "track": "positive-behavior-support",
+      "audience": "فرق الدعم المدرسي المؤهلة",
+      "arabic_description": "يربط خطة الدعم بالسياق الحقيقي للمراهق وأهدافه وعلاقاته وانتقاله إلى الرشد، مع متابعة البيانات والآثار غير المقصودة.",
+      "local_action": "أضف إلى نموذج الخطة سؤالًا عن رأي الطالب ومؤشرًا للكرامة والمشاركة وليس خفض السلوك فقط.",
+      "certificate_status": "check-provider-page",
+      "estimated_time": "check-provider-page"
+    }
+  ],
+  "disclaimers": [
+    "هذا المسار لا يمنح شهادة من Health Renewal ولا يمثل برنامجًا تدريبيًا معتمدًا.",
+    "تفاصيل الوقت والشهادة والتسجيل تتغير؛ يجب التحقق من صفحة الوحدة الرسمية قبل البدء.",
+    "المحتوى التعليمي العام لا يحل محل التقييم الفردي أو السياسات والأنظمة التعليمية المحلية.",
+    "لا توجد شراكة أو مصادقة معلنة بين Health Renewal وIRIS Center."
+  ]
+}
