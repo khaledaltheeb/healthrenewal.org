@@ -16,12 +16,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  recover-and-deploy:
+  build:
+    name: Build and validate complete site
     runs-on: ubuntu-latest
     timeout-minutes: 55
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      build_sha: ${{ steps.source.outputs.build_sha }}
 
     steps:
       - name: Checkout current main with full history
@@ -29,6 +29,25 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+
+      - name: Bind the build to the current main head
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main
+          git checkout --detach origin/main
+          build_sha="$(git rev-parse HEAD)"
+          api_sha="$(curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/heads/main" \
+            | python -c 'import json,sys; print(json.load(sys.stdin)["object"]["sha"])')"
+          test "${build_sha}" = "${api_sha}"
+          echo "build_sha=${build_sha}" >> "${GITHUB_OUTPUT}"
+          echo "Building current main at ${build_sha}."
 
       - name: Fetch every current branch for content recovery
         run: |
@@ -81,7 +100,7 @@ jobs:
           run-id: ${{ steps.baseline.outputs.run_id }}
           github-token: ${{ github.token }}
 
-      - name: Recover richest versions, review all aliases, and complete thin pages
+      - name: Recover richest versions, review aliases, merge duplicates, and complete thin pages
         run: |
           set -euo pipefail
           test -f /tmp/validated-baseline/index.html
@@ -91,6 +110,10 @@ jobs:
             scripts/recover_content_v1.py \
             scripts/recover_content_v2.py \
             scripts/review_content_aliases_v1.py \
+            scripts/consolidate_duplicate_pages_v1.py \
+            scripts/publish_self_advocacy_base_v170.py \
+            scripts/publish_self_advocacy_v170.py \
+            scripts/publish_special_needs_cdls_v337.py \
             scripts/finalize_content_quality_v1.py
           python scripts/recover_content_v2.py \
             --root . \
@@ -111,17 +134,31 @@ jobs:
           path: |
             _site/api/content-recovery-report.json
             _site/api/content-page-inventory.json
+            _site/api/duplicate-consolidation-v1.json
+            _site/api/self-advocacy-v170.json
+            _site/api/self-advocacy-v171.json
+            _site/api/self-advocacy-v172.json
+            _site/api/special-needs-cdls-v337.json
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 30
 
-      - name: Enforce complete and semantically valid inventory
+      - name: Enforce complete, consolidated, and semantically valid inventory
+        env:
+          BUILD_SHA: ${{ steps.source.outputs.build_sha }}
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json
+          import json, os
+          from datetime import datetime, timezone
           from pathlib import Path
-          report = json.loads(Path('_site/api/content-recovery-report.json').read_text(encoding='utf-8'))
-          inventory = json.loads(Path('_site/api/content-page-inventory.json').read_text(encoding='utf-8'))
+
+          site = Path('_site')
+          report = json.loads((site / 'api/content-recovery-report.json').read_text(encoding='utf-8'))
+          inventory = json.loads((site / 'api/content-page-inventory.json').read_text(encoding='utf-8'))
+          duplicates = json.loads((site / 'api/duplicate-consolidation-v1.json').read_text(encoding='utf-8'))
+          self_advocacy = json.loads((site / 'api/self-advocacy-v172.json').read_text(encoding='utf-8'))
+          cdls = json.loads((site / 'api/special-needs-cdls-v337.json').read_text(encoding='utf-8'))
+
           assert report['schemaVersion'] == 2
           assert report['htmlPages'] == len(inventory['pages'])
           assert 3000 <= report['htmlPages'] <= 6000, report['htmlPages']
@@ -135,25 +172,56 @@ jobs:
           assert reviewed == retained + rejected, (reviewed, retained, rejected)
           assert report.get('finalQualityRedirects') == 0, report.get('finalQualityRedirects')
           assert len(report.get('aliases', [])) == retained, report.get('aliases')
-          markers = ('دُمج محتوى هذه الصفحة', 'دُمجت هذه الصفحة', 'content-recovery-redirect')
-          generated_redirects = []
-          for page in Path('_site').rglob('*.html'):
-              text = page.read_text(encoding='utf-8', errors='replace')
-              if any(marker in text for marker in markers):
-                  generated_redirects.append(page.relative_to('_site').as_posix())
-          assert len(generated_redirects) == retained, generated_redirects
           assert report['remainingThinPages'] == 0, report['thinPages'][:20]
           assert report['completenessRatio'] == 1.0, report['completenessRatio']
-          assert Path('_site/index.html').is_file()
+          assert report.get('integrityStatus') == 'passed', report.get('integrityStatus')
+          assert report.get('integrityMissingInternalPaths') == 0, report.get('integrityMissingInternalPaths')
+
+          assert duplicates.get('status') == 'passed', duplicates
+          assert duplicates.get('duplicateRoutesConsolidated', 0) >= 13, duplicates
+          assert duplicates.get('duplicateGroupsMerged', 0) >= 13, duplicates
+          assert self_advocacy.get('status') == 'passed', self_advocacy
+          assert self_advocacy.get('publicContentPackageCount', 0) >= 9, self_advocacy
+          assert self_advocacy.get('standalonePagesCreated') == 0, self_advocacy
+          assert cdls.get('status') == 'passed', cdls
+          assert cdls.get('single_canonical_route') is True, cdls
+
+          markers = ('دُمج محتوى هذه الصفحة', 'دُمجت هذه الصفحة', 'content-recovery-redirect')
+          generated_redirects = []
+          for page in site.rglob('*.html'):
+              text = page.read_text(encoding='utf-8', errors='replace')
+              if any(marker in text for marker in markers):
+                  generated_redirects.append(page.relative_to(site).as_posix())
+          assert len(generated_redirects) == retained, generated_redirects
+          assert (site / 'index.html').is_file()
+
+          deployment = {
+              'schemaVersion': 1,
+              'release_commit': os.environ['BUILD_SHA'],
+              'run_id': os.environ['GITHUB_RUN_ID'],
+              'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'generated_at': datetime.now(timezone.utc).isoformat(),
+              'html_pages': report['htmlPages'],
+              'completeness_ratio': report['completenessRatio'],
+              'duplicate_routes_consolidated': duplicates['duplicateRoutesConsolidated'],
+              'missing_internal_paths': report['integrityMissingInternalPaths'],
+          }
+          (site / 'deployment.json').write_text(
+              json.dumps(deployment, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
           print({key: report.get(key) for key in (
               'status', 'htmlPages', 'historicalPagesRestored',
               'allGeneratedAliasesReviewed', 'thinAliasesRedirected',
               'falseAliasesRejected', 'thinPagesExpanded',
               'remainingThinPagesExpanded', 'finalQualityExpansions',
               'finalQualityRedirects', 'remainingThinPages',
-              'completenessRatio'
+              'completenessRatio', 'integrityStatus',
+              'integrityMissingInternalPaths'
           )})
+          print({'duplicateRoutesConsolidated': duplicates['duplicateRoutesConsolidated']})
           print({'generatedRedirects': generated_redirects})
+          print({'deployment': deployment})
           PY
           touch _site/.nojekyll
 
@@ -173,22 +241,56 @@ jobs:
         with:
           path: _site
 
+  deploy:
+    name: Deploy validated complete site
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Refuse deployment if main advanced after the validated build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_SHA: ${{ needs.build.outputs.build_sha }}
+        run: |
+          set -euo pipefail
+          current_sha="$(curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/heads/main" \
+            | python -c 'import json,sys; print(json.load(sys.stdin)["object"]["sha"])')"
+          test "${current_sha}" = "${BUILD_SHA}"
+          echo "Deploying validated current main at ${BUILD_SHA}."
+
       - name: Deploy complete recovered site
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify complete recovery report live
+      - name: Verify exact deployed commit and recovery contracts live
+        env:
+          EXPECTED_SHA: ${{ needs.build.outputs.build_sha }}
         run: |
           set -euo pipefail
           ready=0
           for attempt in $(seq 1 120); do
             nonce="${GITHUB_RUN_ID}-${attempt}-$(date +%s%N)"
             if curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/deployment.json?release=${nonce}" \
+              -o /tmp/live-deployment.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
               "https://healthrenewal.org/api/content-recovery-report.json?recovery=${nonce}" \
-              -o /tmp/live-recovery.json; then
+              -o /tmp/live-recovery.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/duplicate-consolidation-v1.json?duplicates=${nonce}" \
+              -o /tmp/live-duplicates.json; then
               if python - <<'PY'
-          import json
+          import json, os
+          deployment = json.load(open('/tmp/live-deployment.json', encoding='utf-8'))
           report = json.load(open('/tmp/live-recovery.json', encoding='utf-8'))
+          duplicates = json.load(open('/tmp/live-duplicates.json', encoding='utf-8'))
+          assert deployment['release_commit'] == os.environ['EXPECTED_SHA'], deployment
+          assert deployment['schemaVersion'] == 1
           assert report['schemaVersion'] == 2
           assert 3000 <= report['htmlPages'] <= 6000
           assert report.get('aliasReviewStatus') == 'passed'
@@ -202,13 +304,20 @@ jobs:
           assert len(report.get('aliases', [])) == retained
           assert report['remainingThinPages'] == 0
           assert report['completenessRatio'] == 1.0
+          assert report.get('integrityStatus') == 'passed'
+          assert report.get('integrityMissingInternalPaths') == 0
+          assert duplicates.get('status') == 'passed'
+          assert duplicates.get('duplicateRoutesConsolidated', 0) >= 13
+          print({'deployment': deployment})
           print({key: report.get(key) for key in (
               'status', 'htmlPages', 'historicalPagesRestored',
               'allGeneratedAliasesReviewed', 'thinAliasesRedirected',
               'falseAliasesRejected', 'thinPagesExpanded',
               'finalQualityExpansions', 'finalQualityRedirects',
-              'remainingThinPages', 'completenessRatio'
+              'remainingThinPages', 'completenessRatio',
+              'integrityStatus', 'integrityMissingInternalPaths'
           )})
+          print({'duplicateRoutesConsolidated': duplicates['duplicateRoutesConsolidated']})
           PY
               then
                 ready=1
