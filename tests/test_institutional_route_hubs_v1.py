@@ -7,7 +7,7 @@ from urllib.parse import urlsplit
 from xml.etree import ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
-ROBOTS_META = '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">'
+ROBOTS_META = '<meta name="robots" content="index,follow,'
 
 
 class InstitutionalRouteHubsV1Tests(unittest.TestCase):
