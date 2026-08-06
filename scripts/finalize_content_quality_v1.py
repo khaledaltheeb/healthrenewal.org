@@ -6,6 +6,7 @@ import recover_content_v2 as v
 import final_site_integrity_v1 as integrity
 import consolidate_duplicate_pages_v1 as duplicate_pages
 import publish_special_needs_cdls_v337 as cdls
+import publish_self_advocacy_v170 as self_advocacy
 
 
 def append_section(source: str, heading: str, items: list[tuple[str, str, str]]) -> str:
@@ -52,6 +53,14 @@ def main() -> None:
     parser.add_argument('--site', default='_site')
     args = parser.parse_args()
     site = Path(args.site).resolve()
+
+    self_advocacy_result = self_advocacy.publish(site)
+    if (
+        self_advocacy_result.get('status') != 'passed'
+        or self_advocacy_result.get('sourcePackageCount') != 9
+        or self_advocacy_result.get('standalonePagesCreated') != 0
+    ):
+        raise SystemExit({'selfAdvocacyPublication': self_advocacy_result})
 
     cdls_result = cdls.publish(site)
     if cdls_result.get('status') != 'passed' or not cdls_result.get('single_canonical_route'):
@@ -145,6 +154,10 @@ def main() -> None:
     ratio = round(len(complete) / len(non_redirect), 4) if non_redirect else 0
     report.update({
         'schemaVersion': 2,
+        'selfAdvocacyPublicationStatus': self_advocacy_result['status'],
+        'selfAdvocacyCanonicalUrl': self_advocacy_result['canonicalUrl'],
+        'selfAdvocacySourcePackageCount': self_advocacy_result['sourcePackageCount'],
+        'selfAdvocacyStandalonePagesCreated': self_advocacy_result['standalonePagesCreated'],
         'cdlsPublicationStatus': cdls_result['status'],
         'cdlsCanonicalUrl': cdls_result['canonical_url'],
         'cdlsGeneratedPage': cdls_result['generated_page'],
@@ -181,6 +194,9 @@ def main() -> None:
         encoding='utf-8',
     )
     print(json.dumps({
+        'selfAdvocacyPublicationStatus': self_advocacy_result['status'],
+        'selfAdvocacySourcePackageCount': self_advocacy_result['sourcePackageCount'],
+        'selfAdvocacyStandalonePagesCreated': self_advocacy_result['standalonePagesCreated'],
         'cdlsPublicationStatus': cdls_result['status'],
         'cdlsCanonicalUrl': cdls_result['canonical_url'],
         'duplicateRoutesConsolidated': duplicate_result['duplicateRoutesConsolidated'],
