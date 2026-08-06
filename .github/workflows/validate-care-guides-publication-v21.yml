@@ -3,6 +3,26 @@ name: Validate published care guides v21
 on:
   pull_request:
     branches: ["main"]
+    paths:
+      - "care-guides/**"
+      - "content/**/care-guide*.json"
+      - "content/**/care-guides/**"
+      - "scripts/*care_guides*.py"
+      - "scripts/*care-guide*.py"
+      - "assets/js/care-guides-v234.js"
+      - "tests/test_care_guides_v234.py"
+      - ".github/workflows/validate-care-guides-publication-v21.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "care-guides/**"
+      - "content/**/care-guide*.json"
+      - "content/**/care-guides/**"
+      - "scripts/*care_guides*.py"
+      - "scripts/*care-guide*.py"
+      - "assets/js/care-guides-v234.js"
+      - "tests/test_care_guides_v234.py"
+      - ".github/workflows/validate-care-guides-publication-v21.yml"
   workflow_dispatch:
 
 permissions:
