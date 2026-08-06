@@ -1,13 +1,20 @@
 from __future__ import annotations
 
+import importlib.util
 import re
 import unittest
 from pathlib import Path
 from urllib.parse import urlsplit
-from xml.etree import ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 ROBOTS_META = '<meta name="robots" content="index,follow,'
+SITEMAP_SCRIPT = ROOT / "scripts" / "publish_complete_sitemap_v360.py"
+SITEMAP_SPEC = importlib.util.spec_from_file_location(
+    "publish_complete_sitemap_v360", SITEMAP_SCRIPT
+)
+assert SITEMAP_SPEC and SITEMAP_SPEC.loader
+sitemap_publisher = importlib.util.module_from_spec(SITEMAP_SPEC)
+SITEMAP_SPEC.loader.exec_module(sitemap_publisher)
 
 
 class InstitutionalRouteHubsV1Tests(unittest.TestCase):
@@ -15,6 +22,16 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
         page = ROOT / route / "index.html"
         self.assertTrue(page.is_file(), f"Missing institutional route: /{route}/")
         return page.read_text(encoding="utf-8")
+
+    def visible_word_count(self, page: str) -> int:
+        source = re.sub(
+            r"<(?:script|style)\b[^>]*>.*?</(?:script|style)>",
+            " ",
+            page,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+        source = re.sub(r"<[^>]+>", " ", source)
+        return len(re.findall(r"[\u0600-\u06FF]{2,}|[A-Za-z]{2,}", source))
 
     def internal_target(self, href: str) -> Path:
         parsed = urlsplit(href)
@@ -26,6 +43,7 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
 
     def test_required_route_targets_exist(self) -> None:
         for route in (
+            "about",
             "safety",
             "services",
             "sectors/family",
@@ -35,6 +53,28 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
         ):
             with self.subTest(route=route):
                 self.assertTrue((ROOT / route / "index.html").is_file())
+
+    def test_about_page_is_substantive_and_transparent(self) -> None:
+        page = self.read_page("about")
+        self.assertGreaterEqual(self.visible_word_count(page), 850)
+        self.assertIn(
+            '<link rel="canonical" href="https://healthrenewal.org/about/">',
+            page,
+        )
+        self.assertIn(ROBOTS_META, page)
+        for phrase in (
+            "لماذا أُنشئت المنصة",
+            "كيف يُبنى المحتوى",
+            "درجات المادة وحدودها",
+            "الاستقلال والتمويل والادعاءات",
+            "كيف نصحح الخطأ",
+            "ما الذي لا تدعيه المنصة",
+            "المراجعة القانونية والمؤسسية الخارجية",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, page)
+        self.assertGreaterEqual(page.count("<h2"), 10)
+        self.assertGreaterEqual(page.count('class="card"'), 13)
 
     def test_safety_hub_is_substantive_and_governed(self) -> None:
         page = self.read_page("safety")
@@ -84,7 +124,7 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
 
     def test_privacy_policy_matches_operational_data_surfaces(self) -> None:
         page = self.read_page("privacy-policy")
-        self.assertGreater(len(page), 14000)
+        self.assertGreaterEqual(self.visible_word_count(page), 600)
         self.assertIn(
             '<link rel="canonical" href="https://healthrenewal.org/privacy-policy/">',
             page,
@@ -104,10 +144,11 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
         self.assertGreaterEqual(page.count("<h2"), 9)
         self.assertIn('href="/contact/"', page)
         self.assertIn('href="/rights/"', page)
+        self.assertIn('href="/about/"', page)
 
     def test_rights_charter_is_substantive_and_nonlegal(self) -> None:
         page = self.read_page("rights")
-        self.assertGreater(len(page), 13000)
+        self.assertGreaterEqual(self.visible_word_count(page), 550)
         self.assertIn(
             '<link rel="canonical" href="https://healthrenewal.org/rights/">',
             page,
@@ -130,7 +171,7 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
 
     def test_schools_hub_is_substantive_and_actionable(self) -> None:
         page = self.read_page("schools")
-        self.assertGreater(len(page), 14000)
+        self.assertGreaterEqual(self.visible_word_count(page), 650)
         self.assertIn(
             '<link rel="canonical" href="https://healthrenewal.org/schools/">',
             page,
@@ -157,7 +198,7 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
         self.assertIn('href="/rights/"', page)
 
     def test_new_hubs_have_valid_internal_destinations(self) -> None:
-        for route in ("privacy-policy", "rights", "schools"):
+        for route in ("about", "privacy-policy", "rights", "schools"):
             page = self.read_page(route)
             hrefs = re.findall(r'href=["\']([^"\']+)["\']', page)
             missing = []
@@ -178,7 +219,14 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
     def test_hubs_have_no_placeholder_or_prohibited_language(self) -> None:
         combined = "".join(
             self.read_page(route)
-            for route in ("safety", "services", "privacy-policy", "rights", "schools")
+            for route in (
+                "about",
+                "safety",
+                "services",
+                "privacy-policy",
+                "rights",
+                "schools",
+            )
         )
         for phrase in (
             "TODO",
@@ -206,23 +254,21 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
 
         self.assertGreaterEqual(canonical_link_count, 10)
 
-    def test_existing_institutional_routes_are_discoverable_in_sitemap(self) -> None:
-        sitemap = ROOT / "sitemap.xml"
-        self.assertTrue(sitemap.is_file())
-        root = ET.parse(sitemap).getroot()
-        namespace = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-        urls = {
-            node.text
-            for node in root.findall("sm:url/sm:loc", namespace)
-            if node.text
-        }
+    def test_institutional_routes_are_discovered_by_production_sitemap_publisher(self) -> None:
+        urls, discovery = sitemap_publisher.discover(ROOT)
+        url_set = set(urls)
         required = {
+            "https://healthrenewal.org/about/",
+            "https://healthrenewal.org/privacy-policy/",
+            "https://healthrenewal.org/rights/",
             "https://healthrenewal.org/safety/",
+            "https://healthrenewal.org/schools/",
             "https://healthrenewal.org/services/",
             "https://healthrenewal.org/sectors/family/",
         }
-        self.assertTrue(required.issubset(urls), sorted(required - urls))
-        self.assertEqual(len(urls), len(root.findall("sm:url", namespace)))
+        self.assertTrue(required.issubset(url_set), sorted(required - url_set))
+        self.assertEqual(len(urls), len(url_set))
+        self.assertGreaterEqual(discovery["html_files_discovered"], len(urls))
 
 
 if __name__ == "__main__":
