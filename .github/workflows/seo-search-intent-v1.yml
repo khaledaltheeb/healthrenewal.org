@@ -11,6 +11,7 @@ on:
       - "tests/test_seo_intent_contract_v1.py"
       - "tests/test_sitewide_heading_intent_v2.py"
       - "tests/test_sitewide_generated_artifacts_v2.py"
+      - "tests/test_materialize_sectors_v10_compat_v4.py"
       - "content/seo-priority-urls.txt"
       - "docs/SEO_SEARCH_INTENT_CONTRACT.md"
       - "sitemap*.xml"
@@ -24,6 +25,7 @@ on:
       - "tests/test_seo_intent_contract_v1.py"
       - "tests/test_sitewide_heading_intent_v2.py"
       - "tests/test_sitewide_generated_artifacts_v2.py"
+      - "tests/test_materialize_sectors_v10_compat_v4.py"
       - "content/seo-priority-urls.txt"
       - "docs/SEO_SEARCH_INTENT_CONTRACT.md"
       - "sitemap*.xml"
@@ -65,9 +67,12 @@ jobs:
             scripts/apply_static_seo_fixes_v1.py \
             scripts/deduplicate_phase8_sitemap_v1.py \
             scripts/remediate_seo_warnings_v1.py \
+            scripts/fix_specific_seo_warnings_v1.py \
+            scripts/materialize_sectors_v10_compat_v4.py \
             scripts/summarize_seo_warnings_v1.py \
             scripts/enforce_sitewide_heading_intent_v2.py \
-            tests/test_sitewide_generated_artifacts_v2.py
+            tests/test_sitewide_generated_artifacts_v2.py \
+            tests/test_materialize_sectors_v10_compat_v4.py
           node --check scripts/prerender_provider_assessment_v1.js
 
       - name: Run semantic contract tests
@@ -75,6 +80,7 @@ jobs:
           python -m unittest tests.test_seo_intent_contract_v1 -v
           python -m unittest tests.test_sitewide_heading_intent_v2 -v
           python -m unittest tests.test_sitewide_generated_artifacts_v2 -v
+          python -m unittest tests.test_materialize_sectors_v10_compat_v4 -v
 
       - name: Deduplicate phase 8 sitemap ownership
         run: python scripts/deduplicate_phase8_sitemap_v1.py --write
@@ -91,14 +97,20 @@ jobs:
       - name: Pre-render provider assessment pathways
         run: node scripts/prerender_provider_assessment_v1.js --write
 
-      - name: Resolve remaining title description and image warnings
+      - name: Resolve general title description and image warnings
         run: python scripts/remediate_seo_warnings_v1.py --write
+
+      - name: Resolve reviewed page-specific SEO warnings
+        run: python scripts/fix_specific_seo_warnings_v1.py --write
 
       - name: Enforce H1 H2 H3 and search-intent questions on every source page
         run: python scripts/enforce_sitewide_heading_intent_v2.py --write --report reports/sitewide-heading-intent-v2.json
 
       - name: Record the stable final heading state
         run: python scripts/enforce_sitewide_heading_intent_v2.py --check --report reports/sitewide-heading-intent-v2.json
+
+      - name: Confirm reviewed page-specific SEO state
+        run: python scripts/fix_specific_seo_warnings_v1.py --check
 
       - name: Audit the 100 priority URLs
         run: python scripts/audit_seo_intent_v1.py --scope priority --report reports/seo-intent-priority-v1.json
@@ -172,8 +184,10 @@ jobs:
           python scripts/upgrade_magazine_intent_v2.py --write
           node scripts/prerender_provider_assessment_v1.js --write
           python scripts/remediate_seo_warnings_v1.py --write
+          python scripts/fix_specific_seo_warnings_v1.py --write
           python scripts/enforce_sitewide_heading_intent_v2.py --write --report reports/sitewide-heading-intent-v2.json
           python scripts/enforce_sitewide_heading_intent_v2.py --check --report reports/sitewide-heading-intent-v2.json
+          python scripts/fix_specific_seo_warnings_v1.py --check
           git diff --exit-code -- . \
             ':!reports/seo-intent-priority-v1.json' \
             ':!reports/seo-intent-priority-v1.md' \
