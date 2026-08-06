@@ -1,0 +1,63 @@
+{
+  "id": "self-advocacy-source-verification-v2",
+  "page": "/learning-paths/self-advocacy/",
+  "canonical": "https://healthrenewal.org/learning-paths/self-advocacy/",
+  "review_status": "internally-reviewed",
+  "external_review": "recommended-not-completed",
+  "verified_at": "2026-08-06",
+  "next_review_at": "2027-02-06",
+  "record_role": "current-authoritative-remediation-record",
+  "supersedes_for_merge_status": "source-verification-initial-audit.json",
+  "semantic_accessibility_audit": {
+    "status": "resolved-and-enforced-in-production-pipeline",
+    "resolution_date": "2026-08-06",
+    "historical_findings": [
+      {
+        "finding": "أبلغ التدقيق الأول عن مقطعين من نوع section.details دون اسم دلالي.",
+        "disposition": "لم يعد المحدد موجودًا في الصفحة الحالية. يتحقق الناشر من عدم وجود section يحمل class=details، ومن أن كل عنصر details أصلي يقابله summary يمنحه اسمًا دلاليًا."
+      },
+      {
+        "finding": "أبلغ التدقيق الأول عن غياب تنسيق رابط تجاوز المحتوى.",
+        "disposition": "العقد المشترك الحالي ينشئ الرابط في assets/platform/platform-core.js بعد تثبيت معرف main، ويضبط حالتي الإخفاء والتركيز في assets/platform/platform-core.css."
+      },
+      {
+        "finding": "ظهر تحذير محتمل عن زر بلا type قرب نص مقتبس.",
+        "disposition": "لم يثبت وجود زر فعلي مخالف؛ لا يغيّر الناشر نصًا صحيحًا بناءً على إنذار غير مؤكد، وتبقى عقود الأزرار العامة ضمن اختبارات المنصة."
+      }
+    ],
+    "enforced_checks": [
+      "وجود main بمعرف ثابت يمكن لرابط التجاوز استهدافه",
+      "عدم وجود section.details غير مسمى في الصفحة الناتجة",
+      "تساوي عدد عناصر details الأصلية مع عناصر summary داخل الصفحة الحالية",
+      "وجود إنشاء pt-skip-link وإضافته إلى body في JavaScript المشترك",
+      "وجود .pt-skip-link و.pt-skip-link:focus في CSS المشترك",
+      "فشل النشر إذا اختل أي شرط من هذه الشروط"
+    ],
+    "merge_blocking_findings_remaining": 0
+  },
+  "rights_and_attribution": {
+    "classification": "link-cite-and-original-arabic-summary-only",
+    "allowed": [
+      "الربط إلى المصادر الأصلية",
+      "الاستشهاد الدقيق",
+      "صياغة تحليل وأدوات عربية أصلية"
+    ],
+    "not_allowed_without_permission": [
+      "نسخ النصوص أو الجداول أو الصور",
+      "ترجمة مطولة للمحتوى المحمي",
+      "استخدام الشعارات أو ادعاء الشراكة أو التأييد أو المراجعة الخارجية"
+    ]
+  },
+  "publication_requirements": {
+    "canonical_path": "/learning-paths/self-advocacy/",
+    "single_page_only": true,
+    "public_content_packages": 8,
+    "historical_governance_records": 1,
+    "current_governance_records": 1,
+    "standalone_pages_allowed": 0,
+    "required_outputs": [
+      "learning-paths/self-advocacy/index.html",
+      "api/self-advocacy-v170.json"
+    ]
+  }
+}
