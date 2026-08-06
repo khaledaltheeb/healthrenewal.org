@@ -10,9 +10,12 @@ on:
       - "scripts/materialize_sectors_v10_compat_v2.py"
       - "scripts/materialize_sectors_v10_metadata_v3.py"
       - "scripts/materialize_sectors_v10_compat_v4.py"
+      - "scripts/publish_complete_sitemap_v360.py"
+      - "scripts/validate_sitemap_discovery_contract.py"
       - "tests/test_materialize_sectors_v10_v1.py"
       - "tests/test_materialize_sectors_v10_compat_v2.py"
       - "tests/test_materialize_sectors_v10_compat_v4.py"
+      - "tests/test_institutional_route_hubs_v1.py"
       - ".github/workflows/materialize-sectors-v10-v1.yml"
   push:
     branches: [main]
@@ -23,9 +26,12 @@ on:
       - "scripts/materialize_sectors_v10_compat_v2.py"
       - "scripts/materialize_sectors_v10_metadata_v3.py"
       - "scripts/materialize_sectors_v10_compat_v4.py"
+      - "scripts/publish_complete_sitemap_v360.py"
+      - "scripts/validate_sitemap_discovery_contract.py"
       - "tests/test_materialize_sectors_v10_v1.py"
       - "tests/test_materialize_sectors_v10_compat_v2.py"
       - "tests/test_materialize_sectors_v10_compat_v4.py"
+      - "tests/test_institutional_route_hubs_v1.py"
       - ".github/workflows/materialize-sectors-v10-v1.yml"
   workflow_dispatch:
 
@@ -61,19 +67,30 @@ jobs:
             scripts/materialize_sectors_v10_compat_v2.py \
             scripts/materialize_sectors_v10_metadata_v3.py \
             scripts/materialize_sectors_v10_compat_v4.py \
+            scripts/publish_complete_sitemap_v360.py \
+            scripts/validate_sitemap_discovery_contract.py \
             tests/test_materialize_sectors_v10_v1.py \
             tests/test_materialize_sectors_v10_compat_v2.py \
-            tests/test_materialize_sectors_v10_compat_v4.py
+            tests/test_materialize_sectors_v10_compat_v4.py \
+            tests/test_institutional_route_hubs_v1.py
           python -m unittest -v \
             tests.test_materialize_sectors_v10_v1 \
             tests.test_materialize_sectors_v10_compat_v2 \
-            tests.test_materialize_sectors_v10_compat_v4
+            tests.test_materialize_sectors_v10_compat_v4 \
+            tests.test_institutional_route_hubs_v1
 
       - name: Materialize canonical v4 public pages
         run: |
           set -euo pipefail
           python scripts/materialize_sectors_v10_compat_v4.py .
           python scripts/materialize_sectors_v10_compat_v4.py . --check
+
+      - name: Publish complete sitemap inventory and verify discovery
+        run: |
+          set -euo pipefail
+          python scripts/publish_complete_sitemap_v360.py . --minimum-urls 1
+          python scripts/validate_sitemap_discovery_contract.py
+          python -m unittest -v tests.test_institutional_route_hubs_v1
 
       - name: Verify dynamic inventory and complete clinical guide
         run: |
@@ -138,19 +155,25 @@ jobs:
           })
           PY
 
-      - name: Commit generated source pages
+      - name: Commit generated source pages and discovery inventory
         if: github.event_name != 'pull_request'
         id: commit
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add evidence-guides api/sectors-v10-publication-v1.json
+          git add \
+            evidence-guides \
+            api/sectors-v10-publication-v1.json \
+            sitemap.xml \
+            sitemap-index.xml \
+            robots.txt \
+            api/sitemap-completeness-v360.json
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No materialization changes."
+            echo "No materialization or discovery changes."
           else
-            git commit -m "content: materialize governed sectors-v10 evidence guides"
+            git commit -m "content: materialize governed sectors-v10 guides and sitemap inventory"
             git push origin HEAD:main
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
