@@ -1,16 +1,21 @@
 name: Activate every professional assessment workflow
 
 # Historical one-shot activation workflow retained for auditability.
-# It is intentionally manual-only and read-only: production source changes
-# must be made through reviewed commits, not by CI mutating or deleting files.
+# It is intentionally read-only: production source changes must be made
+# through reviewed commits, never by CI mutating or deleting repository files.
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/provider-demo-activate-all-workflows.yml"
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/professional-master-registry.js"
 
 permissions:
   contents: read
 
 concurrency:
-  group: provider-demo-professional-activation-audit
+  group: provider-demo-professional-activation-audit-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
