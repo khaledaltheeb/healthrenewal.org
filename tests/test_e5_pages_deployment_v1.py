@@ -3,7 +3,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 workflow = (ROOT / '.github/workflows/deploy-semantic-search-live.yml').read_text(encoding='utf-8')
-robots = (ROOT / 'robots.txt').read_text(encoding='utf-8')
 
 required = (
     'name: Validate multilingual E5 package',
@@ -37,12 +36,10 @@ for forbidden in (
 ):
     assert forbidden not in workflow, forbidden
 
-assert robots.count('Sitemap: https://healthrenewal.org/sitemap-index.xml') == 1
-assert 'Sitemap: https://healthrenewal.org/sitemap.xml' not in robots
 print({
     'passed': True,
     'contract': 'e5-source-validator-v2',
     'required_contracts': len(required),
-    'sitemap_policy': 'index-only',
     'source_mutation': False,
+    'sitemap_contract': 'out-of-scope; validated by dedicated discovery gates',
 })
