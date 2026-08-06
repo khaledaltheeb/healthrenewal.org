@@ -73,7 +73,7 @@ class IrisSpecialEducationResourceContract(unittest.TestCase):
         attribution = self.registry["rights"]["required_attribution_ar"]
         self.assertIn("IRIS Center", attribution)
         self.assertIn("Health Renewal", attribution)
-        self.assertIn("الموقع", attribution)
+        self.assertIn("موقع IRIS الرسمي", attribution)
 
     def test_page_has_publication_metadata_and_accessibility(self):
         self.assertIn('<html lang="ar" dir="rtl">', self.html)
