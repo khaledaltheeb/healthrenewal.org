@@ -1,8 +1,8 @@
 # Site-wide SEO and search-intent audit
 
 - Scope: `all`
-- URLs: **796**
-- Passed: **796**
+- URLs: **801**
+- Passed: **801**
 - Failed: **0**
 - Errors: **0**
 - Warnings: **0**
