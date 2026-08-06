@@ -21,8 +21,8 @@ required = (
     "embeddingsJsonSha256",
     "embeddingSha256",
     "base64.b64decode",
-    "documentCount'] > 0",
-    "chunkCount'] > 0",
+    'manifest["documentCount"] > 0',
+    'manifest["chunkCount"] > 0',
 )
 for fragment in required:
     assert fragment in workflow, fragment
