@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>دليل اكتشاف الكتب المفتوحة والتحقق من رخصتها | منصة روافد</title>
+  <meta name="description" content="دليل عربي عملي لاكتشاف الكتب المفتوحة عبر بيانات Thoth، والتحقق من الناشر والرخصة والإصدار قبل القراءة أو التنزيل أو إعادة الاستخدام.">
+  <link rel="canonical" href="https://healthrenewal.org/resources/open-books-discovery/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="دليل اكتشاف الكتب المفتوحة والتحقق من رخصتها">
+  <meta property="og:description" content="منهج عملي يميز بين البيانات الوصفية المفتوحة وحقوق الكتاب نفسه، ويمنع الروابط غير الموثقة والاستخدام الخاطئ للرخص.">
+  <meta property="og:url" content="https://healthrenewal.org/resources/open-books-discovery/">
+  <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://healthrenewal.org/resources/open-books-discovery/#webpage",
+        "url": "https://healthrenewal.org/resources/open-books-discovery/",
+        "name": "دليل اكتشاف الكتب المفتوحة والتحقق من رخصتها",
+        "inLanguage": "ar",
+        "dateModified": "2026-08-05",
+        "isPartOf": {"@id": "https://healthrenewal.org/#website"},
+        "about": ["الكتب المفتوحة", "البيانات الوصفية", "التراخيص المفتوحة", "Thoth Open Metadata"]
+      },
+      {
+        "@type": "HowTo",
+        "name": "كيف تتحقق من كتاب مفتوح قبل استخدامه؟",
+        "inLanguage": "ar",
+        "step": [
+          {"@type": "HowToStep", "name": "ابدأ من السجل الوصفي", "text": "استخدم العنوان والمعرف والناشر للوصول إلى صفحة العمل الأصلية."},
+          {"@type": "HowToStep", "name": "تحقق من الناشر", "text": "طابق اسم الناشر ومعرفاته وصفحة الهبوط الرسمية."},
+          {"@type": "HowToStep", "name": "اقرأ الرخصة", "text": "افتح رابط الرخصة وتحقق من أنها تخص هذا الإصدار وهذا الملف تحديدًا."},
+          {"@type": "HowToStep", "name": "افصل بين البيانات والكتاب", "text": "رخصة CC0 للبيانات الوصفية لا تمنح تلقائيًا حق استخدام الغلاف أو النص الكامل."},
+          {"@type": "HowToStep", "name": "سجل التحقق", "text": "احفظ تاريخ التحقق والرابط القانوني وحالة الوصول قبل نشر الإحالة."}
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "الرئيسية", "item": "https://healthrenewal.org/"},
+          {"@type": "ListItem", "position": 2, "name": "الموارد", "item": "https://healthrenewal.org/resources/"},
+          {"@type": "ListItem", "position": 3, "name": "اكتشاف الكتب المفتوحة", "item": "https://healthrenewal.org/resources/open-books-discovery/"}
+        ]
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; --bg:#f6fbf9; --surface:#fff; --text:#17332d; --muted:#4b625d; --line:#c9ddd7; --accent:#0b6b5d; --focus:#ffbf47; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.8; }
+    a { color:#075c50; text-underline-offset:.2em; }
+    a:focus-visible, button:focus-visible { outline:3px solid var(--focus); outline-offset:3px; }
+    .skip-link { position:absolute; inset-inline-start:1rem; top:-5rem; background:#111; color:#fff; padding:.75rem 1rem; z-index:20; }
+    .skip-link:focus { top:1rem; }
+    header, main, footer { width:min(72rem, calc(100% - 2rem)); margin-inline:auto; }
+    header { padding:2rem 0 1rem; }
+    nav[aria-label="مسار الصفحة"] ol { display:flex; flex-wrap:wrap; gap:.5rem; list-style:none; padding:0; margin:0 0 1rem; font-size:.95rem; }
+    nav[aria-label="مسار الصفحة"] li:not(:last-child)::after { content:"←"; margin-inline-start:.5rem; color:var(--muted); }
+    .hero, section, aside { background:var(--surface); border:1px solid var(--line); border-radius:1rem; padding:clamp(1rem,3vw,2rem); margin-block:1rem; }
+    h1 { font-size:clamp(2rem,5vw,3.4rem); line-height:1.25; margin:.2rem 0 1rem; }
+    h2 { font-size:clamp(1.45rem,3vw,2rem); line-height:1.35; }
+    h3 { font-size:1.18rem; }
+    .lede { font-size:1.15rem; max-width:68ch; }
+    .notice { border-inline-start:.4rem solid var(--accent); background:#edf8f5; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(16rem,1fr)); gap:1rem; }
+    .card { border:1px solid var(--line); border-radius:.8rem; padding:1rem; }
+    .checklist li, .steps li { margin-block:.55rem; }
+    code { direction:ltr; unicode-bidi:embed; }
+    .meta { color:var(--muted); font-size:.95rem; }
+    .print-only { display:none; }
+    footer { padding:1rem 0 3rem; color:var(--muted); }
+    @media (max-width: 38rem) { body { font-size:1rem; } .hero, section, aside { border-radius:.75rem; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+    @media print {
+      body { background:#fff; color:#000; font-size:11pt; }
+      .skip-link, nav { display:none !important; }
+      header, main, footer { width:100%; }
+      .hero, section, aside, .card { border:1px solid #777; break-inside:avoid; box-shadow:none; }
+      a::after { content:" (" attr(href) ")"; font-size:9pt; word-break:break-all; }
+      .print-only { display:block; }
+    }
+  </style>
+<meta name="copyright" content="© 2026 Khaled Altheeb — منصة روافد">
+<meta name="rights" content="All rights reserved">
+<link rel="license" href="../../copyright/">
+<!-- pt-platform-shell:v1 -->
+<link rel="stylesheet" href="../../assets/platform/platform-core.css?v=1.1.0">
+<script defer src="../../assets/platform/platform-core.js?v=1.1.0"></script>
+</head>
+<body class="pt-platform" data-pt-normalized="1.1.0" data-pt-enhancer="true">
+  <a class="skip-link" href="#main-content">تجاوز إلى المحتوى</a>
+  <header>
+    <nav aria-label="مسار الصفحة">
+      <ol>
+        <li><a href="/">الرئيسية</a></li>
+        <li><a href="/resources/">الموارد</a></li>
+        <li aria-current="page">اكتشاف الكتب المفتوحة</li>
+      </ol>
+    </nav>
+    <div class="hero">
+      <p class="meta">مورد تعليمي ومهني — آخر تحقق: 5 أغسطس 2026</p>
+      <h1>اكتشف الكتاب المفتوح، ثم تحقّق من حق استخدامه</h1>
+      <p class="lede">يبدأ البحث من البيانات الوصفية، لكنه لا ينتهي عندها. هذا الدليل يساعدك على التمييز بين سجل مفتوح للاكتشاف وبين كتاب أو غلاف أو ملف قد تكون له حقوق وشروط مختلفة.</p>
+    </div>
+  </header>
+
+  <main id="main-content" tabindex="-1">
+    <aside class="notice" aria-labelledby="boundary-title">
+      <h2 id="boundary-title">القاعدة الأهم</h2>
+      <p><strong>رخصة CC0 لسجل البيانات لا تعني أن نص الكتاب أو غلافه أو ملفه قابل لإعادة الاستخدام تلقائيًا.</strong> يجب فتح صفحة الناشر أو الكتاب الأصلية، وقراءة رخصة ذلك الإصدار، والتأكد من أن رابط التنزيل قانوني وحديث.</p>
+    </aside>
+
+    <section aria-labelledby="what-is-thoth">
+      <h2 id="what-is-thoth">ما الذي يقدمه Thoth؟</h2>
+      <p>يوفر Thoth Open Metadata فهارس وواجهات مفتوحة للبيانات الوصفية الخاصة بالكتب والناشرين. تفيد هذه البيانات في العثور على عنوان العمل، الناشر، اللغة، المعرّفات، تاريخ النشر، والرخصة المسجلة. وهي نقطة بدء جيدة لبناء فهرس اكتشاف عربي، لكنها ليست تقييمًا علميًا للكتاب ولا ضمانًا لاستمرار رابط الملف.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>ما يمكن استخدامه</h3>
+          <p>الحقول الوصفية المنشورة وفق CC0، مثل العنوان والمعرف والناشر والرخصة المسجلة وروابط المصدر.</p>
+        </article>
+        <article class="card">
+          <h3>ما يحتاج تحققًا منفصلًا</h3>
+          <p>الغلاف، النص الكامل، ملفات PDF أو EPUB، جودة المحتوى، الإتاحة، وأي حق في الترجمة أو إعادة النشر.</p>
+        </article>
+        <article class="card">
+          <h3>ما لا يجوز ادعاؤه</h3>
+          <p>أن وجود الكتاب في Thoth يعني اعتماده من المنصة، أو أن Health Renewal ناشره، أو أن Thoth راجع الوصف العربي.</p>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="steps-title">
+      <h2 id="steps-title">خمس خطوات قبل إضافة أي كتاب</h2>
+      <ol class="steps">
+        <li><strong>ثبّت هوية العمل:</strong> طابق العنوان، المؤلف، الناشر، ISBN أو DOI، وتاريخ النشر.</li>
+        <li><strong>افتح صفحة المصدر القانوني:</strong> استخدم صفحة الناشر أو صفحة هبوط العمل، لا رابط ملف مجهول أو مرآة غير رسمية.</li>
+        <li><strong>تحقق من الرخصة:</strong> تأكد من أن رابط الرخصة يخص الإصدار والملف المعروضين، وسجّل أي قيود مثل عدم الاستخدام التجاري أو المشاركة بالمثل.</li>
+        <li><strong>افصل الحقوق:</strong> قد تكون البيانات الوصفية CC0، بينما الغلاف محمي، والنص الكامل برخصة أخرى، والترجمة بحاجة إلى إذن منفصل.</li>
+        <li><strong>سجّل القرار:</strong> احفظ تاريخ التحقق، حالة الرابط، مصدر الرخصة، سبب الإدراج، وموعد المراجعة التالية.</li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="record-title">
+      <h2 id="record-title">بطاقة الفحص المقترحة</h2>
+      <ul class="checklist">
+        <li>العنوان الكامل والإصدار.</li>
+        <li>المؤلف أو المحرر والناشر.</li>
+        <li>ISBN أو DOI أو معرف ثابت آخر.</li>
+        <li>صفحة الهبوط الرسمية لدى الناشر.</li>
+        <li>رابط الرخصة واسمها الكامل.</li>
+        <li>حالة الوصول: قراءة على الويب، PDF، EPUB، أو بيانات وصفية فقط.</li>
+        <li>لغة الكتاب وتاريخ النشر أو آخر تحديث.</li>
+        <li>ميزات الإتاحة المعلنة، إن وجدت، مع مصدرها.</li>
+        <li>وصف عربي أصلي يوضح موضوع الكتاب وحدود فائدته.</li>
+        <li>تاريخ التحقق وموعد إعادة الفحص.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="health-quality-title">
+      <h2 id="health-quality-title">عندما يكون الكتاب صحيًا أو نفسيًا</h2>
+      <p>الترخيص المفتوح لا يساوي الدقة العلمية. قبل إبراز كتاب صحي، راجع سنة النشر، مؤهلات المؤلفين، منهجية الكتاب، المراجع، تضارب المصالح، والسياق الجغرافي والقانوني. لا تستخدم الكتاب المفتوح لتقديم تشخيص ذاتي أو جرعات أو قرار علاجي فردي، ولا تقدمه بديلًا عن التقييم المهني.</p>
+      <p>يجب أن يوضح الوصف العربي ما الذي يساعد الكتاب على فهمه، وما الذي لا يثبته، ولمن قد يكون مناسبًا، وما الذي يحتاج تحديثًا أو تكييفًا محليًا.</p>
+    </section>
+
+    <section aria-labelledby="publisher-title">
+      <h2 id="publisher-title">لا تنشئ ناشرًا باسم طرف آخر</h2>
+      <p>Health Renewal منصة اكتشاف وتوجيه، وليست الناشر الأصلي للكتب المدرجة. لا يجوز إنشاء سجل ناشر باسم جهة أخرى أو إدارة بياناتها داخل Thoth إلا بإذن صريح من الناشر وتنسيق مباشر مع Thoth. المسار السليم هو قراءة البيانات العامة، ثم إحالة القارئ إلى السجل القانوني لدى الناشر.</p>
+    </section>
+
+    <section aria-labelledby="sources-title">
+      <h2 id="sources-title">المصادر الرسمية والحقوق</h2>
+      <ul>
+        <li><a href="https://thoth.pub/docs/policies/terms-thoth-metadata" rel="external noopener">شروط بيانات Thoth الوصفية</a></li>
+        <li><a href="https://thoth.pub/books" rel="external noopener">فهرس الكتب في Thoth</a></li>
+        <li><a href="https://thoth.pub/publishers" rel="external noopener">فهرس الناشرين في Thoth</a></li>
+        <li><a href="https://thoth.pub/docs" rel="external noopener">وثائق Thoth وواجهات البيانات</a></li>
+        <li><a href="https://creativecommons.org/publicdomain/zero/1.0/" rel="license external noopener">نص CC0 1.0</a></li>
+      </ul>
+      <p class="meta">تعتمد بيانات الاكتشاف الوصفية على Thoth Open Metadata وتخضع لـCC0 1.0. تبقى حقوق الكتاب والغلاف والنص الكامل ورخصته لدى أصحابها كما تظهر في المصدر الأصلي. لا توجد شراكة أو عضوية أو مراجعة خارجية من Thoth أو الناشرين.</p>
+    </section>
+
+    <section aria-labelledby="related-title">
+      <h2 id="related-title">مسارات داخلية مرتبطة</h2>
+      <ul>
+        <li><a href="/research/">المجلة والبحث العلمي</a></li>
+        <li><a href="/resources/">مكتبة الموارد</a></li>
+        <li><a href="/accessibility/">الإتاحة والوصول إلى المعلومات</a></li>
+        <li><a href="/about/editorial-policy/">السياسة التحريرية وحدود المراجعة</a></li>
+      </ul>
+    </section>
+
+    <p class="print-only">نسخة مطبوعة من دليل اكتشاف الكتب المفتوحة — healthrenewal.org</p>
+  </main>
+
+  <footer>
+    <p>حالة المراجعة: مراجعة داخلية أولية. المراجعة التالية مقررة في 5 نوفمبر 2026 أو عند تغير شروط Thoth.</p>
+  </footer>
+</body>
+</html>

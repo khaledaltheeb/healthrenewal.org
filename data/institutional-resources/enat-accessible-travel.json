@@ -1,0 +1,59 @@
+{
+  "resource_id": "enat-accessible-travel",
+  "title_ar": "موارد ENAT للتخطيط للسفر الميسّر",
+  "provider": "European Network for Accessible Tourism (ENAT)",
+  "classification": "link-and-attribution-only",
+  "permission_basis": "written-permission-recorded-in-issue-948",
+  "verified_at": "2026-08-05",
+  "next_review_at": "2026-11-05",
+  "review_status": "internal-editorial-review",
+  "allowed": [
+    "link_to_official_resources",
+    "publish_original_arabic_guidance"
+  ],
+  "prohibited": [
+    "copy_or_republish_protected_content",
+    "translate_source_documents_without_separate_permission",
+    "use_enat_logo",
+    "claim_membership_partnership_endorsement_or_certification",
+    "guarantee_accessibility_of_any_destination_or_service"
+  ],
+  "sources": [
+    {
+      "id": "enat-guide",
+      "name": "ENAT accessible tourism guidance",
+      "organization": "European Network for Accessible Tourism (ENAT)",
+      "url": "https://www.accessibletourism.org/?i=enat.en.news.1910",
+      "type": "official-guidance-page",
+      "scope": "Planning questions and accessibility considerations; linked for attribution and verification only.",
+      "status": "available-at-verification"
+    },
+    {
+      "id": "enat-phrasebook",
+      "name": "ENAT accessible tourism phrasebook resource",
+      "organization": "European Network for Accessible Tourism (ENAT)",
+      "url": "https://www.accessibletourism.org/?i=enat.en.reports.2064",
+      "type": "official-resource-page",
+      "scope": "Communication preparation for accessible travel; no translation or republication of the source document.",
+      "status": "available-at-verification"
+    },
+    {
+      "id": "pantou",
+      "name": "Pantou accessible tourism directory",
+      "organization": "European Network for Accessible Tourism (ENAT)",
+      "url": "https://pantou.org/",
+      "type": "official-directory",
+      "scope": "Discovery of accessible-tourism providers; users must verify current service details directly.",
+      "status": "available-at-verification"
+    },
+    {
+      "id": "enat-home",
+      "name": "ENAT official website",
+      "organization": "European Network for Accessible Tourism (ENAT)",
+      "url": "https://www.accessibletourism.org/",
+      "type": "official-organization-website",
+      "scope": "Provider identity, current notices, and official resource discovery.",
+      "status": "available-at-verification"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0.0",
+  "resource_id": "cochrane-evidence-literacy",
+  "title_ar": "مسار قراءة الدليل الصحي",
+  "provider": {
+    "name": "Cochrane",
+    "official_url": "https://www.cochrane.org/",
+    "relationship": "independent-reference-only",
+    "partnership_or_endorsement": false
+  },
+  "rights": {
+    "classification": "link-and-attribution-only",
+    "allowed": [
+      "link_to_official_public_resource_pages",
+      "publish_original_arabic_orientation_and_learning_plan",
+      "name_cochrane_as_the_original_resource_provider"
+    ],
+    "prohibited": [
+      "copy_or_translate_course_content",
+      "host_quizzes_audio_video_or_module_text",
+      "use_logos_or_trademarks_as_affiliation",
+      "bulk_download_or_republish_structured_data",
+      "claim_partnership_affiliate_status_or_external_review"
+    ],
+    "terms_url": "https://www.cochrane.org/website-terms-and-conditions",
+    "terms_last_updated_as_published": "2024-08-07",
+    "attribution_ar": "مورد التعلم الأصلي مقدم من Cochrane. أعدّت منصة روافد هذا المسار العربي المستقل للتوجيه والربط فقط، ولا توجد شراكة أو مصادقة.",
+    "license_note": "No open-content license is asserted for course materials. Link to the original provider and follow its current terms."
+  },
+  "verification": {
+    "verified_at": "2026-08-05",
+    "next_review_at": "2026-11-05",
+    "review_status": "internally-reviewed",
+    "external_review": "not-completed",
+    "verification_notes": [
+      "Evidence Essentials is presented by Cochrane as a free introductory course requiring a free account.",
+      "The official page currently lists six learning modules.",
+      "Access, module details, durations and terms may change; users must verify them on the official page."
+    ]
+  },
+  "audiences": [
+    "patients-and-families",
+    "caregivers",
+    "students",
+    "health-content-editors",
+    "practitioners-seeking-foundational-evidence-literacy"
+  ],
+  "official_resources": [
+    {
+      "id": "evidence-essentials",
+      "title": "Evidence Essentials",
+      "url": "https://www.cochrane.org/learn/courses-and-resources/evidence-essentials",
+      "access": "free-account-required",
+      "use_in_path": "foundational-learning"
+    },
+    {
+      "id": "getting-started-evidence",
+      "title": "Getting started with evidence",
+      "url": "https://www.cochrane.org/learn/courses-and-resources/getting-started-evidence",
+      "access": "public-page",
+      "use_in_path": "orientation"
+    },
+    {
+      "id": "courses-resources",
+      "title": "Courses and resources",
+      "url": "https://www.cochrane.org/learn/courses-and-resources",
+      "access": "mixed",
+      "use_in_path": "continued-learning"
+    },
+    {
+      "id": "evidence-search",
+      "title": "Cochrane evidence",
+      "url": "https://www.cochrane.org/evidence",
+      "access": "public-page",
+      "use_in_path": "practice-finding-evidence"
+    },
+    {
+      "id": "website-terms",
+      "title": "Website Terms and Conditions",
+      "url": "https://www.cochrane.org/website-terms-and-conditions",
+      "access": "public-page",
+      "use_in_path": "rights-and-conditions"
+    }
+  ],
+  "learning_outcomes": [
+    "turn_a_health_concern_into_a_clear_answerable_question",
+    "distinguish_trials_reviews_guidelines_and_expert_opinion",
+    "identify_comparator_outcomes_follow_up_and_population",
+    "read_absolute_effects_and_uncertainty_without_overclaiming",
+    "check_harms_conflicts_limits_and_applicability",
+    "separate_general_evidence_from_individual_medical_advice"
+  ],
+  "safety": {
+    "not_medical_advice": true,
+    "not_a_diagnostic_tool": true,
+    "not_a_replacement_for_shared_decision_making": true,
+    "urgent_care_note": "Urgent symptoms require local emergency or clinical services, not evidence searching."
+  },
+  "publication": {
+    "canonical_url": "https://healthrenewal.org/learning-paths/how-to-read-health-evidence/",
+    "source_path": "learning-paths/how-to-read-health-evidence/index.html",
+    "status": "candidate"
+  }
+}
