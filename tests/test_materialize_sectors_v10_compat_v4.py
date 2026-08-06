@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import re
 import sys
 import unittest
 from pathlib import Path
@@ -127,6 +128,14 @@ class MaterializeSectorsV10CompatV4Tests(unittest.TestCase):
             '<link rel="canonical" href="https://healthrenewal.org/evidence-guides/clinical-anxiety/">',
             page,
         )
+        title = re.search(r"<title>(.*?)</title>", page, flags=re.DOTALL)
+        self.assertIsNotNone(title)
+        self.assertEqual(
+            title.group(1),
+            "القلق والهلع والوسواس: الفروق وطلب المساعدة | منصة روافد",
+        )
+        self.assertLessEqual(len(title.group(1)), 60)
+        self.assertIn(self.source["title"], page)
         self.assertIn('"MedicalWebPage"', page)
         self.assertIn('"CollectionPage"', page)
         self.assertEqual(page.count('id="practical-questions"'), 1)
@@ -142,6 +151,13 @@ class MaterializeSectorsV10CompatV4Tests(unittest.TestCase):
         self.assertIn("علامات الخطر التي تستلزم تصعيدًا عاجلًا", page)
         self.assertNotIn("معاقين", page)
         self.assertNotIn("شراكة مع منظمة الصحة العالمية", page)
+
+    def test_unknown_key_does_not_receive_an_override(self) -> None:
+        page = "<html><head><title>عنوان أصلي | منصة روافد</title></head></html>"
+        self.assertEqual(
+            v4._apply_seo_title_override(page, {"key": "unreviewed-page"}),
+            page,
+        )
 
     def test_canonical_mismatch_remains_blocking(self) -> None:
         payload = copy.deepcopy(self.source)
