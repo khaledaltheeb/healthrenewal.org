@@ -1,0 +1,170 @@
+name: Validate Issue 20 cognitive distinctness v32
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/harden_cognitive_distinctness_v32.py'
+      - 'scripts/test_cognitive_distinctness_v32.mjs'
+      - 'scripts/e2e_all_labs_v22.mjs'
+      - 'tests/test_cognitive_distinctness_v32.py'
+      - '.github/workflows/validate-issue20-cognitive-distinctness-v32.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/harden_cognitive_distinctness_v32.py'
+      - 'scripts/test_cognitive_distinctness_v32.mjs'
+      - 'scripts/e2e_all_labs_v22.mjs'
+      - 'tests/test_cognitive_distinctness_v32.py'
+      - '.github/workflows/validate-issue20-cognitive-distinctness-v32.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: issue20-cognitive-distinctness-v32-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cognitive-distinctness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Compile the cognitive patch and audits
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/harden_cognitive_distinctness_v32.py tests/test_cognitive_distinctness_v32.py
+          node --check scripts/test_cognitive_distinctness_v32.mjs
+          node --check scripts/e2e_all_labs_v22.mjs
+
+      - name: Run patch coverage disclosure and idempotence tests
+        run: python -m unittest -v tests/test_cognitive_distinctness_v32.py
+
+      - name: Restore production generators and sources
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          python scripts/verify_enricher_v7.py
+          python scripts/verify_expander_v9.py
+
+      - name: Build the exact production cognitive surface
+        run: |
+          set -euxo pipefail
+          python build_site.py
+          python enrich_site_v7.py
+          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+          python scripts/scale_site_v8.py
+          python expand_site_v9.py
+          python scripts/design_content_v10.py
+          python scripts/apply_contrast_v11.py _site
+          python scripts/expand_v12_direct.py _site
+          python scripts/performance_hotfix_v14.py _site
+          python scripts/optimize_site_performance_v14.py _site
+          python scripts/strip_nonlab_runtime_v14.py _site
+          python scripts/complete_core_sections_v15.py _site
+          python scripts/upgrade_cognitive_batch1_v22.py _site
+          python scripts/upgrade_cognitive_batch2_v22.py _site
+          python scripts/fix_initial_cognitive_variation_v25.py _site
+          python scripts/fix_stroop_and_variation_v23.py _site
+          python scripts/complete_cognitive_remaining_v24.py _site
+          python scripts/fix_cognitive_quality_v26.py _site
+          python scripts/harden_lab_runtime_v32.py _site
+          python scripts/harden_cognitive_distinctness_v32.py _site
+          python scripts/enrich_lab_content_v32.py _site
+          python scripts/audit_all_labs_v22.py _site
+          node --check _site/assets/js/lab-v12.js
+
+      - name: Enforce the written cognitive contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('_site/api')
+          distinct=json.loads((root/'cognitive-distinctness-v32.json').read_text(encoding='utf-8'))
+          depth=json.loads((root/'lab-depth-v32.json').read_text(encoding='utf-8'))
+          static=json.loads((root/'all-labs-v22.json').read_text(encoding='utf-8'))
+          assert distinct['status']=='passed', distinct
+          assert distinct['specialized_mode_count']==12 and distinct['missing_pages']==[], distinct
+          assert all(distinct[key] is True for key in (
+              'single_response_reaction','sustained_visual_separated','category_semantic_separated',
+              'attention_switch_metadata','span_study_hidden','span_unique_tokens'
+          )), distinct
+          assert depth['status']=='passed' and depth['cognitive_pages']==53 and depth['assessment_pages']==40, depth
+          assert depth['missing_task_profiles']==[] and depth['pages_below_depth']==[], depth
+          assert static['cognitive_count']==53 and static['assessment_count']==40 and static['error_count']==0, static
+          print({'specialized_routes':12,'cognitive_pages':53,'depth_minimum':depth['minimum_actual_words']})
+          PY
+
+      - name: Generate and verify 15900 trials across all 53 tools
+        run: |
+          set -euxo pipefail
+          AUDIT_SITE_ROOT=_site AUDIT_OUT_DIR=_site/api node scripts/test_cognitive_distinctness_v32.mjs
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/cognitive-distinctness-test-v32.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed', report
+          assert report['tools']==53 and report['specializedRoutes']==12, report
+          assert report['checkedTrials']==15900, report
+          assert report['exactDuplicateRouteCount']==0 and report['exactDuplicateRoutes']==[], report
+          assert report['errors']==[], report
+          print({'tools':53,'trials':'15900/15900','exact_duplicate_routes':0})
+          PY
+
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Complete every tool on mobile and desktop
+        run: |
+          set -euxo pipefail
+          python -m http.server 8000 --directory _site >/tmp/issue20-cognitive-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/ >/dev/null && break; sleep 1; done
+          AUDIT_BASE_URL=http://127.0.0.1:8000/ AUDIT_SITE_ROOT=_site AUDIT_OUT_DIR=_site/api node scripts/e2e_all_labs_v22.mjs
+
+      - name: Enforce full browser completion evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/all-labs-e2e-v22.json').read_text(encoding='utf-8'))
+          assert report['version']==32, report
+          assert report['assessmentDefinitions']==40 and report['cognitiveDefinitions']==53, report
+          assert report['expectedRuns']==186 and report['completedRuns']==186, report
+          assert report['passedRuns']==186 and report['failedRuns']==0 and report['errorCount']==0, report
+          print({'browser_runs':'186/186','profiles':['mobile','desktop']})
+          PY
+
+      - name: Upload cognitive evidence and review pages
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-20-cognitive-distinctness-v32-evidence
+          path: |
+            _site/cognitive-lab
+            _site/assets/js/lab-v12.js
+            _site/api/cognitive-distinctness-v32.json
+            _site/api/cognitive-distinctness-test-v32.json
+            _site/api/lab-depth-v32.json
+            _site/api/all-labs-v22.json
+            _site/api/all-labs-e2e-v22.json
+            /tmp/issue20-cognitive-http.log
+          if-no-files-found: warn
+          retention-days: 14
