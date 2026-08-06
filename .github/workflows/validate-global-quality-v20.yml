@@ -4,10 +4,14 @@ on:
   push:
     branches: ["main"]
     paths:
+      - "assets/**"
+      - "content/**"
+      - "scripts/**"
+      - "tests/**"
       - "provider-assessment-demo/**"
+      - "index.html"
+      - "manifest.webmanifest"
       - ".github/workflows/validate-global-quality-v20.yml"
-  pull_request:
-    branches: ["main"]
   workflow_dispatch:
 
 permissions:

@@ -3,6 +3,26 @@ name: Validate complete tips assessments and cognitive sections v15
 on:
   pull_request:
     branches: ["main"]
+    paths:
+      - "content/v15/**"
+      - "tips/**"
+      - "assessment-lab/**"
+      - "cognitive-lab/**"
+      - "scripts/complete_core_sections_v15*.py"
+      - "scripts/verify_core_sections_v15.py"
+      - "scripts/test_lab_v15.js"
+      - ".github/workflows/validate-core-v15.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "content/v15/**"
+      - "tips/**"
+      - "assessment-lab/**"
+      - "cognitive-lab/**"
+      - "scripts/complete_core_sections_v15*.py"
+      - "scripts/verify_core_sections_v15.py"
+      - "scripts/test_lab_v15.js"
+      - ".github/workflows/validate-core-v15.yml"
   workflow_dispatch:
 
 permissions:

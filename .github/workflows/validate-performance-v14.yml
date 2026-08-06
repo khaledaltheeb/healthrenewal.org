@@ -3,6 +3,28 @@ name: Validate v14 performance hotfix
 on:
   pull_request:
     branches: ["main"]
+    paths:
+      - "scripts/performance_hotfix_v14.py"
+      - "scripts/optimize_site_performance_v14.py"
+      - "scripts/strip_nonlab_runtime_v14.py"
+      - "scripts/finalize_pwa_v14.py"
+      - "scripts/verify_performance_v14.py"
+      - "assets/**"
+      - "manifest.webmanifest"
+      - "sw.js"
+      - ".github/workflows/validate-performance-v14.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/performance_hotfix_v14.py"
+      - "scripts/optimize_site_performance_v14.py"
+      - "scripts/strip_nonlab_runtime_v14.py"
+      - "scripts/finalize_pwa_v14.py"
+      - "scripts/verify_performance_v14.py"
+      - "assets/**"
+      - "manifest.webmanifest"
+      - "sw.js"
+      - ".github/workflows/validate-performance-v14.yml"
   workflow_dispatch:
 
 permissions:
