@@ -1,0 +1,100 @@
+name: Validate Issue 20 visible topic specificity v32
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/v32/lab-methods-ar.json'
+      - 'content/v32/monitor-items/**'
+      - 'scripts/publish_monitor_items_v32.py'
+      - 'scripts/enrich_lab_content_v32.py'
+      - 'scripts/render_lab_specificity_v32.py'
+      - '.github/workflows/validate-issue20-specificity-v32.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/v32/lab-methods-ar.json'
+      - 'content/v32/monitor-items/**'
+      - 'scripts/publish_monitor_items_v32.py'
+      - 'scripts/enrich_lab_content_v32.py'
+      - 'scripts/render_lab_specificity_v32.py'
+      - '.github/workflows/validate-issue20-specificity-v32.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visible-specificity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile specificity publisher
+        run: python -m py_compile scripts/publish_monitor_items_v32.py scripts/enrich_lab_content_v32.py scripts/render_lab_specificity_v32.py
+
+      - name: Restore production generators
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+
+      - name: Build laboratory surface and render specialized visible content
+        run: |
+          set -euxo pipefail
+          python build_site.py
+          python enrich_site_v7.py
+          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+          python scripts/scale_site_v8.py
+          python expand_site_v9.py
+          python scripts/design_content_v10.py
+          python scripts/apply_contrast_v11.py _site
+          python scripts/expand_v12_direct.py _site
+          python scripts/performance_hotfix_v14.py _site
+          python scripts/optimize_site_performance_v14.py _site
+          python scripts/strip_nonlab_runtime_v14.py _site
+          python scripts/complete_core_sections_v15.py _site
+          python scripts/upgrade_cognitive_batch1_v22.py _site
+          python scripts/upgrade_cognitive_batch2_v22.py _site
+          python scripts/fix_initial_cognitive_variation_v25.py _site
+          python scripts/fix_stroop_and_variation_v23.py _site
+          python scripts/complete_cognitive_remaining_v24.py _site
+          python scripts/fix_cognitive_quality_v26.py _site
+          python scripts/publish_monitor_items_v32.py _site
+          python scripts/enrich_lab_content_v32.py _site
+          python scripts/render_lab_specificity_v32.py _site
+
+      - name: Enforce visible topic specificity
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/lab-specificity-v32.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed', report
+          assert report['monitor_pages']==36 and report['cognitive_pages']==53, report
+          assert report['minimum_monitor_specific_words']>=130, report
+          assert report['minimum_cognitive_specific_words']>=95, report
+          assert report['monitor_failures']==[] and report['cognitive_failures']==[], report
+          assert report['duplicate_specific_blocks']==0, report
+          print({'monitor':'36/36','cognitive':'53/53','monitor_specific_min':report['minimum_monitor_specific_words'],'cognitive_specific_min':report['minimum_cognitive_specific_words'],'duplicates':0})
+          PY
+
+      - name: Upload specificity evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-20-specificity-v32-evidence
+          path: |
+            _site/assessment-lab
+            _site/cognitive-lab
+            _site/api/lab-specificity-v32.json
+          if-no-files-found: warn
+          retention-days: 14
