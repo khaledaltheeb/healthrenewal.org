@@ -20,12 +20,14 @@ async function verifyPresence(page, root, slug) {
   await page.waitForSelector('.lab-data-controls-v32', { timeout: 10000 });
   const state = await page.evaluate(() => {
     const section = document.querySelector('.lab-data-controls-v32');
+    const host = document.querySelector('[data-v12-lab]');
     const buttons = [...section.querySelectorAll('button')].map(node => {
       const rect = node.getBoundingClientRect();
       return { text: node.textContent.trim(), width: rect.width, height: rect.height };
     });
     return {
       count: document.querySelectorAll('.lab-data-controls-v32').length,
+      outsideEngineHost: !!host && !host.contains(section),
       export: !!section.querySelector('[data-lab-export]'),
       print: !!section.querySelector('[data-lab-print]'),
       remove: !!section.querySelector('[data-lab-delete]'),
@@ -33,7 +35,7 @@ async function verifyPresence(page, root, slug) {
       buttons,
     };
   });
-  if (state.count !== 1 || !state.export || !state.print || !state.remove || state.live !== 'polite') {
+  if (state.count !== 1 || !state.outsideEngineHost || !state.export || !state.print || !state.remove || state.live !== 'polite') {
     throw new Error(`${route}: invalid controls ${JSON.stringify(state)}`);
   }
   if (state.buttons.some(button => button.width < 44 || button.height < 44)) {
@@ -46,13 +48,15 @@ async function verifyFunction(browser, root, slug, state) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, acceptDownloads: true, locale: 'ar-JO' });
   const page = await context.newPage();
   const requests = [];
+  let trackControlRequests = false;
   page.on('request', request => {
-    if (request.resourceType() === 'fetch' || request.resourceType() === 'xhr') requests.push(request.url());
+    if (trackControlRequests && (request.resourceType() === 'fetch' || request.resourceType() === 'xhr')) requests.push(request.url());
   });
   const route = `${root}/${slug}/`;
   await page.goto(new URL(route, base).href, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('.lab-data-controls-v32');
   await page.evaluate(({ slug, state }) => localStorage.setItem(`pterminology:v12:${slug}`, JSON.stringify(state)), { slug, state });
+  trackControlRequests = true;
 
   const downloadPromise = page.waitForEvent('download');
   await page.locator('[data-lab-export]').click();
@@ -70,11 +74,16 @@ async function verifyFunction(browser, root, slug, state) {
 
   page.once('dialog', dialog => dialog.accept());
   await page.locator('[data-lab-delete]').click();
+  await page.waitForTimeout(30);
+  const immediate = await page.evaluate(slug => localStorage.getItem(`pterminology:v12:${slug}`), slug);
+  if (immediate !== null) throw new Error(`${route}: local state not synchronously deleted`);
+  if (requests.length) throw new Error(`${route}: control actions emitted network requests ${JSON.stringify(requests)}`);
+  trackControlRequests = false;
+
   await page.waitForLoadState('domcontentloaded');
   await page.waitForSelector('.lab-data-controls-v32');
   const after = await page.evaluate(slug => localStorage.getItem(`pterminology:v12:${slug}`), slug);
-  if (after !== null) throw new Error(`${route}: local state not deleted`);
-  if (requests.length) throw new Error(`${route}: control actions emitted network requests ${JSON.stringify(requests)}`);
+  if (after !== null) throw new Error(`${route}: local state returned after reload`);
   rows.push({ route, status: 'functional', exported: suggested, deleted: true, printed: true, networkRequests: 0 });
   await context.close();
 }
