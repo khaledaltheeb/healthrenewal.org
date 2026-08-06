@@ -1,5 +1,5 @@
 {
-  "id": "self-advocacy-source-verification-v2",
+  "id": "self-advocacy-source-verification-v3",
   "page": "/learning-paths/self-advocacy/",
   "canonical": "https://healthrenewal.org/learning-paths/self-advocacy/",
   "review_status": "internally-reviewed",
@@ -19,10 +19,6 @@
       {
         "finding": "أبلغ التدقيق الأول عن غياب تنسيق رابط تجاوز المحتوى.",
         "disposition": "العقد المشترك الحالي ينشئ الرابط في assets/platform/platform-core.js بعد تثبيت معرف main، ويضبط حالتي الإخفاء والتركيز في assets/platform/platform-core.css."
-      },
-      {
-        "finding": "ظهر تحذير محتمل عن زر بلا type قرب نص مقتبس.",
-        "disposition": "لم يثبت وجود زر فعلي مخالف؛ لا يغيّر الناشر نصًا صحيحًا بناءً على إنذار غير مؤكد، وتبقى عقود الأزرار العامة ضمن اختبارات المنصة."
       }
     ],
     "enforced_checks": [
@@ -37,27 +33,22 @@
   },
   "rights_and_attribution": {
     "classification": "link-cite-and-original-arabic-summary-only",
-    "allowed": [
-      "الربط إلى المصادر الأصلية",
-      "الاستشهاد الدقيق",
-      "صياغة تحليل وأدوات عربية أصلية"
-    ],
-    "not_allowed_without_permission": [
-      "نسخ النصوص أو الجداول أو الصور",
-      "ترجمة مطولة للمحتوى المحمي",
-      "استخدام الشعارات أو ادعاء الشراكة أو التأييد أو المراجعة الخارجية"
-    ]
+    "allowed": ["الربط إلى المصادر الأصلية", "الاستشهاد الدقيق", "صياغة تحليل وأدوات عربية أصلية"],
+    "not_allowed_without_permission": ["نسخ النصوص أو الجداول أو الصور", "ترجمة مطولة للمحتوى المحمي", "استخدام الشعارات أو ادعاء الشراكة أو التأييد أو المراجعة الخارجية"]
   },
   "publication_requirements": {
     "canonical_path": "/learning-paths/self-advocacy/",
     "single_page_only": true,
-    "public_content_packages": 8,
+    "public_content_packages": 9,
     "historical_governance_records": 1,
     "current_governance_records": 1,
+    "total_evidence_files": 11,
     "standalone_pages_allowed": 0,
     "required_outputs": [
       "learning-paths/self-advocacy/index.html",
-      "api/self-advocacy-v170.json"
+      "api/self-advocacy-v170.json",
+      "api/self-advocacy-v171.json",
+      "api/self-advocacy-v172.json"
     ]
   }
 }
