@@ -5,10 +5,10 @@
     "scope": "all",
     "pages": 801,
     "indexable": 801,
-    "errors": 1,
+    "errors": 0,
     "warnings": 0,
-    "passed": 800,
-    "failed": 1,
+    "passed": 801,
+    "failed": 0,
     "by_kind": {
       "hub": 622,
       "governance": 2,
@@ -4981,23 +4981,17 @@
       "indexable": true,
       "title": "دليل التخطيط للسفر الميسّر | Health Renewal",
       "description": "دليل عربي عملي للتخطيط لسفر ميسّر: توثيق احتياجات الحركة والتواصل، والتحقق من الإقامة والنقل والأدوية والطوارئ والإلغاء قبل الدفع، مع أسئلة قابلة للقياس وخطة بديلة.",
-      "word_count": 359,
+      "word_count": 380,
       "h1": 1,
-      "h2": 7,
+      "h2": 8,
       "h3": 3,
       "questions": 17,
       "schema_types": [
         "Guide",
         "Organization"
       ],
-      "findings": [
-        {
-          "code": "internal_links",
-          "severity": "error",
-          "message": "Only 2 crawlable internal links found"
-        }
-      ],
-      "errors": 1,
+      "findings": [],
+      "errors": 0,
       "warnings": 0
     },
     {

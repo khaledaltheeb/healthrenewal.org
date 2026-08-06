@@ -2,12 +2,9 @@
 
 - Scope: `all`
 - URLs: **801**
-- Passed: **800**
-- Failed: **1**
-- Errors: **1**
+- Passed: **801**
+- Failed: **0**
+- Errors: **0**
 - Warnings: **0**
 
 ## Failed URLs
-
-### https://healthrenewal.org/guides/accessible-travel-planning/
-- `internal_links` — Only 2 crawlable internal links found
