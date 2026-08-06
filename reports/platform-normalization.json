@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-08-05T19:51:09.966205+00:00",
+  "generated_at": "2026-08-06T03:43:58.120275+00:00",
   "mode": "write",
   "root": "/home/runner/work/healthrenewal.org/healthrenewal.org",
   "runtime": {
@@ -11,12 +11,12 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 809,
-  "html_pages_normalized_or_current": 808,
+  "html_pages_seen": 811,
+  "html_pages_normalized_or_current": 810,
   "counts": {
-    "current": 800,
-    "updated": 8,
-    "skipped": 1
+    "current": 809,
+    "skipped": 1,
+    "updated": 1
   },
   "results": [
     {
@@ -26,8 +26,8 @@
     },
     {
       "path": "about/editorial-policy/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "accessibility/accessible-participation-travel/index.html",
@@ -696,6 +696,11 @@
     },
     {
       "path": "evidence-guides/supported-decision-making-transition-guide/index.html",
+      "status": "current",
+      "detail": ""
+    },
+    {
+      "path": "family-guide/assistive-technology-selection/index.html",
       "status": "current",
       "detail": ""
     },
@@ -3196,8 +3201,8 @@
     },
     {
       "path": "research/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "sections/index.html",
@@ -3611,33 +3616,33 @@
     },
     {
       "path": "special-needs/conditions/cerebral-palsy/communication-education/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/cerebral-palsy/detection-diagnosis/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/cerebral-palsy/family-adulthood/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/cerebral-palsy/health-lifespan/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/cerebral-palsy/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/cerebral-palsy/movement-rehabilitation/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/conditions/fragile-x-syndrome/behavior-intervention/index.html",
@@ -3683,6 +3688,11 @@
       "path": "special-needs/conditions/rett-syndrome/index.html",
       "status": "current",
       "detail": ""
+    },
+    {
+      "path": "special-needs/guides/communication/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
     },
     {
       "path": "special-needs/index.html",
