@@ -5,8 +5,8 @@
   "base_urls": [
     "https://healthrenewal.org/"
   ],
-  "pages": 801,
-  "indexable": 801,
+  "pages": 803,
+  "indexable": 803,
   "applied": 0,
   "changed": 0,
   "failed": 0,
@@ -8893,6 +8893,20 @@
       "error": ""
     },
     {
+      "url": "https://healthrenewal.org/safety/",
+      "route": "/safety/",
+      "path": "safety/index.html",
+      "kind": "hub",
+      "indexable": true,
+      "h1": 1,
+      "h2": 7,
+      "h3": 8,
+      "questions": 12,
+      "minimum_questions": 2,
+      "changed": false,
+      "error": ""
+    },
+    {
       "url": "https://healthrenewal.org/sections/",
       "route": "/sections/",
       "path": "sections/index.html",
@@ -9938,6 +9952,20 @@
       "h2": 20,
       "h3": 20,
       "questions": 14,
+      "minimum_questions": 2,
+      "changed": false,
+      "error": ""
+    },
+    {
+      "url": "https://healthrenewal.org/services/",
+      "route": "/services/",
+      "path": "services/index.html",
+      "kind": "hub",
+      "indexable": true,
+      "h1": 1,
+      "h2": 6,
+      "h3": 13,
+      "questions": 7,
       "minimum_questions": 2,
       "changed": false,
       "error": ""

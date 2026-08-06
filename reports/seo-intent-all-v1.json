@@ -3,14 +3,14 @@
     "contract": "sitewide-semantic-seo-search-intent-v1",
     "generated_at": "2026-08-01T00:00:00+00:00",
     "scope": "all",
-    "pages": 801,
-    "indexable": 801,
+    "pages": 803,
+    "indexable": 803,
     "errors": 0,
     "warnings": 0,
-    "passed": 801,
+    "passed": 803,
     "failed": 0,
     "by_kind": {
-      "hub": 622,
+      "hub": 624,
       "governance": 2,
       "tool": 30,
       "family_condition": 64,
@@ -15814,6 +15814,26 @@
       "warnings": 0
     },
     {
+      "url": "https://healthrenewal.org/safety/",
+      "path": "safety/index.html",
+      "kind": "hub",
+      "indexable": true,
+      "title": "خطة السلامة وطلب المساعدة | منصة روافد",
+      "description": "دليل عربي منظم لبناء خطة سلامة شخصية، رصد إشارات التحذير، طلب المساعدة، تقليل الأخطار، والاستعداد للتقييم المهني دون تشخيص ذاتي أو أرقام طوارئ غير موثقة.",
+      "word_count": 675,
+      "h1": 1,
+      "h2": 7,
+      "h3": 8,
+      "questions": 12,
+      "schema_types": [
+        "Audience",
+        "MedicalWebPage"
+      ],
+      "findings": [],
+      "errors": 0,
+      "warnings": 0
+    },
+    {
       "url": "https://healthrenewal.org/sections/",
       "path": "sections/index.html",
       "kind": "hub",
@@ -17404,6 +17424,26 @@
         "Article",
         "Audience",
         "Organization"
+      ],
+      "findings": [],
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "url": "https://healthrenewal.org/services/",
+      "path": "services/index.html",
+      "kind": "hub",
+      "indexable": true,
+      "title": "دليل الخدمات والمسارات | منصة روافد",
+      "description": "دليل مؤسسي لاختيار مسارات منصة روافد: الفهم العلمي، الأدوات اليومية، التقييمات الآمنة، أدلة الأسرة، ذوو الاحتياجات الخاصة، مقدمو الخدمة، والتعلم المهني، مع معايير اختيار خدمة خارجية.",
+      "word_count": 750,
+      "h1": 1,
+      "h2": 6,
+      "h3": 13,
+      "questions": 7,
+      "schema_types": [
+        "CollectionPage",
+        "ItemList"
       ],
       "findings": [],
       "errors": 0,
