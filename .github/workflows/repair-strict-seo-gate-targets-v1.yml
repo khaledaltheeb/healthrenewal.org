@@ -1,0 +1,66 @@
+name: Apply targeted strict SEO gate repairs
+
+on:
+  push:
+    branches:
+      - fix/institutional-route-hubs-v1
+    paths:
+      - scripts/repair_strict_seo_gate_targets_v1.py
+      - .github/workflows/repair-strict-seo-gate-targets-v1.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: strict-seo-repair-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    if: ${{ github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[seo-repair]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/institutional-route-hubs-v1
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply deterministic repairs
+        run: python scripts/repair_strict_seo_gate_targets_v1.py
+      - name: Verify targeted contracts
+        run: |
+          python -m unittest tests.test_materialize_sectors_v10_compat_v4 -v
+          python -m unittest tests.test_institutional_route_hubs_v1 -v
+          python scripts/materialize_sectors_v10_compat_v4.py . --check
+          python scripts/audit_seo_intent_v1.py --scope all --report /tmp/seo-intent-all-v1.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path('/tmp/seo-intent-all-v1.json').read_text(encoding='utf-8'))
+          summary = payload['summary']
+          if summary['errors'] or summary['warnings']:
+              failures = [
+                  item for item in payload['results']
+                  if item.get('errors') or item.get('warnings')
+              ]
+              raise SystemExit(json.dumps(failures, ensure_ascii=False, indent=2))
+          PY
+          git diff --check
+      - name: Commit repaired targets
+        run: |
+          if git diff --quiet; then
+            echo 'No target changes required.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            content/sectors-v10/clinical-anxiety.json \
+            evidence-guides/clinical-anxiety/index.html \
+            guides/accessible-travel-planning/index.html \
+            resources/open-books-discovery/index.html
+          git commit -m 'fix(seo): clear strict all-scope audit findings [seo-repair]'
+          git push origin HEAD:fix/institutional-route-hubs-v1
