@@ -7,6 +7,7 @@ import final_site_integrity_v1 as integrity
 import consolidate_duplicate_pages_v1 as duplicate_pages
 import publish_special_needs_cdls_v337 as cdls
 import publish_self_advocacy_v170 as self_advocacy
+import publish_self_advocacy_continuity_v1 as self_advocacy_continuity
 
 
 def append_section(source: str, heading: str, items: list[tuple[str, str, str]]) -> str:
@@ -61,6 +62,15 @@ def main() -> None:
         or self_advocacy_result.get('standalonePagesCreated') != 0
     ):
         raise SystemExit({'selfAdvocacyPublication': self_advocacy_result})
+
+    continuity_result = self_advocacy_continuity.publish(site)
+    if (
+        continuity_result.get('status') not in {'passed', 'passed_with_integrity_followup'}
+        or continuity_result.get('standalonePagesCreated') != 0
+        or continuity_result.get('workflowStages') != 7
+        or continuity_result.get('practicalQuestions', 0) < 28
+    ):
+        raise SystemExit({'selfAdvocacyContinuityPublication': continuity_result})
 
     cdls_result = cdls.publish(site)
     if cdls_result.get('status') != 'passed' or not cdls_result.get('single_canonical_route'):
@@ -158,6 +168,11 @@ def main() -> None:
         'selfAdvocacyCanonicalUrl': self_advocacy_result['canonicalUrl'],
         'selfAdvocacySourcePackageCount': self_advocacy_result['sourcePackageCount'],
         'selfAdvocacyStandalonePagesCreated': self_advocacy_result['standalonePagesCreated'],
+        'selfAdvocacyContinuityStatus': continuity_result['status'],
+        'selfAdvocacyContinuitySourcePackage': continuity_result['sourcePackage'],
+        'selfAdvocacyContinuityWorkflowStages': continuity_result['workflowStages'],
+        'selfAdvocacyContinuityPracticalQuestions': continuity_result['practicalQuestions'],
+        'selfAdvocacyContinuityStandalonePagesCreated': continuity_result['standalonePagesCreated'],
         'cdlsPublicationStatus': cdls_result['status'],
         'cdlsCanonicalUrl': cdls_result['canonical_url'],
         'cdlsGeneratedPage': cdls_result['generated_page'],
@@ -197,6 +212,9 @@ def main() -> None:
         'selfAdvocacyPublicationStatus': self_advocacy_result['status'],
         'selfAdvocacySourcePackageCount': self_advocacy_result['sourcePackageCount'],
         'selfAdvocacyStandalonePagesCreated': self_advocacy_result['standalonePagesCreated'],
+        'selfAdvocacyContinuityStatus': continuity_result['status'],
+        'selfAdvocacyContinuityWorkflowStages': continuity_result['workflowStages'],
+        'selfAdvocacyContinuityStandalonePagesCreated': continuity_result['standalonePagesCreated'],
         'cdlsPublicationStatus': cdls_result['status'],
         'cdlsCanonicalUrl': cdls_result['canonical_url'],
         'duplicateRoutesConsolidated': duplicate_result['duplicateRoutesConsolidated'],
