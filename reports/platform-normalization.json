@@ -2,7 +2,7 @@
   "schema_version": 1,
   "shell_version": "1.1.0",
   "status": "passed",
-  "generated_at": "2026-08-06T03:43:58.120275+00:00",
+  "generated_at": "2026-08-06T04:47:02.939878+00:00",
   "mode": "write",
   "root": "/home/runner/work/healthrenewal.org/healthrenewal.org",
   "runtime": {
@@ -11,10 +11,10 @@
     "copied": false,
     "files": []
   },
-  "html_pages_seen": 811,
-  "html_pages_normalized_or_current": 810,
+  "html_pages_seen": 812,
+  "html_pages_normalized_or_current": 811,
   "counts": {
-    "current": 809,
+    "current": 810,
     "skipped": 1,
     "updated": 1
   },
@@ -3585,6 +3585,11 @@
       "detail": ""
     },
     {
+      "path": "special-needs/all-pages/index.html",
+      "status": "updated",
+      "detail": "updated stable platform shell"
+    },
+    {
       "path": "special-needs/assistive-technology/continuing-education/index.html",
       "status": "current",
       "detail": ""
@@ -3691,8 +3696,8 @@
     },
     {
       "path": "special-needs/guides/communication/index.html",
-      "status": "updated",
-      "detail": "updated stable platform shell"
+      "status": "current",
+      "detail": ""
     },
     {
       "path": "special-needs/index.html",
