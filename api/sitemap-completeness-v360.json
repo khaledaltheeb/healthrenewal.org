@@ -1,15 +1,15 @@
 {
   "version": 360,
   "status": "passed",
-  "generated_at": "2026-08-06T08:36:23+00:00",
+  "generated_at": "2026-08-06T09:40:47+00:00",
   "base_url": "https://healthrenewal.org/",
   "sitemap": "sitemap.xml",
   "sitemap_index": "sitemap-index.xml",
   "robots": "robots.txt",
-  "real_indexable_urls": 801,
+  "real_indexable_urls": 803,
   "claimed_target_urls": 3600,
   "target_reached": false,
-  "html_files_discovered": 814,
+  "html_files_discovered": 816,
   "excluded_counts": {
     "excluded_directory": 0,
     "error_or_offline_page": 1,
@@ -45,14 +45,14 @@
   "protocol": {
     "maximum_urls_per_sitemap": 50000,
     "maximum_uncompressed_bytes": 52428800,
-    "actual_bytes": 81238,
+    "actual_bytes": 81372,
     "https_only": true,
     "single_host": "healthrenewal.org",
     "duplicates": 0,
     "legacy_urls": 0
   },
   "sha256": {
-    "sitemap.xml": "a6d2e6b9b6b1a5b627c06d525dbd7effbef6f598b26cf7dee5baa948fc33865e",
+    "sitemap.xml": "dce46b4361dafee87dc222bafe90ac979d9d25c9395be22c3ffcdb0c84f72ec3",
     "sitemap-index.xml": "41c7faf5cbb40b054bfa5b391c8d343bacdfdf3baf20612a02ffe49e4898a880",
     "robots.txt": "775d46ea75a7cfa782eff67503977738ee58f3d387782f722a698862c0fadc60"
   },
