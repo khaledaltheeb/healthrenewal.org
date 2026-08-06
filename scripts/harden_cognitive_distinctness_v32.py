@@ -10,6 +10,7 @@ VERSION = 32
 HELPER = r'''
 function v32DistinctCognitiveTrial(d,stage,index,sessionSeed,rnd,ri,pick,symbols,arrows){
  const mode=d.mode||d.category||'',slug=d.slug||'';
+ const stableHash=value=>{let hash=2166136261;for(const char of String(value)){hash^=char.charCodeAt(0);hash=Math.imul(hash,16777619)}return hash>>>0};
  const uniqueValues=items=>[...new Set(items.map(String))];
  const sequenceOptions=(tokens,pool,separator=' ')=>{
   const answer=tokens.join(separator),variants=[];
@@ -25,7 +26,7 @@ function v32DistinctCognitiveTrial(d,stage,index,sessionSeed,rnd,ri,pick,symbols
   return{kind:'reaction',singleResponse:true,prompt:`ظهرت الإشارة ${target}. اضغط الزر الآن.`,answer:'اضغط الآن',options:['اضغط الآن'],delay:ri(minimum,maximum),reactionForeperiodMin:minimum,reactionForeperiodMax:maximum,explanation:'سُجل الزمن من ظهور الإشارة حتى بدء الضغط؛ لا يتضمن زمن الانتظار قبل ظهورها.'};
  }
  if(mode==='sustained_attention'){
-  const targetPool=symbols.slice(0,6),targetRnd=seeded(hash32(`${slug}|${stage}|${Number(sessionSeed)||0}|target`)),target=targetPool[Math.floor(targetRnd()*targetPool.length)],cycle=[2,3,4,5,6][stage],offset=hash32(`${slug}|${stage}|${Number(sessionSeed)||0}|offset`)%cycle,isTarget=(index+offset)%cycle===0,shown=isTarget?target:pick(targetPool.filter(value=>value!==target));
+  const targetPool=symbols.slice(0,6),targetRnd=seeded(stableHash(`${slug}|${stage}|${Number(sessionSeed)||0}|target`)),target=targetPool[Math.floor(targetRnd()*targetPool.length)],cycle=[2,3,4,5,6][stage],offset=stableHash(`${slug}|${stage}|${Number(sessionSeed)||0}|offset`)%cycle,isTarget=(index+offset)%cycle===0,shown=isTarget?target:pick(targetPool.filter(value=>value!==target));
   return{prompt:`الهدف الثابت لهذه المرحلة هو ${target}. ظهر الآن ${shown}. هل هو الهدف؟`,answer:isTarget?'نعم':'لا',options:['نعم','لا'],sustainedTarget:target,targetPresent:isTarget,targetCycle:cycle,explanation:isTarget?`ظهر الهدف الثابت ${target}.`:`ظهر مشتت، والهدف الثابت هو ${target}.`};
  }
  if(mode==='visual_search'){
@@ -59,7 +60,7 @@ function v32DistinctCognitiveTrial(d,stage,index,sessionSeed,rnd,ri,pick,symbols
    if(stage===1)return Math.floor(Math.max(0,trial)/3)%2===0?'color':'shape';
    if(stage===2)return Math.floor(Math.max(0,trial)/2)%2===0?'color':'shape';
    if(stage===3)return Math.max(0,trial)%2===0?'color':'shape';
-   return hash32(`${slug}|${stage}|${Number(sessionSeed)||0}|${Math.max(0,trial)}`)%2===0?'color':'shape';
+   return stableHash(`${slug}|${stage}|${Number(sessionSeed)||0}|${Math.max(0,trial)}`)%2===0?'color':'shape';
   };
   const current=ruleAt(index),previous=ruleAt(index-1),switchTrial=index>0&&current!==previous,answer=current==='color'?color[0]:shape;
   return{prompt:`إشارة القاعدة: ${current==='color'?'لون':'شكل'}. <span style="color:${color[1]};font-size:2em;font-weight:900">${shape}</span>`,answer,options:current==='color'?colors.map(item=>item[0]):symbols.slice(0,6),attentionRule:current,previousAttentionRule:index>0?previous:'none',switchTrial,explanation:`طُبقت قاعدة ${current==='color'?'اللون':'الشكل'}${switchTrial?' بعد تبدل القاعدة':' دون تبدل عن المحاولة السابقة'}.`};
