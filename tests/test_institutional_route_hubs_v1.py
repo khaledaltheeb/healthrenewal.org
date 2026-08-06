@@ -9,6 +9,15 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 ROBOTS_META = '<meta name="robots" content="index,follow,'
 SITEMAP_SCRIPT = ROOT / "scripts" / "publish_complete_sitemap_v360.py"
+PRODUCTION_PIPELINE = ROOT / "scripts" / "apply_homepage_v20.py"
+CORE_WRAPPER = ROOT / "scripts" / "complete_core_sections_v15.py"
+CORE_PUBLISHER = ROOT / "scripts" / "complete_core_sections_v15_legacy_v1.py"
+DAILY_TOOLS_PUBLISHER = ROOT / "scripts" / "publish_daily_tools_v24.py"
+FULL_SITE_WORKFLOW = ROOT / ".github" / "workflows" / "validate-full-site-v16.yml"
+GENERATED_ROUTE_PUBLISHERS = {
+    "/mental-health/": CORE_PUBLISHER,
+    "/daily-tools/": DAILY_TOOLS_PUBLISHER,
+}
 SITEMAP_SPEC = importlib.util.spec_from_file_location(
     "publish_complete_sitemap_v360", SITEMAP_SCRIPT
 )
@@ -53,6 +62,22 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
         ):
             with self.subTest(route=route):
                 self.assertTrue((ROOT / route / "index.html").is_file())
+
+    def test_generated_navigation_routes_have_production_publishers(self) -> None:
+        for route, publisher in GENERATED_ROUTE_PUBLISHERS.items():
+            with self.subTest(route=route):
+                self.assertTrue(publisher.is_file(), f"Missing publisher for {route}")
+
+        pipeline = PRODUCTION_PIPELINE.read_text(encoding="utf-8")
+        workflow = FULL_SITE_WORKFLOW.read_text(encoding="utf-8")
+        wrapper = CORE_WRAPPER.read_text(encoding="utf-8")
+        daily_tools = DAILY_TOOLS_PUBLISHER.read_text(encoding="utf-8")
+
+        self.assertIn('run_publisher("publish_daily_tools_v24.py")', pipeline)
+        self.assertIn("python scripts/complete_core_sections_v15.py _site", workflow)
+        self.assertIn('with_name("complete_core_sections_v15_legacy_v1.py")', wrapper)
+        self.assertIn("legacy.main()", wrapper)
+        self.assertIn('"daily-tools"', daily_tools)
 
     def test_about_page_is_substantive_and_transparent(self) -> None:
         page = self.read_page("about")
@@ -210,6 +235,8 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
                     or href.startswith("#")
                     or not parsed.path.startswith("/")
                 ):
+                    continue
+                if href in GENERATED_ROUTE_PUBLISHERS:
                     continue
                 if not self.internal_target(href).is_file():
                     missing.append(href)
