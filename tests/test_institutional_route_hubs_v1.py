@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 import unittest
 from pathlib import Path
+from urllib.parse import urlsplit
 from xml.etree import ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -15,8 +16,23 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
         self.assertTrue(page.is_file(), f"Missing institutional route: /{route}/")
         return page.read_text(encoding="utf-8")
 
+    def internal_target(self, href: str) -> Path:
+        parsed = urlsplit(href)
+        relative = parsed.path.lstrip("/")
+        if not relative:
+            return ROOT / "index.html"
+        target = ROOT / relative
+        return target / "index.html" if parsed.path.endswith("/") else target
+
     def test_required_route_targets_exist(self) -> None:
-        for route in ("safety", "services", "sectors/family"):
+        for route in (
+            "safety",
+            "services",
+            "sectors/family",
+            "privacy-policy",
+            "rights",
+            "schools",
+        ):
             with self.subTest(route=route):
                 self.assertTrue((ROOT / route / "index.html").is_file())
 
@@ -66,8 +82,104 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
             with self.subTest(route=route):
                 self.assertIn(f'href="{route}"', page)
 
+    def test_privacy_policy_matches_operational_data_surfaces(self) -> None:
+        page = self.read_page("privacy-policy")
+        self.assertGreater(len(page), 14000)
+        self.assertIn(
+            '<link rel="canonical" href="https://healthrenewal.org/privacy-policy/">',
+            page,
+        )
+        self.assertIn(ROBOTS_META, page)
+        for phrase in (
+            "بيانات تقنية وتشغيلية",
+            "بيانات تحليل الاستخدام",
+            "localStorage",
+            "النماذج والحسابات",
+            "البيانات الحساسة والأطفال",
+            "لا ضمان للسرية العلاجية",
+            "المراجعة القانونية",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, page)
+        self.assertGreaterEqual(page.count("<h2"), 9)
+        self.assertIn('href="/contact/"', page)
+        self.assertIn('href="/rights/"', page)
+
+    def test_rights_charter_is_substantive_and_nonlegal(self) -> None:
+        page = self.read_page("rights")
+        self.assertGreater(len(page), 13000)
+        self.assertIn(
+            '<link rel="canonical" href="https://healthrenewal.org/rights/">',
+            page,
+        )
+        self.assertIn(ROBOTS_META, page)
+        for phrase in (
+            "الكرامة وعدم الوصم",
+            "معلومة صحيحة ومفهومة",
+            "التواصل المتاح",
+            "المشاركة في القرار",
+            "عدم التشخيص الآلي",
+            "آلية الإبلاغ والمعالجة",
+            "ليست استشارة قانونية",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, page)
+        self.assertGreaterEqual(page.count('class="card"'), 10)
+        self.assertIn('href="/privacy-policy/"', page)
+        self.assertIn('href="/safety/"', page)
+
+    def test_schools_hub_is_substantive_and_actionable(self) -> None:
+        page = self.read_page("schools")
+        self.assertGreater(len(page), 14000)
+        self.assertIn(
+            '<link rel="canonical" href="https://healthrenewal.org/schools/">',
+            page,
+        )
+        self.assertIn(ROBOTS_META, page)
+        for phrase in (
+            "دورة العمل المدرسي من ثماني مراحل",
+            "صوت الطالب",
+            "تحديد الحاجز",
+            "الدعم الفردي",
+            "الأدوار دون تداخل أو فراغ",
+            "الحد الأدنى لخطة دعم جيدة",
+            "إشارات تستدعي تصحيحًا مؤسسيًا",
+            "مؤشرات متابعة شهرية",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, page)
+        self.assertEqual(page.count("<tbody>"), 1)
+        self.assertGreaterEqual(page.count('class="card"'), 18)
+        self.assertIn(
+            'href="/learning-paths/evidence-guided/inclusive-education-foundations/"',
+            page,
+        )
+        self.assertIn('href="/rights/"', page)
+
+    def test_new_hubs_have_valid_internal_destinations(self) -> None:
+        for route in ("privacy-policy", "rights", "schools"):
+            page = self.read_page(route)
+            hrefs = re.findall(r'href=["\']([^"\']+)["\']', page)
+            missing = []
+            for href in hrefs:
+                parsed = urlsplit(href)
+                if (
+                    parsed.scheme
+                    or parsed.netloc
+                    or href.startswith("#")
+                    or not parsed.path.startswith("/")
+                ):
+                    continue
+                if not self.internal_target(href).is_file():
+                    missing.append(href)
+            with self.subTest(route=route):
+                self.assertEqual(missing, [], f"Missing internal targets in /{route}/: {missing}")
+
     def test_hubs_have_no_placeholder_or_prohibited_language(self) -> None:
-        combined = self.read_page("safety") + self.read_page("services")
+        combined = "".join(
+            self.read_page(route)
+            for route in ("safety", "services", "privacy-policy", "rights", "schools")
+        )
         for phrase in (
             "TODO",
             "Lorem ipsum",
@@ -94,7 +206,7 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
 
         self.assertGreaterEqual(canonical_link_count, 10)
 
-    def test_institutional_routes_are_discoverable_in_sitemap(self) -> None:
+    def test_existing_institutional_routes_are_discoverable_in_sitemap(self) -> None:
         sitemap = ROOT / "sitemap.xml"
         self.assertTrue(sitemap.is_file())
         root = ET.parse(sitemap).getroot()
