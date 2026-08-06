@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -26,6 +27,13 @@ RELEASED_MANUAL_REVIEW_SOURCES = {
 base.UNWANTED_TERMS = ("معاقين", "المعاقين")
 
 _ORIGINAL_VALIDATE = base.validate_source
+_ORIGINAL_RENDER = base.render_page
+_ALLOWED_SCHEMA_TYPES = {
+    "Article",
+    "CollectionPage",
+    "MedicalWebPage",
+    "WebPage",
+}
 
 
 def _source_name(source: dict[str, Any]) -> str:
@@ -138,12 +146,253 @@ def normalize_payload(payload: dict[str, Any]) -> None:
         ]
 
 
+def _publication_canonical(payload: dict[str, Any]) -> str:
+    key = str(payload.get("key") or "").strip()
+    return f"{base.BASE_URL}/{base.OUTPUT_ROOT.as_posix()}/{key}/"
+
+
 def validate_source(path: Path, payload: dict[str, Any]) -> None:
     normalize_payload(payload)
     _ORIGINAL_VALIDATE(path, payload)
+    declared_canonical = str(payload.get("canonical") or "").strip()
+    expected_canonical = _publication_canonical(payload)
+    if declared_canonical and declared_canonical != expected_canonical:
+        raise base.PublicationError(
+            f"{path}: canonical mismatch: expected {expected_canonical}, "
+            f"got {declared_canonical}"
+        )
 
 
 base.validate_source = validate_source
+
+
+def _schema_types(payload: dict[str, Any]) -> list[str]:
+    requested = payload.get("schema_types")
+    if not isinstance(requested, list):
+        return ["Article"]
+    result: list[str] = []
+    for value in requested:
+        item = str(value).strip()
+        if item in _ALLOWED_SCHEMA_TYPES and item not in result:
+            result.append(item)
+    return result or ["Article"]
+
+
+def _review_value(value: Any) -> str:
+    normalized = str(value or "").strip()
+    labels = {
+        "internally-reviewed": "مراجعة تحريرية داخلية",
+        "recommended-not-completed": "مراجعة خارجية موصى بها ولم تكتمل",
+        "sensitive": "محتوى حساس",
+    }
+    return labels.get(normalized, normalized)
+
+
+def _list_html(values: Any) -> str:
+    if not isinstance(values, list):
+        return ""
+    items = [str(value).strip() for value in values if str(value).strip()]
+    if not items:
+        return ""
+    return "<ul>" + "".join(f"<li>{base.esc(value)}</li>" for value in items) + "</ul>"
+
+
+def _questions_section(payload: dict[str, Any]) -> str:
+    blocks: list[str] = []
+    for article in payload.get("articles") or []:
+        if not isinstance(article, dict):
+            continue
+        questions = article.get("questions")
+        questions_html = _list_html(questions)
+        if not questions_html:
+            continue
+        title = str(article.get("title") or "أسئلة عملية").strip()
+        blocks.append(
+            f'<article class="panel"><h3>{base.esc(title)}</h3>{questions_html}</article>'
+        )
+    if not blocks:
+        return ""
+    return (
+        '<section class="guide-section governance" id="practical-questions">'
+        "<h2>أسئلة عملية قبل التقييم أو المتابعة</h2>"
+        '<div class="guide-grid">'
+        + "".join(blocks)
+        + "</div></section>"
+    )
+
+
+def _source_governance_section(payload: dict[str, Any]) -> str:
+    review_rows: list[str] = []
+    review_fields = (
+        ("حالة المراجعة", payload.get("review_status")),
+        ("المراجعة الخارجية", payload.get("external_review")),
+        ("مستوى الحساسية", payload.get("safety_level")),
+        ("تاريخ التحقق", payload.get("verified_at")),
+        ("موعد المراجعة التالية", payload.get("next_review_due")),
+    )
+    for label, value in review_fields:
+        rendered = _review_value(value)
+        if rendered:
+            review_rows.append(
+                f"<dt>{base.esc(label)}</dt><dd>{base.esc(rendered)}</dd>"
+            )
+
+    source_log = payload.get("source_log")
+    method = ""
+    limitations = ""
+    claims_html = ""
+    if isinstance(source_log, dict):
+        method = str(source_log.get("method") or "").strip()
+        limitations = str(source_log.get("limitations") or "").strip()
+        claims_html = _list_html(source_log.get("claims_checked"))
+
+    source_records: list[str] = []
+    for source in payload.get("sources") or []:
+        if not isinstance(source, dict):
+            continue
+        details = [
+            str(source.get("publisher") or "").strip(),
+            str(source.get("type") or "").strip(),
+            str(source.get("verified_at") or "").strip(),
+            str(source.get("use") or "").strip(),
+        ]
+        details = [detail for detail in details if detail]
+        if not details:
+            continue
+        source_records.append(
+            "<li><strong>"
+            + base.esc(source.get("name") or "مصدر")
+            + "</strong><br>"
+            + base.esc(" · ".join(details))
+            + "</li>"
+        )
+
+    if not (review_rows or method or limitations or claims_html or source_records):
+        return ""
+
+    parts = [
+        '<section class="guide-section governance" id="governance">',
+        "<h2>حالة المراجعة ومنهجية المصادر</h2>",
+    ]
+    if review_rows:
+        parts.append("<dl>" + "".join(review_rows) + "</dl>")
+    if method:
+        parts.append(f"<h3>منهج الإعداد</h3><p>{base.esc(method)}</p>")
+    if claims_html:
+        parts.append("<h3>المحاور التي تم التحقق منها</h3>" + claims_html)
+    if limitations:
+        parts.append(f"<h3>الحدود والسياق</h3><p>{base.esc(limitations)}</p>")
+    if source_records:
+        parts.append(
+            "<h3>سجل المصادر</h3><ul class=\"source-log\">"
+            + "".join(source_records)
+            + "</ul>"
+        )
+    parts.append("</section>")
+    return "".join(parts)
+
+
+def _internal_links_section(payload: dict[str, Any]) -> str:
+    links = payload.get("internal_links")
+    if not isinstance(links, list):
+        return ""
+    labels = {
+        "/mental-health/": "بوابة الصحة النفسية",
+        "/daily-tools/medical-visit-preparation/": "التحضير للزيارة الطبية",
+        "/safety/": "السلامة وطلب المساعدة",
+        "/encyclopedia/": "الموسوعة",
+    }
+    items: list[str] = []
+    for value in links:
+        url = str(value).strip()
+        if not url.startswith("/") or url.startswith("//"):
+            continue
+        label = labels.get(url, url.strip("/").replace("-", " ") or "رابط داخلي")
+        items.append(f'<li><a href="{base.esc(url)}">{base.esc(label)}</a></li>')
+    if not items:
+        return ""
+    return (
+        '<section class="guide-section related" id="related-links">'
+        "<h2>مسارات مرتبطة داخل المنصة</h2><ul>"
+        + "".join(items)
+        + "</ul></section>"
+    )
+
+
+def _enhance_schema(document: str, payload: dict[str, Any]) -> str:
+    match = re.search(
+        r'(<script type="application/ld\+json">)(.*?)(</script>)',
+        document,
+        flags=re.DOTALL,
+    )
+    if not match:
+        return document
+    try:
+        schema = json.loads(match.group(2))
+    except json.JSONDecodeError:
+        return document
+
+    description = str(payload.get("description") or payload.get("subtitle") or "").strip()
+    graph = schema.get("@graph") if isinstance(schema, dict) else None
+    if isinstance(graph, list) and graph and isinstance(graph[0], dict):
+        graph[0]["@type"] = _schema_types(payload)
+        if description:
+            graph[0]["description"] = description[:300]
+    encoded = json.dumps(
+        schema, ensure_ascii=False, separators=(",", ":")
+    ).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
+    return document[: match.start(2)] + encoded + document[match.end(2) :]
+
+
+def render_page(item: base.PublicationItem) -> str:
+    payload = item.payload
+    document = _ORIGINAL_RENDER(item)
+
+    description = str(payload.get("description") or payload.get("subtitle") or "").strip()
+    if description:
+        escaped = base.esc(description[:300])
+        document = re.sub(
+            r'<meta name="description" content="[^"]*">',
+            f'<meta name="description" content="{escaped}">',
+            document,
+            count=1,
+        )
+        document = re.sub(
+            r'<meta property="og:description" content="[^"]*">',
+            f'<meta property="og:description" content="{escaped}">',
+            document,
+            count=1,
+        )
+        document = re.sub(
+            r'<meta name="twitter:description" content="[^"]*">',
+            f'<meta name="twitter:description" content="{escaped}">',
+            document,
+            count=1,
+        )
+
+    document = _enhance_schema(document, payload)
+
+    additions = (
+        _questions_section(payload)
+        + _source_governance_section(payload)
+        + _internal_links_section(payload)
+    )
+    if additions:
+        marker = '<section class="sources" id="sources">'
+        document = document.replace(marker, additions + marker, 1)
+        extra_css = (
+            ".governance dl{display:grid;grid-template-columns:minmax(10rem,auto) 1fr;"
+            "gap:.45rem 1rem}.governance dt{font-weight:700}.governance dd{margin:0}"
+            ".source-log{padding-inline-start:1.2rem}"
+            "@media(max-width:640px){.governance dl{grid-template-columns:1fr}}"
+            "@media print{.governance,.related{break-inside:avoid}}"
+        )
+        document = document.replace("</style>", extra_css + "</style>", 1)
+
+    return document
+
+
+base.render_page = render_page
 
 
 def validated_editorial_release(repo_root: Path) -> set[str]:
