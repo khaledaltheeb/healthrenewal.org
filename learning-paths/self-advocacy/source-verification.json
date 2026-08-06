@@ -1,0 +1,100 @@
+{
+  "id": "self-advocacy-source-verification-v1",
+  "page": "/learning-paths/self-advocacy/",
+  "canonical": "https://healthrenewal.org/learning-paths/self-advocacy/",
+  "review_status": "internally-reviewed",
+  "external_review": "recommended-not-completed",
+  "risk_level": "moderate-rights-and-safeguarding",
+  "verified_at": "2026-08-06",
+  "next_review_at": "2027-02-06",
+  "editorial_scope": "المناصرة الذاتية، التعبير عن الإرادة والتفضيلات، طلب التيسيرات المعقولة، والمشاركة في القرارات التي تمس حياة الشخص. السجل تثقيفي وحقوقي ولا يقرر الأهلية القانونية في دولة بعينها.",
+  "professional_limits": "لا يُستخدم هذا السجل لإعلان فقدان الأهلية أو فرض وصاية أو استبدال قرار الشخص بقرار الأسرة أو المؤسسة. تختلف قوانين الأهلية والتظلم والحماية باختلاف الدولة؛ لذلك تُراجع القواعد المحلية ويُطلب دعم قانوني أو مهني مستقل عند النزاع أو خطر الاستغلال. يجب توفير المعلومات بصيغة يفهمها الشخص، وإتاحة الوقت ووسيلة التواصل والدعم الذي يختاره، مع توثيق إرادته وتفضيلاته وفصل الدعم عن الإكراه.",
+  "editorial_findings": [
+    {
+      "finding": "الصفحة المنشورة طويلة بنيويًا، لكنها تستخدم مقاطع عامة قابلة للتكرار بين مسارات مختلفة؛ تحتاج دورة تحرير لاحقة لتحويل الأمثلة والمؤشرات إلى سيناريوهات خاصة بالمناصرة الذاتية واتخاذ القرار.",
+      "severity": "medium",
+      "action": "الإبقاء على كل المحتوى الصحيح، ثم إضافة أمثلة قرار وتظلم وطلب تيسير ورفض آمن في حزمة نشر مستقلة مرتبطة بالناشر المركزي."
+    },
+    {
+      "finding": "كانت المراجع معروضة في الصفحة دون سجل ادعاء-إلى-مصدر مستقل قابل للاختبار.",
+      "severity": "high",
+      "action": "أضيف هذا السجل لتحديد الادعاءات وحدود التعميم والحقوق وحالة التحقق."
+    }
+  ],
+  "editorial_claims": [
+    {
+      "claim": "للأشخاص ذوي الاحتياجات الخاصة حق متساو في الاعتراف أمام القانون، ويجب توفير الدعم اللازم لممارسة الأهلية القانونية مع احترام الإرادة والتفضيلات.",
+      "source_ids": ["ohchr-crpd-gc1"]
+    },
+    {
+      "claim": "الدعم في اتخاذ القرار قد يشمل التواصل البديل، والتصميم الشامل، ودعم الأقران، والتخطيط المسبق، ولا يبرر نقل القرار تلقائيًا إلى شخص آخر.",
+      "source_ids": ["ohchr-crpd-gc1"]
+    },
+    {
+      "claim": "إشراك الأشخاص ذوي الاحتياجات الخاصة ومنظماتهم في القرارات والسياسات عنصر أساسي في الإدماج والإنصاف، لا خطوة شكلية بعد اكتمال القرار.",
+      "source_ids": ["who-health-equity-guide", "who-disability-health-factsheet"]
+    },
+    {
+      "claim": "يجب أن تكون المعلومات والخدمات والتواصل قابلة للوصول، وأن تُراقب الاستفادة الفعلية والنتائج بدل الاكتفاء بإتاحة اسمية للخدمة.",
+      "source_ids": ["who-health-equity-guide"]
+    }
+  ],
+  "practice_questions": [
+    "ما القرار المحدد الذي يريد الشخص المشاركة فيه، ومن يملك القرار قانونيًا وعمليًا؟",
+    "كيف يعبّر الشخص عن الموافقة والرفض والتردد، وما وسيلة التواصل التي يفضّلها؟",
+    "ما المعلومات الناقصة، وكيف ستُقدّم بلغة واضحة أو رموز أو تسجيل صوتي أو وقت إضافي؟",
+    "من اختاره الشخص لدعمه، وما حدود دور هذا الداعم حتى لا يتحول الدعم إلى ضغط أو استبدال؟",
+    "هل عُرضت بدائل حقيقية وآثار كل بديل، أم جرى توجيه الشخص نحو نتيجة واحدة؟",
+    "كيف ستُوثق إرادة الشخص وتفضيلاته، وكيف يمكنه تغيير رأيه أو التظلم؟",
+    "ما التيسير المعقول المطلوب الآن: مكان أهدأ، وقت أطول، مترجم، وسيلة تواصل، أو حضور شخص موثوق؟",
+    "هل توجد علامة استغلال مالي أو إساءة أو تهديد أو تضارب مصالح تستلزم حماية مستقلة؟"
+  ],
+  "sources": [
+    {
+      "id": "ohchr-crpd-gc1",
+      "organization": "United Nations Committee on the Rights of Persons with Disabilities",
+      "title": "General comment No. 1 (2014): Article 12 — Equal recognition before the law",
+      "url": "https://www.ohchr.org/en/documents/general-comments-and-recommendations/general-comment-no-1-article-12-equal-recognition-1",
+      "source_type": "official_human_rights_interpretation",
+      "year": 2014,
+      "status": "current-reference",
+      "verified_at": "2026-08-06",
+      "claims_supported": ["equal_legal_capacity", "supported_decision_making", "will_and_preferences", "communication_support", "safeguards_against_abuse"],
+      "rights": "link-cite-and-original-summary-only",
+      "notes": "تفسير أممي معياري للمادة 12. لا يحل محل القانون المحلي ولا يحدد نتيجة نزاع قانوني فردي."
+    },
+    {
+      "id": "who-health-equity-guide",
+      "organization": "World Health Organization",
+      "title": "Health equity for persons with disabilities: guide for action",
+      "url": "https://www.who.int/publications/i/item/9789240101517",
+      "source_type": "official_technical_guidance",
+      "year": 2024,
+      "status": "current",
+      "verified_at": "2026-08-06",
+      "claims_supported": ["meaningful_participation", "accessible_services", "disability_inclusion", "monitoring_reach_and_benefit"],
+      "rights": "link-cite-and-original-summary-only",
+      "notes": "دليل نظم وسياسات صحية؛ تُستخدم مبادئ المشاركة والإتاحة ولا تُحوّل إلى توصية قانونية فردية."
+    },
+    {
+      "id": "who-disability-health-factsheet",
+      "organization": "World Health Organization",
+      "title": "Disability and health",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/disability-and-health",
+      "source_type": "official_fact_sheet",
+      "year": 2023,
+      "status": "current",
+      "verified_at": "2026-08-06",
+      "claims_supported": ["inclusion_in_decision_making", "health_equity", "barrier_reduction"],
+      "rights": "link-cite-and-original-summary-only",
+      "notes": "مرجع سياقي عالمي، وليس أداة تقييم للأهلية أو بروتوكولًا فرديًا."
+    }
+  ],
+  "non_claims": [
+    "لا توجد شراكة أو مصادقة أو مراجعة خارجية من الأمم المتحدة أو منظمة الصحة العالمية.",
+    "لا يقرر السجل أهلية شخص بعينه ولا يقدّم استشارة قانونية.",
+    "وجود إعاقة أو صعوبة تواصل لا يثبت غياب الإرادة أو عدم القدرة على الاختيار.",
+    "الدعم لا يبرر الإكراه أو حجب المعلومات أو سحب وسيلة التواصل أو معاقبة الرفض.",
+    "لا تُنقل أرقام أو نماذج أو نصوص مطولة من المصادر؛ المحتوى العربي تلخيص وتحليل أصلي."
+  ]
+}
