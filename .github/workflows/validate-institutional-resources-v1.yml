@@ -1,0 +1,67 @@
+name: Validate institutional resources v1
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "data/institutional-resources/**"
+      - "resources/**"
+      - "guides/**"
+      - "learning-paths/**"
+      - "tests/test_*resource*_contract.py"
+      - "tests/test_*evidence*_contract.py"
+      - "tests/test_*travel*_contract.py"
+      - "tests/test_thoth_open_books_discovery_contract.py"
+      - ".github/workflows/validate-institutional-resources-v1.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "data/institutional-resources/**"
+      - "resources/**"
+      - "guides/**"
+      - "learning-paths/**"
+      - "tests/test_*resource*_contract.py"
+      - "tests/test_*evidence*_contract.py"
+      - "tests/test_*travel*_contract.py"
+      - "tests/test_thoth_open_books_discovery_contract.py"
+      - ".github/workflows/validate-institutional-resources-v1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: institutional-resources-v1-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate JSON syntax
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          targets = [
+              Path('data/institutional-resources/thoth-open-books-discovery.json'),
+              Path('data/institutional-resources/enat-accessible-travel.json'),
+              Path('data/institutional-resources/cochrane-evidence-literacy.json'),
+              Path('data/institutional-resources/iris-special-education.json'),
+          ]
+          for path in targets:
+              json.loads(path.read_text(encoding='utf-8'))
+          print({'json_files': len(targets), 'status': 'valid'})
+          PY
+      - name: Run focused resource contracts
+        run: |
+          python -m unittest -v \
+            tests.test_thoth_open_books_discovery_contract \
+            tests.test_enat_accessible_travel_contract \
+            tests.test_cochrane_evidence_literacy_contract \
+            tests.test_iris_special_education_resource_contract
