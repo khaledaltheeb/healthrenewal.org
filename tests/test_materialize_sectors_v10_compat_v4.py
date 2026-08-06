@@ -87,7 +87,10 @@ class MaterializeSectorsV10CompatV4Tests(unittest.TestCase):
             "مختبر التقييمات النفسية الآمنة",
         )
         self.assertIsInstance(payload["source_log"]["limitations"], str)
-        self.assertIn("المراجعة الخارجية", payload["source_log"]["limitations"])
+        self.assertIn(
+            "لا توجد مراجعة خارجية موثقة",
+            payload["source_log"]["limitations"],
+        )
 
     def test_validation_and_rendering_publish_all_five_units(self) -> None:
         payload = copy.deepcopy(self.source)
@@ -114,7 +117,7 @@ class MaterializeSectorsV10CompatV4Tests(unittest.TestCase):
             self.assertIn(article["title"], page)
             self.assertIn(article["assessment_questions"][0], page)
         self.assertIn("مختبر التقييمات النفسية الآمنة", page)
-        self.assertIn("السلامة وطلب المساعدة", page)
+        self.assertIn("خطة التعامل مع الأزمات", page)
         self.assertIn("هذه الصفحة للتثقيف العام ولا تثبت تشخيصًا", page)
         self.assertIn("مراجعة خارجية موصى بها ولم تكتمل", page)
         self.assertIn("علامات الخطر التي تستلزم تصعيدًا عاجلًا", page)
