@@ -4,8 +4,6 @@ on:
   workflow_run:
     workflows: ["Deploy validated main to GitHub Pages"]
     types: [completed]
-  schedule:
-    - cron: "17 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -19,28 +17,53 @@ concurrency:
 jobs:
   live-review-and-quality:
     if: >-
-      github.event_name != 'workflow_run' ||
+      github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 28
     env:
       BASE_URL: https://healthrenewal.org/
-      MINIMUM_SHA: a3e69b9575a436f7123cbe14f33eeba182f46449
+      EXPECTED_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Wait for v306 or a newer non-rollback deployment
+      - name: Wait for the triggering Pages deployment
         run: |
           set -euo pipefail
           matched=0
           for i in $(seq 1 120); do
-            token="${MINIMUM_SHA}-${i}-$(date +%s)"
+            token="${EXPECTED_SHA}-${i}-$(date +%s)"
             if curl --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}deployment.json?v=${token}" -o /tmp/deployment.json; then
-              live="$(python -c "import json;print(json.load(open('/tmp/deployment.json'))['commit'])")"
-              if [ "${live}" = "${MINIMUM_SHA}" ]; then
+              live="$(python - <<'PY'
+          import json
+          from pathlib import Path
+
+          data = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          commit = data.get('commit')
+          release_commit = data.get('release_commit')
+          if commit and release_commit and commit != release_commit:
+              raise SystemExit(f"deployment schema conflict: commit={commit} release_commit={release_commit}")
+          live = commit or release_commit
+          if not isinstance(live, str) or len(live) != 40:
+              raise SystemExit('deployment schema error: expected commit or release_commit containing a full SHA')
+          print(live)
+          PY
+              )" || {
+                echo "deployment.json has a permanent schema error; retries would hide the root cause."
+                cat /tmp/deployment.json
+                exit 2
+              }
+
+              if [ "${live}" = "${EXPECTED_SHA}" ]; then
                 matched=1
                 break
               fi
-              compare_status="$(curl --retry 2 --retry-delay 2 -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' -fsSL "https://api.github.com/repos/${GITHUB_REPOSITORY}/compare/${MINIMUM_SHA}...${live}" | python -c "import json,sys;print(json.load(sys.stdin).get('status',''))" || true)"
+
+              compare_status="$(curl --retry 2 --retry-delay 2 \
+                -H "Authorization: Bearer ${GH_TOKEN}" \
+                -H 'Accept: application/vnd.github+json' \
+                -H 'X-GitHub-Api-Version: 2022-11-28' \
+                -fsSL "https://api.github.com/repos/${GITHUB_REPOSITORY}/compare/${EXPECTED_SHA}...${live}" \
+                | python -c "import json,sys;print(json.load(sys.stdin).get('status',''))" || true)"
               if [ "${compare_status}" = "ahead" ] || [ "${compare_status}" = "identical" ]; then
                 matched=1
                 break
@@ -48,22 +71,34 @@ jobs:
             fi
             sleep 10
           done
+
           if [ "${matched}" -ne 1 ]; then
-            echo "Pages did not reach v306 or newer during this run."
+            echo "Pages did not reach the triggering SHA or a verified descendant during this run."
+            echo "expected_sha=${EXPECTED_SHA}"
             test -f /tmp/deployment.json && cat /tmp/deployment.json || true
             exit 1
           fi
+
+          echo "LIVE_SHA=${live}" >> "${GITHUB_ENV}"
           python - <<'PY'
           import json
+          import os
           from pathlib import Path
+
           data = json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
-          print({'live_commit': data.get('commit'), 'pwa_pages': data.get('pwa_pages'), 'status': 'v306-or-newer'})
+          print({
+              'expected_sha': os.environ['EXPECTED_SHA'],
+              'live_sha': os.environ.get('LIVE_SHA'),
+              'schema_version': data.get('schema_version'),
+              'pwa_pages': data.get('pwa_pages'),
+              'status': 'triggering-deployment-or-newer',
+          })
           PY
 
       - name: Download live pages APIs and sitemap
         run: |
           set -euxo pipefail
-          token="${MINIMUM_SHA}-live-$(date +%s)"
+          token="${EXPECTED_SHA}-live-$(date +%s)"
           curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/?v=${token}" -o /tmp/hub.html
           curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/review-governance/?v=${token}" -o /tmp/review.html
           curl --retry 4 --retry-delay 3 -H 'Cache-Control: no-cache' -fsSL "${BASE_URL}outside-the-box/quality-audit/?v=${token}" -o /tmp/quality.html
