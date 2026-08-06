@@ -61,17 +61,17 @@ jobs:
 
           workflow = Path('.github/workflows/platform-normalize.yml').read_text(encoding='utf-8')
           required = (
-              'permissions:\n  contents: read',
-              'persist-credentials: false',
-              'normalize_platform_shell.py --check --no-report',
-              'git diff --exit-code',
+              'permissions:\n' + '  contents: read',
+              'persist-' + 'credentials: false',
+              'normalize_platform_shell.py --check ' + '--no-report',
+              'git diff ' + '--exit-code',
           )
           forbidden = (
-              'contents: write',
-              'git commit',
-              'git push',
-              'TARGET_BRANCH=',
-              'ref: ${{',
+              'contents:' + ' write',
+              'git ' + 'commit',
+              'git ' + 'push',
+              'TARGET_' + 'BRANCH=',
+              'ref:' + ' ${{',
           )
           for fragment in required:
               assert fragment in workflow, fragment
