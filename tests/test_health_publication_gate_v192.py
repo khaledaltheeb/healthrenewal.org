@@ -163,5 +163,13 @@ class HealthPublicationGateV192Tests(unittest.TestCase):
         self.assertIn('"health_publication_gate": 192', text)
 
 
+def load_tests(loader, tests, pattern):
+    """Run institutional route contracts inside the active publication gate."""
+    from tests import test_institutional_route_hubs_v1 as institutional_routes
+
+    tests.addTests(loader.loadTestsFromModule(institutional_routes))
+    return tests
+
+
 if __name__ == "__main__":
     unittest.main()
