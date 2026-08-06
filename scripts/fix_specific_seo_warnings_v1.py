@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-"""Fix the remaining deterministic SEO warnings on three reviewed pages.
+"""Fix reviewed deterministic SEO issues on explicitly scoped pages.
 
-The scope is deliberately explicit. It does not rewrite body content, headings,
-links, citations, or structured data. It only enforces reviewed search metadata
-that the site-wide auditor has identified as incomplete.
+The scope is deliberately explicit. It enforces reviewed search metadata on
+three pages and a fixed contextual internal-links block on the accessible travel
+guide. It does not rewrite H1 content, citations, structured data, or unrelated
+body copy.
 """
 
 import argparse
@@ -20,6 +21,15 @@ TRAVEL_DESCRIPTION = (
     "والتحقق من الإقامة والنقل والأدوية والطوارئ والإلغاء قبل الدفع، مع أسئلة "
     "قابلة للقياس وخطة بديلة."
 )
+TRAVEL_LINKS_MARKER = 'data-seo-internal-links="v1"'
+TRAVEL_LINKS_SECTION = """<section class="related-resources" data-seo-internal-links="v1" aria-labelledby="related-resources-heading">
+<h2 id="related-resources-heading">موارد مرتبطة للتخطيط الآمن والميسّر</h2>
+<ul>
+<li><a href="/accessibility/accessible-participation-travel/">المشاركة والسفر الميسّر للأشخاص ذوي الاحتياجات الخاصة</a></li>
+<li><a href="/accessibility/">دليل الإتاحة والمشاركة الشاملة</a></li>
+<li><a href="/safety/">معايير السلامة وحدود المحتوى الصحي</a></li>
+</ul>
+</section>"""
 
 TARGETS = {
     "clinical": Path("evidence-guides/clinical-anxiety/index.html"),
@@ -76,6 +86,16 @@ def _ensure_robots(source: str) -> str:
     return source[: description.end()] + "\n" + replacement + source[description.end() :]
 
 
+def _ensure_travel_internal_links(source: str) -> str:
+    if TRAVEL_LINKS_MARKER in source:
+        return source
+
+    anchor = '<section aria-labelledby="sources-heading">'
+    if source.count(anchor) != 1:
+        raise SeoFixError("Expected exactly one travel sources section anchor.")
+    return source.replace(anchor, TRAVEL_LINKS_SECTION + "\n" + anchor, 1)
+
+
 def expected_sources(root: Path) -> dict[Path, str]:
     paths = {name: root / relative for name, relative in TARGETS.items()}
     missing = [str(path) for path in paths.values() if not path.is_file()]
@@ -87,6 +107,7 @@ def expected_sources(root: Path) -> dict[Path, str]:
     travel = paths["travel"].read_text(encoding="utf-8")
     travel = _replace_description(travel, TRAVEL_DESCRIPTION)
     travel = _ensure_robots(travel)
+    travel = _ensure_travel_internal_links(travel)
 
     books = _ensure_robots(paths["books"].read_text(encoding="utf-8"))
 
@@ -109,7 +130,7 @@ def apply(root: Path, *, write: bool) -> dict[str, object]:
             path.write_text(source, encoding="utf-8")
 
     if changed and not write:
-        raise SeoFixError(f"SEO metadata is stale: {changed}")
+        raise SeoFixError(f"SEO fixes are stale: {changed}")
 
     return {
         "version": 1,
@@ -118,6 +139,7 @@ def apply(root: Path, *, write: bool) -> dict[str, object]:
         "targets": [path.relative_to(root).as_posix() for path in expected],
         "clinical_title_length": len(CLINICAL_TITLE),
         "travel_description_length": len(TRAVEL_DESCRIPTION),
+        "travel_internal_links": 3,
         "robots": ROBOTS,
     }
 
