@@ -1,0 +1,107 @@
+name: Validate Issue 20 scale provenance and rights v32
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/v32/official-scale-provenance-ar.json'
+      - 'scripts/apply_scale_provenance_v32.py'
+      - 'scripts/harden_lab_runtime_v32.py'
+      - 'scripts/harden_monitor_runtime_v32.py'
+      - '.github/workflows/validate-issue20-provenance-v32.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/v32/official-scale-provenance-ar.json'
+      - 'scripts/apply_scale_provenance_v32.py'
+      - 'scripts/harden_lab_runtime_v32.py'
+      - 'scripts/harden_monitor_runtime_v32.py'
+      - '.github/workflows/validate-issue20-provenance-v32.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  provenance-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate provenance source and publishers
+        run: |
+          python -m json.tool content/v32/official-scale-provenance-ar.json >/dev/null
+          python -m py_compile scripts/apply_scale_provenance_v32.py scripts/harden_lab_runtime_v32.py scripts/harden_monitor_runtime_v32.py
+
+      - name: Restore production generators
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+
+      - name: Build production assessment surface and apply provenance
+        run: |
+          set -euxo pipefail
+          python build_site.py
+          python enrich_site_v7.py
+          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+          python scripts/scale_site_v8.py
+          python expand_site_v9.py
+          python scripts/design_content_v10.py
+          python scripts/apply_contrast_v11.py _site
+          python scripts/expand_v12_direct.py _site
+          python scripts/performance_hotfix_v14.py _site
+          python scripts/optimize_site_performance_v14.py _site
+          python scripts/strip_nonlab_runtime_v14.py _site
+          python scripts/complete_core_sections_v15.py _site
+          python scripts/upgrade_cognitive_batch1_v22.py _site
+          python scripts/upgrade_cognitive_batch2_v22.py _site
+          python scripts/fix_initial_cognitive_variation_v25.py _site
+          python scripts/fix_stroop_and_variation_v23.py _site
+          python scripts/complete_cognitive_remaining_v24.py _site
+          python scripts/fix_cognitive_quality_v26.py _site
+          python scripts/publish_monitor_items_v32.py _site
+          python scripts/harden_lab_runtime_v32.py _site
+          python scripts/harden_monitor_runtime_v32.py _site
+          python scripts/enrich_lab_content_v32.py _site
+          python scripts/apply_scale_provenance_v32.py _site
+
+      - name: Enforce provenance translation and licensing contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/scale-provenance-v32.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed', report
+          assert report['found']==['audit_guided','gad7','phq9','who5'], report
+          assert len(report['pages'])==4 and report['failures']==[], report
+          assert report['who5_policy']=='adapted_arabic_descriptive_only', report
+          assert report['arabic_exact_text_required_before_validated_claim'] is True, report
+          assert report['runtime']['generic_notice'] is True, report
+          assert report['runtime']['who5_adapted_label'] is True, report
+          assert report['runtime']['who5_no_validated_arabic_claim'] is True, report
+          print({'scales':'4/4','who5':'adapted descriptive only','exact_arabic_text_required':True})
+          PY
+
+      - name: Upload provenance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-20-provenance-v32-evidence
+          path: |
+            _site/assessment-lab/phq-9-plus
+            _site/assessment-lab/gad-7-plus
+            _site/assessment-lab/who-5-plus
+            _site/assessment-lab/audit-10-guided
+            _site/assets/js/lab-v12.js
+            _site/api/scale-provenance-v32.json
+          if-no-files-found: warn
+          retention-days: 14
