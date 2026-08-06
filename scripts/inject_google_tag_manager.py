@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 GTM_ID = "GTM-WBLQVBG4"
+SCRIPT_VERSION = "1.0.0"
 
 HEAD_SNIPPET = """<!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
