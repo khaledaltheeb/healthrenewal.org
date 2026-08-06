@@ -6,9 +6,9 @@ import html
 import json
 import re
 from pathlib import Path
-from urllib.parse import unquote, urlparse
 
 BASE = "https://healthrenewal.org"
+LEGACY_BASE = "https://khaledaltheeb.github.io/pterminology-site"
 HTML_SUFFIXES = {".html", ".htm"}
 REDIRECT_RE = re.compile(r"http-equiv\s*=\s*[\"']refresh|location\.replace\s*\(", re.I)
 NOINDEX_RE = re.compile(
@@ -66,56 +66,34 @@ def indexable_html(site: Path) -> list[str]:
     return output
 
 
-def normalize_existing_url(url: str) -> str:
-    path = unquote(urlparse(url.strip()).path).lstrip("/")
-    if path == "pterminology-site":
-        return ""
-    if path.startswith("pterminology-site/"):
-        return path[len("pterminology-site/"):]
-    return path
-
-
-def candidate_files(path: str) -> list[str]:
-    if not path:
-        return ["index.html"]
-    if path.endswith("/"):
-        return [path + "index.html"]
-    output = [path]
-    if not Path(path).suffix:
-        output.extend([path + "/index.html", path + ".html"])
-    return output
-
-
-def resolve_existing_url(site: Path, url: str, eligible: set[str]) -> str | None:
-    normalized = normalize_existing_url(url)
-    for candidate in candidate_files(normalized):
-        if candidate in eligible and (site / candidate).is_file():
-            return candidate
-    return None
-
-
 def write_urlset(path: Path, urls: list[str]) -> None:
-    rows = ["<?xml version='1.0' encoding='utf-8'?>", '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    rows = [
+        "<?xml version='1.0' encoding='utf-8'?>",
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
     for url in urls:
         rows.extend(["  <url>", f"    <loc>{html.escape(url)}</loc>", "  </url>"])
     rows.append("</urlset>")
     path.write_text("\n".join(rows) + "\n", encoding="utf-8")
 
 
-def rewrite_family_sitemaps(site: Path, eligible: set[str]) -> dict[str, int]:
+def canonicalize_family_sitemaps(site: Path) -> dict[str, int]:
+    """Correct the legacy host without destroying specialized XML metadata.
+
+    Some historical family sitemaps contain image metadata, lastmod, priority,
+    and changefreq. The root sitemap is rebuilt from the final validated HTML
+    inventory, while auxiliary maps retain their richer structure and only have
+    the obsolete GitHub Pages base URL normalized to the canonical domain.
+    """
     stats: dict[str, int] = {}
     for sitemap in sorted(site.glob("sitemap*.xml")):
         if sitemap.name in {"sitemap.xml", "sitemap-index.xml"}:
             continue
         text = sitemap.read_text(encoding="utf-8", errors="replace")
-        files = []
-        for raw in LOC_RE.findall(text):
-            resolved = resolve_existing_url(site, raw, eligible)
-            if resolved and resolved not in files:
-                files.append(resolved)
-        urls = sorted(canonical_url(rel) for rel in files)
-        write_urlset(sitemap, urls)
-        stats[sitemap.name] = len(urls)
+        updated = text.replace(LEGACY_BASE, BASE)
+        if updated != text:
+            sitemap.write_text(updated, encoding="utf-8")
+        stats[sitemap.name] = len(LOC_RE.findall(updated))
     return stats
 
 
@@ -153,7 +131,6 @@ def main() -> None:
         if p.is_file() and p.suffix.lower() in HTML_SUFFIXES
     ]
     eligible_list = indexable_html(site)
-    eligible = set(eligible_list)
     canonical_urls = sorted(canonical_url(rel) for rel in eligible_list)
 
     legacy_loc_count = 0
@@ -162,33 +139,32 @@ def main() -> None:
         text = sitemap.read_text(encoding="utf-8", errors="replace")
         locs = LOC_RE.findall(text)
         legacy_loc_count += len(locs)
-        legacy_host_count += sum("khaledaltheeb.github.io/pterminology-site" in loc for loc in locs)
+        legacy_host_count += sum(LEGACY_BASE in loc for loc in locs)
 
     write_urlset(site / "sitemap.xml", canonical_urls)
-    family_counts = rewrite_family_sitemaps(site, eligible)
+    family_counts = canonicalize_family_sitemaps(site)
     write_index(site)
     write_robots(site)
 
-    post_files = list(site.glob("sitemap*.xml"))
     stale = []
-    for sitemap in post_files:
+    for sitemap in site.glob("sitemap*.xml"):
         text = sitemap.read_text(encoding="utf-8", errors="replace")
-        if "khaledaltheeb.github.io/pterminology-site" in text:
+        if LEGACY_BASE in text:
             stale.append(sitemap.name)
 
     root_urls = LOC_RE.findall((site / "sitemap.xml").read_text(encoding="utf-8"))
     report = {
         "schemaVersion": 1,
-        "status": "passed" if not stale and len(root_urls) == len(eligible) else "failed",
+        "status": "passed" if not stale and len(root_urls) == len(eligible_list) else "failed",
         "htmlPages": len(all_html),
-        "indexableHtmlPages": len(eligible),
+        "indexableHtmlPages": len(eligible_list),
         "canonicalRootSitemapUrls": len(root_urls),
         "legacyLocEntriesBefore": legacy_loc_count,
         "legacyGithubUrlsRemoved": legacy_host_count,
-        "familySitemapsRewritten": len(family_counts),
+        "familySitemapsCanonicalized": len(family_counts),
         "familySitemapUrlCounts": family_counts,
         "staleLegacySitemaps": stale,
-        "excludedHtmlPages": len(all_html) - len(eligible),
+        "excludedHtmlPages": len(all_html) - len(eligible_list),
     }
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)
@@ -199,7 +175,7 @@ def main() -> None:
 
     if report["status"] != "passed":
         raise SystemExit(report)
-    if set(root_urls) != set(canonical_urls):
+    if root_urls != canonical_urls:
         raise SystemExit("Root sitemap does not exactly match indexable HTML routes")
     print(json.dumps(report, ensure_ascii=False))
 
