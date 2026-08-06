@@ -112,7 +112,8 @@ jobs:
             scripts/recover_content_full_history_v3.py \
             scripts/review_content_aliases_v1.py \
             scripts/consolidate_duplicate_pages_v1.py \
-            scripts/finalize_content_quality_v2.py
+            scripts/finalize_content_quality_v2.py \
+            scripts/finalize_canonical_sitemaps_v1.py
           python scripts/recover_content_full_history_v3.py \
             --root . \
             --site _site \
@@ -123,6 +124,7 @@ jobs:
             --baseline /tmp/validated-baseline \
             --days 3650
           python scripts/finalize_content_quality_v2.py --site _site
+          python scripts/finalize_canonical_sitemaps_v1.py --site _site
 
       - name: Enforce no-loss complete inventory
         env:
@@ -141,6 +143,7 @@ jobs:
           duplicates = json.loads((site / 'api/duplicate-consolidation-v1.json').read_text(encoding='utf-8'))
           self_advocacy = json.loads((site / 'api/self-advocacy-v172.json').read_text(encoding='utf-8'))
           cdls = json.loads((site / 'api/special-needs-cdls-v337.json').read_text(encoding='utf-8'))
+          sitemaps = json.loads((site / 'api/sitemap-finalization-v1.json').read_text(encoding='utf-8'))
 
           baseline_html = sum(
               1 for p in baseline.rglob('*')
@@ -165,6 +168,10 @@ jobs:
           assert self_advocacy.get('standalonePagesCreated') == 0, self_advocacy
           assert cdls.get('status') == 'passed', cdls
           assert cdls.get('single_canonical_route') is True, cdls
+          assert sitemaps.get('status') == 'passed', sitemaps
+          assert sitemaps.get('canonicalRootSitemapUrls') == sitemaps.get('indexableHtmlPages'), sitemaps
+          assert not sitemaps.get('staleLegacySitemaps'), sitemaps.get('staleLegacySitemaps')
+          assert sitemaps.get('canonicalRootSitemapUrls', 0) >= 4000, sitemaps
           assert (site / 'index.html').is_file()
 
           deployment = {
@@ -175,6 +182,8 @@ jobs:
               'generated_at': datetime.now(timezone.utc).isoformat(),
               'html_pages': report['htmlPages'],
               'baseline_html_pages': baseline_html,
+              'indexable_sitemap_urls': sitemaps['canonicalRootSitemapUrls'],
+              'legacy_github_sitemap_urls_removed': sitemaps['legacyGithubUrlsRemoved'],
               'historical_pages_restored': report.get('historicalPagesRestored', 0),
               'completeness_ratio': report['completenessRatio'],
               'duplicate_routes_consolidated': duplicates.get('duplicateRoutesConsolidated', 0),
@@ -190,6 +199,7 @@ jobs:
               'falseAliasesRejected', 'remainingThinPages', 'completenessRatio',
               'integrityStatus', 'integrityMissingInternalPaths'
           )})
+          print({'sitemaps': sitemaps})
           print({'duplicateRoutesConsolidated': duplicates.get('duplicateRoutesConsolidated', 0)})
           print({'deployment': deployment})
           PY
@@ -206,6 +216,7 @@ jobs:
             _site/api/duplicate-consolidation-v1.json
             _site/api/self-advocacy-v172.json
             _site/api/special-needs-cdls-v337.json
+            _site/api/sitemap-finalization-v1.json
             _site/deployment.json
           if-no-files-found: warn
           retention-days: 30
@@ -268,12 +279,16 @@ jobs:
               -o /tmp/live-recovery.json \
               && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
               "https://healthrenewal.org/api/duplicate-consolidation-v1.json?duplicates=${nonce}" \
-              -o /tmp/live-duplicates.json; then
+              -o /tmp/live-duplicates.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/sitemap-finalization-v1.json?sitemap=${nonce}" \
+              -o /tmp/live-sitemaps.json; then
               if python - <<'PY'
           import json, os
           deployment = json.load(open('/tmp/live-deployment.json', encoding='utf-8'))
           report = json.load(open('/tmp/live-recovery.json', encoding='utf-8'))
           duplicates = json.load(open('/tmp/live-duplicates.json', encoding='utf-8'))
+          sitemaps = json.load(open('/tmp/live-sitemaps.json', encoding='utf-8'))
           assert deployment['schemaVersion'] == 2
           assert deployment['release_commit'] == os.environ['EXPECTED_SHA'], deployment
           assert report['schemaVersion'] == 3
@@ -285,6 +300,10 @@ jobs:
           assert report.get('integrityStatus') == 'passed'
           assert report.get('integrityMissingInternalPaths') == 0
           assert duplicates.get('status') == 'passed'
+          assert sitemaps.get('status') == 'passed'
+          assert sitemaps.get('canonicalRootSitemapUrls') == sitemaps.get('indexableHtmlPages')
+          assert not sitemaps.get('staleLegacySitemaps')
+          assert sitemaps.get('canonicalRootSitemapUrls', 0) >= 4000
           print({'deployment': deployment})
           print({key: report.get(key) for key in (
               'status', 'htmlPages', 'historicalPagesRestored', 'historySince',
@@ -292,6 +311,7 @@ jobs:
               'falseAliasesRejected', 'remainingThinPages', 'completenessRatio',
               'integrityStatus', 'integrityMissingInternalPaths'
           )})
+          print({'sitemaps': sitemaps})
           PY
               then
                 ready=1
