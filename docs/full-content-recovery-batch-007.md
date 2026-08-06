@@ -28,7 +28,8 @@
 تم فحص نموذج كامل من هذه العائلة:
 
 - `care-guides/evidence-guided/caregiver-burnout-prevention/index.html`
-- Git blob: `aabf2e08c6f376b1e2335a8d31b76a390f0ef8d6`
+- المصدر: الفرع التاريخي `agent/content-expansion-100-v2`.
+- لم يُثبت Git blob في هذا السجل لأن واجهة الاسترجاع أعادت المحتوى الطويل مقتطعًا دون قيمة SHA موثوقة؛ لا يجوز تسجيل معرّف غير متحقق.
 
 ### قرار الاستبعاد المؤقت
 
