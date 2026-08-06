@@ -3,8 +3,10 @@ from __future__ import annotations
 import re
 import unittest
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
+ROBOTS_META = '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">'
 
 
 class InstitutionalRouteHubsV1Tests(unittest.TestCase):
@@ -25,6 +27,7 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
             '<link rel="canonical" href="https://healthrenewal.org/safety/">',
             page,
         )
+        self.assertIn(ROBOTS_META, page)
         self.assertIn("عند وجود خطر مباشر أو وشيك", page)
         self.assertIn("لا تعتمد على هذه الصفحة أو على اختبار إلكتروني", page)
         self.assertIn("العناصر الستة لخطة سلامة شخصية", page)
@@ -41,6 +44,7 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
             '<link rel="canonical" href="https://healthrenewal.org/services/">',
             page,
         )
+        self.assertIn(ROBOTS_META, page)
         self.assertIn("منصة روافد منصة معرفية وتثقيفية", page)
         self.assertIn("عند البحث عن خدمة خارج المنصة", page)
         self.assertIn("معايير تحميك من الادعاءات المضللة", page)
@@ -89,6 +93,24 @@ class InstitutionalRouteHubsV1Tests(unittest.TestCase):
             canonical_link_count += page.count('href="/sectors/family/"')
 
         self.assertGreaterEqual(canonical_link_count, 10)
+
+    def test_institutional_routes_are_discoverable_in_sitemap(self) -> None:
+        sitemap = ROOT / "sitemap.xml"
+        self.assertTrue(sitemap.is_file())
+        root = ET.parse(sitemap).getroot()
+        namespace = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+        urls = {
+            node.text
+            for node in root.findall("sm:url/sm:loc", namespace)
+            if node.text
+        }
+        required = {
+            "https://healthrenewal.org/safety/",
+            "https://healthrenewal.org/services/",
+            "https://healthrenewal.org/sectors/family/",
+        }
+        self.assertTrue(required.issubset(urls), sorted(required - urls))
+        self.assertEqual(len(urls), len(root.findall("sm:url", namespace)))
 
 
 if __name__ == "__main__":
