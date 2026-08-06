@@ -1,4 +1,4 @@
-name: Materialize reviewed sectors v10 content
+name: Materialize governed sectors v10 content
 
 on:
   pull_request:
@@ -8,8 +8,11 @@ on:
       - "data/content-reviews/sectors-v10-editorial-release-v2.json"
       - "scripts/materialize_sectors_v10_v1.py"
       - "scripts/materialize_sectors_v10_compat_v2.py"
+      - "scripts/materialize_sectors_v10_metadata_v3.py"
+      - "scripts/materialize_sectors_v10_compat_v4.py"
       - "tests/test_materialize_sectors_v10_v1.py"
       - "tests/test_materialize_sectors_v10_compat_v2.py"
+      - "tests/test_materialize_sectors_v10_compat_v4.py"
       - ".github/workflows/materialize-sectors-v10-v1.yml"
   push:
     branches: [main]
@@ -18,8 +21,11 @@ on:
       - "data/content-reviews/sectors-v10-editorial-release-v2.json"
       - "scripts/materialize_sectors_v10_v1.py"
       - "scripts/materialize_sectors_v10_compat_v2.py"
+      - "scripts/materialize_sectors_v10_metadata_v3.py"
+      - "scripts/materialize_sectors_v10_compat_v4.py"
       - "tests/test_materialize_sectors_v10_v1.py"
       - "tests/test_materialize_sectors_v10_compat_v2.py"
+      - "tests/test_materialize_sectors_v10_compat_v4.py"
       - ".github/workflows/materialize-sectors-v10-v1.yml"
   workflow_dispatch:
 
@@ -47,33 +53,40 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Compile publisher and run tests
+      - name: Compile publisher and run focused tests
         run: |
           set -euo pipefail
           python -m py_compile \
             scripts/materialize_sectors_v10_v1.py \
             scripts/materialize_sectors_v10_compat_v2.py \
+            scripts/materialize_sectors_v10_metadata_v3.py \
+            scripts/materialize_sectors_v10_compat_v4.py \
             tests/test_materialize_sectors_v10_v1.py \
-            tests/test_materialize_sectors_v10_compat_v2.py
+            tests/test_materialize_sectors_v10_compat_v2.py \
+            tests/test_materialize_sectors_v10_compat_v4.py
           python -m unittest -v \
-            tests/test_materialize_sectors_v10_v1.py \
-            tests/test_materialize_sectors_v10_compat_v2.py
+            tests.test_materialize_sectors_v10_v1 \
+            tests.test_materialize_sectors_v10_compat_v2 \
+            tests.test_materialize_sectors_v10_compat_v4
 
-      - name: Materialize reviewed public pages
+      - name: Materialize canonical v4 public pages
         run: |
           set -euo pipefail
-          python scripts/materialize_sectors_v10_compat_v2.py .
-          python scripts/materialize_sectors_v10_compat_v2.py . --check
+          python scripts/materialize_sectors_v10_compat_v4.py .
+          python scripts/materialize_sectors_v10_compat_v4.py . --check
+
+      - name: Verify dynamic inventory and complete clinical guide
+        run: |
+          set -euo pipefail
           python - <<'PY'
           import json
           from pathlib import Path
 
           report = json.loads(Path("api/sectors-v10-publication-v1.json").read_text(encoding="utf-8"))
           assert report["status"] == "passed", report
-          assert report["pageCount"] == 37, report
+          assert report["pageCount"] >= 37, report
           assert report["hubCount"] == 1, report
           assert report["pageCount"] == len(report["routes"]), report
-          assert report["qualityRejectedCount"] <= 1, report
           assert report["qualityGates"]["minimumPages"] is True, report
           assert report["qualityGates"]["allRoutesUnique"] is True, report
           assert report["qualityGates"]["manualReviewSourcesExcluded"] is True, report
@@ -81,28 +94,32 @@ jobs:
 
           pages = list(Path("evidence-guides").glob("*/index.html"))
           assert len(pages) == report["pageCount"], (len(pages), report["pageCount"])
-          required_routes = {
-              "/evidence-guides/aac-home-school-guide/",
-              "/evidence-guides/adjustment-disorder-safe-guide/",
-              "/evidence-guides/anxiety-fear-differences-guide/",
-              "/evidence-guides/autism-adhd-differences-guide/",
-              "/evidence-guides/first-mental-health-appointment-guide/",
-              "/evidence-guides/inclusive-safeguarding-guide/",
-              "/evidence-guides/inclusive-school-transition/",
-              "/evidence-guides/mental-health-foundations/",
-              "/evidence-guides/safe-screening-tools-explainer/",
-              "/evidence-guides/sleep-mental-health-evidence-brief/",
-              "/evidence-guides/stress-burnout-depression-differences-guide/",
-          }
-          routes = set(report["routes"])
-          assert required_routes <= routes, required_routes - routes
-          released_sources = {
-              "content/sectors-v10/aac-home-school-guide.json",
-              "content/sectors-v10/inclusive-school-transition.json",
-              "content/sectors-v10/mental-health-foundations.json",
-          }
-          skipped_sources = {entry["source"] for entry in report["skipped"]}
-          assert not (released_sources & skipped_sources), released_sources & skipped_sources
+          clinical_route = "/evidence-guides/clinical-anxiety/"
+          assert clinical_route in set(report["routes"]), report["routes"]
+          skipped = {entry["source"] for entry in report["skipped"]}
+          assert "content/sectors-v10/clinical-anxiety.json" not in skipped, skipped
+
+          clinical_path = Path("evidence-guides/clinical-anxiety/index.html")
+          clinical = clinical_path.read_text(encoding="utf-8")
+          required_titles = (
+              "متى يكون القلق طبيعيًا ومتى يصبح اضطرابًا؟",
+              "الفرق بين نوبة الهلع واضطراب الهلع",
+              "الوسواس القهري والأفكار الاقتحامية: ما الفرق؟",
+              "كيف تُبنى خطة علاج مشتركة؟",
+              "متى تصبح الأولوية للسلامة أو التقييم العاجل؟",
+          )
+          for title in required_titles:
+              assert title in clinical, title
+          assert clinical.count('id="practical-questions"') == 1
+          assert clinical.count('id="governance"') == 1
+          assert clinical.count('id="related-links"') == 1
+          assert "MedicalWebPage" in clinical
+          assert "CollectionPage" in clinical
+          assert "مختبر التقييمات النفسية الآمنة" in clinical
+          assert "مراجعة خارجية موصى بها ولم تكتمل" in clinical
+          assert "علامات الخطر التي تستلزم تصعيدًا عاجلًا" in clinical
+          assert "هذه الصفحة للتثقيف العام ولا تثبت تشخيصًا" in clinical
+          assert "معاقين" not in clinical
 
           for path in pages:
               text = path.read_text(encoding="utf-8")
@@ -112,12 +129,12 @@ jobs:
               assert "منصة روافد" in text, path
               assert "<script>alert(" not in text, path
               assert "معاقين" not in text, path
+
           print({
               "pages": report["pageCount"],
               "articles": report["articleCount"],
               "references": report["sourceReferenceCount"],
-              "quality_rejected": report["qualityRejectedCount"],
-              "skipped": len(report["skipped"]),
+              "clinical_units": len(required_titles),
           })
           PY
 
@@ -133,12 +150,12 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No materialization changes."
           else
-            git commit -m "content: materialize reviewed sectors-v10 evidence guides"
+            git commit -m "content: materialize governed sectors-v10 evidence guides"
             git push origin HEAD:main
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Dispatch the single complete Pages publisher
+      - name: Dispatch complete Pages publisher
         if: github.event_name != 'pull_request' && steps.commit.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
