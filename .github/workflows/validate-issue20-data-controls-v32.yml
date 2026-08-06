@@ -1,0 +1,124 @@
+name: Validate Issue 20 local data controls v32
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/add_lab_data_controls_v32.py'
+      - 'scripts/apply_scale_provenance_v32.py'
+      - 'scripts/e2e_lab_data_controls_v32.mjs'
+      - '.github/workflows/validate-issue20-data-controls-v32.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/add_lab_data_controls_v32.py'
+      - 'scripts/apply_scale_provenance_v32.py'
+      - 'scripts/e2e_lab_data_controls_v32.mjs'
+      - '.github/workflows/validate-issue20-data-controls-v32.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  data-controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Compile local-data processors and browser test
+        run: |
+          python -m py_compile scripts/add_lab_data_controls_v32.py scripts/apply_scale_provenance_v32.py
+          node --check scripts/e2e_lab_data_controls_v32.mjs
+
+      - name: Restore production generators and build laboratory surface
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          python build_site.py
+          python enrich_site_v7.py
+          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+          python scripts/scale_site_v8.py
+          python expand_site_v9.py
+          python scripts/design_content_v10.py
+          python scripts/apply_contrast_v11.py _site
+          python scripts/expand_v12_direct.py _site
+          python scripts/performance_hotfix_v14.py _site
+          python scripts/optimize_site_performance_v14.py _site
+          python scripts/strip_nonlab_runtime_v14.py _site
+          python scripts/complete_core_sections_v15.py _site
+          python scripts/upgrade_cognitive_batch1_v22.py _site
+          python scripts/upgrade_cognitive_batch2_v22.py _site
+          python scripts/fix_initial_cognitive_variation_v25.py _site
+          python scripts/fix_stroop_and_variation_v23.py _site
+          python scripts/complete_cognitive_remaining_v24.py _site
+          python scripts/fix_cognitive_quality_v26.py _site
+          python scripts/publish_monitor_items_v32.py _site
+          python scripts/harden_lab_runtime_v32.py _site
+          python scripts/harden_monitor_runtime_v32.py _site
+          python scripts/harden_cognitive_distinctness_v32.py _site
+          python scripts/enrich_lab_content_v32.py _site
+          python scripts/render_lab_specificity_v32.py _site
+          python scripts/apply_scale_provenance_v32.py _site
+
+      - name: Enforce static local-only data control contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/lab-data-controls-v32.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed', report
+          assert report['assessment_pages']==40 and report['cognitive_pages']==53 and report['total_tools']==93, report
+          assert report['export_local_json'] is True and report['print'] is True and report['delete_local_only'] is True, report
+          assert report['no_network_transport'] is True and report['confirm_before_delete'] is True, report
+          assert report['live_status'] is True and report['touch_target'] is True, report
+          print({'tools':93,'export':'local JSON','delete':'localStorage only','print':'browser print','network_transport':0})
+          PY
+
+      - name: Install Chromium and run control actions
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+          python -m http.server 8000 --directory _site >/tmp/issue20-data-controls-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/ >/dev/null && break; sleep 1; done
+          AUDIT_BASE_URL=http://127.0.0.1:8000/ AUDIT_SITE_ROOT=_site AUDIT_OUT_DIR=_site/api node scripts/e2e_lab_data_controls_v32.mjs
+
+      - name: Enforce browser evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/lab-data-controls-e2e-v32.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed', report
+          assert report['assessmentPages']==40 and report['cognitivePages']==53, report
+          assert report['expectedPresenceChecks']==93 and report['presenceChecks']==93, report
+          assert report['functionalChecks']==2 and report['errors']==[], report
+          print({'presence':'93/93','functional':'2/2 representative surfaces','errors':0})
+          PY
+
+      - name: Upload local-data evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-20-data-controls-v32-evidence
+          path: |
+            _site/api/lab-data-controls-v32.json
+            _site/api/lab-data-controls-e2e-v32.json
+            _site/assets/js/lab-v12.js
+            /tmp/issue20-data-controls-http.log
+          if-no-files-found: warn
+          retention-days: 14
