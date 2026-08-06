@@ -33,6 +33,13 @@ LEGACY_ROUTE_MAP = {
     "/family/": "/sectors/family/",
 }
 
+# A page headline may be intentionally descriptive while the search-result title
+# needs a tighter character budget. Keep explicit, reviewed overrides close to
+# the canonical publisher so regeneration cannot restore known title warnings.
+SEO_TITLE_OVERRIDES = {
+    "clinical-anxiety": "القلق والهلع والوسواس: الفروق وطلب المساعدة",
+}
+
 
 def _canonical_internal_route(value: Any) -> str:
     route = str(value or "").strip()
@@ -143,6 +150,25 @@ def _internal_links_section(payload: dict[str, Any]) -> str:
     )
 
 
+def _apply_seo_title_override(page: str, payload: dict[str, Any]) -> str:
+    key = str(payload.get("key") or "").strip()
+    seo_title = SEO_TITLE_OVERRIDES.get(key)
+    if not seo_title:
+        return page
+    rendered_title = f"{seo_title} | منصة روافد"
+    start = page.find("<title>")
+    end = page.find("</title>", start + len("<title>"))
+    if start < 0 or end < 0:
+        raise PublicationError(
+            f"Rendered governed page for {key or 'unknown source'} is missing <title>."
+        )
+    return (
+        page[: start + len("<title>")]
+        + base.esc(rendered_title)
+        + page[end:]
+    )
+
+
 def render_page(item: PublicationItem) -> str:
     normalize_payload(item.payload)
     original = compat._internal_links_section
@@ -151,6 +177,8 @@ def render_page(item: PublicationItem) -> str:
         page = metadata.render_page(item)
     finally:
         compat._internal_links_section = original
+
+    page = _apply_seo_title_override(page, item.payload)
 
     boundary = str(item.payload.get("professional_boundary") or "").strip()
     disclaimer = str(item.payload.get("disclaimer") or "").strip()
