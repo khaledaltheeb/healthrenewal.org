@@ -59,6 +59,32 @@ def test_claims_resolve_to_current_sources():
         assert source["rights"] == "link-cite-and-original-summary-only"
 
 
+def test_decision_support_workflow_is_actionable():
+    data = load_record()
+    workflow = data["decision_support_workflow"]
+
+    assert len(workflow) >= 6
+    assert [item["step"] for item in workflow] == list(range(1, len(workflow) + 1))
+    assert all(len(item["title"]) >= 8 for item in workflow)
+    assert all(len(item["practice"]) >= 80 for item in workflow)
+
+    joined = " ".join(item["practice"] for item in workflow)
+    for term in ["الرفض", "التواصل", "البدائل", "تضارب المصالح", "التظلم"]:
+        assert term in joined
+
+
+def test_accessibility_findings_block_merge_until_remediated():
+    audit = load_record()["semantic_accessibility_audit"]
+
+    assert audit["status"] == "remediation-required-before-merge"
+    assert {"section-labeling", "skip-link", "keyboard", "rtl", "mobile", "print"}.issubset(audit["scope"])
+    assert len(audit["confirmed_findings"]) >= 2
+    assert all(item["merge_blocking"] is True for item in audit["confirmed_findings"])
+    assert any(item["ownership"] == "page-local" for item in audit["confirmed_findings"])
+    assert any(item["ownership"] == "shared-css" for item in audit["confirmed_findings"])
+    assert audit["unconfirmed_findings"]
+
+
 def test_rights_and_safeguarding_limits_are_explicit():
     data = load_record()
     joined = " ".join(data["non_claims"] + [data["professional_limits"]])
