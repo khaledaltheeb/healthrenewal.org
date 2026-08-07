@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-"""Run the established recovery engine against the repository's full history.
+"""Run the established recovery engine against every distinct Git page version.
 
-The underlying recovery scorer already rewards substantive editorial structure
-and penalizes repetitive/template content. This entrypoint broadens the
-historical candidate pool while preventing obsolete operational/prototype
-surfaces from being resurrected merely because an old variant is longer.
+The underlying recovery scorer rewards substantive editorial structure and
+penalizes repetitive/template content. This entrypoint broadens the historical
+candidate pool from a small representative sample to every distinct HTML blob
+reachable from the fetched Git refs, while preventing obsolete
+operational/prototype surfaces from being resurrected merely because an old
+variant is longer.
 
-This entrypoint also enforces a hard no-shortening rule for routes already
-present in the assembled site. A historical/baseline candidate may score better
-structurally, but it is never allowed to replace an existing page with fewer
-visible words. The richer existing page remains the base; unique historical
-material must be merged separately rather than recovered by destructive
-replacement.
+It also enforces a hard no-shortening rule for routes already present in the
+assembled site. A historical/baseline candidate may score better structurally,
+but it is never allowed to replace an existing page with fewer visible words.
+The richer existing page remains the base; unique historical material must be
+merged separately rather than recovered by destructive replacement.
 """
 
+from collections import defaultdict
 from pathlib import Path
 
 import recover_content_v1 as base
@@ -39,16 +41,71 @@ def recovery_safe(path: str) -> bool:
     return _original_safe(path) and not normalized.startswith(HISTORICAL_RESTORE_BLOCKED_PREFIXES)
 
 
+def _parse_distinct_history(raw: str) -> dict[str, list[str]]:
+    """Return every distinct reachable HTML version, deduplicated by Git blob.
+
+    ``git log --raw`` exposes the post-change blob id for each A/M event. The
+    same file content can occur in many commits or branches; comparing it again
+    adds cost but no editorial information. We therefore keep the newest commit
+    that exposes each distinct blob for a path and retain *all* distinct blobs,
+    rather than sampling only the first/high-churn 24 commits.
+    """
+    commit = ''
+    seen_blobs: dict[str, set[str]] = defaultdict(set)
+    versions: dict[str, list[str]] = defaultdict(list)
+
+    for line in raw.splitlines():
+        if line.startswith('@@'):
+            commit = line[2:].strip()
+            continue
+        if not commit or not line.startswith(':') or '\t' not in line:
+            continue
+
+        metadata, path = line.split('\t', 1)
+        fields = metadata.split()
+        if len(fields) < 5:
+            continue
+        new_blob = fields[3]
+        status = fields[4]
+        if not status.startswith(('A', 'M')):
+            continue
+        if not new_blob or set(new_blob) == {'0'} or not recovery_safe(path):
+            continue
+        if new_blob in seen_blobs[path]:
+            continue
+
+        seen_blobs[path].add(new_blob)
+        versions[path].append(commit)
+
+    return dict(versions)
+
+
 def full_history_candidates(since: str, limit: int = 24):
-    # 24 representative versions per route covers early, recent, and
-    # high-change candidates without an unbounded scan of every generated
-    # revision in a repository with hundreds of long-lived branches.
+    """Enumerate every distinct HTML/HTM blob across all fetched Git refs.
+
+    ``since`` is intentionally honored to preserve the caller's configured
+    history horizon (production currently supplies 3650 days), but ``limit`` is
+    intentionally ignored: limiting to 24 representative commits can miss the
+    richest version of a page. Distinct-blob deduplication prevents repeated
+    identical versions from inflating the comparison set.
+    """
+    raw = base.git([
+        'log', '--all', f'--since={since}', '--no-renames', '--diff-filter=AM',
+        '--raw', '--format=@@%H', '--', '*.html', '*.htm',
+    ])
+    parsed = _parse_distinct_history(raw)
+    if parsed:
+        return parsed
+
+    # Defensive fallback for unusual Git output. Keep the previous widened
+    # representative scan rather than disabling historical recovery entirely.
     return _original_history(since, limit=max(limit, 24))
 
 
 # recover_content_v2 imports this same module object as ``b``. Monkeypatching
-# before importing v2 applies both the wider history scan and the public-surface
-# guard while preserving the established scoring/consolidation implementation.
+# before importing v2 applies both the exhaustive distinct-version scan and the
+# public-surface guard while preserving the established scoring/consolidation
+# implementation.
 base.safe = recovery_safe
 base.history = full_history_candidates
 
