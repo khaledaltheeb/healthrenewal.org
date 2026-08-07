@@ -1,0 +1,46 @@
+name: Validate Issue 20 branch from trigger issue v32
+
+# Historical trigger workflow restored for auditability after accidental deletion.
+# The former issue-open trigger was retired to reduce duplicate/zero-job noise.
+# Full historical implementation remains available in commit c43d3545662b728dbf7114af0591675a41fe7bfd.
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: validate-issue20-branch-v32
+  cancel-in-progress: true
+
+jobs:
+  archived-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository read-only
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Preserve historical validator contract without duplicate mutation or scheduling
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f tests/test_lab_issue20_v32.py
+          test -f scripts/e2e_lab_acceptance_v32.mjs
+          test -f scripts/e2e_all_labs_v22.mjs
+          test -f scripts/recover_content_v2.py
+          test -f scripts/finalize_content_quality_v1.py
+          python -m py_compile tests/test_lab_issue20_v32.py scripts/recover_content_v2.py scripts/finalize_content_quality_v1.py
+          node --check scripts/e2e_lab_acceptance_v32.mjs
+          node --check scripts/e2e_all_labs_v22.mjs
+
+      - name: Verify workflow remains read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -Eq 'git[[:space:]]+(push|commit)|rm[[:space:]]+-f[[:space:]]+\.github/workflows' .github/workflows/validate-issue20-branch-trigger-v32.yml
+          git diff --exit-code -- .
