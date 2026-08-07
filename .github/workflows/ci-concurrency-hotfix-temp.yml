@@ -27,7 +27,11 @@ jobs:
 
           path = Path('.github/workflows/validate-all-labs-v22.yml')
           text = path.read_text(encoding='utf-8')
-          expected_group = 'group: validate-all-labs-v31-${{ github.event.pull_request.number || github.ref }}'
+          expected_group = (
+              'group: validate-all-labs-v31-'
+              + '$'
+              + '{{ github.event.pull_request.number || github.ref }}'
+          )
           assert text.count('concurrency:') == 1, text.count('concurrency:')
           assert expected_group in text
           assert 'cancel-in-progress: true' in text
