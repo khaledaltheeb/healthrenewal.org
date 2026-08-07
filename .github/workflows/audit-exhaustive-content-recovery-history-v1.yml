@@ -23,63 +23,112 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch every branch and advertised pull-request head
+      - name: Fetch every branch and pull-request head from REST inventory
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*' --prune
-
-          git ls-remote --refs origin 'refs/pull/*/head' \
-            | awk '{ref=$2; sub("refs/pull/", "", ref); sub("/head", "", ref); print ref "\t" $1 "\t" $2}' \
-            | sort -n -u > /tmp/pull-heads.tsv
-
-          test -s /tmp/pull-heads.tsv
+          : > /tmp/pull-heads.tsv
           : > /tmp/pull-fetch-failures.tsv
-          : > /tmp/pull-refspecs.txt
+          : > /tmp/pull-discovery-error.txt
 
-          while IFS=$'\t' read -r number sha remote_ref; do
-            test -n "${number}" && test -n "${sha}" && test -n "${remote_ref}"
-            printf '+%s:refs/remotes/pull/%s\n' "${remote_ref}" "${number}" >> /tmp/pull-refspecs.txt
-          done < /tmp/pull-heads.tsv
+          python - <<'PY'
+          import json
+          import os
+          import urllib.parse
+          import urllib.request
+          from pathlib import Path
 
-          advertised_pull_heads="$(wc -l < /tmp/pull-heads.tsv)"
-          test "${advertised_pull_heads}" -gt 0
+          token = os.environ['GH_TOKEN']
+          repo = os.environ['GITHUB_REPOSITORY']
+          rows = []
+          page = 1
+          try:
+              while True:
+                  params = urllib.parse.urlencode({
+                      'state': 'all',
+                      'per_page': 100,
+                      'page': page,
+                      'sort': 'created',
+                      'direction': 'asc',
+                  })
+                  request = urllib.request.Request(
+                      f'https://api.github.com/repos/{repo}/pulls?{params}',
+                      headers={
+                          'Authorization': f'Bearer {token}',
+                          'Accept': 'application/vnd.github+json',
+                          'X-GitHub-Api-Version': '2022-11-28',
+                          'User-Agent': 'healthrenewal-content-recovery-audit',
+                      },
+                  )
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      payload = json.load(response)
+                  if not payload:
+                      break
+                  for item in payload:
+                      number = int(item['number'])
+                      sha = str(item.get('head', {}).get('sha') or '').strip()
+                      if sha:
+                          rows.append((number, sha))
+                  if len(payload) < 100:
+                      break
+                  page += 1
+          except Exception as exc:
+              Path('/tmp/pull-discovery-error.txt').write_text(
+                  f'{type(exc).__name__}: {exc}\n', encoding='utf-8'
+              )
 
-          split -l 100 /tmp/pull-refspecs.txt /tmp/pull-refspecs-batch-
-          for batch in /tmp/pull-refspecs-batch-*; do
-            mapfile -t refspecs < "${batch}"
-            if git fetch --no-tags origin "${refspecs[@]}"; then
-              continue
-            fi
+          unique = {}
+          for number, sha in rows:
+              unique[number] = sha
+          Path('/tmp/pull-heads.tsv').write_text(
+              ''.join(f'{number}\t{sha}\n' for number, sha in sorted(unique.items())),
+              encoding='utf-8',
+          )
+          print({'pull_requests_discovered': len(unique), 'pages_requested': page})
+          PY
 
-            while IFS= read -r refspec; do
-              remote_ref="${refspec%%:*}"
-              remote_ref="${remote_ref#+}"
-              local_ref="${refspec#*:}"
-              number="${local_ref##*/}"
-              row="$(awk -F '\t' -v n="${number}" '$1 == n {print; exit}' /tmp/pull-heads.tsv)"
-              sha="$(printf '%s\n' "${row}" | cut -f2)"
+          if test -s /tmp/pull-heads.tsv; then
+            : > /tmp/pull-refspecs.txt
+            while IFS=$'\t' read -r number sha; do
+              printf '+%s:refs/remotes/pull/%s\n' "${sha}" "${number}" >> /tmp/pull-refspecs.txt
+            done < /tmp/pull-heads.tsv
 
-              if git fetch --no-tags origin "+${remote_ref}:${local_ref}"; then
+            rm -f /tmp/pull-refspecs-batch-*
+            split -l 100 /tmp/pull-refspecs.txt /tmp/pull-refspecs-batch-
+            for batch in /tmp/pull-refspecs-batch-*; do
+              mapfile -t refspecs < "${batch}"
+              if git fetch --no-tags origin "${refspecs[@]}"; then
                 continue
               fi
-              if test -n "${sha}" && git fetch --no-tags origin "+${sha}:${local_ref}"; then
-                continue
-              fi
 
-              printf '%s\t%s\t%s\n' "${number}" "${sha}" "${remote_ref}" >> /tmp/pull-fetch-failures.tsv
-            done < "${batch}"
-          done
+              while IFS= read -r refspec; do
+                local_ref="${refspec#*:}"
+                number="${local_ref##*/}"
+                sha="${refspec%%:*}"
+                sha="${sha#+}"
+                if git fetch --no-tags origin "+refs/pull/${number}/head:${local_ref}"; then
+                  continue
+                fi
+                if git fetch --no-tags origin "+${sha}:${local_ref}"; then
+                  continue
+                fi
+                printf '%s\t%s\trefs/pull/%s/head\n' "${number}" "${sha}" "${number}" >> /tmp/pull-fetch-failures.tsv
+              done < "${batch}"
+            done
+          fi
 
           branch_refs="$(git for-each-ref --format='%(refname)' refs/remotes/origin | wc -l)"
+          discovered_pull_heads="$(wc -l < /tmp/pull-heads.tsv)"
           pull_refs="$(git for-each-ref --format='%(refname)' refs/remotes/pull | wc -l)"
           failed_refs="$(wc -l < /tmp/pull-fetch-failures.tsv)"
-          resolved_pull_heads="$((pull_refs + failed_refs))"
+          discovery_error="$(wc -c < /tmp/pull-discovery-error.txt)"
           echo "branch refs: ${branch_refs}"
-          echo "PR heads advertised by origin: ${advertised_pull_heads}"
+          echo "PR heads discovered by REST: ${discovered_pull_heads}"
           echo "local PR refs created: ${pull_refs}"
-          echo "unrecoverable advertised PR refs: ${failed_refs}"
-          test "${branch_refs}" -gt 0
-          test "${resolved_pull_heads}" -eq "${advertised_pull_heads}"
+          echo "unrecoverable PR refs: ${failed_refs}"
+          echo "PR discovery error bytes: ${discovery_error}"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -132,6 +181,7 @@ jobs:
               ({'path': path, 'versions': count} for path, count in counts.items() if count > 24),
               key=lambda item: (-item['versions'], item['path']),
           )
+
           failed = []
           failure_file = Path('/tmp/pull-fetch-failures.tsv')
           if failure_file.is_file():
@@ -145,16 +195,28 @@ jobs:
                       'remoteRef': remote_ref,
                   })
 
+          discovery_error = ''
+          discovery_file = Path('/tmp/pull-discovery-error.txt')
+          if discovery_file.is_file():
+              discovery_error = discovery_file.read_text(encoding='utf-8').strip()
+
+          discovered = 0
+          pull_heads_file = Path('/tmp/pull-heads.tsv')
+          if pull_heads_file.is_file():
+              discovered = sum(1 for line in pull_heads_file.read_text(encoding='utf-8').splitlines() if line.strip())
+
           report = {
-              'schemaVersion': 4,
-              'status': 'passed' if counts and not failed else 'failed',
-              'historyScanMode': 'all reachable branch refs plus every pull-request head advertised by origin; batch fetch with per-ref and SHA fallback; unique git blobs per safe HTML path',
+              'schemaVersion': 5,
+              'status': 'passed' if counts and discovered and not failed and not discovery_error else 'failed',
+              'historyScanMode': 'all reachable branch refs plus all pull requests returned by GitHub REST; batch SHA fetch with refs/pull fallback; unique git blobs per safe HTML path',
+              'pullRequestHeadsDiscovered': discovered,
               'pagePathsWithHistory': len(counts),
               'distinctHistoricalBlobVersions': total_versions,
               'maximumBlobVersionsForOnePath': max_versions,
               'pathsBeyondFormer24VersionLimit': len(over_24),
               'topPathsBeyondFormerLimit': over_24[:100],
               'unavailablePullRequestHeads': failed,
+              'pullRequestDiscoveryError': discovery_error or None,
           }
           Path('reports').mkdir(exist_ok=True)
           Path('reports/exhaustive-content-recovery-history-v1.json').write_text(
@@ -164,6 +226,8 @@ jobs:
           print(report)
           assert counts, 'no historical HTML versions discovered'
           assert total_versions >= len(counts), report
+          assert discovered > 0, report
+          assert not discovery_error, report
           assert not failed, report
           PY
 
