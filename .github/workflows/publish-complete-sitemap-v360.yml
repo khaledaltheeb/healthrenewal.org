@@ -4,6 +4,10 @@ on:
   workflow_run:
     workflows: ["Recover richest historical content and deploy complete site"]
     types: [completed]
+  pull_request:
+    paths:
+      - '.github/workflows/publish-complete-sitemap-v360.yml'
+      - 'scripts/generate_sitemap_index_v304_core.py'
   issues:
     types: [opened]
   workflow_dispatch:
@@ -14,8 +18,8 @@ permissions:
   issues: write
 
 concurrency:
-  group: publish-complete-sitemap-v360
-  cancel-in-progress: false
+  group: publish-complete-sitemap-v360-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   audit:
@@ -23,16 +27,17 @@ jobs:
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.head_branch == 'main') ||
+      github.event_name == 'pull_request' ||
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'issues' &&
        github.event.issue.title == '[release] synchronize sitemap v360')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout verifier from current main
+      - name: Checkout verifier from event revision
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main' }}
           fetch-depth: 1
           persist-credentials: false
 
@@ -82,7 +87,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: validated-production-site
-          path: _site
+          path: /tmp/validated-production-site
           repository: khaledaltheeb/healthrenewal.org
           run-id: ${{ steps.production.outputs.run_id }}
           github-token: ${{ github.token }}
@@ -90,9 +95,9 @@ jobs:
       - name: Regenerate sitemap files in isolated audit tree
         run: |
           set -euo pipefail
-          test -f _site/index.html
+          test -f /tmp/validated-production-site/index.html
           rm -rf /tmp/sitemap-audit-site
-          cp -a _site /tmp/sitemap-audit-site
+          cp -a /tmp/validated-production-site /tmp/sitemap-audit-site
           python -m py_compile scripts/generate_sitemap_index_v304_core.py
           python scripts/generate_sitemap_index_v304_core.py /tmp/sitemap-audit-site
 
@@ -102,7 +107,7 @@ jobs:
           from datetime import datetime, timezone
           from pathlib import Path
 
-          shipped = Path('_site')
+          shipped = Path('/tmp/validated-production-site')
           audit = Path('/tmp/sitemap-audit-site')
 
           def html_hashes(root: Path) -> dict[str, str]:
