@@ -50,10 +50,6 @@ jobs:
               continue
             fi
 
-            # A closed PR whose source branch was deleted may still be retained by GitHub
-            # under refs/pull/<number>/head. Fetch that documented ref exactly; if it is
-            # unavailable, try the API-reported SHA directly. Missing historical heads are
-            # evidence to report, not a reason to silently pretend the history is exhaustive.
             if git fetch --no-tags origin "+refs/pull/${number}/head:${target_ref}" 2>/tmp/pull-fetch.err; then
               fetched=$((fetched + 1))
             elif git fetch --no-tags origin "+${sha}:${target_ref}" 2>/tmp/pull-fetch.err; then
@@ -96,7 +92,7 @@ jobs:
           python -m pip install --disable-pip-version-check pytest
           python -m pytest -q tests/test_recovery_no_shortening_guard_v1.py
 
-      - name: Inventory every distinct historical HTML version
+      - name: Inventory every distinct historical HTML blob
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -107,8 +103,21 @@ jobs:
           sys.path.insert(0, str(Path('scripts').resolve()))
           import recover_content_full_history_v3 as recovery
 
-          versions = recovery.full_history_candidates('2016-01-01')
-          counts = {path: len(commits) for path, commits in versions.items()}
+          history = recovery.all_history('1970-01-01')
+          counts = {}
+          cat = recovery.CatFile()
+          try:
+              for path, commits in history.items():
+                  blobs = set()
+                  for commit in commits:
+                      loaded = cat.get(commit, path)
+                      if loaded:
+                          blobs.add(loaded[0])
+                  if blobs:
+                      counts[path] = len(blobs)
+          finally:
+              cat.close()
+
           total_versions = sum(counts.values())
           max_versions = max(counts.values(), default=0)
           over_24 = sorted(
@@ -123,12 +132,14 @@ jobs:
                       continue
                   number, sha = line.split('\t', 1)
                   failed.append({'number': int(number), 'sha': sha})
+
           report = {
-              'schemaVersion': 1,
+              'schemaVersion': 2,
               'status': 'passed' if counts else 'failed',
+              'historyScanMode': 'all reachable branch and PR refs; unique git blobs per safe HTML path',
               'pagePathsWithHistory': len(counts),
-              'distinctHistoricalVersions': total_versions,
-              'maximumVersionsForOnePath': max_versions,
+              'distinctHistoricalBlobVersions': total_versions,
+              'maximumBlobVersionsForOnePath': max_versions,
               'pathsBeyondFormer24VersionLimit': len(over_24),
               'topPathsBeyondFormerLimit': over_24[:100],
               'unavailablePullRequestHeads': failed,
