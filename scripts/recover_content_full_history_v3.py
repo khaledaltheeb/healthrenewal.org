@@ -31,6 +31,8 @@ import recover_content_v1 as base
 import recover_content_v2 as recovery
 
 
+_ORIGINAL_SAFE = base.safe
+
 HISTORICAL_RESTORE_BLOCKED_PREFIXES = (
     "professional-assessment-hub/",
     "provider-assessment-platform/",
@@ -63,7 +65,7 @@ STATS = {
 
 def recovery_safe(path: str) -> bool:
     normalized = path.replace("\\", "/").lstrip("/")
-    return base.safe(path) and not normalized.startswith(HISTORICAL_RESTORE_BLOCKED_PREFIXES)
+    return _ORIGINAL_SAFE(path) and not normalized.startswith(HISTORICAL_RESTORE_BLOCKED_PREFIXES)
 
 
 base.safe = recovery_safe
@@ -438,7 +440,7 @@ def annotate_report() -> None:
     report = json.loads(report_path.read_text(encoding="utf-8"))
     report.update({
         "source": "current main first + validated baseline for missing paths + exhaustive reachable Git history",
-        "historySince": "repository-inception",
+        "historySince": "1970-01-01",
         "historyScanMode": "all reachable refs, all safe HTML path revisions, unique blob versions",
         "mainPriorityPolicy": "main always wins for an existing path; history may only add unique editorial fragments",
         "historicalPagesRestored": (
