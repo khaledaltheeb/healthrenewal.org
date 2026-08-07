@@ -19,7 +19,7 @@ EVIDENCE_DIR = ROOT / "content" / "v280" / "evidence"
 CSS = ROOT / "assets" / "css" / "capabilities-v280.css"
 JS = ROOT / "assets" / "js" / "capabilities-v280.js"
 INTEGRATION = ROOT / "scripts" / "apply_homepage_v20.py"
-BASE = "https://healthrenewal.org/"
+BASE = "https://khaledaltheeb.github.io/pterminology-site/"
 
 
 def load_publisher():
@@ -590,7 +590,7 @@ class CapabilitiesPublisherV280(unittest.TestCase):
             text = path.read_text(encoding="utf-8")
             self.assertEqual(text.count("capabilities-v280:start"), 1)
             self.assertEqual(text.count("capabilities-v280:end"), 1)
-            self.assertIn('/capabilities/', text)
+            self.assertIn('/pterminology-site/capabilities/', text)
 
         robots = tracked[-1].read_text(encoding="utf-8")
         self.assertEqual(
