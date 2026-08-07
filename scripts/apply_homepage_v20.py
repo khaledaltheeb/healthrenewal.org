@@ -246,7 +246,15 @@ def main() -> None:
         "brand_assets": restore_static_tree("assets/brand"),
         "api_v1": restore_static_tree("api/v1"),
     }
-    for relative_path in ("api/index.html", "manifest.webmanifest", "opensearch.xml"):
+    for relative_path in (
+        "api/index.html",
+        "manifest.webmanifest",
+        "opensearch.xml",
+        "favicon.ico",
+        "favicon-32x32.png",
+        "favicon-16x16.png",
+        "apple-touch-icon.png",
+    ):
         restore_static_file(relative_path)
 
     expected_target_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
