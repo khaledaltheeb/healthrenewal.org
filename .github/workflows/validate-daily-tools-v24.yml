@@ -74,13 +74,15 @@ jobs:
             } > _audit/daily-tools-homepage-integration.log 2>&1
             cp index.html _audit/daily-tools-homepage-after.html
             cp scripts/verify_homepage_v19.py _audit/daily-tools-home-verifier-after.py
-            exit "$status"
+            printf '%s\n' "$status" > _audit/daily-tools-homepage-status.txt
           )
           cp "$audit_root/repo/_audit/daily-tools-homepage-integration.log" _audit/
           cp "$audit_root/repo/_audit/daily-tools-homepage-after.html" _audit/
           cp "$audit_root/repo/_audit/daily-tools-home-verifier-after.py" _audit/
+          cp "$audit_root/repo/_audit/daily-tools-homepage-status.txt" _audit/
           cat _audit/daily-tools-homepage-integration.log
           git diff --exit-code -- index.html scripts/verify_homepage_v19.py
+          test "$(cat _audit/daily-tools-homepage-status.txt)" = "0"
 
       - name: Generate production pages in isolated homepage fixture
         run: |
@@ -157,6 +159,7 @@ jobs:
           path: |
             _audit/daily-tools-quality-v100.json
             _audit/daily-tools-homepage-integration.log
+            _audit/daily-tools-homepage-status.txt
             _audit/daily-tools-homepage-after.html
             _audit/daily-tools-home-verifier-after.py
             _site/index.html
