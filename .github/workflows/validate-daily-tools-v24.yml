@@ -30,6 +30,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-python@v5
         with:
@@ -51,28 +53,34 @@ jobs:
           python scripts/verify_daily_tools_v24.py
           python scripts/audit_daily_tools_quality_v100.py
 
-      - name: Validate current homepage integration
+      - name: Validate current homepage integration read-only
         run: |
-          set -u
+          set -euxo pipefail
           mkdir -p _audit
-          cp index.html /tmp/daily-tools-index-before.html
-          cp scripts/verify_homepage_v19.py /tmp/daily-tools-home-verifier-before.py
-          status=0
-          {
-            echo '=== expose daily tools on current homepage ==='
-            python scripts/expose_daily_tools_home_v219.py || status=$?
-            echo '=== verify current homepage ==='
-            python scripts/verify_homepage_v19.py || status=$?
-            echo '=== diff check ==='
-            git diff --check || status=$?
-            echo "status=$status"
-          } > _audit/daily-tools-homepage-integration.log 2>&1
+          audit_root="$(mktemp -d)"
+          trap 'rm -rf "$audit_root"' EXIT
+          cp -a . "$audit_root/repo"
+          (
+            cd "$audit_root/repo"
+            status=0
+            {
+              echo '=== expose daily tools on isolated homepage copy ==='
+              python scripts/expose_daily_tools_home_v219.py || status=$?
+              echo '=== verify isolated homepage copy ==='
+              python scripts/verify_homepage_v19.py || status=$?
+              echo '=== isolated diff check ==='
+              git diff --check || status=$?
+              echo "status=$status"
+            } > _audit/daily-tools-homepage-integration.log 2>&1
+            cp index.html _audit/daily-tools-homepage-after.html
+            cp scripts/verify_homepage_v19.py _audit/daily-tools-home-verifier-after.py
+            exit "$status"
+          )
+          cp "$audit_root/repo/_audit/daily-tools-homepage-integration.log" _audit/
+          cp "$audit_root/repo/_audit/daily-tools-homepage-after.html" _audit/
+          cp "$audit_root/repo/_audit/daily-tools-home-verifier-after.py" _audit/
           cat _audit/daily-tools-homepage-integration.log
-          cp index.html _audit/daily-tools-homepage-after.html
-          cp scripts/verify_homepage_v19.py _audit/daily-tools-home-verifier-after.py
-          cp /tmp/daily-tools-index-before.html index.html
-          cp /tmp/daily-tools-home-verifier-before.py scripts/verify_homepage_v19.py
-          exit "$status"
+          git diff --exit-code -- index.html scripts/verify_homepage_v19.py
 
       - name: Generate production pages in isolated homepage fixture
         run: |
@@ -100,13 +108,26 @@ jobs:
           import json
           import xml.etree.ElementTree as ET
           from pathlib import Path
+          from scripts.publish_daily_tools_v24 import LEGACY_PATH_ALIASES
+
           report=json.loads(Path('_site/api/daily-tools-v24.json').read_text(encoding='utf-8'))
           quality=json.loads(Path('_audit/daily-tools-quality-v100.json').read_text(encoding='utf-8'))
           assert report['catalog_contract']==100,report
           assert report['tools']>=100 and report['categories']>=10 and report['paths']>=10,report
           assert report['pages']==report['tools']+report['paths']+2,report
           assert len(list(Path('_site/daily-tools').glob('*/index.html')))+1==report['tools']+1
-          assert len(list(Path('_site/learning-paths').glob('*/index.html')))+1==report['paths']+1
+
+          learning_pages=list(Path('_site/learning-paths').glob('*/index.html'))
+          alias_pages={
+              page.parent.name
+              for page in learning_pages
+              if 'data-legacy-path-alias=' in page.read_text(encoding='utf-8')
+          }
+          expected_aliases=set(LEGACY_PATH_ALIASES)
+          assert alias_pages==expected_aliases,(alias_pages,expected_aliases)
+          canonical_pages=[page for page in learning_pages if page.parent.name not in alias_pages]
+          assert len(canonical_pages)+1==report['paths']+1,(len(canonical_pages),report)
+
           root=ET.parse('_site/sitemap-tools-paths.xml').getroot()
           assert len(list(root))==report['pages']
           assert report['local_only'] and report['search_and_filters'] and report['per_tool_sources']
@@ -114,8 +135,12 @@ jobs:
           assert quality['status']=='passed' and quality['tools']==report['tools'],quality
           assert quality['near_duplicate_pairs']==[],quality
           assert quality['minimum_sources_per_tool']>=2,quality
-          print(report)
-          print(quality)
+          print({
+              'report': report,
+              'quality': quality,
+              'canonical_learning_paths': len(canonical_pages),
+              'legacy_aliases': sorted(alias_pages),
+          })
           PY
           grep -R -q 'data-catalog="daily-tools-v100"' _site/daily-tools _site/learning-paths
           grep -q 'data-tool-search' _site/daily-tools/index.html
@@ -123,6 +148,7 @@ jobs:
           grep -R -q 'لا تُرسل البيانات إلى خادم' _site/daily-tools
           ! grep -R -Eqi 'text-shadow|rgba\(0[[:space:]]*,[[:space:]]*0[[:space:]]*,[[:space:]]*0|fetch\(|XMLHttpRequest|navigator\.sendBeacon|تشخيصك|يعالج نهائيًا|بديل عن الطبيب' \
             _site/daily-tools _site/learning-paths
+          git diff --exit-code -- index.html scripts/verify_homepage_v19.py
 
       - uses: actions/upload-artifact@v4
         if: always()
