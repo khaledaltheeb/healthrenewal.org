@@ -50,13 +50,26 @@ To audit this gap without modifying files reserved by another agent, this batch 
 It:
 
 - fetches all branch refs;
-- fetches all available PR head refs;
+- discovers and fetches all GitHub-advertised PR head refs;
 - compiles the recovery engine;
 - runs the no-shortening/exhaustive-history regression suite;
 - inventories all distinct historical HTML versions across the fetched refs;
 - emits an auditable JSON artifact with total paths, total distinct versions, maximum versions for one path, and paths that exceed the former 24-version ceiling.
 
-The first workflow attempt (Run `31159072693`) proved that the direct wildcard PR-ref fetch is not reliable in this repository/runtime. The workflow was immediately hardened with a fallback that enumerates all PR numbers through the GitHub API and fetches their `refs/pull/<n>/head` refspecs explicitly. The workflow requires a non-zero PR-ref count before it can pass.
+### PR-ref fetch hardening
+
+The first workflow attempt, Run `31159072693`, failed at the pull-ref fetch step because a direct wildcard fetch of `refs/pull/*/head` was not accepted reliably in this runtime.
+
+A second attempt used the GitHub API to enumerate PR numbers and constructed explicit pull-ref refspecs, but Run `31159185704` still failed in the same fetch stage before any recovery tests ran. That proved that assuming every historical PR number maps to an independently fetchable head ref is also unsafe.
+
+The workflow now uses Git itself as the source of truth:
+
+1. `git ls-remote --refs origin 'refs/pull/*/head'` enumerates only PR head refs the remote actually advertises;
+2. those exact refs are mapped to `refs/remotes/pull/<number>`;
+3. they are fetched in bounded batches of 100;
+4. the job asserts that the number fetched locally exactly equals the number advertised remotely and is non-zero.
+
+This final fetch strategy is committed at `c9706057b38dddc0d329e36a6f88b156694c9e9a` and must pass before the recovery audit is accepted.
 
 ## CI state carried forward
 
