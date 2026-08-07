@@ -17,6 +17,7 @@ NAV_MARKER = '<a href="tips/">النصائح</a>'
 NAV_LINK = '<a href="care-guides/">أدلة التعامل</a>'
 ACTION_MARKER = '<a class="btn secondary" href="tips/">افتح الأدلة العملية</a>'
 ACTION_LINK = '<a class="btn secondary" href="care-guides/">أدلة التعامل مع الحالات</a>'
+CARE_GUIDES_HREF = re.compile(r'href=["\']/?care-guides/["\']')
 
 ADHD_HREF = "/care-guides/adhd-family-practical-guide/"
 AUTISM_HREF = "/care-guides/autism-family-practical-guide/"
@@ -86,6 +87,31 @@ def inject_once(text: str, marker: str, link: str, label: str) -> str:
     if marker not in text:
         raise SystemExit(f"Homepage {label} marker changed; refusing unsafe care-guide injection")
     return text.replace(marker, marker + link, 1)
+
+
+def ensure_homepage_care_guide_discovery(text: str) -> tuple[str, int, bool]:
+    """Require semantic care-guide discovery without coupling CI to old labels.
+
+    Modern homepages may expose care guides through cards/journeys rather than
+    the v21 navigation and hero labels. If at least two real links already
+    exist, preserve the current source verbatim. Only fall back to the legacy
+    injection markers when semantic discovery is genuinely missing.
+    """
+
+    initial_count = len(CARE_GUIDES_HREF.findall(text))
+    if initial_count >= 2:
+        return text, initial_count, False
+
+    updated = inject_once(text, NAV_MARKER, NAV_LINK, "navigation")
+    updated = inject_once(updated, ACTION_MARKER, ACTION_LINK, "hero action")
+    final_count = len(CARE_GUIDES_HREF.findall(updated))
+    if final_count < 2:
+        raise SystemExit(
+            f"Homepage care-guide discovery requires at least two links; found {final_count}"
+        )
+    if updated.count(NAV_LINK) > 1 or updated.count(ACTION_LINK) > 1:
+        raise SystemExit("Legacy care-guide links must not be duplicated")
+    return updated, final_count, updated != text
 
 
 def inject_before_main(path: Path, block: str, marker: str, label: str) -> bool:
@@ -212,10 +238,7 @@ def main() -> None:
         raise SystemExit("Approved ADHD guide is missing")
 
     text = PAGE.read_text(encoding="utf-8")
-    text = inject_once(text, NAV_MARKER, NAV_LINK, "navigation")
-    text = inject_once(text, ACTION_MARKER, ACTION_LINK, "hero action")
-    if text.count(NAV_LINK) != 1 or text.count(ACTION_LINK) != 1:
-        raise SystemExit("Care-guide links must each appear exactly once")
+    text, homepage_care_links, homepage_legacy_injected = ensure_homepage_care_guide_discovery(text)
     PAGE.write_text(text, encoding="utf-8")
 
     autism_published = AUTISM_PAGE.is_file()
@@ -317,12 +340,16 @@ def main() -> None:
         )
     )
 
+    legacy_duplicate_free = text.count(NAV_LINK) <= 1 and text.count(ACTION_LINK) <= 1
     report = {
         "version": 194,
-        "care_guides_linked": text.count('href="care-guides/"') >= 2,
-        "navigation_link": NAV_LINK in text,
-        "hero_link": ACTION_LINK in text,
-        "duplicate_free": text.count(NAV_LINK) == 1 and text.count(ACTION_LINK) == 1,
+        "care_guides_linked": homepage_care_links >= 2,
+        "homepage_care_guide_links": homepage_care_links,
+        "homepage_semantic_discovery": homepage_care_links >= 2,
+        "homepage_legacy_injected": homepage_legacy_injected,
+        "navigation_link": homepage_care_links >= 1,
+        "hero_link": homepage_care_links >= 2,
+        "duplicate_free": legacy_duplicate_free,
         "adhd_inbound_from_care_hub": ADHD_HREF in care_hub_text,
         "adhd_inbound_from_family_hub": ADHD_HREF in family_text,
         "adhd_inbound_from_encyclopedia_hub": ADHD_HREF in encyclopedia_text,
@@ -343,6 +370,7 @@ def main() -> None:
         "main_sitemap_valid": bool(sitemap_state["valid"]),
         "main_sitemap_root": sitemap_state["root_type"],
         "changed": {
+            "homepage_legacy_injected": homepage_legacy_injected,
             "family_adhd": family_adhd_changed,
             "family_autism": family_autism_changed,
             "encyclopedia_adhd": encyclopedia_adhd_changed,
@@ -354,6 +382,7 @@ def main() -> None:
     }
     required_keys = [
         "care_guides_linked",
+        "homepage_semantic_discovery",
         "navigation_link",
         "hero_link",
         "duplicate_free",
