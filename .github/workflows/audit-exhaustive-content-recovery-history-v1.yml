@@ -43,14 +43,20 @@ jobs:
           already_present=0
           while IFS=$'\t' read -r number sha; do
             test -n "${number}" && test -n "${sha}"
+            target_ref="refs/remotes/pull/${number}"
             if git cat-file -e "${sha}^{commit}" 2>/dev/null; then
-              git update-ref "refs/remotes/pull/${number}" "${sha}"
+              git update-ref "${target_ref}" "${sha}"
               already_present=$((already_present + 1))
               continue
             fi
-            if git fetch --no-tags origin "+${sha}:refs/remotes/pull/${number}" 2>/tmp/pull-fetch.err; then
+
+            # A closed PR whose source branch was deleted may still be retained by GitHub
+            # under refs/pull/<number>/head. Fetch that documented ref exactly; if it is
+            # unavailable, try the API-reported SHA directly. Missing historical heads are
+            # evidence to report, not a reason to silently pretend the history is exhaustive.
+            if git fetch --no-tags origin "+refs/pull/${number}/head:${target_ref}" 2>/tmp/pull-fetch.err; then
               fetched=$((fetched + 1))
-            elif git fetch --no-tags origin "+pull/${number}/head:refs/remotes/pull/${number}" 2>/tmp/pull-fetch.err; then
+            elif git fetch --no-tags origin "+${sha}:${target_ref}" 2>/tmp/pull-fetch.err; then
               fetched=$((fetched + 1))
             else
               printf '%s\t%s\n' "${number}" "${sha}" >> /tmp/pull-fetch-failures.tsv
