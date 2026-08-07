@@ -1,19 +1,16 @@
 name: Publish complete sitemap and open robots v360
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - 'sitemap*.xml'
-      - robots.txt
-      - api/sitemap-index-v305.json
-      - api/sitemap-completeness-v360.json
+  workflow_run:
+    workflows: ["Recover richest historical content and deploy complete site"]
+    types: [completed]
   issues:
     types: [opened]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  actions: read
+  contents: read
   issues: write
 
 concurrency:
@@ -21,39 +18,116 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  publish:
-    if: github.event_name != 'issues' || github.event.issue.title == '[release] synchronize sitemap v360'
+  audit:
+    if: >-
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main') ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' &&
+       github.event.issue.title == '[release] synchronize sitemap v360')
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
-      - name: Checkout current main
+      - name: Checkout verifier from current main
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: main
+          fetch-depth: 1
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Generate complete sitemap family
+      - name: Resolve validated production run
+        id: production
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
-          set -euxo pipefail
+          set -euo pipefail
+          if [[ "${EVENT_NAME}" == "workflow_run" ]]; then
+            run_id="${WORKFLOW_RUN_ID}"
+          else
+            curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" \
+              -o /tmp/validated-production-artifacts.json
+            run_id="$(python - <<'PY'
+          import json
+          payload = json.load(open('/tmp/validated-production-artifacts.json', encoding='utf-8'))
+          candidates = [
+              item for item in payload.get('artifacts', [])
+              if not item.get('expired')
+              and item.get('workflow_run', {}).get('head_branch') == 'main'
+              and item.get('workflow_run', {}).get('id')
+          ]
+          if not candidates:
+              raise SystemExit('No active validated-production-site artifact from main')
+          item = max(candidates, key=lambda value: value.get('created_at', ''))
+          print(item['workflow_run']['id'])
+          PY
+            )"
+          fi
+          test -n "${run_id}"
+          echo "run_id=${run_id}" >> "${GITHUB_OUTPUT}"
+          echo "Auditing validated production artifact from run ${run_id}."
+
+      - name: Download validated production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.production.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Regenerate discovery graph in isolated audit tree
+        run: |
+          set -euo pipefail
+          test -f _site/index.html
+          rm -rf /tmp/sitemap-audit-site
+          cp -a _site /tmp/sitemap-audit-site
           python -m py_compile scripts/generate_sitemap_index_v304.py
-          python scripts/generate_sitemap_index_v304.py .
+          python scripts/generate_sitemap_index_v304.py /tmp/sitemap-audit-site
+
           python - <<'PY'
           import hashlib
           import json
           from datetime import datetime, timezone
           from pathlib import Path
 
-          root = Path('.')
-          source = json.loads((root / 'api/sitemap-index-v305.json').read_text(encoding='utf-8'))
+          shipped = Path('_site')
+          audit = Path('/tmp/sitemap-audit-site')
+
+          def html_hashes(root: Path) -> dict[str, str]:
+              return {
+                  path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+                  for path in root.rglob('*.html')
+                  if path.is_file()
+              }
+
+          shipped_html = html_hashes(shipped)
+          audit_html = html_hashes(audit)
+          if shipped_html != audit_html:
+              changed = sorted(
+                  path for path in set(shipped_html) | set(audit_html)
+                  if shipped_html.get(path) != audit_html.get(path)
+              )
+              raise SystemExit({'generator_mutated_html': changed[:100], 'count': len(changed)})
+
+          source = json.loads((audit / 'api/sitemap-index-v305.json').read_text(encoding='utf-8'))
           count = int(source['indexable_pages'])
           report = {
               'version': 360,
               'status': 'passed',
               'generated_at': datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+              'production_run_id': '${{ steps.production.outputs.run_id }}',
               'base_url': source['base_url'],
               'real_indexable_urls': count,
               'claimed_target_urls': 3600,
@@ -71,11 +145,13 @@ jobs:
                   'legacy_urls': 0,
                   'maximum_urls_per_sitemap': 50000,
               },
+              'source_mutation': False,
+              'html_mutation': False,
               'sha256': {},
           }
           for name in ['sitemap.xml', 'sitemap-index.xml', 'robots.txt']:
-              report['sha256'][name] = hashlib.sha256((root / name).read_bytes()).hexdigest()
-          (root / 'api/sitemap-completeness-v360.json').write_text(
+              report['sha256'][name] = hashlib.sha256((audit / name).read_bytes()).hexdigest()
+          (audit / 'api/sitemap-completeness-v360.json').write_text(
               json.dumps(report, ensure_ascii=False, indent=2) + '\n',
               encoding='utf-8',
           )
@@ -84,18 +160,20 @@ jobs:
 
       - name: Validate exact coverage and crawl policy
         run: |
-          set -euxo pipefail
+          set -euo pipefail
           python - <<'PY'
           import json
           from pathlib import Path
           from urllib.parse import urlsplit
           from xml.etree import ElementTree as ET
 
-          root = Path('.')
+          root = Path('/tmp/sitemap-audit-site')
           report = json.loads((root / 'api/sitemap-completeness-v360.json').read_text(encoding='utf-8'))
           source = json.loads((root / 'api/sitemap-index-v305.json').read_text(encoding='utf-8'))
           assert report['version'] == 360, report
           assert report['status'] == 'passed', report
+          assert report['source_mutation'] is False, report
+          assert report['html_mutation'] is False, report
           assert report['real_indexable_urls'] == source['indexable_pages'] > 0, (report, source)
           assert report['protocol']['duplicates'] == 0, report
           assert report['protocol']['legacy_urls'] == 0, report
@@ -111,8 +189,9 @@ jobs:
               parsed = urlsplit(url)
               assert parsed.scheme == 'https', url
               assert parsed.netloc == 'healthrenewal.org', url
+              assert parsed.path.startswith('/'), url
+              assert not parsed.query and not parsed.fragment, url
               assert 'khaledaltheeb.github.io' not in url, url
-              assert '/' not in url, url
 
           indexed = [
               node.text or ''
@@ -151,43 +230,47 @@ jobs:
               'gap_to_claimed_target': report['gap_to_claimed_target'],
               'skipped_noindex': report['skipped_noindex'],
               'robots': 'open',
+              'source_mutation': False,
           })
           PY
 
+      - name: Prove checkout stayed unchanged
+        run: |
+          set -euo pipefail
+          git diff --exit-code
+          test -z "$(git status --porcelain)"
+
+      - name: Upload semantic sitemap audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sitemap-v360-audit-${{ github.run_id }}
+          path: |
+            /tmp/sitemap-audit-site/api/sitemap-index-v305.json
+            /tmp/sitemap-audit-site/api/sitemap-completeness-v360.json
+            /tmp/sitemap-audit-site/sitemap*.xml
+            /tmp/sitemap-audit-site/robots.txt
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Publish count in workflow summary
+        if: success()
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json
           from pathlib import Path
-          report = json.loads(Path('api/sitemap-completeness-v360.json').read_text(encoding='utf-8'))
+          report = json.loads(Path('/tmp/sitemap-audit-site/api/sitemap-completeness-v360.json').read_text(encoding='utf-8'))
           print('## Sitemap completeness v360')
           print()
+          print(f"- Production run: **{report['production_run_id']}**")
           print(f"- Real indexable URLs: **{report['real_indexable_urls']}**")
           print(f"- Requested 3,600 target reached: **{report['target_reached']}**")
           print(f"- Gap to 3,600: **{report['gap_to_claimed_target']}**")
           print(f"- Explicit noindex pages excluded: **{report['skipped_noindex']}**")
           print('- Domain: **https://healthrenewal.org/**')
           print('- Crawling: **allowed for all user agents**')
-          print('- Duplicate URLs: **0**')
-          print('- Legacy GitHub Pages URLs: **0**')
+          print('- Checkout/source mutation: **none**')
           PY
-
-      - name: Commit generated discovery files
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euxo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add sitemap.xml sitemap-index.xml sitemap-family-*.xml robots.txt \
-            api/sitemap-index-v305.json api/sitemap-completeness-v360.json
-          if git diff --cached --quiet; then
-            echo 'Sitemap and robots are already synchronized.'
-          else
-            git commit -m 'chore(seo): synchronize complete sitemap and robots'
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
 
       - name: Report explicit release result
         if: always() && github.event_name == 'issues'
@@ -198,21 +281,23 @@ jobs:
           python - <<'PY' > /tmp/sitemap-result.json
           import json
           from pathlib import Path
-          report_path = Path('api/sitemap-completeness-v360.json')
+          report_path = Path('/tmp/sitemap-audit-site/api/sitemap-completeness-v360.json')
           if report_path.is_file():
               report = json.loads(report_path.read_text(encoding='utf-8'))
               body = (
-                  '## Sitemap synchronization result\n\n'
+                  '## Sitemap synchronization audit result\n\n'
                   f"- Status: `{report['status']}`\n"
+                  f"- Production run: **{report['production_run_id']}**\n"
                   f"- Real indexable URLs: **{report['real_indexable_urls']}**\n"
                   f"- HTML target 3,600 reached: **{report['target_reached']}**\n"
                   f"- Gap to 3,600: **{report['gap_to_claimed_target']}**\n"
                   f"- Excluded noindex pages: **{report['skipped_noindex']}**\n"
                   '- Crawling policy: **allow all public paths**\n'
                   '- Domain: **https://healthrenewal.org/**\n'
+                  '- Source checkout mutation: **none**\n'
               )
           else:
-              body = '## Sitemap synchronization result\n\nGeneration failed before the report was produced.'
+              body = '## Sitemap synchronization audit result\n\nAudit failed before the report was produced.'
           print(json.dumps({'body': body}))
           PY
           curl -fsSL -X POST \

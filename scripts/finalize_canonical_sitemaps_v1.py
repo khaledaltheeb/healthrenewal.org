@@ -7,6 +7,8 @@ import json
 import re
 from pathlib import Path
 
+from publish_magazine_v201 import FEED_LIMIT, publish as publish_magazine
+
 BASE = "https://healthrenewal.org"
 LEGACY_BASE = "https://khaledaltheeb.github.io/pterminology-site"
 HTML_SUFFIXES = {".html", ".htm"}
@@ -117,6 +119,26 @@ def write_robots(site: Path) -> None:
     )
 
 
+def republish_release_derived_surfaces(site: Path) -> dict[str, object]:
+    """Rebuild generated magazine surfaces after historical recovery.
+
+    Historical recovery is allowed to restore rich HTML, but generated release
+    artifacts must always be recreated from the current source contract so an
+    older RSS/API/sitemap snapshot cannot survive into the deployable package.
+    """
+    report = publish_magazine(site)
+    expected_items = min(FEED_LIMIT, report["research_summaries_published"])
+    actual_items = report.get("robots", {}).get("rss_items")
+    if actual_items != expected_items:
+        raise SystemExit(
+            f"Magazine RSS contract failed after release regeneration: "
+            f"expected {expected_items}, got {actual_items}"
+        )
+    if report.get("unwired_research_pages") != 0:
+        raise SystemExit(f"Magazine release contains unwired research pages: {report}")
+    return report
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--site", default="_site")
@@ -124,6 +146,8 @@ def main() -> None:
     site = Path(args.site).resolve()
     if not site.is_dir():
         raise SystemExit(f"Site directory missing: {site}")
+
+    magazine = republish_release_derived_surfaces(site)
 
     all_html = [
         p.relative_to(site).as_posix()
@@ -165,6 +189,12 @@ def main() -> None:
         "familySitemapUrlCounts": family_counts,
         "staleLegacySitemaps": stale,
         "excludedHtmlPages": len(all_html) - len(eligible_list),
+        "magazineReleaseContract": {
+            "version": magazine["version"],
+            "researchSummariesPublished": magazine["research_summaries_published"],
+            "rssItems": magazine["robots"]["rss_items"],
+            "unwiredResearchPages": magazine["unwired_research_pages"],
+        },
     }
     api = site / "api"
     api.mkdir(parents=True, exist_ok=True)

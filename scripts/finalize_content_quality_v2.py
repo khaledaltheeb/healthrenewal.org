@@ -7,6 +7,7 @@ from pathlib import Path
 
 import consolidate_duplicate_pages_v1 as duplicate_pages
 import final_site_integrity_v1 as integrity
+import publish_capabilities_v280 as capabilities
 import publish_self_advocacy_v170 as self_advocacy
 import publish_special_needs_cdls_v337 as cdls
 import recover_content_v2 as recovery
@@ -17,6 +18,34 @@ def main() -> None:
     parser.add_argument('--site', default='_site')
     args = parser.parse_args()
     site = Path(args.site).resolve()
+
+    capabilities_result = capabilities.publish(site)
+    capabilities_contract = {
+        'status': 'passed',
+        'condition_count': 100,
+        'detailed_guide_count': 100,
+        'condition_profile_count': 100,
+        'direct_condition_reference_count': 100,
+        'generated_page_count': 104,
+        'curated_evidence_packet_count': 100,
+        'curated_evidence_claim_count': 300,
+        'curated_evidence_source_count': 112,
+    }
+    capabilities_mismatches = {
+        key: {'expected': expected, 'actual': capabilities_result.get(key)}
+        for key, expected in capabilities_contract.items()
+        if capabilities_result.get(key) != expected
+    }
+    if capabilities_result.get('source_count', 0) < 20:
+        capabilities_mismatches['source_count'] = {
+            'expected': '>=20',
+            'actual': capabilities_result.get('source_count', 0),
+        }
+    if capabilities_mismatches:
+        raise SystemExit({
+            'capabilitiesV280Publication': capabilities_result,
+            'contractMismatches': capabilities_mismatches,
+        })
 
     self_result = self_advocacy.publish(site)
     if (
@@ -42,6 +71,16 @@ def main() -> None:
     report = json.loads(report_path.read_text(encoding='utf-8')) if report_path.is_file() else {}
     report.update({
         'schemaVersion': 3,
+        'capabilitiesV280PublicationStatus': capabilities_result['status'],
+        'capabilitiesV280ConditionCount': capabilities_result['condition_count'],
+        'capabilitiesV280DetailedGuideCount': capabilities_result['detailed_guide_count'],
+        'capabilitiesV280ConditionProfileCount': capabilities_result['condition_profile_count'],
+        'capabilitiesV280DirectConditionReferenceCount': capabilities_result['direct_condition_reference_count'],
+        'capabilitiesV280GeneratedPageCount': capabilities_result['generated_page_count'],
+        'capabilitiesV280SourceCount': capabilities_result['source_count'],
+        'capabilitiesV280EvidencePacketCount': capabilities_result['curated_evidence_packet_count'],
+        'capabilitiesV280EvidenceClaimCount': capabilities_result['curated_evidence_claim_count'],
+        'capabilitiesV280EvidenceSourceCount': capabilities_result['curated_evidence_source_count'],
         'selfAdvocacyPublicationStatus': self_result['status'],
         'selfAdvocacyCanonicalUrl': self_result['canonicalUrl'],
         'selfAdvocacySourcePackageCount': self_result.get('sourcePackageCount', 0),
@@ -86,6 +125,9 @@ def main() -> None:
         'status': report['status'],
         'htmlPages': report['htmlPages'],
         'historicalPagesRestored': report.get('historicalPagesRestored', 0),
+        'capabilitiesV280GeneratedPageCount': report['capabilitiesV280GeneratedPageCount'],
+        'capabilitiesV280ConditionCount': report['capabilitiesV280ConditionCount'],
+        'capabilitiesV280EvidenceClaimCount': report['capabilitiesV280EvidenceClaimCount'],
         'selfAdvocacySourcePackageCount': report['selfAdvocacySourcePackageCount'],
         'selfAdvocacyPublicContentPackageCount': report['selfAdvocacyPublicContentPackageCount'],
         'duplicateRoutesConsolidated': report['duplicateRoutesConsolidated'],

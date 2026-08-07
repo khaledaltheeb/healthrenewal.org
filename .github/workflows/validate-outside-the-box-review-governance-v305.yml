@@ -37,6 +37,8 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Validate machine contracts and compile publishers
         run: |
@@ -115,3 +117,6 @@ jobs:
           assert 'global_accreditation_claim' in auditor
           print({'false_approvals': 'blocked', 'protected_test_content': 'blocked', 'language': 'passed', 'quality_audit': 'wired'})
           PY
+
+      - name: Assert validation did not mutate tracked source
+        run: git diff --exit-code -- .

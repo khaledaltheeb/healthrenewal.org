@@ -23,14 +23,33 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
-      - name: Restore production sources
+      - name: Restore production sources without legacy executable injection
         run: |
           set -euxo pipefail
           mkdir -p /tmp/v10-content
           cp content/sectors-v10/*.json /tmp/v10-content/
           cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
           tar -xzf /tmp/v10.tar.gz
+
+          # The v10 bundle is a historical production-source snapshot. Keep its
+          # data/assets, but never let it replace or inject executable CI/source
+          # surfaces. Those must come from the exact checked-out Head SHA.
+          git restore --source=HEAD --worktree -- scripts tests .github provider-assessment-demo
+          git clean -fd -- scripts tests .github provider-assessment-demo
+          if ! git diff --quiet -- scripts tests .github provider-assessment-demo; then
+            echo "Legacy bundle modified executable source after restoration" >&2
+            git diff -- scripts tests .github provider-assessment-demo
+            exit 1
+          fi
+          if git ls-files --others --exclude-standard -- scripts tests .github provider-assessment-demo | grep -q .; then
+            echo "Legacy bundle injected untracked executable source" >&2
+            git ls-files --others --exclude-standard -- scripts tests .github provider-assessment-demo
+            exit 1
+          fi
+
           cp /tmp/v10-content/*.json content/sectors-v10/
           cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
           python scripts/verify_enricher_v7.py
