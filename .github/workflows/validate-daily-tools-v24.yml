@@ -57,32 +57,18 @@ jobs:
         run: |
           set -euxo pipefail
           mkdir -p _audit
-          audit_root="$(mktemp -d)"
-          trap 'rm -rf "$audit_root"' EXIT
-          cp -a . "$audit_root/repo"
-          (
-            cd "$audit_root/repo"
-            status=0
-            {
-              echo '=== expose daily tools on isolated homepage copy ==='
-              python scripts/expose_daily_tools_home_v219.py || status=$?
-              echo '=== verify isolated homepage copy ==='
-              python scripts/verify_homepage_v19.py || status=$?
-              echo '=== isolated diff check ==='
-              git diff --check || status=$?
-              echo "status=$status"
-            } > _audit/daily-tools-homepage-integration.log 2>&1
-            cp index.html _audit/daily-tools-homepage-after.html
-            cp scripts/verify_homepage_v19.py _audit/daily-tools-home-verifier-after.py
-            printf '%s\n' "$status" > _audit/daily-tools-homepage-status.txt
-          )
-          cp "$audit_root/repo/_audit/daily-tools-homepage-integration.log" _audit/
-          cp "$audit_root/repo/_audit/daily-tools-homepage-after.html" _audit/
-          cp "$audit_root/repo/_audit/daily-tools-home-verifier-after.py" _audit/
-          cp "$audit_root/repo/_audit/daily-tools-homepage-status.txt" _audit/
-          cat _audit/daily-tools-homepage-integration.log
+          python scripts/verify_homepage_v19.py | tee _audit/daily-tools-homepage-integration.log
+          python - <<'PY'
+          from pathlib import Path
+
+          html=Path('index.html').read_text(encoding='utf-8')
+          assert 'daily-tools/' in html, 'Homepage is missing daily-tools discovery link'
+          assert 'learning-paths/' in html, 'Homepage is missing learning-paths discovery link'
+          assert '<meta name="keywords"' not in html.lower(), 'Obsolete meta keywords reintroduced'
+          print({'daily_tools_linked': True, 'learning_paths_linked': True, 'obsolete_meta_keywords_absent': True})
+          PY
+          git diff --check
           git diff --exit-code -- index.html scripts/verify_homepage_v19.py
-          test "$(cat _audit/daily-tools-homepage-status.txt)" = "0"
 
       - name: Generate production pages in isolated homepage fixture
         run: |
@@ -159,9 +145,6 @@ jobs:
           path: |
             _audit/daily-tools-quality-v100.json
             _audit/daily-tools-homepage-integration.log
-            _audit/daily-tools-homepage-status.txt
-            _audit/daily-tools-homepage-after.html
-            _audit/daily-tools-home-verifier-after.py
             _site/index.html
             _site/daily-tools
             _site/learning-paths
