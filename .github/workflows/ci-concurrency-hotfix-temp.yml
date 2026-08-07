@@ -1,24 +1,25 @@
-name: Temporary CI concurrency hotfix
+name: Verify CI concurrency contract (historical hotfix)
 
+# Historical one-shot hotfix retained for auditability. The original issue-triggered
+# workflow could write directly to main after its concurrency change was already
+# present, and GitHub was recording configuration-failure runs on subsequent pushes.
+# Keep the record, but make future execution explicit, read-only, and deterministic.
 on:
-  issues:
-    types: [opened]
+  workflow_dispatch:
 
 permissions:
-  contents: write
-  issues: write
+  contents: read
 
 jobs:
-  patch:
-    if: github.event.issue.title == '[diagnostic] apply main validation concurrency 2026-07-31'
+  verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Add latest-only concurrency to the expensive production validation
+      - name: Verify latest-only concurrency contract
         run: |
           set -euxo pipefail
           python3 - <<'PY'
@@ -26,61 +27,15 @@ jobs:
 
           path = Path('.github/workflows/validate-all-labs-v22.yml')
           text = path.read_text(encoding='utf-8')
-          block = '''concurrency:
-  group: validate-all-labs-v31-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
-
-'''
-          if block in text:
-              print('Concurrency contract already present.')
-          else:
-              anchor = 'permissions:\n  contents: read\n\n'
-              if anchor not in text:
-                  raise SystemExit('Expected permissions anchor was not found')
-              text = text.replace(anchor, anchor + block, 1)
-              path.write_text(text, encoding='utf-8')
-
-          final = path.read_text(encoding='utf-8')
-          assert final.count('concurrency:') == 1, final.count('concurrency:')
-          assert 'group: validate-all-labs-v31-${{ github.event.pull_request.number || github.ref }}' in final
-          assert 'cancel-in-progress: true' in final
+          expected_group = 'group: validate-all-labs-v31-${{ github.event.pull_request.number || github.ref }}'
+          assert text.count('concurrency:') == 1, text.count('concurrency:')
+          assert expected_group in text
+          assert 'cancel-in-progress: true' in text
+          print('Concurrency contract is present; no mutation required.')
           PY
 
-      - name: Commit concurrency contract
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Prove historical verifier is source read-only
         run: |
           set -euxo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .github/workflows/validate-all-labs-v22.yml
-          if git diff --cached --quiet; then
-            echo 'No commit required.'
-          else
-            git commit -m 'fix(ci): cancel stale full-site validation runs'
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
-
-      - name: Report result
-        if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-        run: |
-          python3 - <<'PY' >/tmp/body.json
-          import json
-          from pathlib import Path
-          text = Path('.github/workflows/validate-all-labs-v22.yml').read_text(encoding='utf-8')
-          passed = (
-              'group: validate-all-labs-v31-${{ github.event.pull_request.number || github.ref }}' in text
-              and 'cancel-in-progress: true' in text
-          )
-          print(json.dumps({'body': '## Main validation concurrency\n\nStatus: **' + ('passed' if passed else 'failed') + '**\n\nOnly the newest full production validation for each branch/PR remains active.'}))
-          PY
-          curl -fsSL -X POST \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H 'Accept: application/vnd.github+json' \
-            -H 'X-GitHub-Api-Version: 2022-11-28' \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
-            --data-binary @/tmp/body.json
+          git diff --exit-code
+          test -z "$(git status --porcelain)"
