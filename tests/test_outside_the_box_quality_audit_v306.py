@@ -53,8 +53,15 @@ class OutsideBoxQualityAuditV306(unittest.TestCase):
             "favicon-32x32.png",
             "favicon-16x16.png",
             "apple-touch-icon.png",
+            "manifest.webmanifest",
+            "assets/brand/rawafid-brand.css",
+            "assets/platform/platform-core.css",
+            "copyright/index.html",
         ):
-            shutil.copy2(ROOT / relative_asset, self.site / relative_asset)
+            source = ROOT / relative_asset
+            target = self.site / relative_asset
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
         (self.site / "index.html").write_text(
             '<!doctype html><html lang="ar" dir="rtl"><head></head><body>'
             '<header><nav class="nav"><a href="special-needs/">المركز</a></nav></header>'
