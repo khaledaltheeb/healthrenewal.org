@@ -23,55 +23,46 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch every branch and recoverable pull-request head
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Fetch every branch and advertised pull-request head
         run: |
           set -euo pipefail
           git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*' --prune
 
-          gh api --paginate \
-            -H 'Accept: application/vnd.github+json' \
-            -H 'X-GitHub-Api-Version: 2022-11-28' \
-            "repos/${GITHUB_REPOSITORY}/pulls?state=all&per_page=100" \
-            --jq '.[] | [.number, .head.sha] | @tsv' \
+          git ls-remote --refs origin 'refs/pull/*/head' \
+            | awk '{ref=$2; sub("refs/pull/", "", ref); sub("/head", "", ref); print ref "\t" $1 "\t" $2}' \
             | sort -n -u > /tmp/pull-heads.tsv
 
           test -s /tmp/pull-heads.tsv
           : > /tmp/pull-fetch-failures.tsv
-          fetched=0
-          already_present=0
-          while IFS=$'\t' read -r number sha; do
-            test -n "${number}" && test -n "${sha}"
-            target_ref="refs/remotes/pull/${number}"
-            if git cat-file -e "${sha}^{commit}" 2>/dev/null; then
-              git update-ref "${target_ref}" "${sha}"
-              already_present=$((already_present + 1))
-              continue
-            fi
+          : > /tmp/pull-refspecs.txt
 
-            if git fetch --no-tags origin "+refs/pull/${number}/head:${target_ref}" 2>/tmp/pull-fetch.err; then
-              fetched=$((fetched + 1))
-            elif git fetch --no-tags origin "+${sha}:${target_ref}" 2>/tmp/pull-fetch.err; then
-              fetched=$((fetched + 1))
-            else
-              printf '%s\t%s\n' "${number}" "${sha}" >> /tmp/pull-fetch-failures.tsv
-            fi
+          while IFS=$'\t' read -r number sha remote_ref; do
+            test -n "${number}" && test -n "${sha}" && test -n "${remote_ref}"
+            printf '+%s:refs/remotes/pull/%s\n' "${remote_ref}" "${number}" >> /tmp/pull-refspecs.txt
           done < /tmp/pull-heads.tsv
 
+          advertised_pull_heads="$(wc -l < /tmp/pull-heads.tsv)"
+          test "${advertised_pull_heads}" -gt 0
+
+          split -l 100 /tmp/pull-refspecs.txt /tmp/pull-refspecs-batch-
+          for batch in /tmp/pull-refspecs-batch-*; do
+            mapfile -t refspecs < "${batch}"
+            if ! git fetch --no-tags origin "${refspecs[@]}"; then
+              printf 'batch\t%s\n' "${batch}" >> /tmp/pull-fetch-failures.tsv
+              exit 1
+            fi
+          done
+
           branch_refs="$(git for-each-ref --format='%(refname)' refs/remotes/origin | wc -l)"
-          api_pull_heads="$(wc -l < /tmp/pull-heads.tsv)"
           pull_refs="$(git for-each-ref --format='%(refname)' refs/remotes/pull | wc -l)"
-          failed_pull_heads="$(wc -l < /tmp/pull-fetch-failures.tsv)"
+          failed_batches="$(wc -l < /tmp/pull-fetch-failures.tsv)"
           echo "branch refs: ${branch_refs}"
-          echo "PR heads reported by API: ${api_pull_heads}"
-          echo "PR heads already reachable locally: ${already_present}"
-          echo "PR heads fetched from origin: ${fetched}"
-          echo "PR heads unavailable from origin: ${failed_pull_heads}"
+          echo "PR heads advertised by origin: ${advertised_pull_heads}"
           echo "local PR refs created: ${pull_refs}"
+          echo "failed fetch batches: ${failed_batches}"
           test "${branch_refs}" -gt 0
-          test "${pull_refs}" -gt 0
-          test "$((pull_refs + failed_pull_heads))" -eq "${api_pull_heads}"
+          test "${failed_batches}" -eq 0
+          test "${pull_refs}" -eq "${advertised_pull_heads}"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -130,19 +121,18 @@ jobs:
               for line in failure_file.read_text(encoding='utf-8').splitlines():
                   if not line.strip():
                       continue
-                  number, sha = line.split('\t', 1)
-                  failed.append({'number': int(number), 'sha': sha})
+                  failed.append({'fetchBatchFailure': line})
 
           report = {
-              'schemaVersion': 2,
-              'status': 'passed' if counts else 'failed',
-              'historyScanMode': 'all reachable branch and PR refs; unique git blobs per safe HTML path',
+              'schemaVersion': 3,
+              'status': 'passed' if counts and not failed else 'failed',
+              'historyScanMode': 'all reachable branch refs plus every pull-request head advertised by origin; unique git blobs per safe HTML path',
               'pagePathsWithHistory': len(counts),
               'distinctHistoricalBlobVersions': total_versions,
               'maximumBlobVersionsForOnePath': max_versions,
               'pathsBeyondFormer24VersionLimit': len(over_24),
               'topPathsBeyondFormerLimit': over_24[:100],
-              'unavailablePullRequestHeads': failed,
+              'pullRequestFetchFailures': failed,
           }
           Path('reports').mkdir(exist_ok=True)
           Path('reports/exhaustive-content-recovery-history-v1.json').write_text(
@@ -152,6 +142,7 @@ jobs:
           print(report)
           assert counts, 'no historical HTML versions discovered'
           assert total_versions >= len(counts), report
+          assert not failed, report
           PY
 
       - name: Upload exhaustive history evidence
