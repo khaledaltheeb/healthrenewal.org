@@ -48,6 +48,13 @@ class OutsideBoxQualityAuditV306(unittest.TestCase):
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><title>شعار</title></svg>',
             encoding="utf-8",
         )
+        for relative_asset in (
+            "favicon.ico",
+            "favicon-32x32.png",
+            "favicon-16x16.png",
+            "apple-touch-icon.png",
+        ):
+            shutil.copy2(ROOT / relative_asset, self.site / relative_asset)
         (self.site / "index.html").write_text(
             '<!doctype html><html lang="ar" dir="rtl"><head></head><body>'
             '<header><nav class="nav"><a href="special-needs/">المركز</a></nav></header>'
