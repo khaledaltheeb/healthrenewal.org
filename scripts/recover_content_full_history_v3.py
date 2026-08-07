@@ -18,6 +18,7 @@ _original_safe = base.safe
 # editorial content. Existing copies in the validated production baseline are
 # left untouched; only resurrection from Git history is blocked.
 HISTORICAL_RESTORE_BLOCKED_PREFIXES = (
+    'professional-assessment-hub/',
     'provider-assessment-platform/',
     'specialists-partners/admin/',
     'specialists-partners/portal/',
