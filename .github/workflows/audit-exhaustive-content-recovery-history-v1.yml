@@ -108,6 +108,10 @@ jobs:
                 number="${local_ref##*/}"
                 sha="${refspec%%:*}"
                 sha="${sha#+}"
+                if git cat-file -e "${sha}^{commit}" 2>/dev/null; then
+                  git update-ref "${local_ref}" "${sha}"
+                  continue
+                fi
                 if git fetch --no-tags origin "+refs/pull/${number}/head:${local_ref}"; then
                   continue
                 fi
@@ -208,7 +212,7 @@ jobs:
           report = {
               'schemaVersion': 5,
               'status': 'passed' if counts and discovered and not failed and not discovery_error else 'failed',
-              'historyScanMode': 'all reachable branch refs plus all pull requests returned by GitHub REST; batch SHA fetch with refs/pull fallback; unique git blobs per safe HTML path',
+              'historyScanMode': 'all reachable branch refs plus all pull requests returned by GitHub REST; batch SHA fetch with local-object reuse and refs/pull fallback; unique git blobs per safe HTML path',
               'pullRequestHeadsDiscovered': discovered,
               'pagePathsWithHistory': len(counts),
               'distinctHistoricalBlobVersions': total_versions,
