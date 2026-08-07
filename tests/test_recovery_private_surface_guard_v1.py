@@ -2,19 +2,25 @@
 from __future__ import annotations
 
 import importlib.util
+import sys
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / 'scripts' / 'recover_content_full_history_v3.py'
+SCRIPTS = ROOT / 'scripts'
+SCRIPT = SCRIPTS / 'recover_content_full_history_v3.py'
 
 
 def load_module():
-    spec = importlib.util.spec_from_file_location('recover_content_full_history_v3', SCRIPT)
-    assert spec and spec.loader
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    sys.path.insert(0, str(SCRIPTS))
+    try:
+        spec = importlib.util.spec_from_file_location('recover_content_full_history_v3', SCRIPT)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    finally:
+        sys.path.pop(0)
 
 
 def test_obsolete_professional_assessment_prototype_is_not_resurrected_from_history():
