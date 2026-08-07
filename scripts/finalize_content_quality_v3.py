@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import consolidate_duplicate_pages_v1 as duplicate_pages
@@ -47,6 +49,36 @@ def _load_v280_report(site: Path) -> dict[str, object]:
             'contractMismatches': mismatches,
         })
     return result
+
+
+def _rebuild_canonical_sitemaps(repo_root: Path, site: Path) -> None:
+    command = [
+        sys.executable,
+        str(repo_root / 'scripts/finalize_canonical_sitemaps_v1.py'),
+        '--site',
+        str(site),
+    ]
+    completed = subprocess.run(
+        command,
+        cwd=repo_root,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if completed.stdout:
+        print(completed.stdout, end='' if completed.stdout.endswith('\n') else '\n')
+    if completed.stderr:
+        print(
+            completed.stderr,
+            file=sys.stderr,
+            end='' if completed.stderr.endswith('\n') else '\n',
+        )
+    if completed.returncode != 0:
+        raise SystemExit({
+            'canonicalSitemapFinalizationFailed': completed.returncode,
+            'stdout': completed.stdout[-4000:],
+            'stderr': completed.stderr[-4000:],
+        })
 
 
 def main() -> None:
@@ -145,6 +177,34 @@ def main() -> None:
         encoding='utf-8',
     )
 
+    if report['status'] != 'passed':
+        raise SystemExit({
+            'status': report['status'],
+            'remainingThinPages': remaining[:20],
+            'integrityMissingInternalReferences': integrity_report['missingInternalReferences'][:20],
+        })
+
+    # The formal special-needs publication validator includes sitemap coverage.
+    # Build the canonical sitemap once here so the newly generated v281 routes
+    # are validated before the authoritative workflow reaches its no-loss gate.
+    # The workflow rebuilds this sitemap once more afterward; the operation is
+    # deterministic and intentionally idempotent.
+    _rebuild_canonical_sitemaps(repo_root, site)
+    special_needs_publication = special_needs.validate_publication_inventory(
+        site,
+        repair=special_needs_repair,
+    )
+    report.update({
+        'specialNeedsPublicationStatus': special_needs_publication.get('status'),
+        'specialNeedsPublicationCounts': special_needs_publication.get('counts', {}),
+        'specialNeedsPublicationTargetRouteCount': special_needs_publication.get('targetRouteCount', 0),
+        'specialNeedsPublicationSitemapUrlCount': special_needs_publication.get('sitemapUrlCount', 0),
+        'specialNeedsPublicationMissingRoots': special_needs_publication.get('missingRoots', []),
+        'specialNeedsPublicationPageIssues': special_needs_publication.get('pageIssues', {}),
+        'specialNeedsPublicationSitemapMissingRoutes': special_needs_publication.get('sitemapMissingRoutes', []),
+    })
+    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
     print(json.dumps({
         'status': report['status'],
         'htmlPages': report['htmlPages'],
@@ -153,7 +213,8 @@ def main() -> None:
         'capabilitiesV280ConditionCount': report['capabilitiesV280ConditionCount'],
         'capabilitiesV280EvidenceClaimCount': report['capabilitiesV280EvidenceClaimCount'],
         'specialNeedsPublicationRepairActions': report['specialNeedsPublicationRepairActions'],
-        'specialNeedsPublicationAfterCounts': report['specialNeedsPublicationAfterCounts'],
+        'specialNeedsPublicationCounts': report['specialNeedsPublicationCounts'],
+        'specialNeedsPublicationTargetRouteCount': report['specialNeedsPublicationTargetRouteCount'],
         'selfAdvocacySourcePackageCount': report['selfAdvocacySourcePackageCount'],
         'selfAdvocacyPublicContentPackageCount': report['selfAdvocacyPublicContentPackageCount'],
         'duplicateRoutesConsolidated': report['duplicateRoutesConsolidated'],
@@ -163,13 +224,6 @@ def main() -> None:
         'integrityStatus': report['integrityStatus'],
         'integrityMissingInternalPaths': report['integrityMissingInternalPaths'],
     }, ensure_ascii=False))
-
-    if report['status'] != 'passed':
-        raise SystemExit({
-            'status': report['status'],
-            'remainingThinPages': remaining[:20],
-            'integrityMissingInternalReferences': integrity_report['missingInternalReferences'][:20],
-        })
 
 
 if __name__ == '__main__':
