@@ -4,6 +4,10 @@ on:
   workflow_run:
     workflows: ["Recover richest historical content and deploy complete site"]
     types: [completed]
+  pull_request:
+    paths:
+      - '.github/workflows/publish-complete-sitemap-v360.yml'
+      - 'scripts/generate_sitemap_index_v304_core.py'
   issues:
     types: [opened]
   workflow_dispatch:
@@ -14,8 +18,8 @@ permissions:
   issues: write
 
 concurrency:
-  group: publish-complete-sitemap-v360
-  cancel-in-progress: false
+  group: publish-complete-sitemap-v360-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   audit:
@@ -23,16 +27,17 @@ jobs:
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.head_branch == 'main') ||
+      github.event_name == 'pull_request' ||
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'issues' &&
        github.event.issue.title == '[release] synchronize sitemap v360')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout verifier from current main
+      - name: Checkout verifier from event revision
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main' }}
           fetch-depth: 1
           persist-credentials: false
 
