@@ -87,14 +87,14 @@ jobs:
           run-id: ${{ steps.production.outputs.run_id }}
           github-token: ${{ github.token }}
 
-      - name: Regenerate discovery graph in isolated audit tree
+      - name: Regenerate sitemap files in isolated audit tree
         run: |
           set -euo pipefail
           test -f _site/index.html
           rm -rf /tmp/sitemap-audit-site
           cp -a _site /tmp/sitemap-audit-site
-          python -m py_compile scripts/generate_sitemap_index_v304.py
-          python scripts/generate_sitemap_index_v304.py /tmp/sitemap-audit-site
+          python -m py_compile scripts/generate_sitemap_index_v304_core.py
+          python scripts/generate_sitemap_index_v304_core.py /tmp/sitemap-audit-site
 
           python - <<'PY'
           import hashlib
