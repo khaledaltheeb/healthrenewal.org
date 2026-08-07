@@ -55,12 +55,16 @@ def main() -> None:
     site = Path(args.site).resolve()
 
     self_advocacy_result = self_advocacy.publish(site)
+    expected_self_advocacy_sources = len(self_advocacy.PUBLIC_PACKAGES) + 1
     if (
         self_advocacy_result.get('status') != 'passed'
-        or self_advocacy_result.get('sourcePackageCount') != 9
+        or self_advocacy_result.get('sourcePackageCount') != expected_self_advocacy_sources
         or self_advocacy_result.get('standalonePagesCreated') != 0
     ):
-        raise SystemExit({'selfAdvocacyPublication': self_advocacy_result})
+        raise SystemExit({
+            'selfAdvocacyPublication': self_advocacy_result,
+            'expectedSourcePackageCount': expected_self_advocacy_sources,
+        })
 
     cdls_result = cdls.publish(site)
     if cdls_result.get('status') != 'passed' or not cdls_result.get('single_canonical_route'):
