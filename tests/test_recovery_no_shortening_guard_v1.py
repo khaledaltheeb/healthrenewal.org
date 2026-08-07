@@ -25,6 +25,52 @@ def _page(words: int, title: str) -> str:
     return f"<!doctype html><html lang='ar' dir='rtl'><head><title>{title}</title></head><body><main><h1>{title}</h1><p>{body}</p></main></body></html>"
 
 
+def test_distinct_history_parser_keeps_every_version_beyond_old_24_limit():
+    lines = []
+    commits = []
+    for index in range(30):
+        commit = f"{index + 1:040x}"
+        blob = f"{index + 1001:040x}"
+        commits.append(commit)
+        lines.extend([
+            f"@@{commit}",
+            f":100644 100644 {'0' * 40} {blob} M\tarchive/example/index.html",
+        ])
+
+    # Repeated content on another commit must not create a duplicate version.
+    lines.extend([
+        f"@@{'f' * 40}",
+        f":100644 100644 {'0' * 40} {1001:040x} M\tarchive/example/index.html",
+    ])
+    # A blocked historical implementation surface must not enter the ledger.
+    lines.extend([
+        f"@@{'e' * 40}",
+        f":100644 100644 {'0' * 40} {9999:040x} M\tprofessional-assessment-hub/index.html",
+    ])
+
+    parsed = module._parse_distinct_history("\n".join(lines))
+
+    assert parsed["archive/example/index.html"] == commits
+    assert len(parsed["archive/example/index.html"]) == 30
+    assert "professional-assessment-hub/index.html" not in parsed
+
+
+def test_full_history_candidates_does_not_apply_representative_24_limit(monkeypatch):
+    lines = []
+    for index in range(31):
+        commit = f"{index + 1:040x}"
+        blob = f"{index + 2001:040x}"
+        lines.extend([
+            f"@@{commit}",
+            f":100644 100644 {'0' * 40} {blob} M\tdeep/page/index.html",
+        ])
+
+    monkeypatch.setattr(module.base, "git", lambda args: "\n".join(lines))
+    candidates = module.full_history_candidates("2016-08-07", limit=24)
+
+    assert len(candidates["deep/page/index.html"]) == 31
+
+
 def test_existing_richer_page_is_restored_after_shorter_historical_replacement(tmp_path, monkeypatch):
     site = tmp_path / "site"
     target = site / "guided-assessment" / "index.html"
