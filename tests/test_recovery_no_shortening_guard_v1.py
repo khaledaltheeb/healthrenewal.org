@@ -20,142 +20,89 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 
-def _page(words: int, title: str) -> str:
-    body = " ".join(f"كلمة{i}" for i in range(words))
-    return f"<!doctype html><html lang='ar' dir='rtl'><head><title>{title}</title></head><body><main><h1>{title}</h1><p>{body}</p></main></body></html>"
-
-
-def test_distinct_history_parser_keeps_every_version_beyond_old_24_limit():
-    lines = []
-    commits = []
-    for index in range(30):
-        commit = f"{index + 1:040x}"
-        blob = f"{index + 1001:040x}"
-        commits.append(commit)
-        lines.extend([
-            f"@@{commit}",
-            f":100644 100644 {'0' * 40} {blob} M\tarchive/example/index.html",
-        ])
-
-    # Repeated content on another commit must not create a duplicate version.
-    lines.extend([
-        f"@@{'f' * 40}",
-        f":100644 100644 {'0' * 40} {1001:040x} M\tarchive/example/index.html",
-    ])
-    # A blocked historical implementation surface must not enter the ledger.
-    lines.extend([
-        f"@@{'e' * 40}",
-        f":100644 100644 {'0' * 40} {9999:040x} M\tprofessional-assessment-hub/index.html",
-    ])
-
-    parsed = module._parse_distinct_history("\n".join(lines))
-
-    assert parsed["archive/example/index.html"] == commits
-    assert len(parsed["archive/example/index.html"]) == 30
-    assert "professional-assessment-hub/index.html" not in parsed
-
-
-def test_full_history_candidates_does_not_apply_representative_24_limit(monkeypatch):
-    lines = []
+def test_all_history_keeps_every_commit_beyond_old_24_limit(monkeypatch):
+    lines: list[str] = []
+    commits: list[str] = []
     for index in range(31):
         commit = f"{index + 1:040x}"
-        blob = f"{index + 2001:040x}"
-        lines.extend([
-            f"@@{commit}",
-            f":100644 100644 {'0' * 40} {blob} M\tdeep/page/index.html",
-        ])
+        commits.append(commit)
+        lines.extend([f"@@{commit}", "deep/page/index.html", ""])
 
     monkeypatch.setattr(module.base, "git", lambda args: "\n".join(lines))
-    candidates = module.full_history_candidates("2016-08-07", limit=24)
+    history = module.all_history("1970-01-01", limit=24)
 
-    assert len(candidates["deep/page/index.html"]) == 31
-
-
-def test_existing_richer_page_is_restored_after_shorter_historical_replacement(tmp_path, monkeypatch):
-    site = tmp_path / "site"
-    target = site / "guided-assessment" / "index.html"
-    target.parent.mkdir(parents=True)
-
-    richer = _page(1308, "الدليل الحالي الأغنى")
-    shorter = _page(714, "فهرس تاريخي أقصر")
-    target.write_text(richer, encoding="utf-8")
-
-    def destructive_restore(site_path: Path, since: str, baseline: Path | None):
-        destination = site_path / "guided-assessment" / "index.html"
-        destination.write_text(shorter, encoding="utf-8")
-        return [
-            {
-                "path": "guided-assessment/index.html",
-                "from": "validated-baseline",
-                "previousWords": 1308,
-                "restoredWords": 714,
-                "previousScore": 2277.8,
-                "restoredScore": 3104.0,
-            }
-        ]
-
-    monkeypatch.setattr(module, "_original_restore", destructive_restore)
-
-    accepted = module.restore_without_shortening(site, "2026-07-01", None)
-
-    assert accepted == []
-    assert target.read_text(encoding="utf-8") == richer
+    assert history["deep/page/index.html"] == commits
+    assert len(history["deep/page/index.html"]) == 31
 
 
-def test_equal_or_longer_replacement_remains_eligible(tmp_path, monkeypatch):
-    site = tmp_path / "site"
-    target = site / "example" / "index.html"
-    target.parent.mkdir(parents=True)
+def test_history_excludes_private_historical_surfaces(monkeypatch):
+    lines = [
+        f"@@{'a' * 40}",
+        "professional-assessment-hub/index.html",
+        "public-guide/index.html",
+    ]
+    monkeypatch.setattr(module.base, "git", lambda args: "\n".join(lines))
 
-    current = _page(500, "النسخة الحالية")
-    richer = _page(700, "نسخة تاريخية أغنى")
-    target.write_text(current, encoding="utf-8")
+    history = module.all_history("1970-01-01")
 
-    item = {
-        "path": "example/index.html",
-        "from": "historical-commit",
-        "previousWords": 500,
-        "restoredWords": 700,
-        "previousScore": 1000,
-        "restoredScore": 1400,
+    assert "professional-assessment-hub/index.html" not in history
+    assert history["public-guide/index.html"] == ["a" * 40]
+
+
+def test_missing_route_prefers_longest_candidate_even_if_shorter_has_higher_score():
+    longer = {
+        "words": 1308,
+        "score": 2200.0,
+        "sections": 8,
+        "bytes": 18000,
+        "redirect": False,
+    }
+    shorter_but_structurally_higher = {
+        "words": 714,
+        "score": 3104.0,
+        "sections": 14,
+        "bytes": 12000,
+        "redirect": False,
     }
 
-    def richer_restore(site_path: Path, since: str, baseline: Path | None):
-        (site_path / "example" / "index.html").write_text(richer, encoding="utf-8")
-        return [item]
+    chosen = module.choose_missing_candidate(
+        "guided-assessment/index.html",
+        None,
+        [
+            ("longer-history", "LONGER", longer),
+            ("shorter-history", "SHORTER", shorter_but_structurally_higher),
+        ],
+    )
 
-    monkeypatch.setattr(module, "_original_restore", richer_restore)
-
-    accepted = module.restore_without_shortening(site, "2026-07-01", None)
-
-    assert accepted == [item]
-    assert target.read_text(encoding="utf-8") == richer
+    assert chosen is not None
+    assert chosen[0] == "longer-history"
+    assert chosen[1] == "LONGER"
+    assert chosen[2]["words"] == 1308
 
 
-def test_missing_route_can_still_be_restored(tmp_path, monkeypatch):
-    site = tmp_path / "site"
-    site.mkdir()
-    target = site / "lost-page" / "index.html"
-    restored_page = _page(650, "صفحة مفقودة مستعادة")
+def test_history_injection_is_additive_and_preserves_primary_page():
+    primary = (
+        "<!doctype html><html lang='ar' dir='rtl'><body><main>"
+        "<h1>الصفحة الحالية</h1><p>المحتوى الحالي الكامل يبقى كما هو دون استبدال.</p>"
+        "</main></body></html>"
+    )
+    historical = "<section><h2>إضافة تاريخية</h2><p>معلومة فريدة مستعادة.</p></section>"
 
-    item = {
-        "path": "lost-page/index.html",
-        "from": "historical-commit",
-        "previousWords": 0,
-        "restoredWords": 650,
-        "previousScore": 0,
-        "restoredScore": 1200,
-    }
+    updated = module.inject_history(primary, "example/index.html", [historical])
 
-    def missing_restore(site_path: Path, since: str, baseline: Path | None):
-        destination = site_path / "lost-page" / "index.html"
-        destination.parent.mkdir(parents=True)
-        destination.write_text(restored_page, encoding="utf-8")
-        return [item]
+    assert "<h1>الصفحة الحالية</h1>" in updated
+    assert "المحتوى الحالي الكامل يبقى كما هو دون استبدال." in updated
+    assert historical in updated
+    assert updated.index("المحتوى الحالي الكامل") < updated.index("إضافة تاريخية")
 
-    monkeypatch.setattr(module, "_original_restore", missing_restore)
 
-    accepted = module.restore_without_shortening(site, "2026-07-01", None)
+def test_duplicate_historical_fragment_is_not_considered_unique():
+    known = ["هذه فقرة علمية مفصلة تحتوي معلومات كافية لاختبار منع تكرار المحتوى التاريخي داخل الصفحة الحالية"]
+    assert module.similar_enough(known[0], known)
 
-    assert accepted == [item]
-    assert target.read_text(encoding="utf-8") == restored_page
+
+def test_recovery_safe_blocks_reserved_private_prefixes():
+    assert not module.recovery_safe("professional-assessment-hub/index.html")
+    assert not module.recovery_safe("provider-assessment-platform/tool/index.html")
+    assert not module.recovery_safe("specialists-partners/admin/index.html")
+    assert not module.recovery_safe("specialists-partners/portal/index.html")
