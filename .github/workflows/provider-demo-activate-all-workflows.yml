@@ -1,86 +1,80 @@
 name: Activate every professional assessment workflow
 
+# Historical one-shot activation workflow retained for auditability.
+# It is intentionally read-only: production source changes must be made
+# through reviewed commits, never by CI mutating or deleting repository files.
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+  pull_request:
     paths:
       - ".github/workflows/provider-demo-activate-all-workflows.yml"
+      - "provider-assessment-demo/index.html"
+      - "provider-assessment-demo/professional-master-registry.js"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: provider-demo-professional-activation
-  cancel-in-progress: false
+  group: provider-demo-professional-activation-audit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  activate-and-remove:
+  audit-current-state:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository read-only
+        uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-      - name: Activate professional workflows
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Verify professional assessment surface without mutation
+        shell: bash
         run: |
+          set -euo pipefail
           python - <<'PY'
+          import re
           from pathlib import Path
 
           index = Path('provider-assessment-demo/index.html')
-          text = index.read_text(encoding='utf-8')
-          if 'professional-master-registry.js' not in text:
-              text = text.replace(
-                  '  <script src="catalog-extra.js" defer></script>\n  <script src="app.js" defer></script>',
-                  '  <script src="catalog-extra.js" defer></script>\n  <script src="professional-master-registry.js" defer></script>\n  <script src="app.js" defer></script>',
-                  1,
-              )
-          if 'professional-workflow.js' not in text:
-              text = text.replace(
-                  '  <script src="enhancements.js" defer></script>',
-                  '  <script src="enhancements.js" defer></script>\n  <script src="professional-workflow.js" defer></script>',
-                  1,
-              )
-          text = text.replace('دليل مصنف للمقاييس المهنية دون نسخ بنودها.', 'سجل رئيسي للمقاييس والفحوص المهنية مع تخطيط التطبيق وتوثيق النتائج.')
-          text = text.replace('دليل المقاييس المهنية', 'المقاييس والفحوص المهنية')
-          text = text.replace('دليل مصنف — دون بنود محمية', 'سجل مهني مصنف وقابل للعمل')
-          text = text.replace(
-              'لا تُعرض بنود أو مفاتيح تصحيح أو جداول معيارية للمقاييس المحمية. التفعيل المهني لاحقًا يتطلب ترخيص الأداة، حق الرقمنة، مؤهل المستخدم، النسخة اللغوية، والمراجعة المؤسسية.',
-              'جميع المقاييس متاحة للتخطيط والتعيين وتسجيل التطبيق والنتيجة داخل سجل الحالة. عند كون المقياس محميًا تستخدم النسخة الأصلية المرخصة ثم توثق النتيجة هنا دون نسخ البنود أو مفاتيح التصحيح.'
-          )
-          index.write_text(text, encoding='utf-8')
-
           registry = Path('provider-assessment-demo/professional-master-registry.js')
-          text = registry.read_text(encoding='utf-8')
-          replacements = {
-              'locked_pending_rights': 'workflow_available_rights_required',
-              'locked_or_link_only': 'workflow_available_or_official_link',
-              'const statusOf=s=>s==="external_result_import"||s==="external_result_import_or_permission_review"?"external":s.includes("buildable")||s.includes("official")?"guide":"locked";': 'const statusOf=s=>s.startsWith("external")?"external":"guide";',
-              'access:group.activationStatus.startsWith("external")?"تسجيل أو استيراد نتيجة من الجهة المختصة":group.activationStatus.includes("buildable")?"يمكن بناء بروتوكول أصلي بعد المراجعة":"يتطلب تحققًا رسميًا من الترخيص والمؤهل وحق الرقمنة",': 'access:group.activationStatus.startsWith("external")?"مسار متاح لتسجيل الفحص السريري أو استيراد نتيجته":"مسار عمل متاح للتخطيط والتعيين وتسجيل النتيجة؛ التطبيق الرسمي يتطلب النسخة الأصلية والمؤهل المناسب",',
-              'note:"غير مفعّل كبنود اختبار داخل المنصة. يمكن توثيق الخطة أو النتيجة الخارجية فقط حتى اكتمال البحث والحقوق.",': 'note:"متاح لإدارة التطبيق وتوثيق النتيجة داخل سجل الحالة. لا تنسخ المنصة البنود أو مفاتيح التصحيح المحمية دون ترخيص.",',
+
+          missing = [str(path) for path in (index, registry) if not path.is_file()]
+          if missing:
+              raise SystemExit(f'Missing required professional assessment files: {missing}')
+
+          html = index.read_text(encoding='utf-8')
+          registry_text = registry.read_text(encoding='utf-8')
+
+          required_html_contracts = {
+              'rtl document direction': 'dir="rtl"',
+              'responsive viewport': 'name="viewport"',
+              'professional registry script': 'professional-master-registry.js',
+              'main landmark': '<main',
           }
-          for old, new in replacements.items():
-              if old not in text:
-                  raise SystemExit(f'Expected registry token not found: {old[:60]}')
-              text = text.replace(old, new)
-          marker = '  const existing=new Set(data.professional.map(x=>String(x.name||"").trim().toLowerCase()));'
-          normalization = '''  for(const item of data.professional){
-            if(item.status==="locked")item.status="guide";
-            item.access=item.status==="external"?"مسار متاح لتسجيل الفحص أو استيراد النتيجة":"مسار عمل متاح للتخطيط والتعيين وتسجيل النتيجة";
-            item.note="يمكن استخدام سجل العمل لكل مقياس. التطبيق الرسمي للبنود والدرجات المعيارية يتطلب النسخة الأصلية والترخيص والمؤهل المناسب.";
-          }
-'''
-          if normalization.strip() not in text:
-              text = text.replace(marker, marker + '\n' + normalization, 1)
-          registry.write_text(text, encoding='utf-8')
+          failed = [name for name, token in required_html_contracts.items() if token not in html]
+          if failed:
+              raise SystemExit(f'Professional assessment HTML contract failed: {failed}')
+
+          if not registry_text.strip():
+              raise SystemExit('Professional assessment registry is empty')
+
+          # Match mutation commands semantically without embedding the exact
+          # forbidden command strings in the audit source itself.
+          forbidden_ci_mutation_patterns = (
+              r'git\s+push(?:\s|$)',
+              r'git\s+commit(?:\s|$)',
+              r'rm\s+-f\s+\.github/workflows/',
+          )
+          workflow = Path('.github/workflows/provider-demo-activate-all-workflows.yml').read_text(encoding='utf-8')
+          violations = [pattern for pattern in forbidden_ci_mutation_patterns if re.search(pattern, workflow)]
+          if violations:
+              raise SystemExit(f'Read-only CI contract violated: {violations}')
+
+          print('Professional assessment activation history retained; current surface passed read-only semantic audit.')
           PY
 
-          rm -f .github/workflows/provider-demo-enable-professional.yml
-          rm -f .github/workflows/provider-demo-activate-all-workflows.yml
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add provider-assessment-demo/index.html provider-assessment-demo/professional-master-registry.js .github/workflows/provider-demo-enable-professional.yml .github/workflows/provider-demo-activate-all-workflows.yml
-          if git diff --cached --quiet; then
-            exit 0
-          fi
-          git commit -m "Assessment demo: activate every professional workflow"
-          git push
+      - name: Verify working tree is unchanged
+        shell: bash
+        run: git diff --exit-code -- .
