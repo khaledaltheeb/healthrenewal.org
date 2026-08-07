@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://healthrenewal.org/api/v1/course-provider-registry.schema.json",
+  "title": "Legacy course provider registry compatibility schema",
+  "description": "مسار توافق قديم. العقد المعتمد الحالي هو courses.schema.json ويشترط مصدرًا مخولًا وبيانات إذن وترخيص واضحة.",
+  "$ref": "https://healthrenewal.org/api/v1/courses.schema.json"
+}
