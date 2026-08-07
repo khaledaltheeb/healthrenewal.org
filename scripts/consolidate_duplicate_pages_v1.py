@@ -14,7 +14,8 @@ MARKER = "duplicate-consolidation-v1"
 
 # Confirmed duplicate routes from the validated production artifact. Audience-
 # specific family/provider guides are intentionally excluded unless their text
-# and purpose are substantially identical.
+# and purpose are substantially identical. Cross-surface aliases may still be
+# canonicalized without copying route-relative fragments into the public page.
 DUPLICATE_GROUPS = (
     {"target": "terms/cognitive-psychology/index.html", "aliases": ("library/branches/cognitive-psychology/index.html",)},
     {"target": "terms/educational-psychology/index.html", "aliases": ("library/branches/educational-psychology/index.html",)},
@@ -28,7 +29,11 @@ DUPLICATE_GROUPS = (
     {"target": "terms/acceptance-and-commitment-therapy/index.html", "aliases": ("library/therapies/acceptance-commitment-therapy/index.html",)},
     {"target": "terms/psychoeducation/index.html", "aliases": ("library/therapies/psychoeducation/index.html",)},
     {"target": "terms/behavioral-activation/index.html", "aliases": ("library/therapies/behavioral-activation/index.html",)},
-    {"target": "special-needs/conditions/global-developmental-delay/index.html", "aliases": ("provider-assessment-demo/conditions/global-developmental-delay/index.html",)},
+    {
+        "target": "special-needs/conditions/global-developmental-delay/index.html",
+        "aliases": ("provider-assessment-demo/conditions/global-developmental-delay/index.html",),
+        "mergeFragments": False,
+    },
 )
 
 TAG_RE = re.compile(r"<[^>]+>", re.S)
@@ -205,6 +210,7 @@ def consolidate(site: Path, report: dict | None = None) -> dict:
         if not target_file.is_file():
             continue
         target_html = target_file.read_text(encoding="utf-8", errors="replace")
+        merge_fragments = bool(group.get("mergeFragments", True))
         group_aliases: list[str] = []
         for alias_path in group["aliases"]:
             alias_file = site / alias_path
@@ -215,7 +221,7 @@ def consolidate(site: Path, report: dict | None = None) -> dict:
                 replacements[alias_path] = target_path
                 group_aliases.append(alias_path)
                 continue
-            blocks = unique_fragments(target_html, alias_html)
+            blocks = unique_fragments(target_html, alias_html) if merge_fragments else []
             if blocks:
                 target_html = inject(target_html, alias_path, blocks)
                 merged_fragments.append({"target": target_path, "source": alias_path, "fragments": len(blocks)})
@@ -227,7 +233,11 @@ def consolidate(site: Path, report: dict | None = None) -> dict:
                 "target": route(target_path),
                 "previousWords": word_count(alias_html),
                 "mergedUniqueFragments": len(blocks),
-                "reason": "confirmed near-duplicate page consolidated into one canonical route",
+                "reason": (
+                    "confirmed near-duplicate page consolidated into one canonical route"
+                    if merge_fragments
+                    else "cross-surface alias canonicalized without fragment transfer"
+                ),
             })
         if group_aliases:
             target_file.write_text(target_html, encoding="utf-8")
