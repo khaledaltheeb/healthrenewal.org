@@ -82,7 +82,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: validated-production-site
-          path: _site
+          path: /tmp/validated-production-site
           repository: khaledaltheeb/healthrenewal.org
           run-id: ${{ steps.production.outputs.run_id }}
           github-token: ${{ github.token }}
@@ -90,9 +90,9 @@ jobs:
       - name: Regenerate sitemap files in isolated audit tree
         run: |
           set -euo pipefail
-          test -f _site/index.html
+          test -f /tmp/validated-production-site/index.html
           rm -rf /tmp/sitemap-audit-site
-          cp -a _site /tmp/sitemap-audit-site
+          cp -a /tmp/validated-production-site /tmp/sitemap-audit-site
           python -m py_compile scripts/generate_sitemap_index_v304_core.py
           python scripts/generate_sitemap_index_v304_core.py /tmp/sitemap-audit-site
 
@@ -102,7 +102,7 @@ jobs:
           from datetime import datetime, timezone
           from pathlib import Path
 
-          shipped = Path('_site')
+          shipped = Path('/tmp/validated-production-site')
           audit = Path('/tmp/sitemap-audit-site')
 
           def html_hashes(root: Path) -> dict[str, str]:
