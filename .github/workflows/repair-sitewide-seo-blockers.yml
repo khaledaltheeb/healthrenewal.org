@@ -1,0 +1,81 @@
+name: Repair sitewide SEO blockers
+
+on:
+  push:
+    branches:
+      - agent/fix-sitewide-seo-blockers
+    paths:
+      - scripts/repair_sitewide_seo_blockers.py
+      - .github/workflows/repair-sitewide-seo-blockers.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile deterministic repair
+        run: python -m py_compile scripts/repair_sitewide_seo_blockers.py scripts/audit_seo_intent_v1.py scripts/publish_care_guides_v246.py
+
+      - name: Materialize missing guide and repair index hubs
+        run: python scripts/repair_sitewide_seo_blockers.py
+
+      - name: Prove the four historical blockers are gone
+        run: |
+          set -euo pipefail
+          python scripts/audit_seo_intent_v1.py --scope all --strict --report /tmp/seo-intent-all-after-repair.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('/tmp/seo-intent-all-after-repair.json').read_text(encoding='utf-8'))
+          summary=report['summary']
+          assert summary['errors']==0, summary
+          assert summary['failed']==0, summary
+          targets={
+            'care-guides/adhd-family-practical-guide/index.html',
+            'learning-paths/all-pages/index.html',
+            'sectors/all-pages/index.html',
+            'special-needs/all-pages/index.html',
+          }
+          rows={item['path']:item for item in report['results'] if item['path'] in targets}
+          assert set(rows)==targets, rows.keys()
+          for path,row in rows.items():
+              assert row['errors']==0, (path,row['findings'])
+              assert row['h2']>=1, (path,row)
+              if path!='care-guides/adhd-family-practical-guide/index.html':
+                  assert row['h3']>=1, (path,row)
+          print(summary)
+          PY
+
+      - name: Commit only the validated source repairs
+        run: |
+          set -euo pipefail
+          git config user.name "Rawafid SEO Repair"
+          git config user.email "actions@users.noreply.github.com"
+          git add \
+            care-guides/adhd-family-practical-guide/index.html \
+            learning-paths/all-pages/index.html \
+            sectors/all-pages/index.html \
+            special-needs/all-pages/index.html
+          git diff --cached --check
+          git diff --cached --quiet && exit 0
+          git commit -m "fix(seo): clear remaining sitewide search-intent blockers"
+          git push origin HEAD:agent/fix-sitewide-seo-blockers
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sitewide-seo-blocker-repair-${{ github.run_id }}
+          path: /tmp/seo-intent-all-after-repair.json
+          if-no-files-found: ignore
+          retention-days: 30
