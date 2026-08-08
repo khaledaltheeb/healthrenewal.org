@@ -25,7 +25,7 @@ jobs:
           python-version: "3.12"
 
       - name: Compile deterministic repair
-        run: python -m py_compile scripts/repair_sitewide_seo_blockers.py scripts/audit_seo_intent_v1.py scripts/publish_care_guides_v246.py
+        run: python -m py_compile scripts/repair_sitewide_seo_blockers.py scripts/audit_seo_intent_v1.py scripts/publish_care_guides_v246.py scripts/enforce_sitewide_heading_intent_v2.py
 
       - name: Materialize missing guide and repair index hubs
         run: python scripts/repair_sitewide_seo_blockers.py
@@ -57,6 +57,35 @@ jobs:
           print(summary)
           PY
 
+      - name: Diagnose heading contract before any fallback text
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, sys
+          from dataclasses import asdict
+          from pathlib import Path
+          sys.path.insert(0, str(Path('scripts').resolve()))
+          import enforce_sitewide_heading_intent_v2 as h
+
+          root=Path('.').resolve()
+          sitemap=h.default_sitemap(root).resolve()
+          base_urls=h.DEFAULT_BASE_URLS
+          statuses, changes, unsupported=h.collect(root, sitemap, base_urls, write=False)
+          assert not unsupported, unsupported
+          targets, _=h.discover_targets(root, sitemap, base_urls)
+          target_by_path={target.path.resolve():target for target in targets}
+          rows=[]
+          for path in changes:
+              resolved=path.resolve()
+              target=target_by_path[resolved]
+              source=resolved.read_text(encoding='utf-8')
+              before=h.status_for(root, target, source)
+              rows.append(asdict(before))
+          payload={'changed':len(rows),'before':rows}
+          Path('/tmp/heading-drift-before.json').write_text(json.dumps(payload,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(payload,ensure_ascii=False,indent=2))
+          PY
+
       - name: Commit only the validated source repairs
         run: |
           set -euo pipefail
@@ -76,6 +105,8 @@ jobs:
         if: always()
         with:
           name: sitewide-seo-blocker-repair-${{ github.run_id }}
-          path: /tmp/seo-intent-all-after-repair.json
+          path: |
+            /tmp/seo-intent-all-after-repair.json
+            /tmp/heading-drift-before.json
           if-no-files-found: ignore
           retention-days: 30
