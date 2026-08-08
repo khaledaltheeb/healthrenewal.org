@@ -3,32 +3,15 @@ name: Build quick info 250
 on:
   push:
     branches:
-      - agent/quick-info-250
+      - "agent/quick-info-*"
     paths:
       - ".github/workflows/build-quick-info-150.yml"
-      - "content/quick-info-extension-v250.tsv"
-      - "scripts/build_quick_info.py"
-      - "scripts/extend_quick_info_200.py"
-      - "scripts/extend_quick_info_250.py"
-      - "scripts/run_extend_quick_info_250.py"
       - "scripts/enhance_quick_info_discover.py"
       - "scripts/enhance_quick_info_discover_250.py"
       - "scripts/enrich_quick_info_longform.py"
-      - "scripts/rebuild_sitemap_discovery_v405.py"
-  pull_request:
-    branches:
-      - main
-    types: [opened, reopened, synchronize]
-    paths:
-      - ".github/workflows/build-quick-info-150.yml"
-      - "content/quick-info-extension-v250.tsv"
-      - "scripts/build_quick_info.py"
-      - "scripts/extend_quick_info_200.py"
-      - "scripts/extend_quick_info_250.py"
-      - "scripts/run_extend_quick_info_250.py"
-      - "scripts/enhance_quick_info_discover.py"
-      - "scripts/enhance_quick_info_discover_250.py"
-      - "scripts/enrich_quick_info_longform.py"
+      - "scripts/finalize_quick_info_upgrade.py"
+      - "scripts/normalize_quick_info_shell.py"
+      - "scripts/normalize_platform_shell.py"
       - "scripts/rebuild_sitemap_discovery_v405.py"
       - "quick-info/**"
       - "assets/quick-info/**"
@@ -36,12 +19,25 @@ on:
       - "sitemap-quick-info.xml"
       - "sitemap-index.xml"
       - "robots.txt"
-      - "index.html"
-      - "tests/test_quick_info_section.py"
-      - "reports/quick-info-build.json"
-      - "reports/quick-info-discover-observability.json"
-      - "reports/quick-info-longform-quality.json"
-      - "api/sitemap-discovery-v405.json"
+  pull_request:
+    branches:
+      - main
+    types: [opened, reopened, synchronize]
+    paths:
+      - ".github/workflows/build-quick-info-150.yml"
+      - "scripts/enhance_quick_info_discover.py"
+      - "scripts/enhance_quick_info_discover_250.py"
+      - "scripts/enrich_quick_info_longform.py"
+      - "scripts/finalize_quick_info_upgrade.py"
+      - "scripts/normalize_quick_info_shell.py"
+      - "scripts/normalize_platform_shell.py"
+      - "scripts/rebuild_sitemap_discovery_v405.py"
+      - "quick-info/**"
+      - "assets/quick-info/**"
+      - "api/v1/quick-info.json"
+      - "sitemap-quick-info.xml"
+      - "sitemap-index.xml"
+      - "robots.txt"
   workflow_dispatch:
 
 permissions:
@@ -53,7 +49,7 @@ concurrency:
 
 jobs:
   build:
-    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'agent/quick-info-250')
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.event.pull_request.head.ref, 'agent/quick-info-'))
     runs-on: ubuntu-latest
     timeout-minutes: 35
 
@@ -68,7 +64,7 @@ jobs:
             echo "branch=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Checkout source branch
+      - name: Checkout current source branch
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.source.outputs.branch }}
@@ -79,32 +75,35 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install image dependency
+      - name: Install validation dependency
         run: |
           python -m pip install --upgrade pip
           python -m pip install pillow
 
-      - name: Compile generators
+      - name: Compile current-page enrichment pipeline
         run: |
           python -m py_compile \
-            scripts/build_quick_info.py \
-            scripts/extend_quick_info_200.py \
-            scripts/extend_quick_info_250.py \
-            scripts/run_extend_quick_info_250.py \
             scripts/enhance_quick_info_discover.py \
             scripts/enhance_quick_info_discover_250.py \
             scripts/enrich_quick_info_longform.py \
+            scripts/finalize_quick_info_upgrade.py \
+            scripts/normalize_platform_shell.py \
+            scripts/normalize_quick_info_shell.py \
             scripts/rebuild_sitemap_discovery_v405.py
 
-      - name: Build, enhance and enrich 250 pages
+      - name: Enrich current 250 pages without rebuilding legacy templates
         run: |
-          python scripts/run_extend_quick_info_250.py
+          set -euo pipefail
+          test "$(find quick-info -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 250
           python scripts/enhance_quick_info_discover_250.py
           python scripts/enrich_quick_info_longform.py
+          python scripts/finalize_quick_info_upgrade.py
+          python scripts/normalize_quick_info_shell.py
           python scripts/rebuild_sitemap_discovery_v405.py
 
       - name: Validate section contracts
         run: |
+          set -euo pipefail
           python - <<'PY'
           import runpy
           namespace = runpy.run_path("tests/test_quick_info_section.py")
@@ -114,7 +113,7 @@ jobs:
               if name.startswith("test_") and callable(value)
           ]
           if not tests:
-            raise SystemExit("No quick-info tests were discovered")
+              raise SystemExit("No quick-info tests were discovered")
           for test in tests:
               test()
               print(f"PASS {test.__name__}")
@@ -125,14 +124,12 @@ jobs:
           from pathlib import Path
           import xml.etree.ElementTree as ET
 
-          build = json.loads(Path("reports/quick-info-build.json").read_text(encoding="utf-8"))
           discover = json.loads(Path("reports/quick-info-discover-observability.json").read_text(encoding="utf-8"))
           longform = json.loads(Path("reports/quick-info-longform-quality.json").read_text(encoding="utf-8"))
+          finalization = json.loads(Path("reports/quick-info-upgrade-finalization.json").read_text(encoding="utf-8"))
+          shell = json.loads(Path("reports/quick-info-platform-shell.json").read_text(encoding="utf-8"))
           sitemap = json.loads(Path("api/sitemap-discovery-v405.json").read_text(encoding="utf-8"))
-          assert build["pages"] == 250, build
-          assert build["newPages"] == 50, build
-          assert build["images"] == 251, build
-          assert build["errors"] == [], build
+
           assert discover["pages"] == 250, discover
           assert discover["analyticsPages"] == 251, discover
           assert discover["articleMetadataPages"] == 250, discover
@@ -141,12 +138,24 @@ jobs:
           assert discover["canonicalUrlsPreserved"] is True, discover
           assert discover["titlesPreserved"] is True, discover
           assert discover["failures"] == [], discover
+
           assert longform["pagesProcessed"] == 250, longform
           assert longform["minimumFinalWords"] >= 1500, longform
           assert longform["legacyBodiesPreserved"] is True, longform
           assert longform["searchIntentFaqOnEveryPage"] is True, longform
           assert longform["discoverLargeImageContractRetained"] is True, longform
           assert longform["failures"] == [], longform
+
+          assert finalization["status"] == "passed", finalization
+          assert finalization["pagesChecked"] == 250, finalization
+          assert finalization["modifiedDate"] == "2026-08-08", finalization
+          assert finalization["datePublishedPreserved"] is True, finalization
+          assert finalization["failures"] == [], finalization
+
+          assert shell["status"] == "passed", shell
+          assert shell["pagesProcessed"] == 251, shell
+          assert shell["postcheckDrift"] == [], shell
+
           assert sitemap["status"] == "passed", sitemap
           assert "sitemap-quick-info.xml" in sitemap["indexed_sitemaps"], sitemap
           assert "sitemap-accessibility.xml" in sitemap["indexed_sitemaps"], sitemap
@@ -158,15 +167,15 @@ jobs:
           assert len(index_locations) == len(set(index_locations)), index_locations
           assert index_locations.count("https://healthrenewal.org/sitemap-quick-info.xml") == 1
           assert index_locations.count("https://healthrenewal.org/sitemap-accessibility.xml") == 1
+
           quick_root = ET.parse("sitemap-quick-info.xml").getroot()
           quick_locations = [node.text or "" for node in quick_root.findall("sm:url/sm:loc", ns)]
+          quick_lastmods = [node.text or "" for node in quick_root.findall("sm:url/sm:lastmod", ns)]
           assert len(quick_locations) == 251, len(quick_locations)
           assert len(quick_locations) == len(set(quick_locations)), "duplicate Quick Info URLs"
+          assert len(quick_lastmods) == 251 and set(quick_lastmods) == {"2026-08-08"}, set(quick_lastmods)
 
-          print(build)
-          print(discover)
-          print({k: v for k, v in longform.items() if k != "pages"})
-          print({k: v for k, v in sitemap.items() if k not in {"indexed_sitemaps", "rejected"}})
+          print({"discover": "passed", "longform": "passed", "finalization": "passed", "shell": "passed", "sitemap": "passed"})
           PY
 
           test "$(find quick-info -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 250
@@ -175,18 +184,18 @@ jobs:
           test "$(grep -rl 'fetchpriority="high"' quick-info/*/index.html | wc -l)" -eq 250
           test "$(grep -rl 'QUICK_INFO_LONGFORM_V1_START' quick-info/*/index.html | wc -l)" -eq 250
           test "$(grep -rl 'أسئلة شائعة تحاكي نية البحث' quick-info/*/index.html | wc -l)" -eq 250
+          test "$(grep -rl 'pt-platform-shell:v1' quick-info/index.html quick-info/*/index.html | wc -l)" -eq 251
+          test "$(grep -rl 'data-pt-normalized="1.1.0"' quick-info/index.html quick-info/*/index.html | wc -l)" -eq 251
+          test "$(grep -rl 'article:modified_time" content="2026-08-08T13:00:00+03:00' quick-info/*/index.html | wc -l)" -eq 250
           test "$(grep -o '<item>' quick-info/feed.xml | wc -l)" -eq 250
           test "$(grep -o '<url>' sitemap-quick-info.xml | wc -l)" -eq 251
-          grep -q '250 صفحة' quick-info/index.html
-          grep -q 'مسامحة أم مصالحة' quick-info/forgiveness-vs-reconciliation/index.html
-          grep -q 'كيف تستعد لجلسة التعارف والتقييم الأولي' quick-info/prepare-therapy-intake-session/index.html
           grep -q 'Sitemap: https://healthrenewal.org/sitemap-index.xml' robots.txt
           grep -q 'https://healthrenewal.org/sitemap-quick-info.xml' sitemap-index.xml
           grep -q 'https://healthrenewal.org/sitemap-accessibility.xml' sitemap-index.xml
           python scripts/validate_accessibility_discovery.py
           python scripts/verify_homepage_v19.py
 
-      - name: Commit generated section safely
+      - name: Commit deterministic current-page upgrades
         env:
           SOURCE_BRANCH: ${{ steps.source.outputs.branch }}
         run: |
@@ -196,53 +205,46 @@ jobs:
 
           GENERATED_PATHS=(
             quick-info
-            assets/quick-info
+            assets/quick-info/quick-info.css
             api/v1/quick-info.json
             sitemap-quick-info.xml
             sitemap-index.xml
             robots.txt
             api/sitemap-discovery-v405.json
-            index.html
-            tests/test_quick_info_section.py
-            reports/quick-info-build.json
             reports/quick-info-discover-observability.json
             reports/quick-info-longform-quality.json
+            reports/quick-info-upgrade-finalization.json
+            reports/quick-info-platform-shell.json
           )
 
           git add "${GENERATED_PATHS[@]}"
           if git diff --cached --quiet; then
-            echo "No generated changes to commit"
+            echo "No deterministic upgrades to commit"
             exit 0
           fi
-          git commit -m "feat(quick-info): publish 250 long-form pages"
+          git commit -m "fix(quick-info): preserve current shell and modification metadata"
 
           for attempt in 1 2 3; do
-            echo "Synchronized push attempt ${attempt}"
             git fetch origin "${SOURCE_BRANCH}"
-
             if ! git merge-base --is-ancestor "origin/${SOURCE_BRANCH}" HEAD; then
               if ! git rebase "origin/${SOURCE_BRANCH}"; then
                 git rebase --abort || true
                 sleep 2
                 continue
               fi
-
-              python scripts/run_extend_quick_info_250.py
               python scripts/enhance_quick_info_discover_250.py
               python scripts/enrich_quick_info_longform.py
+              python scripts/finalize_quick_info_upgrade.py
+              python scripts/normalize_quick_info_shell.py
               python scripts/rebuild_sitemap_discovery_v405.py
               git add "${GENERATED_PATHS[@]}"
               if ! git diff --cached --quiet; then
                 git commit --amend --no-edit
               fi
             fi
-
             if git push origin "HEAD:${SOURCE_BRANCH}"; then
-              echo "Generated section pushed to ${SOURCE_BRANCH}"
               exit 0
             fi
             sleep 2
           done
-
-          echo "Unable to push synchronized generated output"
           exit 1
