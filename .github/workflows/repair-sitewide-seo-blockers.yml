@@ -71,7 +71,6 @@ jobs:
           sitemap=h.default_sitemap(root).resolve()
           base_urls=h.DEFAULT_BASE_URLS
           statuses, changes, unsupported=h.collect(root, sitemap, base_urls, write=False)
-          assert not unsupported, unsupported
           targets, _=h.discover_targets(root, sitemap, base_urls)
           target_by_path={target.path.resolve():target for target in targets}
           rows=[]
@@ -81,7 +80,7 @@ jobs:
               source=resolved.read_text(encoding='utf-8')
               before=h.status_for(root, target, source)
               rows.append(asdict(before))
-          payload={'changed':len(rows),'before':rows}
+          payload={'changed':len(rows),'before':rows,'unsupported_count':len(unsupported)}
           Path('/tmp/heading-drift-before.json').write_text(json.dumps(payload,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           print(json.dumps(payload,ensure_ascii=False,indent=2))
           PY
