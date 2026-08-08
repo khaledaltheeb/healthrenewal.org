@@ -282,8 +282,8 @@ def choose_missing_candidate(
     return max(
         candidates,
         key=lambda item: (
-            item[2]["score"],
             item[2]["words"],
+            item[2]["score"],
             item[2]["sections"],
             item[2]["bytes"],
         ),

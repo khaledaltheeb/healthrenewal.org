@@ -1,0 +1,247 @@
+name: Audit exhaustive content recovery history v1
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/recover_content_full_history_v3.py'
+      - 'tests/test_recovery_no_shortening_guard_v1.py'
+      - '.github/workflows/audit-exhaustive-content-recovery-history-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  exhaustive-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout exact pull request head with full history
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Fetch every branch and pull-request head from REST inventory
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*' --prune
+          : > /tmp/pull-heads.tsv
+          : > /tmp/pull-fetch-failures.tsv
+          : > /tmp/pull-discovery-error.txt
+
+          python - <<'PY'
+          import json
+          import os
+          import urllib.parse
+          import urllib.request
+          from pathlib import Path
+
+          token = os.environ['GH_TOKEN']
+          repo = os.environ['GITHUB_REPOSITORY']
+          rows = []
+          page = 1
+          try:
+              while True:
+                  params = urllib.parse.urlencode({
+                      'state': 'all',
+                      'per_page': 100,
+                      'page': page,
+                      'sort': 'created',
+                      'direction': 'asc',
+                  })
+                  request = urllib.request.Request(
+                      f'https://api.github.com/repos/{repo}/pulls?{params}',
+                      headers={
+                          'Authorization': f'Bearer {token}',
+                          'Accept': 'application/vnd.github+json',
+                          'X-GitHub-Api-Version': '2022-11-28',
+                          'User-Agent': 'healthrenewal-content-recovery-audit',
+                      },
+                  )
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      payload = json.load(response)
+                  if not payload:
+                      break
+                  for item in payload:
+                      number = int(item['number'])
+                      sha = str(item.get('head', {}).get('sha') or '').strip()
+                      if sha:
+                          rows.append((number, sha))
+                  if len(payload) < 100:
+                      break
+                  page += 1
+          except Exception as exc:
+              Path('/tmp/pull-discovery-error.txt').write_text(
+                  f'{type(exc).__name__}: {exc}\n', encoding='utf-8'
+              )
+
+          unique = {}
+          for number, sha in rows:
+              unique[number] = sha
+          Path('/tmp/pull-heads.tsv').write_text(
+              ''.join(f'{number}\t{sha}\n' for number, sha in sorted(unique.items())),
+              encoding='utf-8',
+          )
+          print({'pull_requests_discovered': len(unique), 'pages_requested': page})
+          PY
+
+          if test -s /tmp/pull-heads.tsv; then
+            : > /tmp/pull-refspecs.txt
+            while IFS=$'\t' read -r number sha; do
+              printf '+%s:refs/remotes/pull/%s\n' "${sha}" "${number}" >> /tmp/pull-refspecs.txt
+            done < /tmp/pull-heads.tsv
+
+            rm -f /tmp/pull-refspecs-batch-*
+            split -l 100 /tmp/pull-refspecs.txt /tmp/pull-refspecs-batch-
+            for batch in /tmp/pull-refspecs-batch-*; do
+              mapfile -t refspecs < "${batch}"
+              if git fetch --no-tags origin "${refspecs[@]}"; then
+                continue
+              fi
+
+              while IFS= read -r refspec; do
+                local_ref="${refspec#*:}"
+                number="${local_ref##*/}"
+                sha="${refspec%%:*}"
+                sha="${sha#+}"
+                if git cat-file -e "${sha}^{commit}" 2>/dev/null; then
+                  if git update-ref "${local_ref}" "${sha}"; then
+                    continue
+                  fi
+                fi
+                if git fetch --no-tags origin "+refs/pull/${number}/head:${local_ref}"; then
+                  continue
+                fi
+                if git fetch --no-tags origin "+${sha}:${local_ref}"; then
+                  continue
+                fi
+                printf '%s\t%s\trefs/pull/%s/head\n' "${number}" "${sha}" "${number}" >> /tmp/pull-fetch-failures.tsv
+              done < "${batch}"
+            done
+          fi
+
+          branch_refs="$(git for-each-ref --format='%(refname)' refs/remotes/origin | wc -l)"
+          discovered_pull_heads="$(wc -l < /tmp/pull-heads.tsv)"
+          pull_refs="$(git for-each-ref --format='%(refname)' refs/remotes/pull | wc -l)"
+          failed_refs="$(wc -l < /tmp/pull-fetch-failures.tsv)"
+          discovery_error="$(wc -c < /tmp/pull-discovery-error.txt)"
+          echo "branch refs: ${branch_refs}"
+          echo "PR heads discovered by REST: ${discovered_pull_heads}"
+          echo "local PR refs created: ${pull_refs}"
+          echo "unrecoverable PR refs: ${failed_refs}"
+          echo "PR discovery error bytes: ${discovery_error}"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile recovery engine
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/recover_content_v1.py \
+            scripts/recover_content_v2.py \
+            scripts/recover_content_full_history_v3.py
+
+      - name: Run recovery regression tests
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check pytest
+          python -m pytest -q tests/test_recovery_no_shortening_guard_v1.py
+
+      - name: Inventory every distinct historical HTML blob
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          sys.path.insert(0, str(Path('scripts').resolve()))
+          import recover_content_full_history_v3 as recovery
+
+          history = recovery.all_history('1970-01-01')
+          counts = {}
+          cat = recovery.CatFile()
+          try:
+              for path, commits in history.items():
+                  blobs = set()
+                  for commit in commits:
+                      loaded = cat.get(commit, path)
+                      if loaded:
+                          blobs.add(loaded[0])
+                  if blobs:
+                      counts[path] = len(blobs)
+          finally:
+              cat.close()
+
+          total_versions = sum(counts.values())
+          max_versions = max(counts.values(), default=0)
+          over_24 = sorted(
+              ({'path': path, 'versions': count} for path, count in counts.items() if count > 24),
+              key=lambda item: (-item['versions'], item['path']),
+          )
+
+          failed = []
+          failure_file = Path('/tmp/pull-fetch-failures.tsv')
+          if failure_file.is_file():
+              for line in failure_file.read_text(encoding='utf-8').splitlines():
+                  if not line.strip():
+                      continue
+                  number, sha, remote_ref = (line.split('\t', 2) + ['', '', ''])[:3]
+                  failed.append({
+                      'pullRequest': number,
+                      'sha': sha,
+                      'remoteRef': remote_ref,
+                  })
+
+          discovery_error = ''
+          discovery_file = Path('/tmp/pull-discovery-error.txt')
+          if discovery_file.is_file():
+              discovery_error = discovery_file.read_text(encoding='utf-8').strip()
+
+          discovered = 0
+          pull_heads_file = Path('/tmp/pull-heads.tsv')
+          if pull_heads_file.is_file():
+              discovered = sum(1 for line in pull_heads_file.read_text(encoding='utf-8').splitlines() if line.strip())
+
+          report = {
+              'schemaVersion': 5,
+              'status': 'passed' if counts and discovered and not failed and not discovery_error else 'failed',
+              'historyScanMode': 'all reachable branch refs plus all pull requests returned by GitHub REST; batch SHA fetch with non-fatal local-object reuse and refs/pull fallback; unique git blobs per safe HTML path',
+              'pullRequestHeadsDiscovered': discovered,
+              'pagePathsWithHistory': len(counts),
+              'distinctHistoricalBlobVersions': total_versions,
+              'maximumBlobVersionsForOnePath': max_versions,
+              'pathsBeyondFormer24VersionLimit': len(over_24),
+              'topPathsBeyondFormerLimit': over_24[:100],
+              'unavailablePullRequestHeads': failed,
+              'pullRequestDiscoveryError': discovery_error or None,
+          }
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/exhaustive-content-recovery-history-v1.json').write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(report)
+          assert counts, 'no historical HTML versions discovered'
+          assert total_versions >= len(counts), report
+          assert discovered > 0, report
+          assert not discovery_error, report
+          assert not failed, report
+          PY
+
+      - name: Upload exhaustive history evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exhaustive-content-recovery-history-v1
+          path: reports/exhaustive-content-recovery-history-v1.json
+          if-no-files-found: warn
+          retention-days: 30
