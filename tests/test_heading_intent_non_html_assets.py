@@ -12,7 +12,7 @@ import enforce_sitewide_heading_intent_v2 as heading  # noqa: E402
 
 
 class HeadingIntentNonHtmlAssetTests(unittest.TestCase):
-    def test_image_assets_are_not_heading_targets_but_unknown_routes_still_fail(self) -> None:
+    def test_known_non_html_resources_are_not_heading_targets_but_unknown_routes_still_fail(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             sitemap = root / "sitemap.xml"
@@ -22,6 +22,7 @@ class HeadingIntentNonHtmlAssetTests(unittest.TestCase):
   <url><loc>https://healthrenewal.org/guide/</loc></url>
   <url><loc>https://healthrenewal.org/assets/card.png</loc></url>
   <url><loc>https://healthrenewal.org/assets/photo.webp</loc></url>
+  <url><loc>https://healthrenewal.org/api/v1/resource.json</loc></url>
   <url><loc>https://healthrenewal.org/api/unknown.bin</loc></url>
 </urlset>
 """,
