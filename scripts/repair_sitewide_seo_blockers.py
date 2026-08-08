@@ -113,10 +113,6 @@ def repair_hub(relative: str, cfg: dict[str, str]) -> None:
 
 
 def materialize_adhd_family_guide() -> None:
-    # The legacy ADHD guide predates the later review_status contract. Rendering
-    # this one existing source record directly avoids inventing a review status,
-    # while still using the exact institutional v246 renderer. Health-publication
-    # safety is independently re-checked on the PR before merge.
     scripts = ROOT / "scripts"
     sys.path.insert(0, str(scripts))
     from publish_care_guides_v246 import guide_page  # type: ignore
@@ -132,7 +128,6 @@ def materialize_adhd_family_guide() -> None:
     if "دليل الأسرة العملي لاضطراب نقص الانتباه وفرط النشاط" not in source:
         raise RuntimeError("Rendered ADHD guide lost its expected title")
 
-    # Modernize only publication semantics; do not alter the legacy source record.
     source = re.sub(r'<meta\s+name=["\']keywords["\'][^>]*>', '', source, count=1, flags=re.I)
     if not re.search(r'<h3\b', source, flags=re.I):
         if not re.search(r'</h2>', source, flags=re.I):
@@ -159,25 +154,32 @@ def materialize_adhd_family_guide() -> None:
     target.write_text(source, encoding="utf-8")
 
 
+def heading_visible_text(inner: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", inner)).strip()
+
+
 def replace_heading_text(source: str, old: str, new: str, level: int = 2, new_level: int | None = None) -> str:
-    tag = f"h{level}"
-    replacement_tag = f"h{new_level or level}"
-    pattern = rf'(<{tag}\b[^>]*>)\s*{re.escape(old)}\s*(</{tag}>)'
-    match = re.search(pattern, source, flags=re.I)
-    if not match:
-        # Idempotence: accept the already-rewritten semantic heading.
-        if re.search(rf'<{replacement_tag}\b[^>]*>\s*{re.escape(new)}\s*</{replacement_tag}>', source, flags=re.I):
-            return source
-        raise RuntimeError(f"Expected heading not found: {old}")
-    attrs = re.match(rf'<{tag}\b([^>]*)>', match.group(1), flags=re.I)
-    attr_text = attrs.group(1) if attrs else ""
-    replacement = f'<{replacement_tag}{attr_text}>{new}</{replacement_tag}>'
-    return source[:match.start()] + replacement + source[match.end():]
+    old_tag = f"h{level}"
+    new_tag = f"h{new_level or level}"
+    pattern = re.compile(rf'<{old_tag}\b([^>]*)>(.*?)</{old_tag}>', flags=re.I | re.S)
+    for match in pattern.finditer(source):
+        inner = match.group(2)
+        if heading_visible_text(inner) != old:
+            continue
+        if old not in inner:
+            raise RuntimeError(f"Heading text is split across nested tags: {old}")
+        rewritten_inner = inner.replace(old, new, 1)
+        replacement = f'<{new_tag}{match.group(1)}>{rewritten_inner}</{new_tag}>'
+        return source[:match.start()] + replacement + source[match.end():]
+
+    # Idempotence: accept the already-rewritten heading, including nested anchors.
+    new_pattern = re.compile(rf'<{new_tag}\b[^>]*>(.*?)</{new_tag}>', flags=re.I | re.S)
+    if any(heading_visible_text(match.group(1)) == new for match in new_pattern.finditer(source)):
+        return source
+    raise RuntimeError(f"Expected heading not found: {old}")
 
 
 def repair_heading_contract_drift() -> None:
-    # Evidence guides already have deep H3 structure. Convert two existing section
-    # headings per guide into genuine user questions instead of appending generic SEO text.
     for relative, rewrites in QUESTION_HEADING_REWRITES.items():
         path = ROOT / relative
         source = path.read_text(encoding="utf-8")
@@ -185,14 +187,11 @@ def repair_heading_contract_drift() -> None:
             source = replace_heading_text(source, old, new, level=2)
         path.write_text(source, encoding="utf-8")
 
-    # Accessible travel already contains many visible questions; it only lacked H3 depth.
     travel = ROOT / "guides/accessible-travel-planning/index.html"
     source = travel.read_text(encoding="utf-8")
     source = replace_heading_text(source, "أسئلة الإقامة قبل الحجز", "أسئلة الإقامة قبل الحجز", level=2, new_level=3)
     travel.write_text(source, encoding="utf-8")
 
-    # The all-pages index is a navigation surface; add concise, page-specific guidance
-    # rather than changing the names of the 149 linked resources.
     special_index = ROOT / "special-needs/all-pages/index.html"
     source = special_index.read_text(encoding="utf-8")
     marker = 'data-seo-index-guidance="special-needs-v1"'
@@ -211,8 +210,6 @@ def repair_heading_contract_drift() -> None:
             raise RuntimeError("Special-needs all-pages H2 not found for guidance insertion")
     special_index.write_text(source, encoding="utf-8")
 
-    # Communication guide is already an index of six focused guides. Promote the first
-    # two navigation headings into a natural question hierarchy without adding filler.
     communication = ROOT / "special-needs/guides/communication/index.html"
     source = communication.read_text(encoding="utf-8")
     source = replace_heading_text(source, "تقييم إتاحة التواصل", "كيف نبدأ بتقييم إتاحة التواصل؟", level=2)
