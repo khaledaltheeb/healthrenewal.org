@@ -14,6 +14,7 @@ on:
       - "scripts/enhance_quick_info_discover.py"
       - "scripts/enhance_quick_info_discover_250.py"
       - "scripts/enrich_quick_info_longform.py"
+      - "scripts/rebuild_sitemap_discovery_v405.py"
   pull_request:
     branches:
       - main
@@ -28,16 +29,19 @@ on:
       - "scripts/enhance_quick_info_discover.py"
       - "scripts/enhance_quick_info_discover_250.py"
       - "scripts/enrich_quick_info_longform.py"
+      - "scripts/rebuild_sitemap_discovery_v405.py"
       - "quick-info/**"
       - "assets/quick-info/**"
       - "api/v1/quick-info.json"
       - "sitemap-quick-info.xml"
       - "sitemap-index.xml"
+      - "robots.txt"
       - "index.html"
       - "tests/test_quick_info_section.py"
       - "reports/quick-info-build.json"
       - "reports/quick-info-discover-observability.json"
       - "reports/quick-info-longform-quality.json"
+      - "api/sitemap-discovery-v405.json"
   workflow_dispatch:
 
 permissions:
@@ -89,13 +93,15 @@ jobs:
             scripts/run_extend_quick_info_250.py \
             scripts/enhance_quick_info_discover.py \
             scripts/enhance_quick_info_discover_250.py \
-            scripts/enrich_quick_info_longform.py
+            scripts/enrich_quick_info_longform.py \
+            scripts/rebuild_sitemap_discovery_v405.py
 
       - name: Build, enhance and enrich 250 pages
         run: |
           python scripts/run_extend_quick_info_250.py
           python scripts/enhance_quick_info_discover_250.py
           python scripts/enrich_quick_info_longform.py
+          python scripts/rebuild_sitemap_discovery_v405.py
 
       - name: Validate section contracts
         run: |
@@ -121,6 +127,7 @@ jobs:
           build = json.loads(Path("reports/quick-info-build.json").read_text(encoding="utf-8"))
           discover = json.loads(Path("reports/quick-info-discover-observability.json").read_text(encoding="utf-8"))
           longform = json.loads(Path("reports/quick-info-longform-quality.json").read_text(encoding="utf-8"))
+          sitemap = json.loads(Path("api/sitemap-discovery-v405.json").read_text(encoding="utf-8"))
           assert build["pages"] == 250, build
           assert build["newPages"] == 50, build
           assert build["images"] == 251, build
@@ -139,9 +146,14 @@ jobs:
           assert longform["searchIntentFaqOnEveryPage"] is True, longform
           assert longform["discoverLargeImageContractRetained"] is True, longform
           assert longform["failures"] == [], longform
+          assert sitemap["status"] == "passed", sitemap
+          assert "sitemap-quick-info.xml" in sitemap["indexed_sitemaps"], sitemap
+          assert "sitemap-accessibility.xml" in sitemap["indexed_sitemaps"], sitemap
+          assert sitemap["quality_gates"]["robots_declares_sitemap_index"] is True, sitemap
           print(build)
           print(discover)
           print({k: v for k, v in longform.items() if k != "pages"})
+          print({k: v for k, v in sitemap.items() if k not in {"indexed_sitemaps", "rejected"}})
           PY
 
           test "$(find quick-info -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 250
@@ -155,6 +167,11 @@ jobs:
           grep -q '250 صفحة' quick-info/index.html
           grep -q 'مسامحة أم مصالحة' quick-info/forgiveness-vs-reconciliation/index.html
           grep -q 'كيف تستعد لجلسة التعارف والتقييم الأولي' quick-info/prepare-therapy-intake-session/index.html
+          grep -q 'Sitemap: https://healthrenewal.org/sitemap-index.xml' robots.txt
+          grep -q 'https://healthrenewal.org/sitemap-quick-info.xml' sitemap-index.xml
+          grep -q 'https://healthrenewal.org/sitemap-accessibility.xml' sitemap-index.xml
+          python scripts/validate_sitemap_discovery_contract.py
+          python scripts/validate_accessibility_discovery.py
           python scripts/verify_homepage_v19.py
 
       - name: Commit generated section safely
@@ -171,6 +188,8 @@ jobs:
             api/v1/quick-info.json
             sitemap-quick-info.xml
             sitemap-index.xml
+            robots.txt
+            api/sitemap-discovery-v405.json
             index.html
             tests/test_quick_info_section.py
             reports/quick-info-build.json
@@ -199,6 +218,7 @@ jobs:
               python scripts/run_extend_quick_info_250.py
               python scripts/enhance_quick_info_discover_250.py
               python scripts/enrich_quick_info_longform.py
+              python scripts/rebuild_sitemap_discovery_v405.py
               git add "${GENERATED_PATHS[@]}"
               if ! git diff --cached --quiet; then
                 git commit --amend --no-edit
