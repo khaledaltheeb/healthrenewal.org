@@ -1,0 +1,69 @@
+name: Repair Quick Info hub SEO
+
+on:
+  push:
+    branches:
+      - "agent/quick-info-editorial-*"
+    paths:
+      - ".github/workflows/repair-quick-info-hub-seo.yml"
+      - "scripts/repair_quick_info_hub_seo.py"
+      - "quick-info/index.html"
+      - "api/v1/quick-info.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: repair-quick-info-hub-seo-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Repair Quick Info hub semantics and metadata
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/repair_quick_info_hub_seo.py scripts/audit_seo_intent_v1.py
+          python scripts/repair_quick_info_hub_seo.py --root .
+
+      - name: Prove Quick Info hub has no SEO intent errors
+        run: |
+          set -euo pipefail
+          python scripts/audit_seo_intent_v1.py --scope all --report /tmp/seo-all.json || true
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/seo-all.json', encoding='utf-8'))
+          matches=[r for r in data['results'] if r.get('path')=='quick-info/index.html']
+          assert len(matches)==1, matches
+          result=matches[0]
+          assert result['errors']==0, result
+          codes={f['code'] for f in result['findings'] if f['severity']=='warning'}
+          forbidden={'open_graph','twitter','image_alt_empty'}
+          assert not (codes & forbidden), result
+          print({'quickInfoHubErrors':result['errors'],'warnings':result['warnings'],'findingCodes':sorted({f['code'] for f in result['findings']})})
+          PY
+
+      - name: Commit deterministic repair
+        run: |
+          set -euo pipefail
+          git config user.name "Quick Info SEO Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add quick-info/index.html
+          if git diff --cached --quiet; then
+            echo "Quick Info hub already satisfies the repair contract"
+            exit 0
+          fi
+          git commit -m "fix(quick-info): repair hub semantic SEO"
+          git push origin "HEAD:${{ github.ref_name }}"
