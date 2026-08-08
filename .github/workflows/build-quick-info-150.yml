@@ -12,6 +12,8 @@ on:
       - "scripts/finalize_quick_info_upgrade.py"
       - "scripts/normalize_quick_info_shell.py"
       - "scripts/normalize_platform_shell.py"
+      - "scripts/inject_google_tag_manager.py"
+      - "scripts/inject_quick_info_gtm.py"
       - "scripts/rebuild_sitemap_discovery_v405.py"
       - "quick-info/**"
       - "assets/quick-info/**"
@@ -31,6 +33,8 @@ on:
       - "scripts/finalize_quick_info_upgrade.py"
       - "scripts/normalize_quick_info_shell.py"
       - "scripts/normalize_platform_shell.py"
+      - "scripts/inject_google_tag_manager.py"
+      - "scripts/inject_quick_info_gtm.py"
       - "scripts/rebuild_sitemap_discovery_v405.py"
       - "quick-info/**"
       - "assets/quick-info/**"
@@ -89,6 +93,8 @@ jobs:
             scripts/finalize_quick_info_upgrade.py \
             scripts/normalize_platform_shell.py \
             scripts/normalize_quick_info_shell.py \
+            scripts/inject_google_tag_manager.py \
+            scripts/inject_quick_info_gtm.py \
             scripts/rebuild_sitemap_discovery_v405.py
 
       - name: Enrich current 250 pages without rebuilding legacy templates
@@ -99,6 +105,7 @@ jobs:
           python scripts/enrich_quick_info_longform.py
           python scripts/finalize_quick_info_upgrade.py
           python scripts/normalize_quick_info_shell.py
+          python scripts/inject_quick_info_gtm.py
           python scripts/rebuild_sitemap_discovery_v405.py
 
       - name: Validate section contracts
@@ -128,6 +135,7 @@ jobs:
           longform = json.loads(Path("reports/quick-info-longform-quality.json").read_text(encoding="utf-8"))
           finalization = json.loads(Path("reports/quick-info-upgrade-finalization.json").read_text(encoding="utf-8"))
           shell = json.loads(Path("reports/quick-info-platform-shell.json").read_text(encoding="utf-8"))
+          gtm = json.loads(Path("reports/quick-info-gtm.json").read_text(encoding="utf-8"))
           sitemap = json.loads(Path("api/sitemap-discovery-v405.json").read_text(encoding="utf-8"))
 
           assert discover["pages"] == 250, discover
@@ -156,6 +164,12 @@ jobs:
           assert shell["pagesProcessed"] == 251, shell
           assert shell["postcheckDrift"] == [], shell
 
+          assert gtm["status"] == "passed", gtm
+          assert gtm["gtmId"] == "GTM-WBLQVBG4", gtm
+          assert gtm["pagesChecked"] == 251, gtm
+          assert gtm["warnings"] == [], gtm
+          assert gtm["failures"] == [], gtm
+
           assert sitemap["status"] == "passed", sitemap
           assert "sitemap-quick-info.xml" in sitemap["indexed_sitemaps"], sitemap
           assert "sitemap-accessibility.xml" in sitemap["indexed_sitemaps"], sitemap
@@ -175,12 +189,13 @@ jobs:
           assert len(quick_locations) == len(set(quick_locations)), "duplicate Quick Info URLs"
           assert len(quick_lastmods) == 251 and set(quick_lastmods) == {"2026-08-08"}, set(quick_lastmods)
 
-          print({"discover": "passed", "longform": "passed", "finalization": "passed", "shell": "passed", "sitemap": "passed"})
+          print({"discover": "passed", "longform": "passed", "finalization": "passed", "shell": "passed", "gtm": "passed", "sitemap": "passed"})
           PY
 
           test "$(find quick-info -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 250
           test "$(find assets/quick-info/cards -maxdepth 1 -name '*.png' | wc -l)" -eq 250
           test "$(grep -rl 'G-VLZMV8Y4JP' quick-info/index.html quick-info/*/index.html | wc -l)" -eq 251
+          test "$(grep -rl 'GTM-WBLQVBG4' quick-info/index.html quick-info/*/index.html | wc -l)" -eq 251
           test "$(grep -rl 'fetchpriority="high"' quick-info/*/index.html | wc -l)" -eq 250
           test "$(grep -rl 'QUICK_INFO_LONGFORM_V1_START' quick-info/*/index.html | wc -l)" -eq 250
           test "$(grep -rl 'أسئلة شائعة تحاكي نية البحث' quick-info/*/index.html | wc -l)" -eq 250
@@ -215,6 +230,7 @@ jobs:
             reports/quick-info-longform-quality.json
             reports/quick-info-upgrade-finalization.json
             reports/quick-info-platform-shell.json
+            reports/quick-info-gtm.json
           )
 
           git add "${GENERATED_PATHS[@]}"
@@ -222,7 +238,7 @@ jobs:
             echo "No deterministic upgrades to commit"
             exit 0
           fi
-          git commit -m "fix(quick-info): preserve current shell and modification metadata"
+          git commit -m "fix(quick-info): preserve current shell, metadata and GTM"
 
           for attempt in 1 2 3; do
             git fetch origin "${SOURCE_BRANCH}"
@@ -236,6 +252,7 @@ jobs:
               python scripts/enrich_quick_info_longform.py
               python scripts/finalize_quick_info_upgrade.py
               python scripts/normalize_quick_info_shell.py
+              python scripts/inject_quick_info_gtm.py
               python scripts/rebuild_sitemap_discovery_v405.py
               git add "${GENERATED_PATHS[@]}"
               if ! git diff --cached --quiet; then
