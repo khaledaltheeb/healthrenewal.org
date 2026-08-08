@@ -39,14 +39,17 @@ jobs:
               continue
           path, route = resolved
           '''
+          # Normalize the literal to the source file's actual indentation so this
+          # bootstrap remains deterministic on the legacy version.
+          old = old.replace('              unsupported', '            unsupported').replace('              continue', '            continue').replace('          path, route', '        path, route').replace('          \n', '        \n')
           new = '''        if resolved is None:
-              suffix = Path(urlparse(url).path).suffix.lower()
-              if suffix in {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".avif", ".ico"}:
-                  continue
-              unsupported.append(url)
-              continue
-          path, route = resolved
-          '''
+            suffix = Path(urlparse(url).path).suffix.lower()
+            if suffix in {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".avif", ".ico"}:
+                continue
+            unsupported.append(url)
+            continue
+        path, route = resolved
+        '''
           if old in source:
               source = source.replace(old, new, 1)
               path.write_text(source, encoding='utf-8')
