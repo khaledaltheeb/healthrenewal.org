@@ -13,6 +13,7 @@ on:
       - "scripts/run_extend_quick_info_250.py"
       - "scripts/enhance_quick_info_discover.py"
       - "scripts/enhance_quick_info_discover_250.py"
+      - "scripts/enrich_quick_info_longform.py"
   pull_request:
     branches:
       - main
@@ -26,6 +27,7 @@ on:
       - "scripts/run_extend_quick_info_250.py"
       - "scripts/enhance_quick_info_discover.py"
       - "scripts/enhance_quick_info_discover_250.py"
+      - "scripts/enrich_quick_info_longform.py"
       - "quick-info/**"
       - "assets/quick-info/**"
       - "api/v1/quick-info.json"
@@ -35,6 +37,7 @@ on:
       - "tests/test_quick_info_section.py"
       - "reports/quick-info-build.json"
       - "reports/quick-info-discover-observability.json"
+      - "reports/quick-info-longform-quality.json"
   workflow_dispatch:
 
 permissions:
@@ -85,12 +88,14 @@ jobs:
             scripts/extend_quick_info_250.py \
             scripts/run_extend_quick_info_250.py \
             scripts/enhance_quick_info_discover.py \
-            scripts/enhance_quick_info_discover_250.py
+            scripts/enhance_quick_info_discover_250.py \
+            scripts/enrich_quick_info_longform.py
 
-      - name: Build and enhance 250 pages
+      - name: Build, enhance and enrich 250 pages
         run: |
           python scripts/run_extend_quick_info_250.py
           python scripts/enhance_quick_info_discover_250.py
+          python scripts/enrich_quick_info_longform.py
 
       - name: Validate section contracts
         run: |
@@ -115,6 +120,7 @@ jobs:
 
           build = json.loads(Path("reports/quick-info-build.json").read_text(encoding="utf-8"))
           discover = json.loads(Path("reports/quick-info-discover-observability.json").read_text(encoding="utf-8"))
+          longform = json.loads(Path("reports/quick-info-longform-quality.json").read_text(encoding="utf-8"))
           assert build["pages"] == 250, build
           assert build["newPages"] == 50, build
           assert build["images"] == 251, build
@@ -127,14 +133,23 @@ jobs:
           assert discover["canonicalUrlsPreserved"] is True, discover
           assert discover["titlesPreserved"] is True, discover
           assert discover["failures"] == [], discover
+          assert longform["pagesProcessed"] == 250, longform
+          assert longform["minimumFinalWords"] >= 1500, longform
+          assert longform["legacyBodiesPreserved"] is True, longform
+          assert longform["searchIntentFaqOnEveryPage"] is True, longform
+          assert longform["discoverLargeImageContractRetained"] is True, longform
+          assert longform["failures"] == [], longform
           print(build)
           print(discover)
+          print({k: v for k, v in longform.items() if k != "pages"})
           PY
 
           test "$(find quick-info -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 250
           test "$(find assets/quick-info/cards -maxdepth 1 -name '*.png' | wc -l)" -eq 250
           test "$(grep -rl 'G-VLZMV8Y4JP' quick-info/index.html quick-info/*/index.html | wc -l)" -eq 251
           test "$(grep -rl 'fetchpriority="high"' quick-info/*/index.html | wc -l)" -eq 250
+          test "$(grep -rl 'QUICK_INFO_LONGFORM_V1_START' quick-info/*/index.html | wc -l)" -eq 250
+          test "$(grep -rl 'أسئلة شائعة تحاكي نية البحث' quick-info/*/index.html | wc -l)" -eq 250
           test "$(grep -o '<item>' quick-info/feed.xml | wc -l)" -eq 250
           test "$(grep -o '<url>' sitemap-quick-info.xml | wc -l)" -eq 251
           grep -q '250 صفحة' quick-info/index.html
@@ -160,6 +175,7 @@ jobs:
             tests/test_quick_info_section.py
             reports/quick-info-build.json
             reports/quick-info-discover-observability.json
+            reports/quick-info-longform-quality.json
           )
 
           git add "${GENERATED_PATHS[@]}"
@@ -167,7 +183,7 @@ jobs:
             echo "No generated changes to commit"
             exit 0
           fi
-          git commit -m "feat(quick-info): publish 250-page section"
+          git commit -m "feat(quick-info): publish 250 long-form pages"
 
           for attempt in 1 2 3; do
             echo "Synchronized push attempt ${attempt}"
@@ -182,6 +198,7 @@ jobs:
 
               python scripts/run_extend_quick_info_250.py
               python scripts/enhance_quick_info_discover_250.py
+              python scripts/enrich_quick_info_longform.py
               git add "${GENERATED_PATHS[@]}"
               if ! git diff --cached --quiet; then
                 git commit --amend --no-edit
