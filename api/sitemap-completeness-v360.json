@@ -1,7 +1,7 @@
 {
   "version": 360,
   "status": "passed",
-  "generated_at": "2026-08-07T07:16:08+00:00",
+  "generated_at": "2026-08-08T06:53:04+00:00",
   "base_url": "https://healthrenewal.org/",
   "sitemap": "sitemap.xml",
   "sitemap_index": "sitemap-index.xml",
@@ -9,12 +9,12 @@
   "real_indexable_urls": 812,
   "claimed_target_urls": 3600,
   "target_reached": false,
-  "html_files_discovered": 825,
+  "html_files_discovered": 827,
   "excluded_counts": {
     "excluded_directory": 0,
     "error_or_offline_page": 1,
     "search_verification_file": 1,
-    "explicit_noindex": 11,
+    "explicit_noindex": 13,
     "external_canonical": 0,
     "unreadable": 0
   },
@@ -28,6 +28,8 @@
     ],
     "explicit_noindex": [
       "about/editorial-policy/index.html",
+      "blog/index.html",
+      "courses/index.html",
       "editorial-methodology/index.html",
       "evaluate-mental-health-information/index.html",
       "family-guide/conditions/prader-willi-syndrome/index.html",
