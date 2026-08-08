@@ -79,10 +79,13 @@ jobs:
               target=target_by_path[resolved]
               source=resolved.read_text(encoding='utf-8')
               before=h.status_for(root, target, source)
-              rows.append(asdict(before))
+              parser=h.parse_page(source)
+              row=asdict(before)
+              row['headings']=[{'level':level,'text':text} for level,text in parser.headings if text]
+              rows.append(row)
           payload={'changed':len(rows),'before':rows,'unsupported_count':len(unsupported)}
           Path('/tmp/heading-drift-before.json').write_text(json.dumps(payload,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          print(json.dumps(payload,ensure_ascii=False,indent=2))
+          print(json.dumps({'changed':len(rows),'paths':[row['path'] for row in rows],'unsupported_count':len(unsupported)},ensure_ascii=False))
           PY
 
       - name: Commit only the validated source repairs
