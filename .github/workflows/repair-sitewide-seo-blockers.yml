@@ -27,68 +27,29 @@ jobs:
       - name: Compile deterministic repair
         run: python -m py_compile scripts/repair_sitewide_seo_blockers.py scripts/audit_seo_intent_v1.py scripts/publish_care_guides_v246.py scripts/enforce_sitewide_heading_intent_v2.py
 
-      - name: Materialize missing guide and repair index hubs
+      - name: Materialize missing guide and repair SEO contracts
         run: python scripts/repair_sitewide_seo_blockers.py
 
-      - name: Prove the four historical blockers are gone
+      - name: Prove full search-intent and heading contracts
         run: |
           set -euo pipefail
           python scripts/audit_seo_intent_v1.py --scope all --strict --report /tmp/seo-intent-all-after-repair.json
+          python scripts/enforce_sitewide_heading_intent_v2.py --check --report /tmp/sitewide-heading-intent-v2-after-repair.json
           python - <<'PY'
           import json
           from pathlib import Path
-          report=json.loads(Path('/tmp/seo-intent-all-after-repair.json').read_text(encoding='utf-8'))
-          summary=report['summary']
+          seo=json.loads(Path('/tmp/seo-intent-all-after-repair.json').read_text(encoding='utf-8'))
+          heading=json.loads(Path('/tmp/sitewide-heading-intent-v2-after-repair.json').read_text(encoding='utf-8'))
+          summary=seo['summary']
           assert summary['errors']==0, summary
           assert summary['failed']==0, summary
-          targets={
-            'care-guides/adhd-family-practical-guide/index.html',
-            'learning-paths/all-pages/index.html',
-            'sectors/all-pages/index.html',
-            'special-needs/all-pages/index.html',
-          }
-          rows={item['path']:item for item in report['results'] if item['path'] in targets}
-          assert set(rows)==targets, rows.keys()
-          for path,row in rows.items():
-              assert row['errors']==0, (path,row['findings'])
-              assert row['h2']>=1, (path,row)
-              if path!='care-guides/adhd-family-practical-guide/index.html':
-                  assert row['h3']>=1, (path,row)
-          print(summary)
+          assert heading['summary']['changed']==0, heading['summary']
+          assert heading['summary']['failed']==0, heading['summary']
+          assert heading['summary']['indexable']==813, heading['summary']
+          print({'seo':summary,'heading':heading['summary']})
           PY
 
-      - name: Diagnose heading contract before any fallback text
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import json, sys
-          from dataclasses import asdict
-          from pathlib import Path
-          sys.path.insert(0, str(Path('scripts').resolve()))
-          import enforce_sitewide_heading_intent_v2 as h
-
-          root=Path('.').resolve()
-          sitemap=h.default_sitemap(root).resolve()
-          base_urls=h.DEFAULT_BASE_URLS
-          statuses, changes, unsupported=h.collect(root, sitemap, base_urls, write=False)
-          targets, _=h.discover_targets(root, sitemap, base_urls)
-          target_by_path={target.path.resolve():target for target in targets}
-          rows=[]
-          for path in changes:
-              resolved=path.resolve()
-              target=target_by_path[resolved]
-              source=resolved.read_text(encoding='utf-8')
-              before=h.status_for(root, target, source)
-              parser=h.parse_page(source)
-              row=asdict(before)
-              row['headings']=[{'level':level,'text':text} for level,text in parser.headings if text]
-              rows.append(row)
-          payload={'changed':len(rows),'before':rows,'unsupported_count':len(unsupported)}
-          Path('/tmp/heading-drift-before.json').write_text(json.dumps(payload,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          print(json.dumps({'changed':len(rows),'paths':[row['path'] for row in rows],'unsupported_count':len(unsupported)},ensure_ascii=False))
-          PY
-
-      - name: Commit only the validated source repairs
+      - name: Commit only validated source repairs
         run: |
           set -euo pipefail
           git config user.name "Rawafid SEO Repair"
@@ -97,10 +58,16 @@ jobs:
             care-guides/adhd-family-practical-guide/index.html \
             learning-paths/all-pages/index.html \
             sectors/all-pages/index.html \
-            special-needs/all-pages/index.html
+            special-needs/all-pages/index.html \
+            evidence-guides/aac-home-school-guide/index.html \
+            evidence-guides/inclusive-digital-safety-and-exploitation-prevention-guide/index.html \
+            evidence-guides/inclusive-toileting-personal-care-guide/index.html \
+            evidence-guides/puberty-body-safety-inclusive-guide/index.html \
+            guides/accessible-travel-planning/index.html \
+            special-needs/guides/communication/index.html
           git diff --cached --check
           git diff --cached --quiet && exit 0
-          git commit -m "fix(seo): clear remaining sitewide search-intent blockers"
+          git commit -m "fix(seo): satisfy sitewide search and heading intent contracts"
           git push origin HEAD:agent/fix-sitewide-seo-blockers
 
       - uses: actions/upload-artifact@v4
@@ -109,6 +76,6 @@ jobs:
           name: sitewide-seo-blocker-repair-${{ github.run_id }}
           path: |
             /tmp/seo-intent-all-after-repair.json
-            /tmp/heading-drift-before.json
+            /tmp/sitewide-heading-intent-v2-after-repair.json
           if-no-files-found: ignore
           retention-days: 30
