@@ -1,0 +1,112 @@
+name: Validate Issue 20 Axe accessibility v32
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/e2e_lab_axe_v32.mjs'
+      - 'scripts/add_lab_data_controls_v32.py'
+      - 'scripts/harden_lab_runtime_v32.py'
+      - 'scripts/harden_monitor_runtime_v32.py'
+      - 'scripts/harden_cognitive_distinctness_v32.py'
+      - '.github/workflows/validate-issue20-axe-v32.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/e2e_lab_axe_v32.mjs'
+      - 'scripts/add_lab_data_controls_v32.py'
+      - 'scripts/harden_lab_runtime_v32.py'
+      - 'scripts/harden_monitor_runtime_v32.py'
+      - 'scripts/harden_cognitive_distinctness_v32.py'
+      - '.github/workflows/validate-issue20-axe-v32.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  axe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Restore and build laboratory surface
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          python build_site.py
+          python enrich_site_v7.py
+          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+          python scripts/scale_site_v8.py
+          python expand_site_v9.py
+          python scripts/design_content_v10.py
+          python scripts/apply_contrast_v11.py _site
+          python scripts/expand_v12_direct.py _site
+          python scripts/performance_hotfix_v14.py _site
+          python scripts/optimize_site_performance_v14.py _site
+          python scripts/strip_nonlab_runtime_v14.py _site
+          python scripts/complete_core_sections_v15.py _site
+          python scripts/upgrade_cognitive_batch1_v22.py _site
+          python scripts/upgrade_cognitive_batch2_v22.py _site
+          python scripts/fix_initial_cognitive_variation_v25.py _site
+          python scripts/fix_stroop_and_variation_v23.py _site
+          python scripts/complete_cognitive_remaining_v24.py _site
+          python scripts/fix_cognitive_quality_v26.py _site
+          python scripts/publish_monitor_items_v32.py _site
+          python scripts/harden_lab_runtime_v32.py _site
+          python scripts/harden_monitor_runtime_v32.py _site
+          python scripts/harden_cognitive_distinctness_v32.py _site
+          python scripts/enrich_lab_content_v32.py _site
+          python scripts/render_lab_specificity_v32.py _site
+          python scripts/apply_scale_provenance_v32.py _site
+
+      - name: Install Playwright and axe-core integration
+        run: |
+          npm install --no-save playwright @axe-core/playwright@4.12.1
+          npx playwright install --with-deps chromium
+          node --check scripts/e2e_lab_axe_v32.mjs
+
+      - name: Run Axe on all 93 tools mobile and desktop
+        run: |
+          set -euxo pipefail
+          python -m http.server 8000 --directory _site >/tmp/issue20-axe-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/ >/dev/null && break; sleep 1; done
+          AUDIT_BASE_URL=http://127.0.0.1:8000/ AUDIT_SITE_ROOT=_site AUDIT_OUT_DIR=_site/api node scripts/e2e_lab_axe_v32.mjs
+
+      - name: Enforce zero serious or critical Axe violations
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('_site/api/lab-axe-v32.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed', report
+          assert report['tools']==93 and report['expectedRuns']==186 and report['completedRuns']==186, report
+          assert report['seriousCriticalViolations']==0 and report['seriousCriticalNodes']==0, report
+          assert report['errors']==[], report
+          print({'axe_runs':'186/186','serious_critical_violations':0,'wcag':['2.0 A/AA','2.1 A/AA','2.2 AA']})
+          PY
+
+      - name: Upload accessibility evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-20-axe-v32-evidence
+          path: |
+            _site/api/lab-axe-v32.json
+            /tmp/issue20-axe-http.log
+          if-no-files-found: warn
+          retention-days: 14

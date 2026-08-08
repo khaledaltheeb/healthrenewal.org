@@ -1,0 +1,167 @@
+name: Verify Issue 20 laboratory contract live v32
+
+on:
+  workflow_run:
+    workflows: ["Recover, consolidate, and deploy complete site"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: verify-issue20-live-v32
+  cancel-in-progress: true
+
+jobs:
+  live-contract:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Resolve current main commit
+        id: main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          sha="$(curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/heads/main" \
+            | python -c 'import json,sys; print(json.load(sys.stdin)["object"]["sha"])')"
+          echo "sha=${sha}" >> "${GITHUB_OUTPUT}"
+          echo "Expecting live Pages to match current main ${sha}."
+
+      - name: Wait for exact live release and fetch Issue 20 evidence
+        env:
+          EXPECTED_SHA: ${{ steps.main.outputs.sha }}
+        run: |
+          set -euo pipefail
+          ready=0
+          for attempt in $(seq 1 120); do
+            nonce="${GITHUB_RUN_ID}-${attempt}-$(date +%s%N)"
+            if \
+              curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/deployment.json?v=${nonce}" -o /tmp/deployment.json && \
+              curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/api/content-recovery-report.json?v=${nonce}" -o /tmp/recovery.json && \
+              curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/api/monitor-items-v32.json?v=${nonce}" -o /tmp/monitor-items.json && \
+              curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/api/lab-depth-v32.json?v=${nonce}" -o /tmp/depth.json && \
+              curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/api/lab-specificity-v32.json?v=${nonce}" -o /tmp/specificity.json && \
+              curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/api/scale-provenance-v32.json?v=${nonce}" -o /tmp/provenance.json && \
+              curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/api/cognitive-distinctness-v32.json?v=${nonce}" -o /tmp/cognitive.json && \
+              curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/assessment-lab/who-5-plus/?v=${nonce}" -o /tmp/who5.html && \
+              curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/assessment-lab/phq-9-plus/?v=${nonce}" -o /tmp/phq9.html && \
+              curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/cognitive-lab/simple-reaction/?v=${nonce}" -o /tmp/simple-reaction.html; then
+              if python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          deployment=json.loads(Path('/tmp/deployment.json').read_text(encoding='utf-8'))
+          recovery=json.loads(Path('/tmp/recovery.json').read_text(encoding='utf-8'))
+          monitor=json.loads(Path('/tmp/monitor-items.json').read_text(encoding='utf-8'))
+          depth=json.loads(Path('/tmp/depth.json').read_text(encoding='utf-8'))
+          specificity=json.loads(Path('/tmp/specificity.json').read_text(encoding='utf-8'))
+          provenance=json.loads(Path('/tmp/provenance.json').read_text(encoding='utf-8'))
+          cognitive=json.loads(Path('/tmp/cognitive.json').read_text(encoding='utf-8'))
+          who5=Path('/tmp/who5.html').read_text(encoding='utf-8', errors='replace')
+          phq9=Path('/tmp/phq9.html').read_text(encoding='utf-8', errors='replace')
+          simple=Path('/tmp/simple-reaction.html').read_text(encoding='utf-8', errors='replace')
+
+          assert deployment['release_commit'] == os.environ['EXPECTED_SHA'], deployment
+          assert recovery.get('status') == 'passed', recovery.get('status')
+          assert recovery.get('monitorItemPublicationStatus') == 'passed'
+          assert recovery.get('monitorItemProfiles') == 36
+          assert recovery.get('monitorItemTotal') == 432
+          assert recovery.get('monitorItemUnique') == 432
+          assert recovery.get('monitorItemGenericTemplates') == 0
+          assert recovery.get('laboratoryRuntimeStatus') == 'passed'
+          assert recovery.get('monitorRuntimeStatus') == 'passed'
+          assert recovery.get('cognitiveDistinctnessStatus') == 'passed'
+          assert recovery.get('laboratoryDepthStatus') == 'passed'
+          assert recovery.get('laboratoryAssessmentPages') == 40
+          assert recovery.get('laboratoryCognitivePages') == 53
+          assert recovery.get('laboratoryTotalTools') == 93
+          assert recovery.get('laboratoryMinimumVisibleWords', 0) >= 850
+          assert recovery.get('laboratorySpecificityStatus') == 'passed'
+          assert recovery.get('laboratoryMonitorSpecificityMinimumWords', 0) >= 130
+          assert recovery.get('laboratoryCognitiveSpecificityMinimumWords', 0) >= 95
+          assert recovery.get('laboratoryDuplicateSpecificBlocks') == 0
+          assert recovery.get('scaleProvenanceStatus') == 'passed'
+          assert recovery.get('scaleProvenanceProfiles') == ['audit_guided','gad7','phq9','who5']
+          assert recovery.get('who5ArabicPolicy') == 'adapted_arabic_descriptive_only'
+          assert recovery.get('arabicExactTextRequiredBeforeValidatedClaim') is True
+
+          assert monitor.get('status') == 'passed'
+          assert monitor.get('monitor_pages') == 36 and monitor.get('profiles') == 36
+          assert monitor.get('total_items') == 432 and monitor.get('unique_items') == 432
+          assert monitor.get('generic_template_items') == 0 and monitor.get('written_failures') == []
+
+          assert depth.get('status') == 'passed'
+          assert depth.get('assessment_pages') == 40 and depth.get('cognitive_pages') == 53 and depth.get('total_tools') == 93
+          assert depth.get('minimum_actual_words', 0) >= 850
+          assert depth.get('pages_below_depth') == [] and depth.get('missing_task_profiles') == []
+
+          assert specificity.get('status') == 'passed'
+          assert specificity.get('monitor_pages') == 36 and specificity.get('cognitive_pages') == 53
+          assert specificity.get('minimum_monitor_specific_words', 0) >= 130
+          assert specificity.get('minimum_cognitive_specific_words', 0) >= 95
+          assert specificity.get('monitor_failures') == [] and specificity.get('cognitive_failures') == []
+          assert specificity.get('duplicate_specific_blocks') == 0
+
+          assert provenance.get('status') == 'passed'
+          assert provenance.get('found') == ['audit_guided','gad7','phq9','who5']
+          assert provenance.get('who5_policy') == 'adapted_arabic_descriptive_only'
+          assert provenance.get('arabic_exact_text_required_before_validated_claim') is True
+
+          assert cognitive.get('status') == 'passed'
+          assert cognitive.get('missing_pages') == []
+
+          for page in (who5, phq9):
+              assert '<!-- scale-provenance-v32:start -->' in page
+              assert '<!-- lab-specificity-v32:start -->' in page or 'lab-depth-v32:body:start' in page
+          assert 'متابعة العافية بخمسة بنود — عرض عربي متكيف مستلهم من WHO-5' in who5
+          assert 'الصياغة الموجودة في الموقع ليست مطابقة حرفيًا' in who5
+          assert '<!-- lab-specificity-v32:start -->' in simple
+          assert 'ما الذي يحدث فعليًا في مهمة' in simple
+
+          print({
+              'release_commit': deployment['release_commit'],
+              'tools': '40 assessment + 53 cognitive',
+              'monitor_items': '432/432 unique',
+              'minimum_visible_words': depth['minimum_actual_words'],
+              'monitor_specific_min': specificity['minimum_monitor_specific_words'],
+              'cognitive_specific_min': specificity['minimum_cognitive_specific_words'],
+              'who5_policy': provenance['who5_policy'],
+              'live_pages_checked': ['who-5-plus','phq-9-plus','simple-reaction'],
+          })
+          PY
+              then
+                ready=1
+                break
+              fi
+            fi
+            sleep 5
+          done
+          test "${ready}" = 1
+
+      - name: Upload live verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue20-live-v32-${{ github.run_id }}
+          path: |
+            /tmp/deployment.json
+            /tmp/recovery.json
+            /tmp/monitor-items.json
+            /tmp/depth.json
+            /tmp/specificity.json
+            /tmp/provenance.json
+            /tmp/cognitive.json
+            /tmp/who5.html
+            /tmp/phq9.html
+            /tmp/simple-reaction.html
+          if-no-files-found: warn
+          retention-days: 30

@@ -1,0 +1,179 @@
+name: Validate Issue 20 specialized monitor banks v32
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/v32/monitor-items/**'
+      - 'scripts/publish_monitor_items_v32.py'
+      - 'scripts/harden_monitor_runtime_v32.py'
+      - 'scripts/e2e_monitor_items_v32.mjs'
+      - 'scripts/harden_lab_runtime_v32.py'
+      - 'scripts/enrich_lab_content_v32.py'
+      - 'tests/test_monitor_items_v32.py'
+      - '.github/workflows/validate-issue20-monitor-items-v32.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/v32/monitor-items/**'
+      - 'scripts/publish_monitor_items_v32.py'
+      - 'scripts/harden_monitor_runtime_v32.py'
+      - 'scripts/e2e_monitor_items_v32.mjs'
+      - 'scripts/harden_lab_runtime_v32.py'
+      - 'scripts/enrich_lab_content_v32.py'
+      - 'tests/test_monitor_items_v32.py'
+      - '.github/workflows/validate-issue20-monitor-items-v32.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: issue20-monitor-items-v32-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  specialized-monitor-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate source banks and compile all monitor gates
+        run: |
+          set -euxo pipefail
+          test "$(find content/v32/monitor-items -maxdepth 1 -name 'part*.json' | wc -l)" -eq 6
+          for shard in content/v32/monitor-items/part*.json; do python -m json.tool "$shard" >/dev/null; done
+          python -m py_compile \
+            scripts/publish_monitor_items_v32.py \
+            scripts/harden_lab_runtime_v32.py \
+            scripts/harden_monitor_runtime_v32.py \
+            scripts/enrich_lab_content_v32.py \
+            tests/test_monitor_items_v32.py
+          node --check scripts/e2e_monitor_items_v32.mjs
+          node --check scripts/e2e_all_labs_v22.mjs
+
+      - name: Run item-bank uniqueness safety and idempotence tests
+        run: python -m unittest -v tests/test_monitor_items_v32.py
+
+      - name: Restore production generators and source bundles
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          python scripts/verify_enricher_v7.py
+          python scripts/verify_expander_v9.py
+
+      - name: Build the exact production laboratory surface
+        run: |
+          set -euxo pipefail
+          python build_site.py
+          python enrich_site_v7.py
+          cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+          python scripts/scale_site_v8.py
+          python expand_site_v9.py
+          python scripts/design_content_v10.py
+          python scripts/apply_contrast_v11.py _site
+          python scripts/expand_v12_direct.py _site
+          python scripts/performance_hotfix_v14.py _site
+          python scripts/optimize_site_performance_v14.py _site
+          python scripts/strip_nonlab_runtime_v14.py _site
+          python scripts/complete_core_sections_v15.py _site
+          python scripts/upgrade_cognitive_batch1_v22.py _site
+          python scripts/upgrade_cognitive_batch2_v22.py _site
+          python scripts/fix_initial_cognitive_variation_v25.py _site
+          python scripts/fix_stroop_and_variation_v23.py _site
+          python scripts/complete_cognitive_remaining_v24.py _site
+          python scripts/fix_cognitive_quality_v26.py _site
+          python scripts/publish_monitor_items_v32.py _site
+          python scripts/harden_lab_runtime_v32.py _site
+          python scripts/harden_monitor_runtime_v32.py _site
+          python scripts/enrich_lab_content_v32.py _site
+          python scripts/audit_all_labs_v22.py _site
+          node --check _site/assets/js/lab-v12.js
+
+      - name: Enforce written output not source declarations
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('_site/api')
+          bank=json.loads((root/'monitor-items-v32.json').read_text(encoding='utf-8'))
+          runtime=json.loads((root/'monitor-runtime-v32.json').read_text(encoding='utf-8'))
+          depth=json.loads((root/'lab-depth-v32.json').read_text(encoding='utf-8'))
+          static=json.loads((root/'all-labs-v22.json').read_text(encoding='utf-8'))
+          assert bank['status']=='passed', bank
+          assert bank['shard_count']==6 and bank['monitor_pages']==36 and bank['profiles']==36, bank
+          assert bank['items_per_profile']==12 and bank['total_items']==432 and bank['unique_items']==432, bank
+          assert bank['written_total_items']==432 and bank['written_unique_items']==432, bank
+          assert bank['generic_template_items']==0 and bank['written_failures']==[], bank
+          assert bank['policies']=={'burden_tracking':34,'readiness_gaps':1,'safety_flags':1}, bank
+          assert len(bank['critical_profiles'])==7, bank
+          assert runtime['status']=='passed', runtime
+          assert all(value is True for key,value in runtime.items() if key not in {'version','status','runtime'}), runtime
+          assert depth['status']=='passed' and depth['assessment_pages']==40 and depth['cognitive_pages']==53, depth
+          assert depth['pages_below_depth']==[] and depth['missing_task_profiles']==[], depth
+          assert static['assessment_count']==40 and static['cognitive_count']==53 and static['error_count']==0, static
+          print({'monitor_pages':36,'unique_items':'432/432','generic_items':0,'critical_profiles':7,'runtime':'passed'})
+          PY
+
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Run complete stages and policy-specific browser tests
+        run: |
+          set -euxo pipefail
+          python -m http.server 8000 --directory _site >/tmp/issue20-monitor-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/ >/dev/null && break; sleep 1; done
+          AUDIT_BASE_URL=http://127.0.0.1:8000/ AUDIT_SITE_ROOT=_site AUDIT_OUT_DIR=_site/api node scripts/e2e_all_labs_v22.mjs
+          AUDIT_BASE_URL=http://127.0.0.1:8000/ AUDIT_SITE_ROOT=_site AUDIT_OUT_DIR=_site/api node scripts/e2e_monitor_items_v32.mjs
+
+      - name: Enforce browser evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('_site/api')
+          all_labs=json.loads((root/'all-labs-e2e-v22.json').read_text(encoding='utf-8'))
+          monitors=json.loads((root/'monitor-items-e2e-v32.json').read_text(encoding='utf-8'))
+          assert all_labs['expectedRuns']==186 and all_labs['passedRuns']==186, all_labs
+          assert all_labs['failedRuns']==0 and all_labs['errorCount']==0, all_labs
+          assert monitors['status']=='passed', monitors
+          assert monitors['monitorDefinitions']==36, monitors
+          assert monitors['totalItems']==432 and monitors['uniqueItems']==432 and monitors['genericItems']==0, monitors
+          assert monitors['expectedRuns']==10 and monitors['passedRuns']==10 and monitors['failedRuns']==0, monitors
+          assert monitors['errors']==[], monitors
+          print({'all_stage_runs':'186/186','monitor_policy_runs':'10/10','profiles':monitors['profiles']})
+          PY
+
+      - name: Upload monitor evidence and review pages
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-20-monitor-items-v32-evidence
+          path: |
+            _site/assessment-lab
+            _site/assets/js/lab-v12.js
+            _site/api/monitor-items-v32.json
+            _site/api/monitor-runtime-v32.json
+            _site/api/lab-depth-v32.json
+            _site/api/all-labs-v22.json
+            _site/api/all-labs-e2e-v22.json
+            _site/api/monitor-items-e2e-v32.json
+            /tmp/issue20-monitor-http.log
+          if-no-files-found: warn
+          retention-days: 14
