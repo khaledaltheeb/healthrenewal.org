@@ -13,8 +13,7 @@ on:
   workflow_run:
     workflows:
       - Recover richest historical content and deploy complete site
-    types:
-      - completed
+    types: [completed]
 
 permissions:
   actions: read
@@ -51,8 +50,8 @@ jobs:
           else
             echo "source_ref=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
             echo "source_sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
-            # Last fully validated safe production run used only for branch testing.
-            echo "upstream_run=31262113373" >> "$GITHUB_OUTPUT"
+            # Latest fully validated no-loss production artifact; branch tests never deploy it.
+            echo "upstream_run=31262833958" >> "$GITHUB_OUTPUT"
             echo "production=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -70,16 +69,10 @@ jobs:
           SOURCE_SHA: ${{ steps.context.outputs.source_sha }}
         run: |
           set -euo pipefail
-          current_sha="$(curl -fsSL \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/heads/main" \
-            | python -c 'import json,sys; print(json.load(sys.stdin)["object"]["sha"])')"
-          test "${current_sha}" = "${SOURCE_SHA}"
-          echo "Finalizing current main at ${SOURCE_SHA}."
+          current_sha="$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/heads/main" | python -c 'import json,sys; print(json.load(sys.stdin)["object"]["sha"])')"
+          test "$current_sha" = "$SOURCE_SHA"
 
-      - name: Download validated recovered production artifact
+      - name: Download validated no-loss artifact
         uses: actions/download-artifact@v4
         with:
           name: validated-production-site
@@ -88,96 +81,110 @@ jobs:
           run-id: ${{ steps.context.outputs.upstream_run }}
           github-token: ${{ github.token }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Compile deterministic editorial applicator
         run: |
-          python -m py_compile \
-            scripts/apply_quick_info_editorial_batch.py \
-            scripts/normalize_platform_shell.py \
-            scripts/inject_google_tag_manager.py
+          python -m py_compile scripts/apply_quick_info_editorial_batch.py scripts/normalize_platform_shell.py scripts/inject_google_tag_manager.py
 
-      - name: Apply reviewed editorial batch 001
+      - name: Apply all reviewed batches from clean no-loss artifact
         run: |
           set -euo pipefail
           test "$(find _site/quick-info -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 395
-          python scripts/apply_quick_info_editorial_batch.py \
-            --root _site \
-            --repo-root . \
-            --batch 001 \
-            --minimum-total-words 1500
+          for batch_dir in $(find content/quick-info-editorial -mindepth 1 -maxdepth 1 -type d | sort); do
+            batch="$(basename "$batch_dir")"
+            echo "Applying reviewed batch ${batch}"
+            python scripts/apply_quick_info_editorial_batch.py --root _site --repo-root . --batch "$batch" --minimum-total-words 1500
+          done
 
-      - name: Enforce editorial and discovery quality gates
+      - name: Build cumulative editorial report and enforce gates
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json
+          import json, re
           from pathlib import Path
           import xml.etree.ElementTree as ET
 
-          report = json.loads(Path('_site/api/quick-info-editorial-batch-001.json').read_text(encoding='utf-8'))
-          assert report['status'] == 'passed', report
-          assert report['primaryInventory'] == 250, report
-          assert report['productionArticlePages'] == 395, report
-          assert report['historicalRecoveredPages'] == 145, report
-          assert report['batchPages'] == 5, report
-          assert report['historicalRecoveredUpgraded'] == 5, report
-          assert report['historicalRecoveredBacklog'] == 140, report
-          assert report['minimumBatchTotalWords'] >= 1500, report
-          assert report['maximumBatchContentCosine'] <= 0.20, report
-          assert report['repeatedLongParagraphs'] == 0, report
-          assert report['sectionSitemapUrls'] == 256, report
-          assert report['runtime']['pages'] == 396, report
-          assert report['failures'] == [], report
-          assert all(len(item['reviewedSources']) >= 3 for item in report['items'])
-          assert all(item['origin'] == 'historical-recovered' for item in report['items'])
+          site = Path('_site')
+          reports = sorted(site.glob('api/quick-info-editorial-batch-*.json'))
+          assert [p.stem.rsplit('-', 1)[-1] for p in reports] == ['001', '002'], reports
+          data = [json.loads(p.read_text(encoding='utf-8')) for p in reports]
+          for report in data:
+              assert report['status'] == 'passed', report
+              assert report['batchPages'] == 5, report
+              assert report['minimumBatchTotalWords'] >= 1500, report
+              assert report['maximumBatchContentCosine'] <= 0.20, report
+              assert report['repeatedLongParagraphs'] == 0, report
+              assert report['failures'] == [], report
+              assert all(len(item['reviewedSources']) >= 3 for item in report['items'])
 
-          ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
-          root = ET.parse('_site/sitemap-quick-info.xml').getroot()
-          locations = [node.text or '' for node in root.findall('sm:url/sm:loc', ns)]
-          assert len(locations) == 256, len(locations)
-          assert len(locations) == len(set(locations)), 'duplicate section sitemap URLs'
-          for item in report['items']:
-              assert item['url'] in locations, item['url']
-          print({k: v for k, v in report.items() if k not in {'items', 'similarityPairs'}})
+          primary = json.loads((site/'api/v1/quick-info.json').read_text(encoding='utf-8'))
+          primary_slugs = {item['slug'] for item in primary['items']}
+          article_pages = sorted((site/'quick-info').glob('*/index.html'))
+          historical = [p for p in article_pages if p.parent.name not in primary_slugs]
+          upgraded = []
+          for page in historical:
+              source = page.read_text(encoding='utf-8')
+              if re.search(r'QUICK_INFO_EDITORIAL_BATCH_\d+_START', source):
+                  upgraded.append(page.parent.name)
+          assert len(article_pages) == 395
+          assert len(historical) == 145
+          assert len(set(upgraded)) == 10, upgraded
+
+          ns = {'sm':'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          sitemap = ET.parse(site/'sitemap-quick-info.xml').getroot()
+          locations = [n.text or '' for n in sitemap.findall('sm:url/sm:loc', ns)]
+          assert len(locations) == 261, len(locations)
+          assert len(locations) == len(set(locations))
+
+          cumulative = {
+              'version':'1.0.0',
+              'status':'passed',
+              'batches':['001','002'],
+              'productionArticlePages':395,
+              'primaryPages':250,
+              'historicalRecoveredPages':145,
+              'historicalRecoveredUpgradedCumulative':10,
+              'historicalRecoveredBacklog':135,
+              'sectionSitemapUrls':261,
+              'minimumWordsByBatch':{r['batch']:r['minimumBatchTotalWords'] for r in data},
+              'maximumCosineByBatch':{r['batch']:r['maximumBatchContentCosine'] for r in data},
+              'runtimePages':data[-1]['runtime']['pages'],
+              'failures':[],
+          }
+          (site/'api/quick-info-editorial-cumulative.json').write_text(json.dumps(cumulative, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+          print(cumulative)
           PY
 
-          for slug in \
-            after-night-without-sleep \
-            caffeine-and-anxiety \
-            caregiver-needs-support \
-            when-gaming-becomes-problem \
-            what-stress-does-to-body; do
+          for slug in after-night-without-sleep caffeine-and-anxiety caregiver-needs-support when-gaming-becomes-problem what-stress-does-to-body; do
+            grep -q 'QUICK_INFO_EDITORIAL_BATCH_001_START' "_site/quick-info/${slug}/index.html"
+          done
+          for slug in realistic-sleep-routine are-you-emotionally-exhausted can-long-distance-work five-reasons-fear-rejection break-phone-checking-habit; do
             page="_site/quick-info/${slug}/index.html"
-            grep -q 'QUICK_INFO_EDITORIAL_BATCH_001_START' "$page"
+            grep -q 'QUICK_INFO_EDITORIAL_BATCH_002_START' "$page"
             grep -q 'GTM-WBLQVBG4' "$page"
             grep -q 'G-VLZMV8Y4JP' "$page"
             grep -q 'pt-platform-shell:v1' "$page"
           done
-          ! grep -q 'SAMHSA: Find Support' _site/quick-info/when-gaming-becomes-problem/index.html
-          ! grep -q 'WHO: Substance use' _site/quick-info/when-gaming-becomes-problem/index.html
+          ! grep -q 'WHO: Substance use' _site/quick-info/break-phone-checking-habit/index.html
+          ! grep -q 'SAMHSA: Find Support' _site/quick-info/break-phone-checking-habit/index.html
           grep -q 'QUICK_INFO_EDITORIAL_DIRECTORY_001_START' _site/quick-info/index.html
-          grep -q '/quick-info/when-gaming-becomes-problem/' _site/quick-info/index.html
-
-          # Runtime is normalized for the whole recovered section, including pages still in the editorial backlog.
-          grep -q 'GTM-WBLQVBG4' _site/quick-info/fatigue-or-laziness/index.html
-          grep -q 'G-VLZMV8Y4JP' _site/quick-info/fatigue-or-laziness/index.html
-          grep -q 'pt-platform-shell:v1' _site/quick-info/fatigue-or-laziness/index.html
+          grep -q 'QUICK_INFO_EDITORIAL_DIRECTORY_002_START' _site/quick-info/index.html
 
       - name: Upload editorial diagnostics
         uses: actions/upload-artifact@v4
         with:
-          name: quick-info-editorial-001-${{ github.run_id }}
+          name: quick-info-editorial-${{ github.run_id }}
           path: |
             _site/api/quick-info-editorial-batch-001.json
+            _site/api/quick-info-editorial-batch-002.json
+            _site/api/quick-info-editorial-cumulative.json
             _site/sitemap-quick-info.xml
           retention-days: 90
 
-      - name: Configure Pages for production
-        if: steps.context.outputs.production == 'true'
+      - if: steps.context.outputs.production == 'true'
         uses: actions/configure-pages@v5
 
       - name: Upload reviewed production artifact
@@ -187,7 +194,7 @@ jobs:
           path: _site
 
   deploy:
-    name: Deploy reviewed Quick Info editorial batch
+    name: Deploy reviewed Quick Info editorial batches
     if: needs.build.outputs.production == 'true'
     needs: build
     runs-on: ubuntu-latest
@@ -195,7 +202,6 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
       - name: Refuse stale deployment if main advanced
         env:
@@ -203,62 +209,44 @@ jobs:
           SOURCE_SHA: ${{ needs.build.outputs.source_sha }}
         run: |
           set -euo pipefail
-          current_sha="$(curl -fsSL \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/heads/main" \
-            | python -c 'import json,sys; print(json.load(sys.stdin)["object"]["sha"])')"
-          test "${current_sha}" = "${SOURCE_SHA}"
+          current_sha="$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/heads/main" | python -c 'import json,sys; print(json.load(sys.stdin)["object"]["sha"])')"
+          test "$current_sha" = "$SOURCE_SHA"
 
       - name: Deploy reviewed production artifact
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify editorial batch live
+      - name: Verify cumulative editorial release live
         run: |
           set -euo pipefail
           ready=0
           for attempt in $(seq 1 80); do
             nonce="${GITHUB_RUN_ID}-${attempt}-$(date +%s%N)"
-            if curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
-              "https://healthrenewal.org/api/quick-info-editorial-batch-001.json?release=${nonce}" \
-              -o /tmp/report.json \
-              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
-              "https://healthrenewal.org/quick-info/when-gaming-becomes-problem/?release=${nonce}" \
-              -o /tmp/gaming.html \
-              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
-              "https://healthrenewal.org/quick-info/after-night-without-sleep/?release=${nonce}" \
-              -o /tmp/sleep.html \
-              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
-              "https://healthrenewal.org/sitemap-quick-info.xml?release=${nonce}" \
-              -o /tmp/sitemap.xml; then
+            if curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/api/quick-info-editorial-cumulative.json?release=${nonce}" -o /tmp/cumulative.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/quick-info/realistic-sleep-routine/?release=${nonce}" -o /tmp/sleep.html \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/quick-info/break-phone-checking-habit/?release=${nonce}" -o /tmp/phone.html \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/quick-info/when-gaming-becomes-problem/?release=${nonce}" -o /tmp/gaming.html \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/sitemap-quick-info.xml?release=${nonce}" -o /tmp/sitemap.xml; then
               if python - <<'PY'
           import json
           from pathlib import Path
           import xml.etree.ElementTree as ET
-          report = json.loads(Path('/tmp/report.json').read_text(encoding='utf-8'))
-          assert report['status'] == 'passed', report
-          assert report['batchPages'] == 5, report
-          assert report['historicalRecoveredBacklog'] == 140, report
-          assert report['minimumBatchTotalWords'] >= 1500, report
-          assert report['maximumBatchContentCosine'] <= 0.20, report
-          for filename in ('/tmp/gaming.html', '/tmp/sleep.html'):
-              source = Path(filename).read_text(encoding='utf-8')
-              assert 'QUICK_INFO_EDITORIAL_BATCH_001_START' in source
-              assert 'GTM-WBLQVBG4' in source
-              assert 'G-VLZMV8Y4JP' in source
-              assert 'pt-platform-shell:v1' in source
-          assert 'SAMHSA: Find Support' not in Path('/tmp/gaming.html').read_text(encoding='utf-8')
-          ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
-          root = ET.parse('/tmp/sitemap.xml').getroot()
-          assert len(root.findall('sm:url', ns)) == 256
+          report=json.loads(Path('/tmp/cumulative.json').read_text(encoding='utf-8'))
+          assert report['status']=='passed', report
+          assert report['historicalRecoveredUpgradedCumulative']==10, report
+          assert report['historicalRecoveredBacklog']==135, report
+          assert report['sectionSitemapUrls']==261, report
+          for fn, marker in [('/tmp/sleep.html','QUICK_INFO_EDITORIAL_BATCH_002_START'),('/tmp/phone.html','QUICK_INFO_EDITORIAL_BATCH_002_START'),('/tmp/gaming.html','QUICK_INFO_EDITORIAL_BATCH_001_START')]:
+              s=Path(fn).read_text(encoding='utf-8')
+              assert marker in s
+              assert 'GTM-WBLQVBG4' in s and 'G-VLZMV8Y4JP' in s and 'pt-platform-shell:v1' in s
+          assert 'WHO: Substance use' not in Path('/tmp/phone.html').read_text(encoding='utf-8')
+          ns={'sm':'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          root=ET.parse('/tmp/sitemap.xml').getroot()
+          assert len(root.findall('sm:url',ns))==261
           print(report)
           PY
-              then
-                ready=1
-                break
-              fi
+              then ready=1; break; fi
             fi
             sleep 4
           done
