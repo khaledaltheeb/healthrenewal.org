@@ -1,0 +1,2522 @@
+{
+  "version": "1.0.0",
+  "status": "passed",
+  "pagesExpected": 250,
+  "pagesChecked": 250,
+  "pagesChanged": 250,
+  "modifiedDate": "2026-08-08",
+  "modifiedIso": "2026-08-08T13:00:00+03:00",
+  "datePublishedPreserved": true,
+  "api": {
+    "count": 250,
+    "generatedAt": "2026-08-08T13:00:00+03:00"
+  },
+  "sitemap": {
+    "urls": 251,
+    "lastmod": "2026-08-08",
+    "unique": true
+  },
+  "failures": [],
+  "pages": [
+    {
+      "slug": "sadness-vs-depression",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "fatigue-vs-laziness",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "love-vs-painful-attachment",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "shyness-vs-social-anxiety",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "panic-vs-heart-emergency",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "normal-forgetting-vs-evaluation",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "mood-swings-vs-bipolar",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "order-vs-ocd",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "calm-vs-withdrawal",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "confidence-vs-narcissism",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "jealousy-vs-control",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "criticism-vs-emotional-abuse",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "care-vs-monitoring",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "rest-vs-avoidance",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "protection-vs-control",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "tired-vs-burnout",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "deep-thinking-vs-rumination",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "introversion-vs-harmful-isolation",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "language-delay-vs-developmental-difference",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "activity-vs-adhd",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "habit-vs-addiction",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "heavy-phone-use-vs-addiction",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "hunger-vs-emotional-eating",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "stress-vs-anxiety-disorder",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "fear-vs-phobia",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "caution-vs-hypervigilance",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "empathy-vs-people-pleasing",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "space-vs-silent-treatment",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "honesty-vs-cruelty",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "apology-vs-manipulation",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "missing-vs-attachment",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "breakup-grief-vs-depression",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "support-vs-rescuing",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "love-vs-dependency",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "boundaries-vs-walls",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "forgiveness-vs-accepting-abuse",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "optimism-vs-denial",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "self-confidence-vs-arrogance",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "assertiveness-vs-aggression",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "work-pressure-vs-burnout",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "sleepiness-vs-depression",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "sleep-loss-vs-insomnia",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "distraction-vs-adhd",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "perfectionism-vs-ocd",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "humility-vs-low-self-worth",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "responsibility-vs-self-blame",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "independence-vs-avoidant-closeness",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "child-protection-vs-parental-anxiety",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "tantrum-vs-sensory-meltdown",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "defiance-vs-regulation-difficulty",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "bad-behavior-vs-unmet-need",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "sensitivity-vs-sensory-overload",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "forgetfulness-vs-stress",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "simple-mental-health-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "do-you-have-insomnia",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "are-you-in-toxic-relationship",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "burnout-self-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "anxiety-controls-day",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "loneliness-vs-isolation-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "overthinking-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "boundaries-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "people-pleasing-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "phone-drain-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "sleep-affects-mood",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "emotional-eating-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "loss-of-pleasure-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "missing-person-or-idea",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "fear-of-rejection-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "stuck-after-breakup",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "guilt-manipulation-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "overworking-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "rest-or-help-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "child-sleep-evaluation",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "anger-hides-stress",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "inner-critic-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "social-avoidance-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "stress-body-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "psychological-reasons-waking-tired",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "psychological-reasons-low-motivation",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "why-think-about-ex",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "why-stay-harmful-relationship",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "fear-of-commitment-reasons",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "difficulty-saying-no",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "sensitive-to-criticism",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "procrastination-reasons",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "emotional-eating-reasons",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "quick-anger-reasons",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "excessive-attachment-reasons",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "emptiness-reasons",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "comparison-with-others",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "fear-of-failure-reasons",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "guilt-after-rest",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "external-factors-mental-health",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "work-burnout-factors",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "night-habits-harm-sleep",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "body-signs-under-stress",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "anxiety-changes-decisions",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "breakup-harder-factors",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "child-school-refusal-reasons",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "attention-distraction-factors",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "sudden-withdrawal-reasons",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "tips-after-breakup",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "stop-checking-ex-social",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "why-miss-someone-who-hurt-you",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "when-getting-back-is-bad",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "boundaries-new-relationship",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "real-apology-signs",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "why-they-disappear-and-return",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "silent-treatment-abuse",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "jealousy-becomes-control",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "trust-after-betrayal",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "end-relationship-safely",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "partner-refuses-boundaries",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "friendship-after-breakup",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "attracted-to-unavailable",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "safe-relationship-signs",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "relationship-drains-you",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "critical-partner",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "conflict-vs-abuse",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "fear-loneliness-after-breakup",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "recover-self-after-long-relationship",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "temporary-distance-relationship",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "stop-self-blame-after-betrayal",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "anxious-attachment-relationship",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "express-needs-without-blame",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "calm-mind-before-sleep",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-minute-overthinking-reset",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "small-mental-health-habits",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "what-to-do-panic-attack",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "return-to-routine-after-hard-time",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "say-no-without-guilt",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "boundaries-with-family",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "support-depressed-person",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "what-to-say-bereaved",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "help-anxious-child",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "low-motivation-day",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "exam-stress",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "work-stress-plan",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "restore-sleep-after-bad-week",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "personal-mental-safety-plan",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "time-to-seek-help",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "choose-therapist",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "prepare-first-therapy-session",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "explain-mental-health-to-family",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "protect-child-from-bullying",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "sensory-overload-plan",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "support-addiction-recovery",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "suspected-relapse",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "reduce-phone-use",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "build-calmer-day",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "emotional-numbness-vs-calm",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "self-care-vs-avoidance",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "guilt-vs-shame",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "privacy-vs-secrecy",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "closeness-vs-enmeshment",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "boredom-vs-low-mood",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "patience-vs-emotional-suppression",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "high-standards-vs-perfectionism",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "restlessness-vs-hyperactivity",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "health-awareness-vs-health-anxiety",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "discipline-vs-punishment",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "sensory-preference-vs-avoidance",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "compassion-fatigue-vs-indifference",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "ambition-vs-overwork",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "post-trauma-caution-vs-ptsd",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "emotionally-unavailable-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "self-criticism-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "survival-mode-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "social-media-mood-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "work-follows-home-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "nightmare-sleep-fear-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "over-responsibility-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "child-hidden-school-distress-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "authentic-self-relationship-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "grief-support-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-reasons-indecision",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-factors-night-loneliness",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-reasons-compliments-uncomfortable",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-factors-emotional-exhaustion",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-reasons-school-refusal",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-reasons-repeated-arguments",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-factors-breakup-recovery",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-reasons-morning-anxiety",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-factors-adhd-symptoms",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-reasons-freeze-under-pressure",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "repair-after-argument",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "digital-boundaries-relationship",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "co-parenting-after-separation",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "emotionally-unavailable-parent",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "ask-reassurance-without-dependency",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "respond-passive-aggression",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "end-friendship-respectfully",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "financial-abuse-signs",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "protect-child-adult-conflict",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "workplace-boundaries-manager",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "grounding-after-nightmare",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "reduce-doomscrolling",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "return-social-life-after-isolation",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "guilt-after-saying-no",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "prepare-psychiatry-appointment",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "openness-vs-oversharing",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "empathy-vs-emotional-absorption",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "forgiveness-vs-reconciliation",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "accountability-vs-self-blame",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "confidence-vs-defensiveness",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "support-vs-enabling",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "routine-vs-rigidity",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "healthy-anger-vs-aggression",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "disappointment-vs-hopelessness",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "fatigue-vs-sleepiness",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "focus-break-vs-digital-distraction",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "child-opposition-vs-overwhelm",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "teen-privacy-vs-withdrawal",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "advice-vs-control",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "resilience-vs-emotional-denial",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "family-emotional-safety-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "workplace-bullying-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "panic-avoidance-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "sleep-debt-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "decision-fatigue-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "caregiver-resentment-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "child-sensory-overload-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "friendship-balance-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "conflict-repair-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "therapy-readiness-check",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-reasons-emotional-distance",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-factors-sunday-anxiety",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-reasons-children-lie",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-factors-low-self-worth",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-reasons-restless-sleep",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-factors-workplace-anxiety",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-reasons-boundary-guilt",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-factors-social-exhaustion",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-reasons-relationship-doubt",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "five-factors-caregiver-guilt",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "rebuild-routine-after-low-mood",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "talk-about-therapy-with-family",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "prepare-child-first-therapy-session",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "support-partner-with-anxiety",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "handle-workplace-gossip",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "stop-ruminating-after-embarrassment",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "create-sleep-wind-down",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "recover-from-people-pleasing",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "respond-to-body-comments",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "manage-family-boundaries-holidays",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "explain-mental-health-to-child",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "help-teen-friendship-breakup",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "build-personal-overwhelm-plan",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "return-to-work-after-burnout",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    },
+    {
+      "slug": "prepare-therapy-intake-session",
+      "changed": true,
+      "checks": {
+        "metaModified": true,
+        "jsonLdModified": true,
+        "visibleModified": true,
+        "publishedDatePreserved": true
+      }
+    }
+  ]
+}
