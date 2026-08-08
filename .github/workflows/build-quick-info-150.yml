@@ -13,6 +13,8 @@ on:
       - "scripts/run_extend_quick_info_250.py"
       - "scripts/enhance_quick_info_discover.py"
       - "scripts/enhance_quick_info_discover_250.py"
+      - "scripts/enrich_quick_info_longform.py"
+      - "scripts/rebuild_sitemap_discovery_v405.py"
   pull_request:
     branches:
       - main
@@ -26,15 +28,20 @@ on:
       - "scripts/run_extend_quick_info_250.py"
       - "scripts/enhance_quick_info_discover.py"
       - "scripts/enhance_quick_info_discover_250.py"
+      - "scripts/enrich_quick_info_longform.py"
+      - "scripts/rebuild_sitemap_discovery_v405.py"
       - "quick-info/**"
       - "assets/quick-info/**"
       - "api/v1/quick-info.json"
       - "sitemap-quick-info.xml"
       - "sitemap-index.xml"
+      - "robots.txt"
       - "index.html"
       - "tests/test_quick_info_section.py"
       - "reports/quick-info-build.json"
       - "reports/quick-info-discover-observability.json"
+      - "reports/quick-info-longform-quality.json"
+      - "api/sitemap-discovery-v405.json"
   workflow_dispatch:
 
 permissions:
@@ -85,12 +92,16 @@ jobs:
             scripts/extend_quick_info_250.py \
             scripts/run_extend_quick_info_250.py \
             scripts/enhance_quick_info_discover.py \
-            scripts/enhance_quick_info_discover_250.py
+            scripts/enhance_quick_info_discover_250.py \
+            scripts/enrich_quick_info_longform.py \
+            scripts/rebuild_sitemap_discovery_v405.py
 
-      - name: Build and enhance 250 pages
+      - name: Build, enhance and enrich 250 pages
         run: |
           python scripts/run_extend_quick_info_250.py
           python scripts/enhance_quick_info_discover_250.py
+          python scripts/enrich_quick_info_longform.py
+          python scripts/rebuild_sitemap_discovery_v405.py
 
       - name: Validate section contracts
         run: |
@@ -103,7 +114,7 @@ jobs:
               if name.startswith("test_") and callable(value)
           ]
           if not tests:
-              raise SystemExit("No quick-info tests were discovered")
+            raise SystemExit("No quick-info tests were discovered")
           for test in tests:
               test()
               print(f"PASS {test.__name__}")
@@ -112,9 +123,12 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
+          import xml.etree.ElementTree as ET
 
           build = json.loads(Path("reports/quick-info-build.json").read_text(encoding="utf-8"))
           discover = json.loads(Path("reports/quick-info-discover-observability.json").read_text(encoding="utf-8"))
+          longform = json.loads(Path("reports/quick-info-longform-quality.json").read_text(encoding="utf-8"))
+          sitemap = json.loads(Path("api/sitemap-discovery-v405.json").read_text(encoding="utf-8"))
           assert build["pages"] == 250, build
           assert build["newPages"] == 50, build
           assert build["images"] == 251, build
@@ -127,19 +141,49 @@ jobs:
           assert discover["canonicalUrlsPreserved"] is True, discover
           assert discover["titlesPreserved"] is True, discover
           assert discover["failures"] == [], discover
+          assert longform["pagesProcessed"] == 250, longform
+          assert longform["minimumFinalWords"] >= 1500, longform
+          assert longform["legacyBodiesPreserved"] is True, longform
+          assert longform["searchIntentFaqOnEveryPage"] is True, longform
+          assert longform["discoverLargeImageContractRetained"] is True, longform
+          assert longform["failures"] == [], longform
+          assert sitemap["status"] == "passed", sitemap
+          assert "sitemap-quick-info.xml" in sitemap["indexed_sitemaps"], sitemap
+          assert "sitemap-accessibility.xml" in sitemap["indexed_sitemaps"], sitemap
+          assert sitemap["quality_gates"]["robots_declares_sitemap_index"] is True, sitemap
+
+          ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+          index_root = ET.parse("sitemap-index.xml").getroot()
+          index_locations = [node.text or "" for node in index_root.findall("sm:sitemap/sm:loc", ns)]
+          assert len(index_locations) == len(set(index_locations)), index_locations
+          assert index_locations.count("https://healthrenewal.org/sitemap-quick-info.xml") == 1
+          assert index_locations.count("https://healthrenewal.org/sitemap-accessibility.xml") == 1
+          quick_root = ET.parse("sitemap-quick-info.xml").getroot()
+          quick_locations = [node.text or "" for node in quick_root.findall("sm:url/sm:loc", ns)]
+          assert len(quick_locations) == 251, len(quick_locations)
+          assert len(quick_locations) == len(set(quick_locations)), "duplicate Quick Info URLs"
+
           print(build)
           print(discover)
+          print({k: v for k, v in longform.items() if k != "pages"})
+          print({k: v for k, v in sitemap.items() if k not in {"indexed_sitemaps", "rejected"}})
           PY
 
           test "$(find quick-info -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 250
           test "$(find assets/quick-info/cards -maxdepth 1 -name '*.png' | wc -l)" -eq 250
           test "$(grep -rl 'G-VLZMV8Y4JP' quick-info/index.html quick-info/*/index.html | wc -l)" -eq 251
           test "$(grep -rl 'fetchpriority="high"' quick-info/*/index.html | wc -l)" -eq 250
+          test "$(grep -rl 'QUICK_INFO_LONGFORM_V1_START' quick-info/*/index.html | wc -l)" -eq 250
+          test "$(grep -rl 'أسئلة شائعة تحاكي نية البحث' quick-info/*/index.html | wc -l)" -eq 250
           test "$(grep -o '<item>' quick-info/feed.xml | wc -l)" -eq 250
           test "$(grep -o '<url>' sitemap-quick-info.xml | wc -l)" -eq 251
           grep -q '250 صفحة' quick-info/index.html
           grep -q 'مسامحة أم مصالحة' quick-info/forgiveness-vs-reconciliation/index.html
           grep -q 'كيف تستعد لجلسة التعارف والتقييم الأولي' quick-info/prepare-therapy-intake-session/index.html
+          grep -q 'Sitemap: https://healthrenewal.org/sitemap-index.xml' robots.txt
+          grep -q 'https://healthrenewal.org/sitemap-quick-info.xml' sitemap-index.xml
+          grep -q 'https://healthrenewal.org/sitemap-accessibility.xml' sitemap-index.xml
+          python scripts/validate_accessibility_discovery.py
           python scripts/verify_homepage_v19.py
 
       - name: Commit generated section safely
@@ -156,10 +200,13 @@ jobs:
             api/v1/quick-info.json
             sitemap-quick-info.xml
             sitemap-index.xml
+            robots.txt
+            api/sitemap-discovery-v405.json
             index.html
             tests/test_quick_info_section.py
             reports/quick-info-build.json
             reports/quick-info-discover-observability.json
+            reports/quick-info-longform-quality.json
           )
 
           git add "${GENERATED_PATHS[@]}"
@@ -167,7 +214,7 @@ jobs:
             echo "No generated changes to commit"
             exit 0
           fi
-          git commit -m "feat(quick-info): publish 250-page section"
+          git commit -m "feat(quick-info): publish 250 long-form pages"
 
           for attempt in 1 2 3; do
             echo "Synchronized push attempt ${attempt}"
@@ -182,6 +229,8 @@ jobs:
 
               python scripts/run_extend_quick_info_250.py
               python scripts/enhance_quick_info_discover_250.py
+              python scripts/enrich_quick_info_longform.py
+              python scripts/rebuild_sitemap_discovery_v405.py
               git add "${GENERATED_PATHS[@]}"
               if ! git diff --cached --quiet; then
                 git commit --amend --no-edit

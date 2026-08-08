@@ -1,0 +1,1766 @@
+{
+  "version": "1.0.0",
+  "pagesExpected": 250,
+  "pagesProcessed": 250,
+  "editorialMinimumWords": 1500,
+  "minimumFinalWords": 3008,
+  "maximumFinalWords": 3290,
+  "averageFinalWords": 3136.6,
+  "minimumLegacyWords": 161,
+  "legacyBodiesPreserved": true,
+  "searchIntentFaqOnEveryPage": true,
+  "discoverLargeImageContractRetained": true,
+  "failures": [],
+  "pages": [
+    {
+      "slug": "sadness-vs-depression",
+      "legacyWords": 272,
+      "finalWords": 3171,
+      "faqQuestions": 10,
+      "legacySha256": "614ca5f399a4f052cddc81163e42dd8d4624b82264a3466a429cbc5bd3fff5a4"
+    },
+    {
+      "slug": "fatigue-vs-laziness",
+      "legacyWords": 285,
+      "finalWords": 3191,
+      "faqQuestions": 10,
+      "legacySha256": "cbaa62af8aa48abeb8e9abe4271de66a894ec9b0d1a91f53ea407769eaefd74b"
+    },
+    {
+      "slug": "love-vs-painful-attachment",
+      "legacyWords": 268,
+      "finalWords": 3194,
+      "faqQuestions": 10,
+      "legacySha256": "be296d396f36d1fbb549913b470a7ac07553881b7cf075b3ecc3fba7246e411a"
+    },
+    {
+      "slug": "shyness-vs-social-anxiety",
+      "legacyWords": 276,
+      "finalWords": 3215,
+      "faqQuestions": 10,
+      "legacySha256": "1043ee062b7dc15b8701891619894a395dd52502c2b9018301187cc6b6da5b8f"
+    },
+    {
+      "slug": "panic-vs-heart-emergency",
+      "legacyWords": 279,
+      "finalWords": 3228,
+      "faqQuestions": 10,
+      "legacySha256": "7feb3755369f514a18489a094f5eac3640dfabd2f403e07a9f34791678882752"
+    },
+    {
+      "slug": "normal-forgetting-vs-evaluation",
+      "legacyWords": 294,
+      "finalWords": 3218,
+      "faqQuestions": 10,
+      "legacySha256": "9132548e3dc0b5eafebce459baa8d74910f91157ebd6e546fca83308a9bd06ef"
+    },
+    {
+      "slug": "mood-swings-vs-bipolar",
+      "legacyWords": 283,
+      "finalWords": 3290,
+      "faqQuestions": 10,
+      "legacySha256": "9b5fd66e30d6c1a723358dfdbe0b52985d7924727377b694cab7d4a68aaa3d65"
+    },
+    {
+      "slug": "order-vs-ocd",
+      "legacyWords": 271,
+      "finalWords": 3204,
+      "faqQuestions": 10,
+      "legacySha256": "2ee82a55b6a977350c24089ce97eb51e11610c52e37bf1c99925365d9232fb3d"
+    },
+    {
+      "slug": "calm-vs-withdrawal",
+      "legacyWords": 288,
+      "finalWords": 3198,
+      "faqQuestions": 10,
+      "legacySha256": "1cf84b04a303e68dd871e2526bdd79ce27bba4bd482264e475f676835b530532"
+    },
+    {
+      "slug": "confidence-vs-narcissism",
+      "legacyWords": 271,
+      "finalWords": 3200,
+      "faqQuestions": 10,
+      "legacySha256": "e3967ea08dd433ec29ca8d7906d0d8d3e024597673fd02602066fa485fb98187"
+    },
+    {
+      "slug": "jealousy-vs-control",
+      "legacyWords": 265,
+      "finalWords": 3190,
+      "faqQuestions": 10,
+      "legacySha256": "09f6ceffd017dfc426ddea234bdf99a6c0171650a3c9149e86b93d2eabef0f81"
+    },
+    {
+      "slug": "criticism-vs-emotional-abuse",
+      "legacyWords": 268,
+      "finalWords": 3194,
+      "faqQuestions": 10,
+      "legacySha256": "1cd376d9ab5be15a1e61af634b2edc2d5fd7afaeeaf32f91fd092f0e8d1e28d5"
+    },
+    {
+      "slug": "care-vs-monitoring",
+      "legacyWords": 265,
+      "finalWords": 3190,
+      "faqQuestions": 10,
+      "legacySha256": "2c01887928c622e7bc5cf609d764b8e801639dbeb84bb3501856a3b21d4411db"
+    },
+    {
+      "slug": "rest-vs-avoidance",
+      "legacyWords": 285,
+      "finalWords": 3200,
+      "faqQuestions": 10,
+      "legacySha256": "dbf0333910f364ac25609f083dc638bef9bdd722715357161ced3080660838a3"
+    },
+    {
+      "slug": "protection-vs-control",
+      "legacyWords": 265,
+      "finalWords": 3187,
+      "faqQuestions": 10,
+      "legacySha256": "a46127ab5e26c4f3b03ef621b32054ac34bd413455f3b0b0cf21c8dc6db1e127"
+    },
+    {
+      "slug": "tired-vs-burnout",
+      "legacyWords": 274,
+      "finalWords": 3238,
+      "faqQuestions": 10,
+      "legacySha256": "462c28e7f91165d081d1a89732bccacc90bf2fd2c46ea2171416c35e488db291"
+    },
+    {
+      "slug": "deep-thinking-vs-rumination",
+      "legacyWords": 276,
+      "finalWords": 3221,
+      "faqQuestions": 10,
+      "legacySha256": "5a4e363c5bc9cbf9ee0ccd695be18bfaa3d521851ef714d58265a855b0dec299"
+    },
+    {
+      "slug": "introversion-vs-harmful-isolation",
+      "legacyWords": 288,
+      "finalWords": 3195,
+      "faqQuestions": 10,
+      "legacySha256": "de5f54628221827bd9159245be88f04323f3e19a49c852075506cd3f14664ff3"
+    },
+    {
+      "slug": "language-delay-vs-developmental-difference",
+      "legacyWords": 285,
+      "finalWords": 3255,
+      "faqQuestions": 10,
+      "legacySha256": "75186d01386f09064dde4159d599fc92f9f3abb1dd5779d21859248612085661"
+    },
+    {
+      "slug": "activity-vs-adhd",
+      "legacyWords": 286,
+      "finalWords": 3269,
+      "faqQuestions": 10,
+      "legacySha256": "cc67bcb862e426dfd54bac81e2b002956a4233f3e75ea96c0ea4cd5e273ece46"
+    },
+    {
+      "slug": "habit-vs-addiction",
+      "legacyWords": 267,
+      "finalWords": 3210,
+      "faqQuestions": 10,
+      "legacySha256": "739c7146d2bbbc1375aa176199c9da6e233294c01c679c0b516df20158f901dd"
+    },
+    {
+      "slug": "heavy-phone-use-vs-addiction",
+      "legacyWords": 269,
+      "finalWords": 3250,
+      "faqQuestions": 10,
+      "legacySha256": "027f95507d5b9e4ef3a073e01a847d825d868ad7d376f61e30820c180d59529a"
+    },
+    {
+      "slug": "hunger-vs-emotional-eating",
+      "legacyWords": 269,
+      "finalWords": 3196,
+      "faqQuestions": 10,
+      "legacySha256": "c6f2c9b163abf29a4d8f35f0e09f3e1ae68fd46eaa4ace782e6392e68c1fe109"
+    },
+    {
+      "slug": "stress-vs-anxiety-disorder",
+      "legacyWords": 276,
+      "finalWords": 3218,
+      "faqQuestions": 10,
+      "legacySha256": "ccbd65f4cbacd5b86750322fd3ef07c0f71c7cee8dbde7428817568b373c7c81"
+    },
+    {
+      "slug": "fear-vs-phobia",
+      "legacyWords": 273,
+      "finalWords": 3211,
+      "faqQuestions": 10,
+      "legacySha256": "b60a03ab33391069187205882b350c947134930e87fc4fc1d6f030f1ecce8400"
+    },
+    {
+      "slug": "caution-vs-hypervigilance",
+      "legacyWords": 267,
+      "finalWords": 3227,
+      "faqQuestions": 10,
+      "legacySha256": "feddfd103652f5c379d9faa00d21c1e75481813f71b49600943609dd63dcfc2b"
+    },
+    {
+      "slug": "empathy-vs-people-pleasing",
+      "legacyWords": 268,
+      "finalWords": 3197,
+      "faqQuestions": 10,
+      "legacySha256": "bee1aab2126b5c97ae0463db13ee3edf92504e9c909bd92161f6cc77b982079e"
+    },
+    {
+      "slug": "space-vs-silent-treatment",
+      "legacyWords": 271,
+      "finalWords": 3204,
+      "faqQuestions": 10,
+      "legacySha256": "5ff5dad0aa962a2276fc3dfdc497b468822d591a1e01b12a8d56da1012d837eb"
+    },
+    {
+      "slug": "honesty-vs-cruelty",
+      "legacyWords": 265,
+      "finalWords": 3184,
+      "faqQuestions": 10,
+      "legacySha256": "a219e95463b6c656c5d5eae3d57bc0d8a4a9f66b45bac9a980ef2b5de9295282"
+    },
+    {
+      "slug": "apology-vs-manipulation",
+      "legacyWords": 265,
+      "finalWords": 3184,
+      "faqQuestions": 10,
+      "legacySha256": "0701fc9efe62e8e66213bb58ce1ba544a5e389de3556450a6810cdd340b10364"
+    },
+    {
+      "slug": "missing-vs-attachment",
+      "legacyWords": 265,
+      "finalWords": 3190,
+      "faqQuestions": 10,
+      "legacySha256": "f9895d9c8231df1d21c1a0d05fba3952cbf8369fe027bd07af8569b7fec87824"
+    },
+    {
+      "slug": "breakup-grief-vs-depression",
+      "legacyWords": 275,
+      "finalWords": 3178,
+      "faqQuestions": 10,
+      "legacySha256": "4c5ef5af1f821861a245b45f7e116a0223221884c5e151c474f108395048ed4f"
+    },
+    {
+      "slug": "support-vs-rescuing",
+      "legacyWords": 265,
+      "finalWords": 3190,
+      "faqQuestions": 10,
+      "legacySha256": "b22e3d33eed8fd3f02edc543a46096fa1d858e402a20c06a502754f17ac6f89f"
+    },
+    {
+      "slug": "love-vs-dependency",
+      "legacyWords": 268,
+      "finalWords": 3200,
+      "faqQuestions": 10,
+      "legacySha256": "6d9edb8f018c1daeca98b6f3662d1a188b694d826317d8e1a60a6a97ebdd3fe9"
+    },
+    {
+      "slug": "boundaries-vs-walls",
+      "legacyWords": 268,
+      "finalWords": 3197,
+      "faqQuestions": 10,
+      "legacySha256": "ca9c1c8b29500297e3f60072499e2ad859831378c8b137388800d08af84bd77c"
+    },
+    {
+      "slug": "forgiveness-vs-accepting-abuse",
+      "legacyWords": 268,
+      "finalWords": 3194,
+      "faqQuestions": 10,
+      "legacySha256": "afec793d4e93d1dfeea8179824e30427eeb205aa7b96f62e40c23291d331bdc9"
+    },
+    {
+      "slug": "optimism-vs-denial",
+      "legacyWords": 285,
+      "finalWords": 3191,
+      "faqQuestions": 10,
+      "legacySha256": "e61ccfb2ad121d0a5610e3b007c083bc9c871d0a36dac465d99adc767dc6bb7d"
+    },
+    {
+      "slug": "self-confidence-vs-arrogance",
+      "legacyWords": 268,
+      "finalWords": 3197,
+      "faqQuestions": 10,
+      "legacySha256": "063115e9c440d28027fd476185d88cc6f60a0fbbc10cd41948655ac4c5758efc"
+    },
+    {
+      "slug": "assertiveness-vs-aggression",
+      "legacyWords": 265,
+      "finalWords": 3184,
+      "faqQuestions": 10,
+      "legacySha256": "24765a14e73004f92b16fef591f966586cd40b02e59237c7a92a1fe8fadfd027"
+    },
+    {
+      "slug": "work-pressure-vs-burnout",
+      "legacyWords": 274,
+      "finalWords": 3237,
+      "faqQuestions": 10,
+      "legacySha256": "cce765137618cf974fdc40d748d1da0eaa622c93ffe296ab0e908834d2b9c696"
+    },
+    {
+      "slug": "sleepiness-vs-depression",
+      "legacyWords": 272,
+      "finalWords": 3171,
+      "faqQuestions": 10,
+      "legacySha256": "c3c27f4372197bcc295c29bb9825a3626b098582d12a4928cb6eb8f3bfe65390"
+    },
+    {
+      "slug": "sleep-loss-vs-insomnia",
+      "legacyWords": 277,
+      "finalWords": 3236,
+      "faqQuestions": 10,
+      "legacySha256": "d21cbf1f691284125e21b078151429786c2a865d853e4a14864417e594f75fe3"
+    },
+    {
+      "slug": "distraction-vs-adhd",
+      "legacyWords": 286,
+      "finalWords": 3266,
+      "faqQuestions": 10,
+      "legacySha256": "5193bd68172855a7431ebcabc6ffdaebda55fca400dc631eb31d965a2cd9ebe3"
+    },
+    {
+      "slug": "perfectionism-vs-ocd",
+      "legacyWords": 268,
+      "finalWords": 3200,
+      "faqQuestions": 10,
+      "legacySha256": "3250a113967e3030c167dc03acbb51cf3cf544d7075929d04b858228711c9a31"
+    },
+    {
+      "slug": "humility-vs-low-self-worth",
+      "legacyWords": 291,
+      "finalWords": 3208,
+      "faqQuestions": 10,
+      "legacySha256": "a8ddaa79b14cd0d1047b5ccc9bce2de7add81755d56e439f355e44f5f5b70bf4"
+    },
+    {
+      "slug": "responsibility-vs-self-blame",
+      "legacyWords": 288,
+      "finalWords": 3204,
+      "faqQuestions": 10,
+      "legacySha256": "cd1dff15e4a83059836361e0b53ab7eac26a534884a2a4b1a882eb9a01be6728"
+    },
+    {
+      "slug": "independence-vs-avoidant-closeness",
+      "legacyWords": 268,
+      "finalWords": 3194,
+      "faqQuestions": 10,
+      "legacySha256": "90b6d50210d8eaf5a75f5c29eb94bd903975a00472625cf773ae006c8d276911"
+    },
+    {
+      "slug": "child-protection-vs-parental-anxiety",
+      "legacyWords": 279,
+      "finalWords": 3249,
+      "faqQuestions": 10,
+      "legacySha256": "dbd4e947ab715f4688d7529910c389b878f8b74d406c17341c682e2eec923617"
+    },
+    {
+      "slug": "tantrum-vs-sensory-meltdown",
+      "legacyWords": 282,
+      "finalWords": 3249,
+      "faqQuestions": 10,
+      "legacySha256": "45aab82a95255eebe51d1d879060767c8d4352829637688f2d263d848a8bb156"
+    },
+    {
+      "slug": "defiance-vs-regulation-difficulty",
+      "legacyWords": 279,
+      "finalWords": 3245,
+      "faqQuestions": 10,
+      "legacySha256": "a534030e38bdf56e6887620e2daedf22d7c9f8d08fe0fdfe602f0b396c504462"
+    },
+    {
+      "slug": "bad-behavior-vs-unmet-need",
+      "legacyWords": 285,
+      "finalWords": 3256,
+      "faqQuestions": 10,
+      "legacySha256": "9a2f978b87cbd3a6da070be028271c722fdcf4bec2cf140b3a139d73d9ad426e"
+    },
+    {
+      "slug": "sensitivity-vs-sensory-overload",
+      "legacyWords": 285,
+      "finalWords": 3265,
+      "faqQuestions": 10,
+      "legacySha256": "1390b3abf0d3997bf7340eb6c3ac60516312edd015c2a0ac9fdd3a1ea9d3fb97"
+    },
+    {
+      "slug": "forgetfulness-vs-stress",
+      "legacyWords": 288,
+      "finalWords": 3201,
+      "faqQuestions": 10,
+      "legacySha256": "a326ce22c9a654475bb14b36aeb088e0bbba91255d1e5493e31259e159d73c04"
+    },
+    {
+      "slug": "simple-mental-health-check",
+      "legacyWords": 241,
+      "finalWords": 3108,
+      "faqQuestions": 10,
+      "legacySha256": "fc0c08a65006bbf61b962a9e1dfe0cec18cc77bdc54a557d687510ef9d4114ec"
+    },
+    {
+      "slug": "do-you-have-insomnia",
+      "legacyWords": 231,
+      "finalWords": 3151,
+      "faqQuestions": 10,
+      "legacySha256": "64bd2e6db7a297161e16f8cace89941a4a37f248a3cbb65c70ddb65a2dad5380"
+    },
+    {
+      "slug": "are-you-in-toxic-relationship",
+      "legacyWords": 228,
+      "finalWords": 3138,
+      "faqQuestions": 10,
+      "legacySha256": "7d47748c925af8f243edf4ab16c761b0d804d5dd3afce7222dc5f5bb961089b6"
+    },
+    {
+      "slug": "burnout-self-check",
+      "legacyWords": 232,
+      "finalWords": 3164,
+      "faqQuestions": 10,
+      "legacySha256": "e4baccb7b0cc802432afa2f53b2ded562b73ed20b882b807818b4deb82afe4bd"
+    },
+    {
+      "slug": "anxiety-controls-day",
+      "legacyWords": 235,
+      "finalWords": 3148,
+      "faqQuestions": 10,
+      "legacySha256": "33d9faeb3d83ae4ff1fa5c4fef263f098e1d4b2288a5c2b39c0a04bf42ff7a35"
+    },
+    {
+      "slug": "loneliness-vs-isolation-check",
+      "legacyWords": 241,
+      "finalWords": 3109,
+      "faqQuestions": 10,
+      "legacySha256": "fc0c08a65006bbf61b962a9e1dfe0cec18cc77bdc54a557d687510ef9d4114ec"
+    },
+    {
+      "slug": "overthinking-check",
+      "legacyWords": 235,
+      "finalWords": 3152,
+      "faqQuestions": 10,
+      "legacySha256": "33d9faeb3d83ae4ff1fa5c4fef263f098e1d4b2288a5c2b39c0a04bf42ff7a35"
+    },
+    {
+      "slug": "boundaries-check",
+      "legacyWords": 228,
+      "finalWords": 3128,
+      "faqQuestions": 10,
+      "legacySha256": "7d47748c925af8f243edf4ab16c761b0d804d5dd3afce7222dc5f5bb961089b6"
+    },
+    {
+      "slug": "people-pleasing-check",
+      "legacyWords": 228,
+      "finalWords": 3133,
+      "faqQuestions": 10,
+      "legacySha256": "7d47748c925af8f243edf4ab16c761b0d804d5dd3afce7222dc5f5bb961089b6"
+    },
+    {
+      "slug": "phone-drain-check",
+      "legacyWords": 229,
+      "finalWords": 3172,
+      "faqQuestions": 10,
+      "legacySha256": "2fe753fb140d5573991dc88715aadb8f4926f5eee8e8e8cd6a83436ea369bab4"
+    },
+    {
+      "slug": "sleep-affects-mood",
+      "legacyWords": 231,
+      "finalWords": 3151,
+      "faqQuestions": 10,
+      "legacySha256": "64bd2e6db7a297161e16f8cace89941a4a37f248a3cbb65c70ddb65a2dad5380"
+    },
+    {
+      "slug": "emotional-eating-check",
+      "legacyWords": 228,
+      "finalWords": 3129,
+      "faqQuestions": 10,
+      "legacySha256": "6a31215bb75cfc39fbfea3988e5413b3ad0802528714ee2bc474c530d8584fcd"
+    },
+    {
+      "slug": "loss-of-pleasure-check",
+      "legacyWords": 230,
+      "finalWords": 3103,
+      "faqQuestions": 10,
+      "legacySha256": "78e815ea3fe62915dcfb8989823467b99c44de1f705dde469c98b010e029c4e9"
+    },
+    {
+      "slug": "missing-person-or-idea",
+      "legacyWords": 228,
+      "finalWords": 3128,
+      "faqQuestions": 10,
+      "legacySha256": "7d47748c925af8f243edf4ab16c761b0d804d5dd3afce7222dc5f5bb961089b6"
+    },
+    {
+      "slug": "fear-of-rejection-check",
+      "legacyWords": 228,
+      "finalWords": 3145,
+      "faqQuestions": 10,
+      "legacySha256": "7d47748c925af8f243edf4ab16c761b0d804d5dd3afce7222dc5f5bb961089b6"
+    },
+    {
+      "slug": "stuck-after-breakup",
+      "legacyWords": 228,
+      "finalWords": 3154,
+      "faqQuestions": 10,
+      "legacySha256": "7d47748c925af8f243edf4ab16c761b0d804d5dd3afce7222dc5f5bb961089b6"
+    },
+    {
+      "slug": "guilt-manipulation-check",
+      "legacyWords": 228,
+      "finalWords": 3132,
+      "faqQuestions": 10,
+      "legacySha256": "7d47748c925af8f243edf4ab16c761b0d804d5dd3afce7222dc5f5bb961089b6"
+    },
+    {
+      "slug": "overworking-check",
+      "legacyWords": 232,
+      "finalWords": 3160,
+      "faqQuestions": 10,
+      "legacySha256": "e4baccb7b0cc802432afa2f53b2ded562b73ed20b882b807818b4deb82afe4bd"
+    },
+    {
+      "slug": "rest-or-help-check",
+      "legacyWords": 241,
+      "finalWords": 3120,
+      "faqQuestions": 10,
+      "legacySha256": "fc0c08a65006bbf61b962a9e1dfe0cec18cc77bdc54a557d687510ef9d4114ec"
+    },
+    {
+      "slug": "child-sleep-evaluation",
+      "legacyWords": 235,
+      "finalWords": 3173,
+      "faqQuestions": 10,
+      "legacySha256": "5c2735c3e8bf1040c951caf554610be3c2b31d56e0f777a66f9ac56cb29ffef1"
+    },
+    {
+      "slug": "anger-hides-stress",
+      "legacyWords": 241,
+      "finalWords": 3113,
+      "faqQuestions": 10,
+      "legacySha256": "fc0c08a65006bbf61b962a9e1dfe0cec18cc77bdc54a557d687510ef9d4114ec"
+    },
+    {
+      "slug": "inner-critic-check",
+      "legacyWords": 241,
+      "finalWords": 3108,
+      "faqQuestions": 10,
+      "legacySha256": "fc0c08a65006bbf61b962a9e1dfe0cec18cc77bdc54a557d687510ef9d4114ec"
+    },
+    {
+      "slug": "social-avoidance-check",
+      "legacyWords": 235,
+      "finalWords": 3153,
+      "faqQuestions": 10,
+      "legacySha256": "33d9faeb3d83ae4ff1fa5c4fef263f098e1d4b2288a5c2b39c0a04bf42ff7a35"
+    },
+    {
+      "slug": "stress-body-check",
+      "legacyWords": 230,
+      "finalWords": 3104,
+      "faqQuestions": 10,
+      "legacySha256": "38ee076c9607cac4e569bd24f1cff824ee8c069561e9b263a9ed05c3c596c9e6"
+    },
+    {
+      "slug": "psychological-reasons-waking-tired",
+      "legacyWords": 272,
+      "finalWords": 3171,
+      "faqQuestions": 10,
+      "legacySha256": "8a64265f881246a02f8c43fc642fea31c2211367fcb2633982e20ce4b5e492a9"
+    },
+    {
+      "slug": "psychological-reasons-low-motivation",
+      "legacyWords": 287,
+      "finalWords": 3158,
+      "faqQuestions": 10,
+      "legacySha256": "572346acf2999fb752449a6e5e8e144c95b6039341607ff0596ad36de2535958"
+    },
+    {
+      "slug": "why-think-about-ex",
+      "legacyWords": 274,
+      "finalWords": 3174,
+      "faqQuestions": 10,
+      "legacySha256": "adffb7369fb906100842f8eeb568f46ce1821e6a1ed6b83a4eb929213b4ca8fc"
+    },
+    {
+      "slug": "why-stay-harmful-relationship",
+      "legacyWords": 274,
+      "finalWords": 3156,
+      "faqQuestions": 10,
+      "legacySha256": "adffb7369fb906100842f8eeb568f46ce1821e6a1ed6b83a4eb929213b4ca8fc"
+    },
+    {
+      "slug": "fear-of-commitment-reasons",
+      "legacyWords": 274,
+      "finalWords": 3168,
+      "faqQuestions": 10,
+      "legacySha256": "adffb7369fb906100842f8eeb568f46ce1821e6a1ed6b83a4eb929213b4ca8fc"
+    },
+    {
+      "slug": "difficulty-saying-no",
+      "legacyWords": 274,
+      "finalWords": 3162,
+      "faqQuestions": 10,
+      "legacySha256": "adffb7369fb906100842f8eeb568f46ce1821e6a1ed6b83a4eb929213b4ca8fc"
+    },
+    {
+      "slug": "sensitive-to-criticism",
+      "legacyWords": 287,
+      "finalWords": 3134,
+      "faqQuestions": 10,
+      "legacySha256": "572346acf2999fb752449a6e5e8e144c95b6039341607ff0596ad36de2535958"
+    },
+    {
+      "slug": "procrastination-reasons",
+      "legacyWords": 287,
+      "finalWords": 3152,
+      "faqQuestions": 10,
+      "legacySha256": "572346acf2999fb752449a6e5e8e144c95b6039341607ff0596ad36de2535958"
+    },
+    {
+      "slug": "emotional-eating-reasons",
+      "legacyWords": 266,
+      "finalWords": 3143,
+      "faqQuestions": 10,
+      "legacySha256": "8a2d005455bdce4aa44eb32670b0c906756f78a0f10fe117ee51f08041834873"
+    },
+    {
+      "slug": "quick-anger-reasons",
+      "legacyWords": 269,
+      "finalWords": 3117,
+      "faqQuestions": 10,
+      "legacySha256": "e7a2f46880d51ebf4dcb1910d36aad056a2dbe206066c3be802987ca1a6572d5"
+    },
+    {
+      "slug": "excessive-attachment-reasons",
+      "legacyWords": 274,
+      "finalWords": 3150,
+      "faqQuestions": 10,
+      "legacySha256": "adffb7369fb906100842f8eeb568f46ce1821e6a1ed6b83a4eb929213b4ca8fc"
+    },
+    {
+      "slug": "emptiness-reasons",
+      "legacyWords": 287,
+      "finalWords": 3158,
+      "faqQuestions": 10,
+      "legacySha256": "572346acf2999fb752449a6e5e8e144c95b6039341607ff0596ad36de2535958"
+    },
+    {
+      "slug": "comparison-with-others",
+      "legacyWords": 268,
+      "finalWords": 3184,
+      "faqQuestions": 10,
+      "legacySha256": "b3e4c3123c9640e0984e931aa44a8f3bc61405263b918d7962c24b11f4ec33a2"
+    },
+    {
+      "slug": "fear-of-failure-reasons",
+      "legacyWords": 287,
+      "finalWords": 3152,
+      "faqQuestions": 10,
+      "legacySha256": "572346acf2999fb752449a6e5e8e144c95b6039341607ff0596ad36de2535958"
+    },
+    {
+      "slug": "guilt-after-rest",
+      "legacyWords": 267,
+      "finalWords": 3155,
+      "faqQuestions": 10,
+      "legacySha256": "4efd467f330c857c3ac5114ebc68daedddc1ccd2aad38bb4a162467aa825ad48"
+    },
+    {
+      "slug": "external-factors-mental-health",
+      "legacyWords": 287,
+      "finalWords": 3158,
+      "faqQuestions": 10,
+      "legacySha256": "572346acf2999fb752449a6e5e8e144c95b6039341607ff0596ad36de2535958"
+    },
+    {
+      "slug": "work-burnout-factors",
+      "legacyWords": 267,
+      "finalWords": 3161,
+      "faqQuestions": 10,
+      "legacySha256": "4efd467f330c857c3ac5114ebc68daedddc1ccd2aad38bb4a162467aa825ad48"
+    },
+    {
+      "slug": "night-habits-harm-sleep",
+      "legacyWords": 272,
+      "finalWords": 3177,
+      "faqQuestions": 10,
+      "legacySha256": "8a64265f881246a02f8c43fc642fea31c2211367fcb2633982e20ce4b5e492a9"
+    },
+    {
+      "slug": "body-signs-under-stress",
+      "legacyWords": 269,
+      "finalWords": 3105,
+      "faqQuestions": 10,
+      "legacySha256": "e7a2f46880d51ebf4dcb1910d36aad056a2dbe206066c3be802987ca1a6572d5"
+    },
+    {
+      "slug": "anxiety-changes-decisions",
+      "legacyWords": 276,
+      "finalWords": 3174,
+      "faqQuestions": 10,
+      "legacySha256": "822231d00c23ea8286b68be9a87967c33111a6f00a616c6a2ea05cb5be08c842"
+    },
+    {
+      "slug": "breakup-harder-factors",
+      "legacyWords": 274,
+      "finalWords": 3150,
+      "faqQuestions": 10,
+      "legacySha256": "adffb7369fb906100842f8eeb568f46ce1821e6a1ed6b83a4eb929213b4ca8fc"
+    },
+    {
+      "slug": "child-school-refusal-reasons",
+      "legacyWords": 278,
+      "finalWords": 3178,
+      "faqQuestions": 10,
+      "legacySha256": "9d34471112cac8021b52afd83b83a927c20781a89b06c541005e511b750d4737"
+    },
+    {
+      "slug": "attention-distraction-factors",
+      "legacyWords": 270,
+      "finalWords": 3172,
+      "faqQuestions": 10,
+      "legacySha256": "c87d0e2fae91f2d30bafe6d7e432cb154be08d072835cbf962e1943e0a9465cb"
+    },
+    {
+      "slug": "sudden-withdrawal-reasons",
+      "legacyWords": 287,
+      "finalWords": 3146,
+      "faqQuestions": 10,
+      "legacySha256": "572346acf2999fb752449a6e5e8e144c95b6039341607ff0596ad36de2535958"
+    },
+    {
+      "slug": "tips-after-breakup",
+      "legacyWords": 204,
+      "finalWords": 3086,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "stop-checking-ex-social",
+      "legacyWords": 202,
+      "finalWords": 3127,
+      "faqQuestions": 10,
+      "legacySha256": "f7c4b211f0891fe2af59176117d9452a58ed2d3319828bbe00826213316017e1"
+    },
+    {
+      "slug": "why-miss-someone-who-hurt-you",
+      "legacyWords": 204,
+      "finalWords": 3069,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "when-getting-back-is-bad",
+      "legacyWords": 204,
+      "finalWords": 3082,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "boundaries-new-relationship",
+      "legacyWords": 204,
+      "finalWords": 3074,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "real-apology-signs",
+      "legacyWords": 204,
+      "finalWords": 3080,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "why-they-disappear-and-return",
+      "legacyWords": 204,
+      "finalWords": 3075,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "silent-treatment-abuse",
+      "legacyWords": 204,
+      "finalWords": 3062,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "jealousy-becomes-control",
+      "legacyWords": 204,
+      "finalWords": 3063,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "trust-after-betrayal",
+      "legacyWords": 204,
+      "finalWords": 3068,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "end-relationship-safely",
+      "legacyWords": 204,
+      "finalWords": 3085,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "partner-refuses-boundaries",
+      "legacyWords": 204,
+      "finalWords": 3062,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "friendship-after-breakup",
+      "legacyWords": 204,
+      "finalWords": 3070,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "attracted-to-unavailable",
+      "legacyWords": 204,
+      "finalWords": 3062,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "safe-relationship-signs",
+      "legacyWords": 204,
+      "finalWords": 3074,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "relationship-drains-you",
+      "legacyWords": 204,
+      "finalWords": 3068,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "critical-partner",
+      "legacyWords": 204,
+      "finalWords": 3080,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "conflict-vs-abuse",
+      "legacyWords": 204,
+      "finalWords": 3056,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "fear-loneliness-after-breakup",
+      "legacyWords": 204,
+      "finalWords": 3056,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "recover-self-after-long-relationship",
+      "legacyWords": 204,
+      "finalWords": 3056,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "temporary-distance-relationship",
+      "legacyWords": 204,
+      "finalWords": 3074,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "stop-self-blame-after-betrayal",
+      "legacyWords": 204,
+      "finalWords": 3062,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "anxious-attachment-relationship",
+      "legacyWords": 204,
+      "finalWords": 3070,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "express-needs-without-blame",
+      "legacyWords": 204,
+      "finalWords": 3068,
+      "faqQuestions": 10,
+      "legacySha256": "434c09d561c9214c8be8c18e47048f9c1341659df5ef1377e2ba0464d18ae9df"
+    },
+    {
+      "slug": "calm-mind-before-sleep",
+      "legacyWords": 169,
+      "finalWords": 3079,
+      "faqQuestions": 10,
+      "legacySha256": "4fc17a32038f114eb7c6307d6e6e63286bf198fafd173c548cf0ddd4329a09e8"
+    },
+    {
+      "slug": "five-minute-overthinking-reset",
+      "legacyWords": 173,
+      "finalWords": 3060,
+      "faqQuestions": 10,
+      "legacySha256": "dcbf2039ca1a3cdbfbcfafcc86d5f9340d1b135ad9e46aaabccbd1f3675bd89f"
+    },
+    {
+      "slug": "small-mental-health-habits",
+      "legacyWords": 179,
+      "finalWords": 3053,
+      "faqQuestions": 10,
+      "legacySha256": "ff55d03ad5d147b8e8b153c830317afb35923ab8c9b2466e226ac00957444f0d"
+    },
+    {
+      "slug": "what-to-do-panic-attack",
+      "legacyWords": 173,
+      "finalWords": 3067,
+      "faqQuestions": 10,
+      "legacySha256": "dcbf2039ca1a3cdbfbcfafcc86d5f9340d1b135ad9e46aaabccbd1f3675bd89f"
+    },
+    {
+      "slug": "return-to-routine-after-hard-time",
+      "legacyWords": 179,
+      "finalWords": 3053,
+      "faqQuestions": 10,
+      "legacySha256": "ff55d03ad5d147b8e8b153c830317afb35923ab8c9b2466e226ac00957444f0d"
+    },
+    {
+      "slug": "say-no-without-guilt",
+      "legacyWords": 166,
+      "finalWords": 3059,
+      "faqQuestions": 10,
+      "legacySha256": "1c855edf40e19a7f6896e8ce700d958a88b37aaa071edb21ac50809fde274e76"
+    },
+    {
+      "slug": "boundaries-with-family",
+      "legacyWords": 166,
+      "finalWords": 3041,
+      "faqQuestions": 10,
+      "legacySha256": "1c855edf40e19a7f6896e8ce700d958a88b37aaa071edb21ac50809fde274e76"
+    },
+    {
+      "slug": "support-depressed-person",
+      "legacyWords": 168,
+      "finalWords": 3029,
+      "faqQuestions": 10,
+      "legacySha256": "111b9284e486fa7b5d3f4f238aab91ec164656ea45be0cc6ad8dd5df0c24c6b8"
+    },
+    {
+      "slug": "what-to-say-bereaved",
+      "legacyWords": 161,
+      "finalWords": 3066,
+      "faqQuestions": 10,
+      "legacySha256": "7d3257d05f95964cf0296f9f48ce8cc59cd9c8783c58ea981399f3ec03c47986"
+    },
+    {
+      "slug": "help-anxious-child",
+      "legacyWords": 173,
+      "finalWords": 3069,
+      "faqQuestions": 10,
+      "legacySha256": "11ac457a237bfdb383ed2e173c4738c4383c986447b65e0dfc55631c2973cda8"
+    },
+    {
+      "slug": "low-motivation-day",
+      "legacyWords": 179,
+      "finalWords": 3054,
+      "faqQuestions": 10,
+      "legacySha256": "ff55d03ad5d147b8e8b153c830317afb35923ab8c9b2466e226ac00957444f0d"
+    },
+    {
+      "slug": "exam-stress",
+      "legacyWords": 168,
+      "finalWords": 3008,
+      "faqQuestions": 10,
+      "legacySha256": "fdcb0af92788984c68b8190e2b8e67002ed8b09999efda73f53ca44aea66016e"
+    },
+    {
+      "slug": "work-stress-plan",
+      "legacyWords": 170,
+      "finalWords": 3084,
+      "faqQuestions": 10,
+      "legacySha256": "0447873f505b9c130cd3870e1fa2351d8e7d706572970baea62eb2a2acc6cc07"
+    },
+    {
+      "slug": "restore-sleep-after-bad-week",
+      "legacyWords": 169,
+      "finalWords": 3049,
+      "faqQuestions": 10,
+      "legacySha256": "4fc17a32038f114eb7c6307d6e6e63286bf198fafd173c548cf0ddd4329a09e8"
+    },
+    {
+      "slug": "personal-mental-safety-plan",
+      "legacyWords": 171,
+      "finalWords": 3022,
+      "faqQuestions": 10,
+      "legacySha256": "ad4cf127f8b0d2c9ff28ecd7dde8797d8280f08255be6ca0a9ca7f0449d802ae"
+    },
+    {
+      "slug": "time-to-seek-help",
+      "legacyWords": 179,
+      "finalWords": 3041,
+      "faqQuestions": 10,
+      "legacySha256": "ff55d03ad5d147b8e8b153c830317afb35923ab8c9b2466e226ac00957444f0d"
+    },
+    {
+      "slug": "choose-therapist",
+      "legacyWords": 166,
+      "finalWords": 3047,
+      "faqQuestions": 10,
+      "legacySha256": "c0bae54b028eada55c6a0d49adf012698d19cdbe4ad580c3b3ca41c1f591b72d"
+    },
+    {
+      "slug": "prepare-first-therapy-session",
+      "legacyWords": 166,
+      "finalWords": 3051,
+      "faqQuestions": 10,
+      "legacySha256": "c0bae54b028eada55c6a0d49adf012698d19cdbe4ad580c3b3ca41c1f591b72d"
+    },
+    {
+      "slug": "explain-mental-health-to-family",
+      "legacyWords": 166,
+      "finalWords": 3041,
+      "faqQuestions": 10,
+      "legacySha256": "1c855edf40e19a7f6896e8ce700d958a88b37aaa071edb21ac50809fde274e76"
+    },
+    {
+      "slug": "protect-child-from-bullying",
+      "legacyWords": 173,
+      "finalWords": 3075,
+      "faqQuestions": 10,
+      "legacySha256": "11ac457a237bfdb383ed2e173c4738c4383c986447b65e0dfc55631c2973cda8"
+    },
+    {
+      "slug": "sensory-overload-plan",
+      "legacyWords": 173,
+      "finalWords": 3075,
+      "faqQuestions": 10,
+      "legacySha256": "11ac457a237bfdb383ed2e173c4738c4383c986447b65e0dfc55631c2973cda8"
+    },
+    {
+      "slug": "support-addiction-recovery",
+      "legacyWords": 168,
+      "finalWords": 3076,
+      "faqQuestions": 10,
+      "legacySha256": "e9cfadbca93dbeadbedd743c01020ec641fee6839eecedbc9e802521cf38e2f4"
+    },
+    {
+      "slug": "suspected-relapse",
+      "legacyWords": 168,
+      "finalWords": 3071,
+      "faqQuestions": 10,
+      "legacySha256": "e9cfadbca93dbeadbedd743c01020ec641fee6839eecedbc9e802521cf38e2f4"
+    },
+    {
+      "slug": "reduce-phone-use",
+      "legacyWords": 167,
+      "finalWords": 3081,
+      "faqQuestions": 10,
+      "legacySha256": "71c4372888780e12d733d5cc524f4fde5cf85708bba3dc86193db04d3869d992"
+    },
+    {
+      "slug": "build-calmer-day",
+      "legacyWords": 179,
+      "finalWords": 3059,
+      "faqQuestions": 10,
+      "legacySha256": "ff55d03ad5d147b8e8b153c830317afb35923ab8c9b2466e226ac00957444f0d"
+    },
+    {
+      "slug": "emotional-numbness-vs-calm",
+      "legacyWords": 272,
+      "finalWords": 3179,
+      "faqQuestions": 10,
+      "legacySha256": "de820c41632f4d3246f57fea4f54b3ac2e27bbc4207255a89064ef8709df81cb"
+    },
+    {
+      "slug": "self-care-vs-avoidance",
+      "legacyWords": 262,
+      "finalWords": 3168,
+      "faqQuestions": 10,
+      "legacySha256": "018b684de29cd26c7ca9eebaf5a05df127c1bea4b505359f32d33dc11490d422"
+    },
+    {
+      "slug": "guilt-vs-shame",
+      "legacyWords": 272,
+      "finalWords": 3174,
+      "faqQuestions": 10,
+      "legacySha256": "925bd41554434d2da7ae48126fe19f0f083bd7415de558ae348f6e1b25188f1a"
+    },
+    {
+      "slug": "privacy-vs-secrecy",
+      "legacyWords": 271,
+      "finalWords": 3214,
+      "faqQuestions": 10,
+      "legacySha256": "0b6f5a7a1644d26af94e4a49b32e10a347a54e7d38b61c68109e7a82d304ae64"
+    },
+    {
+      "slug": "closeness-vs-enmeshment",
+      "legacyWords": 248,
+      "finalWords": 3182,
+      "faqQuestions": 10,
+      "legacySha256": "73b6b35811100f8296d9e73cee61ee8c22077303935f487ba1e195143f00cc83"
+    },
+    {
+      "slug": "boredom-vs-low-mood",
+      "legacyWords": 259,
+      "finalWords": 3159,
+      "faqQuestions": 10,
+      "legacySha256": "a1c4694f5a87cc6f0026cd8371597c803f76cc2a72bbd94fc5759c1905cd45c5"
+    },
+    {
+      "slug": "patience-vs-emotional-suppression",
+      "legacyWords": 274,
+      "finalWords": 3171,
+      "faqQuestions": 10,
+      "legacySha256": "cb6aec3d187c6e6663fb85addb9e31676e64e74c23d876b9dffe8ac11bb70726"
+    },
+    {
+      "slug": "high-standards-vs-perfectionism",
+      "legacyWords": 267,
+      "finalWords": 3166,
+      "faqQuestions": 10,
+      "legacySha256": "3af0fd2b0f3444fc47373e5e4b3339a047f34d3b6c98c0f988e7a65ddeb96186"
+    },
+    {
+      "slug": "restlessness-vs-hyperactivity",
+      "legacyWords": 262,
+      "finalWords": 3226,
+      "faqQuestions": 10,
+      "legacySha256": "2d33d2fbaf7252577f2bb76017c6b3bb7be8d5b03e0a8e2843e5b1813477f720"
+    },
+    {
+      "slug": "health-awareness-vs-health-anxiety",
+      "legacyWords": 263,
+      "finalWords": 3206,
+      "faqQuestions": 10,
+      "legacySha256": "5157f05dea59dcaa8d23490f5ef621029920c5438a3381c1421b7f81fc526901"
+    },
+    {
+      "slug": "discipline-vs-punishment",
+      "legacyWords": 261,
+      "finalWords": 3213,
+      "faqQuestions": 10,
+      "legacySha256": "ca67493b37e32a853ead5343a118cb300b719bb57f37f05cbc7d676ee95b1ee1"
+    },
+    {
+      "slug": "sensory-preference-vs-avoidance",
+      "legacyWords": 264,
+      "finalWords": 3232,
+      "faqQuestions": 10,
+      "legacySha256": "3343e5e336186dfc95f790195d2ba6df24fbe7c47a057d9ffa4da8d3fa1f634f"
+    },
+    {
+      "slug": "compassion-fatigue-vs-indifference",
+      "legacyWords": 256,
+      "finalWords": 3193,
+      "faqQuestions": 10,
+      "legacySha256": "f4e80411080a43180d887d537e9e5a61ec2a98fcaf015a266ea13642c1f3c521"
+    },
+    {
+      "slug": "ambition-vs-overwork",
+      "legacyWords": 257,
+      "finalWords": 3222,
+      "faqQuestions": 10,
+      "legacySha256": "9429098cb8db2f80e8d1a00892399c7b47bebf7574094b5529725c1f1d0d1b43"
+    },
+    {
+      "slug": "post-trauma-caution-vs-ptsd",
+      "legacyWords": 264,
+      "finalWords": 3247,
+      "faqQuestions": 10,
+      "legacySha256": "1fdb12ab5086fab76c422cb431108deceaa80aae87f508682c487cfb40a3f0fb"
+    },
+    {
+      "slug": "emotionally-unavailable-check",
+      "legacyWords": 215,
+      "finalWords": 3135,
+      "faqQuestions": 10,
+      "legacySha256": "a8bdf3229183c97f0dc53b9f203c5d5b9d1e331fee4d3e0295866677ff5bdace"
+    },
+    {
+      "slug": "self-criticism-check",
+      "legacyWords": 220,
+      "finalWords": 3103,
+      "faqQuestions": 10,
+      "legacySha256": "bf60a1b9725755c3580346476c44a300b49512637bd075e00993a7579709aeb9"
+    },
+    {
+      "slug": "survival-mode-check",
+      "legacyWords": 210,
+      "finalWords": 3151,
+      "faqQuestions": 10,
+      "legacySha256": "08517a59c4e882ab93e86feb3e002c1bf5b3969b7b2832b6d143073440ac4912"
+    },
+    {
+      "slug": "social-media-mood-check",
+      "legacyWords": 201,
+      "finalWords": 3153,
+      "faqQuestions": 10,
+      "legacySha256": "10bf3914ee94570f338a5ae47637bb40f2dca3b9867146544158651cb642baf4"
+    },
+    {
+      "slug": "work-follows-home-check",
+      "legacyWords": 208,
+      "finalWords": 3141,
+      "faqQuestions": 10,
+      "legacySha256": "4274460a735e4035b5bcf9badc6e034bc63b1f0e33ebe757695101cb27adb689"
+    },
+    {
+      "slug": "nightmare-sleep-fear-check",
+      "legacyWords": 213,
+      "finalWords": 3136,
+      "faqQuestions": 10,
+      "legacySha256": "d9142408c0598606ae9c3dbc2d9c3c4f7c33ac65400cddb235f44efc3198f51b"
+    },
+    {
+      "slug": "over-responsibility-check",
+      "legacyWords": 216,
+      "finalWords": 3073,
+      "faqQuestions": 10,
+      "legacySha256": "54a99c34e202377fc91068b276faae05e389f834fde25c76e3bf9b4e1bb2e478"
+    },
+    {
+      "slug": "child-hidden-school-distress-check",
+      "legacyWords": 216,
+      "finalWords": 3158,
+      "faqQuestions": 10,
+      "legacySha256": "391fce64887703b748171e277f49a90b5fd38976371efcc7be08756e2c5d0b62"
+    },
+    {
+      "slug": "authentic-self-relationship-check",
+      "legacyWords": 203,
+      "finalWords": 3117,
+      "faqQuestions": 10,
+      "legacySha256": "b89248401cef1ab3161130176010ad8d73f49c66ebe2598f4aef349f1d081d78"
+    },
+    {
+      "slug": "grief-support-check",
+      "legacyWords": 201,
+      "finalWords": 3147,
+      "faqQuestions": 10,
+      "legacySha256": "ab8eda6fb5fa0ca18f7167d055dedfb19a39e44e5c0f61d6125798f27e2254ba"
+    },
+    {
+      "slug": "five-reasons-indecision",
+      "legacyWords": 256,
+      "finalWords": 3103,
+      "faqQuestions": 10,
+      "legacySha256": "ad77adeda92a3e9dc2ba728cce534f27b93a784ba1f5cf58831f7e50ce6eb190"
+    },
+    {
+      "slug": "five-factors-night-loneliness",
+      "legacyWords": 255,
+      "finalWords": 3098,
+      "faqQuestions": 10,
+      "legacySha256": "4a8691f17738fa0d7f714c9d5dc051d783a06bc143f0e5bb88f6050e29b98e9d"
+    },
+    {
+      "slug": "five-reasons-compliments-uncomfortable",
+      "legacyWords": 261,
+      "finalWords": 3107,
+      "faqQuestions": 10,
+      "legacySha256": "c05d1c34b85915c646586458660321b64d852c2a9b589159a74308bc34a78d06"
+    },
+    {
+      "slug": "five-factors-emotional-exhaustion",
+      "legacyWords": 242,
+      "finalWords": 3109,
+      "faqQuestions": 10,
+      "legacySha256": "ea3f4d0e9d5906f9d52b5cff1af1459ab4db98a4f97b33b0b538cfc7794f9223"
+    },
+    {
+      "slug": "five-reasons-school-refusal",
+      "legacyWords": 257,
+      "finalWords": 3160,
+      "faqQuestions": 10,
+      "legacySha256": "397a1193d72cb755ca08dd7035d5e92492914b3d6beb655987d2737aceaf69d8"
+    },
+    {
+      "slug": "five-reasons-repeated-arguments",
+      "legacyWords": 249,
+      "finalWords": 3123,
+      "faqQuestions": 10,
+      "legacySha256": "059257295bf84c46c194cf210d5d853e28f639ccc9ba7744694c5c85b690fdff"
+    },
+    {
+      "slug": "five-factors-breakup-recovery",
+      "legacyWords": 240,
+      "finalWords": 3097,
+      "faqQuestions": 10,
+      "legacySha256": "bc26666050bd9ff0a6bce0366a5061e7408d28c478b46d7cdc9ef0a601822779"
+    },
+    {
+      "slug": "five-reasons-morning-anxiety",
+      "legacyWords": 257,
+      "finalWords": 3130,
+      "faqQuestions": 10,
+      "legacySha256": "dc93700db174c579de86d4962dd63dbd7c163d00d76715098409f39d4117f2ad"
+    },
+    {
+      "slug": "five-factors-adhd-symptoms",
+      "legacyWords": 240,
+      "finalWords": 3127,
+      "faqQuestions": 10,
+      "legacySha256": "55e501f4c03ca247a78c98f9d4465c058fbd3f4d5fcfd385f138780e8877d641"
+    },
+    {
+      "slug": "five-reasons-freeze-under-pressure",
+      "legacyWords": 246,
+      "finalWords": 3141,
+      "faqQuestions": 10,
+      "legacySha256": "3170a535f9619402edaf1570285cee49221f63c81b5d5ce406c59aa8de06d218"
+    },
+    {
+      "slug": "repair-after-argument",
+      "legacyWords": 173,
+      "finalWords": 3064,
+      "faqQuestions": 10,
+      "legacySha256": "c4c70048250a0f8a2602953d42fcc6548e79f712ec3ed1638f36f41948afa758"
+    },
+    {
+      "slug": "digital-boundaries-relationship",
+      "legacyWords": 175,
+      "finalWords": 3072,
+      "faqQuestions": 10,
+      "legacySha256": "e2aa3e9b3eca6f0af3ebe5f780d217eefe998920d01864f2221181731cc611bc"
+    },
+    {
+      "slug": "co-parenting-after-separation",
+      "legacyWords": 176,
+      "finalWords": 3089,
+      "faqQuestions": 10,
+      "legacySha256": "b81ebd28ef85d46bfd15d7941091bb5733d71aa3f78bdfad1164e1c77a27b1f8"
+    },
+    {
+      "slug": "emotionally-unavailable-parent",
+      "legacyWords": 172,
+      "finalWords": 3054,
+      "faqQuestions": 10,
+      "legacySha256": "bf5419525176263ea7841ae573ba02268d2679601bfd660e86bd9a1edf79085b"
+    },
+    {
+      "slug": "ask-reassurance-without-dependency",
+      "legacyWords": 171,
+      "finalWords": 3050,
+      "faqQuestions": 10,
+      "legacySha256": "1462bbe1a7ec31cc1501f707001e7ccc885045aba6a3c00f5b9ba3a1e29a46a1"
+    },
+    {
+      "slug": "respond-passive-aggression",
+      "legacyWords": 169,
+      "finalWords": 3043,
+      "faqQuestions": 10,
+      "legacySha256": "d22cd63ebba0727e9ca128323b203d6006fc523a7de16fe6d5c6bdc98ab0e02f"
+    },
+    {
+      "slug": "end-friendship-respectfully",
+      "legacyWords": 171,
+      "finalWords": 3047,
+      "faqQuestions": 10,
+      "legacySha256": "d4d02cbbed57f964aaa17e2ecc5a13079957f5fd84233a7ece9d41005d902812"
+    },
+    {
+      "slug": "financial-abuse-signs",
+      "legacyWords": 196,
+      "finalWords": 3082,
+      "faqQuestions": 10,
+      "legacySha256": "809d475895315ad204859fdd1049c78b310acfbbf05dd03c8a7c0a617dae0ab0"
+    },
+    {
+      "slug": "protect-child-adult-conflict",
+      "legacyWords": 200,
+      "finalWords": 3113,
+      "faqQuestions": 10,
+      "legacySha256": "554afe2b464f4d6cefff18b119e28d1e57944b065ab0186447a51dc70b3c2cfd"
+    },
+    {
+      "slug": "workplace-boundaries-manager",
+      "legacyWords": 173,
+      "finalWords": 3080,
+      "faqQuestions": 10,
+      "legacySha256": "69e0f932e286584f948a9dc6f8e46109acdadfbfefd49e6bb7a9c137a5ac30b7"
+    },
+    {
+      "slug": "grounding-after-nightmare",
+      "legacyWords": 177,
+      "finalWords": 3072,
+      "faqQuestions": 10,
+      "legacySha256": "132bf613c65b8958292f708869c032c61f05227b430fad21050332ce5642330e"
+    },
+    {
+      "slug": "reduce-doomscrolling",
+      "legacyWords": 174,
+      "finalWords": 3091,
+      "faqQuestions": 10,
+      "legacySha256": "91f9662b020ecf3aad61dd0fe1c792cb257c1c6c79f8a7b1e82dcb102d38afbd"
+    },
+    {
+      "slug": "return-social-life-after-isolation",
+      "legacyWords": 185,
+      "finalWords": 3045,
+      "faqQuestions": 10,
+      "legacySha256": "b1b428f5662475c76e16a831fea25719847d4f26fc22248d826b7ba955b8a2de"
+    },
+    {
+      "slug": "guilt-after-saying-no",
+      "legacyWords": 174,
+      "finalWords": 3051,
+      "faqQuestions": 10,
+      "legacySha256": "ec973042e68d9689bb95dec7ea79db76a71df6f502f09976fef7f626d06d5de9"
+    },
+    {
+      "slug": "prepare-psychiatry-appointment",
+      "legacyWords": 171,
+      "finalWords": 3053,
+      "faqQuestions": 10,
+      "legacySha256": "536dec9f4ec5a2900a1b59de0602dbfa5f9d7605c592985583b3f54b5593b998"
+    },
+    {
+      "slug": "openness-vs-oversharing",
+      "legacyWords": 269,
+      "finalWords": 3205,
+      "faqQuestions": 10,
+      "legacySha256": "e814ba779b5df44e3e8743ca87e4fb9919a8941918bf205dddf4ddb191a74216"
+    },
+    {
+      "slug": "empathy-vs-emotional-absorption",
+      "legacyWords": 250,
+      "finalWords": 3197,
+      "faqQuestions": 10,
+      "legacySha256": "f75885e32b9eb02fd06ea049ed9f1afbab07fc2fb027468e6ddfd5056629756f"
+    },
+    {
+      "slug": "forgiveness-vs-reconciliation",
+      "legacyWords": 238,
+      "finalWords": 3151,
+      "faqQuestions": 10,
+      "legacySha256": "1a909cf6f836124945470e77081f9becff461d1e0be03e177f9116ae838d69a9"
+    },
+    {
+      "slug": "accountability-vs-self-blame",
+      "legacyWords": 261,
+      "finalWords": 3161,
+      "faqQuestions": 10,
+      "legacySha256": "a50cef6be8e53da553e7807a7b8dffb9871a981f04303b9f5411fc3e66975bfc"
+    },
+    {
+      "slug": "confidence-vs-defensiveness",
+      "legacyWords": 266,
+      "finalWords": 3158,
+      "faqQuestions": 10,
+      "legacySha256": "8b4ac3ca090b1039df66258d03d6f90f91475d221c2eb195f2f186054c32e305"
+    },
+    {
+      "slug": "support-vs-enabling",
+      "legacyWords": 248,
+      "finalWords": 3191,
+      "faqQuestions": 10,
+      "legacySha256": "1b6df990b8208907ca95ecb5aa88c9f430dcb620f452f8776c6f410ce187a40d"
+    },
+    {
+      "slug": "routine-vs-rigidity",
+      "legacyWords": 266,
+      "finalWords": 3157,
+      "faqQuestions": 10,
+      "legacySha256": "030ef91fadc8dc8973e91df54be7e0f771d0eb2286ca7aad12173ddf3c557680"
+    },
+    {
+      "slug": "healthy-anger-vs-aggression",
+      "legacyWords": 258,
+      "finalWords": 3149,
+      "faqQuestions": 10,
+      "legacySha256": "7c51555c25d0ac88926164b0c5536677ea394020b0c6afa51326377e8f66b419"
+    },
+    {
+      "slug": "disappointment-vs-hopelessness",
+      "legacyWords": 262,
+      "finalWords": 3156,
+      "faqQuestions": 10,
+      "legacySha256": "a7582cbc9833e3143b96419fbe80eb091740a7382bac7e82dfedad3fe1424e41"
+    },
+    {
+      "slug": "fatigue-vs-sleepiness",
+      "legacyWords": 254,
+      "finalWords": 3201,
+      "faqQuestions": 10,
+      "legacySha256": "86cfd227594f70886bb84c64f00c2e8f69aabff3ba7d3c69ad8e0b87ce97a3d9"
+    },
+    {
+      "slug": "focus-break-vs-digital-distraction",
+      "legacyWords": 248,
+      "finalWords": 3226,
+      "faqQuestions": 10,
+      "legacySha256": "e453690f02c5bc7e3b517dc995cd45405ecb8f16e000a9d3bc3b5ef488d33207"
+    },
+    {
+      "slug": "child-opposition-vs-overwhelm",
+      "legacyWords": 272,
+      "finalWords": 3242,
+      "faqQuestions": 10,
+      "legacySha256": "20ea3744c37384cfb04b7e40c4a7211110a1652b7ffe9fdf6ddc73b13bc7631c"
+    },
+    {
+      "slug": "teen-privacy-vs-withdrawal",
+      "legacyWords": 266,
+      "finalWords": 3227,
+      "faqQuestions": 10,
+      "legacySha256": "2f3d57178442c1da7237258e88ad9eb7155101b24bd0653c198fe124ba0cc86a"
+    },
+    {
+      "slug": "advice-vs-control",
+      "legacyWords": 238,
+      "finalWords": 3161,
+      "faqQuestions": 10,
+      "legacySha256": "015dd860b6f056b0c42e2482b4d2083a2ca904b167cfa84b581cda7e9cb21adb"
+    },
+    {
+      "slug": "resilience-vs-emotional-denial",
+      "legacyWords": 257,
+      "finalWords": 3213,
+      "faqQuestions": 10,
+      "legacySha256": "89f401e359fe121bf8a8a37c116a88efecc543f8149107d049ea821f44846316"
+    },
+    {
+      "slug": "family-emotional-safety-check",
+      "legacyWords": 215,
+      "finalWords": 3099,
+      "faqQuestions": 10,
+      "legacySha256": "f71e1705e43fdafa288ee6e22a1d3e84daea0e37e1c213f77b6ea25707e85b57"
+    },
+    {
+      "slug": "workplace-bullying-check",
+      "legacyWords": 223,
+      "finalWords": 3134,
+      "faqQuestions": 10,
+      "legacySha256": "ef465cc6a0f9fa8c9d737c73a60cf948d7beed530535f39b8d24df75c2c70300"
+    },
+    {
+      "slug": "panic-avoidance-check",
+      "legacyWords": 228,
+      "finalWords": 3134,
+      "faqQuestions": 10,
+      "legacySha256": "2ec4622126de351313ac5890d494c638b0298067a5921374d9ce591306e6d5b9"
+    },
+    {
+      "slug": "sleep-debt-check",
+      "legacyWords": 222,
+      "finalWords": 3140,
+      "faqQuestions": 10,
+      "legacySha256": "148a712d89ca699c11624cf9dd3260ab7b57ba1fbea143480f2272f15706a9ac"
+    },
+    {
+      "slug": "decision-fatigue-check",
+      "legacyWords": 226,
+      "finalWords": 3078,
+      "faqQuestions": 10,
+      "legacySha256": "5a16971fd62e6ebf806ef40576fa7d458248c13e58eda418c5358f17ff16df40"
+    },
+    {
+      "slug": "caregiver-resentment-check",
+      "legacyWords": 213,
+      "finalWords": 3110,
+      "faqQuestions": 10,
+      "legacySha256": "7b139947d1e7e20c4fa429d4cfa84bf14830b8cf51c838373427deb650bb6f6d"
+    },
+    {
+      "slug": "child-sensory-overload-check",
+      "legacyWords": 224,
+      "finalWords": 3133,
+      "faqQuestions": 10,
+      "legacySha256": "d67b4ac262badd8a2c3effd18b208f1b3853fbc2068e5c497e557c41cdde6579"
+    },
+    {
+      "slug": "friendship-balance-check",
+      "legacyWords": 212,
+      "finalWords": 3087,
+      "faqQuestions": 10,
+      "legacySha256": "aad264f0d6e498ab629575199a62aaaa400c4f50eeea1bfc3d019431d919e36e"
+    },
+    {
+      "slug": "conflict-repair-check",
+      "legacyWords": 210,
+      "finalWords": 3106,
+      "faqQuestions": 10,
+      "legacySha256": "800cee060eb68cdad5dfb8aab57d377e9d50ee07d1613f458150e58152f522ee"
+    },
+    {
+      "slug": "therapy-readiness-check",
+      "legacyWords": 219,
+      "finalWords": 3129,
+      "faqQuestions": 10,
+      "legacySha256": "5a73708bbf48460a4eaeb0a92afaa5e160ce2f52f658c610684c3ec371caedf2"
+    },
+    {
+      "slug": "five-reasons-emotional-distance",
+      "legacyWords": 260,
+      "finalWords": 3137,
+      "faqQuestions": 10,
+      "legacySha256": "118dd93cf5443b611d9cb22f94fafdfe237c55c0fed9406d2c73c8679c103cb5"
+    },
+    {
+      "slug": "five-factors-sunday-anxiety",
+      "legacyWords": 269,
+      "finalWords": 3162,
+      "faqQuestions": 10,
+      "legacySha256": "70cad9555ac31af7501f75d3f56bfbe96ac711981f661473acaa068c83879e7b"
+    },
+    {
+      "slug": "five-reasons-children-lie",
+      "legacyWords": 277,
+      "finalWords": 3177,
+      "faqQuestions": 10,
+      "legacySha256": "a21bed6cb42c7bbc094cbab0449a6ee81b9afdace907a0edd4341975a183e4e8"
+    },
+    {
+      "slug": "five-factors-low-self-worth",
+      "legacyWords": 267,
+      "finalWords": 3106,
+      "faqQuestions": 10,
+      "legacySha256": "7940af80ac3c50a52145334483c67b738082f72174e13a1e3a019ed0c228e81b"
+    },
+    {
+      "slug": "five-reasons-restless-sleep",
+      "legacyWords": 265,
+      "finalWords": 3149,
+      "faqQuestions": 10,
+      "legacySha256": "f8848850b44d8cd1851381a8732f2c1a1d9da0cbb52ef8ae41164154d2a8bcb4"
+    },
+    {
+      "slug": "five-factors-workplace-anxiety",
+      "legacyWords": 262,
+      "finalWords": 3154,
+      "faqQuestions": 10,
+      "legacySha256": "b88f6f6fd1228986191e00f624f3bb3517f4c40d9a6e5c4698b2ad7c40d53247"
+    },
+    {
+      "slug": "five-reasons-boundary-guilt",
+      "legacyWords": 263,
+      "finalWords": 3138,
+      "faqQuestions": 10,
+      "legacySha256": "1b70b8ff09a8982e564021325ba66b67a767fd08d5bb1e12d5057fed1d6157f7"
+    },
+    {
+      "slug": "five-factors-social-exhaustion",
+      "legacyWords": 275,
+      "finalWords": 3116,
+      "faqQuestions": 10,
+      "legacySha256": "cc64a9d54699a32a3f0822b4ee3dd836cfd49320cb2f1848201dab9b9bc2979b"
+    },
+    {
+      "slug": "five-reasons-relationship-doubt",
+      "legacyWords": 259,
+      "finalWords": 3117,
+      "faqQuestions": 10,
+      "legacySha256": "d625f5f6637ffbb8d64c9189bc6188e8d5b0777e023b2cee2e4eae2e3aa05def"
+    },
+    {
+      "slug": "five-factors-caregiver-guilt",
+      "legacyWords": 258,
+      "finalWords": 3129,
+      "faqQuestions": 10,
+      "legacySha256": "84b599bcd82fb98e12bf48dffd414f07786c32022a9a181617dd59ac2c6fd4f2"
+    },
+    {
+      "slug": "rebuild-routine-after-low-mood",
+      "legacyWords": 174,
+      "finalWords": 3039,
+      "faqQuestions": 10,
+      "legacySha256": "3452935afe5158a167bb32118971c5baad6e53ec0224061c8bb124cb6db18b80"
+    },
+    {
+      "slug": "talk-about-therapy-with-family",
+      "legacyWords": 169,
+      "finalWords": 3051,
+      "faqQuestions": 10,
+      "legacySha256": "fc537395931ca9650904663a90907b3694916634e3c8c663bd113942541ef40c"
+    },
+    {
+      "slug": "prepare-child-first-therapy-session",
+      "legacyWords": 181,
+      "finalWords": 3098,
+      "faqQuestions": 10,
+      "legacySha256": "04be6a07e15f5a5e500d8c8f462f8481360e0871c18a40a07303e64cc64f741e"
+    },
+    {
+      "slug": "support-partner-with-anxiety",
+      "legacyWords": 172,
+      "finalWords": 3062,
+      "faqQuestions": 10,
+      "legacySha256": "4c1e94cbc288e1553a62d3d0cf936738c7270db18ce16118d7c70d10469ec819"
+    },
+    {
+      "slug": "handle-workplace-gossip",
+      "legacyWords": 172,
+      "finalWords": 3070,
+      "faqQuestions": 10,
+      "legacySha256": "21c013ba9801c4b3d0e294540152e898f0710b31189521c6ccb1a826a8c3b530"
+    },
+    {
+      "slug": "stop-ruminating-after-embarrassment",
+      "legacyWords": 180,
+      "finalWords": 3055,
+      "faqQuestions": 10,
+      "legacySha256": "ebf7460ecb233f53cf9098dca4e3da668b649f9fa3149f82b3897307b6ac04b5"
+    },
+    {
+      "slug": "create-sleep-wind-down",
+      "legacyWords": 175,
+      "finalWords": 3068,
+      "faqQuestions": 10,
+      "legacySha256": "46426015eb9fc75a4fbcffa91115cde90d69cc0f5c442580a2c64d680d41cceb"
+    },
+    {
+      "slug": "recover-from-people-pleasing",
+      "legacyWords": 167,
+      "finalWords": 3049,
+      "faqQuestions": 10,
+      "legacySha256": "dc8b7a71321ef36fad56fea90eae323de92aa3aebd088cfcac7c8160c70ba961"
+    },
+    {
+      "slug": "respond-to-body-comments",
+      "legacyWords": 175,
+      "finalWords": 3052,
+      "faqQuestions": 10,
+      "legacySha256": "b08a56461edb3756385e47cbad984297bb6a2652d6328b0df2eee4682ce172e6"
+    },
+    {
+      "slug": "manage-family-boundaries-holidays",
+      "legacyWords": 169,
+      "finalWords": 3039,
+      "faqQuestions": 10,
+      "legacySha256": "c213154a3b8357651bafc714707df0ef7b6a68837c560af3df1873cb67fe7865"
+    },
+    {
+      "slug": "explain-mental-health-to-child",
+      "legacyWords": 182,
+      "finalWords": 3076,
+      "faqQuestions": 10,
+      "legacySha256": "a90f98286baceeff0821e9e83095045b9da5cf20017eaa734d75b20c62373bb3"
+    },
+    {
+      "slug": "help-teen-friendship-breakup",
+      "legacyWords": 179,
+      "finalWords": 3063,
+      "faqQuestions": 10,
+      "legacySha256": "ebf14f6748d2412a7e1e4f7e77b49d58a7fc9842754c9c7913633b5e3b10910e"
+    },
+    {
+      "slug": "build-personal-overwhelm-plan",
+      "legacyWords": 180,
+      "finalWords": 3041,
+      "faqQuestions": 10,
+      "legacySha256": "bc0b6227248507e2f334812e1f8a1ce76f422e3a138043607714ab96e8a67794"
+    },
+    {
+      "slug": "return-to-work-after-burnout",
+      "legacyWords": 172,
+      "finalWords": 3080,
+      "faqQuestions": 10,
+      "legacySha256": "ee54db730825ac63e52b96351689ecf2c2c11cd7a9669bf392b9390732f35096"
+    },
+    {
+      "slug": "prepare-therapy-intake-session",
+      "legacyWords": 194,
+      "finalWords": 3100,
+      "faqQuestions": 10,
+      "legacySha256": "3861ffb63fc86aa548b96554ad9649f6ed92af0347aa90a0837c3c471c41ca4e"
+    }
+  ]
+}
