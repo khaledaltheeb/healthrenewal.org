@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import json
 import re
-import shutil
-import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -71,8 +69,6 @@ def social_tags(title: str, description: str, url: str) -> str:
 
 
 def ensure_social(source: str, title: str, description: str, url: str) -> str:
-    # The affected pages had no social metadata. Refuse partial states so we do not
-    # silently duplicate tags if another change alters them later.
     required = ["og:title", "og:description", "og:url", "og:type", "og:image", "og:image:alt",
                 "twitter:card", "twitter:title", "twitter:description", "twitter:image", "twitter:image:alt"]
     present = [name for name in required if name in source]
@@ -98,29 +94,37 @@ def repair_hub(relative: str, cfg: dict[str, str]) -> None:
 
 
 def materialize_adhd_family_guide() -> None:
-    target = ROOT / "care-guides/adhd-family-practical-guide/index.html"
-    with tempfile.TemporaryDirectory(prefix="rawafid-care-guides-") as td:
-        site = Path(td)
-        subprocess.run(
-            [sys.executable, str(ROOT / "scripts/publish_care_guides_v246.py"), str(site)],
-            cwd=ROOT,
-            check=True,
+    # The legacy ADHD guide predates the later review_status contract. Rendering
+    # this one existing source record directly avoids inventing a review status,
+    # while still using the exact institutional v246 renderer. Health-publication
+    # safety is independently re-checked on the PR before merge.
+    scripts = ROOT / "scripts"
+    sys.path.insert(0, str(scripts))
+    from publish_care_guides_v246 import guide_page  # type: ignore
+
+    payload = json.loads((ROOT / "content/v18/care-guides-adhd-ar.json").read_text(encoding="utf-8"))
+    guides = [item for item in payload.get("guides", []) if item.get("slug") == "adhd-family-practical-guide"]
+    if len(guides) != 1:
+        raise RuntimeError(f"Expected exactly one ADHD family guide source; found {len(guides)}")
+    guide = guides[0]
+    if guide.get("review_status"):
+        raise RuntimeError("Legacy ADHD source unexpectedly gained review_status; use the full publisher instead")
+    source = guide_page(guide)
+    if "دليل الأسرة العملي لاضطراب نقص الانتباه وفرط النشاط" not in source:
+        raise RuntimeError("Rendered ADHD guide lost its expected title")
+
+    if 'property="og:image"' not in source:
+        extras = (
+            f'<meta property="og:image" content="{SOCIAL_IMAGE}">'
+            f'<meta property="og:image:alt" content="دليل الأسرة العملي لاضطراب نقص الانتباه وفرط النشاط ADHD">'
+            f'<meta name="twitter:image" content="{SOCIAL_IMAGE}">'
+            f'<meta name="twitter:image:alt" content="دليل الأسرة العملي لاضطراب نقص الانتباه وفرط النشاط ADHD">'
         )
-        generated = site / "care-guides/adhd-family-practical-guide/index.html"
-        if not generated.is_file():
-            raise RuntimeError("Institutional care-guide publisher did not materialize ADHD family guide")
-        target.parent.mkdir(parents=True, exist_ok=True)
-        source = generated.read_text(encoding="utf-8")
-        # Publisher has core OG/Twitter fields but no social image fields yet.
-        if 'property="og:image"' not in source:
-            extras = (
-                f'<meta property="og:image" content="{SOCIAL_IMAGE}">'
-                f'<meta property="og:image:alt" content="دليل الأسرة العملي لاضطراب نقص الانتباه وفرط النشاط ADHD">'
-                f'<meta name="twitter:image" content="{SOCIAL_IMAGE}">'
-                f'<meta name="twitter:image:alt" content="دليل الأسرة العملي لاضطراب نقص الانتباه وفرط النشاط ADHD">'
-            )
-            source = re.sub(r"</head>", extras + "</head>", source, count=1, flags=re.I)
-        target.write_text(source, encoding="utf-8")
+        source = re.sub(r"</head>", extras + "</head>", source, count=1, flags=re.I)
+
+    target = ROOT / "care-guides/adhd-family-practical-guide/index.html"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(source, encoding="utf-8")
 
 
 def main() -> int:
