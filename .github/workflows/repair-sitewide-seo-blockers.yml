@@ -6,6 +6,8 @@ on:
       - agent/fix-sitewide-seo-blockers
     paths:
       - scripts/repair_sitewide_seo_blockers.py
+      - scripts/enforce_sitewide_heading_intent_v2.py
+      - tests/test_heading_intent_non_html_assets.py
       - .github/workflows/repair-sitewide-seo-blockers.yml
 
 permissions:
@@ -24,8 +26,43 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Compile deterministic repair
-        run: python -m py_compile scripts/repair_sitewide_seo_blockers.py scripts/audit_seo_intent_v1.py scripts/publish_care_guides_v246.py scripts/enforce_sitewide_heading_intent_v2.py
+      - name: Patch heading auditor for image-only sitemap entries
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/enforce_sitewide_heading_intent_v2.py')
+          source = path.read_text(encoding='utf-8')
+          old = '''        if resolved is None:
+              unsupported.append(url)
+              continue
+          path, route = resolved
+          '''
+          new = '''        if resolved is None:
+              suffix = Path(urlparse(url).path).suffix.lower()
+              if suffix in {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".avif", ".ico"}:
+                  continue
+              unsupported.append(url)
+              continue
+          path, route = resolved
+          '''
+          if old in source:
+              source = source.replace(old, new, 1)
+              path.write_text(source, encoding='utf-8')
+          elif new not in source:
+              raise SystemExit('Heading auditor target block changed unexpectedly; refusing blind patch')
+          PY
+
+      - name: Compile deterministic repair and regression test
+        run: |
+          python -m py_compile \
+            scripts/repair_sitewide_seo_blockers.py \
+            scripts/audit_seo_intent_v1.py \
+            scripts/publish_care_guides_v246.py \
+            scripts/enforce_sitewide_heading_intent_v2.py \
+            tests/test_heading_intent_non_html_assets.py
+          python -m unittest tests.test_heading_intent_non_html_assets -v
 
       - name: Materialize missing guide and repair SEO contracts
         run: python scripts/repair_sitewide_seo_blockers.py
@@ -46,6 +83,7 @@ jobs:
           assert heading['summary']['changed']==0, heading['summary']
           assert heading['summary']['failed']==0, heading['summary']
           assert heading['summary']['indexable']==813, heading['summary']
+          assert heading.get('unsupported_urls') == [], heading.get('unsupported_urls')
           print({'seo':summary,'heading':heading['summary']})
           PY
 
@@ -55,6 +93,7 @@ jobs:
           git config user.name "Rawafid SEO Repair"
           git config user.email "actions@users.noreply.github.com"
           git add \
+            scripts/enforce_sitewide_heading_intent_v2.py \
             care-guides/adhd-family-practical-guide/index.html \
             learning-paths/all-pages/index.html \
             sectors/all-pages/index.html \
