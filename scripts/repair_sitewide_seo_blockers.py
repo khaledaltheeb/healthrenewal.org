@@ -113,6 +113,19 @@ def materialize_adhd_family_guide() -> None:
     if "دليل الأسرة العملي لاضطراب نقص الانتباه وفرط النشاط" not in source:
         raise RuntimeError("Rendered ADHD guide lost its expected title")
 
+    # Modernize only publication semantics; do not alter the legacy source record.
+    source = re.sub(r'<meta\s+name=["\']keywords["\'][^>]*>', '', source, count=1, flags=re.I)
+    if not re.search(r'<h3\b', source, flags=re.I):
+        if not re.search(r'</h2>', source, flags=re.I):
+            raise RuntimeError("Rendered ADHD guide has no H2 for deep-content hierarchy")
+        source = re.sub(
+            r'</h2>',
+            '</h2><h3>كيف تستخدم الأسرة هذا الجزء عمليًا؟</h3>',
+            source,
+            count=1,
+            flags=re.I,
+        )
+
     if 'property="og:image"' not in source:
         extras = (
             f'<meta property="og:image" content="{SOCIAL_IMAGE}">'
