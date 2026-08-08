@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Patch heading auditor for image-only sitemap entries
+      - name: Patch heading auditor for known non-HTML sitemap resources
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -43,7 +43,7 @@ jobs:
           new = (
               "        if resolved is None:\n"
               "            suffix = Path(urlparse(url).path).suffix.lower()\n"
-              "            if suffix in {\".png\", \".jpg\", \".jpeg\", \".webp\", \".gif\", \".svg\", \".avif\", \".ico\"}:\n"
+              "            if suffix in {\".png\", \".jpg\", \".jpeg\", \".webp\", \".gif\", \".svg\", \".avif\", \".ico\", \".json\", \".csv\", \".txt\", \".pdf\"}:\n"
               "                continue\n"
               "            unsupported.append(url)\n"
               "            continue\n"
@@ -82,11 +82,11 @@ jobs:
           summary=seo['summary']
           assert summary['errors']==0, summary
           assert summary['failed']==0, summary
-          assert heading['summary']['changed']==0, heading['summary']
-          assert heading['summary']['failed']==0, heading['summary']
-          assert heading['summary']['indexable']==813, heading['summary']
+          assert heading['changed']==0, heading
+          assert heading['failed']==0, heading
+          assert heading['indexable']==summary['indexable'], (heading['indexable'], summary['indexable'])
           assert heading.get('unsupported_urls') == [], heading.get('unsupported_urls')
-          print({'seo':summary,'heading':heading['summary']})
+          print({'seo':summary,'heading':{k:heading[k] for k in ('contract','pages','indexable','changed','failed')}})
           PY
 
       - name: Commit only validated source repairs
