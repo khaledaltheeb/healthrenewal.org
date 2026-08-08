@@ -326,6 +326,9 @@ def discover_targets(root: Path, sitemap: Path, base_urls: tuple[str, ...]) -> t
     for url in sitemap_urls(root, sitemap, base_urls):
         resolved = url_to_local(url, root, base_urls)
         if resolved is None:
+            suffix = Path(urlparse(url).path).suffix.lower()
+            if suffix in {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".avif", ".ico", ".json", ".csv", ".txt", ".pdf"}:
+                continue
             unsupported.append(url)
             continue
         path, route = resolved

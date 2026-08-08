@@ -1,0 +1,91 @@
+name: Repair sitewide SEO blockers
+
+on:
+  push:
+    branches:
+      - agent/fix-sitewide-seo-blockers
+    paths:
+      - scripts/repair_sitewide_seo_blockers.py
+      - scripts/enforce_sitewide_heading_intent_v2.py
+      - tests/test_heading_intent_non_html_assets.py
+      - .github/workflows/repair-sitewide-seo-blockers.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile deterministic repair and regression test
+        run: |
+          python -m py_compile \
+            scripts/repair_sitewide_seo_blockers.py \
+            scripts/audit_seo_intent_v1.py \
+            scripts/publish_care_guides_v246.py \
+            scripts/enforce_sitewide_heading_intent_v2.py \
+            tests/test_heading_intent_non_html_assets.py
+          python -m unittest tests.test_heading_intent_non_html_assets -v
+
+      - name: Materialize and normalize SEO contracts
+        run: python scripts/repair_sitewide_seo_blockers.py
+
+      - name: Prove full search-intent and heading contracts
+        run: |
+          set -euo pipefail
+          python scripts/audit_seo_intent_v1.py --scope all --strict --report /tmp/seo-intent-all-after-repair.json
+          python scripts/enforce_sitewide_heading_intent_v2.py --check --report /tmp/sitewide-heading-intent-v2-after-repair.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          seo=json.loads(Path('/tmp/seo-intent-all-after-repair.json').read_text(encoding='utf-8'))
+          heading=json.loads(Path('/tmp/sitewide-heading-intent-v2-after-repair.json').read_text(encoding='utf-8'))
+          summary=seo['summary']
+          assert summary['errors']==0, summary
+          assert summary['failed']==0, summary
+          assert heading['changed']==0, heading
+          assert heading['failed']==0, heading
+          assert heading['indexable']==summary['indexable'], (heading['indexable'], summary['indexable'])
+          assert heading.get('unsupported_urls') == [], heading.get('unsupported_urls')
+          print({'seo':summary,'heading':{k:heading[k] for k in ('contract','pages','indexable','changed','failed')}})
+          PY
+
+      - name: Prove repair is idempotent
+        run: |
+          set -euo pipefail
+          git diff --check
+          if ! git diff --quiet; then
+            echo "Repair produced uncommitted drift:" >&2
+            git diff --stat >&2
+            git diff -- scripts/enforce_sitewide_heading_intent_v2.py \
+              care-guides/adhd-family-practical-guide/index.html \
+              learning-paths/all-pages/index.html \
+              sectors/all-pages/index.html \
+              special-needs/all-pages/index.html \
+              evidence-guides/aac-home-school-guide/index.html \
+              evidence-guides/inclusive-digital-safety-and-exploitation-prevention-guide/index.html \
+              evidence-guides/inclusive-toileting-personal-care-guide/index.html \
+              evidence-guides/puberty-body-safety-inclusive-guide/index.html \
+              guides/accessible-travel-planning/index.html \
+              special-needs/guides/communication/index.html >&2
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sitewide-seo-blocker-repair-${{ github.run_id }}
+          path: |
+            /tmp/seo-intent-all-after-repair.json
+            /tmp/sitewide-heading-intent-v2-after-repair.json
+          if-no-files-found: ignore
+          retention-days: 30
