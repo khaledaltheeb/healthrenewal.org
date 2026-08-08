@@ -30,6 +30,25 @@ HUBS = {
     },
 }
 
+QUESTION_HEADING_REWRITES = {
+    "evidence-guides/aac-home-school-guide/index.html": {
+        "1. وسيلة التواصل حق وليست مكافأة": "لماذا تُعد وسيلة التواصل حقًا وليست مكافأة؟",
+        "2. خطة مشتركة بين المنزل والمدرسة ومقدم الخدمة": "كيف تُبنى خطة مشتركة بين المنزل والمدرسة ومقدم الخدمة؟",
+    },
+    "evidence-guides/inclusive-digital-safety-and-exploitation-prevention-guide/index.html": {
+        "1. خطة أمان رقمي مشتركة بين المنزل والمدرسة دون حرمان من التقنية": "كيف نبني خطة أمان رقمي مشتركة بين المنزل والمدرسة دون حرمان من التقنية؟",
+        "2. علامات الاستدراج والابتزاز والاستغلال الرقمي وكيفية الاستجابة": "كيف نميّز علامات الاستدراج والابتزاز والاستغلال الرقمي ونستجيب لها؟",
+    },
+    "evidence-guides/inclusive-toileting-personal-care-guide/index.html": {
+        "1. قبل التدريب: الاستعداد وفحص الألم والإمساك والمشكلات الطبية": "متى يكون الطفل مستعدًا للتدريب وما الذي يجب فحصه أولًا؟",
+        "2. روتين تدريجي وتواصل وتكييف حسي دون إكراه": "كيف نبني روتينًا تدريجيًا مع تكييف حسي دون إكراه؟",
+    },
+    "evidence-guides/puberty-body-safety-inclusive-guide/index.html": {
+        "1. الاستعداد للبلوغ بلغة واضحة ومناسبة للنمو": "كيف نستعد للبلوغ بلغة واضحة ومناسبة للنمو؟",
+        "2. الخصوصية والموافقة والحدود دون تعليم الطاعة العمياء": "كيف نعلّم الخصوصية والموافقة والحدود دون طاعة عمياء؟",
+    },
+}
+
 
 def set_title(source: str, title: str) -> str:
     return re.sub(r"<title>.*?</title>", f"<title>{title}</title>", source, count=1, flags=re.I | re.S)
@@ -140,11 +159,86 @@ def materialize_adhd_family_guide() -> None:
     target.write_text(source, encoding="utf-8")
 
 
+def replace_heading_text(source: str, old: str, new: str, level: int = 2, new_level: int | None = None) -> str:
+    tag = f"h{level}"
+    replacement_tag = f"h{new_level or level}"
+    pattern = rf'(<{tag}\b[^>]*>)\s*{re.escape(old)}\s*(</{tag}>)'
+    match = re.search(pattern, source, flags=re.I)
+    if not match:
+        # Idempotence: accept the already-rewritten semantic heading.
+        if re.search(rf'<{replacement_tag}\b[^>]*>\s*{re.escape(new)}\s*</{replacement_tag}>', source, flags=re.I):
+            return source
+        raise RuntimeError(f"Expected heading not found: {old}")
+    attrs = re.match(rf'<{tag}\b([^>]*)>', match.group(1), flags=re.I)
+    attr_text = attrs.group(1) if attrs else ""
+    replacement = f'<{replacement_tag}{attr_text}>{new}</{replacement_tag}>'
+    return source[:match.start()] + replacement + source[match.end():]
+
+
+def repair_heading_contract_drift() -> None:
+    # Evidence guides already have deep H3 structure. Convert two existing section
+    # headings per guide into genuine user questions instead of appending generic SEO text.
+    for relative, rewrites in QUESTION_HEADING_REWRITES.items():
+        path = ROOT / relative
+        source = path.read_text(encoding="utf-8")
+        for old, new in rewrites.items():
+            source = replace_heading_text(source, old, new, level=2)
+        path.write_text(source, encoding="utf-8")
+
+    # Accessible travel already contains many visible questions; it only lacked H3 depth.
+    travel = ROOT / "guides/accessible-travel-planning/index.html"
+    source = travel.read_text(encoding="utf-8")
+    source = replace_heading_text(source, "أسئلة الإقامة قبل الحجز", "أسئلة الإقامة قبل الحجز", level=2, new_level=3)
+    travel.write_text(source, encoding="utf-8")
+
+    # The all-pages index is a navigation surface; add concise, page-specific guidance
+    # rather than changing the names of the 149 linked resources.
+    special_index = ROOT / "special-needs/all-pages/index.html"
+    source = special_index.read_text(encoding="utf-8")
+    marker = 'data-seo-index-guidance="special-needs-v1"'
+    if marker not in source:
+        pattern = r'(<h2\b[^>]*>\s*كل الصفحات المنشورة في مركز ذوي الاحتياجات الخاصة\s*</h2>)'
+        guidance = (
+            r'\1<section data-seo-index-guidance="special-needs-v1">'
+            '<h3>كيف تستخدم هذا الفهرس للوصول إلى الدليل المناسب؟</h3>'
+            '<p>ابدأ بالمجال الأقرب لاحتياجك، ثم افتح الصفحة المتخصصة بدل التنقل العشوائي بين العناوين.</p>'
+            '<h3>كيف تختار بين الأدلة والخدمات والحقوق والتقنيات المساعدة؟</h3>'
+            '<p>اختر نوع الصفحة بحسب هدفك: فهم الموضوع، اتخاذ خطوة عملية، مراجعة حق أو خدمة، أو مقارنة خيار تقني.</p>'
+            '</section>'
+        )
+        source, count = re.subn(pattern, guidance, source, count=1, flags=re.I)
+        if count != 1:
+            raise RuntimeError("Special-needs all-pages H2 not found for guidance insertion")
+    special_index.write_text(source, encoding="utf-8")
+
+    # Communication guide is already an index of six focused guides. Promote the first
+    # two navigation headings into a natural question hierarchy without adding filler.
+    communication = ROOT / "special-needs/guides/communication/index.html"
+    source = communication.read_text(encoding="utf-8")
+    source = replace_heading_text(source, "تقييم إتاحة التواصل", "كيف نبدأ بتقييم إتاحة التواصل؟", level=2)
+    source = replace_heading_text(
+        source,
+        "تقييم الحاجة إلى التواصل المعزز والبديل AAC",
+        "متى نقيّم الحاجة إلى التواصل المعزز والبديل AAC؟",
+        level=2,
+        new_level=3,
+    )
+    communication.write_text(source, encoding="utf-8")
+
+
 def main() -> int:
     materialize_adhd_family_guide()
     for relative, cfg in HUBS.items():
         repair_hub(relative, cfg)
-    print({"repaired": ["care-guides/adhd-family-practical-guide/index.html", *HUBS.keys()]})
+    repair_heading_contract_drift()
+    repaired = [
+        "care-guides/adhd-family-practical-guide/index.html",
+        *HUBS.keys(),
+        *QUESTION_HEADING_REWRITES.keys(),
+        "guides/accessible-travel-planning/index.html",
+        "special-needs/guides/communication/index.html",
+    ]
+    print({"repaired": repaired})
     return 0
 
 
