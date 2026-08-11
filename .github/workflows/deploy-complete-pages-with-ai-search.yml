@@ -80,7 +80,7 @@ jobs:
           run-id: ${{ steps.baseline.outputs.run_id }}
           github-token: ${{ github.token }}
 
-      - name: Build, expand scientific content, finalize sitemap, and validate
+      - name: Build, restore, expand, finalize sitemap, and validate
         env:
           BUILD_SHA: ${{ steps.source.outputs.build_sha }}
         run: |
@@ -92,36 +92,42 @@ jobs:
             scripts/ensure_special_needs_publication_v1.py \
             scripts/publish_scientific_special_needs_library_v1.py \
             scripts/publish_complete_sitemap_v360.py
+
+          # Repository is authoritative for existing routes; validated production
+          # restores only routes/files missing from main. No cross-page merging.
           python scripts/build_clean_site_v1.py --root . --site _site --baseline /tmp/validated-baseline
 
-          # Phase 1: materialize generated production families without requiring
-          # their routes to exist in the pre-generation sitemap.
+          # Materialize deterministic generated families before final discovery.
           python - <<'PY'
           from pathlib import Path
           from scripts.ensure_special_needs_publication_v1 import repair_missing_generated_families
           print(repair_missing_generated_families(Path('_site'), Path.cwd()))
           PY
 
-          # Expand the authoritative artifact with reviewed, source-linked science pages.
+          # Add reviewed source-linked scientific pages to the assembled artifact.
           python scripts/publish_scientific_special_needs_library_v1.py _site
 
-          # Phase 2: discover every real indexable page after all publishers ran.
+          # Final sitemap is generated only after every publisher has finished.
           python scripts/publish_complete_sitemap_v360.py _site --minimum-urls 3000
 
-          # Phase 3: validate generated families against the final sitemap.
+          # Validate the final artifact, not the pre-publication clean-build count.
           python - <<'PY'
           import json
           from pathlib import Path
           from scripts.ensure_special_needs_publication_v1 import validate_publication_inventory
+
           site = Path('_site')
+          clean = json.loads((site / 'api/clean-site-build-v1.json').read_text(encoding='utf-8'))
           special = validate_publication_inventory(site, repair={'actions':['generated-before-final-sitemap']})
-          report = json.loads((site / 'api/clean-site-build-v1.json').read_text(encoding='utf-8'))
           sitemap = json.loads((site / 'api/sitemap-completeness-v360.json').read_text(encoding='utf-8'))
           science = json.loads((site / 'api/scientific-special-needs-library-v1.json').read_text(encoding='utf-8'))
-          assert report['status'] == 'passed', report
-          assert report['htmlPages'] >= 3000, report['htmlPages']
+          final_html = sum(1 for path in site.rglob('*.html') if path.is_file())
+
+          assert clean['status'] == 'passed', clean
+          assert final_html >= 3000, {'finalHtmlPages': final_html, 'cleanBuild': clean}
           assert special['status'] == 'passed', special
           assert sitemap['status'] == 'passed', sitemap
+          assert sitemap['real_indexable_urls'] >= 3000, sitemap
           assert science['status'] == 'passed' and science['topicPages'] >= 12, science
           assert (site / 'special-needs/science/index.html').is_file()
           assert (site / 'special-needs/science/cerebral-palsy-hip-surveillance/index.html').is_file()
@@ -129,13 +135,28 @@ jobs:
           assert (site / 'sitemap-index.xml').is_file()
           assert (site / 'robots.txt').is_file()
           assert (site / 'assets/platform/sitewide-polish.css').is_file()
-          print({'cleanBuild': report, 'specialNeeds': special['counts'], 'science': science, 'sitemap': sitemap})
+
+          final = {
+              'schemaVersion': 1,
+              'status': 'passed',
+              'finalHtmlPages': final_html,
+              'realIndexableUrls': sitemap['real_indexable_urls'],
+              'baselineMissingFilesRestored': clean.get('baselineMissingFilesRestored', 0),
+              'generatedMixBlocksRemoved': clean.get('generatedMixBlocksRemoved', 0),
+              'scienceTopicPages': science['topicPages'],
+              'specialNeedsCounts': special['counts'],
+          }
+          (site / 'api/final-production-inventory-v1.json').write_text(
+              json.dumps(final, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
+          print(final)
           PY
+
           cat > _site/deployment.json <<EOF
           {
-            "schemaVersion": 5,
+            "schemaVersion": 6,
             "release_commit": "${BUILD_SHA}",
-            "build_mode": "clean-main-generated-contracts-science-final-sitemap"
+            "build_mode": "repository-authoritative-baseline-missing-only-generated-contracts-science-final-sitemap"
           }
           EOF
           touch _site/.nojekyll
@@ -170,7 +191,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify clean deployment live
+      - name: Verify exact production artifact live
         env:
           EXPECTED_SHA: ${{ needs.build.outputs.build_sha }}
         run: |
@@ -181,7 +202,7 @@ jobs:
             if curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
               "https://healthrenewal.org/deployment.json?release=${nonce}" -o /tmp/deployment.json \
               && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
-              "https://healthrenewal.org/api/clean-site-build-v1.json?release=${nonce}" -o /tmp/report.json \
+              "https://healthrenewal.org/api/final-production-inventory-v1.json?release=${nonce}" -o /tmp/final.json \
               && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
               "https://healthrenewal.org/api/special-needs-publication-inventory-v1.json?release=${nonce}" -o /tmp/special.json \
               && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
@@ -196,21 +217,21 @@ jobs:
           import json, os
           from xml.etree import ElementTree as ET
           deployment = json.load(open('/tmp/deployment.json', encoding='utf-8'))
-          report = json.load(open('/tmp/report.json', encoding='utf-8'))
+          final = json.load(open('/tmp/final.json', encoding='utf-8'))
           special = json.load(open('/tmp/special.json', encoding='utf-8'))
           science = json.load(open('/tmp/science.json', encoding='utf-8'))
           sitemap = json.load(open('/tmp/sitemap.json', encoding='utf-8'))
           science_page = open('/tmp/science-page.html', encoding='utf-8').read()
           ET.parse('/tmp/sitemap-index.xml')
           assert deployment['release_commit'] == os.environ['EXPECTED_SHA'], deployment
-          assert deployment['build_mode'] == 'clean-main-generated-contracts-science-final-sitemap', deployment
-          assert report['status'] == 'passed', report
-          assert report['htmlPages'] >= 3000, report
+          assert deployment['build_mode'] == 'repository-authoritative-baseline-missing-only-generated-contracts-science-final-sitemap', deployment
+          assert final['status'] == 'passed' and final['finalHtmlPages'] >= 3000, final
+          assert final['realIndexableUrls'] >= 3000, final
           assert special['status'] == 'passed', special
           assert science['status'] == 'passed' and science['topicPages'] >= 12, science
-          assert sitemap['status'] == 'passed', sitemap
+          assert sitemap['status'] == 'passed' and sitemap['real_indexable_urls'] >= 3000, sitemap
           assert 'مراقبة الورك في الشلل الدماغي' in science_page
-          print({'deployment': deployment, 'cleanBuild': report, 'specialNeeds': special['counts'], 'science': science, 'sitemap': sitemap})
+          print({'deployment': deployment, 'final': final, 'science': science, 'sitemap': sitemap})
           PY
               then
                 ready=1
