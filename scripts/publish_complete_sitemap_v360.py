@@ -1,17 +1,11 @@
 #!/usr/bin/env python3
 """Publish a complete, deterministic sitemap and an open robots policy.
 
-The publisher discovers real public HTML files under a site root, converts each
-file to its public canonical route on https://healthrenewal.org, excludes error,
-fixture, verification, and explicit noindex pages, then writes:
-
-- sitemap.xml
-- sitemap-index.xml
-- robots.txt
-- api/sitemap-completeness-v360.json
-
-It deliberately never pads the sitemap with invented URLs. A sitemap is valid
-only when every listed URL corresponds to a real public page.
+Discovery is path-authoritative. Canonical metadata is used only as a safety
+signal: pages explicitly canonicalized to an unrelated external host are
+excluded, while relative, current-domain, and trusted legacy/stale first-party
+canonicals remain eligible. Emitted URLs always use the real published path on
+https://healthrenewal.org, so old metadata cannot collapse or duplicate routes.
 """
 
 from __future__ import annotations
@@ -31,33 +25,15 @@ BASE_URL = "https://healthrenewal.org/"
 SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 MAX_URLS = 50_000
 MAX_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
-REPORT_VERSION = 360
+REPORT_VERSION = 361
 
 EXCLUDED_DIR_PARTS = {
-    ".git",
-    ".github",
-    ".idea",
-    ".vscode",
-    "node_modules",
-    "vendor",
-    "tests",
-    "test",
-    "fixtures",
-    "fixture",
-    "scripts",
-    "coverage",
-    "tmp",
-    "temp",
+    ".git", ".github", ".idea", ".vscode", "node_modules", "vendor",
+    "tests", "test", "fixtures", "fixture", "scripts", "coverage", "tmp", "temp",
 }
-EXCLUDED_FILENAMES = {
-    "404.html",
-    "403.html",
-    "500.html",
-    "offline.html",
-}
+EXCLUDED_FILENAMES = {"404.html", "403.html", "500.html", "offline.html"}
 VERIFICATION_FILE_RE = re.compile(
-    r"^(?:google[a-z0-9_-]+|bing[a-z0-9_-]+|yandex_[a-z0-9_-]+)\.html$",
-    re.IGNORECASE,
+    r"^(?:google[a-z0-9_-]+|bing[a-z0-9_-]+|yandex_[a-z0-9_-]+)\.html$", re.IGNORECASE
 )
 NOINDEX_META_RE = re.compile(
     r"<meta\b(?=[^>]*\bname\s*=\s*(['\"])(?:robots|googlebot|bingbot)\1)"
@@ -69,17 +45,19 @@ CANONICAL_RE = re.compile(
     r"(?=[^>]*\bhref\s*=\s*(['\"])([^'\"]+)\2)[^>]*>",
     re.IGNORECASE,
 )
+TRUSTED_FIRST_PARTY_HOSTS = {
+    "healthrenewal.org",
+    "www.healthrenewal.org",
+    "khaledaltheeb.github.io",
+    "pterminology.com",
+    "www.pterminology.com",
+}
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("root", nargs="?", default=".", help="Published site root")
-    parser.add_argument(
-        "--minimum-urls",
-        type=int,
-        default=1,
-        help="Fail if fewer real indexable URLs are discovered",
-    )
+    parser.add_argument("--minimum-urls", type=int, default=1)
     return parser.parse_args()
 
 
@@ -107,28 +85,15 @@ def route_for(path: Path, root: Path) -> str:
     return quote(route, safe="/-._~")
 
 
-def canonical_host_is_allowed(value: str) -> bool:
-    """Accept current canonicals and the trusted pre-migration GitHub Pages host.
-
-    The public URL is always derived from the real file path and emitted on the
-    custom domain. The legacy host is accepted only so old canonical metadata
-    cannot make every genuine page disappear from the migration sitemap.
-    """
-
-    parsed = urlsplit(value)
+def canonical_is_safe(value: str) -> bool:
+    """Return True for relative/current/known first-party historical canonicals."""
+    parsed = urlsplit(value.strip())
     if not parsed.scheme and not parsed.netloc:
         return True
     if parsed.scheme not in {"http", "https"}:
         return False
-    host = parsed.netloc.lower()
-    if host == "healthrenewal.org":
-        return True
-    if host == "khaledaltheeb.github.io":
-        legacy_path = parsed.path.rstrip("/")
-        return legacy_path == "/" or legacy_path.startswith(
-            "/"
-        )
-    return False
+    host = (parsed.hostname or "").lower()
+    return host in TRUSTED_FIRST_PARTY_HOSTS
 
 
 def discover(root: Path) -> tuple[list[str], dict[str, list[str] | int]]:
@@ -159,7 +124,7 @@ def discover(root: Path) -> tuple[list[str], dict[str, list[str] | int]]:
             excluded["explicit_noindex"].append(relative)
             continue
         canonical = CANONICAL_RE.search(source)
-        if canonical and not canonical_host_is_allowed(canonical.group(3).strip()):
+        if canonical and not canonical_is_safe(canonical.group(3)):
             excluded["external_canonical"].append(relative)
             continue
         urls.append(BASE_URL + route_for(path, root))
@@ -167,12 +132,8 @@ def discover(root: Path) -> tuple[list[str], dict[str, list[str] | int]]:
     counts = Counter(urls)
     duplicates = sorted(url for url, count in counts.items() if count > 1)
     if duplicates:
-        raise SystemExit(f"Duplicate canonical sitemap URLs: {duplicates[:25]}")
-    urls = sorted(counts)
-    return urls, {
-        "html_files_discovered": len(html_files),
-        **excluded,
-    }
+        raise SystemExit(f"Duplicate public routes discovered: {duplicates[:25]}")
+    return sorted(counts), {"html_files_discovered": len(html_files), **excluded}
 
 
 def indent_xml(element: ET.Element, level: int = 0) -> None:
@@ -221,8 +182,6 @@ def validate_sitemap(payload: bytes, expected_urls: list[str]) -> None:
         parts = urlsplit(url)
         if parts.scheme != "https" or parts.netloc != "healthrenewal.org":
             raise SystemExit(f"Invalid sitemap host or scheme: {url}")
-        if "khaledaltheeb.github.io" in url and not url.startswith("https://healthrenewal.org"):
-            raise SystemExit(f"Legacy production URL survived: {url}")
 
 
 def main() -> int:
@@ -233,20 +192,13 @@ def main() -> int:
 
     urls, discovery = discover(root)
     if len(urls) < args.minimum_urls:
-        raise SystemExit(
-            f"Only {len(urls)} real indexable URLs discovered; minimum is {args.minimum_urls}"
-        )
+        raise SystemExit(f"Only {len(urls)} real indexable URLs discovered; minimum is {args.minimum_urls}")
 
     sitemap = xml_bytes_for_urls(urls)
     validate_sitemap(sitemap, urls)
     sitemap_index = xml_bytes_for_index()
     ET.fromstring(sitemap_index)
-
-    robots = (
-        "User-agent: *\n"
-        "Allow: /\n\n"
-        f"Sitemap: {BASE_URL}sitemap.xml\n"
-    ).encode("utf-8")
+    robots = ("User-agent: *\nAllow: /\n\n" f"Sitemap: {BASE_URL}sitemap.xml\n").encode("utf-8")
 
     (root / "sitemap.xml").write_bytes(sitemap)
     (root / "sitemap-index.xml").write_bytes(sitemap_index)
@@ -276,35 +228,26 @@ def main() -> int:
             "single_host": "healthrenewal.org",
             "duplicates": 0,
             "legacy_urls": 0,
+            "path_authoritative": True,
         },
         "sha256": {
             "sitemap.xml": hashlib.sha256(sitemap).hexdigest(),
             "sitemap-index.xml": hashlib.sha256(sitemap_index).hexdigest(),
             "robots.txt": hashlib.sha256(robots).hexdigest(),
         },
-        "sample": {
-            "first": urls[:10],
-            "last": urls[-10:],
-        },
+        "sample": {"first": urls[:10], "last": urls[-10:]},
     }
-    report_path = report_dir / "sitemap-completeness-v360.json"
-    report_path.write_text(
+    (report_dir / "sitemap-completeness-v360.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
-
-    print(
-        json.dumps(
-            {
-                "status": "passed",
-                "real_indexable_urls": len(urls),
-                "html_files_discovered": report["html_files_discovered"],
-                "target_reached": report["target_reached"],
-                "sitemap_bytes": len(sitemap),
-                "root": str(root),
-            },
-            ensure_ascii=False,
-        )
-    )
+    print(json.dumps({
+        "status": "passed",
+        "real_indexable_urls": len(urls),
+        "html_files_discovered": report["html_files_discovered"],
+        "target_reached": report["target_reached"],
+        "sitemap_bytes": len(sitemap),
+        "root": str(root),
+    }, ensure_ascii=False))
     return 0
 
 
