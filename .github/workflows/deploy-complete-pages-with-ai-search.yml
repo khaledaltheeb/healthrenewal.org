@@ -86,24 +86,41 @@ jobs:
         run: |
           set -euo pipefail
           test -f /tmp/validated-baseline/index.html
-          python -m py_compile scripts/normalize_platform_shell.py scripts/build_clean_site_v1.py
+          python -m py_compile \
+            scripts/normalize_platform_shell.py \
+            scripts/build_clean_site_v1.py \
+            scripts/ensure_special_needs_publication_v1.py \
+            scripts/publish_complete_sitemap_v360.py
           python scripts/build_clean_site_v1.py --root . --site _site --baseline /tmp/validated-baseline
+
+          # Restore deterministic production-only contracts that are intentionally
+          # generated from the assembled artifact rather than committed snapshots.
+          python scripts/ensure_special_needs_publication_v1.py _site
+          python scripts/publish_complete_sitemap_v360.py _site --minimum-urls 3000
+
           python - <<'PY'
           import json
           from pathlib import Path
           site = Path('_site')
           report = json.loads((site / 'api/clean-site-build-v1.json').read_text(encoding='utf-8'))
+          special = json.loads((site / 'api/special-needs-publication-inventory-v1.json').read_text(encoding='utf-8'))
+          sitemap = json.loads((site / 'api/sitemap-completeness-v360.json').read_text(encoding='utf-8'))
           assert report['status'] == 'passed', report
           assert report['htmlPages'] >= 3000, report['htmlPages']
+          assert special['status'] == 'passed', special
+          assert sitemap['status'] == 'passed', sitemap
           assert (site / 'index.html').is_file()
+          assert (site / 'sitemap.xml').is_file()
+          assert (site / 'sitemap-index.xml').is_file()
+          assert (site / 'robots.txt').is_file()
           assert (site / 'assets/platform/sitewide-polish.css').is_file()
-          print(report)
+          print({'cleanBuild': report, 'specialNeeds': special['counts'], 'sitemap': sitemap})
           PY
           cat > _site/deployment.json <<EOF
           {
-            "schemaVersion": 3,
+            "schemaVersion": 4,
             "release_commit": "${BUILD_SHA}",
-            "build_mode": "clean-main-plus-missing-baseline"
+            "build_mode": "clean-main-plus-missing-baseline-generated-contracts"
           }
           EOF
           touch _site/.nojekyll
@@ -149,16 +166,28 @@ jobs:
             if curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
               "https://healthrenewal.org/deployment.json?release=${nonce}" -o /tmp/deployment.json \
               && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
-              "https://healthrenewal.org/api/clean-site-build-v1.json?release=${nonce}" -o /tmp/report.json; then
+              "https://healthrenewal.org/api/clean-site-build-v1.json?release=${nonce}" -o /tmp/report.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/special-needs-publication-inventory-v1.json?release=${nonce}" -o /tmp/special.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/sitemap-completeness-v360.json?release=${nonce}" -o /tmp/sitemap.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/sitemap-index.xml?release=${nonce}" -o /tmp/sitemap-index.xml; then
               if python - <<'PY'
           import json, os
+          from xml.etree import ElementTree as ET
           deployment = json.load(open('/tmp/deployment.json', encoding='utf-8'))
           report = json.load(open('/tmp/report.json', encoding='utf-8'))
+          special = json.load(open('/tmp/special.json', encoding='utf-8'))
+          sitemap = json.load(open('/tmp/sitemap.json', encoding='utf-8'))
+          ET.parse('/tmp/sitemap-index.xml')
           assert deployment['release_commit'] == os.environ['EXPECTED_SHA'], deployment
-          assert deployment['build_mode'] == 'clean-main-plus-missing-baseline', deployment
+          assert deployment['build_mode'] == 'clean-main-plus-missing-baseline-generated-contracts', deployment
           assert report['status'] == 'passed', report
           assert report['htmlPages'] >= 3000, report
-          print({'deployment': deployment, 'cleanBuild': report})
+          assert special['status'] == 'passed', special
+          assert sitemap['status'] == 'passed', sitemap
+          print({'deployment': deployment, 'cleanBuild': report, 'specialNeeds': special['counts'], 'sitemap': sitemap})
           PY
               then
                 ready=1
