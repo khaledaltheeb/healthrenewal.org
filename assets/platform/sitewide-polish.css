@@ -1,0 +1,176 @@
+/* Sitewide Polish v1 — responsive, content-safe presentation layer. */
+:root {
+  --pt-readable: 76ch;
+  --pt-wide: 1180px;
+  --pt-gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+html { overflow-x: hidden; }
+body.pt-platform {
+  overflow-x: hidden;
+  min-width: 0;
+  background:
+    radial-gradient(circle at 85% 0%, rgba(22,198,199,.08), transparent 30rem),
+    linear-gradient(180deg,#fff 0,#f7fbfa 48%,#fff 100%);
+}
+
+body.pt-platform main,
+body.pt-platform .wrap,
+body.pt-platform .container,
+body.pt-platform .content,
+body.pt-platform .page,
+body.pt-platform .page-wrap {
+  width: min(var(--pt-wide), calc(100% - 32px));
+  max-width: 100%;
+  margin-inline: auto;
+  min-width: 0;
+}
+
+body.pt-platform main { padding-block: clamp(1rem, 2.4vw, 2rem) 3rem; }
+body.pt-platform main > section,
+body.pt-platform main > article,
+body.pt-platform main > .section { min-width: 0; }
+
+body.pt-platform h1 {
+  max-width: 22ch;
+  margin-block: .35em .5em;
+  font-size: clamp(2rem, 5vw, 4.2rem);
+  line-height: 1.18;
+}
+body.pt-platform h2 { max-width: 34ch; }
+body.pt-platform h3 { max-width: 44ch; }
+body.pt-platform p,
+body.pt-platform li,
+body.pt-platform dd { overflow-wrap: anywhere; }
+body.pt-platform main p,
+body.pt-platform main li { max-width: var(--pt-readable); }
+
+body.pt-platform .hero {
+  min-width: 0;
+  gap: clamp(1.2rem, 3vw, 2.4rem);
+  padding-block: clamp(2rem, 6vw, 4.5rem);
+}
+body.pt-platform .hero > * { min-width: 0; }
+body.pt-platform .lead {
+  max-width: 68ch;
+  font-size: clamp(1.05rem, 1.9vw, 1.3rem);
+  color: var(--pt-muted);
+}
+
+body.pt-platform .grid,
+body.pt-platform .cards,
+body.pt-platform .journeys,
+body.pt-platform .metrics,
+body.pt-platform .stats,
+body.pt-platform [class*="grid"] {
+  min-width: 0;
+}
+body.pt-platform .grid > *,
+body.pt-platform .cards > *,
+body.pt-platform .journeys > *,
+body.pt-platform .metrics > *,
+body.pt-platform .stats > *,
+body.pt-platform [class*="grid"] > * { min-width: 0; }
+
+body.pt-platform .card,
+body.pt-platform .panel,
+body.pt-platform .notice,
+body.pt-platform .metric,
+body.pt-platform .stat,
+body.pt-platform .journey,
+body.pt-platform article.card {
+  border-radius: clamp(14px, 2vw, 20px);
+  border: 1px solid var(--pt-line);
+  box-shadow: 0 12px 34px rgba(10,72,71,.08);
+}
+
+body.pt-platform img,
+body.pt-platform video,
+body.pt-platform iframe,
+body.pt-platform canvas,
+body.pt-platform svg {
+  max-width: 100%;
+  height: auto;
+}
+body.pt-platform iframe { border: 0; }
+body.pt-platform pre,
+body.pt-platform code { max-width: 100%; }
+body.pt-platform pre { overflow: auto; direction: ltr; text-align: left; }
+
+body.pt-platform table {
+  display: table;
+  max-width: 100%;
+}
+body.pt-platform .table-wrap,
+body.pt-platform [class*="table-container"] { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+body.pt-platform .actions,
+body.pt-platform .buttons,
+body.pt-platform [class*="actions"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem;
+  align-items: center;
+}
+body.pt-platform .button,
+body.pt-platform .btn,
+body.pt-platform button,
+body.pt-platform input,
+body.pt-platform select,
+body.pt-platform textarea { max-width: 100%; }
+
+body.pt-platform .site-head,
+body.pt-platform .site-header,
+body.pt-platform .pt-section-header {
+  max-width: 100%;
+  overflow: visible;
+}
+body.pt-platform .nav { min-width: 0; }
+
+@media (max-width: 900px) {
+  body.pt-platform .hero,
+  body.pt-platform .grid,
+  body.pt-platform .cards,
+  body.pt-platform .journeys,
+  body.pt-platform .metrics,
+  body.pt-platform .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  body.pt-platform .hero { grid-template-columns: 1fr !important; }
+  body.pt-platform .section-head { align-items: flex-start; flex-direction: column; }
+}
+
+@media (max-width: 640px) {
+  body.pt-platform main,
+  body.pt-platform .wrap,
+  body.pt-platform .container,
+  body.pt-platform .content,
+  body.pt-platform .page,
+  body.pt-platform .page-wrap { width: min(100% - 20px, var(--pt-wide)); }
+
+  body.pt-platform .grid,
+  body.pt-platform .cards,
+  body.pt-platform .journeys,
+  body.pt-platform .metrics,
+  body.pt-platform .stats,
+  body.pt-platform [class*="grid"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  body.pt-platform h1 { font-size: clamp(1.85rem, 9vw, 2.65rem); }
+  body.pt-platform h2 { font-size: clamp(1.45rem, 7vw, 2rem); }
+  body.pt-platform .card,
+  body.pt-platform .panel,
+  body.pt-platform .notice { padding: 1rem !important; }
+  body.pt-platform .actions > *,
+  body.pt-platform .buttons > * { flex: 1 1 100%; }
+
+  body.pt-platform table { display: block; overflow-x: auto; white-space: normal; }
+  body.pt-platform th,
+  body.pt-platform td { min-width: 9rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
