@@ -80,7 +80,7 @@ jobs:
           run-id: ${{ steps.baseline.outputs.run_id }}
           github-token: ${{ github.token }}
 
-      - name: Build current-main pages and restore missing routes only
+      - name: Build, expand scientific content, finalize sitemap, and validate
         env:
           BUILD_SHA: ${{ steps.source.outputs.build_sha }}
         run: |
@@ -90,37 +90,52 @@ jobs:
             scripts/normalize_platform_shell.py \
             scripts/build_clean_site_v1.py \
             scripts/ensure_special_needs_publication_v1.py \
+            scripts/publish_scientific_special_needs_library_v1.py \
             scripts/publish_complete_sitemap_v360.py
           python scripts/build_clean_site_v1.py --root . --site _site --baseline /tmp/validated-baseline
 
-          # Restore deterministic production-only contracts that are intentionally
-          # generated from the assembled artifact rather than committed snapshots.
-          python scripts/ensure_special_needs_publication_v1.py _site
+          # Phase 1: materialize generated production families without requiring
+          # their routes to exist in the pre-generation sitemap.
+          python - <<'PY'
+          from pathlib import Path
+          from scripts.ensure_special_needs_publication_v1 import repair_missing_generated_families
+          print(repair_missing_generated_families(Path('_site'), Path.cwd()))
+          PY
+
+          # Expand the authoritative artifact with reviewed, source-linked science pages.
+          python scripts/publish_scientific_special_needs_library_v1.py _site
+
+          # Phase 2: discover every real indexable page after all publishers ran.
           python scripts/publish_complete_sitemap_v360.py _site --minimum-urls 3000
 
+          # Phase 3: validate generated families against the final sitemap.
           python - <<'PY'
           import json
           from pathlib import Path
+          from scripts.ensure_special_needs_publication_v1 import validate_publication_inventory
           site = Path('_site')
+          special = validate_publication_inventory(site, repair={'actions':['generated-before-final-sitemap']})
           report = json.loads((site / 'api/clean-site-build-v1.json').read_text(encoding='utf-8'))
-          special = json.loads((site / 'api/special-needs-publication-inventory-v1.json').read_text(encoding='utf-8'))
           sitemap = json.loads((site / 'api/sitemap-completeness-v360.json').read_text(encoding='utf-8'))
+          science = json.loads((site / 'api/scientific-special-needs-library-v1.json').read_text(encoding='utf-8'))
           assert report['status'] == 'passed', report
           assert report['htmlPages'] >= 3000, report['htmlPages']
           assert special['status'] == 'passed', special
           assert sitemap['status'] == 'passed', sitemap
-          assert (site / 'index.html').is_file()
+          assert science['status'] == 'passed' and science['topicPages'] >= 12, science
+          assert (site / 'special-needs/science/index.html').is_file()
+          assert (site / 'special-needs/science/cerebral-palsy-hip-surveillance/index.html').is_file()
           assert (site / 'sitemap.xml').is_file()
           assert (site / 'sitemap-index.xml').is_file()
           assert (site / 'robots.txt').is_file()
           assert (site / 'assets/platform/sitewide-polish.css').is_file()
-          print({'cleanBuild': report, 'specialNeeds': special['counts'], 'sitemap': sitemap})
+          print({'cleanBuild': report, 'specialNeeds': special['counts'], 'science': science, 'sitemap': sitemap})
           PY
           cat > _site/deployment.json <<EOF
           {
-            "schemaVersion": 4,
+            "schemaVersion": 5,
             "release_commit": "${BUILD_SHA}",
-            "build_mode": "clean-main-plus-missing-baseline-generated-contracts"
+            "build_mode": "clean-main-generated-contracts-science-final-sitemap"
           }
           EOF
           touch _site/.nojekyll
@@ -170,7 +185,11 @@ jobs:
               && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
               "https://healthrenewal.org/api/special-needs-publication-inventory-v1.json?release=${nonce}" -o /tmp/special.json \
               && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/scientific-special-needs-library-v1.json?release=${nonce}" -o /tmp/science.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
               "https://healthrenewal.org/api/sitemap-completeness-v360.json?release=${nonce}" -o /tmp/sitemap.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/special-needs/science/cerebral-palsy-hip-surveillance/?release=${nonce}" -o /tmp/science-page.html \
               && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
               "https://healthrenewal.org/sitemap-index.xml?release=${nonce}" -o /tmp/sitemap-index.xml; then
               if python - <<'PY'
@@ -179,15 +198,19 @@ jobs:
           deployment = json.load(open('/tmp/deployment.json', encoding='utf-8'))
           report = json.load(open('/tmp/report.json', encoding='utf-8'))
           special = json.load(open('/tmp/special.json', encoding='utf-8'))
+          science = json.load(open('/tmp/science.json', encoding='utf-8'))
           sitemap = json.load(open('/tmp/sitemap.json', encoding='utf-8'))
+          science_page = open('/tmp/science-page.html', encoding='utf-8').read()
           ET.parse('/tmp/sitemap-index.xml')
           assert deployment['release_commit'] == os.environ['EXPECTED_SHA'], deployment
-          assert deployment['build_mode'] == 'clean-main-plus-missing-baseline-generated-contracts', deployment
+          assert deployment['build_mode'] == 'clean-main-generated-contracts-science-final-sitemap', deployment
           assert report['status'] == 'passed', report
           assert report['htmlPages'] >= 3000, report
           assert special['status'] == 'passed', special
+          assert science['status'] == 'passed' and science['topicPages'] >= 12, science
           assert sitemap['status'] == 'passed', sitemap
-          print({'deployment': deployment, 'cleanBuild': report, 'specialNeeds': special['counts'], 'sitemap': sitemap})
+          assert 'مراقبة الورك في الشلل الدماغي' in science_page
+          print({'deployment': deployment, 'cleanBuild': report, 'specialNeeds': special['counts'], 'science': science, 'sitemap': sitemap})
           PY
               then
                 ready=1
