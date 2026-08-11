@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build clean authoritative site
+    name: Audit, rebuild and validate institutional site
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:
@@ -57,7 +57,12 @@ jobs:
           python - <<'PY'
           import json, os
           payload = json.load(open('/tmp/baselines.json', encoding='utf-8'))
-          candidates = [item for item in payload.get('artifacts', []) if not item.get('expired') and item.get('workflow_run', {}).get('head_branch') == 'main' and item.get('workflow_run', {}).get('id')]
+          candidates = [
+              item for item in payload.get('artifacts', [])
+              if not item.get('expired')
+              and item.get('workflow_run', {}).get('head_branch') == 'main'
+              and item.get('workflow_run', {}).get('id')
+          ]
           if not candidates:
               raise SystemExit('No active validated-production-site artifact from main')
           item = max(candidates, key=lambda x: x.get('created_at', ''))
@@ -75,50 +80,102 @@ jobs:
           run-id: ${{ steps.baseline.outputs.run_id }}
           github-token: ${{ github.token }}
 
-      - name: Build, restore, expand, finalize sitemap, and validate
+      - name: Audit repository, restore losses, expand science and finalize publication
         env:
           BUILD_SHA: ${{ steps.source.outputs.build_sha }}
         run: |
           set -euo pipefail
           test -f /tmp/validated-baseline/index.html
-          python -m py_compile scripts/normalize_platform_shell.py scripts/build_clean_site_v1.py scripts/ensure_special_needs_publication_v1.py scripts/publish_scientific_special_needs_library_v1.py scripts/publish_complete_sitemap_v360.py
+          python -m py_compile \
+            scripts/normalize_platform_shell.py \
+            scripts/build_clean_site_v1.py \
+            scripts/ensure_special_needs_publication_v1.py \
+            scripts/publish_scientific_special_needs_library_v1.py \
+            scripts/publish_complete_sitemap_v360.py
+
+          # Current repository wins for every path it contains. The last validated
+          # production artifact is a loss-recovery source only: missing files are
+          # restored without replacing current repository pages or mixing content.
           python scripts/build_clean_site_v1.py --root . --site _site --baseline /tmp/validated-baseline
-          python - <<'PY'
-          from pathlib import Path
-          from scripts.ensure_special_needs_publication_v1 import repair_missing_generated_families
-          print(repair_missing_generated_families(Path('_site'), Path.cwd()))
-          PY
+
+          # Add reviewed, source-linked scientific pages after restoration.
           python scripts/publish_scientific_special_needs_library_v1.py _site
+
+          # Discover the complete assembled artifact only after all publishers run.
           python scripts/publish_complete_sitemap_v360.py _site --minimum-urls 3000
+
+          # Validate publication families against the FINAL sitemap. We deliberately
+          # do not regenerate old families here: the validated baseline already
+          # preserves them, avoiding destructive re-generation of historical pages.
           python - <<'PY'
           import json
           from pathlib import Path
           from scripts.ensure_special_needs_publication_v1 import validate_publication_inventory
+
           site = Path('_site')
+          baseline = Path('/tmp/validated-baseline')
           clean = json.loads((site / 'api/clean-site-build-v1.json').read_text(encoding='utf-8'))
-          special = validate_publication_inventory(site, repair={'actions':['generated-before-final-sitemap']})
           sitemap = json.loads((site / 'api/sitemap-completeness-v360.json').read_text(encoding='utf-8'))
           science = json.loads((site / 'api/scientific-special-needs-library-v1.json').read_text(encoding='utf-8'))
-          final_html = sum(1 for path in site.rglob('*.html') if path.is_file())
-          real_urls = int(sitemap.get('real_indexable_urls', sitemap.get('realIndexableUrls', 0)))
+          special = validate_publication_inventory(site, repair={'actions':['baseline-preserved-no-destructive-regeneration']})
+
+          repo_html = sum(1 for p in Path('.').rglob('*.html') if '_site' not in p.parts and '.git' not in p.parts)
+          baseline_html = sum(1 for p in baseline.rglob('*.html') if p.is_file())
+          final_html = sum(1 for p in site.rglob('*.html') if p.is_file())
+          repo_files = sum(1 for p in Path('.').rglob('*') if p.is_file() and '_site' not in p.parts and '.git' not in p.parts)
+          baseline_files = sum(1 for p in baseline.rglob('*') if p.is_file())
+          final_files = sum(1 for p in site.rglob('*') if p.is_file())
+
           assert clean['status'] == 'passed', clean
-          assert final_html >= 3000, {'finalHtmlPages': final_html, 'cleanBuild': clean}
-          assert special['status'] == 'passed', special
-          assert sitemap['status'] == 'passed' and real_urls >= 3000, sitemap
+          assert baseline_html >= 3000, {'baselineHtml': baseline_html}
+          assert final_html >= baseline_html, {'finalHtml': final_html, 'baselineHtml': baseline_html}
+          assert sitemap['status'] == 'passed', sitemap
+          assert sitemap['real_indexable_urls'] >= 3000, sitemap
           assert science['status'] == 'passed' and science['topicPages'] >= 12, science
+          assert special['status'] == 'passed', special
           assert (site / 'special-needs/science/index.html').is_file()
-          assert (site / 'special-needs/science/cerebral-palsy-hip-surveillance/index.html').is_file()
-          assert (site / 'sitemap.xml').is_file() and (site / 'sitemap-index.xml').is_file() and (site / 'robots.txt').is_file()
-          final = {'schemaVersion':1,'status':'passed','finalHtmlPages':final_html,'realIndexableUrls':real_urls,'baselineMissingFilesRestored':clean.get('baselineMissingFilesRestored',0),'generatedMixBlocksRemoved':clean.get('generatedMixBlocksRemoved',0),'scienceTopicPages':science['topicPages'],'specialNeedsCounts':special['counts']}
-          (site / 'api/final-production-inventory-v1.json').write_text(json.dumps(final, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-          print(final)
+          assert (site / 'sitemap.xml').is_file()
+          assert (site / 'sitemap-index.xml').is_file()
+          assert (site / 'robots.txt').is_file()
+
+          audit = {
+              'schemaVersion': 2,
+              'status': 'passed',
+              'policy': 'repository-authoritative; validated production restores missing paths only; no cross-page merging; no destructive regeneration of preserved historical families',
+              'repository': {'files': repo_files, 'htmlPages': repo_html},
+              'validatedBaseline': {'files': baseline_files, 'htmlPages': baseline_html},
+              'finalPublication': {'files': final_files, 'htmlPages': final_html, 'indexableUrls': sitemap['real_indexable_urls']},
+              'recovery': {
+                  'missingFilesRestored': clean.get('baselineMissingFilesRestored', 0),
+                  'generatedMixBlocksRemoved': clean.get('generatedMixBlocksRemoved', 0),
+                  'pagesPolished': clean.get('pagesPolished', 0),
+              },
+              'expansion': {'scientificTopicPages': science['topicPages']},
+              'specialNeedsCounts': special['counts'],
+          }
+          api = site / 'api'
+          (api / 'repository-production-audit-v2.json').write_text(json.dumps(audit, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          (api / 'final-production-inventory-v1.json').write_text(json.dumps({
+              'schemaVersion': 2,
+              'status': 'passed',
+              'finalHtmlPages': final_html,
+              'realIndexableUrls': sitemap['real_indexable_urls'],
+              'scienceTopicPages': science['topicPages'],
+              'specialNeedsCounts': special['counts'],
+          }, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          print(audit)
           PY
+
           cat > _site/deployment.json <<EOF
-          {"schemaVersion":6,"release_commit":"${BUILD_SHA}","build_mode":"repository-authoritative-baseline-missing-only-generated-contracts-science-final-sitemap"}
+          {
+            "schemaVersion": 7,
+            "release_commit": "${BUILD_SHA}",
+            "build_mode": "institutional-audit-repository-authoritative-baseline-loss-recovery-science-final-sitemap"
+          }
           EOF
           touch _site/.nojekyll
 
-      - name: Preserve clean validated site
+      - name: Preserve validated institutional site
         uses: actions/upload-artifact@v4
         with:
           name: validated-production-site
@@ -128,24 +185,27 @@ jobs:
           compression-level: 6
 
       - uses: actions/configure-pages@v5
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: _site
 
   deploy:
-    name: Deploy clean site
+    name: Deploy institutional site
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: Deploy Pages
         id: deployment
         uses: actions/deploy-pages@v4
-      - name: Verify exact production artifact live
+
+      - name: Verify exact institutional publication live
         env:
           EXPECTED_SHA: ${{ needs.build.outputs.build_sha }}
         run: |
@@ -153,16 +213,41 @@ jobs:
           ready=0
           for attempt in $(seq 1 60); do
             nonce="${GITHUB_RUN_ID}-${attempt}-$(date +%s)"
-            if curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/deployment.json?release=${nonce}" -o /tmp/deployment.json && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/api/final-production-inventory-v1.json?release=${nonce}" -o /tmp/final.json && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/api/special-needs-publication-inventory-v1.json?release=${nonce}" -o /tmp/special.json && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/api/scientific-special-needs-library-v1.json?release=${nonce}" -o /tmp/science.json && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/api/sitemap-completeness-v360.json?release=${nonce}" -o /tmp/sitemap.json && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/special-needs/science/cerebral-palsy-hip-surveillance/?release=${nonce}" -o /tmp/science-page.html && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/sitemap-index.xml?release=${nonce}" -o /tmp/sitemap-index.xml; then
+            if curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/deployment.json?release=${nonce}" -o /tmp/deployment.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/repository-production-audit-v2.json?release=${nonce}" -o /tmp/audit.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/final-production-inventory-v1.json?release=${nonce}" -o /tmp/final.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/scientific-special-needs-library-v1.json?release=${nonce}" -o /tmp/science.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/special-needs/science/cerebral-palsy-hip-surveillance/?release=${nonce}" -o /tmp/science-page.html \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/sitemap-index.xml?release=${nonce}" -o /tmp/sitemap-index.xml; then
               if python - <<'PY'
           import json, os
           from xml.etree import ElementTree as ET
-          deployment=json.load(open('/tmp/deployment.json',encoding='utf-8')); final=json.load(open('/tmp/final.json',encoding='utf-8')); special=json.load(open('/tmp/special.json',encoding='utf-8')); science=json.load(open('/tmp/science.json',encoding='utf-8')); sitemap=json.load(open('/tmp/sitemap.json',encoding='utf-8')); page=open('/tmp/science-page.html',encoding='utf-8').read(); ET.parse('/tmp/sitemap-index.xml')
-          real_urls=int(sitemap.get('real_indexable_urls',sitemap.get('realIndexableUrls',0)))
-          assert deployment['release_commit']==os.environ['EXPECTED_SHA']; assert final['status']=='passed' and final['finalHtmlPages']>=3000 and final['realIndexableUrls']>=3000; assert special['status']=='passed'; assert science['status']=='passed' and science['topicPages']>=12; assert sitemap['status']=='passed' and real_urls>=3000; assert 'مراقبة الورك في الشلل الدماغي' in page
-          print({'deployment':deployment,'final':final,'science':science,'sitemap':sitemap})
+          deployment = json.load(open('/tmp/deployment.json', encoding='utf-8'))
+          audit = json.load(open('/tmp/audit.json', encoding='utf-8'))
+          final = json.load(open('/tmp/final.json', encoding='utf-8'))
+          science = json.load(open('/tmp/science.json', encoding='utf-8'))
+          science_page = open('/tmp/science-page.html', encoding='utf-8').read()
+          ET.parse('/tmp/sitemap-index.xml')
+          assert deployment['release_commit'] == os.environ['EXPECTED_SHA'], deployment
+          assert deployment['build_mode'] == 'institutional-audit-repository-authoritative-baseline-loss-recovery-science-final-sitemap', deployment
+          assert audit['status'] == 'passed', audit
+          assert audit['finalPublication']['htmlPages'] >= audit['validatedBaseline']['htmlPages'], audit
+          assert audit['finalPublication']['indexableUrls'] >= 3000, audit
+          assert final['status'] == 'passed' and final['finalHtmlPages'] >= 3000, final
+          assert science['status'] == 'passed' and science['topicPages'] >= 12, science
+          assert 'مراقبة الورك في الشلل الدماغي' in science_page
+          print({'deployment': deployment, 'audit': audit, 'final': final, 'science': science})
           PY
-              then ready=1; break; fi
+              then
+                ready=1
+                break
+              fi
             fi
             sleep 5
           done
