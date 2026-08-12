@@ -1,7 +1,7 @@
 {
-  "version": 360,
+  "version": 361,
   "status": "passed",
-  "generated_at": "2026-08-11T07:07:32+00:00",
+  "generated_at": "2026-08-12T07:24:54+00:00",
   "base_url": "https://healthrenewal.org/",
   "sitemap": "sitemap.xml",
   "sitemap_index": "sitemap-index.xml",
@@ -51,7 +51,8 @@
     "https_only": true,
     "single_host": "healthrenewal.org",
     "duplicates": 0,
-    "legacy_urls": 0
+    "legacy_urls": 0,
+    "path_authoritative": true
   },
   "sha256": {
     "sitemap.xml": "67bf6ea737067309514d84ed7860049c5b94f57a38b9c60bc0641691053d0fcb",
