@@ -1,0 +1,67 @@
+name: Audit full production content quality v1
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/audit_production_content_v1.py'
+      - '.github/workflows/audit-production-content-v1.yml'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Locate latest validated production artifact
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" -o /tmp/baselines.json
+          python - <<'PY'
+          import json, os
+          p=json.load(open('/tmp/baselines.json',encoding='utf-8'))
+          xs=[x for x in p.get('artifacts',[]) if not x.get('expired') and x.get('workflow_run',{}).get('head_branch')=='main' and x.get('workflow_run',{}).get('id')]
+          if not xs: raise SystemExit('No validated production artifact')
+          x=max(xs,key=lambda y:y.get('created_at',''))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write(f"run_id={x['workflow_run']['id']}\n")
+          print({'runId':x['workflow_run']['id'],'createdAt':x.get('created_at')})
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: /tmp/validated-production
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.baseline.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Audit every production HTML page
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/audit_production_content_v1.py
+          python scripts/audit_production_content_v1.py /tmp/validated-production --out production-content-audit | tee /tmp/audit.log
+          python - <<'PY'
+          import json
+          p=json.load(open('production-content-audit/production-content-audit-v1.json',encoding='utf-8'))
+          assert p['status']=='passed'
+          assert p['totalHtmlPages']>=3000,p
+          print({'pages':p['totalHtmlPages'],'indexable':p['indexablePages'],'thin':p['thin'],'seo':p['seo'],'graph':p['graph'],'duplicates':p['duplicates']})
+          print('TOP_SECTION_DEBT')
+          for x in p['sections'][:20]: print(x)
+          print('TOP_PRIORITY_PAGES')
+          for x in p['topPriorityPages'][:40]: print({k:x[k] for k in ['score','route','section','words','title','inbound','brokenInternalLinks','hasSchema','canonicalOk']})
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: production-content-audit-v1
+          path: production-content-audit
+          retention-days: 90
+          compression-level: 6
