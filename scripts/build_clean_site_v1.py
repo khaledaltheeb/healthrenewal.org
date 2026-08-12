@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Clean production build: current main wins; baseline may restore missing files only."""
+"""Clean production build: current main wins; baseline may restore missing public files only."""
 from __future__ import annotations
 
 import argparse
@@ -15,7 +15,10 @@ import normalize_platform_shell as shell
 SKIP = {
     '.git', '.github', '_site', '_baseline', '_legacy_baseline', 'node_modules',
     '.venv', 'venv', 'tests', 'reports', '__pycache__', '.pytest_cache',
+    # Repository inputs/tooling are consumed during the build and are never public routes.
+    'content', 'scripts',
 }
+PUBLIC_SOURCE_FORBIDDEN = {'content', 'scripts', 'tests', 'reports', '.github', '.git'}
 
 
 def copy_tree(root: Path, site: Path, *, missing_only: bool) -> int:
@@ -40,6 +43,13 @@ def copy_tree(root: Path, site: Path, *, missing_only: bool) -> int:
             shutil.copy2(src, dst)
             count += 1
     return count
+
+
+def assert_public_boundary(site: Path) -> dict[str, object]:
+    leaked = sorted(name for name in PUBLIC_SOURCE_FORBIDDEN if (site / name).exists())
+    if leaked:
+        raise SystemExit({'repositorySourceLeak': leaked})
+    return {'status': 'passed', 'forbiddenRootsAbsent': sorted(PUBLIC_SOURCE_FORBIDDEN)}
 
 
 def remove_generated_mixes(site: Path) -> dict[str, int]:
@@ -96,6 +106,7 @@ def main() -> None:
     if not (site / 'index.html').is_file():
         raise SystemExit('index.html missing from current main')
 
+    boundary = assert_public_boundary(site)
     cleanup = remove_generated_mixes(site)
     runtime = shell.copy_platform_runtime(site)
     results = [shell.normalize_file(path, site, check_only=False) for path in shell.production_html_files(site)]
@@ -106,13 +117,14 @@ def main() -> None:
 
     html_pages = sum(1 for _ in site.rglob('*.html'))
     report = {
-        'schemaVersion': 2,
+        'schemaVersion': 3,
         'status': 'passed',
-        'policy': 'current-main pages are authoritative; baseline restores missing paths only; no cross-page or historical fragment merging',
+        'policy': 'current-main public pages are authoritative; baseline restores missing public paths only; repository source/tooling roots are excluded; no cross-page or historical fragment merging',
         'generatedAt': datetime.now(timezone.utc).isoformat(),
         'mainFilesCopied': main_files,
         'baselineMissingFilesRestored': baseline_files,
         'htmlPages': html_pages,
+        'publicBoundary': boundary,
         'pagesCleaned': cleanup['pagesCleaned'],
         'generatedMixBlocksRemoved': cleanup['generatedMixBlocksRemoved'],
         'pagesPolished': polished,
