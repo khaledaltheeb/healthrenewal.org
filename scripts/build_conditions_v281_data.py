@@ -12,7 +12,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 METADATA = ROOT / "content" / "v281" / "metadata-ar.json"
 CONDITIONS_DIR = ROOT / "content" / "v281" / "conditions"
-OVERRIDES = ROOT / "content" / "v281" / "evidence-overrides-wave1-ar.json"
+OVERRIDES_GLOB = "evidence-overrides-wave*-ar.json"
 DEFAULT_OUTPUT = ROOT / "content" / "v281" / "conditions-50-ar.json.zlib.b64"
 REQUIRED_FIELDS = {
     "rank", "slug", "title_ar", "title_en", "category", "cause", "pattern",
@@ -24,37 +24,46 @@ OVERRIDE_KEYS = {"source_title", "source_url"} | {f"{field}_append" for field in
 
 
 def apply_evidence_overrides(items: list[dict[str, Any]]) -> dict[str, Any]:
-    if not OVERRIDES.exists():
-        return {"applied": 0, "slugs": []}
-    payload = json.loads(OVERRIDES.read_text(encoding="utf-8"))
-    overrides = payload.get("conditions")
-    if not isinstance(overrides, dict):
-        raise ValueError("evidence overrides must contain a conditions object")
+    paths = sorted((ROOT / "content" / "v281").glob(OVERRIDES_GLOB))
+    if not paths:
+        return {"applied": 0, "slugs": [], "waves": []}
     by_slug = {item["slug"]: item for item in items}
-    unknown = sorted(set(overrides) - set(by_slug))
-    if unknown:
-        raise ValueError(f"evidence overrides reference unknown slugs: {unknown}")
-    for slug, patch in overrides.items():
-        if not isinstance(patch, dict):
-            raise ValueError(f"{slug}: evidence override must be an object")
-        invalid = sorted(set(patch) - OVERRIDE_KEYS)
-        if invalid:
-            raise ValueError(f"{slug}: unsupported evidence override keys: {invalid}")
-        item = by_slug[slug]
-        for field in ("source_title", "source_url"):
-            if field in patch:
-                value = patch[field]
-                if not isinstance(value, str) or not value.strip():
-                    raise ValueError(f"{slug}: {field} must be a non-empty string")
-                item[field] = value.strip()
-        for field in APPENDABLE_FIELDS:
-            key = f"{field}_append"
-            if key in patch:
-                addition = patch[key]
-                if not isinstance(addition, str) or len(addition.strip()) < 70:
-                    raise ValueError(f"{slug}: {key} is too short")
-                item[field] = f"{item[field].rstrip()} {addition.strip()}"
-    return {"applied": len(overrides), "slugs": sorted(overrides), "updated_at": payload.get("updated_at")}
+    seen: set[str] = set()
+    waves: list[dict[str, Any]] = []
+    for path in paths:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        overrides = payload.get("conditions")
+        if not isinstance(overrides, dict):
+            raise ValueError(f"{path.name}: evidence overrides must contain a conditions object")
+        unknown = sorted(set(overrides) - set(by_slug))
+        if unknown:
+            raise ValueError(f"{path.name}: unknown slugs: {unknown}")
+        duplicates = sorted(set(overrides) & seen)
+        if duplicates:
+            raise ValueError(f"{path.name}: duplicate slugs already reviewed in another wave: {duplicates}")
+        for slug, patch in overrides.items():
+            if not isinstance(patch, dict):
+                raise ValueError(f"{slug}: evidence override must be an object")
+            invalid = sorted(set(patch) - OVERRIDE_KEYS)
+            if invalid:
+                raise ValueError(f"{slug}: unsupported evidence override keys: {invalid}")
+            item = by_slug[slug]
+            for field in ("source_title", "source_url"):
+                if field in patch:
+                    value = patch[field]
+                    if not isinstance(value, str) or not value.strip():
+                        raise ValueError(f"{slug}: {field} must be a non-empty string")
+                    item[field] = value.strip()
+            for field in APPENDABLE_FIELDS:
+                key = f"{field}_append"
+                if key in patch:
+                    addition = patch[key]
+                    if not isinstance(addition, str) or len(addition.strip()) < 70:
+                        raise ValueError(f"{slug}: {key} is too short")
+                    item[field] = f"{item[field].rstrip()} {addition.strip()}"
+        seen.update(overrides)
+        waves.append({"file": path.name, "version": payload.get("version"), "updated_at": payload.get("updated_at"), "conditions": len(overrides)})
+    return {"applied": len(seen), "slugs": sorted(seen), "waves": waves}
 
 
 def load_sources() -> dict[str, Any]:
@@ -112,6 +121,7 @@ def build(output: Path = DEFAULT_OUTPUT) -> dict[str, Any]:
         "conditions": len(payload["conditions"]),
         "categories": len(payload["categories"]),
         "evidence_overrides": payload["evidence_overrides"]["applied"],
+        "evidence_waves": len(payload["evidence_overrides"]["waves"]),
         "raw_bytes": len(raw),
         "encoded_bytes": len(encoded),
         "output": str(output),
