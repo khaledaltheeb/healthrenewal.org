@@ -25,7 +25,14 @@ def route_of(root:Path,p:Path)->str:
     rel=p.relative_to(root).as_posix()
     if rel=='index.html': return '/'
     if rel.endswith('/index.html'): return '/'+rel[:-10]
-    return '/'+re.sub(r'\.html?$','',rel,re.I)+'/'
+    # Standalone HTML files are canonical files, not directory aliases.
+    # Keep the extension because production publishers (for example magazine)
+    # intentionally expose routes such as /magazine/article.html.
+    return '/'+rel
+
+def expected_canonical(route:str)->str:
+    if route=='/': return BASE+'/'
+    return BASE+route
 
 def normalize_route(href:str,current:str)->str|None:
     href=href.strip()
@@ -46,8 +53,10 @@ def normalize_route(href:str,current:str)->str|None:
             else: stack.append(x)
         path='/'+('/'.join(stack))
     path=re.sub(r'/+','/',path)
-    if path.endswith('/index.html'): path=path[:-10]
-    elif path.endswith('.html'): path=path[:-5]+'/'
+    if path.endswith('/index.html'):
+        path=path[:-10]
+    # Preserve standalone .html paths exactly; only extensionless directory
+    # routes receive a trailing slash.
     if not path.endswith('/') and '.' not in path.rsplit('/',1)[-1]: path+='/'
     return path
 
@@ -97,8 +106,8 @@ def main():
         robots=' '.join(ROB_RE.findall(text)).lower()
         noindex='noindex' in robots
         canonical=cans[0] if len(cans)==1 else ''
-        expected=(BASE+r).rstrip('/')+'/' if r!='/' else BASE+'/'
-        canok=canonical.rstrip('/')+'/'==expected if canonical else False
+        expected=expected_canonical(r)
+        canok=canonical==expected if canonical else False
         schemas=[]
         for block in LD_RE.findall(text):
             try:
@@ -150,7 +159,8 @@ def main():
     sections.sort(key=lambda x:(-x['qualityDebt'],-x['pages'],x['section']))
     priority=sorted((r for r in pages.values() if r['indexable']),key=lambda x:(-x['score'],x['words'],x['route']))[:500]
     summary={
-        'schemaVersion':1,'status':'passed','totalHtmlPages':len(pages),'indexablePages':sum(x['indexable'] for x in pages.values()),
+        'schemaVersion':2,'status':'passed','routeContract':'index.html => trailing-slash directory; standalone .html => extension-preserving file route',
+        'totalHtmlPages':len(pages),'indexablePages':sum(x['indexable'] for x in pages.values()),
         'noindexPages':sum(not x['indexable'] for x in pages.values()),'sections':sections,
         'thin':{'lt300':sum(x['indexable'] and x['words']<300 for x in pages.values()),'lt700':sum(x['indexable'] and x['words']<700 for x in pages.values()),'lt1200':sum(x['indexable'] and x['words']<1200 for x in pages.values())},
         'seo':{'missingTitle':sum(x['indexable'] and not x['title'] for x in pages.values()),'missingDescription':sum(x['indexable'] and not x['description'] for x in pages.values()),'badH1':sum(x['indexable'] and x['h1Count']!=1 for x in pages.values()),'badCanonical':sum(x['indexable'] and not x['canonicalOk'] for x in pages.values()),'missingSchema':sum(x['indexable'] and not x['hasSchema'] for x in pages.values())},
