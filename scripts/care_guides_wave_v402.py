@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import Counter
 
 import care_guides_catalog_v246 as catalog
-import care_guides_wave_v401 as previous_wave
+import care_guides_wave_v401_fixed as previous_wave
 from care_guides_topics_v402_1 import TOPICS as TOPICS_1
 from care_guides_topics_v402_2b import TOPICS as TOPICS_2
 from care_guides_topics_v402_3 import TOPICS as TOPICS_3
