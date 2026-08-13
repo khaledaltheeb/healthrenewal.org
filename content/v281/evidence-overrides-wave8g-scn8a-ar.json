@@ -1,11 +1,13 @@
 {
   "version": "8g-scn8a",
   "updated_at": "2026-08-13",
-  "review_scope": "مرجع مباشر لاضطرابات SCN8A.",
+  "review_scope": "مراجعة اضطرابات SCN8A بمصدر GeneReviews مباشر.",
   "conditions": {
     "scn8a-related-disorder": {
       "source_title": "GeneReviews — SCN8A-Related Epilepsy and/or Neurodevelopmental Disorders",
-      "source_url": "https://www.ncbi.nlm.nih.gov/books/NBK379665/"
+      "source_url": "https://www.ncbi.nlm.nih.gov/books/NBK379665/",
+      "cause_append": "يرتبط طيف SCN8A بمتغيرات ممرضة متغايرة الزيجوت تؤثر في قناة صوديوم عصبية، وتمتد الصورة من اضطرابات نمائية وعصبية شديدة إلى أنماط أخف أو اضطراب نمائي دون أحداث صرعية؛ لذلك لا يحدد اسم الجين وحده المآل الفردي.",
+      "pattern_append": "قد تبدأ السمات في الرضاعة أو الطفولة مع تفاوت في التطور والكلام والحركة والتوتر العضلي والتوازن واليقظة، بينما يحافظ بعض الأشخاص ذوي الأنماط الأخف على نمو أقرب للمعتاد. يجب وصف المسار الفعلي بدل تعميم صورة سريرية واحدة على جميع المتغيرات."
     }
   }
 }
