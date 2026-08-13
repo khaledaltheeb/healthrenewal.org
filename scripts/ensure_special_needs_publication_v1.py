@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import urlparse
 
 BASE_URL = "https://healthrenewal.org"
 REPORT_PATH = Path("api/special-needs-publication-inventory-v1.json")
@@ -61,6 +62,7 @@ class PageMetadataParser(HTMLParser):
         self.h1_count = 0
         self.canonicals: list[str] = []
         self.robots: list[str] = []
+        self.refreshes: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         lowered = tag.lower()
@@ -72,8 +74,11 @@ class PageMetadataParser(HTMLParser):
             href = values.get("href", "")
             if "canonical" in rel_tokens and href:
                 self.canonicals.append(href)
-        elif lowered == "meta" and values.get("name", "").lower() == "robots":
-            self.robots.append(values.get("content", "").lower())
+        elif lowered == "meta":
+            if values.get("name", "").lower() == "robots":
+                self.robots.append(values.get("content", "").lower())
+            if values.get("http-equiv", "").lower() == "refresh":
+                self.refreshes.append(values.get("content", ""))
 
 
 def _route_for(path: Path, root: Path) -> str:
@@ -91,32 +96,22 @@ def _index_pages(directory: Path) -> list[Path]:
 
 def collect_inventory(root: Path) -> Inventory:
     root = root.resolve()
-
     capability_pages = _index_pages(root / "capabilities")
     capability_conditions = [
-        path
-        for path in capability_pages
+        path for path in capability_pages
         if path.parent != root / "capabilities"
         and path.parent.name not in CAPABILITY_NON_CONDITION_SLUGS
     ]
-    practical = sorted((root / "special-needs" / "practical").glob("*/index.html"))
-    family_conditions = sorted((root / "family-guide" / "conditions").glob("*/index.html"))
-    family_tools = sorted((root / "family-guide" / "tools").glob("*/index.html"))
-    learning_paths = sorted((root / "learning-paths").glob("*/index.html"))
-    child_guides = sorted((root / "sectors" / "child" / "guides").glob("*/index.html"))
-    family_guides = sorted((root / "sectors" / "family" / "guides").glob("*/index.html"))
-    home_guides = sorted((root / "sectors" / "home" / "guides").glob("*/index.html"))
-
     groups = {
         "capability_pages": capability_pages,
         "capability_condition_pages": capability_conditions,
-        "special_needs_practical_guides": practical,
-        "family_condition_guides": family_conditions,
-        "family_tools": family_tools,
-        "learning_paths": learning_paths,
-        "child_guides": child_guides,
-        "family_guides": family_guides,
-        "home_guides": home_guides,
+        "special_needs_practical_guides": sorted((root / "special-needs" / "practical").glob("*/index.html")),
+        "family_condition_guides": sorted((root / "family-guide" / "conditions").glob("*/index.html")),
+        "family_tools": sorted((root / "family-guide" / "tools").glob("*/index.html")),
+        "learning_paths": sorted((root / "learning-paths").glob("*/index.html")),
+        "child_guides": sorted((root / "sectors" / "child" / "guides").glob("*/index.html")),
+        "family_guides": sorted((root / "sectors" / "family" / "guides").glob("*/index.html")),
+        "home_guides": sorted((root / "sectors" / "home" / "guides").glob("*/index.html")),
     }
     counts = {name: len(paths) for name, paths in groups.items()}
     routes = {name: [_route_for(path, root) for path in paths] for name, paths in groups.items()}
@@ -124,23 +119,19 @@ def collect_inventory(root: Path) -> Inventory:
     return Inventory(counts=counts, routes=routes, missing_roots=missing_roots)
 
 
-def validate_counts(
-    counts: dict[str, int], minimums: dict[str, int] | None = None
-) -> dict[str, dict[str, int]]:
+def validate_counts(counts: dict[str, int], minimums: dict[str, int] | None = None) -> dict[str, dict[str, int]]:
     minimums = minimums or MINIMUM_COUNTS
-    failures: dict[str, dict[str, int]] = {}
-    for name, minimum in minimums.items():
-        actual = int(counts.get(name, 0))
-        if actual < minimum:
-            failures[name] = {"actual": actual, "minimum": minimum}
-    return failures
+    return {
+        name: {"actual": int(counts.get(name, 0)), "minimum": minimum}
+        for name, minimum in minimums.items()
+        if int(counts.get(name, 0)) < minimum
+    }
 
 
 def _run_script(repo_root: Path, script_name: str, *args: str | Path) -> None:
     script = repo_root / "scripts" / script_name
     if not script.is_file():
         raise FileNotFoundError(f"Required publication script is missing: {script}")
-
     completed = subprocess.run(
         [sys.executable, str(script), *(str(argument) for argument in args)],
         cwd=repo_root,
@@ -148,41 +139,28 @@ def _run_script(repo_root: Path, script_name: str, *args: str | Path) -> None:
         capture_output=True,
         check=False,
     )
-
     if completed.stdout:
         print(completed.stdout, end="" if completed.stdout.endswith("\n") else "\n")
     if completed.stderr:
-        print(
-            completed.stderr,
-            file=sys.stderr,
-            end="" if completed.stderr.endswith("\n") else "\n",
-        )
-
+        print(completed.stderr, file=sys.stderr, end="" if completed.stderr.endswith("\n") else "\n")
     if completed.returncode != 0:
-        details = [
-            f"{script_name} failed with exit code {completed.returncode}.",
-        ]
-        if completed.stdout.strip():
-            details.append("stdout:\n" + completed.stdout.strip())
-        if completed.stderr.strip():
-            details.append("stderr:\n" + completed.stderr.strip())
-        raise RuntimeError("\n".join(details))
+        raise RuntimeError(
+            f"{script_name} failed with exit code {completed.returncode}.\n"
+            f"stdout:\n{completed.stdout.strip()}\nstderr:\n{completed.stderr.strip()}"
+        )
 
 
 def _publish_v281_conditions(repo_root: Path, site_root: Path) -> list[str]:
     payload = repo_root / V281_PAYLOAD_PATH
     if payload.exists() and not payload.is_file():
         raise RuntimeError(f"v281 payload path is not a regular file: {payload}")
-
     previous_payload = payload.read_bytes() if payload.is_file() else None
     actions: list[str] = []
     try:
         _run_script(repo_root, "build_conditions_v281_data.py")
         actions.append("build_conditions_v281_data.py")
-
         if not payload.is_file() or payload.stat().st_size == 0:
             raise RuntimeError(f"v281 builder did not create a non-empty payload: {payload}")
-
         _run_script(repo_root, "publish_conditions_v281.py", site_root)
         actions.append("publish_conditions_v281.py")
         return actions
@@ -206,33 +184,15 @@ def repair_missing_generated_families(root: Path, repo_root: Path) -> dict[str, 
     repo_root = repo_root.resolve()
     before = collect_inventory(root)
     actions: list[str] = []
-
-    # Never materialize generated production families into the source checkout.
-    # The canonical Pages workflow passes a separate _site directory here.
     if root != repo_root:
         if _capability_repair_required(before):
             _run_script(repo_root, "publish_capabilities_v280.py", root)
             actions.append("publish_capabilities_v280.py")
             actions.extend(_publish_v281_conditions(repo_root, root))
-
-        # These 15 long-form tools are committed as a public snapshot, but their
-        # authoritative source lives under content/. Rebuild them on every full
-        # production artifact so edits to the manifest or split tool bundles can
-        # never remain unpublished or drift from the visible pages. The publisher
-        # also refreshes the family-guide parent card and writes its API report.
-        _run_script(
-            repo_root,
-            "publish_family_guide_special_education_tools_v1.py",
-            root,
-        )
+        _run_script(repo_root, "publish_family_guide_special_education_tools_v1.py", root)
         actions.append("publish_family_guide_special_education_tools_v1.py")
-
     after = collect_inventory(root)
-    return {
-        "actions": actions,
-        "before": before.counts,
-        "after": after.counts,
-    }
+    return {"actions": actions, "before": before.counts, "after": after.counts}
 
 
 def _read_sitemap_urls(root: Path) -> set[str]:
@@ -242,8 +202,7 @@ def _read_sitemap_urls(root: Path) -> set[str]:
             tree = ET.parse(path)
         except ET.ParseError as exc:
             raise SystemExit({"invalid_sitemap": str(path), "error": str(exc)}) from exc
-        root_tag = tree.getroot().tag.rsplit("}", 1)[-1]
-        if root_tag != "urlset":
+        if tree.getroot().tag.rsplit("}", 1)[-1] != "urlset":
             continue
         for node in tree.getroot().findall("{*}url/{*}loc"):
             value = (node.text or "").strip()
@@ -252,28 +211,55 @@ def _read_sitemap_urls(root: Path) -> set[str]:
     return urls
 
 
-def _validate_page(path: Path, route: str) -> list[str]:
+def _parse_page(path: Path) -> tuple[list[str], PageMetadataParser]:
     problems: list[str] = []
+    parser = PageMetadataParser()
     try:
         text = path.read_text(encoding="utf-8")
     except UnicodeDecodeError:
-        return ["not_utf8"]
-
+        return ["not_utf8"], parser
     if len(text.encode("utf-8")) < 500:
         problems.append("too_small")
-
-    parser = PageMetadataParser()
     try:
         parser.feed(text)
         parser.close()
     except Exception:
-        return [*problems, "invalid_html_parse"]
+        problems.append("invalid_html_parse")
+    return problems, parser
 
+
+def _intentional_internal_alias(parser: PageMetadataParser, route: str) -> bool:
+    """Return True only for an explicit noindex redirect/canonical alias to this site.
+
+    Historical merged routes are intentionally kept reachable for users and old links,
+    but must not be forced back into the index or sitemap. Requiring all three signals
+    prevents an accidental noindex on a normal content page from being silently ignored.
+    """
+    if not any("noindex" in directive for directive in parser.robots):
+        return False
+    expected = (BASE_URL + route).rstrip("/")
+    targets = [value.rstrip("/") for value in parser.canonicals]
+    internal_targets = [
+        value for value in targets
+        if urlparse(value).scheme in {"http", "https"}
+        and urlparse(value).netloc == urlparse(BASE_URL).netloc
+        and value != expected
+    ]
+    return bool(internal_targets and parser.refreshes)
+
+
+def _validate_page(path: Path, route: str) -> tuple[list[str], bool]:
+    problems, parser = _parse_page(path)
+    if problems and "invalid_html_parse" in problems:
+        return problems, False
+    if _intentional_internal_alias(parser, route):
+        if parser.h1_count == 0:
+            problems.append("missing_h1")
+        return problems, True
     if parser.h1_count == 0:
         problems.append("missing_h1")
     if any("noindex" in directive for directive in parser.robots):
         problems.append("noindex")
-
     expected = (BASE_URL + route).rstrip("/")
     normalized_canonicals = [value.rstrip("/") for value in parser.canonicals]
     if not normalized_canonicals:
@@ -282,39 +268,32 @@ def _validate_page(path: Path, route: str) -> list[str]:
         problems.append("canonical_mismatch")
     if len(set(normalized_canonicals)) > 1:
         problems.append("conflicting_canonicals")
+    return problems, False
 
-    return problems
 
-
-def validate_publication_inventory(
-    root: Path,
-    *,
-    repair: dict[str, object] | None = None,
-) -> dict[str, object]:
+def validate_publication_inventory(root: Path, *, repair: dict[str, object] | None = None) -> dict[str, object]:
     root = root.resolve()
     inventory = collect_inventory(root)
     count_failures = validate_counts(inventory.counts)
-
-    all_target_routes = sorted(
-        {
-            route
-            for routes in inventory.routes.values()
-            for route in routes
-            if route.startswith(TARGET_PREFIXES)
-        }
-    )
+    all_target_routes = sorted({
+        route for routes in inventory.routes.values() for route in routes
+        if route.startswith(TARGET_PREFIXES)
+    })
 
     page_issues: dict[str, list[str]] = {}
+    intentional_aliases: list[str] = []
     for route in all_target_routes:
         page = root / route.strip("/") / "index.html"
-        problems = _validate_page(page, route)
+        problems, intentional_alias = _validate_page(page, route)
+        if intentional_alias:
+            intentional_aliases.append(route)
         if problems:
             page_issues[route] = problems
 
     sitemap_urls = _read_sitemap_urls(root)
+    indexable_target_routes = [route for route in all_target_routes if route not in intentional_aliases]
     sitemap_missing = [
-        route
-        for route in all_target_routes
+        route for route in indexable_target_routes
         if (BASE_URL + route).rstrip("/") + "/" not in sitemap_urls
     ]
 
@@ -326,7 +305,7 @@ def validate_publication_inventory(
     }
     status = "passed" if not any(failures.values()) else "failed"
     report: dict[str, object] = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "status": status,
         "minimumCounts": MINIMUM_COUNTS,
         "counts": inventory.counts,
@@ -334,16 +313,17 @@ def validate_publication_inventory(
         "missingRoots": inventory.missing_roots,
         "repair": repair or {"actions": []},
         "targetRouteCount": len(all_target_routes),
+        "indexableTargetRouteCount": len(indexable_target_routes),
+        "intentionalAliasCount": len(intentional_aliases),
+        "intentionalAliases": intentional_aliases,
         "routes": inventory.routes,
         "pageIssues": page_issues,
         "sitemapMissingRoutes": sitemap_missing,
         "sitemapUrlCount": len(sitemap_urls),
     }
-
     destination = root / REPORT_PATH
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
     if status != "passed":
         raise SystemExit({"special_needs_publication_inventory": failures})
     return report
