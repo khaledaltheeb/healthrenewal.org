@@ -1,0 +1,1 @@
+Rawafid special-needs wave100 atomic bootstrap package. The accompanying GitHub Actions workflow verifies the SHA-256 digest, extracts the reviewed Arabic source package, runs the 100-page quality tests, publishes the pages, commits readable source files and generated HTML, then dispatches the authoritative production deployment.
