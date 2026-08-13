@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "purpose": "retrigger canonical production publication after alias-gate repair",
+  "referenceCluster": "/special-needs/reference/",
+  "qualityPolicy": "publish only useful evidence-based pages; intentional merged aliases remain noindex",
+  "triggeredAt": "2026-08-13T14:42:00+03:00"
+}
