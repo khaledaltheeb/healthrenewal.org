@@ -8,6 +8,8 @@ import publish_care_guides_v246 as implementation
 from publish_care_guides_v246 import *  # noqa: F401,F403
 from publish_care_guides_v246 import SITE
 
+import care_guides_wave_v400
+
 ROOT = Path(__file__).resolve().parents[1]
 WFADHD_EXPANSION = ROOT / "content/v18/adhd-wfadhd-authorized-expansion-ar.json"
 _ORIGINAL_LOAD_LEGACY_GUIDES = implementation.load_legacy_guides
@@ -47,9 +49,6 @@ def _load_wfadhd_expansion() -> dict:
 def _load_legacy_guides_with_review_provenance() -> tuple[dict, list[dict]]:
     primary, guides = _ORIGINAL_LOAD_LEGACY_GUIDES()
     for guide in guides:
-        # Older validated source files predate the explicit review-status field.
-        # This preserves their established internal editorial status without
-        # claiming a specialist review that did not occur.
         guide.setdefault("review_status", "internally-reviewed")
 
     expansion = _load_wfadhd_expansion()
@@ -80,8 +79,10 @@ def main() -> dict:
         {"www.adhd-federation.org", "adhd-federation.org"}
     )
     implementation.load_legacy_guides = _load_legacy_guides_with_review_provenance
+
+    wave_report = care_guides_wave_v400.install(implementation)
     report = implementation.main()
-    # Preserve established API meanings consumed by later production publishers.
+
     report["autism_published"] = False
     report["core_guides"] = report["source_guides"]
     report["wfadhd_authorized_expansion"] = {
@@ -94,6 +95,7 @@ def main() -> dict:
         "independent_adaptation": True,
         "federation_endorsement_claimed": False,
     }
+    report["care_guides_wave_v400"] = wave_report
     report_path = SITE / "api/care-guides-v21.json"
     report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
