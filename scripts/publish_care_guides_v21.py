@@ -9,7 +9,7 @@ from publish_care_guides_v246 import *  # noqa: F401,F403
 from publish_care_guides_v246 import SITE
 
 import care_guides_wave_v400
-import care_guides_wave_v401
+import care_guides_wave_v401_fixed
 
 ROOT = Path(__file__).resolve().parents[1]
 WFADHD_EXPANSION = ROOT / "content/v18/adhd-wfadhd-authorized-expansion-ar.json"
@@ -76,13 +76,11 @@ def _load_legacy_guides_with_review_provenance() -> tuple[dict, list[dict]]:
 def main() -> dict:
     expansion = _load_wfadhd_expansion()
     implementation.SECTION_LABELS.update(expansion["section_labels"])
-    implementation.TRUSTED_SOURCE_HOSTS.update(
-        {"www.adhd-federation.org", "adhd-federation.org"}
-    )
+    implementation.TRUSTED_SOURCE_HOSTS.update({"www.adhd-federation.org", "adhd-federation.org"})
     implementation.load_legacy_guides = _load_legacy_guides_with_review_provenance
 
     wave_001_report = care_guides_wave_v400.install(implementation)
-    wave_002_report = care_guides_wave_v401.install(implementation)
+    wave_002_report = care_guides_wave_v401_fixed.install(implementation)
     report = implementation.main()
 
     report["autism_published"] = False
@@ -100,10 +98,7 @@ def main() -> dict:
     report["care_guides_wave_v400"] = wave_001_report
     report["care_guides_wave_v401"] = wave_002_report
     report_path = SITE / "api/care-guides-v21.json"
-    report_path.write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return report
 
 
