@@ -26,10 +26,15 @@ OVERRIDE_KEYS = {"source_title", "source_url"} | {f"{field}_append" for field in
 def apply_evidence_overrides(items: list[dict[str, Any]]) -> dict[str, Any]:
     paths = sorted((ROOT / "content" / "v281").glob(OVERRIDES_GLOB))
     if not paths:
-        return {"applied": 0, "slugs": [], "waves": []}
+        return {"applied": 0, "slugs": [], "waves": [], "superseded": []}
     by_slug = {item["slug"]: item for item in items}
-    seen: set[str] = set()
+    selected: dict[str, tuple[Path, dict[str, Any]]] = {}
+    superseded: list[dict[str, str]] = []
     waves: list[dict[str, Any]] = []
+
+    # Evidence review is iterative. If a later wave revisits a condition, the
+    # later complete patch supersedes the earlier patch instead of appending
+    # both and duplicating clinical prose in the published page.
     for path in paths:
         payload = json.loads(path.read_text(encoding="utf-8"))
         overrides = payload.get("conditions")
@@ -38,32 +43,34 @@ def apply_evidence_overrides(items: list[dict[str, Any]]) -> dict[str, Any]:
         unknown = sorted(set(overrides) - set(by_slug))
         if unknown:
             raise ValueError(f"{path.name}: unknown slugs: {unknown}")
-        duplicates = sorted(set(overrides) & seen)
-        if duplicates:
-            raise ValueError(f"{path.name}: duplicate slugs already reviewed in another wave: {duplicates}")
         for slug, patch in overrides.items():
             if not isinstance(patch, dict):
                 raise ValueError(f"{slug}: evidence override must be an object")
             invalid = sorted(set(patch) - OVERRIDE_KEYS)
             if invalid:
                 raise ValueError(f"{slug}: unsupported evidence override keys: {invalid}")
-            item = by_slug[slug]
-            for field in ("source_title", "source_url"):
-                if field in patch:
-                    value = patch[field]
-                    if not isinstance(value, str) or not value.strip():
-                        raise ValueError(f"{slug}: {field} must be a non-empty string")
-                    item[field] = value.strip()
-            for field in APPENDABLE_FIELDS:
-                key = f"{field}_append"
-                if key in patch:
-                    addition = patch[key]
-                    if not isinstance(addition, str) or len(addition.strip()) < 70:
-                        raise ValueError(f"{slug}: {key} is too short")
-                    item[field] = f"{item[field].rstrip()} {addition.strip()}"
-        seen.update(overrides)
+            if slug in selected:
+                superseded.append({"slug": slug, "from": selected[slug][0].name, "to": path.name})
+            selected[slug] = (path, patch)
         waves.append({"file": path.name, "version": payload.get("version"), "updated_at": payload.get("updated_at"), "conditions": len(overrides)})
-    return {"applied": len(seen), "slugs": sorted(seen), "waves": waves}
+
+    for slug, (_, patch) in selected.items():
+        item = by_slug[slug]
+        for field in ("source_title", "source_url"):
+            if field in patch:
+                value = patch[field]
+                if not isinstance(value, str) or not value.strip():
+                    raise ValueError(f"{slug}: {field} must be a non-empty string")
+                item[field] = value.strip()
+        for field in APPENDABLE_FIELDS:
+            key = f"{field}_append"
+            if key in patch:
+                addition = patch[key]
+                if not isinstance(addition, str) or len(addition.strip()) < 70:
+                    raise ValueError(f"{slug}: {key} is too short")
+                item[field] = f"{item[field].rstrip()} {addition.strip()}"
+
+    return {"applied": len(selected), "slugs": sorted(selected), "waves": waves, "superseded": superseded}
 
 
 def load_sources() -> dict[str, Any]:
@@ -122,6 +129,7 @@ def build(output: Path = DEFAULT_OUTPUT) -> dict[str, Any]:
         "categories": len(payload["categories"]),
         "evidence_overrides": payload["evidence_overrides"]["applied"],
         "evidence_waves": len(payload["evidence_overrides"]["waves"]),
+        "superseded_reviews": len(payload["evidence_overrides"]["superseded"]),
         "raw_bytes": len(raw),
         "encoded_bytes": len(encoded),
         "output": str(output),
