@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "updated_at": "2026-08-13",
+  "status": "reviewed-source-map",
+  "conditions": {
+    "stxbp1-related-disorder": {"source_title":"GeneReviews — STXBP1 Encephalopathy with Epilepsy","source_url":"https://www.ncbi.nlm.nih.gov/books/NBK396561/"},
+    "hnrnpu-related-neurodevelopmental-disorder": {"source_title":"GeneReviews — HNRNPU-Related Neurodevelopmental Disorder","source_url":"https://www.ncbi.nlm.nih.gov/books/NBK578573/"},
+    "bpan-wdr45": {"source_title":"GeneReviews — Beta-Propeller Protein-Associated Neurodegeneration","source_url":"https://www.ncbi.nlm.nih.gov/books/NBK424403/"},
+    "kcnt1-related-epilepsy": {"source_title":"GeneReviews — KCNT1-Related Epilepsy","source_url":"https://www.ncbi.nlm.nih.gov/books/NBK525917/"},
+    "cacna1a-related-disorder": {"source_title":"NCBI MedGen — CACNA1A-related complex neurodevelopmental disorder","source_url":"https://www.ncbi.nlm.nih.gov/medgen/1003061"}
+  }
+}
