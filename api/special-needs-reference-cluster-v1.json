@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "published": "2026-08-13",
+  "reviewDue": "2027-02-13",
+  "referencePages": 8,
+  "routes": [
+    "/special-needs/reference/",
+    "/special-needs/reference/autism-adhd-differential/",
+    "/special-needs/reference/autistic-women-masking-late-diagnosis/",
+    "/special-needs/reference/late-talking-dld-autism-differential/",
+    "/special-needs/reference/aac-complete-guide/",
+    "/special-needs/reference/dyslexia-reading-difficulty-differential/",
+    "/special-needs/reference/udl-inclusive-education-guide/",
+    "/special-needs/reference/iep-measurable-goals-guide/",
+    "/special-needs/reference/early-intervention-developmental-concerns/"
+  ],
+  "sourceUrls": [
+    "https://dyslexiaida.org/structured-literacy-an-effective-instructional-approach-for-students-with-dyslexia/",
+    "https://sites.ed.gov/idea/regs/b/d/300.320",
+    "https://udlguidelines.cast.org/",
+    "https://www.asha.org/practice-portal/clinical-topics/late-language-emergence/",
+    "https://www.asha.org/practice-portal/professional-issues/augmentative-and-alternative-communication/",
+    "https://www.cdc.gov/adhd/diagnosis/index.html",
+    "https://www.nidcd.nih.gov/health/developmental-language-disorder",
+    "https://www.unesco.org/en/inclusion-education",
+    "https://www.who.int/news-room/fact-sheets/detail/autism-spectrum-disorders",
+    "https://www.who.int/news-room/fact-sheets/detail/rehabilitation"
+  ]
+}
