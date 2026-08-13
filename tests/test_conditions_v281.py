@@ -16,7 +16,7 @@ V280 = ROOT / "content" / "v280" / "capabilities-100-ar.json"
 BUILDER = ROOT / "scripts" / "build_conditions_v281_data.py"
 PUBLISHER = ROOT / "scripts" / "publish_conditions_v281.py"
 PUB_WORKFLOW = ROOT / ".github" / "workflows" / "publish-capabilities-v281.yml"
-DEPLOY_WORKFLOW = ROOT / ".github" / "workflows" / "deploy-capabilities-v281.yml"
+DEPLOY_WORKFLOW = ROOT / ".github" / "workflows" / "deploy-complete-pages-with-ai-search.yml"
 
 
 def load_module(name: str, path: Path):
@@ -60,7 +60,10 @@ class ConditionsV281Contract(unittest.TestCase):
             self.assertIn(item["category"], allowed)
             for key in ("cause", "pattern", "medical_focus", "diagnosis", "care", "safety", "opportunity"):
                 self.assertGreaterEqual(len(item[key]), 70, (item["slug"], key))
-            self.assertRegex(item["source_url"], r"^https://www\.ncbi\.nlm\.nih\.gov/books/\?term=")
+            # Sources may be direct GeneReviews/Bookshelf pages or other direct NCBI records.
+            # Do not regress stronger direct citations back to generic Bookshelf search URLs.
+            self.assertRegex(item["source_url"], r"^https://www\.ncbi\.nlm\.nih\.gov/")
+            self.assertTrue(item["source_title"].strip(), item["slug"])
         self.assertEqual(len({item["source_url"] for item in items}), 50)
         for key in ("cause", "pattern", "medical_focus", "diagnosis", "care", "safety", "opportunity"):
             self.assertEqual(len({item[key] for item in items}), 50, key)
@@ -150,9 +153,18 @@ class ConditionsV281Contract(unittest.TestCase):
         self.assertIn("capabilities-v281.json", publish)
         self.assertIn("sitemap-capabilities-v281.xml", publish)
         self.assertIn("capabilities-v281-source.json", publish)
-        self.assertIn("capabilities-v281.json", deploy)
-        self.assertIn("condition_count']==50", deploy)
-        self.assertIn("generated_page_count']==51", deploy)
+
+        # The historical partial v281 Pages deployer is retired. Production is owned
+        # by the complete-site deploy workflow, which preserves the validated baseline,
+        # validates special-needs publication inventory, deploys Pages, and verifies the
+        # exact release live on healthrenewal.org.
+        self.assertIn("Build clean complete site and deploy", deploy)
+        self.assertIn("validated-production-site", deploy)
+        self.assertIn("validate_publication_inventory", deploy)
+        self.assertIn("real_indexable_urls", deploy)
+        self.assertIn("actions/deploy-pages@v4", deploy)
+        self.assertIn("Verify exact institutional publication live", deploy)
+        self.assertIn("https://healthrenewal.org/deployment.json", deploy)
 
 
 if __name__ == "__main__":
