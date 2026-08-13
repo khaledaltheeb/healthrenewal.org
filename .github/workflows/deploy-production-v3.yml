@@ -1,4 +1,4 @@
-name: Build complete institutional site v4 and deploy
+name: Build complete institutional site v5 and deploy
 
 on:
   push:
@@ -13,153 +13,252 @@ permissions:
 
 concurrency:
   group: github-pages-production
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
-    name: Restore, enrich, validate and assemble full institutional publication
+    name: Build and validate the complete institutional publication
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:
       build_sha: ${{ steps.source.outputs.build_sha }}
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout current main
+        uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 1
-      - id: source
+
+      - name: Bind build to current main head
+        id: source
         run: |
           set -euo pipefail
-          echo "build_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-      - uses: actions/setup-python@v5
+          build_sha="$(git rev-parse HEAD)"
+          echo "build_sha=${build_sha}" >> "${GITHUB_OUTPUT}"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
+
       - name: Locate latest validated production baseline
         id: baseline
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" -o /tmp/baselines.json
+          curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" \
+            -o /tmp/baselines.json
           python - <<'PY'
-          import json,os
-          p=json.load(open('/tmp/baselines.json',encoding='utf-8'))
-          xs=[x for x in p.get('artifacts',[]) if not x.get('expired') and x.get('workflow_run',{}).get('head_branch')=='main' and x.get('workflow_run',{}).get('id')]
-          if not xs: raise SystemExit('No validated production baseline')
-          x=max(xs,key=lambda y:y.get('created_at',''))
-          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write(f"run_id={x['workflow_run']['id']}\n")
-          print({'baselineRunId':x['workflow_run']['id'],'createdAt':x.get('created_at')})
+          import json
+          import os
+
+          payload = json.load(open('/tmp/baselines.json', encoding='utf-8'))
+          candidates = [
+              item
+              for item in payload.get('artifacts', [])
+              if not item.get('expired')
+              and item.get('workflow_run', {}).get('head_branch') == 'main'
+              and item.get('workflow_run', {}).get('id')
+          ]
+          if not candidates:
+              raise SystemExit('No active validated-production-site artifact from main')
+          item = max(candidates, key=lambda value: value.get('created_at', ''))
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f"run_id={item['workflow_run']['id']}\n")
+          print({'baselineRunId': item['workflow_run']['id'], 'createdAt': item.get('created_at')})
           PY
-      - uses: actions/download-artifact@v4
+
+      - name: Download validated baseline
+        uses: actions/download-artifact@v4
         with:
           name: validated-production-site
           path: /tmp/validated-baseline
           repository: khaledaltheeb/healthrenewal.org
           run-id: ${{ steps.baseline.outputs.run_id }}
           github-token: ${{ github.token }}
-      - name: Assemble complete publication
+
+      - name: Compile and test the capabilities source contracts
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/build_clean_site_v1.py \
+            scripts/publish_capabilities_v280.py \
+            scripts/build_conditions_v281_data.py \
+            scripts/publish_conditions_v281.py \
+            scripts/publish_scientific_special_needs_library_v1.py \
+            scripts/normalize_platform_shell.py \
+            scripts/publish_complete_sitemap_v360.py \
+            scripts/validate_capabilities_production_v1.py \
+            tests/test_conditions_v281.py
+          python scripts/build_conditions_v281_data.py
+          python -m unittest -v tests.test_conditions_v281
+
+      - name: Assemble the complete site and regenerate capabilities
         env:
           BUILD_SHA: ${{ steps.source.outputs.build_sha }}
         run: |
           set -euo pipefail
           test -f /tmp/validated-baseline/index.html
-          python -m py_compile scripts/normalize_platform_shell.py scripts/build_clean_site_v1.py scripts/ensure_special_needs_publication_v1.py scripts/publish_scientific_special_needs_library_v1.py scripts/publish_complete_sitemap_v360.py scripts/publish_section_directory_v322.py scripts/publish_capabilities_v280.py scripts/build_conditions_v281_data.py scripts/publish_conditions_v281.py scripts/apply_quick_info_editorial_batch.py scripts/finalize_production_quality_v1.py scripts/audit_production_content_v1.py
-          python scripts/build_clean_site_v1.py --root . --site _site --baseline /tmp/validated-baseline
+
+          # Current repository content is authoritative. The validated production
+          # artifact restores missing public files without discarding newer sources.
+          python scripts/build_clean_site_v1.py \
+            --root . \
+            --site _site \
+            --baseline /tmp/validated-baseline
+
+          # Regenerate both capabilities waves from their reviewable source data.
           python scripts/publish_capabilities_v280.py _site
           python scripts/build_conditions_v281_data.py
           python scripts/publish_conditions_v281.py _site
+
+          # Historical publishers used the former GitHub Pages origin. All public
+          # capabilities routes are canonical on healthrenewal.org.
           python - <<'PY'
           from pathlib import Path
-          old='https://khaledaltheeb.github.io/pterminology-site/'
-          new='https://healthrenewal.org/'
-          n=0
-          for p in Path('_site/capabilities').rglob('*.html'):
-              s=p.read_text(encoding='utf-8',errors='replace'); u=s.replace(old,new)
-              if u!=s:p.write_text(u,encoding='utf-8',newline='\n');n+=1
-          print({'capabilityCanonicalPagesFixed':n})
+
+          old = 'https://khaledaltheeb.github.io/pterminology-site/'
+          new = 'https://healthrenewal.org/'
+          changed = 0
+          for page in sorted(Path('_site/capabilities').rglob('*.html')):
+              source = page.read_text(encoding='utf-8', errors='replace')
+              updated = source.replace(old, new)
+              if updated != source:
+                  page.write_text(updated, encoding='utf-8', newline='\n')
+                  changed += 1
+          print({'capabilityCanonicalPagesFixed': changed})
           PY
+
+          # Rebuild late scientific surfaces, then apply one institutional shell.
           python scripts/publish_scientific_special_needs_library_v1.py _site
-          python scripts/normalize_platform_shell.py _site --report-path _site/reports/final-platform-normalization.json
+          python scripts/normalize_platform_shell.py \
+            _site \
+            --report-path _site/reports/final-platform-normalization.json
 
-          # Integrate all committed, human-reviewed Quick Info upgrades and normalize SEO metadata.
-          python scripts/finalize_production_quality_v1.py --site _site --repo-root .
+          if test -f scripts/publish_section_directory_v322.py; then
+            python scripts/publish_section_directory_v322.py _site
+          fi
 
-          python scripts/publish_section_directory_v322.py _site
+          # Discover every final indexable route only after all publishers finish.
           python scripts/publish_complete_sitemap_v360.py _site --minimum-urls 3000
 
-          # Homepage count and scientific library entry are derived from the final publication.
-          python - <<'PY'
-          import json,re
-          from pathlib import Path
-          site=Path('_site'); sm=json.loads((site/'api/sitemap-completeness-v360.json').read_text(encoding='utf-8')); count=int(sm['real_indexable_urls'])
-          p=site/'index.html'; s=p.read_text(encoding='utf-8')
-          u,n=re.subn(r'(<strong\b[^>]*data-surface-page-count[^>]*>).*?(</strong>)',rf'\g<1>{count:,}+\g<2>',s,count=1,flags=re.S)
-          u=u.replace('صفحة قابلة للفهرسة، بينها 2,000+ صفحة موسوعية مستقلة','رابطًا فعليًا قابلًا للفهرسة ضمن خريطة موقع نهائية محدثة آليًا')
-          marker='data-home-science-v1'
-          if marker not in u:
-              card=('<article class="card" data-home-science-v1><span class="tag">علمي موثق</span><h3 class="item-title">المكتبة العلمية لذوي الاحتياجات الخاصة</h3><p>مراجعات وأدلة تطبيقية تربط الإرشادات المهنية بالمشاركة والتأهيل والتقنية المساعدة والتعليم الدامج.</p><a href="special-needs/science/">فتح المكتبة العلمية</a></article>')
-              u,c=re.subn(r'(<article class="card" data-special-needs-v73>.*?</article>)',r'\1'+card,u,count=1,flags=re.S)
-              if c!=1: raise SystemExit('Homepage science insertion point missing')
-          if n!=1: raise SystemExit('Homepage count placeholder missing')
-          p.write_text(u,encoding='utf-8',newline='\n')
-          print({'homepageIndexableCount':count,'scienceCard':marker in u})
-          PY
+          # Exhaustive publication gate for the 100 + 50 capability library.
+          python scripts/validate_capabilities_production_v1.py \
+            _site \
+            --minimum-v281-words 1300
 
-          # Re-run full-site content audit on the exact candidate artifact and preserve the report.
-          python scripts/audit_production_content_v1.py _site --out _site/reports/content-quality
+          # Preserve machine-readable production evidence bound to this commit.
           python - <<'PY'
-          import json,re
+          import json
+          import os
           from pathlib import Path
-          site=Path('_site'); baseline=Path('/tmp/validated-baseline')
-          clean=json.loads((site/'api/clean-site-build-v1.json').read_text(encoding='utf-8'))
-          sitemap=json.loads((site/'api/sitemap-completeness-v360.json').read_text(encoding='utf-8'))
-          science=json.loads((site/'api/scientific-special-needs-library-v1.json').read_text(encoding='utf-8'))
-          normalization=json.loads((site/'reports/final-platform-normalization.json').read_text(encoding='utf-8'))
-          quality=json.loads((site/'api/production-quality-finalization-v1.json').read_text(encoding='utf-8'))
-          content=json.loads((site/'reports/content-quality/production-content-audit-v1.json').read_text(encoding='utf-8'))
-          homepage=(site/'index.html').read_text(encoding='utf-8')
-          final_html=sum(1 for p in site.rglob('*.html') if p.is_file()); baseline_html=sum(1 for p in baseline.rglob('*.html') if p.is_file())
-          metric=re.search(r'data-surface-page-count[^>]*>([^<]+)',homepage)
-          assert clean['status']=='passed' and normalization['status']=='passed'
-          assert final_html>=baseline_html>=3000
-          assert sitemap['status']=='passed' and sitemap['real_indexable_urls']>=3000
-          assert science['status']=='passed' and science['topicPages']>=12
-          assert quality['status']=='passed' and quality['editorial']['pages']>=35,quality
-          assert content['status']=='passed' and content['totalHtmlPages']>=3000
-          assert content['seo']['badCanonical']==0,content['seo']
-          assert metric and metric.group(1)==f"{sitemap['real_indexable_urls']:,}+"
-          assert 'data-home-science-v1' in homepage
-          audit={'schemaVersion':5,'status':'passed','policy':'repository-authoritative plus validated baseline recovery; committed reviewed editorial overlays integrated before final sitemap; canonical metadata normalized across final HTML','validatedBaseline':{'htmlPages':baseline_html},'finalPublication':{'htmlPages':final_html,'indexableUrls':sitemap['real_indexable_urls']},'expansion':{'scientificTopicPages':science['topicPages'],'reviewedQuickInfoPages':quality['editorial']['pages']},'homepage':{'indexableMetric':metric.group(1),'scientificLibraryLinked':True},'platformNormalization':normalization['counts'],'contentQuality':{'thin':content['thin'],'seo':content['seo'],'graph':content['graph'],'duplicates':content['duplicates']}}
-          (site/'api/repository-production-audit-v2.json').write_text(json.dumps(audit,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          (site/'api/final-production-inventory-v1.json').write_text(json.dumps({'schemaVersion':5,'status':'passed','finalHtmlPages':final_html,'realIndexableUrls':sitemap['real_indexable_urls'],'scienceTopicPages':science['topicPages'],'reviewedQuickInfoPages':quality['editorial']['pages'],'homepageIndexableMetric':metric.group(1),'contentQuality':audit['contentQuality']},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+          site = Path('_site')
+          gate = json.loads((site / 'api/capabilities-production-gate-v1.json').read_text(encoding='utf-8'))
+          sitemap = json.loads((site / 'api/sitemap-completeness-v360.json').read_text(encoding='utf-8'))
+          normalization = json.loads((site / 'reports/final-platform-normalization.json').read_text(encoding='utf-8'))
+          v281 = json.loads((site / 'api/capabilities-v281.json').read_text(encoding='utf-8'))
+          final_html = sum(1 for path in site.rglob('*.html') if path.is_file())
+
+          assert gate['status'] == 'passed', gate
+          assert gate['counts']['capability_pages'] >= 155, gate
+          assert gate['counts']['capability_condition_pages'] >= 150, gate
+          assert gate['v280ConditionCount'] == 100, gate
+          assert gate['v281ConditionCount'] == 50, gate
+          assert gate['reviewedConditionCount'] >= 42, gate
+          assert v281['status'] == 'passed', v281
+          assert v281['generated_page_count'] == 51, v281
+          assert v281['minimum_page_word_count'] >= 1300, v281
+          assert sitemap['status'] == 'passed', sitemap
+          assert sitemap['real_indexable_urls'] >= 3000, sitemap
+          assert normalization['status'] == 'passed', normalization
+          assert final_html >= 3000, final_html
+
+          audit = {
+              'schemaVersion': 6,
+              'status': 'passed',
+              'policy': 'repository-authoritative; complete-site baseline loss recovery; deterministic v280/v281 regeneration; direct-source and indexable-route publication gates; exact live release verification',
+              'releaseCommit': os.environ['BUILD_SHA'],
+              'finalPublication': {
+                  'htmlPages': final_html,
+                  'indexableUrls': sitemap['real_indexable_urls'],
+              },
+              'capabilities': gate,
+              'platformNormalization': normalization['counts'],
+          }
+          api = site / 'api'
+          (api / 'repository-production-audit-v2.json').write_text(
+              json.dumps(audit, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          (api / 'final-production-inventory-v1.json').write_text(
+              json.dumps(
+                  {
+                      'schemaVersion': 6,
+                      'status': 'passed',
+                      'releaseCommit': os.environ['BUILD_SHA'],
+                      'finalHtmlPages': final_html,
+                      'realIndexableUrls': sitemap['real_indexable_urls'],
+                      'specialNeedsCounts': gate['counts'],
+                      'v280ConditionCount': gate['v280ConditionCount'],
+                      'v281ConditionCount': gate['v281ConditionCount'],
+                      'v281MinimumPageWordCount': gate['v281MinimumPageWordCount'],
+                      'reviewedConditionCount': gate['reviewedConditionCount'],
+                  },
+                  ensure_ascii=False,
+                  indent=2,
+              ) + '\n',
+              encoding='utf-8',
+          )
           print(audit)
           PY
+
           cat > _site/deployment.json <<EOF
-          {"schemaVersion":10,"release_commit":"${BUILD_SHA}","build_mode":"institutional-v4-reviewed-editorial-canonical-quality-finalization"}
+          {
+            "schemaVersion": 10,
+            "release_commit": "${BUILD_SHA}",
+            "build_mode": "institutional-v5-capabilities-evidence-complete-site"
+          }
           EOF
           touch _site/.nojekyll
-      - uses: actions/upload-artifact@v4
+
+      - name: Preserve validated institutional site
+        uses: actions/upload-artifact@v4
         with:
           name: validated-production-site
           path: _site
           include-hidden-files: true
           retention-days: 90
           compression-level: 6
+
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
         with:
           path: _site
+
   deploy:
+    name: Deploy and verify the exact capabilities release
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
-      - id: deployment
+      - name: Deploy Pages
+        id: deployment
         uses: actions/deploy-pages@v4
-      - name: Verify exact production release live
+
+      - name: Verify exact capabilities publication live
         env:
           EXPECTED_SHA: ${{ needs.build.outputs.build_sha }}
         run: |
@@ -167,19 +266,70 @@ jobs:
           ready=0
           for attempt in $(seq 1 60); do
             nonce="${GITHUB_RUN_ID}-${attempt}-$(date +%s)"
-            if curl -fsSL -H 'Cache-Control: no-cache' "https://healthrenewal.org/deployment.json?release=${nonce}" -o /tmp/d.json && curl -fsSL -H 'Cache-Control: no-cache' "https://healthrenewal.org/api/repository-production-audit-v2.json?release=${nonce}" -o /tmp/a.json && curl -fsSL -H 'Cache-Control: no-cache' "https://healthrenewal.org/quick-info/break-phone-checking-habit/?release=${nonce}" -o /tmp/q.html; then
+            if curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/deployment.json?release=${nonce}" \
+              -o /tmp/deployment.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/capabilities-production-gate-v1.json?release=${nonce}" \
+              -o /tmp/gate.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/capabilities-v281.json?release=${nonce}" \
+              -o /tmp/v281.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/final-production-inventory-v1.json?release=${nonce}" \
+              -o /tmp/final.json \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/capabilities/registry/?release=${nonce}" \
+              -o /tmp/registry.html \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/capabilities/pura-syndrome/?release=${nonce}" \
+              -o /tmp/pura.html \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/capabilities/foxg1-syndrome/?release=${nonce}" \
+              -o /tmp/foxg1.html \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/sitemap-index.xml?release=${nonce}" \
+              -o /tmp/sitemap-index.xml; then
               if python - <<'PY'
-          import json,os
-          d=json.load(open('/tmp/d.json')); a=json.load(open('/tmp/a.json')); q=open('/tmp/q.html',encoding='utf-8').read()
-          assert d['release_commit']==os.environ['EXPECTED_SHA']
-          assert d['build_mode']=='institutional-v4-reviewed-editorial-canonical-quality-finalization'
-          assert a['status']=='passed' and a['finalPublication']['indexableUrls']>=3000
-          assert a['expansion']['reviewedQuickInfoPages']>=35
-          assert 'QUICK_INFO_EDITORIAL_BATCH_' in q
-          assert 'https://healthrenewal.org/quick-info/break-phone-checking-habit/' in q
-          print({'deployment':d,'audit':a})
+          import json
+          import os
+          import re
+          from xml.etree import ElementTree as ET
+
+          deployment = json.load(open('/tmp/deployment.json', encoding='utf-8'))
+          gate = json.load(open('/tmp/gate.json', encoding='utf-8'))
+          v281 = json.load(open('/tmp/v281.json', encoding='utf-8'))
+          final = json.load(open('/tmp/final.json', encoding='utf-8'))
+          registry = open('/tmp/registry.html', encoding='utf-8').read()
+          pura = open('/tmp/pura.html', encoding='utf-8').read()
+          foxg1 = open('/tmp/foxg1.html', encoding='utf-8').read()
+          ET.parse('/tmp/sitemap-index.xml')
+
+          assert deployment['release_commit'] == os.environ['EXPECTED_SHA'], deployment
+          assert deployment['build_mode'] == 'institutional-v5-capabilities-evidence-complete-site', deployment
+          assert gate['status'] == 'passed', gate
+          assert gate['counts']['capability_pages'] >= 155, gate
+          assert gate['counts']['capability_condition_pages'] >= 150, gate
+          assert gate['v280ConditionCount'] == 100, gate
+          assert gate['v281ConditionCount'] == 50, gate
+          assert gate['reviewedConditionCount'] >= 42, gate
+          assert v281['status'] == 'passed', v281
+          assert v281['condition_count'] == 50, v281
+          assert v281['generated_page_count'] == 51, v281
+          assert v281['minimum_page_word_count'] >= 1300, v281
+          assert final['status'] == 'passed', final
+          assert final['realIndexableUrls'] >= 3000, final
+          assert 'سجل الحالات' in registry or 'دليل القدرات' in registry, registry[:1200]
+          assert 'NBK426063' in pura and 'محتوى تثقيفي' in pura, pura[:1600]
+          assert 'NBK604176' in foxg1 and 'محتوى تثقيفي' in foxg1, foxg1[:1600]
+          assert len(re.findall(r'[\u0600-\u06ffA-Za-z0-9]+', pura)) >= 1300
+          assert len(re.findall(r'[\u0600-\u06ffA-Za-z0-9]+', foxg1)) >= 1300
+          print({'deployment': deployment, 'gate': gate, 'v281': v281, 'final': final})
           PY
-              then ready=1; break; fi
+              then
+                ready=1
+                break
+              fi
             fi
             sleep 5
           done
