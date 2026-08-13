@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-import care_guides_wave_v401 as wave
+import care_guides_wave_v401_fixed as wave
 class CareGuidesWaveV401CountTests(unittest.TestCase):
     def test_exactly_fifty_unique_topics(self):
         topics = wave.topics()
