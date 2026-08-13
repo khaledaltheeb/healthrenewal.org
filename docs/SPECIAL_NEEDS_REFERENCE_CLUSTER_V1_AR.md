@@ -24,3 +24,5 @@
 ## النشر
 
 ينفذ `scripts/publish_special_needs_reference_cluster_v1.py` داخل artifact الإنتاج، ثم تُكتشف المسارات بواسطة مولد sitemap النهائي. الاختبار: `python -m unittest -v tests.test_special_needs_reference_cluster_v1`.
+
+حالة التشغيل: تم تفعيل مسار النشر الآلي للعنقود بعد إضافة Workflow الإنتاج الخاص به.
