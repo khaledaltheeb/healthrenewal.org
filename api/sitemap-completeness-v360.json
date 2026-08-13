@@ -1,15 +1,15 @@
 {
   "version": 361,
   "status": "passed",
-  "generated_at": "2026-08-12T07:24:54+00:00",
+  "generated_at": "2026-08-13T07:26:51+00:00",
   "base_url": "https://healthrenewal.org/",
   "sitemap": "sitemap.xml",
   "sitemap_index": "sitemap-index.xml",
   "robots": "robots.txt",
-  "real_indexable_urls": 847,
+  "real_indexable_urls": 856,
   "claimed_target_urls": 3600,
   "target_reached": false,
-  "html_files_discovered": 862,
+  "html_files_discovered": 871,
   "excluded_counts": {
     "excluded_directory": 0,
     "error_or_offline_page": 1,
@@ -47,7 +47,7 @@
   "protocol": {
     "maximum_urls_per_sitemap": 50000,
     "maximum_uncompressed_bytes": 52428800,
-    "actual_bytes": 86352,
+    "actual_bytes": 87358,
     "https_only": true,
     "single_host": "healthrenewal.org",
     "duplicates": 0,
@@ -55,7 +55,7 @@
     "path_authoritative": true
   },
   "sha256": {
-    "sitemap.xml": "67bf6ea737067309514d84ed7860049c5b94f57a38b9c60bc0641691053d0fcb",
+    "sitemap.xml": "33bfd073dd8bbd742819d470225e7b187bf0a5ff09d44a87199549ba2eaad00e",
     "sitemap-index.xml": "41c7faf5cbb40b054bfa5b391c8d343bacdfdf3baf20612a02ffe49e4898a880",
     "robots.txt": "775d46ea75a7cfa782eff67503977738ee58f3d387782f722a698862c0fadc60"
   },
@@ -73,7 +73,7 @@
       "https://healthrenewal.org/addiction/audiences/family/"
     ],
     "last": [
-      "https://healthrenewal.org/special-needs/practical/workplace-accommodations/",
+      "https://healthrenewal.org/special-needs/reference/udl-inclusive-education-guide/",
       "https://healthrenewal.org/specialists-partners/",
       "https://healthrenewal.org/specialists-partners/join.html",
       "https://healthrenewal.org/specialists-partners/verification.html",

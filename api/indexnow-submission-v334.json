@@ -1,17 +1,17 @@
 {
   "version": 334,
-  "generated_at": "2026-08-12T07:24:55+00:00",
+  "generated_at": "2026-08-13T07:26:52+00:00",
   "base_url": "https://healthrenewal.org/",
   "endpoint": "https://api.indexnow.org/indexnow",
   "key_location": "https://healthrenewal.org/a4f9d7c2e81b4630b5d6f7a912ce3048.txt",
-  "discovered_urls": 847,
-  "submitted_urls": 847,
+  "discovered_urls": 856,
+  "submitted_urls": 856,
   "status": "accepted",
   "warnings": [],
   "submissions": [
     {
       "batch": 1,
-      "url_count": 847,
+      "url_count": 856,
       "status": 200,
       "accepted": true,
       "error": ""
