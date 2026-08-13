@@ -16,10 +16,19 @@ HREF_RE=re.compile(r'<a\b[^>]*\bhref=["\']([^"\']+)["\']',re.I|re.S)
 LD_RE=re.compile(r'<script\b(?=[^>]*type=["\']application/ld\+json["\'])[^>]*>(.*?)</script>',re.I|re.S)
 TAG_RE=re.compile(r'<[^>]+>')
 SCRIPT_RE=re.compile(r'<script\b.*?</script>|<style\b.*?</style>|<!--.*?-->',re.I|re.S)
+GOOGLE_VERIFY_RE=re.compile(r'^google[0-9a-f]+\.html$',re.I)
 
 
 def clean_html(s:str)->str:
     return re.sub(r'\s+',' ',unescape(TAG_RE.sub(' ',s))).strip()
+
+def is_technical_html(root:Path,p:Path,text:str)->bool:
+    rel=p.relative_to(root).as_posix()
+    # Search Console verification files are protocol tokens, not editorial pages.
+    if '/' not in rel and GOOGLE_VERIFY_RE.fullmatch(p.name):
+        body=text.strip().lower()
+        return body.startswith('google-site-verification:')
+    return False
 
 def route_of(root:Path,p:Path)->str:
     rel=p.relative_to(root).as_posix()
@@ -97,8 +106,13 @@ def main():
     root=Path(a.root).resolve(); out=Path(a.out); out.mkdir(parents=True,exist_ok=True)
     pages={}
     raw_links={}
+    ignored_technical=[]
     for p in sorted(root.rglob('*.html')):
-        text=p.read_text(encoding='utf-8',errors='replace'); r=route_of(root,p)
+        text=p.read_text(encoding='utf-8',errors='replace')
+        if is_technical_html(root,p,text):
+            ignored_technical.append(p.relative_to(root).as_posix())
+            continue
+        r=route_of(root,p)
         title=clean_html(TITLE_RE.search(text).group(1)) if TITLE_RE.search(text) else ''
         desc=clean_html(DESC_RE.search(text).group(1)) if DESC_RE.search(text) else ''
         h1s=[clean_html(x) for x in H1_RE.findall(text)]
@@ -159,8 +173,9 @@ def main():
     sections.sort(key=lambda x:(-x['qualityDebt'],-x['pages'],x['section']))
     priority=sorted((r for r in pages.values() if r['indexable']),key=lambda x:(-x['score'],x['words'],x['route']))[:500]
     summary={
-        'schemaVersion':2,'status':'passed','routeContract':'index.html => trailing-slash directory; standalone .html => extension-preserving file route',
+        'schemaVersion':3,'status':'passed','routeContract':'index.html => trailing-slash directory; standalone .html => extension-preserving file route; protocol verification HTML excluded from editorial metrics',
         'totalHtmlPages':len(pages),'indexablePages':sum(x['indexable'] for x in pages.values()),
+        'ignoredTechnicalHtml':{'count':len(ignored_technical),'paths':ignored_technical},
         'noindexPages':sum(not x['indexable'] for x in pages.values()),'sections':sections,
         'thin':{'lt300':sum(x['indexable'] and x['words']<300 for x in pages.values()),'lt700':sum(x['indexable'] and x['words']<700 for x in pages.values()),'lt1200':sum(x['indexable'] and x['words']<1200 for x in pages.values())},
         'seo':{'missingTitle':sum(x['indexable'] and not x['title'] for x in pages.values()),'missingDescription':sum(x['indexable'] and not x['description'] for x in pages.values()),'badH1':sum(x['indexable'] and x['h1Count']!=1 for x in pages.values()),'badCanonical':sum(x['indexable'] and not x['canonicalOk'] for x in pages.values()),'missingSchema':sum(x['indexable'] and not x['hasSchema'] for x in pages.values())},
