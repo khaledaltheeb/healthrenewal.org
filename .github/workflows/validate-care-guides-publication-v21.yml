@@ -68,6 +68,12 @@ jobs:
             python scripts/strip_nonlab_runtime_v14.py _site
             python scripts/finalize_pwa_v14.py _site
             python scripts/complete_core_sections_v15.py _site
+            test -f quick-info/index.html
+            mkdir -p _site/quick-info _site/assets/quick-info _site/api/v1
+            cp -a quick-info/. _site/quick-info/
+            cp -a assets/quick-info/. _site/assets/quick-info/
+            cp api/v1/quick-info.json _site/api/v1/quick-info.json
+            cp sitemap-quick-info.xml _site/sitemap-quick-info.xml
             python scripts/apply_homepage_v20.py _site
             python scripts/publish_care_guides_v21.py _site
             python scripts/link_care_guides_v21.py _site
