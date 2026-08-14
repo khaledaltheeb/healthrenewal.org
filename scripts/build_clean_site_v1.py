@@ -11,7 +11,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import normalize_platform_shell as shell
-import publish_special_needs_knowledge_wave002 as special_needs_wave002
 
 SKIP = {
     '.git', '.github', '_site', '_baseline', '_legacy_baseline', 'node_modules',
@@ -90,6 +89,22 @@ def inject_polish(site: Path) -> int:
     return changed
 
 
+def publish_wave002(site: Path) -> dict[str, object]:
+    """Load and publish wave002 with a GitHub Actions-visible diagnostic on failure."""
+    try:
+        import publish_special_needs_knowledge_wave002 as special_needs_wave002
+        report = special_needs_wave002.publish(site)
+    except BaseException as exc:
+        message = f'{type(exc).__name__}: {exc}'.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+        print(f'::error title=Special-needs wave002 build failure::{message}', flush=True)
+        raise
+    if report.get('page_count') != 100 or report.get('unique_routes') != 100:
+        message = json.dumps(report, ensure_ascii=False).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+        print(f'::error title=Special-needs wave002 publication contract failed::{message}', flush=True)
+        raise SystemExit({'specialNeedsWave002': report})
+    return report
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', default='.')
@@ -109,10 +124,7 @@ def main() -> None:
 
     boundary = assert_public_boundary(site)
     cleanup = remove_generated_mixes(site)
-
-    wave002_report = special_needs_wave002.publish(site)
-    if wave002_report.get('page_count') != 100 or wave002_report.get('unique_routes') != 100:
-        raise SystemExit({'specialNeedsWave002': wave002_report})
+    wave002_report = publish_wave002(site)
 
     runtime = shell.copy_platform_runtime(site)
     results = [shell.normalize_file(path, site, check_only=False) for path in shell.production_html_files(site)]
