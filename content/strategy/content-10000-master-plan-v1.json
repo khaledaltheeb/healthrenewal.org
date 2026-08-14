@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "goal": {
+    "targetIndexedPages": 10000,
+    "principle": "quality-before-volume",
+    "language": "ar",
+    "site": "https://healthrenewal.org/"
+  },
+  "portfolio": [
+    {"cluster":"mental-health-conditions","target":1500,"purpose":"فهم الاضطرابات والحالات النفسية، التقييم، العلاج، التعايش، الأسرة والعمل دون تشخيص ذاتي"},
+    {"cluster":"neurodevelopment-special-needs","target":1800,"purpose":"التوحد وADHD وصعوبات التعلم والتواصل والمهارات والاستقلال والدعم عبر مراحل العمر"},
+    {"cluster":"family-school-caregiving","target":1300,"purpose":"إرشادات عملية للأسرة والمدرسة ومقدمي الرعاية وخطط التواصل والدعم الآمن"},
+    {"cluster":"assessment-measurement","target":900,"purpose":"القياس النفسي، المقاييس، المقابلات، الصدق والثبات، تفسير النتائج وحدودها"},
+    {"cluster":"therapies-interventions","target":1000,"purpose":"العلاجات النفسية والتدخلات والتأهيل وما نعرفه عن الفعالية والملاءمة والمخاطر"},
+    {"cluster":"substance-use-recovery","target":900,"purpose":"الوقاية والعلاج والتعافي وتقليل الضرر والأسرة والانتكاس والخدمات"},
+    {"cluster":"sleep-behavior-wellbeing","target":700,"purpose":"النوم والعادات والضغط والانفعال والسلوك والصحة النفسية الوقائية"},
+    {"cluster":"research-evidence-literacy","target":800,"purpose":"قراءة البحث والتقييم النقدي والإحصاء والمراجعات واليقين بالدليل"},
+    {"cluster":"rights-services-inclusion","target":600,"purpose":"الوصول للخدمات والدمج والتيسيرات والحقوق والمشاركة والعمل والتعليم"},
+    {"cluster":"professional-research-practice","target":500,"purpose":"محتوى متقدم للمختص والباحث: التوثيق، القرار المشترك، تصميم الخدمة، الجودة والبحث"}
+  ],
+  "publicationContract": {
+    "minimumUsefulWords": 1200,
+    "minimumPrimaryOrGuidelineSources": 3,
+    "requireUniqueSearchIntent": true,
+    "requireUniqueTitle": true,
+    "requireUniqueMetaDescription": true,
+    "requireUniqueCanonical": true,
+    "requireClaimSourceTraceability": true,
+    "requireInternalLinks": 5,
+    "maximumParagraphJaccard": 0.60,
+    "blockSelfDiagnosisLanguage": true,
+    "blockUnsupportedTreatmentClaims": true,
+    "blockDosageInstructionsWithoutQualifiedContext": true,
+    "requireReviewedDate": true,
+    "requireStructuredData": true,
+    "requireAccessibilityBasics": true,
+    "requireMobileLayout": true
+  },
+  "sourceHierarchy": [
+    "systematic-reviews-and-high-quality-guidelines",
+    "government-and-intergovernmental-health-agencies",
+    "peer-reviewed-primary-research",
+    "academic-reference-books-used-for-conceptual-background-only",
+    "professional-consensus-or-position-statements"
+  ],
+  "antiSpamRules": [
+    "لا صفحة لمجرد تبديل كلمة أو فئة عمرية داخل قالب ثابت",
+    "لا فهرسة لصفحة لا تضيف قرارا أو فهما أو أداة عملية جديدة",
+    "لا ادعاء علاجي من مصدر تسويقي أو تجاري",
+    "لا تكرار لنفس نية البحث بين قسمين؛ تدمج الصفحة الأضعف أو يعاد توجيهها",
+    "لا استخدام عدد الكلمات كهدف تحريري؛ العدد حد أدنى فقط بعد تحقق القيمة",
+    "كل موجة تمر بتدقيق تشابه ومصادر وروابط داخلية وفهرسة قبل الدمج"
+  ],
+  "wavePolicy": {
+    "preferredWaveSize": "60-200",
+    "reason": "يسمح بمراجعة الجودة والمصادر والتشابه قبل توسيع النطاق",
+    "wave001": {
+      "cluster": "mental-health-conditions",
+      "plannedPages": 66,
+      "topics": ["depression","anxiety","panic","social-anxiety","ocd","ptsd","bipolar","schizophrenia","eating-disorders","adhd","autism"],
+      "intentsPerTopic": 6
+    }
+  }
+}
