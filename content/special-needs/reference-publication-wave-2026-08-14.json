@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "status": "ready-for-production",
+  "publishedAt": "2026-08-14",
+  "cluster": "special-needs-reference",
+  "routes": [
+    "/special-needs/evidence/",
+    "/special-needs/evidence/vaccines-autism/",
+    "/special-needs/evidence/unapproved-biomedical-autism-treatments/",
+    "/special-needs/evidence/communication-authorship-fc-rpm/",
+    "/special-needs/reference/iep-present-levels-plaafp/",
+    "/special-needs/reference/iep-accommodations-vs-modifications/",
+    "/special-needs/reference/iep-progress-monitoring/"
+  ],
+  "qualityPolicy": {
+    "canonical": "self",
+    "robots": "index,follow",
+    "structuredData": ["Article", "BreadcrumbList", "FAQPage"],
+    "medicalClaims": "official-primary-sources-only",
+    "legalScope": "educational-general-not-local-legal-advice",
+    "noThinPages": true,
+    "noCannibalization": true
+  }
+}
