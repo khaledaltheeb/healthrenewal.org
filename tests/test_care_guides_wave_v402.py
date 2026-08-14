@@ -27,6 +27,19 @@ class CareGuidesWaveV402Tests(unittest.TestCase):
             self.assertRegex(item[0], r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
             self.assertGreaterEqual(len(item[3]), 80, item[0])
             self.assertEqual(len(item[4].split("|")), 3, item[0])
+            self.assertEqual(item[2], item[2].strip(), item[0])
+            self.assertEqual(item[8], item[8].strip(), item[0])
+            self.assertIn(item[2], catalog.CATEGORY_LABELS, item[0])
+            self.assertIn(item[8], catalog.SOURCES, item[0])
+            self.assertGreaterEqual(len(catalog.SOURCES[item[8]]), 3, item[0])
+
+    def test_contextual_source_resolution_is_topic_relevant(self) -> None:
+        topics = {item[0]: item for item in wave3.topics()}
+        self.assertEqual(topics["family-screen-time-transition-plan"][8], "gaming")
+        self.assertEqual(topics["child-separation-anxiety-dropoff-plan"][8], "anxiety")
+        self.assertEqual(topics["adhd-email-overload-triage-plan"][8], "work")
+        self.assertEqual(topics["dementia-new-caregiver-first-week-plan"][8], "dementia")
+        self.assertEqual(topics["care-home-transition-familiar-items-plan"][8], "dementia")
 
     def test_no_slug_or_title_collision_with_previous_waves(self) -> None:
         previous = [*wave1.topics(), *wave2.topics()]
