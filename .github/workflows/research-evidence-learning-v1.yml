@@ -1,0 +1,100 @@
+name: Validate research evidence learning v1
+
+on:
+  push:
+    branches:
+      - agent/research-evidence-learning-500-pages-v1
+    paths:
+      - 'scripts/publish_research_evidence_learning_v1.py'
+      - 'scripts/build_research_evidence_learning_v2.py'
+      - 'scripts/enrich_research_evidence_learning_v1.py'
+      - '.github/workflows/research-evidence-learning-v1.yml'
+  pull_request:
+    paths:
+      - 'scripts/publish_research_evidence_learning_v1.py'
+      - 'scripts/build_research_evidence_learning_v2.py'
+      - 'scripts/enrich_research_evidence_learning_v1.py'
+      - '.github/workflows/research-evidence-learning-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile publishers
+        run: python -m py_compile scripts/publish_research_evidence_learning_v1.py scripts/build_research_evidence_learning_v2.py scripts/enrich_research_evidence_learning_v1.py
+      - name: Generate and enrich isolated publication
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/research-evidence-site
+          mkdir -p /tmp/research-evidence-site
+          python scripts/build_research_evidence_learning_v2.py /tmp/research-evidence-site
+          python scripts/enrich_research_evidence_learning_v1.py /tmp/research-evidence-site
+      - name: Verify final publication and anti-duplication contract
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          root = Path('/tmp/research-evidence-site')
+          section = root / 'sections/research-evidence-learning'
+          children = sorted(section.glob('*/index.html'))
+          assert len(children) >= 500, len(children)
+          assert (section / 'index.html').is_file()
+
+          titles, canonicals, descriptions = [], [], []
+          paragraph_sets = {}
+          minimum_words = 10**9
+          for path in children:
+              source = path.read_text(encoding='utf-8')
+              visible = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', source)).strip()
+              wc = len(re.findall(r'[\u0600-\u06FFA-Za-z0-9]+', visible))
+              minimum_words = min(minimum_words, wc)
+              assert wc >= 850, (path, wc)
+              titles.append(re.search(r'<title>(.*?)</title>', source, re.S).group(1))
+              canonicals.append(re.search(r'<link rel="canonical" href="([^"]+)"', source).group(1))
+              descriptions.append(re.search(r'<meta name="description" content="([^"]+)"', source).group(1))
+              assert source.count('<h1>') == 1, path
+              assert source.count('<!-- research-evidence-editorial-v2 -->') == 1, path
+              assert 'index,follow' in source, path
+              assert 'application/ld+json' in source, path
+              assert 'BreadcrumbList' in source, path
+              assert 'مصادر أساسية للتحقق والتوسع' in source, path
+              assert source.count('rel="noopener noreferrer"') >= 3, path
+              paras = {
+                  re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', p)).strip()
+                  for p in re.findall(r'<p\b[^>]*>(.*?)</p>', source, re.S | re.I)
+              }
+              paragraph_sets[path.parent.name] = {p for p in paras if len(p) >= 80}
+          assert len(set(titles)) == len(children)
+          assert len(set(canonicals)) == len(children)
+          assert len(set(descriptions)) == len(children)
+
+          names = sorted(paragraph_sets)
+          worst = (0.0, '', '')
+          for i, left in enumerate(names):
+              a = paragraph_sets[left]
+              for right in names[i + 1:]:
+                  b = paragraph_sets[right]
+                  union = a | b
+                  score = len(a & b) / len(union) if union else 1.0
+                  if score > worst[0]: worst = (score, left, right)
+          assert worst[0] < 0.72, worst
+          print({'status':'passed','children':len(children),'totalPages':len(children)+1,'minimumWords':minimum_words,'maxParagraphJaccard':round(worst[0],4)})
+          PY
+      - name: Upload generated evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-evidence-learning-v1-${{ github.run_id }}
+          path: /tmp/research-evidence-site/sections/research-evidence-learning
+          if-no-files-found: warn
+          retention-days: 30
