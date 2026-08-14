@@ -24,6 +24,10 @@ from pathlib import Path, PurePosixPath
 from urllib.parse import quote, urlsplit
 from xml.etree import ElementTree as ET
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
 from repair_internal_routes_v1 import apply as repair_internal_routes
 
 BASE_URL = "https://healthrenewal.org/"
