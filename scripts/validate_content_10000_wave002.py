@@ -104,6 +104,7 @@ def main() -> int:
         candidate_routes = {
             page["slug"],
             f"care-guides/{page['slug']}",
+            f"care-guides/clinical-literacy/{page['slug']}",
             f"sections/research-evidence-learning/{page['slug']}",
             f"special-needs/knowledge/{page['slug']}",
         }
