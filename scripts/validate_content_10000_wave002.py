@@ -106,7 +106,9 @@ def main() -> int:
             f"care-guides/{page['slug']}",
             f"care-guides/clinical-literacy/{page['slug']}",
             f"sections/research-evidence-learning/{page['slug']}",
+            f"special-needs/{page['slug']}",
             f"special-needs/knowledge/{page['slug']}",
+            f"special-needs/guides/{page['slug']}",
         }
         hit_routes = sorted(candidate_routes & existing_routes)
         if hit_routes and not page.get("migration"):
