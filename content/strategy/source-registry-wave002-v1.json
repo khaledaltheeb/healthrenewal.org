@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "wave": "002",
+  "reviewedAt": "2026-08-14",
+  "policy": "مصادر هذه الموجة للتحقق والتركيب لا للنسخ. تعطى الأولوية للإرشادات الرسمية والهيئات الحكومية والمنظمات الدولية والمعايير المنهجية والمراجعات عالية الجودة. يمنع استخدام صفحة تجارية لإثبات تشخيص أو فعالية علاجية.",
+  "sources": {
+    "cdc-autism-diagnosis": {"publisher":"CDC","title":"Screening for Autism Spectrum Disorder","url":"https://www.cdc.gov/autism/diagnosis/index.html","type":"government-public-health"},
+    "nice-autism-adults": {"publisher":"NICE","title":"Autism spectrum disorder in adults: diagnosis and management (CG142)","url":"https://www.nice.org.uk/guidance/cg142","type":"clinical-guideline"},
+    "nice-autism-under19-diagnosis": {"publisher":"NICE","title":"Autism spectrum disorder in under 19s: recognition, referral and diagnosis (CG128)","url":"https://www.nice.org.uk/guidance/cg128","type":"clinical-guideline"},
+    "nice-autism-quality": {"publisher":"NICE","title":"Autism quality standard QS51","url":"https://www.nice.org.uk/guidance/qs51","type":"quality-standard"},
+    "who-autism": {"publisher":"WHO","title":"Autism","url":"https://www.who.int/news-room/fact-sheets/detail/autism-spectrum-disorders","type":"intergovernmental-fact-sheet"},
+    "nimh-autism": {"publisher":"NIMH","title":"Autism Spectrum Disorder","url":"https://www.nimh.nih.gov/health/topics/autism-spectrum-disorders-asd","type":"government-research-agency"},
+    "nice-adhd": {"publisher":"NICE","title":"Attention deficit hyperactivity disorder: diagnosis and management (NG87)","url":"https://www.nice.org.uk/guidance/ng87","type":"clinical-guideline"},
+    "cdc-adhd-diagnosis": {"publisher":"CDC","title":"Diagnosing ADHD","url":"https://www.cdc.gov/adhd/diagnosis/index.html","type":"government-public-health"},
+    "nimh-adhd": {"publisher":"NIMH","title":"Attention-Deficit/Hyperactivity Disorder","url":"https://www.nimh.nih.gov/health/topics/attention-deficit-hyperactivity-disorder-adhd","type":"government-research-agency"},
+    "ishraq-rating-scales": {"publisher":"جمعية إشراق","title":"مقاييس اضطراب فرط الحركة وتشتت الانتباه","url":"https://cpg.adhd.org.sa/ar/guideline/rating-scales/","type":"arabic-professional-resource"},
+    "ahrq-shared-decision": {"publisher":"AHRQ","title":"The SHARE Approach to Shared Decisionmaking","url":"https://www.ahrq.gov/sdm/share-approach/index.html","type":"government-health-quality"},
+    "nice-shared-decision": {"publisher":"NICE","title":"Shared decision making (NG197)","url":"https://www.nice.org.uk/guidance/ng197","type":"clinical-guideline"},
+    "ahrq-health-literacy": {"publisher":"AHRQ","title":"Health Literacy","url":"https://www.ahrq.gov/ncepcr/research/health-literacy.html","type":"government-health-quality"},
+    "cosmin": {"publisher":"COSMIN","title":"COSMIN methodology for measurement properties","url":"https://www.cosmin.nl/","type":"measurement-methodology"},
+    "grade": {"publisher":"GRADE Working Group","title":"GRADE approach","url":"https://www.gradeworkinggroup.org/","type":"evidence-certainty-methodology"},
+    "cochrane-handbook": {"publisher":"Cochrane","title":"Cochrane Handbook for Systematic Reviews of Interventions","url":"https://training.cochrane.org/handbook","type":"systematic-review-methodology"},
+    "unesco-inclusion": {"publisher":"UNESCO","title":"Inclusion in education","url":"https://www.unesco.org/en/inclusion-education","type":"intergovernmental-education"},
+    "unicef-disability": {"publisher":"UNICEF","title":"Children with disabilities","url":"https://www.unicef.org/disabilities","type":"intergovernmental-child-rights"},
+    "who-mental-disorders": {"publisher":"WHO","title":"Mental disorders","url":"https://www.who.int/news-room/fact-sheets/detail/mental-disorders","type":"intergovernmental-fact-sheet"}
+  },
+  "useRules": [
+    "كل صفحة تحتاج ثلاثة مصادر مناسبة على الأقل، وليس ثلاثة روابط عامة فقط.",
+    "عند الحديث عن أداة قياس محددة يجب توثيق صلاحية النسخة والسكان واللغة قدر الإمكان.",
+    "لا تحول نتيجة أداة فحص إلى تشخيص.",
+    "تذكر حدود نقل الإرشادات بين الدول والأنظمة الصحية والتعليمية.",
+    "المحتوى العربي المحلي يستخدم لتفسير السياق أو المصطلحات، ولا يحل محل الدليل الأعلى جودة عند الادعاءات السريرية.",
+    "أي ادعاء عن فائدة أو ضرر أو دقة تشخيصية يجب أن يكون قابلًا للتتبع إلى مصدر مناسب لذلك الادعاء."
+  ]
+}
