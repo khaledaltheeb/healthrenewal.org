@@ -44,6 +44,9 @@ class PlatformIdentityV201Tests(unittest.TestCase):
         self.assertIn("شخص من ذوي الاحتياجات الخاصة", existing)
         self.assertIn('data-platform-shell="header"', homepage)
         self.assertIn('data-platform-shell="footer"', homepage)
+        self.assertIn('href="/"', homepage)
+        self.assertIn('href="/care-guides/"', homepage)
+        self.assertNotIn('/pterminology-site/', homepage)
         self.assertEqual(existing.count("<header"), 1)
         self.assertEqual(existing.count("<footer"), 1)
         for relative in (
