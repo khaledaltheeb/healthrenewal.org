@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / "content/strategy/content-10000-wave002-high-value-gaps-v1.json"
 SOURCES = ROOT / "content/strategy/source-registry-wave002-v1.json"
+WAVE_ROOT = ROOT / "care-guides/clinical-literacy"
 
 
 def norm(value: str) -> str:
@@ -29,6 +30,16 @@ def jaccard(a: str, b: str) -> float:
     return len(ta & tb) / len(ta | tb)
 
 
+def strip_html(source: str) -> str:
+    source = re.sub(r"<script\b.*?</script>", " ", source, flags=re.I | re.S)
+    source = re.sub(r"<style\b.*?</style>", " ", source, flags=re.I | re.S)
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", source)).strip()
+
+
+def word_count(source: str) -> int:
+    return len(re.findall(r"[\w\u0600-\u06ff]+", strip_html(source), flags=re.UNICODE))
+
+
 def visible_title(path: Path) -> str | None:
     try:
         source = path.read_text(encoding="utf-8", errors="ignore")
@@ -42,7 +53,7 @@ def visible_title(path: Path) -> str | None:
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", m.group(1))).strip()
 
 
-def existing_routes_and_titles() -> tuple[set[str], list[tuple[str, str]]]:
+def existing_routes_and_titles(planned_routes: set[str]) -> tuple[set[str], list[tuple[str, str]]]:
     routes: set[str] = set()
     titles: list[tuple[str, str]] = []
     ignored = {".git", "node_modules", ".venv", "venv", "_site"}
@@ -50,14 +61,47 @@ def existing_routes_and_titles() -> tuple[set[str], list[tuple[str, str]]]:
         if any(part in ignored or part.startswith(".child-") or part.startswith(".home-") for part in path.parts):
             continue
         try:
-            rel = path.parent.relative_to(ROOT).as_posix()
+            rel = path.parent.relative_to(ROOT).as_posix().strip("/")
         except ValueError:
             continue
-        routes.add(rel.strip("/"))
+        if rel in planned_routes:
+            continue
+        routes.add(rel)
         title = visible_title(path)
         if title:
             titles.append((rel, title))
     return routes, titles
+
+
+def validate_materialized(page: dict, plan: dict, errors: list[str], warnings: list[str]) -> dict | None:
+    path = WAVE_ROOT / page["slug"] / "index.html"
+    if not path.is_file():
+        return None
+    source = path.read_text(encoding="utf-8", errors="ignore")
+    wc = word_count(source)
+    minimum = plan["publicationRules"]["minimumUsefulWords"]
+    if wc < minimum:
+        errors.append(f"{page['slug']}: materialized page has {wc} words; minimum={minimum}")
+    expected_canonical = f"https://healthrenewal.org/care-guides/clinical-literacy/{page['slug']}/"
+    if f'<link rel="canonical" href="{expected_canonical}"' not in source:
+        errors.append(f"{page['slug']}: canonical missing or incorrect")
+    if "<meta name=\"description\"" not in source:
+        errors.append(f"{page['slug']}: meta description missing")
+    if "application/ld+json" not in source:
+        errors.append(f"{page['slug']}: structured data missing")
+    if "BreadcrumbList" not in source:
+        errors.append(f"{page['slug']}: BreadcrumbList missing")
+    if "class=\"answer\"" not in source and "الإجابة المختصرة" not in source:
+        errors.append(f"{page['slug']}: direct-answer block missing")
+    source_links = source.count('rel="noopener noreferrer"')
+    if source_links < plan["publicationRules"]["minimumTopicSpecificSources"]:
+        errors.append(f"{page['slug']}: only {source_links} explicit source links")
+    internal_links = len(re.findall(r'href="/(?!/)', source))
+    if internal_links < plan["publicationRules"]["minimumInternalLinks"]:
+        errors.append(f"{page['slug']}: only {internal_links} internal links")
+    if "تشخيص ذاتي" not in source and "لا يقدم تشخيص" not in source and "غير تشخيصي" not in source:
+        warnings.append(f"{page['slug']}: inspect non-diagnostic boundary language")
+    return {"slug": page["slug"], "words": wc, "sources": source_links, "internalLinks": internal_links}
 
 
 def main() -> int:
@@ -65,9 +109,11 @@ def main() -> int:
     registry = json.loads(SOURCES.read_text(encoding="utf-8"))
     source_ids = set(registry["sources"])
     pages = [page for cluster in plan["clusters"] for page in cluster["pages"]]
+    planned_routes = {f"care-guides/clinical-literacy/{page['slug']}" for page in pages}
 
     errors: list[str] = []
     warnings: list[str] = []
+    materialized: list[dict] = []
 
     if len(pages) != plan["plannedPages"]:
         errors.append(f"plannedPages={plan['plannedPages']} but actual={len(pages)}")
@@ -89,6 +135,9 @@ def main() -> int:
             errors.append(f"{page['slug']}: missing decision question")
         if len(tokens(page.get("primaryQuery", ""))) < 2:
             errors.append(f"{page['slug']}: primaryQuery too broad")
+        stats = validate_materialized(page, plan, errors, warnings)
+        if stats:
+            materialized.append(stats)
 
     for i, left in enumerate(pages):
         for right in pages[i + 1:]:
@@ -99,12 +148,11 @@ def main() -> int:
             elif tscore >= 0.78:
                 warnings.append(f"title similarity {left['slug']} vs {right['slug']} score={tscore:.2f}")
 
-    existing_routes, existing_titles = existing_routes_and_titles()
+    existing_routes, existing_titles = existing_routes_and_titles(planned_routes)
     for page in pages:
         candidate_routes = {
             page["slug"],
             f"care-guides/{page['slug']}",
-            f"care-guides/clinical-literacy/{page['slug']}",
             f"sections/research-evidence-learning/{page['slug']}",
             f"special-needs/{page['slug']}",
             f"special-needs/knowledge/{page['slug']}",
@@ -120,17 +168,15 @@ def main() -> int:
             if score > best[0]:
                 best = (score, route, title)
         if best[0] >= 0.72 and not page.get("migration"):
-            errors.append(
-                f"{page['slug']}: likely existing-title collision score={best[0]:.2f} route={best[1]} title={best[2]!r}; add merge/redirect decision"
-            )
+            errors.append(f"{page['slug']}: likely existing-title collision score={best[0]:.2f} route={best[1]} title={best[2]!r}; add merge/redirect decision")
         elif best[0] >= 0.58:
-            warnings.append(
-                f"{page['slug']}: inspect similar existing page score={best[0]:.2f} route={best[1]} title={best[2]!r}"
-            )
+            warnings.append(f"{page['slug']}: inspect similar existing page score={best[0]:.2f} route={best[1]} title={best[2]!r}")
 
     print(json.dumps({
         "wave": plan["wave"],
-        "pages": len(pages),
+        "plannedPages": len(pages),
+        "materializedPages": len(materialized),
+        "materialized": materialized,
         "sources": len(source_ids),
         "errors": errors,
         "warnings": warnings,
