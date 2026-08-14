@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "wave": "002A",
+  "reviewedAt": "2026-08-14",
+  "purpose": "Audit high-value autism and ADHD assessment intents against the current production repository before authoring any new page.",
+  "candidatePages": 12,
+  "candidates": [
+    {"cluster":"autism","slug":"autism-screening-vs-diagnosis","title":"فحص التوحد أم تشخيص التوحد؟ الفرق وما الذي تعنيه النتيجة","primaryQuery":"الفرق بين فحص التوحد وتشخيص التوحد","sources":["cdc-autism-screening","cdc-autism-clinical-screening","nice-autism-under19"],"decision":"screening-vs-diagnosis"},
+    {"cluster":"autism","slug":"autism-assessment-appointment-what-happens","title":"ماذا يحدث في موعد تقييم التوحد؟ دليل قبل الموعد وبعده","primaryQuery":"ماذا يحدث في تقييم التوحد","sources":["nice-autism-adults","nice-autism-under19","nimh-autism"],"decision":"assessment-process"},
+    {"cluster":"autism","slug":"adult-autism-assessment","title":"تقييم وتشخيص التوحد عند البالغين: متى يطلب وكيف يجري؟","primaryQuery":"تشخيص التوحد عند البالغين","sources":["nice-autism-adults","nimh-autism","who-autism"],"decision":"adult-assessment-pathway"},
+    {"cluster":"autism","slug":"autism-assessment-women-girls","title":"التوحد لدى البنات والنساء: لماذا قد يتأخر التعرف وما الذي يراعيه التقييم؟","primaryQuery":"تشخيص التوحد عند النساء والبنات","sources":["nice-autism-adults","nice-autism-under19","who-autism"],"decision":"sex-gender-recognition-context"},
+    {"cluster":"autism","slug":"autism-assessment-history-records","title":"ماذا تحضر إلى تقييم التوحد؟ التاريخ النمائي والسجلات والأمثلة المفيدة","primaryQuery":"ماذا احضر لتقييم التوحد","sources":["nice-autism-adults","nice-autism-under19","nimh-autism"],"decision":"assessment-preparation"},
+    {"cluster":"autism","slug":"autism-differential-diagnosis","title":"التشخيص التفريقي للتوحد: ما الحالات التي قد تتشابه معه أو ترافقه؟","primaryQuery":"التشخيص التفريقي للتوحد","sources":["nice-autism-adults","nice-autism-under19","nimh-autism"],"decision":"differential-diagnosis"},
+    {"cluster":"adhd","slug":"adhd-screening-vs-diagnosis","title":"اختبار ADHD أم تشخيص ADHD؟ ما الذي تستطيع المقاييس فعله وما الذي لا تستطيع؟","primaryQuery":"اختبار ADHD تشخيص","sources":["cdc-adhd","nice-adhd","nimh-adhd"],"decision":"screening-rating-vs-diagnosis"},
+    {"cluster":"adhd","slug":"adult-adhd-assessment","title":"تشخيص ADHD عند البالغين: خطوات التقييم وما الذي يبحث عنه المختص","primaryQuery":"تشخيص ADHD عند البالغين","sources":["nice-adhd","cdc-adhd","nimh-adhd"],"decision":"adult-assessment-pathway"},
+    {"cluster":"adhd","slug":"child-adhd-assessment-home-school","title":"تقييم ADHD عند الأطفال: لماذا يحتاج معلومات من البيت والمدرسة؟","primaryQuery":"تشخيص فرط الحركة عند الأطفال المدرسة البيت","sources":["cdc-adhd","nice-adhd","nimh-adhd"],"decision":"multi-setting-assessment"},
+    {"cluster":"adhd","slug":"adhd-rating-scales-guide","title":"مقاييس ADHD: كيف تقرأ نتائج الاستبيانات دون تحويلها إلى تشخيص ذاتي؟","primaryQuery":"مقياس ADHD تفسير النتائج","sources":["cdc-adhd","nice-adhd","nimh-adhd"],"decision":"rating-scale-interpretation"},
+    {"cluster":"adhd","slug":"adhd-differential-diagnosis","title":"ما الذي يشبه ADHD؟ النوم والقلق والتعلم والمزاج وأسباب أخرى يجب فحصها","primaryQuery":"ما الذي يشبه فرط الحركة وتشتت الانتباه","sources":["cdc-adhd","nice-adhd","nimh-adhd"],"decision":"differential-diagnosis"},
+    {"cluster":"adhd","slug":"adhd-assessment-appointment-preparation","title":"كيف تستعد لموعد تقييم ADHD؟ سجل عملي للأسرة أو البالغ","primaryQuery":"الاستعداد لتقييم ADHD","sources":["cdc-adhd","nice-adhd","nimh-adhd"],"decision":"assessment-preparation"}
+  ],
+  "auditRules": {
+    "scanExistingRoutes": ["care-guides", "special-needs", "sections/research-evidence-learning"],
+    "exactSlugCollisionBlocksNewPage": true,
+    "titleTokenJaccardReviewThreshold": 0.55,
+    "titleTokenJaccardBlockThreshold": 0.72,
+    "minimumSources": 3,
+    "collisionDisposition": ["new-page", "merge-existing", "redirect-to-existing", "drop-candidate"]
+  },
+  "publicationContractAfterAudit": {
+    "minimumUsefulWords": 1500,
+    "minimumInternalLinks": 6,
+    "minimumSources": 3,
+    "requireDirectAnswer": true,
+    "requireDecisionSection": true,
+    "requireClaimSourceTraceability": true,
+    "requireStructuredData": true,
+    "maximumSharedLongParagraphRatio": 0.20,
+    "forbidSelfDiagnosisCTA": true
+  }
+}

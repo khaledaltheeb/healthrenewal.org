@@ -1,0 +1,36 @@
+name: Audit and validate content 10000 wave002a
+
+on:
+  push:
+    branches:
+      - agent/content-10000-wave002-gap-audit-v2
+  pull_request:
+    paths:
+      - 'content/strategy/content-10000-wave002a-assessment-gap-audit-v2.json'
+      - 'content/strategy/source-registry-wave002a-assessment-v2.json'
+      - 'content/strategy/wave002a-production-artifact-audit-v1.json'
+      - 'care-guides/clinical-literacy/adhd-screening-vs-diagnosis/index.html'
+      - 'care-guides/clinical-literacy/adult-adhd-assessment/index.html'
+      - 'care-guides/clinical-literacy/child-adhd-assessment-home-school/index.html'
+      - 'care-guides/clinical-literacy/adhd-rating-scales-guide/index.html'
+      - 'scripts/audit_content_10000_wave002a.py'
+      - 'scripts/validate_content_10000_wave002a_pages.py'
+      - '.github/workflows/audit-content-10000-wave002a.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-wave002a:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile audit and quality gates
+        run: python -m py_compile scripts/audit_content_10000_wave002a.py scripts/validate_content_10000_wave002a_pages.py
+      - name: Audit repository-visible collisions
+        run: python scripts/audit_content_10000_wave002a.py
+      - name: Validate four artifact-confirmed content gaps
+        run: python scripts/validate_content_10000_wave002a_pages.py

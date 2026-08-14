@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 2,
+  "wave": "002A",
+  "reviewedAt": "2026-08-14",
+  "policy": "Official/guideline sources first. Screening never equals diagnosis. Claims about diagnostic process, differentials or rating scales must trace to an appropriate guideline or public-health source. Local adaptation must not change the underlying evidence claim.",
+  "sources": {
+    "cdc-autism-screening": {"publisher":"CDC","title":"Screening for Autism Spectrum Disorder","url":"https://www.cdc.gov/autism/diagnosis/index.html","type":"government-public-health"},
+    "cdc-autism-clinical-screening": {"publisher":"CDC","title":"Clinical Screening for Autism Spectrum Disorder","url":"https://www.cdc.gov/autism/hcp/diagnosis/screening.html","type":"government-public-health"},
+    "nice-autism-adults": {"publisher":"NICE","title":"Autism spectrum disorder in adults: diagnosis and management (CG142)","url":"https://www.nice.org.uk/guidance/cg142","type":"clinical-guideline"},
+    "nice-autism-under19": {"publisher":"NICE","title":"Autism spectrum disorder in under 19s: recognition, referral and diagnosis (CG128)","url":"https://www.nice.org.uk/guidance/cg128","type":"clinical-guideline"},
+    "nimh-autism": {"publisher":"NIMH","title":"Autism Spectrum Disorder","url":"https://www.nimh.nih.gov/health/topics/autism-spectrum-disorders-asd","type":"government-research-agency"},
+    "who-autism": {"publisher":"WHO","title":"Autism","url":"https://www.who.int/news-room/fact-sheets/detail/autism-spectrum-disorders","type":"intergovernmental-health"},
+    "cdc-adhd": {"publisher":"CDC","title":"Diagnosing ADHD","url":"https://www.cdc.gov/adhd/diagnosis/index.html","type":"government-public-health"},
+    "nice-adhd": {"publisher":"NICE","title":"Attention deficit hyperactivity disorder: diagnosis and management (NG87)","url":"https://www.nice.org.uk/guidance/ng87","type":"clinical-guideline"},
+    "nimh-adhd": {"publisher":"NIMH","title":"Attention-Deficit/Hyperactivity Disorder","url":"https://www.nimh.nih.gov/health/topics/attention-deficit-hyperactivity-disorder-adhd","type":"government-research-agency"}
+  },
+  "rules": [
+    "minimum three topic-appropriate sources per publishable page",
+    "no online questionnaire is presented as a diagnosis",
+    "assessment content separates screening, comprehensive assessment, differential diagnosis and support planning",
+    "adult and child pathways are not collapsed into one generic pathway",
+    "country-specific service pathways are labeled as such rather than universalized"
+  ]
+}

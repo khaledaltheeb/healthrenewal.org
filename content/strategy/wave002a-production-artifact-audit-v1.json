@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "wave": "002A",
+  "auditedAt": "2026-08-14",
+  "productionEvidence": {
+    "workflowRunId": 31839119245,
+    "artifactId": 9233699290,
+    "artifactName": "validated-production-site",
+    "artifactSha256": "5ad9631829af921d78b37e3967391aac55833904f3a73aae76ef741bf1500424",
+    "releaseCommit": "cdfaf0b660bba74a26c898ede4ce672800a90687",
+    "auditedHtmlInventory": 1039
+  },
+  "resolution": [
+    {"slug":"autism-screening-vs-diagnosis","disposition":"merge-existing","evidence":["special-needs/autism-screening-vs-diagnosis"],"reason":"Exact production route already distinguishes developmental surveillance, screening, comprehensive diagnosis, result interpretation and what to bring."},
+    {"slug":"autism-assessment-appointment-what-happens","disposition":"merge-existing","evidence":["special-needs/autism-comprehensive-assessment-differential-diagnosis","care-guides/clinical-literacy/autism-assessment"],"reason":"Existing pages already cover the assessment question, developmental history, direct observation, standardized tools, health checks, reporting and post-assessment planning."},
+    {"slug":"adult-autism-assessment","disposition":"merge-existing","evidence":["special-needs/autism-late-diagnosis-adults-women-masking","special-needs/autism-comprehensive-assessment-differential-diagnosis"],"reason":"Existing adult/late-diagnosis guide has a dedicated adult-assessment section and post-diagnosis pathway."},
+    {"slug":"autism-assessment-women-girls","disposition":"merge-existing","evidence":["special-needs/reference/autistic-women-masking-late-diagnosis","special-needs/autism-late-diagnosis-adults-women-masking"],"reason":"Two production pages already address women/girls, masking, delayed recognition and assessment implications."},
+    {"slug":"autism-assessment-history-records","disposition":"merge-existing","evidence":["special-needs/autism-comprehensive-assessment-differential-diagnosis","care-guides/clinical-literacy/autism-assessment","special-needs/autism-screening-vs-diagnosis"],"reason":"Developmental history, contextual records and a practical information file are already first-class sections."},
+    {"slug":"autism-differential-diagnosis","disposition":"merge-existing","evidence":["special-needs/autism-comprehensive-assessment-differential-diagnosis","care-guides/clinical-literacy/autism-differential","special-needs/reference/autism-adhd-differential"],"reason":"Differential diagnosis is already covered by a comprehensive guide, Wave001 clinical-literacy page and a focused autism-ADHD reference."},
+    {"slug":"adhd-screening-vs-diagnosis","disposition":"new-page","evidence":["care-guides/clinical-literacy/adhd-assessment"],"reason":"Current assessment page states that scales are not diagnosis but does not serve the focused screening/rating-vs-diagnosis intent."},
+    {"slug":"adult-adhd-assessment","disposition":"new-page","evidence":["care-guides/clinical-literacy/adhd-assessment"],"reason":"Current assessment page is lifespan-generic; adult developmental history, impairment across adult roles, retrospective evidence and adult differentials justify a separate intent."},
+    {"slug":"child-adhd-assessment-home-school","disposition":"new-page","evidence":["care-guides/clinical-literacy/adhd-assessment","special-needs/adhd-executive-function-school-home-plan"],"reason":"Current content does not center the decision problem of cross-setting evidence and discrepant parent/teacher observations."},
+    {"slug":"adhd-rating-scales-guide","disposition":"new-page","evidence":["care-guides/clinical-literacy/adhd-assessment"],"reason":"A focused scale-interpretation page adds independent value on informants, thresholds, context and false certainty without diagnosing."},
+    {"slug":"adhd-differential-diagnosis","disposition":"merge-existing","evidence":["care-guides/clinical-literacy/adhd-differential"],"reason":"Wave001 already provides a dedicated differential-diagnosis page for ADHD."},
+    {"slug":"adhd-assessment-appointment-preparation","disposition":"merge-existing","evidence":["care-guides/clinical-literacy/adhd-assessment"],"reason":"Existing ADHD assessment guide already contains an interview information file and practical decision questions; improve it rather than create a competitor."}
+  ],
+  "counts": {"candidates": 12, "newPages": 4, "mergeExisting": 8, "manualReview": 0},
+  "verdict": "author-only-confirmed-gaps"
+}
