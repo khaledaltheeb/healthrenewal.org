@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 2,
+  "status": "passed",
+  "sectionUrl": "https://healthrenewal.org/sections/research-evidence-learning/",
+  "minimumChildPages": 500,
+  "childPages": 560,
+  "hubPages": 1,
+  "totalPages": 561,
+  "uniqueTitles": 560,
+  "uniqueUrls": 560,
+  "uniqueDescriptions": 560,
+  "minimumWordCount": 1530,
+  "maxParagraphJaccard": 0.7143,
+  "editorialDiversification": true,
+  "sourcePolicy": "institutional-primary-methodology-sources",
+  "seo": {
+    "canonical": true,
+    "robotsIndexFollow": true,
+    "metaDescription": true,
+    "openGraph": true,
+    "twitter": true,
+    "jsonLd": true,
+    "breadcrumbs": true,
+    "itemList": true
+  }
+}
