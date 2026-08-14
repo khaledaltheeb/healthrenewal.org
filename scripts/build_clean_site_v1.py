@@ -89,13 +89,15 @@ def inject_polish(site: Path) -> int:
 
 
 def deepen_knowledge_core_pages(publisher: object) -> None:
-    """Add a substantive decision-check section to every generated knowledge page.
+    """Keep knowledge-core publication deep, duplicate-safe, and idempotent.
 
-    This keeps the 650-word quality gate intact while adding reusable editorial value:
-    readers are told how to verify that a recommendation changes observable function,
-    how to compare before/after data, and when to escalate for specialist review.
+    Exact knowledge-core routes restored from a validated baseline are generated
+    outputs, not duplicate candidates. They may be regenerated from the current
+    authoritative topic definitions. Similar titles on different routes remain
+    conflicts, preserving the duplicate-prevention policy.
     """
     original_render = publisher.render
+    original_conflicts = publisher.conflicts
 
     def render_with_decision_check(topic: dict) -> str:
         page = original_render(topic)
@@ -110,7 +112,14 @@ def deepen_knowledge_core_pages(publisher: object) -> None:
         )
         return page.replace("</article>", decision_section + "</article>", 1)
 
+    def idempotent_conflicts(topic: dict, routes: set[str], titles: list[str]) -> bool:
+        route = f"/special-needs/{topic['slug']}/"
+        if route in routes:
+            return False
+        return original_conflicts(topic, routes, titles)
+
     publisher.render = render_with_decision_check
+    publisher.conflicts = idempotent_conflicts
 
 
 def publish_knowledge_core(site: Path) -> dict[str, object]:
