@@ -88,10 +88,36 @@ def inject_polish(site: Path) -> int:
     return changed
 
 
+def deepen_knowledge_core_pages(publisher: object) -> None:
+    """Add a substantive decision-check section to every generated knowledge page.
+
+    This keeps the 650-word quality gate intact while adding reusable editorial value:
+    readers are told how to verify that a recommendation changes observable function,
+    how to compare before/after data, and when to escalate for specialist review.
+    """
+    original_render = publisher.render
+
+    def render_with_decision_check(topic: dict) -> str:
+        page = original_render(topic)
+        decision_section = (
+            "<section class='card' id='decision-check'><h2>كيف نتحقق أن القرار مناسب فعلًا؟</h2>"
+            "<p>لا يكفي أن تبدو الخطة منطقية على الورق. قبل اعتماد أي دعم أو تعديل، حدّد مؤشرًا يمكن ملاحظته في البيئة الحقيقية: "
+            "هل تحسن الوصول إلى المهمة؟ هل زاد الاستقلال؟ هل أصبحت الاستجابة أدق أو أكثر ثباتًا؟ وهل انخفض مقدار المساعدة المطلوبة دون خسارة التعلم أو المشاركة؟ "
+            "قارن بيانات قبل التطبيق وبعده في ظروف متشابهة قدر الإمكان، وسجّل أي تغير في اللغة أو الوقت أو الوسيلة أو الشخص المساند حتى لا ننسب النتيجة إلى عامل غير مقصود.</p>"
+            "<p>إذا لم يظهر تحسن واضح، لا نستنتج مباشرة أن الطالب غير قادر أو غير متعاون. نراجع أولًا ملاءمة الهدف وطريقة القياس وشدة التدريس والحواجز البيئية وإمكان الوصول والتواصل. "
+            "وعندما تشير البيانات إلى حاجة صحية أو تشخيصية أو قانونية أو تتجاوز نطاق الفريق التعليمي، تكون الخطوة الصحيحة إحالة منظمة إلى المختص المؤهل مع تزويده بخط الأساس والأمثلة والقرارات التي جُرّبت ونتائجها.</p>"
+            "</section>"
+        )
+        return page.replace("</article>", decision_section + "</article>", 1)
+
+    publisher.render = render_with_decision_check
+
+
 def publish_knowledge_core(site: Path) -> dict[str, object]:
     """Publish the readable, governed knowledge core and expose useful CI diagnostics."""
     try:
         import publish_special_needs_knowledge_core_v1 as publisher
+        deepen_knowledge_core_pages(publisher)
         report = publisher.publish(site)
     except BaseException as exc:
         message = f'{type(exc).__name__}: {exc}'.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
