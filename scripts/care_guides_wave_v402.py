@@ -22,7 +22,9 @@ TARGET_TOTAL_PAGES = 10000
 
 
 def topics() -> list[tuple[str, ...]]:
-    values = [*TOPICS_1, *TOPICS_2, *TOPICS_3, *TOPICS_4, *TOPICS_5A, *TOPICS_5B]
+    values = previous_wave.normalize_topics(
+        [*TOPICS_1, *TOPICS_2, *TOPICS_3, *TOPICS_4, *TOPICS_5A, *TOPICS_5B]
+    )
     if len(values) != EXPECTED_WAVE_GUIDES:
         raise RuntimeError(f"Expected {EXPECTED_WAVE_GUIDES} wave topics, found {len(values)}")
     if any(len(topic) != 9 for topic in values):
