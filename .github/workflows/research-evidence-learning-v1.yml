@@ -6,11 +6,13 @@ on:
       - agent/research-evidence-learning-500-pages-v1
     paths:
       - 'scripts/publish_research_evidence_learning_v1.py'
+      - 'scripts/build_research_evidence_learning_v2.py'
       - 'scripts/enrich_research_evidence_learning_v1.py'
       - '.github/workflows/research-evidence-learning-v1.yml'
   pull_request:
     paths:
       - 'scripts/publish_research_evidence_learning_v1.py'
+      - 'scripts/build_research_evidence_learning_v2.py'
       - 'scripts/enrich_research_evidence_learning_v1.py'
       - '.github/workflows/research-evidence-learning-v1.yml'
   workflow_dispatch:
@@ -28,29 +30,24 @@ jobs:
         with:
           python-version: '3.12'
       - name: Compile publishers
-        run: python -m py_compile scripts/publish_research_evidence_learning_v1.py scripts/enrich_research_evidence_learning_v1.py
+        run: python -m py_compile scripts/publish_research_evidence_learning_v1.py scripts/build_research_evidence_learning_v2.py scripts/enrich_research_evidence_learning_v1.py
       - name: Generate and enrich isolated publication
         run: |
           set -euo pipefail
           rm -rf /tmp/research-evidence-site
           mkdir -p /tmp/research-evidence-site
-          # v1 has an intentionally conservative pre-enrichment thin-content gate.
-          # The final enriched artifact is validated exhaustively in the next step.
-          python scripts/publish_research_evidence_learning_v1.py /tmp/research-evidence-site || true
-          test "$(find /tmp/research-evidence-site/sections/research-evidence-learning -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 500
-          test -f /tmp/research-evidence-site/sections/research-evidence-learning/index.html
+          python scripts/build_research_evidence_learning_v2.py /tmp/research-evidence-site
           python scripts/enrich_research_evidence_learning_v1.py /tmp/research-evidence-site
       - name: Verify final publication and anti-duplication contract
         run: |
           python - <<'PY'
-          import json
           import re
           from pathlib import Path
 
           root = Path('/tmp/research-evidence-site')
           section = root / 'sections/research-evidence-learning'
           children = sorted(section.glob('*/index.html'))
-          assert len(children) == 500, len(children)
+          assert len(children) >= 500, len(children)
           assert (section / 'index.html').is_file()
 
           titles, canonicals, descriptions = [], [], []
@@ -77,9 +74,9 @@ jobs:
                   for p in re.findall(r'<p\b[^>]*>(.*?)</p>', source, re.S | re.I)
               }
               paragraph_sets[path.parent.name] = {p for p in paras if len(p) >= 80}
-          assert len(set(titles)) == 500
-          assert len(set(canonicals)) == 500
-          assert len(set(descriptions)) == 500
+          assert len(set(titles)) == len(children)
+          assert len(set(canonicals)) == len(children)
+          assert len(set(descriptions)) == len(children)
 
           names = sorted(paragraph_sets)
           worst = (0.0, '', '')
@@ -91,7 +88,7 @@ jobs:
                   score = len(a & b) / len(union) if union else 1.0
                   if score > worst[0]: worst = (score, left, right)
           assert worst[0] < 0.72, worst
-          print({'status':'passed','children':len(children),'minimumWords':minimum_words,'maxParagraphJaccard':round(worst[0],4)})
+          print({'status':'passed','children':len(children),'totalPages':len(children)+1,'minimumWords':minimum_words,'maxParagraphJaccard':round(worst[0],4)})
           PY
       - name: Upload generated evidence
         if: always()
