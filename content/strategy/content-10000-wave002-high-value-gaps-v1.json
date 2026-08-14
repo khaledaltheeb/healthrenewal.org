@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "wave": "002",
+  "reviewedAt": "2026-08-14",
+  "principle": "Arabic search-gap value before page count",
+  "plannedPages": 36,
+  "clusters": [
+    {
+      "id": "autism-assessment-decisions",
+      "priority": 1,
+      "pages": [
+        {"slug":"autism-screening-vs-diagnosis","title":"فحص التوحد أم تشخيص التوحد؟ الفرق وما الذي تعنيه النتيجة","primaryQuery":"الفرق بين فحص التوحد وتشخيص التوحد","intent":"تمييز الفحص من التشخيص ومنع التشخيص الذاتي","audience":["الأسرة","البالغون","المعلمون"],"sources":["cdc-autism-diagnosis","nice-autism-under19-diagnosis","who-autism"],"decision":"متى تكون أداة الفحص خطوة أولى ومتى يلزم تقييم تشخيصي شامل؟"},
+        {"slug":"autism-assessment-appointment-what-happens","title":"ماذا يحدث في موعد تقييم التوحد؟ دليل خطوة بخطوة قبل الموعد وبعده","primaryQuery":"ماذا يحدث في تقييم التوحد","intent":"الاستعداد للموعد وفهم مراحله","audience":["الأسرة","البالغون"],"sources":["nice-autism-adults","nice-autism-under19-diagnosis","nimh-autism"],"decision":"ما المعلومات التي ستجمع وكيف تستعد دون محاولة صناعة نتيجة؟"},
+        {"slug":"adult-autism-assessment","title":"تقييم وتشخيص التوحد عند البالغين: متى يُطلب وكيف يجري؟","primaryQuery":"تشخيص التوحد عند البالغين","intent":"فهم مسار تقييم البالغين","audience":["البالغون","الأسرة"],"sources":["nice-autism-adults","nimh-autism","who-autism"],"decision":"متى تستحق الصعوبات تقييمًا متخصصًا وما حدود اختبارات الإنترنت؟"},
+        {"slug":"autism-assessment-women-girls","title":"التوحد لدى البنات والنساء: لماذا قد يتأخر التعرف وما الذي يراعيه التقييم؟","primaryQuery":"تشخيص التوحد عند النساء والبنات","intent":"فهم الاختلافات التي قد تؤخر الإحالة والتقييم","audience":["النساء","الأسر","المختصون"],"sources":["nice-autism-adults","nice-autism-under19-diagnosis","who-autism"],"decision":"كيف نتجنب إسقاط صورة نمطية واحدة على كل شخص؟"},
+        {"slug":"autism-assessment-history-records","title":"ماذا تحضر إلى تقييم التوحد؟ التاريخ النمائي والسجلات والأمثلة المفيدة","primaryQuery":"ماذا أحضر لتقييم التوحد","intent":"تجهيز ملف معلومات عملي للموعد","audience":["الأسرة","البالغون"],"sources":["nice-autism-adults","nice-autism-under19-diagnosis","nimh-autism"],"decision":"ما المعلومات التي تزيد جودة التقييم دون تحويلها إلى قائمة إثبات تشخيص؟"},
+        {"slug":"autism-differential-diagnosis","title":"التشخيص التفريقي للتوحد: ما الحالات التي قد تتشابه معه أو ترافقه؟","primaryQuery":"التشخيص التفريقي للتوحد","intent":"فهم التداخل دون تشخيص ذاتي","audience":["الأسر","البالغون","طلاب التخصصات"],"sources":["nice-autism-adults","nice-autism-under19-diagnosis","nimh-autism"],"decision":"لماذا لا يكفي عرض واحد أو مقياس واحد للحكم؟"}
+      ]
+    },
+    {
+      "id": "adhd-assessment-decisions",
+      "priority": 1,
+      "pages": [
+        {"slug":"adhd-screening-vs-diagnosis","title":"اختبار ADHD أم تشخيص ADHD؟ ما الذي تستطيع المقاييس فعله وما الذي لا تستطيع؟","primaryQuery":"اختبار ADHD تشخيص","intent":"منع تحويل الاختبار الذاتي إلى تشخيص","audience":["البالغون","الأسر"],"sources":["cdc-adhd-diagnosis","nice-adhd","nimh-adhd"],"decision":"متى تفيد أداة الفحص ومتى تحتاج تقييمًا سريريًا شاملًا؟"},
+        {"slug":"adult-adhd-assessment","title":"تشخيص ADHD عند البالغين: خطوات التقييم وما الذي يبحث عنه المختص","primaryQuery":"تشخيص ADHD عند البالغين","intent":"فهم مسار التقييم عند البالغين","audience":["البالغون","الأسر"],"sources":["nice-adhd","nimh-adhd","cdc-adhd-diagnosis"],"decision":"كيف يفرق التقييم بين تاريخ مستمر وصعوبات حديثة بسبب أسباب أخرى؟"},
+        {"slug":"child-adhd-assessment-home-school","title":"تقييم ADHD عند الأطفال: لماذا يحتاج معلومات من البيت والمدرسة؟","primaryQuery":"تشخيص فرط الحركة عند الأطفال المدرسة البيت","intent":"فهم تعدد مصادر المعلومات","audience":["الأسرة","المعلمون"],"sources":["cdc-adhd-diagnosis","nice-adhd","ishraq-rating-scales"],"decision":"ماذا تعني الفروق بين تقييم الوالد والمعلم وكيف تُفسر؟"},
+        {"slug":"adhd-rating-scales-guide","title":"مقاييس ADHD: كيف تُقرأ نتائج الاستبيانات مثل Vanderbilt وASRS دون تشخيص ذاتي؟","primaryQuery":"مقياس ADHD Vanderbilt ASRS","intent":"تفسير وظيفة المقاييس وحدودها","audience":["الأسر","البالغون","المختصون المبتدئون"],"sources":["ishraq-rating-scales","nice-adhd","cdc-adhd-diagnosis"],"decision":"ما الذي تقيسه الدرجة وما الذي يبقى بحاجة إلى مقابلة وسياق؟"},
+        {"slug":"adhd-differential-diagnosis","title":"ما الذي يشبه ADHD؟ النوم والقلق والتعلم والمزاج وأسباب أخرى يجب فحصها","primaryQuery":"ما الذي يشبه فرط الحركة وتشتت الانتباه","intent":"فهم التشخيص التفريقي","audience":["الأسر","البالغون"],"sources":["nice-adhd","nimh-adhd","cdc-adhd-diagnosis"],"decision":"متى تكون صعوبة الانتباه عرضًا ضمن مشكلة أخرى؟"},
+        {"slug":"adhd-assessment-appointment-preparation","title":"كيف تستعد لموعد تقييم ADHD؟ سجل عملي للأسرة أو البالغ","primaryQuery":"الاستعداد لتقييم ADHD","intent":"تحضير معلومات عالية القيمة للموعد","audience":["الأسر","البالغون"],"sources":["nice-adhd","cdc-adhd-diagnosis","nimh-adhd"],"decision":"ما الذي يستحق التوثيق قبل الموعد وما الذي لا يفيد؟"}
+      ]
+    },
+    {
+      "id": "measurement-literacy",
+      "priority": 2,
+      "pages": [
+        {"slug":"psychological-test-validity-guide","title":"ما معنى صدق الاختبار النفسي؟ دليل لفهم ما إذا كانت النتيجة تقيس ما نظنه","primaryQuery":"صدق الاختبار النفسي","intent":"فهم الصدق بوصفه حجة تفسير لا ختم جودة","audience":["الطلاب","المختصون","المستخدمون المتقدمون"],"sources":["cosmin","cochrane-handbook"],"decision":"متى يصح تفسير الدرجة للغرض والسكان المحددين؟","migration":"راجع وادمج الصفحات القالبية الموجودة عن validity قبل إنشاء مسار جديد"},
+        {"slug":"psychological-test-reliability-guide","title":"ما معنى ثبات الاختبار النفسي؟ ومتى تكون الدرجة غير مستقرة بما يكفي؟","primaryQuery":"ثبات الاختبار النفسي","intent":"شرح أنواع الثبات وأثر خطأ القياس","audience":["الطلاب","المختصون"],"sources":["cosmin","cochrane-handbook"],"decision":"أي نوع ثبات يلزم للسؤال الذي نريد الإجابة عنه؟","migration":"الصفحة الجديدة يجب أن تحل محل أو تدمج reliability-basics والصفحات القالبية المتنافسة"},
+        {"slug":"sensitivity-specificity-explained","title":"الحساسية والنوعية في الاختبارات: كيف تفهمهما دون الوقوع في فخ النسبة العالية؟","primaryQuery":"الحساسية والنوعية في الاختبارات","intent":"تفسير أداء الاختبار التشخيصي","audience":["الطلاب","الممارسون","القراء المهتمون"],"sources":["cochrane-handbook"],"decision":"هل يهمني تقليل الحالات الفائتة أم الإيجابيات الكاذبة في هذا السياق؟"},
+        {"slug":"positive-negative-predictive-value","title":"القيمة التنبؤية الإيجابية والسلبية: لماذا تتغير فائدة الاختبار مع انتشار الحالة؟","primaryQuery":"القيمة التنبؤية الإيجابية والسلبية","intent":"ربط نتيجة الاختبار بالاحتمال القبلي والانتشار","audience":["الطلاب","الممارسون"],"sources":["cochrane-handbook"],"decision":"لماذا لا تعني نتيجة إيجابية الشيء نفسه في كل مجموعة؟"},
+        {"slug":"screening-test-cutoff-scores","title":"الدرجة الفاصلة في اختبارات الفحص: لماذا ليست حدًا سحريًا بين سليم ومصاب؟","primaryQuery":"الدرجة الفاصلة الاختبار النفسي","intent":"فهم cut-off ومفاضلة الحساسية والنوعية","audience":["المختصون","الطلاب","المستخدمون"],"sources":["cosmin","cochrane-handbook"],"decision":"كيف يؤثر تغيير الحد على الإيجابيات والسلبيات الكاذبة؟"},
+        {"slug":"measurement-error-change-score","title":"هل تغيرت النتيجة فعلًا؟ خطأ القياس والفرق بين التغير الحقيقي وضجيج الأداة","primaryQuery":"خطأ القياس التغير الحقيقي الاختبار النفسي","intent":"تفسير تغير الدرجات عبر الزمن","audience":["المختصون","الباحثون","الطلاب"],"sources":["cosmin"],"decision":"هل الفرق بين درجتين أكبر من خطأ القياس المتوقع وله معنى وظيفي؟"}
+      ]
+    },
+    {
+      "id": "shared-decision-health-literacy",
+      "priority": 2,
+      "pages": [
+        {"slug":"questions-before-treatment","title":"أسئلة مهمة قبل بدء أي علاج نفسي أو صحي: الفائدة والضرر والبدائل والمتابعة","primaryQuery":"أسئلة قبل بدء العلاج","intent":"تحسين الحوار واتخاذ القرار المشترك","audience":["المرضى","الأسر"],"sources":["ahrq-shared-decision","nice-shared-decision","ahrq-health-literacy"],"decision":"ما المعلومات التي تحتاجها لتختار مع المختص بدل الموافقة دون فهم؟"},
+        {"slug":"compare-treatment-options","title":"كيف تقارن بين خيارات العلاج؟ دليل عملي للفوائد والأضرار والملاءمة والتفضيلات","primaryQuery":"مقارنة خيارات العلاج","intent":"اتخاذ قرار مشترك بين بدائل معقولة","audience":["المرضى","الأسر"],"sources":["ahrq-shared-decision","nice-shared-decision"],"decision":"أي خيار يحقق هدفك مع مستوى ضرر وكلفة وعبء مقبول؟"},
+        {"slug":"absolute-vs-relative-risk","title":"الخطر المطلق والخطر النسبي: كيف تمنع الأرقام المضللة عند قراءة فوائد العلاج وأضراره؟","primaryQuery":"الفرق بين الخطر المطلق والنسبي","intent":"فهم عرض المخاطر","audience":["الجمهور","الطلاب","الإعلاميون"],"sources":["cochrane-handbook","ahrq-health-literacy"],"decision":"هل الرقم الكبير نسبيًا يساوي فرقًا عمليًا كبيرًا فعلًا؟"},
+        {"slug":"second-medical-opinion-guide","title":"متى تطلب رأيًا طبيًا أو نفسيًا ثانيًا؟ وكيف تفعل ذلك دون تعطيل الرعاية؟","primaryQuery":"متى أطلب رأي طبي ثاني","intent":"دعم القرار عند عدم اليقين أو القرارات الكبيرة","audience":["المرضى","الأسر"],"sources":["nice-shared-decision","ahrq-shared-decision"],"decision":"هل توجد فائدة متوقعة من رأي ثانٍ وما المعلومات التي يجب نقلها كاملة؟"},
+        {"slug":"understand-test-results-questions","title":"كيف تسأل عن نتيجة فحص أو اختبار؟ 12 سؤالًا تكشف المعنى والحدود والخطوة التالية","primaryQuery":"كيف أفهم نتيجة التحليل أو الاختبار","intent":"رفع الثقافة الصحية عند استلام النتائج","audience":["الجمهور","الأسر"],"sources":["ahrq-health-literacy","ahrq-shared-decision"],"decision":"ما الذي تعنيه النتيجة لك وما الذي لا تستطيع إثباته؟"},
+        {"slug":"health-information-red-flags","title":"كيف تكتشف المعلومة الصحية المضللة؟ علامات الادعاء غير الموثوق قبل أن تتبعه","primaryQuery":"كيف أعرف المعلومة الصحية الموثوقة","intent":"تقييم جودة الادعاءات الصحية","audience":["الجمهور","الأسر"],"sources":["ahrq-health-literacy","cochrane-handbook"],"decision":"هل الادعاء مدعوم بدليل مناسب أم يعتمد على شهادة وتسويق وانتقاء؟"}
+      ]
+    },
+    {
+      "id": "evidence-literacy",
+      "priority": 3,
+      "pages": [
+        {"slug":"systematic-review-guide","title":"ما المراجعة المنهجية؟ وكيف تختلف عن المقالة التي تختار دراسات مؤيدة فقط؟","primaryQuery":"ما هي المراجعة المنهجية","intent":"فهم مكان المراجعات المنهجية في الدليل","audience":["الطلاب","الجمهور المتقدم"],"sources":["cochrane-handbook"],"decision":"هل جُمعت الأدلة بطريقة قابلة للتكرار تقلل الانتقاء؟"},
+        {"slug":"meta-analysis-explained","title":"التحليل التلوي: ماذا يعني دمج الدراسات ومتى يكون الرقم المجمع مضللًا؟","primaryQuery":"ما هو التحليل التلوي","intent":"فهم الدمج الإحصائي وعدم التجانس","audience":["الطلاب","الباحثون المبتدئون"],"sources":["cochrane-handbook"],"decision":"هل من المنطقي دمج هذه الدراسات وهل النتيجة مستقرة؟"},
+        {"slug":"grade-certainty-evidence","title":"ما معنى جودة أو يقين الدليل؟ شرح GRADE بلغة عربية عملية","primaryQuery":"GRADE جودة الدليل يقين الدليل","intent":"فهم اليقين بدل تصنيف الدراسات بالاسم فقط","audience":["الطلاب","المختصون","صناع الأدلة"],"sources":["grade","cochrane-handbook"],"decision":"ما مقدار الثقة أن الأثر الحقيقي قريب من التقدير الحالي؟"},
+        {"slug":"correlation-vs-causation-health","title":"الارتباط لا يعني السببية: كيف تكتشف القفزة الخاطئة في الأخبار الصحية؟","primaryQuery":"الارتباط لا يعني السببية الصحة","intent":"منع تفسير العلاقات الرصدية كسبب","audience":["الجمهور","الطلاب","الإعلاميون"],"sources":["cochrane-handbook"],"decision":"ما التفسيرات البديلة وهل يسمح التصميم بادعاء سببي؟"},
+        {"slug":"statistical-significance-vs-clinical-importance","title":"الدلالة الإحصائية أم الأهمية العملية؟ لماذا قد تكون النتيجة دالة لكنها غير مهمة؟","primaryQuery":"الدلالة الإحصائية الأهمية السريرية","intent":"فهم حجم الأثر وعدم اليقين","audience":["الطلاب","المختصون"],"sources":["cochrane-handbook"],"decision":"هل حجم الفرق مهم للمريض أو الوظيفة وليس فقط أقل من 0.05؟"},
+        {"slug":"conflicts-of-interest-health-research","title":"تضارب المصالح في البحث الصحي: كيف تقرأ التمويل والإفصاحات دون رفض الدراسة تلقائيًا؟","primaryQuery":"تضارب المصالح البحث العلمي","intent":"تقييم تأثير المصالح بإنصاف","audience":["الطلاب","الجمهور المتقدم"],"sources":["cochrane-handbook"],"decision":"هل توجد آليات قد تؤثر في التصميم أو التحليل أو النشر وكيف أضعها في التقييم؟"}
+      ]
+    },
+    {
+      "id": "inclusion-rights-school",
+      "priority": 3,
+      "pages": [
+        {"slug":"inclusive-education-reasonable-accommodations","title":"التيسيرات المعقولة في التعليم الدامج: كيف نزيل الحواجز دون خفض هدف التعلم؟","primaryQuery":"التيسيرات المعقولة التعليم الدامج","intent":"تمييز التيسير من تغيير الهدف الأكاديمي","audience":["الأسر","المعلمون","الإدارات"],"sources":["unesco-inclusion","unicef-disability"],"decision":"ما الحاجز وما التعديل الأقل تقييدًا الذي يحسن الوصول والمشاركة؟"},
+        {"slug":"iep-measurable-goals-guide","title":"كيف تكتب هدفًا تربويًا فرديًا قابلًا للقياس؟ من خط الأساس إلى معيار الإتقان","primaryQuery":"أهداف الخطة التربوية الفردية قابلة للقياس","intent":"تحويل الهدف العام إلى سلوك قابل للمتابعة","audience":["المعلمون","الأسر","مختصو التربية الخاصة"],"sources":["unesco-inclusion","unicef-disability"],"decision":"هل يمكن لشخصين قراءة الهدف وقياس التقدم بالطريقة نفسها؟","migration":"تحقق من صفحة IEP الحالية بعد إصلاح نية measurable-goal ولا تنشئ منافسًا إن كانت مكافئة"},
+        {"slug":"school-accommodation-vs-modification","title":"التيسير أم تعديل المنهج؟ الفرق بين Accommodation وModification في المدرسة","primaryQuery":"الفرق بين التيسير وتعديل المنهج","intent":"اختيار نوع الدعم المناسب","audience":["المعلمون","الأسر"],"sources":["unesco-inclusion","unicef-disability"],"decision":"هل نغير طريقة الوصول أم نغير ما يتوقع من الطالب تعلمه؟"},
+        {"slug":"family-school-support-meeting","title":"كيف تستعد الأسرة لاجتماع الدعم المدرسي؟ ملف أدلة وأسئلة وخطة متابعة","primaryQuery":"الاستعداد لاجتماع الخطة التربوية الفردية","intent":"تحسين التعاون بين الأسرة والمدرسة","audience":["الأسر","المعلمون"],"sources":["unesco-inclusion","unicef-disability"],"decision":"ما البيانات والاحتياجات والأهداف التي يجب الاتفاق عليها ومتى تراجع؟"},
+        {"slug":"functional-school-needs-assessment","title":"تقييم الاحتياجات الوظيفية في المدرسة: من صعوبة عامة إلى حاجز يمكن التدخل فيه","primaryQuery":"تقييم احتياجات الطالب ذوي الإعاقة المدرسة","intent":"ربط الصعوبة بالسياق والمشاركة","audience":["المعلمون","مختصو التربية الخاصة","الأسر"],"sources":["unesco-inclusion","unicef-disability"],"decision":"أين يحدث العائق وما الذي يغير المشاركة فعليًا؟"},
+        {"slug":"student-voice-inclusive-planning","title":"صوت الطالب في الخطة التعليمية: كيف نشاركه في الأهداف والتيسيرات بما يناسب عمره وتواصله؟","primaryQuery":"مشاركة الطالب في الخطة التربوية الفردية","intent":"تعزيز المشاركة والاختيار","audience":["المعلمون","الأسر","الطلاب"],"sources":["unicef-disability","unesco-inclusion"],"decision":"كيف نضمن أن الخطة تعكس احتياجات الطالب وتفضيلاته لا توقعات البالغين فقط؟"}
+      ]
+    }
+  ],
+  "publicationRules": {
+    "minimumUsefulWords": 1500,
+    "minimumTopicSpecificSources": 3,
+    "minimumInternalLinks": 6,
+    "requirePrimaryQueryInTitleOrH1Naturally": true,
+    "requireDirectAnswerBlock": true,
+    "requireDecisionSection": true,
+    "requireCommonQuestionsDerivedFromIntent": true,
+    "requireSourceTraceability": true,
+    "requireExistingSiteCollisionCheck": true,
+    "requireMergeRedirectDecisionWhenCollisionDetected": true,
+    "requireUniqueExamples": true,
+    "maximumSharedLongParagraphRatio": 0.20,
+    "forbidKeywordStuffing": true,
+    "forbidSelfDiagnosisCTA": true,
+    "forbidUnsupportedTreatmentClaims": true
+  }
+}
