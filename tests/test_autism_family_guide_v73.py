@@ -146,13 +146,13 @@ class AutismFamilyGuideV73Tests(unittest.TestCase):
 
             care_report = json.loads((site / "api" / "care-guides-v21.json").read_text(encoding="utf-8"))
             self.assertEqual(care_report["publication_gate_version"], 246)
-            self.assertEqual(care_report["content_release_version"], 246)
+            self.assertEqual(care_report["content_release_version"], 402)
             self.assertEqual(care_report["blocked_review_slugs"], [BLOCKED_SLUG])
             self.assertFalse(care_report["needs_specialist_review_published"])
             self.assertFalse(care_report["autism_published"])
-            self.assertEqual(care_report["source_guides"], 101)
-            self.assertEqual(care_report["core_guides"], 101)
-            self.assertEqual(care_report["published_core_guides"], 100)
+            self.assertEqual(care_report["source_guides"], 251)
+            self.assertEqual(care_report["core_guides"], 251)
+            self.assertEqual(care_report["published_core_guides"], 250)
             self.assertTrue(care_report["minimum_published_guides_met"])
 
             journey = json.loads((site / "api" / "care-guides-homepage-v21.json").read_text(encoding="utf-8"))
