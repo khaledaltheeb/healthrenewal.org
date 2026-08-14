@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import normalize_platform_shell as shell
+import publish_special_needs_knowledge_wave002 as special_needs_wave002
 
 SKIP = {
     '.git', '.github', '_site', '_baseline', '_legacy_baseline', 'node_modules',
@@ -108,6 +109,11 @@ def main() -> None:
 
     boundary = assert_public_boundary(site)
     cleanup = remove_generated_mixes(site)
+
+    wave002_report = special_needs_wave002.publish(site)
+    if wave002_report.get('page_count') != 100 or wave002_report.get('unique_routes') != 100:
+        raise SystemExit({'specialNeedsWave002': wave002_report})
+
     runtime = shell.copy_platform_runtime(site)
     results = [shell.normalize_file(path, site, check_only=False) for path in shell.production_html_files(site)]
     errors = [item for item in results if item.status == 'error']
@@ -117,7 +123,7 @@ def main() -> None:
 
     html_pages = sum(1 for _ in site.rglob('*.html'))
     report = {
-        'schemaVersion': 3,
+        'schemaVersion': 4,
         'status': 'passed',
         'policy': 'current-main public pages are authoritative; baseline restores missing public paths only; repository source/tooling roots are excluded; no cross-page or historical fragment merging',
         'generatedAt': datetime.now(timezone.utc).isoformat(),
@@ -129,6 +135,12 @@ def main() -> None:
         'generatedMixBlocksRemoved': cleanup['generatedMixBlocksRemoved'],
         'pagesPolished': polished,
         'platformRuntimeFilesCopied': len(runtime.get('files', [])),
+        'specialNeedsKnowledgeWave002': {
+            'pageCount': wave002_report['page_count'],
+            'uniqueRoutes': wave002_report['unique_routes'],
+            'candidatePoolCount': wave002_report['candidate_pool_count'],
+            'minimumWordCount': wave002_report['minimum_word_count'],
+        },
     }
     api = site / 'api'
     api.mkdir(parents=True, exist_ok=True)
