@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "wave": "002",
+  "validatedAt": "2026-08-15",
+  "branch": "agent/content-10000-wave002-high-value-gaps",
+  "validatedCommit": "24ba8eefdf42e9220a0729f45a2fc44c1b62bc1a",
+  "qualityGate": "passed",
+  "plannedPages": 36,
+  "materializedPages": 4,
+  "publicationContract": {
+    "minimumUsefulWords": 1500,
+    "minimumTopicSpecificSources": 3,
+    "minimumInternalLinks": 6,
+    "canonicalRequired": true,
+    "structuredDataRequired": true,
+    "breadcrumbRequired": true,
+    "directAnswerRequired": true,
+    "nonDiagnosticBoundaryRequired": true
+  },
+  "materialized": [
+    {"slug":"autism-screening-vs-diagnosis","words":1568,"sources":4,"internalLinks":11,"status":"passed"},
+    {"slug":"autism-assessment-appointment-what-happens","words":1564,"sources":3,"internalLinks":11,"status":"passed"},
+    {"slug":"adult-autism-assessment","words":1556,"sources":3,"internalLinks":11,"status":"passed"},
+    {"slug":"adhd-screening-vs-diagnosis","words":1549,"sources":3,"internalLinks":11,"status":"passed"}
+  ],
+  "policy": "الصفحات المخططة غير المنشورة تبقى خارج عقد النشر الصارم حتى يكتمل ملف مصادرها؛ عند materialization تتحول متطلبات المصادر والكلمات والروابط والبيانات المنظمة إلى أخطاء مانعة للنشر."
+}
