@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/publish_research_evidence_learning_v1.py'
+      - 'scripts/build_research_evidence_learning_v2.py'
       - 'scripts/enrich_research_evidence_learning_v1.py'
       - '.github/workflows/materialize-research-evidence-learning-v1.yml'
   workflow_dispatch:
@@ -28,13 +29,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Build and enrich 500-page evidence library
+      - name: Build and enrich evidence library
         run: |
           set -euo pipefail
-          python -m py_compile scripts/publish_research_evidence_learning_v1.py scripts/enrich_research_evidence_learning_v1.py
-          python scripts/publish_research_evidence_learning_v1.py . || true
-          test "$(find sections/research-evidence-learning -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 500
-          test -f sections/research-evidence-learning/index.html
+          python -m py_compile scripts/publish_research_evidence_learning_v1.py scripts/build_research_evidence_learning_v2.py scripts/enrich_research_evidence_learning_v1.py
+          python scripts/build_research_evidence_learning_v2.py .
           python scripts/enrich_research_evidence_learning_v1.py .
       - name: Final quality, SEO and anti-duplication gate
         run: |
@@ -45,7 +44,7 @@ jobs:
 
           section = Path('sections/research-evidence-learning')
           pages = sorted(section.glob('*/index.html'))
-          assert len(pages) == 500
+          assert len(pages) >= 500, len(pages)
           titles, canonicals, descriptions = [], [], []
           paragraph_sets = {}
           minimum_words = 10**9
@@ -69,7 +68,9 @@ jobs:
                   for p in re.findall(r'<p\b[^>]*>(.*?)</p>', source, re.S | re.I)
               }
               paragraph_sets[page.parent.name] = {p for p in paras if len(p) >= 80}
-          assert len(set(titles)) == len(set(canonicals)) == len(set(descriptions)) == 500
+          assert len(set(titles)) == len(pages)
+          assert len(set(canonicals)) == len(pages)
+          assert len(set(descriptions)) == len(pages)
 
           names = sorted(paragraph_sets)
           worst = (0.0, '', '')
@@ -86,12 +87,13 @@ jobs:
               'schemaVersion': 2,
               'status': 'passed',
               'sectionUrl': 'https://healthrenewal.org/sections/research-evidence-learning/',
-              'childPages': 500,
+              'minimumChildPages': 500,
+              'childPages': len(pages),
               'hubPages': 1,
-              'totalPages': 501,
-              'uniqueTitles': 500,
-              'uniqueUrls': 500,
-              'uniqueDescriptions': 500,
+              'totalPages': len(pages) + 1,
+              'uniqueTitles': len(set(titles)),
+              'uniqueUrls': len(set(canonicals)),
+              'uniqueDescriptions': len(set(descriptions)),
               'minimumWordCount': minimum_words,
               'maxParagraphJaccard': round(worst[0], 4),
               'editorialDiversification': True,
