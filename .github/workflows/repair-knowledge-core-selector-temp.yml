@@ -46,3 +46,5 @@ jobs:
             git rebase origin/main
           done
           exit 1
+
+# trigger: 2026-08-14T17:07+03:00
