@@ -1,0 +1,124 @@
+{
+  "contract": "special-needs-keyword-coverage-wave-20260812",
+  "created_at": "2026-08-12",
+  "status": "research-and-production",
+  "source_keyword_sets": [
+    "keywords_special_needs_ar_2000_aug2026.xlsx",
+    "special_needs_inclusive_psychology_2000_ar.xlsx"
+  ],
+  "editorial_rule": "لا تنشأ صفحة لكل استعلام. تجمع الاستعلامات المتطابقة في النية داخل صفحة canonical واحدة، وتستخدم الأسئلة الطويلة كأقسام FAQ/H2/H3 عندما لا تستحق نية مستقلة.",
+  "quality_gate": {
+    "preserve_old_repository_value": true,
+    "research_before_publish": true,
+    "minimum_sources": 3,
+    "prefer_primary_institutional_sources": true,
+    "medical_non_diagnostic_language": true,
+    "canonical_required": true,
+    "schema_required": true,
+    "internal_links_required": true,
+    "anti_cannibalization_check": true,
+    "mobile_accessibility_required": true
+  },
+  "primary_sources": [
+    "https://www.unesco.org/en/inclusion-education",
+    "https://www.unicef.org/education/inclusive-education",
+    "https://sites.ed.gov/idea/",
+    "https://www.asha.org/public/speech/developmental-language-disorder/",
+    "https://www.cdc.gov/ncbddd/actearly/milestones/",
+    "https://www.nichd.nih.gov/health/topics/learning/conditioninfo/treatment",
+    "https://www.cdc.gov/adhd/diagnosis/index.html",
+    "https://www.cdc.gov/autism/hcp/diagnosis/index.html"
+  ],
+  "wave_1": [
+    {
+      "slug": "inclusive-education",
+      "title": "التربية الدامجة والتعليم الشامل للطلاب ذوي الإعاقة",
+      "primary_keyword": "التربية الدامجة",
+      "secondary_keywords": ["التعليم الدامج", "التعليم الشامل", "الدمج المدرسي", "دمج ذوي الاحتياجات الخاصة", "المدرسة الدامجة"],
+      "intent": "informational-practical",
+      "destination": "/special-needs/education/inclusive-education/",
+      "status": "planned"
+    },
+    {
+      "slug": "individualized-education-plan",
+      "title": "الخطة التربوية الفردية IEP: البناء والأهداف والمتابعة",
+      "primary_keyword": "الخطة التربوية الفردية",
+      "secondary_keywords": ["IEP", "الخطة التعليمية الفردية", "أهداف الخطة التربوية الفردية", "متابعة الخطة الفردية"],
+      "intent": "informational-practical",
+      "destination": "/special-needs/education/individualized-education-plan/",
+      "status": "planned"
+    },
+    {
+      "slug": "speech-language-delay",
+      "title": "تأخر الكلام واللغة عند الأطفال: العلامات والتقييم والخطوات العملية",
+      "primary_keyword": "تأخر الكلام عند الأطفال",
+      "secondary_keywords": ["تأخر اللغة عند الأطفال", "تأخر النطق", "متى يتكلم الطفل", "تقييم تأخر الكلام", "علاج تأخر الكلام"],
+      "intent": "informational-assessment",
+      "destination": "/special-needs/communication/speech-language-delay/",
+      "status": "planned"
+    },
+    {
+      "slug": "developmental-language-disorder",
+      "title": "اضطراب اللغة النمائي DLD: الأعراض والتقييم والدعم المدرسي",
+      "primary_keyword": "اضطراب اللغة النمائي",
+      "secondary_keywords": ["DLD", "اضطراب اللغة عند الأطفال", "صعوبات اللغة النمائية", "تشخيص اضطراب اللغة النمائي"],
+      "intent": "informational-assessment",
+      "destination": "/special-needs/communication/developmental-language-disorder/",
+      "status": "planned"
+    },
+    {
+      "slug": "learning-disabilities",
+      "title": "صعوبات التعلم: الأنواع والتقييم والتدخل المدرسي",
+      "primary_keyword": "صعوبات التعلم",
+      "secondary_keywords": ["صعوبات القراءة", "صعوبات الكتابة", "صعوبات الرياضيات", "تشخيص صعوبات التعلم", "علاج صعوبات التعلم"],
+      "intent": "informational-assessment",
+      "destination": "/special-needs/learning/learning-disabilities/",
+      "status": "planned"
+    },
+    {
+      "slug": "dyslexia",
+      "title": "عسر القراءة (الديسلكسيا): العلامات والتقييم والتدخل",
+      "primary_keyword": "عسر القراءة",
+      "secondary_keywords": ["الديسلكسيا", "Dyslexia", "صعوبة القراءة", "اختبار عسر القراءة", "عسر القراءة عند الأطفال"],
+      "intent": "informational-assessment",
+      "destination": "/special-needs/learning/dyslexia/",
+      "status": "planned"
+    },
+    {
+      "slug": "dysgraphia",
+      "title": "عسر الكتابة: العلامات والتقييم والدعم التعليمي",
+      "primary_keyword": "عسر الكتابة",
+      "secondary_keywords": ["Dysgraphia", "صعوبات الكتابة", "ضعف الكتابة عند الأطفال", "تقييم عسر الكتابة"],
+      "intent": "informational-assessment",
+      "destination": "/special-needs/learning/dysgraphia/",
+      "status": "planned"
+    },
+    {
+      "slug": "dyscalculia",
+      "title": "عسر الحساب: العلامات والتقييم ودعم تعلم الرياضيات",
+      "primary_keyword": "عسر الحساب",
+      "secondary_keywords": ["Dyscalculia", "صعوبات الرياضيات", "صعوبة الحساب عند الأطفال", "تقييم عسر الحساب"],
+      "intent": "informational-assessment",
+      "destination": "/special-needs/learning/dyscalculia/",
+      "status": "planned"
+    },
+    {
+      "slug": "classroom-behavior-support",
+      "title": "دعم السلوك وإدارته في الصف: منهج وظيفي غير عقابي",
+      "primary_keyword": "إدارة السلوك في الصف",
+      "secondary_keywords": ["تعديل السلوك في المدرسة", "مشكلات السلوك عند الأطفال", "دعم السلوك الإيجابي", "خطة سلوكية مدرسية"],
+      "intent": "practical-educational",
+      "destination": "/special-needs/education/classroom-behavior-support/",
+      "status": "planned"
+    },
+    {
+      "slug": "classroom-accommodations",
+      "title": "التكييفات والتسهيلات الصفية للطلاب ذوي الإعاقة",
+      "primary_keyword": "التكييفات الصفية",
+      "secondary_keywords": ["التسهيلات الصفية", "تعديل المناهج لذوي الإعاقة", "تكييف الاختبارات", "تكييف الواجبات", "دعم الطالب ذي الإعاقة في الصف"],
+      "intent": "practical-educational",
+      "destination": "/special-needs/education/classroom-accommodations/",
+      "status": "planned"
+    }
+  ]
+}
