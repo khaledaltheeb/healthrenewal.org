@@ -61,6 +61,9 @@ class ChooseProfessionalProductionV178Tests(unittest.TestCase):
         text = PUBLISHER.read_text(encoding="utf-8")
         self.assertIn('"care-guides" / "choosing-mental-health-professional" / "index.html"', text)
         self.assertIn("sitemap-care-guides.xml", text)
+        self.assertIn('BASE = "https://healthrenewal.org"', text)
+        self.assertNotIn('BASE = "https://healthrenewal.org/"', text)
+        self.assertNotIn('https://healthrenewal.org//care-guides/', text)
 
 
 if __name__ == "__main__":
