@@ -4,16 +4,21 @@ on:
   push:
     branches:
       - agent/research-evidence-learning-500-pages-v1
+      - agent/research-evidence-learning-quality-v3
     paths:
       - 'scripts/publish_research_evidence_learning_v1.py'
       - 'scripts/build_research_evidence_learning_v2.py'
       - 'scripts/enrich_research_evidence_learning_v1.py'
+      - 'scripts/diversify_research_evidence_learning_v4.py'
+      - 'scripts/finalize_research_evidence_learning_hub_v3.py'
       - '.github/workflows/research-evidence-learning-v1.yml'
   pull_request:
     paths:
       - 'scripts/publish_research_evidence_learning_v1.py'
       - 'scripts/build_research_evidence_learning_v2.py'
       - 'scripts/enrich_research_evidence_learning_v1.py'
+      - 'scripts/diversify_research_evidence_learning_v4.py'
+      - 'scripts/finalize_research_evidence_learning_hub_v3.py'
       - '.github/workflows/research-evidence-learning-v1.yml'
   workflow_dispatch:
 
@@ -30,14 +35,16 @@ jobs:
         with:
           python-version: '3.12'
       - name: Compile publishers
-        run: python -m py_compile scripts/publish_research_evidence_learning_v1.py scripts/build_research_evidence_learning_v2.py scripts/enrich_research_evidence_learning_v1.py
-      - name: Generate and enrich isolated publication
+        run: python -m py_compile scripts/publish_research_evidence_learning_v1.py scripts/build_research_evidence_learning_v2.py scripts/enrich_research_evidence_learning_v1.py scripts/diversify_research_evidence_learning_v4.py scripts/finalize_research_evidence_learning_hub_v3.py
+      - name: Generate, enrich, diversify and normalize isolated publication
         run: |
           set -euo pipefail
           rm -rf /tmp/research-evidence-site
           mkdir -p /tmp/research-evidence-site
           python scripts/build_research_evidence_learning_v2.py /tmp/research-evidence-site
           python scripts/enrich_research_evidence_learning_v1.py /tmp/research-evidence-site
+          python scripts/diversify_research_evidence_learning_v4.py /tmp/research-evidence-site
+          python scripts/finalize_research_evidence_learning_hub_v3.py /tmp/research-evidence-site
       - name: Verify final publication and anti-duplication contract
         run: |
           python - <<'PY'
@@ -48,7 +55,13 @@ jobs:
           section = root / 'sections/research-evidence-learning'
           children = sorted(section.glob('*/index.html'))
           assert len(children) >= 500, len(children)
-          assert (section / 'index.html').is_file()
+          hub_path = section / 'index.html'
+          assert hub_path.is_file()
+          hub = hub_path.read_text(encoding='utf-8')
+          expected_hub_title = f'<title>البحث والدليل والتعلم | {len(children)} دليل لفهم الدراسات وتقييم الأدلة | منصة روافد</title>'
+          assert expected_hub_title in hub, expected_hub_title
+          assert f'{len(children)} دليل منهجي' in hub
+          assert f'"numberOfItems":{len(children)}' in hub
 
           titles, canonicals, descriptions = [], [], []
           paragraph_sets = {}
@@ -58,12 +71,13 @@ jobs:
               visible = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', source)).strip()
               wc = len(re.findall(r'[\u0600-\u06FFA-Za-z0-9]+', visible))
               minimum_words = min(minimum_words, wc)
-              assert wc >= 850, (path, wc)
+              assert wc >= 1000, (path, wc)
               titles.append(re.search(r'<title>(.*?)</title>', source, re.S).group(1))
               canonicals.append(re.search(r'<link rel="canonical" href="([^"]+)"', source).group(1))
               descriptions.append(re.search(r'<meta name="description" content="([^"]+)"', source).group(1))
               assert source.count('<h1>') == 1, path
               assert source.count('<!-- research-evidence-editorial-v2 -->') == 1, path
+              assert source.count('<!-- research-evidence-editorial-v4 -->') == 1, path
               assert 'index,follow' in source, path
               assert 'application/ld+json' in source, path
               assert 'BreadcrumbList' in source, path
@@ -87,8 +101,8 @@ jobs:
                   union = a | b
                   score = len(a & b) / len(union) if union else 1.0
                   if score > worst[0]: worst = (score, left, right)
-          assert worst[0] < 0.72, worst
-          print({'status':'passed','children':len(children),'totalPages':len(children)+1,'minimumWords':minimum_words,'maxParagraphJaccard':round(worst[0],4)})
+          assert worst[0] < 0.65, worst
+          print({'status':'passed','children':len(children),'totalPages':len(children)+1,'minimumWords':minimum_words,'maxParagraphJaccard':round(worst[0],4),'antiDuplicationLimit':0.65,'hubCountSynchronized':True,'editorialV4':True})
           PY
       - name: Upload generated evidence
         if: always()
