@@ -14,6 +14,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: materialize-content-10000-wave001
+  cancel-in-progress: false
+
 jobs:
   materialize:
     runs-on: ubuntu-latest
@@ -107,15 +111,36 @@ jobs:
           Path('api/content-10000-wave001.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           print(report)
           PY
-      - name: Commit deterministic publication
+      - name: Commit deterministic publication with safe retry
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add care-guides/clinical-literacy api/content-10000-wave001.json
-          if git diff --cached --quiet; then
-            echo 'No publication changes'
-          else
+
+          snapshot="${RUNNER_TEMP}/content-10000-wave001.tar"
+          tar -cf "$snapshot" care-guides/clinical-literacy api/content-10000-wave001.json
+
+          for attempt in 1 2 3; do
+            echo "Publication push attempt ${attempt}/3"
+            git fetch origin main --depth=1
+            git reset --hard origin/main
+            rm -rf care-guides/clinical-literacy
+            rm -f api/content-10000-wave001.json
+            tar -xf "$snapshot"
+            git add care-guides/clinical-literacy api/content-10000-wave001.json
+
+            if git diff --cached --quiet; then
+              echo 'Publication already present on latest main'
+              exit 0
+            fi
+
             git commit -m 'content: materialize content 10000 wave001'
-            git push
-          fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+
+            if [ "$attempt" -eq 3 ]; then
+              echo 'Failed to publish after 3 non-force retries' >&2
+              exit 1
+            fi
+          done
