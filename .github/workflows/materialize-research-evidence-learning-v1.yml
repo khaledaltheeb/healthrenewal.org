@@ -7,6 +7,7 @@ on:
       - 'scripts/publish_research_evidence_learning_v1.py'
       - 'scripts/build_research_evidence_learning_v2.py'
       - 'scripts/enrich_research_evidence_learning_v1.py'
+      - 'scripts/diversify_research_evidence_learning_v4.py'
       - 'scripts/finalize_research_evidence_learning_hub_v3.py'
       - '.github/workflows/materialize-research-evidence-learning-v1.yml'
   workflow_dispatch:
@@ -30,12 +31,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Build, enrich and normalize evidence library
+      - name: Build, enrich, diversify and normalize evidence library
         run: |
           set -euo pipefail
-          python -m py_compile scripts/publish_research_evidence_learning_v1.py scripts/build_research_evidence_learning_v2.py scripts/enrich_research_evidence_learning_v1.py scripts/finalize_research_evidence_learning_hub_v3.py
+          python -m py_compile scripts/publish_research_evidence_learning_v1.py scripts/build_research_evidence_learning_v2.py scripts/enrich_research_evidence_learning_v1.py scripts/diversify_research_evidence_learning_v4.py scripts/finalize_research_evidence_learning_hub_v3.py
           python scripts/build_research_evidence_learning_v2.py .
           python scripts/enrich_research_evidence_learning_v1.py .
+          python scripts/diversify_research_evidence_learning_v4.py .
           python scripts/finalize_research_evidence_learning_hub_v3.py .
       - name: Final quality, SEO and anti-duplication gate
         run: |
@@ -61,12 +63,13 @@ jobs:
               visible = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', source)).strip()
               wc = len(re.findall(r'[\u0600-\u06FFA-Za-z0-9]+', visible))
               minimum_words = min(minimum_words, wc)
-              assert wc >= 850, (page, wc)
+              assert wc >= 1000, (page, wc)
               titles.append(re.search(r'<title>(.*?)</title>', source, re.S).group(1))
               canonicals.append(re.search(r'<link rel="canonical" href="([^"]+)"', source).group(1))
               descriptions.append(re.search(r'<meta name="description" content="([^"]+)"', source).group(1))
               assert source.count('<h1>') == 1, page
               assert source.count('<!-- research-evidence-editorial-v2 -->') == 1, page
+              assert source.count('<!-- research-evidence-editorial-v4 -->') == 1, page
               assert 'index,follow' in source, page
               assert 'application/ld+json' in source, page
               assert 'BreadcrumbList' in source, page
@@ -89,10 +92,10 @@ jobs:
                   union = a | b
                   score = len(a & b) / len(union) if union else 1.0
                   if score > worst[0]: worst = (score, left, right)
-          assert worst[0] < 0.72, worst
+          assert worst[0] < 0.65, worst
 
           report = {
-              'schemaVersion': 3,
+              'schemaVersion': 4,
               'status': 'passed',
               'sectionUrl': 'https://healthrenewal.org/sections/research-evidence-learning/',
               'minimumChildPages': 500,
@@ -105,7 +108,9 @@ jobs:
               'uniqueDescriptions': len(set(descriptions)),
               'minimumWordCount': minimum_words,
               'maxParagraphJaccard': round(worst[0], 4),
+              'antiDuplicationLimit': 0.65,
               'editorialDiversification': True,
+              'editorialV4': True,
               'sourcePolicy': 'institutional-primary-methodology-sources',
               'seo': {'canonical': True, 'robotsIndexFollow': True, 'metaDescription': True, 'openGraph': True, 'twitter': True, 'jsonLd': True, 'breadcrumbs': True, 'itemList': True},
           }
