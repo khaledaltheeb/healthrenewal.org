@@ -72,6 +72,26 @@ def _load_legacy_guides_with_review_provenance() -> tuple[dict, list[dict]]:
     return primary, guides
 
 
+def _discover_existing_care_guide_urls() -> list[str]:
+    """Return every materialized care-guide route in the current build artifact.
+
+    The production build starts from a validated baseline and then layers newer
+    repository pages on top. Reading only the previous sitemap loses newly
+    materialized pages that were never present in that older sitemap, which can
+    make the page/sitemap parity gate fail even though the pages are valid.
+    """
+    output = implementation.SITE / "care-guides"
+    if not output.is_dir():
+        return []
+    found: list[str] = []
+    for page in output.rglob("index.html"):
+        if not page.is_file() or page.parent == output:
+            continue
+        relative = page.parent.relative_to(implementation.SITE).as_posix().strip("/")
+        found.append(implementation.BASE + relative + "/")
+    return sorted(set(found))
+
+
 def main() -> dict:
     expansion = _load_wfadhd_expansion()
     implementation.SECTION_LABELS.update(expansion["section_labels"])
@@ -79,6 +99,7 @@ def main() -> dict:
         {"www.adhd-federation.org", "adhd-federation.org"}
     )
     implementation.load_legacy_guides = _load_legacy_guides_with_review_provenance
+    implementation.extension_urls = _discover_existing_care_guide_urls
 
     wave_report = care_guides_wave_v400.install(implementation)
     report = implementation.main()
