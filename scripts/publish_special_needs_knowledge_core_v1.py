@@ -307,7 +307,8 @@ def publish(site: Path) -> dict[str,object]:
         page_text=render(topic)
         wc=visible_words(page_text)
         if wc < 650:
-            raise RuntimeError(f"thin page rejected: {topic['slug']} ({wc} words)")
+            skipped.append({"slug": topic["slug"], "reason": "thin-page", "word_count": wc})
+            continue
         out=site/"special-needs"/topic["slug"]/"index.html"; out.parent.mkdir(parents=True,exist_ok=True); out.write_text(page_text,encoding="utf-8")
         selected.append(topic); routes.add(f"/special-needs/{topic['slug']}/"); titles.append(normalize_title(topic["title"])); min_words=min(min_words,wc)
         if len(selected)==TARGET: break
