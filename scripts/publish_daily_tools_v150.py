@@ -10,6 +10,7 @@ if str(ROOT) not in sys.path:
 from scripts import daily_tools_v100 as v100
 from scripts import daily_tools_v150 as v150
 from scripts import publish_daily_tools_v24 as publisher
+from scripts.harden_daily_tools_v150 import harden
 
 
 def publish(site: Path | str) -> dict:
@@ -27,7 +28,9 @@ def publish(site: Path | str) -> dict:
     if preserved is not None:
         special.parent.mkdir(parents=True,exist_ok=True)
         special.write_text(preserved,encoding='utf-8')
-    return v150.enhance(data,target)
+    report=v150.enhance(data,target)
+    report['postLaunchHardening']=harden(target)
+    return report
 
 
 if __name__=='__main__':
