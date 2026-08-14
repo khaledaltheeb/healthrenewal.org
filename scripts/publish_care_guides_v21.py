@@ -11,6 +11,7 @@ from publish_care_guides_v246 import SITE
 import care_guides_wave_v400
 import care_guides_wave_v401_fixed
 import care_guides_wave_v402
+import care_guides_wave_v403
 
 ROOT = Path(__file__).resolve().parents[1]
 WFADHD_EXPANSION = ROOT / "content/v18/adhd-wfadhd-authorized-expansion-ar.json"
@@ -83,6 +84,7 @@ def main() -> dict:
     wave_001_report = care_guides_wave_v400.install(implementation)
     wave_002_report = care_guides_wave_v401_fixed.install(implementation)
     wave_003_report = care_guides_wave_v402.install(implementation)
+    wave_004_report = care_guides_wave_v403.install(implementation)
     report = implementation.main()
 
     report["autism_published"] = False
@@ -100,6 +102,7 @@ def main() -> dict:
     report["care_guides_wave_v400"] = wave_001_report
     report["care_guides_wave_v401"] = wave_002_report
     report["care_guides_wave_v402"] = wave_003_report
+    report["care_guides_wave_v403"] = wave_004_report
     report_path = SITE / "api/care-guides-v21.json"
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return report
