@@ -14,6 +14,7 @@ import care_guides_wave_v403
 import care_guides_wave_v404
 import care_guides_wave_v405
 import care_guides_wave_v406
+import care_guides_wave_v407
 
 ROOT = Path(__file__).resolve().parents[1]
 WFADHD_EXPANSION = ROOT / "content/v18/adhd-wfadhd-authorized-expansion-ar.json"
@@ -65,10 +66,11 @@ def main() -> dict:
     wave_005_report = care_guides_wave_v404.install(implementation)
     wave_006_report = care_guides_wave_v405.install(implementation)
     wave_007_report = care_guides_wave_v406.install(implementation)
+    wave_008_report = care_guides_wave_v407.install(implementation)
     report = implementation.main()
     report["autism_published"] = False; report["core_guides"] = report["source_guides"]
     report["wfadhd_authorized_expansion"] = {"target_slug": expansion["target_slug"], "version": expansion["version"], "sections": len(expansion["sections"]), "source_additions": len(expansion["source_additions"]), "permission_received_at": expansion["provenance"]["permission_received_at"], "rights_status": expansion["provenance"]["rights_status"], "independent_adaptation": True, "federation_endorsement_claimed": False}
-    report["care_guides_wave_v400"] = wave_001_report; report["care_guides_wave_v401"] = wave_002_report; report["care_guides_wave_v402"] = wave_003_report; report["care_guides_wave_v403"] = wave_004_report; report["care_guides_wave_v404"] = wave_005_report; report["care_guides_wave_v405"] = wave_006_report; report["care_guides_wave_v406"] = wave_007_report
+    report["care_guides_wave_v400"] = wave_001_report; report["care_guides_wave_v401"] = wave_002_report; report["care_guides_wave_v402"] = wave_003_report; report["care_guides_wave_v403"] = wave_004_report; report["care_guides_wave_v404"] = wave_005_report; report["care_guides_wave_v405"] = wave_006_report; report["care_guides_wave_v406"] = wave_007_report; report["care_guides_wave_v407"] = wave_008_report
     (SITE / "api/care-guides-v21.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return report
 
