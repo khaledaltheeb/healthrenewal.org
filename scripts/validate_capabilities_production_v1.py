@@ -229,8 +229,9 @@ def run(root: Path, *, minimum_v281_words: int = 1300) -> dict[str, object]:
             failures["seo_gate_status"] = seo
         if int(seo.get("pages_processed", 0) or 0) < 155:
             failures["seo_page_coverage"] = seo.get("pages_processed")
-        if int(seo.get("legacy_internal_origin_occurrences", -1) or -1) != 0:
-            failures["seo_legacy_origin"] = seo.get("legacy_internal_origin_occurrences")
+        legacy_origin_count = seo.get("legacy_internal_origin_occurrences")
+        if legacy_origin_count is None or int(legacy_origin_count) != 0:
+            failures["seo_legacy_origin"] = legacy_origin_count
 
     source_conditions = source.get("conditions", []) if source else []
     source_map: dict[str, dict[str, object]] = {}
