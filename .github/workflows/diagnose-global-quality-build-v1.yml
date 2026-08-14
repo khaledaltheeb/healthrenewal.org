@@ -61,8 +61,60 @@ jobs:
         run: python scripts/finalize_pwa_v14.py _site
       - name: Complete core sections
         run: python scripts/complete_core_sections_v15.py _site
-      - name: Apply homepage
-        run: python scripts/apply_homepage_v20.py _site
+      - name: Apply homepage with phase checkpoint
+        run: |
+          python - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          sys.argv = ['apply_homepage_v20.py', '_site']
+          import scripts.apply_homepage_v20 as homepage
+
+          checkpoint = Path('_site/api/homepage-phase-checkpoint.json')
+          checkpoint.parent.mkdir(parents=True, exist_ok=True)
+
+          def write(state, phase, error=None):
+              payload = {'state': state, 'phase': phase}
+              if error is not None:
+                  payload['error_type'] = type(error).__name__
+                  payload['error'] = str(error)
+              checkpoint.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
+
+          original_run_publisher = homepage.run_publisher
+          def traced_publisher(script):
+              write('started', f'publisher:{script}')
+              try:
+                  original_run_publisher(script)
+              except BaseException as exc:
+                  write('failed', f'publisher:{script}', exc)
+                  raise
+              write('passed', f'publisher:{script}')
+          homepage.run_publisher = traced_publisher
+
+          for name in ('register_sitemap', 'synchronize_care_guides_report', 'publish_api_sitemap'):
+              original = getattr(homepage, name)
+              def make_traced(phase_name, function):
+                  def traced(*args, **kwargs):
+                      label = f'{phase_name}:{args[0]}' if args else phase_name
+                      write('started', label)
+                      try:
+                          result = function(*args, **kwargs)
+                      except BaseException as exc:
+                          write('failed', label, exc)
+                          raise
+                      write('passed', label)
+                      return result
+                  return traced
+              setattr(homepage, name, make_traced(name, original))
+
+          try:
+              homepage.main()
+          except BaseException:
+              raise
+          else:
+              write('passed', 'apply_homepage_v20:complete')
+          PY
       - name: Publish care guides
         run: python scripts/publish_care_guides_v21.py _site
       - name: Link care guides
@@ -71,12 +123,14 @@ jobs:
         run: python scripts/polish_site_v16.py _site
       - name: Audit site integrity
         run: python scripts/audit_site_integrity_v13.py _site
-      - name: Upload polish diagnostics
+      - name: Upload build diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: polish-diagnostics-v1
           path: |
+            _site/api/homepage-v20.json
+            _site/api/homepage-phase-checkpoint.json
             _site/api/internal-base-paths-v198.json
             _site/api/polish-v16.json
             _site/api/site-integrity-v13.json
