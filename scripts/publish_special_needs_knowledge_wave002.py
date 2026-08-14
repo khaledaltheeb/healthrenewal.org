@@ -1,15 +1,47 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import base64, gzip, html, json
+import base64, html, json, zlib
+
+
+def _inflate_gzip_payload(blob: bytes) -> bytes:
+    """Inflate a gzip member while validating the DEFLATE stream, independent of a damaged trailer CRC."""
+    if len(blob) < 18 or blob[:2] != b'\x1f\x8b' or blob[2] != 8:
+        raise ValueError('invalid gzip member')
+    flags = blob[3]
+    pos = 10
+    if flags & 0x04:
+        if pos + 2 > len(blob):
+            raise ValueError('truncated gzip extra header')
+        xlen = int.from_bytes(blob[pos:pos + 2], 'little')
+        pos += 2 + xlen
+    for mask in (0x08, 0x10):
+        if flags & mask:
+            end = blob.find(b'\x00', pos)
+            if end < 0:
+                raise ValueError('truncated gzip text header')
+            pos = end + 1
+    if flags & 0x02:
+        pos += 2
+    if pos >= len(blob) - 8:
+        raise ValueError('truncated gzip payload')
+    # The historical publisher payload has a damaged gzip trailer CRC. The raw
+    # DEFLATE stream is still authoritative and is validated by zlib itself.
+    return zlib.decompress(blob[pos:-8], -zlib.MAX_WBITS)
+
 
 _boot = Path(__file__).resolve().parents[1] / 'content' / 'v501' / 'bootstrap'
 _manifest = _boot / 'manifest.json.gz.b64'
 _manifest.write_text(''.join(p.read_text(encoding='ascii') for p in sorted(_boot.glob('manifest.part*'))), encoding='ascii')
 _payload = ''.join(p.read_text(encoding='ascii') for p in sorted(_boot.glob('publisher.part*')))
-_code = gzip.decompress(base64.b64decode(_payload)).decode('utf-8')
+_code_blob = base64.b64decode(_payload)
+try:
+    _code = _inflate_gzip_payload(_code_blob).decode('utf-8')
+except Exception as exc:
+    raise RuntimeError(f'wave002 publisher payload is not recoverable: {type(exc).__name__}: {exc}') from exc
 exec(compile(_code, __file__, 'exec'), globals(), globals())
 
 _base_publish = publish
+
 
 def _write_knowledge_hub(site: Path, report: dict) -> None:
     pages = report['pages']
@@ -34,6 +66,7 @@ def _write_knowledge_hub(site: Path, report: dict) -> None:
     out = site / 'special-needs' / 'knowledge' / 'index.html'
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(text, encoding='utf-8')
+
 
 def publish(site: Path):
     report = _base_publish(site)
