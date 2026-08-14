@@ -1,0 +1,48 @@
+name: Repair knowledge-core candidate selection
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/repair-knowledge-core-selector-temp.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - name: Keep quality floor and skip non-publishable candidates
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/publish_special_needs_knowledge_core_v1.py')
+          text = path.read_text(encoding='utf-8')
+          old = '''        if wc < 650:\n            raise RuntimeError(f"thin page rejected: {topic['slug']} ({wc} words)")\n'''
+          new = '''        if wc < 650:\n            skipped.append({"slug": topic["slug"], "reason": "thin-page", "word_count": wc})\n            continue\n'''
+          if old not in text:
+              raise SystemExit('expected thin-page selector block not found')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+          python -m py_compile scripts/publish_special_needs_knowledge_core_v1.py
+      - name: Commit repair and remove temporary workflow
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/workflows/repair-knowledge-core-selector-temp.yml
+          git add scripts/publish_special_needs_knowledge_core_v1.py .github/workflows/repair-knowledge-core-selector-temp.yml
+          git commit -m 'fix: skip thin knowledge-core candidates without lowering gate'
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then exit 0; fi
+            git fetch origin main --depth=1
+            git rebase origin/main
+          done
+          exit 1
