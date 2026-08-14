@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "program": "content-10000",
+  "wave": "001",
+  "status": "passed",
+  "childPages": 66,
+  "hubPages": 1,
+  "totalPages": 67,
+  "minimumWordCount": 1503,
+  "minimumSourcesPerPage": 5,
+  "uniqueTitles": 66,
+  "uniqueDescriptions": 66,
+  "uniqueCanonicals": 66,
+  "maxParagraphJaccard": 0.4242,
+  "antiDuplicationLimit": 0.6,
+  "editorialV2": true,
+  "sourceFirst": true,
+  "intentFirst": true
+}
