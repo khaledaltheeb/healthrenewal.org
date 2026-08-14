@@ -1,0 +1,28 @@
+name: Audit content 10000 wave002a gaps
+
+on:
+  push:
+    branches:
+      - agent/content-10000-wave002-gap-audit-v2
+  pull_request:
+    paths:
+      - 'content/strategy/content-10000-wave002a-assessment-gap-audit-v2.json'
+      - 'content/strategy/source-registry-wave002a-assessment-v2.json'
+      - 'scripts/audit_content_10000_wave002a.py'
+      - '.github/workflows/audit-content-10000-wave002a.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit-gaps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile auditor
+        run: python -m py_compile scripts/audit_content_10000_wave002a.py
+      - name: Audit current repository collisions
+        run: python scripts/audit_content_10000_wave002a.py
