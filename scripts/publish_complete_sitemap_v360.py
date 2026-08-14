@@ -6,6 +6,9 @@ signal: pages explicitly canonicalized to an unrelated external host are
 excluded, while relative, current-domain, and trusted legacy/stale first-party
 canonicals remain eligible. Emitted URLs always use the real published path on
 https://healthrenewal.org, so old metadata cannot collapse or duplicate routes.
+
+Before discovery, close the institutional internal-route contract so parent hubs,
+learning paths, and legacy aliases exist before sitemap enumeration.
 """
 
 from __future__ import annotations
@@ -21,11 +24,13 @@ from pathlib import Path, PurePosixPath
 from urllib.parse import quote, urlsplit
 from xml.etree import ElementTree as ET
 
+from repair_internal_routes_v1 import apply as repair_internal_routes
+
 BASE_URL = "https://healthrenewal.org/"
 SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 MAX_URLS = 50_000
 MAX_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
-REPORT_VERSION = 361
+REPORT_VERSION = 362
 
 EXCLUDED_DIR_PARTS = {
     ".git", ".github", ".idea", ".vscode", "node_modules", "vendor",
@@ -190,6 +195,10 @@ def main() -> int:
     if not root.is_dir():
         raise SystemExit(f"Site root does not exist: {root}")
 
+    route_repair = repair_internal_routes(root)
+    if route_repair.get("status") != "passed":
+        raise SystemExit(f"Internal route repair failed: {route_repair}")
+
     urls, discovery = discover(root)
     if len(urls) < args.minimum_urls:
         raise SystemExit(f"Only {len(urls)} real indexable URLs discovered; minimum is {args.minimum_urls}")
@@ -220,6 +229,14 @@ def main() -> int:
         "html_files_discovered": discovery.pop("html_files_discovered"),
         "excluded_counts": {key: len(value) for key, value in discovery.items()},
         "excluded_pages": discovery,
+        "internal_route_repair": {
+            "status": route_repair["status"],
+            "generatedRoutes": route_repair["generatedRoutes"],
+            "hubs": route_repair["hubs"],
+            "learningPaths": route_repair["learningPaths"],
+            "aliases": route_repair["aliases"],
+            "missingOccurrences": route_repair["audit"]["missingOccurrences"],
+        },
         "protocol": {
             "maximum_urls_per_sitemap": MAX_URLS,
             "maximum_uncompressed_bytes": MAX_UNCOMPRESSED_BYTES,
@@ -246,6 +263,7 @@ def main() -> int:
         "html_files_discovered": report["html_files_discovered"],
         "target_reached": report["target_reached"],
         "sitemap_bytes": len(sitemap),
+        "internal_route_repair": report["internal_route_repair"],
         "root": str(root),
     }, ensure_ascii=False))
     return 0
