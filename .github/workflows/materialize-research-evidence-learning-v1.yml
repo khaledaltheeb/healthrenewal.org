@@ -7,6 +7,7 @@ on:
       - 'scripts/publish_research_evidence_learning_v1.py'
       - 'scripts/build_research_evidence_learning_v2.py'
       - 'scripts/enrich_research_evidence_learning_v1.py'
+      - 'scripts/finalize_research_evidence_learning_hub_v3.py'
       - '.github/workflows/materialize-research-evidence-learning-v1.yml'
   workflow_dispatch:
 
@@ -29,12 +30,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Build and enrich evidence library
+      - name: Build, enrich and normalize evidence library
         run: |
           set -euo pipefail
-          python -m py_compile scripts/publish_research_evidence_learning_v1.py scripts/build_research_evidence_learning_v2.py scripts/enrich_research_evidence_learning_v1.py
+          python -m py_compile scripts/publish_research_evidence_learning_v1.py scripts/build_research_evidence_learning_v2.py scripts/enrich_research_evidence_learning_v1.py scripts/finalize_research_evidence_learning_hub_v3.py
           python scripts/build_research_evidence_learning_v2.py .
           python scripts/enrich_research_evidence_learning_v1.py .
+          python scripts/finalize_research_evidence_learning_hub_v3.py .
       - name: Final quality, SEO and anti-duplication gate
         run: |
           python - <<'PY'
@@ -45,6 +47,12 @@ jobs:
           section = Path('sections/research-evidence-learning')
           pages = sorted(section.glob('*/index.html'))
           assert len(pages) >= 500, len(pages)
+          hub = (section / 'index.html').read_text(encoding='utf-8')
+          expected_hub_title = f'<title>البحث والدليل والتعلم | {len(pages)} دليل لفهم الدراسات وتقييم الأدلة | منصة روافد</title>'
+          assert expected_hub_title in hub, expected_hub_title
+          assert f'{len(pages)} دليل منهجي' in hub
+          assert f'"numberOfItems":{len(pages)}' in hub
+
           titles, canonicals, descriptions = [], [], []
           paragraph_sets = {}
           minimum_words = 10**9
@@ -84,13 +92,14 @@ jobs:
           assert worst[0] < 0.72, worst
 
           report = {
-              'schemaVersion': 2,
+              'schemaVersion': 3,
               'status': 'passed',
               'sectionUrl': 'https://healthrenewal.org/sections/research-evidence-learning/',
               'minimumChildPages': 500,
               'childPages': len(pages),
               'hubPages': 1,
               'totalPages': len(pages) + 1,
+              'hubCountSynchronized': True,
               'uniqueTitles': len(set(titles)),
               'uniqueUrls': len(set(canonicals)),
               'uniqueDescriptions': len(set(descriptions)),
