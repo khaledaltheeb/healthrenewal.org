@@ -11,6 +11,7 @@ from scripts import daily_tools_v100 as v100
 from scripts import daily_tools_v150 as v150
 from scripts import publish_daily_tools_v24 as publisher
 from scripts.harden_daily_tools_v150 import harden
+from scripts.link_daily_tools_context_v150 import apply as apply_contextual_linking
 
 
 def publish(site: Path | str) -> dict:
@@ -30,6 +31,7 @@ def publish(site: Path | str) -> dict:
         special.write_text(preserved,encoding='utf-8')
     report=v150.enhance(data,target)
     report['postLaunchHardening']=harden(target)
+    report['contextualLinking']=apply_contextual_linking(target)
     return report
 
 
