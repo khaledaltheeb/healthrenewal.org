@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/publish_research_evidence_learning_v1.py'
+      - 'scripts/enrich_research_evidence_learning_v1.py'
       - '.github/workflows/materialize-research-evidence-learning-v1.yml'
   workflow_dispatch:
 
@@ -27,22 +28,59 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Build and validate 500-page evidence library
+      - name: Build, enrich and validate 500-page evidence library
         run: |
           set -euo pipefail
-          python -m py_compile scripts/publish_research_evidence_learning_v1.py
+          python -m py_compile scripts/publish_research_evidence_learning_v1.py scripts/enrich_research_evidence_learning_v1.py
           python scripts/publish_research_evidence_learning_v1.py .
+          python scripts/enrich_research_evidence_learning_v1.py .
           python - <<'PY'
           import json
+          import re
           from pathlib import Path
+
           report = json.loads(Path('api/research-evidence-learning-v1.json').read_text(encoding='utf-8'))
           assert report['status'] == 'passed', report
           assert report['childPages'] == 500, report
           assert report['totalPages'] == 501, report
           assert report['minimumWordCount'] >= 650, report
           section = Path('sections/research-evidence-learning')
-          assert len(list(section.glob('*/index.html'))) == 500
+          pages = sorted(section.glob('*/index.html'))
+          assert len(pages) == 500
           assert (section / 'index.html').is_file()
+
+          paragraph_sets = {}
+          for page in pages:
+              source = page.read_text(encoding='utf-8')
+              assert source.count('<!-- research-evidence-editorial-v2 -->') == 1, page
+              assert source.count('<h1>') == 1, page
+              assert 'index,follow' in source, page
+              assert 'BreadcrumbList' in source, page
+              assert source.count('rel="noopener noreferrer"') >= 3, page
+              paragraphs = {
+                  re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', p)).strip()
+                  for p in re.findall(r'<p\b[^>]*>(.*?)</p>', source, re.S | re.I)
+              }
+              paragraph_sets[page.parent.name] = {p for p in paragraphs if len(p) >= 80}
+
+          # Near-duplicate guard: pages may share institutional scaffolding, but no pair
+          # may be overwhelmingly the same substantive paragraphs.
+          names = sorted(paragraph_sets)
+          worst = (0.0, '', '')
+          for i, left in enumerate(names):
+              a = paragraph_sets[left]
+              for right in names[i + 1:]:
+                  b = paragraph_sets[right]
+                  union = a | b
+                  similarity = len(a & b) / len(union) if union else 1.0
+                  if similarity > worst[0]:
+                      worst = (similarity, left, right)
+          assert worst[0] < 0.72, worst
+          report['postEnrichmentParagraphJaccardMax'] = round(worst[0], 4)
+          report['editorialDiversification'] = True
+          Path('api/research-evidence-learning-v1.json').write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8'
+          )
           print(report)
           PY
       - name: Commit deterministic publication
