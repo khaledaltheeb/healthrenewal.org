@@ -8,7 +8,7 @@ on:
       - "scripts/verify_live_special_needs_publication_v1.py"
       - "tests/test_verify_live_special_needs_publication_v1.py"
   workflow_run:
-    workflows: ["Deploy complete generated site"]
+    workflows: ["Build complete institutional site v5 and deploy"]
     types: [completed]
   schedule:
     - cron: "47 */6 * * *"
