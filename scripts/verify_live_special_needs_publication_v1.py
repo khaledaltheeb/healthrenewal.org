@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -40,6 +41,8 @@ SOFT_404_MARKERS = (
     "الصفحة غير موجودة",
     "الصفحة المطلوبة غير موجودة",
 )
+META_REFRESH_RE = re.compile(r'<meta\b[^>]*http-equiv=["\']?refresh["\']?[^>]*>', re.I | re.S)
+JS_REDIRECT_RE = re.compile(r'\b(?:location\.(?:replace|assign)|location\s*=|window\.location)\b', re.I)
 
 
 class PageContractParser(HTMLParser):
@@ -150,6 +153,13 @@ def inventory_routes(payload: dict[str, Any]) -> list[str]:
     return sorted(routes)
 
 
+def is_intentional_alias(text: str, parser: PageContractParser, expected_canonical: str) -> bool:
+    canonicals = {value.rstrip("/") for value in parser.canonicals}
+    if not parser.noindex or len(canonicals) != 1 or expected_canonical in canonicals:
+        return False
+    return bool(META_REFRESH_RE.search(text) or JS_REDIRECT_RE.search(text))
+
+
 def validate_live_page(base_url: str, route: str, *, timeout: float, retries: int) -> dict[str, Any] | None:
     expected_url = urljoin(base_url.rstrip("/") + "/", route.lstrip("/"))
     try:
@@ -177,12 +187,14 @@ def validate_live_page(base_url: str, route: str, *, timeout: float, retries: in
 
     if parser.h1_count == 0:
         problems.append("missing h1")
-    if parser.noindex:
-        problems.append("noindex")
 
     expected_canonical = expected_url.rstrip("/")
     canonicals = {value.rstrip("/") for value in parser.canonicals}
-    if expected_canonical not in canonicals:
+    intentional_alias = is_intentional_alias(text, parser, expected_canonical)
+
+    if parser.noindex and not intentional_alias:
+        problems.append("noindex")
+    if expected_canonical not in canonicals and not intentional_alias:
         problems.append(f"canonical mismatch: {sorted(canonicals)!r}")
     if len(canonicals) > 1:
         problems.append(f"conflicting canonicals: {sorted(canonicals)!r}")
@@ -261,7 +273,7 @@ def run(base_url: str, *, timeout: float, retries: int, workers: int) -> dict[st
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Verify that every special-needs publication route is live and indexable."
+        description="Verify that every special-needs publication route is live and indexable or an intentional redirect alias."
     )
     parser.add_argument("--base-url", default=DEFAULT_BASE_URL)
     parser.add_argument("--timeout", type=float, default=25.0)
