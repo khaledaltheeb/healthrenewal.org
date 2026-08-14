@@ -128,11 +128,100 @@ def duplicate_meta_keys(path: Path) -> list[str]:
     return sorted({f"{kind}:{value}" for kind, value in keys if keys.count((kind, value)) > 1})
 
 
-def enhance(site: Path) -> dict[str, object]:
+def _enhance_core_with_extension_coverage(site: Path) -> dict[str, object]:
+    """Run the v234 enhancer while treating sitemap parity as a coverage contract.
+
+    Direct children under ``care-guides/*/index.html`` are the pages this enhancer
+    mutates and validates. Newer publication waves may also materialize nested
+    routes such as ``care-guides/clinical-literacy/...``. Those routes belong in
+    the section sitemap, so the sitemap can legitimately contain more URLs than
+    the v234 direct-page set; it must never contain fewer.
+    """
     base.RELEASE_DATE = RELEASE_DATE
     base.ENHANCEMENT_VERSION = ENHANCEMENT_VERSION
     base.CATEGORY_RULES = CATEGORY_RULES
-    report = base.enhance(site)
+    base.SITE = Path(site).resolve()
+
+    output = base.SITE / "care-guides"
+    legacy_path = base.SITE / "api/care-guides-v21.json"
+    if not output.is_dir() or not legacy_path.is_file():
+        raise SystemExit("Care-guide core publication must finish before v246 enhancement")
+    legacy = json.loads(legacy_path.read_text(encoding="utf-8"))
+    if legacy.get("needs_specialist_review_published") is not False:
+        raise SystemExit("Specialist-review safety gate is not confirmed")
+
+    guide_paths = sorted(output.glob("*/index.html"))
+    if not guide_paths:
+        raise SystemExit("No published care-guide pages found")
+    initial_meta = [base.guide_meta_from_page(path) for path in guide_paths]
+    for path in guide_paths:
+        base.enhance_extension_page(path, initial_meta)
+    all_meta = [base.guide_meta_from_page(path) for path in guide_paths]
+    (output / "index.html").write_text(base.index_page(all_meta), encoding="utf-8")
+    base.copy_assets()
+    base.write_robots()
+    sitemap_urls = base.refresh_care_sitemap()
+
+    hub_text = (output / "index.html").read_text(encoding="utf-8")
+    guide_texts = [path.read_text(encoding="utf-8") for path in guide_paths]
+    page_texts = [hub_text, *guide_texts]
+    page_count = len(page_texts)
+    duplicate_ids: dict[str, list[str]] = {}
+    for path, text in [(output / "index.html", hub_text), *zip(guide_paths, guide_texts)]:
+        ids = re.findall(r'\bid="([^"]+)"', text)
+        repeated = sorted({item for item in ids if ids.count(item) > 1})
+        if repeated:
+            duplicate_ids[str(path.relative_to(base.SITE))] = repeated
+
+    report: dict[str, object] = {
+        "version": ENHANCEMENT_VERSION,
+        "status": "passed",
+        "release_date": RELEASE_DATE,
+        "published_guides": len(guide_paths),
+        "published_pages": page_count,
+        "sitemap_urls": sitemap_urls,
+        "extension_sitemap_urls": max(0, sitemap_urls - page_count),
+        "sitemap_covers_published_pages": sitemap_urls >= page_count,
+        "hub_sections": 8,
+        "categories": len({item.category for item in all_meta}),
+        "guide_pages_with_toc": sum("care-toc" in text for text in guide_texts),
+        "pages_with_keywords": sum('name="keywords"' in text for text in page_texts),
+        "pages_with_faq_schema": sum("FAQPage" in text for text in page_texts),
+        "pages_with_canonical": sum('rel="canonical"' in text for text in page_texts),
+        "pages_with_single_h1": sum(len(re.findall(r"<h1(?:\s|>)", text, flags=re.I)) == 1 for text in page_texts),
+        "search_asset": (base.SITE / "assets/js/care-guides-v234.js").is_file(),
+        "style_asset": (base.SITE / "assets/css/care-guides-v234.css").is_file(),
+        "robots_sitemaps": (base.SITE / "robots.txt").read_text(encoding="utf-8").count("Sitemap:"),
+        "blocked_term_occurrences": sum(text.count("معاقين") for text in page_texts),
+        "duplicate_ids": duplicate_ids,
+        "specialist_review_gate_preserved": legacy.get("needs_specialist_review_published") is False,
+        "external_specialist_review_completed": False,
+    }
+    required_equal = (
+        "pages_with_keywords",
+        "pages_with_faq_schema",
+        "pages_with_canonical",
+        "pages_with_single_h1",
+    )
+    if sitemap_urls < page_count or any(report[key] != page_count for key in required_equal):
+        raise SystemExit(f"Care-guide publication coverage or SEO contract failed: {report}")
+    if report["guide_pages_with_toc"] != len(guide_paths) or duplicate_ids:
+        raise SystemExit(f"Care-guide accessibility/navigation contract failed: {report}")
+    if report["blocked_term_occurrences"]:
+        raise SystemExit(f"Non-inclusive terminology found in care guides: {report}")
+
+    api = base.SITE / "api"
+    api.mkdir(parents=True, exist_ok=True)
+    (api / "care-guides-v234.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    return report
+
+
+def enhance(site: Path) -> dict[str, object]:
+    report = _enhance_core_with_extension_coverage(Path(site))
 
     site = Path(site).resolve()
     pages = sorted((site / "care-guides").rglob("index.html"))
