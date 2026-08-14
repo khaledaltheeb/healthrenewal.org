@@ -243,6 +243,7 @@ def main() -> None:
     TARGET.write_text(text, encoding="utf-8")
     restored_routes = {
         "provider-assessment-demo": restore_static_route("provider-assessment-demo"),
+        "quick-info": restore_static_route("quick-info"),
         "brand_assets": restore_static_tree("assets/brand"),
         "api_v1": restore_static_tree("api/v1"),
     }
