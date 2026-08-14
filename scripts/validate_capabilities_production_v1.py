@@ -21,6 +21,17 @@ from ensure_special_needs_publication_v1 import collect_inventory, validate_coun
 BASE_URL = "https://healthrenewal.org"
 REPORT_RELATIVE = Path("api/capabilities-production-gate-v1.json")
 SEO_REPORT_RELATIVE = Path("api/capabilities-seo-v1.json")
+CAPABILITY_HUB_ROUTES = {
+    "/capabilities/",
+    "/capabilities/registry/",
+    "/capabilities/expanded/",
+    "/capabilities/methodology/",
+    "/capabilities/behavioral-disorders/",
+    "/capabilities/developmental-disorders/",
+    "/capabilities/hearing-loss/",
+    "/capabilities/intellectual-disabilities/",
+    "/capabilities/learning-disabilities/",
+}
 ARABIC_WORD_RE = re.compile(r"[\u0600-\u06ffA-Za-z0-9]+")
 CANONICAL_RE = re.compile(
     r'<link\b(?=[^>]*\brel=["\'][^"\']*canonical[^"\']*["\'])[^>]*\bhref=["\']([^"\']+)["\'][^>]*>',
@@ -191,9 +202,15 @@ def run(root: Path, *, minimum_v281_words: int = 1300) -> dict[str, object]:
     slugs: list[str] = []
     if v281:
         expected_v281 = {
-            "version": 281, "status": "passed", "condition_count": 50, "detail_page_count": 50,
-            "generated_page_count": 51, "sitemap_url_count": 51, "source_count": 50,
-            "unique_source_count": 50, "external_clinical_review_completed": False,
+            "version": 281,
+            "status": "passed",
+            "condition_count": 50,
+            "detail_page_count": 50,
+            "generated_page_count": 51,
+            "sitemap_url_count": 51,
+            "source_count": 50,
+            "unique_source_count": 50,
+            "external_clinical_review_completed": False,
             "diagnostic_automation": False,
         }
         mismatches = {key: {"expected": expected, "actual": v281.get(key)} for key, expected in expected_v281.items() if v281.get(key) != expected}
@@ -226,7 +243,11 @@ def run(root: Path, *, minimum_v281_words: int = 1300) -> dict[str, object]:
 
     source_urls = [str(item.get("source_url", "")) for item in source_map.values()]
     if source_urls and (len(set(source_urls)) != 50 or not all(url.startswith("https://") for url in source_urls)):
-        failures["source_urls"] = {"count": len(source_urls), "unique": len(set(source_urls)), "invalid": sorted(url for url in source_urls if not url.startswith("https://"))}
+        failures["source_urls"] = {
+            "count": len(source_urls),
+            "unique": len(set(source_urls)),
+            "invalid": sorted(url for url in source_urls if not url.startswith("https://")),
+        }
 
     evidence = source.get("evidence_overrides", {}) if source else {}
     reviewed_conditions = int(evidence.get("applied", 0) or 0) if isinstance(evidence, dict) else 0
@@ -261,8 +282,18 @@ def run(root: Path, *, minimum_v281_words: int = 1300) -> dict[str, object]:
     if aliases_in_sitemap:
         failures["redirect_aliases_in_sitemap"] = aliases_in_sitemap
 
-    condition_routes = [route for route in public_routes if route.count("/") == 3 and route not in {"/capabilities/registry/", "/capabilities/expanded/", "/capabilities/methodology/"}]
-    no_lastmod = [route for route in condition_routes if (BASE_URL + route).rstrip("/") not in sitemap_urls_with_lastmod]
+    # Only condition-guide routes require condition-level lastmod. Category and
+    # navigation hubs are intentionally excluded from this contract.
+    condition_routes = [
+        route
+        for route in public_routes
+        if route.count("/") == 3 and route not in CAPABILITY_HUB_ROUTES
+    ]
+    no_lastmod = [
+        route
+        for route in condition_routes
+        if (BASE_URL + route).rstrip("/") not in sitemap_urls_with_lastmod
+    ]
     if no_lastmod:
         failures["condition_routes_without_lastmod"] = no_lastmod
 
@@ -293,7 +324,11 @@ def run(root: Path, *, minimum_v281_words: int = 1300) -> dict[str, object]:
         failures["registry"] = "missing"
     else:
         registry_text = registry.read_text(encoding="utf-8", errors="replace")
-        registry_issues = validate_public_page(registry_text, "/capabilities/registry/", minimum_words=1000)
+        registry_issues = validate_public_page(
+            registry_text,
+            "/capabilities/registry/",
+            minimum_words=1000,
+        )
         if "150 حالة" not in registry_text:
             registry_issues.append("registry_count_not_150")
         if "100 حالة" in registry_text:
@@ -316,6 +351,7 @@ def run(root: Path, *, minimum_v281_words: int = 1300) -> dict[str, object]:
         "redirectAliasCount": len(aliases),
         "sitemapUrlCount": len(sitemap_urls),
         "sitemapConditionRoutesWithLastmod": len(condition_routes) - len(no_lastmod),
+        "capabilityHubRouteCount": len([route for route in public_routes if route in CAPABILITY_HUB_ROUTES]),
         "seo": seo,
         "sourceDomains": dict(sorted(source_domains.items())),
         "warnings": warnings,
@@ -323,7 +359,10 @@ def run(root: Path, *, minimum_v281_words: int = 1300) -> dict[str, object]:
     }
     destination = root / REPORT_RELATIVE
     destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    destination.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
     if failures:
         raise SystemExit(json.dumps(report, ensure_ascii=False, indent=2))
     return report
