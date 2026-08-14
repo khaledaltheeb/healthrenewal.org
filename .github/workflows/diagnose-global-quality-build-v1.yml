@@ -131,6 +131,7 @@ jobs:
           path: |
             _site/api/homepage-v20.json
             _site/api/homepage-phase-checkpoint.json
+            _site/api/publication-surface-v322.json
             _site/api/internal-base-paths-v198.json
             _site/api/polish-v16.json
             _site/api/site-integrity-v13.json
