@@ -77,6 +77,9 @@ def validate_materialized(page: dict, plan: dict, errors: list[str], warnings: l
     path = WAVE_ROOT / page["slug"] / "index.html"
     if not path.is_file():
         return None
+    minimum_sources = plan["publicationRules"]["minimumTopicSpecificSources"]
+    if len(page.get("sources", [])) < minimum_sources:
+        errors.append(f"{page['slug']}: materialized page plan has fewer than {minimum_sources} topic-specific sources")
     source = path.read_text(encoding="utf-8", errors="ignore")
     wc = word_count(source)
     minimum = plan["publicationRules"]["minimumUsefulWords"]
@@ -94,7 +97,7 @@ def validate_materialized(page: dict, plan: dict, errors: list[str], warnings: l
     if "class=\"answer\"" not in source and "الإجابة المختصرة" not in source:
         errors.append(f"{page['slug']}: direct-answer block missing")
     source_links = source.count('rel="noopener noreferrer"')
-    if source_links < plan["publicationRules"]["minimumTopicSpecificSources"]:
+    if source_links < minimum_sources:
         errors.append(f"{page['slug']}: only {source_links} explicit source links")
     internal_links = len(re.findall(r'href="/(?!/)', source))
     if internal_links < plan["publicationRules"]["minimumInternalLinks"]:
@@ -129,8 +132,6 @@ def main() -> int:
         missing_sources = [source for source in page.get("sources", []) if source not in source_ids]
         if missing_sources:
             errors.append(f"{page['slug']}: unknown sources {missing_sources}")
-        if len(page.get("sources", [])) < plan["publicationRules"]["minimumTopicSpecificSources"]:
-            errors.append(f"{page['slug']}: fewer than required topic-specific sources")
         if not page.get("decision"):
             errors.append(f"{page['slug']}: missing decision question")
         if len(tokens(page.get("primaryQuery", ""))) < 2:
@@ -138,6 +139,8 @@ def main() -> int:
         stats = validate_materialized(page, plan, errors, warnings)
         if stats:
             materialized.append(stats)
+        elif len(page.get("sources", [])) < plan["publicationRules"]["minimumTopicSpecificSources"]:
+            warnings.append(f"{page['slug']}: source set must be completed before materialization")
 
     for i, left in enumerate(pages):
         for right in pages[i + 1:]:
