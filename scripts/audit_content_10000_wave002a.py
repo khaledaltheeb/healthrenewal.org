@@ -5,6 +5,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / "content/strategy/content-10000-wave002a-assessment-gap-audit-v2.json"
@@ -35,7 +36,7 @@ def page_title(path: Path) -> str:
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", match.group(1))).strip() if match else ""
 
 
-def inventory() -> tuple[dict[str, str], list[tuple[str, str]]]:
+def inventory() -> tuple[dict[str, str], list[tuple[str, str]], int]:
     routes: dict[str, str] = {}
     titles: list[tuple[str, str]] = []
     for root_name in SCAN_ROOTS:
@@ -48,7 +49,21 @@ def inventory() -> tuple[dict[str, str], list[tuple[str, str]]]:
             title = page_title(path)
             if title:
                 titles.append((rel, title))
-    return routes, titles
+
+    sitemap_routes = 0
+    for sitemap in ROOT.glob("sitemap*.xml"):
+        text = sitemap.read_text(encoding="utf-8", errors="ignore")
+        for loc in re.findall(r"<loc>\s*(.*?)\s*</loc>", text, flags=re.I | re.S):
+            parsed = urlparse(html.unescape(loc))
+            if parsed.netloc not in {"healthrenewal.org", "www.healthrenewal.org"}:
+                continue
+            route = parsed.path.strip("/")
+            if not route or not any(route == prefix or route.startswith(prefix + "/") for prefix in SCAN_ROOTS):
+                continue
+            if route not in routes:
+                sitemap_routes += 1
+            routes.setdefault(route, f"sitemap:{sitemap.name}")
+    return routes, titles, sitemap_routes
 
 
 def main() -> int:
@@ -57,7 +72,7 @@ def main() -> int:
     source_ids = set(registry["sources"])
     candidates = plan["candidates"]
     rules = plan["auditRules"]
-    routes, titles = inventory()
+    routes, titles, sitemap_only_routes = inventory()
     errors: list[str] = []
     decisions: list[dict[str, object]] = []
 
@@ -77,7 +92,13 @@ def main() -> int:
 
         exact_routes = []
         for prefix in SCAN_ROOTS:
-            for route in (f"{prefix}/{c['slug']}", f"{prefix}/clinical-literacy/{c['slug']}", f"{prefix}/knowledge/{c['slug']}"):
+            for route in (
+                f"{prefix}/{c['slug']}",
+                f"{prefix}/clinical-literacy/{c['slug']}",
+                f"{prefix}/knowledge/{c['slug']}",
+                f"{prefix}/reference/{c['slug']}",
+                f"{prefix}/guides/{c['slug']}",
+            ):
                 if route in routes:
                     exact_routes.append(route)
 
@@ -100,11 +121,12 @@ def main() -> int:
         })
 
     report = {
-        "schemaVersion": 2,
+        "schemaVersion": 3,
         "wave": plan["wave"],
         "candidateCount": len(candidates),
         "inventoryRoutes": len(routes),
         "inventoryTitles": len(titles),
+        "sitemapOnlyRoutesAdded": sitemap_only_routes,
         "newPage": sum(d["disposition"] == "new-page" for d in decisions),
         "manualReview": sum(d["disposition"] == "manual-review" for d in decisions),
         "mergeExisting": sum(d["disposition"] == "merge-existing" for d in decisions),
