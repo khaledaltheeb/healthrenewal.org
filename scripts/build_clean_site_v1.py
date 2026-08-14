@@ -15,7 +15,6 @@ import normalize_platform_shell as shell
 SKIP = {
     '.git', '.github', '_site', '_baseline', '_legacy_baseline', 'node_modules',
     '.venv', 'venv', 'tests', 'reports', '__pycache__', '.pytest_cache',
-    # Repository inputs/tooling are consumed during the build and are never public routes.
     'content', 'scripts',
 }
 PUBLIC_SOURCE_FORBIDDEN = {'content', 'scripts', 'tests', 'reports', '.github', '.git'}
@@ -89,19 +88,19 @@ def inject_polish(site: Path) -> int:
     return changed
 
 
-def publish_wave002(site: Path) -> dict[str, object]:
-    """Load and publish wave002 with a GitHub Actions-visible diagnostic on failure."""
+def publish_knowledge_core(site: Path) -> dict[str, object]:
+    """Publish the readable, governed knowledge core and expose useful CI diagnostics."""
     try:
-        import publish_special_needs_knowledge_wave002 as special_needs_wave002
-        report = special_needs_wave002.publish(site)
+        import publish_special_needs_knowledge_core_v1 as publisher
+        report = publisher.publish(site)
     except BaseException as exc:
         message = f'{type(exc).__name__}: {exc}'.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
-        print(f'::error title=Special-needs wave002 build failure::{message}', flush=True)
+        print(f'::error title=Special-needs knowledge core build failure::{message}', flush=True)
         raise
-    if report.get('page_count') != 100 or report.get('unique_routes') != 100:
+    if report.get('page_count') != 20 or report.get('unique_routes') != 20 or report.get('minimum_word_count', 0) < 650:
         message = json.dumps(report, ensure_ascii=False).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
-        print(f'::error title=Special-needs wave002 publication contract failed::{message}', flush=True)
-        raise SystemExit({'specialNeedsWave002': report})
+        print(f'::error title=Special-needs knowledge core contract failed::{message}', flush=True)
+        raise SystemExit({'specialNeedsKnowledgeCore': report})
     return report
 
 
@@ -124,7 +123,7 @@ def main() -> None:
 
     boundary = assert_public_boundary(site)
     cleanup = remove_generated_mixes(site)
-    wave002_report = publish_wave002(site)
+    knowledge_report = publish_knowledge_core(site)
 
     runtime = shell.copy_platform_runtime(site)
     results = [shell.normalize_file(path, site, check_only=False) for path in shell.production_html_files(site)]
@@ -135,9 +134,9 @@ def main() -> None:
 
     html_pages = sum(1 for _ in site.rglob('*.html'))
     report = {
-        'schemaVersion': 4,
+        'schemaVersion': 5,
         'status': 'passed',
-        'policy': 'current-main public pages are authoritative; baseline restores missing public paths only; repository source/tooling roots are excluded; no cross-page or historical fragment merging',
+        'policy': 'current-main public pages are authoritative; baseline restores missing public paths only; repository source/tooling roots are excluded; new knowledge pages must pass route/title conflict checks and evidence contracts',
         'generatedAt': datetime.now(timezone.utc).isoformat(),
         'mainFilesCopied': main_files,
         'baselineMissingFilesRestored': baseline_files,
@@ -147,11 +146,12 @@ def main() -> None:
         'generatedMixBlocksRemoved': cleanup['generatedMixBlocksRemoved'],
         'pagesPolished': polished,
         'platformRuntimeFilesCopied': len(runtime.get('files', [])),
-        'specialNeedsKnowledgeWave002': {
-            'pageCount': wave002_report['page_count'],
-            'uniqueRoutes': wave002_report['unique_routes'],
-            'candidatePoolCount': wave002_report['candidate_pool_count'],
-            'minimumWordCount': wave002_report['minimum_word_count'],
+        'specialNeedsKnowledgeCoreV1': {
+            'pageCount': knowledge_report['page_count'],
+            'uniqueRoutes': knowledge_report['unique_routes'],
+            'candidatePoolCount': knowledge_report['candidate_pool_count'],
+            'minimumWordCount': knowledge_report['minimum_word_count'],
+            'skippedConflicts': len(knowledge_report.get('skipped', [])),
         },
     }
     api = site / 'api'
