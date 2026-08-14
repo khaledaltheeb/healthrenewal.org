@@ -1,0 +1,35 @@
+name: Validate content 10000 wave002
+
+on:
+  pull_request:
+    paths:
+      - 'content/strategy/content-10000-wave002-high-value-gaps-v1.json'
+      - 'content/strategy/source-registry-wave002-v1.json'
+      - 'scripts/validate_content_10000_wave002.py'
+      - '.github/workflows/validate-content-10000-wave002.yml'
+  push:
+    branches:
+      - agent/content-10000-wave002-high-value-gaps
+    paths:
+      - 'content/strategy/content-10000-wave002-high-value-gaps-v1.json'
+      - 'content/strategy/source-registry-wave002-v1.json'
+      - 'scripts/validate_content_10000_wave002.py'
+      - '.github/workflows/validate-content-10000-wave002.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-strategy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile validator
+        run: python -m py_compile scripts/validate_content_10000_wave002.py
+      - name: Validate source registry, unique intents and repository collisions
+        run: python scripts/validate_content_10000_wave002.py
