@@ -8,12 +8,14 @@ on:
       - 'content/strategy/content-10000-master-plan-v1.json'
       - 'content/strategy/source-registry-wave001-v1.json'
       - 'scripts/publish_content_10000_wave001.py'
+      - 'scripts/diversify_content_10000_wave001_v2.py'
       - '.github/workflows/validate-content-10000-wave001.yml'
   pull_request:
     paths:
       - 'content/strategy/content-10000-master-plan-v1.json'
       - 'content/strategy/source-registry-wave001-v1.json'
       - 'scripts/publish_content_10000_wave001.py'
+      - 'scripts/diversify_content_10000_wave001_v2.py'
       - '.github/workflows/validate-content-10000-wave001.yml'
   workflow_dispatch:
 
@@ -29,18 +31,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Compile publisher
-        run: python -m py_compile scripts/publish_content_10000_wave001.py
-      - name: Build isolated wave
+      - name: Compile publishers
+        run: python -m py_compile scripts/publish_content_10000_wave001.py scripts/diversify_content_10000_wave001_v2.py
+      - name: Build and diversify isolated wave
         run: |
           set -euo pipefail
           rm -rf /tmp/content-wave001
           mkdir -p /tmp/content-wave001
           python scripts/publish_content_10000_wave001.py /tmp/content-wave001
+          python scripts/diversify_content_10000_wave001_v2.py /tmp/content-wave001
       - name: Validate editorial, source, SEO and duplication contract
         run: |
           python - <<'PY'
-          import json
           import re
           from pathlib import Path
 
@@ -58,13 +60,15 @@ jobs:
               visible = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', source)).strip()
               wc = len(re.findall(r'[\w\u0600-\u06ff]+', visible, re.UNICODE))
               minimum_words = min(minimum_words, wc)
-              assert wc >= 1100, (page, wc)
+              assert wc >= 1400, (page, wc)
               assert source.count('<!-- content-10000-wave001 -->') == 1, page
+              assert source.count('<!-- content-10000-wave001-v2 -->') == 1, page
               assert 'index,follow' in source, page
               assert 'application/ld+json' in source, page
               assert 'BreadcrumbList' in source, page
               assert 'المصادر الأساسية للتحقق والتوسع' in source, page
               assert 'محتوى تثقيفي غير تشخيصي' in source, page
+              assert 'ملف قرار خاص بهذه الصفحة' in source, page
               source_count = source.count('rel="noopener noreferrer"')
               minimum_sources = min(minimum_sources, source_count)
               assert source_count >= 3, (page, source_count)
@@ -87,9 +91,10 @@ jobs:
                   b = paragraph_sets[right]
                   union = a | b
                   score = len(a & b) / len(union) if union else 1.0
-                  if score > worst[0]: worst = (score, left, right)
+                  if score > worst[0]:
+                      worst = (score, left, right)
           assert worst[0] < 0.60, worst
-          print({'status':'passed','pages':len(pages),'minimumWords':minimum_words,'minimumSources':minimum_sources,'maxParagraphJaccard':round(worst[0],4)})
+          print({'status':'passed','pages':len(pages),'minimumWords':minimum_words,'minimumSources':minimum_sources,'maxParagraphJaccard':round(worst[0],4),'editorialV2':True})
           PY
       - name: Upload wave artifact
         if: always()
