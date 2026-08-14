@@ -1,0 +1,87 @@
+name: Diagnose global quality build v1
+
+on:
+  push:
+    branches:
+      - diagnose/global-quality-build-v1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SITE_BASE: https://healthrenewal.org/
+
+jobs:
+  diagnose-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore and compile platform sources
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v10-content
+          cp content/sectors-v10/*.json /tmp/v10-content/
+          cat .v10bundle/part00 .v10bundle/part01 .v10bundle/part02 .v10bundle/part03 .v10bundle/part04 | base64 --decode > /tmp/v10.tar.gz
+          tar -xzf /tmp/v10.tar.gz
+          cp /tmp/v10-content/*.json content/sectors-v10/
+          cat .generator-v6/part00 .generator-v6/part01 .generator-v6/part02 .generator-v6/part03 > build_site.py
+          python scripts/verify_enricher_v7.py
+          python scripts/verify_expander_v9.py
+          python -m py_compile build_site.py expand_site_v9.py scripts/scale_site_v8.py scripts/design_content_v10.py scripts/apply_contrast_v11.py scripts/expand_v12_direct.py scripts/rebuild_encyclopedia_v13.py scripts/run_encyclopedia_v13.py scripts/performance_hotfix_v14.py scripts/optimize_site_performance_v14.py scripts/defer_encyclopedia_index_v20.py scripts/strip_nonlab_runtime_v14.py scripts/finalize_pwa_v14.py scripts/audit_site_integrity_v13.py scripts/verify_performance_v14.py scripts/complete_core_sections_v15.py scripts/verify_core_sections_v15.py scripts/polish_site_v16.py scripts/audit_full_site_v16.py scripts/audit_full_site_i18n_v72.py scripts/apply_homepage_v20.py scripts/publish_homepage_i18n_v72.py scripts/publish_care_guides_v21.py scripts/link_care_guides_v21.py
+
+      - name: Build base site
+        run: python build_site.py
+      - name: Enrich site
+        run: python enrich_site_v7.py
+      - name: Restore verification file
+        run: cp google644f1f7a8b7aaa2b.html _site/google644f1f7a8b7aaa2b.html
+      - name: Scale site
+        run: python scripts/scale_site_v8.py
+      - name: Expand site
+        run: python expand_site_v9.py
+      - name: Design content
+        run: python scripts/design_content_v10.py
+      - name: Apply contrast
+        run: python scripts/apply_contrast_v11.py _site
+      - name: Expand direct content
+        run: python scripts/expand_v12_direct.py _site
+      - name: Build encyclopedia
+        run: python scripts/run_encyclopedia_v13.py _site
+      - name: Performance hotfix
+        run: python scripts/performance_hotfix_v14.py _site
+      - name: Optimize performance
+        run: python scripts/optimize_site_performance_v14.py _site
+      - name: Defer encyclopedia index
+        run: python scripts/defer_encyclopedia_index_v20.py _site
+      - name: Strip nonlab runtime
+        run: python scripts/strip_nonlab_runtime_v14.py _site
+      - name: Finalize PWA pre-core
+        run: python scripts/finalize_pwa_v14.py _site
+      - name: Complete core sections
+        run: python scripts/complete_core_sections_v15.py _site
+      - name: Apply homepage
+        run: python scripts/apply_homepage_v20.py _site
+      - name: Publish care guides
+        run: python scripts/publish_care_guides_v21.py _site
+      - name: Link care guides
+        run: python scripts/link_care_guides_v21.py _site
+
+      - name: Run production polish
+        run: python scripts/polish_site_v16.py _site
+
+      - name: Audit site integrity
+        run: python scripts/audit_site_integrity_v13.py _site
+
+      - name: Upload polish diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: polish-diagnostics-v1
+          path: |
+            _site/api/internal-base-paths-v198.json
+            _site/api/polish-v16.json
+            _site/api/site-integrity-v13.json
+          if-no-files-found: warn
+          retention-days: 2
