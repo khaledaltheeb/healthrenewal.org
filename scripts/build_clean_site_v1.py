@@ -7,6 +7,8 @@ import json
 import os
 import re
 import shutil
+import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -139,6 +141,58 @@ def publish_knowledge_core(site: Path) -> dict[str, object]:
     return report
 
 
+def publish_care_guides(root: Path, site: Path) -> dict[str, object]:
+    """Regenerate the governed care-guides catalog from current source data.
+
+    The publisher is executed in a separate interpreter because the v246
+    compatibility implementation intentionally resolves SITE from sys.argv at
+    import time. This prevents build_clean_site_v1.py arguments from being
+    mistaken for the publication directory.
+    """
+    publisher = root / 'scripts' / 'publish_care_guides_v21.py'
+    if not publisher.is_file():
+        raise SystemExit(f'care-guides publisher missing: {publisher}')
+    subprocess.run(
+        [sys.executable, str(publisher), str(site)],
+        cwd=root,
+        check=True,
+    )
+    report_path = site / 'api' / 'care-guides-v21.json'
+    if not report_path.is_file():
+        raise SystemExit(f'care-guides report missing: {report_path}')
+    report = json.loads(report_path.read_text(encoding='utf-8'))
+    wave = report.get('care_guides_wave_v400') or {}
+    failures = {
+        'content_release_version': report.get('content_release_version'),
+        'source_guides': report.get('source_guides'),
+        'published_core_guides': report.get('published_core_guides'),
+        'minimum_published_guides_met': report.get('minimum_published_guides_met'),
+        'wave_version': wave.get('version'),
+        'wave_added_guides': wave.get('added_guides'),
+        'wave_unique_slugs': wave.get('unique_slugs'),
+        'wave_unique_titles': wave.get('unique_titles'),
+        'wave_minimum_sources': wave.get('minimum_sources'),
+    }
+    valid = (
+        report.get('content_release_version', 0) >= 400
+        and report.get('source_guides', 0) >= 151
+        and report.get('published_core_guides', 0) >= 150
+        and report.get('minimum_published_guides_met') is True
+        and report.get('all_have_sources') is True
+        and report.get('all_have_unique_titles') is True
+        and wave.get('version') == 400
+        and wave.get('added_guides') == 50
+        and wave.get('unique_slugs') == 50
+        and wave.get('unique_titles') == 50
+        and wave.get('minimum_sources', 0) >= 1
+    )
+    if not valid:
+        message = json.dumps(failures, ensure_ascii=False).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+        print(f'::error title=Care-guides v400 publication contract failed::{message}', flush=True)
+        raise SystemExit({'careGuidesV400': failures})
+    return report
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', default='.')
@@ -159,6 +213,7 @@ def main() -> None:
     boundary = assert_public_boundary(site)
     cleanup = remove_generated_mixes(site)
     knowledge_report = publish_knowledge_core(site)
+    care_guides_report = publish_care_guides(root, site)
 
     runtime = shell.copy_platform_runtime(site)
     results = [shell.normalize_file(path, site, check_only=False) for path in shell.production_html_files(site)]
@@ -168,10 +223,11 @@ def main() -> None:
     polished = inject_polish(site)
 
     html_pages = sum(1 for _ in site.rglob('*.html'))
+    wave = care_guides_report['care_guides_wave_v400']
     report = {
-        'schemaVersion': 5,
+        'schemaVersion': 6,
         'status': 'passed',
-        'policy': 'current-main public pages are authoritative; baseline restores missing public paths only; repository source/tooling roots are excluded; new knowledge pages must pass route/title conflict checks and evidence contracts',
+        'policy': 'current-main public pages are authoritative; baseline restores missing public paths only; repository source/tooling roots are excluded; knowledge and care-guide source contracts are regenerated before normalization',
         'generatedAt': datetime.now(timezone.utc).isoformat(),
         'mainFilesCopied': main_files,
         'baselineMissingFilesRestored': baseline_files,
@@ -187,6 +243,18 @@ def main() -> None:
             'candidatePoolCount': knowledge_report['candidate_pool_count'],
             'minimumWordCount': knowledge_report['minimum_word_count'],
             'skippedConflicts': len(knowledge_report.get('skipped', [])),
+        },
+        'careGuidesV400': {
+            'contentReleaseVersion': care_guides_report['content_release_version'],
+            'sourceGuides': care_guides_report['source_guides'],
+            'publishedCoreGuides': care_guides_report['published_core_guides'],
+            'minimumPublishedGuides': care_guides_report['minimum_published_guides'],
+            'minimumPublishedGuidesMet': care_guides_report['minimum_published_guides_met'],
+            'waveAddedGuides': wave['added_guides'],
+            'waveUniqueSlugs': wave['unique_slugs'],
+            'waveUniqueTitles': wave['unique_titles'],
+            'waveMinimumSources': wave['minimum_sources'],
+            'specialistReviewClaimed': wave['specialist_review_claimed'],
         },
     }
     api = site / 'api'
