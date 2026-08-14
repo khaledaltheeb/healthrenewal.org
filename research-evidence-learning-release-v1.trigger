@@ -1,4 +1,9 @@
-research-evidence-learning-v1
-materialized_commit=83bf56fdf587455442090ec037cc18fd8b9d22f5
+research-evidence-learning-v4
+materialized_commit=8652d135426cd176a9d6774066bb2284fa19505e
 child_pages=560
 total_pages=561
+minimum_words=1651
+max_paragraph_jaccard=0.625
+anti_duplication_limit=0.65
+hub_count_synchronized=true
+editorial_v4=true
