@@ -1,0 +1,59 @@
+name: Materialize research evidence learning v1
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/publish_research_evidence_learning_v1.py'
+      - '.github/workflows/materialize-research-evidence-learning-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: materialize-research-evidence-learning-v1
+  cancel-in-progress: true
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build and validate 500-page evidence library
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/publish_research_evidence_learning_v1.py
+          python scripts/publish_research_evidence_learning_v1.py .
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('api/research-evidence-learning-v1.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['childPages'] == 500, report
+          assert report['totalPages'] == 501, report
+          assert report['minimumWordCount'] >= 650, report
+          section = Path('sections/research-evidence-learning')
+          assert len(list(section.glob('*/index.html'))) == 500
+          assert (section / 'index.html').is_file()
+          print(report)
+          PY
+      - name: Commit deterministic publication
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add sections/research-evidence-learning api/research-evidence-learning-v1.json
+          if git diff --cached --quiet; then
+            echo 'Research evidence learning publication is already current.'
+          else
+            git commit -m 'content: materialize research evidence learning library'
+            git push
+          fi
