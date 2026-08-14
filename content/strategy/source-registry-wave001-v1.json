@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-08-14",
+  "policy": "Use sources for synthesis and verification; do not copy protected text. Prefer official guidance, government health agencies, systematic reviews, and peer-reviewed research.",
+  "global": [
+    {"publisher":"World Health Organization","title":"Mental disorders","url":"https://www.who.int/news-room/fact-sheets/detail/mental-disorders","type":"intergovernmental-fact-sheet"},
+    {"publisher":"National Institute of Mental Health","title":"Health Topics","url":"https://www.nimh.nih.gov/health/topics","type":"government-research-agency"}
+  ],
+  "topics": {
+    "depression": [
+      {"publisher":"WHO","title":"Depressive disorder (depression)","url":"https://www.who.int/news-room/fact-sheets/detail/depression","type":"fact-sheet"},
+      {"publisher":"NIMH","title":"Depression","url":"https://www.nimh.nih.gov/health/topics/depression","type":"research-agency-topic"},
+      {"publisher":"NICE","title":"Depression in adults: treatment and management (NG222)","url":"https://www.nice.org.uk/guidance/ng222","type":"clinical-guideline"}
+    ],
+    "anxiety": [
+      {"publisher":"WHO","title":"Anxiety disorders","url":"https://www.who.int/news-room/fact-sheets/detail/anxiety-disorders","type":"fact-sheet"},
+      {"publisher":"NIMH","title":"Anxiety Disorders","url":"https://www.nimh.nih.gov/health/topics/anxiety-disorders","type":"research-agency-topic"},
+      {"publisher":"NICE","title":"Generalised anxiety disorder and panic disorder in adults (CG113)","url":"https://www.nice.org.uk/guidance/cg113","type":"clinical-guideline"}
+    ],
+    "panic": [
+      {"publisher":"WHO","title":"Anxiety disorders","url":"https://www.who.int/news-room/fact-sheets/detail/anxiety-disorders","type":"fact-sheet"},
+      {"publisher":"NIMH","title":"Panic Disorder: When Fear Overwhelms","url":"https://www.nimh.nih.gov/health/publications/panic-disorder-when-fear-overwhelms","type":"research-agency-publication"},
+      {"publisher":"NICE","title":"Generalised anxiety disorder and panic disorder in adults (CG113)","url":"https://www.nice.org.uk/guidance/cg113","type":"clinical-guideline"}
+    ],
+    "social-anxiety": [
+      {"publisher":"WHO","title":"Anxiety disorders","url":"https://www.who.int/news-room/fact-sheets/detail/anxiety-disorders","type":"fact-sheet"},
+      {"publisher":"NIMH","title":"Social Anxiety Disorder: More Than Just Shyness","url":"https://www.nimh.nih.gov/health/publications/social-anxiety-disorder-more-than-just-shyness","type":"research-agency-publication"},
+      {"publisher":"NICE","title":"Social anxiety disorder: recognition, assessment and treatment (CG159)","url":"https://www.nice.org.uk/guidance/cg159","type":"clinical-guideline"}
+    ],
+    "ocd": [
+      {"publisher":"NIMH","title":"Obsessive-Compulsive Disorder (OCD)","url":"https://www.nimh.nih.gov/health/topics/obsessive-compulsive-disorder-ocd","type":"research-agency-topic"},
+      {"publisher":"NICE","title":"Obsessive-compulsive disorder and body dysmorphic disorder: treatment (CG31)","url":"https://www.nice.org.uk/guidance/cg31","type":"clinical-guideline"},
+      {"publisher":"NHS","title":"Obsessive compulsive disorder (OCD)","url":"https://www.nhs.uk/mental-health/conditions/obsessive-compulsive-disorder-ocd/overview/","type":"government-health-service"}
+    ],
+    "ptsd": [
+      {"publisher":"NIMH","title":"Traumatic Events and Post-Traumatic Stress Disorder (PTSD)","url":"https://www.nimh.nih.gov/health/topics/post-traumatic-stress-disorder-ptsd","type":"research-agency-topic"},
+      {"publisher":"NICE","title":"Post-traumatic stress disorder (NG116)","url":"https://www.nice.org.uk/guidance/ng116","type":"clinical-guideline"},
+      {"publisher":"National Center for PTSD","title":"PTSD: National Center for PTSD","url":"https://www.ptsd.va.gov/","type":"government-specialist-center"}
+    ],
+    "bipolar": [
+      {"publisher":"NIMH","title":"Bipolar Disorder","url":"https://www.nimh.nih.gov/health/topics/bipolar-disorder","type":"research-agency-topic"},
+      {"publisher":"NICE","title":"Bipolar disorder: assessment and management (CG185)","url":"https://www.nice.org.uk/guidance/cg185","type":"clinical-guideline"},
+      {"publisher":"WHO","title":"Mental disorders","url":"https://www.who.int/news-room/fact-sheets/detail/mental-disorders","type":"fact-sheet"}
+    ],
+    "schizophrenia": [
+      {"publisher":"NIMH","title":"Schizophrenia","url":"https://www.nimh.nih.gov/health/topics/schizophrenia","type":"research-agency-topic"},
+      {"publisher":"NICE","title":"Psychosis and schizophrenia in adults: prevention and management (CG178)","url":"https://www.nice.org.uk/guidance/cg178","type":"clinical-guideline"},
+      {"publisher":"WHO","title":"Schizophrenia","url":"https://www.who.int/news-room/fact-sheets/detail/schizophrenia","type":"fact-sheet"}
+    ],
+    "eating-disorders": [
+      {"publisher":"NIMH","title":"Eating Disorders","url":"https://www.nimh.nih.gov/health/topics/eating-disorders","type":"research-agency-topic"},
+      {"publisher":"NICE","title":"Eating disorders: recognition and treatment (NG69)","url":"https://www.nice.org.uk/guidance/ng69","type":"clinical-guideline"},
+      {"publisher":"NHS","title":"Eating disorders","url":"https://www.nhs.uk/mental-health/feelings-symptoms-behaviours/behaviours/eating-disorders/overview/","type":"government-health-service"}
+    ],
+    "adhd": [
+      {"publisher":"NIMH","title":"Attention-Deficit/Hyperactivity Disorder (ADHD)","url":"https://www.nimh.nih.gov/health/topics/attention-deficit-hyperactivity-disorder-adhd","type":"research-agency-topic"},
+      {"publisher":"NICE","title":"Attention deficit hyperactivity disorder: diagnosis and management (NG87)","url":"https://www.nice.org.uk/guidance/ng87","type":"clinical-guideline"},
+      {"publisher":"CDC","title":"About ADHD","url":"https://www.cdc.gov/adhd/about/index.html","type":"government-public-health"}
+    ],
+    "autism": [
+      {"publisher":"WHO","title":"Autism","url":"https://www.who.int/news-room/fact-sheets/detail/autism-spectrum-disorders","type":"fact-sheet"},
+      {"publisher":"NIMH","title":"Autism Spectrum Disorder","url":"https://www.nimh.nih.gov/health/topics/autism-spectrum-disorders-asd","type":"research-agency-topic"},
+      {"publisher":"NICE","title":"Autism spectrum disorder in adults: diagnosis and management (CG142)","url":"https://www.nice.org.uk/guidance/cg142","type":"clinical-guideline"},
+      {"publisher":"NICE","title":"Autism spectrum disorder in under 19s: support and management (CG170)","url":"https://www.nice.org.uk/guidance/cg170","type":"clinical-guideline"}
+    ]
+  }
+}
