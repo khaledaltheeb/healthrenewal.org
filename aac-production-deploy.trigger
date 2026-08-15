@@ -1,0 +1,4 @@
+aac-wave-01
+release_date=2026-08-15
+source_commit=d907ad41c037803db6c04827fc28f1df89631309
+require_live_paths=true
