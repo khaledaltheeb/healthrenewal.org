@@ -1,7 +1,7 @@
 {
   "version": 9,
-  "updated_at": "2026-08-13",
-  "review_scope": "مراجعة عصبية وراثية إضافية بمصادر مباشرة مع توحيد مرجع MPS VI إلى سجل PubMed الرسمي.",
+  "updated_at": "2026-08-15",
+  "review_scope": "مراجعة عصبية وراثية إضافية بمصادر مباشرة، مع تصحيح مرجع MPS VI إلى إرشاد منهجي قائم على الدليل وإجماع الخبراء.",
   "conditions": {
     "stxbp1-related-disorder": {
       "source_title": "GeneReviews — STXBP1 Encephalopathy with Epilepsy",
@@ -26,8 +26,8 @@
       "opportunity_append": "وجود كلام محدود لا ينفي الفهم؛ لذلك يُختبر الاختيار بالصور أو AAC أو استجابات حركية مبسطة مع وقت معالجة أطول وتوثيق مقدار المساعدة، ويعاد القياس بعد تحسن النوم أو ضبط النوبات عند وجود تذبذب واضح."
     },
     "mucopolysaccharidosis-type-vi": {
-      "source_title": "PubMed — Mucopolysaccharidosis Type VI: An Updated Overview of the Disease",
-      "source_url": "https://pubmed.ncbi.nlm.nih.gov/34942083/"
+      "source_title": "PubMed — Recommendations for the management of MPS VI: systematic evidence- and consensus-based guidance",
+      "source_url": "https://pubmed.ncbi.nlm.nih.gov/31142378/"
     }
   }
 }
