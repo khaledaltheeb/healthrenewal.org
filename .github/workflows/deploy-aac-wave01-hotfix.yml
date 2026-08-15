@@ -1,0 +1,172 @@
+name: Deploy AAC Wave 01 over validated production baseline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-aac-wave01-hotfix.yml'
+      - 'care-guides/aac/**'
+      - 'sitemap-aac.xml'
+      - 'robots.txt'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages-aac-wave01
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build AAC release from validated production baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      release_sha: ${{ steps.source.outputs.release_sha }}
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+
+      - name: Bind release to current main
+        id: source
+        run: |
+          set -euo pipefail
+          echo "release_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Locate latest validated production baseline
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" \
+            -o /tmp/baselines.json
+          python - <<'PY'
+          import json, os
+          payload = json.load(open('/tmp/baselines.json', encoding='utf-8'))
+          items = [x for x in payload.get('artifacts', []) if not x.get('expired') and x.get('workflow_run', {}).get('head_branch') == 'main']
+          if not items:
+              raise SystemExit('No active validated-production-site artifact from main')
+          item = max(items, key=lambda x: x.get('created_at', ''))
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f"run_id={item['workflow_run']['id']}\n")
+          print({'baseline_run_id': item['workflow_run']['id'], 'created_at': item.get('created_at')})
+          PY
+
+      - name: Download validated production baseline
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.baseline.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Overlay reviewed AAC Wave 01 only
+        env:
+          RELEASE_SHA: ${{ steps.source.outputs.release_sha }}
+        run: |
+          set -euo pipefail
+          test -f _site/index.html
+          test -f care-guides/aac/index.html
+          test -f care-guides/aac/core-fringe-vocabulary-arabic/index.html
+          test -f care-guides/aac/arabic-grid-design/index.html
+          test -f care-guides/aac/autism-guide/index.html
+          test -f care-guides/aac/multilingual-arabic-family-languages/index.html
+          mkdir -p _site/care-guides
+          rm -rf _site/care-guides/aac
+          cp -a care-guides/aac _site/care-guides/aac
+          cp sitemap-aac.xml _site/sitemap-aac.xml
+          cp robots.txt _site/robots.txt
+          mkdir -p _site/api
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          release = {
+              'schemaVersion': 1,
+              'status': 'passed',
+              'releaseCommit': os.environ['RELEASE_SHA'],
+              'wave': 'AAC-Wave-01',
+              'strategy': 'validated-production-baseline-plus-reviewed-aac-overlay',
+              'routes': [
+                  '/care-guides/aac/',
+                  '/care-guides/aac/core-fringe-vocabulary-arabic/',
+                  '/care-guides/aac/arabic-grid-design/',
+                  '/care-guides/aac/autism-guide/',
+                  '/care-guides/aac/multilingual-arabic-family-languages/',
+              ],
+          }
+          Path('_site/api/aac-wave01-release.json').write_text(json.dumps(release, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+          grep -Fq 'https://healthrenewal.org/sitemap-aac.xml' _site/robots.txt
+          grep -Fq 'https://healthrenewal.org/care-guides/aac/' _site/sitemap-aac.xml
+          grep -Fq 'مركز التواصل المعزز والبديل AAC' _site/care-guides/aac/index.html
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy and verify AAC Wave 01 live
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify exact AAC release live
+        env:
+          EXPECTED_SHA: ${{ needs.build.outputs.release_sha }}
+        run: |
+          set -euo pipefail
+          ready=0
+          for attempt in $(seq 1 60); do
+            nonce="${GITHUB_RUN_ID}-${attempt}-$(date +%s)"
+            if curl -fsSL -H 'Cache-Control: no-cache' "https://healthrenewal.org/api/aac-wave01-release.json?release=${nonce}" -o /tmp/release.json \
+              && curl -fsSL -H 'Cache-Control: no-cache' "https://healthrenewal.org/care-guides/aac/?release=${nonce}" -o /tmp/aac.html \
+              && curl -fsSL -H 'Cache-Control: no-cache' "https://healthrenewal.org/care-guides/aac/core-fringe-vocabulary-arabic/?release=${nonce}" -o /tmp/core.html \
+              && curl -fsSL -H 'Cache-Control: no-cache' "https://healthrenewal.org/care-guides/aac/arabic-grid-design/?release=${nonce}" -o /tmp/grid.html \
+              && curl -fsSL -H 'Cache-Control: no-cache' "https://healthrenewal.org/care-guides/aac/autism-guide/?release=${nonce}" -o /tmp/autism.html \
+              && curl -fsSL -H 'Cache-Control: no-cache' "https://healthrenewal.org/care-guides/aac/multilingual-arabic-family-languages/?release=${nonce}" -o /tmp/multilingual.html \
+              && curl -fsSL -H 'Cache-Control: no-cache' "https://healthrenewal.org/sitemap-aac.xml?release=${nonce}" -o /tmp/sitemap-aac.xml \
+              && curl -fsSL -H 'Cache-Control: no-cache' "https://healthrenewal.org/robots.txt?release=${nonce}" -o /tmp/robots.txt; then
+              if python - <<'PY'
+          import json, os
+          release = json.load(open('/tmp/release.json', encoding='utf-8'))
+          assert release['status'] == 'passed', release
+          assert release['releaseCommit'] == os.environ['EXPECTED_SHA'], (release, os.environ['EXPECTED_SHA'])
+          assert len(release['routes']) == 5, release
+          assert 'مركز التواصل المعزز والبديل AAC' in open('/tmp/aac.html', encoding='utf-8').read()
+          assert 'المفردات الأساسية' in open('/tmp/core.html', encoding='utf-8').read()
+          assert 'تصميم شبكة AAC عربية' in open('/tmp/grid.html', encoding='utf-8').read()
+          assert 'AAC للطفل المتوحد' in open('/tmp/autism.html', encoding='utf-8').read()
+          assert 'متعدد اللغة' in open('/tmp/multilingual.html', encoding='utf-8').read()
+          assert 'https://healthrenewal.org/care-guides/aac/' in open('/tmp/sitemap-aac.xml', encoding='utf-8').read()
+          assert 'Sitemap: https://healthrenewal.org/sitemap-aac.xml' in open('/tmp/robots.txt', encoding='utf-8').read()
+          print({'status': 'live', 'releaseCommit': release['releaseCommit'], 'routes': release['routes']})
+          PY
+              then
+                ready=1
+                break
+              fi
+            fi
+            sleep 5
+          done
+          test "$ready" -eq 1
