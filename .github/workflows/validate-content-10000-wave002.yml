@@ -5,6 +5,7 @@ on:
     paths:
       - 'content/strategy/content-10000-wave002-high-value-gaps-v1.json'
       - 'content/strategy/source-registry-wave002-v1.json'
+      - 'content/strategy/source-overrides-wave002-v1.json'
       - 'scripts/validate_content_10000_wave002.py'
       - 'care-guides/clinical-literacy/**'
       - '.github/workflows/validate-content-10000-wave002.yml'
@@ -14,6 +15,7 @@ on:
     paths:
       - 'content/strategy/content-10000-wave002-high-value-gaps-v1.json'
       - 'content/strategy/source-registry-wave002-v1.json'
+      - 'content/strategy/source-overrides-wave002-v1.json'
       - 'scripts/validate_content_10000_wave002.py'
       - 'care-guides/clinical-literacy/**'
       - '.github/workflows/validate-content-10000-wave002.yml'
@@ -33,5 +35,5 @@ jobs:
           python-version: '3.12'
       - name: Compile validator
         run: python -m py_compile scripts/validate_content_10000_wave002.py
-      - name: Validate source registry, unique intents, repository collisions and materialized pages
+      - name: Validate source registry, governed sources, unique intents, repository collisions and materialized pages
         run: python scripts/validate_content_10000_wave002.py
