@@ -13,13 +13,12 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: github-pages-production
-  cancel-in-progress: false
-
 jobs:
   publish:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    concurrency:
+      group: github-pages-production
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
