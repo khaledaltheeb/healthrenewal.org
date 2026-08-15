@@ -65,6 +65,7 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import subprocess
           import sys
           from pathlib import Path
 
@@ -72,6 +73,7 @@ jobs:
           import scripts.apply_homepage_v20 as homepage
 
           checkpoint = Path('_site/api/homepage-phase-checkpoint.json')
+          health_checkpoint = Path('_site/api/health-gate-process-checkpoint.json')
           checkpoint.parent.mkdir(parents=True, exist_ok=True)
 
           def write(state, phase, error=None):
@@ -84,11 +86,31 @@ jobs:
           original_run_publisher = homepage.run_publisher
           def traced_publisher(script):
               write('started', f'publisher:{script}')
-              try:
-                  original_run_publisher(script)
-              except BaseException as exc:
-                  write('failed', f'publisher:{script}', exc)
-                  raise
+              if script == 'enforce_health_publication_gate_v192.py':
+                  command = [sys.executable, str(Path('scripts') / script), '_site']
+                  result = subprocess.run(command, text=True, capture_output=True)
+                  health_payload = {
+                      'script': script,
+                      'returncode': result.returncode,
+                      'stdout': result.stdout,
+                      'stderr': result.stderr,
+                  }
+                  health_checkpoint.write_text(
+                      json.dumps(health_payload, ensure_ascii=False, indent=2),
+                      encoding='utf-8',
+                  )
+                  if result.returncode != 0:
+                      error = RuntimeError(
+                          f'{script} exited {result.returncode}; stderr={result.stderr[-4000:]!r}'
+                      )
+                      write('failed', f'publisher:{script}', error)
+                      raise error
+              else:
+                  try:
+                      original_run_publisher(script)
+                  except BaseException as exc:
+                      write('failed', f'publisher:{script}', exc)
+                      raise
               write('passed', f'publisher:{script}')
           homepage.run_publisher = traced_publisher
 
@@ -131,6 +153,10 @@ jobs:
           path: |
             _site/api/homepage-v20.json
             _site/api/homepage-phase-checkpoint.json
+            _site/api/health-gate-process-checkpoint.json
+            _site/api/health-publication-gate-v192.json
+            _site/api/institutional-header-v233.json
+            _site/api/sector-image-dimensions-v236.json
             _site/api/publication-surface-v322.json
             _site/api/internal-base-paths-v198.json
             _site/api/polish-v16.json
@@ -138,4 +164,4 @@ jobs:
           if-no-files-found: warn
           retention-days: 2
 
-# Diagnostic rerun marker: post-quick-info production state.
+# Diagnostic rerun marker: capture health gate stdout/stderr.
