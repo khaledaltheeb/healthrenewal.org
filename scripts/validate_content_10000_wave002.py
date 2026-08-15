@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / "content/strategy/content-10000-wave002-high-value-gaps-v1.json"
 SOURCES = ROOT / "content/strategy/source-registry-wave002-v1.json"
+SOURCE_OVERRIDES = ROOT / "content/strategy/source-overrides-wave002-v1.json"
 WAVE_ROOT = ROOT / "care-guides/clinical-literacy"
 
 
@@ -73,13 +74,13 @@ def existing_routes_and_titles(planned_routes: set[str]) -> tuple[set[str], list
     return routes, titles
 
 
-def validate_materialized(page: dict, plan: dict, errors: list[str], warnings: list[str]) -> dict | None:
+def validate_materialized(page: dict, effective_sources: list[str], plan: dict, errors: list[str], warnings: list[str]) -> dict | None:
     path = WAVE_ROOT / page["slug"] / "index.html"
     if not path.is_file():
         return None
     minimum_sources = plan["publicationRules"]["minimumTopicSpecificSources"]
-    if len(page.get("sources", [])) < minimum_sources:
-        errors.append(f"{page['slug']}: materialized page plan has fewer than {minimum_sources} topic-specific sources")
+    if len(effective_sources) < minimum_sources:
+        errors.append(f"{page['slug']}: materialized page governance has fewer than {minimum_sources} topic-specific sources")
     source = path.read_text(encoding="utf-8", errors="ignore")
     wc = word_count(source)
     minimum = plan["publicationRules"]["minimumUsefulWords"]
@@ -104,12 +105,14 @@ def validate_materialized(page: dict, plan: dict, errors: list[str], warnings: l
         errors.append(f"{page['slug']}: only {internal_links} internal links")
     if "تشخيص ذاتي" not in source and "لا يقدم تشخيص" not in source and "غير تشخيصي" not in source:
         warnings.append(f"{page['slug']}: inspect non-diagnostic boundary language")
-    return {"slug": page["slug"], "words": wc, "sources": source_links, "internalLinks": internal_links}
+    return {"slug": page["slug"], "words": wc, "sources": source_links, "governedSources": len(effective_sources), "internalLinks": internal_links}
 
 
 def main() -> int:
     plan = json.loads(PLAN.read_text(encoding="utf-8"))
     registry = json.loads(SOURCES.read_text(encoding="utf-8"))
+    overrides = json.loads(SOURCE_OVERRIDES.read_text(encoding="utf-8")) if SOURCE_OVERRIDES.is_file() else {"pages": {}}
+    override_pages = overrides.get("pages", {})
     source_ids = set(registry["sources"])
     pages = [page for cluster in plan["clusters"] for page in cluster["pages"]]
     planned_routes = {f"care-guides/clinical-literacy/{page['slug']}" for page in pages}
@@ -128,18 +131,26 @@ def main() -> int:
         if len(values) != len(set(values)):
             errors.append(f"duplicate {label} detected")
 
+    known_slugs = set(slugs)
+    unknown_override_slugs = sorted(set(override_pages) - known_slugs)
+    if unknown_override_slugs:
+        errors.append(f"source overrides reference unknown slugs {unknown_override_slugs}")
+
     for page in pages:
-        missing_sources = [source for source in page.get("sources", []) if source not in source_ids]
+        effective_sources = override_pages.get(page["slug"], page.get("sources", []))
+        if len(effective_sources) != len(set(effective_sources)):
+            errors.append(f"{page['slug']}: duplicate source ids in effective source set")
+        missing_sources = [source for source in effective_sources if source not in source_ids]
         if missing_sources:
             errors.append(f"{page['slug']}: unknown sources {missing_sources}")
         if not page.get("decision"):
             errors.append(f"{page['slug']}: missing decision question")
         if len(tokens(page.get("primaryQuery", ""))) < 2:
             errors.append(f"{page['slug']}: primaryQuery too broad")
-        stats = validate_materialized(page, plan, errors, warnings)
+        stats = validate_materialized(page, effective_sources, plan, errors, warnings)
         if stats:
             materialized.append(stats)
-        elif len(page.get("sources", [])) < plan["publicationRules"]["minimumTopicSpecificSources"]:
+        elif len(effective_sources) < plan["publicationRules"]["minimumTopicSpecificSources"]:
             warnings.append(f"{page['slug']}: source set must be completed before materialization")
 
     for i, left in enumerate(pages):
@@ -181,6 +192,7 @@ def main() -> int:
         "materializedPages": len(materialized),
         "materialized": materialized,
         "sources": len(source_ids),
+        "sourceOverridePages": len(override_pages),
         "errors": errors,
         "warnings": warnings,
         "status": "passed" if not errors else "failed",
