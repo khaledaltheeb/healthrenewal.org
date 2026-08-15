@@ -116,7 +116,7 @@ class ConditionsV281Contract(unittest.TestCase):
         items = self.data["conditions"]
         for item in items:
             self.assertEqual(set(item), required, item["slug"])
-            self.assertIn(item["category"], allowed_categories)
+            self.assertIn(item["category"], allowed_categories, item["slug"])
             for key in (
                 "cause",
                 "pattern",
@@ -303,7 +303,7 @@ class ConditionsV281Contract(unittest.TestCase):
         self.assertIn("validate_capabilities_production_v1.py", deploy)
         self.assertIn("validated-production-site", deploy)
         self.assertIn("actions/deploy-pages@v4", deploy)
-        self.assertIn("Verify exact capabilities publication live", deploy)
+        self.assertIn("Verify exact institutional publication live", deploy)
         self.assertIn("https://healthrenewal.org/deployment.json", deploy)
         self.assertIn("https://healthrenewal.org/api/capabilities-production-gate-v1.json", deploy)
 
