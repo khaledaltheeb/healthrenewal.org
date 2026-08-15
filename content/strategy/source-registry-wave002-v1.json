@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "wave": "002",
-  "reviewedAt": "2026-08-14",
+  "reviewedAt": "2026-08-15",
   "policy": "مصادر هذه الموجة للتحقق والتركيب لا للنسخ. تعطى الأولوية للإرشادات الرسمية والهيئات الحكومية والمنظمات الدولية والمعايير المنهجية والمراجعات عالية الجودة. يمنع استخدام صفحة تجارية لإثبات تشخيص أو فعالية علاجية.",
   "sources": {
     "cdc-autism-diagnosis": {"publisher":"CDC","title":"Screening for Autism Spectrum Disorder","url":"https://www.cdc.gov/autism/diagnosis/index.html","type":"government-public-health"},
@@ -18,6 +18,12 @@
     "nice-shared-decision": {"publisher":"NICE","title":"Shared decision making (NG197)","url":"https://www.nice.org.uk/guidance/ng197","type":"clinical-guideline"},
     "ahrq-health-literacy": {"publisher":"AHRQ","title":"Health Literacy","url":"https://www.ahrq.gov/ncepcr/research/health-literacy.html","type":"government-health-quality"},
     "cosmin": {"publisher":"COSMIN","title":"COSMIN methodology for measurement properties","url":"https://www.cosmin.nl/","type":"measurement-methodology"},
+    "cosmin-definitions": {"publisher":"COSMIN","title":"COSMIN definitions of domains and measurement properties","url":"https://cosmin.nl/wp-content/uploads/COSMIN-definitions-domains-measurement-properties.pdf","type":"measurement-taxonomy"},
+    "cosmin-manual-v2": {"publisher":"COSMIN","title":"COSMIN Manual version 2.0","url":"https://www.cosmin.nl/wp-content/uploads/COSMIN-manual-V2_final.pdf","type":"measurement-methodology"},
+    "cosmin-reporting-guideline": {"publisher":"COSMIN","title":"Reporting guideline for studies on measurement properties","url":"https://www.cosmin.nl/wp-content/uploads/Reporting-guideline-for-studies-on-measurement-properties_final.pdf","type":"measurement-reporting-guideline"},
+    "cochrane-dta-handbook": {"publisher":"Cochrane","title":"Cochrane Handbook for Systematic Reviews of Diagnostic Test Accuracy, version 2.0","url":"https://training.cochrane.org/handbook-diagnostic-test-accuracy/current","type":"diagnostic-accuracy-methodology"},
+    "stard-2015": {"publisher":"EQUATOR Network / STARD Group","title":"STARD 2015: essential items for reporting diagnostic accuracy studies","url":"https://www.equator-network.org/reporting-guidelines/stard/","type":"diagnostic-accuracy-reporting-guideline"},
+    "cochrane-dta-methods": {"publisher":"Cochrane Screening and Diagnostic Tests","title":"Diagnostic test accuracy methods resources","url":"https://methods.cochrane.org/sdt/","type":"diagnostic-accuracy-methodology"},
     "grade": {"publisher":"GRADE Working Group","title":"GRADE approach","url":"https://www.gradeworkinggroup.org/","type":"evidence-certainty-methodology"},
     "cochrane-handbook": {"publisher":"Cochrane","title":"Cochrane Handbook for Systematic Reviews of Interventions","url":"https://training.cochrane.org/handbook","type":"systematic-review-methodology"},
     "unesco-inclusion": {"publisher":"UNESCO","title":"Inclusion in education","url":"https://www.unesco.org/en/inclusion-education","type":"intergovernmental-education"},
