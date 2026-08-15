@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "wave": "002",
+  "purpose": "Additive source governance for planned pages whose original plan intentionally remains immutable for audit history.",
+  "pages": {
+    "psychological-test-validity-guide": ["cosmin", "cosmin-definitions", "cosmin-manual-v2", "cosmin-reporting-guideline"],
+    "psychological-test-reliability-guide": ["cosmin", "cosmin-definitions", "cosmin-manual-v2", "cosmin-reporting-guideline"],
+    "sensitivity-specificity-explained": ["cochrane-dta-handbook", "stard-2015", "cochrane-dta-methods"],
+    "positive-negative-predictive-value": ["cochrane-dta-handbook", "stard-2015", "cochrane-dta-methods"],
+    "screening-test-cutoff-scores": ["cochrane-dta-handbook", "stard-2015", "cosmin-manual-v2"],
+    "measurement-error-change-score": ["cosmin", "cosmin-definitions", "cosmin-manual-v2", "cosmin-reporting-guideline"]
+  }
+}
