@@ -1,0 +1,57 @@
+name: Materialize AAC pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'aac-publish.trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Materialize published AAC records from Supabase
+        run: python scripts/materialize_aac_from_supabase.py
+      - name: Validate generated pages
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          required = [
+              Path('care-guides/aac/index.html'),
+              Path('care-guides/aac/core-fringe-vocabulary-arabic/index.html'),
+              Path('care-guides/aac/arabic-grid-design/index.html'),
+              Path('care-guides/aac/autism-guide/index.html'),
+              Path('care-guides/aac/multilingual-arabic-family-languages/index.html'),
+              Path('sitemap-aac.xml'),
+          ]
+          for p in required:
+              if not p.exists() or p.stat().st_size < 500:
+                  raise SystemExit(f'Invalid generated file: {p}')
+          for p in required[1:5]:
+              text = p.read_text(encoding='utf-8')
+              if '<meta name="robots" content="index,follow' not in text:
+                  raise SystemExit(f'Missing index directive: {p}')
+              if text.count('<h2>') < 8:
+                  raise SystemExit(f'Insufficient structure: {p}')
+          print('AAC static publication validation: PASS')
+          PY
+      - name: Commit generated publication
+        run: |
+          git config user.name 'Rawafid Publisher'
+          git config user.email 'actions@users.noreply.github.com'
+          git add care-guides/aac care-guides/index.html sitemap.xml sitemap-aac.xml robots.txt
+          if git diff --cached --quiet; then
+            echo 'No materialized changes.'
+            exit 0
+          fi
+          git commit -m 'publish: materialize AAC Wave 01 on GitHub Pages'
+          git push
