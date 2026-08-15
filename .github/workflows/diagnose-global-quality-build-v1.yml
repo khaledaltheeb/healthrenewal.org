@@ -137,3 +137,5 @@ jobs:
             _site/api/site-integrity-v13.json
           if-no-files-found: warn
           retention-days: 2
+
+# Diagnostic rerun marker: post-quick-info production state.
