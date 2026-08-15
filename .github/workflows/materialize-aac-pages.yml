@@ -48,7 +48,7 @@ jobs:
         run: |
           git config user.name 'Rawafid Publisher'
           git config user.email 'actions@users.noreply.github.com'
-          git add care-guides/aac care-guides/index.html sitemap.xml sitemap-aac.xml robots.txt
+          git add care-guides/aac sitemap.xml sitemap-aac.xml robots.txt
           if git diff --cached --quiet; then
             echo 'No materialized changes.'
             exit 0
