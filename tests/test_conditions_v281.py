@@ -31,6 +31,29 @@ TRUSTED_SOURCE_HOSTS = {
     "www.who.int",
 }
 
+VERIFIED_PUBMED_SOURCES = {
+    "setd5-related-neurodevelopmental-disorder": (
+        "https://pubmed.ncbi.nlm.nih.gov/40265665/",
+        "SETD5",
+    ),
+    "scn2a-related-disorder": (
+        "https://pubmed.ncbi.nlm.nih.gov/38651838/",
+        "SCN2A",
+    ),
+    "cacna1a-related-disorder": (
+        "https://pubmed.ncbi.nlm.nih.gov/37555011/",
+        "CACNA1A",
+    ),
+    "mucopolysaccharidosis-type-vi": (
+        "https://pubmed.ncbi.nlm.nih.gov/31142378/",
+        "MPS VI",
+    ),
+}
+
+KNOWN_WRONG_SOURCE_URLS = {
+    "https://pubmed.ncbi.nlm.nih.gov/34942083/",
+}
+
 
 def load_module(name: str, path: Path):
     spec = importlib.util.spec_from_file_location(name, path)
@@ -135,6 +158,17 @@ class ConditionsV281Contract(unittest.TestCase):
         ):
             self.assertNotIn(banned, text)
         self.assertIn("لا توجد مصادقة أو مراجعة سريرية خارجية مستقلة", text)
+
+    def test_verified_pubmed_sources_match_the_intended_conditions(self):
+        by_slug = {item["slug"]: item for item in self.data["conditions"]}
+        for slug, (expected_url, title_token) in VERIFIED_PUBMED_SOURCES.items():
+            with self.subTest(slug=slug):
+                item = by_slug[slug]
+                self.assertEqual(item["source_url"], expected_url)
+                self.assertIn(title_token.casefold(), item["source_title"].casefold())
+
+        source_urls = {item["source_url"] for item in self.data["conditions"]}
+        self.assertTrue(KNOWN_WRONG_SOURCE_URLS.isdisjoint(source_urls))
 
     def test_condition_specific_packets_are_not_near_duplicates(self):
         packets = []
