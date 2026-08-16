@@ -1,0 +1,183 @@
+name: Diagnose production assembly
+
+on:
+  push:
+    branches:
+      - fix/production-build-diagnostics
+    paths:
+      - '.github/workflows/diagnose-production-assembly.yml'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'content/**'
+      - 'magazine/**'
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      CAPABILITIES_LASTMOD: '2026-08-14'
+    steps:
+      - name: Checkout diagnostic branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Locate latest validated production baseline
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" \
+            -o /tmp/baselines.json
+          python - <<'PY'
+          import json
+          import os
+
+          payload = json.load(open('/tmp/baselines.json', encoding='utf-8'))
+          candidates = [
+              item for item in payload.get('artifacts', [])
+              if not item.get('expired')
+              and item.get('workflow_run', {}).get('head_branch') == 'main'
+              and item.get('workflow_run', {}).get('id')
+          ]
+          if not candidates:
+              raise SystemExit('No active validated-production-site artifact from main')
+          item = max(candidates, key=lambda value: value.get('created_at', ''))
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f"run_id={item['workflow_run']['id']}\n")
+          print({'baselineRunId': item['workflow_run']['id'], 'createdAt': item.get('created_at')})
+          PY
+
+      - name: Download validated baseline
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: /tmp/validated-baseline
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.baseline.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Build clean site from source and baseline
+        run: |
+          set -euxo pipefail
+          test -f /tmp/validated-baseline/index.html
+          python scripts/build_clean_site_v1.py --root . --site _site --baseline /tmp/validated-baseline
+
+      - name: Regenerate capabilities and conditions
+        run: |
+          set -euxo pipefail
+          python scripts/publish_capabilities_v280.py _site
+          python scripts/build_conditions_v281_data.py
+          python scripts/publish_conditions_v281.py _site
+
+      - name: Regenerate special-needs scientific surfaces
+        run: |
+          set -euxo pipefail
+          python scripts/publish_scientific_special_needs_library_v1.py _site
+          python scripts/publish_special_needs_wave100_v1.py _site --repo-root .
+
+      - name: Regenerate magazine contracts
+        run: |
+          set -euxo pipefail
+          python scripts/publish_magazine_v201.py _site
+
+      - name: Normalize final platform shell
+        run: |
+          set -euxo pipefail
+          python scripts/normalize_platform_shell.py _site --report-path _site/reports/final-platform-normalization.json
+          if test -f scripts/publish_section_directory_v322.py; then
+            python scripts/publish_section_directory_v322.py _site
+          fi
+
+      - name: Rebuild complete sitemap
+        run: |
+          set -euxo pipefail
+          python scripts/publish_complete_sitemap_v360.py _site --minimum-urls 3000
+
+      - name: Apply capabilities SEO
+        run: |
+          set -euxo pipefail
+          python scripts/enforce_capabilities_seo_v1.py _site
+
+      - name: Validate capability production contracts
+        run: |
+          set -euxo pipefail
+          python scripts/validate_capabilities_production_v1.py _site --minimum-v281-words 1300
+
+      - name: Validate special-needs Wave100 quality
+        run: |
+          set -euxo pipefail
+          python scripts/validate_special_needs_wave100_v1.py _site --minimum-words 1200
+
+      - name: Validate final cross-surface evidence
+        run: |
+          set -euxo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          site = Path('_site')
+          gate = json.loads((site / 'api/capabilities-production-gate-v1.json').read_text(encoding='utf-8'))
+          seo = json.loads((site / 'api/capabilities-seo-v1.json').read_text(encoding='utf-8'))
+          sitemap = json.loads((site / 'api/sitemap-completeness-v360.json').read_text(encoding='utf-8'))
+          normalization = json.loads((site / 'reports/final-platform-normalization.json').read_text(encoding='utf-8'))
+          v281 = json.loads((site / 'api/capabilities-v281.json').read_text(encoding='utf-8'))
+          wave100 = json.loads((site / 'api/special-needs-wave100-v1.json').read_text(encoding='utf-8'))
+          wave100_quality = json.loads((site / 'api/special-needs-wave100-visible-quality-v1.json').read_text(encoding='utf-8'))
+          magazine = json.loads((site / 'api/magazine-v201.json').read_text(encoding='utf-8'))
+          magazine_index = (site / 'magazine/index.html').read_text(encoding='utf-8')
+          final_html = sum(1 for path in site.rglob('*.html') if path.is_file())
+
+          assert gate['status'] == 'passed', gate
+          assert gate['counts']['capability_pages'] >= 155, gate
+          assert gate['counts']['capability_condition_pages'] >= 150, gate
+          assert gate['v280ConditionCount'] == 100, gate
+          assert gate['v281ConditionCount'] == 50, gate
+          assert gate['reviewedConditionCount'] == 50, gate
+          assert gate['failures'] == {}, gate
+          assert seo['status'] == 'passed', seo
+          assert seo['pages_processed'] >= 155, seo
+          assert seo['legacy_internal_origin_occurrences'] == 0, seo
+          assert v281['status'] == 'passed', v281
+          assert v281['generated_page_count'] == 51, v281
+          assert v281['minimum_page_word_count'] >= 1300, v281
+          assert wave100['status'] == 'passed', wave100
+          assert wave100['generated'] == 100, wave100
+          assert wave100['topicPages'] == 90 and wave100['hubPages'] == 10, wave100
+          assert wave100['conflicts'] == [], wave100
+          assert wave100_quality['status'] == 'passed', wave100_quality
+          assert wave100_quality['pages'] == 100, wave100_quality
+          assert wave100_quality['topicPages'] == 90 and wave100_quality['hubPages'] == 10, wave100_quality
+          assert wave100_quality['minimumVisibleTopicWords'] >= 1200, wave100_quality
+          assert wave100_quality['minimumSourceLinks'] >= 2, wave100_quality
+          assert wave100_quality['failures'] == [], wave100_quality
+          assert magazine['version'] >= 316, magazine
+          assert magazine['research_summaries_published'] >= 79, magazine
+          assert magazine['remaining_to_target'] == max(0, magazine['target_research_summaries'] - magazine['research_summaries_published']), magazine
+          assert magazine['continuous_publication_policy'] is True, magazine
+          assert magazine['unwired_research_pages'] == 0, magazine
+          assert magazine['index_contract'] == 'generated-from-discovered-articles-sorted-by-datePublished', magazine
+          assert magazine['rss_contract'] == 'latest-twenty-sorted-by-datePublished', magazine
+          assert len(magazine['articles']) == magazine['research_summaries_published'], magazine
+          assert f"{magazine['research_summaries_published']} قراءة علمية مستقلة" in magazine_index
+          assert 'الهدف المرحلي 100 قراءة' in magazine_index
+          assert magazine_index.count('class="card"') == magazine['research_summaries_published']
+          assert sitemap['status'] == 'passed', sitemap
+          assert sitemap['real_indexable_urls'] >= 3000, sitemap
+          assert normalization['status'] == 'passed', normalization
+          assert final_html >= 3000, final_html
+          print({'status': 'passed', 'htmlPages': final_html, 'indexableUrls': sitemap['real_indexable_urls'], 'magazineArticles': magazine['research_summaries_published']})
+          PY
