@@ -94,6 +94,7 @@ jobs:
             scripts/enforce_capabilities_seo_v1.py \
             scripts/publish_scientific_special_needs_library_v1.py \
             scripts/publish_special_needs_wave100_v1.py \
+            scripts/publish_magazine_v201.py \
             scripts/validate_special_needs_wave100_v1.py \
             scripts/normalize_platform_shell.py \
             scripts/publish_complete_sitemap_v360.py \
@@ -125,6 +126,10 @@ jobs:
           # Rebuild scientific surfaces and the reviewed 100-page knowledge wave.
           python scripts/publish_scientific_special_needs_library_v1.py _site
           python scripts/publish_special_needs_wave100_v1.py _site --repo-root .
+
+          # Regenerate the magazine index, RSS, API contract and article publication
+          # from the same reviewed repository source before final normalization/indexing.
+          python scripts/publish_magazine_v201.py _site
 
           # Every late publisher receives the same institutional shell before indexing.
           python scripts/normalize_platform_shell.py \
@@ -163,6 +168,8 @@ jobs:
           v281 = json.loads((site / 'api/capabilities-v281.json').read_text(encoding='utf-8'))
           wave100 = json.loads((site / 'api/special-needs-wave100-v1.json').read_text(encoding='utf-8'))
           wave100_quality = json.loads((site / 'api/special-needs-wave100-visible-quality-v1.json').read_text(encoding='utf-8'))
+          magazine = json.loads((site / 'api/magazine-v201.json').read_text(encoding='utf-8'))
+          magazine_index = (site / 'magazine/index.html').read_text(encoding='utf-8')
           final_html = sum(1 for path in site.rglob('*.html') if path.is_file())
 
           assert gate['status'] == 'passed', gate
@@ -188,6 +195,17 @@ jobs:
           assert wave100_quality['minimumVisibleTopicWords'] >= 1200, wave100_quality
           assert wave100_quality['minimumSourceLinks'] >= 2, wave100_quality
           assert wave100_quality['failures'] == [], wave100_quality
+          assert magazine['version'] >= 316, magazine
+          assert magazine['research_summaries_published'] >= 79, magazine
+          assert magazine['remaining_to_target'] == max(0, magazine['target_research_summaries'] - magazine['research_summaries_published']), magazine
+          assert magazine['continuous_publication_policy'] is True, magazine
+          assert magazine['unwired_research_pages'] == 0, magazine
+          assert magazine['index_contract'] == 'generated-from-discovered-articles-sorted-by-datePublished', magazine
+          assert magazine['rss_contract'] == 'latest-twenty-sorted-by-datePublished', magazine
+          assert len(magazine['articles']) == magazine['research_summaries_published'], magazine
+          assert f"{magazine['research_summaries_published']} قراءة علمية مستقلة" in magazine_index, magazine_index[:1800]
+          assert 'الهدف المرحلي 100 قراءة' in magazine_index, magazine_index[:1800]
+          assert magazine_index.count('class="card"') == magazine['research_summaries_published'], magazine_index.count('class="card"')
           assert sitemap['status'] == 'passed', sitemap
           assert sitemap['real_indexable_urls'] >= 3000, sitemap
           assert normalization['status'] == 'passed', normalization
@@ -199,7 +217,7 @@ jobs:
           audit = {
               'schemaVersion': 8,
               'status': 'passed',
-              'policy': 'repository-authoritative; baseline loss recovery; deterministic capability and special-needs regeneration; independent visible-content quality gate; final sitemap/indexability gates; exact live release verification',
+              'policy': 'repository-authoritative; baseline loss recovery; deterministic capability, magazine and special-needs regeneration; independent visible-content quality gate; final sitemap/indexability gates; exact live release verification',
               'releaseCommit': os.environ['BUILD_SHA'],
               'finalPublication': {
                   'htmlPages': final_html,
@@ -207,6 +225,11 @@ jobs:
               },
               'capabilities': gate,
               'capabilitiesSeo': seo,
+              'magazine': {
+                  'version': magazine['version'],
+                  'researchSummariesPublished': magazine['research_summaries_published'],
+                  'unwiredResearchPages': magazine['unwired_research_pages'],
+              },
               'specialNeedsWave100': wave100_quality,
               'platformNormalization': normalization['counts'],
           }
@@ -230,6 +253,9 @@ jobs:
                       'reviewedConditionCount': gate['reviewedConditionCount'],
                       'capabilitiesSeoPagesProcessed': seo['pages_processed'],
                       'capabilitiesLegacyOrigins': seo['legacy_internal_origin_occurrences'],
+                      'magazineVersion': magazine['version'],
+                      'magazineResearchSummariesPublished': magazine['research_summaries_published'],
+                      'magazineUnwiredResearchPages': magazine['unwired_research_pages'],
                       'wave100Pages': wave100_quality['pages'],
                       'wave100TopicPages': wave100_quality['topicPages'],
                       'wave100HubPages': wave100_quality['hubPages'],
