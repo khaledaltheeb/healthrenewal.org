@@ -71,7 +71,7 @@ jobs:
               'git ' + 'commit',
               'git ' + 'push',
               'TARGET_' + 'BRANCH=',
-              'ref:' + ' ${{',
+              'ref:' + ' $' + '{{',
           )
           for fragment in required:
               assert fragment in workflow, fragment
