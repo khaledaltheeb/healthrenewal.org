@@ -41,6 +41,35 @@ class CareGuidesV234Tests(unittest.TestCase):
             for prohibited in ("تشخيص مؤكد", "يغني عن الطبيب", "بديل عن العلاج", "نتيجة نهائية", "معاقين"):
                 self.assertNotIn(prohibited, joined, guide["slug"])
 
+    def test_light_hero_contrast_contract(self) -> None:
+        care_css = (ROOT / "assets/css/care-guides-v234.css").read_text(encoding="utf-8")
+        polish_css = (ROOT / "assets/platform/sitewide-polish.css").read_text(encoding="utf-8")
+        platform_js = (ROOT / "assets/platform/platform-core.js").read_text(encoding="utf-8")
+        normalizer = (ROOT / "scripts/normalize_platform_shell.py").read_text(encoding="utf-8")
+
+        self.assertRegex(
+            care_css,
+            r"\.care-v21__hero\{[^}]*color:var\(--care-ink\)",
+            "Care-guide light hero must set an explicit dark inherited text color.",
+        )
+        self.assertRegex(
+            care_css,
+            r"\.care-v21__hero h1\{[^}]*color:var\(--care-ink\)",
+            "Care-guide H1 must never inherit a legacy white header color.",
+        )
+        self.assertRegex(
+            care_css,
+            r"\.care-v21__audience span,\.care-tag\{[^}]*color:var\(--care-ink\)",
+            "Audience tags need an explicit readable foreground on their light background.",
+        )
+        self.assertIn(".care-stat span{color:var(--care-muted)}", care_css)
+        self.assertIn('[data-pt-contrast-fix="dark"]', polish_css)
+        self.assertIn('[data-pt-contrast-fix="dark-muted"]', polish_css)
+        self.assertIn("const auditHeroContrast = () =>", platform_js)
+        self.assertIn("contrastRatio(foreground, background) >= 4.5", platform_js)
+        self.assertIn("background) < 0.62", platform_js)
+        self.assertIn("SHELL_VERSION = \"1.2.0\"", normalizer)
+
     def test_institutional_publication_contract(self) -> None:
         with tempfile.TemporaryDirectory(prefix="care-v246-") as temp:
             site = Path(temp)
