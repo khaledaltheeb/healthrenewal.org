@@ -45,7 +45,6 @@ class CareGuidesV234Tests(unittest.TestCase):
         care_css = (ROOT / "assets/css/care-guides-v234.css").read_text(encoding="utf-8")
         polish_css = (ROOT / "assets/platform/sitewide-polish.css").read_text(encoding="utf-8")
         platform_js = (ROOT / "assets/platform/platform-core.js").read_text(encoding="utf-8")
-        normalizer = (ROOT / "scripts/normalize_platform_shell.py").read_text(encoding="utf-8")
 
         self.assertRegex(
             care_css,
@@ -63,12 +62,11 @@ class CareGuidesV234Tests(unittest.TestCase):
             "Audience tags need an explicit readable foreground on their light background.",
         )
         self.assertIn(".care-stat span{color:var(--care-muted)}", care_css)
-        self.assertIn('[data-pt-contrast-fix="dark"]', polish_css)
-        self.assertIn('[data-pt-contrast-fix="dark-muted"]', polish_css)
-        self.assertIn("const auditHeroContrast = () =>", platform_js)
-        self.assertIn("contrastRatio(foreground, background) >= 4.5", platform_js)
-        self.assertIn("background) < 0.62", platform_js)
-        self.assertIn("SHELL_VERSION = \"1.2.0\"", normalizer)
+        self.assertIn("body.pt-platform .care-v21__hero", polish_css)
+        self.assertIn("--pt-light-hero-ink: #12393d", polish_css)
+        self.assertIn("--pt-light-hero-muted: #45676b", polish_css)
+        self.assertNotIn("auditHeroContrast", platform_js)
+        self.assertNotIn("paintedBackground", platform_js)
 
     def test_institutional_publication_contract(self) -> None:
         with tempfile.TemporaryDirectory(prefix="care-v246-") as temp:
