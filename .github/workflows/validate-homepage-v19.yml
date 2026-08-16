@@ -13,8 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Compile verifier
-        run: python -m py_compile scripts/verify_homepage_v19.py
+      - name: Compile verifier and tests
+        run: |
+          python -m py_compile scripts/verify_homepage_v19.py tests/test_verify_homepage_v19.py
+      - name: Run semantic discovery metadata unit tests
+        run: python -m unittest -v tests.test_verify_homepage_v19
       - name: Validate homepage discovery, metadata, and structure
         run: |
           set +e
