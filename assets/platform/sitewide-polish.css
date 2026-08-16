@@ -59,13 +59,8 @@ body.pt-platform .lead {
   color: var(--pt-muted);
 }
 
-/*
- * Hero contrast safety.
- * The platform runtime marks only text that fails WCAG contrast against its
- * effective light hero background. Dark heroes and high-contrast controls are
- * deliberately left unchanged. The care-guide fallback is static so its hero
- * remains readable even before/devoid of JavaScript.
- */
+/* Care guides use a light pastel hero. Keep its foreground explicit so legacy
+   global `header { color:#fff }` rules cannot leak into audience/stat labels. */
 body.pt-platform .care-v21__hero {
   color: var(--pt-light-hero-ink) !important;
 }
@@ -77,12 +72,6 @@ body.pt-platform .care-v21__hero .care-stat {
 body.pt-platform .care-v21__hero p,
 body.pt-platform .care-v21__hero .care-stat span,
 body.pt-platform .care-v21__hero .care-v21__small {
-  color: var(--pt-light-hero-muted) !important;
-}
-body.pt-platform [data-pt-contrast-fix="dark"] {
-  color: var(--pt-light-hero-ink) !important;
-}
-body.pt-platform [data-pt-contrast-fix="dark-muted"] {
   color: var(--pt-light-hero-muted) !important;
 }
 
