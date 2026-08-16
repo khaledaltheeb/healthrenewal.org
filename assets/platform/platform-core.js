@@ -74,7 +74,107 @@
     return main.id;
   };
 
+  const parseCssColor = (value) => {
+    const match = String(value || '').match(/rgba?\(\s*([\d.]+)[ ,]+([\d.]+)[ ,]+([\d.]+)(?:\s*[,/]\s*([\d.]+))?\s*\)/i);
+    if (!match) return null;
+    return {
+      r: Math.min(255, Number(match[1])),
+      g: Math.min(255, Number(match[2])),
+      b: Math.min(255, Number(match[3])),
+      a: match[4] === undefined ? 1 : Math.max(0, Math.min(1, Number(match[4])))
+    };
+  };
+
+  const channelLuminance = (value) => {
+    const channel = value / 255;
+    return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  };
+
+  const luminance = (color) => (
+    0.2126 * channelLuminance(color.r)
+    + 0.7152 * channelLuminance(color.g)
+    + 0.0722 * channelLuminance(color.b)
+  );
+
+  const contrastRatio = (foreground, background) => {
+    const light = Math.max(luminance(foreground), luminance(background));
+    const dark = Math.min(luminance(foreground), luminance(background));
+    return (light + 0.05) / (dark + 0.05);
+  };
+
+  const averageColors = (colors) => {
+    if (!colors.length) return null;
+    const total = colors.reduce((sum, color) => ({
+      r: sum.r + color.r,
+      g: sum.g + color.g,
+      b: sum.b + color.b,
+      a: sum.a + color.a
+    }), { r: 0, g: 0, b: 0, a: 0 });
+    return {
+      r: total.r / colors.length,
+      g: total.g / colors.length,
+      b: total.b / colors.length,
+      a: total.a / colors.length
+    };
+  };
+
+  const paintedBackground = (node, boundary) => {
+    let current = node instanceof Element ? node : node?.parentElement;
+    while (current && current !== body.parentElement) {
+      const style = getComputedStyle(current);
+      const solid = parseCssColor(style.backgroundColor);
+      if (solid && solid.a >= 0.92) return solid;
+      if (style.backgroundImage && style.backgroundImage !== 'none') {
+        const gradientColors = [...style.backgroundImage.matchAll(/rgba?\([^\)]+\)/gi)]
+          .map((match) => parseCssColor(match[0]))
+          .filter((color) => color && color.a >= 0.7);
+        const average = averageColors(gradientColors);
+        if (average) return average;
+      }
+      if (current === boundary) break;
+      current = current.parentElement;
+    }
+    return { r: 255, g: 255, b: 255, a: 1 };
+  };
+
+  const auditHeroContrast = () => {
+    const heroSelector = [
+      'main .hero',
+      'main [class$="-hero"]',
+      'main [class*="__hero"]',
+      'main [data-hero]',
+      'main > header'
+    ].join(',');
+    const heroes = [...new Set(doc.querySelectorAll(heroSelector))]
+      .filter((hero) => !hero.closest('.pt-global-shell'));
+    const textSelector = 'h1,h2,h3,h4,h5,h6,p,li,dd,dt,small,span,strong,label,summary';
+    let fixed = 0;
+
+    heroes.forEach((hero) => {
+      hero.dataset.ptHeroAudited = 'true';
+      hero.querySelectorAll(textSelector).forEach((node) => {
+        if (node.closest('a,button,[role="button"]')) return;
+        if (!node.textContent?.trim()) return;
+        const style = getComputedStyle(node);
+        if (style.visibility === 'hidden' || style.display === 'none' || Number(style.opacity) < 0.5) return;
+        const foreground = parseCssColor(style.color);
+        const background = paintedBackground(node, hero);
+        if (!foreground || !background || background.a < 0.7) return;
+        if (luminance(background) < 0.62) return;
+        if (contrastRatio(foreground, background) >= 4.5) return;
+        const muted = node.matches('p,small,dd,dt,[class*="meta"],[class*="subtitle"],[class*="description"]');
+        node.dataset.ptContrastFix = muted ? 'dark-muted' : 'dark';
+        fixed += 1;
+      });
+    });
+
+    body.dataset.ptHeroContrastAudited = 'true';
+    body.dataset.ptHeroContrastFixes = String(fixed);
+  };
+
   const mainId = ensureMainId();
+  auditHeroContrast();
+  window.addEventListener('load', auditHeroContrast, { once: true });
   if (mainId && !doc.querySelector('.pt-skip-link')) {
     const skip = element('a', {
       class: 'pt-skip-link',
