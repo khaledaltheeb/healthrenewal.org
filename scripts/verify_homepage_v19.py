@@ -11,8 +11,6 @@ INDEX = ROOT / "index.html"
 BRAND = "منصة روافد"
 BRAND_EN = "Rawafid Platform"
 MANIFEST_NAME = "منصة روافد للعافية النفسية والدمج والتمكين"
-BRAND_EN = "Rawafid Platform"
-MANIFEST_NAME = "منصة روافد للعافية النفسية والدمج والتمكين"
 SLOGAN = "للعافية النفسية والدمج والتمكين"
 REQUIRED_LINKS = (
     "start-here/",
@@ -73,7 +71,38 @@ THEMATIC_TERMS = {
 
 
 class StrictHTMLParser(HTMLParser):
-    pass
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.links: list[dict[str, str]] = []
+        self.metas: list[dict[str, str]] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        normalized = {key.lower(): (value or "") for key, value in attrs}
+        if tag.lower() == "link":
+            self.links.append(normalized)
+        elif tag.lower() == "meta":
+            self.metas.append(normalized)
+
+
+def has_link(links: list[dict[str, str]], **expected: str) -> bool:
+    """Return True when a link element matches attributes semantically, regardless of order."""
+    for attrs in links:
+        matched = True
+        for key, expected_value in expected.items():
+            actual = attrs.get(key.lower())
+            if actual is None:
+                matched = False
+                break
+            if key.lower() == "rel":
+                if expected_value.lower() not in {token.lower() for token in actual.split()}:
+                    matched = False
+                    break
+            elif actual != expected_value:
+                matched = False
+                break
+        if matched:
+            return True
+    return False
 
 
 def load_json(relative_path: str) -> dict:
@@ -101,7 +130,8 @@ def meta_content(source: str, name: str) -> str:
 
 def main() -> None:
     source = INDEX.read_text(encoding="utf-8")
-    StrictHTMLParser().feed(source)
+    parser = StrictHTMLParser()
+    parser.feed(source)
 
     assert 'lang="ar"' in source and 'dir="rtl"' in source
     assert BRAND in source, "Homepage is missing the unified platform name"
@@ -160,11 +190,26 @@ def main() -> None:
     missing_terms = sorted(term for term in THEMATIC_TERMS if term not in semantic_surface)
     assert not missing_terms, f"Homepage semantic topic coverage is incomplete: {missing_terms}"
 
+    assert has_link(parser.links, rel="manifest", href="/manifest.webmanifest"), "Missing homepage manifest metadata"
+    assert has_link(
+        parser.links,
+        rel="icon",
+        href="/assets/brand/logo-mark.svg",
+        type="image/svg+xml",
+    ), "Missing homepage SVG favicon metadata"
+    assert has_link(
+        parser.links,
+        rel="search",
+        type="application/opensearchdescription+xml",
+        href="/opensearch.xml",
+    ), "Missing homepage OpenSearch metadata"
+    assert has_link(
+        parser.links,
+        rel="sitemap",
+        type="application/xml",
+        href="https://healthrenewal.org/sitemap.xml",
+    ), "Missing homepage sitemap metadata"
     for required_meta in (
-        '<link rel="manifest" href="/manifest.webmanifest">',
-        '<link rel="icon" type="image/svg+xml" href="/assets/brand/logo-mark.svg">',
-        '<link rel="search" type="application/opensearchdescription+xml"',
-        '<link rel="sitemap" type="application/xml" href="https://healthrenewal.org/sitemap.xml">',
         '<meta property="og:image" content="https://healthrenewal.org/assets/brand/rawafid-social-card.jpg">',
         '<meta name="twitter:image" content="https://healthrenewal.org/assets/brand/rawafid-social-card.jpg">',
     ):
