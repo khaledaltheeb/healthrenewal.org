@@ -29,4 +29,5 @@ jobs:
       - name: Validate bootstrap contracts
         run: python -m unittest -v tests.test_cloudflare_bootstrap_v4
       - name: Validate workflow syntax with Ruby YAML parser
-        run: ruby -e 'require "yaml"; YAML.load_file(".github/workflows/bootstrap-specialists-cloudflare.yml", aliases: true); YAML.load_file(".github/workflows/validate-cloudflare-bootstrap-v4.yml", aliases: true); puts "YAML parsed"'
+        run: |
+          ruby -e 'require "yaml"; YAML.load_file(".github/workflows/bootstrap-specialists-cloudflare.yml", aliases: true); YAML.load_file(".github/workflows/validate-cloudflare-bootstrap-v4.yml", aliases: true); puts "YAML parsed"'
