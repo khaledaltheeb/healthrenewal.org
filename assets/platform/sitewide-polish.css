@@ -3,6 +3,8 @@
   --pt-readable: 76ch;
   --pt-wide: 1180px;
   --pt-gap: clamp(1rem, 2vw, 1.5rem);
+  --pt-light-hero-ink: #12393d;
+  --pt-light-hero-muted: #45676b;
 }
 
 html { overflow-x: hidden; }
@@ -55,6 +57,33 @@ body.pt-platform .lead {
   max-width: 68ch;
   font-size: clamp(1.05rem, 1.9vw, 1.3rem);
   color: var(--pt-muted);
+}
+
+/*
+ * Hero contrast safety.
+ * The platform runtime marks only text that fails WCAG contrast against its
+ * effective light hero background. Dark heroes and high-contrast controls are
+ * deliberately left unchanged. The care-guide fallback is static so its hero
+ * remains readable even before/devoid of JavaScript.
+ */
+body.pt-platform .care-v21__hero {
+  color: var(--pt-light-hero-ink) !important;
+}
+body.pt-platform .care-v21__hero h1,
+body.pt-platform .care-v21__hero .care-v21__audience span,
+body.pt-platform .care-v21__hero .care-stat {
+  color: var(--pt-light-hero-ink) !important;
+}
+body.pt-platform .care-v21__hero p,
+body.pt-platform .care-v21__hero .care-stat span,
+body.pt-platform .care-v21__hero .care-v21__small {
+  color: var(--pt-light-hero-muted) !important;
+}
+body.pt-platform [data-pt-contrast-fix="dark"] {
+  color: var(--pt-light-hero-ink) !important;
+}
+body.pt-platform [data-pt-contrast-fix="dark-muted"] {
+  color: var(--pt-light-hero-muted) !important;
 }
 
 body.pt-platform .grid,
