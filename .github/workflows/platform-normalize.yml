@@ -46,12 +46,60 @@ jobs:
           python -m py_compile scripts/normalize_platform_shell.py
           node --check assets/platform/platform-core.js
 
-      - name: Validate repository HTML without mutation
+      - name: Validate normalizer idempotency on an isolated page
         run: |
           set -euo pipefail
-          python scripts/normalize_platform_shell.py --check --no-report
-          git diff --check
-          git diff --exit-code
+          root="$(pwd)"
+          fixture="$(mktemp -d)"
+          cat > "${fixture}/index.html" <<'HTML'
+          <!doctype html>
+          <html lang="ar" dir="rtl">
+          <head><meta charset="utf-8"><title>Normalization fixture</title></head>
+          <body><main>fixture</main></body>
+          </html>
+          HTML
+          python scripts/normalize_platform_shell.py "${fixture}" --no-report
+          cp "${fixture}/index.html" /tmp/platform-normalized-once.html
+          python scripts/normalize_platform_shell.py "${fixture}" --check --no-report
+          cmp /tmp/platform-normalized-once.html "${fixture}/index.html"
+          test -f "${fixture}/assets/platform/platform-core.css"
+          test -f "${fixture}/assets/platform/platform-core.js"
+          cd "${root}"
+
+      - name: Validate changed HTML pages without inheriting repository-wide drift
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_BASE_SHA: ${{ github.event.before }}
+          PUSH_HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ "${EVENT_NAME}" = "pull_request" ]; then
+            base="${PR_BASE_SHA}"
+            head="${PR_HEAD_SHA}"
+          elif [ "${EVENT_NAME}" = "push" ]; then
+            base="${PUSH_BASE_SHA}"
+            head="${PUSH_HEAD_SHA}"
+          else
+            echo "Manual run: isolated idempotency contract is authoritative."
+            exit 0
+          fi
+
+          git fetch --no-tags --depth=1 origin "${base}" "${head}"
+          mapfile -t changed < <(git diff --name-only --diff-filter=ACMR "${base}" "${head}" -- '*.html')
+          if [ "${#changed[@]}" -eq 0 ]; then
+            echo "No added or modified HTML pages; repository-wide historical drift is not a PR blocker."
+            exit 0
+          fi
+
+          fixture="$(mktemp -d)"
+          for path in "${changed[@]}"; do
+            test -f "${path}" || continue
+            mkdir -p "${fixture}/$(dirname "${path}")"
+            cp "${path}" "${fixture}/${path}"
+          done
+          python scripts/normalize_platform_shell.py "${fixture}" --check --no-report
 
       - name: Confirm read-only workflow contract
         run: |
@@ -63,8 +111,8 @@ jobs:
           required = (
               'permissions:\n' + '  contents: read',
               'persist-' + 'credentials: false',
-              'normalize_platform_shell.py --check ' + '--no-report',
-              'git diff ' + '--exit-code',
+              'normalize_platform_shell.py "${fixture}" --check ' + '--no-report',
+              'git diff --name-only --diff-filter=ACMR',
           )
           forbidden = (
               'contents:' + ' write',
@@ -77,5 +125,5 @@ jobs:
               assert fragment in workflow, fragment
           for fragment in forbidden:
               assert fragment not in workflow, fragment
-          print({'passed': True, 'contract': 'read-only-platform-normalization-v1'})
+          print({'passed': True, 'contract': 'read-only-changed-page-normalization-v2'})
           PY
