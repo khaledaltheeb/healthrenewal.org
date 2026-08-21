@@ -7,7 +7,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-VERSION = 411
+VERSION = 416
 
 SAFE_AUTOFIX = {
     "missing_lang": "Set the document language from visible Arabic/English content.",
@@ -65,6 +65,22 @@ def wave_for(page: dict[str, Any], actions: dict[str, list[dict[str, str]]]) -> 
     return "wave-4-maintenance"
 
 
+def gate_for(actions: dict[str, list[dict[str, str]]], dossier: dict[str, Any] | None, provider_hits: int) -> str:
+    if actions["specialist_review"]:
+        return "blocked-specialist-review"
+    if actions["editorial_research"] and not dossier:
+        return "needs-evidence-research"
+    if actions["editorial_research"] and provider_hits == 0:
+        return "needs-better-evidence"
+    if actions["editorial_research"]:
+        return "evidence-candidates-ready-for-verification"
+    if actions["technical_review"]:
+        return "needs-technical-review"
+    if actions["safe_autofix"]:
+        return "ready-for-safe-autofix"
+    return "no-action-required"
+
+
 def build(report: dict[str, Any]) -> dict[str, Any]:
     pages = list(report.get("upgrade_queue") or [])
     dossiers = list(report.get("research_dossiers") or [])
@@ -83,17 +99,7 @@ def build(report: dict[str, Any]) -> dict[str, Any]:
         provider_hits = 0
         if dossier:
             provider_hits = sum(len(v) for v in (dossier.get("providers") or {}).values() if isinstance(v, list))
-        gate = "ready-for-safe-autofix"
-        if actions["specialist_review"]:
-            gate = "blocked-specialist-review"
-        elif actions["editorial_research"] and not dossier:
-            gate = "needs-evidence-research"
-        elif actions["editorial_research"] and provider_hits == 0:
-            gate = "needs-better-evidence"
-        elif actions["editorial_research"]:
-            gate = "evidence-candidates-ready-for-verification"
-        elif actions["technical_review"]:
-            gate = "needs-technical-review"
+        gate = gate_for(actions, dossier, provider_hits)
         items.append({
             "path": page.get("path"),
             "route": page.get("route"),
@@ -101,6 +107,7 @@ def build(report: dict[str, Any]) -> dict[str, Any]:
             "score": page.get("score"),
             "priority": page.get("priority"),
             "risk": page.get("risk"),
+            "artifact_type": page.get("artifact_type", "document"),
             "wave": wave,
             "gate": gate,
             "actions": actions,
@@ -111,7 +118,7 @@ def build(report: dict[str, Any]) -> dict[str, Any]:
                 "official_targets": dossier.get("official_targets", []) if dossier else [],
             },
             "acceptance": [
-                "Re-run site_quality_agent_v410.py and do not regress the page score.",
+                "Re-run the quality pipeline and do not regress the page score.",
                 "No broken internal links introduced.",
                 "No new absolute medical or psychological claim without claim-level evidence.",
                 "Verify title/H1/meta description remain aligned with the actual page intent.",
@@ -135,6 +142,7 @@ def build(report: dict[str, Any]) -> dict[str, Any]:
             "safe_autofix": "Only structural metadata may be changed automatically; no medical/psychological claim text is generated or rewritten.",
             "evidence": "Search results are candidate evidence, not proof. Verify relevance, population, design, recency and limitations before editing claim-level content.",
             "publication": "Clinical-safety items are blocked until specialist/editorial review is recorded.",
+            "no_op": "A page with no classified action is explicitly marked no-action-required and is never counted as an autofix candidate.",
         },
         "summary": {
             "pages": len(items),
@@ -143,6 +151,7 @@ def build(report: dict[str, Any]) -> dict[str, Any]:
             "blocked_specialist_review": sum(1 for x in items if x["gate"] == "blocked-specialist-review"),
             "needs_evidence_research": sum(1 for x in items if x["gate"] in {"needs-evidence-research", "needs-better-evidence"}),
             "ready_for_safe_autofix": sum(1 for x in items if x["gate"] == "ready-for-safe-autofix"),
+            "no_action_required": sum(1 for x in items if x["gate"] == "no-action-required"),
         },
         "items": items,
     }
@@ -151,12 +160,13 @@ def build(report: dict[str, Any]) -> dict[str, Any]:
 def markdown(plan: dict[str, Any]) -> str:
     s = plan["summary"]
     lines = [
-        "# Site Upgrade Plan v411",
+        "# Site Upgrade Plan v416",
         "",
         f"- Pages in plan: {s['pages']}",
         f"- Blocked for specialist review: {s['blocked_specialist_review']}",
         f"- Need evidence research: {s['needs_evidence_research']}",
         f"- Ready for structural safe-autofix: {s['ready_for_safe_autofix']}",
+        f"- No action required: {s['no_action_required']}",
         "",
         "## Priority queue",
         "",
