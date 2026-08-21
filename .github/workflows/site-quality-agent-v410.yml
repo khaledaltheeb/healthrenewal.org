@@ -17,7 +17,9 @@ on:
     branches: ["main"]
     paths:
       - "scripts/site_quality_agent_v410.py"
+      - "scripts/build_site_upgrade_plan_v411.py"
       - "tests/test_site_quality_agent_v410.py"
+      - "tests/test_site_upgrade_plan_v411.py"
       - "docs/SITE_QUALITY_AGENT_V410_AR.md"
       - ".github/workflows/site-quality-agent-v410.yml"
   workflow_run:
@@ -48,8 +50,9 @@ jobs:
       - name: Compile and test
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/site_quality_agent_v410.py tests/test_site_quality_agent_v410.py
+          python -m py_compile scripts/site_quality_agent_v410.py scripts/build_site_upgrade_plan_v411.py tests/test_site_quality_agent_v410.py tests/test_site_upgrade_plan_v411.py
           python tests/test_site_quality_agent_v410.py
+          python tests/test_site_upgrade_plan_v411.py
       - name: Resolve research quota
         id: quota
         shell: bash
@@ -73,6 +76,7 @@ jobs:
             args=(--research --research-limit "${{ steps.quota.outputs.limit }}" --per-provider "${{ steps.quota.outputs.per }}")
           fi
           python scripts/site_quality_agent_v410.py . --output-dir artifacts/site-quality-agent-v410 --research-cycle-seed "${GITHUB_RUN_NUMBER}" "${args[@]}"
+          python scripts/build_site_upgrade_plan_v411.py artifacts/site-quality-agent-v410/report.json --output-dir artifacts/site-quality-agent-v410
       - name: Upload source quality evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -111,12 +115,14 @@ jobs:
       - name: Compile and test
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/site_quality_agent_v410.py tests/test_site_quality_agent_v410.py
+          python -m py_compile scripts/site_quality_agent_v410.py scripts/build_site_upgrade_plan_v411.py tests/test_site_quality_agent_v410.py tests/test_site_upgrade_plan_v411.py
           python tests/test_site_quality_agent_v410.py
+          python tests/test_site_upgrade_plan_v411.py
       - name: Audit every validated page and rotate evidence research
         run: |
           set -euxo pipefail
           python scripts/site_quality_agent_v410.py validated-site --output-dir artifacts/site-quality-agent-v410-production --research --research-limit 60 --per-provider 5 --research-cycle-seed "${GITHUB_RUN_NUMBER}"
+          python scripts/build_site_upgrade_plan_v411.py artifacts/site-quality-agent-v410-production/report.json --output-dir artifacts/site-quality-agent-v410-production
       - name: Upload validated-production evidence
         if: always()
         uses: actions/upload-artifact@v4
