@@ -1,0 +1,56 @@
+name: Validate site quality document context v415
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/site_quality_agent_v410.py"
+      - "scripts/normalize_quality_signals_v414.py"
+      - "scripts/refine_document_context_v415.py"
+      - "scripts/build_site_upgrade_plan_v411.py"
+      - "scripts/stage_safe_structural_fixes_v412.py"
+      - "tests/test_site_quality_agent_v410.py"
+      - "tests/test_quality_signal_normalization_v414.py"
+      - "tests/test_document_context_refinement_v415.py"
+      - "tests/test_site_upgrade_plan_v411.py"
+      - "tests/test_safe_structural_fixes_v412.py"
+      - ".github/workflows/site-quality-context-v415.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-context:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and test v410-v415
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/site_quality_agent_v410.py scripts/normalize_quality_signals_v414.py scripts/refine_document_context_v415.py scripts/build_site_upgrade_plan_v411.py scripts/stage_safe_structural_fixes_v412.py
+          python tests/test_site_quality_agent_v410.py
+          python tests/test_quality_signal_normalization_v414.py
+          python tests/test_document_context_refinement_v415.py
+          python tests/test_site_upgrade_plan_v411.py
+          python tests/test_safe_structural_fixes_v412.py
+      - name: Run full context-refined audit
+        run: |
+          set -euxo pipefail
+          python scripts/site_quality_agent_v410.py . --output-dir artifacts/site-quality-v415
+          python scripts/normalize_quality_signals_v414.py . artifacts/site-quality-v415/report.json --audit-output artifacts/site-quality-v415/signal-normalization-v414.json
+          python scripts/refine_document_context_v415.py . artifacts/site-quality-v415/report.json --audit-output artifacts/site-quality-v415/document-context-v415.json
+          python scripts/build_site_upgrade_plan_v411.py artifacts/site-quality-v415/report.json --output-dir artifacts/site-quality-v415
+          python scripts/stage_safe_structural_fixes_v412.py . artifacts/site-quality-v415/upgrade-plan-v411.json --staging-dir artifacts/site-quality-v415/staging-v412 --manifest artifacts/site-quality-v415/staging-manifest-v412.json
+      - name: Upload v415 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-quality-context-v415-${{ github.run_id }}
+          path: artifacts/site-quality-v415/
+          if-no-files-found: error
+          retention-days: 30
