@@ -6,6 +6,11 @@ on:
       - 'scripts/materialize_pediatric_oncology.py'
       - 'tests/test_materialize_pediatric_oncology.py'
       - '.github/workflows/materialize-pediatric-oncology.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/materialize-pediatric-oncology.yml'
+      - 'pediatric-oncology-publish.trigger'
   workflow_dispatch:
   schedule:
     - cron: '17 * * * *'
