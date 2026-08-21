@@ -101,7 +101,7 @@ def _path_pattern_matches(pattern: str, path: str) -> bool:
     anchored = pattern.endswith("$")
     if anchored:
         pattern = pattern[:-1]
-    expression = "".join(".*" if part == "*" else re.escape(part) for part in pattern.split("*"))
+    expression = re.escape(pattern).replace(r"\*", ".*")
     expression = "^" + expression + ("$" if anchored else "")
     return re.match(expression, path) is not None
 
