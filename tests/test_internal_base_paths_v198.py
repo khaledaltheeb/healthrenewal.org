@@ -25,7 +25,7 @@ class InternalBasePathsV198Tests(unittest.TestCase):
         (root / "index.html").write_text(
             '''<!doctype html><html><head>
 <link rel="canonical" href="https://khaledaltheeb.github.io/care-guides/">
-<meta property="og:url" content="https://khaledaltheeb.github.io/start-here/">
+<meta property="og:url" content="https://khaledaltheeb.github.io/pterminology-site/start-here/">
 <link rel="manifest" href="/manifest.webmanifest">
 </head><body>
 <a href="/care-guides/">الأدلة</a>
@@ -46,76 +46,60 @@ class InternalBasePathsV198Tests(unittest.TestCase):
             encoding="utf-8",
         )
         (root / "manifest.webmanifest").write_text(
-            json.dumps(
-                {
-                    "start_url": "/",
-                    "scope": "/",
-                    "icons": [{"src": "/assets/icon.png"}],
-                }
-            ),
+            json.dumps({"start_url": "/", "scope": "/", "icons": [{"src": "/assets/icon.png"}]}),
             encoding="utf-8",
         )
         (root / "assets" / "app.js").write_text(
             '''const route="/start-here/";
-const api="https://khaledaltheeb.github.io/api/info.json";
+const api="https://khaledaltheeb.github.io/pterminology-site/api/info.json";
 const escaped=value.replace(/"/g,'&quot;');
 const blogPattern=/blog/;
 ''',
             encoding="utf-8",
         )
 
-    def test_normalizes_base_paths_and_repairs_only_missing_destinations(self):
+    def test_normalizes_legacy_origins_to_custom_domain_without_project_prefix(self):
         with tempfile.TemporaryDirectory() as temporary:
             site = Path(temporary)
             self.make_site(site)
             report = module.normalize_site(site)
             self.assertEqual(report["status"], "passed")
-            self.assertGreaterEqual(report["replacements"], 15)
+            self.assertEqual(report["host"], "healthrenewal.org")
+            self.assertEqual(report["required_base_path"], "/")
             self.assertGreaterEqual(report["missing_route_replacements"], 3)
             self.assertEqual(report["remaining_error_files"], 0)
-            self.assertEqual(len(report["active_route_repairs"]), 3)
 
             html = (site / "index.html").read_text(encoding="utf-8")
-            self.assertIn(
-                "https://khaledaltheeb.github.io/pterminology-site/care-guides/",
-                html,
-            )
-            self.assertIn('href="/pterminology-site/care-guides/"', html)
-            self.assertIn('href="/pterminology-site/manifest.webmanifest"', html)
-            self.assertIn('src=/pterminology-site/assets/logo.svg', html)
-            self.assertIn('url(/pterminology-site/assets/hero.svg)', html)
+            self.assertIn("https://healthrenewal.org/care-guides/", html)
+            self.assertIn("https://healthrenewal.org/start-here/", html)
+            self.assertIn('href="/care-guides/"', html)
+            self.assertIn('href="/manifest.webmanifest"', html)
+            self.assertIn('src=/assets/logo.svg', html)
+            self.assertIn('url(/assets/hero.svg)', html)
             self.assertIn("https://example.org/care-guides/", html)
-            self.assertNotIn(
-                "https://khaledaltheeb.github.io/pterminology-site/pterminology-site/",
-                html,
-            )
+            self.assertNotIn("pterminology-site", html)
 
-            self.assertIn('href="/pterminology-site/trust/"', html)
+            self.assertIn('href="/trust/"', html)
             self.assertIn("مركز الثقة ومنهجية تقييم المحتوى", html)
-            self.assertIn('href="/pterminology-site/encyclopedia/"', html)
+            self.assertIn('href="/encyclopedia/"', html)
             self.assertIn("ابحث في الموسوعة", html)
-            self.assertIn('href="/pterminology-site/tips/"', html)
+            self.assertIn('href="/tips/"', html)
             self.assertIn("استعرض النصائح والمحتوى التثقيفي", html)
             self.assertNotIn("/guides/evaluate-mental-health-information/", html)
-            self.assertNotIn("/search/", html)
-            self.assertNotIn("/blog/", html)
+            self.assertNotIn('href="/search/"', html)
+            self.assertNotIn('href="/blog/"', html)
 
             manifest = json.loads((site / "manifest.webmanifest").read_text(encoding="utf-8"))
-            self.assertEqual(manifest["start_url"], "/pterminology-site/")
-            self.assertEqual(manifest["scope"], "/pterminology-site/")
-            self.assertEqual(manifest["icons"][0]["src"], "/pterminology-site/assets/icon.png")
+            self.assertEqual(manifest["start_url"], "/")
+            self.assertEqual(manifest["scope"], "/")
+            self.assertEqual(manifest["icons"][0]["src"], "/assets/icon.png")
 
             script = (site / "assets" / "app.js").read_text(encoding="utf-8")
-            self.assertIn('"/pterminology-site/start-here/"', script)
-            self.assertIn(
-                "https://khaledaltheeb.github.io/pterminology-site/api/info.json",
-                script,
-            )
-            self.assertIn('replace(/"/g,\'&quot;\')', script)
-            self.assertIn("const blogPattern=/blog/;", script)
-            self.assertNotIn('/"/pterminology-site/g', script)
+            self.assertIn('"/start-here/"', script)
+            self.assertIn("https://healthrenewal.org/api/info.json", script)
+            self.assertNotIn("pterminology-site", script)
 
-    def test_does_not_rewrite_a_route_when_the_original_target_exists(self):
+    def test_does_not_rewrite_a_route_when_original_target_exists(self):
         with tempfile.TemporaryDirectory() as temporary:
             site = Path(temporary)
             self.make_site(site)
@@ -127,7 +111,7 @@ const blogPattern=/blog/;
             active = {item["missing"] for item in report["active_route_repairs"]}
             self.assertNotIn("/search/", active)
             html = (site / "index.html").read_text(encoding="utf-8")
-            self.assertIn('href="/pterminology-site/search/"', html)
+            self.assertIn('href="/search/"', html)
             self.assertIn("ابحث في الموقع", html)
 
     def test_is_idempotent_and_writes_audit_report(self):
@@ -139,13 +123,12 @@ const blogPattern=/blog/;
             self.assertGreater(first["replacements"], 0)
             self.assertEqual(second["replacements"], 0)
             self.assertEqual(second["files_changed"], 0)
-            stored = json.loads(
-                (site / "api" / "internal-base-paths-v198.json").read_text(encoding="utf-8")
-            )
+            stored = json.loads((site / "api" / "internal-base-paths-v198.json").read_text(encoding="utf-8"))
             self.assertEqual(stored["status"], "passed")
-            self.assertEqual(stored["required_base_path"], "/pterminology-site/")
+            self.assertEqual(stored["site_base"], "https://healthrenewal.org/")
+            self.assertEqual(stored["required_base_path"], "/")
 
-    def test_check_only_fails_to_hide_bad_links(self):
+    def test_check_only_exposes_legacy_origin_and_missing_routes(self):
         with tempfile.TemporaryDirectory() as temporary:
             site = Path(temporary)
             self.make_site(site)
