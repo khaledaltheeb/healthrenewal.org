@@ -8,6 +8,8 @@ on:
       - 'tests/test_materialize_pediatric_oncology.py'
       - '.github/workflows/materialize-pediatric-oncology.yml'
       - 'pediatric-oncology-publish.trigger'
+  issue_comment:
+    types: [created]
   push:
     branches: [main]
     paths:
@@ -27,10 +29,13 @@ concurrency:
 jobs:
   test:
     name: Test pediatric oncology materializer
+    if: github.event_name != 'issue_comment' || (github.actor == 'khaledaltheeb' && github.event.issue.pull_request && github.event.comment.body == '/materialize-pediatric-oncology')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -65,7 +70,6 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-
           report = json.loads(Path('api/pediatric-oncology-materialization-v1.json').read_text(encoding='utf-8'))
           assert report['status'] == 'passed', report
           assert report['public_route_contract'] == 2, report
@@ -105,7 +109,7 @@ jobs:
 
   materialize-main:
     name: Materialize eligible evidence on main
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'issue_comment' && github.actor == 'khaledaltheeb' && github.event.issue.pull_request && github.event.comment.body == '/materialize-pediatric-oncology') || (github.event_name != 'pull_request' && github.event_name != 'issue_comment' && github.ref == 'refs/heads/main')
     needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -128,10 +132,10 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-
           report = json.loads(Path('api/pediatric-oncology-materialization-v1.json').read_text(encoding='utf-8'))
           assert report['status'] == 'passed', report
           assert report['public_route_contract'] == 2, report
+          assert report['records'] >= 1, report
           base = Path('magazine/pediatric-oncology')
           for hub in (base / 'index.html', base / 'studies/index.html', base / 'theses/index.html'):
               text = hub.read_text(encoding='utf-8')
