@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate that the accessibility statement stays publicly discoverable."""
+"""Validate that the accessibility statement stays publicly discoverable and useful."""
 
 from __future__ import annotations
 
@@ -16,7 +16,19 @@ INDEX = Path("sitemap-index.xml")
 SITEMAP = Path("sitemap-accessibility.xml")
 PAGE_URL = "https://healthrenewal.org/accessibility/"
 MAP_URL = "https://healthrenewal.org/sitemap-accessibility.xml"
+REPORT_URL = "https://github.com/khaledaltheeb/healthrenewal.org/issues/new/choose"
 FOOTER_FRAGMENT = "element('a', { href: url('accessibility/'), text: 'الإتاحة' })"
+REQUIRED_UNIQUE_PAGE_MARKERS = (
+    'id="display-preferences"',
+    '<h2>اضبط طريقة العرض</h2>',
+    'id="alternative-format"',
+    '<h2>طلب صيغة بديلة</h2>',
+)
+REQUIRED_PAGE_TEXT = (
+    "تقليل الحركة",
+    "التكبير",
+    "الخصوصية",
+)
 NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 
 
@@ -60,6 +72,16 @@ def validate(root: Path) -> list[str]:
             errors.append(f"{PAGE} must expose exactly one canonical URL: {PAGE_URL}")
         if 'meta name="robots" content="index,follow' not in page_text:
             errors.append(f"{PAGE} must remain indexable")
+        for marker in REQUIRED_UNIQUE_PAGE_MARKERS:
+            if page_text.count(marker) != 1:
+                errors.append(f"{PAGE} must contain exactly one required accessibility marker: {marker}")
+        for marker in REQUIRED_PAGE_TEXT:
+            if marker not in page_text:
+                errors.append(f"{PAGE} must contain required practical accessibility guidance: {marker}")
+        if page_text.count(REPORT_URL) < 2:
+            errors.append("accessibility statement must link both barrier reporting and alternative-format requests to the reviewed reporting route")
+        if "<script" in page_text.split("<main", 1)[-1].split("</main>", 1)[0]:
+            errors.append("practical accessibility guidance must remain available without JavaScript")
 
     shell_path = root / SHELL
     try:
@@ -95,8 +117,11 @@ def validate(root: Path) -> list[str]:
 def write_fixture(root: Path) -> None:
     (root / PAGE.parent).mkdir(parents=True, exist_ok=True)
     (root / SHELL.parent).mkdir(parents=True, exist_ok=True)
+    unique_markers = "".join(REQUIRED_UNIQUE_PAGE_MARKERS)
+    practical_text = " ".join(REQUIRED_PAGE_TEXT)
     (root / PAGE).write_text(
-        f'<html><head><meta name="robots" content="index,follow"><link rel="canonical" href="{PAGE_URL}"></head></html>',
+        f'<html><head><meta name="robots" content="index,follow"><link rel="canonical" href="{PAGE_URL}"></head>'
+        f'<body><main>{unique_markers}{practical_text}<a href="{REPORT_URL}">طلب صيغة بديلة</a><a href="{REPORT_URL}">الإبلاغ عن عائق</a></main></body></html>',
         encoding="utf-8",
     )
     (root / SHELL).write_text(
@@ -108,7 +133,7 @@ def write_fixture(root: Path) -> None:
         encoding="utf-8",
     )
     (root / SITEMAP).write_text(
-        f'<?xml version="1.0"?><urlset xmlns="{NS["sm"]}"><url><loc>{PAGE_URL}</loc><lastmod>2026-07-30</lastmod></url></urlset>',
+        f'<?xml version="1.0"?><urlset xmlns="{NS["sm"]}"><url><loc>{PAGE_URL}</loc><lastmod>2026-08-22</lastmod></url></urlset>',
         encoding="utf-8",
     )
 
@@ -125,6 +150,27 @@ def run_self_test() -> int:
         shell.write_text(shell.read_text(encoding="utf-8") + "\n" + FOOTER_FRAGMENT, encoding="utf-8")
         if not any("exactly one" in error for error in validate(root)):
             print("self-test failed to reject duplicate footer link", file=sys.stderr)
+            return 1
+
+        write_fixture(root)
+        page = root / PAGE
+        page.write_text(page.read_text(encoding="utf-8").replace('id="alternative-format"', ""), encoding="utf-8")
+        if not any("required accessibility marker" in error for error in validate(root)):
+            print("self-test failed to reject missing alternative-format guidance", file=sys.stderr)
+            return 1
+
+        write_fixture(root)
+        page = root / PAGE
+        page.write_text(page.read_text(encoding="utf-8").replace("تقليل الحركة", ""), encoding="utf-8")
+        if not any("practical accessibility guidance" in error for error in validate(root)):
+            print("self-test failed to reject missing practical guidance", file=sys.stderr)
+            return 1
+
+        write_fixture(root)
+        page = root / PAGE
+        page.write_text(page.read_text(encoding="utf-8").replace(REPORT_URL, "https://example.com/report", 1), encoding="utf-8")
+        if not any("alternative-format requests" in error for error in validate(root)):
+            print("self-test failed to reject missing reviewed reporting route", file=sys.stderr)
             return 1
 
         write_fixture(root)
