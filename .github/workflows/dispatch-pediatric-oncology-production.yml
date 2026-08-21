@@ -7,6 +7,7 @@ on:
 permissions:
   contents: read
   actions: write
+  issues: write
 
 jobs:
   dispatch:
@@ -18,4 +19,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: gh workflow run deploy-production-v3.yml --repo "$GH_REPO" --ref main
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          gh workflow run deploy-production-v3.yml --repo "$GH_REPO" --ref main
+          gh issue comment "$ISSUE_NUMBER" --repo "$GH_REPO" --body "deploy-dispatch: accepted on main at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
