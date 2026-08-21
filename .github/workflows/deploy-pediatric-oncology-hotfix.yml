@@ -16,7 +16,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: github-pages-production
+  group: pediatric-oncology-hotfix-production
   cancel-in-progress: true
 
 jobs:
