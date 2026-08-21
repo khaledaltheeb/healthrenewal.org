@@ -1,0 +1,94 @@
+name: Materialize pediatric oncology evidence
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/materialize_pediatric_oncology.py'
+      - 'tests/test_materialize_pediatric_oncology.py'
+      - '.github/workflows/materialize-pediatric-oncology.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pediatric-oncology-materialization-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Test pediatric oncology materializer
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile and run unit tests
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/materialize_pediatric_oncology.py tests/test_materialize_pediatric_oncology.py
+          python -m unittest -v tests.test_materialize_pediatric_oncology
+
+  materialize:
+    name: Materialize eligible evidence on main
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Materialize OIDC-authorized Supabase release feed
+        run: python scripts/materialize_pediatric_oncology.py --root .
+      - name: Validate generated release contracts
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path('api/pediatric-oncology-materialization-v1.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['public_route_contract'] == 2, report
+          base = Path('magazine/pediatric-oncology')
+          for hub in (base / 'index.html', base / 'studies/index.html', base / 'theses/index.html'):
+              text = hub.read_text(encoding='utf-8')
+              assert 'rawafid:pediatric-oncology-materializer:v1' in text, hub
+              assert 'name="robots" content="index,follow' in text, hub
+              assert 'rel="canonical"' in text, hub
+          for route in report['routes']:
+              page = Path(route.lstrip('/')) / 'index.html'
+              text = page.read_text(encoding='utf-8')
+              slug = page.parent.name
+              token = report['release_tokens'][slug]
+              assert f'name="rawafid-release-token" content="{token}"' in text, page
+              assert f'href="https://healthrenewal.org{route}"' in text, page
+              assert 'name="robots" content="index,follow' in text, page
+              assert text.count('<h1>') == 1, page
+              assert len(text) > 5000, page
+          print({'status': 'passed', 'records': report['records'], 'routes': report['routes']})
+          PY
+      - name: Commit deterministic materialization
+        run: |
+          set -euo pipefail
+          git config user.name 'Rawafid Publisher'
+          git config user.email 'actions@users.noreply.github.com'
+          git add magazine/pediatric-oncology api/pediatric-oncology-materialization-v1.json
+          if git diff --cached --quiet; then
+            echo 'No pediatric oncology materialization changes.'
+            exit 0
+          fi
+          git commit -m 'publish: materialize pediatric oncology evidence'
+          git push origin HEAD:main
