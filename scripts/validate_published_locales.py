@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "data" / "published-locales.json"
 HREFLANG_RE = re.compile(r'<link\s+rel="alternate"\s+hreflang="([^"]+)"\s+href="([^"]+)"', re.I)
+HREF_RE = re.compile(r'href="([^"]+)"', re.I)
 
 
 def main() -> None:
@@ -36,15 +37,20 @@ def main() -> None:
             errors.append(f"{code}: x-default must point to Arabic root")
 
     home = (ROOT / "index.html").read_text(encoding="utf-8")
+    home_hrefs = set(HREF_RE.findall(home))
     for code, entry in expected.items():
         if code == data["default_locale"]:
             continue
-        if f'href="{entry["path"]}"' not in home and f'href="{origin}{entry["path"]}"' not in home:
+        relative = entry["path"].lstrip("/")
+        valid_forms = {entry["path"], relative, origin + entry["path"]}
+        if not home_hrefs.intersection(valid_forms):
             errors.append(f"homepage: published locale {code} is not visibly linked")
 
-    legacy = [entry for entry in locales if entry["status"] != "published"]
-    for entry in legacy:
-        if f'href="{entry["path"]}"' in home:
+    for entry in locales:
+        if entry["status"] == "published":
+            continue
+        relative = entry["path"].lstrip("/")
+        if home_hrefs.intersection({entry["path"], relative, origin + entry["path"]}):
             errors.append(f"homepage: non-published locale {entry['code']} is visible")
 
     if errors:
