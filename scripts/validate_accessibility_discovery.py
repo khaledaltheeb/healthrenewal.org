@@ -18,11 +18,13 @@ PAGE_URL = "https://healthrenewal.org/accessibility/"
 MAP_URL = "https://healthrenewal.org/sitemap-accessibility.xml"
 REPORT_URL = "https://github.com/khaledaltheeb/healthrenewal.org/issues/new/choose"
 FOOTER_FRAGMENT = "element('a', { href: url('accessibility/'), text: 'الإتاحة' })"
-REQUIRED_PAGE_MARKERS = (
+REQUIRED_UNIQUE_PAGE_MARKERS = (
     'id="display-preferences"',
     '<h2>اضبط طريقة العرض</h2>',
     'id="alternative-format"',
     '<h2>طلب صيغة بديلة</h2>',
+)
+REQUIRED_PAGE_TEXT = (
     "تقليل الحركة",
     "التكبير",
     "الخصوصية",
@@ -70,9 +72,12 @@ def validate(root: Path) -> list[str]:
             errors.append(f"{PAGE} must expose exactly one canonical URL: {PAGE_URL}")
         if 'meta name="robots" content="index,follow' not in page_text:
             errors.append(f"{PAGE} must remain indexable")
-        for marker in REQUIRED_PAGE_MARKERS:
+        for marker in REQUIRED_UNIQUE_PAGE_MARKERS:
             if page_text.count(marker) != 1:
                 errors.append(f"{PAGE} must contain exactly one required accessibility marker: {marker}")
+        for marker in REQUIRED_PAGE_TEXT:
+            if marker not in page_text:
+                errors.append(f"{PAGE} must contain required practical accessibility guidance: {marker}")
         if page_text.count(REPORT_URL) < 2:
             errors.append("accessibility statement must link both barrier reporting and alternative-format requests to the reviewed reporting route")
         if "<script" in page_text.split("<main", 1)[-1].split("</main>", 1)[0]:
@@ -112,10 +117,11 @@ def validate(root: Path) -> list[str]:
 def write_fixture(root: Path) -> None:
     (root / PAGE.parent).mkdir(parents=True, exist_ok=True)
     (root / SHELL.parent).mkdir(parents=True, exist_ok=True)
-    markers = "".join(REQUIRED_PAGE_MARKERS)
+    unique_markers = "".join(REQUIRED_UNIQUE_PAGE_MARKERS)
+    practical_text = " ".join(REQUIRED_PAGE_TEXT)
     (root / PAGE).write_text(
         f'<html><head><meta name="robots" content="index,follow"><link rel="canonical" href="{PAGE_URL}"></head>'
-        f'<body><main>{markers}<a href="{REPORT_URL}">طلب صيغة بديلة</a><a href="{REPORT_URL}">الإبلاغ عن عائق</a></main></body></html>',
+        f'<body><main>{unique_markers}{practical_text}<a href="{REPORT_URL}">طلب صيغة بديلة</a><a href="{REPORT_URL}">الإبلاغ عن عائق</a></main></body></html>',
         encoding="utf-8",
     )
     (root / SHELL).write_text(
@@ -151,6 +157,13 @@ def run_self_test() -> int:
         page.write_text(page.read_text(encoding="utf-8").replace('id="alternative-format"', ""), encoding="utf-8")
         if not any("required accessibility marker" in error for error in validate(root)):
             print("self-test failed to reject missing alternative-format guidance", file=sys.stderr)
+            return 1
+
+        write_fixture(root)
+        page = root / PAGE
+        page.write_text(page.read_text(encoding="utf-8").replace("تقليل الحركة", ""), encoding="utf-8")
+        if not any("practical accessibility guidance" in error for error in validate(root)):
+            print("self-test failed to reject missing practical guidance", file=sys.stderr)
             return 1
 
         write_fixture(root)
