@@ -92,6 +92,11 @@ class RobotsPolicyTests(unittest.TestCase):
                 "Sitemap: https://healthrenewal.org/sitemap-index.xml\n"
             )
 
+    def test_wildcard_path_rule_is_evaluated_semantically(self) -> None:
+        policy = parse_robots("User-agent: GPTBot\nAllow: /\nDisallow: /private/*/draft$\n")
+        self.assertFalse(is_path_allowed(policy, "GPTBot", "/private/a/draft"))
+        self.assertTrue(is_path_allowed(policy, "GPTBot", "/private/a/draft-more"))
+
     def test_rule_under_another_agent_does_not_apply(self) -> None:
         policy = parse_robots(
             "User-agent: OAI-SearchBot\nDisallow: /private/\n"
