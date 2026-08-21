@@ -6,6 +6,10 @@ on:
       - 'scripts/materialize_pediatric_oncology.py'
       - 'tests/test_materialize_pediatric_oncology.py'
       - '.github/workflows/materialize-pediatric-oncology.yml'
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'pediatric-oncology-publish.trigger'
   push:
     branches: [main]
     paths:
@@ -29,6 +33,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
