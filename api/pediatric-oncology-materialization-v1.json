@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "records": 6,
+  "studies": 5,
+  "theses": 1,
+  "routes": [
+    "/magazine/pediatric-oncology/studies/pediatric-bone-sarcoma-vte-42117248/",
+    "/magazine/pediatric-oncology/studies/pediatric-neuroblastoma-antigd2-japan-randomized-42490004/",
+    "/magazine/pediatric-oncology/studies/pediatric-neuroblastoma-racotumomab-phase2-42136000/",
+    "/magazine/pediatric-oncology/studies/pediatric-solid-tumor-ctdna-inform-42509573/",
+    "/magazine/pediatric-oncology/studies/pediatric-wilms-tumor-time-toxicity-42153379/",
+    "/magazine/pediatric-oncology/theses/thesis-buser-ai-pediatric-oncological-surgery-2026/"
+  ],
+  "release_tokens": {
+    "pediatric-bone-sarcoma-vte-42117248": "4c7073346f3f7aaddeb95ced1aeb23d6",
+    "pediatric-neuroblastoma-antigd2-japan-randomized-42490004": "c1c4df3ad887fa7f027be99eeb96a48f",
+    "pediatric-neuroblastoma-racotumomab-phase2-42136000": "3a1c04b2e8186aa452a14146df10a30f",
+    "pediatric-solid-tumor-ctdna-inform-42509573": "65419fad2a939f780b4038073d8c8095",
+    "pediatric-wilms-tumor-time-toxicity-42153379": "a0e24f937fb75aacfb1c96cd20e65468",
+    "thesis-buser-ai-pediatric-oncological-surgery-2026": "9c3e2532651c20f183e6f91edfc49a2f"
+  },
+  "written": [
+    "magazine/pediatric-oncology/index.html",
+    "magazine/pediatric-oncology/studies/index.html",
+    "magazine/pediatric-oncology/studies/pediatric-bone-sarcoma-vte-42117248/index.html",
+    "magazine/pediatric-oncology/studies/pediatric-neuroblastoma-antigd2-japan-randomized-42490004/index.html",
+    "magazine/pediatric-oncology/studies/pediatric-neuroblastoma-racotumomab-phase2-42136000/index.html",
+    "magazine/pediatric-oncology/studies/pediatric-solid-tumor-ctdna-inform-42509573/index.html",
+    "magazine/pediatric-oncology/studies/pediatric-wilms-tumor-time-toxicity-42153379/index.html",
+    "magazine/pediatric-oncology/theses/index.html",
+    "magazine/pediatric-oncology/theses/thesis-buser-ai-pediatric-oncological-surgery-2026/index.html"
+  ],
+  "removed": [],
+  "source_contract": "supabase-edge-oidc-v1",
+  "public_route_contract": 2
+}
