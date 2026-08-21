@@ -13,7 +13,6 @@ permissions:
   contents: read
   pages: write
   id-token: write
-  issues: write
 
 concurrency:
   group: pediatric-oncology-hotfix-production
@@ -67,7 +66,6 @@ jobs:
           item = max(candidates, key=lambda a: a.get('created_at', ''))
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
               out.write(f"run_id={item['workflow_run']['id']}\n")
-              out.write(f"artifact_id={item['id']}\n")
           print({'runId': item['workflow_run']['id'], 'artifactId': item['id'], 'createdAt': item.get('created_at')})
           PY
 
@@ -80,19 +78,55 @@ jobs:
           run-id: ${{ steps.baseline.outputs.run_id }}
           github-token: ${{ github.token }}
 
-      - name: Overlay only governed pediatric oncology materialization
+      - name: Overlay governed pediatric oncology pages and patch sitemap only
         run: |
           set -euo pipefail
           test -f _site/index.html
+          test -f _site/sitemap.xml
           test -f repo/api/pediatric-oncology-materialization-v1.json
           test -d repo/magazine/pediatric-oncology
-          rm -rf _site/magazine/pediatric-oncology
+          test -f repo/disclaimer/index.html
+          rm -rf _site/magazine/pediatric-oncology _site/disclaimer
           mkdir -p _site/magazine _site/api
           cp -a repo/magazine/pediatric-oncology _site/magazine/
+          cp -a repo/disclaimer _site/disclaimer
           cp repo/api/pediatric-oncology-materialization-v1.json _site/api/pediatric-oncology-materialization-v1.json
-          python repo/scripts/publish_complete_sitemap_v360.py _site --minimum-urls 3000
+          python - <<'PY'
+          import datetime, json
+          from pathlib import Path
 
-      - name: Validate six release-token routes before Pages upload
+          base = 'https://healthrenewal.org'
+          report = json.loads(Path('_site/api/pediatric-oncology-materialization-v1.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed' and report['records'] == 6, report
+          routes = [
+              '/magazine/pediatric-oncology/',
+              '/magazine/pediatric-oncology/studies/',
+              '/magazine/pediatric-oncology/theses/',
+              *report['routes'],
+          ]
+          sitemap_path = Path('_site/sitemap.xml')
+          text = sitemap_path.read_text(encoding='utf-8')
+          if '</urlset>' not in text:
+              raise SystemExit('Expected urlset sitemap baseline')
+          before = text.count('<url>')
+          if before < 3000:
+              raise SystemExit(f'Baseline sitemap unexpectedly small: {before}')
+          lastmod = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+          additions = []
+          for route in routes:
+              absolute = base + route
+              if absolute not in text:
+                  additions.append(f'  <url><loc>{absolute}</loc><lastmod>{lastmod}</lastmod></url>\n')
+          text = text.replace('</urlset>', ''.join(additions) + '</urlset>', 1)
+          sitemap_path.write_text(text, encoding='utf-8')
+          final = sitemap_path.read_text(encoding='utf-8')
+          for route in routes:
+              assert base + route in final, route
+          assert final.count('<url>') >= before, (before, final.count('<url>'))
+          print({'baselineUrls': before, 'addedUrls': len(additions), 'finalUrls': final.count('<url>')})
+          PY
+
+      - name: Validate release contracts before Pages upload
         env:
           BUILD_SHA: ${{ steps.source.outputs.build_sha }}
         run: |
@@ -100,27 +134,45 @@ jobs:
           python - <<'PY'
           import json, os
           from pathlib import Path
+
+          base = 'https://healthrenewal.org'
           report = json.loads(Path('_site/api/pediatric-oncology-materialization-v1.json').read_text(encoding='utf-8'))
           assert report['status'] == 'passed', report
           assert report['records'] == 6, report
           assert report['studies'] == 5 and report['theses'] == 1, report
           sitemap = Path('_site/sitemap.xml').read_text(encoding='utf-8')
+          hubs = [
+              '/magazine/pediatric-oncology/',
+              '/magazine/pediatric-oncology/studies/',
+              '/magazine/pediatric-oncology/theses/',
+          ]
+          for route in hubs:
+              page = Path('_site') / route.lstrip('/') / 'index.html'
+              text = page.read_text(encoding='utf-8')
+              absolute = base + route
+              assert f'rel="canonical" href="{absolute}"' in text, page
+              assert 'name="robots" content="index,follow' in text, page
+              assert absolute in sitemap, route
           for route in report['routes']:
               page = Path('_site') / route.lstrip('/') / 'index.html'
               assert page.is_file(), page
               text = page.read_text(encoding='utf-8')
               slug = page.parent.name
               token = report['release_tokens'][slug]
-              absolute = 'https://healthrenewal.org' + route
+              absolute = base + route
               assert f'name="rawafid-release-token" content="{token}"' in text, page
               assert f'rel="canonical" href="{absolute}"' in text, page
               assert 'name="robots" content="index,follow' in text, page
+              assert 'href="/disclaimer/"' in text, page
               assert absolute in sitemap, route
               assert text.count('<h1>') == 1, page
+          disclaimer = Path('_site/disclaimer/index.html').read_text(encoding='utf-8')
+          assert 'noindex,follow' in disclaimer
+          assert 'https://healthrenewal.org/terms/' in disclaimer
           Path('_site/deployment.json').write_text(json.dumps({
               'schemaVersion': 13,
               'release_commit': os.environ['BUILD_SHA'],
-              'build_mode': 'pediatric-oncology-hotfix-v2-overlay-latest-validated-main-baseline'
+              'build_mode': 'pediatric-oncology-hotfix-v3-surgical-overlay'
           }, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           Path('_site/.nojekyll').touch()
           print({'status':'passed','records':report['records'],'releaseCommit':os.environ['BUILD_SHA']})
@@ -137,7 +189,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify all six routes live before completion
+      - name: Verify all pediatric oncology routes live before completion
         env:
           EXPECTED_SHA: ${{ steps.source.outputs.build_sha }}
         run: |
@@ -154,26 +206,33 @@ jobs:
               && python - "$EXPECTED_SHA" <<'PY'
           import json, sys
           d=json.load(open('/tmp/deployment.json', encoding='utf-8'))
-          raise SystemExit(0 if d.get('release_commit') == sys.argv[1] else 1)
+          raise SystemExit(0 if d.get('release_commit') == sys.argv[1] and d.get('schemaVersion') == 13 else 1)
           PY
             then
               if python - "$nonce" <<'PY'
           import json, sys, urllib.request
           report=json.load(open('/tmp/routes.json', encoding='utf-8'))
           nonce=sys.argv[1]
-          with urllib.request.urlopen(f'https://healthrenewal.org/sitemap.xml?release={nonce}', timeout=20) as r:
+          base='https://healthrenewal.org'
+          with urllib.request.urlopen(f'{base}/sitemap.xml?release={nonce}', timeout=20) as r:
               sitemap=r.read().decode('utf-8')
-          for route in report['routes']:
-              slug=route.rstrip('/').split('/')[-1]
-              token=report['release_tokens'][slug]
-              req=urllib.request.Request('https://healthrenewal.org'+route+f'?release={nonce}', headers={'Cache-Control':'no-cache'})
+          all_routes=['/magazine/pediatric-oncology/','/magazine/pediatric-oncology/studies/','/magazine/pediatric-oncology/theses/',*report['routes']]
+          for route in all_routes:
+              req=urllib.request.Request(base+route+f'?release={nonce}', headers={'Cache-Control':'no-cache'})
               with urllib.request.urlopen(req, timeout=20) as r:
                   if r.status != 200: raise SystemExit(1)
                   text=r.read().decode('utf-8')
-              absolute='https://healthrenewal.org'+route
-              if token not in text or f'rel="canonical" href="{absolute}"' not in text or 'name="robots" content="index,follow' not in text or absolute not in sitemap:
+              absolute=base+route
+              if f'rel="canonical" href="{absolute}"' not in text or 'name="robots" content="index,follow' not in text or absolute not in sitemap:
                   raise SystemExit(1)
-          print({'status':'live-verified','records':report['records']})
+              if route in report['routes']:
+                  slug=route.rstrip('/').split('/')[-1]
+                  if report['release_tokens'][slug] not in text:
+                      raise SystemExit(1)
+          req=urllib.request.Request(base+'/disclaimer/'+f'?release={nonce}', headers={'Cache-Control':'no-cache'})
+          with urllib.request.urlopen(req, timeout=20) as r:
+              if r.status != 200: raise SystemExit(1)
+          print({'status':'live-verified','records':report['records'],'routes':len(all_routes)})
           PY
               then exit 0; fi
             fi
@@ -181,13 +240,3 @@ jobs:
           done
           echo 'Hotfix release did not become exactly verifiable in time' >&2
           exit 1
-
-      - name: Report hotfix outcome
-        if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          STATUS: ${{ job.status }}
-          BUILD_SHA: ${{ steps.source.outputs.build_sha }}
-        run: |
-          gh issue comment 1227 --repo "$GH_REPO" --body "pediatric-oncology-hotfix: ${STATUS}; run=${GITHUB_RUN_ID}; sha=${BUILD_SHA:-unknown}"
