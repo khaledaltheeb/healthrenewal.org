@@ -1,0 +1,127 @@
+name: Site quality and research agent v410
+
+on:
+  workflow_dispatch:
+    inputs:
+      research_limit:
+        description: Pages to research in this run
+        required: false
+        default: "60"
+      per_provider:
+        description: Candidate records per provider
+        required: false
+        default: "5"
+  schedule:
+    - cron: "17 */6 * * *"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "scripts/site_quality_agent_v410.py"
+      - "tests/test_site_quality_agent_v410.py"
+      - "docs/SITE_QUALITY_AGENT_V410_AR.md"
+      - ".github/workflows/site-quality-agent-v410.yml"
+  workflow_run:
+    workflows: ["Validate every assessment and cognitive tool v31"]
+    types: [completed]
+
+concurrency:
+  group: site-quality-agent-v410-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  source-audit:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      RESEARCH_CONTACT_EMAIL: ${{ secrets.RESEARCH_CONTACT_EMAIL }}
+      NCBI_API_KEY: ${{ secrets.NCBI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and test
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/site_quality_agent_v410.py tests/test_site_quality_agent_v410.py
+          python tests/test_site_quality_agent_v410.py
+      - name: Resolve research quota
+        id: quota
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "limit=${{ inputs.research_limit }}" >> "$GITHUB_OUTPUT"
+            echo "per=${{ inputs.per_provider }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event_name }}" == "schedule" ]]; then
+            echo "limit=60" >> "$GITHUB_OUTPUT"
+            echo "per=5" >> "$GITHUB_OUTPUT"
+          else
+            echo "limit=0" >> "$GITHUB_OUTPUT"
+            echo "per=3" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Audit every source page and rotate research
+        shell: bash
+        run: |
+          set -euxo pipefail
+          args=()
+          if [[ "${{ steps.quota.outputs.limit }}" -gt 0 ]]; then
+            args=(--research --research-limit "${{ steps.quota.outputs.limit }}" --per-provider "${{ steps.quota.outputs.per }}")
+          fi
+          python scripts/site_quality_agent_v410.py . --output-dir artifacts/site-quality-agent-v410 --research-cycle-seed "${GITHUB_RUN_NUMBER}" "${args[@]}"
+      - name: Upload source quality evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-quality-agent-v410-source-${{ github.run_id }}
+          path: artifacts/site-quality-agent-v410/
+          if-no-files-found: error
+          retention-days: 30
+
+  validated-production-audit:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      RESEARCH_CONTACT_EMAIL: ${{ secrets.RESEARCH_CONTACT_EMAIL }}
+      NCBI_API_KEY: ${{ secrets.NCBI_API_KEY }}
+    steps:
+      - name: Checkout exact validated source revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download exact validated production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: validated-site
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compile and test
+        run: |
+          set -euxo pipefail
+          python -m py_compile scripts/site_quality_agent_v410.py tests/test_site_quality_agent_v410.py
+          python tests/test_site_quality_agent_v410.py
+      - name: Audit every validated page and rotate evidence research
+        run: |
+          set -euxo pipefail
+          python scripts/site_quality_agent_v410.py validated-site --output-dir artifacts/site-quality-agent-v410-production --research --research-limit 60 --per-provider 5 --research-cycle-seed "${GITHUB_RUN_NUMBER}"
+      - name: Upload validated-production evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-quality-agent-v410-production-${{ github.run_id }}
+          path: artifacts/site-quality-agent-v410-production/
+          if-no-files-found: error
+          retention-days: 30
