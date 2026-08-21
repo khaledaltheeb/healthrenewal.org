@@ -1,0 +1,26 @@
+name: Pediatric oncology production now
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/pediatric-oncology-production-now.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Dispatch validated production workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh workflow run deploy-production-v3.yml --repo "$GH_REPO" --ref main
+          echo "Production dispatch accepted for main"
