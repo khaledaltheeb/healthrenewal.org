@@ -243,7 +243,7 @@
   const footer = element('footer', { class: 'pt-global-footer', 'data-platform-footer': 'v2' }, [
     element('div', { class: 'pt-global-footer__inner' }, [
       element('p', { text: `© ${new Date().getFullYear()} منصة روافد. جميع الحقوق محفوظة.` }),
-      element('nav', { 'aria-label': 'روابط المنصة والحوكمة' }, [
+      element('nav', { 'aria-label': 'روابط الحوكمة والشفافية' }, [
         element('a', { href: url('about/'), text: 'عن روافد' }),
         element('a', { href: url('trust/'), text: 'الثقة والمنهجية' }),
         element('a', { href: url('accessibility/'), text: 'الإتاحة' }),
