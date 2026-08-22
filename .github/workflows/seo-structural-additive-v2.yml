@@ -1,0 +1,76 @@
+name: SEO structural additive repair v2
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/audit_seo_intent_v2.py"
+      - "scripts/repair_seo_structural_additive_v2.py"
+      - ".github/workflows/seo-structural-additive-v2.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: seo-structural-additive-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile additive SEO repair
+        run: python -m py_compile scripts/audit_seo_intent_v2.py scripts/repair_seo_structural_additive_v2.py
+
+      - name: Apply structural additions
+        run: python scripts/repair_seo_structural_additive_v2.py
+
+      - name: Prove target diffs contain zero deletions
+        shell: bash
+        run: |
+          set -euo pipefail
+          targets=(
+            learning-paths/all-pages/index.html
+            sectors/all-pages/index.html
+            special-needs/all-pages/index.html
+            special-needs/reference/index.html
+          )
+          git diff --numstat -- "${targets[@]}" | tee /tmp/seo-additive-numstat.txt
+          if awk '$2 != 0 { bad=1 } END { exit bad ? 1 : 0 }' /tmp/seo-additive-numstat.txt; then
+            echo "Additive invariant passed: zero deleted lines."
+          else
+            echo "SEO structural repair attempted a deletion; refusing to commit." >&2
+            exit 1
+          fi
+
+      - name: Commit additions when needed
+        shell: bash
+        run: |
+          set -euo pipefail
+          targets=(
+            learning-paths/all-pages/index.html
+            sectors/all-pages/index.html
+            special-needs/all-pages/index.html
+            special-needs/reference/index.html
+          )
+          if git diff --quiet -- "${targets[@]}"; then
+            echo "SEO structural additions already present."
+            exit 0
+          fi
+          git config user.name "rawafid-quality-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -- "${targets[@]}"
+          git commit -m "fix(seo): add heading and schema structure without deleting content"
+          git push origin HEAD:${{ github.event.pull_request.head.ref || github.ref_name }}
