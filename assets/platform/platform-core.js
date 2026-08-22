@@ -10,11 +10,10 @@
   if (!doc.documentElement.lang) doc.documentElement.lang = 'ar';
   if (!doc.documentElement.dir) doc.documentElement.dir = 'rtl';
 
-  const projectSegment = '/';
-  const base = location.pathname.includes(projectSegment) ? projectSegment : '/';
+  const base = '/';
   const url = (path = '') => `${base}${String(path).replace(/^\/+/, '')}`;
   const currentPath = location.pathname.replace(/index\.html$/, '');
-  const pageTitle = (doc.querySelector('h1')?.textContent || doc.title || 'المنصة').trim();
+  const pageTitle = (doc.querySelector('h1')?.textContent || doc.title || 'منصة روافد').trim();
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   if (!doc.querySelector('script[data-pt-discoverability-loader]')) {
@@ -25,8 +24,6 @@
     doc.head.append(discoverabilityScript);
   }
 
-  // Preserve section-level navigation, but avoid rendering the old home header
-  // directly below the new global platform shell.
   const existingTopHeader = [...body.children].find((child) => child.tagName === 'HEADER');
   if (existingTopHeader) {
     if (currentPath === base) {
@@ -40,17 +37,14 @@
   }
 
   const navItems = [
-    ['ابدأ', 'start-here/'],
-    ['البحث الذكي', 'ai-search/'],
+    ['ابدأ هنا', 'start-here/'],
     ['الموسوعة', 'encyclopedia/'],
-    ['المقارنات', 'comparisons/'],
-    ['المكتبة', 'library/'],
     ['الأدلة', 'care-guides/'],
     ['ذوو الاحتياجات الخاصة', 'special-needs/'],
-    ['الفريق والشركاء', 'specialists-partners/'],
-    ['المجلة', 'magazine/'],
+    ['المكتبة', 'library/'],
     ['الأدوات', 'daily-tools/'],
-    ['الثقة', 'trust/']
+    ['المجلة', 'magazine/'],
+    ['كل الأقسام', 'sections/']
   ];
 
   const element = (tag, attrs = {}, children = []) => {
@@ -76,18 +70,17 @@
 
   const mainId = ensureMainId();
   if (mainId && !doc.querySelector('.pt-skip-link')) {
-    const skip = element('a', {
+    body.prepend(element('a', {
       class: 'pt-skip-link',
       href: `#${mainId}`,
       text: 'تجاوز إلى المحتوى الرئيسي'
-    });
-    body.prepend(skip);
+    }));
   }
 
   const nav = element('nav', {
     class: 'pt-global-nav',
     id: 'pt-global-nav',
-    'aria-label': 'التنقل الرئيسي في المنصة'
+    'aria-label': 'التنقل الرئيسي في منصة روافد'
   });
 
   navItems.forEach(([label, path]) => {
@@ -100,11 +93,15 @@
     nav.append(link);
   });
 
-  const brand = element('a', { class: 'pt-global-brand', href: url(''), 'aria-label': 'العودة إلى الصفحة الرئيسية' }, [
+  const brand = element('a', {
+    class: 'pt-global-brand',
+    href: url(''),
+    'aria-label': 'العودة إلى الصفحة الرئيسية لمنصة روافد'
+  }, [
     element('img', { src: url('assets/brand/logo-mark.svg'), alt: '', width: '44', height: '44' }),
     element('span', {}, [
-      element('span', { text: 'منصة الصحة النفسية' }),
-      element('small', { text: 'معرفة تحترم الإنسان' })
+      element('span', { text: 'منصة روافد' }),
+      element('small', { text: 'العافية النفسية • الدمج • التمكين' })
     ])
   ]);
 
@@ -126,15 +123,15 @@
   const searchButton = element('button', {
     class: 'pt-search-button',
     type: 'button',
-    'aria-label': 'فتح البحث الدلالي في المنصة',
+    'aria-label': 'فتح البحث الذكي في منصة روافد',
     'aria-haspopup': 'dialog',
     'aria-controls': 'pt-platform-search'
-  }, [element('span', { text: 'بحث ذكي' }), element('span', { 'aria-hidden': 'true', text: '⌕' })]);
+  }, [element('span', { text: 'بحث' }), element('span', { 'aria-hidden': 'true', text: '⌕' })]);
 
   const actions = element('div', { class: 'pt-global-actions' }, [searchButton, menuButton]);
   const shellInner = element('div', { class: 'pt-global-shell__inner' }, [brand, nav, actions]);
   const progress = element('div', { class: 'pt-reading-progress', 'aria-hidden': 'true' });
-  const shell = element('header', { class: 'pt-global-shell', 'data-platform-shell': 'v1' }, [shellInner, progress]);
+  const shell = element('header', { class: 'pt-global-shell', 'data-platform-shell': 'v2' }, [shellInner, progress]);
 
   const context = element('div', { class: 'pt-context-strip' }, [
     element('div', { class: 'pt-context-strip__inner' }, [
@@ -143,7 +140,7 @@
         doc.createTextNode(' / '),
         element('span', { text: pageTitle })
       ]),
-      element('span', { text: 'محتوى تثقيفي موثّق بحدود مهنية واضحة' })
+      element('span', { text: 'معرفة موثوقة • لغة إنسانية • حدود مهنية واضحة' })
     ])
   ]);
 
@@ -188,20 +185,20 @@
     maxlength: '300',
     autocomplete: 'off',
     spellcheck: 'false',
-    placeholder: 'اكتب سؤالك أو الحالة أو الدليل المطلوب…',
-    'aria-label': 'سؤال البحث الدلالي'
+    placeholder: 'ابحث عن موضوع أو حالة أو دليل أو أداة…',
+    'aria-label': 'عبارة البحث'
   });
 
   const searchForm = element('form', { action: url('ai-search/'), method: 'get', role: 'search' }, [
     searchInput,
-    element('button', { type: 'submit', text: 'ابحث بذكاء' })
+    element('button', { type: 'submit', text: 'بحث' })
   ]);
 
   dialog.append(element('div', { class: 'pt-search-dialog__body' }, [
     element('div', { class: 'pt-search-dialog__head' }, [
       element('div', {}, [
-        element('h2', { id: 'pt-search-title', text: 'البحث الذكي في المنصة' }),
-        element('p', { text: 'اكتب سؤالك بلغتك الطبيعية. يستخدم البحث multilingual-e5-small لترتيب صفحات المنصة حسب تقارب المعنى.' })
+        element('h2', { id: 'pt-search-title', text: 'ابحث في منصة روافد' }),
+        element('p', { text: 'اكتب ما تبحث عنه بلغة طبيعية للوصول إلى الصفحات والأدلة والأدوات الأقرب إلى مقصدك.' })
       ]),
       closeButton
     ]),
@@ -227,17 +224,16 @@
     if (event.key === 'Escape' && !dialogSupported && !dialog.hidden) closeSearch();
   });
 
-  const footer = element('footer', { class: 'pt-global-footer', 'data-platform-footer': 'v1' }, [
+  const footer = element('footer', { class: 'pt-global-footer', 'data-platform-footer': 'v2' }, [
     element('div', { class: 'pt-global-footer__inner' }, [
       element('p', { text: `© ${new Date().getFullYear()} منصة روافد. جميع الحقوق محفوظة.` }),
-      element('nav', { 'aria-label': 'روابط الحوكمة والشفافية' }, [
-        element('a', { href: url('platform/'), text: 'دليل المنصة' }),
+      element('nav', { 'aria-label': 'روابط المنصة والحوكمة' }, [
+        element('a', { href: url('about/'), text: 'عن روافد' }),
         element('a', { href: url('trust/'), text: 'الثقة والمنهجية' }),
         element('a', { href: url('accessibility/'), text: 'الإتاحة' }),
         element('a', { href: url('contact/'), text: 'تواصل معنا' }),
         element('a', { href: url('copyright/'), text: 'حقوق النشر' }),
-        element('a', { href: url('sitemap-html/'), text: 'دليل الأقسام' }),
-        element('a', { href: url('api/'), text: 'واجهة البيانات' })
+        element('a', { href: url('sitemap-html/'), text: 'خريطة الموقع' })
       ])
     ])
   ]);
@@ -277,11 +273,16 @@
     nav.classList.remove('is-open');
     menuButton.setAttribute('aria-expanded', 'false');
   };
+
   nav.addEventListener('click', (event) => {
     if (event.target.closest('a')) closeMobileNav();
   });
 
-  // Make external links explicit without altering downloadable or internal resources.
+  doc.addEventListener('click', (event) => {
+    if (!nav.classList.contains('is-open')) return;
+    if (!nav.contains(event.target) && !menuButton.contains(event.target)) closeMobileNav();
+  });
+
   doc.querySelectorAll('main a[href^="http"]').forEach((link) => {
     try {
       const target = new URL(link.href);
@@ -292,7 +293,7 @@
         }
       }
     } catch (_) {
-      // Ignore malformed third-party URLs; link audits handle them separately.
+      // Link audits handle malformed third-party URLs.
     }
   });
 })();
