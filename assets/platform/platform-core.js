@@ -233,7 +233,7 @@
         element('a', { href: url('accessibility/'), text: 'الإتاحة' }),
         element('a', { href: url('contact/'), text: 'تواصل معنا' }),
         element('a', { href: url('copyright/'), text: 'حقوق النشر' }),
-        element('a', { href: url('sitemap-html/'), text: 'خريطة الموقع' })
+        element('a', { href: url('sections/'), text: 'دليل الأقسام' })
       ])
     ])
   ]);
