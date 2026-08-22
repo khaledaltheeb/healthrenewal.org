@@ -1,4 +1,4 @@
-name: SEO search intent v1
+name: SEO search intent v2
 
 on:
   workflow_dispatch:
@@ -6,6 +6,9 @@ on:
     branches: [main]
     paths:
       - "**/*.html"
+      - "scripts/audit_seo_intent_v1.py"
+      - "scripts/audit_seo_intent_v2.py"
+      - "scripts/repair_seo_structural_additive_v2.py"
       - "scripts/fix_specific_seo_warnings_v1.py"
       - "scripts/materialize_sectors_v10_compat_v4.py"
       - "tests/test_materialize_sectors_v10_compat_v4.py"
@@ -15,6 +18,9 @@ on:
     branches: [main]
     paths:
       - "**/*.html"
+      - "scripts/audit_seo_intent_v1.py"
+      - "scripts/audit_seo_intent_v2.py"
+      - "scripts/repair_seo_structural_additive_v2.py"
       - "scripts/fix_specific_seo_warnings_v1.py"
       - "scripts/materialize_sectors_v10_compat_v4.py"
       - "tests/test_materialize_sectors_v10_compat_v4.py"
@@ -25,7 +31,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: seo-search-intent-v1-${{ github.event.pull_request.number || github.ref }}
+  group: seo-search-intent-v2-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -47,6 +53,8 @@ jobs:
         run: |
           python -m py_compile \
             scripts/audit_seo_intent_v1.py \
+            scripts/audit_seo_intent_v2.py \
+            scripts/repair_seo_structural_additive_v2.py \
             scripts/fix_specific_seo_warnings_v1.py \
             scripts/materialize_sectors_v10_compat_v4.py \
             scripts/enforce_sitewide_heading_intent_v2.py \
@@ -58,11 +66,14 @@ jobs:
       - name: Confirm reviewed page-specific SEO state
         run: python scripts/fix_specific_seo_warnings_v1.py --check
 
+      - name: Require additive structural SEO state
+        run: python scripts/repair_seo_structural_additive_v2.py --check
+
       - name: Audit priority search intent
-        run: python scripts/audit_seo_intent_v1.py --scope priority --strict --report /tmp/seo-intent-priority-v1.json
+        run: python scripts/audit_seo_intent_v2.py --scope priority --strict --report /tmp/seo-intent-priority-v2.json
 
       - name: Audit complete sitemap search intent
-        run: python scripts/audit_seo_intent_v1.py --scope all --strict --report /tmp/seo-intent-all-v1.json
+        run: python scripts/audit_seo_intent_v2.py --scope all --strict --report /tmp/seo-intent-all-v2.json
 
       - name: Validate heading contract without rewriting pages
         run: python scripts/enforce_sitewide_heading_intent_v2.py --check --report /tmp/sitewide-heading-intent-v2.json
@@ -74,10 +85,10 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: seo-search-intent-validation-${{ github.sha }}
+          name: seo-search-intent-validation-v2-${{ github.sha }}
           path: |
-            /tmp/seo-intent-priority-v1.json
-            /tmp/seo-intent-all-v1.json
+            /tmp/seo-intent-priority-v2.json
+            /tmp/seo-intent-all-v2.json
             /tmp/sitewide-heading-intent-v2.json
           if-no-files-found: ignore
           retention-days: 30
