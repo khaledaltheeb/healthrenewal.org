@@ -4,20 +4,24 @@ on:
   pull_request:
     paths:
       - accessibility/**
+      - assets/brand/rawafid-brand.css
       - assets/platform/platform-core.js
       - sitemap-accessibility.xml
       - sitemap-index.xml
       - scripts/validate_accessibility_discovery.py
+      - scripts/validate_reduced_motion.py
       - .github/workflows/validate-accessibility-discovery.yml
   push:
     branches:
       - main
     paths:
       - accessibility/**
+      - assets/brand/rawafid-brand.css
       - assets/platform/platform-core.js
       - sitemap-accessibility.xml
       - sitemap-index.xml
       - scripts/validate_accessibility_discovery.py
+      - scripts/validate_reduced_motion.py
       - .github/workflows/validate-accessibility-discovery.yml
   workflow_dispatch:
 
@@ -39,9 +43,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Compile validator
-        run: python -m py_compile scripts/validate_accessibility_discovery.py
+      - name: Compile validators
+        run: python -m py_compile scripts/validate_accessibility_discovery.py scripts/validate_reduced_motion.py
       - name: Run negative-path self-tests
-        run: python scripts/validate_accessibility_discovery.py --self-test
-      - name: Validate footer and sitemap discovery
+        run: |
+          python scripts/validate_accessibility_discovery.py --self-test
+          python scripts/validate_reduced_motion.py --self-test
+      - name: Validate accessibility discovery
         run: python scripts/validate_accessibility_discovery.py
+      - name: Validate reduced motion contract
+        run: python scripts/validate_reduced_motion.py

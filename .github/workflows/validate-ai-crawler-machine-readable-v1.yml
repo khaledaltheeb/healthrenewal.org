@@ -15,7 +15,9 @@ on:
       - "scripts/generate_sitemap_index_v304.py"
       - "scripts/generate_sitemap_index_v304_core.py"
       - "scripts/ai_machine_readable_v1.py"
+      - "scripts/robots_policy.py"
       - "tests/test_ai_crawler_machine_readable_v1.py"
+      - "tests/test_robots_policy.py"
       - ".github/workflows/validate-ai-crawler-machine-readable-v1.yml"
   push:
     branches: ["main"]
@@ -31,7 +33,9 @@ on:
       - "scripts/generate_sitemap_index_v304.py"
       - "scripts/generate_sitemap_index_v304_core.py"
       - "scripts/ai_machine_readable_v1.py"
+      - "scripts/robots_policy.py"
       - "tests/test_ai_crawler_machine_readable_v1.py"
+      - "tests/test_robots_policy.py"
       - ".github/workflows/validate-ai-crawler-machine-readable-v1.yml"
   workflow_dispatch:
 
@@ -51,21 +55,30 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Compile generator and regression test
+      - name: Compile generator and regression tests
         run: |
           python -m py_compile \
             scripts/generate_sitemap_index_v304.py \
             scripts/generate_sitemap_index_v304_core.py \
             scripts/ai_machine_readable_v1.py \
-            tests/test_ai_crawler_machine_readable_v1.py
+            scripts/robots_policy.py \
+            tests/test_ai_crawler_machine_readable_v1.py \
+            tests/test_robots_policy.py
       - name: Run AI crawler and machine-readable regression suite
-        run: python -m unittest discover -s tests -p 'test_ai_crawler_machine_readable_v1.py' -v
+        run: |
+          python -m unittest discover -s tests -p 'test_ai_crawler_machine_readable_v1.py' -v
+          python -m unittest discover -s tests -p 'test_robots_policy.py' -v
       - name: Validate committed public artifacts
         run: |
           python - <<'PY'
           import json
+          import sys
           from pathlib import Path
           from xml.etree import ElementTree as ET
+
+          sys.path.insert(0, str(Path("scripts").resolve()))
+          from ai_machine_readable_v1 import AI_USER_AGENTS
+          from robots_policy import validate_robots_policy
 
           for path in (
               Path("api/v1/content-index.json"),
@@ -78,20 +91,26 @@ jobs:
           ET.parse("atom.xml")
 
           robots = Path("robots.txt").read_text(encoding="utf-8")
-          for agent in (
-              "OAI-SearchBot",
-              "GPTBot",
-              "ChatGPT-User",
-              "ClaudeBot",
-              "Claude-SearchBot",
-              "Claude-User",
-              "PerplexityBot",
-              "Perplexity-User",
-              "Google-Extended",
-          ):
-              assert robots.count(f"User-agent: {agent}\nAllow: /") == 1, agent
-          assert robots.count("Sitemap: https://healthrenewal.org/sitemap.xml") == 1
-          assert robots.count("Sitemap: https://healthrenewal.org/sitemap-index.xml") == 1
-          assert "Disallow:" not in robots
+          validate_robots_policy(
+              robots,
+              required_agents=AI_USER_AGENTS,
+              required_paths=(
+                  "/",
+                  "/feed.xml",
+                  "/atom.xml",
+                  "/llms.txt",
+                  "/llms-full.txt",
+                  "/sitemap.xml",
+                  "/sitemap-index.xml",
+                  "/api/v1/content-index.json",
+                  "/api/v1/ai-discovery.json",
+                  "/api/v1/ai-discovery.openapi.json",
+              ),
+              required_sitemaps=(
+                  "https://healthrenewal.org/sitemap.xml",
+                  "https://healthrenewal.org/sitemap-index.xml",
+              ),
+              require_explicit_agents=True,
+          )
           assert "research.xml" not in Path("llms.txt").read_text(encoding="utf-8")
           PY
