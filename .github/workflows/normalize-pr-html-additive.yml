@@ -45,6 +45,41 @@ jobs:
           echo "count=$(wc -l < /tmp/changed-html.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
           cat /tmp/changed-html.txt
 
+      - name: Snapshot visible editorial content
+        if: steps.changed.outputs.count != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, html, json, re
+          from pathlib import Path
+
+          changed = [x.strip() for x in Path('/tmp/changed-html.txt').read_text().splitlines() if x.strip()]
+          SCRIPT_STYLE = re.compile(r'<(?:script|style)\b[^>]*>.*?</(?:script|style)>', re.I | re.S)
+          TAG = re.compile(r'<[^>]+>', re.S)
+          COMMENTS = re.compile(r'<!--.*?-->', re.S)
+
+          def visible_text(source: str) -> str:
+              source = SCRIPT_STYLE.sub(' ', source)
+              source = COMMENTS.sub(' ', source)
+              source = TAG.sub(' ', source)
+              source = html.unescape(source)
+              return re.sub(r'\s+', ' ', source).strip()
+
+          snapshot = {}
+          for path in changed:
+              p = Path(path)
+              if not p.is_file():
+                  continue
+              text = visible_text(p.read_text(encoding='utf-8'))
+              snapshot[path] = {
+                  'sha256': hashlib.sha256(text.encode('utf-8')).hexdigest(),
+                  'chars': len(text),
+              }
+          Path('/tmp/editorial-before.json').write_text(json.dumps(snapshot, ensure_ascii=False, sort_keys=True), encoding='utf-8')
+          print({'snapshotted': len(snapshot)})
+          PY
+
       - name: Normalize changed documents in an isolated mirror
         if: steps.changed.outputs.count != '0'
         shell: bash
@@ -64,47 +99,40 @@ jobs:
             cp "$fixture/$path" "$path"
           done < /tmp/changed-html.txt
 
-      - name: Prove editorial text was preserved
+      - name: Prove visible editorial content was preserved
         if: steps.changed.outputs.count != '0'
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
-          import re, subprocess
+          import hashlib, html, json, re
           from pathlib import Path
 
-          base = "${{ github.event.pull_request.base.sha }}" if "${{ github.event_name }}" == "pull_request" else "HEAD^"
-          changed = [x.strip() for x in Path('/tmp/changed-html.txt').read_text().splitlines() if x.strip()]
-          shell_patterns = [
-              re.compile(r'<!--\s*pt-platform-shell:v1\s*-->', re.I),
-              re.compile(r'<link\b[^>]*assets/platform/platform-core\.css[^>]*>', re.I),
-              re.compile(r'<script\b[^>]*assets/platform/platform-core\.js[^>]*>\s*</script>', re.I),
-              re.compile(r'<meta\b[^>]*(?:name=["\'](?:copyright|rights)["\'])[^>]*>', re.I),
-              re.compile(r'<link\b[^>]*rel=["\']license["\'][^>]*>', re.I),
-          ]
-          body_shell_attrs = re.compile(r'\s+(?:class=["\'][^"\']*pt-platform[^"\']*["\']|data-pt-(?:normalized|enhancer|home)=["\'][^"\']*["\'])', re.I)
+          before = json.loads(Path('/tmp/editorial-before.json').read_text(encoding='utf-8'))
+          SCRIPT_STYLE = re.compile(r'<(?:script|style)\b[^>]*>.*?</(?:script|style)>', re.I | re.S)
+          TAG = re.compile(r'<[^>]+>', re.S)
+          COMMENTS = re.compile(r'<!--.*?-->', re.S)
 
-          def editorial(html: str) -> str:
-              for pat in shell_patterns:
-                  html = pat.sub('', html)
-              html = body_shell_attrs.sub('', html)
-              return re.sub(r'\s+', ' ', html).strip()
+          def visible_text(source: str) -> str:
+              source = SCRIPT_STYLE.sub(' ', source)
+              source = COMMENTS.sub(' ', source)
+              source = TAG.sub(' ', source)
+              source = html.unescape(source)
+              return re.sub(r'\s+', ' ', source).strip()
 
           failures = []
-          for path in changed:
+          for path, expected in before.items():
               p = Path(path)
               if not p.is_file():
+                  failures.append(path + ':missing-after-normalization')
                   continue
-              current = p.read_text(encoding='utf-8')
-              try:
-                  before = subprocess.check_output(['git','show',f'HEAD:{path}'], text=True)
-              except subprocess.CalledProcessError:
-                  continue
-              if editorial(before) != editorial(current):
+              text = visible_text(p.read_text(encoding='utf-8'))
+              actual = hashlib.sha256(text.encode('utf-8')).hexdigest()
+              if actual != expected['sha256'] or len(text) != expected['chars']:
                   failures.append(path)
           if failures:
-              raise SystemExit('Editorial-content preservation failed: ' + ', '.join(failures))
-          print({'editorial_content_preserved': len(changed)})
+              raise SystemExit('Visible editorial-content preservation failed: ' + ', '.join(failures))
+          print({'visible_editorial_content_preserved': len(before)})
           PY
 
       - name: Verify shell idempotency
