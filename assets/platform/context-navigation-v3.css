@@ -1,4 +1,4 @@
-/* Rawafid contextual navigation v3 — progressive enhancement for long-form reading. */
+/* Rawafid contextual navigation v4 — progressive enhancement for deep navigation and long-form reading. */
 
 body.pt-platform .pt-local-context-nav {
   width: min(var(--pt-wide, 1220px), calc(100% - 36px));
@@ -49,6 +49,34 @@ body.pt-platform .pt-local-context-nav a:focus-visible {
   border-color: #b8dcd7;
   background: #eef9f7;
   color: var(--pt-brand-strong);
+}
+
+body.pt-platform .pt-local-context-nav a[aria-current="page"] {
+  border-color: #8fc8c1;
+  background: var(--pt-brand-soft, #e9f7f4);
+  color: var(--pt-brand-strong);
+  box-shadow: inset 0 -2px 0 var(--pt-brand);
+}
+
+body.pt-platform .pt-breadcrumb-trail {
+  display: flex;
+  align-items: center;
+  gap: .28rem;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+body.pt-platform .pt-breadcrumb-trail a {
+  flex: 0 0 auto;
+}
+
+body.pt-platform .pt-breadcrumb-trail [aria-current="page"] {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--pt-ink);
+  font-weight: 750;
 }
 
 body.pt-platform .pt-page-toc {
@@ -123,7 +151,6 @@ body.pt-platform .pt-toc-target {
   scroll-margin-top: calc(var(--pt-shell-offset, 110px) + 18px);
 }
 
-/* Long-form reading: reduce visual fatigue without constraining cards/grids. */
 body.pt-platform main article:not(.card):not([class*="grid"]) > p,
 body.pt-platform main article:not(.card):not([class*="grid"]) > ul,
 body.pt-platform main article:not(.card):not([class*="grid"]) > ol,
@@ -143,6 +170,14 @@ body.pt-platform main article:not(.card) > h2.pt-toc-target {
 
   body.pt-platform .pt-local-context-nav::before {
     display: none;
+  }
+
+  body.pt-platform .pt-context-strip__inner {
+    gap: .5rem;
+  }
+
+  body.pt-platform .pt-breadcrumb-trail {
+    flex: 1 1 auto;
   }
 
   body.pt-platform .pt-page-toc {
