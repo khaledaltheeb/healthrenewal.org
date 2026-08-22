@@ -1,397 +1,55 @@
 (() => {
   'use strict';
+  const d=document,b=d.body;
+  if(!b||b.dataset.ptShellReady==='true')return;
+  b.dataset.ptShellReady='true';b.classList.add('pt-platform');
+  if(!d.documentElement.lang)d.documentElement.lang='ar';
+  if(!d.documentElement.dir)d.documentElement.dir='rtl';
+  const url=(p='')=>`/${String(p).replace(/^\/+/, '')}`;
+  const path=location.pathname.replace(/index\.html$/,'');
+  const title=(d.querySelector('h1')?.textContent||d.title||'منصة روافد').trim();
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+  const make=(tag,a={},kids=[])=>{const n=d.createElement(tag);for(const[k,v]of Object.entries(a)){if(k==='class')n.className=v;else if(k==='text')n.textContent=v;else n.setAttribute(k,v)};(Array.isArray(kids)?kids:[kids]).filter(Boolean).forEach(x=>n.append(x instanceof Node?x:d.createTextNode(String(x))));return n};
 
-  const doc = document;
-  const body = doc.body;
-  if (!body || body.dataset.ptShellReady === 'true') return;
+  if(!d.querySelector('link[data-pt-context-v3]'))d.head.append(make('link',{rel:'stylesheet',href:url('assets/platform/context-navigation-v3.css?v=3'),'data-pt-context-v3':'true'}));
+  if(!d.querySelector('script[data-pt-discoverability-loader]'))d.head.append(make('script',{src:url('assets/platform/discoverability-cards.js?v=1.1.0'),defer:'','data-pt-discoverability-loader':'v1.1'}));
 
-  body.dataset.ptShellReady = 'true';
-  body.classList.add('pt-platform');
-  if (!doc.documentElement.lang) doc.documentElement.lang = 'ar';
-  if (!doc.documentElement.dir) doc.documentElement.dir = 'rtl';
+  const main=d.querySelector('main');
+  if(main&&!main.id)main.id='main-content';
+  if(main){const skip=[...b.children].find(x=>x.tagName==='A'&&(x.classList.contains('skip')||x.getAttribute('href')===`#${main.id}`));if(skip){skip.classList.add('pt-skip-link');skip.href=`#${main.id}`}else if(!d.querySelector('.pt-skip-link'))b.prepend(make('a',{class:'pt-skip-link',href:`#${main.id}`,text:'تجاوز إلى المحتوى الرئيسي'}))}
 
-  const base = '/';
-  const url = (path = '') => `${base}${String(path).replace(/^\/+/, '')}`;
-  const currentPath = location.pathname.replace(/index\.html$/, '');
-  const pageTitle = (doc.querySelector('h1')?.textContent || doc.title || 'منصة روافد').trim();
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-  if (!doc.querySelector('script[data-pt-discoverability-loader]')) {
-    const discoverabilityScript = doc.createElement('script');
-    discoverabilityScript.src = url('assets/platform/discoverability-cards.js?v=1.0.0');
-    discoverabilityScript.async = false;
-    discoverabilityScript.dataset.ptDiscoverabilityLoader = 'v1';
-    doc.head.append(discoverabilityScript);
+  let localNav=null;
+  const oldHeader=[...b.children].find(x=>x.tagName==='HEADER');
+  if(oldHeader){
+    if(path==='/'){oldHeader.hidden=true;oldHeader.setAttribute('aria-hidden','true');oldHeader.dataset.replacedByPlatformShell='true'}
+    else{const sourceNav=oldHeader.querySelector('nav');if(sourceNav){const links=[...sourceNav.querySelectorAll('a[href]')].filter(x=>x.textContent.trim()).slice(0,8).map(x=>make('a',{href:x.getAttribute('href'),text:x.textContent.trim()}));if(links.length){localNav=make('nav',{class:'pt-local-context-nav','aria-label':'روابط القسم الحالي'},links);oldHeader.hidden=true;oldHeader.setAttribute('aria-hidden','true');oldHeader.dataset.replacedByPlatformShell='true'}else{oldHeader.classList.add('pt-section-header')}}else oldHeader.classList.add('pt-section-header')}
   }
 
-  const element = (tag, attrs = {}, children = []) => {
-    const node = doc.createElement(tag);
-    Object.entries(attrs).forEach(([key, value]) => {
-      if (key === 'class') node.className = value;
-      else if (key === 'text') node.textContent = value;
-      else if (key.startsWith('on') && typeof value === 'function') node.addEventListener(key.slice(2), value);
-      else node.setAttribute(key, value);
-    });
-    (Array.isArray(children) ? children : [children]).filter(Boolean).forEach((child) => {
-      node.append(child instanceof Node ? child : doc.createTextNode(String(child)));
-    });
-    return node;
-  };
+  const globalNav=make('nav',{class:'pt-global-nav',id:'pt-global-nav','aria-label':'التنقل الرئيسي في منصة روافد'});
+  [['ابدأ هنا','start-here/'],['الموسوعة','encyclopedia/'],['الأدلة','care-guides/'],['ذوو الاحتياجات الخاصة','special-needs/'],['المكتبة','library/'],['الأدوات','daily-tools/'],['المجلة','magazine/'],['كل الأقسام','sections/']].forEach(([label,p])=>{const href=url(p),a=make('a',{href,text:label}),target=new URL(href,location.origin).pathname.replace(/index\.html$/,'');if(path===target||(target!=='/'&&path.startsWith(target)))a.setAttribute('aria-current','page');globalNav.append(a)});
+  const brand=make('a',{class:'pt-global-brand',href:url(''),'aria-label':'العودة إلى الصفحة الرئيسية لمنصة روافد'},[make('img',{src:url('assets/brand/logo-mark.svg'),alt:'',width:'44',height:'44'}),make('span',{},[make('span',{text:'منصة روافد'}),make('small',{text:'العافية النفسية • الدمج • التمكين'})])]);
+  const menu=make('button',{class:'pt-menu-button',type:'button','aria-controls':'pt-global-nav','aria-expanded':'false','aria-label':'فتح قائمة التنقل',text:'القائمة'});
+  menu.addEventListener('click',()=>{const open=globalNav.classList.toggle('is-open');menu.setAttribute('aria-expanded',String(open));menu.setAttribute('aria-label',open?'إغلاق قائمة التنقل':'فتح قائمة التنقل')});
+  const search=make('button',{class:'pt-search-button',type:'button','aria-label':'فتح البحث الذكي في منصة روافد','aria-haspopup':'dialog','aria-controls':'pt-platform-search'},[make('span',{text:'بحث'}),make('span',{'aria-hidden':'true',text:'⌕'})]);
+  const progress=make('div',{class:'pt-reading-progress','aria-hidden':'true'});
+  const shell=make('header',{class:'pt-global-shell','data-platform-shell':'v3'},[make('div',{class:'pt-global-shell__inner'},[brand,globalNav,make('div',{class:'pt-global-actions'},[search,menu])]),progress]);
+  const context=make('div',{class:'pt-context-strip'},[make('div',{class:'pt-context-strip__inner'},[make('span',{},[make('a',{href:url(''),text:'الرئيسية'}),d.createTextNode(' / '),make('span',{text:title})]),make('span',{text:'معرفة موثوقة • لغة إنسانية • حدود مهنية واضحة'})])]);
+  const anchor=[...b.children].find(x=>!x.classList?.contains('pt-skip-link'));
+  if(anchor){b.insertBefore(shell,anchor);b.insertBefore(context,anchor);if(localNav)b.insertBefore(localNav,anchor)}else{b.append(shell,context);if(localNav)b.append(localNav)}
 
-  const ensureMainId = () => {
-    const main = doc.querySelector('main');
-    if (!main) return null;
-    if (!main.id) main.id = 'main-content';
-    return main.id;
-  };
-
-  const mainId = ensureMainId();
-  if (mainId) {
-    const existingSkip = [...body.children].find((child) =>
-      child.tagName === 'A'
-      && (child.classList.contains('skip') || child.getAttribute('href') === `#${mainId}`)
-    );
-    if (existingSkip) {
-      existingSkip.classList.add('pt-skip-link');
-      existingSkip.setAttribute('href', `#${mainId}`);
-    } else if (!doc.querySelector('.pt-skip-link')) {
-      body.prepend(element('a', {
-        class: 'pt-skip-link',
-        href: `#${mainId}`,
-        text: 'تجاوز إلى المحتوى الرئيسي'
-      }));
-    }
+  const noToc=()=>path==='/'||b.dataset.ptNoToc==='true'||d.querySelector('[data-pt-disable-toc],.tool-shell,.assessment-shell,.quiz-shell,.dashboard');
+  if(main&&!noToc()){
+    const hs=[...main.querySelectorAll('h2')].filter(h=>h.textContent.trim().length>=4),text=(main.textContent||'').replace(/\s+/g,' ').trim();
+    if(hs.length>=4&&text.length>=2200){const ids=new Set([...d.querySelectorAll('[id]')].map(x=>x.id));const links=hs.slice(0,14).map((h,i)=>{if(!h.id){let base=h.textContent.toLowerCase().replace(/[\u064B-\u065F\u0670]/g,'').replace(/[^\u0600-\u06ff\w\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-')||`section-${i+1}`,id=base,n=2;while(ids.has(id))id=`${base}-${n++}`;h.id=id;ids.add(id)}h.classList.add('pt-toc-target');return make('a',{href:`#${h.id}`,text:h.textContent.trim()})});const toc=make('nav',{class:'pt-page-toc','aria-label':'فهرس محتوى الصفحة'},[make('div',{class:'pt-page-toc__head'},[make('strong',{text:'في هذه الصفحة'}),make('span',{text:`${links.length} محاور`})]),make('div',{class:'pt-page-toc__links'},links)]);const article=main.querySelector('article')||main,hero=article.querySelector('.hero'),h1=article.querySelector('h1');if(hero?.nextSibling)article.insertBefore(toc,hero.nextSibling);else if(h1?.parentElement===article&&h1.nextSibling)article.insertBefore(toc,h1.nextSibling);else article.prepend(toc)}
   }
 
-  const existingTopHeader = [...body.children].find((child) => child.tagName === 'HEADER');
-  let localNav = null;
-  if (existingTopHeader) {
-    if (currentPath === base) {
-      existingTopHeader.hidden = true;
-      existingTopHeader.setAttribute('aria-hidden', 'true');
-      existingTopHeader.dataset.replacedByPlatformShell = 'true';
-    } else {
-      const sourceNav = existingTopHeader.querySelector('nav');
-      if (sourceNav) {
-        const links = [...sourceNav.querySelectorAll('a[href]')]
-          .filter((link) => link.textContent.trim())
-          .slice(0, 8)
-          .map((link) => element('a', {
-            href: link.getAttribute('href'),
-            text: link.textContent.trim()
-          }));
-        if (links.length) {
-          localNav = element('nav', {
-            class: 'pt-local-context-nav',
-            'aria-label': 'روابط القسم الحالي'
-          }, links);
-        }
-      }
-      existingTopHeader.hidden = true;
-      existingTopHeader.setAttribute('aria-hidden', 'true');
-      existingTopHeader.dataset.replacedByPlatformShell = 'true';
-    }
-  }
+  const supported=typeof HTMLDialogElement!=='undefined',dialog=make(supported?'dialog':'div',{class:'pt-search-dialog',id:'pt-platform-search','aria-labelledby':'pt-search-title'});if(!supported){dialog.hidden=true;dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true')}
+  const close=()=>{if(supported&&dialog.open)dialog.close();else dialog.hidden=true;search.focus()};
+  const closeBtn=make('button',{class:'pt-icon-button',type:'button','aria-label':'إغلاق البحث',text:'إغلاق'});closeBtn.addEventListener('click',close);const input=make('input',{type:'search',name:'q',maxlength:'300',autocomplete:'off',spellcheck:'false',placeholder:'ابحث عن موضوع أو حالة أو دليل أو أداة…','aria-label':'عبارة البحث'});dialog.append(make('div',{class:'pt-search-dialog__body'},[make('div',{class:'pt-search-dialog__head'},[make('div',{},[make('h2',{id:'pt-search-title',text:'ابحث في منصة روافد'}),make('p',{text:'اكتب ما تبحث عنه بلغة طبيعية للوصول إلى الصفحات والأدلة والأدوات الأقرب إلى مقصدك.'})]),closeBtn]),make('form',{action:url('ai-search/'),method:'get',role:'search'},[input,make('button',{type:'submit',text:'بحث'})]) ]));b.append(dialog);search.addEventListener('click',()=>{if(supported)dialog.showModal();else dialog.hidden=false;setTimeout(()=>input.focus(),30)});dialog.addEventListener('click',e=>{if(supported&&e.target===dialog)close()});d.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();search.click()}if(e.key==='Escape'&&!supported&&!dialog.hidden)close()});
 
-  const navItems = [
-    ['ابدأ هنا', 'start-here/'],
-    ['الموسوعة', 'encyclopedia/'],
-    ['الأدلة', 'care-guides/'],
-    ['ذوو الاحتياجات الخاصة', 'special-needs/'],
-    ['المكتبة', 'library/'],
-    ['الأدوات', 'daily-tools/'],
-    ['المجلة', 'magazine/'],
-    ['كل الأقسام', 'sections/']
-  ];
-
-  const nav = element('nav', {
-    class: 'pt-global-nav',
-    id: 'pt-global-nav',
-    'aria-label': 'التنقل الرئيسي في منصة روافد'
-  });
-
-  navItems.forEach(([label, path]) => {
-    const href = url(path);
-    const link = element('a', { href, text: label });
-    const normalizedHref = new URL(href, location.origin).pathname.replace(/index\.html$/, '');
-    if (currentPath === normalizedHref || (normalizedHref !== base && currentPath.startsWith(normalizedHref))) {
-      link.setAttribute('aria-current', 'page');
-    }
-    nav.append(link);
-  });
-
-  const brand = element('a', {
-    class: 'pt-global-brand',
-    href: url(''),
-    'aria-label': 'العودة إلى الصفحة الرئيسية لمنصة روافد'
-  }, [
-    element('img', { src: url('assets/brand/logo-mark.svg'), alt: '', width: '44', height: '44' }),
-    element('span', {}, [
-      element('span', { text: 'منصة روافد' }),
-      element('small', { text: 'العافية النفسية • الدمج • التمكين' })
-    ])
-  ]);
-
-  const menuButton = element('button', {
-    class: 'pt-menu-button',
-    type: 'button',
-    'aria-controls': 'pt-global-nav',
-    'aria-expanded': 'false',
-    'aria-label': 'فتح قائمة التنقل',
-    text: 'القائمة'
-  });
-
-  menuButton.addEventListener('click', () => {
-    const open = nav.classList.toggle('is-open');
-    menuButton.setAttribute('aria-expanded', String(open));
-    menuButton.setAttribute('aria-label', open ? 'إغلاق قائمة التنقل' : 'فتح قائمة التنقل');
-  });
-
-  const searchButton = element('button', {
-    class: 'pt-search-button',
-    type: 'button',
-    'aria-label': 'فتح البحث الذكي في منصة روافد',
-    'aria-haspopup': 'dialog',
-    'aria-controls': 'pt-platform-search'
-  }, [element('span', { text: 'بحث' }), element('span', { 'aria-hidden': 'true', text: '⌕' })]);
-
-  const actions = element('div', { class: 'pt-global-actions' }, [searchButton, menuButton]);
-  const shellInner = element('div', { class: 'pt-global-shell__inner' }, [brand, nav, actions]);
-  const progress = element('div', { class: 'pt-reading-progress', 'aria-hidden': 'true' });
-  const shell = element('header', { class: 'pt-global-shell', 'data-platform-shell': 'v3' }, [shellInner, progress]);
-
-  const contextInner = element('div', { class: 'pt-context-strip__inner' }, [
-    element('span', {}, [
-      element('a', { href: url(''), text: 'الرئيسية' }),
-      doc.createTextNode(' / '),
-      element('span', { text: pageTitle })
-    ]),
-    element('span', { text: 'معرفة موثوقة • لغة إنسانية • حدود مهنية واضحة' })
-  ]);
-  const context = element('div', { class: 'pt-context-strip' }, [contextInner]);
-
-  const firstNonSkip = [...body.children].find((child) => !child.classList?.contains('pt-skip-link'));
-  if (firstNonSkip) {
-    body.insertBefore(shell, firstNonSkip);
-    body.insertBefore(context, firstNonSkip);
-    if (localNav) body.insertBefore(localNav, firstNonSkip);
-  } else {
-    body.append(shell, context);
-    if (localNav) body.append(localNav);
-  }
-
-  const shouldBuildToc = () => {
-    if (currentPath === base) return false;
-    if (body.dataset.ptNoToc === 'true') return false;
-    if (doc.querySelector('[data-pt-disable-toc], .tool-shell, .assessment-shell, .quiz-shell, .dashboard')) return false;
-    const main = doc.querySelector('main');
-    if (!main) return false;
-    const headings = [...main.querySelectorAll('h2')].filter((heading) => heading.textContent.trim().length >= 4);
-    const textLength = (main.innerText || '').replace(/\s+/g, ' ').trim().length;
-    return headings.length >= 4 && textLength >= 2200;
-  };
-
-  const slugifyHeading = (text, index) => {
-    const ascii = text
-      .toLowerCase()
-      .replace(/[\u064B-\u065F\u0670]/g, '')
-      .replace(/[^\u0600-\u06ff\w\s-]/g, '')
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-');
-    return ascii || `section-${index + 1}`;
-  };
-
-  if (shouldBuildToc()) {
-    const main = doc.querySelector('main');
-    const headings = [...main.querySelectorAll('h2')].filter((heading) => heading.textContent.trim().length >= 4);
-    const seen = new Set([...doc.querySelectorAll('[id]')].map((node) => node.id));
-    const links = headings.slice(0, 14).map((heading, index) => {
-      if (!heading.id) {
-        const baseId = slugifyHeading(heading.textContent, index);
-        let candidate = baseId;
-        let suffix = 2;
-        while (seen.has(candidate)) candidate = `${baseId}-${suffix++}`;
-        heading.id = candidate;
-        seen.add(candidate);
-      }
-      heading.classList.add('pt-toc-target');
-      return element('a', { href: `#${heading.id}`, text: heading.textContent.trim() });
-    });
-
-    if (links.length >= 4) {
-      const tocList = element('div', { class: 'pt-page-toc__links' }, links);
-      const toc = element('nav', {
-        class: 'pt-page-toc',
-        'aria-label': 'فهرس محتوى الصفحة'
-      }, [
-        element('div', { class: 'pt-page-toc__head' }, [
-          element('strong', { text: 'في هذه الصفحة' }),
-          element('span', { text: `${links.length} محاور` })
-        ]),
-        tocList
-      ]);
-
-      const article = main.querySelector('article') || main;
-      const hero = article.querySelector('.hero');
-      if (hero?.nextSibling) article.insertBefore(toc, hero.nextSibling);
-      else {
-        const firstHeading = article.querySelector('h1');
-        if (firstHeading?.parentElement === article && firstHeading.nextSibling) article.insertBefore(toc, firstHeading.nextSibling);
-        else article.prepend(toc);
-      }
-    }
-  }
-
-  const dialogSupported = typeof HTMLDialogElement !== 'undefined';
-  const dialog = element(dialogSupported ? 'dialog' : 'div', {
-    class: 'pt-search-dialog',
-    id: 'pt-platform-search',
-    'aria-labelledby': 'pt-search-title'
-  });
-
-  if (!dialogSupported) {
-    dialog.hidden = true;
-    dialog.setAttribute('role', 'dialog');
-    dialog.setAttribute('aria-modal', 'true');
-  }
-
-  const closeSearch = () => {
-    if (dialogSupported && dialog.open) dialog.close();
-    else dialog.hidden = true;
-    searchButton.focus();
-  };
-
-  const closeButton = element('button', {
-    class: 'pt-icon-button',
-    type: 'button',
-    'aria-label': 'إغلاق البحث',
-    text: 'إغلاق'
-  });
-  closeButton.addEventListener('click', closeSearch);
-
-  const searchInput = element('input', {
-    type: 'search',
-    name: 'q',
-    maxlength: '300',
-    autocomplete: 'off',
-    spellcheck: 'false',
-    placeholder: 'ابحث عن موضوع أو حالة أو دليل أو أداة…',
-    'aria-label': 'عبارة البحث'
-  });
-
-  const searchForm = element('form', { action: url('ai-search/'), method: 'get', role: 'search' }, [
-    searchInput,
-    element('button', { type: 'submit', text: 'بحث' })
-  ]);
-
-  dialog.append(element('div', { class: 'pt-search-dialog__body' }, [
-    element('div', { class: 'pt-search-dialog__head' }, [
-      element('div', {}, [
-        element('h2', { id: 'pt-search-title', text: 'ابحث في منصة روافد' }),
-        element('p', { text: 'اكتب ما تبحث عنه بلغة طبيعية للوصول إلى الصفحات والأدلة والأدوات الأقرب إلى مقصدك.' })
-      ]),
-      closeButton
-    ]),
-    searchForm
-  ]));
-  body.append(dialog);
-
-  searchButton.addEventListener('click', () => {
-    if (dialogSupported) dialog.showModal();
-    else dialog.hidden = false;
-    window.setTimeout(() => searchInput.focus(), 30);
-  });
-
-  dialog.addEventListener('click', (event) => {
-    if (dialogSupported && event.target === dialog) closeSearch();
-  });
-
-  doc.addEventListener('keydown', (event) => {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-      event.preventDefault();
-      searchButton.click();
-    }
-    if (event.key === 'Escape' && !dialogSupported && !dialog.hidden) closeSearch();
-  });
-
-  const existingTopFooter = [...body.children].find((child) => child.tagName === 'FOOTER');
-  if (existingTopFooter) {
-    existingTopFooter.hidden = true;
-    existingTopFooter.setAttribute('aria-hidden', 'true');
-    existingTopFooter.dataset.replacedByPlatformShell = 'true';
-  }
-
-  const footer = element('footer', { class: 'pt-global-footer', 'data-platform-footer': 'v3' }, [
-    element('div', { class: 'pt-global-footer__inner' }, [
-      element('p', { text: `© ${new Date().getFullYear()} منصة روافد. جميع الحقوق محفوظة.` }),
-      element('nav', { 'aria-label': 'روابط الحوكمة والشفافية' }, [
-        element('a', { href: url('about/'), text: 'عن روافد' }),
-        element('a', { href: url('trust/'), text: 'الثقة والمنهجية' }),
-        element('a', { href: url('accessibility/'), text: 'الإتاحة' }),
-        element('a', { href: url('contact/'), text: 'تواصل معنا' }),
-        element('a', { href: url('copyright/'), text: 'حقوق النشر' }),
-        element('a', { href: url('sections/'), text: 'دليل الأقسام' })
-      ])
-    ])
-  ]);
-  body.append(footer);
-
-  const backToTop = element('button', {
-    class: 'pt-back-to-top',
-    type: 'button',
-    'aria-label': 'العودة إلى أعلى الصفحة',
-    title: 'العودة إلى أعلى الصفحة',
-    text: '↑'
-  });
-  backToTop.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
-  });
-  body.append(backToTop);
-
-  let ticking = false;
-  const updateScrollUi = () => {
-    const scrollTop = doc.documentElement.scrollTop || body.scrollTop;
-    const max = Math.max(1, doc.documentElement.scrollHeight - doc.documentElement.clientHeight);
-    const percent = Math.min(100, Math.max(0, (scrollTop / max) * 100));
-    progress.style.width = `${percent}%`;
-    backToTop.classList.toggle('is-visible', scrollTop > 700);
-    ticking = false;
-  };
-
-  window.addEventListener('scroll', () => {
-    if (!ticking) {
-      window.requestAnimationFrame(updateScrollUi);
-      ticking = true;
-    }
-  }, { passive: true });
-  updateScrollUi();
-
-  const closeMobileNav = () => {
-    nav.classList.remove('is-open');
-    menuButton.setAttribute('aria-expanded', 'false');
-  };
-
-  nav.addEventListener('click', (event) => {
-    if (event.target.closest('a')) closeMobileNav();
-  });
-
-  doc.addEventListener('click', (event) => {
-    if (!nav.classList.contains('is-open')) return;
-    if (!nav.contains(event.target) && !menuButton.contains(event.target)) closeMobileNav();
-  });
-
-  doc.querySelectorAll('main a[href^="http"]').forEach((link) => {
-    try {
-      const target = new URL(link.href);
-      if (target.origin !== location.origin) {
-        link.rel = `${link.rel || ''} noopener noreferrer`.trim();
-        if (!link.getAttribute('aria-label') && !link.textContent.includes('يفتح')) {
-          link.title = link.title || 'رابط خارجي';
-        }
-      }
-    } catch (_) {
-      // Link audits handle malformed third-party URLs.
-    }
-  });
+  const oldFooter=[...b.children].find(x=>x.tagName==='FOOTER');if(oldFooter){oldFooter.hidden=true;oldFooter.setAttribute('aria-hidden','true');oldFooter.dataset.replacedByPlatformShell='true'}
+  b.append(make('footer',{class:'pt-global-footer','data-platform-footer':'v3'},[make('div',{class:'pt-global-footer__inner'},[make('p',{text:`© ${new Date().getFullYear()} منصة روافد. جميع الحقوق محفوظة.`}),make('nav',{'aria-label':'روابط الحوكمة والشفافية'},[['عن روافد','about/'],['الثقة والمنهجية','trust/'],['الإتاحة','accessibility/'],['تواصل معنا','contact/'],['حقوق النشر','copyright/'],['دليل الأقسام','sections/']].map(([x,p])=>make('a',{href:url(p),text:x})))]) ]));
+  const top=make('button',{class:'pt-back-to-top',type:'button','aria-label':'العودة إلى أعلى الصفحة',title:'العودة إلى أعلى الصفحة',text:'↑'});top.addEventListener('click',()=>scrollTo({top:0,behavior:reduce.matches?'auto':'smooth'}));b.append(top);let ticking=false;const paint=()=>{const y=d.documentElement.scrollTop||b.scrollTop,max=Math.max(1,d.documentElement.scrollHeight-d.documentElement.clientHeight);progress.style.width=`${Math.min(100,Math.max(0,y/max*100))}%`;top.classList.toggle('is-visible',y>700);ticking=false};addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(paint);ticking=true}},{passive:true});paint();
+  const closeNav=()=>{globalNav.classList.remove('is-open');menu.setAttribute('aria-expanded','false')};globalNav.addEventListener('click',e=>{if(e.target.closest('a'))closeNav()});d.addEventListener('click',e=>{if(globalNav.classList.contains('is-open')&&!globalNav.contains(e.target)&&!menu.contains(e.target))closeNav()});
+  d.querySelectorAll('main a[href^="http"]').forEach(a=>{try{if(new URL(a.href).origin!==location.origin){a.rel=`${a.rel||''} noopener noreferrer`.trim();if(!a.getAttribute('aria-label')&&!a.textContent.includes('يفتح'))a.title=a.title||'رابط خارجي'}}catch(_){}});
 })();
