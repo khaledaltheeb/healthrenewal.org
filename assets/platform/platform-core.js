@@ -24,29 +24,6 @@
     doc.head.append(discoverabilityScript);
   }
 
-  const existingTopHeader = [...body.children].find((child) => child.tagName === 'HEADER');
-  if (existingTopHeader) {
-    if (currentPath === base) {
-      existingTopHeader.hidden = true;
-      existingTopHeader.setAttribute('aria-hidden', 'true');
-      existingTopHeader.dataset.replacedByPlatformShell = 'true';
-    } else {
-      existingTopHeader.classList.add('pt-section-header');
-      existingTopHeader.dataset.localNavigation = 'true';
-    }
-  }
-
-  const navItems = [
-    ['ابدأ هنا', 'start-here/'],
-    ['الموسوعة', 'encyclopedia/'],
-    ['الأدلة', 'care-guides/'],
-    ['ذوو الاحتياجات الخاصة', 'special-needs/'],
-    ['المكتبة', 'library/'],
-    ['الأدوات', 'daily-tools/'],
-    ['المجلة', 'magazine/'],
-    ['كل الأقسام', 'sections/']
-  ];
-
   const element = (tag, attrs = {}, children = []) => {
     const node = doc.createElement(tag);
     Object.entries(attrs).forEach(([key, value]) => {
@@ -85,6 +62,47 @@
       }));
     }
   }
+
+  const existingTopHeader = [...body.children].find((child) => child.tagName === 'HEADER');
+  let localNav = null;
+  if (existingTopHeader) {
+    if (currentPath === base) {
+      existingTopHeader.hidden = true;
+      existingTopHeader.setAttribute('aria-hidden', 'true');
+      existingTopHeader.dataset.replacedByPlatformShell = 'true';
+    } else {
+      const sourceNav = existingTopHeader.querySelector('nav');
+      if (sourceNav) {
+        const links = [...sourceNav.querySelectorAll('a[href]')]
+          .filter((link) => link.textContent.trim())
+          .slice(0, 8)
+          .map((link) => element('a', {
+            href: link.getAttribute('href'),
+            text: link.textContent.trim()
+          }));
+        if (links.length) {
+          localNav = element('nav', {
+            class: 'pt-local-context-nav',
+            'aria-label': 'روابط القسم الحالي'
+          }, links);
+        }
+      }
+      existingTopHeader.hidden = true;
+      existingTopHeader.setAttribute('aria-hidden', 'true');
+      existingTopHeader.dataset.replacedByPlatformShell = 'true';
+    }
+  }
+
+  const navItems = [
+    ['ابدأ هنا', 'start-here/'],
+    ['الموسوعة', 'encyclopedia/'],
+    ['الأدلة', 'care-guides/'],
+    ['ذوو الاحتياجات الخاصة', 'special-needs/'],
+    ['المكتبة', 'library/'],
+    ['الأدوات', 'daily-tools/'],
+    ['المجلة', 'magazine/'],
+    ['كل الأقسام', 'sections/']
+  ];
 
   const nav = element('nav', {
     class: 'pt-global-nav',
@@ -140,25 +158,89 @@
   const actions = element('div', { class: 'pt-global-actions' }, [searchButton, menuButton]);
   const shellInner = element('div', { class: 'pt-global-shell__inner' }, [brand, nav, actions]);
   const progress = element('div', { class: 'pt-reading-progress', 'aria-hidden': 'true' });
-  const shell = element('header', { class: 'pt-global-shell', 'data-platform-shell': 'v2' }, [shellInner, progress]);
+  const shell = element('header', { class: 'pt-global-shell', 'data-platform-shell': 'v3' }, [shellInner, progress]);
 
-  const context = element('div', { class: 'pt-context-strip' }, [
-    element('div', { class: 'pt-context-strip__inner' }, [
-      element('span', {}, [
-        element('a', { href: url(''), text: 'الرئيسية' }),
-        doc.createTextNode(' / '),
-        element('span', { text: pageTitle })
-      ]),
-      element('span', { text: 'معرفة موثوقة • لغة إنسانية • حدود مهنية واضحة' })
-    ])
+  const contextInner = element('div', { class: 'pt-context-strip__inner' }, [
+    element('span', {}, [
+      element('a', { href: url(''), text: 'الرئيسية' }),
+      doc.createTextNode(' / '),
+      element('span', { text: pageTitle })
+    ]),
+    element('span', { text: 'معرفة موثوقة • لغة إنسانية • حدود مهنية واضحة' })
   ]);
+  const context = element('div', { class: 'pt-context-strip' }, [contextInner]);
 
   const firstNonSkip = [...body.children].find((child) => !child.classList?.contains('pt-skip-link'));
   if (firstNonSkip) {
     body.insertBefore(shell, firstNonSkip);
     body.insertBefore(context, firstNonSkip);
+    if (localNav) body.insertBefore(localNav, firstNonSkip);
   } else {
     body.append(shell, context);
+    if (localNav) body.append(localNav);
+  }
+
+  const shouldBuildToc = () => {
+    if (currentPath === base) return false;
+    if (body.dataset.ptNoToc === 'true') return false;
+    if (doc.querySelector('[data-pt-disable-toc], .tool-shell, .assessment-shell, .quiz-shell, .dashboard')) return false;
+    const main = doc.querySelector('main');
+    if (!main) return false;
+    const headings = [...main.querySelectorAll('h2')].filter((heading) => heading.textContent.trim().length >= 4);
+    const textLength = (main.innerText || '').replace(/\s+/g, ' ').trim().length;
+    return headings.length >= 4 && textLength >= 2200;
+  };
+
+  const slugifyHeading = (text, index) => {
+    const ascii = text
+      .toLowerCase()
+      .replace(/[\u064B-\u065F\u0670]/g, '')
+      .replace(/[^\u0600-\u06ff\w\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+    return ascii || `section-${index + 1}`;
+  };
+
+  if (shouldBuildToc()) {
+    const main = doc.querySelector('main');
+    const headings = [...main.querySelectorAll('h2')].filter((heading) => heading.textContent.trim().length >= 4);
+    const seen = new Set([...doc.querySelectorAll('[id]')].map((node) => node.id));
+    const links = headings.slice(0, 14).map((heading, index) => {
+      if (!heading.id) {
+        const baseId = slugifyHeading(heading.textContent, index);
+        let candidate = baseId;
+        let suffix = 2;
+        while (seen.has(candidate)) candidate = `${baseId}-${suffix++}`;
+        heading.id = candidate;
+        seen.add(candidate);
+      }
+      heading.classList.add('pt-toc-target');
+      return element('a', { href: `#${heading.id}`, text: heading.textContent.trim() });
+    });
+
+    if (links.length >= 4) {
+      const tocList = element('div', { class: 'pt-page-toc__links' }, links);
+      const toc = element('nav', {
+        class: 'pt-page-toc',
+        'aria-label': 'فهرس محتوى الصفحة'
+      }, [
+        element('div', { class: 'pt-page-toc__head' }, [
+          element('strong', { text: 'في هذه الصفحة' }),
+          element('span', { text: `${links.length} محاور` })
+        ]),
+        tocList
+      ]);
+
+      const article = main.querySelector('article') || main;
+      const hero = article.querySelector('.hero');
+      if (hero?.nextSibling) article.insertBefore(toc, hero.nextSibling);
+      else {
+        const firstHeading = article.querySelector('h1');
+        if (firstHeading?.parentElement === article && firstHeading.nextSibling) article.insertBefore(toc, firstHeading.nextSibling);
+        else article.prepend(toc);
+      }
+    }
   }
 
   const dialogSupported = typeof HTMLDialogElement !== 'undefined';
@@ -240,7 +322,7 @@
     existingTopFooter.dataset.replacedByPlatformShell = 'true';
   }
 
-  const footer = element('footer', { class: 'pt-global-footer', 'data-platform-footer': 'v2' }, [
+  const footer = element('footer', { class: 'pt-global-footer', 'data-platform-footer': 'v3' }, [
     element('div', { class: 'pt-global-footer__inner' }, [
       element('p', { text: `© ${new Date().getFullYear()} منصة روافد. جميع الحقوق محفوظة.` }),
       element('nav', { 'aria-label': 'روابط الحوكمة والشفافية' }, [
