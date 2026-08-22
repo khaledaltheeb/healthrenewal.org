@@ -1,0 +1,163 @@
+name: Normalize changed PR HTML safely
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "**/*.html"
+      - "scripts/normalize_platform_shell.py"
+      - ".github/workflows/normalize-pr-html-additive.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: normalize-pr-html-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  normalize:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out PR head branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Select only HTML changed by this PR
+        id: changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            git fetch --no-tags origin "$base"
+            git diff --name-only --diff-filter=ACMR "$base" HEAD -- '*.html' > /tmp/changed-html.txt
+          else
+            git diff --name-only --diff-filter=ACMR HEAD^ HEAD -- '*.html' > /tmp/changed-html.txt || true
+          fi
+          sed -i '/^$/d' /tmp/changed-html.txt
+          echo "count=$(wc -l < /tmp/changed-html.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
+          cat /tmp/changed-html.txt
+
+      - name: Snapshot visible editorial content
+        if: steps.changed.outputs.count != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, html, json, re
+          from pathlib import Path
+
+          changed = [x.strip() for x in Path('/tmp/changed-html.txt').read_text().splitlines() if x.strip()]
+          SCRIPT_STYLE = re.compile(r'<(?:script|style)\b[^>]*>.*?</(?:script|style)>', re.I | re.S)
+          TAG = re.compile(r'<[^>]+>', re.S)
+          COMMENTS = re.compile(r'<!--.*?-->', re.S)
+
+          def visible_text(source: str) -> str:
+              source = SCRIPT_STYLE.sub(' ', source)
+              source = COMMENTS.sub(' ', source)
+              source = TAG.sub(' ', source)
+              source = html.unescape(source)
+              return re.sub(r'\s+', ' ', source).strip()
+
+          snapshot = {}
+          for path in changed:
+              p = Path(path)
+              if not p.is_file():
+                  continue
+              text = visible_text(p.read_text(encoding='utf-8'))
+              snapshot[path] = {
+                  'sha256': hashlib.sha256(text.encode('utf-8')).hexdigest(),
+                  'chars': len(text),
+              }
+          Path('/tmp/editorial-before.json').write_text(json.dumps(snapshot, ensure_ascii=False, sort_keys=True), encoding='utf-8')
+          print({'snapshotted': len(snapshot)})
+          PY
+
+      - name: Normalize changed documents in an isolated mirror
+        if: steps.changed.outputs.count != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          fixture="$(mktemp -d)"
+          while IFS= read -r path; do
+            test -f "$path" || continue
+            mkdir -p "$fixture/$(dirname "$path")"
+            cp "$path" "$fixture/$path"
+          done < /tmp/changed-html.txt
+
+          python scripts/normalize_platform_shell.py "$fixture" --no-report
+
+          while IFS= read -r path; do
+            test -f "$fixture/$path" || continue
+            cp "$fixture/$path" "$path"
+          done < /tmp/changed-html.txt
+
+      - name: Prove visible editorial content was preserved
+        if: steps.changed.outputs.count != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, html, json, re
+          from pathlib import Path
+
+          before = json.loads(Path('/tmp/editorial-before.json').read_text(encoding='utf-8'))
+          SCRIPT_STYLE = re.compile(r'<(?:script|style)\b[^>]*>.*?</(?:script|style)>', re.I | re.S)
+          TAG = re.compile(r'<[^>]+>', re.S)
+          COMMENTS = re.compile(r'<!--.*?-->', re.S)
+
+          def visible_text(source: str) -> str:
+              source = SCRIPT_STYLE.sub(' ', source)
+              source = COMMENTS.sub(' ', source)
+              source = TAG.sub(' ', source)
+              source = html.unescape(source)
+              return re.sub(r'\s+', ' ', source).strip()
+
+          failures = []
+          for path, expected in before.items():
+              p = Path(path)
+              if not p.is_file():
+                  failures.append(path + ':missing-after-normalization')
+                  continue
+              text = visible_text(p.read_text(encoding='utf-8'))
+              actual = hashlib.sha256(text.encode('utf-8')).hexdigest()
+              if actual != expected['sha256'] or len(text) != expected['chars']:
+                  failures.append(path)
+          if failures:
+              raise SystemExit('Visible editorial-content preservation failed: ' + ', '.join(failures))
+          print({'visible_editorial_content_preserved': len(before)})
+          PY
+
+      - name: Verify shell idempotency
+        if: steps.changed.outputs.count != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          fixture="$(mktemp -d)"
+          while IFS= read -r path; do
+            test -f "$path" || continue
+            mkdir -p "$fixture/$(dirname "$path")"
+            cp "$path" "$fixture/$path"
+          done < /tmp/changed-html.txt
+          python scripts/normalize_platform_shell.py "$fixture" --check --no-report
+
+      - name: Commit normalization only when needed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- '*.html'; then
+            echo "Changed HTML is already normalized."
+            exit 0
+          fi
+          git config user.name "rawafid-quality-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -- '*.html'
+          git commit -m "fix(platform): normalize changed HTML shell without editorial rewrites"
+          git push origin HEAD:${{ github.event.pull_request.head.ref || github.ref_name }}

@@ -8,14 +8,6 @@
   };
   const currentPath = normalize(location.pathname);
 
-  if (!doc.querySelector('link[data-pt-context-v3]')) {
-    const contextStyles = doc.createElement('link');
-    contextStyles.rel = 'stylesheet';
-    contextStyles.href = '/assets/platform/context-navigation-v3.css?v=3';
-    contextStyles.dataset.ptContextV3 = 'true';
-    doc.head.append(contextStyles);
-  }
-
   const catalog = {
     '/sections/': {
       eyebrow: 'بوابات مؤسسية وخدمات مساندة',

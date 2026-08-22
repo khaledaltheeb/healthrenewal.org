@@ -20,7 +20,6 @@ SKIP = {
     'content', 'scripts',
 }
 PUBLIC_SOURCE_FORBIDDEN = {'content', 'scripts', 'tests', 'reports', '.github', '.git'}
-POLISH_VERSION = '2'
 
 
 def copy_tree(root: Path, site: Path, *, missing_only: bool) -> int:
@@ -78,13 +77,12 @@ def remove_generated_mixes(site: Path) -> dict[str, int]:
 
 def inject_polish(site: Path) -> int:
     changed = 0
-    marker = f'sitewide-polish.css?v={POLISH_VERSION}'
     for page in sorted(site.rglob('*.html')):
         source = page.read_text(encoding='utf-8', errors='replace')
-        if '</head' not in source.lower() or marker in source:
+        if '</head' not in source.lower() or 'sitewide-polish.css?v=1' in source:
             continue
         prefix = '../' * len(page.relative_to(site).parent.parts)
-        tag = f'<link rel="stylesheet" href="{prefix}assets/platform/{marker}">\n'
+        tag = f'<link rel="stylesheet" href="{prefix}assets/platform/sitewide-polish.css?v=1">\n'
         updated = re.sub(r'</head\s*>', tag + '</head>', source, count=1, flags=re.I)
         if updated != source:
             page.write_text(updated, encoding='utf-8', newline='\n')

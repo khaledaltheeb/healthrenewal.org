@@ -12,7 +12,7 @@
   const reduce=matchMedia('(prefers-reduced-motion: reduce)');
   const make=(tag,a={},kids=[])=>{const n=d.createElement(tag);for(const[k,v]of Object.entries(a)){if(k==='class')n.className=v;else if(k==='text')n.textContent=v;else n.setAttribute(k,v)};(Array.isArray(kids)?kids:[kids]).filter(Boolean).forEach(x=>n.append(x instanceof Node?x:d.createTextNode(String(x))));return n};
   const element=make;
-  const primary=[['ابدأ هنا','start-here/'],['الموسوعة','encyclopedia/'],['الأدلة','care-guides/'],['ذوو الاحتياجات الخاصة','special-needs/'],['المكتبة','library/'],['الأدوات','daily-tools/'],['المجلة','magazine/'],['كل الأقسام','sections/']];
+  const primary=[['ابدأ هنا','start-here/'],['البحث الذكي','ai-search/'],['الموسوعة','encyclopedia/'],['الأدلة','care-guides/'],['ذوو الاحتياجات الخاصة','special-needs/'],['المكتبة','library/'],['الأدوات','daily-tools/'],['المجلة','magazine/'],['كل الأقسام','sections/']];
 
   if(!d.querySelector('link[data-pt-context-v3]'))d.head.append(make('link',{rel:'stylesheet',href:url('assets/platform/context-navigation-v3.css?v=3'),'data-pt-context-v3':'true'}));
   if(!d.querySelector('script[data-pt-discoverability-loader]'))d.head.append(make('script',{src:url('assets/platform/discoverability-cards.js?v=1.1.0'),defer:'','data-pt-discoverability-loader':'v1.1'}));
