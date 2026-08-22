@@ -21,7 +21,7 @@ from typing import Iterable
 
 DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 MARKER = "<!-- pt-platform-shell:v1 -->"
-SHELL_VERSION = "1.1.0"
+SHELL_VERSION = "2.0.0"
 EXCLUDED_PARTS = {
     ".git",
     ".github",
@@ -65,7 +65,11 @@ class Result:
 
 
 def copy_platform_runtime(root: Path) -> dict[str, object]:
-    """Copy shell assets and public governance pages into generated artifacts."""
+    """Copy shell assets and missing governance pages into generated artifacts.
+
+    Existing HTML is preserved because it may already have been normalized in
+    the target tree. Non-HTML runtime assets continue to refresh from source.
+    """
 
     repository_root = DEFAULT_ROOT.resolve()
     target_root = root.resolve()
@@ -90,6 +94,8 @@ def copy_platform_runtime(root: Path) -> dict[str, object]:
             relative_file = source.relative_to(repository_root)
             destination = target_root / relative_file
             destination.parent.mkdir(parents=True, exist_ok=True)
+            if destination.is_file() and source.suffix.lower() == ".html":
+                continue
             if destination.is_file() and destination.read_bytes() == source.read_bytes():
                 continue
             shutil.copy2(source, destination)
@@ -174,9 +180,6 @@ def canonical_head_injection(path: Path, root: Path, head: str) -> str:
     lowered = head.lower()
     items: list[str] = []
 
-    # Rights metadata comes before the shell marker. Pages that receive these
-    # tags for the first time therefore have the same ordering on every later
-    # pass; their existing editorial metadata remains untouched.
     if 'name="copyright"' not in lowered and "name='copyright'" not in lowered:
         items.append('<meta name="copyright" content="© 2026 Khaled Altheeb — منصة روافد">')
     if 'name="rights"' not in lowered and "name='rights'" not in lowered:
@@ -203,8 +206,6 @@ def normalize_head(source: str, path: Path, root: Path) -> tuple[str, bool]:
     head = source[: match.start()]
     tail = source[match.end() :]
 
-    # Remove every previous shared-shell marker/asset. This avoids duplicate
-    # tags on pages that already carried platform assets before migration.
     head = MARKER_RE.sub("", head)
     head = PLATFORM_CSS_RE.sub("", head)
     head = PLATFORM_SCRIPT_RE.sub("", head)
@@ -235,8 +236,6 @@ def normalize_file(path: Path, root: Path, *, check_only: bool) -> Result:
 
     normalized, problem = normalize_source(original, path, root)
     if problem:
-        # Historical fragments without a complete document shell remain
-        # untouched and are reported rather than destructively rewritten.
         return Result(relative, "skipped", problem)
 
     if normalized == original:
