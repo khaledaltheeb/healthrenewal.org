@@ -13,11 +13,18 @@
   const make=(tag,a={},kids=[])=>{const n=d.createElement(tag);for(const[k,v]of Object.entries(a)){if(k==='class')n.className=v;else if(k==='text')n.textContent=v;else n.setAttribute(k,v)};(Array.isArray(kids)?kids:[kids]).filter(Boolean).forEach(x=>n.append(x instanceof Node?x:d.createTextNode(String(x))));return n};
   const element=make;
   const primary=[['ابدأ هنا','start-here/'],['الموسوعة','encyclopedia/'],['الأدلة','care-guides/'],['ذوو الاحتياجات الخاصة','special-needs/'],['المكتبة','library/'],['الأدوات','daily-tools/'],['المجلة','magazine/'],['كل الأقسام','sections/']];
-
-  if(!d.querySelector('link[data-pt-context-v3]'))d.head.append(make('link',{rel:'stylesheet',href:url('assets/platform/context-navigation-v3.css?v=3'),'data-pt-context-v3':'true'}));
-  if(!d.querySelector('script[data-pt-discoverability-loader]'))d.head.append(make('script',{src:url('assets/platform/discoverability-cards.js?v=1.1.0'),defer:'','data-pt-discoverability-loader':'v1.1'}));
+  const hubRoutes=new Set(['/','/start-here/','/encyclopedia/','/care-guides/','/special-needs/','/library/','/daily-tools/','/magazine/','/sections/','/comparisons/','/learning-paths/','/sectors/','/tips/']);
 
   const main=d.querySelector('main');
+  const mainText=(main?.textContent||'').replace(/\s+/g,' ').trim();
+  const existingPageToc=!!d.querySelector('main .toc, main [class*="toc"], main nav[aria-label*="محتو"], main aside a[href^="#"]');
+  if(hubRoutes.has(path)||existingPageToc)b.classList.add('pt-page-hub');else b.classList.add('pt-page-detail');
+  if(mainText.length>=2200)b.classList.add('pt-page-longform');
+
+  if(!d.querySelector('link[data-pt-context-v3]'))d.head.append(make('link',{rel:'stylesheet',href:url('assets/platform/context-navigation-v3.css?v=4'),'data-pt-context-v3':'true'}));
+  if(!d.querySelector('link[data-pt-hub-v5]'))d.head.append(make('link',{rel:'stylesheet',href:url('assets/platform/hub-system-v5.css?v=5'),'data-pt-hub-v5':'true'}));
+  if(!d.querySelector('script[data-pt-discoverability-loader]'))d.head.append(make('script',{src:url('assets/platform/discoverability-cards.js?v=1.1.0'),defer:'','data-pt-discoverability-loader':'v1.1'}));
+
   if(main&&!main.id)main.id='main-content';
   if(main){const skip=[...b.children].find(x=>x.tagName==='A'&&(x.classList.contains('skip')||x.getAttribute('href')===`#${main.id}`));if(skip){skip.classList.add('pt-skip-link');skip.href=`#${main.id}`}else if(!d.querySelector('.pt-skip-link'))b.prepend(make('a',{class:'pt-skip-link',href:`#${main.id}`,text:'تجاوز إلى المحتوى الرئيسي'}))}
 
@@ -35,19 +42,19 @@
   menu.addEventListener('click',()=>{const open=globalNav.classList.toggle('is-open');menu.setAttribute('aria-expanded',String(open));menu.setAttribute('aria-label',open?'إغلاق قائمة التنقل':'فتح قائمة التنقل')});
   const search=make('button',{class:'pt-search-button',type:'button','aria-label':'فتح البحث الذكي في منصة روافد','aria-haspopup':'dialog','aria-controls':'pt-platform-search'},[make('span',{text:'بحث'}),make('span',{'aria-hidden':'true',text:'⌕'})]);
   const progress=make('div',{class:'pt-reading-progress','aria-hidden':'true'});
-  const shell=make('header',{class:'pt-global-shell','data-platform-shell':'v4'},[make('div',{class:'pt-global-shell__inner'},[brand,globalNav,make('div',{class:'pt-global-actions'},[search,menu])]),progress]);
+  const shell=make('header',{class:'pt-global-shell','data-platform-shell':'v5'},[make('div',{class:'pt-global-shell__inner'},[brand,globalNav,make('div',{class:'pt-global-actions'},[search,menu])]),progress]);
 
   const trail=[make('a',{href:url(''),text:'الرئيسية'})];
   const parent=primary.map(([label,p])=>[label,normalizePath(url(p)),p]).filter(([,target])=>target!=='/'&&path.startsWith(target)).sort((a,c)=>c[1].length-a[1].length)[0];
-  if(parent&&path!==parent[1]){trail.push(d.createTextNode(' / '),make('a',{href:url(parent[2]),text:parent[0]}))}
+  if(parent&&path!==parent[1])trail.push(d.createTextNode(' / '),make('a',{href:url(parent[2]),text:parent[0]}));
   if(path!=='/')trail.push(d.createTextNode(' / '),make('span',{'aria-current':'page',text:title}));
   const context=make('div',{class:'pt-context-strip'},[make('div',{class:'pt-context-strip__inner'},[make('span',{class:'pt-breadcrumb-trail'},trail),make('span',{text:'معرفة موثوقة • لغة إنسانية • حدود مهنية واضحة'})])]);
   const anchor=[...b.children].find(x=>!x.classList?.contains('pt-skip-link'));
   if(anchor){b.insertBefore(shell,anchor);b.insertBefore(context,anchor);if(localNav)b.insertBefore(localNav,anchor)}else{b.append(shell,context);if(localNav)b.append(localNav)}
 
-  const noToc=()=>path==='/'||b.dataset.ptNoToc==='true'||d.querySelector('[data-pt-disable-toc],.tool-shell,.assessment-shell,.quiz-shell,.dashboard');
+  const noToc=()=>path==='/'||existingPageToc||b.dataset.ptNoToc==='true'||d.querySelector('[data-pt-disable-toc],.tool-shell,.assessment-shell,.quiz-shell,.dashboard');
   if(main&&!noToc()){
-    const hs=[...main.querySelectorAll('h2')].filter(h=>h.textContent.trim().length>=4),text=(main.textContent||'').replace(/\s+/g,' ').trim();
+    const hs=[...main.querySelectorAll('h2')].filter(h=>h.textContent.trim().length>=4),text=mainText;
     if(hs.length>=4&&text.length>=2200){const ids=new Set([...d.querySelectorAll('[id]')].map(x=>x.id));const links=hs.slice(0,14).map((h,i)=>{if(!h.id){let base=h.textContent.toLowerCase().replace(/[\u064B-\u065F\u0670]/g,'').replace(/[^\u0600-\u06ff\w\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-')||`section-${i+1}`,id=base,n=2;while(ids.has(id))id=`${base}-${n++}`;h.id=id;ids.add(id)}h.classList.add('pt-toc-target');return make('a',{href:`#${h.id}`,text:h.textContent.trim()})});const toc=make('nav',{class:'pt-page-toc','aria-label':'فهرس محتوى الصفحة'},[make('div',{class:'pt-page-toc__head'},[make('strong',{text:'في هذه الصفحة'}),make('span',{text:`${links.length} محاور`})]),make('div',{class:'pt-page-toc__links'},links)]);const article=main.querySelector('article')||main,hero=article.querySelector('.hero'),h1=article.querySelector('h1');if(hero?.nextSibling)article.insertBefore(toc,hero.nextSibling);else if(h1?.parentElement===article&&h1.nextSibling)article.insertBefore(toc,h1.nextSibling);else article.prepend(toc)}
   }
 
@@ -57,7 +64,7 @@
 
   const oldFooter=[...b.children].find(x=>x.tagName==='FOOTER');if(oldFooter){oldFooter.hidden=true;oldFooter.setAttribute('aria-hidden','true');oldFooter.dataset.replacedByPlatformShell='true'}
   const governanceLinks=[make('a',{href:url('about/'),text:'عن روافد'}),make('a',{href:url('trust/'),text:'الثقة والمنهجية'}),element('a', { href: url('accessibility/'), text: 'الإتاحة' }),make('a',{href:url('contact/'),text:'تواصل معنا'}),make('a',{href:url('copyright/'),text:'حقوق النشر'}),make('a',{href:url('sections/'),text:'دليل الأقسام'})];
-  b.append(make('footer',{class:'pt-global-footer','data-platform-footer':'v4'},[make('div',{class:'pt-global-footer__inner'},[make('p',{text:`© ${new Date().getFullYear()} منصة روافد. جميع الحقوق محفوظة.`}),make('nav',{'aria-label':'روابط الحوكمة والشفافية'},governanceLinks)])]));
+  b.append(make('footer',{class:'pt-global-footer','data-platform-footer':'v5'},[make('div',{class:'pt-global-footer__inner'},[make('p',{text:`© ${new Date().getFullYear()} منصة روافد. جميع الحقوق محفوظة.`}),make('nav',{'aria-label':'روابط الحوكمة والشفافية'},governanceLinks)])]));
   const top=make('button',{class:'pt-back-to-top',type:'button','aria-label':'العودة إلى أعلى الصفحة',title:'العودة إلى أعلى الصفحة',text:'↑'});top.addEventListener('click',()=>scrollTo({top:0,behavior:reduce.matches?'auto':'smooth'}));b.append(top);let ticking=false;const paint=()=>{const y=d.documentElement.scrollTop||b.scrollTop,max=Math.max(1,d.documentElement.scrollHeight-d.documentElement.clientHeight);progress.style.width=`${Math.min(100,Math.max(0,y/max*100))}%`;top.classList.toggle('is-visible',y>700);ticking=false};addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(paint);ticking=true}},{passive:true});paint();
   const closeNav=()=>{globalNav.classList.remove('is-open');menu.setAttribute('aria-expanded','false')};globalNav.addEventListener('click',e=>{if(e.target.closest('a'))closeNav()});d.addEventListener('click',e=>{if(globalNav.classList.contains('is-open')&&!globalNav.contains(e.target)&&!menu.contains(e.target))closeNav()});
   d.querySelectorAll('main a[href^="http"]').forEach(a=>{try{if(new URL(a.href).origin!==location.origin){a.rel=`${a.rel||''} noopener noreferrer`.trim();if(!a.getAttribute('aria-label')&&!a.textContent.includes('يفتح'))a.title=a.title||'رابط خارجي'}}catch(_){}});
