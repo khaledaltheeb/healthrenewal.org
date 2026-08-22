@@ -13,12 +13,14 @@
   const make=(tag,a={},kids=[])=>{const n=d.createElement(tag);for(const[k,v]of Object.entries(a)){if(k==='class')n.className=v;else if(k==='text')n.textContent=v;else n.setAttribute(k,v)};(Array.isArray(kids)?kids:[kids]).filter(Boolean).forEach(x=>n.append(x instanceof Node?x:d.createTextNode(String(x))));return n};
   const element=make;
   const primary=[['ابدأ هنا','start-here/'],['الموسوعة','encyclopedia/'],['الأدلة','care-guides/'],['ذوو الاحتياجات الخاصة','special-needs/'],['المكتبة','library/'],['الأدوات','daily-tools/'],['المجلة','magazine/'],['كل الأقسام','sections/']];
-  const hubRoutes=new Set(['/','/start-here/','/encyclopedia/','/care-guides/','/special-needs/','/library/','/daily-tools/','/magazine/','/sections/','/comparisons/','/learning-paths/','/sectors/','/tips/']);
+  const hubRoutes=new Set(['/start-here/','/encyclopedia/','/care-guides/','/special-needs/','/library/','/daily-tools/','/magazine/','/sections/','/comparisons/','/learning-paths/','/sectors/','/tips/']);
 
   const main=d.querySelector('main');
   const mainText=(main?.textContent||'').replace(/\s+/g,' ').trim();
   const existingPageToc=!!d.querySelector('main .toc, main [class*="toc"], main nav[aria-label*="محتو"], main aside a[href^="#"]');
-  if(hubRoutes.has(path)||existingPageToc)b.classList.add('pt-page-hub');else b.classList.add('pt-page-detail');
+  if(path==='/')b.classList.add('pt-page-home');
+  else if(hubRoutes.has(path)||existingPageToc)b.classList.add('pt-page-hub');
+  else b.classList.add('pt-page-detail');
   if(mainText.length>=2200)b.classList.add('pt-page-longform');
 
   if(!d.querySelector('link[data-pt-context-v3]'))d.head.append(make('link',{rel:'stylesheet',href:url('assets/platform/context-navigation-v3.css?v=4'),'data-pt-context-v3':'true'}));
