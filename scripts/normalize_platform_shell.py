@@ -21,7 +21,7 @@ from typing import Iterable
 
 DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 MARKER = "<!-- pt-platform-shell:v1 -->"
-SHELL_VERSION = "1.1.0"
+SHELL_VERSION = "2.0.0"
 EXCLUDED_PARTS = {
     ".git",
     ".github",
