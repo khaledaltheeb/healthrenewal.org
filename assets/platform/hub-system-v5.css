@@ -1,0 +1,219 @@
+/* Rawafid Hub System v5 — harmonizes generated and legacy hub pages without rewriting content. */
+
+/* Page-level rhythm ------------------------------------------------------- */
+body.pt-platform.pt-page-hub main {
+  padding-block-start: .9rem;
+}
+
+body.pt-platform.pt-page-hub main > .hero,
+body.pt-platform.pt-page-hub main > section.hero {
+  position: relative;
+  overflow: hidden;
+  margin-block: .9rem clamp(1.6rem, 4vw, 2.8rem);
+  padding: clamp(2.2rem, 5vw, 4.2rem) clamp(1rem, 3vw, 2.1rem) !important;
+  border: 1px solid #c5e2de;
+  border-radius: clamp(20px, 3vw, 30px);
+  background:
+    radial-gradient(circle at 88% 12%, rgba(15,143,146,.11), transparent 24rem),
+    linear-gradient(135deg, #eefaf7 0%, #ffffff 58%, #f8f5ff 100%) !important;
+  box-shadow: 0 18px 50px rgba(10,72,71,.08);
+}
+
+body.pt-platform.pt-page-hub main > .hero::after,
+body.pt-platform.pt-page-hub main > section.hero::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: -4rem;
+  bottom: -7rem;
+  width: 17rem;
+  height: 17rem;
+  border-radius: 50%;
+  background: rgba(139,49,92,.045);
+  pointer-events: none;
+}
+
+body.pt-platform.pt-page-hub .hero > *,
+body.pt-platform.pt-page-hub .hero .wrap {
+  position: relative;
+  z-index: 1;
+}
+
+body.pt-platform.pt-page-hub .hero h1 {
+  max-width: 20ch;
+  margin-block: .16em .28em;
+  font-size: clamp(2.25rem, 5vw, 4.45rem);
+  line-height: 1.12;
+}
+
+body.pt-platform.pt-page-hub .hero .lead {
+  max-width: 72ch;
+  margin-block: .45rem 0;
+  font-size: clamp(1.04rem, 1.8vw, 1.22rem);
+  line-height: 1.9;
+}
+
+body.pt-platform.pt-page-hub .hero :where(.kicker,.eyebrow,.overline) {
+  margin-block: 0 .45rem;
+  color: var(--pt-accent, #8b315c) !important;
+  font-size: .86rem;
+  font-weight: 900;
+}
+
+body.pt-platform.pt-page-hub .hero .notice,
+body.pt-platform.pt-page-hub .hero .trust-note {
+  max-width: 78ch;
+  margin-top: 1.15rem;
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+/* Hub cards --------------------------------------------------------------- */
+body.pt-platform.pt-page-hub :where(.card,.path,.path-card,.journey,.panel,.group) {
+  border-color: #c7dfdc !important;
+  border-radius: 18px !important;
+}
+
+body.pt-platform.pt-page-hub :where(.card,.path-card,.journey,.panel) {
+  box-shadow: 0 8px 26px rgba(10,72,71,.065) !important;
+}
+
+body.pt-platform.pt-page-hub :where(.card,.path-card,.journey,.panel):hover {
+  border-color: #a8d2cd !important;
+}
+
+body.pt-platform.pt-page-hub :where(.cards,.path-grid,.journeys,.grid) {
+  gap: clamp(.85rem, 1.8vw, 1.2rem) !important;
+}
+
+body.pt-platform.pt-page-hub .card {
+  min-height: 0;
+}
+
+body.pt-platform.pt-page-hub :where(.card,.path-card,.journey) :where(h2,h3) {
+  margin-block-start: .15rem;
+}
+
+/* Existing page TOCs and two-column reading layouts ---------------------- */
+body.pt-platform.pt-page-hub .layout {
+  grid-template-columns: minmax(220px, 275px) minmax(0, 1fr) !important;
+  gap: clamp(1rem, 2.2vw, 1.6rem) !important;
+  align-items: start;
+}
+
+body.pt-platform.pt-page-hub .layout > .toc,
+body.pt-platform.pt-page-hub aside.toc {
+  top: calc(var(--pt-shell-offset, 110px) + 1rem) !important;
+  max-height: calc(100vh - var(--pt-shell-offset, 110px) - 2rem) !important;
+  padding: .9rem !important;
+  border-color: #c7dfdc !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 24px rgba(10,72,71,.06) !important;
+  background: rgba(255,255,255,.96) !important;
+}
+
+body.pt-platform.pt-page-hub .toc h2 {
+  margin: .1rem 0 .55rem;
+  font-size: 1rem;
+  color: var(--pt-brand-strong, #064a47);
+}
+
+body.pt-platform.pt-page-hub .toc a[href^="#"] {
+  display: block;
+  padding: .47rem .55rem !important;
+  border: 0 !important;
+  border-radius: 9px;
+  color: var(--pt-ink, #12393d);
+  text-decoration: none;
+  font-size: .86rem;
+  font-weight: 760;
+}
+
+body.pt-platform.pt-page-hub .toc a[href^="#"] + a[href^="#"] {
+  margin-top: .1rem;
+}
+
+body.pt-platform.pt-page-hub .toc a[href^="#"]:hover,
+body.pt-platform.pt-page-hub .toc a[href^="#"]:focus-visible {
+  background: #eef8f6;
+  color: var(--pt-brand-strong, #064a47);
+}
+
+body.pt-platform.pt-page-hub .stack {
+  min-width: 0;
+  gap: clamp(1rem, 2vw, 1.35rem) !important;
+}
+
+body.pt-platform.pt-page-hub .stack > :where(section,article,.card,.sources) {
+  min-width: 0;
+}
+
+/* Actions ---------------------------------------------------------------- */
+body.pt-platform.pt-page-hub .hero :where(.button,.btn,[role="button"]) {
+  min-height: 48px;
+  padding: .68rem 1rem !important;
+  border-radius: 12px !important;
+  font-weight: 900;
+}
+
+body.pt-platform.pt-page-hub .hero :where(.actions,.buttons) {
+  margin-top: 1.35rem;
+  gap: .6rem;
+}
+
+/* Detail / long-form pages ------------------------------------------------ */
+body.pt-platform.pt-page-detail.pt-page-longform main article:not(.card) {
+  min-width: 0;
+}
+
+body.pt-platform.pt-page-detail.pt-page-longform main article:not(.card) > h1,
+body.pt-platform.pt-page-detail.pt-page-longform main article:not(.card) > .lead {
+  max-width: 72ch;
+}
+
+body.pt-platform.pt-page-detail.pt-page-longform .pt-page-toc {
+  margin-inline: 0;
+}
+
+/* Generated hub directories often use generic section/card grids. */
+body.pt-platform.pt-page-hub main > section:not(.hero) {
+  scroll-margin-top: calc(var(--pt-shell-offset, 110px) + 16px);
+}
+
+/* Mobile ----------------------------------------------------------------- */
+@media (max-width: 960px) {
+  body.pt-platform.pt-page-hub .layout {
+    display: block !important;
+  }
+
+  body.pt-platform.pt-page-hub .layout > .toc,
+  body.pt-platform.pt-page-hub aside.toc {
+    position: static !important;
+    max-height: none !important;
+    margin-bottom: 1rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body.pt-platform.pt-page-hub main > .hero,
+  body.pt-platform.pt-page-hub main > section.hero {
+    margin-top: .55rem;
+    padding: 1.65rem .9rem !important;
+    border-radius: 18px;
+  }
+
+  body.pt-platform.pt-page-hub .hero h1 {
+    font-size: clamp(2rem, 11vw, 3.15rem);
+  }
+
+  body.pt-platform.pt-page-hub :where(.card,.path-card,.journey,.panel,.group) {
+    border-radius: 15px !important;
+  }
+}
+
+@media print {
+  body.pt-platform.pt-page-hub main > .hero,
+  body.pt-platform.pt-page-hub main > section.hero,
+  body.pt-platform.pt-page-hub :where(.card,.path-card,.journey,.panel) {
+    box-shadow: none !important;
+  }
+}
