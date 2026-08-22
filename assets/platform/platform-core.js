@@ -69,12 +69,21 @@
   };
 
   const mainId = ensureMainId();
-  if (mainId && !doc.querySelector('.pt-skip-link')) {
-    body.prepend(element('a', {
-      class: 'pt-skip-link',
-      href: `#${mainId}`,
-      text: 'تجاوز إلى المحتوى الرئيسي'
-    }));
+  if (mainId) {
+    const existingSkip = [...body.children].find((child) =>
+      child.tagName === 'A'
+      && (child.classList.contains('skip') || child.getAttribute('href') === `#${mainId}`)
+    );
+    if (existingSkip) {
+      existingSkip.classList.add('pt-skip-link');
+      existingSkip.setAttribute('href', `#${mainId}`);
+    } else if (!doc.querySelector('.pt-skip-link')) {
+      body.prepend(element('a', {
+        class: 'pt-skip-link',
+        href: `#${mainId}`,
+        text: 'تجاوز إلى المحتوى الرئيسي'
+      }));
+    }
   }
 
   const nav = element('nav', {
@@ -223,6 +232,13 @@
     }
     if (event.key === 'Escape' && !dialogSupported && !dialog.hidden) closeSearch();
   });
+
+  const existingTopFooter = [...body.children].find((child) => child.tagName === 'FOOTER');
+  if (existingTopFooter) {
+    existingTopFooter.hidden = true;
+    existingTopFooter.setAttribute('aria-hidden', 'true');
+    existingTopFooter.dataset.replacedByPlatformShell = 'true';
+  }
 
   const footer = element('footer', { class: 'pt-global-footer', 'data-platform-footer': 'v2' }, [
     element('div', { class: 'pt-global-footer__inner' }, [
