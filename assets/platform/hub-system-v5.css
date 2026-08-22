@@ -68,29 +68,39 @@ body.pt-platform.pt-page-hub .hero .trust-note {
 }
 
 /* Hub cards --------------------------------------------------------------- */
-body.pt-platform.pt-page-hub :where(.card,.path,.path-card,.journey,.panel,.group) {
+body.pt-platform.pt-page-hub :where(.card,.path,.path-card,.journey,.panel,.group,.section-card-v221,.pt-discovery-card) {
   border-color: #c7dfdc !important;
   border-radius: 18px !important;
 }
 
-body.pt-platform.pt-page-hub :where(.card,.path-card,.journey,.panel) {
+body.pt-platform.pt-page-hub :where(.card,.path-card,.journey,.panel,.section-card-v221,.pt-discovery-card) {
   box-shadow: 0 8px 26px rgba(10,72,71,.065) !important;
 }
 
-body.pt-platform.pt-page-hub :where(.card,.path-card,.journey,.panel):hover {
+body.pt-platform.pt-page-hub :where(.card,.path-card,.journey,.panel,.section-card-v221,.pt-discovery-card):hover {
   border-color: #a8d2cd !important;
 }
 
-body.pt-platform.pt-page-hub :where(.cards,.path-grid,.journeys,.grid) {
+body.pt-platform.pt-page-hub :where(.cards,.path-grid,.journeys,.grid,.section-grid-v221,.pt-discovery-grid) {
   gap: clamp(.85rem, 1.8vw, 1.2rem) !important;
 }
 
-body.pt-platform.pt-page-hub .card {
+body.pt-platform.pt-page-hub :where(.card,.section-card-v221,.pt-discovery-card) {
   min-height: 0;
 }
 
-body.pt-platform.pt-page-hub :where(.card,.path-card,.journey) :where(h2,h3) {
+body.pt-platform.pt-page-hub :where(.card,.path-card,.journey,.section-card-v221,.pt-discovery-card) :where(h2,h3) {
   margin-block-start: .15rem;
+}
+
+body.pt-platform.pt-page-hub .section-card-v221,
+body.pt-platform.pt-page-hub .pt-discovery-card {
+  padding: clamp(1rem, 2vw, 1.25rem) !important;
+  background: rgba(255,255,255,.96) !important;
+}
+
+body.pt-platform.pt-page-hub :where(.section-card-v221,.pt-discovery-card) p {
+  color: var(--pt-muted, #567176);
 }
 
 /* Existing page TOCs and two-column reading layouts ---------------------- */
@@ -205,7 +215,7 @@ body.pt-platform.pt-page-hub main > section:not(.hero) {
     font-size: clamp(2rem, 11vw, 3.15rem);
   }
 
-  body.pt-platform.pt-page-hub :where(.card,.path-card,.journey,.panel,.group) {
+  body.pt-platform.pt-page-hub :where(.card,.path-card,.journey,.panel,.group,.section-card-v221,.pt-discovery-card) {
     border-radius: 15px !important;
   }
 }
@@ -213,7 +223,7 @@ body.pt-platform.pt-page-hub main > section:not(.hero) {
 @media print {
   body.pt-platform.pt-page-hub main > .hero,
   body.pt-platform.pt-page-hub main > section.hero,
-  body.pt-platform.pt-page-hub :where(.card,.path-card,.journey,.panel) {
+  body.pt-platform.pt-page-hub :where(.card,.path-card,.journey,.panel,.section-card-v221,.pt-discovery-card) {
     box-shadow: none !important;
   }
 }
