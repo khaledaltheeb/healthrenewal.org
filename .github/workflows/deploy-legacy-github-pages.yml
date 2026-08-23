@@ -1,0 +1,261 @@
+name: Publish legacy site on GitHub Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-legacy-github-pages.yml'
+  workflow_run:
+    workflows:
+      - 'Build complete institutional site v6 and deploy'
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: legacy-github-pages-domain
+  cancel-in-progress: true
+
+env:
+  LEGACY_BASE_URL: https://khaledaltheeb.github.io/healthrenewal.org
+  LEGACY_BASE_PATH: /healthrenewal.org
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      source_run_id: ${{ steps.source.outputs.run_id }}
+    steps:
+      - name: Checkout repository metadata
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Select latest validated production artifact
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${EVENT_NAME}" = 'workflow_run' ] && [ -n "${WORKFLOW_RUN_ID:-}" ]; then
+            run_id="${WORKFLOW_RUN_ID}"
+            artifact_count="$(curl -fsS \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H 'Accept: application/vnd.github+json' \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/artifacts" \
+              | jq '[.artifacts[] | select(.name == "validated-production-site" and (.expired | not))] | length')"
+            if [ "${artifact_count}" -lt 1 ]; then
+              run_id=''
+            fi
+          else
+            run_id=''
+          fi
+
+          if [ -z "${run_id}" ]; then
+            curl -fsS \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H 'Accept: application/vnd.github+json' \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" \
+              -o /tmp/artifacts.json
+            run_id="$(jq -r '[.artifacts[] | select((.expired | not) and .workflow_run.head_branch == "main")] | sort_by(.created_at) | last | .workflow_run.id // empty' /tmp/artifacts.json)"
+          fi
+
+          if [ -z "${run_id}" ]; then
+            echo 'No active validated-production-site artifact is available.' >&2
+            exit 1
+          fi
+          echo "run_id=${run_id}" >> "${GITHUB_OUTPUT}"
+          echo "Using validated production artifact from run ${run_id}"
+
+      - name: Download validated legacy site
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _legacy_site
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.source.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Retarget publication to GitHub Pages project URL
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f _legacy_site/index.html
+          rm -f _legacy_site/CNAME
+          touch _legacy_site/.nojekyll
+
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import re
+
+          root = Path('_legacy_site')
+          old_origins = (
+              'https://healthrenewal.org',
+              'https://www.healthrenewal.org',
+              'http://healthrenewal.org',
+              'http://www.healthrenewal.org',
+          )
+          new_origin = 'https://khaledaltheeb.github.io/healthrenewal.org'
+          base_path = '/healthrenewal.org'
+          text_suffixes = {'.html', '.htm', '.xml', '.txt', '.json', '.css', '.js', '.webmanifest', '.svg'}
+
+          def retarget(text: str, suffix: str) -> str:
+              for origin in old_origins:
+                  text = text.replace(origin, new_origin)
+
+              # Root-relative references must include the project-site base path.
+              # Restrict replacements to URL-bearing syntax to avoid modifying regexes
+              # or arbitrary prose in JavaScript/content.
+              text = re.sub(
+                  r'(?P<prefix>\b(?:href|src|action|poster|data-src|data-href)\s*=\s*["\'])/(?!/|healthrenewal\.org(?:/|["\']))',
+                  rf'\g<prefix>{base_path}/',
+                  text,
+                  flags=re.I,
+              )
+              text = re.sub(
+                  r'url\(\s*(["\']?)/(?!/|healthrenewal\.org/)',
+                  rf'url(\1{base_path}/',
+                  text,
+                  flags=re.I,
+              )
+              if suffix in {'.json', '.webmanifest'}:
+                  text = re.sub(r'(:\s*["\'])/(?!/|healthrenewal\.org/)', rf'\1{base_path}/', text)
+              if suffix == '.js':
+                  for fn in ('fetch', 'import'):
+                      text = re.sub(rf'({fn}\(\s*["\'])/(?!/|healthrenewal\.org/)', rf'\1{base_path}/', text)
+              return text
+
+          changed = 0
+          for path in root.rglob('*'):
+              if not path.is_file() or path.suffix.lower() not in text_suffixes:
+                  continue
+              try:
+                  source = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              target = retarget(source, path.suffix.lower())
+              if target != source:
+                  path.write_text(target, encoding='utf-8')
+                  changed += 1
+
+          robots = root / 'robots.txt'
+          if robots.exists():
+              robots_text = robots.read_text(encoding='utf-8')
+              robots_text = robots_text.replace('Sitemap: /', f'Sitemap: {new_origin}/')
+              robots.write_text(robots_text, encoding='utf-8')
+
+          deployment = root / 'deployment.json'
+          payload = {}
+          if deployment.exists():
+              try:
+                  payload = json.loads(deployment.read_text(encoding='utf-8'))
+              except Exception:
+                  payload = {}
+          payload.update({
+              'legacy_host': 'github-pages',
+              'legacy_base_url': new_origin,
+              'legacy_repository': 'khaledaltheeb/healthrenewal.org',
+              'custom_domain_detached': True,
+          })
+          deployment.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          print({'retargeted_files': changed, 'base_url': new_origin})
+          PY
+
+      - name: Validate GitHub Pages artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s _legacy_site/index.html
+          test -f _legacy_site/.nojekyll
+          test ! -e _legacy_site/CNAME
+          grep -q 'https://khaledaltheeb.github.io/healthrenewal.org/' _legacy_site/index.html
+          if grep -RIl --include='*.html' --include='*.xml' --include='*.json' 'https://healthrenewal.org' _legacy_site | head -1 | grep -q .; then
+            echo 'Legacy custom-domain URLs remain in the deployable artifact.' >&2
+            exit 1
+          fi
+          size_kb="$(du -sk _legacy_site | awk '{print $1}')"
+          echo "GitHub Pages artifact size: ${size_kb} KB"
+          if [ "${size_kb}" -ge 1000000 ]; then
+            echo 'Published artifact is at or above the GitHub Pages 1 GB site limit.' >&2
+            exit 1
+          fi
+
+      - name: Attempt to remove obsolete Pages custom domain
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl -sS -o /tmp/pages-update.txt -w '%{http_code}' -X PUT \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages" \
+            -d '{"cname":null,"build_type":"workflow"}')"
+          if [ "${code}" = '204' ]; then
+            echo 'Obsolete GitHub Pages custom domain removed.'
+          else
+            echo "::warning title=Pages custom domain may need one manual setting change::GitHub API returned HTTP ${code}. If the default github.io URL redirects to healthrenewal.org, clear Custom domain under Settings > Pages."
+            cat /tmp/pages-update.txt || true
+          fi
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _legacy_site
+
+  deploy:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy legacy site
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify free GitHub Pages URL
+        shell: bash
+        env:
+          DEPLOYED_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          echo "GitHub reported Pages URL: ${DEPLOYED_URL}"
+          expected='https://khaledaltheeb.github.io/healthrenewal.org/'
+          if [ "${DEPLOYED_URL}" != "${expected}" ]; then
+            echo "::warning title=Default Pages URL not active yet::Expected ${expected}, GitHub reported ${DEPLOYED_URL}. Clear the old custom domain in repository Settings > Pages if it is still present."
+          fi
+
+          ready=0
+          for attempt in $(seq 1 20); do
+            if curl -fsSL --max-redirs 0 --retry 1 "${expected}deployment.json?run=${GITHUB_RUN_ID}-${attempt}" -o /tmp/deployment.json 2>/tmp/curl-error; then
+              if jq -e '.legacy_host == "github-pages" and .legacy_base_url == "https://khaledaltheeb.github.io/healthrenewal.org"' /tmp/deployment.json >/dev/null; then
+                ready=1
+                break
+              fi
+            fi
+            sleep 3
+          done
+          if [ "${ready}" != '1' ]; then
+            echo 'The artifact deployed, but the default github.io project URL is not serving it yet.' >&2
+            cat /tmp/curl-error || true
+            exit 1
+          fi
