@@ -1,4 +1,4 @@
-name: Audit addiction atlas v3
+name: Audit addiction atlas v4
 
 on:
   push:
@@ -12,6 +12,7 @@ on:
       - 'scripts/publish_addiction_atlas_v2.py'
       - 'scripts/publish_addiction_atlas_v3.py'
       - 'scripts/validate_addiction_atlas_v2.py'
+      - 'scripts/validate_addiction_atlas_manifest.py'
       - 'scripts/validate_addiction_sitemap_registration_v1.py'
       - 'scripts/publish_complete_sitemap_v360.py'
       - 'sitemap-addiction-atlas.xml'
@@ -28,6 +29,7 @@ on:
       - 'scripts/publish_addiction_atlas_v2.py'
       - 'scripts/publish_addiction_atlas_v3.py'
       - 'scripts/validate_addiction_atlas_v2.py'
+      - 'scripts/validate_addiction_atlas_manifest.py'
       - 'scripts/validate_addiction_sitemap_registration_v1.py'
       - 'scripts/publish_complete_sitemap_v360.py'
       - 'sitemap-addiction-atlas.xml'
@@ -39,7 +41,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: audit-addiction-atlas-v3-${{ github.ref }}
+  group: audit-addiction-atlas-v4-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -56,10 +58,11 @@ jobs:
           python -m py_compile scripts/publish_addiction_atlas_v2.py
           python -m py_compile scripts/publish_addiction_atlas_v3.py
           python -m py_compile scripts/validate_addiction_atlas_v2.py
+          python -m py_compile scripts/validate_addiction_atlas_manifest.py
           python -m py_compile scripts/validate_addiction_sitemap_registration_v1.py
           python -m py_compile scripts/publish_complete_sitemap_v360.py
-      - name: Validate atlas publication contracts
-        run: python scripts/validate_addiction_atlas_v2.py
+      - name: Validate all registered atlas waves
+        run: python scripts/validate_addiction_atlas_manifest.py
       - name: Validate central sitemap registration
         run: python scripts/validate_addiction_sitemap_registration_v1.py
       - name: Validate JSON syntax independently
