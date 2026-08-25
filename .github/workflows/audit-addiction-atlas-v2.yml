@@ -15,6 +15,7 @@ on:
       - 'scripts/validate_addiction_atlas_v2.py'
       - 'scripts/validate_addiction_atlas_manifest.py'
       - 'scripts/validate_addiction_atlas_dates.py'
+      - 'scripts/validate_addiction_atlas_evidence_contract.py'
       - 'scripts/validate_addiction_sitemap_registration_v1.py'
       - 'scripts/generate_addiction_atlas_sitemap.py'
       - 'scripts/publish_complete_sitemap_v360.py'
@@ -35,6 +36,7 @@ on:
       - 'scripts/validate_addiction_atlas_v2.py'
       - 'scripts/validate_addiction_atlas_manifest.py'
       - 'scripts/validate_addiction_atlas_dates.py'
+      - 'scripts/validate_addiction_atlas_evidence_contract.py'
       - 'scripts/validate_addiction_sitemap_registration_v1.py'
       - 'scripts/generate_addiction_atlas_sitemap.py'
       - 'scripts/publish_complete_sitemap_v360.py'
@@ -68,10 +70,13 @@ jobs:
           python -m py_compile scripts/validate_addiction_atlas_v2.py
           python -m py_compile scripts/validate_addiction_atlas_manifest.py
           python -m py_compile scripts/validate_addiction_atlas_dates.py
+          python -m py_compile scripts/validate_addiction_atlas_evidence_contract.py
           python -m py_compile scripts/validate_addiction_sitemap_registration_v1.py
           python -m py_compile scripts/publish_complete_sitemap_v360.py
       - name: Validate all registered atlas waves
         run: python scripts/validate_addiction_atlas_manifest.py
+      - name: Validate complete claim-to-evidence coverage
+        run: python scripts/validate_addiction_atlas_evidence_contract.py
       - name: Validate page, schema and sitemap modification dates
         run: python scripts/validate_addiction_atlas_dates.py
       - name: Validate central sitemap registration
