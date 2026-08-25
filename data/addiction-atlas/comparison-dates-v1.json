@@ -1,0 +1,14 @@
+{
+  "schema_version": "rawafid-addiction-comparison-dates-v1",
+  "baseline_updated_on": "2026-08-25",
+  "updated_on": "2026-08-26",
+  "overrides": {
+    "temazepam-vs-zolpidem": "2026-08-26",
+    "eszopiclone-vs-zolpidem": "2026-08-26",
+    "zaleplon-vs-zolpidem": "2026-08-26",
+    "dextroamphetamine-vs-amphetamine": "2026-08-26",
+    "mephedrone-vs-methamphetamine": "2026-08-26",
+    "gasoline-inhalants-vs-toluene": "2026-08-26"
+  },
+  "policy_ar": "يستخدم خط الأساس للمقارنات المنشورة قبل Wave 5. كل مقارنة جديدة أو تعديل جوهري لاحق يجب أن يسجل تاريخ تعديل صريحاً في overrides، ولا يغير تاريخ الصفحات القديمة لمجرد إعادة بناء السايت ماب."
+}
