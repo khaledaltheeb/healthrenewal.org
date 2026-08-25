@@ -1,6 +1,6 @@
 {
-  "schema_version": "rawafid-addiction-atlas-source-registry-v2",
-  "updated_on": "2026-08-25",
+  "schema_version": "rawafid-addiction-atlas-source-registry-v3",
+  "updated_on": "2026-08-26",
   "sources": [
     {
       "id": "unodc-wdr-2026-global-use",
@@ -96,7 +96,7 @@
       "geography": "United States / class-level safety evidence",
       "url": "https://www.fda.gov/safety/medical-product-safety-information/certain-prescription-insomnia-medicines-new-boxed-warning-due-risk-serious-injuries-caused",
       "verified_on": "2026-08-25",
-      "notes_ar": "يدعم التحذير من سلوكيات النوم المعقدة والإصابة الشديدة أو الوفاة المرتبطة بزولبيديم وبعض أدوية Z. لا يُحوّل إلى احتمال رقمي فردي ثابت."
+      "notes_ar": "يدعم التحذير من سلوكيات النوم المعقدة والإصابة الشديدة أو الوفاة المرتبطة بزولبيديم وإسزوبيكلون وزاليبلون. لا يُحوّل إلى احتمال رقمي فردي ثابت."
     },
     {
       "id": "fda-gabapentinoids-respiratory-warning-2019",
@@ -118,9 +118,9 @@
       "data_years": [],
       "source_type": "regulatory drug-safety communication",
       "geography": "United States / class-level safety evidence",
-      "url": "https://www.fda.gov/media/168066/download",
-      "verified_on": "2026-08-25",
-      "notes_ar": "نسخة FDA الرسمية من Drug Safety Communication التي تستشهد بها سجلات المنبهات الوصفية في الأطلس؛ تدعم مخاطر سوء الاستخدام والإساءة والاعتماد والجرعة الزائدة والمشاركة غير الطبية. يجب الفصل بين الاستخدام العلاجي الموصوف وسوء الاستخدام."
+      "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-updating-warnings-improve-safe-use-prescription-stimulants-used-treat-adhd-and-other-conditions",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم مخاطر سوء الاستخدام والإساءة والإدمان والجرعة الزائدة والمشاركة غير الطبية في فئة المنبهات الوصفية، مع ضرورة الفصل بين العلاج المشروع وسوء الاستخدام."
     },
     {
       "id": "nida-psychedelic-dissociative-drugs",
@@ -132,7 +132,7 @@
       "geography": "general scientific evidence",
       "url": "https://nida.nih.gov/sites/default/files/hallucinogensrrs.pdf",
       "verified_on": "2026-08-25",
-      "notes_ar": "المرجع الرسمي الذي تستشهد به صفحات DMT والميسكالين والسالفيا في الموجة الرابعة. تُعامل الأدلة الخاصة بكل مادة على حدة ولا تُعمم درجة خطر واحدة على جميع المهلوسات."
+      "notes_ar": "المرجع الرسمي الذي تستشهد به صفحات DMT والميسكالين والسالفيا. تُعامل الأدلة الخاصة بكل مادة على حدة ولا تُعمم درجة خطر واحدة على جميع المهلوسات."
     },
     {
       "id": "nida-inhalants-reference",
@@ -143,8 +143,44 @@
       "source_type": "federal scientific educational reference",
       "geography": "general scientific evidence",
       "url": "https://nida.nih.gov/sites/default/files/dfinhalants_1.pdf",
-      "verified_on": "2026-08-25",
-      "notes_ar": "المرجع الرسمي الذي تستشهد به صفحة البيوتان في الموجة الرابعة؛ يدعم الأخطار القلبية والعصبية ونقص الأكسجة والوفاة المفاجئة المرتبطة بالمستنشقات. لا يقدم أساساً لجرعات أو طرق استخدام."
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم أخطار المستنشقات المتطايرة ومنها الغازات والمذيبات والوقود، بما في ذلك الأذى العصبي والقلبـي ونقص الأكسجة والوفاة المفاجئة. لا يقدم أساساً لطرق أو جرعات استخدام."
+    },
+    {
+      "id": "euda-mephedrone-risk-assessment",
+      "organization": "European Union Drugs Agency (EUDA; formerly EMCDDA)",
+      "title": "Report on the risk assessment of mephedrone in the framework of the Council Decision on new psychoactive substances",
+      "publication_year": 2011,
+      "data_years": [],
+      "source_type": "formal scientific risk assessment",
+      "geography": "European Union / substance-specific evidence",
+      "url": "https://www.euda.europa.eu/risk-assessments/mephedrone_en",
+      "verified_on": "2026-08-26",
+      "notes_ar": "مرجع نوعي خاص بالميفيدرون يغطي المخاطر الصحية والاجتماعية والسمية والضبط. تُستخدم الاستنتاجات العلمية ولا تُنقل أي تفاصيل تشغيلية عن التحضير أو الجرعات."
+    },
+    {
+      "id": "euda-synthetic-cathinones-profile",
+      "organization": "European Union Drugs Agency (EUDA)",
+      "title": "Synthetic cathinones drug profile",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "scientific drug profile",
+      "geography": "European Union / general scientific evidence",
+      "url": "https://d9www.euda.europa.eu/publications/drug-profiles/synthetic-cathinones_en",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم تصنيف الميفيدرون 4-MMC ضمن الكاثينونات الصناعية وبعض معلومات الكيمياء والآثار والمخاطر. لا تُنقل منه معلومات تصنيع أو جرعات تشغيلية."
+    },
+    {
+      "id": "fda-nitrite-poppers-warning-2021",
+      "organization": "U.S. Food and Drug Administration (FDA)",
+      "title": "FDA Advises Consumers Not to Purchase or Use Nitrite ‘Poppers’",
+      "publication_year": 2021,
+      "data_years": [],
+      "source_type": "regulatory consumer safety warning",
+      "geography": "United States / toxicology safety evidence",
+      "url": "https://www.fda.gov/food/alerts-advisories-safety-information/fda-advises-consumers-not-purchase-or-use-nitrite-poppers",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم مخاطر التعرض للنتريتات الترفيهية بما فيها الميتهيموغلوبينية وصعوبة التنفس وانخفاض الضغط ودخول المستشفى والوفيات المبلغ عنها. لا يبرر نسبة خطر فردية ثابتة."
     }
   ]
 }
