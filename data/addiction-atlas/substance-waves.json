@@ -1,10 +1,11 @@
 {
   "schema_version": "rawafid-addiction-atlas-wave-manifest-v1",
-  "updated_on": "2026-08-25",
+  "updated_on": "2026-08-26",
   "waves": [
     "/data/addiction-atlas/substances-v1.json",
     "/data/addiction-atlas/substances-v2.json",
     "/data/addiction-atlas/substances-v3.json",
-    "/data/addiction-atlas/substances-v4.json"
+    "/data/addiction-atlas/substances-v4.json",
+    "/data/addiction-atlas/substances-v5.json"
   ]
 }
