@@ -1,0 +1,99 @@
+{
+  "schema_version": "rawafid-addiction-risk-evidence-v1",
+  "wave": "v5",
+  "updated_on": "2026-08-26",
+  "policy_ar": "كل قيمة ترتيبية في ملف المخاطر يجب أن تقترن بدرجة ثقة ومبرر وسياق ومعرف مصدر مسجل. الدرجة C تعني أن التقدير استدلال محافظ أو فئوي ويحتاج ترقية بالمصدر الأكثر مباشرة؛ U تعني أن الملف الأصلي ترك المحور غير محسوم ولا يجوز تحويله إلى رقم.",
+  "records": [
+    {
+      "substance_slug": "temazepam",
+      "dimensions": {
+        "acute_toxicity": {"score": 3, "evidence_grade": "B", "source_ids": ["fda-benzodiazepine-boxed-warning-2020"], "context_ar": "الاستخدام الطبي وغير الطبي للبنزوديازيبينات، مع ارتفاع الخطر في التسمم المختلط.", "rationale_ar": "تحذير FDA يثبت أخطاراً حادة مهمة ويؤكد ازدياد الضرر مع مثبطات أخرى؛ الدرجة ترتيبية وليست احتمال وفاة."},
+        "overdose_risk": {"score": 3, "evidence_grade": "B", "source_ids": ["fda-benzodiazepine-boxed-warning-2020"], "context_ar": "خصوصاً عند المشاركة مع الأفيونات أو الكحول أو مثبطات الجهاز العصبي المركزي.", "rationale_ar": "المصدر يثبت أن التداخلات قد تؤدي إلى عواقب خطرة؛ التقدير لا يفترض أن كل جرعة زائدة متساوية في الخطورة."},
+        "dependence": {"score": 4, "evidence_grade": "A", "source_ids": ["fda-benzodiazepine-boxed-warning-2020"], "context_ar": "الاعتماد الجسدي وسوء الاستخدام والإدمان مع الاستعمال المتكرر.", "rationale_ar": "FDA أضافت تحذيراً صندوقياً للفئة بسبب سوء الاستخدام والإدمان والاعتماد الجسدي، ما يدعم تقديراً مرتفعاً لهذا المحور."},
+        "withdrawal_medical_risk": {"score": 5, "evidence_grade": "A", "source_ids": ["fda-benzodiazepine-boxed-warning-2020"], "context_ar": "الإيقاف المفاجئ أو الخفض السريع بعد تطور الاعتماد الجسدي.", "rationale_ar": "FDA تصف تفاعلات انسحاب قد تكون مهددة للحياة وتوصي بخفض تدريجي فردي، لذلك يصنف الخطر الطبي للانسحاب في أعلى الفئة."},
+        "neuro_harm": {"score": 3, "evidence_grade": "C", "source_ids": ["fda-benzodiazepine-boxed-warning-2020"], "context_ar": "التهدئة والاختلال العصبي الوظيفي المرتبط بتثبيط الجهاز العصبي المركزي.", "rationale_ar": "المصدر يؤكد المخاطر العصبية المركزية للفئة، لكنه لا يقدم مقياساً كمياً مباشراً لضرر عصبي مزمن خاص بتيمازيبام؛ لذلك الثقة محدودة."},
+        "cardio_harm": {"score": 1, "evidence_grade": "C", "source_ids": ["fda-benzodiazepine-boxed-warning-2020"], "context_ar": "الضرر القلبي المباشر منفصلاً عن التسمم المختلط أو نقص الأكسجة.", "rationale_ar": "التحذير التنظيمي لا يبرز سمية قلبية مباشرة كخطر رئيسي للفئة؛ هذه درجة منخفضة الثقة ولا تعني غياب الخطر أو السلامة."},
+        "respiratory_harm": {"score": 3, "evidence_grade": "B", "source_ids": ["fda-benzodiazepine-boxed-warning-2020"], "context_ar": "خطر التثبيط التنفسي يزداد خصوصاً مع الأفيونات والكحول ومثبطات أخرى.", "rationale_ar": "FDA تنبه إلى العواقب الخطرة عند الجمع مع مواد مثبطة، ما يدعم تقديراً متوسطاً مع اعتماد واضح على السياق."},
+        "polysubstance_risk": {"score": 5, "evidence_grade": "A", "source_ids": ["fda-benzodiazepine-boxed-warning-2020"], "context_ar": "الجمع مع الأفيونات أو الكحول أو مثبطات أخرى للجهاز العصبي المركزي.", "rationale_ar": "التداخل مع الأفيونات والكحول من أبرز محاور التحذير التنظيمي بسبب إمكانية حدوث نتائج خطرة، ما يدعم أعلى درجة ترتيبية."}
+      }
+    },
+    {
+      "substance_slug": "eszopiclone",
+      "dimensions": {
+        "acute_toxicity": {"score": 3, "evidence_grade": "B", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "الإصابات الحادة المرتبطة بسلوكيات النوم المعقدة والاختلال الشديد في الوعي.", "rationale_ar": "FDA وثقت إصابات شديدة ووفيات نادرة مرتبطة بسلوكيات نوم معقدة، ما يثبت إمكان الأذى الحاد دون تحويل ذلك إلى احتمال فردي."},
+        "overdose_risk": {"score": 3, "evidence_grade": "C", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "التسمم الحاد والاختلال الشديد في الوعي، مع محدودية المصدر الحالي لتقدير الجرعة الزائدة تحديداً.", "rationale_ar": "المصدر يثبت أذى حاداً خطراً لكنه لا يقدم معايرة مباشرة لخطر الجرعة الزائدة؛ الدرجة الحالية استدلال محافظ منخفض الثقة."},
+        "dependence": {"score": 3, "evidence_grade": "C", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "الاعتماد أو إساءة الاستخدام مع الاستخدام المتكرر.", "rationale_ar": "مصدر السلوكيات المعقدة ليس مرجعاً مباشراً كافياً لتقدير شدة الاعتماد؛ أبقيت الثقة منخفضة إلى أن يربط المحور بمرجع دوائي أكثر مباشرة."},
+        "withdrawal_medical_risk": {"score": 2, "evidence_grade": "C", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "الأعراض بعد التوقف من الاستخدام المنتظم، مع فصلها عن عودة الأرق.", "rationale_ar": "المصدر الحالي لا يعاير خطورة الانسحاب الطبي مباشرة؛ الدرجة منخفضة الثقة ولا ينبغي قراءتها كقاعدة سريرية فردية."},
+        "neuro_harm": {"score": 3, "evidence_grade": "B", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "تثبيط نشاط الدماغ واضطراب الوعي والسلوكيات المعقدة أثناء النوم.", "rationale_ar": "FDA تؤكد أن الدواء يبطئ نشاط الدماغ وأن سلوكيات معقدة قد تسبب إصابات خطرة، ما يدعم تقديراً متوسطاً للمحور العصبي الوظيفي."},
+        "cardio_harm": {"score": 1, "evidence_grade": "C", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "السمية القلبية المباشرة منفصلة عن الحوادث والإصابات الثانوية.", "rationale_ar": "المصدر لا يبرز سمية قلبية مباشرة كخطر رئيسي؛ هذه درجة منخفضة الثقة وليست دليلاً على انعدام الخطر."},
+        "respiratory_harm": {"score": 3, "evidence_grade": "C", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "تثبيط الجهاز العصبي المركزي مع الحاجة إلى مصادر دوائية أكثر مباشرة لمعايرة الخطر التنفسي.", "rationale_ar": "المصدر الحالي لا يقدم تدرجاً مباشراً لكبت التنفس؛ لذلك يبقى التقدير منخفض الثقة رغم الطبيعة المهدئة للدواء."},
+        "polysubstance_risk": {"score": 5, "evidence_grade": "C", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "المشاركة مع الكحول أو المهدئات الأخرى، مع نقص المعايرة المباشرة في المصدر الحالي.", "rationale_ar": "التقدير شديد التحفظ بسبب التثبيط المركزي، لكنه يحتاج مصدراً دوائياً مباشراً قبل اعتباره عالي الثقة."}
+      }
+    },
+    {
+      "substance_slug": "zaleplon",
+      "dimensions": {
+        "acute_toxicity": {"score": 3, "evidence_grade": "B", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "الإصابات الحادة المرتبطة بسلوكيات النوم المعقدة والاختلال الشديد في الوعي.", "rationale_ar": "FDA أدرجت زاليبلون ضمن أدوية Z المرتبطة بحالات نادرة من إصابات خطرة ووفيات بسبب سلوكيات نوم معقدة."},
+        "overdose_risk": {"score": 3, "evidence_grade": "C", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "التسمم الحاد مع نقص بيانات معايرة الجرعة الزائدة في المصدر الحالي.", "rationale_ar": "المصدر يثبت الأذى الحاد لكنه لا يقيس الجرعة الزائدة مباشرة؛ الدرجة منخفضة الثقة وتحتاج مرجعاً دوائياً خاصاً."},
+        "dependence": {"score": 3, "evidence_grade": "C", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "إساءة الاستخدام أو الاعتماد مع التكرار.", "rationale_ar": "تحذير السلوكيات المعقدة لا يكفي وحده لمعايرة قابلية الاعتماد، ولذلك تصنف الثقة C."},
+        "withdrawal_medical_risk": {"score": 2, "evidence_grade": "C", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "أعراض ما بعد التوقف وعودة الأرق بعد الاستخدام المنتظم.", "rationale_ar": "لا يقدم المصدر الحالي تقديراً مباشراً لخطر الانسحاب الطبي؛ القيمة ترتيبية منخفضة الثقة."},
+        "neuro_harm": {"score": 3, "evidence_grade": "B", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "تثبيط نشاط الدماغ واضطراب الوعي والسلوك أثناء النوم.", "rationale_ar": "المصدر يربط الدواء بإبطاء نشاط الدماغ وسلوكيات معقدة قد تسبب إصابات خطرة، ما يدعم تقديراً متوسطاً للمحور العصبي الوظيفي."},
+        "cardio_harm": {"score": 1, "evidence_grade": "C", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "السمية القلبية المباشرة.", "rationale_ar": "المرجع الحالي لا يبرز سمية قلبية مباشرة؛ الدرجة منخفضة الثقة ولا تعني أن المادة خالية من الخطر."},
+        "respiratory_harm": {"score": 3, "evidence_grade": "C", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "التثبيط المركزي مع محدودية الدليل المباشر على معايرة كبت التنفس في المصدر الحالي.", "rationale_ar": "الدرجة الحالية استدلال فئوي محافظ وتحتاج مرجعاً دوائياً مباشراً لترقية الثقة."},
+        "polysubstance_risk": {"score": 5, "evidence_grade": "C", "source_ids": ["fda-z-drugs-boxed-warning-2019"], "context_ar": "المشاركة مع مثبطات أخرى، مع الحاجة إلى مرجع تداخلات مباشر خاص بالدواء.", "rationale_ar": "خطر الجمع منطقي سريرياً لفئة المهدئات، لكن المصدر المسجل هنا لا يعايره مباشرة؛ لذلك الثقة C."}
+      }
+    },
+    {
+      "substance_slug": "dextroamphetamine",
+      "dimensions": {
+        "acute_toxicity": {"score": 4, "evidence_grade": "B", "source_ids": ["fda-prescription-stimulants-warning-2023"], "context_ar": "سوء الاستخدام أو الجرعة الزائدة للمنبهات الوصفية، منفصلاً عن الاستخدام العلاجي المراقب.", "rationale_ar": "FDA تؤكد أن سوء الاستخدام قد يؤدي إلى جرعة زائدة ووفاة، ما يدعم تقديراً مرتفعاً للسمية الحادة في السياق غير الطبي."},
+        "overdose_risk": {"score": 4, "evidence_grade": "A", "source_ids": ["fda-prescription-stimulants-warning-2023"], "context_ar": "سوء الاستخدام وغير الطبي والمشاركة أو الاستعمال بغير وصفة.", "rationale_ar": "الجرعة الزائدة والوفاة مذكورتان صراحة ضمن التحذير المحدث للفئة، مع ارتفاع الخطر في أنماط سوء الاستخدام."},
+        "dependence": {"score": 4, "evidence_grade": "A", "source_ids": ["fda-prescription-stimulants-warning-2023"], "context_ar": "المخاطر المرتبطة بسوء الاستخدام والإساءة والمشاركة، مع الفصل عن الفائدة العلاجية الموصوفة.", "rationale_ar": "FDA تفرض تحذيراً صندوقياً متسقاً بشأن سوء الاستخدام والإدمان عبر المنبهات الوصفية."},
+        "withdrawal_medical_risk": {"score": 2, "evidence_grade": "C", "source_ids": ["fda-prescription-stimulants-warning-2023"], "context_ar": "الأعراض بعد الاستخدام غير الطبي المتكرر، مع فصل الانزعاج عن الخطر الطبي الحاد.", "rationale_ar": "المصدر الحالي لا يركز على معايرة الانسحاب؛ القيمة منخفضة الثقة وتحتاج مرجعاً أكثر مباشرة."},
+        "neuro_harm": {"score": 4, "evidence_grade": "B", "source_ids": ["fda-prescription-stimulants-warning-2023"], "context_ar": "السمية العصبية والنفسية في سوء الاستخدام والجرعة الزائدة، لا الاستخدام العلاجي المعتاد وحده.", "rationale_ar": "تحذير FDA يغطي عواقب خطرة لسوء الاستخدام والجرعة الزائدة؛ التقدير المرتفع يخص سياق الخطر وليس علاج ADHD الموصوف."},
+        "cardio_harm": {"score": 4, "evidence_grade": "B", "source_ids": ["fda-prescription-stimulants-warning-2023"], "context_ar": "المنبهات في سوء الاستخدام أو الجرعة الزائدة، مع احتمال مضاعفات قلبية وعائية.", "rationale_ar": "المصدر التنظيمي يدعم خطورة الجرعة الزائدة للفئة؛ المعايرة القلبية الخاصة بالدواء أقل مباشرة من محور الإدمان والجرعة الزائدة."},
+        "respiratory_harm": {"score": 1, "evidence_grade": "C", "source_ids": ["fda-prescription-stimulants-warning-2023"], "context_ar": "الضرر التنفسي المباشر مقارنة بالمحاور القلبية والعصبية في التسمم بالمنبهات.", "rationale_ar": "المصدر لا يبرز كبتاً تنفسياً مباشراً كمحور رئيسي، لذلك الدرجة منخفضة الثقة ولا تعني انعدام المخاطر التنفسية الثانوية."},
+        "polysubstance_risk": {"score": 4, "evidence_grade": "C", "source_ids": ["fda-prescription-stimulants-warning-2023"], "context_ar": "السياقات غير الطبية التي قد تتضمن مواد أخرى، مع نقص معايرة تداخل محددة في المصدر الحالي.", "rationale_ar": "الدرجة تحفظية وتحتاج مصادر تداخلات أكثر مباشرة قبل ترقية الثقة."}
+      }
+    },
+    {
+      "substance_slug": "mephedrone",
+      "dimensions": {
+        "acute_toxicity": {"score": 4, "evidence_grade": "B", "source_ids": ["euda-mephedrone-risk-assessment", "euda-synthetic-cathinones-profile"], "context_ar": "منتجات غير منظمة قد تختلف في الهوية والتركيب، مع حالات تسمم شديدة موثقة.", "rationale_ar": "تقييم EUDA يوثق مضاعفات حادة خطرة ووفيات مرتبطة بالميفيدرون، مع عدم اليقين الناتج عن الخلط والمنتجات غير المنظمة."},
+        "overdose_risk": {"score": 4, "evidence_grade": "B", "source_ids": ["euda-mephedrone-risk-assessment"], "context_ar": "التسمم الشديد والتعرضات التي قد تترافق مع مواد أخرى أو نقاوة غير معروفة.", "rationale_ar": "وثقت وفيات وحالات شديدة، لكن تعدد المواد وعدم اكتمال السببية في بعض الحالات يمنع تحويل ذلك إلى احتمال فردي ثابت."},
+        "dependence": {"score": 4, "evidence_grade": "B", "source_ids": ["euda-mephedrone-risk-assessment"], "context_ar": "الاستخدام المتكرر والرغبة الشديدة وفقد السيطرة على مدة أو كمية الاستخدام.", "rationale_ar": "التقييم يذكر رغبة شديدة وتقارير عن استعمال أكثر وأطول من المقصود، ما يدعم قابلية اعتماد مرتفعة مع بقاء جودة الدليل دون مستوى A."},
+        "withdrawal_medical_risk": {"score": 2, "evidence_grade": "B", "source_ids": ["euda-mephedrone-risk-assessment"], "context_ar": "أعراض ما بعد الاستخدام المتكرر مع فصل الرغبة والتعب عن الانسحاب المهدد للحياة.", "rationale_ar": "التقييم يشير إلى أن الانسحاب لا يبدو شديداً لدى معظم المستخدمين المبلغين، ما يدعم درجة منخفضة نسبياً مع عدم اعتبارها صفراً."},
+        "neuro_harm": {"score": 4, "evidence_grade": "B", "source_ids": ["euda-mephedrone-risk-assessment", "euda-synthetic-cathinones-profile"], "context_ar": "السمية العصبية والنفسية الحادة في الكاثينونات الصناعية.", "rationale_ar": "المصادر توثق هياجاً واضطرابات عصبية ونفسية ومضاعفات شديدة، لكن الأدلة طويلة المدى أقل اكتمالاً من المنبهات الأقدم."},
+        "cardio_harm": {"score": 4, "evidence_grade": "B", "source_ids": ["euda-mephedrone-risk-assessment", "euda-synthetic-cathinones-profile"], "context_ar": "التأثيرات المنبهة القلبية الوعائية والتسمم الحاد.", "rationale_ar": "تسرع القلب وارتفاع الضغط ومضاعفات قلبية ضمن ملف السمية الموثق للكاثينونات الصناعية والميفيدرون."},
+        "respiratory_harm": {"score": 2, "evidence_grade": "C", "source_ids": ["euda-mephedrone-risk-assessment"], "context_ar": "الضرر التنفسي المباشر منفصلاً عن المضاعفات الجهازية أو تعدد المواد.", "rationale_ar": "المصدر لا يجعل السمية التنفسية المباشرة محوراً رئيسياً؛ الدرجة منخفضة الثقة وتبقى قابلة للمراجعة."},
+        "polysubstance_risk": {"score": 4, "evidence_grade": "B", "source_ids": ["euda-mephedrone-risk-assessment", "euda-synthetic-cathinones-profile"], "context_ar": "المنتجات المختلطة وتعدد المواد وعدم معرفة المكونات الفعلية في السوق غير المنظم.", "rationale_ar": "EUDA توثق أن المنتجات قد تحتوي مخاليط وأن بعض المستخدمين لا يعرفون المادة المشتراة، ما يزيد عدم اليقين والخطر في سياق التعدد."}
+      }
+    },
+    {
+      "substance_slug": "gasoline-inhalants",
+      "dimensions": {
+        "acute_toxicity": {"score": 5, "evidence_grade": "A", "source_ids": ["nida-inhalants-reference"], "context_ar": "التعرض المتعمد لأبخرة وقود متطاير؛ الخليط الفعلي يختلف بين المنتجات.", "rationale_ar": "مرجع NIDA يؤكد أن المستنشقات المركزة قد تسبب تسمماً شديداً ووفاة حتى في جلسة واحدة."},
+        "overdose_risk": {"score": 5, "evidence_grade": "A", "source_ids": ["nida-inhalants-reference"], "context_ar": "فقد الوعي والاختناق والسمية القلبية الحادة مع المستنشقات المتطايرة.", "rationale_ar": "NIDA توثق إمكان توقف القلب خلال دقائق ومتلازمة الوفاة المفاجئة بالاستنشاق، ما يدعم أعلى درجة ترتيبية."},
+        "dependence": {"score": 3, "evidence_grade": "B", "source_ids": ["nida-inhalants-reference"], "context_ar": "اضطراب استخدام المستنشقات مع التعرض المتكرر، مع اختلاف المنتجات والمكونات.", "rationale_ar": "الفئة قادرة على إحداث نمط استخدام قهري واعتماد لدى بعض الأشخاص؛ درجة متوسطة تعكس التباين بين المواد والأفراد."},
+        "withdrawal_medical_risk": {"score": null, "evidence_grade": "U", "source_ids": ["nida-inhalants-reference"], "context_ar": "البنزين خليط متغير ولا يسمح المرجع الحالي بتقدير موحد لخطر انسحاب طبي.", "rationale_ar": "عدم تجانس المكونات وأنماط التعرض يمنع تقديراً ترتيبياً مسؤولاً؛ لذلك يبقى المحور غير محسوم بدلاً من التخمين."},
+        "neuro_harm": {"score": 4, "evidence_grade": "A", "source_ids": ["nida-inhalants-reference"], "context_ar": "نقص الأكسجة والسمية العصبية المرتبطة بالمذيبات والهيدروكربونات المتطايرة.", "rationale_ar": "NIDA تذكر أذية الدماغ عبر خفض تدفق الأكسجين إضافة إلى أذيات عصبية للمستنشقات، ما يدعم خطراً مرتفعاً."},
+        "cardio_harm": {"score": 5, "evidence_grade": "A", "source_ids": ["nida-inhalants-reference"], "context_ar": "اضطرابات النظم والوفاة القلبية المفاجئة في التعرض للمستنشقات المتطايرة.", "rationale_ar": "إمكان توقف القلب خلال دقائق والوفاة المفاجئة موثق على مستوى الفئة، مع صلة خاصة بالهيدروكربونات المتطايرة."},
+        "respiratory_harm": {"score": 5, "evidence_grade": "A", "source_ids": ["nida-inhalants-reference"], "context_ar": "الاختناق ونقص الأكسجة واضطراب التنفس خلال التعرض الحاد.", "rationale_ar": "المستنشقات قد تسبب الاختناق ونقص الأكسجة والوفاة، ما يبرر أعلى درجة ترتيبية لهذا السياق."},
+        "polysubstance_risk": {"score": 4, "evidence_grade": "C", "source_ids": ["nida-inhalants-reference"], "context_ar": "الجمع مع مواد أخرى مؤثرة في الوعي أو القلب أو التنفس.", "rationale_ar": "المصدر يثبت خطورة المستنشقات بذاتها أكثر مما يعاير التداخلات؛ الدرجة الحالية تحفظية منخفضة الثقة."}
+      }
+    },
+    {
+      "substance_slug": "alkyl-nitrites",
+      "dimensions": {
+        "acute_toxicity": {"score": 4, "evidence_grade": "A", "source_ids": ["fda-nitrite-poppers-warning-2021"], "context_ar": "الابتلاع أو الاستنشاق المتعمد لمنتجات nitrite poppers غير المعتمدة.", "rationale_ar": "FDA توثق دخول مستشفيات ووفيات ونقص أكسجة وميتهيموغلوبينية وانخفاض ضغط شديد، ما يدعم خطراً حاداً مرتفعاً."},
+        "overdose_risk": {"score": 4, "evidence_grade": "A", "source_ids": ["fda-nitrite-poppers-warning-2021"], "context_ar": "التعرض السام للمنتجات غير المنظمة، مع اختلاف التركيب والتركيز.", "rationale_ar": "التقارير التنظيمية تشمل وفيات وحالات خطرة بعد الابتلاع أو الاستنشاق؛ لا توجد نسبة فردية ثابتة للجرعة الزائدة."},
+        "dependence": {"score": null, "evidence_grade": "U", "source_ids": ["fda-nitrite-poppers-warning-2021"], "context_ar": "قابلية تطور اضطراب استخدام أو اعتماد مزمن.", "rationale_ar": "مصدر FDA الحالي يركز على السمية الحادة ولا يقدم أساساً كافياً لمعايرة الاعتماد؛ لذلك يترك المحور غير محسوم."},
+        "withdrawal_medical_risk": {"score": null, "evidence_grade": "U", "source_ids": ["fda-nitrite-poppers-warning-2021"], "context_ar": "الخطورة الطبية لأعراض التوقف بعد الاستخدام المتكرر.", "rationale_ar": "لا يوفر المصدر الحالي دليلاً كافياً لتقدير انسحاب طبي ترتيبي؛ إبقاء القيمة null يمنع الادعاء غير المدعوم."},
+        "neuro_harm": {"score": 2, "evidence_grade": "C", "source_ids": ["fda-nitrite-poppers-warning-2021"], "context_ar": "الأذى العصبي المباشر منفصلاً عن أذى نقص الأكسجة الشديد.", "rationale_ar": "FDA تذكر مشكلات أكسجة وbrain death في الحالات الشديدة، لكنها لا تعاير ضرراً عصبياً مباشراً مزمناً؛ الدرجة منخفضة الثقة."},
+        "cardio_harm": {"score": 4, "evidence_grade": "A", "source_ids": ["fda-nitrite-poppers-warning-2021"], "context_ar": "توسع وعائي وانخفاض ضغط واضطرابات نظم أو مضاعفات قلبية في التسمم.", "rationale_ar": "FDA توثق انخفاض ضغط شديداً واضطرابات خطرة مرتبطة بالمنتجات، ما يدعم خطراً قلبياً وعائياً مرتفعاً في التعرض السام."},
+        "respiratory_harm": {"score": 4, "evidence_grade": "A", "source_ids": ["fda-nitrite-poppers-warning-2021"], "context_ar": "نقص الأكسجة والميتهيموغلوبينية وصعوبة التنفس.", "rationale_ar": "صعوبة التنفس وانخفاض أكسجة الدم والميتهيموغلوبينية موثقة تنظيمياً، ما يدعم تقديراً مرتفعاً."},
+        "polysubstance_risk": {"score": 4, "evidence_grade": "C", "source_ids": ["fda-nitrite-poppers-warning-2021"], "context_ar": "الخلط مع مواد أخرى قد تؤثر في الضغط أو الأكسجة، مع نقص معايرة مباشرة في المصدر المسجل.", "rationale_ar": "المصدر يثبت السمية الذاتية للمنتجات أكثر مما يقيس تداخلات بعينها؛ لذلك تبقى الثقة منخفضة رغم منطق الخطر السريري."}
+      }
+    }
+  ]
+}
