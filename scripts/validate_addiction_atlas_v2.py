@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA_FILES = [
     ROOT / "data/addiction-atlas/substances-v1.json",
     ROOT / "data/addiction-atlas/substances-v2.json",
+    ROOT / "data/addiction-atlas/substances-v3.json",
 ]
 METHOD = ROOT / "data/addiction-atlas/methodology-v1.json"
 COMPARISONS = ROOT / "data/addiction-atlas/comparison-intents-v2.json"
