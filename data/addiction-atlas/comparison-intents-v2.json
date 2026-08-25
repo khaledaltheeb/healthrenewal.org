@@ -1,5 +1,5 @@
 {
-  "schema_version":"rawafid-addiction-comparisons-v2",
+  "schema_version":"rawafid-addiction-comparisons-v3",
   "updated_on":"2026-08-25",
   "policy_ar":"هذه قائمة تحريرية انتقائية. يمنع توليد جميع التوافيق الممكنة بين المواد. تنشر المقارنة فقط إذا كانت مفيدة علمياً ولها بيانات كافية ولا تتحول إلى سؤال عن المادة الأكثر أماناً.",
   "comparisons":[
@@ -16,6 +16,12 @@
     {"a":"fentanyl","b":"nitazenes","slug":"fentanyl-vs-nitazenes","title_ar":"الفنتانيل مقابل النيتازينات","intent_ar":"الأفيونات الصناعية شديدة القوة، كبت التنفس وعدم يقين المواد الناشئة","indexable":true},
     {"a":"ghb","b":"alprazolam","slug":"ghb-vs-alprazolam","title_ar":"GHB مقابل ألبرازولام","intent_ar":"التثبيط، فقدان الوعي، الانسحاب وخطر الخلط","indexable":true},
     {"a":"nitrous-oxide","b":"ketamine","slug":"nitrous-oxide-vs-ketamine","title_ar":"أكسيد النيتروز مقابل الكيتامين","intent_ar":"الانفصال، الأذية العصبية، الوعي والمخاطر المزمنة","indexable":true},
-    {"a":"kratom","b":"tramadol","slug":"kratom-vs-tramadol","title_ar":"الكراتوم مقابل الترامادول","intent_ar":"التأثيرات الأفيونية، الاعتماد، عدم اليقين والسمية","indexable":true}
+    {"a":"kratom","b":"tramadol","slug":"kratom-vs-tramadol","title_ar":"الكراتوم مقابل الترامادول","intent_ar":"التأثيرات الأفيونية، الاعتماد، عدم اليقين والسمية","indexable":true},
+    {"a":"methadone","b":"buprenorphine","slug":"methadone-vs-buprenorphine","title_ar":"الميثادون مقابل البوبرينورفين في علاج اضطراب استخدام الأفيونات","intent_ar":"الفروق العلاجية، آلية العمل، السلامة، الاحتفاظ بالعلاج والملاءمة السريرية","indexable":true},
+    {"a":"hydrocodone","b":"oxycodone","slug":"hydrocodone-vs-oxycodone","title_ar":"الهيدروكودون مقابل الأوكسيكودون","intent_ar":"الاستخدام الطبي، الاعتماد، كبت التنفس والجرعة الزائدة","indexable":true},
+    {"a":"codeine","b":"tramadol","slug":"codeine-vs-tramadol","title_ar":"الكودايين مقابل الترامادول","intent_ar":"آلية التأثير، اختلاف الاستقلاب، الاختلاجات، الاعتماد والتداخلات","indexable":true},
+    {"a":"phenobarbital","b":"diazepam","slug":"phenobarbital-vs-diazepam","title_ar":"الفينوباربيتال مقابل الديازيبام","intent_ar":"الاستخدام الطبي، التهدئة، كبت التنفس، الاعتماد وخطورة الانسحاب","indexable":true},
+    {"a":"khat","b":"amphetamine","slug":"khat-vs-amphetamine","title_ar":"القات مقابل الأمفيتامين","intent_ar":"التنبيه والكاثينون، القلب، الأعراض النفسية والاعتماد","indexable":true},
+    {"a":"toluene","b":"nitrous-oxide","slug":"toluene-vs-nitrous-oxide","title_ar":"التولوين مقابل أكسيد النيتروز","intent_ar":"المستنشقات، نقص الأكسجة، الأذية العصبية والقلبية والمخاطر المزمنة","indexable":true}
   ]
 }
