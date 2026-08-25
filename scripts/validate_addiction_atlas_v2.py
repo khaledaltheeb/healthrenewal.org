@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import date
 from pathlib import Path
 from urllib.parse import urlparse
 from xml.etree import ElementTree
@@ -17,6 +18,7 @@ COMPARISONS = ROOT / "data/addiction-atlas/comparison-intents-v2.json"
 EPIDEMIOLOGY = ROOT / "data/addiction-atlas/epidemiology-v1.json"
 MORTALITY = ROOT / "data/addiction-atlas/mortality-v1.json"
 SOURCES = ROOT / "data/addiction-atlas/source-registry-v1.json"
+SOURCE_MAPS = [ROOT / "data/addiction-atlas/source-map-v4.json"]
 SITEMAP = ROOT / "sitemap-addiction-atlas.xml"
 
 RISK_KEYS = {
@@ -29,11 +31,22 @@ RISK_KEYS = {
     "respiratory_harm",
     "polysubstance_risk",
 }
+SUPPORTED_CLAIMS = RISK_KEYS | {
+    "mechanism",
+    "single_exposure_harm",
+    "emergency_response",
+    "treatment",
+    "withdrawal",
+}
 ALIAS_KEYS = (
     "english_name_ar_transliteration",
     "search_aliases_ar",
     "search_aliases_en",
     "common_misspellings_ar",
+    "common_misspellings_en",
+    "spacing_variants",
+    "hyphenation_variants",
+    "legacy_spellings",
 )
 
 
@@ -82,6 +95,33 @@ def validate_data():
     return substances
 
 
+def validate_registry():
+    sources = load(SOURCES).get("sources", [])
+    source_ids = {s.get("id") for s in sources}
+    if None in source_ids or "" in source_ids:
+        fail("source registry contains a missing id")
+    if len(source_ids) != len(sources):
+        fail("duplicate source registry IDs")
+    for source in sources:
+        source_id = source["id"]
+        for key in ("organization", "title", "source_type", "geography", "verified_on"):
+            if not source.get(key):
+                fail(f"{source_id}: missing registry field {key}")
+        parsed = urlparse(source.get("url", ""))
+        if parsed.scheme != "https" or not parsed.netloc:
+            fail(f"invalid registry source URL: {source_id}")
+        try:
+            verified = date.fromisoformat(source["verified_on"])
+        except ValueError:
+            fail(f"{source_id}: verified_on must be ISO date")
+        if verified > date.today():
+            fail(f"{source_id}: verified_on cannot be in the future")
+        year = source.get("publication_year")
+        if year is not None and (type(year) is not int or year < 1900 or year > date.today().year):
+            fail(f"{source_id}: invalid publication_year={year!r}")
+    return source_ids
+
+
 def validate_records(source_ids):
     for path in (EPIDEMIOLOGY, MORTALITY):
         payload = load(path)
@@ -94,6 +134,60 @@ def validate_records(source_ids):
                 fail(f"{item['id']}: year/geography/definition required")
             if item.get("source_id") not in source_ids:
                 fail(f"{item['id']}: unknown source_id {item.get('source_id')}")
+
+
+def validate_source_maps(substances, source_ids):
+    mapped = set()
+    record_count = 0
+    for path in SOURCE_MAPS:
+        if not path.is_file():
+            fail(f"missing source map: {path}")
+        payload = load(path)
+        records = payload.get("records") or []
+        if not records:
+            fail(f"empty source map: {path.name}")
+        wave = payload.get("wave")
+        wave_path = ROOT / f"data/addiction-atlas/substances-{wave}.json" if wave else None
+        expected_wave_slugs = set()
+        if wave_path and wave_path.is_file():
+            expected_wave_slugs = {item["slug"] for item in load(wave_path).get("substances", [])}
+        seen_in_map = set()
+        for record in records:
+            record_count += 1
+            slug = record.get("substance_slug")
+            if not slug or slug not in substances:
+                fail(f"{path.name}: unknown substance_slug {slug!r}")
+            if slug in seen_in_map:
+                fail(f"{path.name}: duplicate source-map record for {slug}")
+            seen_in_map.add(slug)
+            mapped.add(slug)
+            ids = record.get("source_ids") or []
+            if not ids:
+                fail(f"{path.name}:{slug}: at least one source_id required")
+            if len(ids) != len(set(ids)):
+                fail(f"{path.name}:{slug}: duplicate source_ids")
+            unknown_sources = sorted(set(ids) - source_ids)
+            if unknown_sources:
+                fail(f"{path.name}:{slug}: unknown source_ids {unknown_sources}")
+            supports = record.get("supports") or []
+            if not supports:
+                fail(f"{path.name}:{slug}: supports cannot be empty")
+            if len(supports) != len(set(supports)):
+                fail(f"{path.name}:{slug}: duplicate supports values")
+            unknown_claims = sorted(set(supports) - SUPPORTED_CLAIMS)
+            if unknown_claims:
+                fail(f"{path.name}:{slug}: unsupported claim labels {unknown_claims}")
+            substance_urls = set(substances[slug].get("source_urls") or [])
+            registry_by_id = {s["id"]: s["url"] for s in load(SOURCES).get("sources", [])}
+            for source_id in ids:
+                registry_url = registry_by_id[source_id]
+                if registry_url not in substance_urls:
+                    fail(f"{path.name}:{slug}: registered source {source_id} is not present in substance source_urls")
+        if expected_wave_slugs and seen_in_map != expected_wave_slugs:
+            missing = sorted(expected_wave_slugs - seen_in_map)
+            extra = sorted(seen_in_map - expected_wave_slugs)
+            fail(f"{path.name}: source coverage mismatch missing={missing} extra={extra}")
+    return {"mappedSubstances": len(mapped), "sourceMapRecords": record_count}
 
 
 def validate_comparisons(substances):
@@ -171,16 +265,10 @@ def main():
     method = load(METHOD)
     if set(method.get("risk_dimensions", {})) != RISK_KEYS:
         fail("methodology risk dimensions mismatch")
-    sources = load(SOURCES).get("sources", [])
-    source_ids = {s["id"] for s in sources}
-    if len(source_ids) != len(sources):
-        fail("duplicate source registry IDs")
-    for source in sources:
-        parsed = urlparse(source.get("url", ""))
-        if parsed.scheme != "https" or not parsed.netloc:
-            fail(f"invalid registry source URL: {source.get('id')}")
+    source_ids = validate_registry()
     substances = validate_data()
     validate_records(source_ids)
+    source_map_report = validate_source_maps(substances, source_ids)
     comparisons = validate_comparisons(substances)
     validate_no_hidden_keyword_patterns()
     sitemap_urls = validate_sitemap()
@@ -189,6 +277,8 @@ def main():
         "substances": len(substances),
         "comparisonIntents": len(comparisons),
         "sourceRegistryEntries": len(source_ids),
+        "sourceMapRecords": source_map_report["sourceMapRecords"],
+        "mappedSubstances": source_map_report["mappedSubstances"],
         "sitemapUrls": len(sitemap_urls),
         "unknownRiskValues": sum(1 for s in substances.values() for v in s["risk"].values() if v is None),
     }
