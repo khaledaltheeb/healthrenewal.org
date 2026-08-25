@@ -1,0 +1,62 @@
+{
+  "schema_version": "rawafid-addiction-atlas-source-map-v1",
+  "wave": "v4",
+  "updated_on": "2026-08-25",
+  "records": [
+    {
+      "substance_slug": "clonazepam",
+      "source_ids": ["fda-benzodiazepine-boxed-warning-2020"],
+      "supports": ["dependence", "withdrawal_medical_risk", "polysubstance_risk", "respiratory_harm"]
+    },
+    {
+      "substance_slug": "lorazepam",
+      "source_ids": ["fda-benzodiazepine-boxed-warning-2020"],
+      "supports": ["dependence", "withdrawal_medical_risk", "polysubstance_risk", "respiratory_harm"]
+    },
+    {
+      "substance_slug": "zolpidem",
+      "source_ids": ["fda-z-drugs-boxed-warning-2019"],
+      "supports": ["single_exposure_harm", "acute_toxicity", "polysubstance_risk", "emergency_response"]
+    },
+    {
+      "substance_slug": "gabapentin",
+      "source_ids": ["fda-gabapentinoids-respiratory-warning-2019"],
+      "supports": ["respiratory_harm", "polysubstance_risk", "acute_toxicity", "emergency_response"]
+    },
+    {
+      "substance_slug": "pregabalin",
+      "source_ids": ["fda-gabapentinoids-respiratory-warning-2019"],
+      "supports": ["respiratory_harm", "polysubstance_risk", "acute_toxicity", "emergency_response"]
+    },
+    {
+      "substance_slug": "methylphenidate",
+      "source_ids": ["fda-prescription-stimulants-warning-2023"],
+      "supports": ["dependence", "overdose_risk", "cardio_harm", "neuro_harm"]
+    },
+    {
+      "substance_slug": "lisdexamfetamine",
+      "source_ids": ["fda-prescription-stimulants-warning-2023"],
+      "supports": ["dependence", "overdose_risk", "cardio_harm", "neuro_harm"]
+    },
+    {
+      "substance_slug": "dmt",
+      "source_ids": ["nida-psychedelic-dissociative-drugs"],
+      "supports": ["mechanism", "acute_toxicity", "neuro_harm", "single_exposure_harm"]
+    },
+    {
+      "substance_slug": "mescaline",
+      "source_ids": ["nida-psychedelic-dissociative-drugs"],
+      "supports": ["mechanism", "acute_toxicity", "neuro_harm", "single_exposure_harm"]
+    },
+    {
+      "substance_slug": "salvia",
+      "source_ids": ["nida-psychedelic-dissociative-drugs"],
+      "supports": ["mechanism", "acute_toxicity", "neuro_harm", "single_exposure_harm"]
+    },
+    {
+      "substance_slug": "butane",
+      "source_ids": ["nida-inhalants-reference"],
+      "supports": ["acute_toxicity", "overdose_risk", "cardio_harm", "respiratory_harm", "single_exposure_harm", "emergency_response"]
+    }
+  ]
+}
