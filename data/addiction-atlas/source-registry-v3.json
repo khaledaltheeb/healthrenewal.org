@@ -1,0 +1,163 @@
+{
+  "schema_version": "rawafid-addiction-atlas-source-registry-v4-shard",
+  "registry_shard": "wave-2-substance-evidence",
+  "updated_on": "2026-08-26",
+  "sources": [
+    {
+      "id": "nida-opioids-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Opioids — research topic",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal scientific educational reference",
+      "geography": "general scientific evidence / United States context where stated",
+      "url": "https://nida.nih.gov/research-topics/opioids",
+      "verified_on": "2026-08-26",
+      "notes_ar": "مرجع فئوي للأفيونات وآلياتها واضطراب الاستخدام والعلاج والجرعة الزائدة. لا يساوي بين الاستخدام الطبي الموصوف واضطراب الاستخدام."
+    },
+    {
+      "id": "nida-prescription-medicines-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Prescription Medicines — research topic",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal scientific educational reference",
+      "geography": "general scientific evidence / United States context where stated",
+      "url": "https://nida.nih.gov/research-topics/prescription-medicines",
+      "verified_on": "2026-08-26",
+      "notes_ar": "مرجع لسوء استخدام الأدوية الوصفية بما فيها الأفيونات والمنبهات والمثبطات. يجب الفصل بين الاستعمال العلاجي المشروع والاستخدام غير الطبي."
+    },
+    {
+      "id": "who-oud-medicines-2026",
+      "organization": "World Health Organization (WHO)",
+      "title": "WHO invites manufacturers to submit medicines for prequalification to expand treatment for substance use disorders",
+      "publication_year": 2026,
+      "data_years": [2026],
+      "source_type": "WHO treatment and medicines policy update",
+      "geography": "global",
+      "url": "https://www.who.int/news/item/03-06-2026-who-invites-manufacturers-to-submit-medicines-for-prequalification-to-expand-treatment-for-substance-use-disorders",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم الدور العلاجي للميثادون والبوبرينورفين ضمن علاج اضطراب استخدام الأفيونات، ولا يجوز تقديم العلاج الدوائي نفسه بوصفه سلوكاً إدمانياً."
+    },
+    {
+      "id": "euda-european-drug-report-2026",
+      "organization": "European Union Drugs Agency (EUDA)",
+      "title": "European Drug Report 2026",
+      "publication_year": 2026,
+      "data_years": [2025, 2026],
+      "source_type": "regional drug monitoring report",
+      "geography": "European Union",
+      "url": "https://www.euda.europa.eu/publications/european-drug-report/2026_en",
+      "verified_on": "2026-08-26",
+      "notes_ar": "مرجع رصدي إقليمي للاتجاهات والمخاطر. أي أرقام منه يجب أن تبقى مرتبطة بأوروبا وسنة القياس وتعريف المؤشر."
+    },
+    {
+      "id": "euda-nps-2026",
+      "organization": "European Union Drugs Agency (EUDA)",
+      "title": "European Drug Report 2026 — New psychoactive substances",
+      "publication_year": 2026,
+      "data_years": [2025, 2026],
+      "source_type": "regional NPS monitoring report",
+      "geography": "European Union",
+      "url": "https://www.euda.europa.eu/publications/european-drug-report/2026/new-psychoactive-substances_en",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم توصيف المشهد المتغير للمواد النفسية الجديدة، ومنها بعض الأفيونات والكاثينونات. لا يعمم مستوى خطر واحد على جميع المركبات."
+    },
+    {
+      "id": "who-nps-control-2026",
+      "organization": "World Health Organization (WHO)",
+      "title": "UN drug policy body acts on WHO recommendations to control new psychoactive substances",
+      "publication_year": 2026,
+      "data_years": [2026],
+      "source_type": "international drug-control and public-health update",
+      "geography": "global / international control context",
+      "url": "https://www.who.int/news/item/23-04-2026-un-drug-policy-body-acts-on-who-recommendations-to-control-new-psychoactive-substances-and-considers-coca-leaf-review",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم سياق المواد النفسية الجديدة شديدة الخطورة والقرارات الدولية، ولا يستخدم كبديل لبيانات سمية مادة محددة عندما تتوفر."
+    },
+    {
+      "id": "nida-mdma-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "MDMA (Ecstasy/Molly)",
+      "publication_year": 2024,
+      "data_years": [],
+      "source_type": "federal scientific educational reference",
+      "geography": "general scientific evidence",
+      "url": "https://nida.nih.gov/Infofacts/clubdrugs.html",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم آلية MDMA وتأثيراته المنبهة/الإدراكية والمخاطر الصحية وإمكان اضطراب الاستخدام، مع الفصل بين البحث العلاجي والاستخدام غير الطبي."
+    },
+    {
+      "id": "nida-ketamine-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Ketamine — research topic",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal scientific educational reference",
+      "geography": "general scientific evidence",
+      "url": "https://nida.nih.gov/research-topics/ketamine",
+      "verified_on": "2026-08-26",
+      "notes_ar": "مرجع نوعي للكيتامين واستخدامه الطبي وتأثيراته الانفصالية ومخاطر الاستخدام غير الطبي."
+    },
+    {
+      "id": "nida-commonly-used-drugs-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Commonly Used Drugs Charts",
+      "publication_year": 2018,
+      "data_years": [],
+      "source_type": "federal drug-effects reference chart",
+      "geography": "general scientific evidence / United States regulatory context where stated",
+      "url": "https://nida.nih.gov/sites/default/files/commonly_abused_drugs.pdf",
+      "verified_on": "2026-08-26",
+      "notes_ar": "مرجع تجميعي مفيد لبعض المواد القديمة وOTC، ويستخدم كمصدر مساعد لا وحيداً عندما تتوفر صفحة موضوعية أحدث."
+    },
+    {
+      "id": "nida-kratom-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Kratom — research topic",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal scientific educational reference",
+      "geography": "general scientific evidence",
+      "url": "https://nida.nih.gov/research-topics/kratom",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم توصيف الكراتوم ومكوناته وتأثيراته واعتماده ومخاطر المنتجات المتغيرة؛ لا يقدم الكراتوم بديلاً ذاتياً معيارياً لعلاج اضطراب استخدام الأفيونات."
+    },
+    {
+      "id": "nida-otc-medicines-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Over-the-Counter Medicines",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal scientific educational reference",
+      "geography": "general scientific evidence / United States OTC context",
+      "url": "https://nida.nih.gov/research-topics/over-counter-medicines",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم مخاطر إساءة استخدام ديكستروميثورفان والمنتجات المركبة، مع ضرورة الانتباه إلى المكونات الأخرى وعدم افتراض أن DXM هو المادة الوحيدة."
+    },
+    {
+      "id": "nida-xylazine-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Xylazine — research topic",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal emerging-drug scientific reference",
+      "geography": "general scientific evidence / United States illicit-drug context where stated",
+      "url": "https://nida.nih.gov/research-topics/xylazine",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم كون الزيلازين مهدئاً غير أفيوني يظهر مع الأفيونات، ومخاطر التهدئة والجروح وتعقيد الجرعة الزائدة. النالوكسون يعالج المكوّن الأفيوني ولا يعكس الزيلازين نفسه."
+    },
+    {
+      "id": "nida-anabolic-steroids-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Steroids and Other Appearance and Performance Enhancing Drugs (APEDs)",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal scientific research review",
+      "geography": "general scientific evidence",
+      "url": "https://nida.nih.gov/sites/default/files/815-steroids-and-other-appearance-and-performance-enhancing-drugs-apeds.pdf",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم المضاعفات القلبية والكبدية والهرمونية والنفسية واعتماد بعض مستخدمي الستيرويدات البنائية، مع الفصل بين الاستخدام الطبي وسوء الاستخدام لتحسين الأداء أو المظهر."
+    }
+  ]
+}
