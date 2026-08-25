@@ -1,4 +1,4 @@
-name: Generate addiction atlas v2
+name: Generate addiction atlas v3
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
     paths:
       - 'data/addiction-atlas/**'
       - 'scripts/publish_addiction_atlas_v2.py'
+      - 'scripts/publish_addiction_atlas_v3.py'
       - '.github/workflows/generate-addiction-atlas-v2.yml'
   workflow_dispatch:
 
@@ -13,7 +14,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: generate-addiction-atlas-v2
+  group: generate-addiction-atlas-v3
   cancel-in-progress: false
 
 jobs:
@@ -31,10 +32,10 @@ jobs:
           python-version: '3.12'
 
       - name: Compile generator
-        run: python -m py_compile scripts/publish_addiction_atlas_v2.py
+        run: python -m py_compile scripts/publish_addiction_atlas_v2.py scripts/publish_addiction_atlas_v3.py
 
       - name: Generate missing substance and comparison pages
-        run: python scripts/publish_addiction_atlas_v2.py .
+        run: python scripts/publish_addiction_atlas_v3.py .
 
       - name: Regenerate dedicated atlas sitemap
         run: |
@@ -45,7 +46,11 @@ jobs:
 
           root = Path('.')
           slugs = {}
-          for path in [root/'data/addiction-atlas/substances-v1.json', root/'data/addiction-atlas/substances-v2.json']:
+          for path in [
+              root/'data/addiction-atlas/substances-v1.json',
+              root/'data/addiction-atlas/substances-v2.json',
+              root/'data/addiction-atlas/substances-v3.json',
+          ]:
               payload = json.loads(path.read_text(encoding='utf-8'))
               for item in payload.get('substances', []):
                   slugs[item['slug']] = item
@@ -53,6 +58,8 @@ jobs:
           urls = [
               'https://healthrenewal.org/addiction/substances/',
               'https://healthrenewal.org/addiction/compare/',
+              'https://healthrenewal.org/addiction/substances/methodology/',
+              'https://healthrenewal.org/addiction/substances/data/',
           ]
           urls += [f"https://healthrenewal.org/addiction/substances/{slug}/" for slug in sorted(slugs)]
           urls += [f"https://healthrenewal.org/addiction/compare/{c['slug']}/" for c in comparisons if c.get('indexable')]
@@ -68,23 +75,19 @@ jobs:
 
       - name: Validate generated publication
         run: |
+          python scripts/validate_addiction_atlas_v2.py
           python - <<'PY'
           import json
           from pathlib import Path
 
           report = json.loads(Path('api/addiction-atlas-v2.json').read_text(encoding='utf-8'))
           assert report['status'] == 'passed', report
-          assert report['substances'] >= 24, report
+          assert report['substances'] >= 40, report
           assert report['indexableComparisons'] >= 14, report
           substance_pages = list(Path('addiction/substances').glob('*/index.html'))
           comparison_pages = list(Path('addiction/compare').glob('*/index.html'))
           assert len(substance_pages) >= report['substances'], (len(substance_pages), report)
           assert len(comparison_pages) >= report['indexableComparisons'], (len(comparison_pages), report)
-          for page in substance_pages:
-              text = page.read_text(encoding='utf-8')
-              assert '<link rel="canonical"' in text, page
-              assert 'meta name="description"' in text, page
-              assert '<h1>' in text, page
           print({'substancePages': len(substance_pages), 'comparisonPages': len(comparison_pages), 'report': report})
           PY
 
@@ -98,5 +101,5 @@ jobs:
             echo 'No generated atlas changes to commit.'
             exit 0
           fi
-          git commit -m 'build(addiction-atlas): publish v2 generated pages'
+          git commit -m 'build(addiction-atlas): publish v3 generated pages'
           git push origin HEAD:main
