@@ -1,11 +1,10 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "status": "passed",
+  "registeredWaves": 4,
   "substances": 47,
-  "generatedSubstancePages": 0,
-  "preservedSubstancePages": 47,
+  "substancePages": 47,
   "indexableComparisons": 28,
-  "generatedComparisonPages": 0,
-  "preservedComparisonPages": 28,
+  "comparisonPages": 28,
   "unknownRiskValues": 9
 }
