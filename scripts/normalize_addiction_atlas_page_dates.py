@@ -46,7 +46,20 @@ def replace_visible_lastmod(page: str, value: str) -> tuple[str, bool]:
     desired = arabic_date(value)
     pattern = r"(آخر تحديث\s+)(\d{1,2}\s+[اأإآء-ي]+\s+\d{4})"
     updated, count = re.subn(pattern, lambda m: m.group(1) + desired, page)
-    return updated, bool(count)
+    if count:
+        return updated, True
+
+    # Some legacy atlas pages predate the visible review-date contract entirely.
+    # Insert one deterministic metadata line rather than silently updating JSON-LD only.
+    marker = "</main>"
+    if marker not in page:
+        raise SystemExit("cannot insert visible last-update date; missing </main>")
+    note = (
+        '<p class="atlas-meta atlas-last-updated">'
+        f'مراجعة تحريرية داخلية: فريق روافد — آخر تحديث {desired}.'
+        '</p>'
+    )
+    return page.replace(marker, note + marker, 1), True
 
 
 def upsert_webpage_schema(page: str, *, name: str, url: str, value: str) -> tuple[str, bool]:
