@@ -1,5 +1,5 @@
 {
-  "schema_version":"rawafid-addiction-comparisons-v3",
+  "schema_version":"rawafid-addiction-comparisons-v4",
   "updated_on":"2026-08-25",
   "policy_ar":"هذه قائمة تحريرية انتقائية. يمنع توليد جميع التوافيق الممكنة بين المواد. تنشر المقارنة فقط إذا كانت مفيدة علمياً ولها بيانات كافية ولا تتحول إلى سؤال عن المادة الأكثر أماناً.",
   "comparisons":[
@@ -22,6 +22,14 @@
     {"a":"codeine","b":"tramadol","slug":"codeine-vs-tramadol","title_ar":"الكودايين مقابل الترامادول","intent_ar":"آلية التأثير، اختلاف الاستقلاب، الاختلاجات، الاعتماد والتداخلات","indexable":true},
     {"a":"phenobarbital","b":"diazepam","slug":"phenobarbital-vs-diazepam","title_ar":"الفينوباربيتال مقابل الديازيبام","intent_ar":"الاستخدام الطبي، التهدئة، كبت التنفس، الاعتماد وخطورة الانسحاب","indexable":true},
     {"a":"khat","b":"amphetamine","slug":"khat-vs-amphetamine","title_ar":"القات مقابل الأمفيتامين","intent_ar":"التنبيه والكاثينون، القلب، الأعراض النفسية والاعتماد","indexable":true},
-    {"a":"toluene","b":"nitrous-oxide","slug":"toluene-vs-nitrous-oxide","title_ar":"التولوين مقابل أكسيد النيتروز","intent_ar":"المستنشقات، نقص الأكسجة، الأذية العصبية والقلبية والمخاطر المزمنة","indexable":true}
+    {"a":"toluene","b":"nitrous-oxide","slug":"toluene-vs-nitrous-oxide","title_ar":"التولوين مقابل أكسيد النيتروز","intent_ar":"المستنشقات، نقص الأكسجة، الأذية العصبية والقلبية والمخاطر المزمنة","indexable":true},
+    {"a":"clonazepam","b":"alprazolam","slug":"clonazepam-vs-alprazolam","title_ar":"كلونازيبام مقابل ألبرازولام","intent_ar":"الفروق بين البنزوديازيبينات، الاعتماد، الانسحاب وخطر الخلط مع الأفيونات","indexable":true},
+    {"a":"lorazepam","b":"diazepam","slug":"lorazepam-vs-diazepam","title_ar":"لورازيبام مقابل ديازيبام","intent_ar":"مدة التأثير، الاستخدامات الطبية، الاعتماد وخطورة الانسحاب","indexable":true},
+    {"a":"zolpidem","b":"diazepam","slug":"zolpidem-vs-diazepam","title_ar":"زولبيديم مقابل ديازيبام","intent_ar":"Z-drug مقابل بنزوديازيبين: النوم، الاعتماد، السلوكيات المعقدة والانسحاب","indexable":true},
+    {"a":"pregabalin","b":"gabapentin","slug":"pregabalin-vs-gabapentin","title_ar":"بريغابالين مقابل غابابنتين","intent_ar":"الاستخدام الطبي، إساءة الاستخدام، التهدئة وخطر كبت التنفس مع الأفيونات","indexable":true},
+    {"a":"methylphenidate","b":"amphetamine","slug":"methylphenidate-vs-amphetamine","title_ar":"ميثيلفينيديت مقابل الأمفيتامين","intent_ar":"المنبهات الوصفية، الاستخدام العلاجي، سوء الاستخدام والقلب والاعتماد","indexable":true},
+    {"a":"dmt","b":"lsd","slug":"dmt-vs-lsd","title_ar":"DMT مقابل LSD","intent_ar":"اختلاف المهلوسات الكلاسيكية في المدة والتجربة الإدراكية والمخاطر النفسية","indexable":true},
+    {"a":"mescaline","b":"psilocybin","slug":"mescaline-vs-psilocybin","title_ar":"المسكالين مقابل السيلوسيبين","intent_ar":"المدة والتأثيرات الإدراكية والآثار الجسدية والخطر النفسي","indexable":true},
+    {"a":"butane","b":"toluene","slug":"butane-vs-toluene","title_ar":"البيوتان مقابل التولوين","intent_ar":"المستنشقات: الموت القلبي المفاجئ، نقص الأكسجة والأذية العصبية المزمنة","indexable":true}
   ]
 }
