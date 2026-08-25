@@ -28,6 +28,12 @@ RISK_KEYS = {
     "respiratory_harm",
     "polysubstance_risk",
 }
+ALIAS_KEYS = (
+    "english_name_ar_transliteration",
+    "search_aliases_ar",
+    "search_aliases_en",
+    "common_misspellings_ar",
+)
 
 
 def load(path: Path):
@@ -63,12 +69,11 @@ def validate_data():
             for risk_key, value in item["risk"].items():
                 if value is not None and (type(value) is not int or value < 1 or value > 5):
                     fail(f"{slug}: invalid {risk_key}={value!r}")
-            aliases = []
-            for key in ("english_name_ar_transliteration", "search_aliases_ar", "search_aliases_en", "common_misspellings_ar"):
-                aliases.extend(item.get(key) or [])
-            normalized = [str(v).strip().casefold() for v in aliases if str(v).strip()]
-            if len(normalized) != len(set(normalized)):
-                fail(f"{slug}: duplicate search aliases; dedupe before publication")
+            for key in ALIAS_KEYS:
+                values = item.get(key) or []
+                normalized = [str(v).strip().casefold() for v in values if str(v).strip()]
+                if len(normalized) != len(set(normalized)):
+                    fail(f"{slug}: duplicate aliases within {key}")
             for url in item["source_urls"]:
                 parsed = urlparse(url)
                 if parsed.scheme != "https" or not parsed.netloc:
@@ -94,7 +99,8 @@ def validate_comparisons(substances):
     payload = load(COMPARISONS)
     slugs = set()
     pair_keys = set()
-    for c in payload.get("comparisons", []):
+    comparisons = payload.get("comparisons", [])
+    for c in comparisons:
         if c["a"] not in substances or c["b"] not in substances:
             fail(f"comparison {c.get('slug')}: unknown substance")
         pair = tuple(sorted((c["a"], c["b"])))
@@ -106,7 +112,20 @@ def validate_comparisons(substances):
         slugs.add(c["slug"])
         if c["a"] == c["b"]:
             fail(f"comparison {c['slug']}: same substance on both sides")
-    return payload.get("comparisons", [])
+        if c.get("indexable") and (not c.get("title_ar") or not c.get("intent_ar")):
+            fail(f"comparison {c['slug']}: indexable page requires title and intent")
+    return comparisons
+
+
+def validate_no_hidden_keyword_patterns():
+    roots = (ROOT / "addiction/substances", ROOT / "addiction/compare")
+    for directory in roots:
+        for path in directory.rglob("*.html"):
+            page = path.read_text(encoding="utf-8").lower()
+            if '<meta name="keywords"' in page:
+                fail(f"meta keywords prohibited in atlas: {path}")
+            if re.search(r'class="[^"]*(?:seo-keywords|hidden-keywords|keyword-cloud)[^"]*"', page):
+                fail(f"keyword dump block prohibited: {path}")
 
 
 def validate_sitemap():
@@ -122,38 +141,29 @@ def validate_sitemap():
             fail(f"duplicate sitemap URL: {loc}")
         urls.append(loc)
         parsed = urlparse(loc)
-        if parsed.netloc != "healthrenewal.org":
-            fail(f"external URL in sitemap: {loc}")
-        path = parsed.path.strip("/")
-        local = ROOT / path / "index.html" if path else ROOT / "index.html"
+        if parsed.scheme != "https" or parsed.netloc != "healthrenewal.org":
+            fail(f"invalid sitemap origin: {loc}")
+        route = parsed.path.strip("/")
+        local = ROOT / route / "index.html" if route else ROOT / "index.html"
         if not local.is_file():
             fail(f"sitemap points to missing static page: {loc} -> {local}")
-        html = local.read_text(encoding="utf-8")
-        if 'meta name="robots" content="noindex' in html.lower():
+        page = local.read_text(encoding="utf-8")
+        lower = page.lower()
+        if re.search(r'<meta\s+name="robots"\s+content="[^"]*noindex', lower):
             fail(f"noindex URL present in sitemap: {loc}")
-        canonical_match = re.search(r'<link\s+rel="canonical"\s+href="([^"]+)"', html, flags=re.I)
-        if not canonical_match:
+        canonical = re.search(r'<link\s+rel="canonical"\s+href="([^"]+)"', page, flags=re.I)
+        if not canonical:
             fail(f"missing canonical: {local}")
-        if canonical_match.group(1).rstrip("/") != loc.rstrip("/"):
-            fail(f"canonical mismatch: sitemap={loc} page={canonical_match.group(1)}")
-        if 'meta name="description"' not in html.lower():
+        if canonical.group(1).rstrip("/") != loc.rstrip("/"):
+            fail(f"canonical mismatch: sitemap={loc} page={canonical.group(1)}")
+        if 'meta name="description"' not in lower:
             fail(f"missing meta description: {local}")
-        if "<h1" not in html.lower():
+        if "<h1" not in lower:
             fail(f"missing H1: {local}")
-        text = visible_text(html)
-        if len(text.split()) < 80:
-            fail(f"thin atlas page: {local} ({len(text.split())} visible words)")
-        hidden_spam = ["meta name=\"keywords\"", "display:none">]
+        words = len(visible_text(page).split())
+        if words < 80:
+            fail(f"thin atlas page: {local} ({words} visible words)")
     return urls
-
-
-def validate_no_hidden_keyword_patterns():
-    for path in list((ROOT / "addiction/substances").rglob("*.html")) + list((ROOT / "addiction/compare").rglob("*.html")):
-        html = path.read_text(encoding="utf-8").lower()
-        if '<meta name="keywords"' in html:
-            fail(f"meta keywords prohibited in atlas: {path}")
-        if re.search(r'class="[^"]*(?:seo-keywords|hidden-keywords|keyword-cloud)[^"]*"', html):
-            fail(f"hidden/search keyword block prohibited: {path}")
 
 
 def main():
@@ -164,6 +174,10 @@ def main():
     source_ids = {s["id"] for s in sources}
     if len(source_ids) != len(sources):
         fail("duplicate source registry IDs")
+    for source in sources:
+        parsed = urlparse(source.get("url", ""))
+        if parsed.scheme != "https" or not parsed.netloc:
+            fail(f"invalid registry source URL: {source.get('id')}")
     substances = validate_data()
     validate_records(source_ids)
     comparisons = validate_comparisons(substances)
