@@ -1,0 +1,108 @@
+{
+  "schema_version":"rawafid-addiction-epidemiology-v1",
+  "updated_on":"2026-08-25",
+  "rules_ar":[
+    "كل رقم يجب أن يحمل السنة والجغرافيا والسكان وتعريف المؤشر والمصدر.",
+    "لا تُستخدم بيانات دولة واحدة باعتبارها تقديراً عالمياً.",
+    "يجب الفصل بين عدد المستخدمين وانتشار الاستخدام واضطراب الاستخدام والاعتماد.",
+    "السجلات الفئوية مثل الأفيونات لا تُسند تلقائياً إلى مادة مفردة مثل الفنتانيل."
+  ],
+  "records":[
+    {
+      "id":"unodc-global-any-drug-2024",
+      "scope_type":"all-drugs",
+      "metric":"past_12_month_users",
+      "value":331000000,
+      "unit":"people",
+      "geography":"global",
+      "population":"people covered by UNODC global estimate",
+      "year":2024,
+      "estimate_type":"estimated",
+      "definition_ar":"عدد الأشخاص الذين استخدموا مادة مخدرة واحدة على الأقل خلال الاثني عشر شهراً السابقة وفق تقدير تقرير المخدرات العالمي 2026.",
+      "source_id":"unodc-wdr-2026-global-use"
+    },
+    {
+      "id":"unodc-global-cannabis-2024",
+      "scope_type":"substance-family",
+      "scope_slug":"cannabis",
+      "metric":"past_12_month_users",
+      "value":256000000,
+      "unit":"people",
+      "geography":"global",
+      "population":"people covered by UNODC global estimate",
+      "year":2024,
+      "estimate_type":"estimated",
+      "definition_ar":"عدد مستخدمي القنب خلال الاثني عشر شهراً السابقة عالمياً وفق تقدير UNODC.",
+      "source_id":"unodc-wdr-2026-global-use"
+    },
+    {
+      "id":"unodc-global-nonmedical-opioids-2024",
+      "scope_type":"substance-family",
+      "scope_slug":"opioids-nonmedical",
+      "metric":"past_12_month_users",
+      "value":63000000,
+      "unit":"people",
+      "geography":"global",
+      "population":"people covered by UNODC global estimate",
+      "year":2024,
+      "estimate_type":"estimated",
+      "definition_ar":"عدد مستخدمي الأفيونات لغير الأغراض الطبية خلال الاثني عشر شهراً السابقة عالمياً. لا يجوز إسناد هذا العدد إلى الهيروين أو الفنتانيل منفرداً.",
+      "source_id":"unodc-wdr-2026-global-use"
+    },
+    {
+      "id":"unodc-nps-identified-2025",
+      "scope_type":"nps",
+      "metric":"cumulative_identified_substances_since_2005",
+      "value":1500,
+      "qualifier":"approximately",
+      "unit":"substances",
+      "geography":"global/member-state reporting",
+      "year":2025,
+      "estimate_type":"approximate",
+      "definition_ar":"العدد التراكمي التقريبي للمواد ذات التأثير النفساني الجديدة التي حددتها الدول الأعضاء منذ 2005 حتى 2025.",
+      "source_id":"unodc-wdr-2026-nps"
+    },
+    {
+      "id":"who-global-aud-2019",
+      "scope_type":"condition",
+      "scope_slug":"alcohol-use-disorder",
+      "metric":"people_with_use_disorder",
+      "value":400000000,
+      "unit":"people",
+      "geography":"global",
+      "population":"age 15 years and older",
+      "year":2019,
+      "estimate_type":"estimated",
+      "definition_ar":"عدد الأشخاص بعمر 15 سنة فأكثر الذين عاشوا مع اضطرابات استخدام الكحول وفق تقديرات منظمة الصحة العالمية.",
+      "source_id":"who-alcohol-fact-sheet-2024"
+    },
+    {
+      "id":"who-global-alcohol-dependence-2019",
+      "scope_type":"condition",
+      "scope_slug":"alcohol-dependence",
+      "metric":"people_with_dependence",
+      "value":209000000,
+      "unit":"people",
+      "geography":"global",
+      "population":"adult world population within WHO estimate",
+      "year":2019,
+      "estimate_type":"estimated",
+      "definition_ar":"عدد الأشخاص الذين عاشوا مع الاعتماد على الكحول وفق تقديرات منظمة الصحة العالمية.",
+      "source_id":"who-alcohol-fact-sheet-2024"
+    },
+    {
+      "id":"who-global-tobacco-users-2026-fact-sheet",
+      "scope_type":"substance-family",
+      "scope_slug":"tobacco",
+      "metric":"current_users_reference_count",
+      "value":1200000000,
+      "qualifier":"around",
+      "unit":"people",
+      "geography":"global",
+      "year":2026,
+      "estimate_type":"fact-sheet-reference",
+      "definition_ar":"الحجم العالمي التقريبي لمستخدمي التبغ كما تعرضه صحيفة وقائع منظمة الصحة العالمية بتاريخ 26 يونيو 2026.",
+      "source_id":"who-tobacco-nicotine-2026"
+    }
+  ]
+}
