@@ -1,0 +1,102 @@
+name: Generate addiction atlas v2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/addiction-atlas/**'
+      - 'scripts/publish_addiction_atlas_v2.py'
+      - '.github/workflows/generate-addiction-atlas-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: generate-addiction-atlas-v2
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile generator
+        run: python -m py_compile scripts/publish_addiction_atlas_v2.py
+
+      - name: Generate missing substance and comparison pages
+        run: python scripts/publish_addiction_atlas_v2.py .
+
+      - name: Regenerate dedicated atlas sitemap
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from xml.etree.ElementTree import Element, SubElement, ElementTree, indent
+
+          root = Path('.')
+          slugs = {}
+          for path in [root/'data/addiction-atlas/substances-v1.json', root/'data/addiction-atlas/substances-v2.json']:
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              for item in payload.get('substances', []):
+                  slugs[item['slug']] = item
+          comparisons = json.loads((root/'data/addiction-atlas/comparison-intents-v2.json').read_text(encoding='utf-8')).get('comparisons', [])
+          urls = [
+              'https://healthrenewal.org/addiction/substances/',
+              'https://healthrenewal.org/addiction/compare/',
+          ]
+          urls += [f"https://healthrenewal.org/addiction/substances/{slug}/" for slug in sorted(slugs)]
+          urls += [f"https://healthrenewal.org/addiction/compare/{c['slug']}/" for c in comparisons if c.get('indexable')]
+          urlset = Element('urlset', {'xmlns':'http://www.sitemaps.org/schemas/sitemap/0.9'})
+          for value in urls:
+              node = SubElement(urlset, 'url')
+              SubElement(node, 'loc').text = value
+              SubElement(node, 'lastmod').text = '2026-08-25'
+          indent(urlset, space='  ')
+          ElementTree(urlset).write(root/'sitemap-addiction-atlas.xml', encoding='utf-8', xml_declaration=True)
+          print({'atlasSitemapUrls': len(urls)})
+          PY
+
+      - name: Validate generated publication
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path('api/addiction-atlas-v2.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['substances'] >= 24, report
+          assert report['indexableComparisons'] >= 14, report
+          substance_pages = list(Path('addiction/substances').glob('*/index.html'))
+          comparison_pages = list(Path('addiction/compare').glob('*/index.html'))
+          assert len(substance_pages) >= report['substances'], (len(substance_pages), report)
+          assert len(comparison_pages) >= report['indexableComparisons'], (len(comparison_pages), report)
+          for page in substance_pages:
+              text = page.read_text(encoding='utf-8')
+              assert '<link rel="canonical"' in text, page
+              assert 'meta name="description"' in text, page
+              assert '<h1>' in text, page
+          print({'substancePages': len(substance_pages), 'comparisonPages': len(comparison_pages), 'report': report})
+          PY
+
+      - name: Commit generated atlas publication
+        run: |
+          set -e
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add addiction/substances addiction/compare api/addiction-atlas-v2.json sitemap-addiction-atlas.xml
+          if git diff --cached --quiet; then
+            echo 'No generated atlas changes to commit.'
+            exit 0
+          fi
+          git commit -m 'build(addiction-atlas): publish v2 generated pages'
+          git push origin HEAD:main
