@@ -1,0 +1,88 @@
+{
+  "schema_version":"rawafid-addiction-mortality-v1",
+  "updated_on":"2026-08-25",
+  "rules_ar":[
+    "لا تُخلط الوفاة المباشرة بالوفاة المنسوبة أو الوفاة التي ظهرت فيها المادة في علم السموم.",
+    "كل رقم يحمل سنة وجغرافيا وتعريف المؤشر والمصدر.",
+    "الوفيات متعددة المواد لا تُنسب قسراً إلى مادة واحدة.",
+    "لا يُحوّل رقم أمريكي إلى رقم عالمي ولا رقم عالمي منسوب إلى مادة مفردة دون أساس منهجي."
+  ],
+  "records":[
+    {
+      "id":"who-alcohol-attributable-deaths-global-2019",
+      "scope_type":"substance",
+      "scope_slug":"alcohol",
+      "metric_type":"attributable",
+      "value":2600000,
+      "qualifier":"approximately",
+      "unit":"deaths",
+      "geography":"global",
+      "year":2019,
+      "definition_ar":"وفيات منسوبة لاستهلاك الكحول عبر الأمراض والإصابات والحالات الصحية التي يدعم المنهج إسناد جزء من عبئها للكحول؛ ليست عدداً لجرعات زائدة حادة فقط.",
+      "source_id":"who-alcohol-fact-sheet-2024"
+    },
+    {
+      "id":"who-psychoactive-drug-attributable-deaths-global-2019",
+      "scope_type":"all-psychoactive-drugs-excluding-alcohol-context",
+      "metric_type":"attributable",
+      "value":600000,
+      "qualifier":"approximately",
+      "unit":"deaths",
+      "geography":"global",
+      "year":2019,
+      "definition_ar":"وفيات منسوبة لاستخدام العقاقير ذات التأثير النفساني في تقرير منظمة الصحة العالمية؛ لا يجوز توزيع الرقم على مواد منفردة دون بيانات إضافية.",
+      "source_id":"who-global-status-substance-use-2024"
+    },
+    {
+      "id":"who-tobacco-deaths-annual-2026-fact-sheet",
+      "scope_type":"substance-family",
+      "scope_slug":"tobacco",
+      "metric_type":"attributable_annual",
+      "value":7000000,
+      "qualifier":"more_than",
+      "unit":"deaths_per_year",
+      "geography":"global",
+      "year":2026,
+      "definition_ar":"عبء الوفيات السنوي العالمي الذي تنسبه صحيفة وقائع منظمة الصحة العالمية للتبغ؛ يشمل أمراضاً مزمنة وليس تسمماً حاداً بالنيكوتين فقط.",
+      "source_id":"who-tobacco-nicotine-2026"
+    },
+    {
+      "id":"who-tobacco-secondhand-deaths-annual-2026-fact-sheet",
+      "scope_type":"exposure",
+      "scope_slug":"secondhand-tobacco-smoke",
+      "metric_type":"attributable_annual",
+      "value":1600000,
+      "qualifier":"more_than",
+      "unit":"deaths_per_year",
+      "geography":"global",
+      "year":2026,
+      "definition_ar":"وفيات سنوية لدى غير المدخنين تُنسب إلى التعرض للتدخين غير المباشر وفق صحيفة وقائع منظمة الصحة العالمية.",
+      "source_id":"who-tobacco-nicotine-2026"
+    },
+    {
+      "id":"cdc-us-overdose-all-2025-provisional",
+      "scope_type":"all-drugs",
+      "metric_type":"overdose_provisional",
+      "value":69973,
+      "unit":"deaths",
+      "geography":"United States",
+      "year":2025,
+      "status":"provisional",
+      "definition_ar":"تقدير مؤقت لوفيات الجرعة الزائدة من المخدرات في الولايات المتحدة خلال 2025. لا يمثل العالم ولا ينبغي مقارنته مباشرة بعبء وفيات منسوب عالمياً.",
+      "source_id":"cdc-nchs-overdose-2025-release"
+    },
+    {
+      "id":"cdc-us-opioid-involved-overdose-2025-provisional",
+      "scope_type":"substance-family",
+      "scope_slug":"opioids",
+      "metric_type":"involved_overdose_provisional",
+      "value":44564,
+      "unit":"deaths",
+      "geography":"United States",
+      "year":2025,
+      "status":"provisional",
+      "definition_ar":"وفيات جرعة زائدة في الولايات المتحدة تضمنت أفيونات وفق البيانات المؤقتة؛ وصف involved لا يساوي دائماً سببية أحادية لمادة واحدة.",
+      "source_id":"cdc-nchs-overdose-2025-release"
+    }
+  ]
+}
