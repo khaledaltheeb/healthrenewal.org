@@ -98,20 +98,65 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
+          from xml.etree import ElementTree as ET
 
-          report = json.loads(Path('api/addiction-atlas-v2.json').read_text(encoding='utf-8'))
+          root = Path('.')
+          report = json.loads((root/'api/addiction-atlas-v2.json').read_text(encoding='utf-8'))
+          manifest = json.loads((root/'data/addiction-atlas/substance-waves.json').read_text(encoding='utf-8'))
+          intents = json.loads((root/'data/addiction-atlas/comparison-intents-v2.json').read_text(encoding='utf-8'))
+
+          expected_slugs = set()
+          for route in manifest.get('waves') or []:
+              payload = json.loads((root/route.lstrip('/')).read_text(encoding='utf-8'))
+              for item in payload.get('substances', []):
+                  slug = item['slug']
+                  assert slug not in expected_slugs, f'duplicate substance slug: {slug}'
+                  expected_slugs.add(slug)
+
+          expected_comparisons = {
+              item['slug'] for item in intents.get('comparisons', []) if item.get('indexable')
+          }
+
           assert report['status'] == 'passed', report
-          assert report['substances'] >= 48, report
-          assert report['indexableComparisons'] >= 20, report
-          substance_pages = list(Path('addiction/substances').glob('*/index.html'))
-          comparison_pages = list(Path('addiction/compare').glob('*/index.html'))
-          class_pages = list(Path('addiction/substances/classes').glob('*/index.html'))
-          learn_pages = list(Path('addiction/substances/learn').glob('*/index.html'))
-          assert len(substance_pages) >= report['substances'], (len(substance_pages), report)
-          assert len(comparison_pages) >= report['indexableComparisons'], (len(comparison_pages), report)
+          assert report['substances'] == len(expected_slugs), (report, len(expected_slugs))
+          assert report['indexableComparisons'] == len(expected_comparisons), (report, len(expected_comparisons))
+
+          missing_substance_pages = sorted(
+              slug for slug in expected_slugs
+              if not (root/'addiction/substances'/slug/'index.html').is_file()
+          )
+          missing_comparison_pages = sorted(
+              slug for slug in expected_comparisons
+              if not (root/'addiction/compare'/slug/'index.html').is_file()
+          )
+          assert not missing_substance_pages, missing_substance_pages
+          assert not missing_comparison_pages, missing_comparison_pages
+
+          class_pages = list((root/'addiction/substances/classes').glob('*/index.html'))
+          learn_pages = list((root/'addiction/substances/learn').glob('*/index.html'))
           assert len(class_pages) >= 8, len(class_pages)
           assert len(learn_pages) >= 7, len(learn_pages)
-          print({'substancePages': len(substance_pages), 'comparisonPages': len(comparison_pages), 'classPages': len(class_pages), 'learnPages': len(learn_pages), 'report': report})
+
+          ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          sitemap_root = ET.parse(root/'sitemap-addiction-atlas.xml').getroot()
+          sitemap_urls = {node.text for node in sitemap_root.findall('sm:url/sm:loc', ns)}
+          expected_substance_urls = {
+              f'https://healthrenewal.org/addiction/substances/{slug}/' for slug in expected_slugs
+          }
+          expected_comparison_urls = {
+              f'https://healthrenewal.org/addiction/compare/{slug}/' for slug in expected_comparisons
+          }
+          assert expected_substance_urls <= sitemap_urls, sorted(expected_substance_urls - sitemap_urls)
+          assert expected_comparison_urls <= sitemap_urls, sorted(expected_comparison_urls - sitemap_urls)
+
+          print({
+              'expectedSubstances': len(expected_slugs),
+              'expectedComparisons': len(expected_comparisons),
+              'sitemapUrls': len(sitemap_urls),
+              'classPages': len(class_pages),
+              'learnPages': len(learn_pages),
+              'report': report,
+          })
           PY
 
       - name: Commit generated atlas publication
