@@ -1,0 +1,47 @@
+{
+  "schema_version": "rawafid-addiction-atlas-source-map-v1",
+  "wave": "v1",
+  "updated_on": "2026-08-26",
+  "records": [
+    {
+      "substance_slug": "fentanyl",
+      "source_ids": ["nida-fentanyl-reference", "who-opioid-overdose-2025"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "heroin",
+      "source_ids": ["nida-heroin-reference", "who-opioid-overdose-2025"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "cocaine",
+      "source_ids": ["nida-cocaine-reference", "asam-aaap-stimulant-guideline-2024"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "methamphetamine",
+      "source_ids": ["nida-methamphetamine-reference", "asam-aaap-stimulant-guideline-2024"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "cannabis",
+      "source_ids": ["nida-cannabis-reference"],
+      "supports": ["mechanism", "acute_toxicity", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "respiratory_harm", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "alcohol",
+      "source_ids": ["who-alcohol-fact-sheet-2024"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "withdrawal_medical_risk", "neuro_harm", "cardio_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "nicotine",
+      "source_ids": ["who-tobacco-nicotine-2026", "cdc-tobacco-clinical-interventions"],
+      "supports": ["mechanism", "acute_toxicity", "dependence", "withdrawal", "cardio_harm", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "synthetic-cannabinoids",
+      "source_ids": ["nida-synthetic-cannabinoids-reference"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "neuro_harm", "cardio_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response"]
+    }
+  ]
+}
