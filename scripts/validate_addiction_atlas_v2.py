@@ -18,7 +18,7 @@ COMPARISONS = ROOT / "data/addiction-atlas/comparison-intents-v2.json"
 EPIDEMIOLOGY = ROOT / "data/addiction-atlas/epidemiology-v1.json"
 MORTALITY = ROOT / "data/addiction-atlas/mortality-v1.json"
 SOURCES = ROOT / "data/addiction-atlas/source-registry-v1.json"
-SOURCE_MAPS = [ROOT / "data/addiction-atlas/source-map-v4.json"]
+SOURCE_MAPS = sorted((ROOT / "data/addiction-atlas").glob("source-map-v*.json"))
 SITEMAP = ROOT / "sitemap-addiction-atlas.xml"
 
 RISK_KEYS = {
@@ -139,6 +139,8 @@ def validate_records(source_ids):
 def validate_source_maps(substances, source_ids):
     mapped = set()
     record_count = 0
+    if not SOURCE_MAPS:
+        fail("no source maps discovered")
     for path in SOURCE_MAPS:
         if not path.is_file():
             fail(f"missing source map: {path}")
