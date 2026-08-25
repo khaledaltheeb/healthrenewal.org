@@ -11,9 +11,12 @@ on:
       - 'data/addiction-atlas/**'
       - 'scripts/publish_addiction_atlas_v2.py'
       - 'scripts/publish_addiction_atlas_v3.py'
+      - 'scripts/normalize_addiction_atlas_page_dates.py'
       - 'scripts/validate_addiction_atlas_v2.py'
       - 'scripts/validate_addiction_atlas_manifest.py'
+      - 'scripts/validate_addiction_atlas_dates.py'
       - 'scripts/validate_addiction_sitemap_registration_v1.py'
+      - 'scripts/generate_addiction_atlas_sitemap.py'
       - 'scripts/publish_complete_sitemap_v360.py'
       - 'sitemap-addiction-atlas.xml'
       - 'sitemap-index.xml'
@@ -28,9 +31,12 @@ on:
       - 'data/addiction-atlas/**'
       - 'scripts/publish_addiction_atlas_v2.py'
       - 'scripts/publish_addiction_atlas_v3.py'
+      - 'scripts/normalize_addiction_atlas_page_dates.py'
       - 'scripts/validate_addiction_atlas_v2.py'
       - 'scripts/validate_addiction_atlas_manifest.py'
+      - 'scripts/validate_addiction_atlas_dates.py'
       - 'scripts/validate_addiction_sitemap_registration_v1.py'
+      - 'scripts/generate_addiction_atlas_sitemap.py'
       - 'scripts/publish_complete_sitemap_v360.py'
       - 'sitemap-addiction-atlas.xml'
       - 'sitemap-index.xml'
@@ -57,12 +63,17 @@ jobs:
         run: |
           python -m py_compile scripts/publish_addiction_atlas_v2.py
           python -m py_compile scripts/publish_addiction_atlas_v3.py
+          python -m py_compile scripts/normalize_addiction_atlas_page_dates.py
+          python -m py_compile scripts/generate_addiction_atlas_sitemap.py
           python -m py_compile scripts/validate_addiction_atlas_v2.py
           python -m py_compile scripts/validate_addiction_atlas_manifest.py
+          python -m py_compile scripts/validate_addiction_atlas_dates.py
           python -m py_compile scripts/validate_addiction_sitemap_registration_v1.py
           python -m py_compile scripts/publish_complete_sitemap_v360.py
       - name: Validate all registered atlas waves
         run: python scripts/validate_addiction_atlas_manifest.py
+      - name: Validate page, schema and sitemap modification dates
+        run: python scripts/validate_addiction_atlas_dates.py
       - name: Validate central sitemap registration
         run: python scripts/validate_addiction_sitemap_registration_v1.py
       - name: Validate JSON syntax independently
