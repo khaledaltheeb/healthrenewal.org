@@ -1,0 +1,115 @@
+{
+  "schema_version": "rawafid-addiction-atlas-source-registry-v4-shard",
+  "registry_shard": "foundational-wave-1",
+  "updated_on": "2026-08-26",
+  "sources": [
+    {
+      "id": "who-opioid-overdose-2025",
+      "organization": "World Health Organization (WHO)",
+      "title": "Opioid overdose",
+      "publication_year": 2025,
+      "data_years": [2019, 2021],
+      "source_type": "global public-health fact sheet",
+      "geography": "global",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/opioid-overdose",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم آلية كبت التنفس والجرعة الزائدة وعوامل الخطر والنالوكسون وعلاج الاعتماد الأفيوني. يجب الحفاظ على السنة وتعريف الوفيات وعدم تحويل الأرقام العالمية إلى احتمال فردي."
+    },
+    {
+      "id": "nida-fentanyl-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Fentanyl — research topic",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal scientific educational reference",
+      "geography": "general scientific evidence / United States context where stated",
+      "url": "https://nida.nih.gov/research-topics/fentanyl",
+      "verified_on": "2026-08-26",
+      "notes_ar": "مرجع نوعي للفنتانيل؛ يستخدم للمعلومات العلمية ولا تُنقل منه أي معلومات تشغيلية عن الاستخدام غير الطبي."
+    },
+    {
+      "id": "nida-heroin-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Heroin — research topic",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal scientific educational reference",
+      "geography": "general scientific evidence / United States context where stated",
+      "url": "https://nida.nih.gov/research-topics/heroin",
+      "verified_on": "2026-08-26",
+      "notes_ar": "مرجع نوعي للهيروين وآثاره واضطراب استخدام الأفيونات؛ تقرأ بيانات الانتشار أو الوفيات ضمن سياقها الزمني والجغرافي."
+    },
+    {
+      "id": "nida-cocaine-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Cocaine — research topic",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal scientific educational reference",
+      "geography": "general scientific evidence / United States context where stated",
+      "url": "https://nida.nih.gov/research-topics/cocaine",
+      "verified_on": "2026-08-26",
+      "notes_ar": "مرجع علمي للكوكايين والسمية القلبية والعصبية واضطراب الاستخدام. لا يُختزل الخطر في رقم واحد أو نسبة تعرض أول."
+    },
+    {
+      "id": "nida-methamphetamine-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Methamphetamine — research topic",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal scientific educational reference",
+      "geography": "general scientific evidence / United States context where stated",
+      "url": "https://nida.nih.gov/research-topics/methamphetamine",
+      "verified_on": "2026-08-26",
+      "notes_ar": "مرجع علمي للميثامفيتامين وآثاره الحادة والمزمنة والاعتماد؛ لا يقدم أساساً لنشر معلومات تشغيلية عن الاستخدام."
+    },
+    {
+      "id": "asam-aaap-stimulant-guideline-2024",
+      "organization": "American Society of Addiction Medicine (ASAM) and American Academy of Addiction Psychiatry (AAAP)",
+      "title": "Clinical Practice Guideline on the Management of Stimulant Use Disorder",
+      "publication_year": 2024,
+      "data_years": [],
+      "source_type": "clinical practice guideline",
+      "geography": "clinical guidance requiring local adaptation",
+      "url": "https://www.asam.org/quality-care/clinical-guidelines/stimulant-use-disorders",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم علاج اضطراب استخدام المنبهات والتسمم والانسحاب، مع فصل التوصيات السريرية عن التثقيف العام وعدم نشر وصفات شخصية."
+    },
+    {
+      "id": "nida-cannabis-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Cannabis (Marijuana) — research topic",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal scientific educational reference",
+      "geography": "general scientific evidence / United States context where stated",
+      "url": "https://nida.nih.gov/research-topics/cannabis-marijuana",
+      "verified_on": "2026-08-26",
+      "notes_ar": "مرجع للقنب وTHC والوظائف المعرفية واضطراب الاستخدام والمخاطر النفسية. لا تُعمم نتائج منتجات أو تراكيز بعينها على كل القنب."
+    },
+    {
+      "id": "cdc-tobacco-clinical-interventions",
+      "organization": "Centers for Disease Control and Prevention (CDC)",
+      "title": "Clinical interventions to treat tobacco use and dependence",
+      "publication_year": 2024,
+      "data_years": [],
+      "source_type": "clinical implementation resource",
+      "geography": "United States / broadly applicable clinical evidence where appropriate",
+      "url": "https://www.cdc.gov/tobacco/hcp/patient-care-settings/clinical.html",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم مبدأ أن اعتماد التبغ حالة مزمنة مرتبطة بالنيكوتين وأن الاستشارة والأدوية المعتمدة يمكن أن تساعد على الإقلاع."
+    },
+    {
+      "id": "nida-synthetic-cannabinoids-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Synthetic Cannabinoids (K2/Spice) — research topic",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal scientific educational reference",
+      "geography": "general scientific evidence / United States context where stated",
+      "url": "https://nida.nih.gov/research-topics/synthetic-cannabinoids-k2spice",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم عدم مساواة القنبيات الصناعية بالقنب النباتي وعدم قابلية التنبؤ بالتركيب والتأثير والمضاعفات الحادة."
+    }
+  ]
+}
