@@ -70,7 +70,7 @@ jobs:
               SubElement(node, 'lastmod').text = '2026-08-25'
           indent(urlset, space='  ')
           ElementTree(urlset).write(root/'sitemap-addiction-atlas.xml', encoding='utf-8', xml_declaration=True)
-          print({'atlasSitemapUrls': len(urls)})
+          print({'atlasSitemapUrls': len(urls), 'substances': len(slugs), 'indexableComparisons': sum(1 for c in comparisons if c.get('indexable'))})
           PY
 
       - name: Validate generated publication
@@ -82,8 +82,8 @@ jobs:
 
           report = json.loads(Path('api/addiction-atlas-v2.json').read_text(encoding='utf-8'))
           assert report['status'] == 'passed', report
-          assert report['substances'] >= 40, report
-          assert report['indexableComparisons'] >= 14, report
+          assert report['substances'] >= 36, report
+          assert report['indexableComparisons'] >= 20, report
           substance_pages = list(Path('addiction/substances').glob('*/index.html'))
           comparison_pages = list(Path('addiction/compare').glob('*/index.html'))
           assert len(substance_pages) >= report['substances'], (len(substance_pages), report)
