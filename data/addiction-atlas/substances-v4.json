@@ -1,19 +1,668 @@
 {
-  "schema_version":"rawafid-addiction-atlas-substances-v4",
-  "version":"4.0.0",
-  "updated_on":"2026-08-25",
-  "notes_ar":"موجة رابعة تغطي بنزوديازيبينات إضافية، Z-drug، غابابنتينويدات، منبهات وصفية، مهلوسات ومستنشقات. null يعني عدم كفاية الدليل لتقدير ترتيبي مسؤول، وليس انخفاض الخطر.",
-  "substances":[
-    {"id":"clonazepam","slug":"clonazepam","display_name_ar":"كلونازيبام","display_name_en":"Clonazepam","common_name_ar":"كلونازيبام","common_name_en":"Clonazepam","scientific_name":"Clonazepam","english_name_ar_transliteration":["كلونازيبام","كلونازيبام"],"search_aliases_ar":["كلونازيبام","ريفوتريل"],"search_aliases_en":["clonazepam","rivotril"],"common_misspellings_ar":[],"class_ar":"بنزوديازيبين","class_en":"Benzodiazepine","medical_use_ar":"دواء موصوف لبعض اضطرابات الاختلاجات والهلع وفق الحالة والنظام الصحي.","forms_ar":["أقراص دوائية","أشكال فموية حسب السوق"],"summary_ar":"كلونازيبام بنزوديازيبين قد يسبب النعاس والاعتماد الجسدي واضطراب الاستخدام لدى بعض الأشخاص. إيقافه فجأة بعد الاستخدام المنتظم قد يسبب انسحاباً خطراً، ويزداد خطر كبت التنفس والوفاة عند الجمع مع الأفيونات أو الكحول أو مثبطات أخرى.","mechanism_ar":"يعزز نشاط GABA-A المثبط في الجهاز العصبي المركزي.","acute_effects_ar":["تهدئة ونعاس","دوخة وضعف تنسيق","ضعف ذاكرة أو بطء استجابة","تثبيط أشد مع مثبطات أخرى"],"long_term_harms_ar":["اعتماد جسدي","اضطراب استخدام ممكن","مشكلات معرفية ووظيفية لدى بعض المستخدمين"],"single_exposure_harm_ar":"الخطر الحاد يرتفع بشدة مع الأفيونات أو الكحول أو مثبطات أخرى؛ لا توجد نسبة وفاة ثابتة من أول استعمال.","withdrawal_ar":"الانسحاب قد يشمل اختلاجات وردود فعل مهددة للحياة، لذلك لا يوقف فجأة بعد الاستخدام المنتظم.","emergency_response_ar":"فقدان الوعي أو بطء التنفس أو الاختلاج حالة طارئة.","treatment_ar":"إدارة الاعتماد أو الخفض تكون تدريجية وفردية سريرياً، مع علاج السبب الأساسي لاستخدام الدواء.","risk":{"acute_toxicity":3,"overdose_risk":3,"dependence":4,"withdrawal_medical_risk":5,"neuro_harm":3,"cardio_harm":1,"respiratory_harm":3,"polysubstance_risk":5},"evidence_grade":"A","source_urls":["https://www.fda.gov/drugs/drug-safety-and-availability/fda-requiring-boxed-warning-updated-improve-safe-use-benzodiazepine-drug-class"],"related_condition":"/addiction/sedative-benzodiazepine-use-disorder/"},
-    {"id":"lorazepam","slug":"lorazepam","display_name_ar":"لورازيبام","display_name_en":"Lorazepam","common_name_ar":"لورازيبام","common_name_en":"Lorazepam","scientific_name":"Lorazepam","english_name_ar_transliteration":["لورازيبام"],"search_aliases_ar":["لورازيبام","أتيفان"],"search_aliases_en":["lorazepam","ativan"],"common_misspellings_ar":[],"class_ar":"بنزوديازيبين","class_en":"Benzodiazepine","medical_use_ar":"دواء موصوف للقلق وبعض الاستخدامات الحادة أو الاختلاجات في سياقات طبية محددة.","forms_ar":["أقراص دوائية","محاليل أو حقن طبية"],"summary_ar":"لورازيبام بنزوديازيبين فعال طبياً لكنه قد يسبب اعتماداً جسدياً وسوء استخدام، وقد يكون الانسحاب المفاجئ خطراً. الجمع مع الأفيونات أو الكحول يزيد خطر التثبيط وكبت التنفس.","mechanism_ar":"يعزز تأثير GABA-A المثبط.","acute_effects_ar":["تهدئة ونعاس","دوخة وضعف تنسيق","ضعف ذاكرة","تثبيط أشد في الخلط"],"long_term_harms_ar":["اعتماد جسدي","اضطراب استخدام محتمل","آثار معرفية أو وظيفية لدى بعض المستخدمين"],"single_exposure_harm_ar":"الخطر الأكبر يظهر في التسمم المختلط أو لدى ذوي الأمراض التنفسية وعوامل الخطورة.","withdrawal_ar":"قد يسبب الإيقاف المفاجئ بعد الاعتماد اختلاجات وأعراضاً شديدة، ولذلك الخفض فردي وتدريجي.","emergency_response_ar":"صعوبة التنفس أو فقدان الوعي أو الاختلاج تستدعي الطوارئ.","treatment_ar":"العلاج يوازن بين سبب الوصفة ومخاطر الاعتماد، مع خطة فردية عند الحاجة للخفض.","risk":{"acute_toxicity":3,"overdose_risk":3,"dependence":4,"withdrawal_medical_risk":5,"neuro_harm":3,"cardio_harm":1,"respiratory_harm":3,"polysubstance_risk":5},"evidence_grade":"A","source_urls":["https://www.fda.gov/drugs/drug-safety-and-availability/fda-requiring-boxed-warning-updated-improve-safe-use-benzodiazepine-drug-class"],"related_condition":"/addiction/sedative-benzodiazepine-use-disorder/"},
-    {"id":"zolpidem","slug":"zolpidem","display_name_ar":"زولبيديم","display_name_en":"Zolpidem","common_name_ar":"زولبيديم","common_name_en":"Zolpidem / Ambien","scientific_name":"Zolpidem","english_name_ar_transliteration":["زولبيديم","زولبيدام"],"search_aliases_ar":["زولبيديم","أمبين"],"search_aliases_en":["zolpidem","ambien"],"common_misspellings_ar":["زولبيدام"],"class_ar":"منوم من فئة Z-drugs","class_en":"Z-drug","medical_use_ar":"دواء موصوف لعلاج الأرق لدى بعض البالغين.","forms_ar":["أقراص دوائية","أشكال ممتدة أو فموية أخرى حسب السوق"],"summary_ar":"زولبيديم منوم بوصفة يمكن أن يسبب النعاس وضعف الوعي والاعتماد أو إساءة الاستخدام لدى بعض الأشخاص. لدى أدوية Z تحذير مهم من سلوكيات نوم معقدة أدت في حالات نادرة إلى إصابات شديدة أو وفاة.","mechanism_ar":"يرتبط بموقع بنزوديازيبيني على مستقبلات GABA-A مع انتقائية نسبية لبعض الوحدات.","acute_effects_ar":["نعاس ودوخة","ضعف ذاكرة وتنسيق","سلوكيات نوم معقدة نادرة وخطرة","تثبيط أشد مع الكحول أو مثبطات أخرى"],"long_term_harms_ar":["اعتماد أو إساءة استخدام لدى بعض الأشخاص","اضطراب نوم ارتدادي أو أعراض انسحاب بعد بعض أنماط الاستخدام"],"single_exposure_harm_ar":"سلوكيات النوم المعقدة الخطرة قد تحدث حتى دون تاريخ طويل، وقد تسبب إصابة شديدة أو وفاة في حالات نادرة.","withdrawal_ar":"قد تظهر أعراض انسحاب أو أرق ارتدادي بعد الاستخدام المنتظم؛ الخطر الطبي أقل وضوحاً من البنزوديازيبينات لكنه ليس صفراً.","emergency_response_ar":"فقدان الوعي أو صعوبة التنفس أو إصابة شديدة أثناء سلوك نوم معقد تستدعي تقييماً عاجلاً.","treatment_ar":"تقييم الأرق والعوامل السلوكية أساس مهم، وتدار إساءة الاستخدام أو الاعتماد بصورة فردية.","risk":{"acute_toxicity":3,"overdose_risk":3,"dependence":3,"withdrawal_medical_risk":2,"neuro_harm":3,"cardio_harm":1,"respiratory_harm":3,"polysubstance_risk":5},"evidence_grade":"A","source_urls":["https://www.fda.gov/consumers/consumer-updates/taking-z-drugs-insomnia-know-risks","https://www.fda.gov/safety/medical-product-safety-information/certain-prescription-insomnia-medicines-new-boxed-warning-due-risk-serious-injuries-caused"],"related_condition":"/addiction/sedative-benzodiazepine-use-disorder/"},
-    {"id":"gabapentin","slug":"gabapentin","display_name_ar":"غابابنتين","display_name_en":"Gabapentin","common_name_ar":"غابابنتين","common_name_en":"Gabapentin","scientific_name":"Gabapentin","english_name_ar_transliteration":["غابابنتين","جابابنتين"],"search_aliases_ar":["غابابنتين","جابابنتين"],"search_aliases_en":["gabapentin"],"common_misspellings_ar":["جابابنتين"],"class_ar":"غابابنتينويد / دواء مضاد للاختلاجات وآلام الأعصاب","class_en":"Gabapentinoid","medical_use_ar":"دواء معتمد لاستخدامات تشمل بعض الاختلاجات وآلام الأعصاب حسب المستحضر والسوق.","forms_ar":["كبسولات أو أقراص","محاليل فموية في بعض الأسواق"],"summary_ar":"غابابنتين دواء مفيد طبياً، لكن إساءة استخدام الغابابنتينويدات مع الأفيونات أو مثبطات أخرى ازدادت، وقد يزيد ذلك التهدئة وخطر كبت التنفس خاصة لدى ذوي عوامل الخطورة التنفسية.","mechanism_ar":"يرتبط بالوحدة الفرعية α2δ لقنوات الكالسيوم المعتمدة على الجهد ويعدل إطلاق نواقل عصبية.","acute_effects_ar":["دوخة ونعاس","ترنح أو ضعف تنسيق","تثبيط تنفسي ممكن لدى ذوي عوامل الخطورة خاصة مع الأفيونات"],"long_term_harms_ar":["اعتماد أو إساءة استخدام ممكنان لدى بعض الفئات","مخاطر وظيفية من النعاس والدوخة"],"single_exposure_harm_ar":"الخطر الحاد يرتفع خصوصاً مع الأفيونات أو أمراض التنفس أو لدى المسنين؛ لا توجد نسبة موحدة لأول استعمال.","withdrawal_ar":"قد تظهر أعراض بعد الإيقاف المفاجئ لدى الاستخدام المنتظم؛ يحتاج التوقف في بعض الحالات إلى خطة طبية بسبب سبب الوصفة أيضاً.","emergency_response_ar":"بطء التنفس أو النعاس الشديد أو عدم الاستجابة يستدعي تقييماً عاجلاً.","treatment_ar":"لا يعامل كل استخدام طبي كإدمان. إذا كان هناك استخدام قهري أو خلط عالي الخطورة فتحتاج الحالة إلى تقييم سريري وإدماني.","risk":{"acute_toxicity":2,"overdose_risk":2,"dependence":2,"withdrawal_medical_risk":2,"neuro_harm":2,"cardio_harm":1,"respiratory_harm":3,"polysubstance_risk":5},"evidence_grade":"A","source_urls":["https://www.fda.gov/safety/medical-product-safety-information/neurontin-gralise-horizant-gabapentin-and-lyrica-lyrica-cr-pregabalin-drug-safety-communication"],"related_condition":"/addiction/emerging/prescription-medicine-misuse/"},
-    {"id":"pregabalin","slug":"pregabalin","display_name_ar":"بريغابالين","display_name_en":"Pregabalin","common_name_ar":"بريغابالين / ليريكا","common_name_en":"Pregabalin / Lyrica","scientific_name":"Pregabalin","english_name_ar_transliteration":["بريغابالين","بريجابالين"],"search_aliases_ar":["بريغابالين","بريجابالين","ليريكا"],"search_aliases_en":["pregabalin","lyrica"],"common_misspellings_ar":["بريجابالين"],"class_ar":"غابابنتينويد","class_en":"Gabapentinoid","medical_use_ar":"دواء معتمد لبعض آلام الأعصاب والاختلاجات وحالات أخرى حسب النظام الصحي.","forms_ar":["كبسولات أو أقراص","محلول فموي في بعض الأسواق"],"summary_ar":"بريغابالين دواء طبي يمكن إساءة استخدامه، ويزداد خطر التهدئة وكبت التنفس عند الجمع مع الأفيونات أو مثبطات أخرى، خاصة لدى ذوي عوامل الخطورة التنفسية.","mechanism_ar":"يرتبط بالوحدة α2δ لقنوات الكالسيوم ويقلل إطلاق بعض النواقل المثيرة.","acute_effects_ar":["دوخة ونعاس","ترنح","تثبيط تنفسي لدى ذوي عوامل الخطورة خاصة مع مثبطات أخرى"],"long_term_harms_ar":["اعتماد أو سوء استخدام لدى بعض الأشخاص","مشكلات وظيفية مرتبطة بالنعاس أو الدوخة"],"single_exposure_harm_ar":"التعرض في سياق الخلط مع الأفيونات أو مرض تنفسي قد يكون خطراً، لكن لا توجد نسبة عالمية ثابتة للتسمم الشديد من أول جرعة.","withdrawal_ar":"قد تظهر أعراض انسحاب بعد الاستخدام المنتظم، ويحتاج الإيقاف في بعض الحالات إلى تخطيط طبي.","emergency_response_ar":"بطء التنفس أو عدم الاستجابة أو النعاس غير المعتاد يستدعي الرعاية العاجلة.","treatment_ar":"يفصل بين العلاج الطبي المشروع وبين نمط سوء الاستخدام؛ معالجة المشكلة تشمل تقييم الوصفة والتداخلات ونمط الاستخدام.","risk":{"acute_toxicity":2,"overdose_risk":2,"dependence":3,"withdrawal_medical_risk":2,"neuro_harm":2,"cardio_harm":1,"respiratory_harm":3,"polysubstance_risk":5},"evidence_grade":"A","source_urls":["https://www.fda.gov/safety/medical-product-safety-information/neurontin-gralise-horizant-gabapentin-and-lyrica-lyrica-cr-pregabalin-drug-safety-communication"],"related_condition":"/addiction/emerging/prescription-medicine-misuse/"},
-    {"id":"methylphenidate","slug":"methylphenidate","display_name_ar":"ميثيلفينيديت","display_name_en":"Methylphenidate","common_name_ar":"ميثيلفينيديت","common_name_en":"Methylphenidate","scientific_name":"Methylphenidate","english_name_ar_transliteration":["ميثيلفينيديت","ميثيل فينيديت"],"search_aliases_ar":["ميثيلفينيديت","ريتالين"],"search_aliases_en":["methylphenidate","ritalin"],"common_misspellings_ar":[],"class_ar":"منبه بوصفة","class_en":"Prescription stimulant","medical_use_ar":"دواء مهم لعلاج اضطراب فرط الحركة وتشتت الانتباه وبعض الاستطبابات الأخرى وفق التقييم السريري.","forms_ar":["أقراص أو كبسولات فورية أو ممتدة المفعول","أشكال دوائية أخرى حسب السوق"],"summary_ar":"ميثيلفينيديت منبه وصفي فعال عند استخدامه علاجياً، لكن سوء الاستخدام أو المشاركة غير الطبية يرفع خطر اضطراب الاستخدام والآثار القلبية والعصبية والتسمم.","mechanism_ar":"يزيد توافر الدوبامين والنورأدرينالين عبر تثبيط إعادة امتصاصهما بصورة رئيسية.","acute_effects_ar":["زيادة اليقظة والانتباه علاجياً","نقص شهية أو أرق","ارتفاع نبض أو ضغط","هياج أو أعراض نفسية في سوء الاستخدام أو التسمم"],"long_term_harms_ar":["اضطراب استخدام أو اعتماد نفسي ممكن مع سوء الاستخدام","مشكلات نوم أو شهية أو قلبية تحتاج متابعة"],"single_exposure_harm_ar":"التسمم أو سوء الاستخدام يمكن أن يسبب مضاعفات قلبية أو نفسية شديدة؛ الخطر يعتمد على التعرض والسياق ولا يختزل في نسبة أول جرعة.","withdrawal_ar":"قد يظهر تعب ومزاج منخفض بعد الاستخدام غير الطبي المتكرر؛ الانسحاب الطبي الخطر أقل نمطية من المثبطات.","emergency_response_ar":"ألم الصدر أو فرط الحرارة أو الاختلاج أو الذهان الشديد يستدعي الطوارئ.","treatment_ar":"العلاج الطبي لـADHD لا ينبغي وصمه؛ سوء الاستخدام يحتاج تقييم نمط الاستخدام ومصدر الدواء والتدخلات السلوكية المناسبة.","risk":{"acute_toxicity":3,"overdose_risk":3,"dependence":3,"withdrawal_medical_risk":1,"neuro_harm":3,"cardio_harm":4,"respiratory_harm":1,"polysubstance_risk":4},"evidence_grade":"A","source_urls":["https://www.fda.gov/media/168066/download"],"related_condition":"/addiction/stimulant-use-disorder/"},
-    {"id":"lisdexamfetamine","slug":"lisdexamfetamine","display_name_ar":"ليسديكسامفيتامين","display_name_en":"Lisdexamfetamine","common_name_ar":"ليسديكسامفيتامين","common_name_en":"Lisdexamfetamine","scientific_name":"Lisdexamfetamine","english_name_ar_transliteration":["ليسديكسامفيتامين","ليسديكسامفيتامين"],"search_aliases_ar":["ليسديكسامفيتامين","فايڤانس"],"search_aliases_en":["lisdexamfetamine","vyvanse"],"common_misspellings_ar":[],"class_ar":"طليعة دوائية لمنبه أمفيتاميني بوصفة","class_en":"Prescription stimulant","medical_use_ar":"دواء موصوف لبعض حالات ADHD واضطراب نهم الطعام في بعض الأنظمة الصحية.","forms_ar":["كبسولات أو أقراص فموية حسب السوق"],"summary_ar":"ليسديكسامفيتامين دواء منبه مشروع يتحول في الجسم إلى ديكستروأمفيتامين. يبقى ضمن فئة المنبهات الوصفية التي تحمل مخاطر سوء الاستخدام والإدمان والتسمم عند الاستخدام غير الطبي.","mechanism_ar":"طليعة دوائية تتحول إلى ديكستروأمفيتامين الذي يزيد نشاط الدوبامين والنورأدرينالين.","acute_effects_ar":["تحسن الانتباه عند الاستخدام العلاجي المناسب","أرق ونقص شهية","ارتفاع النبض والضغط","هياج أو أعراض نفسية في التسمم أو سوء الاستخدام"],"long_term_harms_ar":["سوء استخدام أو اضطراب استخدام ممكن","مشكلات نوم وشهية وقلب تحتاج متابعة"],"single_exposure_harm_ar":"سوء الاستخدام يمكن أن يسبب تسمماً منبهاً ومضاعفات قلبية أو عصبية، دون نسبة عالمية ثابتة لأول استعمال.","withdrawal_ar":"قد يحدث تعب ومزاج منخفض بعد الاستخدام المتكرر غير الطبي، بينما إدارة الوصفة الطبية تعتمد على الحالة السريرية.","emergency_response_ar":"ألم الصدر أو الاختلاج أو فرط الحرارة أو ذهان شديد يستدعي الطوارئ.","treatment_ar":"يفصل بين العلاج المشروع وبين سوء الاستخدام؛ التدخل يركز على الاستخدام غير الطبي والمصاحبات.","risk":{"acute_toxicity":3,"overdose_risk":3,"dependence":3,"withdrawal_medical_risk":1,"neuro_harm":3,"cardio_harm":4,"respiratory_harm":1,"polysubstance_risk":4},"evidence_grade":"A","source_urls":["https://www.fda.gov/media/168066/download"],"related_condition":"/addiction/stimulant-use-disorder/"},
-    {"id":"dmt","slug":"dmt","display_name_ar":"دي إم تي","display_name_en":"DMT","common_name_ar":"DMT","common_name_en":"N,N-Dimethyltryptamine","scientific_name":"N,N-Dimethyltryptamine","english_name_ar_transliteration":["دي ام تي","دي إم تي"],"search_aliases_ar":["DMT","دي إم تي"],"search_aliases_en":["dmt","dimethyltryptamine"],"common_misspellings_ar":[],"class_ar":"مهلوس كلاسيكي قصير المفعول نسبياً","class_en":"Psychedelic","medical_use_ar":"يخضع للبحث العلمي، وليس علاجاً معيارياً ذاتياً أو معتمداً للاستخدام غير المنظم.","forms_ar":["مسحوق أو بلورات في السوق غير المشروع","قد يوجد ضمن مستحضرات نباتية تقليدية مع مركبات أخرى"],"summary_ar":"DMT مهلوس قوي يغير الإدراك والوعي بصورة حادة. المخاطر الأساسية تتعلق بالذعر والارتباك والسلوك والحوادث والتفاعلات النفسية، كما تختلف المخاطر كثيراً عند وجود مواد أخرى ضمن المستحضر.","mechanism_ar":"ناهض/منظم لمستقبلات السيروتونين وخصوصاً 5-HT2A مع تأثيرات عصبية أخرى.","acute_effects_ar":["تغيرات إدراكية شديدة","قلق أو ذعر","ارتفاع نبض وضغط أحياناً","اختلال الحكم والسلوك"],"long_term_harms_ar":["تفاقم اضطرابات نفسية لدى بعض الأشخاص","اضطرابات إدراك مستمرة نادرة"],"single_exposure_harm_ar":"يمكن أن تحدث نوبة هلع أو سلوك خطر أو إصابة من تعرض واحد، بينما السمية العضوية القاتلة المباشرة أقل نمطية من الأفيونات أو المثبطات الشديدة.","withdrawal_ar":"لا يوصف عادة بمتلازمة انسحاب جسدي خطرة أو اعتماد قهري نمطي.","emergency_response_ar":"هياج شديد أو ذهان أو خطر إيذاء النفس أو اضطراب طبي يستدعي التقييم العاجل.","treatment_ar":"التدبير داعم ويركز على السلامة والتقييم النفسي/الطبي عند المضاعفات.","risk":{"acute_toxicity":2,"overdose_risk":1,"dependence":1,"withdrawal_medical_risk":1,"neuro_harm":3,"cardio_harm":2,"respiratory_harm":1,"polysubstance_risk":3},"evidence_grade":"B","source_urls":["https://nida.nih.gov/sites/default/files/hallucinogensrrs.pdf"],"related_condition":"/addiction/emerging/psychedelic-hallucinogen-related-harms/"},
-    {"id":"mescaline","slug":"mescaline","display_name_ar":"المسكالين","display_name_en":"Mescaline","common_name_ar":"مسكالين / بيوت","common_name_en":"Mescaline / Peyote","scientific_name":"Mescaline","english_name_ar_transliteration":["مسكالين"],"search_aliases_ar":["المسكالين","مسكالين","بيوت"],"search_aliases_en":["mescaline","peyote"],"common_misspellings_ar":[],"class_ar":"مهلوس كلاسيكي","class_en":"Psychedelic","medical_use_ar":"ليس علاجاً معيارياً للاستخدام الذاتي؛ بعض السياقات الدينية/الثقافية والقانونية تختلف بحسب البلد.","forms_ar":["مادة نقية أو مستحضرات نباتية من صبار البيوت/أنواع أخرى"],"summary_ar":"المسكالين مهلوس كلاسيكي يغير الإدراك والمزاج والتفكير. تشمل المخاطر الحادة القلق والهلع والغثيان وارتفاع النبض والضغط واختلال الحكم، مع مخاطر نفسية أعلى لدى بعض الأشخاص.","mechanism_ar":"ينشط مستقبلات السيروتونين ومنها 5-HT2A.","acute_effects_ar":["تغيرات حسية وإدراكية","غثيان وقيء","قلق أو ذعر","ارتفاع النبض والضغط أحياناً"],"long_term_harms_ar":["تفاقم اضطرابات نفسية لدى بعض الأشخاص","اضطرابات إدراك مستمرة نادرة"],"single_exposure_harm_ar":"يمكن أن تحدث نوبة هلع أو سلوك خطر أو إصابة من تعرض واحد، بينما السمية القاتلة المباشرة أقل نمطية من المثبطات الشديدة.","withdrawal_ar":"لا توجد عادة متلازمة انسحاب جسدي خطرة أو اعتماد قهري نمطي.","emergency_response_ar":"هياج شديد أو ذهان أو إصابة أو أعراض قلبية مهمة تستدعي التقييم.","treatment_ar":"التدبير داعم وموجه للأعراض مع تقييم نفسي عند الحاجة.","risk":{"acute_toxicity":2,"overdose_risk":1,"dependence":1,"withdrawal_medical_risk":1,"neuro_harm":3,"cardio_harm":2,"respiratory_harm":1,"polysubstance_risk":3},"evidence_grade":"B","source_urls":["https://nida.nih.gov/sites/default/files/hallucinogensrrs.pdf"],"related_condition":"/addiction/emerging/psychedelic-hallucinogen-related-harms/"},
-    {"id":"salvia","slug":"salvia","display_name_ar":"سالفيا ديفينوروم","display_name_en":"Salvia divinorum","common_name_ar":"سالفيا","common_name_en":"Salvia","scientific_name":"Salvia divinorum","english_name_ar_transliteration":["سالفيا","سالفيا ديفينوروم"],"search_aliases_ar":["سالفيا","سالفيا ديفينوروم"],"search_aliases_en":["salvia","salvia divinorum"],"common_misspellings_ar":[],"class_ar":"مادة مهلوسة/انفصالية نباتية غير نمطية","class_en":"Dissociative hallucinogen","medical_use_ar":"لا يوجد استخدام علاجي معياري معتمد؛ تخضع المادة للدراسة العلمية.","forms_ar":["أوراق أو مستخلصات نباتية في بعض الأسواق"],"summary_ar":"سالفيا مادة نباتية ذات تأثيرات إدراكية وانفصالية شديدة وقصيرة نسبياً عند بعض طرق التعرض. يمكن أن تسبب فقدان التوجيه والسيطرة والسلوك غير المتوقع، ما يجعل الحوادث خطراً مهماً.","mechanism_ar":"يعمل السالفينورين A بصورة رئيسية كناهض قوي لمستقبلات كابا الأفيونية، بآلية تختلف عن المهلوسات السيروتونينية الكلاسيكية.","acute_effects_ar":["تغير شديد في الإدراك","انفصال وفقدان توجيه","خوف أو ارتباك","سلوك غير متوقع وحوادث"],"long_term_harms_ar":["البيانات طويلة المدى محدودة","مضاعفات نفسية ممكنة لدى بعض الأشخاص"],"single_exposure_harm_ar":"يمكن أن تحدث إصابة أو سلوك خطر من تعرض واحد بسبب فقدان التوجيه، بينما بيانات السمية العضوية المباشرة محدودة.","withdrawal_ar":"لا توجد متلازمة انسحاب جسدي خطرة معروفة على نحو راسخ؛ الأدلة حول الاعتماد محدودة.","emergency_response_ar":"السلوك الخطر أو الإصابة أو الذهان/الارتباك المستمر يستدعي تقييماً عاجلاً.","treatment_ar":"التدبير داعم ويركز على السلامة والتقييم النفسي عند استمرار الأعراض.","risk":{"acute_toxicity":2,"overdose_risk":null,"dependence":null,"withdrawal_medical_risk":1,"neuro_harm":3,"cardio_harm":null,"respiratory_harm":null,"polysubstance_risk":3},"evidence_grade":"C","source_urls":["https://nida.nih.gov/sites/default/files/hallucinogensrrs.pdf"],"related_condition":"/addiction/emerging/dissociative-drug-related-harms/"},
-    {"id":"butane","slug":"butane","display_name_ar":"البيوتان","display_name_en":"Butane","common_name_ar":"غاز البيوتان","common_name_en":"Butane","scientific_name":"Butane","english_name_ar_transliteration":["بيوتان"],"search_aliases_ar":["البيوتان","غاز البيوتان","غاز الولاعات"],"search_aliases_en":["butane","lighter gas"],"common_misspellings_ar":[],"class_ar":"غاز هيدروكربوني متطاير يُساء استنشاقه أحياناً","class_en":"Inhalant","medical_use_ar":"ليس مادة علاجية؛ يستخدم صناعياً ووقوداً في منتجات مختلفة. التعرض العرضي/المهني يختلف عن الاستنشاق المتعمد.","forms_ar":["غاز مضغوط في عبوات ووقود ولّاعات ومنتجات أخرى"],"summary_ar":"البيوتان غاز متطاير يمكن أن يسبب دوخة وفقدان وعي ونقص أكسجة واضطراب نظم خطراً. المستنشقات الهيدروكربونية قد تسبب وفاة قلبية مفاجئة حتى في جلسة واحدة.","mechanism_ar":"يثبط الجهاز العصبي ويمكن أن يحسس القلب للكاتيكولامينات ويؤثر في الأكسجة والتنفس.","acute_effects_ar":["دوخة وترنح","فقدان وعي","نقص أكسجة","اضطراب نظم أو توقف قلب مفاجئ"],"long_term_harms_ar":["أذية عصبية ووظيفية محتملة مع الاستخدام المتكرر","مخاطر إصابات وحروق واختناق بحسب المنتج"],"single_exposure_harm_ar":"يمكن أن تحدث وفاة قلبية مفاجئة أو اختناق أو إصابة من جلسة واحدة من استنشاق المستنشقات المركزة.","withdrawal_ar":"قد يحدث نمط استخدام قهري؛ بيانات الانسحاب الجسدي النوعي محدودة ولذلك لا يقدم الأطلس تقديراً مبالغاً فيه.","emergency_response_ar":"فقدان الوعي أو صعوبة التنفس أو ألم الصدر أو اضطراب النبض بعد التعرض تستدعي الطوارئ؛ لا يوجد ترياق منزلي.","treatment_ar":"التسمم يعالج داعماً وموجهاً للقلب والتنفس والأكسجة، ويحتاج الاستخدام القهري إلى تدخل نفسي اجتماعي.","risk":{"acute_toxicity":5,"overdose_risk":5,"dependence":3,"withdrawal_medical_risk":null,"neuro_harm":4,"cardio_harm":5,"respiratory_harm":5,"polysubstance_risk":4},"evidence_grade":"B","source_urls":["https://nida.nih.gov/sites/default/files/dfinhalants_1.pdf"],"related_condition":"/addiction/inhalant-use-disorder/"}
+  "schema_version": "rawafid-addiction-atlas-substances-v4",
+  "version": "4.0.0",
+  "updated_on": "2026-08-25",
+  "notes_ar": "موجة رابعة تغطي بنزوديازيبينات إضافية، Z-drug، غابابنتينويدات، منبهات وصفية، مهلوسات ومستنشقات. null يعني عدم كفاية الدليل لتقدير ترتيبي مسؤول، وليس انخفاض الخطر.",
+  "substances": [
+    {
+      "id": "clonazepam",
+      "slug": "clonazepam",
+      "display_name_ar": "كلونازيبام",
+      "display_name_en": "Clonazepam",
+      "common_name_ar": "كلونازيبام",
+      "common_name_en": "Clonazepam",
+      "scientific_name": "Clonazepam",
+      "english_name_ar_transliteration": [
+        "كلونازيبام"
+      ],
+      "search_aliases_ar": [
+        "كلونازيبام",
+        "ريفوتريل"
+      ],
+      "search_aliases_en": [
+        "clonazepam",
+        "rivotril"
+      ],
+      "common_misspellings_ar": [],
+      "class_ar": "بنزوديازيبين",
+      "class_en": "Benzodiazepine",
+      "medical_use_ar": "دواء موصوف لبعض اضطرابات الاختلاجات والهلع وفق الحالة والنظام الصحي.",
+      "forms_ar": [
+        "أقراص دوائية",
+        "أشكال فموية حسب السوق"
+      ],
+      "summary_ar": "كلونازيبام بنزوديازيبين قد يسبب النعاس والاعتماد الجسدي واضطراب الاستخدام لدى بعض الأشخاص. إيقافه فجأة بعد الاستخدام المنتظم قد يسبب انسحاباً خطراً، ويزداد خطر كبت التنفس والوفاة عند الجمع مع الأفيونات أو الكحول أو مثبطات أخرى.",
+      "mechanism_ar": "يعزز نشاط GABA-A المثبط في الجهاز العصبي المركزي.",
+      "acute_effects_ar": [
+        "تهدئة ونعاس",
+        "دوخة وضعف تنسيق",
+        "ضعف ذاكرة أو بطء استجابة",
+        "تثبيط أشد مع مثبطات أخرى"
+      ],
+      "long_term_harms_ar": [
+        "اعتماد جسدي",
+        "اضطراب استخدام ممكن",
+        "مشكلات معرفية ووظيفية لدى بعض المستخدمين"
+      ],
+      "single_exposure_harm_ar": "الخطر الحاد يرتفع بشدة مع الأفيونات أو الكحول أو مثبطات أخرى؛ لا توجد نسبة وفاة ثابتة من أول استعمال.",
+      "withdrawal_ar": "الانسحاب قد يشمل اختلاجات وردود فعل مهددة للحياة، لذلك لا يوقف فجأة بعد الاستخدام المنتظم.",
+      "emergency_response_ar": "فقدان الوعي أو بطء التنفس أو الاختلاج حالة طارئة.",
+      "treatment_ar": "إدارة الاعتماد أو الخفض تكون تدريجية وفردية سريرياً، مع علاج السبب الأساسي لاستخدام الدواء.",
+      "risk": {
+        "acute_toxicity": 3,
+        "overdose_risk": 3,
+        "dependence": 4,
+        "withdrawal_medical_risk": 5,
+        "neuro_harm": 3,
+        "cardio_harm": 1,
+        "respiratory_harm": 3,
+        "polysubstance_risk": 5
+      },
+      "evidence_grade": "A",
+      "source_urls": [
+        "https://www.fda.gov/drugs/drug-safety-and-availability/fda-requiring-boxed-warning-updated-improve-safe-use-benzodiazepine-drug-class"
+      ],
+      "related_condition": "/addiction/sedative-benzodiazepine-use-disorder/"
+    },
+    {
+      "id": "lorazepam",
+      "slug": "lorazepam",
+      "display_name_ar": "لورازيبام",
+      "display_name_en": "Lorazepam",
+      "common_name_ar": "لورازيبام",
+      "common_name_en": "Lorazepam",
+      "scientific_name": "Lorazepam",
+      "english_name_ar_transliteration": [
+        "لورازيبام"
+      ],
+      "search_aliases_ar": [
+        "لورازيبام",
+        "أتيفان"
+      ],
+      "search_aliases_en": [
+        "lorazepam",
+        "ativan"
+      ],
+      "common_misspellings_ar": [],
+      "class_ar": "بنزوديازيبين",
+      "class_en": "Benzodiazepine",
+      "medical_use_ar": "دواء موصوف للقلق وبعض الاستخدامات الحادة أو الاختلاجات في سياقات طبية محددة.",
+      "forms_ar": [
+        "أقراص دوائية",
+        "محاليل أو حقن طبية"
+      ],
+      "summary_ar": "لورازيبام بنزوديازيبين فعال طبياً لكنه قد يسبب اعتماداً جسدياً وسوء استخدام، وقد يكون الانسحاب المفاجئ خطراً. الجمع مع الأفيونات أو الكحول يزيد خطر التثبيط وكبت التنفس.",
+      "mechanism_ar": "يعزز تأثير GABA-A المثبط.",
+      "acute_effects_ar": [
+        "تهدئة ونعاس",
+        "دوخة وضعف تنسيق",
+        "ضعف ذاكرة",
+        "تثبيط أشد في الخلط"
+      ],
+      "long_term_harms_ar": [
+        "اعتماد جسدي",
+        "اضطراب استخدام محتمل",
+        "آثار معرفية أو وظيفية لدى بعض المستخدمين"
+      ],
+      "single_exposure_harm_ar": "الخطر الأكبر يظهر في التسمم المختلط أو لدى ذوي الأمراض التنفسية وعوامل الخطورة.",
+      "withdrawal_ar": "قد يسبب الإيقاف المفاجئ بعد الاعتماد اختلاجات وأعراضاً شديدة، ولذلك الخفض فردي وتدريجي.",
+      "emergency_response_ar": "صعوبة التنفس أو فقدان الوعي أو الاختلاج تستدعي الطوارئ.",
+      "treatment_ar": "العلاج يوازن بين سبب الوصفة ومخاطر الاعتماد، مع خطة فردية عند الحاجة للخفض.",
+      "risk": {
+        "acute_toxicity": 3,
+        "overdose_risk": 3,
+        "dependence": 4,
+        "withdrawal_medical_risk": 5,
+        "neuro_harm": 3,
+        "cardio_harm": 1,
+        "respiratory_harm": 3,
+        "polysubstance_risk": 5
+      },
+      "evidence_grade": "A",
+      "source_urls": [
+        "https://www.fda.gov/drugs/drug-safety-and-availability/fda-requiring-boxed-warning-updated-improve-safe-use-benzodiazepine-drug-class"
+      ],
+      "related_condition": "/addiction/sedative-benzodiazepine-use-disorder/"
+    },
+    {
+      "id": "zolpidem",
+      "slug": "zolpidem",
+      "display_name_ar": "زولبيديم",
+      "display_name_en": "Zolpidem",
+      "common_name_ar": "زولبيديم",
+      "common_name_en": "Zolpidem / Ambien",
+      "scientific_name": "Zolpidem",
+      "english_name_ar_transliteration": [
+        "زولبيديم",
+        "زولبيدام"
+      ],
+      "search_aliases_ar": [
+        "زولبيديم",
+        "أمبين"
+      ],
+      "search_aliases_en": [
+        "zolpidem",
+        "ambien"
+      ],
+      "common_misspellings_ar": [
+        "زولبيدام"
+      ],
+      "class_ar": "منوم من فئة Z-drugs",
+      "class_en": "Z-drug",
+      "medical_use_ar": "دواء موصوف لعلاج الأرق لدى بعض البالغين.",
+      "forms_ar": [
+        "أقراص دوائية",
+        "أشكال ممتدة أو فموية أخرى حسب السوق"
+      ],
+      "summary_ar": "زولبيديم منوم بوصفة يمكن أن يسبب النعاس وضعف الوعي والاعتماد أو إساءة الاستخدام لدى بعض الأشخاص. لدى أدوية Z تحذير مهم من سلوكيات نوم معقدة أدت في حالات نادرة إلى إصابات شديدة أو وفاة.",
+      "mechanism_ar": "يرتبط بموقع بنزوديازيبيني على مستقبلات GABA-A مع انتقائية نسبية لبعض الوحدات.",
+      "acute_effects_ar": [
+        "نعاس ودوخة",
+        "ضعف ذاكرة وتنسيق",
+        "سلوكيات نوم معقدة نادرة وخطرة",
+        "تثبيط أشد مع الكحول أو مثبطات أخرى"
+      ],
+      "long_term_harms_ar": [
+        "اعتماد أو إساءة استخدام لدى بعض الأشخاص",
+        "اضطراب نوم ارتدادي أو أعراض انسحاب بعد بعض أنماط الاستخدام"
+      ],
+      "single_exposure_harm_ar": "سلوكيات النوم المعقدة الخطرة قد تحدث حتى دون تاريخ طويل، وقد تسبب إصابة شديدة أو وفاة في حالات نادرة.",
+      "withdrawal_ar": "قد تظهر أعراض انسحاب أو أرق ارتدادي بعد الاستخدام المنتظم؛ الخطر الطبي أقل وضوحاً من البنزوديازيبينات لكنه ليس صفراً.",
+      "emergency_response_ar": "فقدان الوعي أو صعوبة التنفس أو إصابة شديدة أثناء سلوك نوم معقد تستدعي تقييماً عاجلاً.",
+      "treatment_ar": "تقييم الأرق والعوامل السلوكية أساس مهم، وتدار إساءة الاستخدام أو الاعتماد بصورة فردية.",
+      "risk": {
+        "acute_toxicity": 3,
+        "overdose_risk": 3,
+        "dependence": 3,
+        "withdrawal_medical_risk": 2,
+        "neuro_harm": 3,
+        "cardio_harm": 1,
+        "respiratory_harm": 3,
+        "polysubstance_risk": 5
+      },
+      "evidence_grade": "A",
+      "source_urls": [
+        "https://www.fda.gov/consumers/consumer-updates/taking-z-drugs-insomnia-know-risks",
+        "https://www.fda.gov/safety/medical-product-safety-information/certain-prescription-insomnia-medicines-new-boxed-warning-due-risk-serious-injuries-caused"
+      ],
+      "related_condition": "/addiction/sedative-benzodiazepine-use-disorder/"
+    },
+    {
+      "id": "gabapentin",
+      "slug": "gabapentin",
+      "display_name_ar": "غابابنتين",
+      "display_name_en": "Gabapentin",
+      "common_name_ar": "غابابنتين",
+      "common_name_en": "Gabapentin",
+      "scientific_name": "Gabapentin",
+      "english_name_ar_transliteration": [
+        "غابابنتين",
+        "جابابنتين"
+      ],
+      "search_aliases_ar": [
+        "غابابنتين",
+        "جابابنتين"
+      ],
+      "search_aliases_en": [
+        "gabapentin"
+      ],
+      "common_misspellings_ar": [
+        "جابابنتين"
+      ],
+      "class_ar": "غابابنتينويد / دواء مضاد للاختلاجات وآلام الأعصاب",
+      "class_en": "Gabapentinoid",
+      "medical_use_ar": "دواء معتمد لاستخدامات تشمل بعض الاختلاجات وآلام الأعصاب حسب المستحضر والسوق.",
+      "forms_ar": [
+        "كبسولات أو أقراص",
+        "محاليل فموية في بعض الأسواق"
+      ],
+      "summary_ar": "غابابنتين دواء مفيد طبياً، لكن إساءة استخدام الغابابنتينويدات مع الأفيونات أو مثبطات أخرى ازدادت، وقد يزيد ذلك التهدئة وخطر كبت التنفس خاصة لدى ذوي عوامل الخطورة التنفسية.",
+      "mechanism_ar": "يرتبط بالوحدة الفرعية α2δ لقنوات الكالسيوم المعتمدة على الجهد ويعدل إطلاق نواقل عصبية.",
+      "acute_effects_ar": [
+        "دوخة ونعاس",
+        "ترنح أو ضعف تنسيق",
+        "تثبيط تنفسي ممكن لدى ذوي عوامل الخطورة خاصة مع الأفيونات"
+      ],
+      "long_term_harms_ar": [
+        "اعتماد أو إساءة استخدام ممكنان لدى بعض الفئات",
+        "مخاطر وظيفية من النعاس والدوخة"
+      ],
+      "single_exposure_harm_ar": "الخطر الحاد يرتفع خصوصاً مع الأفيونات أو أمراض التنفس أو لدى المسنين؛ لا توجد نسبة موحدة لأول استعمال.",
+      "withdrawal_ar": "قد تظهر أعراض بعد الإيقاف المفاجئ لدى الاستخدام المنتظم؛ يحتاج التوقف في بعض الحالات إلى خطة طبية بسبب سبب الوصفة أيضاً.",
+      "emergency_response_ar": "بطء التنفس أو النعاس الشديد أو عدم الاستجابة يستدعي تقييماً عاجلاً.",
+      "treatment_ar": "لا يعامل كل استخدام طبي كإدمان. إذا كان هناك استخدام قهري أو خلط عالي الخطورة فتحتاج الحالة إلى تقييم سريري وإدماني.",
+      "risk": {
+        "acute_toxicity": 2,
+        "overdose_risk": 2,
+        "dependence": 2,
+        "withdrawal_medical_risk": 2,
+        "neuro_harm": 2,
+        "cardio_harm": 1,
+        "respiratory_harm": 3,
+        "polysubstance_risk": 5
+      },
+      "evidence_grade": "A",
+      "source_urls": [
+        "https://www.fda.gov/safety/medical-product-safety-information/neurontin-gralise-horizant-gabapentin-and-lyrica-lyrica-cr-pregabalin-drug-safety-communication"
+      ],
+      "related_condition": "/addiction/emerging/prescription-medicine-misuse/"
+    },
+    {
+      "id": "pregabalin",
+      "slug": "pregabalin",
+      "display_name_ar": "بريغابالين",
+      "display_name_en": "Pregabalin",
+      "common_name_ar": "بريغابالين / ليريكا",
+      "common_name_en": "Pregabalin / Lyrica",
+      "scientific_name": "Pregabalin",
+      "english_name_ar_transliteration": [
+        "بريغابالين",
+        "بريجابالين"
+      ],
+      "search_aliases_ar": [
+        "بريغابالين",
+        "بريجابالين",
+        "ليريكا"
+      ],
+      "search_aliases_en": [
+        "pregabalin",
+        "lyrica"
+      ],
+      "common_misspellings_ar": [
+        "بريجابالين"
+      ],
+      "class_ar": "غابابنتينويد",
+      "class_en": "Gabapentinoid",
+      "medical_use_ar": "دواء معتمد لبعض آلام الأعصاب والاختلاجات وحالات أخرى حسب النظام الصحي.",
+      "forms_ar": [
+        "كبسولات أو أقراص",
+        "محلول فموي في بعض الأسواق"
+      ],
+      "summary_ar": "بريغابالين دواء طبي يمكن إساءة استخدامه، ويزداد خطر التهدئة وكبت التنفس عند الجمع مع الأفيونات أو مثبطات أخرى، خاصة لدى ذوي عوامل الخطورة التنفسية.",
+      "mechanism_ar": "يرتبط بالوحدة α2δ لقنوات الكالسيوم ويقلل إطلاق بعض النواقل المثيرة.",
+      "acute_effects_ar": [
+        "دوخة ونعاس",
+        "ترنح",
+        "تثبيط تنفسي لدى ذوي عوامل الخطورة خاصة مع مثبطات أخرى"
+      ],
+      "long_term_harms_ar": [
+        "اعتماد أو سوء استخدام لدى بعض الأشخاص",
+        "مشكلات وظيفية مرتبطة بالنعاس أو الدوخة"
+      ],
+      "single_exposure_harm_ar": "التعرض في سياق الخلط مع الأفيونات أو مرض تنفسي قد يكون خطراً، لكن لا توجد نسبة عالمية ثابتة للتسمم الشديد من أول جرعة.",
+      "withdrawal_ar": "قد تظهر أعراض انسحاب بعد الاستخدام المنتظم، ويحتاج الإيقاف في بعض الحالات إلى تخطيط طبي.",
+      "emergency_response_ar": "بطء التنفس أو عدم الاستجابة أو النعاس غير المعتاد يستدعي الرعاية العاجلة.",
+      "treatment_ar": "يفصل بين العلاج الطبي المشروع وبين نمط سوء الاستخدام؛ معالجة المشكلة تشمل تقييم الوصفة والتداخلات ونمط الاستخدام.",
+      "risk": {
+        "acute_toxicity": 2,
+        "overdose_risk": 2,
+        "dependence": 3,
+        "withdrawal_medical_risk": 2,
+        "neuro_harm": 2,
+        "cardio_harm": 1,
+        "respiratory_harm": 3,
+        "polysubstance_risk": 5
+      },
+      "evidence_grade": "A",
+      "source_urls": [
+        "https://www.fda.gov/safety/medical-product-safety-information/neurontin-gralise-horizant-gabapentin-and-lyrica-lyrica-cr-pregabalin-drug-safety-communication"
+      ],
+      "related_condition": "/addiction/emerging/prescription-medicine-misuse/"
+    },
+    {
+      "id": "methylphenidate",
+      "slug": "methylphenidate",
+      "display_name_ar": "ميثيلفينيديت",
+      "display_name_en": "Methylphenidate",
+      "common_name_ar": "ميثيلفينيديت",
+      "common_name_en": "Methylphenidate",
+      "scientific_name": "Methylphenidate",
+      "english_name_ar_transliteration": [
+        "ميثيلفينيديت",
+        "ميثيل فينيديت"
+      ],
+      "search_aliases_ar": [
+        "ميثيلفينيديت",
+        "ريتالين"
+      ],
+      "search_aliases_en": [
+        "methylphenidate",
+        "ritalin"
+      ],
+      "common_misspellings_ar": [],
+      "class_ar": "منبه بوصفة",
+      "class_en": "Prescription stimulant",
+      "medical_use_ar": "دواء مهم لعلاج اضطراب فرط الحركة وتشتت الانتباه وبعض الاستطبابات الأخرى وفق التقييم السريري.",
+      "forms_ar": [
+        "أقراص أو كبسولات فورية أو ممتدة المفعول",
+        "أشكال دوائية أخرى حسب السوق"
+      ],
+      "summary_ar": "ميثيلفينيديت منبه وصفي فعال عند استخدامه علاجياً، لكن سوء الاستخدام أو المشاركة غير الطبية يرفع خطر اضطراب الاستخدام والآثار القلبية والعصبية والتسمم.",
+      "mechanism_ar": "يزيد توافر الدوبامين والنورأدرينالين عبر تثبيط إعادة امتصاصهما بصورة رئيسية.",
+      "acute_effects_ar": [
+        "زيادة اليقظة والانتباه علاجياً",
+        "نقص شهية أو أرق",
+        "ارتفاع نبض أو ضغط",
+        "هياج أو أعراض نفسية في سوء الاستخدام أو التسمم"
+      ],
+      "long_term_harms_ar": [
+        "اضطراب استخدام أو اعتماد نفسي ممكن مع سوء الاستخدام",
+        "مشكلات نوم أو شهية أو قلبية تحتاج متابعة"
+      ],
+      "single_exposure_harm_ar": "التسمم أو سوء الاستخدام يمكن أن يسبب مضاعفات قلبية أو نفسية شديدة؛ الخطر يعتمد على التعرض والسياق ولا يختزل في نسبة أول جرعة.",
+      "withdrawal_ar": "قد يظهر تعب ومزاج منخفض بعد الاستخدام غير الطبي المتكرر؛ الانسحاب الطبي الخطر أقل نمطية من المثبطات.",
+      "emergency_response_ar": "ألم الصدر أو فرط الحرارة أو الاختلاج أو الذهان الشديد يستدعي الطوارئ.",
+      "treatment_ar": "العلاج الطبي لـADHD لا ينبغي وصمه؛ سوء الاستخدام يحتاج تقييم نمط الاستخدام ومصدر الدواء والتدخلات السلوكية المناسبة.",
+      "risk": {
+        "acute_toxicity": 3,
+        "overdose_risk": 3,
+        "dependence": 3,
+        "withdrawal_medical_risk": 1,
+        "neuro_harm": 3,
+        "cardio_harm": 4,
+        "respiratory_harm": 1,
+        "polysubstance_risk": 4
+      },
+      "evidence_grade": "A",
+      "source_urls": [
+        "https://www.fda.gov/media/168066/download"
+      ],
+      "related_condition": "/addiction/stimulant-use-disorder/"
+    },
+    {
+      "id": "lisdexamfetamine",
+      "slug": "lisdexamfetamine",
+      "display_name_ar": "ليسديكسامفيتامين",
+      "display_name_en": "Lisdexamfetamine",
+      "common_name_ar": "ليسديكسامفيتامين",
+      "common_name_en": "Lisdexamfetamine",
+      "scientific_name": "Lisdexamfetamine",
+      "english_name_ar_transliteration": [
+        "ليسديكسامفيتامين"
+      ],
+      "search_aliases_ar": [
+        "ليسديكسامفيتامين",
+        "فايڤانس"
+      ],
+      "search_aliases_en": [
+        "lisdexamfetamine",
+        "vyvanse"
+      ],
+      "common_misspellings_ar": [],
+      "class_ar": "طليعة دوائية لمنبه أمفيتاميني بوصفة",
+      "class_en": "Prescription stimulant",
+      "medical_use_ar": "دواء موصوف لبعض حالات ADHD واضطراب نهم الطعام في بعض الأنظمة الصحية.",
+      "forms_ar": [
+        "كبسولات أو أقراص فموية حسب السوق"
+      ],
+      "summary_ar": "ليسديكسامفيتامين دواء منبه مشروع يتحول في الجسم إلى ديكستروأمفيتامين. يبقى ضمن فئة المنبهات الوصفية التي تحمل مخاطر سوء الاستخدام والإدمان والتسمم عند الاستخدام غير الطبي.",
+      "mechanism_ar": "طليعة دوائية تتحول إلى ديكستروأمفيتامين الذي يزيد نشاط الدوبامين والنورأدرينالين.",
+      "acute_effects_ar": [
+        "تحسن الانتباه عند الاستخدام العلاجي المناسب",
+        "أرق ونقص شهية",
+        "ارتفاع النبض والضغط",
+        "هياج أو أعراض نفسية في التسمم أو سوء الاستخدام"
+      ],
+      "long_term_harms_ar": [
+        "سوء استخدام أو اضطراب استخدام ممكن",
+        "مشكلات نوم وشهية وقلب تحتاج متابعة"
+      ],
+      "single_exposure_harm_ar": "سوء الاستخدام يمكن أن يسبب تسمماً منبهاً ومضاعفات قلبية أو عصبية، دون نسبة عالمية ثابتة لأول استعمال.",
+      "withdrawal_ar": "قد يحدث تعب ومزاج منخفض بعد الاستخدام المتكرر غير الطبي، بينما إدارة الوصفة الطبية تعتمد على الحالة السريرية.",
+      "emergency_response_ar": "ألم الصدر أو الاختلاج أو فرط الحرارة أو ذهان شديد يستدعي الطوارئ.",
+      "treatment_ar": "يفصل بين العلاج المشروع وبين سوء الاستخدام؛ التدخل يركز على الاستخدام غير الطبي والمصاحبات.",
+      "risk": {
+        "acute_toxicity": 3,
+        "overdose_risk": 3,
+        "dependence": 3,
+        "withdrawal_medical_risk": 1,
+        "neuro_harm": 3,
+        "cardio_harm": 4,
+        "respiratory_harm": 1,
+        "polysubstance_risk": 4
+      },
+      "evidence_grade": "A",
+      "source_urls": [
+        "https://www.fda.gov/media/168066/download"
+      ],
+      "related_condition": "/addiction/stimulant-use-disorder/"
+    },
+    {
+      "id": "dmt",
+      "slug": "dmt",
+      "display_name_ar": "دي إم تي",
+      "display_name_en": "DMT",
+      "common_name_ar": "DMT",
+      "common_name_en": "N,N-Dimethyltryptamine",
+      "scientific_name": "N,N-Dimethyltryptamine",
+      "english_name_ar_transliteration": [
+        "دي ام تي",
+        "دي إم تي"
+      ],
+      "search_aliases_ar": [
+        "DMT",
+        "دي إم تي"
+      ],
+      "search_aliases_en": [
+        "dmt",
+        "dimethyltryptamine"
+      ],
+      "common_misspellings_ar": [],
+      "class_ar": "مهلوس كلاسيكي قصير المفعول نسبياً",
+      "class_en": "Psychedelic",
+      "medical_use_ar": "يخضع للبحث العلمي، وليس علاجاً معيارياً ذاتياً أو معتمداً للاستخدام غير المنظم.",
+      "forms_ar": [
+        "مسحوق أو بلورات في السوق غير المشروع",
+        "قد يوجد ضمن مستحضرات نباتية تقليدية مع مركبات أخرى"
+      ],
+      "summary_ar": "DMT مهلوس قوي يغير الإدراك والوعي بصورة حادة. المخاطر الأساسية تتعلق بالذعر والارتباك والسلوك والحوادث والتفاعلات النفسية، كما تختلف المخاطر كثيراً عند وجود مواد أخرى ضمن المستحضر.",
+      "mechanism_ar": "ناهض/منظم لمستقبلات السيروتونين وخصوصاً 5-HT2A مع تأثيرات عصبية أخرى.",
+      "acute_effects_ar": [
+        "تغيرات إدراكية شديدة",
+        "قلق أو ذعر",
+        "ارتفاع نبض وضغط أحياناً",
+        "اختلال الحكم والسلوك"
+      ],
+      "long_term_harms_ar": [
+        "تفاقم اضطرابات نفسية لدى بعض الأشخاص",
+        "اضطرابات إدراك مستمرة نادرة"
+      ],
+      "single_exposure_harm_ar": "يمكن أن تحدث نوبة هلع أو سلوك خطر أو إصابة من تعرض واحد، بينما السمية العضوية القاتلة المباشرة أقل نمطية من الأفيونات أو المثبطات الشديدة.",
+      "withdrawal_ar": "لا يوصف عادة بمتلازمة انسحاب جسدي خطرة أو اعتماد قهري نمطي.",
+      "emergency_response_ar": "هياج شديد أو ذهان أو خطر إيذاء النفس أو اضطراب طبي يستدعي التقييم العاجل.",
+      "treatment_ar": "التدبير داعم ويركز على السلامة والتقييم النفسي/الطبي عند المضاعفات.",
+      "risk": {
+        "acute_toxicity": 2,
+        "overdose_risk": 1,
+        "dependence": 1,
+        "withdrawal_medical_risk": 1,
+        "neuro_harm": 3,
+        "cardio_harm": 2,
+        "respiratory_harm": 1,
+        "polysubstance_risk": 3
+      },
+      "evidence_grade": "B",
+      "source_urls": [
+        "https://nida.nih.gov/sites/default/files/hallucinogensrrs.pdf"
+      ],
+      "related_condition": "/addiction/emerging/psychedelic-hallucinogen-related-harms/"
+    },
+    {
+      "id": "mescaline",
+      "slug": "mescaline",
+      "display_name_ar": "المسكالين",
+      "display_name_en": "Mescaline",
+      "common_name_ar": "مسكالين / بيوت",
+      "common_name_en": "Mescaline / Peyote",
+      "scientific_name": "Mescaline",
+      "english_name_ar_transliteration": [
+        "مسكالين"
+      ],
+      "search_aliases_ar": [
+        "المسكالين",
+        "مسكالين",
+        "بيوت"
+      ],
+      "search_aliases_en": [
+        "mescaline",
+        "peyote"
+      ],
+      "common_misspellings_ar": [],
+      "class_ar": "مهلوس كلاسيكي",
+      "class_en": "Psychedelic",
+      "medical_use_ar": "ليس علاجاً معيارياً للاستخدام الذاتي؛ بعض السياقات الدينية/الثقافية والقانونية تختلف بحسب البلد.",
+      "forms_ar": [
+        "مادة نقية أو مستحضرات نباتية من صبار البيوت/أنواع أخرى"
+      ],
+      "summary_ar": "المسكالين مهلوس كلاسيكي يغير الإدراك والمزاج والتفكير. تشمل المخاطر الحادة القلق والهلع والغثيان وارتفاع النبض والضغط واختلال الحكم، مع مخاطر نفسية أعلى لدى بعض الأشخاص.",
+      "mechanism_ar": "ينشط مستقبلات السيروتونين ومنها 5-HT2A.",
+      "acute_effects_ar": [
+        "تغيرات حسية وإدراكية",
+        "غثيان وقيء",
+        "قلق أو ذعر",
+        "ارتفاع النبض والضغط أحياناً"
+      ],
+      "long_term_harms_ar": [
+        "تفاقم اضطرابات نفسية لدى بعض الأشخاص",
+        "اضطرابات إدراك مستمرة نادرة"
+      ],
+      "single_exposure_harm_ar": "يمكن أن تحدث نوبة هلع أو سلوك خطر أو إصابة من تعرض واحد، بينما السمية القاتلة المباشرة أقل نمطية من المثبطات الشديدة.",
+      "withdrawal_ar": "لا توجد عادة متلازمة انسحاب جسدي خطرة أو اعتماد قهري نمطي.",
+      "emergency_response_ar": "هياج شديد أو ذهان أو إصابة أو أعراض قلبية مهمة تستدعي التقييم.",
+      "treatment_ar": "التدبير داعم وموجه للأعراض مع تقييم نفسي عند الحاجة.",
+      "risk": {
+        "acute_toxicity": 2,
+        "overdose_risk": 1,
+        "dependence": 1,
+        "withdrawal_medical_risk": 1,
+        "neuro_harm": 3,
+        "cardio_harm": 2,
+        "respiratory_harm": 1,
+        "polysubstance_risk": 3
+      },
+      "evidence_grade": "B",
+      "source_urls": [
+        "https://nida.nih.gov/sites/default/files/hallucinogensrrs.pdf"
+      ],
+      "related_condition": "/addiction/emerging/psychedelic-hallucinogen-related-harms/"
+    },
+    {
+      "id": "salvia",
+      "slug": "salvia",
+      "display_name_ar": "سالفيا ديفينوروم",
+      "display_name_en": "Salvia divinorum",
+      "common_name_ar": "سالفيا",
+      "common_name_en": "Salvia",
+      "scientific_name": "Salvia divinorum",
+      "english_name_ar_transliteration": [
+        "سالفيا",
+        "سالفيا ديفينوروم"
+      ],
+      "search_aliases_ar": [
+        "سالفيا",
+        "سالفيا ديفينوروم"
+      ],
+      "search_aliases_en": [
+        "salvia",
+        "salvia divinorum"
+      ],
+      "common_misspellings_ar": [],
+      "class_ar": "مادة مهلوسة/انفصالية نباتية غير نمطية",
+      "class_en": "Dissociative hallucinogen",
+      "medical_use_ar": "لا يوجد استخدام علاجي معياري معتمد؛ تخضع المادة للدراسة العلمية.",
+      "forms_ar": [
+        "أوراق أو مستخلصات نباتية في بعض الأسواق"
+      ],
+      "summary_ar": "سالفيا مادة نباتية ذات تأثيرات إدراكية وانفصالية شديدة وقصيرة نسبياً عند بعض طرق التعرض. يمكن أن تسبب فقدان التوجيه والسيطرة والسلوك غير المتوقع، ما يجعل الحوادث خطراً مهماً.",
+      "mechanism_ar": "يعمل السالفينورين A بصورة رئيسية كناهض قوي لمستقبلات كابا الأفيونية، بآلية تختلف عن المهلوسات السيروتونينية الكلاسيكية.",
+      "acute_effects_ar": [
+        "تغير شديد في الإدراك",
+        "انفصال وفقدان توجيه",
+        "خوف أو ارتباك",
+        "سلوك غير متوقع وحوادث"
+      ],
+      "long_term_harms_ar": [
+        "البيانات طويلة المدى محدودة",
+        "مضاعفات نفسية ممكنة لدى بعض الأشخاص"
+      ],
+      "single_exposure_harm_ar": "يمكن أن تحدث إصابة أو سلوك خطر من تعرض واحد بسبب فقدان التوجيه، بينما بيانات السمية العضوية المباشرة محدودة.",
+      "withdrawal_ar": "لا توجد متلازمة انسحاب جسدي خطرة معروفة على نحو راسخ؛ الأدلة حول الاعتماد محدودة.",
+      "emergency_response_ar": "السلوك الخطر أو الإصابة أو الذهان/الارتباك المستمر يستدعي تقييماً عاجلاً.",
+      "treatment_ar": "التدبير داعم ويركز على السلامة والتقييم النفسي عند استمرار الأعراض.",
+      "risk": {
+        "acute_toxicity": 2,
+        "overdose_risk": null,
+        "dependence": null,
+        "withdrawal_medical_risk": 1,
+        "neuro_harm": 3,
+        "cardio_harm": null,
+        "respiratory_harm": null,
+        "polysubstance_risk": 3
+      },
+      "evidence_grade": "C",
+      "source_urls": [
+        "https://nida.nih.gov/sites/default/files/hallucinogensrrs.pdf"
+      ],
+      "related_condition": "/addiction/emerging/dissociative-drug-related-harms/"
+    },
+    {
+      "id": "butane",
+      "slug": "butane",
+      "display_name_ar": "البيوتان",
+      "display_name_en": "Butane",
+      "common_name_ar": "غاز البيوتان",
+      "common_name_en": "Butane",
+      "scientific_name": "Butane",
+      "english_name_ar_transliteration": [
+        "بيوتان"
+      ],
+      "search_aliases_ar": [
+        "البيوتان",
+        "غاز البيوتان",
+        "غاز الولاعات"
+      ],
+      "search_aliases_en": [
+        "butane",
+        "lighter gas"
+      ],
+      "common_misspellings_ar": [],
+      "class_ar": "غاز هيدروكربوني متطاير يُساء استنشاقه أحياناً",
+      "class_en": "Inhalant",
+      "medical_use_ar": "ليس مادة علاجية؛ يستخدم صناعياً ووقوداً في منتجات مختلفة. التعرض العرضي/المهني يختلف عن الاستنشاق المتعمد.",
+      "forms_ar": [
+        "غاز مضغوط في عبوات ووقود ولّاعات ومنتجات أخرى"
+      ],
+      "summary_ar": "البيوتان غاز متطاير يمكن أن يسبب دوخة وفقدان وعي ونقص أكسجة واضطراب نظم خطراً. المستنشقات الهيدروكربونية قد تسبب وفاة قلبية مفاجئة حتى في جلسة واحدة.",
+      "mechanism_ar": "يثبط الجهاز العصبي ويمكن أن يحسس القلب للكاتيكولامينات ويؤثر في الأكسجة والتنفس.",
+      "acute_effects_ar": [
+        "دوخة وترنح",
+        "فقدان وعي",
+        "نقص أكسجة",
+        "اضطراب نظم أو توقف قلب مفاجئ"
+      ],
+      "long_term_harms_ar": [
+        "أذية عصبية ووظيفية محتملة مع الاستخدام المتكرر",
+        "مخاطر إصابات وحروق واختناق بحسب المنتج"
+      ],
+      "single_exposure_harm_ar": "يمكن أن تحدث وفاة قلبية مفاجئة أو اختناق أو إصابة من جلسة واحدة من استنشاق المستنشقات المركزة.",
+      "withdrawal_ar": "قد يحدث نمط استخدام قهري؛ بيانات الانسحاب الجسدي النوعي محدودة ولذلك لا يقدم الأطلس تقديراً مبالغاً فيه.",
+      "emergency_response_ar": "فقدان الوعي أو صعوبة التنفس أو ألم الصدر أو اضطراب النبض بعد التعرض تستدعي الطوارئ؛ لا يوجد ترياق منزلي.",
+      "treatment_ar": "التسمم يعالج داعماً وموجهاً للقلب والتنفس والأكسجة، ويحتاج الاستخدام القهري إلى تدخل نفسي اجتماعي.",
+      "risk": {
+        "acute_toxicity": 5,
+        "overdose_risk": 5,
+        "dependence": 3,
+        "withdrawal_medical_risk": null,
+        "neuro_harm": 4,
+        "cardio_harm": 5,
+        "respiratory_harm": 5,
+        "polysubstance_risk": 4
+      },
+      "evidence_grade": "B",
+      "source_urls": [
+        "https://nida.nih.gov/sites/default/files/dfinhalants_1.pdf"
+      ],
+      "related_condition": "/addiction/inhalant-use-disorder/"
+    }
   ]
 }

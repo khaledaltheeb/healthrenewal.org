@@ -1,11 +1,11 @@
 {
   "schemaVersion": 2,
   "status": "passed",
-  "substances": 36,
+  "substances": 47,
   "generatedSubstancePages": 0,
-  "preservedSubstancePages": 36,
-  "indexableComparisons": 20,
-  "generatedComparisonPages": 0,
-  "preservedComparisonPages": 20,
-  "unknownRiskValues": 4
+  "preservedSubstancePages": 47,
+  "indexableComparisons": 28,
+  "generatedComparisonPages": 3,
+  "preservedComparisonPages": 25,
+  "unknownRiskValues": 9
 }
