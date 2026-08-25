@@ -1,0 +1,103 @@
+{
+  "schema_version": "rawafid-addiction-atlas-source-registry-v4-shard",
+  "registry_shard": "wave-3-treatment-toxicology",
+  "updated_on": "2026-08-26",
+  "sources": [
+    {
+      "id": "nida-buprenorphine-ed-reference",
+      "organization": "National Institute on Drug Abuse (NIDA)",
+      "title": "Initiating Buprenorphine Treatment in the Emergency Department",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal clinical implementation resource",
+      "geography": "United States clinical context / general evidence where applicable",
+      "url": "https://nida.nih.gov/ed-buprenorphine",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم مكانة البوبرينورفين كعلاج لاضطراب استخدام الأفيونات ومبادئ البدء العلاجي، ولا يستخدم لنشر جداول جرعات شخصية في صفحات التثقيف العام."
+    },
+    {
+      "id": "fda-opioid-pain-medicines-safety-2023",
+      "organization": "U.S. Food and Drug Administration (FDA)",
+      "title": "FDA updates prescribing information for all opioid pain medicines to provide additional guidance for safe use",
+      "publication_year": 2023,
+      "data_years": [],
+      "source_type": "regulatory drug-safety communication",
+      "geography": "United States / class-level opioid safety evidence",
+      "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-updates-prescribing-information-all-opioid-pain-medicines-provide-additional-guidance-safe-use",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم مخاطر الإدمان وسوء الاستخدام وكبت التنفس والتداخل مع مثبطات الجهاز العصبي، مع التأكيد أن الأفيونات تبقى خيارات علاجية مهمة في سياقات مناسبة وأن الإيقاف المفاجئ يحمل مخاطر."
+    },
+    {
+      "id": "fda-codeine-hydrocodone-warning-2018",
+      "organization": "U.S. Food and Drug Administration (FDA)",
+      "title": "FDA requires labeling changes for prescription opioid cough and cold medicines containing codeine or hydrocodone",
+      "publication_year": 2018,
+      "data_years": [],
+      "source_type": "regulatory drug-safety communication",
+      "geography": "United States / substance-specific safety evidence",
+      "url": "https://www.fda.gov/Drugs/DrugSafety/ucm590435.htm",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم مخاطر سوء الاستخدام والإدمان والجرعة الزائدة والوفاة وبطء أو صعوبة التنفس للكودايين والهيدروكودون، ولا يستخدم لتعميم قيود عمرية خارج سياقها التنظيمي."
+    },
+    {
+      "id": "fda-phenobarbital-label-review-2023",
+      "organization": "U.S. Food and Drug Administration (FDA)",
+      "title": "Phenobarbital labeling review — dependence, withdrawal and overdose safety",
+      "publication_year": 2023,
+      "data_years": [],
+      "source_type": "regulatory drug-label review",
+      "geography": "United States / phenobarbital and barbiturate safety evidence",
+      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/215910Orig1s000OtherR.pdf",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم الاعتماد الجسدي وخطورة انسحاب الباربيتورات والاختلاجات والهذيان والوفاة، إضافة إلى التسمم المثبط للجهاز العصبي والقلب والتنفس."
+    },
+    {
+      "id": "who-khat-critical-review-2006",
+      "organization": "World Health Organization (WHO)",
+      "title": "WHO Expert Committee on Drug Dependence — critical review evidence on khat",
+      "publication_year": 2006,
+      "data_years": [],
+      "source_type": "WHO expert technical review",
+      "geography": "global scientific evidence",
+      "url": "https://iris.who.int/bitstream/handle/10665/43608/9789241209427_eng.pdf?sequence=1",
+      "verified_on": "2026-08-26",
+      "notes_ar": "مرجع تقني للقات والكاثينون والكاثين وتأثيراته المنبهة والاعتماد والمضاعفات. قِدم المرجع يقتضي عدم استخدامه منفرداً لأرقام انتشار معاصرة."
+    },
+    {
+      "id": "fda-caffeine-consumer-update-2024",
+      "organization": "U.S. Food and Drug Administration (FDA)",
+      "title": "Spilling the Beans: How Much Caffeine is Too Much?",
+      "publication_year": 2024,
+      "data_years": [],
+      "source_type": "regulatory consumer safety update",
+      "geography": "United States / general caffeine safety evidence",
+      "url": "https://www.fda.gov/consumers/consumer-updates/spilling-beans-how-much-caffeine-too-much",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم التباين الفردي وتأثيرات الإفراط وخطورة الكافيين النقي أو عالي التركيز. لا يُحوّل الرقم الإرشادي العام إلى وصفة فردية أو حد آمن مطلق."
+    },
+    {
+      "id": "fda-concentrated-caffeine-warning",
+      "organization": "U.S. Food and Drug Administration (FDA)",
+      "title": "FDA Warns Consumers About Pure and Highly Concentrated Caffeine",
+      "publication_year": 2024,
+      "data_years": [],
+      "source_type": "regulatory consumer safety warning",
+      "geography": "United States / toxicology safety evidence",
+      "url": "https://www.fda.gov/food/information-select-dietary-supplement-ingredients-and-other-substances/fda-warns-consumers-about-pure-and-highly-concentrated-caffeine",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم إمكان الاختلاجات واضطراب النظم والوفاة مع المنتجات النقية أو شديدة التركيز، مع منع تحويل المعلومات إلى إرشادات قياس أو استخدام."
+    },
+    {
+      "id": "atsdr-toluene-toxicology-reference",
+      "organization": "Agency for Toxic Substances and Disease Registry (ATSDR), CDC",
+      "title": "Toluene toxicological and medical management reference",
+      "publication_year": null,
+      "data_years": [],
+      "source_type": "federal toxicology reference",
+      "geography": "general toxicology evidence",
+      "url": "https://wwwn.cdc.gov/TSP/MMG/MMGDetails.aspx?mmgid=157&toxid=29",
+      "verified_on": "2026-08-26",
+      "notes_ar": "يدعم السمية العصبية والقلبية والتنفسية للتولوين والتدبير الداعم للتعرض الحاد. لا يقدم تعليمات تشغيلية لاستنشاق المادة."
+    }
+  ]
+}
