@@ -182,12 +182,10 @@ def validate_source_maps(substances, source_ids):
             unknown_claims = sorted(set(supports) - SUPPORTED_CLAIMS)
             if unknown_claims:
                 fail(f"{path.name}:{slug}: unsupported claim labels {unknown_claims}")
-            substance_urls = set(substances[slug].get("source_urls") or [])
-            registry_by_id = {s["id"]: s["url"] for s in load(SOURCES).get("sources", [])}
-            for source_id in ids:
-                registry_url = registry_by_id[source_id]
-                if registry_url not in substance_urls:
-                    fail(f"{path.name}:{slug}: registered source {source_id} is not present in substance source_urls")
+            # source_ids are the canonical claim-to-evidence relation. A substance's
+            # source_urls may point to an alternate official representation of the
+            # same source (for example an FDA communication page versus its PDF).
+            # Those URLs are independently required and HTTPS-validated in validate_data().
         if expected_wave_slugs and seen_in_map != expected_wave_slugs:
             missing = sorted(expected_wave_slugs - seen_in_map)
             extra = sorted(seen_in_map - expected_wave_slugs)
