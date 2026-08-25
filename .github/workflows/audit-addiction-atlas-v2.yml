@@ -1,4 +1,4 @@
-name: Audit addiction atlas v2
+name: Audit addiction atlas v3
 
 on:
   push:
@@ -9,6 +9,8 @@ on:
       - 'assets/addiction/atlas-*.js'
       - 'assets/addiction/atlas-*.css'
       - 'data/addiction-atlas/**'
+      - 'scripts/publish_addiction_atlas_v2.py'
+      - 'scripts/publish_addiction_atlas_v3.py'
       - 'scripts/validate_addiction_atlas_v2.py'
       - 'sitemap-addiction-atlas.xml'
       - '.github/workflows/audit-addiction-atlas-v2.yml'
@@ -19,6 +21,8 @@ on:
       - 'assets/addiction/atlas-*.js'
       - 'assets/addiction/atlas-*.css'
       - 'data/addiction-atlas/**'
+      - 'scripts/publish_addiction_atlas_v2.py'
+      - 'scripts/publish_addiction_atlas_v3.py'
       - 'scripts/validate_addiction_atlas_v2.py'
       - 'sitemap-addiction-atlas.xml'
   workflow_dispatch:
@@ -27,7 +31,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: audit-addiction-atlas-v2-${{ github.ref }}
+  group: audit-addiction-atlas-v3-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -42,6 +46,7 @@ jobs:
       - name: Compile atlas Python tooling
         run: |
           python -m py_compile scripts/publish_addiction_atlas_v2.py
+          python -m py_compile scripts/publish_addiction_atlas_v3.py
           python -m py_compile scripts/validate_addiction_atlas_v2.py
       - name: Validate atlas publication contracts
         run: python scripts/validate_addiction_atlas_v2.py
