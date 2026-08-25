@@ -1,4 +1,4 @@
-name: Audit addiction atlas v4
+name: Audit addiction atlas v5
 
 on:
   push:
@@ -41,7 +41,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: audit-addiction-atlas-v4-${{ github.ref }}
+  group: audit-addiction-atlas-v5-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
