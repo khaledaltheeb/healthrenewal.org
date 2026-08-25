@@ -1,4 +1,4 @@
-name: Generate addiction atlas v4
+name: Generate addiction atlas v5
 
 on:
   push:
@@ -10,6 +10,7 @@ on:
       - 'scripts/normalize_addiction_atlas_aliases.py'
       - 'scripts/validate_addiction_atlas_v2.py'
       - 'scripts/validate_addiction_atlas_manifest.py'
+      - 'scripts/generate_addiction_atlas_sitemap.py'
       - 'addiction/substances/classes/**'
       - 'addiction/substances/learn/**'
       - '.github/workflows/generate-addiction-atlas-v2.yml'
@@ -19,7 +20,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: generate-addiction-atlas-v4
+  group: generate-addiction-atlas-v5
   cancel-in-progress: false
 
 jobs:
@@ -36,10 +37,11 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Compile generator, normalizer and validators
+      - name: Compile generator, normalizer, sitemap builder and validators
         run: |
           python -m py_compile scripts/publish_addiction_atlas_v2.py scripts/publish_addiction_atlas_v3.py
-          python -m py_compile scripts/normalize_addiction_atlas_aliases.py scripts/validate_addiction_atlas_v2.py scripts/validate_addiction_atlas_manifest.py
+          python -m py_compile scripts/normalize_addiction_atlas_aliases.py scripts/generate_addiction_atlas_sitemap.py
+          python -m py_compile scripts/validate_addiction_atlas_v2.py scripts/validate_addiction_atlas_manifest.py
 
       - name: Normalize registered alias arrays
         run: python scripts/normalize_addiction_atlas_aliases.py
@@ -47,55 +49,8 @@ jobs:
       - name: Generate substance and comparison pages from registered waves
         run: python scripts/publish_addiction_atlas_v3.py .
 
-      - name: Regenerate dedicated atlas sitemap from manifest
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          from xml.etree.ElementTree import Element, SubElement, ElementTree, indent
-
-          root = Path('.')
-          manifest = json.loads((root/'data/addiction-atlas/substance-waves.json').read_text(encoding='utf-8'))
-          wave_routes = manifest.get('waves') or []
-          if not wave_routes:
-              raise SystemExit('empty addiction atlas wave manifest')
-          slugs = {}
-          for route in wave_routes:
-              path = root / route.lstrip('/')
-              if not path.is_file():
-                  raise SystemExit(f'missing registered wave: {route}')
-              payload = json.loads(path.read_text(encoding='utf-8'))
-              for item in payload.get('substances', []):
-                  slug = item['slug']
-                  if slug in slugs:
-                      raise SystemExit(f'duplicate substance slug: {slug}')
-                  slugs[slug] = item
-          comparisons = json.loads((root/'data/addiction-atlas/comparison-intents-v2.json').read_text(encoding='utf-8')).get('comparisons', [])
-          class_slugs = ['opioids','stimulants','sedatives','cannabinoids','dissociatives','psychedelics','inhalants','nps']
-          learn_slugs = ['addiction-dependence-tolerance','overdose','withdrawal','polysubstance-risk','evidence-strength','lower-risk-not-safe','mortality-data']
-          urls = [
-              'https://healthrenewal.org/addiction/substances/',
-              'https://healthrenewal.org/addiction/compare/',
-              'https://healthrenewal.org/addiction/substances/methodology/',
-              'https://healthrenewal.org/addiction/substances/data/',
-              'https://healthrenewal.org/addiction/substances/classes/',
-              'https://healthrenewal.org/addiction/substances/learn/',
-          ]
-          urls += [f"https://healthrenewal.org/addiction/substances/classes/{slug}/" for slug in class_slugs]
-          urls += [f"https://healthrenewal.org/addiction/substances/learn/{slug}/" for slug in learn_slugs]
-          urls += [f"https://healthrenewal.org/addiction/substances/{slug}/" for slug in sorted(slugs)]
-          urls += [f"https://healthrenewal.org/addiction/compare/{c['slug']}/" for c in comparisons if c.get('indexable')]
-          if len(urls) != len(set(urls)):
-              raise SystemExit('duplicate URL generated for addiction atlas sitemap')
-          urlset = Element('urlset', {'xmlns':'http://www.sitemaps.org/schemas/sitemap/0.9'})
-          for value in urls:
-              node = SubElement(urlset, 'url')
-              SubElement(node, 'loc').text = value
-              SubElement(node, 'lastmod').text = '2026-08-25'
-          indent(urlset, space='  ')
-          ElementTree(urlset).write(root/'sitemap-addiction-atlas.xml', encoding='utf-8', xml_declaration=True)
-          print({'atlasSitemapUrls': len(urls), 'substances': len(slugs), 'registeredWaves': len(wave_routes), 'indexableComparisons': sum(1 for c in comparisons if c.get('indexable'))})
-          PY
+      - name: Regenerate evidence-aware atlas sitemap
+        run: python scripts/generate_addiction_atlas_sitemap.py
 
       - name: Validate generated publication
         run: |
@@ -153,6 +108,7 @@ jobs:
           }
           assert expected_substance_urls <= sitemap_urls, sorted(expected_substance_urls - sitemap_urls)
           assert expected_comparison_urls <= sitemap_urls, sorted(expected_comparison_urls - sitemap_urls)
+          assert len(sitemap_urls) == 19 + len(expected_slugs) + len(expected_comparisons), len(sitemap_urls)
 
           print({
               'expectedSubstances': len(expected_slugs),
