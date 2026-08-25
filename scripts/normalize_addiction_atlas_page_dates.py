@@ -50,7 +50,6 @@ def replace_visible_lastmod(page: str, value: str) -> tuple[str, bool]:
 
 
 def upsert_webpage_schema(page: str, *, name: str, url: str, value: str) -> tuple[str, bool]:
-    # Prefer updating the existing dateModified in atlas-generated structured data.
     updated, count = re.subn(
         r'("dateModified"\s*:\s*")\d{4}-\d{2}-\d{2}(\")',
         lambda m: m.group(1) + value + m.group(2),
@@ -99,17 +98,22 @@ def substance_dates() -> dict[str, tuple[str, str]]:
     return result
 
 
-def comparison_overrides() -> dict[str, tuple[str, str]]:
+def comparison_dates() -> dict[str, tuple[str, str]]:
     comparisons = load(COMPARISONS).get("comparisons") or []
     by_slug = {item["slug"]: item for item in comparisons if item.get("indexable")}
     dates = load(COMPARISON_DATES)
+    baseline = dates.get("baseline_updated_on")
+    parse_iso(baseline, f"{COMPARISON_DATES.name}.baseline_updated_on")
     overrides = dates.get("overrides") or {}
+    unknown = sorted(set(overrides) - set(by_slug))
+    if unknown:
+        raise SystemExit(f"comparison date overrides reference unknown slugs: {unknown}")
+
     result: dict[str, tuple[str, str]] = {}
-    for slug, updated_on in overrides.items():
+    for slug, item in by_slug.items():
+        updated_on = overrides.get(slug, baseline)
         parse_iso(updated_on, f"comparison date {slug}")
-        if slug not in by_slug:
-            raise SystemExit(f"comparison date override references unknown slug: {slug}")
-        result[slug] = (updated_on, by_slug[slug]["title_ar"])
+        result[slug] = (updated_on, item["title_ar"])
     return result
 
 
@@ -126,8 +130,9 @@ def patch_page(path: Path, *, name: str, url: str, updated_on: str) -> bool:
 
 
 def main() -> None:
+    substances = substance_dates()
     changed_substances = 0
-    for slug, (updated_on, name) in substance_dates().items():
+    for slug, (updated_on, name) in substances.items():
         path = ROOT / "addiction/substances" / slug / "index.html"
         changed_substances += int(
             patch_page(
@@ -138,8 +143,9 @@ def main() -> None:
             )
         )
 
+    comparisons = comparison_dates()
     changed_comparisons = 0
-    for slug, (updated_on, title) in comparison_overrides().items():
+    for slug, (updated_on, title) in comparisons.items():
         path = ROOT / "addiction/compare" / slug / "index.html"
         changed_comparisons += int(
             patch_page(
@@ -153,9 +159,9 @@ def main() -> None:
     print(
         json.dumps(
             {
-                "substancePagesChecked": len(substance_dates()),
+                "substancePagesChecked": len(substances),
                 "substancePagesChanged": changed_substances,
-                "comparisonOverridesChecked": len(comparison_overrides()),
+                "comparisonPagesChecked": len(comparisons),
                 "comparisonPagesChanged": changed_comparisons,
             },
             ensure_ascii=False,
