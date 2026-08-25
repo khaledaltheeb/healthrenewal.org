@@ -8,6 +8,7 @@ on:
       - 'scripts/publish_addiction_atlas_v2.py'
       - 'scripts/publish_addiction_atlas_v3.py'
       - 'scripts/normalize_addiction_atlas_aliases.py'
+      - 'scripts/normalize_addiction_atlas_page_dates.py'
       - 'scripts/validate_addiction_atlas_v2.py'
       - 'scripts/validate_addiction_atlas_manifest.py'
       - 'scripts/generate_addiction_atlas_sitemap.py'
@@ -37,17 +38,20 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Compile generator, normalizer, sitemap builder and validators
+      - name: Compile generator, normalizers, sitemap builder and validators
         run: |
           python -m py_compile scripts/publish_addiction_atlas_v2.py scripts/publish_addiction_atlas_v3.py
-          python -m py_compile scripts/normalize_addiction_atlas_aliases.py scripts/generate_addiction_atlas_sitemap.py
-          python -m py_compile scripts/validate_addiction_atlas_v2.py scripts/validate_addiction_atlas_manifest.py
+          python -m py_compile scripts/normalize_addiction_atlas_aliases.py scripts/normalize_addiction_atlas_page_dates.py
+          python -m py_compile scripts/generate_addiction_atlas_sitemap.py scripts/validate_addiction_atlas_v2.py scripts/validate_addiction_atlas_manifest.py
 
       - name: Normalize registered alias arrays
         run: python scripts/normalize_addiction_atlas_aliases.py
 
       - name: Generate substance and comparison pages from registered waves
         run: python scripts/publish_addiction_atlas_v3.py .
+
+      - name: Synchronize visible and structured modification dates
+        run: python scripts/normalize_addiction_atlas_page_dates.py
 
       - name: Regenerate evidence-aware atlas sitemap
         run: python scripts/generate_addiction_atlas_sitemap.py
