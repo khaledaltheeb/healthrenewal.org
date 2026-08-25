@@ -8,6 +8,7 @@ on:
       - 'scripts/publish_addiction_atlas_v2.py'
       - 'scripts/publish_addiction_atlas_v3.py'
       - 'scripts/normalize_addiction_atlas_aliases.py'
+      - 'scripts/validate_addiction_atlas_v2.py'
       - 'scripts/validate_addiction_atlas_manifest.py'
       - 'addiction/substances/classes/**'
       - 'addiction/substances/learn/**'
