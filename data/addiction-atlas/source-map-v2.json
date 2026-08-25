@@ -1,0 +1,107 @@
+{
+  "schema_version": "rawafid-addiction-atlas-source-map-v1",
+  "wave": "v2",
+  "updated_on": "2026-08-26",
+  "records": [
+    {
+      "substance_slug": "morphine",
+      "source_ids": ["nida-opioids-reference", "who-opioid-overdose-2025"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "oxycodone",
+      "source_ids": ["nida-prescription-medicines-reference", "who-opioid-overdose-2025"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "tramadol",
+      "source_ids": ["nida-prescription-medicines-reference", "who-opioid-overdose-2025", "euda-nps-2026"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "methadone",
+      "source_ids": ["who-oud-medicines-2026", "nida-opioids-reference", "who-opioid-overdose-2025"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "cardio_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "alprazolam",
+      "source_ids": ["fda-benzodiazepine-boxed-warning-2020", "nida-prescription-medicines-reference"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "withdrawal_medical_risk", "neuro_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "diazepam",
+      "source_ids": ["fda-benzodiazepine-boxed-warning-2020", "nida-prescription-medicines-reference"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "withdrawal_medical_risk", "neuro_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "amphetamine",
+      "source_ids": ["fda-prescription-stimulants-warning-2023", "asam-aaap-stimulant-guideline-2024", "euda-european-drug-report-2026"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "mdma",
+      "source_ids": ["nida-mdma-reference", "euda-european-drug-report-2026"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "neuro_harm", "cardio_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "ketamine",
+      "source_ids": ["nida-ketamine-reference", "nida-psychedelic-dissociative-drugs"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "neuro_harm", "cardio_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "ghb",
+      "source_ids": ["nida-commonly-used-drugs-reference", "euda-european-drug-report-2026"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "withdrawal_medical_risk", "neuro_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "lsd",
+      "source_ids": ["nida-psychedelic-dissociative-drugs"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "psilocybin",
+      "source_ids": ["nida-psychedelic-dissociative-drugs"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "pcp",
+      "source_ids": ["nida-psychedelic-dissociative-drugs", "nida-commonly-used-drugs-reference"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "nitrous-oxide",
+      "source_ids": ["nida-inhalants-reference", "nida-commonly-used-drugs-reference"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "kratom",
+      "source_ids": ["nida-kratom-reference"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "synthetic-cathinones",
+      "source_ids": ["euda-synthetic-cathinones-profile", "euda-nps-2026", "asam-aaap-stimulant-guideline-2024"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "nitazenes",
+      "source_ids": ["euda-nps-2026", "who-nps-control-2026", "who-opioid-overdose-2025"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "dextromethorphan",
+      "source_ids": ["nida-otc-medicines-reference", "nida-commonly-used-drugs-reference"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "xylazine",
+      "source_ids": ["nida-xylazine-reference"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "anabolic-steroids",
+      "source_ids": ["nida-anabolic-steroids-reference"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    }
+  ]
+}
