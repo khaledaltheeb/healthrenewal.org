@@ -7,6 +7,7 @@ on:
       - 'data/addiction-atlas/**'
       - 'scripts/publish_addiction_atlas_v2.py'
       - 'scripts/publish_addiction_atlas_v3.py'
+      - 'scripts/normalize_addiction_atlas_aliases.py'
       - 'scripts/validate_addiction_atlas_manifest.py'
       - 'addiction/substances/classes/**'
       - 'addiction/substances/learn/**'
@@ -34,10 +35,13 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Compile generator and validators
+      - name: Compile generator, normalizer and validators
         run: |
           python -m py_compile scripts/publish_addiction_atlas_v2.py scripts/publish_addiction_atlas_v3.py
-          python -m py_compile scripts/validate_addiction_atlas_v2.py scripts/validate_addiction_atlas_manifest.py
+          python -m py_compile scripts/normalize_addiction_atlas_aliases.py scripts/validate_addiction_atlas_v2.py scripts/validate_addiction_atlas_manifest.py
+
+      - name: Normalize registered alias arrays
+        run: python scripts/normalize_addiction_atlas_aliases.py
 
       - name: Generate substance and comparison pages from registered waves
         run: python scripts/publish_addiction_atlas_v3.py .
@@ -159,12 +163,12 @@ jobs:
           })
           PY
 
-      - name: Commit generated atlas publication
+      - name: Commit normalized data and generated atlas publication
         run: |
           set -e
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add addiction/substances addiction/compare api/addiction-atlas-v2.json sitemap-addiction-atlas.xml
+          git add data/addiction-atlas addiction/substances addiction/compare api/addiction-atlas-v2.json sitemap-addiction-atlas.xml
           if git diff --cached --quiet; then
             echo 'No generated atlas changes to commit.'
             exit 0
