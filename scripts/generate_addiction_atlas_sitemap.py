@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = "https://healthrenewal.org"
 MANIFEST = ROOT / "data/addiction-atlas/substance-waves.json"
 COMPARISONS = ROOT / "data/addiction-atlas/comparison-intents-v2.json"
+COMPARISON_DATES = ROOT / "data/addiction-atlas/comparison-dates-v1.json"
 SITEMAP = ROOT / "sitemap-addiction-atlas.xml"
 
 STATIC_URLS = [
@@ -96,18 +97,31 @@ def main() -> None:
             substance_lastmods[slug] = updated_on
 
     comparison_payload = load(COMPARISONS)
-    comparison_date = iso_date(
+    comparison_hub_date = iso_date(
         comparison_payload.get("updated_on"),
         f"{COMPARISONS.name}.updated_on",
     )
     comparisons = [
         item for item in comparison_payload.get("comparisons", []) if item.get("indexable")
     ]
+    comparison_slugs = {item["slug"] for item in comparisons}
+
+    comparison_dates = load(COMPARISON_DATES)
+    baseline_comparison_date = iso_date(
+        comparison_dates.get("baseline_updated_on"),
+        f"{COMPARISON_DATES.name}.baseline_updated_on",
+    )
+    overrides = comparison_dates.get("overrides") or {}
+    unknown_overrides = sorted(set(overrides) - comparison_slugs)
+    if unknown_overrides:
+        raise SystemExit(f"comparison date overrides reference unknown slugs: {unknown_overrides}")
+    for slug, value in overrides.items():
+        iso_date(value, f"{COMPARISON_DATES.name}.overrides.{slug}")
 
     atlas_date = latest(wave_dates)
     records: list[tuple[str, str]] = [
         (f"{ORIGIN}/addiction/substances/", atlas_date),
-        (f"{ORIGIN}/addiction/compare/", comparison_date),
+        (f"{ORIGIN}/addiction/compare/", comparison_hub_date),
     ]
 
     # Static editorial hubs keep their previously published lastmod unless their
@@ -125,7 +139,9 @@ def main() -> None:
     for slug, updated_on in sorted(substance_lastmods.items()):
         records.append((f"{ORIGIN}/addiction/substances/{slug}/", updated_on))
     for item in comparisons:
-        records.append((f"{ORIGIN}/addiction/compare/{item['slug']}/", comparison_date))
+        slug = item["slug"]
+        lastmod = overrides.get(slug, baseline_comparison_date)
+        records.append((f"{ORIGIN}/addiction/compare/{slug}/", lastmod))
 
     urls = [url for url, _ in records]
     if len(urls) != len(set(urls)):
@@ -156,7 +172,9 @@ def main() -> None:
                 "registeredWaves": len(routes),
                 "indexableComparisons": len(comparisons),
                 "atlasLastmod": atlas_date,
-                "comparisonLastmod": comparison_date,
+                "comparisonHubLastmod": comparison_hub_date,
+                "comparisonBaselineLastmod": baseline_comparison_date,
+                "comparisonDateOverrides": len(overrides),
                 "preservedStaticLastmods": sum(1 for url in STATIC_URLS if url in old),
             },
             ensure_ascii=False,
