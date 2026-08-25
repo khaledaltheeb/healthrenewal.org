@@ -20,7 +20,7 @@ METHOD = ROOT / "data/addiction-atlas/methodology-v1.json"
 COMPARISONS = ROOT / "data/addiction-atlas/comparison-intents-v2.json"
 EPIDEMIOLOGY = ROOT / "data/addiction-atlas/epidemiology-v1.json"
 MORTALITY = ROOT / "data/addiction-atlas/mortality-v1.json"
-SOURCES = ROOT / "data/addiction-atlas/source-registry-v1.json"
+SOURCE_REGISTRIES = sorted((ROOT / "data/addiction-atlas").glob("source-registry-v*.json"))
 SOURCE_MAPS = sorted((ROOT / "data/addiction-atlas").glob("source-map-v*.json"))
 SITEMAP = ROOT / "sitemap-addiction-atlas.xml"
 
@@ -99,30 +99,39 @@ def validate_data():
 
 
 def validate_registry():
-    sources = load(SOURCES).get("sources", [])
-    source_ids = {s.get("id") for s in sources}
-    if None in source_ids or "" in source_ids:
-        fail("source registry contains a missing id")
-    if len(source_ids) != len(sources):
-        fail("duplicate source registry IDs")
-    for source in sources:
-        source_id = source["id"]
-        for key in ("organization", "title", "source_type", "geography", "verified_on"):
-            if not source.get(key):
-                fail(f"{source_id}: missing registry field {key}")
-        parsed = urlparse(source.get("url", ""))
-        if parsed.scheme != "https" or not parsed.netloc:
-            fail(f"invalid registry source URL: {source_id}")
-        try:
-            verified = date.fromisoformat(source["verified_on"])
-        except ValueError:
-            fail(f"{source_id}: verified_on must be ISO date")
-        if verified > PROJECT_TODAY:
-            fail(f"{source_id}: verified_on cannot be in the future relative to Asia/Amman")
-        year = source.get("publication_year")
-        if year is not None and (type(year) is not int or year < 1900 or year > PROJECT_TODAY.year):
-            fail(f"{source_id}: invalid publication_year={year!r}")
-    return source_ids
+    if not SOURCE_REGISTRIES:
+        fail("no evidence source registries discovered")
+    sources = []
+    source_by_id = {}
+    for path in SOURCE_REGISTRIES:
+        payload = load(path)
+        shard_sources = payload.get("sources") or []
+        if not shard_sources:
+            fail(f"empty evidence source registry: {path.name}")
+        for source in shard_sources:
+            source_id = source.get("id")
+            if not source_id:
+                fail(f"{path.name}: source registry contains a missing id")
+            if source_id in source_by_id:
+                fail(f"duplicate source registry ID across shards: {source_id}")
+            for key in ("organization", "title", "source_type", "geography", "verified_on"):
+                if not source.get(key):
+                    fail(f"{path.name}:{source_id}: missing registry field {key}")
+            parsed = urlparse(source.get("url", ""))
+            if parsed.scheme != "https" or not parsed.netloc:
+                fail(f"{path.name}:{source_id}: invalid registry source URL")
+            try:
+                verified = date.fromisoformat(source["verified_on"])
+            except ValueError:
+                fail(f"{path.name}:{source_id}: verified_on must be ISO date")
+            if verified > PROJECT_TODAY:
+                fail(f"{path.name}:{source_id}: verified_on cannot be in the future relative to Asia/Amman")
+            year = source.get("publication_year")
+            if year is not None and (type(year) is not int or year < 1900 or year > PROJECT_TODAY.year):
+                fail(f"{path.name}:{source_id}: invalid publication_year={year!r}")
+            source_by_id[source_id] = source
+            sources.append(source)
+    return set(source_by_id), source_by_id, len(SOURCE_REGISTRIES)
 
 
 def validate_records(source_ids):
@@ -145,8 +154,6 @@ def validate_source_maps(substances, source_ids):
     if not SOURCE_MAPS:
         fail("no source maps discovered")
     for path in SOURCE_MAPS:
-        if not path.is_file():
-            fail(f"missing source map: {path}")
         payload = load(path)
         records = payload.get("records") or []
         if not records:
@@ -164,6 +171,8 @@ def validate_source_maps(substances, source_ids):
                 fail(f"{path.name}: unknown substance_slug {slug!r}")
             if slug in seen_in_map:
                 fail(f"{path.name}: duplicate source-map record for {slug}")
+            if slug in mapped:
+                fail(f"substance mapped in more than one source-map shard: {slug}")
             seen_in_map.add(slug)
             mapped.add(slug)
             ids = record.get("source_ids") or []
@@ -182,15 +191,11 @@ def validate_source_maps(substances, source_ids):
             unknown_claims = sorted(set(supports) - SUPPORTED_CLAIMS)
             if unknown_claims:
                 fail(f"{path.name}:{slug}: unsupported claim labels {unknown_claims}")
-            # source_ids are the canonical claim-to-evidence relation. A substance's
-            # source_urls may point to an alternate official representation of the
-            # same source (for example an FDA communication page versus its PDF).
-            # Those URLs are independently required and HTTPS-validated in validate_data().
         if expected_wave_slugs and seen_in_map != expected_wave_slugs:
             missing = sorted(expected_wave_slugs - seen_in_map)
             extra = sorted(seen_in_map - expected_wave_slugs)
             fail(f"{path.name}: source coverage mismatch missing={missing} extra={extra}")
-    return {"mappedSubstances": len(mapped), "sourceMapRecords": record_count}
+    return {"mappedSubstances": len(mapped), "sourceMapRecords": record_count, "sourceMapShards": len(SOURCE_MAPS)}
 
 
 def validate_comparisons(substances):
@@ -268,7 +273,7 @@ def main():
     method = load(METHOD)
     if set(method.get("risk_dimensions", {})) != RISK_KEYS:
         fail("methodology risk dimensions mismatch")
-    source_ids = validate_registry()
+    source_ids, _, registry_shards = validate_registry()
     substances = validate_data()
     validate_records(source_ids)
     source_map_report = validate_source_maps(substances, source_ids)
@@ -280,7 +285,9 @@ def main():
         "substances": len(substances),
         "comparisonIntents": len(comparisons),
         "sourceRegistryEntries": len(source_ids),
+        "sourceRegistryShards": registry_shards,
         "sourceMapRecords": source_map_report["sourceMapRecords"],
+        "sourceMapShards": source_map_report["sourceMapShards"],
         "mappedSubstances": source_map_report["mappedSubstances"],
         "sitemapUrls": len(sitemap_urls),
         "unknownRiskValues": sum(1 for s in substances.values() for v in s["risk"].values() if v is None),
