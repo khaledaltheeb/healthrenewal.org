@@ -1,6 +1,6 @@
 {
-  "schema_version":"rawafid-addiction-comparisons-v4",
-  "updated_on":"2026-08-25",
+  "schema_version":"rawafid-addiction-comparisons-v5",
+  "updated_on":"2026-08-26",
   "policy_ar":"هذه قائمة تحريرية انتقائية. يمنع توليد جميع التوافيق الممكنة بين المواد. تنشر المقارنة فقط إذا كانت مفيدة علمياً ولها بيانات كافية ولا تتحول إلى سؤال عن المادة الأكثر أماناً.",
   "comparisons":[
     {"a":"fentanyl","b":"heroin","slug":"fentanyl-vs-heroin","title_ar":"الفرق بين الفنتانيل والهيروين","intent_ar":"القوة، الجرعة الزائدة، كبت التنفس، الاعتماد والعلاج","indexable":true},
@@ -30,6 +30,12 @@
     {"a":"methylphenidate","b":"amphetamine","slug":"methylphenidate-vs-amphetamine","title_ar":"ميثيلفينيديت مقابل الأمفيتامين","intent_ar":"المنبهات الوصفية، الاستخدام العلاجي، سوء الاستخدام والقلب والاعتماد","indexable":true},
     {"a":"dmt","b":"lsd","slug":"dmt-vs-lsd","title_ar":"DMT مقابل LSD","intent_ar":"اختلاف المهلوسات الكلاسيكية في المدة والتجربة الإدراكية والمخاطر النفسية","indexable":true},
     {"a":"mescaline","b":"psilocybin","slug":"mescaline-vs-psilocybin","title_ar":"المسكالين مقابل السيلوسيبين","intent_ar":"المدة والتأثيرات الإدراكية والآثار الجسدية والخطر النفسي","indexable":true},
-    {"a":"butane","b":"toluene","slug":"butane-vs-toluene","title_ar":"البيوتان مقابل التولوين","intent_ar":"المستنشقات: الموت القلبي المفاجئ، نقص الأكسجة والأذية العصبية المزمنة","indexable":true}
+    {"a":"butane","b":"toluene","slug":"butane-vs-toluene","title_ar":"البيوتان مقابل التولوين","intent_ar":"المستنشقات: الموت القلبي المفاجئ، نقص الأكسجة والأذية العصبية المزمنة","indexable":true},
+    {"a":"temazepam","b":"zolpidem","slug":"temazepam-vs-zolpidem","title_ar":"تيمازيبام مقابل زولبيديم: ما الفرق؟","intent_ar":"بنزوديازيبين منوم مقابل Z-drug: النوم، الاعتماد، الانسحاب، السلوكيات المعقدة وخطر الخلط مع المثبطات","indexable":true},
+    {"a":"eszopiclone","b":"zolpidem","slug":"eszopiclone-vs-zolpidem","title_ar":"إسزوبيكلون مقابل زولبيديم","intent_ar":"دواءان من فئة Z: الاستخدام العلاجي، ضعف اليقظة، السلوكيات المعقدة، الاعتماد والتداخل مع المثبطات","indexable":true},
+    {"a":"zaleplon","b":"zolpidem","slug":"zaleplon-vs-zolpidem","title_ar":"زاليبلون مقابل زولبيديم","intent_ar":"فروق أدوية Z المنومة، المدة الوظيفية، السلوكيات المعقدة، الاعتماد والمخاطر الحادة","indexable":true},
+    {"a":"dextroamphetamine","b":"amphetamine","slug":"dextroamphetamine-vs-amphetamine","title_ar":"ديكستروأمفيتامين مقابل الأمفيتامين","intent_ar":"العلاقة الدوائية، الاستخدام الطبي، التنبيه، القلب، سوء الاستخدام والاعتماد دون مساواة العلاج الموصوف بالإدمان","indexable":true},
+    {"a":"mephedrone","b":"methamphetamine","slug":"mephedrone-vs-methamphetamine","title_ar":"الميفيدرون مقابل الميثامفيتامين","intent_ar":"كاثينون صناعي مقابل منبه أمفيتاميني: الآلية، فرط التنبيه، القلب، الدماغ، الاعتماد وعدم يقين السوق غير المنظم","indexable":true},
+    {"a":"gasoline-inhalants","b":"toluene","slug":"gasoline-inhalants-vs-toluene","title_ar":"استنشاق أبخرة البنزين مقابل التولوين","intent_ar":"مخاليط الوقود مقابل مذيب محدد: السمية العصبية والقلبية والتنفسية، نقص الأكسجة وخطر التعرض الحاد","indexable":true}
   ]
 }
