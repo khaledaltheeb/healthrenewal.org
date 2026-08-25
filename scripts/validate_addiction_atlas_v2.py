@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from urllib.parse import urlparse
 from xml.etree import ElementTree
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
+PROJECT_TIMEZONE = ZoneInfo("Asia/Amman")
+PROJECT_TODAY = datetime.now(PROJECT_TIMEZONE).date()
 DATA_FILES = [
     ROOT / "data/addiction-atlas/substances-v1.json",
     ROOT / "data/addiction-atlas/substances-v2.json",
@@ -114,10 +117,10 @@ def validate_registry():
             verified = date.fromisoformat(source["verified_on"])
         except ValueError:
             fail(f"{source_id}: verified_on must be ISO date")
-        if verified > date.today():
-            fail(f"{source_id}: verified_on cannot be in the future")
+        if verified > PROJECT_TODAY:
+            fail(f"{source_id}: verified_on cannot be in the future relative to Asia/Amman")
         year = source.get("publication_year")
-        if year is not None and (type(year) is not int or year < 1900 or year > date.today().year):
+        if year is not None and (type(year) is not int or year < 1900 or year > PROJECT_TODAY.year):
             fail(f"{source_id}: invalid publication_year={year!r}")
     return source_ids
 
