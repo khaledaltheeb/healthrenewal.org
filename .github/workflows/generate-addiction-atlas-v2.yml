@@ -7,6 +7,7 @@ on:
       - 'data/addiction-atlas/**'
       - 'scripts/publish_addiction_atlas_v2.py'
       - 'scripts/publish_addiction_atlas_v3.py'
+      - 'addiction/substances/classes/**'
       - '.github/workflows/generate-addiction-atlas-v2.yml'
   workflow_dispatch:
 
@@ -55,12 +56,15 @@ jobs:
               for item in payload.get('substances', []):
                   slugs[item['slug']] = item
           comparisons = json.loads((root/'data/addiction-atlas/comparison-intents-v2.json').read_text(encoding='utf-8')).get('comparisons', [])
+          class_slugs = ['opioids','stimulants','sedatives','cannabinoids','dissociatives','psychedelics','inhalants','nps']
           urls = [
               'https://healthrenewal.org/addiction/substances/',
               'https://healthrenewal.org/addiction/compare/',
               'https://healthrenewal.org/addiction/substances/methodology/',
               'https://healthrenewal.org/addiction/substances/data/',
+              'https://healthrenewal.org/addiction/substances/classes/',
           ]
+          urls += [f"https://healthrenewal.org/addiction/substances/classes/{slug}/" for slug in class_slugs]
           urls += [f"https://healthrenewal.org/addiction/substances/{slug}/" for slug in sorted(slugs)]
           urls += [f"https://healthrenewal.org/addiction/compare/{c['slug']}/" for c in comparisons if c.get('indexable')]
           urlset = Element('urlset', {'xmlns':'http://www.sitemaps.org/schemas/sitemap/0.9'})
@@ -70,7 +74,7 @@ jobs:
               SubElement(node, 'lastmod').text = '2026-08-25'
           indent(urlset, space='  ')
           ElementTree(urlset).write(root/'sitemap-addiction-atlas.xml', encoding='utf-8', xml_declaration=True)
-          print({'atlasSitemapUrls': len(urls), 'substances': len(slugs), 'indexableComparisons': sum(1 for c in comparisons if c.get('indexable'))})
+          print({'atlasSitemapUrls': len(urls), 'substances': len(slugs), 'classHubs': len(class_slugs)+1, 'indexableComparisons': sum(1 for c in comparisons if c.get('indexable'))})
           PY
 
       - name: Validate generated publication
@@ -86,9 +90,11 @@ jobs:
           assert report['indexableComparisons'] >= 20, report
           substance_pages = list(Path('addiction/substances').glob('*/index.html'))
           comparison_pages = list(Path('addiction/compare').glob('*/index.html'))
+          class_pages = list(Path('addiction/substances/classes').glob('*/index.html'))
           assert len(substance_pages) >= report['substances'], (len(substance_pages), report)
           assert len(comparison_pages) >= report['indexableComparisons'], (len(comparison_pages), report)
-          print({'substancePages': len(substance_pages), 'comparisonPages': len(comparison_pages), 'report': report})
+          assert len(class_pages) >= 8, len(class_pages)
+          print({'substancePages': len(substance_pages), 'comparisonPages': len(comparison_pages), 'classPages': len(class_pages), 'report': report})
           PY
 
       - name: Commit generated atlas publication
