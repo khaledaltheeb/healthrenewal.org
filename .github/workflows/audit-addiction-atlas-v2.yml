@@ -12,7 +12,11 @@ on:
       - 'scripts/publish_addiction_atlas_v2.py'
       - 'scripts/publish_addiction_atlas_v3.py'
       - 'scripts/validate_addiction_atlas_v2.py'
+      - 'scripts/validate_addiction_sitemap_registration_v1.py'
+      - 'scripts/publish_complete_sitemap_v360.py'
       - 'sitemap-addiction-atlas.xml'
+      - 'sitemap-index.xml'
+      - 'robots.txt'
       - '.github/workflows/audit-addiction-atlas-v2.yml'
   pull_request:
     paths:
@@ -24,7 +28,11 @@ on:
       - 'scripts/publish_addiction_atlas_v2.py'
       - 'scripts/publish_addiction_atlas_v3.py'
       - 'scripts/validate_addiction_atlas_v2.py'
+      - 'scripts/validate_addiction_sitemap_registration_v1.py'
+      - 'scripts/publish_complete_sitemap_v360.py'
       - 'sitemap-addiction-atlas.xml'
+      - 'sitemap-index.xml'
+      - 'robots.txt'
   workflow_dispatch:
 
 permissions:
@@ -48,8 +56,12 @@ jobs:
           python -m py_compile scripts/publish_addiction_atlas_v2.py
           python -m py_compile scripts/publish_addiction_atlas_v3.py
           python -m py_compile scripts/validate_addiction_atlas_v2.py
+          python -m py_compile scripts/validate_addiction_sitemap_registration_v1.py
+          python -m py_compile scripts/publish_complete_sitemap_v360.py
       - name: Validate atlas publication contracts
         run: python scripts/validate_addiction_atlas_v2.py
+      - name: Validate central sitemap registration
+        run: python scripts/validate_addiction_sitemap_registration_v1.py
       - name: Validate JSON syntax independently
         run: |
           python - <<'PY'
