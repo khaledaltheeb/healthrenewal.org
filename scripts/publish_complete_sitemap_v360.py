@@ -9,6 +9,10 @@ https://healthrenewal.org, so old metadata cannot collapse or duplicate routes.
 
 Before discovery, close the institutional internal-route contract so parent hubs,
 learning paths, and legacy aliases exist before sitemap enumeration.
+
+The central sitemap index preserves reviewed auxiliary maps when they exist in
+the final publication, so specialized maps are not erased by the complete-site
+regeneration step.
 """
 
 from __future__ import annotations
@@ -34,7 +38,12 @@ BASE_URL = "https://healthrenewal.org/"
 SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 MAX_URLS = 50_000
 MAX_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
-REPORT_VERSION = 362
+REPORT_VERSION = 363
+AUXILIARY_SITEMAPS = (
+    "sitemap-accessibility.xml",
+    "sitemap-aac.xml",
+    "sitemap-addiction-atlas.xml",
+)
 
 EXCLUDED_DIR_PARTS = {
     ".git", ".github", ".idea", ".vscode", "node_modules", "vendor",
@@ -168,13 +177,19 @@ def xml_bytes_for_urls(urls: list[str]) -> bytes:
     return ET.tostring(root, encoding="utf-8", xml_declaration=True) + b"\n"
 
 
-def xml_bytes_for_index() -> bytes:
+def existing_auxiliary_sitemaps(root: Path) -> list[str]:
+    return [name for name in AUXILIARY_SITEMAPS if (root / name).is_file()]
+
+
+def xml_bytes_for_index(root: Path) -> tuple[bytes, list[str]]:
     ET.register_namespace("", SITEMAP_NS)
-    root = ET.Element(f"{{{SITEMAP_NS}}}sitemapindex")
-    node = ET.SubElement(root, f"{{{SITEMAP_NS}}}sitemap")
-    ET.SubElement(node, f"{{{SITEMAP_NS}}}loc").text = BASE_URL + "sitemap.xml"
-    indent_xml(root)
-    return ET.tostring(root, encoding="utf-8", xml_declaration=True) + b"\n"
+    sitemap_names = ["sitemap.xml", *existing_auxiliary_sitemaps(root)]
+    index_root = ET.Element(f"{{{SITEMAP_NS}}}sitemapindex")
+    for name in sitemap_names:
+        node = ET.SubElement(index_root, f"{{{SITEMAP_NS}}}sitemap")
+        ET.SubElement(node, f"{{{SITEMAP_NS}}}loc").text = BASE_URL + name
+    indent_xml(index_root)
+    return ET.tostring(index_root, encoding="utf-8", xml_declaration=True) + b"\n", sitemap_names
 
 
 def validate_sitemap(payload: bytes, expected_urls: list[str]) -> None:
@@ -209,9 +224,15 @@ def main() -> int:
 
     sitemap = xml_bytes_for_urls(urls)
     validate_sitemap(sitemap, urls)
-    sitemap_index = xml_bytes_for_index()
+    sitemap_index, indexed_sitemaps = xml_bytes_for_index(root)
     ET.fromstring(sitemap_index)
-    robots = ("User-agent: *\nAllow: /\n\n" f"Sitemap: {BASE_URL}sitemap.xml\n").encode("utf-8")
+    robots_lines = [
+        "User-agent: *",
+        "Allow: /",
+        "",
+        f"Sitemap: {BASE_URL}sitemap-index.xml",
+    ]
+    robots = ("\n".join(robots_lines) + "\n").encode("utf-8")
 
     (root / "sitemap.xml").write_bytes(sitemap)
     (root / "sitemap-index.xml").write_bytes(sitemap_index)
@@ -226,6 +247,8 @@ def main() -> int:
         "base_url": BASE_URL,
         "sitemap": "sitemap.xml",
         "sitemap_index": "sitemap-index.xml",
+        "indexed_sitemaps": indexed_sitemaps,
+        "auxiliary_sitemaps": indexed_sitemaps[1:],
         "robots": "robots.txt",
         "real_indexable_urls": len(urls),
         "claimed_target_urls": 3600,
@@ -267,6 +290,7 @@ def main() -> int:
         "html_files_discovered": report["html_files_discovered"],
         "target_reached": report["target_reached"],
         "sitemap_bytes": len(sitemap),
+        "indexed_sitemaps": indexed_sitemaps,
         "internal_route_repair": report["internal_route_repair"],
         "root": str(root),
     }, ensure_ascii=False))
