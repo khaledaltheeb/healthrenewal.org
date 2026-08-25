@@ -13,6 +13,7 @@ on:
       - 'scripts/validate_addiction_atlas_manifest.py'
       - 'scripts/validate_addiction_atlas_dates.py'
       - 'scripts/validate_addiction_atlas_evidence_contract.py'
+      - 'scripts/validate_addiction_atlas_risk_evidence.py'
       - 'scripts/generate_addiction_atlas_sitemap.py'
       - 'addiction/substances/classes/**'
       - 'addiction/substances/learn/**'
@@ -44,7 +45,7 @@ jobs:
         run: |
           python -m py_compile scripts/publish_addiction_atlas_v2.py scripts/publish_addiction_atlas_v3.py
           python -m py_compile scripts/normalize_addiction_atlas_aliases.py scripts/normalize_addiction_atlas_page_dates.py
-          python -m py_compile scripts/generate_addiction_atlas_sitemap.py scripts/validate_addiction_atlas_v2.py scripts/validate_addiction_atlas_manifest.py scripts/validate_addiction_atlas_dates.py scripts/validate_addiction_atlas_evidence_contract.py
+          python -m py_compile scripts/generate_addiction_atlas_sitemap.py scripts/validate_addiction_atlas_v2.py scripts/validate_addiction_atlas_manifest.py scripts/validate_addiction_atlas_dates.py scripts/validate_addiction_atlas_evidence_contract.py scripts/validate_addiction_atlas_risk_evidence.py
 
       - name: Normalize registered alias arrays
         run: python scripts/normalize_addiction_atlas_aliases.py
@@ -62,6 +63,7 @@ jobs:
         run: |
           python scripts/validate_addiction_atlas_manifest.py
           python scripts/validate_addiction_atlas_evidence_contract.py
+          python scripts/validate_addiction_atlas_risk_evidence.py
           python scripts/validate_addiction_atlas_dates.py
           python - <<'PY'
           import json
