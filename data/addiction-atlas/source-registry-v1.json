@@ -1,0 +1,78 @@
+{
+  "schema_version":"rawafid-addiction-atlas-source-registry-v1",
+  "updated_on":"2026-08-25",
+  "sources":[
+    {
+      "id":"unodc-wdr-2026-global-use",
+      "organization":"United Nations Office on Drugs and Crime (UNODC)",
+      "title":"World Drug Report 2026 — Global extent of drug use",
+      "publication_year":2026,
+      "data_years":[2024],
+      "source_type":"international surveillance estimate",
+      "geography":"global",
+      "url":"https://data.unodc.org/wdr2026search",
+      "verified_on":"2026-08-25",
+      "notes_ar":"مرجع عالمي لتقديرات الاستخدام حسب الفئات. يجب الحفاظ على تعريف الفئة والسنة وعدم تحويل تقدير فئوي إلى مادة مفردة."
+    },
+    {
+      "id":"unodc-wdr-2026-nps",
+      "organization":"United Nations Office on Drugs and Crime (UNODC)",
+      "title":"World Drug Report 2026 — New psychoactive substances findings",
+      "publication_year":2026,
+      "data_years":[2025],
+      "source_type":"international monitoring",
+      "geography":"global/member-state reporting",
+      "url":"https://data.unodc.org/wdr2026search",
+      "verified_on":"2026-08-25",
+      "notes_ar":"تُستخدم بيانات NPS لفهم حجم السوق المتغير، لا لتعميم ملف سمية واحد على جميع المواد الجديدة."
+    },
+    {
+      "id":"who-alcohol-fact-sheet-2024",
+      "organization":"World Health Organization (WHO)",
+      "title":"Alcohol — Fact sheet",
+      "publication_year":2024,
+      "data_years":[2019],
+      "source_type":"global public-health fact sheet",
+      "geography":"global",
+      "url":"https://www.who.int/news-room/fact-sheets/detail/alcohol",
+      "verified_on":"2026-08-25",
+      "notes_ar":"تتضمن تقديرات اضطرابات استخدام الكحول والاعتماد والوفيات المنسوبة للكحول، ويجب عدم وصفها بأنها وفيات تسمم حاد فقط."
+    },
+    {
+      "id":"who-global-status-substance-use-2024",
+      "organization":"World Health Organization (WHO)",
+      "title":"Global status report on alcohol and health and treatment of substance use disorders / WHO release",
+      "publication_year":2024,
+      "data_years":[2019],
+      "source_type":"global status report",
+      "geography":"global",
+      "url":"https://www.who.int/news/item/25-06-2024-over-3-million-annual-deaths-due-to-alcohol-and-drug-use-majority-among-men/",
+      "verified_on":"2026-08-25",
+      "notes_ar":"يقدم عبئاً عالمياً منسوباً لاستخدام العقاقير؛ لا يُقسم الرقم تلقائياً على المواد المفردة."
+    },
+    {
+      "id":"who-tobacco-nicotine-2026",
+      "organization":"World Health Organization (WHO)",
+      "title":"Tobacco and nicotine — Fact sheet",
+      "publication_year":2026,
+      "data_years":[2026],
+      "source_type":"global public-health fact sheet",
+      "geography":"global",
+      "url":"https://www.who.int/news-room/fact-sheets/detail/tobacco",
+      "verified_on":"2026-08-25",
+      "notes_ar":"أرقام عبء التبغ تتعلق بالتبغ والتعرض له، ولا ينبغي نسبها إلى تسمم النيكوتين الحاد منفرداً."
+    },
+    {
+      "id":"cdc-nchs-overdose-2025-release",
+      "organization":"U.S. Centers for Disease Control and Prevention — National Center for Health Statistics",
+      "title":"U.S. Overdose Deaths Decrease for Third Consecutive Year in 2025",
+      "publication_year":2026,
+      "data_years":[2025],
+      "source_type":"provisional national mortality surveillance",
+      "geography":"United States",
+      "url":"https://www.cdc.gov/nchs/pressroom/releases/20260513.html",
+      "verified_on":"2026-08-25",
+      "notes_ar":"بيانات أمريكية مؤقتة؛ يجب إظهار Provisional بوضوح وعدم عرضها كرقم عالمي."
+    }
+  ]
+}
