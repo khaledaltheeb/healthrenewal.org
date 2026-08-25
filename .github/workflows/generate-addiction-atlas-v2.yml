@@ -108,7 +108,7 @@ jobs:
           }
           assert expected_substance_urls <= sitemap_urls, sorted(expected_substance_urls - sitemap_urls)
           assert expected_comparison_urls <= sitemap_urls, sorted(expected_comparison_urls - sitemap_urls)
-          assert len(sitemap_urls) == 19 + len(expected_slugs) + len(expected_comparisons), len(sitemap_urls)
+          assert len(sitemap_urls) == 21 + len(expected_slugs) + len(expected_comparisons), len(sitemap_urls)
 
           print({
               'expectedSubstances': len(expected_slugs),
