@@ -1,0 +1,47 @@
+{
+  "schema_version": "rawafid-addiction-atlas-source-map-v1",
+  "wave": "v3",
+  "updated_on": "2026-08-26",
+  "records": [
+    {
+      "substance_slug": "buprenorphine",
+      "source_ids": ["nida-buprenorphine-ed-reference", "who-oud-medicines-2026", "nida-opioids-reference", "who-opioid-overdose-2025"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "codeine",
+      "source_ids": ["fda-codeine-hydrocodone-warning-2018", "nida-prescription-medicines-reference", "who-opioid-overdose-2025"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "hydrocodone",
+      "source_ids": ["fda-codeine-hydrocodone-warning-2018", "fda-opioid-pain-medicines-safety-2023", "nida-prescription-medicines-reference", "who-opioid-overdose-2025"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "barbiturates",
+      "source_ids": ["fda-phenobarbital-label-review-2023", "nida-prescription-medicines-reference"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "withdrawal_medical_risk", "neuro_harm", "cardio_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "phenobarbital",
+      "source_ids": ["fda-phenobarbital-label-review-2023", "nida-prescription-medicines-reference"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "withdrawal_medical_risk", "neuro_harm", "cardio_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "khat",
+      "source_ids": ["who-khat-critical-review-2006", "asam-aaap-stimulant-guideline-2024"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "caffeine",
+      "source_ids": ["fda-caffeine-consumer-update-2024", "fda-concentrated-caffeine-warning"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    },
+    {
+      "substance_slug": "toluene",
+      "source_ids": ["atsdr-toluene-toxicology-reference", "nida-inhalants-reference"],
+      "supports": ["mechanism", "acute_toxicity", "overdose_risk", "dependence", "withdrawal", "neuro_harm", "cardio_harm", "respiratory_harm", "polysubstance_risk", "single_exposure_harm", "emergency_response", "treatment"]
+    }
+  ]
+}
