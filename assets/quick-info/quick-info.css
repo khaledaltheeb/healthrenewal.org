@@ -41,3 +41,8 @@ footer{border-top:1px solid var(--line);padding:30px 0 50px;color:var(--muted);b
   .article .compare th,.article .compare td{min-width:150px}
   .steps li{padding-inline-start:14px;padding-inline-end:54px}
 }
+
+/* Hotfix: card PNGs contain malformed baked-in Arabic. Keep the valid HTML title/text as the source of truth and replace only the visual thumbnail with a lightweight branded surface. */
+.card>img{display:none!important}
+.card::before{content:"";display:block;flex:0 0 auto;aspect-ratio:16/6;border-bottom:1px solid var(--line);background:url('/assets/brand/logo-mark.svg') center/72px 72px no-repeat,radial-gradient(circle at 18% 22%,rgba(9,139,130,.13),transparent 34%),linear-gradient(135deg,#eef9f7 0%,#fff 54%,#fff7ed 100%)}
+@media(max-width:640px){.card::before{aspect-ratio:16/5;background-size:62px 62px,auto,auto}}
