@@ -46,3 +46,7 @@ footer{border-top:1px solid var(--line);padding:30px 0 50px;color:var(--muted);b
 .card>img{display:none!important}
 .card::before{content:"";display:block;flex:0 0 auto;aspect-ratio:16/6;border-bottom:1px solid var(--line);background:url('/assets/brand/logo-mark.svg') center/72px 72px no-repeat,radial-gradient(circle at 18% 22%,rgba(9,139,130,.13),transparent 34%),linear-gradient(135deg,#eef9f7 0%,#fff 54%,#fff7ed 100%)}
 @media(max-width:640px){.card::before{aspect-ratio:16/5;background-size:62px 62px,auto,auto}}
+
+/* Hotfix: article and hub hero PNGs use the same malformed rasterized Arabic. Preserve the image box for layout/performance but move the bitmap outside it and expose a text-free branded surface. */
+.hero>.cover{object-fit:none!important;object-position:9999px 9999px!important;background:url('/assets/brand/logo-mark.svg') center/86px 86px no-repeat,radial-gradient(circle at 18% 22%,rgba(9,139,130,.14),transparent 34%),linear-gradient(135deg,#eef9f7 0%,#fff 54%,#fff7ed 100%)}
+@media(max-width:640px){.hero>.cover{background-size:68px 68px,auto,auto}}
