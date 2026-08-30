@@ -88,7 +88,7 @@ jobs:
           set -euo pipefail
           git config user.name 'Rawafid Magazine SEO Bot'
           git config user.email '63592172+khaledaltheeb@users.noreply.github.com'
-          git add magazine .seo
+          git add --sparse magazine .seo
           if git diff --cached --quiet; then
             echo 'No verified material changes to commit' >&2
             exit 1
