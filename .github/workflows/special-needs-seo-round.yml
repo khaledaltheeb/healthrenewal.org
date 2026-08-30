@@ -1,5 +1,8 @@
 name: Special Needs Technical SEO Round
 on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
   push:
     branches: [main]
     paths:
@@ -17,32 +20,55 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Refresh from latest main
+        shell: bash
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
       - name: Run technical SEO round
         shell: bash
         run: |
           python3 .github/scripts/special_needs_seo_round.py
-      - name: Verify at least 50 successful page changes
+      - name: Verify round integrity
         shell: bash
         run: |
           python3 - <<'PY'
-          import json
+          import json,sys
           r=json.load(open('.github/reports/seo-special-needs-latest.json',encoding='utf-8'))
-          assert r['success'] >= 50, r
           assert r['verification']['visible_body_unchanged'] is True
           assert r['verification']['json_ld_validated'] is True
+          assert r['verification']['canonical_self_checked'] is True
+          assert r['verification']['og_twitter_consistency_checked'] is True
+          assert r['verification']['robots_indexability_checked'] is True
           assert r['verification']['semantic_queries_per_success'] >= 500
-          print('verified success=',r['success'])
+          if r['success'] < 50 and r['eligible_remaining'] > 0:
+              raise SystemExit(f"round incomplete despite eligible pages: {r['success']}/50, remaining={r['eligible_remaining']}")
+          print('verified success=',r['success'],'remaining=',r['eligible_remaining'])
           PY
       - name: Commit verified SEO changes
         shell: bash
         run: |
           git config user.name 'rawafid-seo-bot'
           git config user.email '63592172+khaledaltheeb@users.noreply.github.com'
-          git add special-needs/practical .github/seo .github/reports
+          git add special-needs inclusive-education .github/seo .github/reports
           if git diff --cached --quiet; then
-            echo 'No verified changes to commit' >&2
-            exit 1
+            echo 'No material eligible SEO changes in this round.'
+            exit 0
           fi
-          git commit -m 'SEO: optimize 50 special-needs practical pages'
-          git pull --rebase origin main
-          git push origin HEAD:main
+          success=$(python3 -c "import json; print(json.load(open('.github/reports/seo-special-needs-latest.json'))['success'])")
+          git commit -m "SEO: special-needs technical round ${success} pages"
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Concurrent main update detected; retry ${attempt}/3"
+            git rebase --abort 2>/dev/null || true
+            git fetch origin main
+            git reset --hard origin/main
+            python3 .github/scripts/special_needs_seo_round.py
+            git add special-needs inclusive-education .github/seo .github/reports
+            if git diff --cached --quiet; then exit 0; fi
+            success=$(python3 -c "import json; print(json.load(open('.github/reports/seo-special-needs-latest.json'))['success'])")
+            git commit -m "SEO: special-needs technical round ${success} pages"
+          done
+          exit 1
