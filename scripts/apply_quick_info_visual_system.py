@@ -168,25 +168,35 @@ def patch_generator_source() -> None:
 
 
 def validate(topics: list[dict]) -> None:
-    forbidden_marker = re.compile(r'(رسم توضيحي مجرد مرتبط|alt="")')
     for topic in topics:
         image = ROOT / "assets" / "quick-info" / "cards" / f"{topic['slug']}.png"
         if not image.exists():
             raise FileNotFoundError(image)
+
         page = ROOT / "quick-info" / topic["slug"] / "index.html"
         source = page.read_text(encoding="utf-8")
         expected_alt = html.escape(quick_info_alt(topic, category_label(topic)), quote=True)
-        if expected_alt not in source:
-            raise RuntimeError(f"Missing page alt for {topic['slug']}")
+        image_src = f"/assets/quick-info/cards/{topic['slug']}.png"
+        tag_match = re.search(
+            rf'<img\s+class="cover"\s+src="{re.escape(image_src)}"[^>]*>',
+            source,
+        )
+        if not tag_match:
+            raise RuntimeError(f"Missing Quick Info cover image tag for {topic['slug']}")
+        cover_tag = tag_match.group(0)
+        if f'alt="{expected_alt}"' not in cover_tag:
+            raise RuntimeError(f"Missing precise cover alt for {topic['slug']}")
+        if 'alt=""' in cover_tag or 'رسم توضيحي مجرد مرتبط' in cover_tag:
+            raise RuntimeError(f"Legacy/generic cover alt remains in {topic['slug']}")
         if 'property="og:image:alt"' not in source or 'name="twitter:image:alt"' not in source:
             raise RuntimeError(f"Missing social image alt for {topic['slug']}")
-        if forbidden_marker.search(source):
-            raise RuntimeError(f"Legacy/generic alt remains in {topic['slug']}")
 
     hub = HUB_PATH.read_text(encoding="utf-8")
     for topic in topics:
         expected_alt = html.escape(quick_info_alt(topic, category_label(topic)), quote=True)
-        if expected_alt not in hub:
+        image_src = f"/assets/quick-info/cards/{topic['slug']}.png"
+        hub_tag = re.search(rf'<img\s+src="{re.escape(image_src)}"[^>]*>', hub)
+        if not hub_tag or f'alt="{expected_alt}"' not in hub_tag.group(0):
             raise RuntimeError(f"Missing hub alt for {topic['slug']}")
 
     api = json.loads(API_PATH.read_text(encoding="utf-8"))
