@@ -9,6 +9,7 @@ from pathlib import Path
 
 START = "<!-- special-needs-protocol-links-v326:start -->"
 END = "<!-- special-needs-protocol-links-v326:end -->"
+HREF_RE = re.compile(r"href=['\"]([^'\"]+)['\"]", re.I)
 
 
 def insert_before(html: str, marker: str, block: str) -> str:
@@ -39,7 +40,7 @@ def main() -> None:
         raise SystemExit("Missing protocol index or special-needs hub")
 
     index_html = index_path.read_text(encoding="utf-8")
-    existing = set(re.findall(r'href=["\']([^"\']+)["\']', index_html, flags=re.I))
+    existing = set(HREF_RE.findall(index_html))
     missing = []
     for slug in slugs:
         absolute = f"/special-needs/protocols/{slug}/"
@@ -62,7 +63,7 @@ def main() -> None:
         index_path.write_text(index_html, encoding="utf-8")
 
     hub_html = hub_path.read_text(encoding="utf-8")
-    hub_links = set(re.findall(r'href=["\']([^"\']+)["\']', hub_html, flags=re.I))
+    hub_links = set(HREF_RE.findall(hub_html))
     if "/special-needs/protocols/" not in hub_links and "https://healthrenewal.org/special-needs/protocols/" not in hub_links:
         block = (
             f"\n{START}\n"
@@ -74,13 +75,12 @@ def main() -> None:
         hub_html = insert_before(hub_html, "</main>", block)
         hub_path.write_text(hub_html, encoding="utf-8")
 
-    # Every child page gets a visible way back to the protocol directory.
     for slug in slugs:
         page = site / "special-needs" / "protocols" / slug / "index.html"
         if not page.is_file():
             raise SystemExit(f"Missing generated protocol page: {slug}")
         text = page.read_text(encoding="utf-8")
-        links = set(re.findall(r'href=["\']([^"\']+)["\']', text, flags=re.I))
+        links = set(HREF_RE.findall(text))
         if "/special-needs/protocols/" not in links and "https://healthrenewal.org/special-needs/protocols/" not in links:
             block = (
                 f"\n{START}\n"
