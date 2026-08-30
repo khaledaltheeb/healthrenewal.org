@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/special-needs-seo-round.yml'
+      - '.github/scripts/special_needs_seo_round.py'
 permissions:
   contents: write
 concurrency:
@@ -20,7 +21,7 @@ jobs:
         shell: bash
         run: |
           python3 .github/scripts/special_needs_seo_round.py
-      - name: Verify exactly 50 successful page changes
+      - name: Verify at least 50 successful page changes
         shell: bash
         run: |
           python3 - <<'PY'
@@ -29,6 +30,7 @@ jobs:
           assert r['success'] >= 50, r
           assert r['verification']['visible_body_unchanged'] is True
           assert r['verification']['json_ld_validated'] is True
+          assert r['verification']['semantic_queries_per_success'] >= 500
           print('verified success=',r['success'])
           PY
       - name: Commit verified SEO changes
