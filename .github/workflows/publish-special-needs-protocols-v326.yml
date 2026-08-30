@@ -87,10 +87,10 @@ jobs:
           if not candidates:
               raise SystemExit('No non-expired validated-production-site artifact from main found')
           artifact=max(candidates,key=lambda item:item.get('created_at',''))
-          with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as handle:
-              handle.write(f"BASELINE_ARTIFACT_ID={artifact['id']}\n")
+          open('/tmp/baseline_artifact_id','w',encoding='utf-8').write(str(artifact['id']))
           print({'baseline_run':artifact['workflow_run']['id'],'artifact':artifact['id'],'created_at':artifact.get('created_at'),'size':artifact.get('size_in_bytes')})
           PY
+          BASELINE_ARTIFACT_ID="$(cat /tmp/baseline_artifact_id)"
           curl -fL --retry 5 -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${BASELINE_ARTIFACT_ID}/zip" -o /tmp/baseline.zip
           mkdir -p validated-site
