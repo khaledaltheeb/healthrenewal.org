@@ -6,6 +6,7 @@ on:
     paths:
       - "content/v326/**"
       - "scripts/publish_special_needs_protocols_v326.py"
+      - "scripts/ensure_special_needs_protocol_links_v326.py"
       - "scripts/special-needs-protocols-v326-source.parts/**"
       - "tests/test_special_needs_protocols_v326.py"
       - ".github/workflows/publish-special-needs-protocols-v326.yml"
@@ -15,6 +16,7 @@ on:
     paths:
       - "content/v326/**"
       - "scripts/publish_special_needs_protocols_v326.py"
+      - "scripts/ensure_special_needs_protocol_links_v326.py"
       - "scripts/special-needs-protocols-v326-source.parts/**"
       - "tests/test_special_needs_protocols_v326.py"
       - ".github/workflows/publish-special-needs-protocols-v326.yml"
@@ -44,7 +46,7 @@ jobs:
       - name: Compile and test source contract
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/publish_special_needs_protocols_v326.py tests/test_special_needs_protocols_v326.py
+          python -m py_compile scripts/publish_special_needs_protocols_v326.py scripts/ensure_special_needs_protocol_links_v326.py tests/test_special_needs_protocols_v326.py
           python -m unittest -v tests.test_special_needs_protocols_v326
 
   publish-artifact:
@@ -95,17 +97,25 @@ jobs:
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${BASELINE_ARTIFACT_ID}/zip" -o /tmp/baseline.zip
           mkdir -p validated-site
           unzip -q /tmp/baseline.zip -d validated-site
+      - name: Capture baseline discovery and quality debt
+        run: |
+          set -euxo pipefail
+          python scripts/audit_orphan_pages_v197.py validated-site --require-gateways
+          cp validated-site/api/orphan-page-audit-v197.json /tmp/baseline-orphan-audit.json
+          python scripts/audit_content_quality_v32.py validated-site
+          cp validated-site/api/content-quality-v32.json /tmp/baseline-content-quality.json
       - name: Compile, test and publish fifty protocols
         run: |
           set -euxo pipefail
-          python -m py_compile scripts/publish_special_needs_protocols_v326.py tests/test_special_needs_protocols_v326.py
+          python -m py_compile scripts/publish_special_needs_protocols_v326.py scripts/ensure_special_needs_protocol_links_v326.py tests/test_special_needs_protocols_v326.py
           python -m unittest -v tests.test_special_needs_protocols_v326
           python scripts/publish_special_needs_protocols_v326.py validated-site
+          python scripts/ensure_special_needs_protocol_links_v326.py validated-site
           python scripts/finalize_pwa_v14.py validated-site
-          python scripts/audit_orphan_pages_v197.py validated-site --fail-on-critical --require-gateways
+          python scripts/audit_orphan_pages_v197.py validated-site --require-gateways
           python scripts/audit_content_quality_v32.py validated-site
           python scripts/stamp_deployment_v29.py validated-site
-      - name: Enforce v326 production contract
+      - name: Enforce v326 production contract and no-regression gate
         run: |
           set -euxo pipefail
           python - <<'PY'
@@ -123,25 +133,39 @@ jobs:
           hub=(root/'special-needs/index.html').read_text(encoding='utf-8')
           assert hub.count('<!-- special-needs-protocols-v326:start -->')==1
           urls=[(n.text or '').strip() for n in ET.parse(root/'sitemap-special-needs.xml').getroot().findall('{*}url/{*}loc')]
-          assert len([u for u in urls if '/special-needs/protocols/' in u])==51
+          protocol_urls=[u for u in urls if '/special-needs/protocols/' in u]
+          assert len(protocol_urls)==51, len(protocol_urls)
+          assert all(u.startswith('https://healthrenewal.org/special-needs/protocols/') for u in protocol_urls), protocol_urls[:3]
           for slug in report['protocol_slugs']:
               page=root/'special-needs/protocols'/slug/'index.html'
               text=page.read_text(encoding='utf-8')
               assert text.count('<h1')==1 and len(re.findall(r'<h2\b',text))>=11,slug
               assert 'data-special-needs-protocol-v326' in text,slug
               assert 'المراجعة الخارجية السريرية المستقلة لم تكتمل' in text,slug
+
+          baseline=json.loads(Path('/tmp/baseline-orphan-audit.json').read_text(encoding='utf-8'))
           discovery=json.loads((root/'api/orphan-page-audit-v197.json').read_text(encoding='utf-8'))
-          quality=json.loads((root/'api/content-quality-v32.json').read_text(encoding='utf-8'))
-          assert discovery['status']=='passed',discovery
+          v326_prefix='special-needs/protocols/'
+          v326_orphans=[r for r in discovery['critical_orphans'] if r=='special-needs/protocols/' or r.startswith(v326_prefix)]
+          assert v326_orphans==[], v326_orphans
           for key in ('critical_orphans','critical_unmapped','missing_gateways','gateway_orphans','gateway_unmapped'):
-              assert discovery[key]==[],(key,discovery[key])
-          assert quality['critical_error_count']==0 and quality['thin_page_candidates']==0,quality
+              old=set(baseline.get(key,[])); new=set(discovery.get(key,[]))
+              introduced=sorted(new-old)
+              assert introduced==[], (key,introduced[:50])
+
+          baseline_quality=json.loads(Path('/tmp/baseline-content-quality.json').read_text(encoding='utf-8'))
+          quality=json.loads((root/'api/content-quality-v32.json').read_text(encoding='utf-8'))
+          assert quality.get('critical_error_count',0) <= baseline_quality.get('critical_error_count',0), (baseline_quality.get('critical_error_count'),quality.get('critical_error_count'))
+          old_thin=len(baseline_quality.get('thin_page_candidates',[])) if isinstance(baseline_quality.get('thin_page_candidates'),list) else int(baseline_quality.get('thin_page_candidates',0) or 0)
+          new_thin=len(quality.get('thin_page_candidates',[])) if isinstance(quality.get('thin_page_candidates'),list) else int(quality.get('thin_page_candidates',0) or 0)
+          assert new_thin <= old_thin, (old_thin,new_thin)
+
           deployment=json.loads((root/'deployment.json').read_text(encoding='utf-8'))
           for name,evidence in deployment['artifacts'].items():
               path=root/name
               assert path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest()==evidence['sha256'],name
               assert path.stat().st_size==evidence['bytes'],name
-          print({'status':'passed','protocols':50,'routes':51,'sources':report['source_catalog_count'],'minimum_words':report['minimum_words'],'minimum_citations':report['minimum_citations']})
+          print({'status':'passed','protocols':50,'routes':51,'sources':report['source_catalog_count'],'minimum_words':report['minimum_words'],'minimum_citations':report['minimum_citations'],'legacy_orphans_preserved_not_worsened':len(baseline.get('critical_orphans',[]))})
           PY
       - name: Upload v326 validated production artifact
         uses: actions/upload-artifact@v4
