@@ -9,6 +9,7 @@ on:
     paths:
       - '.github/workflows/care-guides-technical-seo.yml'
       - '.github/scripts/care_guides_seo_round.py'
+      - '.github/scripts/care_guides_seo_round_multisource.py'
 
 permissions:
   contents: write
@@ -30,7 +31,7 @@ jobs:
         run: git pull --ff-only origin main
 
       - name: Run verified care-guides round
-        run: python3 .github/scripts/care_guides_seo_round.py
+        run: python3 .github/scripts/care_guides_seo_round_multisource.py
 
       - name: Verify hard gates
         shell: bash
