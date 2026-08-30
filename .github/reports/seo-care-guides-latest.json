@@ -1,0 +1,1267 @@
+{
+  "blocker": null,
+  "complete": true,
+  "demand_diagnostics": {
+    "max_real_relevant_suggestions": 1533,
+    "median_real_relevant_suggestions": 569.0,
+    "min_real_relevant_suggestions": 0,
+    "tested_pages_for_live_demand": 54
+  },
+  "eligible_candidates_before_round": 98,
+  "eligible_remaining_estimate": 48,
+  "failed": 0,
+  "failure_reason_counts": {},
+  "failures": [],
+  "generated_at": "2026-08-30T09:32:25Z",
+  "round": "care-guides-technical-seo",
+  "sitemap_added_urls": 50,
+  "skip_reason_counts": {
+    "insufficient-live-demand-evidence": 4
+  },
+  "skipped": [
+    {
+      "path": "care-guides/clinical-literacy/communicating-health-risks-absolute-relative/index.html",
+      "queried_seed_count": 360,
+      "real_suggestions": 0,
+      "reason": "insufficient-live-demand-evidence"
+    },
+    {
+      "path": "care-guides/clinical-literacy/eating-disorders-understand/index.html",
+      "queried_seed_count": 360,
+      "real_suggestions": 496,
+      "reason": "insufficient-live-demand-evidence"
+    },
+    {
+      "path": "care-guides/clinical-literacy/index.html",
+      "queried_seed_count": 291,
+      "real_suggestions": 169,
+      "reason": "insufficient-live-demand-evidence"
+    },
+    {
+      "path": "care-guides/clinical-literacy/measurement-error-change-score/index.html",
+      "queried_seed_count": 360,
+      "real_suggestions": 147,
+      "reason": "insufficient-live-demand-evidence"
+    }
+  ],
+  "skipped_noop_or_ineligible": 4,
+  "source_failures": {
+    "bing_autocomplete:URLError": 894,
+    "yahoo_autocomplete:TimeoutError": 1
+  },
+  "success": 50,
+  "successes": [
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/adhd-assessment-appointment-preparation/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/adhd-assessment-appointment-preparation/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/adhd-assessment/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/adhd-assessment/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/adhd-care-options/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/adhd-care-options/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/adhd-differential-diagnosis/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/adhd-differential-diagnosis/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/adhd-differential/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/adhd-differential/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/adhd-evidence-questions/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/adhd-evidence-questions/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/adhd-family-function/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/adhd-family-function/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/adhd-rating-scales-guide/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/adhd-rating-scales-guide/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/adhd-screening-vs-diagnosis/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/adhd-screening-vs-diagnosis/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/adhd-understand/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/adhd-understand/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/adult-adhd-assessment/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/adult-adhd-assessment/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/adult-autism-assessment/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/adult-autism-assessment/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/anxiety-assessment/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/anxiety-assessment/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/anxiety-care-options/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/anxiety-care-options/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/anxiety-differential/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/anxiety-differential/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/anxiety-evidence-questions/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/anxiety-evidence-questions/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/anxiety-family-function/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/anxiety-family-function/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/anxiety-understand/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/anxiety-understand/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/autism-assessment-appointment-what-happens/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/autism-assessment-appointment-what-happens/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/autism-assessment-history-records/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/autism-assessment-history-records/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/autism-assessment-women-girls/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/autism-assessment-women-girls/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/autism-assessment/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/autism-assessment/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/autism-care-options/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/autism-care-options/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/autism-differential-diagnosis/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/autism-differential-diagnosis/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/autism-differential/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/autism-differential/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/autism-evidence-questions/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/autism-evidence-questions/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/autism-family-function/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/autism-family-function/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/autism-screening-vs-diagnosis/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/autism-screening-vs-diagnosis/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/autism-understand/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/autism-understand/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/bipolar-assessment/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/bipolar-assessment/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/bipolar-care-options/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/bipolar-care-options/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/bipolar-differential/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/bipolar-differential/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/bipolar-evidence-questions/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/bipolar-evidence-questions/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/bipolar-family-function/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/bipolar-family-function/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/bipolar-understand/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/bipolar-understand/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/child-adhd-assessment-home-school/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/child-adhd-assessment-home-school/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/depression-assessment/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/depression-assessment/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/depression-care-options/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/depression-care-options/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/depression-differential/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/depression-differential/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/depression-evidence-questions/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/depression-evidence-questions/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/depression-family-function/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/depression-family-function/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/depression-understand/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/depression-understand/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/eating-disorders-assessment/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/eating-disorders-assessment/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/eating-disorders-care-options/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/eating-disorders-care-options/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/eating-disorders-differential/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/eating-disorders-differential/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/eating-disorders-evidence-questions/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/eating-disorders-evidence-questions/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/eating-disorders-family-function/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/eating-disorders-family-function/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/ocd-assessment/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/ocd-assessment/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/ocd-care-options/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/ocd-care-options/index.html",
+      "real_search_phrases": 500
+    },
+    {
+      "canonical": "https://healthrenewal.org/care-guides/clinical-literacy/ocd-differential/",
+      "changes": [
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "checks": {
+        "canonical_exact": true,
+        "description_present": true,
+        "indexable": true,
+        "jsonld_valid": true,
+        "locale_ar": true,
+        "og_consistent": true,
+        "real_query_count": true,
+        "schema_supported": true,
+        "sitemap_included": true,
+        "title_present": true,
+        "twitter_consistent": true,
+        "visible_body_unchanged": true
+      },
+      "path": "care-guides/clinical-literacy/ocd-differential/index.html",
+      "real_search_phrases": 500
+    }
+  ],
+  "target": 50,
+  "verification": {
+    "autocomplete_only_counting": true,
+    "generated_seeds_count_toward_500": false,
+    "json_ld_validated": true,
+    "noindex_pages_modified": false,
+    "semantic_queries_per_success": 500,
+    "sitemap_required_for_success": true,
+    "title_description_unique_for_successes": true,
+    "topical_filter_applied": true,
+    "visible_body_unchanged": true
+  }
+}
