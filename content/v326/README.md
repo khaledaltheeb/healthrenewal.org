@@ -32,3 +32,5 @@ python scripts/publish_special_needs_protocols_v326.py _site
 ```
 
 آخر مراجعة داخلية: 2026-07-28. المراجعة التالية المستهدفة: 2027-01-28.
+
+<!-- publication-trigger: 2026-08-30 -->
