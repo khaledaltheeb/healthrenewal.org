@@ -1,8 +1,10 @@
 {
   "sector": "الموسوعة والمعرفة",
   "target": 50,
-  "status": "incomplete",
-  "status_ar": "الجولة غير مكتملة",
+  "status": "drained",
+  "status_ar": "اكتملت معالجة جميع الصفحات المؤهلة المتبقية",
+  "agent_health": "healthy",
+  "completion_reason": "all-eligible-pages-processed",
   "successes_actual": 7,
   "success_paths": [
     "/psychology/social-support/",
@@ -35,5 +37,5 @@
     "terms"
   ],
   "started_at": "2026-08-30T07:43:01.886093+00:00",
-  "hard_blocker": "validation-prevented-target"
+  "hard_blocker": null
 }
