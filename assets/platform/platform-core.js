@@ -21,6 +21,22 @@
   if(main&&!main.id)main.id='main-content';
   if(main){const skip=[...b.children].find(x=>x.tagName==='A'&&(x.classList.contains('skip')||x.getAttribute('href')===`#${main.id}`));if(skip){skip.classList.add('pt-skip-link');skip.href=`#${main.id}`}else if(!d.querySelector('.pt-skip-link'))b.prepend(make('a',{class:'pt-skip-link',href:`#${main.id}`,text:'تجاوز إلى المحتوى الرئيسي'}))}
 
+  /* Quick Info raster cards contain malformed baked-in Arabic. Replace article/hub hero bitmaps with browser-rendered semantic RTL text from the existing H1. */
+  if(path.startsWith('/quick-info/')&&main){
+    const hero=main.querySelector('.hero');
+    const cover=hero?.querySelector('img.cover[src*="/assets/quick-info/"]');
+    const heading=hero?.querySelector('h1');
+    if(cover&&heading){
+      const pageTitle=heading.textContent.trim();
+      const visual=make('div',{class:'quick-info-rtl-cover',dir:'rtl',role:'img','aria-label':cover.getAttribute('alt')||pageTitle,'data-quick-info-cover':'rtl-v1'},[
+        make('span',{class:'quick-info-rtl-cover__label',text:'معلومات سريعة'}),
+        make('strong',{class:'quick-info-rtl-cover__title',text:pageTitle}),
+        make('img',{class:'quick-info-rtl-cover__logo',src:url('assets/brand/logo-mark.svg'),alt:'',width:'92',height:'92','aria-hidden':'true'})
+      ]);
+      cover.replaceWith(visual);
+    }
+  }
+
   let localNav=null;
   const oldHeader=[...b.children].find(x=>x.tagName==='HEADER');
   if(oldHeader){
