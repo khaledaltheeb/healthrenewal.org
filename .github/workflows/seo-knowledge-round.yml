@@ -41,21 +41,17 @@ jobs:
             git reset --hard origin/main
             python scripts/seo_knowledge_round.py --target 50 | tee /tmp/seo-knowledge-report.txt
 
-            git add -A -- psychology terms resources sitemap.xml .github/seo 2>/dev/null || true
+            paths=(psychology terms resources sitemap.xml .github/seo)
+            if [ -d encyclopedia ]; then paths+=(encyclopedia); fi
+            if [ -d sectors/short-encyclopedia ]; then paths+=(sectors/short-encyclopedia); fi
+            git add -A -- "${paths[@]}" 2>/dev/null || true
+
             if git diff --cached --quiet; then
               echo "No material verified SEO changes remain."
               exit 0
             fi
 
-            python - <<'PY'
-          import json
-          from pathlib import Path
-          p = Path('.github/seo/knowledge-round-report.json')
-          r = json.loads(p.read_text(encoding='utf-8'))
-          assert r['successes_actual'] > 0, r
-          assert r['failed_count'] == 0 or r['successes_actual'] >= r['target'], r
-          print(json.dumps(r, ensure_ascii=False, indent=2))
-          PY
+            python -c 'import json; r=json.load(open(".github/seo/knowledge-round-report.json", encoding="utf-8")); assert r["successes_actual"] > 0, r; assert r["failed_count"] == 0 or r["successes_actual"] >= r["target"], r; print(json.dumps(r, ensure_ascii=False, indent=2))'
 
             git commit -m "SEO: optimize verified knowledge pages"
             if git push origin HEAD:main; then
