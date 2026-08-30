@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import html
-import importlib
 import json
 import re
 import sys
@@ -14,8 +13,6 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import build_quick_info as base
-import extend_quick_info_200 as v200
-import extend_quick_info_250 as v250
 from quick_info_visuals import make_quick_info_image, quick_info_alt
 
 BUILD_PATH = SCRIPTS / "build_quick_info.py"
@@ -24,11 +21,17 @@ API_PATH = ROOT / "api" / "v1" / "quick-info.json"
 
 
 def compose_topics() -> list[dict]:
-    topics = list(base.TOPICS) + v200.parse_new_topics() + list(v250.NEW_TOPICS)
+    payload = json.loads(API_PATH.read_text(encoding="utf-8"))
+    topics = [dict(item) for item in payload.get("items", [])]
     if len(topics) != 250:
         raise RuntimeError(f"Expected 250 Quick Info topics, found {len(topics)}")
     if len({topic["slug"] for topic in topics}) != 250:
-        raise RuntimeError("Duplicate Quick Info slugs detected")
+        raise RuntimeError("Duplicate Quick Info slugs detected in current API inventory")
+    required = {"slug", "title", "domain", "format", "summary"}
+    for topic in topics:
+        missing = required.difference(topic)
+        if missing:
+            raise RuntimeError(f"API topic {topic.get('slug')} missing fields: {sorted(missing)}")
     return topics
 
 
@@ -37,13 +40,7 @@ def category_label(topic: dict) -> str:
 
 
 def summary_for(topic: dict) -> str:
-    try:
-        return v250.summary(topic)
-    except Exception:
-        try:
-            return v200.summary(topic)
-        except Exception:
-            return base.summary(topic)
+    return " ".join(str(topic.get("summary", "")).split())
 
 
 def patch_generated_page(topic: dict) -> None:
@@ -56,26 +53,18 @@ def patch_generated_page(topic: dict) -> None:
     image_url = f"https://healthrenewal.org/assets/quick-info/cards/{topic['slug']}.png"
     image_src = f"/assets/quick-info/cards/{topic['slug']}.png"
 
-    source = re.sub(
-        rf'(<img\s+class="cover"\s+src="{re.escape(image_src)}"\s+width="1280"\s+height="720"(?:\s+decoding="async")?\s+alt=")[^"]*(")',
-        rf'\1{alt_html}\2',
-        source,
-        count=1,
-    )
-    if f'src="{image_src}"' in source and alt_html not in source:
-        source = source.replace(
-            f'<img class="cover" src="{image_src}" width="1280" height="720"',
-            f'<img class="cover" src="{image_src}" width="1280" height="720" decoding="async" alt="{alt_html}"',
-            1,
-        )
-        source = source.replace(f' alt="{alt_html}" alt="', f' alt="{alt_html}" data-legacy-alt="', 1)
-
-    if 'decoding="async"' not in source[source.find(image_src) - 120:source.find(image_src) + 260]:
-        source = source.replace(
-            f'<img class="cover" src="{image_src}" width="1280" height="720"',
-            f'<img class="cover" src="{image_src}" width="1280" height="720" decoding="async"',
-            1,
-        )
+    tag_pattern = rf'<img\s+class="cover"\s+src="{re.escape(image_src)}"[^>]*>'
+    match = re.search(tag_pattern, source)
+    if not match:
+        raise RuntimeError(f"Could not find article image for {topic['slug']}")
+    tag = match.group(0)
+    if re.search(r'\salt="[^"]*"', tag):
+        tag = re.sub(r'\salt="[^"]*"', f' alt="{alt_html}"', tag, count=1)
+    else:
+        tag = tag[:-1] + f' alt="{alt_html}">'
+    if 'decoding=' not in tag:
+        tag = tag[:-1] + ' decoding="async">'
+    source = source[:match.start()] + tag + source[match.end():]
 
     og_alt = f'<meta property="og:image:alt" content="{alt_html}">'
     if 'property="og:image:alt"' not in source:
@@ -213,11 +202,11 @@ def validate(topics: list[dict]) -> None:
 def main() -> None:
     topics = compose_topics()
 
-    # Fix the source generator first so future builds cannot reintroduce pictograms.
+    # Fix source generation first so future builds cannot reintroduce pictograms.
     patch_generator_source()
 
-    # Regenerate only visual assets. Do not rebuild article bodies, preserving all
-    # SEO/editorial improvements that may have landed after the original generator.
+    # Regenerate only visual assets and patch accessibility metadata. Article
+    # bodies remain untouched, preserving later editorial and SEO improvements.
     make_quick_info_image(
         ROOT / "assets" / "quick-info" / "quick-info-cover.png",
         None,
