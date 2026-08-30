@@ -42,11 +42,11 @@ footer{border-top:1px solid var(--line);padding:30px 0 50px;color:var(--muted);b
   .steps li{padding-inline-start:14px;padding-inline-end:54px}
 }
 
-/* Hotfix: card PNGs contain malformed baked-in Arabic. Keep the valid HTML title/text as the source of truth and replace only the visual thumbnail with a lightweight branded surface. */
+/* RTL-safe Quick Info visual covers. Arabic stays as browser text so shaping, bidi and mobile rendering remain correct. */
 .card>img{display:none!important}
-.card::before{content:"";display:block;flex:0 0 auto;aspect-ratio:16/6;border-bottom:1px solid var(--line);background:url('/assets/brand/logo-mark.svg') center/72px 72px no-repeat,radial-gradient(circle at 18% 22%,rgba(9,139,130,.13),transparent 34%),linear-gradient(135deg,#eef9f7 0%,#fff 54%,#fff7ed 100%)}
-@media(max-width:640px){.card::before{aspect-ratio:16/5;background-size:62px 62px,auto,auto}}
-
-/* Hotfix: article and hub hero PNGs use the same malformed rasterized Arabic. Preserve the image box for layout/performance but move the bitmap outside it and expose a text-free branded surface. */
-.hero>.cover{object-fit:none!important;object-position:9999px 9999px!important;background:url('/assets/brand/logo-mark.svg') center/86px 86px no-repeat,radial-gradient(circle at 18% 22%,rgba(9,139,130,.14),transparent 34%),linear-gradient(135deg,#eef9f7 0%,#fff 54%,#fff7ed 100%)}
-@media(max-width:640px){.hero>.cover{background-size:68px 68px,auto,auto}}
+.card::before{content:attr(data-title);display:flex;align-items:flex-end;flex:0 0 auto;min-height:180px;padding:clamp(18px,3vw,28px);border-bottom:1px solid var(--line);direction:rtl;unicode-bidi:plaintext;text-align:right;color:var(--ink);font-size:clamp(1.08rem,1.9vw,1.35rem);font-weight:900;line-height:1.5;background:url('/assets/brand/logo-mark.svg') left 22px top 20px/64px 64px no-repeat,radial-gradient(circle at 18% 22%,rgba(9,139,130,.13),transparent 34%),linear-gradient(135deg,#eef9f7 0%,#fff 54%,#fff7ed 100%)}
+.quick-info-rtl-cover{position:relative;isolation:isolate;width:100%;aspect-ratio:16/9;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:.65rem;padding:clamp(24px,5vw,58px);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);direction:rtl;unicode-bidi:plaintext;text-align:right;background:radial-gradient(circle at 16% 18%,rgba(9,139,130,.16),transparent 28%),linear-gradient(135deg,#eaf9f6 0%,#fff 58%,#fff1cf 100%)}
+.quick-info-rtl-cover__label{align-self:flex-start;padding:.35rem .75rem;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.9);color:var(--brand);font-weight:900;font-size:.9rem}
+.quick-info-rtl-cover__title{display:block;max-width:min(82%,900px);color:var(--ink);font-size:clamp(1.65rem,4.6vw,3.8rem);font-weight:900;line-height:1.25}
+.quick-info-rtl-cover__logo{position:absolute;inset-inline-start:clamp(20px,4vw,48px);top:clamp(20px,4vw,42px);width:clamp(58px,8vw,92px)!important;height:auto!important}
+@media(max-width:640px){.card::before{min-height:150px;padding:18px;background-size:54px 54px,auto,auto}.quick-info-rtl-cover{border-radius:18px;padding:20px;min-height:230px}.quick-info-rtl-cover__title{max-width:100%;font-size:clamp(1.45rem,7vw,2.2rem)}.quick-info-rtl-cover__logo{width:58px!important}}
