@@ -1,0 +1,46 @@
+name: Special Needs Technical SEO Round
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/special-needs-seo-round.yml'
+permissions:
+  contents: write
+concurrency:
+  group: special-needs-technical-seo-round
+  cancel-in-progress: false
+jobs:
+  seo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run technical SEO round
+        shell: bash
+        run: |
+          python3 .github/scripts/special_needs_seo_round.py
+      - name: Verify exactly 50 successful page changes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          r=json.load(open('.github/reports/seo-special-needs-latest.json',encoding='utf-8'))
+          assert r['success'] >= 50, r
+          assert r['verification']['visible_body_unchanged'] is True
+          assert r['verification']['json_ld_validated'] is True
+          print('verified success=',r['success'])
+          PY
+      - name: Commit verified SEO changes
+        shell: bash
+        run: |
+          git config user.name 'rawafid-seo-bot'
+          git config user.email '63592172+khaledaltheeb@users.noreply.github.com'
+          git add special-needs/practical .github/seo .github/reports
+          if git diff --cached --quiet; then
+            echo 'No verified changes to commit' >&2
+            exit 1
+          fi
+          git commit -m 'SEO: optimize 50 special-needs practical pages'
+          git pull --rebase origin main
+          git push origin HEAD:main
