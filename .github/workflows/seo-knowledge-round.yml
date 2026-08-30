@@ -1,0 +1,68 @@
+name: SEO knowledge technical round
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/seo_knowledge_round.py"
+      - ".github/workflows/seo-knowledge-round.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: seo-knowledge-round
+  cancel-in-progress: false
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile optimizer
+        run: python -m py_compile scripts/seo_knowledge_round.py
+      - name: Run round on latest main and publish safely
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            python scripts/seo_knowledge_round.py --target 50 | tee /tmp/seo-knowledge-report.txt
+
+            git add -A -- psychology terms resources sitemap.xml .github/seo 2>/dev/null || true
+            if git diff --cached --quiet; then
+              echo "No material verified SEO changes remain."
+              exit 0
+            fi
+
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('.github/seo/knowledge-round-report.json')
+          r = json.loads(p.read_text(encoding='utf-8'))
+          assert r['successes_actual'] > 0, r
+          assert r['failed_count'] == 0 or r['successes_actual'] >= r['target'], r
+          print(json.dumps(r, ensure_ascii=False, indent=2))
+          PY
+
+            git commit -m "SEO: optimize verified knowledge pages"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Concurrent update detected; recomputing from newest main (attempt $attempt)."
+          done
+
+          echo "Unable to publish after three safe recomputations." >&2
+          exit 1
