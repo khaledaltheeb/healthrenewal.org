@@ -1,7 +1,327 @@
 {
-  "last_run_at": "2026-08-30T07:15:28Z",
+  "last_run_at": "2026-08-30T08:54:03Z",
   "last_success_count": 50,
   "pages": {
+    "special-needs/aac/communication-partner-training/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/aac/communication-partner-training/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "a470c4fa85f3fd0ae7156826280eedb732b1ae2d4595a4630b4392840a0b2500",
+      "pre_sha256": "02b44e1e6eb34327077bc5ed563f9f804b9d82d90dcf687c9a92f226ede69511",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "1b26e2e353683e7160d691fd8e4c366f8813ab57a5963b991f992b07afe040fb"
+    },
+    "special-needs/aac/selecting-aac-system-device/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/aac/selecting-aac-system-device/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "1f16efa37885a0618995fc79b1c0871301ff084fa0e7a6a811b90118e1ea3fd5",
+      "pre_sha256": "bd0c848ecb50b1150e82c0879f3acf16bea35f3bde85017bcee6ac31910e6bca",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "9c1f224a965ddb67878d05a2b9a79943e7a0d8ce50353eafa33e56e04ffdb9a5"
+    },
+    "special-needs/all-pages/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/all-pages/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "f5a2135515d14f32d9192cf52955c6a79a60f96df7a97be39e8c6409cd43611d",
+      "pre_sha256": "a87bf67f2312adff5c722b27cdcc44107160693098dd50e3a5f3fbb4ef47df25",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "30732b76d18777abdf101623eab52787059a8861b79ac4b48057c3ea99d77aec"
+    },
+    "special-needs/communication/social-pragmatic-communication-disorder/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/communication/social-pragmatic-communication-disorder/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "b0029f8a82d289decc01cffb87762391eee77712c311d5b3d603a38b9a2e5bbc",
+      "pre_sha256": "4e152fbf4aac9a5fe8589b5fef74292645a0d6ac262c3e45cc6bf00679b767c5",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "fe3ead8169a4eeec3e1a0a046c298ec5cb222b8ec6c04d3a98bbe0a26fc5ee43"
+    },
+    "special-needs/conditions/cerebral-palsy/communication-education/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/conditions/cerebral-palsy/communication-education/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "bdf74c5cf3f7adc716b12b0a6009ad3b40b5a7d3e74345c93433b49dbb4f8156",
+      "pre_sha256": "ae4bea765edc9ce584db1961ccfa5baed6a927eb8846b7896bd1952230eb6918",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "9efbf355e5f45447260d9ff5d50dbb6f763594e1c3d01d730b8d9dce6735e864"
+    },
+    "special-needs/conditions/cerebral-palsy/detection-diagnosis/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/conditions/cerebral-palsy/detection-diagnosis/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "5cdf7c779187b5bddfca29b5da2d02576ed2279fc0e84b3d97864bd076f9239f",
+      "pre_sha256": "1e68f73f0e9933fdf23db9f7e05979625f083623010427492ef65b4d7d13f956",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "131ab8f93f615703b8089cab24bd0bc0d05d3dc2d3f1e4f14c45b194e6740842"
+    },
+    "special-needs/conditions/cerebral-palsy/family-adulthood/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/conditions/cerebral-palsy/family-adulthood/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "ddbffb26a7499e1e6b9a58a28e95bd241568ef665aebdb60251ce2ee0eb9daa8",
+      "pre_sha256": "8d097a5a70bb299889b63db02fa0e62b450b51852699b25e3b9689adcbf5e2fa",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "7091f32861ae9024bfd04a93001494445b0267182ff2eff3b571cdf1f3bb88a2"
+    },
+    "special-needs/conditions/cerebral-palsy/health-lifespan/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/conditions/cerebral-palsy/health-lifespan/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "cd955b2332d00f08bc81a6c2947a412c42bb0737f299bec5eabbdaba0d802edb",
+      "pre_sha256": "c1b4d6833cb31dda8fac6fe75fc01b1333b7d824320c106f186eb0a4a9eb421b",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "e19787378fc59eaceb1649bfc6674ec41bdfa8a73950d6f96ddba63bbcdc2496"
+    },
+    "special-needs/conditions/cerebral-palsy/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/conditions/cerebral-palsy/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "9192d8087f14b077d43bbafa15a4270b496a18b4de3f234ff8948d52215f7012",
+      "pre_sha256": "73ac97c6472626fa4c644d2f41d5a4bd1b59d4360483efff7e9de84662a31286",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "a1f07457152653caa5e2b7a2f6989cd5a1bf6d3b6eac63fbbf099c38de1ce250"
+    },
+    "special-needs/conditions/cerebral-palsy/movement-rehabilitation/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/conditions/cerebral-palsy/movement-rehabilitation/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "4b9e8867cf81f18901db1ad0ea8d5937b238165c9624daf903c534f7a23180c5",
+      "pre_sha256": "9f7e415c7e08be4940302b4c64a42ec4661122450f44ca0e6d1077e0fc958932",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "e5bc541ad9f16aeb849660b99ca0a6bd1d19f9956ac3891e36e190ee6a784a6a"
+    },
+    "special-needs/conditions/fragile-x-syndrome/behavior-intervention/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/conditions/fragile-x-syndrome/behavior-intervention/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "07857e458dc4590e565fc1e98875f52ac17407e00e857c886d6f83a809f6b3b2",
+      "pre_sha256": "6a869e3ae5e5a5c8fa7214cb2e67224595afb1c08bbdb7ea1f4958dbcfb287ea",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "03f6e58dbec56dd9c0929c1121db3409a0f26b0f31668aa64a6e56986b737086"
+    },
+    "special-needs/conditions/fragile-x-syndrome/communication-education/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/conditions/fragile-x-syndrome/communication-education/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "930414eacd9cbe65b6e68b19d765d81073fab5fff78364f689b8225687df9903",
+      "pre_sha256": "4dcb7497b0e4950a2ac8e2af08dff3e45f6119c1508d9dd1d2b2107916478284",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "b0c3c55bbb6ca75786f127439aca82087ab4479f0ffe427e43ddb3e2119b4a6e"
+    },
+    "special-needs/conditions/fragile-x-syndrome/genetics-diagnosis/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/conditions/fragile-x-syndrome/genetics-diagnosis/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "58f708714de0fa36dbcefa15aeac41b84247da903ba031629fcd09ec180f3219",
+      "pre_sha256": "4eac76f4f80910d2c7c816a26d5d086e0825292bc1b4ddabd804f041eca22822",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "8beb4c529dfa7b2d40d7772f9d60a774cc84d97247df452c894bda78bcd4bf39"
+    },
+    "special-needs/conditions/fragile-x-syndrome/health-lifespan/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/conditions/fragile-x-syndrome/health-lifespan/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "bdc7714a871a3b4f27ee0c318af6edc29cd001d45a1d9af357a30adb9322a0af",
+      "pre_sha256": "1652bcc3a40f15fb379fad5eeead395c9ad8bab29a782bfd67159861ab45f475",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "c1f5bfe9a99df222da9f5be813255d5bf1b321a84b1922da6df1b23151094ef0"
+    },
+    "special-needs/conditions/fragile-x-syndrome/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/conditions/fragile-x-syndrome/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "21a8b5297f92c77e4f24b90fbd370166b4608818001b1d88da977823a4d78262",
+      "pre_sha256": "edb9eab993d58f7015a57b3467169f9b7984a82547ebed11d90aca35c83dfe15",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "bbd4c7c38f9a91b467f20cdee234fdd4bc38e9958edef08059596a9e2bc8f85d"
+    },
+    "special-needs/conditions/rett-syndrome/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/conditions/rett-syndrome/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "edf83c496cae3cdfb3baaae26c445e39f2e195c735875aadbf9d586c1dd5ac0b",
+      "pre_sha256": "8c2684c61d11a8459b6bac9928f51b043a21b98ba36ba2b75f9f8b21be3bedaf",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "07adeea10387e72e8bdff8c0b7f1bfe73fadd9ad07773ce6bbb27175ae7a317b"
+    },
+    "special-needs/early-intervention/caregiver-coaching-parent-training/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/early-intervention/caregiver-coaching-parent-training/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "00326c73b45af299692521b0067f668b36151fe8efcf05d56cba6222f8e7b68e",
+      "pre_sha256": "ba5e374aa866175b6b1678de7220e10a3d909e3638ee3e10ab7828561cc476a9",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "6049db1afcb1d2959de230179a6441cdd7ed30e678b2d8ba85c826ec7030ef70"
+    },
+    "special-needs/early-intervention/communication-routines/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/early-intervention/communication-routines/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "bdbda92d18daaff43e80af3cb3623fd6e9f8ebc8c2cfaa1d49f2376dd22bf8e1",
+      "pre_sha256": "a27cdbd465eac6d7f771b6aa72e8ff1d26b6b8c8b8d536289c884c155111349d",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "8af5c7f4b5d82e7af3010d0363419b01e8e77c8d59e46ee4d887897870b1f2e5"
+    },
+    "special-needs/early-intervention/motor-development-routines/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/early-intervention/motor-development-routines/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "0cd5b8c79e36ab955545d9d9a747c151fd971541e5b0ce1c9b5c0ea7594e03f3",
+      "pre_sha256": "71ba6d148d58e31c901499f2aaf918bd65f907330a93b76d7a43f8ffcf66df67",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "e82980e15b4931a31f0ae98c5d77b8d7f31c94141b43639836f787370db7c24f"
+    },
+    "special-needs/early-intervention/school-readiness-developmental-delay/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/early-intervention/school-readiness-developmental-delay/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "7364b4ae73d101d84bdfba47b8fdc74698ed2004747d17fd2761c392df78c928",
+      "pre_sha256": "e64095732602f2aca507f065fe9a5c09fffe6270f9f3bb13c686391273651b1c",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "0b540f86bc7ddf66257647cc1c48d5296ff40be7bcf0859306c045f71dac5943"
+    },
+    "special-needs/early-intervention/social-emotional-routines/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/early-intervention/social-emotional-routines/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "9f833238e1279223977c4d0b77b071a79d08752bc8b8c5410bbd32ed9ce31f15",
+      "pre_sha256": "1e1a19ef8a06704f2842a8a39cb87c7fd6ba34d5b608b213fa80cf4f1c205ace",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "afd365ffd9775aa87c49055abe5a36ab3ed9d31a6072d4ad0aafb94ca6eaf09c"
+    },
+    "special-needs/education/accessible-assessment-students-disabilities/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/education/accessible-assessment-students-disabilities/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "039d8161bc39402187efc13ed14ec095e37c28fc0b33f30aaaca40bc03753331",
+      "pre_sha256": "555ebe7869ddfb38eb0b3a813c8c9ca04496226d1e59619db751859a27360003",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "51300599681ccd877e15de9b40a8c261f6768ecf7acee24c93f6ba45f4387f6c"
+    },
+    "special-needs/education/differentiated-instruction-inclusive-classroom/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/education/differentiated-instruction-inclusive-classroom/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "21f1041327a06b69f7e0fd01bc9bc024d81b019e23b6b892c8001fbe80915077",
+      "pre_sha256": "77bd8be671dc6bcd12ffea7559989325cc93faaf277806ee41e8c4a93d5b2000",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "4780d1a7381ca3cb7ebc2735c9f83cfb7e2231d9f9efe52624f8d94b0818a8b4"
+    },
+    "special-needs/evidence/communication-authorship-fc-rpm/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/evidence/communication-authorship-fc-rpm/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "9954003efdabab5d779c01e42665614d6fc3021b20c948fb635288e02a628ca0",
+      "pre_sha256": "aa52fe6156c363d17f9c926108731507ba86e296cb500bd3df5fca3020f4e65a",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "c3f0248d42fff231775e30f0403d670bd54739b00079ed85b9c98e79215eea2b"
+    },
+    "special-needs/evidence/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/evidence/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "aef2cc9f879979bd47672675c31b0b794e26d86e8ab0aaf2c49cc63d2dbc16a9",
+      "pre_sha256": "688546fc9f3dc97d709fb9f17ab16cf6c24dacb1d602a588f02ba7b663be109f",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "e00c4d7643e92bbc1f8d787e7963f5325b69433532514f1f076b7d870b549117"
+    },
+    "special-needs/evidence/unapproved-biomedical-autism-treatments/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/evidence/unapproved-biomedical-autism-treatments/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "d5a6cac48d2b4d34fc5d8235c29d7577c4e9310d182518fd9869da70d15b6577",
+      "pre_sha256": "e176b92225e8bae29aafca82151dd1d5d34210af30116473ead8f529b77305d3",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "b27ea83345c4f634d2f457491c2a7f6ea01ae9357c4e6c7b30c30d224539a4a6"
+    },
+    "special-needs/evidence/vaccines-autism/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/evidence/vaccines-autism/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "78a7f81dc83960636c49e1eb05bb487d423ecb63d2b907138f9d215303ceabc1",
+      "pre_sha256": "02d310e1e48f56b06c4fd3e97bc827bb635885b124ba789a402e7e725d448fb1",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "28c2cdd75e97102561d968dd23bd8d3cd6bb5231bf0ef6227d28fe4bea6a6c0d"
+    },
+    "special-needs/guides/communication/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/guides/communication/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "99738a15acaa14f93429abfbb5f062ae25d1c4d08f84d9c1eb537ddc17af759f",
+      "pre_sha256": "ae57171b590eb9dbbba36d772a41ea8fd90d72f265a6007da616ceefb3f3f47c",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "ca65c73f898e65d4c5a38b2dceacc520dbe257752b4be552f14d06ee1ec74e8f"
+    },
+    "special-needs/hearing/classroom-acoustics-listening-access/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/hearing/classroom-acoustics-listening-access/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "fc893da789d15b4b50abf0ba43ed0a85fd39ac0f81699101a980184df0f5d05e",
+      "pre_sha256": "d359b0ebcac96624e807827b9c18cf088871c4416a788ee6006dc5fdc8fbd896",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "5cddae6f771382cac4ae005f6195c231baec8326978a2c55931cf65d539102c7"
+    },
+    "special-needs/hearing/unilateral-hearing-loss-school/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/hearing/unilateral-hearing-loss-school/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "e6e4756ea432f6edb9c6bc64e6e6496de6f834fba1d7c3323801182976dd661d",
+      "pre_sha256": "d544d642fcf8dc04eff52aa115b23ebfae57d7e23e87471fbca8e51fd58d106d",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "5e1f3f70f0939b82cf011a94c65651135982df5765b99f95fd7ba3d1873db754"
+    },
+    "special-needs/learning/arabic-phonological-awareness-reading-difficulties/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/learning/arabic-phonological-awareness-reading-difficulties/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "8619ae095688959f2fefee835ff870ce38dc232f99a726d0eef72c6409b2285f",
+      "pre_sha256": "2d5a54693dc39c2d3dacd48924660a700762cf078dd339a09f8f284d6b26cbe3",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "0c88f8af9e4e3609c5c6777159a9c19e10643a5c1e7581237df9ff3906b99f1b"
+    },
+    "special-needs/learning/arabic-reading-fluency/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/learning/arabic-reading-fluency/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "26dc5c7536d67daaa8fd1c1828808646b98a95b07485419bc3f2bdc534f0cf8b",
+      "pre_sha256": "7ada6b6dcbe735a0ac062b195bfa4caf2950b8faada6bfe49d5a18e30e5e2ea8",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "6f8d4a24c17c0f6bf86ede43879a3d25327f4ca8611ac1438401c0955ed0d67d"
+    },
+    "special-needs/learning/executive-functions-learning-support/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/learning/executive-functions-learning-support/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "09a4a9b5d07454329abdefb66b4590339ee3d93a937354463d1b909386436a27",
+      "pre_sha256": "f16e5a2ed6ffd8760ecb58f039032a33a5db3cfa06881a284c068738e287752b",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "88865d6864125d86da044ec7c9a670b76a2a08214908a2160c55cc4e6ef9d988"
+    },
+    "special-needs/learning/fraction-sense-mathematics-difficulties/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/learning/fraction-sense-mathematics-difficulties/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "d433d4faaa3db232f04b088f33f35eff0a6cac85fb125d6e1b0b874aea31788f",
+      "pre_sha256": "7309d62c599f56c3e894f60909d212ddb9837607f9694d1a1dedf4e30c2d3c78",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "c60b7be29cdf5dcca6f275b27cbe62697e77f3aa63848d3eff1dc492aa802d4a"
+    },
+    "special-needs/learning/math-word-problems-learning-difficulties/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/learning/math-word-problems-learning-difficulties/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "184dd8f0404f42969af561afbe32003495d62ecb2eb11e1258df4f8195ccd99f",
+      "pre_sha256": "2162dc18a24ae7eeaeb876e480f0bee8c783fec115d7a4914ff57657a8cf538e",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "38262deeaf4f9354eb0453de9f7526c18d7389b359bed2553bf319360129f811"
+    },
+    "special-needs/learning/number-sense-mathematics-difficulties/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/learning/number-sense-mathematics-difficulties/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "6afe5d0ac6c3809df42a3ba85e69733f6ad154a18b6cbe911ee5de01a6514d1b",
+      "pre_sha256": "4fa490280adaa4b8984064030f4ebe8b4770d4ff206620ab67f1ebec53df9b1c",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "bbeacce424149e8afdef99d0db23e8a2f57655e04576daaa758c86fb6372e040"
+    },
+    "special-needs/learning/place-value-base-ten-mathematics-difficulties/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/learning/place-value-base-ten-mathematics-difficulties/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "7d55c839dbe29e3829be9dec41ad809a17463ec3ab4b9c15054868d1b96d35e7",
+      "pre_sha256": "3c2db13e0eab6fa8162a896f93da8ae026faa48cdf9c0d0f5d024b3600c3e48b",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "a6c1065b1f6847c02876678bdae80950bb695d33c7dfac3b0e2f002905bc90a7"
+    },
+    "special-needs/learning/processing-speed-learning-support/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/learning/processing-speed-learning-support/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "82dcb3c7ea19c8020ab9e71cdb7651d2bd4c745f08b5697241337f773320af63",
+      "pre_sha256": "853b999d24bc20a1bdf5b748e8ae501e3b100195026ca1af540dafc24ce30a65",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "e4e4042ced2737a90e234edebb68f68df3db9b5e6658774b5ce829b76a987475"
+    },
+    "special-needs/learning/reading-comprehension-learning-difficulties-arabic/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/learning/reading-comprehension-learning-difficulties-arabic/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "1b85e23f47e924fa738cf296ed51d1f784021b849444ad1a8b9db0d6e3c75329",
+      "pre_sha256": "7f89d572fc1b9c8bfebdf4b51eba756432f69b0953c72b4167354ffd9e536b33",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "9081410ec3fb086c672365ccaa9a1f2f0dea2aba8c2ee2e062aa3bbe0bef9cbe"
+    },
+    "special-needs/learning/working-memory-classroom-support/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/learning/working-memory-classroom-support/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "ee153b5dc5947008ed34e8cd69c97a07492f1f49dbbba5ac2d3383f1ed789c16",
+      "pre_sha256": "e29c25ca3dc09de003d54c2fd403590785d6dbc3958c28e68dc4f1e854a507ca",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "0538e9263500814dfa05c7ae36d85bf544499e5f496cb878ec784f0284f62843"
+    },
     "special-needs/practical/aac-needs-assessment-plan/index.html": {
       "canonical": "https://healthrenewal.org/special-needs/practical/aac-needs-assessment-plan/",
       "optimized_at": "2026-08-30T07:15:28Z",
@@ -401,7 +721,87 @@
       "pre_sha256": "76b1019174b202e74dd41deb0331af7009e4fa5f44f1c793704745ce397cbed3",
       "version": "technical-seo-v2",
       "visible_body_sha256": "cf3646f126d7789ecbd821ec9587150dd3783f04243b0b23aa6286757ca71ed7"
+    },
+    "special-needs/reference/autistic-burnout-adults/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/reference/autistic-burnout-adults/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "ef7495ca78af15901578b64489d7c298cc7c141c176ae7bdcfc41a2814412f89",
+      "pre_sha256": "6c9ef2933ce73a6dac636d0b2037d3a2cec7e7e8009f6469bab7fc03eb5e09dd",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "2b34dcb40843464cbf8bea09f65e537a9e3824319008b0e649317c071ac8626e"
+    },
+    "special-needs/reference/iep-accommodations-vs-modifications/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/reference/iep-accommodations-vs-modifications/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "c9d845973ef59b3027a652b120c843b9797fc595c7cc273f77e61e4fbddbf1de",
+      "pre_sha256": "a1b0c472a00be6deb5c9d75eea3c78595ff4a1dab541066c80bbbb97e3376ffe",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "b679442fa4c04387872709b617fafb8934ca7b8ca0d9381dd8007b47943cc107"
+    },
+    "special-needs/reference/iep-present-levels-plaafp/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/reference/iep-present-levels-plaafp/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "1df680afb4dd3a53ded0fa12489841cf003705491af485c0d0bc3699f05037b2",
+      "pre_sha256": "127f313db779e60065846a5abef1e4cd07d569be8863f829358a6974c85d8f40",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "6ebe5e1ffe6d2d9c433291aba984c1b23164b0fb35540b9019060cde87b456b9"
+    },
+    "special-needs/reference/iep-progress-monitoring/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/reference/iep-progress-monitoring/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "ee84b0077d446a7f50662db8398eeea00f013a28da705e81667eaf092f85bfa3",
+      "pre_sha256": "142d50d3bbcfff1e750fe49898c5438d77c9b329e3177c6640b94957f360ea96",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "88ee9d69b101368a89e8bc64d7c04cd11b0349a1aa32a4bcd09ef75b831257e8"
+    },
+    "special-needs/safety/bullying-students-disabilities/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/safety/bullying-students-disabilities/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "19b04476465b986322d06cb9dada8c4c443ae35e8ef5e3d6136780c4db3d9e4d",
+      "pre_sha256": "73339752ceae77feed36f9e0a7ab9f2fdbb73611af13052157dc4e458c39f7b2",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "e8c271dcd620292ef1422687211cd496dcda5623f7eb86561ddafa7ba997de71"
+    },
+    "special-needs/safety/digital-safety-students-disabilities/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/safety/digital-safety-students-disabilities/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "554f82977defa3a8c0c5dc987ded6690cedc23ea5f5a087a10fcae4e71a99071",
+      "pre_sha256": "d15065f35a3ade0bb63fd1bce67e144633dc8be229f5f061fbfaf5710495a90b",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "9c4c928c2e7c13280d398d9768516ad0d17613531b9de41108ade8b49f97eadb"
+    },
+    "special-needs/transition/supported-employment-youth-disabilities/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/transition/supported-employment-youth-disabilities/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "0d4f814f88717f28beaa1600ab70df2c8510ef8b4c8483cb1718db15f7b11f8b",
+      "pre_sha256": "5b92051f30e88e098496a24203bbb9b27253bcddd8072d17fed04aebc9dc15e2",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "b961624b29b104896fdd2d137ab2ca9c0fd8444815c281b273a8dbc947acd523"
+    },
+    "special-needs/vision/braille-literacy-school/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/vision/braille-literacy-school/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "a2f42b52effcee511c7817caa5c654b5f55d3f4d8122cbc236f35c5badb41b6c",
+      "pre_sha256": "8d221c7748724116fd6e6d8627bd914a3cb341d4afe93d010a752d307da9c76a",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "bc15618921e4cd50dfd08802eb068ee6ca0b63c275dfb4e45ac7d9d3826800f9"
+    },
+    "special-needs/vision/low-vision-classroom-accessible-materials/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/vision/low-vision-classroom-accessible-materials/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "39de3bda7d1d2caad011f9c7a03b529137be85e577413a5907c101a10caa65ee",
+      "pre_sha256": "07c3f87ba7daabfe61977b37b9c2ad3517ee9a8af52363c319a99d78ba3da3b5",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "14295109392807b709722366ebf86693685d6dbff78125c27d88450e41214d73"
+    },
+    "special-needs/vision/orientation-mobility-school/index.html": {
+      "canonical": "https://healthrenewal.org/special-needs/vision/orientation-mobility-school/",
+      "optimized_at": "2026-08-30T08:54:03Z",
+      "post_sha256": "c9129ba0edc1a217acbb52646277afd1008ae29d6c45f108078f081478145576",
+      "pre_sha256": "a7c03b6f0f901d83a424f0841a7ee981ad0a024826383e7b567ab31c45172fb4",
+      "version": "technical-seo-v4",
+      "visible_body_sha256": "92cf5d3b59c6a1f69216d0b1b33f59d9c27b9e28ff6f6a71f2fccd21e50e9974"
     }
   },
-  "version": 2
+  "version": 4
 }
