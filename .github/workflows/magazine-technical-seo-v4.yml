@@ -1,0 +1,93 @@
+name: Magazine Technical SEO Round V4
+
+on:
+  push:
+    branches:
+      - seo-magazine-tech-v4-20260830-1147
+    paths:
+      - 'scripts/seo_magazine_round_v4.py'
+      - '.github/workflows/magazine-technical-seo-v4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: magazine-technical-seo-v4-20260830-1147
+  cancel-in-progress: false
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout isolated run branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: seo-magazine-tech-v4-20260830-1147
+
+      - name: Run magazine technical SEO
+        id: seo
+        shell: bash
+        run: |
+          set +e
+          python3 scripts/seo_magazine_round_v4.py
+          rc=$?
+          echo "runner_rc=$rc" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Verify contract and scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          rp=Path('.seo/reports/magazine-v4-latest.json')
+          if not rp.exists(): raise SystemExit('magazine SEO report missing')
+          r=json.loads(rp.read_text(encoding='utf-8'))
+          print(json.dumps({k:r.get(k) for k in ('target','success','skipped_noop','failed','eligible_remaining','round_complete')},ensure_ascii=False))
+          if r.get('success',0)<50:
+              raise SystemExit(f"الجولة غير مكتملة: {r.get('success',0)}/50; remaining={r.get('eligible_remaining','unknown')}")
+          v=r.get('verification',{})
+          assert v.get('visible_body_unchanged') is True
+          assert v.get('semantic_queries_per_success_min',0)>=500
+          assert v.get('canonical_self_checked') is True
+          assert v.get('robots_indexability_checked') is True
+          assert v.get('og_twitter_consistency_checked') is True
+          assert v.get('json_ld_validated') is True
+          assert v.get('sitemap_inclusion_checked') is True
+          status=subprocess.check_output(['git','status','--porcelain'],text=True).splitlines()
+          changed=[]
+          for line in status:
+              p=line[3:].strip()
+              if ' -> ' in p:p=p.split(' -> ',1)[1]
+              changed.append(p)
+              if not (p.startswith('magazine/') or p.startswith('.seo/')):
+                  raise SystemExit('out-of-scope runtime change: '+p)
+          for p in changed:
+              if not (p.startswith('magazine/') and p.endswith('.html')): continue
+              old=subprocess.check_output(['git','show','HEAD:'+p],text=True)
+              new=Path(p).read_text(encoding='utf-8')
+              oi=old.lower().find('</head>');ni=new.lower().find('</head>')
+              if oi<0 or ni<0:raise SystemExit('head boundary missing: '+p)
+              oi+=len('</head>');ni+=len('</head>')
+              if old[oi:]!=new[ni:]:raise SystemExit('visible/body content changed: '+p)
+          print('verified runtime paths:',len(changed))
+          PY
+
+      - name: Commit verified magazine-only result
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Rawafid Magazine SEO Bot'
+          git config user.email '63592172+khaledaltheeb@users.noreply.github.com'
+          git add magazine .seo
+          if git diff --cached --quiet; then
+            echo 'No verified material changes to commit' >&2
+            exit 1
+          fi
+          success=$(python3 -c "import json; print(json.load(open('.seo/reports/magazine-v4-latest.json'))['success'])")
+          git commit -m "seo(magazine): technical metadata round ${success} pages"
+          git push origin HEAD:seo-magazine-tech-v4-20260830-1147
