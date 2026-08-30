@@ -30,6 +30,7 @@ for path in pages:
         canonical = match(r'<link\s+href=["\'](.*?)["\']\s+rel=["\']canonical["\']', text)
     if not (title and description and canonical):
         raise SystemExit(f"Missing title/description/canonical: {path}")
+
     additions = []
     if "property=\"og:title\"" not in text and "property='og:title'" not in text:
         additions.extend([
@@ -55,8 +56,14 @@ for path in pages:
             ),
         }
         additions.append('<script type="application/ld+json">' + json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + '</script>')
+
     robust_robots = '<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">'
-    text = re.sub(r'<meta\s+name=["\']robots["\']\s+content=["\'][^"\']*["\']\s*/?>', robust_robots, text, flags=re.I)
+    robots_pattern = r'<meta\s+name=["\']robots["\']\s+content=["\'][^"\']*["\']\s*/?>'
+    if re.search(robots_pattern, text, flags=re.I):
+        text = re.sub(robots_pattern, robust_robots, text, flags=re.I)
+    else:
+        additions.append(robust_robots)
+
     if additions:
         if "</head>" not in text.lower():
             raise SystemExit(f"Missing </head>: {path}")
