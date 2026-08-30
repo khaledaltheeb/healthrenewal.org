@@ -67,7 +67,14 @@ def patch_generated_page(topic: dict) -> None:
     source = source[:match.start()] + tag + source[match.end():]
 
     og_alt = f'<meta property="og:image:alt" content="{alt_html}">'
-    if 'property="og:image:alt"' not in source:
+    if re.search(r'<meta\s+property="og:image:alt"\s+content="[^"]*">', source):
+        source = re.sub(
+            r'<meta\s+property="og:image:alt"\s+content="[^"]*">',
+            og_alt,
+            source,
+            count=1,
+        )
+    else:
         source = source.replace(
             f'<meta property="og:image" content="{image_url}">',
             f'<meta property="og:image" content="{image_url}">{og_alt}',
@@ -75,7 +82,14 @@ def patch_generated_page(topic: dict) -> None:
         )
 
     twitter_alt = f'<meta name="twitter:image:alt" content="{alt_html}">'
-    if 'name="twitter:image:alt"' not in source:
+    if re.search(r'<meta\s+name="twitter:image:alt"\s+content="[^"]*">', source):
+        source = re.sub(
+            r'<meta\s+name="twitter:image:alt"\s+content="[^"]*">',
+            twitter_alt,
+            source,
+            count=1,
+        )
+    else:
         source = source.replace(
             f'<meta name="twitter:image" content="{image_url}">',
             f'<meta name="twitter:image" content="{image_url}">{twitter_alt}',
@@ -188,8 +202,10 @@ def validate(topics: list[dict]) -> None:
             raise RuntimeError(f"Missing precise cover alt for {topic['slug']}")
         if 'alt=""' in cover_tag or 'رسم توضيحي مجرد مرتبط' in cover_tag:
             raise RuntimeError(f"Legacy/generic cover alt remains in {topic['slug']}")
-        if 'property="og:image:alt"' not in source or 'name="twitter:image:alt"' not in source:
-            raise RuntimeError(f"Missing social image alt for {topic['slug']}")
+        expected_og = f'<meta property="og:image:alt" content="{expected_alt}">'
+        expected_twitter = f'<meta name="twitter:image:alt" content="{expected_alt}">'
+        if expected_og not in source or expected_twitter not in source:
+            raise RuntimeError(f"Missing precise social image alt for {topic['slug']}")
 
     hub = HUB_PATH.read_text(encoding="utf-8")
     for topic in topics:
@@ -212,11 +228,8 @@ def validate(topics: list[dict]) -> None:
 def main() -> None:
     topics = compose_topics()
 
-    # Fix source generation first so future builds cannot reintroduce pictograms.
     patch_generator_source()
 
-    # Regenerate only visual assets and patch accessibility metadata. Article
-    # bodies remain untouched, preserving later editorial and SEO improvements.
     make_quick_info_image(
         ROOT / "assets" / "quick-info" / "quick-info-cover.png",
         None,
