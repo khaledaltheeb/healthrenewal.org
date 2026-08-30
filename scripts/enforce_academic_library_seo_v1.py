@@ -44,6 +44,26 @@ def root_and_section(path: Path, site: Path) -> tuple[str, str]:
 
 core.root_and_section = root_and_section
 
+
+def clean_unverified_hreflang(head: str, site: Path) -> tuple[str, int]:
+    """Academic library currently has no verified translation registry: emit none."""
+    removed = 0
+    out: list[str] = []
+    cursor = 0
+    for match in core.LINK_TAG_RE.finditer(head):
+        out.append(head[cursor:match.start()])
+        tag = match.group(0)
+        if core.attrs(tag).get("hreflang"):
+            removed += 1
+        else:
+            out.append(tag)
+        cursor = match.end()
+    out.append(head[cursor:])
+    return "".join(out), removed
+
+
+core.clean_broken_hreflang = clean_unverified_hreflang
+
 _orig_build_plan = core.build_plan
 
 
@@ -144,6 +164,8 @@ def verify_page(plan, site, sitemap):
     head = hm.group(2)
     if core.get_meta(head, "name", "keywords"):
         raise ValueError("meta-keywords remain")
+    if any(core.attrs(tag).get("hreflang") for tag in core.LINK_TAG_RE.findall(head)):
+        raise ValueError("unverified hreflang remains")
 
 
 core.verify_page = verify_page
