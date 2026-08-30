@@ -1,0 +1,456 @@
+{
+  "version": "magazine-technical-seo-v4",
+  "updated_at": "2026-08-30T08:56:55Z",
+  "pages": {
+    "magazine/adhd-baduanjin-response-inhibition-rct-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "f35bd7c9832f787f427a9edc5fb2e5edfa8faaeed310b7ce6697534288020e67",
+      "output_sha256": "7702918d627e915a97bc23d5082123e2a4cb107ae53f8749d2c6ea632dfc8886",
+      "primary_intent": "تمارين بادوانجين وكبح الاستجابة لدى أطفال ADHD | تجربة عشوائية 2026",
+      "manifest_sha256": "4e98ff4688c7ed682dc9519125e0ab82a851f516c7462e4b5f35feaed034ca75",
+      "status": "verified-success"
+    },
+    "magazine/adhd-dexamphetamine-methylphenidate-randomized-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "acf02fccf7db43f84f92e413ab314323d6e7b8416e0d6744a57b3506a49fc4ec",
+      "output_sha256": "d63262a9e3ab9a1081e383853ef1baa89b7af348d6e09fd88700e20f51540255",
+      "primary_intent": "ديكسامفيتامين أم ميثيلفينيديت لدى الأطفال ذوي ADHD؟ | دراسة عشوائية 2026",
+      "manifest_sha256": "6a96c7437d9222514b6a6d91a9ce1895e2e5bccebd569e2b7a65840f4a59002b",
+      "status": "verified-success"
+    },
+    "magazine/adhd-personalized-neurofeedback-sham-rct-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "cd1c1211ee170dd90c62608d9b9f7bfeee2bcedc823b52a79593b222507e40e4",
+      "output_sha256": "d9b7a5e7f11213266c8ff76ca28271c46d1b3b22511688a72a30090ceda73f7c",
+      "primary_intent": "التغذية الراجعة العصبية وADHD | تجربة عشوائية 2026",
+      "manifest_sha256": "1db0c0565fdf31e8fbe7953b6c51751f5e1ebee25c25fa3b911a19f8747f7942",
+      "status": "verified-success"
+    },
+    "magazine/adhd-physical-fitness-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "3d41a43f554fa24df3754bb5e179696497c9ada6c346d9a28386673ddac7c027",
+      "output_sha256": "a5ee12e30bfed031322427a394b0cfe74786d15c84e7bdcd0e938d3a19129061",
+      "primary_intent": "اللياقة البدنية لدى الأطفال ذوي ADHD | تحليل تلوي 2026",
+      "manifest_sha256": "c4f7b779a648274a9f6f4cd41e7861adf81439c19edf1d30909158746ede4ba7",
+      "status": "verified-success"
+    },
+    "magazine/adhd-rhythmic-music-game-rct-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "a99a8d5d722af443dc04087b2ed47d742024b84e9df155330d8c3eee802599e0",
+      "output_sha256": "77a2ad1c01fd38ade20f8c561e9f8c01272ecc020ed2a146ba710f709813dedb",
+      "primary_intent": "لعبة موسيقية إيقاعية لأعراض ADHD | تجربة عشوائية 2026",
+      "manifest_sha256": "2aae22cf4552deb4da9a86b0b020df9d0b63475ce4dba82437f476612b314d72",
+      "status": "verified-success"
+    },
+    "magazine/adhd-school-social-skills-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "00f7159221ec4a5a464b804d4c87834d303ac1b2c112b4018f6d43aedc58e8d0",
+      "output_sha256": "743e0f1a1d7ae28f3cd33b56415ef32cc79e08b27d9ca2344b8810f0634fca2c",
+      "primary_intent": "تدريب المهارات الاجتماعية المدرسي للطلاب ذوي ADHD | تحليل تلوي 2026",
+      "manifest_sha256": "d8e90848a53cfe72c8e8fc0343bd3e38f6a363d4e64d7093de7009513f011cb7",
+      "status": "verified-success"
+    },
+    "magazine/adhd-screen-time-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "05533dfd767bdc4120a6f60b6462da56ac2ed3f0a20688bedebe25078b1a7875",
+      "output_sha256": "ce3c5282a6e39c5556d757de208128b46d9b4820778ef125b5171733ac49c19b",
+      "primary_intent": "وقت الشاشات لدى الأطفال ذوي ADHD | تحليل تلوي 2026",
+      "manifest_sha256": "b8c4a53a7e4e9fb8726c1a4d48e1640e087922679bec3bca25627e14dc7411bf",
+      "status": "verified-success"
+    },
+    "magazine/adhd-sleep-interventions-network-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "5611a034f095cf20b7f76ac2451e4cc410cf86a0c90f8dc2b7f6315a3171f660",
+      "output_sha256": "06091190a0e30bae64c06711c0538a39d75ae324381b248f397698d1bd439706",
+      "primary_intent": "تدخلات النوم لدى الأطفال والمراهقين ذوي ADHD | تحليل شبكي 2026",
+      "manifest_sha256": "b4c239aca404003707b7739cc3033d97bc7b2193658415c81aa53a867cfd5243",
+      "status": "verified-success"
+    },
+    "magazine/adhd-technology-interventions-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "63ac9a73006eed23b2879b3b9ab2c4c2b13ec7610c220fc635b736ab68bc9990",
+      "output_sha256": "b824ab961795f58ccfb6e70d72e096a7bb35fc9a38c175624373bb6305c030bd",
+      "primary_intent": "التدخلات التقنية للأطفال ذوي ADHD | تحليل تلوي 2026",
+      "manifest_sha256": "7b6067dd96f278ae1a813155f8398b11993f721ed369b5d70bdb2c7fa8365466",
+      "status": "verified-success"
+    },
+    "magazine/adolescent-chronic-pain-digital-psychological-interventions-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "49321da3978cc3f39d22ce6e7d817c80f67a5f61e50ea19ef6da8d7051f3c03a",
+      "output_sha256": "5c3250a45d0483498812ed342378f0d9957d695bbef5d83728e35088eeddf2cf",
+      "primary_intent": "التدخلات الرقمية للألم المزمن والقلق لدى المراهقين | تحليل تلوي 2026",
+      "manifest_sha256": "cc8f773047b16f1163cb559f3b382ebfbd3fbbf638c263f3450f40fb74cea8f1",
+      "status": "verified-success"
+    },
+    "magazine/adolescent-depression-one-step-back-rct-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "6890870cb479f4a04740c9480bd8cc643751ba7987199db997ac35b5f0b09dd7",
+      "output_sha256": "18752b52511f16087b4111f2b07ba2b9d616ce096018415c51564013251f60dc",
+      "primary_intent": "برنامج One Step Back الرقمي وخطر الاكتئاب لدى المراهقين | تجربة 2026",
+      "manifest_sha256": "2ecae788a42d57d7d95844146b37ce98369b280e03abaed28d2dec8416fa6ad0",
+      "status": "verified-success"
+    },
+    "magazine/adolescent-mental-health-artemis-cluster-rct-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "54610ef09f7fd82f83624c4808e8a3c3ba028641ec2e279b3e39fbeed5e0b1d7",
+      "output_sha256": "f2ab0de34d9075d0403761b279e5d0ea88ae8f870e0860aa4949f1c7ba721d83",
+      "primary_intent": "حملة مكافحة الوصمة ورعاية الاكتئاب للمراهقين | تجربة ARTEMIS 2026",
+      "manifest_sha256": "f6d9de6503b90da6e8c767607311d210dc86cd42366d6e31feeaa460407f6d4e",
+      "status": "verified-success"
+    },
+    "magazine/adolescent-passive-smartphone-sensing-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "b9d8cfa3d23e330fb3cd34ec995c14bf4ecb33b14ae52fdebfe4759e6f77e03c",
+      "output_sha256": "032d74e8842ee1723841c0e19d48e94e29befa2aa893b025d7f86f9f24605a89",
+      "primary_intent": "الاستشعار السلبي بالهاتف والصحة النفسية للمراهقين | تحليل تلوي 2026",
+      "manifest_sha256": "fa56f9e92103c3e6e04545d6e804ed65e0702adfb40e626a8d86ef5f76d74d07",
+      "status": "verified-success"
+    },
+    "magazine/adolescent-school-guided-narrative-writing-cluster-rct-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "d42144109e40247de526c7529eb60f962c1b4c89606b829735bb32d37db5ef02",
+      "output_sha256": "4eb36abda8dee70bcbde92f750df45e9fb33b19161c04cc0d078623c1f275480",
+      "primary_intent": "الكتابة السردية الموجهة والقلق لدى طلاب المدارس | تجربة عنقودية 2026",
+      "manifest_sha256": "96fa23acbdaa786fc4e5335fa250de06318196dbb7f4970f704273356a5ea72e",
+      "status": "verified-success"
+    },
+    "magazine/artemis-adolescent-mental-health-stigma-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "186d819410ef4263d433121a9f9c2998ea3a2e02d07f17c06431cd5b82097254",
+      "output_sha256": "ca4e3459dc3fd258cfd422ee12279a5d14bc6e639112b60d64f3d6b5cdfaff1b",
+      "primary_intent": "تجربة ARTEMIS لصحة المراهقين وخفض الوصمة | JAMA Psychiatry 2026",
+      "manifest_sha256": "ea35fb59de3bb902b5bacb45d11a502004a9df10a06522dd6b6c9394ee6fcfd4",
+      "status": "verified-success"
+    },
+    "magazine/autism-aspen-low-resource-parent-intervention-rct-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "6909dbdce90a108dce6a7198c3a3c5fd998a19ca36579cee72135a71b9d9d143",
+      "output_sha256": "8429f6de51e6de3da16029fead2c1e2df4915ac6b8de05ea64468bbea07374e8",
+      "primary_intent": "برنامج ASPEN المكيف ثقافيًا لأسر الأطفال التوحديين | تجربة عشوائية 2026",
+      "manifest_sha256": "5e4c6b100611a6098c23483109c6813d23a5b6af19045ba3728b1a87e72d6ff3",
+      "status": "verified-success"
+    },
+    "magazine/autism-behavioral-domains-network-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "48945bd8421dba6adcc6dbc03bd1631691c87ca6b28fe7506e500ac492fa6d8e",
+      "output_sha256": "92448d5f2e8e353f4f65078cd132cf95daa8c6da3acd044259d080a98806b19d",
+      "primary_intent": "تدخلات التوحد حسب المجالات السلوكية | تحليل شبكي 2026",
+      "manifest_sha256": "5ae400324f8a737ee623ba84cda2e5705ddeb502c1c632eb389f5961e01013d3",
+      "status": "verified-success"
+    },
+    "magazine/autism-caregiver-adjustment-review-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "d9a2b827d26794a1b0e225e0911eda4fea5a093dba24a87d26fbb06e8b22e72e",
+      "output_sha256": "0c90d7547e4776bf46173e52d2cc8861e6896c3efbd483c31cd8bd0811ad5689",
+      "primary_intent": "تكيف مقدمي الرعاية بعد تشخيص التوحد | مراجعة منهجية 2026",
+      "manifest_sha256": "315e42b4b0d368b9d55b339626a43f30d7e57671ed1e151d004a2611613c4d49",
+      "status": "verified-success"
+    },
+    "magazine/autism-emotion-regulation-interventions-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "5d016cad9abbb1bf8b060f3393d11334d3f963fa9db845f25a3f83b216823946",
+      "output_sha256": "0a7190d49d671b39020729c9e32b7ce67553423d09acd91cfce41ac195351e2b",
+      "primary_intent": "تنظيم الانفعالات لدى الأطفال والمراهقين التوحديين | تحليل شبكي 2026",
+      "manifest_sha256": "fa55ff705b88e9900fae4aab9fe46a271b40ccab713982f016d0519c4c7aa8a6",
+      "status": "verified-success"
+    },
+    "magazine/autism-family-food-insecurity-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "a18cba0a80e7d1f7f6ed3820a24915d91932f96145ccc3c3b5fc968ef27a637f",
+      "output_sha256": "5b7d0205fd360d113b4dd85ff5f8507db1054b1cda95617d36eaa1a4ba95537c",
+      "primary_intent": "انعدام الأمن الغذائي في أسر الأطفال التوحديين | تحليل تلوي 2026",
+      "manifest_sha256": "0d7457e1c920fc18c2a00f08e28804e3aadd86f59ae282614d556cf2c6d2d88b",
+      "status": "verified-success"
+    },
+    "magazine/autism-interventions-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "beb2ea458f02dbdb692bdad5fbf86534fb1f52cd55c2e59e0538883e8994e6d5",
+      "output_sha256": "e23365f6da7cb0482baea810500fc7dce778d583f9f55bdeffcbb6f88546265c",
+      "primary_intent": "تدخلات التوحد الدوائية وغير الدوائية | تحليل تلوي 2026",
+      "manifest_sha256": "0ad8cd3a1648ad52a20233074681b988149c511314912e623b982d7dc6e4145c",
+      "status": "verified-success"
+    },
+    "magazine/autism-lets-play-caregiver-mediated-rct-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "677a57acbc616cca2ea241311eb77529fb1f0ad703c1274ed1d35ede6efad0ed",
+      "output_sha256": "acb063f639c60c8dfba9f8a3a9fff44c60f37a0dea79061169a935a04df2dbae",
+      "primary_intent": "برنامج Let's Play للأطفال التوحديين ومقدمي الرعاية | تجربة عشوائية 2026",
+      "manifest_sha256": "6f5edd8a493457dc9fe0cd98ecb63546c1ee25b1accd4c6d4b145a0e5440b1bf",
+      "status": "verified-success"
+    },
+    "magazine/autism-mentorship-program-pilot-rct-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "e9c45c828a98d0b7230be6d916785cd53242a42e31500f3ba02f3e0ce6fcebb9",
+      "output_sha256": "7cf46d3b93ad51637ca245b69680a06b16ebbdb7dfb08575a12aa134bf5fd103",
+      "primary_intent": "برنامج إرشاد للأشخاص ذوي التوحد | دراسة تجريبية 2026",
+      "manifest_sha256": "8af1f6618d36c251b0fdf816b74ef511feb2bf717176b4d1f766636b8641e909",
+      "status": "verified-success"
+    },
+    "magazine/autism-parent-act-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "48312e49bec380ea330d6ca4c9861850c1ce26a6eaeedb594470cea9ef9a150c",
+      "output_sha256": "10e6d429607bd972db653bf1ecbb886b5efd4c67b4df2d7eee489a7d6d9eee86",
+      "primary_intent": "العلاج بالقبول والالتزام لوالدي الأطفال التوحديين | تحليل تلوي 2026",
+      "manifest_sha256": "06426ceeda77a3b50ec76c368691c01ece9e3db6db508df7f5e59b5e96191703",
+      "status": "verified-success"
+    },
+    "magazine/autism-parent-act-randomized-trial-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "ea7ec612fad17efac423cb384865ab1834c28856eb24e35b1209ae4dca0ec74c",
+      "output_sha256": "ae02810224260f037b2bccabd5115f594c8c786c3cb59031c455061d3f1b5391",
+      "primary_intent": "تدريب القبول والالتزام لوالدي الأطفال التوحديين | تجربة 2026",
+      "manifest_sha256": "d5b8e156496f996cda847cd77734b9b6af5076afa8ba2adc8fb2e6af109824ea",
+      "status": "verified-success"
+    },
+    "magazine/autism-parent-reflective-functioning-rct-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "dfe03149c6bf0101e3425e111dd9208eab555a55b840b193fc8bdcaa081c5e61",
+      "output_sha256": "869e85d12fcdceff382f6b61ac80c4d547d8cc1f9ca5ae42e7a8d87ede8647e7",
+      "primary_intent": "التأمل الوالدي وفهم خبرة الطفل التوحدي | تجربة عشوائية 2026",
+      "manifest_sha256": "ae544bb4f721f29c344da106cb466ca244172ff4e39eee8123edb8ae12e79ae9",
+      "status": "verified-success"
+    },
+    "magazine/autism-parent-resilience-factors-review-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "bde16d5a814add177620eba31fc200c66c6bd1374969b73a48cdd6006d8ff311",
+      "output_sha256": "341a6e629e1d2eb6a18f42e9a020818a2389a29f953544ca6809ac088e3a6c95",
+      "primary_intent": "عوامل الصمود لدى والدي الأطفال التوحديين | مراجعة منهجية 2026",
+      "manifest_sha256": "fbfd917cb14acc887dff8ecbcc841b01a4b86e16fe075c91838898c60bf3f203",
+      "status": "verified-success"
+    },
+    "magazine/autism-parents-mbsr-depression-anxiety-stress-rct-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "a0b8df61bba56843bf73ccbec72356d3cccde9bb087e9463f7d6ecb51eff266e",
+      "output_sha256": "4d7187f57680a5c320fdb3224c8f813e8de614253f9400f3dc44c91b0fad8b57",
+      "primary_intent": "اليقظة وخفض الضغط لدى آباء الأطفال ذوي التوحد | تجربة عشوائية 2026",
+      "manifest_sha256": "3ea386c03a19620efabec2b62ab4f03c5127f30df4f70ff389461186a6dd218f",
+      "status": "verified-success"
+    },
+    "magazine/autism-sleep-disorders-prevalence-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "7f4634b04e78680e526e89f44f4a05e3dd77869c3bc52b9973c199dc5eed7372",
+      "output_sha256": "3e1e67b6d8ce16c29305311de72dbb56553935659e7a354a81bf4e63d116570f",
+      "primary_intent": "اضطرابات النوم لدى الأطفال التوحديين | تحليل تلوي 2026",
+      "manifest_sha256": "11b54deaf2676587c80bfe46b1a4899e1c5fa9274f2c4a5cb57e4a7950316858",
+      "status": "verified-success"
+    },
+    "magazine/autism-social-functioning-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "b3a1ca7afbc9d3ed717680d3f3b3e3087913bbffea1eeface82df9bf9b30cd4a",
+      "output_sha256": "d3931a2cb8900d741a3f5951a57753f05b44bf21d6f1e4feb2f57711cc7ca374",
+      "primary_intent": "الأداء الاجتماعي لدى الأشخاص التوحديين | تحليل تلوي 2026",
+      "manifest_sha256": "db5b1491b7f70b47975e63e56bb92987ba6c4c0ad9ae958436ca4cab2e674661",
+      "status": "verified-success"
+    },
+    "magazine/autism-ssri-children-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "d2f1b074a683f7e2b06da0b3f21f3f7e89f396870dfdbec417bba42156cc3831",
+      "output_sha256": "f13120ef67e7f314b6832ef6072074464027cab52eea5aab1b0d536d16c22237",
+      "primary_intent": "مثبطات استرداد السيروتونين للأطفال التوحديين | مراجعة 2026",
+      "manifest_sha256": "1d047b536d643492c19f8cfb120770f0c245ef47382d9095cd60aeb3c4e167bb",
+      "status": "verified-success"
+    },
+    "magazine/autism-structured-interactive-play-screening-cohort-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "6d6863ef6155f85cb59598e2ec8ecbfcc3fa26dfd9d2b913d4f05ff432bc21be",
+      "output_sha256": "95a18a59c2a3b184752672c5bf812f926736176bef5d185ca8904a9eb91dd3a9",
+      "primary_intent": "اللعب التفاعلي المنظم وفحص التوحد المبكر | دراسة أتراب 2026",
+      "manifest_sha256": "d00ad7acebdf8d9959b7911fe878333db935bce74826ebc16eddda097dcf55d9",
+      "status": "verified-success"
+    },
+    "magazine/aya-cancer-digital-mental-health-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "401244efe040a09f4ca018a6f85929149945068df876d4726e0de8f4aa348dc8",
+      "output_sha256": "a80da9ed767f5ab976d9e7c985ab485ec79659337f7a4b6e88499380e317f328",
+      "primary_intent": "الصحة النفسية الرقمية لليافعين المصابين بالسرطان | تحليل 2026",
+      "manifest_sha256": "44b9abd06e64014d8e2b50bd3966b0ee251bbc42a16634dce9806b67bc0ce4f6",
+      "status": "verified-success"
+    },
+    "magazine/cerebral-palsy-participate-cp-leisure-rct-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "09a36e37bc8d2370bfdcc55920dbde50fa330229b90bdba993095652999ed1f8",
+      "output_sha256": "1b2783a5e3eb9134d102182ae2f388ecad2fb4aef2cf5054a5c45b47b6e2cede",
+      "primary_intent": "برنامج Participate-CP للمشاركة في النشاط البدني | تجربة عشوائية 2026",
+      "manifest_sha256": "92c9c77e3a53f04b2a4328a153443a74031ce6b5c72165dd9d3768db1c4cc574",
+      "status": "verified-success"
+    },
+    "magazine/cerebral-palsy-participation-quality-life-study-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "cf1c9fa40492c84b84dd30c5a24dd81ce3ac7865aa43e78ad55c8cab74dd29fd",
+      "output_sha256": "0bfc534f210edcb179febc155c3f331b9bf2987353ff9ff3dad883f4d4fd2a8a",
+      "primary_intent": "المشاركة والبيئة وجودة الحياة لدى الأطفال ذوي الشلل الدماغي | دراسة 2026",
+      "manifest_sha256": "340faf03754e7413b4370e2dfa0bf2152d09d184cccba1194ff6a039cd907618",
+      "status": "verified-success"
+    },
+    "magazine/cerebral-palsy-youth-mental-health-review-2025.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "e8fbe3c6b6a520a23f73da2d6158bc87ca7b9fb58fff8a10fdbf4396febf08ba",
+      "output_sha256": "47f6db44c07415817238b4745bfd6b8da2cfee5f680111095e76b914c470d350",
+      "primary_intent": "الصحة النفسية للأطفال والمراهقين ذوي الشلل الدماغي | مراجعة حديثة",
+      "manifest_sha256": "0fc6b2139be619db9d65170d3607bdc1dabe5443b2f18d04a667612170ff9a81",
+      "status": "verified-success"
+    },
+    "magazine/child-adolescent-mental-health-guidelines-review-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "4f36f6542bf21a9eb30ecea8e6f4a717723edb6c877648a246753aee23d5868d",
+      "output_sha256": "2567f31fb2afcb312d3cec0bc68d73b097d5e13ae8050657bb408373ac16ef8a",
+      "primary_intent": "جودة إرشادات الصحة النفسية للأطفال والمراهقين | مراجعة 2026",
+      "manifest_sha256": "91abbb8c3acd11c06a7430b3473875d474dad3c1642013987f21619c75c24af1",
+      "status": "verified-success"
+    },
+    "magazine/childhood-vision-impairment-longitudinal-review-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "64643281b2165f18898d5a03072516e4766fcc2fbd81afa60572e67b8497f49a",
+      "output_sha256": "b8256330ef3242a586ac9844e03a6a6e3bacc053bda58fa0cb317b7828aa3bd8",
+      "primary_intent": "الأثر الممتد لضعف البصر في الطفولة | مراجعة منهجية 2026",
+      "manifest_sha256": "3b4316c2e6a71132305c588f712db35f349fbaee1a95a2fc6143033d08395bee",
+      "status": "verified-success"
+    },
+    "magazine/college-digital-cbt-guided-self-help-rct-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "73b92d874adaaf6805ea67f2de9d07e242e068865d53e890eab40cb112232a81",
+      "output_sha256": "b4107a0ae125573de63421a6ddac13fd628d68ff4bd4237e06d5c22a549c76cf",
+      "primary_intent": "العلاج المعرفي السلوكي الرقمي لطلبة الجامعات | تجربة عشوائية واسعة 2026",
+      "manifest_sha256": "d12e9ba1b0211dbde93d5c12bd617d21c499af8c4a7fba92f18c0a17c9885fdb",
+      "status": "verified-success"
+    },
+    "magazine/dcd-action-observation-motor-imagery-review-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "1d6c058c57aedfef418f82f14ad6d4a71ce04763cbfb6e702f5666bc5d32b659",
+      "output_sha256": "46e1f0f200530094d8da27644244c4c3e82043f2a4b22da0b021043318bed02a",
+      "primary_intent": "ملاحظة الحركة والتخيل الحركي لدى الأطفال ذوي اضطراب التنسيق | مراجعة 2026",
+      "manifest_sha256": "82f10899e8993dc5b71ef603e8accd9d6ecafcbf6466e6a3bf1c0e0d639d2e69",
+      "status": "verified-success"
+    },
+    "magazine/dcd-school-motor-interventions-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "d932c545d22e0dcc532cefd99e8c4d9c3d8c66ab91610edec480c442a3e7448d",
+      "output_sha256": "780fb9c58247b5be2bbd5b54561bb693f21a8433c54012600f7ab0b5cf5e71dd",
+      "primary_intent": "التدخلات المدرسية لاضطراب التنسيق الحركي النمائي | تحليل تلوي 2026",
+      "manifest_sha256": "c60a6fb8fdac3b9f80c538742139cb0c60e00cc007c96dc3dc518742292aa7a0",
+      "status": "verified-success"
+    },
+    "magazine/dcd-subtypes-systematic-review-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "849535d243613c9905925f939fe98b2e2539db33d5dc333afc5b4c63aed1561b",
+      "output_sha256": "78614d27c7448b0cdd6d74cc1ed1448fa4fb603c59e1b0200d591d24cf704ca4",
+      "primary_intent": "الأنماط الفرعية في اضطراب التنسيق الحركي النمائي | مراجعة 2026",
+      "manifest_sha256": "c81c6803800cd4f039fc0b5bdef43ab5d147048e26485b688b551c9ce1cedfb1",
+      "status": "verified-success"
+    },
+    "magazine/deaf-hard-hearing-adult-mental-disorders-review-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "13852ef18d1b8f6609a83476a00230c400d5dfdff2acbb210aea037fa0078b0e",
+      "output_sha256": "c9a80ebdeb63e0e9c8bc6f7f66903b6a29dfc4270610514d130f6063f44b86a7",
+      "primary_intent": "الاضطرابات النفسية لدى البالغين الصم وضعاف السمع | مراجعة 2026",
+      "manifest_sha256": "ad5f6cd64b659f0a8480ef687e2a2349bfa72eaca81cc79c40e1a18eabce82da",
+      "status": "verified-success"
+    },
+    "magazine/deaf-hard-hearing-youth-mental-health-review-2025.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "93b2a850fedafb4e9b53cf34e86260dfc7441d13f438c96ada573b920fb59eb5",
+      "output_sha256": "4b4710a8879c3b12dab76dfa9e317e74196a79ea8856a8d3bb112ee9acd72eb6",
+      "primary_intent": "الصحة النفسية للشباب الصم وضعاف السمع | مراجعة منهجية 2025",
+      "manifest_sha256": "071cb576a80d1c607ca8bdab78b93c97be4ccdc6b395e5f72796ef8ad3a74e99",
+      "status": "verified-success"
+    },
+    "magazine/developmental-disabilities-school-support-2025.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "0caedf5eed76b490cbf82c92c6b51a8fb8290e0ae4e03127d6facc1131dbf940",
+      "output_sha256": "a95e00c4ed49d916fb8d5bc246815f4f684772adcc26c548e61c2fd135e42f5c",
+      "primary_intent": "الدعم النفسي المدرسي للأطفال ذوي الاحتياجات النمائية | مراجعة 2025",
+      "manifest_sha256": "7ef31a017c48ad2b2cef3ad88f0007de82e6d8b1673202817cee992e37e38447",
+      "status": "verified-success"
+    },
+    "magazine/digital-eating-disorder-interventions-meta-analysis-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "e561ab92ea89d9c35dd20cf58499e15818cac2805747fffef3c03fdf56cda934",
+      "output_sha256": "4bf6bc3bb9b49e7a6bc72cb3072e9b4a63f6acf3061599811a3341ef3a076549",
+      "primary_intent": "التدخلات الرقمية لاضطرابات الأكل | تحليل تلوي 2026",
+      "manifest_sha256": "0de5a6fc8ce3ea72b19f59ef2efd421c0e6739723cb019535ac64f668192614c",
+      "status": "verified-success"
+    },
+    "magazine/down-syndrome-adult-medical-care-systematic-review-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "8c899eafa747a1ae401fa2051a33e12a1d188c54df4a518d4bf04907cd719dfc",
+      "output_sha256": "b03da6701d610f27077435068031780265a8db9cee380e100751b6c8aa341169",
+      "primary_intent": "الرعاية الطبية للبالغين ذوي متلازمة داون | مراجعة AHRQ 2026",
+      "manifest_sha256": "5fef45a2ac9fa3de43964e443413ef4d66f6f9d94d1af3cfc70e6f2ea299fa56",
+      "status": "verified-success"
+    },
+    "magazine/down-syndrome-dual-task-exergaming-cognition-rct-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "14ebbc80692cfea9b61566397831851bb9194460227f6b25936ca0bbd82a4c4b",
+      "output_sha256": "7497b197e87790409d326f978d61ca2ebdfe336b0312edae800d29094043166f",
+      "primary_intent": "التدريب المعرفي الحركي والألعاب النشطة لدى أطفال متلازمة داون | تجربة 2026",
+      "manifest_sha256": "ad533bf08226ddead56d837fb9f7d2733e5ea1b0162e04622956f6b9f3edc26e",
+      "status": "verified-success"
+    },
+    "magazine/down-syndrome-telehealth-systematic-review-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "8e4ca584735b2b78e95f0595aae496cd515645350b43c9c1cce279f199d77423",
+      "output_sha256": "a82ab38707694cd9ebb9aa5bb38923ed17a9a59dd0eced9c598b727f06120044",
+      "primary_intent": "الرعاية الصحية عن بُعد للأشخاص ذوي متلازمة داون | مراجعة 2026",
+      "manifest_sha256": "e43b67ee712ede3cde91fecca1f6981313c01d8dcd67873c286ddec518e493a3",
+      "status": "verified-success"
+    },
+    "magazine/dysgraphia-interventions-scoping-review-2026.html": {
+      "version": "magazine-technical-seo-v4",
+      "optimized_at": "2026-08-30T08:56:55Z",
+      "source_sha256": "6ff591e8b43239b86eda0196588611c57c60d6196067d800a26f9a0691c9e6d2",
+      "output_sha256": "345563c911d4dacf8e182d91657b0d0b5ed7bfdbc0ad2cdb0dc5f9a10e4993b6",
+      "primary_intent": "تدخلات عسر الكتابة وصعوبات التعبير الكتابي | مراجعة نطاقية 2026",
+      "manifest_sha256": "4bc4060391176bfd2e9084d1eb82486a5897963124fa4882ed970d4b47805950",
+      "status": "verified-success"
+    }
+  }
+}
