@@ -7,7 +7,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/special-needs-seo-round.yml'
-      - '.github/scripts/special_needs_seo_round.py'
+      - '.github/scripts/special_needs_seo_round_v4.py'
 permissions:
   contents: write
 concurrency:
@@ -28,19 +28,24 @@ jobs:
       - name: Run technical SEO round
         shell: bash
         run: |
-          python3 .github/scripts/special_needs_seo_round.py
+          python3 .github/scripts/special_needs_seo_round_v4.py
       - name: Verify round integrity
         shell: bash
         run: |
           python3 - <<'PY'
-          import json,sys
+          import json
           r=json.load(open('.github/reports/seo-special-needs-latest.json',encoding='utf-8'))
-          assert r['verification']['visible_body_unchanged'] is True
-          assert r['verification']['json_ld_validated'] is True
-          assert r['verification']['canonical_self_checked'] is True
-          assert r['verification']['og_twitter_consistency_checked'] is True
-          assert r['verification']['robots_indexability_checked'] is True
-          assert r['verification']['semantic_queries_per_success'] >= 500
+          v=r['verification']
+          assert v['visible_body_unchanged'] is True
+          assert v['json_ld_validated'] is True
+          assert v['canonical_self_checked'] is True
+          assert v['og_twitter_consistency_checked'] is True
+          assert v['robots_indexability_checked'] is True
+          assert v['locale_lang_checked'] is True
+          assert v['sector_sitemap_xml_valid'] is True
+          assert v['sector_sitemap_registration_checked'] is True
+          assert not v['sitemap_missing_after_success']
+          assert v['semantic_queries_per_success'] >= 500
           if r['success'] < 50 and r['eligible_remaining'] > 0:
               raise SystemExit(f"round incomplete despite eligible pages: {r['success']}/50, remaining={r['eligible_remaining']}")
           print('verified success=',r['success'],'remaining=',r['eligible_remaining'])
@@ -48,9 +53,14 @@ jobs:
       - name: Commit verified SEO changes
         shell: bash
         run: |
+          set -e
           git config user.name 'rawafid-seo-bot'
           git config user.email '63592172+khaledaltheeb@users.noreply.github.com'
-          git add special-needs inclusive-education .github/seo .github/reports
+          stage_owned_changes() {
+            git add special-needs .github/seo .github/reports sitemap-special-needs.xml sitemap-index.xml
+            if [ -d inclusive-education ]; then git add inclusive-education; fi
+          }
+          stage_owned_changes
           if git diff --cached --quiet; then
             echo 'No material eligible SEO changes in this round.'
             exit 0
@@ -65,8 +75,8 @@ jobs:
             git rebase --abort 2>/dev/null || true
             git fetch origin main
             git reset --hard origin/main
-            python3 .github/scripts/special_needs_seo_round.py
-            git add special-needs inclusive-education .github/seo .github/reports
+            python3 .github/scripts/special_needs_seo_round_v4.py
+            stage_owned_changes
             if git diff --cached --quiet; then exit 0; fi
             success=$(python3 -c "import json; print(json.load(open('.github/reports/seo-special-needs-latest.json'))['success'])")
             git commit -m "SEO: special-needs technical round ${success} pages"
