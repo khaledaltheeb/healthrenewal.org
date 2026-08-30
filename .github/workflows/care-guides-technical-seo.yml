@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 2
 
       - name: Synchronize latest main
         run: git pull --ff-only origin main
@@ -38,6 +38,14 @@ jobs:
           python3 - <<'PY'
           import json
           r=json.load(open('.github/reports/seo-care-guides-latest.json',encoding='utf-8'))
+          print(json.dumps({
+            'success':r['success'],
+            'skip_reason_counts':r.get('skip_reason_counts',{}),
+            'failure_reason_counts':r.get('failure_reason_counts',{}),
+            'demand_diagnostics':r.get('demand_diagnostics',{}),
+            'sitemap_added_urls':r.get('sitemap_added_urls',0),
+            'source_failures':r.get('source_failures',{})
+          },ensure_ascii=False))
           assert r['success'] >= 50, r.get('blocker') or r
           v=r['verification']
           assert v['visible_body_unchanged'] is True
@@ -57,7 +65,7 @@ jobs:
         run: |
           git config user.name 'rawafid-care-guides-seo-bot'
           git config user.email '63592172+khaledaltheeb@users.noreply.github.com'
-          git add care-guides .github/seo/care-guides-seo-state.json .github/seo/care-guides-semantic-manifest.json .github/reports/seo-care-guides-latest.json
+          git add care-guides sitemap.xml .github/seo/care-guides-seo-state.json .github/seo/care-guides-semantic-manifest.json .github/reports/seo-care-guides-latest.json
           git diff --cached --quiet && { echo 'No verified changes'; exit 1; }
           git commit -m 'SEO: optimize 50 verified care-guide pages'
 
