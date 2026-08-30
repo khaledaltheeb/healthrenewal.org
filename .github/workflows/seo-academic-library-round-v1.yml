@@ -1,0 +1,263 @@
+name: Academic library SEO round v1
+
+on:
+  pull_request:
+    paths:
+      - "scripts/enforce_academic_library_seo_v1.py"
+      - ".github/workflows/seo-academic-library-round-v1.yml"
+  workflow_run:
+    workflows: ["Tools assessment SEO round v1"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: academic-library-seo-postbuild
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    if: github.event_name == 'pull_request' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      status: ${{ steps.verify.outputs.status }}
+      success: ${{ steps.verify.outputs.success }}
+
+    steps:
+      - name: Checkout scoped SEO implementation
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Resolve production baseline for pull request
+        if: github.event_name == 'pull_request'
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" \
+            -o /tmp/baselines.json
+          python - <<'PY'
+          import json, os
+          payload = json.load(open('/tmp/baselines.json', encoding='utf-8'))
+          candidates = [
+              item for item in payload.get('artifacts', [])
+              if not item.get('expired')
+              and item.get('workflow_run', {}).get('head_branch') == 'main'
+              and item.get('workflow_run', {}).get('id')
+          ]
+          if not candidates:
+              raise SystemExit('No active validated-production-site artifact from main')
+          item = max(candidates, key=lambda value: value.get('created_at', ''))
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f"run_id={item['workflow_run']['id']}\n")
+          print({'baselineRunId': item['workflow_run']['id'], 'createdAt': item.get('created_at')})
+          PY
+
+      - name: Download exact production baseline for PR
+        if: github.event_name == 'pull_request'
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.baseline.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Download tools-hardened production baseline
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          name: tools-assessment-seo-site
+          path: _site
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Compile scoped SEO gate
+        run: |
+          set -euo pipefail
+          test -f _site/index.html
+          python -m py_compile scripts/enforce_tools_assessment_seo_v1.py scripts/enforce_academic_library_seo_v1.py
+
+      - name: Run academic library material SEO round
+        run: |
+          set -euo pipefail
+          mkdir -p _seo_private
+          python scripts/enforce_academic_library_seo_v1.py \
+            _site \
+            --target 50 \
+            --manifest _seo_private/academic-library-search-map-v1.json \
+            --report _site/api/academic-library-seo-v1.json
+
+      - name: Verify 50 material successes and scope isolation
+        id: verify
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import html, json, re, os
+          from pathlib import Path
+
+          report = json.loads(Path('_site/api/academic-library-seo-v1.json').read_text(encoding='utf-8'))
+          assert report['profile'] == 'academic-library-seo-v1', report
+          assert report['status'] == 'passed', report
+          assert report['target'] == 50, report
+          assert report['success'] >= 50, report
+          assert report['manifestPages'] >= 50, report
+          assert report['manifestMinimumQueryCount'] >= 500, report
+          assert report['sitemapVerifiedSuccesses'] is True, report
+          assert report['scopePagesDiscovered'] >= 50, report
+          assert report['indexableOwnedPages'] >= 50, report
+          successes = [row for row in report['results'] if row['status'] == 'success']
+          assert len(successes) >= 50, len(successes)
+          assert all(row['changes'] for row in successes), successes[:2]
+          assert all(row['query_count'] >= 500 for row in successes), successes[:2]
+          allowed = ('library/branches/', 'library/therapies/', 'library/research/')
+          assert all(row['path'].startswith(allowed) for row in successes), successes[:2]
+
+          titles, descriptions = [], []
+          for row in successes:
+              source = Path('_site', row['path']).read_text(encoding='utf-8')
+              head = re.search(r'(?is)<head\b[^>]*>(.*?)</head\s*>', source).group(1)
+              title = html.unescape(re.search(r'(?is)<title\b[^>]*>(.*?)</title\s*>', head).group(1)).strip()
+              desc_match = re.search(r'(?is)<meta\b(?=[^>]*\bname\s*=\s*(["\'])description\1)[^>]*\bcontent\s*=\s*(["\'])(.*?)\2[^>]*>', head)
+              assert desc_match, row
+              description = html.unescape(desc_match.group(3)).strip()
+              titles.append(title.casefold())
+              descriptions.append(description.casefold())
+              assert 'name="keywords"' not in head.lower(), row
+              assert 'hreflang=' not in head.lower(), row
+              assert 'data-rawafid-seo="academic-library-seo-v1"' in head or 'BreadcrumbList' in head, row
+              assert row['url'] in head, row
+              assert f'fingerprint={row["fingerprint"]}' in head, row
+          assert len(titles) == len(set(titles)), 'duplicate success titles'
+          assert len(descriptions) == len(set(descriptions)), 'duplicate success descriptions'
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('status=passed\n')
+              output.write(f"success={report['success']}\n")
+          print(json.dumps({
+              'status': report['status'],
+              'target': report['target'],
+              'success': report['success'],
+              'failed': report['failed'],
+              'noOpAlreadyOptimal': report['noOpAlreadyOptimal'],
+              'remainingEligible': report['remainingEligible'],
+              'manifestPages': report['manifestPages'],
+              'manifestMinimumQueryCount': report['manifestMinimumQueryCount'],
+              'changesSummary': report['changesSummary'],
+          }, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Preserve private semantic manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: academic-library-seo-private-manifest
+          path: _seo_private/academic-library-search-map-v1.json
+          retention-days: 90
+          compression-level: 9
+
+      - name: Preserve scoped SEO site for deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: academic-library-seo-site
+          path: _site
+          include-hidden-files: true
+          retention-days: 7
+          compression-level: 6
+
+  deploy:
+    if: github.event_name == 'workflow_run' && needs.audit.outputs.status == 'passed'
+    needs: audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download verified academic-library SEO site
+        uses: actions/download-artifact@v4
+        with:
+          name: academic-library-seo-site
+          path: _site
+
+      - name: Promote as next validated production baseline
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          include-hidden-files: true
+          retention-days: 90
+          compression-level: 6
+
+      - uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy academic-library SEO publication
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify 50 successful pages live
+        run: |
+          set -euo pipefail
+          ready=0
+          for attempt in $(seq 1 60); do
+            nonce="${GITHUB_RUN_ID}-${attempt}-$(date +%s)"
+            if curl -fsSL --retry 2 -H 'Cache-Control: no-cache' \
+              "https://healthrenewal.org/api/academic-library-seo-v1.json?release=${nonce}" \
+              -o /tmp/academic-library-seo.json; then
+              if python - <<'PY'
+          import concurrent.futures, json, time, urllib.request
+          report = json.load(open('/tmp/academic-library-seo.json', encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['success'] >= 50, report
+          assert report['manifestMinimumQueryCount'] >= 500, report
+          rows = [row for row in report['results'] if row['status'] == 'success']
+          assert len(rows) >= 50, len(rows)
+
+          def check(row):
+              url = row['url'] + ('&' if '?' in row['url'] else '?') + 'seo_verify=' + str(time.time_ns())
+              req = urllib.request.Request(url, headers={'Cache-Control': 'no-cache', 'User-Agent': 'Rawafid-Academic-Library-SEO-Gate/1.0'})
+              with urllib.request.urlopen(req, timeout=20) as response:
+                  source = response.read().decode('utf-8', 'replace')
+              assert f'fingerprint={row["fingerprint"]}' in source, row
+              assert 'data-rawafid-seo="academic-library-seo-v1"' in source or 'BreadcrumbList' in source, row
+              assert 'name="keywords"' not in source.lower(), row
+              assert 'hreflang=' not in source.lower(), row
+              assert row['url'] in source, row
+              return row['url']
+
+          with concurrent.futures.ThreadPoolExecutor(max_workers=10) as pool:
+              checked = list(pool.map(check, rows))
+          assert len(checked) >= 50, len(checked)
+          print({'liveVerifiedPages': len(checked), 'success': report['success'], 'failed': report['failed']})
+          PY
+              then
+                ready=1
+                break
+              fi
+            fi
+            sleep 5
+          done
+          test "$ready" = 1
