@@ -2,18 +2,86 @@
   "actual_scope_roots": [
     "special-needs"
   ],
-  "candidate_pages": 93,
+  "candidate_pages": 43,
   "change_totals": {
-    "application-name": 49,
-    "indexability": 46,
-    "og-twitter": 50,
-    "schema": 50,
-    "sitemap": 50,
-    "title": 50
+    "application-name": 25,
+    "indexability": 32,
+    "og-twitter": 43,
+    "schema": 43,
+    "sitemap": 25,
+    "title": 9
   },
   "changed_pages": [
     {
-      "canonical": "https://healthrenewal.org/special-needs/aac/communication-partner-training/",
+      "canonical": "https://healthrenewal.org/special-needs/communication/childhood-apraxia-of-speech/",
+      "changes": [
+        "application-name",
+        "indexability",
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "issues_before": [
+        "og",
+        "schema",
+        "sitemap",
+        "twitter"
+      ],
+      "path": "special-needs/communication/childhood-apraxia-of-speech/index.html"
+    },
+    {
+      "canonical": "https://healthrenewal.org/special-needs/communication/speech-language-delay/",
+      "changes": [
+        "application-name",
+        "indexability",
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "issues_before": [
+        "og",
+        "schema",
+        "sitemap",
+        "twitter"
+      ],
+      "path": "special-needs/communication/speech-language-delay/index.html"
+    },
+    {
+      "canonical": "https://healthrenewal.org/special-needs/communication/speech-sound-disorders/",
+      "changes": [
+        "application-name",
+        "indexability",
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "issues_before": [
+        "og",
+        "schema",
+        "sitemap",
+        "twitter"
+      ],
+      "path": "special-needs/communication/speech-sound-disorders/index.html"
+    },
+    {
+      "canonical": "https://healthrenewal.org/special-needs/communication/stuttering-children/",
+      "changes": [
+        "application-name",
+        "indexability",
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "issues_before": [
+        "og",
+        "schema",
+        "sitemap",
+        "twitter"
+      ],
+      "path": "special-needs/communication/stuttering-children/index.html"
+    },
+    {
+      "canonical": "https://healthrenewal.org/special-needs/conditions/fragile-x-syndrome/family-safety-transition/",
       "changes": [
         "application-name",
         "indexability",
@@ -26,939 +94,573 @@
         "og",
         "schema",
         "sitemap",
-        "title",
-        "twitter"
+        "title"
       ],
-      "path": "special-needs/aac/communication-partner-training/index.html"
+      "path": "special-needs/conditions/fragile-x-syndrome/family-safety-transition/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/aac/selecting-aac-system-device/",
+      "canonical": "https://healthrenewal.org/special-needs/conditions/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/aac/selecting-aac-system-device/index.html"
+      "path": "special-needs/conditions/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/all-pages/",
+      "canonical": "https://healthrenewal.org/special-needs/early-intervention/transition-to-preschool-school/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/all-pages/index.html"
+      "path": "special-needs/early-intervention/transition-to-preschool-school/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/communication/social-pragmatic-communication-disorder/",
+      "canonical": "https://healthrenewal.org/special-needs/education/classroom-behavior-support/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/communication/social-pragmatic-communication-disorder/index.html"
+      "path": "special-needs/education/classroom-behavior-support/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/conditions/cerebral-palsy/communication-education/",
+      "canonical": "https://healthrenewal.org/special-needs/education/curriculum-adaptation/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/conditions/cerebral-palsy/communication-education/index.html"
+      "path": "special-needs/education/curriculum-adaptation/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/conditions/cerebral-palsy/detection-diagnosis/",
+      "canonical": "https://healthrenewal.org/special-needs/education/related-services/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/conditions/cerebral-palsy/detection-diagnosis/index.html"
+      "path": "special-needs/education/related-services/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/conditions/cerebral-palsy/family-adulthood/",
+      "canonical": "https://healthrenewal.org/special-needs/education/resource-room/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/conditions/cerebral-palsy/family-adulthood/index.html"
+      "path": "special-needs/education/resource-room/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/conditions/cerebral-palsy/health-lifespan/",
+      "canonical": "https://healthrenewal.org/special-needs/learning/dyscalculia/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/conditions/cerebral-palsy/health-lifespan/index.html"
+      "path": "special-needs/learning/dyscalculia/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/conditions/cerebral-palsy/",
-      "changes": [
-        "application-name",
-        "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
-      ],
-      "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
-      ],
-      "path": "special-needs/conditions/cerebral-palsy/index.html"
-    },
-    {
-      "canonical": "https://healthrenewal.org/special-needs/conditions/cerebral-palsy/movement-rehabilitation/",
+      "canonical": "https://healthrenewal.org/special-needs/learning/dysgraphia/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/conditions/cerebral-palsy/movement-rehabilitation/index.html"
+      "path": "special-needs/learning/dysgraphia/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/conditions/fragile-x-syndrome/behavior-intervention/",
+      "canonical": "https://healthrenewal.org/special-needs/learning/dyslexia/",
+      "changes": [
+        "application-name",
+        "og-twitter",
+        "schema",
+        "sitemap"
+      ],
+      "issues_before": [
+        "og",
+        "schema",
+        "sitemap",
+        "twitter"
+      ],
+      "path": "special-needs/learning/dyslexia/index.html"
+    },
+    {
+      "canonical": "https://healthrenewal.org/special-needs/learning/twice-exceptional/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/conditions/fragile-x-syndrome/behavior-intervention/index.html"
+      "path": "special-needs/learning/twice-exceptional/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/conditions/fragile-x-syndrome/communication-education/",
+      "canonical": "https://healthrenewal.org/special-needs/reference/aac-complete-guide/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/conditions/fragile-x-syndrome/communication-education/index.html"
+      "path": "special-needs/reference/aac-complete-guide/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/conditions/fragile-x-syndrome/genetics-diagnosis/",
+      "canonical": "https://healthrenewal.org/special-needs/reference/autism-adhd-differential/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/conditions/fragile-x-syndrome/genetics-diagnosis/index.html"
+      "path": "special-needs/reference/autism-adhd-differential/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/conditions/fragile-x-syndrome/health-lifespan/",
+      "canonical": "https://healthrenewal.org/special-needs/reference/autistic-women-masking-late-diagnosis/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/conditions/fragile-x-syndrome/health-lifespan/index.html"
+      "path": "special-needs/reference/autistic-women-masking-late-diagnosis/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/conditions/fragile-x-syndrome/",
-      "changes": [
-        "application-name",
-        "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
-      ],
-      "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
-      ],
-      "path": "special-needs/conditions/fragile-x-syndrome/index.html"
-    },
-    {
-      "canonical": "https://healthrenewal.org/special-needs/conditions/rett-syndrome/",
-      "changes": [
-        "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
-      ],
-      "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
-      ],
-      "path": "special-needs/conditions/rett-syndrome/index.html"
-    },
-    {
-      "canonical": "https://healthrenewal.org/special-needs/early-intervention/caregiver-coaching-parent-training/",
+      "canonical": "https://healthrenewal.org/special-needs/reference/dyslexia-reading-difficulty-differential/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/early-intervention/caregiver-coaching-parent-training/index.html"
+      "path": "special-needs/reference/dyslexia-reading-difficulty-differential/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/early-intervention/communication-routines/",
+      "canonical": "https://healthrenewal.org/special-needs/reference/early-intervention-developmental-concerns/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/early-intervention/communication-routines/index.html"
+      "path": "special-needs/reference/early-intervention-developmental-concerns/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/early-intervention/motor-development-routines/",
+      "canonical": "https://healthrenewal.org/special-needs/reference/iep-measurable-goals-guide/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/early-intervention/motor-development-routines/index.html"
+      "path": "special-needs/reference/iep-measurable-goals-guide/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/early-intervention/school-readiness-developmental-delay/",
+      "canonical": "https://healthrenewal.org/special-needs/reference/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/early-intervention/school-readiness-developmental-delay/index.html"
+      "path": "special-needs/reference/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/early-intervention/social-emotional-routines/",
+      "canonical": "https://healthrenewal.org/special-needs/reference/late-talking-dld-autism-differential/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/early-intervention/social-emotional-routines/index.html"
+      "path": "special-needs/reference/late-talking-dld-autism-differential/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/education/accessible-assessment-students-disabilities/",
+      "canonical": "https://healthrenewal.org/special-needs/reference/udl-inclusive-education-guide/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/education/accessible-assessment-students-disabilities/index.html"
+      "path": "special-needs/reference/udl-inclusive-education-guide/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/education/differentiated-instruction-inclusive-classroom/",
+      "canonical": "https://healthrenewal.org/special-needs/sensory-differences/",
       "changes": [
         "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
-        "title"
+        "sitemap"
       ],
       "issues_before": [
         "og",
         "schema",
         "sitemap",
-        "title",
         "twitter"
       ],
-      "path": "special-needs/education/differentiated-instruction-inclusive-classroom/index.html"
+      "path": "special-needs/sensory-differences/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/evidence/communication-authorship-fc-rpm/",
+      "canonical": "https://healthrenewal.org/special-needs/assistive-technology/continuing-education/",
       "changes": [
-        "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
         "title"
       ],
       "issues_before": [
-        "og",
         "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "title"
       ],
-      "path": "special-needs/evidence/communication-authorship-fc-rpm/index.html"
+      "path": "special-needs/assistive-technology/continuing-education/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/evidence/",
+      "canonical": "https://healthrenewal.org/special-needs/assistive-technology/ethics-and-service/",
       "changes": [
-        "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
         "title"
       ],
       "issues_before": [
-        "og",
         "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "title"
       ],
-      "path": "special-needs/evidence/index.html"
+      "path": "special-needs/assistive-technology/ethics-and-service/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/evidence/unapproved-biomedical-autism-treatments/",
+      "canonical": "https://healthrenewal.org/special-needs/assistive-technology/",
       "changes": [
-        "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
         "title"
       ],
       "issues_before": [
-        "og",
         "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "title"
       ],
-      "path": "special-needs/evidence/unapproved-biomedical-autism-treatments/index.html"
+      "path": "special-needs/assistive-technology/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/evidence/vaccines-autism/",
+      "canonical": "https://healthrenewal.org/special-needs/assistive-technology/innovation-review/",
       "changes": [
-        "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
         "title"
       ],
       "issues_before": [
-        "og",
         "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "title"
       ],
-      "path": "special-needs/evidence/vaccines-autism/index.html"
+      "path": "special-needs/assistive-technology/innovation-review/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/guides/communication/",
+      "canonical": "https://healthrenewal.org/special-needs/assistive-technology/selection-checklist/",
       "changes": [
-        "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
         "title"
       ],
       "issues_before": [
-        "og",
         "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "title"
       ],
-      "path": "special-needs/guides/communication/index.html"
+      "path": "special-needs/assistive-technology/selection-checklist/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/hearing/classroom-acoustics-listening-access/",
+      "canonical": "https://healthrenewal.org/special-needs/assistive-technology/training/",
       "changes": [
-        "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
         "title"
       ],
       "issues_before": [
-        "og",
         "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "title"
       ],
-      "path": "special-needs/hearing/classroom-acoustics-listening-access/index.html"
+      "path": "special-needs/assistive-technology/training/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/hearing/unilateral-hearing-loss-school/",
+      "canonical": "https://healthrenewal.org/special-needs/conditions/prader-willi-syndrome/",
       "changes": [
-        "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
         "title"
       ],
       "issues_before": [
-        "og",
         "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "title"
       ],
-      "path": "special-needs/hearing/unilateral-hearing-loss-school/index.html"
+      "path": "special-needs/conditions/prader-willi-syndrome/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/learning/arabic-phonological-awareness-reading-difficulties/",
+      "canonical": "https://healthrenewal.org/special-needs/",
       "changes": [
-        "application-name",
         "indexability",
         "og-twitter",
         "schema",
-        "sitemap",
         "title"
       ],
       "issues_before": [
-        "og",
         "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "title"
       ],
-      "path": "special-needs/learning/arabic-phonological-awareness-reading-difficulties/index.html"
+      "path": "special-needs/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/learning/arabic-reading-fluency/",
+      "canonical": "https://healthrenewal.org/special-needs/practical/self-injury-safety-response/",
       "changes": [
-        "application-name",
-        "indexability",
         "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
+        "schema"
       ],
       "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "schema"
       ],
-      "path": "special-needs/learning/arabic-reading-fluency/index.html"
+      "path": "special-needs/practical/self-injury-safety-response/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/learning/executive-functions-learning-support/",
+      "canonical": "https://healthrenewal.org/special-needs/practical/sensory-environment-audit/",
       "changes": [
-        "application-name",
-        "indexability",
         "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
+        "schema"
       ],
       "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "schema"
       ],
-      "path": "special-needs/learning/executive-functions-learning-support/index.html"
+      "path": "special-needs/practical/sensory-environment-audit/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/learning/fraction-sense-mathematics-difficulties/",
+      "canonical": "https://healthrenewal.org/special-needs/practical/shared-support-plan/",
       "changes": [
-        "application-name",
-        "indexability",
         "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
+        "schema"
       ],
       "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "schema"
       ],
-      "path": "special-needs/learning/fraction-sense-mathematics-difficulties/index.html"
+      "path": "special-needs/practical/shared-support-plan/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/learning/math-word-problems-learning-difficulties/",
+      "canonical": "https://healthrenewal.org/special-needs/practical/sibling-inclusion-support/",
       "changes": [
-        "application-name",
-        "indexability",
         "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
+        "schema"
       ],
       "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "schema"
       ],
-      "path": "special-needs/learning/math-word-problems-learning-difficulties/index.html"
+      "path": "special-needs/practical/sibling-inclusion-support/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/learning/number-sense-mathematics-difficulties/",
+      "canonical": "https://healthrenewal.org/special-needs/practical/supported-decision-making/",
       "changes": [
-        "application-name",
-        "indexability",
         "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
+        "schema"
       ],
       "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "schema"
       ],
-      "path": "special-needs/learning/number-sense-mathematics-difficulties/index.html"
+      "path": "special-needs/practical/supported-decision-making/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/learning/place-value-base-ten-mathematics-difficulties/",
+      "canonical": "https://healthrenewal.org/special-needs/practical/toileting-dignity-plan/",
       "changes": [
-        "application-name",
-        "indexability",
         "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
+        "schema"
       ],
       "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "schema"
       ],
-      "path": "special-needs/learning/place-value-base-ten-mathematics-difficulties/index.html"
+      "path": "special-needs/practical/toileting-dignity-plan/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/learning/processing-speed-learning-support/",
+      "canonical": "https://healthrenewal.org/special-needs/practical/transition-needs-assessment/",
       "changes": [
-        "application-name",
-        "indexability",
         "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
+        "schema"
       ],
       "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "schema"
       ],
-      "path": "special-needs/learning/processing-speed-learning-support/index.html"
+      "path": "special-needs/practical/transition-needs-assessment/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/learning/reading-comprehension-learning-difficulties-arabic/",
+      "canonical": "https://healthrenewal.org/special-needs/practical/trauma-informed-support/",
       "changes": [
-        "application-name",
-        "indexability",
         "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
+        "schema"
       ],
       "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "schema"
       ],
-      "path": "special-needs/learning/reading-comprehension-learning-difficulties-arabic/index.html"
+      "path": "special-needs/practical/trauma-informed-support/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/learning/working-memory-classroom-support/",
+      "canonical": "https://healthrenewal.org/special-needs/practical/universal-design-lesson-adaptation/",
       "changes": [
-        "application-name",
-        "indexability",
         "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
+        "schema"
       ],
       "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "schema"
       ],
-      "path": "special-needs/learning/working-memory-classroom-support/index.html"
+      "path": "special-needs/practical/universal-design-lesson-adaptation/index.html"
     },
     {
-      "canonical": "https://healthrenewal.org/special-needs/reference/autistic-burnout-adults/",
+      "canonical": "https://healthrenewal.org/special-needs/practical/workplace-accommodations/",
       "changes": [
-        "application-name",
         "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
+        "schema"
       ],
       "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
+        "schema"
       ],
-      "path": "special-needs/reference/autistic-burnout-adults/index.html"
-    },
-    {
-      "canonical": "https://healthrenewal.org/special-needs/reference/iep-accommodations-vs-modifications/",
-      "changes": [
-        "application-name",
-        "indexability",
-        "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
-      ],
-      "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
-      ],
-      "path": "special-needs/reference/iep-accommodations-vs-modifications/index.html"
-    },
-    {
-      "canonical": "https://healthrenewal.org/special-needs/reference/iep-present-levels-plaafp/",
-      "changes": [
-        "application-name",
-        "indexability",
-        "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
-      ],
-      "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
-      ],
-      "path": "special-needs/reference/iep-present-levels-plaafp/index.html"
-    },
-    {
-      "canonical": "https://healthrenewal.org/special-needs/reference/iep-progress-monitoring/",
-      "changes": [
-        "application-name",
-        "indexability",
-        "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
-      ],
-      "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
-      ],
-      "path": "special-needs/reference/iep-progress-monitoring/index.html"
-    },
-    {
-      "canonical": "https://healthrenewal.org/special-needs/safety/bullying-students-disabilities/",
-      "changes": [
-        "application-name",
-        "indexability",
-        "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
-      ],
-      "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
-      ],
-      "path": "special-needs/safety/bullying-students-disabilities/index.html"
-    },
-    {
-      "canonical": "https://healthrenewal.org/special-needs/safety/digital-safety-students-disabilities/",
-      "changes": [
-        "application-name",
-        "indexability",
-        "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
-      ],
-      "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
-      ],
-      "path": "special-needs/safety/digital-safety-students-disabilities/index.html"
-    },
-    {
-      "canonical": "https://healthrenewal.org/special-needs/transition/supported-employment-youth-disabilities/",
-      "changes": [
-        "application-name",
-        "indexability",
-        "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
-      ],
-      "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
-      ],
-      "path": "special-needs/transition/supported-employment-youth-disabilities/index.html"
-    },
-    {
-      "canonical": "https://healthrenewal.org/special-needs/vision/braille-literacy-school/",
-      "changes": [
-        "application-name",
-        "indexability",
-        "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
-      ],
-      "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
-      ],
-      "path": "special-needs/vision/braille-literacy-school/index.html"
-    },
-    {
-      "canonical": "https://healthrenewal.org/special-needs/vision/low-vision-classroom-accessible-materials/",
-      "changes": [
-        "application-name",
-        "indexability",
-        "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
-      ],
-      "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
-      ],
-      "path": "special-needs/vision/low-vision-classroom-accessible-materials/index.html"
-    },
-    {
-      "canonical": "https://healthrenewal.org/special-needs/vision/orientation-mobility-school/",
-      "changes": [
-        "application-name",
-        "indexability",
-        "og-twitter",
-        "schema",
-        "sitemap",
-        "title"
-      ],
-      "issues_before": [
-        "og",
-        "schema",
-        "sitemap",
-        "title",
-        "twitter"
-      ],
-      "path": "special-needs/vision/orientation-mobility-school/index.html"
+      "path": "special-needs/practical/workplace-accommodations/index.html"
     }
   ],
-  "eligible_remaining": 43,
+  "eligible_remaining": 0,
   "failed": 2,
   "failures": [
     {
@@ -973,21 +675,21 @@
   "missing_scope_roots": [
     "inclusive-education"
   ],
-  "run_at": "2026-08-30T08:54:03Z",
+  "run_at": "2026-08-30T14:25:28Z",
   "scope": [
     "/special-needs/",
     "/inclusive-education/"
   ],
   "scope_html_pages": 145,
   "sector": "ذوو الاحتياجات الخاصة والتربية الدامجة",
-  "sitemap_index_registered": true,
-  "sitemap_urls_added": 50,
+  "sitemap_index_registered": false,
+  "sitemap_urls_added": 25,
   "skipped_breakdown": {
-    "unchanged": 50
+    "unchanged": 100
   },
-  "skipped_noop": 50,
-  "status": "complete",
-  "success": 50,
+  "skipped_noop": 100,
+  "status": "incomplete",
+  "success": 43,
   "target": 50,
   "verification": {
     "canonical_self_checked": true,
