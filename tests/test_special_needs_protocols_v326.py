@@ -69,7 +69,8 @@ class SpecialNeedsProtocolsV326Tests(unittest.TestCase):
         self.assertEqual(len([u for u in urls if "/special-needs/protocols/" in u]),51)
         for slug in first["protocol_slugs"]:
             u=f"https://healthrenewal.org/special-needs/protocols/{slug}/"
-            self.assertEqual(urls.count(u),1)
+            nearby=[candidate for candidate in urls if f"/special-needs/protocols/{slug}" in candidate]
+            self.assertEqual(urls.count(u),1,msg={"expected":u,"nearby":nearby})
             text=(self.tmp/"special-needs"/"protocols"/slug/"index.html").read_text(encoding="utf-8")
             self.assertEqual(text.count("<h1"),1)
             self.assertGreaterEqual(len(re.findall(r"<h2\b",text)),11)
