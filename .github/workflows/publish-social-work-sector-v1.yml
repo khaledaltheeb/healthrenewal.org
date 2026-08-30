@@ -1,3 +1,4 @@
+# Production publication gate for the Social Work evidence sector.
 name: Publish complete social work sector v1
 
 on:
@@ -159,7 +160,6 @@ jobs:
               && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/sitemap-social-work.xml?verify=${nonce}" -o /tmp/sitemap.xml; then
               if python - <<'PY'
           import concurrent.futures
-          import re
           import time
           import urllib.request
           import xml.etree.ElementTree as ET
