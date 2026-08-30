@@ -14,27 +14,32 @@ permissions:
 
 concurrency:
   group: magazine-technical-seo-v4-20260830-1147
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   optimize:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 30
     steps:
-      - name: Checkout isolated run branch
+      - name: Sparse checkout isolated run branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           ref: seo-magazine-tech-v4-20260830-1147
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /magazine/
+            /sitemap*.xml
+            /assets/brand/
+            /scripts/seo_magazine_round_v4.py
 
       - name: Run magazine technical SEO
-        id: seo
         shell: bash
         run: |
           set +e
           python3 scripts/seo_magazine_round_v4.py
           rc=$?
-          echo "runner_rc=$rc" >> "$GITHUB_OUTPUT"
+          echo "runner exit=$rc"
           exit 0
 
       - name: Verify contract and scope
