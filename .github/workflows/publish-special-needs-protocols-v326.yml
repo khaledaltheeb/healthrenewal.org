@@ -70,35 +70,31 @@ jobs:
           path: validated-site
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Download latest successful v322 artifact
+      - name: Download latest validated production baseline
         if: github.event_name != 'workflow_run'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euxo pipefail
           python - <<'PY'
-          import json,os,urllib.request
+          import json, os, urllib.request
           repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
           headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','User-Agent':'v326-baseline'}
-          def get(url):
-              with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=45) as response:
-                  return json.loads(response.read().decode())
-          runs=get(f'https://api.github.com/repos/{repo}/actions/workflows/publish-special-needs-expansion-v322.yml/runs?branch=main&status=success&per_page=10').get('workflow_runs',[])
-          artifact=None
-          for run in runs:
-              for item in get(run['artifacts_url']).get('artifacts',[]):
-                  if item.get('name')=='validated-production-site' and not item.get('expired'):
-                      artifact=item; break
-              if artifact: break
-          if not artifact: raise SystemExit('No non-expired successful v322 production artifact found')
+          url=f'https://api.github.com/repos/{repo}/actions/artifacts?name=validated-production-site&per_page=100'
+          with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=45) as response:
+              items=json.loads(response.read().decode()).get('artifacts',[])
+          candidates=[item for item in items if not item.get('expired') and item.get('workflow_run',{}).get('head_branch')=='main' and item.get('workflow_run',{}).get('id')]
+          if not candidates:
+              raise SystemExit('No non-expired validated-production-site artifact from main found')
+          artifact=max(candidates,key=lambda item:item.get('created_at',''))
           with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as handle:
               handle.write(f"BASELINE_ARTIFACT_ID={artifact['id']}\n")
-          print({'baseline_run':run['id'],'artifact':artifact['id'],'size':artifact.get('size_in_bytes')})
+          print({'baseline_run':artifact['workflow_run']['id'],'artifact':artifact['id'],'created_at':artifact.get('created_at'),'size':artifact.get('size_in_bytes')})
           PY
           curl -fL --retry 5 -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${BASELINE_ARTIFACT_ID}/zip" -o /tmp/v322.zip
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${BASELINE_ARTIFACT_ID}/zip" -o /tmp/baseline.zip
           mkdir -p validated-site
-          unzip -q /tmp/v322.zip -d validated-site
+          unzip -q /tmp/baseline.zip -d validated-site
       - name: Compile, test and publish fifty protocols
         run: |
           set -euxo pipefail
