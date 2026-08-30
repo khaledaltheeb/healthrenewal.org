@@ -1,0 +1,208 @@
+name: Publish complete social work sector v1
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "evidence-guides/social-work/**"
+      - "evidence-guides/index.html"
+      - "sitemap-social-work.xml"
+      - "scripts/enhance_social_work_sector_v1.py"
+      - "scripts/validate_social_work_sector_v1.py"
+      - ".github/workflows/publish-social-work-sector-v1.yml"
+
+permissions:
+  actions: read
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: social-work-production-publication
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      status: ${{ steps.contract.outputs.status }}
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Resolve latest validated production baseline
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=validated-production-site&per_page=100" \
+            -o /tmp/baselines.json
+          python - <<'PY'
+          import json, os
+          payload = json.load(open('/tmp/baselines.json', encoding='utf-8'))
+          candidates = [x for x in payload.get('artifacts', []) if not x.get('expired') and x.get('workflow_run', {}).get('head_branch') == 'main' and x.get('workflow_run', {}).get('id')]
+          if not candidates:
+              raise SystemExit('No active validated-production-site artifact from main')
+          item = max(candidates, key=lambda x: x.get('created_at', ''))
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f"run_id={item['workflow_run']['id']}\n")
+          print({'baselineRunId': item['workflow_run']['id'], 'createdAt': item.get('created_at')})
+          PY
+
+      - name: Download exact production baseline
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          repository: khaledaltheeb/healthrenewal.org
+          run-id: ${{ steps.baseline.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Patch only social work publication surface
+        run: |
+          set -euo pipefail
+          test -f _site/index.html
+          rm -rf _site/evidence-guides/social-work
+          mkdir -p _site/evidence-guides
+          cp -a evidence-guides/social-work _site/evidence-guides/social-work
+          cp sitemap-social-work.xml _site/sitemap-social-work.xml
+          cp evidence-guides/index.html _site/evidence-guides/index.html
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('_site/sitemap-index.xml')
+          text = p.read_text(encoding='utf-8')
+          loc = 'https://healthrenewal.org/sitemap-social-work.xml'
+          if loc not in text:
+              entry = f'<sitemap><loc>{loc}</loc><lastmod>2026-08-30</lastmod></sitemap>'
+              if '</sitemapindex>' not in text:
+                  raise SystemExit('Invalid sitemap-index.xml')
+              text = text.replace('</sitemapindex>', entry + '\n</sitemapindex>')
+              p.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Harden metadata and validate complete sector
+        id: contract
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/enhance_social_work_sector_v1.py scripts/validate_social_work_sector_v1.py
+          python scripts/enhance_social_work_sector_v1.py _site
+          python scripts/validate_social_work_sector_v1.py _site
+          grep -q 'https://healthrenewal.org/sitemap-social-work.xml' _site/sitemap-index.xml
+          grep -q '/evidence-guides/social-work/' _site/evidence-guides/index.html
+          echo "status=passed" >> "$GITHUB_OUTPUT"
+
+      - name: Preserve verified patched site
+        uses: actions/upload-artifact@v4
+        with:
+          name: social-work-production-site
+          path: _site
+          include-hidden-files: true
+          retention-days: 7
+          compression-level: 6
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.status == 'passed'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download verified site
+        uses: actions/download-artifact@v4
+        with:
+          name: social-work-production-site
+          path: _site
+
+      - name: Promote as next validated production baseline
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-production-site
+          path: _site
+          include-hidden-files: true
+          retention-days: 90
+          compression-level: 6
+
+      - uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy to production
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify all 56 production URLs live
+        run: |
+          set -euo pipefail
+          ready=0
+          for attempt in $(seq 1 60); do
+            nonce="${GITHUB_RUN_ID}-${attempt}-$(date +%s)"
+            if curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/evidence-guides/social-work/?verify=${nonce}" -o /tmp/hub.html \
+              && curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/sitemap-social-work.xml?verify=${nonce}" -o /tmp/sitemap.xml; then
+              if python - <<'PY'
+          import concurrent.futures
+          import re
+          import time
+          import urllib.request
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          hub = Path('/tmp/hub.html').read_text(encoding='utf-8')
+          assert '55 دليل' in hub
+          assert 'warm-referral-continuity' not in hub
+          assert 'https://www.fsd.uni-lj.si/mma/-/2016091213042605/' in hub
+          assert 'Social Chamber of Slovenia' in hub
+          assert 'Slovenian Association of Social Workers' in hub
+
+          root = ET.fromstring(Path('/tmp/sitemap.xml').read_text(encoding='utf-8'))
+          ns = {'s':'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          urls = [n.text.strip() for n in root.findall('s:url/s:loc', ns) if n.text]
+          assert len(urls) == 56, len(urls)
+          assert len(set(urls)) == 56
+          assert not any('warm-referral-continuity' in u for u in urls)
+
+          def check(url):
+              req = urllib.request.Request(url + '?live_verify=' + str(time.time_ns()), headers={'Cache-Control':'no-cache','User-Agent':'Rawafid-Production-Gate/1.0'})
+              with urllib.request.urlopen(req, timeout=25) as r:
+                  assert r.status == 200, (url, r.status)
+                  html = r.read().decode('utf-8', 'replace')
+              assert 'rel="canonical"' in html or "rel='canonical'" in html, url
+              assert url in html, ('canonical-url-mismatch', url)
+              assert 'og:title' in html and 'og:description' in html and 'og:url' in html, url
+              assert 'application/ld+json' in html, url
+              return url
+
+          with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+              checked = list(pool.map(check, urls))
+          assert len(checked) == 56
+          print('LIVE_SOCIAL_WORK_OK pages=56 guides=55 sitemap=56')
+          PY
+              then
+                if curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "https://healthrenewal.org/evidence-guides/?verify=${nonce}" | grep -q '/evidence-guides/social-work/'; then
+                  ready=1
+                  break
+                fi
+              fi
+            fi
+            sleep 5
+          done
+          test "$ready" = 1
+          echo "LIVE_SOCIAL_WORK_OK pages=56 guides=55 sitemap=56"
