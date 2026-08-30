@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Source adapter for the care-guides SEO agent.
+"""Resilient live-demand adapter for the care-guides technical SEO agent.
 
-Keeps the v3 page/metadata/sitemap verification engine intact while replacing
-high-volume Google autocomplete harvesting with public Bing, Yahoo and
-DuckDuckGo suggestion sources. Only source-returned phrases count.
+The base engine owns page mutation and verification. This adapter only replaces
+query evidence collection. Generated seeds are discovery inputs and never count.
+A phrase counts only when a public autocomplete source returns it and it passes
+page-specific condition/intent relevance checks.
 """
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -20,8 +21,8 @@ base.WORKERS = 24
 base.TIMEOUT = 5
 
 CONDITIONS = {
-    'adhd': ['adhd', 'اضطراب فرط الحركة وتشتت الانتباه', 'فرط الحركة وتشتت الانتباه'],
-    'autism': ['autism', 'autism spectrum disorder', 'التوحد', 'اضطراب طيف التوحد'],
+    'adhd': ['adhd', 'attention deficit hyperactivity disorder', 'اضطراب فرط الحركة وتشتت الانتباه', 'فرط الحركة وتشتت الانتباه'],
+    'autism': ['autism', 'autism spectrum disorder', 'asd', 'التوحد', 'اضطراب طيف التوحد'],
     'anxiety': ['anxiety', 'anxiety disorder', 'القلق', 'اضطراب القلق'],
     'depression': ['depression', 'depressive disorder', 'الاكتئاب'],
     'bipolar': ['bipolar disorder', 'bipolar', 'الاضطراب ثنائي القطب'],
@@ -30,40 +31,49 @@ CONDITIONS = {
     'panic': ['panic attacks', 'panic disorder', 'نوبات الهلع', 'اضطراب الهلع'],
     'schizophrenia': ['schizophrenia', 'الفصام'],
     'social-anxiety': ['social anxiety', 'social anxiety disorder', 'القلق الاجتماعي'],
-    'eating': ['eating disorders', 'eating disorder', 'اضطرابات الأكل'],
+    'eating': ['eating disorders', 'eating disorder', 'anorexia', 'bulimia', 'binge eating', 'اضطرابات الأكل', 'فقدان الشهية العصبي', 'النهام العصبي'],
 }
 
 INTENTS = {
-    'assessment': ['assessment', 'تقييم'],
-    'diagnosis': ['diagnosis', 'تشخيص'],
-    'differential': ['differential diagnosis', 'التشخيص التفريقي'],
-    'screening': ['screening', 'فحص', 'تحري'],
-    'treatment': ['treatment', 'علاج'],
-    'care': ['care options', 'خيارات الرعاية'],
-    'family': ['family', 'للأسرة'],
-    'adult': ['adults', 'للبالغين'],
-    'child': ['children', 'للأطفال'],
-    'workplace': ['workplace', 'العمل'],
-    'school': ['school', 'المدرسة'],
-    'rating': ['rating scale', 'مقياس'],
-    'scale': ['scale', 'مقياس'],
-    'measurement': ['measurement', 'قياس'],
-    'reliability': ['reliability', 'الموثوقية'],
-    'validity': ['validity', 'الصدق', 'الصلاحية'],
+    'assessment': ['assessment', 'evaluation', 'تقييم'],
+    'diagnosis': ['diagnosis', 'diagnostic', 'تشخيص'],
+    'differential': ['differential', 'differential diagnosis', 'التشخيص التفريقي'],
+    'screening': ['screening', 'screen', 'فحص', 'تحري'],
+    'treatment': ['treatment', 'therapy', 'علاج'],
+    'care': ['care', 'care options', 'خيارات الرعاية', 'رعاية'],
+    'family': ['family', 'caregiver', 'للأسرة', 'الأسرة'],
+    'adult': ['adult', 'adults', 'للبالغين', 'البالغين'],
+    'child': ['child', 'children', 'pediatric', 'للأطفال', 'الأطفال'],
+    'workplace': ['workplace', 'work', 'العمل'],
+    'school': ['school', 'education', 'المدرسة'],
+    'rating': ['rating', 'rating scale', 'مقياس'],
+    'scale': ['scale', 'score', 'مقياس', 'درجة'],
+    'measurement': ['measurement', 'measure', 'قياس'],
+    'reliability': ['reliability', 'reliable', 'الموثوقية', 'الثبات'],
+    'validity': ['validity', 'valid', 'الصدق', 'الصلاحية'],
     'sensitivity': ['sensitivity', 'الحساسية'],
     'specificity': ['specificity', 'النوعية'],
-    'cutoff': ['cutoff score', 'الدرجة الفاصلة'],
-    'error': ['measurement error', 'خطأ القياس'],
-    'evidence': ['evidence', 'الدليل العلمي'],
-    'questions': ['questions', 'أسئلة'],
-    'appointment': ['appointment', 'موعد التقييم'],
-    'function': ['functioning', 'الأداء الوظيفي'],
+    'cutoff': ['cutoff', 'cut off', 'threshold', 'الدرجة الفاصلة', 'عتبة'],
+    'error': ['measurement error', 'error', 'خطأ القياس'],
+    'evidence': ['evidence', 'research', 'الدليل العلمي', 'الأدلة'],
+    'questions': ['questions', 'question', 'أسئلة', 'سؤال'],
+    'appointment': ['appointment', 'visit', 'موعد التقييم', 'موعد'],
+    'function': ['functioning', 'function', 'الأداء الوظيفي', 'الأداء'],
+    'understand': ['understand', 'understanding', 'فهم'],
+    'preparation': ['preparation', 'prepare', 'التحضير', 'استعداد'],
+    'options': ['options', 'choices', 'خيارات'],
 }
+
+GENERIC = base.STOP | {'disorder', 'اضطراب', 'guide', 'دليل', 'health', 'mental', 'الصحة', 'النفسية', 'clinical', 'سريري', 'care', 'رعاية'}
+
+
+def _tokens(text):
+    return {z.casefold() for z in re.findall(r'[A-Za-z]{2,}|[\u0600-\u06FF]{2,}', text or '') if z.casefold() not in GENERIC and len(z) >= 3}
 
 
 def _request_json(url):
     req = Request(url, headers={
-        'User-Agent': 'Mozilla/5.0 (compatible; RawafidSEO/4.0; +https://healthrenewal.org/)',
+        'User-Agent': 'Mozilla/5.0 (compatible; RawafidSEO/4.1; +https://healthrenewal.org/)',
         'Accept': 'application/json,text/plain,*/*',
     })
     with urlopen(req, timeout=base.TIMEOUT) as r:
@@ -82,8 +92,7 @@ def bing(q):
 def _collect_strings(node, out):
     if isinstance(node, dict):
         for k, v in node.items():
-            lk = str(k).lower()
-            if lk in {'k', 'key', 'phrase', 'text', 'query'} and isinstance(v, str):
+            if str(k).lower() in {'k', 'key', 'phrase', 'text', 'query'} and isinstance(v, str):
                 x = base.norm(html.unescape(re.sub(r'<[^>]+>', ' ', v)))
                 if x:
                     out.append(x)
@@ -99,8 +108,7 @@ def yahoo(q):
     out = []
     _collect_strings(data, out)
     seed = base.norm(q).casefold()
-    seen = set()
-    rows = []
+    seen, rows = set(), []
     for x in out:
         k = x.casefold()
         if k != seed and k not in seen:
@@ -109,38 +117,71 @@ def yahoo(q):
     return rows
 
 
+def page_profile(s, p):
+    rel = base.rp(p).lower()
+    visible_name = (base.h1(s) + ' ' + base.core(s)).lower()
+    matched_conditions = []
+    for key, values in CONDITIONS.items():
+        english_values = [v for v in values if re.search(r'[A-Za-z]', v)]
+        if key in rel or any(v.lower() in visible_name for v in english_values):
+            matched_conditions.extend(values)
+    matched_intents = []
+    for key, values in INTENTS.items():
+        if key in rel:
+            matched_intents.extend(values)
+    core_tokens = _tokens(base.h1(s) + ' ' + base.core(s) + ' ' + p.parent.name.replace('-', ' '))
+    condition_tokens = _tokens(' '.join(matched_conditions))
+    intent_tokens = _tokens(' '.join(matched_intents))
+    return {
+        'conditions': matched_conditions,
+        'intents': matched_intents,
+        'core_tokens': core_tokens,
+        'condition_tokens': condition_tokens,
+        'intent_tokens': intent_tokens,
+    }
+
+
+def phrase_relevant(q, profile):
+    toks = _tokens(q)
+    if not toks:
+        return False
+    cond = profile['condition_tokens']
+    intent = profile['intent_tokens']
+    core = profile['core_tokens']
+    if cond and not (toks & cond):
+        return False
+    if intent and not (toks & intent):
+        return False
+    overlap = toks & core
+    if cond and intent:
+        return bool(overlap) or bool((toks & cond) and (toks & intent))
+    if cond:
+        return bool(toks & cond) and (bool(overlap) or len(toks) >= 2)
+    if intent:
+        non_intent_core = core - intent
+        return bool(toks & intent) and (not non_intent_core or bool(toks & non_intent_core))
+    needed = 1 if len(core) <= 2 else 2
+    return len(overlap) >= needed
+
+
 def smart_seeds(s, p):
     seeds = list(base.seeds(s, p))
-    slug = p.parent.name.lower()
-    rel = base.rp(p).lower()
-    concepts = []
-    for key, vals in CONDITIONS.items():
-        if key in rel or any(v.lower() in (base.h1(s) + ' ' + base.core(s)).lower() for v in vals if re.search(r'[A-Za-z]', v)):
-            concepts.extend(vals)
-    intents = []
-    for key, vals in INTENTS.items():
-        if key in slug or key in rel:
-            intents.extend(vals)
-    if not concepts:
-        concepts = [base.core(s), slug.replace('-', ' ')]
-    if not intents:
-        intents = ['guide', 'دليل']
-
-    ar_letters = base.AR_LET
-    en_letters = base.EN_LET
+    profile = page_profile(s, p)
+    concepts = profile['conditions'] or [base.core(s), p.parent.name.replace('-', ' ')]
+    intents = profile['intents'] or ['guide', 'دليل']
     generated = []
-    for concept in concepts[:6]:
+    for concept in concepts[:8]:
         latin = bool(re.search(r'[A-Za-z]', concept)) and not re.search(r'[\u0600-\u06FF]', concept)
-        letters = en_letters if latin else ar_letters
+        letters = base.EN_LET if latin else base.AR_LET
         generated.append(concept)
-        for intent in intents[:8]:
+        for intent in intents[:10]:
             same_script = (bool(re.search(r'[A-Za-z]', intent)) and latin) or (bool(re.search(r'[\u0600-\u06FF]', intent)) and not latin)
             if not same_script:
                 continue
             generated.extend([f'{concept} {intent}', f'{intent} {concept}'])
             generated.extend(f'{concept} {intent} {c}' for c in letters)
+            generated.extend(f'{intent} {concept} {c}' for c in letters[:16])
         generated.extend(f'{concept} {c}' for c in letters)
-
     seen = {base.norm(x).casefold() for x in seeds}
     for x in generated:
         x = base.norm(x)
@@ -148,19 +189,14 @@ def smart_seeds(s, p):
         if x and k not in seen:
             seen.add(k)
             seeds.append(x)
-        if len(seeds) >= 320:
+        if len(seeds) >= 360:
             break
     return seeds
 
 
 def collect(s, p):
     seeds = smart_seeds(s, p)
-    anchor_set = base.anchors(s, p)
-    for seed in seeds:
-        for tok in re.findall(r'[A-Za-z]{2,}|[\u0600-\u06FF]{2,}', seed):
-            if tok.casefold() not in base.STOP and len(tok) >= 3:
-                anchor_set.add(tok.casefold())
-
+    profile = page_profile(s, p)
     found = {}
     errors = Counter()
     returned = Counter()
@@ -180,7 +216,7 @@ def collect(s, p):
                 continue
             returned[name] += len(vals)
             for q in vals:
-                if not base.related(q, anchor_set):
+                if not phrase_relevant(q, profile):
                     continue
                 key = q.casefold()
                 row = found.setdefault(key, {'phrase': q, 'sources': [], 'evidence_seeds': []})
@@ -188,17 +224,21 @@ def collect(s, p):
                     row['sources'].append(name)
                 if seed not in row['evidence_seeds'] and len(row['evidence_seeds']) < 3:
                     row['evidence_seeds'].append(seed)
-
     rows = list(found.values())
     rows.sort(key=lambda x: (len(x['sources']), len(x['phrase']), x['phrase']), reverse=True)
     evidence = {
         'captured_at': base.NOW,
-        'policy': 'Only phrases returned by live public search-autocomplete endpoints count. Generated exploration seeds never count. Results are filtered for topical overlap.',
+        'policy': 'Only phrases returned by live public search-autocomplete endpoints count. Generated exploration seeds never count. For condition-specific pages, phrases must match the condition; for intent-specific pages they must also match the page intent.',
         'queried_seed_count': len(seeds),
         'sources': ['Bing Autocomplete', 'Yahoo Autocomplete', 'DuckDuckGo Autocomplete'],
         'source_returned_rows': dict(returned),
         'errors': dict(errors),
         'real_relevant_suggestion_count': len(rows),
+        'relevance_profile': {
+            'conditions': profile['conditions'],
+            'intents': profile['intents'],
+            'core_tokens': sorted(profile['core_tokens']),
+        },
         'brand_combinations_not_counted': [base.core(s) + ' ' + base.SHORT, base.core(s) + ' ' + base.EN],
     }
     return rows[:base.MINQ], evidence
