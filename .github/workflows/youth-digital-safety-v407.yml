@@ -1,0 +1,52 @@
+name: Youth Digital Safety v407
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'sectors/youth/**'
+      - 'scripts/publish_women_youth_v406.py'
+      - 'scripts/publish_youth_digital_safety_v407.py'
+      - 'tests/test_women_youth_v406.py'
+      - 'tests/test_youth_digital_safety_v407.py'
+      - 'tests/test_youth_digital_safety_build_v407.py'
+      - 'sitemap-sector-youth.xml'
+      - 'sitemap-index.xml'
+      - '.github/workflows/youth-digital-safety-v407.yml'
+  pull_request:
+    paths:
+      - 'sectors/youth/**'
+      - 'scripts/publish_women_youth_v406.py'
+      - 'scripts/publish_youth_digital_safety_v407.py'
+      - 'tests/test_women_youth_v406.py'
+      - 'tests/test_youth_digital_safety_v407.py'
+      - 'tests/test_youth_digital_safety_build_v407.py'
+      - 'sitemap-sector-youth.xml'
+      - 'sitemap-index.xml'
+      - '.github/workflows/youth-digital-safety-v407.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify hub, rebuild durability and rights boundary
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify historical youth publisher remains stable
+        run: python tests/test_women_youth_v406.py
+
+      - name: Verify v407 current architecture and rights boundary
+        run: python tests/test_youth_digital_safety_v407.py
+
+      - name: Verify v407 survives a clean v406 rebuild
+        run: python tests/test_youth_digital_safety_build_v407.py
