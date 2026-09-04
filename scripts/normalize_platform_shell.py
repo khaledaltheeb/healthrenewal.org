@@ -21,7 +21,7 @@ from typing import Iterable
 
 DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 MARKER = "<!-- pt-platform-shell:v1 -->"
-SHELL_VERSION = "2.0.0"
+SHELL_VERSION = "5.0.0"
 EXCLUDED_PARTS = {
     ".git",
     ".github",
@@ -219,130 +219,68 @@ def normalize_head(source: str, path: Path, root: Path) -> tuple[str, bool]:
 def normalize_source(source: str, path: Path, root: Path) -> tuple[str, str | None]:
     normalized, has_body = normalize_body(source, path, root)
     if not has_body:
-        return source, "missing <body>"
-
+        return source, "missing-body"
     normalized, has_head = normalize_head(normalized, path, root)
     if not has_head:
-        return source, "missing </head>"
+        return source, "missing-head"
     return normalized, None
 
 
-def normalize_file(path: Path, root: Path, *, check_only: bool) -> Result:
-    relative = path.relative_to(root).as_posix()
+def normalize_file(path: Path, root: Path, check_only: bool) -> Result:
     try:
-        original = path.read_text(encoding="utf-8")
-    except UnicodeDecodeError as exc:
-        return Result(relative, "error", f"not UTF-8: {exc}")
+        source = path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        return Result(path.relative_to(root).as_posix(), "error", "invalid-utf8")
 
-    normalized, problem = normalize_source(original, path, root)
-    if problem:
-        return Result(relative, "skipped", problem)
-
-    if normalized == original:
-        return Result(relative, "current")
+    normalized, error = normalize_source(source, path, root)
+    relative = path.relative_to(root).as_posix()
+    if error:
+        return Result(relative, "skipped", error)
+    if normalized == source:
+        return Result(relative, "unchanged")
     if check_only:
-        return Result(relative, "needs-update", "platform shell drift")
-
+        return Result(relative, "needs-update")
     path.write_text(normalized, encoding="utf-8", newline="\n")
-    detail = (
-        "removed optional enhancer for strict application runtime"
-        if not enhancer_allowed(path, root)
-        else "updated stable platform shell"
-    )
-    return Result(relative, "updated", detail)
+    return Result(relative, "updated")
 
 
-def build_report(
-    results: list[Result],
-    *,
-    root: Path,
-    check_only: bool,
-    runtime: dict[str, object],
-) -> dict[str, object]:
-    counts: dict[str, int] = {}
-    for result in results:
-        counts[result.status] = counts.get(result.status, 0) + 1
-
-    processed = sum(counts.get(name, 0) for name in ("current", "updated", "needs-update"))
-    return {
-        "schema_version": 1,
-        "shell_version": SHELL_VERSION,
-        "status": "passed" if counts.get("error", 0) == 0 else "failed",
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-        "mode": "check" if check_only else "write",
-        "root": str(root),
-        "runtime": runtime,
-        "html_pages_seen": len(results),
-        "html_pages_normalized_or_current": processed,
-        "counts": counts,
-        "results": [asdict(result) for result in results],
-    }
-
-
-def write_report(report: dict[str, object], report_path: Path) -> None:
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-        newline="\n",
-    )
-
-
-def main() -> int:
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "root",
-        nargs="?",
-        default=DEFAULT_ROOT,
-        type=Path,
-        help="site root to normalize; defaults to the repository root",
-    )
-    parser.add_argument(
-        "--check",
-        action="store_true",
-        help="report pages that need migration without modifying them",
-    )
-    parser.add_argument(
-        "--no-report",
-        action="store_true",
-        help="do not write a normalization report",
-    )
-    parser.add_argument(
-        "--report-path",
-        type=Path,
-        help="custom report path; defaults to <root>/reports/platform-normalization.json",
-    )
+    parser.add_argument("--root", default=str(DEFAULT_ROOT))
+    parser.add_argument("--check", action="store_true")
+    parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
-    root = args.root.resolve()
-    if not root.is_dir():
-        print(f"ERROR site root not found: {root}", file=sys.stderr)
-        return 2
+    root = Path(args.root).resolve()
+    if not root.exists():
+        raise SystemExit(f"Root not found: {root}")
 
     runtime = copy_platform_runtime(root)
-    results = [normalize_file(path, root, check_only=args.check) for path in production_html_files(root)]
-    report = build_report(results, root=root, check_only=args.check, runtime=runtime)
-    if not args.no_report:
-        report_path = args.report_path or (root / "reports" / "platform-normalization.json")
-        write_report(report, report_path.resolve())
+    results = [normalize_file(path, root, args.check) for path in production_html_files(root)]
+    summary: dict[str, int] = {}
+    for result in results:
+        summary[result.status] = summary.get(result.status, 0) + 1
 
-    counts = report["counts"]
-    print(json.dumps(counts, ensure_ascii=False, sort_keys=True))
+    payload = {
+        "version": SHELL_VERSION,
+        "root": str(root),
+        "checkOnly": args.check,
+        "runtime": runtime,
+        "summary": summary,
+        "results": [asdict(result) for result in results],
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
+    }
 
-    errors = [result for result in results if result.status == "error"]
-    pending = [result for result in results if result.status == "needs-update"]
-    if errors:
-        for result in errors:
-            print(f"ERROR {result.path}: {result.detail}", file=sys.stderr)
-        return 2
-    if args.check and pending:
-        for result in pending[:50]:
-            print(f"NEEDS_UPDATE {result.path}", file=sys.stderr)
-        if len(pending) > 50:
-            print(f"... and {len(pending) - 50} more", file=sys.stderr)
-        return 1
-    return 0
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+    else:
+        print(f"Platform shell {SHELL_VERSION}: {summary}")
+
+    if any(item.status == "error" for item in results):
+        raise SystemExit(2)
+    if args.check and any(item.status == "needs-update" for item in results):
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()
