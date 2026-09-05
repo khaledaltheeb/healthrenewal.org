@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "assets/brand/rawafid-brand.js"
+      - "assets/rehabilitation/patient-guide-outcomes.js"
+      - "assets/rehabilitation/patient-guide-outcome-map-ar.json"
       - "scripts/rawafid_brand_runtime.js"
       - "scripts/apply_rawafid_brand.py"
       - "scripts/verify_webmcp.py"
@@ -12,6 +14,8 @@ on:
     branches: [main]
     paths:
       - "assets/brand/rawafid-brand.js"
+      - "assets/rehabilitation/patient-guide-outcomes.js"
+      - "assets/rehabilitation/patient-guide-outcome-map-ar.json"
       - "scripts/rawafid_brand_runtime.js"
       - "scripts/apply_rawafid_brand.py"
       - "scripts/verify_webmcp.py"
@@ -29,6 +33,9 @@ jobs:
         run: |
           node --check assets/brand/rawafid-brand.js
           node --check scripts/rawafid_brand_runtime.js
+          node --check assets/rehabilitation/patient-guide-outcomes.js
+      - name: Check rehabilitation outcome map JSON
+        run: python -m json.tool assets/rehabilitation/patient-guide-outcome-map-ar.json > /dev/null
       - name: Check generator syntax
         run: python -m py_compile scripts/apply_rawafid_brand.py scripts/verify_webmcp.py
       - name: Verify WebMCP contract
