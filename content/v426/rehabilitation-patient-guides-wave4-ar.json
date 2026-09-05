@@ -1,0 +1,35 @@
+{
+  "version": "426.0",
+  "reviewed_at": "2026-09-06",
+  "method": "Original Arabic patient-facing synthesis. AAPM&R Conditions & Treatments and PM&R KnowledgeNOW define rehabilitation coverage; independent guidelines, systematic reviews, and recent consensus statements verify management and escalation messages.",
+  "rights_note": "No AAPM&R patient handout, copyrighted table, image, or wording is reproduced or translated. Sources are cited and independently summarized.",
+  "sources": [
+    {"id":"aapmr-cervical-stenosis","name":"Cervical Stenosis","organization":"AAPM&R PM&R KnowledgeNOW","url":"https://now.aapmr.org/cervical-stenosis/","type":"specialty_reference","scope":"cervical spinal stenosis assessment, rehabilitation and escalation"},
+    {"id":"aapmr-dcm-2026","name":"Degenerative Cervical Myelopathy","organization":"AAPM&R PM&R KnowledgeNOW","url":"https://now.aapmr.org/degenerative-cervical-myelopathy/","type":"specialty_reference","scope":"degenerative cervical myelopathy, cord compression and neurologic escalation"},
+    {"id":"aapmr-whiplash","name":"Cervical Whiplash","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/musculoskeletal-medicine/cervical-whiplash","type":"patient_resource","scope":"whiplash patient orientation and functional rehabilitation"},
+    {"id":"whiplash-cpg","name":"The Treatment of Neck Pain-Associated Disorders and Whiplash-Associated Disorders: A Clinical Practice Guideline","organization":"Guideline Development Panel","url":"https://pubmed.ncbi.nlm.nih.gov/27836071/","type":"clinical_guideline","scope":"multimodal care, exercise and self-management for whiplash and neck pain"},
+    {"id":"aapmr-ulnar-neuropathy","name":"Ulnar Nerve Mononeuropathy at the Elbow","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/pain-neuromuscular-medicine-rehabilitation/ulnar-nerve-mononeuropathy-at-the-elbow","type":"patient_resource","scope":"ulnar neuropathy symptoms, diagnosis and rehabilitation"},
+    {"id":"cochrane-ulnar-2025","name":"Treatment for ulnar neuropathy at the elbow","organization":"Cochrane Review","url":"https://pubmed.ncbi.nlm.nih.gov/40298125/","type":"systematic_review","scope":"conservative and surgical treatment evidence for ulnar neuropathy"},
+    {"id":"aapmr-myofascial-pain","name":"Myofascial Pain","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/pain-neuromuscular-medicine-rehabilitation/myofascial-pain","type":"patient_resource","scope":"myofascial pain diagnosis and rehabilitation"},
+    {"id":"myofascial-sr-2023","name":"Therapeutic physical modalities in myofascial pain syndrome: systematic review","organization":"Peer-reviewed systematic review","url":"https://pubmed.ncbi.nlm.nih.gov/37173661/","type":"systematic_review","scope":"physical modalities, pain, function and quality of life in myofascial pain"},
+    {"id":"aapmr-phantom-pain","name":"Phantom Pain","organization":"AAPM&R PM&R KnowledgeNOW","url":"https://now.aapmr.org/phantom-pain/","type":"specialty_reference","scope":"phantom limb pain and residual limb pain distinction and rehabilitation"},
+    {"id":"vadod-amputation-2024","name":"2024 VA/DoD Clinical Practice Guideline for Rehabilitation of Individuals With Lower Limb Amputation","organization":"U.S. Department of Veterans Affairs / Department of Defense","url":"https://pubmed.ncbi.nlm.nih.gov/42308375/","type":"clinical_guideline","scope":"interdisciplinary lower-limb amputation rehabilitation including limb pain"},
+    {"id":"aapmr-venous-insufficiency","name":"Venous Insufficiency","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/medical-rehabilitation/venous-insufficiency","type":"patient_resource","scope":"chronic venous insufficiency symptoms, movement and compression context"},
+    {"id":"acr-venous-2023","name":"ACR Appropriateness Criteria Lower Extremity Chronic Venous Disease","organization":"American College of Radiology","url":"https://pubmed.ncbi.nlm.nih.gov/38040466/","type":"clinical_guideline","scope":"diagnostic evaluation of lower-extremity chronic venous disease"},
+    {"id":"aapmr-orthostasis","name":"Orthostasis","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/medical-rehabilitation/orthostasis","type":"patient_resource","scope":"orthostatic hypotension symptoms, evaluation and rehabilitation countermeasures"},
+    {"id":"aha-oh-2024","name":"Orthostatic Hypotension in Adults With Hypertension: A Scientific Statement","organization":"American Heart Association","url":"https://pubmed.ncbi.nlm.nih.gov/38205630/","type":"scientific_statement","scope":"orthostatic hypotension evaluation and management in adults with hypertension"},
+    {"id":"aapmr-obesity","name":"Obesity","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/medical-rehabilitation/obesity","type":"patient_resource","scope":"obesity, function, mobility and multidisciplinary rehabilitation"},
+    {"id":"acsm-weight-2024","name":"Physical Activity and Excess Body Weight and Adiposity for Adults","organization":"American College of Sports Medicine","url":"https://pubmed.ncbi.nlm.nih.gov/39277776/","type":"consensus_statement","scope":"physical activity and body weight/adiposity in adults"},
+    {"id":"sermef-obesity-rehab-2026","name":"Diagnosis and Management of the Patient with Obesity: Rehabilitation Position Statement","organization":"Spanish Society of Rehabilitation and Physical Medicine","url":"https://pubmed.ncbi.nlm.nih.gov/41762535/","type":"consensus_statement","scope":"function-centered rehabilitation management of obesity"}
+  ],
+  "topics": [
+    {"slug":"cervical-stenosis","title":"تضيق العمود الفقري العنقي: متى يكون الألم مشكلة نخاعية؟","source_ids":["aapmr-cervical-stenosis","aapmr-dcm-2026"]},
+    {"slug":"whiplash","title":"إصابة المصع/Whiplash: العودة للحركة ومنع التحول إلى ألم مزمن","source_ids":["aapmr-whiplash","whiplash-cpg"]},
+    {"slug":"ulnar-neuropathy","title":"اعتلال العصب الزندي عند المرفق: التنميل والضعف والوضعيات المهيجة","source_ids":["aapmr-ulnar-neuropathy","cochrane-ulnar-2025"]},
+    {"slug":"myofascial-pain","title":"الألم العضلي اللفافي: الحركة وإدارة الحمل دون اختزال المشكلة في نقاط الزناد","source_ids":["aapmr-myofascial-pain","myofascial-sr-2023"]},
+    {"slug":"phantom-limb-pain","title":"ألم الطرف الوهمي: التفريق بين الألم الوهمي وألم الطرف المتبقي","source_ids":["aapmr-phantom-pain","vadod-amputation-2024"]},
+    {"slug":"venous-insufficiency","title":"القصور الوريدي المزمن: الحركة والجلد والضغط ومتى نشتبه بجلطة","source_ids":["aapmr-venous-insufficiency","acr-venous-2023"]},
+    {"slug":"orthostatic-hypotension","title":"هبوط الضغط الانتصابي: الوقوف الآمن واستعادة تحمل الوضع العمودي","source_ids":["aapmr-orthostasis","aha-oh-2024"]},
+    {"slug":"obesity-functional-rehabilitation","title":"تأهيل السمنة واللياقة الوظيفية: تحسين الحركة والقدرة لا مطاردة رقم الوزن وحده","source_ids":["aapmr-obesity","acsm-weight-2024","sermef-obesity-rehab-2026"]}
+  ]
+}
