@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "last_verified": "2026-09-06",
-  "policy": "Scoring, translation provenance, reproduction rights and public-web administration are separate gates. Rawafid does not infer diagnosis from any score and does not apply standard cutoffs to nonstandard missing-item totals.",
+  "policy": "Scoring, translation provenance, copyright status, permission status and public-web administration are separate gates. Rawafid does not infer diagnosis from any score and does not apply standard cutoffs to nonstandard missing-item totals.",
   "measures": [
     {
       "id": "phq-4",
@@ -11,19 +11,21 @@
       "items": 4,
       "item_range": [0,3],
       "score_range": [0,12],
-      "subscales": {
-        "gad-2": {"items": [1,2], "range": [0,6], "common_screen_threshold": 3},
-        "phq-2": {"items": [3,4], "range": [0,6], "common_screen_threshold": 3}
-      },
+      "subscales": {"gad-2":{"items":[1,2],"range":[0,6],"common_screen_threshold":3},"phq-2":{"items":[3,4],"range":[0,6],"common_screen_threshold":3}},
       "severity_bands": [[0,2,"minimal"],[3,5,"mild"],[6,8,"moderate"],[9,12,"severe"]],
       "diagnostic_by_score_alone": false,
       "rights": {
-        "status": "no-copyright",
-        "source": "https://www.nih.gov/node/21506"
+        "status": "copyrighted-permissive-use",
+        "copyright_holder": "Pfizer Inc.",
+        "permission_required_to_reproduce": false,
+        "permission_required_to_translate": false,
+        "permission_required_to_display": false,
+        "permission_required_to_distribute": false,
+        "source": "https://loinc.org/69724-3"
       },
       "arabic_evidence": [
-        {"pmid": "39080577", "year": 2024, "sample_n": 587, "alpha_omega": 0.86, "finding": "two-factor structure and measurement invariance evidence"},
-        {"pmid": "27723929", "sample_n": 864, "population": "Syrian refugees", "language": "Modern Standard Arabic", "phq2_alpha": 0.76, "gad2_alpha": 0.83}
+        {"pmid":"39080577","year":2024,"sample_n":587,"alpha_omega":0.86,"finding":"two-factor structure and measurement invariance evidence"},
+        {"pmid":"27723929","sample_n":864,"population":"Syrian refugees","language":"Modern Standard Arabic","phq2_alpha":0.76,"gad2_alpha":0.83}
       ],
       "rawafid_arabic_status": "independent-operational-Arabic-rendering",
       "rawafid_route": "/assessments/wellbeing-somatic-screeners/phq-4/"
@@ -37,54 +39,30 @@
       "item_range": [0,2],
       "standard_score_range": [0,30],
       "severity_bands_when_15_items_numeric": [[0,4,"minimal"],[5,9,"low-mild"],[10,14,"moderate"],[15,30,"high"]],
-      "menstrual_item": {
-        "item": 4,
-        "may_be_not_applicable": true,
-        "rawafid_missing_policy": "If item 4 is marked N/A and all other items are complete, display only a nonstandard 14-item subtotal /28 and do not apply standard 5/10/15 cutpoints. No imputation or prorating is performed by Rawafid."
-      },
+      "menstrual_item": {"item":4,"may_be_not_applicable":true,"rawafid_missing_policy":"If item 4 is marked N/A and all other items are complete, display only a nonstandard 14-item subtotal /28 and do not apply standard 5/10/15 cutpoints. No imputation or prorating is performed by Rawafid."},
       "diagnostic_by_score_alone": false,
       "medical_causation_by_score": false,
       "rights": {
-        "status": "permission-not-required-for-reproduction-translation-display-distribution",
-        "source": "https://loinc.org/69728-4/panel"
+        "status": "copyrighted-permissive-use",
+        "copyright_holder": "Pfizer Inc.",
+        "permission_required_to_reproduce": false,
+        "permission_required_to_translate": false,
+        "permission_required_to_display": false,
+        "permission_required_to_distribute": false,
+        "source": "https://loinc.org/70273-8"
       },
       "arabic_evidence": [
-        {"pmid": "28878812", "population": "Saudi Arabic sample", "cronbach_alpha": 0.826},
-        {"pmid": "38271356", "year": 2024, "sample_n": 403, "population": "Lebanese Arabic sample", "cronbach_alpha": 0.87}
+        {"pmid":"28878812","population":"Saudi Arabic sample","cronbach_alpha":0.826},
+        {"pmid":"38271356","year":2024,"sample_n":403,"population":"Lebanese Arabic sample","cronbach_alpha":0.87}
       ],
       "rawafid_arabic_status": "independent-operational-Arabic-rendering",
       "rawafid_route": "/assessments/wellbeing-somatic-screeners/phq-15/"
     },
     {
-      "id": "who-5",
-      "name": "World Health Organization-Five Well-Being Index",
-      "type": "positive-wellbeing",
-      "reference_period": "past 2 weeks",
-      "items": 5,
-      "item_range": [0,5],
-      "direction": "higher-is-better",
-      "raw_score_range": [0,25],
-      "percentage_score_formula": "raw * 4",
-      "percentage_score_range": [0,100],
-      "suggested_low_wellbeing_threshold": {"raw_below": 13, "percentage_below": 50, "meaning": "indication for further assessment, not diagnosis"},
-      "rights": {
-        "status": "CC-BY-NC-SA-3.0-IGO",
-        "source": "https://www.who.int/publications/m/item/WHO-UCN-MSD-MHE-2024.01",
-        "commercial_use": false,
-        "adaptation_allowed": true,
-        "share_alike_required": true,
-        "attribution_required": true,
-        "who_logo_allowed": false,
-        "endorsement_must_not_be_implied": true,
-        "translation_disclaimer_required": true
-      },
-      "arabic_evidence": [
-        {"pmid": "40895825", "year": 2025, "sample_n": 3247, "countries": ["Tunisia","Lebanon","Egypt","Jordan","Morocco","Kuwait"], "alpha_omega_range": [0.92,0.96], "finding": "one-factor fit and measurement invariance across countries, sex and age"},
-        {"pmid": "40674291", "sample_n": 700, "population": "Lebanese adolescents", "alpha_omega": 0.83},
-        {"pmid": "38783217", "sample_n": 117, "population": "Arabic-speaking schizophrenia patients", "cronbach_alpha": 0.80}
-      ],
-      "rawafid_arabic_status": "independent-adaptation-under-WHO-open-license-not-WHO-translation",
-      "rawafid_route": "/assessments/wellbeing-somatic-screeners/who-5/"
+      "id":"who-5","name":"World Health Organization-Five Well-Being Index","type":"positive-wellbeing","reference_period":"past 2 weeks","items":5,"item_range":[0,5],"direction":"higher-is-better","raw_score_range":[0,25],"percentage_score_formula":"raw * 4","percentage_score_range":[0,100],"suggested_low_wellbeing_threshold":{"raw_below":13,"percentage_below":50,"meaning":"indication for further assessment, not diagnosis"},
+      "rights":{"status":"CC-BY-NC-SA-3.0-IGO","source":"https://www.who.int/publications/m/item/WHO-UCN-MSD-MHE-2024.01","commercial_use":false,"adaptation_allowed":true,"share_alike_required":true,"attribution_required":true,"who_logo_allowed":false,"endorsement_must_not_be_implied":true,"translation_disclaimer_required":true},
+      "arabic_evidence":[{"pmid":"40895825","year":2025,"sample_n":3247,"countries":["Tunisia","Lebanon","Egypt","Jordan","Morocco","Kuwait"],"alpha_omega_range":[0.92,0.96],"finding":"one-factor fit and measurement invariance across countries, sex and age"},{"pmid":"40674291","sample_n":700,"population":"Lebanese adolescents","alpha_omega":0.83},{"pmid":"38783217","sample_n":117,"population":"Arabic-speaking schizophrenia patients","cronbach_alpha":0.80}],
+      "rawafid_arabic_status":"independent-adaptation-under-WHO-open-license-not-WHO-translation","rawafid_route":"/assessments/wellbeing-somatic-screeners/who-5/"
     }
   ]
 }
