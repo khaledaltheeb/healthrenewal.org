@@ -5,6 +5,8 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 JS = ROOT / "assets" / "brand" / "rawafid-brand.js"
+SOURCE = ROOT / "scripts" / "rawafid_brand_runtime.js"
+GENERATOR = ROOT / "scripts" / "apply_rawafid_brand.py"
 
 
 def fail(message: str) -> None:
@@ -13,10 +15,19 @@ def fail(message: str) -> None:
 
 
 def main() -> None:
-    if not JS.is_file():
-        fail(f"missing {JS.relative_to(ROOT)}")
+    for path in (JS, SOURCE, GENERATOR):
+        if not path.is_file():
+            fail(f"missing {path.relative_to(ROOT)}")
 
     text = JS.read_text(encoding="utf-8")
+    source = SOURCE.read_text(encoding="utf-8")
+    generator = GENERATOR.read_text(encoding="utf-8")
+
+    if text != source:
+        fail("deployed WebMCP runtime differs from canonical runtime source")
+    if "RUNTIME_SOURCE" not in generator or "rawafid_brand_runtime.js" not in generator:
+        fail("brand generator is not pinned to the canonical WebMCP runtime source")
+
     required_literals = {
         "model context feature detection": "document.modelContext",
         "imperative registration": "registerTool",
@@ -53,7 +64,7 @@ def main() -> None:
     print(
         "WEBMCP_GUARD_OK "
         f"imperative_tools={len(expected_tools)} "
-        "declarative_home_search=1 schemas=present"
+        "declarative_home_search=1 schemas=present generator=pinned"
     )
 
 
