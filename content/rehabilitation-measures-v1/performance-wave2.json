@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "principles": {
+    "rmd_cost_is_not_reproduction_license": true,
+    "rawafid_worksheets_are_original_recording_forms": true,
+    "standardized_instruction_scripts_are_not_reproduced": true,
+    "serial_testing_requires_protocol_consistency": true,
+    "normative_interpretation_requires_matching_population_and_protocol": true
+  },
+  "measures": [
+    {
+      "id": "six-minute-walk",
+      "name": "6-Minute Walk Test",
+      "acronym": "6MWT",
+      "domain": "walking-endurance",
+      "status": "full-recording-sheet",
+      "source": "https://www.sralab.org/rehabilitation-measures/6-minute-walk-test",
+      "rights_basis": "Rawafid original recording worksheet. Procedure is summarized from RMD; no verbatim ATS/ERS standardized encouragement script, Borg scale item set, or proprietary normative table is reproduced.",
+      "score": "total distance in meters over six minutes",
+      "critical_protocol_fields": ["course length", "assistive device", "oxygen/support", "rest periods", "symptoms", "protocol deviations"]
+    },
+    {
+      "id": "two-minute-walk",
+      "name": "2-Minute Walk Test",
+      "acronym": "2MWT",
+      "domain": "walking-endurance",
+      "status": "full-recording-sheet",
+      "source": "https://www.sralab.org/rehabilitation-measures/2-minute-walk-test",
+      "rights_basis": "Rawafid original recording worksheet for a timed walking performance task. No fixed copyrighted questionnaire items are reproduced.",
+      "score": "total distance in meters over two minutes",
+      "critical_protocol_fields": ["course length", "assistive device", "assistance", "symptoms"]
+    },
+    {
+      "id": "four-square-step",
+      "name": "Four Square Step Test",
+      "acronym": "FSST",
+      "domain": "dynamic-balance",
+      "status": "full-recording-sheet",
+      "source": "https://www.sralab.org/rehabilitation-measures/four-square-step-test",
+      "rights_basis": "Rawafid original timing and observation worksheet for a physical performance sequence. Procedure is paraphrased; no third-party form is copied.",
+      "score": "best valid completion time in seconds",
+      "critical_protocol_fields": ["obstacle arrangement", "practice trial", "validity of trial", "touches/loss of balance"]
+    },
+    {
+      "id": "single-leg-stance",
+      "name": "Single Leg Stance",
+      "acronym": "SLS",
+      "domain": "static-balance",
+      "status": "full-recording-sheet",
+      "source": "https://www.sralab.org/rehabilitation-measures/single-leg-stance-or-one-legged-stance-test",
+      "rights_basis": "Rawafid original timing worksheet for a generic one-leg stance performance procedure; no fixed item bank is reproduced.",
+      "score": "best stance time per side in seconds",
+      "critical_protocol_fields": ["eyes open/closed", "arm position", "surface", "footwear", "maximum time", "number of trials"]
+    },
+    {
+      "id": "two-minute-step",
+      "name": "2-Minute Step Test",
+      "acronym": "2MST",
+      "domain": "aerobic-capacity",
+      "status": "full-recording-sheet",
+      "source": "https://www.sralab.org/rehabilitation-measures/2-minute-step-test",
+      "rights_basis": "Rawafid original count/observation worksheet. Task parameters are summarized from RMD; no proprietary questionnaire content is used.",
+      "score": "count of right-knee reaches to the target height over two minutes",
+      "critical_protocol_fields": ["target height", "balance support", "duration", "symptoms"]
+    },
+    {
+      "id": "step-test-15s",
+      "name": "Step Test",
+      "acronym": "Step Test",
+      "domain": "dynamic-balance-weight-shift",
+      "status": "full-recording-sheet",
+      "source": "https://www.sralab.org/rehabilitation-measures/step-test",
+      "rights_basis": "Rawafid original count/recording worksheet. Physical task parameters are summarized from RMD; no third-party score sheet is copied.",
+      "score": "number of completed step cycles in 15 seconds per side",
+      "critical_protocol_fields": ["step height", "support/guarding", "tested side", "duration"]
+    },
+    {
+      "id": "grip-strength",
+      "name": "Hand Grip Strength",
+      "acronym": "Grip Strength",
+      "domain": "hand-strength",
+      "status": "full-recording-sheet",
+      "source": "https://www.sralab.org/rehabilitation-measures/hand-held-dynamometer-grip-strength",
+      "rights_basis": "Rawafid original recording/calculation worksheet. Commercial dynamometer equipment and any manufacturer-specific materials are not reproduced. RMD procedural positioning is paraphrased.",
+      "score": "mean and best of three trials per hand in the selected force unit",
+      "critical_protocol_fields": ["device and calibration", "force unit", "handle setting", "body position", "number of trials"]
+    }
+  ]
+}
