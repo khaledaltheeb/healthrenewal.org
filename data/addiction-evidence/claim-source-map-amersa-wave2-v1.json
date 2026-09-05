@@ -2,7 +2,10 @@
   "schema_version": "addiction-claim-source-map-amersa-wave2-v1",
   "status": "reviewed-current-evidence",
   "verified_on": "2026-09-05",
-  "registry": "data/addiction-evidence/source-registry-amersa-wave2-v1.json",
+  "registries": [
+    "data/addiction-evidence/source-registry-amersa-v1.json",
+    "data/addiction-evidence/source-registry-amersa-wave2-v1.json"
+  ],
   "claims": [
     {
       "id": "amersa-climate-continuity-is-addiction-safety",
