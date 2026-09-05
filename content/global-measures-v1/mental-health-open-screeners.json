@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "last_verified": "2026-09-06",
-  "policy": "Public-domain status permits Rawafid to reproduce and translate the instruments. Rawafid operational Arabic wording is not represented as identical to any specific validated Arabic publication unless provenance is exact.",
+  "policy": "Copyright status and permission status are separate fields. PHQ/GAD materials are attributed to Pfizer in ePROVIDE/LOINC, while the published terms state that permission is not required to reproduce, translate, display or distribute them. Rawafid operational Arabic wording is not represented as identical to any specific validated Arabic publication unless provenance is exact.",
   "measures": [
     {
       "id": "phq-9",
@@ -19,12 +19,13 @@
       "diagnostic_by_score_alone": false,
       "safety": {"item": 9, "rule": "any response above zero requires separate direct safety clarification; total score must not determine suicide risk"},
       "rights": {
-        "status": "public-domain",
+        "status": "copyrighted-permissive-use",
+        "copyright_holder": "Pfizer Inc.",
         "permission_required_to_reproduce": false,
         "permission_required_to_translate": false,
         "permission_required_to_display": false,
         "permission_required_to_distribute": false,
-        "evidence": "https://support.apple.com/en-jo/105070"
+        "evidence": ["https://eprovide.mapi-trust.org/instruments/patient-health-questionnaire","https://loinc.org/44261-6"]
       },
       "arabic_evidence": [
         {"citation": "Sawaya H et al. Psychiatry Research. 2016;239:245-252.", "pmid": "27031595"},
@@ -49,12 +50,13 @@
       "common_screen_threshold": 10,
       "diagnostic_by_score_alone": false,
       "rights": {
-        "status": "public-domain",
+        "status": "copyrighted-permissive-use",
+        "copyright_holder": "Pfizer Inc.",
         "permission_required_to_reproduce": false,
         "permission_required_to_translate": false,
         "permission_required_to_display": false,
         "permission_required_to_distribute": false,
-        "evidence": "https://support.apple.com/en-jo/105070"
+        "evidence": ["https://eprovide.mapi-trust.org/instruments/generalized-anxiety-disorder-7","https://loinc.org/69737-5/panel"]
       },
       "arabic_evidence": [
         {"citation": "Sawaya H et al. Psychiatry Research. 2016;239:245-252.", "pmid": "27031595"},
