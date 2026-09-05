@@ -10,6 +10,10 @@ on:
       - "scripts/finalize_pwa_v14.py"
       - "scripts/verify_performance_v14.py"
       - "assets/**"
+      - "favicon.ico"
+      - "favicon-16x16.png"
+      - "favicon-32x32.png"
+      - "apple-touch-icon.png"
       - "manifest.webmanifest"
       - "sw.js"
       - ".github/workflows/validate-performance-v14.yml"
@@ -22,6 +26,10 @@ on:
       - "scripts/finalize_pwa_v14.py"
       - "scripts/verify_performance_v14.py"
       - "assets/**"
+      - "favicon.ico"
+      - "favicon-16x16.png"
+      - "favicon-32x32.png"
+      - "apple-touch-icon.png"
       - "manifest.webmanifest"
       - "sw.js"
       - ".github/workflows/validate-performance-v14.yml"
@@ -67,6 +75,9 @@ jobs:
           python scripts/optimize_site_performance_v14.py _site
           python scripts/strip_nonlab_runtime_v14.py _site
           python scripts/finalize_pwa_v14.py _site
+          mkdir -p _site/assets
+          cp -a assets/brand _site/assets/
+          cp favicon.ico favicon-16x16.png favicon-32x32.png apple-touch-icon.png _site/
           python scripts/audit_site_integrity_v13.py _site
           node --check _site/assets/js/lab-v12.js
           node --check _site/assets/js/encyclopedia-v14.js
