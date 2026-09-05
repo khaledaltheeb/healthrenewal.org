@@ -4,17 +4,23 @@ on:
   pull_request:
     paths:
       - "assets/brand/rawafid-brand.js"
+      - "assets/rehabilitation/patient-guide-outcomes.js"
+      - "assets/rehabilitation/patient-guide-outcome-map-ar.json"
       - "scripts/rawafid_brand_runtime.js"
       - "scripts/apply_rawafid_brand.py"
       - "scripts/verify_webmcp.py"
+      - "sitemap-rehabilitation.xml"
       - ".github/workflows/webmcp-guard.yml"
   push:
     branches: [main]
     paths:
       - "assets/brand/rawafid-brand.js"
+      - "assets/rehabilitation/patient-guide-outcomes.js"
+      - "assets/rehabilitation/patient-guide-outcome-map-ar.json"
       - "scripts/rawafid_brand_runtime.js"
       - "scripts/apply_rawafid_brand.py"
       - "scripts/verify_webmcp.py"
+      - "sitemap-rehabilitation.xml"
       - ".github/workflows/webmcp-guard.yml"
 
 permissions:
@@ -29,6 +35,56 @@ jobs:
         run: |
           node --check assets/brand/rawafid-brand.js
           node --check scripts/rawafid_brand_runtime.js
+          node --check assets/rehabilitation/patient-guide-outcomes.js
+      - name: Check rehabilitation outcome map JSON
+        run: python -m json.tool assets/rehabilitation/patient-guide-outcome-map-ar.json > /dev/null
+      - name: Verify all rehabilitation patient guides are mapped
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+
+          registry_path = Path('assets/rehabilitation/patient-guide-outcome-map-ar.json')
+          registry = json.loads(registry_path.read_text(encoding='utf-8'))
+          sitemap = Path('sitemap-rehabilitation.xml').read_text(encoding='utf-8')
+          discovered = set(re.findall(
+              r'https://healthrenewal\.org/sectors/rehabilitation/patient-guides/([^/<]+)/',
+              sitemap,
+          ))
+          mapped = set(registry.get('guides', {}))
+          assert len(discovered) == 43, {'patientGuideRoutes': len(discovered)}
+          assert mapped == discovered, {
+              'missingMappings': sorted(discovered - mapped),
+              'orphanMappings': sorted(mapped - discovered),
+          }
+
+          outcome_root = Path('sectors/rehabilitation/outcomes')
+          measure_paths = {
+              'measures': Path('sectors/rehabilitation/measures/index.html'),
+              'performance': Path('sectors/rehabilitation/measures/performance/index.html'),
+              'sppb': Path('sectors/rehabilitation/measures/sppb/index.html'),
+              'stay-independent': Path('sectors/rehabilitation/measures/stay-independent/index.html'),
+              'pdi': Path('sectors/rehabilitation/measures/pdi/index.html'),
+          }
+          for slug, item in registry['guides'].items():
+              pathways = item.get('pathways') or []
+              measures = item.get('measures') or []
+              assert pathways, f'{slug}: no outcome pathway'
+              assert item.get('track'), f'{slug}: no follow-up guidance'
+              for pathway in pathways:
+                  target = outcome_root / pathway / 'index.html'
+                  assert target.is_file(), f'{slug}: missing pathway {target}'
+              for measure in measures:
+                  assert measure in measure_paths, f'{slug}: unknown measure id {measure}'
+                  assert measure_paths[measure].is_file(), f'{slug}: missing measure {measure_paths[measure]}'
+
+          print({
+              'patientGuides': len(discovered),
+              'mappedGuides': len(mapped),
+              'status': 'passed',
+          })
+          PY
       - name: Check generator syntax
         run: python -m py_compile scripts/apply_rawafid_brand.py scripts/verify_webmcp.py
       - name: Verify WebMCP contract
