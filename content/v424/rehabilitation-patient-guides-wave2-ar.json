@@ -1,0 +1,25 @@
+{
+  "version": "424.0",
+  "reviewed_at": "2026-09-06",
+  "method": "Original Arabic patient-facing synthesis. AAPM&R patient and KnowledgeNOW topics define the coverage gap; independent guidelines are used to verify management and escalation messages.",
+  "rights_note": "No AAPM&R patient handout or copyrighted wording is reproduced or translated.",
+  "sources": [
+    {"id":"aapmr-shoulder-tendon-muscle","name":"Shoulder Tendon and Muscle Injuries","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/musculoskeletal-medicine/shoulder-tendon-and-muscle-injuries","type":"patient_resource","scope":"shoulder tendon and rotator cuff patient orientation"},
+    {"id":"aaos-rotator-cuff-2025","name":"Management of Rotator Cuff Injuries Clinical Practice Guideline","organization":"AAOS","url":"https://www.aaos.org/quality/quality-programs/rotator-cuff/","type":"clinical_guideline","scope":"adult rotator cuff injury management"},
+    {"id":"aapmr-plantar-fasciitis","name":"Plantar Fasciitis","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/musculoskeletal-medicine/plantar-fasciitis","type":"patient_resource","scope":"plantar heel pain patient orientation"},
+    {"id":"jospt-plantar-2023","name":"Heel Pain—Plantar Fasciitis: Revision 2023","organization":"JOSPT / APTA Orthopedics","url":"https://pubmed.ncbi.nlm.nih.gov/38037331/","type":"clinical_practice_guideline","scope":"nonarthritic plantar heel pain diagnosis and rehabilitation"},
+    {"id":"aapmr-lateral-epicondylosis","name":"Epicondylosis With and Without Nerve Entrapment","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/musculoskeletal-medicine/epicondylosis-with-and-without-nerve-entrapment","type":"patient_resource","scope":"lateral elbow tendinopathy patient orientation"},
+    {"id":"jospt-lateral-elbow-2022","name":"Lateral Elbow Pain and Muscle Function Impairments","organization":"JOSPT / APTA","url":"https://pubmed.ncbi.nlm.nih.gov/36453071/","type":"clinical_practice_guideline","scope":"lateral elbow tendinopathy rehabilitation"},
+    {"id":"aapmr-lumbar-radiculopathy","name":"Lumbar Radiculopathy","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/musculoskeletal-medicine/lumbar-radiculopathy","type":"patient_resource","scope":"lumbar radiculopathy and sciatica patient orientation"},
+    {"id":"nice-ng59","name":"Low back pain and sciatica in over 16s: assessment and management","organization":"NICE","url":"https://www.nice.org.uk/guidance/ng59/chapter/recommendations","type":"clinical_guideline","scope":"low back pain and sciatica assessment, self-management and treatment"},
+    {"id":"aapmr-meniscus-2025","name":"Meniscus Injuries of the Knee","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/meniscus-injuries-of-the-knee/","type":"specialty_reference","scope":"meniscus injury assessment, conservative care and rehabilitation"},
+    {"id":"aaos-meniscus-2024","name":"Management of Acute Isolated Meniscal Pathology Clinical Practice Guideline","organization":"AAOS","url":"https://www.aaos.org/quality/quality-programs/acute-isolated-meniscal-pathology/","type":"clinical_guideline","scope":"acute isolated meniscal injury diagnosis and management"}
+  ],
+  "topics": [
+    {"slug":"rotator-cuff","title":"إصابات الكفة المدورة وأوتار الكتف: الحركة والقوة ومتى نحتاج تصويرًا","source_ids":["aapmr-shoulder-tendon-muscle","aaos-rotator-cuff-2025"]},
+    {"slug":"plantar-fasciitis","title":"ألم الكعب والتهاب اللفافة الأخمصية: كيف نعود للمشي والنشاط","source_ids":["aapmr-plantar-fasciitis","jospt-plantar-2023"]},
+    {"slug":"lateral-elbow-pain","title":"ألم المرفق الوحشي/مرفق التنس: الحمل التدريجي بدل الراحة الدائمة","source_ids":["aapmr-lateral-epicondylosis","jospt-lateral-elbow-2022"]},
+    {"slug":"lumbar-radiculopathy","title":"عرق النسا واعتلال الجذر القطني: النشاط والعلامات العصبية والتصوير","source_ids":["aapmr-lumbar-radiculopathy","nice-ng59"]},
+    {"slug":"acute-meniscus-injury","title":"إصابة الغضروف الهلالي الحادة: متى يكفي التأهيل ومتى نحتاج جراحة؟","source_ids":["aapmr-meniscus-2025","aaos-meniscus-2024"]}
+  ]
+}
