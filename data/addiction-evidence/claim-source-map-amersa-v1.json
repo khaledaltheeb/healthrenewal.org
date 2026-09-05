@@ -1,0 +1,105 @@
+{
+  "schema_version": "addiction-claim-source-map-amersa-v1",
+  "status": "reviewed-for-general-education",
+  "verified_on": "2026-09-05",
+  "registry": "data/addiction-evidence/source-registry-amersa-v1.json",
+  "claims": [
+    {
+      "id": "amersa-multidisciplinary-competency-path",
+      "domain": "professional-education",
+      "statement_ar": "تعليم اضطرابات استخدام المواد للمهنيين يجب أن يجمع المعرفة والمهارة والمواقف المهنية عبر تخصصات متعددة، لا أن يختزل في تشخيص أو وصف دوائي فقط.",
+      "source_ids": ["amersa-core-competencies-2018", "amersa-education-2026"],
+      "confidence": "high",
+      "affected_routes": ["/addiction/professional-education/", "/addiction/audiences/clinician/", "/addiction/audiences/trainer/"],
+      "safety_flags": ["scope-of-practice"],
+      "publication_status": "approved-for-general-education"
+    },
+    {
+      "id": "amersa-screen-before-severity",
+      "domain": "screening-assessment",
+      "statement_ar": "الكشف المبكر والفرز المنظم والتقييم السريري المتدرج أفضل من انتظار ظهور الحالات الأشد قبل التدخل.",
+      "source_ids": ["amersa-core-competencies-2018", "grayken-screening-assessment-treatment-2026"],
+      "confidence": "high",
+      "affected_routes": ["/addiction/professional-education/", "/addiction/audiences/clinician/"],
+      "safety_flags": ["screening-is-not-diagnosis"],
+      "publication_status": "approved-for-general-education"
+    },
+    {
+      "id": "amersa-person-centered-stigma-reduction",
+      "domain": "stigma",
+      "statement_ar": "لغة الرعاية والتوثيق ينبغي أن تقلل الوصمة وتحافظ على كرامة الشخص وتدعم الانخراط في العلاج بدل اللوم أو التصنيف المهين.",
+      "source_ids": ["amersa-perinatal-toolkit-2026", "amersa-advocacy-2026", "saj-journal-2026"],
+      "confidence": "high",
+      "affected_routes": ["/addiction/professional-education/", "/addiction/populations/pregnancy-postpartum/", "/addiction/audiences/community/"],
+      "safety_flags": ["non-stigmatizing-language"],
+      "publication_status": "approved-for-general-education"
+    },
+    {
+      "id": "amersa-perinatal-three-implementation-targets",
+      "domain": "pregnancy-postpartum",
+      "statement_ar": "تحسين رعاية اضطراب استخدام المواد في الفترة المحيطة بالولادة يشمل لغة وتوثيقًا خاليين من الوصمة، فرزًا قصيرًا مدمجًا في الرعاية الروتينية، ودعم الوصول إلى علاج اضطراب استخدام الأفيونات القائم على الدليل مع تنسيق الرعاية.",
+      "source_ids": ["amersa-perinatal-toolkit-2026"],
+      "confidence": "high",
+      "affected_routes": ["/addiction/professional-education/", "/addiction/populations/pregnancy-postpartum/"],
+      "safety_flags": ["pregnancy", "moud", "screening"],
+      "publication_status": "approved-for-general-education"
+    },
+    {
+      "id": "amersa-ipv-sud-cross-sector-safety",
+      "domain": "violence-coercion",
+      "statement_ar": "عند تقاطع اضطراب استخدام المواد مع عنف الشريك يجب أن تشمل الاستجابة السلامة والإحالة المتبادلة وبناء قدرة فرق الإدمان والعنف الأسري على العمل معًا، بدل معالجة كل خطر بمعزل عن الآخر.",
+      "source_ids": ["amersa-ipv-sud-toolkit-2026"],
+      "confidence": "moderate-high",
+      "affected_routes": ["/addiction/professional-education/", "/addiction/family-guides/violence-coercion-safety/"],
+      "safety_flags": ["intimate-partner-violence", "private-screening", "do-not-confront-abuser"],
+      "publication_status": "approved-for-general-education"
+    },
+    {
+      "id": "amersa-older-adults-age-friendly-oud-care",
+      "domain": "older-adults",
+      "statement_ar": "رعاية كبير السن المصاب باضطراب استخدام الأفيونات تحتاج تصميمًا ملائمًا للعمر عبر سلسلة الرعاية، مع اهتمام بالأدوية المتعددة والوظيفة والانتقالات بين البيئات العلاجية.",
+      "source_ids": ["amersa-older-adult-oud-toolkit-2026"],
+      "confidence": "moderate-high",
+      "affected_routes": ["/addiction/professional-education/", "/addiction/populations/older-adults/"],
+      "safety_flags": ["polypharmacy", "falls", "care-transitions"],
+      "publication_status": "approved-for-general-education"
+    },
+    {
+      "id": "amersa-peer-moud-literacy",
+      "domain": "peer-recovery",
+      "statement_ar": "عامل دعم الأقران يحتاج معرفة صحيحة بالعلاج الدوائي لاضطراب استخدام الأفيونات وقدرة على مناقشته دون وصمة، مع الالتزام بحدود الدور وعدم تقديم وصفات أو تعديلات جرعات.",
+      "source_ids": ["amersa-moud-peer-toolkit-2026"],
+      "confidence": "high",
+      "affected_routes": ["/addiction/professional-education/", "/addiction/audiences/trainer/", "/addiction/opioid-use-disorder/"],
+      "safety_flags": ["scope-of-practice", "no-dosing"],
+      "publication_status": "approved-for-general-education"
+    },
+    {
+      "id": "amersa-equitable-access-public-health",
+      "domain": "community-policy",
+      "statement_ar": "تحسين النتائج يتطلب تقليل الوصمة والعوائق البنيوية وتعزيز الوصول العادل إلى الوقاية والعلاج ودعم التعافي وخدمات خفض الضرر، مع مراجعة القانون المحلي قبل نقل أي سياسة أمريكية.",
+      "source_ids": ["amersa-advocacy-2026"],
+      "confidence": "high",
+      "affected_routes": ["/addiction/professional-education/", "/addiction/audiences/community/"],
+      "safety_flags": ["country-specific-policy"],
+      "publication_status": "approved-for-general-education"
+    },
+    {
+      "id": "amersa-research-watch-not-recommendation",
+      "domain": "research-surveillance",
+      "statement_ar": "المجلة العلمية مصدر لرصد الأبحاث الجديدة واكتشاف فجوات المحتوى، لكن نتائج دراسة منفردة لا تتحول تلقائيًا إلى توصية سريرية أو سياسة عامة.",
+      "source_ids": ["saj-journal-2026"],
+      "confidence": "high",
+      "affected_routes": ["/addiction/professional-education/", "/addiction/sources/"],
+      "safety_flags": ["single-study-not-guideline"],
+      "publication_status": "approved-for-general-education"
+    }
+  ],
+  "rules": {
+    "no_dosing_extraction": true,
+    "screening_does_not_equal_diagnosis": true,
+    "do_not_imply_amersa_endorsement": true,
+    "country_specific_legal_review_required": true,
+    "retain_original_source_links": true
+  }
+}
