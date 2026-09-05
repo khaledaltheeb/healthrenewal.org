@@ -43,7 +43,7 @@
     if(d.getElementById('rehab-outcome-followup')) return;
     let registry;
     try{
-      const response=await fetch('/content/v431/rehabilitation-patient-guide-outcome-map-ar.json',{credentials:'same-origin',cache:'force-cache'});
+      const response=await fetch('/assets/rehabilitation/patient-guide-outcome-map-ar.json',{credentials:'same-origin',cache:'force-cache'});
       if(!response.ok) return;
       registry=await response.json();
     }catch(_error){return;}
