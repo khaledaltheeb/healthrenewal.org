@@ -129,22 +129,55 @@ def main() -> None:
             f"extra={sorted(enum_routes - set(expected_routes))}"
         )
 
-    # Some public routes (notably the encyclopedia index) are produced during
-    # the publishing build rather than stored as source index.html files. Treat
-    # either a source page or an authoritative published-route registry entry
-    # as evidence that a fixed agent route is intentional and deployable.
+    # Public routes can come from three authoritative surfaces:
+    # 1) a checked-in index.html, 2) a publication registry such as a sitemap,
+    # or 3) a deterministic publisher that creates the route during deployment.
+    # The third case matters for large generated collections such as the
+    # encyclopedia and the academic-library research index.
     registry_files = list(ROOT.glob("sitemap*.xml")) + [ROOT / "api" / "v1" / "content-index.json"]
     registry_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore")
         for path in registry_files
         if path.is_file()
     )
+
+    generated_route_evidence = {
+        "/encyclopedia/": (
+            ROOT / "scripts" / "optimize_site_performance_v14.py",
+            (
+                'SITE / "encyclopedia" / "index.html"',
+                "build_lightweight_index",
+            ),
+        ),
+        "/library/research/": (
+            ROOT / "scripts" / "publish_academic_library_v326.py",
+            (
+                '"entries": RESEARCH',
+                '(section_dir / "index.html").write_text(section_html',
+                'routes.append(f"/library/{section_slug}/")',
+            ),
+        ),
+    }
+
+    def has_generated_route_evidence(route_path: str) -> bool:
+        evidence = generated_route_evidence.get(route_path)
+        if evidence is None:
+            return False
+        evidence_path, markers = evidence
+        if not evidence_path.is_file():
+            return False
+        evidence_text = evidence_path.read_text(encoding="utf-8", errors="ignore")
+        return all(marker in evidence_text for marker in markers)
+
     for route_id, route_path in expected_routes.items():
         target = ROOT / "index.html" if route_path == "/" else ROOT / route_path.strip("/") / "index.html"
         public_url = f"https://healthrenewal.org{route_path}"
-        if target.is_file() or public_url in registry_text:
+        if target.is_file() or public_url in registry_text or has_generated_route_evidence(route_path):
             continue
-        fail(f"route {route_id} has no source page or published-route registry entry: {route_path}")
+        fail(
+            f"route {route_id} has no source page, publication registry entry, "
+            f"or deterministic publisher evidence: {route_path}"
+        )
 
     print(
         "WEBMCP_GUARD_OK "
