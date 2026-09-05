@@ -1,0 +1,48 @@
+name: Audit addiction AMERSA enrichment v2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'addiction/professional-education/**'
+      - 'addiction/sources/amersa/**'
+      - 'data/addiction-evidence/source-registry-amersa*.json'
+      - 'data/addiction-evidence/claim-source-map-amersa*.json'
+      - 'api/addiction-amersa-enrichment-v2.json'
+      - 'sitemap-addiction-amersa.xml'
+      - 'sitemap-index.xml'
+      - 'tests/test_addiction_amersa_enrichment_v2.py'
+      - '.github/workflows/audit-addiction-amersa-v2.yml'
+  pull_request:
+    paths:
+      - 'addiction/professional-education/**'
+      - 'addiction/sources/amersa/**'
+      - 'data/addiction-evidence/source-registry-amersa*.json'
+      - 'data/addiction-evidence/claim-source-map-amersa*.json'
+      - 'api/addiction-amersa-enrichment-v2.json'
+      - 'sitemap-addiction-amersa.xml'
+      - 'sitemap-index.xml'
+      - 'tests/test_addiction_amersa_enrichment_v2.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pytest
+        run: python -m pip install --disable-pip-version-check pytest
+
+      - name: Validate AMERSA evidence, routes, safety and sitemap
+        run: python -m pytest -q tests/test_addiction_amersa_enrichment_v2.py
