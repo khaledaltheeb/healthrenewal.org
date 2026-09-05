@@ -10,6 +10,15 @@
 
   d.documentElement.dataset.brand="rawafid";
 
+  // Load rehabilitation outcome follow-up only on individual patient-guide pages.
+  if(/^\/sectors\/rehabilitation\/patient-guides\/[^/]+\/?(?:index\.html)?$/.test(location.pathname)){
+    const script=d.createElement('script');
+    script.src='/assets/rehabilitation/patient-guide-outcomes.js';
+    script.defer=true;
+    script.dataset.rawafidRehabOutcomes='1';
+    d.head.append(script);
+  }
+
   // Keep the homepage WebMCP search available immediately without scanning the page.
   if((location.pathname==='/'||location.pathname==='/index.html')&&!d.getElementById('rawafid-agent-search')){
     const actions=d.querySelector('main .hero .actions,main .actions,.hero .actions');
@@ -162,7 +171,7 @@
       const path=routes[section];
       if(!path) return {status:'invalid',message:'Unknown section'};
       const target=new URL(path,location.origin).href;
-      location.assign(target);
+      location.assign(target.href);
       return {status:'navigating',url:target};
     }
   });
