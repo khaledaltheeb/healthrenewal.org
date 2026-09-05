@@ -17,6 +17,7 @@ DESCRIPTION = (
     "أدلة عملية، أدوات تفاعلية، ومسارات معرفية داعمة للأفراد والأسر والمختصين والمجتمع."
 )
 PRIMARY = "#0b8f92"
+RUNTIME_SOURCE = ROOT / "scripts" / "rawafid_brand_runtime.js"
 
 MARK_SYMBOL = r'''
 <defs>
@@ -82,7 +83,9 @@ def write_assets() -> None:
     (BRAND_DIR / "rawafid-brand.css").write_text(''':root{--rawafid-teal:#0b8f92;--rawafid-turquoise:#16c6c7;--rawafid-green:#76c844;--rawafid-gold:#f4b942;--rawafid-deep:#075f62;--rawafid-mist:#effcfb;--brand:var(--rawafid-teal);--accent:var(--rawafid-gold)}
 ::selection{background:rgba(22,198,199,.24);color:#073f42}.brand img,.site-brand img,[class*="brand"] img{object-fit:contain}.brand img{border-radius:18%}.rawafid-brand-lockup{width:min(560px,100%);height:auto;display:block}.rawafid-tagline{color:#0b6f72;font-weight:700;letter-spacing:.01em}
 ''', encoding="utf-8")
-    (BRAND_DIR / "rawafid-brand.js").write_text('''(()=>{const b="منصة روافد",t="للعافية النفسية والدمج والتمكين";document.documentElement.dataset.brand="rawafid";document.querySelectorAll('img[src*="logo-mark"],img[src*="rawafid-mark"]').forEach(i=>{i.src="/assets/brand/logo-mark.svg";i.alt=`شعار ${b}`});document.querySelectorAll('img[src*="logo-lockup"],img[src*="rawafid-logo"]').forEach(i=>{i.src="/assets/brand/logo-lockup.svg";i.alt=`${b} — ${t}`});document.querySelectorAll('[data-site-name]').forEach(n=>n.textContent=b);document.querySelectorAll('[data-site-tagline]').forEach(n=>n.textContent=t)})();\n''', encoding="utf-8")
+    if not RUNTIME_SOURCE.is_file():
+        raise SystemExit(f"Missing canonical brand runtime: {RUNTIME_SOURCE}")
+    (BRAND_DIR / "rawafid-brand.js").write_text(RUNTIME_SOURCE.read_text(encoding="utf-8"), encoding="utf-8")
 
 
 def render_pngs() -> None:
@@ -100,7 +103,7 @@ def render_pngs() -> None:
 
 TEXT_EXTENSIONS={".html",".htm",".xml",".json",".webmanifest",".md",".txt",".csv",".py",".js",".mjs",".cjs",".ts",".tsx",".jsx",".yml",".yaml",".svg"}
 SKIP_DIRS={".git","node_modules",".venv","venv","vendor","dist","build"}
-SKIP_FILES={Path("scripts/apply_rawafid_brand.py"),Path(".github/workflows/apply-rawafid-brand.yml")}
+SKIP_FILES={Path("scripts/apply_rawafid_brand.py"),Path("scripts/rawafid_brand_runtime.js"),Path(".github/workflows/apply-rawafid-brand.yml")}
 REPLACEMENTS=(
 ("بوابة الصحة النفسية وذوي الاحتياجات الخاصة","بوابة منصة روافد"),
 ("منصة الصحة النفسية وذوي الاحتياجات الخاصة",BRAND_NAME),
@@ -201,9 +204,16 @@ def validate()->dict[str,int]:
                 if old in p.read_text(encoding="utf-8"): stale.append(p)
             except UnicodeDecodeError: pass
     if stale: raise SystemExit(f"Legacy platform name remains in {len(stale)} files; first={stale[0]}")
-    required=[BRAND_DIR/"logo-mark.svg",BRAND_DIR/"logo-lockup.svg",BRAND_DIR/"rawafid-social-card.jpg",ROOT/"favicon.ico",ROOT/"apple-touch-icon.png",ROOT/"manifest.webmanifest"]
+    required=[BRAND_DIR/"logo-mark.svg",BRAND_DIR/"logo-lockup.svg",BRAND_DIR/"rawafid-social-card.jpg",ROOT/"favicon.ico",ROOT/"apple-touch-icon.png",ROOT/"manifest.webmanifest",RUNTIME_SOURCE]
     absent=[p for p in required if not p.is_file() or p.stat().st_size==0]
     if absent: raise SystemExit(f"Missing required brand assets: {absent}")
+    deployed_runtime=(BRAND_DIR/"rawafid-brand.js").read_text(encoding="utf-8")
+    canonical_runtime=RUNTIME_SOURCE.read_text(encoding="utf-8")
+    if deployed_runtime != canonical_runtime:
+        raise SystemExit("WebMCP brand runtime drifted from canonical source")
+    for marker in ("document.modelContext","registerTool","toolname","tooldescription","inputSchema"):
+        if marker not in deployed_runtime:
+            raise SystemExit(f"WebMCP runtime missing marker: {marker}")
     homepage=(ROOT/"index.html").read_text(encoding="utf-8")
     for marker in (BRAND_NAME,TAGLINE,"rawafid-social-card.jpg","logo-mark.svg"):
         if marker not in homepage: raise SystemExit(f"Homepage missing brand marker: {marker}")
