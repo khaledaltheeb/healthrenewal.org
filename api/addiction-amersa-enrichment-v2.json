@@ -1,0 +1,76 @@
+{
+  "schema_version": "addiction-amersa-enrichment-v2",
+  "status": "reviewed-published-to-main",
+  "verified_on": "2026-09-05",
+  "source_organization": "AMERSA",
+  "correspondence_verified": true,
+  "root_correspondence_date": "2026-09-03",
+  "root_referral": "AMERSA directly referred Rawafid / Health Renewal to Grayken training, Substance Use & Addiction Journal, AMERSA Education, and AMERSA Advocacy.",
+  "directly_referred_resource_families": 4,
+  "structured_source_count": 17,
+  "mapped_claim_count": 15,
+  "public_route_count": 10,
+  "public_routes": [
+    "/addiction/professional-education/",
+    "/addiction/professional-education/perinatal-care/",
+    "/addiction/professional-education/ipv-sud-safety/",
+    "/addiction/professional-education/older-adults-oud/",
+    "/addiction/professional-education/moud-peer-recovery/",
+    "/addiction/professional-education/climate-disaster-continuity/",
+    "/addiction/professional-education/stigma-identity/",
+    "/addiction/professional-education/telehealth-oud-access/",
+    "/addiction/professional-education/primary-care-integration/",
+    "/addiction/sources/amersa/"
+  ],
+  "evidence_registries": [
+    "data/addiction-evidence/source-registry-amersa-v1.json",
+    "data/addiction-evidence/source-registry-amersa-wave2-v1.json"
+  ],
+  "claim_maps": [
+    "data/addiction-evidence/claim-source-map-amersa-v1.json",
+    "data/addiction-evidence/claim-source-map-amersa-wave2-v1.json"
+  ],
+  "wave2_additions": [
+    {
+      "topic": "climate-disaster-continuity",
+      "source": "AMERSA 2026 climate position statement",
+      "use": "treatment and harm-reduction continuity, disaster preparedness, multidisciplinary training"
+    },
+    {
+      "topic": "stigma-identity-spectrum",
+      "source": "Substance Use & Addiction Journal 2026 qualitative research",
+      "use": "earlier non-stigmatizing engagement and public-health communication without diagnostic reclassification"
+    },
+    {
+      "topic": "telehealth-oud-access",
+      "source": "Substance Use & Addiction Journal 2026 patient-perspective research",
+      "use": "telehealth acceptability, intervention stigma, privacy and service design"
+    },
+    {
+      "topic": "primary-care-integration",
+      "source": "Substance Use & Addiction Journal 2026 patient-perspective research",
+      "use": "integrated, colocated and coordinated care design with clinician competency and wraparound support"
+    },
+    {
+      "topic": "perinatal-service-maturity",
+      "source": "Substance Use & Addiction Journal 2026 tiered perinatal framework",
+      "use": "team scope, systematic communication and degree of coordination as service-quality dimensions"
+    },
+    {
+      "topic": "continuous-gap-discovery",
+      "source": "AMERSA 2025 conference proceedings published 2026",
+      "use": "research surveillance only; abstracts are not promoted to clinical standards without separate appraisal"
+    }
+  ],
+  "safety_contract": {
+    "no_dosing_extraction": true,
+    "screening_is_not_diagnosis": true,
+    "single_qualitative_study_is_not_guideline": true,
+    "conference_abstract_is_not_clinical_standard": true,
+    "do_not_imply_amersa_endorsement": true,
+    "do_not_transplant_us_legal_requirements": true,
+    "country_specific_legal_review_required": true,
+    "emergency_escalation_preserved": true
+  },
+  "sitemap": "sitemap-addiction-amersa.xml"
+}
