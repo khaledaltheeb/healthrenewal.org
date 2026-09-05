@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "merge_policy": "Apply by id over arabic-readiness.json; an operational Rawafid form and an exact validated Arabic source form may have different readiness states and must not be conflated.",
+  "instruments": [
+    {
+      "id": "stay-independent",
+      "name": "Stay Independent Brochure / Fall Risk Checklist",
+      "acronym": "SIB / STEADI",
+      "domain": "falls-screening",
+      "rawafid_operational_state": "full-operational-worksheet",
+      "validated_arabic_state": "validated-source-known-do-not-mirror-as-rawafid-wording",
+      "arabic_validation": "AR-SIB validation in 104 community-dwelling older adults in Saudi Arabia: KR-20 0.73, ICC 0.96, AUC 0.83; study cutoff 4.5 was described as preliminary.",
+      "rights": "CDC Stacks labels the English Stay Independent source Public Domain. Rawafid publishes an independent Arabic operational rendering from the public-domain English instrument and links the validated AR-SIB study separately.",
+      "source": "https://stacks.cdc.gov/view/cdc/148192",
+      "evidence": "https://doi.org/10.1186/s12877-024-05592-z",
+      "rawafid_route": "/sectors/rehabilitation/measures/stay-independent/"
+    },
+    {
+      "id": "pdi",
+      "name": "Pain Disability Index",
+      "acronym": "PDI",
+      "domain": "pain-disability",
+      "rawafid_operational_state": "full-operational-worksheet",
+      "validated_arabic_state": "validated-form-access-pending",
+      "arabic_validation": "2026 Modern Standard Arabic validation in 423 Arabic-speaking adults; Cronbach alpha 0.91 with support for a unidimensional structure.",
+      "rights": "The 2026 validation paper describes PDI as public domain. Rawafid publishes an independent operational Arabic rendering of the seven-domain public-domain structure; it does not present that wording as the exact Appendix 2 MSA form.",
+      "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12823980/",
+      "rawafid_route": "/sectors/rehabilitation/measures/pdi/"
+    }
+  ]
+}
