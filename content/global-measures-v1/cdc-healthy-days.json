@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "id": "healthy-days",
+  "name": "CDC Healthy Days Core Module",
+  "aliases": ["HRQOL-4","Healthy Days"],
+  "type": "health-related-quality-of-life-core-module",
+  "population": "adults / population health / clinical monitoring when appropriate",
+  "reference_period": "past 30 days for items 2-4",
+  "items": 4,
+  "components": {
+    "general_health": {"response": ["excellent","very-good","good","fair","poor"], "numeric_total": false},
+    "physically_unhealthy_days": {"range": [0,30]},
+    "mentally_unhealthy_days": {"range": [0,30]},
+    "activity_limitation_days": {"range": [0,30], "included_in_unhealthy_days_index": false}
+  },
+  "derived_indices": {
+    "unhealthy_days": "min(30, physically_unhealthy_days + mentally_unhealthy_days)",
+    "healthy_days": "30 - unhealthy_days"
+  },
+  "diagnostic_by_score_alone": false,
+  "missing_policy": "Rawafid does not calculate Healthy/Unhealthy Days unless both physical and mental unhealthy-day counts are valid integers from 0 to 30.",
+  "rights": {
+    "status": "US-federal-government-source-public-domain-reuse-basis",
+    "source": "https://www.cdc.gov/other/agencymaterials.html",
+    "third_party_assets_reproduced": false,
+    "cdc_logo_reproduced": false
+  },
+  "method_sources": [
+    "https://www.cdc.gov/hrqol/methods.htm",
+    "https://archive.cdc.gov/www_cdc_gov/hrqol/pdfs/mhd.pdf"
+  ],
+  "arabic_status": "Rawafid independent operational Arabic rendering; no Arabic psychometric validation is claimed in this release",
+  "rawafid_route": "/assessments/general-health-measures/healthy-days/"
+}
