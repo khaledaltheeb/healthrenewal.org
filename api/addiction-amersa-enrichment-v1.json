@@ -1,0 +1,55 @@
+{
+  "schema_version": "addiction-amersa-enrichment-v1",
+  "status": "reviewed-ready-for-publication",
+  "verified_on": "2026-09-05",
+  "source_organization": "AMERSA",
+  "correspondence_verified": true,
+  "directly_referred_resource_families": 4,
+  "structured_source_count": 11,
+  "mapped_claim_count": 9,
+  "public_route_count": 6,
+  "public_routes": [
+    "/addiction/professional-education/",
+    "/addiction/professional-education/perinatal-care/",
+    "/addiction/professional-education/ipv-sud-safety/",
+    "/addiction/professional-education/older-adults-oud/",
+    "/addiction/professional-education/moud-peer-recovery/",
+    "/addiction/sources/amersa/"
+  ],
+  "data_files": [
+    "data/addiction-evidence/source-registry-amersa-v1.json",
+    "data/addiction-evidence/claim-source-map-amersa-v1.json"
+  ],
+  "source_families": [
+    {
+      "name": "Grayken Center for Addiction Training & Technical Assistance",
+      "directly_referred_by_amersa_email": true,
+      "use": "professional screening, assessment and treatment education"
+    },
+    {
+      "name": "Substance Use & Addiction Journal",
+      "directly_referred_by_amersa_email": true,
+      "use": "research surveillance and content-gap discovery"
+    },
+    {
+      "name": "AMERSA Education",
+      "directly_referred_by_amersa_email": true,
+      "use": "competency and implementation resource discovery"
+    },
+    {
+      "name": "AMERSA Advocacy",
+      "directly_referred_by_amersa_email": true,
+      "use": "general equity, public-health and stigma-reduction principles only"
+    }
+  ],
+  "safety_contract": {
+    "no_dosing_extraction": true,
+    "screening_is_not_diagnosis": true,
+    "do_not_imply_amersa_endorsement": true,
+    "do_not_transplant_us_legal_requirements": true,
+    "country_specific_legal_review_required": true,
+    "single_study_is_not_guideline": true,
+    "emergency_escalation_preserved": true
+  },
+  "sitemap": "sitemap-addiction-amersa.xml"
+}
