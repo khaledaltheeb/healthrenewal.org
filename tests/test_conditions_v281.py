@@ -187,16 +187,25 @@ class ConditionsV281Contract(unittest.TestCase):
             )
             packets.append((item["slug"], re.sub(r"\s+", " ", packet)))
 
-        maximum = (0.0, "", "")
-        for index, (left_slug, left) in enumerate(packets):
-            for right_slug, right in packets[index + 1 :]:
-                ratio = difflib.SequenceMatcher(
-                    None, left, right, autojunk=False
-                ).ratio()
-                if ratio > maximum[0]:
-                    maximum = (ratio, left_slug, right_slug)
-                self.assertLess(ratio, 0.88, maximum)
-        self.assertLess(maximum[0], 0.88, maximum)
+        threshold = 0.88
+        maximum_checked = (0.0, "", "")
+        for right_index in range(1, len(packets)):
+            right_slug, right = packets[right_index]
+            # Reuse seq2's index for every earlier packet. real_quick_ratio() and
+            # quick_ratio() are upper bounds on ratio(), so an upper bound below
+            # the threshold proves the exact ratio cannot fail this gate.
+            matcher = difflib.SequenceMatcher(None, "", right, autojunk=False)
+            for left_slug, left in packets[:right_index]:
+                matcher.set_seq1(left)
+                if matcher.real_quick_ratio() < threshold:
+                    continue
+                if matcher.quick_ratio() < threshold:
+                    continue
+                ratio = matcher.ratio()
+                if ratio > maximum_checked[0]:
+                    maximum_checked = (ratio, left_slug, right_slug)
+                self.assertLess(ratio, threshold, maximum_checked)
+        self.assertLess(maximum_checked[0], threshold, maximum_checked)
 
     def test_builder_is_deterministic_and_publisher_generates_deep_pages(self):
         with tempfile.TemporaryDirectory() as tmp:
