@@ -32,9 +32,10 @@ class WorkspaceWave10Test(unittest.TestCase):
 
     def test_catalog_has_exact_current_actual_unique_tools(self):
         tools=self.catalog['tools']; n=self.catalog['actual_tool_count']
-        self.assertEqual(n,29); self.assertEqual(len(tools),n)
+        self.assertEqual(n,30); self.assertEqual(len(tools),n)
         self.assertEqual(len({x['id'] for x in tools}),n); self.assertEqual(len({x['route'] for x in tools}),n)
-        self.assertIn('healthy-days',{x['id'] for x in tools})
+        ids={x['id'] for x in tools};self.assertIn('healthy-days',ids);self.assertIn('bbs',ids)
+        bbs=next(x for x in tools if x['id']=='bbs');self.assertEqual(bbs['score'],'0-56');self.assertEqual(bbs['rights_state'],'rmd-free-public-domain-ninds')
         for t in tools:
             self.assertTrue(t['actual']); self.assertTrue(t['printable']); self.assertTrue(t['rights_state']); self.assertTrue(t['domain']); self.assertTrue(t['population']); self.assertTrue(t['score']); self.assertTrue(t['route'].startswith('/'))
 
@@ -45,6 +46,7 @@ class WorkspaceWave10Test(unittest.TestCase):
     def test_workspace_and_finder_are_rtl_indexable_unique(self):
         for html in (self.work,self.finder,self.packets,self.record):
             self.assertIn('<html lang="ar" dir="rtl">',html); self.assertIn('index,follow',html); unique(self,html)
+        self.assertIn('30 أداة/بطارية فعلية',self.work);self.assertIn('30 actual tools',self.finder)
 
     def test_finder_uses_single_catalog_and_no_diagnostic_engine(self):
         self.assertIn('/content/global-measures-v1/catalog.json',self.finder_js); self.assertIn('filter(x=>x.actual===true)',self.finder_js)
