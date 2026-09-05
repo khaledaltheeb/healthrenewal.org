@@ -43,10 +43,21 @@ def main() -> None:
         "declarative parameter description": "toolparamdescription",
         "homepage knowledge search": "rawafid_search_encyclopedia",
         "closed JSON schemas": "additionalProperties:false",
+        "safe form annotator": "annotateSafeSearchForms",
+        "sensitive password exclusion": 'input[type="password"]',
+        "sensitive file exclusion": 'input[type="file"]',
+        "sensitive OTP exclusion": 'input[autocomplete="one-time-code"]',
     }
     for label, marker in required_literals.items():
         if marker not in text:
             fail(f"{label} marker missing: {marker}")
+
+    model_context_position = text.find("const modelContext=d.modelContext;")
+    first_annotation_pass = text.find("annotateSafeSearchForms();")
+    if model_context_position < 0 or first_annotation_pass < 0:
+        fail("cannot locate WebMCP initialization order")
+    if first_annotation_pass > model_context_position:
+        fail("safe declarative form annotation must run before imperative registration")
 
     expected_tools = {
         "rawafid_get_page_context",
@@ -61,6 +72,8 @@ def main() -> None:
 
     if text.count("inputSchema:") < len(expected_tools):
         fail("not every imperative tool exposes inputSchema")
+    if text.count("consequentialHint:false") < len(expected_tools):
+        fail("every imperative tool must explicitly declare consequentialHint")
 
     if "input.name='q'" not in text or "input.required=true" not in text:
         fail("homepage declarative search must expose a named required q parameter")
@@ -68,10 +81,110 @@ def main() -> None:
     if "form.setAttribute('toolname','rawafid_search_encyclopedia')" not in text:
         fail("homepage search is not declaratively registered")
 
+    expected_routes = {
+        "home": "/",
+        "start": "/start-here/",
+        "sections": "/sections/",
+        "encyclopedia": "/encyclopedia/",
+        "special_needs": "/special-needs/",
+        "library": "/library/",
+        "magazine": "/magazine/",
+        "research": "/library/research/",
+        "care_guides": "/care-guides/",
+        "daily_tools": "/daily-tools/",
+        "assessment_lab": "/assessment-lab/",
+        "guided_assessment": "/guided-assessment/",
+        "learning_paths": "/learning-paths/",
+        "rehabilitation": "/sectors/rehabilitation/",
+        "addiction": "/addiction/",
+        "team_partners": "/specialists-partners/",
+        "trust": "/trust/",
+        "api": "/api/",
+    }
+
+    route_match = re.search(r"const routes=\{([^}]+)\};", text)
+    if not route_match:
+        fail("rawafid_open_section route registry missing")
+    registered_routes = dict(re.findall(r"([A-Za-z0-9_]+):'([^']+)'", route_match.group(1)))
+    if registered_routes != expected_routes:
+        missing_routes = sorted(set(expected_routes) - set(registered_routes))
+        extra_routes = sorted(set(registered_routes) - set(expected_routes))
+        wrong_routes = sorted(
+            key for key in set(expected_routes) & set(registered_routes)
+            if expected_routes[key] != registered_routes[key]
+        )
+        fail(
+            "route registry drifted "
+            f"missing={missing_routes} extra={extra_routes} wrong={wrong_routes}"
+        )
+
+    enum_match = re.search(r"enum:\[([^\]]+)\]", text)
+    if not enum_match:
+        fail("rawafid_open_section enum missing")
+    enum_routes = set(re.findall(r"'([A-Za-z0-9_]+)'", enum_match.group(1)))
+    if enum_routes != set(expected_routes):
+        fail(
+            "rawafid_open_section enum differs from route registry "
+            f"missing={sorted(set(expected_routes) - enum_routes)} "
+            f"extra={sorted(enum_routes - set(expected_routes))}"
+        )
+
+    # Public routes can come from three authoritative surfaces:
+    # 1) a checked-in index.html, 2) a publication registry such as a sitemap,
+    # or 3) a deterministic publisher that creates the route during deployment.
+    # The third case matters for large generated collections such as the
+    # encyclopedia and the academic-library research index.
+    registry_files = list(ROOT.glob("sitemap*.xml")) + [ROOT / "api" / "v1" / "content-index.json"]
+    registry_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in registry_files
+        if path.is_file()
+    )
+
+    generated_route_evidence = {
+        "/encyclopedia/": (
+            ROOT / "scripts" / "optimize_site_performance_v14.py",
+            (
+                'SITE / "encyclopedia" / "index.html"',
+                "build_lightweight_index",
+            ),
+        ),
+        "/library/research/": (
+            ROOT / "scripts" / "publish_academic_library_v326.py",
+            (
+                '"entries": RESEARCH',
+                '(section_dir / "index.html").write_text(section_html',
+                'routes.append(f"/library/{section_slug}/")',
+            ),
+        ),
+    }
+
+    def has_generated_route_evidence(route_path: str) -> bool:
+        evidence = generated_route_evidence.get(route_path)
+        if evidence is None:
+            return False
+        evidence_path, markers = evidence
+        if not evidence_path.is_file():
+            return False
+        evidence_text = evidence_path.read_text(encoding="utf-8", errors="ignore")
+        return all(marker in evidence_text for marker in markers)
+
+    for route_id, route_path in expected_routes.items():
+        target = ROOT / "index.html" if route_path == "/" else ROOT / route_path.strip("/") / "index.html"
+        public_url = f"https://healthrenewal.org{route_path}"
+        if target.is_file() or public_url in registry_text or has_generated_route_evidence(route_path):
+            continue
+        fail(
+            f"route {route_id} has no source page, publication registry entry, "
+            f"or deterministic publisher evidence: {route_path}"
+        )
+
     print(
         "WEBMCP_GUARD_OK "
         f"imperative_tools={len(expected_tools)} "
-        "declarative_home_search=1 schemas=present generator=pinned"
+        f"open_section_routes={len(expected_routes)} "
+        "declarative_home_search=1 safe_search_annotation=early "
+        "schemas=present generator=pinned"
     )
 
 

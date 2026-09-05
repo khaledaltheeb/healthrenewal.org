@@ -60,7 +60,37 @@
     }
   }
 
-  // Legacy visual normalization and optional declarative annotation are non-critical.
+  // Annotate only clearly search-oriented, non-sensitive forms. Because this
+  // runtime is loaded with defer on normal pages, the first pass runs after the
+  // document has been parsed and is immediately discoverable by WebMCP audits.
+  let annotatedSearchForms=0;
+  const sensitiveSearchSelector='input[type="password"],input[type="file"],input[autocomplete="cc-number"],input[autocomplete="current-password"],input[autocomplete="new-password"],input[autocomplete="one-time-code"]';
+  const annotateSafeSearchForms=()=>{
+    const forms=d.forms?Array.from(d.forms):[];
+    for(const form of forms){
+      if(form.hasAttribute('toolname')||form.hasAttribute('tooldescription')) continue;
+      if(form.querySelector(sensitiveSearchSelector)) continue;
+      const signature=[form.id,form.className,form.getAttribute('role'),form.getAttribute('action')].filter(Boolean).join(' ').toLowerCase();
+      const looksLikeSearch=/search|query|find|lookup|بحث|ابحث/.test(signature)||Boolean(form.querySelector('input[name="q"],input[name="query"],input[name="search"],input[type="search"]'));
+      if(!looksLikeSearch) continue;
+      const fields=Array.from(form.elements||[]).filter((field)=>field&&/^(INPUT|SELECT|TEXTAREA)$/.test(field.tagName)&&!['submit','button','reset'].includes(field.type));
+      if(fields.some((field)=>!field.name)) continue;
+      annotatedSearchForms+=1;
+      form.setAttribute('toolname',`rawafid_search_form_${annotatedSearchForms}`);
+      form.setAttribute('tooldescription','يجهّز نموذج البحث في منصة روافد للوصول إلى محتوى معرفي ذي صلة. يتطلب الإرسال النهائي من المستخدم ما لم يكن النموذج نفسه يقرر خلاف ذلك.');
+      for(const field of fields){
+        if(field.hasAttribute('toolparamdescription')) continue;
+        const labelText=field.labels?.[0]?.textContent?.trim()||'';
+        const description=field.getAttribute('aria-label')||labelText||field.getAttribute('placeholder')||`قيمة الحقل ${field.name}`;
+        field.setAttribute('toolparamdescription',description);
+      }
+    }
+    return annotatedSearchForms;
+  };
+  annotateSafeSearchForms();
+
+  // Visual brand normalization is non-critical and remains deferred. Run a
+  // second safe-form pass to catch search UIs inserted by other deferred code.
   idle(()=>{
     d.querySelectorAll('img[src*="logo-mark"],img[src*="rawafid-mark"]').forEach((image)=>{
       image.src="/assets/brand/logo-mark.svg";
@@ -72,28 +102,7 @@
     });
     d.querySelectorAll('[data-site-name]').forEach((node)=>{node.textContent=brandName;});
     d.querySelectorAll('[data-site-tagline]').forEach((node)=>{node.textContent=tagline;});
-
-    const forms=d.forms?Array.from(d.forms):[];
-    let index=0;
-    for(const form of forms){
-      if(form.hasAttribute('toolname')||form.hasAttribute('tooldescription')) continue;
-      if(form.querySelector('input[type="password"],input[type="file"],input[autocomplete="cc-number"],input[autocomplete="current-password"],input[autocomplete="new-password"]')) continue;
-      const signature=[form.id,form.className,form.getAttribute('role'),form.getAttribute('action')].filter(Boolean).join(' ').toLowerCase();
-      const looksLikeSearch=/search|query|find|lookup|بحث|ابحث/.test(signature)||Boolean(form.querySelector('input[name="q"],input[name="query"],input[name="search"],input[type="search"]'));
-      if(!looksLikeSearch) continue;
-      const fields=Array.from(form.elements||[]).filter((field)=>field&&/^(INPUT|SELECT|TEXTAREA)$/.test(field.tagName)&&!['submit','button','reset'].includes(field.type));
-      if(fields.some((field)=>field.required&&!field.name)) continue;
-      index+=1;
-      form.setAttribute('toolname',`rawafid_search_form_${index}`);
-      form.setAttribute('tooldescription','يجهّز نموذج البحث في منصة روافد للوصول إلى محتوى معرفي ذي صلة. يتطلب الإرسال النهائي من المستخدم ما لم يكن النموذج نفسه يقرر خلاف ذلك.');
-      for(const field of fields){
-        if(!field.name||field.hasAttribute('toolparamdescription')) continue;
-        const label=field.labels?.[0];
-        if(label) continue;
-        const description=field.getAttribute('aria-label')||field.getAttribute('placeholder')||`قيمة الحقل ${field.name}`;
-        field.setAttribute('toolparamdescription',description);
-      }
-    }
+    annotateSafeSearchForms();
   });
 
   const modelContext=d.modelContext;
@@ -164,10 +173,10 @@
     name:'rawafid_open_section',
     title:'فتح قسم في روافد',
     description:'ينقل المستخدم إلى أحد الأقسام الرئيسية المعروفة في منصة روافد باستخدام معرّف قسم ثابت وآمن.',
-    inputSchema:{type:'object',properties:{section:{type:'string',enum:['home','start','encyclopedia','special_needs','library','research','care_guides','daily_tools','learning_paths','team_partners','api'],description:'القسم الرئيسي المطلوب فتحه.'}},required:['section'],additionalProperties:false},
+    inputSchema:{type:'object',properties:{section:{type:'string',enum:['home','start','sections','encyclopedia','special_needs','library','magazine','research','care_guides','daily_tools','assessment_lab','guided_assessment','learning_paths','rehabilitation','addiction','team_partners','trust','api'],description:'القسم الرئيسي المطلوب فتحه.'}},required:['section'],additionalProperties:false},
     annotations:{readOnlyHint:false,untrustedContentHint:false,consequentialHint:false},
     execute:async({section})=>{
-      const routes={home:'/',start:'/start/',encyclopedia:'/encyclopedia/',special_needs:'/special-needs/',library:'/library/',research:'/research/',care_guides:'/care-guides/',daily_tools:'/daily-tools/',learning_paths:'/learning-paths/',team_partners:'/specialists-partners/',api:'/api/'};
+      const routes={home:'/',start:'/start-here/',sections:'/sections/',encyclopedia:'/encyclopedia/',special_needs:'/special-needs/',library:'/library/',magazine:'/magazine/',research:'/library/research/',care_guides:'/care-guides/',daily_tools:'/daily-tools/',assessment_lab:'/assessment-lab/',guided_assessment:'/guided-assessment/',learning_paths:'/learning-paths/',rehabilitation:'/sectors/rehabilitation/',addiction:'/addiction/',team_partners:'/specialists-partners/',trust:'/trust/',api:'/api/'};
       const path=routes[section];
       if(!path) return {status:'invalid',message:'Unknown section'};
       const target=new URL(path,location.origin).href;
