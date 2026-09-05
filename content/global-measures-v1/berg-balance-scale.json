@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "reviewed_at": "2026-09-06",
+  "instrument": {
+    "id": "bbs",
+    "name": "Berg Balance Scale",
+    "acronym": "BBS",
+    "purpose": "clinician-rated static and dynamic functional balance",
+    "items": 14,
+    "item_score_range": [0,4],
+    "total_score_range": [0,56],
+    "direction": "higher-is-better",
+    "administration_time_minutes": "15-20",
+    "training_required_rmd": "No Training",
+    "equipment": ["stopwatch","standard chair with armrests","standard chair without armrests","step/stool","ruler","slipper or shoe"],
+    "missing_item_policy": "Rawafid does not calculate a final total until all 14 items have a numeric score.",
+    "diagnostic_by_score_alone": false,
+    "global_fall_cutoff": false
+  },
+  "rmd": {
+    "url": "https://www.sralab.org/rehabilitation-measures/berg-balance-scale",
+    "cost": "Free",
+    "cost_description": "Cost of equipment only",
+    "cde_notice": "RMD/NINDS CDE states the Berg Balance Scale is available in the public domain.",
+    "number_of_items": 14,
+    "maximum_score": 56,
+    "interpretation_warning": "RMD states there is no common interpretation of BBS scores; population-specific cutoffs differ."
+  },
+  "rights": {
+    "instrument_status": "public-domain",
+    "basis": "RMD/NINDS CDE availability statement",
+    "rawafid_page_status": "independent operational Arabic rendering of the public-domain instrument",
+    "does_not_republish": ["RMD infographic design","ANPT pocket-guide design","copyrighted journal layout"],
+    "endorsement_implied": false
+  },
+  "arabic_evidence": [
+    {
+      "citation": "The activities-specific balance confidence scale and berg balance scale: Reliability and validity in Arabic-speaking vestibular patients.",
+      "pmid": "26890426",
+      "sample_n": 82,
+      "countries": ["Jordan","Saudi Arabia"],
+      "population": "Arabic-speaking persons with vestibular disorders",
+      "finding": "Arabic BBS total score showed high inter-rater and intra-rater agreement and significant expected correlations with Arabic ABC and Arabic DHI."
+    }
+  ],
+  "rawafid_arabic_status": "operational-Arabic-rendering-not-claimed-identical-to-the-validated-A-BBS-text",
+  "rawafid_route": "/sectors/rehabilitation/measures/berg-balance-scale/"
+}
