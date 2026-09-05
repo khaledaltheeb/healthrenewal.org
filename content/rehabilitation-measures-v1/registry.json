@@ -1,0 +1,136 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "principles": {
+    "rmd_cost_is_not_license": true,
+    "full_reproduction_requires_rights_basis": true,
+    "arabic_validation_is_separate_from_reproduction_rights": true,
+    "single_score_is_not_diagnosis": true,
+    "serial_testing_requires_protocol_consistency": true
+  },
+  "status_definitions": {
+    "full-work-sheet": "ورقة عربية أصلية من روافد تطبق إجراء قياس غير قائم على بنود ثابتة محمية، مع توثيق المصدر والمنهج.",
+    "public-domain-link": "الأداة موثقة كملكية عامة، لكن النسخة العربية الدقيقة المعتمدة لا يعاد نسخها حتى تتطابق النسخة المصدرية حرفياً.",
+    "owner-link-only": "الأداة أو نسختها/ترجمتها تحت شروط مالك؛ تعرض المعلومات والرابط الرسمي فقط.",
+    "verify-before-reproduction": "لم يكتمل إثبات حق إعادة نشر البنود؛ يمنع إدراج النص الكامل حتى التحقق."
+  },
+  "measures": [
+    {
+      "id":"tug","name":"Timed Up and Go","acronym":"TUG","domain":"mobility-balance","type":"performance","status":"full-work-sheet","full_reproduction":true,"arabic_status":"rawafid-procedure-work-sheet","cost_rmd":"Free","score":"seconds","purpose":"الحركة الوظيفية والتوازن والمشي، ويستخدم ضمن تقييم خطر السقوط لدى كبار السن.","core_source":"https://www.sralab.org/rehabilitation-measures/timed-and-go","rights_basis":"Rawafid original worksheet; protocol triangulated with CDC STEADI public-domain government material.","official_source":"https://www.cdc.gov/steadi/hcp/clinical-resources/index.html"
+    },
+    {
+      "id":"chair-stand-30","name":"30-Second Chair Stand Test","acronym":"30CST","domain":"strength-mobility","type":"performance","status":"full-work-sheet","full_reproduction":true,"arabic_status":"rawafid-procedure-work-sheet","cost_rmd":"Free","score":"correct stands in 30 seconds","purpose":"القوة الوظيفية والتحمل للطرفين السفليين.","core_source":"https://www.sralab.org/rehabilitation-measures/30-second-sit-stand-test","rights_basis":"Rawafid original worksheet; CDC STEADI government protocol used as an independent source.","official_source":"https://www.cdc.gov/steadi/hcp/clinical-resources/index.html"
+    },
+    {
+      "id":"four-stage-balance","name":"4-Stage Balance Test","acronym":"4SBT","domain":"balance-falls","type":"performance","status":"full-work-sheet","full_reproduction":true,"arabic_status":"rawafid-adaptation-of-cdc-protocol","cost_rmd":"not-applicable","score":"seconds per position","purpose":"توازن ثابت عبر أربع وضعيات متدرجة الصعوبة ضمن STEADI.","core_source":"https://www.cdc.gov/steadi/media/pdfs/steadi-assessment-4stage-508.pdf","rights_basis":"CDC government material; Rawafid adaptation removes CDC branding and adds Arabic data fields.","official_source":"https://www.cdc.gov/steadi/hcp/clinical-resources/index.html"
+    },
+    {
+      "id":"10mwt","name":"10 Meter Walk Test","acronym":"10MWT","domain":"gait","type":"performance","status":"full-work-sheet","full_reproduction":true,"arabic_status":"rawafid-procedure-work-sheet","cost_rmd":"Free","score":"meters/second","purpose":"سرعة المشي لمسافة قصيرة بسرعة مريحة أو سريعة.","core_source":"https://www.sralab.org/rehabilitation-measures/10-meter-walk-test","rights_basis":"Procedure has no fixed questionnaire item set; Rawafid worksheet records protocol variant, assistance and device.","official_source":"https://www.sralab.org/rehabilitation-measures/10-meter-walk-test"
+    },
+    {
+      "id":"5xsts","name":"Five Times Sit to Stand Test","acronym":"5xSTS","domain":"strength-transfers","type":"performance","status":"full-work-sheet","full_reproduction":true,"arabic_status":"rawafid-procedure-work-sheet","cost_rmd":"Free","score":"seconds","purpose":"كمّ مهارة الانتقال من الجلوس للوقوف والقوة الوظيفية للطرفين السفليين.","core_source":"https://www.sralab.org/rehabilitation-measures/five-times-sit-stand-test","rights_basis":"Procedure has no fixed copyrighted item set; Rawafid worksheet documents chair height and assistance.","official_source":"https://www.sralab.org/rehabilitation-measures/five-times-sit-stand-test"
+    },
+    {
+      "id":"nprs","name":"Numeric Pain Rating Scale","acronym":"NPRS","domain":"pain","type":"patient-reported","status":"full-work-sheet","full_reproduction":true,"arabic_status":"rawafid-numeric-interface","cost_rmd":"Free","score":"0-10","purpose":"شدة الألم المُبلّغ عنها ذاتياً ضمن فترة زمنية محددة مسبقاً.","core_source":"https://www.sralab.org/rehabilitation-measures/numeric-pain-rating-scale","rights_basis":"Generic 0-10 numeric rating implementation; no proprietary fixed item set reproduced.","official_source":"https://www.sralab.org/rehabilitation-measures/numeric-pain-rating-scale"
+    },
+    {
+      "id":"psfs","name":"Patient-Specific Functional Scale","acronym":"PSFS","domain":"activity-participation","type":"patient-reported","status":"full-work-sheet","full_reproduction":true,"arabic_status":"arabic-validated-mechanics; rawafid worksheet","cost_rmd":"Free","score":"mean 0-10 across patient-selected activities","purpose":"قياس القدرة على أنشطة يحددها المريض بنفسه باعتبارها مهمة ومتأثرة بالحالة.","core_source":"https://www.sralab.org/rehabilitation-measures/patient-specific-functional-scale","rights_basis":"No fixed item bank is reproduced; patient supplies the activities. Arabic measurement properties are separately documented.","official_source":"https://pubmed.ncbi.nlm.nih.gov/33587649/"
+    },
+    {
+      "id":"rmdq24","name":"Roland-Morris Disability Questionnaire 24","acronym":"RMDQ-24","domain":"low-back-function","type":"patient-reported","status":"public-domain-link","full_reproduction":false,"arabic_status":"validated-modern-standard-arabic; exact verified Arabic copy must be obtained from source","cost_rmd":"Free","score":"0-24 checked statements","purpose":"الإعاقة الجسدية المرتبطة بألم أسفل الظهر.","core_source":"https://eprovide.mapi-trust.org/instruments/roland-morris-disability-questionnaire-24-items","rights_basis":"ePROVIDE states original and all translations are public domain and may be reproduced without permission; publication is held until the exact validated Arabic source copy is verified to avoid substituting a new translation.","official_source":"https://pubmed.ncbi.nlm.nih.gov/25271496/"
+    },
+    {
+      "id":"bbs","name":"Berg Balance Scale","acronym":"BBS","domain":"balance","type":"performance","status":"public-domain-link","full_reproduction":false,"arabic_status":"arabic-form-not-verified-in-this-release","cost_rmd":"Free","score":"14 items, 0-4 each, total 0-56","purpose":"التوازن الثابت والديناميكي لدى البالغين.","core_source":"https://www.sralab.org/rehabilitation-measures/berg-balance-scale","rights_basis":"RMD/NINDS identify availability in the public domain; exact Arabic standardized wording is not embedded until provenance is verified.","official_source":"https://www.sralab.org/rehabilitation-measures/berg-balance-scale"
+    },
+    {
+      "id":"functional-reach","name":"Functional Reach Test","acronym":"FRT","domain":"balance","type":"performance","status":"verify-before-reproduction","full_reproduction":false,"arabic_status":"not-verified","cost_rmd":"Free","purpose":"حدود الثبات أثناء الوصول للأمام.","core_source":"https://www.sralab.org/rehabilitation-measures/functional-reach-test","rights_basis":"Cost-free status does not establish reproduction rights; instrument page carries a copyright notice."
+    },
+    {
+      "id":"mini-bestest","name":"Mini-BESTest","acronym":"Mini-BESTest","domain":"balance","type":"performance","status":"verify-before-reproduction","full_reproduction":false,"arabic_status":"arabic-validation-studies-exist; exact form rights pending","purpose":"التوازن الديناميكي عبر أنظمة متعددة.","core_source":"https://www.sralab.org/rehabilitation-measures/mini-bestest","rights_basis":"Do not reproduce item wording until developer/owner terms are verified."
+    },
+    {
+      "id":"eq5d5l","name":"EQ-5D-5L","acronym":"EQ-5D-5L","domain":"quality-of-life","type":"patient-reported","status":"owner-link-only","full_reproduction":false,"arabic_status":"translations managed by owner","purpose":"الحالة الصحية العامة وقيم المنفعة الصحية.","core_source":"https://www.sralab.org/rehabilitation-measures/euroqol-eq-5d","rights_basis":"Owner-controlled; registration/permission conditions apply."
+    },
+    {
+      "id":"fim","name":"Functional Independence Measure","acronym":"FIM","domain":"independence","type":"clinician-rated","status":"owner-link-only","full_reproduction":false,"arabic_status":"owner-controlled","purpose":"الاستقلال الوظيفي وعبء المساعدة.","core_source":"https://www.sralab.org/rehabilitation-measures/functional-independence-measure","rights_basis":"Proprietary/credentialed ecosystem; no item or scoring reproduction."
+    },
+    {
+      "id":"whodas","name":"WHO Disability Assessment Schedule 2.0","acronym":"WHODAS 2.0","domain":"disability-participation","type":"patient-reported","status":"owner-link-only","full_reproduction":false,"arabic_status":"official translations exist; use WHO terms","purpose":"الأداء والعجز عبر مجالات الحياة وفق إطار ICF.","core_source":"https://www.who.int/standards/classifications/international-classification-of-functioning-disability-and-health/who-disability-assessment-schedule","rights_basis":"WHO material; reproduce only under the applicable WHO licensing/permissions terms."
+    },
+    {
+      "id":"quickdash","name":"QuickDASH","acronym":"QuickDASH","domain":"upper-extremity","type":"patient-reported","status":"owner-link-only","full_reproduction":false,"arabic_status":"use owner-approved translation","purpose":"الأعراض والوظيفة في الطرف العلوي.","core_source":"https://dash.iwh.on.ca/","rights_basis":"Owner-managed instrument and translations; use official access route."
+    },
+    {
+      "id":"dash","name":"Disabilities of the Arm, Shoulder and Hand","acronym":"DASH","domain":"upper-extremity","type":"patient-reported","status":"owner-link-only","full_reproduction":false,"arabic_status":"use owner-approved translation","purpose":"الإعاقة والأعراض في الطرف العلوي.","core_source":"https://dash.iwh.on.ca/","rights_basis":"Owner-managed instrument and translations."
+    },
+    {
+      "id":"odi","name":"Oswestry Disability Index","acronym":"ODI","domain":"low-back-function","type":"patient-reported","status":"owner-link-only","full_reproduction":false,"arabic_status":"validated Arabic versions exist; exact version/rights must match use","purpose":"القيود الوظيفية المرتبطة بألم أسفل الظهر.","core_source":"https://eprovide.mapi-trust.org/","rights_basis":"Permission/version control may apply; do not reproduce from secondary sites."
+    },
+    {
+      "id":"ndi","name":"Neck Disability Index","acronym":"NDI","domain":"neck-function","type":"patient-reported","status":"owner-link-only","full_reproduction":false,"arabic_status":"validated Arabic versions exist; rights verification required","purpose":"القيود الوظيفية المرتبطة بألم الرقبة.","core_source":"https://eprovide.mapi-trust.org/","rights_basis":"Verify copyright holder and translation conditions before reproduction."
+    },
+    {
+      "id":"lefs","name":"Lower Extremity Functional Scale","acronym":"LEFS","domain":"lower-extremity","type":"patient-reported","status":"verify-before-reproduction","full_reproduction":false,"arabic_status":"Arabic psychometric literature exists","purpose":"صعوبة أداء أنشطة الطرف السفلي.","core_source":"https://www.sralab.org/rehabilitation-measures/lower-extremity-functional-scale","rights_basis":"Cost/access is not treated as reproduction permission."
+    },
+    {
+      "id":"womac","name":"Western Ontario and McMaster Universities Osteoarthritis Index","acronym":"WOMAC","domain":"osteoarthritis","type":"patient-reported","status":"owner-link-only","full_reproduction":false,"arabic_status":"translation/version control required","purpose":"ألم وتيبس ووظيفة في الفصال العظمي للورك/الركبة.","core_source":"https://eprovide.mapi-trust.org/","rights_basis":"Copyrighted/owner-controlled measure."
+    },
+    {
+      "id":"koos","name":"Knee injury and Osteoarthritis Outcome Score","acronym":"KOOS","domain":"knee","type":"patient-reported","status":"verify-before-reproduction","full_reproduction":false,"arabic_status":"approved translations should be used","purpose":"الألم والأعراض والنشاط والرياضة وجودة الحياة المتعلقة بالركبة.","core_source":"https://www.koos.nu/","rights_basis":"Use official instrument site and applicable terms; do not copy from third-party forms."
+    },
+    {
+      "id":"hoos","name":"Hip disability and Osteoarthritis Outcome Score","acronym":"HOOS","domain":"hip","type":"patient-reported","status":"verify-before-reproduction","full_reproduction":false,"arabic_status":"approved translations should be used","purpose":"الأعراض والألم والوظيفة وجودة الحياة المتعلقة بالورك.","core_source":"https://www.koos.nu/","rights_basis":"Use official instrument site and applicable terms."
+    },
+    {
+      "id":"promis-pf","name":"PROMIS Physical Function","acronym":"PROMIS-PF","domain":"physical-function","type":"patient-reported","status":"owner-link-only","full_reproduction":false,"arabic_status":"translation/HealthMeasures governance","purpose":"الوظيفة البدنية بقياس ثابت أو CAT.","core_source":"https://www.healthmeasures.net/explore-measurement-systems/promis","rights_basis":"Use HealthMeasures distribution and terms."
+    },
+    {
+      "id":"sf36","name":"36-Item Short Form Health Survey","acronym":"SF-36","domain":"quality-of-life","type":"patient-reported","status":"owner-link-only","full_reproduction":false,"arabic_status":"licensed translations","purpose":"الصحة العامة عبر ثمانية مجالات.","core_source":"https://eprovide.mapi-trust.org/","rights_basis":"Licensed/owner-controlled; no item reproduction."
+    },
+    {
+      "id":"whoqol-bref","name":"WHOQOL-BREF","acronym":"WHOQOL-BREF","domain":"quality-of-life","type":"patient-reported","status":"owner-link-only","full_reproduction":false,"arabic_status":"official language versions should be sourced from WHO","purpose":"جودة الحياة عبر الصحة الجسدية والنفسية والعلاقات والبيئة.","core_source":"https://www.who.int/tools/whoqol","rights_basis":"WHO terms govern reproduction and translation."
+    },
+    {
+      "id":"barthel","name":"Barthel Index","acronym":"BI","domain":"adl","type":"clinician-rated","status":"verify-before-reproduction","full_reproduction":false,"arabic_status":"multiple variants; exact version required","purpose":"الاستقلال في أنشطة الحياة اليومية الأساسية.","core_source":"https://www.sralab.org/rehabilitation-measures/barthel-index","rights_basis":"Multiple versions/scoring variants and reproduction conditions require source-specific verification."
+    },
+    {
+      "id":"scim","name":"Spinal Cord Independence Measure","acronym":"SCIM","domain":"spinal-cord-injury","type":"clinician-rated","status":"verify-before-reproduction","full_reproduction":false,"arabic_status":"verify validated version and rights","purpose":"الاستقلال الوظيفي الخاص بإصابة الحبل الشوكي.","core_source":"https://www.sralab.org/rehabilitation-measures/spinal-cord-independence-measure","rights_basis":"Verify exact version and owner terms."
+    },
+    {
+      "id":"fugl-meyer","name":"Fugl-Meyer Assessment of Motor Recovery after Stroke","acronym":"FMA","domain":"stroke-motor","type":"performance","status":"verify-before-reproduction","full_reproduction":false,"arabic_status":"version/provenance verification required","purpose":"التعافي الحركي والحسي بعد السكتة.","core_source":"https://www.sralab.org/rehabilitation-measures/fugl-meyer-assessment-motor-recovery-after-stroke","rights_basis":"Do not reproduce full scoring sheet before exact rights/version review."
+    },
+    {
+      "id":"arAT","name":"Action Research Arm Test","acronym":"ARAT","domain":"upper-extremity-motor","type":"performance","status":"verify-before-reproduction","full_reproduction":false,"arabic_status":"not-verified","purpose":"الأداء الوظيفي للطرف العلوي بعد إصابة عصبية.","core_source":"https://www.sralab.org/rehabilitation-measures/action-research-arm-test","rights_basis":"Verify instrument and scoring-sheet reproduction rights."
+    },
+    {
+      "id":"box-block","name":"Box and Block Test","acronym":"BBT","domain":"dexterity","type":"performance","status":"verify-before-reproduction","full_reproduction":false,"arabic_status":"procedure can be explained; standardized apparatus/protocol must match source","purpose":"البراعة اليدوية الإجمالية أحادية الجانب.","core_source":"https://www.sralab.org/rehabilitation-measures/box-and-block-test","rights_basis":"Procedure information may be summarized; full standardized material requires provenance check."
+    },
+    {
+      "id":"nine-hole-peg","name":"Nine-Hole Peg Test","acronym":"9HPT","domain":"dexterity","type":"performance","status":"verify-before-reproduction","full_reproduction":false,"arabic_status":"procedure explanation only in this release","purpose":"البراعة الحركية الدقيقة لليد.","core_source":"https://www.sralab.org/rehabilitation-measures/nine-hole-peg-test","rights_basis":"Standardized equipment/protocol; exact reproduction terms should be checked."
+    },
+    {
+      "id":"modified-ashworth","name":"Modified Ashworth Scale","acronym":"MAS","domain":"spasticity","type":"clinician-rated","status":"verify-before-reproduction","full_reproduction":false,"arabic_status":"clinical translation/version consistency required","purpose":"تقدير مقاومة الحركة السلبية المرتبطة بزيادة النغمة.","core_source":"https://www.sralab.org/rehabilitation-measures/modified-ashworth-scale","rights_basis":"Scoring anchors are not reproduced until exact provenance/rights are verified."
+    },
+    {
+      "id":"tardieu","name":"Modified Tardieu Scale","acronym":"MTS","domain":"spasticity","type":"clinician-rated","status":"verify-before-reproduction","full_reproduction":false,"arabic_status":"not-verified","purpose":"تمييز مكونات الاستجابة للسرعة والمدى في فرط التوتر العضلي.","core_source":"https://www.sralab.org/rehabilitation-measures/tardieu-scale","rights_basis":"Exact version and scoring anchors require verification."
+    },
+    {
+      "id":"moca","name":"Montreal Cognitive Assessment","acronym":"MoCA","domain":"cognition","type":"cognitive-screen","status":"owner-link-only","full_reproduction":false,"arabic_status":"official Arabic versions managed by MoCA","purpose":"فحص معرفي مختصر وليس تشخيصاً قائماً بذاته.","core_source":"https://mocacognition.com/","rights_basis":"Owner-controlled instrument, training/certification and permissions may apply."
+    },
+    {
+      "id":"mmse","name":"Mini-Mental State Examination","acronym":"MMSE","domain":"cognition","type":"cognitive-screen","status":"owner-link-only","full_reproduction":false,"arabic_status":"licensed versions","purpose":"فحص الحالة المعرفية.","core_source":"https://eprovide.mapi-trust.org/","rights_basis":"Proprietary instrument; no items or scoring reproduced."
+    },
+    {
+      "id":"gmfm","name":"Gross Motor Function Measure","acronym":"GMFM-66/88","domain":"pediatric-motor","type":"performance","status":"owner-link-only","full_reproduction":false,"arabic_status":"use authorized manual/version","purpose":"قياس تغير الوظيفة الحركية الكبرى لدى الأطفال، خاصة الشلل الدماغي.","core_source":"https://canchild.ca/en/resources/44-gross-motor-function-measure-gmfm","rights_basis":"Use CanChild/manual terms; do not reproduce score sheets without permission."
+    },
+    {
+      "id":"pedi-cat","name":"Pediatric Evaluation of Disability Inventory Computer Adaptive Test","acronym":"PEDI-CAT","domain":"pediatric-function","type":"patient-proxy-reported","status":"owner-link-only","full_reproduction":false,"arabic_status":"authorized translation/distribution required","purpose":"الأنشطة اليومية والحركة والاجتماع/المعرفة والمسؤولية لدى الأطفال واليافعين.","core_source":"https://www.pedicat.com/","rights_basis":"Commercial/owner-controlled instrument."
+    },
+    {
+      "id":"copm","name":"Canadian Occupational Performance Measure","acronym":"COPM","domain":"occupational-performance","type":"interview","status":"owner-link-only","full_reproduction":false,"arabic_status":"authorized translation required","purpose":"تحديد أولويات الأداء المهني وتقييم الأداء والرضا من منظور الشخص.","core_source":"https://www.thecopm.ca/","rights_basis":"Copyrighted owner-controlled measure."
+    },
+    {
+      "id":"gas","name":"Goal Attainment Scaling","acronym":"GAS","domain":"goals","type":"goal-based","status":"verify-before-reproduction","full_reproduction":false,"arabic_status":"method can be taught; implementation must define anchors prospectively","purpose":"قياس تحقيق أهداف فردية محددة مسبقاً على مستويات متدرجة.","core_source":"https://www.sralab.org/rehabilitation-measures/goal-attainment-scale","rights_basis":"Teach method and create original templates; do not claim a single proprietary GAS form without source."
+    }
+  ]
+}
