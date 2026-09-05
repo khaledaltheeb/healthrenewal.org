@@ -1,0 +1,36 @@
+{
+  "version": "425.0",
+  "reviewed_at": "2026-09-06",
+  "method": "Original Arabic patient-facing synthesis. AAPM&R Conditions & Treatments and PM&R KnowledgeNOW identify high-value rehabilitation topics; current independent guidelines and systematic reviews verify management, function and escalation messages.",
+  "rights_note": "No AAPM&R patient handout, table, figure or copyrighted wording is reproduced or translated.",
+  "sources": [
+    {"id":"aapmr-adhesive-capsulitis","name":"Adhesive Capsulitis","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/musculoskeletal-medicine/adhesive-capsulitis","type":"patient_resource","scope":"frozen shoulder patient orientation"},
+    {"id":"arm-frozen-shoulder-2025","name":"Clinical Practice Guidelines for Diagnosis and Non-Surgical Treatment of Primary Frozen Shoulder","organization":"Annals of Rehabilitation Medicine","url":"https://pubmed.ncbi.nlm.nih.gov/40602400/","type":"clinical_practice_guideline","scope":"primary frozen shoulder diagnosis and non-surgical rehabilitation"},
+    {"id":"aapmr-ankle-sprain","name":"Ankle Sprain","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/musculoskeletal-medicine/ankle-sprain","type":"patient_resource","scope":"ankle sprain patient orientation"},
+    {"id":"jospt-ankle-2021","name":"Ankle Stability and Movement Coordination Impairments: Lateral Ankle Ligament Sprains Revision 2021","organization":"JOSPT / APTA Orthopedics","url":"https://pubmed.ncbi.nlm.nih.gov/33789434/","type":"clinical_practice_guideline","scope":"acute lateral ankle sprain and chronic ankle instability rehabilitation"},
+    {"id":"aapmr-cervical-radiculopathy","name":"Cervical Radiculopathy","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/musculoskeletal-medicine/cervical-radiculopathy","type":"patient_resource","scope":"cervical radiculopathy patient orientation"},
+    {"id":"aapmr-kn-cervical-radiculopathy","name":"Cervical Radiculopathy","organization":"AAPM&R PM&R KnowledgeNOW","url":"https://now.aapmr.org/cervical-radiculopathy/","type":"specialty_reference","scope":"assessment, red flags and conservative rehabilitation"},
+    {"id":"aapmr-de-quervain","name":"de Quervain Tenosynovitis","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/musculoskeletal-medicine/de-quervain-tenosynovitis","type":"patient_resource","scope":"de Quervain patient orientation"},
+    {"id":"jama-de-quervain-2023","name":"Management of de Quervain Tenosynovitis: A Systematic Review and Network Meta-Analysis","organization":"JAMA Network Open","url":"https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2811119","type":"systematic_review_meta_analysis","scope":"comparative nonsurgical and surgical management"},
+    {"id":"aapmr-patellofemoral","name":"Patellofemoral Syndrome","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/musculoskeletal-medicine/patellofemoral-syndrome","type":"patient_resource","scope":"anterior knee pain patient orientation"},
+    {"id":"jospt-pfp-2019","name":"Patellofemoral Pain Clinical Practice Guideline","organization":"JOSPT / APTA Orthopedics","url":"https://pubmed.ncbi.nlm.nih.gov/31475628/","type":"clinical_practice_guideline","scope":"patellofemoral pain classification and rehabilitation"},
+    {"id":"aapmr-crps","name":"Complex Regional Pain Syndrome","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/pain-neuromuscular-medicine-rehabilitation/complex-regional-pain-syndrome","type":"patient_resource","scope":"CRPS patient orientation"},
+    {"id":"crps-guideline-2022","name":"Complex Regional Pain Syndrome: Practical Diagnostic and Treatment Guidelines, 5th Edition","organization":"Pain Medicine","url":"https://pubmed.ncbi.nlm.nih.gov/35687369/","type":"practice_guideline","scope":"CRPS diagnosis, functional restoration and multidisciplinary treatment"},
+    {"id":"crps-rehab-review-2023","name":"Rehabilitation Interventions for Complex Regional Pain Syndrome: An Overview of Systematic Reviews","organization":"Clinical Journal of Pain","url":"https://pubmed.ncbi.nlm.nih.gov/37224001/","type":"overview_of_reviews","scope":"rehabilitation evidence for CRPS"},
+    {"id":"aapmr-fibromyalgia","name":"Fibromyalgia","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/pain-neuromuscular-medicine-rehabilitation/fibromyalgia","type":"patient_resource","scope":"fibromyalgia patient orientation"},
+    {"id":"eular-fibromyalgia-2017","name":"EULAR revised recommendations for the management of fibromyalgia","organization":"EULAR","url":"https://pubmed.ncbi.nlm.nih.gov/27377815/","type":"clinical_recommendations","scope":"graded non-pharmacological and multimodal management"},
+    {"id":"fibromyalgia-delphi-2022","name":"International multidisciplinary Delphi consensus recommendations on non-pharmacological interventions for fibromyalgia","organization":"International multidisciplinary panel","url":"https://pubmed.ncbi.nlm.nih.gov/36183478/","type":"consensus_recommendations","scope":"education, exercise, sleep and psychological care"},
+    {"id":"aapmr-pressure-injury-2026","name":"Pressure Injury Management in CNS Disorders","organization":"AAPM&R PM&R KnowledgeNOW","url":"https://now.aapmr.org/pressure-ulcer-management/","type":"specialty_reference","scope":"pressure injury prevention, staging and rehabilitation context"},
+    {"id":"international-pi-guideline-2026","name":"Prevention and Treatment of Pressure Ulcers/Injuries: Clinical Practice Guideline","organization":"NPIAP / EPUAP / PPPIA","url":"https://www.internationalguideline.com/the-international-guideline","type":"clinical_practice_guideline","scope":"pressure injury prevention and treatment"}
+  ],
+  "topics": [
+    {"slug":"frozen-shoulder","title":"الكتف المتجمد: الألم والتيبس وخطة استعادة الحركة دون استعجال","source_ids":["aapmr-adhesive-capsulitis","arm-frozen-shoulder-2025"]},
+    {"slug":"ankle-sprain","title":"التواء الكاحل: العودة للمشي والرياضة ومنع عدم الثبات المزمن","source_ids":["aapmr-ankle-sprain","jospt-ankle-2021"]},
+    {"slug":"cervical-radiculopathy","title":"اعتلال الجذر العنقي: ألم الذراع والخدر والضعف ومتى نحتاج تصعيدًا","source_ids":["aapmr-cervical-radiculopathy","aapmr-kn-cervical-radiculopathy"]},
+    {"slug":"de-quervain","title":"التهاب أوتار دي كيرفان: ألم جهة الإبهام وتعديل الحمل وخيارات العلاج","source_ids":["aapmr-de-quervain","jama-de-quervain-2023"]},
+    {"slug":"patellofemoral-pain","title":"ألم الرضفة الفخذية: الدرج والجري والقرفصاء واستعادة تحمل الركبة","source_ids":["aapmr-patellofemoral","jospt-pfp-2019"]},
+    {"slug":"crps","title":"متلازمة الألم الناحي المركب CRPS: التشخيص المبكر واستعادة الوظيفة تدريجيًا","source_ids":["aapmr-crps","crps-guideline-2022","crps-rehab-review-2023"]},
+    {"slug":"fibromyalgia","title":"الفيبروميالغيا: إدارة الألم والتعب والنوم وبناء القدرة الوظيفية","source_ids":["aapmr-fibromyalgia","eular-fibromyalgia-2017","fibromyalgia-delphi-2022"]},
+    {"slug":"pressure-injury","title":"إصابات الضغط: الوقاية والجلد والوضعية والأسطح الداعمة والحركة الآمنة","source_ids":["aapmr-pressure-injury-2026","international-pi-guideline-2026"]}
+  ]
+}
