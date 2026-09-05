@@ -1,0 +1,26 @@
+{
+  "version": "429.0",
+  "reviewed_at": "2026-09-06",
+  "method": "Outcome-measure selection is organized by ICF-level and functional goal rather than diagnosis alone. Existing Rawafid worksheets are reused when their protocol and rights basis are already documented. No protected questionnaire is reproduced merely to complete a pathway.",
+  "sources": [
+    {"id":"aapmr-outcomes-2026","name":"Outcome Measurement in Rehabilitation","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/outcome-measurement-in-rehabilitation/","type":"specialty_reference","scope":"selection and interpretation of rehabilitation outcome measures across ICF domains"},
+    {"id":"aapmr-functional-2025","name":"Functional Assessment","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/functional-assessment/","type":"specialty_reference","scope":"functional assessment and task performance"},
+    {"id":"who-icf","name":"International Classification of Functioning, Disability and Health (ICF)","organization":"World Health Organization","url":"https://www.who.int/classifications/international-classification-of-functioning-disability-and-health","type":"framework","scope":"body functions, activities, participation and environmental factors"},
+    {"id":"who-rim-2023","name":"Rehabilitation Indicator Menu, 2nd edition","organization":"World Health Organization","url":"https://www.who.int/publications-detail-redirect/rehabilitation-indicator-menu","type":"monitoring_framework","scope":"rehabilitation monitoring and functioning change"},
+    {"id":"nice-ng252-2025","name":"Rehabilitation for chronic neurological disorders including acquired brain injury","organization":"NICE","url":"https://www.nice.org.uk/guidance/ng252","type":"clinical_guideline","scope":"assessment, goal setting, planning, review and functional rehabilitation"},
+    {"id":"rmd-tug","name":"Timed Up and Go","organization":"Rehabilitation Measures Database","url":"https://www.sralab.org/rehabilitation-measures/timed-and-go","type":"measure_reference","scope":"functional mobility"},
+    {"id":"rmd-10mwt","name":"10 Meter Walk Test","organization":"Rehabilitation Measures Database","url":"https://www.sralab.org/rehabilitation-measures/10-meter-walk-test","type":"measure_reference","scope":"gait speed"},
+    {"id":"rmd-6mwt","name":"6 Minute Walk Test","organization":"Rehabilitation Measures Database","url":"https://www.sralab.org/rehabilitation-measures/6-minute-walk-test","type":"measure_reference","scope":"walking endurance"},
+    {"id":"rmd-5xsts","name":"Five Times Sit to Stand Test","organization":"Rehabilitation Measures Database","url":"https://www.sralab.org/rehabilitation-measures/five-times-sit-stand-test","type":"measure_reference","scope":"sit-to-stand performance and lower-limb function"},
+    {"id":"rmd-fsst","name":"Four Square Step Test","organization":"Rehabilitation Measures Database","url":"https://www.sralab.org/rehabilitation-measures/four-square-step-test","type":"measure_reference","scope":"dynamic stepping and balance"},
+    {"id":"nia-sppb","name":"Short Physical Performance Battery","organization":"National Institute on Aging","url":"https://www.nia.nih.gov/research/resource/short-physical-performance-battery-sppb","type":"measure_reference","scope":"lower-extremity physical performance"}
+  ],
+  "pathways": [
+    {"slug":"older-adults-falls","title":"كبار السن والسقوط","measure_ids":["SPPB","TUG","30CST/5xSTS","FSST/SLS","Grip"]},
+    {"slug":"neurological-mobility","title":"الحركة في التأهيل العصبي","measure_ids":["10MWT","TUG","6MWT/2MWT","FSST","SPPB"]},
+    {"slug":"cardiopulmonary-endurance","title":"التحمل القلبي الرئوي","measure_ids":["6MWT","2MWT","2-Minute Step","Grip"]},
+    {"slug":"lower-limb-musculoskeletal","title":"الطرف السفلي العضلي الهيكلي","measure_ids":["30CST/5xSTS","10MWT","SLS/FSST","TUG"]},
+    {"slug":"sports-return","title":"العودة للرياضة","measure_ids":["SLS","FSST","10MWT","task-specific criteria"]},
+    {"slug":"deconditioning-recovery","title":"إزالة التكيف بعد المرض الشديد والسرطان","measure_ids":["SPPB","6MWT/2MWT","Grip","30CST/5xSTS"]}
+  ]
+}
