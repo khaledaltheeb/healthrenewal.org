@@ -129,12 +129,22 @@ def main() -> None:
             f"extra={sorted(enum_routes - set(expected_routes))}"
         )
 
-    # Route contracts must resolve to real repository pages. This prevents an
-    # agent-facing tool from silently navigating to stale or removed paths.
+    # Some public routes (notably the encyclopedia index) are produced during
+    # the publishing build rather than stored as source index.html files. Treat
+    # either a source page or an authoritative published-route registry entry
+    # as evidence that a fixed agent route is intentional and deployable.
+    registry_files = list(ROOT.glob("sitemap*.xml")) + [ROOT / "api" / "v1" / "content-index.json"]
+    registry_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in registry_files
+        if path.is_file()
+    )
     for route_id, route_path in expected_routes.items():
         target = ROOT / "index.html" if route_path == "/" else ROOT / route_path.strip("/") / "index.html"
-        if not target.is_file():
-            fail(f"route {route_id} points to missing page: {route_path}")
+        public_url = f"https://healthrenewal.org{route_path}"
+        if target.is_file() or public_url in registry_text:
+            continue
+        fail(f"route {route_id} has no source page or published-route registry entry: {route_path}")
 
     print(
         "WEBMCP_GUARD_OK "
