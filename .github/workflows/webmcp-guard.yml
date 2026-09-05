@@ -1,0 +1,27 @@
+name: WebMCP guard
+
+on:
+  pull_request:
+    paths:
+      - "assets/brand/rawafid-brand.js"
+      - "scripts/verify_webmcp.py"
+      - ".github/workflows/webmcp-guard.yml"
+  push:
+    branches: [main]
+    paths:
+      - "assets/brand/rawafid-brand.js"
+      - "scripts/verify_webmcp.py"
+      - ".github/workflows/webmcp-guard.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-webmcp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: node --check assets/brand/rawafid-brand.js
+      - name: Verify WebMCP contract
+        run: python scripts/verify_webmcp.py
