@@ -1,6 +1,6 @@
 {
   "schema_version":"rawafid-addiction-comparisons-v5",
-  "updated_on":"2026-08-26",
+  "updated_on":"2026-09-05",
   "policy_ar":"هذه قائمة تحريرية انتقائية. يمنع توليد جميع التوافيق الممكنة بين المواد. تنشر المقارنة فقط إذا كانت مفيدة علمياً ولها بيانات كافية ولا تتحول إلى سؤال عن المادة الأكثر أماناً.",
   "comparisons":[
     {"a":"fentanyl","b":"heroin","slug":"fentanyl-vs-heroin","title_ar":"الفرق بين الفنتانيل والهيروين","intent_ar":"القوة، الجرعة الزائدة، كبت التنفس، الاعتماد والعلاج","indexable":true},
@@ -36,6 +36,9 @@
     {"a":"zaleplon","b":"zolpidem","slug":"zaleplon-vs-zolpidem","title_ar":"زاليبلون مقابل زولبيديم","intent_ar":"فروق أدوية Z المنومة، المدة الوظيفية، السلوكيات المعقدة، الاعتماد والمخاطر الحادة","indexable":true},
     {"a":"dextroamphetamine","b":"amphetamine","slug":"dextroamphetamine-vs-amphetamine","title_ar":"ديكستروأمفيتامين مقابل الأمفيتامين","intent_ar":"العلاقة الدوائية، الاستخدام الطبي، التنبيه، القلب، سوء الاستخدام والاعتماد دون مساواة العلاج الموصوف بالإدمان","indexable":true},
     {"a":"mephedrone","b":"methamphetamine","slug":"mephedrone-vs-methamphetamine","title_ar":"الميفيدرون مقابل الميثامفيتامين","intent_ar":"كاثينون صناعي مقابل منبه أمفيتاميني: الآلية، فرط التنبيه، القلب، الدماغ، الاعتماد وعدم يقين السوق غير المنظم","indexable":true},
-    {"a":"gasoline-inhalants","b":"toluene","slug":"gasoline-inhalants-vs-toluene","title_ar":"استنشاق أبخرة البنزين مقابل التولوين","intent_ar":"مخاليط الوقود مقابل مذيب محدد: السمية العصبية والقلبية والتنفسية، نقص الأكسجة وخطر التعرض الحاد","indexable":true}
+    {"a":"gasoline-inhalants","b":"toluene","slug":"gasoline-inhalants-vs-toluene","title_ar":"استنشاق أبخرة البنزين مقابل التولوين","intent_ar":"مخاليط الوقود مقابل مذيب محدد: السمية العصبية والقلبية والتنفسية، نقص الأكسجة وخطر التعرض الحاد","indexable":true},
+    {"a":"kratom","b":"phenibut","slug":"kratom-vs-phenibut","title_ar":"الكراتوم مقابل الفينيبوت: ما الفرق؟","intent_ar":"مادة نباتية ذات تأثيرات أفيونية مقابل مادة ذات فعل GABA-B: الآلية، الاعتماد، الانسحاب، السمية وخطر الخلط دون استنتاج أيهما أكثر أماناً","indexable":true},
+    {"a":"kratom","b":"tianeptine","slug":"kratom-vs-tianeptine","title_ar":"الكراتوم مقابل التيانيبتين: ما الفرق؟","intent_ar":"التأثيرات الأفيونية، اختلاف المصدر والتنظيم، الاعتماد، الانسحاب، التسمم وعدم يقين المنتجات دون استنتاج أيهما أكثر أماناً","indexable":true},
+    {"a":"phenibut","b":"tianeptine","slug":"phenibut-vs-tianeptine","title_ar":"الفينيبوت مقابل التيانيبتين: ما الفرق؟","intent_ar":"GABA-B مقابل نشاط أفيوني: التأثير، الاعتماد، الانسحاب، السمية، التنفس وخطر خلط المواد الناشئة","indexable":true}
   ]
 }
