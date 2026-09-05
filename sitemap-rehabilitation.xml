@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://healthrenewal.org/sectors/rehabilitation/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.95</priority></url>
-  <url><loc>https://healthrenewal.org/sectors/rehabilitation/measures/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.93</priority></url>
   <url><loc>https://healthrenewal.org/sectors/rehabilitation/professions/physiatry/</loc><lastmod>2026-09-05</lastmod><changefreq>monthly</changefreq><priority>0.88</priority></url>
   <url><loc>https://healthrenewal.org/sectors/rehabilitation/professions/rehabilitation-team/</loc><lastmod>2026-09-05</lastmod><changefreq>monthly</changefreq><priority>0.88</priority></url>
   <url><loc>https://healthrenewal.org/sectors/rehabilitation/cardiopulmonary/cardiac-rehabilitation/</loc><lastmod>2026-09-05</lastmod><changefreq>monthly</changefreq><priority>0.90</priority></url>
@@ -48,4 +47,12 @@
   <url><loc>https://healthrenewal.org/sectors/rehabilitation/patient-guides/venous-insufficiency/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.88</priority></url>
   <url><loc>https://healthrenewal.org/sectors/rehabilitation/patient-guides/orthostatic-hypotension/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.89</priority></url>
   <url><loc>https://healthrenewal.org/sectors/rehabilitation/patient-guides/obesity-functional-rehabilitation/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.88</priority></url>
+  <url><loc>https://healthrenewal.org/sectors/rehabilitation/patient-guides/lumbar-spinal-stenosis/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.90</priority></url>
+  <url><loc>https://healthrenewal.org/sectors/rehabilitation/patient-guides/hip-osteoarthritis/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.89</priority></url>
+  <url><loc>https://healthrenewal.org/sectors/rehabilitation/patient-guides/achilles-tendinopathy/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.89</priority></url>
+  <url><loc>https://healthrenewal.org/sectors/rehabilitation/patient-guides/shoulder-instability/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.89</priority></url>
+  <url><loc>https://healthrenewal.org/sectors/rehabilitation/patient-guides/thoracic-outlet-syndrome/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.90</priority></url>
+  <url><loc>https://healthrenewal.org/sectors/rehabilitation/patient-guides/sacroiliac-joint-pain/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.88</priority></url>
+  <url><loc>https://healthrenewal.org/sectors/rehabilitation/patient-guides/vertebral-compression-fracture/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.90</priority></url>
+  <url><loc>https://healthrenewal.org/sectors/rehabilitation/patient-guides/ankle-osteoarthritis/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.89</priority></url>
 </urlset>

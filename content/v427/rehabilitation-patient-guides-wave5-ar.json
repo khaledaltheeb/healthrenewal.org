@@ -1,0 +1,34 @@
+{
+  "version": "427.0",
+  "reviewed_at": "2026-09-06",
+  "method": "Original Arabic patient-facing synthesis. AAPM&R PM&R KnowledgeNOW defines specialty coverage; current independent guidelines, consensus statements and systematic evidence are used to verify management and escalation messages.",
+  "rights_note": "No AAPM&R patient handout, copyrighted wording, figure, table or image is reproduced or translated. Sources are linked and attributed; Arabic content is independently written.",
+  "sources": [
+    {"id":"aapmr-lumbar-stenosis","name":"Lumbar Stenosis","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/lumbar-stenosis/","type":"specialty_reference","scope":"lumbar spinal stenosis diagnosis, functional assessment and rehabilitation"},
+    {"id":"jama-lumbar-stenosis-2022","name":"Diagnosis and Management of Lumbar Spinal Stenosis: A Review","organization":"JAMA","url":"https://pubmed.ncbi.nlm.nih.gov/35503342/","type":"clinical_review","scope":"lumbar spinal stenosis diagnosis and management"},
+    {"id":"aapmr-hip-arthropathies","name":"Hip and Pelvic Arthropathies and Labral Tears","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/hip-and-pelvic-arthropathies-and-labral-tears/","type":"specialty_reference","scope":"hip osteoarthritis and intra-articular hip disorders"},
+    {"id":"aaos-hip-oa-2023","name":"Management of Osteoarthritis of the Hip","organization":"AAOS","url":"https://www.aaos.org/quality/quality-programs/osteoarthritis-of-the-hip/","type":"clinical_practice_guideline","scope":"adult symptomatic hip osteoarthritis"},
+    {"id":"aapmr-achilles-2025","name":"Achilles Tendinopathy","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/achilles-tendinopathy/","type":"specialty_reference","scope":"Achilles tendinopathy assessment and rehabilitation"},
+    {"id":"jospt-achilles-2024","name":"Achilles Pain, Stiffness, and Muscle Power Deficits: Midportion Achilles Tendinopathy Revision 2024","organization":"JOSPT / APTA Orthopedics","url":"https://pubmed.ncbi.nlm.nih.gov/39611662/","type":"clinical_practice_guideline","scope":"midportion Achilles tendinopathy physical therapy management"},
+    {"id":"aapmr-shoulder-instability-2024","name":"Shoulder Instability, Dysfunction and Scapular Dyskinesis","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/shoulder-instability-dysfunction-and-scapular-dyskinesis/","type":"specialty_reference","scope":"shoulder instability and scapular function"},
+    {"id":"jospt-bankart-consensus-2024","name":"REGUIDE rehabilitation after arthroscopic Bankart repair","organization":"JOSPT / International Shoulder Instability Group","url":"https://pubmed.ncbi.nlm.nih.gov/38506709/","type":"consensus_rehabilitation_guideline","scope":"post-Bankart rehabilitation and apprehension management"},
+    {"id":"aapmr-tos-2024","name":"Thoracic Outlet Syndrome","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/thoracic-outlet-syndrome/","type":"specialty_reference","scope":"neurogenic and vascular thoracic outlet syndromes"},
+    {"id":"intos-ntos-2024","name":"Consensus Recommendations for Neurogenic Thoracic Outlet Syndrome from the INTOS Workgroup","organization":"INTOS Workgroup","url":"https://pubmed.ncbi.nlm.nih.gov/39206209/","type":"expert_consensus","scope":"neurogenic thoracic outlet syndrome diagnosis and treatment"},
+    {"id":"aapmr-si-joint-2024","name":"SI Joint Pain","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/si-joint-pain/","type":"specialty_reference","scope":"sacroiliac joint complex pain assessment and management"},
+    {"id":"si-consensus-2025","name":"Consensus practice guidelines on sacroiliac joint complex pain","organization":"Multispecialty International Working Group","url":"https://pubmed.ncbi.nlm.nih.gov/41318933/","type":"consensus_practice_guideline","scope":"sacroiliac joint complex pain diagnosis and interventions"},
+    {"id":"aapmr-vcf-2025","name":"Compression Fractures of the Spine","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/compression-fractures-of-the-spine/","type":"specialty_reference","scope":"vertebral compression fractures and rehabilitation"},
+    {"id":"nogg-2024","name":"NOGG 2024 Clinical guideline for the prevention and treatment of osteoporosis","organization":"National Osteoporosis Guideline Group","url":"https://www.nogg.org.uk/full-guideline","type":"clinical_guideline","scope":"osteoporosis, vertebral fractures and secondary fracture prevention"},
+    {"id":"aapmr-oa-2024","name":"Osteoarthritis","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/osteoarthritis/","type":"specialty_reference","scope":"osteoarthritis function and rehabilitation across joints"},
+    {"id":"aaos-ankle-oa-2026","name":"Management of Ankle Osteoarthritis Clinical Practice Guideline","organization":"AAOS","url":"https://www.aaos.org/aaos-home/newsroom/press-releases/aaos-releases-clinical-practice-guideline-for-management-of-ankle-osteoarthritis/","type":"clinical_practice_guideline","scope":"adult ankle osteoarthritis nonoperative and operative management"}
+  ],
+  "topics": [
+    {"slug":"lumbar-spinal-stenosis","title":"تضيق القناة القطنية: المشي والانحناء والأعراض العصبية","source_ids":["aapmr-lumbar-stenosis","jama-lumbar-stenosis-2022"]},
+    {"slug":"hip-osteoarthritis","title":"خشونة الورك: الحركة والقوة والمشي ومتى نناقش الاستبدال","source_ids":["aapmr-hip-arthropathies","aaos-hip-oa-2023"]},
+    {"slug":"achilles-tendinopathy","title":"اعتلال وتر أخيل: التحميل التدريجي والعودة للجري","source_ids":["aapmr-achilles-2025","jospt-achilles-2024"]},
+    {"slug":"shoulder-instability","title":"عدم ثبات الكتف والخلع المتكرر: الاستقرار والقوة والعودة للنشاط","source_ids":["aapmr-shoulder-instability-2024","jospt-bankart-consensus-2024"]},
+    {"slug":"thoracic-outlet-syndrome","title":"متلازمة مخرج الصدر: الأعصاب والأوعية ومتى تكون الحالة عاجلة","source_ids":["aapmr-tos-2024","intos-ntos-2024"]},
+    {"slug":"sacroiliac-joint-pain","title":"ألم المفصل العجزي الحرقفي: التشخيص الوظيفي وخيارات التأهيل","source_ids":["aapmr-si-joint-2024","si-consensus-2025"]},
+    {"slug":"vertebral-compression-fracture","title":"الكسر الانضغاطي للفقرات: الحركة الآمنة ومنع الكسر التالي","source_ids":["aapmr-vcf-2025","nogg-2024"]},
+    {"slug":"ankle-osteoarthritis","title":"خشونة الكاحل: المشي والتحميل والأجهزة وخيارات الجراحة","source_ids":["aapmr-oa-2024","aaos-ankle-oa-2026"]}
+  ]
+}
