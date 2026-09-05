@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "measures": [
+    {
+      "id": "stay-independent",
+      "name": "Stay Independent Fall Risk Checklist",
+      "acronym": "SIB / STEADI",
+      "domain": "falls-screening",
+      "type": "self-report-screen",
+      "status": "full-operational-worksheet",
+      "score_range": [0,14],
+      "scoring": {
+        "items": 12,
+        "item_1_yes": 2,
+        "item_2_yes": 2,
+        "items_3_12_yes": 1,
+        "no": 0,
+        "cdc_screen_threshold": 4,
+        "three_key_questions": [1,3,5],
+        "key_question_rule": "any yes warrants fall-risk follow-up"
+      },
+      "rights": {
+        "source_status": "Public Domain",
+        "source": "https://stacks.cdc.gov/view/cdc/148192",
+        "rawafid_arabic": "Independent operational Arabic rendering from the public-domain English instrument; not represented as the exact validated AR-SIB wording."
+      },
+      "arabic_evidence": {
+        "citation": "Almarwani M, Alosaimi B, Vincenzo JL. BMC Geriatrics. 2024;24:997.",
+        "doi": "10.1186/s12877-024-05592-z",
+        "sample_n": 104,
+        "kr20": 0.73,
+        "test_retest_icc": 0.96,
+        "auc": 0.83,
+        "study_cutoff": 4.5,
+        "study_cutoff_note": "The study describes 4.5 as preliminary and calls for broader validation; Rawafid retains the CDC >=4 screen threshold for the operational public-domain form."
+      },
+      "rawafid_route": "/sectors/rehabilitation/measures/stay-independent/"
+    },
+    {
+      "id": "pdi",
+      "name": "Pain Disability Index",
+      "acronym": "PDI",
+      "domain": "pain-disability",
+      "type": "patient-reported-outcome",
+      "status": "full-operational-worksheet",
+      "score_range": [0,70],
+      "scoring": {
+        "domains": 7,
+        "domain_range": [0,10],
+        "requires_all_domains_for_total": true,
+        "empirical_universal_cutoff": false
+      },
+      "domains": [
+        "family-home-responsibilities",
+        "recreation",
+        "social-activity",
+        "occupation",
+        "sexual-behavior",
+        "self-care",
+        "life-support-activity"
+      ],
+      "rights": {
+        "source_status": "Public Domain as described by the 2026 MSA validation publication",
+        "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12823980/",
+        "rawafid_arabic": "Independent operational Arabic rendering of the public-domain seven-domain structure; not represented as the exact MSA appendix wording."
+      },
+      "arabic_evidence": {
+        "citation": "Cassidy L et al. Frontiers in Medicine. 2026;12:1688744.",
+        "doi": "10.3389/fmed.2025.1688744",
+        "sample_n": 423,
+        "cronbach_alpha": 0.91,
+        "factor_structure": "unidimensional support",
+        "validated_form_location": "Appendix 2 / OSF supplementary material"
+      },
+      "rawafid_route": "/sectors/rehabilitation/measures/pdi/"
+    }
+  ]
+}
