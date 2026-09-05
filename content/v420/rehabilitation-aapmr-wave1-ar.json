@@ -1,0 +1,25 @@
+{
+  "version": "420.2",
+  "reviewed_at": "2026-09-05",
+  "method": "Original Arabic synthesis. AAPM&R PM&R KnowledgeNOW is used as a coverage and specialty-reference map; no patient handout is reproduced or translated. Clinical claims are triangulated with current authoritative guidance where available.",
+  "rights_note": "Link, cite, and independently summarize only. Do not republish or translate AAPM&R handouts without explicit permission.",
+  "sources": [
+    {"id":"who-rehabilitation-2024","name":"Rehabilitation","organization":"World Health Organization","url":"https://www.who.int/news-room/fact-sheets/detail/rehabilitation","type":"official-fact-sheet","scope":"Definition of rehabilitation, functioning, participation, service need and workforce."},
+    {"id":"aapmr-knowledgenow","name":"PM&R KnowledgeNOW","organization":"American Academy of Physical Medicine and Rehabilitation","url":"https://now.aapmr.org/","type":"specialty-knowledge-base","scope":"Physical medicine and rehabilitation topic coverage and clinical orientation."},
+    {"id":"aapmr-team-2024","name":"Rehabilitation Patient Care Teams and Their Functioning","organization":"American Academy of Physical Medicine and Rehabilitation","url":"https://now.aapmr.org/rehabilitation-team-functioning/","type":"specialty-review","scope":"Interdisciplinary rehabilitation team structure, roles and communication."},
+    {"id":"nice-ng236","name":"Stroke rehabilitation in adults (NG236)","organization":"National Institute for Health and Care Excellence","url":"https://www.nice.org.uk/guidance/ng236","type":"clinical-guideline","scope":"Adult stroke rehabilitation assessment, therapy, multidisciplinary care and community transition."},
+    {"id":"aapmr-spasticity-2024","name":"Spasticity","organization":"American Academy of Physical Medicine and Rehabilitation","url":"https://now.aapmr.org/spasticity/","type":"specialty-review","scope":"Spasticity definition, assessment, functional goals and management framework."},
+    {"id":"aapmr-cardiac-2024","name":"Cardiac Rehabilitation","organization":"American Academy of Physical Medicine and Rehabilitation","url":"https://now.aapmr.org/cardiac-rehabilitation/","type":"specialty-review","scope":"Cardiac rehabilitation specialty overview, assessment and rehabilitation planning."},
+    {"id":"aha-aacvpr-cr-2024","name":"Core Components of Cardiac Rehabilitation Programs: 2024 Update","organization":"American Heart Association and American Association of Cardiovascular and Pulmonary Rehabilitation","url":"https://professional.heart.org/en/science-news/core-components-of-cardiac-rehabilitation-programs-2024-update","type":"scientific-statement","scope":"Current core components and quality framework for cardiac rehabilitation programs."},
+    {"id":"ats-pr-2023","name":"Pulmonary Rehabilitation for Adults with Chronic Respiratory Disease","organization":"American Thoracic Society","url":"https://www.thoracic.org/statements/guideline-implementation-tools/matrix-guidelines-and-derivatives-pulmonary-rehab-in-adults-08-23-23.php","type":"clinical-practice-guideline","scope":"Pulmonary rehabilitation recommendations for COPD, interstitial lung disease, pulmonary hypertension and telerehabilitation."},
+    {"id":"gold-2026","name":"2026 GOLD Report and Pocket Guide","organization":"Global Initiative for Chronic Obstructive Lung Disease","url":"https://goldcopd.org/2026-gold-report-and-pocket-guide/","type":"global-strategy-report","scope":"Current COPD strategy context supporting pulmonary rehabilitation content."}
+  ],
+  "topics": [
+    {"slug":"physiatry","title":"طب التأهيل والطب الفيزيائي: متى نحتاج طبيب التأهيل؟","cluster":"professions","intent":"تعريف التخصص ودوره وحدوده ومسار الإحالة","sources":["who-rehabilitation-2024","aapmr-knowledgenow","aapmr-team-2024"]},
+    {"slug":"rehabilitation-team","title":"فريق التأهيل متعدد التخصصات: من يفعل ماذا؟","cluster":"professions","intent":"تمييز أدوار الفريق وبناء أهداف مشتركة","sources":["who-rehabilitation-2024","aapmr-team-2024","nice-ng236"]},
+    {"slug":"cardiac-rehabilitation","title":"إعادة التأهيل القلبي: من التقييم إلى العودة للحياة اليومية","cluster":"cardiopulmonary","intent":"فهم المكونات الأساسية والسلامة والمتابعة","sources":["aapmr-cardiac-2024","aha-aacvpr-cr-2024","who-rehabilitation-2024"]},
+    {"slug":"pulmonary-rehabilitation","title":"إعادة التأهيل الرئوي ومرض الانسداد الرئوي المزمن","cluster":"cardiopulmonary","intent":"فهم التدريب والتنفس والتعليم والإدارة الذاتية والقياس","sources":["ats-pr-2023","gold-2026","who-rehabilitation-2024"]},
+    {"slug":"stroke-rehabilitation","title":"إعادة التأهيل بعد السكتة الدماغية: مسار وظيفي متعدد التخصصات","cluster":"neurological","intent":"تغطية الحركة والتواصل والبلع والإدراك والمشاركة","sources":["nice-ng236","who-rehabilitation-2024","aapmr-knowledgenow"]},
+    {"slug":"spasticity","title":"التشنج العضلي في التأهيل: تقييم الأثر ووضع الأهداف","cluster":"neurological","intent":"تمييز التشنج عن المشكلة الوظيفية وبناء إدارة موجهة للهدف","sources":["aapmr-spasticity-2024","nice-ng236","who-rehabilitation-2024"]}
+  ]
+}
