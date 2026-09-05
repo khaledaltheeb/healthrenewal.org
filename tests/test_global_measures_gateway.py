@@ -13,6 +13,7 @@ AUDIT=ROOT/'content'/'global-measures-v1'/'rmd-eprovide-rights-audit.json'
 
 ROUTES=(
  '/sectors/rehabilitation/measures/',
+ '/sectors/rehabilitation/measures/berg-balance-scale/',
  '/assessments/mental-health-screeners/',
  '/assessments/trauma-measures/',
  '/assessments/wellbeing-somatic-screeners/',
@@ -35,10 +36,12 @@ class GlobalMeasuresGatewayTest(unittest.TestCase):
  def test_all_current_core_routes_are_linked(self):
   for route in ROUTES:self.assertIn(f'href="{route}"',self.html,route)
  def test_gateway_count_matches_machine_catalog(self):
-  m=re.search(r'<strong>(\d+) أداة/بطارية فعلية حاليًا</strong>',self.html);self.assertIsNotNone(m);self.assertEqual(int(m.group(1)),self.catalog['actual_tool_count']);self.assertEqual(self.catalog['actual_tool_count'],29);self.assertEqual(len(self.catalog['tools']),29)
+  m=re.search(r'<strong>(\d+) أداة/بطارية فعلية حاليًا</strong>',self.html);self.assertIsNotNone(m);self.assertEqual(int(m.group(1)),self.catalog['actual_tool_count']);self.assertEqual(self.catalog['actual_tool_count'],30);self.assertEqual(len(self.catalog['tools']),30)
+  self.assertIn('Berg Balance Scale',self.html);self.assertIn('18 أداة/بطارية',self.html)
  def test_rmd_rights_model_is_explicit(self):
   self.assertIn('RMD لا يملك الأدوات',self.html);self.assertIn('Cost + Cost Description',self.html);self.assertIn('ePROVIDE',self.html);self.assertIn('Free لا تعني Public Domain',self.html);self.assertIn('افصل Cost عن Rights',self.html)
   self.assertIn('rule_2',self.audit['method']);self.assertIn('Free does not mean Public Domain',self.audit['method']['rule_2'])
+  bbs=next(x for x in self.audit['current_library'] if x['id']=='bbs');self.assertEqual(bbs['decision'],'full-ok');self.assertEqual(bbs['rmd_cost'],'Free');self.assertIn('equipment',bbs['rmd_cost_description'].lower());self.assertIn('public-domain',bbs['rights_source'].lower())
  def test_owner_controlled_examples_are_not_misrepresented_as_full(self):
   decisions={x['id']:x['decision'] for x in self.audit['priority_candidates']}
   for key in ('odi','ndi','quickdash','eq5d5l','isi','zbi'):self.assertEqual(decisions[key],'official-link-only')
