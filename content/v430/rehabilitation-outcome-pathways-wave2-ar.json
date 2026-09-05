@@ -1,0 +1,28 @@
+{
+  "version": "430.0",
+  "reviewed_at": "2026-09-06",
+  "method": "Expansion of rehabilitation outcome pathways into upper-limb function, symptom interference, pediatric participation, cognitive-communication function and prosthetic function. Measures are referenced, not reproduced, when licensing, translation or distribution rights are restricted.",
+  "rights_note": "HealthMeasures instruments and translations, PEDI-CAT, AMP and commercial dexterity tools are not republished or translated here. Rawafid links to authoritative access/licensing sources and uses original Arabic guidance around selection, administration context and interpretation.",
+  "sources": [
+    {"id":"aapmr-outcomes-2026","name":"Outcome Measurement in Rehabilitation","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/outcome-measurement-in-rehabilitation/","type":"specialty_reference","scope":"ICF-based outcome measure selection, combinations of measures, cognition, participation and pediatric considerations"},
+    {"id":"aapmr-functional-2025","name":"Functional Assessment","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/functional-assessment/","type":"specialty_reference","scope":"task performance, safety and functional assessment"},
+    {"id":"rmd-box-block","name":"Box and Block Test","organization":"Rehabilitation Measures Database","url":"https://www.sralab.org/rehabilitation-measures/box-and-block-test","type":"measure_reference","scope":"gross manual dexterity and upper-limb activity"},
+    {"id":"rmd-nine-hole","name":"Nine-Hole Peg Test","organization":"Rehabilitation Measures Database","url":"https://www.sralab.org/rehabilitation-measures/nine-hole-peg-test","type":"measure_reference","scope":"finger dexterity; commercial equipment / non-free status noted"},
+    {"id":"healthmeasures-library-2026","name":"HealthMeasures Measure Library and Terms","organization":"HealthMeasures","url":"https://healthmeasures.net/select-measures/measure-library/","type":"rights_and_measure_reference","scope":"PROMIS/Neuro-QoL/NIH Toolbox copyright, reproduction, integration and translation permissions"},
+    {"id":"healthmeasures-translations-2026","name":"Obtain and Administer PROMIS Measures","organization":"HealthMeasures","url":"https://www.healthmeasures.net/explore-measurement-systems/promis/obtain-administer-measures","type":"translation_rights_reference","scope":"permission and distribution requirements for translated PROMIS measures"},
+    {"id":"aapmr-pediatric","name":"Pediatric Rehabilitation","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/pediatric-rehabilitation/","type":"specialty_map","scope":"pediatric rehabilitation domains, mobility, equipment and participation"},
+    {"id":"pedi-cat-official","name":"PEDI-CAT Ordering and Distribution","organization":"CREcare / Pearson","url":"https://www.pedicat.com/portfolio/","type":"licensed_measure_reference","scope":"official PEDI-CAT distribution and language availability"},
+    {"id":"rmd-pedicat","name":"Pediatric Evaluation of Disability Inventory - Computer Adaptive Test","organization":"Rehabilitation Measures Database","url":"https://www.sralab.org/rehabilitation-measures/pediatric-evaluation-disability-inventory-computer-adaptive-test","type":"measure_reference","scope":"daily activities, mobility, social/cognitive and responsibility in children"},
+    {"id":"asha-noms-fcm","name":"NOMS Functional Communication Measures","organization":"American Speech-Language-Hearing Association","url":"https://www.asha.org/noms/","type":"functional_communication_framework","scope":"functional communication and cognitive-communication outcomes"},
+    {"id":"aapmr-lower-prosthetics-2025","name":"Lower Limb Prosthetics","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/lower-limb-prosthetics/","type":"specialty_reference","scope":"prosthetic prescription, mobility, activity and participation"},
+    {"id":"aapmr-upper-prosthetics-2024","name":"Upper Limb Prosthetics","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/upper-limb-prosthetics/","type":"specialty_reference","scope":"upper-limb prosthesis use, dexterity, task function and participation"},
+    {"id":"rmd-amp","name":"Amputee Mobility Predictor","organization":"Rehabilitation Measures Database","url":"https://www.sralab.org/rehabilitation-measures/amputee-mobility-predictor","type":"licensed_measure_reference","scope":"lower-limb amputee mobility potential; license fee may apply"}
+  ],
+  "pathways": [
+    {"slug":"upper-limb-hand-function","title":"الطرف العلوي واليد","source_ids":["aapmr-outcomes-2026","aapmr-functional-2025","rmd-box-block","rmd-nine-hole"]},
+    {"slug":"pain-fatigue-interference","title":"الألم والتعب وتأثيرهما الوظيفي","source_ids":["aapmr-outcomes-2026","healthmeasures-library-2026","healthmeasures-translations-2026"]},
+    {"slug":"pediatric-participation","title":"الأطفال والمشاركة","source_ids":["aapmr-outcomes-2026","aapmr-pediatric","pedi-cat-official","rmd-pedicat"]},
+    {"slug":"cognitive-communication","title":"الإدراك والتواصل الوظيفي","source_ids":["aapmr-outcomes-2026","aapmr-functional-2025","asha-noms-fcm"]},
+    {"slug":"prosthetic-function","title":"الوظيفة مع الأطراف الصناعية","source_ids":["aapmr-lower-prosthetics-2025","aapmr-upper-prosthetics-2024","rmd-amp"]}
+  ]
+}
