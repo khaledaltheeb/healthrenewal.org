@@ -1,0 +1,125 @@
+{
+  "schema_version": "addiction-evidence-registry-amersa-v1",
+  "status": "verified-institutional-sources",
+  "verified_on": "2026-09-05",
+  "verification_timezone": "Asia/Amman",
+  "provenance": {
+    "organization": "Association for Multidisciplinary Education and Research in Substance Use and Addiction (AMERSA)",
+    "correspondence_subject": "Re: AMERSA — one education framework for Arabic addiction-care guidance",
+    "correspondence_date": "2026-09-03",
+    "sender_name": "Katrina Clidence",
+    "note": "AMERSA directly pointed Rawafid / Health Renewal to Grayken Center prerecorded training, Substance Use & Addiction Journal, AMERSA Education, and AMERSA Advocacy. The Education library was then reviewed for linked AMERSA competency frameworks and toolkits."
+  },
+  "sources": [
+    {
+      "id": "amersa-education-2026",
+      "organization": "AMERSA",
+      "title": "AMERSA Education",
+      "resource_type": "education hub",
+      "url": "https://amersa.org/education/",
+      "topics": ["professional-education", "research-to-practice", "multidisciplinary-care", "lived-experience"],
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "amersa-education-resources-2026",
+      "organization": "AMERSA",
+      "title": "AMERSA Education Resources",
+      "resource_type": "curated resource library",
+      "url": "https://amersa.org/education/amersa-resources/",
+      "topics": ["perinatal-care", "intimate-partner-violence", "older-adults", "sud-101", "moud", "peer-recovery", "professional-competencies"],
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "amersa-core-competencies-2018",
+      "organization": "AMERSA",
+      "title": "Specific Disciplines Addressing Substance Use: AMERSA in the 21st Century — 2018 Update",
+      "publication_year": 2018,
+      "resource_type": "multidisciplinary competency framework",
+      "url": "https://amersa.org/wp-content/uploads/AMERSA-Competencies-Final-31119.pdf",
+      "topics": ["medicine", "nursing", "pharmacy", "social-work", "physician-assistants", "screening", "assessment", "treatment", "harm-reduction", "ethics", "stigma"],
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "grayken-screening-assessment-treatment-2026",
+      "organization": "Grayken Center for Addiction Training & Technical Assistance, Boston Medical Center",
+      "title": "Screening, Assessment, and Treatment of Substance Use Disorders",
+      "resource_type": "prerecorded professional training",
+      "url": "https://www.addictiontraining.org/training/pre-recorded/course/?category=&id=41&start=0",
+      "topics": ["screening", "assessment", "DSM-5", "SBIRT", "levels-of-care", "co-occurring-conditions"],
+      "accessed_on": "2026-09-05",
+      "program_expiry_noted_by_provider": "2027-06-01"
+    },
+    {
+      "id": "amersa-sud101-2026",
+      "organization": "AMERSA / Grayken Center for Addiction TTA",
+      "title": "Substance Use Disorders 101: The Overview",
+      "resource_type": "introductory professional training",
+      "url": "https://www.addictiontraining.org/training/pre-recorded/course/?id=60",
+      "topics": ["addiction-overview", "overdose", "stigma", "evidence-based-treatment"],
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "amersa-perinatal-toolkit-2026",
+      "organization": "AMERSA",
+      "title": "Improving Perinatal Opioid and Other Substance Use Disorder Care at Your Next Clinical Encounter",
+      "resource_type": "clinical implementation toolkit",
+      "url": "https://amersa.org/education/amersa-resources/",
+      "topics": ["pregnancy", "postpartum", "stigma-reducing-language", "brief-screening", "moud-access", "care-coordination"],
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "amersa-ipv-sud-toolkit-2026",
+      "organization": "AMERSA",
+      "title": "Building Provider and Network Capacity at the Intersections of Substance Use Disorders and Intimate Partner Violence",
+      "resource_type": "cross-sector capacity-building toolkit",
+      "url": "https://amersa.org/education/amersa-resources/",
+      "topics": ["intimate-partner-violence", "substance-use-coercion", "provider-capacity", "cross-sector-referral", "safety"],
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "amersa-older-adult-oud-toolkit-2026",
+      "organization": "AMERSA",
+      "title": "Delivering Age-Friendly Care for Older Adults With Opioid Use Disorder Across the Care Continuum",
+      "resource_type": "age-friendly clinical implementation toolkit",
+      "url": "https://amersa.org/education/amersa-resources/",
+      "topics": ["older-adults", "opioid-use-disorder", "care-transitions", "person-centered-care", "long-term-care"],
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "amersa-moud-peer-toolkit-2026",
+      "organization": "AMERSA / Opioid Response Network",
+      "title": "Medication for Opioid Use Disorder (MOUD) Toolkit for Peer Recovery Specialists",
+      "resource_type": "peer recovery toolkit",
+      "url": "https://amersa.org/education/amersa-resources/",
+      "topics": ["peer-recovery", "moud", "communication", "role-boundaries", "treatment-literacy"],
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "amersa-advocacy-2026",
+      "organization": "AMERSA",
+      "title": "AMERSA Advocacy",
+      "resource_type": "advocacy and policy principles hub",
+      "url": "https://amersa.org/advocacy/",
+      "topics": ["harm-reduction", "equitable-access", "stigma", "public-health", "collective-action", "moud-access"],
+      "context_note": "Policy details are US-specific; only general evidence-informed public-health and equity principles should be translated to Arabic guidance unless local law and policy are separately verified.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "saj-journal-2026",
+      "organization": "Substance Use & Addiction Journal / AMERSA",
+      "title": "Substance Use & Addiction Journal",
+      "resource_type": "peer-reviewed journal",
+      "url": "https://journals.sagepub.com/home/saj",
+      "topics": ["research", "clinical-care", "education", "policy", "lived-experience"],
+      "accessed_on": "2026-09-05"
+    }
+  ],
+  "rules": {
+    "attribute_amersa_when_source_is_material": true,
+    "do_not_imply_endorsement": true,
+    "do_not_copy_us_legal_requirements_into_jordan_guidance": true,
+    "no_public_dosing_extraction": true,
+    "local_legal_review_required_for_policy_translation": true,
+    "prefer_linking_to_original_training_or_toolkit_over_reproducing_proprietary_material": true
+  }
+}
