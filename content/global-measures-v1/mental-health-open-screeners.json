@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "policy": "Public-domain status permits Rawafid to reproduce and translate the instruments. Rawafid operational Arabic wording is not represented as identical to any specific validated Arabic publication unless provenance is exact.",
+  "measures": [
+    {
+      "id": "phq-9",
+      "name": "Patient Health Questionnaire-9",
+      "acronym": "PHQ-9",
+      "domain": "depressive-symptoms",
+      "type": "self-report-screen-and-severity",
+      "reference_period": "past 2 weeks",
+      "items": 9,
+      "item_range": [0,3],
+      "score_range": [0,27],
+      "derived": {"phq-2": {"items": [1,2], "score_range": [0,6]}},
+      "common_severity_bands": [[0,4,"minimal"],[5,9,"mild"],[10,14,"moderate"],[15,19,"moderately-severe"],[20,27,"severe"]],
+      "common_screen_threshold": 10,
+      "diagnostic_by_score_alone": false,
+      "safety": {"item": 9, "rule": "any response above zero requires separate direct safety clarification; total score must not determine suicide risk"},
+      "rights": {
+        "status": "public-domain",
+        "permission_required_to_reproduce": false,
+        "permission_required_to_translate": false,
+        "permission_required_to_display": false,
+        "permission_required_to_distribute": false,
+        "evidence": "https://support.apple.com/en-jo/105070"
+      },
+      "arabic_evidence": [
+        {"citation": "Sawaya H et al. Psychiatry Research. 2016;239:245-252.", "pmid": "27031595"},
+        {"citation": "AlHadi AN et al. Ann Gen Psychiatry. 2017;16:32.", "pmid": "28878812", "cronbach_alpha": 0.857},
+        {"citation": "Arabic PHQ-9 in Omani cardiovascular disease patients. 2025.", "pmid": "40946692", "cronbach_alpha": 0.84}
+      ],
+      "rawafid_arabic_status": "independent-operational-Arabic-rendering",
+      "rawafid_route": "/assessments/mental-health-screeners/phq-9/"
+    },
+    {
+      "id": "gad-7",
+      "name": "Generalized Anxiety Disorder-7",
+      "acronym": "GAD-7",
+      "domain": "anxiety-symptoms",
+      "type": "self-report-screen-and-severity",
+      "reference_period": "past 2 weeks",
+      "items": 7,
+      "item_range": [0,3],
+      "score_range": [0,21],
+      "derived": {"gad-2": {"items": [1,2], "score_range": [0,6]}},
+      "common_severity_bands": [[0,4,"minimal"],[5,9,"mild"],[10,14,"moderate"],[15,21,"severe"]],
+      "common_screen_threshold": 10,
+      "diagnostic_by_score_alone": false,
+      "rights": {
+        "status": "public-domain",
+        "permission_required_to_reproduce": false,
+        "permission_required_to_translate": false,
+        "permission_required_to_display": false,
+        "permission_required_to_distribute": false,
+        "evidence": "https://support.apple.com/en-jo/105070"
+      },
+      "arabic_evidence": [
+        {"citation": "Sawaya H et al. Psychiatry Research. 2016;239:245-252.", "pmid": "27031595"},
+        {"citation": "AlHadi AN et al. Ann Gen Psychiatry. 2017;16:32.", "pmid": "28878812", "cronbach_alpha": 0.763},
+        {"citation": "El Khoury-Malhame M et al. PLoS One. 2025;20:e0329627.", "pmid": "40763187", "cronbach_alpha": 0.87, "icc": 0.83, "population": "Lebanese adolescents 15-18"}
+      ],
+      "rawafid_arabic_status": "independent-operational-Arabic-rendering",
+      "rawafid_route": "/assessments/mental-health-screeners/gad-7/"
+    }
+  ]
+}
