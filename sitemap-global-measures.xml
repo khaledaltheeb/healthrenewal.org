@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://healthrenewal.org/assessments/global-measures/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.95</priority></url>
+  <url><loc>https://healthrenewal.org/assessments/global-measures/workspace/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.94</priority></url>
+  <url><loc>https://healthrenewal.org/assessments/global-measures/tool-finder/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.93</priority></url>
+  <url><loc>https://healthrenewal.org/assessments/global-measures/print-packets/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.91</priority></url>
+  <url><loc>https://healthrenewal.org/assessments/global-measures/measurement-record/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.91</priority></url>
+  <url><loc>https://healthrenewal.org/assessments/global-measures/rights-audit/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.92</priority></url>
   <url><loc>https://healthrenewal.org/assessments/mental-health-screeners/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.93</priority></url>
   <url><loc>https://healthrenewal.org/assessments/mental-health-screeners/phq-9/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.92</priority></url>
   <url><loc>https://healthrenewal.org/assessments/mental-health-screeners/gad-7/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.92</priority></url>
@@ -16,4 +21,9 @@
   <url><loc>https://healthrenewal.org/assessments/distress-screeners/k10/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.92</priority></url>
   <url><loc>https://healthrenewal.org/assessments/geriatric-measures/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.93</priority></url>
   <url><loc>https://healthrenewal.org/assessments/geriatric-measures/gds-15/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.92</priority></url>
+  <url><loc>https://healthrenewal.org/assessments/substance-use-screeners/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.94</priority></url>
+  <url><loc>https://healthrenewal.org/assessments/substance-use-screeners/taps-1/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.92</priority></url>
+  <url><loc>https://healthrenewal.org/assessments/substance-use-screeners/taps-2/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.92</priority></url>
+  <url><loc>https://healthrenewal.org/assessments/general-health-measures/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.93</priority></url>
+  <url><loc>https://healthrenewal.org/assessments/general-health-measures/healthy-days/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.92</priority></url>
 </urlset>
