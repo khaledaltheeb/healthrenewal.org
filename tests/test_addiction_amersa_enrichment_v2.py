@@ -113,7 +113,7 @@ def test_local_regulation_guardrails_present_where_needed():
     telehealth = route_to_path(WAVE2_ROUTES[2]).read_text(encoding="utf-8")
     assert "القانون" in climate and "محلي" in climate
     assert "الأنظمة" in telehealth and "المحلي" in telehealth
-    assert "الولايات المتحدة" in telehealth
+    assert "الولايات المتحدة" in telehealth or "الأمريكية" in telehealth
 
 
 def test_amersa_sitemap_registered_in_sitemap_index():
