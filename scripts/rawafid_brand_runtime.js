@@ -171,7 +171,7 @@
       const path=routes[section];
       if(!path) return {status:'invalid',message:'Unknown section'};
       const target=new URL(path,location.origin).href;
-      location.assign(target.href);
+      location.assign(target);
       return {status:'navigating',url:target};
     }
   });
