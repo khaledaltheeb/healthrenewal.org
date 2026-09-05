@@ -1,0 +1,105 @@
+{
+  "schema_version": "addiction-evidence-registry-amersa-wave2-v1",
+  "status": "reviewed-current-evidence",
+  "verified_on": "2026-09-05",
+  "verification_timezone": "Asia/Amman",
+  "provenance": {
+    "root_referral": "AMERSA email to Rawafid on 2026-09-03 referred Substance Use & Addiction Journal and AMERSA Education as ongoing evidence sources",
+    "selection_rule": "Use recent AMERSA/SAj material only when it closes a documented content gap or materially strengthens an existing pathway",
+    "interpretation_rule": "Position statements may support organizational recommendations; qualitative and observational studies inform design but do not become universal clinical rules"
+  },
+  "sources": [
+    {
+      "id": "amersa-climate-position-2026",
+      "organization": "AMERSA",
+      "title": "The Health Impacts of Climate Change on People Who Use Alcohol and Other Drugs: Position Statement of AMERSA, Inc.",
+      "publication_year": 2026,
+      "publication_date": "2026-07-04",
+      "resource_type": "board-endorsed position statement",
+      "url": "https://journals.sagepub.com/doi/10.1177/29767342261461050",
+      "topics": ["climate-related-events", "disaster-preparedness", "continuity-of-treatment", "harm-reduction", "workforce-training"],
+      "evidence_use": "organizational preparedness and continuity principles",
+      "affected_routes": ["/addiction/professional-education/climate-disaster-continuity/"],
+      "next_review_on": "2026-12-05"
+    },
+    {
+      "id": "saj-stigma-identity-spectrum-2026",
+      "organization": "Substance Use & Addiction Journal / AMERSA",
+      "title": "Beyond Disorder: Stigma and Identity Across the Substance Use Health Spectrum in a Public Health Framework",
+      "publication_year": 2026,
+      "publication_date": "2026-09-02",
+      "resource_type": "qualitative original research",
+      "sample_note": "focus groups; n=18",
+      "url": "https://journals.sagepub.com/toc/SAJ/0/0",
+      "pubmed_id": "42684048",
+      "topics": ["stigma", "identity", "substance-use-health-spectrum", "early-intervention", "public-health-messaging"],
+      "evidence_use": "service and communication design; not diagnostic reclassification",
+      "affected_routes": ["/addiction/professional-education/stigma-identity/"],
+      "next_review_on": "2026-12-05"
+    },
+    {
+      "id": "saj-telehealth-intervention-stigma-2026",
+      "organization": "Substance Use & Addiction Journal / AMERSA",
+      "title": "Telehealth and Intervention Stigma: Patient Perspectives About Flexible Opioid Use Disorder Treatment Delivery",
+      "publication_year": 2026,
+      "publication_date": "2026-02-23",
+      "resource_type": "qualitative original research",
+      "sample_note": "interviews with 25 patients with OUD in Philadelphia",
+      "url": "https://journals.sagepub.com/doi/10.1177/29767342261419608",
+      "pubmed_id": "41728743",
+      "topics": ["telehealth", "opioid-use-disorder", "MOUD", "intervention-stigma", "patient-acceptability"],
+      "evidence_use": "patient-experience and service-design considerations",
+      "affected_routes": ["/addiction/professional-education/telehealth-oud-access/"],
+      "next_review_on": "2026-12-05"
+    },
+    {
+      "id": "saj-primary-care-patient-preferences-2026",
+      "organization": "Substance Use & Addiction Journal / AMERSA",
+      "title": "We Need More General Practitioners Trained in Addiction: Patient Perspectives on Substance Use Disorder Treatment in Primary Care",
+      "publication_year": 2026,
+      "publication_date": "2026-03-30",
+      "resource_type": "qualitative original research",
+      "sample_note": "15 adults receiving SUD care in a primary-care-based addiction clinic",
+      "url": "https://journals.sagepub.com/doi/10.1177/29767342261426173",
+      "topics": ["primary-care", "integrated-care", "patient-preferences", "clinician-competency", "peer-support", "care-navigation"],
+      "evidence_use": "service-model and workforce-design considerations",
+      "affected_routes": ["/addiction/professional-education/primary-care-integration/"],
+      "next_review_on": "2026-12-05"
+    },
+    {
+      "id": "saj-perinatal-tiered-framework-2026",
+      "organization": "Substance Use & Addiction Journal / AMERSA",
+      "title": "A Tiered Framework for Outpatient Perinatal Substance Use Disorder Services",
+      "publication_year": 2026,
+      "publication_date": "2026-05-19",
+      "resource_type": "care-integration framework",
+      "url": "https://journals.sagepub.com/doi/10.1177/29767342261448442",
+      "pubmed_id": "42157099",
+      "topics": ["pregnancy", "postpartum", "integrated-care", "team-scope", "systematic-communication", "care-coordination"],
+      "evidence_use": "quality-improvement and service-maturity framework",
+      "affected_routes": ["/addiction/professional-education/perinatal-care/", "/addiction/populations/pregnancy-postpartum/"],
+      "next_review_on": "2026-12-05"
+    },
+    {
+      "id": "amersa-conference-proceedings-2025-published-2026",
+      "organization": "AMERSA",
+      "title": "Building Stronger Communities Through Addiction Care Innovation, Research, Education, and Advocacy—Overview and Proceedings of the AMERSA 2025 Conference",
+      "publication_year": 2026,
+      "publication_date": "2026-03-04",
+      "resource_type": "conference overview and proceedings",
+      "url": "https://journals.sagepub.com/doi/10.1177/29767342261421786",
+      "topics": ["professional-education", "telehealth", "peer-support", "unhoused-populations", "overdose-prevention", "emerging-substances", "hospital-care", "MOUD"],
+      "evidence_use": "gap discovery and research surveillance; individual abstracts require separate appraisal before clinical use",
+      "affected_routes": ["/addiction/professional-education/", "/addiction/sources/amersa/"],
+      "next_review_on": "2026-12-05"
+    }
+  ],
+  "rules": {
+    "single_qualitative_study_is_not_guideline": true,
+    "conference_abstract_is_not_clinical_standard": true,
+    "position_statement_scope_must_be_declared": true,
+    "country_specific_rules_require_local_verification": true,
+    "no_public_dosing_extraction": true,
+    "no_endorsement_claim": true
+  }
+}
