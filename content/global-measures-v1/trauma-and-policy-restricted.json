@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "measures": [
+    {
+      "id": "pc-ptsd-5",
+      "name": "Primary Care PTSD Screen for DSM-5",
+      "type": "professional-screen",
+      "items": 5,
+      "score_range": [0,5],
+      "exposure_gate": true,
+      "no_exposure_score": 0,
+      "reference_period": "past month",
+      "general_cutpoint": 4,
+      "diagnostic_by_score_alone": false,
+      "rights": {
+        "status": "public-domain-not-copyrighted",
+        "source": "https://www.ptsd.va.gov/professional/assessment/screens/pc-ptsd.asp",
+        "intended_users": "qualified health professionals and researchers"
+      },
+      "arabic": {
+        "official_va_translation": false,
+        "rawafid_status": "independent-operational-Arabic-rendering",
+        "validation_evidence": "not established in this release"
+      },
+      "rawafid_route": "/assessments/trauma-measures/pc-ptsd-5/"
+    },
+    {
+      "id": "pcl-5",
+      "name": "PTSD Checklist for DSM-5",
+      "type": "professional-screen-severity-monitoring",
+      "items": 20,
+      "item_range": [0,4],
+      "score_range": [0,80],
+      "reference_period": "past month",
+      "clusters": {"B": [1,5], "C": [6,7], "D": [8,14], "E": [15,20]},
+      "general_research_cutpoint_range": [31,33],
+      "provisional_diagnostic_algorithm_in_rawafid_ui": false,
+      "diagnostic_by_score_alone": false,
+      "rights": {
+        "status": "public-domain-not-copyrighted",
+        "source": "https://www.ptsd.va.gov/professional/assessment/adult-sr/ptsd-checklist.asp",
+        "intended_users": "qualified health professionals and researchers"
+      },
+      "arabic": {
+        "official_va_translation": false,
+        "rawafid_status": "independent-operational-Arabic-rendering",
+        "evidence": [
+          {"pmid": "42314405", "year": 2026, "sample_n": 1140, "auc": 0.658, "finding": "31-33 high sensitivity but low specificity; recommend screening/monitoring with clinical follow-up"},
+          {"pmid": "36451716", "year": 2022, "sample_n": 300, "cronbach_alpha": 0.98, "population": "Tunisian soldiers"},
+          {"pmid": "39984301", "year": 2025, "sample_n": 370, "population": "Algerian cancer patients"}
+        ]
+      },
+      "rawafid_route": "/assessments/trauma-measures/pcl-5/"
+    },
+    {
+      "id": "dass-21",
+      "name": "Depression Anxiety Stress Scales-21",
+      "type": "official-link-only-on-public-web",
+      "rights": {
+        "copyright_status": "public-domain",
+        "questionnaire_copying": "permitted without restriction subject to official conditions",
+        "open_public_web_or_app_administration": false,
+        "restricted_defined_group_administration": true,
+        "official_policy": "https://dass.psy.unsw.edu.au/DASSFAQ.htm"
+      },
+      "arabic": {
+        "official_translation_available": true,
+        "translator": "Taouk Moussa, Lovibond and Laube",
+        "official_page": "https://dass.psy.unsw.edu.au/Arabic/Arabic.htm"
+      },
+      "rawafid_public_action": "link-to-official-Arabic-form-only"
+    }
+  ]
+}
