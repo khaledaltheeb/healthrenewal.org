@@ -4,12 +4,16 @@ on:
   pull_request:
     paths:
       - "assets/brand/rawafid-brand.js"
+      - "scripts/rawafid_brand_runtime.js"
+      - "scripts/apply_rawafid_brand.py"
       - "scripts/verify_webmcp.py"
       - ".github/workflows/webmcp-guard.yml"
   push:
     branches: [main]
     paths:
       - "assets/brand/rawafid-brand.js"
+      - "scripts/rawafid_brand_runtime.js"
+      - "scripts/apply_rawafid_brand.py"
       - "scripts/verify_webmcp.py"
       - ".github/workflows/webmcp-guard.yml"
 
@@ -22,6 +26,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check JavaScript syntax
-        run: node --check assets/brand/rawafid-brand.js
+        run: |
+          node --check assets/brand/rawafid-brand.js
+          node --check scripts/rawafid_brand_runtime.js
+      - name: Check generator syntax
+        run: python -m py_compile scripts/apply_rawafid_brand.py scripts/verify_webmcp.py
       - name: Verify WebMCP contract
         run: python scripts/verify_webmcp.py
