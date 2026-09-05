@@ -74,15 +74,14 @@
       const looksLikeSearch=/search|query|find|lookup|بحث|ابحث/.test(signature)||Boolean(form.querySelector('input[name="q"],input[name="query"],input[name="search"],input[type="search"]'));
       if(!looksLikeSearch) continue;
       const fields=Array.from(form.elements||[]).filter((field)=>field&&/^(INPUT|SELECT|TEXTAREA)$/.test(field.tagName)&&!['submit','button','reset'].includes(field.type));
-      if(fields.some((field)=>field.required&&!field.name)) continue;
+      if(fields.some((field)=>!field.name)) continue;
       annotatedSearchForms+=1;
       form.setAttribute('toolname',`rawafid_search_form_${annotatedSearchForms}`);
       form.setAttribute('tooldescription','يجهّز نموذج البحث في منصة روافد للوصول إلى محتوى معرفي ذي صلة. يتطلب الإرسال النهائي من المستخدم ما لم يكن النموذج نفسه يقرر خلاف ذلك.');
       for(const field of fields){
-        if(!field.name||field.hasAttribute('toolparamdescription')) continue;
-        const label=field.labels?.[0];
-        if(label) continue;
-        const description=field.getAttribute('aria-label')||field.getAttribute('placeholder')||`قيمة الحقل ${field.name}`;
+        if(field.hasAttribute('toolparamdescription')) continue;
+        const labelText=field.labels?.[0]?.textContent?.trim()||'';
+        const description=field.getAttribute('aria-label')||labelText||field.getAttribute('placeholder')||`قيمة الحقل ${field.name}`;
         field.setAttribute('toolparamdescription',description);
       }
     }
