@@ -39,5 +39,5 @@ class WellbeingSomaticWave6Test(unittest.TestCase):
   self.assertTrue(records['phq-15']['menstrual_item']['may_be_not_applicable'])
   self.assertEqual(records['who-5']['rights']['status'],'CC-BY-NC-SA-3.0-IGO');self.assertTrue(records['who-5']['rights']['share_alike_required']);self.assertFalse(records['who-5']['rights']['commercial_use']);self.assertEqual(records['who-5']['direction'],'higher-is-better');self.assertEqual(records['who-5']['percentage_score_formula'],'raw * 4')
  def test_phq4_page_does_not_claim_no_copyright(self):
-  self.assertNotIn('Copyright: No',self.phq4);self.assertIn('© Pfizer',self.phq4);self.assertIn('لا حاجة إلى إذن',self.phq4)
+  self.assertNotIn('Copyright: No',self.phq4);self.assertIn('© Pfizer',self.phq4);self.assertIn('عدم الحاجة إلى إذن',self.phq4)
 if __name__=='__main__':unittest.main()
