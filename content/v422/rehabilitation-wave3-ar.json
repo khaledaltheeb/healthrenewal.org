@@ -1,0 +1,29 @@
+{
+  "version": "422.0",
+  "reviewed_at": "2026-09-06",
+  "method": "Original Arabic synthesis. AAPM&R KnowledgeNOW is used as a specialty coverage map and clinical orientation source; claims are triangulated with WHO and NICE guidance where available.",
+  "rights_note": "Do not republish AAPM&R patient handouts, figures, tables, or copyrighted text. Link, cite, and independently synthesize.",
+  "sources": [
+    {"id":"aapmr-cancer-program-2025","name":"Development of a Comprehensive Cancer Rehabilitation Program","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/development-of-a-comprehensive-cancer-rehabilitation-program/","type":"specialty_reference","scope":"cancer rehabilitation continuum and program design"},
+    {"id":"aapmr-cancer-function-2023","name":"Functional Measures in Cancer Rehabilitation","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/functional-outcomes-after-rehabilitation-of-cancers/","type":"specialty_reference","scope":"functional outcome measurement in cancer rehabilitation"},
+    {"id":"who-pir-cancer-2023","name":"Package of interventions for rehabilitation: module 7: malignant neoplasm","organization":"World Health Organization","url":"https://www.who.int/publications/i/item/9789240071254","type":"international_guidance","scope":"essential cancer rehabilitation interventions, workforce and equipment"},
+    {"id":"aapmr-geriatric-frailty-2025","name":"Geriatric Frailty","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/geriatric-frailty/","type":"specialty_reference","scope":"frailty assessment and rehabilitation management"},
+    {"id":"nice-falls-ng249-2025","name":"Falls: assessment and prevention in older people and in people 50 and over at higher risk","organization":"NICE","url":"https://www.nice.org.uk/guidance/ng249","type":"clinical_guideline","scope":"falls assessment and prevention"},
+    {"id":"who-pir-msk-2023","name":"Package of interventions for rehabilitation: module 2: musculoskeletal conditions","organization":"World Health Organization","url":"https://www.who.int/publications/i/item/9789240071100","type":"international_guidance","scope":"sarcopenia, fractures and musculoskeletal rehabilitation"},
+    {"id":"aapmr-pediatric-rehabilitation","name":"Pediatric Rehabilitation","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/pediatric-rehabilitation/","type":"specialty_reference","scope":"pediatric rehabilitation topic map and specialty orientation"},
+    {"id":"who-pir-neuro-2023","name":"Package of interventions for rehabilitation: module 3: neurological conditions","organization":"World Health Organization","url":"https://www.who.int/publications/i/item/9789240071131","type":"international_guidance","scope":"neurological rehabilitation including cerebral palsy, TBI and spinal cord injury"},
+    {"id":"who-pir-neurodevelopment-2023","name":"Package of interventions for rehabilitation: module 5: neurodevelopmental disorders","organization":"World Health Organization","url":"https://www.who.int/publications/i/item/9789240071193","type":"international_guidance","scope":"rehabilitation for autism spectrum disorders and disorders of intellectual development"},
+    {"id":"aapmr-critical-care-2024","name":"Rehabilitation of Patients in Critical Care Settings","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/rehabilitation-of-patients-in-critical-care-settings/","type":"specialty_reference","scope":"ICU-acquired weakness, early rehabilitation and post-critical illness recovery"},
+    {"id":"nice-critical-illness-cg83","name":"Rehabilitation after critical illness in adults","organization":"NICE","url":"https://www.nice.org.uk/guidance/cg83","type":"clinical_guideline","scope":"early rehabilitation, transition and follow-up after critical illness"},
+    {"id":"nice-critical-illness-qs158","name":"Rehabilitation after critical illness in adults: quality standard","organization":"NICE","url":"https://www.nice.org.uk/guidance/qs158","type":"quality_standard","scope":"quality requirements and follow-up after critical care"},
+    {"id":"aapmr-burn-rehabilitation-2024","name":"Burn Rehabilitation","organization":"AAPM&R PM&R KnowledgeNow","url":"https://now.aapmr.org/burn-rehabilitation/","type":"specialty_reference","scope":"burn rehabilitation assessment, complications and treatment"},
+    {"id":"who-burn-mci-rehab-2026","name":"Rehabilitation and Burn Mass Casualty Incidents","organization":"World Health Organization","url":"https://www.who.int/publications/m/item/rehabilitation-and-burn-mass-casualty-incidents","type":"international_brief","scope":"early and long-term rehabilitation in burn mass-casualty response"}
+  ],
+  "topics": [
+    {"slug":"cancer-rehabilitation","title":"إعادة التأهيل في السرطان: من التشخيص إلى النجاة والرعاية التلطيفية","cluster":"cancer","source_ids":["aapmr-cancer-program-2025","aapmr-cancer-function-2023","who-pir-cancer-2023"]},
+    {"slug":"geriatric-frailty-rehabilitation","title":"تأهيل كبار السن والهشاشة والسقوط","cluster":"geriatrics","source_ids":["aapmr-geriatric-frailty-2025","nice-falls-ng249-2025","who-pir-msk-2023"]},
+    {"slug":"pediatric-rehabilitation","title":"تأهيل الأطفال: النمو والوظيفة والمشاركة والأسرة","cluster":"pediatrics","source_ids":["aapmr-pediatric-rehabilitation","who-pir-neuro-2023","who-pir-neurodevelopment-2023"]},
+    {"slug":"post-icu-rehabilitation","title":"إعادة التأهيل بعد العناية المركزة والمرض الحرج","cluster":"critical-care","source_ids":["aapmr-critical-care-2024","nice-critical-illness-cg83","nice-critical-illness-qs158"]},
+    {"slug":"burn-rehabilitation","title":"إعادة التأهيل بعد الحروق","cluster":"burns","source_ids":["aapmr-burn-rehabilitation-2024","who-burn-mci-rehab-2026"]}
+  ]
+}

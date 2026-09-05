@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://healthrenewal.org/sectors/rehabilitation/</loc><lastmod>2026-09-05</lastmod><changefreq>weekly</changefreq><priority>0.95</priority></url>
+  <url><loc>https://healthrenewal.org/sectors/rehabilitation/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.95</priority></url>
   <url><loc>https://healthrenewal.org/sectors/rehabilitation/professions/physiatry/</loc><lastmod>2026-09-05</lastmod><changefreq>monthly</changefreq><priority>0.88</priority></url>
   <url><loc>https://healthrenewal.org/sectors/rehabilitation/professions/rehabilitation-team/</loc><lastmod>2026-09-05</lastmod><changefreq>monthly</changefreq><priority>0.88</priority></url>
   <url><loc>https://healthrenewal.org/sectors/rehabilitation/cardiopulmonary/cardiac-rehabilitation/</loc><lastmod>2026-09-05</lastmod><changefreq>monthly</changefreq><priority>0.90</priority></url>
@@ -14,4 +14,9 @@
   <url><loc>https://healthrenewal.org/sectors/rehabilitation/limb-loss/prosthetic-rehabilitation/</loc><lastmod>2026-09-05</lastmod><changefreq>monthly</changefreq><priority>0.90</priority></url>
   <url><loc>https://healthrenewal.org/sectors/rehabilitation/musculoskeletal/low-back-pain-rehabilitation/</loc><lastmod>2026-09-05</lastmod><changefreq>monthly</changefreq><priority>0.90</priority></url>
   <url><loc>https://healthrenewal.org/sectors/rehabilitation/pain/chronic-primary-pain-rehabilitation/</loc><lastmod>2026-09-05</lastmod><changefreq>monthly</changefreq><priority>0.90</priority></url>
+  <url><loc>https://healthrenewal.org/sectors/rehabilitation/cancer/cancer-rehabilitation/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.92</priority></url>
+  <url><loc>https://healthrenewal.org/sectors/rehabilitation/geriatrics/geriatric-frailty-rehabilitation/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.91</priority></url>
+  <url><loc>https://healthrenewal.org/sectors/rehabilitation/pediatrics/pediatric-rehabilitation/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.92</priority></url>
+  <url><loc>https://healthrenewal.org/sectors/rehabilitation/critical-care/post-icu-rehabilitation/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.91</priority></url>
+  <url><loc>https://healthrenewal.org/sectors/rehabilitation/burns/burn-rehabilitation/</loc><lastmod>2026-09-06</lastmod><changefreq>monthly</changefreq><priority>0.90</priority></url>
 </urlset>
