@@ -1,0 +1,29 @@
+{
+  "version": "423.0",
+  "reviewed_at": "2026-09-06",
+  "method": "Original Arabic patient-facing synthesis. AAPM&R Conditions & Treatments identifies common patient information needs; each guide is independently written and triangulated with current clinical guidance where available.",
+  "rights_note": "No AAPM&R patient PDF, wording, figure, table, or translation is reproduced. External resources are linked and attributed.",
+  "sources": [
+    {"id":"aapmr-conditions-treatments","name":"Conditions & Treatments","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments","type":"patient_resource_index","scope":"patient information topic map"},
+    {"id":"aapmr-knee-oa","name":"Knee Osteoarthritis","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/musculoskeletal-medicine/knee-osteoarthritis","type":"patient_resource","scope":"knee osteoarthritis patient orientation"},
+    {"id":"nice-oa-ng226","name":"Osteoarthritis in over 16s: diagnosis and management","organization":"NICE","url":"https://www.nice.org.uk/guidance/ng226","type":"clinical_guideline","scope":"therapeutic exercise, education and weight management in osteoarthritis"},
+    {"id":"aapmr-hip-fracture","name":"Hip Fracture","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/medical-rehabilitation/hip-fracture","type":"patient_resource","scope":"hip fracture rehabilitation orientation"},
+    {"id":"nice-hip-fracture-cg124","name":"Hip fracture: management","organization":"NICE","url":"https://www.nice.org.uk/guidance/cg124","type":"clinical_guideline","scope":"early mobilisation and multidisciplinary hip fracture care"},
+    {"id":"aapmr-lymphedema","name":"Lymphedema","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/medical-rehabilitation/lymphedema","type":"patient_resource","scope":"lymphedema rehabilitation and self-management"},
+    {"id":"isl-lymphedema-2023","name":"The Diagnosis and Treatment of Peripheral Lymphedema: 2023 Consensus Document","organization":"International Society of Lymphology","url":"https://pubmed.ncbi.nlm.nih.gov/39207406/","type":"consensus_document","scope":"peripheral lymphedema diagnosis and management"},
+    {"id":"aapmr-carpal-tunnel","name":"Carpal Tunnel Syndrome","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/musculoskeletal-medicine/carpal-tunnel-syndrome","type":"patient_resource","scope":"carpal tunnel patient orientation"},
+    {"id":"aaos-carpal-tunnel-2024","name":"Clinical Practice Guideline on Carpal Tunnel Syndrome","organization":"AAOS","url":"https://www.aaos.org/quality/quality-programs/carpal-tunnel-syndrome/","type":"clinical_guideline","scope":"adult carpal tunnel diagnosis and treatment"},
+    {"id":"aapmr-sports-concussion","name":"Sports Concussion","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/musculoskeletal-medicine/sports-concussion","type":"patient_resource","scope":"sports concussion patient orientation"},
+    {"id":"cdc-return-to-sports-2025","name":"Returning to Sports","organization":"CDC HEADS UP","url":"https://www.cdc.gov/heads-up/guidelines/returning-to-sports.html","type":"public_health_guidance","scope":"graduated return-to-sport after concussion"},
+    {"id":"aapmr-acl","name":"ACL Injury and Rehabilitation","organization":"AAPM&R","url":"https://www.aapmr.org/about-physiatry/conditions-treatments/musculoskeletal-medicine/acl-injury-and-rehabilitation","type":"patient_resource","scope":"ACL injury rehabilitation orientation"},
+    {"id":"aaos-acl-2022","name":"Clinical Practice Guideline for Management of Anterior Cruciate Ligament Injuries","organization":"AAOS","url":"https://www.aaos.org/quality/quality-programs/anterior-cruciate-ligament-injuries/","type":"clinical_guideline","scope":"ACL injury management and return-to-sport considerations"}
+  ],
+  "topics": [
+    {"slug":"knee-osteoarthritis","title":"خشونة الركبة: دليل المريض للتأهيل والحركة","source_ids":["aapmr-knee-oa","nice-oa-ng226"]},
+    {"slug":"hip-fracture","title":"كسر الورك: من الجراحة إلى استعادة المشي والاستقلال","source_ids":["aapmr-hip-fracture","nice-hip-fracture-cg124"]},
+    {"slug":"lymphedema","title":"الوذمة اللمفية: الحركة والضغط والعناية الذاتية","source_ids":["aapmr-lymphedema","isl-lymphedema-2023"]},
+    {"slug":"carpal-tunnel","title":"متلازمة النفق الرسغي: متى نعدل النشاط ومتى نحتاج تقييمًا؟","source_ids":["aapmr-carpal-tunnel","aaos-carpal-tunnel-2024"]},
+    {"slug":"sports-concussion","title":"الارتجاج الرياضي: العودة الآمنة للدراسة والرياضة","source_ids":["aapmr-sports-concussion","cdc-return-to-sports-2025"]},
+    {"slug":"acl-injury","title":"إصابة الرباط الصليبي الأمامي: التأهيل والعودة للنشاط","source_ids":["aapmr-acl","aaos-acl-2022"]}
+  ]
+}
