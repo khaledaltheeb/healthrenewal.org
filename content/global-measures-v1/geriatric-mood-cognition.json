@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "measures": [
+    {
+      "id": "gds-15",
+      "name": "Geriatric Depression Scale - Short Form",
+      "type": "older-adult-depression-screen",
+      "items": 15,
+      "response_type": "yes-no",
+      "score_range": [0,15],
+      "missing_policy": "Rawafid does not calculate a score unless all 15 items are answered.",
+      "developer_reference": {"score_above": 5, "meaning": "Stanford developer page says patients above 5 should be interviewed carefully; not a diagnosis."},
+      "arabic_validation_reference": {"cutoff": "7/8", "pmid": "18289453", "sample_n": 121, "cronbach_alpha": 0.88, "population": "community-dwelling older adults and primary care patients aged 60+ without dementia"},
+      "diagnostic_by_score_alone": false,
+      "cognitive_screen": false,
+      "rights": {"status": "public-domain", "source": "https://stanford.edu/~yesavage/GDS.html"},
+      "rawafid_arabic_status": "independent-operational-Arabic-rendering",
+      "rawafid_route": "/assessments/geriatric-measures/gds-15/"
+    },
+    {
+      "id": "mini-cog",
+      "name": "Mini-Cog",
+      "type": "professional-cognitive-screen-official-form-link",
+      "score_range": [0,5],
+      "rawafid_public_form": false,
+      "rights": {
+        "clinical_educational_noncommercial_use_without_permission": true,
+        "commercial_use_requires_license": true,
+        "modification_without_permission": false,
+        "official_terms": "https://mini-cog.com/contact/"
+      },
+      "intended_use": "trained care professionals; screening to identify need for further cognitive assessment",
+      "official_arabic_form": "https://mini-cog.com/wp-content/uploads/2022/09/ARABIC-Standardized-Mini-Cog-in-Arabic.pdf",
+      "official_languages_page": "https://mini-cog.com/mini-cog-in-other-languages/",
+      "arabic_evidence": {"pmid": "28352179", "sample_n": 134, "population": "Arab older adults in Qatar", "finding": "Arabic Mini-Cog and MMSE-2 culturally adapted and validated against clinical dementia diagnosis"},
+      "rawafid_action": "official-Arabic-form-link-only-no-modified-copy"
+    }
+  ]
+}
