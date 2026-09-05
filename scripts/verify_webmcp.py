@@ -28,8 +28,15 @@ def main() -> None:
     if "RUNTIME_SOURCE" not in generator or "rawafid_brand_runtime.js" not in generator:
         fail("brand generator is not pinned to the canonical WebMCP runtime source")
 
+    # Accept direct document.modelContext feature detection or the exact local
+    # document alias used by the runtime. This checks the behavior contract
+    # without coupling the guard to one equivalent JavaScript spelling.
+    direct_model_context = "document.modelContext" in text
+    aliased_model_context = "const d=document" in text and "d.modelContext" in text
+    if not (direct_model_context or aliased_model_context):
+        fail("model context feature detection marker missing")
+
     required_literals = {
-        "model context feature detection": "document.modelContext",
         "imperative registration": "registerTool",
         "declarative form name": "toolname",
         "declarative form description": "tooldescription",
