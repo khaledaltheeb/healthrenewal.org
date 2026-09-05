@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "rights_policy": "Use is free and no formal permission or approval is required. Posted translations, including Arabic, are available for unrestricted use with required copyright acknowledgment and citation. New translations are permitted without prior approval, with recommended translation/adaptation standards.",
+  "required_citation": "Kessler RC, Barker PR, Colpe LJ, et al. Screening for serious mental illness in the general population. Archives of General Psychiatry. 2003;60(2):184-189.",
+  "copyright": "Copyright © Ronald C. Kessler, PhD. All rights reserved.",
+  "official_source": "https://rckessler.scholars.harvard.edu/k10-and-k6-scales",
+  "measures": [
+    {
+      "id": "k6",
+      "name": "Kessler Psychological Distress Scale-6",
+      "type": "nonspecific-psychological-distress",
+      "reference_period": "past 30 days",
+      "items": 6,
+      "item_range": [0,4],
+      "score_range": [0,24],
+      "direction": "higher-is-more-distress",
+      "simple_scoring": "sum six complete items; all-the-time=4 to none-of-the-time=0",
+      "missing_policy": "Rawafid does not calculate a score when any of the six core items is missing because the developer does not prescribe a single missing-value rule.",
+      "us_population_reference": {"threshold": 13, "meaning": "published quick reference for serious mental illness prevalence screening in US population; not a universal or Arabic diagnostic cutoff"},
+      "diagnostic_by_score_alone": false,
+      "official_arabic_pdf": "https://rckessler.scholars.harvard.edu/sites/g/files/omnuum8166/files/2026-03/Arabic_K6.pdf",
+      "rawafid_arabic_status": "independent-operational-Arabic-rendering-with-official-Arabic-source-linked",
+      "arabic_evidence": {"pmid": "29078774", "sample_n": 234, "population": "Palestinian social workers", "cronbach_alpha": 0.81, "finding": "two-factor K6 solution showed best fit in that sample"},
+      "rawafid_route": "/assessments/distress-screeners/k6/"
+    },
+    {
+      "id": "k10",
+      "name": "Kessler Psychological Distress Scale-10",
+      "type": "nonspecific-psychological-distress",
+      "reference_period": "past 30 days",
+      "items": 10,
+      "item_range": [0,4],
+      "score_range": [0,40],
+      "direction": "higher-is-more-distress",
+      "simple_scoring": "sum ten complete items; all-the-time=4 to none-of-the-time=0",
+      "alternate_scoring_note": "Some Australian implementations score responses 1-5, yielding 10-50. Rawafid uses the developer's 0-4 simple scoring and does not mix thresholds across systems.",
+      "missing_policy": "Rawafid does not calculate a score when any of the ten core items is missing.",
+      "universal_cutoff": false,
+      "diagnostic_by_score_alone": false,
+      "official_arabic_pdf": "https://rckessler.scholars.harvard.edu/sites/g/files/omnuum8166/files/2026-03/Arabic_K10.pdf",
+      "rawafid_arabic_status": "independent-operational-Arabic-rendering-with-official-Arabic-source-linked",
+      "arabic_evidence": {"pmid": "29078774", "sample_n": 234, "population": "Palestinian social workers", "cronbach_alpha": 0.88},
+      "rawafid_route": "/assessments/distress-screeners/k10/"
+    }
+  ]
+}
