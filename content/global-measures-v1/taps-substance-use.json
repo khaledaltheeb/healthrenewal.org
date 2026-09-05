@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "id": "taps",
+  "name": "Tobacco, Alcohol, Prescription medication, and other Substance use Tool",
+  "acronym": "TAPS",
+  "developer": "National Institute on Drug Abuse Clinical Trials Network",
+  "population": "adults",
+  "rights": {
+    "status": "public-domain",
+    "evidence": "https://integrationacademy.ahrq.gov/products/playbooks/substance-use-screening/implementing/tools-resources/nida-taps"
+  },
+  "official_interactive_source": "https://nida.nih.gov/taps2/",
+  "arabic_status": "Rawafid independent operational Arabic rendering; no Arabic psychometric validation is claimed in this release",
+  "part1": {
+    "reference_period": "past 12 months",
+    "domains": ["tobacco-nicotine","alcohol-above-threshold","nonmedical-prescription-use","other-illicit-or-recreational-substances"],
+    "response_options": ["never","less-than-monthly","monthly","weekly","daily-or-almost-daily"],
+    "routing_rule": "Any response other than never routes that domain to TAPS-2",
+    "overall_numeric_score": false,
+    "alcohol_threshold": {
+      "original_form": "5+ drinks for men / 4+ drinks for women in one day",
+      "rawafid_implementation": "examiner explicitly records which 4+ or 5+ threshold was used; threshold must remain consistent for longitudinal comparisons"
+    }
+  },
+  "part2": {
+    "reference_period": "past 3 months unless the item is explicitly framed as habitual/concern",
+    "overall_numeric_score": false,
+    "substance_specific_scoring": "Each yes response contributes one point within that substance category only",
+    "domains": {
+      "tobacco": {"items": 3, "range": [0,3]},
+      "alcohol": {"items": 4, "range": [0,4]},
+      "cannabis": {"items": 3, "range": [0,3]},
+      "illicit-stimulants": {"items": 3, "range": [0,3]},
+      "heroin": {"items": 3, "range": [0,3]},
+      "prescription-opioids": {"items": 3, "range": [0,3]},
+      "sedatives": {"items": 3, "range": [0,3]},
+      "prescription-stimulants": {"items": 3, "range": [0,3]},
+      "other-drugs": {"items": 1, "range": [0,1]}
+    },
+    "interpretation": {
+      "score_ge_1": "Validation literature found high sensitivity for problem use for most substances at >=1; performance varies by substance",
+      "score_ge_2": "For several substance classes, >=2 improves specificity for substance use disorder but reduces sensitivity",
+      "diagnostic_by_score_alone": false,
+      "cross_substance_total_allowed": false
+    },
+    "source": "https://www.ncbi.nlm.nih.gov/books/NBK574915/"
+  },
+  "safety": [
+    "TAPS does not assess acute intoxication severity",
+    "TAPS does not assess withdrawal severity",
+    "TAPS does not by itself assess overdose risk",
+    "Do not recommend abrupt discontinuation of prescribed sedatives, opioids, or other medications from a TAPS score alone"
+  ],
+  "rawafid_routes": {
+    "hub": "/assessments/substance-use-screeners/",
+    "part1": "/assessments/substance-use-screeners/taps-1/",
+    "part2": "/assessments/substance-use-screeners/taps-2/"
+  }
+}

@@ -1,0 +1,13 @@
+(()=>{
+'use strict';
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const labels={never:'أبدًا','less-monthly':'أقل من شهريًا',monthly:'شهريًا',weekly:'أسبوعيًا',daily:'يوميًا أو شبه يومي'};
+const domains={tobacco:'التبغ/النيكوتين',alcohol:'الكحول فوق العتبة',prescription:'الاستخدام غير الطبي لأدوية موصوفة',other:'مواد أخرى'};
+function wireA11y(){$$('#taps1-sheet tbody tr').forEach((row,i)=>{const item=(row.querySelector('td')?.textContent||`البند ${i+1}`).trim();$$('input[type="radio"]',row).forEach(input=>input.setAttribute('aria-label',`${item} — ${labels[input.value]||input.value}`))})}
+function selected(n){return $(`input[name="t${n}"]:checked`)?.value??null}
+function updateThreshold(){const v=$('#alcohol-threshold').value;$('#alcohol-threshold-text').textContent=v?`العتبة المسجلة: ${v}+ مشروبات في يوم واحد.`:'اختر العتبة أولًا.';calc()}
+function calc(){const vals=[1,2,3,4].map(selected),answered=vals.filter(v=>v!==null).length,threshold=$('#alcohol-threshold').value;if(answered<4||!threshold){$('#taps1-status').textContent='غير مكتمل';$('#taps1-route').textContent=`أُجيب عن ${answered}/4 بنود${threshold?'':'؛ عتبة الكحول غير محددة'}.`;$('#taps1-positive').hidden=true;return}const positives=[];$$('#taps1-sheet tbody tr').forEach((row,i)=>{if(vals[i]!=='never')positives.push(row.dataset.domain)});if(!positives.length){$('#taps1-status').textContent='لا إحالة تلقائية';$('#taps1-route').textContent='جميع المجالات «أبدًا». لا توجد إحالة تلقائية إلى TAPS‑2 من هذا الفحص.';$('#taps1-positive').hidden=true;return}$('#taps1-status').textContent=`${positives.length} مجال/مجالات إيجابية`;$('#taps1-route').textContent='أي استخدام غير «أبدًا» يحتاج متابعة في TAPS‑2.';$('#taps1-positive').hidden=false;const list=$('#taps1-positive-list');list.replaceChildren(...positives.map(key=>{const li=document.createElement('li');li.textContent=domains[key]||key;return li}));$('#taps1-live').textContent='يوجد مجال واحد أو أكثر يحتاج متابعة في TAPS‑2.'}
+wireA11y();$$('#taps1-sheet input[type="radio"]').forEach(el=>el.addEventListener('change',calc));$('#alcohol-threshold').addEventListener('change',updateThreshold);
+$('#taps1-clear')?.addEventListener('click',()=>{$$('#taps1-sheet input').forEach(el=>{if(el.type==='radio')el.checked=false;else el.value=''});$$('#taps1-sheet textarea').forEach(el=>el.value='');$('#alcohol-threshold').selectedIndex=0;updateThreshold()});
+$('#taps1-print')?.addEventListener('click',()=>window.print());wireA11y();updateThreshold();
+})();
