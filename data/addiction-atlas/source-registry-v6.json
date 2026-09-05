@@ -1,0 +1,55 @@
+{
+  "schema_version": "rawafid-addiction-atlas-source-registry-v3",
+  "registry_shard": "atlas-wave6-emerging-nootropics",
+  "updated_on": "2026-09-05",
+  "sources": [
+    {
+      "id": "saj-nootropics-knowledge-2026",
+      "organization": "Substance Use & Addiction Journal / AMERSA",
+      "title": "Addiction Specialists’ Knowledge About and Assessment Practices for Kratom, Phenibut, and Tianeptine",
+      "publication_year": 2026,
+      "data_years": [2026],
+      "source_type": "cross-sectional clinician survey",
+      "geography": "United States / national addiction conference sample",
+      "url": "https://journals.sagepub.com/doi/10.1177/29767342261461089",
+      "verified_on": "2026-09-05",
+      "notes_ar": "تستخدم الدراسة لإثبات وجود فجوة معرفة مهنية وضرورة السؤال عن هذه المواد، لا لتقدير السمية أو الانتشار السكاني أو وضع بروتوكول علاجي."
+    },
+    {
+      "id": "phenibut-withdrawal-systematic-review-2023",
+      "organization": "Clinical Toxicology / PubMed",
+      "title": "A systematic review of phenibut withdrawal focusing on complications, therapeutic approaches, and single substance versus polysubstance withdrawal",
+      "publication_year": 2023,
+      "data_years": [],
+      "source_type": "systematic review of case reports and conference cases",
+      "geography": "published human case literature",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38112312/",
+      "verified_on": "2026-09-05",
+      "notes_ar": "يوثق أن انسحاب الفينيبوت قد يكون شديداً ويشمل الهذيان والهلوسة والاختلاجات والدخول للعناية؛ قاعدة الأدلة حالات منشورة وليست تجارب مقارنة."
+    },
+    {
+      "id": "phenibut-toxicity-systematic-review-2023",
+      "organization": "Journal of Addiction Medicine / PubMed",
+      "title": "Clinical Presentations and Treatment of Phenibut Toxicity and Withdrawal: A Systematic Literature Review",
+      "publication_year": 2023,
+      "data_years": [],
+      "source_type": "systematic literature review of toxicity and withdrawal cases",
+      "geography": "published human case literature",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37579098/",
+      "verified_on": "2026-09-05",
+      "notes_ar": "يراجع حالات سمية وانسحاب الفينيبوت ويظهر شيوع الحصول عليه عبر الإنترنت وكثرة الاستخدام المتزامن لمواد أخرى؛ لا يسمح بتعميم معدلات الحالات على السكان."
+    },
+    {
+      "id": "fda-tianeptine-serious-risks-2025",
+      "organization": "U.S. Food and Drug Administration (FDA)",
+      "title": "FDA warns consumers not to purchase or use any tianeptine product due to serious risks",
+      "publication_year": 2025,
+      "data_years": [2025],
+      "source_type": "national regulatory safety warning",
+      "geography": "United States",
+      "url": "https://www.fda.gov/drugs/drug-alerts-and-statements/fda-warns-consumers-not-purchase-or-use-any-tianeptine-product-due-serious-risks",
+      "verified_on": "2026-09-05",
+      "notes_ar": "مرجع سلامة أمريكي يوثق مخاطر خطرة ومنتجات غير معتمدة في الولايات المتحدة. الوضع القانوني أو العلاجي في دول أخرى يجب التحقق منه محلياً ولا يستنتج من FDA."
+    }
+  ]
+}
