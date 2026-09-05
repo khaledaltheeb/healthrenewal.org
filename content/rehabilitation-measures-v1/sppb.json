@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "id": "sppb",
+  "name": "Short Physical Performance Battery",
+  "acronym": "SPPB",
+  "domain": "lower-extremity-physical-performance",
+  "status": "full-work-sheet",
+  "full_reproduction": true,
+  "official_language_source": "English",
+  "arabic_status": "Rawafid operational Arabic rendering; not an independently psychometrically validated Arabic translation",
+  "rights": {
+    "nia_statement": "Available for use without permission or royalty fees",
+    "nih_copyright_field": "No",
+    "permission_required": false,
+    "royalty_required": false
+  },
+  "sources": [
+    "https://www.nia.nih.gov/research/resource/short-physical-performance-battery-sppb",
+    "https://www.nih.gov/node/20591",
+    "https://agingresearchbiobank.nia.nih.gov/studies/life/documents/download/Forms_Pilot/pL02_Short%20Physical%20Performance%20Battery.pdf/",
+    "https://www.sralab.org/rehabilitation-measures/short-physical-performance-battery"
+  ],
+  "score_range": [0, 12],
+  "components": {
+    "balance": {
+      "score_range": [0, 4],
+      "sequence": ["side-by-side", "semi-tandem", "tandem"],
+      "hierarchical": true
+    },
+    "gait": {
+      "score_range": [0, 4],
+      "courses_m": [4, 3],
+      "trials": 2,
+      "uses_fastest_valid_trial": true
+    },
+    "chair_stand": {
+      "score_range": [0, 4],
+      "repetitions": 5,
+      "arms_crossed": true,
+      "maximum_seconds": 60
+    }
+  },
+  "implementation_notes": [
+    "Scoring thresholds are reproduced from the NIA protocol and applied after rounding to two decimals where thresholds are expressed to hundredths.",
+    "The Arabic page paraphrases operational instructions rather than presenting itself as a validated Arabic translation study.",
+    "Domain scores are retained separately from the total because identical totals can reflect different performance profiles."
+  ]
+}
