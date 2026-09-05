@@ -14,6 +14,50 @@
   document.querySelectorAll('[data-site-name]').forEach((node)=>{node.textContent=brandName;});
   document.querySelectorAll('[data-site-tagline]').forEach((node)=>{node.textContent=tagline;});
 
+  // Give the homepage one real, useful declarative WebMCP form rather than a test-only form.
+  if((location.pathname==='/'||location.pathname==='/index.html')&&!document.getElementById('rawafid-agent-search')){
+    const actions=document.querySelector('main .hero .actions,main .actions,.hero .actions');
+    const host=actions?.parentElement||document.querySelector('main');
+    if(host){
+      const form=document.createElement('form');
+      form.id='rawafid-agent-search';
+      form.method='get';
+      form.action='/encyclopedia/';
+      form.setAttribute('role','search');
+      form.setAttribute('aria-label','البحث في موسوعة روافد');
+      form.setAttribute('toolname','rawafid_search_encyclopedia');
+      form.setAttribute('tooldescription','يبحث في موسوعة روافد عن مفهوم أو حالة أو موضوع باستخدام عبارة يحددها المستخدم أو الوكيل.');
+      form.style.cssText='display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin:1rem 0 0;max-width:760px';
+
+      const label=document.createElement('label');
+      label.htmlFor='rawafid-agent-search-q';
+      label.textContent='ابحث في الموسوعة';
+      label.style.cssText='font-weight:800;flex-basis:100%';
+
+      const input=document.createElement('input');
+      input.id='rawafid-agent-search-q';
+      input.name='q';
+      input.type='search';
+      input.required=true;
+      input.maxLength=160;
+      input.placeholder='مثال: القلق، ADHD، التربية الدامجة';
+      input.setAttribute('toolparamdescription','الكلمة أو العبارة المطلوب البحث عنها داخل موسوعة روافد.');
+      input.style.cssText='flex:1 1 260px;min-height:48px;padding:.65rem .8rem;border:1px solid #b8d6d3;border-radius:12px;font:inherit;background:#fff;color:inherit';
+
+      const button=document.createElement('button');
+      button.type='submit';
+      button.className='button secondary';
+      button.textContent='بحث';
+
+      form.append(label,input,button);
+      if(actions?.parentElement===host){
+        actions.insertAdjacentElement('afterend',form);
+      }else{
+        host.prepend(form);
+      }
+    }
+  }
+
   // Declarative WebMCP: annotate only clearly non-sensitive search forms.
   const searchForms=[...document.querySelectorAll('form')].filter((form)=>{
     if(form.hasAttribute('toolname')||form.hasAttribute('tooldescription')) return false;
