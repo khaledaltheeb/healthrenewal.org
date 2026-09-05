@@ -1,0 +1,94 @@
+{
+  "schema_version": "addiction-claim-source-map-amersa-wave2-v1",
+  "status": "reviewed-current-evidence",
+  "verified_on": "2026-09-05",
+  "registry": "data/addiction-evidence/source-registry-amersa-wave2-v1.json",
+  "claims": [
+    {
+      "id": "amersa-climate-continuity-is-addiction-safety",
+      "domain": "climate-disaster-continuity",
+      "statement_ar": "الأحداث المناخية والكوارث قد تعطل الوصول إلى علاج اضطرابات استخدام المواد وخدمات خفض الضرر؛ لذلك يجب إدخال استمرارية الرعاية ضمن التأهب المؤسسي.",
+      "source_ids": ["amersa-climate-position-2026"],
+      "confidence": "high-for-organizational-recommendation",
+      "evidence_type": "AMERSA board-endorsed position statement",
+      "publication_status": "approved-for-professional-education",
+      "affected_routes": ["/addiction/professional-education/climate-disaster-continuity/"],
+      "safety_flags": ["disaster-context", "local-emergency-rules", "local-medication-regulation"],
+      "verified_on": "2026-09-05",
+      "next_review_on": "2026-12-05"
+    },
+    {
+      "id": "amersa-climate-preparedness-needs-multidisciplinary-training",
+      "domain": "climate-disaster-continuity",
+      "statement_ar": "التأهب لخدمة الأشخاص الذين يستخدمون المواد أثناء الأحداث المناخية يحتاج تدريبًا متعدد التخصصات وتنسيقًا بين العلاج وخفض الضرر والخدمات الأساسية.",
+      "source_ids": ["amersa-climate-position-2026"],
+      "confidence": "high-for-organizational-recommendation",
+      "evidence_type": "AMERSA board-endorsed position statement",
+      "publication_status": "approved-for-professional-education",
+      "affected_routes": ["/addiction/professional-education/climate-disaster-continuity/", "/addiction/professional-education/"],
+      "safety_flags": ["service-design", "local-adaptation"],
+      "verified_on": "2026-09-05",
+      "next_review_on": "2026-12-05"
+    },
+    {
+      "id": "saj-spectrum-can-support-earlier-nonstigmatizing-engagement",
+      "domain": "stigma-identity",
+      "statement_ar": "عرض صحة استخدام المواد على طيف قد يساعد في تصميم رسائل تدخل مبكر أقل وصمًا بدل حصر الحديث في ثنائية وجود الاضطراب أو غيابه، مع بقاء التشخيص السريري منفصلًا.",
+      "source_ids": ["saj-stigma-identity-spectrum-2026"],
+      "confidence": "moderate",
+      "evidence_type": "qualitative focus-group study",
+      "publication_status": "approved-for-service-and-communication-design",
+      "affected_routes": ["/addiction/professional-education/stigma-identity/"],
+      "safety_flags": ["qualitative-evidence", "not-diagnostic-reclassification"],
+      "verified_on": "2026-09-05",
+      "next_review_on": "2026-12-05"
+    },
+    {
+      "id": "saj-telehealth-acceptability-and-intervention-stigma-matter",
+      "domain": "telehealth-oud",
+      "statement_ar": "مرونة العلاج عن بعد قد تخفف بعض عوائق الوصول إلى علاج اضطراب استخدام الأفيونات، لكن قبول المريض ووصمة التدخل والخصوصية والجاهزية الرقمية قد تؤثر في الانخراط.",
+      "source_ids": ["saj-telehealth-intervention-stigma-2026"],
+      "confidence": "moderate",
+      "evidence_type": "qualitative interview study",
+      "publication_status": "approved-for-service-design",
+      "affected_routes": ["/addiction/professional-education/telehealth-oud-access/"],
+      "safety_flags": ["qualitative-evidence", "local-telehealth-regulation", "emergency-escalation"],
+      "verified_on": "2026-09-05",
+      "next_review_on": "2026-12-05"
+    },
+    {
+      "id": "saj-primary-care-integration-needs-competency-and-support",
+      "domain": "primary-care-integration",
+      "statement_ar": "دمج علاج اضطرابات استخدام المواد في الرعاية الأولية قد يحسن الراحة والاستمرارية لبعض المرضى، لكن جودة النموذج تعتمد على كفاءة مقدم الخدمة والوقت والثقة والخدمات الداعمة والتنسيق.",
+      "source_ids": ["saj-primary-care-patient-preferences-2026"],
+      "confidence": "moderate",
+      "evidence_type": "qualitative patient-preference study",
+      "publication_status": "approved-for-service-design",
+      "affected_routes": ["/addiction/professional-education/primary-care-integration/", "/addiction/audiences/clinician/"],
+      "safety_flags": ["qualitative-evidence", "not-universal-model", "local-scope-of-practice"],
+      "verified_on": "2026-09-05",
+      "next_review_on": "2026-12-05"
+    },
+    {
+      "id": "saj-perinatal-integration-can-be-assessed-across-three-domains",
+      "domain": "perinatal-care",
+      "statement_ar": "يمكن تقييم نضج خدمات اضطرابات استخدام المواد في الفترة المحيطة بالولادة عبر نطاق خدمات الفريق، والاتصال المنهجي، ودرجة التنسيق بين الخدمات، بدل اعتبار وجود خدمات متعددة دليلًا كافيًا على التكامل.",
+      "source_ids": ["saj-perinatal-tiered-framework-2026", "amersa-perinatal-toolkit-2026"],
+      "confidence": "moderate-high",
+      "evidence_type": "care-integration framework plus AMERSA implementation resource",
+      "publication_status": "approved-for-quality-improvement",
+      "affected_routes": ["/addiction/professional-education/perinatal-care/", "/addiction/populations/pregnancy-postpartum/"],
+      "safety_flags": ["pregnancy", "postpartum", "local-service-configuration"],
+      "verified_on": "2026-09-05",
+      "next_review_on": "2026-12-05"
+    }
+  ],
+  "rules": {
+    "every_claim_requires_registry_source": true,
+    "qualitative_studies_cannot_be_promoted_to_universal_guidelines": true,
+    "diagnostic_reclassification_prohibited_from_single_study": true,
+    "country_specific_regulation_requires_local_verification": true,
+    "no_dosing_claims": true,
+    "no_amersa_endorsement_claim": true
+  }
+}
