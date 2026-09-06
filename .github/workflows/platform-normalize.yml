@@ -99,7 +99,29 @@ jobs:
             mkdir -p "${fixture}/$(dirname "${path}")"
             cp "${path}" "${fixture}/${path}"
           done
-          python scripts/normalize_platform_shell.py "${fixture}" --check --no-report
+          printf '%s\n' "${changed[@]}" > "${fixture}/.changed-html"
+          python - "${fixture}" <<'PY'
+          import sys
+          from pathlib import Path
+          from scripts.normalize_platform_shell import normalize_file
+
+          fixture = Path(sys.argv[1]).resolve()
+          pending = []
+          for relative in (fixture / '.changed-html').read_text(encoding='utf-8').splitlines():
+              page = fixture / relative
+              if not page.is_file():
+                  continue
+              result = normalize_file(page, fixture, check_only=True)
+              if result.status == 'error':
+                  raise SystemExit(f'ERROR {result.path}: {result.detail}')
+              if result.status == 'needs-update':
+                  pending.append(result.path)
+          if pending:
+              for path in pending[:50]:
+                  print(f'NEEDS_UPDATE {path}', file=sys.stderr)
+              raise SystemExit(1)
+          print({'current_changed_html': len(changed := (fixture / '.changed-html').read_text(encoding='utf-8').splitlines())})
+          PY
 
       - name: Confirm read-only workflow contract
         run: |
@@ -111,7 +133,7 @@ jobs:
           required = (
               'permissions:\n' + '  contents: read',
               'persist-' + 'credentials: false',
-              'normalize_platform_shell.py "${fixture}" --check ' + '--no-report',
+              'normalize_file(page, fixture, check_only=True)',
               'git diff --name-only --diff-filter=ACMR',
           )
           forbidden = (
@@ -125,5 +147,5 @@ jobs:
               assert fragment in workflow, fragment
           for fragment in forbidden:
               assert fragment not in workflow, fragment
-          print({'passed': True, 'contract': 'read-only-changed-page-normalization-v2'})
+          print({'passed': True, 'contract': 'read-only-changed-page-normalization-v3'})
           PY
