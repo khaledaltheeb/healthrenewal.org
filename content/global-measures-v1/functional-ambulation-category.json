@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "reviewed_at": "2026-09-06",
+  "name": "Functional Ambulation Category",
+  "acronym": "FAC",
+  "rawafid_route": "/sectors/rehabilitation/measures/functional-ambulation-category/",
+  "instrument": {
+    "construct": "level of human assistance required for functional ambulation",
+    "scale_type": "ordinal",
+    "range": [0,5],
+    "single_category": true,
+    "global_total_score": null,
+    "average_for_individual_interpretation": false,
+    "walking_aid_determines_category": false,
+    "human_assistance_is_primary_construct": true
+  },
+  "rmd": {
+    "url": "https://www.sralab.org/rehabilitation-measures/functional-ambulation-category",
+    "cost": "Free",
+    "purpose": "assesses functional ambulation in physical therapy",
+    "populations": ["stroke","multiple sclerosis"],
+    "scale": "0-5"
+  },
+  "rights": {
+    "instrument_public_domain_verified": false,
+    "explicit_owner_reproduction_license_verified": false,
+    "rmd_cost_is_not_reproduction_permission": true,
+    "rawafid_decision": "operational-sheet-only",
+    "basis": "RMD reports Cost=Free and the six-level functional assistance construct. This review did not identify an authoritative explicit Public Domain/owner reproduction statement for the fixed category wording. Rawafid therefore uses independently paraphrased operational category descriptions and does not reproduce a third-party form/layout or claim an official translation.",
+    "excluded_material": "No third-party form layout, proprietary training text, or claimed official wording is mirrored."
+  },
+  "arabic": {
+    "validated_arabic_fac_form_identified_in_this_review": false,
+    "claim_official_translation": false,
+    "rawafid_status": "operational Arabic paraphrase",
+    "regional_evidence": "FAC is used as an observer outcome in Arabic stroke research, but that use does not establish a validated/authorized Arabic FAC translation."
+  },
+  "rawafid_operational_categories": [
+    {"score":0,"summary":"المشي الوظيفي غير ممكن أو يتطلب مساعدة فعلية من شخصين أو أكثر"},
+    {"score":1,"summary":"يتطلب مساعدة جسدية مستمرة وواضحة من شخص واحد لدعم الوزن و/أو حفظ التوازن أثناء المشي"},
+    {"score":2,"summary":"يتطلب تلامسًا جسديًا خفيفًا أو متقطعًا من شخص واحد للمساعدة في التوازن أو التنسيق أثناء المشي"},
+    {"score":3,"summary":"لا يحتاج تلامسًا جسديًا، لكنه يحتاج إشرافًا قريبًا أو استعدادًا للمساعدة أو توجيهًا لفظيًا لضمان المشي الآمن"},
+    {"score":4,"summary":"يمشي باستقلال على الأسطح المستوية، لكنه يحتاج مساعدة أو إشرافًا في الدرج أو المنحدرات أو الأسطح غير المستوية أو البيئات الأكثر تعقيدًا"},
+    {"score":5,"summary":"يمشي باستقلال وظيفي في الأسطح المستوية وغير المستوية ويستطيع التعامل مع متطلبات المشي المجتمعي الأساسية دون مساعدة بشرية"}
+  ],
+  "consensus": {
+    "source": "Third Stroke Recovery and Rehabilitation Roundtable balance/mobility consensus",
+    "recommendation": "FAC 0-5 recommended for walking independence after stroke",
+    "fac_below_3": "10MWT, 6MWT and DGI should be treated as not testable rather than scored as zero; additional standing balance assessment is recommended.",
+    "note": "The FAC<3 rule is a consensus measurement feasibility rule for standardized stroke recovery data collection, not a universal bedside safety clearance."
+  },
+  "guardrails": [
+    "Do not average FAC categories for an individual as if the scale were interval.",
+    "Do not create a total across visits.",
+    "Do not let use of a cane/walker alone determine FAC; record the device separately and classify human assistance/supervision required.",
+    "Do not score an untestable walking speed/endurance test as zero merely because FAC is below 3.",
+    "Do not represent this Arabic wording as a validated or official translation."
+  ]
+}
