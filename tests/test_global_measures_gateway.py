@@ -11,8 +11,8 @@ class GlobalMeasuresGatewayTest(unittest.TestCase):
   for route in ROUTES:self.assertIn(f'href="{route}"',self.html,route)
  def test_gateway_count_matches_machine_catalog(self):
   m=re.search(r'<strong>(\d+) أداة/بطارية فعلية حاليًا</strong>',self.html);self.assertIsNotNone(m);self.assertEqual(int(m.group(1)),self.catalog['actual_tool_count']);self.assertEqual(self.catalog['actual_tool_count'],36);self.assertEqual(len(self.catalog['tools']),36);self.assertIn('Nine-Hole Peg Test',self.html);self.assertIn('Box and Block Test',self.html);self.assertIn('Functional Ambulation Category',self.html);self.assertIn('24 أداة/بطارية',self.html)
- def test_rmd_rights_model_and_bbt_cost_are_explicit(self):
-  self.assertIn('RMD لا يملك الأدوات',self.html);self.assertIn('Cost + Cost Description',self.html);self.assertIn('operational-sheet-only',self.html);self.assertIn('rule_7',self.audit['method']);bbt=next(x for x in self.audit['current_library'] if x['id']=='bbt');self.assertEqual(bbt['decision'],'operational-sheet-only');self.assertEqual(bbt['rmd_cost'],'Not Free');self.assertIn('equipment-related',bbt['rmd_cost_description']);self.assertIn('no authoritative explicit Public Domain',bbt['rights_source'])
+ def test_rmd_rights_model_and_equipment_cost_are_explicit(self):
+  self.assertIn('RMD لا يملك الأدوات',self.html);self.assertIn('Cost + Cost Description',self.html);self.assertIn('operational-sheet-only',self.html);self.assertIn('rule_7',self.audit['method']);rows={x['id']:x for x in self.audit['current_library']};self.assertEqual(rows['bbt']['decision'],'operational-sheet-only');self.assertEqual(rows['9hpt']['decision'],'operational-sheet-only');self.assertEqual(rows['bbt']['rmd_cost'],'Not Free');self.assertEqual(rows['9hpt']['rmd_cost'],'Not Free');self.assertIn('equipment',rows['9hpt']['rmd_cost_description'].lower())
  def test_lifecycle_ids_do_not_overlap(self):
   current={x['id'] for x in self.audit['current_library']};priority={x['id'] for x in self.audit['priority_candidates']};self.assertTrue(current.isdisjoint(priority))
  def test_owner_controlled_and_unresolved_examples_are_conservative(self):
