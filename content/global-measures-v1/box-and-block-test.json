@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "instrument": {
+    "name": "Box and Block Test",
+    "acronym": "BBT",
+    "construct": "unilateral gross manual dexterity",
+    "type": "observer-rated performance test",
+    "score": "number of blocks transferred in 60 seconds, recorded separately for each hand",
+    "aggregate_across_hands": false,
+    "higher_is_better": true,
+    "fixed_duration_seconds": 60,
+    "apparatus_standardization_required": true
+  },
+  "rmd": {
+    "url": "https://www.sralab.org/rehabilitation-measures/box-and-block-test",
+    "cost": "Not Free",
+    "cost_description": "Commercially produced test apparatus is sold; RMD's Not Free entry describes equipment cost rather than a demonstrated copyright license fee.",
+    "purpose": "assesses unilateral gross manual dexterity"
+  },
+  "apparatus": {
+    "box_cm": [53.7, 25.4, 8.5],
+    "equal_compartments": true,
+    "blocks_count": 150,
+    "block_size_cm": 2.5,
+    "partition_required": true,
+    "stopwatch_required": true,
+    "protocol_consistency_note": "Use the same apparatus geometry, block size/surface, hand order, duration and instructions for serial comparison."
+  },
+  "scoring": {
+    "primary_unit": "blocks per 60 seconds",
+    "hand_specific": true,
+    "do_not_sum_right_and_left": true,
+    "multiple_blocks_moved_together_count_as_one": true,
+    "block_must_cross_partition": true,
+    "dropped_after_crossing_partition_can_still_count": true
+  },
+  "measurement_properties": {
+    "stroke_test_retest": "RMD reports excellent test-retest reliability in stroke cohorts.",
+    "stroke_mdc_blocks_per_minute": 5.5,
+    "mdc_scope_warning": "Do not generalize one MDC value across diagnoses, chronicity, apparatus variants or populations.",
+    "surface_effect_warning": "RMD cites evidence that changing block surface material altered BBT performance; apparatus changes can invalidate longitudinal comparison."
+  },
+  "rights": {
+    "instrument_public_domain_verified": false,
+    "rawafid_decision": "operational-sheet-only",
+    "basis": "RMD documents a standardized single-task performance procedure and commercial apparatus cost, but this review did not verify an authoritative statement placing the standardized instrument text/materials in the public domain. Rawafid therefore publishes an original recording sheet and paraphrased procedure only, without reproducing third-party manuals, layouts or branded materials."
+  },
+  "arabic": {
+    "validated_arabic_form_identified_in_this_review": false,
+    "claim_official_translation": false,
+    "status": "Rawafid operational Arabic instructions for a non-questionnaire performance task; not represented as an official or psychometrically validated Arabic form."
+  },
+  "guardrails": [
+    "Record right and left hands separately; do not create a bilateral total.",
+    "Keep apparatus dimensions and block surfaces consistent across visits.",
+    "Do not compare a nonstandard homemade apparatus directly with published norms without documenting the deviation.",
+    "Do not interpret the BBT as fine finger dexterity; it is primarily gross manual dexterity.",
+    "Use the same hand order and instruction protocol when monitoring change."
+  ],
+  "sources": [
+    {
+      "name": "Rehabilitation Measures Database — Box and Block Test",
+      "url": "https://www.sralab.org/rehabilitation-measures/box-and-block-test"
+    },
+    {
+      "name": "Mathiowetz et al. — Adult norms for the Box and Block Test of manual dexterity",
+      "year": 1985
+    }
+  ]
+}
