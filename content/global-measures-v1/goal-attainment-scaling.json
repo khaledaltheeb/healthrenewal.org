@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.1",
+  "last_verified": "2026-09-06",
+  "instrument": {
+    "name": "Goal Attainment Scaling",
+    "acronym": "GAS",
+    "construct": "individualized goal attainment",
+    "goal_count_min": 1,
+    "goal_count_max": 6,
+    "standard_levels": [-2,-1,0,1,2],
+    "expected_level": 0,
+    "levels_defined_prospectively": true,
+    "one_primary_measurable_dimension_per_goal_recommended": true,
+    "optional_goal_weighting": true,
+    "aggregate_t_score_optional": true,
+    "diagnostic_measure": false
+  },
+  "rmd": {
+    "url": "https://www.sralab.org/rehabilitation-measures/goal-attainment-scale",
+    "cost": "Free",
+    "number_of_items": "1-6 individualized goals",
+    "time_to_administer": "5-60 minutes",
+    "required_training": "Training Course",
+    "rmd_key_description": "Each person's goals are individualized but scored on a standardized -2 to +2 scale; optional weighting and an aggregate T-score are described."
+  },
+  "scoring": {
+    "goal_level_min": -2,
+    "goal_level_max": 2,
+    "expected_goal_level": 0,
+    "raw_goal_scores_are_ordinal": true,
+    "do_not_average_as_interval_without_protocol": true,
+    "t_score_formula": "50 + (10 * sum(w_i*x_i)) / sqrt((1-rho)*sum(w_i^2) + rho*(sum(w_i)^2))",
+    "rho_default_for_standard_rehabilitation_formula": 0.3,
+    "rho_is_protocol_parameter_not_universal_constant": true,
+    "equal_weights_default": 1,
+    "t_score_requires_all_active_goal_outcomes": true,
+    "t_score_requires_declared_protocol": true,
+    "no_universal_clinical_cutoff": true
+  },
+  "goal_quality": {
+    "expected_zero_level_must_be_defined_before_intervention": true,
+    "all_five_levels_should_be_observable_and_distinguishable": true,
+    "levels_should_change_on_one_primary_dimension_when_possible": true,
+    "target_date_or_review_timepoint_should_be_recorded": true,
+    "baseline_should_be_recorded_separately": true,
+    "baseline_is_not_forced_to_minus_two_because_published_methods_vary": true,
+    "patient_family_team_collaboration_recommended": true,
+    "independent_or_blinded_outcome_rating_recommended_for_research_when_feasible": true,
+    "do_not_rewrite_anchors_after_outcome_is_known": true,
+    "scale_quality_review_precedes_summary_score": true
+  },
+  "methodology_evidence": {
+    "gas_is_not_one_standardized_scale": true,
+    "heterogeneous_method_family": true,
+    "single_high_quality_consensus_method_absent": true,
+    "implementation_reporting_should_include_training_calibration_rater_and_scoring_method": true,
+    "trial_review_2022": {
+      "included_trials": 38,
+      "rehabilitation_share_percent": 58,
+      "training_not_reported_percent": 79,
+      "calibration_or_review_not_reported_percent": 87,
+      "interpretation": "Large implementation heterogeneity limits comparability when training, calibration, rating method and scoring approach are not reported."
+    },
+    "educational_review_2023": {
+      "pmid": "37317629",
+      "doi": "10.2340/jrm.v55.6498",
+      "key_message": "GAS is a heterogeneous group of methodologies; users should explicitly choose and document formulation, baseline, scoring, review and rating procedures."
+    },
+    "implementation_2025": {
+      "doi": "10.1016/j.apmr.2025.07.018",
+      "setting_count": 3,
+      "context": "neurorehabilitation",
+      "key_message": "Implementation experience across three neurorehabilitation settings emphasizes workflow, training and local integration rather than treating GAS as a plug-in score."
+    },
+    "mci_dementia_2025": {
+      "pmid": "41477101",
+      "doi": "10.1016/j.arrct.2025.100501",
+      "key_message": "Recent rehabilitation research examined validity, acceptability and responsiveness in people with mild cognitive impairment or dementia; findings remain population- and protocol-specific."
+    }
+  },
+  "rights": {
+    "instrument_public_domain_verified": false,
+    "rawafid_decision": "operational-sheet-only",
+    "basis": "RMD lists GAS as Free, but that is not treated as a reproduction license. GAS is a goal-setting/scaling method rather than a fixed item bank. Rawafid publishes an original blank goal-scaling worksheet, calculator, and independently worded methodological guardrails; it does not reproduce a third-party GAS form, training manual, worked examples, conversion table, or copyrighted guide layout."
+  },
+  "arabic": {
+    "claim_official_translation": false,
+    "rawafid_language_status": "Original Arabic operational template for a method; not represented as an authorized translation of any named proprietary GAS form or training package."
+  },
+  "sources": [
+    {"name":"Rehabilitation Measures Database — Goal Attainment Scale","url":"https://www.sralab.org/rehabilitation-measures/goal-attainment-scale"},
+    {"name":"Turner-Stokes L. Goal attainment scaling (GAS) in rehabilitation: a practical guide","pmid":"19179355","doi":"10.1177/0269215508101742"},
+    {"name":"Krasny-Pacini A et al. Goal attainment scaling in rehabilitation: a literature-based update","pmid":"23562111","doi":"10.1016/j.rehab.2013.02.002"},
+    {"name":"Gaasterland CMW et al. Goal attainment scaling as an outcome measure for randomised controlled trials: a scoping review","url":"https://bmjopen.bmj.com/content/12/7/e063061"},
+    {"name":"Bard-Pondarre R et al. Goal Attainment Scaling in rehabilitation: educational review and implementation toolbox","pmid":"37317629","doi":"10.2340/jrm.v55.6498"},
+    {"name":"Implementing Goal Attainment Scaling as a Person-Centered Measurement Tool to Direct Care and Evaluate Outcomes in Neurorehabilitation Settings","doi":"10.1016/j.apmr.2025.07.018"},
+    {"name":"Evaluating Goal Attainment Scaling for Individuals With Mild Cognitive Impairment or Dementia in Rehabilitation Settings","pmid":"41477101","doi":"10.1016/j.arrct.2025.100501"},
+    {"name":"King's College London — Goal Attainment Scaling overview","url":"https://www.kcl.ac.uk/cicelysaunders/resources/toolkits/gas-overview"}
+  ]
+}
