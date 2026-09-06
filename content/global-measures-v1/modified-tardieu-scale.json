@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "reviewed_at": "2026-09-06",
+  "name": "Modified Tardieu Scale",
+  "acronym": "MTS",
+  "rawafid_route": "/sectors/rehabilitation/measures/modified-tardieu-scale/",
+  "instrument": {
+    "construct": "velocity-dependent response to passive stretch with angle and quality-of-reaction recording",
+    "measurement_level": "per muscle/joint; mixed ordinal reaction grade plus angular measurements",
+    "aggregate_across_muscles": false,
+    "global_total_score": null,
+    "core_variables": ["V1","V2","V3","R1","R2","R2-R1","QMR"],
+    "version_warning": "Published MTS variants differ in QMR category count and wording; the version used must be recorded and not silently converted."
+  },
+  "rmd": {
+    "url": "https://www.sralab.org/rehabilitation-measures/tardieu-scalemodified-tardieu-scale",
+    "cost": "Free",
+    "purpose": "assesses muscle response to stretch at given velocities",
+    "speed_definitions": {
+      "V1": "as slow as possible",
+      "V2": "speed of limb falling under gravity",
+      "V3": "as fast as possible"
+    },
+    "angle_structure": {
+      "R1": "angle of muscle reaction/catch during rapid stretch",
+      "R2": "full passive range measured at very slow speed",
+      "derived": "R2-R1"
+    }
+  },
+  "rights": {
+    "instrument_public_domain_verified": false,
+    "explicit_owner_reproduction_license_verified": false,
+    "rmd_cost_is_not_reproduction_permission": true,
+    "rawafid_decision": "operational-sheet-only",
+    "basis": "RMD reports Cost=Free and describes the measurement procedure. This review did not identify a sufficiently authoritative explicit Public Domain/owner reproduction statement for the complete MTS wording. Rawafid therefore provides an original recording/calculation sheet and paraphrased procedural cues, not a mirrored third-party guide or claimed official form.",
+    "excluded_material": "Copyrighted third-party application guides, layouts, photographs, training content, and exact proprietary wording are not reproduced."
+  },
+  "arabic": {
+    "validated_arabic_form_identified_in_this_review": false,
+    "claim_official_translation": false,
+    "rawafid_status": "operational Arabic recording and explanatory wording only",
+    "note": "No independent validated Arabic MTS translation/form was verified in this review."
+  },
+  "calculation": {
+    "r2_minus_r1": true,
+    "requires_same_joint_axis_and_angle_convention": true,
+    "qmr_is_not_summed": true,
+    "muscles_are_not_summed": true,
+    "qmr_version_conversion": false
+  },
+  "evidence": [
+    {"type":"systematic-review","year":2021,"pmid":"34952873","note":"Upper-limb adult neurological MTS validity/reliability review; supports cautious interpretation and protocol standardization."},
+    {"type":"stroke-reliability","year":2011,"note":"RMD summarizes stroke reliability and measurement error for R1, R2 and R2-R1; population- and muscle-specific values must not be generalized."},
+    {"type":"clinical-validity","year":2006,"note":"Tardieu can help distinguish dynamic neural response from contracture-related passive range when interpreted with R1/R2 and context; it is not a standalone mechanistic diagnosis."}
+  ],
+  "guardrails": [
+    "Do not create a total MTS score across muscles or joints.",
+    "Do not convert a QMR 0-4 version to a 0-5 version or vice versa without a documented mapping from the source protocol.",
+    "Do not compute R2-R1 unless R1 and R2 use the same axis, position, side, joint convention and units.",
+    "Do not infer walking-phase spasticity or treatment need from MTS alone.",
+    "Record speed, position, assessor, assistance, pain and protocol version at each visit."
+  ]
+}
