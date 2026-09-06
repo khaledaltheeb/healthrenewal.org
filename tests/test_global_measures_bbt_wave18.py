@@ -13,7 +13,7 @@ class BoxAndBlockWave18Test(unittest.TestCase):
  def test_each_hand_is_separate_and_no_bilateral_total(self):
   self.assertFalse(self.reg['instrument']['aggregate_across_hands']);self.assertTrue(self.reg['scoring']['hand_specific']);self.assertTrue(self.reg['scoring']['do_not_sum_right_and_left']);self.assertNotIn('reduce(',self.js);self.assertIn('لا تجمع نتيجة اليد اليمنى واليسرى',self.html)
  def test_runtime_validates_range_and_qc(self):
-  self.assertIn('v>150',self.js);self.assertIn('done===4',self.js);self.assertIn('مكعب/دقيقة',self.js);self.assertIn('4 من عناصر الاتساق',self.html+self.js)
+  self.assertIn('v>150',self.js);self.assertIn('done===4',self.js);self.assertIn('مكعب/دقيقة',self.js);self.assertIn('${done}/4 من عناصر الاتساق',self.js)
  def test_rights_model_separates_equipment_cost_from_copyright(self):
   self.assertEqual(self.reg['rmd']['cost'],'Not Free');self.assertIn('equipment cost',self.reg['rmd']['cost_description']);self.assertFalse(self.reg['rights']['instrument_public_domain_verified']);self.assertEqual(self.reg['rights']['rawafid_decision'],'operational-sheet-only');self.assertIn('هذا لا يساوي تلقائيًا قيد Copyright',self.html)
  def test_measurement_guardrails(self):
