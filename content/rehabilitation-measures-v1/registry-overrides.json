@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "precedence_rule": "These overrides supersede conflicting status fields in the legacy rehabilitation-measures-v1/registry.json. The authoritative rights decision remains content/global-measures-v1/rmd-eprovide-rights-audit.json.",
+  "overrides": [
+    {
+      "id": "box-block",
+      "name": "Box and Block Test",
+      "legacy_status": "verify-before-reproduction",
+      "current_status": "operational-sheet-only",
+      "full_reproduction": false,
+      "route": "/sectors/rehabilitation/measures/box-and-block-test/",
+      "rights_basis": "RMD Cost=Not Free describes the standardized apparatus/equipment cost. No authoritative public-domain statement for fixed wording was verified. Rawafid therefore publishes an original operational recording/procedure sheet and does not mirror a proprietary form or third-party manual wording.",
+      "arabic_status": "Rawafid operational Arabic wording only; no validated or official Arabic BBT form is claimed.",
+      "source": "https://www.sralab.org/rehabilitation-measures/box-and-block-test"
+    }
+  ]
+}
