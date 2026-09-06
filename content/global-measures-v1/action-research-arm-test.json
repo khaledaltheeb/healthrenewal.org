@@ -100,7 +100,7 @@
   "sources": [
     {"name":"Rehabilitation Measures Database — Action Research Arm Test","url":"https://www.sralab.org/rehabilitation-measures/action-research-arm-test"},
     {"name":"University of Gothenburg — Action Research Arm Test","url":"https://www.gu.se/en/neuroscience-physiology/action-research-arm-test"},
-    {"name":"Sakamoto D et al. Reliability and validity of a newly developed Action Research Arm Test","doi":"10.1371/journal.pone.0334199"},
+    {"publisher":"PLOS One","title":"Reliability and validity of a newly developed Action Research Arm Test for upper limb function assessment in patients with stroke: A comparison with the conventional version","url":"https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0334199","year":2026,"doi":"10.1371/journal.pone.0334199"},
     {"name":"Newcastle University — ARAT standardized training resource","url":"https://research.ncl.ac.uk/arat/"}
   ]
 }
