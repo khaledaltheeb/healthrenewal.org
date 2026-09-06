@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "instrument": {
+    "name": "Action Research Arm Test",
+    "acronym": "ARAT",
+    "construct": "upper-extremity activity capacity and arm-hand functional performance",
+    "items": 19,
+    "subscales": {
+      "grasp": {"items": 6, "max_score": 18},
+      "grip": {"items": 4, "max_score": 12},
+      "pinch": {"items": 6, "max_score": 18},
+      "gross_movement": {"items": 3, "max_score": 9}
+    },
+    "item_score_range": [0,1,2,3],
+    "total_score_range": [0,57],
+    "arms_scored_separately": true,
+    "aggregate_across_arms": false,
+    "ordinal_score": true,
+    "diagnostic_measure": false
+  },
+  "rmd": {
+    "url": "https://www.sralab.org/rehabilitation-measures/action-research-arm-test",
+    "cost": "Not Free",
+    "cost_description": "RMD lists purchase of a standardized commercial ARAT kit at approximately USD 875 in its 2023 review; the cost entry is equipment-related.",
+    "number_of_items": 19,
+    "time_to_administer": "5-15 minutes",
+    "required_training": "No Training",
+    "populations": ["adolescent","adult","older-adult","stroke","multiple-sclerosis","brain-injury","mixed-neurologic"]
+  },
+  "scoring": {
+    "0": "No part of the task is completed.",
+    "1": "The task is completed only partially.",
+    "2": "The task is completed but with marked difficulty or abnormally prolonged performance according to the adopted protocol.",
+    "3": "The task is completed normally according to the adopted protocol.",
+    "higher_is_better": true,
+    "full_19_item_entry_required_for_rawafid_total": true,
+    "lyle_hierarchical_decision_rules_documented_not_auto_applied": true,
+    "no_universal_diagnostic_cutoff": true,
+    "do_not_treat_raw_score_as_interval_scale": true,
+    "missing_item_policy": "Do not calculate a standardized total until all 19 item scores are explicitly recorded in the Rawafid sheet."
+  },
+  "tasks": [
+    {"id":"g1","subscale":"grasp","descriptor_ar":"نقل كتلة كبيرة بحجم مرجعي يقارب 10 سم","equipment":"large block"},
+    {"id":"g2","subscale":"grasp","descriptor_ar":"نقل كتلة صغيرة بحجم مرجعي يقارب 2.5 سم","equipment":"small block"},
+    {"id":"g3","subscale":"grasp","descriptor_ar":"نقل كتلة متوسطة بحجم مرجعي يقارب 5 سم","equipment":"medium block"},
+    {"id":"g4","subscale":"grasp","descriptor_ar":"نقل كتلة متوسطة-كبيرة بحجم مرجعي يقارب 7.5 سم","equipment":"medium-large block"},
+    {"id":"g5","subscale":"grasp","descriptor_ar":"التعامل مع الكرة المرجعية المستخدمة في العدة","equipment":"cricket ball"},
+    {"id":"g6","subscale":"grasp","descriptor_ar":"التعامل مع الجسم الحجري/المستطيل المرجعي في العدة","equipment":"stone"},
+    {"id":"r1","subscale":"grip","descriptor_ar":"مهمة صب الماء بين وعاءين وفق إعداد البروتوكول","equipment":"jug/glasses"},
+    {"id":"r2","subscale":"grip","descriptor_ar":"التعامل مع الأنبوب الأكبر المرجعي","equipment":"large tube"},
+    {"id":"r3","subscale":"grip","descriptor_ar":"التعامل مع الأنبوب الأصغر المرجعي","equipment":"small tube"},
+    {"id":"r4","subscale":"grip","descriptor_ar":"وضع الحلقة/الغسالة على المسمار المرجعي","equipment":"washer and bolt"},
+    {"id":"p1","subscale":"pinch","descriptor_ar":"قرص الجسم الكروي الصغير بين الإبهام والبنصر","equipment":"ball bearing"},
+    {"id":"p2","subscale":"pinch","descriptor_ar":"قرص الجسم الكروي الأكبر بين الإبهام والبنصر","equipment":"marble"},
+    {"id":"p3","subscale":"pinch","descriptor_ar":"قرص الجسم الكروي الصغير بين الإبهام والوسطى","equipment":"ball bearing"},
+    {"id":"p4","subscale":"pinch","descriptor_ar":"قرص الجسم الكروي الأكبر بين الإبهام والوسطى","equipment":"marble"},
+    {"id":"p5","subscale":"pinch","descriptor_ar":"قرص الجسم الكروي الصغير بين الإبهام والسبابة","equipment":"ball bearing"},
+    {"id":"p6","subscale":"pinch","descriptor_ar":"قرص الجسم الكروي الأكبر بين الإبهام والسبابة","equipment":"marble"},
+    {"id":"m1","subscale":"gross_movement","descriptor_ar":"تحريك اليد إلى خلف الرأس","equipment":null},
+    {"id":"m2","subscale":"gross_movement","descriptor_ar":"تحريك اليد إلى أعلى الرأس","equipment":null},
+    {"id":"m3","subscale":"gross_movement","descriptor_ar":"تحريك اليد باتجاه الفم","equipment":null}
+  ],
+  "protocol_quality": {
+    "record_tested_arm": true,
+    "record_dominance": true,
+    "record_kit_manufacturer_or_version": true,
+    "record_table_chair_and_platform_setup": true,
+    "record_protocol_or_manual_version": true,
+    "same_equipment_and_setup_recommended_for_longitudinal_comparison": true,
+    "alternative_equipment_should_not_be_assumed_equivalent_without_validation": true,
+    "not_testable_or_safety_stop_suppresses_standard_total": true
+  },
+  "current_evidence": {
+    "gothenburg_2026": {
+      "url": "https://www.gu.se/en/neuroscience-physiology/action-research-arm-test",
+      "key_points": ["19 items","4 hierarchical subtests","maximum total 57","upper-extremity activity capacity after stroke"]
+    },
+    "alternative_kit_2026": {
+      "doi": "10.1371/journal.pone.0334199",
+      "publication_date": "2026-03-24",
+      "sample_n": 64,
+      "intra_rater_icc_range": [0.997,1.000],
+      "inter_rater_icc_range": [0.979,0.999],
+      "convergent_spearman_fma_ue": 0.934,
+      "convergent_spearman_bbt": 0.917,
+      "interpretation": "A modified equipment set can achieve equivalent measurement properties when it is specifically validated; equipment substitutions should not be presumed equivalent by default."
+    }
+  },
+  "rights": {
+    "instrument_public_domain_verified": false,
+    "rawafid_decision": "operational-sheet-only",
+    "basis": "RMD Cost=Not Free is treated as equipment cost, not a copyright ruling. Rawafid publishes an original scoring/QC sheet and independently paraphrased task descriptors. It does not reproduce a vendor form, standardized instruction wording, copyrighted manual layout, conversion table, or third-party training package."
+  },
+  "arabic": {
+    "validated_or_authorized_arabic_form_verified": false,
+    "claim_official_translation": false,
+    "rawafid_language_status": "Operational Arabic paraphrase only; no validated or authorized Arabic ARAT form is claimed."
+  },
+  "sources": [
+    {"name":"Rehabilitation Measures Database — Action Research Arm Test","url":"https://www.sralab.org/rehabilitation-measures/action-research-arm-test"},
+    {"name":"University of Gothenburg — Action Research Arm Test","url":"https://www.gu.se/en/neuroscience-physiology/action-research-arm-test"},
+    {"publisher":"PLOS One","title":"Reliability and validity of a newly developed Action Research Arm Test for upper limb function assessment in patients with stroke: A comparison with the conventional version","url":"https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0334199","year":2026,"doi":"10.1371/journal.pone.0334199"},
+    {"name":"Newcastle University — ARAT standardized training resource","url":"https://research.ncl.ac.uk/arat/"}
+  ]
+}
