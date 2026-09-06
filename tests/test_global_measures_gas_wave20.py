@@ -1,0 +1,29 @@
+from __future__ import annotations
+import json,math,unittest,xml.etree.ElementTree as ET
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1]
+PAGE=ROOT/'sectors'/'rehabilitation'/'measures'/'goal-attainment-scaling'/'index.html';JS=PAGE.with_name('gas.js');REG=ROOT/'content'/'global-measures-v1'/'goal-attainment-scaling.json';CAT=ROOT/'content'/'global-measures-v1'/'catalog.json';AUDIT=ROOT/'content'/'global-measures-v1'/'rmd-eprovide-rights-audit.json';LIB=ROOT/'sectors'/'rehabilitation'/'measures'/'app.js';REHAB_MAP=ROOT/'sitemap-rehabilitation-measures.xml';GLOBAL_MAP=ROOT/'sitemap-global-measures.xml';PACKETS=ROOT/'assessments'/'global-measures'/'print-packets'/'index.html';GOAL_PACKET=ROOT/'assessments'/'global-measures'/'print-packets'/'individualized-goals'/'index.html';NS={'s':'http://www.sitemaps.org/schemas/sitemap/0.9'}
+def gas_t(xs,ws,rho=.3):
+ num=sum(w*x for w,x in zip(ws,xs));den=math.sqrt((1-rho)*sum(w*w for w in ws)+rho*(sum(ws)**2));return 50+10*num/den
+class GoalAttainmentScalingWave20Test(unittest.TestCase):
+ @classmethod
+ def setUpClass(cls):
+  cls.html=PAGE.read_text(encoding='utf-8');cls.js=JS.read_text(encoding='utf-8');cls.reg=json.loads(REG.read_text(encoding='utf-8'));cls.catalog=json.loads(CAT.read_text(encoding='utf-8'));cls.audit=json.loads(AUDIT.read_text(encoding='utf-8'));cls.lib=LIB.read_text(encoding='utf-8');cls.rehab=REHAB_MAP.read_text(encoding='utf-8');cls.global_map=GLOBAL_MAP.read_text(encoding='utf-8');cls.packets=PACKETS.read_text(encoding='utf-8');cls.goal_packet=GOAL_PACKET.read_text(encoding='utf-8')
+ def test_standard_five_level_model_and_goal_count(self):
+  self.assertEqual(self.reg['instrument']['standard_levels'],[-2,-1,0,1,2]);self.assertEqual(self.reg['instrument']['expected_level'],0);self.assertEqual(self.reg['instrument']['goal_count_min'],1);self.assertEqual(self.reg['instrument']['goal_count_max'],6);self.assertIn('[-2,-1,0,1,2]',self.js);self.assertIn("length>=6",self.js)
+ def test_t_score_formula_and_known_single_goal_values(self):
+  self.assertEqual(self.reg['scoring']['rho_default_for_standard_rehabilitation_formula'],0.3);self.assertIn('50+(10*weighted)/den',self.js);self.assertIn('(1-rho)*sumW2+rho*sumW*sumW',self.js);self.assertAlmostEqual(gas_t([0],[1]),50,places=8);self.assertAlmostEqual(gas_t([2],[1]),70,places=8);self.assertAlmostEqual(gas_t([-2],[1]),30,places=8);self.assertAlmostEqual(gas_t([0,0],[1,1]),50,places=8)
+ def test_calculation_is_fail_closed_until_goal_and_protocol_are_complete(self):
+  self.assertTrue(self.reg['scoring']['t_score_requires_all_active_goal_outcomes']);self.assertTrue(self.reg['scoring']['t_score_requires_declared_protocol']);self.assertIn('if(!ready||!protocol||!rhoOK)',self.js);self.assertIn('المستويات الخمسة',self.html);self.assertIn('لا تعدّل المراسي بعد معرفة النتيجة',self.html)
+ def test_goal_quality_and_baseline_variation_are_explicit(self):
+  q=self.reg['goal_quality'];self.assertTrue(q['expected_zero_level_must_be_defined_before_intervention']);self.assertTrue(q['all_five_levels_should_be_observable_and_distinguishable']);self.assertTrue(q['one_primary_measurable_dimension_per_goal_recommended']);self.assertFalse(q['baseline_is_not_forced_to_minus_two_because_published_methods_vary'] is False);self.assertIn('baseline يختلف بين المناهج',self.html)
+ def test_rights_are_operational_and_training_is_not_hidden(self):
+  self.assertEqual(self.reg['rmd']['cost'],'Free');self.assertEqual(self.reg['rmd']['required_training'],'Training Course');self.assertFalse(self.reg['rights']['instrument_public_domain_verified']);self.assertEqual(self.reg['rights']['rawafid_decision'],'operational-sheet-only');row=next(x for x in self.audit['current_library'] if x['id']=='gas');self.assertEqual(row['decision'],'operational-sheet-only');self.assertEqual(row['rmd_cost'],'Free');self.assertIn('training',row['rmd_cost_description'].lower());self.assertIn('لا تنسخ نموذجًا أو دليل تدريب',self.html)
+ def test_no_server_storage_or_diagnostic_engine(self):
+  self.assertNotIn('fetch(',self.js);self.assertNotIn('localStorage',self.js);self.assertFalse(self.reg['instrument']['diagnostic_measure']);self.assertIn('ليست أداة تشخيص',self.html)
+ def test_tool_37_catalog_and_discovery(self):
+  self.assertEqual(self.catalog['actual_tool_count'],37);self.assertEqual(len(self.catalog['tools']),37);row=next(x for x in self.catalog['tools'] if x['id']=='gas');self.assertEqual(row['route'],'/sectors/rehabilitation/measures/goal-attainment-scaling/');self.assertEqual(row['rights_state'],'rmd-free-operational-template-no-third-party-form-reproduced');self.assertIn("gas='/sectors/rehabilitation/measures/goal-attainment-scaling/'",self.lib);urls=[e.text for e in ET.fromstring(self.rehab).findall('s:url/s:loc',NS)];self.assertEqual(urls.count('https://healthrenewal.org/sectors/rehabilitation/measures/goal-attainment-scaling/'),1);gurls=[e.text for e in ET.fromstring(self.global_map).findall('s:url/s:loc',NS)];self.assertEqual(gurls.count('https://healthrenewal.org/assessments/global-measures/print-packets/individualized-goals/'),1)
+ def test_goal_packet_separates_gas_from_psfs(self):
+  for text in ('حزمة الأهداف الفردية والنتائج الشخصية','GAS — تحقيق الهدف −2…+2','PSFS — قدرة النشاط 0–10','لا تجمع GAS + PSFS في مجموع واحد'):self.assertIn(text,self.packets)
+  for text in ('GAS','PSFS','لا تجمع GAS + PSFS في مجموع واحد','لا تكتب مستويات GAS بعد معرفة النتيجة','لا تستخدم T-score دون تسجيل الصيغة والأوزان وρ والبروتوكول'):self.assertIn(text,self.goal_packet)
+if __name__=='__main__':unittest.main()
