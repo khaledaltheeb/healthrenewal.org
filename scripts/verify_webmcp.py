@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import base64
 from pathlib import Path
 import re
 import sys
@@ -7,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 JS = ROOT / "assets" / "brand" / "rawafid-brand.js"
 SOURCE = ROOT / "scripts" / "rawafid_brand_runtime.js"
 GENERATOR = ROOT / "scripts" / "apply_rawafid_brand.py"
+NORMALIZER = ROOT / "scripts" / "normalize_platform_shell.py"
 
 
 def fail(message: str) -> None:
@@ -15,18 +17,49 @@ def fail(message: str) -> None:
 
 
 def main() -> None:
-    for path in (JS, SOURCE, GENERATOR):
+    for path in (JS, SOURCE, GENERATOR, NORMALIZER):
         if not path.is_file():
             fail(f"missing {path.relative_to(ROOT)}")
 
     text = JS.read_text(encoding="utf-8")
     source = SOURCE.read_text(encoding="utf-8")
     generator = GENERATOR.read_text(encoding="utf-8")
+    normalizer = NORMALIZER.read_text(encoding="utf-8")
 
     if text != source:
         fail("deployed WebMCP runtime differs from canonical runtime source")
     if "RUNTIME_SOURCE" not in generator or "rawafid_brand_runtime.js" not in generator:
         fail("brand generator is not pinned to the canonical WebMCP runtime source")
+
+    # The WebMCP browser API is still behind Chrome's Origin Trial. Validate the
+    # exact production token and the deterministic final-HTML injection path so
+    # Lighthouse cannot see correct tools while the feature itself is disabled.
+    token_match = re.search(r'^ORIGIN_TRIAL_TOKEN\s*=\s*"([^"]+)"$', normalizer, re.MULTILINE)
+    if not token_match:
+        fail("production WebMCP Origin Trial token missing from platform normalizer")
+    origin_trial_token = token_match.group(1)
+    try:
+        decoded_token = base64.b64decode(
+            origin_trial_token + "=" * ((-len(origin_trial_token)) % 4),
+            validate=True,
+        )
+    except Exception as exc:
+        fail(f"invalid base64 Origin Trial token: {exc}")
+
+    expected_token_markers = (
+        b'"origin":"https://healthrenewal.org:443"',
+        b'"feature":"WebMCP"',
+        b'"expiry":1794873600',
+        b'"isSubdomain":true',
+    )
+    for marker in expected_token_markers:
+        if marker not in decoded_token:
+            fail(f"Origin Trial token payload missing expected marker: {marker!r}")
+
+    if 'http-equiv="origin-trial"' not in normalizer:
+        fail("production normalizer does not emit an origin-trial meta element")
+    if "ORIGIN_TRIAL_META_RE.sub(\"\", head)" not in normalizer:
+        fail("production normalizer does not replace stale Origin Trial meta elements idempotently")
 
     # Accept direct document.modelContext feature detection or the exact local
     # document alias used by the runtime. This checks the behavior contract
@@ -184,7 +217,7 @@ def main() -> None:
         f"imperative_tools={len(expected_tools)} "
         f"open_section_routes={len(expected_routes)} "
         "declarative_home_search=1 safe_search_annotation=early "
-        "schemas=present generator=pinned"
+        "schemas=present generator=pinned origin_trial=WebMCP"
     )
 
 
