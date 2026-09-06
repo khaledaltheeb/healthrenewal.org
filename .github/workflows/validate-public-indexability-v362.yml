@@ -1,0 +1,56 @@
+name: Validate public indexability v362
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-indexability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile indexability enforcer
+        run: python -m py_compile scripts/enforce_public_indexability_v362.py
+      - name: Prove public pages contain no accidental noindex
+        run: |
+          set -euo pipefail
+          python scripts/enforce_public_indexability_v362.py . --fix --report /tmp/public-indexability-v362.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('/tmp/public-indexability-v362.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['public_noindex_after'] == [], report
+          assert report['robots_txt_allows_public_crawl'] is True, report
+          assert report['x_robots_noindex_config_files'] == [], report
+          print({
+              'status': report['status'],
+              'publicPages': report['counts'].get('public_pages', 0),
+              'fixedNoindex': len(report['fixed_noindex']),
+              'technicalExemptions': len(report['technical_exemptions']),
+          })
+          PY
+      - name: Reject source that still needs automatic indexability repair
+        run: |
+          set -euo pipefail
+          if ! git diff --exit-code -- . ':(exclude)api/public-indexability-v362.json'; then
+            echo 'Public source pages still require indexability repair. Commit the generated index,follow changes.' >&2
+            exit 1
+          fi
+      - name: Upload indexability evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-indexability-v362
+          path: /tmp/public-indexability-v362.json
+          if-no-files-found: error
