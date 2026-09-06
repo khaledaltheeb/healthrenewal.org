@@ -93,13 +93,32 @@ jobs:
             exit 0
           fi
 
-          fixture="$(mktemp -d)"
-          for path in "${changed[@]}"; do
-            test -f "${path}" || continue
-            mkdir -p "${fixture}/$(dirname "${path}")"
-            cp "${path}" "${fixture}/${path}"
-          done
-          python scripts/normalize_platform_shell.py "${fixture}" --check --no-report
+          python - "${changed[@]}" <<'PY'
+          from pathlib import Path
+          import sys
+
+          from scripts.normalize_platform_shell import EXCLUDED_PARTS, normalize_file
+
+          root = Path.cwd().resolve()
+          failures = []
+          for relative in sys.argv[1:]:
+              relative_path = Path(relative)
+              if any(part in EXCLUDED_PARTS for part in relative_path.parts):
+                  print(f"EXCLUDED {relative}")
+                  continue
+              path = root / relative_path
+              if not path.is_file():
+                  continue
+              result = normalize_file(path, root, check_only=True)
+              print(f"{result.status.upper()} {result.path}")
+              if result.status in {"needs-update", "error", "skipped"}:
+                  failures.append(result)
+
+          if failures:
+              for result in failures:
+                  print(f"PLATFORM_SHELL_FAILURE {result.path}: {result.detail}", file=sys.stderr)
+              raise SystemExit(1)
+          PY
 
       - name: Confirm read-only workflow contract
         run: |
@@ -111,8 +130,10 @@ jobs:
           required = (
               'permissions:\n' + '  contents: read',
               'persist-' + 'credentials: false',
-              'normalize_platform_shell.py "${fixture}" --check ' + '--no-report',
               'git diff --name-only --diff-filter=ACMR',
+              'from scripts.normalize_platform_shell import EXCLUDED_PARTS, normalize_file',
+              'any(part in EXCLUDED_PARTS for part in relative_path.parts)',
+              'normalize_file(path, root, check_only=True)',
           )
           forbidden = (
               'contents:' + ' write',
@@ -125,5 +146,5 @@ jobs:
               assert fragment in workflow, fragment
           for fragment in forbidden:
               assert fragment not in workflow, fragment
-          print({'passed': True, 'contract': 'read-only-changed-page-normalization-v2'})
+          print({'passed': True, 'contract': 'read-only-changed-production-page-normalization-v4'})
           PY
