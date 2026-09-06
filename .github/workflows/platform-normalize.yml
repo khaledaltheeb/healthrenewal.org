@@ -99,6 +99,16 @@ jobs:
             mkdir -p "${fixture}/$(dirname "${path}")"
             cp "${path}" "${fixture}/${path}"
           done
+
+          # The normalizer also validates the canonical support pages. Seed the
+          # current repository copies so a partial changed-page fixture does not
+          # report copyright/platform as synthetic drift unrelated to the PR.
+          for support in copyright/index.html platform/index.html; do
+            test -f "${support}" || continue
+            mkdir -p "${fixture}/$(dirname "${support}")"
+            cp "${support}" "${fixture}/${support}"
+          done
+
           python scripts/normalize_platform_shell.py "${fixture}" --check --no-report
 
       - name: Confirm read-only workflow contract
@@ -113,6 +123,7 @@ jobs:
               'persist-' + 'credentials: false',
               'normalize_platform_shell.py "${fixture}" --check ' + '--no-report',
               'git diff --name-only --diff-filter=ACMR',
+              'for support in copyright/index.html platform/index.html',
           )
           forbidden = (
               'contents:' + ' write',
