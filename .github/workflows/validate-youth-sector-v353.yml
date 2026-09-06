@@ -68,6 +68,6 @@ jobs:
           assert 'run_publisher("publish_youth_sector_v353.py")' in apply
           assert 'href="sectors/youth/"' in home
           assert 'href="youth/"' in portal
-          assert '"numberOfItems":7' in portal
-          print({"publisher": "wired", "homepage": "linked", "portal": "seven-sectors"})
+          assert '"numberOfItems":5' in portal
+          print({"publisher": "wired", "homepage": "linked", "portal": "five-sectors"})
           PY

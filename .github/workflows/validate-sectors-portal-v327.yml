@@ -80,5 +80,5 @@ jobs:
           grep -q '"@type":"FAQPage"' sectors/index.html
           grep -q 'مراجعة تحريرية ومنهجية داخلية' sectors/index.html
           grep -q '<!-- pt-platform-shell:v1 -->' sectors/index.html
-          grep -q 'data-pt-normalized="2.0.0"' sectors/index.html
+          grep -q 'data-pt-normalized="1.1.0"' sectors/index.html
           ! grep -q 'noindex' sectors/index.html
