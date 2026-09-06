@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.7",
+  "schema_version": "1.8",
   "reviewed_at": "2026-09-06",
   "method": {
     "origin": "Written guidance received from the Rehabilitation Measures Database team on 2026-09-04.",
@@ -7,7 +7,7 @@
     "rule_2": "Do not interpret RMD Cost=Free as Public Domain and do not interpret Not Free as copyright restriction without reading Cost Description.",
     "rule_3": "Use Mapi Research Trust/ePROVIDE or the named copyright holder/developer to determine copyright, permission, translations and administration conditions.",
     "rule_4": "Arabic psychometric validation, access to the exact Arabic form, and permission to reproduce the Arabic form are three separate gates.",
-    "rule_5": "A Rawafid operational recording sheet may document a performance procedure without reproducing a protected fixed item set; the page must not imply ownership or endorsement.",
+    "rule_5": "A Rawafid operational recording sheet may document a performance procedure or individualized measurement method without reproducing a protected fixed item set; the page must not imply ownership or endorsement.",
     "rule_6": "When sources conflict or an explicit owner/public-domain statement is absent, retain the more restrictive publication decision and publish only an original operational sheet if the procedure can be documented without reproducing protected fixed wording.",
     "rule_7": "An instrument ID must exist in only one lifecycle state: current_library or priority_candidates, never both."
   },
@@ -27,6 +27,7 @@
     {"id":"5xsts","name":"Five Times Sit to Stand Test","rmd_url":"https://www.sralab.org/rehabilitation-measures/five-times-sit-stand-test","rmd_cost":"Free","rights_source":"RMD procedure summary","copyright_state":"no protected fixed item set reproduced","arabic_state":"Rawafid recording/procedure sheet","decision":"operational-sheet-only"},
     {"id":"nprs","name":"Numeric Pain Rating Scale","rmd_url":"https://www.sralab.org/rehabilitation-measures/numeric-pain-rating-scale","rmd_cost":"Free","rights_source":"RMD; generic 0-10 numeric rating implementation","copyright_state":"generic numeric interface","arabic_state":"Rawafid numeric interface","decision":"full-ok"},
     {"id":"psfs","name":"Patient-Specific Functional Scale","rmd_url":"https://www.sralab.org/rehabilitation-measures/patient-specific-functional-scale","rmd_cost":"Free","rights_source":"RMD; patient-generated activities rather than a fixed item bank","copyright_state":"no fixed item bank reproduced","arabic_state":"Rawafid worksheet with Arabic evidence linked separately","decision":"full-ok"},
+    {"id":"gas","name":"Goal Attainment Scaling","rmd_url":"https://www.sralab.org/rehabilitation-measures/goal-attainment-scale","rmd_cost":"Free","rmd_cost_description":"RMD lists the individualized GAS method as Free; training is required","rights_source":"RMD method description plus peer-reviewed GAS methodology; no explicit Public Domain statement is inferred from Free","copyright_state":"Rawafid publishes an original blank individualized goal-scaling worksheet and calculator only; no third-party GAS form, training manual, worked example table, conversion table or guide layout is reproduced","arabic_state":"Original Arabic operational template for the GAS method; not claimed as an authorized translation of any named third-party GAS package","decision":"operational-sheet-only"},
     {"id":"6mwt","name":"6-Minute Walk Test","rmd_url":"https://www.sralab.org/rehabilitation-measures/6-minute-walk-test","rmd_cost":"Free","rmd_cost_description":"Equipment costs may apply","rights_source":"RMD procedure summary; Rawafid recording sheet","copyright_state":"equipment cost is not reproduction rights","arabic_state":"Rawafid recording sheet","decision":"operational-sheet-only"},
     {"id":"2mwt","name":"2-Minute Walk Test","rmd_url":"https://www.sralab.org/rehabilitation-measures/2-minute-walk-test","rmd_cost":"Free","rights_source":"RMD procedure summary","copyright_state":"no protected fixed item set reproduced","arabic_state":"Rawafid recording sheet","decision":"operational-sheet-only"},
     {"id":"fsst","name":"Four Square Step Test","rmd_url":"https://www.sralab.org/rehabilitation-measures/four-square-step-test","rmd_cost":"Free","rights_source":"RMD procedure summary","copyright_state":"no protected fixed item set reproduced","arabic_state":"Rawafid recording sheet","decision":"operational-sheet-only"},
