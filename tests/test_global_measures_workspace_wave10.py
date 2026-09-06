@@ -13,18 +13,18 @@ class WorkspaceWave10Test(unittest.TestCase):
  @classmethod
  def setUpClass(cls):cls.catalog=json.loads(CAT.read_text(encoding='utf-8'));cls.work=WORK.read_text(encoding='utf-8');cls.finder=FINDER.read_text(encoding='utf-8');cls.finder_js=FINDER_JS.read_text(encoding='utf-8');cls.packets=PACKETS.read_text(encoding='utf-8');cls.record=RECORD.read_text(encoding='utf-8');cls.record_js=RECORD_JS.read_text(encoding='utf-8')
  def test_catalog_current_count_and_unique_routes(self):
-  tools=self.catalog['tools'];n=self.catalog['actual_tool_count'];self.assertEqual(n,33);self.assertEqual(len(tools),33);self.assertEqual(len({x['id'] for x in tools}),33);self.assertEqual(len({x['route'] for x in tools}),33)
-  ids={x['id'] for x in tools};self.assertTrue({'healthy-days','bbs','mas','mts','mrs'}.issubset(ids));mts=next(x for x in tools if x['id']=='mts');self.assertIn('R1, R2, R2-R1',mts['score']);self.assertEqual(mts['rights_state'],'rmd-free-operational-sheet-rights-not-public-domain-verified')
+  tools=self.catalog['tools'];n=self.catalog['actual_tool_count'];self.assertEqual(n,34);self.assertEqual(len(tools),34);self.assertEqual(len({x['id'] for x in tools}),34);self.assertEqual(len({x['route'] for x in tools}),34)
+  ids={x['id'] for x in tools};self.assertTrue({'healthy-days','bbs','mas','mts','mrs','fac'}.issubset(ids));fac=next(x for x in tools if x['id']=='fac');self.assertEqual(fac['score'],'0-5 ordinal walking independence; no averaging');self.assertEqual(fac['rights_state'],'rmd-free-operational-paraphrase-rights-not-public-domain-verified')
   for t in tools:self.assertTrue(t['actual'] and t['printable'] and t['rights_state'] and t['domain'] and t['population'] and t['score'] and t['route'].startswith('/'))
  def test_external_only_are_not_counted_actual(self):
   externals=self.catalog['official_link_only'];self.assertEqual({x['id'] for x in externals},{'dass21','minicog'});self.assertTrue({x['id'] for x in self.catalog['tools']}.isdisjoint({x['id'] for x in externals}))
  def test_workspace_and_finder_are_rtl_indexable_unique(self):
   for h in (self.work,self.finder,self.packets,self.record):self.assertIn('<html lang="ar" dir="rtl">',h);self.assertIn('index,follow',h);unique(self,h)
-  self.assertIn('33 أداة/بطارية فعلية',self.work);self.assertIn('33 actual tools',self.finder);self.assertIn('MTS',self.work);self.assertIn('MTS',self.finder)
+  self.assertIn('34 أداة/بطارية فعلية',self.work);self.assertIn('34 actual tools',self.finder);self.assertIn('FAC',self.work);self.assertIn('FAC',self.finder)
  def test_finder_uses_single_catalog_and_no_diagnostic_engine(self):
   self.assertIn('/content/global-measures-v1/catalog.json',self.finder_js);self.assertIn('filter(x=>x.actual===true)',self.finder_js);self.assertIn('لا يشخّص',self.finder);self.assertNotIn('diagnose(',self.finder_js.lower());self.assertNotIn('fetch("/api',self.finder_js.lower());self.assertIn('navigator.clipboard',self.finder_js)
- def test_packets_retain_redundancy_guards_and_mts_path(self):
-  for text in ('قاعدة تقليل العبء','لا تستخدم 6MWT و2MWT معًا عادةً دون سبب','ابدأ بـTAPS‑1','لا تجمع درجات المواد المختلفة','Mini‑Cog العربي الرسمي','حزمة نتائج السكتة والمتابعة الوظيفية','حزمة مقاومة الحركة السلبية/التوتر العضلي','MTS — R1/R2','لا تطبق MAS وMTS معًا تلقائيًا','لا تحوّل 0–4 إلى 0–5'):self.assertIn(text,self.packets)
+ def test_packets_retain_redundancy_and_not_testable_guards(self):
+  for text in ('قاعدة تقليل العبء','FAC — استقلالية المشي','FAC&lt;3','Not Testable','لا تسجل 10MWT/6MWT = صفر','حزمة نتائج السكتة والمتابعة الوظيفية','MTS — R1/R2','لا تطبق MAS وMTS معًا تلقائيًا','لا تجمع درجات المواد المختلفة'):self.assertIn(text,self.packets)
  def test_record_protocol_identity_and_local_export(self):
   for text in ("const keys=['tool','version','language','period','unit']",'protocolChanged','assistChanged','غير قابل للمقارنة مباشرة','قابل بحذر','قابل للمقارنة بروتوكوليًا','new Blob','rawafid-measurement-record.json','rawafid-measurement-record.csv'):self.assertIn(text,self.record_js)
   self.assertNotIn('fetch(',self.record_js);self.assertNotIn('localStorage',self.record_js);self.assertIn('لا توجد قاعدة بيانات خلف هذا النموذج',self.record)
