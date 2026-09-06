@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "reviewed_at": "2026-09-06",
+  "instrument": {
+    "id": "mrs",
+    "name": "Modified Rankin Scale",
+    "acronym": "mRS",
+    "purpose": "global disability/dependence outcome, especially after stroke",
+    "grades": [0,1,2,3,4,5,6],
+    "score_range": [0,6],
+    "scale_type": "ordinal",
+    "higher_is_worse": true,
+    "grade_6": "death",
+    "global_cutoff": false,
+    "mean_for_individual_longitudinal_interpretation": false,
+    "prestroke_status_should_be_documented": true,
+    "timepoint_should_be_documented": true,
+    "structured_mrs_is_separate": true
+  },
+  "rmd": {
+    "url": "https://www.sralab.org/rehabilitation-measures/modified-rankin-handicap-scale",
+    "cost": "Free",
+    "items": 1,
+    "score_range": "0-6",
+    "population_focus": "stroke / neurologic disability",
+    "interpretation": "global degree of disability or dependence"
+  },
+  "eprovide": {
+    "url": "https://eprovide.mapi-trust.org/instruments/modified-rankin-scale",
+    "copyright": "Public Domain",
+    "conditions": "The questionnaire is in the public domain.",
+    "review_copy_warning": "Do not treat ePROVIDE review-copy formatting or structured/training materials as the public-domain instrument itself."
+  },
+  "methodology": {
+    "reference": "van Swieten JC et al. Interobserver agreement for the assessment of handicap in stroke patients. Stroke. 1988.",
+    "pmid": "3363593",
+    "interrater_issue": "Reliability depends on consistent interviewing, training and interpretation of global functional dependence.",
+    "dichotomization": "Trial/research protocols may define favorable outcome using different cut points; Rawafid does not impose a universal clinical dichotomy."
+  },
+  "arabic": {
+    "validated_arabic_translation_identified_in_this_review": false,
+    "regional_use_evidence": true,
+    "rawafid_status": "independent-operational-Arabic-rendering-of-public-domain-original-scale",
+    "claim_structured_mrs": false,
+    "claim_official_translation": false,
+    "next_action": "If a validated Arabic mRS or structured mRS version with clear rights becomes available, add it as a separately versioned form rather than silently replacing the operational rendering."
+  },
+  "rawafid_route": "/sectors/rehabilitation/measures/modified-rankin-scale/"
+}
