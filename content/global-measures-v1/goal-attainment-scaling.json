@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "last_verified": "2026-09-06",
   "instrument": {
     "name": "Goal Attainment Scaling",
@@ -44,7 +44,39 @@
     "target_date_or_review_timepoint_should_be_recorded": true,
     "baseline_should_be_recorded_separately": true,
     "baseline_is_not_forced_to_minus_two_because_published_methods_vary": true,
-    "patient_family_team_collaboration_recommended": true
+    "patient_family_team_collaboration_recommended": true,
+    "independent_or_blinded_outcome_rating_recommended_for_research_when_feasible": true,
+    "do_not_rewrite_anchors_after_outcome_is_known": true,
+    "scale_quality_review_precedes_summary_score": true
+  },
+  "methodology_evidence": {
+    "gas_is_not_one_standardized_scale": true,
+    "heterogeneous_method_family": true,
+    "single_high_quality_consensus_method_absent": true,
+    "implementation_reporting_should_include_training_calibration_rater_and_scoring_method": true,
+    "trial_review_2022": {
+      "included_trials": 38,
+      "rehabilitation_share_percent": 58,
+      "training_not_reported_percent": 79,
+      "calibration_or_review_not_reported_percent": 87,
+      "interpretation": "Large implementation heterogeneity limits comparability when training, calibration, rating method and scoring approach are not reported."
+    },
+    "educational_review_2023": {
+      "pmid": "37317629",
+      "doi": "10.2340/jrm.v55.6498",
+      "key_message": "GAS is a heterogeneous group of methodologies; users should explicitly choose and document formulation, baseline, scoring, review and rating procedures."
+    },
+    "implementation_2025": {
+      "doi": "10.1016/j.apmr.2025.07.018",
+      "setting_count": 3,
+      "context": "neurorehabilitation",
+      "key_message": "Implementation experience across three neurorehabilitation settings emphasizes workflow, training and local integration rather than treating GAS as a plug-in score."
+    },
+    "mci_dementia_2025": {
+      "pmid": "41477101",
+      "doi": "10.1016/j.arrct.2025.100501",
+      "key_message": "Recent rehabilitation research examined validity, acceptability and responsiveness in people with mild cognitive impairment or dementia; findings remain population- and protocol-specific."
+    }
   },
   "rights": {
     "instrument_public_domain_verified": false,
@@ -59,6 +91,10 @@
     {"name":"Rehabilitation Measures Database — Goal Attainment Scale","url":"https://www.sralab.org/rehabilitation-measures/goal-attainment-scale"},
     {"name":"Turner-Stokes L. Goal attainment scaling (GAS) in rehabilitation: a practical guide","pmid":"19179355","doi":"10.1177/0269215508101742"},
     {"name":"Krasny-Pacini A et al. Goal attainment scaling in rehabilitation: a literature-based update","pmid":"23562111","doi":"10.1016/j.rehab.2013.02.002"},
+    {"name":"Gaasterland CMW et al. Goal attainment scaling as an outcome measure for randomised controlled trials: a scoping review","url":"https://bmjopen.bmj.com/content/12/7/e063061"},
+    {"name":"Bard-Pondarre R et al. Goal Attainment Scaling in rehabilitation: educational review and implementation toolbox","pmid":"37317629","doi":"10.2340/jrm.v55.6498"},
+    {"name":"Implementing Goal Attainment Scaling as a Person-Centered Measurement Tool to Direct Care and Evaluate Outcomes in Neurorehabilitation Settings","doi":"10.1016/j.apmr.2025.07.018"},
+    {"name":"Evaluating Goal Attainment Scaling for Individuals With Mild Cognitive Impairment or Dementia in Rehabilitation Settings","pmid":"41477101","doi":"10.1016/j.arrct.2025.100501"},
     {"name":"King's College London — Goal Attainment Scaling overview","url":"https://www.kcl.ac.uk/cicelysaunders/resources/toolkits/gas-overview"}
   ]
 }
