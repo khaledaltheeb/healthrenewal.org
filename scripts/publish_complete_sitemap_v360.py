@@ -8,7 +8,9 @@ canonicals remain eligible. Emitted URLs always use the real published path on
 https://healthrenewal.org, so old metadata cannot collapse or duplicate routes.
 
 Before discovery, close the institutional internal-route contract so parent hubs,
-learning paths, and legacy aliases exist before sitemap enumeration.
+learning paths, and legacy aliases exist before sitemap enumeration. Then enforce
+the site-wide public indexability contract against the final built artifact so
+late publishers cannot accidentally reintroduce noindex on public content.
 
 The central sitemap index preserves reviewed auxiliary maps when they exist in
 the final publication, so specialized maps are not erased by the complete-site
@@ -32,13 +34,14 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
+from enforce_public_indexability_v362 import audit as audit_public_indexability
 from repair_internal_routes_v1 import apply as repair_internal_routes
 
 BASE_URL = "https://healthrenewal.org/"
 SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 MAX_URLS = 50_000
 MAX_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
-REPORT_VERSION = 363
+REPORT_VERSION = 364
 AUXILIARY_SITEMAPS = (
     "sitemap-accessibility.xml",
     "sitemap-aac.xml",
@@ -218,6 +221,14 @@ def main() -> int:
     if route_repair.get("status") != "passed":
         raise SystemExit(f"Internal route repair failed: {route_repair}")
 
+    public_indexability, indexability_passed = audit_public_indexability(
+        root,
+        fix=True,
+        report_path=Path("api/public-indexability-v362.json"),
+    )
+    if not indexability_passed:
+        raise SystemExit(f"Public indexability enforcement failed: {public_indexability}")
+
     urls, discovery = discover(root)
     if len(urls) < args.minimum_urls:
         raise SystemExit(f"Only {len(urls)} real indexable URLs discovered; minimum is {args.minimum_urls}")
@@ -256,6 +267,18 @@ def main() -> int:
         "html_files_discovered": discovery.pop("html_files_discovered"),
         "excluded_counts": {key: len(value) for key, value in discovery.items()},
         "excluded_pages": discovery,
+        "public_indexability": {
+            "status": public_indexability["status"],
+            "publicPages": public_indexability["counts"].get("public_pages", 0),
+            "publicNoindexBefore": len(public_indexability["public_noindex_before"]),
+            "publicNoindexAfter": len(public_indexability["public_noindex_after"]),
+            "fixedNoindex": len(public_indexability["fixed_noindex"]),
+            "stampedIndex": len(public_indexability["stamped_index"]),
+            "robotsTxtAllowsPublicCrawl": public_indexability["robots_txt_allows_public_crawl"],
+            "robotsTxtErrors": public_indexability["robots_txt_errors"],
+            "xRobotsNoindexConfigFiles": public_indexability["x_robots_noindex_config_files"],
+            "technicalExemptions": len(public_indexability["technical_exemptions"]),
+        },
         "internal_route_repair": {
             "status": route_repair["status"],
             "generatedRoutes": route_repair["generatedRoutes"],
@@ -289,6 +312,7 @@ def main() -> int:
         "real_indexable_urls": len(urls),
         "html_files_discovered": report["html_files_discovered"],
         "target_reached": report["target_reached"],
+        "public_indexability": report["public_indexability"],
         "sitemap_bytes": len(sitemap),
         "indexed_sitemaps": indexed_sitemaps,
         "internal_route_repair": report["internal_route_repair"],
