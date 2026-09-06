@@ -1,0 +1,63 @@
+{
+  "schema_version":"1.0",
+  "last_verified":"2026-09-06",
+  "instrument":{
+    "name":"Timed 25-Foot Walk",
+    "acronym":"T25FW",
+    "construct":"quantitative lower-extremity mobility / walking speed performance in multiple sclerosis",
+    "course_feet":25,
+    "course_meters":7.62,
+    "trials":2,
+    "score":"mean seconds of two valid trials",
+    "assistive_device_allowed":true,
+    "assistive_device_must_be_documented":true,
+    "diagnostic_measure":false
+  },
+  "rmd":{
+    "url":"https://www.sralab.org/rehabilitation-measures/timed-25-foot-walk",
+    "cost":"Free",
+    "number_of_items":1,
+    "time_to_administer":"5 minutes or less",
+    "required_training":"No Training",
+    "key_description":"Average of two trials; walk 25 feet as quickly and safely as possible; second trial is administered immediately; assistive devices may be used and should be documented."
+  },
+  "msfc_context":{
+    "component_of_msfc":true,
+    "msfc_other_components":["9HPT","PASAT-3"],
+    "do_not_compute_msfc_z_score_without_reference_population_and_full_protocol":true,
+    "manual_url":"https://www.sralab.org/sites/default/files/2017-07/10-2-3-31-MSFC_Manual_and_Forms.pdf",
+    "manual_variant_time_limit_seconds_per_trial":180,
+    "manual_variant_note":"The MSFC manual includes additional standardized administration/discontinue rules. Rawafid does not mirror the manual or claim that this operational sheet replaces formal MSFC administration materials."
+  },
+  "scoring":{
+    "requires_two_valid_trials_for_standard_mean":true,
+    "mean_formula":"(trial1_seconds + trial2_seconds) / 2",
+    "lower_time_is_better_performance":true,
+    "do_not_convert_not_testable_or_safety_stop_to_zero":true,
+    "do_not_mix_device_or_assistance_changes_without_flagging":true,
+    "no_universal_cutoff":true,
+    "change_thresholds_population_specific":true
+  },
+  "measurement_properties":{
+    "rmd_ms_median_seconds":4.4,
+    "rmd_healthy_control_median_seconds":3.7,
+    "rmd_healthy_test_retest_icc":0.880,
+    "rmd_ms_interrater_icc":0.942,
+    "interpretation":"Reference values come from specific samples reported by RMD and are not universal diagnostic cutoffs."
+  },
+  "rights":{
+    "instrument_public_domain_verified":false,
+    "rawafid_decision":"operational-sheet-only",
+    "basis":"RMD Cost=Free is not treated as a reproduction license. Rawafid provides an original timing/QC worksheet and paraphrased procedural summary based on RMD and links to formal MSFC materials; it does not mirror the MSFC record form, manual layout, scripted wording, or training content."
+  },
+  "arabic":{
+    "validated_or_official_arabic_form_identified_in_this_review":false,
+    "claim_official_translation":false,
+    "rawafid_language_status":"Original Arabic operational timing sheet; not represented as an official Arabic MSFC/T25FW translation."
+  },
+  "sources":[
+    {"name":"Rehabilitation Measures Database — Timed 25-Foot Walk","url":"https://www.sralab.org/rehabilitation-measures/timed-25-foot-walk"},
+    {"name":"Rehabilitation Measures Database — Multiple Sclerosis Functional Composite","url":"https://www.sralab.org/rehabilitation-measures/multiple-sclerosis-functional-composite"},
+    {"name":"MSFC Administration and Scoring Manual (linked by RMD)","url":"https://www.sralab.org/sites/default/files/2017-07/10-2-3-31-MSFC_Manual_and_Forms.pdf"}
+  ]
+}
