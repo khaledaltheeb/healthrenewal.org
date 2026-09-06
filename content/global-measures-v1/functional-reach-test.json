@@ -1,0 +1,63 @@
+{
+  "schema_version":"1.0",
+  "last_verified":"2026-09-06",
+  "instrument":{
+    "name":"Functional Reach Test",
+    "acronym":"FRT",
+    "construct":"standing limits of stability / forward reach with fixed base of support",
+    "mode":"performance measure",
+    "score_unit":"centimeters",
+    "diagnostic_measure":false,
+    "modified_sitting_version_included":false
+  },
+  "rmd":{
+    "url":"https://www.sralab.org/rehabilitation-measures/functional-reach-test-modified-functional-reach-test",
+    "cost":"Free",
+    "items":"1 for standing FRT",
+    "time_to_administer":"5 minutes",
+    "required_training":"No Training",
+    "cde_status":"NINDS CDE Notice of Copyright",
+    "current_page_protocol":{"practice_trials":2,"scored_trials":3,"score":"mean of the three scored trials"},
+    "legacy_rmd_hosted_pdf_protocol":{"total_trials":3,"score":"mean of the last two trials"},
+    "protocol_conflict_requires_version_recording":true
+  },
+  "procedure_model":{
+    "standing_only":true,
+    "fixed_feet_base":true,
+    "forward_reach_without_step":true,
+    "consistent_upper_limb_and_landmark_required":true,
+    "start_and_end_positions_recorded":true,
+    "trial_reach_formula":"end_position_cm - start_position_cm",
+    "negative_reach_invalid":true,
+    "step_or_loss_of_fixed_base_invalidates_trial":true
+  },
+  "scoring":{
+    "default_protocol":"RMD-current-page",
+    "rmd_current_formula":"mean of 3 valid scored reaches after 2 practice trials",
+    "legacy_rmd_pdf_formula":"mean of last 2 valid reaches from 3 total trials",
+    "do_not_mix_protocol_versions_in_longitudinal_comparison":true,
+    "no_universal_fall_risk_cutoff":true,
+    "population_specific_norms_and_mdc":true
+  },
+  "measurement_properties":{
+    "original_study":{"pmid":"2229941","clinical_apparatus_day_to_day_icc":0.81,"correlation_with_center_of_pressure_excursion":0.71,"coefficient_of_variation_percent":2.5},
+    "rmd_examples":{"parkinson_mdc_cm_examples":[9.0,7.32,4.32,8.07],"sci_mdc_cm_examples":{"C5-C6":5.16,"T1-T4":4.63,"T10-T12":4.10}},
+    "interpretation":"MDC/normative values are population- and protocol-specific; do not transfer one value across diagnoses or protocol variants."
+  },
+  "rights":{
+    "instrument_public_domain_verified":false,
+    "rmd_cde_copyright_notice":true,
+    "rawafid_decision":"operational-sheet-only",
+    "basis":"RMD lists Cost=Free but also displays a NINDS CDE Notice of Copyright. Rawafid therefore publishes only an original measurement/QC worksheet and independently paraphrased procedural cues; it does not reproduce the RMD/NINDS instrument layout or fixed third-party instruction text."
+  },
+  "arabic":{
+    "validated_or_official_arabic_form_identified_in_this_review":false,
+    "claim_official_translation":false,
+    "rawafid_language_status":"Original Arabic operational measurement wording only."
+  },
+  "sources":[
+    {"name":"RMD — Functional Reach Test / Modified Functional Reach Test","url":"https://www.sralab.org/rehabilitation-measures/functional-reach-test-modified-functional-reach-test"},
+    {"name":"RMD-hosted legacy Functional Reach instructions PDF","url":"https://www.sralab.org/sites/default/files/2017-06/5Hgjkv-Functional%20Reach%20Test.pdf"},
+    {"name":"Duncan et al. Functional reach: a new clinical measure of balance","pmid":"2229941","doi":"10.1093/geronj/45.6.m192"}
+  ]
+}
