@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "reviewed_at": "2026-09-06",
+  "instrument": {
+    "id": "mas",
+    "name": "Modified Ashworth Scale",
+    "acronym": "MAS",
+    "purpose": "clinician-rated resistance to passive movement / increased muscle tone",
+    "grades": ["0","1","1+","2","3","4"],
+    "items": "depends on number of muscles/joints tested",
+    "total_score": null,
+    "aggregate_across_muscles": false,
+    "administration_time": "less than 5 minutes per RMD, depending on muscles/joints tested",
+    "training_required_rmd": "Reading an Article/Manual",
+    "equipment": ["mat table or standardized examination surface"],
+    "diagnostic_by_grade_alone": false,
+    "spasticity_specificity": "limited; resistance to passive movement can reflect neural and non-neural factors"
+  },
+  "rmd": {
+    "url": "https://www.sralab.org/rehabilitation-measures/ashworth-scale-modified-ashworth-scale",
+    "cost": "Free",
+    "description": "Six choices: 0, 1, 1+, 2, 3, 4; quick passive stretch; standardization and training are important.",
+    "considerations": [
+      "Reliability differs by muscle group.",
+      "Adequate training is required for inter-rater reliability.",
+      "Technique should be standardized.",
+      "Resistance to passive movement is influenced by soft tissue, joint stiffness, persistent muscle activity and stretch-reflex responses.",
+      "The scale does not provide a comprehensive measure of spasticity."
+    ]
+  },
+  "eprovide": {
+    "url": "https://eprovide.mapi-trust.org/instruments/modified-ashworth-scale",
+    "last_update_seen": "July 2026",
+    "copyright": "Public Domain",
+    "conditions_of_use": "This questionnaire is in the public domain.",
+    "translation_distribution": "Existing translations can be obtained from Mapi Research Trust; fees may apply to a project."
+  },
+  "primary_reference": {
+    "citation": "Bohannon RW, Smith MB. Interrater reliability of a modified Ashworth scale of muscle spasticity. Phys Ther. 1987;67(2):206-207.",
+    "pmid": "3809245"
+  },
+  "methodology_reference": {
+    "citation": "Pandyan AD et al. A review of the properties and limitations of the Ashworth and modified Ashworth Scales as measures of spasticity.",
+    "pmid": "10498344",
+    "key_warning": "MAS grades, especially 1 versus 1+, are ambiguous enough that numeric aggregation should not be invented."
+  },
+  "arabic": {
+    "validated_arabic_form_found_in_this_review": false,
+    "rawafid_status": "independent-operational-Arabic-rendering-of-public-domain-grade-criteria",
+    "claim_official_mapi_translation": false,
+    "next_action": "If an Arabic translation is obtained from Mapi or a full Arabic validation source, add it as a separately versioned form with provenance rather than silently replacing this operational rendering."
+  },
+  "rawafid_route": "/sectors/rehabilitation/measures/modified-ashworth-scale/"
+}
