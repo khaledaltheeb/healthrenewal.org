@@ -185,10 +185,6 @@ def canonical_head_injection(path: Path, root: Path, head: str) -> str:
     lowered = head.lower()
     items: list[str] = []
 
-    # WebMCP is currently delivered through Chrome's Origin Trial. The token is
-    # domain-scoped and intentionally emitted into every final production head
-    # before deferred WebMCP runtime execution.
-    items.append(f'<meta http-equiv="origin-trial" content="{ORIGIN_TRIAL_TOKEN}">')
     if 'name="copyright"' not in lowered and "name='copyright'" not in lowered:
         items.append('<meta name="copyright" content="© 2026 Khaled Altheeb — منصة روافد">')
     if 'name="rights"' not in lowered and "name='rights'" not in lowered:
@@ -196,6 +192,10 @@ def canonical_head_injection(path: Path, root: Path, head: str) -> str:
     if 'rel="license"' not in lowered and "rel='license'" not in lowered:
         items.append(f'<link rel="license" href="{prefix}copyright/">')
 
+    # WebMCP is currently delivered through Chrome's Origin Trial. Place the
+    # domain-scoped token after stable rights metadata and before the managed
+    # shell marker so repeated normalization produces byte-identical HTML.
+    items.append(f'<meta http-equiv="origin-trial" content="{ORIGIN_TRIAL_TOKEN}">')
     items.append(MARKER)
     items.append(
         f'<link rel="stylesheet" href="{prefix}assets/platform/platform-core.css?v={SHELL_VERSION}">'
