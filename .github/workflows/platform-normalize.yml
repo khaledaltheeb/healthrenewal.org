@@ -93,23 +93,28 @@ jobs:
             exit 0
           fi
 
-          fixture="$(mktemp -d)"
-          for path in "${changed[@]}"; do
-            test -f "${path}" || continue
-            mkdir -p "${fixture}/$(dirname "${path}")"
-            cp "${path}" "${fixture}/${path}"
-          done
+          python - "${changed[@]}" <<'PY'
+          from pathlib import Path
+          import sys
 
-          # The normalizer also validates the canonical support pages. Seed the
-          # current repository copies so a partial changed-page fixture does not
-          # report copyright/platform as synthetic drift unrelated to the PR.
-          for support in copyright/index.html platform/index.html; do
-            test -f "${support}" || continue
-            mkdir -p "${fixture}/$(dirname "${support}")"
-            cp "${support}" "${fixture}/${support}"
-          done
+          from scripts.normalize_platform_shell import normalize_file
 
-          python scripts/normalize_platform_shell.py "${fixture}" --check --no-report
+          root = Path.cwd().resolve()
+          failures = []
+          for relative in sys.argv[1:]:
+              path = root / relative
+              if not path.is_file():
+                  continue
+              result = normalize_file(path, root, check_only=True)
+              print(f"{result.status.upper()} {result.path}")
+              if result.status in {"needs-update", "error", "skipped"}:
+                  failures.append(result)
+
+          if failures:
+              for result in failures:
+                  print(f"PLATFORM_SHELL_FAILURE {result.path}: {result.detail}", file=sys.stderr)
+              raise SystemExit(1)
+          PY
 
       - name: Confirm read-only workflow contract
         run: |
@@ -121,9 +126,9 @@ jobs:
           required = (
               'permissions:\n' + '  contents: read',
               'persist-' + 'credentials: false',
-              'normalize_platform_shell.py "${fixture}" --check ' + '--no-report',
               'git diff --name-only --diff-filter=ACMR',
-              'for support in copyright/index.html platform/index.html',
+              'from scripts.normalize_platform_shell import normalize_file',
+              'normalize_file(path, root, check_only=True)',
           )
           forbidden = (
               'contents:' + ' write',
@@ -136,5 +141,5 @@ jobs:
               assert fragment in workflow, fragment
           for fragment in forbidden:
               assert fragment not in workflow, fragment
-          print({'passed': True, 'contract': 'read-only-changed-page-normalization-v2'})
+          print({'passed': True, 'contract': 'read-only-changed-page-normalization-v3'})
           PY
