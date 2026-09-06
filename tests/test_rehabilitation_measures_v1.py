@@ -11,6 +11,8 @@ PAGE = ROOT / "sectors" / "rehabilitation" / "measures" / "index.html"
 CSS = PAGE.with_name("measures.css")
 JS = PAGE.with_name("app.js")
 REGISTRY = ROOT / "content" / "rehabilitation-measures-v1" / "registry.json"
+AUTHORITY = REGISTRY.with_name("README.md")
+GLOBAL_CATALOG = ROOT / "content" / "global-measures-v1" / "catalog.json"
 
 FULL_IDS = {
     "tug",
@@ -39,6 +41,8 @@ class RehabilitationMeasuresV1Test(unittest.TestCase):
         cls.css = CSS.read_text(encoding="utf-8")
         cls.registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
         cls.measures = cls.registry["measures"]
+        cls.authority = AUTHORITY.read_text(encoding="utf-8")
+        cls.global_catalog = json.loads(GLOBAL_CATALOG.read_text(encoding="utf-8"))
 
     def test_core_files_exist_and_page_is_indexable(self) -> None:
         self.assertTrue(PAGE.is_file())
@@ -65,6 +69,17 @@ class RehabilitationMeasuresV1Test(unittest.TestCase):
             self.assertIn(m["status"], {
                 "full-work-sheet", "public-domain-link", "owner-link-only", "verify-before-reproduction"
             })
+
+    def test_legacy_registry_is_not_current_execution_authority(self) -> None:
+        self.assertIn('legacy intake registry', self.authority)
+        self.assertIn('/content/global-measures-v1/catalog.json', self.authority)
+        self.assertIn('/content/global-measures-v1/rmd-eprovide-rights-audit.json', self.authority)
+        ids={m['id'] for m in self.global_catalog['tools']}
+        self.assertIn('bbt', ids)
+        self.assertEqual(next(m for m in self.global_catalog['tools'] if m['id']=='bbt')['route'],'/sectors/rehabilitation/measures/box-and-block-test/')
+        self.assertIn('reconcileLegacyCatalog()', self.js)
+        self.assertIn("match:'Box and Block Test'", self.js)
+        self.assertIn('/sectors/rehabilitation/measures/box-and-block-test/', self.js)
 
     def test_full_reproduction_is_fail_closed(self) -> None:
         actual_full = {m["id"] for m in self.measures if m.get("full_reproduction") is True}
