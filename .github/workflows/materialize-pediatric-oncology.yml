@@ -5,7 +5,9 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - 'scripts/materialize_pediatric_oncology.py'
+      - 'scripts/sync_pediatric_oncology_dynamic_counts.py'
       - 'tests/test_materialize_pediatric_oncology.py'
+      - 'tests/test_sync_pediatric_oncology_dynamic_counts.py'
       - '.github/workflows/materialize-pediatric-oncology.yml'
       - 'pediatric-oncology-publish.trigger'
   issue_comment:
@@ -14,6 +16,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/materialize-pediatric-oncology.yml'
+      - 'scripts/sync_pediatric_oncology_dynamic_counts.py'
       - 'pediatric-oncology-publish.trigger'
   workflow_dispatch:
   schedule:
@@ -28,22 +31,20 @@ concurrency:
 
 jobs:
   test:
-    name: Test pediatric oncology materializer
+    name: Test pediatric oncology materializer and dynamic counters
     if: github.event_name != 'issue_comment' || (github.actor == 'khaledaltheeb' && github.event.issue.pull_request && github.event.comment.body == '/materialize-pediatric-oncology')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Compile and run unit tests
         run: |
           set -euo pipefail
-          python -m py_compile scripts/materialize_pediatric_oncology.py tests/test_materialize_pediatric_oncology.py
-          python -m unittest -v tests.test_materialize_pediatric_oncology
+          python -m py_compile scripts/materialize_pediatric_oncology.py scripts/sync_pediatric_oncology_dynamic_counts.py tests/test_materialize_pediatric_oncology.py tests/test_sync_pediatric_oncology_dynamic_counts.py
+          python -m unittest -v tests.test_materialize_pediatric_oncology tests.test_sync_pediatric_oncology_dynamic_counts
 
   materialize-pr:
     name: Materialize scheduled evidence into owner PR
@@ -64,7 +65,9 @@ jobs:
           python-version: '3.12'
       - name: Materialize OIDC-authorized Supabase release feed
         run: python scripts/materialize_pediatric_oncology.py --root .
-      - name: Validate generated release contracts
+      - name: Synchronize dynamic pediatric-oncology counters
+        run: python scripts/sync_pediatric_oncology_dynamic_counts.py --root .
+      - name: Validate generated release contracts and dynamic counts
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -74,12 +77,26 @@ jobs:
           assert report['status'] == 'passed', report
           assert report['public_route_contract'] == 2, report
           assert report['records'] >= 1, report
+          assert report['records'] == report['studies'] + report['theses'], report
           base = Path('magazine/pediatric-oncology')
-          for hub in (base / 'index.html', base / 'studies/index.html', base / 'theses/index.html'):
+          hubs = (
+              (base / 'index.html', report['records']),
+              (base / 'studies/index.html', report['studies']),
+              (base / 'theses/index.html', report['theses']),
+          )
+          for hub, expected_count in hubs:
               text = hub.read_text(encoding='utf-8')
               assert 'rawafid:pediatric-oncology-materializer:v1' in text, hub
+              assert 'rawafid:pediatric-oncology-dynamic-counts:v1' in text, hub
               assert 'name="robots" content="index,follow' in text, hub
               assert 'rel="canonical"' in text, hub
+              assert f'data-current-count="{expected_count}"' in text, hub
+              assert f'العدد الحالي: {expected_count}' in text, hub
+          legacy = Path('sections/pediatric-cancer-latest-100-theses/index.html')
+          legacy_text = legacy.read_text(encoding='utf-8')
+          assert 'name="robots" content="noindex,follow"' in legacy_text, legacy
+          assert 'href="https://healthrenewal.org/magazine/pediatric-oncology/theses/"' in legacy_text, legacy
+          assert f'data-current-count="{report["theses"]}"' in legacy_text, legacy
           for route in report['routes']:
               page = Path(route.lstrip('/')) / 'index.html'
               text = page.read_text(encoding='utf-8')
@@ -90,21 +107,21 @@ jobs:
               assert 'name="robots" content="index,follow' in text, page
               assert text.count('<h1>') == 1, page
               assert len(text) > 5000, page
-          print({'status': 'passed', 'records': report['records'], 'routes': report['routes']})
+          print({'status': 'passed', 'records': report['records'], 'studies': report['studies'], 'theses': report['theses']})
           PY
-      - name: Commit generated evidence to PR branch
+      - name: Commit generated evidence and counters to PR branch
         env:
           HEAD_REF: ${{ github.head_ref }}
         run: |
           set -euo pipefail
           git config user.name 'Rawafid Publisher'
           git config user.email 'actions@users.noreply.github.com'
-          git add magazine/pediatric-oncology api/pediatric-oncology-materialization-v1.json
+          git add magazine/pediatric-oncology api/pediatric-oncology-materialization-v1.json sections/pediatric-cancer-latest-100-theses
           if git diff --cached --quiet; then
-            echo 'No pediatric oncology materialization changes.'
+            echo 'No pediatric oncology materialization/count changes.'
             exit 0
           fi
-          git commit -m 'publish: materialize pediatric oncology evidence'
+          git commit -m 'publish: materialize pediatric oncology evidence and counts'
           git push origin "HEAD:${HEAD_REF}"
 
   materialize-main:
@@ -128,7 +145,9 @@ jobs:
           python-version: '3.12'
       - name: Materialize OIDC-authorized Supabase release feed
         run: python scripts/materialize_pediatric_oncology.py --root .
-      - name: Validate generated release contracts
+      - name: Synchronize dynamic pediatric-oncology counters
+        run: python scripts/sync_pediatric_oncology_dynamic_counts.py --root .
+      - name: Validate generated release contracts and dynamic counts
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -138,12 +157,26 @@ jobs:
           assert report['status'] == 'passed', report
           assert report['public_route_contract'] == 2, report
           assert report['records'] >= 1, report
+          assert report['records'] == report['studies'] + report['theses'], report
           base = Path('magazine/pediatric-oncology')
-          for hub in (base / 'index.html', base / 'studies/index.html', base / 'theses/index.html'):
+          hubs = (
+              (base / 'index.html', report['records']),
+              (base / 'studies/index.html', report['studies']),
+              (base / 'theses/index.html', report['theses']),
+          )
+          for hub, expected_count in hubs:
               text = hub.read_text(encoding='utf-8')
               assert 'rawafid:pediatric-oncology-materializer:v1' in text, hub
+              assert 'rawafid:pediatric-oncology-dynamic-counts:v1' in text, hub
               assert 'name="robots" content="index,follow' in text, hub
               assert 'rel="canonical"' in text, hub
+              assert f'data-current-count="{expected_count}"' in text, hub
+              assert f'العدد الحالي: {expected_count}' in text, hub
+          legacy = Path('sections/pediatric-cancer-latest-100-theses/index.html')
+          legacy_text = legacy.read_text(encoding='utf-8')
+          assert 'name="robots" content="noindex,follow"' in legacy_text, legacy
+          assert 'href="https://healthrenewal.org/magazine/pediatric-oncology/theses/"' in legacy_text, legacy
+          assert f'data-current-count="{report["theses"]}"' in legacy_text, legacy
           for route in report['routes']:
               page = Path(route.lstrip('/')) / 'index.html'
               text = page.read_text(encoding='utf-8')
@@ -154,18 +187,18 @@ jobs:
               assert 'name="robots" content="index,follow' in text, page
               assert text.count('<h1>') == 1, page
               assert len(text) > 5000, page
-          print({'status': 'passed', 'records': report['records'], 'routes': report['routes']})
+          print({'status': 'passed', 'records': report['records'], 'studies': report['studies'], 'theses': report['theses']})
           PY
-      - name: Commit deterministic materialization
+      - name: Commit deterministic materialization and counters
         run: |
           set -euo pipefail
           git config user.name 'Rawafid Publisher'
           git config user.email 'actions@users.noreply.github.com'
-          git add magazine/pediatric-oncology api/pediatric-oncology-materialization-v1.json
+          git add magazine/pediatric-oncology api/pediatric-oncology-materialization-v1.json sections/pediatric-cancer-latest-100-theses
           if git diff --cached --quiet; then
-            echo 'No pediatric oncology materialization changes.'
+            echo 'No pediatric oncology materialization/count changes.'
           else
-            git commit -m 'publish: materialize pediatric oncology evidence'
+            git commit -m 'publish: materialize pediatric oncology evidence and counts'
             git push origin HEAD:main
           fi
       - name: Dispatch exact production workflow
