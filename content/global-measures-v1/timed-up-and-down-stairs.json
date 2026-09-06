@@ -1,0 +1,60 @@
+{
+  "schema_version":"1.0",
+  "last_verified":"2026-09-06",
+  "instrument":{
+    "name":"Timed Up and Down Stairs",
+    "acronym":"TUDS",
+    "construct":"functional stair mobility combining ascent, turning and descent",
+    "mode":"timed performance test",
+    "score_unit":"seconds",
+    "lower_time_is_faster_performance":true,
+    "diagnostic_measure":false
+  },
+  "rmd":{
+    "url":"https://www.sralab.org/rehabilitation-measures/timed-up-and-down-stairs",
+    "cost":"Free",
+    "required_equipment":["stair flight","stopwatch"],
+    "standard_description":"The commonly described TUDS protocol uses a timed ascent and descent of a stair flight. Rawafid records the exact staircase geometry and administration variant rather than assuming all staircases are equivalent."
+  },
+  "protocol_identity":{
+    "stair_count_required":true,
+    "riser_height_required":true,
+    "tread_depth_recommended":true,
+    "rail_availability_required":true,
+    "rail_use_required":true,
+    "human_assistance_required":true,
+    "start_position_required":true,
+    "finish_rule_required":true,
+    "turning_method_required":true,
+    "footwear_or_orthosis_recommended":true,
+    "protocol_reference_required_for_standardized_comparison":true,
+    "do_not_compare_if_geometry_or_assistance_changes_without_flagging":true
+  },
+  "scoring":{
+    "primary_score":"total timed ascent-turn-descent seconds under a declared protocol",
+    "not_testable_or_safety_stop_is_not_zero":true,
+    "do_not_impute_incomplete_trial":true,
+    "no_universal_cutoff":true,
+    "population_specific_reference_values":true,
+    "multiple_trials_if_used_must_follow_declared_protocol":true
+  },
+  "safety":{
+    "close_guarding_when_clinically_indicated":true,
+    "stop_for_instability_pain_dizziness_or_other_safety_concern":true,
+    "document_contact_assistance_or_rail_use":true,
+    "do_not_force_speed_when_safety_is_uncertain":true
+  },
+  "rights":{
+    "instrument_public_domain_verified":false,
+    "rawafid_decision":"operational-sheet-only",
+    "basis":"RMD Cost=Free is not treated as a reproduction license. Rawafid publishes an original timing, staircase-identity and safety/QC sheet with independently worded procedural cues; it does not reproduce a third-party score form, script, manual layout or copyrighted instructional text."
+  },
+  "arabic":{
+    "validated_or_official_arabic_form_identified_in_this_review":false,
+    "claim_official_translation":false,
+    "rawafid_language_status":"Original Arabic operational timing sheet only."
+  },
+  "sources":[
+    {"name":"Rehabilitation Measures Database — Timed Up and Down Stairs","url":"https://www.sralab.org/rehabilitation-measures/timed-up-and-down-stairs"}
+  ]
+}
