@@ -14,6 +14,8 @@ class NineHolePegWave19Test(unittest.TestCase):
  def test_runtime_and_qc(self):
   for text in ('Math.min(...trials)','done===5','أفضل زمن','المتوسط'):self.assertIn(text,self.js)
   for text in ('نفس اللوح','حاوية الأوتاد','بدأ المؤقت','محاولات التدريب'):self.assertIn(text,self.html)
+ def test_non_testable_status_suppresses_standard_result(self):
+  self.assertIn("if(status!=='قابل للاختبار')",self.js);self.assertIn('لا تُفسَّر الأزمنة المسجلة كنتيجة معيارية',self.js);self.assertIn('غير قابل للاختبار',self.html);self.assertIn('أوقف لأسباب السلامة/التعب',self.html)
  def test_rights_and_arabic_are_conservative(self):
   self.assertEqual(self.reg['rmd']['cost'],'Not Free');self.assertFalse(self.reg['rights']['instrument_public_domain_verified']);self.assertEqual(self.reg['rights']['rawafid_decision'],'operational-sheet-only');self.assertFalse(self.reg['arabic']['validated_or_official_arabic_form_identified_in_this_review']);self.assertFalse(self.reg['arabic']['claim_official_translation']);self.assertIn('ليس حكم copyright',self.html)
  def test_measurement_guardrails(self):
