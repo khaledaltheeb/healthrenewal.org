@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-09-06",
+  "precedence_rule": "When an ID appears here, this file supersedes conflicting status/rights fields in the legacy content/rehabilitation-measures-v1/registry.json. The authoritative publication decision remains content/global-measures-v1/rmd-eprovide-rights-audit.json.",
+  "overrides": [
+    {
+      "id": "box-block",
+      "canonical_id": "bbt",
+      "name": "Box and Block Test",
+      "legacy_status": "verify-before-reproduction",
+      "current_status": "operational-sheet-only",
+      "route": "/sectors/rehabilitation/measures/box-and-block-test/",
+      "reason": "RMD Not Free is equipment/apparatus cost. Rawafid publishes an original scoring/QC sheet and paraphrased procedure only; no Public Domain claim."
+    },
+    {
+      "id": "nine-hole-peg",
+      "canonical_id": "9hpt",
+      "name": "Nine-Hole Peg Test",
+      "legacy_status": "verify-before-reproduction",
+      "current_status": "operational-sheet-only",
+      "route": "/sectors/rehabilitation/measures/nine-hole-peg-test/",
+      "reason": "RMD Not Free is standardized pegboard/kit cost. Rawafid publishes an original timing/QC sheet and paraphrased procedure only; no Public Domain claim."
+    },
+    {
+      "id": "gas",
+      "canonical_id": "gas",
+      "name": "Goal Attainment Scaling",
+      "legacy_status": "verify-before-reproduction",
+      "current_status": "operational-sheet-only",
+      "route": "/sectors/rehabilitation/measures/goal-attainment-scaling/",
+      "reason": "RMD lists the individualized GAS method as Free but requires training. Rawafid publishes an original blank goal-scaling template/calculator and does not reproduce third-party forms, training manuals or conversion tables."
+    }
+  ]
+}
