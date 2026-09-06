@@ -8,6 +8,7 @@ on:
       - "assets/rehabilitation/patient-guide-outcome-map-ar.json"
       - "scripts/rawafid_brand_runtime.js"
       - "scripts/apply_rawafid_brand.py"
+      - "scripts/normalize_platform_shell.py"
       - "scripts/verify_webmcp.py"
       - "sitemap-rehabilitation.xml"
       - ".github/workflows/webmcp-guard.yml"
@@ -19,6 +20,7 @@ on:
       - "assets/rehabilitation/patient-guide-outcome-map-ar.json"
       - "scripts/rawafid_brand_runtime.js"
       - "scripts/apply_rawafid_brand.py"
+      - "scripts/normalize_platform_shell.py"
       - "scripts/verify_webmcp.py"
       - "sitemap-rehabilitation.xml"
       - ".github/workflows/webmcp-guard.yml"
@@ -86,6 +88,6 @@ jobs:
           })
           PY
       - name: Check generator syntax
-        run: python -m py_compile scripts/apply_rawafid_brand.py scripts/verify_webmcp.py
+        run: python -m py_compile scripts/apply_rawafid_brand.py scripts/normalize_platform_shell.py scripts/verify_webmcp.py
       - name: Verify WebMCP contract
         run: python scripts/verify_webmcp.py
