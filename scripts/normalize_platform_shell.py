@@ -22,6 +22,7 @@ from typing import Iterable
 DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 MARKER = "<!-- pt-platform-shell:v1 -->"
 SHELL_VERSION = "2.0.0"
+ORIGIN_TRIAL_TOKEN = "A52UpN4cSCDq9I1N9IBOrSBpKNRr+78FDN0oi7PhN7isJu2g8yOKt9/ay+p2qmUV6bQVlu/h3yfJbV3o/GZotgAAAAB4eyJvcmlnaW4iOiJodHRwczovL2hlYWx0aHJlbmV3YWwub3JnOjQ0MyIsImZlYXR1cmUiOiJXZWJNQ1AiLCJleHBpcnkiOjE3OTQ4NzM2MDAsImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"
 EXCLUDED_PARTS = {
     ".git",
     ".github",
@@ -55,6 +56,10 @@ PLATFORM_CSS_RE = re.compile(
     re.IGNORECASE,
 )
 MARKER_RE = re.compile(r"[ \t]*<!--\s*pt-platform-shell:v1\s*-->[ \t]*(?:\r?\n)?", re.IGNORECASE)
+ORIGIN_TRIAL_META_RE = re.compile(
+    r"[ \t]*<meta\b[^>]*\bhttp-equiv\s*=\s*([\"'])origin-trial\1[^>]*>[ \t]*(?:\r?\n)?",
+    re.IGNORECASE,
+)
 
 
 @dataclass
@@ -180,6 +185,10 @@ def canonical_head_injection(path: Path, root: Path, head: str) -> str:
     lowered = head.lower()
     items: list[str] = []
 
+    # WebMCP is currently delivered through Chrome's Origin Trial. The token is
+    # domain-scoped and intentionally emitted into every final production head
+    # before deferred WebMCP runtime execution.
+    items.append(f'<meta http-equiv="origin-trial" content="{ORIGIN_TRIAL_TOKEN}">')
     if 'name="copyright"' not in lowered and "name='copyright'" not in lowered:
         items.append('<meta name="copyright" content="© 2026 Khaled Altheeb — منصة روافد">')
     if 'name="rights"' not in lowered and "name='rights'" not in lowered:
@@ -209,6 +218,7 @@ def normalize_head(source: str, path: Path, root: Path) -> tuple[str, bool]:
     head = MARKER_RE.sub("", head)
     head = PLATFORM_CSS_RE.sub("", head)
     head = PLATFORM_SCRIPT_RE.sub("", head)
+    head = ORIGIN_TRIAL_META_RE.sub("", head)
     head = head.rstrip()
 
     injection = canonical_head_injection(path, root, head)
