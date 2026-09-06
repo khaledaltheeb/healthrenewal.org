@@ -14,18 +14,18 @@ class WorkspaceWave10Test(unittest.TestCase):
  def setUpClass(cls):
   cls.catalog=json.loads(CAT.read_text(encoding='utf-8'));cls.work=WORK.read_text(encoding='utf-8');cls.finder=FINDER.read_text(encoding='utf-8');cls.finder_js=FINDER_JS.read_text(encoding='utf-8');cls.packets=PACKETS.read_text(encoding='utf-8');cls.record=RECORD.read_text(encoding='utf-8');cls.record_js=RECORD_JS.read_text(encoding='utf-8')
  def test_catalog_current_count_and_unique_routes(self):
-  tools=self.catalog['tools'];n=self.catalog['actual_tool_count'];self.assertEqual(n,31);self.assertEqual(len(tools),31);self.assertEqual(len({x['id'] for x in tools}),31);self.assertEqual(len({x['route'] for x in tools}),31)
-  ids={x['id'] for x in tools};self.assertTrue({'healthy-days','bbs','mas'}.issubset(ids));mas=next(x for x in tools if x['id']=='mas');self.assertIn('no global total',mas['score']);self.assertEqual(mas['rights_state'],'rmd-free-eprovide-public-domain')
+  tools=self.catalog['tools'];n=self.catalog['actual_tool_count'];self.assertEqual(n,32);self.assertEqual(len(tools),32);self.assertEqual(len({x['id'] for x in tools}),32);self.assertEqual(len({x['route'] for x in tools}),32)
+  ids={x['id'] for x in tools};self.assertTrue({'healthy-days','bbs','mas','mrs'}.issubset(ids));mas=next(x for x in tools if x['id']=='mas');self.assertIn('no global total',mas['score']);mrs=next(x for x in tools if x['id']=='mrs');self.assertEqual(mrs['score'],'0-6 ordinal; no averaging for individual interpretation');self.assertEqual(mrs['rights_state'],'rmd-free-eprovide-public-domain-original-scale')
   for t in tools:self.assertTrue(t['actual'] and t['printable'] and t['rights_state'] and t['domain'] and t['population'] and t['score'] and t['route'].startswith('/'))
  def test_external_only_are_not_counted_actual(self):
   externals=self.catalog['official_link_only'];self.assertEqual({x['id'] for x in externals},{'dass21','minicog'});self.assertTrue({x['id'] for x in self.catalog['tools']}.isdisjoint({x['id'] for x in externals}))
  def test_workspace_and_finder_are_rtl_indexable_unique(self):
   for h in (self.work,self.finder,self.packets,self.record):self.assertIn('<html lang="ar" dir="rtl">',h);self.assertIn('index,follow',h);unique(self,h)
-  self.assertIn('31 أداة/بطارية فعلية',self.work);self.assertIn('31 actual tools',self.finder)
+  self.assertIn('32 أداة/بطارية فعلية',self.work);self.assertIn('32 actual tools',self.finder);self.assertIn('mRS',self.work);self.assertIn('mRS',self.finder)
  def test_finder_uses_single_catalog_and_no_diagnostic_engine(self):
   self.assertIn('/content/global-measures-v1/catalog.json',self.finder_js);self.assertIn('filter(x=>x.actual===true)',self.finder_js);self.assertIn('لا يشخّص',self.finder);self.assertNotIn('diagnose(',self.finder_js.lower());self.assertNotIn('fetch("/api',self.finder_js.lower());self.assertIn('navigator.clipboard',self.finder_js)
- def test_packets_retain_redundancy_guards(self):
-  for text in ('قاعدة تقليل العبء','لا تستخدم 6MWT و2MWT معًا عادةً دون سبب','ابدأ بـTAPS‑1','لا تجمع درجات المواد المختلفة','Mini‑Cog العربي الرسمي'):self.assertIn(text,self.packets)
+ def test_packets_retain_redundancy_guards_and_new_rehab_paths(self):
+  for text in ('قاعدة تقليل العبء','لا تستخدم 6MWT و2MWT معًا عادةً دون سبب','ابدأ بـTAPS‑1','لا تجمع درجات المواد المختلفة','Mini‑Cog العربي الرسمي','حزمة نتائج السكتة والمتابعة الوظيفية','حزمة مقاومة الحركة السلبية/التوتر العضلي','لا تجمع mRS مع درجات المشي أو BBS','لا تنشئ مجموعًا كليًا'):self.assertIn(text,self.packets)
  def test_record_protocol_identity_and_local_export(self):
   for text in ("const keys=['tool','version','language','period','unit']",'protocolChanged','assistChanged','غير قابل للمقارنة مباشرة','قابل بحذر','قابل للمقارنة بروتوكوليًا','new Blob','rawafid-measurement-record.json','rawafid-measurement-record.csv'):self.assertIn(text,self.record_js)
   self.assertNotIn('fetch(',self.record_js);self.assertNotIn('localStorage',self.record_js);self.assertIn('لا توجد قاعدة بيانات خلف هذا النموذج',self.record)
