@@ -1,0 +1,30 @@
+name: Validate child printables v1
+
+on:
+  pull_request:
+    paths:
+      - 'resources/child-printables/**'
+      - 'tests/test_child_printables_v1.py'
+      - '.github/workflows/validate-child-printables-v1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'resources/child-printables/**'
+      - 'tests/test_child_printables_v1.py'
+      - '.github/workflows/validate-child-printables-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate library contract
+        run: python -m unittest -v tests.test_child_printables_v1
