@@ -22,9 +22,8 @@ from typing import Iterable
 DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 MARKER = "<!-- pt-platform-shell:v1 -->"
 KIDS_LAB_PERFORMANCE_MARKER = "<!-- pt-kids-lab-performance:v1 -->"
-KIDS_LAB_PERFORMANCE_STYLE_ID = "pt-kids-lab-performance-v1"
 SHELL_VERSION = "2.0.0"
-ORIGIN_TRIAL_TOKEN = "A52UpN4cSCDq9I1N9IBOrSBpKNRr+78FDN0oi7PhN7isJu2g8yOKt9/ay+p2qmUV6bQVlu/h3yfJbV3o/GZotgAAAAB4eyJvcmlnaW4iOiJodHRwczovL2hlYWx0aHJlbmV3YWwub3JnOjQ0MyIsImZlYXR1cmUiOiJXZWJNQ0AiLCJleHBpcnkiOjE3OTQ4NzM2MDAsImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"
+ORIGIN_TRIAL_TOKEN = "A52UpN4cSCDq9I1N9IBOrSBpKNRr+78FDN0oi7PhN7isJu2g8yOKt9/ay+p2qmUV6bQVlu/h3yfJbV3o/GZotgAAAAB4eyJvcmlnaW4iOiJodHRwczovL2hlYWx0aHJlbmV3YWwub3JnOjQ0MyIsImZlYXR1cmUiOiJXZWJNQ1AiLCJleHBpcnkiOjE3OTQ4NzM2MDAsImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"
 EXCLUDED_PARTS = {
     ".git",
     ".github",
