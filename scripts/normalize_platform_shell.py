@@ -21,6 +21,7 @@ from typing import Iterable
 
 DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 MARKER = "<!-- pt-platform-shell:v1 -->"
+KIDS_LAB_PERFORMANCE_MARKER = "<!-- pt-kids-lab-performance:v1 -->"
 SHELL_VERSION = "2.0.0"
 ORIGIN_TRIAL_TOKEN = "A52UpN4cSCDq9I1N9IBOrSBpKNRr+78FDN0oi7PhN7isJu2g8yOKt9/ay+p2qmUV6bQVlu/h3yfJbV3o/GZotgAAAAB4eyJvcmlnaW4iOiJodHRwczovL2hlYWx0aHJlbmV3YWwub3JnOjQ0MyIsImZlYXR1cmUiOiJXZWJNQ1AiLCJleHBpcnkiOjE3OTQ4NzM2MDAsImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"
 EXCLUDED_PARTS = {
@@ -56,6 +57,14 @@ PLATFORM_CSS_RE = re.compile(
     re.IGNORECASE,
 )
 MARKER_RE = re.compile(r"[ \t]*<!--\s*pt-platform-shell:v1\s*-->[ \t]*(?:\r?\n)?", re.IGNORECASE)
+KIDS_LAB_PERFORMANCE_MARKER_RE = re.compile(
+    r"[ \t]*<!--\s*pt-kids-lab-performance:v1\s*-->[ \t]*(?:\r?\n)?",
+    re.IGNORECASE,
+)
+KIDS_LAB_PERFORMANCE_STYLE_RE = re.compile(
+    r'[ \t]*<style id="pt-kids-lab-performance-v1">.*?</style>[ \t]*(?:\r?\n)?',
+    re.IGNORECASE | re.DOTALL,
+)
 ORIGIN_TRIAL_META_RE = re.compile(
     r"[ \t]*<meta\b[^>]*\bhttp-equiv\s*=\s*([\"'])origin-trial\1[^>]*>[ \t]*(?:\r?\n)?",
     re.IGNORECASE,
@@ -135,6 +144,10 @@ def is_home_page(path: Path, root: Path) -> bool:
     return path.relative_to(root).as_posix() == "index.html"
 
 
+def is_kids_lab_page(path: Path, root: Path) -> bool:
+    return path.relative_to(root).as_posix().startswith("capabilities/kids-lab/")
+
+
 def set_data_attribute(attrs: str, name: str, value: str) -> str:
     pattern = re.compile(DATA_ATTR_RE_TEMPLATE.format(name=re.escape(name)), re.IGNORECASE | re.DOTALL)
     replacement = f' {name}="{value}"'
@@ -175,9 +188,51 @@ def normalize_body(source: str, path: Path, root: Path) -> tuple[str, bool]:
         attrs = set_data_attribute(attrs, "data-pt-home", "true")
     else:
         attrs = remove_data_attribute(attrs, "data-pt-home")
+    if is_kids_lab_page(path, root):
+        attrs = set_data_attribute(attrs, "data-pt-kids-lab-performance", "v1")
+    else:
+        attrs = remove_data_attribute(attrs, "data-pt-kids-lab-performance")
 
     opening = f"<body{attrs}>"
     return source[: match.start()] + opening + source[match.end() :], True
+
+
+def kids_lab_performance_css() -> str:
+    """Return a page-scoped paint optimization that preserves static HTML and indexing."""
+
+    return """<style id="pt-kids-lab-performance-v1">
+@supports (content-visibility: auto) {
+  body[data-pt-kids-lab-performance="v1"] main > section:nth-of-type(n+2),
+  body[data-pt-kids-lab-performance="v1"] main article > section:nth-of-type(n+2) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 720px;
+  }
+  body[data-pt-kids-lab-performance="v1"] main :is(ul, ol) > li:nth-child(n+9),
+  body[data-pt-kids-lab-performance="v1"] main [class*="grid"] > *:nth-child(n+9),
+  body[data-pt-kids-lab-performance="v1"] main [class*="cards"] > *:nth-child(n+9) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 180px;
+  }
+}
+@media (max-width: 900px) {
+  body[data-pt-kids-lab-performance="v1"] .pt-global-shell,
+  body[data-pt-kids-lab-performance="v1"] .pt-context-strip,
+  body[data-pt-kids-lab-performance="v1"] .pt-local-context-nav,
+  body[data-pt-kids-lab-performance="v1"] [class*="sticky"] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+@media print {
+  body[data-pt-kids-lab-performance="v1"] main section,
+  body[data-pt-kids-lab-performance="v1"] main li,
+  body[data-pt-kids-lab-performance="v1"] main [class*="grid"] > *,
+  body[data-pt-kids-lab-performance="v1"] main [class*="cards"] > * {
+    content-visibility: visible !important;
+    contain: none !important;
+  }
+}
+</style>"""
 
 
 def canonical_head_injection(path: Path, root: Path, head: str) -> str:
@@ -200,6 +255,9 @@ def canonical_head_injection(path: Path, root: Path, head: str) -> str:
     items.append(
         f'<link rel="stylesheet" href="{prefix}assets/platform/platform-core.css?v={SHELL_VERSION}">'
     )
+    if is_kids_lab_page(path, root):
+        items.append(KIDS_LAB_PERFORMANCE_MARKER)
+        items.append(kids_lab_performance_css())
     if enhancer_allowed(path, root):
         items.append(
             f'<script defer src="{prefix}assets/platform/platform-core.js?v={SHELL_VERSION}"></script>'
@@ -218,6 +276,8 @@ def normalize_head(source: str, path: Path, root: Path) -> tuple[str, bool]:
     head = MARKER_RE.sub("", head)
     head = PLATFORM_CSS_RE.sub("", head)
     head = PLATFORM_SCRIPT_RE.sub("", head)
+    head = KIDS_LAB_PERFORMANCE_MARKER_RE.sub("", head)
+    head = KIDS_LAB_PERFORMANCE_STYLE_RE.sub("", head)
     head = ORIGIN_TRIAL_META_RE.sub("", head)
     head = head.rstrip()
 
