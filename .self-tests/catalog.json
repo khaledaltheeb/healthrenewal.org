@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "updated": "2026-08-25",
+  "target_assessments": 150,
+  "items": [
+    {
+      "id": "rawafid-rumination-pattern-v1",
+      "slug": "rumination-pattern",
+      "title_ar": "مستكشف نمط الاجترار الفكري",
+      "type": "rawafid_exploratory",
+      "status": "pilot",
+      "population": "adults_18_plus",
+      "timeframe": "past_2_weeks",
+      "item_count": 32,
+      "dimensions": ["repeat", "stop", "self", "solve", "impact"],
+      "score_direction": "higher_more_construct",
+      "clinical_cutoffs": false,
+      "diagnostic": false,
+      "data_persistence": "none",
+      "route": "/self-tests/rumination-pattern/",
+      "technical_spec": ".self-tests/specs/rumination-pattern-explorer-v1.md",
+      "version": "1.0"
+    }
+  ]
+}

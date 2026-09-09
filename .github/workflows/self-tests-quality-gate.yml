@@ -1,0 +1,39 @@
+name: Self Tests Quality Gate
+
+on:
+  push:
+    branches:
+      - main
+      - feature/self-tests-sector-v1
+    paths:
+      - 'self-tests/**'
+      - 'assets/self-tests/**'
+      - '.self-tests/**'
+      - 'scripts/audit_self_tests_v1.py'
+      - '.github/workflows/self-tests-quality-gate.yml'
+  pull_request:
+    paths:
+      - 'self-tests/**'
+      - 'assets/self-tests/**'
+      - '.self-tests/**'
+      - 'scripts/audit_self_tests_v1.py'
+      - '.github/workflows/self-tests-quality-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Privacy, scoring and content integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run self-tests audit
+        run: python scripts/audit_self_tests_v1.py
