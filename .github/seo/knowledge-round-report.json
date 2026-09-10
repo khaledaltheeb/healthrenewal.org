@@ -3,23 +3,11 @@
   "target": 50,
   "status": "drained",
   "status_ar": "اكتملت معالجة جميع الصفحات المؤهلة المتبقية",
-  "successes_actual": 13,
+  "successes_actual": 1,
   "success_paths": [
-    "/resources/child-printables/after-hard-event-safety-support/",
-    "/resources/child-printables/calm-down-plan/",
-    "/resources/child-printables/feelings-picture-card/",
-    "/resources/child-printables/friendship-compass/",
-    "/resources/child-printables/",
-    "/resources/child-printables/mood-energy-activity/",
-    "/resources/child-printables/one-step-focus-plan/",
-    "/resources/child-printables/school-stress-map/",
-    "/resources/child-printables/study-pressure-support-plan/",
-    "/resources/child-printables/teen-sleep-reset/",
-    "/resources/child-printables/toddler-calm-sleep-routine/",
-    "/resources/child-printables/visual-day-plan/",
-    "/resources/child-printables/worry-map/"
+    "/resources/open-books-discovery/"
   ],
-  "skipped_noop": 107,
+  "skipped_noop": 119,
   "skipped_by_reason": {
     "noindex": 1
   },
@@ -27,20 +15,16 @@
   "failed": [],
   "eligible_remaining": 0,
   "fix_counts": {
-    "meta": 13,
-    "schema": 13,
-    "og": 13,
-    "twitter": 13,
-    "indexability": 13,
-    "sitemap": 13
+    "meta": 1,
+    "schema": 1
   },
-  "sitemap_changed": true,
+  "sitemap_changed": false,
   "scope_roots": [
     "resources",
     "psychology",
     "terms"
   ],
-  "started_at": "2026-09-07T16:31:12.710363+00:00",
+  "started_at": "2026-09-10T22:39:10.618401+00:00",
   "hard_blocker": null,
   "agent_health": "healthy",
   "completion_reason": "all-eligible-pages-processed"
