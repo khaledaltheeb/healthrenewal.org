@@ -26,39 +26,61 @@
   <link rel="license" href="../../copyright/">
   <script type="application/ld+json">
   {
-    "@context":"https://schema.org",
-    "@graph":[
+    "@context": "https://schema.org",
+    "@graph": [
       {
-        "@type":["WebPage","Article"],
-        "@id":"https://healthrenewal.org/resources/open-books-discovery/#webpage",
-        "url":"https://healthrenewal.org/resources/open-books-discovery/",
-        "headline":"الكتب المفتوحة: دليل اكتشاف الكتاب والتحقق من الرخصة والبيانات الوصفية",
-        "name":"الكتب المفتوحة: دليل اكتشاف الكتاب والتحقق من الرخصة والبيانات الوصفية",
-        "description":"دليل عربي متقدم لاكتشاف الكتب المفتوحة والتحقق من هوية العمل والناشر والإصدار والرخصة والبيانات الوصفية قبل الاستخدام.",
-        "inLanguage":"ar",
-        "datePublished":"2026-08-05",
-        "dateModified":"2026-09-11",
-        "isPartOf":{"@id":"https://healthrenewal.org/#website"},
-        "publisher":{"@id":"https://healthrenewal.org/#organization"},
-        "about":["الكتب المفتوحة","الوصول المفتوح","البيانات الوصفية","Thoth Open Metadata","ONIX 3.0","ISBN","DOI","ORCID","ROR","التراخيص المفتوحة"]
+        "@type": "WebPage",
+        "@id": "https://healthrenewal.org/resources/open-books-discovery/#webpage",
+        "url": "https://healthrenewal.org/resources/open-books-discovery/",
+        "name": "الكتب المفتوحة: دليل اكتشاف الكتاب والتحقق من الرخصة والبيانات الوصفية",
+        "description": "دليل عربي متقدم لاكتشاف الكتب المفتوحة والتحقق من هوية العمل والناشر والإصدار والرخصة والبيانات الوصفية قبل الاستخدام.",
+        "inLanguage": "ar",
+        "datePublished": "2026-08-05",
+        "dateModified": "2026-09-11",
+        "isPartOf": {"@id": "https://healthrenewal.org/#website"},
+        "about": ["الكتب المفتوحة", "الوصول المفتوح", "البيانات الوصفية", "Thoth Open Metadata", "ONIX 3.0", "ISBN", "DOI", "ORCID", "ROR", "التراخيص المفتوحة"]
       },
       {
-        "@type":"BreadcrumbList",
-        "@id":"https://healthrenewal.org/resources/open-books-discovery/#breadcrumb",
-        "itemListElement":[
-          {"@type":"ListItem","position":1,"name":"الرئيسية","item":"https://healthrenewal.org/"},
-          {"@type":"ListItem","position":2,"name":"الموارد","item":"https://healthrenewal.org/resources/"},
-          {"@type":"ListItem","position":3,"name":"دليل الكتب المفتوحة","item":"https://healthrenewal.org/resources/open-books-discovery/"}
+        "@type": "Article",
+        "@id": "https://healthrenewal.org/resources/open-books-discovery/#article",
+        "headline": "الكتب المفتوحة: دليل اكتشاف الكتاب والتحقق من الرخصة والبيانات الوصفية",
+        "inLanguage": "ar",
+        "datePublished": "2026-08-05",
+        "dateModified": "2026-09-11",
+        "mainEntityOfPage": {"@id": "https://healthrenewal.org/resources/open-books-discovery/#webpage"},
+        "publisher": {"@id": "https://healthrenewal.org/#organization"}
+      },
+      {
+        "@type": "HowTo",
+        "@id": "https://healthrenewal.org/resources/open-books-discovery/#howto",
+        "name": "كيف تتحقق من كتاب مفتوح قبل استخدامه؟",
+        "inLanguage": "ar",
+        "step": [
+          {"@type": "HowToStep", "name": "ثبّت هوية العمل", "text": "طابق العنوان والمؤلف والناشر والإصدار والمعرفات الثابتة."},
+          {"@type": "HowToStep", "name": "ارجع إلى المصدر القانوني", "text": "افتح صفحة الناشر أو الكتاب الأصلية وتحقق من صفحة الهبوط الرسمية."},
+          {"@type": "HowToStep", "name": "تحقق من الرخصة", "text": "تأكد من أن الرخصة تخص الإصدار والملف اللذين ستشير إليهما."},
+          {"@type": "HowToStep", "name": "افصل بين الحقوق", "text": "لا تستنتج حقوق النص أو الغلاف من رخصة البيانات الوصفية."},
+          {"@type": "HowToStep", "name": "قيّم الجودة", "text": "افحص المؤلف والناشر والمنهجية والمراجع وحداثة المحتوى."},
+          {"@type": "HowToStep", "name": "سجل التحقق", "text": "احتفظ بالمصدر والتاريخ والرخصة وحالة الوصول وموعد المراجعة."}
         ]
       },
       {
-        "@type":"FAQPage",
-        "@id":"https://healthrenewal.org/resources/open-books-discovery/#faq",
-        "mainEntity":[
-          {"@type":"Question","name":"هل وجود كتاب في Thoth يعني أن نصه مفتوح لإعادة الاستخدام؟","acceptedAnswer":{"@type":"Answer","text":"لا. بيانات Thoth الوصفية متاحة تحت CC0، لكن حقوق نص الكتاب أو الغلاف أو ملف PDF أو EPUB قد تخضع لرخصة مختلفة. يجب التحقق من صفحة العمل والناشر والرخصة الخاصة بالإصدار نفسه."}},
-          {"@type":"Question","name":"ما أهم البيانات التي يجب التحقق منها قبل إضافة كتاب مفتوح إلى فهرس؟","acceptedAnswer":{"@type":"Answer","text":"العنوان والإصدار، المؤلفون، الناشر، ISBN أو DOI، تاريخ النشر، صفحة الهبوط الرسمية، رابط الرخصة، حالة الوصول، لغة العمل، ومصدر البيانات وتاريخ التحقق."}},
-          {"@type":"Question","name":"ما الفرق بين البيانات الوصفية المفتوحة والكتاب المفتوح؟","acceptedAnswer":{"@type":"Answer","text":"البيانات الوصفية تصف العمل مثل العنوان والمؤلف والناشر والمعرفات. فتح هذه البيانات لا يمنح تلقائيًا حق نسخ محتوى الكتاب أو غلافه أو ترجمته؛ حقوق كل مكوّن يجب التحقق منها مستقلاً."}},
-          {"@type":"Question","name":"هل الكتاب المفتوح موثوق علميًا بالضرورة؟","acceptedAnswer":{"@type":"Answer","text":"لا. الانفتاح والترخيص لا يساويان الجودة العلمية. يجب تقييم المؤلف والناشر والمنهجية والمراجع وحداثة المادة وتضارب المصالح ومدى ملاءمتها للسياق."}}
+        "@type": "BreadcrumbList",
+        "@id": "https://healthrenewal.org/resources/open-books-discovery/#breadcrumb",
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "الرئيسية", "item": "https://healthrenewal.org/"},
+          {"@type": "ListItem", "position": 2, "name": "الموارد", "item": "https://healthrenewal.org/resources/"},
+          {"@type": "ListItem", "position": 3, "name": "دليل الكتب المفتوحة", "item": "https://healthrenewal.org/resources/open-books-discovery/"}
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://healthrenewal.org/resources/open-books-discovery/#faq",
+        "mainEntity": [
+          {"@type": "Question", "name": "هل وجود كتاب في Thoth يعني أن نصه مفتوح لإعادة الاستخدام؟", "acceptedAnswer": {"@type": "Answer", "text": "لا. بيانات Thoth الوصفية متاحة تحت CC0، لكن حقوق نص الكتاب أو الغلاف أو ملف PDF أو EPUB قد تخضع لرخصة مختلفة. يجب التحقق من صفحة العمل والناشر والرخصة الخاصة بالإصدار نفسه."}},
+          {"@type": "Question", "name": "ما أهم البيانات التي يجب التحقق منها قبل إضافة كتاب مفتوح إلى فهرس؟", "acceptedAnswer": {"@type": "Answer", "text": "العنوان والإصدار، المؤلفون، الناشر، ISBN أو DOI، تاريخ النشر، صفحة الهبوط الرسمية، رابط الرخصة، حالة الوصول، لغة العمل، ومصدر البيانات وتاريخ التحقق."}},
+          {"@type": "Question", "name": "ما الفرق بين البيانات الوصفية المفتوحة والكتاب المفتوح؟", "acceptedAnswer": {"@type": "Answer", "text": "البيانات الوصفية تصف العمل مثل العنوان والمؤلف والناشر والمعرفات. فتح هذه البيانات لا يمنح تلقائيًا حق نسخ محتوى الكتاب أو غلافه أو ترجمته؛ حقوق كل مكوّن يجب التحقق منها مستقلاً."}},
+          {"@type": "Question", "name": "هل الكتاب المفتوح موثوق علميًا بالضرورة؟", "acceptedAnswer": {"@type": "Answer", "text": "لا. الانفتاح والترخيص لا يساويان الجودة العلمية. يجب تقييم المؤلف والناشر والمنهجية والمراجع وحداثة المادة وتضارب المصالح ومدى ملاءمتها للسياق."}}
         ]
       }
     ]
@@ -66,13 +88,15 @@
   </script>
   <style>
     :root{color-scheme:light;--bg:#f6fbf9;--surface:#fff;--text:#17332d;--muted:#4b625d;--line:#c9ddd7;--accent:#0b6b5d;--accent-soft:#edf8f5;--warn:#fff8e8;--focus:#ffbf47}
-    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.85}
-    a{color:#075c50;text-underline-offset:.2em} a:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.skip-link{position:absolute;inset-inline-start:1rem;top:-5rem;background:#111;color:#fff;padding:.75rem 1rem;z-index:20}.skip-link:focus{top:1rem}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.85}
+    a{color:#075c50;text-underline-offset:.2em}a:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.skip-link{position:absolute;inset-inline-start:1rem;top:-5rem;background:#111;color:#fff;padding:.75rem 1rem;z-index:20}.skip-link:focus{top:1rem}
     header,main,footer{width:min(76rem,calc(100% - 2rem));margin-inline:auto}header{padding:2rem 0 1rem}.hero,section,aside{background:var(--surface);border:1px solid var(--line);border-radius:1rem;padding:clamp(1rem,3vw,2rem);margin-block:1rem}
     h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.25;margin:.2rem 0 1rem}h2{font-size:clamp(1.45rem,3vw,2rem);line-height:1.4;margin-top:0}h3{font-size:1.17rem}.lede{font-size:1.16rem;max-width:72ch}.meta{color:var(--muted);font-size:.95rem}.notice{border-inline-start:.42rem solid var(--accent);background:var(--accent-soft)}.warning{background:var(--warn)}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1rem}.card{border:1px solid var(--line);border-radius:.85rem;padding:1rem;background:#fff}.toc ul{columns:2;column-gap:2rem}.toc li{break-inside:avoid;margin:.4rem 0}.steps li,.checklist li{margin-block:.58rem}.badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:.18rem .65rem;margin:.15rem;font-size:.88rem;background:#fff}
     .table-wrap{overflow-x:auto}.data-table{width:100%;border-collapse:collapse;min-width:42rem}.data-table th,.data-table td{border:1px solid var(--line);padding:.75rem;vertical-align:top;text-align:start}.data-table th{background:#eef7f4}code{direction:ltr;unicode-bidi:embed}.source-list li{margin-block:.7rem}.print-only{display:none}footer{padding:1rem 0 3rem;color:var(--muted)}
-    @media(max-width:44rem){.toc ul{columns:1}.hero,section,aside{border-radius:.75rem}.data-table{min-width:36rem}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+    @media (max-width: 44rem){.toc ul{columns:1}.hero,section,aside{border-radius:.75rem}.data-table{min-width:36rem}}
+    @media (max-width: 38rem){body{font-size:1rem}.hero,section,aside{padding:1rem}.data-table{min-width:34rem}}
+    @media(prefers-reduced-motion: reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
     @media print{body{background:#fff;color:#000;font-size:11pt}.skip-link,nav,.toc{display:none!important}header,main,footer{width:100%}.hero,section,aside,.card{border:1px solid #777;break-inside:avoid}.table-wrap{overflow:visible}.data-table{min-width:0}a::after{content:" (" attr(href) ")";font-size:9pt;word-break:break-all}.print-only{display:block}}
   </style>
   <!-- pt-platform-shell:v1 -->
@@ -100,7 +124,7 @@
   <main id="main-content" tabindex="-1">
     <aside class="notice" aria-labelledby="boundary-title">
       <h2 id="boundary-title">القاعدة التي تمنع أكبر خطأ</h2>
-      <p><strong>رخصة CC0 للبيانات الوصفية لا تعني أن نص الكتاب أو غلافه أو ملف PDF أو EPUB أصبح متاحًا تلقائيًا لإعادة الاستخدام.</strong> يجب التعامل مع كل طبقة من الحقوق على حدة: Metadata، النص الكامل، الغلاف، الصور، الترجمة، والملفات القابلة للتنزيل. المرجع النهائي لأي استخدام هو صفحة العمل أو الناشر والرخصة المرتبطة بالإصدار نفسه.</p>
+      <p><strong>رخصة CC0 لسجل البيانات لا تعني أن نص الكتاب أو غلافه أو ملف PDF أو EPUB أصبح متاحًا تلقائيًا لإعادة الاستخدام.</strong> يجب التعامل مع كل طبقة من الحقوق على حدة: Metadata، النص الكامل، الغلاف، الصور، الترجمة، والملفات القابلة للتنزيل. المرجع النهائي لأي استخدام هو <strong>صفحة الناشر أو الكتاب الأصلية</strong> والرخصة المرتبطة بالإصدار نفسه.</p>
     </aside>
 
     <section class="toc" aria-labelledby="toc-title">
@@ -142,7 +166,7 @@
       <ol class="steps">
         <li><strong>ثبّت هوية العمل:</strong> طابق العنوان والعنوان الفرعي، أسماء المؤلفين أو المحررين، الناشر، تاريخ النشر، ورقم الإصدار أو الطبعة.</li>
         <li><strong>استخدم معرفًا ثابتًا:</strong> فضّل ISBN للإصدار أو DOI للعمل/الفصل عندما يكون متاحًا. لا تعتمد على تشابه العناوين وحده.</li>
-        <li><strong>ارجع إلى الصفحة القانونية:</strong> افتح سجل الناشر أو صفحة هبوط العمل الرسمية. رابط ملف مباشر دون صفحة تفسيرية ليس أساسًا كافيًا للتحقق.</li>
+        <li><strong>ارجع إلى الصفحة القانونية:</strong> افتح صفحة الناشر أو الكتاب الأصلية. رابط ملف مباشر دون صفحة تفسيرية ليس أساسًا كافيًا للتحقق.</li>
         <li><strong>تحقق من الرخصة نفسها:</strong> اقرأ اسم الرخصة ورابطها، وتأكد من أنها تخص النسخة التي ستشير إليها. دوّن قيود الاستخدام إن وجدت.</li>
         <li><strong>تحقق من الوصول:</strong> ميّز بين القراءة على الويب، PDF، EPUB، نسخة مطبوعة فقط، أو Metadata بلا نص كامل. لا تعرض زر «تنزيل» إذا لم يكن الرابط والرخصة مؤكدين.</li>
         <li><strong>قيّم الجودة والسياق:</strong> الانفتاح لا يثبت صحة الكتاب. افحص المؤلفين، الجهة الناشرة، المراجع، المنهجية، حداثة المادة، وتعارض المصالح عندما يكون ذا صلة.</li>
@@ -183,7 +207,7 @@
 
     <section id="quality" aria-labelledby="quality-title">
       <h2 id="quality-title">الترخيص المفتوح لا يساوي الجودة العلمية</h2>
-      <p>قد يكون العمل مفتوح الوصول ومتاحًا قانونيًا لكنه قديم أو محدود المنهجية أو موجّهًا لسياق مختلف. لهذا تحتاج الكتب الصحية والنفسية والتربوية خصوصًا إلى فحص مستقل للجودة قبل إبرازها للقراء.</p>
+      <p><strong>الترخيص المفتوح لا يساوي الدقة العلمية.</strong> قد يكون العمل مفتوح الوصول ومتاحًا قانونيًا لكنه قديم أو محدود المنهجية أو موجّهًا لسياق مختلف. لهذا تحتاج الكتب الصحية والنفسية والتربوية خصوصًا إلى فحص مستقل للجودة قبل إبرازها للقراء.</p>
       <ul class="checklist">
         <li><strong>الجهة والمؤلفون:</strong> من كتب العمل؟ ما خبرتهم؟ هل الجهة الناشرة أكاديمية أو مهنية معروفة؟</li>
         <li><strong>الحداثة:</strong> هل المعلومات الحالية تتأثر بتغير الإرشادات أو التشريعات أو التقنيات؟</li>
@@ -220,7 +244,7 @@
     </section>
 
     <section id="rights" aria-labelledby="rights-title">
-      <h2 id="rights-title">حدود الحقوق: ما الذي يمكن أخذه وما الذي يحتاج إذنًا؟</h2>
+      <h2 id="rights-title">لا تنشئ ناشرًا باسم طرف آخر: حدود الحقوق والاستخدام</h2>
       <div class="table-wrap" role="region" aria-label="جدول حدود الحقوق" tabindex="0">
         <table class="data-table">
           <thead><tr><th>العنصر</th><th>القاعدة</th></tr></thead>
@@ -233,7 +257,7 @@
           </tbody>
         </table>
       </div>
-      <p class="meta">روافد منصة معرفة واكتشاف وليست الناشر الأصلي للأعمال المدرجة ما لم يُذكر خلاف ذلك صراحة في عمل تنشره روافد بنفسها. هذه الصفحة لا تدّعي شراكة أو اعتمادًا أو مراجعة خارجية من Thoth.</p>
+      <p class="meta">روافد منصة معرفة واكتشاف وليست الناشر الأصلي للأعمال المدرجة ما لم يُذكر خلاف ذلك صراحة في عمل تنشره روافد بنفسها. <strong>لا توجد شراكة أو عضوية أو مراجعة خارجية</strong> من Thoth أو الناشرين لهذه الصفحة، ولا ينبغي تفسير الاستناد إلى مصادرهم بوصفه اعتمادًا.</p>
     </section>
 
     <section id="faq" aria-labelledby="faq-title">
@@ -268,6 +292,7 @@
       <ul>
         <li><a href="/research/">المجلة والبحث العلمي</a></li>
         <li><a href="/resources/">مكتبة الموارد</a></li>
+        <li><a href="/accessibility/">الإتاحة والوصول إلى المعلومات</a></li>
         <li><a href="/sections/research-evidence-learning/">البحث والأدلة والتعلّم</a></li>
         <li><a href="/governance/evidence-data-standards/#publisher-integrity">حوكمة الأدلة والبيانات — نزاهة هوية الناشر</a></li>
         <li><a href="/about/editorial-policy/">السياسة التحريرية وحدود المراجعة</a></li>
