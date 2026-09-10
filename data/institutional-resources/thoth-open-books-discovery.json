@@ -19,7 +19,7 @@
     ],
     "prohibited": [
       "إنشاء Health Renewal كناشر لكتب لا ينشرها",
-      "إدارة بيانات ناشر طرف ثالث دون إذن صريح وتنسيق مباشر",
+      "إدارة بيانات ناشر طرف ثالث دون إذن صريح وتنسيق صحيح مع صاحب الحقوق والمنصة",
       "استيراد الأغلفة أو النصوص الكاملة أو ملفات الكتب اعتمادًا على CC0 للبيانات الوصفية",
       "عرض رخصة أو رابط تنزيل دون التحقق من صفحة الناشر أو السجل القانوني للعمل",
       "ادعاء شراكة أو اعتماد أو مراجعة من Thoth أو الناشر"
@@ -29,39 +29,57 @@
     {
       "name": "شروط بيانات Thoth الوصفية",
       "url": "https://thoth.pub/docs/policies/terms-thoth-metadata",
-      "purpose": "مرجع الحقوق وحدود استخدام البيانات الوصفية"
+      "purpose": "مرجع الحقوق وشروط حساب Metadata Management وحدود استخدام البيانات الوصفية"
+    },
+    {
+      "name": "Thoth Metadata Management",
+      "url": "https://thoth.pub/services/metadata",
+      "purpose": "المعايير والصيغ المدعومة والمعرفات الدائمة وممارسات البيانات الوصفية"
     },
     {
       "name": "فهرس الكتب",
       "url": "https://thoth.pub/books",
-      "purpose": "اكتشاف السجلات المتاحة"
+      "purpose": "اكتشاف السجلات المتاحة وتنزيل بياناتها"
     },
     {
       "name": "فهرس الناشرين",
       "url": "https://thoth.pub/publishers",
-      "purpose": "العودة إلى هوية الناشر والسجل الأصلي"
+      "purpose": "العودة إلى هوية الناشر والسجل الأصلي وبيانات الناشر"
     },
     {
-      "name": "وثائق Thoth",
-      "url": "https://thoth.pub/docs",
-      "purpose": "فهم GraphQL وExport API ومسارات الاستخدام الرسمية"
+      "name": "عن Thoth",
+      "url": "https://thoth.pub/about",
+      "purpose": "فهم البنية المفتوحة وواجهات GraphQL وExport API ومبدأ عدم الإقفال داخل منصة"
+    },
+    {
+      "name": "International Metadata Recommendations (2026)",
+      "url": "https://thoth.pub/thoth-report",
+      "purpose": "إطار Essential وDesirable للبيانات الوصفية للكتب والفصول المفتوحة"
+    },
+    {
+      "name": "International Metadata Recommendations — Zenodo record",
+      "url": "https://doi.org/10.5281/zenodo.18173982",
+      "purpose": "السجل الدائم للتقرير الكامل والملفات الداعمة"
     }
   ],
   "verification": {
-    "verified_on": "2026-08-05",
-    "next_review_due": "2026-11-05",
+    "verified_on": "2026-09-11",
+    "next_review_due": "2026-12-11",
     "status": "internally-reviewed-not-externally-endorsed",
     "findings": [
-      "شروط Thoth الحالية تنص على أن البيانات الوصفية متاحة عبر الفهارس وGraphQL API وExport API وتخضع لـCC0 1.0.",
-      "فهرس الكتب الحالي يوضح أن السجلات الوصفية المولدة عبر Export API مرخصة CC0.",
-      "Health Renewal منصة اكتشاف طرف ثالث وليست الناشر الأصلي؛ لذلك لا تُنشئ أو تدير سجلات ناشر باسم طرف آخر دون إذن."
+      "شروط Thoth الحالية تنص على أن بيانات Thoth متاحة عبر الفهارس وGraphQL API وExport API وتخضع لـCC0 1.0.",
+      "شروط Metadata Management تشترط أن يمتلك المستخدم الحقوق اللازمة في البيانات التي يرفعها أو يديرها.",
+      "فهرس الكتب الحالي يوضح أن سجلات البيانات الوصفية المولدة عبر Export API مرخصة CC0.",
+      "خدمة Metadata Management الحالية تدعم معايير وصيغًا تشمل ONIX 2.1 وONIX 3 وMARC وKBART وJSON وCSV وBibTeX وCrossref XML، وتدعم معرّفات دائمة مثل ORCID وROR.",
+      "تقرير Thoth لعام 2026 يقترح إطارًا من مستويين: Essential للبيانات الببليوغرافية والوصول والرخصة، وDesirable للمعرفات الدائمة الأوسع والبيانات متعددة اللغات والملخصات وغيرها.",
+      "Health Renewal منصة اكتشاف طرف ثالث وليست الناشر الأصلي للأعمال المدرجة؛ لذلك لا تنشئ أو تدير سجلات ناشر باسم طرف آخر دون حق مشروع أو تفويض صريح."
     ]
   },
   "publication": {
     "page_path": "/resources/open-books-discovery/",
     "canonical": "https://healthrenewal.org/resources/open-books-discovery/",
-    "review_state": "draft-pending-ci-and-live-verification",
-    "last_updated": "2026-08-05"
+    "review_state": "reviewed-published-pending-live-release-verification",
+    "last_updated": "2026-09-11"
   },
   "record_contract": {
     "required_fields": [
@@ -86,20 +104,25 @@
       "edition",
       "subjects",
       "abstract_ar_original",
-      "accessibility_features"
+      "accessibility_features",
+      "funder",
+      "multilingual_metadata",
+      "table_of_contents"
     ],
     "quality_rules": [
       "لا يُعرض زر تنزيل إلا إذا كان رابط الملف والرخصة مؤكدين من المصدر القانوني.",
       "أي وصف عربي يُكتب من الصفر ولا يُقدم كترجمة رسمية للناشر.",
-      "تعرض حالة التحقق وتاريخه بوضوح، وتزال السجلات القديمة أو المكسورة من الواجهة.",
+      "تعرض حالة التحقق وتاريخه بوضوح، وتراجع الروابط والسجلات القديمة أو المكسورة.",
       "لا تستخدم صورة غلاف إلا بترخيص مستقل قابل للتحقق.",
-      "لا تُستنتج الجودة العلمية من وجود السجل في Thoth وحده."
+      "لا تُستنتج الجودة العلمية من وجود السجل في Thoth وحده.",
+      "تُطابق هوية الإصدار باستخدام العنوان والناشر والمعرفات الثابتة والصيغة ولا يعتمد على العنوان وحده."
     ]
   },
   "professional_boundaries": [
     "الدليل أداة اكتشاف وليس توصية علاجية أو تشخيصية أو اعتمادًا علميًا للكتاب.",
     "وجود كتاب في فهرس مفتوح لا يعني ملاءمته لكل قارئ أو صحة جميع ادعاءاته.",
-    "تقييم المحتوى الصحي يتطلب مراجعة المصدر، المؤلف، تاريخ النشر، المنهجية، والتعارضات المحتملة."
+    "تقييم المحتوى الصحي يتطلب مراجعة المصدر، المؤلف، تاريخ النشر، المنهجية، والتعارضات المحتملة.",
+    "لا تدعي الصفحة شراكة أو اعتمادًا أو مراجعة خارجية من Thoth."
   ],
   "attribution": {
     "required_text_ar": "تعتمد بيانات الاكتشاف الوصفية على Thoth Open Metadata وتخضع لـCC0 1.0. تبقى حقوق الكتاب والغلاف والنص الكامل ورخصته لدى أصحابها كما تظهر في المصدر الأصلي.",
