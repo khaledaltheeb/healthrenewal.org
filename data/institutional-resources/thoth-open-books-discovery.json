@@ -55,11 +55,18 @@
       "name": "International Metadata Recommendations (2026)",
       "url": "https://thoth.pub/thoth-report",
       "purpose": "إطار Essential وDesirable للبيانات الوصفية للكتب والفصول المفتوحة"
-    },
+    }
+  ],
+  "supporting_resources": [
     {
-      "name": "International Metadata Recommendations — Zenodo record",
+      "name": "International Metadata Recommendations — persistent record",
       "url": "https://doi.org/10.5281/zenodo.18173982",
       "purpose": "السجل الدائم للتقرير الكامل والملفات الداعمة"
+    },
+    {
+      "name": "Creative Commons CC0 1.0",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "purpose": "النص الرسمي لأداة CC0"
     }
   ],
   "verification": {
