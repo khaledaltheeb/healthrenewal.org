@@ -1,0 +1,235 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://healthrenewal.org/schemas/publishing/book-record.schema.json",
+  "title": "Rawafid Book Record",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "slug",
+    "record_type",
+    "work_type",
+    "title",
+    "language",
+    "publisher",
+    "contributors",
+    "publication",
+    "subjects",
+    "rights",
+    "review",
+    "accessibility",
+    "workflow",
+    "thoth",
+    "provenance",
+    "public_visibility"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{2,100}$"},
+    "slug": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{2,100}$"},
+    "record_type": {"enum": ["rawafid-original", "licensed-translation", "authorized-co-managed", "discovery-only"]},
+    "work_type": {"enum": ["scholarly-monograph", "professional-book", "handbook", "guide", "textbook", "report", "literary-fiction", "literary-nonfiction", "other"]},
+    "title": {
+      "type": "object",
+      "required": ["primary", "primary_language"],
+      "properties": {
+        "primary": {"type": "string", "minLength": 2},
+        "primary_language": {"type": "string", "minLength": 2},
+        "subtitle": {"type": ["string", "null"]},
+        "arabic": {"type": ["string", "null"]},
+        "english": {"type": ["string", "null"]},
+        "original": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "language": {"type": "string", "minLength": 2},
+    "original_language": {"type": ["string", "null"]},
+    "abstract": {"type": ["string", "null"]},
+    "publisher": {
+      "type": "object",
+      "required": ["name", "short_name", "url", "imprint"],
+      "properties": {
+        "name": {"const": "Health Renewal / Rawafid"},
+        "short_name": {"const": "Rawafid"},
+        "url": {"const": "https://healthrenewal.org/"},
+        "imprint": {"type": "string", "minLength": 2}
+      },
+      "additionalProperties": false
+    },
+    "contributors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "roles"],
+        "properties": {
+          "name": {"type": "string", "minLength": 2},
+          "roles": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 2}},
+          "orcid": {"type": ["string", "null"], "pattern": "^https://orcid.org/[0-9X-]{19}$"},
+          "affiliations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": {"type": "string", "minLength": 2},
+                "ror": {"type": ["string", "null"], "pattern": "^https://ror.org/[0-9a-z]{9}$"}
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "publication": {
+      "type": "object",
+      "required": ["status", "edition", "formats"],
+      "properties": {
+        "status": {"enum": ["forthcoming", "published", "withdrawn"]},
+        "publication_date": {"type": ["string", "null"], "format": "date"},
+        "edition": {"type": "string", "minLength": 1},
+        "formats": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["format", "media_type", "access_url", "access_status"],
+            "properties": {
+              "format": {"enum": ["epub", "pdf", "html", "print", "other"]},
+              "media_type": {"type": "string", "minLength": 3},
+              "isbn": {"type": ["string", "null"]},
+              "access_url": {"type": ["string", "null"], "format": "uri"},
+              "access_status": {"enum": ["open", "restricted", "embargoed", "unavailable"]},
+              "checksum_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "identifiers": {
+      "type": "object",
+      "properties": {
+        "doi": {"type": ["string", "null"]},
+        "work_id": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "subjects": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["scheme", "value"],
+        "properties": {
+          "scheme": {"enum": ["Thema", "BISAC", "Rawafid", "MeSH", "other"]},
+          "code": {"type": ["string", "null"]},
+          "value": {"type": "string", "minLength": 2},
+          "language": {"type": ["string", "null"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "rights": {
+      "type": "object",
+      "required": ["rights_record_id", "copyright_holder", "text_license", "cover_rights_status"],
+      "properties": {
+        "rights_record_id": {"type": "string", "minLength": 3},
+        "copyright_holder": {"type": "string", "minLength": 2},
+        "text_license": {
+          "type": "object",
+          "required": ["name", "url"],
+          "properties": {
+            "name": {"type": "string", "minLength": 2},
+            "url": {"type": "string", "format": "uri"}
+          },
+          "additionalProperties": false
+        },
+        "cover_rights_status": {"enum": ["owned", "licensed", "permission-verified", "no-cover", "pending"]},
+        "translation_record_id": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "review": {
+      "type": "object",
+      "required": ["model", "status"],
+      "properties": {
+        "model": {"enum": ["scholarly-peer-review", "expert-editorial", "editorial-only", "literary-editorial"]},
+        "status": {"enum": ["not-started", "in-review", "completed", "not-applicable"]},
+        "statement_url": {"type": ["string", "null"], "format": "uri"}
+      },
+      "additionalProperties": false
+    },
+    "accessibility": {
+      "type": "object",
+      "required": ["status", "statement_url", "access_modes", "features", "hazards"],
+      "properties": {
+        "status": {"enum": ["not-assessed", "in-review", "validated", "known-limitations"]},
+        "statement_url": {"type": "string", "format": "uri"},
+        "conforms_to": {"type": "array", "items": {"type": "string"}},
+        "access_modes": {"type": "array", "items": {"type": "string"}},
+        "features": {"type": "array", "items": {"type": "string"}},
+        "hazards": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "relationships": {
+      "type": "object",
+      "properties": {
+        "is_translation_of": {"type": ["string", "null"]},
+        "is_version_of": {"type": ["string", "null"]},
+        "replaces": {"type": ["string", "null"]},
+        "replaced_by": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "workflow": {
+      "type": "object",
+      "required": ["current_state", "gates", "updated_at"],
+      "properties": {
+        "current_state": {"type": "string"},
+        "gates": {
+          "type": "object",
+          "required": ["rights", "editorial", "accessibility", "metadata", "files"],
+          "properties": {
+            "rights": {"enum": ["pending", "passed", "failed", "not-applicable"]},
+            "editorial": {"enum": ["pending", "passed", "failed", "not-applicable"]},
+            "scientific": {"enum": ["pending", "passed", "failed", "not-applicable"]},
+            "accessibility": {"enum": ["pending", "passed", "failed", "not-applicable"]},
+            "metadata": {"enum": ["pending", "passed", "failed", "not-applicable"]},
+            "files": {"enum": ["pending", "passed", "failed", "not-applicable"]}
+          },
+          "additionalProperties": false
+        },
+        "updated_at": {"type": "string", "format": "date"}
+      },
+      "additionalProperties": false
+    },
+    "thoth": {
+      "type": "object",
+      "required": ["eligibility", "upload_allowed", "reason"],
+      "properties": {
+        "eligibility": {"enum": ["eligible", "not-eligible", "needs-confirmation", "not-applicable"]},
+        "upload_allowed": {"type": "boolean"},
+        "reason": {"type": "string", "minLength": 2},
+        "work_id": {"type": ["string", "null"]},
+        "last_verified_at": {"type": ["string", "null"], "format": "date"}
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["created_at", "updated_at", "source"],
+      "properties": {
+        "created_at": {"type": "string", "format": "date"},
+        "updated_at": {"type": "string", "format": "date"},
+        "source": {"enum": ["rawafid-original", "licensed-source", "authorized-publisher", "external-discovery"]}
+      },
+      "additionalProperties": false
+    },
+    "public_visibility": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}
