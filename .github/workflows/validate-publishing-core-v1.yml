@@ -1,0 +1,41 @@
+name: Validate Publishing Core
+
+on:
+  push:
+    paths:
+      - 'data/publishing/**'
+      - 'api/v1/open-books.json'
+      - 'publishing/**'
+      - 'open-books/**'
+      - 'scripts/build_publishing_catalog.py'
+      - 'scripts/validate_publishing_core.py'
+      - 'tests/test_publishing_core_contract.py'
+      - '.github/workflows/validate-publishing-core-v1.yml'
+  pull_request:
+    paths:
+      - 'data/publishing/**'
+      - 'api/v1/open-books.json'
+      - 'publishing/**'
+      - 'open-books/**'
+      - 'scripts/build_publishing_catalog.py'
+      - 'scripts/validate_publishing_core.py'
+      - 'tests/test_publishing_core_contract.py'
+
+permissions:
+  contents: read
+
+jobs:
+  publishing-core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify generated catalog
+        run: python scripts/build_publishing_catalog.py --check
+      - name: Validate publishing contracts
+        run: python scripts/validate_publishing_core.py
+      - name: Run publishing core tests
+        run: python -m unittest tests.test_publishing_core_contract
