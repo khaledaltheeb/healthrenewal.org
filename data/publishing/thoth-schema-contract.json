@@ -1,0 +1,162 @@
+{
+  "contract_version": "1.0.0",
+  "verified_on": "2026-09-11",
+  "purpose": "offline-dry-run-mapping-only",
+  "thoth": {
+    "graphql_endpoint": "https://api.thoth.pub/graphql",
+    "graphql_schema_version": "1.0.0",
+    "python_client_repository": "https://github.com/thoth-pub/thoth-client",
+    "python_client_commit_observed": "363ec7373076c893d9c577b96fe96c07173fdf97",
+    "server_repository": "https://github.com/thoth-pub/thoth",
+    "server_commit_observed": "4fa7eaa9ccb60d39c41ccd8feb257edf28c173ff",
+    "mutation_execution": "disabled",
+    "authentication_secret_policy": "PAT must never be committed, logged, embedded in generated files, or used by CI"
+  },
+  "verified_mutation_fields": {
+    "createWork": [
+      "workType",
+      "workStatus",
+      "reference",
+      "edition",
+      "imprintId",
+      "doi",
+      "publicationDate",
+      "withdrawnDate",
+      "place",
+      "pageCount",
+      "pageBreakdown",
+      "imageCount",
+      "tableCount",
+      "audioCount",
+      "videoCount",
+      "license",
+      "copyrightHolder",
+      "landingPage",
+      "lccn",
+      "oclc",
+      "generalNote",
+      "bibliographyNote",
+      "toc",
+      "resourcesDescription",
+      "coverUrl",
+      "coverCaption",
+      "firstPage",
+      "lastPage",
+      "pageInterval"
+    ],
+    "createPublication": [
+      "publicationType",
+      "workId",
+      "isbn",
+      "widthMm",
+      "widthIn",
+      "heightMm",
+      "heightIn",
+      "depthMm",
+      "depthIn",
+      "weightG",
+      "weightOz",
+      "accessibilityStandard",
+      "accessibilityAdditionalStandard",
+      "accessibilityException",
+      "accessibilityReportUrl"
+    ],
+    "createLanguage": ["workId", "languageCode", "languageRelation"],
+    "createSubject": ["workId", "subjectType", "subjectCode", "subjectOrdinal"],
+    "createContributor": ["firstName", "lastName", "fullName", "orcid", "website"],
+    "createContribution": [
+      "workId",
+      "contributorId",
+      "contributionType",
+      "mainContribution",
+      "firstName",
+      "lastName",
+      "fullName",
+      "contributionOrdinal"
+    ],
+    "createLocation": [
+      "publicationId",
+      "landingPage",
+      "fullTextUrl",
+      "locationPlatform",
+      "canonical",
+      "checksum",
+      "checksumAlgorithm"
+    ],
+    "createTitle": ["workId", "localeCode", "fullTitle", "title", "subtitle", "canonical"],
+    "createAbstract": ["workId", "content", "localeCode", "abstractType", "canonical"]
+  },
+  "verified_enums": {
+    "workType": ["BOOK_CHAPTER", "MONOGRAPH", "EDITED_BOOK", "TEXTBOOK", "JOURNAL_ISSUE", "BOOK_SET"],
+    "workStatus": ["FORTHCOMING", "ACTIVE", "WITHDRAWN", "SUPERSEDED", "POSTPONED_INDEFINITELY", "CANCELLED"],
+    "publicationType": ["PAPERBACK", "HARDBACK", "PDF", "HTML", "XML", "EPUB", "MOBI", "AZW3", "DOCX", "FICTION_BOOK", "MP3", "WAV"],
+    "contributionType": [
+      "AUTHOR",
+      "EDITOR",
+      "TRANSLATOR",
+      "PHOTOGRAPHER",
+      "ILLUSTRATOR",
+      "MUSIC_EDITOR",
+      "FOREWORD_BY",
+      "INTRODUCTION_BY",
+      "AFTERWORD_BY",
+      "PREFACE_BY",
+      "SOFTWARE_BY",
+      "RESEARCH_BY",
+      "CONTRIBUTIONS_BY",
+      "INDEXER"
+    ],
+    "subjectType": ["BIC", "BISAC", "THEMA", "LCC", "CUSTOM", "KEYWORD"],
+    "languageRelation": ["ORIGINAL", "TRANSLATED_FROM", "TRANSLATED_INTO"]
+  },
+  "safe_local_mappings": {
+    "work_type": {
+      "scholarly-monograph": "MONOGRAPH",
+      "textbook": "TEXTBOOK"
+    },
+    "work_type_requires_editorial_mapping": [
+      "professional-book",
+      "handbook",
+      "guide",
+      "report",
+      "other"
+    ],
+    "work_type_forbidden_pending_thoth_confirmation": [
+      "literary-fiction",
+      "literary-nonfiction"
+    ],
+    "publication_format": {
+      "pdf": "PDF",
+      "html": "HTML",
+      "epub": "EPUB"
+    },
+    "publication_format_requires_explicit_mapping": ["print", "other"],
+    "language": {
+      "ar": "ARA",
+      "en": "ENG"
+    },
+    "subject_scheme": {
+      "Thema": "THEMA",
+      "BISAC": "BISAC",
+      "Rawafid": "CUSTOM"
+    },
+    "subject_scheme_not_auto_mapped": ["MeSH", "other"],
+    "contributor_role": {
+      "author": "AUTHOR",
+      "editor": "EDITOR",
+      "translator": "TRANSLATOR",
+      "photographer": "PHOTOGRAPHER",
+      "illustrator": "ILLUSTRATOR",
+      "indexer": "INDEXER"
+    }
+  },
+  "blocking_rules": [
+    "Never create a real Thoth record for testing because records are public on creation.",
+    "Never send a mutation from CI.",
+    "Never store invitation links, personal access tokens, passwords, session cookies or private account identifiers in this repository.",
+    "Do not infer an ambiguous Thoth work type or print publication type.",
+    "Thema and BISAC subjects require an explicit scheme code before export.",
+    "MeSH and other local subject schemes remain local unless an explicit approved mapping is added.",
+    "Use the current Thoth bulk-uploader template or live schema as the final authority immediately before transmission."
+  ]
+}
