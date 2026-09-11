@@ -1,0 +1,79 @@
+name: Pediatric oncology center sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '37 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/materialize_pediatric_oncology_center_v1.py'
+      - 'tests/test_pediatric_oncology_center_v1.py'
+      - '.github/workflows/pediatric-oncology-center-sync.yml'
+      - 'pediatric-oncology-center-sync.trigger'
+
+permissions:
+  contents: write
+  id-token: write
+  actions: write
+
+concurrency:
+  group: pediatric-oncology-center-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile and test center publisher
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/materialize_pediatric_oncology_center_v1.py tests/test_pediatric_oncology_center_v1.py
+          python -m unittest -v tests.test_pediatric_oncology_center_v1
+      - name: Materialize and audit center from authoritative catalog
+        run: python scripts/materialize_pediatric_oncology_center_v1.py --root .
+      - name: Validate zero-loss publication contract
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('api/pediatric-oncology-center-audit-v1.json').read_text(encoding='utf-8'))
+          assert report['status'] == 'passed', report
+          assert report['published_pages'] >= 230, report
+          assert report['active_categories'] >= 34, report
+          assert report['sections_generated'] == report['active_categories'], report
+          assert not any(report['failures'].values()), report['failures']
+          assert (Path('sectors/pediatric-oncology/index.html')).is_file()
+          assert (Path('sectors/pediatric-oncology/all-pages/index.html')).is_file()
+          print({'status': 'passed', 'pages': report['published_pages'], 'categories': report['active_categories'], 'repairs': report['repairs_applied']})
+          PY
+      - name: Commit deterministic center changes
+        id: commit
+        run: |
+          set -euo pipefail
+          git config user.name 'Rawafid Center Publisher'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A sections sectors/pediatric-oncology care-guides magazine content
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            echo 'Center already matches authoritative catalog.'
+          else
+            git commit -m 'publish: synchronize pediatric oncology center'
+            git push origin HEAD:main
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Dispatch production deployment
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run deploy-production-v3.yml --repo "$GH_REPO" --ref main
