@@ -9,11 +9,13 @@ on:
       - 'open-books/**'
       - 'scripts/build_publishing_catalog.py'
       - 'scripts/build_publishing_staging.py'
+      - 'scripts/build_thoth_upload_plan.py'
       - 'scripts/validate_publishing_core.py'
       - 'scripts/publish_complete_sitemap_v360.py'
       - 'tests/test_publishing_core_contract.py'
       - 'tests/test_publishing_staging_contract.py'
       - 'tests/test_publishing_metadata_readiness.py'
+      - 'tests/test_thoth_upload_plan.py'
       - '.github/workflows/validate-publishing-core-v1.yml'
   pull_request:
     paths:
@@ -23,11 +25,13 @@ on:
       - 'open-books/**'
       - 'scripts/build_publishing_catalog.py'
       - 'scripts/build_publishing_staging.py'
+      - 'scripts/build_thoth_upload_plan.py'
       - 'scripts/validate_publishing_core.py'
       - 'scripts/publish_complete_sitemap_v360.py'
       - 'tests/test_publishing_core_contract.py'
       - 'tests/test_publishing_staging_contract.py'
       - 'tests/test_publishing_metadata_readiness.py'
+      - 'tests/test_thoth_upload_plan.py'
 
 permissions:
   contents: read
@@ -45,7 +49,9 @@ jobs:
         run: python scripts/build_publishing_catalog.py --check
       - name: Verify generated Thoth and translation staging
         run: python scripts/build_publishing_staging.py --check
+      - name: Verify non-executable Thoth upload plan
+        run: python scripts/build_thoth_upload_plan.py --check
       - name: Validate publishing contracts
         run: python scripts/validate_publishing_core.py
       - name: Run publishing core regression tests
-        run: python -m unittest tests.test_publishing_core_contract tests.test_publishing_staging_contract tests.test_publishing_metadata_readiness
+        run: python -m unittest tests.test_publishing_core_contract tests.test_publishing_staging_contract tests.test_publishing_metadata_readiness tests.test_thoth_upload_plan
