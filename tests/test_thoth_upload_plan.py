@@ -10,6 +10,7 @@ BASE = ROOT / "data" / "publishing"
 SCRIPT = ROOT / "scripts" / "build_thoth_upload_plan.py"
 PLAN = BASE / "thoth-upload-plan.json"
 CONTRACT = BASE / "thoth-schema-contract.json"
+BOOK_SCHEMA = BASE / "schemas" / "book-record.schema.json"
 
 
 def load_module(path: Path, name: str):
@@ -141,11 +142,30 @@ class ThothUploadPlanTest(unittest.TestCase):
         language = next(item for item in operations if item["operation"] == "createLanguage")
         self.assertEqual(language["data"]["languageCode"], "ARA")
         self.assertEqual(language["data"]["languageRelation"], "ORIGINAL")
+        contribution = next(item for item in operations if item["operation"] == "createContribution")
+        self.assertIs(contribution["data"]["mainContribution"], True)
         publication = next(item for item in operations if item["operation"] == "createPublication")
         self.assertEqual(publication["data"]["publicationType"], "PDF")
         self.assertEqual(publication["data"]["accessibilityStandard"], "WCAG22AA")
         location = next(item for item in operations if item["operation"] == "createLocation")
         self.assertEqual(location["data"]["locationPlatform"], "PUBLISHER_WEBSITE")
+
+    def test_accessibility_mappings_are_exact_verified_thoth_enums(self):
+        mapping = self.contract["safe_local_mappings"]["accessibility_standard"]
+        verified = set(self.contract["verified_enums"]["accessibilityStandard"])
+        self.assertTrue(set(mapping.values()).issubset(verified))
+        self.assertEqual(mapping["EPUB Accessibility Specification 1.1 AA"], "EPUB_A11Y11AA")
+        self.assertEqual(mapping["PDF/UA-1"], "PDF_UA1")
+        self.assertNotIn("EPUB_A11Y_11_AA", verified)
+        self.assertNotIn("PDF_UA_1", verified)
+
+    def test_sha256_checksum_is_carried_to_location_without_guessing(self):
+        book = sample_book()
+        book["publication"]["formats"][0]["checksum_sha256"] = "a" * 64
+        result = self.module.map_book(book, self.contract)
+        location = next(item for item in result["operations"] if item["operation"] == "createLocation")
+        self.assertEqual(location["data"]["checksum"], "a" * 64)
+        self.assertEqual(location["data"]["checksumAlgorithm"], "SHA256")
 
     def test_ambiguous_work_type_is_blocked_not_guessed(self):
         book = sample_book()
@@ -160,13 +180,40 @@ class ThothUploadPlanTest(unittest.TestCase):
         result = self.module.map_book(book, self.contract)
         self.assertIn("format-1-requires-explicit-thoth-publication-type:print", result["blockers"])
 
-    def test_contributor_family_name_and_main_role_are_never_inferred(self):
+    def test_contributor_family_name_and_single_role_main_are_never_inferred(self):
         book = sample_book()
         book["contributors"][0]["family_name"] = None
         book["contributors"][0]["main_contribution"] = None
         result = self.module.map_book(book, self.contract)
         self.assertIn("contributor-1-missing-verified-family-name", result["blockers"])
         self.assertIn("contributor-1-missing-main-contribution-decision", result["blockers"])
+        contribution = next(item for item in result["operations"] if item["operation"] == "createContribution")
+        self.assertIsNone(contribution["data"]["mainContribution"])
+
+    def test_multiple_roles_require_role_level_main_decisions(self):
+        book = sample_book()
+        contributor = book["contributors"][0]
+        contributor["roles"] = ["author", "editor"]
+        result = self.module.map_book(book, self.contract)
+        self.assertIn("contributor-1-multiple-roles-require-role-details", result["blockers"])
+        self.assertFalse(result["ready_for_offline_template_review"])
+
+        contributor["role_details"] = [
+            {"role": "author", "main_contribution": True},
+            {"role": "editor", "main_contribution": False},
+        ]
+        result = self.module.map_book(book, self.contract)
+        self.assertNotIn("contributor-1-multiple-roles-require-role-details", result["blockers"])
+        contributions = [item for item in result["operations"] if item["operation"] == "createContribution"]
+        self.assertEqual([item["data"]["mainContribution"] for item in contributions], [True, False])
+
+    def test_book_schema_supports_role_level_main_decisions(self):
+        schema = json.loads(BOOK_SCHEMA.read_text(encoding="utf-8"))
+        contributor = schema["properties"]["contributors"]["items"]["properties"]
+        self.assertIn("main_contribution", contributor)
+        self.assertIn("role_details", contributor)
+        role_detail = contributor["role_details"]["items"]
+        self.assertEqual(set(role_detail["required"]), {"role", "main_contribution"})
 
     def test_invalid_identifiers_are_blocked(self):
         book = sample_book()
