@@ -63,6 +63,52 @@ def translation_index() -> dict[str, dict[str, Any]]:
     return {record.get("id", ""): record for record in records(TRANSLATIONS_DIR) if record.get("id")}
 
 
+def metadata_essential_blockers(book: dict[str, Any]) -> list[str]:
+    """Return blockers for the minimum OA-book metadata needed for staging."""
+    blockers: list[str] = []
+    title = book.get("title", {})
+    if not str(title.get("primary") or "").strip():
+        blockers.append("missing-title")
+
+    contributors = book.get("contributors") or []
+    if not contributors:
+        blockers.append("missing-contributors")
+    elif any(not str(item.get("name") or "").strip() or not item.get("roles") for item in contributors):
+        blockers.append("incomplete-contributor")
+
+    publication = book.get("publication", {})
+    if not publication.get("publication_date"):
+        blockers.append("missing-publication-date")
+    formats = publication.get("formats") or []
+    open_full_text = [
+        item for item in formats
+        if item.get("access_status") == "open" and str(item.get("access_url") or "").strip()
+    ]
+    if not open_full_text:
+        blockers.append("missing-open-full-text-url")
+
+    identifiers = book.get("identifiers") or {}
+    has_pid = bool(str(identifiers.get("doi") or "").strip()) or any(
+        str(item.get("isbn") or "").strip() for item in formats
+    )
+    if not has_pid:
+        blockers.append("missing-persistent-identifier")
+
+    subjects = book.get("subjects") or []
+    if not subjects or any(not str(item.get("value") or "").strip() for item in subjects):
+        blockers.append("missing-subject-metadata")
+
+    text_license = book.get("rights", {}).get("text_license", {})
+    if not str(text_license.get("name") or "").strip() or not str(text_license.get("url") or "").strip():
+        blockers.append("missing-license-metadata")
+
+    publisher = book.get("publisher", {})
+    if publisher.get("name") != "Health Renewal / Rawafid" or publisher.get("url") != "https://healthrenewal.org/":
+        blockers.append("invalid-publisher-metadata")
+
+    return blockers
+
+
 def required_gates_passed(book: dict[str, Any]) -> bool:
     gates = book.get("workflow", {}).get("gates", {})
     for name in ("rights", "editorial", "accessibility", "metadata", "files"):
@@ -89,6 +135,12 @@ def thoth_candidate(book: dict[str, Any], rights: dict[str, dict[str, Any]], tra
     if book.get("record_type") == "discovery-only":
         return False
     if book.get("work_type") in LITERARY_TYPES:
+        return False
+    if metadata_essential_blockers(book):
+        return False
+    if book.get("review", {}).get("status") != "completed":
+        return False
+    if book.get("accessibility", {}).get("status") not in {"validated", "known-limitations"}:
         return False
     if book.get("thoth", {}).get("upload_allowed") is not True:
         return False
