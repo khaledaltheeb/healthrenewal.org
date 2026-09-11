@@ -35,7 +35,8 @@
     "publisher_display_name_requested": "Rawafid / Health Renewal",
     "activated_publisher_display_name_verified": false,
     "publisher_short_name_requested": "Rawafid",
-    "subscription_package": "OASIS",
+    "service_terms_referenced": "Thoth Oasis",
+    "subscription_package_verified": false,
     "account_invitation_status": "issued",
     "invitation_received_on": "2026-09-10",
     "test_instance_available": false,
@@ -80,6 +81,7 @@
   "notes": [
     "Scientific review is required only when the work type and claims require it; literary works use an appropriate editorial review model.",
     "No private contracts, email bodies, invitation links, authentication tokens, unpublished manuscripts or sensitive internal notes are stored in public metadata.",
-    "The Thoth publisher display name remains unverified locally until it is confirmed inside the activated account; the requested onboarding value is recorded separately to avoid guessing."
+    "The Thoth publisher display name remains unverified locally until it is confirmed inside the activated account; the requested onboarding value is recorded separately to avoid guessing.",
+    "Thoth Oasis is recorded only as the service terms referenced by Thoth correspondence; no subscription package is claimed as verified."
   ]
 }
