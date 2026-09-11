@@ -13,6 +13,7 @@ on:
       - 'scripts/publish_complete_sitemap_v360.py'
       - 'tests/test_publishing_core_contract.py'
       - 'tests/test_publishing_staging_contract.py'
+      - 'tests/test_publishing_metadata_readiness.py'
       - '.github/workflows/validate-publishing-core-v1.yml'
   pull_request:
     paths:
@@ -26,6 +27,7 @@ on:
       - 'scripts/publish_complete_sitemap_v360.py'
       - 'tests/test_publishing_core_contract.py'
       - 'tests/test_publishing_staging_contract.py'
+      - 'tests/test_publishing_metadata_readiness.py'
 
 permissions:
   contents: read
@@ -46,4 +48,4 @@ jobs:
       - name: Validate publishing contracts
         run: python scripts/validate_publishing_core.py
       - name: Run publishing core regression tests
-        run: python -m unittest tests.test_publishing_core_contract tests.test_publishing_staging_contract
+        run: python -m unittest tests.test_publishing_core_contract tests.test_publishing_staging_contract tests.test_publishing_metadata_readiness
