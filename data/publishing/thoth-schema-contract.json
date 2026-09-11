@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.0.0",
+  "contract_version": "1.0.1",
   "verified_on": "2026-09-11",
   "purpose": "offline-dry-run-mapping-only",
   "thoth": {
@@ -90,6 +90,18 @@
     "workType": ["BOOK_CHAPTER", "MONOGRAPH", "EDITED_BOOK", "TEXTBOOK", "JOURNAL_ISSUE", "BOOK_SET"],
     "workStatus": ["FORTHCOMING", "ACTIVE", "WITHDRAWN", "SUPERSEDED", "POSTPONED_INDEFINITELY", "CANCELLED"],
     "publicationType": ["PAPERBACK", "HARDBACK", "PDF", "HTML", "XML", "EPUB", "MOBI", "AZW3", "DOCX", "FICTION_BOOK", "MP3", "WAV"],
+    "accessibilityStandard": [
+      "WCAG21AA",
+      "WCAG21AAA",
+      "WCAG22AA",
+      "WCAG22AAA",
+      "EPUB_A11Y10AA",
+      "EPUB_A11Y10AAA",
+      "EPUB_A11Y11AA",
+      "EPUB_A11Y11AAA",
+      "PDF_UA1",
+      "PDF_UA2"
+    ],
     "contributionType": [
       "AUTHOR",
       "EDITOR",
@@ -108,6 +120,8 @@
     ],
     "subjectType": ["BIC", "BISAC", "THEMA", "LCC", "CUSTOM", "KEYWORD"],
     "languageRelation": ["ORIGINAL", "TRANSLATED_FROM", "TRANSLATED_INTO"],
+    "markupFormat": ["HTML", "MARKDOWN", "PLAIN_TEXT", "JATS_XML"],
+    "abstractType": ["SHORT", "LONG"],
     "locationPlatform": [
       "PROJECT_MUSE",
       "OAPEN",
@@ -183,6 +197,18 @@
       "illustrator": "ILLUSTRATOR",
       "indexer": "INDEXER"
     },
+    "accessibility_standard": {
+      "WCAG 2.1 AA": "WCAG21AA",
+      "WCAG 2.1 AAA": "WCAG21AAA",
+      "WCAG 2.2 AA": "WCAG22AA",
+      "WCAG 2.2 AAA": "WCAG22AAA",
+      "EPUB Accessibility Specification 1.0 AA": "EPUB_A11Y10AA",
+      "EPUB Accessibility Specification 1.0 AAA": "EPUB_A11Y10AAA",
+      "EPUB Accessibility Specification 1.1 AA": "EPUB_A11Y11AA",
+      "EPUB Accessibility Specification 1.1 AAA": "EPUB_A11Y11AAA",
+      "PDF/UA-1": "PDF_UA1",
+      "PDF/UA-2": "PDF_UA2"
+    },
     "publisher_full_text_location": "PUBLISHER_WEBSITE"
   },
   "blocking_rules": [
@@ -190,6 +216,7 @@
     "Never send a mutation from CI.",
     "Never store invitation links, personal access tokens, passwords, session cookies or private account identifiers in this repository.",
     "Do not infer an ambiguous Thoth work type or print publication type.",
+    "Do not infer contributor family names or main-contributor status from name order.",
     "Thema and BISAC subjects require an explicit scheme code before export.",
     "MeSH and other local subject schemes remain local unless an explicit approved mapping is added.",
     "Use PUBLISHER_WEBSITE for canonical Rawafid-hosted landing/full-text locations.",
