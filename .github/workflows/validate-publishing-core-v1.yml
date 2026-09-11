@@ -10,7 +10,9 @@ on:
       - 'scripts/build_publishing_catalog.py'
       - 'scripts/build_publishing_staging.py'
       - 'scripts/validate_publishing_core.py'
+      - 'scripts/publish_complete_sitemap_v360.py'
       - 'tests/test_publishing_core_contract.py'
+      - 'tests/test_publishing_staging_contract.py'
       - '.github/workflows/validate-publishing-core-v1.yml'
   pull_request:
     paths:
@@ -21,7 +23,9 @@ on:
       - 'scripts/build_publishing_catalog.py'
       - 'scripts/build_publishing_staging.py'
       - 'scripts/validate_publishing_core.py'
+      - 'scripts/publish_complete_sitemap_v360.py'
       - 'tests/test_publishing_core_contract.py'
+      - 'tests/test_publishing_staging_contract.py'
 
 permissions:
   contents: read
@@ -41,5 +45,5 @@ jobs:
         run: python scripts/build_publishing_staging.py --check
       - name: Validate publishing contracts
         run: python scripts/validate_publishing_core.py
-      - name: Run publishing core tests
-        run: python -m unittest tests.test_publishing_core_contract
+      - name: Run publishing core regression tests
+        run: python -m unittest tests.test_publishing_core_contract tests.test_publishing_staging_contract
