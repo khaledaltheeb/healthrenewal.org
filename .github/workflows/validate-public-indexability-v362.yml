@@ -24,7 +24,7 @@ jobs:
       - name: Prove public pages contain no accidental noindex
         run: |
           set -euo pipefail
-          python scripts/enforce_public_indexability_v362.py . --fix --report /tmp/public-indexability-v362.json
+          python scripts/enforce_public_indexability_v362.py . --report /tmp/public-indexability-v362.json
           python - <<'PY'
           import json
           from pathlib import Path
@@ -36,17 +36,14 @@ jobs:
           print({
               'status': report['status'],
               'publicPages': report['counts'].get('public_pages', 0),
-              'fixedNoindex': len(report['fixed_noindex']),
+              'publicWithoutExplicitIndex': len(report['public_without_explicit_index']),
               'technicalExemptions': len(report['technical_exemptions']),
           })
           PY
-      - name: Reject source that still needs automatic indexability repair
+      - name: Verify audit is read-only
         run: |
           set -euo pipefail
-          if ! git diff --exit-code -- . ':(exclude)api/public-indexability-v362.json'; then
-            echo 'Public source pages still require indexability repair. Commit the generated index,follow changes.' >&2
-            exit 1
-          fi
+          git diff --exit-code -- . ':(exclude)api/public-indexability-v362.json'
       - name: Upload indexability evidence
         if: always()
         uses: actions/upload-artifact@v4
