@@ -1,0 +1,74 @@
+name: Verify Publishing Live
+
+on:
+  workflow_run:
+    workflows: ["Build complete institutional site v6 and deploy"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publishing-live-verification
+  cancel-in-progress: true
+
+jobs:
+  publishing-live:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Fetch live publishing surfaces without cache
+        run: |
+          set -euo pipefail
+          nonce="${GITHUB_RUN_ID}-$(date +%s)"
+          curl -fsSL --retry 5 -H 'Cache-Control: no-cache' "https://healthrenewal.org/publishing/?release=${nonce}" -o /tmp/publishing.html
+          curl -fsSL --retry 5 -H 'Cache-Control: no-cache' "https://healthrenewal.org/open-books/?release=${nonce}" -o /tmp/open-books.html
+          curl -fsSL --retry 5 -H 'Cache-Control: no-cache' "https://healthrenewal.org/api/v1/open-books.json?release=${nonce}" -o /tmp/open-books.json
+          curl -fsSL --retry 5 -H 'Cache-Control: no-cache' "https://healthrenewal.org/sitemap.xml?release=${nonce}" -o /tmp/sitemap.xml
+          curl -fsSL --retry 5 -H 'Cache-Control: no-cache' "https://healthrenewal.org/robots.txt?release=${nonce}" -o /tmp/robots.txt
+
+      - name: Validate live publishing release contract
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import re
+          from xml.etree import ElementTree as ET
+
+          publishing = open('/tmp/publishing.html', encoding='utf-8').read()
+          books_page = open('/tmp/open-books.html', encoding='utf-8').read()
+          api = json.load(open('/tmp/open-books.json', encoding='utf-8'))
+          robots = open('/tmp/robots.txt', encoding='utf-8').read()
+          tree = ET.parse('/tmp/sitemap.xml')
+          ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          urls = {node.text.strip() for node in tree.findall('.//sm:loc', ns) if node.text}
+
+          def assert_public_page(source, canonical):
+              lower = source.lower()
+              assert '<html' in lower, canonical
+              assert 'noindex' not in lower, canonical
+              assert canonical in source, canonical
+              robots_meta = re.findall(r'<meta[^>]+name=["\']robots["\'][^>]*>', source, flags=re.I)
+              assert robots_meta, f'missing robots meta: {canonical}'
+              assert any('index' in tag.lower() and 'follow' in tag.lower() for tag in robots_meta), canonical
+
+          assert_public_page(publishing, 'https://healthrenewal.org/publishing/')
+          assert_public_page(books_page, 'https://healthrenewal.org/open-books/')
+
+          assert api['version'] == 1, api
+          assert api['publisher']['name'] == 'Health Renewal / Rawafid', api
+          assert api['publisher']['short_name'] == 'Rawafid', api
+          assert api['publisher']['url'] == 'https://healthrenewal.org/', api
+          assert api['catalog_url'] == 'https://healthrenewal.org/open-books/', api
+          assert isinstance(api['books'], list), type(api.get('books'))
+
+          assert 'https://healthrenewal.org/publishing/' in urls, 'publishing route missing from sitemap.xml'
+          assert 'https://healthrenewal.org/open-books/' in urls, 'open-books route missing from sitemap.xml'
+          assert 'User-agent: *' in robots, robots
+          assert 'Allow: /' in robots, robots
+          assert 'Sitemap: https://healthrenewal.org/sitemap-index.xml' in robots, robots
+          assert 'Disallow: /' not in robots, robots
+          print({'status': 'passed', 'sitemap_urls': len(urls), 'open_books_records': len(api['books'])})
+          PY

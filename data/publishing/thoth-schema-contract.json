@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.0.1",
+  "contract_version": "1.0.2",
   "verified_on": "2026-09-11",
   "purpose": "offline-dry-run-mapping-only",
   "thoth": {
@@ -119,9 +119,12 @@
       "INDEXER"
     ],
     "subjectType": ["BIC", "BISAC", "THEMA", "LCC", "CUSTOM", "KEYWORD"],
+    "languageCode": ["ARA", "ENG"],
+    "localeCode": ["AR", "EN"],
     "languageRelation": ["ORIGINAL", "TRANSLATED_FROM", "TRANSLATED_INTO"],
     "markupFormat": ["HTML", "MARKDOWN", "PLAIN_TEXT", "JATS_XML"],
     "abstractType": ["SHORT", "LONG"],
+    "checksumAlgorithm": ["MD5", "SHA256"],
     "locationPlatform": [
       "PROJECT_MUSE",
       "OAPEN",
@@ -217,6 +220,7 @@
     "Never store invitation links, personal access tokens, passwords, session cookies or private account identifiers in this repository.",
     "Do not infer an ambiguous Thoth work type or print publication type.",
     "Do not infer contributor family names or main-contributor status from name order.",
+    "Every automatic local mapping must target an explicitly verified Thoth enum value.",
     "Thema and BISAC subjects require an explicit scheme code before export.",
     "MeSH and other local subject schemes remain local unless an explicit approved mapping is added.",
     "Use PUBLISHER_WEBSITE for canonical Rawafid-hosted landing/full-text locations.",

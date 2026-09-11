@@ -16,6 +16,7 @@ on:
       - 'tests/test_publishing_staging_contract.py'
       - 'tests/test_publishing_metadata_readiness.py'
       - 'tests/test_thoth_upload_plan.py'
+      - 'tests/test_thoth_enum_mapping_contract.py'
       - '.github/workflows/validate-publishing-core-v1.yml'
   pull_request:
     paths:
@@ -32,6 +33,7 @@ on:
       - 'tests/test_publishing_staging_contract.py'
       - 'tests/test_publishing_metadata_readiness.py'
       - 'tests/test_thoth_upload_plan.py'
+      - 'tests/test_thoth_enum_mapping_contract.py'
 
 permissions:
   contents: read
@@ -54,4 +56,4 @@ jobs:
       - name: Validate publishing contracts
         run: python scripts/validate_publishing_core.py
       - name: Run publishing core regression tests
-        run: python -m unittest tests.test_publishing_core_contract tests.test_publishing_staging_contract tests.test_publishing_metadata_readiness tests.test_thoth_upload_plan
+        run: python -m unittest tests.test_publishing_core_contract tests.test_publishing_staging_contract tests.test_publishing_metadata_readiness tests.test_thoth_upload_plan tests.test_thoth_enum_mapping_contract
