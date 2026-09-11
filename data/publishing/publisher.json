@@ -32,10 +32,20 @@
     }
   },
   "thoth": {
-    "publisher_display_name": "Health Renewal / Rawafid",
-    "publisher_short_name": "Rawafid",
+    "publisher_display_name_requested": "Rawafid / Health Renewal",
+    "activated_publisher_display_name_verified": false,
+    "publisher_short_name_requested": "Rawafid",
     "subscription_package": "OASIS",
-    "capabilities_observed_on_2026_09_11": [],
+    "account_invitation_status": "issued",
+    "invitation_received_on": "2026-09-10",
+    "test_instance_available": false,
+    "metadata_visibility_on_creation": "public",
+    "record_deletion_requires_thoth_super_user": true,
+    "capabilities_observed_on_2026_09_11": [
+      "manual-metadata-entry",
+      "bulk-upload-csv",
+      "bulk-upload-onix-3.0"
+    ],
     "distribution_platforms_observed_on_2026_09_11": [],
     "metadata_management_scope": [
       "professional",
@@ -43,10 +53,13 @@
     ],
     "literary_work_policy": "hold_for_thoth_confirmation",
     "metadata_public_dedication": "CC0-1.0",
+    "graphql_schema_observed": "1.0.0",
+    "initial_ingest_policy": "offline-validate-then-bulk-upload",
+    "api_mutation_policy": "disabled-until-authenticated-mapping-verified",
     "terms_url": "https://thoth.pub/docs/policies/terms-thoth-metadata",
     "service_url": "https://thoth.pub/services/metadata",
     "verified_on": "2026-09-11",
-    "safety_rule": "No record is uploaded to Thoth until local rights, editorial, accessibility, metadata and file gates are complete."
+    "safety_rule": "No real test record is created in Thoth. No record is uploaded until local rights, editorial, accessibility, metadata and file gates are complete and the current Thoth template/schema mapping is verified."
   },
   "workflow_states": [
     "draft",
@@ -66,6 +79,7 @@
   ],
   "notes": [
     "Scientific review is required only when the work type and claims require it; literary works use an appropriate editorial review model.",
-    "No private contracts, email bodies, unpublished manuscripts or sensitive internal notes are stored in public metadata."
+    "No private contracts, email bodies, invitation links, authentication tokens, unpublished manuscripts or sensitive internal notes are stored in public metadata.",
+    "The Thoth publisher display name remains unverified locally until it is confirmed inside the activated account; the requested onboarding value is recorded separately to avoid guessing."
   ]
 }
