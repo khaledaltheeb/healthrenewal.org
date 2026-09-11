@@ -38,6 +38,56 @@ def fail(errors: list[str], message: str) -> None:
     errors.append(message)
 
 
+def metadata_essential_blockers(book: dict[str, Any]) -> list[str]:
+    """Derive the minimum OA-book metadata blockers from the record itself.
+
+    This intentionally does not trust workflow labels. A record cannot become
+    Thoth-ready merely because somebody changed metadata/files gates to passed.
+    """
+    blockers: list[str] = []
+    title = book.get("title", {})
+    if not str(title.get("primary") or "").strip():
+        blockers.append("missing-title")
+
+    contributors = book.get("contributors") or []
+    if not contributors:
+        blockers.append("missing-contributors")
+    elif any(not str(item.get("name") or "").strip() or not item.get("roles") for item in contributors):
+        blockers.append("incomplete-contributor")
+
+    publication = book.get("publication", {})
+    if not publication.get("publication_date"):
+        blockers.append("missing-publication-date")
+    formats = publication.get("formats") or []
+    open_full_text = [
+        item for item in formats
+        if item.get("access_status") == "open" and str(item.get("access_url") or "").strip()
+    ]
+    if not open_full_text:
+        blockers.append("missing-open-full-text-url")
+
+    identifiers = book.get("identifiers") or {}
+    has_pid = bool(str(identifiers.get("doi") or "").strip()) or any(
+        str(item.get("isbn") or "").strip() for item in formats
+    )
+    if not has_pid:
+        blockers.append("missing-persistent-identifier")
+
+    subjects = book.get("subjects") or []
+    if not subjects or any(not str(item.get("value") or "").strip() for item in subjects):
+        blockers.append("missing-subject-metadata")
+
+    text_license = book.get("rights", {}).get("text_license", {})
+    if not str(text_license.get("name") or "").strip() or not str(text_license.get("url") or "").strip():
+        blockers.append("missing-license-metadata")
+
+    publisher = book.get("publisher", {})
+    if publisher.get("name") != "Health Renewal / Rawafid" or publisher.get("url") != "https://healthrenewal.org/":
+        blockers.append("invalid-publisher-metadata")
+
+    return blockers
+
+
 def validate_publisher(errors: list[str]) -> dict[str, Any]:
     if not PUBLISHER_FILE.is_file():
         fail(errors, "missing data/publishing/publisher.json")
@@ -153,6 +203,17 @@ def validate_books(errors: list[str], rights_records: dict[str, dict[str, Any]],
         thoth = book.get("thoth", {})
         workflow = book.get("workflow", {})
         gates = workflow.get("gates", {})
+        essential_blockers = metadata_essential_blockers(book)
+
+        if gates.get("metadata") == "passed" and essential_blockers:
+            fail(errors, f"{path}: metadata gate marked passed with blockers: {', '.join(essential_blockers)}")
+        if gates.get("accessibility") == "passed" and book.get("accessibility", {}).get("status") not in {"validated", "known-limitations"}:
+            fail(errors, f"{path}: accessibility gate passed without an assessed accessibility status")
+        if gates.get("rights") == "passed" and (not rights or rights.get("status") != "cleared"):
+            fail(errors, f"{path}: rights gate passed without a cleared rights record")
+        if workflow.get("current_state") in THOTH_PUBLIC_STATES and essential_blockers:
+            fail(errors, f"{path}: Thoth-ready workflow state has metadata blockers: {', '.join(essential_blockers)}")
+
         if thoth.get("upload_allowed") is True:
             if book.get("work_type") in LITERARY_TYPES:
                 fail(errors, f"{path}: literary work cannot be marked upload_allowed before Thoth confirms scope")
@@ -161,12 +222,16 @@ def validate_books(errors: list[str], rights_records: dict[str, dict[str, Any]],
             for gate in ("rights", "editorial", "accessibility", "metadata", "files"):
                 if gates.get(gate) != "passed":
                     fail(errors, f"{path}: Thoth upload allowed while {gate} gate is not passed")
+            if book.get("review", {}).get("status") != "completed":
+                fail(errors, f"{path}: Thoth upload allowed before editorial/scientific review is completed")
             if book.get("review", {}).get("model") == "scholarly-peer-review" and gates.get("scientific") != "passed":
                 fail(errors, f"{path}: scholarly peer-reviewed work requires scientific gate passed")
             if not rights or rights.get("status") != "cleared":
                 fail(errors, f"{path}: Thoth upload allowed without a cleared rights record")
             if thoth.get("eligibility") != "eligible":
                 fail(errors, f"{path}: upload_allowed requires thoth.eligibility=eligible")
+            if essential_blockers:
+                fail(errors, f"{path}: Thoth upload allowed with metadata blockers: {', '.join(essential_blockers)}")
 
         if book.get("public_visibility") is True:
             if book.get("publication", {}).get("status") not in {"forthcoming", "published"}:
