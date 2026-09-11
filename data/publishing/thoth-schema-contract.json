@@ -107,7 +107,27 @@
       "INDEXER"
     ],
     "subjectType": ["BIC", "BISAC", "THEMA", "LCC", "CUSTOM", "KEYWORD"],
-    "languageRelation": ["ORIGINAL", "TRANSLATED_FROM", "TRANSLATED_INTO"]
+    "languageRelation": ["ORIGINAL", "TRANSLATED_FROM", "TRANSLATED_INTO"],
+    "locationPlatform": [
+      "PROJECT_MUSE",
+      "OAPEN",
+      "DOAB",
+      "JSTOR",
+      "EBSCO_HOST",
+      "OCLC_KB",
+      "PROQUEST_KB",
+      "PROQUEST_EXLIBRIS",
+      "EBSCO_KB",
+      "JISC_KB",
+      "GOOGLE_BOOKS",
+      "INTERNET_ARCHIVE",
+      "SCIENCE_OPEN",
+      "SCIELO_BOOKS",
+      "ZENODO",
+      "PUBLISHER_WEBSITE",
+      "THOTH",
+      "OTHER"
+    ]
   },
   "safe_local_mappings": {
     "work_type": {
@@ -125,6 +145,11 @@
       "literary-fiction",
       "literary-nonfiction"
     ],
+    "work_status": {
+      "forthcoming": "FORTHCOMING",
+      "published": "ACTIVE",
+      "withdrawn": "WITHDRAWN"
+    },
     "publication_format": {
       "pdf": "PDF",
       "html": "HTML",
@@ -134,6 +159,15 @@
     "language": {
       "ar": "ARA",
       "en": "ENG"
+    },
+    "locale": {
+      "ar": "AR",
+      "en": "EN"
+    },
+    "language_relation": {
+      "original": "ORIGINAL",
+      "translated-from": "TRANSLATED_FROM",
+      "translated-into": "TRANSLATED_INTO"
     },
     "subject_scheme": {
       "Thema": "THEMA",
@@ -148,7 +182,8 @@
       "photographer": "PHOTOGRAPHER",
       "illustrator": "ILLUSTRATOR",
       "indexer": "INDEXER"
-    }
+    },
+    "publisher_full_text_location": "PUBLISHER_WEBSITE"
   },
   "blocking_rules": [
     "Never create a real Thoth record for testing because records are public on creation.",
@@ -157,6 +192,7 @@
     "Do not infer an ambiguous Thoth work type or print publication type.",
     "Thema and BISAC subjects require an explicit scheme code before export.",
     "MeSH and other local subject schemes remain local unless an explicit approved mapping is added.",
+    "Use PUBLISHER_WEBSITE for canonical Rawafid-hosted landing/full-text locations.",
     "Use the current Thoth bulk-uploader template or live schema as the final authority immediately before transmission."
   ]
 }
