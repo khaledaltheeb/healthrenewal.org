@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0.0",
+  "publisher": "Health Renewal / Rawafid",
+  "purpose": "internal-readiness-staging",
+  "external_payload_status": "not-a-thoth-api-payload",
+  "mapping_rule": "Verify the current live Thoth schema before transforming or transmitting any candidate.",
+  "literary_policy": "hold-for-thoth-confirmation",
+  "candidate_count": 0,
+  "candidates": []
+}
