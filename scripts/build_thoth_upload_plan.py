@@ -30,19 +30,7 @@ DOI_RE = re.compile(
     re.IGNORECASE,
 )
 ORCID_RE = re.compile(r"^https://orcid\.org/\d{4}-\d{4}-\d{4}-\d{3}[\dX]$")
-
-ACCESSIBILITY_MAP = {
-    "WCAG 2.1 AA": "WCAG21AA",
-    "WCAG 2.1 AAA": "WCAG21AAA",
-    "WCAG 2.2 AA": "WCAG22AA",
-    "WCAG 2.2 AAA": "WCAG22AAA",
-    "EPUB Accessibility Specification 1.0 AA": "EPUB_A11Y_10_AA",
-    "EPUB Accessibility Specification 1.0 AAA": "EPUB_A11Y_10_AAA",
-    "EPUB Accessibility Specification 1.1 AA": "EPUB_A11Y_11_AA",
-    "EPUB Accessibility Specification 1.1 AAA": "EPUB_A11Y_11_AAA",
-    "PDF/UA-1": "PDF_UA_1",
-    "PDF/UA-2": "PDF_UA_2",
-}
+SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
 
 
 def load(path: Path) -> Any:
@@ -98,30 +86,87 @@ def title_full(title: dict[str, Any]) -> str:
     return primary if not subtitle else f"{primary}: {subtitle}"
 
 
-def publication_accessibility(book: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
+def publication_accessibility(
+    book: dict[str, Any], mapping: dict[str, Any]
+) -> tuple[dict[str, Any], list[str]]:
     accessibility = book.get("accessibility", {})
-    recognised: list[str] = []
+    accessibility_map = mapping.get("accessibility_standard", {})
+    recognised: list[tuple[str, str]] = []
     omitted: list[str] = []
+
     for item in accessibility.get("conforms_to", []) or []:
-        if item in ACCESSIBILITY_MAP:
-            recognised.append(ACCESSIBILITY_MAP[item])
-        elif str(item).strip():
-            omitted.append(str(item).strip())
+        raw = str(item).strip()
+        if not raw:
+            continue
+        mapped_value = accessibility_map.get(raw)
+        if mapped_value:
+            recognised.append((raw, mapped_value))
+        else:
+            omitted.append(raw)
 
     result: dict[str, Any] = {
         "accessibilityReportUrl": accessibility.get("statement_url"),
     }
     if recognised:
-        result["accessibilityStandard"] = recognised[0]
+        result["accessibilityStandard"] = recognised[0][1]
     if len(recognised) > 1:
-        result["accessibilityAdditionalStandard"] = recognised[1]
+        result["accessibilityAdditionalStandard"] = recognised[1][1]
+    for raw, _ in recognised[2:]:
+        omitted.append(f"recognised-but-no-third-thoth-slot:{raw}")
     return result, omitted
+
+
+def role_main_decisions(contributor: dict[str, Any], index: int) -> tuple[dict[str, bool | None], list[str]]:
+    roles = [str(role) for role in (contributor.get("roles") or [])]
+    details = contributor.get("role_details") or []
+    blockers: list[str] = []
+    decisions: dict[str, bool | None] = {}
+
+    if not roles:
+        blockers.append(f"contributor-{index}-missing-roles")
+        return decisions, blockers
+
+    if details:
+        seen: set[str] = set()
+        for detail_index, detail in enumerate(details, start=1):
+            role = str(detail.get("role") or "").strip()
+            if not role:
+                blockers.append(f"contributor-{index}-role-detail-{detail_index}-missing-role")
+                continue
+            if role not in roles:
+                blockers.append(f"contributor-{index}-role-detail-not-listed-in-roles:{role}")
+                continue
+            if role in seen:
+                blockers.append(f"contributor-{index}-duplicate-role-detail:{role}")
+                continue
+            seen.add(role)
+            main_value = detail.get("main_contribution")
+            if not isinstance(main_value, bool):
+                blockers.append(f"contributor-{index}-role-{role}-missing-main-contribution-decision")
+                decisions[role] = None
+            else:
+                decisions[role] = main_value
+        for role in roles:
+            if role not in decisions:
+                blockers.append(f"contributor-{index}-role-{role}-missing-role-detail")
+                decisions[role] = None
+        return decisions, blockers
+
+    if len(roles) > 1:
+        blockers.append(f"contributor-{index}-multiple-roles-require-role-details")
+        return {role: None for role in roles}, blockers
+
+    main_value = contributor.get("main_contribution")
+    if not isinstance(main_value, bool):
+        blockers.append(f"contributor-{index}-missing-main-contribution-decision")
+        main_value = None
+    decisions[roles[0]] = main_value
+    return decisions, blockers
 
 
 def map_contributors(book: dict[str, Any], mapping: dict[str, Any]) -> tuple[list[dict[str, Any]], list[str]]:
     operations: list[dict[str, Any]] = []
     blockers: list[str] = []
-    main_count = 0
 
     for index, contributor in enumerate(book.get("contributors", []), start=1):
         family_name = str(contributor.get("family_name") or "").strip()
@@ -129,19 +174,18 @@ def map_contributors(book: dict[str, Any], mapping: dict[str, Any]) -> tuple[lis
         full_name = str(contributor.get("name") or "").strip()
         if not family_name:
             blockers.append(f"contributor-{index}-missing-verified-family-name")
-        if contributor.get("main_contribution") is None:
-            blockers.append(f"contributor-{index}-missing-main-contribution-decision")
-        elif contributor.get("main_contribution") is True:
-            main_count += 1
 
         roles = contributor.get("roles", []) or []
-        role_values: list[str] = []
+        role_decisions, decision_blockers = role_main_decisions(contributor, index)
+        blockers.extend(decision_blockers)
+
+        role_values: list[tuple[str, str]] = []
         for role in roles:
             mapped_role = mapped(mapping, "contributor_role", role)
             if not mapped_role:
                 blockers.append(f"contributor-{index}-unmapped-role:{role}")
             else:
-                role_values.append(mapped_role)
+                role_values.append((str(role), mapped_role))
 
         orcid = contributor.get("orcid")
         if orcid and not ORCID_RE.fullmatch(str(orcid)):
@@ -160,14 +204,15 @@ def map_contributors(book: dict[str, Any], mapping: dict[str, Any]) -> tuple[lis
             "result_ref": contributor_ref,
             "data": contributor_data,
         })
-        for role_index, role_value in enumerate(role_values, start=1):
+
+        for role_index, (local_role, role_value) in enumerate(role_values, start=1):
             operations.append({
                 "operation": "createContribution",
                 "data": {
                     "workId": "$work.workId",
                     "contributorId": contributor_ref,
                     "contributionType": role_value,
-                    "mainContribution": bool(contributor.get("main_contribution")),
+                    "mainContribution": role_decisions.get(local_role),
                     "firstName": given_name or None,
                     "lastName": family_name or None,
                     "fullName": full_name,
@@ -175,8 +220,6 @@ def map_contributors(book: dict[str, Any], mapping: dict[str, Any]) -> tuple[lis
                 },
             })
 
-    if main_count != 1 and book.get("contributors"):
-        blockers.append(f"expected-exactly-one-main-contributor:found-{main_count}")
     return operations, blockers
 
 
@@ -257,8 +300,11 @@ def map_publications(book: dict[str, Any], mapping: dict[str, Any]) -> tuple[lis
     operations: list[dict[str, Any]] = []
     blockers: list[str] = []
     warnings: list[str] = []
-    accessibility_data, omitted_a11y = publication_accessibility(book)
+    accessibility_data, omitted_a11y = publication_accessibility(book, mapping)
     warnings.extend(f"unmapped-accessibility-standard:{item}" for item in omitted_a11y)
+    location_platform = mapping.get("publisher_full_text_location")
+    if not location_platform:
+        blockers.append("missing-publisher-full-text-location-mapping")
 
     formats = book.get("publication", {}).get("formats", []) or []
     for index, item in enumerate(formats, start=1):
@@ -288,16 +334,24 @@ def map_publications(book: dict[str, Any], mapping: dict[str, Any]) -> tuple[lis
         access_url = str(item.get("access_url") or "").strip()
         if item.get("access_status") == "open" and not access_url:
             blockers.append(f"format-{index}-open-without-full-text-url")
-        if access_url:
+        checksum = str(item.get("checksum_sha256") or "").strip().lower()
+        if checksum and not SHA256_RE.fullmatch(checksum):
+            blockers.append(f"format-{index}-invalid-sha256-checksum")
+
+        if access_url and location_platform:
+            location_data: dict[str, Any] = {
+                "publicationId": publication_ref,
+                "landingPage": f"https://healthrenewal.org/open-books/{book['slug']}/",
+                "fullTextUrl": access_url,
+                "locationPlatform": location_platform,
+                "canonical": True,
+            }
+            if checksum and SHA256_RE.fullmatch(checksum):
+                location_data["checksum"] = checksum
+                location_data["checksumAlgorithm"] = "SHA256"
             operations.append({
                 "operation": "createLocation",
-                "data": {
-                    "publicationId": publication_ref,
-                    "landingPage": f"https://healthrenewal.org/open-books/{book['slug']}/",
-                    "fullTextUrl": access_url,
-                    "locationPlatform": mapping.get("publisher_full_text_location", "PUBLISHER_WEBSITE"),
-                    "canonical": True,
-                },
+                "data": location_data,
             })
     return operations, blockers, warnings
 
