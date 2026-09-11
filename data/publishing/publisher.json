@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "publisher": {
+    "display_name": "Health Renewal / Rawafid",
+    "short_name": "Rawafid",
+    "website": "https://healthrenewal.org/",
+    "contact_email": "contact@healthrenewal.org",
+    "accessibility_statement_url": "https://healthrenewal.org/accessibility/",
+    "publishing_policy_url": "https://healthrenewal.org/publishing/",
+    "open_books_catalog_url": "https://healthrenewal.org/open-books/"
+  },
+  "roles": {
+    "own_original_works": {
+      "role": "publisher",
+      "allowed": true,
+      "rule": "Rawafid may identify itself as publisher only for works it actually publishes and for which it has the necessary rights."
+    },
+    "licensed_translations": {
+      "role": "authorized_translation_publisher",
+      "allowed": true,
+      "rule": "A translation may enter the publishing workflow only when the underlying licence permits adaptation/translation or written permission has been verified."
+    },
+    "third_party_discovery": {
+      "role": "discovery_platform",
+      "allowed": true,
+      "rule": "Third-party works remain attributed to their original publishers; open metadata does not transfer publishing rights."
+    },
+    "authorized_co_management": {
+      "role": "metadata_facilitator",
+      "allowed": "conditional",
+      "rule": "Requires explicit authorization from the original publisher and any platform-side approval required by Thoth."
+    }
+  },
+  "thoth": {
+    "publisher_display_name": "Health Renewal / Rawafid",
+    "publisher_short_name": "Rawafid",
+    "subscription_package": "OASIS",
+    "capabilities_observed_on_2026_09_11": [],
+    "distribution_platforms_observed_on_2026_09_11": [],
+    "metadata_management_scope": [
+      "professional",
+      "scholarly"
+    ],
+    "literary_work_policy": "hold_for_thoth_confirmation",
+    "metadata_public_dedication": "CC0-1.0",
+    "terms_url": "https://thoth.pub/docs/policies/terms-thoth-metadata",
+    "service_url": "https://thoth.pub/services/metadata",
+    "verified_on": "2026-09-11",
+    "safety_rule": "No record is uploaded to Thoth until local rights, editorial, accessibility, metadata and file gates are complete."
+  },
+  "workflow_states": [
+    "draft",
+    "rights-cleared",
+    "editorial-reviewed",
+    "scientific-reviewed",
+    "accessibility-validated",
+    "metadata-validated",
+    "files-validated",
+    "ready-for-thoth",
+    "thoth-published",
+    "thoth-verified",
+    "distributed",
+    "corrected",
+    "new-edition",
+    "withdrawn"
+  ],
+  "notes": [
+    "Scientific review is required only when the work type and claims require it; literary works use an appropriate editorial review model.",
+    "No private contracts, email bodies, unpublished manuscripts or sensitive internal notes are stored in public metadata."
+  ]
+}
