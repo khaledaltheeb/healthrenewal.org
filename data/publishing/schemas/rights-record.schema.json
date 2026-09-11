@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://healthrenewal.org/schemas/publishing/rights-record.schema.json",
+  "title": "Rawafid Rights Clearance Record",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "book_id",
+    "basis",
+    "rights_holder",
+    "verified_on",
+    "verified_by",
+    "metadata_rights",
+    "full_text_rights",
+    "translation_rights",
+    "distribution_rights",
+    "cover_rights",
+    "thoth_metadata_cc0_acknowledged",
+    "evidence_reference",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{2,120}$"},
+    "book_id": {"type": "string", "minLength": 3},
+    "basis": {"enum": ["owned-original", "open-license", "written-permission", "contract", "authorized-co-management"]},
+    "rights_holder": {"type": "string", "minLength": 2},
+    "verified_on": {"type": "string", "format": "date"},
+    "verified_by": {"type": "string", "minLength": 2},
+    "metadata_rights": {"enum": ["cleared", "restricted", "pending"]},
+    "full_text_rights": {"enum": ["cleared", "restricted", "pending"]},
+    "translation_rights": {"enum": ["cleared", "restricted", "not-applicable", "pending"]},
+    "distribution_rights": {"enum": ["cleared", "restricted", "pending"]},
+    "cover_rights": {"enum": ["owned", "licensed", "permission-verified", "no-cover", "restricted", "pending"]},
+    "commercial_use": {"enum": ["allowed", "restricted", "not-applicable", "unknown"]},
+    "share_alike_required": {"type": "boolean"},
+    "attribution_required": {"type": "boolean"},
+    "license_name": {"type": ["string", "null"]},
+    "license_url": {"type": ["string", "null"], "format": "uri"},
+    "permission_scope": {"type": ["string", "null"]},
+    "permission_expiry": {"type": ["string", "null"], "format": "date"},
+    "thoth_metadata_cc0_acknowledged": {"type": "boolean"},
+    "evidence_reference": {
+      "type": "object",
+      "required": ["kind", "locator"],
+      "properties": {
+        "kind": {"enum": ["authorship-record", "license-page", "permission-record", "contract-reference", "publisher-authorization"]},
+        "locator": {"type": "string", "minLength": 3},
+        "public_url": {"type": ["string", "null"], "format": "uri"}
+      },
+      "additionalProperties": false
+    },
+    "status": {"enum": ["pending", "cleared", "blocked", "expired"]},
+    "public_note": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false
+}
