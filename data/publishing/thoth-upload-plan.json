@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "publisher": "Health Renewal / Rawafid",
+  "generated_from": "data/publishing/books + rights + translations via local Thoth eligibility gates",
+  "mapping_contract": "data/publishing/thoth-schema-contract.json",
+  "thoth_graphql_schema": "1.0.0",
+  "execution_enabled": false,
+  "transmission_permitted": false,
+  "credential_inputs": [],
+  "final_authority": "Current Thoth bulk-uploader CSV/ONIX 3.0 template or live schema immediately before upload.",
+  "candidate_count": 0,
+  "ready_plan_count": 0,
+  "blocked_plan_count": 0,
+  "plans": []
+}
