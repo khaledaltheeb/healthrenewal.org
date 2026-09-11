@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "publisher_id": "rawafid",
+  "publisher_name": "Health Renewal / Rawafid",
+  "canonical": "https://healthrenewal.org/open-books/",
+  "updated_at": "2026-09-11",
+  "public_records": [],
+  "counts": {
+    "public_books": 0,
+    "rawafid_originals": 0,
+    "licensed_translations": 0,
+    "authorized_co_managed": 0
+  },
+  "publication_rule": "Only records with public_visibility=true and a public workflow state may appear in this catalog.",
+  "discovery_boundary": "Third-party discovery-only records are not Rawafid publications and must not be counted as Rawafid books."
+}
