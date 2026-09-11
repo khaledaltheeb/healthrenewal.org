@@ -9,6 +9,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / "data" / "publishing"
 PUBLISHER_FILE = BASE / "publisher.json"
+THOTH_CONTRACT_FILE = BASE / "thoth-schema-contract.json"
 CATALOG_FILE = BASE / "catalog.json"
 API_FILE = ROOT / "api" / "v1" / "open-books.json"
 BOOKS_DIR = BASE / "books"
@@ -95,9 +96,10 @@ def validate_publisher(errors: list[str]) -> dict[str, Any]:
     publisher = load(PUBLISHER_FILE)
     p = publisher.get("publisher", {})
     if p.get("display_name") != "Health Renewal / Rawafid":
-        fail(errors, "publisher display name must match the activated Thoth publisher")
+        fail(errors, "publisher display name must match the canonical local publisher identity")
     if p.get("short_name") != "Rawafid":
         fail(errors, "publisher short name must be Rawafid")
+
     thoth = publisher.get("thoth", {})
     if set(thoth.get("metadata_management_scope", [])) != {"professional", "scholarly"}:
         fail(errors, "Thoth scope must remain explicitly professional + scholarly")
@@ -106,8 +108,49 @@ def validate_publisher(errors: list[str]) -> dict[str, Any]:
     if thoth.get("metadata_public_dedication") != "CC0-1.0":
         fail(errors, "Thoth metadata dedication must be recorded as CC0-1.0")
     if thoth.get("distribution_platforms_observed_on_2026_09_11") != []:
-        fail(errors, "baseline must record no distribution platform enabled on 2026-09-11")
+        fail(errors, "2026-09-11 baseline must preserve the observed empty distribution-platform snapshot")
+    if thoth.get("test_instance_available") is not False:
+        fail(errors, "Thoth onboarding contract must record that no test instance is available")
+    if thoth.get("metadata_visibility_on_creation") != "public":
+        fail(errors, "Thoth metadata visibility must be treated as public from record creation")
+    if thoth.get("record_deletion_requires_thoth_super_user") is not True:
+        fail(errors, "Thoth deletion safeguard must record super-user intervention")
+    if thoth.get("graphql_schema_observed") != "1.0.0":
+        fail(errors, "observed Thoth GraphQL schema must remain pinned to 1.0.0 until re-verified")
+    if thoth.get("api_mutation_policy") != "disabled-until-authenticated-mapping-verified":
+        fail(errors, "Thoth API mutations must remain disabled until authenticated mapping is verified")
+    required_capabilities = {"manual-metadata-entry", "bulk-upload-csv", "bulk-upload-onix-3.0"}
+    if not required_capabilities.issubset(set(thoth.get("capabilities_observed_on_2026_09_11", []))):
+        fail(errors, "Thoth onboarding capabilities snapshot is incomplete")
     return publisher
+
+
+def validate_thoth_contract(errors: list[str]) -> dict[str, Any]:
+    if not THOTH_CONTRACT_FILE.is_file():
+        fail(errors, "missing data/publishing/thoth-schema-contract.json")
+        return {}
+    contract = load(THOTH_CONTRACT_FILE)
+    thoth = contract.get("thoth", {})
+    if contract.get("purpose") != "offline-dry-run-mapping-only":
+        fail(errors, "Thoth schema contract must remain dry-run only")
+    if thoth.get("graphql_schema_version") != "1.0.0":
+        fail(errors, "Thoth schema contract must be pinned to verified GraphQL 1.0.0")
+    if thoth.get("mutation_execution") != "disabled":
+        fail(errors, "Thoth mutation execution must remain disabled in repository automation")
+    secret_policy = str(thoth.get("authentication_secret_policy") or "").lower()
+    if "never" not in secret_policy or "committed" not in secret_policy or "ci" not in secret_policy:
+        fail(errors, "Thoth authentication secret policy must explicitly prohibit repository/CI storage")
+
+    mappings = contract.get("safe_local_mappings", {})
+    if mappings.get("work_type", {}).get("scholarly-monograph") != "MONOGRAPH":
+        fail(errors, "verified scholarly-monograph -> MONOGRAPH mapping is missing")
+    if mappings.get("work_type", {}).get("textbook") != "TEXTBOOK":
+        fail(errors, "verified textbook -> TEXTBOOK mapping is missing")
+    if set(mappings.get("work_type_forbidden_pending_thoth_confirmation", [])) != LITERARY_TYPES:
+        fail(errors, "literary work types must remain forbidden pending Thoth confirmation")
+    if mappings.get("language", {}).get("ar") != "ARA" or mappings.get("language", {}).get("en") != "ENG":
+        fail(errors, "verified Arabic/English language mappings are incomplete")
+    return contract
 
 
 def validate_rights(errors: list[str]) -> dict[str, dict[str, Any]]:
@@ -285,6 +328,7 @@ def validate_catalog_and_api(errors: list[str], books: list[dict[str, Any]]) -> 
 def main() -> int:
     errors: list[str] = []
     validate_publisher(errors)
+    validate_thoth_contract(errors)
     rights_records = validate_rights(errors)
     translation_records = validate_translations(errors)
     books = validate_books(errors, rights_records, translation_records)
