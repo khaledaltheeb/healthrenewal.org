@@ -1,0 +1,280 @@
+name: Institutional SERP hardening v2
+
+on:
+  push:
+    branches:
+      - seo/institutional-serp-hardening-v2
+    paths:
+      - .github/workflows/institutional-serp-hardening-v2.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: institutional-serp-hardening-v2-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  harden:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Align canonical sitemap discovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+              Path('index.html'): [('https://healthrenewal.org/sitemap-index.xml', 'https://healthrenewal.org/sitemap.xml')],
+              Path('scripts/apply_institutional_serp_v1.py'): [('sitemap-index.xml', 'sitemap.xml')],
+              Path('reports/institutional-serp-v1.json'): [('https://healthrenewal.org/sitemap-index.xml', 'https://healthrenewal.org/sitemap.xml')],
+          }
+          for path, pairs in replacements.items():
+              text = path.read_text(encoding='utf-8')
+              before = text
+              for old, new in pairs:
+                  text = text.replace(old, new)
+              if text == before:
+                  raise SystemExit(f'Expected sitemap reference not found in {path}')
+              path.write_text(text, encoding='utf-8')
+
+          Path('robots.txt').write_text(
+              'User-agent: *\nAllow: /\n\nSitemap: https://healthrenewal.org/sitemap.xml\n',
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Create continuous live SERP validator
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > .github/workflows/validate-institutional-serp-live-v1.yml <<'YAML'
+          name: Validate institutional SERP live v1
+
+          on:
+            workflow_run:
+              workflows: ["Build complete institutional site v6 and deploy"]
+              types: [completed]
+            workflow_dispatch:
+
+          permissions:
+            contents: read
+
+          concurrency:
+            group: institutional-serp-live-v1
+            cancel-in-progress: true
+
+          jobs:
+            validate-live:
+              if: >-
+                github.event_name == 'workflow_dispatch' ||
+                (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+              runs-on: ubuntu-latest
+              timeout-minutes: 10
+              steps:
+                - name: Fetch live institutional surfaces
+                  shell: bash
+                  run: |
+                    set -euo pipefail
+                    mkdir -p /tmp/rawafid-serp
+                    nonce="${GITHUB_RUN_ID}-$(date +%s)"
+                    curl -fsSL --retry 4 -H 'Cache-Control: no-cache' "https://healthrenewal.org/?serp=${nonce}" -o /tmp/rawafid-serp/home.html
+                    curl -fsSL --retry 4 -H 'Cache-Control: no-cache' "https://healthrenewal.org/robots.txt?serp=${nonce}" -o /tmp/rawafid-serp/robots.txt
+                    curl -fsSL --retry 4 -H 'Cache-Control: no-cache' "https://healthrenewal.org/sitemap.xml?serp=${nonce}" -o /tmp/rawafid-serp/sitemap.xml
+                    routes=(
+                      'sectors/mental-health'
+                      'special-needs'
+                      'sectors/pediatric-oncology'
+                      'library'
+                      'care-guides'
+                      'specialists-partners'
+                    )
+                    for route in "${routes[@]}"; do
+                      safe="${route//\//__}"
+                      curl -fsSL --retry 4 -H 'Cache-Control: no-cache' "https://healthrenewal.org/${route}/?serp=${nonce}" -o "/tmp/rawafid-serp/${safe}.html"
+                    done
+                    curl -fsSL --retry 4 "https://healthrenewal.org/favicon-48x48.png?serp=${nonce}" -o /tmp/rawafid-serp/favicon-48.png
+                    curl -fsSL --retry 4 "https://healthrenewal.org/android-chrome-192x192.png?serp=${nonce}" -o /tmp/rawafid-serp/icon-192.png
+
+                - name: Validate live search appearance contract
+                  shell: bash
+                  run: |
+                    set -euo pipefail
+                    python - <<'PY'
+                    import json
+                    import re
+                    from pathlib import Path
+                    from urllib.parse import urlparse
+
+                    root = Path('/tmp/rawafid-serp')
+                    home = (root / 'home.html').read_text(encoding='utf-8')
+                    robots = (root / 'robots.txt').read_text(encoding='utf-8')
+                    sitemap = (root / 'sitemap.xml').read_text(encoding='utf-8')
+
+                    expected_title = 'منصة روافد | الصحة النفسية والتربية الخاصة والدمج'
+                    expected_description = 'منصة روافد مرجع عربي معرفي موثوق للصحة النفسية والتربية الخاصة والدمج وسرطان الأطفال، يقدم أدلة علمية وعملية ومكتبة معرفية ومسارات للأسر والمختصين.'
+                    priority = [
+                        ('الصحة النفسية', '/sectors/mental-health/'),
+                        ('ذوو الاحتياجات الخاصة والدمج', '/special-needs/'),
+                        ('سرطان الأطفال', '/sectors/pediatric-oncology/'),
+                        ('الأدلة العلمية', '/library/'),
+                        ('أدلة التعامل والرعاية', '/care-guides/'),
+                        ('المختصون والشراكات المهنية', '/specialists-partners/'),
+                    ]
+
+                    failures = []
+                    def require(condition, message):
+                        if not condition:
+                            failures.append(message)
+
+                    title_match = re.search(r'<title[^>]*>(.*?)</title>', home, re.I | re.S)
+                    require(bool(title_match) and re.sub(r'\s+', ' ', title_match.group(1)).strip() == expected_title, 'homepage title mismatch')
+
+                    desc_match = re.search(r'<meta[^>]+name=["\']description["\'][^>]+content=["\']([^"\']*)', home, re.I | re.S)
+                    require(bool(desc_match) and desc_match.group(1).strip() == expected_description, 'homepage meta description mismatch')
+                    require('<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">' in home, 'homepage robots contract missing')
+                    require('noindex' not in home[:12000].lower(), 'homepage contains noindex')
+                    require('<meta property="og:site_name" content="منصة روافد">' in home, 'og:site_name mismatch')
+                    require('/favicon-48x48.png' in home, '48px favicon link missing')
+                    require('/android-chrome-192x192.png' in home, '192px icon link missing')
+                    require('rel="canonical" href="https://healthrenewal.org/"' in home, 'homepage canonical mismatch')
+                    require('https://healthrenewal.org/sitemap.xml' in home, 'homepage sitemap discovery link mismatch')
+
+                    hrefs = set(re.findall(r'href=["\']([^"\']+)', home, re.I))
+                    for label, route in priority:
+                        require(route in hrefs, f'priority homepage link missing: {label} {route}')
+
+                    jsonld = []
+                    for raw in re.findall(r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>', home, re.I | re.S):
+                        try:
+                            jsonld.append(json.loads(raw.strip()))
+                        except json.JSONDecodeError as exc:
+                            failures.append(f'invalid homepage JSON-LD: {exc}')
+
+                    nodes = []
+                    def walk(value):
+                        if isinstance(value, dict):
+                            nodes.append(value)
+                            for child in value.values():
+                                walk(child)
+                        elif isinstance(value, list):
+                            for child in value:
+                                walk(child)
+                    for doc in jsonld:
+                        walk(doc)
+
+                    websites = [n for n in nodes if n.get('@type') == 'WebSite' and n.get('url') == 'https://healthrenewal.org/']
+                    require(bool(websites), 'WebSite schema missing')
+                    if websites:
+                        website = websites[0]
+                        require(website.get('name') == 'منصة روافد', 'WebSite schema name mismatch')
+                        alts = website.get('alternateName') or []
+                        if isinstance(alts, str):
+                            alts = [alts]
+                        for alt in ('روافد', 'Rawafid', 'healthrenewal.org'):
+                            require(alt in alts, f'WebSite alternateName missing: {alt}')
+
+                    orgs = [n for n in nodes if n.get('@type') == 'Organization' and n.get('url') == 'https://healthrenewal.org/']
+                    require(bool(orgs), 'Organization schema missing')
+                    if orgs:
+                        org = orgs[0]
+                        require(org.get('name') == 'منصة روافد', 'Organization schema name mismatch')
+                        require(bool(org.get('logo')), 'Organization logo missing')
+
+                    route_files = {
+                        '/sectors/mental-health/': 'sectors__mental-health.html',
+                        '/special-needs/': 'special-needs.html',
+                        '/sectors/pediatric-oncology/': 'sectors__pediatric-oncology.html',
+                        '/library/': 'library.html',
+                        '/care-guides/': 'care-guides.html',
+                        '/specialists-partners/': 'specialists-partners.html',
+                    }
+                    for route, filename in route_files.items():
+                        html = (root / filename).read_text(encoding='utf-8')
+                        require('noindex' not in html[:12000].lower(), f'noindex detected on {route}')
+                        require(bool(re.search(r'<title[^>]*>\s*[^<]+\s*</title>', html, re.I)), f'title missing on {route}')
+                        require(bool(re.search(r'<meta[^>]+name=["\']description["\'][^>]+content=["\'][^"\']{70,}', html, re.I | re.S)), f'description weak/missing on {route}')
+                        canonical = re.search(r'<link[^>]+rel=["\']canonical["\'][^>]+href=["\']([^"\']+)', html, re.I | re.S)
+                        require(bool(canonical), f'canonical missing on {route}')
+                        if canonical:
+                            parsed = urlparse(canonical.group(1))
+                            actual_path = parsed.path.rstrip('/') + '/'
+                            require(parsed.scheme == 'https' and parsed.netloc == 'healthrenewal.org' and actual_path == route, f'canonical mismatch on {route}: {canonical.group(1)}')
+
+                    require('User-agent: *' in robots and 'Allow: /' in robots, 'robots.txt does not allow crawling')
+                    require('Sitemap: https://healthrenewal.org/sitemap.xml' in robots, 'robots.txt canonical sitemap mismatch')
+                    require('sitemap-index.xml' not in robots, 'robots.txt still references legacy sitemap-index.xml')
+                    require('<sitemapindex' in sitemap.lower() or '<urlset' in sitemap.lower(), 'sitemap.xml is not valid sitemap XML')
+                    require((root / 'favicon-48.png').stat().st_size > 100, 'favicon-48x48 empty')
+                    require((root / 'icon-192.png').stat().st_size > 100, 'android-chrome-192x192 empty')
+
+                    if failures:
+                        raise SystemExit('Institutional SERP live validation failed:\n- ' + '\n- '.join(failures))
+                    print(json.dumps({
+                        'status': 'passed',
+                        'siteName': 'منصة روافد',
+                        'title': expected_title,
+                        'priorityRoutes': [route for _, route in priority],
+                        'robotsSitemap': 'https://healthrenewal.org/sitemap.xml',
+                        'favicon48': 'passed',
+                        'icon192': 'passed',
+                        'noindexOnPriorityRoutes': False,
+                    }, ensure_ascii=False, indent=2))
+                    PY
+          YAML
+
+      - name: Validate hardened source contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/apply_institutional_serp_v1.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          home = Path('index.html').read_text(encoding='utf-8')
+          robots = Path('robots.txt').read_text(encoding='utf-8')
+          migration = Path('scripts/apply_institutional_serp_v1.py').read_text(encoding='utf-8')
+          report = json.loads(Path('reports/institutional-serp-v1.json').read_text(encoding='utf-8'))
+
+          assert 'https://healthrenewal.org/sitemap.xml' in home
+          assert 'sitemap-index.xml' not in home
+          assert robots == 'User-agent: *\nAllow: /\n\nSitemap: https://healthrenewal.org/sitemap.xml\n'
+          assert 'sitemap-index.xml' not in migration
+          assert report['sitemap'] == 'https://healthrenewal.org/sitemap.xml'
+          assert report['status'] == 'passed'
+          assert report['deleted_files'] == []
+          assert report['index_html_count_before'] == report['index_html_count_after']
+          print('Institutional SERP hardening v2 source contract passed.')
+          PY
+          git diff --check
+          if git diff --name-status | grep -E '^D[[:space:]]'; then
+            echo 'Refusing to continue: deleted files detected.' >&2
+            exit 1
+          fi
+
+      - name: Commit validated hardening
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git config user.name 'rawafid-seo-bot'
+          git config user.email '63592172+khaledaltheeb@users.noreply.github.com'
+          git add index.html robots.txt scripts/apply_institutional_serp_v1.py reports/institutional-serp-v1.json .github/workflows/validate-institutional-serp-live-v1.yml
+          git commit -m 'SEO: canonical sitemap discovery and continuous live SERP gate'
+          git push origin HEAD:${{ github.ref_name }}
