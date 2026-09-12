@@ -20,7 +20,7 @@
   "missing_scope_roots": [
     "inclusive-education"
   ],
-  "run_at": "2026-09-12T19:20:43Z",
+  "run_at": "2026-09-12T22:18:21Z",
   "scope": [
     "/special-needs/",
     "/inclusive-education/"
@@ -30,7 +30,8 @@
   "sitemap_index_registered": false,
   "sitemap_urls_added": 0,
   "skipped_breakdown": {
-    "unchanged": 143
+    "already-optimal": 1,
+    "unchanged": 142
   },
   "skipped_noop": 143,
   "status": "incomplete",
