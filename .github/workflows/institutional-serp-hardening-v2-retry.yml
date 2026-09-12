@@ -1,0 +1,104 @@
+name: Institutional SERP hardening v2 retry
+
+on:
+  push:
+    branches:
+      - seo/institutional-serp-hardening-v2
+    paths:
+      - .github/workflows/institutional-serp-hardening-v2-retry.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: institutional-serp-hardening-v2-retry-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  harden:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Align canonical sitemap discovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+              Path('index.html'): [('https://healthrenewal.org/sitemap-index.xml', 'https://healthrenewal.org/sitemap.xml')],
+              Path('scripts/apply_institutional_serp_v1.py'): [('sitemap-index.xml', 'sitemap.xml')],
+              Path('reports/institutional-serp-v1.json'): [('https://healthrenewal.org/sitemap-index.xml', 'https://healthrenewal.org/sitemap.xml')],
+          }
+          for path, pairs in replacements.items():
+              text = path.read_text(encoding='utf-8')
+              before = text
+              for old, new in pairs:
+                  text = text.replace(old, new)
+              if text == before:
+                  raise SystemExit(f'Expected sitemap reference not found in {path}')
+              path.write_text(text, encoding='utf-8')
+
+          Path('robots.txt').write_text(
+              'User-agent: *\nAllow: /\n\nSitemap: https://healthrenewal.org/sitemap.xml\n',
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Validate hardened source contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/apply_institutional_serp_v1.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          home = Path('index.html').read_text(encoding='utf-8')
+          robots = Path('robots.txt').read_text(encoding='utf-8')
+          migration = Path('scripts/apply_institutional_serp_v1.py').read_text(encoding='utf-8')
+          report = json.loads(Path('reports/institutional-serp-v1.json').read_text(encoding='utf-8'))
+
+          assert 'https://healthrenewal.org/sitemap.xml' in home
+          assert 'sitemap-index.xml' not in home
+          assert robots == 'User-agent: *\nAllow: /\n\nSitemap: https://healthrenewal.org/sitemap.xml\n'
+          assert 'sitemap-index.xml' not in migration
+          assert report['sitemap'] == 'https://healthrenewal.org/sitemap.xml'
+          assert report['status'] == 'passed'
+          assert report['deleted_files'] == []
+          assert report['index_html_count_before'] == report['index_html_count_after']
+          assert Path('.github/workflows/validate-institutional-serp-live-v1.yml').is_file()
+          print('Institutional SERP hardening v2 retry source contract passed.')
+          PY
+          git diff --check
+          if git diff --name-status | grep -E '^D[[:space:]]'; then
+            echo 'Refusing to continue: deleted files detected.' >&2
+            exit 1
+          fi
+
+      - name: Commit validated non-workflow hardening
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git config user.name 'rawafid-seo-bot'
+          git config user.email '63592172+khaledaltheeb@users.noreply.github.com'
+          git add index.html robots.txt scripts/apply_institutional_serp_v1.py reports/institutional-serp-v1.json
+          git commit -m 'SEO: canonical sitemap discovery hardening'
+          git push origin HEAD:${{ github.ref_name }}
