@@ -261,7 +261,7 @@ def enhance_homepage() -> bool:
     ):
         html = upsert_meta(html, "property", key, value)
     html = ensure_icon_links(html)
-    html = re.sub(r'<link\s+rel="sitemap"[^>]*>', '<link rel="sitemap" type="application/xml" href="https://healthrenewal.org/sitemap-index.xml">', html, count=1, flags=re.I)
+    html = re.sub(r'<link\s+rel="sitemap"[^>]*>', '<link rel="sitemap" type="application/xml" href="https://healthrenewal.org/sitemap.xml">', html, count=1, flags=re.I)
     html = replace_primary_schema(html)
     html = prioritize_home_nav(html)
     if "data-institutional-sitelinks-v1" not in html:
@@ -480,7 +480,7 @@ def validate(index_count_before: int) -> dict:
         "index_html_count_after": index_count_after,
         "deleted_files": [],
         "noindex_added_to_priority_pages": False,
-        "sitemap": BASE + "sitemap-index.xml",
+        "sitemap": BASE + "sitemap.xml",
         "site_name": BRAND,
         "alternate_site_names": ["روافد", "Rawafid", "healthrenewal.org"],
     }
