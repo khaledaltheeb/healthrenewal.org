@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
-  <ShortName>البحث الذكي</ShortName>
-  <Description>بحث دلالي عربي في منصة روافد</Description>
+  <ShortName>منصة روافد</ShortName>
+  <Description>بحث عربي في منصة روافد عبر الموسوعة والأدلة والأقسام المعرفية</Description>
   <Language>ar</Language>
   <InputEncoding>UTF-8</InputEncoding>
   <OutputEncoding>UTF-8</OutputEncoding>

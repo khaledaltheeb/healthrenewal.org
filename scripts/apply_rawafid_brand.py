@@ -13,8 +13,8 @@ BRAND_NAME = "منصة روافد"
 BRAND_LONG = "منصة روافد للعافية النفسية والدمج والتمكين"
 TAGLINE = "للعافية النفسية والدمج والتمكين"
 DESCRIPTION = (
-    "منصة روافد منصة عربية للعافية النفسية والدمج والتمكين، تقدم موسوعة موثقة، "
-    "أدلة عملية، أدوات تفاعلية، ومسارات معرفية داعمة للأفراد والأسر والمختصين والمجتمع."
+    "منصة روافد مرجع عربي معرفي موثوق للصحة النفسية والتربية الخاصة والدمج وسرطان الأطفال، "
+    "يقدم أدلة علمية وعملية ومكتبة معرفية ومسارات للأسر والمختصين."
 )
 PRIMARY = "#0b8f92"
 RUNTIME_SOURCE = ROOT / "scripts" / "rawafid_brand_runtime.js"
@@ -139,7 +139,9 @@ def replace_brand_text()->tuple[int,int]:
 
 FAVICON_BLOCK='''<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/svg+xml" href="/assets/brand/logo-mark.svg">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/assets/brand/rawafid-brand.css">
@@ -186,7 +188,7 @@ def update_manifests()->int:
         if not eligible(path): continue
         try: data=json.loads(path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError,UnicodeDecodeError): continue
-        data.update({"name":BRAND_LONG,"short_name":"روافد","description":DESCRIPTION,"theme_color":PRIMARY,"background_color":"#f7fffe"})
+        data.update({"name":BRAND_NAME,"short_name":"روافد","description":DESCRIPTION,"theme_color":PRIMARY,"background_color":"#f7fffe"})
         data["icons"]=[{"src":"/android-chrome-192x192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"/android-chrome-512x512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]
         path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n",encoding="utf-8"); changed+=1
     return changed

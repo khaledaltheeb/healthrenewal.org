@@ -1,7 +1,7 @@
 {
-  "name": "منصة روافد للعافية النفسية والدمج والتمكين",
+  "name": "منصة روافد",
   "short_name": "روافد",
-  "description": "منصة روافد منصة عربية للعافية النفسية والدمج والتمكين، تقدم موسوعة موثقة، وأدلة عملية، وأدوات تفاعلية، ومسارات معرفية داعمة للأفراد والأسر والمختصين والمجتمع.",
+  "description": "منصة روافد مرجع عربي معرفي موثوق للصحة النفسية والتربية الخاصة والدمج وسرطان الأطفال، يقدم أدلة علمية وعملية ومكتبة معرفية ومسارات للأسر والمختصين.",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/",
@@ -19,57 +19,79 @@
       "src": "/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ],
   "shortcuts": [
+    {
+      "name": "الصحة النفسية",
+      "url": "/sectors/mental-health/",
+      "icons": [
+        {
+          "src": "/android-chrome-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "ذوو الاحتياجات الخاصة والدمج",
+      "url": "/special-needs/",
+      "icons": [
+        {
+          "src": "/android-chrome-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "سرطان الأطفال",
+      "url": "/sectors/pediatric-oncology/",
+      "icons": [
+        {
+          "src": "/android-chrome-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "الأدلة العلمية",
+      "url": "/library/",
+      "icons": [
+        {
+          "src": "/android-chrome-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
     {
       "name": "أدلة التعامل والرعاية",
       "url": "/care-guides/",
       "icons": [
         {
-          "src": "/assets/brand/logo-mark.svg",
-          "sizes": "any",
-          "type": "image/svg+xml"
+          "src": "/android-chrome-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
     {
-      "name": "الموسوعة",
-      "url": "/encyclopedia/",
+      "name": "المختصون والشراكات المهنية",
+      "url": "/specialists-partners/",
       "icons": [
         {
-          "src": "/assets/brand/logo-mark.svg",
-          "sizes": "any",
-          "type": "image/svg+xml"
-        }
-      ]
-    },
-    {
-      "name": "ذوو الاحتياجات الخاصة",
-      "url": "/special-needs/",
-      "icons": [
-        {
-          "src": "/assets/brand/logo-mark.svg",
-          "sizes": "any",
-          "type": "image/svg+xml"
-        }
-      ]
-    },
-    {
-      "name": "منصة التقييم",
-      "url": "/provider-assessment-demo/",
-      "icons": [
-        {
-          "src": "/assets/brand/logo-mark.svg",
-          "sizes": "any",
-          "type": "image/svg+xml"
+          "src": "/android-chrome-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     }
