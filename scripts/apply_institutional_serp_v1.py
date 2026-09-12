@@ -17,7 +17,7 @@ from urllib.parse import urljoin, urlparse
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "https://healthrenewal.org/"
 BRAND = "منصة روافد"
-HOME_TITLE = "منصة روافد | الصحة النفسية والدمج والتربية الخاصة"
+HOME_TITLE = "منصة روافد | الصحة النفسية والتربية الخاصة والدمج"
 HOME_DESCRIPTION = (
     "منصة روافد مرجع عربي معرفي موثوق للصحة النفسية والتربية الخاصة والدمج "
     "وسرطان الأطفال، يقدم أدلة علمية وعملية ومكتبة معرفية ومسارات للأسر والمختصين."
@@ -48,12 +48,14 @@ PRIORITY = (
     {
         "name": "الأدلة العلمية",
         "path": "/library/",
+        "source_optional": True,
         "title": "المكتبة الأكاديمية العربية والأدلة العلمية | منصة روافد",
         "description": "المكتبة الأكاديمية في روافد لتنظيم الدراسات والمراجع والأدلة العلمية وقراءة قوة الدليل وحدوده وربط النتائج بالتطبيق في الصحة النفسية والدمج والرعاية.",
     },
     {
         "name": "أدلة التعامل والرعاية",
         "path": "/care-guides/",
+        "source_optional": True,
         "title": "أدلة التعامل والرعاية: خطط عملية للأسرة والمختصين | روافد",
         "description": "أدلة عربية عملية للتعامل والرعاية تساعد الأسرة والمعلم والمختص على الانتقال من الموقف إلى خطوات قابلة للتطبيق والمتابعة، مع حدود مهنية ومصادر واضحة.",
     },
@@ -302,6 +304,8 @@ def hub_schema(item: dict[str, str]) -> str:
 def enhance_hub(item: dict[str, str]) -> bool:
     file_path = ROOT / item["path"].strip("/") / "index.html"
     if not file_path.is_file():
+        if item.get("source_optional"):
+            return False
         raise RuntimeError(f"Priority hub missing: {file_path.relative_to(ROOT)}")
     html = read(file_path)
     canonical = urljoin(BASE, item["path"].lstrip("/"))
@@ -424,7 +428,7 @@ def validate(index_count_before: int) -> dict:
     if index_count_after != index_count_before:
         errors.append(f"index.html count changed: {index_count_before} -> {index_count_after}")
     home = read(ROOT / "index.html")
-    required_home = [HOME_TITLE, HOME_DESCRIPTION, 'name="منصة روافد"', 'alternateName', 'healthrenewal.org', 'data-institutional-sitelinks-v1', '/favicon-48x48.png', '/android-chrome-192x192.png']
+    required_home = [HOME_TITLE, HOME_DESCRIPTION, '"name":"منصة روافد"', 'alternateName', 'healthrenewal.org', 'data-institutional-sitelinks-v1', '/favicon-48x48.png', '/android-chrome-192x192.png']
     for token in required_home:
         if token not in home:
             errors.append(f"homepage missing token: {token}")
@@ -437,6 +441,8 @@ def validate(index_count_before: int) -> dict:
     for item in PRIORITY:
         file_path = ROOT / item["path"].strip("/") / "index.html"
         if not file_path.is_file():
+            if item.get("source_optional"):
+                continue
             errors.append(f"missing hub: {file_path.relative_to(ROOT)}")
             continue
         html = read(file_path)

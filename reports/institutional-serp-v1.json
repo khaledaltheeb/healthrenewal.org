@@ -1,0 +1,56 @@
+{
+  "status": "passed",
+  "generated_at": "2026-09-12T20:10:10.492117+00:00",
+  "homepage_title": "منصة روافد | الصحة النفسية والتربية الخاصة والدمج",
+  "homepage_description": "منصة روافد مرجع عربي معرفي موثوق للصحة النفسية والتربية الخاصة والدمج وسرطان الأطفال، يقدم أدلة علمية وعملية ومكتبة معرفية ومسارات للأسر والمختصين.",
+  "priority_hubs": [
+    {
+      "name": "الصحة النفسية",
+      "url": "https://healthrenewal.org/sectors/mental-health/"
+    },
+    {
+      "name": "ذوو الاحتياجات الخاصة والدمج",
+      "url": "https://healthrenewal.org/special-needs/"
+    },
+    {
+      "name": "سرطان الأطفال",
+      "url": "https://healthrenewal.org/sectors/pediatric-oncology/"
+    },
+    {
+      "name": "الأدلة العلمية",
+      "url": "https://healthrenewal.org/library/"
+    },
+    {
+      "name": "أدلة التعامل والرعاية",
+      "url": "https://healthrenewal.org/care-guides/"
+    },
+    {
+      "name": "المختصون والشراكات المهنية",
+      "url": "https://healthrenewal.org/specialists-partners/"
+    }
+  ],
+  "index_html_count_before": 2193,
+  "index_html_count_after": 2193,
+  "deleted_files": [],
+  "noindex_added_to_priority_pages": false,
+  "sitemap": "https://healthrenewal.org/sitemap-index.xml",
+  "site_name": "منصة روافد",
+  "alternate_site_names": [
+    "روافد",
+    "Rawafid",
+    "healthrenewal.org"
+  ],
+  "changed_files": [
+    "feed.xml",
+    "index.html",
+    "manifest.webmanifest",
+    "opensearch.xml",
+    "scripts/apply_rawafid_brand.py",
+    "scripts/rawafid_brand_consistency.py",
+    "sectors/mental-health/index.html",
+    "sectors/pediatric-oncology/index.html",
+    "sitemap.xml",
+    "special-needs/index.html",
+    "specialists-partners/index.html"
+  ]
+}

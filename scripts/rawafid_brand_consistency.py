@@ -19,8 +19,8 @@ BRAND_AR = "منصة روافد"
 BRAND_EN = "Rawafid Platform"
 BRAND_LONG_AR = "منصة روافد للعافية النفسية والدمج والتمكين"
 DESCRIPTION_AR = (
-    "منصة روافد منصة عربية للعافية النفسية والدمج والتمكين، تقدم موسوعة موثقة، "
-    "وأدلة عملية، وأدوات تفاعلية، ومسارات معرفية داعمة للأفراد والأسر والمختصين والمجتمع."
+    "منصة روافد مرجع عربي معرفي موثوق للصحة النفسية والتربية الخاصة والدمج وسرطان الأطفال، "
+    "ويقدم أدلة علمية وعملية ومكتبة معرفية ومسارات للأسر والمختصين."
 )
 PRIMARY = "#0b8f92"
 SOCIAL_IMAGE = "https://healthrenewal.org/assets/brand/rawafid-social-card.jpg"
@@ -57,7 +57,9 @@ HEAD_CLOSE_RE = re.compile(r"</head\s*>", re.I)
 
 FAVICON_BLOCK = """<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/svg+xml" href="/assets/brand/logo-mark.svg">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -327,7 +329,7 @@ def normalize_manifest(root: Path, fix: bool) -> tuple[bool, list[str], bool]:
         return False, [f"invalid JSON: {exc}"], False
     desired = {
         "id": "/",
-        "name": BRAND_LONG_AR,
+        "name": BRAND_AR,
         "short_name": "روافد",
         "description": DESCRIPTION_AR,
         "lang": "ar",
