@@ -37,9 +37,9 @@ RAWAFID_HOSTS = {
 }
 
 # Utility/listing pages are not scientific study records and therefore do not
-# have to satisfy the study-page contract. Nested study pages remain included.
+# have to satisfy the study-page contract. A nested `index.html` may be the
+# canonical document for a study and must NOT be excluded merely by basename.
 UTILITY_BASENAMES = {
-    "index.html",
     "search.html",
     "archive.html",
     "archives.html",
@@ -265,7 +265,10 @@ def discover_pages() -> list[Path]:
     pages: list[Path] = []
     for path in MAGAZINE.rglob("*.html"):
         rel = path.relative_to(MAGAZINE)
+        rel_posix = rel.as_posix().lower()
         rel_parts = {part.lower() for part in rel.parts[:-1]}
+        if rel_posix == "index.html":
+            continue
         if path.name.lower() in UTILITY_BASENAMES:
             continue
         if rel_parts & UTILITY_DIR_PARTS:
@@ -414,7 +417,7 @@ def build_manifest() -> dict:
     return {
         "schema_version": 2,
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "scope": "magazine/**/*.html (recursive; utility pages excluded)",
+        "scope": "magazine/**/*.html (recursive; utility pages excluded, nested study index.html included)",
         "policy": {
             "destructive_changes": False,
             "bibliographic_verification_required_before_complete_publication": True,
