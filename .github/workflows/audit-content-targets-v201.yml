@@ -10,6 +10,7 @@ on:
       - "data/magazine-source-overrides-v202.json"
       - "data/magazine-enrichments-v202-batch1.json"
       - "data/magazine-enrichments-v202-batch1-depth.json"
+      - "data/magazine-enrichments-v202-batch2.json"
       - "scripts/audit_content_targets_v201.py"
       - "scripts/enforce_platform_identity_v201.py"
       - "scripts/finalize_special_needs_hub_accessibility_v201.py"
@@ -64,6 +65,7 @@ jobs:
           python -m json.tool data/magazine-source-overrides-v202.json >/dev/null
           python -m json.tool data/magazine-enrichments-v202-batch1.json >/dev/null
           python -m json.tool data/magazine-enrichments-v202-batch1-depth.json >/dev/null
+          python -m json.tool data/magazine-enrichments-v202-batch2.json >/dev/null
       - name: Test target counts and hub exclusion
         run: |
           set +e
@@ -89,6 +91,8 @@ jobs:
         run: python scripts/apply_magazine_enrichments_v202.py magazine --registry data/magazine-enrichments-v202-batch1.json --report /tmp/magazine-enrichments-batch1.json
       - name: Apply batch 1 depth enrichments to audit workspace
         run: python scripts/apply_magazine_enrichments_v202.py magazine --registry data/magazine-enrichments-v202-batch1-depth.json --report /tmp/magazine-enrichments-batch1-depth.json
+      - name: Apply batch 2 evidence enrichments to audit workspace
+        run: python scripts/apply_magazine_enrichments_v202.py magazine --registry data/magazine-enrichments-v202-batch2.json --report /tmp/magazine-enrichments-batch2.json
       - name: Generate magazine source audit report
         run: python scripts/audit_magazine_sources_v202.py --output /tmp/magazine-source-manifest.json
       - name: Verify magazine DOI and PMID records
@@ -120,6 +124,7 @@ jobs:
             /tmp/magazine-citation-repairs.json
             /tmp/magazine-enrichments-batch1.json
             /tmp/magazine-enrichments-batch1-depth.json
+            /tmp/magazine-enrichments-batch2.json
             /tmp/magazine-source-manifest.json
             /tmp/magazine-bibliography-raw.json
             /tmp/magazine-bibliography-verification.json
