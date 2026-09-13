@@ -19,6 +19,7 @@ on:
       - "scripts/audit_magazine_sources_v202.py"
       - "scripts/verify_magazine_bibliography_v202.py"
       - "scripts/apply_magazine_repository_overrides_v202.py"
+      - "scripts/repair_magazine_citation_integrity_v202.py"
       - "scripts/apply_homepage_v20.py"
       - "tests/test_content_targets_v201.py"
       - "tests/test_platform_identity_v201.py"
@@ -29,6 +30,7 @@ on:
       - "tests/test_magazine_routes_v202.py"
       - "tests/test_magazine_source_contract_v202.py"
       - "tests/test_magazine_repository_overrides_v202.py"
+      - "tests/test_magazine_citation_integrity_v202.py"
       - ".github/workflows/audit-content-targets-v201.yml"
   push:
     branches:
@@ -48,7 +50,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Compile contracts
-        run: python -m py_compile scripts/audit_content_targets_v201.py scripts/enforce_platform_identity_v201.py scripts/finalize_special_needs_hub_accessibility_v201.py scripts/publish_special_needs_hub_v201.py scripts/publish_trust_center_v201.py scripts/publish_partners_v201.py scripts/publish_magazine_v201.py scripts/publish_magazine_v202.py scripts/audit_magazine_sources_v202.py scripts/verify_magazine_bibliography_v202.py scripts/apply_magazine_repository_overrides_v202.py scripts/apply_homepage_v20.py tests/test_content_targets_v201.py tests/test_platform_identity_v201.py tests/test_special_needs_hub_v201.py tests/test_trust_center_v201.py tests/test_partners_v201.py tests/test_magazine_routes_v201.py tests/test_magazine_routes_v202.py tests/test_magazine_source_contract_v202.py tests/test_magazine_repository_overrides_v202.py
+        run: python -m py_compile scripts/audit_content_targets_v201.py scripts/enforce_platform_identity_v201.py scripts/finalize_special_needs_hub_accessibility_v201.py scripts/publish_special_needs_hub_v201.py scripts/publish_trust_center_v201.py scripts/publish_partners_v201.py scripts/publish_magazine_v201.py scripts/publish_magazine_v202.py scripts/audit_magazine_sources_v202.py scripts/verify_magazine_bibliography_v202.py scripts/apply_magazine_repository_overrides_v202.py scripts/repair_magazine_citation_integrity_v202.py scripts/apply_homepage_v20.py tests/test_content_targets_v201.py tests/test_platform_identity_v201.py tests/test_special_needs_hub_v201.py tests/test_trust_center_v201.py tests/test_partners_v201.py tests/test_magazine_routes_v201.py tests/test_magazine_routes_v202.py tests/test_magazine_source_contract_v202.py tests/test_magazine_repository_overrides_v202.py tests/test_magazine_citation_integrity_v202.py
       - name: Validate roadmap, hub and source override JSON
         run: |
           python -m json.tool content/content-growth-roadmap-v201.json >/dev/null
@@ -70,6 +72,10 @@ jobs:
         run: python -m unittest -v tests/test_magazine_source_contract_v202.py
       - name: Test authoritative repository overrides
         run: python -m unittest -v tests/test_magazine_repository_overrides_v202.py
+      - name: Test evidence-verified citation repairs
+        run: python -m unittest -v tests/test_magazine_citation_integrity_v202.py
+      - name: Apply citation integrity repairs to audit workspace
+        run: python scripts/repair_magazine_citation_integrity_v202.py magazine --report /tmp/magazine-citation-repairs.json
       - name: Generate magazine source audit report
         run: python scripts/audit_magazine_sources_v202.py --output /tmp/magazine-source-manifest.json
       - name: Verify magazine DOI and PMID records
@@ -96,6 +102,7 @@ jobs:
           name: content-target-test-diagnostics-v201
           path: |
             /tmp/content-target-counts.log
+            /tmp/magazine-citation-repairs.json
             /tmp/magazine-source-manifest.json
             /tmp/magazine-bibliography-raw.json
             /tmp/magazine-bibliography-verification.json
