@@ -65,7 +65,7 @@ class MagazineSourceContractV202Tests(unittest.TestCase):
     def _write_page(self, rel: str, *, source: str, meta: str = "") -> Path:
         path = self.magazine / rel
         path.parent.mkdir(parents=True, exist_ok=True)
-        slug = path.stem
+        slug = path.parent.name if path.name == "index.html" else path.stem
         path.write_text(
             PAGE_TEMPLATE.format(
                 title="عنوان دراسة اختبارية",
@@ -78,7 +78,7 @@ class MagazineSourceContractV202Tests(unittest.TestCase):
         )
         return path
 
-    def test_recursive_discovery_keeps_nested_study_pages(self) -> None:
+    def test_recursive_discovery_keeps_nested_study_pages_and_nested_index(self) -> None:
         top = self._write_page(
             "top-study.html",
             source='<a href="https://doi.org/10.1000/test.1">المصدر</a>',
@@ -87,12 +87,18 @@ class MagazineSourceContractV202Tests(unittest.TestCase):
             "evidence/2026/nested-study.html",
             source='<a href="https://pubmed.ncbi.nlm.nih.gov/12345678/">PubMed</a>',
         )
+        nested_index = self._write_page(
+            "pediatric-oncology/theses/cd28-car-t-t-all-farber-2026/index.html",
+            source='<a href="https://doi.org/10.5282/edoc.37260">الأطروحة الأصلية</a>',
+        )
         (self.magazine / "index.html").write_text("<html><body>listing</body></html>", encoding="utf-8")
         (self.magazine / "page" / "2.html").parent.mkdir(parents=True)
         (self.magazine / "page" / "2.html").write_text("<html><body>listing</body></html>", encoding="utf-8")
+        (self.magazine / "category" / "oncology" / "index.html").parent.mkdir(parents=True)
+        (self.magazine / "category" / "oncology" / "index.html").write_text("<html><body>listing</body></html>", encoding="utf-8")
 
         found = mod.discover_pages()
-        self.assertEqual(found, [nested, top])
+        self.assertEqual(found, [nested, nested_index, top])
 
     def test_extracts_doi_and_marks_structurally_complete_page(self) -> None:
         page = self._write_page(
