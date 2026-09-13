@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 APPLIER = ROOT / "scripts" / "apply_magazine_enrichments_v202.py"
 AUDITOR = ROOT / "scripts" / "audit_magazine_sources_v202.py"
 REGISTRY = ROOT / "data" / "magazine-enrichments-v202-batch1.json"
+DEPTH_REGISTRY = ROOT / "data" / "magazine-enrichments-v202-batch1-depth.json"
 SOURCE = ROOT / "magazine"
 
 
@@ -36,6 +37,7 @@ class MagazineEnrichmentsV202Tests(unittest.TestCase):
         self.magazine = self.root / "magazine"
         self.magazine.mkdir(parents=True)
         self.registry = apply_mod.load_registry(REGISTRY)
+        self.depth_registry = apply_mod.load_registry(DEPTH_REGISTRY)
         self.originals: dict[str, str] = {}
         for record in self.registry["records"]:
             rel_repo = Path(record["path"])
@@ -59,8 +61,14 @@ class MagazineEnrichmentsV202Tests(unittest.TestCase):
     def test_registry_is_exactly_ten_source_first_non_destructive_records(self) -> None:
         self.assertEqual(self.registry["batch"], "v202-batch1")
         self.assertEqual(len(self.registry["records"]), 10)
+        self.assertEqual(self.depth_registry["batch"], "v202-batch1-depth")
+        self.assertEqual(len(self.depth_registry["records"]), 2)
         self.assertTrue(self.registry["policy"]["non_destructive"])
         self.assertTrue(self.registry["policy"]["source_first"])
+        self.assertTrue(self.depth_registry["policy"]["do_not_lower_quality_threshold"])
+        main_paths = {record["path"] for record in self.registry["records"]}
+        for record in self.depth_registry["records"]:
+            self.assertIn(record["path"], main_paths)
         for record in self.registry["records"]:
             self.assertTrue(record["source"]["url"].startswith("https://"))
             self.assertTrue(record["source"]["title"])
@@ -94,6 +102,7 @@ class MagazineEnrichmentsV202Tests(unittest.TestCase):
         self.assertTrue(any(item.gold_contract == "incomplete" for item in before.values()))
 
         apply_mod.apply_registry(self.magazine, self.registry)
+        apply_mod.apply_registry(self.magazine, self.depth_registry)
         failures: list[dict] = []
         for record in self.registry["records"]:
             page = audit_mod.audit_page(self.root / record["path"])
@@ -109,14 +118,15 @@ class MagazineEnrichmentsV202Tests(unittest.TestCase):
         self.assertEqual(failures, [], json.dumps(failures, ensure_ascii=False, indent=2))
 
     def test_sources_are_rendered_as_external_verifiable_links(self) -> None:
-        for record in self.registry["records"]:
-            rendered = apply_mod.render_record(record, self.registry["batch"])
-            self.assertIn("المصدر الذي بُني عليه هذا الاستكمال", rendered)
-            self.assertIn('rel="noopener noreferrer external"', rendered)
-            if record["source"].get("doi"):
-                self.assertIn("https://doi.org/", rendered)
-            if record["source"].get("pmid"):
-                self.assertIn("https://pubmed.ncbi.nlm.nih.gov/", rendered)
+        for registry in (self.registry, self.depth_registry):
+            for record in registry["records"]:
+                rendered = apply_mod.render_record(record, registry["batch"])
+                self.assertIn("المصدر الذي بُني عليه هذا الاستكمال", rendered)
+                self.assertIn('rel="noopener noreferrer external"', rendered)
+                if record["source"].get("doi"):
+                    self.assertIn("https://doi.org/", rendered)
+                if record["source"].get("pmid"):
+                    self.assertIn("https://pubmed.ncbi.nlm.nih.gov/", rendered)
 
 
 if __name__ == "__main__":
