@@ -7,6 +7,10 @@ on:
       - "content/v201/special-needs-hub-ar.json"
       - "content/v192/platform-institutional-foundation-ar.json"
       - "provider-assessment-demo/**"
+      - "data/magazine-source-overrides-v202.json"
+      - "data/magazine-enrichments-v202-batch1.json"
+      - "data/magazine-enrichments-v202-batch1-depth.json"
+      - "data/magazine-enrichments-v202-batch2.json"
       - "scripts/audit_content_targets_v201.py"
       - "scripts/enforce_platform_identity_v201.py"
       - "scripts/finalize_special_needs_hub_accessibility_v201.py"
@@ -14,6 +18,13 @@ on:
       - "scripts/publish_trust_center_v201.py"
       - "scripts/publish_partners_v201.py"
       - "scripts/publish_magazine_v201.py"
+      - "scripts/publish_magazine_v202.py"
+      - "scripts/audit_magazine_sources_v202.py"
+      - "scripts/verify_magazine_bibliography_v202.py"
+      - "scripts/apply_magazine_repository_overrides_v202.py"
+      - "scripts/repair_magazine_citation_integrity_v202.py"
+      - "scripts/apply_magazine_enrichments_v202.py"
+      - "scripts/plan_magazine_remediation_v202.py"
       - "scripts/apply_homepage_v20.py"
       - "tests/test_content_targets_v201.py"
       - "tests/test_platform_identity_v201.py"
@@ -21,6 +32,11 @@ on:
       - "tests/test_trust_center_v201.py"
       - "tests/test_partners_v201.py"
       - "tests/test_magazine_routes_v201.py"
+      - "tests/test_magazine_routes_v202.py"
+      - "tests/test_magazine_source_contract_v202.py"
+      - "tests/test_magazine_repository_overrides_v202.py"
+      - "tests/test_magazine_citation_integrity_v202.py"
+      - "tests/test_magazine_enrichments_v202.py"
       - ".github/workflows/audit-content-targets-v201.yml"
   push:
     branches:
@@ -33,19 +49,23 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Compile contracts
-        run: python -m py_compile scripts/audit_content_targets_v201.py scripts/enforce_platform_identity_v201.py scripts/finalize_special_needs_hub_accessibility_v201.py scripts/publish_special_needs_hub_v201.py scripts/publish_trust_center_v201.py scripts/publish_partners_v201.py scripts/publish_magazine_v201.py scripts/apply_homepage_v20.py tests/test_content_targets_v201.py tests/test_platform_identity_v201.py tests/test_special_needs_hub_v201.py tests/test_trust_center_v201.py tests/test_partners_v201.py tests/test_magazine_routes_v201.py
-      - name: Validate roadmap and hub JSON
+        run: python -m py_compile scripts/audit_content_targets_v201.py scripts/enforce_platform_identity_v201.py scripts/finalize_special_needs_hub_accessibility_v201.py scripts/publish_special_needs_hub_v201.py scripts/publish_trust_center_v201.py scripts/publish_partners_v201.py scripts/publish_magazine_v201.py scripts/publish_magazine_v202.py scripts/audit_magazine_sources_v202.py scripts/verify_magazine_bibliography_v202.py scripts/apply_magazine_repository_overrides_v202.py scripts/repair_magazine_citation_integrity_v202.py scripts/apply_magazine_enrichments_v202.py scripts/plan_magazine_remediation_v202.py scripts/apply_homepage_v20.py tests/test_content_targets_v201.py tests/test_platform_identity_v201.py tests/test_special_needs_hub_v201.py tests/test_trust_center_v201.py tests/test_partners_v201.py tests/test_magazine_routes_v201.py tests/test_magazine_routes_v202.py tests/test_magazine_source_contract_v202.py tests/test_magazine_repository_overrides_v202.py tests/test_magazine_citation_integrity_v202.py tests/test_magazine_enrichments_v202.py
+      - name: Validate roadmap, hub and magazine JSON
         run: |
           python -m json.tool content/content-growth-roadmap-v201.json >/dev/null
           python -m json.tool content/v201/special-needs-hub-ar.json >/dev/null
           python -m json.tool content/v192/platform-institutional-foundation-ar.json >/dev/null
+          python -m json.tool data/magazine-source-overrides-v202.json >/dev/null
+          python -m json.tool data/magazine-enrichments-v202-batch1.json >/dev/null
+          python -m json.tool data/magazine-enrichments-v202-batch1-depth.json >/dev/null
+          python -m json.tool data/magazine-enrichments-v202-batch2.json >/dev/null
       - name: Test target counts and hub exclusion
         run: |
           set +e
@@ -57,6 +77,35 @@ jobs:
         run: python -m unittest -v tests.test_content_targets_v201.ContentTargetsV201Tests.test_fails_for_placeholder_or_missing_structure
       - name: Test confirmed baseline regression
         run: python -m unittest -v tests.test_content_targets_v201.ContentTargetsV201Tests.test_fails_when_confirmed_baseline_regresses
+      - name: Test recursive semantic magazine source contract
+        run: python -m unittest -v tests/test_magazine_source_contract_v202.py
+      - name: Test authoritative repository overrides
+        run: python -m unittest -v tests/test_magazine_repository_overrides_v202.py
+      - name: Test evidence-verified citation repairs
+        run: python -m unittest -v tests/test_magazine_citation_integrity_v202.py
+      - name: Test page-specific evidence enrichments
+        run: python -m unittest -v tests/test_magazine_enrichments_v202.py
+      - name: Apply citation integrity repairs to audit workspace
+        run: python scripts/repair_magazine_citation_integrity_v202.py magazine --report /tmp/magazine-citation-repairs.json
+      - name: Apply batch 1 evidence enrichments to audit workspace
+        run: python scripts/apply_magazine_enrichments_v202.py magazine --registry data/magazine-enrichments-v202-batch1.json --report /tmp/magazine-enrichments-batch1.json
+      - name: Apply batch 1 depth enrichments to audit workspace
+        run: python scripts/apply_magazine_enrichments_v202.py magazine --registry data/magazine-enrichments-v202-batch1-depth.json --report /tmp/magazine-enrichments-batch1-depth.json
+      - name: Apply batch 2 evidence enrichments to audit workspace
+        run: python scripts/apply_magazine_enrichments_v202.py magazine --registry data/magazine-enrichments-v202-batch2.json --report /tmp/magazine-enrichments-batch2.json
+      - name: Generate magazine source audit report
+        run: python scripts/audit_magazine_sources_v202.py --output /tmp/magazine-source-manifest.json
+      - name: Verify magazine DOI and PMID records
+        run: python scripts/verify_magazine_bibliography_v202.py --output /tmp/magazine-bibliography-raw.json --workers 6
+      - name: Apply authoritative repository verification
+        run: python scripts/apply_magazine_repository_overrides_v202.py --input /tmp/magazine-bibliography-raw.json --overrides data/magazine-source-overrides-v202.json --output /tmp/magazine-bibliography-verification.json
+      - name: Build title-by-title remediation queue
+        run: python scripts/plan_magazine_remediation_v202.py --audit /tmp/magazine-source-manifest.json --verification /tmp/magazine-bibliography-verification.json --output /tmp/magazine-remediation-plan.json --batch-size 25
+      - name: Test path-aware magazine v202 routes
+        run: python -m unittest -v tests/test_magazine_routes_v202.py
+      - name: Legacy v201 route diagnostics
+        continue-on-error: true
+        run: python -m unittest -v tests/test_magazine_routes_v201.py
       - name: Test identity language and shell gate
         run: python -m unittest -v tests/test_platform_identity_v201.py
       - name: Test comprehensive special-needs hub
@@ -65,13 +114,20 @@ jobs:
         run: python -m unittest -v tests/test_trust_center_v201.py
       - name: Test partners transparency hub
         run: python -m unittest -v tests/test_partners_v201.py
-      - name: Test magazine and assessment routes
-        run: python -m unittest -v tests/test_magazine_routes_v201.py
       - name: Upload target audit diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: content-target-test-diagnostics-v201
-          path: /tmp/content-target-counts.log
+          path: |
+            /tmp/content-target-counts.log
+            /tmp/magazine-citation-repairs.json
+            /tmp/magazine-enrichments-batch1.json
+            /tmp/magazine-enrichments-batch1-depth.json
+            /tmp/magazine-enrichments-batch2.json
+            /tmp/magazine-source-manifest.json
+            /tmp/magazine-bibliography-raw.json
+            /tmp/magazine-bibliography-verification.json
+            /tmp/magazine-remediation-plan.json
           if-no-files-found: warn
           retention-days: 7

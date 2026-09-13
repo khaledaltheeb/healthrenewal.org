@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "batch": "v202-batch1-depth",
+  "purpose": "Study-specific analytical depth for the two batch-1 pages that satisfied every scientific section but remained below the 700-word gold-depth threshold.",
+  "policy": {
+    "non_destructive": true,
+    "page_specific": true,
+    "no_generic_boilerplate": true,
+    "do_not_lower_quality_threshold": true
+  },
+  "records": [
+    {
+      "path": "magazine/youth-stigma-interventions-2025.html",
+      "source": {
+        "title": "Interventions to Reduce Mental Health Stigma in Young People: A Systematic Review and Meta-Analysis",
+        "type": "systematic_review_meta_analysis",
+        "doi": "10.1001/jamanetworkopen.2024.54730",
+        "pmid": "39813031",
+        "url": "https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2829229"
+      },
+      "sections": [
+        {
+          "key": "interpretation",
+          "heading": "تفسير إضافي لحجم الأثر",
+          "paragraphs": [
+            "الفارق بين أحجام الأثر مهم في تفسير النتيجة: كان التحسن أكبر في المعرفة من المواقف والسلوك ومؤشرات طلب المساعدة، ما يوحي بأن نقل المعلومات أسهل من تحويلها إلى فعل مستمر. لذلك لا ينبغي تقييم برنامج عربي لمكافحة الوصمة بعدد المشاهدات أو المعرفة المكتسبة وحدهما؛ المعيار الأقوى هو ما إذا تغير السلوك الفعلي وطلب المساعدة والوصول إلى خدمة مناسبة، مع متابعة تتجاوز القياس القصير المدى."
+          ]
+        }
+      ]
+    },
+    {
+      "path": "magazine/developmental-disabilities-school-support-2025.html",
+      "source": {
+        "title": "School-based mental health and psychosocial support interventions for children and adolescents with developmental disabilities in low- and middle-income countries: A systematic review",
+        "type": "systematic_review_narrative_synthesis",
+        "doi": "10.1111/tmi.70000",
+        "pmid": "40556074",
+        "url": "https://onlinelibrary.wiley.com/doi/10.1111/tmi.70000"
+      },
+      "sections": [
+        {
+          "key": "interpretation",
+          "heading": "تفسير إضافي لقوة الدليل",
+          "paragraphs": [
+            "تركيبة الدراسات نفسها جزء من النتيجة: وجود تسع تجارب عشوائية فقط مقابل تسع عشرة دراسة شبه تجريبية يعني أن اتساع الخبرة التطبيقية أكبر من قوة الاستدلال السببي في جزء كبير من الأدلة. وعند تحويل المراجعة إلى توصيات، يجب فصل التدخلات التي دعمتها تجارب عشوائية عن البرامج التي أظهرت تحسنًا قبل/بعد فقط، مع الانتباه إلى أن اختلاف التشخيصات والمدارس ومقاييس النتائج يمنع جمعها في حكم واحد على «فعالية الدعم المدرسي» بصورة مطلقة."
+          ]
+        }
+      ]
+    }
+  ]
+}

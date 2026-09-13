@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "purpose": "Authoritative bibliographic verification for study pages whose valid institutional source is not reliably represented by Crossref/PubMed.",
+  "policy": {
+    "manual_override_requires_authoritative_repository": true,
+    "override_does_not_bypass_content_completeness": true,
+    "allowed_source_types": [
+      "university_repository",
+      "institutional_repository"
+    ]
+  },
+  "records": [
+    {
+      "path": "magazine/thesis-autism-heterogeneity-research-2025.html",
+      "verification_status": "verified_repository",
+      "source_type": "university_repository",
+      "institution": "University of Leeds / White Rose eTheses Online",
+      "source_url": "https://etheses.whiterose.ac.uk/id/eprint/38156/",
+      "verified_title": "\"One person with Autism\" : An exploration of Autism and Heterogeneity",
+      "author": "Thomas Daniel Stein",
+      "year": 2025,
+      "work_type": "D.Clin.Psychol thesis",
+      "repository_identifier": "oai:etheses.whiterose.ac.uk:38156",
+      "verification_note": "Official White Rose eTheses record identifies the thesis, author, awarding institution and thesis type."
+    },
+    {
+      "path": "magazine/thesis-sensory-processing-adhd-autism-2026.html",
+      "verification_status": "verified_repository",
+      "source_type": "university_repository",
+      "institution": "University of Sheffield / White Rose eTheses Online",
+      "source_url": "https://etheses.whiterose.ac.uk/id/eprint/38725/",
+      "verified_title": "Sensory Processing in ADHD and ASD: From Superficially Similar Profiles to Divergent Underlying Structures",
+      "author": "Vesko Varbanov",
+      "year": 2026,
+      "work_type": "PhD thesis",
+      "repository_identifier": "oai:etheses.whiterose.ac.uk:38725",
+      "verification_note": "Official White Rose eTheses record identifies the thesis, author, awarding institution, academic unit and deposit metadata."
+    },
+    {
+      "path": "magazine/pediatric-oncology/theses/bioethical-legal-dilemmas-terminal-pediatric-oncology-chatzioglou-2026/index.html",
+      "verification_status": "verified_repository",
+      "source_type": "university_repository",
+      "institution": "Democritus University of Thrace, School of Health Sciences, Department of Medicine",
+      "source_url": "https://repo.lib.duth.gr/jspui/handle/123456789/22288",
+      "verified_title": "Bioethical and legal dilemmas in pediatric oncology patients of terminal stage",
+      "author": "Maria Chatzioglou",
+      "year": 2026,
+      "work_type": "Master thesis",
+      "repository_identifier": "https://repo.lib.duth.gr/jspui/handle/123456789/22288",
+      "reported_doi": "10.26257/heal.duth.20963",
+      "verification_note": "The official DUTH repository records the thesis and itself supplies the DOI-form identifier even though public DOI resolution is unreliable. Repository verification is authoritative for this record."
+    },
+    {
+      "path": "magazine/pediatric-oncology/theses/cancer-predisposition-brain-tumors-piccolo-2026/index.html",
+      "verification_status": "verified_repository",
+      "source_type": "institutional_repository",
+      "institution": "University of Genoa / IRIS",
+      "source_url": "https://unige.iris.cineca.it/handle/11567/1301461",
+      "verified_title": "CANCER PREDISPOSITION SYNDROMES AND BRAIN TUMORS IN CHILDHOOD",
+      "author": "Gianluca Piccolo",
+      "year": 2026,
+      "work_type": "PhD thesis",
+      "repository_identifier": "https://unige.iris.cineca.it/handle/11567/1301461",
+      "reported_doi": "10.15167/piccolo-gianluca_phd2026-05-27",
+      "verification_note": "Official University of Genoa IRIS record verifies title, author, thesis date and full abstract; repository verification is used because the DOI-like identifier is not confirmed by Crossref/DataCite."
+    }
+  ]
+}
