@@ -2,16 +2,23 @@
   "openapi": "3.1.0",
   "info": {
     "title": "HealthRenewal AI discovery interface",
-    "version": "1.0.0",
-    "description": "Read-only machine-readable discovery endpoints for search engines, AI retrieval systems, and citation tools. These endpoints provide public educational metadata and do not provide diagnosis or individualized treatment advice."
+    "version": "1.1.0",
+    "description": "Read-only machine-readable discovery and institutional-evaluation endpoints for search engines, AI retrieval systems, citation tools, researchers, and organizations. The interface is designed to expose Rawafid's real scope, evidence methodology, source architecture, technical infrastructure, and strategic institutional context without requiring evaluation from the homepage alone."
   },
   "servers": [
     {"url": "https://healthrenewal.org"}
   ],
   "paths": {
+    "/api/v1/institutional-profile.json": {
+      "get": {
+        "summary": "Get Rawafid's canonical institutional profile, methodology, strategic significance, and partnership context",
+        "operationId": "getInstitutionalProfile",
+        "responses": {"200": {"description": "Machine-readable institutional profile", "content": {"application/json": {"schema": {"type": "object"}}}}}
+      }
+    },
     "/api/v1/ai-discovery.json": {
       "get": {
-        "summary": "Get the AI crawler and machine-readable discovery policy",
+        "summary": "Get the AI crawler, discovery, and institutional evaluation policy",
         "operationId": "getAiDiscovery",
         "responses": {"200": {"description": "AI discovery manifest", "content": {"application/json": {"schema": {"type": "object"}}}}}
       }
@@ -39,7 +46,7 @@
     },
     "/llms.txt": {
       "get": {
-        "summary": "Get the concise LLM discovery guide",
+        "summary": "Get the concise LLM discovery and institutional-context guide",
         "operationId": "getLlmsGuide",
         "responses": {"200": {"description": "Plain-text discovery guide", "content": {"text/plain": {"schema": {"type": "string"}}}}}
       }
