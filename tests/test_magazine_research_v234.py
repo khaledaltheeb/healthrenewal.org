@@ -32,7 +32,8 @@ class MagazineResearchV316Tests(unittest.TestCase):
 
     def test_publishes_every_discovered_article_rss_and_sitemap(self) -> None:
         pages = MODULE.article_files()
-        self.assertEqual(len(pages), 79)
+        expected = len(pages)
+        self.assertGreaterEqual(expected, MODULE.MIN_ARTICLES)
         self.assertEqual(MODULE.CONTRACT, 316)
         self.assertEqual(MODULE.TARGET_ARTICLES, 100)
         dates = [MODULE.article_date(path) for path in pages]
@@ -42,13 +43,13 @@ class MagazineResearchV316Tests(unittest.TestCase):
             site = self.make_site(Path(directory))
             report = MODULE.publish(site)
             self.assertEqual(report["version"], 316)
-            self.assertEqual(report["research_summaries_published"], 79)
+            self.assertEqual(report["research_summaries_published"], expected)
             self.assertEqual(report["target_research_summaries"], 100)
-            self.assertEqual(report["remaining_to_target"], 21)
+            self.assertEqual(report["remaining_to_target"], max(0, 100 - expected))
             self.assertTrue(report["continuous_publication_policy"])
-            self.assertEqual(len(report["articles"]), 79)
-            self.assertEqual(report["sitemap"]["child_urls"], 80)
-            self.assertEqual(report["robots"]["rss_items"], 20)
+            self.assertEqual(len(report["articles"]), expected)
+            self.assertEqual(report["sitemap"]["child_urls"], expected + 1)
+            self.assertEqual(report["robots"]["rss_items"], min(MODULE.FEED_LIMIT, expected))
             self.assertEqual(report["unwired_research_pages"], 0)
             self.assertEqual(report["index_contract"], "generated-from-discovered-articles-sorted-by-datePublished")
             self.assertEqual(report["rss_contract"], "latest-twenty-sorted-by-datePublished")
@@ -59,26 +60,27 @@ class MagazineResearchV316Tests(unittest.TestCase):
                 text = (magazine / path.name).read_text(encoding="utf-8")
                 self.assertIn('<html lang="ar" dir="rtl">', text)
                 self.assertEqual(text.lower().count("<h1"), 1)
+                self.assertIn(MODULE.STYLESHEET_LINK, text)
                 self.assertTrue(any(heading in text for heading in ("المصدر الأصلي", "السجل الأصلي", "السجل الجامعي")))
                 self.assertTrue(any(term in text for term in ("حدود", "قيود", "الحذر")))
 
             urls = [node.text for node in ET.parse(site / "sitemap-magazine.xml").getroot().findall("{*}url/{*}loc")]
-            self.assertEqual(len(urls), 80)
+            self.assertEqual(len(urls), expected + 1)
             self.assertEqual(len(urls), len(set(urls)))
             for path in pages:
                 self.assertIn(MODULE.URL + path.name, urls)
 
             feed_root = ET.parse(magazine / "feed.xml").getroot()
             items = feed_root.findall("./channel/item")
-            self.assertEqual(len(items), 20)
+            self.assertEqual(len(items), min(MODULE.FEED_LIMIT, expected))
             feed_links = [item.findtext("link") for item in items]
-            self.assertEqual(feed_links, [MODULE.URL + path.name for path in pages[:20]])
+            self.assertEqual(feed_links, [MODULE.URL + path.name for path in pages[: MODULE.FEED_LIMIT]])
             feed_dates = [parsedate_to_datetime(item.findtext("pubDate")) for item in items]
             self.assertEqual(feed_dates, sorted(feed_dates, reverse=True))
             self.assertEqual(parsedate_to_datetime(feed_root.findtext("./channel/lastBuildDate")), feed_dates[0])
 
             saved = json.loads((site / "api" / "magazine-v201.json").read_text(encoding="utf-8"))
-            self.assertEqual(saved["research_summaries_published"], 79)
+            self.assertEqual(saved["research_summaries_published"], expected)
             self.assertEqual(saved["target_research_summaries"], 100)
             self.assertEqual(set(saved["articles"]), {path.name for path in pages})
 
@@ -97,15 +99,17 @@ class MagazineResearchV316Tests(unittest.TestCase):
 
     def test_generated_index_is_dynamic_and_chronological(self) -> None:
         pages = MODULE.article_files()
+        expected = len(pages)
+        remaining = max(0, MODULE.TARGET_ARTICLES - expected)
         index = MODULE.render_index(pages)
-        self.assertIn('"numberOfItems":79', index)
-        self.assertIn("79 قراءة علمية مستقلة", index)
+        self.assertIn(f'"numberOfItems":{expected}', index)
+        self.assertIn(f"{expected} قراءة علمية مستقلة", index)
         self.assertIn("الهدف المرحلي 100 قراءة", index)
-        self.assertIn("المتبقي 21", index)
+        self.assertIn(f"المتبقي {remaining}", index)
         self.assertIn('type="application/rss+xml"', index)
-        self.assertEqual(index.count('class="card"'), 79)
-        self.assertEqual(index.count('"@type":"ScholarlyArticle"'), 79)
-        self.assertEqual(index.count('"datePublished"'), 79)
+        self.assertEqual(index.count('class="card"'), expected)
+        self.assertEqual(index.count('"@type":"ScholarlyArticle"'), expected)
+        self.assertEqual(index.count('"datePublished"'), expected)
         self.assertNotIn("ستون قراءة", index)
         card_positions = [index.index(f'href="{path.name}"') for path in pages]
         self.assertEqual(card_positions, sorted(card_positions))
