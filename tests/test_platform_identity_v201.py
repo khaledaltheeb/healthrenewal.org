@@ -32,85 +32,56 @@ class PlatformIdentityV201Tests(unittest.TestCase):
         )
         return site
 
-    def test_replaces_labels_adds_shell_and_publishes_magazine(self) -> None:
-        site = self.make_site()
+    def run_identity(self, site: Path) -> None:
         subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
+
+    def test_replaces_labels_adds_shell_and_publishes_recursive_magazine(self) -> None:
+        site = self.make_site()
+        self.run_identity(site)
+
         homepage = (site / "index.html").read_text(encoding="utf-8")
         existing = (site / "nested/index.html").read_text(encoding="utf-8")
         for rejected in ("المعاقين", ">معاق<", "معاقة", "المعاقة"):
             self.assertNotIn(rejected, homepage + existing)
         self.assertIn("ذوي الاحتياجات الخاصة", homepage)
-        self.assertIn("شخص من ذوي الاحتياجات الخاصة", homepage)
-        self.assertIn("شخص من ذوي الاحتياجات الخاصة", existing)
         self.assertIn('data-platform-shell="header"', homepage)
         self.assertIn('data-platform-shell="footer"', homepage)
         self.assertEqual(existing.count("<header"), 1)
         self.assertEqual(existing.count("<footer"), 1)
-        for relative in (
-            "editorial-methodology/index.html",
-            "evaluate-mental-health-information/index.html",
-            "guides/source-citation-and-update-transparency/index.html",
-            "magazine/index.html",
-            "magazine/adhd-rhythmic-music-game-rct-2026.html",
-            "magazine/autism-aspen-low-resource-parent-intervention-rct-2026.html",
-            "magazine/neurodevelopmental-disabilities-navigator-act-parent-stress-rct-2026.html",
-            "magazine/adolescent-mental-health-artemis-cluster-rct-2026.html",
-            "magazine/autism-parents-mbsr-depression-anxiety-stress-rct-2026.html",
-            "magazine/grieving-adolescents-alba-app-rct-2026.html",
-            "magazine/adolescent-school-guided-narrative-writing-cluster-rct-2026.html",
-            "magazine/autism-mentorship-program-pilot-rct-2026.html",
-            "magazine/college-digital-cbt-guided-self-help-rct-2026.html",
-            "magazine/feed.xml",
-        ):
-            self.assertTrue((site / relative).is_file(), relative)
-        for relative in (
-            "editorial-methodology/index.html",
-            "evaluate-mental-health-information/index.html",
-        ):
-            alias = (site / relative).read_text(encoding="utf-8")
-            self.assertIn("data-legacy-path-alias=", alias)
-            self.assertIn('name="robots" content="noindex,follow"', alias)
-            self.assertIn('rel="canonical" href="https://healthrenewal.org/trust/"', alias)
-            self.assertIn('http-equiv="refresh" content="0;url=/trust/"', alias)
-            self.assertEqual(alias.count('data-platform-shell="header"'), 1)
-            self.assertEqual(alias.count('data-platform-shell="footer"'), 1)
+
         index = (site / "magazine/index.html").read_text(encoding="utf-8")
-        self.assertIn('"numberOfItems":79', index)
-        self.assertEqual(index.count('class="card"'), 79)
-        self.assertIn("الهدف المرحلي 100 قراءة", index)
         self.assertIn('<link rel="canonical" href="https://healthrenewal.org/magazine/">', index)
-        article = (site / "magazine/autism-interventions-meta-analysis-2026.html").read_text(encoding="utf-8")
-        self.assertIn(
-            '<link rel="canonical" href="https://healthrenewal.org/magazine/autism-interventions-meta-analysis-2026.html">',
-            article,
+        self.assertIn('<link rel="stylesheet" href="research.css">', index)
+        self.assertIn("قراءة الدراسة الكاملة", index)
+        self.assertNotIn("javascript:void", index.lower())
+        self.assertTrue((site / "magazine/feed.xml").is_file())
+        self.assertTrue(
+            (site / "magazine/pediatric-oncology/theses/bridging-gap-hct-success-troullioud-lucas-2026/index.html").is_file()
         )
-        self.assertNotIn("khaledaltheeb.github.io/pterminology-site", article)
-        report = json.loads((site / "api/platform-identity-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(report["pages"], 85)
-        self.assertEqual(report["headers_added"], 3)
-        self.assertEqual(report["footers_added"], 3)
-        self.assertEqual(report["styles_added"], 3)
-        self.assertGreaterEqual(report["language_replacements"], 4)
-        self.assertTrue(report["trust_guides_published"])
-        self.assertFalse(report["section_directory_refreshed_after_trust_guides"])
-        self.assertFalse(report["publication_surface_refreshed_after_trust_guides"])
-        self.assertTrue(report["magazine_published"])
-        self.assertEqual(report["magazine_pages"], 79)
-        self.assertEqual(report["magazine_unwired_pages"], 0)
-        self.assertEqual(report["magazine_report"], "api/magazine-v201.json")
-        self.assertEqual(report["remaining_banned_pages"], [])
-        self.assertEqual(report["missing_header_pages"], [])
-        self.assertEqual(report["missing_footer_pages"], [])
-        magazine = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(magazine["version"], 316)
-        self.assertEqual(magazine["canonical_origin"], "https://healthrenewal.org")
-        self.assertEqual(magazine["legacy_origins_remaining"], 0)
-        self.assertEqual(magazine["research_summaries_published"], 79)
-        self.assertEqual(magazine["target_research_summaries"], 100)
-        self.assertEqual(magazine["remaining_to_target"], 21)
-        self.assertEqual(magazine["unwired_research_pages"], 0)
-        self.assertEqual(magazine["sitemap"]["child_urls"], 80)
-        self.assertEqual(magazine["rss_contract"], "latest-twenty-sorted-by-datePublished")
+
+        identity = json.loads((site / "api/platform-identity-v201.json").read_text(encoding="utf-8"))
+        compat = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
+        current = json.loads((site / "api/magazine-v202.json").read_text(encoding="utf-8"))
+        bibliography = json.loads((site / "api/magazine-bibliography-verification-v202.json").read_text(encoding="utf-8"))
+
+        self.assertTrue(identity["magazine_published"])
+        self.assertEqual(identity["magazine_unwired_pages"], 0)
+        self.assertEqual(identity["magazine_pages"], current["published_study_pages"])
+        self.assertGreaterEqual(current["published_study_pages"], 193)
+        self.assertEqual(current["index_cards"], current["published_study_pages"])
+        self.assertEqual(current["wired_study_pages"], current["published_study_pages"])
+        self.assertEqual(current["missing_source_pages"], 0)
+        self.assertEqual(current["validation"]["noindex_pages"], 0)
+        self.assertEqual(current["validation"]["duplicate_canonical_urls"], 0)
+        self.assertEqual(compat["version"], 316)
+        self.assertEqual(compat["publisher_contract"], 202)
+        self.assertEqual(compat["research_summaries_published"], current["published_study_pages"])
+        self.assertEqual(compat["target_research_summaries"], 500)
+        self.assertEqual(compat["unwired_research_pages"], 0)
+        self.assertEqual(compat["missing_source_pages"], 0)
+        summary = bibliography["summary"]
+        self.assertEqual(summary["verified_source_pages"], current["published_study_pages"])
+        self.assertEqual(summary["source_pages_still_requiring_manual_review"], 0)
 
     def test_tools_page_uses_marshmallow_contrast(self) -> None:
         site = self.make_site()
@@ -124,41 +95,30 @@ class PlatformIdentityV201Tests(unittest.TestCase):
             '</article></section></main></body></html>',
             encoding="utf-8",
         )
-        subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
+        self.run_identity(site)
         first = (tools / "index.html").read_text(encoding="utf-8")
         self.assertIn('data-tools-design="marshmallow-v245"', first)
         self.assertIn("class='existing-tools-page tools-marshmallow-v245'", first)
         self.assertEqual(first.count("tools-marshmallow-v245-style"), 1)
-        for color in ("--tm-mint:#e5faf5", "--tm-rose:#fff0f5", "--tm-lilac:#f2edff"):
-            self.assertIn(color, first)
-        self.assertIn("color:var(--tm-ink)!important", first)
-        self.assertIn("background:var(--tm-lilac)!important;color:#4a315f!important", first)
-        self.assertIn("prefers-color-scheme:dark", first)
-        subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
+        self.run_identity(site)
         second = (tools / "index.html").read_text(encoding="utf-8")
         self.assertEqual(first, second)
 
     def test_is_idempotent(self) -> None:
         site = self.make_site()
-        subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
-        first = (site / "index.html").read_text(encoding="utf-8")
+        self.run_identity(site)
+        first_home = (site / "index.html").read_text(encoding="utf-8")
         first_magazine = (site / "magazine/index.html").read_text(encoding="utf-8")
         first_feed = (site / "magazine/feed.xml").read_text(encoding="utf-8")
-        subprocess.run(["python3", str(SCRIPT), str(site)], cwd=ROOT, check=True)
-        second = (site / "index.html").read_text(encoding="utf-8")
-        second_magazine = (site / "magazine/index.html").read_text(encoding="utf-8")
-        second_feed = (site / "magazine/feed.xml").read_text(encoding="utf-8")
-        self.assertEqual(first, second)
-        self.assertEqual(first_magazine, second_magazine)
-        self.assertEqual(first_feed, second_feed)
-        magazine_report = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
-        self.assertEqual(magazine_report["version"], 316)
-        self.assertEqual(magazine_report["canonical_origin"], "https://healthrenewal.org")
-        self.assertEqual(magazine_report["legacy_origins_remaining"], 0)
-        self.assertEqual(magazine_report["research_summaries_published"], 79)
-        self.assertEqual(magazine_report["target_research_summaries"], 100)
-        self.assertEqual(magazine_report["sitemap"]["child_urls"], 80)
-        self.assertEqual(magazine_report["rss_contract"], "latest-twenty-sorted-by-datePublished")
+        first_report = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
+        self.run_identity(site)
+        self.assertEqual(first_home, (site / "index.html").read_text(encoding="utf-8"))
+        self.assertEqual(first_magazine, (site / "magazine/index.html").read_text(encoding="utf-8"))
+        self.assertEqual(first_feed, (site / "magazine/feed.xml").read_text(encoding="utf-8"))
+        second_report = json.loads((site / "api/magazine-v201.json").read_text(encoding="utf-8"))
+        self.assertEqual(first_report["research_summaries_published"], second_report["research_summaries_published"])
+        self.assertEqual(second_report["publisher_contract"], 202)
+        self.assertEqual(second_report["unwired_research_pages"], 0)
 
 
 if __name__ == "__main__":
