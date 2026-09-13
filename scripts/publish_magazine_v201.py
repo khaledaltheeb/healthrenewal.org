@@ -27,6 +27,7 @@ TARGET_ARTICLES = 100
 FEED_LIMIT = 20
 EDITORIAL_UPDATED = "2026-07-27"
 ROBOTS_META = '<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">'
+STYLESHEET_LINK = '<link rel="stylesheet" href="research.css">'
 ROBOTS_PATTERN = re.compile(r'<meta\s+[^>]*name=["\']robots["\'][^>]*>', re.I)
 CANONICAL_PATTERN = re.compile(
     r'<link\b(?=[^>]*\brel\s*=\s*(["\'])[^"\']*\bcanonical\b[^"\']*\1)[^>]*>',
@@ -110,6 +111,10 @@ def normalize_article_text(text: str, filename: str) -> str:
     if len(matches) > 1:
         raise SystemExit(f"Research article contains duplicate canonical metadata: {filename}")
     updated = CANONICAL_PATTERN.sub(expected, updated, count=1)
+    if STYLESHEET_LINK not in updated:
+        updated, count = re.subn(r"</head\s*>", STYLESHEET_LINK + "</head>", updated, count=1, flags=re.I)
+        if count != 1:
+            raise SystemExit(f"Research article lacks a closing head element for stylesheet normalization: {filename}")
     if any(origin in updated for origin in LEGACY_BASES) or "/pterminology-site/" in updated:
         raise SystemExit(f"Research article retains a legacy origin or base path: {filename}")
     return updated
@@ -192,7 +197,7 @@ def render_index(pages: list[Path]) -> str:
 {ROBOTS_META}
 <link rel="canonical" href="{URL}">
 <link rel="alternate" type="application/rss+xml" title="خلاصة المجلة والأبحاث" href="{URL}feed.xml">
-<link rel="stylesheet" href="research.css">
+{STYLESHEET_LINK}
 <script type="application/ld+json">{json.dumps(schema, ensure_ascii=False, separators=(",", ":"))}</script>
 </head>
 <body>
@@ -269,7 +274,7 @@ def validate_source_tree(pages: list[Path]) -> dict[str, str]:
             '<html lang="ar" dir="rtl">',
             '<meta name="description"',
             f'<link rel="canonical" href="{URL}{filename}">',
-            '<link rel="stylesheet" href="research.css">',
+            STYLESHEET_LINK,
             '<h1>',
         )
         absent = [marker for marker in required if marker not in text]
