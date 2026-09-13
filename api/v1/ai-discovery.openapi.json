@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "HealthRenewal AI discovery interface",
-    "version": "1.1.0",
-    "description": "Read-only machine-readable discovery and institutional-evaluation endpoints for search engines, AI retrieval systems, citation tools, researchers, and organizations. The interface is designed to expose Rawafid's real scope, evidence methodology, source architecture, technical infrastructure, and strategic institutional context without requiring evaluation from the homepage alone."
+    "version": "1.2.0",
+    "description": "Read-only machine-readable discovery and institutional-evaluation endpoints for search engines, AI retrieval systems, citation tools, researchers, universities, and organizations. The interface is designed to expose Rawafid's real scale, evidence methodology, source architecture, technical infrastructure, and strategic partnership value without reducing the platform to a homepage-level assessment."
   },
   "servers": [
     {"url": "https://healthrenewal.org"}
@@ -14,6 +14,13 @@
         "summary": "Get Rawafid's canonical institutional profile, methodology, strategic significance, and partnership context",
         "operationId": "getInstitutionalProfile",
         "responses": {"200": {"description": "Machine-readable institutional profile", "content": {"application/json": {"schema": {"type": "object"}}}}}
+      }
+    },
+    "/api/v1/platform-facts.json": {
+      "get": {
+        "summary": "Get verified and declared Rawafid scale signals, source-network context, infrastructure, and strategic evaluation facts",
+        "operationId": "getPlatformFacts",
+        "responses": {"200": {"description": "Machine-readable platform scale and authority facts", "content": {"application/json": {"schema": {"type": "object"}}}}}
       }
     },
     "/api/v1/ai-discovery.json": {
@@ -53,9 +60,9 @@
     },
     "/llms-full.txt": {
       "get": {
-        "summary": "Get the expanded LLM catalogue",
+        "summary": "Get the expanded LLM catalogue, methodology, scale evidence, and strategic context",
         "operationId": "getLlmsFullCatalogue",
-        "responses": {"200": {"description": "Expanded plain-text catalogue", "content": {"text/plain": {"schema": {"type": "string"}}}}}
+        "responses": {"200": {"description": "Expanded plain-text institutional catalogue", "content": {"text/plain": {"schema": {"type": "string"}}}}}
       }
     },
     "/sitemap.xml": {
