@@ -20,6 +20,7 @@ on:
       - "scripts/verify_magazine_bibliography_v202.py"
       - "scripts/apply_magazine_repository_overrides_v202.py"
       - "scripts/repair_magazine_citation_integrity_v202.py"
+      - "scripts/plan_magazine_remediation_v202.py"
       - "scripts/apply_homepage_v20.py"
       - "tests/test_content_targets_v201.py"
       - "tests/test_platform_identity_v201.py"
@@ -50,7 +51,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Compile contracts
-        run: python -m py_compile scripts/audit_content_targets_v201.py scripts/enforce_platform_identity_v201.py scripts/finalize_special_needs_hub_accessibility_v201.py scripts/publish_special_needs_hub_v201.py scripts/publish_trust_center_v201.py scripts/publish_partners_v201.py scripts/publish_magazine_v201.py scripts/publish_magazine_v202.py scripts/audit_magazine_sources_v202.py scripts/verify_magazine_bibliography_v202.py scripts/apply_magazine_repository_overrides_v202.py scripts/repair_magazine_citation_integrity_v202.py scripts/apply_homepage_v20.py tests/test_content_targets_v201.py tests/test_platform_identity_v201.py tests/test_special_needs_hub_v201.py tests/test_trust_center_v201.py tests/test_partners_v201.py tests/test_magazine_routes_v201.py tests/test_magazine_routes_v202.py tests/test_magazine_source_contract_v202.py tests/test_magazine_repository_overrides_v202.py tests/test_magazine_citation_integrity_v202.py
+        run: python -m py_compile scripts/audit_content_targets_v201.py scripts/enforce_platform_identity_v201.py scripts/finalize_special_needs_hub_accessibility_v201.py scripts/publish_special_needs_hub_v201.py scripts/publish_trust_center_v201.py scripts/publish_partners_v201.py scripts/publish_magazine_v201.py scripts/publish_magazine_v202.py scripts/audit_magazine_sources_v202.py scripts/verify_magazine_bibliography_v202.py scripts/apply_magazine_repository_overrides_v202.py scripts/repair_magazine_citation_integrity_v202.py scripts/plan_magazine_remediation_v202.py scripts/apply_homepage_v20.py tests/test_content_targets_v201.py tests/test_platform_identity_v201.py tests/test_special_needs_hub_v201.py tests/test_trust_center_v201.py tests/test_partners_v201.py tests/test_magazine_routes_v201.py tests/test_magazine_routes_v202.py tests/test_magazine_source_contract_v202.py tests/test_magazine_repository_overrides_v202.py tests/test_magazine_citation_integrity_v202.py
       - name: Validate roadmap, hub and source override JSON
         run: |
           python -m json.tool content/content-growth-roadmap-v201.json >/dev/null
@@ -82,6 +83,8 @@ jobs:
         run: python scripts/verify_magazine_bibliography_v202.py --output /tmp/magazine-bibliography-raw.json --workers 6
       - name: Apply authoritative repository verification
         run: python scripts/apply_magazine_repository_overrides_v202.py --input /tmp/magazine-bibliography-raw.json --overrides data/magazine-source-overrides-v202.json --output /tmp/magazine-bibliography-verification.json
+      - name: Build title-by-title remediation queue
+        run: python scripts/plan_magazine_remediation_v202.py --audit /tmp/magazine-source-manifest.json --verification /tmp/magazine-bibliography-verification.json --output /tmp/magazine-remediation-plan.json --batch-size 25
       - name: Test path-aware magazine v202 routes
         run: python -m unittest -v tests/test_magazine_routes_v202.py
       - name: Legacy v201 route diagnostics
@@ -106,5 +109,6 @@ jobs:
             /tmp/magazine-source-manifest.json
             /tmp/magazine-bibliography-raw.json
             /tmp/magazine-bibliography-verification.json
+            /tmp/magazine-remediation-plan.json
           if-no-files-found: warn
           retention-days: 7
