@@ -36,9 +36,11 @@ RAWAFID_HOSTS = {
     "rawafid-platform-staging.khaledaltheeb.workers.dev",
 }
 
-# Utility/listing pages are not scientific study records and therefore do not
-# have to satisfy the study-page contract. A nested `index.html` may be the
-# canonical document for a study and must NOT be excluded merely by basename.
+# Utility/listing pages are not scientific study records. Nested `index.html`
+# files require special handling because Rawafid also uses directory-style URLs
+# for individual studies. Study directories currently carry a publication year
+# in their slug (for example `...-farber-2026/index.html`). Indexes that cannot
+# be classified safely are surfaced separately instead of silently counted.
 UTILITY_BASENAMES = {
     "search.html",
     "archive.html",
@@ -65,6 +67,7 @@ UTILITY_DIR_PARTS = {
     "archive",
     "archives",
 }
+YEAR_RE = re.compile(r"(?:19|20)\d{2}")
 
 DOI_RE = re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Z0-9]+\b", re.IGNORECASE)
 PMID_TEXT_RE = re.compile(r"\bPMID\s*[:#]?\s*(\d{5,10})\b", re.IGNORECASE)
@@ -259,22 +262,45 @@ def unique(items: Iterable[str]) -> list[str]:
     return out
 
 
+def _is_utility_path(path: Path) -> bool:
+    rel = path.relative_to(MAGAZINE)
+    rel_parts = {part.lower() for part in rel.parts[:-1]}
+    return path.name.lower() in UTILITY_BASENAMES or bool(rel_parts & UTILITY_DIR_PARTS)
+
+
+def _nested_index_is_study(path: Path) -> bool:
+    if path.name.lower() != "index.html":
+        return True
+    rel = path.relative_to(MAGAZINE)
+    if rel.as_posix().lower() == "index.html":
+        return False
+    return bool(YEAR_RE.search(path.parent.name))
+
+
 def discover_pages() -> list[Path]:
     if not MAGAZINE.exists():
         return []
     pages: list[Path] = []
     for path in MAGAZINE.rglob("*.html"):
-        rel = path.relative_to(MAGAZINE)
-        rel_posix = rel.as_posix().lower()
-        rel_parts = {part.lower() for part in rel.parts[:-1]}
-        if rel_posix == "index.html":
+        if _is_utility_path(path):
             continue
-        if path.name.lower() in UTILITY_BASENAMES:
-            continue
-        if rel_parts & UTILITY_DIR_PARTS:
+        if path.name.lower() == "index.html" and not _nested_index_is_study(path):
             continue
         pages.append(path)
     return sorted(pages, key=lambda p: p.relative_to(MAGAZINE).as_posix())
+
+
+def discover_unclassified_nested_indexes() -> list[Path]:
+    if not MAGAZINE.exists():
+        return []
+    candidates: list[Path] = []
+    for path in MAGAZINE.rglob("index.html"):
+        rel = path.relative_to(MAGAZINE)
+        if rel.as_posix().lower() == "index.html" or _is_utility_path(path):
+            continue
+        if not _nested_index_is_study(path):
+            candidates.append(path)
+    return sorted(candidates, key=lambda p: p.relative_to(MAGAZINE).as_posix())
 
 
 def section_presence(text: str) -> dict[str, bool]:
@@ -326,7 +352,7 @@ def title_for(path: Path, parser: PageParser) -> str:
     title = parser.title.strip()
     if title:
         return title
-    return path.stem.replace("-", " ").strip()
+    return path.parent.name.replace("-", " ").strip() if path.name == "index.html" else path.stem.replace("-", " ").strip()
 
 
 @dataclass
@@ -367,11 +393,7 @@ def audit_page(path: Path) -> PageAudit:
     else:
         source_contract = "missing_source"
 
-    # A page can be present without being scientifically complete. The audit
-    # deliberately separates page structure from bibliographic verification.
-    core_sections = {
-        "design", "sample", "results", "limitations", "references",
-    }
+    core_sections = {"design", "sample", "results", "limitations", "references"}
     core_missing = sorted(core_sections & set(missing_sections))
     page_contract = "complete" if not core_missing and len(words) >= 500 else "incomplete"
 
@@ -407,6 +429,7 @@ def audit_page(path: Path) -> PageAudit:
 
 def build_manifest() -> dict:
     pages = discover_pages()
+    unclassified = discover_unclassified_nested_indexes()
     audits = [audit_page(path) for path in pages]
 
     complete = [a for a in audits if a.page_contract == "complete" and a.source_contract != "missing_source"]
@@ -417,10 +440,11 @@ def build_manifest() -> dict:
     return {
         "schema_version": 2,
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "scope": "magazine/**/*.html (recursive; utility pages excluded, nested study index.html included)",
+        "scope": "magazine/**/*.html (recursive; utility/collection indexes excluded; year-qualified nested study indexes included)",
         "policy": {
             "destructive_changes": False,
             "bibliographic_verification_required_before_complete_publication": True,
+            "unclassified_nested_indexes_require_review": True,
             "source_contract_values": ["identifier_present", "source_url_only", "missing_source"],
             "bibliographic_verification_initial_state": "pending",
         },
@@ -432,7 +456,9 @@ def build_manifest() -> dict:
             "source_url_only": len(source_url_only),
             "identifier_present": sum(1 for a in audits if a.source_contract == "identifier_present"),
             "bibliographically_verified": 0,
+            "unclassified_nested_indexes": len(unclassified),
         },
+        "unclassified_nested_indexes": [p.relative_to(ROOT).as_posix() for p in unclassified],
         "pages": [asdict(a) for a in audits],
     }
 
@@ -455,7 +481,12 @@ def main() -> int:
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     print(f"Wrote {args.output.relative_to(ROOT) if args.output.is_relative_to(ROOT) else args.output}")
 
-    has_gaps = bool(summary["incomplete_pages"] or summary["missing_source"] or summary["source_url_only"])
+    has_gaps = bool(
+        summary["incomplete_pages"]
+        or summary["missing_source"]
+        or summary["source_url_only"]
+        or summary["unclassified_nested_indexes"]
+    )
     return 2 if args.strict and has_gaps else 0
 
 
