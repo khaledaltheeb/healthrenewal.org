@@ -10,6 +10,7 @@ import ensure_complete_discovery_v1 as complete_discovery
 import ensure_special_needs_publication_v1 as special_needs_publication
 import generate_sitemap_index_v304_core as core
 import normalize_rawafid_production_v1 as rawafid_production
+import preserve_rawafid_authority_layer_v1 as rawafid_authority
 import publish_new_special_needs_conditions_v323 as special_needs_v323
 import publish_women_youth_v406 as women_youth_v406
 from ai_machine_readable_v1 import AI_USER_AGENTS, enhance_site, sync_robots as sync_ai_robots
@@ -219,6 +220,12 @@ def generate(root: Path, base_url: str = BASE_URL) -> dict[str, object]:
     # pages and Rawafid identity have been materialized.
     def enhance_final_artifact() -> dict[str, object]:
         machine = enhance_site(root, base_url)
+        # ai_machine_readable_v1 generates the exhaustive inventory. Reapply
+        # Rawafid's canonical institutional authority layer immediately after
+        # that generation so production never falls back to the older, modest
+        # machine-facing description. The exhaustive generated content index is
+        # preserved and explicitly marked as authoritative for the final build.
+        machine["authority_layer"] = rawafid_authority.apply(root, repo_root)
         return machine
 
     # Learning paths include both generated paths and source-authored paths.
