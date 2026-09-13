@@ -59,6 +59,12 @@ jobs:
         run: python -m unittest -v tests.test_content_targets_v201.ContentTargetsV201Tests.test_fails_for_placeholder_or_missing_structure
       - name: Test confirmed baseline regression
         run: python -m unittest -v tests.test_content_targets_v201.ContentTargetsV201Tests.test_fails_when_confirmed_baseline_regresses
+      - name: Test recursive magazine source contract
+        run: python -m unittest -v tests/test_magazine_source_contract_v202.py
+      - name: Generate magazine source audit report
+        run: python scripts/audit_magazine_sources_v202.py --output /tmp/magazine-source-manifest.json
+      - name: Test magazine and assessment routes
+        run: python -m unittest -v tests/test_magazine_routes_v201.py
       - name: Test identity language and shell gate
         run: python -m unittest -v tests/test_platform_identity_v201.py
       - name: Test comprehensive special-needs hub
@@ -67,12 +73,6 @@ jobs:
         run: python -m unittest -v tests/test_trust_center_v201.py
       - name: Test partners transparency hub
         run: python -m unittest -v tests/test_partners_v201.py
-      - name: Test magazine and assessment routes
-        run: python -m unittest -v tests/test_magazine_routes_v201.py
-      - name: Test recursive magazine source contract
-        run: python -m unittest -v tests/test_magazine_source_contract_v202.py
-      - name: Generate magazine source audit report
-        run: python scripts/audit_magazine_sources_v202.py --output /tmp/magazine-source-manifest.json
       - name: Upload target audit diagnostics
         if: always()
         uses: actions/upload-artifact@v4
